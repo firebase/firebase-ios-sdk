@@ -50,12 +50,21 @@ typedef struct _google_protobuf_ListValue {
     }
 
     std::string ToString(int indent = 0) const {
-        std::string result{"{\n"};
+        bool is_root = indent == 0;
+        std::string result;
+        if (is_root) {
+            indent = 1;
+            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+            absl::StrAppend(&result,
+              "<ListValue 0x", p, ">: {\n");
+        } else {
+            result += "{\n";
+        }
 
         result += PrintRepeatedField("values: ",
             values, values_count, indent + 1);
 
-        result += Indent(indent) + '}';
+        result += Indent(is_root ? 0 : indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_protobuf_ListValue) */
@@ -70,12 +79,21 @@ typedef struct _google_protobuf_Struct {
     }
 
     std::string ToString(int indent = 0) const {
-        std::string result{"{\n"};
+        bool is_root = indent == 0;
+        std::string result;
+        if (is_root) {
+            indent = 1;
+            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+            absl::StrAppend(&result,
+              "<Struct 0x", p, ">: {\n");
+        } else {
+            result += "{\n";
+        }
 
         result += PrintRepeatedField("fields: ",
             fields, fields_count, indent + 1);
 
-        result += Indent(indent) + '}';
+        result += Indent(is_root ? 0 : indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_protobuf_Struct) */
@@ -97,7 +115,16 @@ typedef struct _google_protobuf_Value {
     }
 
     std::string ToString(int indent = 0) const {
-        std::string result{"{\n"};
+        bool is_root = indent == 0;
+        std::string result;
+        if (is_root) {
+            indent = 1;
+            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+            absl::StrAppend(&result,
+              "<Value 0x", p, ">: {\n");
+        } else {
+            result += "{\n";
+        }
 
         switch (which_kind) {
           case 1: // google_protobuf_Value_null_value_tag
@@ -121,7 +148,7 @@ typedef struct _google_protobuf_Value {
         }
 
 
-        result += Indent(indent) + '}';
+        result += Indent(is_root ? 0 : indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_protobuf_Value) */
@@ -136,12 +163,21 @@ typedef struct _google_protobuf_Struct_FieldsEntry {
     }
 
     std::string ToString(int indent = 0) const {
-        std::string result{"{\n"};
+        bool is_root = indent == 0;
+        std::string result;
+        if (is_root) {
+            indent = 1;
+            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+            absl::StrAppend(&result,
+              "<FieldsEntry 0x", p, ">: {\n");
+        } else {
+            result += "{\n";
+        }
 
         result += PrintField("key: ", key, indent + 1);
         result += PrintField("value ", value, indent + 1);
 
-        result += Indent(indent) + '}';
+        result += Indent(is_root ? 0 : indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_protobuf_Struct_FieldsEntry) */

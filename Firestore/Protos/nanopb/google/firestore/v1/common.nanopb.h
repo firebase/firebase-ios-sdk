@@ -46,12 +46,21 @@ typedef struct _google_firestore_v1_DocumentMask {
     }
 
     std::string ToString(int indent = 0) const {
-        std::string result{"{\n"};
+        bool is_root = indent == 0;
+        std::string result;
+        if (is_root) {
+            indent = 1;
+            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+            absl::StrAppend(&result,
+              "<DocumentMask 0x", p, ">: {\n");
+        } else {
+            result += "{\n";
+        }
 
         result += PrintRepeatedField("field_paths: ",
             field_paths, field_paths_count, indent + 1);
 
-        result += Indent(indent) + '}';
+        result += Indent(is_root ? 0 : indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_DocumentMask) */
@@ -65,11 +74,20 @@ typedef struct _google_firestore_v1_TransactionOptions_ReadWrite {
     }
 
     std::string ToString(int indent = 0) const {
-        std::string result{"{\n"};
+        bool is_root = indent == 0;
+        std::string result;
+        if (is_root) {
+            indent = 1;
+            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+            absl::StrAppend(&result,
+              "<ReadWrite 0x", p, ">: {\n");
+        } else {
+            result += "{\n";
+        }
 
         result += PrintField("retry_transaction: ", retry_transaction, indent + 1);
 
-        result += Indent(indent) + '}';
+        result += Indent(is_root ? 0 : indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_TransactionOptions_ReadWrite) */
@@ -87,7 +105,16 @@ typedef struct _google_firestore_v1_Precondition {
     }
 
     std::string ToString(int indent = 0) const {
-        std::string result{"{\n"};
+        bool is_root = indent == 0;
+        std::string result;
+        if (is_root) {
+            indent = 1;
+            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+            absl::StrAppend(&result,
+              "<Precondition 0x", p, ">: {\n");
+        } else {
+            result += "{\n";
+        }
 
         switch (which_condition_type) {
           case 1: // google_firestore_v1_Precondition_exists_tag
@@ -99,7 +126,7 @@ typedef struct _google_firestore_v1_Precondition {
         }
 
 
-        result += Indent(indent) + '}';
+        result += Indent(is_root ? 0 : indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_Precondition) */
@@ -116,7 +143,16 @@ typedef struct _google_firestore_v1_TransactionOptions_ReadOnly {
     }
 
     std::string ToString(int indent = 0) const {
-        std::string result{"{\n"};
+        bool is_root = indent == 0;
+        std::string result;
+        if (is_root) {
+            indent = 1;
+            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+            absl::StrAppend(&result,
+              "<ReadOnly 0x", p, ">: {\n");
+        } else {
+            result += "{\n";
+        }
 
         switch (which_consistency_selector) {
           case 2: // google_firestore_v1_TransactionOptions_ReadOnly_read_time_tag
@@ -125,7 +161,7 @@ typedef struct _google_firestore_v1_TransactionOptions_ReadOnly {
         }
 
 
-        result += Indent(indent) + '}';
+        result += Indent(is_root ? 0 : indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_TransactionOptions_ReadOnly) */
@@ -143,7 +179,16 @@ typedef struct _google_firestore_v1_TransactionOptions {
     }
 
     std::string ToString(int indent = 0) const {
-        std::string result{"{\n"};
+        bool is_root = indent == 0;
+        std::string result;
+        if (is_root) {
+            indent = 1;
+            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+            absl::StrAppend(&result,
+              "<TransactionOptions 0x", p, ">: {\n");
+        } else {
+            result += "{\n";
+        }
 
         switch (which_mode) {
           case 2: // google_firestore_v1_TransactionOptions_read_only_tag
@@ -155,7 +200,7 @@ typedef struct _google_firestore_v1_TransactionOptions {
         }
 
 
-        result += Indent(indent) + '}';
+        result += Indent(is_root ? 0 : indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_TransactionOptions) */

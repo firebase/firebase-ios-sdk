@@ -45,7 +45,7 @@ using ScalarExceptEnum = absl::conjunction<std::is_scalar<T>, absl::negation<std
 
 template <typename T, absl::enable_if_t<std::is_enum<T>::value, int> = 0>
 std::string ToStringImpl(const T& value, int indent) {
-    return PrintEnum(value);
+    return std::to_string(value);
 }
 
 template <typename T, absl::enable_if_t<ScalarExceptEnum<T>::value, int> = 0>

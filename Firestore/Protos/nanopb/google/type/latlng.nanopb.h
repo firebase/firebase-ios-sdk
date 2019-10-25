@@ -42,12 +42,21 @@ typedef struct _google_type_LatLng {
     }
 
     std::string ToString(int indent = 0) const {
-        std::string result{"{\n"};
+        bool is_root = indent == 0;
+        std::string result;
+        if (is_root) {
+            indent = 1;
+            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+            absl::StrAppend(&result,
+              "<LatLng 0x", p, ">: {\n");
+        } else {
+            result += "{\n";
+        }
 
         result += PrintField("latitude: ", latitude, indent + 1);
         result += PrintField("longitude: ", longitude, indent + 1);
 
-        result += Indent(indent) + '}';
+        result += Indent(is_root ? 0 : indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_type_LatLng) */

@@ -46,12 +46,21 @@ typedef struct _firestore_client_NoDocument {
     }
 
     std::string ToString(int indent = 0) const {
-        std::string result{"{\n"};
+        bool is_root = indent == 0;
+        std::string result;
+        if (is_root) {
+            indent = 1;
+            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+            absl::StrAppend(&result,
+              "<NoDocument 0x", p, ">: {\n");
+        } else {
+            result += "{\n";
+        }
 
         result += PrintField("name: ", name, indent + 1);
         result += PrintField("read_time ", read_time, indent + 1);
 
-        result += Indent(indent) + '}';
+        result += Indent(is_root ? 0 : indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:firestore_client_NoDocument) */
@@ -66,12 +75,21 @@ typedef struct _firestore_client_UnknownDocument {
     }
 
     std::string ToString(int indent = 0) const {
-        std::string result{"{\n"};
+        bool is_root = indent == 0;
+        std::string result;
+        if (is_root) {
+            indent = 1;
+            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+            absl::StrAppend(&result,
+              "<UnknownDocument 0x", p, ">: {\n");
+        } else {
+            result += "{\n";
+        }
 
         result += PrintField("name: ", name, indent + 1);
         result += PrintField("version ", version, indent + 1);
 
-        result += Indent(indent) + '}';
+        result += Indent(is_root ? 0 : indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:firestore_client_UnknownDocument) */
@@ -91,7 +109,16 @@ typedef struct _firestore_client_MaybeDocument {
     }
 
     std::string ToString(int indent = 0) const {
-        std::string result{"{\n"};
+        bool is_root = indent == 0;
+        std::string result;
+        if (is_root) {
+            indent = 1;
+            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+            absl::StrAppend(&result,
+              "<MaybeDocument 0x", p, ">: {\n");
+        } else {
+            result += "{\n";
+        }
 
         switch (which_document_type) {
           case 1: // firestore_client_MaybeDocument_no_document_tag
@@ -107,7 +134,7 @@ typedef struct _firestore_client_MaybeDocument {
 
         result += PrintField("has_committed_mutations: ", has_committed_mutations, indent + 1);
 
-        result += Indent(indent) + '}';
+        result += Indent(is_root ? 0 : indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:firestore_client_MaybeDocument) */

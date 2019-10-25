@@ -164,7 +164,8 @@ class Message {
   }
 
   std::string ToString() const {
-    return absl::StrCat("<", proto_.Name(), ">: ", proto_.ToString());
+    // return absl::StrCat("<", proto_.Name(), ">: ", proto_.ToString());
+    return proto_.ToString();
   }
 
  private:

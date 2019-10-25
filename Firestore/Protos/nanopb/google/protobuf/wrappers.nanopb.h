@@ -41,11 +41,20 @@ typedef struct _google_protobuf_BytesValue {
     }
 
     std::string ToString(int indent = 0) const {
-        std::string result{"{\n"};
+        bool is_root = indent == 0;
+        std::string result;
+        if (is_root) {
+            indent = 1;
+            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+            absl::StrAppend(&result,
+              "<BytesValue 0x", p, ">: {\n");
+        } else {
+            result += "{\n";
+        }
 
         result += PrintField("value: ", value, indent + 1);
 
-        result += Indent(indent) + '}';
+        result += Indent(is_root ? 0 : indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_protobuf_BytesValue) */
@@ -59,11 +68,20 @@ typedef struct _google_protobuf_StringValue {
     }
 
     std::string ToString(int indent = 0) const {
-        std::string result{"{\n"};
+        bool is_root = indent == 0;
+        std::string result;
+        if (is_root) {
+            indent = 1;
+            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+            absl::StrAppend(&result,
+              "<StringValue 0x", p, ">: {\n");
+        } else {
+            result += "{\n";
+        }
 
         result += PrintField("value: ", value, indent + 1);
 
-        result += Indent(indent) + '}';
+        result += Indent(is_root ? 0 : indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_protobuf_StringValue) */
@@ -77,11 +95,20 @@ typedef struct _google_protobuf_BoolValue {
     }
 
     std::string ToString(int indent = 0) const {
-        std::string result{"{\n"};
+        bool is_root = indent == 0;
+        std::string result;
+        if (is_root) {
+            indent = 1;
+            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+            absl::StrAppend(&result,
+              "<BoolValue 0x", p, ">: {\n");
+        } else {
+            result += "{\n";
+        }
 
         result += PrintField("value: ", value, indent + 1);
 
-        result += Indent(indent) + '}';
+        result += Indent(is_root ? 0 : indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_protobuf_BoolValue) */
@@ -95,11 +122,20 @@ typedef struct _google_protobuf_DoubleValue {
     }
 
     std::string ToString(int indent = 0) const {
-        std::string result{"{\n"};
+        bool is_root = indent == 0;
+        std::string result;
+        if (is_root) {
+            indent = 1;
+            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+            absl::StrAppend(&result,
+              "<DoubleValue 0x", p, ">: {\n");
+        } else {
+            result += "{\n";
+        }
 
         result += PrintField("value: ", value, indent + 1);
 
-        result += Indent(indent) + '}';
+        result += Indent(is_root ? 0 : indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_protobuf_DoubleValue) */
@@ -113,11 +149,20 @@ typedef struct _google_protobuf_FloatValue {
     }
 
     std::string ToString(int indent = 0) const {
-        std::string result{"{\n"};
+        bool is_root = indent == 0;
+        std::string result;
+        if (is_root) {
+            indent = 1;
+            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+            absl::StrAppend(&result,
+              "<FloatValue 0x", p, ">: {\n");
+        } else {
+            result += "{\n";
+        }
 
         result += PrintField("value: ", value, indent + 1);
 
-        result += Indent(indent) + '}';
+        result += Indent(is_root ? 0 : indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_protobuf_FloatValue) */
@@ -131,11 +176,20 @@ typedef struct _google_protobuf_Int32Value {
     }
 
     std::string ToString(int indent = 0) const {
-        std::string result{"{\n"};
+        bool is_root = indent == 0;
+        std::string result;
+        if (is_root) {
+            indent = 1;
+            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+            absl::StrAppend(&result,
+              "<Int32Value 0x", p, ">: {\n");
+        } else {
+            result += "{\n";
+        }
 
         result += PrintField("value: ", value, indent + 1);
 
-        result += Indent(indent) + '}';
+        result += Indent(is_root ? 0 : indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_protobuf_Int32Value) */
@@ -149,11 +203,20 @@ typedef struct _google_protobuf_Int64Value {
     }
 
     std::string ToString(int indent = 0) const {
-        std::string result{"{\n"};
+        bool is_root = indent == 0;
+        std::string result;
+        if (is_root) {
+            indent = 1;
+            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+            absl::StrAppend(&result,
+              "<Int64Value 0x", p, ">: {\n");
+        } else {
+            result += "{\n";
+        }
 
         result += PrintField("value: ", value, indent + 1);
 
-        result += Indent(indent) + '}';
+        result += Indent(is_root ? 0 : indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_protobuf_Int64Value) */
@@ -167,11 +230,20 @@ typedef struct _google_protobuf_UInt32Value {
     }
 
     std::string ToString(int indent = 0) const {
-        std::string result{"{\n"};
+        bool is_root = indent == 0;
+        std::string result;
+        if (is_root) {
+            indent = 1;
+            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+            absl::StrAppend(&result,
+              "<UInt32Value 0x", p, ">: {\n");
+        } else {
+            result += "{\n";
+        }
 
         result += PrintField("value: ", value, indent + 1);
 
-        result += Indent(indent) + '}';
+        result += Indent(is_root ? 0 : indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_protobuf_UInt32Value) */
@@ -185,11 +257,20 @@ typedef struct _google_protobuf_UInt64Value {
     }
 
     std::string ToString(int indent = 0) const {
-        std::string result{"{\n"};
+        bool is_root = indent == 0;
+        std::string result;
+        if (is_root) {
+            indent = 1;
+            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+            absl::StrAppend(&result,
+              "<UInt64Value 0x", p, ">: {\n");
+        } else {
+            result += "{\n";
+        }
 
         result += PrintField("value: ", value, indent + 1);
 
-        result += Indent(indent) + '}';
+        result += Indent(is_root ? 0 : indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_protobuf_UInt64Value) */

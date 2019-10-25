@@ -232,6 +232,8 @@ class FieldPrettyPrintingInfo:
     self.is_optional = field.rules == 'OPTIONAL' and field.allocation == 'STATIC'
     self.is_repeated = field.rules == 'REPEATED'
     self.is_primitive = field.pbtype != 'MESSAGE'
+    self.is_enum = field.pbtype == 'ENUM'
+
     # FIXME remove
     if self.is_primitive:
       if field.pbtype == 'BYTES':
@@ -342,13 +344,22 @@ namespace firestore {'''
 
       f.content += '''
     std::string ToString(int indent = 0) const {
-        std::string result{"{\\n"};\n\n'''
+        bool is_root = indent == 0;
+        std::string result;
+        if (is_root) {
+            indent = 1;
+            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+            absl::StrAppend(&result,
+              "<%s 0x", p, ">: {\\n");
+        } else {
+            result += "{\\n";
+        }\n\n''' % (p.short_classname)
 
       for field in p.fields:
         f.content += ' ' * 8 + add_printing_for_field(field) + '\n'
 
       f.content += '''
-        result += Indent(indent) + '}';
+        result += Indent(is_root ? 0 : indent) + '}';
         return result;
     }'''
 
@@ -381,7 +392,7 @@ def add_printing_for_field(field):
   elif field.oneof_member:
     return add_printing_for_oneof(field)
   elif field.is_enum:
-    return add_printing_for_enum(field)
+    return add_printing_for_enum(field.name, field.name, field)
   else:
     return add_printing_for_singular(field.name, field.name, field.is_primitive)
 
@@ -416,8 +427,8 @@ def add_printing_for_optional(name):
   return 'if (has_%s) ' % (name) + add_printing_for_singular(name, name, False)
 
 
-def add_printing_for_enum(field):
-  return 'if (has_%s) ' % (name) + add_printing_for_singular(name, name, False)
+def add_printing_for_enum(print_name, actual_name, field):
+  return 'if (%s != 0) ' % (name) + add_printing_for_singular(name, name, False)
 
 
 def add_printing_for_singular(print_name, actual_name, is_primitive):
@@ -431,7 +442,6 @@ def add_printing_for_singular(print_name, actual_name, is_primitive):
 
 
 # TODO:
-# 6. is_root
 # 5. Better way to omit empty nested messages.
 #
 # 3. Print enum names.

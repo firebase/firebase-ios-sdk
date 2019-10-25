@@ -46,14 +46,23 @@ typedef struct _google_rpc_Status {
     }
 
     std::string ToString(int indent = 0) const {
-        std::string result{"{\n"};
+        bool is_root = indent == 0;
+        std::string result;
+        if (is_root) {
+            indent = 1;
+            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+            absl::StrAppend(&result,
+              "<Status 0x", p, ">: {\n");
+        } else {
+            result += "{\n";
+        }
 
         result += PrintField("code: ", code, indent + 1);
         result += PrintField("message: ", message, indent + 1);
         result += PrintRepeatedField("details: ",
             details, details_count, indent + 1);
 
-        result += Indent(indent) + '}';
+        result += Indent(is_root ? 0 : indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_rpc_Status) */

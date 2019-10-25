@@ -53,7 +53,16 @@ typedef struct _firestore_client_Target {
     }
 
     std::string ToString(int indent = 0) const {
-        std::string result{"{\n"};
+        bool is_root = indent == 0;
+        std::string result;
+        if (is_root) {
+            indent = 1;
+            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+            absl::StrAppend(&result,
+              "<Target 0x", p, ">: {\n");
+        } else {
+            result += "{\n";
+        }
 
         result += PrintField("target_id: ", target_id, indent + 1);
         result += PrintField("snapshot_version ", snapshot_version, indent + 1);
@@ -69,7 +78,7 @@ typedef struct _firestore_client_Target {
         }
 
 
-        result += Indent(indent) + '}';
+        result += Indent(is_root ? 0 : indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:firestore_client_Target) */
@@ -86,14 +95,23 @@ typedef struct _firestore_client_TargetGlobal {
     }
 
     std::string ToString(int indent = 0) const {
-        std::string result{"{\n"};
+        bool is_root = indent == 0;
+        std::string result;
+        if (is_root) {
+            indent = 1;
+            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+            absl::StrAppend(&result,
+              "<TargetGlobal 0x", p, ">: {\n");
+        } else {
+            result += "{\n";
+        }
 
         result += PrintField("highest_target_id: ", highest_target_id, indent + 1);
         result += PrintField("highest_listen_sequence_number: ", highest_listen_sequence_number, indent + 1);
         result += PrintField("last_remote_snapshot_version ", last_remote_snapshot_version, indent + 1);
         result += PrintField("target_count: ", target_count, indent + 1);
 
-        result += Indent(indent) + '}';
+        result += Indent(is_root ? 0 : indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:firestore_client_TargetGlobal) */

@@ -46,12 +46,21 @@ typedef struct _firestore_client_MutationQueue {
     }
 
     std::string ToString(int indent = 0) const {
-        std::string result{"{\n"};
+        bool is_root = indent == 0;
+        std::string result;
+        if (is_root) {
+            indent = 1;
+            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+            absl::StrAppend(&result,
+              "<MutationQueue 0x", p, ">: {\n");
+        } else {
+            result += "{\n";
+        }
 
         result += PrintField("last_acknowledged_batch_id: ", last_acknowledged_batch_id, indent + 1);
         result += PrintField("last_stream_token: ", last_stream_token, indent + 1);
 
-        result += Indent(indent) + '}';
+        result += Indent(is_root ? 0 : indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:firestore_client_MutationQueue) */
@@ -70,7 +79,16 @@ typedef struct _firestore_client_WriteBatch {
     }
 
     std::string ToString(int indent = 0) const {
-        std::string result{"{\n"};
+        bool is_root = indent == 0;
+        std::string result;
+        if (is_root) {
+            indent = 1;
+            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+            absl::StrAppend(&result,
+              "<WriteBatch 0x", p, ">: {\n");
+        } else {
+            result += "{\n";
+        }
 
         result += PrintField("batch_id: ", batch_id, indent + 1);
         result += PrintRepeatedField("writes: ",
@@ -79,7 +97,7 @@ typedef struct _firestore_client_WriteBatch {
         result += PrintRepeatedField("base_writes: ",
             base_writes, base_writes_count, indent + 1);
 
-        result += Indent(indent) + '}';
+        result += Indent(is_root ? 0 : indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:firestore_client_WriteBatch) */
