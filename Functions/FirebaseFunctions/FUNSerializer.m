@@ -153,7 +153,10 @@ NSError *FUNInvalidNumberError(id value, id wrapped) {
     NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
     NSNumber *n = [formatter numberFromString:value];
     if (n == nil) {
-      *error = FUNInvalidNumberError(value, wrapped);
+      // Only assign the `error` parameter if it was passed in.
+      if (error != NULL) {
+        *error = FUNInvalidNumberError(value, wrapped);
+      }
       return nil;
     }
     return n;
@@ -163,13 +166,18 @@ NSError *FUNInvalidNumberError(id value, id wrapped) {
     char *end = NULL;
     unsigned long long n = strtoull(str, &end, 10);
     if (errno == ERANGE) {
-      // This number was actually too big for an unsigned long long.
-      *error = FUNInvalidNumberError(value, wrapped);
+      // This number was actually too big for an unsigned long long. Only assign the `error`
+      // parameter if it was passed in.
+      if (error != NULL) {
+        *error = FUNInvalidNumberError(value, wrapped);
+      }
       return nil;
     }
     if (*end) {
-      // The whole string wasn't parsed.
-      *error = FUNInvalidNumberError(value, wrapped);
+      // The whole string wasn't parsed. Only assign the `error` parameter if it was passed in.
+      if (error != NULL) {
+        *error = FUNInvalidNumberError(value, wrapped);
+      }
       return nil;
     }
     return @(n);
@@ -202,7 +210,10 @@ NSError *FUNInvalidNumberError(id value, id wrapped) {
           decoded[key] = decodedItem;
         }];
     if (decodeError) {
-      *error = decodeError;
+      // Only assign the `error` parameter if it was passed in.
+      if (error != NULL) {
+        *error = decodeError;
+      }
       return nil;
     }
     return decoded;
