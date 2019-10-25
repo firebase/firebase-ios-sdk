@@ -406,8 +406,6 @@ def add_printing_for_oneof(field):
 
 def add_printing_for_repeated(name):
   count = name + '_count'
-  # return '''if (%s) result += absl::StrCat("%s: ",
-  #           ToStringImpl(%s, %s, indent + 1), "\\n");''' % (count, name, name, count)
   return 'result += PrintRepeatedField("%s: ",' % (name) + '''
             %s, %s, indent);''' % (name, count)
 
@@ -419,17 +417,16 @@ def add_printing_for_optional(name):
 def add_printing_for_singular(print_name, actual_name):
   if actual_name == None:
     actual_name = print_name
-  # return '''result += absl::StrCat("%s: ",
-  #           ToStringImpl(%s, indent), "\\n");''' % (print_name, actual_name)
   return '''result += PrintField("%s: ", %s, indent);''' % (print_name, actual_name)
 
 
 # TODO:
-# 1. Extra colon
-# 2. Fix indentation
+# 1. Fix indentation
+# 2. Extra colon
 #
 # 3. Oneof isn't properly recursive
 # 4. Formatting arrays?
+# 5. Line breaks in generated code
 
 if __name__ == '__main__':
   main()
