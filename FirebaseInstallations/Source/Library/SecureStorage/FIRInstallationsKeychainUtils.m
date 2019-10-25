@@ -62,7 +62,7 @@
 
   NSMutableDictionary *mutableQuery = [query mutableCopy];
   mutableQuery[(__bridge id)kSecAttrAccessible] =
-      (__bridge id)kSecAttrAccessibleAlwaysThisDeviceOnly;
+      (__bridge id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly;
 
   OSStatus status;
   if (!existingItem) {
