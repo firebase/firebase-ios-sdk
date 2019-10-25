@@ -97,43 +97,6 @@ def use_malloc(request):
         ext.type = nanopb_pb2.FT_POINTER
 
 
-def prepare_pretty_printing_support(request):
-  """FIXME"""
-  fields_by_class_and_file = {}
-  for fdesc in request.proto_file:
-    short_filename = fdesc.name.replace('.proto', '')
-    fields_by_class_and_file[short_filename] = {}
-
-    # all_extensions = []
-    # ctr = 0
-    # for classname, extension in nanopb.iterate_extensions(fdesc):
-    #   all_extensions.append(extension)
-    #   ctr += 1
-    #   if ctr == 1:
-    #     raise Exception(extension)
-
-    #raise Exception(all_extensions)
-
-    for classname, message_type in nanopb.iterate_messages(fdesc):
-      # if str(classname) == 'ListDocumentsRequest':
-      #   raise Exception(message_type)
-      # if str(classname) == 'TargetChange':
-      #   raise Exception(message_type)
-      full_classname = fdesc.package.replace('.', '_') + '_' + str(classname)
-      fields_by_class_and_file[short_filename][full_classname] = {}
-      fields_by_class_and_file[short_filename][full_classname]['short_classname'] = classname
-      fields_by_class_and_file[short_filename][full_classname]['fields'] = []
-      for field in message_type.field:
-        # if field.name == 'cause':
-          #nanopb_opt = nanopb.get_nanopb_suboptions(fdesc, message_type, field.name)
-          # raise Exception(nanopb_opt)
-
-        # if field.name == 'cause':
-        #   raise Exception(field.options)
-        fields_by_class_and_file[short_filename][full_classname]['fields'].append(field)
-
-  return fields_by_class_and_file
-
 def use_anonymous_oneof(request):
   """Use anonymous unions for oneofs if they're the only one in a message.
 
@@ -245,25 +208,38 @@ def nanopb_parse_files(request, options, pretty_printing_info):
   return parsed_files
 
 
-class OneOfPrettyPrintingInfo:
+class OneOfMemberPrettyPrintingInfo:
   def __init__(self, field, message):
-    raise Exception('Not a oneof')
+    if field.rules != 'ONEOF':
+    # if not hasattr(field, 'union_name'):
+      raise TypeError('Not a member of oneof')
+
+    # raise Exception(field)
+    self.which = 'which_' + field.name
+    self.fields = field.fields
+    #oneof = message.oneofs[field.union_name]
+    #self.tag = oneof.fields.index(field) + 1
+
+
+  def __repr__(self):
+    return 'OneOfPrettyPrintingInfo{which: %s, fields: %s}' % (self.which, self.fields)
 
 
 class FieldPrettyPrintingInfo:
   def __init__(self, field, message):
     self.name = field.name
+    self.full_classname = str(message.name)
 
     self.is_optional = field.rules == 'OPTIONAL' and field.allocation == 'STATIC'
     self.is_repeated = field.rules == 'REPEATED'
 
     try:
-      self.oneof = OneOfPrettyPrintingInfo(field, message)
-    except:
-      self.oneof = None
+      self.oneof_member = OneOfMemberPrettyPrintingInfo(field, message)
+    except TypeError:
+      self.oneof_member = None
 
   def __repr__(self):
-    return 'FieldPrettyPrintingInfo{name: %s, is_optional: %s, is_repeated: %s, oneof: %s}' % (self.name, self.is_optional, self.is_repeated, self.oneof)
+    return 'FieldPrettyPrintingInfo{name: %s, is_optional: %s, is_repeated: %s, oneof_member: %s}' % (self.name, self.is_optional, self.is_repeated, self.oneof_member)
 
 
 class MessagePrettyPrintingInfo:
@@ -388,14 +364,24 @@ def add_printing_for_field(field):
     return add_printing_for_optional(field)
   elif field.is_repeated:
     return add_printing_for_repeated(field)
-  elif field.oneof:
+  elif field.oneof_member:
     return add_printing_for_oneof(field)
   else:
     return add_printing_for_singular(field)
 
 
-def add_printing_for_oneof(field, oneof):
-  return 'if (which_%s == ???) ' % (oneof.name) + add_printing_for_singular(field)
+def add_printing_for_oneof(field):
+  which = field.oneof_member.which
+  result = 'switch (%s) {\n' % (which)
+
+  for index, f in enumerate(field.oneof_member.fields):
+    tag = '%s_%s_tag' % (field.full_classname, f.name)
+    result += ' ' * 10 + 'case %s:' % (tag)
+
+    result += '\n' + ' ' * 12 + add_printing_for_singular(f)
+    result += '\n' + ' ' * 12 + 'break;\n'
+
+  return result + ' ' * 8 + '}\n'
 
 
 def add_printing_for_repeated(field):

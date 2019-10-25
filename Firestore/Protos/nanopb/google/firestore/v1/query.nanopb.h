@@ -217,8 +217,13 @@ typedef struct _google_firestore_v1_StructuredQuery_UnaryFilter {
     std::string ToString(int indent = 0) const {
         std::string result{"UnaryFilter("};
 
-        result += absl::StrCat("operand_type: ",
-            ToStringImpl(operand_type, indent), "\n");
+        switch (which_operand_type) {
+          case google_firestore_v1_StructuredQuery_UnaryFilter_field_tag:
+            result += absl::StrCat("field: ",
+            ToStringImpl(field, indent), "\n");
+            break;
+        }
+
         result += absl::StrCat("op: ",
             ToStringImpl(op, indent), "\n");
 
@@ -239,8 +244,21 @@ typedef struct _google_firestore_v1_StructuredQuery_Filter {
     std::string ToString(int indent = 0) const {
         std::string result{"Filter("};
 
-        result += absl::StrCat("filter_type: ",
-            ToStringImpl(filter_type, indent), "\n");
+        switch (which_filter_type) {
+          case google_firestore_v1_StructuredQuery_Filter_composite_filter_tag:
+            result += absl::StrCat("composite_filter: ",
+            ToStringImpl(composite_filter, indent), "\n");
+            break;
+          case google_firestore_v1_StructuredQuery_Filter_field_filter_tag:
+            result += absl::StrCat("field_filter: ",
+            ToStringImpl(field_filter, indent), "\n");
+            break;
+          case google_firestore_v1_StructuredQuery_Filter_unary_filter_tag:
+            result += absl::StrCat("unary_filter: ",
+            ToStringImpl(unary_filter, indent), "\n");
+            break;
+        }
+
 
         result += ')';
         return result;

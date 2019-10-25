@@ -88,8 +88,33 @@ typedef struct _google_api_HttpRule {
     std::string ToString(int indent = 0) const {
         std::string result{"HttpRule("};
 
-        result += absl::StrCat("pattern: ",
-            ToStringImpl(pattern, indent), "\n");
+        switch (which_pattern) {
+          case google_api_HttpRule_get_tag:
+            result += absl::StrCat("get: ",
+            ToStringImpl(get, indent), "\n");
+            break;
+          case google_api_HttpRule_put_tag:
+            result += absl::StrCat("put: ",
+            ToStringImpl(put, indent), "\n");
+            break;
+          case google_api_HttpRule_post_tag:
+            result += absl::StrCat("post: ",
+            ToStringImpl(post, indent), "\n");
+            break;
+          case google_api_HttpRule_delete_tag:
+            result += absl::StrCat("delete_: ",
+            ToStringImpl(delete_, indent), "\n");
+            break;
+          case google_api_HttpRule_patch_tag:
+            result += absl::StrCat("patch: ",
+            ToStringImpl(patch, indent), "\n");
+            break;
+          case google_api_HttpRule_custom_tag:
+            result += absl::StrCat("custom: ",
+            ToStringImpl(custom, indent), "\n");
+            break;
+        }
+
         result += absl::StrCat("selector: ",
             ToStringImpl(selector, indent), "\n");
         result += absl::StrCat("body: ",

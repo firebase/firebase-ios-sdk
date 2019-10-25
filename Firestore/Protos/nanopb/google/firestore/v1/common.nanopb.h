@@ -78,8 +78,17 @@ typedef struct _google_firestore_v1_Precondition {
     std::string ToString(int indent = 0) const {
         std::string result{"Precondition("};
 
-        result += absl::StrCat("condition_type: ",
-            ToStringImpl(condition_type, indent), "\n");
+        switch (which_condition_type) {
+          case google_firestore_v1_Precondition_exists_tag:
+            result += absl::StrCat("exists: ",
+            ToStringImpl(exists, indent), "\n");
+            break;
+          case google_firestore_v1_Precondition_update_time_tag:
+            result += absl::StrCat("update_time: ",
+            ToStringImpl(update_time, indent), "\n");
+            break;
+        }
+
 
         result += ')';
         return result;
@@ -96,8 +105,13 @@ typedef struct _google_firestore_v1_TransactionOptions_ReadOnly {
     std::string ToString(int indent = 0) const {
         std::string result{"ReadOnly("};
 
-        result += absl::StrCat("consistency_selector: ",
-            ToStringImpl(consistency_selector, indent), "\n");
+        switch (which_consistency_selector) {
+          case google_firestore_v1_TransactionOptions_ReadOnly_read_time_tag:
+            result += absl::StrCat("read_time: ",
+            ToStringImpl(read_time, indent), "\n");
+            break;
+        }
+
 
         result += ')';
         return result;
@@ -115,8 +129,17 @@ typedef struct _google_firestore_v1_TransactionOptions {
     std::string ToString(int indent = 0) const {
         std::string result{"TransactionOptions("};
 
-        result += absl::StrCat("mode: ",
-            ToStringImpl(mode, indent), "\n");
+        switch (which_mode) {
+          case google_firestore_v1_TransactionOptions_read_only_tag:
+            result += absl::StrCat("read_only: ",
+            ToStringImpl(read_only, indent), "\n");
+            break;
+          case google_firestore_v1_TransactionOptions_read_write_tag:
+            result += absl::StrCat("read_write: ",
+            ToStringImpl(read_write, indent), "\n");
+            break;
+        }
+
 
         result += ')';
         return result;

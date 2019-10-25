@@ -152,8 +152,33 @@ typedef struct _google_firestore_v1_DocumentTransform_FieldTransform {
     std::string ToString(int indent = 0) const {
         std::string result{"FieldTransform("};
 
-        result += absl::StrCat("transform_type: ",
-            ToStringImpl(transform_type, indent), "\n");
+        switch (which_transform_type) {
+          case google_firestore_v1_DocumentTransform_FieldTransform_set_to_server_value_tag:
+            result += absl::StrCat("set_to_server_value: ",
+            ToStringImpl(set_to_server_value, indent), "\n");
+            break;
+          case google_firestore_v1_DocumentTransform_FieldTransform_increment_tag:
+            result += absl::StrCat("increment: ",
+            ToStringImpl(increment, indent), "\n");
+            break;
+          case google_firestore_v1_DocumentTransform_FieldTransform_maximum_tag:
+            result += absl::StrCat("maximum: ",
+            ToStringImpl(maximum, indent), "\n");
+            break;
+          case google_firestore_v1_DocumentTransform_FieldTransform_minimum_tag:
+            result += absl::StrCat("minimum: ",
+            ToStringImpl(minimum, indent), "\n");
+            break;
+          case google_firestore_v1_DocumentTransform_FieldTransform_append_missing_elements_tag:
+            result += absl::StrCat("append_missing_elements: ",
+            ToStringImpl(append_missing_elements, indent), "\n");
+            break;
+          case google_firestore_v1_DocumentTransform_FieldTransform_remove_all_from_array_tag:
+            result += absl::StrCat("remove_all_from_array: ",
+            ToStringImpl(remove_all_from_array, indent), "\n");
+            break;
+        }
+
         result += absl::StrCat("field_path: ",
             ToStringImpl(field_path, indent), "\n");
 
@@ -196,8 +221,21 @@ typedef struct _google_firestore_v1_Write {
     std::string ToString(int indent = 0) const {
         std::string result{"Write("};
 
-        result += absl::StrCat("operation: ",
-            ToStringImpl(operation, indent), "\n");
+        switch (which_operation) {
+          case google_firestore_v1_Write_update_tag:
+            result += absl::StrCat("update: ",
+            ToStringImpl(update, indent), "\n");
+            break;
+          case google_firestore_v1_Write_delete_tag:
+            result += absl::StrCat("delete_: ",
+            ToStringImpl(delete_, indent), "\n");
+            break;
+          case google_firestore_v1_Write_transform_tag:
+            result += absl::StrCat("transform: ",
+            ToStringImpl(transform, indent), "\n");
+            break;
+        }
+
         if (has_update_mask) result += absl::StrCat("update_mask: ",
             ToStringImpl(update_mask, indent), "\n");
         if (has_current_document) result += absl::StrCat("current_document: ",
