@@ -62,13 +62,13 @@ typedef struct _firestore_client_Target {
             break;
         }
 
-        result += absl::StrCat("target_id: ",
+        if (target_id != 0) result += absl::StrCat("target_id: ",
             ToStringImpl(target_id, indent), "\n");
         result += absl::StrCat("snapshot_version: ",
             ToStringImpl(snapshot_version, indent), "\n");
-        result += absl::StrCat("resume_token: ",
+        if (resume_token != nullptr) result += absl::StrCat("resume_token: ",
             ToStringImpl(resume_token, indent), "\n");
-        result += absl::StrCat("last_listen_sequence_number: ",
+        if (last_listen_sequence_number != 0) result += absl::StrCat("last_listen_sequence_number: ",
             ToStringImpl(last_listen_sequence_number, indent), "\n");
 
         result += '}';
@@ -86,13 +86,13 @@ typedef struct _firestore_client_TargetGlobal {
     std::string ToString(int indent = 0) const {
         std::string result{"TargetGlobal{\n"};
 
-        result += absl::StrCat("highest_target_id: ",
+        if (highest_target_id != 0) result += absl::StrCat("highest_target_id: ",
             ToStringImpl(highest_target_id, indent), "\n");
-        result += absl::StrCat("highest_listen_sequence_number: ",
+        if (highest_listen_sequence_number != 0) result += absl::StrCat("highest_listen_sequence_number: ",
             ToStringImpl(highest_listen_sequence_number, indent), "\n");
         result += absl::StrCat("last_remote_snapshot_version: ",
             ToStringImpl(last_remote_snapshot_version, indent), "\n");
-        result += absl::StrCat("target_count: ",
+        if (target_count != 0) result += absl::StrCat("target_count: ",
             ToStringImpl(target_count, indent), "\n");
 
         result += '}';

@@ -40,9 +40,9 @@ typedef struct _google_type_LatLng {
     std::string ToString(int indent = 0) const {
         std::string result{"LatLng{\n"};
 
-        result += absl::StrCat("latitude: ",
+        if (latitude != 0) result += absl::StrCat("latitude: ",
             ToStringImpl(latitude, indent), "\n");
-        result += absl::StrCat("longitude: ",
+        if (longitude != 0) result += absl::StrCat("longitude: ",
             ToStringImpl(longitude, indent), "\n");
 
         result += '}';

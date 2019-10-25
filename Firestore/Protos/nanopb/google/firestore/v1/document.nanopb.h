@@ -84,7 +84,7 @@ typedef struct _google_firestore_v1_Document {
     std::string ToString(int indent = 0) const {
         std::string result{"Document{\n"};
 
-        result += absl::StrCat("name: ",
+        if (name != nullptr) result += absl::StrCat("name: ",
             ToStringImpl(name, indent), "\n");
         if (fields_count) result += absl::StrCat("fields: ",
             ToStringImpl(fields, fields_count, indent + 1), "\n");
@@ -179,7 +179,7 @@ typedef struct _google_firestore_v1_Document_FieldsEntry {
     std::string ToString(int indent = 0) const {
         std::string result{"FieldsEntry{\n"};
 
-        result += absl::StrCat("key: ",
+        if (key != nullptr) result += absl::StrCat("key: ",
             ToStringImpl(key, indent), "\n");
         result += absl::StrCat("value: ",
             ToStringImpl(value, indent), "\n");
@@ -197,7 +197,7 @@ typedef struct _google_firestore_v1_MapValue_FieldsEntry {
     std::string ToString(int indent = 0) const {
         std::string result{"FieldsEntry{\n"};
 
-        result += absl::StrCat("key: ",
+        if (key != nullptr) result += absl::StrCat("key: ",
             ToStringImpl(key, indent), "\n");
         result += absl::StrCat("value: ",
             ToStringImpl(value, indent), "\n");

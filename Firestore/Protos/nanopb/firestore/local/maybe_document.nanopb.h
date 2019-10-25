@@ -44,7 +44,7 @@ typedef struct _firestore_client_NoDocument {
     std::string ToString(int indent = 0) const {
         std::string result{"NoDocument{\n"};
 
-        result += absl::StrCat("name: ",
+        if (name != nullptr) result += absl::StrCat("name: ",
             ToStringImpl(name, indent), "\n");
         result += absl::StrCat("read_time: ",
             ToStringImpl(read_time, indent), "\n");
@@ -62,7 +62,7 @@ typedef struct _firestore_client_UnknownDocument {
     std::string ToString(int indent = 0) const {
         std::string result{"UnknownDocument{\n"};
 
-        result += absl::StrCat("name: ",
+        if (name != nullptr) result += absl::StrCat("name: ",
             ToStringImpl(name, indent), "\n");
         result += absl::StrCat("version: ",
             ToStringImpl(version, indent), "\n");
@@ -100,7 +100,7 @@ typedef struct _firestore_client_MaybeDocument {
             break;
         }
 
-        result += absl::StrCat("has_committed_mutations: ",
+        if (has_committed_mutations != false) result += absl::StrCat("has_committed_mutations: ",
             ToStringImpl(has_committed_mutations, indent), "\n");
 
         result += '}';

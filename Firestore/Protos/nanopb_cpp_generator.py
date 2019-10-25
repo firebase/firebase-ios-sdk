@@ -233,6 +233,14 @@ class FieldPrettyPrintingInfo:
 
     self.is_optional = field.rules == 'OPTIONAL' and field.allocation == 'STATIC'
     self.is_repeated = field.rules == 'REPEATED'
+    self.is_primitive = field.pbtype != 'MESSAGE'
+    if self.is_primitive:
+      if field.pbtype == 'BYTES':
+        self.zero = 'nullptr'
+      elif field.pbtype == 'BOOL': # ?
+        self.zero = 'false'
+      else:
+        self.zero = '0'
 
     try:
       self.oneof_member = OneOfMemberPrettyPrintingInfo(field, message)
@@ -368,6 +376,8 @@ def add_printing_for_field(field):
     return add_printing_for_repeated(field.name)
   elif field.oneof_member:
     return add_printing_for_oneof(field)
+  elif field.is_primitive:
+    return add_printing_for_primitive(field.name, field.zero)
   else:
     return add_printing_for_singular(field.name)
 
@@ -402,10 +412,21 @@ def add_printing_for_optional(name):
 
 
 def add_printing_for_singular(name):
-  # FIXME don't print primitives == 0
   return '''result += absl::StrCat("%s: ",
             ToStringImpl(%s, indent), "\\n");''' % (name, name)
 
+def add_printing_for_primitive(name, zero):
+  return '''if (%s != %s) result += absl::StrCat("%s: ",
+            ToStringImpl(%s, indent), "\\n");''' % (name, zero, name, name)
+
+# TODO:
+# 1. Only print the name of the "root" proto.
+# 2. Sort by field tag.
+# 3. Quotes around strings.
+# 4. Short field names for oneof members
+# 5. Fix indentation
+#
+# 6. Formatting arrays?
 
 if __name__ == '__main__':
   main()

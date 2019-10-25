@@ -59,7 +59,7 @@ typedef struct _google_firestore_v1_TransactionOptions_ReadWrite {
     std::string ToString(int indent = 0) const {
         std::string result{"ReadWrite{\n"};
 
-        result += absl::StrCat("retry_transaction: ",
+        if (retry_transaction != nullptr) result += absl::StrCat("retry_transaction: ",
             ToStringImpl(retry_transaction, indent), "\n");
 
         result += '}';

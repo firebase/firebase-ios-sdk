@@ -58,7 +58,7 @@ typedef struct _google_firestore_v1_DocumentTransform {
     std::string ToString(int indent = 0) const {
         std::string result{"DocumentTransform{\n"};
 
-        result += absl::StrCat("document: ",
+        if (document != nullptr) result += absl::StrCat("document: ",
             ToStringImpl(document, indent), "\n");
         if (field_transforms_count) result += absl::StrCat("field_transforms: ",
             ToStringImpl(field_transforms, field_transforms_count, indent + 1), "\n");
@@ -102,7 +102,7 @@ typedef struct _google_firestore_v1_DocumentDelete {
     std::string ToString(int indent = 0) const {
         std::string result{"DocumentDelete{\n"};
 
-        result += absl::StrCat("document: ",
+        if (document != nullptr) result += absl::StrCat("document: ",
             ToStringImpl(document, indent), "\n");
         if (removed_target_ids_count) result += absl::StrCat("removed_target_ids: ",
             ToStringImpl(removed_target_ids, removed_target_ids_count, indent + 1), "\n");
@@ -124,7 +124,7 @@ typedef struct _google_firestore_v1_DocumentRemove {
     std::string ToString(int indent = 0) const {
         std::string result{"DocumentRemove{\n"};
 
-        result += absl::StrCat("document: ",
+        if (document != nullptr) result += absl::StrCat("document: ",
             ToStringImpl(document, indent), "\n");
         if (removed_target_ids_count) result += absl::StrCat("removed_target_ids: ",
             ToStringImpl(removed_target_ids, removed_target_ids_count, indent + 1), "\n");
@@ -179,7 +179,7 @@ typedef struct _google_firestore_v1_DocumentTransform_FieldTransform {
             break;
         }
 
-        result += absl::StrCat("field_path: ",
+        if (field_path != nullptr) result += absl::StrCat("field_path: ",
             ToStringImpl(field_path, indent), "\n");
 
         result += '}';
@@ -195,9 +195,9 @@ typedef struct _google_firestore_v1_ExistenceFilter {
     std::string ToString(int indent = 0) const {
         std::string result{"ExistenceFilter{\n"};
 
-        result += absl::StrCat("target_id: ",
+        if (target_id != 0) result += absl::StrCat("target_id: ",
             ToStringImpl(target_id, indent), "\n");
-        result += absl::StrCat("count: ",
+        if (count != 0) result += absl::StrCat("count: ",
             ToStringImpl(count, indent), "\n");
 
         result += '}';

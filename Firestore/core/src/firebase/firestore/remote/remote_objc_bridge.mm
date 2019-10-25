@@ -144,6 +144,10 @@ std::string WatchStreamSerializer::Describe(
   // return DescribeMessage<GCFSListenRequest>(request);
   auto result = request.ToString();
   auto result2 = DescribeMessage<GCFSListenRequest>(request);
+   /* if (request->add_target.target_type.documents.documents_count > 1) {
+        int i = 0;
+        ++i;
+    }*/
     return result;
 }
 

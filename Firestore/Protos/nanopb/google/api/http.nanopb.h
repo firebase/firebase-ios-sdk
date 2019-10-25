@@ -40,9 +40,9 @@ typedef struct _google_api_CustomHttpPattern {
     std::string ToString(int indent = 0) const {
         std::string result{"CustomHttpPattern{\n"};
 
-        result += absl::StrCat("kind: ",
+        if (kind != nullptr) result += absl::StrCat("kind: ",
             ToStringImpl(kind, indent), "\n");
-        result += absl::StrCat("path: ",
+        if (path != nullptr) result += absl::StrCat("path: ",
             ToStringImpl(path, indent), "\n");
 
         result += '}';
@@ -61,7 +61,7 @@ typedef struct _google_api_Http {
 
         if (rules_count) result += absl::StrCat("rules: ",
             ToStringImpl(rules, rules_count, indent + 1), "\n");
-        result += absl::StrCat("fully_decode_reserved_expansion: ",
+        if (fully_decode_reserved_expansion != false) result += absl::StrCat("fully_decode_reserved_expansion: ",
             ToStringImpl(fully_decode_reserved_expansion, indent), "\n");
 
         result += '}';
@@ -115,9 +115,9 @@ typedef struct _google_api_HttpRule {
             break;
         }
 
-        result += absl::StrCat("selector: ",
+        if (selector != nullptr) result += absl::StrCat("selector: ",
             ToStringImpl(selector, indent), "\n");
-        result += absl::StrCat("body: ",
+        if (body != nullptr) result += absl::StrCat("body: ",
             ToStringImpl(body, indent), "\n");
         if (additional_bindings_count) result += absl::StrCat("additional_bindings: ",
             ToStringImpl(additional_bindings, additional_bindings_count, indent + 1), "\n");

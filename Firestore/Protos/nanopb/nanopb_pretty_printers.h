@@ -30,12 +30,7 @@ namespace firebase {
 namespace firestore {
 
 std::string ToStringImpl(pb_bytes_array_t* value, int indent);
-// std::string ToStringImpl(int32_t value);
-// std::string ToStringImpl(uint32_t value);
-// std::string ToStringImpl(int64_t value);
-// std::string ToStringImpl(uint64_t value);
-// std::string ToStringImpl(float value);
-// std::string ToStringImpl(double value);
+std::string ToStringImpl(bool value, int indent);
 
 inline std::string Indent(int level) {
   constexpr int kIndentWidth = 2;
@@ -71,33 +66,9 @@ inline std::string ToStringImpl(pb_bytes_array_t* value, int indent) {
   return Indent(indent) + nanopb::MakeString(value);
 }
 
-// std::string ToStringImpl(int32_t value) {
-//   return std::to_string(value);
-// }
-
-// std::string ToStringImpl(uint32_t value) {
-//   return std::to_string(value);
-// }
-
-// std::string ToStringImpl(int64_t value) {
-//   return std::to_string(value);
-// }
-
-// std::string ToStringImpl(uint64_t value) {
-//   return std::to_string(value);
-// }
-
-// std::string ToStringImpl(float value) {
-//   return std::to_string(value);
-// }
-
-// std::string ToStringImpl(double value) {
-//   return std::to_string(value);
-// }
-
-// std::string ToStringImpl(bool value) {
-//   return value ? "true" : "false";
-// }
+inline std::string ToStringImpl(bool value, int indent) {
+  return Indent(indent) + (value ? "true" : "false");
+}
 
 }
 }  // namespace firebase

@@ -128,7 +128,7 @@ typedef struct _google_protobuf_Struct_FieldsEntry {
     std::string ToString(int indent = 0) const {
         std::string result{"FieldsEntry{\n"};
 
-        result += absl::StrCat("key: ",
+        if (key != nullptr) result += absl::StrCat("key: ",
             ToStringImpl(key, indent), "\n");
         result += absl::StrCat("value: ",
             ToStringImpl(value, indent), "\n");
