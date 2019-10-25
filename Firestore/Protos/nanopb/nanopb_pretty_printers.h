@@ -63,11 +63,11 @@ std::string ToStringImpl(const T* value, pb_size_t size, int indent) {
 }
 
 inline std::string ToStringImpl(pb_bytes_array_t* value, int indent) {
-  return Indent(indent) + nanopb::MakeString(value);
+  return absl::StrCat(Indent(indent), "\"", nanopb::MakeString(value), "\"");
 }
 
 inline std::string ToStringImpl(bool value, int indent) {
-  return Indent(indent) + (value ? "true" : "false");
+  return absl::StrCat(Indent(indent), value ? "true" : "false");
 }
 
 }

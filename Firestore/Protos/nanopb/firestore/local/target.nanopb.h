@@ -49,8 +49,16 @@ typedef struct _firestore_client_Target {
     };
 
     std::string ToString(int indent = 0) const {
-        std::string result{"Target{\n"};
+        std::string result{"<Target>: {\n"};
 
+        if (target_id != 0) result += absl::StrCat("target_id: ",
+            ToStringImpl(target_id, indent), "\n");
+        result += absl::StrCat("snapshot_version: ",
+            ToStringImpl(snapshot_version, indent), "\n");
+        if (resume_token != nullptr) result += absl::StrCat("resume_token: ",
+            ToStringImpl(resume_token, indent), "\n");
+        if (last_listen_sequence_number != 0) result += absl::StrCat("last_listen_sequence_number: ",
+            ToStringImpl(last_listen_sequence_number, indent), "\n");
         switch (which_target_type) {
           case 5: // firestore_client_Target_query_tag
             result += absl::StrCat("query: ",
@@ -62,14 +70,6 @@ typedef struct _firestore_client_Target {
             break;
         }
 
-        if (target_id != 0) result += absl::StrCat("target_id: ",
-            ToStringImpl(target_id, indent), "\n");
-        result += absl::StrCat("snapshot_version: ",
-            ToStringImpl(snapshot_version, indent), "\n");
-        if (resume_token != nullptr) result += absl::StrCat("resume_token: ",
-            ToStringImpl(resume_token, indent), "\n");
-        if (last_listen_sequence_number != 0) result += absl::StrCat("last_listen_sequence_number: ",
-            ToStringImpl(last_listen_sequence_number, indent), "\n");
 
         result += '}';
         return result;
@@ -84,7 +84,7 @@ typedef struct _firestore_client_TargetGlobal {
     int32_t target_count;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"TargetGlobal{\n"};
+        std::string result{"<TargetGlobal>: {\n"};
 
         if (highest_target_id != 0) result += absl::StrCat("highest_target_id: ",
             ToStringImpl(highest_target_id, indent), "\n");

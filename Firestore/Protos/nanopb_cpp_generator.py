@@ -231,6 +231,8 @@ class FieldPrettyPrintingInfo:
     self.name = field.name
     self.full_classname = str(message.name)
 
+    self.tag = field.tag
+
     self.is_optional = field.rules == 'OPTIONAL' and field.allocation == 'STATIC'
     self.is_repeated = field.rules == 'REPEATED'
     self.is_primitive = field.pbtype != 'MESSAGE'
@@ -256,6 +258,7 @@ class MessagePrettyPrintingInfo:
     self.short_classname = message.name.parts[-1]
     self.full_classname = str(message.name)
     self.fields = [FieldPrettyPrintingInfo(f, message) for f in message.fields]
+    self.fields.sort(key = lambda f: f.tag)
 
 
   def __repr__(self):
@@ -338,7 +341,7 @@ namespace firestore {'''
       # FIXME sort by tag (currently, oneofs are always sorted first for some reason).
       f.content = '''
     std::string ToString(int indent = 0) const {
-        std::string result{"%s{\\n"};\n\n''' % (p.short_classname)
+        std::string result{"<%s>: {\\n"};\n\n''' % (p.short_classname)
 
       for field in p.fields:
         f.content += ' ' * 8 + add_printing_for_field(field) + '\n'
@@ -425,12 +428,11 @@ def add_printing_for_primitive(print_name, actual_name, zero):
 
 # TODO:
 # 1. Only print the name of the "root" proto.
-# 2. Sort by field tag.
-# 3. Quotes around strings.
-# 4. Short field names for oneof members
-# 5. Fix indentation
+# 2. Quotes around strings.
+# 3. Fix indentation
 #
-# 6. Formatting arrays?
+# 4. Oneof isn't properly recursive
+# 5. Formatting arrays?
 
 if __name__ == '__main__':
   main()

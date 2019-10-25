@@ -56,7 +56,7 @@ typedef struct _google_firestore_v1_DocumentTransform {
     struct _google_firestore_v1_DocumentTransform_FieldTransform *field_transforms;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"DocumentTransform{\n"};
+        std::string result{"<DocumentTransform>: {\n"};
 
         if (document != nullptr) result += absl::StrCat("document: ",
             ToStringImpl(document, indent), "\n");
@@ -77,7 +77,7 @@ typedef struct _google_firestore_v1_DocumentChange {
     int32_t *removed_target_ids;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"DocumentChange{\n"};
+        std::string result{"<DocumentChange>: {\n"};
 
         result += absl::StrCat("document: ",
             ToStringImpl(document, indent), "\n");
@@ -100,14 +100,14 @@ typedef struct _google_firestore_v1_DocumentDelete {
     int32_t *removed_target_ids;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"DocumentDelete{\n"};
+        std::string result{"<DocumentDelete>: {\n"};
 
         if (document != nullptr) result += absl::StrCat("document: ",
             ToStringImpl(document, indent), "\n");
-        if (removed_target_ids_count) result += absl::StrCat("removed_target_ids: ",
-            ToStringImpl(removed_target_ids, removed_target_ids_count, indent + 1), "\n");
         if (has_read_time) result += absl::StrCat("read_time: ",
             ToStringImpl(read_time, indent), "\n");
+        if (removed_target_ids_count) result += absl::StrCat("removed_target_ids: ",
+            ToStringImpl(removed_target_ids, removed_target_ids_count, indent + 1), "\n");
 
         result += '}';
         return result;
@@ -122,7 +122,7 @@ typedef struct _google_firestore_v1_DocumentRemove {
     google_protobuf_Timestamp read_time;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"DocumentRemove{\n"};
+        std::string result{"<DocumentRemove>: {\n"};
 
         if (document != nullptr) result += absl::StrCat("document: ",
             ToStringImpl(document, indent), "\n");
@@ -150,8 +150,10 @@ typedef struct _google_firestore_v1_DocumentTransform_FieldTransform {
     };
 
     std::string ToString(int indent = 0) const {
-        std::string result{"FieldTransform{\n"};
+        std::string result{"<FieldTransform>: {\n"};
 
+        if (field_path != nullptr) result += absl::StrCat("field_path: ",
+            ToStringImpl(field_path, indent), "\n");
         switch (which_transform_type) {
           case 2: // google_firestore_v1_DocumentTransform_FieldTransform_set_to_server_value_tag
             result += absl::StrCat("set_to_server_value: ",
@@ -179,8 +181,6 @@ typedef struct _google_firestore_v1_DocumentTransform_FieldTransform {
             break;
         }
 
-        if (field_path != nullptr) result += absl::StrCat("field_path: ",
-            ToStringImpl(field_path, indent), "\n");
 
         result += '}';
         return result;
@@ -193,7 +193,7 @@ typedef struct _google_firestore_v1_ExistenceFilter {
     int32_t count;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"ExistenceFilter{\n"};
+        std::string result{"<ExistenceFilter>: {\n"};
 
         if (target_id != 0) result += absl::StrCat("target_id: ",
             ToStringImpl(target_id, indent), "\n");
@@ -219,7 +219,7 @@ typedef struct _google_firestore_v1_Write {
     google_firestore_v1_Precondition current_document;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"Write{\n"};
+        std::string result{"<Write>: {\n"};
 
         switch (which_operation) {
           case 1: // google_firestore_v1_Write_update_tag
@@ -254,7 +254,7 @@ typedef struct _google_firestore_v1_WriteResult {
     struct _google_firestore_v1_Value *transform_results;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"WriteResult{\n"};
+        std::string result{"<WriteResult>: {\n"};
 
         if (has_update_time) result += absl::StrCat("update_time: ",
             ToStringImpl(update_time, indent), "\n");
