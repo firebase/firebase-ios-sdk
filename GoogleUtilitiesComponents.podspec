@@ -9,7 +9,7 @@ libraries in a type safe and potentially weak manner.
 Not intended for direct public usage.
                        DESC
 
-  s.homepage         = 'https://github.com/firebase/firebase-ios-sdk/tree/master/GoogleUtilitiesComponents'
+  s.homepage         = 'https://developers.google.com/
   s.license          = { :type => 'Apache', :file => 'LICENSE' }
   s.authors          = 'Google, Inc.'
 
@@ -24,6 +24,7 @@ Not intended for direct public usage.
 
   s.cocoapods_version = '>= 1.4.0'
   s.prefix_header_file = false
+  s.static_framework = true
 
   s.source_files = 'GoogleUtilitiesComponents/Sources/**/*.[mh]'
   s.public_header_files = 'GoogleUtilitiesComponents/Sources/Public/*.h', 'GoogleUtilitiesComponents/Sources/Private/*.h'
