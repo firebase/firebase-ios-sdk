@@ -1,0 +1,90 @@
+/*
+ * Copyright 2019 Google
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#import <GoogleUtilities/GULStorageHeartbeat.h>
+#import <XCTest/XCTest.h>
+
+@interface GULStorageHeartbeatTest : XCTestCase
+@property(nonatomic) NSURL *fileURL;
+@property(nonatomic) GULStorageHeartbeat *storage;
+@end
+
+@implementation GULStorageHeartbeatTest
+
+- (void)setUp {
+  NSString *documentsPath = [NSSearchPathForDirectoriesInDomains(
+      NSApplicationSupportDirectory, NSUserDomainMask, YES) firstObject];
+  XCTAssertNotNil(documentsPath);
+  NSURL *documentsURL = [NSURL fileURLWithPath:documentsPath];
+  self.fileURL = [documentsURL URLByAppendingPathComponent:@"GULStorageHeartbeatTest"
+                                               isDirectory:NO];
+
+  NSError *error;
+  if (![documentsURL checkResourceIsReachableAndReturnError:&error]) {
+    XCTAssert([[NSFileManager defaultManager] createDirectoryAtURL:documentsURL
+                                       withIntermediateDirectories:YES
+                                                        attributes:nil
+                                                             error:&error],
+              @"Error: %@", error);
+  }
+
+  self.storage = [[GULStorageHeartbeat alloc] initWithFileURL:self.fileURL];
+}
+
+- (void)tearDown {
+  [[NSFileManager defaultManager] removeItemAtURL:self.fileURL error:nil];
+  self.fileURL = nil;
+  self.storage = nil;
+}
+
+- (void)testDictionaryStorage {
+  NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+  dict[@"fire-iid"] = @"123455";
+  dict[@"global"] = @"123";
+  NSError *error;
+  [self.storage writeDictionary:dict error:&error];
+  XCTAssertNil(error);
+  NSMutableDictionary *storedDict = [self.storage getDictionary];
+  XCTAssertEqualObjects(storedDict[@"fire-iid"], dict[@"fire-iid"]);
+  XCTAssertEqualObjects(storedDict[@"global"], dict[@"global"]);
+}
+
+- (void)testDateStorage {
+  NSDate *dateToSave = [NSDate date];
+
+  XCTAssertNil([self.storage date]);
+
+  NSError *error;
+  XCTAssertTrue([self.storage setDate:dateToSave error:&error]);
+
+  XCTAssertEqualObjects([self.storage date], dateToSave);
+
+  XCTAssertTrue([self.storage setDate:nil error:&error]);
+  XCTAssertNil([self.storage date]);
+}
+
+- (void)testDateIsStoredToFileSystem {
+  NSDate *date = [NSDate date];
+
+  NSError *error;
+  XCTAssert([self.storage setDate:date error:&error], @"Error: %@", error);
+
+  GULStorageHeartbeat *anotherStorage = [[GULStorageHeartbeat alloc] initWithFileURL:self.fileURL];
+
+  XCTAssertEqualObjects([anotherStorage date], date);
+}
+
+@end

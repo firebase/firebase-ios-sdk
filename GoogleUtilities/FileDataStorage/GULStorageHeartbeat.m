@@ -36,31 +36,46 @@
 }
 
 - (nullable NSMutableDictionary *)getDictionary {
-  NSString *jsonString = [NSString stringWithContentsOfURL:self.fileURL
+  NSString *plistString = [NSString stringWithContentsOfURL:self.fileURL
                                                   encoding:NSUTF8StringEncoding
                                                      error:nil];
-  if (jsonString == nil) {
+  if (plistString == nil) {
     return [NSMutableDictionary dictionary];
   }
-  NSError *jsonError;
-  NSData *objectData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
-  NSMutableDictionary *json = [NSJSONSerialization JSONObjectWithData:objectData
-                                                              options:NSJSONReadingMutableContainers
-                                                                error:&jsonError];
-  if (!json) {
-    NSLog(@"Got an error: %@", jsonError);
+  NSError *plistError;
+  NSData *objectData = [plistString dataUsingEncoding:NSUTF8StringEncoding];
+  NSMutableDictionary *dict = [NSPropertyListSerialization propertyListWithData:objectData options:NSPropertyListMutableContainers format:nil error:&plistError];
+  if (!dict) {
+    NSLog(@"Got an error: %@", plistError);
   }
-  return json;
+  return dict;
+}
+
+- (nullable NSDate *)heartbeatDateForTag:(NSString *)tag {
+  NSMutableDictionary* dictionary =  [self getDictionary];
+  return dictionary[tag];
+}
+
+- (BOOL)setHearbeatDate:(NSDate *)date forTag:(NSString *)tag {
+  NSMutableDictionary* dictionary =  [self getDictionary];
+  dictionary[tag] = date;
+  NSError *error;
+  BOOL isSuccess = [self writeDictionary:dictionary error:&error];
+  if(isSuccess == false) {
+    NSLog(@"Error writing dictionary data %@", error);
+  }
+  return isSuccess;
+
 }
 
 - (BOOL)writeDictionary:(NSMutableDictionary *)dictionary error:(NSError **)outError {
   NSError *error;
-  NSData *jsonData = [NSJSONSerialization dataWithJSONObject:dictionary options:0 error:&error];
-  if (!jsonData) {
-    NSLog(@"Got an error: %@", error);
+  NSData *plistData = [NSPropertyListSerialization dataWithPropertyList:dictionary format:NSPropertyListXMLFormat_v1_0 options:0 error:&error];
+  if (!plistData) {
+    NSLog(@"Error getting json Data %@", error);
   } else {
-    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-    return [jsonString writeToURL:self.fileURL
+    NSString *plistString = [[NSString alloc] initWithData:plistData encoding:NSUTF8StringEncoding];
+    return [plistString writeToURL:self.fileURL
                        atomically:YES
                          encoding:NSUTF8StringEncoding
                             error:outError];
