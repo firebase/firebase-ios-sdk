@@ -31,7 +31,7 @@ def usage()
   options can be any options for pod spec lint
 
   script options:
-    --skip-analyze: don't run Xcod analyze on this podspec
+    --skip-analyze: don't run Xcode analyze on this podspec
     --ignore-local-podspecs: list of podspecs that should not be added to
       "--include-podspecs" list. If not specified, then all podspec
       dependencies will be passed to "--include-podspecs".
