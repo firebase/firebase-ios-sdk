@@ -117,7 +117,7 @@ DocumentMap LevelDbRemoteDocumentCache::GetAllExisting(
   OptionalMaybeDocumentMap docs = LevelDbRemoteDocumentCache::GetAll(keys);
   for (const auto& kv : docs) {
     const DocumentKey& key = kv.first;
-    absl::optional<MaybeDocument> maybe_doc = kv.second;
+    const auto& maybe_doc = kv.second;
     if (maybe_doc && maybe_doc->is_document()) {
       results = results.insert(key, Document(*maybe_doc));
     }
