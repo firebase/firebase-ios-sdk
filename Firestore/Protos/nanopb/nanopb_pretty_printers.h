@@ -40,7 +40,15 @@ inline std::string Indent(int level) {
 template <typename T>
 using HasToString = typename std::is_member_function_pointer<decltype(&T::ToString)>;
 
-template <typename T, absl::enable_if_t<std::is_scalar<T>::value, int> = 0>
+template <typename T>
+using ScalarExceptEnum = absl::conjunction<std::is_scalar<T>, absl::negation<std::is_enum<T>>>;
+
+template <typename T, absl::enable_if_t<std::is_enum<T>::value, int> = 0>
+std::string ToStringImpl(const T& value, int indent) {
+    return PrintEnum(value);
+}
+
+template <typename T, absl::enable_if_t<ScalarExceptEnum<T>::value, int> = 0>
 std::string ToStringImpl(const T& value, int indent) {
   return std::to_string(value);
 }

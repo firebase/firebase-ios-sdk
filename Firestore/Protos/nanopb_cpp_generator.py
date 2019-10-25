@@ -232,6 +232,7 @@ class FieldPrettyPrintingInfo:
     self.is_optional = field.rules == 'OPTIONAL' and field.allocation == 'STATIC'
     self.is_repeated = field.rules == 'REPEATED'
     self.is_primitive = field.pbtype != 'MESSAGE'
+    # FIXME remove
     if self.is_primitive:
       if field.pbtype == 'BYTES':
         self.zero = 'nullptr'
@@ -379,6 +380,8 @@ def add_printing_for_field(field):
     return add_printing_for_repeated(field.name)
   elif field.oneof_member:
     return add_printing_for_oneof(field)
+  elif field.is_enum:
+    return add_printing_for_enum(field)
   else:
     return add_printing_for_singular(field.name, field.name, field.is_primitive)
 
@@ -410,6 +413,10 @@ def add_printing_for_repeated(name):
 
 
 def add_printing_for_optional(name):
+  return 'if (has_%s) ' % (name) + add_printing_for_singular(name, name, False)
+
+
+def add_printing_for_enum(field):
   return 'if (has_%s) ' % (name) + add_printing_for_singular(name, name, False)
 
 
