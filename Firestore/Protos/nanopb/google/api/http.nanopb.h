@@ -44,10 +44,8 @@ typedef struct _google_api_CustomHttpPattern {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        if (kind != nullptr) result += absl::StrCat("kind: ",
-            ToStringImpl(kind, indent), "\n");
-        if (path != nullptr) result += absl::StrCat("path: ",
-            ToStringImpl(path, indent), "\n");
+        result += PrintField("kind: ", kind, indent);
+        result += PrintField("path: ", path, indent);
 
         result += '}';
         return result;
@@ -67,10 +65,9 @@ typedef struct _google_api_Http {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        if (rules_count) result += absl::StrCat("rules: ",
-            ToStringImpl(rules, rules_count, indent + 1), "\n");
-        if (fully_decode_reserved_expansion != false) result += absl::StrCat("fully_decode_reserved_expansion: ",
-            ToStringImpl(fully_decode_reserved_expansion, indent), "\n");
+        result += PrintRepeatedField("rules: ",
+            rules, rules_count, indent);
+        result += PrintField("fully_decode_reserved_expansion: ", fully_decode_reserved_expansion, indent);
 
         result += '}';
         return result;
@@ -100,39 +97,31 @@ typedef struct _google_api_HttpRule {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        if (selector != nullptr) result += absl::StrCat("selector: ",
-            ToStringImpl(selector, indent), "\n");
+        result += PrintField("selector: ", selector, indent);
         switch (which_pattern) {
           case 2: // google_api_HttpRule_get_tag
-            result += absl::StrCat("get: ",
-            ToStringImpl(get, indent), "\n");
+            result += PrintField("get: ", get, indent);
             break;
           case 3: // google_api_HttpRule_put_tag
-            result += absl::StrCat("put: ",
-            ToStringImpl(put, indent), "\n");
+            result += PrintField("put: ", put, indent);
             break;
           case 4: // google_api_HttpRule_post_tag
-            result += absl::StrCat("post: ",
-            ToStringImpl(post, indent), "\n");
+            result += PrintField("post: ", post, indent);
             break;
           case 5: // google_api_HttpRule_delete_tag
-            result += absl::StrCat("delete_: ",
-            ToStringImpl(delete_, indent), "\n");
+            result += PrintField("delete_: ", delete_, indent);
             break;
           case 6: // google_api_HttpRule_patch_tag
-            result += absl::StrCat("patch: ",
-            ToStringImpl(patch, indent), "\n");
+            result += PrintField("patch: ", patch, indent);
             break;
           case 8: // google_api_HttpRule_custom_tag
-            result += absl::StrCat("custom: ",
-            ToStringImpl(custom, indent), "\n");
+            result += PrintField("custom: ", custom, indent);
             break;
         }
 
-        if (body != nullptr) result += absl::StrCat("body: ",
-            ToStringImpl(body, indent), "\n");
-        if (additional_bindings_count) result += absl::StrCat("additional_bindings: ",
-            ToStringImpl(additional_bindings, additional_bindings_count, indent + 1), "\n");
+        result += PrintField("body: ", body, indent);
+        result += PrintRepeatedField("additional_bindings: ",
+            additional_bindings, additional_bindings_count, indent);
 
         result += '}';
         return result;

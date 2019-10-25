@@ -381,8 +381,6 @@ def add_printing_for_field(field):
     return add_printing_for_repeated(field.name)
   elif field.oneof_member:
     return add_printing_for_oneof(field)
-  elif field.is_primitive:
-    return add_printing_for_primitive(field.name, field.name, field.zero)
   else:
     return add_printing_for_singular(field.name, field.name)
 
@@ -408,8 +406,10 @@ def add_printing_for_oneof(field):
 
 def add_printing_for_repeated(name):
   count = name + '_count'
-  return '''if (%s) result += absl::StrCat("%s: ",
-            ToStringImpl(%s, %s, indent + 1), "\\n");''' % (count, name, name, count)
+  # return '''if (%s) result += absl::StrCat("%s: ",
+  #           ToStringImpl(%s, %s, indent + 1), "\\n");''' % (count, name, name, count)
+  return 'result += PrintRepeatedField("%s: ",' % (name) + '''
+            %s, %s, indent);''' % (name, count)
 
 
 def add_printing_for_optional(name):
@@ -419,14 +419,10 @@ def add_printing_for_optional(name):
 def add_printing_for_singular(print_name, actual_name):
   if actual_name == None:
     actual_name = print_name
-  return '''result += absl::StrCat("%s: ",
-            ToStringImpl(%s, indent), "\\n");''' % (print_name, actual_name)
+  # return '''result += absl::StrCat("%s: ",
+  #           ToStringImpl(%s, indent), "\\n");''' % (print_name, actual_name)
+  return '''result += PrintField("%s: ", %s, indent);''' % (print_name, actual_name)
 
-
-def add_printing_for_primitive(print_name, actual_name, zero):
-  if actual_name == None:
-    actual_name = print_name
-  return 'if (%s != %s) ' % (actual_name, zero) + add_printing_for_singular(print_name, actual_name)
 
 # TODO:
 # 1. Extra colon

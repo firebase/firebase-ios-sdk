@@ -48,8 +48,8 @@ typedef struct _google_firestore_v1_DocumentMask {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        if (field_paths_count) result += absl::StrCat("field_paths: ",
-            ToStringImpl(field_paths, field_paths_count, indent + 1), "\n");
+        result += PrintRepeatedField("field_paths: ",
+            field_paths, field_paths_count, indent);
 
         result += '}';
         return result;
@@ -67,8 +67,7 @@ typedef struct _google_firestore_v1_TransactionOptions_ReadWrite {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        if (retry_transaction != nullptr) result += absl::StrCat("retry_transaction: ",
-            ToStringImpl(retry_transaction, indent), "\n");
+        result += PrintField("retry_transaction: ", retry_transaction, indent);
 
         result += '}';
         return result;
@@ -92,12 +91,10 @@ typedef struct _google_firestore_v1_Precondition {
 
         switch (which_condition_type) {
           case 1: // google_firestore_v1_Precondition_exists_tag
-            result += absl::StrCat("exists: ",
-            ToStringImpl(exists, indent), "\n");
+            result += PrintField("exists: ", exists, indent);
             break;
           case 2: // google_firestore_v1_Precondition_update_time_tag
-            result += absl::StrCat("update_time: ",
-            ToStringImpl(update_time, indent), "\n");
+            result += PrintField("update_time: ", update_time, indent);
             break;
         }
 
@@ -123,8 +120,7 @@ typedef struct _google_firestore_v1_TransactionOptions_ReadOnly {
 
         switch (which_consistency_selector) {
           case 2: // google_firestore_v1_TransactionOptions_ReadOnly_read_time_tag
-            result += absl::StrCat("read_time: ",
-            ToStringImpl(read_time, indent), "\n");
+            result += PrintField("read_time: ", read_time, indent);
             break;
         }
 
@@ -151,12 +147,10 @@ typedef struct _google_firestore_v1_TransactionOptions {
 
         switch (which_mode) {
           case 2: // google_firestore_v1_TransactionOptions_read_only_tag
-            result += absl::StrCat("read_only: ",
-            ToStringImpl(read_only, indent), "\n");
+            result += PrintField("read_only: ", read_only, indent);
             break;
           case 3: // google_firestore_v1_TransactionOptions_read_write_tag
-            result += absl::StrCat("read_write: ",
-            ToStringImpl(read_write, indent), "\n");
+            result += PrintField("read_write: ", read_write, indent);
             break;
         }
 

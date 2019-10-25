@@ -48,12 +48,10 @@ typedef struct _google_rpc_Status {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        if (code != 0) result += absl::StrCat("code: ",
-            ToStringImpl(code, indent), "\n");
-        if (message != nullptr) result += absl::StrCat("message: ",
-            ToStringImpl(message, indent), "\n");
-        if (details_count) result += absl::StrCat("details: ",
-            ToStringImpl(details, details_count, indent + 1), "\n");
+        result += PrintField("code: ", code, indent);
+        result += PrintField("message: ", message, indent);
+        result += PrintRepeatedField("details: ",
+            details, details_count, indent);
 
         result += '}';
         return result;

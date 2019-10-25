@@ -55,22 +55,16 @@ typedef struct _firestore_client_Target {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        if (target_id != 0) result += absl::StrCat("target_id: ",
-            ToStringImpl(target_id, indent), "\n");
-        result += absl::StrCat("snapshot_version: ",
-            ToStringImpl(snapshot_version, indent), "\n");
-        if (resume_token != nullptr) result += absl::StrCat("resume_token: ",
-            ToStringImpl(resume_token, indent), "\n");
-        if (last_listen_sequence_number != 0) result += absl::StrCat("last_listen_sequence_number: ",
-            ToStringImpl(last_listen_sequence_number, indent), "\n");
+        result += PrintField("target_id: ", target_id, indent);
+        result += PrintField("snapshot_version: ", snapshot_version, indent);
+        result += PrintField("resume_token: ", resume_token, indent);
+        result += PrintField("last_listen_sequence_number: ", last_listen_sequence_number, indent);
         switch (which_target_type) {
           case 5: // firestore_client_Target_query_tag
-            result += absl::StrCat("query: ",
-            ToStringImpl(query, indent), "\n");
+            result += PrintField("query: ", query, indent);
             break;
           case 6: // firestore_client_Target_documents_tag
-            result += absl::StrCat("documents: ",
-            ToStringImpl(documents, indent), "\n");
+            result += PrintField("documents: ", documents, indent);
             break;
         }
 
@@ -94,14 +88,10 @@ typedef struct _firestore_client_TargetGlobal {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        if (highest_target_id != 0) result += absl::StrCat("highest_target_id: ",
-            ToStringImpl(highest_target_id, indent), "\n");
-        if (highest_listen_sequence_number != 0) result += absl::StrCat("highest_listen_sequence_number: ",
-            ToStringImpl(highest_listen_sequence_number, indent), "\n");
-        result += absl::StrCat("last_remote_snapshot_version: ",
-            ToStringImpl(last_remote_snapshot_version, indent), "\n");
-        if (target_count != 0) result += absl::StrCat("target_count: ",
-            ToStringImpl(target_count, indent), "\n");
+        result += PrintField("highest_target_id: ", highest_target_id, indent);
+        result += PrintField("highest_listen_sequence_number: ", highest_listen_sequence_number, indent);
+        result += PrintField("last_remote_snapshot_version: ", last_remote_snapshot_version, indent);
+        result += PrintField("target_count: ", target_count, indent);
 
         result += '}';
         return result;

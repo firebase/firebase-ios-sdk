@@ -40,7 +40,11 @@ inline std::string Indent(int level) {
 template <typename T>
 using HasToString = typename std::is_member_function_pointer<decltype(&T::ToString)>;
 
-template <typename T, absl::enable_if_t<std::is_fundamental<T>::value || std::is_enum<T>::value, int> = 0>
+template <typename T>
+using IsPrimitive = absl::disjunction<std::is_fundamental<T>, std::is_enum<T>>;
+
+template <typename T,
+          absl::enable_if_t<IsPrimitive<T>::value, int> = 0>
 std::string ToStringImpl(const T& value, int indent) {
   return Indent(indent) + std::to_string(value);
 }
@@ -70,7 +74,32 @@ inline std::string ToStringImpl(bool value, int indent) {
   return absl::StrCat(Indent(indent), value ? "true" : "false");
 }
 
+// PrintField
+
+template <typename T,
+          absl::enable_if_t<!IsPrimitive<T>::value, int> = 0>
+std::string PrintField(absl::string_view name, const T& value, int indent) {
+  return absl::StrCat(name, ToStringImpl(value, indent), "\n");
 }
+
+template <typename T,
+          absl::enable_if_t<IsPrimitive<T>::value, int> = 0>
+std::string PrintField(absl::string_view name, T value, int indent) {
+  if (value == T{}) {
+    return "";
+  }
+  return absl::StrCat(name, ToStringImpl(value, indent), "\n");
+}
+
+template <typename T>
+std::string PrintRepeatedField(absl::string_view name,
+                               const T& value,
+                               pb_size_t count,
+                               int indent) {
+  return absl::StrCat(name, ToStringImpl(value, count, indent), "\n");
+}
+
+}  // namespace firestore
 }  // namespace firebase
 
 #endif  // PROTOS_NANOPB_NANOPB_PRETTY_PRINTERS_H_

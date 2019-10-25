@@ -48,10 +48,8 @@ typedef struct _firestore_client_NoDocument {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        if (name != nullptr) result += absl::StrCat("name: ",
-            ToStringImpl(name, indent), "\n");
-        result += absl::StrCat("read_time: ",
-            ToStringImpl(read_time, indent), "\n");
+        result += PrintField("name: ", name, indent);
+        result += PrintField("read_time: ", read_time, indent);
 
         result += '}';
         return result;
@@ -70,10 +68,8 @@ typedef struct _firestore_client_UnknownDocument {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        if (name != nullptr) result += absl::StrCat("name: ",
-            ToStringImpl(name, indent), "\n");
-        result += absl::StrCat("version: ",
-            ToStringImpl(version, indent), "\n");
+        result += PrintField("name: ", name, indent);
+        result += PrintField("version: ", version, indent);
 
         result += '}';
         return result;
@@ -99,21 +95,17 @@ typedef struct _firestore_client_MaybeDocument {
 
         switch (which_document_type) {
           case 1: // firestore_client_MaybeDocument_no_document_tag
-            result += absl::StrCat("no_document: ",
-            ToStringImpl(no_document, indent), "\n");
+            result += PrintField("no_document: ", no_document, indent);
             break;
           case 2: // firestore_client_MaybeDocument_document_tag
-            result += absl::StrCat("document: ",
-            ToStringImpl(document, indent), "\n");
+            result += PrintField("document: ", document, indent);
             break;
           case 3: // firestore_client_MaybeDocument_unknown_document_tag
-            result += absl::StrCat("unknown_document: ",
-            ToStringImpl(unknown_document, indent), "\n");
+            result += PrintField("unknown_document: ", unknown_document, indent);
             break;
         }
 
-        if (has_committed_mutations != false) result += absl::StrCat("has_committed_mutations: ",
-            ToStringImpl(has_committed_mutations, indent), "\n");
+        result += PrintField("has_committed_mutations: ", has_committed_mutations, indent);
 
         result += '}';
         return result;

@@ -44,10 +44,8 @@ typedef struct _google_protobuf_Any {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        if (type_url != nullptr) result += absl::StrCat("type_url: ",
-            ToStringImpl(type_url, indent), "\n");
-        if (value != nullptr) result += absl::StrCat("value: ",
-            ToStringImpl(value, indent), "\n");
+        result += PrintField("type_url: ", type_url, indent);
+        result += PrintField("value: ", value, indent);
 
         result += '}';
         return result;

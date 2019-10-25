@@ -52,8 +52,8 @@ typedef struct _google_protobuf_ListValue {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        if (values_count) result += absl::StrCat("values: ",
-            ToStringImpl(values, values_count, indent + 1), "\n");
+        result += PrintRepeatedField("values: ",
+            values, values_count, indent);
 
         result += '}';
         return result;
@@ -72,8 +72,8 @@ typedef struct _google_protobuf_Struct {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        if (fields_count) result += absl::StrCat("fields: ",
-            ToStringImpl(fields, fields_count, indent + 1), "\n");
+        result += PrintRepeatedField("fields: ",
+            fields, fields_count, indent);
 
         result += '}';
         return result;
@@ -101,28 +101,22 @@ typedef struct _google_protobuf_Value {
 
         switch (which_kind) {
           case 1: // google_protobuf_Value_null_value_tag
-            result += absl::StrCat("null_value: ",
-            ToStringImpl(null_value, indent), "\n");
+            result += PrintField("null_value: ", null_value, indent);
             break;
           case 2: // google_protobuf_Value_number_value_tag
-            result += absl::StrCat("number_value: ",
-            ToStringImpl(number_value, indent), "\n");
+            result += PrintField("number_value: ", number_value, indent);
             break;
           case 3: // google_protobuf_Value_string_value_tag
-            result += absl::StrCat("string_value: ",
-            ToStringImpl(string_value, indent), "\n");
+            result += PrintField("string_value: ", string_value, indent);
             break;
           case 4: // google_protobuf_Value_bool_value_tag
-            result += absl::StrCat("bool_value: ",
-            ToStringImpl(bool_value, indent), "\n");
+            result += PrintField("bool_value: ", bool_value, indent);
             break;
           case 5: // google_protobuf_Value_struct_value_tag
-            result += absl::StrCat("struct_value: ",
-            ToStringImpl(struct_value, indent), "\n");
+            result += PrintField("struct_value: ", struct_value, indent);
             break;
           case 6: // google_protobuf_Value_list_value_tag
-            result += absl::StrCat("list_value: ",
-            ToStringImpl(list_value, indent), "\n");
+            result += PrintField("list_value: ", list_value, indent);
             break;
         }
 
@@ -144,10 +138,8 @@ typedef struct _google_protobuf_Struct_FieldsEntry {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        if (key != nullptr) result += absl::StrCat("key: ",
-            ToStringImpl(key, indent), "\n");
-        result += absl::StrCat("value: ",
-            ToStringImpl(value, indent), "\n");
+        result += PrintField("key: ", key, indent);
+        result += PrintField("value: ", value, indent);
 
         result += '}';
         return result;
