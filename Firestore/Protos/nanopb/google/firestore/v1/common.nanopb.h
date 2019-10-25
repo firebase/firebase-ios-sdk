@@ -49,9 +49,9 @@ typedef struct _google_firestore_v1_DocumentMask {
         std::string result{"{\n"};
 
         result += PrintRepeatedField("field_paths: ",
-            field_paths, field_paths_count, indent);
+            field_paths, field_paths_count, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_DocumentMask) */
@@ -67,9 +67,9 @@ typedef struct _google_firestore_v1_TransactionOptions_ReadWrite {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("retry_transaction: ", retry_transaction, indent);
+        result += PrintField("retry_transaction: ", retry_transaction, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_TransactionOptions_ReadWrite) */
@@ -91,15 +91,15 @@ typedef struct _google_firestore_v1_Precondition {
 
         switch (which_condition_type) {
           case 1: // google_firestore_v1_Precondition_exists_tag
-            result += PrintField("exists: ", exists, indent);
+            result += PrintField("exists: ", exists, indent + 1);
             break;
           case 2: // google_firestore_v1_Precondition_update_time_tag
-            result += PrintField("update_time: ", update_time, indent);
+            result += PrintField("update_time: ", update_time, indent + 1);
             break;
         }
 
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_Precondition) */
@@ -120,12 +120,12 @@ typedef struct _google_firestore_v1_TransactionOptions_ReadOnly {
 
         switch (which_consistency_selector) {
           case 2: // google_firestore_v1_TransactionOptions_ReadOnly_read_time_tag
-            result += PrintField("read_time: ", read_time, indent);
+            result += PrintField("read_time: ", read_time, indent + 1);
             break;
         }
 
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_TransactionOptions_ReadOnly) */
@@ -147,15 +147,15 @@ typedef struct _google_firestore_v1_TransactionOptions {
 
         switch (which_mode) {
           case 2: // google_firestore_v1_TransactionOptions_read_only_tag
-            result += PrintField("read_only: ", read_only, indent);
+            result += PrintField("read_only: ", read_only, indent + 1);
             break;
           case 3: // google_firestore_v1_TransactionOptions_read_write_tag
-            result += PrintField("read_write: ", read_write, indent);
+            result += PrintField("read_write: ", read_write, indent + 1);
             break;
         }
 
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_TransactionOptions) */

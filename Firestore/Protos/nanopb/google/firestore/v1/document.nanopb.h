@@ -53,9 +53,9 @@ typedef struct _google_firestore_v1_ArrayValue {
         std::string result{"{\n"};
 
         result += PrintRepeatedField("values: ",
-            values, values_count, indent);
+            values, values_count, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_ArrayValue) */
@@ -73,9 +73,9 @@ typedef struct _google_firestore_v1_MapValue {
         std::string result{"{\n"};
 
         result += PrintRepeatedField("fields: ",
-            fields, fields_count, indent);
+            fields, fields_count, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_MapValue) */
@@ -96,13 +96,13 @@ typedef struct _google_firestore_v1_Document {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("name: ", name, indent);
+        result += PrintField("name: ", name, indent + 1);
         result += PrintRepeatedField("fields: ",
-            fields, fields_count, indent);
-        result += PrintField("create_time: ", create_time, indent);
-        if (has_update_time) result += PrintField("update_time: ", update_time, indent);
+            fields, fields_count, indent + 1);
+        result += PrintField("create_time: ", create_time, indent + 1);
+        if (has_update_time) result += PrintField("update_time: ", update_time, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_Document) */
@@ -133,42 +133,42 @@ typedef struct _google_firestore_v1_Value {
 
         switch (which_value_type) {
           case 1: // google_firestore_v1_Value_boolean_value_tag
-            result += PrintField("boolean_value: ", boolean_value, indent);
+            result += PrintField("boolean_value: ", boolean_value, indent + 1);
             break;
           case 2: // google_firestore_v1_Value_integer_value_tag
-            result += PrintField("integer_value: ", integer_value, indent);
+            result += PrintField("integer_value: ", integer_value, indent + 1);
             break;
           case 3: // google_firestore_v1_Value_double_value_tag
-            result += PrintField("double_value: ", double_value, indent);
+            result += PrintField("double_value: ", double_value, indent + 1);
             break;
           case 5: // google_firestore_v1_Value_reference_value_tag
-            result += PrintField("reference_value: ", reference_value, indent);
+            result += PrintField("reference_value: ", reference_value, indent + 1);
             break;
           case 6: // google_firestore_v1_Value_map_value_tag
-            result += PrintField("map_value: ", map_value, indent);
+            result += PrintField("map_value: ", map_value, indent + 1);
             break;
           case 8: // google_firestore_v1_Value_geo_point_value_tag
-            result += PrintField("geo_point_value: ", geo_point_value, indent);
+            result += PrintField("geo_point_value: ", geo_point_value, indent + 1);
             break;
           case 9: // google_firestore_v1_Value_array_value_tag
-            result += PrintField("array_value: ", array_value, indent);
+            result += PrintField("array_value: ", array_value, indent + 1);
             break;
           case 10: // google_firestore_v1_Value_timestamp_value_tag
-            result += PrintField("timestamp_value: ", timestamp_value, indent);
+            result += PrintField("timestamp_value: ", timestamp_value, indent + 1);
             break;
           case 11: // google_firestore_v1_Value_null_value_tag
-            result += PrintField("null_value: ", null_value, indent);
+            result += PrintField("null_value: ", null_value, indent + 1);
             break;
           case 17: // google_firestore_v1_Value_string_value_tag
-            result += PrintField("string_value: ", string_value, indent);
+            result += PrintField("string_value: ", string_value, indent + 1);
             break;
           case 18: // google_firestore_v1_Value_bytes_value_tag
-            result += PrintField("bytes_value: ", bytes_value, indent);
+            result += PrintField("bytes_value: ", bytes_value, indent + 1);
             break;
         }
 
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_Value) */
@@ -185,10 +185,10 @@ typedef struct _google_firestore_v1_Document_FieldsEntry {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("key: ", key, indent);
-        result += PrintField("value: ", value, indent);
+        result += PrintField("key: ", key, indent + 1);
+        result += PrintField("value: ", value, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_Document_FieldsEntry) */
@@ -205,10 +205,10 @@ typedef struct _google_firestore_v1_MapValue_FieldsEntry {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("key: ", key, indent);
-        result += PrintField("value: ", value, indent);
+        result += PrintField("key: ", key, indent + 1);
+        result += PrintField("value: ", value, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_MapValue_FieldsEntry) */

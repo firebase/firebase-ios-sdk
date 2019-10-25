@@ -71,9 +71,9 @@ typedef struct _google_firestore_v1_BeginTransactionResponse {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("transaction: ", transaction, indent);
+        result += PrintField("transaction: ", transaction, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_BeginTransactionResponse) */
@@ -92,12 +92,12 @@ typedef struct _google_firestore_v1_CommitRequest {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("database: ", database, indent);
+        result += PrintField("database: ", database, indent + 1);
         result += PrintRepeatedField("writes: ",
-            writes, writes_count, indent);
-        result += PrintField("transaction: ", transaction, indent);
+            writes, writes_count, indent + 1);
+        result += PrintField("transaction: ", transaction, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_CommitRequest) */
@@ -116,10 +116,10 @@ typedef struct _google_firestore_v1_ListCollectionIdsResponse {
         std::string result{"{\n"};
 
         result += PrintRepeatedField("collection_ids: ",
-            collection_ids, collection_ids_count, indent);
-        result += PrintField("next_page_token: ", next_page_token, indent);
+            collection_ids, collection_ids_count, indent + 1);
+        result += PrintField("next_page_token: ", next_page_token, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_ListCollectionIdsResponse) */
@@ -138,10 +138,10 @@ typedef struct _google_firestore_v1_ListDocumentsResponse {
         std::string result{"{\n"};
 
         result += PrintRepeatedField("documents: ",
-            documents, documents_count, indent);
-        result += PrintField("next_page_token: ", next_page_token, indent);
+            documents, documents_count, indent + 1);
+        result += PrintField("next_page_token: ", next_page_token, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_ListDocumentsResponse) */
@@ -158,10 +158,10 @@ typedef struct _google_firestore_v1_ListenRequest_LabelsEntry {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("key: ", key, indent);
-        result += PrintField("value: ", value, indent);
+        result += PrintField("key: ", key, indent + 1);
+        result += PrintField("value: ", value, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_ListenRequest_LabelsEntry) */
@@ -178,10 +178,10 @@ typedef struct _google_firestore_v1_RollbackRequest {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("database: ", database, indent);
-        result += PrintField("transaction: ", transaction, indent);
+        result += PrintField("database: ", database, indent + 1);
+        result += PrintField("transaction: ", transaction, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_RollbackRequest) */
@@ -199,9 +199,9 @@ typedef struct _google_firestore_v1_Target_DocumentsTarget {
         std::string result{"{\n"};
 
         result += PrintRepeatedField("documents: ",
-            documents, documents_count, indent);
+            documents, documents_count, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_Target_DocumentsTarget) */
@@ -223,15 +223,15 @@ typedef struct _google_firestore_v1_WriteRequest {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("database: ", database, indent);
-        result += PrintField("stream_id: ", stream_id, indent);
+        result += PrintField("database: ", database, indent + 1);
+        result += PrintField("stream_id: ", stream_id, indent + 1);
         result += PrintRepeatedField("writes: ",
-            writes, writes_count, indent);
-        result += PrintField("stream_token: ", stream_token, indent);
+            writes, writes_count, indent + 1);
+        result += PrintField("stream_token: ", stream_token, indent + 1);
         result += PrintRepeatedField("labels: ",
-            labels, labels_count, indent);
+            labels, labels_count, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_WriteRequest) */
@@ -248,10 +248,10 @@ typedef struct _google_firestore_v1_WriteRequest_LabelsEntry {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("key: ", key, indent);
-        result += PrintField("value: ", value, indent);
+        result += PrintField("key: ", key, indent + 1);
+        result += PrintField("value: ", value, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_WriteRequest_LabelsEntry) */
@@ -276,24 +276,24 @@ typedef struct _google_firestore_v1_BatchGetDocumentsRequest {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("database: ", database, indent);
+        result += PrintField("database: ", database, indent + 1);
         result += PrintRepeatedField("documents: ",
-            documents, documents_count, indent);
-        result += PrintField("mask: ", mask, indent);
+            documents, documents_count, indent + 1);
+        result += PrintField("mask: ", mask, indent + 1);
         switch (which_consistency_selector) {
           case 4: // google_firestore_v1_BatchGetDocumentsRequest_transaction_tag
-            result += PrintField("transaction: ", transaction, indent);
+            result += PrintField("transaction: ", transaction, indent + 1);
             break;
           case 5: // google_firestore_v1_BatchGetDocumentsRequest_new_transaction_tag
-            result += PrintField("new_transaction: ", new_transaction, indent);
+            result += PrintField("new_transaction: ", new_transaction, indent + 1);
             break;
           case 7: // google_firestore_v1_BatchGetDocumentsRequest_read_time_tag
-            result += PrintField("read_time: ", read_time, indent);
+            result += PrintField("read_time: ", read_time, indent + 1);
             break;
         }
 
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_BatchGetDocumentsRequest) */
@@ -317,17 +317,17 @@ typedef struct _google_firestore_v1_BatchGetDocumentsResponse {
 
         switch (which_result) {
           case 1: // google_firestore_v1_BatchGetDocumentsResponse_found_tag
-            result += PrintField("found: ", found, indent);
+            result += PrintField("found: ", found, indent + 1);
             break;
           case 2: // google_firestore_v1_BatchGetDocumentsResponse_missing_tag
-            result += PrintField("missing: ", missing, indent);
+            result += PrintField("missing: ", missing, indent + 1);
             break;
         }
 
-        result += PrintField("transaction: ", transaction, indent);
-        result += PrintField("read_time: ", read_time, indent);
+        result += PrintField("transaction: ", transaction, indent + 1);
+        result += PrintField("read_time: ", read_time, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_BatchGetDocumentsResponse) */
@@ -344,10 +344,10 @@ typedef struct _google_firestore_v1_BeginTransactionRequest {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("database: ", database, indent);
-        result += PrintField("options: ", options, indent);
+        result += PrintField("database: ", database, indent + 1);
+        result += PrintField("options: ", options, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_BeginTransactionRequest) */
@@ -366,10 +366,10 @@ typedef struct _google_firestore_v1_CommitResponse {
         std::string result{"{\n"};
 
         result += PrintRepeatedField("write_results: ",
-            write_results, write_results_count, indent);
-        result += PrintField("commit_time: ", commit_time, indent);
+            write_results, write_results_count, indent + 1);
+        result += PrintField("commit_time: ", commit_time, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_CommitResponse) */
@@ -389,13 +389,13 @@ typedef struct _google_firestore_v1_CreateDocumentRequest {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("parent: ", parent, indent);
-        result += PrintField("collection_id: ", collection_id, indent);
-        result += PrintField("document_id: ", document_id, indent);
-        result += PrintField("document: ", document, indent);
-        result += PrintField("mask: ", mask, indent);
+        result += PrintField("parent: ", parent, indent + 1);
+        result += PrintField("collection_id: ", collection_id, indent + 1);
+        result += PrintField("document_id: ", document_id, indent + 1);
+        result += PrintField("document: ", document, indent + 1);
+        result += PrintField("mask: ", mask, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_CreateDocumentRequest) */
@@ -412,10 +412,10 @@ typedef struct _google_firestore_v1_DeleteDocumentRequest {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("name: ", name, indent);
-        result += PrintField("current_document: ", current_document, indent);
+        result += PrintField("name: ", name, indent + 1);
+        result += PrintField("current_document: ", current_document, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_DeleteDocumentRequest) */
@@ -437,19 +437,19 @@ typedef struct _google_firestore_v1_GetDocumentRequest {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("name: ", name, indent);
-        result += PrintField("mask: ", mask, indent);
+        result += PrintField("name: ", name, indent + 1);
+        result += PrintField("mask: ", mask, indent + 1);
         switch (which_consistency_selector) {
           case 3: // google_firestore_v1_GetDocumentRequest_transaction_tag
-            result += PrintField("transaction: ", transaction, indent);
+            result += PrintField("transaction: ", transaction, indent + 1);
             break;
           case 5: // google_firestore_v1_GetDocumentRequest_read_time_tag
-            result += PrintField("read_time: ", read_time, indent);
+            result += PrintField("read_time: ", read_time, indent + 1);
             break;
         }
 
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_GetDocumentRequest) */
@@ -467,11 +467,11 @@ typedef struct _google_firestore_v1_ListCollectionIdsRequest {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("parent: ", parent, indent);
-        result += PrintField("page_size: ", page_size, indent);
-        result += PrintField("page_token: ", page_token, indent);
+        result += PrintField("parent: ", parent, indent + 1);
+        result += PrintField("page_size: ", page_size, indent + 1);
+        result += PrintField("page_token: ", page_token, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_ListCollectionIdsRequest) */
@@ -498,24 +498,24 @@ typedef struct _google_firestore_v1_ListDocumentsRequest {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("parent: ", parent, indent);
-        result += PrintField("collection_id: ", collection_id, indent);
-        result += PrintField("page_size: ", page_size, indent);
-        result += PrintField("page_token: ", page_token, indent);
-        result += PrintField("order_by: ", order_by, indent);
-        result += PrintField("mask: ", mask, indent);
+        result += PrintField("parent: ", parent, indent + 1);
+        result += PrintField("collection_id: ", collection_id, indent + 1);
+        result += PrintField("page_size: ", page_size, indent + 1);
+        result += PrintField("page_token: ", page_token, indent + 1);
+        result += PrintField("order_by: ", order_by, indent + 1);
+        result += PrintField("mask: ", mask, indent + 1);
         switch (which_consistency_selector) {
           case 8: // google_firestore_v1_ListDocumentsRequest_transaction_tag
-            result += PrintField("transaction: ", transaction, indent);
+            result += PrintField("transaction: ", transaction, indent + 1);
             break;
           case 10: // google_firestore_v1_ListDocumentsRequest_read_time_tag
-            result += PrintField("read_time: ", read_time, indent);
+            result += PrintField("read_time: ", read_time, indent + 1);
             break;
         }
 
-        result += PrintField("show_missing: ", show_missing, indent);
+        result += PrintField("show_missing: ", show_missing, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_ListDocumentsRequest) */
@@ -541,27 +541,27 @@ typedef struct _google_firestore_v1_RunQueryRequest {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("parent: ", parent, indent);
+        result += PrintField("parent: ", parent, indent + 1);
         switch (which_query_type) {
           case 2: // google_firestore_v1_RunQueryRequest_structured_query_tag
-            result += PrintField("structured_query: ", query_type.structured_query, indent);
+            result += PrintField("structured_query: ", query_type.structured_query, indent + 1);
             break;
         }
 
         switch (which_consistency_selector) {
           case 5: // google_firestore_v1_RunQueryRequest_transaction_tag
-            result += PrintField("transaction: ", consistency_selector.transaction, indent);
+            result += PrintField("transaction: ", consistency_selector.transaction, indent + 1);
             break;
           case 6: // google_firestore_v1_RunQueryRequest_new_transaction_tag
-            result += PrintField("new_transaction: ", consistency_selector.new_transaction, indent);
+            result += PrintField("new_transaction: ", consistency_selector.new_transaction, indent + 1);
             break;
           case 7: // google_firestore_v1_RunQueryRequest_read_time_tag
-            result += PrintField("read_time: ", consistency_selector.read_time, indent);
+            result += PrintField("read_time: ", consistency_selector.read_time, indent + 1);
             break;
         }
 
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_RunQueryRequest) */
@@ -580,12 +580,12 @@ typedef struct _google_firestore_v1_RunQueryResponse {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("document: ", document, indent);
-        result += PrintField("transaction: ", transaction, indent);
-        result += PrintField("read_time: ", read_time, indent);
-        result += PrintField("skipped_results: ", skipped_results, indent);
+        result += PrintField("document: ", document, indent + 1);
+        result += PrintField("transaction: ", transaction, indent + 1);
+        result += PrintField("read_time: ", read_time, indent + 1);
+        result += PrintField("skipped_results: ", skipped_results, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_RunQueryResponse) */
@@ -607,14 +607,14 @@ typedef struct _google_firestore_v1_TargetChange {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("target_change_type: ", target_change_type, indent);
+        result += PrintField("target_change_type: ", target_change_type, indent + 1);
         result += PrintRepeatedField("target_ids: ",
-            target_ids, target_ids_count, indent);
-        if (has_cause) result += PrintField("cause: ", cause, indent);
-        result += PrintField("resume_token: ", resume_token, indent);
-        result += PrintField("read_time: ", read_time, indent);
+            target_ids, target_ids_count, indent + 1);
+        if (has_cause) result += PrintField("cause: ", cause, indent + 1);
+        result += PrintField("resume_token: ", resume_token, indent + 1);
+        result += PrintField("read_time: ", read_time, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_TargetChange) */
@@ -634,15 +634,15 @@ typedef struct _google_firestore_v1_Target_QueryTarget {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("parent: ", parent, indent);
+        result += PrintField("parent: ", parent, indent + 1);
         switch (which_query_type) {
           case 2: // google_firestore_v1_Target_QueryTarget_structured_query_tag
-            result += PrintField("structured_query: ", structured_query, indent);
+            result += PrintField("structured_query: ", structured_query, indent + 1);
             break;
         }
 
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_Target_QueryTarget) */
@@ -661,12 +661,12 @@ typedef struct _google_firestore_v1_UpdateDocumentRequest {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("document: ", document, indent);
-        result += PrintField("update_mask: ", update_mask, indent);
-        result += PrintField("mask: ", mask, indent);
-        result += PrintField("current_document: ", current_document, indent);
+        result += PrintField("document: ", document, indent + 1);
+        result += PrintField("update_mask: ", update_mask, indent + 1);
+        result += PrintField("mask: ", mask, indent + 1);
+        result += PrintField("current_document: ", current_document, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_UpdateDocumentRequest) */
@@ -686,13 +686,13 @@ typedef struct _google_firestore_v1_WriteResponse {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("stream_id: ", stream_id, indent);
-        result += PrintField("stream_token: ", stream_token, indent);
+        result += PrintField("stream_id: ", stream_id, indent + 1);
+        result += PrintField("stream_token: ", stream_token, indent + 1);
         result += PrintRepeatedField("write_results: ",
-            write_results, write_results_count, indent);
-        result += PrintField("commit_time: ", commit_time, indent);
+            write_results, write_results_count, indent + 1);
+        result += PrintField("commit_time: ", commit_time, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_WriteResponse) */
@@ -717,24 +717,24 @@ typedef struct _google_firestore_v1_ListenResponse {
 
         switch (which_response_type) {
           case 2: // google_firestore_v1_ListenResponse_target_change_tag
-            result += PrintField("target_change: ", target_change, indent);
+            result += PrintField("target_change: ", target_change, indent + 1);
             break;
           case 3: // google_firestore_v1_ListenResponse_document_change_tag
-            result += PrintField("document_change: ", document_change, indent);
+            result += PrintField("document_change: ", document_change, indent + 1);
             break;
           case 4: // google_firestore_v1_ListenResponse_document_delete_tag
-            result += PrintField("document_delete: ", document_delete, indent);
+            result += PrintField("document_delete: ", document_delete, indent + 1);
             break;
           case 5: // google_firestore_v1_ListenResponse_filter_tag
-            result += PrintField("filter: ", filter, indent);
+            result += PrintField("filter: ", filter, indent + 1);
             break;
           case 6: // google_firestore_v1_ListenResponse_document_remove_tag
-            result += PrintField("document_remove: ", document_remove, indent);
+            result += PrintField("document_remove: ", document_remove, indent + 1);
             break;
         }
 
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_ListenResponse) */
@@ -763,26 +763,26 @@ typedef struct _google_firestore_v1_Target {
 
         switch (which_target_type) {
           case 2: // google_firestore_v1_Target_query_tag
-            result += PrintField("query: ", target_type.query, indent);
+            result += PrintField("query: ", target_type.query, indent + 1);
             break;
           case 3: // google_firestore_v1_Target_documents_tag
-            result += PrintField("documents: ", target_type.documents, indent);
+            result += PrintField("documents: ", target_type.documents, indent + 1);
             break;
         }
 
         switch (which_resume_type) {
           case 4: // google_firestore_v1_Target_resume_token_tag
-            result += PrintField("resume_token: ", resume_type.resume_token, indent);
+            result += PrintField("resume_token: ", resume_type.resume_token, indent + 1);
             break;
           case 11: // google_firestore_v1_Target_read_time_tag
-            result += PrintField("read_time: ", resume_type.read_time, indent);
+            result += PrintField("read_time: ", resume_type.read_time, indent + 1);
             break;
         }
 
-        result += PrintField("target_id: ", target_id, indent);
-        result += PrintField("once: ", once, indent);
+        result += PrintField("target_id: ", target_id, indent + 1);
+        result += PrintField("once: ", once, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_Target) */
@@ -805,20 +805,20 @@ typedef struct _google_firestore_v1_ListenRequest {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("database: ", database, indent);
+        result += PrintField("database: ", database, indent + 1);
         switch (which_target_change) {
           case 2: // google_firestore_v1_ListenRequest_add_target_tag
-            result += PrintField("add_target: ", add_target, indent);
+            result += PrintField("add_target: ", add_target, indent + 1);
             break;
           case 3: // google_firestore_v1_ListenRequest_remove_target_tag
-            result += PrintField("remove_target: ", remove_target, indent);
+            result += PrintField("remove_target: ", remove_target, indent + 1);
             break;
         }
 
         result += PrintRepeatedField("labels: ",
-            labels, labels_count, indent);
+            labels, labels_count, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_ListenRequest) */

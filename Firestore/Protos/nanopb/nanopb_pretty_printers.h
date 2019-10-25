@@ -43,15 +43,14 @@ using HasToString = typename std::is_member_function_pointer<decltype(&T::ToStri
 template <typename T>
 using IsPrimitive = absl::disjunction<std::is_fundamental<T>, std::is_enum<T>>;
 
-template <typename T,
-          absl::enable_if_t<IsPrimitive<T>::value, int> = 0>
+template <typename T, absl::enable_if_t<IsPrimitive<T>::value, int> = 0>
 std::string ToStringImpl(const T& value, int indent) {
-  return Indent(indent) + std::to_string(value);
+  return std::to_string(value);
 }
 
 template <typename T, absl::enable_if_t<HasToString<T>::value, int> = 0>
 std::string ToStringImpl(const T& value, int indent) {
-  return Indent(indent) + value.ToString(indent + 1);
+  return value.ToString(indent);
 }
 
 template <typename T>
@@ -61,34 +60,32 @@ std::string ToStringImpl(const T* value, pb_size_t size, int indent) {
     if (i != 0) {
       result += ", ";
     }
-    result += Indent(indent) + ToStringImpl(value[i], indent);
+    result += ToStringImpl(value[i], indent);
   }
   return result;
 }
 
 inline std::string ToStringImpl(pb_bytes_array_t* value, int indent) {
-  return absl::StrCat(Indent(indent), "\"", nanopb::MakeString(value), "\"");
+  return absl::StrCat("\"", nanopb::MakeString(value), "\"");
 }
 
 inline std::string ToStringImpl(bool value, int indent) {
-  return absl::StrCat(Indent(indent), value ? "true" : "false");
+  return absl::StrCat(value ? "true" : "false");
 }
 
 // PrintField
 
-template <typename T,
-          absl::enable_if_t<!IsPrimitive<T>::value, int> = 0>
+template <typename T, absl::enable_if_t<!IsPrimitive<T>::value, int> = 0>
 std::string PrintField(absl::string_view name, const T& value, int indent) {
-  return absl::StrCat(name, ToStringImpl(value, indent), "\n");
+  return absl::StrCat(Indent(indent), name, ToStringImpl(value, indent), "\n");
 }
 
-template <typename T,
-          absl::enable_if_t<IsPrimitive<T>::value, int> = 0>
+template <typename T, absl::enable_if_t<IsPrimitive<T>::value, int> = 0>
 std::string PrintField(absl::string_view name, T value, int indent) {
   if (value == T{}) {
     return "";
   }
-  return absl::StrCat(name, ToStringImpl(value, indent), "\n");
+  return absl::StrCat(Indent(indent), name, ToStringImpl(value, indent), "\n");
 }
 
 template <typename T>
@@ -99,7 +96,7 @@ std::string PrintRepeatedField(absl::string_view name,
   if (count == 0) {
     return "";
   }
-  return absl::StrCat(name, ToStringImpl(value, count, indent), "\n");
+  return absl::StrCat(Indent(indent), name, ToStringImpl(value, count, indent), "\n");
 }
 
 }  // namespace firestore

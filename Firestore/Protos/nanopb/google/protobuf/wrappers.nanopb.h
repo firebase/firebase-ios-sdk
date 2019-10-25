@@ -43,9 +43,9 @@ typedef struct _google_protobuf_BytesValue {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("value: ", value, indent);
+        result += PrintField("value: ", value, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_protobuf_BytesValue) */
@@ -61,9 +61,9 @@ typedef struct _google_protobuf_StringValue {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("value: ", value, indent);
+        result += PrintField("value: ", value, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_protobuf_StringValue) */
@@ -79,9 +79,9 @@ typedef struct _google_protobuf_BoolValue {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("value: ", value, indent);
+        result += PrintField("value: ", value, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_protobuf_BoolValue) */
@@ -97,9 +97,9 @@ typedef struct _google_protobuf_DoubleValue {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("value: ", value, indent);
+        result += PrintField("value: ", value, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_protobuf_DoubleValue) */
@@ -115,9 +115,9 @@ typedef struct _google_protobuf_FloatValue {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("value: ", value, indent);
+        result += PrintField("value: ", value, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_protobuf_FloatValue) */
@@ -133,9 +133,9 @@ typedef struct _google_protobuf_Int32Value {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("value: ", value, indent);
+        result += PrintField("value: ", value, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_protobuf_Int32Value) */
@@ -151,9 +151,9 @@ typedef struct _google_protobuf_Int64Value {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("value: ", value, indent);
+        result += PrintField("value: ", value, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_protobuf_Int64Value) */
@@ -169,9 +169,9 @@ typedef struct _google_protobuf_UInt32Value {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("value: ", value, indent);
+        result += PrintField("value: ", value, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_protobuf_UInt32Value) */
@@ -187,9 +187,9 @@ typedef struct _google_protobuf_UInt64Value {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("value: ", value, indent);
+        result += PrintField("value: ", value, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_protobuf_UInt64Value) */

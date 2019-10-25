@@ -55,21 +55,21 @@ typedef struct _firestore_client_Target {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("target_id: ", target_id, indent);
-        result += PrintField("snapshot_version: ", snapshot_version, indent);
-        result += PrintField("resume_token: ", resume_token, indent);
-        result += PrintField("last_listen_sequence_number: ", last_listen_sequence_number, indent);
+        result += PrintField("target_id: ", target_id, indent + 1);
+        result += PrintField("snapshot_version: ", snapshot_version, indent + 1);
+        result += PrintField("resume_token: ", resume_token, indent + 1);
+        result += PrintField("last_listen_sequence_number: ", last_listen_sequence_number, indent + 1);
         switch (which_target_type) {
           case 5: // firestore_client_Target_query_tag
-            result += PrintField("query: ", query, indent);
+            result += PrintField("query: ", query, indent + 1);
             break;
           case 6: // firestore_client_Target_documents_tag
-            result += PrintField("documents: ", documents, indent);
+            result += PrintField("documents: ", documents, indent + 1);
             break;
         }
 
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:firestore_client_Target) */
@@ -88,12 +88,12 @@ typedef struct _firestore_client_TargetGlobal {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("highest_target_id: ", highest_target_id, indent);
-        result += PrintField("highest_listen_sequence_number: ", highest_listen_sequence_number, indent);
-        result += PrintField("last_remote_snapshot_version: ", last_remote_snapshot_version, indent);
-        result += PrintField("target_count: ", target_count, indent);
+        result += PrintField("highest_target_id: ", highest_target_id, indent + 1);
+        result += PrintField("highest_listen_sequence_number: ", highest_listen_sequence_number, indent + 1);
+        result += PrintField("last_remote_snapshot_version: ", last_remote_snapshot_version, indent + 1);
+        result += PrintField("target_count: ", target_count, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:firestore_client_TargetGlobal) */

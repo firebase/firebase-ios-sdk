@@ -91,9 +91,9 @@ typedef struct _google_firestore_v1_StructuredQuery_FieldReference {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("field_path: ", field_path, indent);
+        result += PrintField("field_path: ", field_path, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_StructuredQuery_FieldReference) */
@@ -111,9 +111,9 @@ typedef struct _google_firestore_v1_StructuredQuery_Projection {
         std::string result{"{\n"};
 
         result += PrintRepeatedField("fields: ",
-            fields, fields_count, indent);
+            fields, fields_count, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_StructuredQuery_Projection) */
@@ -132,10 +132,10 @@ typedef struct _google_firestore_v1_Cursor {
         std::string result{"{\n"};
 
         result += PrintRepeatedField("values: ",
-            values, values_count, indent);
-        result += PrintField("before: ", before, indent);
+            values, values_count, indent + 1);
+        result += PrintField("before: ", before, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_Cursor) */
@@ -152,10 +152,10 @@ typedef struct _google_firestore_v1_StructuredQuery_CollectionSelector {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("collection_id: ", collection_id, indent);
-        result += PrintField("all_descendants: ", all_descendants, indent);
+        result += PrintField("collection_id: ", collection_id, indent + 1);
+        result += PrintField("all_descendants: ", all_descendants, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_StructuredQuery_CollectionSelector) */
@@ -173,11 +173,11 @@ typedef struct _google_firestore_v1_StructuredQuery_CompositeFilter {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("op: ", op, indent);
+        result += PrintField("op: ", op, indent + 1);
         result += PrintRepeatedField("filters: ",
-            filters, filters_count, indent);
+            filters, filters_count, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_StructuredQuery_CompositeFilter) */
@@ -195,11 +195,11 @@ typedef struct _google_firestore_v1_StructuredQuery_FieldFilter {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("field: ", field, indent);
-        result += PrintField("op: ", op, indent);
-        result += PrintField("value: ", value, indent);
+        result += PrintField("field: ", field, indent + 1);
+        result += PrintField("op: ", op, indent + 1);
+        result += PrintField("value: ", value, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_StructuredQuery_FieldFilter) */
@@ -216,10 +216,10 @@ typedef struct _google_firestore_v1_StructuredQuery_Order {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("field: ", field, indent);
-        result += PrintField("direction: ", direction, indent);
+        result += PrintField("field: ", field, indent + 1);
+        result += PrintField("direction: ", direction, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_StructuredQuery_Order) */
@@ -239,15 +239,15 @@ typedef struct _google_firestore_v1_StructuredQuery_UnaryFilter {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("op: ", op, indent);
+        result += PrintField("op: ", op, indent + 1);
         switch (which_operand_type) {
           case 2: // google_firestore_v1_StructuredQuery_UnaryFilter_field_tag
-            result += PrintField("field: ", field, indent);
+            result += PrintField("field: ", field, indent + 1);
             break;
         }
 
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_StructuredQuery_UnaryFilter) */
@@ -270,18 +270,18 @@ typedef struct _google_firestore_v1_StructuredQuery_Filter {
 
         switch (which_filter_type) {
           case 1: // google_firestore_v1_StructuredQuery_Filter_composite_filter_tag
-            result += PrintField("composite_filter: ", composite_filter, indent);
+            result += PrintField("composite_filter: ", composite_filter, indent + 1);
             break;
           case 2: // google_firestore_v1_StructuredQuery_Filter_field_filter_tag
-            result += PrintField("field_filter: ", field_filter, indent);
+            result += PrintField("field_filter: ", field_filter, indent + 1);
             break;
           case 3: // google_firestore_v1_StructuredQuery_Filter_unary_filter_tag
-            result += PrintField("unary_filter: ", unary_filter, indent);
+            result += PrintField("unary_filter: ", unary_filter, indent + 1);
             break;
         }
 
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_StructuredQuery_Filter) */
@@ -307,18 +307,18 @@ typedef struct _google_firestore_v1_StructuredQuery {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("select: ", select, indent);
+        result += PrintField("select: ", select, indent + 1);
         result += PrintRepeatedField("from: ",
-            from, from_count, indent);
-        result += PrintField("where: ", where, indent);
+            from, from_count, indent + 1);
+        result += PrintField("where: ", where, indent + 1);
         result += PrintRepeatedField("order_by: ",
-            order_by, order_by_count, indent);
-        if (has_limit) result += PrintField("limit: ", limit, indent);
-        result += PrintField("offset: ", offset, indent);
-        result += PrintField("start_at: ", start_at, indent);
-        result += PrintField("end_at: ", end_at, indent);
+            order_by, order_by_count, indent + 1);
+        if (has_limit) result += PrintField("limit: ", limit, indent + 1);
+        result += PrintField("offset: ", offset, indent + 1);
+        result += PrintField("start_at: ", start_at, indent + 1);
+        result += PrintField("end_at: ", end_at, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_StructuredQuery) */

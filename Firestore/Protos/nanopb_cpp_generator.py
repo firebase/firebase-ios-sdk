@@ -216,8 +216,6 @@ class OneOfMemberPrettyPrintingInfo:
     self.which = 'which_' + field.name
     self.is_anonymous = field.anonymous
     self.fields = field.fields
-    #oneof = message.oneofs[field.union_name]
-    #self.tag = oneof.fields.index(field) + 1
 
 
   def __repr__(self):
@@ -349,7 +347,7 @@ namespace firestore {'''
         f.content += ' ' * 8 + add_printing_for_field(field) + '\n'
 
       f.content += '''
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }'''
 
@@ -382,7 +380,7 @@ def add_printing_for_field(field):
   elif field.oneof_member:
     return add_printing_for_oneof(field)
   else:
-    return add_printing_for_singular(field.name, field.name)
+    return add_printing_for_singular(field.name, field.name, field.is_primitive)
 
 
 def add_printing_for_oneof(field):
@@ -398,7 +396,8 @@ def add_printing_for_oneof(field):
       full_name = f.name
     else:
       full_name = field.name + '.' + f.name
-    result += '\n' + ' ' * 12 + add_printing_for_singular(f.name, full_name)
+    is_primitive = f.pbtype != 'MESSAGE'
+    result += '\n' + ' ' * 12 + add_printing_for_singular(f.name, full_name, is_primitive)
     result += '\n' + ' ' * 12 + 'break;\n'
 
   return result + ' ' * 8 + '}\n'
@@ -407,17 +406,19 @@ def add_printing_for_oneof(field):
 def add_printing_for_repeated(name):
   count = name + '_count'
   return 'result += PrintRepeatedField("%s: ",' % (name) + '''
-            %s, %s, indent);''' % (name, count)
+            %s, %s, indent + 1);''' % (name, count)
 
 
-def add_printing_for_optional(name):
-  return 'if (has_%s) ' % (name) + add_printing_for_singular(name, name)
+def add_printing_for_optional(name, field):
+  return 'if (has_%s) ' % (name) + add_printing_for_singular(name, name, field.is_primitive)
 
 
-def add_printing_for_singular(print_name, actual_name):
+def add_printing_for_singular(print_name, actual_name, is_primitive):
   if actual_name == None:
     actual_name = print_name
-  return '''result += PrintField("%s: ", %s, indent);''' % (print_name, actual_name)
+  if is_primitive:
+    print_name += ': '
+  return '''result += PrintField("%s", %s, indent + 1);''' % (print_name, actual_name)
 
 
 # TODO:

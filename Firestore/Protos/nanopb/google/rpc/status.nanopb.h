@@ -48,12 +48,12 @@ typedef struct _google_rpc_Status {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("code: ", code, indent);
-        result += PrintField("message: ", message, indent);
+        result += PrintField("code: ", code, indent + 1);
+        result += PrintField("message: ", message, indent + 1);
         result += PrintRepeatedField("details: ",
-            details, details_count, indent);
+            details, details_count, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_rpc_Status) */

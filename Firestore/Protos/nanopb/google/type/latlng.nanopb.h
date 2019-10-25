@@ -44,10 +44,10 @@ typedef struct _google_type_LatLng {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("latitude: ", latitude, indent);
-        result += PrintField("longitude: ", longitude, indent);
+        result += PrintField("latitude: ", latitude, indent + 1);
+        result += PrintField("longitude: ", longitude, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_type_LatLng) */

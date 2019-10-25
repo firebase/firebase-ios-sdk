@@ -44,10 +44,10 @@ typedef struct _google_protobuf_Timestamp {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("seconds: ", seconds, indent);
-        result += PrintField("nanos: ", nanos, indent);
+        result += PrintField("seconds: ", seconds, indent + 1);
+        result += PrintField("nanos: ", nanos, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_protobuf_Timestamp) */

@@ -48,10 +48,10 @@ typedef struct _firestore_client_MutationQueue {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("last_acknowledged_batch_id: ", last_acknowledged_batch_id, indent);
-        result += PrintField("last_stream_token: ", last_stream_token, indent);
+        result += PrintField("last_acknowledged_batch_id: ", last_acknowledged_batch_id, indent + 1);
+        result += PrintField("last_stream_token: ", last_stream_token, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:firestore_client_MutationQueue) */
@@ -72,14 +72,14 @@ typedef struct _firestore_client_WriteBatch {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("batch_id: ", batch_id, indent);
+        result += PrintField("batch_id: ", batch_id, indent + 1);
         result += PrintRepeatedField("writes: ",
-            writes, writes_count, indent);
-        result += PrintField("local_write_time: ", local_write_time, indent);
+            writes, writes_count, indent + 1);
+        result += PrintField("local_write_time: ", local_write_time, indent + 1);
         result += PrintRepeatedField("base_writes: ",
-            base_writes, base_writes_count, indent);
+            base_writes, base_writes_count, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:firestore_client_WriteBatch) */

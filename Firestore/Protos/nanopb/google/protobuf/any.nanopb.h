@@ -44,10 +44,10 @@ typedef struct _google_protobuf_Any {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("type_url: ", type_url, indent);
-        result += PrintField("value: ", value, indent);
+        result += PrintField("type_url: ", type_url, indent + 1);
+        result += PrintField("value: ", value, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_protobuf_Any) */

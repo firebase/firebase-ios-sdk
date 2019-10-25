@@ -48,10 +48,10 @@ typedef struct _firestore_client_NoDocument {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("name: ", name, indent);
-        result += PrintField("read_time: ", read_time, indent);
+        result += PrintField("name: ", name, indent + 1);
+        result += PrintField("read_time: ", read_time, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:firestore_client_NoDocument) */
@@ -68,10 +68,10 @@ typedef struct _firestore_client_UnknownDocument {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("name: ", name, indent);
-        result += PrintField("version: ", version, indent);
+        result += PrintField("name: ", name, indent + 1);
+        result += PrintField("version: ", version, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:firestore_client_UnknownDocument) */
@@ -95,19 +95,19 @@ typedef struct _firestore_client_MaybeDocument {
 
         switch (which_document_type) {
           case 1: // firestore_client_MaybeDocument_no_document_tag
-            result += PrintField("no_document: ", no_document, indent);
+            result += PrintField("no_document: ", no_document, indent + 1);
             break;
           case 2: // firestore_client_MaybeDocument_document_tag
-            result += PrintField("document: ", document, indent);
+            result += PrintField("document: ", document, indent + 1);
             break;
           case 3: // firestore_client_MaybeDocument_unknown_document_tag
-            result += PrintField("unknown_document: ", unknown_document, indent);
+            result += PrintField("unknown_document: ", unknown_document, indent + 1);
             break;
         }
 
-        result += PrintField("has_committed_mutations: ", has_committed_mutations, indent);
+        result += PrintField("has_committed_mutations: ", has_committed_mutations, indent + 1);
 
-        result += '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:firestore_client_MaybeDocument) */
