@@ -68,13 +68,18 @@ namespace {
 
 template <typename T, typename U>
 std::string DescribeMessage(const Message<U>& message) {
+  auto result = message.ToString();
+
   // TODO(b/142276128): implement proper pretty-printing using just Nanopb.
   // Converting to an Objective-C proto just to be able to call `description` is
   // a hack.
   auto bytes = MakeByteString(message);
   auto ns_data = [NSData dataWithBytes:bytes.data() length:bytes.size()];
   T* objc_request = [T parseFromData:ns_data error:nil];
-  return util::MakeString([objc_request description]);
+  // return util::MakeString([objc_request description]);
+  auto result2 = util::MakeString([objc_request description]);
+
+  return result + '\n' + result2;
 }
 
 }  // namespace
@@ -141,14 +146,7 @@ SnapshotVersion WatchStreamSerializer::DecodeSnapshotVersion(
 
 std::string WatchStreamSerializer::Describe(
     const Message<google_firestore_v1_ListenRequest>& request) {
-  // return DescribeMessage<GCFSListenRequest>(request);
-  auto result = request.ToString();
-  auto result2 = DescribeMessage<GCFSListenRequest>(request);
-   /* if (request->add_target.target_type.documents.documents_count > 1) {
-        int i = 0;
-        ++i;
-    }*/
-    return result;
+  return DescribeMessage<GCFSListenRequest>(request);
 }
 
 std::string WatchStreamSerializer::Describe(

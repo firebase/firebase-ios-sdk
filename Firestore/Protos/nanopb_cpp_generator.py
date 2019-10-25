@@ -424,9 +424,13 @@ def add_printing_for_singular(print_name, actual_name, is_primitive):
 
 
 # TODO:
-# 1. Oneof isn't properly recursive
+# 4. Print enum names
+# 3. Oneof isn't properly recursive
 # 2. Formatting arrays?
-# 3. Line breaks in generated code
+# 1. Line breaks in generated code
+#
+# 2. Code cleanup
+# 1. Use absl::StrAppend?
 
 if __name__ == '__main__':
   main()
