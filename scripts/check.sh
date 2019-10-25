@@ -17,6 +17,8 @@
 # Checks that the current state of the tree is sane and optionally auto-fixes
 # errors automatically. Meant for interactive use.
 
+set -x
+
 function usage() {
   cat <<EOF
 USAGE: scripts/check.sh [--allow-dirty] [--commit] [<revision>]
