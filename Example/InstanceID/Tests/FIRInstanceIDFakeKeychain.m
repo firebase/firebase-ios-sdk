@@ -90,9 +90,9 @@ static NSString *const kFakeKeychainErrorDomain = @"com.google.iid";
 }
 
 - (void)setData:(NSData *)data
-       forService:(NSString *)service
-          account:(NSString *)account
-          handler:(void (^)(NSError *error))handler {
+     forService:(NSString *)service
+        account:(NSString *)account
+        handler:(void (^)(NSError *error))handler {
   if (self.cannotWriteToKeychain) {
     if (handler) {
       handler([NSError errorWithDomain:kFakeKeychainErrorDomain code:1001 userInfo:nil]);

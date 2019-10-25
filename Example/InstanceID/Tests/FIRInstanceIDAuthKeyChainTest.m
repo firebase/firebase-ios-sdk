@@ -89,48 +89,47 @@ static NSString *const kBundleID2 = @"com.google.abtesting.dev";
                                                                      scope:kScope
                                                                      token:kToken2];
               [weakKeychain
-                        setData:tokenInfoData2
-                     forService:service
-                        account:account2
-                        handler:^(NSError *error) {
-                          XCTAssertNil(error);
-                          // Now query the token and compare, they should not corrupt
-                          // each other.
-                          NSData *data1 = [weakKeychain dataForService:service account:account1];
+                     setData:tokenInfoData2
+                  forService:service
+                     account:account2
+                     handler:^(NSError *error) {
+                       XCTAssertNil(error);
+                       // Now query the token and compare, they should not corrupt
+                       // each other.
+                       NSData *data1 = [weakKeychain dataForService:service account:account1];
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-                          FIRInstanceIDTokenInfo *tokenInfo1 =
-                              [NSKeyedUnarchiver unarchiveObjectWithData:data1];
-                          XCTAssertEqualObjects(kToken1, tokenInfo1.token);
+                       FIRInstanceIDTokenInfo *tokenInfo1 =
+                           [NSKeyedUnarchiver unarchiveObjectWithData:data1];
+                       XCTAssertEqualObjects(kToken1, tokenInfo1.token);
 
-                          NSData *data2 = [weakKeychain dataForService:service account:account2];
-                          FIRInstanceIDTokenInfo *tokenInfo2 =
-                              [NSKeyedUnarchiver unarchiveObjectWithData:data2];
+                       NSData *data2 = [weakKeychain dataForService:service account:account2];
+                       FIRInstanceIDTokenInfo *tokenInfo2 =
+                           [NSKeyedUnarchiver unarchiveObjectWithData:data2];
 #pragma clang diagnostic pop
-                          XCTAssertEqualObjects(kToken2, tokenInfo2.token);
-                          // Also check the cache data.
-                          XCTAssertEqual(weakKeychain.cachedKeychainData.count, 1);
-                          XCTAssertEqual(weakKeychain.cachedKeychainData[service].count, 2);
-                          XCTAssertEqualObjects(
-                              weakKeychain.cachedKeychainData[service][account1].firstObject,
-                              tokenInfoData1);
-                          XCTAssertEqualObjects(
-                              weakKeychain.cachedKeychainData[service][account2].firstObject,
-                              tokenInfoData2);
+                       XCTAssertEqualObjects(kToken2, tokenInfo2.token);
+                       // Also check the cache data.
+                       XCTAssertEqual(weakKeychain.cachedKeychainData.count, 1);
+                       XCTAssertEqual(weakKeychain.cachedKeychainData[service].count, 2);
+                       XCTAssertEqualObjects(
+                           weakKeychain.cachedKeychainData[service][account1].firstObject,
+                           tokenInfoData1);
+                       XCTAssertEqualObjects(
+                           weakKeychain.cachedKeychainData[service][account2].firstObject,
+                           tokenInfoData2);
 
-                          // Check wildcard query
-                          NSArray *results = [weakKeychain itemsMatchingService:service
-                                                                        account:@"*"];
-                          XCTAssertEqual(results.count, 2);
+                       // Check wildcard query
+                       NSArray *results = [weakKeychain itemsMatchingService:service account:@"*"];
+                       XCTAssertEqual(results.count, 2);
 
-                          // Clean up keychain at the end
-                          [weakKeychain removeItemsMatchingService:service
-                                                           account:@"*"
-                                                           handler:^(NSError *_Nonnull error) {
-                                                             XCTAssertNil(error);
-                                                             [noCurruptionExpectation fulfill];
-                                                           }];
-                        }];
+                       // Clean up keychain at the end
+                       [weakKeychain removeItemsMatchingService:service
+                                                        account:@"*"
+                                                        handler:^(NSError *_Nonnull error) {
+                                                          XCTAssertNil(error);
+                                                          [noCurruptionExpectation fulfill];
+                                                        }];
+                     }];
             }];
   [self waitForExpectationsWithTimeout:1.0 handler:NULL];
 #endif
@@ -149,65 +148,64 @@ static NSString *const kBundleID2 = @"com.google.abtesting.dev";
   FIRInstanceIDAuthKeychain *keychain =
       [[FIRInstanceIDAuthKeychain alloc] initWithIdentifier:kFIRInstanceIDTestKeychainId];
   __weak FIRInstanceIDAuthKeychain *weakKeychain = keychain;
-  [keychain setData:tokenData
-         forService:service1
-            account:account
-            handler:^(NSError *error) {
-              XCTAssertNil(error);
-              // Store a checkin info using the same keychain account, but different service.
-              NSString *service2 = @"com.google.iid.checkin";
-              FIRInstanceIDCheckinPreferences *preferences =
-                  [[FIRInstanceIDCheckinPreferences alloc] initWithDeviceID:kAuthID
-                                                                secretToken:kSecret];
-              NSString *checkinKeychainContent = [preferences checkinKeychainContent];
-              NSData *checkinData = [checkinKeychainContent dataUsingEncoding:NSUTF8StringEncoding];
+  [keychain
+         setData:tokenData
+      forService:service1
+         account:account
+         handler:^(NSError *error) {
+           XCTAssertNil(error);
+           // Store a checkin info using the same keychain account, but different service.
+           NSString *service2 = @"com.google.iid.checkin";
+           FIRInstanceIDCheckinPreferences *preferences =
+               [[FIRInstanceIDCheckinPreferences alloc] initWithDeviceID:kAuthID
+                                                             secretToken:kSecret];
+           NSString *checkinKeychainContent = [preferences checkinKeychainContent];
+           NSData *checkinData = [checkinKeychainContent dataUsingEncoding:NSUTF8StringEncoding];
 
-              [weakKeychain
-                        setData:checkinData
-                     forService:service2
-                        account:account
-                        handler:^(NSError *error) {
-                          XCTAssertNil(error);
-                          // Now query the token and compare, they should not corrupt
-                          // each other.
-                          NSData *data1 = [weakKeychain dataForService:service1 account:account];
+           [weakKeychain
+                  setData:checkinData
+               forService:service2
+                  account:account
+                  handler:^(NSError *error) {
+                    XCTAssertNil(error);
+                    // Now query the token and compare, they should not corrupt
+                    // each other.
+                    NSData *data1 = [weakKeychain dataForService:service1 account:account];
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-                          FIRInstanceIDTokenInfo *tokenInfo1 =
-                              [NSKeyedUnarchiver unarchiveObjectWithData:data1];
+                    FIRInstanceIDTokenInfo *tokenInfo1 =
+                        [NSKeyedUnarchiver unarchiveObjectWithData:data1];
 #pragma clang diagnostic pop
-                          XCTAssertEqualObjects(kToken1, tokenInfo1.token);
+                    XCTAssertEqualObjects(kToken1, tokenInfo1.token);
 
-                          NSData *data2 = [weakKeychain dataForService:service2 account:account];
-                          NSString *checkinKeychainContent =
-                              [[NSString alloc] initWithData:data2 encoding:NSUTF8StringEncoding];
-                          FIRInstanceIDCheckinPreferences *checkinPreferences =
-                              [FIRInstanceIDCheckinPreferences
-                                  preferencesFromKeychainContents:checkinKeychainContent];
-                          XCTAssertEqualObjects(checkinPreferences.secretToken, kSecret);
-                          XCTAssertEqualObjects(checkinPreferences.deviceID, kAuthID);
+                    NSData *data2 = [weakKeychain dataForService:service2 account:account];
+                    NSString *checkinKeychainContent =
+                        [[NSString alloc] initWithData:data2 encoding:NSUTF8StringEncoding];
+                    FIRInstanceIDCheckinPreferences *checkinPreferences =
+                        [FIRInstanceIDCheckinPreferences
+                            preferencesFromKeychainContents:checkinKeychainContent];
+                    XCTAssertEqualObjects(checkinPreferences.secretToken, kSecret);
+                    XCTAssertEqualObjects(checkinPreferences.deviceID, kAuthID);
 
-                          NSArray *results = [weakKeychain itemsMatchingService:@"*"
-                                                                        account:account];
-                          XCTAssertEqual(results.count, 2);
-                          // Also check the cache data.
-                          XCTAssertEqual(weakKeychain.cachedKeychainData.count, 2);
-                          XCTAssertEqualObjects(
-                              weakKeychain.cachedKeychainData[service1][account].firstObject,
-                              tokenData);
-                          XCTAssertEqualObjects(
-                              weakKeychain.cachedKeychainData[service2][account].firstObject,
-                              checkinData);
+                    NSArray *results = [weakKeychain itemsMatchingService:@"*" account:account];
+                    XCTAssertEqual(results.count, 2);
+                    // Also check the cache data.
+                    XCTAssertEqual(weakKeychain.cachedKeychainData.count, 2);
+                    XCTAssertEqualObjects(
+                        weakKeychain.cachedKeychainData[service1][account].firstObject, tokenData);
+                    XCTAssertEqualObjects(
+                        weakKeychain.cachedKeychainData[service2][account].firstObject,
+                        checkinData);
 
-                          // Clean up keychain at the end
-                          [weakKeychain removeItemsMatchingService:@"*"
-                                                           account:@"*"
-                                                           handler:^(NSError *_Nonnull error) {
-                                                             XCTAssertNil(error);
-                                                             [noCurruptionExpectation fulfill];
-                                                           }];
-                        }];
-            }];
+                    // Clean up keychain at the end
+                    [weakKeychain removeItemsMatchingService:@"*"
+                                                     account:@"*"
+                                                     handler:^(NSError *_Nonnull error) {
+                                                       XCTAssertNil(error);
+                                                       [noCurruptionExpectation fulfill];
+                                                     }];
+                  }];
+         }];
   [self waitForExpectationsWithTimeout:1.0 handler:NULL];
 #endif
 }
