@@ -47,7 +47,7 @@ def main(args)
 
   STDOUT.sync = true
 
-  command = %w(bundle exec pod lib lint --sources=https://cdn.cocoapods.org/ --analyze)
+  command = %w(bundle exec pod lib lint --sources=https://cdn.cocoapods.org/)
 
   # Split arguments that need to be processed by the script itself and passed
   # to the pod command.
