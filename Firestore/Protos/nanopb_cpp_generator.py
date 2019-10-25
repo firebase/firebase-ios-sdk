@@ -424,9 +424,10 @@ def add_printing_for_singular(print_name, actual_name, is_primitive):
 
 
 # TODO:
+# 6. is_root
 # 5. Better way to omit empty nested messages.
-# 4. Print enum names.
-# 3. Print hex strings.
+#
+# 3. Print enum names.
 # 2. Oneof isn't properly recursive?
 # 1. Array output is reasonable, but should be formatted differently.
 #

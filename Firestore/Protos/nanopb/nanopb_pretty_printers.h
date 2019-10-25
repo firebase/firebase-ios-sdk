@@ -40,11 +40,7 @@ inline std::string Indent(int level) {
 template <typename T>
 using HasToString = typename std::is_member_function_pointer<decltype(&T::ToString)>;
 
-template <typename T>
-// using IsPrimitive = absl::disjunction<std::is_fundamental<T>, std::is_enum<T>, std::is_pointer<T>>;
-using IsPrimitive = std::is_scalar<T>;
-
-template <typename T, absl::enable_if_t<IsPrimitive<T>::value, int> = 0>
+template <typename T, absl::enable_if_t<std::is_scalar<T>::value, int> = 0>
 std::string ToStringImpl(const T& value, int indent) {
   return std::to_string(value);
 }
@@ -67,7 +63,7 @@ std::string ToStringImpl(const T* value, pb_size_t size, int indent) {
 }
 
 inline std::string ToStringImpl(pb_bytes_array_t* value, int indent) {
-  return absl::StrCat("\"", nanopb::MakeString(value), "\"");
+  return absl::StrCat("\"", nanopb::ByteString(value).ToString(), "\"");
 }
 
 inline std::string ToStringImpl(bool value, int indent) {
@@ -76,7 +72,7 @@ inline std::string ToStringImpl(bool value, int indent) {
 
 // PrintField
 
-template <typename T, absl::enable_if_t<!IsPrimitive<T>::value, int> = 0>
+template <typename T, absl::enable_if_t<!std::is_scalar<T>::value, int> = 0>
 std::string PrintField(absl::string_view name, const T& value, int indent) {
   auto* bytes = reinterpret_cast<const char*>(&value);
   // FIXME
@@ -86,7 +82,7 @@ std::string PrintField(absl::string_view name, const T& value, int indent) {
   return absl::StrCat(Indent(indent), name, ToStringImpl(value, indent), "\n");
 }
 
-template <typename T, absl::enable_if_t<IsPrimitive<T>::value, int> = 0>
+template <typename T, absl::enable_if_t<std::is_scalar<T>::value, int> = 0>
 std::string PrintField(absl::string_view name, T value, int indent) {
   if (value == T{}) {
     return "";
