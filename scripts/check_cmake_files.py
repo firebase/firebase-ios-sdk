@@ -35,13 +35,13 @@ from pprint import pprint as pp
 
 
 # Directories relative to the repo root that will be scanned by default if no
-# arguments are passed
+# arguments are passed.
 _DEFAULT_DIRS = [
     'Firestore/core',
     'Firestore/Source'
 ]
 
-# When scanning the filesystem look for specific files or files with these
+# When scanning the filesystem, look for specific files or files with these
 # extensions.
 _INCLUDE_FILES = {'CMakeLists.txt'}
 _INCLUDE_EXTENSIONS = {'.cc', '.h', '.mm'}
@@ -127,7 +127,8 @@ def read_listed_source_files(filename):
   Returns:
     A pair of lists. The first list contains filenames mentioned in the file.
     The second contains files that have been ignored (by marking them NOLINT)
-    in the file.
+    in the file. Elements from the second list might also be present in the
+    first list.
   """
   found = []
   ignored = []
