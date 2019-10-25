@@ -73,8 +73,8 @@ NS_ASSUME_NONNULL_BEGIN
                            handler:(nullable void (^)(NSError *error))handler;
 
 /**
- *  Set the data for a given service and account with a specific accessibility. If
- *  accessibility is NULL we use `kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly` which
+ *  Set the data for a given service and account.
+ *  We use `kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly` which
  *  prevents backup and restore to iCloud, and works for app extension that can
  *  execute right after a device is restarted (and not unlocked).
  *
