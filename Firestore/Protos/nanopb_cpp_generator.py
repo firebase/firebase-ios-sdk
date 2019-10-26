@@ -243,8 +243,7 @@ class FieldPrettyPrintingInfo:
     self.is_enum = field.pbtype in ['ENUM', 'UENUM']
     if self.is_enum:
       self.enum_name = str(field.ctype)
-      e = enums[self.enum_name]
-      self.enum_members = [(tup[0][0], tup[1][0]) for tup in zip(e.values, e.value_longnames)]
+      self.enum_members = [m for m in enums[self.enum_name].value_longnames]
 
     # FIXME remove
     if self.is_primitive:
@@ -357,10 +356,12 @@ namespace firestore {'''
     static const char* EnumToString(
       %s value) {
         switch (value) {''' % (field.enum_name)
-        for m in field.enum_members:
+        for enum_member_name in field.enum_members:
+          full_name = str(enum_member_name)
+          short_name = full_name.replace('%s_' % field.enum_name, '')
           f.content += '''
           case %s:
-            return "%s";''' % (m, m)
+            return "%s";''' % (full_name, short_name)
         f.content += '''
         }
         return "<unknown enum value>";
@@ -424,7 +425,7 @@ def add_printing_for_field(field):
   elif field.oneof_member:
     return add_printing_for_oneof(field)
   elif field.is_enum:
-    return add_printing_for_enum(field.name, field.name, field)
+    return add_printing_for_enum(field.name, field.name, field, '_' + field.full_classname)
   else:
     return add_printing_for_singular(field.name, field.name, field.is_primitive)
 
@@ -459,8 +460,8 @@ def add_printing_for_optional(name):
   return 'if (has_%s) ' % (name) + add_printing_for_singular(name, name, False)
 
 
-def add_printing_for_enum(print_name, actual_name, field):
-  return '''result += PrintEnumField("%s: ", %s, indent + 1);''' % (print_name, actual_name)
+def add_printing_for_enum(print_name, actual_name, field, class_name):
+  return '''result += PrintEnumField<%s>("%s: ", %s, indent + 1);''' % (class_name, print_name, actual_name)
 
 
 def add_printing_for_singular(print_name, actual_name, is_primitive):

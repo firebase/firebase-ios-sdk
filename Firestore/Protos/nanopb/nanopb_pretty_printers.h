@@ -104,8 +104,7 @@ std::string PrintEnumField(absl::string_view name, U value, int indent) {
     return "";
   }
 
-  std::string enum_name = T::EnumToString(value);
-  return absl::StrCat(Indent(indent), name, ToStringImpl(enum_name, indent), "\n");
+  return absl::StrCat(Indent(indent), name, T::EnumToString(value), "\n");
 }
 
 template <typename T>
