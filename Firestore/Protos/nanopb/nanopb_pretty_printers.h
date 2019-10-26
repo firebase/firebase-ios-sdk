@@ -98,6 +98,16 @@ std::string PrintField(absl::string_view name, T value, int indent) {
   return absl::StrCat(Indent(indent), name, ToStringImpl(value, indent), "\n");
 }
 
+template <typename T, typename U>
+std::string PrintEnumField(absl::string_view name, U value, int indent) {
+  if (value == U{}) {
+    return "";
+  }
+
+  std::string enum_name = T::EnumToString(value);
+  return absl::StrCat(Indent(indent), name, ToStringImpl(enum_name, indent), "\n");
+}
+
 template <typename T>
 std::string PrintRepeatedField(absl::string_view name,
                                const T& value,

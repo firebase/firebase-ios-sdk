@@ -780,6 +780,23 @@ typedef struct _google_firestore_v1_TargetChange {
     pb_bytes_array_t *resume_token;
     google_protobuf_Timestamp read_time;
 
+    static const char* EnumToString(
+      google_firestore_v1_TargetChange_TargetChangeType value) {
+        switch (value) {
+          case (<nanopb_generator.Names instance at 0x10432b518>, 0):
+            return "(<nanopb_generator.Names instance at 0x10432b518>, 0)";
+          case (<nanopb_generator.Names instance at 0x10432b560>, 1):
+            return "(<nanopb_generator.Names instance at 0x10432b560>, 1)";
+          case (<nanopb_generator.Names instance at 0x10432b5a8>, 2):
+            return "(<nanopb_generator.Names instance at 0x10432b5a8>, 2)";
+          case (<nanopb_generator.Names instance at 0x10432b5f0>, 3):
+            return "(<nanopb_generator.Names instance at 0x10432b5f0>, 3)";
+          case (<nanopb_generator.Names instance at 0x10432b638>, 4):
+            return "(<nanopb_generator.Names instance at 0x10432b638>, 4)";
+        }
+        return "<unknown enum value>";
+    }
+
     static const char* Name() {
         return "TargetChange";
     }
@@ -796,7 +813,7 @@ typedef struct _google_firestore_v1_TargetChange {
             result += "{\n";
         }
 
-        result += PrintField("target_change_type: ", target_change_type, indent + 1);
+        result += PrintEnumField("target_change_type: ", target_change_type, indent + 1);
         result += PrintRepeatedField("target_ids: ",
             target_ids, target_ids_count, indent + 1);
         if (has_cause) result += PrintField("cause ", cause, indent + 1);

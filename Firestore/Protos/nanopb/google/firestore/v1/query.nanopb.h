@@ -202,6 +202,17 @@ typedef struct _google_firestore_v1_StructuredQuery_CompositeFilter {
     pb_size_t filters_count;
     struct _google_firestore_v1_StructuredQuery_Filter *filters;
 
+    static const char* EnumToString(
+      google_firestore_v1_StructuredQuery_CompositeFilter_Operator value) {
+        switch (value) {
+          case (<nanopb_generator.Names instance at 0x1042e7a28>, 0):
+            return "(<nanopb_generator.Names instance at 0x1042e7a28>, 0)";
+          case (<nanopb_generator.Names instance at 0x1042e7a70>, 1):
+            return "(<nanopb_generator.Names instance at 0x1042e7a70>, 1)";
+        }
+        return "<unknown enum value>";
+    }
+
     static const char* Name() {
         return "CompositeFilter";
     }
@@ -218,7 +229,7 @@ typedef struct _google_firestore_v1_StructuredQuery_CompositeFilter {
             result += "{\n";
         }
 
-        result += PrintField("op: ", op, indent + 1);
+        result += PrintEnumField("op: ", op, indent + 1);
         result += PrintRepeatedField("filters: ",
             filters, filters_count, indent + 1);
 
@@ -232,6 +243,31 @@ typedef struct _google_firestore_v1_StructuredQuery_FieldFilter {
     google_firestore_v1_StructuredQuery_FieldReference field;
     google_firestore_v1_StructuredQuery_FieldFilter_Operator op;
     google_firestore_v1_Value value;
+
+    static const char* EnumToString(
+      google_firestore_v1_StructuredQuery_FieldFilter_Operator value) {
+        switch (value) {
+          case (<nanopb_generator.Names instance at 0x1042e7e60>, 0):
+            return "(<nanopb_generator.Names instance at 0x1042e7e60>, 0)";
+          case (<nanopb_generator.Names instance at 0x1042e7ea8>, 1):
+            return "(<nanopb_generator.Names instance at 0x1042e7ea8>, 1)";
+          case (<nanopb_generator.Names instance at 0x1042e7ef0>, 2):
+            return "(<nanopb_generator.Names instance at 0x1042e7ef0>, 2)";
+          case (<nanopb_generator.Names instance at 0x1042e7f38>, 3):
+            return "(<nanopb_generator.Names instance at 0x1042e7f38>, 3)";
+          case (<nanopb_generator.Names instance at 0x1042e7f80>, 4):
+            return "(<nanopb_generator.Names instance at 0x1042e7f80>, 4)";
+          case (<nanopb_generator.Names instance at 0x1042e7fc8>, 5):
+            return "(<nanopb_generator.Names instance at 0x1042e7fc8>, 5)";
+          case (<nanopb_generator.Names instance at 0x1042f1050>, 7):
+            return "(<nanopb_generator.Names instance at 0x1042f1050>, 7)";
+          case (<nanopb_generator.Names instance at 0x1042f1098>, 8):
+            return "(<nanopb_generator.Names instance at 0x1042f1098>, 8)";
+          case (<nanopb_generator.Names instance at 0x1042f10e0>, 9):
+            return "(<nanopb_generator.Names instance at 0x1042f10e0>, 9)";
+        }
+        return "<unknown enum value>";
+    }
 
     static const char* Name() {
         return "FieldFilter";
@@ -250,7 +286,7 @@ typedef struct _google_firestore_v1_StructuredQuery_FieldFilter {
         }
 
         result += PrintField("field ", field, indent + 1);
-        result += PrintField("op: ", op, indent + 1);
+        result += PrintEnumField("op: ", op, indent + 1);
         result += PrintField("value ", value, indent + 1);
 
         result += Indent(is_root ? 0 : indent) + '}';
@@ -262,6 +298,19 @@ typedef struct _google_firestore_v1_StructuredQuery_FieldFilter {
 typedef struct _google_firestore_v1_StructuredQuery_Order {
     google_firestore_v1_StructuredQuery_FieldReference field;
     google_firestore_v1_StructuredQuery_Direction direction;
+
+    static const char* EnumToString(
+      google_firestore_v1_StructuredQuery_Direction value) {
+        switch (value) {
+          case (<nanopb_generator.Names instance at 0x1042e70e0>, 0):
+            return "(<nanopb_generator.Names instance at 0x1042e70e0>, 0)";
+          case (<nanopb_generator.Names instance at 0x1042e7128>, 1):
+            return "(<nanopb_generator.Names instance at 0x1042e7128>, 1)";
+          case (<nanopb_generator.Names instance at 0x1042e7170>, 2):
+            return "(<nanopb_generator.Names instance at 0x1042e7170>, 2)";
+        }
+        return "<unknown enum value>";
+    }
 
     static const char* Name() {
         return "Order";
@@ -280,7 +329,7 @@ typedef struct _google_firestore_v1_StructuredQuery_Order {
         }
 
         result += PrintField("field ", field, indent + 1);
-        result += PrintField("direction: ", direction, indent + 1);
+        result += PrintEnumField("direction: ", direction, indent + 1);
 
         result += Indent(is_root ? 0 : indent) + '}';
         return result;
@@ -294,6 +343,19 @@ typedef struct _google_firestore_v1_StructuredQuery_UnaryFilter {
     union {
         google_firestore_v1_StructuredQuery_FieldReference field;
     };
+
+    static const char* EnumToString(
+      google_firestore_v1_StructuredQuery_UnaryFilter_Operator value) {
+        switch (value) {
+          case (<nanopb_generator.Names instance at 0x1042f1680>, 0):
+            return "(<nanopb_generator.Names instance at 0x1042f1680>, 0)";
+          case (<nanopb_generator.Names instance at 0x1042f16c8>, 2):
+            return "(<nanopb_generator.Names instance at 0x1042f16c8>, 2)";
+          case (<nanopb_generator.Names instance at 0x1042f1710>, 3):
+            return "(<nanopb_generator.Names instance at 0x1042f1710>, 3)";
+        }
+        return "<unknown enum value>";
+    }
 
     static const char* Name() {
         return "UnaryFilter";
@@ -311,7 +373,7 @@ typedef struct _google_firestore_v1_StructuredQuery_UnaryFilter {
             result += "{\n";
         }
 
-        result += PrintField("op: ", op, indent + 1);
+        result += PrintEnumField("op: ", op, indent + 1);
         switch (which_operand_type) {
           case 2: // google_firestore_v1_StructuredQuery_UnaryFilter_field_tag
             result += PrintField("field ", field, indent + 1);

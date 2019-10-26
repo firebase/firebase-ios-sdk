@@ -196,14 +196,21 @@ def nanopb_parse_files(request, options, pretty_printing_info):
   # Process any include files first, in order to have them available as
   # dependencies
   parsed_files = {}
+  enums = {}
   for fdesc in request.proto_file:
     parsed_file = nanopb.parse_file(fdesc.name, fdesc, options)
     parsed_files[fdesc.name] = parsed_file
+    if parsed_file.enums:
+      for e in parsed_file.enums:
+        enums[str(e.names)] = e
+
+  for fdesc in request.proto_file:
+    parsed_file = parsed_files[fdesc.name]
 
     base_filename = fdesc.name.replace('.proto', '')
     pretty_printing_info[base_filename] = []
     for m in parsed_file.messages:
-      pretty_printing_info[base_filename].append(MessagePrettyPrintingInfo(m))
+      pretty_printing_info[base_filename].append(MessagePrettyPrintingInfo(m, enums))
 
   return parsed_files
 
@@ -223,7 +230,7 @@ class OneOfMemberPrettyPrintingInfo:
 
 
 class FieldPrettyPrintingInfo:
-  def __init__(self, field, message):
+  def __init__(self, field, message, enums):
     self.name = field.name
     self.full_classname = str(message.name)
 
@@ -232,7 +239,12 @@ class FieldPrettyPrintingInfo:
     self.is_optional = field.rules == 'OPTIONAL' and field.allocation == 'STATIC'
     self.is_repeated = field.rules == 'REPEATED'
     self.is_primitive = field.pbtype != 'MESSAGE'
-    self.is_enum = field.pbtype == 'ENUM'
+
+    self.is_enum = field.pbtype in ['ENUM', 'UENUM']
+    if self.is_enum:
+      self.enum_name = str(field.ctype)
+      e = enums[self.enum_name]
+      self.enum_members = [(tup[0][0], tup[1][0]) for tup in zip(e.values, e.value_longnames)]
 
     # FIXME remove
     if self.is_primitive:
@@ -253,10 +265,10 @@ class FieldPrettyPrintingInfo:
 
 
 class MessagePrettyPrintingInfo:
-  def __init__(self, message):
+  def __init__(self, message, enums):
     self.short_classname = message.name.parts[-1]
     self.full_classname = str(message.name)
-    self.fields = [FieldPrettyPrintingInfo(f, message) for f in message.fields]
+    self.fields = [FieldPrettyPrintingInfo(f, message, enums) for f in message.fields]
     self.fields.sort(key = lambda f: f.tag)
 
 
@@ -337,11 +349,31 @@ namespace firestore {'''
       f.name = result['headername']
       f.insertion_point = 'struct:' + p.full_classname
 
-      f.content = '''
+      # Enums
+      for field in p.fields:
+        if not field.is_enum:
+          continue
+        f.content += '''
+    static const char* EnumToString(
+      %s value) {
+        switch (value) {''' % (field.enum_name)
+        for m in field.enum_members:
+          f.content += '''
+          case %s:
+            return "%s";''' % (m, m)
+        f.content += '''
+        }
+        return "<unknown enum value>";
+    }\n'''
+
+
+      # FIXME Name
+      f.content += '''
     static const char* Name() {
         return "%s";
     }\n''' % (p.short_classname)
 
+      # ToString
       f.content += '''
     std::string ToString(int indent = 0) const {
         bool is_root = indent == 0;
@@ -428,7 +460,7 @@ def add_printing_for_optional(name):
 
 
 def add_printing_for_enum(print_name, actual_name, field):
-  return 'if (%s != 0) ' % (name) + add_printing_for_singular(name, name, False)
+  return '''result += PrintEnumField("%s: ", %s, indent + 1);''' % (print_name, actual_name)
 
 
 def add_printing_for_singular(print_name, actual_name, is_primitive):
@@ -442,9 +474,8 @@ def add_printing_for_singular(print_name, actual_name, is_primitive):
 
 
 # TODO:
-# 5. Better way to omit empty nested messages.
+# 3. Better way to omit empty nested messages.
 #
-# 3. Print enum names.
 # 2. Oneof isn't properly recursive?
 # 1. Array output is reasonable, but should be formatted differently.
 #
