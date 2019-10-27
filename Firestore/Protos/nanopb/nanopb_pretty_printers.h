@@ -58,18 +58,6 @@ std::string ToStringImpl(const T& value, int indent) {
   return value.ToString(indent);
 }
 
-template <typename T>
-std::string ToStringImpl(const T* value, pb_size_t size, int indent) {
-  std::string result;
-  for (pb_size_t i = 0; i != size; ++i) {
-    if (i != 0) {
-      result += ", ";
-    }
-    result += ToStringImpl(value[i], indent);
-  }
-  return result;
-}
-
 inline std::string ToStringImpl(pb_bytes_array_t* value, int indent) {
   return absl::StrCat("\"", nanopb::ByteString(value).ToString(), "\"");
 }
@@ -89,10 +77,6 @@ std::string PrintField(absl::string_view name, const T& value, int indent, bool 
 
   return absl::StrCat(Indent(indent), name, contents, "\n");
 }
-
-// inline std::string PrintField(absl::string_view name, bool value, int indent) {
-//   return absl::StrCat(Indent(indent), name, ToStringImpl(value, indent), "\n");
-// }
 
 template <typename T, absl::enable_if_t<std::is_scalar<T>::value, int> = 0>
 std::string PrintField(absl::string_view name, T value, int indent, bool always_print = false) {
