@@ -50,22 +50,27 @@ typedef struct _google_protobuf_ListValue {
     }
 
     std::string ToString(int indent = 0) const {
-        bool is_root = indent == 0;
         std::string result;
+
+        bool is_root = indent == 0;
+        std::string header;
         if (is_root) {
             indent = 1;
             auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&result,
-              "<ListValue 0x", p, ">: {\n");
+            absl::StrAppend(&header, "<ListValue 0x", p, ">: {\n");
         } else {
-            result += "{\n";
+            header = "{\n";
         }
 
         result += PrintRepeatedField("values: ",
             values, values_count, indent + 1);
 
-        result += Indent(is_root ? 0 : indent) + '}';
-        return result;
+        if (!result.empty() || is_root) {
+          std::string tail = Indent(is_root ? 0 : indent) + '}';
+          return header + result + tail;
+        } else {
+          return "";
+        }
     }
 /* @@protoc_insertion_point(struct:google_protobuf_ListValue) */
 } google_protobuf_ListValue;
@@ -79,22 +84,27 @@ typedef struct _google_protobuf_Struct {
     }
 
     std::string ToString(int indent = 0) const {
-        bool is_root = indent == 0;
         std::string result;
+
+        bool is_root = indent == 0;
+        std::string header;
         if (is_root) {
             indent = 1;
             auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&result,
-              "<Struct 0x", p, ">: {\n");
+            absl::StrAppend(&header, "<Struct 0x", p, ">: {\n");
         } else {
-            result += "{\n";
+            header = "{\n";
         }
 
         result += PrintRepeatedField("fields: ",
             fields, fields_count, indent + 1);
 
-        result += Indent(is_root ? 0 : indent) + '}';
-        return result;
+        if (!result.empty() || is_root) {
+          std::string tail = Indent(is_root ? 0 : indent) + '}';
+          return header + result + tail;
+        } else {
+          return "";
+        }
     }
 /* @@protoc_insertion_point(struct:google_protobuf_Struct) */
 } google_protobuf_Struct;
@@ -115,15 +125,16 @@ typedef struct _google_protobuf_Value {
     }
 
     std::string ToString(int indent = 0) const {
-        bool is_root = indent == 0;
         std::string result;
+
+        bool is_root = indent == 0;
+        std::string header;
         if (is_root) {
             indent = 1;
             auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&result,
-              "<Value 0x", p, ">: {\n");
+            absl::StrAppend(&header, "<Value 0x", p, ">: {\n");
         } else {
-            result += "{\n";
+            header = "{\n";
         }
 
         switch (which_kind) {
@@ -148,8 +159,12 @@ typedef struct _google_protobuf_Value {
         }
 
 
-        result += Indent(is_root ? 0 : indent) + '}';
-        return result;
+        if (!result.empty() || is_root) {
+          std::string tail = Indent(is_root ? 0 : indent) + '}';
+          return header + result + tail;
+        } else {
+          return "";
+        }
     }
 /* @@protoc_insertion_point(struct:google_protobuf_Value) */
 } google_protobuf_Value;
@@ -163,22 +178,27 @@ typedef struct _google_protobuf_Struct_FieldsEntry {
     }
 
     std::string ToString(int indent = 0) const {
-        bool is_root = indent == 0;
         std::string result;
+
+        bool is_root = indent == 0;
+        std::string header;
         if (is_root) {
             indent = 1;
             auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&result,
-              "<FieldsEntry 0x", p, ">: {\n");
+            absl::StrAppend(&header, "<FieldsEntry 0x", p, ">: {\n");
         } else {
-            result += "{\n";
+            header = "{\n";
         }
 
         result += PrintField("key: ", key, indent + 1);
         result += PrintField("value ", value, indent + 1);
 
-        result += Indent(is_root ? 0 : indent) + '}';
-        return result;
+        if (!result.empty() || is_root) {
+          std::string tail = Indent(is_root ? 0 : indent) + '}';
+          return header + result + tail;
+        } else {
+          return "";
+        }
     }
 /* @@protoc_insertion_point(struct:google_protobuf_Struct_FieldsEntry) */
 } google_protobuf_Struct_FieldsEntry;

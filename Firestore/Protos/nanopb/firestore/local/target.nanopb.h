@@ -53,15 +53,16 @@ typedef struct _firestore_client_Target {
     }
 
     std::string ToString(int indent = 0) const {
-        bool is_root = indent == 0;
         std::string result;
+
+        bool is_root = indent == 0;
+        std::string header;
         if (is_root) {
             indent = 1;
             auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&result,
-              "<Target 0x", p, ">: {\n");
+            absl::StrAppend(&header, "<Target 0x", p, ">: {\n");
         } else {
-            result += "{\n";
+            header = "{\n";
         }
 
         result += PrintField("target_id: ", target_id, indent + 1);
@@ -78,8 +79,12 @@ typedef struct _firestore_client_Target {
         }
 
 
-        result += Indent(is_root ? 0 : indent) + '}';
-        return result;
+        if (!result.empty() || is_root) {
+          std::string tail = Indent(is_root ? 0 : indent) + '}';
+          return header + result + tail;
+        } else {
+          return "";
+        }
     }
 /* @@protoc_insertion_point(struct:firestore_client_Target) */
 } firestore_client_Target;
@@ -95,15 +100,16 @@ typedef struct _firestore_client_TargetGlobal {
     }
 
     std::string ToString(int indent = 0) const {
-        bool is_root = indent == 0;
         std::string result;
+
+        bool is_root = indent == 0;
+        std::string header;
         if (is_root) {
             indent = 1;
             auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&result,
-              "<TargetGlobal 0x", p, ">: {\n");
+            absl::StrAppend(&header, "<TargetGlobal 0x", p, ">: {\n");
         } else {
-            result += "{\n";
+            header = "{\n";
         }
 
         result += PrintField("highest_target_id: ", highest_target_id, indent + 1);
@@ -111,8 +117,12 @@ typedef struct _firestore_client_TargetGlobal {
         result += PrintField("last_remote_snapshot_version ", last_remote_snapshot_version, indent + 1);
         result += PrintField("target_count: ", target_count, indent + 1);
 
-        result += Indent(is_root ? 0 : indent) + '}';
-        return result;
+        if (!result.empty() || is_root) {
+          std::string tail = Indent(is_root ? 0 : indent) + '}';
+          return header + result + tail;
+        } else {
+          return "";
+        }
     }
 /* @@protoc_insertion_point(struct:firestore_client_TargetGlobal) */
 } firestore_client_TargetGlobal;

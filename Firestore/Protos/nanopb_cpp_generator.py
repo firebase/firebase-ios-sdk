@@ -58,7 +58,6 @@ def main():
   options = nanopb_parse_options(request)
   pretty_printing_info = {};
   parsed_files = nanopb_parse_files(request, options, pretty_printing_info)
-  #raise Exception(pretty_printing_info)
   results = nanopb_generate(request, options, parsed_files)
   response = nanopb_write(results, pretty_printing_info)
 
@@ -377,23 +376,28 @@ namespace firestore {'''
       # ToString
       f.content += '''
     std::string ToString(int indent = 0) const {
-        bool is_root = indent == 0;
         std::string result;
+
+        bool is_root = indent == 0;
+        std::string header;
         if (is_root) {
             indent = 1;
             auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&result,
-              "<%s 0x", p, ">: {\\n");
+            absl::StrAppend(&header, "<%s 0x", p, ">: {\\n");
         } else {
-            result += "{\\n";
+            header = "{\\n";
         }\n\n''' % (p.short_classname)
 
       for field in p.fields:
         f.content += ' ' * 8 + add_printing_for_field(field) + '\n'
 
       f.content += '''
-        result += Indent(is_root ? 0 : indent) + '}';
-        return result;
+        if (!result.empty() || is_root) {
+          std::string tail = Indent(is_root ? 0 : indent) + '}';
+          return header + result + tail;
+        } else {
+          return "";
+        }
     }'''
 
     f = response.file.add()
@@ -412,7 +416,6 @@ namespace firestore {'''
     f.content = '''
 }  // namespace firestore
 }  // namespace firebase'''
-
 
   return response
 
@@ -475,9 +478,8 @@ def add_printing_for_singular(print_name, actual_name, is_primitive):
 
 
 # TODO:
-# 3. Better way to omit empty nested messages.
-#
-# 2. Oneof isn't properly recursive?
+# 3. Array isn't properly recursive
+# 2. Oneof isn't properly recursive? OTOH, can it be a problem?
 # 1. Array output is reasonable, but should be formatted differently.
 #
 # 3. Line breaks in generated code

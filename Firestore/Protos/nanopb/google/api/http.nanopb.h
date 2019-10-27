@@ -42,22 +42,27 @@ typedef struct _google_api_CustomHttpPattern {
     }
 
     std::string ToString(int indent = 0) const {
-        bool is_root = indent == 0;
         std::string result;
+
+        bool is_root = indent == 0;
+        std::string header;
         if (is_root) {
             indent = 1;
             auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&result,
-              "<CustomHttpPattern 0x", p, ">: {\n");
+            absl::StrAppend(&header, "<CustomHttpPattern 0x", p, ">: {\n");
         } else {
-            result += "{\n";
+            header = "{\n";
         }
 
         result += PrintField("kind: ", kind, indent + 1);
         result += PrintField("path: ", path, indent + 1);
 
-        result += Indent(is_root ? 0 : indent) + '}';
-        return result;
+        if (!result.empty() || is_root) {
+          std::string tail = Indent(is_root ? 0 : indent) + '}';
+          return header + result + tail;
+        } else {
+          return "";
+        }
     }
 /* @@protoc_insertion_point(struct:google_api_CustomHttpPattern) */
 } google_api_CustomHttpPattern;
@@ -72,23 +77,28 @@ typedef struct _google_api_Http {
     }
 
     std::string ToString(int indent = 0) const {
-        bool is_root = indent == 0;
         std::string result;
+
+        bool is_root = indent == 0;
+        std::string header;
         if (is_root) {
             indent = 1;
             auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&result,
-              "<Http 0x", p, ">: {\n");
+            absl::StrAppend(&header, "<Http 0x", p, ">: {\n");
         } else {
-            result += "{\n";
+            header = "{\n";
         }
 
         result += PrintRepeatedField("rules: ",
             rules, rules_count, indent + 1);
         result += PrintField("fully_decode_reserved_expansion: ", fully_decode_reserved_expansion, indent + 1);
 
-        result += Indent(is_root ? 0 : indent) + '}';
-        return result;
+        if (!result.empty() || is_root) {
+          std::string tail = Indent(is_root ? 0 : indent) + '}';
+          return header + result + tail;
+        } else {
+          return "";
+        }
     }
 /* @@protoc_insertion_point(struct:google_api_Http) */
 } google_api_Http;
@@ -113,15 +123,16 @@ typedef struct _google_api_HttpRule {
     }
 
     std::string ToString(int indent = 0) const {
-        bool is_root = indent == 0;
         std::string result;
+
+        bool is_root = indent == 0;
+        std::string header;
         if (is_root) {
             indent = 1;
             auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&result,
-              "<HttpRule 0x", p, ">: {\n");
+            absl::StrAppend(&header, "<HttpRule 0x", p, ">: {\n");
         } else {
-            result += "{\n";
+            header = "{\n";
         }
 
         result += PrintField("selector: ", selector, indent + 1);
@@ -150,8 +161,12 @@ typedef struct _google_api_HttpRule {
         result += PrintRepeatedField("additional_bindings: ",
             additional_bindings, additional_bindings_count, indent + 1);
 
-        result += Indent(is_root ? 0 : indent) + '}';
-        return result;
+        if (!result.empty() || is_root) {
+          std::string tail = Indent(is_root ? 0 : indent) + '}';
+          return header + result + tail;
+        } else {
+          return "";
+        }
     }
 /* @@protoc_insertion_point(struct:google_api_HttpRule) */
 } google_api_HttpRule;
