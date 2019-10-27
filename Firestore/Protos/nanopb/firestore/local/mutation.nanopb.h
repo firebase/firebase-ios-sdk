@@ -97,10 +97,10 @@ typedef struct _firestore_client_WriteBatch {
         }
 
         result += PrintField("batch_id: ", batch_id, indent + 1);
-        result += PrintRepeatedField("writes: ",
+        result += PrintRepeatedField("writes ",
             writes, writes_count, indent + 1);
         result += PrintField("local_write_time ", local_write_time, indent + 1);
-        result += PrintRepeatedField("base_writes: ",
+        result += PrintRepeatedField("base_writes ",
             base_writes, base_writes_count, indent + 1);
 
         if (!result.empty() || is_root) {

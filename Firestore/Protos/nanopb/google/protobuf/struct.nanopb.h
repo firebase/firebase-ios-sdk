@@ -62,7 +62,7 @@ typedef struct _google_protobuf_ListValue {
             header = "{\n";
         }
 
-        result += PrintRepeatedField("values: ",
+        result += PrintRepeatedField("values ",
             values, values_count, indent + 1);
 
         if (!result.empty() || is_root) {
@@ -96,7 +96,7 @@ typedef struct _google_protobuf_Struct {
             header = "{\n";
         }
 
-        result += PrintRepeatedField("fields: ",
+        result += PrintRepeatedField("fields ",
             fields, fields_count, indent + 1);
 
         if (!result.empty() || is_root) {

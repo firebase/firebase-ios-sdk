@@ -117,7 +117,7 @@ typedef struct _google_firestore_v1_CommitRequest {
         }
 
         result += PrintField("database: ", database, indent + 1);
-        result += PrintRepeatedField("writes: ",
+        result += PrintRepeatedField("writes ",
             writes, writes_count, indent + 1);
         result += PrintField("transaction: ", transaction, indent + 1);
 
@@ -189,7 +189,7 @@ typedef struct _google_firestore_v1_ListDocumentsResponse {
             header = "{\n";
         }
 
-        result += PrintRepeatedField("documents: ",
+        result += PrintRepeatedField("documents ",
             documents, documents_count, indent + 1);
         result += PrintField("next_page_token: ", next_page_token, indent + 1);
 
@@ -333,10 +333,10 @@ typedef struct _google_firestore_v1_WriteRequest {
 
         result += PrintField("database: ", database, indent + 1);
         result += PrintField("stream_id: ", stream_id, indent + 1);
-        result += PrintRepeatedField("writes: ",
+        result += PrintRepeatedField("writes ",
             writes, writes_count, indent + 1);
         result += PrintField("stream_token: ", stream_token, indent + 1);
-        result += PrintRepeatedField("labels: ",
+        result += PrintRepeatedField("labels ",
             labels, labels_count, indent + 1);
 
         if (!result.empty() || is_root) {
@@ -543,7 +543,7 @@ typedef struct _google_firestore_v1_CommitResponse {
             header = "{\n";
         }
 
-        result += PrintRepeatedField("write_results: ",
+        result += PrintRepeatedField("write_results ",
             write_results, write_results_count, indent + 1);
         result += PrintField("commit_time ", commit_time, indent + 1);
 
@@ -1037,7 +1037,7 @@ typedef struct _google_firestore_v1_WriteResponse {
 
         result += PrintField("stream_id: ", stream_id, indent + 1);
         result += PrintField("stream_token: ", stream_token, indent + 1);
-        result += PrintRepeatedField("write_results: ",
+        result += PrintRepeatedField("write_results ",
             write_results, write_results_count, indent + 1);
         result += PrintField("commit_time ", commit_time, indent + 1);
 
@@ -1206,7 +1206,7 @@ typedef struct _google_firestore_v1_ListenRequest {
             break;
         }
 
-        result += PrintRepeatedField("labels: ",
+        result += PrintRepeatedField("labels ",
             labels, labels_count, indent + 1);
 
         if (!result.empty() || is_root) {

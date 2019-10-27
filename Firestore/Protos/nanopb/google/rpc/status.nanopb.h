@@ -60,7 +60,7 @@ typedef struct _google_rpc_Status {
 
         result += PrintField("code: ", code, indent + 1);
         result += PrintField("message: ", message, indent + 1);
-        result += PrintRepeatedField("details: ",
+        result += PrintRepeatedField("details ",
             details, details_count, indent + 1);
 
         if (!result.empty() || is_root) {

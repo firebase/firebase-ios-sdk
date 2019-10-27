@@ -73,7 +73,7 @@ typedef struct _google_firestore_v1_DocumentTransform {
         }
 
         result += PrintField("document: ", document, indent + 1);
-        result += PrintRepeatedField("field_transforms: ",
+        result += PrintRepeatedField("field_transforms ",
             field_transforms, field_transforms_count, indent + 1);
 
         if (!result.empty() || is_root) {
@@ -377,7 +377,7 @@ typedef struct _google_firestore_v1_WriteResult {
         }
 
         if (has_update_time) result += PrintField("update_time ", update_time, indent + 1);
-        result += PrintRepeatedField("transform_results: ",
+        result += PrintRepeatedField("transform_results ",
             transform_results, transform_results_count, indent + 1);
 
         if (!result.empty() || is_root) {

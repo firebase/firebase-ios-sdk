@@ -424,7 +424,7 @@ def add_printing_for_field(field):
   if field.is_optional:
     return add_printing_for_optional(field.name)
   elif field.is_repeated:
-    return add_printing_for_repeated(field.name)
+    return add_printing_for_repeated(field.name, field.is_primitive)
   elif field.oneof_member:
     return add_printing_for_oneof(field)
   elif field.is_enum:
@@ -453,9 +453,14 @@ def add_printing_for_oneof(field):
   return result + ' ' * 8 + '}\n'
 
 
-def add_printing_for_repeated(name):
+def add_printing_for_repeated(name, is_primitive):
   count = name + '_count'
-  return 'result += PrintRepeatedField("%s: ",' % (name) + '''
+  print_name = name
+  if is_primitive:
+    print_name += ': '
+  else:
+    print_name += ' '
+  return 'result += PrintRepeatedField("%s",' % (print_name) + '''
             %s, %s, indent + 1);''' % (name, count)
 
 
@@ -478,13 +483,11 @@ def add_printing_for_singular(print_name, actual_name, is_primitive):
 
 
 # TODO:
-# 3. Array isn't properly recursive
-# 2. Oneof isn't properly recursive? OTOH, can it be a problem?
-# 1. Array output is reasonable, but should be formatted differently.
+# 2. Array and oneof should properly print enums.
+# 1. Nested oneofs?
 #
-# 3. Line breaks in generated code
-# 2. Code cleanup
-# 1. Use absl::StrAppend?
+# 2. Line breaks in generated code
+# 1. Code cleanup
 
 if __name__ == '__main__':
   main()

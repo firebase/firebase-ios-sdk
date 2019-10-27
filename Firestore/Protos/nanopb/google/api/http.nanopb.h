@@ -89,7 +89,7 @@ typedef struct _google_api_Http {
             header = "{\n";
         }
 
-        result += PrintRepeatedField("rules: ",
+        result += PrintRepeatedField("rules ",
             rules, rules_count, indent + 1);
         result += PrintField("fully_decode_reserved_expansion: ", fully_decode_reserved_expansion, indent + 1);
 
@@ -158,7 +158,7 @@ typedef struct _google_api_HttpRule {
         }
 
         result += PrintField("body: ", body, indent + 1);
-        result += PrintRepeatedField("additional_bindings: ",
+        result += PrintRepeatedField("additional_bindings ",
             additional_bindings, additional_bindings_count, indent + 1);
 
         if (!result.empty() || is_root) {

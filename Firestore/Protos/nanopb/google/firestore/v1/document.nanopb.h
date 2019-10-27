@@ -62,7 +62,7 @@ typedef struct _google_firestore_v1_ArrayValue {
             header = "{\n";
         }
 
-        result += PrintRepeatedField("values: ",
+        result += PrintRepeatedField("values ",
             values, values_count, indent + 1);
 
         if (!result.empty() || is_root) {
@@ -96,7 +96,7 @@ typedef struct _google_firestore_v1_MapValue {
             header = "{\n";
         }
 
-        result += PrintRepeatedField("fields: ",
+        result += PrintRepeatedField("fields ",
             fields, fields_count, indent + 1);
 
         if (!result.empty() || is_root) {
@@ -135,7 +135,7 @@ typedef struct _google_firestore_v1_Document {
         }
 
         result += PrintField("name: ", name, indent + 1);
-        result += PrintRepeatedField("fields: ",
+        result += PrintRepeatedField("fields ",
             fields, fields_count, indent + 1);
         result += PrintField("create_time ", create_time, indent + 1);
         if (has_update_time) result += PrintField("update_time ", update_time, indent + 1);

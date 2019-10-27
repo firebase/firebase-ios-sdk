@@ -115,7 +115,17 @@ std::string PrintRepeatedField(absl::string_view name,
   if (count == 0) {
     return "";
   }
-  return absl::StrCat(Indent(indent), name, ToStringImpl(value, count, indent), "\n");
+
+  std::string result;
+  for (pb_size_t i = 0; i != count; ++i) {
+    // if (i != 0) {
+    //   result += '\n';
+    // }
+    result += PrintField(name, value[i], indent); //+ '\n';
+  }
+
+  return result;
+  //return absl::StrCat(Indent(indent), result, "\n");
 }
 
 }  // namespace firestore

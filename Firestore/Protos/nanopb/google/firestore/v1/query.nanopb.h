@@ -134,7 +134,7 @@ typedef struct _google_firestore_v1_StructuredQuery_Projection {
             header = "{\n";
         }
 
-        result += PrintRepeatedField("fields: ",
+        result += PrintRepeatedField("fields ",
             fields, fields_count, indent + 1);
 
         if (!result.empty() || is_root) {
@@ -169,7 +169,7 @@ typedef struct _google_firestore_v1_Cursor {
             header = "{\n";
         }
 
-        result += PrintRepeatedField("values: ",
+        result += PrintRepeatedField("values ",
             values, values_count, indent + 1);
         result += PrintField("before: ", before, indent + 1);
 
@@ -251,7 +251,7 @@ typedef struct _google_firestore_v1_StructuredQuery_CompositeFilter {
         }
 
         result += PrintEnumField<_google_firestore_v1_StructuredQuery_CompositeFilter>("op: ", op, indent + 1);
-        result += PrintRepeatedField("filters: ",
+        result += PrintRepeatedField("filters ",
             filters, filters_count, indent + 1);
 
         if (!result.empty() || is_root) {
@@ -506,10 +506,10 @@ typedef struct _google_firestore_v1_StructuredQuery {
         }
 
         result += PrintField("select ", select, indent + 1);
-        result += PrintRepeatedField("from: ",
+        result += PrintRepeatedField("from ",
             from, from_count, indent + 1);
         result += PrintField("where ", where, indent + 1);
-        result += PrintRepeatedField("order_by: ",
+        result += PrintRepeatedField("order_by ",
             order_by, order_by_count, indent + 1);
         if (has_limit) result += PrintField("limit ", limit, indent + 1);
         result += PrintField("offset: ", offset, indent + 1);
