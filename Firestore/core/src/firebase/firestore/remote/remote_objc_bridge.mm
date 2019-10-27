@@ -37,6 +37,7 @@
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "absl/strings/str_split.h"
 #include "grpcpp/support/status.h"
 
 namespace firebase {
@@ -77,9 +78,20 @@ std::string DescribeMessage(const Message<U>& message) {
   auto ns_data = [NSData dataWithBytes:bytes.data() length:bytes.size()];
   T* objc_request = [T parseFromData:ns_data error:nil];
   // return util::MakeString([objc_request description]);
-  auto result2 = util::MakeString([objc_request description]);
 
-  return result + '\n' + result2;
+  auto result2 = util::MakeString([objc_request description]);
+  std::vector<std::string> segments1 = absl::StrSplit(result, '\n');
+  std::vector<std::string> segments2 = absl::StrSplit(result2, '\n');
+
+  if (segments1.size() != segments2.size()) {
+    return "OBC1 " + result + '\n' + result2;
+  } else if (!segments1.empty() && !segments2.empty() &&
+             !std::equal(segments1.begin() + 1, segments1.end(),
+                         segments2.begin() + 1)) {
+    return "OBC2 " + result + '\n' + result2;
+  }
+
+  return "";
 }
 
 }  // namespace
