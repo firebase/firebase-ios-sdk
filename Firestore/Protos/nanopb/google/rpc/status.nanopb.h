@@ -58,17 +58,13 @@ typedef struct _google_rpc_Status {
             header = "{\n";
         }
 
-        result += PrintField("code: ", code, indent + 1);
-        result += PrintField("message: ", message, indent + 1);
+        result += PrintField("code: ", code, indent + 1, false);
+        result += PrintField("message: ", message, indent + 1, false);
         result += PrintRepeatedField("details ",
             details, details_count, indent + 1);
 
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
+        std::string tail = Indent(is_root ? 0 : indent) + '}';
+        return header + result + tail;
     }
 /* @@protoc_insertion_point(struct:google_rpc_Status) */
 } google_rpc_Status;

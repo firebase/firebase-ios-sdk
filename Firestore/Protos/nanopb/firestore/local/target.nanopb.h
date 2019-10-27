@@ -65,26 +65,22 @@ typedef struct _firestore_client_Target {
             header = "{\n";
         }
 
-        result += PrintField("target_id: ", target_id, indent + 1);
-        result += PrintField("snapshot_version ", snapshot_version, indent + 1);
-        result += PrintField("resume_token: ", resume_token, indent + 1);
-        result += PrintField("last_listen_sequence_number: ", last_listen_sequence_number, indent + 1);
+        result += PrintField("target_id: ", target_id, indent + 1, false);
+        result += PrintField("snapshot_version ", snapshot_version, indent + 1, false);
+        result += PrintField("resume_token: ", resume_token, indent + 1, false);
+        result += PrintField("last_listen_sequence_number: ", last_listen_sequence_number, indent + 1, false);
         switch (which_target_type) {
           case 5: // firestore_client_Target_query_tag
-            result += PrintField("query ", query, indent + 1);
+            result += PrintField("query ", query, indent + 1, true);
             break;
           case 6: // firestore_client_Target_documents_tag
-            result += PrintField("documents ", documents, indent + 1);
+            result += PrintField("documents ", documents, indent + 1, true);
             break;
         }
 
 
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
+        std::string tail = Indent(is_root ? 0 : indent) + '}';
+        return header + result + tail;
     }
 /* @@protoc_insertion_point(struct:firestore_client_Target) */
 } firestore_client_Target;
@@ -112,17 +108,13 @@ typedef struct _firestore_client_TargetGlobal {
             header = "{\n";
         }
 
-        result += PrintField("highest_target_id: ", highest_target_id, indent + 1);
-        result += PrintField("highest_listen_sequence_number: ", highest_listen_sequence_number, indent + 1);
-        result += PrintField("last_remote_snapshot_version ", last_remote_snapshot_version, indent + 1);
-        result += PrintField("target_count: ", target_count, indent + 1);
+        result += PrintField("highest_target_id: ", highest_target_id, indent + 1, false);
+        result += PrintField("highest_listen_sequence_number: ", highest_listen_sequence_number, indent + 1, false);
+        result += PrintField("last_remote_snapshot_version ", last_remote_snapshot_version, indent + 1, false);
+        result += PrintField("target_count: ", target_count, indent + 1, false);
 
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
+        std::string tail = Indent(is_root ? 0 : indent) + '}';
+        return header + result + tail;
     }
 /* @@protoc_insertion_point(struct:firestore_client_TargetGlobal) */
 } firestore_client_TargetGlobal;

@@ -65,12 +65,8 @@ typedef struct _google_protobuf_ListValue {
         result += PrintRepeatedField("values ",
             values, values_count, indent + 1);
 
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
+        std::string tail = Indent(is_root ? 0 : indent) + '}';
+        return header + result + tail;
     }
 /* @@protoc_insertion_point(struct:google_protobuf_ListValue) */
 } google_protobuf_ListValue;
@@ -99,12 +95,8 @@ typedef struct _google_protobuf_Struct {
         result += PrintRepeatedField("fields ",
             fields, fields_count, indent + 1);
 
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
+        std::string tail = Indent(is_root ? 0 : indent) + '}';
+        return header + result + tail;
     }
 /* @@protoc_insertion_point(struct:google_protobuf_Struct) */
 } google_protobuf_Struct;
@@ -139,22 +131,22 @@ typedef struct _google_protobuf_Value {
 
         switch (which_kind) {
           case 1: // google_protobuf_Value_null_value_tag
-            result += PrintField("null_value: ", null_value, indent + 1);
+            result += PrintField("null_value: ", null_value, indent + 1, true);
             break;
           case 2: // google_protobuf_Value_number_value_tag
-            result += PrintField("number_value: ", number_value, indent + 1);
+            result += PrintField("number_value: ", number_value, indent + 1, true);
             break;
           case 3: // google_protobuf_Value_string_value_tag
-            result += PrintField("string_value: ", string_value, indent + 1);
+            result += PrintField("string_value: ", string_value, indent + 1, true);
             break;
           case 4: // google_protobuf_Value_bool_value_tag
-            result += PrintField("bool_value: ", bool_value, indent + 1);
+            result += PrintField("bool_value: ", bool_value, indent + 1, true);
             break;
           case 5: // google_protobuf_Value_struct_value_tag
-            result += PrintField("struct_value ", struct_value, indent + 1);
+            result += PrintField("struct_value ", struct_value, indent + 1, true);
             break;
           case 6: // google_protobuf_Value_list_value_tag
-            result += PrintField("list_value ", list_value, indent + 1);
+            result += PrintField("list_value ", list_value, indent + 1, true);
             break;
         }
 
@@ -190,15 +182,11 @@ typedef struct _google_protobuf_Struct_FieldsEntry {
             header = "{\n";
         }
 
-        result += PrintField("key: ", key, indent + 1);
-        result += PrintField("value ", value, indent + 1);
+        result += PrintField("key: ", key, indent + 1, false);
+        result += PrintField("value ", value, indent + 1, false);
 
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
+        std::string tail = Indent(is_root ? 0 : indent) + '}';
+        return header + result + tail;
     }
 /* @@protoc_insertion_point(struct:google_protobuf_Struct_FieldsEntry) */
 } google_protobuf_Struct_FieldsEntry;

@@ -101,7 +101,7 @@ typedef struct _google_firestore_v1_StructuredQuery_FieldReference {
             header = "{\n";
         }
 
-        result += PrintField("field_path: ", field_path, indent + 1);
+        result += PrintField("field_path: ", field_path, indent + 1, false);
 
         if (!result.empty() || is_root) {
           std::string tail = Indent(is_root ? 0 : indent) + '}';
@@ -137,12 +137,8 @@ typedef struct _google_firestore_v1_StructuredQuery_Projection {
         result += PrintRepeatedField("fields ",
             fields, fields_count, indent + 1);
 
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
+        std::string tail = Indent(is_root ? 0 : indent) + '}';
+        return header + result + tail;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_StructuredQuery_Projection) */
 } google_firestore_v1_StructuredQuery_Projection;
@@ -171,14 +167,10 @@ typedef struct _google_firestore_v1_Cursor {
 
         result += PrintRepeatedField("values ",
             values, values_count, indent + 1);
-        result += PrintField("before: ", before, indent + 1);
+        result += PrintField("before: ", before, indent + 1, false);
 
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
+        std::string tail = Indent(is_root ? 0 : indent) + '}';
+        return header + result + tail;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_Cursor) */
 } google_firestore_v1_Cursor;
@@ -204,8 +196,8 @@ typedef struct _google_firestore_v1_StructuredQuery_CollectionSelector {
             header = "{\n";
         }
 
-        result += PrintField("collection_id: ", collection_id, indent + 1);
-        result += PrintField("all_descendants: ", all_descendants, indent + 1);
+        result += PrintField("collection_id: ", collection_id, indent + 1, false);
+        result += PrintField("all_descendants: ", all_descendants, indent + 1, false);
 
         if (!result.empty() || is_root) {
           std::string tail = Indent(is_root ? 0 : indent) + '}';
@@ -254,12 +246,8 @@ typedef struct _google_firestore_v1_StructuredQuery_CompositeFilter {
         result += PrintRepeatedField("filters ",
             filters, filters_count, indent + 1);
 
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
+        std::string tail = Indent(is_root ? 0 : indent) + '}';
+        return header + result + tail;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_StructuredQuery_CompositeFilter) */
 } google_firestore_v1_StructuredQuery_CompositeFilter;
@@ -311,16 +299,12 @@ typedef struct _google_firestore_v1_StructuredQuery_FieldFilter {
             header = "{\n";
         }
 
-        result += PrintField("field ", field, indent + 1);
+        result += PrintField("field ", field, indent + 1, false);
         result += PrintEnumField<_google_firestore_v1_StructuredQuery_FieldFilter>("op: ", op, indent + 1);
-        result += PrintField("value ", value, indent + 1);
+        result += PrintField("value ", value, indent + 1, false);
 
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
+        std::string tail = Indent(is_root ? 0 : indent) + '}';
+        return header + result + tail;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_StructuredQuery_FieldFilter) */
 } google_firestore_v1_StructuredQuery_FieldFilter;
@@ -359,15 +343,11 @@ typedef struct _google_firestore_v1_StructuredQuery_Order {
             header = "{\n";
         }
 
-        result += PrintField("field ", field, indent + 1);
+        result += PrintField("field ", field, indent + 1, false);
         result += PrintEnumField<_google_firestore_v1_StructuredQuery_Order>("direction: ", direction, indent + 1);
 
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
+        std::string tail = Indent(is_root ? 0 : indent) + '}';
+        return header + result + tail;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_StructuredQuery_Order) */
 } google_firestore_v1_StructuredQuery_Order;
@@ -412,7 +392,7 @@ typedef struct _google_firestore_v1_StructuredQuery_UnaryFilter {
         result += PrintEnumField<_google_firestore_v1_StructuredQuery_UnaryFilter>("op: ", op, indent + 1);
         switch (which_operand_type) {
           case 2: // google_firestore_v1_StructuredQuery_UnaryFilter_field_tag
-            result += PrintField("field ", field, indent + 1);
+            result += PrintField("field ", field, indent + 1, true);
             break;
         }
 
@@ -454,13 +434,13 @@ typedef struct _google_firestore_v1_StructuredQuery_Filter {
 
         switch (which_filter_type) {
           case 1: // google_firestore_v1_StructuredQuery_Filter_composite_filter_tag
-            result += PrintField("composite_filter ", composite_filter, indent + 1);
+            result += PrintField("composite_filter ", composite_filter, indent + 1, true);
             break;
           case 2: // google_firestore_v1_StructuredQuery_Filter_field_filter_tag
-            result += PrintField("field_filter ", field_filter, indent + 1);
+            result += PrintField("field_filter ", field_filter, indent + 1, true);
             break;
           case 3: // google_firestore_v1_StructuredQuery_Filter_unary_filter_tag
-            result += PrintField("unary_filter ", unary_filter, indent + 1);
+            result += PrintField("unary_filter ", unary_filter, indent + 1, true);
             break;
         }
 
@@ -505,23 +485,19 @@ typedef struct _google_firestore_v1_StructuredQuery {
             header = "{\n";
         }
 
-        result += PrintField("select ", select, indent + 1);
+        result += PrintField("select ", select, indent + 1, false);
         result += PrintRepeatedField("from ",
             from, from_count, indent + 1);
-        result += PrintField("where ", where, indent + 1);
+        result += PrintField("where ", where, indent + 1, false);
         result += PrintRepeatedField("order_by ",
             order_by, order_by_count, indent + 1);
-        if (has_limit) result += PrintField("limit ", limit, indent + 1);
-        result += PrintField("offset: ", offset, indent + 1);
-        result += PrintField("start_at ", start_at, indent + 1);
-        result += PrintField("end_at ", end_at, indent + 1);
+        if (has_limit) result += PrintField("limit ", limit, indent + 1, false);
+        result += PrintField("offset: ", offset, indent + 1, false);
+        result += PrintField("start_at ", start_at, indent + 1, false);
+        result += PrintField("end_at ", end_at, indent + 1, false);
 
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
+        std::string tail = Indent(is_root ? 0 : indent) + '}';
+        return header + result + tail;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_StructuredQuery) */
 } google_firestore_v1_StructuredQuery;

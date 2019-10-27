@@ -65,12 +65,8 @@ typedef struct _google_firestore_v1_ArrayValue {
         result += PrintRepeatedField("values ",
             values, values_count, indent + 1);
 
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
+        std::string tail = Indent(is_root ? 0 : indent) + '}';
+        return header + result + tail;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_ArrayValue) */
 } google_firestore_v1_ArrayValue;
@@ -99,12 +95,8 @@ typedef struct _google_firestore_v1_MapValue {
         result += PrintRepeatedField("fields ",
             fields, fields_count, indent + 1);
 
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
+        std::string tail = Indent(is_root ? 0 : indent) + '}';
+        return header + result + tail;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_MapValue) */
 } google_firestore_v1_MapValue;
@@ -134,18 +126,14 @@ typedef struct _google_firestore_v1_Document {
             header = "{\n";
         }
 
-        result += PrintField("name: ", name, indent + 1);
+        result += PrintField("name: ", name, indent + 1, false);
         result += PrintRepeatedField("fields ",
             fields, fields_count, indent + 1);
-        result += PrintField("create_time ", create_time, indent + 1);
-        if (has_update_time) result += PrintField("update_time ", update_time, indent + 1);
+        result += PrintField("create_time ", create_time, indent + 1, false);
+        if (has_update_time) result += PrintField("update_time ", update_time, indent + 1, false);
 
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
+        std::string tail = Indent(is_root ? 0 : indent) + '}';
+        return header + result + tail;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_Document) */
 } google_firestore_v1_Document;
@@ -185,37 +173,37 @@ typedef struct _google_firestore_v1_Value {
 
         switch (which_value_type) {
           case 1: // google_firestore_v1_Value_boolean_value_tag
-            result += PrintField("boolean_value: ", boolean_value, indent + 1);
+            result += PrintField("boolean_value: ", boolean_value, indent + 1, true);
             break;
           case 2: // google_firestore_v1_Value_integer_value_tag
-            result += PrintField("integer_value: ", integer_value, indent + 1);
+            result += PrintField("integer_value: ", integer_value, indent + 1, true);
             break;
           case 3: // google_firestore_v1_Value_double_value_tag
-            result += PrintField("double_value: ", double_value, indent + 1);
+            result += PrintField("double_value: ", double_value, indent + 1, true);
             break;
           case 5: // google_firestore_v1_Value_reference_value_tag
-            result += PrintField("reference_value: ", reference_value, indent + 1);
+            result += PrintField("reference_value: ", reference_value, indent + 1, true);
             break;
           case 6: // google_firestore_v1_Value_map_value_tag
-            result += PrintField("map_value ", map_value, indent + 1);
+            result += PrintField("map_value ", map_value, indent + 1, true);
             break;
           case 8: // google_firestore_v1_Value_geo_point_value_tag
-            result += PrintField("geo_point_value ", geo_point_value, indent + 1);
+            result += PrintField("geo_point_value ", geo_point_value, indent + 1, true);
             break;
           case 9: // google_firestore_v1_Value_array_value_tag
-            result += PrintField("array_value ", array_value, indent + 1);
+            result += PrintField("array_value ", array_value, indent + 1, true);
             break;
           case 10: // google_firestore_v1_Value_timestamp_value_tag
-            result += PrintField("timestamp_value ", timestamp_value, indent + 1);
+            result += PrintField("timestamp_value ", timestamp_value, indent + 1, true);
             break;
           case 11: // google_firestore_v1_Value_null_value_tag
-            result += PrintField("null_value: ", null_value, indent + 1);
+            result += PrintField("null_value: ", null_value, indent + 1, true);
             break;
           case 17: // google_firestore_v1_Value_string_value_tag
-            result += PrintField("string_value: ", string_value, indent + 1);
+            result += PrintField("string_value: ", string_value, indent + 1, true);
             break;
           case 18: // google_firestore_v1_Value_bytes_value_tag
-            result += PrintField("bytes_value: ", bytes_value, indent + 1);
+            result += PrintField("bytes_value: ", bytes_value, indent + 1, true);
             break;
         }
 
@@ -251,15 +239,11 @@ typedef struct _google_firestore_v1_Document_FieldsEntry {
             header = "{\n";
         }
 
-        result += PrintField("key: ", key, indent + 1);
-        result += PrintField("value ", value, indent + 1);
+        result += PrintField("key: ", key, indent + 1, false);
+        result += PrintField("value ", value, indent + 1, false);
 
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
+        std::string tail = Indent(is_root ? 0 : indent) + '}';
+        return header + result + tail;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_Document_FieldsEntry) */
 } google_firestore_v1_Document_FieldsEntry;
@@ -285,15 +269,11 @@ typedef struct _google_firestore_v1_MapValue_FieldsEntry {
             header = "{\n";
         }
 
-        result += PrintField("key: ", key, indent + 1);
-        result += PrintField("value ", value, indent + 1);
+        result += PrintField("key: ", key, indent + 1, false);
+        result += PrintField("value ", value, indent + 1, false);
 
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
+        std::string tail = Indent(is_root ? 0 : indent) + '}';
+        return header + result + tail;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_MapValue_FieldsEntry) */
 } google_firestore_v1_MapValue_FieldsEntry;

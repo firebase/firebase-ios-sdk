@@ -58,8 +58,8 @@ typedef struct _firestore_client_MutationQueue {
             header = "{\n";
         }
 
-        result += PrintField("last_acknowledged_batch_id: ", last_acknowledged_batch_id, indent + 1);
-        result += PrintField("last_stream_token: ", last_stream_token, indent + 1);
+        result += PrintField("last_acknowledged_batch_id: ", last_acknowledged_batch_id, indent + 1, false);
+        result += PrintField("last_stream_token: ", last_stream_token, indent + 1, false);
 
         if (!result.empty() || is_root) {
           std::string tail = Indent(is_root ? 0 : indent) + '}';
@@ -96,19 +96,15 @@ typedef struct _firestore_client_WriteBatch {
             header = "{\n";
         }
 
-        result += PrintField("batch_id: ", batch_id, indent + 1);
+        result += PrintField("batch_id: ", batch_id, indent + 1, false);
         result += PrintRepeatedField("writes ",
             writes, writes_count, indent + 1);
-        result += PrintField("local_write_time ", local_write_time, indent + 1);
+        result += PrintField("local_write_time ", local_write_time, indent + 1, false);
         result += PrintRepeatedField("base_writes ",
             base_writes, base_writes_count, indent + 1);
 
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
+        std::string tail = Indent(is_root ? 0 : indent) + '}';
+        return header + result + tail;
     }
 /* @@protoc_insertion_point(struct:firestore_client_WriteBatch) */
 } firestore_client_WriteBatch;

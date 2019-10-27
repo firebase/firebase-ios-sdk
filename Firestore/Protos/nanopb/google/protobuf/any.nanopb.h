@@ -54,8 +54,8 @@ typedef struct _google_protobuf_Any {
             header = "{\n";
         }
 
-        result += PrintField("type_url: ", type_url, indent + 1);
-        result += PrintField("value: ", value, indent + 1);
+        result += PrintField("type_url: ", type_url, indent + 1, false);
+        result += PrintField("value: ", value, indent + 1, false);
 
         if (!result.empty() || is_root) {
           std::string tail = Indent(is_root ? 0 : indent) + '}';

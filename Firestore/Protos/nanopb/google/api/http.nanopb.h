@@ -54,8 +54,8 @@ typedef struct _google_api_CustomHttpPattern {
             header = "{\n";
         }
 
-        result += PrintField("kind: ", kind, indent + 1);
-        result += PrintField("path: ", path, indent + 1);
+        result += PrintField("kind: ", kind, indent + 1, false);
+        result += PrintField("path: ", path, indent + 1, false);
 
         if (!result.empty() || is_root) {
           std::string tail = Indent(is_root ? 0 : indent) + '}';
@@ -91,14 +91,10 @@ typedef struct _google_api_Http {
 
         result += PrintRepeatedField("rules ",
             rules, rules_count, indent + 1);
-        result += PrintField("fully_decode_reserved_expansion: ", fully_decode_reserved_expansion, indent + 1);
+        result += PrintField("fully_decode_reserved_expansion: ", fully_decode_reserved_expansion, indent + 1, false);
 
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
+        std::string tail = Indent(is_root ? 0 : indent) + '}';
+        return header + result + tail;
     }
 /* @@protoc_insertion_point(struct:google_api_Http) */
 } google_api_Http;
@@ -135,38 +131,34 @@ typedef struct _google_api_HttpRule {
             header = "{\n";
         }
 
-        result += PrintField("selector: ", selector, indent + 1);
+        result += PrintField("selector: ", selector, indent + 1, false);
         switch (which_pattern) {
           case 2: // google_api_HttpRule_get_tag
-            result += PrintField("get: ", get, indent + 1);
+            result += PrintField("get: ", get, indent + 1, true);
             break;
           case 3: // google_api_HttpRule_put_tag
-            result += PrintField("put: ", put, indent + 1);
+            result += PrintField("put: ", put, indent + 1, true);
             break;
           case 4: // google_api_HttpRule_post_tag
-            result += PrintField("post: ", post, indent + 1);
+            result += PrintField("post: ", post, indent + 1, true);
             break;
           case 5: // google_api_HttpRule_delete_tag
-            result += PrintField("delete_: ", delete_, indent + 1);
+            result += PrintField("delete_: ", delete_, indent + 1, true);
             break;
           case 6: // google_api_HttpRule_patch_tag
-            result += PrintField("patch: ", patch, indent + 1);
+            result += PrintField("patch: ", patch, indent + 1, true);
             break;
           case 8: // google_api_HttpRule_custom_tag
-            result += PrintField("custom ", custom, indent + 1);
+            result += PrintField("custom ", custom, indent + 1, true);
             break;
         }
 
-        result += PrintField("body: ", body, indent + 1);
+        result += PrintField("body: ", body, indent + 1, false);
         result += PrintRepeatedField("additional_bindings ",
             additional_bindings, additional_bindings_count, indent + 1);
 
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
+        std::string tail = Indent(is_root ? 0 : indent) + '}';
+        return header + result + tail;
     }
 /* @@protoc_insertion_point(struct:google_api_HttpRule) */
 } google_api_HttpRule;

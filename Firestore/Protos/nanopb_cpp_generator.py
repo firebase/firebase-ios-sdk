@@ -391,13 +391,20 @@ namespace firestore {'''
       for field in p.fields:
         f.content += ' ' * 8 + add_printing_for_field(field) + '\n'
 
-      f.content += '''
+      can_be_empty = all(f.is_primitive and not f.is_repeated for f in p.fields)
+      if can_be_empty:
+        f.content += '''
         if (!result.empty() || is_root) {
           std::string tail = Indent(is_root ? 0 : indent) + '}';
           return header + result + tail;
         } else {
           return "";
         }
+    }'''
+      else:
+        f.content += '''
+        std::string tail = Indent(is_root ? 0 : indent) + '}';
+        return header + result + tail;
     }'''
 
     f = response.file.add()
@@ -447,7 +454,7 @@ def add_printing_for_oneof(field):
     else:
       full_name = field.name + '.' + f.name
     is_primitive = f.pbtype != 'MESSAGE'
-    result += '\n' + ' ' * 12 + add_printing_for_singular(f.name, full_name, is_primitive)
+    result += '\n' + ' ' * 12 + add_printing_for_singular(f.name, full_name, is_primitive, True)
     result += '\n' + ' ' * 12 + 'break;\n'
 
   return result + ' ' * 8 + '}\n'
@@ -472,22 +479,21 @@ def add_printing_for_enum(print_name, actual_name, field, class_name):
   return '''result += PrintEnumField<%s>("%s: ", %s, indent + 1);''' % (class_name, print_name, actual_name)
 
 
-def add_printing_for_singular(print_name, actual_name, is_primitive):
+def add_printing_for_singular(print_name, actual_name, is_primitive, always_print=False):
   if actual_name == None:
     actual_name = print_name
   if is_primitive:
     print_name += ': '
   else:
     print_name += ' '
-  return '''result += PrintField("%s", %s, indent + 1);''' % (print_name, actual_name)
+  return '''result += PrintField("%s", %s, indent + 1, %s);''' % (print_name, actual_name, 'true' if always_print else 'false')
 
 
 # TODO:
 # 2. Array and oneof should properly print enums.
 # 1. Nested oneofs?
 #
-# 2. Line breaks in generated code
-# 1. Code cleanup
+# 1. Code cleanup, line breaks in generated code.
 
 if __name__ == '__main__':
   main()

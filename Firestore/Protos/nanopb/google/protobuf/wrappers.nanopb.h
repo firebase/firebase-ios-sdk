@@ -53,7 +53,7 @@ typedef struct _google_protobuf_BytesValue {
             header = "{\n";
         }
 
-        result += PrintField("value: ", value, indent + 1);
+        result += PrintField("value: ", value, indent + 1, false);
 
         if (!result.empty() || is_root) {
           std::string tail = Indent(is_root ? 0 : indent) + '}';
@@ -85,7 +85,7 @@ typedef struct _google_protobuf_StringValue {
             header = "{\n";
         }
 
-        result += PrintField("value: ", value, indent + 1);
+        result += PrintField("value: ", value, indent + 1, false);
 
         if (!result.empty() || is_root) {
           std::string tail = Indent(is_root ? 0 : indent) + '}';
@@ -117,7 +117,7 @@ typedef struct _google_protobuf_BoolValue {
             header = "{\n";
         }
 
-        result += PrintField("value: ", value, indent + 1);
+        result += PrintField("value: ", value, indent + 1, false);
 
         if (!result.empty() || is_root) {
           std::string tail = Indent(is_root ? 0 : indent) + '}';
@@ -149,7 +149,7 @@ typedef struct _google_protobuf_DoubleValue {
             header = "{\n";
         }
 
-        result += PrintField("value: ", value, indent + 1);
+        result += PrintField("value: ", value, indent + 1, false);
 
         if (!result.empty() || is_root) {
           std::string tail = Indent(is_root ? 0 : indent) + '}';
@@ -181,7 +181,7 @@ typedef struct _google_protobuf_FloatValue {
             header = "{\n";
         }
 
-        result += PrintField("value: ", value, indent + 1);
+        result += PrintField("value: ", value, indent + 1, false);
 
         if (!result.empty() || is_root) {
           std::string tail = Indent(is_root ? 0 : indent) + '}';
@@ -213,7 +213,7 @@ typedef struct _google_protobuf_Int32Value {
             header = "{\n";
         }
 
-        result += PrintField("value: ", value, indent + 1);
+        result += PrintField("value: ", value, indent + 1, false);
 
         if (!result.empty() || is_root) {
           std::string tail = Indent(is_root ? 0 : indent) + '}';
@@ -245,7 +245,7 @@ typedef struct _google_protobuf_Int64Value {
             header = "{\n";
         }
 
-        result += PrintField("value: ", value, indent + 1);
+        result += PrintField("value: ", value, indent + 1, false);
 
         if (!result.empty() || is_root) {
           std::string tail = Indent(is_root ? 0 : indent) + '}';
@@ -277,7 +277,7 @@ typedef struct _google_protobuf_UInt32Value {
             header = "{\n";
         }
 
-        result += PrintField("value: ", value, indent + 1);
+        result += PrintField("value: ", value, indent + 1, false);
 
         if (!result.empty() || is_root) {
           std::string tail = Indent(is_root ? 0 : indent) + '}';
@@ -309,7 +309,7 @@ typedef struct _google_protobuf_UInt64Value {
             header = "{\n";
         }
 
-        result += PrintField("value: ", value, indent + 1);
+        result += PrintField("value: ", value, indent + 1, false);
 
         if (!result.empty() || is_root) {
           std::string tail = Indent(is_root ? 0 : indent) + '}';

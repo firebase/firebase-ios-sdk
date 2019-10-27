@@ -72,16 +72,12 @@ typedef struct _google_firestore_v1_DocumentTransform {
             header = "{\n";
         }
 
-        result += PrintField("document: ", document, indent + 1);
+        result += PrintField("document: ", document, indent + 1, false);
         result += PrintRepeatedField("field_transforms ",
             field_transforms, field_transforms_count, indent + 1);
 
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
+        std::string tail = Indent(is_root ? 0 : indent) + '}';
+        return header + result + tail;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_DocumentTransform) */
 } google_firestore_v1_DocumentTransform;
@@ -110,18 +106,14 @@ typedef struct _google_firestore_v1_DocumentChange {
             header = "{\n";
         }
 
-        result += PrintField("document ", document, indent + 1);
+        result += PrintField("document ", document, indent + 1, false);
         result += PrintRepeatedField("target_ids: ",
             target_ids, target_ids_count, indent + 1);
         result += PrintRepeatedField("removed_target_ids: ",
             removed_target_ids, removed_target_ids_count, indent + 1);
 
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
+        std::string tail = Indent(is_root ? 0 : indent) + '}';
+        return header + result + tail;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_DocumentChange) */
 } google_firestore_v1_DocumentChange;
@@ -150,17 +142,13 @@ typedef struct _google_firestore_v1_DocumentDelete {
             header = "{\n";
         }
 
-        result += PrintField("document: ", document, indent + 1);
-        if (has_read_time) result += PrintField("read_time ", read_time, indent + 1);
+        result += PrintField("document: ", document, indent + 1, false);
+        if (has_read_time) result += PrintField("read_time ", read_time, indent + 1, false);
         result += PrintRepeatedField("removed_target_ids: ",
             removed_target_ids, removed_target_ids_count, indent + 1);
 
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
+        std::string tail = Indent(is_root ? 0 : indent) + '}';
+        return header + result + tail;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_DocumentDelete) */
 } google_firestore_v1_DocumentDelete;
@@ -188,17 +176,13 @@ typedef struct _google_firestore_v1_DocumentRemove {
             header = "{\n";
         }
 
-        result += PrintField("document: ", document, indent + 1);
+        result += PrintField("document: ", document, indent + 1, false);
         result += PrintRepeatedField("removed_target_ids: ",
             removed_target_ids, removed_target_ids_count, indent + 1);
-        result += PrintField("read_time ", read_time, indent + 1);
+        result += PrintField("read_time ", read_time, indent + 1, false);
 
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
+        std::string tail = Indent(is_root ? 0 : indent) + '}';
+        return header + result + tail;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_DocumentRemove) */
 } google_firestore_v1_DocumentRemove;
@@ -232,25 +216,25 @@ typedef struct _google_firestore_v1_DocumentTransform_FieldTransform {
             header = "{\n";
         }
 
-        result += PrintField("field_path: ", field_path, indent + 1);
+        result += PrintField("field_path: ", field_path, indent + 1, false);
         switch (which_transform_type) {
           case 2: // google_firestore_v1_DocumentTransform_FieldTransform_set_to_server_value_tag
-            result += PrintField("set_to_server_value: ", set_to_server_value, indent + 1);
+            result += PrintField("set_to_server_value: ", set_to_server_value, indent + 1, true);
             break;
           case 3: // google_firestore_v1_DocumentTransform_FieldTransform_increment_tag
-            result += PrintField("increment ", increment, indent + 1);
+            result += PrintField("increment ", increment, indent + 1, true);
             break;
           case 4: // google_firestore_v1_DocumentTransform_FieldTransform_maximum_tag
-            result += PrintField("maximum ", maximum, indent + 1);
+            result += PrintField("maximum ", maximum, indent + 1, true);
             break;
           case 5: // google_firestore_v1_DocumentTransform_FieldTransform_minimum_tag
-            result += PrintField("minimum ", minimum, indent + 1);
+            result += PrintField("minimum ", minimum, indent + 1, true);
             break;
           case 6: // google_firestore_v1_DocumentTransform_FieldTransform_append_missing_elements_tag
-            result += PrintField("append_missing_elements ", append_missing_elements, indent + 1);
+            result += PrintField("append_missing_elements ", append_missing_elements, indent + 1, true);
             break;
           case 7: // google_firestore_v1_DocumentTransform_FieldTransform_remove_all_from_array_tag
-            result += PrintField("remove_all_from_array ", remove_all_from_array, indent + 1);
+            result += PrintField("remove_all_from_array ", remove_all_from_array, indent + 1, true);
             break;
         }
 
@@ -286,8 +270,8 @@ typedef struct _google_firestore_v1_ExistenceFilter {
             header = "{\n";
         }
 
-        result += PrintField("target_id: ", target_id, indent + 1);
-        result += PrintField("count: ", count, indent + 1);
+        result += PrintField("target_id: ", target_id, indent + 1, false);
+        result += PrintField("count: ", count, indent + 1, false);
 
         if (!result.empty() || is_root) {
           std::string tail = Indent(is_root ? 0 : indent) + '}';
@@ -330,25 +314,21 @@ typedef struct _google_firestore_v1_Write {
 
         switch (which_operation) {
           case 1: // google_firestore_v1_Write_update_tag
-            result += PrintField("update ", update, indent + 1);
+            result += PrintField("update ", update, indent + 1, true);
             break;
           case 2: // google_firestore_v1_Write_delete_tag
-            result += PrintField("delete_: ", delete_, indent + 1);
+            result += PrintField("delete_: ", delete_, indent + 1, true);
             break;
           case 6: // google_firestore_v1_Write_transform_tag
-            result += PrintField("transform ", transform, indent + 1);
+            result += PrintField("transform ", transform, indent + 1, true);
             break;
         }
 
-        if (has_update_mask) result += PrintField("update_mask ", update_mask, indent + 1);
-        if (has_current_document) result += PrintField("current_document ", current_document, indent + 1);
+        if (has_update_mask) result += PrintField("update_mask ", update_mask, indent + 1, false);
+        if (has_current_document) result += PrintField("current_document ", current_document, indent + 1, false);
 
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
+        std::string tail = Indent(is_root ? 0 : indent) + '}';
+        return header + result + tail;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_Write) */
 } google_firestore_v1_Write;
@@ -376,16 +356,12 @@ typedef struct _google_firestore_v1_WriteResult {
             header = "{\n";
         }
 
-        if (has_update_time) result += PrintField("update_time ", update_time, indent + 1);
+        if (has_update_time) result += PrintField("update_time ", update_time, indent + 1, false);
         result += PrintRepeatedField("transform_results ",
             transform_results, transform_results_count, indent + 1);
 
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
+        std::string tail = Indent(is_root ? 0 : indent) + '}';
+        return header + result + tail;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_WriteResult) */
 } google_firestore_v1_WriteResult;

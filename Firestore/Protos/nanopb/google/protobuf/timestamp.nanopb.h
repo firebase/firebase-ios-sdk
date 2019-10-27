@@ -54,8 +54,8 @@ typedef struct _google_protobuf_Timestamp {
             header = "{\n";
         }
 
-        result += PrintField("seconds: ", seconds, indent + 1);
-        result += PrintField("nanos: ", nanos, indent + 1);
+        result += PrintField("seconds: ", seconds, indent + 1, false);
+        result += PrintField("nanos: ", nanos, indent + 1, false);
 
         if (!result.empty() || is_root) {
           std::string tail = Indent(is_root ? 0 : indent) + '}';

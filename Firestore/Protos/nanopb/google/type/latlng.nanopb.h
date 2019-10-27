@@ -54,8 +54,8 @@ typedef struct _google_type_LatLng {
             header = "{\n";
         }
 
-        result += PrintField("latitude: ", latitude, indent + 1);
-        result += PrintField("longitude: ", longitude, indent + 1);
+        result += PrintField("latitude: ", latitude, indent + 1, false);
+        result += PrintField("longitude: ", longitude, indent + 1, false);
 
         if (!result.empty() || is_root) {
           std::string tail = Indent(is_root ? 0 : indent) + '}';
