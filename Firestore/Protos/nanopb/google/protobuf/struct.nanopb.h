@@ -65,8 +65,12 @@ typedef struct _google_protobuf_ListValue {
         result += PrintRepeatedField("values ",
             values, values_count, indent + 1);
 
-        std::string tail = Indent(is_root ? 0 : indent) + '}';
-        return header + result + tail;
+        if (!result.empty() || is_root) {
+          std::string tail = Indent(is_root ? 0 : indent) + '}';
+          return header + result + tail;
+        } else {
+          return "";
+        }
     }
 /* @@protoc_insertion_point(struct:google_protobuf_ListValue) */
 } google_protobuf_ListValue;
@@ -95,8 +99,12 @@ typedef struct _google_protobuf_Struct {
         result += PrintRepeatedField("fields ",
             fields, fields_count, indent + 1);
 
-        std::string tail = Indent(is_root ? 0 : indent) + '}';
-        return header + result + tail;
+        if (!result.empty() || is_root) {
+          std::string tail = Indent(is_root ? 0 : indent) + '}';
+          return header + result + tail;
+        } else {
+          return "";
+        }
     }
 /* @@protoc_insertion_point(struct:google_protobuf_Struct) */
 } google_protobuf_Struct;

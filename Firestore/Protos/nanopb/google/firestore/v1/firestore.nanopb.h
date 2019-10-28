@@ -121,8 +121,12 @@ typedef struct _google_firestore_v1_CommitRequest {
             writes, writes_count, indent + 1);
         result += PrintField("transaction: ", transaction, indent + 1, false);
 
-        std::string tail = Indent(is_root ? 0 : indent) + '}';
-        return header + result + tail;
+        if (!result.empty() || is_root) {
+          std::string tail = Indent(is_root ? 0 : indent) + '}';
+          return header + result + tail;
+        } else {
+          return "";
+        }
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_CommitRequest) */
 } google_firestore_v1_CommitRequest;
@@ -189,8 +193,12 @@ typedef struct _google_firestore_v1_ListDocumentsResponse {
             documents, documents_count, indent + 1);
         result += PrintField("next_page_token: ", next_page_token, indent + 1, false);
 
-        std::string tail = Indent(is_root ? 0 : indent) + '}';
-        return header + result + tail;
+        if (!result.empty() || is_root) {
+          std::string tail = Indent(is_root ? 0 : indent) + '}';
+          return header + result + tail;
+        } else {
+          return "";
+        }
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_ListDocumentsResponse) */
 } google_firestore_v1_ListDocumentsResponse;
@@ -331,8 +339,12 @@ typedef struct _google_firestore_v1_WriteRequest {
         result += PrintRepeatedField("labels ",
             labels, labels_count, indent + 1);
 
-        std::string tail = Indent(is_root ? 0 : indent) + '}';
-        return header + result + tail;
+        if (!result.empty() || is_root) {
+          std::string tail = Indent(is_root ? 0 : indent) + '}';
+          return header + result + tail;
+        } else {
+          return "";
+        }
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_WriteRequest) */
 } google_firestore_v1_WriteRequest;
@@ -866,10 +878,11 @@ typedef struct _google_firestore_v1_TargetChange {
             header = "{\n";
         }
 
-        result += PrintEnumField<_google_firestore_v1_TargetChange>("target_change_type: ", target_change_type, indent + 1);
+        result += PrintEnumField<_google_firestore_v1_TargetChange>(
+            "target_change_type:", target_change_type, indent + 1);
         result += PrintRepeatedField("target_ids: ",
             target_ids, target_ids_count, indent + 1);
-        if (has_cause) result += PrintField("cause ", cause, indent + 1, false);
+        if (has_cause) result += PrintField("cause ", cause, indent + 1, true);
         result += PrintField("resume_token: ", resume_token, indent + 1, false);
         result += PrintField("read_time ", read_time, indent + 1, false);
 
@@ -1149,8 +1162,12 @@ typedef struct _google_firestore_v1_ListenRequest {
         result += PrintRepeatedField("labels ",
             labels, labels_count, indent + 1);
 
-        std::string tail = Indent(is_root ? 0 : indent) + '}';
-        return header + result + tail;
+        if (!result.empty() || is_root) {
+          std::string tail = Indent(is_root ? 0 : indent) + '}';
+          return header + result + tail;
+        } else {
+          return "";
+        }
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_ListenRequest) */
 } google_firestore_v1_ListenRequest;

@@ -63,8 +63,12 @@ typedef struct _google_rpc_Status {
         result += PrintRepeatedField("details ",
             details, details_count, indent + 1);
 
-        std::string tail = Indent(is_root ? 0 : indent) + '}';
-        return header + result + tail;
+        if (!result.empty() || is_root) {
+          std::string tail = Indent(is_root ? 0 : indent) + '}';
+          return header + result + tail;
+        } else {
+          return "";
+        }
     }
 /* @@protoc_insertion_point(struct:google_rpc_Status) */
 } google_rpc_Status;

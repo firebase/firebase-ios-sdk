@@ -215,13 +215,15 @@ def nanopb_parse_files(request, options, pretty_printing_info):
 
 
 class OneOfMemberPrettyPrintingInfo:
-  def __init__(self, field, message):
+  def __init__(self, field, message, enums):
     if field.rules != 'ONEOF':
       raise TypeError('Not a member of oneof')
 
     self.which = 'which_' + field.name
     self.is_anonymous = field.anonymous
-    self.fields = field.fields
+    if not hasattr(field, 'fields'):
+      raise Exception(repr(field))
+    self.fields = [FieldPrettyPrintingInfo(f, message, enums) for f in field.fields]
 
 
   def __repr__(self):
@@ -253,9 +255,10 @@ class FieldPrettyPrintingInfo:
       else:
         self.zero = '0'
 
-    try:
-      self.oneof_member = OneOfMemberPrettyPrintingInfo(field, message)
-    except TypeError:
+
+    if isinstance(field, nanopb.OneOf):
+      self.oneof_member = OneOfMemberPrettyPrintingInfo(field, message, enums)
+    else:
       self.oneof_member = None
 
   def __repr__(self):
@@ -391,7 +394,7 @@ namespace firestore {'''
       for field in p.fields:
         f.content += ' ' * 8 + add_printing_for_field(field) + '\n'
 
-      can_be_empty = all(f.is_primitive and not f.is_repeated for f in p.fields)
+      can_be_empty = all(f.is_primitive or f.is_repeated for f in p.fields)
       if can_be_empty:
         f.content += '''
         if (!result.empty() || is_root) {
@@ -429,64 +432,71 @@ namespace firestore {'''
 
 def add_printing_for_field(field):
   if field.is_optional:
-    return add_printing_for_optional(field.name)
+    return add_printing_for_optional(field)
   elif field.is_repeated:
-    return add_printing_for_repeated(field.name, field.is_primitive)
+    return add_printing_for_repeated(field)
   elif field.oneof_member:
     return add_printing_for_oneof(field)
   elif field.is_enum:
-    return add_printing_for_enum(field.name, field.name, field, '_' + field.full_classname)
+    return add_printing_for_enum(field)
   else:
-    return add_printing_for_singular(field.name, field.name, field.is_primitive)
+    return add_printing_for_singular(field)
 
 
-def add_printing_for_oneof(field):
-  which = field.oneof_member.which
+def add_printing_for_oneof(parent):
+  which = parent.oneof_member.which
   result = 'switch (%s) {\n' % (which)
 
-  for index, f in enumerate(field.oneof_member.fields):
-    tag_name = '%s_%s_tag' % (field.full_classname, f.name)
+  for f in parent.oneof_member.fields:
+    tag_name = '%s_%s_tag' % (parent.full_classname, f.name)
     # FIXME add comment
     result += ' ' * 10 + 'case %s: // %s' % (f.tag, tag_name)
 
-    if field.oneof_member.is_anonymous:
-      full_name = f.name
-    else:
-      full_name = field.name + '.' + f.name
-    is_primitive = f.pbtype != 'MESSAGE'
-    result += '\n' + ' ' * 12 + add_printing_for_singular(f.name, full_name, is_primitive, True)
+    result += '\n' + ' ' * 12 + add_printing_for_singular(f, parent)
     result += '\n' + ' ' * 12 + 'break;\n'
 
   return result + ' ' * 8 + '}\n'
 
 
-def add_printing_for_repeated(name, is_primitive):
+def add_printing_for_repeated(field):
+  name = field.name
   count = name + '_count'
+
   print_name = name
-  if is_primitive:
+  if field.is_primitive:
     print_name += ': '
   else:
     print_name += ' '
+
   return 'result += PrintRepeatedField("%s",' % (print_name) + '''
             %s, %s, indent + 1);''' % (name, count)
 
 
-def add_printing_for_optional(name):
-  return 'if (has_%s) ' % (name) + add_printing_for_singular(name, name, False)
+def add_printing_for_optional(field):
+  name = field.name
+  return 'if (has_%s) ' % (name) + add_printing_for_singular(field, None, True)
 
 
-def add_printing_for_enum(print_name, actual_name, field, class_name):
-  return '''result += PrintEnumField<%s>("%s: ", %s, indent + 1);''' % (class_name, print_name, actual_name)
+def add_printing_for_enum(field):
+  name = field.name
+  class_name = '_' + field.full_classname
+  return '''result += PrintEnumField<%s>(
+            "%s:", %s, indent + 1);''' % (class_name, name, name)
 
 
-def add_printing_for_singular(print_name, actual_name, is_primitive, always_print=False):
-  if actual_name == None:
-    actual_name = print_name
-  if is_primitive:
-    print_name += ': '
+def add_printing_for_singular(field, parent=None, always_print=False):
+  display_name = field.name
+  cc_name = display_name
+  if parent and not parent.oneof_member.is_anonymous:
+    cc_name = parent.name + '.' + cc_name
+  always_print = always_print or bool(parent)
+
+  if field.is_primitive:
+    display_name += ': '
   else:
-    print_name += ' '
-  return '''result += PrintField("%s", %s, indent + 1, %s);''' % (print_name, actual_name, 'true' if always_print else 'false')
+    display_name += ' '
+
+  return '''result += PrintField("%s", %s, indent + 1, %s);''' % (display_name, cc_name, 'true' if always_print else 'false')
 
 
 # TODO:

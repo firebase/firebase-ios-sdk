@@ -93,8 +93,12 @@ typedef struct _google_api_Http {
             rules, rules_count, indent + 1);
         result += PrintField("fully_decode_reserved_expansion: ", fully_decode_reserved_expansion, indent + 1, false);
 
-        std::string tail = Indent(is_root ? 0 : indent) + '}';
-        return header + result + tail;
+        if (!result.empty() || is_root) {
+          std::string tail = Indent(is_root ? 0 : indent) + '}';
+          return header + result + tail;
+        } else {
+          return "";
+        }
     }
 /* @@protoc_insertion_point(struct:google_api_Http) */
 } google_api_Http;
@@ -157,8 +161,12 @@ typedef struct _google_api_HttpRule {
         result += PrintRepeatedField("additional_bindings ",
             additional_bindings, additional_bindings_count, indent + 1);
 
-        std::string tail = Indent(is_root ? 0 : indent) + '}';
-        return header + result + tail;
+        if (!result.empty() || is_root) {
+          std::string tail = Indent(is_root ? 0 : indent) + '}';
+          return header + result + tail;
+        } else {
+          return "";
+        }
     }
 /* @@protoc_insertion_point(struct:google_api_HttpRule) */
 } google_api_HttpRule;

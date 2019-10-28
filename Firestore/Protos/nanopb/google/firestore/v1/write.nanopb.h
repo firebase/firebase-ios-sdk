@@ -76,8 +76,12 @@ typedef struct _google_firestore_v1_DocumentTransform {
         result += PrintRepeatedField("field_transforms ",
             field_transforms, field_transforms_count, indent + 1);
 
-        std::string tail = Indent(is_root ? 0 : indent) + '}';
-        return header + result + tail;
+        if (!result.empty() || is_root) {
+          std::string tail = Indent(is_root ? 0 : indent) + '}';
+          return header + result + tail;
+        } else {
+          return "";
+        }
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_DocumentTransform) */
 } google_firestore_v1_DocumentTransform;
@@ -143,7 +147,7 @@ typedef struct _google_firestore_v1_DocumentDelete {
         }
 
         result += PrintField("document: ", document, indent + 1, false);
-        if (has_read_time) result += PrintField("read_time ", read_time, indent + 1, false);
+        if (has_read_time) result += PrintField("read_time ", read_time, indent + 1, true);
         result += PrintRepeatedField("removed_target_ids: ",
             removed_target_ids, removed_target_ids_count, indent + 1);
 
@@ -324,8 +328,8 @@ typedef struct _google_firestore_v1_Write {
             break;
         }
 
-        if (has_update_mask) result += PrintField("update_mask ", update_mask, indent + 1, false);
-        if (has_current_document) result += PrintField("current_document ", current_document, indent + 1, false);
+        if (has_update_mask) result += PrintField("update_mask ", update_mask, indent + 1, true);
+        if (has_current_document) result += PrintField("current_document ", current_document, indent + 1, true);
 
         std::string tail = Indent(is_root ? 0 : indent) + '}';
         return header + result + tail;
@@ -356,7 +360,7 @@ typedef struct _google_firestore_v1_WriteResult {
             header = "{\n";
         }
 
-        if (has_update_time) result += PrintField("update_time ", update_time, indent + 1, false);
+        if (has_update_time) result += PrintField("update_time ", update_time, indent + 1, true);
         result += PrintRepeatedField("transform_results ",
             transform_results, transform_results_count, indent + 1);
 

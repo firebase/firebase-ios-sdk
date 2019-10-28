@@ -70,9 +70,17 @@ inline std::string ToStringImpl(bool value, int indent) {
 
 template <typename T, absl::enable_if_t<!std::is_scalar<T>::value, int> = 0>
 std::string PrintField(absl::string_view name, const T& value, int indent, bool always_print = false) {
+    if (name == "start_at ") {
+         int x = 0;
+         ++x;
+     }
   auto contents = ToStringImpl(value, indent);
-  if (contents.empty() && !always_print) {
-    return "";
+  if (contents.empty()) {
+    if (!always_print) {
+      return "";
+    } else {
+      return absl::StrCat(Indent(indent), name, "{\n", Indent(indent), "\n");
+    }
   }
 
   return absl::StrCat(Indent(indent), name, contents, "\n");
@@ -80,7 +88,11 @@ std::string PrintField(absl::string_view name, const T& value, int indent, bool 
 
 template <typename T, absl::enable_if_t<std::is_scalar<T>::value, int> = 0>
 std::string PrintField(absl::string_view name, T value, int indent, bool always_print = false) {
-  if (value == T{} && !always_print) {
+    if (name == "start_at ") {
+        int x = 0;
+        ++x;
+    }
+    if (value == T{} && !always_print) {
     return "";
   }
   return absl::StrCat(Indent(indent), name, ToStringImpl(value, indent), "\n");

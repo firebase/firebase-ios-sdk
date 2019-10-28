@@ -65,8 +65,12 @@ typedef struct _google_firestore_v1_ArrayValue {
         result += PrintRepeatedField("values ",
             values, values_count, indent + 1);
 
-        std::string tail = Indent(is_root ? 0 : indent) + '}';
-        return header + result + tail;
+        if (!result.empty() || is_root) {
+          std::string tail = Indent(is_root ? 0 : indent) + '}';
+          return header + result + tail;
+        } else {
+          return "";
+        }
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_ArrayValue) */
 } google_firestore_v1_ArrayValue;
@@ -95,8 +99,12 @@ typedef struct _google_firestore_v1_MapValue {
         result += PrintRepeatedField("fields ",
             fields, fields_count, indent + 1);
 
-        std::string tail = Indent(is_root ? 0 : indent) + '}';
-        return header + result + tail;
+        if (!result.empty() || is_root) {
+          std::string tail = Indent(is_root ? 0 : indent) + '}';
+          return header + result + tail;
+        } else {
+          return "";
+        }
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_MapValue) */
 } google_firestore_v1_MapValue;
@@ -130,7 +138,7 @@ typedef struct _google_firestore_v1_Document {
         result += PrintRepeatedField("fields ",
             fields, fields_count, indent + 1);
         result += PrintField("create_time ", create_time, indent + 1, false);
-        if (has_update_time) result += PrintField("update_time ", update_time, indent + 1, false);
+        if (has_update_time) result += PrintField("update_time ", update_time, indent + 1, true);
 
         std::string tail = Indent(is_root ? 0 : indent) + '}';
         return header + result + tail;
