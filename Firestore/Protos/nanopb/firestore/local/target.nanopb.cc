@@ -81,7 +81,6 @@ std::string firestore_client_Target::ToString(int indent) const {
     }
 
     std::string header = PrintHeader(is_root, "Target", this);
-
     std::string result;
 
     result += PrintPrimitiveField("target_id: ", target_id, indent + 1, false);
@@ -109,7 +108,6 @@ std::string firestore_client_TargetGlobal::ToString(int indent) const {
     }
 
     std::string header = PrintHeader(is_root, "TargetGlobal", this);
-
     std::string result;
 
     result += PrintPrimitiveField("highest_target_id: ", highest_target_id, indent + 1, false);

@@ -108,7 +108,6 @@ std::string google_firestore_v1_Document::ToString(int indent) const {
     }
 
     std::string header = PrintHeader(is_root, "Document", this);
-
     std::string result;
 
     result += PrintPrimitiveField("name: ", name, indent + 1, false);
@@ -131,7 +130,6 @@ std::string google_firestore_v1_Document_FieldsEntry::ToString(int indent) const
     }
 
     std::string header = PrintHeader(is_root, "FieldsEntry", this);
-
     std::string result;
 
     result += PrintPrimitiveField("key: ", key, indent + 1, false);
@@ -148,7 +146,6 @@ std::string google_firestore_v1_Value::ToString(int indent) const {
     }
 
     std::string header = PrintHeader(is_root, "Value", this);
-
     std::string result;
 
     switch (which_value_type) {
@@ -203,7 +200,6 @@ std::string google_firestore_v1_ArrayValue::ToString(int indent) const {
     }
 
     std::string header = PrintHeader(is_root, "ArrayValue", this);
-
     std::string result;
 
     for (pb_size_t i = 0; i != values_count; ++i) {
@@ -225,7 +221,6 @@ std::string google_firestore_v1_MapValue::ToString(int indent) const {
     }
 
     std::string header = PrintHeader(is_root, "MapValue", this);
-
     std::string result;
 
     for (pb_size_t i = 0; i != fields_count; ++i) {
@@ -247,7 +242,6 @@ std::string google_firestore_v1_MapValue_FieldsEntry::ToString(int indent) const
     }
 
     std::string header = PrintHeader(is_root, "FieldsEntry", this);
-
     std::string result;
 
     result += PrintPrimitiveField("key: ", key, indent + 1, false);

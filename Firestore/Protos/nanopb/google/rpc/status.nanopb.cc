@@ -46,7 +46,6 @@ std::string google_rpc_Status::ToString(int indent) const {
     }
 
     std::string header = PrintHeader(is_root, "Status", this);
-
     std::string result;
 
     result += PrintPrimitiveField("code: ", code, indent + 1, false);

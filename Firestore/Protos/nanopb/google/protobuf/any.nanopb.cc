@@ -45,7 +45,6 @@ std::string google_protobuf_Any::ToString(int indent) const {
     }
 
     std::string header = PrintHeader(is_root, "Any", this);
-
     std::string result;
 
     result += PrintPrimitiveField("type_url: ", type_url, indent + 1, false);

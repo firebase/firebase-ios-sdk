@@ -88,7 +88,6 @@ std::string google_api_Http::ToString(int indent) const {
     }
 
     std::string header = PrintHeader(is_root, "Http", this);
-
     std::string result;
 
     for (pb_size_t i = 0; i != rules_count; ++i) {
@@ -111,7 +110,6 @@ std::string google_api_HttpRule::ToString(int indent) const {
     }
 
     std::string header = PrintHeader(is_root, "HttpRule", this);
-
     std::string result;
 
     result += PrintPrimitiveField("selector: ", selector, indent + 1, false);
@@ -156,7 +154,6 @@ std::string google_api_CustomHttpPattern::ToString(int indent) const {
     }
 
     std::string header = PrintHeader(is_root, "CustomHttpPattern", this);
-
     std::string result;
 
     result += PrintPrimitiveField("kind: ", kind, indent + 1, false);

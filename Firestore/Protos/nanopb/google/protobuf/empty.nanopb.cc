@@ -43,7 +43,6 @@ std::string google_protobuf_Empty::ToString(int indent) const {
     }
 
     std::string header = PrintHeader(is_root, "Empty", this);
-
     std::string result;
 
 

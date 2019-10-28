@@ -45,7 +45,6 @@ std::string google_protobuf_Timestamp::ToString(int indent) const {
     }
 
     std::string header = PrintHeader(is_root, "Timestamp", this);
-
     std::string result;
 
     result += PrintPrimitiveField("seconds: ", seconds, indent + 1, false);

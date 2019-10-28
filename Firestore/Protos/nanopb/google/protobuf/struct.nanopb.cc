@@ -99,7 +99,6 @@ std::string google_protobuf_Struct::ToString(int indent) const {
     }
 
     std::string header = PrintHeader(is_root, "Struct", this);
-
     std::string result;
 
     for (pb_size_t i = 0; i != fields_count; ++i) {
@@ -121,7 +120,6 @@ std::string google_protobuf_Struct_FieldsEntry::ToString(int indent) const {
     }
 
     std::string header = PrintHeader(is_root, "FieldsEntry", this);
-
     std::string result;
 
     result += PrintPrimitiveField("key: ", key, indent + 1, false);
@@ -138,7 +136,6 @@ std::string google_protobuf_Value::ToString(int indent) const {
     }
 
     std::string header = PrintHeader(is_root, "Value", this);
-
     std::string result;
 
     switch (which_kind) {
@@ -178,7 +175,6 @@ std::string google_protobuf_ListValue::ToString(int indent) const {
     }
 
     std::string header = PrintHeader(is_root, "ListValue", this);
-
     std::string result;
 
     for (pb_size_t i = 0; i != values_count; ++i) {

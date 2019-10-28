@@ -195,7 +195,6 @@ std::string google_firestore_v1_StructuredQuery::ToString(int indent) const {
     }
 
     std::string header = PrintHeader(is_root, "StructuredQuery", this);
-
     std::string result;
 
     result += PrintMessageField("select ", select, indent + 1, false);
@@ -224,7 +223,6 @@ std::string google_firestore_v1_StructuredQuery_CollectionSelector::ToString(int
     }
 
     std::string header = PrintHeader(is_root, "CollectionSelector", this);
-
     std::string result;
 
     result += PrintPrimitiveField("collection_id: ", collection_id, indent + 1, false);
@@ -245,7 +243,6 @@ std::string google_firestore_v1_StructuredQuery_Filter::ToString(int indent) con
     }
 
     std::string header = PrintHeader(is_root, "Filter", this);
-
     std::string result;
 
     switch (which_filter_type) {
@@ -276,7 +273,6 @@ std::string google_firestore_v1_StructuredQuery_CompositeFilter::ToString(int in
     }
 
     std::string header = PrintHeader(is_root, "CompositeFilter", this);
-
     std::string result;
 
     result += PrintEnumField("op: ", op, indent + 1, false);
@@ -299,7 +295,6 @@ std::string google_firestore_v1_StructuredQuery_FieldFilter::ToString(int indent
     }
 
     std::string header = PrintHeader(is_root, "FieldFilter", this);
-
     std::string result;
 
     result += PrintMessageField("field ", field, indent + 1, false);
@@ -317,7 +312,6 @@ std::string google_firestore_v1_StructuredQuery_UnaryFilter::ToString(int indent
     }
 
     std::string header = PrintHeader(is_root, "UnaryFilter", this);
-
     std::string result;
 
     result += PrintEnumField("op: ", op, indent + 1, false);
@@ -343,7 +337,6 @@ std::string google_firestore_v1_StructuredQuery_Order::ToString(int indent) cons
     }
 
     std::string header = PrintHeader(is_root, "Order", this);
-
     std::string result;
 
     result += PrintMessageField("field ", field, indent + 1, false);
@@ -360,7 +353,6 @@ std::string google_firestore_v1_StructuredQuery_FieldReference::ToString(int ind
     }
 
     std::string header = PrintHeader(is_root, "FieldReference", this);
-
     std::string result;
 
     result += PrintPrimitiveField("field_path: ", field_path, indent + 1, false);
@@ -380,7 +372,6 @@ std::string google_firestore_v1_StructuredQuery_Projection::ToString(int indent)
     }
 
     std::string header = PrintHeader(is_root, "Projection", this);
-
     std::string result;
 
     for (pb_size_t i = 0; i != fields_count; ++i) {
@@ -402,7 +393,6 @@ std::string google_firestore_v1_Cursor::ToString(int indent) const {
     }
 
     std::string header = PrintHeader(is_root, "Cursor", this);
-
     std::string result;
 
     for (pb_size_t i = 0; i != values_count; ++i) {

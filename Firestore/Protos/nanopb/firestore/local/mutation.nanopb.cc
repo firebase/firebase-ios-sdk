@@ -77,7 +77,6 @@ std::string firestore_client_MutationQueue::ToString(int indent) const {
     }
 
     std::string header = PrintHeader(is_root, "MutationQueue", this);
-
     std::string result;
 
     result += PrintPrimitiveField("last_acknowledged_batch_id: ", last_acknowledged_batch_id, indent + 1, false);
@@ -98,7 +97,6 @@ std::string firestore_client_WriteBatch::ToString(int indent) const {
     }
 
     std::string header = PrintHeader(is_root, "WriteBatch", this);
-
     std::string result;
 
     result += PrintPrimitiveField("batch_id: ", batch_id, indent + 1, false);

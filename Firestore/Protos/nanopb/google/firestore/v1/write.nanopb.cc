@@ -134,7 +134,6 @@ std::string google_firestore_v1_Write::ToString(int indent) const {
     }
 
     std::string header = PrintHeader(is_root, "Write", this);
-
     std::string result;
 
     switch (which_operation) {
@@ -167,7 +166,6 @@ std::string google_firestore_v1_DocumentTransform::ToString(int indent) const {
     }
 
     std::string header = PrintHeader(is_root, "DocumentTransform", this);
-
     std::string result;
 
     result += PrintPrimitiveField("document: ", document, indent + 1, false);
@@ -190,7 +188,6 @@ std::string google_firestore_v1_DocumentTransform_FieldTransform::ToString(int i
     }
 
     std::string header = PrintHeader(is_root, "FieldTransform", this);
-
     std::string result;
 
     result += PrintPrimitiveField("field_path: ", field_path, indent + 1, false);
@@ -231,7 +228,6 @@ std::string google_firestore_v1_WriteResult::ToString(int indent) const {
     }
 
     std::string header = PrintHeader(is_root, "WriteResult", this);
-
     std::string result;
 
     if (has_update_time) {
@@ -252,7 +248,6 @@ std::string google_firestore_v1_DocumentChange::ToString(int indent) const {
     }
 
     std::string header = PrintHeader(is_root, "DocumentChange", this);
-
     std::string result;
 
     result += PrintMessageField("document ", document, indent + 1, false);
@@ -274,7 +269,6 @@ std::string google_firestore_v1_DocumentDelete::ToString(int indent) const {
     }
 
     std::string header = PrintHeader(is_root, "DocumentDelete", this);
-
     std::string result;
 
     result += PrintPrimitiveField("document: ", document, indent + 1, false);
@@ -296,7 +290,6 @@ std::string google_firestore_v1_DocumentRemove::ToString(int indent) const {
     }
 
     std::string header = PrintHeader(is_root, "DocumentRemove", this);
-
     std::string result;
 
     result += PrintPrimitiveField("document: ", document, indent + 1, false);
@@ -316,7 +309,6 @@ std::string google_firestore_v1_ExistenceFilter::ToString(int indent) const {
     }
 
     std::string header = PrintHeader(is_root, "ExistenceFilter", this);
-
     std::string result;
 
     result += PrintPrimitiveField("target_id: ", target_id, indent + 1, false);

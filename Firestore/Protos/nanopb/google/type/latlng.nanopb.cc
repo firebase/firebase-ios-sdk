@@ -51,7 +51,6 @@ std::string google_type_LatLng::ToString(int indent) const {
     }
 
     std::string header = PrintHeader(is_root, "LatLng", this);
-
     std::string result;
 
     result += PrintPrimitiveField("latitude: ", latitude, indent + 1, false);

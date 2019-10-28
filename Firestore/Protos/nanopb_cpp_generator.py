@@ -368,7 +368,6 @@ def add_field_printer_definitions(files, file_name, messages):
     }
 
     std::string header = PrintHeader(is_root, "%s", this);
-
     std::string result;\n\n''' % (m.full_classname, m.short_classname)
 
     for field in m.fields:
@@ -437,7 +436,7 @@ def add_printing_for_oneof(oneof):
     tag_name = '%s_%s_tag' % (oneof.full_classname, f.name)
     result += indent(1) + 'case %s:' % tag_name
 
-    result += '\n' + indent(2) + add_printing_for_leaf(f, oneof, True)
+    result += '\n' + indent(2) + add_printing_for_leaf(f, parent=oneof, always_print=True)
     result += '\n' + indent(2) + 'break;\n'
 
   return result + indent(1) + '}\n'
@@ -447,7 +446,7 @@ def add_printing_for_repeated(field):
   count = field.name + '_count'
 
   result = 'for (pb_size_t i = 0; i != %s; ++i) {\n' % count
-  result += indent(2) + add_printing_for_leaf(field, None, True) + '\n'
+  result += indent(2) + add_printing_for_leaf(field, always_print=True) + '\n'
   result += indent(1) + '}'
 
   return result
@@ -456,13 +455,16 @@ def add_printing_for_repeated(field):
 def add_printing_for_optional(field):
   name = field.name
   result = 'if (has_%s) {\n' % name
-  result += indent(2) + add_printing_for_leaf(field, None, True) + '\n'
+  result += indent(2) + add_printing_for_leaf(field, always_print=True) + '\n'
   result += indent(1) + '}'
 
   return result
 
 
-def add_printing_for_leaf(field, parent=None, always_print=False):
+def add_printing_for_leaf(field, **kwargs):
+  always_print = 'true' if kwargs.get('always_print') else 'false'
+  parent = kwargs.get('parent')
+
   display_name = field.name
   cc_name = display_name
 
@@ -487,8 +489,6 @@ def add_printing_for_leaf(field, parent=None, always_print=False):
     function_name = 'PrintPrimitiveField'
   else:
     function_name = 'PrintMessageField'
-
-  always_print = 'true' if always_print else 'false'
 
   return 'result += %s("%s", %s, indent + 1, %s);' % (function_name, display_name, cc_name, always_print)
 

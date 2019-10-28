@@ -90,7 +90,6 @@ std::string google_firestore_v1_DocumentMask::ToString(int indent) const {
     }
 
     std::string header = PrintHeader(is_root, "DocumentMask", this);
-
     std::string result;
 
     for (pb_size_t i = 0; i != field_paths_count; ++i) {
@@ -112,7 +111,6 @@ std::string google_firestore_v1_Precondition::ToString(int indent) const {
     }
 
     std::string header = PrintHeader(is_root, "Precondition", this);
-
     std::string result;
 
     switch (which_condition_type) {
@@ -140,7 +138,6 @@ std::string google_firestore_v1_TransactionOptions::ToString(int indent) const {
     }
 
     std::string header = PrintHeader(is_root, "TransactionOptions", this);
-
     std::string result;
 
     switch (which_mode) {
@@ -168,7 +165,6 @@ std::string google_firestore_v1_TransactionOptions_ReadWrite::ToString(int inden
     }
 
     std::string header = PrintHeader(is_root, "ReadWrite", this);
-
     std::string result;
 
     result += PrintPrimitiveField("retry_transaction: ", retry_transaction, indent + 1, false);
@@ -188,7 +184,6 @@ std::string google_firestore_v1_TransactionOptions_ReadOnly::ToString(int indent
     }
 
     std::string header = PrintHeader(is_root, "ReadOnly", this);
-
     std::string result;
 
     switch (which_consistency_selector) {

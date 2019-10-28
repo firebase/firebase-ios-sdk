@@ -90,7 +90,6 @@ std::string google_protobuf_DoubleValue::ToString(int indent) const {
     }
 
     std::string header = PrintHeader(is_root, "DoubleValue", this);
-
     std::string result;
 
     result += PrintPrimitiveField("value: ", value, indent + 1, false);
@@ -110,7 +109,6 @@ std::string google_protobuf_FloatValue::ToString(int indent) const {
     }
 
     std::string header = PrintHeader(is_root, "FloatValue", this);
-
     std::string result;
 
     result += PrintPrimitiveField("value: ", value, indent + 1, false);
@@ -130,7 +128,6 @@ std::string google_protobuf_Int64Value::ToString(int indent) const {
     }
 
     std::string header = PrintHeader(is_root, "Int64Value", this);
-
     std::string result;
 
     result += PrintPrimitiveField("value: ", value, indent + 1, false);
@@ -150,7 +147,6 @@ std::string google_protobuf_UInt64Value::ToString(int indent) const {
     }
 
     std::string header = PrintHeader(is_root, "UInt64Value", this);
-
     std::string result;
 
     result += PrintPrimitiveField("value: ", value, indent + 1, false);
@@ -170,7 +166,6 @@ std::string google_protobuf_Int32Value::ToString(int indent) const {
     }
 
     std::string header = PrintHeader(is_root, "Int32Value", this);
-
     std::string result;
 
     result += PrintPrimitiveField("value: ", value, indent + 1, false);
@@ -190,7 +185,6 @@ std::string google_protobuf_UInt32Value::ToString(int indent) const {
     }
 
     std::string header = PrintHeader(is_root, "UInt32Value", this);
-
     std::string result;
 
     result += PrintPrimitiveField("value: ", value, indent + 1, false);
@@ -210,7 +204,6 @@ std::string google_protobuf_BoolValue::ToString(int indent) const {
     }
 
     std::string header = PrintHeader(is_root, "BoolValue", this);
-
     std::string result;
 
     result += PrintPrimitiveField("value: ", value, indent + 1, false);
@@ -230,7 +223,6 @@ std::string google_protobuf_StringValue::ToString(int indent) const {
     }
 
     std::string header = PrintHeader(is_root, "StringValue", this);
-
     std::string result;
 
     result += PrintPrimitiveField("value: ", value, indent + 1, false);
@@ -250,7 +242,6 @@ std::string google_protobuf_BytesValue::ToString(int indent) const {
     }
 
     std::string header = PrintHeader(is_root, "BytesValue", this);
-
     std::string result;
 
     result += PrintPrimitiveField("value: ", value, indent + 1, false);

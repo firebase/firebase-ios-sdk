@@ -83,7 +83,6 @@ std::string firestore_client_NoDocument::ToString(int indent) const {
     }
 
     std::string header = PrintHeader(is_root, "NoDocument", this);
-
     std::string result;
 
     result += PrintPrimitiveField("name: ", name, indent + 1, false);
@@ -100,7 +99,6 @@ std::string firestore_client_UnknownDocument::ToString(int indent) const {
     }
 
     std::string header = PrintHeader(is_root, "UnknownDocument", this);
-
     std::string result;
 
     result += PrintPrimitiveField("name: ", name, indent + 1, false);
@@ -117,7 +115,6 @@ std::string firestore_client_MaybeDocument::ToString(int indent) const {
     }
 
     std::string header = PrintHeader(is_root, "MaybeDocument", this);
-
     std::string result;
 
     switch (which_document_type) {
