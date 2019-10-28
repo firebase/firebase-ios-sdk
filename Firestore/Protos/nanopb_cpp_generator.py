@@ -468,6 +468,7 @@ def add_printing_for_optional(field):
 def add_printing_for_leaf(field, parent=None, always_print=False):
   display_name = field.name
   cc_name = display_name
+
   if display_name == 'delete':
     cc_name += '_'
   if parent and not parent.oneof_member.is_anonymous:
@@ -490,7 +491,9 @@ def add_printing_for_leaf(field, parent=None, always_print=False):
   else:
     function_name = 'PrintMessageField'
 
-  return '''result += %s("%s", %s, indent + 1, %s);''' % (function_name, display_name, cc_name, 'true' if always_print else 'false')
+  always_print = 'true' if always_print else 'false'
+
+  return 'result += %s("%s", %s, indent + 1, %s);' % (function_name, display_name, cc_name, always_print)
 
 
 def begin_namespace(files, file_name):
@@ -508,7 +511,8 @@ def end_namespace(files, file_name):
 
 
 def indent(level):
-  return ' ' * (4 * level)
+  indent_per_level = 4
+  return ' ' * (indent_per_level * level)
 
 
 def postprocess(file_contents):
