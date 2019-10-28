@@ -31,8 +31,6 @@ import re
 import subprocess
 import sys
 
-from pprint import pprint as pp
-
 
 # Directories relative to the repo root that will be scanned by default if no
 # arguments are passed.
