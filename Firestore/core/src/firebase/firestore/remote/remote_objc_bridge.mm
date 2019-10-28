@@ -80,8 +80,14 @@ std::string DescribeMessage(const Message<U>& message) {
   // return util::MakeString([objc_request description]);
 
   auto result2 = util::MakeString([objc_request description]);
+
   std::vector<std::string> segments1 = absl::StrSplit(result, '\n');
+  segments1.erase(segments1.begin());
+  std::sort(segments1.begin(), segments1.end());
+
   std::vector<std::string> segments2 = absl::StrSplit(result2, '\n');
+  segments2.erase(segments2.begin());
+  std::sort(segments2.begin(), segments2.end());
 
   if (segments1.size() != segments2.size()) {
     return "OBC1 " + result + '\n' + result2;

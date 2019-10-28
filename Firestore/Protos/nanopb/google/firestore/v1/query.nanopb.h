@@ -251,7 +251,7 @@ typedef struct _google_firestore_v1_StructuredQuery_CompositeFilter {
         }
 
         result += PrintEnumField<_google_firestore_v1_StructuredQuery_CompositeFilter>(
-            "op:", op, indent + 1);
+            "op: ", op, indent + 1);
         result += PrintRepeatedField("filters ",
             filters, filters_count, indent + 1);
 
@@ -314,7 +314,7 @@ typedef struct _google_firestore_v1_StructuredQuery_FieldFilter {
 
         result += PrintField("field ", field, indent + 1, false);
         result += PrintEnumField<_google_firestore_v1_StructuredQuery_FieldFilter>(
-            "op:", op, indent + 1);
+            "op: ", op, indent + 1);
         result += PrintField("value ", value, indent + 1, false);
 
         std::string tail = Indent(is_root ? 0 : indent) + '}';
@@ -359,7 +359,7 @@ typedef struct _google_firestore_v1_StructuredQuery_Order {
 
         result += PrintField("field ", field, indent + 1, false);
         result += PrintEnumField<_google_firestore_v1_StructuredQuery_Order>(
-            "direction:", direction, indent + 1);
+            "direction: ", direction, indent + 1);
 
         std::string tail = Indent(is_root ? 0 : indent) + '}';
         return header + result + tail;
@@ -405,7 +405,7 @@ typedef struct _google_firestore_v1_StructuredQuery_UnaryFilter {
         }
 
         result += PrintEnumField<_google_firestore_v1_StructuredQuery_UnaryFilter>(
-            "op:", op, indent + 1);
+            "op: ", op, indent + 1);
         switch (which_operand_type) {
           case 2: // google_firestore_v1_StructuredQuery_UnaryFilter_field_tag
             result += PrintField("field ", field, indent + 1, true);

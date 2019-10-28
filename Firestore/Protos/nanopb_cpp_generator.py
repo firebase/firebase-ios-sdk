@@ -481,7 +481,7 @@ def add_printing_for_enum(field):
   name = field.name
   class_name = '_' + field.full_classname
   return '''result += PrintEnumField<%s>(
-            "%s:", %s, indent + 1);''' % (class_name, name, name)
+            "%s: ", %s, indent + 1);''' % (class_name, name, name)
 
 
 def add_printing_for_singular(field, parent=None, always_print=False):

@@ -879,7 +879,7 @@ typedef struct _google_firestore_v1_TargetChange {
         }
 
         result += PrintEnumField<_google_firestore_v1_TargetChange>(
-            "target_change_type:", target_change_type, indent + 1);
+            "target_change_type: ", target_change_type, indent + 1);
         result += PrintRepeatedField("target_ids: ",
             target_ids, target_ids_count, indent + 1);
         if (has_cause) result += PrintField("cause ", cause, indent + 1, true);
