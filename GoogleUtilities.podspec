@@ -41,6 +41,7 @@ other Google CocoaPods. They're not intended for direct public usage.
     ls.source_files = 'GoogleUtilities/FileDataStorage/**/*.[mh]'
     ls.public_header_files = 'GoogleUtilities/FileDataStorage/*.h'
     ls.private_header_files = 'GoogleUtilities/FileDataStorage/*.h'
+    ls.dependency 'GoogleUtilities/Environment'
   end
 
   s.subspec 'Network' do |ns|

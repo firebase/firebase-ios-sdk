@@ -50,16 +50,12 @@
   self.storage = nil;
 }
 
+
+
 - (void)testDictionaryStorage {
-  NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
-  dict[@"fire-iid"] = @"123455";
-  dict[@"global"] = @"123";
-  NSError *error;
-  [self.storage writeDictionary:dict error:&error];
-  XCTAssertNil(error);
-  NSMutableDictionary *storedDict = [self.storage getDictionary];
-  XCTAssertEqualObjects(storedDict[@"fire-iid"], dict[@"fire-iid"]);
-  XCTAssertEqualObjects(storedDict[@"global"], dict[@"global"]);
+  NSDate *now = [NSDate date];
+  [self.storage setHearbeatDate:now forTag:@"fire-iid"];
+  XCTAssertEqual([now timeIntervalSinceReferenceDate], [[self.storage  heartbeatDateForTag:@"fire-iid"] timeIntervalSinceReferenceDate]);
 }
 
 - (void)testDateStorage {

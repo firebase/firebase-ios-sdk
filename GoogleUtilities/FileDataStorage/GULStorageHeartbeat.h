@@ -30,23 +30,17 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (instancetype)initWithFileURL:(NSURL *)fileURL;
 
-/**
- * Reads the json string from the specified file and converts it into a dictionary.
- * @return Returns the dictionary if the string exists, otherwise empty dictionary.
- */
-- (nullable NSMutableDictionary *)getDictionary;
 
-/**
- * Saves the dictionary to the specified file in json format.
- * @return YES on success, NO otherwise.
- */
-- (BOOL)writeDictionary:(NSMutableDictionary *)dictionary error:(NSError **)outError;
+- (nullable NSDate *)heartbeatDateForTag:(NSString *)tag;
+
+- (BOOL)setHearbeatDate:(NSDate *)date forTag:(NSString *)tag;
 
 /**
  * Saves the date to the specified file.
  * @return YES on success, NO otherwise.
  */
 - (BOOL)setDate:(nullable NSDate *)date error:(NSError **)outError;
+
 
 /**
  * Reads the date to the specified file.

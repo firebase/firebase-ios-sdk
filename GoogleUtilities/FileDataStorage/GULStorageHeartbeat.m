@@ -36,18 +36,12 @@
 }
 
 - (nullable NSMutableDictionary *)getDictionary {
-  NSString *plistString = [NSString stringWithContentsOfURL:self.fileURL
-                                                  encoding:NSUTF8StringEncoding
-                                                     error:nil];
-  if (plistString == nil) {
-    return [NSMutableDictionary dictionary];
+  NSError *error;
+  NSData *objectData = [NSData dataWithContentsOfURL:self.fileURL options:0 error:&error];
+  if(error != nil) {
+    return [NSMutableDictionary alloc];
   }
-  NSError *plistError;
-  NSData *objectData = [plistString dataUsingEncoding:NSUTF8StringEncoding];
-  NSMutableDictionary *dict = [NSPropertyListSerialization propertyListWithData:objectData options:NSPropertyListMutableContainers format:nil error:&plistError];
-  if (!dict) {
-    NSLog(@"Got an error: %@", plistError);
-  }
+  NSMutableDictionary *dict = [NSKeyedUnarchiver unarchiveObjectWithData:objectData];
   return dict;
 }
 
@@ -70,15 +64,11 @@
 
 - (BOOL)writeDictionary:(NSMutableDictionary *)dictionary error:(NSError **)outError {
   NSError *error;
-  NSData *plistData = [NSPropertyListSerialization dataWithPropertyList:dictionary format:NSPropertyListXMLFormat_v1_0 options:0 error:&error];
+  NSData *plistData = [NSKeyedArchiver archivedDataWithRootObject:dictionary];
   if (!plistData) {
     NSLog(@"Error getting json Data %@", error);
   } else {
-    NSString *plistString = [[NSString alloc] initWithData:plistData encoding:NSUTF8StringEncoding];
-    return [plistString writeToURL:self.fileURL
-                       atomically:YES
-                         encoding:NSUTF8StringEncoding
-                            error:outError];
+    return [plistData writeToURL:self.fileURL atomically:YES];
   }
   return false;
 }
