@@ -40,7 +40,6 @@
                                                              error:&error],
               @"Error: %@", error);
   }
-
   self.storage = [[GULStorageHeartbeat alloc] initWithFileURL:self.fileURL];
 }
 
@@ -50,12 +49,11 @@
   self.storage = nil;
 }
 
-
-
 - (void)testDictionaryStorage {
   NSDate *now = [NSDate date];
   [self.storage setHearbeatDate:now forTag:@"fire-iid"];
-  XCTAssertEqual([now timeIntervalSinceReferenceDate], [[self.storage  heartbeatDateForTag:@"fire-iid"] timeIntervalSinceReferenceDate]);
+  XCTAssertEqual([now timeIntervalSinceReferenceDate],
+                 [[self.storage heartbeatDateForTag:@"fire-iid"] timeIntervalSinceReferenceDate]);
 }
 
 - (void)testDateStorage {

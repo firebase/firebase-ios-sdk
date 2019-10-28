@@ -30,7 +30,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (instancetype)initWithFileURL:(NSURL *)fileURL;
 
-
 - (nullable NSDate *)heartbeatDateForTag:(NSString *)tag;
 
 - (BOOL)setHearbeatDate:(NSDate *)date forTag:(NSString *)tag;
@@ -40,7 +39,6 @@ NS_ASSUME_NONNULL_BEGIN
  * @return YES on success, NO otherwise.
  */
 - (BOOL)setDate:(nullable NSDate *)date error:(NSError **)outError;
-
 
 /**
  * Reads the date to the specified file.

@@ -23,42 +23,33 @@
   NSString *const kHeartbeatStorageFile = @"HEARTBEAT_INFO_STORAGE";
   self.dataStorage = [[GULStorageHeartbeat alloc]
       initWithFileURL:[FIRHeartbeatInfo filePathURLWithName:kHeartbeatStorageFile]];
-  self.dictionary = [NSMutableDictionary dictionary];
-  NSError *error;
-  [self.dataStorage writeDictionary:self.dictionary error:&error];
+  NSDate *pastTime = [NSDate dateWithTimeIntervalSinceNow:-96400];
+  [self.dataStorage setHearbeatDate:pastTime forTag:@"fire-iid"];
+  [self.dataStorage setHearbeatDate:pastTime forTag:@"GLOBAL"];
 }
 
 - (void)testCombinedHeartbeat {
-  NSInteger heartbeatCode = [FIRHeartbeatInfo getHeartbeatCode:@"fire-iid"];
-  XCTAssertEqual(heartbeatCode, 3);
+  Heartbeat heartbeatCode = [FIRHeartbeatInfo getHeartbeatCode:@"fire-iid"];
+  XCTAssertEqual(heartbeatCode, COMBINED);
 }
 
 - (void)testSdkOnlyHeartbeat {
-  NSInteger timeInSeconds = [[NSDate date] timeIntervalSince1970];
-  NSError *error;
-  self.dictionary[@"GLOBAL"] = [NSString stringWithFormat:@"%ld", timeInSeconds];
-  [self.dataStorage writeDictionary:self.dictionary error:&error];
-  NSInteger heartbeatCode = [FIRHeartbeatInfo getHeartbeatCode:@"fire-iid"];
-  XCTAssertEqual(heartbeatCode, 1);
+  [self.dataStorage setHearbeatDate:[NSDate date] forTag:@"GLOBAL"];
+  Heartbeat heartbeatCode = [FIRHeartbeatInfo getHeartbeatCode:@"fire-iid"];
+  XCTAssertEqual(heartbeatCode, SDK);
 }
 
 - (void)testGlobalOnlyHeartbeat {
-  NSInteger timeInSeconds = [[NSDate date] timeIntervalSince1970];
-  NSError *error;
-  self.dictionary[@"fire-iid"] = [NSString stringWithFormat:@"%ld", timeInSeconds];
-  [self.dataStorage writeDictionary:self.dictionary error:&error];
-  NSInteger heartbeatCode = [FIRHeartbeatInfo getHeartbeatCode:@"fire-iid"];
-  XCTAssertEqual(heartbeatCode, 2);
+  [self.dataStorage setHearbeatDate:[NSDate date] forTag:@"fire-iid"];
+  Heartbeat heartbeatCode = [FIRHeartbeatInfo getHeartbeatCode:@"fire-iid"];
+  XCTAssertEqual(heartbeatCode, GLOBAL);
 }
 
 - (void)testNoHeartbeat {
-  NSInteger timeInSeconds = [[NSDate date] timeIntervalSince1970];
-  NSError *error;
-  self.dictionary[@"fire-iid"] = [NSString stringWithFormat:@"%ld", timeInSeconds];
-  self.dictionary[@"GLOBAL"] = [NSString stringWithFormat:@"%ld", timeInSeconds];
-  [self.dataStorage writeDictionary:self.dictionary error:&error];
-  NSInteger heartbeatCode = [FIRHeartbeatInfo getHeartbeatCode:@"fire-iid"];
-  XCTAssertEqual(heartbeatCode, 0);
+  [self.dataStorage setHearbeatDate:[NSDate date] forTag:@"fire-iid"];
+  [self.dataStorage setHearbeatDate:[NSDate date] forTag:@"GLOBAL"];
+  Heartbeat heartbeatCode = [FIRHeartbeatInfo getHeartbeatCode:@"fire-iid"];
+  XCTAssertEqual(heartbeatCode, NONE);
 }
 
 @end

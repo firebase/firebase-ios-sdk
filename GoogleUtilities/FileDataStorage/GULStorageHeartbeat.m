@@ -15,6 +15,7 @@
  */
 
 #import "GULStorageHeartbeat.h"
+#import <GoogleUtilities/GULSecureCoding.h>
 
 @interface GULStorageHeartbeat ()
 @property(nonatomic, readonly) NSURL *fileURL;
@@ -38,37 +39,40 @@
 - (nullable NSMutableDictionary *)getDictionary {
   NSError *error;
   NSData *objectData = [NSData dataWithContentsOfURL:self.fileURL options:0 error:&error];
-  if(error != nil) {
+  if (error != nil) {
     return [NSMutableDictionary dictionary];
   }
-  NSMutableDictionary *dict = [NSKeyedUnarchiver unarchiveObjectWithData:objectData];
+  NSMutableDictionary *dict =
+      [GULSecureCoding unarchivedObjectOfClass:NSObject.class fromData:objectData error:&error];
+  if (error != nil) {
+    return [NSMutableDictionary dictionary];
+  }
   return dict;
 }
 
 - (nullable NSDate *)heartbeatDateForTag:(NSString *)tag {
-  NSMutableDictionary* dictionary =  [self getDictionary];
+  NSMutableDictionary *dictionary = [self getDictionary];
   return dictionary[tag];
 }
 
 - (BOOL)setHearbeatDate:(NSDate *)date forTag:(NSString *)tag {
-  NSMutableDictionary* dictionary =  [self getDictionary];
+  NSMutableDictionary *dictionary = [self getDictionary];
   dictionary[tag] = date;
   NSError *error;
   BOOL isSuccess = [self writeDictionary:dictionary error:&error];
-  if(isSuccess == false) {
+  if (isSuccess == false) {
     NSLog(@"Error writing dictionary data %@", error);
   }
   return isSuccess;
-
 }
 
 - (BOOL)writeDictionary:(NSMutableDictionary *)dictionary error:(NSError **)outError {
   NSError *error;
-  NSData *plistData = [NSKeyedArchiver archivedDataWithRootObject:dictionary];
-  if (!plistData) {
-    NSLog(@"Error getting json Data %@", error);
+  NSData *data = [GULSecureCoding archivedDataWithRootObject:dictionary error:&error];
+  if (error != nil) {
+    NSLog(@"Error getting encoded data %@", error);
   } else {
-    return [plistData writeToURL:self.fileURL atomically:YES];
+    return [data writeToURL:self.fileURL atomically:YES];
   }
   return false;
 }
@@ -86,6 +90,7 @@
                             error:outError];
 }
 
+// TODO(vguthal): Deprecate this and use setHeartbeatDate
 - (nullable NSDate *)date {
   NSString *timestampString = [NSString stringWithContentsOfURL:self.fileURL
                                                        encoding:NSUTF8StringEncoding

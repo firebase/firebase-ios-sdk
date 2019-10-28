@@ -45,45 +45,35 @@ static GULLoggerService kFIRHeartbeatInfo = @"FIRHeartbeatInfo";
 
 + (BOOL)getOrUpdateHeartbeat:(NSString *)prefKey {
   NSString *const kHeartbeatStorageFile = @"HEARTBEAT_INFO_STORAGE";
-
   GULStorageHeartbeat *dataStorage = [[GULStorageHeartbeat alloc]
       initWithFileURL:[[self class] filePathURLWithName:kHeartbeatStorageFile]];
-  NSInteger timeInSeconds = [[NSDate date] timeIntervalSince1970];
-  NSMutableDictionary *heartbeatInfo = [dataStorage getDictionary];
-  if ([heartbeatInfo objectForKey:prefKey] == nil) {
-    [heartbeatInfo setValue:[NSString stringWithFormat:@"%ld", timeInSeconds] forKey:prefKey];
-  } else {
-    NSInteger lastHeartbeatTime = [[heartbeatInfo objectForKey:prefKey] intValue];
-    if ((timeInSeconds - lastHeartbeatTime) > 24 * 60 * 60) {
-      [heartbeatInfo setValue:[NSString stringWithFormat:@"%ld", timeInSeconds] forKey:prefKey];
-    } else {
+  NSDate *heartbeatTime = [dataStorage heartbeatDateForTag:prefKey];
+  NSDate *currentDate = [NSDate date];
+  if (heartbeatTime != nil) {
+    NSTimeInterval secondsBetween = [currentDate timeIntervalSinceDate:heartbeatTime];
+    if (secondsBetween < 84000) {
       return false;
     }
   }
-  NSError *error;
-  if (![dataStorage writeDictionary:heartbeatInfo error:&error]) {
-    GULLogError(kFIRHeartbeatInfo, NO, @"I-COR100004", @"Unable to persist internal state: %@",
-                error);
-  }
-  return true;
+  return [dataStorage setHearbeatDate:currentDate forTag:prefKey];
 }
 
-+ (NSInteger)getHeartbeatCode:(NSString *)heartbeatTag {
++ (enum Heartbeat)getHeartbeatCode:(NSString *)heartbeatTag {
   NSString *globalTag = @"GLOBAL";
   BOOL isSdkHeartbeatNeeded = [FIRHeartbeatInfo getOrUpdateHeartbeat:heartbeatTag];
   BOOL isGlobalHeartbeatNeeded = [FIRHeartbeatInfo getOrUpdateHeartbeat:globalTag];
   if (!isSdkHeartbeatNeeded && !isGlobalHeartbeatNeeded) {
     // Both sdk and global heartbeat not needed.
-    return 0;
+    return NONE;
   } else if (isSdkHeartbeatNeeded && !isGlobalHeartbeatNeeded) {
     // Only sdk heartbeat needed.
-    return 1;
+    return SDK;
   } else if (!isSdkHeartbeatNeeded && isGlobalHeartbeatNeeded) {
     // Only global heartbeat needed.
-    return 2;
+    return GLOBAL;
   } else {
     // Both sdk and global heartbeat are needed.
-    return 3;
+    return COMBINED;
   }
 }
 @end
