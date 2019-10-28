@@ -68,8 +68,11 @@ cc_library(
     local_documents_view.h
     local_serializer.cc
     local_serializer.h
+    local_store.cc
+    local_store.h
     local_view_changes.cc
     local_view_changes.h
+    local_write_result.h
     lru_garbage_collector.cc
     lru_garbage_collector.h
     memory_eager_reference_delegate.cc

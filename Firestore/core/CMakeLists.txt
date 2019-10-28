@@ -28,6 +28,7 @@ add_subdirectory(src/firebase/firestore/util)
 
 add_subdirectory(test/firebase/firestore/testutil)
 add_subdirectory(test/firebase/firestore)
+add_subdirectory(test/firebase/firestore/api)
 add_subdirectory(test/firebase/firestore/auth)
 add_subdirectory(test/firebase/firestore/core)
 add_subdirectory(test/firebase/firestore/immutable)
