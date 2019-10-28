@@ -43,11 +43,6 @@ using HasToString = typename std::is_member_function_pointer<decltype(&T::ToStri
 template <typename T>
 using ScalarExceptEnum = absl::conjunction<std::is_scalar<T>, absl::negation<std::is_enum<T>>>;
 
-template <typename T, absl::enable_if_t<std::is_enum<T>::value, int> = 0>
-std::string ToStringImpl(const T& value, int indent) {
-    return std::to_string(value);
-}
-
 template <typename T, absl::enable_if_t<ScalarExceptEnum<T>::value, int> = 0>
 std::string ToStringImpl(const T& value, int indent) {
   return std::to_string(value);
@@ -70,10 +65,6 @@ inline std::string ToStringImpl(bool value, int indent) {
 
 template <typename T, absl::enable_if_t<!std::is_scalar<T>::value, int> = 0>
 std::string PrintField(absl::string_view name, const T& value, int indent, bool always_print = false) {
-    if (name == "start_at ") {
-         int x = 0;
-         ++x;
-     }
   auto contents = ToStringImpl(value, indent);
   if (contents.empty()) {
     if (!always_print) {
@@ -88,10 +79,6 @@ std::string PrintField(absl::string_view name, const T& value, int indent, bool 
 
 template <typename T, absl::enable_if_t<std::is_scalar<T>::value, int> = 0>
 std::string PrintField(absl::string_view name, T value, int indent, bool always_print = false) {
-    // if (name == "start_at ") {
-    //     int x = 0;
-    //     ++x;
-    // }
   if (value == T{} && !always_print) {
     return "";
   }
@@ -105,27 +92,6 @@ std::string PrintEnumField(absl::string_view name, T value, int indent, bool alw
   }
 
   return absl::StrCat(Indent(indent), name, EnumToString(value), "\n");
-}
-
-template <typename T>
-std::string PrintRepeatedField(absl::string_view name,
-                               const T& value,
-                               pb_size_t count,
-                               int indent) {
-  if (count == 0) {
-    return "";
-  }
-
-  std::string result;
-  for (pb_size_t i = 0; i != count; ++i) {
-    // if (i != 0) {
-    //   result += '\n';
-    // }
-    result += PrintField(name, value[i], indent); //+ '\n';
-  }
-
-  return result;
-  //return absl::StrCat(Indent(indent), result, "\n");
 }
 
 }  // namespace firestore
