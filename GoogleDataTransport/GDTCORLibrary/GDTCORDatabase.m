@@ -192,8 +192,12 @@ static void RunMigrations(sqlite3 *db,
   [migrations enumerateKeysAndObjectsUsingBlock:^(NSNumber *_Nonnull key, NSString *_Nonnull obj,
                                                   BOOL *_Nonnull stop) {
     if (key.intValue > newUserVersion) {
-      RunNonQuery(db, nil, obj, stmtCache, NO);
-      newUserVersion = key.intValue;
+      if (RunNonQuery(db, nil, obj, stmtCache, NO)) {
+        newUserVersion = key.intValue;
+      } else {
+        GDTCORLogError(GDTCORMCEDatabaseError, @"%@", @"Migration failed: version:%@ statement:%@",
+                       key, obj);
+      }
     }
   }];
 
