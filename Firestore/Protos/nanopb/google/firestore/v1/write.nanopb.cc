@@ -116,6 +116,17 @@ PB_STATIC_ASSERT((pb_membersize(google_firestore_v1_Write, update) < 256 && pb_m
 #endif
 
 
+const char* EnumToString(
+  google_firestore_v1_DocumentTransform_FieldTransform_ServerValue value) {
+    switch (value) {
+    case google_firestore_v1_DocumentTransform_FieldTransform_ServerValue_SERVER_VALUE_UNSPECIFIED:
+        return "SERVER_VALUE_UNSPECIFIED";
+    case google_firestore_v1_DocumentTransform_FieldTransform_ServerValue_REQUEST_TIME:
+        return "REQUEST_TIME";
+    }
+    return "<unknown enum value>";
+}
+
 std::string google_firestore_v1_Write::ToString(int indent) const {
     std::string result;
 
@@ -130,16 +141,16 @@ std::string google_firestore_v1_Write::ToString(int indent) const {
     }
 
     switch (which_operation) {
-          case 1: // google_firestore_v1_Write_update_tag
-            result += PrintField("update ", update, indent + 1, true);
-            break;
-          case 2: // google_firestore_v1_Write_delete_tag
-            result += PrintField("delete_: ", delete_, indent + 1, true);
-            break;
-          case 6: // google_firestore_v1_Write_transform_tag
-            result += PrintField("transform ", transform, indent + 1, true);
-            break;
-        }
+    case google_firestore_v1_Write_update_tag:
+        result += PrintField("update ", update, indent + 1, true);
+        break;
+    case google_firestore_v1_Write_delete_tag:
+        result += PrintField("delete_: ", delete_, indent + 1, true);
+        break;
+    case google_firestore_v1_Write_transform_tag:
+        result += PrintField("transform ", transform, indent + 1, true);
+        break;
+    }
 
     if (has_update_mask) {
         result += PrintField("update_mask ", update_mask, indent + 1, true);
@@ -193,26 +204,26 @@ std::string google_firestore_v1_DocumentTransform_FieldTransform::ToString(int i
 
     result += PrintField("field_path: ", field_path, indent + 1, false);
     switch (which_transform_type) {
-          case 2: // google_firestore_v1_DocumentTransform_FieldTransform_set_to_server_value_tag
-            result += PrintEnumField(
+    case google_firestore_v1_DocumentTransform_FieldTransform_set_to_server_value_tag:
+        result += PrintEnumField(
               "set_to_server_value: : ", set_to_server_value, indent + 1);
-            break;
-          case 3: // google_firestore_v1_DocumentTransform_FieldTransform_increment_tag
-            result += PrintField("increment ", increment, indent + 1, true);
-            break;
-          case 4: // google_firestore_v1_DocumentTransform_FieldTransform_maximum_tag
-            result += PrintField("maximum ", maximum, indent + 1, true);
-            break;
-          case 5: // google_firestore_v1_DocumentTransform_FieldTransform_minimum_tag
-            result += PrintField("minimum ", minimum, indent + 1, true);
-            break;
-          case 6: // google_firestore_v1_DocumentTransform_FieldTransform_append_missing_elements_tag
-            result += PrintField("append_missing_elements ", append_missing_elements, indent + 1, true);
-            break;
-          case 7: // google_firestore_v1_DocumentTransform_FieldTransform_remove_all_from_array_tag
-            result += PrintField("remove_all_from_array ", remove_all_from_array, indent + 1, true);
-            break;
-        }
+        break;
+    case google_firestore_v1_DocumentTransform_FieldTransform_increment_tag:
+        result += PrintField("increment ", increment, indent + 1, true);
+        break;
+    case google_firestore_v1_DocumentTransform_FieldTransform_maximum_tag:
+        result += PrintField("maximum ", maximum, indent + 1, true);
+        break;
+    case google_firestore_v1_DocumentTransform_FieldTransform_minimum_tag:
+        result += PrintField("minimum ", minimum, indent + 1, true);
+        break;
+    case google_firestore_v1_DocumentTransform_FieldTransform_append_missing_elements_tag:
+        result += PrintField("append_missing_elements ", append_missing_elements, indent + 1, true);
+        break;
+    case google_firestore_v1_DocumentTransform_FieldTransform_remove_all_from_array_tag:
+        result += PrintField("remove_all_from_array ", remove_all_from_array, indent + 1, true);
+        break;
+    }
 
 
     if (!result.empty() || is_root) {

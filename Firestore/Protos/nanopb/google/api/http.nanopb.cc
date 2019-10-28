@@ -122,25 +122,25 @@ std::string google_api_HttpRule::ToString(int indent) const {
 
     result += PrintField("selector: ", selector, indent + 1, false);
     switch (which_pattern) {
-          case 2: // google_api_HttpRule_get_tag
-            result += PrintField("get: ", get, indent + 1, true);
-            break;
-          case 3: // google_api_HttpRule_put_tag
-            result += PrintField("put: ", put, indent + 1, true);
-            break;
-          case 4: // google_api_HttpRule_post_tag
-            result += PrintField("post: ", post, indent + 1, true);
-            break;
-          case 5: // google_api_HttpRule_delete_tag
-            result += PrintField("delete_: ", delete_, indent + 1, true);
-            break;
-          case 6: // google_api_HttpRule_patch_tag
-            result += PrintField("patch: ", patch, indent + 1, true);
-            break;
-          case 8: // google_api_HttpRule_custom_tag
-            result += PrintField("custom ", custom, indent + 1, true);
-            break;
-        }
+    case google_api_HttpRule_get_tag:
+        result += PrintField("get: ", get, indent + 1, true);
+        break;
+    case google_api_HttpRule_put_tag:
+        result += PrintField("put: ", put, indent + 1, true);
+        break;
+    case google_api_HttpRule_post_tag:
+        result += PrintField("post: ", post, indent + 1, true);
+        break;
+    case google_api_HttpRule_delete_tag:
+        result += PrintField("delete_: ", delete_, indent + 1, true);
+        break;
+    case google_api_HttpRule_patch_tag:
+        result += PrintField("patch: ", patch, indent + 1, true);
+        break;
+    case google_api_HttpRule_custom_tag:
+        result += PrintField("custom ", custom, indent + 1, true);
+        break;
+    }
 
     result += PrintField("body: ", body, indent + 1, false);
     for (pb_size_t i = 0; i != additional_bindings_count; ++i) {

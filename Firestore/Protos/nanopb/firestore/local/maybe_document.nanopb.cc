@@ -130,16 +130,16 @@ std::string firestore_client_MaybeDocument::ToString(int indent) const {
     }
 
     switch (which_document_type) {
-          case 1: // firestore_client_MaybeDocument_no_document_tag
-            result += PrintField("no_document ", no_document, indent + 1, true);
-            break;
-          case 2: // firestore_client_MaybeDocument_document_tag
-            result += PrintField("document ", document, indent + 1, true);
-            break;
-          case 3: // firestore_client_MaybeDocument_unknown_document_tag
-            result += PrintField("unknown_document ", unknown_document, indent + 1, true);
-            break;
-        }
+    case firestore_client_MaybeDocument_no_document_tag:
+        result += PrintField("no_document ", no_document, indent + 1, true);
+        break;
+    case firestore_client_MaybeDocument_document_tag:
+        result += PrintField("document ", document, indent + 1, true);
+        break;
+    case firestore_client_MaybeDocument_unknown_document_tag:
+        result += PrintField("unknown_document ", unknown_document, indent + 1, true);
+        break;
+    }
 
     result += PrintField("has_committed_mutations: ", has_committed_mutations, indent + 1, false);
 

@@ -195,43 +195,37 @@ def nanopb_parse_files(request, options, pretty_printing_info):
   # Process any include files first, in order to have them available as
   # dependencies
   parsed_files = {}
-  enums = {}
   for fdesc in request.proto_file:
     parsed_file = nanopb.parse_file(fdesc.name, fdesc, options)
     parsed_files[fdesc.name] = parsed_file
-    if parsed_file.enums:
-      for e in parsed_file.enums:
-        enums[str(e.names)] = e
-
-  for fdesc in request.proto_file:
-    parsed_file = parsed_files[fdesc.name]
 
     base_filename = fdesc.name.replace('.proto', '')
-    pretty_printing_info[base_filename] = []
-    for m in parsed_file.messages:
-      pretty_printing_info[base_filename].append(MessagePrettyPrintingInfo(m, enums))
+    pretty_printing_info[base_filename] = FilePrettyPrintingInfo(parsed_file)
 
   return parsed_files
 
 
+class FilePrettyPrintingInfo:
+  def __init__(self, parsed_file):
+    self.messages = [MessagePrettyPrintingInfo(m) for m in parsed_file.messages]
+    self.enums = [EnumPrettyPrintingInfo(e) for e in parsed_file.enums]
+
+
 class OneOfMemberPrettyPrintingInfo:
-  def __init__(self, field, message, enums):
+  def __init__(self, field, message):
     if field.rules != 'ONEOF':
       raise TypeError('Not a member of oneof')
 
     self.which = 'which_' + field.name
     self.is_anonymous = field.anonymous
-    if not hasattr(field, 'fields'):
-      raise Exception(repr(field))
-    self.fields = [FieldPrettyPrintingInfo(f, message, enums) for f in field.fields]
-
+    self.fields = [FieldPrettyPrintingInfo(f, message) for f in field.fields]
 
   def __repr__(self):
     return 'OneOfPrettyPrintingInfo{which: %s, fields: %s}' % (self.which, self.fields)
 
 
 class FieldPrettyPrintingInfo:
-  def __init__(self, field, message, enums):
+  def __init__(self, field, message):
     self.name = field.name
     self.full_classname = str(message.name)
 
@@ -242,22 +236,9 @@ class FieldPrettyPrintingInfo:
     self.is_primitive = field.pbtype != 'MESSAGE'
 
     self.is_enum = field.pbtype in ['ENUM', 'UENUM']
-    if self.is_enum:
-      self.enum_name = str(field.ctype)
-      self.enum_members = [m for m in enums[self.enum_name].value_longnames]
-
-    # FIXME remove
-    if self.is_primitive:
-      if field.pbtype == 'BYTES':
-        self.zero = 'nullptr'
-      elif field.pbtype == 'BOOL': # ?
-        self.zero = 'false'
-      else:
-        self.zero = '0'
-
 
     if isinstance(field, nanopb.OneOf):
-      self.oneof_member = OneOfMemberPrettyPrintingInfo(field, message, enums)
+      self.oneof_member = OneOfMemberPrettyPrintingInfo(field, message)
     else:
       self.oneof_member = None
 
@@ -265,13 +246,18 @@ class FieldPrettyPrintingInfo:
     return 'FieldPrettyPrintingInfo{name: %s, is_optional: %s, is_repeated: %s, oneof_member: %s}' % (self.name, self.is_optional, self.is_repeated, self.oneof_member)
 
 
+class EnumPrettyPrintingInfo:
+  def __init__(self, enum):
+    self.name = str(enum.names)
+    self.members = [str(n) for n in enum.value_longnames]
+
+
 class MessagePrettyPrintingInfo:
-  def __init__(self, message, enums):
+  def __init__(self, message):
     self.short_classname = message.name.parts[-1]
     self.full_classname = str(message.name)
-    self.fields = [FieldPrettyPrintingInfo(f, message, enums) for f in message.fields]
+    self.fields = [FieldPrettyPrintingInfo(f, message) for f in message.fields]
     self.fields.sort(key = lambda f: f.tag)
-
 
   def __repr__(self):
     return 'MessagePrettyPrintingInfo{short_classname: %s, full_classname: %s, fields: %s}' % (self.short_classname, self.full_classname, self.fields)
@@ -343,13 +329,21 @@ def generate_header(files, file_name, file_contents, pretty_printing_info):
 
   begin_namespace(files, file_name)
 
-  # Declarations
+  # `ToString` declarations
   base_filename = file_name.replace('.nanopb.h', '')
-  for p in pretty_printing_info[base_filename]:
+  for p in pretty_printing_info[base_filename].messages:
     f = files.add()
     f.name = file_name
     f.insertion_point = 'struct:' + p.full_classname
     f.content = '\n' + ' ' * 4 + 'std::string ToString(int indent = 0) const;\n'
+
+  # `EnumToString` declarations
+  for enum in pretty_printing_info[base_filename].enums:
+    f = files.add()
+    f.name = file_name
+    f.insertion_point = 'eof'
+    f.content += '''const char* EnumToString(
+  %s value);\n''' % (enum.name)
 
   end_namespace(files, file_name)
 
@@ -372,30 +366,28 @@ def generate_source(files, file_name, file_contents, pretty_printing_info):
   base_filename = file_name.replace('.nanopb.cc', '')
 
   # Enums
-  for p in pretty_printing_info[base_filename]:
+  for enum in pretty_printing_info[base_filename].enums:
     f = files.add()
     f.name = file_name
     f.insertion_point = 'eof'
 
-    for field in p.fields:
-      if not field.is_enum:
-        continue
-      f.content += '''static const char* EnumToString(
+    f.content += '''const char* EnumToString(
   %s value) {
-    switch (value) {''' % (field.enum_name)
-      for enum_member_name in field.enum_members:
-        full_name = str(enum_member_name)
-        short_name = full_name.replace('%s_' % field.enum_name, '')
-        f.content += '''
-    case %s:
-      return "%s";''' % (full_name, short_name)
+    switch (value) {''' % (enum.name)
+
+    for full_name in enum.members:
+      short_name = full_name.replace('%s_' % enum.name, '')
       f.content += '''
+    case %s:
+        return "%s";''' % (full_name, short_name)
+
+    f.content += '''
     }
     return "<unknown enum value>";
 }\n\n'''
 
   # Printers
-  for p in pretty_printing_info[base_filename]:
+  for p in pretty_printing_info[base_filename].messages:
     f = files.add()
     f.name = file_name
     f.insertion_point = 'eof'
@@ -459,13 +451,12 @@ def add_printing_for_oneof(oneof):
 
   for f in oneof.oneof_member.fields:
     tag_name = '%s_%s_tag' % (oneof.full_classname, f.name)
-    # FIXME add comment
-    result += ' ' * 10 + 'case %s: // %s' % (f.tag, tag_name)
+    result += ' ' * 4 + 'case %s:' % tag_name
 
-    result += '\n' + ' ' * 12 + add_printing_for_leaf(f, oneof, True)
-    result += '\n' + ' ' * 12 + 'break;\n'
+    result += '\n' + ' ' * 8 + add_printing_for_leaf(f, oneof, True)
+    result += '\n' + ' ' * 8 + 'break;\n'
 
-  return result + ' ' * 8 + '}\n'
+  return result + ' ' * 4 + '}\n'
 
 
 def add_printing_for_repeated(field):

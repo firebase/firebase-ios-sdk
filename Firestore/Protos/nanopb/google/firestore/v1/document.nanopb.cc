@@ -161,41 +161,41 @@ std::string google_firestore_v1_Value::ToString(int indent) const {
     }
 
     switch (which_value_type) {
-          case 1: // google_firestore_v1_Value_boolean_value_tag
-            result += PrintField("boolean_value: ", boolean_value, indent + 1, true);
-            break;
-          case 2: // google_firestore_v1_Value_integer_value_tag
-            result += PrintField("integer_value: ", integer_value, indent + 1, true);
-            break;
-          case 3: // google_firestore_v1_Value_double_value_tag
-            result += PrintField("double_value: ", double_value, indent + 1, true);
-            break;
-          case 5: // google_firestore_v1_Value_reference_value_tag
-            result += PrintField("reference_value: ", reference_value, indent + 1, true);
-            break;
-          case 6: // google_firestore_v1_Value_map_value_tag
-            result += PrintField("map_value ", map_value, indent + 1, true);
-            break;
-          case 8: // google_firestore_v1_Value_geo_point_value_tag
-            result += PrintField("geo_point_value ", geo_point_value, indent + 1, true);
-            break;
-          case 9: // google_firestore_v1_Value_array_value_tag
-            result += PrintField("array_value ", array_value, indent + 1, true);
-            break;
-          case 10: // google_firestore_v1_Value_timestamp_value_tag
-            result += PrintField("timestamp_value ", timestamp_value, indent + 1, true);
-            break;
-          case 11: // google_firestore_v1_Value_null_value_tag
-            result += PrintEnumField(
+    case google_firestore_v1_Value_boolean_value_tag:
+        result += PrintField("boolean_value: ", boolean_value, indent + 1, true);
+        break;
+    case google_firestore_v1_Value_integer_value_tag:
+        result += PrintField("integer_value: ", integer_value, indent + 1, true);
+        break;
+    case google_firestore_v1_Value_double_value_tag:
+        result += PrintField("double_value: ", double_value, indent + 1, true);
+        break;
+    case google_firestore_v1_Value_reference_value_tag:
+        result += PrintField("reference_value: ", reference_value, indent + 1, true);
+        break;
+    case google_firestore_v1_Value_map_value_tag:
+        result += PrintField("map_value ", map_value, indent + 1, true);
+        break;
+    case google_firestore_v1_Value_geo_point_value_tag:
+        result += PrintField("geo_point_value ", geo_point_value, indent + 1, true);
+        break;
+    case google_firestore_v1_Value_array_value_tag:
+        result += PrintField("array_value ", array_value, indent + 1, true);
+        break;
+    case google_firestore_v1_Value_timestamp_value_tag:
+        result += PrintField("timestamp_value ", timestamp_value, indent + 1, true);
+        break;
+    case google_firestore_v1_Value_null_value_tag:
+        result += PrintEnumField(
               "null_value: : ", null_value, indent + 1);
-            break;
-          case 17: // google_firestore_v1_Value_string_value_tag
-            result += PrintField("string_value: ", string_value, indent + 1, true);
-            break;
-          case 18: // google_firestore_v1_Value_bytes_value_tag
-            result += PrintField("bytes_value: ", bytes_value, indent + 1, true);
-            break;
-        }
+        break;
+    case google_firestore_v1_Value_string_value_tag:
+        result += PrintField("string_value: ", string_value, indent + 1, true);
+        break;
+    case google_firestore_v1_Value_bytes_value_tag:
+        result += PrintField("bytes_value: ", bytes_value, indent + 1, true);
+        break;
+    }
 
 
     if (!result.empty() || is_root) {

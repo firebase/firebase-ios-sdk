@@ -98,13 +98,13 @@ std::string PrintField(absl::string_view name, T value, int indent, bool always_
   return absl::StrCat(Indent(indent), name, ToStringImpl(value, indent), "\n");
 }
 
-template <typename T, typename U>
-std::string PrintEnumField(absl::string_view name, U value, int indent) {
-  if (value == U{}) {
+template <typename T>
+std::string PrintEnumField(absl::string_view name, T value, int indent) {
+  if (value == T{}) {
     return "";
   }
 
-  return absl::StrCat(Indent(indent), name, T::EnumToString(value), "\n");
+  return absl::StrCat(Indent(indent), name, EnumToString(value), "\n");
 }
 
 template <typename T>

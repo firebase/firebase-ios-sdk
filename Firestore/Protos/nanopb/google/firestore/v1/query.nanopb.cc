@@ -126,64 +126,64 @@ PB_STATIC_ASSERT((pb_membersize(google_firestore_v1_StructuredQuery, select) < 2
 #endif
 
 
-static const char* EnumToString(
-  google_firestore_v1_StructuredQuery_CompositeFilter_Operator value) {
-    switch (value) {
-    case google_firestore_v1_StructuredQuery_CompositeFilter_Operator_OPERATOR_UNSPECIFIED:
-      return "OPERATOR_UNSPECIFIED";
-    case google_firestore_v1_StructuredQuery_CompositeFilter_Operator_AND:
-      return "AND";
-    }
-    return "<unknown enum value>";
-}
-
-static const char* EnumToString(
-  google_firestore_v1_StructuredQuery_FieldFilter_Operator value) {
-    switch (value) {
-    case google_firestore_v1_StructuredQuery_FieldFilter_Operator_OPERATOR_UNSPECIFIED:
-      return "OPERATOR_UNSPECIFIED";
-    case google_firestore_v1_StructuredQuery_FieldFilter_Operator_LESS_THAN:
-      return "LESS_THAN";
-    case google_firestore_v1_StructuredQuery_FieldFilter_Operator_LESS_THAN_OR_EQUAL:
-      return "LESS_THAN_OR_EQUAL";
-    case google_firestore_v1_StructuredQuery_FieldFilter_Operator_GREATER_THAN:
-      return "GREATER_THAN";
-    case google_firestore_v1_StructuredQuery_FieldFilter_Operator_GREATER_THAN_OR_EQUAL:
-      return "GREATER_THAN_OR_EQUAL";
-    case google_firestore_v1_StructuredQuery_FieldFilter_Operator_EQUAL:
-      return "EQUAL";
-    case google_firestore_v1_StructuredQuery_FieldFilter_Operator_ARRAY_CONTAINS:
-      return "ARRAY_CONTAINS";
-    case google_firestore_v1_StructuredQuery_FieldFilter_Operator_IN:
-      return "IN";
-    case google_firestore_v1_StructuredQuery_FieldFilter_Operator_ARRAY_CONTAINS_ANY:
-      return "ARRAY_CONTAINS_ANY";
-    }
-    return "<unknown enum value>";
-}
-
-static const char* EnumToString(
-  google_firestore_v1_StructuredQuery_UnaryFilter_Operator value) {
-    switch (value) {
-    case google_firestore_v1_StructuredQuery_UnaryFilter_Operator_OPERATOR_UNSPECIFIED:
-      return "OPERATOR_UNSPECIFIED";
-    case google_firestore_v1_StructuredQuery_UnaryFilter_Operator_IS_NAN:
-      return "IS_NAN";
-    case google_firestore_v1_StructuredQuery_UnaryFilter_Operator_IS_NULL:
-      return "IS_NULL";
-    }
-    return "<unknown enum value>";
-}
-
-static const char* EnumToString(
+const char* EnumToString(
   google_firestore_v1_StructuredQuery_Direction value) {
     switch (value) {
     case google_firestore_v1_StructuredQuery_Direction_DIRECTION_UNSPECIFIED:
-      return "DIRECTION_UNSPECIFIED";
+        return "DIRECTION_UNSPECIFIED";
     case google_firestore_v1_StructuredQuery_Direction_ASCENDING:
-      return "ASCENDING";
+        return "ASCENDING";
     case google_firestore_v1_StructuredQuery_Direction_DESCENDING:
-      return "DESCENDING";
+        return "DESCENDING";
+    }
+    return "<unknown enum value>";
+}
+
+const char* EnumToString(
+  google_firestore_v1_StructuredQuery_CompositeFilter_Operator value) {
+    switch (value) {
+    case google_firestore_v1_StructuredQuery_CompositeFilter_Operator_OPERATOR_UNSPECIFIED:
+        return "OPERATOR_UNSPECIFIED";
+    case google_firestore_v1_StructuredQuery_CompositeFilter_Operator_AND:
+        return "AND";
+    }
+    return "<unknown enum value>";
+}
+
+const char* EnumToString(
+  google_firestore_v1_StructuredQuery_FieldFilter_Operator value) {
+    switch (value) {
+    case google_firestore_v1_StructuredQuery_FieldFilter_Operator_OPERATOR_UNSPECIFIED:
+        return "OPERATOR_UNSPECIFIED";
+    case google_firestore_v1_StructuredQuery_FieldFilter_Operator_LESS_THAN:
+        return "LESS_THAN";
+    case google_firestore_v1_StructuredQuery_FieldFilter_Operator_LESS_THAN_OR_EQUAL:
+        return "LESS_THAN_OR_EQUAL";
+    case google_firestore_v1_StructuredQuery_FieldFilter_Operator_GREATER_THAN:
+        return "GREATER_THAN";
+    case google_firestore_v1_StructuredQuery_FieldFilter_Operator_GREATER_THAN_OR_EQUAL:
+        return "GREATER_THAN_OR_EQUAL";
+    case google_firestore_v1_StructuredQuery_FieldFilter_Operator_EQUAL:
+        return "EQUAL";
+    case google_firestore_v1_StructuredQuery_FieldFilter_Operator_ARRAY_CONTAINS:
+        return "ARRAY_CONTAINS";
+    case google_firestore_v1_StructuredQuery_FieldFilter_Operator_IN:
+        return "IN";
+    case google_firestore_v1_StructuredQuery_FieldFilter_Operator_ARRAY_CONTAINS_ANY:
+        return "ARRAY_CONTAINS_ANY";
+    }
+    return "<unknown enum value>";
+}
+
+const char* EnumToString(
+  google_firestore_v1_StructuredQuery_UnaryFilter_Operator value) {
+    switch (value) {
+    case google_firestore_v1_StructuredQuery_UnaryFilter_Operator_OPERATOR_UNSPECIFIED:
+        return "OPERATOR_UNSPECIFIED";
+    case google_firestore_v1_StructuredQuery_UnaryFilter_Operator_IS_NAN:
+        return "IS_NAN";
+    case google_firestore_v1_StructuredQuery_UnaryFilter_Operator_IS_NULL:
+        return "IS_NULL";
     }
     return "<unknown enum value>";
 }
@@ -258,16 +258,16 @@ std::string google_firestore_v1_StructuredQuery_Filter::ToString(int indent) con
     }
 
     switch (which_filter_type) {
-          case 1: // google_firestore_v1_StructuredQuery_Filter_composite_filter_tag
-            result += PrintField("composite_filter ", composite_filter, indent + 1, true);
-            break;
-          case 2: // google_firestore_v1_StructuredQuery_Filter_field_filter_tag
-            result += PrintField("field_filter ", field_filter, indent + 1, true);
-            break;
-          case 3: // google_firestore_v1_StructuredQuery_Filter_unary_filter_tag
-            result += PrintField("unary_filter ", unary_filter, indent + 1, true);
-            break;
-        }
+    case google_firestore_v1_StructuredQuery_Filter_composite_filter_tag:
+        result += PrintField("composite_filter ", composite_filter, indent + 1, true);
+        break;
+    case google_firestore_v1_StructuredQuery_Filter_field_filter_tag:
+        result += PrintField("field_filter ", field_filter, indent + 1, true);
+        break;
+    case google_firestore_v1_StructuredQuery_Filter_unary_filter_tag:
+        result += PrintField("unary_filter ", unary_filter, indent + 1, true);
+        break;
+    }
 
 
     if (!result.empty() || is_root) {
@@ -343,10 +343,10 @@ std::string google_firestore_v1_StructuredQuery_UnaryFilter::ToString(int indent
     result += PrintEnumField(
               "op: : ", op, indent + 1);
     switch (which_operand_type) {
-          case 2: // google_firestore_v1_StructuredQuery_UnaryFilter_field_tag
-            result += PrintField("field ", field, indent + 1, true);
-            break;
-        }
+    case google_firestore_v1_StructuredQuery_UnaryFilter_field_tag:
+        result += PrintField("field ", field, indent + 1, true);
+        break;
+    }
 
 
     if (!result.empty() || is_root) {

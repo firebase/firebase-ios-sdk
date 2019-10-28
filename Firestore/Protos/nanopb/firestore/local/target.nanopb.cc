@@ -92,13 +92,13 @@ std::string firestore_client_Target::ToString(int indent) const {
     result += PrintField("resume_token: ", resume_token, indent + 1, false);
     result += PrintField("last_listen_sequence_number: ", last_listen_sequence_number, indent + 1, false);
     switch (which_target_type) {
-          case 5: // firestore_client_Target_query_tag
-            result += PrintField("query ", query, indent + 1, true);
-            break;
-          case 6: // firestore_client_Target_documents_tag
-            result += PrintField("documents ", documents, indent + 1, true);
-            break;
-        }
+    case firestore_client_Target_query_tag:
+        result += PrintField("query ", query, indent + 1, true);
+        break;
+    case firestore_client_Target_documents_tag:
+        result += PrintField("documents ", documents, indent + 1, true);
+        break;
+    }
 
 
     std::string tail = Indent(is_root ? 0 : indent) + '}';

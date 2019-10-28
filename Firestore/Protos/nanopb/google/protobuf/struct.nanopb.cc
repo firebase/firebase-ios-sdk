@@ -83,6 +83,15 @@ PB_STATIC_ASSERT((pb_membersize(google_protobuf_Struct_FieldsEntry, value) < 256
 #endif
 
 
+const char* EnumToString(
+  google_protobuf_NullValue value) {
+    switch (value) {
+    case google_protobuf_NullValue_NULL_VALUE:
+        return "NULL_VALUE";
+    }
+    return "<unknown enum value>";
+}
+
 std::string google_protobuf_Struct::ToString(int indent) const {
     std::string result;
 
@@ -142,26 +151,26 @@ std::string google_protobuf_Value::ToString(int indent) const {
     }
 
     switch (which_kind) {
-          case 1: // google_protobuf_Value_null_value_tag
-            result += PrintEnumField(
+    case google_protobuf_Value_null_value_tag:
+        result += PrintEnumField(
               "null_value: : ", null_value, indent + 1);
-            break;
-          case 2: // google_protobuf_Value_number_value_tag
-            result += PrintField("number_value: ", number_value, indent + 1, true);
-            break;
-          case 3: // google_protobuf_Value_string_value_tag
-            result += PrintField("string_value: ", string_value, indent + 1, true);
-            break;
-          case 4: // google_protobuf_Value_bool_value_tag
-            result += PrintField("bool_value: ", bool_value, indent + 1, true);
-            break;
-          case 5: // google_protobuf_Value_struct_value_tag
-            result += PrintField("struct_value ", struct_value, indent + 1, true);
-            break;
-          case 6: // google_protobuf_Value_list_value_tag
-            result += PrintField("list_value ", list_value, indent + 1, true);
-            break;
-        }
+        break;
+    case google_protobuf_Value_number_value_tag:
+        result += PrintField("number_value: ", number_value, indent + 1, true);
+        break;
+    case google_protobuf_Value_string_value_tag:
+        result += PrintField("string_value: ", string_value, indent + 1, true);
+        break;
+    case google_protobuf_Value_bool_value_tag:
+        result += PrintField("bool_value: ", bool_value, indent + 1, true);
+        break;
+    case google_protobuf_Value_struct_value_tag:
+        result += PrintField("struct_value ", struct_value, indent + 1, true);
+        break;
+    case google_protobuf_Value_list_value_tag:
+        result += PrintField("list_value ", list_value, indent + 1, true);
+        break;
+    }
 
 
     if (!result.empty() || is_root) {
