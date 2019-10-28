@@ -430,7 +430,7 @@ namespace firestore {'''
   return response
 
 
-def add_printing_for_field(field):
+def add_printing_for_field(field, parent=None, always_print=False):
   if field.is_optional:
     return add_printing_for_optional(field)
   elif field.is_repeated:
@@ -440,7 +440,7 @@ def add_printing_for_field(field):
   elif field.is_enum:
     return add_printing_for_enum(field)
   else:
-    return add_printing_for_singular(field)
+    return add_printing_for_singular(field, parent, always_print)
 
 
 def add_printing_for_oneof(parent):
@@ -452,7 +452,7 @@ def add_printing_for_oneof(parent):
     # FIXME add comment
     result += ' ' * 10 + 'case %s: // %s' % (f.tag, tag_name)
 
-    result += '\n' + ' ' * 12 + add_printing_for_singular(f, parent)
+    result += '\n' + ' ' * 12 + add_printing_for_field(f, parent)
     result += '\n' + ' ' * 12 + 'break;\n'
 
   return result + ' ' * 8 + '}\n'
@@ -500,10 +500,14 @@ def add_printing_for_singular(field, parent=None, always_print=False):
 
 
 # TODO:
-# 2. Array and oneof should properly print enums.
-# 1. Nested oneofs?
+# 1. Array and oneof should properly print enums.
 #
 # 1. Code cleanup, line breaks in generated code.
+#
+# Repeated oneof is not supported.
+# Oneofs cannot have repeated members
+# (presumably cannot have repeated inside repeated?)
+# (can you nest oneofs?)
 
 if __name__ == '__main__':
   main()

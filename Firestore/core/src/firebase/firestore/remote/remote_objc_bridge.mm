@@ -90,11 +90,15 @@ std::string DescribeMessage(const Message<U>& message) {
   std::sort(segments2.begin(), segments2.end());
 
   if (segments1.size() != segments2.size()) {
-    return "OBC1 " + result + '\n' + result2;
+    static int ctr1 = 0;
+    ++ctr1;
+    return "OBC1_" + std::to_string(ctr1) + " " + result + '\n' + result2;
   } else if (!segments1.empty() && !segments2.empty() &&
              !std::equal(segments1.begin() + 1, segments1.end(),
                          segments2.begin() + 1)) {
-    return "OBC2 " + result + '\n' + result2;
+    static int ctr2 = 0;
+    ++ctr2;
+    return "OBC2_" + std::to_string(ctr2) + " " + result + '\n' + result2;
   }
 
   return "";
