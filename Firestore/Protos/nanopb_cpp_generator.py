@@ -371,7 +371,7 @@ def add_field_printer_definitions(files, file_name, messages):
     std::string result;\n\n''' % (m.full_classname, m.short_classname)
 
     for field in m.fields:
-      f.content += indent(1) + add_printing_for_field(field) + '\n'
+      f.content += add_printing_for_field(field) + '\n'
 
     can_be_empty = all(f.is_primitive or f.is_repeated for f in m.fields)
     if can_be_empty:
@@ -430,13 +430,13 @@ def add_printing_for_field(field):
 
 def add_printing_for_oneof(oneof):
   which = oneof.oneof_member.which
-  result = 'switch (%s) {\n' % (which)
+  result = indent(1) + 'switch (%s) {\n' % (which)
 
   for f in oneof.oneof_member.fields:
     tag_name = '%s_%s_tag' % (oneof.full_classname, f.name)
     result += indent(1) + 'case %s:' % tag_name
 
-    result += '\n' + indent(2) + add_printing_for_leaf(f, parent=oneof, always_print=True)
+    result += '\n' + add_printing_for_leaf(f, indent=2, parent=oneof, always_print=True)
     result += '\n' + indent(2) + 'break;\n'
 
   return result + indent(1) + '}\n'
@@ -445,8 +445,8 @@ def add_printing_for_oneof(oneof):
 def add_printing_for_repeated(field):
   count = field.name + '_count'
 
-  result = 'for (pb_size_t i = 0; i != %s; ++i) {\n' % count
-  result += indent(2) + add_printing_for_leaf(field, always_print=True) + '\n'
+  result = indent(1) + 'for (pb_size_t i = 0; i != %s; ++i) {\n' % count
+  result += add_printing_for_leaf(field, indent=2, always_print=True) + '\n'
   result += indent(1) + '}'
 
   return result
@@ -454,14 +454,15 @@ def add_printing_for_repeated(field):
 
 def add_printing_for_optional(field):
   name = field.name
-  result = 'if (has_%s) {\n' % name
-  result += indent(2) + add_printing_for_leaf(field, always_print=True) + '\n'
+  result = indent(1) + 'if (has_%s) {\n' % name
+  result += add_printing_for_leaf(field, indent=2, always_print=True) + '\n'
   result += indent(1) + '}'
 
   return result
 
 
 def add_printing_for_leaf(field, **kwargs):
+  indent_level = kwargs.get('indent') or 1
   always_print = 'true' if kwargs.get('always_print') else 'false'
   parent = kwargs.get('parent')
 
@@ -490,7 +491,7 @@ def add_printing_for_leaf(field, **kwargs):
   else:
     function_name = 'PrintMessageField'
 
-  return 'result += %s("%s", %s, indent + 1, %s);' % (function_name, display_name, cc_name, always_print)
+  return indent(indent_level) + 'result += %s("%s", %s, indent + 1, %s);' % (function_name, display_name, cc_name, always_print)
 
 
 def begin_namespace(files, file_name):
