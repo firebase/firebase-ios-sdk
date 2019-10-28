@@ -208,7 +208,6 @@ NSError *FUNInvalidNumberError(id value, id wrapped) {
           decoded[key] = decodedItem;
         }];
     if (decodeError) {
-      // Only assign the `error` parameter if it was passed in.
       if (error != NULL) {
         *error = decodeError;
       }
