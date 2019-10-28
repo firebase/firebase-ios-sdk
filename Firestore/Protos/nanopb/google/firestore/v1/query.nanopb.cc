@@ -292,7 +292,7 @@ std::string google_firestore_v1_StructuredQuery_CompositeFilter::ToString(int in
     }
 
     result += PrintEnumField(
-              "op: : ", op, indent + 1);
+              "op: ", op, indent + 1, false);
     for (pb_size_t i = 0; i != filters_count; ++i) {
         result += PrintField("filters ", filters[i], indent + 1, true);
     }
@@ -320,7 +320,7 @@ std::string google_firestore_v1_StructuredQuery_FieldFilter::ToString(int indent
 
     result += PrintField("field ", field, indent + 1, false);
     result += PrintEnumField(
-              "op: : ", op, indent + 1);
+              "op: ", op, indent + 1, false);
     result += PrintField("value ", value, indent + 1, false);
 
     std::string tail = Indent(is_root ? 0 : indent) + '}';
@@ -341,7 +341,7 @@ std::string google_firestore_v1_StructuredQuery_UnaryFilter::ToString(int indent
     }
 
     result += PrintEnumField(
-              "op: : ", op, indent + 1);
+              "op: ", op, indent + 1, false);
     switch (which_operand_type) {
     case google_firestore_v1_StructuredQuery_UnaryFilter_field_tag:
         result += PrintField("field ", field, indent + 1, true);
@@ -372,7 +372,7 @@ std::string google_firestore_v1_StructuredQuery_Order::ToString(int indent) cons
 
     result += PrintField("field ", field, indent + 1, false);
     result += PrintEnumField(
-              "direction: : ", direction, indent + 1);
+              "direction: ", direction, indent + 1, false);
 
     std::string tail = Indent(is_root ? 0 : indent) + '}';
     return header + result + tail;

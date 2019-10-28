@@ -187,7 +187,7 @@ std::string google_firestore_v1_Value::ToString(int indent) const {
         break;
     case google_firestore_v1_Value_null_value_tag:
         result += PrintEnumField(
-              "null_value: : ", null_value, indent + 1);
+              "null_value: ", null_value, indent + 1, true);
         break;
     case google_firestore_v1_Value_string_value_tag:
         result += PrintField("string_value: ", string_value, indent + 1, true);

@@ -153,7 +153,7 @@ std::string google_protobuf_Value::ToString(int indent) const {
     switch (which_kind) {
     case google_protobuf_Value_null_value_tag:
         result += PrintEnumField(
-              "null_value: : ", null_value, indent + 1);
+              "null_value: ", null_value, indent + 1, true);
         break;
     case google_protobuf_Value_number_value_tag:
         result += PrintField("number_value: ", number_value, indent + 1, true);

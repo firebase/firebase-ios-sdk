@@ -963,7 +963,7 @@ std::string google_firestore_v1_TargetChange::ToString(int indent) const {
     }
 
     result += PrintEnumField(
-              "target_change_type: : ", target_change_type, indent + 1);
+              "target_change_type: ", target_change_type, indent + 1, false);
     for (pb_size_t i = 0; i != target_ids_count; ++i) {
         result += PrintField("target_ids: ", target_ids[i], indent + 1, true);
     }

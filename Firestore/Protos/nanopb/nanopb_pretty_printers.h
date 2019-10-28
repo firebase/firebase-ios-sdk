@@ -88,19 +88,19 @@ std::string PrintField(absl::string_view name, const T& value, int indent, bool 
 
 template <typename T, absl::enable_if_t<std::is_scalar<T>::value, int> = 0>
 std::string PrintField(absl::string_view name, T value, int indent, bool always_print = false) {
-    if (name == "start_at ") {
-        int x = 0;
-        ++x;
-    }
-    if (value == T{} && !always_print) {
+    // if (name == "start_at ") {
+    //     int x = 0;
+    //     ++x;
+    // }
+  if (value == T{} && !always_print) {
     return "";
   }
   return absl::StrCat(Indent(indent), name, ToStringImpl(value, indent), "\n");
 }
 
 template <typename T>
-std::string PrintEnumField(absl::string_view name, T value, int indent) {
-  if (value == T{}) {
+std::string PrintEnumField(absl::string_view name, T value, int indent, bool always_print) {
+  if (value == T{} && !always_print) {
     return "";
   }
 

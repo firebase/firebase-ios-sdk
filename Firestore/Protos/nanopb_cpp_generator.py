@@ -493,7 +493,7 @@ def add_printing_for_leaf(field, parent=None, always_print=False):
 
   if field.is_enum:
     return '''result += PrintEnumField(
-              "%s: ", %s, indent + 1);''' % (display_name, cc_name)
+              "%s", %s, indent + 1, %s);''' % (display_name, cc_name, 'true' if always_print else 'false')
   else:
     return '''result += PrintField("%s", %s, indent + 1, %s);''' % (display_name, cc_name, 'true' if always_print else 'false')
 

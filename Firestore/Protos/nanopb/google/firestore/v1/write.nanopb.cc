@@ -206,7 +206,7 @@ std::string google_firestore_v1_DocumentTransform_FieldTransform::ToString(int i
     switch (which_transform_type) {
     case google_firestore_v1_DocumentTransform_FieldTransform_set_to_server_value_tag:
         result += PrintEnumField(
-              "set_to_server_value: : ", set_to_server_value, indent + 1);
+              "set_to_server_value: ", set_to_server_value, indent + 1, true);
         break;
     case google_firestore_v1_DocumentTransform_FieldTransform_increment_tag:
         result += PrintField("increment ", increment, indent + 1, true);
