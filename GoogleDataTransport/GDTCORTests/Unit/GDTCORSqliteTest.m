@@ -34,8 +34,7 @@
 - (void)setUp {
   [super setUp];
   self.currentDBPath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"test.sqlite3"];
-  XCTAssertTrue(GDTCORSQLOpenDB(&_db, [NSURL fileURLWithPath:self.currentDBPath]),
-                @"There was a failure opening the db");
+  XCTAssertTrue(GDTCORSQLOpenDB(&_db, self.currentDBPath), @"There was a failure opening the db");
   XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:self.currentDBPath],
                 @"The db wasn't created at the path");
 }
@@ -49,10 +48,30 @@
   XCTAssertNil(error);
 }
 
+- (void)testInMemoryDB {
+  sqlite3 *db;
+  XCTAssertTrue(GDTCORSQLOpenDB(&db, @":memory:"));
+  sqlite3_stmt *setStmt, *getStmt;
+  XCTAssertTrue(GDTCORSQLCompileSQL(&setStmt, db, @"PRAGMA user_version = 123;"));
+  XCTAssertTrue(GDTCORSQLCompileSQL(&getStmt, db, @"PRAGMA user_version;"));
+  XCTAssertTrue(GDTCORSQLRunNonQuery(db, setStmt));
+  XCTestExpectation *expectation = [self expectationWithDescription:@"row block ran"];
+  XCTAssertTrue(GDTCORSQLRunQuery(db, getStmt, ^(sqlite3_stmt *stmt) {
+    int userVersion = sqlite3_column_int(getStmt, 0);
+    NSLog(@"mph: %d", userVersion);
+    XCTAssertEqual(userVersion, 123);
+    [expectation fulfill];
+  }));
+  [self waitForExpectations:@[ expectation ] timeout:0];
+  XCTAssertTrue(GDTCORSQLFinalize(setStmt));
+  XCTAssertTrue(GDTCORSQLFinalize(getStmt));
+  XCTAssertTrue(GDTCORSQLCloseDB(db));
+}
+
 /** Tests calling functions with bad arguments. */
 - (void)testBadInputToSQLFunctions {
   sqlite3 *localDB;
-  XCTAssertFalse(GDTCORSQLOpenDB(&localDB, [NSURL URLWithString:@""]));
+  XCTAssertFalse(GDTCORSQLOpenDB(&localDB, @""));
   sqlite3_stmt *stmt;
   // Has a bad table.
   XCTAssertFalse(GDTCORSQLCompileSQL(&stmt, localDB, @"PRAGMA user_version = 456;"));
@@ -68,7 +87,7 @@
   XCTAssertTrue(GDTCORSQLCompileSQL(&getStmt, _db, @"PRAGMA user_version;"));
   XCTAssertTrue(GDTCORSQLRunNonQuery(_db, setStmt));
   XCTestExpectation *expectation = [self expectationWithDescription:@"row block ran"];
-  XCTAssertTrue(GDTCORSQLRunQuery(_db, getStmt, ^{
+  XCTAssertTrue(GDTCORSQLRunQuery(_db, getStmt, ^(sqlite3_stmt *stmt) {
     int userVersion = sqlite3_column_int(getStmt, 0);
     NSLog(@"mph: %d", userVersion);
     XCTAssertEqual(userVersion, 123);
@@ -180,7 +199,7 @@
   XCTestExpectation *expectation = [self expectationWithDescription:@"query was run"];
   // There should only be a single result, and therefore, a single fulfill.
   expectation.assertForOverFulfill = YES;
-  XCTAssertTrue(GDTCORSQLRunQuery(_db, query, ^{
+  XCTAssertTrue(GDTCORSQLRunQuery(_db, query, ^(sqlite3_stmt *stmt) {
     int fieldOne = sqlite3_column_int(query, 0);
     XCTAssertEqual(fieldOne, 9999);
     const unsigned char *fieldTwo = sqlite3_column_text(query, 1);
@@ -189,7 +208,7 @@
   }));
   XCTAssertTrue(GDTCORSQLReset(query));
   XCTAssertTrue(GDTCORSQLBindObjectToParam(query, 1, @(1)));
-  XCTAssertTrue(GDTCORSQLRunQuery(_db, query, ^{
+  XCTAssertTrue(GDTCORSQLRunQuery(_db, query, ^(sqlite3_stmt *stmt) {
     XCTFail(@"The block should never be run for empty result sets.");
   }));
   [self waitForExpectations:@[ expectation ] timeout:0];
