@@ -287,7 +287,8 @@ addSnapshotListenerWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
  * @return The created `FIRQuery`.
  */
 // clang-format off
-- (FIRQuery *)queryWhereField:(NSString *)field arrayContainsAny:(id)value;
+- (FIRQuery *)queryWhereField:(NSString *)field
+             arrayContainsAny:(id)value NS_SWIFT_NAME(whereField(_:arrayContainsAny:));
 // clang-format on
 
 /**
@@ -304,7 +305,8 @@ addSnapshotListenerWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
  * @return The created `FIRQuery`.
  */
 // clang-format off
-- (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path arrayContainsAny:(id)value;
+- (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path
+                 arrayContainsAny:(id)value NS_SWIFT_NAME(whereField(_:arrayContainsAny:));
 // clang-format on
 
 /**
@@ -319,7 +321,7 @@ addSnapshotListenerWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
  * @return The created `FIRQuery`.
  */
 // clang-format off
-- (FIRQuery *)queryWhereField:(NSString *)field in:(id)value;
+- (FIRQuery *)queryWhereField:(NSString *)field in:(id)value NS_SWIFT_NAME(whereField(_:in:));
 // clang-format on
 
 /**
@@ -334,7 +336,7 @@ addSnapshotListenerWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
  * @return The created `FIRQuery`.
  */
 // clang-format off
-- (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path in:(id)value;
+- (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path in:(id)value NS_SWIFT_NAME(whereField(_:in:));
 // clang-format on
 
 /**
