@@ -26,11 +26,13 @@
 #include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "absl/meta/type_traits.h"
 
+#include <sstream>
+
 namespace firebase {
 namespace firestore {
 
-std::string ToStringImpl(pb_bytes_array_t* value, int indent);
-std::string ToStringImpl(bool value, int indent);
+std::string ToStringImpl(pb_bytes_array_t* value);
+std::string ToStringImpl(bool value);
 
 inline std::string Indent(int level) {
   constexpr int kIndentWidth = 2;
@@ -44,8 +46,11 @@ template <typename T>
 using ScalarExceptEnum = absl::conjunction<std::is_scalar<T>, absl::negation<std::is_enum<T>>>;
 
 template <typename T, absl::enable_if_t<ScalarExceptEnum<T>::value, int> = 0>
-std::string ToStringImpl(const T& value, int indent) {
-  return std::to_string(value);
+std::string ToStringImpl(const T& value) {
+  std::ostringstream stream;
+  // stream.precision();
+  stream << value;
+  return stream.str();
 }
 
 template <typename T, absl::enable_if_t<HasToString<T>::value, int> = 0>
@@ -53,11 +58,11 @@ std::string ToStringImpl(const T& value, int indent) {
   return value.ToString(indent);
 }
 
-inline std::string ToStringImpl(pb_bytes_array_t* value, int indent) {
+inline std::string ToStringImpl(pb_bytes_array_t* value) {
   return absl::StrCat("\"", nanopb::ByteString(value).ToString(), "\"");
 }
 
-inline std::string ToStringImpl(bool value, int indent) {
+inline std::string ToStringImpl(bool value) {
   return absl::StrCat(value ? "true" : "false");
 }
 
@@ -82,7 +87,7 @@ std::string PrintField(absl::string_view name, T value, int indent, bool always_
   if (value == T{} && !always_print) {
     return "";
   }
-  return absl::StrCat(Indent(indent), name, ToStringImpl(value, indent), "\n");
+  return absl::StrCat(Indent(indent), name, ToStringImpl(value), "\n");
 }
 
 template <typename T>

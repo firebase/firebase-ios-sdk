@@ -123,8 +123,8 @@ class NanopbGenerator(object):
         sources,
         add_copyright,
         #nanopb_add_namespaces,
-        nanopb_remove_extern_c,
-        nanopb_rename_delete
+        nanopb_remove_extern_c
+        # nanopb_rename_delete
     )
 
   def __run_generator(self, out_dir):

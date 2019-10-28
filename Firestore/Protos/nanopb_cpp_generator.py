@@ -25,6 +25,7 @@ import io
 import nanopb_generator as nanopb
 import os
 import os.path
+import re
 import shlex
 
 from google.protobuf.descriptor_pb2 import FieldDescriptorProto
@@ -315,11 +316,16 @@ def nanopb_write(results, pretty_printing_info):
   return response
 
 
-def generate_header(files, file_name, file_contents, pretty_printing_info):
-  # Main contents
+def add_contents(files, file_name, file_contents):
   f = files.add()
   f.name = file_name
-  f.content = file_contents
+
+  delete_keyword = re.compile(r'\bdelete\b')
+  f.content = delete_keyword.sub('delete_', file_contents)
+
+
+def generate_header(files, file_name, file_contents, pretty_printing_info):
+  add_contents(files, file_name, file_contents)
 
   # Includes
   f = files.add()
@@ -349,10 +355,7 @@ def generate_header(files, file_name, file_contents, pretty_printing_info):
 
 
 def generate_source(files, file_name, file_contents, pretty_printing_info):
-  # Main contents
-  f = files.add()
-  f.name = file_name
-  f.content = file_contents
+  add_contents(files, file_name, file_contents)
 
   # Includes
   f = files.add()
@@ -481,11 +484,15 @@ def add_printing_for_optional(field):
 def add_printing_for_leaf(field, parent=None, always_print=False):
   display_name = field.name
   cc_name = display_name
+  if display_name == 'delete':
+    cc_name += '_'
   if parent and not parent.oneof_member.is_anonymous:
     cc_name = parent.name + '.' + cc_name
   if field.is_repeated:
     cc_name += '[i]'
 
+  if display_name == 'delete_':
+    display_name = 'delete'
   if field.is_primitive:
     display_name += ': '
   else:

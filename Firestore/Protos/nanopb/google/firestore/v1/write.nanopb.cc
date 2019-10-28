@@ -145,7 +145,7 @@ std::string google_firestore_v1_Write::ToString(int indent) const {
         result += PrintField("update ", update, indent + 1, true);
         break;
     case google_firestore_v1_Write_delete_tag:
-        result += PrintField("delete_: ", delete_, indent + 1, true);
+        result += PrintField("delete: ", delete_, indent + 1, true);
         break;
     case google_firestore_v1_Write_transform_tag:
         result += PrintField("transform ", transform, indent + 1, true);

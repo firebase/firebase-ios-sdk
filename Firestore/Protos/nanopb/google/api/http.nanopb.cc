@@ -132,7 +132,7 @@ std::string google_api_HttpRule::ToString(int indent) const {
         result += PrintField("post: ", post, indent + 1, true);
         break;
     case google_api_HttpRule_delete_tag:
-        result += PrintField("delete_: ", delete_, indent + 1, true);
+        result += PrintField("delete: ", delete_, indent + 1, true);
         break;
     case google_api_HttpRule_patch_tag:
         result += PrintField("patch: ", patch, indent + 1, true);
