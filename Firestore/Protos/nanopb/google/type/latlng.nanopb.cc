@@ -45,23 +45,20 @@ const pb_field_t google_type_LatLng_fields[3] = {
 PB_STATIC_ASSERT(sizeof(double) == 8, DOUBLE_MUST_BE_8_BYTES)
 
 std::string google_type_LatLng::ToString(int indent) const {
-    std::string result;
-
     bool is_root = indent == 0;
-    std::string header;
     if (is_root) {
         indent = 1;
-        auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-        absl::StrAppend(&header, "<LatLng 0x", p, ">: {\n");
-    } else {
-        header = "{\n";
     }
+
+    std::string header = PrintHeader(is_root, "LatLng", this);
+
+    std::string result;
 
     result += PrintPrimitiveField("latitude: ", latitude, indent + 1, false);
     result += PrintPrimitiveField("longitude: ", longitude, indent + 1, false);
 
     if (!result.empty() || is_root) {
-      std::string tail = Indent(is_root ? 0 : indent) + '}';
+      std::string tail = PrintTail(is_root, indent);
       return header + result + tail;
     } else {
       return "";

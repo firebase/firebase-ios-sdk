@@ -93,24 +93,21 @@ const char* EnumToString(
 }
 
 std::string google_protobuf_Struct::ToString(int indent) const {
-    std::string result;
-
     bool is_root = indent == 0;
-    std::string header;
     if (is_root) {
         indent = 1;
-        auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-        absl::StrAppend(&header, "<Struct 0x", p, ">: {\n");
-    } else {
-        header = "{\n";
     }
+
+    std::string header = PrintHeader(is_root, "Struct", this);
+
+    std::string result;
 
     for (pb_size_t i = 0; i != fields_count; ++i) {
         result += PrintMessageField("fields ", fields[i], indent + 1, true);
     }
 
     if (!result.empty() || is_root) {
-      std::string tail = Indent(is_root ? 0 : indent) + '}';
+      std::string tail = PrintTail(is_root, indent);
       return header + result + tail;
     } else {
       return "";
@@ -118,37 +115,31 @@ std::string google_protobuf_Struct::ToString(int indent) const {
 }
 
 std::string google_protobuf_Struct_FieldsEntry::ToString(int indent) const {
-    std::string result;
-
     bool is_root = indent == 0;
-    std::string header;
     if (is_root) {
         indent = 1;
-        auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-        absl::StrAppend(&header, "<FieldsEntry 0x", p, ">: {\n");
-    } else {
-        header = "{\n";
     }
+
+    std::string header = PrintHeader(is_root, "FieldsEntry", this);
+
+    std::string result;
 
     result += PrintPrimitiveField("key: ", key, indent + 1, false);
     result += PrintMessageField("value ", value, indent + 1, false);
 
-    std::string tail = Indent(is_root ? 0 : indent) + '}';
+    std::string tail = PrintTail(is_root, indent);
     return header + result + tail;
 }
 
 std::string google_protobuf_Value::ToString(int indent) const {
-    std::string result;
-
     bool is_root = indent == 0;
-    std::string header;
     if (is_root) {
         indent = 1;
-        auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-        absl::StrAppend(&header, "<Value 0x", p, ">: {\n");
-    } else {
-        header = "{\n";
     }
+
+    std::string header = PrintHeader(is_root, "Value", this);
+
+    std::string result;
 
     switch (which_kind) {
     case google_protobuf_Value_null_value_tag:
@@ -173,7 +164,7 @@ std::string google_protobuf_Value::ToString(int indent) const {
 
 
     if (!result.empty() || is_root) {
-      std::string tail = Indent(is_root ? 0 : indent) + '}';
+      std::string tail = PrintTail(is_root, indent);
       return header + result + tail;
     } else {
       return "";
@@ -181,24 +172,21 @@ std::string google_protobuf_Value::ToString(int indent) const {
 }
 
 std::string google_protobuf_ListValue::ToString(int indent) const {
-    std::string result;
-
     bool is_root = indent == 0;
-    std::string header;
     if (is_root) {
         indent = 1;
-        auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-        absl::StrAppend(&header, "<ListValue 0x", p, ">: {\n");
-    } else {
-        header = "{\n";
     }
+
+    std::string header = PrintHeader(is_root, "ListValue", this);
+
+    std::string result;
 
     for (pb_size_t i = 0; i != values_count; ++i) {
         result += PrintMessageField("values ", values[i], indent + 1, true);
     }
 
     if (!result.empty() || is_root) {
-      std::string tail = Indent(is_root ? 0 : indent) + '}';
+      std::string tail = PrintTail(is_root, indent);
       return header + result + tail;
     } else {
       return "";

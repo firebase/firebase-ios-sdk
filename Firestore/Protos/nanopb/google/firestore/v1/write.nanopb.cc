@@ -128,17 +128,14 @@ const char* EnumToString(
 }
 
 std::string google_firestore_v1_Write::ToString(int indent) const {
-    std::string result;
-
     bool is_root = indent == 0;
-    std::string header;
     if (is_root) {
         indent = 1;
-        auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-        absl::StrAppend(&header, "<Write 0x", p, ">: {\n");
-    } else {
-        header = "{\n";
     }
+
+    std::string header = PrintHeader(is_root, "Write", this);
+
+    std::string result;
 
     switch (which_operation) {
     case google_firestore_v1_Write_update_tag:
@@ -159,22 +156,19 @@ std::string google_firestore_v1_Write::ToString(int indent) const {
         result += PrintMessageField("current_document ", current_document, indent + 1, true);
     }
 
-    std::string tail = Indent(is_root ? 0 : indent) + '}';
+    std::string tail = PrintTail(is_root, indent);
     return header + result + tail;
 }
 
 std::string google_firestore_v1_DocumentTransform::ToString(int indent) const {
-    std::string result;
-
     bool is_root = indent == 0;
-    std::string header;
     if (is_root) {
         indent = 1;
-        auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-        absl::StrAppend(&header, "<DocumentTransform 0x", p, ">: {\n");
-    } else {
-        header = "{\n";
     }
+
+    std::string header = PrintHeader(is_root, "DocumentTransform", this);
+
+    std::string result;
 
     result += PrintPrimitiveField("document: ", document, indent + 1, false);
     for (pb_size_t i = 0; i != field_transforms_count; ++i) {
@@ -182,7 +176,7 @@ std::string google_firestore_v1_DocumentTransform::ToString(int indent) const {
     }
 
     if (!result.empty() || is_root) {
-      std::string tail = Indent(is_root ? 0 : indent) + '}';
+      std::string tail = PrintTail(is_root, indent);
       return header + result + tail;
     } else {
       return "";
@@ -190,17 +184,14 @@ std::string google_firestore_v1_DocumentTransform::ToString(int indent) const {
 }
 
 std::string google_firestore_v1_DocumentTransform_FieldTransform::ToString(int indent) const {
-    std::string result;
-
     bool is_root = indent == 0;
-    std::string header;
     if (is_root) {
         indent = 1;
-        auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-        absl::StrAppend(&header, "<FieldTransform 0x", p, ">: {\n");
-    } else {
-        header = "{\n";
     }
+
+    std::string header = PrintHeader(is_root, "FieldTransform", this);
+
+    std::string result;
 
     result += PrintPrimitiveField("field_path: ", field_path, indent + 1, false);
     switch (which_transform_type) {
@@ -226,7 +217,7 @@ std::string google_firestore_v1_DocumentTransform_FieldTransform::ToString(int i
 
 
     if (!result.empty() || is_root) {
-      std::string tail = Indent(is_root ? 0 : indent) + '}';
+      std::string tail = PrintTail(is_root, indent);
       return header + result + tail;
     } else {
       return "";
@@ -234,17 +225,14 @@ std::string google_firestore_v1_DocumentTransform_FieldTransform::ToString(int i
 }
 
 std::string google_firestore_v1_WriteResult::ToString(int indent) const {
-    std::string result;
-
     bool is_root = indent == 0;
-    std::string header;
     if (is_root) {
         indent = 1;
-        auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-        absl::StrAppend(&header, "<WriteResult 0x", p, ">: {\n");
-    } else {
-        header = "{\n";
     }
+
+    std::string header = PrintHeader(is_root, "WriteResult", this);
+
+    std::string result;
 
     if (has_update_time) {
         result += PrintMessageField("update_time ", update_time, indent + 1, true);
@@ -253,22 +241,19 @@ std::string google_firestore_v1_WriteResult::ToString(int indent) const {
         result += PrintMessageField("transform_results ", transform_results[i], indent + 1, true);
     }
 
-    std::string tail = Indent(is_root ? 0 : indent) + '}';
+    std::string tail = PrintTail(is_root, indent);
     return header + result + tail;
 }
 
 std::string google_firestore_v1_DocumentChange::ToString(int indent) const {
-    std::string result;
-
     bool is_root = indent == 0;
-    std::string header;
     if (is_root) {
         indent = 1;
-        auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-        absl::StrAppend(&header, "<DocumentChange 0x", p, ">: {\n");
-    } else {
-        header = "{\n";
     }
+
+    std::string header = PrintHeader(is_root, "DocumentChange", this);
+
+    std::string result;
 
     result += PrintMessageField("document ", document, indent + 1, false);
     for (pb_size_t i = 0; i != target_ids_count; ++i) {
@@ -278,22 +263,19 @@ std::string google_firestore_v1_DocumentChange::ToString(int indent) const {
         result += PrintPrimitiveField("removed_target_ids: ", removed_target_ids[i], indent + 1, true);
     }
 
-    std::string tail = Indent(is_root ? 0 : indent) + '}';
+    std::string tail = PrintTail(is_root, indent);
     return header + result + tail;
 }
 
 std::string google_firestore_v1_DocumentDelete::ToString(int indent) const {
-    std::string result;
-
     bool is_root = indent == 0;
-    std::string header;
     if (is_root) {
         indent = 1;
-        auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-        absl::StrAppend(&header, "<DocumentDelete 0x", p, ">: {\n");
-    } else {
-        header = "{\n";
     }
+
+    std::string header = PrintHeader(is_root, "DocumentDelete", this);
+
+    std::string result;
 
     result += PrintPrimitiveField("document: ", document, indent + 1, false);
     if (has_read_time) {
@@ -303,22 +285,19 @@ std::string google_firestore_v1_DocumentDelete::ToString(int indent) const {
         result += PrintPrimitiveField("removed_target_ids: ", removed_target_ids[i], indent + 1, true);
     }
 
-    std::string tail = Indent(is_root ? 0 : indent) + '}';
+    std::string tail = PrintTail(is_root, indent);
     return header + result + tail;
 }
 
 std::string google_firestore_v1_DocumentRemove::ToString(int indent) const {
-    std::string result;
-
     bool is_root = indent == 0;
-    std::string header;
     if (is_root) {
         indent = 1;
-        auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-        absl::StrAppend(&header, "<DocumentRemove 0x", p, ">: {\n");
-    } else {
-        header = "{\n";
     }
+
+    std::string header = PrintHeader(is_root, "DocumentRemove", this);
+
+    std::string result;
 
     result += PrintPrimitiveField("document: ", document, indent + 1, false);
     for (pb_size_t i = 0; i != removed_target_ids_count; ++i) {
@@ -326,28 +305,25 @@ std::string google_firestore_v1_DocumentRemove::ToString(int indent) const {
     }
     result += PrintMessageField("read_time ", read_time, indent + 1, false);
 
-    std::string tail = Indent(is_root ? 0 : indent) + '}';
+    std::string tail = PrintTail(is_root, indent);
     return header + result + tail;
 }
 
 std::string google_firestore_v1_ExistenceFilter::ToString(int indent) const {
-    std::string result;
-
     bool is_root = indent == 0;
-    std::string header;
     if (is_root) {
         indent = 1;
-        auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-        absl::StrAppend(&header, "<ExistenceFilter 0x", p, ">: {\n");
-    } else {
-        header = "{\n";
     }
+
+    std::string header = PrintHeader(is_root, "ExistenceFilter", this);
+
+    std::string result;
 
     result += PrintPrimitiveField("target_id: ", target_id, indent + 1, false);
     result += PrintPrimitiveField("count: ", count, indent + 1, false);
 
     if (!result.empty() || is_root) {
-      std::string tail = Indent(is_root ? 0 : indent) + '}';
+      std::string tail = PrintTail(is_root, indent);
       return header + result + tail;
     } else {
       return "";

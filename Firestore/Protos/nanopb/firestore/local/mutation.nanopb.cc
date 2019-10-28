@@ -71,23 +71,20 @@ PB_STATIC_ASSERT((pb_membersize(firestore_client_WriteBatch, local_write_time) <
 
 
 std::string firestore_client_MutationQueue::ToString(int indent) const {
-    std::string result;
-
     bool is_root = indent == 0;
-    std::string header;
     if (is_root) {
         indent = 1;
-        auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-        absl::StrAppend(&header, "<MutationQueue 0x", p, ">: {\n");
-    } else {
-        header = "{\n";
     }
+
+    std::string header = PrintHeader(is_root, "MutationQueue", this);
+
+    std::string result;
 
     result += PrintPrimitiveField("last_acknowledged_batch_id: ", last_acknowledged_batch_id, indent + 1, false);
     result += PrintPrimitiveField("last_stream_token: ", last_stream_token, indent + 1, false);
 
     if (!result.empty() || is_root) {
-      std::string tail = Indent(is_root ? 0 : indent) + '}';
+      std::string tail = PrintTail(is_root, indent);
       return header + result + tail;
     } else {
       return "";
@@ -95,17 +92,14 @@ std::string firestore_client_MutationQueue::ToString(int indent) const {
 }
 
 std::string firestore_client_WriteBatch::ToString(int indent) const {
-    std::string result;
-
     bool is_root = indent == 0;
-    std::string header;
     if (is_root) {
         indent = 1;
-        auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-        absl::StrAppend(&header, "<WriteBatch 0x", p, ">: {\n");
-    } else {
-        header = "{\n";
     }
+
+    std::string header = PrintHeader(is_root, "WriteBatch", this);
+
+    std::string result;
 
     result += PrintPrimitiveField("batch_id: ", batch_id, indent + 1, false);
     for (pb_size_t i = 0; i != writes_count; ++i) {
@@ -116,7 +110,7 @@ std::string firestore_client_WriteBatch::ToString(int indent) const {
         result += PrintMessageField("base_writes ", base_writes[i], indent + 1, true);
     }
 
-    std::string tail = Indent(is_root ? 0 : indent) + '}';
+    std::string tail = PrintTail(is_root, indent);
     return header + result + tail;
 }
 

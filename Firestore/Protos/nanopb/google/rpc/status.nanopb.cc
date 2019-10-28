@@ -40,17 +40,14 @@ const pb_field_t google_rpc_Status_fields[4] = {
 
 
 std::string google_rpc_Status::ToString(int indent) const {
-    std::string result;
-
     bool is_root = indent == 0;
-    std::string header;
     if (is_root) {
         indent = 1;
-        auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-        absl::StrAppend(&header, "<Status 0x", p, ">: {\n");
-    } else {
-        header = "{\n";
     }
+
+    std::string header = PrintHeader(is_root, "Status", this);
+
+    std::string result;
 
     result += PrintPrimitiveField("code: ", code, indent + 1, false);
     result += PrintPrimitiveField("message: ", message, indent + 1, false);
@@ -59,7 +56,7 @@ std::string google_rpc_Status::ToString(int indent) const {
     }
 
     if (!result.empty() || is_root) {
-      std::string tail = Indent(is_root ? 0 : indent) + '}';
+      std::string tail = PrintTail(is_root, indent);
       return header + result + tail;
     } else {
       return "";

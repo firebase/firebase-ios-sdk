@@ -75,17 +75,14 @@ PB_STATIC_ASSERT((pb_membersize(firestore_client_Target, query) < 256 && pb_memb
 
 
 std::string firestore_client_Target::ToString(int indent) const {
-    std::string result;
-
     bool is_root = indent == 0;
-    std::string header;
     if (is_root) {
         indent = 1;
-        auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-        absl::StrAppend(&header, "<Target 0x", p, ">: {\n");
-    } else {
-        header = "{\n";
     }
+
+    std::string header = PrintHeader(is_root, "Target", this);
+
+    std::string result;
 
     result += PrintPrimitiveField("target_id: ", target_id, indent + 1, false);
     result += PrintMessageField("snapshot_version ", snapshot_version, indent + 1, false);
@@ -101,29 +98,26 @@ std::string firestore_client_Target::ToString(int indent) const {
     }
 
 
-    std::string tail = Indent(is_root ? 0 : indent) + '}';
+    std::string tail = PrintTail(is_root, indent);
     return header + result + tail;
 }
 
 std::string firestore_client_TargetGlobal::ToString(int indent) const {
-    std::string result;
-
     bool is_root = indent == 0;
-    std::string header;
     if (is_root) {
         indent = 1;
-        auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-        absl::StrAppend(&header, "<TargetGlobal 0x", p, ">: {\n");
-    } else {
-        header = "{\n";
     }
+
+    std::string header = PrintHeader(is_root, "TargetGlobal", this);
+
+    std::string result;
 
     result += PrintPrimitiveField("highest_target_id: ", highest_target_id, indent + 1, false);
     result += PrintPrimitiveField("highest_listen_sequence_number: ", highest_listen_sequence_number, indent + 1, false);
     result += PrintMessageField("last_remote_snapshot_version ", last_remote_snapshot_version, indent + 1, false);
     result += PrintPrimitiveField("target_count: ", target_count, indent + 1, false);
 
-    std::string tail = Indent(is_root ? 0 : indent) + '}';
+    std::string tail = PrintTail(is_root, indent);
     return header + result + tail;
 }
 

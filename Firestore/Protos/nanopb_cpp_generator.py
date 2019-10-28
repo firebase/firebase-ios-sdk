@@ -362,17 +362,14 @@ def add_field_printer_definitions(files, file_name, messages):
     f = create_insertion(files, file_name, 'eof')
 
     f.content += '''std::string %s::ToString(int indent) const {
-    std::string result;
-
     bool is_root = indent == 0;
-    std::string header;
     if (is_root) {
         indent = 1;
-        auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-        absl::StrAppend(&header, "<%s 0x", p, ">: {\\n");
-    } else {
-        header = "{\\n";
-    }\n\n''' % (m.full_classname, m.short_classname)
+    }
+
+    std::string header = PrintHeader(is_root, "%s", this);
+
+    std::string result;\n\n''' % (m.full_classname, m.short_classname)
 
     for field in m.fields:
       f.content += indent(1) + add_printing_for_field(field) + '\n'
@@ -381,7 +378,7 @@ def add_field_printer_definitions(files, file_name, messages):
     if can_be_empty:
       f.content += '''
     if (!result.empty() || is_root) {
-      std::string tail = Indent(is_root ? 0 : indent) + '}';
+      std::string tail = PrintTail(is_root, indent);
       return header + result + tail;
     } else {
       return "";
@@ -389,7 +386,7 @@ def add_field_printer_definitions(files, file_name, messages):
 }\n\n'''
     else:
       f.content += '''
-    std::string tail = Indent(is_root ? 0 : indent) + '}';
+    std::string tail = PrintTail(is_root, indent);
     return header + result + tail;
 }\n\n'''
 

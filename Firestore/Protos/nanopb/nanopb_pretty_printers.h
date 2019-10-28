@@ -87,6 +87,20 @@ std::string PrintEnumField(absl::string_view name, T value, int indent, bool alw
   return absl::StrCat(Indent(indent), name, EnumToString(value), "\n");
 }
 
+template <typename T>
+std::string PrintHeader(bool is_root, absl::string_view message_name, const T* message_ptr) {
+  if (is_root) {
+      auto p = absl::Hex{reinterpret_cast<uintptr_t>(message_ptr)};
+      return absl::StrCat("<", message_name, "0x", p, ">: {\n");
+  } else {
+      return "{\n";
+  }
+}
+
+inline std::string PrintTail(bool is_root, int indent) {
+  return Indent(is_root ? 0 : indent) + '}';
+}
+
 }  // namespace firestore
 }  // namespace firebase
 

@@ -82,17 +82,14 @@ PB_STATIC_ASSERT((pb_membersize(google_api_HttpRule, custom) < 256), YOU_MUST_DE
 
 
 std::string google_api_Http::ToString(int indent) const {
-    std::string result;
-
     bool is_root = indent == 0;
-    std::string header;
     if (is_root) {
         indent = 1;
-        auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-        absl::StrAppend(&header, "<Http 0x", p, ">: {\n");
-    } else {
-        header = "{\n";
     }
+
+    std::string header = PrintHeader(is_root, "Http", this);
+
+    std::string result;
 
     for (pb_size_t i = 0; i != rules_count; ++i) {
         result += PrintMessageField("rules ", rules[i], indent + 1, true);
@@ -100,7 +97,7 @@ std::string google_api_Http::ToString(int indent) const {
     result += PrintPrimitiveField("fully_decode_reserved_expansion: ", fully_decode_reserved_expansion, indent + 1, false);
 
     if (!result.empty() || is_root) {
-      std::string tail = Indent(is_root ? 0 : indent) + '}';
+      std::string tail = PrintTail(is_root, indent);
       return header + result + tail;
     } else {
       return "";
@@ -108,17 +105,14 @@ std::string google_api_Http::ToString(int indent) const {
 }
 
 std::string google_api_HttpRule::ToString(int indent) const {
-    std::string result;
-
     bool is_root = indent == 0;
-    std::string header;
     if (is_root) {
         indent = 1;
-        auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-        absl::StrAppend(&header, "<HttpRule 0x", p, ">: {\n");
-    } else {
-        header = "{\n";
     }
+
+    std::string header = PrintHeader(is_root, "HttpRule", this);
+
+    std::string result;
 
     result += PrintPrimitiveField("selector: ", selector, indent + 1, false);
     switch (which_pattern) {
@@ -148,7 +142,7 @@ std::string google_api_HttpRule::ToString(int indent) const {
     }
 
     if (!result.empty() || is_root) {
-      std::string tail = Indent(is_root ? 0 : indent) + '}';
+      std::string tail = PrintTail(is_root, indent);
       return header + result + tail;
     } else {
       return "";
@@ -156,23 +150,20 @@ std::string google_api_HttpRule::ToString(int indent) const {
 }
 
 std::string google_api_CustomHttpPattern::ToString(int indent) const {
-    std::string result;
-
     bool is_root = indent == 0;
-    std::string header;
     if (is_root) {
         indent = 1;
-        auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-        absl::StrAppend(&header, "<CustomHttpPattern 0x", p, ">: {\n");
-    } else {
-        header = "{\n";
     }
+
+    std::string header = PrintHeader(is_root, "CustomHttpPattern", this);
+
+    std::string result;
 
     result += PrintPrimitiveField("kind: ", kind, indent + 1, false);
     result += PrintPrimitiveField("path: ", path, indent + 1, false);
 
     if (!result.empty() || is_root) {
-      std::string tail = Indent(is_root ? 0 : indent) + '}';
+      std::string tail = PrintTail(is_root, indent);
       return header + result + tail;
     } else {
       return "";
