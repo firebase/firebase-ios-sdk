@@ -55,6 +55,7 @@
             ? [self bundleIdentifierByRemovingLastPartFrom:bundle.bundleIdentifier]
             : bundle.bundleIdentifier;
 #if TARGET_OS_WATCH
+    // For watch we will need to remove one more layer as it has suffix .WatchKitApp.WatchKitExtension
     applicationBundleIdentifier =
       [GULAppEnvironmentUtil isAppExtension]
           ? [self bundleIdentifierByRemovingLastPartFrom:applicationBundleIdentifier]
