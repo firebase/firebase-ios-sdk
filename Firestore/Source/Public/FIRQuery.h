@@ -259,7 +259,7 @@ NS_SWIFT_NAME(Query)
  * @return The created `FIRQuery`.
  */
 - (FIRQuery *)queryWhereField:(NSString *)field
-             arrayContainsAny:(id)value NS_SWIFT_NAME(whereField(_:arrayContainsAny:));
+             arrayContainsAny:(NSArray<id> *)value NS_SWIFT_NAME(whereField(_:arrayContainsAny:));
 
 /**
  * Creates and returns a new `FIRQuery` with the additional filter that documents must contain
@@ -275,7 +275,8 @@ NS_SWIFT_NAME(Query)
  * @return The created `FIRQuery`.
  */
 - (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path
-                 arrayContainsAny:(id)value NS_SWIFT_NAME(whereField(_:arrayContainsAny:));
+                 arrayContainsAny:(NSArray<id> *)value
+    NS_SWIFT_NAME(whereField(_:arrayContainsAny:));
 
 /**
  * Creates and returns a new `FIRQuery` with the additional filter that documents must contain
@@ -288,7 +289,8 @@ NS_SWIFT_NAME(Query)
  *
  * @return The created `FIRQuery`.
  */
-- (FIRQuery *)queryWhereField:(NSString *)field in:(id)value NS_SWIFT_NAME(whereField(_:in:));
+- (FIRQuery *)queryWhereField:(NSString *)field
+                           in:(NSArray<id> *)value NS_SWIFT_NAME(whereField(_:in:));
 
 /**
  * Creates and returns a new `FIRQuery` with the additional filter that documents must contain
@@ -302,7 +304,7 @@ NS_SWIFT_NAME(Query)
  * @return The created `FIRQuery`.
  */
 - (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path
-                               in:(id)value NS_SWIFT_NAME(whereField(_:in:));
+                               in:(NSArray<id> *)value NS_SWIFT_NAME(whereField(_:in:));
 
 /**
  * Creates and returns a new `FIRQuery` with the additional filter that documents must
