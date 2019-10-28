@@ -329,7 +329,7 @@ def generate_header(files, file_name, file_contents, pretty_printing_info):
     f = files.add()
     f.name = file_name
     f.insertion_point = 'struct:' + p.full_classname
-    f.content = '\n' + ' ' * 4 + 'std::string ToString(int indent = 0) const;\n'
+    f.content = '\n' + indent(1) + 'std::string ToString(int indent = 0) const;\n'
 
   # `EnumToString` declarations
   for enum in pretty_printing_info[base_filename].enums:
@@ -398,7 +398,7 @@ def generate_source(files, file_name, file_contents, pretty_printing_info):
     }\n\n''' % (p.full_classname, p.short_classname)
 
     for field in p.fields:
-      f.content += ' ' * 4 + add_printing_for_field(field) + '\n'
+      f.content += indent(1) + add_printing_for_field(field) + '\n'
 
     can_be_empty = all(f.is_primitive or f.is_repeated for f in p.fields)
     if can_be_empty:
@@ -436,20 +436,20 @@ def add_printing_for_oneof(oneof):
 
   for f in oneof.oneof_member.fields:
     tag_name = '%s_%s_tag' % (oneof.full_classname, f.name)
-    result += ' ' * 4 + 'case %s:' % tag_name
+    result += indent(1) + 'case %s:' % tag_name
 
-    result += '\n' + ' ' * 8 + add_printing_for_leaf(f, oneof, True)
-    result += '\n' + ' ' * 8 + 'break;\n'
+    result += '\n' + indent(2) + add_printing_for_leaf(f, oneof, True)
+    result += '\n' + indent(2) + 'break;\n'
 
-  return result + ' ' * 4 + '}\n'
+  return result + indent(1) + '}\n'
 
 
 def add_printing_for_repeated(field):
   count = field.name + '_count'
 
   result = 'for (pb_size_t i = 0; i != %s; ++i) {\n' % count
-  result += ' ' * 8 + add_printing_for_leaf(field, None, True) + '\n'
-  result += ' ' * 4 + '}'
+  result += indent(2) + add_printing_for_leaf(field, None, True) + '\n'
+  result += indent(1) + '}'
 
   return result
 
@@ -457,8 +457,8 @@ def add_printing_for_repeated(field):
 def add_printing_for_optional(field):
   name = field.name
   result = 'if (has_%s) {\n' % name
-  result += ' ' * 8 + add_printing_for_leaf(field, None, True) + '\n'
-  result += ' ' * 4 + '}'
+  result += indent(2) + add_printing_for_leaf(field, None, True) + '\n'
+  result += indent(1) + '}'
 
   return result
 
@@ -492,21 +492,25 @@ def add_printing_for_leaf(field, parent=None, always_print=False):
 
 
 def begin_namespace(files, filename):
-    f = files.add()
-    f.name = filename
-    f.insertion_point = 'includes'
-    f.content = '''\
+  f = files.add()
+  f.name = filename
+  f.insertion_point = 'includes'
+  f.content = '''\
 namespace firebase {
 namespace firestore {'''
 
 
 def end_namespace(files, file_name):
-    f = files.add()
-    f.name = file_name
-    f.insertion_point = 'eof'
-    f.content = '''\
+  f = files.add()
+  f.name = file_name
+  f.insertion_point = 'eof'
+  f.content = '''\
 }  // namespace firestore
 }  // namespace firebase'''
+
+
+def indent(level):
+  return ' ' * (4 * level)
 
 
   # """Renames a delete symbol to delete_.
