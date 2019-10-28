@@ -214,15 +214,9 @@ class FilePrettyPrintingInfo:
 
 class OneOfMemberPrettyPrintingInfo:
   def __init__(self, field, message):
-    if field.rules != 'ONEOF':
-      raise TypeError('Not a member of oneof')
-
     self.which = 'which_' + field.name
     self.is_anonymous = field.anonymous
     self.fields = [FieldPrettyPrintingInfo(f, message) for f in field.fields]
-
-  def __repr__(self):
-    return 'OneOfPrettyPrintingInfo{which: %s, fields: %s}' % (self.which, self.fields)
 
 
 class FieldPrettyPrintingInfo:
@@ -243,9 +237,6 @@ class FieldPrettyPrintingInfo:
     else:
       self.oneof_member = None
 
-  def __repr__(self):
-    return 'FieldPrettyPrintingInfo{name: %s, is_optional: %s, is_repeated: %s, oneof_member: %s}' % (self.name, self.is_optional, self.is_repeated, self.oneof_member)
-
 
 class EnumPrettyPrintingInfo:
   def __init__(self, enum):
@@ -259,9 +250,6 @@ class MessagePrettyPrintingInfo:
     self.full_classname = str(message.name)
     self.fields = [FieldPrettyPrintingInfo(f, message) for f in message.fields]
     self.fields.sort(key = lambda f: f.tag)
-
-  def __repr__(self):
-    return 'MessagePrettyPrintingInfo{short_classname: %s, full_classname: %s, fields: %s}' % (self.short_classname, self.full_classname, self.fields)
 
 
 def nanopb_generate(request, options, parsed_files):
@@ -395,12 +383,6 @@ def generate_source(files, file_name, file_contents, pretty_printing_info):
     f.name = file_name
     f.insertion_point = 'eof'
 
-    # FIXME Name
-    # f.content += '''
-  # static const char* Name() {
-    #   return "%s";
-  # }\n''' % (p.short_classname)
-
     # ToString
     f.content += '''std::string %s::ToString(int indent) const {
     std::string result;
@@ -507,6 +489,7 @@ def add_printing_for_leaf(field, parent=None, always_print=False):
     function_name = 'PrintMessageField'
 
   return '''result += %s("%s", %s, indent + 1, %s);''' % (function_name, display_name, cc_name, 'true' if always_print else 'false')
+
 
 def begin_namespace(files, filename):
     f = files.add()

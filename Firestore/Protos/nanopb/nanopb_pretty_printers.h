@@ -21,10 +21,9 @@
 
 #include <sstream>
 #include <string>
-#include <type_traits>
 
 #include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
-#include "absl/meta/type_traits.h"
+#include "absl/strings/string_view.h"
 
 namespace firebase {
 namespace firestore {
