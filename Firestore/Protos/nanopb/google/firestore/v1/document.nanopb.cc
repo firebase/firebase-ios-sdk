@@ -21,6 +21,7 @@
 
 #include "absl/strings/str_cat.h"
 #include "nanopb_pretty_printers.h"
+
 namespace firebase {
 namespace firestore {
 /* @@protoc_insertion_point(includes) */
@@ -100,65 +101,66 @@ PB_STATIC_ASSERT((pb_membersize(google_firestore_v1_Document, create_time) < 256
 #endif
 
 
+std::string google_firestore_v1_Document::ToString(int indent) const {
+    std::string result;
 
-  std::string Document::ToString(int indent) const {
-      std::string result;
+    bool is_root = indent == 0;
+    std::string header;
+    if (is_root) {
+        indent = 1;
+        auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+        absl::StrAppend(&header, "<Document 0x", p, ">: {\n");
+    } else {
+        header = "{\n";
+    }
 
-      bool is_root = indent == 0;
-      std::string header;
-      if (is_root) {
-          indent = 1;
-          auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-          absl::StrAppend(&header, "<Document 0x", p, ">: {\n");
-      } else {
-          header = "{\n";
-      }
+    result += PrintField("name: ", name, indent + 1, false);
+    for (pb_size_t i = 0; i != fields_count; ++i) {
+        result += PrintField("fields ", fields[i], indent + 1, true);
+    }
+    result += PrintField("create_time ", create_time, indent + 1, false);
+    if (has_update_time) {
+        result += PrintField("update_time ", update_time, indent + 1, true);
+    }
 
-        result += PrintField("name: ", name, indent + 1, false);
-        for (pb_size_t i = 0; i != fields_count; ++i) {
-            result += PrintField("fields ", fields[i], indent + 1, true);
-        }
-        result += PrintField("create_time ", create_time, indent + 1, false);
-        if (has_update_time) result += PrintField("update_time ", update_time, indent + 1, true);
+    std::string tail = Indent(is_root ? 0 : indent) + '}';
+    return header + result + tail;
+}
 
-      std::string tail = Indent(is_root ? 0 : indent) + '}';
-      return header + result + tail;
-  }
+std::string google_firestore_v1_Document_FieldsEntry::ToString(int indent) const {
+    std::string result;
 
-  std::string FieldsEntry::ToString(int indent) const {
-      std::string result;
+    bool is_root = indent == 0;
+    std::string header;
+    if (is_root) {
+        indent = 1;
+        auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+        absl::StrAppend(&header, "<FieldsEntry 0x", p, ">: {\n");
+    } else {
+        header = "{\n";
+    }
 
-      bool is_root = indent == 0;
-      std::string header;
-      if (is_root) {
-          indent = 1;
-          auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-          absl::StrAppend(&header, "<FieldsEntry 0x", p, ">: {\n");
-      } else {
-          header = "{\n";
-      }
+    result += PrintField("key: ", key, indent + 1, false);
+    result += PrintField("value ", value, indent + 1, false);
 
-        result += PrintField("key: ", key, indent + 1, false);
-        result += PrintField("value ", value, indent + 1, false);
+    std::string tail = Indent(is_root ? 0 : indent) + '}';
+    return header + result + tail;
+}
 
-      std::string tail = Indent(is_root ? 0 : indent) + '}';
-      return header + result + tail;
-  }
+std::string google_firestore_v1_Value::ToString(int indent) const {
+    std::string result;
 
-  std::string Value::ToString(int indent) const {
-      std::string result;
+    bool is_root = indent == 0;
+    std::string header;
+    if (is_root) {
+        indent = 1;
+        auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+        absl::StrAppend(&header, "<Value 0x", p, ">: {\n");
+    } else {
+        header = "{\n";
+    }
 
-      bool is_root = indent == 0;
-      std::string header;
-      if (is_root) {
-          indent = 1;
-          auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-          absl::StrAppend(&header, "<Value 0x", p, ">: {\n");
-      } else {
-          header = "{\n";
-      }
-
-        switch (which_value_type) {
+    switch (which_value_type) {
           case 1: // google_firestore_v1_Value_boolean_value_tag
             result += PrintField("boolean_value: ", boolean_value, indent + 1, true);
             break;
@@ -184,7 +186,7 @@ PB_STATIC_ASSERT((pb_membersize(google_firestore_v1_Document, create_time) < 256
             result += PrintField("timestamp_value ", timestamp_value, indent + 1, true);
             break;
           case 11: // google_firestore_v1_Value_null_value_tag
-            result += PrintEnumField<_google_firestore_v1_Value>(
+            result += PrintEnumField(
               "null_value: : ", null_value, indent + 1);
             break;
           case 17: // google_firestore_v1_Value_string_value_tag
@@ -196,83 +198,83 @@ PB_STATIC_ASSERT((pb_membersize(google_firestore_v1_Document, create_time) < 256
         }
 
 
-      if (!result.empty() || is_root) {
-        std::string tail = Indent(is_root ? 0 : indent) + '}';
-        return header + result + tail;
-      } else {
-        return "";
-      }
-  }
-
-  std::string ArrayValue::ToString(int indent) const {
-      std::string result;
-
-      bool is_root = indent == 0;
-      std::string header;
-      if (is_root) {
-          indent = 1;
-          auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-          absl::StrAppend(&header, "<ArrayValue 0x", p, ">: {\n");
-      } else {
-          header = "{\n";
-      }
-
-        for (pb_size_t i = 0; i != values_count; ++i) {
-            result += PrintField("values ", values[i], indent + 1, true);
-        }
-
-      if (!result.empty() || is_root) {
-        std::string tail = Indent(is_root ? 0 : indent) + '}';
-        return header + result + tail;
-      } else {
-        return "";
-      }
-  }
-
-  std::string MapValue::ToString(int indent) const {
-      std::string result;
-
-      bool is_root = indent == 0;
-      std::string header;
-      if (is_root) {
-          indent = 1;
-          auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-          absl::StrAppend(&header, "<MapValue 0x", p, ">: {\n");
-      } else {
-          header = "{\n";
-      }
-
-        for (pb_size_t i = 0; i != fields_count; ++i) {
-            result += PrintField("fields ", fields[i], indent + 1, true);
-        }
-
-      if (!result.empty() || is_root) {
-        std::string tail = Indent(is_root ? 0 : indent) + '}';
-        return header + result + tail;
-      } else {
-        return "";
-      }
-  }
-
-  std::string FieldsEntry::ToString(int indent) const {
-      std::string result;
-
-      bool is_root = indent == 0;
-      std::string header;
-      if (is_root) {
-          indent = 1;
-          auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-          absl::StrAppend(&header, "<FieldsEntry 0x", p, ">: {\n");
-      } else {
-          header = "{\n";
-      }
-
-        result += PrintField("key: ", key, indent + 1, false);
-        result += PrintField("value ", value, indent + 1, false);
-
+    if (!result.empty() || is_root) {
       std::string tail = Indent(is_root ? 0 : indent) + '}';
       return header + result + tail;
-  }
+    } else {
+      return "";
+    }
+}
+
+std::string google_firestore_v1_ArrayValue::ToString(int indent) const {
+    std::string result;
+
+    bool is_root = indent == 0;
+    std::string header;
+    if (is_root) {
+        indent = 1;
+        auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+        absl::StrAppend(&header, "<ArrayValue 0x", p, ">: {\n");
+    } else {
+        header = "{\n";
+    }
+
+    for (pb_size_t i = 0; i != values_count; ++i) {
+        result += PrintField("values ", values[i], indent + 1, true);
+    }
+
+    if (!result.empty() || is_root) {
+      std::string tail = Indent(is_root ? 0 : indent) + '}';
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}
+
+std::string google_firestore_v1_MapValue::ToString(int indent) const {
+    std::string result;
+
+    bool is_root = indent == 0;
+    std::string header;
+    if (is_root) {
+        indent = 1;
+        auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+        absl::StrAppend(&header, "<MapValue 0x", p, ">: {\n");
+    } else {
+        header = "{\n";
+    }
+
+    for (pb_size_t i = 0; i != fields_count; ++i) {
+        result += PrintField("fields ", fields[i], indent + 1, true);
+    }
+
+    if (!result.empty() || is_root) {
+      std::string tail = Indent(is_root ? 0 : indent) + '}';
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}
+
+std::string google_firestore_v1_MapValue_FieldsEntry::ToString(int indent) const {
+    std::string result;
+
+    bool is_root = indent == 0;
+    std::string header;
+    if (is_root) {
+        indent = 1;
+        auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+        absl::StrAppend(&header, "<FieldsEntry 0x", p, ">: {\n");
+    } else {
+        header = "{\n";
+    }
+
+    result += PrintField("key: ", key, indent + 1, false);
+    result += PrintField("value ", value, indent + 1, false);
+
+    std::string tail = Indent(is_root ? 0 : indent) + '}';
+    return header + result + tail;
+}
 
 }  // namespace firestore
 }  // namespace firebase

@@ -22,6 +22,7 @@
 #include <pb.h>
 
 #include <string>
+
 namespace firebase {
 namespace firestore {
 /* @@protoc_insertion_point(includes) */
@@ -42,14 +43,16 @@ typedef enum _google_protobuf_NullValue {
 typedef struct _google_protobuf_ListValue {
     pb_size_t values_count;
     struct _google_protobuf_Value *values;
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_protobuf_ListValue) */
 } google_protobuf_ListValue;
 
 typedef struct _google_protobuf_Struct {
     pb_size_t fields_count;
     struct _google_protobuf_Struct_FieldsEntry *fields;
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_protobuf_Struct) */
 } google_protobuf_Struct;
 
@@ -63,14 +66,16 @@ typedef struct _google_protobuf_Value {
         google_protobuf_Struct struct_value;
         google_protobuf_ListValue list_value;
     };
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_protobuf_Value) */
 } google_protobuf_Value;
 
 typedef struct _google_protobuf_Struct_FieldsEntry {
     pb_bytes_array_t *key;
     google_protobuf_Value value;
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_protobuf_Struct_FieldsEntry) */
 } google_protobuf_Struct_FieldsEntry;
 
@@ -117,7 +122,6 @@ extern const pb_field_t google_protobuf_ListValue_fields[2];
 
 
 #endif
-
 
 }  // namespace firestore
 }  // namespace firebase

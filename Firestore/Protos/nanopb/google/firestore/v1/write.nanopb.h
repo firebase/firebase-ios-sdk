@@ -30,6 +30,7 @@
 #include "google/protobuf/timestamp.nanopb.h"
 
 #include <string>
+
 namespace firebase {
 namespace firestore {
 /* @@protoc_insertion_point(includes) */
@@ -52,7 +53,8 @@ typedef struct _google_firestore_v1_DocumentTransform {
     pb_bytes_array_t *document;
     pb_size_t field_transforms_count;
     struct _google_firestore_v1_DocumentTransform_FieldTransform *field_transforms;
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_DocumentTransform) */
 } google_firestore_v1_DocumentTransform;
 
@@ -62,7 +64,8 @@ typedef struct _google_firestore_v1_DocumentChange {
     int32_t *target_ids;
     pb_size_t removed_target_ids_count;
     int32_t *removed_target_ids;
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_DocumentChange) */
 } google_firestore_v1_DocumentChange;
 
@@ -72,7 +75,8 @@ typedef struct _google_firestore_v1_DocumentDelete {
     google_protobuf_Timestamp read_time;
     pb_size_t removed_target_ids_count;
     int32_t *removed_target_ids;
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_DocumentDelete) */
 } google_firestore_v1_DocumentDelete;
 
@@ -81,7 +85,8 @@ typedef struct _google_firestore_v1_DocumentRemove {
     pb_size_t removed_target_ids_count;
     int32_t *removed_target_ids;
     google_protobuf_Timestamp read_time;
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_DocumentRemove) */
 } google_firestore_v1_DocumentRemove;
 
@@ -96,14 +101,16 @@ typedef struct _google_firestore_v1_DocumentTransform_FieldTransform {
         google_firestore_v1_ArrayValue append_missing_elements;
         google_firestore_v1_ArrayValue remove_all_from_array;
     };
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_DocumentTransform_FieldTransform) */
 } google_firestore_v1_DocumentTransform_FieldTransform;
 
 typedef struct _google_firestore_v1_ExistenceFilter {
     int32_t target_id;
     int32_t count;
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_ExistenceFilter) */
 } google_firestore_v1_ExistenceFilter;
 
@@ -118,7 +125,8 @@ typedef struct _google_firestore_v1_Write {
     google_firestore_v1_DocumentMask update_mask;
     bool has_current_document;
     google_firestore_v1_Precondition current_document;
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_Write) */
 } google_firestore_v1_Write;
 
@@ -127,7 +135,8 @@ typedef struct _google_firestore_v1_WriteResult {
     google_protobuf_Timestamp update_time;
     pb_size_t transform_results_count;
     struct _google_firestore_v1_Value *transform_results;
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_WriteResult) */
 } google_firestore_v1_WriteResult;
 
@@ -207,7 +216,6 @@ extern const pb_field_t google_firestore_v1_ExistenceFilter_fields[3];
 
 
 #endif
-
 
 }  // namespace firestore
 }  // namespace firebase

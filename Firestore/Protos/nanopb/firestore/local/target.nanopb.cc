@@ -21,6 +21,7 @@
 
 #include "absl/strings/str_cat.h"
 #include "nanopb_pretty_printers.h"
+
 namespace firebase {
 namespace firestore {
 /* @@protoc_insertion_point(includes) */
@@ -73,25 +74,24 @@ PB_STATIC_ASSERT((pb_membersize(firestore_client_Target, query) < 256 && pb_memb
 #endif
 
 
+std::string firestore_client_Target::ToString(int indent) const {
+    std::string result;
 
-  std::string Target::ToString(int indent) const {
-      std::string result;
+    bool is_root = indent == 0;
+    std::string header;
+    if (is_root) {
+        indent = 1;
+        auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+        absl::StrAppend(&header, "<Target 0x", p, ">: {\n");
+    } else {
+        header = "{\n";
+    }
 
-      bool is_root = indent == 0;
-      std::string header;
-      if (is_root) {
-          indent = 1;
-          auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-          absl::StrAppend(&header, "<Target 0x", p, ">: {\n");
-      } else {
-          header = "{\n";
-      }
-
-        result += PrintField("target_id: ", target_id, indent + 1, false);
-        result += PrintField("snapshot_version ", snapshot_version, indent + 1, false);
-        result += PrintField("resume_token: ", resume_token, indent + 1, false);
-        result += PrintField("last_listen_sequence_number: ", last_listen_sequence_number, indent + 1, false);
-        switch (which_target_type) {
+    result += PrintField("target_id: ", target_id, indent + 1, false);
+    result += PrintField("snapshot_version ", snapshot_version, indent + 1, false);
+    result += PrintField("resume_token: ", resume_token, indent + 1, false);
+    result += PrintField("last_listen_sequence_number: ", last_listen_sequence_number, indent + 1, false);
+    switch (which_target_type) {
           case 5: // firestore_client_Target_query_tag
             result += PrintField("query ", query, indent + 1, true);
             break;
@@ -101,31 +101,31 @@ PB_STATIC_ASSERT((pb_membersize(firestore_client_Target, query) < 256 && pb_memb
         }
 
 
-      std::string tail = Indent(is_root ? 0 : indent) + '}';
-      return header + result + tail;
-  }
+    std::string tail = Indent(is_root ? 0 : indent) + '}';
+    return header + result + tail;
+}
 
-  std::string TargetGlobal::ToString(int indent) const {
-      std::string result;
+std::string firestore_client_TargetGlobal::ToString(int indent) const {
+    std::string result;
 
-      bool is_root = indent == 0;
-      std::string header;
-      if (is_root) {
-          indent = 1;
-          auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-          absl::StrAppend(&header, "<TargetGlobal 0x", p, ">: {\n");
-      } else {
-          header = "{\n";
-      }
+    bool is_root = indent == 0;
+    std::string header;
+    if (is_root) {
+        indent = 1;
+        auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+        absl::StrAppend(&header, "<TargetGlobal 0x", p, ">: {\n");
+    } else {
+        header = "{\n";
+    }
 
-        result += PrintField("highest_target_id: ", highest_target_id, indent + 1, false);
-        result += PrintField("highest_listen_sequence_number: ", highest_listen_sequence_number, indent + 1, false);
-        result += PrintField("last_remote_snapshot_version ", last_remote_snapshot_version, indent + 1, false);
-        result += PrintField("target_count: ", target_count, indent + 1, false);
+    result += PrintField("highest_target_id: ", highest_target_id, indent + 1, false);
+    result += PrintField("highest_listen_sequence_number: ", highest_listen_sequence_number, indent + 1, false);
+    result += PrintField("last_remote_snapshot_version ", last_remote_snapshot_version, indent + 1, false);
+    result += PrintField("target_count: ", target_count, indent + 1, false);
 
-      std::string tail = Indent(is_root ? 0 : indent) + '}';
-      return header + result + tail;
-  }
+    std::string tail = Indent(is_root ? 0 : indent) + '}';
+    return header + result + tail;
+}
 
 }  // namespace firestore
 }  // namespace firebase

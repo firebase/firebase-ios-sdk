@@ -38,6 +38,7 @@
 #include "google/rpc/status.nanopb.h"
 
 #include <string>
+
 namespace firebase {
 namespace firestore {
 /* @@protoc_insertion_point(includes) */
@@ -61,7 +62,8 @@ typedef enum _google_firestore_v1_TargetChange_TargetChangeType {
 /* Struct definitions */
 typedef struct _google_firestore_v1_BeginTransactionResponse {
     pb_bytes_array_t *transaction;
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_BeginTransactionResponse) */
 } google_firestore_v1_BeginTransactionResponse;
 
@@ -70,7 +72,8 @@ typedef struct _google_firestore_v1_CommitRequest {
     pb_size_t writes_count;
     struct _google_firestore_v1_Write *writes;
     pb_bytes_array_t *transaction;
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_CommitRequest) */
 } google_firestore_v1_CommitRequest;
 
@@ -78,7 +81,8 @@ typedef struct _google_firestore_v1_ListCollectionIdsResponse {
     pb_size_t collection_ids_count;
     pb_bytes_array_t **collection_ids;
     pb_bytes_array_t *next_page_token;
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_ListCollectionIdsResponse) */
 } google_firestore_v1_ListCollectionIdsResponse;
 
@@ -86,28 +90,32 @@ typedef struct _google_firestore_v1_ListDocumentsResponse {
     pb_size_t documents_count;
     struct _google_firestore_v1_Document *documents;
     pb_bytes_array_t *next_page_token;
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_ListDocumentsResponse) */
 } google_firestore_v1_ListDocumentsResponse;
 
 typedef struct _google_firestore_v1_ListenRequest_LabelsEntry {
     pb_bytes_array_t *key;
     pb_bytes_array_t *value;
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_ListenRequest_LabelsEntry) */
 } google_firestore_v1_ListenRequest_LabelsEntry;
 
 typedef struct _google_firestore_v1_RollbackRequest {
     pb_bytes_array_t *database;
     pb_bytes_array_t *transaction;
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_RollbackRequest) */
 } google_firestore_v1_RollbackRequest;
 
 typedef struct _google_firestore_v1_Target_DocumentsTarget {
     pb_size_t documents_count;
     pb_bytes_array_t **documents;
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_Target_DocumentsTarget) */
 } google_firestore_v1_Target_DocumentsTarget;
 
@@ -119,14 +127,16 @@ typedef struct _google_firestore_v1_WriteRequest {
     pb_bytes_array_t *stream_token;
     pb_size_t labels_count;
     struct _google_firestore_v1_WriteRequest_LabelsEntry *labels;
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_WriteRequest) */
 } google_firestore_v1_WriteRequest;
 
 typedef struct _google_firestore_v1_WriteRequest_LabelsEntry {
     pb_bytes_array_t *key;
     pb_bytes_array_t *value;
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_WriteRequest_LabelsEntry) */
 } google_firestore_v1_WriteRequest_LabelsEntry;
 
@@ -141,7 +151,8 @@ typedef struct _google_firestore_v1_BatchGetDocumentsRequest {
         google_firestore_v1_TransactionOptions new_transaction;
         google_protobuf_Timestamp read_time;
     };
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_BatchGetDocumentsRequest) */
 } google_firestore_v1_BatchGetDocumentsRequest;
 
@@ -153,14 +164,16 @@ typedef struct _google_firestore_v1_BatchGetDocumentsResponse {
     };
     pb_bytes_array_t *transaction;
     google_protobuf_Timestamp read_time;
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_BatchGetDocumentsResponse) */
 } google_firestore_v1_BatchGetDocumentsResponse;
 
 typedef struct _google_firestore_v1_BeginTransactionRequest {
     pb_bytes_array_t *database;
     google_firestore_v1_TransactionOptions options;
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_BeginTransactionRequest) */
 } google_firestore_v1_BeginTransactionRequest;
 
@@ -168,7 +181,8 @@ typedef struct _google_firestore_v1_CommitResponse {
     pb_size_t write_results_count;
     struct _google_firestore_v1_WriteResult *write_results;
     google_protobuf_Timestamp commit_time;
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_CommitResponse) */
 } google_firestore_v1_CommitResponse;
 
@@ -178,14 +192,16 @@ typedef struct _google_firestore_v1_CreateDocumentRequest {
     pb_bytes_array_t *document_id;
     google_firestore_v1_Document document;
     google_firestore_v1_DocumentMask mask;
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_CreateDocumentRequest) */
 } google_firestore_v1_CreateDocumentRequest;
 
 typedef struct _google_firestore_v1_DeleteDocumentRequest {
     pb_bytes_array_t *name;
     google_firestore_v1_Precondition current_document;
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_DeleteDocumentRequest) */
 } google_firestore_v1_DeleteDocumentRequest;
 
@@ -197,7 +213,8 @@ typedef struct _google_firestore_v1_GetDocumentRequest {
         pb_bytes_array_t *transaction;
         google_protobuf_Timestamp read_time;
     };
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_GetDocumentRequest) */
 } google_firestore_v1_GetDocumentRequest;
 
@@ -205,7 +222,8 @@ typedef struct _google_firestore_v1_ListCollectionIdsRequest {
     pb_bytes_array_t *parent;
     int32_t page_size;
     pb_bytes_array_t *page_token;
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_ListCollectionIdsRequest) */
 } google_firestore_v1_ListCollectionIdsRequest;
 
@@ -222,7 +240,8 @@ typedef struct _google_firestore_v1_ListDocumentsRequest {
         google_protobuf_Timestamp read_time;
     };
     bool show_missing;
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_ListDocumentsRequest) */
 } google_firestore_v1_ListDocumentsRequest;
 
@@ -238,7 +257,8 @@ typedef struct _google_firestore_v1_RunQueryRequest {
         google_firestore_v1_TransactionOptions new_transaction;
         google_protobuf_Timestamp read_time;
     } consistency_selector;
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_RunQueryRequest) */
 } google_firestore_v1_RunQueryRequest;
 
@@ -247,7 +267,8 @@ typedef struct _google_firestore_v1_RunQueryResponse {
     pb_bytes_array_t *transaction;
     google_protobuf_Timestamp read_time;
     int32_t skipped_results;
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_RunQueryResponse) */
 } google_firestore_v1_RunQueryResponse;
 
@@ -259,7 +280,8 @@ typedef struct _google_firestore_v1_TargetChange {
     google_rpc_Status cause;
     pb_bytes_array_t *resume_token;
     google_protobuf_Timestamp read_time;
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_TargetChange) */
 } google_firestore_v1_TargetChange;
 
@@ -269,7 +291,8 @@ typedef struct _google_firestore_v1_Target_QueryTarget {
     union {
         google_firestore_v1_StructuredQuery structured_query;
     };
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_Target_QueryTarget) */
 } google_firestore_v1_Target_QueryTarget;
 
@@ -278,7 +301,8 @@ typedef struct _google_firestore_v1_UpdateDocumentRequest {
     google_firestore_v1_DocumentMask update_mask;
     google_firestore_v1_DocumentMask mask;
     google_firestore_v1_Precondition current_document;
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_UpdateDocumentRequest) */
 } google_firestore_v1_UpdateDocumentRequest;
 
@@ -288,7 +312,8 @@ typedef struct _google_firestore_v1_WriteResponse {
     pb_size_t write_results_count;
     struct _google_firestore_v1_WriteResult *write_results;
     google_protobuf_Timestamp commit_time;
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_WriteResponse) */
 } google_firestore_v1_WriteResponse;
 
@@ -301,7 +326,8 @@ typedef struct _google_firestore_v1_ListenResponse {
         google_firestore_v1_ExistenceFilter filter;
         google_firestore_v1_DocumentRemove document_remove;
     };
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_ListenResponse) */
 } google_firestore_v1_ListenResponse;
 
@@ -318,7 +344,8 @@ typedef struct _google_firestore_v1_Target {
     } resume_type;
     int32_t target_id;
     bool once;
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_Target) */
 } google_firestore_v1_Target;
 
@@ -331,7 +358,8 @@ typedef struct _google_firestore_v1_ListenRequest {
     };
     pb_size_t labels_count;
     struct _google_firestore_v1_ListenRequest_LabelsEntry *labels;
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_ListenRequest) */
 } google_firestore_v1_ListenRequest;
 
@@ -556,7 +584,6 @@ extern const pb_field_t google_firestore_v1_ListCollectionIdsResponse_fields[3];
 
 
 #endif
-
 
 }  // namespace firestore
 }  // namespace firebase

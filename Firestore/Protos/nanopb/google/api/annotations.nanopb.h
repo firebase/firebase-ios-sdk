@@ -24,6 +24,7 @@
 #include "google/api/http.nanopb.h"
 
 #include <string>
+
 namespace firebase {
 namespace firestore {
 /* @@protoc_insertion_point(includes) */
@@ -35,7 +36,6 @@ namespace firestore {
 /* Extensions */
 /* Extension field google_api_http was skipped because only "optional"
    type of extension fields is currently supported. */
-
 
 }  // namespace firestore
 }  // namespace firebase

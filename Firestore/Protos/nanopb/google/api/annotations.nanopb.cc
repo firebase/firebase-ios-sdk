@@ -21,6 +21,7 @@
 
 #include "absl/strings/str_cat.h"
 #include "nanopb_pretty_printers.h"
+
 namespace firebase {
 namespace firestore {
 /* @@protoc_insertion_point(includes) */
@@ -36,7 +37,6 @@ namespace firestore {
 #if !defined(PB_FIELD_32BIT)
 #error Field descriptor for google_api_http_struct.http is too large. Define PB_FIELD_32BIT to fix this.
 #endif
-
 
 
 }  // namespace firestore

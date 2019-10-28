@@ -339,7 +339,7 @@ def generate_header(files, file_name, file_contents, pretty_printing_info):
   f = files.add()
   f.name = file_name
   f.insertion_point = 'includes'
-  f.content = '#include <string>\n'
+  f.content = '#include <string>\n\n'
 
   begin_namespace(files, file_name)
 
@@ -349,7 +349,7 @@ def generate_header(files, file_name, file_contents, pretty_printing_info):
     f = files.add()
     f.name = file_name
     f.insertion_point = 'struct:' + p.full_classname
-    f.content = ' ' * 8 + 'std::string ToString(int indent = 0) const;\n'
+    f.content = '\n' + ' ' * 4 + 'std::string ToString(int indent = 0) const;\n'
 
   end_namespace(files, file_name)
 
@@ -365,7 +365,7 @@ def generate_source(files, file_name, file_contents, pretty_printing_info):
   f.name = file_name
   f.insertion_point = 'includes'
   f.content = '''#include "absl/strings/str_cat.h"
-#include "nanopb_pretty_printers.h"\n'''
+#include "nanopb_pretty_printers.h"\n\n'''
 
   begin_namespace(files, file_name)
 
@@ -380,20 +380,19 @@ def generate_source(files, file_name, file_contents, pretty_printing_info):
     for field in p.fields:
       if not field.is_enum:
         continue
-      f.content += '''
-  static const char* EnumToString(
-    %s value) {
-      switch (value) {''' % (field.enum_name)
+      f.content += '''static const char* EnumToString(
+  %s value) {
+    switch (value) {''' % (field.enum_name)
       for enum_member_name in field.enum_members:
         full_name = str(enum_member_name)
         short_name = full_name.replace('%s_' % field.enum_name, '')
         f.content += '''
-        case %s:
-          return "%s";''' % (full_name, short_name)
+    case %s:
+      return "%s";''' % (full_name, short_name)
       f.content += '''
-      }
-      return "<unknown enum value>";
-  }\n'''
+    }
+    return "<unknown enum value>";
+}\n\n'''
 
   # Printers
   for p in pretty_printing_info[base_filename]:
@@ -408,38 +407,37 @@ def generate_source(files, file_name, file_contents, pretty_printing_info):
   # }\n''' % (p.short_classname)
 
     # ToString
-    f.content += '''
-  std::string %s::ToString(int indent) const {
-      std::string result;
+    f.content += '''std::string %s::ToString(int indent) const {
+    std::string result;
 
-      bool is_root = indent == 0;
-      std::string header;
-      if (is_root) {
-          indent = 1;
-          auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-          absl::StrAppend(&header, "<%s 0x", p, ">: {\\n");
-      } else {
-          header = "{\\n";
-      }\n\n''' % (p.short_classname, p.short_classname)
+    bool is_root = indent == 0;
+    std::string header;
+    if (is_root) {
+        indent = 1;
+        auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+        absl::StrAppend(&header, "<%s 0x", p, ">: {\\n");
+    } else {
+        header = "{\\n";
+    }\n\n''' % (p.full_classname, p.short_classname)
 
     for field in p.fields:
-      f.content += ' ' * 8 + add_printing_for_field(field) + '\n'
+      f.content += ' ' * 4 + add_printing_for_field(field) + '\n'
 
     can_be_empty = all(f.is_primitive or f.is_repeated for f in p.fields)
     if can_be_empty:
       f.content += '''
-      if (!result.empty() || is_root) {
-        std::string tail = Indent(is_root ? 0 : indent) + '}';
-        return header + result + tail;
-      } else {
-        return "";
-      }
-  }'''
-    else:
-      f.content += '''
+    if (!result.empty() || is_root) {
       std::string tail = Indent(is_root ? 0 : indent) + '}';
       return header + result + tail;
-  }'''
+    } else {
+      return "";
+    }
+}\n\n'''
+    else:
+      f.content += '''
+    std::string tail = Indent(is_root ? 0 : indent) + '}';
+    return header + result + tail;
+}\n\n'''
 
   end_namespace(files, file_name)
 
@@ -474,15 +472,19 @@ def add_printing_for_repeated(field):
   count = field.name + '_count'
 
   result = 'for (pb_size_t i = 0; i != %s; ++i) {\n' % count
-  result += ' ' * 12 + add_printing_for_leaf(field, None, True) + '\n'
-  result += ' ' * 8 + '}'
+  result += ' ' * 8 + add_printing_for_leaf(field, None, True) + '\n'
+  result += ' ' * 4 + '}'
 
   return result
 
 
 def add_printing_for_optional(field):
   name = field.name
-  return 'if (has_%s) ' % name + add_printing_for_leaf(field, None, True)
+  result = 'if (has_%s) {\n' % name
+  result += ' ' * 8 + add_printing_for_leaf(field, None, True) + '\n'
+  result += ' ' * 4 + '}'
+
+  return result
 
 
 def add_printing_for_leaf(field, parent=None, always_print=False):
@@ -499,9 +501,8 @@ def add_printing_for_leaf(field, parent=None, always_print=False):
     display_name += ' '
 
   if field.is_enum:
-    class_name = '_' + field.full_classname
-    return '''result += PrintEnumField<%s>(
-              "%s: ", %s, indent + 1);''' % (class_name, display_name, cc_name)
+    return '''result += PrintEnumField(
+              "%s: ", %s, indent + 1);''' % (display_name, cc_name)
   else:
     return '''result += PrintField("%s", %s, indent + 1, %s);''' % (display_name, cc_name, 'true' if always_print else 'false')
 
@@ -510,7 +511,8 @@ def begin_namespace(files, filename):
     f = files.add()
     f.name = filename
     f.insertion_point = 'includes'
-    f.content = '''namespace firebase {
+    f.content = '''\
+namespace firebase {
 namespace firestore {'''
 
 
@@ -518,7 +520,7 @@ def end_namespace(files, file_name):
     f = files.add()
     f.name = file_name
     f.insertion_point = 'eof'
-    f.content = '''
+    f.content = '''\
 }  // namespace firestore
 }  // namespace firebase'''
 

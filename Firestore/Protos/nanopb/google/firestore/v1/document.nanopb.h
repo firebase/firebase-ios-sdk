@@ -30,6 +30,7 @@
 #include "google/type/latlng.nanopb.h"
 
 #include <string>
+
 namespace firebase {
 namespace firestore {
 /* @@protoc_insertion_point(includes) */
@@ -42,14 +43,16 @@ namespace firestore {
 typedef struct _google_firestore_v1_ArrayValue {
     pb_size_t values_count;
     struct _google_firestore_v1_Value *values;
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_ArrayValue) */
 } google_firestore_v1_ArrayValue;
 
 typedef struct _google_firestore_v1_MapValue {
     pb_size_t fields_count;
     struct _google_firestore_v1_MapValue_FieldsEntry *fields;
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_MapValue) */
 } google_firestore_v1_MapValue;
 
@@ -60,7 +63,8 @@ typedef struct _google_firestore_v1_Document {
     google_protobuf_Timestamp create_time;
     bool has_update_time;
     google_protobuf_Timestamp update_time;
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_Document) */
 } google_firestore_v1_Document;
 
@@ -79,21 +83,24 @@ typedef struct _google_firestore_v1_Value {
         pb_bytes_array_t *string_value;
         pb_bytes_array_t *bytes_value;
     };
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_Value) */
 } google_firestore_v1_Value;
 
 typedef struct _google_firestore_v1_Document_FieldsEntry {
     pb_bytes_array_t *key;
     google_firestore_v1_Value value;
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_Document_FieldsEntry) */
 } google_firestore_v1_Document_FieldsEntry;
 
 typedef struct _google_firestore_v1_MapValue_FieldsEntry {
     pb_bytes_array_t *key;
     google_firestore_v1_Value value;
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_MapValue_FieldsEntry) */
 } google_firestore_v1_MapValue_FieldsEntry;
 
@@ -159,7 +166,6 @@ extern const pb_field_t google_firestore_v1_MapValue_FieldsEntry_fields[3];
 
 
 #endif
-
 
 }  // namespace firestore
 }  // namespace firebase

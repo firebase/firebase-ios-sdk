@@ -22,6 +22,7 @@
 #include <pb.h>
 
 #include <string>
+
 namespace firebase {
 namespace firestore {
 /* @@protoc_insertion_point(includes) */
@@ -33,7 +34,8 @@ namespace firestore {
 /* Struct definitions */
 typedef struct _google_protobuf_Empty {
     char dummy_field;
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_protobuf_Empty) */
 } google_protobuf_Empty;
 
@@ -58,7 +60,6 @@ extern const pb_field_t google_protobuf_Empty_fields[1];
 
 
 #endif
-
 
 }  // namespace firestore
 }  // namespace firebase

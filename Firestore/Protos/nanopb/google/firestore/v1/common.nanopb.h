@@ -26,6 +26,7 @@
 #include "google/protobuf/timestamp.nanopb.h"
 
 #include <string>
+
 namespace firebase {
 namespace firestore {
 /* @@protoc_insertion_point(includes) */
@@ -38,13 +39,15 @@ namespace firestore {
 typedef struct _google_firestore_v1_DocumentMask {
     pb_size_t field_paths_count;
     pb_bytes_array_t **field_paths;
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_DocumentMask) */
 } google_firestore_v1_DocumentMask;
 
 typedef struct _google_firestore_v1_TransactionOptions_ReadWrite {
     pb_bytes_array_t *retry_transaction;
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_TransactionOptions_ReadWrite) */
 } google_firestore_v1_TransactionOptions_ReadWrite;
 
@@ -54,7 +57,8 @@ typedef struct _google_firestore_v1_Precondition {
         bool exists;
         google_protobuf_Timestamp update_time;
     };
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_Precondition) */
 } google_firestore_v1_Precondition;
 
@@ -63,7 +67,8 @@ typedef struct _google_firestore_v1_TransactionOptions_ReadOnly {
     union {
         google_protobuf_Timestamp read_time;
     };
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_TransactionOptions_ReadOnly) */
 } google_firestore_v1_TransactionOptions_ReadOnly;
 
@@ -73,7 +78,8 @@ typedef struct _google_firestore_v1_TransactionOptions {
         google_firestore_v1_TransactionOptions_ReadOnly read_only;
         google_firestore_v1_TransactionOptions_ReadWrite read_write;
     };
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_TransactionOptions) */
 } google_firestore_v1_TransactionOptions;
 
@@ -121,7 +127,6 @@ extern const pb_field_t google_firestore_v1_TransactionOptions_ReadOnly_fields[2
 
 
 #endif
-
 
 }  // namespace firestore
 }  // namespace firebase

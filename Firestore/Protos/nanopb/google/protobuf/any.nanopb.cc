@@ -21,6 +21,7 @@
 
 #include "absl/strings/str_cat.h"
 #include "nanopb_pretty_printers.h"
+
 namespace firebase {
 namespace firestore {
 /* @@protoc_insertion_point(includes) */
@@ -37,30 +38,29 @@ const pb_field_t google_protobuf_Any_fields[3] = {
 };
 
 
+std::string google_protobuf_Any::ToString(int indent) const {
+    std::string result;
 
-  std::string Any::ToString(int indent) const {
-      std::string result;
+    bool is_root = indent == 0;
+    std::string header;
+    if (is_root) {
+        indent = 1;
+        auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+        absl::StrAppend(&header, "<Any 0x", p, ">: {\n");
+    } else {
+        header = "{\n";
+    }
 
-      bool is_root = indent == 0;
-      std::string header;
-      if (is_root) {
-          indent = 1;
-          auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-          absl::StrAppend(&header, "<Any 0x", p, ">: {\n");
-      } else {
-          header = "{\n";
-      }
+    result += PrintField("type_url: ", type_url, indent + 1, false);
+    result += PrintField("value: ", value, indent + 1, false);
 
-        result += PrintField("type_url: ", type_url, indent + 1, false);
-        result += PrintField("value: ", value, indent + 1, false);
-
-      if (!result.empty() || is_root) {
-        std::string tail = Indent(is_root ? 0 : indent) + '}';
-        return header + result + tail;
-      } else {
-        return "";
-      }
-  }
+    if (!result.empty() || is_root) {
+      std::string tail = Indent(is_root ? 0 : indent) + '}';
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}
 
 }  // namespace firestore
 }  // namespace firebase

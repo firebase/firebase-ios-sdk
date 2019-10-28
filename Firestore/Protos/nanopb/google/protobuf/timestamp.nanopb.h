@@ -22,6 +22,7 @@
 #include <pb.h>
 
 #include <string>
+
 namespace firebase {
 namespace firestore {
 /* @@protoc_insertion_point(includes) */
@@ -34,7 +35,8 @@ namespace firestore {
 typedef struct _google_protobuf_Timestamp {
     int64_t seconds;
     int32_t nanos;
-        std::string ToString(int indent = 0) const;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_protobuf_Timestamp) */
 } google_protobuf_Timestamp;
 
@@ -61,7 +63,6 @@ extern const pb_field_t google_protobuf_Timestamp_fields[3];
 
 
 #endif
-
 
 }  // namespace firestore
 }  // namespace firebase
