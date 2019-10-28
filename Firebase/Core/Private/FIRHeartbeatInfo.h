@@ -11,12 +11,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRHeartbeatInfo : NSObject
 
-typedef enum Heartbeat {
-  NONE = 0,
-  SDK = 1,
-  GLOBAL = 2,
-  COMBINED = 3,
-} Heartbeat;
+typedef NS_ENUM(NSInteger, Heartbeat) {
+  kFIRHeartbeatInfoNone = 0,
+  kFIRHeartbeatInfoSdk = 1,
+  kFIRHeartbeatInfoGlobal = 2,
+  kFIRHeartbeatInfoCombined = 3,
+};
 
 + (NSURL *)filePathURLWithName:(NSString *)fileName;
 

@@ -44,18 +44,20 @@ static GULLoggerService kFIRHeartbeatInfo = @"FIRHeartbeatInfo";
 }
 
 + (BOOL)getOrUpdateHeartbeat:(NSString *)prefKey {
-  NSString *const kHeartbeatStorageFile = @"HEARTBEAT_INFO_STORAGE";
-  GULStorageHeartbeat *dataStorage = [[GULStorageHeartbeat alloc]
-      initWithFileURL:[[self class] filePathURLWithName:kHeartbeatStorageFile]];
-  NSDate *heartbeatTime = [dataStorage heartbeatDateForTag:prefKey];
-  NSDate *currentDate = [NSDate date];
-  if (heartbeatTime != nil) {
-    NSTimeInterval secondsBetween = [currentDate timeIntervalSinceDate:heartbeatTime];
-    if (secondsBetween < 84000) {
-      return false;
+  @synchronized(self) {
+    NSString *const kHeartbeatStorageFile = @"HEARTBEAT_INFO_STORAGE";
+    GULStorageHeartbeat *dataStorage = [[GULStorageHeartbeat alloc]
+        initWithFileURL:[[self class] filePathURLWithName:kHeartbeatStorageFile]];
+    NSDate *heartbeatTime = [dataStorage heartbeatDateForTag:prefKey];
+    NSDate *currentDate = [NSDate date];
+    if (heartbeatTime != nil) {
+      NSTimeInterval secondsBetween = [currentDate timeIntervalSinceDate:heartbeatTime];
+      if (secondsBetween < 84000) {
+        return false;
+      }
     }
+    return [dataStorage setHearbeatDate:currentDate forTag:prefKey];
   }
-  return [dataStorage setHearbeatDate:currentDate forTag:prefKey];
 }
 
 + (enum Heartbeat)getHeartbeatCode:(NSString *)heartbeatTag {
@@ -64,16 +66,16 @@ static GULLoggerService kFIRHeartbeatInfo = @"FIRHeartbeatInfo";
   BOOL isGlobalHeartbeatNeeded = [FIRHeartbeatInfo getOrUpdateHeartbeat:globalTag];
   if (!isSdkHeartbeatNeeded && !isGlobalHeartbeatNeeded) {
     // Both sdk and global heartbeat not needed.
-    return NONE;
+    return kFIRHeartbeatInfoNone;
   } else if (isSdkHeartbeatNeeded && !isGlobalHeartbeatNeeded) {
-    // Only sdk heartbeat needed.
-    return SDK;
+    // Only SDK heartbeat needed.
+    return kFIRHeartbeatInfoSdk;
   } else if (!isSdkHeartbeatNeeded && isGlobalHeartbeatNeeded) {
     // Only global heartbeat needed.
-    return GLOBAL;
+    return kFIRHeartbeatInfoGlobal;
   } else {
     // Both sdk and global heartbeat are needed.
-    return COMBINED;
+    return kFIRHeartbeatInfoCombined;
   }
 }
 @end
