@@ -468,33 +468,43 @@ def add_printing_for_field(field):
 
 def add_printing_for_oneof(oneof):
   which = oneof.oneof_member.which
-  result = indent(1) + 'switch (%s) {\n' % (which)
+  result = '''\
+    switch (%s) {\n''' % (which)
 
   for f in oneof.oneof_member.fields:
     tag_name = '%s_%s_tag' % (oneof.full_classname, f.name)
-    result += indent(1) + 'case %s:' % tag_name
+    result += '''\
+    case %s:\n''' % tag_name
 
-    result += '\n' + add_printing_for_leaf(f, indent=2, parent=oneof, always_print=True)
-    result += indent(2) + 'break;\n'
+    result += add_printing_for_leaf(f, indent=2, parent=oneof, always_print=True)
+    result += '''\
+        break;\n'''
 
-  return result + indent(1) + '}\n'
+  result += '''\
+    }\n'''
+
+  return result
 
 
 def add_printing_for_repeated(field):
   count = field.name + '_count'
 
-  result = indent(1) + 'for (pb_size_t i = 0; i != %s; ++i) {\n' % count
+  result = '''\
+    for (pb_size_t i = 0; i != %s; ++i) {\n''' % count
   result += add_printing_for_leaf(field, indent=2, always_print=True)
-  result += indent(1) + '}\n'
+  result += '''\
+    }\n'''
 
   return result
 
 
 def add_printing_for_optional(field):
   name = field.name
-  result = indent(1) + 'if (has_%s) {\n' % name
+  result = '''\
+    if (has_%s) {\n''' % name
   result += add_printing_for_leaf(field, indent=2, always_print=True)
-  result += indent(1) + '}\n'
+  result += '''\
+    }\n'''
 
   return result
 
