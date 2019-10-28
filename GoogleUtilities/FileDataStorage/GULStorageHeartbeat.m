@@ -39,7 +39,7 @@
   NSError *error;
   NSData *objectData = [NSData dataWithContentsOfURL:self.fileURL options:0 error:&error];
   if(error != nil) {
-    return [NSMutableDictionary alloc];
+    return [NSMutableDictionary dictionary];
   }
   NSMutableDictionary *dict = [NSKeyedUnarchiver unarchiveObjectWithData:objectData];
   return dict;
