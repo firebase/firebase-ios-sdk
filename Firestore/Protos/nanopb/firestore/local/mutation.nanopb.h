@@ -97,11 +97,13 @@ typedef struct _firestore_client_WriteBatch {
         }
 
         result += PrintField("batch_id: ", batch_id, indent + 1, false);
-        result += PrintRepeatedField("writes ",
-            writes, writes_count, indent + 1);
+        for (pb_size_t i = 0; i != writes_count; ++i) {
+            result += PrintField("writes ", writes[i], indent + 1, true);
+        }
         result += PrintField("local_write_time ", local_write_time, indent + 1, false);
-        result += PrintRepeatedField("base_writes ",
-            base_writes, base_writes_count, indent + 1);
+        for (pb_size_t i = 0; i != base_writes_count; ++i) {
+            result += PrintField("base_writes ", base_writes[i], indent + 1, true);
+        }
 
         std::string tail = Indent(is_root ? 0 : indent) + '}';
         return header + result + tail;

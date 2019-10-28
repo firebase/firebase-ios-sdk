@@ -62,8 +62,9 @@ typedef struct _google_firestore_v1_ArrayValue {
             header = "{\n";
         }
 
-        result += PrintRepeatedField("values ",
-            values, values_count, indent + 1);
+        for (pb_size_t i = 0; i != values_count; ++i) {
+            result += PrintField("values ", values[i], indent + 1, true);
+        }
 
         if (!result.empty() || is_root) {
           std::string tail = Indent(is_root ? 0 : indent) + '}';
@@ -96,8 +97,9 @@ typedef struct _google_firestore_v1_MapValue {
             header = "{\n";
         }
 
-        result += PrintRepeatedField("fields ",
-            fields, fields_count, indent + 1);
+        for (pb_size_t i = 0; i != fields_count; ++i) {
+            result += PrintField("fields ", fields[i], indent + 1, true);
+        }
 
         if (!result.empty() || is_root) {
           std::string tail = Indent(is_root ? 0 : indent) + '}';
@@ -135,8 +137,9 @@ typedef struct _google_firestore_v1_Document {
         }
 
         result += PrintField("name: ", name, indent + 1, false);
-        result += PrintRepeatedField("fields ",
-            fields, fields_count, indent + 1);
+        for (pb_size_t i = 0; i != fields_count; ++i) {
+            result += PrintField("fields ", fields[i], indent + 1, true);
+        }
         result += PrintField("create_time ", create_time, indent + 1, false);
         if (has_update_time) result += PrintField("update_time ", update_time, indent + 1, true);
 
@@ -205,7 +208,8 @@ typedef struct _google_firestore_v1_Value {
             result += PrintField("timestamp_value ", timestamp_value, indent + 1, true);
             break;
           case 11: // google_firestore_v1_Value_null_value_tag
-            result += PrintField("null_value: ", null_value, indent + 1, true);
+            result += PrintEnumField<_google_firestore_v1_Value>(
+              "null_value: : ", null_value, indent + 1);
             break;
           case 17: // google_firestore_v1_Value_string_value_tag
             result += PrintField("string_value: ", string_value, indent + 1, true);

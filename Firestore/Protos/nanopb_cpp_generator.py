@@ -430,73 +430,66 @@ namespace firestore {'''
   return response
 
 
-def add_printing_for_field(field, parent=None, always_print=False):
+def add_printing_for_field(field):
   if field.is_optional:
     return add_printing_for_optional(field)
   elif field.is_repeated:
     return add_printing_for_repeated(field)
   elif field.oneof_member:
     return add_printing_for_oneof(field)
-  elif field.is_enum:
-    return add_printing_for_enum(field)
   else:
-    return add_printing_for_singular(field, parent, always_print)
+    return add_printing_for_leaf(field)
 
 
-def add_printing_for_oneof(parent):
-  which = parent.oneof_member.which
+def add_printing_for_oneof(oneof):
+  which = oneof.oneof_member.which
   result = 'switch (%s) {\n' % (which)
 
-  for f in parent.oneof_member.fields:
-    tag_name = '%s_%s_tag' % (parent.full_classname, f.name)
+  for f in oneof.oneof_member.fields:
+    tag_name = '%s_%s_tag' % (oneof.full_classname, f.name)
     # FIXME add comment
     result += ' ' * 10 + 'case %s: // %s' % (f.tag, tag_name)
 
-    result += '\n' + ' ' * 12 + add_printing_for_field(f, parent)
+    result += '\n' + ' ' * 12 + add_printing_for_leaf(f, oneof, True)
     result += '\n' + ' ' * 12 + 'break;\n'
 
   return result + ' ' * 8 + '}\n'
 
 
 def add_printing_for_repeated(field):
-  name = field.name
-  count = name + '_count'
+  count = field.name + '_count'
 
-  print_name = name
-  if field.is_primitive:
-    print_name += ': '
-  else:
-    print_name += ' '
+  result = 'for (pb_size_t i = 0; i != %s; ++i) {\n' % count
+  result += ' ' * 12 + add_printing_for_leaf(field, None, True) + '\n'
+  result += ' ' * 8 + '}'
 
-  return 'result += PrintRepeatedField("%s",' % (print_name) + '''
-            %s, %s, indent + 1);''' % (name, count)
+  return result
 
 
 def add_printing_for_optional(field):
   name = field.name
-  return 'if (has_%s) ' % (name) + add_printing_for_singular(field, None, True)
+  return 'if (has_%s) ' % name + add_printing_for_leaf(field, None, True)
 
 
-def add_printing_for_enum(field):
-  name = field.name
-  class_name = '_' + field.full_classname
-  return '''result += PrintEnumField<%s>(
-            "%s: ", %s, indent + 1);''' % (class_name, name, name)
-
-
-def add_printing_for_singular(field, parent=None, always_print=False):
+def add_printing_for_leaf(field, parent=None, always_print=False):
   display_name = field.name
   cc_name = display_name
   if parent and not parent.oneof_member.is_anonymous:
     cc_name = parent.name + '.' + cc_name
-  always_print = always_print or bool(parent)
+  if field.is_repeated:
+    cc_name += '[i]'
 
   if field.is_primitive:
     display_name += ': '
   else:
     display_name += ' '
 
-  return '''result += PrintField("%s", %s, indent + 1, %s);''' % (display_name, cc_name, 'true' if always_print else 'false')
+  if field.is_enum:
+    class_name = '_' + field.full_classname
+    return '''result += PrintEnumField<%s>(
+              "%s: ", %s, indent + 1);''' % (class_name, display_name, cc_name)
+  else:
+    return '''result += PrintField("%s", %s, indent + 1, %s);''' % (display_name, cc_name, 'true' if always_print else 'false')
 
 
 # TODO:

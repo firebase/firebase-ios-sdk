@@ -58,8 +58,9 @@ typedef struct _google_firestore_v1_DocumentMask {
             header = "{\n";
         }
 
-        result += PrintRepeatedField("field_paths: ",
-            field_paths, field_paths_count, indent + 1);
+        for (pb_size_t i = 0; i != field_paths_count; ++i) {
+            result += PrintField("field_paths: ", field_paths[i], indent + 1, true);
+        }
 
         if (!result.empty() || is_root) {
           std::string tail = Indent(is_root ? 0 : indent) + '}';

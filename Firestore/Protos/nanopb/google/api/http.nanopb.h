@@ -89,8 +89,9 @@ typedef struct _google_api_Http {
             header = "{\n";
         }
 
-        result += PrintRepeatedField("rules ",
-            rules, rules_count, indent + 1);
+        for (pb_size_t i = 0; i != rules_count; ++i) {
+            result += PrintField("rules ", rules[i], indent + 1, true);
+        }
         result += PrintField("fully_decode_reserved_expansion: ", fully_decode_reserved_expansion, indent + 1, false);
 
         if (!result.empty() || is_root) {
@@ -158,8 +159,9 @@ typedef struct _google_api_HttpRule {
         }
 
         result += PrintField("body: ", body, indent + 1, false);
-        result += PrintRepeatedField("additional_bindings ",
-            additional_bindings, additional_bindings_count, indent + 1);
+        for (pb_size_t i = 0; i != additional_bindings_count; ++i) {
+            result += PrintField("additional_bindings ", additional_bindings[i], indent + 1, true);
+        }
 
         if (!result.empty() || is_root) {
           std::string tail = Indent(is_root ? 0 : indent) + '}';

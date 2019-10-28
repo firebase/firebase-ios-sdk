@@ -117,8 +117,9 @@ typedef struct _google_firestore_v1_CommitRequest {
         }
 
         result += PrintField("database: ", database, indent + 1, false);
-        result += PrintRepeatedField("writes ",
-            writes, writes_count, indent + 1);
+        for (pb_size_t i = 0; i != writes_count; ++i) {
+            result += PrintField("writes ", writes[i], indent + 1, true);
+        }
         result += PrintField("transaction: ", transaction, indent + 1, false);
 
         if (!result.empty() || is_root) {
@@ -153,8 +154,9 @@ typedef struct _google_firestore_v1_ListCollectionIdsResponse {
             header = "{\n";
         }
 
-        result += PrintRepeatedField("collection_ids: ",
-            collection_ids, collection_ids_count, indent + 1);
+        for (pb_size_t i = 0; i != collection_ids_count; ++i) {
+            result += PrintField("collection_ids: ", collection_ids[i], indent + 1, true);
+        }
         result += PrintField("next_page_token: ", next_page_token, indent + 1, false);
 
         if (!result.empty() || is_root) {
@@ -189,8 +191,9 @@ typedef struct _google_firestore_v1_ListDocumentsResponse {
             header = "{\n";
         }
 
-        result += PrintRepeatedField("documents ",
-            documents, documents_count, indent + 1);
+        for (pb_size_t i = 0; i != documents_count; ++i) {
+            result += PrintField("documents ", documents[i], indent + 1, true);
+        }
         result += PrintField("next_page_token: ", next_page_token, indent + 1, false);
 
         if (!result.empty() || is_root) {
@@ -292,8 +295,9 @@ typedef struct _google_firestore_v1_Target_DocumentsTarget {
             header = "{\n";
         }
 
-        result += PrintRepeatedField("documents: ",
-            documents, documents_count, indent + 1);
+        for (pb_size_t i = 0; i != documents_count; ++i) {
+            result += PrintField("documents: ", documents[i], indent + 1, true);
+        }
 
         if (!result.empty() || is_root) {
           std::string tail = Indent(is_root ? 0 : indent) + '}';
@@ -333,11 +337,13 @@ typedef struct _google_firestore_v1_WriteRequest {
 
         result += PrintField("database: ", database, indent + 1, false);
         result += PrintField("stream_id: ", stream_id, indent + 1, false);
-        result += PrintRepeatedField("writes ",
-            writes, writes_count, indent + 1);
+        for (pb_size_t i = 0; i != writes_count; ++i) {
+            result += PrintField("writes ", writes[i], indent + 1, true);
+        }
         result += PrintField("stream_token: ", stream_token, indent + 1, false);
-        result += PrintRepeatedField("labels ",
-            labels, labels_count, indent + 1);
+        for (pb_size_t i = 0; i != labels_count; ++i) {
+            result += PrintField("labels ", labels[i], indent + 1, true);
+        }
 
         if (!result.empty() || is_root) {
           std::string tail = Indent(is_root ? 0 : indent) + '}';
@@ -413,8 +419,9 @@ typedef struct _google_firestore_v1_BatchGetDocumentsRequest {
         }
 
         result += PrintField("database: ", database, indent + 1, false);
-        result += PrintRepeatedField("documents: ",
-            documents, documents_count, indent + 1);
+        for (pb_size_t i = 0; i != documents_count; ++i) {
+            result += PrintField("documents: ", documents[i], indent + 1, true);
+        }
         result += PrintField("mask ", mask, indent + 1, false);
         switch (which_consistency_selector) {
           case 4: // google_firestore_v1_BatchGetDocumentsRequest_transaction_tag
@@ -531,8 +538,9 @@ typedef struct _google_firestore_v1_CommitResponse {
             header = "{\n";
         }
 
-        result += PrintRepeatedField("write_results ",
-            write_results, write_results_count, indent + 1);
+        for (pb_size_t i = 0; i != write_results_count; ++i) {
+            result += PrintField("write_results ", write_results[i], indent + 1, true);
+        }
         result += PrintField("commit_time ", commit_time, indent + 1, false);
 
         std::string tail = Indent(is_root ? 0 : indent) + '}';
@@ -879,9 +887,10 @@ typedef struct _google_firestore_v1_TargetChange {
         }
 
         result += PrintEnumField<_google_firestore_v1_TargetChange>(
-            "target_change_type: ", target_change_type, indent + 1);
-        result += PrintRepeatedField("target_ids: ",
-            target_ids, target_ids_count, indent + 1);
+              "target_change_type: : ", target_change_type, indent + 1);
+        for (pb_size_t i = 0; i != target_ids_count; ++i) {
+            result += PrintField("target_ids: ", target_ids[i], indent + 1, true);
+        }
         if (has_cause) result += PrintField("cause ", cause, indent + 1, true);
         result += PrintField("resume_token: ", resume_token, indent + 1, false);
         result += PrintField("read_time ", read_time, indent + 1, false);
@@ -994,8 +1003,9 @@ typedef struct _google_firestore_v1_WriteResponse {
 
         result += PrintField("stream_id: ", stream_id, indent + 1, false);
         result += PrintField("stream_token: ", stream_token, indent + 1, false);
-        result += PrintRepeatedField("write_results ",
-            write_results, write_results_count, indent + 1);
+        for (pb_size_t i = 0; i != write_results_count; ++i) {
+            result += PrintField("write_results ", write_results[i], indent + 1, true);
+        }
         result += PrintField("commit_time ", commit_time, indent + 1, false);
 
         std::string tail = Indent(is_root ? 0 : indent) + '}';
@@ -1159,8 +1169,9 @@ typedef struct _google_firestore_v1_ListenRequest {
             break;
         }
 
-        result += PrintRepeatedField("labels ",
-            labels, labels_count, indent + 1);
+        for (pb_size_t i = 0; i != labels_count; ++i) {
+            result += PrintField("labels ", labels[i], indent + 1, true);
+        }
 
         if (!result.empty() || is_root) {
           std::string tail = Indent(is_root ? 0 : indent) + '}';

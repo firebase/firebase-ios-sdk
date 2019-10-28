@@ -73,8 +73,9 @@ typedef struct _google_firestore_v1_DocumentTransform {
         }
 
         result += PrintField("document: ", document, indent + 1, false);
-        result += PrintRepeatedField("field_transforms ",
-            field_transforms, field_transforms_count, indent + 1);
+        for (pb_size_t i = 0; i != field_transforms_count; ++i) {
+            result += PrintField("field_transforms ", field_transforms[i], indent + 1, true);
+        }
 
         if (!result.empty() || is_root) {
           std::string tail = Indent(is_root ? 0 : indent) + '}';
@@ -111,10 +112,12 @@ typedef struct _google_firestore_v1_DocumentChange {
         }
 
         result += PrintField("document ", document, indent + 1, false);
-        result += PrintRepeatedField("target_ids: ",
-            target_ids, target_ids_count, indent + 1);
-        result += PrintRepeatedField("removed_target_ids: ",
-            removed_target_ids, removed_target_ids_count, indent + 1);
+        for (pb_size_t i = 0; i != target_ids_count; ++i) {
+            result += PrintField("target_ids: ", target_ids[i], indent + 1, true);
+        }
+        for (pb_size_t i = 0; i != removed_target_ids_count; ++i) {
+            result += PrintField("removed_target_ids: ", removed_target_ids[i], indent + 1, true);
+        }
 
         std::string tail = Indent(is_root ? 0 : indent) + '}';
         return header + result + tail;
@@ -148,8 +151,9 @@ typedef struct _google_firestore_v1_DocumentDelete {
 
         result += PrintField("document: ", document, indent + 1, false);
         if (has_read_time) result += PrintField("read_time ", read_time, indent + 1, true);
-        result += PrintRepeatedField("removed_target_ids: ",
-            removed_target_ids, removed_target_ids_count, indent + 1);
+        for (pb_size_t i = 0; i != removed_target_ids_count; ++i) {
+            result += PrintField("removed_target_ids: ", removed_target_ids[i], indent + 1, true);
+        }
 
         std::string tail = Indent(is_root ? 0 : indent) + '}';
         return header + result + tail;
@@ -181,8 +185,9 @@ typedef struct _google_firestore_v1_DocumentRemove {
         }
 
         result += PrintField("document: ", document, indent + 1, false);
-        result += PrintRepeatedField("removed_target_ids: ",
-            removed_target_ids, removed_target_ids_count, indent + 1);
+        for (pb_size_t i = 0; i != removed_target_ids_count; ++i) {
+            result += PrintField("removed_target_ids: ", removed_target_ids[i], indent + 1, true);
+        }
         result += PrintField("read_time ", read_time, indent + 1, false);
 
         std::string tail = Indent(is_root ? 0 : indent) + '}';
@@ -223,7 +228,8 @@ typedef struct _google_firestore_v1_DocumentTransform_FieldTransform {
         result += PrintField("field_path: ", field_path, indent + 1, false);
         switch (which_transform_type) {
           case 2: // google_firestore_v1_DocumentTransform_FieldTransform_set_to_server_value_tag
-            result += PrintField("set_to_server_value: ", set_to_server_value, indent + 1, true);
+            result += PrintEnumField<_google_firestore_v1_DocumentTransform_FieldTransform>(
+              "set_to_server_value: : ", set_to_server_value, indent + 1);
             break;
           case 3: // google_firestore_v1_DocumentTransform_FieldTransform_increment_tag
             result += PrintField("increment ", increment, indent + 1, true);
@@ -361,8 +367,9 @@ typedef struct _google_firestore_v1_WriteResult {
         }
 
         if (has_update_time) result += PrintField("update_time ", update_time, indent + 1, true);
-        result += PrintRepeatedField("transform_results ",
-            transform_results, transform_results_count, indent + 1);
+        for (pb_size_t i = 0; i != transform_results_count; ++i) {
+            result += PrintField("transform_results ", transform_results[i], indent + 1, true);
+        }
 
         std::string tail = Indent(is_root ? 0 : indent) + '}';
         return header + result + tail;

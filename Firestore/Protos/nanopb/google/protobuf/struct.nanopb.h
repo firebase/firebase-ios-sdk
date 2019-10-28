@@ -62,8 +62,9 @@ typedef struct _google_protobuf_ListValue {
             header = "{\n";
         }
 
-        result += PrintRepeatedField("values ",
-            values, values_count, indent + 1);
+        for (pb_size_t i = 0; i != values_count; ++i) {
+            result += PrintField("values ", values[i], indent + 1, true);
+        }
 
         if (!result.empty() || is_root) {
           std::string tail = Indent(is_root ? 0 : indent) + '}';
@@ -96,8 +97,9 @@ typedef struct _google_protobuf_Struct {
             header = "{\n";
         }
 
-        result += PrintRepeatedField("fields ",
-            fields, fields_count, indent + 1);
+        for (pb_size_t i = 0; i != fields_count; ++i) {
+            result += PrintField("fields ", fields[i], indent + 1, true);
+        }
 
         if (!result.empty() || is_root) {
           std::string tail = Indent(is_root ? 0 : indent) + '}';
@@ -139,7 +141,8 @@ typedef struct _google_protobuf_Value {
 
         switch (which_kind) {
           case 1: // google_protobuf_Value_null_value_tag
-            result += PrintField("null_value: ", null_value, indent + 1, true);
+            result += PrintEnumField<_google_protobuf_Value>(
+              "null_value: : ", null_value, indent + 1);
             break;
           case 2: // google_protobuf_Value_number_value_tag
             result += PrintField("number_value: ", number_value, indent + 1, true);

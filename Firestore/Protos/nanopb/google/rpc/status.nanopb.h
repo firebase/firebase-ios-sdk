@@ -60,8 +60,9 @@ typedef struct _google_rpc_Status {
 
         result += PrintField("code: ", code, indent + 1, false);
         result += PrintField("message: ", message, indent + 1, false);
-        result += PrintRepeatedField("details ",
-            details, details_count, indent + 1);
+        for (pb_size_t i = 0; i != details_count; ++i) {
+            result += PrintField("details ", details[i], indent + 1, true);
+        }
 
         if (!result.empty() || is_root) {
           std::string tail = Indent(is_root ? 0 : indent) + '}';
