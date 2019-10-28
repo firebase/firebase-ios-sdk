@@ -298,8 +298,11 @@ def nanopb_write(results, pretty_printing_info):
   response = plugin_pb2.CodeGeneratorResponse()
 
   for result in results:
-    generate_header(response.file, result['headername'], result['headerdata'], pretty_printing_info)
-    generate_source(response.file, result['sourcename'], result['sourcedata'], pretty_printing_info)
+    base_filename = result['headername'].replace('.nanopb.h', '')
+    file_printers = pretty_printing_info[base_filename]
+
+    generate_header(response.file, result['headername'], result['headerdata'], file_printers)
+    generate_source(response.file, result['sourcename'], result['sourcedata'], file_printers)
 
   return response
 
@@ -307,60 +310,93 @@ def nanopb_write(results, pretty_printing_info):
 def add_contents(files, file_name, file_contents):
   f = files.add()
   f.name = file_name
-
-  delete_keyword = re.compile(r'\bdelete\b')
-  f.content = delete_keyword.sub('delete_', file_contents)
+  f.content = postprocess(file_contents)
 
 
-def generate_header(files, file_name, file_contents, pretty_printing_info):
+def generate_header(files, file_name, file_contents, file_printers):
   add_contents(files, file_name, file_contents)
 
   # Includes
-  f = files.add()
-  f.name = file_name
-  f.insertion_point = 'includes'
+  f = create_insertion(files, file_name, 'includes')
   f.content = '#include <string>\n\n'
 
   begin_namespace(files, file_name)
 
-  # `ToString` declarations
-  base_filename = file_name.replace('.nanopb.h', '')
-  for p in pretty_printing_info[base_filename].messages:
-    f = files.add()
-    f.name = file_name
-    f.insertion_point = 'struct:' + p.full_classname
-    f.content = '\n' + indent(1) + 'std::string ToString(int indent = 0) const;\n'
-
-  # `EnumToString` declarations
-  for enum in pretty_printing_info[base_filename].enums:
-    f = files.add()
-    f.name = file_name
-    f.insertion_point = 'eof'
-    f.content += '''const char* EnumToString(
-  %s value);\n''' % (enum.name)
+  add_field_printer_declarations(files, file_name, file_printers.messages)
+  add_enum_printer_declarations(files, file_name, file_printers.enums)
 
   end_namespace(files, file_name)
 
 
-def generate_source(files, file_name, file_contents, pretty_printing_info):
+def add_field_printer_declarations(files, file_name, messages):
+  for m in messages:
+    f = create_insertion(files, file_name, 'struct:' + m.full_classname)
+    f.content = '\n' + indent(1) + 'std::string ToString(int indent = 0) const;\n'
+
+
+def add_enum_printer_declarations(files, file_name, enums):
+  for enum in enums:
+    f = create_insertion(files, file_name, 'eof')
+    f.content += '''const char* EnumToString(
+  %s value);\n''' % (enum.name)
+
+
+def generate_source(files, file_name, file_contents, file_printers):
   add_contents(files, file_name, file_contents)
 
   # Includes
-  f = files.add()
-  f.name = file_name
-  f.insertion_point = 'includes'
+  f = create_insertion(files, file_name, 'includes')
   f.content = '''#include "absl/strings/str_cat.h"
 #include "nanopb_pretty_printers.h"\n\n'''
 
   begin_namespace(files, file_name)
 
-  base_filename = file_name.replace('.nanopb.cc', '')
+  add_enum_printer_definitions(files, file_name, file_printers.enums)
+  add_field_printer_definitions(files, file_name, file_printers.messages)
 
-  # Enums
-  for enum in pretty_printing_info[base_filename].enums:
-    f = files.add()
-    f.name = file_name
-    f.insertion_point = 'eof'
+  end_namespace(files, file_name)
+
+
+def add_field_printer_definitions(files, file_name, messages):
+  for m in messages:
+    f = create_insertion(files, file_name, 'eof')
+
+    f.content += '''std::string %s::ToString(int indent) const {
+    std::string result;
+
+    bool is_root = indent == 0;
+    std::string header;
+    if (is_root) {
+        indent = 1;
+        auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+        absl::StrAppend(&header, "<%s 0x", p, ">: {\\n");
+    } else {
+        header = "{\\n";
+    }\n\n''' % (m.full_classname, m.short_classname)
+
+    for field in m.fields:
+      f.content += indent(1) + add_printing_for_field(field) + '\n'
+
+    can_be_empty = all(f.is_primitive or f.is_repeated for f in m.fields)
+    if can_be_empty:
+      f.content += '''
+    if (!result.empty() || is_root) {
+      std::string tail = Indent(is_root ? 0 : indent) + '}';
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}\n\n'''
+    else:
+      f.content += '''
+    std::string tail = Indent(is_root ? 0 : indent) + '}';
+    return header + result + tail;
+}\n\n'''
+
+
+def add_enum_printer_definitions(files, file_name, enums):
+  for enum in enums:
+    f = create_insertion(files, file_name, 'eof')
 
     f.content += '''const char* EnumToString(
   %s value) {
@@ -377,46 +413,12 @@ def generate_source(files, file_name, file_contents, pretty_printing_info):
     return "<unknown enum value>";
 }\n\n'''
 
-  # Printers
-  for p in pretty_printing_info[base_filename].messages:
-    f = files.add()
-    f.name = file_name
-    f.insertion_point = 'eof'
 
-    # ToString
-    f.content += '''std::string %s::ToString(int indent) const {
-    std::string result;
-
-    bool is_root = indent == 0;
-    std::string header;
-    if (is_root) {
-        indent = 1;
-        auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-        absl::StrAppend(&header, "<%s 0x", p, ">: {\\n");
-    } else {
-        header = "{\\n";
-    }\n\n''' % (p.full_classname, p.short_classname)
-
-    for field in p.fields:
-      f.content += indent(1) + add_printing_for_field(field) + '\n'
-
-    can_be_empty = all(f.is_primitive or f.is_repeated for f in p.fields)
-    if can_be_empty:
-      f.content += '''
-    if (!result.empty() || is_root) {
-      std::string tail = Indent(is_root ? 0 : indent) + '}';
-      return header + result + tail;
-    } else {
-      return "";
-    }
-}\n\n'''
-    else:
-      f.content += '''
-    std::string tail = Indent(is_root ? 0 : indent) + '}';
-    return header + result + tail;
-}\n\n'''
-
-  end_namespace(files, file_name)
+def create_insertion(files, file_name, insertion_point):
+  f = files.add()
+  f.name = file_name
+  f.insertion_point = insertion_point
+  return f
 
 
 def add_printing_for_field(field):
@@ -491,19 +493,15 @@ def add_printing_for_leaf(field, parent=None, always_print=False):
   return '''result += %s("%s", %s, indent + 1, %s);''' % (function_name, display_name, cc_name, 'true' if always_print else 'false')
 
 
-def begin_namespace(files, filename):
-  f = files.add()
-  f.name = filename
-  f.insertion_point = 'includes'
+def begin_namespace(files, file_name):
+  f = create_insertion(files, file_name, 'includes')
   f.content = '''\
 namespace firebase {
 namespace firestore {'''
 
 
 def end_namespace(files, file_name):
-  f = files.add()
-  f.name = file_name
-  f.insertion_point = 'eof'
+  f = create_insertion(files, file_name, 'eof')
   f.content = '''\
 }  // namespace firestore
 }  // namespace firebase'''
@@ -513,22 +511,25 @@ def indent(level):
   return ' ' * (4 * level)
 
 
-  # """Renames a delete symbol to delete_.
+def postprocess(file_contents):
+  """Renames a delete symbol to delete_.
 
-  # If a proto uses a field named 'delete', nanopb happily uses that in the
-  # message definition. Works fine for C; not so much for C++.
+  If a proto uses a field named 'delete', nanopb happily uses that in the
+  message definition. Works fine for C; not so much for C++.
 
-  # Args:
-  #   lines: The lines to fix.
+  Args:
+    lines: The lines to fix.
 
-  # Returns:
-  #   The lines, fixed.
-  # """
+  Returns:
+    The lines, fixed.
+  """
+
+  delete_keyword = re.compile(r'\bdelete\b')
+  return delete_keyword.sub('delete_', file_contents)
+
 
 # TODO:
-# 1. Array and oneof should properly print enums.
-#
-# 1. Code cleanup, line breaks in generated code.
+# 1. Line breaks in generated code?
 #
 # Repeated oneof is not supported.
 # Oneofs cannot have repeated members
