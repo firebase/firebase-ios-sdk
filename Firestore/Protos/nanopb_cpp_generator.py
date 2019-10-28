@@ -475,7 +475,7 @@ def add_printing_for_oneof(oneof):
     result += indent(1) + 'case %s:' % tag_name
 
     result += '\n' + add_printing_for_leaf(f, indent=2, parent=oneof, always_print=True)
-    result += '\n' + indent(2) + 'break;\n'
+    result += indent(2) + 'break;\n'
 
   return result + indent(1) + '}\n'
 
@@ -493,8 +493,8 @@ def add_printing_for_repeated(field):
 def add_printing_for_optional(field):
   name = field.name
   result = indent(1) + 'if (has_%s) {\n' % name
-  result += add_printing_for_leaf(field, indent=2, always_print=True) + '\n'
-  result += indent(1) + '}'
+  result += add_printing_for_leaf(field, indent=2, always_print=True)
+  result += indent(1) + '}\n'
 
   return result
 

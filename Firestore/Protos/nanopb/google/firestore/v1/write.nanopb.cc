@@ -140,26 +140,23 @@ std::string google_firestore_v1_Write::ToString(int indent) const {
     switch (which_operation) {
     case google_firestore_v1_Write_update_tag:
         result += PrintMessageField("update ", update, indent + 1, true);
-
         break;
     case google_firestore_v1_Write_delete_tag:
         result += PrintPrimitiveField("delete: ", delete_, indent + 1, true);
-
         break;
     case google_firestore_v1_Write_transform_tag:
         result += PrintMessageField("transform ", transform, indent + 1, true);
-
         break;
     }
     if (has_update_mask) {
         result += PrintMessageField("update_mask ",
             update_mask, indent + 1, true);
-
-    }    if (has_current_document) {
+    }
+    if (has_current_document) {
         result += PrintMessageField("current_document ",
             current_document, indent + 1, true);
-
     }
+
     std::string tail = PrintTail(is_root, indent);
     return header + result + tail;
 }
@@ -202,29 +199,23 @@ std::string google_firestore_v1_DocumentTransform_FieldTransform::ToString(int i
     case google_firestore_v1_DocumentTransform_FieldTransform_set_to_server_value_tag:
         result += PrintEnumField("set_to_server_value: ",
             set_to_server_value, indent + 1, true);
-
         break;
     case google_firestore_v1_DocumentTransform_FieldTransform_increment_tag:
         result += PrintMessageField("increment ", increment, indent + 1, true);
-
         break;
     case google_firestore_v1_DocumentTransform_FieldTransform_maximum_tag:
         result += PrintMessageField("maximum ", maximum, indent + 1, true);
-
         break;
     case google_firestore_v1_DocumentTransform_FieldTransform_minimum_tag:
         result += PrintMessageField("minimum ", minimum, indent + 1, true);
-
         break;
     case google_firestore_v1_DocumentTransform_FieldTransform_append_missing_elements_tag:
         result += PrintMessageField("append_missing_elements ",
             append_missing_elements, indent + 1, true);
-
         break;
     case google_firestore_v1_DocumentTransform_FieldTransform_remove_all_from_array_tag:
         result += PrintMessageField("remove_all_from_array ",
             remove_all_from_array, indent + 1, true);
-
         break;
     }
 
@@ -248,8 +239,8 @@ std::string google_firestore_v1_WriteResult::ToString(int indent) const {
     if (has_update_time) {
         result += PrintMessageField("update_time ",
             update_time, indent + 1, true);
-
-    }    for (pb_size_t i = 0; i != transform_results_count; ++i) {
+    }
+    for (pb_size_t i = 0; i != transform_results_count; ++i) {
         result += PrintMessageField("transform_results ",
             transform_results[i], indent + 1, true);
     }
@@ -293,8 +284,8 @@ std::string google_firestore_v1_DocumentDelete::ToString(int indent) const {
     result += PrintPrimitiveField("document: ", document, indent + 1, false);
     if (has_read_time) {
         result += PrintMessageField("read_time ", read_time, indent + 1, true);
-
-    }    for (pb_size_t i = 0; i != removed_target_ids_count; ++i) {
+    }
+    for (pb_size_t i = 0; i != removed_target_ids_count; ++i) {
         result += PrintPrimitiveField("removed_target_ids: ",
             removed_target_ids[i], indent + 1, true);
     }

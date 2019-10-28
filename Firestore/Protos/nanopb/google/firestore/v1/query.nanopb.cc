@@ -212,8 +212,8 @@ std::string google_firestore_v1_StructuredQuery::ToString(int indent) const {
     }
     if (has_limit) {
         result += PrintMessageField("limit ", limit, indent + 1, true);
-
-    }    result += PrintPrimitiveField("offset: ", offset, indent + 1, false);
+    }
+    result += PrintPrimitiveField("offset: ", offset, indent + 1, false);
     result += PrintMessageField("start_at ", start_at, indent + 1, false);
     result += PrintMessageField("end_at ", end_at, indent + 1, false);
 
@@ -256,17 +256,14 @@ std::string google_firestore_v1_StructuredQuery_Filter::ToString(int indent) con
     case google_firestore_v1_StructuredQuery_Filter_composite_filter_tag:
         result += PrintMessageField("composite_filter ",
             composite_filter, indent + 1, true);
-
         break;
     case google_firestore_v1_StructuredQuery_Filter_field_filter_tag:
         result += PrintMessageField("field_filter ",
             field_filter, indent + 1, true);
-
         break;
     case google_firestore_v1_StructuredQuery_Filter_unary_filter_tag:
         result += PrintMessageField("unary_filter ",
             unary_filter, indent + 1, true);
-
         break;
     }
 
@@ -330,7 +327,6 @@ std::string google_firestore_v1_StructuredQuery_UnaryFilter::ToString(int indent
     switch (which_operand_type) {
     case google_firestore_v1_StructuredQuery_UnaryFilter_field_tag:
         result += PrintMessageField("field ", field, indent + 1, true);
-
         break;
     }
 

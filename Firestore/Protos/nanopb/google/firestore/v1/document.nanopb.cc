@@ -119,8 +119,8 @@ std::string google_firestore_v1_Document::ToString(int indent) const {
     if (has_update_time) {
         result += PrintMessageField("update_time ",
             update_time, indent + 1, true);
-
     }
+
     std::string tail = PrintTail(is_root, indent);
     return header + result + tail;
 }
@@ -154,55 +154,44 @@ std::string google_firestore_v1_Value::ToString(int indent) const {
     case google_firestore_v1_Value_boolean_value_tag:
         result += PrintPrimitiveField("boolean_value: ",
             boolean_value, indent + 1, true);
-
         break;
     case google_firestore_v1_Value_integer_value_tag:
         result += PrintPrimitiveField("integer_value: ",
             integer_value, indent + 1, true);
-
         break;
     case google_firestore_v1_Value_double_value_tag:
         result += PrintPrimitiveField("double_value: ",
             double_value, indent + 1, true);
-
         break;
     case google_firestore_v1_Value_reference_value_tag:
         result += PrintPrimitiveField("reference_value: ",
             reference_value, indent + 1, true);
-
         break;
     case google_firestore_v1_Value_map_value_tag:
         result += PrintMessageField("map_value ", map_value, indent + 1, true);
-
         break;
     case google_firestore_v1_Value_geo_point_value_tag:
         result += PrintMessageField("geo_point_value ",
             geo_point_value, indent + 1, true);
-
         break;
     case google_firestore_v1_Value_array_value_tag:
         result += PrintMessageField("array_value ",
             array_value, indent + 1, true);
-
         break;
     case google_firestore_v1_Value_timestamp_value_tag:
         result += PrintMessageField("timestamp_value ",
             timestamp_value, indent + 1, true);
-
         break;
     case google_firestore_v1_Value_null_value_tag:
         result += PrintEnumField("null_value: ", null_value, indent + 1, true);
-
         break;
     case google_firestore_v1_Value_string_value_tag:
         result += PrintPrimitiveField("string_value: ",
             string_value, indent + 1, true);
-
         break;
     case google_firestore_v1_Value_bytes_value_tag:
         result += PrintPrimitiveField("bytes_value: ",
             bytes_value, indent + 1, true);
-
         break;
     }
 

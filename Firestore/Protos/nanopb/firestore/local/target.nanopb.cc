@@ -93,11 +93,9 @@ std::string firestore_client_Target::ToString(int indent) const {
     switch (which_target_type) {
     case firestore_client_Target_query_tag:
         result += PrintMessageField("query ", query, indent + 1, true);
-
         break;
     case firestore_client_Target_documents_tag:
         result += PrintMessageField("documents ", documents, indent + 1, true);
-
         break;
     }
 

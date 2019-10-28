@@ -294,11 +294,9 @@ std::string google_firestore_v1_GetDocumentRequest::ToString(int indent) const {
     case google_firestore_v1_GetDocumentRequest_transaction_tag:
         result += PrintPrimitiveField("transaction: ",
             transaction, indent + 1, true);
-
         break;
     case google_firestore_v1_GetDocumentRequest_read_time_tag:
         result += PrintMessageField("read_time ", read_time, indent + 1, true);
-
         break;
     }
 
@@ -327,11 +325,9 @@ std::string google_firestore_v1_ListDocumentsRequest::ToString(int indent) const
     case google_firestore_v1_ListDocumentsRequest_transaction_tag:
         result += PrintPrimitiveField("transaction: ",
             transaction, indent + 1, true);
-
         break;
     case google_firestore_v1_ListDocumentsRequest_read_time_tag:
         result += PrintMessageField("read_time ", read_time, indent + 1, true);
-
         break;
     }
     result += PrintPrimitiveField("show_missing: ",
@@ -442,16 +438,13 @@ std::string google_firestore_v1_BatchGetDocumentsRequest::ToString(int indent) c
     case google_firestore_v1_BatchGetDocumentsRequest_transaction_tag:
         result += PrintPrimitiveField("transaction: ",
             transaction, indent + 1, true);
-
         break;
     case google_firestore_v1_BatchGetDocumentsRequest_new_transaction_tag:
         result += PrintMessageField("new_transaction ",
             new_transaction, indent + 1, true);
-
         break;
     case google_firestore_v1_BatchGetDocumentsRequest_read_time_tag:
         result += PrintMessageField("read_time ", read_time, indent + 1, true);
-
         break;
     }
 
@@ -471,11 +464,9 @@ std::string google_firestore_v1_BatchGetDocumentsResponse::ToString(int indent) 
     switch (which_result) {
     case google_firestore_v1_BatchGetDocumentsResponse_found_tag:
         result += PrintMessageField("found ", found, indent + 1, true);
-
         break;
     case google_firestore_v1_BatchGetDocumentsResponse_missing_tag:
         result += PrintPrimitiveField("missing: ", missing, indent + 1, true);
-
         break;
     }
     result += PrintPrimitiveField("transaction: ",
@@ -601,24 +592,20 @@ std::string google_firestore_v1_RunQueryRequest::ToString(int indent) const {
     case google_firestore_v1_RunQueryRequest_structured_query_tag:
         result += PrintMessageField("structured_query ",
             query_type.structured_query, indent + 1, true);
-
         break;
     }
     switch (which_consistency_selector) {
     case google_firestore_v1_RunQueryRequest_transaction_tag:
         result += PrintPrimitiveField("transaction: ",
             consistency_selector.transaction, indent + 1, true);
-
         break;
     case google_firestore_v1_RunQueryRequest_new_transaction_tag:
         result += PrintMessageField("new_transaction ",
             consistency_selector.new_transaction, indent + 1, true);
-
         break;
     case google_firestore_v1_RunQueryRequest_read_time_tag:
         result += PrintMessageField("read_time ",
             consistency_selector.read_time, indent + 1, true);
-
         break;
     }
 
@@ -735,12 +722,10 @@ std::string google_firestore_v1_ListenRequest::ToString(int indent) const {
     case google_firestore_v1_ListenRequest_add_target_tag:
         result += PrintMessageField("add_target ",
             add_target, indent + 1, true);
-
         break;
     case google_firestore_v1_ListenRequest_remove_target_tag:
         result += PrintPrimitiveField("remove_target: ",
             remove_target, indent + 1, true);
-
         break;
     }
     for (pb_size_t i = 0; i != labels_count; ++i) {
@@ -788,26 +773,21 @@ std::string google_firestore_v1_ListenResponse::ToString(int indent) const {
     case google_firestore_v1_ListenResponse_target_change_tag:
         result += PrintMessageField("target_change ",
             target_change, indent + 1, true);
-
         break;
     case google_firestore_v1_ListenResponse_document_change_tag:
         result += PrintMessageField("document_change ",
             document_change, indent + 1, true);
-
         break;
     case google_firestore_v1_ListenResponse_document_delete_tag:
         result += PrintMessageField("document_delete ",
             document_delete, indent + 1, true);
-
         break;
     case google_firestore_v1_ListenResponse_filter_tag:
         result += PrintMessageField("filter ", filter, indent + 1, true);
-
         break;
     case google_firestore_v1_ListenResponse_document_remove_tag:
         result += PrintMessageField("document_remove ",
             document_remove, indent + 1, true);
-
         break;
     }
 
@@ -832,24 +812,20 @@ std::string google_firestore_v1_Target::ToString(int indent) const {
     case google_firestore_v1_Target_query_tag:
         result += PrintMessageField("query ",
             target_type.query, indent + 1, true);
-
         break;
     case google_firestore_v1_Target_documents_tag:
         result += PrintMessageField("documents ",
             target_type.documents, indent + 1, true);
-
         break;
     }
     switch (which_resume_type) {
     case google_firestore_v1_Target_resume_token_tag:
         result += PrintPrimitiveField("resume_token: ",
             resume_type.resume_token, indent + 1, true);
-
         break;
     case google_firestore_v1_Target_read_time_tag:
         result += PrintMessageField("read_time ",
             resume_type.read_time, indent + 1, true);
-
         break;
     }
     result += PrintPrimitiveField("target_id: ", target_id, indent + 1, false);
@@ -899,7 +875,6 @@ std::string google_firestore_v1_Target_QueryTarget::ToString(int indent) const {
     case google_firestore_v1_Target_QueryTarget_structured_query_tag:
         result += PrintMessageField("structured_query ",
             structured_query, indent + 1, true);
-
         break;
     }
 
@@ -928,8 +903,8 @@ std::string google_firestore_v1_TargetChange::ToString(int indent) const {
     }
     if (has_cause) {
         result += PrintMessageField("cause ", cause, indent + 1, true);
-
-    }    result += PrintPrimitiveField("resume_token: ",
+    }
+    result += PrintPrimitiveField("resume_token: ",
         resume_token, indent + 1, false);
     result += PrintMessageField("read_time ", read_time, indent + 1, false);
 

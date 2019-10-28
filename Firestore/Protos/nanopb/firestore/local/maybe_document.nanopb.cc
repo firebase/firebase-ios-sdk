@@ -121,16 +121,13 @@ std::string firestore_client_MaybeDocument::ToString(int indent) const {
     case firestore_client_MaybeDocument_no_document_tag:
         result += PrintMessageField("no_document ",
             no_document, indent + 1, true);
-
         break;
     case firestore_client_MaybeDocument_document_tag:
         result += PrintMessageField("document ", document, indent + 1, true);
-
         break;
     case firestore_client_MaybeDocument_unknown_document_tag:
         result += PrintMessageField("unknown_document ",
             unknown_document, indent + 1, true);
-
         break;
     }
     result += PrintPrimitiveField("has_committed_mutations: ",
