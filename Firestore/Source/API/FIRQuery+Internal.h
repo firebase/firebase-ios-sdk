@@ -56,7 +56,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The created `FIRQuery`.
  */
 // TODO(b/138855186): Expose to public once backend is ready.
-- (FIRQuery *)queryWhereField:(NSString *)field arrayContainsAny:(id)value;
+- (FIRQuery *)queryWhereField:(NSString *)field arrayContainsAny:(NSArray<id> *)value;
 
 /**
  * Creates and returns a new `FIRQuery` with the additional filter that documents must contain
@@ -72,7 +72,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The created `FIRQuery`.
  */
 // TODO(b/138855186): Expose to public once backend is ready.
-- (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path arrayContainsAny:(id)value;
+- (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path arrayContainsAny:(NSArray<id> *)value;
 
 /**
  * Creates and returns a new `FIRQuery` with the additional filter that documents must contain
@@ -86,7 +86,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The created `FIRQuery`.
  */
 // TODO(b/138855186): Expose to public once backend is ready.
-- (FIRQuery *)queryWhereField:(NSString *)field in:(id)value;
+- (FIRQuery *)queryWhereField:(NSString *)field in:(NSArray<id> *)value;
 
 /**
  * Creates and returns a new `FIRQuery` with the additional filter that documents must contain
@@ -100,7 +100,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The created `FIRQuery`.
  */
 // TODO(b/138855186): Expose to public once backend is ready.
-- (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path in:(id)value;
+- (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path in:(NSArray<id> *)value;
 
 @end
 
