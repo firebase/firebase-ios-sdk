@@ -1,3 +1,6 @@
+# 2019-11-05 -- v4.1.8
+- [changed] Move reliable message queue database operation off main thread. (#4053)
+
 # 2019-10-22 -- v4.1.7
 - [fixed] Fixed IID and Messaging container instantiation timing issue. (#4030)
 - [changed] Internal cleanup and remove migration logic from document folder to application folder. (#4033, #4045)
