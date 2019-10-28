@@ -79,7 +79,7 @@ std::string PrintField(absl::string_view name, const T& value, int indent, bool 
     if (!always_print) {
       return "";
     } else {
-      return absl::StrCat(Indent(indent), name, "{\n", Indent(indent), "\n");
+      return absl::StrCat(Indent(indent), name, "{\n", Indent(indent), "}\n");
     }
   }
 
