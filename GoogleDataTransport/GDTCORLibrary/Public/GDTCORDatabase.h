@@ -77,7 +77,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @return YES if closing the db was successful, NO otherwise.
  */
--(BOOL)close;
+- (BOOL)close;
 
 @end
 
