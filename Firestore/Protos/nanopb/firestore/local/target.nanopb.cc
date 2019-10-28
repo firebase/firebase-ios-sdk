@@ -84,18 +84,22 @@ std::string firestore_client_Target::ToString(int indent) const {
     std::string result;
 
     result += PrintPrimitiveField("target_id: ", target_id, indent + 1, false);
-    result += PrintMessageField("snapshot_version ", snapshot_version, indent + 1, false);
-    result += PrintPrimitiveField("resume_token: ", resume_token, indent + 1, false);
-    result += PrintPrimitiveField("last_listen_sequence_number: ", last_listen_sequence_number, indent + 1, false);
+    result += PrintMessageField("snapshot_version ",
+        snapshot_version, indent + 1, false);
+    result += PrintPrimitiveField("resume_token: ",
+        resume_token, indent + 1, false);
+    result += PrintPrimitiveField("last_listen_sequence_number: ",
+        last_listen_sequence_number, indent + 1, false);
     switch (which_target_type) {
     case firestore_client_Target_query_tag:
         result += PrintMessageField("query ", query, indent + 1, true);
+
         break;
     case firestore_client_Target_documents_tag:
         result += PrintMessageField("documents ", documents, indent + 1, true);
+
         break;
     }
-
 
     std::string tail = PrintTail(is_root, indent);
     return header + result + tail;
@@ -110,10 +114,14 @@ std::string firestore_client_TargetGlobal::ToString(int indent) const {
     std::string header = PrintHeader(is_root, "TargetGlobal", this);
     std::string result;
 
-    result += PrintPrimitiveField("highest_target_id: ", highest_target_id, indent + 1, false);
-    result += PrintPrimitiveField("highest_listen_sequence_number: ", highest_listen_sequence_number, indent + 1, false);
-    result += PrintMessageField("last_remote_snapshot_version ", last_remote_snapshot_version, indent + 1, false);
-    result += PrintPrimitiveField("target_count: ", target_count, indent + 1, false);
+    result += PrintPrimitiveField("highest_target_id: ",
+        highest_target_id, indent + 1, false);
+    result += PrintPrimitiveField("highest_listen_sequence_number: ",
+        highest_listen_sequence_number, indent + 1, false);
+    result += PrintMessageField("last_remote_snapshot_version ",
+        last_remote_snapshot_version, indent + 1, false);
+    result += PrintPrimitiveField("target_count: ",
+        target_count, indent + 1, false);
 
     std::string tail = PrintTail(is_root, indent);
     return header + result + tail;

@@ -93,7 +93,8 @@ std::string google_api_Http::ToString(int indent) const {
     for (pb_size_t i = 0; i != rules_count; ++i) {
         result += PrintMessageField("rules ", rules[i], indent + 1, true);
     }
-    result += PrintPrimitiveField("fully_decode_reserved_expansion: ", fully_decode_reserved_expansion, indent + 1, false);
+    result += PrintPrimitiveField("fully_decode_reserved_expansion: ",
+        fully_decode_reserved_expansion, indent + 1, false);
 
     if (!result.empty() || is_root) {
       std::string tail = PrintTail(is_root, indent);
@@ -116,27 +117,33 @@ std::string google_api_HttpRule::ToString(int indent) const {
     switch (which_pattern) {
     case google_api_HttpRule_get_tag:
         result += PrintPrimitiveField("get: ", get, indent + 1, true);
+
         break;
     case google_api_HttpRule_put_tag:
         result += PrintPrimitiveField("put: ", put, indent + 1, true);
+
         break;
     case google_api_HttpRule_post_tag:
         result += PrintPrimitiveField("post: ", post, indent + 1, true);
+
         break;
     case google_api_HttpRule_delete_tag:
         result += PrintPrimitiveField("delete: ", delete_, indent + 1, true);
+
         break;
     case google_api_HttpRule_patch_tag:
         result += PrintPrimitiveField("patch: ", patch, indent + 1, true);
+
         break;
     case google_api_HttpRule_custom_tag:
         result += PrintMessageField("custom ", custom, indent + 1, true);
+
         break;
     }
-
     result += PrintPrimitiveField("body: ", body, indent + 1, false);
     for (pb_size_t i = 0; i != additional_bindings_count; ++i) {
-        result += PrintMessageField("additional_bindings ", additional_bindings[i], indent + 1, true);
+        result += PrintMessageField("additional_bindings ",
+            additional_bindings[i], indent + 1, true);
     }
 
     if (!result.empty() || is_root) {

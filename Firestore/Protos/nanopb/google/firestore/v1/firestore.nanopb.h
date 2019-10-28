@@ -585,8 +585,9 @@ extern const pb_field_t google_firestore_v1_ListCollectionIdsResponse_fields[3];
 
 #endif
 
-const char* EnumToString(
-  google_firestore_v1_TargetChange_TargetChangeType value);
+const char* EnumToString(google_firestore_v1_TargetChange_TargetChangeType
+value);
+;
 }  // namespace firestore
 }  // namespace firebase
 /* @@protoc_insertion_point(eof) */

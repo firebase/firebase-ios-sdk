@@ -217,8 +217,9 @@ extern const pb_field_t google_firestore_v1_ExistenceFilter_fields[3];
 
 #endif
 
-const char* EnumToString(
-  google_firestore_v1_DocumentTransform_FieldTransform_ServerValue value);
+const char* EnumToString(google_firestore_v1_DocumentTransform_FieldTransform_ServerValue
+value);
+;
 }  // namespace firestore
 }  // namespace firebase
 /* @@protoc_insertion_point(eof) */

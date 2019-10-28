@@ -123,8 +123,9 @@ extern const pb_field_t google_protobuf_ListValue_fields[2];
 
 #endif
 
-const char* EnumToString(
-  google_protobuf_NullValue value);
+const char* EnumToString(google_protobuf_NullValue
+value);
+;
 }  // namespace firestore
 }  // namespace firebase
 /* @@protoc_insertion_point(eof) */

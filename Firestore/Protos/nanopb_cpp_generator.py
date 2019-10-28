@@ -307,6 +307,49 @@ def nanopb_write(results, pretty_printing_info):
   return response
 
 
+def begin_namespace(files, file_name):
+  f = create_insertion(files, file_name, 'includes')
+  f.content = '''\
+namespace firebase {
+namespace firestore {'''
+
+
+def end_namespace(files, file_name):
+  f = create_insertion(files, file_name, 'eof')
+  f.content = '''\
+}  // namespace firestore
+}  // namespace firebase'''
+
+
+def indent(level):
+  indent_per_level = 4
+  return ' ' * (indent_per_level * level)
+
+
+def postprocess(file_contents):
+  """Renames a delete symbol to delete_.
+
+  If a proto uses a field named 'delete', nanopb happily uses that in the
+  message definition. Works fine for C; not so much for C++.
+
+  Args:
+    lines: The lines to fix.
+
+  Returns:
+    The lines, fixed.
+  """
+
+  delete_keyword = re.compile(r'\bdelete\b')
+  return delete_keyword.sub('delete_', file_contents)
+
+
+def create_insertion(files, file_name, insertion_point):
+  f = files.add()
+  f.name = file_name
+  f.insertion_point = insertion_point
+  return f
+
+
 def add_contents(files, file_name, file_contents):
   f = files.add()
   f.name = file_name
@@ -337,8 +380,7 @@ def add_field_printer_declarations(files, file_name, messages):
 def add_enum_printer_declarations(files, file_name, enums):
   for enum in enums:
     f = create_insertion(files, file_name, 'eof')
-    f.content += '''const char* EnumToString(
-  %s value);\n''' % (enum.name)
+    f.content += 'const char* EnumToString(%s\nvalue);\n;' % (enum.name)
 
 
 def generate_source(files, file_name, file_contents, file_printers):
@@ -346,7 +388,8 @@ def generate_source(files, file_name, file_contents, file_printers):
 
   # Includes
   f = create_insertion(files, file_name, 'includes')
-  f.content = '''#include "absl/strings/str_cat.h"
+  f.content = '''\
+#include "absl/strings/str_cat.h"
 #include "nanopb_pretty_printers.h"\n\n'''
 
   begin_namespace(files, file_name)
@@ -361,7 +404,8 @@ def add_field_printer_definitions(files, file_name, messages):
   for m in messages:
     f = create_insertion(files, file_name, 'eof')
 
-    f.content += '''std::string %s::ToString(int indent) const {
+    f.content += '''\
+std::string %s::ToString(int indent) const {
     bool is_root = indent == 0;
     if (is_root) {
         indent = 1;
@@ -371,7 +415,7 @@ def add_field_printer_definitions(files, file_name, messages):
     std::string result;\n\n''' % (m.full_classname, m.short_classname)
 
     for field in m.fields:
-      f.content += add_printing_for_field(field) + '\n'
+      f.content += add_printing_for_field(field)
 
     can_be_empty = all(f.is_primitive or f.is_repeated for f in m.fields)
     if can_be_empty:
@@ -394,27 +438,21 @@ def add_enum_printer_definitions(files, file_name, enums):
   for enum in enums:
     f = create_insertion(files, file_name, 'eof')
 
-    f.content += '''const char* EnumToString(
+    f.content += '''\
+const char* EnumToString(
   %s value) {
-    switch (value) {''' % (enum.name)
+    switch (value) {\n''' % (enum.name)
 
     for full_name in enum.members:
       short_name = full_name.replace('%s_' % enum.name, '')
-      f.content += '''
+      f.content += '''\
     case %s:
-        return "%s";''' % (full_name, short_name)
+        return "%s";\n''' % (full_name, short_name)
 
     f.content += '''
     }
     return "<unknown enum value>";
 }\n\n'''
-
-
-def create_insertion(files, file_name, insertion_point):
-  f = files.add()
-  f.name = file_name
-  f.insertion_point = insertion_point
-  return f
 
 
 def add_printing_for_field(field):
@@ -446,8 +484,8 @@ def add_printing_for_repeated(field):
   count = field.name + '_count'
 
   result = indent(1) + 'for (pb_size_t i = 0; i != %s; ++i) {\n' % count
-  result += add_printing_for_leaf(field, indent=2, always_print=True) + '\n'
-  result += indent(1) + '}'
+  result += add_printing_for_leaf(field, indent=2, always_print=True)
+  result += indent(1) + '}\n'
 
   return result
 
@@ -491,43 +529,18 @@ def add_printing_for_leaf(field, **kwargs):
   else:
     function_name = 'PrintMessageField'
 
-  return indent(indent_level) + 'result += %s("%s", %s, indent + 1, %s);' % (function_name, display_name, cc_name, always_print)
+  format_str = '%sresult += %s("%s",%s%s, indent + 1, %s);\n'
+  maybe_linebreak = ' '
+  args = (indent(indent_level), function_name, display_name, maybe_linebreak, cc_name, always_print)
 
+  line_width = 80
+  result = format_str % args
+  if len(result) <= line_width:
+    return result
 
-def begin_namespace(files, file_name):
-  f = create_insertion(files, file_name, 'includes')
-  f.content = '''\
-namespace firebase {
-namespace firestore {'''
-
-
-def end_namespace(files, file_name):
-  f = create_insertion(files, file_name, 'eof')
-  f.content = '''\
-}  // namespace firestore
-}  // namespace firebase'''
-
-
-def indent(level):
-  indent_per_level = 4
-  return ' ' * (indent_per_level * level)
-
-
-def postprocess(file_contents):
-  """Renames a delete symbol to delete_.
-
-  If a proto uses a field named 'delete', nanopb happily uses that in the
-  message definition. Works fine for C; not so much for C++.
-
-  Args:
-    lines: The lines to fix.
-
-  Returns:
-    The lines, fixed.
-  """
-
-  delete_keyword = re.compile(r'\bdelete\b')
-  return delete_keyword.sub('delete_', file_contents)
+  maybe_linebreak = '\n' + indent(indent_level + 1)
+  args = (indent(indent_level), function_name, display_name, maybe_linebreak, cc_name, always_print)
+  return format_str % args
 
 
 # TODO:

@@ -93,7 +93,8 @@ std::string google_firestore_v1_DocumentMask::ToString(int indent) const {
     std::string result;
 
     for (pb_size_t i = 0; i != field_paths_count; ++i) {
-        result += PrintPrimitiveField("field_paths: ", field_paths[i], indent + 1, true);
+        result += PrintPrimitiveField("field_paths: ",
+            field_paths[i], indent + 1, true);
     }
 
     if (!result.empty() || is_root) {
@@ -116,12 +117,14 @@ std::string google_firestore_v1_Precondition::ToString(int indent) const {
     switch (which_condition_type) {
     case google_firestore_v1_Precondition_exists_tag:
         result += PrintPrimitiveField("exists: ", exists, indent + 1, true);
+
         break;
     case google_firestore_v1_Precondition_update_time_tag:
-        result += PrintMessageField("update_time ", update_time, indent + 1, true);
+        result += PrintMessageField("update_time ",
+            update_time, indent + 1, true);
+
         break;
     }
-
 
     if (!result.empty() || is_root) {
       std::string tail = PrintTail(is_root, indent);
@@ -143,12 +146,14 @@ std::string google_firestore_v1_TransactionOptions::ToString(int indent) const {
     switch (which_mode) {
     case google_firestore_v1_TransactionOptions_read_only_tag:
         result += PrintMessageField("read_only ", read_only, indent + 1, true);
+
         break;
     case google_firestore_v1_TransactionOptions_read_write_tag:
-        result += PrintMessageField("read_write ", read_write, indent + 1, true);
+        result += PrintMessageField("read_write ",
+            read_write, indent + 1, true);
+
         break;
     }
-
 
     if (!result.empty() || is_root) {
       std::string tail = PrintTail(is_root, indent);
@@ -167,7 +172,8 @@ std::string google_firestore_v1_TransactionOptions_ReadWrite::ToString(int inden
     std::string header = PrintHeader(is_root, "ReadWrite", this);
     std::string result;
 
-    result += PrintPrimitiveField("retry_transaction: ", retry_transaction, indent + 1, false);
+    result += PrintPrimitiveField("retry_transaction: ",
+        retry_transaction, indent + 1, false);
 
     if (!result.empty() || is_root) {
       std::string tail = PrintTail(is_root, indent);
@@ -189,9 +195,9 @@ std::string google_firestore_v1_TransactionOptions_ReadOnly::ToString(int indent
     switch (which_consistency_selector) {
     case google_firestore_v1_TransactionOptions_ReadOnly_read_time_tag:
         result += PrintMessageField("read_time ", read_time, indent + 1, true);
+
         break;
     }
-
 
     if (!result.empty() || is_root) {
       std::string tail = PrintTail(is_root, indent);

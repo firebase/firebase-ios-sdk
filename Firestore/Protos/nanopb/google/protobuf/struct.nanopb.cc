@@ -88,6 +88,7 @@ const char* EnumToString(
     switch (value) {
     case google_protobuf_NullValue_NULL_VALUE:
         return "NULL_VALUE";
+
     }
     return "<unknown enum value>";
 }
@@ -141,24 +142,34 @@ std::string google_protobuf_Value::ToString(int indent) const {
     switch (which_kind) {
     case google_protobuf_Value_null_value_tag:
         result += PrintEnumField("null_value: ", null_value, indent + 1, true);
+
         break;
     case google_protobuf_Value_number_value_tag:
-        result += PrintPrimitiveField("number_value: ", number_value, indent + 1, true);
+        result += PrintPrimitiveField("number_value: ",
+            number_value, indent + 1, true);
+
         break;
     case google_protobuf_Value_string_value_tag:
-        result += PrintPrimitiveField("string_value: ", string_value, indent + 1, true);
+        result += PrintPrimitiveField("string_value: ",
+            string_value, indent + 1, true);
+
         break;
     case google_protobuf_Value_bool_value_tag:
-        result += PrintPrimitiveField("bool_value: ", bool_value, indent + 1, true);
+        result += PrintPrimitiveField("bool_value: ",
+            bool_value, indent + 1, true);
+
         break;
     case google_protobuf_Value_struct_value_tag:
-        result += PrintMessageField("struct_value ", struct_value, indent + 1, true);
+        result += PrintMessageField("struct_value ",
+            struct_value, indent + 1, true);
+
         break;
     case google_protobuf_Value_list_value_tag:
-        result += PrintMessageField("list_value ", list_value, indent + 1, true);
+        result += PrintMessageField("list_value ",
+            list_value, indent + 1, true);
+
         break;
     }
-
 
     if (!result.empty() || is_root) {
       std::string tail = PrintTail(is_root, indent);
