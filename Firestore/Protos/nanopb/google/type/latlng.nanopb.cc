@@ -57,8 +57,8 @@ std::string google_type_LatLng::ToString(int indent) const {
         header = "{\n";
     }
 
-    result += PrintField("latitude: ", latitude, indent + 1, false);
-    result += PrintField("longitude: ", longitude, indent + 1, false);
+    result += PrintPrimitiveField("latitude: ", latitude, indent + 1, false);
+    result += PrintPrimitiveField("longitude: ", longitude, indent + 1, false);
 
     if (!result.empty() || is_root) {
       std::string tail = Indent(is_root ? 0 : indent) + '}';

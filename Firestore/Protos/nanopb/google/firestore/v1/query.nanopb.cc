@@ -201,20 +201,20 @@ std::string google_firestore_v1_StructuredQuery::ToString(int indent) const {
         header = "{\n";
     }
 
-    result += PrintField("select ", select, indent + 1, false);
+    result += PrintMessageField("select ", select, indent + 1, false);
     for (pb_size_t i = 0; i != from_count; ++i) {
-        result += PrintField("from ", from[i], indent + 1, true);
+        result += PrintMessageField("from ", from[i], indent + 1, true);
     }
-    result += PrintField("where ", where, indent + 1, false);
+    result += PrintMessageField("where ", where, indent + 1, false);
     for (pb_size_t i = 0; i != order_by_count; ++i) {
-        result += PrintField("order_by ", order_by[i], indent + 1, true);
+        result += PrintMessageField("order_by ", order_by[i], indent + 1, true);
     }
     if (has_limit) {
-        result += PrintField("limit ", limit, indent + 1, true);
+        result += PrintMessageField("limit ", limit, indent + 1, true);
     }
-    result += PrintField("offset: ", offset, indent + 1, false);
-    result += PrintField("start_at ", start_at, indent + 1, false);
-    result += PrintField("end_at ", end_at, indent + 1, false);
+    result += PrintPrimitiveField("offset: ", offset, indent + 1, false);
+    result += PrintMessageField("start_at ", start_at, indent + 1, false);
+    result += PrintMessageField("end_at ", end_at, indent + 1, false);
 
     std::string tail = Indent(is_root ? 0 : indent) + '}';
     return header + result + tail;
@@ -233,8 +233,8 @@ std::string google_firestore_v1_StructuredQuery_CollectionSelector::ToString(int
         header = "{\n";
     }
 
-    result += PrintField("collection_id: ", collection_id, indent + 1, false);
-    result += PrintField("all_descendants: ", all_descendants, indent + 1, false);
+    result += PrintPrimitiveField("collection_id: ", collection_id, indent + 1, false);
+    result += PrintPrimitiveField("all_descendants: ", all_descendants, indent + 1, false);
 
     if (!result.empty() || is_root) {
       std::string tail = Indent(is_root ? 0 : indent) + '}';
@@ -259,13 +259,13 @@ std::string google_firestore_v1_StructuredQuery_Filter::ToString(int indent) con
 
     switch (which_filter_type) {
     case google_firestore_v1_StructuredQuery_Filter_composite_filter_tag:
-        result += PrintField("composite_filter ", composite_filter, indent + 1, true);
+        result += PrintMessageField("composite_filter ", composite_filter, indent + 1, true);
         break;
     case google_firestore_v1_StructuredQuery_Filter_field_filter_tag:
-        result += PrintField("field_filter ", field_filter, indent + 1, true);
+        result += PrintMessageField("field_filter ", field_filter, indent + 1, true);
         break;
     case google_firestore_v1_StructuredQuery_Filter_unary_filter_tag:
-        result += PrintField("unary_filter ", unary_filter, indent + 1, true);
+        result += PrintMessageField("unary_filter ", unary_filter, indent + 1, true);
         break;
     }
 
@@ -291,10 +291,9 @@ std::string google_firestore_v1_StructuredQuery_CompositeFilter::ToString(int in
         header = "{\n";
     }
 
-    result += PrintEnumField(
-              "op: ", op, indent + 1, false);
+    result += PrintEnumField("op: ", op, indent + 1, false);
     for (pb_size_t i = 0; i != filters_count; ++i) {
-        result += PrintField("filters ", filters[i], indent + 1, true);
+        result += PrintMessageField("filters ", filters[i], indent + 1, true);
     }
 
     if (!result.empty() || is_root) {
@@ -318,10 +317,9 @@ std::string google_firestore_v1_StructuredQuery_FieldFilter::ToString(int indent
         header = "{\n";
     }
 
-    result += PrintField("field ", field, indent + 1, false);
-    result += PrintEnumField(
-              "op: ", op, indent + 1, false);
-    result += PrintField("value ", value, indent + 1, false);
+    result += PrintMessageField("field ", field, indent + 1, false);
+    result += PrintEnumField("op: ", op, indent + 1, false);
+    result += PrintMessageField("value ", value, indent + 1, false);
 
     std::string tail = Indent(is_root ? 0 : indent) + '}';
     return header + result + tail;
@@ -340,11 +338,10 @@ std::string google_firestore_v1_StructuredQuery_UnaryFilter::ToString(int indent
         header = "{\n";
     }
 
-    result += PrintEnumField(
-              "op: ", op, indent + 1, false);
+    result += PrintEnumField("op: ", op, indent + 1, false);
     switch (which_operand_type) {
     case google_firestore_v1_StructuredQuery_UnaryFilter_field_tag:
-        result += PrintField("field ", field, indent + 1, true);
+        result += PrintMessageField("field ", field, indent + 1, true);
         break;
     }
 
@@ -370,9 +367,8 @@ std::string google_firestore_v1_StructuredQuery_Order::ToString(int indent) cons
         header = "{\n";
     }
 
-    result += PrintField("field ", field, indent + 1, false);
-    result += PrintEnumField(
-              "direction: ", direction, indent + 1, false);
+    result += PrintMessageField("field ", field, indent + 1, false);
+    result += PrintEnumField("direction: ", direction, indent + 1, false);
 
     std::string tail = Indent(is_root ? 0 : indent) + '}';
     return header + result + tail;
@@ -391,7 +387,7 @@ std::string google_firestore_v1_StructuredQuery_FieldReference::ToString(int ind
         header = "{\n";
     }
 
-    result += PrintField("field_path: ", field_path, indent + 1, false);
+    result += PrintPrimitiveField("field_path: ", field_path, indent + 1, false);
 
     if (!result.empty() || is_root) {
       std::string tail = Indent(is_root ? 0 : indent) + '}';
@@ -415,7 +411,7 @@ std::string google_firestore_v1_StructuredQuery_Projection::ToString(int indent)
     }
 
     for (pb_size_t i = 0; i != fields_count; ++i) {
-        result += PrintField("fields ", fields[i], indent + 1, true);
+        result += PrintMessageField("fields ", fields[i], indent + 1, true);
     }
 
     if (!result.empty() || is_root) {
@@ -440,9 +436,9 @@ std::string google_firestore_v1_Cursor::ToString(int indent) const {
     }
 
     for (pb_size_t i = 0; i != values_count; ++i) {
-        result += PrintField("values ", values[i], indent + 1, true);
+        result += PrintMessageField("values ", values[i], indent + 1, true);
     }
-    result += PrintField("before: ", before, indent + 1, false);
+    result += PrintPrimitiveField("before: ", before, indent + 1, false);
 
     if (!result.empty() || is_root) {
       std::string tail = Indent(is_root ? 0 : indent) + '}';

@@ -96,7 +96,7 @@ std::string google_protobuf_DoubleValue::ToString(int indent) const {
         header = "{\n";
     }
 
-    result += PrintField("value: ", value, indent + 1, false);
+    result += PrintPrimitiveField("value: ", value, indent + 1, false);
 
     if (!result.empty() || is_root) {
       std::string tail = Indent(is_root ? 0 : indent) + '}';
@@ -119,7 +119,7 @@ std::string google_protobuf_FloatValue::ToString(int indent) const {
         header = "{\n";
     }
 
-    result += PrintField("value: ", value, indent + 1, false);
+    result += PrintPrimitiveField("value: ", value, indent + 1, false);
 
     if (!result.empty() || is_root) {
       std::string tail = Indent(is_root ? 0 : indent) + '}';
@@ -142,7 +142,7 @@ std::string google_protobuf_Int64Value::ToString(int indent) const {
         header = "{\n";
     }
 
-    result += PrintField("value: ", value, indent + 1, false);
+    result += PrintPrimitiveField("value: ", value, indent + 1, false);
 
     if (!result.empty() || is_root) {
       std::string tail = Indent(is_root ? 0 : indent) + '}';
@@ -165,7 +165,7 @@ std::string google_protobuf_UInt64Value::ToString(int indent) const {
         header = "{\n";
     }
 
-    result += PrintField("value: ", value, indent + 1, false);
+    result += PrintPrimitiveField("value: ", value, indent + 1, false);
 
     if (!result.empty() || is_root) {
       std::string tail = Indent(is_root ? 0 : indent) + '}';
@@ -188,7 +188,7 @@ std::string google_protobuf_Int32Value::ToString(int indent) const {
         header = "{\n";
     }
 
-    result += PrintField("value: ", value, indent + 1, false);
+    result += PrintPrimitiveField("value: ", value, indent + 1, false);
 
     if (!result.empty() || is_root) {
       std::string tail = Indent(is_root ? 0 : indent) + '}';
@@ -211,7 +211,7 @@ std::string google_protobuf_UInt32Value::ToString(int indent) const {
         header = "{\n";
     }
 
-    result += PrintField("value: ", value, indent + 1, false);
+    result += PrintPrimitiveField("value: ", value, indent + 1, false);
 
     if (!result.empty() || is_root) {
       std::string tail = Indent(is_root ? 0 : indent) + '}';
@@ -234,7 +234,7 @@ std::string google_protobuf_BoolValue::ToString(int indent) const {
         header = "{\n";
     }
 
-    result += PrintField("value: ", value, indent + 1, false);
+    result += PrintPrimitiveField("value: ", value, indent + 1, false);
 
     if (!result.empty() || is_root) {
       std::string tail = Indent(is_root ? 0 : indent) + '}';
@@ -257,7 +257,7 @@ std::string google_protobuf_StringValue::ToString(int indent) const {
         header = "{\n";
     }
 
-    result += PrintField("value: ", value, indent + 1, false);
+    result += PrintPrimitiveField("value: ", value, indent + 1, false);
 
     if (!result.empty() || is_root) {
       std::string tail = Indent(is_root ? 0 : indent) + '}';
@@ -280,7 +280,7 @@ std::string google_protobuf_BytesValue::ToString(int indent) const {
         header = "{\n";
     }
 
-    result += PrintField("value: ", value, indent + 1, false);
+    result += PrintPrimitiveField("value: ", value, indent + 1, false);
 
     if (!result.empty() || is_root) {
       std::string tail = Indent(is_root ? 0 : indent) + '}';

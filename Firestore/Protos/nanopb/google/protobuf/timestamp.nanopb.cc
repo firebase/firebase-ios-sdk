@@ -51,8 +51,8 @@ std::string google_protobuf_Timestamp::ToString(int indent) const {
         header = "{\n";
     }
 
-    result += PrintField("seconds: ", seconds, indent + 1, false);
-    result += PrintField("nanos: ", nanos, indent + 1, false);
+    result += PrintPrimitiveField("seconds: ", seconds, indent + 1, false);
+    result += PrintPrimitiveField("nanos: ", nanos, indent + 1, false);
 
     if (!result.empty() || is_root) {
       std::string tail = Indent(is_root ? 0 : indent) + '}';

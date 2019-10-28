@@ -89,8 +89,8 @@ std::string firestore_client_NoDocument::ToString(int indent) const {
         header = "{\n";
     }
 
-    result += PrintField("name: ", name, indent + 1, false);
-    result += PrintField("read_time ", read_time, indent + 1, false);
+    result += PrintPrimitiveField("name: ", name, indent + 1, false);
+    result += PrintMessageField("read_time ", read_time, indent + 1, false);
 
     std::string tail = Indent(is_root ? 0 : indent) + '}';
     return header + result + tail;
@@ -109,8 +109,8 @@ std::string firestore_client_UnknownDocument::ToString(int indent) const {
         header = "{\n";
     }
 
-    result += PrintField("name: ", name, indent + 1, false);
-    result += PrintField("version ", version, indent + 1, false);
+    result += PrintPrimitiveField("name: ", name, indent + 1, false);
+    result += PrintMessageField("version ", version, indent + 1, false);
 
     std::string tail = Indent(is_root ? 0 : indent) + '}';
     return header + result + tail;
@@ -131,17 +131,17 @@ std::string firestore_client_MaybeDocument::ToString(int indent) const {
 
     switch (which_document_type) {
     case firestore_client_MaybeDocument_no_document_tag:
-        result += PrintField("no_document ", no_document, indent + 1, true);
+        result += PrintMessageField("no_document ", no_document, indent + 1, true);
         break;
     case firestore_client_MaybeDocument_document_tag:
-        result += PrintField("document ", document, indent + 1, true);
+        result += PrintMessageField("document ", document, indent + 1, true);
         break;
     case firestore_client_MaybeDocument_unknown_document_tag:
-        result += PrintField("unknown_document ", unknown_document, indent + 1, true);
+        result += PrintMessageField("unknown_document ", unknown_document, indent + 1, true);
         break;
     }
 
-    result += PrintField("has_committed_mutations: ", has_committed_mutations, indent + 1, false);
+    result += PrintPrimitiveField("has_committed_mutations: ", has_committed_mutations, indent + 1, false);
 
     if (!result.empty() || is_root) {
       std::string tail = Indent(is_root ? 0 : indent) + '}';

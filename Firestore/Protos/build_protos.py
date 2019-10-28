@@ -122,9 +122,7 @@ class NanopbGenerator(object):
     post_process_files(
         sources,
         add_copyright,
-        #nanopb_add_namespaces,
         nanopb_remove_extern_c
-        # nanopb_rename_delete
     )
 
   def __run_generator(self, out_dir):
@@ -292,32 +290,7 @@ def add_copyright(lines):
   return result
 
 
-def nanopb_add_namespaces(lines):
-  """Adds C++ namespaces to the lines.
-
-  Args:
-    lines: The lines to fix.
-
-  Returns:
-    The lines, fixed.
-  """
-  result = []
-  for line in lines:
-    if '@@protoc_insertion_point(includes)' in line:
-      result.append('namespace firebase {\n')
-      result.append('namespace firestore {\n')
-      result.append('\n')
-
-    if '@@protoc_insertion_point(eof)' in line:
-      result.append('}  // namespace firestore\n')
-      result.append('}  // namespace firebase\n')
-      result.append('\n')
-
-    result.append(line)
-
-  return result
-
-
+# TODO(varconst|wilhuff): move this to `nanopb_cpp_generator.py`.
 def nanopb_remove_extern_c(lines):
   """Removes extern "C" directives from nanopb code.
 
@@ -341,22 +314,6 @@ def nanopb_remove_extern_c(lines):
         state = 'initial'
 
   return result
-
-
-def nanopb_rename_delete(lines):
-  """Renames a delete symbol to delete_.
-
-  If a proto uses a field named 'delete', nanopb happily uses that in the
-  message definition. Works fine for C; not so much for C++.
-
-  Args:
-    lines: The lines to fix.
-
-  Returns:
-    The lines, fixed.
-  """
-  delete_keyword = re.compile(r'\bdelete\b')
-  return [delete_keyword.sub('delete_', line) for line in lines]
 
 
 def strip_trailing_whitespace(lines):

@@ -106,7 +106,7 @@ std::string google_protobuf_Struct::ToString(int indent) const {
     }
 
     for (pb_size_t i = 0; i != fields_count; ++i) {
-        result += PrintField("fields ", fields[i], indent + 1, true);
+        result += PrintMessageField("fields ", fields[i], indent + 1, true);
     }
 
     if (!result.empty() || is_root) {
@@ -130,8 +130,8 @@ std::string google_protobuf_Struct_FieldsEntry::ToString(int indent) const {
         header = "{\n";
     }
 
-    result += PrintField("key: ", key, indent + 1, false);
-    result += PrintField("value ", value, indent + 1, false);
+    result += PrintPrimitiveField("key: ", key, indent + 1, false);
+    result += PrintMessageField("value ", value, indent + 1, false);
 
     std::string tail = Indent(is_root ? 0 : indent) + '}';
     return header + result + tail;
@@ -152,23 +152,22 @@ std::string google_protobuf_Value::ToString(int indent) const {
 
     switch (which_kind) {
     case google_protobuf_Value_null_value_tag:
-        result += PrintEnumField(
-              "null_value: ", null_value, indent + 1, true);
+        result += PrintEnumField("null_value: ", null_value, indent + 1, true);
         break;
     case google_protobuf_Value_number_value_tag:
-        result += PrintField("number_value: ", number_value, indent + 1, true);
+        result += PrintPrimitiveField("number_value: ", number_value, indent + 1, true);
         break;
     case google_protobuf_Value_string_value_tag:
-        result += PrintField("string_value: ", string_value, indent + 1, true);
+        result += PrintPrimitiveField("string_value: ", string_value, indent + 1, true);
         break;
     case google_protobuf_Value_bool_value_tag:
-        result += PrintField("bool_value: ", bool_value, indent + 1, true);
+        result += PrintPrimitiveField("bool_value: ", bool_value, indent + 1, true);
         break;
     case google_protobuf_Value_struct_value_tag:
-        result += PrintField("struct_value ", struct_value, indent + 1, true);
+        result += PrintMessageField("struct_value ", struct_value, indent + 1, true);
         break;
     case google_protobuf_Value_list_value_tag:
-        result += PrintField("list_value ", list_value, indent + 1, true);
+        result += PrintMessageField("list_value ", list_value, indent + 1, true);
         break;
     }
 
@@ -195,7 +194,7 @@ std::string google_protobuf_ListValue::ToString(int indent) const {
     }
 
     for (pb_size_t i = 0; i != values_count; ++i) {
-        result += PrintField("values ", values[i], indent + 1, true);
+        result += PrintMessageField("values ", values[i], indent + 1, true);
     }
 
     if (!result.empty() || is_root) {

@@ -498,12 +498,15 @@ def add_printing_for_leaf(field, parent=None, always_print=False):
   else:
     display_name += ' '
 
+  function_name = ''
   if field.is_enum:
-    return '''result += PrintEnumField(
-              "%s", %s, indent + 1, %s);''' % (display_name, cc_name, 'true' if always_print else 'false')
+    function_name = 'PrintEnumField'
+  elif field.is_primitive:
+    function_name = 'PrintPrimitiveField'
   else:
-    return '''result += PrintField("%s", %s, indent + 1, %s);''' % (display_name, cc_name, 'true' if always_print else 'false')
+    function_name = 'PrintMessageField'
 
+  return '''result += %s("%s", %s, indent + 1, %s);''' % (function_name, display_name, cc_name, 'true' if always_print else 'false')
 
 def begin_namespace(files, filename):
     f = files.add()
@@ -522,6 +525,18 @@ def end_namespace(files, file_name):
 }  // namespace firestore
 }  // namespace firebase'''
 
+
+  # """Renames a delete symbol to delete_.
+
+  # If a proto uses a field named 'delete', nanopb happily uses that in the
+  # message definition. Works fine for C; not so much for C++.
+
+  # Args:
+  #   lines: The lines to fix.
+
+  # Returns:
+  #   The lines, fixed.
+  # """
 
 # TODO:
 # 1. Array and oneof should properly print enums.

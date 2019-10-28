@@ -19,43 +19,19 @@
 
 #include <pb.h>
 
-#include <algorithm>
+#include <sstream>
 #include <string>
 #include <type_traits>
 
 #include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "absl/meta/type_traits.h"
 
-#include <sstream>
-
 namespace firebase {
 namespace firestore {
-
-std::string ToStringImpl(pb_bytes_array_t* value);
-std::string ToStringImpl(bool value);
 
 inline std::string Indent(int level) {
   constexpr int kIndentWidth = 2;
   return std::string(level * kIndentWidth, ' ');
-}
-
-template <typename T>
-using HasToString = typename std::is_member_function_pointer<decltype(&T::ToString)>;
-
-template <typename T>
-using ScalarExceptEnum = absl::conjunction<std::is_scalar<T>, absl::negation<std::is_enum<T>>>;
-
-template <typename T, absl::enable_if_t<ScalarExceptEnum<T>::value, int> = 0>
-std::string ToStringImpl(const T& value) {
-  std::ostringstream stream;
-  // stream.precision();
-  stream << value;
-  return stream.str();
-}
-
-template <typename T, absl::enable_if_t<HasToString<T>::value, int> = 0>
-std::string ToStringImpl(const T& value, int indent) {
-  return value.ToString(indent);
 }
 
 inline std::string ToStringImpl(pb_bytes_array_t* value) {
@@ -63,14 +39,24 @@ inline std::string ToStringImpl(pb_bytes_array_t* value) {
 }
 
 inline std::string ToStringImpl(bool value) {
-  return absl::StrCat(value ? "true" : "false");
+  return value ? std::string{"true"} : std::string{"false"};
+}
+
+template <typename T>
+std::string ToStringImpl(const T& value) {
+  std::ostringstream stream;
+  stream << value;
+  return stream.str();
 }
 
 // PrintField
 
-template <typename T, absl::enable_if_t<!std::is_scalar<T>::value, int> = 0>
-std::string PrintField(absl::string_view name, const T& value, int indent, bool always_print = false) {
-  auto contents = ToStringImpl(value, indent);
+template <typename T>
+std::string PrintMessageField(absl::string_view name,
+                              const T& value,
+                              int indent,
+                              bool always_print) {
+  auto contents = value.ToString(indent);
   if (contents.empty()) {
     if (!always_print) {
       return "";
@@ -82,8 +68,11 @@ std::string PrintField(absl::string_view name, const T& value, int indent, bool 
   return absl::StrCat(Indent(indent), name, contents, "\n");
 }
 
-template <typename T, absl::enable_if_t<std::is_scalar<T>::value, int> = 0>
-std::string PrintField(absl::string_view name, T value, int indent, bool always_print = false) {
+template <typename T>
+std::string PrintPrimitiveField(absl::string_view name,
+                                T value,
+                                int indent,
+                                bool always_print) {
   if (value == T{} && !always_print) {
     return "";
   }

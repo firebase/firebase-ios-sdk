@@ -52,10 +52,10 @@ std::string google_rpc_Status::ToString(int indent) const {
         header = "{\n";
     }
 
-    result += PrintField("code: ", code, indent + 1, false);
-    result += PrintField("message: ", message, indent + 1, false);
+    result += PrintPrimitiveField("code: ", code, indent + 1, false);
+    result += PrintPrimitiveField("message: ", message, indent + 1, false);
     for (pb_size_t i = 0; i != details_count; ++i) {
-        result += PrintField("details ", details[i], indent + 1, true);
+        result += PrintMessageField("details ", details[i], indent + 1, true);
     }
 
     if (!result.empty() || is_root) {

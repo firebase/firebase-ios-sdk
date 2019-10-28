@@ -51,8 +51,8 @@ std::string google_protobuf_Any::ToString(int indent) const {
         header = "{\n";
     }
 
-    result += PrintField("type_url: ", type_url, indent + 1, false);
-    result += PrintField("value: ", value, indent + 1, false);
+    result += PrintPrimitiveField("type_url: ", type_url, indent + 1, false);
+    result += PrintPrimitiveField("value: ", value, indent + 1, false);
 
     if (!result.empty() || is_root) {
       std::string tail = Indent(is_root ? 0 : indent) + '}';
