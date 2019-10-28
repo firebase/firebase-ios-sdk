@@ -153,7 +153,6 @@ NSError *FUNInvalidNumberError(id value, id wrapped) {
     NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
     NSNumber *n = [formatter numberFromString:value];
     if (n == nil) {
-      // Only assign the `error` parameter if it was passed in.
       if (error != NULL) {
         *error = FUNInvalidNumberError(value, wrapped);
       }
@@ -166,15 +165,14 @@ NSError *FUNInvalidNumberError(id value, id wrapped) {
     char *end = NULL;
     unsigned long long n = strtoull(str, &end, 10);
     if (errno == ERANGE) {
-      // This number was actually too big for an unsigned long long. Only assign the `error`
-      // parameter if it was passed in.
+      // This number was actually too big for an unsigned long long.
       if (error != NULL) {
         *error = FUNInvalidNumberError(value, wrapped);
       }
       return nil;
     }
     if (*end) {
-      // The whole string wasn't parsed. Only assign the `error` parameter if it was passed in.
+      // The whole string wasn't parsed.
       if (error != NULL) {
         *error = FUNInvalidNumberError(value, wrapped);
       }
