@@ -68,11 +68,9 @@ NS_SWIFT_NAME(Query)
  * @param completion a block to execute once the documents have been successfully read.
  *     documentSet will be `nil` only if error is `non-nil`.
  */
-// clang-format off
 - (void)getDocumentsWithSource:(FIRFirestoreSource)source
                     completion:(FIRQuerySnapshotBlock)completion
     NS_SWIFT_NAME(getDocuments(source:completion:));
-// clang-format on
 
 /**
  * Attaches a listener for QuerySnapshot events.
@@ -93,12 +91,10 @@ NS_SWIFT_NAME(Query)
  *
  * @return A FIRListenerRegistration that can be used to remove this listener.
  */
-// clang-format off
 - (id<FIRListenerRegistration>)
-addSnapshotListenerWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
-                                     listener:(FIRQuerySnapshotBlock)listener
+    addSnapshotListenerWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
+                                         listener:(FIRQuerySnapshotBlock)listener
     NS_SWIFT_NAME(addSnapshotListener(includeMetadataChanges:listener:));
-// clang-format on
 
 #pragma mark - Filtering Data
 /**
@@ -110,10 +106,8 @@ addSnapshotListenerWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
  *
  * @return The created `FIRQuery`.
  */
-// clang-format off
 - (FIRQuery *)queryWhereField:(NSString *)field
                     isEqualTo:(id)value NS_SWIFT_NAME(whereField(_:isEqualTo:));
-// clang-format on
 
 /**
  * Creates and returns a new `FIRQuery` with the additional filter that documents must
@@ -124,10 +118,8 @@ addSnapshotListenerWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
  *
  * @return The created `FIRQuery`.
  */
-// clang-format off
 - (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path
                         isEqualTo:(id)value NS_SWIFT_NAME(whereField(_:isEqualTo:));
-// clang-format on
 
 /**
  * Creates and returns a new `FIRQuery` with the additional filter that documents must
@@ -138,10 +130,8 @@ addSnapshotListenerWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
  *
  * @return The created `FIRQuery`.
  */
-// clang-format off
 - (FIRQuery *)queryWhereField:(NSString *)field
                    isLessThan:(id)value NS_SWIFT_NAME(whereField(_:isLessThan:));
-// clang-format on
 
 /**
  * Creates and returns a new `FIRQuery` with the additional filter that documents must
@@ -152,10 +142,8 @@ addSnapshotListenerWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
  *
  * @return The created `FIRQuery`.
  */
-// clang-format off
 - (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path
                        isLessThan:(id)value NS_SWIFT_NAME(whereField(_:isLessThan:));
-// clang-format on
 
 /**
  * Creates and returns a new `FIRQuery` with the additional filter that documents must
@@ -166,10 +154,8 @@ addSnapshotListenerWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
  *
  * @return The created `FIRQuery`.
  */
-// clang-format off
 - (FIRQuery *)queryWhereField:(NSString *)field
           isLessThanOrEqualTo:(id)value NS_SWIFT_NAME(whereField(_:isLessThanOrEqualTo:));
-// clang-format on
 
 /**
  * Creates and returns a new `FIRQuery` with the additional filter that documents must
@@ -180,10 +166,8 @@ addSnapshotListenerWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
  *
  * @return The created `FIRQuery`.
  */
-// clang-format off
 - (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path
               isLessThanOrEqualTo:(id)value NS_SWIFT_NAME(whereField(_:isLessThanOrEqualTo:));
-// clang-format on
 
 /**
  * Creates and returns a new `FIRQuery` with the additional filter that documents must
@@ -194,10 +178,8 @@ addSnapshotListenerWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
  *
  * @return The created `FIRQuery`.
  */
-// clang-format off
 - (FIRQuery *)queryWhereField:(NSString *)field
                 isGreaterThan:(id)value NS_SWIFT_NAME(whereField(_:isGreaterThan:));
-// clang-format on
 
 /**
  * Creates and returns a new `FIRQuery` with the additional filter that documents must
@@ -208,10 +190,8 @@ addSnapshotListenerWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
  *
  * @return The created `FIRQuery`.
  */
-// clang-format off
 - (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path
                     isGreaterThan:(id)value NS_SWIFT_NAME(whereField(_:isGreaterThan:));
-// clang-format on
 
 /**
  * Creates and returns a new `FIRQuery` with the additional filter that documents must
@@ -222,10 +202,8 @@ addSnapshotListenerWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
  *
  * @return The created `FIRQuery`.
  */
-// clang-format off
 - (FIRQuery *)queryWhereField:(NSString *)field
        isGreaterThanOrEqualTo:(id)value NS_SWIFT_NAME(whereField(_:isGreaterThanOrEqualTo:));
-// clang-format on
 
 /**
  * Creates and returns a new `FIRQuery` with the additional filter that documents must
@@ -236,10 +214,8 @@ addSnapshotListenerWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
  *
  * @return The created `FIRQuery`.
  */
-// clang-format off
 - (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path
            isGreaterThanOrEqualTo:(id)value NS_SWIFT_NAME(whereField(_:isGreaterThanOrEqualTo:));
-// clang-format on
 
 /**
  * Creates and returns a new `FIRQuery` with the additional filter that documents must contain
@@ -252,10 +228,8 @@ addSnapshotListenerWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
  *
  * @return The created `FIRQuery`.
  */
-// clang-format off
 - (FIRQuery *)queryWhereField:(NSString *)field
                 arrayContains:(id)value NS_SWIFT_NAME(whereField(_:arrayContains:));
-// clang-format on
 
 /**
  * Creates and returns a new `FIRQuery` with the additional filter that documents must contain
@@ -268,10 +242,8 @@ addSnapshotListenerWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
  *
  * @return The created `FIRQuery`.
  */
-// clang-format off
 - (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path
                     arrayContains:(id)value NS_SWIFT_NAME(whereField(_:arrayContains:));
-// clang-format on
 
 /**
  * Creates and returns a new `FIRQuery` with the additional filter that documents must contain
@@ -286,10 +258,8 @@ addSnapshotListenerWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
  *
  * @return The created `FIRQuery`.
  */
-// clang-format off
 - (FIRQuery *)queryWhereField:(NSString *)field
              arrayContainsAny:(id)value NS_SWIFT_NAME(whereField(_:arrayContainsAny:));
-// clang-format on
 
 /**
  * Creates and returns a new `FIRQuery` with the additional filter that documents must contain
@@ -304,10 +274,8 @@ addSnapshotListenerWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
  *
  * @return The created `FIRQuery`.
  */
-// clang-format off
 - (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path
                  arrayContainsAny:(id)value NS_SWIFT_NAME(whereField(_:arrayContainsAny:));
-// clang-format on
 
 /**
  * Creates and returns a new `FIRQuery` with the additional filter that documents must contain
@@ -320,9 +288,7 @@ addSnapshotListenerWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
  *
  * @return The created `FIRQuery`.
  */
-// clang-format off
 - (FIRQuery *)queryWhereField:(NSString *)field in:(id)value NS_SWIFT_NAME(whereField(_:in:));
-// clang-format on
 
 /**
  * Creates and returns a new `FIRQuery` with the additional filter that documents must contain
@@ -335,9 +301,8 @@ addSnapshotListenerWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
  *
  * @return The created `FIRQuery`.
  */
-// clang-format off
-- (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path in:(id)value NS_SWIFT_NAME(whereField(_:in:));
-// clang-format on
+- (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path
+                               in:(id)value NS_SWIFT_NAME(whereField(_:in:));
 
 /**
  * Creates and returns a new `FIRQuery` with the additional filter that documents must
@@ -348,9 +313,7 @@ addSnapshotListenerWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
  *
  * @return The created `FIRQuery`.
  */
-// clang-format off
 - (FIRQuery *)queryFilteredUsingPredicate:(NSPredicate *)predicate NS_SWIFT_NAME(filter(using:));
-// clang-format on
 
 #pragma mark - Sorting Data
 /**
@@ -380,10 +343,8 @@ addSnapshotListenerWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
  *
  * @return The created `FIRQuery`.
  */
-// clang-format off
 - (FIRQuery *)queryOrderedByField:(NSString *)field
                        descending:(BOOL)descending NS_SWIFT_NAME(order(by:descending:));
-// clang-format on
 
 /**
  * Creates and returns a new `FIRQuery` that's additionally sorted by the specified field,
@@ -394,10 +355,8 @@ addSnapshotListenerWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
  *
  * @return The created `FIRQuery`.
  */
-// clang-format off
 - (FIRQuery *)queryOrderedByFieldPath:(FIRFieldPath *)path
                            descending:(BOOL)descending NS_SWIFT_NAME(order(by:descending:));
-// clang-format on
 
 #pragma mark - Limiting Data
 /**
