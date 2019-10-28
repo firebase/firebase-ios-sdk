@@ -37,6 +37,9 @@ typedef NS_ENUM(NSInteger, GDTCORMessageCode) {
   /** For warning messages concerning a failed reachability call. */
   GDTCORMCWReachabilityFailed = 4,
 
+  /** For warning messages concerning a database warning. */
+  GDTCORMCWDatabaseWarning = 5,
+
   /** For error messages concerning transform: not being implemented by an event transformer. */
   GDTCORMCETransformerDoesntImplementTransform = 1000,
 
