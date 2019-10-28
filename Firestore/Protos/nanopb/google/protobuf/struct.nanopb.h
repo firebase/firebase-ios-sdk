@@ -21,9 +21,7 @@
 #define PB_GOOGLE_PROTOBUF_STRUCT_NANOPB_H_INCLUDED
 #include <pb.h>
 
-#include "absl/strings/str_cat.h"
-#include "nanopb_pretty_printers.h"
-
+#include <string>
 namespace firebase {
 namespace firestore {
 /* @@protoc_insertion_point(includes) */
@@ -44,70 +42,14 @@ typedef enum _google_protobuf_NullValue {
 typedef struct _google_protobuf_ListValue {
     pb_size_t values_count;
     struct _google_protobuf_Value *values;
-
-    static const char* Name() {
-        return "ListValue";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<ListValue 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        for (pb_size_t i = 0; i != values_count; ++i) {
-            result += PrintField("values ", values[i], indent + 1, true);
-        }
-
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_protobuf_ListValue) */
 } google_protobuf_ListValue;
 
 typedef struct _google_protobuf_Struct {
     pb_size_t fields_count;
     struct _google_protobuf_Struct_FieldsEntry *fields;
-
-    static const char* Name() {
-        return "Struct";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<Struct 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        for (pb_size_t i = 0; i != fields_count; ++i) {
-            result += PrintField("fields ", fields[i], indent + 1, true);
-        }
-
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_protobuf_Struct) */
 } google_protobuf_Struct;
 
@@ -121,84 +63,14 @@ typedef struct _google_protobuf_Value {
         google_protobuf_Struct struct_value;
         google_protobuf_ListValue list_value;
     };
-
-    static const char* Name() {
-        return "Value";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<Value 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        switch (which_kind) {
-          case 1: // google_protobuf_Value_null_value_tag
-            result += PrintEnumField<_google_protobuf_Value>(
-              "null_value: : ", null_value, indent + 1);
-            break;
-          case 2: // google_protobuf_Value_number_value_tag
-            result += PrintField("number_value: ", number_value, indent + 1, true);
-            break;
-          case 3: // google_protobuf_Value_string_value_tag
-            result += PrintField("string_value: ", string_value, indent + 1, true);
-            break;
-          case 4: // google_protobuf_Value_bool_value_tag
-            result += PrintField("bool_value: ", bool_value, indent + 1, true);
-            break;
-          case 5: // google_protobuf_Value_struct_value_tag
-            result += PrintField("struct_value ", struct_value, indent + 1, true);
-            break;
-          case 6: // google_protobuf_Value_list_value_tag
-            result += PrintField("list_value ", list_value, indent + 1, true);
-            break;
-        }
-
-
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_protobuf_Value) */
 } google_protobuf_Value;
 
 typedef struct _google_protobuf_Struct_FieldsEntry {
     pb_bytes_array_t *key;
     google_protobuf_Value value;
-
-    static const char* Name() {
-        return "FieldsEntry";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<FieldsEntry 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        result += PrintField("key: ", key, indent + 1, false);
-        result += PrintField("value ", value, indent + 1, false);
-
-        std::string tail = Indent(is_root ? 0 : indent) + '}';
-        return header + result + tail;
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_protobuf_Struct_FieldsEntry) */
 } google_protobuf_Struct_FieldsEntry;
 

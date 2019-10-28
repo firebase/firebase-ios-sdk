@@ -19,6 +19,8 @@
 
 #include "annotations.nanopb.h"
 
+#include "absl/strings/str_cat.h"
+#include "nanopb_pretty_printers.h"
 namespace firebase {
 namespace firestore {
 /* @@protoc_insertion_point(includes) */

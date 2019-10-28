@@ -25,9 +25,7 @@
 
 #include "google/protobuf/timestamp.nanopb.h"
 
-#include "absl/strings/str_cat.h"
-#include "nanopb_pretty_printers.h"
-
+#include <string>
 namespace firebase {
 namespace firestore {
 /* @@protoc_insertion_point(includes) */
@@ -47,41 +45,7 @@ typedef struct _firestore_client_Target {
         google_firestore_v1_Target_QueryTarget query;
         google_firestore_v1_Target_DocumentsTarget documents;
     };
-
-    static const char* Name() {
-        return "Target";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<Target 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        result += PrintField("target_id: ", target_id, indent + 1, false);
-        result += PrintField("snapshot_version ", snapshot_version, indent + 1, false);
-        result += PrintField("resume_token: ", resume_token, indent + 1, false);
-        result += PrintField("last_listen_sequence_number: ", last_listen_sequence_number, indent + 1, false);
-        switch (which_target_type) {
-          case 5: // firestore_client_Target_query_tag
-            result += PrintField("query ", query, indent + 1, true);
-            break;
-          case 6: // firestore_client_Target_documents_tag
-            result += PrintField("documents ", documents, indent + 1, true);
-            break;
-        }
-
-
-        std::string tail = Indent(is_root ? 0 : indent) + '}';
-        return header + result + tail;
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:firestore_client_Target) */
 } firestore_client_Target;
 
@@ -90,32 +54,7 @@ typedef struct _firestore_client_TargetGlobal {
     int64_t highest_listen_sequence_number;
     google_protobuf_Timestamp last_remote_snapshot_version;
     int32_t target_count;
-
-    static const char* Name() {
-        return "TargetGlobal";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<TargetGlobal 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        result += PrintField("highest_target_id: ", highest_target_id, indent + 1, false);
-        result += PrintField("highest_listen_sequence_number: ", highest_listen_sequence_number, indent + 1, false);
-        result += PrintField("last_remote_snapshot_version ", last_remote_snapshot_version, indent + 1, false);
-        result += PrintField("target_count: ", target_count, indent + 1, false);
-
-        std::string tail = Indent(is_root ? 0 : indent) + '}';
-        return header + result + tail;
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:firestore_client_TargetGlobal) */
 } firestore_client_TargetGlobal;
 

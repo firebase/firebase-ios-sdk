@@ -23,9 +23,7 @@
 
 #include "google/protobuf/any.nanopb.h"
 
-#include "absl/strings/str_cat.h"
-#include "nanopb_pretty_printers.h"
-
+#include <string>
 namespace firebase {
 namespace firestore {
 /* @@protoc_insertion_point(includes) */
@@ -40,37 +38,7 @@ typedef struct _google_rpc_Status {
     pb_bytes_array_t *message;
     pb_size_t details_count;
     struct _google_protobuf_Any *details;
-
-    static const char* Name() {
-        return "Status";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<Status 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        result += PrintField("code: ", code, indent + 1, false);
-        result += PrintField("message: ", message, indent + 1, false);
-        for (pb_size_t i = 0; i != details_count; ++i) {
-            result += PrintField("details ", details[i], indent + 1, true);
-        }
-
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_rpc_Status) */
 } google_rpc_Status;
 

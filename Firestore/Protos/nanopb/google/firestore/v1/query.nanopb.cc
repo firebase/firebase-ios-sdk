@@ -19,6 +19,8 @@
 
 #include "query.nanopb.h"
 
+#include "absl/strings/str_cat.h"
+#include "nanopb_pretty_printers.h"
 namespace firebase {
 namespace firestore {
 /* @@protoc_insertion_point(includes) */
@@ -123,6 +125,330 @@ PB_STATIC_ASSERT((pb_membersize(google_firestore_v1_StructuredQuery, select) < 2
 #endif
 
 
+
+  static const char* EnumToString(
+    google_firestore_v1_StructuredQuery_CompositeFilter_Operator value) {
+      switch (value) {
+        case google_firestore_v1_StructuredQuery_CompositeFilter_Operator_OPERATOR_UNSPECIFIED:
+          return "OPERATOR_UNSPECIFIED";
+        case google_firestore_v1_StructuredQuery_CompositeFilter_Operator_AND:
+          return "AND";
+      }
+      return "<unknown enum value>";
+  }
+
+  static const char* EnumToString(
+    google_firestore_v1_StructuredQuery_FieldFilter_Operator value) {
+      switch (value) {
+        case google_firestore_v1_StructuredQuery_FieldFilter_Operator_OPERATOR_UNSPECIFIED:
+          return "OPERATOR_UNSPECIFIED";
+        case google_firestore_v1_StructuredQuery_FieldFilter_Operator_LESS_THAN:
+          return "LESS_THAN";
+        case google_firestore_v1_StructuredQuery_FieldFilter_Operator_LESS_THAN_OR_EQUAL:
+          return "LESS_THAN_OR_EQUAL";
+        case google_firestore_v1_StructuredQuery_FieldFilter_Operator_GREATER_THAN:
+          return "GREATER_THAN";
+        case google_firestore_v1_StructuredQuery_FieldFilter_Operator_GREATER_THAN_OR_EQUAL:
+          return "GREATER_THAN_OR_EQUAL";
+        case google_firestore_v1_StructuredQuery_FieldFilter_Operator_EQUAL:
+          return "EQUAL";
+        case google_firestore_v1_StructuredQuery_FieldFilter_Operator_ARRAY_CONTAINS:
+          return "ARRAY_CONTAINS";
+        case google_firestore_v1_StructuredQuery_FieldFilter_Operator_IN:
+          return "IN";
+        case google_firestore_v1_StructuredQuery_FieldFilter_Operator_ARRAY_CONTAINS_ANY:
+          return "ARRAY_CONTAINS_ANY";
+      }
+      return "<unknown enum value>";
+  }
+
+  static const char* EnumToString(
+    google_firestore_v1_StructuredQuery_UnaryFilter_Operator value) {
+      switch (value) {
+        case google_firestore_v1_StructuredQuery_UnaryFilter_Operator_OPERATOR_UNSPECIFIED:
+          return "OPERATOR_UNSPECIFIED";
+        case google_firestore_v1_StructuredQuery_UnaryFilter_Operator_IS_NAN:
+          return "IS_NAN";
+        case google_firestore_v1_StructuredQuery_UnaryFilter_Operator_IS_NULL:
+          return "IS_NULL";
+      }
+      return "<unknown enum value>";
+  }
+
+  static const char* EnumToString(
+    google_firestore_v1_StructuredQuery_Direction value) {
+      switch (value) {
+        case google_firestore_v1_StructuredQuery_Direction_DIRECTION_UNSPECIFIED:
+          return "DIRECTION_UNSPECIFIED";
+        case google_firestore_v1_StructuredQuery_Direction_ASCENDING:
+          return "ASCENDING";
+        case google_firestore_v1_StructuredQuery_Direction_DESCENDING:
+          return "DESCENDING";
+      }
+      return "<unknown enum value>";
+  }
+
+  std::string StructuredQuery::ToString(int indent) const {
+      std::string result;
+
+      bool is_root = indent == 0;
+      std::string header;
+      if (is_root) {
+          indent = 1;
+          auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+          absl::StrAppend(&header, "<StructuredQuery 0x", p, ">: {\n");
+      } else {
+          header = "{\n";
+      }
+
+        result += PrintField("select ", select, indent + 1, false);
+        for (pb_size_t i = 0; i != from_count; ++i) {
+            result += PrintField("from ", from[i], indent + 1, true);
+        }
+        result += PrintField("where ", where, indent + 1, false);
+        for (pb_size_t i = 0; i != order_by_count; ++i) {
+            result += PrintField("order_by ", order_by[i], indent + 1, true);
+        }
+        if (has_limit) result += PrintField("limit ", limit, indent + 1, true);
+        result += PrintField("offset: ", offset, indent + 1, false);
+        result += PrintField("start_at ", start_at, indent + 1, false);
+        result += PrintField("end_at ", end_at, indent + 1, false);
+
+      std::string tail = Indent(is_root ? 0 : indent) + '}';
+      return header + result + tail;
+  }
+
+  std::string CollectionSelector::ToString(int indent) const {
+      std::string result;
+
+      bool is_root = indent == 0;
+      std::string header;
+      if (is_root) {
+          indent = 1;
+          auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+          absl::StrAppend(&header, "<CollectionSelector 0x", p, ">: {\n");
+      } else {
+          header = "{\n";
+      }
+
+        result += PrintField("collection_id: ", collection_id, indent + 1, false);
+        result += PrintField("all_descendants: ", all_descendants, indent + 1, false);
+
+      if (!result.empty() || is_root) {
+        std::string tail = Indent(is_root ? 0 : indent) + '}';
+        return header + result + tail;
+      } else {
+        return "";
+      }
+  }
+
+  std::string Filter::ToString(int indent) const {
+      std::string result;
+
+      bool is_root = indent == 0;
+      std::string header;
+      if (is_root) {
+          indent = 1;
+          auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+          absl::StrAppend(&header, "<Filter 0x", p, ">: {\n");
+      } else {
+          header = "{\n";
+      }
+
+        switch (which_filter_type) {
+          case 1: // google_firestore_v1_StructuredQuery_Filter_composite_filter_tag
+            result += PrintField("composite_filter ", composite_filter, indent + 1, true);
+            break;
+          case 2: // google_firestore_v1_StructuredQuery_Filter_field_filter_tag
+            result += PrintField("field_filter ", field_filter, indent + 1, true);
+            break;
+          case 3: // google_firestore_v1_StructuredQuery_Filter_unary_filter_tag
+            result += PrintField("unary_filter ", unary_filter, indent + 1, true);
+            break;
+        }
+
+
+      if (!result.empty() || is_root) {
+        std::string tail = Indent(is_root ? 0 : indent) + '}';
+        return header + result + tail;
+      } else {
+        return "";
+      }
+  }
+
+  std::string CompositeFilter::ToString(int indent) const {
+      std::string result;
+
+      bool is_root = indent == 0;
+      std::string header;
+      if (is_root) {
+          indent = 1;
+          auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+          absl::StrAppend(&header, "<CompositeFilter 0x", p, ">: {\n");
+      } else {
+          header = "{\n";
+      }
+
+        result += PrintEnumField<_google_firestore_v1_StructuredQuery_CompositeFilter>(
+              "op: : ", op, indent + 1);
+        for (pb_size_t i = 0; i != filters_count; ++i) {
+            result += PrintField("filters ", filters[i], indent + 1, true);
+        }
+
+      if (!result.empty() || is_root) {
+        std::string tail = Indent(is_root ? 0 : indent) + '}';
+        return header + result + tail;
+      } else {
+        return "";
+      }
+  }
+
+  std::string FieldFilter::ToString(int indent) const {
+      std::string result;
+
+      bool is_root = indent == 0;
+      std::string header;
+      if (is_root) {
+          indent = 1;
+          auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+          absl::StrAppend(&header, "<FieldFilter 0x", p, ">: {\n");
+      } else {
+          header = "{\n";
+      }
+
+        result += PrintField("field ", field, indent + 1, false);
+        result += PrintEnumField<_google_firestore_v1_StructuredQuery_FieldFilter>(
+              "op: : ", op, indent + 1);
+        result += PrintField("value ", value, indent + 1, false);
+
+      std::string tail = Indent(is_root ? 0 : indent) + '}';
+      return header + result + tail;
+  }
+
+  std::string UnaryFilter::ToString(int indent) const {
+      std::string result;
+
+      bool is_root = indent == 0;
+      std::string header;
+      if (is_root) {
+          indent = 1;
+          auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+          absl::StrAppend(&header, "<UnaryFilter 0x", p, ">: {\n");
+      } else {
+          header = "{\n";
+      }
+
+        result += PrintEnumField<_google_firestore_v1_StructuredQuery_UnaryFilter>(
+              "op: : ", op, indent + 1);
+        switch (which_operand_type) {
+          case 2: // google_firestore_v1_StructuredQuery_UnaryFilter_field_tag
+            result += PrintField("field ", field, indent + 1, true);
+            break;
+        }
+
+
+      if (!result.empty() || is_root) {
+        std::string tail = Indent(is_root ? 0 : indent) + '}';
+        return header + result + tail;
+      } else {
+        return "";
+      }
+  }
+
+  std::string Order::ToString(int indent) const {
+      std::string result;
+
+      bool is_root = indent == 0;
+      std::string header;
+      if (is_root) {
+          indent = 1;
+          auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+          absl::StrAppend(&header, "<Order 0x", p, ">: {\n");
+      } else {
+          header = "{\n";
+      }
+
+        result += PrintField("field ", field, indent + 1, false);
+        result += PrintEnumField<_google_firestore_v1_StructuredQuery_Order>(
+              "direction: : ", direction, indent + 1);
+
+      std::string tail = Indent(is_root ? 0 : indent) + '}';
+      return header + result + tail;
+  }
+
+  std::string FieldReference::ToString(int indent) const {
+      std::string result;
+
+      bool is_root = indent == 0;
+      std::string header;
+      if (is_root) {
+          indent = 1;
+          auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+          absl::StrAppend(&header, "<FieldReference 0x", p, ">: {\n");
+      } else {
+          header = "{\n";
+      }
+
+        result += PrintField("field_path: ", field_path, indent + 1, false);
+
+      if (!result.empty() || is_root) {
+        std::string tail = Indent(is_root ? 0 : indent) + '}';
+        return header + result + tail;
+      } else {
+        return "";
+      }
+  }
+
+  std::string Projection::ToString(int indent) const {
+      std::string result;
+
+      bool is_root = indent == 0;
+      std::string header;
+      if (is_root) {
+          indent = 1;
+          auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+          absl::StrAppend(&header, "<Projection 0x", p, ">: {\n");
+      } else {
+          header = "{\n";
+      }
+
+        for (pb_size_t i = 0; i != fields_count; ++i) {
+            result += PrintField("fields ", fields[i], indent + 1, true);
+        }
+
+      if (!result.empty() || is_root) {
+        std::string tail = Indent(is_root ? 0 : indent) + '}';
+        return header + result + tail;
+      } else {
+        return "";
+      }
+  }
+
+  std::string Cursor::ToString(int indent) const {
+      std::string result;
+
+      bool is_root = indent == 0;
+      std::string header;
+      if (is_root) {
+          indent = 1;
+          auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+          absl::StrAppend(&header, "<Cursor 0x", p, ">: {\n");
+      } else {
+          header = "{\n";
+      }
+
+        for (pb_size_t i = 0; i != values_count; ++i) {
+            result += PrintField("values ", values[i], indent + 1, true);
+        }
+        result += PrintField("before: ", before, indent + 1, false);
+
+      if (!result.empty() || is_root) {
+        std::string tail = Indent(is_root ? 0 : indent) + '}';
+        return header + result + tail;
+      } else {
+        return "";
+      }
+  }
 
 }  // namespace firestore
 }  // namespace firebase

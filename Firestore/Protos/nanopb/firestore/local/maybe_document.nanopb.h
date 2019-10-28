@@ -25,9 +25,7 @@
 
 #include "google/protobuf/timestamp.nanopb.h"
 
-#include "absl/strings/str_cat.h"
-#include "nanopb_pretty_printers.h"
-
+#include <string>
 namespace firebase {
 namespace firestore {
 /* @@protoc_insertion_point(includes) */
@@ -40,60 +38,14 @@ namespace firestore {
 typedef struct _firestore_client_NoDocument {
     pb_bytes_array_t *name;
     google_protobuf_Timestamp read_time;
-
-    static const char* Name() {
-        return "NoDocument";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<NoDocument 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        result += PrintField("name: ", name, indent + 1, false);
-        result += PrintField("read_time ", read_time, indent + 1, false);
-
-        std::string tail = Indent(is_root ? 0 : indent) + '}';
-        return header + result + tail;
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:firestore_client_NoDocument) */
 } firestore_client_NoDocument;
 
 typedef struct _firestore_client_UnknownDocument {
     pb_bytes_array_t *name;
     google_protobuf_Timestamp version;
-
-    static const char* Name() {
-        return "UnknownDocument";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<UnknownDocument 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        result += PrintField("name: ", name, indent + 1, false);
-        result += PrintField("version ", version, indent + 1, false);
-
-        std::string tail = Indent(is_root ? 0 : indent) + '}';
-        return header + result + tail;
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:firestore_client_UnknownDocument) */
 } firestore_client_UnknownDocument;
 
@@ -105,45 +57,7 @@ typedef struct _firestore_client_MaybeDocument {
         firestore_client_UnknownDocument unknown_document;
     };
     bool has_committed_mutations;
-
-    static const char* Name() {
-        return "MaybeDocument";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<MaybeDocument 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        switch (which_document_type) {
-          case 1: // firestore_client_MaybeDocument_no_document_tag
-            result += PrintField("no_document ", no_document, indent + 1, true);
-            break;
-          case 2: // firestore_client_MaybeDocument_document_tag
-            result += PrintField("document ", document, indent + 1, true);
-            break;
-          case 3: // firestore_client_MaybeDocument_unknown_document_tag
-            result += PrintField("unknown_document ", unknown_document, indent + 1, true);
-            break;
-        }
-
-        result += PrintField("has_committed_mutations: ", has_committed_mutations, indent + 1, false);
-
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:firestore_client_MaybeDocument) */
 } firestore_client_MaybeDocument;
 

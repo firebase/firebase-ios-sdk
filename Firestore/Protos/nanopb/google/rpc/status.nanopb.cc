@@ -19,6 +19,8 @@
 
 #include "status.nanopb.h"
 
+#include "absl/strings/str_cat.h"
+#include "nanopb_pretty_printers.h"
 namespace firebase {
 namespace firestore {
 /* @@protoc_insertion_point(includes) */
@@ -36,6 +38,33 @@ const pb_field_t google_rpc_Status_fields[4] = {
 };
 
 
+
+  std::string Status::ToString(int indent) const {
+      std::string result;
+
+      bool is_root = indent == 0;
+      std::string header;
+      if (is_root) {
+          indent = 1;
+          auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
+          absl::StrAppend(&header, "<Status 0x", p, ">: {\n");
+      } else {
+          header = "{\n";
+      }
+
+        result += PrintField("code: ", code, indent + 1, false);
+        result += PrintField("message: ", message, indent + 1, false);
+        for (pb_size_t i = 0; i != details_count; ++i) {
+            result += PrintField("details ", details[i], indent + 1, true);
+        }
+
+      if (!result.empty() || is_root) {
+        std::string tail = Indent(is_root ? 0 : indent) + '}';
+        return header + result + tail;
+      } else {
+        return "";
+      }
+  }
 
 }  // namespace firestore
 }  // namespace firebase

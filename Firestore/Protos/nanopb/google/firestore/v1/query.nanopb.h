@@ -27,9 +27,7 @@
 
 #include "google/protobuf/wrappers.nanopb.h"
 
-#include "absl/strings/str_cat.h"
-#include "nanopb_pretty_printers.h"
-
+#include <string>
 namespace firebase {
 namespace firestore {
 /* @@protoc_insertion_point(includes) */
@@ -83,68 +81,14 @@ typedef enum _google_firestore_v1_StructuredQuery_UnaryFilter_Operator {
 /* Struct definitions */
 typedef struct _google_firestore_v1_StructuredQuery_FieldReference {
     pb_bytes_array_t *field_path;
-
-    static const char* Name() {
-        return "FieldReference";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<FieldReference 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        result += PrintField("field_path: ", field_path, indent + 1, false);
-
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_StructuredQuery_FieldReference) */
 } google_firestore_v1_StructuredQuery_FieldReference;
 
 typedef struct _google_firestore_v1_StructuredQuery_Projection {
     pb_size_t fields_count;
     struct _google_firestore_v1_StructuredQuery_FieldReference *fields;
-
-    static const char* Name() {
-        return "Projection";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<Projection 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        for (pb_size_t i = 0; i != fields_count; ++i) {
-            result += PrintField("fields ", fields[i], indent + 1, true);
-        }
-
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_StructuredQuery_Projection) */
 } google_firestore_v1_StructuredQuery_Projection;
 
@@ -152,70 +96,14 @@ typedef struct _google_firestore_v1_Cursor {
     pb_size_t values_count;
     struct _google_firestore_v1_Value *values;
     bool before;
-
-    static const char* Name() {
-        return "Cursor";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<Cursor 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        for (pb_size_t i = 0; i != values_count; ++i) {
-            result += PrintField("values ", values[i], indent + 1, true);
-        }
-        result += PrintField("before: ", before, indent + 1, false);
-
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_Cursor) */
 } google_firestore_v1_Cursor;
 
 typedef struct _google_firestore_v1_StructuredQuery_CollectionSelector {
     pb_bytes_array_t *collection_id;
     bool all_descendants;
-
-    static const char* Name() {
-        return "CollectionSelector";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<CollectionSelector 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        result += PrintField("collection_id: ", collection_id, indent + 1, false);
-        result += PrintField("all_descendants: ", all_descendants, indent + 1, false);
-
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_StructuredQuery_CollectionSelector) */
 } google_firestore_v1_StructuredQuery_CollectionSelector;
 
@@ -223,48 +111,7 @@ typedef struct _google_firestore_v1_StructuredQuery_CompositeFilter {
     google_firestore_v1_StructuredQuery_CompositeFilter_Operator op;
     pb_size_t filters_count;
     struct _google_firestore_v1_StructuredQuery_Filter *filters;
-
-    static const char* EnumToString(
-      google_firestore_v1_StructuredQuery_CompositeFilter_Operator value) {
-        switch (value) {
-          case google_firestore_v1_StructuredQuery_CompositeFilter_Operator_OPERATOR_UNSPECIFIED:
-            return "OPERATOR_UNSPECIFIED";
-          case google_firestore_v1_StructuredQuery_CompositeFilter_Operator_AND:
-            return "AND";
-        }
-        return "<unknown enum value>";
-    }
-
-    static const char* Name() {
-        return "CompositeFilter";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<CompositeFilter 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        result += PrintEnumField<_google_firestore_v1_StructuredQuery_CompositeFilter>(
-              "op: : ", op, indent + 1);
-        for (pb_size_t i = 0; i != filters_count; ++i) {
-            result += PrintField("filters ", filters[i], indent + 1, true);
-        }
-
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_StructuredQuery_CompositeFilter) */
 } google_firestore_v1_StructuredQuery_CompositeFilter;
 
@@ -272,101 +119,14 @@ typedef struct _google_firestore_v1_StructuredQuery_FieldFilter {
     google_firestore_v1_StructuredQuery_FieldReference field;
     google_firestore_v1_StructuredQuery_FieldFilter_Operator op;
     google_firestore_v1_Value value;
-
-    static const char* EnumToString(
-      google_firestore_v1_StructuredQuery_FieldFilter_Operator value) {
-        switch (value) {
-          case google_firestore_v1_StructuredQuery_FieldFilter_Operator_OPERATOR_UNSPECIFIED:
-            return "OPERATOR_UNSPECIFIED";
-          case google_firestore_v1_StructuredQuery_FieldFilter_Operator_LESS_THAN:
-            return "LESS_THAN";
-          case google_firestore_v1_StructuredQuery_FieldFilter_Operator_LESS_THAN_OR_EQUAL:
-            return "LESS_THAN_OR_EQUAL";
-          case google_firestore_v1_StructuredQuery_FieldFilter_Operator_GREATER_THAN:
-            return "GREATER_THAN";
-          case google_firestore_v1_StructuredQuery_FieldFilter_Operator_GREATER_THAN_OR_EQUAL:
-            return "GREATER_THAN_OR_EQUAL";
-          case google_firestore_v1_StructuredQuery_FieldFilter_Operator_EQUAL:
-            return "EQUAL";
-          case google_firestore_v1_StructuredQuery_FieldFilter_Operator_ARRAY_CONTAINS:
-            return "ARRAY_CONTAINS";
-          case google_firestore_v1_StructuredQuery_FieldFilter_Operator_IN:
-            return "IN";
-          case google_firestore_v1_StructuredQuery_FieldFilter_Operator_ARRAY_CONTAINS_ANY:
-            return "ARRAY_CONTAINS_ANY";
-        }
-        return "<unknown enum value>";
-    }
-
-    static const char* Name() {
-        return "FieldFilter";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<FieldFilter 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        result += PrintField("field ", field, indent + 1, false);
-        result += PrintEnumField<_google_firestore_v1_StructuredQuery_FieldFilter>(
-              "op: : ", op, indent + 1);
-        result += PrintField("value ", value, indent + 1, false);
-
-        std::string tail = Indent(is_root ? 0 : indent) + '}';
-        return header + result + tail;
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_StructuredQuery_FieldFilter) */
 } google_firestore_v1_StructuredQuery_FieldFilter;
 
 typedef struct _google_firestore_v1_StructuredQuery_Order {
     google_firestore_v1_StructuredQuery_FieldReference field;
     google_firestore_v1_StructuredQuery_Direction direction;
-
-    static const char* EnumToString(
-      google_firestore_v1_StructuredQuery_Direction value) {
-        switch (value) {
-          case google_firestore_v1_StructuredQuery_Direction_DIRECTION_UNSPECIFIED:
-            return "DIRECTION_UNSPECIFIED";
-          case google_firestore_v1_StructuredQuery_Direction_ASCENDING:
-            return "ASCENDING";
-          case google_firestore_v1_StructuredQuery_Direction_DESCENDING:
-            return "DESCENDING";
-        }
-        return "<unknown enum value>";
-    }
-
-    static const char* Name() {
-        return "Order";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<Order 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        result += PrintField("field ", field, indent + 1, false);
-        result += PrintEnumField<_google_firestore_v1_StructuredQuery_Order>(
-              "direction: : ", direction, indent + 1);
-
-        std::string tail = Indent(is_root ? 0 : indent) + '}';
-        return header + result + tail;
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_StructuredQuery_Order) */
 } google_firestore_v1_StructuredQuery_Order;
 
@@ -376,53 +136,7 @@ typedef struct _google_firestore_v1_StructuredQuery_UnaryFilter {
     union {
         google_firestore_v1_StructuredQuery_FieldReference field;
     };
-
-    static const char* EnumToString(
-      google_firestore_v1_StructuredQuery_UnaryFilter_Operator value) {
-        switch (value) {
-          case google_firestore_v1_StructuredQuery_UnaryFilter_Operator_OPERATOR_UNSPECIFIED:
-            return "OPERATOR_UNSPECIFIED";
-          case google_firestore_v1_StructuredQuery_UnaryFilter_Operator_IS_NAN:
-            return "IS_NAN";
-          case google_firestore_v1_StructuredQuery_UnaryFilter_Operator_IS_NULL:
-            return "IS_NULL";
-        }
-        return "<unknown enum value>";
-    }
-
-    static const char* Name() {
-        return "UnaryFilter";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<UnaryFilter 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        result += PrintEnumField<_google_firestore_v1_StructuredQuery_UnaryFilter>(
-              "op: : ", op, indent + 1);
-        switch (which_operand_type) {
-          case 2: // google_firestore_v1_StructuredQuery_UnaryFilter_field_tag
-            result += PrintField("field ", field, indent + 1, true);
-            break;
-        }
-
-
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_StructuredQuery_UnaryFilter) */
 } google_firestore_v1_StructuredQuery_UnaryFilter;
 
@@ -433,44 +147,7 @@ typedef struct _google_firestore_v1_StructuredQuery_Filter {
         google_firestore_v1_StructuredQuery_FieldFilter field_filter;
         google_firestore_v1_StructuredQuery_UnaryFilter unary_filter;
     };
-
-    static const char* Name() {
-        return "Filter";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<Filter 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        switch (which_filter_type) {
-          case 1: // google_firestore_v1_StructuredQuery_Filter_composite_filter_tag
-            result += PrintField("composite_filter ", composite_filter, indent + 1, true);
-            break;
-          case 2: // google_firestore_v1_StructuredQuery_Filter_field_filter_tag
-            result += PrintField("field_filter ", field_filter, indent + 1, true);
-            break;
-          case 3: // google_firestore_v1_StructuredQuery_Filter_unary_filter_tag
-            result += PrintField("unary_filter ", unary_filter, indent + 1, true);
-            break;
-        }
-
-
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_StructuredQuery_Filter) */
 } google_firestore_v1_StructuredQuery_Filter;
 
@@ -486,40 +163,7 @@ typedef struct _google_firestore_v1_StructuredQuery {
     int32_t offset;
     google_firestore_v1_Cursor start_at;
     google_firestore_v1_Cursor end_at;
-
-    static const char* Name() {
-        return "StructuredQuery";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<StructuredQuery 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        result += PrintField("select ", select, indent + 1, false);
-        for (pb_size_t i = 0; i != from_count; ++i) {
-            result += PrintField("from ", from[i], indent + 1, true);
-        }
-        result += PrintField("where ", where, indent + 1, false);
-        for (pb_size_t i = 0; i != order_by_count; ++i) {
-            result += PrintField("order_by ", order_by[i], indent + 1, true);
-        }
-        if (has_limit) result += PrintField("limit ", limit, indent + 1, true);
-        result += PrintField("offset: ", offset, indent + 1, false);
-        result += PrintField("start_at ", start_at, indent + 1, false);
-        result += PrintField("end_at ", end_at, indent + 1, false);
-
-        std::string tail = Indent(is_root ? 0 : indent) + '}';
-        return header + result + tail;
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_StructuredQuery) */
 } google_firestore_v1_StructuredQuery;
 

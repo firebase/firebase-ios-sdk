@@ -25,9 +25,7 @@
 
 #include "google/protobuf/timestamp.nanopb.h"
 
-#include "absl/strings/str_cat.h"
-#include "nanopb_pretty_printers.h"
-
+#include <string>
 namespace firebase {
 namespace firestore {
 /* @@protoc_insertion_point(includes) */
@@ -40,67 +38,13 @@ namespace firestore {
 typedef struct _google_firestore_v1_DocumentMask {
     pb_size_t field_paths_count;
     pb_bytes_array_t **field_paths;
-
-    static const char* Name() {
-        return "DocumentMask";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<DocumentMask 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        for (pb_size_t i = 0; i != field_paths_count; ++i) {
-            result += PrintField("field_paths: ", field_paths[i], indent + 1, true);
-        }
-
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_DocumentMask) */
 } google_firestore_v1_DocumentMask;
 
 typedef struct _google_firestore_v1_TransactionOptions_ReadWrite {
     pb_bytes_array_t *retry_transaction;
-
-    static const char* Name() {
-        return "ReadWrite";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<ReadWrite 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        result += PrintField("retry_transaction: ", retry_transaction, indent + 1, false);
-
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_TransactionOptions_ReadWrite) */
 } google_firestore_v1_TransactionOptions_ReadWrite;
 
@@ -110,41 +54,7 @@ typedef struct _google_firestore_v1_Precondition {
         bool exists;
         google_protobuf_Timestamp update_time;
     };
-
-    static const char* Name() {
-        return "Precondition";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<Precondition 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        switch (which_condition_type) {
-          case 1: // google_firestore_v1_Precondition_exists_tag
-            result += PrintField("exists: ", exists, indent + 1, true);
-            break;
-          case 2: // google_firestore_v1_Precondition_update_time_tag
-            result += PrintField("update_time ", update_time, indent + 1, true);
-            break;
-        }
-
-
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_Precondition) */
 } google_firestore_v1_Precondition;
 
@@ -153,38 +63,7 @@ typedef struct _google_firestore_v1_TransactionOptions_ReadOnly {
     union {
         google_protobuf_Timestamp read_time;
     };
-
-    static const char* Name() {
-        return "ReadOnly";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<ReadOnly 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        switch (which_consistency_selector) {
-          case 2: // google_firestore_v1_TransactionOptions_ReadOnly_read_time_tag
-            result += PrintField("read_time ", read_time, indent + 1, true);
-            break;
-        }
-
-
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_TransactionOptions_ReadOnly) */
 } google_firestore_v1_TransactionOptions_ReadOnly;
 
@@ -194,41 +73,7 @@ typedef struct _google_firestore_v1_TransactionOptions {
         google_firestore_v1_TransactionOptions_ReadOnly read_only;
         google_firestore_v1_TransactionOptions_ReadWrite read_write;
     };
-
-    static const char* Name() {
-        return "TransactionOptions";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<TransactionOptions 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        switch (which_mode) {
-          case 2: // google_firestore_v1_TransactionOptions_read_only_tag
-            result += PrintField("read_only ", read_only, indent + 1, true);
-            break;
-          case 3: // google_firestore_v1_TransactionOptions_read_write_tag
-            result += PrintField("read_write ", read_write, indent + 1, true);
-            break;
-        }
-
-
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_TransactionOptions) */
 } google_firestore_v1_TransactionOptions;
 

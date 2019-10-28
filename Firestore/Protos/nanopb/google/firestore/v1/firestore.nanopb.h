@@ -37,9 +37,7 @@
 
 #include "google/rpc/status.nanopb.h"
 
-#include "absl/strings/str_cat.h"
-#include "nanopb_pretty_printers.h"
-
+#include <string>
 namespace firebase {
 namespace firestore {
 /* @@protoc_insertion_point(includes) */
@@ -63,33 +61,7 @@ typedef enum _google_firestore_v1_TargetChange_TargetChangeType {
 /* Struct definitions */
 typedef struct _google_firestore_v1_BeginTransactionResponse {
     pb_bytes_array_t *transaction;
-
-    static const char* Name() {
-        return "BeginTransactionResponse";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<BeginTransactionResponse 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        result += PrintField("transaction: ", transaction, indent + 1, false);
-
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_BeginTransactionResponse) */
 } google_firestore_v1_BeginTransactionResponse;
 
@@ -98,37 +70,7 @@ typedef struct _google_firestore_v1_CommitRequest {
     pb_size_t writes_count;
     struct _google_firestore_v1_Write *writes;
     pb_bytes_array_t *transaction;
-
-    static const char* Name() {
-        return "CommitRequest";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<CommitRequest 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        result += PrintField("database: ", database, indent + 1, false);
-        for (pb_size_t i = 0; i != writes_count; ++i) {
-            result += PrintField("writes ", writes[i], indent + 1, true);
-        }
-        result += PrintField("transaction: ", transaction, indent + 1, false);
-
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_CommitRequest) */
 } google_firestore_v1_CommitRequest;
 
@@ -136,36 +78,7 @@ typedef struct _google_firestore_v1_ListCollectionIdsResponse {
     pb_size_t collection_ids_count;
     pb_bytes_array_t **collection_ids;
     pb_bytes_array_t *next_page_token;
-
-    static const char* Name() {
-        return "ListCollectionIdsResponse";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<ListCollectionIdsResponse 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        for (pb_size_t i = 0; i != collection_ids_count; ++i) {
-            result += PrintField("collection_ids: ", collection_ids[i], indent + 1, true);
-        }
-        result += PrintField("next_page_token: ", next_page_token, indent + 1, false);
-
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_ListCollectionIdsResponse) */
 } google_firestore_v1_ListCollectionIdsResponse;
 
@@ -173,139 +86,28 @@ typedef struct _google_firestore_v1_ListDocumentsResponse {
     pb_size_t documents_count;
     struct _google_firestore_v1_Document *documents;
     pb_bytes_array_t *next_page_token;
-
-    static const char* Name() {
-        return "ListDocumentsResponse";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<ListDocumentsResponse 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        for (pb_size_t i = 0; i != documents_count; ++i) {
-            result += PrintField("documents ", documents[i], indent + 1, true);
-        }
-        result += PrintField("next_page_token: ", next_page_token, indent + 1, false);
-
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_ListDocumentsResponse) */
 } google_firestore_v1_ListDocumentsResponse;
 
 typedef struct _google_firestore_v1_ListenRequest_LabelsEntry {
     pb_bytes_array_t *key;
     pb_bytes_array_t *value;
-
-    static const char* Name() {
-        return "LabelsEntry";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<LabelsEntry 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        result += PrintField("key: ", key, indent + 1, false);
-        result += PrintField("value: ", value, indent + 1, false);
-
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_ListenRequest_LabelsEntry) */
 } google_firestore_v1_ListenRequest_LabelsEntry;
 
 typedef struct _google_firestore_v1_RollbackRequest {
     pb_bytes_array_t *database;
     pb_bytes_array_t *transaction;
-
-    static const char* Name() {
-        return "RollbackRequest";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<RollbackRequest 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        result += PrintField("database: ", database, indent + 1, false);
-        result += PrintField("transaction: ", transaction, indent + 1, false);
-
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_RollbackRequest) */
 } google_firestore_v1_RollbackRequest;
 
 typedef struct _google_firestore_v1_Target_DocumentsTarget {
     pb_size_t documents_count;
     pb_bytes_array_t **documents;
-
-    static const char* Name() {
-        return "DocumentsTarget";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<DocumentsTarget 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        for (pb_size_t i = 0; i != documents_count; ++i) {
-            result += PrintField("documents: ", documents[i], indent + 1, true);
-        }
-
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_Target_DocumentsTarget) */
 } google_firestore_v1_Target_DocumentsTarget;
 
@@ -317,75 +119,14 @@ typedef struct _google_firestore_v1_WriteRequest {
     pb_bytes_array_t *stream_token;
     pb_size_t labels_count;
     struct _google_firestore_v1_WriteRequest_LabelsEntry *labels;
-
-    static const char* Name() {
-        return "WriteRequest";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<WriteRequest 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        result += PrintField("database: ", database, indent + 1, false);
-        result += PrintField("stream_id: ", stream_id, indent + 1, false);
-        for (pb_size_t i = 0; i != writes_count; ++i) {
-            result += PrintField("writes ", writes[i], indent + 1, true);
-        }
-        result += PrintField("stream_token: ", stream_token, indent + 1, false);
-        for (pb_size_t i = 0; i != labels_count; ++i) {
-            result += PrintField("labels ", labels[i], indent + 1, true);
-        }
-
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_WriteRequest) */
 } google_firestore_v1_WriteRequest;
 
 typedef struct _google_firestore_v1_WriteRequest_LabelsEntry {
     pb_bytes_array_t *key;
     pb_bytes_array_t *value;
-
-    static const char* Name() {
-        return "LabelsEntry";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<LabelsEntry 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        result += PrintField("key: ", key, indent + 1, false);
-        result += PrintField("value: ", value, indent + 1, false);
-
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_WriteRequest_LabelsEntry) */
 } google_firestore_v1_WriteRequest_LabelsEntry;
 
@@ -400,45 +141,7 @@ typedef struct _google_firestore_v1_BatchGetDocumentsRequest {
         google_firestore_v1_TransactionOptions new_transaction;
         google_protobuf_Timestamp read_time;
     };
-
-    static const char* Name() {
-        return "BatchGetDocumentsRequest";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<BatchGetDocumentsRequest 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        result += PrintField("database: ", database, indent + 1, false);
-        for (pb_size_t i = 0; i != documents_count; ++i) {
-            result += PrintField("documents: ", documents[i], indent + 1, true);
-        }
-        result += PrintField("mask ", mask, indent + 1, false);
-        switch (which_consistency_selector) {
-          case 4: // google_firestore_v1_BatchGetDocumentsRequest_transaction_tag
-            result += PrintField("transaction: ", transaction, indent + 1, true);
-            break;
-          case 5: // google_firestore_v1_BatchGetDocumentsRequest_new_transaction_tag
-            result += PrintField("new_transaction ", new_transaction, indent + 1, true);
-            break;
-          case 7: // google_firestore_v1_BatchGetDocumentsRequest_read_time_tag
-            result += PrintField("read_time ", read_time, indent + 1, true);
-            break;
-        }
-
-
-        std::string tail = Indent(is_root ? 0 : indent) + '}';
-        return header + result + tail;
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_BatchGetDocumentsRequest) */
 } google_firestore_v1_BatchGetDocumentsRequest;
 
@@ -450,69 +153,14 @@ typedef struct _google_firestore_v1_BatchGetDocumentsResponse {
     };
     pb_bytes_array_t *transaction;
     google_protobuf_Timestamp read_time;
-
-    static const char* Name() {
-        return "BatchGetDocumentsResponse";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<BatchGetDocumentsResponse 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        switch (which_result) {
-          case 1: // google_firestore_v1_BatchGetDocumentsResponse_found_tag
-            result += PrintField("found ", found, indent + 1, true);
-            break;
-          case 2: // google_firestore_v1_BatchGetDocumentsResponse_missing_tag
-            result += PrintField("missing: ", missing, indent + 1, true);
-            break;
-        }
-
-        result += PrintField("transaction: ", transaction, indent + 1, false);
-        result += PrintField("read_time ", read_time, indent + 1, false);
-
-        std::string tail = Indent(is_root ? 0 : indent) + '}';
-        return header + result + tail;
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_BatchGetDocumentsResponse) */
 } google_firestore_v1_BatchGetDocumentsResponse;
 
 typedef struct _google_firestore_v1_BeginTransactionRequest {
     pb_bytes_array_t *database;
     google_firestore_v1_TransactionOptions options;
-
-    static const char* Name() {
-        return "BeginTransactionRequest";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<BeginTransactionRequest 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        result += PrintField("database: ", database, indent + 1, false);
-        result += PrintField("options ", options, indent + 1, false);
-
-        std::string tail = Indent(is_root ? 0 : indent) + '}';
-        return header + result + tail;
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_BeginTransactionRequest) */
 } google_firestore_v1_BeginTransactionRequest;
 
@@ -520,32 +168,7 @@ typedef struct _google_firestore_v1_CommitResponse {
     pb_size_t write_results_count;
     struct _google_firestore_v1_WriteResult *write_results;
     google_protobuf_Timestamp commit_time;
-
-    static const char* Name() {
-        return "CommitResponse";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<CommitResponse 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        for (pb_size_t i = 0; i != write_results_count; ++i) {
-            result += PrintField("write_results ", write_results[i], indent + 1, true);
-        }
-        result += PrintField("commit_time ", commit_time, indent + 1, false);
-
-        std::string tail = Indent(is_root ? 0 : indent) + '}';
-        return header + result + tail;
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_CommitResponse) */
 } google_firestore_v1_CommitResponse;
 
@@ -555,63 +178,14 @@ typedef struct _google_firestore_v1_CreateDocumentRequest {
     pb_bytes_array_t *document_id;
     google_firestore_v1_Document document;
     google_firestore_v1_DocumentMask mask;
-
-    static const char* Name() {
-        return "CreateDocumentRequest";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<CreateDocumentRequest 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        result += PrintField("parent: ", parent, indent + 1, false);
-        result += PrintField("collection_id: ", collection_id, indent + 1, false);
-        result += PrintField("document_id: ", document_id, indent + 1, false);
-        result += PrintField("document ", document, indent + 1, false);
-        result += PrintField("mask ", mask, indent + 1, false);
-
-        std::string tail = Indent(is_root ? 0 : indent) + '}';
-        return header + result + tail;
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_CreateDocumentRequest) */
 } google_firestore_v1_CreateDocumentRequest;
 
 typedef struct _google_firestore_v1_DeleteDocumentRequest {
     pb_bytes_array_t *name;
     google_firestore_v1_Precondition current_document;
-
-    static const char* Name() {
-        return "DeleteDocumentRequest";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<DeleteDocumentRequest 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        result += PrintField("name: ", name, indent + 1, false);
-        result += PrintField("current_document ", current_document, indent + 1, false);
-
-        std::string tail = Indent(is_root ? 0 : indent) + '}';
-        return header + result + tail;
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_DeleteDocumentRequest) */
 } google_firestore_v1_DeleteDocumentRequest;
 
@@ -623,39 +197,7 @@ typedef struct _google_firestore_v1_GetDocumentRequest {
         pb_bytes_array_t *transaction;
         google_protobuf_Timestamp read_time;
     };
-
-    static const char* Name() {
-        return "GetDocumentRequest";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<GetDocumentRequest 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        result += PrintField("name: ", name, indent + 1, false);
-        result += PrintField("mask ", mask, indent + 1, false);
-        switch (which_consistency_selector) {
-          case 3: // google_firestore_v1_GetDocumentRequest_transaction_tag
-            result += PrintField("transaction: ", transaction, indent + 1, true);
-            break;
-          case 5: // google_firestore_v1_GetDocumentRequest_read_time_tag
-            result += PrintField("read_time ", read_time, indent + 1, true);
-            break;
-        }
-
-
-        std::string tail = Indent(is_root ? 0 : indent) + '}';
-        return header + result + tail;
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_GetDocumentRequest) */
 } google_firestore_v1_GetDocumentRequest;
 
@@ -663,35 +205,7 @@ typedef struct _google_firestore_v1_ListCollectionIdsRequest {
     pb_bytes_array_t *parent;
     int32_t page_size;
     pb_bytes_array_t *page_token;
-
-    static const char* Name() {
-        return "ListCollectionIdsRequest";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<ListCollectionIdsRequest 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        result += PrintField("parent: ", parent, indent + 1, false);
-        result += PrintField("page_size: ", page_size, indent + 1, false);
-        result += PrintField("page_token: ", page_token, indent + 1, false);
-
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_ListCollectionIdsRequest) */
 } google_firestore_v1_ListCollectionIdsRequest;
 
@@ -708,44 +222,7 @@ typedef struct _google_firestore_v1_ListDocumentsRequest {
         google_protobuf_Timestamp read_time;
     };
     bool show_missing;
-
-    static const char* Name() {
-        return "ListDocumentsRequest";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<ListDocumentsRequest 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        result += PrintField("parent: ", parent, indent + 1, false);
-        result += PrintField("collection_id: ", collection_id, indent + 1, false);
-        result += PrintField("page_size: ", page_size, indent + 1, false);
-        result += PrintField("page_token: ", page_token, indent + 1, false);
-        result += PrintField("order_by: ", order_by, indent + 1, false);
-        result += PrintField("mask ", mask, indent + 1, false);
-        switch (which_consistency_selector) {
-          case 8: // google_firestore_v1_ListDocumentsRequest_transaction_tag
-            result += PrintField("transaction: ", transaction, indent + 1, true);
-            break;
-          case 10: // google_firestore_v1_ListDocumentsRequest_read_time_tag
-            result += PrintField("read_time ", read_time, indent + 1, true);
-            break;
-        }
-
-        result += PrintField("show_missing: ", show_missing, indent + 1, false);
-
-        std::string tail = Indent(is_root ? 0 : indent) + '}';
-        return header + result + tail;
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_ListDocumentsRequest) */
 } google_firestore_v1_ListDocumentsRequest;
 
@@ -761,51 +238,7 @@ typedef struct _google_firestore_v1_RunQueryRequest {
         google_firestore_v1_TransactionOptions new_transaction;
         google_protobuf_Timestamp read_time;
     } consistency_selector;
-
-    static const char* Name() {
-        return "RunQueryRequest";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<RunQueryRequest 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        result += PrintField("parent: ", parent, indent + 1, false);
-        switch (which_query_type) {
-          case 2: // google_firestore_v1_RunQueryRequest_structured_query_tag
-            result += PrintField("structured_query ", query_type.structured_query, indent + 1, true);
-            break;
-        }
-
-        switch (which_consistency_selector) {
-          case 5: // google_firestore_v1_RunQueryRequest_transaction_tag
-            result += PrintField("transaction: ", consistency_selector.transaction, indent + 1, true);
-            break;
-          case 6: // google_firestore_v1_RunQueryRequest_new_transaction_tag
-            result += PrintField("new_transaction ", consistency_selector.new_transaction, indent + 1, true);
-            break;
-          case 7: // google_firestore_v1_RunQueryRequest_read_time_tag
-            result += PrintField("read_time ", consistency_selector.read_time, indent + 1, true);
-            break;
-        }
-
-
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_RunQueryRequest) */
 } google_firestore_v1_RunQueryRequest;
 
@@ -814,32 +247,7 @@ typedef struct _google_firestore_v1_RunQueryResponse {
     pb_bytes_array_t *transaction;
     google_protobuf_Timestamp read_time;
     int32_t skipped_results;
-
-    static const char* Name() {
-        return "RunQueryResponse";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<RunQueryResponse 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        result += PrintField("document ", document, indent + 1, false);
-        result += PrintField("transaction: ", transaction, indent + 1, false);
-        result += PrintField("read_time ", read_time, indent + 1, false);
-        result += PrintField("skipped_results: ", skipped_results, indent + 1, false);
-
-        std::string tail = Indent(is_root ? 0 : indent) + '}';
-        return header + result + tail;
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_RunQueryResponse) */
 } google_firestore_v1_RunQueryResponse;
 
@@ -851,53 +259,7 @@ typedef struct _google_firestore_v1_TargetChange {
     google_rpc_Status cause;
     pb_bytes_array_t *resume_token;
     google_protobuf_Timestamp read_time;
-
-    static const char* EnumToString(
-      google_firestore_v1_TargetChange_TargetChangeType value) {
-        switch (value) {
-          case google_firestore_v1_TargetChange_TargetChangeType_NO_CHANGE:
-            return "NO_CHANGE";
-          case google_firestore_v1_TargetChange_TargetChangeType_ADD:
-            return "ADD";
-          case google_firestore_v1_TargetChange_TargetChangeType_REMOVE:
-            return "REMOVE";
-          case google_firestore_v1_TargetChange_TargetChangeType_CURRENT:
-            return "CURRENT";
-          case google_firestore_v1_TargetChange_TargetChangeType_RESET:
-            return "RESET";
-        }
-        return "<unknown enum value>";
-    }
-
-    static const char* Name() {
-        return "TargetChange";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<TargetChange 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        result += PrintEnumField<_google_firestore_v1_TargetChange>(
-              "target_change_type: : ", target_change_type, indent + 1);
-        for (pb_size_t i = 0; i != target_ids_count; ++i) {
-            result += PrintField("target_ids: ", target_ids[i], indent + 1, true);
-        }
-        if (has_cause) result += PrintField("cause ", cause, indent + 1, true);
-        result += PrintField("resume_token: ", resume_token, indent + 1, false);
-        result += PrintField("read_time ", read_time, indent + 1, false);
-
-        std::string tail = Indent(is_root ? 0 : indent) + '}';
-        return header + result + tail;
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_TargetChange) */
 } google_firestore_v1_TargetChange;
 
@@ -907,39 +269,7 @@ typedef struct _google_firestore_v1_Target_QueryTarget {
     union {
         google_firestore_v1_StructuredQuery structured_query;
     };
-
-    static const char* Name() {
-        return "QueryTarget";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<QueryTarget 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        result += PrintField("parent: ", parent, indent + 1, false);
-        switch (which_query_type) {
-          case 2: // google_firestore_v1_Target_QueryTarget_structured_query_tag
-            result += PrintField("structured_query ", structured_query, indent + 1, true);
-            break;
-        }
-
-
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_Target_QueryTarget) */
 } google_firestore_v1_Target_QueryTarget;
 
@@ -948,32 +278,7 @@ typedef struct _google_firestore_v1_UpdateDocumentRequest {
     google_firestore_v1_DocumentMask update_mask;
     google_firestore_v1_DocumentMask mask;
     google_firestore_v1_Precondition current_document;
-
-    static const char* Name() {
-        return "UpdateDocumentRequest";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<UpdateDocumentRequest 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        result += PrintField("document ", document, indent + 1, false);
-        result += PrintField("update_mask ", update_mask, indent + 1, false);
-        result += PrintField("mask ", mask, indent + 1, false);
-        result += PrintField("current_document ", current_document, indent + 1, false);
-
-        std::string tail = Indent(is_root ? 0 : indent) + '}';
-        return header + result + tail;
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_UpdateDocumentRequest) */
 } google_firestore_v1_UpdateDocumentRequest;
 
@@ -983,34 +288,7 @@ typedef struct _google_firestore_v1_WriteResponse {
     pb_size_t write_results_count;
     struct _google_firestore_v1_WriteResult *write_results;
     google_protobuf_Timestamp commit_time;
-
-    static const char* Name() {
-        return "WriteResponse";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<WriteResponse 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        result += PrintField("stream_id: ", stream_id, indent + 1, false);
-        result += PrintField("stream_token: ", stream_token, indent + 1, false);
-        for (pb_size_t i = 0; i != write_results_count; ++i) {
-            result += PrintField("write_results ", write_results[i], indent + 1, true);
-        }
-        result += PrintField("commit_time ", commit_time, indent + 1, false);
-
-        std::string tail = Indent(is_root ? 0 : indent) + '}';
-        return header + result + tail;
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_WriteResponse) */
 } google_firestore_v1_WriteResponse;
 
@@ -1023,50 +301,7 @@ typedef struct _google_firestore_v1_ListenResponse {
         google_firestore_v1_ExistenceFilter filter;
         google_firestore_v1_DocumentRemove document_remove;
     };
-
-    static const char* Name() {
-        return "ListenResponse";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<ListenResponse 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        switch (which_response_type) {
-          case 2: // google_firestore_v1_ListenResponse_target_change_tag
-            result += PrintField("target_change ", target_change, indent + 1, true);
-            break;
-          case 3: // google_firestore_v1_ListenResponse_document_change_tag
-            result += PrintField("document_change ", document_change, indent + 1, true);
-            break;
-          case 4: // google_firestore_v1_ListenResponse_document_delete_tag
-            result += PrintField("document_delete ", document_delete, indent + 1, true);
-            break;
-          case 5: // google_firestore_v1_ListenResponse_filter_tag
-            result += PrintField("filter ", filter, indent + 1, true);
-            break;
-          case 6: // google_firestore_v1_ListenResponse_document_remove_tag
-            result += PrintField("document_remove ", document_remove, indent + 1, true);
-            break;
-        }
-
-
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_ListenResponse) */
 } google_firestore_v1_ListenResponse;
 
@@ -1083,52 +318,7 @@ typedef struct _google_firestore_v1_Target {
     } resume_type;
     int32_t target_id;
     bool once;
-
-    static const char* Name() {
-        return "Target";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<Target 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        switch (which_target_type) {
-          case 2: // google_firestore_v1_Target_query_tag
-            result += PrintField("query ", target_type.query, indent + 1, true);
-            break;
-          case 3: // google_firestore_v1_Target_documents_tag
-            result += PrintField("documents ", target_type.documents, indent + 1, true);
-            break;
-        }
-
-        switch (which_resume_type) {
-          case 4: // google_firestore_v1_Target_resume_token_tag
-            result += PrintField("resume_token: ", resume_type.resume_token, indent + 1, true);
-            break;
-          case 11: // google_firestore_v1_Target_read_time_tag
-            result += PrintField("read_time ", resume_type.read_time, indent + 1, true);
-            break;
-        }
-
-        result += PrintField("target_id: ", target_id, indent + 1, false);
-        result += PrintField("once: ", once, indent + 1, false);
-
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_Target) */
 } google_firestore_v1_Target;
 
@@ -1141,45 +331,7 @@ typedef struct _google_firestore_v1_ListenRequest {
     };
     pb_size_t labels_count;
     struct _google_firestore_v1_ListenRequest_LabelsEntry *labels;
-
-    static const char* Name() {
-        return "ListenRequest";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<ListenRequest 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        result += PrintField("database: ", database, indent + 1, false);
-        switch (which_target_change) {
-          case 2: // google_firestore_v1_ListenRequest_add_target_tag
-            result += PrintField("add_target ", add_target, indent + 1, true);
-            break;
-          case 3: // google_firestore_v1_ListenRequest_remove_target_tag
-            result += PrintField("remove_target: ", remove_target, indent + 1, true);
-            break;
-        }
-
-        for (pb_size_t i = 0; i != labels_count; ++i) {
-            result += PrintField("labels ", labels[i], indent + 1, true);
-        }
-
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_ListenRequest) */
 } google_firestore_v1_ListenRequest;
 

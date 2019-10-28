@@ -29,9 +29,7 @@
 
 #include "google/type/latlng.nanopb.h"
 
-#include "absl/strings/str_cat.h"
-#include "nanopb_pretty_printers.h"
-
+#include <string>
 namespace firebase {
 namespace firestore {
 /* @@protoc_insertion_point(includes) */
@@ -44,70 +42,14 @@ namespace firestore {
 typedef struct _google_firestore_v1_ArrayValue {
     pb_size_t values_count;
     struct _google_firestore_v1_Value *values;
-
-    static const char* Name() {
-        return "ArrayValue";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<ArrayValue 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        for (pb_size_t i = 0; i != values_count; ++i) {
-            result += PrintField("values ", values[i], indent + 1, true);
-        }
-
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_ArrayValue) */
 } google_firestore_v1_ArrayValue;
 
 typedef struct _google_firestore_v1_MapValue {
     pb_size_t fields_count;
     struct _google_firestore_v1_MapValue_FieldsEntry *fields;
-
-    static const char* Name() {
-        return "MapValue";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<MapValue 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        for (pb_size_t i = 0; i != fields_count; ++i) {
-            result += PrintField("fields ", fields[i], indent + 1, true);
-        }
-
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_MapValue) */
 } google_firestore_v1_MapValue;
 
@@ -118,34 +60,7 @@ typedef struct _google_firestore_v1_Document {
     google_protobuf_Timestamp create_time;
     bool has_update_time;
     google_protobuf_Timestamp update_time;
-
-    static const char* Name() {
-        return "Document";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<Document 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        result += PrintField("name: ", name, indent + 1, false);
-        for (pb_size_t i = 0; i != fields_count; ++i) {
-            result += PrintField("fields ", fields[i], indent + 1, true);
-        }
-        result += PrintField("create_time ", create_time, indent + 1, false);
-        if (has_update_time) result += PrintField("update_time ", update_time, indent + 1, true);
-
-        std::string tail = Indent(is_root ? 0 : indent) + '}';
-        return header + result + tail;
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_Document) */
 } google_firestore_v1_Document;
 
@@ -164,129 +79,21 @@ typedef struct _google_firestore_v1_Value {
         pb_bytes_array_t *string_value;
         pb_bytes_array_t *bytes_value;
     };
-
-    static const char* Name() {
-        return "Value";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<Value 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        switch (which_value_type) {
-          case 1: // google_firestore_v1_Value_boolean_value_tag
-            result += PrintField("boolean_value: ", boolean_value, indent + 1, true);
-            break;
-          case 2: // google_firestore_v1_Value_integer_value_tag
-            result += PrintField("integer_value: ", integer_value, indent + 1, true);
-            break;
-          case 3: // google_firestore_v1_Value_double_value_tag
-            result += PrintField("double_value: ", double_value, indent + 1, true);
-            break;
-          case 5: // google_firestore_v1_Value_reference_value_tag
-            result += PrintField("reference_value: ", reference_value, indent + 1, true);
-            break;
-          case 6: // google_firestore_v1_Value_map_value_tag
-            result += PrintField("map_value ", map_value, indent + 1, true);
-            break;
-          case 8: // google_firestore_v1_Value_geo_point_value_tag
-            result += PrintField("geo_point_value ", geo_point_value, indent + 1, true);
-            break;
-          case 9: // google_firestore_v1_Value_array_value_tag
-            result += PrintField("array_value ", array_value, indent + 1, true);
-            break;
-          case 10: // google_firestore_v1_Value_timestamp_value_tag
-            result += PrintField("timestamp_value ", timestamp_value, indent + 1, true);
-            break;
-          case 11: // google_firestore_v1_Value_null_value_tag
-            result += PrintEnumField<_google_firestore_v1_Value>(
-              "null_value: : ", null_value, indent + 1);
-            break;
-          case 17: // google_firestore_v1_Value_string_value_tag
-            result += PrintField("string_value: ", string_value, indent + 1, true);
-            break;
-          case 18: // google_firestore_v1_Value_bytes_value_tag
-            result += PrintField("bytes_value: ", bytes_value, indent + 1, true);
-            break;
-        }
-
-
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_Value) */
 } google_firestore_v1_Value;
 
 typedef struct _google_firestore_v1_Document_FieldsEntry {
     pb_bytes_array_t *key;
     google_firestore_v1_Value value;
-
-    static const char* Name() {
-        return "FieldsEntry";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<FieldsEntry 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        result += PrintField("key: ", key, indent + 1, false);
-        result += PrintField("value ", value, indent + 1, false);
-
-        std::string tail = Indent(is_root ? 0 : indent) + '}';
-        return header + result + tail;
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_Document_FieldsEntry) */
 } google_firestore_v1_Document_FieldsEntry;
 
 typedef struct _google_firestore_v1_MapValue_FieldsEntry {
     pb_bytes_array_t *key;
     google_firestore_v1_Value value;
-
-    static const char* Name() {
-        return "FieldsEntry";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<FieldsEntry 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        result += PrintField("key: ", key, indent + 1, false);
-        result += PrintField("value ", value, indent + 1, false);
-
-        std::string tail = Indent(is_root ? 0 : indent) + '}';
-        return header + result + tail;
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_MapValue_FieldsEntry) */
 } google_firestore_v1_MapValue_FieldsEntry;
 

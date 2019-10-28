@@ -21,9 +21,7 @@
 #define PB_GOOGLE_TYPE_LATLNG_NANOPB_H_INCLUDED
 #include <pb.h>
 
-#include "absl/strings/str_cat.h"
-#include "nanopb_pretty_printers.h"
-
+#include <string>
 namespace firebase {
 namespace firestore {
 /* @@protoc_insertion_point(includes) */
@@ -36,34 +34,7 @@ namespace firestore {
 typedef struct _google_type_LatLng {
     double latitude;
     double longitude;
-
-    static const char* Name() {
-        return "LatLng";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<LatLng 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        result += PrintField("latitude: ", latitude, indent + 1, false);
-        result += PrintField("longitude: ", longitude, indent + 1, false);
-
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_type_LatLng) */
 } google_type_LatLng;
 

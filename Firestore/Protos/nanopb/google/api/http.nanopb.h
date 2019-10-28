@@ -21,9 +21,7 @@
 #define PB_GOOGLE_API_HTTP_NANOPB_H_INCLUDED
 #include <pb.h>
 
-#include "absl/strings/str_cat.h"
-#include "nanopb_pretty_printers.h"
-
+#include <string>
 namespace firebase {
 namespace firestore {
 /* @@protoc_insertion_point(includes) */
@@ -36,34 +34,7 @@ namespace firestore {
 typedef struct _google_api_CustomHttpPattern {
     pb_bytes_array_t *kind;
     pb_bytes_array_t *path;
-
-    static const char* Name() {
-        return "CustomHttpPattern";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<CustomHttpPattern 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        result += PrintField("kind: ", kind, indent + 1, false);
-        result += PrintField("path: ", path, indent + 1, false);
-
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_api_CustomHttpPattern) */
 } google_api_CustomHttpPattern;
 
@@ -71,36 +42,7 @@ typedef struct _google_api_Http {
     pb_size_t rules_count;
     struct _google_api_HttpRule *rules;
     bool fully_decode_reserved_expansion;
-
-    static const char* Name() {
-        return "Http";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<Http 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        for (pb_size_t i = 0; i != rules_count; ++i) {
-            result += PrintField("rules ", rules[i], indent + 1, true);
-        }
-        result += PrintField("fully_decode_reserved_expansion: ", fully_decode_reserved_expansion, indent + 1, false);
-
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_api_Http) */
 } google_api_Http;
 
@@ -118,58 +60,7 @@ typedef struct _google_api_HttpRule {
     pb_bytes_array_t *body;
     pb_size_t additional_bindings_count;
     struct _google_api_HttpRule *additional_bindings;
-
-    static const char* Name() {
-        return "HttpRule";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<HttpRule 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-        result += PrintField("selector: ", selector, indent + 1, false);
-        switch (which_pattern) {
-          case 2: // google_api_HttpRule_get_tag
-            result += PrintField("get: ", get, indent + 1, true);
-            break;
-          case 3: // google_api_HttpRule_put_tag
-            result += PrintField("put: ", put, indent + 1, true);
-            break;
-          case 4: // google_api_HttpRule_post_tag
-            result += PrintField("post: ", post, indent + 1, true);
-            break;
-          case 5: // google_api_HttpRule_delete_tag
-            result += PrintField("delete_: ", delete_, indent + 1, true);
-            break;
-          case 6: // google_api_HttpRule_patch_tag
-            result += PrintField("patch: ", patch, indent + 1, true);
-            break;
-          case 8: // google_api_HttpRule_custom_tag
-            result += PrintField("custom ", custom, indent + 1, true);
-            break;
-        }
-
-        result += PrintField("body: ", body, indent + 1, false);
-        for (pb_size_t i = 0; i != additional_bindings_count; ++i) {
-            result += PrintField("additional_bindings ", additional_bindings[i], indent + 1, true);
-        }
-
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_api_HttpRule) */
 } google_api_HttpRule;
 

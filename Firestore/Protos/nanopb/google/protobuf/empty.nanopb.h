@@ -21,9 +21,7 @@
 #define PB_GOOGLE_PROTOBUF_EMPTY_NANOPB_H_INCLUDED
 #include <pb.h>
 
-#include "absl/strings/str_cat.h"
-#include "nanopb_pretty_printers.h"
-
+#include <string>
 namespace firebase {
 namespace firestore {
 /* @@protoc_insertion_point(includes) */
@@ -35,32 +33,7 @@ namespace firestore {
 /* Struct definitions */
 typedef struct _google_protobuf_Empty {
     char dummy_field;
-
-    static const char* Name() {
-        return "Empty";
-    }
-
-    std::string ToString(int indent = 0) const {
-        std::string result;
-
-        bool is_root = indent == 0;
-        std::string header;
-        if (is_root) {
-            indent = 1;
-            auto p = absl::Hex{reinterpret_cast<uintptr_t>(this)};
-            absl::StrAppend(&header, "<Empty 0x", p, ">: {\n");
-        } else {
-            header = "{\n";
-        }
-
-
-        if (!result.empty() || is_root) {
-          std::string tail = Indent(is_root ? 0 : indent) + '}';
-          return header + result + tail;
-        } else {
-          return "";
-        }
-    }
+        std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_protobuf_Empty) */
 } google_protobuf_Empty;
 
