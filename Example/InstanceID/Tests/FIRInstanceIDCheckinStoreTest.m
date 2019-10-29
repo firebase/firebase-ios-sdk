@@ -213,7 +213,6 @@ static int64_t const kLastCheckinTimestamp = 123456;
   NSData *data = [checkinKeychainContent dataUsingEncoding:NSUTF8StringEncoding];
   [fakeKeychain setData:data
              forService:kFIRInstanceIDLegacyCheckinKeychainService
-          accessibility:nil
                 account:kFIRInstanceIDLegacyCheckinKeychainAccount
                 handler:^(NSError *error) {
                   XCTAssertNil(error);

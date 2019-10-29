@@ -47,9 +47,8 @@ typedef NS_ENUM(NSUInteger, FIRMessagingConnectionCloseReason) {
 /**
  * Called when a stream ACK or a selective ACK are received - this indicates the
  * message has been received by MCS.
- * @return The count of rmqIds deleted from the client RMQ store.
  */
-- (int)connectionDidReceiveAckForRmqIds:(NSArray *)rmqIds;
+- (void)connectionDidReceiveAckForRmqIds:(NSArray *)rmqIds;
 
 @end
 

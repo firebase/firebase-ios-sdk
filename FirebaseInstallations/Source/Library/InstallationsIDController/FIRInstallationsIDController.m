@@ -257,13 +257,9 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
         }
       })
       .then(^id(FIRInstallationsItem *registeredInstallation) {
-        // Expected successful result: @[FIRInstallationsItem *registeredInstallation, NSNull]
-        return [FBLPromise all:@[
-          registeredInstallation, [self.installationsStore saveInstallation:registeredInstallation]
-        ]];
+        return [self saveInstallation:registeredInstallation];
       })
-      .then(^FIRInstallationsItem *(NSArray *result) {
-        FIRInstallationsItem *registeredInstallation = result.firstObject;
+      .then(^FIRInstallationsItem *(FIRInstallationsItem *registeredInstallation) {
         // Server may respond with a different FID if the sent one cannot be accepted.
         if (![registeredInstallation.firebaseInstallationID
                 isEqualToString:installation.firebaseInstallationID]) {
@@ -318,7 +314,7 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
             [registeredInstallation.authToken.expirationDate timeIntervalSinceDate:[NSDate date]] <
             kFIRInstallationsTokenExpirationThreshold;
         if (forceRefresh || isTokenExpiredOrExpiresSoon) {
-          return [self.APIService refreshAuthTokenForInstallation:registeredInstallation];
+          return [self refreshAuthTokenForInstallation:registeredInstallation];
         } else {
           return registeredInstallation;
         }
@@ -326,6 +322,14 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
       .recover(^id(NSError *error) {
         return [self regenerateFIDOnRefreshTokenErrorIfNeeded:error];
       });
+}
+
+- (FBLPromise<FIRInstallationsItem *> *)refreshAuthTokenForInstallation:
+    (FIRInstallationsItem *)installation {
+  return [[self.APIService refreshAuthTokenForInstallation:installation]
+      then:^id _Nullable(FIRInstallationsItem *_Nullable refreshedInstallation) {
+        return [self saveInstallation:refreshedInstallation];
+      }];
 }
 
 - (id)regenerateFIDOnRefreshTokenErrorIfNeeded:(NSError *)error {

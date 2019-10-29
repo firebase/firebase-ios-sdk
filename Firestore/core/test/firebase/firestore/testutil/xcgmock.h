@@ -145,10 +145,7 @@ OBJC_PRINT_TO(FSTDeleteFieldValue);
 OBJC_PRINT_TO(FSTDocumentKeyReference);
 OBJC_PRINT_TO(FSTFirestoreComponent);
 OBJC_PRINT_TO(FSTListenerRegistration);
-OBJC_PRINT_TO(FSTLocalSerializer);
-OBJC_PRINT_TO(FSTLocalStore);
 OBJC_PRINT_TO(FSTNumericIncrementFieldValue);
-OBJC_PRINT_TO(FSTSerializerBeta);
 OBJC_PRINT_TO(FSTServerTimestampFieldValue);
 OBJC_PRINT_TO(FSTUserDataConverter);
 

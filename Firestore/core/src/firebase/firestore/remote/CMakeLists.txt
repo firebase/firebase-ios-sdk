@@ -21,6 +21,7 @@ cc_library(
   DEPENDS
     absl_base
     firebase_firestore_util
+    "-framework SystemConfiguration"
   EXCLUDE_FROM_ALL
 )
 
@@ -46,21 +47,28 @@ cc_select(
 # alongside gRPC and is necessary to establish SSL connections. Embed this file
 # into the binary by converting it to a char array.
 add_custom_command(
-    OUTPUT grpc_root_certificates_generated.h grpc_root_certificates_generated.cc
-    COMMAND python ${FIREBASE_SOURCE_DIR}/scripts/binary_to_array.py
-        --output_header=grpc_root_certificates_generated.h
-        --output_source=grpc_root_certificates_generated.cc
-        --cpp_namespace=firebase::firestore::remote
-        --array=grpc_root_certificates_generated_data
-        --array_size=grpc_root_certificates_generated_size
-        ${FIREBASE_EXTERNAL_SOURCE_DIR}/grpc/etc/roots.pem
-    DEPENDS
+  OUTPUT
+    grpc_root_certificates_generated.h  # NOLINT(generated)
+    grpc_root_certificates_generated.cc # NOLINT(generated)
+  COMMAND python ${FIREBASE_SOURCE_DIR}/scripts/binary_to_array.py
+      --output_header=grpc_root_certificates_generated.h
+      --output_source=grpc_root_certificates_generated.cc
+      --cpp_namespace=firebase::firestore::remote
+      --array=grpc_root_certificates_generated_data
+      --array_size=grpc_root_certificates_generated_size
+      ${FIREBASE_EXTERNAL_SOURCE_DIR}/grpc/etc/roots.pem
+  DEPENDS
     ${FIREBASE_EXTERNAL_SOURCE_DIR}/grpc/etc/roots.pem
 )
+
+# TODO(wilhuff): Build grpc_root_certificate_finder_apple.mm NOLINT(not built)
 
 cc_library(
   firebase_firestore_remote
   SOURCES
+    datastore.cc
+    datastore.h
+    existence_filter.h
     exponential_backoff.cc
     exponential_backoff.h
     grpc_call.h
@@ -84,25 +92,24 @@ cc_library(
     grpc_util.cc
     grpc_util.cc
     grpc_util.h
+    online_state_tracker.cc
+    online_state_tracker.h
     remote_event.cc
     remote_event.h
+    remote_objc_bridge.cc
+    remote_objc_bridge.h
+    remote_store.cc
+    remote_store.h
     serializer.cc
     serializer.h
+    stream.cc
+    stream.h
     watch_change.cc
     watch_change.h
-
-    # TODO(varconst): add these files once they no longer depend on Objective-C
-    # serializer.
-    # datastore.h
-    # datastore.mm
-    # remote_objc_bridge.h
-    # remote_objc_bridge.mm
-    # stream.h
-    # stream.mm
-    # watch_stream.h
-    # watch_stream.mm
-    # write_stream.h
-    # write_stream.mm
+    watch_stream.cc
+    watch_stream.h
+    write_stream.cc
+    write_stream.h
 
   DEPENDS
     # TODO(b/111328563) Force nanopb first to work around ODR violations

@@ -392,7 +392,7 @@
   FBLPromise<FIRInstallationsItem *> *promise = [self.controller getAuthTokenForcingRefresh:NO];
 
   // 3. Wait for the promise to resolve.
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   // 4. Check.
   OCMVerifyAll(self.mockInstallationsStore);
@@ -414,19 +414,15 @@
   OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
       .andReturn([FBLPromise resolvedWith:storedInstallation]);
 
-  // 1.2. Expect API request.
+  // 1.2. Auth Token refresh.
   FIRInstallationsItem *responseInstallation =
-      [FIRInstallationsItem createRegisteredInstallationItem];
-  responseInstallation.authToken.token =
-      [responseInstallation.authToken.token stringByAppendingString:@"_new"];
-  OCMExpect([self.mockAPIService refreshAuthTokenForInstallation:storedInstallation])
-      .andReturn([FBLPromise resolvedWith:responseInstallation]);
+      [self expectAuthTokenRefreshForInstallation:storedInstallation];
 
   // 2. Request auth token.
   FBLPromise<FIRInstallationsItem *> *promise = [self.controller getAuthTokenForcingRefresh:NO];
 
   // 3. Wait for the promise to resolve.
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   // 4. Check.
   OCMVerifyAll(self.mockInstallationsStore);
@@ -447,19 +443,15 @@
   OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
       .andReturn([FBLPromise resolvedWith:storedInstallation]);
 
-  // 1.2. Expect API request.
+  // 1.2. Auth Token refresh.
   FIRInstallationsItem *responseInstallation =
-      [FIRInstallationsItem createRegisteredInstallationItem];
-  responseInstallation.authToken.token =
-      [responseInstallation.authToken.token stringByAppendingString:@"_new"];
-  OCMExpect([self.mockAPIService refreshAuthTokenForInstallation:storedInstallation])
-      .andReturn([FBLPromise resolvedWith:responseInstallation]);
+      [self expectAuthTokenRefreshForInstallation:storedInstallation];
 
   // 2. Request auth token.
   FBLPromise<FIRInstallationsItem *> *promise = [self.controller getAuthTokenForcingRefresh:YES];
 
   // 3. Wait for the promise to resolve.
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   // 4. Check.
   OCMVerifyAll(self.mockInstallationsStore);
@@ -494,7 +486,7 @@
   [storagePendingPromise fulfill:storedInstallation];
 
   // 4. Wait for the promise to resolve.
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   // 5. Check.
   OCMVerifyAll(self.mockInstallationsStore);
@@ -525,6 +517,10 @@
   OCMExpect([self.mockAPIService refreshAuthTokenForInstallation:storedInstallation])
       .andReturn(pendingAPIPromise);
 
+  // 1.3. Expect new token to be stored.
+  OCMExpect([self.mockInstallationsStore saveInstallation:responseInstallation])
+      .andReturn([FBLPromise resolvedWith:[NSNull null]]);
+
   // 2. Request auth token n times.
   NSInteger requestCount = 10;
   NSMutableArray *authTokenPromises = [NSMutableArray arrayWithCapacity:requestCount];
@@ -536,7 +532,7 @@
   [pendingAPIPromise fulfill:responseInstallation];
 
   // 4. Wait for the promise to resolve.
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   // 5. Check.
   OCMVerifyAll(self.mockInstallationsStore);
@@ -664,7 +660,7 @@
   FBLPromise<NSNull *> *promise = [self.controller deleteInstallation];
 
   // 6. Wait for operations to complete and check.
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   XCTAssertNil(promise.error);
   XCTAssertTrue(promise.isFulfilled);
@@ -702,7 +698,7 @@
   FBLPromise<NSNull *> *promise = [self.controller deleteInstallation];
 
   // 6. Wait for operations to complete and check.
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   XCTAssertNil(promise.error);
   XCTAssertTrue(promise.isFulfilled);
@@ -742,7 +738,7 @@
   FBLPromise<NSNull *> *promise = [self.controller deleteInstallation];
 
   // 6. Wait for operations to complete and check.
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   XCTAssertEqualObjects(promise.error, error500);
   XCTAssertTrue(promise.isRejected);
@@ -781,7 +777,7 @@
   FBLPromise<NSNull *> *promise = [self.controller deleteInstallation];
 
   // 6. Wait for operations to complete and check.
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   XCTAssertNil(promise.error);
   XCTAssertTrue(promise.isFulfilled);
@@ -839,10 +835,14 @@
   FBLPromise<NSNull *> *deletePromise = [self.controller deleteInstallation];
 
   // 4. Fulfill auth token promise to proceed.
+  // 4.1. Expect new token to be stored on API response.
+  OCMExpect([self.mockInstallationsStore saveInstallation:responseInstallation])
+      .andReturn([FBLPromise resolvedWith:[NSNull null]]);
+
   [pendingAuthTokenAPIPromise fulfill:responseInstallation];
 
   // 5. Wait for operations to complete and check the result.
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   XCTAssertNil(deletePromise.error);
   XCTAssertTrue(deletePromise.isFulfilled);
@@ -884,7 +884,7 @@
   FBLPromise<NSNull *> *promise = [self.controller deleteInstallation];
 
   // 6. Wait for operations to complete and check.
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   XCTAssertNil(promise.error);
   XCTAssertTrue(promise.isFulfilled);
@@ -938,7 +938,7 @@
 
   // 3. Request FID.
   FBLPromise *promise = [self.controller getInstallationItem];
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   // 4. Check.
   XCTAssertNil(promise.error);
@@ -1033,6 +1033,22 @@
     (FIRInstallationsItem *)storedInstallation {
   OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
       .andReturn([FBLPromise resolvedWith:storedInstallation]);
+}
+
+- (FIRInstallationsItem *)expectAuthTokenRefreshForInstallation:
+    (FIRInstallationsItem *)installation {
+  FIRInstallationsItem *responseInstallation =
+      [FIRInstallationsItem createRegisteredInstallationItem];
+  responseInstallation.authToken.token =
+      [responseInstallation.authToken.token stringByAppendingString:@"_new"];
+  OCMExpect([self.mockAPIService refreshAuthTokenForInstallation:installation])
+      .andReturn([FBLPromise resolvedWith:responseInstallation]);
+
+  // 1.3. Expect new token to be stored.
+  OCMExpect([self.mockInstallationsStore saveInstallation:responseInstallation])
+      .andReturn([FBLPromise resolvedWith:[NSNull null]]);
+
+  return responseInstallation;
 }
 
 @end

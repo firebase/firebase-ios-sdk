@@ -30,6 +30,7 @@
 #include "Firestore/core/test/firebase/firestore/util/fake_credentials_provider.h"
 #include "Firestore/core/test/firebase/firestore/util/grpc_stream_tester.h"
 #include "absl/memory/memory.h"
+#include "absl/strings/str_cat.h"
 #include "grpcpp/client_context.h"
 #include "grpcpp/completion_queue.h"
 #include "grpcpp/create_channel.h"
@@ -45,17 +46,16 @@ using auth::CredentialsProvider;
 using auth::Token;
 using util::AsyncQueue;
 using util::ByteBufferToString;
-using util::CreateNoOpConnectivityMonitor;
-using util::GetFirestoreErrorName;
-using util::GrpcStreamTester;
 using util::CompletionEndState;
-using util::CompletionResult::Error;
-using util::CompletionResult::Ok;
 using util::CreateNoOpConnectivityMonitor;
 using util::FakeCredentialsProvider;
+using util::GetFirestoreErrorName;
+using util::GrpcStreamTester;
 using util::MakeByteBuffer;
 using util::StringFormat;
 using util::TimerId;
+using util::CompletionResult::Error;
+using util::CompletionResult::Ok;
 using Type = GrpcCompletion::Type;
 
 namespace {
@@ -123,8 +123,9 @@ class TestStream : public Stream {
   }
 
   void NotifyStreamClose(const util::Status& status) override {
-    observed_states_.push_back(std::string{"NotifyStreamClose("} +
-                               GetFirestoreErrorName(status.code()) + ")");
+    std::string message = absl::StrCat(
+        "NotifyStreamClose(", GetFirestoreErrorName(status.code()), ")");
+    observed_states_.push_back(message);
   }
 
   std::string GetDebugName() const override {

@@ -12,17 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if(APPLE)
-  cc_library(
-    firebase_firestore_remote_objc
-    SOURCES
-      FSTSerializerBeta.h
-      FSTSerializerBeta.mm
-    DEPENDS
-      absl_algorithm
-      firebase_firestore_nanopb
-      firebase_firestore_public_objc
-      libprotobuf_objc
-  )
-
-endif()
+cc_test(
+  firebase_firestore_api_test
+  SOURCES
+    cc_compilation_test.cc
+  DEPENDS
+    firebase_firestore_api
+)

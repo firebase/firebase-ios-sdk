@@ -24,7 +24,7 @@
 
 @interface FIRInstallationsSingleOperationPromiseCache <ResultType>()
 @property(nonatomic, readonly) FBLPromise *_Nonnull (^newOperationHandler)(void);
-@property(atomic, nullable) FBLPromise *pendingPromise;
+@property(nonatomic, nullable) FBLPromise *pendingPromise;
 @end
 
 @implementation FIRInstallationsSingleOperationPromiseCache
@@ -44,24 +44,32 @@
 }
 
 - (FBLPromise *)getExistingPendingOrCreateNewPromise {
-  if (!self.pendingPromise) {
-    self.pendingPromise = self.newOperationHandler();
+  @synchronized(self) {
+    if (!self.pendingPromise) {
+      self.pendingPromise = self.newOperationHandler();
 
-    self.pendingPromise
-        .then(^id(id result) {
-          self.pendingPromise = nil;
-          return nil;
-        })
-        .catch(^void(NSError *error) {
-          self.pendingPromise = nil;
-        });
+      self.pendingPromise
+          .then(^id(id result) {
+            @synchronized(self) {
+              self.pendingPromise = nil;
+              return nil;
+            }
+          })
+          .catch(^void(NSError *error) {
+            @synchronized(self) {
+              self.pendingPromise = nil;
+            }
+          });
+    }
+
+    return self.pendingPromise;
   }
-
-  return self.pendingPromise;
 }
 
 - (nullable FBLPromise *)getExistingPendingPromise {
-  return self.pendingPromise;
+  @synchronized(self) {
+    return self.pendingPromise;
+  }
 }
 
 @end

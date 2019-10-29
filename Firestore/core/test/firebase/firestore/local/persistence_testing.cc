@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Firestore/core/test/firebase/firestore/local/persistence_testing.h"
+#include "Firestore/core/test/firebase/firestore/local/persistence_testing.h"
 
 #include <utility>
 

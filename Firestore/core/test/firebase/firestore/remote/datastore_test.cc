@@ -18,67 +18,72 @@
 #include <string>
 #include <vector>
 
+#include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
+#include "Firestore/Protos/nanopb/google/firestore/v1/firestore.nanopb.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/message.h"
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_nanopb.h"
+#include "Firestore/core/src/firebase/firestore/remote/serializer.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/testutil/async_testing.h"
+#include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 #include "Firestore/core/test/firebase/firestore/util/fake_credentials_provider.h"
 #include "Firestore/core/test/firebase/firestore/util/grpc_stream_tester.h"
 #include "absl/memory/memory.h"
 #include "absl/strings/str_cat.h"
 #include "gtest/gtest.h"
 
-#import "Firestore/Protos/objc/google/firestore/v1/Document.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1/Firestore.pbobjc.h"
-
 namespace firebase {
 namespace firestore {
 namespace remote {
+
+namespace {
 
 using auth::CredentialsProvider;
 using core::DatabaseInfo;
 using model::DatabaseId;
 using model::Document;
 using model::MaybeDocument;
+using nanopb::Message;
+using testutil::Value;
 using util::AsyncQueue;
-using util::MakeByteBuffer;
 using util::CompletionEndState;
-using util::GrpcStreamTester;
+using util::Executor;
 using util::FakeCredentialsProvider;
 using util::FakeGrpcQueue;
-using util::Executor;
-using util::CompletionResult::Error;
-using util::CompletionResult::Ok;
+using util::GrpcStreamTester;
 using util::Status;
 using util::StatusOr;
+using util::CompletionResult::Error;
+using util::CompletionResult::Ok;
 using Type = GrpcCompletion::Type;
 
-namespace {
-
-grpc::ByteBuffer MakeByteBuffer(NSData* data) {
-  grpc::Slice slice{[data bytes], [data length]};
-  return grpc::ByteBuffer{&slice, 1};
-}
-
 grpc::ByteBuffer MakeFakeDocument(const std::string& doc_name) {
-  GCFSDocument* doc = [GCFSDocument message];
-  doc.name = util::MakeNSString(
-      absl::StrCat("projects/p/databases/d/documents/", doc_name));
-  GCFSValue* value = [GCFSValue message];
-  value.stringValue = @"bar";
-  [doc.fields addEntriesFromDictionary:@{
-    @"foo" : value,
-  }];
-  doc.updateTime.seconds = 0;
-  doc.updateTime.nanos = 42000;
+  Serializer serializer{DatabaseId{"p", "d"}};
+  Message<google_firestore_v1_BatchGetDocumentsResponse> response;
 
-  GCFSBatchGetDocumentsResponse* response =
-      [GCFSBatchGetDocumentsResponse message];
-  response.found = doc;
-  return MakeByteBuffer([response data]);
+  response->which_result =
+      google_firestore_v1_BatchGetDocumentsResponse_found_tag;
+  google_firestore_v1_Document& doc = response->found;
+  doc.name = serializer.EncodeString(
+      absl::StrCat("projects/p/databases/d/documents/", doc_name));
+  doc.has_update_time = true;
+  doc.update_time.seconds = 0;
+  doc.update_time.nanos = 42000;
+
+  doc.fields_count = 1;
+  doc.fields =
+      MakeArray<google_firestore_v1_Document_FieldsEntry>(doc.fields_count);
+  google_firestore_v1_Document_FieldsEntry& entry = doc.fields[0];
+
+  entry.key = serializer.EncodeString("foo");
+  entry.value = serializer.EncodeFieldValue(Value("bar"));
+
+  return MakeByteBuffer(response);
 }
 
 class FakeDatastore : public Datastore {
@@ -106,8 +111,8 @@ std::shared_ptr<FakeDatastore> CreateDatastore(
 class DatastoreTest : public testing::Test {
  public:
   DatastoreTest()
-      : worker_queue{testutil::AsyncQueueForTesting()},
-        database_info{DatabaseId{"p", "d"}, "", "localhost", false},
+      : database_info{DatabaseId{"p", "d"}, "", "localhost", false},
+        worker_queue{testutil::AsyncQueueForTesting()},
         datastore{CreateDatastore(database_info, worker_queue, credentials)},
         fake_grpc_queue{datastore->queue()} {
     // Deliberately don't `Start` the `Datastore` to prevent normal gRPC
@@ -166,12 +171,13 @@ TEST_F(DatastoreTest, WhitelistedHeaders) {
       {"x-google-service", "service 2"},  // Duplicate names are allowed
   };
   std::string result = Datastore::GetWhitelistedHeadersAsString(headers);
-  EXPECT_EQ(result, "date: date value\n"
-                    "x-google-backends: backend value\n"
-                    "x-google-gfe-request-trace: request trace\n"
-                    "x-google-netmon-label: netmon label\n"
-                    "x-google-service: service 1\n"
-                    "x-google-service: service 2\n");
+  EXPECT_EQ(result,
+            "date: date value\n"
+            "x-google-backends: backend value\n"
+            "x-google-gfe-request-trace: request trace\n"
+            "x-google-netmon-label: netmon label\n"
+            "x-google-service: service 1\n"
+            "x-google-service: service 2\n");
 }
 
 // Normal operation

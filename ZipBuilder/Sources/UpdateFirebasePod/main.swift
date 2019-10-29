@@ -72,8 +72,8 @@ private func updateFirebasePod(newVersions: [String: String]) {
       while contents[versionEndIndex] != "'" {
         versionEndIndex = contents.index(versionEndIndex, offsetBy: 1)
       }
-      contents.removeSubrange(versionStartIndex...versionEndIndex)
-      contents.insert(contentsOf:"'" + version + "'", at:versionStartIndex)
+      contents.removeSubrange(versionStartIndex ... versionEndIndex)
+      contents.insert(contentsOf: "'" + version + "'", at: versionStartIndex)
     } else {
       // Replace version in string like ss.dependency 'FirebaseCore', '6.3.0'
       guard let range = contents.range(of: pod) else {
@@ -88,14 +88,13 @@ private func updateFirebasePod(newVersions: [String: String]) {
       while contents[versionEndIndex] != "'" {
         versionEndIndex = contents.index(versionEndIndex, offsetBy: 1)
       }
-      contents.removeSubrange(versionStartIndex...versionEndIndex)
-      contents.insert(contentsOf:version + "'", at:versionStartIndex)
+      contents.removeSubrange(versionStartIndex ... versionEndIndex)
+      contents.insert(contentsOf: version + "'", at: versionStartIndex)
     }
   }
   do {
     try contents.write(toFile: podspecFile, atomically: false, encoding: String.Encoding.utf8)
-  }
-  catch {
+  } catch {
     fatalError("Failed to write \(podspecFile). \(error)")
   }
 }
@@ -106,11 +105,10 @@ do {
   print("Updating Firebase pod for version \(String(describing: newVersions["Firebase"]!))")
 
   // Get the time since the tool start.
-    let secondsSinceStart = -Int(buildStart.timeIntervalSinceNow)
+  let secondsSinceStart = -Int(buildStart.timeIntervalSinceNow)
   print("""
   Time profile:
     It took \(secondsSinceStart) seconds (~\(secondsSinceStart / 60)m) to update the Firebase pod.
     \(cocoaPodsUpdateMessage)
   """)
 }
-

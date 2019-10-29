@@ -244,11 +244,11 @@ DatastoreSerializer::MergeLookupResponses(
             &reader);
 
     MaybeDocument doc = serializer_.DecodeMaybeDocument(&reader, *message);
-    results[doc.key()] = std::move(doc);
-
     if (!reader.ok()) {
       return reader.status();
     }
+
+    results[doc.key()] = std::move(doc);
   }
 
   std::vector<MaybeDocument> docs;
