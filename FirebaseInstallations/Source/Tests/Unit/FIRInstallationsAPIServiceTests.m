@@ -81,6 +81,7 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
         @"https://firebaseinstallations.googleapis.com/v1/projects/project-id/installations/");
     XCTAssertEqualObjects([request valueForHTTPHeaderField:@"Content-Type"], @"application/json");
     XCTAssertEqualObjects([request valueForHTTPHeaderField:@"X-Goog-Api-Key"], self.APIKey);
+    XCTAssertEqualObjects([request valueForHTTPHeaderField:@"X-Ios-Bundle-Identifier"], [[NSBundle mainBundle] bundleIdentifier]);
 
     NSString *expectedIIDMigrationHeader = @"IIDDeviceID:IIDSecretToken";
     XCTAssertEqualObjects([request valueForHTTPHeaderField:@"x-goog-fis-ios-iid-migration-auth"],
