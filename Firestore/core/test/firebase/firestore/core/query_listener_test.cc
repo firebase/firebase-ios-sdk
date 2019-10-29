@@ -143,13 +143,12 @@ TEST_F(QueryListenerTest, RaisesCollectionEvents) {
 
 TEST_F(QueryListenerTest, RaisesErrorEvent) {
   std::vector<Status> accum;
-  auto* accum_ptr = &accum;
   Query query = testutil::Query("rooms/Eros");
 
   auto listener = QueryListener::Create(
       query, EventListener<ViewSnapshot>::Create(
-                 [&accum_ptr](const StatusOr<ViewSnapshot>& maybe_snapshot) {
-                   accum_ptr->push_back(maybe_snapshot.status());
+                 [&accum](const StatusOr<ViewSnapshot>& maybe_snapshot) {
+                   accum.push_back(maybe_snapshot.status());
                  }));
 
   Status test_error{Error::Unauthenticated, "Some info"};
