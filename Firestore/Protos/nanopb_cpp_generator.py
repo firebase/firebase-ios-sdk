@@ -534,6 +534,7 @@ def add_printing_for_oneof(oneof):
     result += '''\
     case %s:\n''' % tag_name
 
+    # If oneof is set, always print that member, even if it's zero or empty.
     result += add_printing_for_leaf(f, indent=2, parent_oneof=oneof,
                                     always_print=True)
     result += '''\
@@ -552,6 +553,9 @@ def add_printing_for_repeated(field):
 
   result = '''\
     for (pb_size_t i = 0; i != %s; ++i) {\n''' % count
+  # If the repeated field is non-empty, print all its members, even if they are
+  # zero or empty (otherwise, an array of zeroes would be indistinguishable from
+  # an empty array).
   result += add_printing_for_leaf(field, indent=2, always_print=True)
   result += '''\
     }\n'''
@@ -565,6 +569,8 @@ def add_printing_for_optional(field):
   name = field.name
   result = '''\
     if (has_%s) {\n''' % name
+  # If an optional field is set, always print the value, even if it's zero or
+  # empty.
   result += add_printing_for_leaf(field, indent=2, always_print=True)
   result += '''\
     }\n'''
@@ -616,6 +622,7 @@ def add_printing_for_leaf(field, **kwargs):
   if len(result) <= line_width:
     return result
 
+  # Best-effort attempt to fit within the expected line width.
   maybe_linebreak = '\n' + indent(indent_level + 1)
   args = (
     indent(indent_level), function_name, display_name, maybe_linebreak, cc_name,
