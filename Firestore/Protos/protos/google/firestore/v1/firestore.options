@@ -13,8 +13,6 @@
 # limitations under the License.
 #
 
-#import "google/protobuf/descriptor.proto";
-
 # In proto3 mode, Nanopb doesn't allow distinguishing between unset fields and
 # fields having default values, even for non-primitive types. Using the
 # workaround suggested in
