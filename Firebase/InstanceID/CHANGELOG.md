@@ -1,5 +1,5 @@
 # 2019-11-05 -- 4.2.7
-- [fixed] Fixed a crash in `checkTokenRefreshPolicyWithIID:` and ensure tokenWithAuthorizedEntity:scope:options:handler method is refreshing token if token is not freshed any more. (#4167)
+- [fixed] Fixed a crash in `checkTokenRefreshPolicyWithIID:` and ensure `tokenWithAuthorizedEntity:scope:options:handler` method is refreshing token if token is not freshed any more. (#4167)
 - [changed] Updated deprecated keychain access level. (#4172)
 
 # 2019-10-22 -- 4.2.6
