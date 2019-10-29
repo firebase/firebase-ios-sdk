@@ -82,8 +82,8 @@ def use_malloc(request):
       in place.
   """
   dynamic_types = [
-      FieldDescriptorProto.TYPE_STRING,
-      FieldDescriptorProto.TYPE_BYTES,
+    FieldDescriptorProto.TYPE_STRING,
+    FieldDescriptorProto.TYPE_BYTES,
   ]
 
   for _, message_type in iterate_messages(request):
@@ -204,7 +204,8 @@ def nanopb_parse_files(request, options):
     parsed_files[fdesc.name] = parsed_file
 
     base_filename = fdesc.name.replace('.proto', '')
-    pretty_printing_info[base_filename] = FilePrettyPrintingInfo(parsed_file, base_filename)
+    pretty_printing_info[base_filename] = FilePrettyPrintingInfo(parsed_file,
+                                                                 base_filename)
 
   return parsed_files, pretty_printing_info
 
@@ -228,8 +229,7 @@ class MessagePrettyPrintingInfo:
     self.fields = [self._create_field(f, message) for f in message.fields]
     # Make sure fields are printed ordered by tag, for consistency with official
     # proto libraries.
-    self.fields.sort(key = lambda f: f.tag)
-
+    self.fields.sort(key=lambda f: f.tag)
 
   def _create_field(self, field, message):
     if isinstance(field, nanopb.OneOf):
@@ -275,6 +275,7 @@ class OneOfMemberPrettyPrintingInfo(FieldPrettyPrintingInfo):
 class EnumPrettyPrintingInfo:
   """ Describes how to generate pretty-printing code for this enum.
   """
+
   def __init__(self, enum):
     self.name = str(enum.names)
     self.members = [str(n) for n in enum.value_longnames]
@@ -331,8 +332,10 @@ def nanopb_write(results, pretty_printing_info):
     base_filename = result['headername'].replace('.nanopb.h', '')
     file_printers = pretty_printing_info[base_filename]
 
-    generate_header(response.file, result['headername'], result['headerdata'], file_printers)
-    generate_source(response.file, result['sourcename'], result['sourcedata'], file_printers)
+    generate_header(response.file, result['headername'], result['headerdata'],
+                    file_printers)
+    generate_source(response.file, result['sourcename'], result['sourcedata'],
+                    file_printers)
 
   return response
 
@@ -416,7 +419,8 @@ def add_field_printer_declarations(files, file_name, messages):
   """
   for m in messages:
     f = create_insertion(files, file_name, 'struct:' + m.full_classname)
-    f.content = '\n' + indent(1) + 'std::string ToString(int indent = 0) const;\n'
+    f.content = '\n' + indent(
+      1) + 'std::string ToString(int indent = 0) const;\n'
 
 
 def add_enum_printer_declarations(files, file_name, enums):
@@ -530,7 +534,8 @@ def add_printing_for_oneof(oneof):
     result += '''\
     case %s:\n''' % tag_name
 
-    result += add_printing_for_leaf(f, indent=2, parent_oneof=oneof, always_print=True)
+    result += add_printing_for_leaf(f, indent=2, parent_oneof=oneof,
+                                    always_print=True)
     result += '''\
         break;\n'''
 
@@ -603,14 +608,18 @@ def add_printing_for_leaf(field, **kwargs):
 
   format_str = '%sresult += %s("%s ",%s%s, indent + 1, %s);\n'
   maybe_linebreak = ' '
-  args = (indent(indent_level), function_name, display_name, maybe_linebreak, cc_name, always_print)
+  args = (
+  indent(indent_level), function_name, display_name, maybe_linebreak, cc_name,
+  always_print)
 
   result = format_str % args
   if len(result) <= line_width:
     return result
 
   maybe_linebreak = '\n' + indent(indent_level + 1)
-  args = (indent(indent_level), function_name, display_name, maybe_linebreak, cc_name, always_print)
+  args = (
+  indent(indent_level), function_name, display_name, maybe_linebreak, cc_name,
+  always_print)
   return format_str % args
 
 
