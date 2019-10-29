@@ -4,12 +4,12 @@
   is IN a specified array. `whereField(_:arrayContainsAny:)` finds documents
   where a specified field is an array and contains ANY element of a specified
   array.
-- [changed] Firestore SDK now uses Nanopb rather than Objective-C Protobuf
+- [changed] Firestore SDK now uses Nanopb rather than the Objective-C Protobuf
   library for parsing protos. This change does not affect visible behavior of
   the SDK in any way. While we don't anticipate any issues, please [report any
   issues with network behavior or
   persistence](https://github.com/firebase/firebase-ios-sdk/issues/new) that you
-  experience. (#4013, #4116)
+  experience.
 
 # v1.6.1
 - [fixed] Fix a race condition that could cause a segmentation fault during
