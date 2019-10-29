@@ -216,10 +216,17 @@ class MessagePrettyPrintingInfo:
   def __init__(self, message):
     self.short_classname = message.name.parts[-1]
     self.full_classname = str(message.name)
-    self.fields = [FieldPrettyPrintingInfo(f, message) for f in message.fields]
+    self.fields = [self._create_field(f, message) for f in message.fields]
     # Make sure fields are printed ordered by tag, for consistency with official
     # proto libraries.
     self.fields.sort(key = lambda f: f.tag)
+
+
+  def _create_field(self, field, message):
+    if isinstance(field, nanopb.OneOf):
+      return OneOfMemberPrettyPrintingInfo(field, message)
+    else:
+      return FieldPrettyPrintingInfo(field, message)
 
 
 class FieldPrettyPrintingInfo:
@@ -231,18 +238,18 @@ class FieldPrettyPrintingInfo:
 
     self.is_optional = field.rules == 'OPTIONAL' and field.allocation == 'STATIC'
     self.is_repeated = field.rules == 'REPEATED'
-    self.is_primitive = field.pbtype != 'MESSAGE'
+    self.is_oneof = False
 
+    self.is_primitive = field.pbtype != 'MESSAGE'
     self.is_enum = field.pbtype in ['ENUM', 'UENUM']
 
-    if isinstance(field, nanopb.OneOf):
-      self.oneof_member = OneOfMemberPrettyPrintingInfo(field, message)
-    else:
-      self.oneof_member = None
 
-
-class OneOfMemberPrettyPrintingInfo:
+class OneOfMemberPrettyPrintingInfo(FieldPrettyPrintingInfo):
   def __init__(self, field, message):
+    FieldPrettyPrintingInfo.__init__(self, field, message)
+
+    self.is_oneof = True
+
     self.which = 'which_' + field.name
     self.is_anonymous = field.anonymous
     self.fields = [FieldPrettyPrintingInfo(f, message) for f in field.fields]
@@ -458,23 +465,23 @@ def add_printing_for_field(field):
     return add_printing_for_optional(field)
   elif field.is_repeated:
     return add_printing_for_repeated(field)
-  elif field.oneof_member:
+  elif field.is_oneof:
     return add_printing_for_oneof(field)
   else:
     return add_printing_for_leaf(field)
 
 
 def add_printing_for_oneof(oneof):
-  which = oneof.oneof_member.which
+  which = oneof.which
   result = '''\
     switch (%s) {\n''' % (which)
 
-  for f in oneof.oneof_member.fields:
+  for f in oneof.fields:
     tag_name = '%s_%s_tag' % (oneof.full_classname, f.name)
     result += '''\
     case %s:\n''' % tag_name
 
-    result += add_printing_for_leaf(f, indent=2, parent=oneof, always_print=True)
+    result += add_printing_for_leaf(f, indent=2, parent_oneof=oneof, always_print=True)
     result += '''\
         break;\n'''
 
@@ -510,24 +517,21 @@ def add_printing_for_optional(field):
 def add_printing_for_leaf(field, **kwargs):
   indent_level = kwargs.get('indent') or 1
   always_print = 'true' if kwargs.get('always_print') else 'false'
-  parent = kwargs.get('parent')
+  parent_oneof = kwargs.get('parent_oneof')
 
   display_name = field.name
   cc_name = display_name
 
-  if display_name == 'delete':
-    cc_name += '_'
-  if parent and not parent.oneof_member.is_anonymous:
-    cc_name = parent.name + '.' + cc_name
   if field.is_repeated:
     cc_name += '[i]'
 
-  if display_name == 'delete_':
-    display_name = 'delete'
+  if parent_oneof and not parent_oneof.is_anonymous:
+    cc_name = parent_oneof.name + '.' + cc_name
+
+  if cc_name == 'delete':
+    cc_name = 'delete_'
   if field.is_primitive:
-    display_name += ': '
-  else:
-    display_name += ' '
+    display_name += ':'
 
   function_name = ''
   if field.is_enum:
@@ -539,7 +543,7 @@ def add_printing_for_leaf(field, **kwargs):
 
   line_width = 80
 
-  format_str = '%sresult += %s("%s",%s%s, indent + 1, %s);\n'
+  format_str = '%sresult += %s("%s ",%s%s, indent + 1, %s);\n'
   maybe_linebreak = ' '
   args = (indent(indent_level), function_name, display_name, maybe_linebreak, cc_name, always_print)
 
