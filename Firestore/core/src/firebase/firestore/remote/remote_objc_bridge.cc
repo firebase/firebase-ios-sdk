@@ -42,8 +42,8 @@ using model::DocumentKey;
 using model::MaybeDocument;
 using model::Mutation;
 using model::MutationResult;
-using model::TargetId;
 using model::SnapshotVersion;
+using model::TargetId;
 using nanopb::ByteString;
 using nanopb::ByteStringWriter;
 using nanopb::MakeByteString;
@@ -55,7 +55,6 @@ using util::MakeString;
 using util::Status;
 using util::StatusOr;
 using util::StringFormat;
-
 
 // WatchStreamSerializer
 
@@ -181,7 +180,7 @@ std::vector<MutationResult> WriteStreamSerializer::DecodeMutationResults(
   for (pb_size_t i = 0; i != count; ++i) {
     results.push_back(
         serializer_.DecodeMutationResult(reader, writes[i], commit_version));
-  };
+  }
 
   return results;
 }
