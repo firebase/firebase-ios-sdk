@@ -456,6 +456,9 @@ def add_field_printer_definitions(files, file_name, messages):
   for m in messages:
     f = create_insertion(files, file_name, 'eof')
 
+    # Note: Objective-C proto library indents 4 spaces within the top-level
+    # message, but only 2 spaces in all the nested messages. The reassignment of
+    # `indent` below is to emulate that.
     f.content += '''\
 std::string %s::ToString(int indent) const {
     bool is_root = indent == 0;
