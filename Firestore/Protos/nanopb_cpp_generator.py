@@ -212,11 +212,14 @@ class FilePrettyPrintingInfo:
     self.enums = [EnumPrettyPrintingInfo(e) for e in parsed_file.enums]
 
 
-class OneOfMemberPrettyPrintingInfo:
-  def __init__(self, field, message):
-    self.which = 'which_' + field.name
-    self.is_anonymous = field.anonymous
-    self.fields = [FieldPrettyPrintingInfo(f, message) for f in field.fields]
+class MessagePrettyPrintingInfo:
+  def __init__(self, message):
+    self.short_classname = message.name.parts[-1]
+    self.full_classname = str(message.name)
+    self.fields = [FieldPrettyPrintingInfo(f, message) for f in message.fields]
+    # Make sure fields are printed ordered by tag, for consistency with official
+    # proto libraries.
+    self.fields.sort(key = lambda f: f.tag)
 
 
 class FieldPrettyPrintingInfo:
@@ -238,18 +241,17 @@ class FieldPrettyPrintingInfo:
       self.oneof_member = None
 
 
+class OneOfMemberPrettyPrintingInfo:
+  def __init__(self, field, message):
+    self.which = 'which_' + field.name
+    self.is_anonymous = field.anonymous
+    self.fields = [FieldPrettyPrintingInfo(f, message) for f in field.fields]
+
+
 class EnumPrettyPrintingInfo:
   def __init__(self, enum):
     self.name = str(enum.names)
     self.members = [str(n) for n in enum.value_longnames]
-
-
-class MessagePrettyPrintingInfo:
-  def __init__(self, message):
-    self.short_classname = message.name.parts[-1]
-    self.full_classname = str(message.name)
-    self.fields = [FieldPrettyPrintingInfo(f, message) for f in message.fields]
-    self.fields.sort(key = lambda f: f.tag)
 
 
 def nanopb_generate(request, options, parsed_files):
@@ -322,21 +324,17 @@ def end_namespace(files, file_name):
 
 
 def indent(level):
+  """Returns leading whitespace corresponding to the given indentation level."""
   indent_per_level = 4
   return ' ' * (indent_per_level * level)
 
 
-def postprocess(file_contents):
-  """Renames a delete symbol to delete_.
+def fixup(file_contents):
+  """Applies fixups to generated Nanopb code.
 
-  If a proto uses a field named 'delete', nanopb happily uses that in the
-  message definition. Works fine for C; not so much for C++.
-
-  Args:
-    lines: The lines to fix.
-
-  Returns:
-    The lines, fixed.
+  This is for changes to the code, as well as additions that cannot be made via
+  insertion points. Current fixups:
+  - rename fields named `delete` to `delete_`, because it's a keyword in C++.
   """
 
   delete_keyword = re.compile(r'\bdelete\b')
@@ -353,7 +351,7 @@ def create_insertion(files, file_name, insertion_point):
 def add_contents(files, file_name, file_contents):
   f = files.add()
   f.name = file_name
-  f.content = postprocess(file_contents)
+  f.content = fixup(file_contents)
 
 
 def generate_header(files, file_name, file_contents, file_printers):
@@ -539,11 +537,12 @@ def add_printing_for_leaf(field, **kwargs):
   else:
     function_name = 'PrintMessageField'
 
+  line_width = 80
+
   format_str = '%sresult += %s("%s",%s%s, indent + 1, %s);\n'
   maybe_linebreak = ' '
   args = (indent(indent_level), function_name, display_name, maybe_linebreak, cc_name, always_print)
 
-  line_width = 80
   result = format_str % args
   if len(result) <= line_width:
     return result
@@ -552,14 +551,6 @@ def add_printing_for_leaf(field, **kwargs):
   args = (indent(indent_level), function_name, display_name, maybe_linebreak, cc_name, always_print)
   return format_str % args
 
-
-# TODO:
-# 1. Line breaks in generated code?
-#
-# Repeated oneof is not supported.
-# Oneofs cannot have repeated members
-# (presumably cannot have repeated inside repeated?)
-# (can you nest oneofs?)
 
 if __name__ == '__main__':
   main()
