@@ -149,6 +149,7 @@ cc_library(
     ${NANOPB_GENERATED_SOURCES}
   DEPENDS
     protobuf-nanopb-static
+    firebase_firestore_nanopb
 )
 
 target_include_directories(
