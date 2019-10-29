@@ -520,7 +520,7 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
   [self waitForExpectationsWithTimeout:5.0 handler:nil];
 }
 
-- (void)testResendingExpiredMessagesFails {
+- (void)xxx_testResendingExpiredMessagesFails {
   // TODO: Test that expired messages should not be sent on resend
   static BOOL isClientConnected = NO;
   [[[self.mockClient stub] andDo:^(NSInvocation *invocation) {
