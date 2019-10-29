@@ -609,8 +609,8 @@ def add_printing_for_leaf(field, **kwargs):
   format_str = '%sresult += %s("%s ",%s%s, indent + 1, %s);\n'
   maybe_linebreak = ' '
   args = (
-  indent(indent_level), function_name, display_name, maybe_linebreak, cc_name,
-  always_print)
+    indent(indent_level), function_name, display_name, maybe_linebreak, cc_name,
+    always_print)
 
   result = format_str % args
   if len(result) <= line_width:
@@ -618,8 +618,8 @@ def add_printing_for_leaf(field, **kwargs):
 
   maybe_linebreak = '\n' + indent(indent_level + 1)
   args = (
-  indent(indent_level), function_name, display_name, maybe_linebreak, cc_name,
-  always_print)
+    indent(indent_level), function_name, display_name, maybe_linebreak, cc_name,
+    always_print)
   return format_str % args
 
 
