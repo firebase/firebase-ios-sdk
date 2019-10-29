@@ -250,8 +250,8 @@ NS_SWIFT_NAME(Query)
  * the specified field, the value must be an array, and that array must contain at least one value
  * from the provided array.
  *
- * A query can have only one arrayContains filter and it cannot be combined with arrayContains or
- * in.
+ * A query can have only one `arrayContainsAny` filter and it cannot be combined with
+ * `arrayContains` or `in` filters.
  *
  * @param field The name of the field containing an array to search.
  * @param value The value that contains the values to match.
@@ -266,8 +266,8 @@ NS_SWIFT_NAME(Query)
  * the specified field, the value must be an array, and that array must contain at least one value
  * from the provided array.
  *
- * A query can have only one arrayContains filter and it cannot be combined with arrayContains or
- * in.
+ * A query can have only one `arrayContainsAny` filter and it cannot be combined with
+ * `arrayContains` or `in` filters.
  *
  * @param path The path of the field containing an array to search.
  * @param value The value that contains the values to match.
@@ -282,7 +282,8 @@ NS_SWIFT_NAME(Query)
  * Creates and returns a new `FIRQuery` with the additional filter that documents must contain
  * the specified field and the value must equal one of the values from the provided array.
  *
- * A query can have only one in filter, and it cannot be combined with arrayContainsAny.
+ * A query can have only one `in` filter, and it cannot be combined with an `arrayContainsAny`
+ * filter.
  *
  * @param field The name of the field to search.
  * @param value The value that contains the values to match.
@@ -296,7 +297,8 @@ NS_SWIFT_NAME(Query)
  * Creates and returns a new `FIRQuery` with the additional filter that documents must contain
  * the specified field and the value must equal one of the values from the provided array.
  *
- * A query can have only one in filter, and it cannot be combined with arrayContainsAny.
+ * A query can have only one `in` filter, and it cannot be combined with an `arrayContainsAny`
+ * filter.
  *
  * @param path The path of the field to search.
  * @param value The value that contains the values to match.
