@@ -19,6 +19,7 @@ cc_test(
     index_manager_test.h
     leveldb_index_manager_test.cc
     leveldb_key_test.cc
+    leveldb_persistence_test.cc
     leveldb_remote_document_cache_test.cc
     leveldb_util_test.cc
     local_serializer_test.cc

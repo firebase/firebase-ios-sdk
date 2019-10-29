@@ -122,14 +122,6 @@ LevelDbPersistence::LevelDbPersistence(std::unique_ptr<leveldb::DB> db,
 
 // MARK: - Storage location
 
-#if !defined(__APPLE__)
-
-Path LevelDbPersistence::AppDataDirectory() {
-#error "This does not yet support non-Apple platforms."
-}
-
-#endif  // !defined(__APPLE__)
-
 util::Path LevelDbPersistence::StorageDirectory(
     const core::DatabaseInfo& database_info, const util::Path& documents_dir) {
   // Use two different path formats:
