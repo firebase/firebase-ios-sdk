@@ -31,7 +31,7 @@ def usage()
   options can be any options for pod spec lint
 
   script options:
-    --skip-analyze: don't run Xcode analyze on this podspec
+    --no-analyze: don't run Xcode analyze on this podspec
     --ignore-local-podspecs: list of podspecs that should not be added to
       "--include-podspecs" list. If not specified, then all podspec
       dependencies will be passed to "--include-podspecs".
@@ -53,13 +53,13 @@ def main(args)
   # to the pod command.
   pod_args = []
   ignore_local_podspecs = []
-  skip_analyze = false
+  analyze = true
 
   args.each do |arg|
     if arg =~ /--ignore-local-podspecs=(.*)/
       ignore_local_podspecs = $1.split(',')
-    elsif arg =~ /--skip-analyze/
-      skip_analyze = true
+    elsif arg =~ /--no-analyze/
+      analyze = false
     else
       pod_args.push(arg)
     end
@@ -70,7 +70,7 @@ def main(args)
   deps = find_local_deps(podspec_file, ignore_local_podspecs.to_set)
   arg = make_include_podspecs(deps)
   command.push(arg) if arg
-  command.push('--analyze') if not skip_analyze
+  command.push('--analyze') if analyze
 
   command.push(*pod_args)
   puts command.join(' ')
