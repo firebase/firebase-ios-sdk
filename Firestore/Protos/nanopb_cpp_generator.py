@@ -346,7 +346,7 @@ def begin_namespace(files, file_name):
   f = create_insertion(files, file_name, 'includes')
   f.content = '''\
 namespace firebase {
-namespace firestore {'''
+namespace firestore {\n\n'''
 
 
 def end_namespace(files, file_name):
