@@ -35,7 +35,9 @@ Path LevelDbPersistence::AppDataDirectory() {
   const char* home_dir;
 
   if ((home_dir = getenv("HOME")) == NULL) {
-    home_dir = getpwuid(getuid())->pw_dir;
+    // We do not need the thread-safe version because this is always
+    // called from async queue.
+    home_dir = getpwuid(getuid())->pw_dir;  // NOLINT
   }
 
   std::string dot_prefixed = absl::StrCat(".", kReservedPathComponent);

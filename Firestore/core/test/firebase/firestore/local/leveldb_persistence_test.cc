@@ -32,7 +32,7 @@ TEST(LevelDbPersistenceTest, CanFindAppDataDirectory) {
   const auto& path = LevelDbPersistence::AppDataDirectory();
   EXPECT_TRUE(RecursivelyCreateDir(path).ok());
   EXPECT_TRUE(RecursivelyDelete(path).ok());
-};
+}
 
 }  // namespace local
 }  // namespace firestore
