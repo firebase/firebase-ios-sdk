@@ -22,11 +22,16 @@
 #import "Firestore/Example/Tests/Local/FSTMutationQueueTests.h"
 
 #include "Firestore/Protos/nanopb/firestore/local/mutation.nanopb.h"
+#include "Firestore/Protos/nanopb/google/protobuf/empty.nanopb.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_mutation_queue.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_set.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/message.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 #include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
 #include "Firestore/core/test/firebase/firestore/local/persistence_testing.h"
 #include "absl/strings/string_view.h"
@@ -35,6 +40,8 @@
 NS_ASSUME_NONNULL_BEGIN
 
 using firebase::firestore::auth::User;
+using firebase::firestore::firestore_client_MutationQueue;
+using firebase::firestore::google_protobuf_Empty;
 using firebase::firestore::local::LevelDbMutationKey;
 using firebase::firestore::local::LevelDbMutationQueue;
 using firebase::firestore::local::LevelDbPersistence;
@@ -42,6 +49,10 @@ using firebase::firestore::local::LevelDbPersistenceForTesting;
 using firebase::firestore::local::LoadNextBatchIdFromDb;
 using firebase::firestore::local::ReferenceSet;
 using firebase::firestore::model::BatchId;
+using firebase::firestore::nanopb::ByteString;
+using firebase::firestore::nanopb::ByteStringWriter;
+using firebase::firestore::nanopb::Message;
+using firebase::firestore::nanopb::StringReader;
 using firebase::firestore::util::OrderedCode;
 using leveldb::DB;
 using leveldb::Slice;
@@ -144,20 +155,24 @@ std::string MutationLikeKey(absl::string_view table, absl::string_view userID, B
 
 - (void)testEmptyProtoCanBeUpgraded {
   // An empty protocol buffer serializes to a zero-length byte buffer.
-  GPBEmpty *empty = [GPBEmpty message];
-  NSData *emptyData = [empty data];
-  XCTAssertEqual(emptyData.length, 0);
+  Message<google_protobuf_Empty> empty;
+  ByteStringWriter writer;
+  writer.Write(empty.fields(), &empty);
+  ByteString emptyData = writer.Release();
+  XCTAssertEqual(emptyData.size(), 0);
 
   // Choose some other (arbitrary) proto and parse it from the empty message and it should all be
   // defaults. This shows that empty proto values within the index row value don't pose any future
   // liability.
-  NSError *error;
-  FSTPBMutationQueue *parsedMessage = [FSTPBMutationQueue parseFromData:emptyData error:&error];
-  XCTAssertNil(error);
+  StringReader reader{emptyData};
+  auto parsedMessage = Message<firestore_client_MutationQueue>::TryParse(&reader);
+  XCTAssertTrue(reader.ok());
 
-  FSTPBMutationQueue *defaultMessage = [FSTPBMutationQueue message];
-  XCTAssertEqual(parsedMessage.lastAcknowledgedBatchId, defaultMessage.lastAcknowledgedBatchId);
-  XCTAssertEqualObjects(parsedMessage.lastStreamToken, defaultMessage.lastStreamToken);
+  Message<firestore_client_MutationQueue> defaultMessage;
+  XCTAssertEqual(parsedMessage->last_acknowledged_batch_id,
+                 defaultMessage->last_acknowledged_batch_id);
+  XCTAssertEqual(ByteString{parsedMessage->last_stream_token},
+                        ByteString{defaultMessage->last_stream_token});
 }
 
 - (void)setDummyValueForKey:(const std::string &)key {
