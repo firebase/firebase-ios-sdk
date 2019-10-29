@@ -24,9 +24,8 @@
 // TODO(wilhuff): move this to the top once the test filename matches
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 
-#import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
-#import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
-
+#include "Firestore/Protos/nanopb/firestore/local/mutation.nanopb.h"
+#include "Firestore/Protos/nanopb/firestore/local/target.nanopb.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 #include "Firestore/core/src/firebase/firestore/util/path.h"
 #include "Firestore/core/test/firebase/firestore/local/persistence_testing.h"
@@ -199,9 +198,9 @@ using leveldb::WriteOptions;
 - (void)testProtobufSupport {
   LevelDbTransaction transaction(_db.get(), "testProtobufSupport");
 
-  FSTPBTarget *target = [FSTPBTarget message];
-  target.targetId = 1;
-  target.lastListenSequenceNumber = 2;
+  Message<firestore_client_Target> target;
+  target->target_id = 1;
+  target->last_listen_sequence_number = 2;
 
   std::string key("theKey");
   transaction.Put(key, target);
@@ -212,6 +211,7 @@ using leveldb::WriteOptions;
                                                 length:value.size()
                                           freeWhenDone:NO];
   NSError *error;
+  nanopb::Reader reader;
   FSTPBTarget *parsed = [FSTPBTarget parseFromData:result error:&error];
   XCTAssertNil(error);
   XCTAssertTrue([target isEqual:parsed]);

@@ -21,9 +21,8 @@
 #include <string>
 #include <vector>
 
-#import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
-#import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
-
+#include "Firestore/Protos/nanopb/firestore/local/mutation.nanopb.h"
+#include "Firestore/Protos/nanopb/firestore/local/target.nanopb.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_migrations.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_query_cache.h"

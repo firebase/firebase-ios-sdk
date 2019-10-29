@@ -20,8 +20,8 @@
 #include <vector>
 
 #import "Firestore/Example/Tests/Local/FSTMutationQueueTests.h"
-#import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
 
+#include "Firestore/Protos/nanopb/firestore/local/mutation.nanopb.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_mutation_queue.h"

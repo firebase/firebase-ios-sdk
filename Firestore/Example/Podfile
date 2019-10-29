@@ -158,7 +158,6 @@ if is_platform(:ios)
       platform :ios, '9.0'
 
       pod 'LibFuzzer', :podspec => 'LibFuzzer.podspec', :inhibit_warnings => true
-      pod '!ProtoCompiler'
     end
   end
 end
