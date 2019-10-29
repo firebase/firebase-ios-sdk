@@ -66,6 +66,7 @@ extern const pb_field_t google_protobuf_Timestamp_fields[3];
 
 }  // namespace firestore
 }  // namespace firebase
+
 /* @@protoc_insertion_point(eof) */
 
 #endif

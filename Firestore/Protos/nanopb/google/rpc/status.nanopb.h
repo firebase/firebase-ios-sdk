@@ -71,6 +71,7 @@ extern const pb_field_t google_rpc_Status_fields[4];
 
 }  // namespace firestore
 }  // namespace firebase
+
 /* @@protoc_insertion_point(eof) */
 
 #endif

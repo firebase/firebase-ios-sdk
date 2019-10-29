@@ -66,4 +66,5 @@ std::string google_type_LatLng::ToString(int indent) const {
 
 }  // namespace firestore
 }  // namespace firebase
+
 /* @@protoc_insertion_point(eof) */

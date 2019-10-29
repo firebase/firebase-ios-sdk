@@ -263,4 +263,5 @@ std::string google_firestore_v1_MapValue_FieldsEntry::ToString(int indent) const
 
 }  // namespace firestore
 }  // namespace firebase
+
 /* @@protoc_insertion_point(eof) */

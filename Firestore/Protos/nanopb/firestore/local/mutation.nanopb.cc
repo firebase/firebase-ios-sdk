@@ -118,4 +118,5 @@ std::string firestore_client_WriteBatch::ToString(int indent) const {
 
 }  // namespace firestore
 }  // namespace firebase
+
 /* @@protoc_insertion_point(eof) */

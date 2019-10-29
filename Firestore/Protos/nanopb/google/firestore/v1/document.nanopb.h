@@ -169,6 +169,7 @@ extern const pb_field_t google_firestore_v1_MapValue_FieldsEntry_fields[3];
 
 }  // namespace firestore
 }  // namespace firebase
+
 /* @@protoc_insertion_point(eof) */
 
 #endif

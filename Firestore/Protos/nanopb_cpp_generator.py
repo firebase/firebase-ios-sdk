@@ -355,7 +355,7 @@ def end_namespace(files, file_name):
   f = create_insertion(files, file_name, 'eof')
   f.content = '''\
 }  // namespace firestore
-}  // namespace firebase'''
+}  // namespace firebase\n\n'''
 
 
 def indent(level):

@@ -130,6 +130,7 @@ extern const pb_field_t google_firestore_v1_TransactionOptions_ReadOnly_fields[2
 
 }  // namespace firestore
 }  // namespace firebase
+
 /* @@protoc_insertion_point(eof) */
 
 #endif

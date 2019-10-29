@@ -63,6 +63,7 @@ extern const pb_field_t google_protobuf_Empty_fields[1];
 
 }  // namespace firestore
 }  // namespace firebase
+
 /* @@protoc_insertion_point(eof) */
 
 #endif

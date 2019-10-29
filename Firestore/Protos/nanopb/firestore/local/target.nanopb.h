@@ -99,6 +99,7 @@ extern const pb_field_t firestore_client_TargetGlobal_fields[5];
 
 }  // namespace firestore
 }  // namespace firebase
+
 /* @@protoc_insertion_point(eof) */
 
 #endif

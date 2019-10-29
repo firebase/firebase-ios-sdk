@@ -39,6 +39,7 @@ namespace firestore {
 
 }  // namespace firestore
 }  // namespace firebase
+
 /* @@protoc_insertion_point(eof) */
 
 #endif

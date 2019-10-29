@@ -204,4 +204,5 @@ std::string google_firestore_v1_TransactionOptions_ReadOnly::ToString(int indent
 
 }  // namespace firestore
 }  // namespace firebase
+
 /* @@protoc_insertion_point(eof) */

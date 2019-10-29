@@ -196,4 +196,5 @@ std::string google_protobuf_ListValue::ToString(int indent) const {
 
 }  // namespace firestore
 }  // namespace firebase
+
 /* @@protoc_insertion_point(eof) */

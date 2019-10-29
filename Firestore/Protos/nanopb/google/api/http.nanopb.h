@@ -113,6 +113,7 @@ extern const pb_field_t google_api_CustomHttpPattern_fields[3];
 
 }  // namespace firestore
 }  // namespace firebase
+
 /* @@protoc_insertion_point(eof) */
 
 #endif

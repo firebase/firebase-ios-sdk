@@ -64,4 +64,5 @@ std::string google_rpc_Status::ToString(int indent) const {
 
 }  // namespace firestore
 }  // namespace firebase
+
 /* @@protoc_insertion_point(eof) */

@@ -160,6 +160,7 @@ extern const pb_field_t google_protobuf_BytesValue_fields[2];
 
 }  // namespace firestore
 }  // namespace firebase
+
 /* @@protoc_insertion_point(eof) */
 
 #endif

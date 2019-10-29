@@ -170,4 +170,5 @@ std::string google_api_CustomHttpPattern::ToString(int indent) const {
 
 }  // namespace firestore
 }  // namespace firebase
+
 /* @@protoc_insertion_point(eof) */

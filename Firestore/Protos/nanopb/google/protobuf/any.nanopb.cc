@@ -60,4 +60,5 @@ std::string google_protobuf_Any::ToString(int indent) const {
 
 }  // namespace firestore
 }  // namespace firebase
+
 /* @@protoc_insertion_point(eof) */
