@@ -21,6 +21,12 @@
 # XCode build target Firestore_FuzzTests_iOS that executes this script. XCode
 # defines these environment variables and makes them available to the script.
 
+if ! [ -x "$(command -v protoc)" ]; then
+  echo "This scripts needs protoc command to be available."
+  echo "Please install protobuf (e.g., \`brew install protobuf\` on Mac)."
+  exit 1
+fi
+
 # Directory that contains the text protos to convert to binary protos.
 text_protos_dir="${SCRIPT_INPUT_FILE_0}"
 
@@ -51,7 +57,7 @@ for text_proto_file in "${text_protos_dir}"/*; do
   # Run the conversion.
   echo "Converting file: ${file_name} (type: ${message_type})"
   echo "${file_content}" \
-    | "${SRCROOT}/Pods/!ProtoCompiler/protoc" \
+    | protoc \
     -I"${SRCROOT}/../../Firestore/Protos/protos" \
     --encode=google.firestore.v1."${message_type}" \
     google/firestore/v1/document.proto > "${binary_protos_dir}/${file_name}"
