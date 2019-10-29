@@ -16,12 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/remote_objc_bridge.h"
 
-#import <Foundation/Foundation.h>
-
 #include <map>
-
-#import "Firestore/Protos/objc/google/firestore/v1/Firestore.pbobjc.h"
-#import "Firestore/Source/API/FIRFirestore+Internal.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
@@ -32,12 +27,9 @@
 #include "Firestore/core/src/firebase/firestore/remote/grpc_nanopb.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_util.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
-#include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
-#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
-#include "absl/strings/str_split.h"
 #include "grpcpp/support/status.h"
 
 namespace firebase {
@@ -60,51 +52,10 @@ using nanopb::Reader;
 using remote::ByteBufferReader;
 using remote::Serializer;
 using util::MakeString;
-using util::MakeNSError;
 using util::Status;
 using util::StatusOr;
 using util::StringFormat;
 
-namespace {
-
-template <typename T, typename U>
-std::string DescribeMessage(const Message<U>& message) {
-  auto result = message.ToString();
-
-  // TODO(b/142276128): implement proper pretty-printing using just Nanopb.
-  // Converting to an Objective-C proto just to be able to call `description` is
-  // a hack.
-  auto bytes = MakeByteString(message);
-  auto ns_data = [NSData dataWithBytes:bytes.data() length:bytes.size()];
-  T* objc_request = [T parseFromData:ns_data error:nil];
-  // return util::MakeString([objc_request description]);
-
-  auto result2 = util::MakeString([objc_request description]);
-
-  std::vector<std::string> segments1 = absl::StrSplit(result, '\n');
-  segments1.erase(segments1.begin());
-  std::sort(segments1.begin(), segments1.end());
-
-  std::vector<std::string> segments2 = absl::StrSplit(result2, '\n');
-  segments2.erase(segments2.begin());
-  std::sort(segments2.begin(), segments2.end());
-
-  if (segments1.size() != segments2.size()) {
-    static int ctr1 = 0;
-    ++ctr1;
-    return "OBC1_" + std::to_string(ctr1) + " " + result + '\n' + result2;
-  } else if (!segments1.empty() && !segments2.empty() &&
-             !std::equal(segments1.begin() + 1, segments1.end(),
-                         segments2.begin() + 1)) {
-    static int ctr2 = 0;
-    ++ctr2;
-    return "OBC2_" + std::to_string(ctr2) + " " + result + '\n' + result2;
-  }
-
-  return "";
-}
-
-}  // namespace
 
 // WatchStreamSerializer
 
@@ -164,16 +115,6 @@ SnapshotVersion WatchStreamSerializer::DecodeSnapshotVersion(
     nanopb::Reader* reader,
     const google_firestore_v1_ListenResponse& response) const {
   return serializer_.DecodeVersionFromListenResponse(reader, response);
-}
-
-std::string WatchStreamSerializer::Describe(
-    const Message<google_firestore_v1_ListenRequest>& request) {
-  return DescribeMessage<GCFSListenRequest>(request);
-}
-
-std::string WatchStreamSerializer::Describe(
-    const Message<google_firestore_v1_ListenResponse>& response) {
-  return DescribeMessage<GCFSListenResponse>(response);
 }
 
 // WriteStreamSerializer
@@ -243,16 +184,6 @@ std::vector<MutationResult> WriteStreamSerializer::DecodeMutationResults(
   };
 
   return results;
-}
-
-std::string WriteStreamSerializer::Describe(
-    const Message<google_firestore_v1_WriteRequest>& request) {
-  return DescribeMessage<GCFSWriteRequest>(request);
-}
-
-std::string WriteStreamSerializer::Describe(
-    const Message<google_firestore_v1_WriteResponse>& response) {
-  return DescribeMessage<GCFSWriteResponse>(response);
 }
 
 // DatastoreSerializer

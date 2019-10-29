@@ -163,8 +163,8 @@ class Message {
     return FieldsArray<T>();
   }
 
+  /** Creates a pretty-printed description of the proto for debugging. */
   std::string ToString() const {
-    // return absl::StrCat("<", proto_.Name(), ">: ", proto_.ToString());
     return proto_.ToString();
   }
 
