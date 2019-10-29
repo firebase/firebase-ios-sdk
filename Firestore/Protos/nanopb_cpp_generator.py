@@ -57,8 +57,7 @@ def main():
 
   # Generate code
   options = nanopb_parse_options(request)
-  pretty_printing_info = {};
-  parsed_files = nanopb_parse_files(request, options, pretty_printing_info)
+  parsed_files, pretty_printing_info = nanopb_parse_files(request, options)
   results = nanopb_generate(request, options, parsed_files)
   response = nanopb_write(results, pretty_printing_info)
 
@@ -182,7 +181,7 @@ def nanopb_parse_options(request):
   return options
 
 
-def nanopb_parse_files(request, options, pretty_printing_info):
+def nanopb_parse_files(request, options):
   """Parses the files in the given request into nanopb ProtoFile objects.
 
   Args:
@@ -190,29 +189,39 @@ def nanopb_parse_files(request, options, pretty_printing_info):
     options: The command-line options from nanopb_parse_options.
 
   Returns:
-    A dictionary of filename to nanopb.ProtoFile objects, each one representing
-    the parsed form of a FileDescriptor in the request.
+    - a dictionary of filename to nanopb.ProtoFile objects, each one representing
+    the parsed form of a FileDescriptor in the request;
+    - a dictionary of filename (without `.proto` extension) to a
+      `FilePrettyPrintingInfo` object, which contains information on how to
+      generate pretty-printing code for this file.
   """
   # Process any include files first, in order to have them available as
   # dependencies
   parsed_files = {}
+  pretty_printing_info = {}
   for fdesc in request.proto_file:
     parsed_file = nanopb.parse_file(fdesc.name, fdesc, options)
     parsed_files[fdesc.name] = parsed_file
 
     base_filename = fdesc.name.replace('.proto', '')
-    pretty_printing_info[base_filename] = FilePrettyPrintingInfo(parsed_file)
+    pretty_printing_info[base_filename] = FilePrettyPrintingInfo(parsed_file, base_filename)
 
-  return parsed_files
+  return parsed_files, pretty_printing_info
 
 
 class FilePrettyPrintingInfo:
-  def __init__(self, parsed_file):
+  """ Describes how to generate pretty-printing code for this file."""
+
+  def __init__(self, parsed_file, base_filename):
+    self.name = base_filename
     self.messages = [MessagePrettyPrintingInfo(m) for m in parsed_file.messages]
     self.enums = [EnumPrettyPrintingInfo(e) for e in parsed_file.enums]
 
 
 class MessagePrettyPrintingInfo:
+  """ Describes how to generate pretty-printing code for this message.
+  """
+
   def __init__(self, message):
     self.short_classname = message.name.parts[-1]
     self.full_classname = str(message.name)
@@ -230,6 +239,9 @@ class MessagePrettyPrintingInfo:
 
 
 class FieldPrettyPrintingInfo:
+  """ Describes how to generate pretty-printing code for this field.
+  """
+
   def __init__(self, field, message):
     self.name = field.name
     self.full_classname = str(message.name)
@@ -245,6 +257,11 @@ class FieldPrettyPrintingInfo:
 
 
 class OneOfMemberPrettyPrintingInfo(FieldPrettyPrintingInfo):
+  """ Describes how to generate pretty-printing code for this oneof field.
+
+  Note that all members of the oneof are nested (in `fields` property).
+  """
+
   def __init__(self, field, message):
     FieldPrettyPrintingInfo.__init__(self, field, message)
 
@@ -256,6 +273,8 @@ class OneOfMemberPrettyPrintingInfo(FieldPrettyPrintingInfo):
 
 
 class EnumPrettyPrintingInfo:
+  """ Describes how to generate pretty-printing code for this enum.
+  """
   def __init__(self, enum):
     self.name = str(enum.names)
     self.members = [str(n) for n in enum.value_longnames]
@@ -299,6 +318,8 @@ def nanopb_write(results, pretty_printing_info):
   Args:
     results: A list of generated source dictionaries, as returned by
       nanopb_generate().
+    pretty_printing_info: A dictionary of `FilePrettyPrintingInfo` objects,
+      indexed by short file name (without extension).
 
   Returns:
     A CodeGeneratorResponse describing the result of the code generation
@@ -317,6 +338,8 @@ def nanopb_write(results, pretty_printing_info):
 
 
 def begin_namespace(files, file_name):
+  """Opens the `firebase::firestore` namespace in file with given `file_name`.
+  """
   f = create_insertion(files, file_name, 'includes')
   f.content = '''\
 namespace firebase {
@@ -324,6 +347,8 @@ namespace firestore {'''
 
 
 def end_namespace(files, file_name):
+  """Closes the `firebase::firestore` namespace in file with given `file_name`.
+  """
   f = create_insertion(files, file_name, 'eof')
   f.content = '''\
 }  // namespace firestore
@@ -331,7 +356,8 @@ def end_namespace(files, file_name):
 
 
 def indent(level):
-  """Returns leading whitespace corresponding to the given indentation level."""
+  """Returns leading whitespace corresponding to the given indentation `level`.
+  """
   indent_per_level = 4
   return ' ' * (indent_per_level * level)
 
@@ -349,6 +375,11 @@ def fixup(file_contents):
 
 
 def create_insertion(files, file_name, insertion_point):
+  """Creates and returns a pseudo-file request representing an insertion point.
+
+  The file with the given `file_name` must already exist among `files` before
+  this function is called.
+  """
   f = files.add()
   f.name = file_name
   f.insertion_point = insertion_point
@@ -356,12 +387,16 @@ def create_insertion(files, file_name, insertion_point):
 
 
 def add_contents(files, file_name, file_contents):
+  """Creates a file generation request with the given `file_contents`.
+  """
   f = files.add()
   f.name = file_name
   f.content = fixup(file_contents)
 
 
 def generate_header(files, file_name, file_contents, file_printers):
+  """Generates `.h` file with given contents, and with pretty-printing support.
+  """
   add_contents(files, file_name, file_contents)
 
   # Includes
@@ -377,18 +412,24 @@ def generate_header(files, file_name, file_contents, file_printers):
 
 
 def add_field_printer_declarations(files, file_name, messages):
+  """Creates a declaration of `ToString` member function for each Nanopb class.
+  """
   for m in messages:
     f = create_insertion(files, file_name, 'struct:' + m.full_classname)
     f.content = '\n' + indent(1) + 'std::string ToString(int indent = 0) const;\n'
 
 
 def add_enum_printer_declarations(files, file_name, enums):
+  """Creates a declaration of `EnumToString` free function for each enum.
+  """
   for enum in enums:
     f = create_insertion(files, file_name, 'eof')
     f.content += 'const char* EnumToString(%s\nvalue);\n;' % (enum.name)
 
 
 def generate_source(files, file_name, file_contents, file_printers):
+  """Generates `.cc` file with given contents, and with pretty-printing support.
+  """
   add_contents(files, file_name, file_contents)
 
   # Includes
@@ -406,6 +447,8 @@ def generate_source(files, file_name, file_contents, file_printers):
 
 
 def add_field_printer_definitions(files, file_name, messages):
+  """Creates the definition of `ToString` member function for each Nanopb class.
+  """
   for m in messages:
     f = create_insertion(files, file_name, 'eof')
 
@@ -440,6 +483,8 @@ std::string %s::ToString(int indent) const {
 
 
 def add_enum_printer_definitions(files, file_name, enums):
+  """Creates the definition of `EnumToString` free function for each enum.
+  """
   for enum in enums:
     f = create_insertion(files, file_name, 'eof')
 
@@ -461,6 +506,8 @@ const char* EnumToString(
 
 
 def add_printing_for_field(field):
+  """Generates a C++ statement that can print `field` according to its type.
+  """
   if field.is_optional:
     return add_printing_for_optional(field)
   elif field.is_repeated:
@@ -472,6 +519,8 @@ def add_printing_for_field(field):
 
 
 def add_printing_for_oneof(oneof):
+  """Generates a C++ statement that can print the `oneof` field, if set.
+  """
   which = oneof.which
   result = '''\
     switch (%s) {\n''' % (which)
@@ -492,6 +541,8 @@ def add_printing_for_oneof(oneof):
 
 
 def add_printing_for_repeated(field):
+  """Generates a C++ statement that can print the repeated `field`, if non-empty.
+  """
   count = field.name + '_count'
 
   result = '''\
@@ -504,6 +555,8 @@ def add_printing_for_repeated(field):
 
 
 def add_printing_for_optional(field):
+  """Generates a C++ statement that can print the optional `field`, if set.
+  """
   name = field.name
   result = '''\
     if (has_%s) {\n''' % name
@@ -515,6 +568,11 @@ def add_printing_for_optional(field):
 
 
 def add_printing_for_leaf(field, **kwargs):
+  """Generates a C++ statement that can print the given "leaf" `field`.
+
+  Leaf is to indicate that this function is non-recursive. If `field` is
+  a message, it will delegate printing to its `ToString()` member function.
+  """
   indent_level = kwargs.get('indent') or 1
   always_print = 'true' if kwargs.get('always_print') else 'false'
   parent_oneof = kwargs.get('parent_oneof')
