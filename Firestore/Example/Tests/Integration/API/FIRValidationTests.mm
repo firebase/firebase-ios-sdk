@@ -414,10 +414,6 @@ namespace testutil = firebase::firestore::testutil;
                   @"Invalid Query. Null supports only equality comparisons.");
   FSTAssertThrows([[self collectionRef] queryWhereField:@"a" arrayContains:[NSNull null]],
                   @"Invalid Query. Null supports only equality comparisons.");
-  FSTAssertThrows([[self collectionRef] queryWhereField:@"a" arrayContainsAny:[NSNull null]],
-                  @"Invalid Query. A non-empty array is required for 'arrayContainsAny' filters.");
-  FSTAssertThrows([[self collectionRef] queryWhereField:@"a" arrayContainsAny:[NSNull null]],
-                  @"Invalid Query. A non-empty array is required for 'arrayContainsAny' filters.");
 
   FSTAssertThrows([[self collectionRef] queryWhereField:@"a" isGreaterThan:@(NAN)],
                   @"Invalid Query. NaN supports only equality comparisons.");
@@ -557,12 +553,6 @@ namespace testutil = firebase::firestore::testutil;
       @"Invalid query. You can't perform arrayContains queries on document ID since document IDs "
        "are not arrays.";
   FSTAssertThrows([collection queryWhereFieldPath:[FIRFieldPath documentID] arrayContains:@1],
-                  reason);
-
-  reason = @"Invalid query. You can't perform arrayContainsAny queries on document ID since "
-           @"document IDs "
-            "are not arrays.";
-  FSTAssertThrows([collection queryWhereFieldPath:[FIRFieldPath documentID] arrayContainsAny:@1],
                   reason);
 }
 

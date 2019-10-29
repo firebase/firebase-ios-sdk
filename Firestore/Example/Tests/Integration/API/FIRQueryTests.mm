@@ -324,9 +324,6 @@
 }
 
 - (void)testQueriesCanUseInFilters {
-  // TODO(b/138855186): Re-enable in prod once feature lands in backend.
-  if (![FSTIntegrationTestCase isRunningAgainstEmulator]) return;
-
   NSDictionary *testDocs = @{
     @"a" : @{@"zip" : @98101},
     @"b" : @{@"zip" : @91102},
@@ -349,9 +346,6 @@
 }
 
 - (void)testQueriesCanUseInFiltersWithDocIds {
-  // TODO(b/138855186): Re-enable in prod once feature lands in backend.
-  if (![FSTIntegrationTestCase isRunningAgainstEmulator]) return;
-
   NSDictionary *testDocs = @{
     @"aa" : @{@"key" : @"aa"},
     @"ab" : @{@"key" : @"ab"},
@@ -367,9 +361,6 @@
 }
 
 - (void)testQueriesCanUseArrayContainsAnyFilters {
-  // TODO(b/138855186): Re-enable in prod once feature lands in backend.
-  if (![FSTIntegrationTestCase isRunningAgainstEmulator]) return;
-
   NSDictionary *testDocs = @{
     @"a" : @{@"array" : @[ @42 ]},
     @"b" : @{@"array" : @[ @"a", @42, @"c" ]},
