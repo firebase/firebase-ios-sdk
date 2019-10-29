@@ -19,7 +19,6 @@
 
 #include "timestamp.nanopb.h"
 
-#include "absl/strings/str_cat.h"
 #include "nanopb_pretty_printers.h"
 
 namespace firebase {

@@ -439,7 +439,6 @@ def generate_source(files, file_name, file_contents, file_printers):
   # Includes
   f = create_insertion(files, file_name, 'includes')
   f.content = '''\
-#include "absl/strings/str_cat.h"
 #include "nanopb_pretty_printers.h"\n\n'''
 
   begin_namespace(files, file_name)
