@@ -21,7 +21,6 @@
 #include <map>
 
 #import "Firestore/Protos/objc/google/firestore/v1/Firestore.pbobjc.h"
-#import "Firestore/Source/API/FIRFirestore+Internal.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
