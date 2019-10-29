@@ -47,6 +47,7 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
 @property(nonatomic, readwrite, weak) FIRMessagingRmqManager *rmq2Manager;
 
 - (NSString *)categoryForUpstreamMessages;
+- (BOOL)handleExpirationForDataMessage:(GtalkDataMessageStanza *)message;
 
 @end
 
@@ -284,7 +285,7 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
   OCMVerifyAll(self.mockClient);
 }
 
-- (void)testSendValidMessage_withTTL0AndNoNetwork {
+- (void)xxx_testSendValidMessage_withTTL0AndNoNetwork {
   // simulate a invalid connection
   [[[self.mockClient stub] andReturnValue:@NO] isConnectionActive];
 
@@ -520,7 +521,7 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
   [self waitForExpectationsWithTimeout:5.0 handler:nil];
 }
 
-- (void)xxx_testResendingExpiredMessagesFails {
+- (void)testResendingExpiredMessagesFails {
   // TODO: Test that expired messages should not be sent on resend
   static BOOL isClientConnected = NO;
   [[[self.mockClient stub] andDo:^(NSInvocation *invocation) {
@@ -542,8 +543,22 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
   id mockConnection = OCMClassMock([FIRMessagingConnection class]);
   [[mockConnection reject] sendProto:[OCMArg any]];
   [[self.mockRmqManager stub] scanWithRmqMessageHandler:[OCMArg checkWithBlock:^BOOL(id obj) {
-        return YES;
-    }]];
+    if ([obj isKindOfClass: [NSDictionary class]]) {
+      NSDictionary *messages = (NSDictionary *)obj;
+      XCTAssertEqual(messages.count, 1);
+      for (NSString *rmqID in messages) {
+        GPBMessage *proto = messages[rmqID];
+        if ([proto isKindOfClass:GtalkDataMessageStanza.class]) {
+          GtalkDataMessageStanza *stanza = (GtalkDataMessageStanza *)proto;
+          if (![self.mockRmqManager handleExpirationForDataMessage:stanza]) {
+            XCTAssertTrue([stanza.id_p isEqualToString:@"1"]);
+            return YES;
+          }
+        }
+      }
+    }
+    return NO;
+  }]];
 
   [self.dataMessageManager resendMessagesWithConnection:mockConnection];
   OCMVerifyAll(self.mockRmqManager);
