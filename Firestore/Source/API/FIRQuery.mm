@@ -546,21 +546,21 @@ FIRQuery *Wrap(Query &&query) {
 
 @implementation FIRQuery (Internal)
 
-- (FIRQuery *)queryWhereField:(NSString *)field arrayContainsAny:(id)value {
+- (FIRQuery *)queryWhereField:(NSString *)field arrayContainsAny:(NSArray<id> *)value {
   return [self queryWithFilterOperator:Filter::Operator::ArrayContainsAny field:field value:value];
 }
 
-- (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path arrayContainsAny:(id)value {
+- (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path arrayContainsAny:(NSArray<id> *)value {
   return [self queryWithFilterOperator:Filter::Operator::ArrayContainsAny
                                   path:path.internalValue
                                  value:value];
 }
 
-- (FIRQuery *)queryWhereField:(NSString *)field in:(id)value {
+- (FIRQuery *)queryWhereField:(NSString *)field in:(NSArray<id> *)value {
   return [self queryWithFilterOperator:Filter::Operator::In field:field value:value];
 }
 
-- (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path in:(id)value {
+- (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path in:(NSArray<id> *)value {
   return [self queryWithFilterOperator:Filter::Operator::In path:path.internalValue value:value];
 }
 
