@@ -147,11 +147,10 @@ TEST_F(QueryListenerTest, RaisesErrorEvent) {
   Query query = testutil::Query("rooms/Eros");
 
   auto listener = QueryListener::Create(
-      query, 
-      EventListener<ViewSnapshot>::Create(
-        [&accum_ptr](const StatusOr<ViewSnapshot>& maybe_snapshot) {
-        accum_ptr->push_back(maybe_snapshot.status());
-      }));
+      query, EventListener<ViewSnapshot>::Create(
+                 [&accum_ptr](const StatusOr<ViewSnapshot>& maybe_snapshot) {
+                   accum_ptr->push_back(maybe_snapshot.status());
+                 }));
 
   Status test_error{Error::Unauthenticated, "Some info"};
   listener->OnError(test_error);
