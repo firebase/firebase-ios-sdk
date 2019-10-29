@@ -16,7 +16,7 @@ cc_test(
   firebase_firestore_core_test
   SOURCES
     database_info_test.cc
-    event_manager_test.mm
+    event_manager_test.cc
     field_filter_test.cc
     query_listener_test.cc
     query_test.cc

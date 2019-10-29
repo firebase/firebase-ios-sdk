@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#include <utility>
-
 #include "Firestore/core/src/firebase/firestore/api/snapshots_in_sync_listener_registration.h"
+
+#include <utility>
 
 #include "Firestore/core/src/firebase/firestore/core/firestore_client.h"
 

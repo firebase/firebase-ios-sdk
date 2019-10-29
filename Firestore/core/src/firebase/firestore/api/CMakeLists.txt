@@ -19,28 +19,28 @@ cc_library(
     collection_reference.h
     document_change.cc
     document_change.h
+    document_reference.cc
     document_reference.h
-    document_reference.mm
     document_snapshot.cc
     document_snapshot.h
+    firestore.cc
     firestore.h
-    firestore.mm
     listener_registration.h
+    query_core.cc
     query_core.h
-    query_core.mm
+    query_listener_registration.cc
     query_listener_registration.h
-    query_listener_registration.mm
     query_snapshot.cc
     query_snapshot.h
     settings.cc
     settings.h
     snapshot_metadata.cc
     snapshot_metadata.h
+    snapshots_in_sync_listener_registration.cc
     snapshots_in_sync_listener_registration.h
-    snapshots_in_sync_listener_registration.mm
     source.h
+    write_batch.cc
     write_batch.h
-    write_batch.mm
   DEPENDS
     absl_meta
     firebase_firestore_core
