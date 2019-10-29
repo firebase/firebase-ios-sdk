@@ -24,7 +24,7 @@
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <GoogleUtilities/GULLogger.h>
-#import <GoogleUtilities/GULStorageHeartbeat.h>
+#import <GoogleUtilities/GULHeartbeatDateStorage.h>
 
 #import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsData.h>
 #import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsInterop.h>
@@ -152,7 +152,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, readonly) GDTCORTransport *transport;
 
 /** The storage to store the date of the last sent heartbeat. */
-@property(nonatomic, readonly) GULStorageHeartbeat *heartbeatDateStorage;
+@property(nonatomic, readonly) GULHeartbeatDateStorage *heartbeatDateStorage;
 
 @end
 
@@ -174,7 +174,7 @@ NS_ASSUME_NONNULL_END
                                                              transformers:nil
                                                                    target:kGDTCORTargetCCT];
 
-  GULStorageHeartbeat *dateStorage = [[GULStorageHeartbeat alloc]
+  GULHeartbeatDateStorage *dateStorage = [[GULHeartbeatDateStorage alloc]
       initWithFileURL:[[self class] filePathURLWithName:kFIRCoreDiagnosticsHeartbeatDateFileName]];
 
   return [self initWithTransport:transport heartbeatDateStorage:dateStorage];
@@ -187,7 +187,7 @@ NS_ASSUME_NONNULL_END
  * @return Returns the initialized `FIRCoreDiagnostics` instance.
  */
 - (instancetype)initWithTransport:(GDTCORTransport *)transport
-             heartbeatDateStorage:(GULStorageHeartbeat *)heartbeatDateStorage {
+             heartbeatDateStorage:(GULHeartbeatDateStorage *)heartbeatDateStorage {
   self = [super init];
   if (self) {
     _diagnosticsQueue =

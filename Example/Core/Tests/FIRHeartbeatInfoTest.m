@@ -6,12 +6,12 @@
 //
 
 #import <FirebaseCore/FIRHeartbeatInfo.h>
-#import <GoogleUtilities/GULStorageHeartbeat.h>
+#import <GoogleUtilities/GULHeartbeatDateStorage.h>
 #import <XCTest/XCTest.h>
 
 @interface FIRHeartbeatInfoTest : XCTestCase
 
-@property(nonatomic, strong) GULStorageHeartbeat *dataStorage;
+@property(nonatomic, strong) GULHeartbeatDateStorage *dataStorage;
 
 @property(nonatomic, strong) NSMutableDictionary *dictionary;
 
@@ -21,7 +21,7 @@
 
 - (void)setUp {
   NSString *const kHeartbeatStorageFile = @"HEARTBEAT_INFO_STORAGE";
-  self.dataStorage = [[GULStorageHeartbeat alloc]
+  self.dataStorage = [[GULHeartbeatDateStorage alloc]
       initWithFileURL:[FIRHeartbeatInfo filePathURLWithName:kHeartbeatStorageFile]];
   NSDate *pastTime = [NSDate dateWithTimeIntervalSinceNow:-96400];
   [self.dataStorage setHearbeatDate:pastTime forTag:@"fire-iid"];

@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#import <GoogleUtilities/GULStorageHeartbeat.h>
+#import <GoogleUtilities/GULHeartbeatDateStorage.h>
 #import <XCTest/XCTest.h>
 
 @interface GULStorageHeartbeatTest : XCTestCase
 @property(nonatomic) NSURL *fileURL;
-@property(nonatomic) GULStorageHeartbeat *storage;
+@property(nonatomic) GULHeartbeatDateStorage *storage;
 @end
 
 @implementation GULStorageHeartbeatTest
@@ -40,7 +40,7 @@
                                                              error:&error],
               @"Error: %@", error);
   }
-  self.storage = [[GULStorageHeartbeat alloc] initWithFileURL:self.fileURL];
+  self.storage = [[GULHeartbeatDateStorage alloc] initWithFileURL:self.fileURL];
 }
 
 - (void)tearDown {
@@ -76,7 +76,7 @@
   NSError *error;
   XCTAssert([self.storage setDate:date error:&error], @"Error: %@", error);
 
-  GULStorageHeartbeat *anotherStorage = [[GULStorageHeartbeat alloc] initWithFileURL:self.fileURL];
+  GULHeartbeatDateStorage *anotherStorage = [[GULHeartbeatDateStorage alloc] initWithFileURL:self.fileURL];
 
   XCTAssertEqualObjects([anotherStorage date], date);
 }

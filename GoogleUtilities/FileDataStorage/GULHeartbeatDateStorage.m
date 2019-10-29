@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#import "GULStorageHeartbeat.h"
+#import "GULHeartbeatDateStorage.h"
 #import <GoogleUtilities/GULSecureCoding.h>
 
-@interface GULStorageHeartbeat ()
+@interface GULHeartbeatDateStorage ()
 @property(nonatomic, readonly) NSURL *fileURL;
 @end
 
-@implementation GULStorageHeartbeat
+@implementation GULHeartbeatDateStorage
 
 - (instancetype)initWithFileURL:(NSURL *)fileURL {
   if (fileURL == nil) {
@@ -36,7 +36,7 @@
   return self;
 }
 
-- (nullable NSMutableDictionary *)getDictionary {
+- (nullable NSMutableDictionary *)heartbeatDictionary {
   NSError *error;
   NSData *objectData = [NSData dataWithContentsOfURL:self.fileURL options:0 error:&error];
   if (error != nil) {
@@ -51,12 +51,12 @@
 }
 
 - (nullable NSDate *)heartbeatDateForTag:(NSString *)tag {
-  NSMutableDictionary *dictionary = [self getDictionary];
+  NSMutableDictionary *dictionary = [self heartbeatDictionary];
   return dictionary[tag];
 }
 
 - (BOOL)setHearbeatDate:(NSDate *)date forTag:(NSString *)tag {
-  NSMutableDictionary *dictionary = [self getDictionary];
+  NSMutableDictionary *dictionary = [self heartbeatDictionary];
   dictionary[tag] = date;
   NSError *error;
   BOOL isSuccess = [self writeDictionary:dictionary error:&error];

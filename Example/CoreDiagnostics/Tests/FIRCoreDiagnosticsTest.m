@@ -26,7 +26,7 @@
 #import <GoogleDataTransport/GDTCORTransport.h>
 #import <GoogleDataTransportCCTSupport/GDTCCTPrioritizer.h>
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
-#import <GoogleUtilities/GULStorageHeartbeat.h>
+#import <GoogleUtilities/GULHeartbeatDateStorage.h>
 #import <GoogleUtilities/GULUserDefaults.h>
 #import <OCMock/OCMock.h>
 #import <nanopb/pb_decode.h>
@@ -47,12 +47,12 @@ static NSString *const kLibraryVersionID = @"1.2.3";
 // Initialization.
 + (instancetype)sharedInstance;
 - (instancetype)initWithTransport:(GDTCORTransport *)transport
-             heartbeatDateStorage:(GULStorageHeartbeat *)heartbeatDateStorage;
+             heartbeatDateStorage:(GULHeartbeatDateStorage *)heartbeatDateStorage;
 
 // Properties.
 @property(nonatomic, readonly) dispatch_queue_t diagnosticsQueue;
 @property(nonatomic, readonly) GDTCORTransport *transport;
-@property(nonatomic, readonly) GULStorageHeartbeat *heartbeatDateStorage;
+@property(nonatomic, readonly) GULHeartbeatDateStorage *heartbeatDateStorage;
 
 // Install string helpers.
 + (NSString *)installString;
@@ -139,7 +139,7 @@ extern void FIRPopulateProtoWithInfoPlistValues(
   OCMStub([self.mockTransport eventForTransport])
       .andReturn([[GDTCOREvent alloc] initWithMappingID:@"111" target:2]);
 
-  self.mockDateStorage = OCMClassMock([GULStorageHeartbeat class]);
+  self.mockDateStorage = OCMClassMock([GULHeartbeatDateStorage class]);
   self.diagnostics = [[FIRCoreDiagnostics alloc] initWithTransport:self.mockTransport
                                               heartbeatDateStorage:self.mockDateStorage];
 }
@@ -294,7 +294,7 @@ extern void FIRPopulateProtoWithInfoPlistValues(
 - (void)testSharedInstanceDateStorageProperlyInitialized {
   FIRCoreDiagnostics *sharedInstance = [FIRCoreDiagnostics sharedInstance];
   XCTAssertNotNil(sharedInstance.heartbeatDateStorage);
-  XCTAssert([sharedInstance.heartbeatDateStorage isKindOfClass:[GULStorageHeartbeat class]]);
+  XCTAssert([sharedInstance.heartbeatDateStorage isKindOfClass:[GULHeartbeatDateStorage class]]);
 
   NSDate *date = [NSDate date];
 

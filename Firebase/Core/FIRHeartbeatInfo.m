@@ -7,7 +7,7 @@
 
 #import "FIRHeartbeatInfo.h"
 #import <GoogleUtilities/GULLogger.h>
-#import <GoogleUtilities/GULStorageHeartbeat.h>
+#import <GoogleUtilities/GULHeartbeatDateStorage.h>
 
 @implementation FIRHeartbeatInfo : NSObject
 
@@ -46,7 +46,7 @@ static GULLoggerService kFIRHeartbeatInfo = @"FIRHeartbeatInfo";
 + (BOOL)getOrUpdateHeartbeat:(NSString *)prefKey {
   @synchronized(self) {
     NSString *const kHeartbeatStorageFile = @"HEARTBEAT_INFO_STORAGE";
-    GULStorageHeartbeat *dataStorage = [[GULStorageHeartbeat alloc]
+    GULHeartbeatDateStorage *dataStorage = [[GULHeartbeatDateStorage alloc]
         initWithFileURL:[[self class] filePathURLWithName:kHeartbeatStorageFile]];
     NSDate *heartbeatTime = [dataStorage heartbeatDateForTag:prefKey];
     NSDate *currentDate = [NSDate date];
