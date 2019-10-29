@@ -1,4 +1,9 @@
 # Unreleased
+- [feature] Added `whereField(_:in:)` and `whereField(_:arrayContainsAny:)` query
+  operators. `whereField(_:in:)` finds documents where a specified field’s value
+  is IN a specified array. `whereField(_:arrayContainsAny:)` finds documents
+  where a specified field is an array and contains ANY element of a specified
+  array.
 - [changed] Firestore SDK now uses Nanopb rather than Objective-C Protobuf
   library for parsing protos. This change does not affect visible behavior of
   the SDK in any way. While we don't anticipate any issues, please [report any
@@ -202,7 +207,7 @@
 # v0.13.0
 - [feature] Added `FieldValue.arrayUnion()` and `FieldValue.arrayRemove()` to
   atomically add and remove elements from an array field in a document.
-- [feature] Added `whereField(arrayContains:)` query filter to find
+- [feature] Added `whereField(_:arrayContains:)` query filter to find
   documents where an array field contains a specific element.
 - [fixed] Fixed compilation with older Xcode versions (#1517).
 - [fixed] Fixed a performance issue where large write batches with hundreds of
