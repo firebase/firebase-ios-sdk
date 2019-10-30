@@ -39,7 +39,7 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
-      'FIRCore_VERSION=' + s.version.to_s + ' Firebase_VERSION=6.11.0',
+      'FIRCore_VERSION=' + s.version.to_s + ' Firebase_VERSION=6.12.0',
     'OTHER_CFLAGS' => '-fno-autolink'
   }
   s.test_spec 'unit' do |unit_tests|
