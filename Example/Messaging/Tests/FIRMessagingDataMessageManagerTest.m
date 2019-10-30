@@ -51,6 +51,7 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
 
 @end
 
+
 @interface FIRMessagingRmqManager (ExposedForTest)
 
 - (void)removeDatabase;
@@ -94,7 +95,7 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
     }
     [super tearDown];
 }
-
+/*
 - (void)testSendValidMessage_withNoConnection {
   // mock no connection initially
   NSString *messageID = @"1";
@@ -419,7 +420,7 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
   XCTAssertEqualObjects(parsedMessage[kFIRMessagingMessageIDKey], kMessagePersistentID);
   XCTAssertEqual(2, parsedMessage.count);
 }
-
+*/
 /**
  *  Test parsing a duplex message.
  */
