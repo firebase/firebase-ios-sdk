@@ -57,8 +57,9 @@ def main():
 
   # Generate code
   options = nanopb_parse_options(request)
-  parsed_files, pretty_printing_info = nanopb_parse_files(request, options)
+  parsed_files = nanopb_parse_files(request, options)
   results = nanopb_generate(request, options, parsed_files)
+  pretty_printing_info = create_pretty_printers(parsed_files)
   response = nanopb_write(results, pretty_printing_info)
 
   # Write to stdout
@@ -198,20 +199,24 @@ def nanopb_parse_files(request, options):
   # Process any include files first, in order to have them available as
   # dependencies
   parsed_files = {}
-  pretty_printing_info = {}
   for fdesc in request.proto_file:
-    parsed_file = nanopb.parse_file(fdesc.name, fdesc, options)
-    parsed_files[fdesc.name] = parsed_file
+    parsed_files[fdesc.name] = nanopb.parse_file(fdesc.name, fdesc, options)
 
-    base_filename = fdesc.name.replace('.proto', '')
+  return parsed_files
+
+
+def create_pretty_printers(parsed_files):
+  pretty_printing_info = {}
+  for name, parsed_file in parsed_files.items():
+    base_filename = name.replace('.proto', '')
     pretty_printing_info[base_filename] = FilePrettyPrintingInfo(parsed_file,
-                                                                 base_filename)
 
-  return parsed_files, pretty_printing_info
+                                                                  base_filename)
+  return pretty_printing_info
 
 
 class FilePrettyPrintingInfo:
-  """ Describes how to generate pretty-printing code for this file."""
+  """Describes how to generate pretty-printing code for this file."""
 
   def __init__(self, parsed_file, base_filename):
     self.name = base_filename
@@ -220,7 +225,7 @@ class FilePrettyPrintingInfo:
 
 
 class MessagePrettyPrintingInfo:
-  """ Describes how to generate pretty-printing code for this message.
+  """Describes how to generate pretty-printing code for this message.
   """
 
   def __init__(self, message):
@@ -233,13 +238,13 @@ class MessagePrettyPrintingInfo:
 
   def _create_field(self, field, message):
     if isinstance(field, nanopb.OneOf):
-      return OneOfMemberPrettyPrintingInfo(field, message)
+      return OneOfPrettyPrintingInfo(field, message)
     else:
       return FieldPrettyPrintingInfo(field, message)
 
 
 class FieldPrettyPrintingInfo:
-  """ Describes how to generate pretty-printing code for this field.
+  """Describes how to generate pretty-printing code for this field.
   """
 
   def __init__(self, field, message):
@@ -256,8 +261,119 @@ class FieldPrettyPrintingInfo:
     self.is_enum = field.pbtype in ['ENUM', 'UENUM']
 
 
-class OneOfMemberPrettyPrintingInfo(FieldPrettyPrintingInfo):
-  """ Describes how to generate pretty-printing code for this oneof field.
+  def __str__(self):
+    """Generates a C++ statement that can print `field` according to its type.
+    """
+    if self.is_optional:
+      return self._generate_for_optional()
+    elif self.is_repeated:
+      return self._generate_for_repeated()
+    else:
+      return self._generate_for_leaf()
+
+
+  def _generate_for_repeated(self):
+    """Generates a C++ statement that can print the repeated `field`, if non-empty.
+    """
+    count = self.name + '_count'
+
+    result = '''\
+    for (pb_size_t i = 0; i != %s; ++i) {\n''' % count
+    # If the repeated field is non-empty, print all its members, even if they are
+    # zero or empty (otherwise, an array of zeroes would be indistinguishable from
+    # an empty array).
+    result += self._generate_for_leaf(indent=2, always_print=True)
+    result += '''\
+    }\n'''
+
+    return result
+
+
+  def _generate_for_optional(self):
+    """Generates a C++ statement that can print the optional `field`, if set.
+    """
+    name = self.name
+    result = '''\
+    if (has_%s) {\n''' % name
+    # If an optional field is set, always print the value, even if it's zero or
+    # empty.
+    result += self._generate_for_leaf(indent=2, always_print=True)
+    result += '''\
+    }\n'''
+
+    return result
+
+
+  def _generate_for_leaf(self, indent=1, always_print=False, parent_oneof=None):
+    """Generates a C++ statement that can print the given "leaf" `field`.
+
+    Leaf is to indicate that this function is non-recursive. If `field` is
+    a message, it will delegate printing to its `ToString()` member function.
+    """
+    always_print = 'true' if always_print else 'false'
+
+    display_name = self.name
+    if self.is_primitive:
+      display_name += ':'
+
+    cc_name = self._get_cc_name(parent_oneof)
+    function_name = self._get_printer_function_name()
+
+    return self._generate(indent, display_name, cc_name, function_name, always_print)
+
+
+  def _get_cc_name(self, parent_oneof):
+    cc_name = self.name
+
+    # If a proto field is named `delete`, it is renamed to `delete_` by our script
+    # because `delete` is a keyword in C++. Unfortunately, the renaming mechanism
+    # runs separately from generating pretty printers; consequently, when pretty
+    # printers are being generated, all proto fields still have their unmodified
+    # names.
+    if cc_name == 'delete':
+      cc_name = 'delete_'
+
+    if self.is_repeated:
+      cc_name += '[i]'
+
+    if parent_oneof and not parent_oneof.is_anonymous:
+      cc_name = parent_oneof.name + '.' + cc_name
+
+    return cc_name
+
+
+  def _get_printer_function_name(self):
+    if self.is_enum:
+      return 'PrintEnumField'
+    elif self.is_primitive:
+      return 'PrintPrimitiveField'
+    else:
+      return 'PrintMessageField'
+
+
+  def _generate(self, indent_level, display_name, cc_name, function_name, always_print):
+    line_width = 80
+
+    format_str = '%sresult += %s("%s ",%s%s, indent + 1, %s);\n'
+    maybe_linebreak = ' '
+    args = (
+      indent(indent_level), function_name, display_name, maybe_linebreak, cc_name,
+      always_print)
+
+    result = format_str % args
+    if len(result) <= line_width:
+      return result
+
+    # Best-effort attempt to fit within the expected line width.
+    maybe_linebreak = '\n' + indent(indent_level + 1)
+    args = (
+      indent(indent_level), function_name, display_name, maybe_linebreak, cc_name,
+      always_print)
+    return format_str % args
+
+
+class OneOfPrettyPrintingInfo(FieldPrettyPrintingInfo):
+  """Describes how to generate pretty-printing code for this oneof field.
 
   Note that all members of the oneof are nested (in `fields` property).
   """
@@ -272,8 +388,32 @@ class OneOfMemberPrettyPrintingInfo(FieldPrettyPrintingInfo):
     self.fields = [FieldPrettyPrintingInfo(f, message) for f in field.fields]
 
 
+  def __str__(self):
+    """Generates a C++ statement that can print the `oneof` field, if it is set.
+    """
+    which = self.which
+    result = '''\
+    switch (%s) {\n''' % (which)
+
+    for f in self.fields:
+      tag_name = '%s_%s_tag' % (self.full_classname, f.name)
+      result += '''\
+    case %s:\n''' % tag_name
+
+      # If oneof is set, always print that member, even if it's zero or empty.
+      result += f._generate_for_leaf(indent=2, parent_oneof=self,
+                                      always_print=True)
+      result += '''\
+        break;\n'''
+
+    result += '''\
+    }\n'''
+
+    return result
+
+
 class EnumPrettyPrintingInfo:
-  """ Describes how to generate pretty-printing code for this enum.
+  """Describes how to generate pretty-printing code for this enum.
   """
 
   def __init__(self, enum):
@@ -455,27 +595,20 @@ def add_field_printer_definitions(files, file_name, messages):
   for m in messages:
     f = create_insertion(files, file_name, 'eof')
 
-    # Note: Objective-C proto library indents 4 spaces within the top-level
-    # message, but only 2 spaces in all the nested messages. The reassignment of
-    # `indent` below is to emulate that.
     f.content += '''\
 std::string %s::ToString(int indent) const {
-    bool is_root = indent == 0;
-    if (is_root) {
-        indent = 1;
-    }
-
-    std::string header = PrintHeader(is_root, "%s", this);
+    std::string header = PrintHeader(indent, "%s", this);
     std::string result;\n\n''' % (m.full_classname, m.short_classname)
 
     for field in m.fields:
-      f.content += add_printing_for_field(field)
+      f.content += str(field)
 
     can_be_empty = all(f.is_primitive or f.is_repeated for f in m.fields)
     if can_be_empty:
       f.content += '''
+    bool is_root = indent == 0;
     if (!result.empty() || is_root) {
-      std::string tail = PrintTail(is_root, indent);
+      std::string tail = PrintTail(indent);
       return header + result + tail;
     } else {
       return "";
@@ -483,7 +616,7 @@ std::string %s::ToString(int indent) const {
 }\n\n'''
     else:
       f.content += '''
-    std::string tail = PrintTail(is_root, indent);
+    std::string tail = PrintTail(indent);
     return header + result + tail;
 }\n\n'''
 
@@ -509,127 +642,6 @@ const char* EnumToString(
     }
     return "<unknown enum value>";
 }\n\n'''
-
-
-def add_printing_for_field(field):
-  """Generates a C++ statement that can print `field` according to its type.
-  """
-  if field.is_optional:
-    return add_printing_for_optional(field)
-  elif field.is_repeated:
-    return add_printing_for_repeated(field)
-  elif field.is_oneof:
-    return add_printing_for_oneof(field)
-  else:
-    return add_printing_for_leaf(field)
-
-
-def add_printing_for_oneof(oneof):
-  """Generates a C++ statement that can print the `oneof` field, if set.
-  """
-  which = oneof.which
-  result = '''\
-    switch (%s) {\n''' % (which)
-
-  for f in oneof.fields:
-    tag_name = '%s_%s_tag' % (oneof.full_classname, f.name)
-    result += '''\
-    case %s:\n''' % tag_name
-
-    # If oneof is set, always print that member, even if it's zero or empty.
-    result += add_printing_for_leaf(f, indent=2, parent_oneof=oneof,
-                                    always_print=True)
-    result += '''\
-        break;\n'''
-
-  result += '''\
-    }\n'''
-
-  return result
-
-
-def add_printing_for_repeated(field):
-  """Generates a C++ statement that can print the repeated `field`, if non-empty.
-  """
-  count = field.name + '_count'
-
-  result = '''\
-    for (pb_size_t i = 0; i != %s; ++i) {\n''' % count
-  # If the repeated field is non-empty, print all its members, even if they are
-  # zero or empty (otherwise, an array of zeroes would be indistinguishable from
-  # an empty array).
-  result += add_printing_for_leaf(field, indent=2, always_print=True)
-  result += '''\
-    }\n'''
-
-  return result
-
-
-def add_printing_for_optional(field):
-  """Generates a C++ statement that can print the optional `field`, if set.
-  """
-  name = field.name
-  result = '''\
-    if (has_%s) {\n''' % name
-  # If an optional field is set, always print the value, even if it's zero or
-  # empty.
-  result += add_printing_for_leaf(field, indent=2, always_print=True)
-  result += '''\
-    }\n'''
-
-  return result
-
-
-def add_printing_for_leaf(field, **kwargs):
-  """Generates a C++ statement that can print the given "leaf" `field`.
-
-  Leaf is to indicate that this function is non-recursive. If `field` is
-  a message, it will delegate printing to its `ToString()` member function.
-  """
-  indent_level = kwargs.get('indent') or 1
-  always_print = 'true' if kwargs.get('always_print') else 'false'
-  parent_oneof = kwargs.get('parent_oneof')
-
-  display_name = field.name
-  cc_name = display_name
-
-  if field.is_repeated:
-    cc_name += '[i]'
-
-  if parent_oneof and not parent_oneof.is_anonymous:
-    cc_name = parent_oneof.name + '.' + cc_name
-
-  if cc_name == 'delete':
-    cc_name = 'delete_'
-  if field.is_primitive:
-    display_name += ':'
-
-  function_name = ''
-  if field.is_enum:
-    function_name = 'PrintEnumField'
-  elif field.is_primitive:
-    function_name = 'PrintPrimitiveField'
-  else:
-    function_name = 'PrintMessageField'
-
-  line_width = 80
-
-  format_str = '%sresult += %s("%s ",%s%s, indent + 1, %s);\n'
-  maybe_linebreak = ' '
-  args = (
-    indent(indent_level), function_name, display_name, maybe_linebreak, cc_name,
-    always_print)
-
-  result = format_str % args
-  if len(result) <= line_width:
-    return result
-
-  # Best-effort attempt to fit within the expected line width.
-  maybe_linebreak = '\n' + indent(indent_level + 1)
-  args = (
-    indent(indent_level), function_name, display_name, maybe_linebreak, cc_name,
-    always_print)
-  return format_str % args
 
 
 if __name__ == '__main__':

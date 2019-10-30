@@ -129,12 +129,7 @@ const char* EnumToString(
 }
 
 std::string google_firestore_v1_Write::ToString(int indent) const {
-    bool is_root = indent == 0;
-    if (is_root) {
-        indent = 1;
-    }
-
-    std::string header = PrintHeader(is_root, "Write", this);
+    std::string header = PrintHeader(indent, "Write", this);
     std::string result;
 
     switch (which_operation) {
@@ -157,17 +152,12 @@ std::string google_firestore_v1_Write::ToString(int indent) const {
             current_document, indent + 1, true);
     }
 
-    std::string tail = PrintTail(is_root, indent);
+    std::string tail = PrintTail(indent);
     return header + result + tail;
 }
 
 std::string google_firestore_v1_DocumentTransform::ToString(int indent) const {
-    bool is_root = indent == 0;
-    if (is_root) {
-        indent = 1;
-    }
-
-    std::string header = PrintHeader(is_root, "DocumentTransform", this);
+    std::string header = PrintHeader(indent, "DocumentTransform", this);
     std::string result;
 
     result += PrintPrimitiveField("document: ", document, indent + 1, false);
@@ -176,8 +166,9 @@ std::string google_firestore_v1_DocumentTransform::ToString(int indent) const {
             field_transforms[i], indent + 1, true);
     }
 
+    bool is_root = indent == 0;
     if (!result.empty() || is_root) {
-      std::string tail = PrintTail(is_root, indent);
+      std::string tail = PrintTail(indent);
       return header + result + tail;
     } else {
       return "";
@@ -185,12 +176,7 @@ std::string google_firestore_v1_DocumentTransform::ToString(int indent) const {
 }
 
 std::string google_firestore_v1_DocumentTransform_FieldTransform::ToString(int indent) const {
-    bool is_root = indent == 0;
-    if (is_root) {
-        indent = 1;
-    }
-
-    std::string header = PrintHeader(is_root, "FieldTransform", this);
+    std::string header = PrintHeader(indent, "FieldTransform", this);
     std::string result;
 
     result += PrintPrimitiveField("field_path: ",
@@ -219,8 +205,9 @@ std::string google_firestore_v1_DocumentTransform_FieldTransform::ToString(int i
         break;
     }
 
+    bool is_root = indent == 0;
     if (!result.empty() || is_root) {
-      std::string tail = PrintTail(is_root, indent);
+      std::string tail = PrintTail(indent);
       return header + result + tail;
     } else {
       return "";
@@ -228,12 +215,7 @@ std::string google_firestore_v1_DocumentTransform_FieldTransform::ToString(int i
 }
 
 std::string google_firestore_v1_WriteResult::ToString(int indent) const {
-    bool is_root = indent == 0;
-    if (is_root) {
-        indent = 1;
-    }
-
-    std::string header = PrintHeader(is_root, "WriteResult", this);
+    std::string header = PrintHeader(indent, "WriteResult", this);
     std::string result;
 
     if (has_update_time) {
@@ -245,17 +227,12 @@ std::string google_firestore_v1_WriteResult::ToString(int indent) const {
             transform_results[i], indent + 1, true);
     }
 
-    std::string tail = PrintTail(is_root, indent);
+    std::string tail = PrintTail(indent);
     return header + result + tail;
 }
 
 std::string google_firestore_v1_DocumentChange::ToString(int indent) const {
-    bool is_root = indent == 0;
-    if (is_root) {
-        indent = 1;
-    }
-
-    std::string header = PrintHeader(is_root, "DocumentChange", this);
+    std::string header = PrintHeader(indent, "DocumentChange", this);
     std::string result;
 
     result += PrintMessageField("document ", document, indent + 1, false);
@@ -268,17 +245,12 @@ std::string google_firestore_v1_DocumentChange::ToString(int indent) const {
             removed_target_ids[i], indent + 1, true);
     }
 
-    std::string tail = PrintTail(is_root, indent);
+    std::string tail = PrintTail(indent);
     return header + result + tail;
 }
 
 std::string google_firestore_v1_DocumentDelete::ToString(int indent) const {
-    bool is_root = indent == 0;
-    if (is_root) {
-        indent = 1;
-    }
-
-    std::string header = PrintHeader(is_root, "DocumentDelete", this);
+    std::string header = PrintHeader(indent, "DocumentDelete", this);
     std::string result;
 
     result += PrintPrimitiveField("document: ", document, indent + 1, false);
@@ -290,17 +262,12 @@ std::string google_firestore_v1_DocumentDelete::ToString(int indent) const {
             removed_target_ids[i], indent + 1, true);
     }
 
-    std::string tail = PrintTail(is_root, indent);
+    std::string tail = PrintTail(indent);
     return header + result + tail;
 }
 
 std::string google_firestore_v1_DocumentRemove::ToString(int indent) const {
-    bool is_root = indent == 0;
-    if (is_root) {
-        indent = 1;
-    }
-
-    std::string header = PrintHeader(is_root, "DocumentRemove", this);
+    std::string header = PrintHeader(indent, "DocumentRemove", this);
     std::string result;
 
     result += PrintPrimitiveField("document: ", document, indent + 1, false);
@@ -310,24 +277,20 @@ std::string google_firestore_v1_DocumentRemove::ToString(int indent) const {
     }
     result += PrintMessageField("read_time ", read_time, indent + 1, false);
 
-    std::string tail = PrintTail(is_root, indent);
+    std::string tail = PrintTail(indent);
     return header + result + tail;
 }
 
 std::string google_firestore_v1_ExistenceFilter::ToString(int indent) const {
-    bool is_root = indent == 0;
-    if (is_root) {
-        indent = 1;
-    }
-
-    std::string header = PrintHeader(is_root, "ExistenceFilter", this);
+    std::string header = PrintHeader(indent, "ExistenceFilter", this);
     std::string result;
 
     result += PrintPrimitiveField("target_id: ", target_id, indent + 1, false);
     result += PrintPrimitiveField("count: ", count, indent + 1, false);
 
+    bool is_root = indent == 0;
     if (!result.empty() || is_root) {
-      std::string tail = PrintTail(is_root, indent);
+      std::string tail = PrintTail(indent);
       return header + result + tail;
     } else {
       return "";

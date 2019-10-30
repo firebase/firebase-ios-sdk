@@ -71,12 +71,7 @@ PB_STATIC_ASSERT((pb_membersize(firestore_client_WriteBatch, local_write_time) <
 
 
 std::string firestore_client_MutationQueue::ToString(int indent) const {
-    bool is_root = indent == 0;
-    if (is_root) {
-        indent = 1;
-    }
-
-    std::string header = PrintHeader(is_root, "MutationQueue", this);
+    std::string header = PrintHeader(indent, "MutationQueue", this);
     std::string result;
 
     result += PrintPrimitiveField("last_acknowledged_batch_id: ",
@@ -84,8 +79,9 @@ std::string firestore_client_MutationQueue::ToString(int indent) const {
     result += PrintPrimitiveField("last_stream_token: ",
         last_stream_token, indent + 1, false);
 
+    bool is_root = indent == 0;
     if (!result.empty() || is_root) {
-      std::string tail = PrintTail(is_root, indent);
+      std::string tail = PrintTail(indent);
       return header + result + tail;
     } else {
       return "";
@@ -93,12 +89,7 @@ std::string firestore_client_MutationQueue::ToString(int indent) const {
 }
 
 std::string firestore_client_WriteBatch::ToString(int indent) const {
-    bool is_root = indent == 0;
-    if (is_root) {
-        indent = 1;
-    }
-
-    std::string header = PrintHeader(is_root, "WriteBatch", this);
+    std::string header = PrintHeader(indent, "WriteBatch", this);
     std::string result;
 
     result += PrintPrimitiveField("batch_id: ", batch_id, indent + 1, false);
@@ -112,7 +103,7 @@ std::string firestore_client_WriteBatch::ToString(int indent) const {
             base_writes[i], indent + 1, true);
     }
 
-    std::string tail = PrintTail(is_root, indent);
+    std::string tail = PrintTail(indent);
     return header + result + tail;
 }
 
