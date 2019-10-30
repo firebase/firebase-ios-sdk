@@ -1,4 +1,6 @@
 # Unreleased
+
+# v1.7.0
 - [feature] Added `whereField(_:in:)` and `whereField(_:arrayContainsAny:)` query
   operators. `whereField(_:in:)` finds documents where a specified field’s value
   is IN a specified array. `whereField(_:arrayContainsAny:)` finds documents
