@@ -6,6 +6,7 @@ set -e
 set -x
 
 export LC_CTYPE=en_US.UTF-8
+export TRAVIS_PULL_REQUEST=""
 
 # Code under repo is checked out to ${KOKORO_ARTIFACTS_DIR}/github.
 # The final directory name in this path is determined by the scm name specified
