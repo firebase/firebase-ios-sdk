@@ -11,6 +11,7 @@ set -x
 # in the job configuration.
 cd ${KOKORO_ARTIFACTS_DIR}/github/firebase-ios-sdk
 bundle install
+gem install xcpretty
 pushd Example
 bundle exec pod install
 popd
