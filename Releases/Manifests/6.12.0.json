@@ -3,7 +3,7 @@
   "FirebaseAuth":"6.4.0",
   "FirebaseCore":"6.3.2",
   "FirebaseDatabase":"6.1.2",
-  "FirebaseFirestore":"1.6.2",
+  "FirebaseFirestore":"1.7.0",
   "FirebaseInstanceID":"4.2.7",
   "FirebaseMessaging":"4.1.8",
   "FirebaseRemoteConfig":"4.4.4"
