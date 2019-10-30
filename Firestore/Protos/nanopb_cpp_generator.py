@@ -215,6 +215,43 @@ def create_pretty_printers(parsed_files):
   return pretty_printing_info
 
 
+class FileGenerationRequest:
+  def __init__(self, files, file_name):
+    self.files = files
+    self.file_name = file_name
+
+  def set_contents(self, contents):
+    """Creates a file generation request with the given `file_contents`.
+    """
+    f = self.files.add()
+    f.name = self.file_name
+    f.content = self._fixup(contents)
+
+
+  def insert(self, insertion_point, to_insert):
+    """Creates and returns a pseudo-file request representing an insertion point.
+
+    The file with the given `file_name` must already exist among `files` before
+    this function is called.
+    """
+    f = self.files.add()
+    f.name = self.file_name
+    f.insertion_point = insertion_point
+    f.content = to_insert
+
+
+  def _fixup(self, file_contents):
+    """Applies fixups to generated Nanopb code.
+
+    This is for changes to the code, as well as additions that cannot be made via
+    insertion points. Current fixups:
+    - rename fields named `delete` to `delete_`, because it's a keyword in C++.
+    """
+
+    delete_keyword = re.compile(r'\bdelete\b')
+    return delete_keyword.sub('delete_', file_contents)
+
+
 class FilePrettyPrintingInfo:
   """Describes how to generate pretty-printing code for this file."""
 
@@ -494,32 +531,30 @@ def nanopb_write(results, pretty_printing_info):
 
   for result in results:
     base_filename = result['headername'].replace('.nanopb.h', '')
-    file_printers = pretty_printing_info[base_filename]
+    file_printer = pretty_printing_info[base_filename]
 
-    generate_header(response.file, result['headername'], result['headerdata'],
-                    file_printers)
-    generate_source(response.file, result['sourcename'], result['sourcedata'],
-                    file_printers)
+    header_request = FileGenerationRequest(response.file, result['headername'])
+    generate_header(header_request, result['headerdata'], file_printer)
+    source_request = FileGenerationRequest(response.file, result['sourcename'])
+    generate_source(source_request, result['sourcedata'], file_printer)
 
   return response
 
 
-def begin_namespace(files, file_name):
+def open_namespace(request):
   """Opens the `firebase::firestore` namespace in file with given `file_name`.
   """
-  f = create_insertion(files, file_name, 'includes')
-  f.content = '''\
+  request.insert('includes', '''\
 namespace firebase {
-namespace firestore {\n\n'''
+namespace firestore {\n\n''')
 
 
-def end_namespace(files, file_name):
+def close_namespace(request):
   """Closes the `firebase::firestore` namespace in file with given `file_name`.
   """
-  f = create_insertion(files, file_name, 'eof')
-  f.content = '''\
+  request.insert('eof', '''\
 }  // namespace firestore
-}  // namespace firebase\n\n'''
+}  // namespace firebase\n\n''')
 
 
 def indent(level):
@@ -529,107 +564,67 @@ def indent(level):
   return ' ' * (indent_per_level * level)
 
 
-def fixup(file_contents):
-  """Applies fixups to generated Nanopb code.
-
-  This is for changes to the code, as well as additions that cannot be made via
-  insertion points. Current fixups:
-  - rename fields named `delete` to `delete_`, because it's a keyword in C++.
-  """
-
-  delete_keyword = re.compile(r'\bdelete\b')
-  return delete_keyword.sub('delete_', file_contents)
-
-
-def create_insertion(files, file_name, insertion_point):
-  """Creates and returns a pseudo-file request representing an insertion point.
-
-  The file with the given `file_name` must already exist among `files` before
-  this function is called.
-  """
-  f = files.add()
-  f.name = file_name
-  f.insertion_point = insertion_point
-  return f
-
-
-def add_contents(files, file_name, file_contents):
-  """Creates a file generation request with the given `file_contents`.
-  """
-  f = files.add()
-  f.name = file_name
-  f.content = fixup(file_contents)
-
-
-def generate_header(files, file_name, file_contents, file_printers):
+def generate_header(request, file_contents, file_printer):
   """Generates `.h` file with given contents, and with pretty-printing support.
   """
-  add_contents(files, file_name, file_contents)
+  request.set_contents(file_contents)
 
-  # Includes
-  f = create_insertion(files, file_name, 'includes')
-  f.content = '#include <string>\n\n'
+  request.insert('includes', '#include <string>\n\n')
 
-  begin_namespace(files, file_name)
+  open_namespace(request)
 
-  declare_tostring(files, file_name, file_printers.messages)
-  declare_enum_tostring(files, file_name, file_printers.enums)
+  declare_tostring(request, file_printer.messages)
+  declare_enum_tostring(request, file_printer.enums)
 
-  end_namespace(files, file_name)
+  close_namespace(request)
 
 
-def declare_tostring(files, file_name, messages):
+def declare_tostring(request, messages):
   """Creates a declaration of `ToString` member function for each Nanopb class.
   """
   for m in messages:
-    f = create_insertion(files, file_name, 'struct:' + m.full_classname)
-    f.content = '\n' + indent(
-      1) + 'std::string ToString(int indent = 0) const;\n'
+    insertion_point = 'struct:' + m.full_classname
+    declaration = '\n' + indent( 1) + 'std::string ToString(int indent = 0) const;\n'
+    request.insert(insertion_point, declaration)
 
 
-def declare_enum_tostring(files, file_name, enums):
+def declare_enum_tostring(request, enums):
   """Creates a declaration of `EnumToString` free function for each enum.
   """
   for enum in enums:
-    f = create_insertion(files, file_name, 'eof')
-    f.content = enum.generate_declaration()
+    request.insert('eof', enum.generate_declaration())
 
 
-def generate_source(files, file_name, file_contents, file_printers):
+def generate_source(request, file_contents, file_printer):
   """Generates `.cc` file with given contents, and with pretty-printing support.
   """
-  add_contents(files, file_name, file_contents)
+  request.set_contents(file_contents)
 
-  # Includes
-  f = create_insertion(files, file_name, 'includes')
-  f.content = '''\
-#include "nanopb_pretty_printers.h"\n\n'''
+  request.insert('includes', '#include "nanopb_pretty_printers.h"\n\n')
 
-  begin_namespace(files, file_name)
+  open_namespace(request)
 
-  define_enum_tostring(files, file_name, file_printers.enums)
-  define_tostring(files, file_name, file_printers.messages)
+  define_enum_tostring(request, file_printer.enums)
+  define_tostring(request, file_printer.messages)
 
-  end_namespace(files, file_name)
+  close_namespace(request)
 
 
-def define_tostring(files, file_name, messages):
+def define_tostring(request, messages):
   """Creates the definition of `ToString` member function for each Nanopb class.
   """
   for m in messages:
-    f = create_insertion(files, file_name, 'eof')
-
-    f.content += '''\
+    result = '''\
 std::string %s::ToString(int indent) const {
     std::string header = PrintHeader(indent, "%s", this);
     std::string result;\n\n''' % (m.full_classname, m.short_classname)
 
     for field in m.fields:
-      f.content += str(field)
+      result += str(field)
 
     can_be_empty = all(f.is_primitive or f.is_repeated for f in m.fields)
     if can_be_empty:
-      f.content += '''
+      result += '''
     bool is_root = indent == 0;
     if (!result.empty() || is_root) {
       std::string tail = PrintTail(indent);
@@ -639,18 +634,19 @@ std::string %s::ToString(int indent) const {
     }
 }\n\n'''
     else:
-      f.content += '''
+      result += '''
     std::string tail = PrintTail(indent);
     return header + result + tail;
 }\n\n'''
 
+    request.insert('eof', result)
 
-def define_enum_tostring(files, file_name, enums):
+
+def define_enum_tostring(request, enums):
   """Creates the definition of `EnumToString` free function for each enum.
   """
   for enum in enums:
-    f = create_insertion(files, file_name, 'eof')
-    f.content += enum.generate_definition()
+    request.insert('eof', enum.generate_definition())
 
 if __name__ == '__main__':
   main()
