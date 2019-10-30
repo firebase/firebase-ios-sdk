@@ -18,6 +18,9 @@
 
 @interface GDTCORDatabase ()
 
+/** The serial queue on which the db operates. */
+@property(nonatomic, readonly) dispatch_queue_t dbQueue;
+
 /** The statement cache. Only needed for tests. */
 @property(nonatomic) CFMutableDictionaryRef stmtCache;
 

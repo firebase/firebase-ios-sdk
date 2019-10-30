@@ -21,9 +21,6 @@
 
 #pragma mark - Helper functions and statics
 
-/** A shared cache of db instances to SQL files */
-static NSMutableDictionary<NSString *, GDTCORDatabase *> *instancesToDBFiles;
-
 /** Sets the user_version PRAGMA of the sqlite db.
  *
  * @note -1 is a reserved value to signify an error fetching the user_version value.
@@ -206,6 +203,71 @@ static void RunMigrations(sqlite3 *db,
   }
 }
 
+/** Creates and/or returns a static queue shared across the GDTCORDatabase class.
+ *
+ * @return The class-shared queue.
+ */
+static dispatch_queue_t SharedQueue() {
+  static dispatch_queue_t sharedQueue;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    sharedQueue = dispatch_queue_create("com.google.GDTCORDatabase.shared", DISPATCH_QUEUE_SERIAL);
+  });
+  return sharedQueue;
+}
+
+/** A dispatch_once token to manage the instantiation of the dbPathToInstance map. */
+static dispatch_once_t cacheToken;
+
+/** A shared cache of sqlite paths db instances. */
+static NSMutableDictionary<NSString *, GDTCORDatabase *> *dbPathToInstance;
+
+/** Maps db paths to instances, or deletes the mapping.
+ *
+ * @param instance The instance to map.
+ * @param path The path to map the instance to.
+ * @param delete If YES, deletes the mapping.
+ */
+static void SetInstanceToFileMap(GDTCORDatabase *instance, NSString *path, BOOL delete) {
+  dispatch_once(&cacheToken, ^{
+    dbPathToInstance = [[NSMutableDictionary alloc] init];
+  });
+  // Don't map anything if it's a special sqlite path.
+  if ([path hasPrefix:@":"] && [path hasSuffix:@":"]) {
+    return;
+  }
+  dispatch_async(SharedQueue(), ^{
+    if (delete) {
+      [dbPathToInstance removeObjectForKey:path];
+    } else {
+      dbPathToInstance[path] = instance;
+    }
+  });
+}
+
+/** Returns YES if there's an instance in existence for the given sqlite path.
+ *
+ * @param path The path to check.
+ * @return YES, if there's a db in memory operating on that path already.
+ */
+static BOOL InstanceExistsForPath(NSString *path) {
+  // Only 1 instance per file is allowed. Return nil if one is already open (including :memory:).
+  dispatch_once(&cacheToken, ^{
+    dbPathToInstance = [[NSMutableDictionary alloc] init];
+  });
+
+  // Check if this is a special type of path. If it begins and ends with :, it's ok to create.
+  if ([path hasPrefix:@":"]) {
+    return NO;
+  }
+
+  __block GDTCORDatabase *extantDB;
+  dispatch_sync(SharedQueue(), ^{
+    extantDB = dbPathToInstance[path];
+  });
+  return extantDB != nil;
+}
+
 #pragma mark - GDTCORDatabase
 
 @implementation GDTCORDatabase {
@@ -216,36 +278,21 @@ static void RunMigrations(sqlite3 *db,
 - (nullable instancetype)initWithURL:(nullable NSURL *)dbFileURL
                  migrationStatements:
                      (nonnull NSDictionary<NSNumber *, NSString *> *)migrationStatements {
-  // Only 1 instance per file is allowed. Return nil if one is already open.
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    instancesToDBFiles = [[NSMutableDictionary alloc] init];
-  });
-  __block GDTCORDatabase *extantDB;
-  dispatch_barrier_sync(dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{
-    extantDB = instancesToDBFiles[dbFileURL.path];
-  });
-  if (extantDB) {
+  NSString *dbPath = dbFileURL ? dbFileURL.path : @":memory:";
+  // Return nil if there's already an instance for the given path, or if the DB fails to open.
+  if (InstanceExistsForPath(dbPath) || !GDTCORSQLOpenDB(&_db, dbPath)) {
     return nil;
   }
-
-  // Create an instance.
   self = [super init];
   if (self) {
-    NSString *dbPath = dbFileURL ? dbFileURL.path : @":memory:";
-    if (!GDTCORSQLOpenDB(&_db, dbPath)) {
-      return nil;
-    }
     _dbQueue = dispatch_queue_create("com.google.GDTCORDatabase", DISPATCH_QUEUE_SERIAL);
-    _fileURL = dbFileURL;
+    _path = dbPath;
     _stmtCache =
         CFDictionaryCreateMutable(CFAllocatorGetDefault(), 0, &kCFTypeDictionaryKeyCallBacks, NULL);
     dispatch_async(_dbQueue, ^{
       RunMigrations(self->_db, [migrationStatements copy], self -> _stmtCache);
     });
-    dispatch_barrier_sync(dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{
-      instancesToDBFiles[dbPath] = self;
-    });
+    SetInstanceToFileMap(self, _path, NO);
   }
   return self;
 }
@@ -255,25 +302,31 @@ static void RunMigrations(sqlite3 *db,
 }
 
 - (BOOL)open {
-  if (_db == NULL) {
-    return GDTCORSQLOpenDB(&_db, _fileURL ? _fileURL.path : @":memory:");
+  if (_db == NULL && _dbQueue != nil) {
+    __block BOOL openedSuccessfully = NO;
+    dispatch_sync(_dbQueue, ^{
+      openedSuccessfully = GDTCORSQLOpenDB(&_db, _path ? _path : @":memory:");
+      if (openedSuccessfully) {
+        SetInstanceToFileMap(self, _path, NO);
+      }
+    });
+    return openedSuccessfully;
   }
-  GDTCORLogWarning(GDTCORMCWDatabaseWarning, @"Database already open: %@", _fileURL);
+  GDTCORLogWarning(GDTCORMCWDatabaseWarning, @"Database already open: %@", _path);
   return NO;
 }
 
 - (BOOL)close {
   if (_dbQueue != nil && _db != NULL) {
+    __block BOOL closedSuccessfully = NO;
     dispatch_sync(_dbQueue, ^{
-      GDTCORSQLCloseDB(_db);
+      closedSuccessfully = GDTCORSQLCloseDB(_db);
       _db = NULL;
+      if (closedSuccessfully) {
+        SetInstanceToFileMap(self, _path, YES);
+      }
     });
-    if (_fileURL) {
-      dispatch_barrier_sync(dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{
-        [instancesToDBFiles removeObjectForKey:_fileURL.path];
-      });
-    }
-    return YES;
+    return closedSuccessfully;
   }
   return NO;
 }

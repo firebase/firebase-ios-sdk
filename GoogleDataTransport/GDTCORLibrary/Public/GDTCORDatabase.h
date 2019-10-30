@@ -26,11 +26,8 @@ NS_ASSUME_NONNULL_BEGIN
 /** The user_version PRAGMA of the db. */
 @property(atomic) int userVersion;
 
-/** The serial queue on which the db operates. */
-@property(nonatomic, readonly) dispatch_queue_t dbQueue;
-
-/** The file URL of the db. nil if the db is in-memory only. */
-@property(nullable, nonatomic, readonly) NSURL *fileURL;
+/** The path of the db. */
+@property(nullable, nonatomic, readonly) NSString *path;
 
 /** Instantiates a new sqlite3 db if there's not already a db instance for the given URL.
  *

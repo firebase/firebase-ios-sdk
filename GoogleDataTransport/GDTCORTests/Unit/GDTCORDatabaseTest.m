@@ -37,8 +37,6 @@
 
 - (void)tearDown {
   [super tearDown];
-  dispatch_sync(_db.dbQueue, ^{
-                });
   [_db close];
   _db = nil;
 }
@@ -60,7 +58,9 @@
   NSURL *dbFileURL2 =
       [[dbFileURL URLByDeletingLastPathComponent] URLByAppendingPathComponent:@"test2.sqlite3"];
   NSError *error;
-  [[NSFileManager defaultManager] copyItemAtURL:db.fileURL toURL:dbFileURL2 error:&error];
+  [[NSFileManager defaultManager] copyItemAtURL:[NSURL fileURLWithPath:db.path]
+                                          toURL:dbFileURL2
+                                          error:&error];
   XCTAssertNil(error);
   NSDictionary *migrations2 = @{@1 : @"CREATE TABLE \"dontmakeme\" (\"test\" TEXT);"};
   GDTCORDatabase *db2 = [[GDTCORDatabase alloc] initWithURL:dbFileURL2
