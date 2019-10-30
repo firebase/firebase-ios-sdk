@@ -421,6 +421,30 @@ class EnumPrettyPrintingInfo:
     self.members = [str(n) for n in enum.value_longnames]
 
 
+  def generate_declaration(self):
+    return 'const char* EnumToString(%s\nvalue);\n;' % (self.name)
+
+
+  def generate_definition(self):
+    result = '''\
+const char* EnumToString(
+  %s value) {
+    switch (value) {\n''' % (self.name)
+
+    for full_name in self.members:
+      short_name = full_name.replace('%s_' % self.name, '')
+      result += '''\
+    case %s:
+        return "%s";\n''' % (full_name, short_name)
+
+    result += '''
+    }
+    return "<unknown enum value>";
+}\n\n'''
+
+    return result
+
+
 def nanopb_generate(request, options, parsed_files):
   """Generates C sources from the given parsed files.
 
@@ -568,7 +592,7 @@ def add_enum_printer_declarations(files, file_name, enums):
   """
   for enum in enums:
     f = create_insertion(files, file_name, 'eof')
-    f.content += 'const char* EnumToString(%s\nvalue);\n;' % (enum.name)
+    f.content = enum.generate_declaration()
 
 
 def generate_source(files, file_name, file_contents, file_printers):
@@ -626,23 +650,7 @@ def add_enum_printer_definitions(files, file_name, enums):
   """
   for enum in enums:
     f = create_insertion(files, file_name, 'eof')
-
-    f.content += '''\
-const char* EnumToString(
-  %s value) {
-    switch (value) {\n''' % (enum.name)
-
-    for full_name in enum.members:
-      short_name = full_name.replace('%s_' % enum.name, '')
-      f.content += '''\
-    case %s:
-        return "%s";\n''' % (full_name, short_name)
-
-    f.content += '''
-    }
-    return "<unknown enum value>";
-}\n\n'''
-
+    f.content += enum.generate_definition()
 
 if __name__ == '__main__':
   main()
