@@ -572,13 +572,13 @@ def generate_header(files, file_name, file_contents, file_printers):
 
   begin_namespace(files, file_name)
 
-  add_field_printer_declarations(files, file_name, file_printers.messages)
-  add_enum_printer_declarations(files, file_name, file_printers.enums)
+  declare_tostring(files, file_name, file_printers.messages)
+  declare_enum_tostring(files, file_name, file_printers.enums)
 
   end_namespace(files, file_name)
 
 
-def add_field_printer_declarations(files, file_name, messages):
+def declare_tostring(files, file_name, messages):
   """Creates a declaration of `ToString` member function for each Nanopb class.
   """
   for m in messages:
@@ -587,7 +587,7 @@ def add_field_printer_declarations(files, file_name, messages):
       1) + 'std::string ToString(int indent = 0) const;\n'
 
 
-def add_enum_printer_declarations(files, file_name, enums):
+def declare_enum_tostring(files, file_name, enums):
   """Creates a declaration of `EnumToString` free function for each enum.
   """
   for enum in enums:
@@ -607,13 +607,13 @@ def generate_source(files, file_name, file_contents, file_printers):
 
   begin_namespace(files, file_name)
 
-  add_enum_printer_definitions(files, file_name, file_printers.enums)
-  add_field_printer_definitions(files, file_name, file_printers.messages)
+  define_enum_tostring(files, file_name, file_printers.enums)
+  define_tostring(files, file_name, file_printers.messages)
 
   end_namespace(files, file_name)
 
 
-def add_field_printer_definitions(files, file_name, messages):
+def define_tostring(files, file_name, messages):
   """Creates the definition of `ToString` member function for each Nanopb class.
   """
   for m in messages:
@@ -645,7 +645,7 @@ std::string %s::ToString(int indent) const {
 }\n\n'''
 
 
-def add_enum_printer_definitions(files, file_name, enums):
+def define_enum_tostring(files, file_name, enums):
   """Creates the definition of `EnumToString` free function for each enum.
   """
   for enum in enums:
