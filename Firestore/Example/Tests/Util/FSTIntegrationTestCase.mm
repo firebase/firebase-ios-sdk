@@ -170,6 +170,8 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
  * values trigger which configurations.
  */
 + (void)setUpDefaults {
+  if (defaultSettings) return;
+
   defaultSettings = [[FIRFirestoreSettings alloc] init];
   defaultSettings.persistenceEnabled = YES;
 
@@ -245,10 +247,7 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
 }
 
 + (FIRFirestoreSettings *)settings {
-  if (!defaultSettings) {
-    [self setUpDefaults];
-  }
-
+  [self setUpDefaults];
   return defaultSettings;
 }
 
@@ -283,6 +282,12 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
 - (void)primeBackend {
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
+    [FSTIntegrationTestCase setUpDefaults];
+    if (runningAgainstEmulator) {
+      // Priming not required against the emulator.
+      return;
+    }
+
     FIRFirestore *db = [self firestore];
     XCTestExpectation *watchInitialized =
         [self expectationWithDescription:@"Prime backend: Watch initialized"];

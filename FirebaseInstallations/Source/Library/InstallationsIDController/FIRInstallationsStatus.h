@@ -32,7 +32,4 @@ typedef NS_ENUM(NSInteger, FIRInstallationsStatus) {
   FIRInstallationStatusUnregistered,
   /// The Firebase Installation has successfully been registered with FIS.
   FIRInstallationStatusRegistered,
-  /// The Firebase Installation registration with FIS failed. Firebase configuration changes are
-  /// required.
-  FIRInstallationStatusRegistrationFailed,
 };

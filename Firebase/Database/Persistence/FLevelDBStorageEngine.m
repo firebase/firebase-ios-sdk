@@ -873,12 +873,47 @@ static NSString *trackedQueryKeysKey(NSUInteger trackedQueryId, NSString *key) {
 
 - (id)fixDoubleParsing:(id)value
     __attribute__((no_sanitize("float-cast-overflow"))) {
-    // The parser for double values in JSONSerialization at the root takes some
-    // short-cuts and delivers wrong results (wrong rounding) for some double
-    // values, including 2.47. Because we use the exact bytes for hashing on the
-    // server this will lead to hash mismatches. The parser of NSNumber seems to
-    // be more in line with what the server expects, so we use that here
-    if ([value isKindOfClass:[NSNumber class]]) {
+    if ([value isKindOfClass:[NSDecimalNumber class]]) {
+        // In case the value is an NSDecimalNumber, we may be dealing with
+        // precisions that are higher than what can be represented in a double.
+        // In this case it does not suffice to check for integral numbers by
+        // casting the [value doubleValue] to an int64_t, because this will
+        // cause the compared values to be rounded to double precision.
+        // Coupled with a bug in [NSDecimalNumber longLongValue] that triggers
+        // when converting values with high precision, this would cause
+        // values of high precision, but with an integral 'doubleValue'
+        // representation to be converted to bogus values.
+        // A radar for the NSDecimalNumber issue can be found here:
+        // http://www.openradar.me/radar?id=5007005597040640
+        // Consider the NSDecimalNumber value: 999.9999999999999487
+        // This number has a 'doubleValue' of 1000. Using the previous version
+        // of this method would cause the value to be interpreted to be integral
+        // and then the resulting value would be based on the longLongValue
+        // which due to the NSDecimalNumber issue would turn out as -844.
+        // By using NSDecimal logic to test for integral values,
+        // 999.9999999999999487 will not be considered integral, and instead
+        // of triggering the 'longLongValue' issue, it will be returned as
+        // the 'doubleValue' representation (1000).
+        // Please note, that even without the NSDecimalNumber issue, the
+        // 'correct' longLongValue of 999.9999999999999487 is 999 and not 1000,
+        // so the previous code would cause issues even without the bug
+        // referenced in the radar.
+        NSDecimal original = [(NSDecimalNumber *)value decimalValue];
+        NSDecimal rounded;
+        NSDecimalRound(&rounded, &original, 0, NSRoundPlain);
+        if (NSDecimalCompare(&original, &rounded) != NSOrderedSame) {
+            NSString *doubleString = [value stringValue];
+            return [NSNumber numberWithDouble:[doubleString doubleValue]];
+        } else {
+            return [NSNumber numberWithLongLong:[value longLongValue]];
+        }
+    } else if ([value isKindOfClass:[NSNumber class]]) {
+        // The parser for double values in JSONSerialization at the root takes
+        // some short-cuts and delivers wrong results (wrong rounding) for some
+        // double values, including 2.47. Because we use the exact bytes for
+        // hashing on the server this will lead to hash mismatches. The parser
+        // of NSNumber seems to be more in line with what the server expects, so
+        // we use that here
         CFNumberType type = CFNumberGetType((CFNumberRef)value);
         if (type == kCFNumberDoubleType || type == kCFNumberFloatType) {
             // The NSJSON parser returns all numbers as double values, even

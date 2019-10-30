@@ -210,6 +210,14 @@ target_include_directories(
 )
 
 
+# XCTest
+if(${CMAKE_VERSION} VERSION_LESS "3.3.0")
+  set(XCTest_FOUND OFF)
+else()
+  find_package(XCTest)
+endif()
+
+
 enable_testing()
 include(compiler_setup)
 

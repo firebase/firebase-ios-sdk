@@ -34,7 +34,7 @@ namespace model {
  * within Firestore. Immutable; all instances are fully independent.
  */
 class ResourcePath : public impl::BasePath<ResourcePath>,
-                     public util::Comparable<ResourcePath> {
+                     public util::InequalityComparable<ResourcePath> {
  public:
   ResourcePath() = default;
   /** Constructs the path from segments. */

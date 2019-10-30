@@ -33,8 +33,6 @@
 static NSInteger const kIqSelectiveAck = 12;
 static NSInteger const kIqStreamAck = 13;
 static int const kInvalidStreamId = -1;
-// Threshold for number of messages removed that we will ack, for short lived connections
-static int const kMessageRemoveAckThresholdCount = 5;
 
 static NSTimeInterval const kHeartbeatInterval = 30.0;
 static NSTimeInterval const kConnectionTimeout = 20.0;
@@ -588,20 +586,6 @@ static NSString *const kRemoteFromAddress = @"from";
     [self.d2sInfos removeObject:d2sInfo];
   }
   [self.delegate connectionDidReceiveAckForRmqIds:rmqIds];
-  int count = [self.delegate connectionDidReceiveAckForRmqIds:rmqIds];
-  if (kMessageRemoveAckThresholdCount > 0 && count >= kMessageRemoveAckThresholdCount) {
-    // For short lived connections, if a large number of messages are removed, send an
-    // ack straight away so the server knows that this message was received.
-    [self sendStreamAck];
-  }
-}
-
-/**
- * Called when a stream ACK or a selective ACK are received - this indicates the message has
- * been received by MCS.
- */
-- (void)didReceiveAckForRmqIds:(NSArray *)rmqIds {
-  // TODO: let the user know that the following messages were received by the server
 }
 
 - (void)confirmAckedS2dIdsWithStreamId:(int)lastReceivedStreamId {

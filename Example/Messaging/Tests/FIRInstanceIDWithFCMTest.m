@@ -58,11 +58,10 @@
 }
 
 - (void)testFCMAutoInitEnabled {
-  NSString *const kFIRMessagingTestsAutoInit = @"com.messaging.test_autoInit";
-  NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingTestsAutoInit];
+  // Use the standardUserDefaults since that's what IID expects and depends on.
+  NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
   FIRMessaging *messaging = [FIRMessagingTestUtilities messagingForTestsWithUserDefaults:defaults];
   id classMock = OCMClassMock([FIRMessaging class]);
-  OCMStub([classMock messaging]).andReturn(messaging);
   OCMStub([_mockFirebaseApp isDataCollectionDefaultEnabled]).andReturn(YES);
   messaging.autoInitEnabled = YES;
   XCTAssertTrue(

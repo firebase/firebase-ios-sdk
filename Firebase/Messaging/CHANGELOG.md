@@ -1,4 +1,14 @@
-# 2019-09 -- v4.1.5
+# 2019-11-05 -- v4.1.8
+- [changed] Moved reliable message queue database operation off main thread. (#4053)
+
+# 2019-10-22 -- v4.1.7
+- [fixed] Fixed IID and Messaging container instantiation timing issue. (#4030)
+- [changed] Internal cleanup and remove migration logic from document folder to application folder. (#4033, #4045)
+
+# 2019-10-08 -- v4.1.6
+- [changed] Internal cleanup. (#3857)
+
+# 2019-09-23 -- v4.1.5
 - [fixed] Mute FCM deprecated warnings with Xcode 11 and min iOS >= 10. (#3857)
 
 # 2019-09-03 -- v4.1.4
