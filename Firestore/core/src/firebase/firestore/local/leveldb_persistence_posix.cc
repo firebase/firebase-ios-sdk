@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
 
+#include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/util/path.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 
@@ -24,24 +25,58 @@
 #include <pwd.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <cstdlib>
 
 namespace firebase {
 namespace firestore {
 namespace local {
+namespace {
 
 using util::Path;
+using util::Status;
+using util::StatusOr;
 
-Path LevelDbPersistence::AppDataDirectory() {
-  const char* home_dir;
+StatusOr<Path> GetHomeDirectory() {
+  if (getenv("HOME") == nullptr) {
+    struct passwd pwd;
+    struct passwd* result;
+    std::string buffer(sysconf(_SC_GETPW_R_SIZE_MAX), '\0');
+    getpwuid_r(getuid(), &pwd, &buffer[0], buffer.size(), &result);
 
-  if ((home_dir = getenv("HOME")) == NULL) {
-    // We do not need the thread-safe version because this is always
-    // called from async queue.
-    home_dir = getpwuid(getuid())->pw_dir;  // NOLINT
+    if (result == nullptr) {
+      return Status(Error::NotFound,
+                    "Failed to find a directory to write LevelDB data files.");
+    }
+    return Path::FromUtf8(pwd.pw_dir);
   }
 
+  return Path::FromUtf8(getenv("HOME"));
+}
+
+StatusOr<Path> GetDataHomeDirectory() {
+  if (getenv("XDG_DATA_HOME") == nullptr) {
+    const Path& home_dir = GetHomeDirectory().ValueOrDie();
+    return home_dir.AppendUtf8(".local/share");
+  }
+
+  return Path::FromUtf8(getenv("XDG_DATA_HOME"));
+}
+
+}  // namespace
+
+Path LevelDbPersistence::AppDataDirectory() {
   std::string dot_prefixed = absl::StrCat(".", kReservedPathComponent);
-  return Path::FromUtf8(std::string(home_dir)).AppendUtf8(dot_prefixed);
+
+#if defined(__linux__) && !defined(__ANDROID__)
+  const Path& dir = GetDataHomeDirectory().ValueOrDie();
+  return dir.AppendUtf8(dot_prefixed);
+
+#else
+
+  const Path& dir = GetHomeDirectory().ValueOrDie();
+  return dir.AppendUtf8(dot_prefixed);
+
+#endif  // defined(__linux__) && !defined(__ANDROID__)
 }
 
 }  // namespace local
