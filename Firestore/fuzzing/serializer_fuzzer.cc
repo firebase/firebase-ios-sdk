@@ -25,7 +25,6 @@
 
 using firebase::firestore::google_firestore_v1_Value;
 using firebase::firestore::model::DatabaseId;
-using firebase::firestore::model::DatabaseId;
 using firebase::firestore::nanopb::Message;
 using firebase::firestore::nanopb::StringReader;
 using firebase::firestore::remote::Serializer;
