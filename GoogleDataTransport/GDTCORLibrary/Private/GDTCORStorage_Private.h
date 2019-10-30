@@ -17,7 +17,6 @@
 #import "GDTCORLibrary/Private/GDTCORStorage.h"
 
 @class GDTCORUploadCoordinator;
-@class GDTCORDatabase;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -35,9 +34,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** The upload coordinator instance used by this storage instance. */
 @property(nonatomic) GDTCORUploadCoordinator *uploadCoordinator;
-
-/** */
-@property(nonatomic) GDTCORDatabase *storageDB;
 
 /** Returns the path to the keyed archive of the singleton. This is where the singleton is saved
  * to disk during certain app lifecycle events.
