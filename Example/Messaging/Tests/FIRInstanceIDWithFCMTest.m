@@ -57,7 +57,8 @@
   [super tearDown];
 }
 
-- (void)testFCMAutoInitEnabled {
+// TODO: Disabled until #4198 is fixed.
+- (void)DISABLED_testFCMAutoInitEnabled {
   // Use the standardUserDefaults since that's what IID expects and depends on.
   NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
   FIRMessaging *messaging = [FIRMessagingTestUtilities messagingForTestsWithUserDefaults:defaults];
