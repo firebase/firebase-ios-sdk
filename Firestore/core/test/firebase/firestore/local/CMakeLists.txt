@@ -15,13 +15,22 @@
 cc_test(
   firebase_firestore_local_test
   SOURCES
-    #index_manager_test.mm
-    #leveldb_index_manager_test.mm
+    index_manager_test.cc
+    index_manager_test.h
+    leveldb_index_manager_test.cc
     leveldb_key_test.cc
+    leveldb_remote_document_cache_test.cc
     leveldb_util_test.cc
     local_serializer_test.cc
-    #memory_index_manager_test.mm
+    memory_index_manager_test.cc
+    memory_remote_document_cache_test.cc
+    persistence_testing.cc
+    persistence_testing.h
+    reference_set_test.cc
+    remote_document_cache_test.cc
+    remote_document_cache_test.h
   DEPENDS
+    GMock::GMock
     firebase_firestore_core
     firebase_firestore_local
     firebase_firestore_local_persistence_leveldb

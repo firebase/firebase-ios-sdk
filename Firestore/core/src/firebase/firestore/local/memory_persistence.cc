@@ -58,8 +58,15 @@ MemoryPersistence::MemoryPersistence()
     : query_cache_(this), remote_document_cache_(this), started_(true) {
 }
 
+MemoryPersistence::~MemoryPersistence() = default;
+
 ListenSequenceNumber MemoryPersistence::current_sequence_number() const {
   return reference_delegate_->current_sequence_number();
+}
+
+void MemoryPersistence::set_reference_delegate(
+    std::unique_ptr<ReferenceDelegate> delegate) {
+  reference_delegate_ = std::move(delegate);
 }
 
 void MemoryPersistence::Shutdown() {

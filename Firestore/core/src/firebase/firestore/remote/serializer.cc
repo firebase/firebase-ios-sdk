@@ -49,8 +49,6 @@
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
 #include "absl/algorithm/container.h"
-#include "absl/base/casts.h"
-#include "absl/memory/memory.h"
 
 namespace firebase {
 namespace firestore {
@@ -96,6 +94,7 @@ using nanopb::ByteString;
 using nanopb::CheckedSize;
 using nanopb::MakeStringView;
 using nanopb::Reader;
+using nanopb::SafeReadBoolean;
 using nanopb::Writer;
 using remote::WatchChange;
 using util::Status;
@@ -115,7 +114,7 @@ namespace {
  * Creates the prefix for a fully qualified resource path, without a local path
  * on the end.
  */
-ResourcePath EncodeDatabaseId(const DatabaseId& database_id) {
+ResourcePath DatabaseName(const DatabaseId& database_id) {
   return ResourcePath{"projects", database_id.project_id(), "databases",
                       database_id.database_id()};
 }
@@ -126,7 +125,7 @@ ResourcePath EncodeDatabaseId(const DatabaseId& database_id) {
  */
 pb_bytes_array_t* EncodeResourceName(const DatabaseId& database_id,
                                      const ResourcePath& path) {
-  return Serializer::EncodeString(EncodeDatabaseId(database_id)
+  return Serializer::EncodeString(DatabaseName(database_id)
                                       .Append("documents")
                                       .Append(path)
                                       .CanonicalString());
@@ -197,13 +196,11 @@ Query InvalidQuery() {
 }
 
 Serializer::Serializer(DatabaseId database_id)
-    : database_id_(std::move(database_id)),
-      database_name_(EncodeDatabaseId(database_id_).CanonicalString()) {
+    : database_id_(std::move(database_id)) {
 }
 
-void Serializer::FreeNanopbMessage(const pb_field_t fields[],
-                                   void* dest_struct) {
-  pb_release(fields, dest_struct);
+pb_bytes_array_t* Serializer::EncodeDatabaseName() const {
+  return EncodeString(DatabaseName(database_id_).CanonicalString());
 }
 
 google_firestore_v1_Value Serializer::EncodeFieldValue(
@@ -352,7 +349,7 @@ FieldValue::Map::value_type Serializer::DecodeFieldsEntry(
   return FieldValue::Map::value_type{std::move(key), std::move(value)};
 }
 
-FieldValue::Map Serializer::DecodeFields(
+ObjectValue Serializer::DecodeFields(
     Reader* reader,
     size_t count,
     const google_firestore_v1_Document_FieldsEntry* fields) const {
@@ -362,7 +359,7 @@ FieldValue::Map Serializer::DecodeFields(
     result = result.insert(std::move(kv.first), std::move(kv.second));
   }
 
-  return result;
+  return ObjectValue::FromMap(result);
 }
 
 FieldValue::Map Serializer::DecodeMapValue(
@@ -389,13 +386,7 @@ FieldValue Serializer::DecodeFieldValue(
       return FieldValue::Null();
 
     case google_firestore_v1_Value_boolean_value_tag: {
-      // Due to the nanopb implementation, msg.boolean_value could be an integer
-      // other than 0 or 1, (such as 2). This leads to undefined behaviour when
-      // it's read as a boolean. eg. on at least gcc, the value is treated as
-      // both true *and* false. So we'll instead memcpy to an integer (via
-      // absl::bit_cast) and compare with 0.
-      int bool_as_int = absl::bit_cast<int8_t>(msg.boolean_value);
-      return FieldValue::FromBoolean(bool_as_int != 0);
+      return FieldValue::FromBoolean(SafeReadBoolean(msg.boolean_value));
     }
 
     case google_firestore_v1_Value_integer_value_tag:
@@ -548,7 +539,7 @@ Document Serializer::DecodeFoundDocument(
               "Tried to deserialize a found document from a missing document.");
 
   DocumentKey key = DecodeKey(reader, response.found.name);
-  FieldValue::Map value =
+  ObjectValue value =
       DecodeFields(reader, response.found.fields_count, response.found.fields);
   SnapshotVersion version = DecodeVersion(reader, response.found.update_time);
 
@@ -556,8 +547,8 @@ Document Serializer::DecodeFoundDocument(
     reader->Fail("Got a document response with no snapshot version");
   }
 
-  return Document(ObjectValue::FromMap(std::move(value)), std::move(key),
-                  version, DocumentState::kSynced);
+  return Document(std::move(value), std::move(key), version,
+                  DocumentState::kSynced);
 }
 
 NoDocument Serializer::DecodeMissingDocument(
@@ -579,23 +570,13 @@ NoDocument Serializer::DecodeMissingDocument(
                     /*has_committed_mutations=*/false);
 }
 
-Document Serializer::DecodeDocument(
-    Reader* reader, const google_firestore_v1_Document& proto) const {
-  FieldValue::Map fields_internal =
-      DecodeFields(reader, proto.fields_count, proto.fields);
-  SnapshotVersion version = DecodeVersion(reader, proto.update_time);
-
-  return Document(ObjectValue::FromMap(std::move(fields_internal)),
-                  DecodeKey(reader, proto.name), version,
-                  DocumentState::kSynced);
-}
-
 google_firestore_v1_Write Serializer::EncodeMutation(
     const Mutation& mutation) const {
   HARD_ASSERT(mutation.is_valid(), "Invalid mutation encountered.");
   google_firestore_v1_Write result{};
 
   if (!mutation.precondition().is_none()) {
+    result.has_current_document = true;
     result.current_document = EncodePrecondition(mutation.precondition());
   }
 
@@ -611,7 +592,13 @@ google_firestore_v1_Write Serializer::EncodeMutation(
       result.which_operation = google_firestore_v1_Write_update_tag;
       auto patch_mutation = static_cast<const PatchMutation&>(mutation);
       result.update = EncodeDocument(mutation.key(), patch_mutation.value());
-      result.update_mask = EncodeFieldMask(patch_mutation.mask());
+      // Note: the fact that this field is set (even if the mask is empty) is
+      // what makes the backend treat this as a patch mutation, not a set
+      // mutation.
+      result.has_update_mask = true;
+      if (patch_mutation.mask().size() != 0) {
+        result.update_mask = EncodeFieldMask(patch_mutation.mask());
+      }
       return result;
     }
 
@@ -632,6 +619,13 @@ google_firestore_v1_Write Serializer::EncodeMutation(
             EncodeFieldTransform(field_transform);
         i++;
       }
+
+      // NOTE: We set a precondition of exists: true as a safety-check, since we
+      // always combine TransformMutations with a SetMutation or PatchMutation
+      // which (if successful) should end up with an existing document.
+      result.has_current_document = true;
+      result.current_document = EncodePrecondition(Precondition::Exists(true));
+
       return result;
     }
 
@@ -647,16 +641,18 @@ google_firestore_v1_Write Serializer::EncodeMutation(
 
 Mutation Serializer::DecodeMutation(
     nanopb::Reader* reader, const google_firestore_v1_Write& mutation) const {
-  Precondition precondition =
-      DecodePrecondition(reader, mutation.current_document);
+  auto precondition = Precondition::None();
+  if (mutation.has_current_document) {
+    precondition = DecodePrecondition(reader, mutation.current_document);
+  }
 
   switch (mutation.which_operation) {
     case google_firestore_v1_Write_update_tag: {
       DocumentKey key = DecodeKey(reader, mutation.update.name);
-      ObjectValue value = ObjectValue::FromMap(DecodeFields(
-          reader, mutation.update.fields_count, mutation.update.fields));
-      FieldMask mask = DecodeFieldMask(mutation.update_mask);
-      if (mask.size() > 0) {
+      ObjectValue value = DecodeFields(reader, mutation.update.fields_count,
+                                       mutation.update.fields);
+      if (mutation.has_update_mask) {
+        FieldMask mask = DecodeFieldMask(mutation.update_mask);
         return PatchMutation(std::move(key), std::move(value), std::move(mask),
                              std::move(precondition));
       } else {
@@ -805,6 +801,8 @@ Serializer::EncodeFieldTransform(const FieldTransform& field_transform) const {
       return proto;
 
     case Type::Increment: {
+      proto.which_transform_type =
+          google_firestore_v1_DocumentTransform_FieldTransform_increment_tag;
       const auto& increment = static_cast<const NumericIncrementTransform&>(
           field_transform.transformation());
       proto.increment = EncodeFieldValue(increment.operand());
@@ -1613,18 +1611,20 @@ WatchTargetChangeState Serializer::DecodeTargetChangeState(
 std::unique_ptr<WatchChange> Serializer::DecodeDocumentChange(
     nanopb::Reader* reader,
     const google_firestore_v1_DocumentChange& change) const {
-  ObjectValue value = ObjectValue::FromMap(DecodeFields(
-      reader, change.document.fields_count, change.document.fields));
+  ObjectValue value = DecodeFields(reader, change.document.fields_count,
+                                   change.document.fields);
   DocumentKey key = DecodeKey(reader, change.document.name);
 
   HARD_ASSERT(change.document.has_update_time,
               "Got a document change with no snapshot version");
   SnapshotVersion version = DecodeVersion(reader, change.document.update_time);
 
-  // TODO(wuandy): Originally `document` is constructed with `change.document`
-  // as last argument, such that it does not have to encode the proto again
-  // when saving it. It's dangerous because last argument is an `any` type.
-  // Revisit this when porting local serializer to see if we can do it safely.
+  // TODO(b/142956770): other platforms memoize `change.document` inside the
+  // `Document`. This currently cannot be implemented efficiently because it
+  // would require a reference-counted ownership model for the proto (copying it
+  // would defeat the purpose). Note, however, that even without this
+  // optimization C++ implementation is on par with the preceding Objective-C
+  // implementation.
   Document document(std::move(value), key, version, DocumentState::kSynced);
 
   std::vector<TargetId> updated_target_ids(

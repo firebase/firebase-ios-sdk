@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFirestore'
-  s.version          = '1.6.0'
+  s.version          = '1.6.1'
   s.summary          = 'Google Cloud Firestore for iOS'
 
   s.description      = <<-DESC
@@ -25,11 +25,23 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   s.prefix_header_file = false
 
   s.source_files = [
-    'Firestore/Source/**/*.{h,m,mm}',
-    'Firestore/Protos/nanopb/**/*.{h,cc}',
-    'Firestore/Protos/objc/**/*.[hm]',
-    'Firestore/core/include/**/*.{h,cc,mm}',
-    'Firestore/core/src/**/*.{h,cc,mm}',
+    'Firestore/Source/Public/*.h',
+    'Firestore/Source/**/*.{m,mm}',
+    'Firestore/Protos/nanopb/**/*.cc',
+    'Firestore/Protos/objc/**/*.m',
+    'Firestore/core/include/**/*.{cc,mm}',
+    'Firestore/core/src/**/*.{cc,mm}',
+  ]
+  s.preserve_paths = [
+    'Firestore/Source/API/*.h',
+    'Firestore/Source/Core/*.h',
+    'Firestore/Source/Local/*.h',
+    'Firestore/Source/Remote/*.h',
+    'Firestore/Source/Util/*.h',
+    'Firestore/Protos/nanopb/**/*.h',
+    'Firestore/Protos/objc/**/*.h',
+    'Firestore/core/include/**/*.h',
+    'Firestore/core/src/**/*.h',
   ]
   s.requires_arc = [
     'Firestore/Source/**/*',
@@ -74,7 +86,11 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
       '"${PODS_TARGET_SRCROOT}/Firestore/Source/Public" ' +
       '"${PODS_TARGET_SRCROOT}/Firestore/third_party/abseil-cpp" ' +
       '"${PODS_ROOT}/nanopb" ' +
-      '"${PODS_TARGET_SRCROOT}/Firestore/Protos/nanopb"',
+      '"${PODS_TARGET_SRCROOT}/Firestore/Protos/nanopb" ' +
+      '"${PODS_TARGET_SRCROOT}/Firestore/Protos/objc/google/api" ' +
+      '"${PODS_TARGET_SRCROOT}/Firestore/Protos/objc/google/firestore/v1" ' +
+      '"${PODS_TARGET_SRCROOT}/Firestore/Protos/objc/google/rpc" ' +
+      '"${PODS_TARGET_SRCROOT}/Firestore/Protos/objc/google/type"',
   }
 
   # Generate a version of the config.h header suitable for building with

@@ -19,11 +19,12 @@
 #import <OCMock/OCMock.h>
 #import "FBLPromise+Testing.h"
 #import "FIRInstallationsItem+Tests.h"
-#import "XCTestCase+DateAsserts.h"
 
 #import "FIRInstallationsAPIService.h"
 #import "FIRInstallationsErrorUtil.h"
+#import "FIRInstallationsHTTPError.h"
 #import "FIRInstallationsStoredAuthToken.h"
+#import "FIRInstallationsStoredIIDCheckin.h"
 #import "FIRInstallationsVersion.h"
 
 typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
@@ -57,12 +58,18 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
   self.mockURLSession = nil;
   self.projectID = nil;
   self.APIKey = nil;
+
+  //  // Wait for any pending promises to complete.
+  //  XCTAssert(FBLWaitForPromisesWithTimeout(2));
 }
 
 - (void)testRegisterInstallationSuccess {
   FIRInstallationsItem *installation = [[FIRInstallationsItem alloc] initWithAppID:@"app-id"
                                                                    firebaseAppName:@"name"];
   installation.firebaseInstallationID = [FIRInstallationsItem generateFID];
+  installation.IIDCheckin =
+      [[FIRInstallationsStoredIIDCheckin alloc] initWithDeviceID:@"IIDDeviceID"
+                                                     secretToken:@"IIDSecretToken"];
 
   // 1. Stub URL session:
 
@@ -74,6 +81,10 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
         @"https://firebaseinstallations.googleapis.com/v1/projects/project-id/installations/");
     XCTAssertEqualObjects([request valueForHTTPHeaderField:@"Content-Type"], @"application/json");
     XCTAssertEqualObjects([request valueForHTTPHeaderField:@"X-Goog-Api-Key"], self.APIKey);
+
+    NSString *expectedIIDMigrationHeader = @"IIDDeviceID:IIDSecretToken";
+    XCTAssertEqualObjects([request valueForHTTPHeaderField:@"x-goog-fis-ios-iid-migration-auth"],
+                          expectedIIDMigrationHeader);
 
     NSError *error;
     NSDictionary *body = [NSJSONSerialization JSONObjectWithData:request.HTTPBody
@@ -121,7 +132,7 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
   taskCompletion(successResponseData, [self responseWithStatusCode:201], nil);
 
   // 6. Check result.
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   XCTAssertNil(promise.error);
   XCTAssertNotNil(promise.value);
@@ -139,7 +150,67 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
       isApproximatelyEqualCurrentPlusTimeInterval:604800];
 }
 
-// TODO: More tests for Register Installation API
+- (void)testRegisterInstallation_WhenError500_ThenRetriesOnce {
+  FIRInstallationsItem *installation = [[FIRInstallationsItem alloc] initWithAppID:@"app-id"
+                                                                   firebaseAppName:@"name"];
+  installation.firebaseInstallationID = [FIRInstallationsItem generateFID];
+
+  // 1. Stub URL session:
+
+  // 1.2. Capture completion to call it later.
+  __block void (^taskCompletion)(NSData *, NSURLResponse *, NSError *);
+  id completionArg = [OCMArg checkWithBlock:^BOOL(id obj) {
+    taskCompletion = obj;
+    return YES;
+  }];
+
+  // 1.3. Create a data task mock.
+  id mockDataTask1 = OCMClassMock([NSURLSessionDataTask class]);
+  OCMExpect([(NSURLSessionDataTask *)mockDataTask1 resume]);
+
+  // 1.4. Expect `dataTaskWithRequest` to be called.
+  OCMExpect([self.mockURLSession dataTaskWithRequest:[OCMArg any] completionHandler:completionArg])
+      .andReturn(mockDataTask1);
+
+  // 2. Call
+  FBLPromise<FIRInstallationsItem *> *promise = [self.service registerInstallation:installation];
+
+  // 3. Wait for `[NSURLSession dataTaskWithRequest...]` to be called
+  OCMVerifyAllWithDelay(self.mockURLSession, 0.5);
+
+  // 4. Wait for the data task `resume` to be called.
+  OCMVerifyAllWithDelay(mockDataTask1, 0.5);
+
+  // 5. Call the data task completion.
+  NSData *successResponseData =
+      [self loadFixtureNamed:@"APIRegisterInstallationResponseSuccess.json"];
+  taskCompletion(successResponseData,
+                 [self responseWithStatusCode:FIRInstallationsHTTPCodesServerInternalError], nil);
+
+  // 6.1. Expect network request to send again.
+  id mockDataTask2 = OCMClassMock([NSURLSessionDataTask class]);
+  OCMExpect([(NSURLSessionDataTask *)mockDataTask2 resume]);
+  OCMExpect([self.mockURLSession dataTaskWithRequest:[OCMArg any] completionHandler:completionArg])
+      .andReturn(mockDataTask2);
+
+  // 6.2. Wait for the second network request to complete.
+  OCMVerifyAllWithDelay(self.mockURLSession, 1.5);
+  OCMVerifyAllWithDelay(mockDataTask2, 1.5);
+
+  // 6.3. Send network response again.
+  taskCompletion(successResponseData,
+                 [self responseWithStatusCode:FIRInstallationsHTTPCodesServerInternalError], nil);
+
+  // 7. Check result.
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
+
+  XCTAssertNil(promise.value);
+  XCTAssertNotNil(promise.error);
+
+  XCTAssertTrue([promise.error isKindOfClass:[FIRInstallationsHTTPError class]]);
+  FIRInstallationsHTTPError *HTTPError = (FIRInstallationsHTTPError *)promise.error;
+  XCTAssertEqual(HTTPError.HTTPResponse.statusCode, FIRInstallationsHTTPCodesServerInternalError);
+}
 
 - (void)testRefreshAuthTokenSuccess {
   FIRInstallationsItem *installation = [FIRInstallationsItem createRegisteredInstallationItem];
@@ -183,7 +254,7 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
   taskCompletion(successResponseData, [self responseWithStatusCode:200], nil);
 
   // 6. Check result.
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   XCTAssertNil(promise.error);
   XCTAssertNotNil(promise.value);
@@ -242,9 +313,76 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
   taskCompletion(errorResponseData, [self responseWithStatusCode:401], nil);
 
   // 6. Check result.
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   XCTAssertTrue([FIRInstallationsErrorUtil isAPIError:promise.error withHTTPCode:401]);
+  XCTAssertNil(promise.value);
+}
+
+- (void)testRefreshAuthToken_WhenAPIError500_ThenRetriesOnce {
+  FIRInstallationsItem *installation = [FIRInstallationsItem createRegisteredInstallationItem];
+  installation.firebaseInstallationID = @"qwertyuiopasdfghjklzxcvbnm";
+
+  // 1. Stub URL session:
+
+  // 1.1. URL request validation.
+  id URLRequestValidation = [self refreshTokenRequestValidationArgWithInstallation:installation];
+
+  // 1.2. Capture completion to call it later.
+  __block void (^taskCompletion)(NSData *, NSURLResponse *, NSError *);
+  id completionArg = [OCMArg checkWithBlock:^BOOL(id obj) {
+    taskCompletion = obj;
+    return YES;
+  }];
+
+  // 1.3. Create a data task mock.
+  id mockDataTask1 = OCMClassMock([NSURLSessionDataTask class]);
+  OCMExpect([(NSURLSessionDataTask *)mockDataTask1 resume]);
+
+  // 1.4. Expect `dataTaskWithRequest` to be called.
+  OCMExpect([self.mockURLSession dataTaskWithRequest:URLRequestValidation
+                                   completionHandler:completionArg])
+      .andReturn(mockDataTask1);
+
+  // 1.5. Prepare server response data.
+  NSData *errorResponseData =
+      [self loadFixtureNamed:@"APIGenerateTokenResponseInvalidRefreshToken.json"];
+
+  // 2. Call
+  FBLPromise<FIRInstallationsItem *> *promise =
+      [self.service refreshAuthTokenForInstallation:installation];
+
+  // 3. Wait for `[NSURLSession dataTaskWithRequest...]` to be called
+  OCMVerifyAllWithDelay(self.mockURLSession, 0.5);
+
+  // 4. Wait for the data task `resume` to be called.
+  OCMVerifyAllWithDelay(mockDataTask1, 0.5);
+
+  // 5. Call the data task completion.
+  taskCompletion(errorResponseData,
+                 [self responseWithStatusCode:FIRInstallationsHTTPCodesServerInternalError], nil);
+
+  // 6. Retry:
+
+  // 6.1. Expect another API request to be sent.
+  id mockDataTask2 = OCMClassMock([NSURLSessionDataTask class]);
+  OCMExpect([(NSURLSessionDataTask *)mockDataTask2 resume]);
+  OCMExpect([self.mockURLSession dataTaskWithRequest:URLRequestValidation
+                                   completionHandler:completionArg])
+      .andReturn(mockDataTask2);
+  OCMVerifyAllWithDelay(self.mockURLSession, 1.5);
+  OCMVerifyAllWithDelay(mockDataTask2, 1.5);
+
+  // 6.2. Send the API response again.
+  taskCompletion(errorResponseData,
+                 [self responseWithStatusCode:FIRInstallationsHTTPCodesServerInternalError], nil);
+
+  // 6. Check result.
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
+
+  XCTAssertTrue([FIRInstallationsErrorUtil
+        isAPIError:promise.error
+      withHTTPCode:FIRInstallationsHTTPCodesServerInternalError]);
   XCTAssertNil(promise.value);
 }
 
@@ -288,7 +426,7 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
   taskCompletion(nil, [self responseWithStatusCode:200], nil);
 
   // 6. Check result.
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   XCTAssertEqualObjects(promise.error.userInfo[NSLocalizedFailureReasonErrorKey],
                         @"Failed to serialize JSON data.");
@@ -334,7 +472,7 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
   taskCompletion(successResponseData, [self responseWithStatusCode:200], nil);
 
   // 6. Check result.
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   XCTAssertNil(promise.error);
   XCTAssertEqual(promise.value, installation);
@@ -378,9 +516,70 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
   taskCompletion(nil, [self responseWithStatusCode:404], nil);
 
   // 6. Check result.
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   XCTAssertTrue([FIRInstallationsErrorUtil isAPIError:promise.error withHTTPCode:404]);
+  XCTAssertNil(promise.value);
+}
+
+- (void)testDeleteInstallation_WhenAPIError500_ThenRetriesOnce {
+  FIRInstallationsItem *installation = [FIRInstallationsItem createRegisteredInstallationItem];
+
+  // 1. Stub URL session:
+
+  // 1.1. URL request validation.
+  id URLRequestValidation = [self deleteInstallationRequestValidationWithInstallation:installation];
+
+  // 1.2. Capture completion to call it later.
+  __block void (^taskCompletion)(NSData *, NSURLResponse *, NSError *);
+  id completionArg = [OCMArg checkWithBlock:^BOOL(id obj) {
+    taskCompletion = obj;
+    return YES;
+  }];
+
+  // 1.3. Create a data task mock.
+  id mockDataTask1 = OCMClassMock([NSURLSessionDataTask class]);
+  OCMExpect([(NSURLSessionDataTask *)mockDataTask1 resume]);
+
+  // 1.4. Expect `dataTaskWithRequest` to be called.
+  OCMExpect([self.mockURLSession dataTaskWithRequest:URLRequestValidation
+                                   completionHandler:completionArg])
+      .andReturn(mockDataTask1);
+
+  // 2. Call
+  FBLPromise<FIRInstallationsItem *> *promise = [self.service deleteInstallation:installation];
+
+  // 3. Wait for `[NSURLSession dataTaskWithRequest...]` to be called
+  OCMVerifyAllWithDelay(self.mockURLSession, 0.5);
+
+  // 4. Wait for the data task `resume` to be called.
+  OCMVerifyAllWithDelay(mockDataTask1, 0.5);
+
+  // 5. Call the data task completion.
+  // HTTP 200 but no data (a potential server failure).
+  taskCompletion(nil, [self responseWithStatusCode:FIRInstallationsHTTPCodesServerInternalError],
+                 nil);
+
+  // 6. Retry:
+  // 6.1. Wait for the API request to be sent again.
+  id mockDataTask2 = OCMClassMock([NSURLSessionDataTask class]);
+  OCMExpect([(NSURLSessionDataTask *)mockDataTask2 resume]);
+  OCMExpect([self.mockURLSession dataTaskWithRequest:URLRequestValidation
+                                   completionHandler:completionArg])
+      .andReturn(mockDataTask2);
+  OCMVerifyAllWithDelay(self.mockURLSession, 1.5);
+  OCMVerifyAllWithDelay(mockDataTask1, 1.5);
+
+  // 6.1. Send another response.
+  taskCompletion(nil, [self responseWithStatusCode:FIRInstallationsHTTPCodesServerInternalError],
+                 nil);
+
+  // 7. Check result.
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
+
+  XCTAssertTrue([FIRInstallationsErrorUtil
+        isAPIError:promise.error
+      withHTTPCode:FIRInstallationsHTTPCodesServerInternalError]);
   XCTAssertNil(promise.value);
 }
 
@@ -404,6 +603,16 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
                                                            HTTPVersion:nil
                                                           headerFields:nil];
   return response;
+}
+
+- (void)assertDate:(NSDate *)date
+    isApproximatelyEqualCurrentPlusTimeInterval:(NSTimeInterval)timeInterval {
+  NSDate *expectedDate = [NSDate dateWithTimeIntervalSinceNow:timeInterval];
+
+  NSTimeInterval precision = 10;
+  XCTAssert(ABS([date timeIntervalSinceDate:expectedDate]) <= precision,
+            @"date: %@ is not equal to expected %@ with precision %f - %@", date, expectedDate,
+            precision, self.name);
 }
 
 - (id)refreshTokenRequestValidationArgWithInstallation:(FIRInstallationsItem *)installation {
@@ -463,8 +672,6 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
     return YES;
   }];
 }
-
-#pragma mark - Helpers
 
 - (NSString *)SDKVersion {
   return [NSString stringWithFormat:@"i:%s", FIRInstallationsVersionStr];

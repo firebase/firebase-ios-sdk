@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-#import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 #import "Firestore/Example/Tests/Local/FSTQueryCacheTests.h"
 
 #include "Firestore/core/src/firebase/firestore/local/memory_persistence.h"
 #include "Firestore/core/src/firebase/firestore/local/memory_query_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_delegate.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_set.h"
+#include "Firestore/core/test/firebase/firestore/local/persistence_testing.h"
 
 using firebase::firestore::local::MemoryPersistence;
+using firebase::firestore::local::MemoryPersistenceWithEagerGcForTesting;
 using firebase::firestore::local::ReferenceSet;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -43,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setUp {
   [super setUp];
 
-  _db = [FSTPersistenceTestHelpers eagerGCMemoryPersistence];
+  _db = MemoryPersistenceWithEagerGcForTesting();
   self.persistence = _db.get();
   self.queryCache = self.persistence->query_cache();
   self.persistence->reference_delegate()->AddInMemoryPins(&_additionalReferences);

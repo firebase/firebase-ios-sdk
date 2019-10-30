@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-#import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 #import "Firestore/Example/Tests/Local/FSTQueryCacheTests.h"
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
@@ -27,13 +26,16 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/test/firebase/firestore/local/persistence_testing.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
 namespace core = firebase::firestore::core;
 namespace testutil = firebase::firestore::testutil;
 
 using firebase::Timestamp;
+using firebase::firestore::local::LevelDbDir;
 using firebase::firestore::local::LevelDbPersistence;
+using firebase::firestore::local::LevelDbPersistenceForTesting;
 using firebase::firestore::local::LevelDbQueryCache;
 using firebase::firestore::local::Persistence;
 using firebase::firestore::local::QueryData;
@@ -69,7 +71,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setUp {
   [super setUp];
 
-  _db = [FSTPersistenceTestHelpers levelDBPersistence];
+  _db = LevelDbPersistenceForTesting();
   self.persistence = _db.get();
   self.queryCache = [self getCache:_db.get()];
   self.persistence->reference_delegate()->AddInMemoryPins(&_additionalReferences);
@@ -86,9 +88,9 @@ NS_ASSUME_NONNULL_BEGIN
   _db.reset();
   self.persistence = nullptr;
 
-  Path dir = [FSTPersistenceTestHelpers levelDBDir];
+  Path dir = LevelDbDir();
 
-  auto db1 = [FSTPersistenceTestHelpers levelDBPersistenceWithDir:dir];
+  auto db1 = LevelDbPersistenceForTesting(dir);
   LevelDbQueryCache *queryCache = [self getCache:db1.get()];
 
   XCTAssertEqual(0, queryCache->highest_listen_sequence_number());
@@ -111,7 +113,7 @@ NS_ASSUME_NONNULL_BEGIN
   db1->Shutdown();
   db1.reset();
 
-  auto db2 = [FSTPersistenceTestHelpers levelDBPersistenceWithDir:dir];
+  auto db2 = LevelDbPersistenceForTesting(dir);
   db2->Run("verify sequence number", [&] {
     // We should remember the previous sequence number, and the next transaction should
     // have a higher one.

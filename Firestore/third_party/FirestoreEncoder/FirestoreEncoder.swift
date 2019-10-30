@@ -38,8 +38,7 @@ extension Firestore {
     public func encode<T: Encodable>(_ value: T) throws -> [String: Any] {
       // SelfDocumentID, DocumentReference and FieldValue cannot be
       // encoded directly.
-      guard T.self != SelfDocumentID.self,
-        T.self != DocumentReference.self,
+      guard T.self != DocumentReference.self,
         T.self != FieldValue.self else {
         throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: [], debugDescription: "Top-level \(T.self) is not allowed."))
       }
@@ -215,10 +214,12 @@ private struct _FirestoreKeyedEncodingContainer<K: CodingKey>: KeyedEncodingCont
   public mutating func encode(_ value: Double, forKey key: Key) throws { container[key.stringValue] = encoder.box(value) }
 
   public mutating func encode<T: Encodable>(_ value: T, forKey key: Key) throws {
-    // `SelfDocumentID` is ignored during encoding.
-    if T.self == SelfDocumentID.self {
-      return
-    }
+    #if compiler(>=5.1)
+      // `DocumentID`-annotated fields are ignored during encoding.
+      if T.self is DocumentIDProtocol.Type {
+        return
+      }
+    #endif // compiler(>=5.1)
 
     encoder.codingPath.append(key)
     defer {

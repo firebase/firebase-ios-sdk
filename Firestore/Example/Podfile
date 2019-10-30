@@ -118,7 +118,7 @@ if is_platform(:ios)
     # The next line is the forcing function for the Firebase pod. The Firebase
     # version's subspecs should depend on the component versions in their
     # corresponding podspecs.
-    pod 'Firebase/CoreOnly', '6.10.0'
+    pod 'Firebase/CoreOnly', '6.11.0'
 
     configure_local_pods()
 

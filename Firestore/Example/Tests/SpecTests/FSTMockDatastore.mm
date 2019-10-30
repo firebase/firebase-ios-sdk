@@ -21,8 +21,6 @@
 #include <queue>
 #include <utility>
 
-#import "Firestore/Source/Remote/FSTSerializerBeta.h"
-
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
@@ -32,6 +30,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/connectivity_monitor.h"
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
+#include "Firestore/core/src/firebase/firestore/remote/serializer.h"
 #include "Firestore/core/src/firebase/firestore/remote/stream.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
@@ -69,11 +68,12 @@ class MockWatchStream : public WatchStream {
  public:
   MockWatchStream(const std::shared_ptr<AsyncQueue>& worker_queue,
                   std::shared_ptr<CredentialsProvider> credentials_provider,
-                  FSTSerializerBeta* serializer,
+                  Serializer serializer,
                   GrpcConnection* grpc_connection,
                   WatchStreamCallback* callback,
                   MockDatastore* datastore)
-      : WatchStream{worker_queue, credentials_provider, serializer, grpc_connection, callback},
+      : WatchStream{worker_queue, credentials_provider, std::move(serializer), grpc_connection,
+                    callback},
         datastore_{datastore},
         callback_{callback} {
   }
@@ -140,7 +140,7 @@ class MockWatchStream : public WatchStream {
 
       if (!targetChange.target_ids().empty()) {
         // If the list of target IDs is not empty, we reset the snapshot version to NONE as
-        // done in `FSTSerializerBeta.versionFromListenResponse:`.
+        // done in `Serializer::DecodeVersion:`.
         snap = SnapshotVersion::None();
       }
     }
@@ -159,11 +159,12 @@ class MockWriteStream : public WriteStream {
  public:
   MockWriteStream(const std::shared_ptr<AsyncQueue>& worker_queue,
                   std::shared_ptr<CredentialsProvider> credentials_provider,
-                  FSTSerializerBeta* serializer,
+                  Serializer serializer,
                   GrpcConnection* grpc_connection,
                   WriteStreamCallback* callback,
                   MockDatastore* datastore)
-      : WriteStream{worker_queue, credentials_provider, serializer, grpc_connection, callback},
+      : WriteStream{worker_queue, credentials_provider, std::move(serializer), grpc_connection,
+                    callback},
         datastore_{datastore},
         callback_{callback} {
   }
@@ -249,19 +250,17 @@ MockDatastore::MockDatastore(const core::DatabaseInfo& database_info,
 }
 
 std::shared_ptr<WatchStream> MockDatastore::CreateWatchStream(WatchStreamCallback* callback) {
-  watch_stream_ = std::make_shared<MockWatchStream>(
-      worker_queue_, credentials_,
-      [[FSTSerializerBeta alloc] initWithDatabaseID:database_info_->database_id()],
-      grpc_connection(), callback, this);
+  watch_stream_ = std::make_shared<MockWatchStream>(worker_queue_, credentials_,
+                                                    Serializer{database_info_->database_id()},
+                                                    grpc_connection(), callback, this);
 
   return watch_stream_;
 }
 
 std::shared_ptr<WriteStream> MockDatastore::CreateWriteStream(WriteStreamCallback* callback) {
-  write_stream_ = std::make_shared<MockWriteStream>(
-      worker_queue_, credentials_,
-      [[FSTSerializerBeta alloc] initWithDatabaseID:database_info_->database_id()],
-      grpc_connection(), callback, this);
+  write_stream_ = std::make_shared<MockWriteStream>(worker_queue_, credentials_,
+                                                    Serializer{database_info_->database_id()},
+                                                    grpc_connection(), callback, this);
 
   return write_stream_;
 }

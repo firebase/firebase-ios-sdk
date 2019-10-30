@@ -18,19 +18,18 @@
 
 #include <utility>
 
-#include "Firestore/core/src/firebase/firestore/api/input_validation.h"
 #include "Firestore/core/src/firebase/firestore/model/mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/patch_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/set_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/transform_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/transform_operation.h"
+#include "Firestore/core/src/firebase/firestore/util/exception.h"
 #include "absl/strings/match.h"
 
 namespace firebase {
 namespace firestore {
 namespace core {
 
-using api::ThrowInvalidArgument;
 using model::DocumentKey;
 using model::FieldMask;
 using model::FieldPath;
@@ -42,6 +41,7 @@ using model::Precondition;
 using model::SetMutation;
 using model::TransformMutation;
 using model::TransformOperation;
+using util::ThrowInvalidArgument;
 
 // MARK: - ParseAccumulator
 

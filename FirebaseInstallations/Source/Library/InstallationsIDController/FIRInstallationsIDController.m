@@ -26,6 +26,7 @@
 
 #import "FIRInstallationsAPIService.h"
 #import "FIRInstallationsErrorUtil.h"
+#import "FIRInstallationsIIDCheckinStore.h"
 #import "FIRInstallationsIIDStore.h"
 #import "FIRInstallationsItem.h"
 #import "FIRInstallationsLogger.h"
@@ -35,8 +36,7 @@
 
 #import "FIRInstallationsHTTPError.h"
 #import "FIRInstallationsStoredAuthToken.h"
-#import "FIRInstallationsStoredRegistrationError.h"
-#import "FIRInstallationsStoredRegistrationParameters.h"
+#import "FIRInstallationsStoredIIDCheckin.h"
 
 const NSNotificationName FIRInstallationIDDidChangeNotification =
     @"FIRInstallationIDDidChangeNotification";
@@ -45,14 +45,13 @@ NSString *const kFIRInstallationIDDidChangeNotificationAppNameKey =
 
 NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 hour.
 
-NSTimeInterval const kFIRInstallationsRegistrationErrorTimeout = 24 * 60 * 60;  // 1 day.
-
 @interface FIRInstallationsIDController ()
 @property(nonatomic, readonly) NSString *appID;
 @property(nonatomic, readonly) NSString *appName;
 
 @property(nonatomic, readonly) FIRInstallationsStore *installationsStore;
 @property(nonatomic, readonly) FIRInstallationsIIDStore *IIDStore;
+@property(nonatomic, readonly) FIRInstallationsIIDCheckinStore *IIDCheckingStore;
 
 @property(nonatomic, readonly) FIRInstallationsAPIService *APIService;
 
@@ -78,12 +77,15 @@ NSTimeInterval const kFIRInstallationsRegistrationErrorTimeout = 24 * 60 * 60;  
   FIRInstallationsAPIService *apiService =
       [[FIRInstallationsAPIService alloc] initWithAPIKey:APIKey projectID:projectID];
   FIRInstallationsIIDStore *IIDStore = [[FIRInstallationsIIDStore alloc] init];
+  FIRInstallationsIIDCheckinStore *IIDCheckingStore =
+      [[FIRInstallationsIIDCheckinStore alloc] init];
 
   return [self initWithGoogleAppID:appID
                            appName:appName
                 installationsStore:installationsStore
                         APIService:apiService
-                          IIDStore:IIDStore];
+                          IIDStore:IIDStore
+                  IIDCheckingStore:IIDCheckingStore];
 }
 
 /// The initializer is supposed to be used by tests to inject `installationsStore`.
@@ -91,7 +93,8 @@ NSTimeInterval const kFIRInstallationsRegistrationErrorTimeout = 24 * 60 * 60;  
                             appName:(NSString *)appName
                  installationsStore:(FIRInstallationsStore *)installationsStore
                          APIService:(FIRInstallationsAPIService *)APIService
-                           IIDStore:(FIRInstallationsIIDStore *)IIDStore {
+                           IIDStore:(FIRInstallationsIIDStore *)IIDStore
+                   IIDCheckingStore:(FIRInstallationsIIDCheckinStore *)IIDCheckingStore {
   self = [super init];
   if (self) {
     _appID = appID;
@@ -99,6 +102,7 @@ NSTimeInterval const kFIRInstallationsRegistrationErrorTimeout = 24 * 60 * 60;  
     _installationsStore = installationsStore;
     _APIService = APIService;
     _IIDStore = IIDStore;
+    _IIDCheckingStore = IIDCheckingStore;
 
     __weak FIRInstallationsIDController *weakSelf = self;
 
@@ -141,22 +145,9 @@ NSTimeInterval const kFIRInstallationsRegistrationErrorTimeout = 24 * 60 * 60;  
               __PRETTY_FUNCTION__, self.appName);
 
   FBLPromise<FIRInstallationsItem *> *installationItemPromise =
-      [self getStoredInstallation]
-          .recover(^id(NSError *error) {
-            return [self createAndSaveFID];
-          })
-          .then(^id(FIRInstallationsItem *installation) {
-            // Validate if a previous registration attempt failed with an error requiring Firebase
-            // configuration changes.
-            if (installation.registrationStatus == FIRInstallationStatusRegistrationFailed &&
-                [self isRegistrationErrorWithDateUpToDate:installation.registrationError.date] &&
-                [self areInstallationRegistrationParametersEqualToCurrent:
-                          installation.registrationError.registrationParameters]) {
-              return installation.registrationError.APIError;
-            }
-
-            return installation;
-          });
+      [self getStoredInstallation].recover(^id(NSError *error) {
+        return [self createAndSaveFID];
+      });
 
   // Initiate registration process on success if needed, but return the installation without waiting
   // for it.
@@ -175,7 +166,6 @@ NSTimeInterval const kFIRInstallationsRegistrationErrorTimeout = 24 * 60 * 60;  
         switch (installation.registrationStatus) {
           case FIRInstallationStatusUnregistered:
           case FIRInstallationStatusRegistered:
-          case FIRInstallationStatusRegistrationFailed:
             isValid = YES;
             break;
 
@@ -189,9 +179,9 @@ NSTimeInterval const kFIRInstallationsRegistrationErrorTimeout = 24 * 60 * 60;  
 }
 
 - (FBLPromise<FIRInstallationsItem *> *)createAndSaveFID {
-  return [self migrateOrGenerateFID]
-      .then(^FBLPromise<FIRInstallationsItem *> *(NSString *FID) {
-        return [self createAndSaveInstallationWithFID:FID];
+  return [self migrateOrGenerateInstallation]
+      .then(^FBLPromise<FIRInstallationsItem *> *(FIRInstallationsItem *installation) {
+        return [self saveInstallation:installation];
       })
       .then(^FIRInstallationsItem *(FIRInstallationsItem *installation) {
         [self postFIDDidChangeNotification];
@@ -199,39 +189,46 @@ NSTimeInterval const kFIRInstallationsRegistrationErrorTimeout = 24 * 60 * 60;  
       });
 }
 
-- (FBLPromise<FIRInstallationsItem *> *)createAndSaveInstallationWithFID:(NSString *)FID {
+- (FBLPromise<FIRInstallationsItem *> *)saveInstallation:(FIRInstallationsItem *)installation {
+  return [self.installationsStore saveInstallation:installation].then(
+      ^FIRInstallationsItem *(NSNull *result) {
+        return installation;
+      });
+}
+
+/**
+ * Tries to migrate IID data stored by FirebaseInstanceID SDK or generates a new Installation ID if
+ * not found.
+ */
+- (FBLPromise<FIRInstallationsItem *> *)migrateOrGenerateInstallation {
+  if (![self isDefaultApp]) {
+    // Existing IID should be used only for default FirebaseApp.
+    FIRInstallationsItem *installation =
+        [self createInstallationWithFID:[FIRInstallationsItem generateFID] IIDCheckin:nil];
+    return [FBLPromise resolvedWith:installation];
+  }
+
+  return
+      [[[FBLPromise all:@[ [self.IIDStore existingIID], [self.IIDCheckingStore existingCheckin] ]]
+          then:^id _Nullable(NSArray *_Nullable results) {
+            NSString *existingIID = results[0];
+            FIRInstallationsStoredIIDCheckin *IIDCheckin = results[1];
+
+            return [self createInstallationWithFID:existingIID IIDCheckin:IIDCheckin];
+          }] recover:^id _Nullable(NSError *_Nonnull error) {
+        return [self createInstallationWithFID:[FIRInstallationsItem generateFID] IIDCheckin:nil];
+      }];
+}
+
+- (FIRInstallationsItem *)createInstallationWithFID:(NSString *)FID
+                                         IIDCheckin:(nullable FIRInstallationsStoredIIDCheckin *)
+                                                        IIDCheckin {
   FIRInstallationsItem *installation = [[FIRInstallationsItem alloc] initWithAppID:self.appID
                                                                    firebaseAppName:self.appName];
   installation.firebaseInstallationID = FID;
+  installation.IIDCheckin = IIDCheckin;
   installation.registrationStatus = FIRInstallationStatusUnregistered;
-
-  return [self.installationsStore saveInstallation:installation].then(^id(NSNull *result) {
-    return installation;
-  });
-}
-
-- (FBLPromise<NSString *> *)migrateOrGenerateFID {
-  if (![self isDefaultApp]) {
-    // Existing IID should be used only for default FirebaseApp.
-    return [FBLPromise resolvedWith:[FIRInstallationsItem generateFID]];
-  }
-
-  return [self.IIDStore existingIID].recover(^NSString *(NSError *error) {
-    return [FIRInstallationsItem generateFID];
-  });
-}
-
-- (BOOL)areInstallationRegistrationParametersEqualToCurrent:
-    (FIRInstallationsStoredRegistrationParameters *)parameters {
-  NSString *APIKey = self.APIService.APIKey;
-  NSString *projectID = self.APIService.projectID;
-  return (parameters.APIKey == APIKey || [parameters.APIKey isEqual:APIKey]) &&
-         (parameters.projectID == projectID || [parameters.projectID isEqual:projectID]);
-}
-
-- (BOOL)isRegistrationErrorWithDateUpToDate:(NSDate *)errorDate {
-  return errorDate != nil &&
-         -[errorDate timeIntervalSinceNow] <= kFIRInstallationsRegistrationErrorTimeout;
+  return installation;
 }
 
 #pragma mark - FID registration
@@ -245,23 +242,24 @@ NSTimeInterval const kFIRInstallationsRegistrationErrorTimeout = 24 * 60 * 60;  
 
     case FIRInstallationStatusUnknown:
     case FIRInstallationStatusUnregistered:
-    case FIRInstallationStatusRegistrationFailed:
       // Registration required. Proceed.
       break;
   }
 
   return [self.APIService registerInstallation:installation]
-      .recover(^id(NSError *error) {
-        return [self handleRegistrationRequestError:error installation:installation];
+      .catch(^(NSError *_Nonnull error) {
+        if ([self doesRegistrationErrorRequireConfigChange:error]) {
+          FIRLogError(kFIRLoggerInstallations,
+                      kFIRInstallationsMessageCodeInvalidFirebaseConfiguration,
+                      @"Firebase Installation registration failed for app with name: %@, error: "
+                      @"%@\nPlease make sure you use valid GoogleService-Info.plist",
+                      self.appName, error);
+        }
       })
       .then(^id(FIRInstallationsItem *registeredInstallation) {
-        // Expected successful result: @[FIRInstallationsItem *registeredInstallation, NSNull]
-        return [FBLPromise all:@[
-          registeredInstallation, [self.installationsStore saveInstallation:registeredInstallation]
-        ]];
+        return [self saveInstallation:registeredInstallation];
       })
-      .then(^FIRInstallationsItem *(NSArray *result) {
-        FIRInstallationsItem *registeredInstallation = result.firstObject;
+      .then(^FIRInstallationsItem *(FIRInstallationsItem *registeredInstallation) {
         // Server may respond with a different FID if the sent one cannot be accepted.
         if (![registeredInstallation.firebaseInstallationID
                 isEqualToString:installation.firebaseInstallationID]) {
@@ -269,32 +267,6 @@ NSTimeInterval const kFIRInstallationsRegistrationErrorTimeout = 24 * 60 * 60;  
         }
         return registeredInstallation;
       });
-}
-
-- (FBLPromise<FIRInstallationsItem *> *)handleRegistrationRequestError:(NSError *)error
-                                                          installation:
-                                                              (FIRInstallationsItem *)installation {
-  if ([self doesRegistrationErrorRequireConfigChange:error]) {
-    FIRLogError(kFIRLoggerInstallations, kFIRInstallationsMessageCodeInvalidFirebaseConfiguration,
-                @"Firebase Installation registration failed for app with name: %@, error: "
-                @"%@\nPlease make sure you use valid GoogleService-Info.plist",
-                self.appName, error);
-
-    FIRInstallationsItem *failedInstallation = [installation copy];
-    [failedInstallation updateWithRegistrationError:error
-                                               date:[NSDate date]
-                             registrationParameters:[self currentRegistrationParameters]];
-
-    // Save the error and then fail with the API error.
-    return
-        [self.installationsStore saveInstallation:failedInstallation].then(^NSError *(id result) {
-          return error;
-        });
-  }
-
-  FBLPromise *errorPromise = [FBLPromise pendingPromise];
-  [errorPromise reject:error];
-  return errorPromise;
 }
 
 - (BOOL)doesRegistrationErrorRequireConfigChange:(NSError *)error {
@@ -316,16 +288,10 @@ NSTimeInterval const kFIRInstallationsRegistrationErrorTimeout = 24 * 60 * 60;  
   }
 }
 
-- (FIRInstallationsStoredRegistrationParameters *)currentRegistrationParameters {
-  return [[FIRInstallationsStoredRegistrationParameters alloc]
-      initWithAPIKey:self.APIService.APIKey
-           projectID:self.APIService.projectID];
-}
-
 #pragma mark - Auth Token
 
 - (FBLPromise<FIRInstallationsItem *> *)getAuthTokenForcingRefresh:(BOOL)forceRefresh {
-  if (forceRefresh) {
+  if (forceRefresh || [self.authTokenForcingRefreshPromiseCache getExistingPendingPromise] != nil) {
     return [self.authTokenForcingRefreshPromiseCache getExistingPendingOrCreateNewPromise];
   } else {
     return [self.authTokenPromiseCache getExistingPendingOrCreateNewPromise];
@@ -353,21 +319,43 @@ NSTimeInterval const kFIRInstallationsRegistrationErrorTimeout = 24 * 60 * 60;  
           return registeredInstallation;
         }
       })
-      .catch(^void(NSError *error){
-          // TODO: Handle the errors.
+      .recover(^id(NSError *error) {
+        return [self regenerateFIDOnRefreshTokenErrorIfNeeded:error];
       });
 }
 
 - (FBLPromise<FIRInstallationsItem *> *)refreshAuthTokenForInstallation:
     (FIRInstallationsItem *)installation {
-  return [FBLPromise attempts:1
-      delay:1
-      condition:^BOOL(NSInteger remainingAttempts, NSError *_Nonnull error) {
-        return [FIRInstallationsErrorUtil isAPIError:error withHTTPCode:500];
-      }
-      retry:^id _Nullable {
-        return [self.APIService refreshAuthTokenForInstallation:installation];
+  return [[self.APIService refreshAuthTokenForInstallation:installation]
+      then:^id _Nullable(FIRInstallationsItem *_Nullable refreshedInstallation) {
+        return [self saveInstallation:refreshedInstallation];
       }];
+}
+
+- (id)regenerateFIDOnRefreshTokenErrorIfNeeded:(NSError *)error {
+  if (![error isKindOfClass:[FIRInstallationsHTTPError class]]) {
+    // No recovery possible. Return the same error.
+    return error;
+  }
+
+  FIRInstallationsHTTPError *HTTPError = (FIRInstallationsHTTPError *)error;
+  switch (HTTPError.HTTPResponse.statusCode) {
+    case FIRInstallationsAuthTokenHTTPCodeInvalidAuthentication:
+    case FIRInstallationsAuthTokenHTTPCodeFIDNotFound:
+      // The stored installation was damaged or blocked by the server.
+      // Delete the stored installation then generate and register a new one.
+      return [self getInstallationItem]
+          .then(^FBLPromise<NSNull *> *(FIRInstallationsItem *installation) {
+            return [self deleteInstallationLocally:installation];
+          })
+          .then(^FBLPromise<FIRInstallationsItem *> *(id result) {
+            return [self installationWithValidAuthTokenForcingRefresh:NO];
+          });
+
+    default:
+      // No recovery possible. Return the same error.
+      return error;
+  }
 }
 
 #pragma mark - Delete FID
@@ -392,9 +380,13 @@ NSTimeInterval const kFIRInstallationsRegistrationErrorTimeout = 24 * 60 * 60;  
       })
       .then(^id(FIRInstallationsItem *installation) {
         // Remove the installation from the local storage.
-        return [self.installationsStore removeInstallationForAppID:installation.appID
-                                                           appName:installation.firebaseAppName];
-      })
+        return [self deleteInstallationLocally:installation];
+      });
+}
+
+- (FBLPromise<NSNull *> *)deleteInstallationLocally:(FIRInstallationsItem *)installation {
+  return [self.installationsStore removeInstallationForAppID:installation.appID
+                                                     appName:installation.firebaseAppName]
       .then(^FBLPromise<NSNull *> *(NSNull *result) {
         return [self deleteExistingIIDIfNeeded];
       })
@@ -409,7 +401,6 @@ NSTimeInterval const kFIRInstallationsRegistrationErrorTimeout = 24 * 60 * 60;  
   switch (installation.registrationStatus) {
     case FIRInstallationStatusUnknown:
     case FIRInstallationStatusUnregistered:
-    case FIRInstallationStatusRegistrationFailed:
       // The installation is not registered, so it is safe to be deleted as is, so return early.
       return [FBLPromise resolvedWith:installation];
       break;

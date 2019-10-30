@@ -37,6 +37,9 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 @property(nonatomic, readwrite, strong) NSData *apnsTokenData;
 @property(nonatomic, readwrite, strong) FIRInstanceID *instanceID;
 
+// Expose autoInitEnabled static method for IID.
++ (BOOL)isAutoInitEnabledWithUserDefaults:(NSUserDefaults *)userDefaults;
+
 // Direct Channel Methods
 - (void)updateAutomaticClientConnection;
 - (BOOL)shouldBeConnectedAutomatically;
@@ -127,6 +130,26 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 
   XCTAssertFalse(self.messaging.isAutoInitEnabled);
   [bundleMock stopMocking];
+}
+
+- (void)testAutoInitEnabledMatchesStaticMethod {
+  // Flag is set to YES in user defaults.
+  NSUserDefaults *defaults = self.messaging.messagingUserDefaults;
+  [defaults setObject:@YES forKey:kFIRMessagingUserDefaultsKeyAutoInitEnabled];
+
+  XCTAssertTrue(self.messaging.isAutoInitEnabled);
+  XCTAssertEqual(self.messaging.isAutoInitEnabled,
+                 [FIRMessaging isAutoInitEnabledWithUserDefaults:defaults]);
+}
+
+- (void)testAutoInitDisabledMatchesStaticMethod {
+  // Flag is set to NO in user defaults.
+  NSUserDefaults *defaults = self.messaging.messagingUserDefaults;
+  [defaults setObject:@NO forKey:kFIRMessagingUserDefaultsKeyAutoInitEnabled];
+
+  XCTAssertFalse(self.messaging.isAutoInitEnabled);
+  XCTAssertEqual(self.messaging.isAutoInitEnabled,
+                 [FIRMessaging isAutoInitEnabledWithUserDefaults:defaults]);
 }
 
 #pragma mark - Direct Channel Establishment Testing

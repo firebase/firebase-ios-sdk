@@ -33,6 +33,11 @@ static NSString *const kProviderIDKey = @"providerId";
  */
 static NSString *const kProviderIDTokenKey = @"id_token";
 
+/** @var kProviderNonceKey
+    @brief The key for the "nonce" value in the request.
+ */
+static NSString *const kProviderNonceKey = @"nonce";
+
 /** @var kProviderAccessTokenKey
     @brief The key for the "access_token" value in the request.
  */
@@ -113,6 +118,11 @@ static NSString *const kSessionIDKey = @"sessionId";
   if (_providerIDToken) {
     [queryItems addObject:[NSURLQueryItem queryItemWithName:kProviderIDTokenKey
                                                       value:_providerIDToken]];
+  }
+
+  if (_providerRawNonce) {
+    [queryItems addObject:[NSURLQueryItem queryItemWithName:kProviderNonceKey
+                                                      value:_providerRawNonce]];
   }
 
   if (_providerAccessToken) {
