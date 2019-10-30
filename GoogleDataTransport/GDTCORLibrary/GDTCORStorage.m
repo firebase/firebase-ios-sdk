@@ -19,6 +19,7 @@
 
 #import <GoogleDataTransport/GDTCORAssert.h>
 #import <GoogleDataTransport/GDTCORConsoleLogger.h>
+#import <GoogleDataTransport/GDTCORDatabase.h>
 #import <GoogleDataTransport/GDTCORLifecycle.h>
 #import <GoogleDataTransport/GDTCORPrioritizer.h>
 #import <GoogleDataTransport/GDTCORStoredEvent.h>
@@ -26,6 +27,8 @@
 #import "GDTCORLibrary/Private/GDTCOREvent_Private.h"
 #import "GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
 #import "GDTCORLibrary/Private/GDTCORUploadCoordinator.h"
+
+static NSString *const DBv1 = @"";
 
 /** Creates and/or returns a singleton NSString that is the shared storage path.
  *
@@ -69,6 +72,8 @@ static NSString *GDTCORStoragePath() {
     _targetToEventSet = [[NSMutableDictionary alloc] init];
     _storedEvents = [[NSMutableOrderedSet alloc] init];
     _uploadCoordinator = [GDTCORUploadCoordinator sharedInstance];
+    //    NSURL *dbURL = [GDTCORStoragePath() ];
+    //    _storageDB = [[GDTCORDatabase alloc] initWithURL:dbURL migrationStatements:@{@1 : DBv1}];
   }
   return self;
 }
@@ -209,6 +214,8 @@ static NSString *GDTCORStoragePath() {
   events = events ? events : [[NSMutableSet alloc] init];
   [events addObject:event];
   _targetToEventSet[event.target] = events;
+  static NSString *const insertEventSQL = @"";
+  [_storageDB runNonQuery:insertEventSQL bindings:nil cacheStmt:YES];
 }
 
 #pragma mark - GDTCORLifecycleProtocol
