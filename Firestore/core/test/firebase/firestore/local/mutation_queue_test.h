@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,40 +14,71 @@
  * limitations under the License.
  */
 
-#import <XCTest/XCTest.h>
+#ifndef FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_LOCAL_MUTATION_QUEUE_TEST_H_
+#define FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_LOCAL_MUTATION_QUEUE_TEST_H_
+
+#include <memory>
+#include <string>
+#include <vector>
 
 #include "Firestore/core/src/firebase/firestore/local/mutation_queue.h"
+#include "gtest/gtest.h"
 
 namespace firebase {
 namespace firestore {
+namespace model {
+
+class MutationBatch;
+
+}  // namespace model
 namespace local {
 
 class MutationQueue;
 class Persistence;
 
-}  // namespace local
-}  // namespace firestore
-}  // namespace firebase
+using FactoryFunc = std::unique_ptr<Persistence> (*)();
 
-namespace local = firebase::firestore::local;
+/**
+ * A test fixture for implementing tests of the MutationQueue interface.
+ *
+ * This is separate from MutationQueueTest below in order to make additional
+ * implementation-specific tests.
+ */
+class MutationQueueTestBase : public testing::Test {
+ public:
+  explicit MutationQueueTestBase(std::unique_ptr<Persistence> persistence);
+  ~MutationQueueTestBase();
 
-NS_ASSUME_NONNULL_BEGIN
+ protected:
+  model::MutationBatch AddMutationBatch(const std::string& key = "foo/bar");
+  std::vector<model::MutationBatch> CreateBatches(int number);
+  size_t BatchCount();
+  std::vector<model::MutationBatch> RemoveFirstBatches(
+      size_t n, std::vector<model::MutationBatch>* batches);
+
+  std::unique_ptr<Persistence> persistence_;
+  MutationQueue* mutation_queue_;
+};
 
 /**
  * These are tests for any implementation of the MutationQueue interface.
  *
  * To test a specific implementation of MutationQueue:
  *
- * + Subclass FSTMutationQueueTests
- * + override -setUp, assigning to mutationQueue and persistence
- * + override -tearDown, cleaning up mutationQueue and persistence
+ * + Write a persistence factory function
+ * + Call INSTANTIATE_TEST_CASE_P(MyNewMutationQueueTest,
+ *                                MutationQueueTest,
+ *                                testing::Values(PersistenceFactory));
  */
-@interface FSTMutationQueueTests : XCTestCase
+class MutationQueueTest : public MutationQueueTestBase,
+                          public testing::WithParamInterface<FactoryFunc> {
+ public:
+  // `GetParam()` must return a factory function.
+  MutationQueueTest();
+};
 
-@property(nonatomic, nullable) local::MutationQueue *mutationQueue;
+}  // namespace local
+}  // namespace firestore
+}  // namespace firebase
 
-@property(nonatomic, nullable) local::Persistence *persistence;
-
-@end
-
-NS_ASSUME_NONNULL_END
+#endif  // FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_LOCAL_MUTATION_QUEUE_TEST_H_

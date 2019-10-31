@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,38 +14,26 @@
  * limitations under the License.
  */
 
-#import "Firestore/Example/Tests/Local/FSTMutationQueueTests.h"
-
-#include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/local/memory_persistence.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_delegate.h"
-#include "Firestore/core/src/firebase/firestore/local/reference_set.h"
+#include "Firestore/core/test/firebase/firestore/local/mutation_queue_test.h"
 #include "Firestore/core/test/firebase/firestore/local/persistence_testing.h"
 
-using firebase::firestore::auth::User;
-using firebase::firestore::local::MemoryPersistence;
-using firebase::firestore::local::MemoryPersistenceWithEagerGcForTesting;
-using firebase::firestore::local::ReferenceSet;
+namespace firebase {
+namespace firestore {
+namespace local {
+namespace {
 
-@interface FSTMemoryMutationQueueTests : FSTMutationQueueTests
-@end
-
-/**
- * The tests for FSTMemoryMutationQueue are performed on the FSTMutationQueue protocol in
- * FSTMutationQueueTests. This class is merely responsible for setting up the @a mutationQueue.
- */
-@implementation FSTMemoryMutationQueueTests {
-  std::unique_ptr<MemoryPersistence> _db;
-  ReferenceSet _additionalReferences;
+std::unique_ptr<Persistence> PersistenceFactory() {
+  return MemoryPersistenceWithEagerGcForTesting();
 }
 
-- (void)setUp {
-  [super setUp];
+}  // namespace
 
-  _db = MemoryPersistenceWithEagerGcForTesting();
-  self.persistence = _db.get();
-  self.persistence->reference_delegate()->AddInMemoryPins(&_additionalReferences);
-  self.mutationQueue = self.persistence->GetMutationQueueForUser(User("user"));
-}
+INSTANTIATE_TEST_CASE_P(MemoryMutationQueueTest,
+                        MutationQueueTest,
+                        testing::Values(PersistenceFactory));
 
-@end
+}  // namespace local
+}  // namespace firestore
+}  // namespace firebase

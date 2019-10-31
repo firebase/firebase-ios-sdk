@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,11 @@
  * limitations under the License.
  */
 
-#import "Firestore/Example/Tests/Local/FSTMutationQueueTests.h"
+#include "Firestore/core/test/firebase/firestore/local/mutation_queue_test.h"
 
-#import <FirebaseFirestore/FIRTimestamp.h>
-
-#include <set>
+#include <memory>
 #include <utility>
 #include <vector>
-
-#import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/local/persistence.h"
@@ -32,217 +28,252 @@
 #include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
 #include "Firestore/core/src/firebase/firestore/model/set_mutation.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
+#include "gtest/gtest.h"
 
-namespace core = firebase::firestore::core;
-namespace testutil = firebase::firestore::testutil;
-using firebase::Timestamp;
-using firebase::firestore::auth::User;
-using firebase::firestore::model::DocumentKey;
-using firebase::firestore::model::DocumentKeySet;
-using firebase::firestore::model::kBatchIdUnknown;
-using firebase::firestore::model::Mutation;
-using firebase::firestore::model::MutationBatch;
-using firebase::firestore::model::SetMutation;
-using firebase::firestore::nanopb::ByteString;
-using firebase::firestore::testutil::Key;
-using firebase::firestore::testutil::Query;
+namespace firebase {
+namespace firestore {
+namespace local {
 
-NS_ASSUME_NONNULL_BEGIN
+using auth::User;
+using model::DocumentKey;
+using model::DocumentKeySet;
+using model::kBatchIdUnknown;
+using model::Mutation;
+using model::MutationBatch;
+using model::SetMutation;
+using nanopb::ByteString;
+using testutil::Key;
+using testutil::Map;
+using testutil::Query;
 
-@implementation FSTMutationQueueTests
+MutationQueueTestBase::MutationQueueTestBase(
+    std::unique_ptr<Persistence> persistence)
+    : persistence_(std::move(persistence)),
+      mutation_queue_(persistence_->GetMutationQueueForUser(User("user"))) {
+}
 
-- (void)tearDown {
-  if (self.persistence) {
-    self.persistence->Shutdown();
-  }
-  [super tearDown];
+MutationQueueTestBase::~MutationQueueTestBase() = default;
+
+/**
+ * Creates a new MutationBatch with the given key, the next batch ID and a set
+ * of dummy mutations.
+ */
+MutationBatch MutationQueueTestBase::AddMutationBatch(const std::string& key) {
+  SetMutation mutation = testutil::SetMutation(key, Map("a", 1));
+
+  MutationBatch batch =
+      mutation_queue_->AddMutationBatch(Timestamp::Now(), {}, {mutation});
+  return batch;
 }
 
 /**
- * Xcode will run tests from any class that extends XCTestCase, but this doesn't work for
- * FSTMutationQueueTests since it is incomplete without the implementations supplied by its
- * subclasses.
+ * Creates an array of batches containing @a number dummy MutationBatches. Each
+ * has a different batch_id.
  */
-- (BOOL)isTestBaseClass {
-  return [self class] == [FSTMutationQueueTests class];
+std::vector<MutationBatch> MutationQueueTestBase::CreateBatches(int number) {
+  std::vector<MutationBatch> batches;
+
+  for (int i = 0; i < number; i++) {
+    MutationBatch batch = AddMutationBatch();
+    batches.push_back(batch);
+  }
+
+  return batches;
 }
 
-- (void)testCountBatches {
-  if ([self isTestBaseClass]) return;
+/** Returns the number of mutation batches in the mutation queue. */
+size_t MutationQueueTestBase::BatchCount() {
+  return mutation_queue_->AllMutationBatches().size();
+}
 
-  self.persistence->Run("testCountBatches", [&]() {
-    XCTAssertEqual(0, [self batchCount]);
-    XCTAssertTrue(self.mutationQueue->IsEmpty());
+/**
+ * Removes the first n entries from the the given batches and returns them.
+ *
+ * @param n The number of batches to remove.
+ * @param batches The array to mutate, removing entries from it.
+ * @return A new array containing all the entries that were removed from @a
+ * batches.
+ */
+std::vector<MutationBatch> MutationQueueTestBase::RemoveFirstBatches(
+    size_t n, std::vector<MutationBatch>* batches) {
+  std::vector<MutationBatch> removed(batches->begin(), batches->begin() + n);
+  batches->erase(batches->begin(), batches->begin() + n);
 
-    MutationBatch batch1 = [self addMutationBatch];
-    XCTAssertEqual(1, [self batchCount]);
-    XCTAssertFalse(self.mutationQueue->IsEmpty());
+  for (const MutationBatch& batch : removed) {
+    mutation_queue_->RemoveMutationBatch(batch);
+  }
+  return removed;
+}
 
-    MutationBatch batch2 = [self addMutationBatch];
-    XCTAssertEqual(2, [self batchCount]);
+MutationQueueTest::MutationQueueTest() : MutationQueueTestBase(GetParam()()) {
+}
 
-    self.mutationQueue->RemoveMutationBatch(batch1);
-    XCTAssertEqual(1, [self batchCount]);
+TEST_P(MutationQueueTest, CountBatches) {
+  persistence_->Run("test_count_batches", [&] {
+    ASSERT_EQ(0, BatchCount());
+    ASSERT_TRUE(mutation_queue_->IsEmpty());
 
-    self.mutationQueue->RemoveMutationBatch(batch2);
-    XCTAssertEqual(0, [self batchCount]);
-    XCTAssertTrue(self.mutationQueue->IsEmpty());
+    MutationBatch batch1 = AddMutationBatch();
+    ASSERT_EQ(1, BatchCount());
+    ASSERT_FALSE(mutation_queue_->IsEmpty());
+
+    MutationBatch batch2 = AddMutationBatch();
+    ASSERT_EQ(2, BatchCount());
+
+    mutation_queue_->RemoveMutationBatch(batch1);
+    ASSERT_EQ(1, BatchCount());
+
+    mutation_queue_->RemoveMutationBatch(batch2);
+    ASSERT_EQ(0, BatchCount());
+    ASSERT_TRUE(mutation_queue_->IsEmpty());
   });
 }
 
-- (void)testAcknowledgeBatchID {
-  if ([self isTestBaseClass]) return;
+TEST_P(MutationQueueTest, AcknowledgeBatchID) {
+  persistence_->Run("test_acknowledge_batch_id", [&] {
+    ASSERT_EQ(BatchCount(), 0);
 
-  self.persistence->Run("testAcknowledgeBatchID", [&]() {
-    XCTAssertEqual([self batchCount], 0);
+    MutationBatch batch1 = AddMutationBatch();
+    MutationBatch batch2 = AddMutationBatch();
+    MutationBatch batch3 = AddMutationBatch();
+    ASSERT_GT(batch1.batch_id(), kBatchIdUnknown);
+    ASSERT_GT(batch2.batch_id(), batch1.batch_id());
+    ASSERT_GT(batch3.batch_id(), batch2.batch_id());
 
-    MutationBatch batch1 = [self addMutationBatch];
-    MutationBatch batch2 = [self addMutationBatch];
-    MutationBatch batch3 = [self addMutationBatch];
-    XCTAssertGreaterThan(batch1.batch_id(), kBatchIdUnknown);
-    XCTAssertGreaterThan(batch2.batch_id(), batch1.batch_id());
-    XCTAssertGreaterThan(batch3.batch_id(), batch2.batch_id());
+    ASSERT_EQ(BatchCount(), 3);
 
-    XCTAssertEqual([self batchCount], 3);
+    mutation_queue_->AcknowledgeBatch(batch1, {});
+    mutation_queue_->RemoveMutationBatch(batch1);
+    ASSERT_EQ(BatchCount(), 2);
 
-    self.mutationQueue->AcknowledgeBatch(batch1, {});
-    self.mutationQueue->RemoveMutationBatch(batch1);
-    XCTAssertEqual([self batchCount], 2);
+    mutation_queue_->AcknowledgeBatch(batch2, {});
+    ASSERT_EQ(BatchCount(), 2);
 
-    self.mutationQueue->AcknowledgeBatch(batch2, {});
-    XCTAssertEqual([self batchCount], 2);
+    mutation_queue_->RemoveMutationBatch(batch2);
+    ASSERT_EQ(BatchCount(), 1);
 
-    self.mutationQueue->RemoveMutationBatch(batch2);
-    XCTAssertEqual([self batchCount], 1);
-
-    self.mutationQueue->RemoveMutationBatch(batch3);
-    XCTAssertEqual([self batchCount], 0);
+    mutation_queue_->RemoveMutationBatch(batch3);
+    ASSERT_EQ(BatchCount(), 0);
   });
 }
 
-- (void)testAcknowledgeThenRemove {
-  if ([self isTestBaseClass]) return;
+TEST_P(MutationQueueTest, AcknowledgeThenRemove) {
+  persistence_->Run("test_acknowledge_then_remove", [&] {
+    MutationBatch batch1 = AddMutationBatch();
 
-  self.persistence->Run("testAcknowledgeThenRemove", [&]() {
-    MutationBatch batch1 = [self addMutationBatch];
+    mutation_queue_->AcknowledgeBatch(batch1, {});
+    mutation_queue_->RemoveMutationBatch(batch1);
 
-    self.mutationQueue->AcknowledgeBatch(batch1, {});
-    self.mutationQueue->RemoveMutationBatch(batch1);
-
-    XCTAssertEqual([self batchCount], 0);
+    ASSERT_EQ(BatchCount(), 0);
   });
 }
 
-- (void)testLookupMutationBatch {
-  if ([self isTestBaseClass]) return;
-
+TEST_P(MutationQueueTest, LookupMutationBatch) {
   // Searching on an empty queue should not find a non-existent batch
-  self.persistence->Run("testLookupMutationBatch", [&]() {
-    absl::optional<MutationBatch> notFound = self.mutationQueue->LookupMutationBatch(42);
-    XCTAssertEqual(notFound, absl::nullopt);
+  persistence_->Run("test_lookup_mutation_batch", [&] {
+    absl::optional<MutationBatch> not_found =
+        mutation_queue_->LookupMutationBatch(42);
+    ASSERT_EQ(not_found, absl::nullopt);
 
-    std::vector<MutationBatch> batches = [self createBatches:10];
-    std::vector<MutationBatch> removed = [self removeFirstBatches:3 inBatches:&batches];
+    std::vector<MutationBatch> batches = CreateBatches(10);
+    std::vector<MutationBatch> removed = RemoveFirstBatches(3, &batches);
 
     // After removing, a batch should not be found
     for (size_t i = 0; i < removed.size(); i++) {
-      notFound = self.mutationQueue->LookupMutationBatch(removed[i].batch_id());
-      XCTAssertEqual(notFound, absl::nullopt);
+      not_found = mutation_queue_->LookupMutationBatch(removed[i].batch_id());
+      ASSERT_EQ(not_found, absl::nullopt);
     }
 
     // Remaining entries should still be found
     for (const MutationBatch& batch : batches) {
       absl::optional<MutationBatch> found =
-          self.mutationQueue->LookupMutationBatch(batch.batch_id());
-      XCTAssertEqual(found->batch_id(), batch.batch_id());
+          mutation_queue_->LookupMutationBatch(batch.batch_id());
+      ASSERT_EQ(found->batch_id(), batch.batch_id());
     }
 
     // Even on a nonempty queue searching should not find a non-existent batch
-    notFound = self.mutationQueue->LookupMutationBatch(42);
-    XCTAssertEqual(notFound, absl::nullopt);
+    not_found = mutation_queue_->LookupMutationBatch(42);
+    ASSERT_EQ(not_found, absl::nullopt);
   });
 }
 
-- (void)testNextMutationBatchAfterBatchID {
-  if ([self isTestBaseClass]) return;
-
-  self.persistence->Run("testNextMutationBatchAfterBatchID", [&]() {
-    std::vector<MutationBatch> batches = [self createBatches:10];
-    std::vector<MutationBatch> removed = [self removeFirstBatches:3 inBatches:&batches];
+TEST_P(MutationQueueTest, NextMutationBatchAfterBatchID) {
+  persistence_->Run("test_next_mutation_batch_after_batch_id", [&] {
+    std::vector<MutationBatch> batches = CreateBatches(10);
+    std::vector<MutationBatch> removed = RemoveFirstBatches(3, &batches);
 
     for (size_t i = 0; i < batches.size() - 1; i++) {
       const MutationBatch& current = batches[i];
       const MutationBatch& next = batches[i + 1];
       absl::optional<MutationBatch> found =
-          self.mutationQueue->NextMutationBatchAfterBatchId(current.batch_id());
-      XCTAssertEqual(found->batch_id(), next.batch_id());
+          mutation_queue_->NextMutationBatchAfterBatchId(current.batch_id());
+      ASSERT_EQ(found->batch_id(), next.batch_id());
     }
 
     for (size_t i = 0; i < removed.size(); i++) {
       const MutationBatch& current = removed[i];
       const MutationBatch& next = batches[0];
       absl::optional<MutationBatch> found =
-          self.mutationQueue->NextMutationBatchAfterBatchId(current.batch_id());
-      XCTAssertEqual(found->batch_id(), next.batch_id());
+          mutation_queue_->NextMutationBatchAfterBatchId(current.batch_id());
+      ASSERT_EQ(found->batch_id(), next.batch_id());
     }
 
     const MutationBatch& first = batches[0];
     absl::optional<MutationBatch> found =
-        self.mutationQueue->NextMutationBatchAfterBatchId(first.batch_id() - 42);
-    XCTAssertEqual(found->batch_id(), first.batch_id());
+        mutation_queue_->NextMutationBatchAfterBatchId(first.batch_id() - 42);
+    ASSERT_EQ(found->batch_id(), first.batch_id());
 
     const MutationBatch& last = batches[batches.size() - 1];
-    absl::optional<MutationBatch> notFound =
-        self.mutationQueue->NextMutationBatchAfterBatchId(last.batch_id());
-    XCTAssertEqual(notFound, absl::nullopt);
+    absl::optional<MutationBatch> not_found =
+        mutation_queue_->NextMutationBatchAfterBatchId(last.batch_id());
+    ASSERT_EQ(not_found, absl::nullopt);
   });
 }
 
-- (void)testAllMutationBatchesAffectingDocumentKey {
-  if ([self isTestBaseClass]) return;
-
-  self.persistence->Run("testAllMutationBatchesAffectingDocumentKey", [&]() {
+TEST_P(MutationQueueTest, AllMutationBatchesAffectingDocumentKey) {
+  persistence_->Run("test_all_mutation_batches_affecting_document_key", [&] {
     std::vector<Mutation> mutations = {
-        FSTTestSetMutation(@"foi/bar", @{@"a" : @1}),
-        FSTTestSetMutation(@"foo/bar", @{@"a" : @1}),
-        FSTTestPatchMutation("foo/bar", @{@"b" : @1}, {}),
-        FSTTestSetMutation(@"foo/bar/suffix/key", @{@"a" : @1}),
-        FSTTestSetMutation(@"foo/baz", @{@"a" : @1}),
-        FSTTestSetMutation(@"food/bar", @{@"a" : @1}),
+        testutil::SetMutation("foi/bar", Map("a", 1)),
+        testutil::SetMutation("foo/bar", Map("a", 1)),
+        testutil::PatchMutation("foo/bar", Map("b", 1), {}),
+        testutil::SetMutation("foo/bar/suffix/key", Map("a", 1)),
+        testutil::SetMutation("foo/baz", Map("a", 1)),
+        testutil::SetMutation("food/bar", Map("a", 1)),
     };
 
     // Store all the mutations.
     std::vector<MutationBatch> batches;
     for (const Mutation& mutation : mutations) {
-      MutationBatch batch = self.mutationQueue->AddMutationBatch(Timestamp::Now(), {}, {mutation});
+      MutationBatch batch =
+          mutation_queue_->AddMutationBatch(Timestamp::Now(), {}, {mutation});
       batches.push_back(batch);
     }
 
     std::vector<MutationBatch> expected{batches[1], batches[2]};
     std::vector<MutationBatch> matches =
-        self.mutationQueue->AllMutationBatchesAffectingDocumentKey(testutil::Key("foo/bar"));
+        mutation_queue_->AllMutationBatchesAffectingDocumentKey(
+            testutil::Key("foo/bar"));
 
-    XCTAssertEqual(matches, expected);
+    ASSERT_EQ(matches, expected);
   });
 }
 
-- (void)testAllMutationBatchesAffectingDocumentKeys {
-  if ([self isTestBaseClass]) return;
-
-  self.persistence->Run("testAllMutationBatchesAffectingDocumentKey", [&]() {
+TEST_P(MutationQueueTest, AllMutationBatchesAffectingDocumentKeys) {
+  persistence_->Run("test_all_mutation_batches_affecting_document_key", [&] {
     std::vector<Mutation> mutations = {
-        FSTTestSetMutation(@"fob/bar", @{@"a" : @1}),
-        FSTTestSetMutation(@"foo/bar", @{@"a" : @1}),
-        FSTTestPatchMutation("foo/bar", @{@"b" : @1}, {}),
-        FSTTestSetMutation(@"foo/bar/suffix/key", @{@"a" : @1}),
-        FSTTestSetMutation(@"foo/baz", @{@"a" : @1}),
-        FSTTestSetMutation(@"food/bar", @{@"a" : @1}),
+        testutil::SetMutation("fob/bar", Map("a", 1)),
+        testutil::SetMutation("foo/bar", Map("a", 1)),
+        testutil::PatchMutation("foo/bar", Map("b", 1), {}),
+        testutil::SetMutation("foo/bar/suffix/key", Map("a", 1)),
+        testutil::SetMutation("foo/baz", Map("a", 1)),
+        testutil::SetMutation("food/bar", Map("a", 1)),
     };
 
     // Store all the mutations.
     std::vector<MutationBatch> batches;
     for (const Mutation& mutation : mutations) {
-      MutationBatch batch = self.mutationQueue->AddMutationBatch(Timestamp::Now(), {}, {mutation});
+      MutationBatch batch =
+          mutation_queue_->AddMutationBatch(Timestamp::Now(), {}, {mutation});
       batches.push_back(batch);
     }
 
@@ -253,206 +284,149 @@ NS_ASSUME_NONNULL_BEGIN
 
     std::vector<MutationBatch> expected{batches[1], batches[2], batches[4]};
     std::vector<MutationBatch> matches =
-        self.mutationQueue->AllMutationBatchesAffectingDocumentKeys(keys);
+        mutation_queue_->AllMutationBatchesAffectingDocumentKeys(keys);
 
-    XCTAssertEqual(matches, expected);
+    ASSERT_EQ(matches, expected);
   });
 }
 
-- (void)testAllMutationBatchesAffectingDocumentKeys_handlesOverlap {
-  if ([self isTestBaseClass]) return;
+TEST_P(MutationQueueTest,
+       AllMutationBatchesAffectingDocumentKeys_handlesOverlap) {
+  persistence_->Run(
+      "test_all_mutation_batches_affecting_document_keys_handlesOverlap", [&] {
+        std::vector<Mutation> group1 = {
+            testutil::SetMutation("foo/bar", Map("a", 1)),
+            testutil::SetMutation("foo/baz", Map("a", 1)),
+        };
+        MutationBatch batch1 = mutation_queue_->AddMutationBatch(
+            Timestamp::Now(), {}, std::move(group1));
 
-  self.persistence->Run("testAllMutationBatchesAffectingDocumentKeys_handlesOverlap", [&]() {
-    std::vector<Mutation> group1 = {
-        FSTTestSetMutation(@"foo/bar", @{@"a" : @1}),
-        FSTTestSetMutation(@"foo/baz", @{@"a" : @1}),
-    };
-    MutationBatch batch1 =
-        self.mutationQueue->AddMutationBatch(Timestamp::Now(), {}, std::move(group1));
+        std::vector<Mutation> group2 = {
+            testutil::SetMutation("food/bar", Map("a", 1))};
+        mutation_queue_->AddMutationBatch(Timestamp::Now(), {},
+                                          std::move(group2));
 
-    std::vector<Mutation> group2 = {FSTTestSetMutation(@"food/bar", @{@"a" : @1})};
-    self.mutationQueue->AddMutationBatch(Timestamp::Now(), {}, std::move(group2));
+        std::vector<Mutation> group3 = {
+            testutil::SetMutation("foo/bar", Map("b", 1)),
+        };
+        MutationBatch batch3 = mutation_queue_->AddMutationBatch(
+            Timestamp::Now(), {}, std::move(group3));
 
-    std::vector<Mutation> group3 = {
-        FSTTestSetMutation(@"foo/bar", @{@"b" : @1}),
-    };
-    MutationBatch batch3 =
-        self.mutationQueue->AddMutationBatch(Timestamp::Now(), {}, std::move(group3));
+        DocumentKeySet keys{
+            Key("foo/bar"),
+            Key("foo/baz"),
+        };
 
-    DocumentKeySet keys{
-        Key("foo/bar"),
-        Key("foo/baz"),
-    };
+        std::vector<MutationBatch> expected{batch1, batch3};
+        std::vector<MutationBatch> matches =
+            mutation_queue_->AllMutationBatchesAffectingDocumentKeys(keys);
 
-    std::vector<MutationBatch> expected{batch1, batch3};
-    std::vector<MutationBatch> matches =
-        self.mutationQueue->AllMutationBatchesAffectingDocumentKeys(keys);
-
-    XCTAssertEqual(matches, expected);
-  });
+        ASSERT_EQ(matches, expected);
+      });
 }
 
-- (void)testAllMutationBatchesAffectingQuery {
-  if ([self isTestBaseClass]) return;
-
-  self.persistence->Run("testAllMutationBatchesAffectingQuery", [&]() {
+TEST_P(MutationQueueTest, AllMutationBatchesAffectingQuery) {
+  persistence_->Run("test_all_mutation_batches_affecting_query", [&] {
     std::vector<Mutation> mutations = {
-        FSTTestSetMutation(@"fob/bar", @{@"a" : @1}),
-        FSTTestSetMutation(@"foo/bar", @{@"a" : @1}),
-        FSTTestPatchMutation("foo/bar", @{@"b" : @1}, {}),
-        FSTTestSetMutation(@"foo/bar/suffix/key", @{@"a" : @1}),
-        FSTTestSetMutation(@"foo/baz", @{@"a" : @1}),
-        FSTTestSetMutation(@"food/bar", @{@"a" : @1}),
+        testutil::SetMutation("fob/bar", Map("a", 1)),
+        testutil::SetMutation("foo/bar", Map("a", 1)),
+        testutil::PatchMutation("foo/bar", Map("b", 1), {}),
+        testutil::SetMutation("foo/bar/suffix/key", Map("a", 1)),
+        testutil::SetMutation("foo/baz", Map("a", 1)),
+        testutil::SetMutation("food/bar", Map("a", 1)),
     };
 
     // Store all the mutations.
     std::vector<MutationBatch> batches;
     for (const Mutation& mutation : mutations) {
-      MutationBatch batch = self.mutationQueue->AddMutationBatch(Timestamp::Now(), {}, {mutation});
+      MutationBatch batch =
+          mutation_queue_->AddMutationBatch(Timestamp::Now(), {}, {mutation});
       batches.push_back(batch);
     }
 
     std::vector<MutationBatch> expected = {batches[1], batches[2], batches[4]};
     core::Query query = Query("foo");
     std::vector<MutationBatch> matches =
-        self.mutationQueue->AllMutationBatchesAffectingQuery(query);
+        mutation_queue_->AllMutationBatchesAffectingQuery(query);
 
-    XCTAssertEqual(matches, expected);
+    ASSERT_EQ(matches, expected);
   });
 }
 
-- (void)testRemoveMutationBatches {
-  if ([self isTestBaseClass]) return;
+TEST_P(MutationQueueTest, RemoveMutationBatches) {
+  persistence_->Run("test_remove_mutation_batches", [&] {
+    std::vector<MutationBatch> batches = CreateBatches(10);
 
-  self.persistence->Run("testRemoveMutationBatches", [&]() {
-    std::vector<MutationBatch> batches = [self createBatches:10];
-
-    self.mutationQueue->RemoveMutationBatch(batches[0]);
+    mutation_queue_->RemoveMutationBatch(batches[0]);
     batches.erase(batches.begin());
 
-    XCTAssertEqual([self batchCount], 9);
+    ASSERT_EQ(BatchCount(), 9);
 
     std::vector<MutationBatch> found;
 
-    found = self.mutationQueue->AllMutationBatches();
-    XCTAssertEqual(found, batches);
-    XCTAssertEqual(found.size(), 9);
+    found = mutation_queue_->AllMutationBatches();
+    ASSERT_EQ(found, batches);
+    ASSERT_EQ(found.size(), 9);
 
-    self.mutationQueue->RemoveMutationBatch(batches[0]);
-    self.mutationQueue->RemoveMutationBatch(batches[1]);
-    self.mutationQueue->RemoveMutationBatch(batches[2]);
+    mutation_queue_->RemoveMutationBatch(batches[0]);
+    mutation_queue_->RemoveMutationBatch(batches[1]);
+    mutation_queue_->RemoveMutationBatch(batches[2]);
     batches.erase(batches.begin(), batches.begin() + 3);
-    XCTAssertEqual([self batchCount], 6);
+    ASSERT_EQ(BatchCount(), 6);
 
-    found = self.mutationQueue->AllMutationBatches();
-    XCTAssertEqual(found, batches);
-    XCTAssertEqual(found.size(), 6);
+    found = mutation_queue_->AllMutationBatches();
+    ASSERT_EQ(found, batches);
+    ASSERT_EQ(found.size(), 6);
 
-    self.mutationQueue->RemoveMutationBatch(batches[0]);
+    mutation_queue_->RemoveMutationBatch(batches[0]);
     batches.erase(batches.begin());
-    XCTAssertEqual([self batchCount], 5);
+    ASSERT_EQ(BatchCount(), 5);
 
-    found = self.mutationQueue->AllMutationBatches();
-    XCTAssertEqual(found, batches);
-    XCTAssertEqual(found.size(), 5);
+    found = mutation_queue_->AllMutationBatches();
+    ASSERT_EQ(found, batches);
+    ASSERT_EQ(found.size(), 5);
 
-    self.mutationQueue->RemoveMutationBatch(batches[0]);
+    mutation_queue_->RemoveMutationBatch(batches[0]);
     batches.erase(batches.begin());
-    XCTAssertEqual([self batchCount], 4);
+    ASSERT_EQ(BatchCount(), 4);
 
-    self.mutationQueue->RemoveMutationBatch(batches[0]);
+    mutation_queue_->RemoveMutationBatch(batches[0]);
     batches.erase(batches.begin());
-    XCTAssertEqual([self batchCount], 3);
+    ASSERT_EQ(BatchCount(), 3);
 
-    found = self.mutationQueue->AllMutationBatches();
-    XCTAssertEqual(found, batches);
-    XCTAssertEqual(found.size(), 3);
-    XCTAssertFalse(self.mutationQueue->IsEmpty());
+    found = mutation_queue_->AllMutationBatches();
+    ASSERT_EQ(found, batches);
+    ASSERT_EQ(found.size(), 3);
+    ASSERT_FALSE(mutation_queue_->IsEmpty());
 
     for (const MutationBatch& batch : batches) {
-      self.mutationQueue->RemoveMutationBatch(batch);
+      mutation_queue_->RemoveMutationBatch(batch);
     }
-    found = self.mutationQueue->AllMutationBatches();
-    XCTAssertEqual(found.size(), 0);
-    XCTAssertTrue(self.mutationQueue->IsEmpty());
+    found = mutation_queue_->AllMutationBatches();
+    ASSERT_EQ(found.size(), 0);
+    ASSERT_TRUE(mutation_queue_->IsEmpty());
   });
 }
 
-- (void)testStreamToken {
-  if ([self isTestBaseClass]) return;
+TEST_P(MutationQueueTest, StreamToken) {
+  ByteString stream_token1("token1");
+  ByteString stream_token2("token2");
 
-  ByteString streamToken1("token1");
-  ByteString streamToken2("token2");
+  persistence_->Run("test_stream_token", [&] {
+    mutation_queue_->SetLastStreamToken(stream_token1);
 
-  self.persistence->Run("testStreamToken", [&]() {
-    self.mutationQueue->SetLastStreamToken(streamToken1);
+    MutationBatch batch1 = AddMutationBatch();
+    AddMutationBatch();
 
-    MutationBatch batch1 = [self addMutationBatch];
-    [self addMutationBatch];
+    ASSERT_EQ(mutation_queue_->GetLastStreamToken(), stream_token1);
 
-    XCTAssertEqual(self.mutationQueue->GetLastStreamToken(), streamToken1);
-
-    self.mutationQueue->AcknowledgeBatch(batch1, streamToken2);
-    XCTAssertEqual(self.mutationQueue->GetLastStreamToken(), streamToken2);
+    mutation_queue_->AcknowledgeBatch(batch1, stream_token2);
+    ASSERT_EQ(mutation_queue_->GetLastStreamToken(), stream_token2);
   });
 }
 
 #pragma mark - Helpers
 
-/** Creates a new MutationBatch with the next batch ID and a set of dummy mutations. */
-- (MutationBatch)addMutationBatch {
-  return [self addMutationBatchWithKey:@"foo/bar"];
-}
-
-/**
- * Creates a new MutationBatch with the given key, the next batch ID and a set of dummy
- * mutations.
- */
-- (MutationBatch)addMutationBatchWithKey:(NSString*)key {
-  SetMutation mutation = FSTTestSetMutation(key, @{@"a" : @1});
-
-  MutationBatch batch = self.mutationQueue->AddMutationBatch(Timestamp::Now(), {}, {mutation});
-  return batch;
-}
-
-/**
- * Creates an array of batches containing @a number dummy MutationBatches. Each has a different
- * batchID.
- */
-- (std::vector<MutationBatch>)createBatches:(int)number {
-  std::vector<MutationBatch> batches;
-
-  for (int i = 0; i < number; i++) {
-    MutationBatch batch = [self addMutationBatch];
-    batches.push_back(batch);
-  }
-
-  return batches;
-}
-
-/** Returns the number of mutation batches in the mutation queue. */
-- (size_t)batchCount {
-  return self.mutationQueue->AllMutationBatches().size();
-}
-
-/**
- * Removes the first n entries from the the given batches and returns them.
- *
- * @param n The number of batches to remove.
- * @param batches The array to mutate, removing entries from it.
- * @return A new array containing all the entries that were removed from @a batches.
- */
-- (std::vector<MutationBatch>)removeFirstBatches:(size_t)n
-                                       inBatches:(std::vector<MutationBatch>*)batches {
-  std::vector<MutationBatch> removed(batches->begin(), batches->begin() + n);
-  batches->erase(batches->begin(), batches->begin() + n);
-
-  for (const MutationBatch& batch : removed) {
-    self.mutationQueue->RemoveMutationBatch(batch);
-  }
-  return removed;
-}
-
-@end
-
-NS_ASSUME_NONNULL_END
+}  // namespace local
+}  // namespace firestore
+}  // namespace firebase
