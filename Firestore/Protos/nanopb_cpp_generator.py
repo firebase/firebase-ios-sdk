@@ -29,6 +29,7 @@ import re
 import shlex
 
 from google.protobuf.descriptor_pb2 import FieldDescriptorProto
+from nanopb_pretty_printing import generators as gen
 
 if sys.platform == 'win32':
   import msvcrt  # pylint: disable=g-import-not-at-top
@@ -59,8 +60,8 @@ def main():
   options = nanopb_parse_options(request)
   parsed_files = nanopb_parse_files(request, options)
   results = nanopb_generate(request, options, parsed_files)
-  pretty_printing_info = create_pretty_printers(parsed_files)
-  response = nanopb_write(results, pretty_printing_info)
+  pretty_printing_generators = create_pretty_printing_generators(parsed_files)
+  response = nanopb_write(results, pretty_printing_generators)
 
   # Write to stdout
   io.open(sys.stdout.fileno(), 'wb').write(response.SerializeToString())
@@ -205,14 +206,14 @@ def nanopb_parse_files(request, options):
   return parsed_files
 
 
-def create_pretty_printers(parsed_files):
-  pretty_printing_info = {}
+def create_pretty_printing_generators(parsed_files):
+  pretty_printing_generators = {}
   for name, parsed_file in parsed_files.items():
     base_filename = name.replace('.proto', '')
-    pretty_printing_info[base_filename] = FilePrettyPrintingInfo(parsed_file,
+    pretty_printing_generators[base_filename] = gen.FilePrettyPrintingInfo(parsed_file,
 
                                                                   base_filename)
-  return pretty_printing_info
+  return pretty_printing_generators
 
 
 class FileGenerationRequest:
@@ -226,7 +227,7 @@ class FileGenerationRequest:
     """
     f = self.files.add()
     f.name = self.file_name
-    f.content = self._fixup(contents)
+    f.content = contents
 
 
   def insert(self, insertion_point, to_insert):
@@ -239,18 +240,6 @@ class FileGenerationRequest:
     f.name = self.file_name
     f.insertion_point = insertion_point
     f.content = to_insert
-
-
-  def _fixup(self, file_contents):
-    """Applies fixups to generated Nanopb code.
-
-    This is for changes to the code, as well as additions that cannot be made via
-    insertion points. Current fixups:
-    - rename fields named `delete` to `delete_`, because it's a keyword in C++.
-    """
-
-    delete_keyword = re.compile(r'\bdelete\b')
-    return delete_keyword.sub('delete_', file_contents)
 
 
 def nanopb_generate(request, options, parsed_files):
@@ -285,13 +274,13 @@ def nanopb_generate(request, options, parsed_files):
   return output
 
 
-def nanopb_write(results, pretty_printing_info):
+def nanopb_write(results, pretty_printing_generators):
   """Translates nanopb output dictionaries to a CodeGeneratorResponse.
 
   Args:
     results: A list of generated source dictionaries, as returned by
       nanopb_generate().
-    pretty_printing_info: A dictionary of `FilePrettyPrintingInfo` objects,
+    pretty_printing_generators: A dictionary of `FilePrettyPrintingInfo` objects,
       indexed by short file name (without extension).
 
   Returns:
@@ -302,14 +291,98 @@ def nanopb_write(results, pretty_printing_info):
 
   for result in results:
     base_filename = result['headername'].replace('.nanopb.h', '')
-    file_printer = pretty_printing_info[base_filename]
+    file_printer = pretty_printing_generators[base_filename]
 
     header_request = FileGenerationRequest(response.file, result['headername'])
-    generate_header(header_request, result['headerdata'], file_printer)
+    header_contents = nanopb_fixup(result['headerdata'])
+    header_request.set_contents(header_contents)
+    generate_header(header_request, file_printer)
+
     source_request = FileGenerationRequest(response.file, result['sourcename'])
-    generate_source(source_request, result['sourcedata'], file_printer)
+    source_contents = nanopb_fixup(result['sourcedata'])
+    source_request.set_contents(source_contents)
+    generate_source(source_request, file_printer)
 
   return response
+
+
+def nanopb_fixup(file_contents):
+    """Applies fixups to generated Nanopb code.
+
+    This is for changes to the code, as well as additions that cannot be made via
+    insertion points. Current fixups:
+    - rename fields named `delete` to `delete_`, because it's a keyword in C++.
+    """
+
+    delete_keyword = re.compile(r'\bdelete\b')
+    return delete_keyword.sub('delete_', file_contents)
+
+
+def generate_header(request, file_printer):
+  """Generates `.h` file with given contents, and with pretty-printing support.
+  """
+  request.insert('includes', '#include <string>\n\n')
+
+  open_namespace(request)
+
+  for e in file_printer.enums:
+    request.insert('eof', e.generate_declaration())
+  for m in file_printer.messages:
+    request.insert('struct:' + m.full_classname, declare_tostring())
+
+  close_namespace(request)
+
+
+def declare_tostring():
+  """Creates a declaration of `ToString` member function for each Nanopb class.
+  """
+  return '\n' + gen.indent( 1) + 'std::string ToString(int indent = 0) const;\n'
+
+
+def generate_source(request, file_printer):
+  """Generates `.cc` file with given contents, and with pretty-printing support.
+  """
+  request.insert('includes', '#include "nanopb_pretty_printers.h"\n\n')
+
+  open_namespace(request)
+
+  for e in file_printer.enums:
+    request.insert('eof', e.generate_definition())
+  for m in file_printer.messages:
+    request.insert('eof', define_tostring(m))
+
+  close_namespace(request)
+
+
+def define_tostring(message):
+  """Creates the definition of `ToString` member function for each Nanopb class.
+  """
+  result = '''\
+std::string %s::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "%s", this);
+    std::string result;\n\n''' % (message.full_classname, message.short_classname)
+
+  for field in message.fields:
+    result += str(field)
+
+  can_be_empty = all(f.is_primitive or f.is_repeated for f in message.fields)
+  if can_be_empty:
+    result += '''
+    bool is_root = indent == 0;
+    if (!result.empty() || is_root) {
+      std::string tail = PrintTail(indent);
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}\n\n'''
+  else:
+    result += '''
+    std::string tail = PrintTail(indent);
+    return header + result + tail;
+}\n\n'''
+
+  return result
 
 
 def open_namespace(request):
@@ -326,98 +399,6 @@ def close_namespace(request):
   request.insert('eof', '''\
 }  // namespace firestore
 }  // namespace firebase\n\n''')
-
-
-def indent(level):
-  """Returns leading whitespace corresponding to the given indentation `level`.
-  """
-  indent_per_level = 4
-  return ' ' * (indent_per_level * level)
-
-
-def generate_header(request, file_contents, file_printer):
-  """Generates `.h` file with given contents, and with pretty-printing support.
-  """
-  request.set_contents(file_contents)
-
-  request.insert('includes', '#include <string>\n\n')
-
-  open_namespace(request)
-
-  declare_tostring(request, file_printer.messages)
-  declare_enum_tostring(request, file_printer.enums)
-
-  close_namespace(request)
-
-
-def declare_tostring(request, messages):
-  """Creates a declaration of `ToString` member function for each Nanopb class.
-  """
-  for m in messages:
-    insertion_point = 'struct:' + m.full_classname
-    declaration = '\n' + indent( 1) + 'std::string ToString(int indent = 0) const;\n'
-    request.insert(insertion_point, declaration)
-
-
-def declare_enum_tostring(request, enums):
-  """Creates a declaration of `EnumToString` free function for each enum.
-  """
-  for enum in enums:
-    request.insert('eof', enum.generate_declaration())
-
-
-def generate_source(request, file_contents, file_printer):
-  """Generates `.cc` file with given contents, and with pretty-printing support.
-  """
-  request.set_contents(file_contents)
-
-  request.insert('includes', '#include "nanopb_pretty_printers.h"\n\n')
-
-  open_namespace(request)
-
-  define_enum_tostring(request, file_printer.enums)
-  define_tostring(request, file_printer.messages)
-
-  close_namespace(request)
-
-
-def define_tostring(request, messages):
-  """Creates the definition of `ToString` member function for each Nanopb class.
-  """
-  for m in messages:
-    result = '''\
-std::string %s::ToString(int indent) const {
-    std::string header = PrintHeader(indent, "%s", this);
-    std::string result;\n\n''' % (m.full_classname, m.short_classname)
-
-    for field in m.fields:
-      result += str(field)
-
-    can_be_empty = all(f.is_primitive or f.is_repeated for f in m.fields)
-    if can_be_empty:
-      result += '''
-    bool is_root = indent == 0;
-    if (!result.empty() || is_root) {
-      std::string tail = PrintTail(indent);
-      return header + result + tail;
-    } else {
-      return "";
-    }
-}\n\n'''
-    else:
-      result += '''
-    std::string tail = PrintTail(indent);
-    return header + result + tail;
-}\n\n'''
-
-    request.insert('eof', result)
-
-
-def define_enum_tostring(request, enums):
-  """Creates the definition of `EnumToString` free function for each enum.
-  """
-  for enum in enums:
-    request.insert('eof', enum.generate_definition())
 
 
 if __name__ == '__main__':
