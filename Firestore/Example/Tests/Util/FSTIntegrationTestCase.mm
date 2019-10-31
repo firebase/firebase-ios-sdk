@@ -69,6 +69,7 @@ using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::CreateAutoId;
 using firebase::firestore::util::Path;
 using firebase::firestore::util::Status;
+using firebase::firestore::util::StatusOr;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -143,8 +144,10 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
 
   @synchronized([FSTIntegrationTestCase class]) {
     if (clearedPersistence) return;
+    StatusOr<Path> maybe_dir = LevelDbPersistence::AppDataDirectory();
+    ASSERT_OK(maybe_dir);
 
-    Path levelDBDir = LevelDbPersistence::AppDataDirectory();
+    Path levelDBDir = maybe_dir.ValueOrDie();
     Status status = util::RecursivelyDelete(levelDBDir);
     ASSERT_OK(status);
 
