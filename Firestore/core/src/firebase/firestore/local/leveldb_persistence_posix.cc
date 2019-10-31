@@ -41,8 +41,8 @@ StatusOr<Path> GetHomeDirectory() {
   const char* home_dir = getenv("HOME");
   if (home_dir) return Path::FromUtf8(home_dir);
 
-  struct passwd pwd;
-  struct passwd* result;
+  passwd pwd;
+  passwd* result;
   std::string buffer(sysconf(_SC_GETPW_R_SIZE_MAX), '\0');
   uid_t uid = getuid();
   int rc;
