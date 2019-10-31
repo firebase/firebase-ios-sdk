@@ -217,9 +217,7 @@ def create_pretty_printing_generators(parsed_files):
   pretty_printing_generators = {}
   for name, parsed_file in parsed_files.items():
     base_filename = name.replace('.proto', '')
-    pretty_printing_generators[base_filename] = printing.FilePrettyPrintingGenerator(parsed_file,
-
-                                                                  base_filename)
+    pretty_printing_generators[base_filename] = printing.FilePrettyPrintingGenerator(parsed_file)
   return pretty_printing_generators
 
 
