@@ -21,7 +21,7 @@
 
 @interface GDTCORDatabaseTest : GDTCORTestCase
 
-/** */
+/** An in-memory db created for each unit test. */
 @property(nonatomic) GDTCORDatabase *db;
 
 @end
@@ -41,7 +41,7 @@
   _db = nil;
 }
 
-/** */
+/** Tests instantiating a database. */
 - (void)testInstantiation {
   NSString *dbPath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"test.sqlite3"];
   NSURL *dbFileURL = [NSURL fileURLWithPath:dbPath];
@@ -77,20 +77,20 @@
   XCTAssertNil(error);
 }
 
-/** */
+/** Tests setting and getting the user_version pragma. */
 - (void)testGetAndSetUserVersion {
   XCTAssertEqual(_db.userVersion, 1);
   _db.userVersion = 1337;
   XCTAssertEqual(_db.userVersion, 1337);
 }
 
-/** */
+/** Tests opening and closing a db. */
 - (void)testOpenAndClose {
   XCTAssertTrue([_db close]);
   XCTAssertTrue([_db open]);
 }
 
-/** */
+/** Tests running some statements fails when they're bad and succeeds when they're good. */
 - (void)testRunningSomeStatements {
   XCTAssertFalse([_db runNonQuery:@"" bindings:nil cacheStmt:NO]);
   XCTAssertFalse([_db runNonQuery:@"NOT a STATEMENT" bindings:nil cacheStmt:NO]);
@@ -107,7 +107,7 @@
                        cacheStmt:YES]);
 }
 
-/** */
+/** Tests running valid queries is successful. */
 - (void)testRunningSomeQueries {
   XCTAssertTrue([_db runNonQuery:@"CREATE TABLE \"abc\" (\"some_text\" TEXT);"
                         bindings:nil
