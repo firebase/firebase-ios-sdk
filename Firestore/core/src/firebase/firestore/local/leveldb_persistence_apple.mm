@@ -30,7 +30,7 @@ namespace local {
 using util::Path;
 using util::Status;
 
-Path LevelDbPersistence::AppDataDirectory() {
+StatusOr<Path> LevelDbPersistence::AppDataDirectory() {
 #if TARGET_OS_IOS
   NSArray<NSString*>* directories = NSSearchPathForDirectoriesInDomains(
       NSDocumentDirectory, NSUserDomainMask, YES);
@@ -46,7 +46,8 @@ Path LevelDbPersistence::AppDataDirectory() {
   return Path::FromNSString(NSHomeDirectory()).AppendUtf8(dot_prefixed);
 
 #else
-#error "Don't know where to store documents on this platform."
+  return Status{Error::Internal,
+                "Failed to find the home directory for the current user"};
 
 #endif
 }

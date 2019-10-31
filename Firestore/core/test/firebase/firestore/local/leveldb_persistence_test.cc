@@ -25,13 +25,8 @@ namespace firebase {
 namespace firestore {
 namespace local {
 
-using util::RecursivelyCreateDir;
-using util::RecursivelyDelete;
-
 TEST(LevelDbPersistenceTest, CanFindAppDataDirectory) {
-  const auto& path = LevelDbPersistence::AppDataDirectory();
-  EXPECT_TRUE(RecursivelyCreateDir(path).ok());
-  EXPECT_TRUE(RecursivelyDelete(path).ok());
+  EXPECT_TRUE(LevelDbPersistence::AppDataDirectory().ok());
 }
 
 }  // namespace local

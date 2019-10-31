@@ -20,8 +20,9 @@
 #include "Firestore/core/src/firebase/firestore/util/path.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 
-#if !defined(__APPLE__) && !defined(_WIN32)
+#if !__APPLE__ && !_WIN32
 
+#include <asm-generic/errno-base.h>
 #include <pwd.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -37,50 +38,59 @@ using util::Status;
 using util::StatusOr;
 
 StatusOr<Path> GetHomeDirectory() {
-  if (getenv("HOME") == nullptr) {
-    struct passwd pwd;
-    struct passwd* result;
-    std::string buffer(sysconf(_SC_GETPW_R_SIZE_MAX), '\0');
-    getpwuid_r(getuid(), &pwd, &buffer[0], buffer.size(), &result);
+  const char* home_dir = getenv("HOME");
+  if (home_dir) return Path::FromUtf8(home_dir);
 
-    if (result == nullptr) {
-      return Status(Error::NotFound,
-                    "Failed to find a directory to write LevelDB data files.");
-    }
-    return Path::FromUtf8(pwd.pw_dir);
+  struct passwd pwd;
+  struct passwd* result;
+  std::string buffer(sysconf(_SC_GETPW_R_SIZE_MAX), '\0');
+  uid_t uid = getuid();
+  int rc;
+  do {
+    rc = getpwuid_r(uid, &pwd, &buffer[0], buffer.size(), &result);
+  } while (rc == EINTR);
+
+  if (rc != 0) {
+    return Status::FromErrno(
+        rc, "Failed to find the home directory for the current user");
   }
 
-  return Path::FromUtf8(getenv("HOME"));
+  return Path::FromUtf8(pwd.pw_dir);
 }
 
 StatusOr<Path> GetDataHomeDirectory() {
-  if (getenv("XDG_DATA_HOME") == nullptr) {
-    const Path& home_dir = GetHomeDirectory().ValueOrDie();
-    return home_dir.AppendUtf8(".local/share");
-  }
+  const char* data_home = getenv("XDG_DATA_HOME");
+  if (data_home) return Path::FromUtf8(data_home);
 
-  return Path::FromUtf8(getenv("XDG_DATA_HOME"));
+  StatusOr<Path> maybe_home_dir = GetHomeDirectory();
+  if (!maybe_home_dir.ok()) return maybe_home_dir;
+
+  const Path& home_dir = maybe_home_dir.ValueOrDie();
+  return home_dir.AppendUtf8(".local/share");
 }
 
 }  // namespace
 
-Path LevelDbPersistence::AppDataDirectory() {
-  std::string dot_prefixed = absl::StrCat(".", kReservedPathComponent);
+StatusOr<Path> LevelDbPersistence::AppDataDirectory() {
+#if __linux__ && !__ANDROID__
+  StatusOr<Path> maybe_data_home = GetDataHomeDirectory();
+  if (!maybe_data_home.ok()) return maybe_data_home;
 
-#if defined(__linux__) && !defined(__ANDROID__)
-  const Path& dir = GetDataHomeDirectory().ValueOrDie();
-  return dir.AppendUtf8(dot_prefixed);
+  return maybe_data_home.ValueOrDie().AppendUtf8(kReservedPathComponent);
 
 #else
 
-  const Path& dir = GetHomeDirectory().ValueOrDie();
-  return dir.AppendUtf8(dot_prefixed);
+  StatusOr<Path> maybe_home = GetHomeDirectory();
+  if (!maybe_home.ok()) return maybe_home;
 
-#endif  // defined(__linux__) && !defined(__ANDROID__)
+  std::string dot_prefixed = absl::StrCat(".", kReservedPathComponent);
+  return maybe_home.ValueOrDie().AppendUtf8(dot_prefixed);
+
+#endif  // __linux__ && !__ANDROID__
 }
 
 }  // namespace local
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // !defined(__APPLE__) && !defined(_WIN32)
+#endif  // !__APPLE__ && !_WIN32
