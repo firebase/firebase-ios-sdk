@@ -73,6 +73,7 @@
   sqlite3 *localDB;
   XCTAssertFalse(GDTCORSQLOpenDB(&localDB, @""));
   sqlite3_stmt *stmt;
+  localDB = (sqlite3 *)"garbage";
   // Has a bad table.
   XCTAssertFalse(GDTCORSQLCompileSQL(&stmt, localDB, @"PRAGMA user_version = 456;"));
   // Has bad SQL.
