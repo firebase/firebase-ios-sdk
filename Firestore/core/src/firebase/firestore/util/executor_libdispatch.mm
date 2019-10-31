@@ -135,7 +135,7 @@ class TimeSlot {
     done_ = true;
   }
 
-  static void InvokedByLibdispatch(void* const raw_self);
+  static void InvokedByLibdispatch(void* raw_self);
 
  private:
   void Execute();
@@ -175,7 +175,7 @@ Executor::TaggedOperation TimeSlot::Unschedule() {
   return std::move(tagged_);
 }
 
-void TimeSlot::InvokedByLibdispatch(void* const raw_self) {
+void TimeSlot::InvokedByLibdispatch(void* raw_self) {
   auto const self = static_cast<TimeSlot*>(raw_self);
   self->Execute();
   delete self;
@@ -289,7 +289,7 @@ absl::optional<Executor::TaggedOperation>
 ExecutorLibdispatch::PopFromSchedule() {
   absl::optional<Executor::TaggedOperation> result;
 
-  RunSynchronized(this, [this, &result] {
+  RunSynchronized(this, [this, &result]() -> void {
     if (schedule_.empty()) {
       return;
     }

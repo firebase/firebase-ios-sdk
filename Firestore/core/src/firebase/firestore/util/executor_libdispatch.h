@@ -17,13 +17,14 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_EXECUTOR_LIBDISPATCH_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_EXECUTOR_LIBDISPATCH_H_
 
+#include <dispatch/dispatch.h>
+
 #include <chrono>  // NOLINT(build/c++11)
 #include <functional>
 #include <memory>
 #include <string>
 #include <utility>
 #include <vector>
-#include "dispatch/dispatch.h"
 
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
 #include "absl/strings/string_view.h"
@@ -58,7 +59,7 @@ class TimeSlot;
 class ExecutorLibdispatch : public Executor {
  public:
   explicit ExecutorLibdispatch(dispatch_queue_t dispatch_queue);
-  ~ExecutorLibdispatch();
+  ~ExecutorLibdispatch() override;
 
   bool IsCurrentExecutor() const override;
   std::string CurrentExecutorName() const override;
