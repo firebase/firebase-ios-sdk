@@ -29,6 +29,7 @@ class FilePrettyPrintingGenerator:
 
   def __init__(self, parsed_file, base_filename):
     self.name = base_filename
+
     self.messages = [MessagePrettyPrintingGenerator(m) for m in parsed_file.messages]
     self.enums = [EnumPrettyPrintingGenerator(e) for e in parsed_file.enums]
 
@@ -40,6 +41,7 @@ class MessagePrettyPrintingGenerator:
   def __init__(self, message_desc):
     self.full_classname = str(message_desc.name)
     self._short_classname = message_desc.name.parts[-1]
+
     self._fields = [self._create_field(f, message_desc) for f in message_desc.fields]
     # Make sure fields are printed ordered by tag, for consistency with official
     # proto libraries.
@@ -95,12 +97,10 @@ class FieldPrettyPrintingGenerator:
 
   def __init__(self, field_desc, message_desc):
     self.name = field_desc.name
-
     self.tag = field_desc.tag
 
     self.is_optional = field_desc.rules == 'OPTIONAL' and field_desc.allocation == 'STATIC'
     self.is_repeated = field_desc.rules == 'REPEATED'
-
     self.is_primitive = field_desc.pbtype != 'MESSAGE'
     self.is_enum = field_desc.pbtype in ['ENUM', 'UENUM']
 
