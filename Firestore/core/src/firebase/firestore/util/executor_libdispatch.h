@@ -23,8 +23,8 @@
 #include <functional>
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <utility>
-#include <vector>
 
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
 #include "absl/strings/string_view.h"
@@ -58,6 +58,10 @@ class TimeSlot;
 // a dedicated serial dispatch queue.
 class ExecutorLibdispatch : public Executor {
  public:
+  // An opaque, monotonically increasing identifier for TimeSlots that does
+  // not depend on their address.
+  using TimeSlotId = uint32_t;
+
   explicit ExecutorLibdispatch(dispatch_queue_t dispatch_queue);
   ~ExecutorLibdispatch() override;
 
@@ -70,7 +74,7 @@ class ExecutorLibdispatch : public Executor {
   DelayedOperation Schedule(Milliseconds delay,
                             TaggedOperation&& operation) override;
 
-  void RemoveFromSchedule(const TimeSlot* to_remove);
+  void RemoveFromSchedule(TimeSlotId to_remove);
 
   bool IsScheduled(Tag tag) const override;
   absl::optional<TaggedOperation> PopFromSchedule() override;
@@ -80,10 +84,14 @@ class ExecutorLibdispatch : public Executor {
   }
 
  private:
+  using ScheduleMap = std::unordered_map<TimeSlotId, TimeSlot*>;
+  using ScheduleEntry = ScheduleMap::value_type;
+
   dispatch_queue_t dispatch_queue_;
   // Stores non-owned pointers to `TimeSlot`s.
   // Invariant: if a `TimeSlot` is in `schedule_`, it's a valid pointer.
-  std::vector<TimeSlot*> schedule_;
+  ScheduleMap schedule_;
+  TimeSlotId time_slot_counter_ = 0;
 };
 
 }  // namespace util
