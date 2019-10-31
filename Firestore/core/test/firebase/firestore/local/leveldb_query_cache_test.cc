@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
+#include "Firestore/core/src/firebase/firestore/local/leveldb_query_cache.h"
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
-#include "Firestore/core/src/firebase/firestore/local/leveldb_query_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/persistence.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
@@ -50,8 +50,7 @@ INSTANTIATE_TEST_CASE_P(LevelDbQueryCacheTest,
 
 class LevelDbQueryCacheTest : public QueryCacheTestBase {
  public:
-  LevelDbQueryCacheTest()
-      : QueryCacheTestBase(PersistenceFactory()) {
+  LevelDbQueryCacheTest() : QueryCacheTestBase(PersistenceFactory()) {
   }
 
   LevelDbQueryCache* leveldb_cache() {
@@ -79,8 +78,8 @@ TEST_F(LevelDbQueryCacheTest, MetadataPersistedAcrossRestarts) {
 
   db1->Run("add query data", [&] {
     Query query = testutil::Query("some/path");
-    QueryData query_data(std::move(query), last_target_id, minimum_sequence_number,
-                        QueryPurpose::Listen);
+    QueryData query_data(std::move(query), last_target_id,
+                         minimum_sequence_number, QueryPurpose::Listen);
     query_cache->AddTarget(query_data);
     query_cache->SetLastRemoteSnapshotVersion(last_version);
   });

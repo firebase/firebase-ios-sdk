@@ -89,7 +89,7 @@ class QueryCacheTestBase : public testing::Test {
  *                                testing::Values(PersistenceFactory));
  */
 class QueryCacheTest : public QueryCacheTestBase,
-    public testing::WithParamInterface<FactoryFunc> {
+                       public testing::WithParamInterface<FactoryFunc> {
  public:
   QueryCacheTest();
   ~QueryCacheTest();

@@ -44,12 +44,12 @@ using testutil::ResumeToken;
 using testutil::Version;
 
 QueryCacheTestBase::QueryCacheTestBase(std::unique_ptr<Persistence> persistence)
-  : persistence_(std::move(persistence)),
-    cache_(persistence_->query_cache()),
-    query_rooms_(testutil::Query("rooms")),
-    previous_sequence_number_(1000),
-    previous_target_id_(500),
-    previous_snapshot_version_(100) {
+    : persistence_(std::move(persistence)),
+      cache_(persistence_->query_cache()),
+      query_rooms_(testutil::Query("rooms")),
+      previous_sequence_number_(1000),
+      previous_target_id_(500),
+      previous_snapshot_version_(100) {
 }
 
 QueryCacheTestBase::~QueryCacheTestBase() = default;
@@ -64,10 +64,11 @@ QueryData QueryCacheTestBase::MakeQueryData(Query query) {
                        ++previous_snapshot_version_);
 }
 
-QueryData QueryCacheTestBase::MakeQueryData(Query query,
-                                            TargetId target_id,
-                                            ListenSequenceNumber sequence_number,
-                                            int64_t version) {
+QueryData QueryCacheTestBase::MakeQueryData(
+    Query query,
+    TargetId target_id,
+    ListenSequenceNumber sequence_number,
+    int64_t version) {
   ByteString resume_token = ResumeToken(version);
   return QueryData(std::move(query), target_id, sequence_number,
                    QueryPurpose::Listen, Version(version), resume_token);
@@ -85,9 +86,7 @@ void QueryCacheTestBase::RemoveMatchingKey(const DocumentKey& key,
   cache_->RemoveMatchingKeys(keys, target_id);
 }
 
-
-QueryCacheTest::QueryCacheTest()
-    : QueryCacheTestBase(GetParam()()) {
+QueryCacheTest::QueryCacheTest() : QueryCacheTestBase(GetParam()()) {
 }
 
 // Out of line definition supports unique_ptr to forward declaration.
