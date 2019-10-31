@@ -104,6 +104,10 @@ else
       check_changes '^(GoogleUtilities|GoogleUtilities.podspec)'
       ;;
 
+    GoogleUtilitiesComponents-*)
+      check_changes '^(GoogleUtilitiesComponents|GoogleUtilitiesComponents.podspec)'
+      ;;
+
     InAppMessaging-*)
       check_changes '^(InAppMessaging|Firebase/InAppMessaging)'
       ;;

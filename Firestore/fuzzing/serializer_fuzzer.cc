@@ -17,11 +17,13 @@
 #include <cstddef>
 #include <cstdint>
 
+#include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/message.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/remote/serializer.h"
 
+using firebase::firestore::google_firestore_v1_Value;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::nanopb::Message;
 using firebase::firestore::nanopb::StringReader;
