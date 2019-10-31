@@ -294,18 +294,13 @@ typedef NS_ENUM(int8_t, UpstreamForceReconnect) {
 
   BOOL useRmq = (ttl != 0) && (msgId != nil);
   if (useRmq) {
-    if (!self.client.isConnected) {
-      // do nothing assuming rmq save is enabled
-    }
-
-    NSError *error;
-    if (![self.rmq2Manager saveRmqMessage:stanza error:&error]) {
-      FIRMessagingLoggerDebug(kFIRMessagingMessageCodeDataMessageManager005, @"%@", error);
-      [self willSendDataMessageFail:stanza withMessageId:msgId error:kFIRMessagingErrorSave];
-      return;
-    }
-
-    [self willSendDataMessageSuccess:stanza withMessageId:msgId];
+    [self.rmq2Manager saveRmqMessage:stanza withCompletionHandler:^(BOOL success) {
+      if (!success) {
+        [self willSendDataMessageFail:stanza withMessageId:msgId error:kFIRMessagingErrorSave];
+        return;
+      }
+      [self willSendDataMessageSuccess:stanza withMessageId:msgId];
+    }];
   }
 
   // if delay > 0 we don't really care about sending the message right now
@@ -422,35 +417,31 @@ typedef NS_ENUM(int8_t, UpstreamForceReconnect) {
   NSMutableArray *toRemoveRmqIds = [NSMutableArray array];
   FIRMessaging_WEAKIFY(self);
   FIRMessaging_WEAKIFY(connection);
-  FIRMessagingRmqMessageHandler messageHandler = ^(int64_t rmqId, int8_t tag, NSData *data) {
+
+  [self.rmq2Manager scanWithRmqMessageHandler:^(NSDictionary *messages) {
     FIRMessaging_STRONGIFY(self);
     FIRMessaging_STRONGIFY(connection);
-    GPBMessage *proto =
-        [FIRMessagingGetClassForTag((FIRMessagingProtoTag)tag) parseFromData:data error:NULL];
-    if ([proto isKindOfClass:GtalkDataMessageStanza.class]) {
+    for (NSString *rmqID in messages) {
+      GPBMessage *proto = messages[rmqID];
+      if ([proto isKindOfClass:GtalkDataMessageStanza.class]) {
       GtalkDataMessageStanza *stanza = (GtalkDataMessageStanza *)proto;
-
-      if (![self handleExpirationForDataMessage:stanza]) {
-        // time expired let's delete from RMQ
-        [toRemoveRmqIds addObject:stanza.persistentId];
-        return;
+        if (![self handleExpirationForDataMessage:stanza]) {
+          // time expired let's delete from RMQ
+          [toRemoveRmqIds addObject:stanza.persistentId];
+          continue;
+        }
+        [rmqIdsResent appendString:[NSString stringWithFormat:@"%@,", stanza.id_p]];
       }
-      [rmqIdsResent appendString:[NSString stringWithFormat:@"%@,", stanza.id_p]];
+      [connection sendProto:proto];
     }
-
-    [connection sendProto:proto];
-  };
-  [self.rmq2Manager scanWithRmqMessageHandler:messageHandler
-                           dataMessageHandler:nil];
-
-  if ([rmqIdsResent length]) {
-    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeDataMessageManager012, @"Resent: %@",
-                            rmqIdsResent);
-  }
-
-  if ([toRemoveRmqIds count]) {
-    [self.rmq2Manager removeRmqMessagesWithRmqIds:toRemoveRmqIds];
-  }
+    if ([rmqIdsResent length]) {
+      FIRMessagingLoggerDebug(kFIRMessagingMessageCodeDataMessageManager012, @"Resent: %@",
+                             rmqIdsResent);
+    }
+    if ([toRemoveRmqIds count]) {
+      [self.rmq2Manager removeRmqMessagesWithRmqIds:[toRemoveRmqIds copy]];
+    }
+  }];
 }
 
 /**

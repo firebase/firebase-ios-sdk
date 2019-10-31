@@ -342,6 +342,11 @@ static NSString *const kInvalidSessionInfoErrorMessage = @"INVALID_SESSION_INFO"
  */
 static NSString *const kSessionExpiredErrorMessage = @"SESSION_EXPIRED";
 
+/** @var kMissingOrInvalidNonceErrorMessage
+    @brief This is the error message the server will respond with if the nonce is missing or invalid.
+ */
+static NSString *const kMissingOrInvalidNonceErrorMessage = @"MISSING_OR_INVALID_NONCE";
+
 /** @var kMissingAppTokenErrorMessage
     @brief This is the error message the server will respond with if the APNS token is missing in a
         verifyClient request.
@@ -1174,6 +1179,10 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 
   if ([shortErrorMessage isEqualToString:kCaptchaCheckFailedErrorMessage]) {
     return [FIRAuthErrorUtils captchaCheckFailedErrorWithMessage:serverErrorMessage];
+  }
+
+  if ([shortErrorMessage isEqualToString:kMissingOrInvalidNonceErrorMessage]) {
+    return [FIRAuthErrorUtils missingOrInvalidNonceErrorWithMessage:serverDetailErrorMessage];
   }
 
   // In this case we handle an error that might be specified in the underlying errors dictionary,

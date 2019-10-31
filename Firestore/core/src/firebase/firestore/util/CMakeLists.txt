@@ -230,7 +230,7 @@ cc_library(
 
 configure_file(
   config.h.in
-  config.h
+  config.h  # NOLINT(generated)
 )
 
 cc_library(
