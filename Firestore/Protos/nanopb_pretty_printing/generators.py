@@ -37,19 +37,19 @@ class MessagePrettyPrintingGenerator:
   """Describes how to generate pretty-printing code for this message.
   """
 
-  def __init__(self, message):
-    self.short_classname = message.name.parts[-1]
-    self.full_classname = str(message.name)
-    self.fields = [self._create_field(f, message) for f in message.fields]
+  def __init__(self, message_desc):
+    self.full_classname = str(message_desc.name)
+    self._short_classname = message_desc.name.parts[-1]
+    self._fields = [self._create_field(f, message_desc) for f in message_desc.fields]
     # Make sure fields are printed ordered by tag, for consistency with official
     # proto libraries.
-    self.fields.sort(key=lambda f: f.tag)
+    self._fields.sort(key=lambda f: f.tag)
 
-  def _create_field(self, field, message):
-    if isinstance(field, nanopb.OneOf):
-      return OneOfPrettyPrintingGenerator(field, message)
+  def _create_field(self, field_desc, message_desc):
+    if isinstance(field_desc, nanopb.OneOf):
+      return OneOfPrettyPrintingGenerator(field_desc, message_desc)
     else:
-      return FieldPrettyPrintingGenerator(field, message)
+      return FieldPrettyPrintingGenerator(field_desc, message_desc)
 
 
   def generate_declaration(self):
@@ -64,12 +64,12 @@ class MessagePrettyPrintingGenerator:
     result = '''\
 std::string %s::ToString(int indent) const {
     std::string header = PrintHeader(indent, "%s", this);
-    std::string result;\n\n''' % (self.full_classname, self.short_classname)
+    std::string result;\n\n''' % (self.full_classname, self._short_classname)
 
-    for field in self.fields:
+    for field in self._fields:
       result += str(field)
 
-    can_be_empty = all(f.is_primitive or f.is_repeated for f in self.fields)
+    can_be_empty = all(f.is_primitive or f.is_repeated for f in self._fields)
     if can_be_empty:
       result += '''
     bool is_root = indent == 0;
@@ -93,18 +93,16 @@ class FieldPrettyPrintingGenerator:
   """Describes how to generate pretty-printing code for this field.
   """
 
-  def __init__(self, field, message):
-    self.name = field.name
-    self.full_classname = str(message.name)
+  def __init__(self, field_desc, message_desc):
+    self.name = field_desc.name
 
-    self.tag = field.tag
+    self.tag = field_desc.tag
 
-    self.is_optional = field.rules == 'OPTIONAL' and field.allocation == 'STATIC'
-    self.is_repeated = field.rules == 'REPEATED'
-    self.is_oneof = False
+    self.is_optional = field_desc.rules == 'OPTIONAL' and field_desc.allocation == 'STATIC'
+    self.is_repeated = field_desc.rules == 'REPEATED'
 
-    self.is_primitive = field.pbtype != 'MESSAGE'
-    self.is_enum = field.pbtype in ['ENUM', 'UENUM']
+    self.is_primitive = field_desc.pbtype != 'MESSAGE'
+    self.is_enum = field_desc.pbtype in ['ENUM', 'UENUM']
 
 
   def __str__(self):
@@ -154,7 +152,8 @@ class FieldPrettyPrintingGenerator:
     """Generates a C++ statement that can print the given "leaf" `field`.
 
     Leaf is to indicate that this function is non-recursive. If `field` is
-    a message, it will delegate printing to its `ToString()` member function.
+    a message, the generated code will delegate printing to its `ToString()`
+    member function.
     """
     always_print = 'true' if always_print else 'false'
 
@@ -182,7 +181,7 @@ class FieldPrettyPrintingGenerator:
     if self.is_repeated:
       cc_name += '[i]'
 
-    if parent_oneof and not parent_oneof.is_anonymous:
+    if parent_oneof and not parent_oneof._is_anonymous:
       cc_name = parent_oneof.name + '.' + cc_name
 
     return cc_name
@@ -221,28 +220,28 @@ class FieldPrettyPrintingGenerator:
 class OneOfPrettyPrintingGenerator(FieldPrettyPrintingGenerator):
   """Describes how to generate pretty-printing code for this oneof field.
 
-  Note that all members of the oneof are nested (in `fields` property).
+  Note that all members of the oneof are nested (in `_fields` property).
   """
 
-  def __init__(self, field, message):
-    FieldPrettyPrintingGenerator.__init__(self, field, message)
+  def __init__(self, field_desc, message_desc):
+    FieldPrettyPrintingGenerator.__init__(self, field_desc, message_desc)
 
-    self.is_oneof = True
+    self._full_classname = str(message_desc.name)
 
-    self.which = 'which_' + field.name
-    self.is_anonymous = field.anonymous
-    self.fields = [FieldPrettyPrintingGenerator(f, message) for f in field.fields]
+    self._which = 'which_' + field_desc.name
+    self._is_anonymous = field_desc.anonymous
+    self._fields = [FieldPrettyPrintingGenerator(f, message_desc) for f in field_desc.fields]
 
 
   def __str__(self):
     """Generates a C++ statement that can print the `oneof` field, if it is set.
     """
-    which = self.which
+    which = self._which
     result = '''\
-    switch (%s) {\n''' % (which)
+    switch (%s) {\n''' % which
 
-    for f in self.fields:
-      tag_name = '%s_%s_tag' % (self.full_classname, f.name)
+    for f in self._fields:
+      tag_name = '%s_%s_tag' % (self._full_classname, f.name)
       result += '''\
     case %s:\n''' % tag_name
 
@@ -264,7 +263,7 @@ class EnumPrettyPrintingGenerator:
 
   def __init__(self, enum):
     self.name = str(enum.names)
-    self.members = [str(n) for n in enum.value_longnames]
+    self._members = [str(n) for n in enum.value_longnames]
 
 
   def generate_declaration(self):
@@ -277,7 +276,7 @@ const char* EnumToString(
   %s value) {
     switch (value) {\n''' % (self.name)
 
-    for full_name in self.members:
+    for full_name in self._members:
       short_name = full_name.replace('%s_' % self.name, '')
       result += '''\
     case %s:
