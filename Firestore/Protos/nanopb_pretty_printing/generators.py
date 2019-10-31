@@ -24,16 +24,16 @@ def indent(level):
   return ' ' * (indent_per_level * level)
 
 
-class FilePrettyPrintingInfo:
+class FilePrettyPrintingGenerator:
   """Describes how to generate pretty-printing code for this file."""
 
   def __init__(self, parsed_file, base_filename):
     self.name = base_filename
-    self.messages = [MessagePrettyPrintingInfo(m) for m in parsed_file.messages]
-    self.enums = [EnumPrettyPrintingInfo(e) for e in parsed_file.enums]
+    self.messages = [MessagePrettyPrintingGenerator(m) for m in parsed_file.messages]
+    self.enums = [EnumPrettyPrintingGenerator(e) for e in parsed_file.enums]
 
 
-class MessagePrettyPrintingInfo:
+class MessagePrettyPrintingGenerator:
   """Describes how to generate pretty-printing code for this message.
   """
 
@@ -47,12 +47,49 @@ class MessagePrettyPrintingInfo:
 
   def _create_field(self, field, message):
     if isinstance(field, nanopb.OneOf):
-      return OneOfPrettyPrintingInfo(field, message)
+      return OneOfPrettyPrintingGenerator(field, message)
     else:
-      return FieldPrettyPrintingInfo(field, message)
+      return FieldPrettyPrintingGenerator(field, message)
 
 
-class FieldPrettyPrintingInfo:
+  def generate_declaration(self):
+    """Creates a declaration of `ToString` member function for each Nanopb class.
+    """
+    return '\n' + indent( 1) + 'std::string ToString(int indent = 0) const;\n'
+
+
+  def generate_definition(self):
+    """Creates the definition of `ToString` member function for each Nanopb class.
+    """
+    result = '''\
+std::string %s::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "%s", this);
+    std::string result;\n\n''' % (self.full_classname, self.short_classname)
+
+    for field in self.fields:
+      result += str(field)
+
+    can_be_empty = all(f.is_primitive or f.is_repeated for f in self.fields)
+    if can_be_empty:
+      result += '''
+    bool is_root = indent == 0;
+    if (!result.empty() || is_root) {
+      std::string tail = PrintTail(indent);
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}\n\n'''
+    else:
+      result += '''
+    std::string tail = PrintTail(indent);
+    return header + result + tail;
+}\n\n'''
+
+    return result
+
+
+class FieldPrettyPrintingGenerator:
   """Describes how to generate pretty-printing code for this field.
   """
 
@@ -181,20 +218,20 @@ class FieldPrettyPrintingInfo:
     return format_str % args
 
 
-class OneOfPrettyPrintingInfo(FieldPrettyPrintingInfo):
+class OneOfPrettyPrintingGenerator(FieldPrettyPrintingGenerator):
   """Describes how to generate pretty-printing code for this oneof field.
 
   Note that all members of the oneof are nested (in `fields` property).
   """
 
   def __init__(self, field, message):
-    FieldPrettyPrintingInfo.__init__(self, field, message)
+    FieldPrettyPrintingGenerator.__init__(self, field, message)
 
     self.is_oneof = True
 
     self.which = 'which_' + field.name
     self.is_anonymous = field.anonymous
-    self.fields = [FieldPrettyPrintingInfo(f, message) for f in field.fields]
+    self.fields = [FieldPrettyPrintingGenerator(f, message) for f in field.fields]
 
 
   def __str__(self):
@@ -221,7 +258,7 @@ class OneOfPrettyPrintingInfo(FieldPrettyPrintingInfo):
     return result
 
 
-class EnumPrettyPrintingInfo:
+class EnumPrettyPrintingGenerator:
   """Describes how to generate pretty-printing code for this enum.
   """
 
