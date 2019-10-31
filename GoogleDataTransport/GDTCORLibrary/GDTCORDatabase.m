@@ -305,9 +305,9 @@ static BOOL InstanceExistsForPath(NSString *path) {
   if (_db == NULL && _dbQueue != nil) {
     __block BOOL openedSuccessfully = NO;
     dispatch_sync(_dbQueue, ^{
-      openedSuccessfully = GDTCORSQLOpenDB(&_db, _path ? _path : @":memory:");
+      openedSuccessfully = GDTCORSQLOpenDB(&self->_db, self->_path ? self->_path : @":memory:");
       if (openedSuccessfully) {
-        SetInstanceToFileMap(self, _path, NO);
+        SetInstanceToFileMap(self, self->_path, NO);
       }
     });
     return openedSuccessfully;
@@ -320,10 +320,10 @@ static BOOL InstanceExistsForPath(NSString *path) {
   if (_dbQueue != nil && _db != NULL) {
     __block BOOL closedSuccessfully = NO;
     dispatch_sync(_dbQueue, ^{
-      closedSuccessfully = GDTCORSQLCloseDB(_db);
-      _db = NULL;
+      closedSuccessfully = GDTCORSQLCloseDB(self->_db);
+      self->_db = NULL;
       if (closedSuccessfully) {
-        SetInstanceToFileMap(self, _path, YES);
+        SetInstanceToFileMap(self, self->_path, YES);
       }
     });
     return closedSuccessfully;
@@ -350,7 +350,7 @@ static BOOL InstanceExistsForPath(NSString *path) {
           cacheStmt:(BOOL)cacheStmt {
   __block BOOL returnStatus = NO;
   dispatch_sync(_dbQueue, ^{
-    returnStatus = RunNonQuery(_db, bindings, sql, self->_stmtCache, cacheStmt);
+    returnStatus = RunNonQuery(self->_db, bindings, sql, self->_stmtCache, cacheStmt);
   });
   return returnStatus;
 }
