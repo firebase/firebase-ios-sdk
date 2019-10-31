@@ -28,8 +28,8 @@ cc_test(
     memory_remote_document_cache_test.cc
     persistence_testing.cc
     persistence_testing.h
-    query_cache_test.h
     query_cache_test.cc
+    query_cache_test.h
     reference_set_test.cc
     remote_document_cache_test.cc
     remote_document_cache_test.h

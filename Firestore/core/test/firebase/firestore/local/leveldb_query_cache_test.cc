@@ -31,12 +31,12 @@ namespace firestore {
 namespace local {
 namespace {
 
+using core::Query;
 using model::DocumentKey;
 using model::ListenSequenceNumber;
 using model::SnapshotVersion;
 using model::TargetId;
 using util::Path;
-using testutil::Query;
 
 std::unique_ptr<Persistence> PersistenceFactory() {
   return LevelDbPersistenceForTesting();
@@ -78,7 +78,7 @@ TEST_F(LevelDbQueryCacheTest, MetadataPersistedAcrossRestarts) {
   SnapshotVersion last_version(Timestamp(1, 2));
 
   db1->Run("add query data", [&] {
-    core::Query query = Query("some/path");
+    Query query = testutil::Query("some/path");
     QueryData query_data(std::move(query), last_target_id, minimum_sequence_number,
                         QueryPurpose::Listen);
     query_cache->AddTarget(query_data);
