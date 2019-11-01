@@ -18,7 +18,6 @@ typedef NS_ENUM(NSInteger, Heartbeat) {
   kFIRHeartbeatInfoCombined = 3,
 };
 
-+ (NSURL *)filePathURLWithName:(NSString *)fileName;
 
 + (Heartbeat)getHeartbeatCode:(NSString *)heartbeatTag;
 

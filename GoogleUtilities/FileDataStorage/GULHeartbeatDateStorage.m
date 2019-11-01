@@ -16,6 +16,7 @@
 
 #import "GULHeartbeatDateStorage.h"
 #import <GoogleUtilities/GULSecureCoding.h>
+#import <GoogleUtilities/GULLogger.h>
 
 @interface GULHeartbeatDateStorage ()
 @property(nonatomic, readonly) NSURL *fileURL;
@@ -35,6 +36,38 @@
 
   return self;
 }
+
+/** Returns the URL path of the file with name fileName under the Application Support folder for
+ * local logging. Creates the Application Support folder if the folder doesn't exist.
+ *
+ * @return the URL path of the file with the name fileName in Application Support.
+ */
++ (NSURL *)filePathURLWithName:(NSString *)fileName {
+  /** The logger service string to use when printing to the console. */
+  GULLoggerService kGULHeartbeatDateStorage = @"GULHeartbeatDateStorage";
+  @synchronized(self) {
+    NSArray<NSString *> *paths =
+    NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
+    NSArray<NSString *> *components = @[ paths.lastObject, @"Google/FIRApp" ];
+    NSString *directoryString = [NSString pathWithComponents:components];
+    NSURL *directoryURL = [NSURL fileURLWithPath:directoryString];
+
+    NSError *error;
+    if (![directoryURL checkResourceIsReachableAndReturnError:&error]) {
+      // If fail creating the Application Support directory, return nil.
+      if (![[NSFileManager defaultManager] createDirectoryAtURL:directoryURL
+                                    withIntermediateDirectories:YES
+                                                     attributes:nil
+                                                          error:&error]) {
+        GULLogWarning(kGULHeartbeatDateStorage, YES, @"I-COR100001",
+                      @"Unable to create internal state storage: %@", error);
+        return nil;
+      }
+    }
+    return [directoryURL URLByAppendingPathComponent:fileName];
+  }
+}
+
 
 - (nullable NSMutableDictionary *)heartbeatDictionary {
   NSError *error;

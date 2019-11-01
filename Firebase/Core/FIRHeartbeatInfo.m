@@ -11,43 +11,11 @@
 
 @implementation FIRHeartbeatInfo : NSObject
 
-/** The logger service string to use when printing to the console. */
-static GULLoggerService kFIRHeartbeatInfo = @"FIRHeartbeatInfo";
-
-/** Returns the URL path of the file with name fileName under the Application Support folder for
- * local logging. Creates the Application Support folder if the folder doesn't exist.
- *
- * @return the URL path of the file with the name fileName in Application Support.
- */
-+ (NSURL *)filePathURLWithName:(NSString *)fileName {
-  @synchronized(self) {
-    NSArray<NSString *> *paths =
-        NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
-    NSArray<NSString *> *components = @[ paths.lastObject, @"Google/FIRApp" ];
-    NSString *directoryString = [NSString pathWithComponents:components];
-    NSURL *directoryURL = [NSURL fileURLWithPath:directoryString];
-
-    NSError *error;
-    if (![directoryURL checkResourceIsReachableAndReturnError:&error]) {
-      // If fail creating the Application Support directory, return nil.
-      if (![[NSFileManager defaultManager] createDirectoryAtURL:directoryURL
-                                    withIntermediateDirectories:YES
-                                                     attributes:nil
-                                                          error:&error]) {
-        GULLogWarning(kFIRHeartbeatInfo, YES, @"I-COR100001",
-                      @"Unable to create internal state storage: %@", error);
-        return nil;
-      }
-    }
-    return [directoryURL URLByAppendingPathComponent:fileName];
-  }
-}
-
 + (BOOL)getOrUpdateHeartbeat:(NSString *)prefKey {
   @synchronized(self) {
     NSString *const kHeartbeatStorageFile = @"HEARTBEAT_INFO_STORAGE";
     GULHeartbeatDateStorage *dataStorage = [[GULHeartbeatDateStorage alloc]
-        initWithFileURL:[[self class] filePathURLWithName:kHeartbeatStorageFile]];
+        initWithFileURL:[GULHeartbeatDateStorage filePathURLWithName:kHeartbeatStorageFile]];
     NSDate *heartbeatTime = [dataStorage heartbeatDateForTag:prefKey];
     NSDate *currentDate = [NSDate date];
     if (heartbeatTime != nil) {

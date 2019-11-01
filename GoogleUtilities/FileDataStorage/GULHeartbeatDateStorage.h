@@ -29,6 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
  * exist, it will be created if needed.
  */
 - (instancetype)initWithFileURL:(NSURL *)fileURL;
++ (NSURL *)filePathURLWithName:(NSString *)fileName;
 
 - (nullable NSDate *)heartbeatDateForTag:(NSString *)tag;
 
