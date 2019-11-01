@@ -29,27 +29,27 @@
 }
 
 - (void)testCombinedHeartbeat {
-  Heartbeat heartbeatCode = [FIRHeartbeatInfo getHeartbeatCode:@"fire-iid"];
-  XCTAssertEqual(heartbeatCode, kFIRHeartbeatInfoCodeCombined);
+  FIRHeartbeatInfoCode heartbeatCode = [FIRHeartbeatInfo getHeartbeatCode:@"fire-iid"];
+  XCTAssertEqual(heartbeatCode, FIRHeartbeatInfoCodeCombined);
 }
 
 - (void)testSdkOnlyHeartbeat {
   [self.dataStorage setHearbeatDate:[NSDate date] forTag:@"GLOBAL"];
-  Heartbeat heartbeatCode = [FIRHeartbeatInfo getHeartbeatCode:@"fire-iid"];
-  XCTAssertEqual(heartbeatCode, kFirh);
+  FIRHeartbeatInfoCode heartbeatCode = [FIRHeartbeatInfo getHeartbeatCode:@"fire-iid"];
+  XCTAssertEqual(heartbeatCode, FIRHeartbeatInfoCodeSdk);
 }
 
 - (void)testGlobalOnlyHeartbeat {
   [self.dataStorage setHearbeatDate:[NSDate date] forTag:@"fire-iid"];
-  Heartbeat heartbeatCode = [FIRHeartbeatInfo getHeartbeatCode:@"fire-iid"];
-  XCTAssertEqual(heartbeatCode, kFIRHeartbeatInfoGlobal);
+  FIRHeartbeatInfoCode heartbeatCode = [FIRHeartbeatInfo getHeartbeatCode:@"fire-iid"];
+  XCTAssertEqual(heartbeatCode, FIRHeartbeatInfoCodeGlobal);
 }
 
 - (void)testNoHeartbeat {
   [self.dataStorage setHearbeatDate:[NSDate date] forTag:@"fire-iid"];
   [self.dataStorage setHearbeatDate:[NSDate date] forTag:@"GLOBAL"];
-  Heartbeat heartbeatCode = [FIRHeartbeatInfo getHeartbeatCode:@"fire-iid"];
-  XCTAssertEqual(heartbeatCode, kFIRHeartbeatInfoNone);
+  FIRHeartbeatInfoCode heartbeatCode = [FIRHeartbeatInfo getHeartbeatCode:@"fire-iid"];
+  XCTAssertEqual(heartbeatCode, FIRHeartbeatInfoCodeNone);
 }
 
 @end
