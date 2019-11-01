@@ -74,9 +74,8 @@ class LevelDbPersistence : public Persistence {
    * @return A storage directory unique to the instance identified by
    *     `database_info`.
    */
-  static util::Path StorageDirectory(
-      const core::DatabaseInfo& database_info,
-      const util::StatusOr<util::Path>& documents_dir);
+  static util::Path StorageDirectory(const core::DatabaseInfo& database_info,
+                                     const util::Path& documents_dir);
 
   LevelDbTransaction* current_transaction();
 

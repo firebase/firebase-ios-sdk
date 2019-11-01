@@ -22,10 +22,11 @@
 
 #if !__APPLE__ && !_WIN32
 
-#include <asm-generic/errno-base.h>
 #include <pwd.h>
 #include <sys/types.h>
 #include <unistd.h>
+
+#include <cerrno>
 #include <cstdlib>
 
 namespace firebase {

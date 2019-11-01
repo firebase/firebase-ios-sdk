@@ -47,8 +47,7 @@ StatusOr<Path> LevelDbPersistence::AppDataDirectory() {
   return Path::FromNSString(NSHomeDirectory()).AppendUtf8(dot_prefixed);
 
 #else
-  return Status{Error::Internal,
-                "Failed to find the home directory for the current user"};
+#error "Don't know where to store documents on this platform."
 
 #endif
 }

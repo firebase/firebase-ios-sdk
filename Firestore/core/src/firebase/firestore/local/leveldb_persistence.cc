@@ -123,8 +123,7 @@ LevelDbPersistence::LevelDbPersistence(std::unique_ptr<leveldb::DB> db,
 // MARK: - Storage location
 
 util::Path LevelDbPersistence::StorageDirectory(
-    const core::DatabaseInfo& database_info,
-    const util::StatusOr<util::Path>& documents_dir) {
+    const core::DatabaseInfo& database_info, const util::Path& documents_dir) {
   // Use two different path formats:
   //
   //   * persistence_key / project_id . database_id / name
@@ -138,12 +137,9 @@ util::Path LevelDbPersistence::StorageDirectory(
                     database_info.database_id().database_id());
   }
 
-  HARD_ASSERT(documents_dir.ok(),
-              "Cannot find the data directory for current user.");
-
   // Reserve one additional path component to allow multiple physical databases
-  return Path::JoinUtf8(documents_dir.ValueOrDie(),
-                        database_info.persistence_key(), project_key, "main");
+  return Path::JoinUtf8(documents_dir, database_info.persistence_key(),
+                        project_key, "main");
 }
 
 // MARK: - Startup
@@ -193,7 +189,12 @@ LevelDbTransaction* LevelDbPersistence::current_transaction() {
 
 util::Status LevelDbPersistence::ClearPersistence(
     const core::DatabaseInfo& database_info) {
-  Path leveldb_dir = StorageDirectory(database_info, AppDataDirectory());
+  const StatusOr<Path>& maybe_data_dir = AppDataDirectory();
+  HARD_ASSERT(maybe_data_dir.ok(),
+              "Failed to find the App data directory for the current user.");
+
+  Path leveldb_dir =
+      StorageDirectory(database_info, maybe_data_dir.ValueOrDie());
   LOG_DEBUG("Clearing persistence for path: %s", leveldb_dir.ToUtf8String());
   return util::RecursivelyDelete(leveldb_dir);
 }
