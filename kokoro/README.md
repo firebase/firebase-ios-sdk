@@ -21,9 +21,22 @@ Kokoro-only testing components that are shared between jobs should go into the
 `shared` directory. Other shared scripts should go into the `scripts` directory
 located at the root of the repository.
 
-## Adding a kokoro job
+### Adding a kokoro job
 
 Each cfg file in the prod kokoro configuration directory (or any subdirectories)
 is a distinct job. To add a new job, submit a CL with your new cfg file in
 google3 and then submit a PR to this repository with a corresponding test script
 in this directory. See the google-internal Firebase iOS docs for more details.
+
+### Manually triggering kokoro jobs
+
+Before GitHub webhooks are set up, you may need to manually trigger a job to test
+if it's configured properly. To do this, you must
+* Go to the TestFusion dashboard and search for `firebase-ios-sdk` to get a list
+  of jobs for this repository.
+* Select the job you want to build.
+* For continuous integration jobs, press the "trigger build" button.
+* For presubmit jobs, press the "trigger build" button and fill out the GitHub SCM.
+  * The SCM name parameter should always be `firebase-ios-sdk`.
+  * The pull request number parameter should correspond to whichever pull request
+    you wish to build in GitHub.
