@@ -28,22 +28,22 @@
   }
 }
 
-+ (enum Heartbeat)getHeartbeatCode:(NSString *)heartbeatTag {
++ (enum FIRHeartbeatInfoCode)getHeartbeatCode:(NSString *)heartbeatTag {
   NSString *globalTag = @"GLOBAL";
   BOOL isSdkHeartbeatNeeded = [FIRHeartbeatInfo getOrUpdateHeartbeat:heartbeatTag];
   BOOL isGlobalHeartbeatNeeded = [FIRHeartbeatInfo getOrUpdateHeartbeat:globalTag];
   if (!isSdkHeartbeatNeeded && !isGlobalHeartbeatNeeded) {
     // Both sdk and global heartbeat not needed.
-    return kFIRHeartbeatInfoNone;
+    return FIRHeartbeatInfoCodeNone;
   } else if (isSdkHeartbeatNeeded && !isGlobalHeartbeatNeeded) {
     // Only SDK heartbeat needed.
-    return kFIRHeartbeatInfoSdk;
+    return FIRHeartbeatInfoCodeSdk;
   } else if (!isSdkHeartbeatNeeded && isGlobalHeartbeatNeeded) {
     // Only global heartbeat needed.
-    return kFIRHeartbeatInfoGlobal;
+    return FIRHeartbeatInfoCodeGlobal;
   } else {
     // Both sdk and global heartbeat are needed.
-    return kFIRHeartbeatInfoCombined;
+    return FIRHeartbeatInfoCodeNone;
   }
 }
 @end
