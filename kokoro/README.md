@@ -14,7 +14,7 @@ for builds that do not target Apple platforms. Presubmit jobs should go into
 the `pull_request` directory and should be marked as `PRESUBMIT_GITHUB`.
 Postsubmit jobs should be marked as `CONTINUOUS_INTEGRATION`. Each job can specify
 the build script it invokes and additional environment variables that kokoro
-should provide. For a full list of capabilities, see the kokoro docs 
+should provide. For a full list of capabilities, see the kokoro docs
 (Google-internal).
 
 ## Adding a kokoro job
