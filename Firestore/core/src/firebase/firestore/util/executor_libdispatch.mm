@@ -263,7 +263,7 @@ DelayedOperation ExecutorLibdispatch::Schedule(const Milliseconds delay,
   TimeSlot* time_slot = nullptr;
   TimeSlotId time_slot_id = 0;
   RunSynchronized(this, [this, delay, &operation, &time_slot, &time_slot_id] {
-    time_slot_id = time_slot_counter_++;
+    time_slot_id = NextId();
     time_slot = new TimeSlot{this, delay, std::move(operation), time_slot_id};
     schedule_[time_slot_id] = time_slot;
   });
@@ -272,9 +272,10 @@ DelayedOperation ExecutorLibdispatch::Schedule(const Milliseconds delay,
                    TimeSlot::InvokedByLibdispatch);
 
   return DelayedOperation{[this, time_slot_id] {
-    // `time_slot` might be destroyed by the time cancellation function runs.
-    // Therefore, don't access any methods on `time_slot`, only use it as
-    // a handle to remove from `schedule_`.
+    // `time_slot` might have been destroyed by the time cancellation function
+    // runs, in which case it's guaranteed to have been removed from the
+    // schedule_. If the `time_slot_id` refers to a slot that has been removed,
+    // the call to `RemoveFromSchedule` will be a no-op.
     RemoveFromSchedule(time_slot_id);
   }};
 }
@@ -324,6 +325,14 @@ ExecutorLibdispatch::PopFromSchedule() {
   });
 
   return result;
+}
+
+ExecutorLibdispatch::TimeSlotId ExecutorLibdispatch::NextId() {
+  // The wrap around after ~4 billion operations is explicitly ignored. Even if
+  // an instance of `ExecutorLibdispatch` runs long enough to get `current_id_`
+  // to overflow, it's extremely unlikely that any object still holds a
+  // reference that is old enough to cause a conflict.
+  return current_id_++;
 }
 
 // MARK: - Executor

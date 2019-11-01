@@ -87,11 +87,13 @@ class ExecutorLibdispatch : public Executor {
   using ScheduleMap = std::unordered_map<TimeSlotId, TimeSlot*>;
   using ScheduleEntry = ScheduleMap::value_type;
 
+  TimeSlotId NextId();
+
   dispatch_queue_t dispatch_queue_;
   // Stores non-owned pointers to `TimeSlot`s.
   // Invariant: if a `TimeSlot` is in `schedule_`, it's a valid pointer.
   ScheduleMap schedule_;
-  TimeSlotId time_slot_counter_ = 0;
+  TimeSlotId current_id_ = 0;
 };
 
 }  // namespace util
