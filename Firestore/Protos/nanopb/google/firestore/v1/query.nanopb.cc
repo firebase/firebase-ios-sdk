@@ -19,7 +19,7 @@
 
 #include "query.nanopb.h"
 
-#include "nanopb_pretty_printers.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/pretty_printing.h"
 
 namespace firebase {
 namespace firestore {
@@ -193,12 +193,7 @@ const char* EnumToString(
 }
 
 std::string google_firestore_v1_StructuredQuery::ToString(int indent) const {
-    bool is_root = indent == 0;
-    if (is_root) {
-        indent = 1;
-    }
-
-    std::string header = PrintHeader(is_root, "StructuredQuery", this);
+    std::string header = PrintHeader(indent, "StructuredQuery", this);
     std::string result;
 
     result += PrintMessageField("select ", select, indent + 1, false);
@@ -217,17 +212,12 @@ std::string google_firestore_v1_StructuredQuery::ToString(int indent) const {
     result += PrintMessageField("start_at ", start_at, indent + 1, false);
     result += PrintMessageField("end_at ", end_at, indent + 1, false);
 
-    std::string tail = PrintTail(is_root, indent);
+    std::string tail = PrintTail(indent);
     return header + result + tail;
 }
 
 std::string google_firestore_v1_StructuredQuery_CollectionSelector::ToString(int indent) const {
-    bool is_root = indent == 0;
-    if (is_root) {
-        indent = 1;
-    }
-
-    std::string header = PrintHeader(is_root, "CollectionSelector", this);
+    std::string header = PrintHeader(indent, "CollectionSelector", this);
     std::string result;
 
     result += PrintPrimitiveField("collection_id: ",
@@ -235,8 +225,9 @@ std::string google_firestore_v1_StructuredQuery_CollectionSelector::ToString(int
     result += PrintPrimitiveField("all_descendants: ",
         all_descendants, indent + 1, false);
 
+    bool is_root = indent == 0;
     if (!result.empty() || is_root) {
-      std::string tail = PrintTail(is_root, indent);
+      std::string tail = PrintTail(indent);
       return header + result + tail;
     } else {
       return "";
@@ -244,12 +235,7 @@ std::string google_firestore_v1_StructuredQuery_CollectionSelector::ToString(int
 }
 
 std::string google_firestore_v1_StructuredQuery_Filter::ToString(int indent) const {
-    bool is_root = indent == 0;
-    if (is_root) {
-        indent = 1;
-    }
-
-    std::string header = PrintHeader(is_root, "Filter", this);
+    std::string header = PrintHeader(indent, "Filter", this);
     std::string result;
 
     switch (which_filter_type) {
@@ -267,8 +253,9 @@ std::string google_firestore_v1_StructuredQuery_Filter::ToString(int indent) con
         break;
     }
 
+    bool is_root = indent == 0;
     if (!result.empty() || is_root) {
-      std::string tail = PrintTail(is_root, indent);
+      std::string tail = PrintTail(indent);
       return header + result + tail;
     } else {
       return "";
@@ -276,12 +263,7 @@ std::string google_firestore_v1_StructuredQuery_Filter::ToString(int indent) con
 }
 
 std::string google_firestore_v1_StructuredQuery_CompositeFilter::ToString(int indent) const {
-    bool is_root = indent == 0;
-    if (is_root) {
-        indent = 1;
-    }
-
-    std::string header = PrintHeader(is_root, "CompositeFilter", this);
+    std::string header = PrintHeader(indent, "CompositeFilter", this);
     std::string result;
 
     result += PrintEnumField("op: ", op, indent + 1, false);
@@ -289,8 +271,9 @@ std::string google_firestore_v1_StructuredQuery_CompositeFilter::ToString(int in
         result += PrintMessageField("filters ", filters[i], indent + 1, true);
     }
 
+    bool is_root = indent == 0;
     if (!result.empty() || is_root) {
-      std::string tail = PrintTail(is_root, indent);
+      std::string tail = PrintTail(indent);
       return header + result + tail;
     } else {
       return "";
@@ -298,29 +281,19 @@ std::string google_firestore_v1_StructuredQuery_CompositeFilter::ToString(int in
 }
 
 std::string google_firestore_v1_StructuredQuery_FieldFilter::ToString(int indent) const {
-    bool is_root = indent == 0;
-    if (is_root) {
-        indent = 1;
-    }
-
-    std::string header = PrintHeader(is_root, "FieldFilter", this);
+    std::string header = PrintHeader(indent, "FieldFilter", this);
     std::string result;
 
     result += PrintMessageField("field ", field, indent + 1, false);
     result += PrintEnumField("op: ", op, indent + 1, false);
     result += PrintMessageField("value ", value, indent + 1, false);
 
-    std::string tail = PrintTail(is_root, indent);
+    std::string tail = PrintTail(indent);
     return header + result + tail;
 }
 
 std::string google_firestore_v1_StructuredQuery_UnaryFilter::ToString(int indent) const {
-    bool is_root = indent == 0;
-    if (is_root) {
-        indent = 1;
-    }
-
-    std::string header = PrintHeader(is_root, "UnaryFilter", this);
+    std::string header = PrintHeader(indent, "UnaryFilter", this);
     std::string result;
 
     result += PrintEnumField("op: ", op, indent + 1, false);
@@ -330,8 +303,9 @@ std::string google_firestore_v1_StructuredQuery_UnaryFilter::ToString(int indent
         break;
     }
 
+    bool is_root = indent == 0;
     if (!result.empty() || is_root) {
-      std::string tail = PrintTail(is_root, indent);
+      std::string tail = PrintTail(indent);
       return header + result + tail;
     } else {
       return "";
@@ -339,35 +313,26 @@ std::string google_firestore_v1_StructuredQuery_UnaryFilter::ToString(int indent
 }
 
 std::string google_firestore_v1_StructuredQuery_Order::ToString(int indent) const {
-    bool is_root = indent == 0;
-    if (is_root) {
-        indent = 1;
-    }
-
-    std::string header = PrintHeader(is_root, "Order", this);
+    std::string header = PrintHeader(indent, "Order", this);
     std::string result;
 
     result += PrintMessageField("field ", field, indent + 1, false);
     result += PrintEnumField("direction: ", direction, indent + 1, false);
 
-    std::string tail = PrintTail(is_root, indent);
+    std::string tail = PrintTail(indent);
     return header + result + tail;
 }
 
 std::string google_firestore_v1_StructuredQuery_FieldReference::ToString(int indent) const {
-    bool is_root = indent == 0;
-    if (is_root) {
-        indent = 1;
-    }
-
-    std::string header = PrintHeader(is_root, "FieldReference", this);
+    std::string header = PrintHeader(indent, "FieldReference", this);
     std::string result;
 
     result += PrintPrimitiveField("field_path: ",
         field_path, indent + 1, false);
 
+    bool is_root = indent == 0;
     if (!result.empty() || is_root) {
-      std::string tail = PrintTail(is_root, indent);
+      std::string tail = PrintTail(indent);
       return header + result + tail;
     } else {
       return "";
@@ -375,20 +340,16 @@ std::string google_firestore_v1_StructuredQuery_FieldReference::ToString(int ind
 }
 
 std::string google_firestore_v1_StructuredQuery_Projection::ToString(int indent) const {
-    bool is_root = indent == 0;
-    if (is_root) {
-        indent = 1;
-    }
-
-    std::string header = PrintHeader(is_root, "Projection", this);
+    std::string header = PrintHeader(indent, "Projection", this);
     std::string result;
 
     for (pb_size_t i = 0; i != fields_count; ++i) {
         result += PrintMessageField("fields ", fields[i], indent + 1, true);
     }
 
+    bool is_root = indent == 0;
     if (!result.empty() || is_root) {
-      std::string tail = PrintTail(is_root, indent);
+      std::string tail = PrintTail(indent);
       return header + result + tail;
     } else {
       return "";
@@ -396,12 +357,7 @@ std::string google_firestore_v1_StructuredQuery_Projection::ToString(int indent)
 }
 
 std::string google_firestore_v1_Cursor::ToString(int indent) const {
-    bool is_root = indent == 0;
-    if (is_root) {
-        indent = 1;
-    }
-
-    std::string header = PrintHeader(is_root, "Cursor", this);
+    std::string header = PrintHeader(indent, "Cursor", this);
     std::string result;
 
     for (pb_size_t i = 0; i != values_count; ++i) {
@@ -409,8 +365,9 @@ std::string google_firestore_v1_Cursor::ToString(int indent) const {
     }
     result += PrintPrimitiveField("before: ", before, indent + 1, false);
 
+    bool is_root = indent == 0;
     if (!result.empty() || is_root) {
-      std::string tail = PrintTail(is_root, indent);
+      std::string tail = PrintTail(indent);
       return header + result + tail;
     } else {
       return "";

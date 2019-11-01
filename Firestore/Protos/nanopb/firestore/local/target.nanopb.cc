@@ -19,7 +19,7 @@
 
 #include "target.nanopb.h"
 
-#include "nanopb_pretty_printers.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/pretty_printing.h"
 
 namespace firebase {
 namespace firestore {
@@ -75,12 +75,7 @@ PB_STATIC_ASSERT((pb_membersize(firestore_client_Target, query) < 256 && pb_memb
 
 
 std::string firestore_client_Target::ToString(int indent) const {
-    bool is_root = indent == 0;
-    if (is_root) {
-        indent = 1;
-    }
-
-    std::string header = PrintHeader(is_root, "Target", this);
+    std::string header = PrintHeader(indent, "Target", this);
     std::string result;
 
     result += PrintPrimitiveField("target_id: ", target_id, indent + 1, false);
@@ -99,17 +94,12 @@ std::string firestore_client_Target::ToString(int indent) const {
         break;
     }
 
-    std::string tail = PrintTail(is_root, indent);
+    std::string tail = PrintTail(indent);
     return header + result + tail;
 }
 
 std::string firestore_client_TargetGlobal::ToString(int indent) const {
-    bool is_root = indent == 0;
-    if (is_root) {
-        indent = 1;
-    }
-
-    std::string header = PrintHeader(is_root, "TargetGlobal", this);
+    std::string header = PrintHeader(indent, "TargetGlobal", this);
     std::string result;
 
     result += PrintPrimitiveField("highest_target_id: ",
@@ -121,7 +111,7 @@ std::string firestore_client_TargetGlobal::ToString(int indent) const {
     result += PrintPrimitiveField("target_count: ",
         target_count, indent + 1, false);
 
-    std::string tail = PrintTail(is_root, indent);
+    std::string tail = PrintTail(indent);
     return header + result + tail;
 }
 

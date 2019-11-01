@@ -19,7 +19,7 @@
 
 #include "struct.nanopb.h"
 
-#include "nanopb_pretty_printers.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/pretty_printing.h"
 
 namespace firebase {
 namespace firestore {
@@ -94,20 +94,16 @@ const char* EnumToString(
 }
 
 std::string google_protobuf_Struct::ToString(int indent) const {
-    bool is_root = indent == 0;
-    if (is_root) {
-        indent = 1;
-    }
-
-    std::string header = PrintHeader(is_root, "Struct", this);
+    std::string header = PrintHeader(indent, "Struct", this);
     std::string result;
 
     for (pb_size_t i = 0; i != fields_count; ++i) {
         result += PrintMessageField("fields ", fields[i], indent + 1, true);
     }
 
+    bool is_root = indent == 0;
     if (!result.empty() || is_root) {
-      std::string tail = PrintTail(is_root, indent);
+      std::string tail = PrintTail(indent);
       return header + result + tail;
     } else {
       return "";
@@ -115,28 +111,18 @@ std::string google_protobuf_Struct::ToString(int indent) const {
 }
 
 std::string google_protobuf_Struct_FieldsEntry::ToString(int indent) const {
-    bool is_root = indent == 0;
-    if (is_root) {
-        indent = 1;
-    }
-
-    std::string header = PrintHeader(is_root, "FieldsEntry", this);
+    std::string header = PrintHeader(indent, "FieldsEntry", this);
     std::string result;
 
     result += PrintPrimitiveField("key: ", key, indent + 1, false);
     result += PrintMessageField("value ", value, indent + 1, false);
 
-    std::string tail = PrintTail(is_root, indent);
+    std::string tail = PrintTail(indent);
     return header + result + tail;
 }
 
 std::string google_protobuf_Value::ToString(int indent) const {
-    bool is_root = indent == 0;
-    if (is_root) {
-        indent = 1;
-    }
-
-    std::string header = PrintHeader(is_root, "Value", this);
+    std::string header = PrintHeader(indent, "Value", this);
     std::string result;
 
     switch (which_kind) {
@@ -165,8 +151,9 @@ std::string google_protobuf_Value::ToString(int indent) const {
         break;
     }
 
+    bool is_root = indent == 0;
     if (!result.empty() || is_root) {
-      std::string tail = PrintTail(is_root, indent);
+      std::string tail = PrintTail(indent);
       return header + result + tail;
     } else {
       return "";
@@ -174,20 +161,16 @@ std::string google_protobuf_Value::ToString(int indent) const {
 }
 
 std::string google_protobuf_ListValue::ToString(int indent) const {
-    bool is_root = indent == 0;
-    if (is_root) {
-        indent = 1;
-    }
-
-    std::string header = PrintHeader(is_root, "ListValue", this);
+    std::string header = PrintHeader(indent, "ListValue", this);
     std::string result;
 
     for (pb_size_t i = 0; i != values_count; ++i) {
         result += PrintMessageField("values ", values[i], indent + 1, true);
     }
 
+    bool is_root = indent == 0;
     if (!result.empty() || is_root) {
-      std::string tail = PrintTail(is_root, indent);
+      std::string tail = PrintTail(indent);
       return header + result + tail;
     } else {
       return "";

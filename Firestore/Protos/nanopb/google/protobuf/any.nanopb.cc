@@ -19,7 +19,7 @@
 
 #include "any.nanopb.h"
 
-#include "nanopb_pretty_printers.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/pretty_printing.h"
 
 namespace firebase {
 namespace firestore {
@@ -39,19 +39,15 @@ const pb_field_t google_protobuf_Any_fields[3] = {
 
 
 std::string google_protobuf_Any::ToString(int indent) const {
-    bool is_root = indent == 0;
-    if (is_root) {
-        indent = 1;
-    }
-
-    std::string header = PrintHeader(is_root, "Any", this);
+    std::string header = PrintHeader(indent, "Any", this);
     std::string result;
 
     result += PrintPrimitiveField("type_url: ", type_url, indent + 1, false);
     result += PrintPrimitiveField("value: ", value, indent + 1, false);
 
+    bool is_root = indent == 0;
     if (!result.empty() || is_root) {
-      std::string tail = PrintTail(is_root, indent);
+      std::string tail = PrintTail(indent);
       return header + result + tail;
     } else {
       return "";
