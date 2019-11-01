@@ -37,8 +37,6 @@ std::string ToString(bool value) {
   return value ? std::string{"true"} : std::string{"false"};
 }
 
-// Overloads for float and double exist to minimize the use of `stringstream`,
-// which isn't necessary for other scalars.
 std::string ToString(float value) {
   // `std::to_string` doesn't allow changing width and precision for floating
   // point values, leading to output inconsistent with "official" proto
