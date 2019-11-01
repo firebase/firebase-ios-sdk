@@ -58,5 +58,4 @@
   XCTAssertEqualObjects(unarchivedItem.IIDAuthToken, item.IIDAuthToken);
 }
 
-
 @end

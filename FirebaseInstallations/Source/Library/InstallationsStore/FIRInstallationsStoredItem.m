@@ -67,7 +67,7 @@ NSInteger const kFIRInstallationsStoredItemStorageVersion = 1;
   item.registrationStatus =
       [aDecoder decodeIntegerForKey:kFIRInstallationsStoredItemRegistrationStatusKey];
   item.IIDAuthToken = [aDecoder decodeObjectOfClass:[NSString class]
-                                           forKey:kFIRInstallationsStoredItemIIDAuthTokenKey];
+                                             forKey:kFIRInstallationsStoredItemIIDAuthTokenKey];
 
   return item;
 }

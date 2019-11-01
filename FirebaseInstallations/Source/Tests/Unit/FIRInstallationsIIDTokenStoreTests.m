@@ -20,12 +20,12 @@
 
 #import "FBLPromise+Testing.h"
 
+#import "FIRInstanceIDAuthKeychain.h"
 #import "FIRInstanceIDBackupExcludedPlist.h"
 #import "FIRInstanceIDCheckinPreferences+Internal.h"
-#import "FIRInstanceIDTokenStore.h"
 #import "FIRInstanceIDStore.h"
-#import "FIRInstanceIDAuthKeychain.h"
 #import "FIRInstanceIDTokenInfo.h"
+#import "FIRInstanceIDTokenStore.h"
 
 #import "FIRInstallationsIIDTokenStore.h"
 
@@ -96,22 +96,27 @@ static NSString *const kIDTokenKeychainId = @"com.google.iid-tokens";
 #pragma mark - Helpers
 
 - (NSString *)saveIIDAuthTokenForScope:(NSString *)scope {
-  FIRInstanceIDTokenInfo *tokenInfo = [[FIRInstanceIDTokenInfo alloc] initWithAuthorizedEntity:@"" scope:scope token:@"iid-auth-token" appVersion:nil firebaseAppID:nil];
+  FIRInstanceIDTokenInfo *tokenInfo =
+      [[FIRInstanceIDTokenInfo alloc] initWithAuthorizedEntity:@""
+                                                         scope:scope
+                                                         token:@"iid-auth-token"
+                                                    appVersion:nil
+                                                 firebaseAppID:nil];
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"saveIIDCheckingPreferences"];
-  [self.IIDTokenStore saveTokenInfo:tokenInfo handler:^(NSError * error) {
-    XCTAssertNil(error);
-    [expectation fulfill];
-  }];
+  [self.IIDTokenStore saveTokenInfo:tokenInfo
+                            handler:^(NSError *error) {
+                              XCTAssertNil(error);
+                              [expectation fulfill];
+                            }];
 
   [self waitForExpectations:@[ expectation ] timeout:1];
   return tokenInfo.token;
 }
 
 - (void)removeIIDTokens {
-  XCTestExpectation *expectation =
-      [self expectationWithDescription:@"removeIIDTokens"];
-  [self.IIDTokenStore removeAllTokensWithHandler:^(NSError * _Nonnull error) {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"removeIIDTokens"];
+  [self.IIDTokenStore removeAllTokensWithHandler:^(NSError *_Nonnull error) {
     XCTAssertNil(error);
     [expectation fulfill];
   }];

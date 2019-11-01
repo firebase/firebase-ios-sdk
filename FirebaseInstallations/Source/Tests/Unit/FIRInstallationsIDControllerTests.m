@@ -29,8 +29,8 @@
 #import "FIRInstallationsErrorUtil.h"
 #import "FIRInstallationsHTTPError.h"
 #import "FIRInstallationsIDController.h"
-#import "FIRInstallationsIIDTokenStore.h"
 #import "FIRInstallationsIIDStore.h"
+#import "FIRInstallationsIIDTokenStore.h"
 #import "FIRInstallationsStore.h"
 
 #import "FIRInstallationsStoredAuthToken.h"
@@ -41,7 +41,7 @@
                  installationsStore:(FIRInstallationsStore *)installationsStore
                          APIService:(FIRInstallationsAPIService *)APIService
                            IIDStore:(FIRInstallationsIIDStore *)IIDStore
-                   IIDTokenStore:(FIRInstallationsIIDTokenStore *)IIDTokenStore;
+                      IIDTokenStore:(FIRInstallationsIIDTokenStore *)IIDTokenStore;
 @end
 
 @interface FIRInstallationsIDControllerTests : XCTestCase
