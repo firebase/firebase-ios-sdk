@@ -1,7 +1,8 @@
 {
   "Firebase":"6.12.0",
   "FirebaseAuth":"6.4.0",
-  "FirebaseCore":"6.3.2",
+  "FirebaseCore":"6.3.3",
+  "FirebaseCoreDiagnosticsInterop":"1.1.0",
   "FirebaseDatabase":"6.1.2",
   "FirebaseFirestore":"1.7.0",
   "FirebaseInstanceID":"4.2.7",
