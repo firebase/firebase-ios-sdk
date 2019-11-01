@@ -26,7 +26,7 @@ def _indent(level):
   return ' ' * (indent_per_level * level)
 
 
-def _format(level, text):
+def _reindent(level, text):
   result = ''
   for line in textwrap.dedent(text).splitlines(True):
     result += _indent(level) + line if line != '\n' else line
@@ -95,7 +95,7 @@ class MessagePrettyPrintingGenerator:
   def generate_definition(self):
     """Generates the out-of-class definition of a `ToString()` member function.
     """
-    result = _format(0, '''\
+    result = _reindent(0, '''\
         std::string %s::ToString(int indent) const {
             std::string header = PrintHeader(indent, "%s", this);
             std::string result;\n\n''') % (self.full_classname, self._short_classname)
@@ -105,20 +105,20 @@ class MessagePrettyPrintingGenerator:
 
     can_be_empty = all(f.is_primitive or f.is_repeated for f in self._fields)
     if can_be_empty:
-      result += '''
-    bool is_root = indent == 0;
-    if (!result.empty() || is_root) {
-      std::string tail = PrintTail(indent);
-      return header + result + tail;
-    } else {
-      return "";
-    }
-}\n\n'''
+      result += _reindent(0, '''
+              bool is_root = indent == 0;
+              if (!result.empty() || is_root) {
+                std::string tail = PrintTail(indent);
+                return header + result + tail;
+              } else {
+                return "";
+              }
+          }\n\n''')
     else:
-      result += '''
-    std::string tail = PrintTail(indent);
-    return header + result + tail;
-}\n\n'''
+      result += _reindent(0, '''
+              std::string tail = PrintTail(indent);
+              return header + result + tail;
+          }\n\n''')
 
     return result
 
@@ -168,14 +168,14 @@ class FieldPrettyPrintingGenerator:
     """
     count = self.name + '_count'
 
-    result = '''\
-    for (pb_size_t i = 0; i != %s; ++i) {\n''' % count
+    result = _reindent(1, '''\
+        for (pb_size_t i = 0; i != %s; ++i) {\n''') % count
     # If the repeated field is non-empty, print all its members, even if they are
     # zero or empty (otherwise, an array of zeroes would be indistinguishable from
     # an empty array).
     result += self._generate_for_leaf(indent=2, always_print=True)
-    result += '''\
-    }\n'''
+    result += _reindent(1, '''\
+        }\n''')
 
     return result
 
@@ -184,13 +184,13 @@ class FieldPrettyPrintingGenerator:
     """Generates a C++ statement that prints the optional field, if set.
     """
     name = self.name
-    result = '''\
-    if (has_%s) {\n''' % name
+    result = _reindent(1, '''\
+        if (has_%s) {\n''') % name
     # If an optional field is set, always print the value, even if it's zero or
     # empty.
     result += self._generate_for_leaf(indent=2, always_print=True)
-    result += '''\
-    }\n'''
+    result += _reindent(1, '''\
+        }\n''')
 
     return result
 
@@ -318,22 +318,22 @@ class OneOfPrettyPrintingGenerator(FieldPrettyPrintingGenerator):
     """Generates a C++ statement that prints the oneof field, if it is set.
     """
     which = self._which
-    result = '''\
-    switch (%s) {\n''' % which
+    result = _reindent(1, '''\
+        switch (%s) {\n''') % which
 
     for f in self._fields:
       tag_name = '%s_%s_tag' % (self._full_classname, f.name)
-      result += '''\
-    case %s:\n''' % tag_name
+      result += _reindent(1, '''\
+          case %s:\n''') % tag_name
 
       # If oneof is set, always print that member, even if it's zero or empty.
       result += f._generate_for_leaf(indent=2, parent_oneof=self,
                                       always_print=True)
-      result += '''\
-        break;\n'''
+      result += _reindent(2, '''\
+          break;\n''')
 
-    result += '''\
-    }\n'''
+    result += _reindent(1, '''\
+        }\n''')
 
     return result
 
@@ -370,20 +370,20 @@ class EnumPrettyPrintingGenerator:
   def generate_definition(self):
     """Generates the definition of a `EnumToString()` free function.
     """
-    result = '''\
-const char* EnumToString(
-  %s value) {
-    switch (value) {\n''' % (self.name)
+    result = _reindent(0, '''\
+        const char* EnumToString(
+          %s value) {
+            switch (value) {\n''') % self.name
 
     for full_name in self._members:
       short_name = full_name.replace('%s_' % self.name, '')
-      result += '''\
-    case %s:
-        return "%s";\n''' % (full_name, short_name)
+      result += _reindent(1, '''\
+          case %s:
+              return "%s";\n''') % (full_name, short_name)
 
-    result += '''
-    }
-    return "<unknown enum value>";
-}\n\n'''
+    result += _reindent(0, '''
+            }
+            return "<unknown enum value>";
+        }\n\n''')
 
     return result
