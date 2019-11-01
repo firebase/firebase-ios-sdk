@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import textwrap
+
 from google.protobuf.descriptor_pb2 import FieldDescriptorProto
 import nanopb_generator as nanopb
 
@@ -22,6 +24,13 @@ def _indent(level):
   """
   indent_per_level = 4
   return ' ' * (indent_per_level * level)
+
+
+def _format(level, text):
+  result = ''
+  for line in textwrap.dedent(text).splitlines(True):
+    result += _indent(level) + line if line != '\n' else line
+  return result
 
 
 class FilePrettyPrintingGenerator:
@@ -86,10 +95,10 @@ class MessagePrettyPrintingGenerator:
   def generate_definition(self):
     """Generates the out-of-class definition of a `ToString()` member function.
     """
-    result = '''\
-std::string %s::ToString(int indent) const {
-    std::string header = PrintHeader(indent, "%s", this);
-    std::string result;\n\n''' % (self.full_classname, self._short_classname)
+    result = _format(0, '''\
+        std::string %s::ToString(int indent) const {
+            std::string header = PrintHeader(indent, "%s", this);
+            std::string result;\n\n''') % (self.full_classname, self._short_classname)
 
     for field in self._fields:
       result += str(field)
