@@ -19,7 +19,7 @@
 
 #include "document.nanopb.h"
 
-#include "nanopb_pretty_printers.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/pretty_printing.h"
 
 namespace firebase {
 namespace firestore {
@@ -102,12 +102,7 @@ PB_STATIC_ASSERT((pb_membersize(google_firestore_v1_Document, create_time) < 256
 
 
 std::string google_firestore_v1_Document::ToString(int indent) const {
-    bool is_root = indent == 0;
-    if (is_root) {
-        indent = 1;
-    }
-
-    std::string header = PrintHeader(is_root, "Document", this);
+    std::string header = PrintHeader(indent, "Document", this);
     std::string result;
 
     result += PrintPrimitiveField("name: ", name, indent + 1, false);
@@ -121,33 +116,23 @@ std::string google_firestore_v1_Document::ToString(int indent) const {
             update_time, indent + 1, true);
     }
 
-    std::string tail = PrintTail(is_root, indent);
+    std::string tail = PrintTail(indent);
     return header + result + tail;
 }
 
 std::string google_firestore_v1_Document_FieldsEntry::ToString(int indent) const {
-    bool is_root = indent == 0;
-    if (is_root) {
-        indent = 1;
-    }
-
-    std::string header = PrintHeader(is_root, "FieldsEntry", this);
+    std::string header = PrintHeader(indent, "FieldsEntry", this);
     std::string result;
 
     result += PrintPrimitiveField("key: ", key, indent + 1, false);
     result += PrintMessageField("value ", value, indent + 1, false);
 
-    std::string tail = PrintTail(is_root, indent);
+    std::string tail = PrintTail(indent);
     return header + result + tail;
 }
 
 std::string google_firestore_v1_Value::ToString(int indent) const {
-    bool is_root = indent == 0;
-    if (is_root) {
-        indent = 1;
-    }
-
-    std::string header = PrintHeader(is_root, "Value", this);
+    std::string header = PrintHeader(indent, "Value", this);
     std::string result;
 
     switch (which_value_type) {
@@ -195,8 +180,9 @@ std::string google_firestore_v1_Value::ToString(int indent) const {
         break;
     }
 
+    bool is_root = indent == 0;
     if (!result.empty() || is_root) {
-      std::string tail = PrintTail(is_root, indent);
+      std::string tail = PrintTail(indent);
       return header + result + tail;
     } else {
       return "";
@@ -204,20 +190,16 @@ std::string google_firestore_v1_Value::ToString(int indent) const {
 }
 
 std::string google_firestore_v1_ArrayValue::ToString(int indent) const {
-    bool is_root = indent == 0;
-    if (is_root) {
-        indent = 1;
-    }
-
-    std::string header = PrintHeader(is_root, "ArrayValue", this);
+    std::string header = PrintHeader(indent, "ArrayValue", this);
     std::string result;
 
     for (pb_size_t i = 0; i != values_count; ++i) {
         result += PrintMessageField("values ", values[i], indent + 1, true);
     }
 
+    bool is_root = indent == 0;
     if (!result.empty() || is_root) {
-      std::string tail = PrintTail(is_root, indent);
+      std::string tail = PrintTail(indent);
       return header + result + tail;
     } else {
       return "";
@@ -225,20 +207,16 @@ std::string google_firestore_v1_ArrayValue::ToString(int indent) const {
 }
 
 std::string google_firestore_v1_MapValue::ToString(int indent) const {
-    bool is_root = indent == 0;
-    if (is_root) {
-        indent = 1;
-    }
-
-    std::string header = PrintHeader(is_root, "MapValue", this);
+    std::string header = PrintHeader(indent, "MapValue", this);
     std::string result;
 
     for (pb_size_t i = 0; i != fields_count; ++i) {
         result += PrintMessageField("fields ", fields[i], indent + 1, true);
     }
 
+    bool is_root = indent == 0;
     if (!result.empty() || is_root) {
-      std::string tail = PrintTail(is_root, indent);
+      std::string tail = PrintTail(indent);
       return header + result + tail;
     } else {
       return "";
@@ -246,18 +224,13 @@ std::string google_firestore_v1_MapValue::ToString(int indent) const {
 }
 
 std::string google_firestore_v1_MapValue_FieldsEntry::ToString(int indent) const {
-    bool is_root = indent == 0;
-    if (is_root) {
-        indent = 1;
-    }
-
-    std::string header = PrintHeader(is_root, "FieldsEntry", this);
+    std::string header = PrintHeader(indent, "FieldsEntry", this);
     std::string result;
 
     result += PrintPrimitiveField("key: ", key, indent + 1, false);
     result += PrintMessageField("value ", value, indent + 1, false);
 
-    std::string tail = PrintTail(is_root, indent);
+    std::string tail = PrintTail(indent);
     return header + result + tail;
 }
 

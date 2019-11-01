@@ -19,7 +19,7 @@
 
 #include "latlng.nanopb.h"
 
-#include "nanopb_pretty_printers.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/pretty_printing.h"
 
 namespace firebase {
 namespace firestore {
@@ -45,19 +45,15 @@ const pb_field_t google_type_LatLng_fields[3] = {
 PB_STATIC_ASSERT(sizeof(double) == 8, DOUBLE_MUST_BE_8_BYTES)
 
 std::string google_type_LatLng::ToString(int indent) const {
-    bool is_root = indent == 0;
-    if (is_root) {
-        indent = 1;
-    }
-
-    std::string header = PrintHeader(is_root, "LatLng", this);
+    std::string header = PrintHeader(indent, "LatLng", this);
     std::string result;
 
     result += PrintPrimitiveField("latitude: ", latitude, indent + 1, false);
     result += PrintPrimitiveField("longitude: ", longitude, indent + 1, false);
 
+    bool is_root = indent == 0;
     if (!result.empty() || is_root) {
-      std::string tail = PrintTail(is_root, indent);
+      std::string tail = PrintTail(indent);
       return header + result + tail;
     } else {
       return "";

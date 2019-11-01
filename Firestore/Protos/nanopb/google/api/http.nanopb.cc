@@ -19,7 +19,7 @@
 
 #include "http.nanopb.h"
 
-#include "nanopb_pretty_printers.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/pretty_printing.h"
 
 namespace firebase {
 namespace firestore {
@@ -82,12 +82,7 @@ PB_STATIC_ASSERT((pb_membersize(google_api_HttpRule, custom) < 256), YOU_MUST_DE
 
 
 std::string google_api_Http::ToString(int indent) const {
-    bool is_root = indent == 0;
-    if (is_root) {
-        indent = 1;
-    }
-
-    std::string header = PrintHeader(is_root, "Http", this);
+    std::string header = PrintHeader(indent, "Http", this);
     std::string result;
 
     for (pb_size_t i = 0; i != rules_count; ++i) {
@@ -96,8 +91,9 @@ std::string google_api_Http::ToString(int indent) const {
     result += PrintPrimitiveField("fully_decode_reserved_expansion: ",
         fully_decode_reserved_expansion, indent + 1, false);
 
+    bool is_root = indent == 0;
     if (!result.empty() || is_root) {
-      std::string tail = PrintTail(is_root, indent);
+      std::string tail = PrintTail(indent);
       return header + result + tail;
     } else {
       return "";
@@ -105,12 +101,7 @@ std::string google_api_Http::ToString(int indent) const {
 }
 
 std::string google_api_HttpRule::ToString(int indent) const {
-    bool is_root = indent == 0;
-    if (is_root) {
-        indent = 1;
-    }
-
-    std::string header = PrintHeader(is_root, "HttpRule", this);
+    std::string header = PrintHeader(indent, "HttpRule", this);
     std::string result;
 
     result += PrintPrimitiveField("selector: ", selector, indent + 1, false);
@@ -140,8 +131,9 @@ std::string google_api_HttpRule::ToString(int indent) const {
             additional_bindings[i], indent + 1, true);
     }
 
+    bool is_root = indent == 0;
     if (!result.empty() || is_root) {
-      std::string tail = PrintTail(is_root, indent);
+      std::string tail = PrintTail(indent);
       return header + result + tail;
     } else {
       return "";
@@ -149,19 +141,15 @@ std::string google_api_HttpRule::ToString(int indent) const {
 }
 
 std::string google_api_CustomHttpPattern::ToString(int indent) const {
-    bool is_root = indent == 0;
-    if (is_root) {
-        indent = 1;
-    }
-
-    std::string header = PrintHeader(is_root, "CustomHttpPattern", this);
+    std::string header = PrintHeader(indent, "CustomHttpPattern", this);
     std::string result;
 
     result += PrintPrimitiveField("kind: ", kind, indent + 1, false);
     result += PrintPrimitiveField("path: ", path, indent + 1, false);
 
+    bool is_root = indent == 0;
     if (!result.empty() || is_root) {
-      std::string tail = PrintTail(is_root, indent);
+      std::string tail = PrintTail(indent);
       return header + result + tail;
     } else {
       return "";

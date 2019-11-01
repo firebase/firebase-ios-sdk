@@ -19,7 +19,7 @@
 
 #include "common.nanopb.h"
 
-#include "nanopb_pretty_printers.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/pretty_printing.h"
 
 namespace firebase {
 namespace firestore {
@@ -84,12 +84,7 @@ PB_STATIC_ASSERT((pb_membersize(google_firestore_v1_Precondition, update_time) <
 
 
 std::string google_firestore_v1_DocumentMask::ToString(int indent) const {
-    bool is_root = indent == 0;
-    if (is_root) {
-        indent = 1;
-    }
-
-    std::string header = PrintHeader(is_root, "DocumentMask", this);
+    std::string header = PrintHeader(indent, "DocumentMask", this);
     std::string result;
 
     for (pb_size_t i = 0; i != field_paths_count; ++i) {
@@ -97,8 +92,9 @@ std::string google_firestore_v1_DocumentMask::ToString(int indent) const {
             field_paths[i], indent + 1, true);
     }
 
+    bool is_root = indent == 0;
     if (!result.empty() || is_root) {
-      std::string tail = PrintTail(is_root, indent);
+      std::string tail = PrintTail(indent);
       return header + result + tail;
     } else {
       return "";
@@ -106,12 +102,7 @@ std::string google_firestore_v1_DocumentMask::ToString(int indent) const {
 }
 
 std::string google_firestore_v1_Precondition::ToString(int indent) const {
-    bool is_root = indent == 0;
-    if (is_root) {
-        indent = 1;
-    }
-
-    std::string header = PrintHeader(is_root, "Precondition", this);
+    std::string header = PrintHeader(indent, "Precondition", this);
     std::string result;
 
     switch (which_condition_type) {
@@ -124,8 +115,9 @@ std::string google_firestore_v1_Precondition::ToString(int indent) const {
         break;
     }
 
+    bool is_root = indent == 0;
     if (!result.empty() || is_root) {
-      std::string tail = PrintTail(is_root, indent);
+      std::string tail = PrintTail(indent);
       return header + result + tail;
     } else {
       return "";
@@ -133,12 +125,7 @@ std::string google_firestore_v1_Precondition::ToString(int indent) const {
 }
 
 std::string google_firestore_v1_TransactionOptions::ToString(int indent) const {
-    bool is_root = indent == 0;
-    if (is_root) {
-        indent = 1;
-    }
-
-    std::string header = PrintHeader(is_root, "TransactionOptions", this);
+    std::string header = PrintHeader(indent, "TransactionOptions", this);
     std::string result;
 
     switch (which_mode) {
@@ -151,8 +138,9 @@ std::string google_firestore_v1_TransactionOptions::ToString(int indent) const {
         break;
     }
 
+    bool is_root = indent == 0;
     if (!result.empty() || is_root) {
-      std::string tail = PrintTail(is_root, indent);
+      std::string tail = PrintTail(indent);
       return header + result + tail;
     } else {
       return "";
@@ -160,19 +148,15 @@ std::string google_firestore_v1_TransactionOptions::ToString(int indent) const {
 }
 
 std::string google_firestore_v1_TransactionOptions_ReadWrite::ToString(int indent) const {
-    bool is_root = indent == 0;
-    if (is_root) {
-        indent = 1;
-    }
-
-    std::string header = PrintHeader(is_root, "ReadWrite", this);
+    std::string header = PrintHeader(indent, "ReadWrite", this);
     std::string result;
 
     result += PrintPrimitiveField("retry_transaction: ",
         retry_transaction, indent + 1, false);
 
+    bool is_root = indent == 0;
     if (!result.empty() || is_root) {
-      std::string tail = PrintTail(is_root, indent);
+      std::string tail = PrintTail(indent);
       return header + result + tail;
     } else {
       return "";
@@ -180,12 +164,7 @@ std::string google_firestore_v1_TransactionOptions_ReadWrite::ToString(int inden
 }
 
 std::string google_firestore_v1_TransactionOptions_ReadOnly::ToString(int indent) const {
-    bool is_root = indent == 0;
-    if (is_root) {
-        indent = 1;
-    }
-
-    std::string header = PrintHeader(is_root, "ReadOnly", this);
+    std::string header = PrintHeader(indent, "ReadOnly", this);
     std::string result;
 
     switch (which_consistency_selector) {
@@ -194,8 +173,9 @@ std::string google_firestore_v1_TransactionOptions_ReadOnly::ToString(int indent
         break;
     }
 
+    bool is_root = indent == 0;
     if (!result.empty() || is_root) {
-      std::string tail = PrintTail(is_root, indent);
+      std::string tail = PrintTail(indent);
       return header + result + tail;
     } else {
       return "";
