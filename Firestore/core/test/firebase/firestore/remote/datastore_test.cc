@@ -123,6 +123,8 @@ class DatastoreTest : public testing::Test {
     if (!is_shut_down) {
       Shutdown();
     }
+    // Ensure that nothing remains on the AsyncQueue before destroying it.
+    worker_queue->EnqueueBlocking([] {});
   }
 
   void Shutdown() {
