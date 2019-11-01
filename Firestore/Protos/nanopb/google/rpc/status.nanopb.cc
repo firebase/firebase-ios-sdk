@@ -19,7 +19,7 @@
 
 #include "status.nanopb.h"
 
-#include "nanopb_pretty_printers.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/pretty_printing.h"
 
 namespace firebase {
 namespace firestore {

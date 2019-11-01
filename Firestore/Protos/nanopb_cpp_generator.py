@@ -381,7 +381,8 @@ def nanopb_augment_source(request, pretty_printing_generator):
       file.
     pretty_printing_generator: `FilePrettyPrintingGenerator` for this header.
   """
-  request.insert('includes', '#include "nanopb_pretty_printers.h"\n\n')
+  request.insert('includes', '\
+#include "Firestore/core/src/firebase/firestore/nanopb/pretty_printing.h"\n\n')
 
   open_namespace(request)
 

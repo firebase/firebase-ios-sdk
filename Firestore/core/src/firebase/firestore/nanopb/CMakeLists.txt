@@ -22,6 +22,8 @@ cc_library(
     message.h
     nanopb_util.cc
     nanopb_util.h
+    pretty_printing.cc
+    pretty_printing.h
     reader.cc
     reader.h
     writer.cc
