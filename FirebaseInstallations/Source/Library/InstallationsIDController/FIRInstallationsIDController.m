@@ -69,14 +69,16 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
 - (instancetype)initWithGoogleAppID:(NSString *)appID
                             appName:(NSString *)appName
                              APIKey:(NSString *)APIKey
-                          projectID:(NSString *)projectID {
+                          projectID:(NSString *)projectID
+                        GCMSenderID:(NSString *)GCMSenderID {
   FIRSecureStorage *secureStorage = [[FIRSecureStorage alloc] init];
   FIRInstallationsStore *installationsStore =
       [[FIRInstallationsStore alloc] initWithSecureStorage:secureStorage accessGroup:nil];
   FIRInstallationsAPIService *apiService =
       [[FIRInstallationsAPIService alloc] initWithAPIKey:APIKey projectID:projectID];
   FIRInstallationsIIDStore *IIDStore = [[FIRInstallationsIIDStore alloc] init];
-  FIRInstallationsIIDTokenStore *IIDCheckingStore = [[FIRInstallationsIIDTokenStore alloc] init];
+  FIRInstallationsIIDTokenStore *IIDCheckingStore =
+      [[FIRInstallationsIIDTokenStore alloc] initWithGCMSenderID:GCMSenderID];
 
   return [self initWithGoogleAppID:appID
                            appName:appName

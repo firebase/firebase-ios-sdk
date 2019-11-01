@@ -38,12 +38,16 @@ static NSString *const kIDTokenKeychainId = @"com.google.iid-tokens";
 
 @property(nonatomic) FIRInstanceIDTokenStore *IIDTokenStore;
 @property(nonatomic) FIRInstanceIDAuthKeychain *IIDKeychain;
+
+@property(nonatomic) NSString *GCMSenderID;
 @end
 
 @implementation FIRInstallationsIIDTokenStoreTests
 
 - (void)setUp {
-  self.installationsIIDCheckinStore = [[FIRInstallationsIIDTokenStore alloc] init];
+  self.GCMSenderID = @"GCMSenderID";
+  self.installationsIIDCheckinStore =
+      [[FIRInstallationsIIDTokenStore alloc] initWithGCMSenderID:self.GCMSenderID];
 
   self.IIDKeychain = [[FIRInstanceIDAuthKeychain alloc] initWithIdentifier:kIDTokenKeychainId];
   self.IIDTokenStore = [[FIRInstanceIDTokenStore alloc] initWithKeychain:self.IIDKeychain];
@@ -69,7 +73,19 @@ static NSString *const kIDTokenKeychainId = @"com.google.iid-tokens";
 
 - (void)testExistingAuthToken_WhenThereAreTokensButNoDefaultToken_ThenFails {
   [self removeIIDTokens];
-  [self saveIIDAuthTokenForScope:@"FIAM"];
+  [self saveIIDAuthTokenForScope:@"FIAM" token:@"iid-auth-token"];
+
+  __auto_type checkinPromise = [self.installationsIIDCheckinStore existingIIDAuthToken];
+  XCTAssert(FBLWaitForPromisesWithTimeout(1));
+
+  XCTAssertTrue(checkinPromise.isRejected);
+  XCTAssertNil(checkinPromise.value);
+  XCTAssertNotNil(checkinPromise.error);
+}
+
+- (void)testExistingAuthToken_WhenDataCorrupted_ThenFails {
+  [self removeIIDTokens];
+  [self saveIIDAuthTokenForScope:@"FIAM" token:@""];
 
   __auto_type checkinPromise = [self.installationsIIDCheckinStore existingIIDAuthToken];
   XCTAssert(FBLWaitForPromisesWithTimeout(1));
@@ -80,7 +96,7 @@ static NSString *const kIDTokenKeychainId = @"com.google.iid-tokens";
 }
 
 - (void)testExistingAuthTokenSuccess {
-  NSString *savedToken = [self saveIIDAuthTokenForScope:@"*"];
+  NSString *savedToken = [self saveIIDAuthTokenForScope:@"*" token:@"iid-auth-token"];
 
   __auto_type checkinPromise = [self.installationsIIDCheckinStore existingIIDAuthToken];
   XCTAssert(FBLWaitForPromisesWithTimeout(1));
@@ -95,23 +111,30 @@ static NSString *const kIDTokenKeychainId = @"com.google.iid-tokens";
 
 #pragma mark - Helpers
 
-- (NSString *)saveIIDAuthTokenForScope:(NSString *)scope {
-  FIRInstanceIDTokenInfo *tokenInfo =
-      [[FIRInstanceIDTokenInfo alloc] initWithAuthorizedEntity:@""
+- (NSString *)saveIIDAuthTokenForScope:(NSString *)scope token:(NSString *)token {
+  FIRInstanceIDTokenInfo *tokenInfoToSave =
+      [[FIRInstanceIDTokenInfo alloc] initWithAuthorizedEntity:self.GCMSenderID
                                                          scope:scope
-                                                         token:@"iid-auth-token"
+                                                         token:token
                                                     appVersion:nil
                                                  firebaseAppID:nil];
 
-  XCTestExpectation *expectation = [self expectationWithDescription:@"saveIIDCheckingPreferences"];
-  [self.IIDTokenStore saveTokenInfo:tokenInfo
+  XCTestExpectation *saveExpectation =
+      [self expectationWithDescription:@"saveIIDCheckingPreferences"];
+  [self.IIDTokenStore saveTokenInfo:tokenInfoToSave
                             handler:^(NSError *error) {
                               XCTAssertNil(error);
-                              [expectation fulfill];
+                              [saveExpectation fulfill];
                             }];
 
-  [self waitForExpectations:@[ expectation ] timeout:1];
-  return tokenInfo.token;
+  [self waitForExpectations:@[ saveExpectation ] timeout:1];
+
+  FIRInstanceIDTokenInfo *savedTokenInfo =
+      [self.IIDTokenStore tokenInfoWithAuthorizedEntity:self.GCMSenderID scope:scope];
+
+  XCTAssertEqualObjects(tokenInfoToSave.token, savedTokenInfo.token);
+
+  return tokenInfoToSave.token;
 }
 
 - (void)removeIIDTokens {
