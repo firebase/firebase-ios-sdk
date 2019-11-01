@@ -17,6 +17,10 @@ the build script it invokes and additional environment variables that kokoro
 should provide. For a full list of capabilities, see the kokoro docs
 (Google-internal).
 
+Kokoro-only testing components that are shared between jobs should go into the
+`shared` directory. Other shared scripts should go into the `scripts` directory
+located at the root of the repository.
+
 ## Adding a kokoro job
 
 Each cfg file in the prod kokoro configuration directory (or any subdirectories)

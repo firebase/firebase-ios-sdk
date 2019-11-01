@@ -22,21 +22,19 @@ set -x
 # Here's an example of one build target in travis manually migrated
 # to kokoro with no shared components:
 
+cd ${KOKORO_ARTIFACTS_DIR}/github/firebase-ios-sdk
+
+export PROJECT="Firestore"
+export PLATFORM="iOS"
+export METHOD="xcodebuild"
+
+# before_install:
+./kokoro/shared/before_install.sh
+
+# Install prerequisites
+./scripts/install_prereqs.sh
+
 # Force xcpretty to use UTF8
 export LC_CTYPE=en_US.UTF-8
 
-# cd ${KOKORO_ARTIFACTS_DIR}/github/firebase-ios-sdk
-
-# before_install:
-# brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/e3496d9/Formula/clang-format.rb
-# brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/7963c3d/Formula/swiftformat.rb
-# pip install flake8
-
-./scripts/check.sh --test-only
-./scripts/if_changed.sh ./scripts/install_prereqs.sh
-
-PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild
-
-./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
-
-exit 0
+./scripts/build.sh $PROJECT $PLATFORM $METHOD
