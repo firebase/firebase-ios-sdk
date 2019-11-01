@@ -27,6 +27,7 @@ import os
 import os.path
 import re
 import shlex
+import textwrap
 
 from google.protobuf.descriptor_pb2 import FieldDescriptorProto
 from nanopb_pretty_printing import generators as printing
@@ -384,8 +385,8 @@ def nanopb_augment_source(request, pretty_printing_generator):
       file.
     pretty_printing_generator: `FilePrettyPrintingGenerator` for this header.
   """
-  request.insert('includes', '\
-#include "Firestore/core/src/firebase/firestore/nanopb/pretty_printing.h"\n\n')
+  request.insert('includes', textwrap.dedent('\
+    #include "Firestore/core/src/firebase/firestore/nanopb/pretty_printing.h"\n\n'))
 
   open_namespace(request)
 
@@ -400,17 +401,17 @@ def nanopb_augment_source(request, pretty_printing_generator):
 def open_namespace(request):
   """Augments a file generation request by opening `f::f` namespace.
   """
-  request.insert('includes', '''\
-namespace firebase {
-namespace firestore {\n\n''')
+  request.insert('includes', textwrap.dedent('''\
+      namespace firebase {
+      namespace firestore {\n\n'''))
 
 
 def close_namespace(request):
   """Augments a file generation request by opening `f::f` namespace.
   """
-  request.insert('eof', '''\
-}  // namespace firestore
-}  // namespace firebase\n\n''')
+  request.insert('eof', textwrap.dedent('''\
+      }  // namespace firestore
+      }  // namespace firebase\n\n'''))
 
 
 if __name__ == '__main__':
