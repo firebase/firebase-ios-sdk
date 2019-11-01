@@ -22,6 +22,7 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/local/mutation_queue.h"
+#include "absl/strings/string_view.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
@@ -47,17 +48,37 @@ using FactoryFunc = std::unique_ptr<Persistence> (*)();
 class MutationQueueTestBase : public testing::Test {
  public:
   explicit MutationQueueTestBase(std::unique_ptr<Persistence> persistence);
-  ~MutationQueueTestBase();
+  virtual ~MutationQueueTestBase();
 
  protected:
-  model::MutationBatch AddMutationBatch(const std::string& key = "foo/bar");
+  /**
+   * Creates a new MutationBatch with the given key, the next batch ID and a set
+   * of dummy mutations.
+   */
+  model::MutationBatch AddMutationBatch(absl::string_view key = "foo/bar");
+
+  /**
+   * Creates an array of batches containing `number` dummy MutationBatches.
+   * Each has a new, larger batch_id.
+   */
   std::vector<model::MutationBatch> CreateBatches(int number);
-  size_t BatchCount();
+
+  /** Returns the number of mutation batches in the mutation queue. */
+  size_t GetBatchCount();
+
+  /**
+   * Removes the first n entries from the the given batches and returns them.
+   *
+   * @param n The number of batches to remove.
+   * @param batches The container to mutate, removing entries from it.
+   * @return A new vector containing all the entries that were removed from
+   *     `batches`.
+   */
   std::vector<model::MutationBatch> RemoveFirstBatches(
       size_t n, std::vector<model::MutationBatch>* batches);
 
   std::unique_ptr<Persistence> persistence_;
-  MutationQueue* mutation_queue_;
+  MutationQueue* mutation_queue_ = nullptr;
 };
 
 /**

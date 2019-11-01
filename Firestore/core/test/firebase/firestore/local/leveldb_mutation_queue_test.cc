@@ -25,7 +25,6 @@
 #include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
-#include "Firestore/core/src/firebase/firestore/nanopb/fields_array.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/message.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
@@ -78,7 +77,7 @@ class LevelDbMutationQueueTest : public MutationQueueTestBase {
  protected:
   void SetDummyValueForKey(const std::string& key);
 
-  DB* db_;
+  DB* db_ = nullptr;
 };
 
 /**
@@ -91,27 +90,30 @@ std::string MutationLikeKey(absl::string_view table,
   std::string key;
   OrderedCode::WriteSignedNumIncreasing(&key, 5);  // TableName
   OrderedCode::WriteString(&key, table);
+
   OrderedCode::WriteSignedNumIncreasing(&key, 13);  // UserId
   OrderedCode::WriteString(&key, user_id);
+
   OrderedCode::WriteSignedNumIncreasing(&key, 10);  // BatchId
   OrderedCode::WriteSignedNumIncreasing(&key, batch_id);
+
   OrderedCode::WriteSignedNumIncreasing(&key, 0);  // Terminator
   return key;
 }
 
-TEST_F(LevelDbMutationQueueTest, LoadNextBatchID_zeroWhenTotallyEmpty) {
+TEST_F(LevelDbMutationQueueTest, LoadNextBatchIdZeroWhenTotallyEmpty) {
   // Initial seek is invalid
   ASSERT_EQ(LoadNextBatchIdFromDb(db_), 1);
 }
 
-TEST_F(LevelDbMutationQueueTest, LoadNextBatchID_zeroWhenNoMutations) {
+TEST_F(LevelDbMutationQueueTest, LoadNextBatchIdZeroWhenNoMutations) {
   // Initial seek finds no mutations
   SetDummyValueForKey(MutationLikeKey("mutationr", "foo", 20));
   SetDummyValueForKey(MutationLikeKey("mutationsa", "foo", 10));
   ASSERT_EQ(LoadNextBatchIdFromDb(db_), 1);
 }
 
-TEST_F(LevelDbMutationQueueTest, LoadNextBatchID_findsSingleRow) {
+TEST_F(LevelDbMutationQueueTest, LoadNextBatchIdFindsSingleRow) {
   // Seeks off the end of the table altogether
   SetDummyValueForKey(LevelDbMutationKey::Key("foo", 6));
 
@@ -127,7 +129,7 @@ TEST_F(LevelDbMutationQueueTest,
   ASSERT_EQ(LoadNextBatchIdFromDb(db_), 7);
 }
 
-TEST_F(LevelDbMutationQueueTest, LoadNextBatchID_findsMaxAcrossUsers) {
+TEST_F(LevelDbMutationQueueTest, LoadNextBatchIdFindsMaxAcrossUsers) {
   SetDummyValueForKey(LevelDbMutationKey::Key("fo", 5));
   SetDummyValueForKey(LevelDbMutationKey::Key("food", 3));
 
@@ -138,8 +140,8 @@ TEST_F(LevelDbMutationQueueTest, LoadNextBatchID_findsMaxAcrossUsers) {
   ASSERT_EQ(LoadNextBatchIdFromDb(db_), 7);
 }
 
-TEST_F(LevelDbMutationQueueTest, LoadNextBatchID_onlyFindsMutations) {
-  // Write higher-valued batch_i_ds in nearby "tables"
+TEST_F(LevelDbMutationQueueTest, LoadNextBatchIdOnlyFindsMutations) {
+  // Write higher-valued batch_ids in nearby "tables"
   std::vector<std::string> tables{"mutatio", "mutationsa", "bears", "zombies"};
   BatchId high_batch_id = 5;
   for (const auto& table : tables) {

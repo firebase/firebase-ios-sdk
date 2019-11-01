@@ -54,48 +54,29 @@ MutationQueueTestBase::MutationQueueTestBase(
 
 MutationQueueTestBase::~MutationQueueTestBase() = default;
 
-/**
- * Creates a new MutationBatch with the given key, the next batch ID and a set
- * of dummy mutations.
- */
-MutationBatch MutationQueueTestBase::AddMutationBatch(const std::string& key) {
+MutationBatch MutationQueueTestBase::AddMutationBatch(absl::string_view key) {
   SetMutation mutation = testutil::SetMutation(key, Map("a", 1));
 
-  MutationBatch batch =
-      mutation_queue_->AddMutationBatch(Timestamp::Now(), {}, {mutation});
-  return batch;
+  return mutation_queue_->AddMutationBatch(Timestamp::Now(), {}, {mutation});
 }
 
-/**
- * Creates an array of batches containing @a number dummy MutationBatches. Each
- * has a different batch_id.
- */
 std::vector<MutationBatch> MutationQueueTestBase::CreateBatches(int number) {
   std::vector<MutationBatch> batches;
 
   for (int i = 0; i < number; i++) {
-    MutationBatch batch = AddMutationBatch();
-    batches.push_back(batch);
+    batches.push_back(AddMutationBatch());
   }
 
   return batches;
 }
 
-/** Returns the number of mutation batches in the mutation queue. */
-size_t MutationQueueTestBase::BatchCount() {
+size_t MutationQueueTestBase::GetBatchCount() {
   return mutation_queue_->AllMutationBatches().size();
 }
 
-/**
- * Removes the first n entries from the the given batches and returns them.
- *
- * @param n The number of batches to remove.
- * @param batches The array to mutate, removing entries from it.
- * @return A new array containing all the entries that were removed from @a
- * batches.
- */
 std::vector<MutationBatch> MutationQueueTestBase::RemoveFirstBatches(
     size_t n, std::vector<MutationBatch>* batches) {
+  HARD_ASSERT(batches->size() >= n, "Not enough batches present");
   std::vector<MutationBatch> removed(batches->begin(), batches->begin() + n);
   batches->erase(batches->begin(), batches->begin() + n);
 
@@ -109,29 +90,29 @@ MutationQueueTest::MutationQueueTest() : MutationQueueTestBase(GetParam()()) {
 }
 
 TEST_P(MutationQueueTest, CountBatches) {
-  persistence_->Run("test_count_batches", [&] {
-    ASSERT_EQ(0, BatchCount());
+  persistence_->Run("CountBatches", [&] {
+    ASSERT_EQ(0, GetBatchCount());
     ASSERT_TRUE(mutation_queue_->IsEmpty());
 
     MutationBatch batch1 = AddMutationBatch();
-    ASSERT_EQ(1, BatchCount());
+    ASSERT_EQ(1, GetBatchCount());
     ASSERT_FALSE(mutation_queue_->IsEmpty());
 
     MutationBatch batch2 = AddMutationBatch();
-    ASSERT_EQ(2, BatchCount());
+    ASSERT_EQ(2, GetBatchCount());
 
     mutation_queue_->RemoveMutationBatch(batch1);
-    ASSERT_EQ(1, BatchCount());
+    ASSERT_EQ(1, GetBatchCount());
 
     mutation_queue_->RemoveMutationBatch(batch2);
-    ASSERT_EQ(0, BatchCount());
+    ASSERT_EQ(0, GetBatchCount());
     ASSERT_TRUE(mutation_queue_->IsEmpty());
   });
 }
 
-TEST_P(MutationQueueTest, AcknowledgeBatchID) {
-  persistence_->Run("test_acknowledge_batch_id", [&] {
-    ASSERT_EQ(BatchCount(), 0);
+TEST_P(MutationQueueTest, AcknowledgeBatchId) {
+  persistence_->Run("AcknowledgeBatchId", [&] {
+    ASSERT_EQ(GetBatchCount(), 0);
 
     MutationBatch batch1 = AddMutationBatch();
     MutationBatch batch2 = AddMutationBatch();
@@ -140,37 +121,37 @@ TEST_P(MutationQueueTest, AcknowledgeBatchID) {
     ASSERT_GT(batch2.batch_id(), batch1.batch_id());
     ASSERT_GT(batch3.batch_id(), batch2.batch_id());
 
-    ASSERT_EQ(BatchCount(), 3);
+    ASSERT_EQ(GetBatchCount(), 3);
 
     mutation_queue_->AcknowledgeBatch(batch1, {});
     mutation_queue_->RemoveMutationBatch(batch1);
-    ASSERT_EQ(BatchCount(), 2);
+    ASSERT_EQ(GetBatchCount(), 2);
 
     mutation_queue_->AcknowledgeBatch(batch2, {});
-    ASSERT_EQ(BatchCount(), 2);
+    ASSERT_EQ(GetBatchCount(), 2);
 
     mutation_queue_->RemoveMutationBatch(batch2);
-    ASSERT_EQ(BatchCount(), 1);
+    ASSERT_EQ(GetBatchCount(), 1);
 
     mutation_queue_->RemoveMutationBatch(batch3);
-    ASSERT_EQ(BatchCount(), 0);
+    ASSERT_EQ(GetBatchCount(), 0);
   });
 }
 
 TEST_P(MutationQueueTest, AcknowledgeThenRemove) {
-  persistence_->Run("test_acknowledge_then_remove", [&] {
+  persistence_->Run("AcknowledgeThenRemove", [&] {
     MutationBatch batch1 = AddMutationBatch();
 
     mutation_queue_->AcknowledgeBatch(batch1, {});
     mutation_queue_->RemoveMutationBatch(batch1);
 
-    ASSERT_EQ(BatchCount(), 0);
+    EXPECT_EQ(GetBatchCount(), 0);
   });
 }
 
 TEST_P(MutationQueueTest, LookupMutationBatch) {
-  // Searching on an empty queue should not find a non-existent batch
-  persistence_->Run("test_lookup_mutation_batch", [&] {
+  persistence_->Run("LookupMutationBatch", [&] {
+    // Searching on an empty queue should not find a non-existent batch.
     absl::optional<MutationBatch> not_found =
         mutation_queue_->LookupMutationBatch(42);
     ASSERT_EQ(not_found, absl::nullopt);
@@ -191,14 +172,14 @@ TEST_P(MutationQueueTest, LookupMutationBatch) {
       ASSERT_EQ(found->batch_id(), batch.batch_id());
     }
 
-    // Even on a nonempty queue searching should not find a non-existent batch
+    // Even on a nonempty queue, searching should not find a non-existent batch
     not_found = mutation_queue_->LookupMutationBatch(42);
     ASSERT_EQ(not_found, absl::nullopt);
   });
 }
 
-TEST_P(MutationQueueTest, NextMutationBatchAfterBatchID) {
-  persistence_->Run("test_next_mutation_batch_after_batch_id", [&] {
+TEST_P(MutationQueueTest, NextMutationBatchAfterBatchId) {
+  persistence_->Run("NextMutationBatchAfterBatchId", [&] {
     std::vector<MutationBatch> batches = CreateBatches(10);
     std::vector<MutationBatch> removed = RemoveFirstBatches(3, &batches);
 
@@ -211,19 +192,21 @@ TEST_P(MutationQueueTest, NextMutationBatchAfterBatchID) {
     }
 
     for (size_t i = 0; i < removed.size(); i++) {
+      // Searching for deleted batch IDs should return the next batch higest
+      // batch ID that's still in the queue.
       const MutationBatch& current = removed[i];
-      const MutationBatch& next = batches[0];
+      const MutationBatch& next = batches.front();
       absl::optional<MutationBatch> found =
           mutation_queue_->NextMutationBatchAfterBatchId(current.batch_id());
       ASSERT_EQ(found->batch_id(), next.batch_id());
     }
 
-    const MutationBatch& first = batches[0];
+    const MutationBatch& first = batches.front();
     absl::optional<MutationBatch> found =
         mutation_queue_->NextMutationBatchAfterBatchId(first.batch_id() - 42);
     ASSERT_EQ(found->batch_id(), first.batch_id());
 
-    const MutationBatch& last = batches[batches.size() - 1];
+    const MutationBatch& last = batches.back();
     absl::optional<MutationBatch> not_found =
         mutation_queue_->NextMutationBatchAfterBatchId(last.batch_id());
     ASSERT_EQ(not_found, absl::nullopt);
@@ -231,7 +214,7 @@ TEST_P(MutationQueueTest, NextMutationBatchAfterBatchID) {
 }
 
 TEST_P(MutationQueueTest, AllMutationBatchesAffectingDocumentKey) {
-  persistence_->Run("test_all_mutation_batches_affecting_document_key", [&] {
+  persistence_->Run("AllMutationBatchesAffectingDocumentKey", [&] {
     std::vector<Mutation> mutations = {
         testutil::SetMutation("foi/bar", Map("a", 1)),
         testutil::SetMutation("foo/bar", Map("a", 1)),
@@ -254,12 +237,12 @@ TEST_P(MutationQueueTest, AllMutationBatchesAffectingDocumentKey) {
         mutation_queue_->AllMutationBatchesAffectingDocumentKey(
             testutil::Key("foo/bar"));
 
-    ASSERT_EQ(matches, expected);
+    EXPECT_EQ(matches, expected);
   });
 }
 
-TEST_P(MutationQueueTest, AllMutationBatchesAffectingDocumentKeys) {
-  persistence_->Run("test_all_mutation_batches_affecting_document_key", [&] {
+TEST_P(MutationQueueTest, AllMutationBatchesAffectingMultipleDocumentKeys) {
+  persistence_->Run("AllMutationBatchesAffectingDocumentKeys", [&] {
     std::vector<Mutation> mutations = {
         testutil::SetMutation("fob/bar", Map("a", 1)),
         testutil::SetMutation("foo/bar", Map("a", 1)),
@@ -286,14 +269,14 @@ TEST_P(MutationQueueTest, AllMutationBatchesAffectingDocumentKeys) {
     std::vector<MutationBatch> matches =
         mutation_queue_->AllMutationBatchesAffectingDocumentKeys(keys);
 
-    ASSERT_EQ(matches, expected);
+    EXPECT_EQ(matches, expected);
   });
 }
 
 TEST_P(MutationQueueTest,
-       AllMutationBatchesAffectingDocumentKeys_handlesOverlap) {
+       AllMutationBatchesAffectingDocumentKeysHandlesOverlap) {
   persistence_->Run(
-      "test_all_mutation_batches_affecting_document_keys_handlesOverlap", [&] {
+      "AllMutationBatchesAffectingDocumentKeysHandlesOverlap", [&] {
         std::vector<Mutation> group1 = {
             testutil::SetMutation("foo/bar", Map("a", 1)),
             testutil::SetMutation("foo/baz", Map("a", 1)),
@@ -321,12 +304,12 @@ TEST_P(MutationQueueTest,
         std::vector<MutationBatch> matches =
             mutation_queue_->AllMutationBatchesAffectingDocumentKeys(keys);
 
-        ASSERT_EQ(matches, expected);
+        EXPECT_EQ(matches, expected);
       });
 }
 
 TEST_P(MutationQueueTest, AllMutationBatchesAffectingQuery) {
-  persistence_->Run("test_all_mutation_batches_affecting_query", [&] {
+  persistence_->Run("AllMutationBatchesAffectingQuery", [&] {
     std::vector<Mutation> mutations = {
         testutil::SetMutation("fob/bar", Map("a", 1)),
         testutil::SetMutation("foo/bar", Map("a", 1)),
@@ -349,22 +332,20 @@ TEST_P(MutationQueueTest, AllMutationBatchesAffectingQuery) {
     std::vector<MutationBatch> matches =
         mutation_queue_->AllMutationBatchesAffectingQuery(query);
 
-    ASSERT_EQ(matches, expected);
+    EXPECT_EQ(matches, expected);
   });
 }
 
 TEST_P(MutationQueueTest, RemoveMutationBatches) {
-  persistence_->Run("test_remove_mutation_batches", [&] {
+  persistence_->Run("RemoveMutationBatches", [&] {
     std::vector<MutationBatch> batches = CreateBatches(10);
 
     mutation_queue_->RemoveMutationBatch(batches[0]);
     batches.erase(batches.begin());
 
-    ASSERT_EQ(BatchCount(), 9);
+    ASSERT_EQ(GetBatchCount(), 9);
 
-    std::vector<MutationBatch> found;
-
-    found = mutation_queue_->AllMutationBatches();
+    std::vector<MutationBatch> found = mutation_queue_->AllMutationBatches();
     ASSERT_EQ(found, batches);
     ASSERT_EQ(found.size(), 9);
 
@@ -372,7 +353,7 @@ TEST_P(MutationQueueTest, RemoveMutationBatches) {
     mutation_queue_->RemoveMutationBatch(batches[1]);
     mutation_queue_->RemoveMutationBatch(batches[2]);
     batches.erase(batches.begin(), batches.begin() + 3);
-    ASSERT_EQ(BatchCount(), 6);
+    ASSERT_EQ(GetBatchCount(), 6);
 
     found = mutation_queue_->AllMutationBatches();
     ASSERT_EQ(found, batches);
@@ -380,7 +361,7 @@ TEST_P(MutationQueueTest, RemoveMutationBatches) {
 
     mutation_queue_->RemoveMutationBatch(batches[0]);
     batches.erase(batches.begin());
-    ASSERT_EQ(BatchCount(), 5);
+    ASSERT_EQ(GetBatchCount(), 5);
 
     found = mutation_queue_->AllMutationBatches();
     ASSERT_EQ(found, batches);
@@ -388,11 +369,11 @@ TEST_P(MutationQueueTest, RemoveMutationBatches) {
 
     mutation_queue_->RemoveMutationBatch(batches[0]);
     batches.erase(batches.begin());
-    ASSERT_EQ(BatchCount(), 4);
+    ASSERT_EQ(GetBatchCount(), 4);
 
     mutation_queue_->RemoveMutationBatch(batches[0]);
     batches.erase(batches.begin());
-    ASSERT_EQ(BatchCount(), 3);
+    ASSERT_EQ(GetBatchCount(), 3);
 
     found = mutation_queue_->AllMutationBatches();
     ASSERT_EQ(found, batches);
@@ -412,7 +393,7 @@ TEST_P(MutationQueueTest, StreamToken) {
   ByteString stream_token1("token1");
   ByteString stream_token2("token2");
 
-  persistence_->Run("test_stream_token", [&] {
+  persistence_->Run("StreamToken", [&] {
     mutation_queue_->SetLastStreamToken(stream_token1);
 
     MutationBatch batch1 = AddMutationBatch();
@@ -424,8 +405,6 @@ TEST_P(MutationQueueTest, StreamToken) {
     ASSERT_EQ(mutation_queue_->GetLastStreamToken(), stream_token2);
   });
 }
-
-#pragma mark - Helpers
 
 }  // namespace local
 }  // namespace firestore
