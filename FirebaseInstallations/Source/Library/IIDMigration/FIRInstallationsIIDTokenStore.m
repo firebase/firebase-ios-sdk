@@ -14,22 +14,18 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import "FIRInstallationsIIDTokenStore.h"
 
-@class FIRInstallationsStoredIIDCheckin;
-@class FBLPromise<ValueType>;
+#if __has_include(<FBLPromises/FBLPromises.h>)
+#import <FBLPromises/FBLPromises.h>
+#else
+#import "FBLPromises.h"
+#endif
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation FIRInstallationsIIDTokenStore
 
-@interface FIRInstallationsIIDCheckinStore : NSObject
-
-/*
- * Tries to read IID checking from the Keychain (see also `FIRInstanceIDCheckinStore`).
- * @return Returns a promise that is resolved with the checkin object when all required data found
- * in the Keychain. The promise is rejected when the data is missing.
- */
-- (FBLPromise<FIRInstallationsStoredIIDCheckin *> *)existingCheckin;
+- (FBLPromise<NSString *> *)existingIIDAuthToken {
+  return [FBLPromise resolvedWith:@""];
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

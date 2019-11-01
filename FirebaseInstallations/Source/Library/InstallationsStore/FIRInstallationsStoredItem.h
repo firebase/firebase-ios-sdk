@@ -41,8 +41,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, nullable) FIRInstallationsStoredAuthToken *authToken;
 @property(nonatomic) FIRInstallationsStatus registrationStatus;
 
-/// Instance ID checkin data imported from IID checkin store as a part of IID migration.
-@property(nonatomic, nullable) FIRInstallationsStoredIIDCheckin *IIDCheckin;
+/// Instance ID default auth token imported from IID store as a part of IID migration.
+@property(nonatomic, nullable) NSString *IIDAuthToken;
 
 /// The version of local storage.
 @property(nonatomic, readonly) NSInteger storageVersion;

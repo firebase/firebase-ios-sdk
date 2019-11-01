@@ -24,7 +24,6 @@
 #import "FIRInstallationsErrorUtil.h"
 #import "FIRInstallationsHTTPError.h"
 #import "FIRInstallationsStoredAuthToken.h"
-#import "FIRInstallationsStoredIIDCheckin.h"
 #import "FIRInstallationsVersion.h"
 
 typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
@@ -67,9 +66,7 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
   FIRInstallationsItem *installation = [[FIRInstallationsItem alloc] initWithAppID:@"app-id"
                                                                    firebaseAppName:@"name"];
   installation.firebaseInstallationID = [FIRInstallationsItem generateFID];
-  installation.IIDCheckin =
-      [[FIRInstallationsStoredIIDCheckin alloc] initWithDeviceID:@"IIDDeviceID"
-                                                     secretToken:@"IIDSecretToken"];
+  installation.IIDAuthToken = @"iid-auth-token";
 
   // 1. Stub URL session:
 
@@ -84,7 +81,7 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
     XCTAssertEqualObjects([request valueForHTTPHeaderField:@"X-Ios-Bundle-Identifier"],
                           [[NSBundle mainBundle] bundleIdentifier]);
 
-    NSString *expectedIIDMigrationHeader = @"IIDDeviceID:IIDSecretToken";
+    NSString *expectedIIDMigrationHeader = installation.IIDAuthToken;
     XCTAssertEqualObjects([request valueForHTTPHeaderField:@"x-goog-fis-ios-iid-migration-auth"],
                           expectedIIDMigrationHeader);
 
