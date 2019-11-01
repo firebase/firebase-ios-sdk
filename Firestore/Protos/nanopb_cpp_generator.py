@@ -218,7 +218,8 @@ def create_pretty_printing_generators(parsed_files):
   pretty_printing_generators = {}
   for name, parsed_file in parsed_files.items():
     base_filename = name.replace('.proto', '')
-    pretty_printing_generators[base_filename] = printing.FilePrettyPrintingGenerator(parsed_file)
+    pretty_printing_generators[
+      base_filename] = printing.FilePrettyPrintingGenerator(parsed_file)
   return pretty_printing_generators
 
 
@@ -273,10 +274,12 @@ def nanopb_write(results, pretty_printing_generators):
     base_filename = result['headername'].replace('.nanopb.h', '')
     pretty_printing_generator = pretty_printing_generators[base_filename]
 
-    header_request = FileGenerationRequest(response.file, result['headername'], nanopb_fixup(result['headerdata']))
+    header_request = FileGenerationRequest(response.file, result['headername'],
+                                           nanopb_fixup(result['headerdata']))
     nanopb_augment_header(header_request, pretty_printing_generator)
 
-    source_request = FileGenerationRequest(response.file, result['sourcename'], nanopb_fixup(result['sourcedata']))
+    source_request = FileGenerationRequest(response.file, result['sourcename'],
+                                           nanopb_fixup(result['sourcedata']))
     nanopb_augment_source(source_request, pretty_printing_generator)
 
   return response
@@ -313,14 +316,12 @@ class FileGenerationRequest:
 
     self._set_contents(contents)
 
-
   def _set_contents(self, contents):
     """Creates a request to generate a new file with the given `contents`.
     """
     f = self.files.add()
     f.name = self.file_name
     f.content = contents
-
 
   def insert(self, insertion_point, to_insert):
     """Adds extra text to the generated file at the given `insertion_point`.
@@ -339,20 +340,20 @@ class FileGenerationRequest:
 
 
 def nanopb_fixup(file_contents):
-    """Applies fixups to generated Nanopb code.
+  """Applies fixups to generated Nanopb code.
 
-    This is for changes to the code, as well as additions that cannot be made via
-    insertion points. Current fixups:
-    - rename fields named `delete` to `delete_`, because it's a keyword in C++.
+  This is for changes to the code, as well as additions that cannot be made via
+  insertion points. Current fixups:
+  - rename fields named `delete` to `delete_`, because it's a keyword in C++.
 
-    Args:
-      file_contents: The contents of the generated file as a single string. The
-        fixups will be applied without distinguishing between the code and the
-        comments.
-    """
+  Args:
+    file_contents: The contents of the generated file as a single string. The
+      fixups will be applied without distinguishing between the code and the
+      comments.
+  """
 
-    delete_keyword = re.compile(r'\bdelete\b')
-    return delete_keyword.sub('delete_', file_contents)
+  delete_keyword = re.compile(r'\bdelete\b')
+  return delete_keyword.sub('delete_', file_contents)
 
 
 def nanopb_augment_header(request, pretty_printing_generator):

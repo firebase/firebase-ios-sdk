@@ -19,6 +19,7 @@ import textwrap
 from google.protobuf.descriptor_pb2 import FieldDescriptorProto
 import nanopb_generator as nanopb
 
+
 def _indent(level):
   """Returns leading whitespace corresponding to the given indentation `level`.
   """
@@ -47,7 +48,8 @@ class FilePrettyPrintingGenerator:
       file_desc: nanopb.ProtoFile describing this proto file.
     """
 
-    self.messages = [MessagePrettyPrintingGenerator(m) for m in file_desc.messages]
+    self.messages = [MessagePrettyPrintingGenerator(m) for m in
+                     file_desc.messages]
     self.enums = [EnumPrettyPrintingGenerator(e) for e in file_desc.enums]
 
 
@@ -74,7 +76,8 @@ class MessagePrettyPrintingGenerator:
     self.full_classname = str(message_desc.name)
     self._short_classname = message_desc.name.parts[-1]
 
-    self._fields = [self._create_field(f, message_desc) for f in message_desc.fields]
+    self._fields = [self._create_field(f, message_desc) for f in
+                    message_desc.fields]
     # Make sure fields are printed ordered by tag, for consistency with official
     # proto libraries.
     self._fields.sort(key=lambda f: f.tag)
@@ -85,12 +88,10 @@ class MessagePrettyPrintingGenerator:
     else:
       return FieldPrettyPrintingGenerator(field_desc, message_desc)
 
-
   def generate_declaration(self):
     """Generates the declaration of a `ToString()` member function.
     """
-    return '\n' + _indent( 1) + 'std::string ToString(int indent = 0) const;\n'
-
+    return '\n' + _indent(1) + 'std::string ToString(int indent = 0) const;\n'
 
   def generate_definition(self):
     """Generates the out-of-class definition of a `ToString()` member function.
@@ -98,7 +99,8 @@ class MessagePrettyPrintingGenerator:
     result = _reindent(0, '''\
         std::string %s::ToString(int indent) const {
             std::string header = PrintHeader(indent, "%s", this);
-            std::string result;\n\n''') % (self.full_classname, self._short_classname)
+            std::string result;\n\n''') % (
+    self.full_classname, self._short_classname)
 
     for field in self._fields:
       result += str(field)
@@ -151,7 +153,6 @@ class FieldPrettyPrintingGenerator:
     self.is_primitive = field_desc.pbtype != 'MESSAGE'
     self.is_enum = field_desc.pbtype in ['ENUM', 'UENUM']
 
-
   def __str__(self):
     """Generates a C++ statement that prints the field according to its type.
     """
@@ -161,7 +162,6 @@ class FieldPrettyPrintingGenerator:
       return self._generate_for_repeated()
     else:
       return self._generate_for_leaf()
-
 
   def _generate_for_repeated(self):
     """Generates a C++ statement that prints the repeated field, if non-empty.
@@ -179,7 +179,6 @@ class FieldPrettyPrintingGenerator:
 
     return result
 
-
   def _generate_for_optional(self):
     """Generates a C++ statement that prints the optional field, if set.
     """
@@ -193,7 +192,6 @@ class FieldPrettyPrintingGenerator:
         }\n''')
 
     return result
-
 
   def _generate_for_leaf(self, indent=1, always_print=False, parent_oneof=None):
     """Generates a C++ statement that prints the "leaf" field.
@@ -219,8 +217,8 @@ class FieldPrettyPrintingGenerator:
     cc_name = self._get_cc_name(parent_oneof)
     function_name = self._get_printer_function_name()
 
-    return self._generate(indent, display_name, cc_name, function_name, always_print)
-
+    return self._generate(indent, display_name, cc_name, function_name,
+                          always_print)
 
   def _get_cc_name(self, parent_oneof):
     """Gets the name of the field to use in the generated C++ code:
@@ -249,7 +247,6 @@ class FieldPrettyPrintingGenerator:
 
     return cc_name
 
-
   def _get_printer_function_name(self):
     """Gets the name of the C++ function to delegate printing to.
     """
@@ -260,8 +257,8 @@ class FieldPrettyPrintingGenerator:
     else:
       return 'PrintMessageField'
 
-
-  def _generate(self, indent_level, display_name, cc_name, function_name, always_print):
+  def _generate(self, indent_level, display_name, cc_name, function_name,
+                always_print):
     """Generates the C++ statement that prints the field.
 
     Args:
@@ -277,7 +274,8 @@ class FieldPrettyPrintingGenerator:
     format_str = '%sresult += %s("%s ",%s%s, indent + 1, %s);\n'
     maybe_linebreak = ' '
     args = (
-      _indent(indent_level), function_name, display_name, maybe_linebreak, cc_name,
+      _indent(indent_level), function_name, display_name, maybe_linebreak,
+      cc_name,
       always_print)
 
     result = format_str % args
@@ -287,7 +285,8 @@ class FieldPrettyPrintingGenerator:
     # Best-effort attempt to fit within the expected line width.
     maybe_linebreak = '\n' + _indent(indent_level + 1)
     args = (
-      _indent(indent_level), function_name, display_name, maybe_linebreak, cc_name,
+      _indent(indent_level), function_name, display_name, maybe_linebreak,
+      cc_name,
       always_print)
     return format_str % args
 
@@ -311,8 +310,8 @@ class OneOfPrettyPrintingGenerator(FieldPrettyPrintingGenerator):
 
     self._which = 'which_' + field_desc.name
     self._is_anonymous = field_desc.anonymous
-    self._fields = [FieldPrettyPrintingGenerator(f, message_desc) for f in field_desc.fields]
-
+    self._fields = [FieldPrettyPrintingGenerator(f, message_desc) for f in
+                    field_desc.fields]
 
   def __str__(self):
     """Generates a C++ statement that prints the oneof field, if it is set.
@@ -328,7 +327,7 @@ class OneOfPrettyPrintingGenerator(FieldPrettyPrintingGenerator):
 
       # If oneof is set, always print that member, even if it's zero or empty.
       result += f._generate_for_leaf(indent=2, parent_oneof=self,
-                                      always_print=True)
+                                     always_print=True)
       result += _reindent(2, '''\
           break;\n''')
 
@@ -360,12 +359,10 @@ class EnumPrettyPrintingGenerator:
     self.name = str(enum_desc.names)
     self._members = [str(n) for n in enum_desc.value_longnames]
 
-
   def generate_declaration(self):
     """Generates the declaration of a `EnumToString()` free function.
     """
     return 'const char* EnumToString(%s\nvalue);\n;' % (self.name)
-
 
   def generate_definition(self):
     """Generates the definition of a `EnumToString()` free function.
