@@ -58,8 +58,8 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
   self.projectID = nil;
   self.APIKey = nil;
 
-  //  // Wait for any pending promises to complete.
-  //  XCTAssert(FBLWaitForPromisesWithTimeout(2));
+  // Wait for any pending promises to complete.
+  XCTAssert(FBLWaitForPromisesWithTimeout(2));
 }
 
 - (void)testRegisterInstallationSuccess {
