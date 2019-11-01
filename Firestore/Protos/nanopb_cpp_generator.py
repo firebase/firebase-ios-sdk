@@ -292,6 +292,9 @@ class FileGenerationRequest:
 
   In addition, each header also defines a 'struct:Foo' insertion point inside
   each struct declaration, where 'Foo' is the the name of the struct.
+
+  See the official protobuf docs for more information on insertion points:
+  https://github.com/protocolbuffers/protobuf/blob/129a7c875fc89309a2ab2fbbc940268bbf42b024/src/google/protobuf/compiler/plugin.proto#L125-L162
   """
 
   def __init__(self, files, file_name, contents):
