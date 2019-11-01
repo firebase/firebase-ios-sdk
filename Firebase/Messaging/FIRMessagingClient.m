@@ -16,6 +16,8 @@
 
 #import "Firebase/Messaging/FIRMessagingClient.h"
 
+#import "Firebase/Messaging/Protos/GtalkCore.pbobjc.h"
+
 #import <FirebaseInstanceID/FIRInstanceID_Private.h>
 #import <FirebaseMessaging/FIRMessaging.h>
 #import <GoogleUtilities/GULReachabilityChecker.h>
@@ -393,20 +395,22 @@ static NSUInteger FIRMessagingServerPort() {
   }
 }
 
-- (int)connectionDidReceiveAckForRmqIds:(NSArray *)rmqIds {
+- (void)connectionDidReceiveAckForRmqIds:(NSArray *)rmqIds {
   NSSet *rmqIDSet = [NSSet setWithArray:rmqIds];
   NSMutableArray *messagesSent = [NSMutableArray arrayWithCapacity:rmqIds.count];
-  [self.rmq2Manager scanWithRmqMessageHandler:nil
-                           dataMessageHandler:^(int64_t rmqId, GtalkDataMessageStanza *stanza) {
-                             NSString *rmqIdString = [NSString stringWithFormat:@"%lld", rmqId];
-                             if ([rmqIDSet containsObject:rmqIdString]) {
-                               [messagesSent addObject:stanza];
-                             }
-                           }];
+  [self.rmq2Manager scanWithRmqMessageHandler:^(NSDictionary *messages) {
+    for (NSString *rmqID in messages) {
+      GPBMessage *proto = messages[rmqID];
+      GtalkDataMessageStanza *stanza = (GtalkDataMessageStanza *)proto;
+      if ([rmqIDSet containsObject:rmqID]) {
+        [messagesSent addObject:stanza];
+      }
+    }
+  }];
   for (GtalkDataMessageStanza *message in messagesSent) {
     [self.dataMessageManager didSendDataMessageStanza:message];
   }
-  return [self.rmq2Manager removeRmqMessagesWithRmqIds:rmqIds];
+  [self.rmq2Manager removeRmqMessagesWithRmqIds:rmqIds];
 }
 
 #pragma mark - Private

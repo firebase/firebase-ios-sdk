@@ -12,19 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if(APPLE)
-  cc_library(
-    firebase_firestore_public_objc
-    HEADER_ONLY
-    SOURCES
-      FIRFirestoreErrors.h
-  )
-
-  target_include_directories(
-    firebase_firestore_public_objc
-    INTERFACE
-    ${FIREBASE_SOURCE_DIR}/Firestore/Source/Public
-  )
-
-endif()
-
+cc_test(
+  firebase_firestore_api_test
+  SOURCES
+    cc_compilation_test.cc
+  DEPENDS
+    firebase_firestore_api
+)

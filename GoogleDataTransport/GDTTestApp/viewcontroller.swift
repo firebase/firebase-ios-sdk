@@ -67,10 +67,13 @@ public extension ViewController {
   func beginMonkeyTest(completion: () -> Void) {
     print("Beginning monkey test")
 
+    let generateEventsQueue = DispatchQueue(label: "com.google.GDTTestApp.vc.generateEvents")
     let sema: DispatchSemaphore = DispatchSemaphore(value: 0)
     var generateEvents = true
     DispatchQueue.global().asyncAfter(deadline: .now() + Globals.MonkeyTestLength) {
-      generateEvents = false
+      generateEventsQueue.sync {
+        generateEvents = false
+      }
       sema.signal()
     }
 
@@ -87,7 +90,11 @@ public extension ViewController {
         generationFunctions[randomIndex](self)
       }
       RunLoop.current.run(until: Date(timeIntervalSinceNow: Double.random(in: 0 ..< 1.5)))
-      if generateEvents {
+      var shouldContinueGeneratingEvents: Bool = false
+      generateEventsQueue.sync {
+        shouldContinueGeneratingEvents = generateEvents
+      }
+      if shouldContinueGeneratingEvents {
         generateEvent()
       }
     }

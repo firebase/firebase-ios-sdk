@@ -22,15 +22,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface GULCCComponentContainer (Private)
 
-/// Initializes a contain with a context.
+/// Initializes a container with a context.
 - (instancetype)initWithContext:(nullable id)context;
 
-/// Initializes a contain with a context and a given set of registered `GULLibraries`.
+/// Initializes a container with a context and a given set of registered `GULLibraries`.
 - (instancetype)initWithContext:(nullable id)context
                     registrants:(NSMutableSet<Class> *)allRegistrants;
 
 /// Retrieves an instance that conforms to the specified protocol. This will return `nil` if the
-/// protocol wasn't registered, or if the instance couldn't instantiate for the provided app.
+/// protocol wasn't registered, or if the instance couldn't be instantiated for the provided app.
 - (nullable id)instanceForProtocol:(Protocol *)protocol NS_SWIFT_NAME(instance(for:));
 
 /// Instantiates all the components that have registered as "eager" after initialization.
