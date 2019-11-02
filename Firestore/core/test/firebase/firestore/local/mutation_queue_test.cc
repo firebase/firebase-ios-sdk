@@ -160,8 +160,8 @@ TEST_P(MutationQueueTest, LookupMutationBatch) {
     std::vector<MutationBatch> removed = RemoveFirstBatches(3, &batches);
 
     // After removing, a batch should not be found
-    for (size_t i = 0; i < removed.size(); i++) {
-      not_found = mutation_queue_->LookupMutationBatch(removed[i].batch_id());
+    for (const MutationBatch& batch : removed) {
+      not_found = mutation_queue_->LookupMutationBatch(batch.batch_id());
       ASSERT_EQ(not_found, absl::nullopt);
     }
 
