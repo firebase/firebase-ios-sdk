@@ -22,7 +22,7 @@
 # defines these environment variables and makes them available to the script.
 
 if ! [ -x "$(command -v protoc)" ]; then
-  echo "This scripts needs protoc command to be available."
+  echo "This scripts needs the protoc command to be on the PATH."
   echo "Please install protobuf (e.g., \`brew install protobuf\` on Mac)."
   exit 1
 fi
