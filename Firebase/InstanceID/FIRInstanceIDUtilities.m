@@ -78,7 +78,17 @@ NSString *FIRInstanceIDCurrentAppVersion() {
   return version;
 }
 
-NSString *FIRInstanceIDAppIdentifier() {
+NSString * FIRInstanceIDBundleIdentifierByRemovingLastPartFrom(NSString *bundleIdentifier) {
+  NSString *bundleIDComponentsSeparator = @".";
+
+  NSMutableArray<NSString *> *bundleIDComponents =
+      [[bundleIdentifier componentsSeparatedByString:bundleIDComponentsSeparator] mutableCopy];
+  [bundleIDComponents removeLastObject];
+
+  return [bundleIDComponents componentsJoinedByString:bundleIDComponentsSeparator];
+}
+
+NSString * FIRInstanceIDAppIdentifier() {
   NSString *bundleIdentifier = [[NSBundle mainBundle] bundleIdentifier];
   if (!bundleIdentifier.length) {
     FIRInstanceIDLoggerError(kFIRInstanceIDMessageCodeUtilitiesMissingBundleIdentifier,
@@ -87,6 +97,9 @@ NSString *FIRInstanceIDAppIdentifier() {
                              bundleIdentifier);
     return @"";
   }
+#if TARGET_OS_WATCH
+  return FIRInstanceIDBundleIdentifierByRemovingLastPartFrom(bundleIdentifier);
+#endif
   return bundleIdentifier;
 }
 
