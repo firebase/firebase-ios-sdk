@@ -102,8 +102,7 @@ inline const pb_field_t* FieldsArray<google_firestore_v1_ListenResponse>() {
 
 // For tests only.
 template <>
-inline const pb_field_t*
-FieldsArray<google_firestore_v1_RunQueryRequest>() {
+inline const pb_field_t* FieldsArray<google_firestore_v1_RunQueryRequest>() {
   return google_firestore_v1_RunQueryRequest_fields;
 }
 

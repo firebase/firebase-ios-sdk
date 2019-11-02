@@ -30,7 +30,7 @@ namespace firestore {
 namespace internal {
 
 // Creates a string of spaces corresponding to the given indentation level.
-std::string Indent(int level, int indent_width=2);
+std::string Indent(int level, int indent_width = 2);
 
 std::string ToString(pb_bytes_array_t* value);
 std::string ToString(bool value);
