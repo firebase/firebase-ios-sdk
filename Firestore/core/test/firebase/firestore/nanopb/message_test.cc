@@ -125,6 +125,17 @@ TEST_F(MessageTest, PrintsBytes) {
 })"));
 }
 
+TEST_F(MessageTest, PrintsEnums) {
+  Message<google_firestore_v1_TargetChange> m;
+  m->target_change_type =
+      google_firestore_v1_TargetChange_TargetChangeType_CURRENT;
+
+  EXPECT_THAT(m.ToString(), MatchesRegex(
+                                R"(<TargetChange 0x[0-9A-Fa-f]+>: {
+  target_change_type: CURRENT
+})"));
+}
+
 TEST_F(MessageTest, PrintsSubmessages) {
   Message<firestore_client_Target> m;
   m->snapshot_version.seconds = 123;
@@ -179,10 +190,76 @@ TEST_F(MessageTest, PrintsArraysOfObjects) {
 })"));
 }
 
-TEST_F(MessageTest, PrintsNestedSubmessages) {
+TEST_F(MessageTest, PrintsPrimitivesInOneofs) {
+  Message<google_firestore_v1_Write> m;
+  m->which_operation = google_firestore_v1_Write_delete_tag;
+  // Also checks for the special case with `delete` being a keyword in C++.
+  m->delete_ = MakeBytesArray("abc");
+
+  EXPECT_THAT(m.ToString(), MatchesRegex(
+                                R"(<Write 0x[0-9A-Fa-f]+>: {
+  delete: "abc"
+})"));
 }
 
-TEST_F(MessageTest, PrintsOneofs) {
+TEST_F(MessageTest, PrintsMessagesInOneofs) {
+  // This test also exercises deeply-nested messages.
+  Message<google_firestore_v1_Write> m;
+  m->which_operation = google_firestore_v1_Write_update_tag;
+
+  auto& doc = m->update;
+  doc.name = MakeBytesArray("some name");
+
+  doc.fields_count = 2;
+  doc.fields =
+      MakeArray<google_firestore_v1_Document_FieldsEntry>(doc.fields_count);
+
+  // Also checks that even fields with default values are printed if they're the
+  // active member of a oneof.
+  doc.fields[0].key = MakeBytesArray("key1");
+  doc.fields[0].value.which_value_type =
+      google_firestore_v1_Value_boolean_value_tag;
+  doc.fields[0].value.boolean_value = false;
+
+  doc.fields[1].key = MakeBytesArray("key2");
+  doc.fields[1].value.which_value_type =
+      google_firestore_v1_Value_timestamp_value_tag;
+
+  EXPECT_THAT(m.ToString(), MatchesRegex(
+                                R"(<Write 0x[0-9A-Fa-f]+>: {
+  update {
+    name: "some name"
+    fields {
+      key: "key1"
+      value {
+        boolean_value: false
+      }
+    }
+    fields {
+      key: "key2"
+      value {
+        timestamp_value {
+        }
+      }
+    }
+  }
+})"));
+}
+
+TEST_F(MessageTest, PrintsNonAnonymousOneofs) {
+  Message<google_firestore_v1_RunQueryRequest> m;
+
+  m->which_consistency_selector =
+      google_firestore_v1_RunQueryRequest_read_time_tag;
+  m->consistency_selector.read_time.seconds = 123;
+  m->consistency_selector.read_time.nanos = 456;
+  EXPECT_THAT(m.ToString(), MatchesRegex(
+                                R"(<RunQueryRequest 0x[0-9A-Fa-f]+>: {
+  read_time {
+    seconds: 123
+    nanos: 456
+  }
+})"));
 }
 
 TEST_F(MessageTest, PrintsOptionals) {
@@ -209,7 +286,19 @@ TEST_F(MessageTest, PrintsOptionals) {
 })"));
 }
 
-TEST_F(MessageTest, PrintingDoesNotOmitsNestedUnsetFields) {
+TEST_F(MessageTest, PrintsEmptyArrayElements) {
+  Message<google_firestore_v1_Target_DocumentsTarget> m;
+
+  m->documents_count = 2;
+  m->documents = MakeArray<pb_bytes_array_t*>(m->documents_count);
+  m->documents[0] = MakeBytesArray("");
+  m->documents[1] = MakeBytesArray("");
+
+  EXPECT_THAT(m.ToString(), MatchesRegex(
+                                R"(<DocumentsTarget 0x[0-9A-Fa-f]+>: {
+  documents: ""
+  documents: ""
+})"));
 }
 
 TEST_F(MessageTest, PrintsEmptyMessageIfRoot) {
