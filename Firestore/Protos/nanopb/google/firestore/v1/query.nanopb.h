@@ -263,18 +263,13 @@ extern const pb_field_t google_firestore_v1_Cursor_fields[3];
 
 #endif
 
-const char* EnumToString(google_firestore_v1_StructuredQuery_Direction
-value);
-;
-const char* EnumToString(google_firestore_v1_StructuredQuery_CompositeFilter_Operator
-value);
-;
-const char* EnumToString(google_firestore_v1_StructuredQuery_FieldFilter_Operator
-value);
-;
-const char* EnumToString(google_firestore_v1_StructuredQuery_UnaryFilter_Operator
-value);
-;
+const char* EnumToString(google_firestore_v1_StructuredQuery_Direction value);
+const char* EnumToString(
+    google_firestore_v1_StructuredQuery_CompositeFilter_Operator value);
+const char* EnumToString(
+    google_firestore_v1_StructuredQuery_FieldFilter_Operator value);
+const char* EnumToString(
+    google_firestore_v1_StructuredQuery_UnaryFilter_Operator value);
 }  // namespace firestore
 }  // namespace firebase
 

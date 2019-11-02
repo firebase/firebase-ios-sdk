@@ -20,7 +20,6 @@
 #include "write.nanopb.h"
 
 #include "Firestore/core/src/firebase/firestore/nanopb/pretty_printing.h"
-#include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 
 namespace firebase {
 namespace firestore {
