@@ -19,13 +19,17 @@ cc_test(
     index_manager_test.h
     leveldb_index_manager_test.cc
     leveldb_key_test.cc
+    leveldb_query_cache_test.cc
     leveldb_remote_document_cache_test.cc
     leveldb_util_test.cc
     local_serializer_test.cc
     memory_index_manager_test.cc
+    memory_query_cache_test.cc
     memory_remote_document_cache_test.cc
     persistence_testing.cc
     persistence_testing.h
+    query_cache_test.cc
+    query_cache_test.h
     reference_set_test.cc
     remote_document_cache_test.cc
     remote_document_cache_test.h
