@@ -46,6 +46,7 @@ using model::SnapshotVersion;
 using model::TargetId;
 using nanopb::ByteString;
 using nanopb::ByteStringWriter;
+using nanopb::MakeArray;
 using nanopb::MakeByteString;
 using nanopb::Message;
 using nanopb::Reader;

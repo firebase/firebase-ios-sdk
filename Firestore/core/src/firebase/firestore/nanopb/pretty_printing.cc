@@ -74,4 +74,3 @@ std::string PrintTail(int indent_level) {
 
 }  // namespace firestore
 }  // namespace firebase
-
