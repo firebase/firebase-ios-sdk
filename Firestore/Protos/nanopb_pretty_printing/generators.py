@@ -20,9 +20,13 @@ from google.protobuf.descriptor_pb2 import FieldDescriptorProto
 import nanopb_generator as nanopb
 
 
+LINE_WIDTH = 80
+
+
 def _indent(level):
   """Returns leading whitespace corresponding to the given indentation `level`.
   """
+
   indent_per_level = 4
   return ' ' * (indent_per_level * level)
 
@@ -73,6 +77,7 @@ class MessagePrettyPrintingGenerator:
     """Args:
       message_desc: nanopb.Message describing this message.
     """
+
     self.full_classname = str(message_desc.name)
     self._short_classname = message_desc.name.parts[-1]
 
@@ -91,11 +96,13 @@ class MessagePrettyPrintingGenerator:
   def generate_declaration(self):
     """Generates the declaration of a `ToString()` member function.
     """
+
     return '\n' + _indent(1) + 'std::string ToString(int indent = 0) const;\n'
 
   def generate_definition(self):
     """Generates the out-of-class definition of a `ToString()` member function.
     """
+
     result = _reindent(0, '''\
         std::string %s::ToString(int indent) const {
             std::string header = PrintHeader(indent, "%s", this);
@@ -145,6 +152,7 @@ class FieldPrettyPrintingGenerator:
       field_desc: nanopb.Field describing this field.
       message_desc: nanopb.Message describing the message containing this field.
     """
+
     self.name = field_desc.name
     self.tag = field_desc.tag
 
@@ -156,6 +164,7 @@ class FieldPrettyPrintingGenerator:
   def __str__(self):
     """Generates a C++ statement that prints the field according to its type.
     """
+
     if self.is_optional:
       return self._generate_for_optional()
     elif self.is_repeated:
@@ -166,6 +175,7 @@ class FieldPrettyPrintingGenerator:
   def _generate_for_repeated(self):
     """Generates a C++ statement that prints the repeated field, if non-empty.
     """
+
     count = self.name + '_count'
 
     result = _reindent(1, '''\
@@ -182,6 +192,7 @@ class FieldPrettyPrintingGenerator:
   def _generate_for_optional(self):
     """Generates a C++ statement that prints the optional field, if set.
     """
+
     name = self.name
     result = _reindent(1, '''\
         if (has_%s) {\n''') % name
@@ -208,6 +219,7 @@ class FieldPrettyPrintingGenerator:
       parent_oneof: If the field is a member of a oneof, a reference to the
         corresponding `OneOfPrettyPrintingGenerator`
     """
+
     always_print = 'true' if always_print else 'false'
 
     display_name = self.name
@@ -250,6 +262,7 @@ class FieldPrettyPrintingGenerator:
   def _get_printer_function_name(self):
     """Gets the name of the C++ function to delegate printing to.
     """
+
     if self.is_enum:
       return 'PrintEnumField'
     elif self.is_primitive:
@@ -269,7 +282,6 @@ class FieldPrettyPrintingGenerator:
       function_name: The C++ function to delegate printing the value to.
       always_print: Whether to print the field if it has its default value.
     """
-    line_width = 80
 
     format_str = '%sresult += %s("%s ",%s%s, indent + 1, %s);\n'
     maybe_linebreak = ' '
@@ -279,7 +291,7 @@ class FieldPrettyPrintingGenerator:
       always_print)
 
     result = format_str % args
-    if len(result) <= line_width:
+    if len(result) <= LINE_WIDTH:
       return result
 
     # Best-effort attempt to fit within the expected line width.
@@ -304,6 +316,7 @@ class OneOfPrettyPrintingGenerator(FieldPrettyPrintingGenerator):
       field_desc: nanopb.Field describing this oneof field.
       message_desc: nanopb.Message describing the message containing this field.
     """
+
     FieldPrettyPrintingGenerator.__init__(self, field_desc, message_desc)
 
     self._full_classname = str(message_desc.name)
@@ -316,6 +329,7 @@ class OneOfPrettyPrintingGenerator(FieldPrettyPrintingGenerator):
   def __str__(self):
     """Generates a C++ statement that prints the oneof field, if it is set.
     """
+
     which = self._which
     result = _reindent(1, '''\
         switch (%s) {\n''') % which
@@ -356,17 +370,32 @@ class EnumPrettyPrintingGenerator:
     """Args:
       enum_desc: nanopb.Enum describing this enumeration.
     """
+
     self.name = str(enum_desc.names)
     self._members = [str(n) for n in enum_desc.value_longnames]
 
   def generate_declaration(self):
     """Generates the declaration of a `EnumToString()` free function.
     """
-    return 'const char* EnumToString(%s\nvalue);\n;' % (self.name)
+
+    # Best-effort attempt to fit within the expected line width.
+    format_str = 'const char* EnumToString(%s%s value);\n'
+    maybe_linebreak = ''
+    args = (maybe_linebreak, self.name)
+
+    result = format_str % args
+    if len(result) <= LINE_WIDTH:
+      return result
+
+    # Best-effort attempt to fit within the expected line width.
+    maybe_linebreak = '\n' + _indent(1)
+    args = (maybe_linebreak, self.name)
+    return format_str % args
 
   def generate_definition(self):
     """Generates the definition of a `EnumToString()` free function.
     """
+
     result = _reindent(0, '''\
         const char* EnumToString(
           %s value) {
