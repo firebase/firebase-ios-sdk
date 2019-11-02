@@ -123,7 +123,6 @@ const char* EnumToString(
         return "SERVER_VALUE_UNSPECIFIED";
     case google_firestore_v1_DocumentTransform_FieldTransform_ServerValue_REQUEST_TIME:
         return "REQUEST_TIME";
-
     }
     return "<unknown enum value>";
 }

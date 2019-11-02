@@ -407,7 +407,7 @@ class EnumPrettyPrintingGenerator:
           case %s:
               return "%s";\n''') % (full_name, short_name)
 
-    result += _reindent(0, '''
+    result += _reindent(0, '''\
             }
             return "<unknown enum value>";
         }\n\n''')
