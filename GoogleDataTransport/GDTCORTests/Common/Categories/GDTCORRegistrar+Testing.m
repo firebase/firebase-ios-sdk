@@ -21,10 +21,10 @@
 @implementation GDTCORRegistrar (Testing)
 
 - (void)reset {
+  [self.targetToPrioritizer removeAllObjects];
+  [self.targetToUploader removeAllObjects];
   dispatch_sync(self.registrarQueue, ^{
-    [self.targetToPrioritizer removeAllObjects];
-    [self.targetToUploader removeAllObjects];
-  });
+                });
 }
 
 @end
