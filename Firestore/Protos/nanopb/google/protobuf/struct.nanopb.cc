@@ -88,7 +88,6 @@ const char* EnumToString(
     switch (value) {
     case google_protobuf_NullValue_NULL_VALUE:
         return "NULL_VALUE";
-
     }
     return "<unknown enum value>";
 }
