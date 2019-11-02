@@ -135,7 +135,6 @@ const char* EnumToString(
         return "ASCENDING";
     case google_firestore_v1_StructuredQuery_Direction_DESCENDING:
         return "DESCENDING";
-
     }
     return "<unknown enum value>";
 }
@@ -147,7 +146,6 @@ const char* EnumToString(
         return "OPERATOR_UNSPECIFIED";
     case google_firestore_v1_StructuredQuery_CompositeFilter_Operator_AND:
         return "AND";
-
     }
     return "<unknown enum value>";
 }
@@ -173,7 +171,6 @@ const char* EnumToString(
         return "IN";
     case google_firestore_v1_StructuredQuery_FieldFilter_Operator_ARRAY_CONTAINS_ANY:
         return "ARRAY_CONTAINS_ANY";
-
     }
     return "<unknown enum value>";
 }
@@ -187,7 +184,6 @@ const char* EnumToString(
         return "IS_NAN";
     case google_firestore_v1_StructuredQuery_UnaryFilter_Operator_IS_NULL:
         return "IS_NULL";
-
     }
     return "<unknown enum value>";
 }

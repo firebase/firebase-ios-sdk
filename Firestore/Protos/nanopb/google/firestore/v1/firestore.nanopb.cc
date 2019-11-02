@@ -274,7 +274,6 @@ const char* EnumToString(
         return "CURRENT";
     case google_firestore_v1_TargetChange_TargetChangeType_RESET:
         return "RESET";
-
     }
     return "<unknown enum value>";
 }
