@@ -15,10 +15,10 @@
  */
 
 #include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
+
 #include <iostream>
 
 #include "Firestore/core/src/firebase/firestore/util/filesystem.h"
-
 #include "gtest/gtest.h"
 
 namespace firebase {
