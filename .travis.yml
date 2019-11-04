@@ -233,7 +233,7 @@ jobs:
         # - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=macos
 
     - stage: test
-      osx_image: xcode10.2
+      osx_image: xcode10.3
       env:
         - PROJECT=Messaging METHOD=pod-lib-lint
       script:
