@@ -50,6 +50,7 @@ MutationQueueTestBase::MutationQueueTestBase(
     std::unique_ptr<Persistence> persistence)
     : persistence_(std::move(persistence)),
       mutation_queue_(persistence_->GetMutationQueueForUser(User("user"))) {
+  persistence_->Run("Start", [this] { mutation_queue_->Start(); });
 }
 
 MutationQueueTestBase::~MutationQueueTestBase() = default;
