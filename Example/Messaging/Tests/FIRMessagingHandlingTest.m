@@ -80,6 +80,7 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 }
 
 - (void)tearDown {
+  [self waitForRmq2ManagerOperationsToComplete];
   [self.messaging.messagingUserDefaults removePersistentDomainForName:kFIRMessagingDefaultsTestDomain];
   self.messaging.shouldEstablishDirectChannel = NO;
   self.messaging.defaultFcmToken = nil;
@@ -239,6 +240,12 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
   XCTAssertEqualObjects(@(FIRMessagingMessageStatusNew),
                         @([_messaging appDidReceiveMessage:notificationPayload].status));
   OCMVerifyAll(_mockMessaging);
+}
+
+#pragma mark - Helpers
+
+- (void)waitForRmq2ManagerOperationsToComplete {
+  [self.messaging.rmq2Manager querySyncMessageWithRmqID:@""];
 }
 
 @end
