@@ -79,7 +79,7 @@ static NSString *const kFIRInstallationsIIDTokenKeychainId = @"com.google.iid-to
 
   NSError *archiverError;
   NSKeyedUnarchiver *unarchiver;
-  if (@available(iOS 11.0, *)) {
+  if (@available(iOS 11.0, tvOS 11.0, macOS 10.13, *)) {
     unarchiver = [[NSKeyedUnarchiver alloc] initForReadingFromData:data error:&archiverError];
   } else {
     @try {
