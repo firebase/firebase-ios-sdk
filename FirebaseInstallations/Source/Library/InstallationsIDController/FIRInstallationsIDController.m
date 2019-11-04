@@ -208,20 +208,20 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
     return [FBLPromise resolvedWith:installation];
   }
 
-  return
-      [[[FBLPromise all:@[ [self.IIDStore existingIID], [self.IIDTokenStore existingIIDDefaultToken] ]]
-          then:^id _Nullable(NSArray *_Nullable results) {
-            NSString *existingIID = results[0];
-            NSString *IIDDefaultToken = results[1];
+  return [[[FBLPromise
+      all:@[ [self.IIDStore existingIID], [self.IIDTokenStore existingIIDDefaultToken] ]]
+      then:^id _Nullable(NSArray *_Nullable results) {
+        NSString *existingIID = results[0];
+        NSString *IIDDefaultToken = results[1];
 
-            return [self createInstallationWithFID:existingIID IIDDefaultToken:IIDDefaultToken];
-          }] recover:^id _Nullable(NSError *_Nonnull error) {
-        return [self createInstallationWithFID:[FIRInstallationsItem generateFID] IIDDefaultToken:nil];
-      }];
+        return [self createInstallationWithFID:existingIID IIDDefaultToken:IIDDefaultToken];
+      }] recover:^id _Nullable(NSError *_Nonnull error) {
+    return [self createInstallationWithFID:[FIRInstallationsItem generateFID] IIDDefaultToken:nil];
+  }];
 }
 
 - (FIRInstallationsItem *)createInstallationWithFID:(NSString *)FID
-                                       IIDDefaultToken:(nullable NSString *)IIDDefaultToken {
+                                    IIDDefaultToken:(nullable NSString *)IIDDefaultToken {
   FIRInstallationsItem *installation = [[FIRInstallationsItem alloc] initWithAppID:self.appID
                                                                    firebaseAppName:self.appName];
   installation.firebaseInstallationID = FID;
