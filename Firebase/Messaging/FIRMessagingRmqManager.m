@@ -548,11 +548,17 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
   NSArray *paths = NSSearchPathForDirectoriesInDomains(FIRMessagingSupportedDirectory(),
                                                   NSUserDomainMask,
                                                   YES);
-  NSArray *components = @[
-                     paths.lastObject,
-                     kFIRMessagingSubDirectoryName,
-                     dbNameWithExtension
-                     ];
+  NSString *subDir = [paths.lastObject stringByAppendingPathComponent:kFIRMessagingSubDirectoryName];
+  if (![[NSFileManager defaultManager] fileExistsAtPath:subDir]) {
+    // Create the subdirectory if it doesn't exist already. Don't worry about an error since it'll
+    // be propogated to a more appropriate error message at the usage point.
+    [[NSFileManager defaultManager] createDirectoryAtPath:subDir
+                              withIntermediateDirectories:YES
+                                               attributes:nil
+                                                    error:nil];
+  }
+
+  NSArray *components = @[subDir, dbNameWithExtension];
   return [NSString pathWithComponents:components];
 }
 
