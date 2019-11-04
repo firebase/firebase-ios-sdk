@@ -274,8 +274,8 @@ DelayedOperation ExecutorLibdispatch::Schedule(const Milliseconds delay,
   return DelayedOperation{[this, time_slot_id] {
     // `time_slot` might have been destroyed by the time cancellation function
     // runs, in which case it's guaranteed to have been removed from the
-    // schedule_. If the `time_slot_id` refers to a slot that has been removed,
-    // the call to `RemoveFromSchedule` will be a no-op.
+    // `schedule_`. If the `time_slot_id` refers to a slot that has been
+    // removed, the call to `RemoveFromSchedule` will be a no-op.
     RemoveFromSchedule(time_slot_id);
   }};
 }
