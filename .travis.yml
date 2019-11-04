@@ -237,7 +237,7 @@ jobs:
       env:
         - PROJECT=Messaging METHOD=pod-lib-lint
       script:
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=ios
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=ios --verbose
 
     - stage: test
       if: type = cron
