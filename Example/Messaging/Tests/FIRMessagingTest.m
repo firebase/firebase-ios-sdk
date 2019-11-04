@@ -25,6 +25,7 @@
 
 #import "Example/Messaging/Tests/FIRMessagingTestUtilities.h"
 #import "Firebase/Messaging/FIRMessaging_Private.h"
+#import "Firebase/Messaging/FIRMessagingRmqManager.h"
 
 extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 
@@ -36,6 +37,7 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 @property(nonatomic, readwrite, strong) NSString *defaultFcmToken;
 @property(nonatomic, readwrite, strong) NSData *apnsTokenData;
 @property(nonatomic, readwrite, strong) FIRInstanceID *instanceID;
+@property(nonatomic, readwrite, strong) FIRMessagingRmqManager *rmq2Manager;
 
 // Expose autoInitEnabled static method for IID.
 + (BOOL)isAutoInitEnabledWithUserDefaults:(NSUserDefaults *)userDefaults;
@@ -72,6 +74,7 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 }
 
 - (void)tearDown {
+  [self waitForRmq2ManagerOperationsToComplete];
   [self.messaging.messagingUserDefaults removePersistentDomainForName:kFIRMessagingDefaultsTestDomain];
   self.messaging.shouldEstablishDirectChannel = NO;
   self.messaging.defaultFcmToken = nil;
@@ -300,6 +303,12 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
     }
   }];
   [self waitForExpectationsWithTimeout:0.1 handler:nil];
+}
+
+#pragma mark - Helpers
+
+- (void)waitForRmq2ManagerOperationsToComplete {
+  [self.messaging.rmq2Manager querySyncMessageWithRmqID:@""];
 }
 
 @end
