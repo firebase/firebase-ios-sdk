@@ -44,8 +44,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, nullable) FIRInstallationsStoredAuthToken *authToken;
 @property(nonatomic, assign) FIRInstallationsStatus registrationStatus;
 
-/// Instance ID default auth token imported from IID store as a part of IID migration.
-@property(nonatomic, nullable) NSString *IIDAuthToken;
+/// Instance ID default token imported from IID store as a part of IID migration.
+@property(nonatomic, nullable) NSString *IIDDefaultToken;
 
 - (instancetype)initWithAppID:(NSString *)appID firebaseAppName:(NSString *)firebaseAppName;
 

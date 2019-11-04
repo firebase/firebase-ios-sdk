@@ -133,8 +133,8 @@ NS_ASSUME_NONNULL_END
   };
 
   NSDictionary *headers;
-  if (installation.IIDAuthToken) {
-    headers = @{kFIRInstallationsIIDMigrationAuthHeader : installation.IIDAuthToken};
+  if (installation.IIDDefaultToken) {
+    headers = @{kFIRInstallationsIIDMigrationAuthHeader : installation.IIDDefaultToken};
   }
 
   return [self requestWithURL:URL

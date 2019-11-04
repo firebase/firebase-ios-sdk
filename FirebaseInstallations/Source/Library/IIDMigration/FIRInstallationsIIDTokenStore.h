@@ -21,7 +21,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * The class reads a default IID auth token from IID store if available.
+ * The class reads a default IID token from IID store if available.
  */
 @interface FIRInstallationsIIDTokenStore : NSObject
 
@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithGCMSenderID:(NSString *)GCMSenderID;
 
-- (FBLPromise<NSString *> *)existingIIDAuthToken;
+- (FBLPromise<NSString *> *)existingIIDDefaultToken;
 
 @end
 

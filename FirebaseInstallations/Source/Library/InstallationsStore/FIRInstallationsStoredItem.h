@@ -42,7 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic) FIRInstallationsStatus registrationStatus;
 
 /// Instance ID default auth token imported from IID store as a part of IID migration.
-@property(nonatomic, nullable) NSString *IIDAuthToken;
+@property(nonatomic, nullable) NSString *IIDDefaultToken;
 
 /// The version of local storage.
 @property(nonatomic, readonly) NSInteger storageVersion;

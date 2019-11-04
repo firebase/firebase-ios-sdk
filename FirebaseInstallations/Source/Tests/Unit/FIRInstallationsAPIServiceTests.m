@@ -66,7 +66,7 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
   FIRInstallationsItem *installation = [[FIRInstallationsItem alloc] initWithAppID:@"app-id"
                                                                    firebaseAppName:@"name"];
   installation.firebaseInstallationID = [FIRInstallationsItem generateFID];
-  installation.IIDAuthToken = @"iid-auth-token";
+  installation.IIDDefaultToken = @"iid-auth-token";
 
   // 1. Stub URL session:
 
@@ -81,7 +81,7 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
     XCTAssertEqualObjects([request valueForHTTPHeaderField:@"X-Ios-Bundle-Identifier"],
                           [[NSBundle mainBundle] bundleIdentifier]);
 
-    NSString *expectedIIDMigrationHeader = installation.IIDAuthToken;
+    NSString *expectedIIDMigrationHeader = installation.IIDDefaultToken;
     XCTAssertEqualObjects([request valueForHTTPHeaderField:@"x-goog-fis-ios-iid-migration-auth"],
                           expectedIIDMigrationHeader);
 

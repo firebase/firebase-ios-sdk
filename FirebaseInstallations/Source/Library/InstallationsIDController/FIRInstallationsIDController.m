@@ -204,28 +204,28 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
   if (![self isDefaultApp]) {
     // Existing IID should be used only for default FirebaseApp.
     FIRInstallationsItem *installation =
-        [self createInstallationWithFID:[FIRInstallationsItem generateFID] IIDAuthToken:nil];
+        [self createInstallationWithFID:[FIRInstallationsItem generateFID] IIDDefaultToken:nil];
     return [FBLPromise resolvedWith:installation];
   }
 
   return
-      [[[FBLPromise all:@[ [self.IIDStore existingIID], [self.IIDTokenStore existingIIDAuthToken] ]]
+      [[[FBLPromise all:@[ [self.IIDStore existingIID], [self.IIDTokenStore existingIIDDefaultToken] ]]
           then:^id _Nullable(NSArray *_Nullable results) {
             NSString *existingIID = results[0];
-            NSString *IIDAuthToken = results[1];
+            NSString *IIDDefaultToken = results[1];
 
-            return [self createInstallationWithFID:existingIID IIDAuthToken:IIDAuthToken];
+            return [self createInstallationWithFID:existingIID IIDDefaultToken:IIDDefaultToken];
           }] recover:^id _Nullable(NSError *_Nonnull error) {
-        return [self createInstallationWithFID:[FIRInstallationsItem generateFID] IIDAuthToken:nil];
+        return [self createInstallationWithFID:[FIRInstallationsItem generateFID] IIDDefaultToken:nil];
       }];
 }
 
 - (FIRInstallationsItem *)createInstallationWithFID:(NSString *)FID
-                                       IIDAuthToken:(nullable NSString *)IIDAuthToken {
+                                       IIDDefaultToken:(nullable NSString *)IIDDefaultToken {
   FIRInstallationsItem *installation = [[FIRInstallationsItem alloc] initWithAppID:self.appID
                                                                    firebaseAppName:self.appName];
   installation.firebaseInstallationID = FID;
-  installation.IIDAuthToken = IIDAuthToken;
+  installation.IIDDefaultToken = IIDDefaultToken;
   installation.registrationStatus = FIRInstallationStatusUnregistered;
   return installation;
 }

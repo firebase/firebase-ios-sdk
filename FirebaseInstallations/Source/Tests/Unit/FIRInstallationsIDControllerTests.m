@@ -261,9 +261,9 @@
   OCMExpect([self.mockIIDStore existingIID]).andReturn([FBLPromise resolvedWith:existingIID]);
 
   // 3. Expect IID checkin store to be requested for checkin data.
-  NSString *existingIIDAuthToken = @"existing-iid-token";
-  OCMExpect([self.mockIIDTokenStore existingIIDAuthToken])
-      .andReturn([FBLPromise resolvedWith:existingIIDAuthToken]);
+  NSString *existingIIDDefaultToken = @"existing-iid-token";
+  OCMExpect([self.mockIIDTokenStore existingIIDDefaultToken])
+      .andReturn([FBLPromise resolvedWith:existingIIDDefaultToken]);
 
   // 3. Stub store save installation.
   __block FIRInstallationsItem *createdInstallation;
@@ -272,7 +272,7 @@
                 saveInstallation:[OCMArg checkWithBlock:^BOOL(FIRInstallationsItem *obj) {
                   [self assertValidCreatedInstallation:obj];
                   XCTAssertEqualObjects(existingIID, obj.firebaseInstallationID);
-                  XCTAssertEqualObjects(obj.IIDAuthToken, existingIIDAuthToken);
+                  XCTAssertEqualObjects(obj.IIDDefaultToken, existingIIDDefaultToken);
                   createdInstallation = obj;
                   return YES;
                 }]])
@@ -1000,7 +1000,7 @@
   FBLPromise *rejectedPromise = [FBLPromise pendingPromise];
   [rejectedPromise reject:[FIRInstallationsErrorUtil keychainErrorWithFunction:@"" status:-1]];
   OCMExpect([self.mockIIDStore existingIID]).andReturn(rejectedPromise);
-  OCMExpect([self.mockIIDTokenStore existingIIDAuthToken]).andReturn(rejectedPromise);
+  OCMExpect([self.mockIIDTokenStore existingIIDDefaultToken]).andReturn(rejectedPromise);
 }
 
 - (void)assertValidCreatedInstallation:(FIRInstallationsItem *)installation {

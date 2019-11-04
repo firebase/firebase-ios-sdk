@@ -64,7 +64,7 @@ static NSString *const kFIRInstallationsIIDTokenKeychainId = @"com.google.iid-to
   return self;
 }
 
-- (FBLPromise<NSString *> *)existingIIDAuthToken {
+- (FBLPromise<NSString *> *)existingIIDDefaultToken {
   return [[FBLPromise onQueue:dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)
                            do:^id _Nullable {
                              return [self IIDDefaultTokenData];

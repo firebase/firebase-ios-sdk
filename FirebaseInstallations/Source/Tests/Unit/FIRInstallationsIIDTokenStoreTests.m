@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-// TODO: Port to IIDAuthToken.
-
 #import <XCTest/XCTest.h>
 
 #import "FBLPromise+Testing.h"
@@ -63,7 +61,7 @@ static NSString *const kIDTokenKeychainId = @"com.google.iid-tokens";
 - (void)testExistingAuthToken_WhenNoToken_ThenFails {
   [self removeIIDTokens];
 
-  __auto_type checkinPromise = [self.installationsIIDCheckinStore existingIIDAuthToken];
+  __auto_type checkinPromise = [self.installationsIIDCheckinStore existingIIDDefaultToken];
   XCTAssert(FBLWaitForPromisesWithTimeout(1));
 
   XCTAssertTrue(checkinPromise.isRejected);
@@ -73,9 +71,9 @@ static NSString *const kIDTokenKeychainId = @"com.google.iid-tokens";
 
 - (void)testExistingAuthToken_WhenThereAreTokensButNoDefaultToken_ThenFails {
   [self removeIIDTokens];
-  [self saveIIDAuthTokenForScope:@"FIAM" token:@"iid-auth-token"];
+  [self saveIIDDefaultTokenForScope:@"FIAM" token:@"iid-auth-token"];
 
-  __auto_type checkinPromise = [self.installationsIIDCheckinStore existingIIDAuthToken];
+  __auto_type checkinPromise = [self.installationsIIDCheckinStore existingIIDDefaultToken];
   XCTAssert(FBLWaitForPromisesWithTimeout(1));
 
   XCTAssertTrue(checkinPromise.isRejected);
@@ -85,9 +83,9 @@ static NSString *const kIDTokenKeychainId = @"com.google.iid-tokens";
 
 - (void)testExistingAuthToken_WhenDataCorrupted_ThenFails {
   [self removeIIDTokens];
-  [self saveIIDAuthTokenForScope:@"FIAM" token:@""];
+  [self saveIIDDefaultTokenForScope:@"FIAM" token:@""];
 
-  __auto_type checkinPromise = [self.installationsIIDCheckinStore existingIIDAuthToken];
+  __auto_type checkinPromise = [self.installationsIIDCheckinStore existingIIDDefaultToken];
   XCTAssert(FBLWaitForPromisesWithTimeout(1));
 
   XCTAssertTrue(checkinPromise.isRejected);
@@ -96,9 +94,9 @@ static NSString *const kIDTokenKeychainId = @"com.google.iid-tokens";
 }
 
 - (void)testExistingAuthTokenSuccess {
-  NSString *savedToken = [self saveIIDAuthTokenForScope:@"*" token:@"iid-auth-token"];
+  NSString *savedToken = [self saveIIDDefaultTokenForScope:@"*" token:@"iid-auth-token"];
 
-  __auto_type checkinPromise = [self.installationsIIDCheckinStore existingIIDAuthToken];
+  __auto_type checkinPromise = [self.installationsIIDCheckinStore existingIIDDefaultToken];
   XCTAssert(FBLWaitForPromisesWithTimeout(1));
 
   XCTAssertTrue(checkinPromise.isFulfilled);
@@ -111,7 +109,7 @@ static NSString *const kIDTokenKeychainId = @"com.google.iid-tokens";
 
 #pragma mark - Helpers
 
-- (NSString *)saveIIDAuthTokenForScope:(NSString *)scope token:(NSString *)token {
+- (NSString *)saveIIDDefaultTokenForScope:(NSString *)scope token:(NSString *)token {
   FIRInstanceIDTokenInfo *tokenInfoToSave =
       [[FIRInstanceIDTokenInfo alloc] initWithAuthorizedEntity:self.GCMSenderID
                                                          scope:scope

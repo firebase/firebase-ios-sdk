@@ -23,7 +23,7 @@ NSString *const kFIRInstallationsStoredItemFirebaseInstallationIDKey = @"firebas
 NSString *const kFIRInstallationsStoredItemRefreshTokenKey = @"refreshToken";
 NSString *const kFIRInstallationsStoredItemAuthTokenKey = @"authToken";
 NSString *const kFIRInstallationsStoredItemRegistrationStatusKey = @"registrationStatus";
-NSString *const kFIRInstallationsStoredItemIIDAuthTokenKey = @"IIDAuthToken";
+NSString *const kFIRInstallationsStoredItemIIDDefaultTokenKey = @"IIDDefaultToken";
 NSString *const kFIRInstallationsStoredItemStorageVersionKey = @"storageVersion";
 
 NSInteger const kFIRInstallationsStoredItemStorageVersion = 1;
@@ -41,7 +41,7 @@ NSInteger const kFIRInstallationsStoredItemStorageVersion = 1;
   [aCoder encodeObject:self.authToken forKey:kFIRInstallationsStoredItemAuthTokenKey];
   [aCoder encodeInteger:self.registrationStatus
                  forKey:kFIRInstallationsStoredItemRegistrationStatusKey];
-  [aCoder encodeObject:self.IIDAuthToken forKey:kFIRInstallationsStoredItemIIDAuthTokenKey];
+  [aCoder encodeObject:self.IIDDefaultToken forKey:kFIRInstallationsStoredItemIIDDefaultTokenKey];
   [aCoder encodeInteger:self.storageVersion forKey:kFIRInstallationsStoredItemStorageVersionKey];
 }
 
@@ -66,8 +66,8 @@ NSInteger const kFIRInstallationsStoredItemStorageVersion = 1;
                                           forKey:kFIRInstallationsStoredItemAuthTokenKey];
   item.registrationStatus =
       [aDecoder decodeIntegerForKey:kFIRInstallationsStoredItemRegistrationStatusKey];
-  item.IIDAuthToken = [aDecoder decodeObjectOfClass:[NSString class]
-                                             forKey:kFIRInstallationsStoredItemIIDAuthTokenKey];
+  item.IIDDefaultToken = [aDecoder decodeObjectOfClass:[NSString class]
+                                             forKey:kFIRInstallationsStoredItemIIDDefaultTokenKey];
 
   return item;
 }
