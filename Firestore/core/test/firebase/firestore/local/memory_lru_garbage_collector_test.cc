@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,35 +14,48 @@
  * limitations under the License.
  */
 
-#import "Firestore/Example/Tests/Local/FSTLRUGarbageCollectorTests.h"
-
 #include "Firestore/core/src/firebase/firestore/local/memory_lru_reference_delegate.h"
 #include "Firestore/core/src/firebase/firestore/local/memory_persistence.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/test/firebase/firestore/local/lru_garbage_collector_test.h"
 #include "Firestore/core/test/firebase/firestore/local/persistence_testing.h"
+#include "gtest/gtest.h"
 
-using firebase::firestore::model::DocumentKey;
-using firebase::firestore::local::LruParams;
-using firebase::firestore::local::MemoryLruReferenceDelegate;
-using firebase::firestore::local::MemoryPersistenceWithLruGcForTesting;
-using firebase::firestore::local::Persistence;
+namespace firebase {
+namespace firestore {
+namespace local {
+namespace {
 
-NS_ASSUME_NONNULL_BEGIN
+using model::DocumentKey;
 
-@interface FSTMemoryLRUGarbageCollectionTests : FSTLRUGarbageCollectorTests
-@end
+class TestHelper : public LruGarbageCollectorTestHelper {
+ public:
+  std::unique_ptr<Persistence> MakePersistence(LruParams lru_params) override {
+    auto persistence = MemoryPersistenceWithLruGcForTesting(lru_params);
+    memory_persistence_ = persistence.get();
+    return std::move(persistence);
+  }
 
-@implementation FSTMemoryLRUGarbageCollectionTests
+  bool SentinelExists(const DocumentKey& key) override {
+    auto delegate = static_cast<MemoryLruReferenceDelegate*>(
+        memory_persistence_->reference_delegate());
+    return delegate->IsPinnedAtSequenceNumber(0, key);
+  }
 
-- (std::unique_ptr<Persistence>)newPersistenceWithLruParams:(LruParams)lruParams {
-  return MemoryPersistenceWithLruGcForTesting(lruParams);
+ private:
+  MemoryPersistence* memory_persistence_ = nullptr;
+};
+
+std::unique_ptr<LruGarbageCollectorTestHelper> Factory() {
+  return absl::make_unique<TestHelper>();
 }
 
-- (BOOL)sentinelExists:(const DocumentKey &)key {
-  auto delegate = static_cast<MemoryLruReferenceDelegate *>(self.persistence->reference_delegate());
-  return delegate->IsPinnedAtSequenceNumber(0, key);
-}
+}  // namespace
 
-@end
+INSTANTIATE_TEST_SUITE_P(MemoryLruGarbageCollectorTest,
+                         LruGarbageCollectorTest,
+                         ::testing::Values(Factory));
 
-NS_ASSUME_NONNULL_END
+}  // namespace local
+}  // namespace firestore
+}  // namespace firebase

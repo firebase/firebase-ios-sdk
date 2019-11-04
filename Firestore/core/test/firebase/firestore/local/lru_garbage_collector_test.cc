@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,12 @@
  * limitations under the License.
  */
 
-#import "Firestore/Example/Tests/Local/FSTLRUGarbageCollectorTests.h"
-
-#import <XCTest/XCTest.h>
+#include "Firestore/core/test/firebase/firestore/local/lru_garbage_collector_test.h"
 
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
 #include <vector>
-
-#import "Firestore/Example/Tests/Util/FSTHelpers.h"
-#import "Firestore/Source/Util/FSTClasses.h"
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
@@ -43,454 +38,422 @@
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 #include "absl/strings/str_cat.h"
+#include "gtest/gtest.h"
 
-namespace core = firebase::firestore::core;
-namespace testutil = firebase::firestore::testutil;
-using firebase::Timestamp;
-using firebase::firestore::auth::User;
-using firebase::firestore::local::LruDelegate;
-using firebase::firestore::local::LruGarbageCollector;
-using firebase::firestore::local::LruParams;
-using firebase::firestore::local::LruResults;
-using firebase::firestore::local::MutationQueue;
-using firebase::firestore::local::Persistence;
-using firebase::firestore::local::QueryCache;
-using firebase::firestore::local::QueryData;
-using firebase::firestore::local::QueryPurpose;
-using firebase::firestore::local::ReferenceSet;
-using firebase::firestore::local::RemoteDocumentCache;
-using firebase::firestore::model::Document;
-using firebase::firestore::model::DocumentKey;
-using firebase::firestore::model::DocumentKeyHash;
-using firebase::firestore::model::DocumentKeySet;
-using firebase::firestore::model::DocumentState;
-using firebase::firestore::model::ListenSequenceNumber;
-using firebase::firestore::model::Mutation;
-using firebase::firestore::model::ObjectValue;
-using firebase::firestore::model::Precondition;
-using firebase::firestore::model::SetMutation;
-using firebase::firestore::model::TargetId;
+namespace firebase {
+namespace firestore {
+namespace local {
+
+using auth::User;
+using model::Document;
+using model::DocumentKey;
+using model::DocumentKeyHash;
+using model::DocumentKeySet;
+using model::DocumentState;
+using model::ListenSequenceNumber;
+using model::Mutation;
+using model::ObjectValue;
+using model::Precondition;
+using model::SetMutation;
+using model::TargetId;
 
 using testutil::Key;
 using testutil::Query;
 using testutil::Version;
+using testutil::WrapObject;
 
-NS_ASSUME_NONNULL_BEGIN
-
-@implementation FSTLRUGarbageCollectorTests {
-  TargetId _previousTargetID;
-  int _previousDocNum;
-  ObjectValue _testValue;
-  ObjectValue _bigObjectValue;
-  std::unique_ptr<Persistence> _persistence;
-  QueryCache *_queryCache;
-  RemoteDocumentCache *_documentCache;
-  MutationQueue *_mutationQueue;
-  LruDelegate *_lruDelegate;
-  LruGarbageCollector *_gc;
-  ListenSequenceNumber _initialSequenceNumber;
-  User _user;
-  ReferenceSet _additionalReferences;
+LruGarbageCollectorTest::LruGarbageCollectorTest()
+    : test_helper_(GetParam()()),
+      test_value_(WrapObject("baz", true, "ok", "fine")),
+      user_("user") {
+  std::string big_string(4096, 'a');
+  big_object_value_ = WrapObject("BigProperty", std::move(big_string));
 }
 
-- (void)setUp {
-  [super setUp];
+LruGarbageCollectorTest::~LruGarbageCollectorTest() = default;
 
-  _previousTargetID = 500;
-  _previousDocNum = 10;
-  _testValue = FSTTestObjectValue(@{@"baz" : @YES, @"ok" : @"fine"});
-  NSString *bigString = [@"" stringByPaddingToLength:4096 withString:@"a" startingAtIndex:0];
-  _bigObjectValue = FSTTestObjectValue(@{@"BigProperty" : bigString});
-  _user = User("user");
+void LruGarbageCollectorTest::NewTestResources() {
+  return NewTestResources(LruParams::Default());
 }
 
-- (BOOL)isTestBaseClass {
-  return ([self class] == [FSTLRUGarbageCollectorTests class]);
-}
+void LruGarbageCollectorTest::NewTestResources(LruParams lru_params) {
+  HARD_ASSERT(persistence_ == nullptr, "Persistence already created");
 
-- (Persistence *)persistence {
-  return _persistence.get();
-}
+  persistence_ = MakePersistence(lru_params);
+  persistence_->reference_delegate()->AddInMemoryPins(&additional_references_);
 
-- (void)newTestResourcesWithLruParams:(LruParams)lruParams {
-  HARD_ASSERT(_persistence == nil, "Persistence already created");
-  _persistence = [self newPersistenceWithLruParams:lruParams];
-  _persistence->reference_delegate()->AddInMemoryPins(&_additionalReferences);
-  _queryCache = _persistence->query_cache();
-  _documentCache = _persistence->remote_document_cache();
-  _mutationQueue = _persistence->GetMutationQueueForUser(_user);
-  _lruDelegate = static_cast<LruDelegate *>(_persistence->reference_delegate());
-  _initialSequenceNumber = _persistence->Run("start querycache", [&] {
-    _mutationQueue->Start();
-    _gc = _lruDelegate->garbage_collector();
-    return _persistence->current_sequence_number();
+  query_cache_ = persistence_->query_cache();
+  document_cache_ = persistence_->remote_document_cache();
+  mutation_queue_ = persistence_->GetMutationQueueForUser(user_);
+
+  lru_delegate_ = static_cast<LruDelegate*>(persistence_->reference_delegate());
+  initial_sequence_number_ = persistence_->Run("start querycache", [&] {
+    mutation_queue_->Start();
+    gc_ = lru_delegate_->garbage_collector();
+    return persistence_->current_sequence_number();
   });
 }
 
-- (void)newTestResources {
-  [self newTestResourcesWithLruParams:LruParams::Default()];
+std::unique_ptr<Persistence> LruGarbageCollectorTest::MakePersistence(
+    LruParams lru_params) {
+  return test_helper_->MakePersistence(lru_params);
 }
 
-- (std::unique_ptr<Persistence>)newPersistenceWithLruParams:(LruParams)lruParams {
-  @throw FSTAbstractMethodException();  // NOLINT
+bool LruGarbageCollectorTest::SentinelExists(const DocumentKey& key) {
+  return test_helper_->SentinelExists(key);
 }
 
-- (BOOL)sentinelExists:(const DocumentKey &)key {
-  @throw FSTAbstractMethodException();  // NOLINT
-}
-
-- (void)expectSentinelRemoved:(const DocumentKey &)key {
-  XCTAssertFalse([self sentinelExists:key]);
+void LruGarbageCollectorTest::ExpectSentinelRemoved(const DocumentKey& key) {
+  ASSERT_FALSE(SentinelExists(key));
 }
 
 #pragma mark - helpers
 
-- (ListenSequenceNumber)sequenceNumberForQueryCount:(int)queryCount {
-  return _persistence->Run("gc", [&] { return _gc->SequenceNumberForQueryCount(queryCount); });
+ListenSequenceNumber LruGarbageCollectorTest::SequenceNumberForQueryCount(
+    int query_count) {
+  return persistence_->Run(
+      "gc", [&] { return gc_->SequenceNumberForQueryCount(query_count); });
 }
 
-- (int)queryCountForPercentile:(int)percentile {
-  return _persistence->Run("query count", [&] { return _gc->QueryCountForPercentile(percentile); });
+int LruGarbageCollectorTest::QueryCountForPercentile(int percentile) {
+  return persistence_->Run(
+      "query count", [&] { return gc_->QueryCountForPercentile(percentile); });
 }
 
-- (int)removeQueriesThroughSequenceNumber:(ListenSequenceNumber)sequenceNumber
-                              liveQueries:
-                                  (const std::unordered_map<TargetId, QueryData> &)liveQueries {
-  return _persistence->Run("gc", [&] { return _gc->RemoveTargets(sequenceNumber, liveQueries); });
+int LruGarbageCollectorTest::RemoveTargets(
+    ListenSequenceNumber sequence_number,
+    const std::unordered_map<TargetId, QueryData>& live_queries) {
+  return persistence_->Run(
+      "gc", [&] { return gc_->RemoveTargets(sequence_number, live_queries); });
 }
 
-// Removes documents that are not part of a target or a mutation and have a sequence number
-// less than or equal to the given sequence number.
-- (int)removeOrphanedDocumentsThroughSequenceNumber:(ListenSequenceNumber)sequenceNumber {
-  return _persistence->Run("gc", [&] { return _gc->RemoveOrphanedDocuments(sequenceNumber); });
+int LruGarbageCollectorTest::RemoveOrphanedDocuments(
+    ListenSequenceNumber sequence_number) {
+  return persistence_->Run(
+      "gc", [&] { return gc_->RemoveOrphanedDocuments(sequence_number); });
 }
 
-- (QueryData)nextTestQuery {
-  TargetId targetID = ++_previousTargetID;
-  ListenSequenceNumber listenSequenceNumber = _persistence->current_sequence_number();
-  core::Query query = Query(absl::StrCat("path", targetID));
-  return QueryData(std::move(query), targetID, listenSequenceNumber, QueryPurpose::Listen);
+QueryData LruGarbageCollectorTest::NextTestQuery() {
+  TargetId target_id = ++previous_target_id_;
+  ListenSequenceNumber listen_sequence_number =
+      persistence_->current_sequence_number();
+  core::Query query = Query(absl::StrCat("path", target_id));
+  return QueryData(std::move(query), target_id, listen_sequence_number,
+                   QueryPurpose::Listen);
 }
 
-- (QueryData)addNextQueryInTransaction {
-  QueryData queryData = [self nextTestQuery];
-  _queryCache->AddTarget(queryData);
-  return queryData;
+QueryData LruGarbageCollectorTest::AddNextQuery() {
+  return persistence_->Run("adding query",
+                           [&] { return AddNextQueryInTransaction(); });
 }
 
-- (void)updateTargetInTransaction:(const QueryData &)queryData {
-  QueryData updated = queryData.WithSequenceNumber(_persistence->current_sequence_number());
-  _queryCache->UpdateTarget(updated);
+QueryData LruGarbageCollectorTest::AddNextQueryInTransaction() {
+  QueryData query_data = NextTestQuery();
+  query_cache_->AddTarget(query_data);
+  return query_data;
 }
 
-- (QueryData)addNextQuery {
-  return _persistence->Run("adding query", [&] { return [self addNextQueryInTransaction]; });
+void LruGarbageCollectorTest::UpdateTargetInTransaction(
+    const QueryData& query_data) {
+  QueryData updated =
+      query_data.WithSequenceNumber(persistence_->current_sequence_number());
+  query_cache_->UpdateTarget(updated);
 }
 
-// Simulates a document being mutated and then having that mutation ack'd.
-// Since the document is not in a mutation queue any more, there is
-// potentially nothing keeping it live. We mark it with the current sequence number
-// so it can be collected later.
-- (DocumentKey)markADocumentEligibleForGC {
-  DocumentKey key = [self nextTestDocKey];
-  [self markDocumentEligibleForGC:key];
+DocumentKey LruGarbageCollectorTest::CreateDocumentEligibleForGc() {
+  DocumentKey key = NextTestDocKey();
+  MarkDocumentEligibleForGc(key);
   return key;
 }
 
-- (void)markDocumentEligibleForGC:(const DocumentKey &)docKey {
-  _persistence->Run("Removing mutation reference",
-                    [&] { [self markDocumentEligibleForGCInTransaction:docKey]; });
-}
-
-- (DocumentKey)markADocumentEligibleForGCInTransaction {
-  DocumentKey key = [self nextTestDocKey];
-  [self markDocumentEligibleForGCInTransaction:key];
+DocumentKey
+LruGarbageCollectorTest::CreateDocumentEligibleForGcInTransaction() {
+  DocumentKey key = NextTestDocKey();
+  MarkDocumentEligibleForGcInTransaction(key);
   return key;
 }
 
-- (void)markDocumentEligibleForGCInTransaction:(const DocumentKey &)docKey {
-  _persistence->reference_delegate()->RemoveMutationReference(docKey);
+void LruGarbageCollectorTest::MarkDocumentEligibleForGc(
+    const DocumentKey& doc_key) {
+  persistence_->Run("Removing mutation reference",
+                    [&] { MarkDocumentEligibleForGcInTransaction(doc_key); });
 }
 
-- (void)addDocument:(const DocumentKey &)docKey toTarget:(TargetId)targetId {
-  _queryCache->AddMatchingKeys(DocumentKeySet{docKey}, targetId);
+void LruGarbageCollectorTest::MarkDocumentEligibleForGcInTransaction(
+    const DocumentKey& doc_key) {
+  persistence_->reference_delegate()->RemoveMutationReference(doc_key);
 }
 
-- (void)removeDocument:(const DocumentKey &)docKey fromTarget:(TargetId)targetId {
-  _queryCache->RemoveMatchingKeys(DocumentKeySet{docKey}, targetId);
+void LruGarbageCollectorTest::AddDocument(const DocumentKey& doc_key,
+                                          TargetId target_id) {
+  query_cache_->AddMatchingKeys(DocumentKeySet{doc_key}, target_id);
 }
 
-/**
- * Used to insert a document into the remote document cache. Use of this method should
- * be paired with some explanation for why it is in the cache, for instance:
- * - added to a target
- * - now has or previously had a pending mutation
- */
-- (Document)cacheADocumentInTransaction {
-  Document doc = [self nextTestDocument];
-  _documentCache->Add(doc);
+void LruGarbageCollectorTest::RemoveDocument(const DocumentKey& doc_key,
+                                             TargetId target_id) {
+  query_cache_->RemoveMatchingKeys(DocumentKeySet{doc_key}, target_id);
+}
+
+Document LruGarbageCollectorTest::CacheADocumentInTransaction() {
+  Document doc = NextTestDocument();
+  document_cache_->Add(doc);
   return doc;
 }
 
-- (SetMutation)mutationForDocument:(const DocumentKey &)docKey {
-  return SetMutation(docKey, _testValue, Precondition::None());
+SetMutation LruGarbageCollectorTest::MutationForDocument(
+    const DocumentKey& doc_key) {
+  return SetMutation(doc_key, test_value_, Precondition::None());
 }
 
-- (DocumentKey)nextTestDocKey {
-  return Key("docs/doc_" + std::to_string(++_previousDocNum));
+DocumentKey LruGarbageCollectorTest::NextTestDocKey() {
+  return Key("docs/doc_" + std::to_string(++previous_doc_num_));
 }
 
-- (Document)nextTestDocumentWithValue:(ObjectValue)value {
-  DocumentKey key = [self nextTestDocKey];
-  FSTTestSnapshotVersion version = 2;
-  return Document(std::move(value), std::move(key), Version(version), DocumentState::kSynced);
+Document LruGarbageCollectorTest::NextTestDocumentWithValue(ObjectValue value) {
+  DocumentKey key = NextTestDocKey();
+  return Document(std::move(value), std::move(key), Version(2),
+                  DocumentState::kSynced);
 }
 
-- (Document)nextTestDocument {
-  return [self nextTestDocumentWithValue:_testValue];
+Document LruGarbageCollectorTest::NextTestDocument() {
+  return NextTestDocumentWithValue(test_value_);
 }
 
 #pragma mark - tests
 
-- (void)testPickSequenceNumberPercentile {
-  if ([self isTestBaseClass]) return;
-
-  const int numTestCases = 5;
+TEST_P(LruGarbageCollectorTest, PickSequenceNumberPercentile) {
+  const int num_test_cases = 5;
   struct Case {
     // number of queries to cache
     int queries;
     // number expected to be calculated as 10%
     int expected;
   };
-  struct Case testCases[numTestCases] = {{0, 0}, {10, 1}, {9, 0}, {50, 5}, {49, 4}};
+  struct Case test_cases[num_test_cases] = {
+      {0, 0}, {10, 1}, {9, 0}, {50, 5}, {49, 4}};
 
-  for (int i = 0; i < numTestCases; i++) {
+  for (int i = 0; i < num_test_cases; i++) {
     // Fill the query cache.
-    int numQueries = testCases[i].queries;
-    int expectedTenthPercentile = testCases[i].expected;
-    [self newTestResources];
-    for (int j = 0; j < numQueries; j++) {
-      [self addNextQuery];
+    int num_queries = test_cases[i].queries;
+    int expected_tenth_percentile = test_cases[i].expected;
+    NewTestResources();
+    for (int j = 0; j < num_queries; j++) {
+      AddNextQuery();
     }
-    int tenth = [self queryCountForPercentile:10];
-    XCTAssertEqual(expectedTenthPercentile, tenth, @"Total query count: %i", numQueries);
-    _persistence->Shutdown();
-    _persistence.reset();
+    int tenth = QueryCountForPercentile(10);
+    ASSERT_EQ(expected_tenth_percentile, tenth)
+        << "Total query count: " << num_queries;
+    persistence_->Shutdown();
+    persistence_.reset();
   }
 }
 
-- (void)testSequenceNumberNoQueries {
-  if ([self isTestBaseClass]) return;
-
+TEST_P(LruGarbageCollectorTest, SequenceNumberNoQueries) {
   // No queries... should get invalid sequence number (-1)
-  [self newTestResources];
-  XCTAssertEqual(local::kListenSequenceNumberInvalid, [self sequenceNumberForQueryCount:0]);
-  _persistence->Shutdown();
+  NewTestResources();
+  ASSERT_EQ(local::kListenSequenceNumberInvalid,
+            SequenceNumberForQueryCount(0));
+  persistence_->Shutdown();
 }
 
-- (void)testSequenceNumberForFiftyQueries {
-  if ([self isTestBaseClass]) return;
+TEST_P(LruGarbageCollectorTest, SequenceNumberForFiftyQueries) {
   // Add 50 queries sequentially, aim to collect 10 of them.
-  // The sequence number to collect should be 10 past the initial sequence number.
-  [self newTestResources];
+  // The sequence number to collect should be 10 past the initial sequence
+  // number.
+  NewTestResources();
   for (int i = 0; i < 50; i++) {
-    [self addNextQuery];
+    AddNextQuery();
   }
-  XCTAssertEqual(_initialSequenceNumber + 10, [self sequenceNumberForQueryCount:10]);
-  _persistence->Shutdown();
+  ASSERT_EQ(initial_sequence_number_ + 10, SequenceNumberForQueryCount(10));
+  persistence_->Shutdown();
 }
 
-- (void)testSequenceNumberForMultipleQueriesInATransaction {
-  if ([self isTestBaseClass]) return;
-
-  // 50 queries, 9 with one transaction, incrementing from there. Should get second sequence number.
-  [self newTestResources];
-  _persistence->Run("9 queries in a batch", [&] {
+TEST_P(LruGarbageCollectorTest,
+       SequenceNumberForMultipleQueriesInATransaction) {
+  // 50 queries, 9 with one transaction, incrementing from there. Should get
+  // second sequence number.
+  NewTestResources();
+  persistence_->Run("9 queries in a batch", [&] {
     for (int i = 0; i < 9; i++) {
-      [self addNextQueryInTransaction];
+      AddNextQueryInTransaction();
     }
   });
   for (int i = 9; i < 50; i++) {
-    [self addNextQuery];
+    AddNextQuery();
   }
-  XCTAssertEqual(2 + _initialSequenceNumber, [self sequenceNumberForQueryCount:10]);
-  _persistence->Shutdown();
+  ASSERT_EQ(2 + initial_sequence_number_, SequenceNumberForQueryCount(10));
+  persistence_->Shutdown();
 }
 
-// Ensure that even if all of the queries are added in a single transaction, we still
-// pick a sequence number and GC. In this case, the initial transaction contains all of the
-// targets that will get GC'd, since they account for more than the first 10 targets.
-- (void)testAllCollectedQueriesInSingleTransaction {
-  if ([self isTestBaseClass]) return;
-
-  // 50 queries, 11 with one transaction, incrementing from there. Should get first sequence number.
-  [self newTestResources];
-  _persistence->Run("11 queries in a transaction", [&] {
+// Ensure that even if all of the queries are added in a single transaction, we
+// still pick a sequence number and GC. In this case, the initial transaction
+// contains all of the targets that will get GC'd, since they account for more
+// than the first 10 targets.
+TEST_P(LruGarbageCollectorTest, AllCollectedQueriesInSingleTransaction) {
+  // 50 queries, 11 with one transaction, incrementing from there. Should get
+  // first sequence number.
+  NewTestResources();
+  persistence_->Run("11 queries in a transaction", [&] {
     for (int i = 0; i < 11; i++) {
-      [self addNextQueryInTransaction];
+      AddNextQueryInTransaction();
     }
   });
   for (int i = 11; i < 50; i++) {
-    [self addNextQuery];
+    AddNextQuery();
   }
-  // We expect to GC the targets from the first transaction, since they account for
-  // at least the first 10 of the targets.
-  XCTAssertEqual(1 + _initialSequenceNumber, [self sequenceNumberForQueryCount:10]);
-  _persistence->Shutdown();
+  // We expect to GC the targets from the first transaction, since they account
+  // for at least the first 10 of the targets.
+  ASSERT_EQ(1 + initial_sequence_number_, SequenceNumberForQueryCount(10));
+  persistence_->Shutdown();
 }
 
-- (void)testSequenceNumbersWithMutationAndSequentialQueries {
-  if ([self isTestBaseClass]) return;
-
+TEST_P(LruGarbageCollectorTest,
+       SequenceNumbersWithMutationAndSequentialQueries) {
   // Remove a mutated doc reference, marking it as eligible for GC.
   // Then add 50 queries. Should get 10 past initial (9 queries).
-  [self newTestResources];
-  [self markADocumentEligibleForGC];
+  NewTestResources();
+  CreateDocumentEligibleForGc();
   for (int i = 0; i < 50; i++) {
-    [self addNextQuery];
+    AddNextQuery();
   }
-  XCTAssertEqual(10 + _initialSequenceNumber, [self sequenceNumberForQueryCount:10]);
-  _persistence->Shutdown();
+  ASSERT_EQ(10 + initial_sequence_number_, SequenceNumberForQueryCount(10));
+  persistence_->Shutdown();
 }
 
-- (void)testSequenceNumbersWithMutationsInQueries {
-  if ([self isTestBaseClass]) return;
-
-  // Add mutated docs, then add one of them to a query target so it doesn't get GC'd.
-  // Expect 3 past the initial value: the mutations not part of a query, and two queries
-  [self newTestResources];
-  Document docInQuery = [self nextTestDocument];
-  _persistence->Run("mark mutations", [&] {
-    // Adding 9 doc keys in a transaction. If we remove one of them, we'll have room for two actual
-    // queries.
-    [self markDocumentEligibleForGCInTransaction:docInQuery.key()];
+TEST_P(LruGarbageCollectorTest, SequenceNumbersWithMutationsInQueries) {
+  // Add mutated docs, then add one of them to a query target so it doesn't get
+  // GC'd. Expect 3 past the initial value: the mutations not part of a query,
+  // and two queries
+  NewTestResources();
+  Document doc_in_query = NextTestDocument();
+  persistence_->Run("mark mutations", [&] {
+    // Adding 9 doc keys in a transaction. If we remove one of them, we'll have
+    // room for two actual queries.
+    MarkDocumentEligibleForGcInTransaction(doc_in_query.key());
     for (int i = 0; i < 8; i++) {
-      [self markADocumentEligibleForGCInTransaction];
+      CreateDocumentEligibleForGcInTransaction();
     }
   });
   for (int i = 0; i < 49; i++) {
-    [self addNextQuery];
+    AddNextQuery();
   }
-  _persistence->Run("query with mutation", [&] {
-    QueryData queryData = [self addNextQueryInTransaction];
-    // This should keep the document from getting GC'd, since it is no longer orphaned.
-    [self addDocument:docInQuery.key() toTarget:queryData.target_id()];
+  persistence_->Run("query with mutation", [&] {
+    QueryData query_data = AddNextQueryInTransaction();
+    // This should keep the document from getting GC'd, since it is no longer
+    // orphaned.
+    AddDocument(doc_in_query.key(), query_data.target_id());
   });
 
-  // This should catch the remaining 8 documents, plus the first two queries we added.
-  XCTAssertEqual(3 + _initialSequenceNumber, [self sequenceNumberForQueryCount:10]);
-  _persistence->Shutdown();
+  // This should catch the remaining 8 documents, plus the first two queries we
+  // added.
+  ASSERT_EQ(3 + initial_sequence_number_, SequenceNumberForQueryCount(10));
+  persistence_->Shutdown();
 }
 
-- (void)testRemoveQueriesUpThroughSequenceNumber {
-  if ([self isTestBaseClass]) return;
-
-  [self newTestResources];
-  std::unordered_map<TargetId, QueryData> liveQueries;
+TEST_P(LruGarbageCollectorTest, RemoveQueriesUpThroughSequenceNumber) {
+  NewTestResources();
+  std::unordered_map<TargetId, QueryData> live_queries;
   for (int i = 0; i < 100; i++) {
-    QueryData queryData = [self addNextQuery];
+    QueryData query_data = AddNextQuery();
     // Mark odd queries as live so we can test filtering out live queries.
-    if (queryData.target_id() % 2 == 1) {
-      liveQueries[queryData.target_id()] = queryData;
+    if (query_data.target_id() % 2 == 1) {
+      live_queries[query_data.target_id()] = query_data;
     }
   }
   // GC up through 20th query, which is 20%.
   // Expect to have GC'd 10 targets, since every other target is live
-  int removed = [self removeQueriesThroughSequenceNumber:20 + _initialSequenceNumber
-                                             liveQueries:liveQueries];
-  XCTAssertEqual(10, removed);
-  // Make sure we removed the even targets with targetID <= 20.
-  _persistence->Run("verify remaining targets are > 20 or odd", [&] {
-    _queryCache->EnumerateTargets([&](const QueryData &queryData) {
-      XCTAssertTrue(queryData.target_id() > 20 || queryData.target_id() % 2 == 1);
+  int removed = RemoveTargets(20 + initial_sequence_number_, live_queries);
+  ASSERT_EQ(10, removed);
+  // Make sure we removed the even targets with target_id <= 20.
+  persistence_->Run("verify remaining targets are > 20 or odd", [&] {
+    query_cache_->EnumerateTargets([&](const QueryData& query_data) {
+      ASSERT_TRUE(query_data.target_id() > 20 ||
+                  query_data.target_id() % 2 == 1);
     });
   });
-  _persistence->Shutdown();
+  persistence_->Shutdown();
 }
 
-- (void)testRemoveOrphanedDocuments {
-  if ([self isTestBaseClass]) return;
-
-  [self newTestResources];
+TEST_P(LruGarbageCollectorTest, RemoveOrphanedDocuments) {
+  NewTestResources();
   // Track documents we expect to be retained so we can verify post-GC.
-  // This will contain documents associated with targets that survive GC, as well
-  // as any documents with pending mutations.
-  std::unordered_set<DocumentKey, DocumentKeyHash> expectedRetained;
+  // This will contain documents associated with targets that survive GC, as
+  // well as any documents with pending mutations.
+  std::unordered_set<DocumentKey, DocumentKeyHash> expected_retained;
   // we add two mutations later, for now track them in an array.
   std::vector<Mutation> mutations;
 
   // Add a target and add two documents to it. The documents are expected to be
   // retained, since their membership in the target keeps them alive.
-  _persistence->Run("add a target and add two documents to it", [&] {
-    // Add two documents to first target, queue a mutation on the second document
-    QueryData queryData = [self addNextQueryInTransaction];
-    Document doc1 = [self cacheADocumentInTransaction];
-    [self addDocument:doc1.key() toTarget:queryData.target_id()];
-    expectedRetained.insert(doc1.key());
+  persistence_->Run("add a target and add two documents to it", [&] {
+    // Add two documents to first target, queue a mutation on the second
+    // document
+    QueryData query_data = AddNextQueryInTransaction();
+    Document doc1 = CacheADocumentInTransaction();
+    AddDocument(doc1.key(), query_data.target_id());
+    expected_retained.insert(doc1.key());
 
-    Document doc2 = [self cacheADocumentInTransaction];
-    [self addDocument:doc2.key() toTarget:queryData.target_id()];
-    expectedRetained.insert(doc2.key());
-    mutations.push_back([self mutationForDocument:doc2.key()]);
+    Document doc2 = CacheADocumentInTransaction();
+    AddDocument(doc2.key(), query_data.target_id());
+    expected_retained.insert(doc2.key());
+    mutations.push_back(MutationForDocument(doc2.key()));
   });
 
   // Add a second query and register a third document on it
-  _persistence->Run("second query", [&] {
-    QueryData queryData = [self addNextQueryInTransaction];
-    Document doc3 = [self cacheADocumentInTransaction];
-    expectedRetained.insert(doc3.key());
-    [self addDocument:doc3.key() toTarget:queryData.target_id()];
+  persistence_->Run("second query", [&] {
+    QueryData query_data = AddNextQueryInTransaction();
+    Document doc3 = CacheADocumentInTransaction();
+    expected_retained.insert(doc3.key());
+    AddDocument(doc3.key(), query_data.target_id());
   });
 
   // cache another document and prepare a mutation on it.
-  _persistence->Run("queue a mutation", [&] {
-    Document doc4 = [self cacheADocumentInTransaction];
-    mutations.push_back([self mutationForDocument:doc4.key()]);
-    expectedRetained.insert(doc4.key());
+  persistence_->Run("queue a mutation", [&] {
+    Document doc4 = CacheADocumentInTransaction();
+    mutations.push_back(MutationForDocument(doc4.key()));
+    expected_retained.insert(doc4.key());
   });
 
-  // Insert the mutations. These operations don't have a sequence number, they just
-  // serve to keep the mutated documents from being GC'd while the mutations are outstanding.
-  _persistence->Run("actually register the mutations", [&] {
-    Timestamp writeTime = Timestamp::Now();
-    _mutationQueue->AddMutationBatch(writeTime, {}, std::move(mutations));
+  // Insert the mutations. These operations don't have a sequence number, they
+  // just serve to keep the mutated documents from being GC'd while the
+  // mutations are outstanding.
+  persistence_->Run("actually register the mutations", [&] {
+    Timestamp write_time = Timestamp::Now();
+    mutation_queue_->AddMutationBatch(write_time, {}, std::move(mutations));
   });
 
-  // Mark 5 documents eligible for GC. This simulates documents that were mutated then ack'd.
-  // Since they were ack'd, they are no longer in a mutation queue, and there is nothing keeping
-  // them alive.
-  std::unordered_set<DocumentKey, DocumentKeyHash> toBeRemoved;
-  _persistence->Run("add orphaned docs (previously mutated, then ack'd)", [&] {
+  // Mark 5 documents eligible for GC. This simulates documents that were
+  // mutated then ack'd. Since they were ack'd, they are no longer in a mutation
+  // queue, and there is nothing keeping them alive.
+  std::unordered_set<DocumentKey, DocumentKeyHash> to_be_removed;
+  persistence_->Run("add orphaned docs (previously mutated, then ack'd)", [&] {
     for (int i = 0; i < 5; i++) {
-      Document doc = [self cacheADocumentInTransaction];
-      toBeRemoved.insert(doc.key());
-      [self markDocumentEligibleForGCInTransaction:doc.key()];
+      Document doc = CacheADocumentInTransaction();
+      to_be_removed.insert(doc.key());
+      MarkDocumentEligibleForGcInTransaction(doc.key());
     }
   });
 
-  // We expect only the orphaned documents, those not in a mutation or a target, to be
-  // removed.
-  // use a large sequence number to remove as much as possible
-  int removed = [self removeOrphanedDocumentsThroughSequenceNumber:1000];
-  XCTAssertEqual(toBeRemoved.size(), removed);
-  _persistence->Run("verify", [&] {
-    for (const DocumentKey &key : toBeRemoved) {
-      XCTAssertEqual(_documentCache->Get(key), absl::nullopt);
-      XCTAssertFalse(_queryCache->Contains(key));
+  // We expect only the orphaned documents, those not in a mutation or a target,
+  // to be removed. use a large sequence number to remove as much as possible
+  int removed = RemoveOrphanedDocuments(1000);
+  ASSERT_EQ(to_be_removed.size(), removed);
+  persistence_->Run("verify", [&] {
+    for (const DocumentKey& key : to_be_removed) {
+      ASSERT_EQ(document_cache_->Get(key), absl::nullopt);
+      ASSERT_FALSE(query_cache_->Contains(key));
     }
-    for (const DocumentKey &key : expectedRetained) {
-      XCTAssertNotEqual(_documentCache->Get(key), absl::nullopt, @"Missing document %s",
-                        key.ToString().c_str());
+    for (const DocumentKey& key : expected_retained) {
+      ASSERT_NE(document_cache_->Get(key), absl::nullopt)
+          << "Missing document " << key.ToString().c_str();
     }
   });
-  _persistence->Shutdown();
+  persistence_->Shutdown();
 }
 
 // TODO(gsoltis): write a test that includes limbo documents
 
-- (void)testRemoveTargetsThenGC {
-  if ([self isTestBaseClass]) return;
-
+TEST_P(LruGarbageCollectorTest, RemoveTargetsThenGC) {
   // Create 3 targets, add docs to all of them
   // Leave oldest target alone, it is still live
   // Remove newest target
@@ -506,265 +469,272 @@ NS_ASSUME_NONNULL_BEGIN
   // Expect:
   // All docs in oldest target are still around
   // One blind write is gone, the first one not added to oldest target
-  // Documents removed from middle target are gone, except ones added to oldest target
-  // Documents from newest target are gone, except
+  // Documents removed from middle target are gone, except ones added to oldest
+  // target Documents from newest target are gone, except
 
-  [self newTestResources];
+  NewTestResources();
 
   // Through the various steps, track which documents we expect to be removed vs
   // documents we expect to be retained.
-  std::unordered_set<DocumentKey, DocumentKeyHash> expectedRetained;
-  std::unordered_set<DocumentKey, DocumentKeyHash> expectedRemoved;
+  std::unordered_set<DocumentKey, DocumentKeyHash> expected_retained;
+  std::unordered_set<DocumentKey, DocumentKeyHash> expected_removed;
 
   // Add oldest target, 5 documents, and add those documents to the target.
   // This target will not be removed, so all documents that are part of it will
   // be retained.
-  QueryData oldestTarget = _persistence->Run("Add oldest target and docs", [&] {
-    QueryData queryData = [self addNextQueryInTransaction];
-    for (int i = 0; i < 5; i++) {
-      Document doc = [self cacheADocumentInTransaction];
-      expectedRetained.insert(doc.key());
-      [self addDocument:doc.key() toTarget:queryData.target_id()];
-    }
-    return queryData;
-  });
+  QueryData oldest_target =
+      persistence_->Run("Add oldest target and docs", [&] {
+        QueryData query_data = AddNextQueryInTransaction();
+        for (int i = 0; i < 5; i++) {
+          Document doc = CacheADocumentInTransaction();
+          expected_retained.insert(doc.key());
+          AddDocument(doc.key(), query_data.target_id());
+        }
+        return query_data;
+      });
 
-  // Add middle target and docs. Some docs will be removed from this target later,
-  // which we track here.
-  DocumentKeySet middleDocsToRemove;
+  // Add middle target and docs. Some docs will be removed from this target
+  // later, which we track here.
+  DocumentKeySet middle_docs_to_remove;
   // This will be the document in this target that gets an update later
-  DocumentKey middleDocToUpdate;
-  QueryData middleTarget = _persistence->Run("Add middle target and docs", [&] {
-    QueryData middleTarget = [self addNextQueryInTransaction];
-    // these docs will be removed from this target later, triggering a bump
-    // to their sequence numbers. Since they will not be a part of the target, we
-    // expect them to be removed.
-    for (int i = 0; i < 2; i++) {
-      Document doc = [self cacheADocumentInTransaction];
-      expectedRemoved.insert(doc.key());
-      [self addDocument:doc.key() toTarget:middleTarget.target_id()];
-      middleDocsToRemove = middleDocsToRemove.insert(doc.key());
-    }
-    // these docs stay in this target and only this target. There presence in this
-    // target prevents them from being GC'd, so they are also expected to be retained.
-    for (int i = 2; i < 4; i++) {
-      Document doc = [self cacheADocumentInTransaction];
-      expectedRetained.insert(doc.key());
-      [self addDocument:doc.key() toTarget:middleTarget.target_id()];
-    }
-    // This doc stays in this target, but gets updated.
-    {
-      Document doc = [self cacheADocumentInTransaction];
-      expectedRetained.insert(doc.key());
-      [self addDocument:doc.key() toTarget:middleTarget.target_id()];
-      middleDocToUpdate = doc.key();
-    }
-    return middleTarget;
-  });
+  DocumentKey middle_doc_to_update;
+  QueryData middle_target =
+      persistence_->Run("Add middle target and docs", [&] {
+        QueryData middle_target = AddNextQueryInTransaction();
+        // these docs will be removed from this target later, triggering a bump
+        // to their sequence numbers. Since they will not be a part of the
+        // target, we expect them to be removed.
+        for (int i = 0; i < 2; i++) {
+          Document doc = CacheADocumentInTransaction();
+          expected_removed.insert(doc.key());
+          AddDocument(doc.key(), middle_target.target_id());
+          middle_docs_to_remove = middle_docs_to_remove.insert(doc.key());
+        }
+        // these docs stay in this target and only this target. There presence
+        // in this target prevents them from being GC'd, so they are also
+        // expected to be retained.
+        for (int i = 2; i < 4; i++) {
+          Document doc = CacheADocumentInTransaction();
+          expected_retained.insert(doc.key());
+          AddDocument(doc.key(), middle_target.target_id());
+        }
+        // This doc stays in this target, but gets updated.
+        {
+          Document doc = CacheADocumentInTransaction();
+          expected_retained.insert(doc.key());
+          AddDocument(doc.key(), middle_target.target_id());
+          middle_doc_to_update = doc.key();
+        }
+        return middle_target;
+      });
 
-  // Add the newest target and add 5 documents to it. Some of those documents will
-  // additionally be added to the oldest target, which will cause those documents to
-  // be retained. The remaining documents are expected to be removed, since this target
-  // will be removed.
-  DocumentKeySet newestDocsToAddToOldest;
-  _persistence->Run("Add newest target and docs", [&] {
-    QueryData newestTarget = [self addNextQueryInTransaction];
+  // Add the newest target and add 5 documents to it. Some of those documents
+  // will additionally be added to the oldest target, which will cause those
+  // documents to be retained. The remaining documents are expected to be
+  // removed, since this target will be removed.
+  DocumentKeySet newest_docs_to_add_to_oldest;
+  persistence_->Run("Add newest target and docs", [&] {
+    QueryData newest_target = AddNextQueryInTransaction();
     // These documents are only in this target. They are expected to be removed
     // because this target will also be removed.
     for (int i = 0; i < 3; i++) {
-      Document doc = [self cacheADocumentInTransaction];
-      expectedRemoved.insert(doc.key());
-      [self addDocument:doc.key() toTarget:newestTarget.target_id()];
+      Document doc = CacheADocumentInTransaction();
+      expected_removed.insert(doc.key());
+      AddDocument(doc.key(), newest_target.target_id());
     }
-    // docs to add to the oldest target in addition to this target. They will be retained
+    // docs to add to the oldest target in addition to this target. They will be
+    // retained
     for (int i = 3; i < 5; i++) {
-      Document doc = [self cacheADocumentInTransaction];
-      expectedRetained.insert(doc.key());
-      [self addDocument:doc.key() toTarget:newestTarget.target_id()];
-      newestDocsToAddToOldest = newestDocsToAddToOldest.insert(doc.key());
+      Document doc = CacheADocumentInTransaction();
+      expected_retained.insert(doc.key());
+      AddDocument(doc.key(), newest_target.target_id());
+      newest_docs_to_add_to_oldest =
+          newest_docs_to_add_to_oldest.insert(doc.key());
     }
   });
 
   // 2 doc writes, add one of them to the oldest target.
-  _persistence->Run("2 doc writes, add one of them to the oldest target", [&] {
+  persistence_->Run("2 doc writes, add one of them to the oldest target", [&] {
     // write two docs and have them ack'd by the server. can skip mutation queue
-    // and set them in document cache. Add potentially orphaned first, also add one
-    // doc to a target.
-    Document doc1 = [self cacheADocumentInTransaction];
-    [self markDocumentEligibleForGCInTransaction:doc1.key()];
-    [self updateTargetInTransaction:oldestTarget];
-    [self addDocument:doc1.key() toTarget:oldestTarget.target_id()];
-    // doc1 should be retained by being added to oldestTarget.
-    expectedRetained.insert(doc1.key());
+    // and set them in document cache. Add potentially orphaned first, also add
+    // one doc to a target.
+    Document doc1 = CacheADocumentInTransaction();
+    MarkDocumentEligibleForGcInTransaction(doc1.key());
+    UpdateTargetInTransaction(oldest_target);
+    AddDocument(doc1.key(), oldest_target.target_id());
+    // doc1 should be retained by being added to oldest_target.
+    expected_retained.insert(doc1.key());
 
-    Document doc2 = [self cacheADocumentInTransaction];
-    [self markDocumentEligibleForGCInTransaction:doc2.key()];
+    Document doc2 = CacheADocumentInTransaction();
+    MarkDocumentEligibleForGcInTransaction(doc2.key());
     // nothing is keeping doc2 around, it should be removed
-    expectedRemoved.insert(doc2.key());
+    expected_removed.insert(doc2.key());
   });
 
   // Remove some documents from the middle target.
-  _persistence->Run("Remove some documents from the middle target", [&] {
-    [self updateTargetInTransaction:middleTarget];
-    for (const DocumentKey &docKey : middleDocsToRemove) {
-      [self removeDocument:docKey fromTarget:middleTarget.target_id()];
+  persistence_->Run("Remove some documents from the middle target", [&] {
+    UpdateTargetInTransaction(middle_target);
+    for (const DocumentKey& doc_key : middle_docs_to_remove) {
+      RemoveDocument(doc_key, middle_target.target_id());
     }
   });
 
-  // Add a couple docs from the newest target to the oldest (preserves them past the point where
-  // newest was removed)
-  // upperBound is the sequence number right before middleTarget is updated, then removed.
-  ListenSequenceNumber upperBound =
-      _persistence->Run("Add a couple docs from the newest target to the oldest", [&] {
-        [self updateTargetInTransaction:oldestTarget];
-        for (const DocumentKey &docKey : newestDocsToAddToOldest) {
-          [self addDocument:docKey toTarget:oldestTarget.target_id()];
+  // Add a couple docs from the newest target to the oldest (preserves them past
+  // the point where newest was removed) upper_bound is the sequence number
+  // right before middle_target is updated, then removed.
+  ListenSequenceNumber upper_bound = persistence_->Run(
+      "Add a couple docs from the newest target to the oldest", [&] {
+        UpdateTargetInTransaction(oldest_target);
+        for (const DocumentKey& doc_key : newest_docs_to_add_to_oldest) {
+          AddDocument(doc_key, oldest_target.target_id());
         }
-        return _persistence->current_sequence_number();
+        return persistence_->current_sequence_number();
       });
 
   // Update a doc in the middle target
-  _persistence->Run("Update a doc in the middle target", [&] {
-    FSTTestSnapshotVersion version = 3;
-    Document doc(ObjectValue(_testValue), middleDocToUpdate, Version(version),
-                 DocumentState::kSynced);
-    _documentCache->Add(doc);
-    [self updateTargetInTransaction:middleTarget];
+  persistence_->Run("Update a doc in the middle target", [&] {
+    int64_t version = 3;
+    Document doc(ObjectValue(test_value_), middle_doc_to_update,
+                 Version(version), DocumentState::kSynced);
+    document_cache_->Add(doc);
+    UpdateTargetInTransaction(middle_target);
   });
 
-  // middleTarget removed here, no update needed
+  // middle_target removed here, no update needed
 
   // Write a doc and get an ack, not part of a target.
-  _persistence->Run("Write a doc and get an ack, not part of a target", [&] {
-    Document doc = [self cacheADocumentInTransaction];
-    // Mark it as eligible for GC, but this is after our upper bound for what we will collect.
-    [self markDocumentEligibleForGCInTransaction:doc.key()];
+  persistence_->Run("Write a doc and get an ack, not part of a target", [&] {
+    Document doc = CacheADocumentInTransaction();
+    // Mark it as eligible for GC, but this is after our upper bound for what we
+    // will collect.
+    MarkDocumentEligibleForGcInTransaction(doc.key());
     // This should be retained, it's too new to get removed.
-    expectedRetained.insert(doc.key());
+    expected_retained.insert(doc.key());
   });
 
-  // Finally, do the garbage collection, up to but not including the removal of middleTarget
-  std::unordered_map<TargetId, QueryData> liveQueries{{oldestTarget.target_id(), oldestTarget}};
+  // Finally, do the garbage collection, up to but not including the removal of
+  // middle_target
+  std::unordered_map<TargetId, QueryData> live_queries{
+      {oldest_target.target_id(), oldest_target}};
 
-  int queriesRemoved = [self removeQueriesThroughSequenceNumber:upperBound liveQueries:liveQueries];
-  XCTAssertEqual(1, queriesRemoved, @"Expected to remove newest target");
-  int docsRemoved = [self removeOrphanedDocumentsThroughSequenceNumber:upperBound];
-  XCTAssertEqual(expectedRemoved.size(), docsRemoved);
-  _persistence->Run("verify results", [&] {
-    for (const DocumentKey &key : expectedRemoved) {
-      XCTAssertEqual(_documentCache->Get(key), absl::nullopt,
-                     @"Did not expect to find %s in document cache", key.ToString().c_str());
-      XCTAssertFalse(_queryCache->Contains(key), @"Did not expect to find %s in queryCache",
-                     key.ToString().c_str());
-      [self expectSentinelRemoved:key];
+  int queries_removed = RemoveTargets(upper_bound, live_queries);
+  ASSERT_EQ(1, queries_removed) << "Expected to remove newest target";
+  int docs_removed = RemoveOrphanedDocuments(upper_bound);
+  ASSERT_EQ(expected_removed.size(), docs_removed);
+  persistence_->Run("verify results", [&] {
+    for (const DocumentKey& key : expected_removed) {
+      ASSERT_EQ(document_cache_->Get(key), absl::nullopt)
+          << "Did not expect to find " << key.ToString().c_str()
+          << "in document cache";
+      ASSERT_FALSE(query_cache_->Contains(key))
+          << "Did not expect to find " << key.ToString().c_str()
+          << " in query_cache";
+      ExpectSentinelRemoved(key);
     }
-    for (const DocumentKey &key : expectedRetained) {
-      XCTAssertNotEqual(_documentCache->Get(key), absl::nullopt,
-                        @"Expected to find %s in document cache", key.ToString().c_str());
+    for (const DocumentKey& key : expected_retained) {
+      ASSERT_NE(document_cache_->Get(key), absl::nullopt)
+          << "Expected to find " << key.ToString().c_str()
+          << " in document cache";
     }
   });
 
-  _persistence->Shutdown();
+  persistence_->Shutdown();
 }
 
-- (void)testGetsSize {
-  if ([self isTestBaseClass]) return;
+TEST_P(LruGarbageCollectorTest, GetsSize) {
+  NewTestResources();
 
-  [self newTestResources];
+  size_t initial_size = gc_->CalculateByteSize();
 
-  size_t initialSize = _gc->CalculateByteSize();
-
-  _persistence->Run("fill cache", [&] {
+  persistence_->Run("fill cache", [&] {
     // Simulate a bunch of ack'd mutations
     for (int i = 0; i < 50; i++) {
-      Document doc = [self cacheADocumentInTransaction];
-      [self markDocumentEligibleForGCInTransaction:doc.key()];
+      Document doc = CacheADocumentInTransaction();
+      MarkDocumentEligibleForGcInTransaction(doc.key());
     }
   });
 
-  size_t finalSize = _gc->CalculateByteSize();
-  XCTAssertGreaterThan(finalSize, initialSize);
+  size_t final_size = gc_->CalculateByteSize();
+  ASSERT_GT(final_size, initial_size);
 
-  _persistence->Shutdown();
+  persistence_->Shutdown();
 }
 
-- (void)testDisabled {
-  if ([self isTestBaseClass]) return;
-
+TEST_P(LruGarbageCollectorTest, Disabled) {
   LruParams params = LruParams::Disabled();
-  [self newTestResourcesWithLruParams:params];
+  NewTestResources(params);
 
-  _persistence->Run("fill cache", [&] {
+  persistence_->Run("fill cache", [&] {
     // Simulate a bunch of ack'd mutations
     for (int i = 0; i < 500; i++) {
-      Document doc = [self cacheADocumentInTransaction];
-      [self markDocumentEligibleForGCInTransaction:doc.key()];
+      Document doc = CacheADocumentInTransaction();
+      MarkDocumentEligibleForGcInTransaction(doc.key());
     }
   });
 
-  LruResults results = _persistence->Run("GC", [&] { return _gc->Collect({}); });
-  XCTAssertFalse(results.did_run);
+  LruResults results =
+      persistence_->Run("GC", [&] { return gc_->Collect({}); });
+  ASSERT_FALSE(results.did_run);
 
-  _persistence->Shutdown();
+  persistence_->Shutdown();
 }
 
-- (void)testCacheTooSmall {
-  if ([self isTestBaseClass]) return;
-
+TEST_P(LruGarbageCollectorTest, CacheTooSmall) {
   LruParams params = LruParams::Default();
-  [self newTestResourcesWithLruParams:params];
+  NewTestResources(params);
 
-  _persistence->Run("fill cache", [&] {
+  persistence_->Run("fill cache", [&] {
     // Simulate a bunch of ack'd mutations
     for (int i = 0; i < 50; i++) {
-      Document doc = [self cacheADocumentInTransaction];
-      [self markDocumentEligibleForGCInTransaction:doc.key()];
+      Document doc = CacheADocumentInTransaction();
+      MarkDocumentEligibleForGcInTransaction(doc.key());
     }
   });
 
-  int cacheSize = (int)_gc->CalculateByteSize();
+  int64_t cache_size = gc_->CalculateByteSize();
   // Verify that we don't have enough in our cache to warrant collection
-  XCTAssertLessThan(cacheSize, params.min_bytes_threshold);
+  ASSERT_LT(cache_size, params.min_bytes_threshold);
 
   // Try collection and verify that it didn't run
-  LruResults results = _persistence->Run("GC", [&] { return _gc->Collect({}); });
-  XCTAssertFalse(results.did_run);
+  LruResults results =
+      persistence_->Run("GC", [&] { return gc_->Collect({}); });
+  ASSERT_FALSE(results.did_run);
 
-  _persistence->Shutdown();
+  persistence_->Shutdown();
 }
 
-- (void)testGCRan {
-  if ([self isTestBaseClass]) return;
-
+TEST_P(LruGarbageCollectorTest, GCRan) {
   LruParams params = LruParams::Default();
   // Set a low threshold so we will definitely run
   params.min_bytes_threshold = 100;
-  [self newTestResourcesWithLruParams:params];
+  NewTestResources(params);
 
   // Add 100 targets and 10 documents to each
   for (int i = 0; i < 100; i++) {
-    // Use separate transactions so that each target and associated documents get their own
-    // sequence number.
-    _persistence->Run("Add a target and some documents", [&] {
-      QueryData queryData = [self addNextQueryInTransaction];
+    // Use separate transactions so that each target and associated documents
+    // get their own sequence number.
+    persistence_->Run("Add a target and some documents", [&] {
+      QueryData query_data = AddNextQueryInTransaction();
       for (int j = 0; j < 10; j++) {
-        Document doc = [self cacheADocumentInTransaction];
-        [self addDocument:doc.key() toTarget:queryData.target_id()];
+        Document doc = CacheADocumentInTransaction();
+        AddDocument(doc.key(), query_data.target_id());
       }
     });
   }
 
   // Mark nothing as live, so everything is eligible.
-  LruResults results = _persistence->Run("GC", [&] { return _gc->Collect({}); });
+  LruResults results =
+      persistence_->Run("GC", [&] { return gc_->Collect({}); });
 
-  // By default, we collect 10% of the sequence numbers. Since we added 100 targets,
-  // that should be 10 targets with 10 documents each, for a total of 100 documents.
-  XCTAssertTrue(results.did_run);
-  XCTAssertEqual(10, results.targets_removed);
-  XCTAssertEqual(100, results.documents_removed);
-  _persistence->Shutdown();
+  // By default, we collect 10% of the sequence numbers. Since we added 100
+  // targets, that should be 10 targets with 10 documents each, for a total of
+  // 100 documents.
+  ASSERT_TRUE(results.did_run);
+  ASSERT_EQ(10, results.targets_removed);
+  ASSERT_EQ(100, results.documents_removed);
+  persistence_->Shutdown();
 }
 
-@end
-
-NS_ASSUME_NONNULL_END
+}  // namespace local
+}  // namespace firestore
+}  // namespace firebase

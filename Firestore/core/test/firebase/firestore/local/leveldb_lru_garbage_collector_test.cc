@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,41 +16,51 @@
 
 #include <string>
 
-#import "Firestore/Example/Tests/Local/FSTLRUGarbageCollectorTests.h"
-
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
 #include "Firestore/core/src/firebase/firestore/local/lru_garbage_collector.h"
 #include "Firestore/core/src/firebase/firestore/local/persistence.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/test/firebase/firestore/local/lru_garbage_collector_test.h"
 #include "Firestore/core/test/firebase/firestore/local/persistence_testing.h"
+#include "gtest/gtest.h"
 
-using firebase::firestore::local::LevelDbDocumentTargetKey;
-using firebase::firestore::local::LevelDbPersistence;
-using firebase::firestore::local::LevelDbPersistenceForTesting;
-using firebase::firestore::local::Persistence;
-using firebase::firestore::model::DocumentKey;
+namespace firebase {
+namespace firestore {
+namespace local {
+namespace {
 
-using firebase::firestore::local::LruParams;
+using model::DocumentKey;
 
-NS_ASSUME_NONNULL_BEGIN
+class TestHelper : public LruGarbageCollectorTestHelper {
+ public:
+  std::unique_ptr<Persistence> MakePersistence(LruParams lru_params) override {
+    auto persistence = LevelDbPersistenceForTesting(lru_params);
+    leveldb_persistence_ = persistence.get();
+    return std::move(persistence);
+  }
 
-@interface FSTLevelDBLRUGarbageCollectorTests : FSTLRUGarbageCollectorTests
-@end
+  bool SentinelExists(const DocumentKey& key) override {
+    std::string sentinel_key = LevelDbDocumentTargetKey::SentinelKey(key);
+    std::string unused_value;
+    auto txn = leveldb_persistence_->current_transaction();
+    return !txn->Get(sentinel_key, &unused_value).IsNotFound();
+  }
 
-@implementation FSTLevelDBLRUGarbageCollectorTests
+ private:
+  LevelDbPersistence* leveldb_persistence_ = nullptr;
+};
 
-- (std::unique_ptr<Persistence>)newPersistenceWithLruParams:(LruParams)lruParams {
-  return LevelDbPersistenceForTesting(lruParams);
+std::unique_ptr<LruGarbageCollectorTestHelper> Factory() {
+  return absl::make_unique<TestHelper>();
 }
 
-- (BOOL)sentinelExists:(const DocumentKey &)key {
-  auto db = static_cast<local::LevelDbPersistence *>(self.persistence);
-  std::string sentinelKey = LevelDbDocumentTargetKey::SentinelKey(key);
-  std::string unusedValue;
-  return !db->current_transaction()->Get(sentinelKey, &unusedValue).IsNotFound();
-}
+}  // namespace
 
-@end
+INSTANTIATE_TEST_SUITE_P(LevelDbLruGarbageCollectorTest,
+                         LruGarbageCollectorTest,
+                         ::testing::Values(Factory));
 
-NS_ASSUME_NONNULL_END
+}  // namespace local
+}  // namespace firestore
+}  // namespace firebase
