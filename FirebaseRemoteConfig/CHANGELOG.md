@@ -4,9 +4,6 @@
 # v4.4.3
 - Removed existing usage of an internal deprecated API. (#3993)
 
-# v4.4.3
-- Removed existing usage of an internal deprecated API. (#3993)
-
 # v4.4.2
 - Fixed issue for outdated values for deleted config keys (#3745).
 
