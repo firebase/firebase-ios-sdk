@@ -150,10 +150,9 @@ static NSString *const FIRSecondFIRAppName = @"secondFIRApp";
   };
 
   // fetchConfig api call
-  [[FRCLog sharedInstance] logToConsole:@"Calling fetchWithExpirationDuration.."];
+  [[FRCLog sharedInstance] logToConsole:@"Calling fetchWithCompletionHandler.."];
   [self.RCInstances[self.currentNamespace][self.FIRAppName]
-      fetchWithExpirationDuration:self.expirationLabel.text.integerValue
-                completionHandler:completion];
+   fetchWithCompletionHandler:completion];
 }
 
 - (IBAction)fetchAndActivateButtonPressed:(id)sender {
@@ -298,8 +297,8 @@ static NSString *const FIRSecondFIRAppName = @"secondFIRApp";
         if (!error) {
           [self printResult:output];
         } else {
-          [self printResult:[[NSString stringWithFormat:@"Activate failed. Error: %@",
-                                                        error.localizedDescription] mutableCopy]];
+          [[FRCLog sharedInstance] logToConsole:[[NSString stringWithFormat:@"Activate failed. Error: %@",
+          error.localizedDescription] mutableCopy]];
         }
       }];
 }

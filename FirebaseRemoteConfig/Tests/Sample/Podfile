@@ -7,7 +7,7 @@ target 'RemoteConfigSampleApp' do
   pod 'FirebaseAnalytics'
   pod 'FirebaseCore', :path => '../../../'
   pod 'FirebaseRemoteConfig', :path => '../../../'
-
+  pod 'FirebasePerformance'
   # Pods for RemoteConfigSampleApp
 
   target 'RemoteConfigSampleAppUITests' do
