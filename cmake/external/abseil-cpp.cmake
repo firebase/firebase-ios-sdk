@@ -1,4 +1,4 @@
-# Copyright 2018 Google
+# Copyright 2019 Google
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,22 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cmake_minimum_required(VERSION 3.1)
-project(Firebase-download C CXX)
+include(ExternalProject)
 
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
+set(version 20190808)
 
-set(
-  FIREBASE_DOWNLOAD_DIR
-  ${PROJECT_BINARY_DIR}/downloads
-  CACHE PATH "Where to store downloaded files"
+ExternalProject_Add(
+  abseil-cpp
+
+  DOWNLOAD_DIR ${FIREBASE_DOWNLOAD_DIR}
+  DOWNLOAD_NAME abseil-cpp-${version}.tar.gz
+  URL https://github.com/abseil/abseil-cpp/archive/${version}.tar.gz
+  URL_HASH SHA256=8100085dada279bf3ee00cd064d43b5f55e5d913be0dfe2906f06f8f28d5b37e
+
+  PREFIX ${PROJECT_BINARY_DIR}
+
+  CONFIGURE_COMMAND ""
+  BUILD_COMMAND ""
+  INSTALL_COMMAND ""
+  TEST_COMMAND ""
 )
-
-include(abseil-cpp)
-include(benchmark)
-include(googletest)
-include(grpc)
-include(leveldb)
-include(nanopb)
-include(protobuf)
-include(libfuzzer)
