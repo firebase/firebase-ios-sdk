@@ -75,7 +75,7 @@ static NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test
   _mockMessaging = _testUtil.mockMessaging;
   _messaging = _testUtil.messaging;
   OCMStub([_mockMessaging defaultFcmToken]).andReturn(kFakeToken);
-  
+
   _mockPubSub = _testUtil.mockPubsub;
   [_mockPubSub setClient:nil];
   _mockInstanceID = _testUtil.mockInstanceID;
@@ -154,7 +154,6 @@ static NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test
                               topic:topic
                             options:nil
                             handler:^(NSError *error){
-
                             }];
 
   // should call updateSubscription
