@@ -35,6 +35,7 @@
 #include "Firestore/core/test/firebase/firestore/util/grpc_stream_tester.h"
 #include "absl/memory/memory.h"
 #include "absl/strings/str_cat.h"
+#include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
@@ -49,6 +50,7 @@ using model::DatabaseId;
 using model::Document;
 using model::MaybeDocument;
 using nanopb::Message;
+using testing::Not;
 using testutil::Value;
 using util::AsyncQueue;
 using util::CompletionEndState;
@@ -60,6 +62,7 @@ using util::Status;
 using util::StatusOr;
 using util::CompletionResult::Error;
 using util::CompletionResult::Ok;
+
 using Type = GrpcCompletion::Type;
 
 grpc::ByteBuffer MakeFakeDocument(const std::string& doc_name) {
@@ -123,6 +126,8 @@ class DatastoreTest : public testing::Test {
     if (!is_shut_down) {
       Shutdown();
     }
+    // Ensure that nothing remains on the AsyncQueue before destroying it.
+    worker_queue->EnqueueBlocking([] {});
   }
 
   void Shutdown() {
@@ -366,26 +371,34 @@ TEST_F(DatastoreTest, AuthOutlivesDatastore) {
 
 // Error classification
 
+MATCHER(IsPermanentError,
+        negation ? "not permanent error" : "permanent error") {
+  return Datastore::IsPermanentError(Status{arg, ""});
+}
+
 TEST_F(DatastoreTest, IsPermanentError) {
-  EXPECT_FALSE(Datastore::IsPermanentError(Status{Error::Cancelled, ""}));
-  EXPECT_FALSE(
-      Datastore::IsPermanentError(Status{Error::ResourceExhausted, ""}));
-  EXPECT_FALSE(Datastore::IsPermanentError(Status{Error::Unavailable, ""}));
+  EXPECT_THAT(Error::Cancelled, Not(IsPermanentError()));
+  EXPECT_THAT(Error::ResourceExhausted, Not(IsPermanentError()));
+  EXPECT_THAT(Error::Unavailable, Not(IsPermanentError()));
   // User info doesn't matter:
   EXPECT_FALSE(Datastore::IsPermanentError(
       Status{Error::Unavailable, "Connectivity lost"}));
   // "unauthenticated" is considered a recoverable error due to expired token.
-  EXPECT_FALSE(Datastore::IsPermanentError(Status{Error::Unauthenticated, ""}));
+  EXPECT_THAT(Error::Unauthenticated, Not(IsPermanentError()));
 
-  EXPECT_TRUE(Datastore::IsPermanentError(Status{Error::DataLoss, ""}));
-  EXPECT_TRUE(Datastore::IsPermanentError(Status{Error::Aborted, ""}));
+  EXPECT_THAT(Error::DataLoss, IsPermanentError());
+  EXPECT_THAT(Error::Aborted, IsPermanentError());
+}
+
+MATCHER(IsPermanentWriteError,
+        negation ? "not permanent error" : "permanent error") {
+  return Datastore::IsPermanentWriteError(Status{arg, ""});
 }
 
 TEST_F(DatastoreTest, IsPermanentWriteError) {
-  EXPECT_FALSE(
-      Datastore::IsPermanentWriteError(Status{Error::Unauthenticated, ""}));
-  EXPECT_TRUE(Datastore::IsPermanentWriteError(Status{Error::DataLoss, ""}));
-  EXPECT_FALSE(Datastore::IsPermanentWriteError(Status{Error::Aborted, ""}));
+  EXPECT_THAT(Error::Unauthenticated, Not(IsPermanentWriteError()));
+  EXPECT_THAT(Error::DataLoss, IsPermanentWriteError());
+  EXPECT_THAT(Error::Aborted, Not(IsPermanentWriteError()));
 }
 
 }  // namespace remote

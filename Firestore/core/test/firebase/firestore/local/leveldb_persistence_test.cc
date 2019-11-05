@@ -14,22 +14,21 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
 
-@class FIRInstallationsStoredIIDCheckin;
-@class FBLPromise<ValueType>;
+#include <iostream>
 
-NS_ASSUME_NONNULL_BEGIN
+#include "Firestore/core/src/firebase/firestore/util/filesystem.h"
+#include "gtest/gtest.h"
 
-@interface FIRInstallationsIIDCheckinStore : NSObject
+namespace firebase {
+namespace firestore {
+namespace local {
 
-/*
- * Tries to read IID checking from the Keychain (see also `FIRInstanceIDCheckinStore`).
- * @return Returns a promise that is resolved with the checkin object when all required data found
- * in the Keychain. The promise is rejected when the data is missing.
- */
-- (FBLPromise<FIRInstallationsStoredIIDCheckin *> *)existingCheckin;
+TEST(LevelDbPersistenceTest, CanFindAppDataDirectory) {
+  EXPECT_TRUE(LevelDbPersistence::AppDataDirectory().ok());
+}
 
-@end
-
-NS_ASSUME_NONNULL_END
+}  // namespace local
+}  // namespace firestore
+}  // namespace firebase

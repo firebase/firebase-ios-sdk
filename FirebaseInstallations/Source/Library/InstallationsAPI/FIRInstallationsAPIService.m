@@ -27,7 +27,6 @@
 #import "FIRInstallationsErrorUtil.h"
 #import "FIRInstallationsItem+RegisterInstallationAPI.h"
 #import "FIRInstallationsLogger.h"
-#import "FIRInstallationsStoredIIDCheckin.h"
 
 NSString *const kFIRInstallationsAPIBaseURL = @"https://firebaseinstallations.googleapis.com";
 NSString *const kFIRInstallationsAPIKey = @"X-Goog-Api-Key";
@@ -134,12 +133,8 @@ NS_ASSUME_NONNULL_END
   };
 
   NSDictionary *headers;
-  if (installation.IIDCheckin && installation.IIDCheckin.deviceID &&
-      installation.IIDCheckin.secretToken) {
-    NSString *IIDAuthHeaderValue =
-        [NSString stringWithFormat:@"%@:%@", installation.IIDCheckin.deviceID,
-                                   installation.IIDCheckin.secretToken];
-    headers = @{kFIRInstallationsIIDMigrationAuthHeader : IIDAuthHeaderValue};
+  if (installation.IIDDefaultToken) {
+    headers = @{kFIRInstallationsIIDMigrationAuthHeader : installation.IIDDefaultToken};
   }
 
   return [self requestWithURL:URL

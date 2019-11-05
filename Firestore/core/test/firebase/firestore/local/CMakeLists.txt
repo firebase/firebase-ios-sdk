@@ -20,6 +20,7 @@ cc_test(
     leveldb_index_manager_test.cc
     leveldb_key_test.cc
     leveldb_mutation_queue_test.cc
+    leveldb_persistence_test.cc
     leveldb_query_cache_test.cc
     leveldb_remote_document_cache_test.cc
     leveldb_util_test.cc
