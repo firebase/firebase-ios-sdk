@@ -1,3 +1,6 @@
+# v6.3.3 -- M59
+- [changed] Carthage and zip file distributions are now build with Xcode 11.
+
 # v6.3.2 -- M58
 - [fixed] Fix container instantiation timing, IID startup. (#4030)
 - [changed] Open-sourced Firebase pod. This enables `import Firebase` module
