@@ -15,71 +15,91 @@
  */
 
 #import "GULHeartbeatDateStorage.h"
-#import <GoogleUtilities/GULSecureCoding.h>
 #import <GoogleUtilities/GULLogger.h>
+#import <GoogleUtilities/GULSecureCoding.h>
 
 @interface GULHeartbeatDateStorage ()
-@property(nonatomic, readonly) NSURL *fileURL;
+/** The storage to store the date of the last sent heartbeat. */
+@property(nonatomic, readonly) NSFileCoordinator *fileCoordinator;
 @end
 
 @implementation GULHeartbeatDateStorage
 
-- (instancetype)initWithFileURL:(NSURL *)fileURL {
-  if (fileURL == nil) {
+- (instancetype)initWithFileName:(NSString *)fileName {
+  if (fileName == nil) {
     return nil;
   }
 
   self = [super init];
   if (self) {
-    _fileURL = fileURL;
+    _fileCoordinator = [[NSFileCoordinator alloc] initWithFilePresenter:nil];
+    NSURL *directoryURL = [self directoryPathURL];
+    [self checkAndCreateDirectory:directoryURL];
+    _fileURL = [directoryURL URLByAppendingPathComponent:fileName];
   }
 
   return self;
 }
 
 /** Returns the URL path of the file with name fileName under the Application Support folder for
- * local logging. Creates the Application Support folder if the folder doesn't exist.
- *
- * @return the URL path of the file with the name fileName in Application Support.
+ * local logging.
+ * @return the URL path of Application Support.
  */
-+ (NSURL *)filePathURLWithName:(NSString *)fileName {
-  /** The logger service string to use when printing to the console. */
-  GULLoggerService kGULHeartbeatDateStorage = @"GULHeartbeatDateStorage";
-  @synchronized(self) {
-    NSArray<NSString *> *paths =
-    NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
-    NSArray<NSString *> *components = @[ paths.lastObject, @"Google/FIRApp" ];
-    NSString *directoryString = [NSString pathWithComponents:components];
-    NSURL *directoryURL = [NSURL fileURLWithPath:directoryString];
+- (NSURL *)directoryPathURL {
+  NSArray<NSString *> *paths =
+      NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
+  NSArray<NSString *> *components = @[ paths.lastObject, @"Google/FIRApp" ];
+  NSString *directoryString = [NSString pathWithComponents:components];
+  NSURL *directoryURL = [NSURL fileURLWithPath:directoryString];
+  return directoryURL;
+}
 
-    NSError *error;
-    if (![directoryURL checkResourceIsReachableAndReturnError:&error]) {
-      // If fail creating the Application Support directory, return nil.
-      if (![[NSFileManager defaultManager] createDirectoryAtURL:directoryURL
-                                    withIntermediateDirectories:YES
-                                                     attributes:nil
-                                                          error:&error]) {
-        GULLogWarning(kGULHeartbeatDateStorage, YES, @"I-COR100001",
-                      @"Unable to create internal state storage: %@", error);
-        return nil;
-      }
-    }
-    return [directoryURL URLByAppendingPathComponent:fileName];
+- (void)checkAndCreateDirectory:(NSURL *)directoryURL {
+  NSError *error;
+  NSError *fileCoordinatorError = nil;
+  if (![directoryURL checkResourceIsReachableAndReturnError:&error]) {
+    // If fail creating the Application Support directory, log warning.
+    [self.fileCoordinator
+        coordinateWritingItemAtURL:self.fileURL
+                           options:0
+                             error:&fileCoordinatorError
+                        byAccessor:^(NSURL *writingFileUrl) {
+                          NSError *error;
+                          GULLoggerService kGULHeartbeatDateStorage = @"GULHeartbeatDateStorage";
+                          if (![[NSFileManager defaultManager] createDirectoryAtURL:directoryURL
+                                                        withIntermediateDirectories:YES
+                                                                         attributes:nil
+                                                                              error:&error]) {
+                            GULLogWarning(kGULHeartbeatDateStorage, YES, @"I-COR100001",
+                                          @"Unable to create internal state storage: %@", error);
+                          }
+                        }];
   }
 }
 
-
 - (nullable NSMutableDictionary *)heartbeatDictionary {
-  NSError *error;
-  NSData *objectData = [NSData dataWithContentsOfURL:self.fileURL options:0 error:&error];
-  if (error != nil) {
-    return [NSMutableDictionary dictionary];
-  }
-  NSMutableDictionary *dict =
-      [GULSecureCoding unarchivedObjectOfClass:NSObject.class fromData:objectData error:&error];
-  if (error != nil) {
-    return [NSMutableDictionary dictionary];
-  }
+  NSError *fileCoordinatorError = nil;
+  __block NSMutableDictionary *dict;
+  [self.fileCoordinator
+      coordinateReadingItemAtURL:self.fileURL
+                         options:0
+                           error:&fileCoordinatorError
+                      byAccessor:^(NSURL *readingFileUrl) {
+                        NSError *error;
+                        NSData *objectData = [NSData dataWithContentsOfURL:readingFileUrl
+                                                                   options:0
+                                                                     error:&error];
+                        if (error != nil) {
+                          dict = [NSMutableDictionary dictionary];
+                        } else {
+                          dict = [GULSecureCoding unarchivedObjectOfClass:NSObject.class
+                                                                 fromData:objectData
+                                                                    error:&error];
+                          if (error != nil) {
+                            dict = [NSMutableDictionary dictionary];
+                          }
+                        }
+                      }];
   return dict;
 }
 
@@ -100,14 +120,23 @@
 }
 
 - (BOOL)writeDictionary:(NSMutableDictionary *)dictionary error:(NSError **)outError {
-  NSError *error;
-  NSData *data = [GULSecureCoding archivedDataWithRootObject:dictionary error:&error];
-  if (error != nil) {
-    NSLog(@"Error getting encoded data %@", error);
-  } else {
-    return [data writeToURL:self.fileURL atomically:YES];
-  }
-  return false;
+  NSError *fileCoordinatorError = nil;
+  __block bool isWritingSuccess = false;
+  [self.fileCoordinator
+      coordinateWritingItemAtURL:self.fileURL
+                         options:0
+                           error:&fileCoordinatorError
+                      byAccessor:^(NSURL *writingFileUrl) {
+                        NSError *error;
+                        NSData *data = [GULSecureCoding archivedDataWithRootObject:dictionary
+                                                                             error:&error];
+                        if (error != nil) {
+                          NSLog(@"Error getting encoded data %@", error);
+                        } else {
+                          isWritingSuccess = [data writeToURL:writingFileUrl atomically:YES];
+                        }
+                      }];
+  return isWritingSuccess;
 }
 
 - (BOOL)setDate:(nullable NSDate *)date error:(NSError **)outError {

@@ -6,16 +6,16 @@
 //
 
 #import "FIRHeartbeatInfo.h"
-#import <GoogleUtilities/GULLogger.h>
 #import <GoogleUtilities/GULHeartbeatDateStorage.h>
+#import <GoogleUtilities/GULLogger.h>
 
 @implementation FIRHeartbeatInfo : NSObject
 
 + (BOOL)getOrUpdateHeartbeat:(NSString *)prefKey {
   @synchronized(self) {
     NSString *const kHeartbeatStorageFile = @"HEARTBEAT_INFO_STORAGE";
-    GULHeartbeatDateStorage *dataStorage = [[GULHeartbeatDateStorage alloc]
-        initWithFileURL:[GULHeartbeatDateStorage filePathURLWithName:kHeartbeatStorageFile]];
+    GULHeartbeatDateStorage *dataStorage =
+        [[GULHeartbeatDateStorage alloc] initWithFileName:kHeartbeatStorageFile];
     NSDate *heartbeatTime = [dataStorage heartbeatDateForTag:prefKey];
     NSDate *currentDate = [NSDate date];
     if (heartbeatTime != nil) {
@@ -43,7 +43,7 @@
     return FIRHeartbeatInfoCodeGlobal;
   } else {
     // Both sdk and global heartbeat are needed.
-    return FIRHeartbeatInfoCodeNone;
+    return FIRHeartbeatInfoCodeCombined;
   }
 }
 @end

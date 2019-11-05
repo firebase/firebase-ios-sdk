@@ -29,8 +29,6 @@
       NSApplicationSupportDirectory, NSUserDomainMask, YES) firstObject];
   XCTAssertNotNil(documentsPath);
   NSURL *documentsURL = [NSURL fileURLWithPath:documentsPath];
-  self.fileURL = [documentsURL URLByAppendingPathComponent:@"GULStorageHeartbeatTest"
-                                               isDirectory:NO];
 
   NSError *error;
   if (![documentsURL checkResourceIsReachableAndReturnError:&error]) {
@@ -40,12 +38,11 @@
                                                              error:&error],
               @"Error: %@", error);
   }
-  self.storage = [[GULHeartbeatDateStorage alloc] initWithFileURL:self.fileURL];
+  self.storage = [[GULHeartbeatDateStorage alloc] initWithFileName:@"GULStorageHeartbeatTest"];
 }
 
 - (void)tearDown {
-  [[NSFileManager defaultManager] removeItemAtURL:self.fileURL error:nil];
-  self.fileURL = nil;
+  [[NSFileManager defaultManager] removeItemAtURL:[self.storage fileURL] error:nil];
   self.storage = nil;
 }
 
@@ -76,7 +73,8 @@
   NSError *error;
   XCTAssert([self.storage setDate:date error:&error], @"Error: %@", error);
 
-  GULHeartbeatDateStorage *anotherStorage = [[GULHeartbeatDateStorage alloc] initWithFileURL:self.fileURL];
+  GULHeartbeatDateStorage *anotherStorage =
+      [[GULHeartbeatDateStorage alloc] initWithFileName:@"GULStorageHeartbeatTest"];
 
   XCTAssertEqualObjects([anotherStorage date], date);
 }

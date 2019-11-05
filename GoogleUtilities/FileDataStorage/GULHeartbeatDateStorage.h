@@ -23,13 +23,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init NS_UNAVAILABLE;
 
+@property(nonatomic, readonly) NSURL *fileURL;
+
 /**
  * Default initializer.
- * @param fileURL The URL of the file to store the date. The directory must exist, the file may not
+ * @param fileName The name of the file to store the date information.
  * exist, it will be created if needed.
  */
-- (instancetype)initWithFileURL:(NSURL *)fileURL;
-+ (NSURL *)filePathURLWithName:(NSString *)fileName;
+- (instancetype)initWithFileName:(NSString *)fileName;
 
 - (nullable NSDate *)heartbeatDateForTag:(NSString *)tag;
 

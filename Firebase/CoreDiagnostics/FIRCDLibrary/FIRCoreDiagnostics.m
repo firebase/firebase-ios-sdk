@@ -23,8 +23,8 @@
 #import <GoogleDataTransport/GDTCORTransport.h>
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
-#import <GoogleUtilities/GULLogger.h>
 #import <GoogleUtilities/GULHeartbeatDateStorage.h>
+#import <GoogleUtilities/GULLogger.h>
 
 #import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsData.h>
 #import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsInterop.h>
@@ -174,8 +174,8 @@ NS_ASSUME_NONNULL_END
                                                              transformers:nil
                                                                    target:kGDTCORTargetCCT];
 
-  GULHeartbeatDateStorage *dateStorage = [[GULHeartbeatDateStorage alloc]
-      initWithFileURL:[[self class] filePathURLWithName:kFIRCoreDiagnosticsHeartbeatDateFileName]];
+  GULHeartbeatDateStorage *dateStorage =
+      [[GULHeartbeatDateStorage alloc] initWithFileName:kFIRCoreDiagnosticsHeartbeatDateFileName];
 
   return [self initWithTransport:transport heartbeatDateStorage:dateStorage];
 }
@@ -196,37 +196,6 @@ NS_ASSUME_NONNULL_END
     _heartbeatDateStorage = heartbeatDateStorage;
   }
   return self;
-}
-
-#pragma mark - File path helpers
-
-/** Returns the URL path of the file with name fileName under the Application Support folder for
- * local logging. Creates the Application Support folder if the folder doesn't exist.
- *
- * @return the URL path of the file with the name fileName in Application Support.
- */
-+ (NSURL *)filePathURLWithName:(NSString *)fileName {
-  @synchronized(self) {
-    NSArray<NSString *> *paths =
-        NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
-    NSArray<NSString *> *components = @[ paths.lastObject, @"Google/FIRApp" ];
-    NSString *directoryString = [NSString pathWithComponents:components];
-    NSURL *directoryURL = [NSURL fileURLWithPath:directoryString];
-
-    NSError *error;
-    if (![directoryURL checkResourceIsReachableAndReturnError:&error]) {
-      // If fail creating the Application Support directory, return nil.
-      if (![[NSFileManager defaultManager] createDirectoryAtURL:directoryURL
-                                    withIntermediateDirectories:YES
-                                                     attributes:nil
-                                                          error:&error]) {
-        GULLogWarning(kFIRCoreDiagnostics, YES, @"I-COR100001",
-                      @"Unable to create internal state storage: %@", error);
-        return nil;
-      }
-    }
-    return [directoryURL URLByAppendingPathComponent:fileName];
-  }
 }
 
 #pragma mark - Metadata helpers

@@ -57,7 +57,6 @@ static NSString *const kLibraryVersionID = @"1.2.3";
 // Install string helpers.
 + (NSString *)installString;
 + (BOOL)writeString:(NSString *)string toURL:(NSURL *)filePathURL;
-+ (NSURL *)filePathURLWithName:(NSString *)fileName;
 + (NSString *)stringAtURL:(NSURL *)filePathURL;
 
 // Metadata helpers.

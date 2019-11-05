@@ -18,7 +18,6 @@ typedef NS_ENUM(NSInteger, FIRHeartbeatInfoCode) {
   FIRHeartbeatInfoCodeCombined = 3,
 };
 
-
 + (FIRHeartbeatInfoCode)getHeartbeatCode:(NSString *)heartbeatTag;
 
 @end
