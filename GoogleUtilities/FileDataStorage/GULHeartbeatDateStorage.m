@@ -60,16 +60,17 @@
   if (![directoryURL checkResourceIsReachableAndReturnError:&error]) {
     // If fail creating the Application Support directory, log warning.
     [self.fileCoordinator
-        coordinateWritingItemAtURL:self.fileURL
+        coordinateWritingItemAtURL:directoryURL
                            options:0
                              error:&fileCoordinatorError
-                        byAccessor:^(NSURL *writingFileUrl) {
+                        byAccessor:^(NSURL *writingDirectoryURL) {
                           NSError *error;
                           GULLoggerService kGULHeartbeatDateStorage = @"GULHeartbeatDateStorage";
-                          if (![[NSFileManager defaultManager] createDirectoryAtURL:directoryURL
-                                                        withIntermediateDirectories:YES
-                                                                         attributes:nil
-                                                                              error:&error]) {
+                          if (![[NSFileManager defaultManager]
+                                         createDirectoryAtURL:writingDirectoryURL
+                                  withIntermediateDirectories:YES
+                                                   attributes:nil
+                                                        error:&error]) {
                             GULLogWarning(kGULHeartbeatDateStorage, YES, @"I-COR100001",
                                           @"Unable to create internal state storage: %@", error);
                           }
