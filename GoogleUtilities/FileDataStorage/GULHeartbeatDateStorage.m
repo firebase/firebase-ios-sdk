@@ -41,8 +41,7 @@
   return self;
 }
 
-/** Returns the URL path of the file with name fileName under the Application Support folder for
- * local logging.
+/** Returns the URL path of the Application Support folder.
  * @return the URL path of Application Support.
  */
 - (NSURL *)directoryPathURL {
@@ -54,6 +53,10 @@
   return directoryURL;
 }
 
+/** Checks and creates a directory for the directory specified by the
+ * directory url
+ * @param
+ */
 - (void)checkAndCreateDirectory:(NSURL *)directoryURL {
   NSError *error;
   NSError *fileCoordinatorError = nil;

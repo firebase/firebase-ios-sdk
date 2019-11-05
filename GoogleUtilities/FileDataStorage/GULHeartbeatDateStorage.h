@@ -32,8 +32,16 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (instancetype)initWithFileName:(NSString *)fileName;
 
+/**
+ * Reads the date from the specified file for the given tag.
+ * @return Returns date if exists, otherwise `nil`.
+ */
 - (nullable NSDate *)heartbeatDateForTag:(NSString *)tag;
 
+/**
+ * Saves the date for the specified tag in the specified file.
+ * @return YES on success, NO otherwise.
+ */
 - (BOOL)setHearbeatDate:(NSDate *)date forTag:(NSString *)tag;
 
 /**
