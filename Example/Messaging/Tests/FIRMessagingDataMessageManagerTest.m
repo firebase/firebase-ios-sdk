@@ -17,20 +17,20 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "third_party/firebase/ios/Releases/FirebaseMessaging/Library/Public/FIRMessaging.h"
+#import <FirebaseMessaging/FIRMessaging.h>
 
-#import "third_party/firebase/ios/Releases/FirebaseMessaging/Library/FIRMessagingClient.h"
-#import "third_party/firebase/ios/Releases/FirebaseMessaging/Library/FIRMessagingConnection.h"
-#import "third_party/firebase/ios/Releases/FirebaseMessaging/Library/FIRMessagingDataMessageManager.h"
-#import "third_party/firebase/ios/Releases/FirebaseMessaging/Library/FIRMessagingReceiver.h"
-#import "third_party/firebase/ios/Releases/FirebaseMessaging/Library/FIRMessagingRmqManager.h"
-#import "third_party/firebase/ios/Releases/FirebaseMessaging/Library/FIRMessagingSyncMessageManager.h"
-#import "third_party/firebase/ios/Releases/FirebaseMessaging/Library/FIRMessagingUtilities.h"
-#import "third_party/firebase/ios/Releases/FirebaseMessaging/Library/FIRMessaging_Private.h"
-#import "third_party/firebase/ios/Releases/FirebaseMessaging/Library/FIRMessagingConstants.h"
-#import "third_party/firebase/ios/Releases/FirebaseMessaging/Library/FIRMessagingDefines.h"
-#import "third_party/firebase/ios/Releases/FirebaseMessaging/Library/NSError+FIRMessaging.h"
-#import "third_party/firebase/ios/Releases/FirebaseMessaging/Library/Protos/GtalkCore.pbobjc.h"
+#import "Firebase/Messaging/FIRMessagingClient.h"
+#import "Firebase/Messaging/FIRMessagingConnection.h"
+#import "Firebase/Messaging/FIRMessagingDataMessageManager.h"
+#import "Firebase/Messaging/FIRMessagingReceiver.h"
+#import "Firebase/Messaging/FIRMessagingRmqManager.h"
+#import "Firebase/Messaging/FIRMessagingSyncMessageManager.h"
+#import "Firebase/Messaging/FIRMessagingUtilities.h"
+#import "Firebase/Messaging/FIRMessaging_Private.h"
+#import "Firebase/Messaging/FIRMessagingConstants.h"
+#import "Firebase/Messaging/FIRMessagingDefines.h"
+#import "Firebase/Messaging/NSError+FIRMessaging.h"
+#import "Firebase/Messaging/Protos/GtalkCore.pbobjc.h"
 
 static NSString *const kMessagePersistentID = @"abcdef123";
 static NSString *const kMessageFrom = @"com.example.gcm";
