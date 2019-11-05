@@ -42,6 +42,8 @@ static NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test
 @property(nonatomic, readwrite, strong) NSString *defaultFcmToken;
 @property(nonatomic, readwrite, strong) FIRInstanceID *instanceID;
 
+- (void)setupRmqManager;
+
 @end
 
 @interface FIRMessagingPubSub ()
@@ -59,6 +61,7 @@ static NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test
   FIRMessaging *_messaging;
   FIRInstanceIDResult *_result;
   id _mockInstanceID;
+  id _mockMessaging;
   id _mockPubSub;
 }
 
@@ -71,9 +74,11 @@ static NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test
   NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingTestsServiceSuiteName];
   _messaging = [FIRMessagingTestUtilities messagingForTestsWithUserDefaults:defaults];
   _messaging.defaultFcmToken = kFakeToken;
+  _mockMessaging = OCMPartialMock(_messaging);
+  OCMStub([_mockMessaging setupRmqManager]).andReturn(nil);
+  
   _mockPubSub = OCMPartialMock(_messaging.pubsub);
   [_mockPubSub setClient:nil];
-
   _mockInstanceID = OCMPartialMock(_messaging.instanceID);
   _result = [[FIRInstanceIDResult alloc] init];
   _result.token = kFakeToken;
@@ -83,6 +88,7 @@ static NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test
 - (void)tearDown {
   [_mockInstanceID stopMocking];
   [_mockPubSub stopMocking];
+  [_mockMessaging stopMocking];
   [_messaging.messagingUserDefaults removePersistentDomainForName:kFIRMessagingTestsServiceSuiteName];
   _messaging = nil;
   [super tearDown];
