@@ -69,7 +69,6 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
   if (self) {
     _instanceID = [[FIRInstanceID alloc] initPrivately];
     [_instanceID start];
-    
 
     // Create the messaging instance and call `start`.
     _messaging = [[FIRMessaging alloc] initWithAnalytics:nil

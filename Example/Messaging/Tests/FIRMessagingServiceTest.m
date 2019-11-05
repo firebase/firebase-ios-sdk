@@ -42,8 +42,6 @@ static NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test
 @property(nonatomic, readwrite, strong) NSString *defaultFcmToken;
 @property(nonatomic, readwrite, strong) FIRInstanceID *instanceID;
 
-- (void)setupRmqManager;
-
 @end
 
 @interface FIRMessagingPubSub ()

@@ -41,7 +41,6 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 
 - (BOOL)handleContextManagerMessage:(NSDictionary *)message;
 - (void)handleIncomingLinkIfNeededFromMessage:(NSDictionary *)message;
-- (void)setupRmqManager;
 
 @end
 

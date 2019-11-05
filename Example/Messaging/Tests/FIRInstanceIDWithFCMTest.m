@@ -31,9 +31,6 @@
 
 @interface FIRMessaging (ExposedForTest)
 + (FIRMessaging *)messagingForTests;
-- (void)setupRmqManager;
-
-
 @end
 
 @interface FIRInstanceIDTest : XCTestCase
