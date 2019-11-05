@@ -60,7 +60,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
 
   s.subspec 'Auth' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseAuth', '~> 6.4.0'
+    ss.dependency 'FirebaseAuth', '~> 6.3.1'
   end
 
   s.subspec 'Database' do |ss|
