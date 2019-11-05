@@ -30,8 +30,10 @@
 - (void)start;
 @end
 
-@interface FIRMessaging ()
+@interface FIRMessaging (ExposedForTest)
 + (FIRMessaging *)messagingForTests;
+- (void)setupRmqManager;
+
 @end
 
 @interface FIRInstanceIDTest : XCTestCase
@@ -57,11 +59,13 @@
   [super tearDown];
 }
 
-- (void)testFCMAutoInitEnabled {
+- (void)DISABLE_testFCMAutoInitEnabled {
   // Use the standardUserDefaults since that's what IID expects and depends on.
   NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
   FIRMessaging *messaging = [FIRMessagingTestUtilities messagingForTestsWithUserDefaults:defaults];
-  id classMock = OCMClassMock([FIRMessaging class]);
+  id mockMessaging = OCMPartialMock(messaging);
+  OCMStub([mockMessaging setupRmqManager]).andReturn(nil);
+
   OCMStub([_mockFirebaseApp isDataCollectionDefaultEnabled]).andReturn(YES);
   messaging.autoInitEnabled = YES;
   XCTAssertTrue(
@@ -75,7 +79,6 @@
 
   messaging.autoInitEnabled = YES;
   XCTAssertTrue([_instanceID isFCMAutoInitEnabled]);
-  [classMock stopMocking];
 }
 
 @end
