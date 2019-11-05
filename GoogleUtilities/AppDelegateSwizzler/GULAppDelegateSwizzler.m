@@ -801,7 +801,7 @@ openURLContexts:(NSSet<UIOpenURLContext *> *)URLContexts API_AVAILABLE(ios(13.0)
   NSValue *openURLContextsIMPPointer = sceneDelegateIMPDict[NSStringFromClass([scene.delegate class])][NSStringFromSelector(methodSelector)];
   GULOpenURLContextsIMP openURLContextsIMP = [openURLContextsIMPPointer pointerValue];
 
-  // This is needed to for the library to be warning free on iOS versions < 9.
+  // This is needed for the library to be warning free on iOS versions < 9.
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunguarded-availability"
   [GULAppDelegateSwizzler
@@ -1064,9 +1064,9 @@ openURLContexts:(NSSet<UIOpenURLContext *> *)URLContexts API_AVAILABLE(ios(13.0)
   Class realClass = [scene.delegate class];
 
   NSString *classNameWithPrefix =
-  [kGULAppDelegatePrefix stringByAppendingString:NSStringFromClass(realClass)];
+      [kGULAppDelegatePrefix stringByAppendingString:NSStringFromClass(realClass)];
   NSString *newClassName =
-  [NSString stringWithFormat:@"%@-%@", classNameWithPrefix, [NSUUID UUID].UUIDString];
+      [NSString stringWithFormat:@"%@-%@", classNameWithPrefix, [NSUUID UUID].UUIDString];
 
   if (NSClassFromString(newClassName)) {
     GULLogError(kGULLoggerSwizzler, NO,
