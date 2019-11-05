@@ -38,10 +38,10 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 
 @property(nonatomic, readwrite, strong) NSString *defaultFcmToken;
 @property(nonatomic, readwrite, strong) FIRInstanceID *instanceID;
-@property(nonatomic, readwrite, strong) FIRMessagingRmqManager *rmq2Manager;
 
 - (BOOL)handleContextManagerMessage:(NSDictionary *)message;
 - (void)handleIncomingLinkIfNeededFromMessage:(NSDictionary *)message;
+- (void)setupRmqManager;
 
 @end
 
@@ -77,6 +77,7 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
       removePersistentDomainForName:[NSBundle mainBundle].bundleIdentifier];
   _mockMessaging = OCMPartialMock(_messaging);
   _mockMessagingAnalytics = OCMClassMock([FIRMessagingAnalytics class]);
+  OCMStub([_mockMessaging setupRmqManager]).andReturn(nil);
 }
 
 - (void)tearDown {
@@ -124,8 +125,7 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
   XCTAssertEqualObjects(@(FIRMessagingMessageStatusNew),
                           @([_messaging appDidReceiveMessage:notificationPayload].status));
   OCMVerifyAll(_mockMessaging);
-  // Clear database
-  [_messaging.rmq2Manager deleteSyncMessageWithRmqID:@"1566515013484879"];
+
 }
 
 -(void)testAPNSContentAvailableNotification {
@@ -151,7 +151,6 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
   XCTAssertEqualObjects(@(FIRMessagingMessageStatusNew),
                         @([_messaging appDidReceiveMessage:notificationPayload].status));
   OCMVerifyAll(_mockMessaging);
-  [_messaging.rmq2Manager deleteSyncMessageWithRmqID:@"1566513591299872"];
 
 }
 
@@ -187,7 +186,6 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
   XCTAssertEqualObjects(@(FIRMessagingMessageStatusNew),
                         @([_messaging appDidReceiveMessage:notificationPayload].status));
   OCMVerifyAll(_mockMessaging);
-  [_messaging.rmq2Manager deleteSyncMessageWithRmqID:@"1566515531287827"];
 
 }
 
@@ -217,7 +215,6 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
   XCTAssertEqualObjects(@(FIRMessagingMessageStatusNew),
                         @([_messaging appDidReceiveMessage:notificationPayload].status));
   OCMVerifyAll(_mockMessaging);
-  [_messaging.rmq2Manager deleteSyncMessageWithRmqID:@"1566515531281975"];
 }
 
 -(void)testMCSNotification {
