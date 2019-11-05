@@ -25,8 +25,6 @@
 
 #import "Example/Messaging/Tests/FIRMessagingTestUtilities.h"
 #import "Firebase/Messaging/FIRMessaging_Private.h"
-#import "Firebase/Messaging/FIRMessagingRmqManager.h"
-
 
 extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 
@@ -38,7 +36,6 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 @property(nonatomic, readwrite, strong) NSString *defaultFcmToken;
 @property(nonatomic, readwrite, strong) NSData *apnsTokenData;
 @property(nonatomic, readwrite, strong) FIRInstanceID *instanceID;
-@property(nonatomic, readwrite, strong) FIRMessagingRmqManager *rmq2Manager;
 
 // Expose autoInitEnabled static method for IID.
 + (BOOL)isAutoInitEnabledWithUserDefaults:(NSUserDefaults *)userDefaults;
@@ -46,8 +43,6 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 // Direct Channel Methods
 - (void)updateAutomaticClientConnection;
 - (BOOL)shouldBeConnectedAutomatically;
-- (void)setupRmqManager;
-
 
 @end
 
@@ -57,6 +52,7 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 @property(nonatomic, readwrite, strong) id mockMessaging;
 @property(nonatomic, readwrite, strong) id mockInstanceID;
 @property(nonatomic, readwrite, strong) id mockFirebaseApp;
+@property(nonatomic, strong) FIRMessagingTestUtilities *testUtil;
 
 @end
 
@@ -68,21 +64,19 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
   // Create the messaging instance with all the necessary dependencies.
   NSUserDefaults *defaults =
       [[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingDefaultsTestDomain];
-  _messaging = [FIRMessagingTestUtilities messagingForTestsWithUserDefaults:defaults];
+  _testUtil = [[FIRMessagingTestUtilities alloc] initWithUserDefaults:defaults  withRMQManager:NO];
+  _mockMessaging = _testUtil.mockMessaging;
+  _messaging = _testUtil.messaging;
+
   _mockFirebaseApp = OCMClassMock([FIRApp class]);
    OCMStub([_mockFirebaseApp defaultApp]).andReturn(_mockFirebaseApp);
-  _mockInstanceID = OCMPartialMock(self.messaging.instanceID);
-  _mockMessaging = OCMPartialMock(self.messaging);
-  OCMStub([_mockMessaging setupRmqManager]).andReturn(nil);
+  _mockInstanceID = _testUtil.mockInstanceID;
   [[NSUserDefaults standardUserDefaults]
       removePersistentDomainForName:[NSBundle mainBundle].bundleIdentifier];
 }
 
 - (void)tearDown {
-  [self.messaging.messagingUserDefaults removePersistentDomainForName:kFIRMessagingDefaultsTestDomain];
-  self.messaging.shouldEstablishDirectChannel = NO;
-  self.messaging.defaultFcmToken = nil;
-  self.messaging.apnsTokenData = nil;
+  [_testUtil stopMockingMessaging];
   [_mockMessaging stopMocking];
   [_mockInstanceID stopMocking];
   [_mockFirebaseApp stopMocking];

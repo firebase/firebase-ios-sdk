@@ -63,6 +63,7 @@ static NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test
   id _mockInstanceID;
   id _mockMessaging;
   id _mockPubSub;
+  FIRMessagingTestUtilities *_testUtil;
 }
 
 @end
@@ -72,20 +73,22 @@ static NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test
 - (void)setUp {
   [super setUp];
   NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingTestsServiceSuiteName];
-  _messaging = [FIRMessagingTestUtilities messagingForTestsWithUserDefaults:defaults];
-  _messaging.defaultFcmToken = kFakeToken;
-  _mockMessaging = OCMPartialMock(_messaging);
-  OCMStub([_mockMessaging setupRmqManager]).andReturn(nil);
+  _testUtil = [[FIRMessagingTestUtilities alloc] initWithUserDefaults:defaults withRMQManager:NO];
+  _mockMessaging = _testUtil.mockMessaging;
+  _messaging = _testUtil.messaging;
+
+  OCMStub([_mockMessaging defaultFcmToken]).andReturn(kFakeToken);
   
-  _mockPubSub = OCMPartialMock(_messaging.pubsub);
+  _mockPubSub = _testUtil.mockPubsub;
   [_mockPubSub setClient:nil];
-  _mockInstanceID = OCMPartialMock(_messaging.instanceID);
+  _mockInstanceID = _testUtil.mockInstanceID;
   _result = [[FIRInstanceIDResult alloc] init];
   _result.token = kFakeToken;
   _result.instanceID = kFakeID;
 }
 
 - (void)tearDown {
+  [_testUtil stopMockingMessaging];
   [_mockInstanceID stopMocking];
   [_mockPubSub stopMocking];
   [_mockMessaging stopMocking];

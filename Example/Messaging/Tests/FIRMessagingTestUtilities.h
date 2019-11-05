@@ -17,27 +17,28 @@
 #import <Foundation/Foundation.h>
 
 #import <FirebaseMessaging/FIRMessaging.h>
+#import <FirebaseInstanceID/FIRInstanceID.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRMessaging (TestUtilities)
 // Surface the user defaults instance to clean up after tests.
 @property(nonatomic, strong) NSUserDefaults *messagingUserDefaults;
+
 @end
 
 @interface FIRMessagingTestUtilities : NSObject
 
-/**
- Creates an instance of FIRMessaging to use with tests, and will instantiate a new instance of
- InstanceID.
+@property(nonatomic, strong) id mockInstanceID;
+@property(nonatomic, strong) id mockPubsub;
+@property(nonatomic, strong) id mockMessaging;
+@property(nonatomic, readonly, strong) FIRMessaging *messaging;
+@property(nonatomic, readonly, strong) FIRInstanceID *instanceID;
 
- Note: This does not create a FIRApp instance and call `configureWithApp:`. If required, it's up to
-       each test to do so.
 
- @param userDefaults The user defaults to be used for Messaging.
- @return An instance of FIRMessaging with everything initialized.
- */
-+ (FIRMessaging *)messagingForTestsWithUserDefaults:(NSUserDefaults *)userDefaults;
+- (instancetype)initWithUserDefaults:(NSUserDefaults *)userDefaults withRMQManager:(BOOL)withRMQManager;
+
+- (void)stopMockingMessaging;
 
 @end
 

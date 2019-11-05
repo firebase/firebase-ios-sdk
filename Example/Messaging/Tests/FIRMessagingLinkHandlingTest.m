@@ -29,7 +29,6 @@ NSString *const kFIRMessagingTestsLinkHandlingSuiteName = @"com.messaging.test_l
 @interface FIRMessaging ()
 
 - (NSURL *)linkURLFromMessage:(NSDictionary *)message;
-- (void)setupRmqManager;
 
 @end
 
@@ -38,6 +37,7 @@ NSString *const kFIRMessagingTestsLinkHandlingSuiteName = @"com.messaging.test_l
 }
 
 @property(nonatomic, readonly, strong) FIRMessaging *messaging;
+@property(nonatomic, strong) FIRMessagingTestUtilities * testUtil;
 
 
 @end
@@ -48,14 +48,14 @@ NSString *const kFIRMessagingTestsLinkHandlingSuiteName = @"com.messaging.test_l
   [super setUp];
 
   NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingTestsLinkHandlingSuiteName];
-  _messaging = [FIRMessagingTestUtilities messagingForTestsWithUserDefaults:defaults];
+  _testUtil = [[FIRMessagingTestUtilities alloc] initWithUserDefaults:defaults withRMQManager:NO];
+  _mockMessaging = _testUtil.mockMessaging;
   
-  _mockMessaging = OCMPartialMock(_messaging);
-  OCMStub([_mockMessaging setupRmqManager]).andReturn(nil);
 }
 
 - (void)tearDown {
   [_mockMessaging stopMocking];
+  [_testUtil stopMockingMessaging];
   [self.messaging.messagingUserDefaults removePersistentDomainForName:kFIRMessagingTestsLinkHandlingSuiteName];
   _messaging = nil;
   [super tearDown];
