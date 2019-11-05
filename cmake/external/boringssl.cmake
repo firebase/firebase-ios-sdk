@@ -26,7 +26,7 @@ endif()
 # (2017-02-03). Unfortunately, that boringssl includes a conflicting gtest
 # target that makes it unsuitable for use via add_subdirectory.
 
-set(commit e0afc85719db9a0842bcfddcf4b15e856b253ee2)  # master@{2018-07-10}
+set(commit 9638f8fba961a593c064e3036bb580bdace29e8f)  # master@{2019-10-01}
 
 ExternalProject_Add(
   boringssl
@@ -36,7 +36,7 @@ ExternalProject_Add(
   DOWNLOAD_DIR ${FIREBASE_DOWNLOAD_DIR}
   DOWNLOAD_NAME boringssl-${commit}.tar.gz
   URL https://github.com/google/boringssl/archive/${commit}.tar.gz
-  URL_HASH SHA256=2aa66e912651d2256ab266b712a2647c22e7e9347a09544e684732a599a194a8
+  URL_HASH SHA256=cfd843fda9fdf9ea92b1ae5f5d379ec7d7cb09d5c7d41197ee935a0e30aecb23
 
   PREFIX ${PROJECT_BINARY_DIR}
   SOURCE_DIR ${PROJECT_BINARY_DIR}/src/grpc/third_party/boringssl

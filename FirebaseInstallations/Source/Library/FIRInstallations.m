@@ -85,7 +85,8 @@ NS_ASSUME_NONNULL_BEGIN
       [[FIRInstallationsIDController alloc] initWithGoogleAppID:appOptions.googleAppID
                                                         appName:appName
                                                          APIKey:appOptions.APIKey
-                                                      projectID:appOptions.projectID];
+                                                      projectID:appOptions.projectID
+                                                    GCMSenderID:appOptions.GCMSenderID];
   return [self initWithAppOptions:appOptions
                           appName:appName
         installationsIDController:IDController

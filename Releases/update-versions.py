@@ -161,6 +161,8 @@ def GenerateTag(pod, version):
   Returns:
     Tag.
   """
+  if pod == "Firebase":
+    return version
   if pod.startswith("Firebase"):
     return '{}-{}'.format(pod[len('Firebase'):], version)
   if pod.startswith("Google"):
@@ -168,7 +170,7 @@ def GenerateTag(pod, version):
   sys.exit("Script does not support generating a tag for {}".format(pod))
 
 
-def UpdateTags(version_data, firebase_version, first=False):
+def UpdateTags(version_data, first=False):
   """Update tags.
 
   Args:
@@ -176,11 +178,6 @@ def UpdateTags(version_data, firebase_version, first=False):
     firebase_version: the Firebase version.
     first: set to true the first time the versions are set.
   """
-  if not first:
-    LogOrRun("git push --delete origin '{}'".format(firebase_version))
-    LogOrRun("git tag --delete  '{}'".format(firebase_version))
-  LogOrRun("git tag '{}'".format(firebase_version))
-  LogOrRun("git push origin '{}'".format(firebase_version))
   for pod, version in version_data.items():
     tag = GenerateTag(pod, version)
     if not first:
@@ -190,7 +187,7 @@ def UpdateTags(version_data, firebase_version, first=False):
     LogOrRun("git push origin '{}'".format(tag))
 
 
-def CheckVersions(version_data):
+def CheckVersions(version_data, firebase_version):
   """Ensure that versions do not already exist as tags.
 
   Args:
@@ -199,6 +196,9 @@ def CheckVersions(version_data):
   error = False
   for pod, version in version_data.items():
     tag = GenerateTag(pod, version)
+    if pod == "Firebase":
+      if version != firebase_version:
+        sys.exit("Aborting: Release version must match Firebase pod version.")
     find = subprocess.Popen(
       ['git', 'tag', '-l', tag],
       stdout=subprocess.PIPE).communicate()[0].rstrip()
@@ -229,20 +229,22 @@ def PushPodspecs(version_data):
     version_data: dictionary of versions to be updated.
   """
   pods = version_data.keys()
-  tmp_dir = tempfile.mkdtemp()
   for pod in pods:
     LogOrRun('pod cache clean {} --all'.format(pod))
+    if pod == 'Firebase':
+      # Do the Firebase pod last
+      continue
     if pod == 'FirebaseFirestore':
       warnings_ok = ' --allow-warnings'
     else:
       warnings_ok = ''
 
     podspec = '{}.podspec'.format(pod)
-    json = os.path.join(tmp_dir, '{}.json'.format(podspec))
-    LogOrRun('pod ipc spec {} > {}'.format(podspec, json))
-    LogOrRun('pod repo push --skip-tests {} {}{}'.format(GetCpdcInternal(),
-                                                         json, warnings_ok))
-  os.system('rm -rf {}'.format(tmp_dir))
+    LogOrRun('pod repo push --skip-tests --use-json {} {}{}'
+             .format(GetCpdcInternal(), podspec, warnings_ok))
+  LogOrRun('pod repo push --skip-tests --use-json --skip-import-validation ' +
+           '--sources=sso://cpdc-internal/firebase.git,https://cdn.cocoapods.org' +
+           ' {} {}{}'.format(GetCpdcInternal(), podspec, warnings_ok))
 
 
 def UpdateVersions():
@@ -265,10 +267,10 @@ def UpdateVersions():
 
   if not args.push_only:
     if args.tag_update:
-      UpdateTags(version_data, args.version)
+      UpdateTags(version_data)
       return
 
-    CheckVersions(version_data)
+    CheckVersions(version_data, args.version)
     release_branch = 'release-{}'.format(args.version)
     CreateReleaseBranch(release_branch, args.base_branch)
     UpdatePodSpecs(git_root, version_data, args.version)
@@ -277,7 +279,7 @@ def UpdateVersions():
     LogOrRun('git commit -am "Update versions for Release {}"'
              .format(args.version))
     LogOrRun('git push origin {}'.format(release_branch))
-    UpdateTags(version_data, args.version, True)
+    UpdateTags(version_data, True)
 
   PushPodspecs(version_data)
 

@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+#import "FIRListenerRegistration.h"
+
 @class FIRApp;
 @class FIRCollectionReference;
 @class FIRDocumentReference;
@@ -207,6 +209,26 @@ NS_SWIFT_NAME(Firestore)
  * error during user change.
  */
 - (void)waitForPendingWritesWithCompletion:(void (^)(NSError *_Nullable error))completion;
+
+/**
+ * Attaches a listener for a snapshots-in-sync event. Server-generated
+ * updates and local changes can affect multiple snapshot listeners.
+ * The snapshots-in-sync event indicates that all listeners affected by
+ * a given change have fired.
+ *
+ * NOTE: The snapshots-in-sync event only indicates that listeners are
+ * in sync with each other, but does not relate to whether those
+ * snapshots are in sync with the server. Use SnapshotMetadata in the
+ * individual listeners to determine if a snapshot is from the cache or
+ * the server.
+ *
+ * @param listener A callback to be called every time all snapshot
+ * listeners are in sync with each other.
+ * @return A FIRListenerRegistration object that can be used to remove the
+ * listener.
+ */
+- (id<FIRListenerRegistration>)addSnapshotsInSyncListener:(void (^)(void))listener
+    NS_SWIFT_NAME(addSnapshotsInSyncListener(_:));
 
 #pragma mark - Terminating
 

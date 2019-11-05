@@ -1,5 +1,12 @@
 # Unreleased
 
+# v6.1.2
+- [fixed] Addressed an issue with `NSDecimalNumber` case that prevented decimals with
+  high precision to be stored correctly in our persistence layer. (#4108)
+
+# v6.1.1
+- [fixed] Fixed an iOS 13 crash that occured in our WebSocket error handling. (#3950)
+
 # v6.1.0
 - [fixed] Fix Catalyst Build issue. (#3512)
 - [feature] The SDK adds support for the Firebase Database Emulator. To connect

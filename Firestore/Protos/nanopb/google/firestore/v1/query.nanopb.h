@@ -149,6 +149,7 @@ typedef struct _google_firestore_v1_StructuredQuery {
     google_firestore_v1_StructuredQuery_Filter where;
     pb_size_t order_by_count;
     struct _google_firestore_v1_StructuredQuery_Order *order_by;
+    bool has_limit;
     google_protobuf_Int32Value limit;
     int32_t offset;
     google_firestore_v1_Cursor start_at;
@@ -159,7 +160,7 @@ typedef struct _google_firestore_v1_StructuredQuery {
 /* Default values for struct fields */
 
 /* Initializer values for message structs */
-#define google_firestore_v1_StructuredQuery_init_default {google_firestore_v1_StructuredQuery_Projection_init_default, 0, NULL, google_firestore_v1_StructuredQuery_Filter_init_default, 0, NULL, google_protobuf_Int32Value_init_default, 0, google_firestore_v1_Cursor_init_default, google_firestore_v1_Cursor_init_default}
+#define google_firestore_v1_StructuredQuery_init_default {google_firestore_v1_StructuredQuery_Projection_init_default, 0, NULL, google_firestore_v1_StructuredQuery_Filter_init_default, 0, NULL, false, google_protobuf_Int32Value_init_default, 0, google_firestore_v1_Cursor_init_default, google_firestore_v1_Cursor_init_default}
 #define google_firestore_v1_StructuredQuery_CollectionSelector_init_default {NULL, 0}
 #define google_firestore_v1_StructuredQuery_Filter_init_default {0, {google_firestore_v1_StructuredQuery_CompositeFilter_init_default}}
 #define google_firestore_v1_StructuredQuery_CompositeFilter_init_default {_google_firestore_v1_StructuredQuery_CompositeFilter_Operator_MIN, 0, NULL}
@@ -169,7 +170,7 @@ typedef struct _google_firestore_v1_StructuredQuery {
 #define google_firestore_v1_StructuredQuery_FieldReference_init_default {NULL}
 #define google_firestore_v1_StructuredQuery_Projection_init_default {0, NULL}
 #define google_firestore_v1_Cursor_init_default  {0, NULL, 0}
-#define google_firestore_v1_StructuredQuery_init_zero {google_firestore_v1_StructuredQuery_Projection_init_zero, 0, NULL, google_firestore_v1_StructuredQuery_Filter_init_zero, 0, NULL, google_protobuf_Int32Value_init_zero, 0, google_firestore_v1_Cursor_init_zero, google_firestore_v1_Cursor_init_zero}
+#define google_firestore_v1_StructuredQuery_init_zero {google_firestore_v1_StructuredQuery_Projection_init_zero, 0, NULL, google_firestore_v1_StructuredQuery_Filter_init_zero, 0, NULL, false, google_protobuf_Int32Value_init_zero, 0, google_firestore_v1_Cursor_init_zero, google_firestore_v1_Cursor_init_zero}
 #define google_firestore_v1_StructuredQuery_CollectionSelector_init_zero {NULL, 0}
 #define google_firestore_v1_StructuredQuery_Filter_init_zero {0, {google_firestore_v1_StructuredQuery_CompositeFilter_init_zero}}
 #define google_firestore_v1_StructuredQuery_CompositeFilter_init_zero {_google_firestore_v1_StructuredQuery_CompositeFilter_Operator_MIN, 0, NULL}

@@ -155,7 +155,7 @@ NSString *FIRInstanceIDPrivateTagWithSubtype(NSString *subtype);
 #endif
 }
 
-#if (TARGET_OS_IOS || TARGET_OS_TV) && !defined(TARGET_OS_MACCATALYST)
+#if (TARGET_OS_IOS || TARGET_OS_TV) && !TARGET_OS_MACCATALYST
 - (void)testUpdateKeyRefWithTagRetainsAndReleasesKeyRef {
   __weak id weakKeyRef;
 
@@ -200,6 +200,6 @@ NSString *FIRInstanceIDPrivateTagWithSubtype(NSString *subtype);
 
   return publicKey;
 }
-#endif  // (TARGET_OS_IOS || TARGET_OS_TV) && !defined(TARGET_OS_MACCATALYST)
+#endif  // (TARGET_OS_IOS || TARGET_OS_TV) && !TARGET_OS_MACCATALYST
 
 @end

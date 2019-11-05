@@ -27,9 +27,12 @@
 #import "FIRInstallations.h"
 #import "FIRInstallationsAPIService.h"
 #import "FIRInstallationsErrorUtil.h"
+#import "FIRInstallationsHTTPError.h"
 #import "FIRInstallationsIDController.h"
 #import "FIRInstallationsIIDStore.h"
+#import "FIRInstallationsIIDTokenStore.h"
 #import "FIRInstallationsStore.h"
+
 #import "FIRInstallationsStoredAuthToken.h"
 
 @interface FIRInstallationsIDController (Tests)
@@ -37,7 +40,8 @@
                             appName:(NSString *)appName
                  installationsStore:(FIRInstallationsStore *)installationsStore
                          APIService:(FIRInstallationsAPIService *)APIService
-                           IIDStore:(FIRInstallationsIIDStore *)IIDStore;
+                           IIDStore:(FIRInstallationsIIDStore *)IIDStore
+                      IIDTokenStore:(FIRInstallationsIIDTokenStore *)IIDTokenStore;
 @end
 
 @interface FIRInstallationsIDControllerTests : XCTestCase
@@ -45,6 +49,7 @@
 @property(nonatomic) id mockInstallationsStore;
 @property(nonatomic) id mockAPIService;
 @property(nonatomic) id mockIIDStore;
+@property(nonatomic) id mockIIDTokenStore;
 @property(nonatomic) NSString *appID;
 @property(nonatomic) NSString *appName;
 @end
@@ -61,13 +66,15 @@
   self.mockInstallationsStore = OCMStrictClassMock([FIRInstallationsStore class]);
   self.mockAPIService = OCMStrictClassMock([FIRInstallationsAPIService class]);
   self.mockIIDStore = OCMStrictClassMock([FIRInstallationsIIDStore class]);
+  self.mockIIDTokenStore = OCMStrictClassMock([FIRInstallationsIIDTokenStore class]);
 
   self.controller =
       [[FIRInstallationsIDController alloc] initWithGoogleAppID:self.appID
                                                         appName:self.appName
                                              installationsStore:self.mockInstallationsStore
                                                      APIService:self.mockAPIService
-                                                       IIDStore:self.mockIIDStore];
+                                                       IIDStore:self.mockIIDStore
+                                                  IIDTokenStore:self.mockIIDTokenStore];
 }
 
 - (void)tearDown {
@@ -132,9 +139,7 @@
       .andReturn(registerPromise);
 
   // 4. Expect IIDStore to be checked for existing IID.
-  FBLPromise *rejectedPromise = [FBLPromise pendingPromise];
-  [rejectedPromise reject:[FIRInstallationsErrorUtil keychainErrorWithFunction:@"" status:-1]];
-  OCMExpect([self.mockIIDStore existingIID]).andReturn(rejectedPromise);
+  [self expectStoredIIDNotFound];
 
   // 5. Call get installation and check.
   FBLPromise<FIRInstallationsItem *> *getInstallationPromise =
@@ -174,7 +179,7 @@
   OCMVerifyAll(self.mockIIDStore);
 }
 
-- (void)testGetInstallationItem_WhenThereIsIIDAndNoFID_ThenFIDIsCreatedAndRegistered {
+- (void)testGetInstallationItem_WhenThereIsIIDAndNoFIDNotDefaultApp_ThenIIDIsUsedAsFID {
   // 0. Configure controller with not default app.
   NSString *appName = @"appName";
   [self setUpWithAppName:appName];
@@ -247,13 +252,18 @@
   OCMVerifyAll(self.mockIIDStore);
 }
 
-- (void)testGetInstallationItem_WhenThereIsIIDAndNoFIDNotDefaultApp_ThenIIDIsUsedAsFID {
+- (void)testGetInstallationItem_WhenThereIsIIDAndNoFID_ThenFIDIsCreatedAndRegistered {
   // 1. Stub store get installation.
   [self expectInstallationsStoreGetInstallationNotFound];
 
   // 2. Expect IIDStore to be checked for existing IID.
   NSString *existingIID = @"existing-iid";
   OCMExpect([self.mockIIDStore existingIID]).andReturn([FBLPromise resolvedWith:existingIID]);
+
+  // 3. Expect IID checkin store to be requested for checkin data.
+  NSString *existingIIDDefaultToken = @"existing-iid-token";
+  OCMExpect([self.mockIIDTokenStore existingIIDDefaultToken])
+      .andReturn([FBLPromise resolvedWith:existingIIDDefaultToken]);
 
   // 3. Stub store save installation.
   __block FIRInstallationsItem *createdInstallation;
@@ -262,6 +272,7 @@
                 saveInstallation:[OCMArg checkWithBlock:^BOOL(FIRInstallationsItem *obj) {
                   [self assertValidCreatedInstallation:obj];
                   XCTAssertEqualObjects(existingIID, obj.firebaseInstallationID);
+                  XCTAssertEqualObjects(obj.IIDDefaultToken, existingIIDDefaultToken);
                   createdInstallation = obj;
                   return YES;
                 }]])
@@ -316,6 +327,7 @@
   // 5.5. Verify registered installation was saved.
   OCMVerifyAll(self.mockInstallationsStore);
   OCMVerifyAll(self.mockIIDStore);
+  OCMVerifyAll(self.mockIIDTokenStore);
 }
 
 - (void)testGetInstallationItem_WhenCalledSeveralTimes_OnlyOneOperationIsPerformed {
@@ -376,7 +388,7 @@
   FBLPromise<FIRInstallationsItem *> *promise = [self.controller getAuthTokenForcingRefresh:NO];
 
   // 3. Wait for the promise to resolve.
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   // 4. Check.
   OCMVerifyAll(self.mockInstallationsStore);
@@ -398,19 +410,15 @@
   OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
       .andReturn([FBLPromise resolvedWith:storedInstallation]);
 
-  // 1.2. Expect API request.
+  // 1.2. Auth Token refresh.
   FIRInstallationsItem *responseInstallation =
-      [FIRInstallationsItem createRegisteredInstallationItem];
-  responseInstallation.authToken.token =
-      [responseInstallation.authToken.token stringByAppendingString:@"_new"];
-  OCMExpect([self.mockAPIService refreshAuthTokenForInstallation:storedInstallation])
-      .andReturn([FBLPromise resolvedWith:responseInstallation]);
+      [self expectAuthTokenRefreshForInstallation:storedInstallation];
 
   // 2. Request auth token.
   FBLPromise<FIRInstallationsItem *> *promise = [self.controller getAuthTokenForcingRefresh:NO];
 
   // 3. Wait for the promise to resolve.
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   // 4. Check.
   OCMVerifyAll(self.mockInstallationsStore);
@@ -431,19 +439,15 @@
   OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
       .andReturn([FBLPromise resolvedWith:storedInstallation]);
 
-  // 1.2. Expect API request.
+  // 1.2. Auth Token refresh.
   FIRInstallationsItem *responseInstallation =
-      [FIRInstallationsItem createRegisteredInstallationItem];
-  responseInstallation.authToken.token =
-      [responseInstallation.authToken.token stringByAppendingString:@"_new"];
-  OCMExpect([self.mockAPIService refreshAuthTokenForInstallation:storedInstallation])
-      .andReturn([FBLPromise resolvedWith:responseInstallation]);
+      [self expectAuthTokenRefreshForInstallation:storedInstallation];
 
   // 2. Request auth token.
   FBLPromise<FIRInstallationsItem *> *promise = [self.controller getAuthTokenForcingRefresh:YES];
 
   // 3. Wait for the promise to resolve.
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   // 4. Check.
   OCMVerifyAll(self.mockInstallationsStore);
@@ -455,82 +459,6 @@
   XCTAssertEqualObjects(promise.value.authToken.token, responseInstallation.authToken.token);
   XCTAssertEqualObjects(promise.value.authToken.expirationDate,
                         responseInstallation.authToken.expirationDate);
-}
-
-- (void)testGetAuthToken_WhenServerResponseIsInternalError_ThenRetriesOnceAndSucceeds {
-  // 1.1. Expect installation to be requested from the store.
-  FIRInstallationsItem *storedInstallation =
-      [FIRInstallationsItem createRegisteredInstallationItem];
-  OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
-      .andReturn([FBLPromise resolvedWith:storedInstallation]);
-
-  // 1.2. Expect API request called twice.
-  // 1.2.1. Fail 1st.
-  NSError *error500 = [FIRInstallationsErrorUtil APIErrorWithHTTPCode:500];
-  FBLPromise *rejectedPromise = [FBLPromise pendingPromise];
-  [rejectedPromise reject:error500];
-  OCMExpect([self.mockAPIService refreshAuthTokenForInstallation:storedInstallation])
-      .andReturn(rejectedPromise);
-
-  // 2. Request auth token.
-  FBLPromise<FIRInstallationsItem *> *promise = [self.controller getAuthTokenForcingRefresh:YES];
-
-  // 3. Wait for the operation to complete.
-  // 3.1. Wait for the 1st request to fail.
-  OCMVerifyAllWithDelay(self.mockAPIService, 0.5);
-
-  // 3.2. Expect another request and succeed.
-  FIRInstallationsItem *responseInstallation =
-      [FIRInstallationsItem createRegisteredInstallationItem];
-  responseInstallation.authToken.token =
-      [responseInstallation.authToken.token stringByAppendingString:@"_new"];
-  OCMExpect([self.mockAPIService refreshAuthTokenForInstallation:storedInstallation])
-      .andReturn([FBLPromise resolvedWith:responseInstallation]);
-
-  // 3.3. Wait for the promise to resolve.
-  XCTAssert(FBLWaitForPromisesWithTimeout(2));
-
-  // 4. Check.
-  OCMVerifyAll(self.mockInstallationsStore);
-  OCMVerifyAll(self.mockAPIService);
-
-  XCTAssertNil(promise.error);
-  XCTAssertNotNil(promise.value);
-
-  XCTAssertEqualObjects(promise.value.authToken.token, responseInstallation.authToken.token);
-  XCTAssertEqualObjects(promise.value.authToken.expirationDate,
-                        responseInstallation.authToken.expirationDate);
-}
-
-- (void)testGetAuthToken_WhenServerResponseIsInternalError_ThenRetriesOnceAndFails {
-  // 1.1. Expect installation to be requested from the store.
-  FIRInstallationsItem *storedInstallation =
-      [FIRInstallationsItem createRegisteredInstallationItem];
-  OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
-      .andReturn([FBLPromise resolvedWith:storedInstallation]);
-
-  // 1.2. Expect API request called twice.
-  NSError *error500 = [FIRInstallationsErrorUtil APIErrorWithHTTPCode:500];
-  FBLPromise *rejectedPromise = [FBLPromise pendingPromise];
-  [rejectedPromise reject:error500];
-
-  OCMExpect([self.mockAPIService refreshAuthTokenForInstallation:storedInstallation])
-      .andReturn(rejectedPromise);
-  OCMExpect([self.mockAPIService refreshAuthTokenForInstallation:storedInstallation])
-      .andReturn(rejectedPromise);
-
-  // 2. Request auth token.
-  FBLPromise<FIRInstallationsItem *> *promise = [self.controller getAuthTokenForcingRefresh:YES];
-
-  // 3. Wait for the promise to resolve.
-  XCTAssert(FBLWaitForPromisesWithTimeout(2));
-
-  // 4. Check.
-  OCMVerifyAll(self.mockInstallationsStore);
-  OCMVerifyAll(self.mockAPIService);
-
-  XCTAssertEqualObjects(promise.error, error500);
-  XCTAssertNil(promise.value);
 }
 
 - (void)testGetAuthToken_WhenCalledSeveralTimes_OnlyOneOperationIsPerformed {
@@ -554,7 +482,7 @@
   [storagePendingPromise fulfill:storedInstallation];
 
   // 4. Wait for the promise to resolve.
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   // 5. Check.
   OCMVerifyAll(self.mockInstallationsStore);
@@ -585,6 +513,10 @@
   OCMExpect([self.mockAPIService refreshAuthTokenForInstallation:storedInstallation])
       .andReturn(pendingAPIPromise);
 
+  // 1.3. Expect new token to be stored.
+  OCMExpect([self.mockInstallationsStore saveInstallation:responseInstallation])
+      .andReturn([FBLPromise resolvedWith:[NSNull null]]);
+
   // 2. Request auth token n times.
   NSInteger requestCount = 10;
   NSMutableArray *authTokenPromises = [NSMutableArray arrayWithCapacity:requestCount];
@@ -596,7 +528,7 @@
   [pendingAPIPromise fulfill:responseInstallation];
 
   // 4. Wait for the promise to resolve.
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   // 5. Check.
   OCMVerifyAll(self.mockInstallationsStore);
@@ -609,6 +541,89 @@
     XCTAssertEqualObjects(authPromise.value.authToken.expirationDate,
                           responseInstallation.authToken.expirationDate);
   }
+}
+
+- (void)testGetAuthToken_WhenAPIResponse401_ThenFISResetAndReregistered {
+  NSTimeInterval timeout = 0.5;
+
+  // 1.1. Expect installation to be requested from the store.
+  FIRInstallationsItem *storedInstallation =
+      [FIRInstallationsItem createRegisteredInstallationItem];
+  [self expectInstallationStoreToBeRequestedAndReturnInstallation:storedInstallation];
+
+  // 1.2. Expect API request.
+  FBLPromise *rejectedAPIPromise = [FBLPromise pendingPromise];
+  OCMExpect([self.mockAPIService refreshAuthTokenForInstallation:storedInstallation])
+      .andReturn(rejectedAPIPromise);
+
+  // 2. Request auth token.
+  FBLPromise<FIRInstallationsItem *> *promise = [self.controller getAuthTokenForcingRefresh:YES];
+
+  // 3. Wait for refresh token request.
+  OCMVerifyAllWithDelay(self.mockAPIService, timeout);
+
+  // 4.1. Expect Installation to be requested before deletion.
+  [self expectInstallationStoreToBeRequestedAndReturnInstallation:storedInstallation];
+  // 4. Expect for FIS to be deleted locally.
+  NSArray<XCTestExpectation *> *deleteExpectations =
+      [self expectInstallationToBeDeletedLocally:storedInstallation];
+
+  // 6. Expect a new installation to be created and registered.
+  // 6.1. Expect to request FIS from storage.
+  [self expectInstallationsStoreGetInstallationNotFound];
+  // 6.2. Expect stored IID not found.
+  [self expectStoredIIDNotFound];
+  // 6.3. Expect new Installation to be stored.
+  __block FIRInstallationsItem *createdInstallation;
+  OCMExpect([self.mockInstallationsStore
+                saveInstallation:[OCMArg checkWithBlock:^BOOL(FIRInstallationsItem *obj) {
+                  [self assertValidCreatedInstallation:obj];
+
+                  createdInstallation = obj;
+                  return YES;
+                }]])
+      .andReturn([FBLPromise resolvedWith:[NSNull null]]);
+  // 6.4. Expect registration API request to be sent.
+  FBLPromise<FIRInstallationsItem *> *registerPromise = [FBLPromise pendingPromise];
+  OCMExpect([self.mockAPIService registerInstallation:[OCMArg any]]).andReturn(registerPromise);
+
+  // 6.5. Reject API request promise with 401.
+  NSError *error401 = [FIRInstallationsErrorUtil APIErrorWithHTTPCode:404];
+  [rejectedAPIPromise reject:error401];
+  // 6.6. Wait local FIS to be deleted.
+  [self waitForExpectations:deleteExpectations timeout:timeout];
+
+  // 6.7 Wait for the new Installation to be stored.
+  OCMVerifyAllWithDelay(self.mockInstallationsStore, timeout);
+  // 6.8. Wait for registration API request to be sent.
+  OCMVerifyAllWithDelay(self.mockAPIService, timeout);
+  // 6.9.  Expect for the registered installation to be saved.
+  FIRInstallationsItem *registeredInstallation = [FIRInstallationsItem
+      createRegisteredInstallationItemWithAppID:createdInstallation.appID
+                                        appName:createdInstallation.firebaseAppName];
+
+  OCMExpect([self.mockInstallationsStore
+                saveInstallation:[OCMArg checkWithBlock:^BOOL(FIRInstallationsItem *obj) {
+                  XCTAssertEqual(registeredInstallation, obj);
+                  return YES;
+                }]])
+      .andReturn([FBLPromise resolvedWith:[NSNull null]]);
+  // 6.9. Fulfill the registration API request promise.
+  [registerPromise fulfill:registeredInstallation];
+
+  // 7. Wait for promises.
+  XCTAssert(FBLWaitForPromisesWithTimeout(timeout));
+
+  // 8. Check.
+  OCMVerifyAll(self.mockInstallationsStore);
+  OCMVerifyAll(self.mockAPIService);
+
+  XCTAssertNil(promise.error);
+  XCTAssertNotNil(promise.value);
+
+  XCTAssertNotEqualObjects(promise.value.firebaseInstallationID,
+                           storedInstallation.firebaseInstallationID);
+  XCTAssertEqualObjects(promise.value, registeredInstallation);
 }
 
 #pragma mark - FID Deletion
@@ -641,7 +656,7 @@
   FBLPromise<NSNull *> *promise = [self.controller deleteInstallation];
 
   // 6. Wait for operations to complete and check.
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   XCTAssertNil(promise.error);
   XCTAssertTrue(promise.isFulfilled);
@@ -679,7 +694,7 @@
   FBLPromise<NSNull *> *promise = [self.controller deleteInstallation];
 
   // 6. Wait for operations to complete and check.
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   XCTAssertNil(promise.error);
   XCTAssertTrue(promise.isFulfilled);
@@ -699,7 +714,8 @@
 
   // 2. Expect API request to delete installation.
   FBLPromise *rejectedAPIPromise = [FBLPromise pendingPromise];
-  NSError *error500 = [FIRInstallationsErrorUtil APIErrorWithHTTPCode:500];
+  NSError *error500 =
+      [FIRInstallationsErrorUtil APIErrorWithHTTPCode:FIRInstallationsHTTPCodesServerInternalError];
   [rejectedAPIPromise reject:error500];
   OCMExpect([self.mockAPIService deleteInstallation:installation]).andReturn(rejectedAPIPromise);
 
@@ -718,7 +734,7 @@
   FBLPromise<NSNull *> *promise = [self.controller deleteInstallation];
 
   // 6. Wait for operations to complete and check.
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   XCTAssertEqualObjects(promise.error, error500);
   XCTAssertTrue(promise.isRejected);
@@ -757,7 +773,7 @@
   FBLPromise<NSNull *> *promise = [self.controller deleteInstallation];
 
   // 6. Wait for operations to complete and check.
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   XCTAssertNil(promise.error);
   XCTAssertTrue(promise.isFulfilled);
@@ -815,10 +831,14 @@
   FBLPromise<NSNull *> *deletePromise = [self.controller deleteInstallation];
 
   // 4. Fulfill auth token promise to proceed.
+  // 4.1. Expect new token to be stored on API response.
+  OCMExpect([self.mockInstallationsStore saveInstallation:responseInstallation])
+      .andReturn([FBLPromise resolvedWith:[NSNull null]]);
+
   [pendingAuthTokenAPIPromise fulfill:responseInstallation];
 
   // 5. Wait for operations to complete and check the result.
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   XCTAssertNil(deletePromise.error);
   XCTAssertTrue(deletePromise.isFulfilled);
@@ -860,7 +880,7 @@
   FBLPromise<NSNull *> *promise = [self.controller deleteInstallation];
 
   // 6. Wait for operations to complete and check.
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   XCTAssertNil(promise.error);
   XCTAssertTrue(promise.isFulfilled);
@@ -869,6 +889,24 @@
   OCMVerifyAll(self.mockInstallationsStore);
   OCMVerifyAll(self.mockAPIService);
   OCMVerifyAll(self.mockIIDStore);
+}
+
+- (NSArray<XCTestExpectation *> *)expectInstallationToBeDeletedLocally:
+    (FIRInstallationsItem *)installation {
+  // 3.1. Expect the installation to be removed from the storage.
+  OCMExpect([self.mockInstallationsStore removeInstallationForAppID:installation.appID
+                                                            appName:installation.firebaseAppName])
+      .andReturn([FBLPromise resolvedWith:[NSNull null]]);
+
+  // 3.2. Expect IID to be deleted, because it is default app.
+  OCMExpect([self.mockIIDStore deleteExistingIID])
+      .andReturn([FBLPromise resolvedWith:[NSNull null]]);
+
+  // 4. Expect FIRInstallationIDDidChangeNotification to be sent.
+  XCTestExpectation *notificationExpectation =
+      [self installationIDDidChangeNotificationExpectation];
+
+  return @[ notificationExpectation ];
 }
 
 // TODO: Test a single delete installation request at a time.
@@ -884,9 +922,7 @@
       .andReturn([FBLPromise resolvedWith:[NSNull null]]);
 
   // 1.3. IID store.
-  FBLPromise *rejectedPromise = [FBLPromise pendingPromise];
-  [rejectedPromise reject:[FIRInstallationsErrorUtil keychainErrorWithFunction:@"" status:-1]];
-  OCMExpect([self.mockIIDStore existingIID]).andReturn(rejectedPromise);
+  [self expectStoredIIDNotFound];
 
   // 1.4. API Service.
   OCMExpect([self.mockAPIService registerInstallation:[OCMArg any]])
@@ -898,7 +934,7 @@
 
   // 3. Request FID.
   FBLPromise *promise = [self.controller getInstallationItem];
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   // 4. Check.
   XCTAssertNil(promise.error);
@@ -960,6 +996,13 @@
       .andReturn(installationNotFoundPromise);
 }
 
+- (void)expectStoredIIDNotFound {
+  FBLPromise *rejectedPromise = [FBLPromise pendingPromise];
+  [rejectedPromise reject:[FIRInstallationsErrorUtil keychainErrorWithFunction:@"" status:-1]];
+  OCMExpect([self.mockIIDStore existingIID]).andReturn(rejectedPromise);
+  OCMExpect([self.mockIIDTokenStore existingIIDDefaultToken]).andReturn(rejectedPromise);
+}
+
 - (void)assertValidCreatedInstallation:(FIRInstallationsItem *)installation {
   XCTAssertEqualObjects([installation class], [FIRInstallationsItem class]);
   XCTAssertEqualObjects(installation.appID, self.appID);
@@ -980,6 +1023,28 @@
                            return YES;
                          }];
   return notificationExpectation;
+}
+
+- (void)expectInstallationStoreToBeRequestedAndReturnInstallation:
+    (FIRInstallationsItem *)storedInstallation {
+  OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
+      .andReturn([FBLPromise resolvedWith:storedInstallation]);
+}
+
+- (FIRInstallationsItem *)expectAuthTokenRefreshForInstallation:
+    (FIRInstallationsItem *)installation {
+  FIRInstallationsItem *responseInstallation =
+      [FIRInstallationsItem createRegisteredInstallationItem];
+  responseInstallation.authToken.token =
+      [responseInstallation.authToken.token stringByAppendingString:@"_new"];
+  OCMExpect([self.mockAPIService refreshAuthTokenForInstallation:installation])
+      .andReturn([FBLPromise resolvedWith:responseInstallation]);
+
+  // 1.3. Expect new token to be stored.
+  OCMExpect([self.mockInstallationsStore saveInstallation:responseInstallation])
+      .andReturn([FBLPromise resolvedWith:[NSNull null]]);
+
+  return responseInstallation;
 }
 
 @end

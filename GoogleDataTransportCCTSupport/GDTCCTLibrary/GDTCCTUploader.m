@@ -29,13 +29,14 @@
 
 #import "GDTCCTLibrary/Protogen/nanopb/cct.nanopb.h"
 
+#if !NDEBUG
+NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader.UploadComplete";
+#endif  // #if !NDEBUG
+
 @interface GDTCCTUploader ()
 
 // Redeclared as readwrite.
 @property(nullable, nonatomic, readwrite) NSURLSessionUploadTask *currentTask;
-
-/** Set to YES if running in the background. */
-@property(nonatomic) BOOL runningInBackground;
 
 @end
 
@@ -85,14 +86,19 @@
 }
 
 - (void)uploadPackage:(GDTCORUploadPackage *)package {
-  GDTCORBackgroundIdentifier bgID = GDTCORBackgroundIdentifierInvalid;
-  if (_runningInBackground) {
-    bgID = [[GDTCORApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
-      if (bgID != GDTCORBackgroundIdentifierInvalid) {
-        [[GDTCORApplication sharedApplication] endBackgroundTask:bgID];
-      }
-    }];
-  }
+  __block GDTCORBackgroundIdentifier bgID = GDTCORBackgroundIdentifierInvalid;
+  bgID = [[GDTCORApplication sharedApplication]
+      beginBackgroundTaskWithName:@"GDTCCTUploader-upload"
+                expirationHandler:^{
+                  if (bgID != GDTCORBackgroundIdentifierInvalid) {
+                    // Cancel the current upload and complete delivery.
+                    [self.currentTask cancel];
+                    [self.currentUploadPackage completeDelivery];
+
+                    // End the task.
+                    [[GDTCORApplication sharedApplication] endBackgroundTask:bgID];
+                  }
+                }];
 
   dispatch_async(_uploaderQueue, ^{
     if (self->_currentTask || self->_currentUploadPackage) {
@@ -110,20 +116,29 @@
         GDTCORLogWarning(GDTCORMCWUploadFailed, @"There was an error uploading events: %@", error);
       }
       NSError *decodingError;
-      gdt_cct_LogResponse logResponse = GDTCCTDecodeLogResponse(data, &decodingError);
-      if (!decodingError && logResponse.has_next_request_wait_millis) {
-        self->_nextUploadTime =
-            [GDTCORClock clockSnapshotInTheFuture:logResponse.next_request_wait_millis];
-      } else {
-        // 15 minutes from now.
-        self->_nextUploadTime = [GDTCORClock clockSnapshotInTheFuture:15 * 60 * 1000];
+      if (data) {
+        gdt_cct_LogResponse logResponse = GDTCCTDecodeLogResponse(data, &decodingError);
+        if (!decodingError && logResponse.has_next_request_wait_millis) {
+          self->_nextUploadTime =
+              [GDTCORClock clockSnapshotInTheFuture:logResponse.next_request_wait_millis];
+        } else {
+          // 15 minutes from now.
+          self->_nextUploadTime = [GDTCORClock clockSnapshotInTheFuture:15 * 60 * 1000];
+        }
+        pb_release(gdt_cct_LogResponse_fields, &logResponse);
       }
-      pb_release(gdt_cct_LogResponse_fields, &logResponse);
+#if !NDEBUG
+      // Post a notification when in DEBUG mode to state how many packages were uploaded. Useful
+      // for validation during tests.
+      [[NSNotificationCenter defaultCenter] postNotificationName:GDTCCTUploadCompleteNotification
+                                                          object:@(package.events.count)];
+#endif  // #if !NDEBUG
       [package completeDelivery];
 
       // End the background task if there was one.
       if (bgID != GDTCORBackgroundIdentifierInvalid) {
         [[GDTCORApplication sharedApplication] endBackgroundTask:bgID];
+        bgID = GDTCORBackgroundIdentifierInvalid;
       }
       self.currentTask = nil;
       self.currentUploadPackage = nil;
@@ -199,24 +214,6 @@
 }
 
 #pragma mark - GDTCORLifecycleProtocol
-
-- (void)appWillBackground:(GDTCORApplication *)app {
-  _runningInBackground = YES;
-  __block GDTCORBackgroundIdentifier bgID = [app beginBackgroundTaskWithExpirationHandler:^{
-    if (bgID != GDTCORBackgroundIdentifierInvalid) {
-      [app endBackgroundTask:bgID];
-    }
-  }];
-  if (bgID != GDTCORBackgroundIdentifierInvalid) {
-    dispatch_async(_uploaderQueue, ^{
-      [[GDTCORApplication sharedApplication] endBackgroundTask:bgID];
-    });
-  }
-}
-
-- (void)appWillForeground:(GDTCORApplication *)app {
-  _runningInBackground = NO;
-}
 
 - (void)appWillTerminate:(GDTCORApplication *)application {
   dispatch_sync(_uploaderQueue, ^{

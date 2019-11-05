@@ -23,11 +23,16 @@ let package = Package(
   name: "ZipBuilder",
   products: [
     .executable(name: "ReleasePackager", targets: ["ZipBuilder"]),
+    .executable(name: "UpdateFirebasePod", targets: ["UpdateFirebasePod"]),
   ],
   dependencies: [
     .package(url: "https://github.com/apple/swift-protobuf.git", .exact("1.2.0")),
   ],
   targets: [
+    .target(
+      name: "UpdateFirebasePod",
+      dependencies: ["ManifestReader"]
+    ),
     .target(
       name: "ZipBuilder",
       dependencies: ["ManifestReader"]

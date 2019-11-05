@@ -179,8 +179,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)updateTargetInTransaction:(const QueryData &)queryData {
-  QueryData updated = queryData.Copy(queryData.snapshot_version(), testutil::ResumeToken(7),
-                                     _persistence->current_sequence_number());
+  QueryData updated = queryData.WithSequenceNumber(_persistence->current_sequence_number());
   _queryCache->UpdateTarget(updated);
 }
 

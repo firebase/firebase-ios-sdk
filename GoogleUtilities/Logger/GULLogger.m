@@ -161,7 +161,12 @@ void GULLogBasic(GULLoggerLevel level,
                                                                     range:messageCodeRange];
   NSCAssert(numberOfMatches == 1, @"Incorrect message code format.");
 #endif
-  NSString *logMsg = [[NSString alloc] initWithFormat:message arguments:args_ptr];
+  NSString *logMsg;
+  if (args_ptr == NULL) {
+    logMsg = message;
+  } else {
+    logMsg = [[NSString alloc] initWithFormat:message arguments:args_ptr];
+  }
   logMsg = [NSString stringWithFormat:@"%s - %@[%@] %@", sVersion, service, messageCode, logMsg];
   dispatch_async(sGULClientQueue, ^{
     asl_log(sGULLoggerClient, NULL, (int)level, "%s", logMsg.UTF8String);
@@ -172,10 +177,10 @@ void GULLogBasic(GULLoggerLevel level,
 /**
  * Generates the logging functions using macros.
  *
- * Calling GULLogError(kGULLoggerCore, @"I-COR000001", @"Configure %@ failed.", @"blah") shows:
- * yyyy-mm-dd hh:mm:ss.SSS sender[PID] <Error> [{service}][I-COR000001] Configure blah failed.
- * Calling GULLogDebug(kGULLoggerCore, @"I-COR000001", @"Configure succeed.") shows:
- * yyyy-mm-dd hh:mm:ss.SSS sender[PID] <Debug> [{service}][I-COR000001] Configure succeed.
+ * Calling GULLogError({service}, @"I-XYZ000001", @"Configure %@ failed.", @"blah") shows:
+ * yyyy-mm-dd hh:mm:ss.SSS sender[PID] <Error> [{service}][I-XYZ000001] Configure blah failed.
+ * Calling GULLogDebug({service}, @"I-XYZ000001", @"Configure succeed.") shows:
+ * yyyy-mm-dd hh:mm:ss.SSS sender[PID] <Debug> [{service}][I-XYZ000001] Configure succeed.
  */
 #define GUL_LOGGING_FUNCTION(level)                                                     \
   void GULLog##level(GULLoggerService service, BOOL force, NSString *messageCode,       \

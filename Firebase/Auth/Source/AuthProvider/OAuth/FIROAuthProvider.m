@@ -169,6 +169,9 @@ static NSString *const kAuthTypeSignInWithRedirect = @"signInWithRedirect";
   NSAssert(![providerID isEqual:FIRFacebookAuthProviderID],
            @"Sign in with Facebook is not supported via generic IDP; the Facebook TOS "
            "dictate that you must use the Facebook iOS SDK for Facebook login.");
+  NSAssert(![providerID isEqual:@"apple.com"],
+           @"Sign in with Apple is not supported via generic IDP; You must use the Apple iOS SDK"
+           " for Sign in with Apple.");
   self = [super init];
   if (self) {
     _auth = auth;

@@ -43,6 +43,11 @@ std::ostream& operator<<(std::ostream& os, const MutationResult& result) {
   return os << result.ToString();
 }
 
+bool operator==(const MutationResult& lhs, const MutationResult& rhs) {
+  return lhs.version() == rhs.version() &&
+         lhs.transform_results() == rhs.transform_results();
+}
+
 Mutation::Rep::Rep(DocumentKey&& key, Precondition&& precondition)
     : key_(std::move(key)), precondition_(std::move(precondition)) {
 }

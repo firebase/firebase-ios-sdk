@@ -538,7 +538,20 @@ class Syncer
     target.build_configurations.each do |config|
       requested = flatten(target_def.xcconfig)
 
-      path = PODFILE_DIR.join(config.base_configuration_reference.path)
+      if config.base_configuration_reference.nil?
+        # Running pod install with PLATFORM set to something other than "all"
+        # ends up removing baseConfigurationReference entries from the project
+        # file. Skip these entries when re-running.
+        puts "Skipping #{target.name} (#{config.name})"
+        next
+      end
+
+      path = PODFILE_DIR.join(config.base_configuration_reference.real_path)
+      if !File.file?(path)
+        puts "Skipping #{target.name} (#{config.name}); missing xcconfig"
+        next
+      end
+
       contents = Xcodeproj::Config.new(path)
       contents.merge!(requested)
       contents.save_as(path)

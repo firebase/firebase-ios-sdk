@@ -52,7 +52,7 @@
 
 @implementation GDTCORIntegrationTestTransformer
 
-- (GDTCOREvent *)transform:(GDTCOREvent *)event {
+- (nullable GDTCOREvent *)transform:(GDTCOREvent *)event {
   // drop half the events during transforming.
   if (arc4random_uniform(2) == 0) {
     event = nil;
@@ -144,7 +144,8 @@
   NSUInteger lengthOfTestToRunInSeconds = 30;
   [GDTCORUploadCoordinator sharedInstance].timerInterval = NSEC_PER_SEC * 5;
   [GDTCORUploadCoordinator sharedInstance].timerLeeway = NSEC_PER_SEC * 1;
-  dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+  dispatch_queue_t queue =
+      dispatch_queue_create("com.google.GDTCORIntegrationTest", DISPATCH_QUEUE_SERIAL);
   dispatch_source_t timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
   dispatch_source_set_timer(timer, DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC, 0.1 * NSEC_PER_SEC);
   dispatch_source_set_event_handler(timer, ^{

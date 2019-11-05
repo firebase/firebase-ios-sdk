@@ -353,21 +353,21 @@ static NSString *const FIRSecondFIRAppName = @"secondFIRApp";
                                             [self statusString:currentRCInstance.lastFetchStatus]]];
 
   FIRInstanceID *instanceID = [FIRInstanceID instanceID];
-  NSError *error;
-  NSString *instanceIDString = [instanceID appInstanceID:&error];
-  [output appendString:@"\n-----------Instance ID------------------\n"];
-  [output appendString:[NSString stringWithFormat:@"%@\n", instanceIDString]];
+  [instanceID getIDWithHandler:^(NSString *_Nullable identity, NSError *_Nullable error) {
+    [output appendString:@"\n-----------Instance ID------------------\n"];
+    [output appendString:[NSString stringWithFormat:@"%@\n", identity]];
 
-  [output appendString:@"\n-----------Instance ID token------------\n"];
-  [output
-      appendString:[NSString
-                       stringWithFormat:@"%@\n", currentRCInstance.settings.configInstanceIDToken]];
+    [output appendString:@"\n-----------Instance ID token------------\n"];
+    [output
+        appendString:[NSString stringWithFormat:@"%@\n",
+                                                currentRCInstance.settings.configInstanceIDToken]];
 
-  [output appendString:@"\n-----------Android ID------------\n"];
-  [output
-      appendString:[NSString stringWithFormat:@"%@\n", currentRCInstance.settings.deviceAuthID]];
+    [output appendString:@"\n-----------Android ID------------\n"];
+    [output
+        appendString:[NSString stringWithFormat:@"%@\n", currentRCInstance.settings.deviceAuthID]];
 
-  [[FRCLog sharedInstance] logToConsole:output];
+    [[FRCLog sharedInstance] logToConsole:output];
+  }];
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
@@ -414,12 +414,13 @@ static NSString *const FIRSecondFIRAppName = @"secondFIRApp";
     if (token) {
       ((FIRRemoteConfig *)self.RCInstances[self.currentNamespace][self.FIRAppName])
           .settings.configInstanceIDToken = token;
-      NSString *iid = [instanceID appInstanceID:&error];
-      [[FRCLog sharedInstance]
-          logToConsole:
-              [NSString
-                  stringWithFormat:@"Successfully getting InstanceID : \n\n%@\n\nToken : \n\n%@\n",
-                                   iid, token]];
+      [instanceID getIDWithHandler:^(NSString *_Nullable identity, NSError *_Nullable error) {
+        [[FRCLog sharedInstance]
+            logToConsole:[NSString
+                             stringWithFormat:
+                                 @"Successfully getting InstanceID : \n\n%@\n\nToken : \n\n%@\n",
+                                 identity, token]];
+      }];
     }
   };
   [instanceID tokenWithAuthorizedEntity:[FIRApp appNamed:self.FIRAppName].options.GCMSenderID

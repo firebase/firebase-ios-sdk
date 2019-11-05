@@ -60,7 +60,7 @@
                                                         fromData:clockData
                                                            error:nil];
   } else {
-#if !defined(TARGET_OS_MACCATALYST)
+#if !TARGET_OS_MACCATALYST
     NSData *clockData = [NSKeyedArchiver archivedDataWithRootObject:clock];
     unarchivedClock = [NSKeyedUnarchiver unarchiveObjectWithData:clockData];
 #endif

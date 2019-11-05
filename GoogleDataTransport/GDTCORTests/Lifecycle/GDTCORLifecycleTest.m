@@ -90,6 +90,9 @@
   [[GDTCORUploadCoordinator sharedInstance] reset];
 }
 
+// Backgrounding and foregrounding are only applicable for iOS and tvOS.
+#if TARGET_OS_IOS || TARGET_OS_TV
+
 /** Tests that the library serializes itself to disk when the app backgrounds. */
 - (void)testBackgrounding {
   GDTCORTransport *transport = [[GDTCORTransport alloc] initWithMappingID:@"test"
@@ -106,8 +109,9 @@
       5.0);
 
   NSNotificationCenter *notifCenter = [NSNotificationCenter defaultCenter];
-  [notifCenter postNotificationName:kGDTCORApplicationDidEnterBackgroundNotification object:nil];
-  XCTAssertTrue([GDTCORUploadCoordinator sharedInstance].runningInBackground);
+  [notifCenter postNotificationName:UIApplicationDidEnterBackgroundNotification object:nil];
+  XCTAssertTrue([GDTCORApplication sharedApplication].isRunningInBackground);
+
   GDTCORWaitForBlock(
       ^BOOL {
         NSFileManager *fm = [NSFileManager defaultManager];
@@ -132,7 +136,7 @@
       5.0);
 
   NSNotificationCenter *notifCenter = [NSNotificationCenter defaultCenter];
-  [notifCenter postNotificationName:kGDTCORApplicationDidEnterBackgroundNotification object:nil];
+  [notifCenter postNotificationName:UIApplicationDidEnterBackgroundNotification object:nil];
 
   GDTCORWaitForBlock(
       ^BOOL {
@@ -142,14 +146,15 @@
       5.0);
 
   [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
-  [notifCenter postNotificationName:kGDTCORApplicationWillEnterForegroundNotification object:nil];
-  XCTAssertFalse([GDTCORUploadCoordinator sharedInstance].runningInBackground);
+  [notifCenter postNotificationName:UIApplicationWillEnterForegroundNotification object:nil];
+  XCTAssertFalse([GDTCORApplication sharedApplication].isRunningInBackground);
   GDTCORWaitForBlock(
       ^BOOL {
         return [GDTCORStorage sharedInstance].storedEvents.count > 0;
       },
       5.0);
 }
+#endif  // #if TARGET_OS_IOS || TARGET_OS_TV
 
 /** Tests that the library gracefully stops doing stuff when terminating. */
 - (void)testTermination {

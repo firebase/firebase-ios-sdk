@@ -67,6 +67,8 @@ cc_select(
 cc_library(
   firebase_firestore_util_base_stdio
   SOURCES
+    exception.cc
+    exception.h
     hard_assert.cc
     hard_assert.h
     log.h
@@ -84,10 +86,12 @@ cc_library(
 cc_library(
   firebase_firestore_util_base_apple
   SOURCES
+    exception.cc
+    exception.h
+    exception_apple.h
+    exception_apple.mm
     hard_assert.cc
     hard_assert.h
-    hard_assert_apple.h
-    hard_assert_apple.mm
     log.h
     log_apple.mm
     string_apple.cc
@@ -226,7 +230,7 @@ cc_library(
 
 configure_file(
   config.h.in
-  config.h
+  config.h  # NOLINT(generated)
 )
 
 cc_library(
@@ -248,10 +252,13 @@ cc_library(
     compressed_member.h
     config.h
     delayed_constructor.h
+    empty.h
     error_apple.h
     error_apple.mm
+    equality.h
     hashing.h
     iterator_adaptors.h
+    nullability.h
     ordered_code.cc
     ordered_code.h
     range.h

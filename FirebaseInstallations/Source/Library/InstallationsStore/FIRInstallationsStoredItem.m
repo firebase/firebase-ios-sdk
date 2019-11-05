@@ -23,11 +23,16 @@ NSString *const kFIRInstallationsStoredItemFirebaseInstallationIDKey = @"firebas
 NSString *const kFIRInstallationsStoredItemRefreshTokenKey = @"refreshToken";
 NSString *const kFIRInstallationsStoredItemAuthTokenKey = @"authToken";
 NSString *const kFIRInstallationsStoredItemRegistrationStatusKey = @"registrationStatus";
+NSString *const kFIRInstallationsStoredItemIIDDefaultTokenKey = @"IIDDefaultToken";
 NSString *const kFIRInstallationsStoredItemStorageVersionKey = @"storageVersion";
 
 NSInteger const kFIRInstallationsStoredItemStorageVersion = 1;
 
 @implementation FIRInstallationsStoredItem
+
+- (NSInteger)storageVersion {
+  return kFIRInstallationsStoredItemStorageVersion;
+}
 
 - (void)encodeWithCoder:(nonnull NSCoder *)aCoder {
   [aCoder encodeObject:self.firebaseInstallationID
@@ -36,13 +41,14 @@ NSInteger const kFIRInstallationsStoredItemStorageVersion = 1;
   [aCoder encodeObject:self.authToken forKey:kFIRInstallationsStoredItemAuthTokenKey];
   [aCoder encodeInteger:self.registrationStatus
                  forKey:kFIRInstallationsStoredItemRegistrationStatusKey];
+  [aCoder encodeObject:self.IIDDefaultToken forKey:kFIRInstallationsStoredItemIIDDefaultTokenKey];
   [aCoder encodeInteger:self.storageVersion forKey:kFIRInstallationsStoredItemStorageVersionKey];
 }
 
 - (nullable instancetype)initWithCoder:(nonnull NSCoder *)aDecoder {
   NSInteger storageVersion =
       [aDecoder decodeIntegerForKey:kFIRInstallationsStoredItemStorageVersionKey];
-  if (storageVersion > kFIRInstallationsStoredItemStorageVersion) {
+  if (storageVersion > self.storageVersion) {
     FIRLogWarning(kFIRLoggerInstallations,
                   kFIRInstallationsMessageCodeInstallationCoderVersionMismatch,
                   @"FIRInstallationsStoredItem was encoded by a newer coder version %ld. Current "
@@ -60,7 +66,9 @@ NSInteger const kFIRInstallationsStoredItemStorageVersion = 1;
                                           forKey:kFIRInstallationsStoredItemAuthTokenKey];
   item.registrationStatus =
       [aDecoder decodeIntegerForKey:kFIRInstallationsStoredItemRegistrationStatusKey];
-  item.storageVersion = [aDecoder decodeIntegerForKey:kFIRInstallationsStoredItemStorageVersionKey];
+  item.IIDDefaultToken =
+      [aDecoder decodeObjectOfClass:[NSString class]
+                             forKey:kFIRInstallationsStoredItemIIDDefaultTokenKey];
 
   return item;
 }

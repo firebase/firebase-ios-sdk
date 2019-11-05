@@ -1,3 +1,13 @@
+# v3.0.1
+- Fixes sanitizer issues and runtime errors. (#4039, #4027)
+
+# v3.0.0
+- Changes backgrounding logic to reduce background usage and properly complete
+all tasks. (#3893)
+- Fix Catalyst define checks. (#3695)
+- Fix ubsan issues in GDT (#3910)
+- Add support for FLL. (#3867)
+
 # v2.0.0
 - Change/rename all classes and references from GDT to GDTCOR. (#3729)
 

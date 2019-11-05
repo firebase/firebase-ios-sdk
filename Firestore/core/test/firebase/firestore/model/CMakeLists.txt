@@ -17,15 +17,18 @@ cc_test(
   SOURCES
     database_id_test.cc
     document_key_test.cc
+    document_set_test.cc
     document_test.cc
     field_mask_test.cc
     field_path_test.cc
+    field_transform_test.cc
     field_value_test.cc
     mutation_test.cc
     no_document_test.cc
     precondition_test.cc
     resource_path_test.cc
     snapshot_version_test.cc
+    transform_operation_test.cc
   DEPENDS
     firebase_firestore_model
     firebase_firestore_testutil

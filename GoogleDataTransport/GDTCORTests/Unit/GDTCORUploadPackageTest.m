@@ -124,7 +124,7 @@
                                                             error:&error];
     XCTAssertNil(error);
   } else {
-#if !defined(TARGET_OS_MACCATALYST)
+#if !TARGET_OS_MACCATALYST
     NSData *packageData = [NSKeyedArchiver archivedDataWithRootObject:uploadPackage];
     recreatedPackage = [NSKeyedUnarchiver unarchiveObjectWithData:packageData];
 #endif

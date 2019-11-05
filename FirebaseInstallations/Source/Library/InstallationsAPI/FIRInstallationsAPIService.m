@@ -30,6 +30,8 @@
 
 NSString *const kFIRInstallationsAPIBaseURL = @"https://firebaseinstallations.googleapis.com";
 NSString *const kFIRInstallationsAPIKey = @"X-Goog-Api-Key";
+NSString *const kFIRInstallationsBundleId = @"X-Ios-Bundle-Identifier";
+NSString *const kFIRInstallationsIIDMigrationAuthHeader = @"x-goog-fis-ios-iid-migration-auth";
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -107,16 +109,13 @@ NS_ASSUME_NONNULL_END
       });
 }
 
-- (FBLPromise<NSNull *> *)deleteInstallation:(FIRInstallationsItem *)installation {
+- (FBLPromise<FIRInstallationsItem *> *)deleteInstallation:(FIRInstallationsItem *)installation {
   NSURLRequest *request = [self deleteInstallationRequestWithInstallation:installation];
-  return [self sendURLRequest:request]
-      .then(^id(FIRInstallationsURLSessionResponse *response) {
-        return [self validateHTTPResponseStatusCode:response];
-      })
-      .then(^id(id result) {
+  return [[self sendURLRequest:request]
+      then:^id _Nullable(FIRInstallationsURLSessionResponse *_Nullable value) {
         // Return the original installation on success.
         return installation;
-      });
+      }];
 }
 
 #pragma mark - Register Installation
@@ -133,13 +132,22 @@ NS_ASSUME_NONNULL_END
     @"sdkVersion" : [self SDKVersion]
   };
 
-  return [self requestWithURL:URL HTTPMethod:@"POST" bodyDict:bodyDict refreshToken:nil];
+  NSDictionary *headers;
+  if (installation.IIDDefaultToken) {
+    headers = @{kFIRInstallationsIIDMigrationAuthHeader : installation.IIDDefaultToken};
+  }
+
+  return [self requestWithURL:URL
+                   HTTPMethod:@"POST"
+                     bodyDict:bodyDict
+                 refreshToken:nil
+            additionalHeaders:headers];
 }
 
 - (FBLPromise<FIRInstallationsItem *> *)
     registeredInstallationWithInstallation:(FIRInstallationsItem *)installation
                             serverResponse:(FIRInstallationsURLSessionResponse *)response {
-  return [self validateHTTPResponseStatusCode:response].then(^id(id result) {
+  return [FBLPromise do:^id {
     FIRLogDebug(kFIRLoggerInstallations, kFIRInstallationsMessageCodeParsingAPIResponse,
                 @"Parsing server response for %@.", response.HTTPResponse.URL);
     NSError *error;
@@ -158,7 +166,7 @@ NS_ASSUME_NONNULL_END
                 kFIRInstallationsMessageCodeAPIResponseParsingInstallationSucceed,
                 @"FIRInstallationsItem parsed successfully.");
     return registeredInstallation;
-  });
+  }];
 }
 
 #pragma mark - Auth token
@@ -179,7 +187,7 @@ NS_ASSUME_NONNULL_END
 
 - (FBLPromise<FIRInstallationsStoredAuthToken *> *)authTokenWithServerResponse:
     (FIRInstallationsURLSessionResponse *)response {
-  return [self validateHTTPResponseStatusCode:response].then(^id(id result) {
+  return [FBLPromise do:^id {
     FIRLogDebug(kFIRLoggerInstallations, kFIRInstallationsMessageCodeParsingAPIResponse,
                 @"Parsing server response for %@.", response.HTTPResponse.URL);
     NSError *error;
@@ -198,7 +206,7 @@ NS_ASSUME_NONNULL_END
                 kFIRInstallationsMessageCodeAPIResponseParsingAuthTokenSucceed,
                 @"FIRInstallationsStoredAuthToken parsed successfully.");
     return token;
-  });
+  }];
 }
 
 #pragma mark - Delete Installation
@@ -220,19 +228,40 @@ NS_ASSUME_NONNULL_END
                       HTTPMethod:(NSString *)HTTPMethod
                         bodyDict:(NSDictionary *)bodyDict
                     refreshToken:(nullable NSString *)refreshToken {
-  NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:requestURL];
+  return [self requestWithURL:requestURL
+                   HTTPMethod:HTTPMethod
+                     bodyDict:bodyDict
+                 refreshToken:refreshToken
+            additionalHeaders:nil];
+}
+
+- (NSURLRequest *)requestWithURL:(NSURL *)requestURL
+                      HTTPMethod:(NSString *)HTTPMethod
+                        bodyDict:(NSDictionary *)bodyDict
+                    refreshToken:(nullable NSString *)refreshToken
+               additionalHeaders:
+                   (nullable NSDictionary<NSString *, NSString *> *)additionalHeaders {
+  __block NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:requestURL];
   request.HTTPMethod = HTTPMethod;
+  NSString *bundleIdentifier = [[NSBundle mainBundle] bundleIdentifier];
   [request addValue:self.APIKey forHTTPHeaderField:kFIRInstallationsAPIKey];
+  [request addValue:bundleIdentifier forHTTPHeaderField:kFIRInstallationsBundleId];
   [self setJSONHTTPBody:bodyDict forRequest:request];
   if (refreshToken) {
     NSString *authHeader = [NSString stringWithFormat:@"FIS_v2 %@", refreshToken];
     [request setValue:authHeader forHTTPHeaderField:@"Authorization"];
   }
+
+  [additionalHeaders enumerateKeysAndObjectsUsingBlock:^(
+                         NSString *_Nonnull key, NSString *_Nonnull obj, BOOL *_Nonnull stop) {
+    [request setValue:obj forHTTPHeaderField:key];
+  }];
+
   return [request copy];
 }
 
-- (FBLPromise<FIRInstallationsURLSessionResponse *> *)sendURLRequest:(NSURLRequest *)request {
-  return [FBLPromise async:^(FBLPromiseFulfillBlock fulfill, FBLPromiseRejectBlock reject) {
+- (FBLPromise<FIRInstallationsURLSessionResponse *> *)URLRequestPromise:(NSURLRequest *)request {
+  return [[FBLPromise async:^(FBLPromiseFulfillBlock fulfill, FBLPromiseRejectBlock reject) {
     FIRLogDebug(kFIRLoggerInstallations, kFIRInstallationsMessageCodeSendAPIRequest,
                 @"Sending request: %@, body:%@, headers: %@.", request,
                 [[NSString alloc] initWithData:request.HTTPBody encoding:NSUTF8StringEncoding],
@@ -255,6 +284,8 @@ NS_ASSUME_NONNULL_END
                               data:data]);
             }
           }] resume];
+  }] then:^id _Nullable(FIRInstallationsURLSessionResponse *response) {
+    return [self validateHTTPResponseStatusCode:response];
   }];
 }
 
@@ -271,6 +302,17 @@ NS_ASSUME_NONNULL_END
     }
     return response;
   }];
+}
+
+- (FBLPromise<FIRInstallationsURLSessionResponse *> *)sendURLRequest:(NSURLRequest *)request {
+  return [FBLPromise attempts:1
+      delay:1
+      condition:^BOOL(NSInteger remainingAttempts, NSError *_Nonnull error) {
+        return [FIRInstallationsErrorUtil isAPIError:error withHTTPCode:500];
+      }
+      retry:^id _Nullable {
+        return [self URLRequestPromise:request];
+      }];
 }
 
 - (NSString *)SDKVersion {

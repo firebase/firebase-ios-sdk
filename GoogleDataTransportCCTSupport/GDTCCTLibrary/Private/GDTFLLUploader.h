@@ -20,6 +20,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+#if !NDEBUG
+/** A notification fired when uploading is complete, detailing the number of events uploaded. */
+extern NSNotificationName const GDTFLLUploadCompleteNotification;
+#endif  // #if !NDEBUG
+
 /** Class capable of uploading events to the CCT backend. */
 @interface GDTFLLUploader : NSObject <GDTCORUploader>
 

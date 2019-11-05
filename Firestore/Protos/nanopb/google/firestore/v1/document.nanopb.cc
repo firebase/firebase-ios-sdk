@@ -33,7 +33,7 @@ const pb_field_t google_firestore_v1_Document_fields[5] = {
     PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, google_firestore_v1_Document, name, name, 0),
     PB_FIELD(  2, MESSAGE , REPEATED, POINTER , OTHER, google_firestore_v1_Document, fields, name, &google_firestore_v1_Document_FieldsEntry_fields),
     PB_FIELD(  3, MESSAGE , SINGULAR, STATIC  , OTHER, google_firestore_v1_Document, create_time, fields, &google_protobuf_Timestamp_fields),
-    PB_FIELD(  4, MESSAGE , SINGULAR, STATIC  , OTHER, google_firestore_v1_Document, update_time, create_time, &google_protobuf_Timestamp_fields),
+    PB_FIELD(  4, MESSAGE , OPTIONAL, STATIC  , OTHER, google_firestore_v1_Document, update_time, create_time, &google_protobuf_Timestamp_fields),
     PB_LAST_FIELD
 };
 

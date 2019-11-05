@@ -205,25 +205,46 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
     [self fetchCheckinInfoWithCompletionHandler:completionHandler];
     return;
   }
-  __weak RCNConfigFetch *weakSelf = self;
   FIRInstanceIDTokenHandler instanceIDHandler = ^(NSString *token, NSError *error) {
-    RCNConfigFetch *instanceIDHandlerSelf = weakSelf;
-    dispatch_async(instanceIDHandlerSelf->_lockQueue, ^{
-      RCNConfigFetch *strongSelf = instanceIDHandlerSelf;
-      if (error) {
-        FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000020",
-                    @"Failed to register InstanceID with error : %@.", error);
-      }
-      if (token) {
-        NSError *IIDError;
-        strongSelf->_settings.configInstanceIDToken = [token copy];
-        strongSelf->_settings.configInstanceID = [instanceID appInstanceID:&IIDError];
-        FIRLogInfo(kFIRLoggerRemoteConfig, @"I-RCN000022", @"Success to get iid : %@.",
-                   strongSelf->_settings.configInstanceID);
-      }
-      // Continue the fetch regardless of whether fetch of instance ID succeeded.
-      [strongSelf fetchCheckinInfoWithCompletionHandler:completionHandler];
-    });
+    if (error) {
+      FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000020",
+                  @"Failed to register InstanceID with error : %@.", error);
+    }
+
+    // If the token is available, try to get the instanceID.
+    __weak RCNConfigFetch *weakSelf = self;
+    if (token) {
+      [instanceID getIDWithHandler:^(NSString *_Nullable identity, NSError *_Nullable error) {
+        RCNConfigFetch *strongSelf = weakSelf;
+
+        // Dispatch to the RC serial queue to update settings on the queue.
+        dispatch_async(strongSelf->_lockQueue, ^{
+          RCNConfigFetch *strongSelfQueue = weakSelf;
+
+          // Update config settings with the IID and token.
+          strongSelfQueue->_settings.configInstanceIDToken = [token copy];
+          strongSelfQueue->_settings.configInstanceID = identity;
+
+          if (identity && !error) {
+            FIRLogInfo(kFIRLoggerRemoteConfig, @"I-RCN000022", @"Success to get iid : %@.",
+                       strongSelfQueue->_settings.configInstanceID);
+          } else {
+            FIRLogWarning(kFIRLoggerRemoteConfig, @"I-RCN000055", @"Error getting iid : %@.",
+                          error);
+          }
+
+          // Continue the fetch regardless of whether fetch of instance ID succeeded.
+          [strongSelfQueue fetchCheckinInfoWithCompletionHandler:completionHandler];
+        });
+      }];
+
+    } else {
+      dispatch_async(self->_lockQueue, ^{
+        RCNConfigFetch *strongSelfQueue = weakSelf;
+        // Continue the fetch regardless of whether fetch of instance ID succeeded.
+        [strongSelfQueue fetchCheckinInfoWithCompletionHandler:completionHandler];
+      });
+    }
   };
   FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000039", @"Starting requesting token.");
   // Note: We expect the GCMSenderID to always be available by the time this request is made.

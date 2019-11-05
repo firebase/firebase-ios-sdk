@@ -207,6 +207,11 @@
   FIRComponentContainer *container = [[FIRComponentContainer alloc] initWithApp:_hostApp
                                                                     registrants:allRegistrants];
   _hostApp.container = container;
+
+  // Instantiate all the components that were eagerly registered now that all other properties are
+  // configured.
+  [container instantiateEagerComponents];
+
   return container;
 }
 

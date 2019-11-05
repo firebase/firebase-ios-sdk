@@ -16,6 +16,8 @@
 
 #import <FirebaseFirestore/FirebaseFirestore.h>
 
+#import <FirebaseCore/FIRApp.h>
+#import <FirebaseCore/FIROptions.h>
 #import <XCTest/XCTest.h>
 
 #include <limits>
@@ -25,6 +27,10 @@
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
+
+#include "Firestore/core/test/firebase/firestore/testutil/app_testing.h"
+
+namespace testutil = firebase::firestore::testutil;
 
 // We have tests for passing nil when nil is not supposed to be allowed. So suppress the warnings.
 #pragma clang diagnostic ignored "-Wnonnull"
@@ -68,6 +74,14 @@
       [FIRFirestore firestoreForApp:nil],
       @"FirebaseApp instance may not be nil. Use FirebaseApp.app() if you'd like to use the "
        "default FirebaseApp instance.");
+}
+
+- (void)testNilProjectIDFails {
+  FIROptions *options = testutil::OptionsForUnitTesting("ignored");
+  options.projectID = nil;
+  FIRApp *app = testutil::AppForUnitTesting(options);
+  FSTAssertThrows([FIRFirestore firestoreForApp:app],
+                  @"FIROptions.projectID must be set to a valid project ID.");
 }
 
 // TODO(b/62410906): Test for firestoreForApp:database: with nil DatabaseID.
@@ -249,21 +263,28 @@
 
 - (void)testWritesWithReservedFieldsFail {
   [self expectWrite:@{@"__baz__" : @1}
-      toFailWithReason:@"Document fields cannot begin and end with __ (found in field __baz__)"];
+      toFailWithReason:@"Invalid data. Document fields cannot begin and end with \"__\" (found in "
+                       @"field __baz__)"];
   [self expectWrite:@{@"foo" : @{@"__baz__" : @1}}
-      toFailWithReason:
-          @"Document fields cannot begin and end with __ (found in field foo.__baz__)"];
+      toFailWithReason:@"Invalid data. Document fields cannot begin and end with \"__\" (found in "
+                       @"field foo.__baz__)"];
   [self expectWrite:@{@"__baz__" : @{@"foo" : @1}}
-      toFailWithReason:@"Document fields cannot begin and end with __ (found in field __baz__)"];
+      toFailWithReason:@"Invalid data. Document fields cannot begin and end with \"__\" (found in "
+                       @"field __baz__)"];
 
   [self expectUpdate:@{@"foo.__baz__" : @1}
-      toFailWithReason:
-          @"Document fields cannot begin and end with __ (found in field foo.__baz__)"];
+      toFailWithReason:@"Invalid data. Document fields cannot begin and end with \"__\" (found in "
+                       @"field foo.__baz__)"];
   [self expectUpdate:@{@"__baz__.foo" : @1}
-      toFailWithReason:
-          @"Document fields cannot begin and end with __ (found in field __baz__.foo)"];
+      toFailWithReason:@"Invalid data. Document fields cannot begin and end with \"__\" (found in "
+                       @"field __baz__.foo)"];
   [self expectUpdate:@{@1 : @1}
       toFailWithReason:@"Dictionary keys in updateData: must be NSStrings or FIRFieldPaths."];
+}
+
+- (void)testWritesMustNotContainEmptyFieldNames {
+  [self expectSet:@{@"" : @"foo"}
+      toFailWithReason:@"Invalid data. Document fields must not be empty (found in field ``)"];
 }
 
 - (void)testSetsWithFieldValueDeleteFail {
@@ -400,10 +421,6 @@
                   @"Invalid Query. Null supports only equality comparisons.");
   FSTAssertThrows([[self collectionRef] queryWhereField:@"a" arrayContains:[NSNull null]],
                   @"Invalid Query. Null supports only equality comparisons.");
-  FSTAssertThrows([[self collectionRef] queryWhereField:@"a" arrayContainsAny:[NSNull null]],
-                  @"Invalid Query. A non-empty array is required for 'arrayContainsAny' filters.");
-  FSTAssertThrows([[self collectionRef] queryWhereField:@"a" arrayContainsAny:[NSNull null]],
-                  @"Invalid Query. A non-empty array is required for 'arrayContainsAny' filters.");
 
   FSTAssertThrows([[self collectionRef] queryWhereField:@"a" isGreaterThan:@(NAN)],
                   @"Invalid Query. NaN supports only equality comparisons.");
@@ -543,12 +560,6 @@
       @"Invalid query. You can't perform arrayContains queries on document ID since document IDs "
        "are not arrays.";
   FSTAssertThrows([collection queryWhereFieldPath:[FIRFieldPath documentID] arrayContains:@1],
-                  reason);
-
-  reason = @"Invalid query. You can't perform arrayContainsAny queries on document ID since "
-           @"document IDs "
-            "are not arrays.";
-  FSTAssertThrows([collection queryWhereFieldPath:[FIRFieldPath documentID] arrayContainsAny:@1],
                   reason);
 }
 

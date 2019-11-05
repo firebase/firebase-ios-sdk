@@ -152,7 +152,9 @@ cc_test(
     comparison_test.cc
     delayed_constructor_test.cc
     hashing_test.cc
+    hashing_test_apple.mm
     iterator_adaptors_test.cc
+    objc_compatibility_apple_test.mm
     ordered_code_test.cc
     status_apple_test.mm
     status_test.cc
@@ -163,9 +165,12 @@ cc_test(
     string_format_test.cc
     string_util_test.cc
     string_win_test.cc
+    to_string_apple_test.mm
+    to_string_test.cc
   DEPENDS
     absl_base
     absl_strings
+    firebase_firestore_model
     firebase_firestore_util
     GMock::GMock
 )

@@ -16,25 +16,31 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/remote_objc_bridge.h"
 
-#include <iomanip>
+#import <Foundation/Foundation.h>
+
 #include <map>
-#include <sstream>
-#include <utility>
-#include <vector>
 
-#import "Firestore/Source/API/FIRFirestore+Internal.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Firestore.pbobjc.h"
 
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_nanopb.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_util.h"
+#include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "grpcpp/support/status.h"
 
 namespace firebase {
 namespace firestore {
 namespace remote {
-namespace bridge {
 
 using core::DatabaseInfo;
 using local::QueryData;
@@ -44,253 +50,246 @@ using model::Mutation;
 using model::MutationResult;
 using model::TargetId;
 using model::SnapshotVersion;
+using nanopb::ByteString;
+using nanopb::ByteStringWriter;
 using nanopb::MakeByteString;
 using nanopb::MakeNSData;
+using nanopb::Message;
+using nanopb::Reader;
+using remote::ByteBufferReader;
+using remote::Serializer;
 using util::MakeString;
 using util::MakeNSError;
 using util::Status;
+using util::StatusOr;
 using util::StringFormat;
 
 namespace {
 
-std::string ToHexString(const grpc::ByteBuffer& buffer) {
-  std::vector<grpc::Slice> slices;
-  grpc::Status status = buffer.Dump(&slices);
-
-  std::stringstream output;
-  // The output will look like "0x00 0x0a"
-  output << std::hex << std::setfill('0') << std::setw(2);
-  for (const auto& slice : slices) {
-    for (uint8_t c : slice) {
-      output << "0x" << static_cast<int>(c) << " ";
-    }
-  }
-
-  return output.str();
-}
-
-NSData* ConvertToNsData(const grpc::ByteBuffer& buffer, NSError** out_error) {
-  std::vector<grpc::Slice> slices;
-  grpc::Status status = buffer.Dump(&slices);
-  if (!status.ok()) {
-    *out_error = MakeNSError(Status{
-        Error::Internal, "Trying to convert an invalid grpc::ByteBuffer"});
-    return nil;
-  }
-
-  if (slices.size() == 1) {
-    return [NSData dataWithBytes:slices.front().begin()
-                          length:slices.front().size()];
-  } else {
-    NSMutableData* data = [NSMutableData dataWithCapacity:buffer.Length()];
-    for (const auto& slice : slices) {
-      [data appendBytes:slice.begin() length:slice.size()];
-    }
-    return data;
-  }
-}
-
-grpc::ByteBuffer ConvertToByteBuffer(NSData* data) {
-  grpc::Slice slice{[data bytes], [data length]};
-  return grpc::ByteBuffer{&slice, 1};
-}
-
-// Note: `StatusOr` cannot be used with ARC-managed objects.
-template <typename Proto>
-Proto* ToProto(const grpc::ByteBuffer& message, Status* out_status) {
-  NSError* error = nil;
-  NSData* data = ConvertToNsData(message, &error);
-  if (!error) {
-    Proto* proto = [Proto parseFromData:data error:&error];
-    if (!error) {
-      *out_status = Status::OK();
-      return proto;
-    }
-  }
-
-  std::string error_description =
-      StringFormat("Unable to parse response from the server.\n"
-                   "Underlying error: %s\n"
-                   "Expected class: %s\n"
-                   "Received value: %s\n",
-                   error, [Proto class], ToHexString(message));
-
-  *out_status = {Error::Internal, error_description};
-  return nil;
+template <typename T, typename U>
+std::string DescribeMessage(const Message<U>& message) {
+  // TODO(b/142276128): implement proper pretty-printing using just Nanopb.
+  // Converting to an Objective-C proto just to be able to call `description` is
+  // a hack.
+  auto bytes = MakeByteString(message);
+  auto ns_data = [NSData dataWithBytes:bytes.data() length:bytes.size()];
+  T* objc_request = [T parseFromData:ns_data error:nil];
+  return util::MakeString([objc_request description]);
 }
 
 }  // namespace
 
-bool IsLoggingEnabled() {
-  return [FIRFirestore isLoggingEnabled];
-}
-
 // WatchStreamSerializer
 
-GCFSListenRequest* WatchStreamSerializer::CreateWatchRequest(
-    const QueryData& query) const {
-  GCFSListenRequest* request = [GCFSListenRequest message];
-  request.database = [serializer_ encodedDatabaseID];
-  request.addTarget = [serializer_ encodedTarget:query];
-  request.labels = [serializer_ encodedListenRequestLabelsForQueryData:query];
-  return request;
+WatchStreamSerializer::WatchStreamSerializer(Serializer serializer)
+    : serializer_{std::move(serializer)} {
 }
 
-GCFSListenRequest* WatchStreamSerializer::CreateUnwatchRequest(
-    TargetId target_id) const {
-  GCFSListenRequest* request = [GCFSListenRequest message];
-  request.database = [serializer_ encodedDatabaseID];
-  request.removeTarget = target_id;
-  return request;
+Message<google_firestore_v1_ListenRequest>
+WatchStreamSerializer::EncodeWatchRequest(const QueryData& query) const {
+  Message<google_firestore_v1_ListenRequest> result;
+
+  result->database = serializer_.EncodeDatabaseName();
+  result->which_target_change =
+      google_firestore_v1_ListenRequest_add_target_tag;
+  result->add_target = serializer_.EncodeTarget(query);
+
+  auto labels = serializer_.EncodeListenRequestLabels(query);
+  if (!labels.empty()) {
+    result->labels_count = nanopb::CheckedSize(labels.size());
+    result->labels = MakeArray<google_firestore_v1_ListenRequest_LabelsEntry>(
+        result->labels_count);
+
+    pb_size_t i = 0;
+    for (const auto& label : labels) {
+      result->labels[i] = label;
+      ++i;
+    }
+  }
+
+  return result;
 }
 
-grpc::ByteBuffer WatchStreamSerializer::ToByteBuffer(
-    GCFSListenRequest* request) {
-  return ConvertToByteBuffer([request data]);
+Message<google_firestore_v1_ListenRequest>
+WatchStreamSerializer::EncodeUnwatchRequest(TargetId target_id) const {
+  Message<google_firestore_v1_ListenRequest> result;
+
+  result->database = serializer_.EncodeDatabaseName();
+  result->which_target_change =
+      google_firestore_v1_ListenRequest_remove_target_tag;
+  result->remove_target = target_id;
+
+  return result;
 }
 
-GCFSListenResponse* WatchStreamSerializer::ParseResponse(
-    const grpc::ByteBuffer& message, Status* out_status) const {
-  return ToProto<GCFSListenResponse>(message, out_status);
+Message<google_firestore_v1_ListenResponse>
+WatchStreamSerializer::ParseResponse(Reader* reader) const {
+  return Message<google_firestore_v1_ListenResponse>::TryParse(reader);
 }
 
-std::unique_ptr<WatchChange> WatchStreamSerializer::ToWatchChange(
-    GCFSListenResponse* proto) const {
-  return [serializer_ decodedWatchChange:proto];
+std::unique_ptr<WatchChange> WatchStreamSerializer::DecodeWatchChange(
+    nanopb::Reader* reader,
+    const google_firestore_v1_ListenResponse& response) const {
+  return serializer_.DecodeWatchChange(reader, response);
 }
 
-SnapshotVersion WatchStreamSerializer::ToSnapshotVersion(
-    GCFSListenResponse* proto) const {
-  return [serializer_ versionFromListenResponse:proto];
+SnapshotVersion WatchStreamSerializer::DecodeSnapshotVersion(
+    nanopb::Reader* reader,
+    const google_firestore_v1_ListenResponse& response) const {
+  return serializer_.DecodeVersionFromListenResponse(reader, response);
 }
 
-NSString* WatchStreamSerializer::Describe(GCFSListenRequest* request) {
-  return [request description];
+std::string WatchStreamSerializer::Describe(
+    const Message<google_firestore_v1_ListenRequest>& request) {
+  return DescribeMessage<GCFSListenRequest>(request);
 }
 
-NSString* WatchStreamSerializer::Describe(GCFSListenResponse* response) {
-  return [response description];
+std::string WatchStreamSerializer::Describe(
+    const Message<google_firestore_v1_ListenResponse>& response) {
+  return DescribeMessage<GCFSListenResponse>(response);
 }
 
 // WriteStreamSerializer
 
-void WriteStreamSerializer::UpdateLastStreamToken(GCFSWriteResponse* proto) {
-  last_stream_token_ = MakeByteString(proto.streamToken);
+WriteStreamSerializer::WriteStreamSerializer(Serializer serializer)
+    : serializer_{std::move(serializer)} {
 }
 
-GCFSWriteRequest* WriteStreamSerializer::CreateHandshake() const {
-  // The initial request cannot contain mutations, but must contain a projectID.
-  GCFSWriteRequest* request = [GCFSWriteRequest message];
-  request.database = [serializer_ encodedDatabaseID];
-  return request;
+Message<google_firestore_v1_WriteRequest>
+WriteStreamSerializer::EncodeHandshake() const {
+  Message<google_firestore_v1_WriteRequest> result;
+
+  // The initial request cannot contain mutations, but must contain a project
+  // ID.
+  result->database = serializer_.EncodeDatabaseName();
+
+  return result;
 }
 
-GCFSWriteRequest* WriteStreamSerializer::CreateWriteMutationsRequest(
-    const std::vector<Mutation>& mutations) const {
-  NSMutableArray<GCFSWrite*>* protos =
-      [NSMutableArray arrayWithCapacity:mutations.size()];
-  for (const Mutation& mutation : mutations) {
-    [protos addObject:[serializer_ encodedMutation:mutation]];
-  };
+Message<google_firestore_v1_WriteRequest>
+WriteStreamSerializer::EncodeWriteMutationsRequest(
+    const std::vector<Mutation>& mutations,
+    const ByteString& last_stream_token) const {
+  Message<google_firestore_v1_WriteRequest> result;
 
-  GCFSWriteRequest* request = [GCFSWriteRequest message];
-  request.writesArray = protos;
-  request.streamToken = MakeNullableNSData(last_stream_token_);
+  if (!mutations.empty()) {
+    result->writes_count = nanopb::CheckedSize(mutations.size());
+    result->writes = MakeArray<google_firestore_v1_Write>(result->writes_count);
 
-  return request;
+    for (pb_size_t i = 0; i != result->writes_count; ++i) {
+      result->writes[i] = serializer_.EncodeMutation(mutations[i]);
+    }
+  }
+
+  result->stream_token = nanopb::CopyBytesArray(last_stream_token.get());
+
+  return result;
 }
 
-grpc::ByteBuffer WriteStreamSerializer::ToByteBuffer(
-    GCFSWriteRequest* request) {
-  return ConvertToByteBuffer([request data]);
+Message<google_firestore_v1_WriteResponse> WriteStreamSerializer::ParseResponse(
+    Reader* reader) const {
+  return Message<google_firestore_v1_WriteResponse>::TryParse(reader);
 }
 
-GCFSWriteResponse* WriteStreamSerializer::ParseResponse(
-    const grpc::ByteBuffer& message, Status* out_status) const {
-  return ToProto<GCFSWriteResponse>(message, out_status);
+SnapshotVersion WriteStreamSerializer::DecodeCommitVersion(
+    nanopb::Reader* reader,
+    const google_firestore_v1_WriteResponse& proto) const {
+  return serializer_.DecodeVersion(reader, proto.commit_time);
 }
 
-model::SnapshotVersion WriteStreamSerializer::ToCommitVersion(
-    GCFSWriteResponse* proto) const {
-  return [serializer_ decodedVersion:proto.commitTime];
-}
+std::vector<MutationResult> WriteStreamSerializer::DecodeMutationResults(
+    nanopb::Reader* reader,
+    const google_firestore_v1_WriteResponse& proto) const {
+  SnapshotVersion commit_version = DecodeCommitVersion(reader, proto);
+  if (!reader->ok()) {
+    return {};
+  }
 
-std::vector<MutationResult> WriteStreamSerializer::ToMutationResults(
-    GCFSWriteResponse* response) const {
-  NSMutableArray<GCFSWriteResult*>* responses = response.writeResultsArray;
+  const google_firestore_v1_WriteResult* writes = proto.write_results;
+  pb_size_t count = proto.write_results_count;
   std::vector<MutationResult> results;
-  results.reserve(responses.count);
+  results.reserve(count);
 
-  const model::SnapshotVersion commitVersion = ToCommitVersion(response);
-  for (GCFSWriteResult* proto in responses) {
-    results.push_back([serializer_ decodedMutationResult:proto
-                                           commitVersion:commitVersion]);
+  for (pb_size_t i = 0; i != count; ++i) {
+    results.push_back(
+        serializer_.DecodeMutationResult(reader, writes[i], commit_version));
   };
+
   return results;
 }
 
-NSString* WriteStreamSerializer::Describe(GCFSWriteRequest* request) {
-  return [request description];
+std::string WriteStreamSerializer::Describe(
+    const Message<google_firestore_v1_WriteRequest>& request) {
+  return DescribeMessage<GCFSWriteRequest>(request);
 }
 
-NSString* WriteStreamSerializer::Describe(GCFSWriteResponse* response) {
-  return [response description];
+std::string WriteStreamSerializer::Describe(
+    const Message<google_firestore_v1_WriteResponse>& response) {
+  return DescribeMessage<GCFSWriteResponse>(response);
 }
 
 // DatastoreSerializer
 
 DatastoreSerializer::DatastoreSerializer(const DatabaseInfo& database_info)
-    : serializer_{[[FSTSerializerBeta alloc]
-          initWithDatabaseID:database_info.database_id()]} {
+    : serializer_{database_info.database_id()} {
 }
 
-GCFSCommitRequest* DatastoreSerializer::CreateCommitRequest(
+Message<google_firestore_v1_CommitRequest>
+DatastoreSerializer::EncodeCommitRequest(
     const std::vector<Mutation>& mutations) const {
-  GCFSCommitRequest* request = [GCFSCommitRequest message];
-  request.database = [serializer_ encodedDatabaseID];
+  Message<google_firestore_v1_CommitRequest> result;
 
-  NSMutableArray<GCFSWrite*>* mutationProtos = [NSMutableArray array];
-  for (const Mutation& mutation : mutations) {
-    [mutationProtos addObject:[serializer_ encodedMutation:mutation]];
+  result->database = serializer_.EncodeDatabaseName();
+
+  if (!mutations.empty()) {
+    result->writes_count = nanopb::CheckedSize(mutations.size());
+    result->writes = MakeArray<google_firestore_v1_Write>(result->writes_count);
+    pb_size_t i = 0;
+    for (const Mutation& mutation : mutations) {
+      result->writes[i] = serializer_.EncodeMutation(mutation);
+      ++i;
+    }
   }
-  request.writesArray = mutationProtos;
 
-  return request;
+  return result;
 }
 
-grpc::ByteBuffer DatastoreSerializer::ToByteBuffer(GCFSCommitRequest* request) {
-  return ConvertToByteBuffer([request data]);
-}
-
-GCFSBatchGetDocumentsRequest* DatastoreSerializer::CreateLookupRequest(
+Message<google_firestore_v1_BatchGetDocumentsRequest>
+DatastoreSerializer::EncodeLookupRequest(
     const std::vector<DocumentKey>& keys) const {
-  GCFSBatchGetDocumentsRequest* request =
-      [GCFSBatchGetDocumentsRequest message];
+  Message<google_firestore_v1_BatchGetDocumentsRequest> result;
 
-  request.database = [serializer_ encodedDatabaseID];
-  for (const DocumentKey& key : keys) {
-    [request.documentsArray addObject:[serializer_ encodedDocumentKey:key]];
+  result->database = serializer_.EncodeDatabaseName();
+  if (!keys.empty()) {
+    result->documents_count = nanopb::CheckedSize(keys.size());
+    result->documents = MakeArray<pb_bytes_array_t*>(result->documents_count);
+    pb_size_t i = 0;
+    for (const DocumentKey& key : keys) {
+      result->documents[i] = serializer_.EncodeKey(key);
+      ++i;
+    }
   }
 
-  return request;
+  return result;
 }
 
-grpc::ByteBuffer DatastoreSerializer::ToByteBuffer(
-    GCFSBatchGetDocumentsRequest* request) {
-  return ConvertToByteBuffer([request data]);
-}
-
-std::vector<MaybeDocument> DatastoreSerializer::MergeLookupResponses(
-    const std::vector<grpc::ByteBuffer>& responses, Status* out_status) const {
+StatusOr<std::vector<model::MaybeDocument>>
+DatastoreSerializer::MergeLookupResponses(
+    const std::vector<grpc::ByteBuffer>& responses) const {
   // Sort by key.
   std::map<DocumentKey, MaybeDocument> results;
 
   for (const auto& response : responses) {
-    auto* proto = ToProto<GCFSBatchGetDocumentsResponse>(response, out_status);
-    if (!out_status->ok()) {
-      return {};
+    ByteBufferReader reader{response};
+    auto message =
+        Message<google_firestore_v1_BatchGetDocumentsResponse>::TryParse(
+            &reader);
+
+    MaybeDocument doc = serializer_.DecodeMaybeDocument(&reader, *message);
+    if (!reader.ok()) {
+      return reader.status();
     }
-    MaybeDocument doc = [serializer_ decodedMaybeDocumentFromBatch:proto];
+
     results[doc.key()] = std::move(doc);
   }
 
@@ -299,15 +298,11 @@ std::vector<MaybeDocument> DatastoreSerializer::MergeLookupResponses(
   for (const auto& kv : results) {
     docs.push_back(kv.second);
   }
-  return docs;
+
+  StatusOr<std::vector<model::MaybeDocument>> result{std::move(docs)};
+  return result;
 }
 
-MaybeDocument DatastoreSerializer::ToMaybeDocument(
-    GCFSBatchGetDocumentsResponse* response) const {
-  return [serializer_ decodedMaybeDocumentFromBatch:response];
-}
-
-}  // namespace bridge
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase

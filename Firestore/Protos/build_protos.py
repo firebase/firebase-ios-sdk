@@ -138,6 +138,12 @@ class NanopbGenerator(object):
         '--extension=.nanopb',
         '--source-extension=.cc',
         '--no-timestamp',
+        # Make sure Nanopb finds the `.options` files. See
+        # https://jpa.kapsi.fi/nanopb/docs/reference.html#defining-the-options-in-a-options-file
+        # "...if your .proto is in a subdirectory, nanopb may have trouble
+        # finding the associated .options file. A workaround is to specify
+        # include path separately to the nanopb plugin"
+        '-I' + self.args.protos_dir,
     ])
     cmd.append('--nanopb_out=%s:%s' % (nanopb_flags, out_dir))
 

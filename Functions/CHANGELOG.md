@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Fix internal analyzer issue with error assignment (#4164).
+
 # v2.4.0
 - [added] Introduce community support for tvOS and macOS (#2506).
 

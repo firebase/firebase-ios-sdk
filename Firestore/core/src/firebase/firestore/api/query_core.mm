@@ -28,6 +28,7 @@
 #include "Firestore/core/src/firebase/firestore/core/firestore_client.h"
 #include "Firestore/core/src/firebase/firestore/core/operator.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
+#include "Firestore/core/src/firebase/firestore/util/exception.h"
 #include "absl/algorithm/container.h"
 
 namespace firebase {
@@ -41,6 +42,8 @@ using core::Direction;
 using core::EventListener;
 using core::FieldFilter;
 using core::Filter;
+using core::IsArrayOperator;
+using core::IsDisjunctiveOperator;
 using core::ListenOptions;
 using core::QueryListener;
 using core::ViewSnapshot;
@@ -50,6 +53,7 @@ using model::FieldValue;
 using model::ResourcePath;
 using util::Status;
 using util::StatusOr;
+using util::ThrowInvalidArgument;
 
 using Operator = Filter::Operator;
 
@@ -322,8 +326,10 @@ void Query::ValidateOrderByField(const FieldPath& orderByField,
 
 void Query::ValidateDisjunctiveFilterElements(
     const model::FieldValue& field_value, core::Filter::Operator op) const {
-  if (field_value.type() != FieldValue::Type::Array ||
-      field_value.array_value().size() == 0) {
+  HARD_ASSERT(
+      field_value.type() == FieldValue::Type::Array,
+      "A FieldValue of Array type is required for disjunctive filters.");
+  if (field_value.array_value().size() == 0) {
     ThrowInvalidArgument("Invalid Query. A non-empty array is required for '%s'"
                          " filters.",
                          Describe(op));

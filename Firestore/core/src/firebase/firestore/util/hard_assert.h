@@ -20,6 +20,7 @@
 #include <string>
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/util/exception.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
 #include "absl/base/optimization.h"
 
@@ -36,9 +37,9 @@
  * @param message The failure message.
  * @param condition The string form of the expression that failed (optional)
  */
-#define INVOKE_INTERNAL_FAIL(...)                                              \
-  firebase::firestore::util::internal::Fail(__FILE__, FIRESTORE_FUNCTION_NAME, \
-                                            __LINE__, __VA_ARGS__)
+#define INVOKE_INTERNAL_FAIL(...)                     \
+  firebase::firestore::util::internal::FailAssertion( \
+      __FILE__, FIRESTORE_FUNCTION_NAME, __LINE__, __VA_ARGS__)
 
 /**
  * Fails the current function if the given condition is false.
@@ -101,48 +102,19 @@
 namespace firebase {
 namespace firestore {
 namespace util {
-
-using FailureHandler = void (*)(const char* file,
-                                const char* func,
-                                const int line,
-                                const std::string& failure_message);
-
-/**
- * Overrides the default failure handler.
- *
- * The default essentially just calls std::terminate. While reasonable for C++,
- * this isn't optimal for platforms that merely use the C++ core as their
- * implementation and would otherwise be expected to throw a platform specific
- * exception.
- *
- * @param callback A function that will handle the failure. This function is
- *     not expected to return. (If it does, std::terminate() will be called
- *     immediately after it does so.)
- * @return A pointer to the previous failure handler.
- */
-FailureHandler SetFailureHandler(FailureHandler callback);
-
-/**
- * Default failure handler. This should typically not be called directly.
- */
-ABSL_ATTRIBUTE_NORETURN void DefaultFailureHandler(const char* file,
-                                                   const char* func,
-                                                   const int line,
-                                                   const std::string& message);
-
 namespace internal {
 
 // A no-return helper function. To raise an assertion, use Macro instead.
-ABSL_ATTRIBUTE_NORETURN void Fail(const char* file,
-                                  const char* func,
-                                  int line,
-                                  const std::string& message);
+ABSL_ATTRIBUTE_NORETURN void FailAssertion(const char* file,
+                                           const char* func,
+                                           int line,
+                                           const std::string& message);
 
-ABSL_ATTRIBUTE_NORETURN void Fail(const char* file,
-                                  const char* func,
-                                  int line,
-                                  const std::string& message,
-                                  const char* condition);
+ABSL_ATTRIBUTE_NORETURN void FailAssertion(const char* file,
+                                           const char* func,
+                                           int line,
+                                           const std::string& message,
+                                           const char* condition);
 
 }  // namespace internal
 }  // namespace util

@@ -17,161 +17,136 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_REMOTE_OBJC_BRIDGE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_REMOTE_OBJC_BRIDGE_H_
 
-#if !defined(__OBJC__)
-#error "This header only supports Objective-C++"
-#endif  // !defined(__OBJC__)
-
-#import <Foundation/Foundation.h>
-
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
+#include "Firestore/Protos/nanopb/google/firestore/v1/firestore.nanopb.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/local/query_data.h"
-#include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
-#include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/message.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
+#include "Firestore/core/src/firebase/firestore/remote/serializer.h"
 #include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
-#include "absl/types/optional.h"
 #include "grpcpp/support/byte_buffer.h"
-
-#import "Firestore/Protos/objc/google/firestore/v1/Firestore.pbobjc.h"
-#import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
 namespace firebase {
 namespace firestore {
+
+namespace model {
+class DocumentKey;
+class MaybeDocument;
+class SnapshotVersion;
+}  // namespace model
+
 namespace remote {
-namespace bridge {
 
-bool IsLoggingEnabled();
+class WatchChange;
 
-/**
- * This file contains operations in remote/ folder that are still delegated to
- * Objective-C: proto parsing and delegates.
- *
- * The principle is that the C++ implementation can only take Objective-C
- * objects as parameters or return them, but never instantiate them or call any
- * methods on them -- if that is necessary, it's delegated to one of the bridge
- * classes. This allows easily identifying which parts of remote/ still rely on
- * not-yet-ported code.
- */
+// TODO(varconst): remove this file?
+//
+// The original purpose of this file was to cleanly encapsulate the remaining
+// Objective-C dependencies of `remote/` folder. These dependencies no longer
+// exist (modulo pretty-printing), and this file makes C++ diverge from other
+// platforms.
+//
+// On the other hand, stream classes are large, and having one easily
+// separatable aspect of their implementation (serialization) refactored out is
+// arguably a good thing. If this file were to stay (in some form, certainly
+// under a different name), other platforms would have to follow suit.
+//
+// Note: return value optimization should make returning Nanopb messages from
+// functions cheap (even though they may be large types that are relatively
+// expensive to copy).
 
-/**
- * A C++ bridge to `FSTSerializerBeta` that allows creating
- * `GCFSListenRequest`s and parsing `GCFSListenResponse`s.
- */
 class WatchStreamSerializer {
  public:
-  explicit WatchStreamSerializer(FSTSerializerBeta* serializer)
-      : serializer_{serializer} {
-  }
+  explicit WatchStreamSerializer(Serializer serializer);
 
-  GCFSListenRequest* CreateWatchRequest(const local::QueryData& query) const;
-  GCFSListenRequest* CreateUnwatchRequest(model::TargetId target_id) const;
-  static grpc::ByteBuffer ToByteBuffer(GCFSListenRequest* request);
+  nanopb::Message<google_firestore_v1_ListenRequest> EncodeWatchRequest(
+      const local::QueryData& query) const;
+  nanopb::Message<google_firestore_v1_ListenRequest> EncodeUnwatchRequest(
+      model::TargetId target_id) const;
 
-  /**
-   * If parsing fails, will return nil and write information on the error to
-   * `out_status`. Otherwise, returns the parsed proto and sets `out_status` to
-   * ok.
-   */
-  GCFSListenResponse* ParseResponse(const grpc::ByteBuffer& message,
-                                    util::Status* out_status) const;
-  std::unique_ptr<WatchChange> ToWatchChange(GCFSListenResponse* proto) const;
-  model::SnapshotVersion ToSnapshotVersion(GCFSListenResponse* proto) const;
+  nanopb::Message<google_firestore_v1_ListenResponse> ParseResponse(
+      nanopb::Reader* reader) const;
+  std::unique_ptr<WatchChange> DecodeWatchChange(
+      nanopb::Reader* reader,
+      const google_firestore_v1_ListenResponse& response) const;
+  model::SnapshotVersion DecodeSnapshotVersion(
+      nanopb::Reader* reader,
+      const google_firestore_v1_ListenResponse& response) const;
 
   /** Creates a pretty-printed description of the proto for debugging. */
-  static NSString* Describe(GCFSListenRequest* request);
-  static NSString* Describe(GCFSListenResponse* request);
+  static std::string Describe(
+      const nanopb::Message<google_firestore_v1_ListenRequest>& request);
+  static std::string Describe(
+      const nanopb::Message<google_firestore_v1_ListenResponse>& response);
 
  private:
-  FSTSerializerBeta* serializer_;
+  Serializer serializer_;
 };
 
-/**
- * A C++ bridge to `FSTSerializerBeta` that allows creating
- * `GCFSWriteRequest`s and parsing `GCFSWriteResponse`s.
- */
 class WriteStreamSerializer {
  public:
-  explicit WriteStreamSerializer(FSTSerializerBeta* serializer)
-      : serializer_{serializer} {
+  explicit WriteStreamSerializer(Serializer serializer);
+
+  nanopb::Message<google_firestore_v1_WriteRequest> EncodeHandshake() const;
+  nanopb::Message<google_firestore_v1_WriteRequest> EncodeWriteMutationsRequest(
+      const std::vector<model::Mutation>& mutations,
+      const nanopb::ByteString& last_stream_token) const;
+  nanopb::Message<google_firestore_v1_WriteRequest> EncodeEmptyMutationsList(
+      const nanopb::ByteString& last_stream_token) const {
+    return EncodeWriteMutationsRequest({}, last_stream_token);
   }
 
-  void UpdateLastStreamToken(GCFSWriteResponse* proto);
-  void SetLastStreamToken(const nanopb::ByteString& token) {
-    last_stream_token_ = token;
-  }
-  nanopb::ByteString GetLastStreamToken() const {
-    return last_stream_token_;
-  }
-
-  GCFSWriteRequest* CreateHandshake() const;
-  GCFSWriteRequest* CreateWriteMutationsRequest(
-      const std::vector<model::Mutation>& mutations) const;
-  GCFSWriteRequest* CreateEmptyMutationsList() {
-    return CreateWriteMutationsRequest({});
-  }
-  static grpc::ByteBuffer ToByteBuffer(GCFSWriteRequest* request);
-
-  /**
-   * If parsing fails, will return nil and write information on the error to
-   * `out_status`. Otherwise, returns the parsed proto and sets `out_status` to
-   * ok.
-   */
-  GCFSWriteResponse* ParseResponse(const grpc::ByteBuffer& message,
-                                   util::Status* out_status) const;
-  model::SnapshotVersion ToCommitVersion(GCFSWriteResponse* proto) const;
-  std::vector<model::MutationResult> ToMutationResults(
-      GCFSWriteResponse* proto) const;
+  nanopb::Message<google_firestore_v1_WriteResponse> ParseResponse(
+      nanopb::Reader* reader) const;
+  model::SnapshotVersion DecodeCommitVersion(
+      nanopb::Reader* reader,
+      const google_firestore_v1_WriteResponse& proto) const;
+  std::vector<model::MutationResult> DecodeMutationResults(
+      nanopb::Reader* reader,
+      const google_firestore_v1_WriteResponse& proto) const;
 
   /** Creates a pretty-printed description of the proto for debugging. */
-  static NSString* Describe(GCFSWriteRequest* request);
-  static NSString* Describe(GCFSWriteResponse* request);
+  static std::string Describe(
+      const nanopb::Message<google_firestore_v1_WriteRequest>& request);
+  static std::string Describe(
+      const nanopb::Message<google_firestore_v1_WriteResponse>& response);
 
  private:
-  FSTSerializerBeta* serializer_;
-  nanopb::ByteString last_stream_token_;
+  Serializer serializer_;
 };
 
-/**
- * A C++ bridge to `FSTSerializerBeta` that allows creating
- * `GCFSCommitRequest`s and `GCFSBatchGetDocumentsRequest`s and handling
- * `GCFSBatchGetDocumentsResponse`s.
- */
 class DatastoreSerializer {
  public:
   explicit DatastoreSerializer(const core::DatabaseInfo& database_info);
 
-  GCFSCommitRequest* CreateCommitRequest(
+  nanopb::Message<google_firestore_v1_CommitRequest> EncodeCommitRequest(
       const std::vector<model::Mutation>& mutations) const;
-  static grpc::ByteBuffer ToByteBuffer(GCFSCommitRequest* request);
 
-  GCFSBatchGetDocumentsRequest* CreateLookupRequest(
-      const std::vector<model::DocumentKey>& keys) const;
-  static grpc::ByteBuffer ToByteBuffer(GCFSBatchGetDocumentsRequest* request);
+  nanopb::Message<google_firestore_v1_BatchGetDocumentsRequest>
+  EncodeLookupRequest(const std::vector<model::DocumentKey>& keys) const;
 
   /**
    * Merges results of the streaming read together. The array is sorted by the
    * document key.
    */
-  std::vector<model::MaybeDocument> MergeLookupResponses(
-      const std::vector<grpc::ByteBuffer>& responses,
-      util::Status* out_status) const;
-  model::MaybeDocument ToMaybeDocument(
-      GCFSBatchGetDocumentsResponse* response) const;
+  util::StatusOr<std::vector<model::MaybeDocument>> MergeLookupResponses(
+      const std::vector<grpc::ByteBuffer>& responses) const;
 
-  FSTSerializerBeta* GetSerializer() {
+  const Serializer& serializer() const {
     return serializer_;
   }
 
  private:
-  FSTSerializerBeta* serializer_;
+  Serializer serializer_;
 };
 
-}  // namespace bridge
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase

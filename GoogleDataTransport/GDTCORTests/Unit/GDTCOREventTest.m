@@ -49,7 +49,7 @@
                                         requiringSecureCoding:YES
                                                         error:nil];
   } else {
-#if !defined(TARGET_OS_MACCATALYST)
+#if !TARGET_OS_MACCATALYST
     archiveData = [NSKeyedArchiver archivedDataWithRootObject:event];
 #endif
   }
@@ -61,7 +61,7 @@
                                                      fromData:archiveData
                                                         error:nil];
   } else {
-#if !defined(TARGET_OS_MACCATALYST)
+#if !TARGET_OS_MACCATALYST
     decodedEvent = [NSKeyedUnarchiver unarchiveObjectWithData:archiveData];
 #endif
   }

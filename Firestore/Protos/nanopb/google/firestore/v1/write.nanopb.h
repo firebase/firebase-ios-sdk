@@ -66,6 +66,7 @@ typedef struct _google_firestore_v1_DocumentChange {
 
 typedef struct _google_firestore_v1_DocumentDelete {
     pb_bytes_array_t *document;
+    bool has_read_time;
     google_protobuf_Timestamp read_time;
     pb_size_t removed_target_ids_count;
     int32_t *removed_target_ids;
@@ -107,12 +108,15 @@ typedef struct _google_firestore_v1_Write {
         pb_bytes_array_t *delete_;
         google_firestore_v1_DocumentTransform transform;
     };
+    bool has_update_mask;
     google_firestore_v1_DocumentMask update_mask;
+    bool has_current_document;
     google_firestore_v1_Precondition current_document;
 /* @@protoc_insertion_point(struct:google_firestore_v1_Write) */
 } google_firestore_v1_Write;
 
 typedef struct _google_firestore_v1_WriteResult {
+    bool has_update_time;
     google_protobuf_Timestamp update_time;
     pb_size_t transform_results_count;
     struct _google_firestore_v1_Value *transform_results;
@@ -122,20 +126,20 @@ typedef struct _google_firestore_v1_WriteResult {
 /* Default values for struct fields */
 
 /* Initializer values for message structs */
-#define google_firestore_v1_Write_init_default   {0, {google_firestore_v1_Document_init_default}, google_firestore_v1_DocumentMask_init_default, google_firestore_v1_Precondition_init_default}
+#define google_firestore_v1_Write_init_default   {0, {google_firestore_v1_Document_init_default}, false, google_firestore_v1_DocumentMask_init_default, false, google_firestore_v1_Precondition_init_default}
 #define google_firestore_v1_DocumentTransform_init_default {NULL, 0, NULL}
 #define google_firestore_v1_DocumentTransform_FieldTransform_init_default {NULL, 0, {_google_firestore_v1_DocumentTransform_FieldTransform_ServerValue_MIN}}
-#define google_firestore_v1_WriteResult_init_default {google_protobuf_Timestamp_init_default, 0, NULL}
+#define google_firestore_v1_WriteResult_init_default {false, google_protobuf_Timestamp_init_default, 0, NULL}
 #define google_firestore_v1_DocumentChange_init_default {google_firestore_v1_Document_init_default, 0, NULL, 0, NULL}
-#define google_firestore_v1_DocumentDelete_init_default {NULL, google_protobuf_Timestamp_init_default, 0, NULL}
+#define google_firestore_v1_DocumentDelete_init_default {NULL, false, google_protobuf_Timestamp_init_default, 0, NULL}
 #define google_firestore_v1_DocumentRemove_init_default {NULL, 0, NULL, google_protobuf_Timestamp_init_default}
 #define google_firestore_v1_ExistenceFilter_init_default {0, 0}
-#define google_firestore_v1_Write_init_zero      {0, {google_firestore_v1_Document_init_zero}, google_firestore_v1_DocumentMask_init_zero, google_firestore_v1_Precondition_init_zero}
+#define google_firestore_v1_Write_init_zero      {0, {google_firestore_v1_Document_init_zero}, false, google_firestore_v1_DocumentMask_init_zero, false, google_firestore_v1_Precondition_init_zero}
 #define google_firestore_v1_DocumentTransform_init_zero {NULL, 0, NULL}
 #define google_firestore_v1_DocumentTransform_FieldTransform_init_zero {NULL, 0, {_google_firestore_v1_DocumentTransform_FieldTransform_ServerValue_MIN}}
-#define google_firestore_v1_WriteResult_init_zero {google_protobuf_Timestamp_init_zero, 0, NULL}
+#define google_firestore_v1_WriteResult_init_zero {false, google_protobuf_Timestamp_init_zero, 0, NULL}
 #define google_firestore_v1_DocumentChange_init_zero {google_firestore_v1_Document_init_zero, 0, NULL, 0, NULL}
-#define google_firestore_v1_DocumentDelete_init_zero {NULL, google_protobuf_Timestamp_init_zero, 0, NULL}
+#define google_firestore_v1_DocumentDelete_init_zero {NULL, false, google_protobuf_Timestamp_init_zero, 0, NULL}
 #define google_firestore_v1_DocumentRemove_init_zero {NULL, 0, NULL, google_protobuf_Timestamp_init_zero}
 #define google_firestore_v1_ExistenceFilter_init_zero {0, 0}
 

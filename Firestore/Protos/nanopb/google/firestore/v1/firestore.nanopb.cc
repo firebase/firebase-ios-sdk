@@ -214,7 +214,7 @@ const pb_field_t google_firestore_v1_Target_QueryTarget_fields[3] = {
 const pb_field_t google_firestore_v1_TargetChange_fields[6] = {
     PB_FIELD(  1, UENUM   , SINGULAR, STATIC  , FIRST, google_firestore_v1_TargetChange, target_change_type, target_change_type, 0),
     PB_FIELD(  2, INT32   , REPEATED, POINTER , OTHER, google_firestore_v1_TargetChange, target_ids, target_change_type, 0),
-    PB_FIELD(  3, MESSAGE , SINGULAR, STATIC  , OTHER, google_firestore_v1_TargetChange, cause, target_ids, &google_rpc_Status_fields),
+    PB_FIELD(  3, MESSAGE , OPTIONAL, STATIC  , OTHER, google_firestore_v1_TargetChange, cause, target_ids, &google_rpc_Status_fields),
     PB_FIELD(  4, BYTES   , SINGULAR, POINTER , OTHER, google_firestore_v1_TargetChange, resume_token, cause, 0),
     PB_FIELD(  6, MESSAGE , SINGULAR, STATIC  , OTHER, google_firestore_v1_TargetChange, read_time, resume_token, &google_protobuf_Timestamp_fields),
     PB_LAST_FIELD

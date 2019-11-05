@@ -162,7 +162,10 @@ gdt_cct_IosClientInfo GDTCCTConstructiOSClientInfo() {
   if (version) {
     iOSClientInfo.application_build = GDTCCTEncodeString(version);
   }
-  iOSClientInfo.country = GDTCCTEncodeString([locale objectForKey:NSLocaleCountryCode]);
+  NSString *countryCode = [locale objectForKey:NSLocaleCountryCode];
+  if (countryCode) {
+    iOSClientInfo.country = GDTCCTEncodeString([locale objectForKey:NSLocaleCountryCode]);
+  }
   iOSClientInfo.model = GDTCCTEncodeString(device.model);
   NSString *languageCode = bundle.preferredLocalizations.firstObject;
   iOSClientInfo.language_code =

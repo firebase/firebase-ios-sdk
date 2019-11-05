@@ -1,7 +1,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'GoogleDataTransportCCTSupport'
-  s.version          = '1.1.0'
+  s.version          = '1.2.1'
   s.summary          = 'Support library for the GoogleDataTransport CCT backend target.'
 
 
@@ -32,7 +32,7 @@ Support library to provide event prioritization and uploading for the GoogleData
 
   s.libraries = ['z']
 
-  s.dependency 'GoogleDataTransport', '~> 2.0'
+  s.dependency 'GoogleDataTransport', '~> 3.0'
   s.dependency 'nanopb', '~> 0.3.901'
 
   header_search_paths = {
@@ -50,6 +50,22 @@ Support library to provide event prioritization and uploading for the GoogleData
       'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',
   }.merge(header_search_paths)
 
+  # Test app specs
+  if ENV['GDT_DEV'] && ENV['GDT_DEV'] == '1' then
+    s.app_spec 'TestApp' do |app_spec|
+      app_spec.source_files = 'GoogleDataTransportCCTSupport/GDTCCTTestApp/**/*.swift'
+      app_spec.ios.resources = ['GoogleDataTransportCCTSupport/GDTCCTTestApp/ios/*.storyboard']
+      app_spec.macos.resources = ['GoogleDataTransportCCTSupport/GDTCCTTestApp/macos/*.storyboard']
+      app_spec.tvos.resources = ['GoogleDataTransportCCTSupport/GDTCCTTestApp/tvos/*.storyboard']
+      app_spec.dependency 'SwiftProtobuf'
+      app_spec.info_plist = {
+        'UILaunchStoryboardName' => 'Main',
+        'UIMainStoryboardFile' => 'Main',
+        'NSMainStoryboardFile' => 'Main'
+      }
+    end
+  end
+
   # Test specs
   s.test_spec 'Tests-Unit' do |test_spec|
     test_spec.requires_app_host = false
@@ -64,6 +80,19 @@ Support library to provide event prioritization and uploading for the GoogleData
     test_spec.source_files = 'GoogleDataTransportCCTSupport/GDTCCTTests/Integration/**/*.{h,m}'
     test_spec.resources = ['GoogleDataTransportCCTSupport/GDTCCTTests/Data/**/*']
     test_spec.pod_target_xcconfig = header_search_paths
+  end
+
+  # Monkey test specs, only enabled for development.
+  if ENV['GDT_DEV'] && ENV['GDT_DEV'] == '1' then
+    s.test_spec 'Tests-Monkey' do |test_spec|
+      test_spec.requires_app_host = true
+      test_spec.app_host_name = 'GoogleDataTransportCCTSupport/TestApp'
+      test_spec.dependency 'GoogleDataTransportCCTSupport/TestApp'
+      test_spec.source_files = ['GoogleDataTransportCCTSupport/GDTCCTTests/Monkey/**/*.{swift}']
+      test_spec.info_plist = {
+        'GDT_MONKEYTEST' => '1'
+      }
+    end
   end
 
 end

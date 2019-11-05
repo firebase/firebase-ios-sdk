@@ -19,66 +19,9 @@ import FirebaseFirestore
 /** Extends FieldValue to conform to Encodable. */
 extension FieldValue: Encodable {
   /// Encoding a FieldValue will throw by default unless the encoder implementation
-  /// explicitly handles it, which is what FirestoreEncoder does.
+  /// explicitly handles it, which is what Firestore.Encoder does.
   public func encode(to encoder: Encoder) throws {
-    throw FirestoreEncodingError.encodingIsNotSupported
-  }
-}
-
-/** Swift enums providing alternatives to direct usages of FieldValue. */
-
-/// Wraps around Timestamp and FieldValue.serverTimestamp to support modeling
-/// timestamps in custom classes.
-///
-/// Example:
-/// struct CustomModel {
-///   var ts: ServerTimestamp
-/// }
-/// Then `CustomModel(ts: .pending)` will tell server to fill `ts` with current
-/// timestamp.
-public enum ServerTimestamp: Codable, Equatable {
-  /// When being read (decoded) from Firestore, NSNull values will be mapped to `pending`.
-  /// When being written (encoded) to Firestore, `pending` means requesting server to
-  /// set timestamp on the field (essentially setting value
-  /// to FieldValue.serverTimestamp()).
-  case pending
-
-  /// When being read (decoded) from Firestore, non-nil Timestamp will be mapped to
-  /// `resolved`.
-  /// When being written (encoded) to Firestore, `resolved(stamp)` will set the field
-  /// value to `stamp`.
-  case resolved(Timestamp)
-
-  /// Returns this value as an `Optional<Timestamp>`.
-  ///
-  /// If the server timestamp is still pending, the returned optional will be `.none`.
-  /// Once resolved, the returned optional will be `.some` with the resolved timestamp.
-  public var timestamp: Timestamp? {
-    switch self {
-    case .pending:
-      return .none
-    case let .resolved(timestamp):
-      return .some(timestamp)
-    }
-  }
-
-  public init(from decoder: Decoder) throws {
-    let container = try decoder.singleValueContainer()
-    if container.decodeNil() {
-      self = .pending
-    } else {
-      let value = try container.decode(Timestamp.self)
-      self = .resolved(value)
-    }
-  }
-
-  public func encode(to encoder: Encoder) throws {
-    var container = encoder.singleValueContainer()
-    switch self {
-    case .pending:
-      try container.encode(FieldValue.serverTimestamp())
-    case let .resolved(value: value):
-      try container.encode(value)
-    }
+    throw FirestoreEncodingError.encodingIsNotSupported(
+      "FieldValue values can only be encoded with Firestore.Encoder")
   }
 }
