@@ -718,6 +718,10 @@ jobs:
       - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=tsan
     - env:
       - PROJECT=GoogleDataTransportIntegrationTest PLATFORM=iOS METHOD=xcodebuild
+    - env:
+      - PROJECT=Messaging METHOD=pod-lib-lint
+    - env:
+      - PROJECT=MessagingCron METHOD=pod-lib-lint
 
   # TODO(varconst): enable if it's possible to make this flag work on build
   # stages. It's supposed to avoid waiting for jobs that are allowed to fail
