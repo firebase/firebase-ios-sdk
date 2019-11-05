@@ -33,7 +33,6 @@
 static int phoneRegistrationErrorRetryCount = 0;
 static const int kMaxPhoneRegistrationErrorRetryCount = 10;
 NSString *const kFIRInstanceIDFirebaseUserAgentKey = @"X-firebase-client";
-NSString *const kFIRInstanceLogType = @"x-firebase-client-log-type";
 
 @implementation FIRInstanceIDTokenFetchOperation
 
