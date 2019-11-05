@@ -74,7 +74,6 @@ static NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test
   _testUtil = [[FIRMessagingTestUtilities alloc] initWithUserDefaults:defaults withRMQManager:NO];
   _mockMessaging = _testUtil.mockMessaging;
   _messaging = _testUtil.messaging;
-
   OCMStub([_mockMessaging defaultFcmToken]).andReturn(kFakeToken);
   
   _mockPubSub = _testUtil.mockPubsub;
@@ -86,11 +85,7 @@ static NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test
 }
 
 - (void)tearDown {
-  [_testUtil stopMockingMessaging];
-  [_mockInstanceID stopMocking];
-  [_mockPubSub stopMocking];
-  [_mockMessaging stopMocking];
-  [_messaging.messagingUserDefaults removePersistentDomainForName:kFIRMessagingTestsServiceSuiteName];
+  [_testUtil cleanupAfterTest];
   _messaging = nil;
   [super tearDown];
 }

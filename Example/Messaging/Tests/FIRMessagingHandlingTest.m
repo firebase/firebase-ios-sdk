@@ -71,21 +71,22 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
       [[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingDefaultsTestDomain];
   _testUtil = [[FIRMessagingTestUtilities alloc] initWithUserDefaults:defaults withRMQManager:YES];
   _mockMessaging = _testUtil.mockMessaging;
+  _mockInstanceID = _testUtil.mockInstanceID;
   _messaging = _testUtil.messaging;
   _mockFirebaseApp = OCMClassMock([FIRApp class]);
    OCMStub([_mockFirebaseApp defaultApp]).andReturn(_mockFirebaseApp);
-  _mockInstanceID = _testUtil.mockInstanceID;
   [[NSUserDefaults standardUserDefaults]
       removePersistentDomainForName:[NSBundle mainBundle].bundleIdentifier];
   _mockMessagingAnalytics = OCMClassMock([FIRMessagingAnalytics class]);
 }
 
 - (void)tearDown {
-  [_testUtil stopMockingMessaging];
+  [_testUtil cleanupAfterTest];
   [_mockMessagingAnalytics stopMocking];
   [_mockMessaging stopMocking];
   [_mockInstanceID stopMocking];
   [_mockFirebaseApp stopMocking];
+  _messaging = nil;
   [super tearDown];
 }
 

@@ -76,9 +76,7 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 }
 
 - (void)tearDown {
-  [_testUtil stopMockingMessaging];
-  [_mockMessaging stopMocking];
-  [_mockInstanceID stopMocking];
+  [_testUtil cleanupAfterTest];
   [_mockFirebaseApp stopMocking];
   _messaging = nil;
   [super tearDown];

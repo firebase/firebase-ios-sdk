@@ -38,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithUserDefaults:(NSUserDefaults *)userDefaults withRMQManager:(BOOL)withRMQManager;
 
-- (void)stopMockingMessaging;
+- (void)cleanupAfterTest;
 
 @end
 

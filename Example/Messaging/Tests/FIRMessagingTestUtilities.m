@@ -89,10 +89,13 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
   return self;
 }
 
-- (void)stopMockingMessaging {
+- (void)cleanupAfterTest {
   [_messaging.rmq2Manager removeDatabase];
   [_messaging.messagingUserDefaults removePersistentDomainForName:kFIRMessagingDefaultsTestDomain];
   _messaging.shouldEstablishDirectChannel = NO;
+  [_mockPubsub stopMocking];
+  [_mockMessaging stopMocking];
+  [_mockInstanceID stopMocking];
 }
 
 @end

@@ -29,10 +29,6 @@
 - (instancetype)initPrivately;
 @end
 
-@interface FIRMessaging (ExposedForTest)
-+ (FIRMessaging *)messagingForTests;
-@end
-
 @interface FIRInstanceIDTest : XCTestCase
 
 @property(nonatomic, readwrite, strong) FIRInstanceID *instanceID;
@@ -56,8 +52,9 @@
 }
 
 - (void)tearDown {
-  self.instanceID = nil;
-  [_testUtil stopMockingMessaging];
+  [_testUtil cleanupAfterTest];
+  _instanceID = nil;
+  _messaging = nil;
   [_mockFirebaseApp stopMocking];
   [super tearDown];
 }
