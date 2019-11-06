@@ -58,6 +58,7 @@ include(cc_rules)
 include(compiler_id)
 include(external_rules)
 include(podspec_rules)
+include(archive_options)
 include(sanitizer_options)
 include(fuzzing_options)
 
