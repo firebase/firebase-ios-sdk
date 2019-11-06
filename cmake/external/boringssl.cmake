@@ -22,10 +22,13 @@ endif()
 # the SOURCE_DIR when unpacking so this must come after grpc despite the fact
 # that grpc logically depends upon this.
 
-# grpc at v1.8.3 includes boringssl at be2ee342d3781ddb954f91f8a7e660c6f59e87e5
+# grpc v1.8.3 includes boringssl at be2ee342d3781ddb954f91f8a7e660c6f59e87e5
 # (2017-02-03). Unfortunately, that boringssl includes a conflicting gtest
 # target that makes it unsuitable for use via add_subdirectory.
-
+#
+# grpc v1.24.3 includes boringssl at b29b21a81b32ec273f118f589f46d56ad3332420
+# (2018-05-22). While this no longer has the conflicting gtest target, it's
+# still woefully out of date.
 set(commit 9638f8fba961a593c064e3036bb580bdace29e8f)  # master@{2019-10-01}
 
 ExternalProject_Add(
