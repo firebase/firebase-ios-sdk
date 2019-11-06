@@ -67,6 +67,8 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
   NSString *_googleAppID;
   /// The user defaults manager scoped to this RC instance of FIRApp and namespace.
   RCNUserDefaultsManager *_userDefaultsManager;
+  /// The timestamp of last eTag update.
+  NSTimeInterval _lastETagUpdateTime;
 }
 @end
 
@@ -111,6 +113,7 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
 }
 
 - (void)setLastETag:(NSString *)lastETag {
+  _lastETagUpdateTime = [[NSDate date] timeIntervalSince1970];
   [_userDefaultsManager setLastETag:lastETag];
 }
 

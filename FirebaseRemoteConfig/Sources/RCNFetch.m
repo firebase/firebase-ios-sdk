@@ -476,8 +476,11 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
                     @"Empty response with no fetched config.");
       }
 
-      // We had a successful fetch. Update the current eTag in settings.
-      self->_settings.lastETag = ((NSHTTPURLResponse *)response).allHeaderFields[kETagHeaderName];
+      // We had a successful fetch. Update the current eTag in settings if different.
+      NSString *latestETag = ((NSHTTPURLResponse *)response).allHeaderFields[kETagHeaderName];
+      if (self->_settings.lastETag && !([self->_settings.lastETag isEqualToString:latestETag])) {
+        self->_settings.lastETag = latestETag;
+      }
 
       [self->_settings updateMetadataWithFetchSuccessStatus:YES];
       return [strongSelf reportCompletionOnHandler:completionHandler
