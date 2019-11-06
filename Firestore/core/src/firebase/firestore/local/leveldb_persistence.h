@@ -60,7 +60,7 @@ class LevelDbPersistence : public Persistence {
    * Finds a suitable directory to serve as the root of all Firestore local
    * storage.
    */
-  static util::Path AppDataDirectory();
+  static util::StatusOr<util::Path> AppDataDirectory();
 
   /**
    * Computes a unique storage directory for the given identifying components of

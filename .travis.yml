@@ -442,7 +442,8 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseAnalyticsInterop.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseAuthInterop.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCoreDiagnosticsInterop.podspec
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInAppMessaging.podspec
+        # Fix analyze (#4163)
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInAppMessaging.podspec --no-analyze
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInAppMessagingDisplay.podspec
 
     - stage: test
@@ -451,7 +452,8 @@ jobs:
       script:
         # Eliminate the one warning from BoringSSL when CocoaPods 1.6.0 is available.
         # The travis_wait is necessary because the command takes more than 10 minutes.
-        - travis_wait 30 ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseFirestore.podspec --platforms=ios --allow-warnings --no-subspecs
+        # Some of the Firestore dependencies fail to analyze.
+        - travis_wait 30 ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseFirestore.podspec --platforms=ios --allow-warnings --no-subspecs --no-analyze
 
     # pod lib lint to check build and warnings for static library build - only on cron jobs
     - stage: test
@@ -459,8 +461,8 @@ jobs:
       env:
         - PROJECT=InAppMessagingCron METHOD=pod-lib-lint
       script:
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseInAppMessaging.podspec --use-libraries
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseInAppMessaging.podspec --use-modular-headers
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseInAppMessaging.podspec --use-libraries --no-analyze
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseInAppMessaging.podspec --use-modular-headers --no-analyze
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseInAppMessagingDisplay.podspec --use-libraries
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseInAppMessagingDisplay.podspec --use-modular-headers
 
@@ -471,7 +473,7 @@ jobs:
       script:
         # TBD - non-portable path warnings
         # The travis_wait is necessary because the command takes more than 10 minutes.
-        - travis_wait 45 ./scripts/pod_lib_lint.rb FirebaseFirestore.podspec --use-libraries --allow-warnings --no-subspecs
+        - travis_wait 45 ./scripts/pod_lib_lint.rb FirebaseFirestore.podspec --use-libraries --allow-warnings --no-subspecs --no-analyze
 
     - stage: test
       env:
@@ -718,6 +720,10 @@ jobs:
       - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=tsan
     - env:
       - PROJECT=GoogleDataTransportIntegrationTest PLATFORM=iOS METHOD=xcodebuild
+    - env:
+      - PROJECT=Messaging METHOD=pod-lib-lint
+    - env:
+      - PROJECT=MessagingCron METHOD=pod-lib-lint
 
   # TODO(varconst): enable if it's possible to make this flag work on build
   # stages. It's supposed to avoid waiting for jobs that are allowed to fail

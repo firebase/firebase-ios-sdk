@@ -151,8 +151,12 @@ void FirestoreClient::Initialize(const User& user, const Settings& settings) {
   // more work) since external write/listen operations could get queued to run
   // before that subsequent work completes.
   if (settings.persistence_enabled()) {
+    auto maybe_data_dir = LevelDbPersistence::AppDataDirectory();
+    HARD_ASSERT(maybe_data_dir.ok(),
+                "Failed to find the App data directory for the current user.");
+
     Path dir = LevelDbPersistence::StorageDirectory(
-        database_info_, LevelDbPersistence::AppDataDirectory());
+        database_info_, maybe_data_dir.ValueOrDie());
 
     Serializer remote_serializer{database_info_.database_id()};
 

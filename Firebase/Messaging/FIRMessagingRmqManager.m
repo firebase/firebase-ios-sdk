@@ -375,7 +375,7 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
                        rmqID];
 
     sqlite3_stmt *stmt;
-    if (sqlite3_prepare_v2(_database, [query UTF8String], -1, &stmt, NULL) != SQLITE_OK) {
+    if (sqlite3_prepare_v2(self->_database, [query UTF8String], -1, &stmt, NULL) != SQLITE_OK) {
       [self logError];
       sqlite3_finalize(stmt);
       return;

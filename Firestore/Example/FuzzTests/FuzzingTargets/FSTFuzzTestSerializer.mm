@@ -20,6 +20,7 @@
 
 #import "Firestore/Example/FuzzTests/FuzzingTargets/FSTFuzzTestSerializer.h"
 
+#include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/message.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
@@ -30,6 +31,7 @@ namespace firestore {
 namespace fuzzing {
 
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::nanopb::Message;
 using firebase::firestore::nanopb::StringReader;
 using firebase::firestore::remote::Serializer;
 
