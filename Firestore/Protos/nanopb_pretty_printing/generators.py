@@ -284,23 +284,18 @@ class FieldPrettyPrintingGenerator:
     """
 
     format_str = '%sresult += %s("%s ",%s%s, indent + 1, %s);\n'
-    maybe_linebreak = ' '
-    args = (
-      _indent(indent_level), function_name, display_name, maybe_linebreak,
-      cc_name,
-      always_print)
+    for maybe_linebreak in [' ', '\n' + _indent(indent_level + 1)]:
+      args = (
+        _indent(indent_level), function_name, display_name, maybe_linebreak,
+        cc_name,
+        always_print)
 
-    result = format_str % args
-    if len(result) <= LINE_WIDTH:
-      return result
+      result = format_str % args
+      # Best-effort attempt to fit within the expected line width.
+      if len(result) <= LINE_WIDTH:
+        break
 
-    # Best-effort attempt to fit within the expected line width.
-    maybe_linebreak = '\n' + _indent(indent_level + 1)
-    args = (
-      _indent(indent_level), function_name, display_name, maybe_linebreak,
-      cc_name,
-      always_print)
-    return format_str % args
+    return result
 
 
 class OneOfPrettyPrintingGenerator(FieldPrettyPrintingGenerator):
@@ -380,17 +375,14 @@ class EnumPrettyPrintingGenerator:
 
     # Best-effort attempt to fit within the expected line width.
     format_str = 'const char* EnumToString(%s%s value);\n'
-    maybe_linebreak = ''
-    args = (maybe_linebreak, self.name)
+    for maybe_linebreak in ['', '\n' + _indent(1)]:
+      args = (maybe_linebreak, self.name)
+      result = format_str % args
+      # Best-effort attempt to fit within the expected line width.
+      if len(result) <= LINE_WIDTH:
+        break
 
-    result = format_str % args
-    if len(result) <= LINE_WIDTH:
-      return result
-
-    # Best-effort attempt to fit within the expected line width.
-    maybe_linebreak = '\n' + _indent(1)
-    args = (maybe_linebreak, self.name)
-    return format_str % args
+    return result
 
   def generate_definition(self):
     """Generates the definition of a `EnumToString()` free function.
