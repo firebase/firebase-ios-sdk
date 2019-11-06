@@ -230,7 +230,7 @@ cc_library(
 
 configure_file(
   config.h.in
-  config.h
+  config.h  # NOLINT(generated)
 )
 
 cc_library(
@@ -252,10 +252,13 @@ cc_library(
     compressed_member.h
     config.h
     delayed_constructor.h
+    empty.h
     error_apple.h
     error_apple.mm
+    equality.h
     hashing.h
     iterator_adaptors.h
+    nullability.h
     ordered_code.cc
     ordered_code.h
     range.h

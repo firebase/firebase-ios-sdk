@@ -17,6 +17,7 @@ cc_library(
   SOURCES
     byte_string.cc
     byte_string.h
+    fields_array.h
     message.cc
     message.h
     nanopb_util.cc

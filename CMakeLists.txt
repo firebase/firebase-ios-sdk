@@ -106,10 +106,7 @@ add_external_subdirectory(benchmark)
 # Force disable Abseil's tests, which don't compile under VS2017.
 set(old_build_testing ${BUILD_TESTING})
 set(ABSL_RUN_TESTS OFF CACHE BOOL "Disable Abseil tests" FORCE)
-add_subdirectory(
-  Firestore/third_party/abseil-cpp
-  EXCLUDE_FROM_ALL
-)
+add_external_subdirectory(abseil-cpp)
 
 
 # gRPC
@@ -208,6 +205,14 @@ target_include_directories(
   $<BUILD_INTERFACE:${FIREBASE_EXTERNAL_SOURCE_DIR}>
   $<BUILD_INTERFACE:${FIREBASE_EXTERNAL_SOURCE_DIR}/nanopb>
 )
+
+
+# XCTest
+if(${CMAKE_VERSION} VERSION_LESS "3.3.0")
+  set(XCTest_FOUND OFF)
+else()
+  find_package(XCTest)
+endif()
 
 
 enable_testing()
