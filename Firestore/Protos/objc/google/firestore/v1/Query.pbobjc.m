@@ -29,15 +29,11 @@
  #import "GPBProtocolBuffers_RuntimeSupport.h"
 #endif
 
-#if GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS
- #import <Protobuf/Wrappers.pbobjc.h>
-#else
- #import "Wrappers.pbobjc.h"
-#endif
+#import <stdatomic.h>
 
- #import "Query.pbobjc.h"
- #import "Annotations.pbobjc.h"
- #import "Document.pbobjc.h"
+#import "Query.pbobjc.h"
+#import "Annotations.pbobjc.h"
+#import "Document.pbobjc.h"
 // @@protoc_insertion_point(imports)
 
 #pragma clang diagnostic push
@@ -178,7 +174,9 @@ typedef struct GCFSStructuredQuery__storage_ {
                                     fieldCount:(uint32_t)(sizeof(fields) / sizeof(GPBMessageFieldDescription))
                                    storageSize:sizeof(GCFSStructuredQuery__storage_)
                                          flags:GPBDescriptorInitializationFlag_None];
-    NSAssert(descriptor == nil, @"Startup recursed!");
+    #if defined(DEBUG) && DEBUG
+      NSAssert(descriptor == nil, @"Startup recursed!");
+    #endif  // DEBUG
     descriptor = localDescriptor;
   }
   return descriptor;
@@ -189,7 +187,7 @@ typedef struct GCFSStructuredQuery__storage_ {
 #pragma mark - Enum GCFSStructuredQuery_Direction
 
 GPBEnumDescriptor *GCFSStructuredQuery_Direction_EnumDescriptor(void) {
-  static GPBEnumDescriptor *descriptor = NULL;
+  static _Atomic(GPBEnumDescriptor*) descriptor = nil;
   if (!descriptor) {
     static const char *valueNames =
         "DirectionUnspecified\000Ascending\000Descendin"
@@ -205,7 +203,8 @@ GPBEnumDescriptor *GCFSStructuredQuery_Direction_EnumDescriptor(void) {
                                            values:values
                                             count:(uint32_t)(sizeof(values) / sizeof(int32_t))
                                      enumVerifier:GCFSStructuredQuery_Direction_IsValidValue];
-    if (!OSAtomicCompareAndSwapPtrBarrier(nil, worker, (void * volatile *)&descriptor)) {
+    GPBEnumDescriptor *expected = nil;
+    if (!atomic_compare_exchange_strong(&descriptor, &expected, worker)) {
       [worker release];
     }
   }
@@ -269,7 +268,9 @@ typedef struct GCFSStructuredQuery_CollectionSelector__storage_ {
                                    storageSize:sizeof(GCFSStructuredQuery_CollectionSelector__storage_)
                                          flags:GPBDescriptorInitializationFlag_None];
     [localDescriptor setupContainingMessageClassName:GPBStringifySymbol(GCFSStructuredQuery)];
-    NSAssert(descriptor == nil, @"Startup recursed!");
+    #if defined(DEBUG) && DEBUG
+      NSAssert(descriptor == nil, @"Startup recursed!");
+    #endif  // DEBUG
     descriptor = localDescriptor;
   }
   return descriptor;
@@ -342,7 +343,9 @@ typedef struct GCFSStructuredQuery_Filter__storage_ {
                            count:(uint32_t)(sizeof(oneofs) / sizeof(char*))
                    firstHasIndex:-1];
     [localDescriptor setupContainingMessageClassName:GPBStringifySymbol(GCFSStructuredQuery)];
-    NSAssert(descriptor == nil, @"Startup recursed!");
+    #if defined(DEBUG) && DEBUG
+      NSAssert(descriptor == nil, @"Startup recursed!");
+    #endif  // DEBUG
     descriptor = localDescriptor;
   }
   return descriptor;
@@ -402,7 +405,9 @@ typedef struct GCFSStructuredQuery_CompositeFilter__storage_ {
                                    storageSize:sizeof(GCFSStructuredQuery_CompositeFilter__storage_)
                                          flags:GPBDescriptorInitializationFlag_None];
     [localDescriptor setupContainingMessageClassName:GPBStringifySymbol(GCFSStructuredQuery)];
-    NSAssert(descriptor == nil, @"Startup recursed!");
+    #if defined(DEBUG) && DEBUG
+      NSAssert(descriptor == nil, @"Startup recursed!");
+    #endif  // DEBUG
     descriptor = localDescriptor;
   }
   return descriptor;
@@ -425,7 +430,7 @@ void SetGCFSStructuredQuery_CompositeFilter_Op_RawValue(GCFSStructuredQuery_Comp
 #pragma mark - Enum GCFSStructuredQuery_CompositeFilter_Operator
 
 GPBEnumDescriptor *GCFSStructuredQuery_CompositeFilter_Operator_EnumDescriptor(void) {
-  static GPBEnumDescriptor *descriptor = NULL;
+  static _Atomic(GPBEnumDescriptor*) descriptor = nil;
   if (!descriptor) {
     static const char *valueNames =
         "OperatorUnspecified\000And\000";
@@ -439,7 +444,8 @@ GPBEnumDescriptor *GCFSStructuredQuery_CompositeFilter_Operator_EnumDescriptor(v
                                            values:values
                                             count:(uint32_t)(sizeof(values) / sizeof(int32_t))
                                      enumVerifier:GCFSStructuredQuery_CompositeFilter_Operator_IsValidValue];
-    if (!OSAtomicCompareAndSwapPtrBarrier(nil, worker, (void * volatile *)&descriptor)) {
+    GPBEnumDescriptor *expected = nil;
+    if (!atomic_compare_exchange_strong(&descriptor, &expected, worker)) {
       [worker release];
     }
   }
@@ -514,7 +520,9 @@ typedef struct GCFSStructuredQuery_FieldFilter__storage_ {
                                    storageSize:sizeof(GCFSStructuredQuery_FieldFilter__storage_)
                                          flags:GPBDescriptorInitializationFlag_None];
     [localDescriptor setupContainingMessageClassName:GPBStringifySymbol(GCFSStructuredQuery)];
-    NSAssert(descriptor == nil, @"Startup recursed!");
+    #if defined(DEBUG) && DEBUG
+      NSAssert(descriptor == nil, @"Startup recursed!");
+    #endif  // DEBUG
     descriptor = localDescriptor;
   }
   return descriptor;
@@ -537,7 +545,7 @@ void SetGCFSStructuredQuery_FieldFilter_Op_RawValue(GCFSStructuredQuery_FieldFil
 #pragma mark - Enum GCFSStructuredQuery_FieldFilter_Operator
 
 GPBEnumDescriptor *GCFSStructuredQuery_FieldFilter_Operator_EnumDescriptor(void) {
-  static GPBEnumDescriptor *descriptor = NULL;
+  static _Atomic(GPBEnumDescriptor*) descriptor = nil;
   if (!descriptor) {
     static const char *valueNames =
         "OperatorUnspecified\000LessThan\000LessThanOrE"
@@ -560,7 +568,8 @@ GPBEnumDescriptor *GCFSStructuredQuery_FieldFilter_Operator_EnumDescriptor(void)
                                            values:values
                                             count:(uint32_t)(sizeof(values) / sizeof(int32_t))
                                      enumVerifier:GCFSStructuredQuery_FieldFilter_Operator_IsValidValue];
-    if (!OSAtomicCompareAndSwapPtrBarrier(nil, worker, (void * volatile *)&descriptor)) {
+    GPBEnumDescriptor *expected = nil;
+    if (!atomic_compare_exchange_strong(&descriptor, &expected, worker)) {
       [worker release];
     }
   }
@@ -638,7 +647,9 @@ typedef struct GCFSStructuredQuery_UnaryFilter__storage_ {
                            count:(uint32_t)(sizeof(oneofs) / sizeof(char*))
                    firstHasIndex:-1];
     [localDescriptor setupContainingMessageClassName:GPBStringifySymbol(GCFSStructuredQuery)];
-    NSAssert(descriptor == nil, @"Startup recursed!");
+    #if defined(DEBUG) && DEBUG
+      NSAssert(descriptor == nil, @"Startup recursed!");
+    #endif  // DEBUG
     descriptor = localDescriptor;
   }
   return descriptor;
@@ -666,7 +677,7 @@ void GCFSStructuredQuery_UnaryFilter_ClearOperandTypeOneOfCase(GCFSStructuredQue
 #pragma mark - Enum GCFSStructuredQuery_UnaryFilter_Operator
 
 GPBEnumDescriptor *GCFSStructuredQuery_UnaryFilter_Operator_EnumDescriptor(void) {
-  static GPBEnumDescriptor *descriptor = NULL;
+  static _Atomic(GPBEnumDescriptor*) descriptor = nil;
   if (!descriptor) {
     static const char *valueNames =
         "OperatorUnspecified\000IsNan\000IsNull\000";
@@ -681,7 +692,8 @@ GPBEnumDescriptor *GCFSStructuredQuery_UnaryFilter_Operator_EnumDescriptor(void)
                                            values:values
                                             count:(uint32_t)(sizeof(values) / sizeof(int32_t))
                                      enumVerifier:GCFSStructuredQuery_UnaryFilter_Operator_IsValidValue];
-    if (!OSAtomicCompareAndSwapPtrBarrier(nil, worker, (void * volatile *)&descriptor)) {
+    GPBEnumDescriptor *expected = nil;
+    if (!atomic_compare_exchange_strong(&descriptor, &expected, worker)) {
       [worker release];
     }
   }
@@ -746,7 +758,9 @@ typedef struct GCFSStructuredQuery_Order__storage_ {
                                    storageSize:sizeof(GCFSStructuredQuery_Order__storage_)
                                          flags:GPBDescriptorInitializationFlag_None];
     [localDescriptor setupContainingMessageClassName:GPBStringifySymbol(GCFSStructuredQuery)];
-    NSAssert(descriptor == nil, @"Startup recursed!");
+    #if defined(DEBUG) && DEBUG
+      NSAssert(descriptor == nil, @"Startup recursed!");
+    #endif  // DEBUG
     descriptor = localDescriptor;
   }
   return descriptor;
@@ -802,7 +816,9 @@ typedef struct GCFSStructuredQuery_FieldReference__storage_ {
                                    storageSize:sizeof(GCFSStructuredQuery_FieldReference__storage_)
                                          flags:GPBDescriptorInitializationFlag_None];
     [localDescriptor setupContainingMessageClassName:GPBStringifySymbol(GCFSStructuredQuery)];
-    NSAssert(descriptor == nil, @"Startup recursed!");
+    #if defined(DEBUG) && DEBUG
+      NSAssert(descriptor == nil, @"Startup recursed!");
+    #endif  // DEBUG
     descriptor = localDescriptor;
   }
   return descriptor;
@@ -846,7 +862,9 @@ typedef struct GCFSStructuredQuery_Projection__storage_ {
                                    storageSize:sizeof(GCFSStructuredQuery_Projection__storage_)
                                          flags:GPBDescriptorInitializationFlag_None];
     [localDescriptor setupContainingMessageClassName:GPBStringifySymbol(GCFSStructuredQuery)];
-    NSAssert(descriptor == nil, @"Startup recursed!");
+    #if defined(DEBUG) && DEBUG
+      NSAssert(descriptor == nil, @"Startup recursed!");
+    #endif  // DEBUG
     descriptor = localDescriptor;
   }
   return descriptor;
@@ -899,7 +917,9 @@ typedef struct GCFSCursor__storage_ {
                                     fieldCount:(uint32_t)(sizeof(fields) / sizeof(GPBMessageFieldDescription))
                                    storageSize:sizeof(GCFSCursor__storage_)
                                          flags:GPBDescriptorInitializationFlag_None];
-    NSAssert(descriptor == nil, @"Startup recursed!");
+    #if defined(DEBUG) && DEBUG
+      NSAssert(descriptor == nil, @"Startup recursed!");
+    #endif  // DEBUG
     descriptor = localDescriptor;
   }
   return descriptor;
