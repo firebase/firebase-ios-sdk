@@ -32,8 +32,7 @@ typedef BOOL (*GULRealOpenURLOptionsIMP)(
     id, SEL, GULApplication *, NSURL *, NSDictionary<NSString *, id> *);
 
 API_AVAILABLE(ios(13.0))
-typedef void (*GULOpenURLContextsIMP)(
-    id, SEL, UIScene *, NSSet<UIOpenURLContext *> *);
+typedef void (*GULOpenURLContextsIMP)(id, SEL, UIScene *, NSSet<UIOpenURLContext *> *);
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wstrict-prototypes"
@@ -299,13 +298,14 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
       if (![GULAppDelegateSwizzler isAppDelegateProxyEnabled]) {
         return;
       } else {
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(handleSceneWillConnectToNotification:)
-                                                     name:UISceneWillConnectNotification
-                                                   object:nil];
+        [[NSNotificationCenter defaultCenter]
+            addObserver:self
+               selector:@selector(handleSceneWillConnectToNotification:)
+                   name:UISceneWillConnectNotification
+                 object:nil];
       }
     }
-#endif // __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+#endif  // __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
   });
 }
 
@@ -699,7 +699,8 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
   }];
 }
 
-+ (void)handleSceneWillConnectToNotification:(NSNotification *)notification API_AVAILABLE(ios(13.0)) {
++ (void)handleSceneWillConnectToNotification:(NSNotification *)notification
+    API_AVAILABLE(ios(13.0)) {
   UIScene *scene = (UIScene *)notification.object;
   [GULAppDelegateSwizzler proxySceneDelegate:scene];
 }
@@ -786,7 +787,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
 #pragma mark - [Donor Methods] UISceneDelegate URL handler
 
 - (void)scene:(UIScene *)scene
-openURLContexts:(NSSet<UIOpenURLContext *> *)URLContexts API_AVAILABLE(ios(13.0)) {
+    openURLContexts:(NSSet<UIOpenURLContext *> *)URLContexts API_AVAILABLE(ios(13.0)) {
   NSLog(@"--------- Swizzler scene open url");
   SEL methodSelector = @selector(scene:openURLContexts:);
   // Call the real implementation if the real App Delegate has any.
@@ -798,13 +799,15 @@ openURLContexts:(NSSet<UIOpenURLContext *> *)URLContexts API_AVAILABLE(ios(13.0)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunguarded-availability"
   [GULAppDelegateSwizzler
-   notifyInterceptorsWithMethodSelector:methodSelector
-   callback:^(id<GULApplicationDelegate> interceptor) {
-    if ([interceptor conformsToProtocol:@protocol(UISceneDelegate)]) {
-      id<UISceneDelegate> sceneInterceptor = (id<UISceneDelegate>)interceptor;
-      [sceneInterceptor scene:scene openURLContexts:URLContexts];
-    }
-  }];
+      notifyInterceptorsWithMethodSelector:methodSelector
+                                  callback:^(id<GULApplicationDelegate> interceptor) {
+                                    if ([interceptor
+                                            conformsToProtocol:@protocol(UISceneDelegate)]) {
+                                      id<UISceneDelegate> sceneInterceptor =
+                                          (id<UISceneDelegate>)interceptor;
+                                      [sceneInterceptor scene:scene openURLContexts:URLContexts];
+                                    }
+                                  }];
 #pragma clang diagnostic pop
 
   if (openURLContextsIMP) {
@@ -1071,7 +1074,7 @@ openURLContexts:(NSSet<UIOpenURLContext *> *)URLContexts API_AVAILABLE(ios(13.0)
   if (NSClassFromString(newClassName)) {
     GULLogError(kGULLoggerSwizzler, NO,
                 [NSString stringWithFormat:@"I-SWZ%06ld",
-                 (long)kGULSwizzlerMessageCodeAppDelegateSwizzling005],
+                                           (long)kGULSwizzlerMessageCodeAppDelegateSwizzling005],
                 @"Cannot create a proxy for App Delegate. Subclass already exists. Original Class: "
                 @"%@, subclass: %@",
                 NSStringFromClass(realClass), newClassName);
@@ -1084,23 +1087,24 @@ openURLContexts:(NSSet<UIOpenURLContext *> *)URLContexts API_AVAILABLE(ios(13.0)
   if (sceneDelegateSubClass == Nil) {
     GULLogError(kGULLoggerSwizzler, NO,
                 [NSString stringWithFormat:@"I-SWZ%06ld",
-                 (long)kGULSwizzlerMessageCodeAppDelegateSwizzling006],
+                                           (long)kGULSwizzlerMessageCodeAppDelegateSwizzling006],
                 @"Cannot create a proxy for App Delegate. Subclass already exists. Original Class: "
                 @"%@, subclass: Nil",
                 NSStringFromClass(realClass));
     return;
   }
 
-  NSMutableDictionary<NSString *, NSValue *> *realImplementationsBySelector = [[NSMutableDictionary alloc] init];
+  NSMutableDictionary<NSString *, NSValue *> *realImplementationsBySelector =
+      [[NSMutableDictionary alloc] init];
 
   // For application:continueUserActivity:restorationHandler:
   SEL openURLContextsSEL = @selector(scene:openURLContexts:);
   [self proxyDestinationSelector:openURLContextsSEL
-implementationsFromSourceSelector:openURLContextsSEL
-                       fromClass:[GULAppDelegateSwizzler class]
-                         toClass:sceneDelegateSubClass
-                       realClass:realClass
-storeDestinationImplementationTo:realImplementationsBySelector];
+      implementationsFromSourceSelector:openURLContextsSEL
+                              fromClass:[GULAppDelegateSwizzler class]
+                                toClass:sceneDelegateSubClass
+                              realClass:realClass
+       storeDestinationImplementationTo:realImplementationsBySelector];
 
   // Store original implementations to a fake property of the original delegate.
   objc_setAssociatedObject(scene.delegate, &kGULRealIMPBySelectorKey,
@@ -1114,7 +1118,7 @@ storeDestinationImplementationTo:realImplementationsBySelector];
   if (class_getInstanceSize(realClass) != class_getInstanceSize(sceneDelegateSubClass)) {
     GULLogError(kGULLoggerSwizzler, NO,
                 [NSString stringWithFormat:@"I-SWZ%06ld",
-                 (long)kGULSwizzlerMessageCodeAppDelegateSwizzling007],
+                                           (long)kGULSwizzlerMessageCodeAppDelegateSwizzling007],
                 @"Cannot create subclass of App Delegate, because the created subclass is not the "
                 @"same size. %@",
                 NSStringFromClass(realClass));
@@ -1127,7 +1131,7 @@ storeDestinationImplementationTo:realImplementationsBySelector];
   if (object_setClass(scene.delegate, sceneDelegateSubClass)) {
     GULLogDebug(kGULLoggerSwizzler, NO,
                 [NSString stringWithFormat:@"I-SWZ%06ld",
-                 (long)kGULSwizzlerMessageCodeAppDelegateSwizzling008],
+                                           (long)kGULSwizzlerMessageCodeAppDelegateSwizzling008],
                 @"Successfully created App Delegate Proxy automatically. To disable the "
                 @"proxy, set the flag %@ to NO (Boolean) in the Info.plist",
                 [GULAppDelegateSwizzler correctAppDelegateProxyKey]);
