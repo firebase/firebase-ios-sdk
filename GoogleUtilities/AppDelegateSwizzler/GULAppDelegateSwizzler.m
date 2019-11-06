@@ -72,9 +72,6 @@ typedef void (^GULAppDelegateInterceptorCallback)(id<GULApplicationDelegate>);
 static char const *const kGULRealIMPBySelectorKey = "GUL_realIMPBySelector";
 static char const *const kGULRealClassKey = "GUL_realClass";
 
-// [className][selectorString][IMP]
-static char const *const kGULSceneDelegateIMPDictKey = "GUL_sceneDelegateIMPDict";
-
 static NSString *const kGULAppDelegateKeyPath = @"delegate";
 
 static GULLoggerService kGULLoggerSwizzler = @"[GoogleUtilities/AppDelegateSwizzler]";
@@ -302,10 +299,6 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
       if (![GULAppDelegateSwizzler isAppDelegateProxyEnabled]) {
         return;
       } else {
-        id<GULApplicationDelegate> appDelegate = [GULAppDelegateSwizzler sharedApplication].delegate;
-        objc_setAssociatedObject(appDelegate, &kGULSceneDelegateIMPDictKey,
-                                 [NSDictionary dictionary], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(handleSceneWillConnectToNotification:)
                                                      name:UISceneWillConnectNotification
@@ -794,11 +787,11 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
 
 - (void)scene:(UIScene *)scene
 openURLContexts:(NSSet<UIOpenURLContext *> *)URLContexts API_AVAILABLE(ios(13.0)) {
+  NSLog(@"--------- Swizzler scene open url");
   SEL methodSelector = @selector(scene:openURLContexts:);
   // Call the real implementation if the real App Delegate has any.
-  id<GULApplicationDelegate> appDelegate = [GULAppDelegateSwizzler sharedApplication].delegate;
-  NSDictionary *sceneDelegateIMPDict = objc_getAssociatedObject(appDelegate, &kGULSceneDelegateIMPDictKey);
-  NSValue *openURLContextsIMPPointer = sceneDelegateIMPDict[NSStringFromClass([scene.delegate class])][NSStringFromSelector(methodSelector)];
+  NSValue *openURLContextsIMPPointer =
+      [GULAppDelegateSwizzler originalImplementationForSelector:methodSelector object:self];
   GULOpenURLContextsIMP openURLContextsIMP = [openURLContextsIMPPointer pointerValue];
 
   // This is needed for the library to be warning free on iOS versions < 9.
@@ -1061,7 +1054,14 @@ openURLContexts:(NSSet<UIOpenURLContext *> *)URLContexts API_AVAILABLE(ios(13.0)
 }
 
 + (void)proxySceneDelegate:(UIScene *)scene API_AVAILABLE(ios(13.0)) {
+  NSLog(@"--------- Swizzler proxy scene delegate");
   Class realClass = [scene.delegate class];
+
+  // Skip proxying if the class has a prefix of kGULAppDelegatePrefix, which means it has been
+  // proxied before.
+  if ([NSStringFromClass(realClass) hasPrefix:kGULAppDelegatePrefix]) {
+    return;
+  }
 
   NSString *classNameWithPrefix =
       [kGULAppDelegatePrefix stringByAppendingString:NSStringFromClass(realClass)];
@@ -1132,11 +1132,6 @@ storeDestinationImplementationTo:realImplementationsBySelector];
                 @"proxy, set the flag %@ to NO (Boolean) in the Info.plist",
                 [GULAppDelegateSwizzler correctAppDelegateProxyKey]);
   }
-
-  // TODO: reassign delegate as app delegate above?
-  id<UISceneDelegate> delegate = scene.delegate;
-  scene.delegate = nil;
-  scene.delegate = delegate;
 }
 
 #pragma mark - Methods to print correct debug logs
