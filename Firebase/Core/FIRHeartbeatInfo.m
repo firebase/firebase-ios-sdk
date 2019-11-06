@@ -11,12 +11,12 @@
 
 @implementation FIRHeartbeatInfo : NSObject
 
-+ (BOOL)getOrUpdateHeartbeat:(NSString *)prefKey {
++ (BOOL)updateIfNeededHeartbeatDateForTag:(NSString *)heartbeatTag {
   @synchronized(self) {
     NSString *const kHeartbeatStorageFile = @"HEARTBEAT_INFO_STORAGE";
     GULHeartbeatDateStorage *dataStorage =
         [[GULHeartbeatDateStorage alloc] initWithFileName:kHeartbeatStorageFile];
-    NSDate *heartbeatTime = [dataStorage heartbeatDateForTag:prefKey];
+    NSDate *heartbeatTime = [dataStorage heartbeatDateForTag:heartbeatTag];
     NSDate *currentDate = [NSDate date];
     if (heartbeatTime != nil) {
       NSTimeInterval secondsBetween = [currentDate timeIntervalSinceDate:heartbeatTime];
@@ -24,26 +24,26 @@
         return false;
       }
     }
-    return [dataStorage setHearbeatDate:currentDate forTag:prefKey];
+    return [dataStorage setHearbeatDate:currentDate forTag:heartbeatTag];
   }
 }
 
-+ (enum FIRHeartbeatInfoCode)getHeartbeatCode:(NSString *)heartbeatTag {
++ (FIRHeartbeatInfoCode)heartbeatCodeForTag:(NSString *)heartbeatTag {
   NSString *globalTag = @"GLOBAL";
-  BOOL isSdkHeartbeatNeeded = [FIRHeartbeatInfo getOrUpdateHeartbeat:heartbeatTag];
-  BOOL isGlobalHeartbeatNeeded = [FIRHeartbeatInfo getOrUpdateHeartbeat:globalTag];
+  BOOL isSdkHeartbeatNeeded = [FIRHeartbeatInfo updateIfNeededHeartbeatDateForTag:heartbeatTag];
+  BOOL isGlobalHeartbeatNeeded = [FIRHeartbeatInfo updateIfNeededHeartbeatDateForTag:globalTag];
   if (!isSdkHeartbeatNeeded && !isGlobalHeartbeatNeeded) {
     // Both sdk and global heartbeat not needed.
-    return FIRHeartbeatInfoCodeNone;
+    return FIRHeartbeatInfoCodeNONE;
   } else if (isSdkHeartbeatNeeded && !isGlobalHeartbeatNeeded) {
     // Only SDK heartbeat needed.
-    return FIRHeartbeatInfoCodeSdk;
+    return FIRHeartbeatInfoCodeSDK;
   } else if (!isSdkHeartbeatNeeded && isGlobalHeartbeatNeeded) {
     // Only global heartbeat needed.
-    return FIRHeartbeatInfoCodeGlobal;
+    return FIRHeartbeatInfoCodeGLOBAL;
   } else {
     // Both sdk and global heartbeat are needed.
-    return FIRHeartbeatInfoCodeCombined;
+    return FIRHeartbeatInfoCodeCOMBINED;
   }
 }
 @end

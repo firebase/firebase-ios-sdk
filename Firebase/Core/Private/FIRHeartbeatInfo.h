@@ -12,13 +12,13 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FIRHeartbeatInfo : NSObject
 
 typedef NS_ENUM(NSInteger, FIRHeartbeatInfoCode) {
-  FIRHeartbeatInfoCodeNone = 0,
-  FIRHeartbeatInfoCodeSdk = 1,
-  FIRHeartbeatInfoCodeGlobal = 2,
-  FIRHeartbeatInfoCodeCombined = 3,
+  FIRHeartbeatInfoCodeNONE = 0,
+  FIRHeartbeatInfoCodeSDK = 1,
+  FIRHeartbeatInfoCodeGLOBAL = 2,
+  FIRHeartbeatInfoCodeCOMBINED = 3,
 };
 
-+ (FIRHeartbeatInfoCode)getHeartbeatCode:(NSString *)heartbeatTag;
++ (FIRHeartbeatInfoCode)heartbeatCodeForTag:(NSString *)heartbeatTag;
 
 @end
 

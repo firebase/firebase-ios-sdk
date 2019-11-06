@@ -33,18 +33,17 @@
   self = [super init];
   if (self) {
     _fileCoordinator = [[NSFileCoordinator alloc] initWithFilePresenter:nil];
-    NSURL *directoryURL = [self directoryPathURL];
-    [self checkAndCreateDirectory:directoryURL];
+    NSURL *directoryURL = [[self class] directoryPathURL];
+    [[self class] checkAndCreateDirectory:directoryURL:_fileCoordinator];
     _fileURL = [directoryURL URLByAppendingPathComponent:fileName];
   }
-
   return self;
 }
 
 /** Returns the URL path of the Application Support folder.
  * @return the URL path of Application Support.
  */
-- (NSURL *)directoryPathURL {
++ (NSURL *)directoryPathURL {
   NSArray<NSString *> *paths =
       NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
   NSArray<NSString *> *components = @[ paths.lastObject, @"Google/FIRApp" ];
@@ -55,18 +54,19 @@
 
 /** Checks and creates a directory for the directory specified by the
  * directory url
- * @param
+ * @param directoryPathURL The path to the directory which needs to be created.
+ * @param fileCoordinator The fileCoordinator object to coordinate writes to the directory.
  */
-- (void)checkAndCreateDirectory:(NSURL *)directoryURL {
-  NSError *error;
++ (void)checkAndCreateDirectory:(NSURL *)directoryPathURL:(NSFileCoordinator *)fileCoordinator {
   NSError *fileCoordinatorError = nil;
-  if (![directoryURL checkResourceIsReachableAndReturnError:&error]) {
-    // If fail creating the Application Support directory, log warning.
-    [self.fileCoordinator
-        coordinateWritingItemAtURL:directoryURL
-                           options:0
-                             error:&fileCoordinatorError
-                        byAccessor:^(NSURL *writingDirectoryURL) {
+  [fileCoordinator
+      coordinateWritingItemAtURL:directoryPathURL
+                         options:0
+                           error:&fileCoordinatorError
+                      byAccessor:^(NSURL *writingDirectoryURL) {
+                        NSError *error;
+                        if (![writingDirectoryURL checkResourceIsReachableAndReturnError:&error]) {
+                          // If fail creating the Application Support directory, log warning.
                           NSError *error;
                           GULLoggerService kGULHeartbeatDateStorage = @"GULHeartbeatDateStorage";
                           if (![[NSFileManager defaultManager]
@@ -77,8 +77,8 @@
                             GULLogWarning(kGULHeartbeatDateStorage, YES, @"I-COR100001",
                                           @"Unable to create internal state storage: %@", error);
                           }
-                        }];
-  }
+                        }
+                      }];
 }
 
 - (nullable NSMutableDictionary *)heartbeatDictionary {
@@ -93,13 +93,13 @@
                         NSData *objectData = [NSData dataWithContentsOfURL:readingFileUrl
                                                                    options:0
                                                                      error:&error];
-                        if (error != nil) {
+                        if (objectData == nil || error != nil) {
                           dict = [NSMutableDictionary dictionary];
                         } else {
                           dict = [GULSecureCoding unarchivedObjectOfClass:NSObject.class
                                                                  fromData:objectData
                                                                     error:&error];
-                          if (error != nil) {
+                          if (dict == nil || error != nil) {
                             dict = [NSMutableDictionary dictionary];
                           }
                         }
