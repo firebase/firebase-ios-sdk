@@ -390,6 +390,7 @@ def nanopb_augment_source(request, pretty_printing_generator):
     #include "Firestore/core/src/firebase/firestore/nanopb/pretty_printing.h"\n\n'))
 
   open_namespace(request)
+  add_using_declarations(request)
 
   for e in pretty_printing_generator.enums:
     request.insert('eof', e.generate_definition())
@@ -400,7 +401,7 @@ def nanopb_augment_source(request, pretty_printing_generator):
 
 
 def open_namespace(request):
-  """Augments a file generation request by opening `f::f` namespace.
+  """Augments a file generation request by opening the `f::f` namespace.
   """
   request.insert('includes', textwrap.dedent('''\
       namespace firebase {
@@ -408,11 +409,22 @@ def open_namespace(request):
 
 
 def close_namespace(request):
-  """Augments a file generation request by opening `f::f` namespace.
+  """Augments a file generation request by closing the `f::f` namespace.
   """
   request.insert('eof', textwrap.dedent('''\
       }  // namespace firestore
       }  // namespace firebase\n\n'''))
+
+
+def add_using_declarations(request):
+  """Augments a file generation request by adding the necessary using declarations.
+  """
+  request.insert('includes', '''\
+using nanopb::PrintEnumField;
+using nanopb::PrintHeader;
+using nanopb::PrintMessageField;
+using nanopb::PrintPrimitiveField;
+using nanopb::PrintTail;\n\n''');
 
 
 if __name__ == '__main__':

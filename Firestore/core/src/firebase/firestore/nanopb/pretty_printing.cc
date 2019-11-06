@@ -22,6 +22,7 @@
 
 namespace firebase {
 namespace firestore {
+namespace nanopb {
 
 namespace internal {
 
@@ -72,5 +73,6 @@ std::string PrintTail(int indent_level) {
   return internal::Indent(indent_level) + '}';
 }
 
+}  // namespace nanopb
 }  // namespace firestore
 }  // namespace firebase
