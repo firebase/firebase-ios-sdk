@@ -133,7 +133,7 @@ class MessagePrettyPrintingGenerator:
 
 
 class FieldPrettyPrintingGenerator:
-  """Generates pretty-printing support for a oneof field.
+  """Generates pretty-printing support for a field.
 
   The generated C++ code will output the field name and value; the output format
   is the proto text format, suitable for parsing. Unset fields are not printed.
@@ -254,7 +254,7 @@ class FieldPrettyPrintingGenerator:
     if self.is_repeated:
       cc_name += '[i]'
 
-    if parent_oneof and not parent_oneof._is_anonymous:
+    if parent_oneof and not parent_oneof.is_anonymous:
       cc_name = parent_oneof.name + '.' + cc_name
 
     return cc_name
@@ -322,7 +322,7 @@ class OneOfPrettyPrintingGenerator(FieldPrettyPrintingGenerator):
     self._full_classname = str(message_desc.name)
 
     self._which = 'which_' + field_desc.name
-    self._is_anonymous = field_desc.anonymous
+    self.is_anonymous = field_desc.anonymous
     self._fields = [FieldPrettyPrintingGenerator(f, message_desc) for f in
                     field_desc.fields]
 
