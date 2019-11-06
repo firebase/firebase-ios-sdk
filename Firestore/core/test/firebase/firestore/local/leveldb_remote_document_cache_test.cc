@@ -81,9 +81,9 @@ std::unique_ptr<Persistence> PersistenceFactory() {
 
 }  // namespace
 
-INSTANTIATE_TEST_CASE_P(LevelDbRemoteDocumentCacheTest,
-                        RemoteDocumentCacheTest,
-                        testing::Values(PersistenceFactory));
+INSTANTIATE_TEST_SUITE_P(LevelDbRemoteDocumentCacheTest,
+                         RemoteDocumentCacheTest,
+                         testing::Values(PersistenceFactory));
 
 }  // namespace local
 }  // namespace firestore

@@ -58,6 +58,7 @@ include(cc_rules)
 include(compiler_id)
 include(external_rules)
 include(podspec_rules)
+include(archive_options)
 include(sanitizer_options)
 include(fuzzing_options)
 
@@ -107,6 +108,16 @@ add_external_subdirectory(benchmark)
 set(old_build_testing ${BUILD_TESTING})
 set(ABSL_RUN_TESTS OFF CACHE BOOL "Disable Abseil tests" FORCE)
 add_external_subdirectory(abseil-cpp)
+
+if(CXX_CLANG)
+  target_compile_options(
+    absl_time_zone
+    PRIVATE
+      -Wno-unused-template
+      -Wno-shadow
+      -Wno-tautological-type-limit-compare
+  )
+endif()
 
 
 # gRPC
