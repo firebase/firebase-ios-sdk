@@ -44,12 +44,16 @@ Pod::Spec.new do |s|
       unit_tests.requires_app_host = true
       unit_tests.dependency 'OCMock'
       unit_tests.dependency 'FirebaseInstanceID', '~> 4.2.0' # The version before FirebaseInstanceID updated to use FirebaseInstallations under the hood.
+      s.pod_target_xcconfig = {
+      'GCC_PREPROCESSOR_DEFINITIONS' =>
+        'FIR_INSTALLATIONS_ALLOWS_INCOMPATIBLE_IID_VERSION=1' # Disable FirebaseInstanceID compatibility assert to test IID migration.
+    }
     end
 
     s.test_spec 'integration' do |int_tests|
       int_tests.source_files = base_dir + 'Tests/Integration/**/*.[mh]'
       int_tests.resources = base_dir + 'Tests/Resources/**/*'
-      s.pod_target_xcconfig = {
+      int_tests.pod_target_xcconfig = {
       'GCC_PREPROCESSOR_DEFINITIONS' =>
         'FIR_INSTALLATIONS_INTEGRATION_TESTS_REQUIRED=1'
     }
