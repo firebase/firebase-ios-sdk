@@ -785,6 +785,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
 #endif  // TARGET_OS_IOS
 
 #pragma mark - [Donor Methods] UISceneDelegate URL handler
+#if TARGET_OS_IOS || TARGET_OS_TV
 
 - (void)scene:(UIScene *)scene
     openURLContexts:(NSSet<UIOpenURLContext *> *)URLContexts API_AVAILABLE(ios(13.0)) {
@@ -814,6 +815,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
     openURLContextsIMP(self, methodSelector, scene, URLContexts);
   }
 }
+#endif  // TARGET_OS_IOS || TARGET_OS_TV
 
 #pragma mark - [Donor Methods] Network overridden handler methods
 
@@ -1097,7 +1099,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
   NSMutableDictionary<NSString *, NSValue *> *realImplementationsBySelector =
       [[NSMutableDictionary alloc] init];
 
-  // For application:continueUserActivity:restorationHandler:
+  // For scene:openURLContexts:
   SEL openURLContextsSEL = @selector(scene:openURLContexts:);
   [self proxyDestinationSelector:openURLContextsSEL
       implementationsFromSourceSelector:openURLContextsSEL
