@@ -282,12 +282,14 @@ static BOOL gRespondsToHandleBackgroundSession;
 
 #pragma mark - Scene Delegate
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
 API_AVAILABLE(ios(13.0))
 @interface GULTestSceneDelegate : NSObject <UISceneDelegate>
 @end
 
 @implementation GULTestSceneDelegate
 @end
+#endif  // __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
 
 @interface GULAppDelegateSwizzlerTest : XCTestCase
 @property(nonatomic, strong) id mockSharedApplication;
@@ -1310,6 +1312,8 @@ API_AVAILABLE(ios(13.0))
   XCTAssertNotEqualObjects([originalAppDelegate class], originalAppDelegateClass);
 }
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+
 - (void)testProxySceneDelegate API_AVAILABLE(ios(13.0)) {
   GULTestSceneDelegate *realSceneDelegate = [[GULTestSceneDelegate alloc] init];
   id mockSharedScene = OCMClassMock([UIScene class]);
@@ -1357,5 +1361,7 @@ API_AVAILABLE(ios(13.0))
   // Make sure that the class isn't changed.
   XCTAssertEqualObjects([realSceneDelegate class], realSceneDelegateClassBefore);
 }
+
+#endif // __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
 
 @end

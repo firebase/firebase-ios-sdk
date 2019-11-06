@@ -50,12 +50,16 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (id<GULApplicationDelegate>)originalDelegate;
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+
 /** ISA Swizzles the given appDelegate as the original app delegate would be.
  *
  *  @param scene The scene whose delegate needs to be isa swizzled. This should conform to the
  *      scene delegate protocol.
  */
 + (void)proxySceneDelegate:(UIScene *)scene API_AVAILABLE(ios(13.0));
+
+#endif  // __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
 
 @end
 
