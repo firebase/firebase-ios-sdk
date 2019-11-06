@@ -265,7 +265,7 @@ add_custom_command(
     protoc
     ${CMAKE_CURRENT_SOURCE_DIR}/build_protos.py
     ${CMAKE_CURRENT_SOURCE_DIR}/nanopb_cpp_generator.py
-    ${CMAKE_CURRENT_SOURCE_DIR}/nanopb_pretty_printing/generators.py
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/pretty_printing.py
     ${NANOPB_PYTHON}
     ${PROTOBUF_PYTHON}
     ${PROTO_FILES}

@@ -30,7 +30,7 @@ import shlex
 import textwrap
 
 from google.protobuf.descriptor_pb2 import FieldDescriptorProto
-from nanopb_pretty_printing import generators as printing
+from lib import pretty_printing as printing
 
 if sys.platform == 'win32':
   import msvcrt  # pylint: disable=g-import-not-at-top
