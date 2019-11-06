@@ -33,9 +33,9 @@ std::unique_ptr<Executor> ExecutorFactory() {
 
 }  // namespace
 
-INSTANTIATE_TEST_CASE_P(AsyncQueueStd,
-                        AsyncQueueTest,
-                        ::testing::Values(ExecutorFactory));
+INSTANTIATE_TEST_SUITE_P(AsyncQueueStd,
+                         AsyncQueueTest,
+                         ::testing::Values(ExecutorFactory));
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase
