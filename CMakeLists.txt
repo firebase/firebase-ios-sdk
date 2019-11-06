@@ -109,6 +109,16 @@ set(old_build_testing ${BUILD_TESTING})
 set(ABSL_RUN_TESTS OFF CACHE BOOL "Disable Abseil tests" FORCE)
 add_external_subdirectory(abseil-cpp)
 
+if(CXX_CLANG)
+  target_compile_options(
+    absl_time_zone
+    PRIVATE
+      -Wno-unused-template
+      -Wno-shadow
+      -Wno-tautological-type-limit-compare
+  )
+endif()
+
 
 # gRPC
 find_package(OpenSSL QUIET)
