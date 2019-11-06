@@ -82,7 +82,7 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 }
 
 -(void)testEmptyNotification {
-  XCTAssertEqualObjects(@(FIRMessagingMessageStatusUnknown), @([_mockMessaging appDidReceiveMessage:@{}].status));
+  XCTAssertEqualObjects(@(FIRMessagingMessageStatusUnknown), @([_testUtil.mockMessaging appDidReceiveMessage:@{}].status));
 }
 
 -(void)testAPNSDisplayNotification {
