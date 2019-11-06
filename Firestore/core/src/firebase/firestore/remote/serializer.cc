@@ -92,6 +92,40 @@ using model::TransformMutation;
 using model::TransformOperation;
 using nanopb::ByteString;
 using nanopb::CheckedSize;
+using nanopb::google_firestore_v1_ArrayValue;
+using nanopb::google_firestore_v1_BatchGetDocumentsResponse;
+using nanopb::google_firestore_v1_Cursor;
+using nanopb::google_firestore_v1_Document;
+using nanopb::google_firestore_v1_Document_FieldsEntry;
+using nanopb::google_firestore_v1_DocumentChange;
+using nanopb::google_firestore_v1_DocumentDelete;
+using nanopb::google_firestore_v1_DocumentMask;
+using nanopb::google_firestore_v1_DocumentRemove;
+using nanopb::google_firestore_v1_DocumentTransform_FieldTransform;
+using nanopb::google_firestore_v1_ExistenceFilter;
+using nanopb::google_firestore_v1_ListenRequest_LabelsEntry;
+using nanopb::google_firestore_v1_ListenResponse;
+using nanopb::google_firestore_v1_MapValue;
+using nanopb::google_firestore_v1_MapValue_FieldsEntry;
+using nanopb::google_firestore_v1_Precondition;
+using nanopb::google_firestore_v1_StructuredQuery;
+using nanopb::google_firestore_v1_StructuredQuery_CollectionSelector;
+using nanopb::google_firestore_v1_StructuredQuery_CompositeFilter;
+using nanopb::google_firestore_v1_StructuredQuery_FieldFilter;
+using nanopb::google_firestore_v1_StructuredQuery_FieldFilter_Operator;
+using nanopb::google_firestore_v1_StructuredQuery_Filter;
+using nanopb::google_firestore_v1_StructuredQuery_Order;
+using nanopb::google_firestore_v1_StructuredQuery_UnaryFilter;
+using nanopb::google_firestore_v1_Target;
+using nanopb::google_firestore_v1_Target_DocumentsTarget;
+using nanopb::google_firestore_v1_Target_QueryTarget;
+using nanopb::google_firestore_v1_TargetChange;
+using nanopb::google_firestore_v1_TargetChange_TargetChangeType;
+using nanopb::google_firestore_v1_Value;
+using nanopb::google_firestore_v1_Write;
+using nanopb::google_firestore_v1_WriteResult;
+using nanopb::google_protobuf_Timestamp;
+using nanopb::google_type_LatLng;
 using nanopb::MakeArray;
 using nanopb::MakeStringView;
 using nanopb::Reader;
@@ -258,7 +292,7 @@ google_firestore_v1_Value Serializer::EncodeFieldValue(
 google_firestore_v1_Value Serializer::EncodeNull() const {
   google_firestore_v1_Value result{};
   result.which_value_type = google_firestore_v1_Value_null_value_tag;
-  result.null_value = google_protobuf_NullValue_NULL_VALUE;
+  result.null_value = nanopb::google_protobuf_NullValue_NULL_VALUE;
   return result;
 }
 
@@ -381,7 +415,7 @@ FieldValue Serializer::DecodeFieldValue(
     Reader* reader, const google_firestore_v1_Value& msg) const {
   switch (msg.which_value_type) {
     case google_firestore_v1_Value_null_value_tag:
-      if (msg.null_value != google_protobuf_NullValue_NULL_VALUE) {
+      if (msg.null_value != nanopb::google_protobuf_NullValue_NULL_VALUE) {
         reader->Fail("Input proto bytes cannot be parsed (invalid null value)");
       }
       return FieldValue::Null();
@@ -783,7 +817,7 @@ Serializer::EncodeFieldTransform(const FieldTransform& field_transform) const {
     case Type::ServerTimestamp:
       proto.which_transform_type =
           google_firestore_v1_DocumentTransform_FieldTransform_set_to_server_value_tag;  // NOLINT
-      proto.set_to_server_value =
+      proto.set_to_server_value = nanopb::
           google_firestore_v1_DocumentTransform_FieldTransform_ServerValue_REQUEST_TIME;  // NOLINT
       return proto;
 
@@ -821,7 +855,8 @@ FieldTransform Serializer::DecodeFieldTransform(
     case google_firestore_v1_DocumentTransform_FieldTransform_set_to_server_value_tag: {  // NOLINT
       HARD_ASSERT(
           proto.set_to_server_value ==
-              google_firestore_v1_DocumentTransform_FieldTransform_ServerValue_REQUEST_TIME,  // NOLINT
+              nanopb::
+                  google_firestore_v1_DocumentTransform_FieldTransform_ServerValue_REQUEST_TIME,  // NOLINT
           "Unknown transform setToServerValue: %s", proto.set_to_server_value);
 
       return FieldTransform(DecodeFieldPath(proto.field_path),
@@ -1046,7 +1081,7 @@ google_firestore_v1_StructuredQuery_Filter Serializer::EncodeFilters(
   google_firestore_v1_StructuredQuery_CompositeFilter& composite =
       result.composite_filter;
   composite.op =
-      google_firestore_v1_StructuredQuery_CompositeFilter_Operator_AND;
+      nanopb::google_firestore_v1_StructuredQuery_CompositeFilter_Operator_AND;
 
   auto count = CheckedSize(filters_count);
   composite.filters_count = count;
@@ -1100,8 +1135,10 @@ google_firestore_v1_StructuredQuery_Filter Serializer::EncodeSingularFilter(
 
       auto op =
           filter.value().is_null()
-              ? google_firestore_v1_StructuredQuery_UnaryFilter_Operator_IS_NULL
-              : google_firestore_v1_StructuredQuery_UnaryFilter_Operator_IS_NAN;
+              ? nanopb::
+                    google_firestore_v1_StructuredQuery_UnaryFilter_Operator_IS_NULL  // NOLINT
+              : nanopb::
+                    google_firestore_v1_StructuredQuery_UnaryFilter_Operator_IS_NAN;  // NOLINT
       result.unary_filter.op = op;
 
       return result;
@@ -1141,11 +1178,13 @@ Filter Serializer::DecodeUnaryFilter(
       FieldPath::FromServerFormat(DecodeString(unary.field.field_path));
 
   switch (unary.op) {
-    case google_firestore_v1_StructuredQuery_UnaryFilter_Operator_IS_NULL:
+    case nanopb::
+        google_firestore_v1_StructuredQuery_UnaryFilter_Operator_IS_NULL:
       return FieldFilter::Create(std::move(field), Filter::Operator::Equal,
                                  FieldValue::Null());
 
-    case google_firestore_v1_StructuredQuery_UnaryFilter_Operator_IS_NAN:
+    case nanopb::
+        google_firestore_v1_StructuredQuery_UnaryFilter_Operator_IS_NAN:
       return FieldFilter::Create(std::move(field), Filter::Operator::Equal,
                                  FieldValue::Nan());
 
@@ -1160,7 +1199,8 @@ FilterList Serializer::DecodeCompositeFilter(
     const google_firestore_v1_StructuredQuery_CompositeFilter& composite)
     const {
   if (composite.op !=
-      google_firestore_v1_StructuredQuery_CompositeFilter_Operator_AND) {
+      nanopb::
+          google_firestore_v1_StructuredQuery_CompositeFilter_Operator_AND) {
     reader->Fail(StringFormat(
         "Only AND-type composite filters are supported, got %s", composite.op));
     return FilterList{};
@@ -1200,28 +1240,36 @@ google_firestore_v1_StructuredQuery_FieldFilter_Operator
 Serializer::EncodeFieldFilterOperator(Filter::Operator op) const {
   switch (op) {
     case Filter::Operator::LessThan:
-      return google_firestore_v1_StructuredQuery_FieldFilter_Operator_LESS_THAN;
+      return nanopb::
+          google_firestore_v1_StructuredQuery_FieldFilter_Operator_LESS_THAN;
 
     case Filter::Operator::LessThanOrEqual:
-      return google_firestore_v1_StructuredQuery_FieldFilter_Operator_LESS_THAN_OR_EQUAL;  // NOLINT
+      return nanopb::
+          google_firestore_v1_StructuredQuery_FieldFilter_Operator_LESS_THAN_OR_EQUAL;  // NOLINT
 
     case Filter::Operator::GreaterThan:
-      return google_firestore_v1_StructuredQuery_FieldFilter_Operator_GREATER_THAN;  // NOLINT
+      return nanopb::
+          google_firestore_v1_StructuredQuery_FieldFilter_Operator_GREATER_THAN;  // NOLINT
 
     case Filter::Operator::GreaterThanOrEqual:
-      return google_firestore_v1_StructuredQuery_FieldFilter_Operator_GREATER_THAN_OR_EQUAL;  // NOLINT
+      return nanopb::
+          google_firestore_v1_StructuredQuery_FieldFilter_Operator_GREATER_THAN_OR_EQUAL;  // NOLINT
 
     case Filter::Operator::Equal:
-      return google_firestore_v1_StructuredQuery_FieldFilter_Operator_EQUAL;
+      return nanopb::
+          google_firestore_v1_StructuredQuery_FieldFilter_Operator_EQUAL;
 
     case Filter::Operator::ArrayContains:
-      return google_firestore_v1_StructuredQuery_FieldFilter_Operator_ARRAY_CONTAINS;  // NOLINT
+      return nanopb::
+          google_firestore_v1_StructuredQuery_FieldFilter_Operator_ARRAY_CONTAINS;  // NOLINT
 
     case Filter::Operator::In:
-      return google_firestore_v1_StructuredQuery_FieldFilter_Operator_IN;
+      return nanopb::
+          google_firestore_v1_StructuredQuery_FieldFilter_Operator_IN;
 
     case Filter::Operator::ArrayContainsAny:
-      return google_firestore_v1_StructuredQuery_FieldFilter_Operator_ARRAY_CONTAINS_ANY;  // NOLINT
+      return nanopb::
+          google_firestore_v1_StructuredQuery_FieldFilter_Operator_ARRAY_CONTAINS_ANY;  // NOLINT
 
     default:
       HARD_FAIL("Unhandled Filter::Operator: %s", op);
@@ -1232,28 +1280,34 @@ Filter::Operator Serializer::DecodeFieldFilterOperator(
     nanopb::Reader* reader,
     google_firestore_v1_StructuredQuery_FieldFilter_Operator op) const {
   switch (op) {
-    case google_firestore_v1_StructuredQuery_FieldFilter_Operator_LESS_THAN:
+    case nanopb::
+        google_firestore_v1_StructuredQuery_FieldFilter_Operator_LESS_THAN:
       return Filter::Operator::LessThan;
 
-    case google_firestore_v1_StructuredQuery_FieldFilter_Operator_LESS_THAN_OR_EQUAL:  // NOLINT
+    case nanopb::
+        google_firestore_v1_StructuredQuery_FieldFilter_Operator_LESS_THAN_OR_EQUAL:  // NOLINT
       return Filter::Operator::LessThanOrEqual;
 
-    case google_firestore_v1_StructuredQuery_FieldFilter_Operator_GREATER_THAN:
+    case nanopb::
+        google_firestore_v1_StructuredQuery_FieldFilter_Operator_GREATER_THAN:
       return Filter::Operator::GreaterThan;
 
-    case google_firestore_v1_StructuredQuery_FieldFilter_Operator_GREATER_THAN_OR_EQUAL:  // NOLINT
+    case nanopb::
+        google_firestore_v1_StructuredQuery_FieldFilter_Operator_GREATER_THAN_OR_EQUAL:  // NOLINT
       return Filter::Operator::GreaterThanOrEqual;
 
-    case google_firestore_v1_StructuredQuery_FieldFilter_Operator_EQUAL:
+    case nanopb::google_firestore_v1_StructuredQuery_FieldFilter_Operator_EQUAL:
       return Filter::Operator::Equal;
 
-    case google_firestore_v1_StructuredQuery_FieldFilter_Operator_ARRAY_CONTAINS:  // NOLINT
+    case nanopb::
+        google_firestore_v1_StructuredQuery_FieldFilter_Operator_ARRAY_CONTAINS:  // NOLINT
       return Filter::Operator::ArrayContains;
 
-    case google_firestore_v1_StructuredQuery_FieldFilter_Operator_IN:
+    case nanopb::google_firestore_v1_StructuredQuery_FieldFilter_Operator_IN:
       return Filter::Operator::In;
 
-    case google_firestore_v1_StructuredQuery_FieldFilter_Operator_ARRAY_CONTAINS_ANY:  // NOLINT
+    case nanopb::
+        google_firestore_v1_StructuredQuery_FieldFilter_Operator_ARRAY_CONTAINS_ANY:  // NOLINT
       return Filter::Operator::ArrayContainsAny;
 
     default:
@@ -1272,9 +1326,10 @@ google_firestore_v1_StructuredQuery_Order* Serializer::EncodeOrderBys(
     auto& encoded_order = result[i];
 
     encoded_order.field.field_path = EncodeFieldPath(order.field());
-    auto dir = order.ascending()
-                   ? google_firestore_v1_StructuredQuery_Direction_ASCENDING
-                   : google_firestore_v1_StructuredQuery_Direction_DESCENDING;
+    auto dir =
+        order.ascending()
+            ? nanopb::google_firestore_v1_StructuredQuery_Direction_ASCENDING
+            : nanopb::google_firestore_v1_StructuredQuery_Direction_DESCENDING;
     encoded_order.direction = dir;
 
     ++i;
@@ -1305,11 +1360,11 @@ OrderBy Serializer::DecodeOrderBy(
 
   Direction direction;
   switch (order_by.direction) {
-    case google_firestore_v1_StructuredQuery_Direction_ASCENDING:
+    case nanopb::google_firestore_v1_StructuredQuery_Direction_ASCENDING:
       direction = Direction::Ascending;
       break;
 
-    case google_firestore_v1_StructuredQuery_Direction_DESCENDING:
+    case nanopb::google_firestore_v1_StructuredQuery_Direction_DESCENDING:
       direction = Direction::Descending;
       break;
 
@@ -1595,15 +1650,15 @@ WatchTargetChangeState Serializer::DecodeTargetChangeState(
     nanopb::Reader* reader,
     const google_firestore_v1_TargetChange_TargetChangeType state) {
   switch (state) {
-    case google_firestore_v1_TargetChange_TargetChangeType_NO_CHANGE:
+    case nanopb::google_firestore_v1_TargetChange_TargetChangeType_NO_CHANGE:
       return WatchTargetChangeState::NoChange;
-    case google_firestore_v1_TargetChange_TargetChangeType_ADD:
+    case nanopb::google_firestore_v1_TargetChange_TargetChangeType_ADD:
       return WatchTargetChangeState::Added;
-    case google_firestore_v1_TargetChange_TargetChangeType_REMOVE:
+    case nanopb::google_firestore_v1_TargetChange_TargetChangeType_REMOVE:
       return WatchTargetChangeState::Removed;
-    case google_firestore_v1_TargetChange_TargetChangeType_CURRENT:
+    case nanopb::google_firestore_v1_TargetChange_TargetChangeType_CURRENT:
       return WatchTargetChangeState::Current;
-    case google_firestore_v1_TargetChange_TargetChangeType_RESET:
+    case nanopb::google_firestore_v1_TargetChange_TargetChangeType_RESET:
       return WatchTargetChangeState::Reset;
   }
   UNREACHABLE();

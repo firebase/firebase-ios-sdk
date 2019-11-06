@@ -23,6 +23,7 @@
 
 namespace firebase {
 namespace firestore {
+namespace nanopb {
 
 /* @@protoc_insertion_point(includes) */
 #if PB_PROTO_HEADER_VERSION != 30
@@ -234,6 +235,7 @@ std::string google_firestore_v1_MapValue_FieldsEntry::ToString(int indent) const
     return header + result + tail;
 }
 
+}  // namespace nanopb
 }  // namespace firestore
 }  // namespace firebase
 

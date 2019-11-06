@@ -46,14 +46,14 @@ class LevelDbQueryCache : public QueryCache {
    *
    * TODO(gsoltis): remove this method once fully ported to transactions.
    */
-  static nanopb::Message<firestore_client_TargetGlobal> ReadMetadata(
+  static nanopb::Message<nanopb::firestore_client_TargetGlobal> ReadMetadata(
       leveldb::DB* db);
 
   /**
    * Test-only -- same as `ReadMetadata`, but returns an empty optional if the
    * metadata row doesn't exist.
    */
-  static absl::optional<nanopb::Message<firestore_client_TargetGlobal>>
+  static absl::optional<nanopb::Message<nanopb::firestore_client_TargetGlobal>>
   TryReadMetadata(leveldb::DB* db);
 
   /**
@@ -141,7 +141,7 @@ class LevelDbQueryCache : public QueryCache {
   LocalSerializer* serializer_ = nullptr;
 
   /** A write-through cached copy of the metadata for the query cache. */
-  nanopb::Message<firestore_client_TargetGlobal> metadata_;
+  nanopb::Message<nanopb::firestore_client_TargetGlobal> metadata_;
 
   model::SnapshotVersion last_remote_snapshot_version_;
 };

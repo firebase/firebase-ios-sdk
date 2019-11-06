@@ -66,19 +66,19 @@ class WatchStreamSerializer {
  public:
   explicit WatchStreamSerializer(Serializer serializer);
 
-  nanopb::Message<google_firestore_v1_ListenRequest> EncodeWatchRequest(
+  nanopb::Message<nanopb::google_firestore_v1_ListenRequest> EncodeWatchRequest(
       const local::QueryData& query) const;
-  nanopb::Message<google_firestore_v1_ListenRequest> EncodeUnwatchRequest(
-      model::TargetId target_id) const;
+  nanopb::Message<nanopb::google_firestore_v1_ListenRequest>
+  EncodeUnwatchRequest(model::TargetId target_id) const;
 
-  nanopb::Message<google_firestore_v1_ListenResponse> ParseResponse(
+  nanopb::Message<nanopb::google_firestore_v1_ListenResponse> ParseResponse(
       nanopb::Reader* reader) const;
   std::unique_ptr<WatchChange> DecodeWatchChange(
       nanopb::Reader* reader,
-      const google_firestore_v1_ListenResponse& response) const;
+      const nanopb::google_firestore_v1_ListenResponse& response) const;
   model::SnapshotVersion DecodeSnapshotVersion(
       nanopb::Reader* reader,
-      const google_firestore_v1_ListenResponse& response) const;
+      const nanopb::google_firestore_v1_ListenResponse& response) const;
 
  private:
   Serializer serializer_;
@@ -88,23 +88,25 @@ class WriteStreamSerializer {
  public:
   explicit WriteStreamSerializer(Serializer serializer);
 
-  nanopb::Message<google_firestore_v1_WriteRequest> EncodeHandshake() const;
-  nanopb::Message<google_firestore_v1_WriteRequest> EncodeWriteMutationsRequest(
+  nanopb::Message<nanopb::google_firestore_v1_WriteRequest> EncodeHandshake()
+      const;
+  nanopb::Message<nanopb::google_firestore_v1_WriteRequest>
+  EncodeWriteMutationsRequest(
       const std::vector<model::Mutation>& mutations,
       const nanopb::ByteString& last_stream_token) const;
-  nanopb::Message<google_firestore_v1_WriteRequest> EncodeEmptyMutationsList(
-      const nanopb::ByteString& last_stream_token) const {
+  nanopb::Message<nanopb::google_firestore_v1_WriteRequest>
+  EncodeEmptyMutationsList(const nanopb::ByteString& last_stream_token) const {
     return EncodeWriteMutationsRequest({}, last_stream_token);
   }
 
-  nanopb::Message<google_firestore_v1_WriteResponse> ParseResponse(
+  nanopb::Message<nanopb::google_firestore_v1_WriteResponse> ParseResponse(
       nanopb::Reader* reader) const;
   model::SnapshotVersion DecodeCommitVersion(
       nanopb::Reader* reader,
-      const google_firestore_v1_WriteResponse& proto) const;
+      const nanopb::google_firestore_v1_WriteResponse& proto) const;
   std::vector<model::MutationResult> DecodeMutationResults(
       nanopb::Reader* reader,
-      const google_firestore_v1_WriteResponse& proto) const;
+      const nanopb::google_firestore_v1_WriteResponse& proto) const;
 
  private:
   Serializer serializer_;
@@ -114,10 +116,10 @@ class DatastoreSerializer {
  public:
   explicit DatastoreSerializer(const core::DatabaseInfo& database_info);
 
-  nanopb::Message<google_firestore_v1_CommitRequest> EncodeCommitRequest(
-      const std::vector<model::Mutation>& mutations) const;
+  nanopb::Message<nanopb::google_firestore_v1_CommitRequest>
+  EncodeCommitRequest(const std::vector<model::Mutation>& mutations) const;
 
-  nanopb::Message<google_firestore_v1_BatchGetDocumentsRequest>
+  nanopb::Message<nanopb::google_firestore_v1_BatchGetDocumentsRequest>
   EncodeLookupRequest(const std::vector<model::DocumentKey>& keys) const;
 
   /**

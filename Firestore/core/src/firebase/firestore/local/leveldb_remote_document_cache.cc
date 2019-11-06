@@ -43,6 +43,7 @@ using model::MaybeDocument;
 using model::MaybeDocumentMap;
 using model::OptionalMaybeDocumentMap;
 using nanopb::ByteString;
+using nanopb::firestore_client_MaybeDocument;
 using nanopb::Message;
 using nanopb::StringReader;
 

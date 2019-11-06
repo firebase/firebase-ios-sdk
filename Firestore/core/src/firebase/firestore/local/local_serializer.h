@@ -68,7 +68,7 @@ class LocalSerializer {
    * @brief Encodes a MaybeDocument model to the equivalent nanopb proto for
    * local storage.
    */
-  nanopb::Message<firestore_client_MaybeDocument> EncodeMaybeDocument(
+  nanopb::Message<nanopb::firestore_client_MaybeDocument> EncodeMaybeDocument(
       const model::MaybeDocument& maybe_doc) const;
 
   /**
@@ -77,13 +77,13 @@ class LocalSerializer {
    */
   model::MaybeDocument DecodeMaybeDocument(
       nanopb::Reader* reader,
-      const firestore_client_MaybeDocument& proto) const;
+      const nanopb::firestore_client_MaybeDocument& proto) const;
 
   /**
    * @brief Encodes a QueryData to the equivalent nanopb proto, representing a
    * ::firestore::proto::Target, for local storage.
    */
-  nanopb::Message<firestore_client_Target> EncodeQueryData(
+  nanopb::Message<nanopb::firestore_client_Target> EncodeQueryData(
       const QueryData& query_data) const;
 
   /**
@@ -91,13 +91,13 @@ class LocalSerializer {
    * to the equivalent QueryData.
    */
   QueryData DecodeQueryData(nanopb::Reader* reader,
-                            const firestore_client_Target& proto) const;
+                            const nanopb::firestore_client_Target& proto) const;
 
   /**
    * @brief Encodes a MutationBatch to the equivalent nanopb proto, representing
    * a ::firestore::client::WriteBatch, for local storage in the mutation queue.
    */
-  nanopb::Message<firestore_client_WriteBatch> EncodeMutationBatch(
+  nanopb::Message<nanopb::firestore_client_WriteBatch> EncodeMutationBatch(
       const model::MutationBatch& mutation_batch) const;
 
   /**
@@ -105,13 +105,15 @@ class LocalSerializer {
    * ::firestore::client::WriteBatch proto to the equivalent MutationBatch.
    */
   model::MutationBatch DecodeMutationBatch(
-      nanopb::Reader* reader, const firestore_client_WriteBatch& proto) const;
+      nanopb::Reader* reader,
+      const nanopb::firestore_client_WriteBatch& proto) const;
 
-  google_protobuf_Timestamp EncodeVersion(
+  nanopb::google_protobuf_Timestamp EncodeVersion(
       const model::SnapshotVersion& version) const;
 
   model::SnapshotVersion DecodeVersion(
-      nanopb::Reader* reader, const google_protobuf_Timestamp& proto) const;
+      nanopb::Reader* reader,
+      const nanopb::google_protobuf_Timestamp& proto) const;
 
  private:
   /**
@@ -119,24 +121,27 @@ class LocalSerializer {
    * serializer for Documents in that it preserves the updateTime, which is
    * considered an output only value by the server.
    */
-  google_firestore_v1_Document EncodeDocument(const model::Document& doc) const;
+  nanopb::google_firestore_v1_Document EncodeDocument(
+      const model::Document& doc) const;
 
-  model::Document DecodeDocument(nanopb::Reader* reader,
-                                 const google_firestore_v1_Document& proto,
-                                 bool has_committed_mutations) const;
+  model::Document DecodeDocument(
+      nanopb::Reader* reader,
+      const nanopb::google_firestore_v1_Document& proto,
+      bool has_committed_mutations) const;
 
-  firestore_client_NoDocument EncodeNoDocument(
+  nanopb::firestore_client_NoDocument EncodeNoDocument(
       const model::NoDocument& no_doc) const;
 
-  model::NoDocument DecodeNoDocument(nanopb::Reader* reader,
-                                     const firestore_client_NoDocument& proto,
-                                     bool has_committed_mutations) const;
+  model::NoDocument DecodeNoDocument(
+      nanopb::Reader* reader,
+      const nanopb::firestore_client_NoDocument& proto,
+      bool has_committed_mutations) const;
 
-  firestore_client_UnknownDocument EncodeUnknownDocument(
+  nanopb::firestore_client_UnknownDocument EncodeUnknownDocument(
       const model::UnknownDocument& unknown_doc) const;
   model::UnknownDocument DecodeUnknownDocument(
       nanopb::Reader* reader,
-      const firestore_client_UnknownDocument& proto) const;
+      const nanopb::firestore_client_UnknownDocument& proto) const;
 
   remote::Serializer rpc_serializer_;
 };

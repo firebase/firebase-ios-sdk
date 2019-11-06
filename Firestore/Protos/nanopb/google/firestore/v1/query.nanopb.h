@@ -31,6 +31,7 @@
 
 namespace firebase {
 namespace firestore {
+namespace nanopb {
 
 /* @@protoc_insertion_point(includes) */
 #if PB_PROTO_HEADER_VERSION != 30
@@ -270,6 +271,7 @@ const char* EnumToString(
     google_firestore_v1_StructuredQuery_FieldFilter_Operator value);
 const char* EnumToString(
     google_firestore_v1_StructuredQuery_UnaryFilter_Operator value);
+}  // namespace nanopb
 }  // namespace firestore
 }  // namespace firebase
 

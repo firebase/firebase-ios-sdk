@@ -33,6 +33,7 @@ using auth::CredentialsProvider;
 using auth::Token;
 using model::Mutation;
 using nanopb::ByteString;
+using nanopb::google_firestore_v1_WriteResponse;
 using nanopb::Message;
 using remote::ByteBufferReader;
 using util::AsyncQueue;

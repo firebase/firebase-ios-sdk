@@ -359,7 +359,7 @@ def nanopb_fixup(file_contents):
 def nanopb_augment_header(request, pretty_printing_generator):
   """Augments a `.h` file generation request with pretty-printing support.
 
-  Also puts all code in `firebase::firestore` namespace.
+  Also puts all code in `firebase::firestore::nanopb` namespace.
   Args:
     request: The file generation request; must be a request to generate a header
       file.
@@ -380,7 +380,7 @@ def nanopb_augment_header(request, pretty_printing_generator):
 def nanopb_augment_source(request, pretty_printing_generator):
   """Augments a `.cc` file generation request with pretty-printing support.
 
-  Also puts all code in `firebase::firestore` namespace.
+  Also puts all code in `firebase::firestore::nanopb` namespace.
   Args:
     request: The file generation request; must be a request to generate a source
       file.
@@ -400,17 +400,19 @@ def nanopb_augment_source(request, pretty_printing_generator):
 
 
 def open_namespace(request):
-  """Augments a file generation request by opening `f::f` namespace.
+  """Augments a file generation request by opening the `f::f::nanopb` namespace.
   """
   request.insert('includes', textwrap.dedent('''\
       namespace firebase {
-      namespace firestore {\n\n'''))
+      namespace firestore {
+      namespace nanopb {\n\n'''))
 
 
 def close_namespace(request):
-  """Augments a file generation request by opening `f::f` namespace.
+  """Augments a file generation request by closing the `f::f::nanopb` namespace.
   """
   request.insert('eof', textwrap.dedent('''\
+      }  // namespace nanopb
       }  // namespace firestore
       }  // namespace firebase\n\n'''))
 
