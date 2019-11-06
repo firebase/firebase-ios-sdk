@@ -156,7 +156,7 @@ class FieldPrettyPrintingGenerator:
     self.name = field_desc.name
     self.tag = field_desc.tag
 
-    self.is_optional = field_desc.rules == 'OPTIONAL' and field_desc.allocation == 'STATIC'
+    self.is_optional = (field_desc.rules == 'OPTIONAL' and field_desc.allocation == 'STATIC')
     self.is_repeated = field_desc.rules == 'REPEATED'
     self.is_primitive = field_desc.pbtype != 'MESSAGE'
     self.is_enum = field_desc.pbtype in ['ENUM', 'UENUM']

@@ -274,22 +274,23 @@ def nanopb_write(results, pretty_printing_generators):
     base_filename = result['headername'].replace('.nanopb.h', '')
     pretty_printing_generator = pretty_printing_generators[base_filename]
 
-    header_request = FileGenerationRequest(response.file, result['headername'],
+    generated_header = GeneratedFile(response.file, result['headername'],
                                            nanopb_fixup(result['headerdata']))
-    nanopb_augment_header(header_request, pretty_printing_generator)
+    nanopb_augment_header(generated_header, pretty_printing_generator)
 
-    source_request = FileGenerationRequest(response.file, result['sourcename'],
+    generated_source = GeneratedFile(response.file, result['sourcename'],
                                            nanopb_fixup(result['sourcedata']))
-    nanopb_augment_source(source_request, pretty_printing_generator)
+    nanopb_augment_source(generated_source, pretty_printing_generator)
 
   return response
 
 
-class FileGenerationRequest:
+class GeneratedFile:
   """Represents a request to generate a file.
 
   The initial contents of the file can be augmented by inserting extra text at
-  insertion points. For each file, Nanopb defines the following insertion points:
+  insertion points. For each file, Nanopb defines the following insertion
+  points (each marked `@@protoc_insertion_point`):
 
   - 'includes' -- beginning of the file, after the last Nanopb include;
   - 'eof' -- the very end of file, right before the include guard.
@@ -304,12 +305,11 @@ class FileGenerationRequest:
   def __init__(self, files, file_name, contents):
     """
     Args:
-      files: The array of files to generate inside a `CodeGenerationRequest`.
+      files: The array of files to generate inside a `CodeGenerationResponse`.
         New files will be added to it.
       file_name: The name of the file to generate/augment.
       contents: The initial contents of the file, before any augmentation, as
         a single string.
-
     """
     self.files = files
     self.file_name = file_name
@@ -330,7 +330,8 @@ class FileGenerationRequest:
       insertion_point: The string identifier of the insertion point, e.g. 'eof'.
         The extra text will be inserted right before the insertion point. If
         `insert` is called repeatedly, insertions will be added in the order of
-        the calls.
+        the calls. All possible insertion points are defined by Nanopb; see the
+        class comment for additional details.
       to_insert: The text to insert as a string.
     """
     f = self.files.add()
