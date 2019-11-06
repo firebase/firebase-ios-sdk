@@ -23,7 +23,6 @@
 
 namespace firebase {
 namespace firestore {
-namespace nanopb {
 
 /* @@protoc_insertion_point(includes) */
 #if PB_PROTO_HEADER_VERSION != 30
@@ -61,7 +60,6 @@ std::string google_type_LatLng::ToString(int indent) const {
     }
 }
 
-}  // namespace nanopb
 }  // namespace firestore
 }  // namespace firebase
 

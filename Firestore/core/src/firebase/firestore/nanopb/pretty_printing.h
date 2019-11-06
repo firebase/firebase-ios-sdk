@@ -26,7 +26,6 @@
 
 namespace firebase {
 namespace firestore {
-namespace nanopb {
 
 namespace internal {
 
@@ -120,7 +119,6 @@ std::string PrintHeader(int indent_level,
 // This just outputs a closing brace.
 std::string PrintTail(int indent_level);
 
-}  // namespace nanopb
 }  // namespace firestore
 }  // namespace firebase
 

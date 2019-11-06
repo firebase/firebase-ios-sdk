@@ -91,11 +91,6 @@ inline const pb_field_t* FieldsArray<google_firestore_v1_CommitResponse>() {
 }
 
 template <>
-inline const pb_field_t* FieldsArray<google_firestore_v1_Document>() {
-  return google_firestore_v1_Document_fields;
-}
-
-template <>
 inline const pb_field_t* FieldsArray<google_firestore_v1_ListenRequest>() {
   return google_firestore_v1_ListenRequest_fields;
 }
@@ -105,14 +100,10 @@ inline const pb_field_t* FieldsArray<google_firestore_v1_ListenResponse>() {
   return google_firestore_v1_ListenResponse_fields;
 }
 
+// For tests only.
 template <>
 inline const pb_field_t* FieldsArray<google_firestore_v1_RunQueryRequest>() {
-  return google_firestore_v1_ListenResponse_fields;
-}
-
-template <>
-inline const pb_field_t* FieldsArray<google_firestore_v1_Target>() {
-  return google_firestore_v1_Target_fields;
+  return google_firestore_v1_RunQueryRequest_fields;
 }
 
 template <>

@@ -44,8 +44,6 @@ using model::ListenSequenceNumber;
 using model::SnapshotVersion;
 using model::TargetId;
 using nanopb::ByteString;
-using nanopb::firestore_client_Target;
-using nanopb::firestore_client_TargetGlobal;
 using nanopb::Message;
 using nanopb::StringReader;
 using util::MakeString;

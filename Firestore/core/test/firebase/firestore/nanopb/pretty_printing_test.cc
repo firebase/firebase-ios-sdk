@@ -256,3 +256,4 @@ TEST(PrettyPrintingTest, PrintsEmptyMessageIfRoot) {
 }  //  namespace nanopb
 }  //  namespace firestore
 }  //  namespace firebase
+

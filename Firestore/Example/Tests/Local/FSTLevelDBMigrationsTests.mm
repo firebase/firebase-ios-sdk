@@ -37,7 +37,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 using firebase::firestore::Error;
-using firebase::firestore::nanopb::firestore_client_TargetGlobal;
+using firebase::firestore::firestore_client_TargetGlobal;
 using firebase::firestore::local::LevelDbCollectionParentKey;
 using firebase::firestore::local::LevelDbDir;
 using firebase::firestore::local::LevelDbDocumentMutationKey;

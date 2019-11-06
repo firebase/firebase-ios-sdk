@@ -40,8 +40,6 @@ using leveldb::Status;
 using leveldb::WriteOptions;
 using model::DocumentKey;
 using model::ResourcePath;
-using nanopb::firestore_client_MutationQueue;
-using nanopb::firestore_client_TargetGlobal;
 using nanopb::Message;
 using nanopb::StringReader;
 using nanopb::Writer;
@@ -117,7 +115,7 @@ void ClearQueryCache(leveldb::DB* db) {
   firestore_client_TargetGlobal target_global{};
 
   nanopb::StringWriter writer;
-  writer.Write(nanopb::firestore_client_TargetGlobal_fields, &target_global);
+  writer.Write(firestore_client_TargetGlobal_fields, &target_global);
   transaction.Put(LevelDbTargetGlobalKey::Key(), writer.Release());
 
   SaveVersion(3, &transaction);

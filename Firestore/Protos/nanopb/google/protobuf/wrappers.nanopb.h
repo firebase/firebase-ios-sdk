@@ -25,7 +25,6 @@
 
 namespace firebase {
 namespace firestore {
-namespace nanopb {
 
 /* @@protoc_insertion_point(includes) */
 #if PB_PROTO_HEADER_VERSION != 30
@@ -160,7 +159,6 @@ extern const pb_field_t google_protobuf_BytesValue_fields[2];
 
 #endif
 
-}  // namespace nanopb
 }  // namespace firestore
 }  // namespace firebase
 

@@ -23,7 +23,6 @@
 
 namespace firebase {
 namespace firestore {
-namespace nanopb {
 
 /* @@protoc_insertion_point(includes) */
 #if PB_PROTO_HEADER_VERSION != 30
@@ -40,7 +39,6 @@ namespace nanopb {
 #endif
 
 
-}  // namespace nanopb
 }  // namespace firestore
 }  // namespace firebase
 

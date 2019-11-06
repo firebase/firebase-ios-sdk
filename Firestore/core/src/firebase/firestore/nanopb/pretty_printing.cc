@@ -22,7 +22,6 @@
 
 namespace firebase {
 namespace firestore {
-namespace nanopb {
 
 namespace internal {
 
@@ -31,7 +30,7 @@ std::string Indent(int level, int indent_width) {
 }
 
 std::string ToString(pb_bytes_array_t* value) {
-  return absl::StrCat("\"", ByteString(value).ToString(), "\"");
+  return absl::StrCat("\"", nanopb::ByteString(value).ToString(), "\"");
 }
 
 std::string ToString(bool value) {
@@ -73,6 +72,5 @@ std::string PrintTail(int indent_level) {
   return internal::Indent(indent_level) + '}';
 }
 
-}  // namespace nanopb
 }  // namespace firestore
 }  // namespace firebase

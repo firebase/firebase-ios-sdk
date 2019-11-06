@@ -109,7 +109,7 @@ class LevelDbMutationQueue : public MutationQueue {
   }
 
   /** Parses the MutationQueue metadata from the given LevelDB row contents. */
-  nanopb::Message<nanopb::firestore_client_MutationQueue> MetadataForKey(
+  nanopb::Message<firestore_client_MutationQueue> MetadataForKey(
       const std::string& key);
 
   model::MutationBatch ParseMutationBatch(absl::string_view encoded);
@@ -138,7 +138,7 @@ class LevelDbMutationQueue : public MutationQueue {
   /**
    * A write-through cache copy of the metadata describing the current queue.
    */
-  nanopb::Message<nanopb::firestore_client_MutationQueue> metadata_;
+  nanopb::Message<firestore_client_MutationQueue> metadata_;
 };
 
 }  // namespace local

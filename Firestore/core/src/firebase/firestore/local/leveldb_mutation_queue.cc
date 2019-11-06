@@ -49,8 +49,6 @@ using model::Mutation;
 using model::MutationBatch;
 using model::ResourcePath;
 using nanopb::ByteString;
-using nanopb::firestore_client_MutationQueue;
-using nanopb::firestore_client_WriteBatch;
 using nanopb::Message;
 using nanopb::StringReader;
 

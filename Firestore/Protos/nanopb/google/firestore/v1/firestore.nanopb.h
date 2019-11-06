@@ -41,7 +41,6 @@
 
 namespace firebase {
 namespace firestore {
-namespace nanopb {
 
 /* @@protoc_insertion_point(includes) */
 #if PB_PROTO_HEADER_VERSION != 30
@@ -589,7 +588,6 @@ extern const pb_field_t google_firestore_v1_ListCollectionIdsResponse_fields[3];
 
 const char* EnumToString(
     google_firestore_v1_TargetChange_TargetChangeType value);
-}  // namespace nanopb
 }  // namespace firestore
 }  // namespace firebase
 

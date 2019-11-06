@@ -27,7 +27,6 @@
 
 namespace firebase {
 namespace firestore {
-namespace nanopb {
 
 /* @@protoc_insertion_point(includes) */
 #if PB_PROTO_HEADER_VERSION != 30
@@ -39,7 +38,6 @@ namespace nanopb {
 /* Extension field google_api_http was skipped because only "optional"
    type of extension fields is currently supported. */
 
-}  // namespace nanopb
 }  // namespace firestore
 }  // namespace firebase
 
