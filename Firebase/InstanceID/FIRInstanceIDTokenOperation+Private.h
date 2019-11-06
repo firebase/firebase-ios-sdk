@@ -42,9 +42,9 @@ NS_ASSUME_NONNULL_BEGIN
                     instanceID:(NSString *)instanceID;
 
 #pragma mark - Request Construction
-+ (NSMutableURLRequest *)requestWithAuthHeader:(NSString *)authHeaderString;
 + (NSMutableArray<FIRInstanceIDURLQueryItem *> *)standardQueryItemsWithDeviceID:(NSString *)deviceID
                                                                           scope:(NSString *)scope;
+- (NSMutableURLRequest *)tokenRequest;
 - (NSArray<FIRInstanceIDURLQueryItem *> *)queryItemsWithInstanceID:(NSString *)instanceID;
 
 #pragma mark - HTTP Headers
@@ -60,6 +60,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)finishWithResult:(FIRInstanceIDTokenOperationResult)result
                    token:(nullable NSString *)token
                    error:(nullable NSError *)error;
+
+#pragma mark - Methods to override
+- (void)performTokenOperation;
 
 @end
 
