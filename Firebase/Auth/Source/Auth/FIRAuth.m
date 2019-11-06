@@ -1388,7 +1388,6 @@ didReceiveRemoteNotification:(NSDictionary *)userInfo {
   });
   return result;
 }
-#endif
 
 #pragma mark - UISceneDelegate
 
@@ -1398,6 +1397,7 @@ didReceiveRemoteNotification:(NSDictionary *)userInfo {
     [self canHandleURL:url];
   }
 }
+#endif
 
 #pragma mark - Internal Methods
 
