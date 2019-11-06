@@ -59,7 +59,7 @@
   [super tearDown];
 }
 
-- (void)DISABLE_testFCMAutoInitEnabled {
+- (void)testFCMAutoInitEnabled {
   OCMStub([_mockFirebaseApp isDataCollectionDefaultEnabled]).andReturn(YES);
   _messaging.autoInitEnabled = YES;
   XCTAssertTrue(
