@@ -122,14 +122,6 @@ LevelDbPersistence::LevelDbPersistence(std::unique_ptr<leveldb::DB> db,
 
 // MARK: - Storage location
 
-#if !defined(__APPLE__)
-
-Path LevelDbPersistence::AppDataDirectory() {
-#error "This does not yet support non-Apple platforms."
-}
-
-#endif  // !defined(__APPLE__)
-
 util::Path LevelDbPersistence::StorageDirectory(
     const core::DatabaseInfo& database_info, const util::Path& documents_dir) {
   // Use two different path formats:
@@ -197,7 +189,12 @@ LevelDbTransaction* LevelDbPersistence::current_transaction() {
 
 util::Status LevelDbPersistence::ClearPersistence(
     const core::DatabaseInfo& database_info) {
-  Path leveldb_dir = StorageDirectory(database_info, AppDataDirectory());
+  const StatusOr<Path>& maybe_data_dir = AppDataDirectory();
+  HARD_ASSERT(maybe_data_dir.ok(),
+              "Failed to find the App data directory for the current user.");
+
+  Path leveldb_dir =
+      StorageDirectory(database_info, maybe_data_dir.ValueOrDie());
   LOG_DEBUG("Clearing persistence for path: %s", leveldb_dir.ToUtf8String());
   return util::RecursivelyDelete(leveldb_dir);
 }

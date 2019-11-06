@@ -23,6 +23,7 @@ set(
   CACHE PATH "Where to store downloaded files"
 )
 
+include(abseil-cpp)
 include(benchmark)
 include(googletest)
 include(grpc)

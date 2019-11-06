@@ -48,15 +48,7 @@ static const uint64_t kMinFreeDiskSpaceInMB = 1;
 }
 
 - (void)removeExpiredSyncMessages {
-  NSError *error;
-  int deleteCount = [self.rmqManager deleteExpiredOrFinishedSyncMessages:&error];
-  if (error) {
-    FIRMessagingLoggerError(kFIRMessagingMessageCodeSyncMessageManager000,
-                            @"Error while deleting expired sync messages %@", error);
-  } else if (deleteCount > 0) {
-    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeSyncMessageManager001,
-                            @"Successfully deleted %d sync messages from store", deleteCount);
-  }
+  [self.rmqManager deleteExpiredOrFinishedSyncMessages];
 }
 
 - (BOOL)didReceiveAPNSSyncMessage:(NSDictionary *)message {
@@ -80,7 +72,6 @@ static const uint64_t kMinFreeDiskSpaceInMB = 1;
   FIRMessagingPersistentSyncMessage *persistentMessage =
       [self.rmqManager querySyncMessageWithRmqID:rmqID];
 
-  NSError *error;
   if (!persistentMessage) {
 
     // Do not persist the new message if we don't have enough disk space
@@ -90,43 +81,24 @@ static const uint64_t kMinFreeDiskSpaceInMB = 1;
     }
 
     int64_t expirationTime = [[self class] expirationTimeForSyncMessage:message];
-    if (![self.rmqManager saveSyncMessageWithRmqID:rmqID
+    [self.rmqManager saveSyncMessageWithRmqID:rmqID
                                     expirationTime:expirationTime
                                       apnsReceived:viaAPNS
-                                       mcsReceived:viaMCS
-                                             error:&error]) {
-      FIRMessagingLoggerError(kFIRMessagingMessageCodeSyncMessageManager003,
-                              @"Failed to save sync message with rmqID %@", rmqID);
-    } else {
-      FIRMessagingLoggerInfo(kFIRMessagingMessageCodeSyncMessageManager004,
-                             @"Added sync message to cache: %@", rmqID);
-    }
+                                       mcsReceived:viaMCS];
     return NO;
   }
 
   if (viaAPNS && !persistentMessage.apnsReceived) {
     persistentMessage.apnsReceived = YES;
-    if (![self.rmqManager updateSyncMessageViaAPNSWithRmqID:rmqID error:&error]) {
-      FIRMessagingLoggerError(kFIRMessagingMessageCodeSyncMessageManager005,
-                              @"Failed to update APNS state for sync message %@", rmqID);
-    }
+    [self.rmqManager updateSyncMessageViaAPNSWithRmqID:rmqID];
   } else if (viaMCS && !persistentMessage.mcsReceived) {
     persistentMessage.mcsReceived = YES;
-    if (![self.rmqManager updateSyncMessageViaMCSWithRmqID:rmqID error:&error]) {
-      FIRMessagingLoggerError(kFIRMessagingMessageCodeSyncMessageManager006,
-                              @"Failed to update MCS state for sync message %@", rmqID);
-    }
+    [self.rmqManager updateSyncMessageViaMCSWithRmqID:rmqID];
   }
 
   // Received message via both ways we can safely delete it.
   if (persistentMessage.apnsReceived && persistentMessage.mcsReceived) {
-    if (![self.rmqManager deleteSyncMessageWithRmqID:rmqID]) {
-      FIRMessagingLoggerError(kFIRMessagingMessageCodeSyncMessageManager007,
-                              @"Failed to delete sync message %@", rmqID);
-    } else {
-      FIRMessagingLoggerInfo(kFIRMessagingMessageCodeSyncMessageManager008,
-                             @"Successfully deleted sync message from cache %@", rmqID);
-    }
+    [self.rmqManager deleteSyncMessageWithRmqID:rmqID];
   }
 
   // Already received this message either via MCS or APNS.

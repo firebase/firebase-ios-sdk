@@ -1,3 +1,6 @@
+# v4.4.4
+- Minor internal project structure changes.
+
 # v4.4.3
 - Removed existing usage of an internal deprecated API. (#3993)
 

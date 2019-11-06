@@ -58,7 +58,9 @@ if(CXX_CLANG OR CXX_GNU)
      -Wrange-loop-analysis -Wunreachable-code
 
      # Options added to match apple recommended project settings
-     -Wcomma
+     # TODO(wilhuff): re-enable -Wcomma once Abseil fixes the definition of
+     # ABSL_ASSERT upstream
+     -Wno-comma
     )
   endif()
 

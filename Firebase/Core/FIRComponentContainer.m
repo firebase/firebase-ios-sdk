@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRComponentContainer ()
 
-/// The dictionary of components that are registered for a particular app. The key is an NSString
+/// The dictionary of components that are registered for a particular app. The key is an `NSString`
 /// of the protocol.
 @property(nonatomic, strong) NSMutableDictionary<NSString *, FIRComponentCreationBlock> *components;
 

@@ -263,21 +263,28 @@ namespace testutil = firebase::firestore::testutil;
 
 - (void)testWritesWithReservedFieldsFail {
   [self expectWrite:@{@"__baz__" : @1}
-      toFailWithReason:@"Document fields cannot begin and end with __ (found in field __baz__)"];
+      toFailWithReason:@"Invalid data. Document fields cannot begin and end with \"__\" (found in "
+                       @"field __baz__)"];
   [self expectWrite:@{@"foo" : @{@"__baz__" : @1}}
-      toFailWithReason:
-          @"Document fields cannot begin and end with __ (found in field foo.__baz__)"];
+      toFailWithReason:@"Invalid data. Document fields cannot begin and end with \"__\" (found in "
+                       @"field foo.__baz__)"];
   [self expectWrite:@{@"__baz__" : @{@"foo" : @1}}
-      toFailWithReason:@"Document fields cannot begin and end with __ (found in field __baz__)"];
+      toFailWithReason:@"Invalid data. Document fields cannot begin and end with \"__\" (found in "
+                       @"field __baz__)"];
 
   [self expectUpdate:@{@"foo.__baz__" : @1}
-      toFailWithReason:
-          @"Document fields cannot begin and end with __ (found in field foo.__baz__)"];
+      toFailWithReason:@"Invalid data. Document fields cannot begin and end with \"__\" (found in "
+                       @"field foo.__baz__)"];
   [self expectUpdate:@{@"__baz__.foo" : @1}
-      toFailWithReason:
-          @"Document fields cannot begin and end with __ (found in field __baz__.foo)"];
+      toFailWithReason:@"Invalid data. Document fields cannot begin and end with \"__\" (found in "
+                       @"field __baz__.foo)"];
   [self expectUpdate:@{@1 : @1}
       toFailWithReason:@"Dictionary keys in updateData: must be NSStrings or FIRFieldPaths."];
+}
+
+- (void)testWritesMustNotContainEmptyFieldNames {
+  [self expectSet:@{@"" : @"foo"}
+      toFailWithReason:@"Invalid data. Document fields must not be empty (found in field ``)"];
 }
 
 - (void)testSetsWithFieldValueDeleteFail {
@@ -414,10 +421,6 @@ namespace testutil = firebase::firestore::testutil;
                   @"Invalid Query. Null supports only equality comparisons.");
   FSTAssertThrows([[self collectionRef] queryWhereField:@"a" arrayContains:[NSNull null]],
                   @"Invalid Query. Null supports only equality comparisons.");
-  FSTAssertThrows([[self collectionRef] queryWhereField:@"a" arrayContainsAny:[NSNull null]],
-                  @"Invalid Query. A non-empty array is required for 'arrayContainsAny' filters.");
-  FSTAssertThrows([[self collectionRef] queryWhereField:@"a" arrayContainsAny:[NSNull null]],
-                  @"Invalid Query. A non-empty array is required for 'arrayContainsAny' filters.");
 
   FSTAssertThrows([[self collectionRef] queryWhereField:@"a" isGreaterThan:@(NAN)],
                   @"Invalid Query. NaN supports only equality comparisons.");
@@ -557,12 +560,6 @@ namespace testutil = firebase::firestore::testutil;
       @"Invalid query. You can't perform arrayContains queries on document ID since document IDs "
        "are not arrays.";
   FSTAssertThrows([collection queryWhereFieldPath:[FIRFieldPath documentID] arrayContains:@1],
-                  reason);
-
-  reason = @"Invalid query. You can't perform arrayContainsAny queries on document ID since "
-           @"document IDs "
-            "are not arrays.";
-  FSTAssertThrows([collection queryWhereFieldPath:[FIRFieldPath documentID] arrayContainsAny:@1],
                   reason);
 }
 

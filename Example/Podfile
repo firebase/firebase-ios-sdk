@@ -22,7 +22,7 @@ target 'Core_Example_iOS' do
   # The next line is the forcing function for the Firebase pod. The Firebase
   # version's subspecs should depend on the component versions in the
   # corresponding podspec's in this repo.
-  pod 'Firebase/CoreOnly', '6.11.0'
+  pod 'Firebase/CoreOnly', '6.12.0'
 
   target 'Core_Tests_iOS' do
     inherit! :search_paths
