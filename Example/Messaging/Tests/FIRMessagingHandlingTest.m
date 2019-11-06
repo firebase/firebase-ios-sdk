@@ -52,9 +52,6 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 @interface FIRMessagingHandlingTest : XCTestCase
 
 @property(nonatomic, strong) FIRMessagingAnalytics *messageAnalytics;
-@property(nonatomic, strong) FIRMessaging *messaging;
-@property(nonatomic, strong) id mockMessaging;
-@property(nonatomic, strong) id mockInstanceID;
 @property(nonatomic, strong) id mockFirebaseApp;
 @property(nonatomic, strong) id mockMessagingAnalytics;
 @property(nonatomic, strong) FIRMessagingTestUtilities *testUtil;
@@ -70,9 +67,6 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
   NSUserDefaults *defaults =
       [[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingDefaultsTestDomain];
   _testUtil = [[FIRMessagingTestUtilities alloc] initWithUserDefaults:defaults withRMQManager:YES];
-  _mockMessaging = _testUtil.mockMessaging;
-  _mockInstanceID = _testUtil.mockInstanceID;
-  _messaging = _testUtil.messaging;
   _mockFirebaseApp = OCMClassMock([FIRApp class]);
    OCMStub([_mockFirebaseApp defaultApp]).andReturn(_mockFirebaseApp);
   [[NSUserDefaults standardUserDefaults]
@@ -84,7 +78,6 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
   [_testUtil cleanupAfterTest];
   [_mockMessagingAnalytics stopMocking];
   [_mockFirebaseApp stopMocking];
-  _messaging = nil;
   [super tearDown];
 }
 
@@ -107,20 +100,20 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
                                         @"google.c.a.ts" : @1566515009,
                                         @"google.c.a.udt" : @0
                                         };
-  OCMExpect([_mockMessaging handleContextManagerMessage:notificationPayload]);
-  OCMExpect([_mockMessaging handleIncomingLinkIfNeededFromMessage:notificationPayload]);
+  OCMExpect([_testUtil.mockMessaging handleContextManagerMessage:notificationPayload]);
+  OCMExpect([_testUtil.mockMessaging handleIncomingLinkIfNeededFromMessage:notificationPayload]);
   OCMExpect([_mockMessagingAnalytics logMessage:notificationPayload toAnalytics:[OCMArg any]]);
   XCTAssertEqualObjects(@(FIRMessagingMessageStatusNew),
-                        @([_messaging appDidReceiveMessage:notificationPayload].status));
-  OCMVerifyAll(_mockMessaging);
+                        @([_testUtil.messaging appDidReceiveMessage:notificationPayload].status));
+  OCMVerifyAll(_testUtil.mockMessaging);
 
-  OCMReject([_mockMessaging handleContextManagerMessage:notificationPayload]);
-  OCMReject([_mockMessaging handleIncomingLinkIfNeededFromMessage:notificationPayload]);
+  OCMReject([_testUtil.mockMessaging handleContextManagerMessage:notificationPayload]);
+  OCMReject([_testUtil.mockMessaging handleIncomingLinkIfNeededFromMessage:notificationPayload]);
   OCMReject([_mockMessagingAnalytics logMessage:notificationPayload toAnalytics:[OCMArg any]]);
 
   XCTAssertEqualObjects(@(FIRMessagingMessageStatusNew),
-                          @([_messaging appDidReceiveMessage:notificationPayload].status));
-  OCMVerifyAll(_mockMessaging);
+                          @([_testUtil.messaging appDidReceiveMessage:notificationPayload].status));
+  OCMVerifyAll(_testUtil.mockMessaging);
 
 }
 
@@ -133,20 +126,20 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
                                         @"image" : @"bunny.png",
                                         @"google.c.a.e" : @1
                                         };
-  OCMExpect([_mockMessaging handleContextManagerMessage:notificationPayload]);
-  OCMExpect([_mockMessaging handleIncomingLinkIfNeededFromMessage:notificationPayload]);
+  OCMExpect([_testUtil.mockMessaging handleContextManagerMessage:notificationPayload]);
+  OCMExpect([_testUtil.mockMessaging handleIncomingLinkIfNeededFromMessage:notificationPayload]);
   OCMExpect([_mockMessagingAnalytics logMessage:notificationPayload toAnalytics:[OCMArg any]]);
   XCTAssertEqualObjects(@(FIRMessagingMessageStatusNew),
-                        @([_messaging appDidReceiveMessage:notificationPayload].status));
-  OCMVerifyAll(_mockMessaging);
+                        @([_testUtil.messaging appDidReceiveMessage:notificationPayload].status));
+  OCMVerifyAll(_testUtil.mockMessaging);
 
-  OCMReject([_mockMessaging handleContextManagerMessage:notificationPayload]);
-  OCMReject([_mockMessaging handleIncomingLinkIfNeededFromMessage:notificationPayload]);
+  OCMReject([_testUtil.mockMessaging handleContextManagerMessage:notificationPayload]);
+  OCMReject([_testUtil.mockMessaging handleIncomingLinkIfNeededFromMessage:notificationPayload]);
   OCMReject([_mockMessagingAnalytics logMessage:notificationPayload toAnalytics:[OCMArg any]]);
 
   XCTAssertEqualObjects(@(FIRMessagingMessageStatusNew),
-                        @([_messaging appDidReceiveMessage:notificationPayload].status));
-  OCMVerifyAll(_mockMessaging);
+                        @([_testUtil.messaging appDidReceiveMessage:notificationPayload].status));
+  OCMVerifyAll(_testUtil.mockMessaging);
 
 }
 
@@ -169,20 +162,20 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
                                         @"google.c.cm.lt_end" : @"2019-09-20 13:12:00",
                                         @"google.c.cm.lt_start" : @"2019-08-23 13:12:00",
                                         };
-  OCMExpect([_mockMessaging handleContextManagerMessage:notificationPayload]);
-  OCMExpect([_mockMessaging handleIncomingLinkIfNeededFromMessage:notificationPayload]);
+  OCMExpect([_testUtil.mockMessaging handleContextManagerMessage:notificationPayload]);
+  OCMExpect([_testUtil.mockMessaging handleIncomingLinkIfNeededFromMessage:notificationPayload]);
   OCMExpect([_mockMessagingAnalytics logMessage:notificationPayload toAnalytics:[OCMArg any]]);
   XCTAssertEqualObjects(@(FIRMessagingMessageStatusNew),
-                        @([_messaging appDidReceiveMessage:notificationPayload].status));
-  OCMVerifyAll(_mockMessaging);
+                        @([_testUtil.messaging appDidReceiveMessage:notificationPayload].status));
+  OCMVerifyAll(_testUtil.mockMessaging);
 
-  OCMReject([_mockMessaging handleContextManagerMessage:notificationPayload]);
-  OCMReject([_mockMessaging handleIncomingLinkIfNeededFromMessage:notificationPayload]);
+  OCMReject([_testUtil.mockMessaging handleContextManagerMessage:notificationPayload]);
+  OCMReject([_testUtil.mockMessaging handleIncomingLinkIfNeededFromMessage:notificationPayload]);
   OCMReject([_mockMessagingAnalytics logMessage:notificationPayload toAnalytics:[OCMArg any]]);
 
   XCTAssertEqualObjects(@(FIRMessagingMessageStatusNew),
-                        @([_messaging appDidReceiveMessage:notificationPayload].status));
-  OCMVerifyAll(_mockMessaging);
+                        @([_testUtil.messaging appDidReceiveMessage:notificationPayload].status));
+  OCMVerifyAll(_testUtil.mockMessaging);
 
 }
 
@@ -198,20 +191,20 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
                                         @"google.c.a.ts" : @1566565920,
                                         @"google.c.a.udt" : @1,
                                         };
-  OCMExpect([_mockMessaging handleContextManagerMessage:notificationPayload]);
-  OCMExpect([_mockMessaging handleIncomingLinkIfNeededFromMessage:notificationPayload]);
+  OCMExpect([_testUtil.mockMessaging handleContextManagerMessage:notificationPayload]);
+  OCMExpect([_testUtil.mockMessaging handleIncomingLinkIfNeededFromMessage:notificationPayload]);
   OCMExpect([_mockMessagingAnalytics logMessage:notificationPayload toAnalytics:[OCMArg any]]);
   XCTAssertEqualObjects(@(FIRMessagingMessageStatusNew),
-                        @([_messaging appDidReceiveMessage:notificationPayload].status));
-  OCMVerifyAll(_mockMessaging);
+                        @([_testUtil.messaging appDidReceiveMessage:notificationPayload].status));
+  OCMVerifyAll(_testUtil.mockMessaging);
 
-  OCMReject([_mockMessaging handleContextManagerMessage:notificationPayload]);
-  OCMReject([_mockMessaging handleIncomingLinkIfNeededFromMessage:notificationPayload]);
+  OCMReject([_testUtil.mockMessaging handleContextManagerMessage:notificationPayload]);
+  OCMReject([_testUtil.mockMessaging handleIncomingLinkIfNeededFromMessage:notificationPayload]);
   OCMReject([_mockMessagingAnalytics logMessage:notificationPayload toAnalytics:[OCMArg any]]);
 
   XCTAssertEqualObjects(@(FIRMessagingMessageStatusNew),
-                        @([_messaging appDidReceiveMessage:notificationPayload].status));
-  OCMVerifyAll(_mockMessaging);
+                        @([_testUtil.messaging appDidReceiveMessage:notificationPayload].status));
+  OCMVerifyAll(_testUtil.mockMessaging);
 }
 
 -(void)testMCSNotification {
@@ -219,20 +212,20 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
                                         @"from" : @"35006771263",
                                         @"image" : @"bunny.png"
                                         };
-  OCMExpect([_mockMessaging handleContextManagerMessage:notificationPayload]);
-  OCMExpect([_mockMessaging handleIncomingLinkIfNeededFromMessage:notificationPayload]);
+  OCMExpect([_testUtil.mockMessaging handleContextManagerMessage:notificationPayload]);
+  OCMExpect([_testUtil.mockMessaging handleIncomingLinkIfNeededFromMessage:notificationPayload]);
   OCMExpect([_mockMessagingAnalytics logMessage:notificationPayload toAnalytics:[OCMArg any]]);
   XCTAssertEqualObjects(@(FIRMessagingMessageStatusNew),
-                        @([_messaging appDidReceiveMessage:notificationPayload].status));
-  OCMVerifyAll(_mockMessaging);
+                        @([_testUtil.messaging appDidReceiveMessage:notificationPayload].status));
+  OCMVerifyAll(_testUtil.mockMessaging);
 
-  OCMExpect([_mockMessaging handleContextManagerMessage:notificationPayload]);
-  OCMExpect([_mockMessaging handleIncomingLinkIfNeededFromMessage:notificationPayload]);
+  OCMExpect([_testUtil.mockMessaging handleContextManagerMessage:notificationPayload]);
+  OCMExpect([_testUtil.mockMessaging handleIncomingLinkIfNeededFromMessage:notificationPayload]);
   OCMExpect([_mockMessagingAnalytics logMessage:notificationPayload toAnalytics:[OCMArg any]]);
 
   XCTAssertEqualObjects(@(FIRMessagingMessageStatusNew),
-                        @([_messaging appDidReceiveMessage:notificationPayload].status));
-  OCMVerifyAll(_mockMessaging);
+                        @([_testUtil.messaging appDidReceiveMessage:notificationPayload].status));
+  OCMVerifyAll(_testUtil.mockMessaging);
 }
 
 @end
