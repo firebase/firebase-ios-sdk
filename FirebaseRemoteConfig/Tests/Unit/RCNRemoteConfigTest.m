@@ -614,10 +614,10 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
     settings.lastETagUpdateTime = 100;
     settings.lastApplyTimeInterval = 101;
 
-
-    dispatch_queue_t queue = dispatch_queue_create(
-        [[NSString stringWithFormat:@"testNoStatusFetchQueue: %d", i] cStringUsingEncoding:NSUTF8StringEncoding],
-        DISPATCH_QUEUE_SERIAL);
+    dispatch_queue_t queue =
+        dispatch_queue_create([[NSString stringWithFormat:@"testNoStatusFetchQueue: %d", i]
+                                  cStringUsingEncoding:NSUTF8StringEncoding],
+                              DISPATCH_QUEUE_SERIAL);
     _configFetch[i] = OCMPartialMock([[RCNConfigFetch alloc] initWithContent:configContent
                                                                    DBManager:_DBManager
                                                                     settings:settings
@@ -631,7 +631,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                                  completionHandler:OCMOCK_ANY])
         .andDo(^(NSInvocation *invocation) {
           void (^handler)(FIRRemoteConfigFetchStatus status, NSError *_Nullable error) = nil;
-          
+
           [invocation getArgument:&handler atIndex:3];
           [_configFetch[i] fetchWithUserProperties:[[NSDictionary alloc] init]
                                  completionHandler:handler];
