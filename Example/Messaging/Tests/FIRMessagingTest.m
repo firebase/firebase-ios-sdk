@@ -56,6 +56,7 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 @property(nonatomic, readwrite, strong) id mockMessaging;
 @property(nonatomic, readwrite, strong) id mockInstanceID;
 @property(nonatomic, readwrite, strong) id mockFirebaseApp;
+@property(nonatomic, strong) FIRMessagingTestUtilities *testUtil;
 
 @end
 
@@ -67,23 +68,21 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
   _mockInstanceID = OCMClassMock([FIRInstanceID class]);
 
   // Create the messaging instance with all the necessary dependencies.
-  GULUserDefaults *defaults =
-      [[GULUserDefaults alloc] initWithSuiteName:kFIRMessagingDefaultsTestDomain];
-  _messaging = [FIRMessagingTestUtilities messagingForTestsWithUserDefaults:defaults
-                                                             mockInstanceID:_mockInstanceID];
+  NSUserDefaults *defaults =
+      [[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingDefaultsTestDomain];
+  _testUtil = [[FIRMessagingTestUtilities alloc] initWithUserDefaults:defaults  withRMQManager:NO];
+  _mockMessaging = _testUtil.mockMessaging;
+  _messaging = _testUtil.messaging;
 
   _mockFirebaseApp = OCMClassMock([FIRApp class]);
-  OCMStub([_mockFirebaseApp defaultApp]).andReturn(_mockFirebaseApp);
+   OCMStub([_mockFirebaseApp defaultApp]).andReturn(_mockFirebaseApp);
+  _mockInstanceID = _testUtil.mockInstanceID;
   [[NSUserDefaults standardUserDefaults]
       removePersistentDomainForName:[NSBundle mainBundle].bundleIdentifier];
 }
 
 - (void)tearDown {
-  self.messaging.shouldEstablishDirectChannel = NO;
-  self.messaging.defaultFcmToken = nil;
-  self.messaging.apnsTokenData = nil;
-  [_mockMessaging stopMocking];
-  [_mockInstanceID stopMocking];
+  [_testUtil cleanupAfterTest];
   [_mockFirebaseApp stopMocking];
   _messaging = nil;
   [[[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingDefaultsTestDomain]

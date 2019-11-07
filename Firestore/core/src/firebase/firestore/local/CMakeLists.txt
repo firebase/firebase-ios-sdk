@@ -110,6 +110,7 @@ cc_library(
     protobuf-nanopb-static
 
     absl_strings
+    firebase_firestore_auth
     firebase_firestore_local_persistence_leveldb
     firebase_firestore_model
     firebase_firestore_nanopb

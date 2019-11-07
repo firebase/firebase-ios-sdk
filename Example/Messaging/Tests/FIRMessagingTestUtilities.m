@@ -14,13 +14,21 @@
  * limitations under the License.
  */
 
+#import <OCMock/OCMock.h>
+
 #import "Example/Messaging/Tests/FIRMessagingTestUtilities.h"
 
 #import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 #import <FirebaseInstanceID/FirebaseInstanceID.h>
 #import <GoogleUtilities/GULUserDefaults.h>
+#import <FirebaseInstallations/FIRInstallations.h>
+
+#import "Firebase/Messaging/FIRMessagingPubSub.h"
+#import "Firebase/Messaging/FIRMessagingRmqManager.h"
+
 
 NS_ASSUME_NONNULL_BEGIN
+static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 
 @interface FIRInstanceID (ExposedForTest)
 
@@ -35,6 +43,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRMessaging (ExposedForTest)
 
+@property(nonatomic, readwrite, strong) FIRMessagingPubSub *pubsub;
+@property(nonatomic, readwrite, strong) FIRMessagingRmqManager *rmq2Manager;
+
 /// Surface internal initializer to avoid singleton usage during tests.
 - (instancetype)initWithAnalytics:(nullable id<FIRAnalyticsInterop>)analytics
                    withInstanceID:(FIRInstanceID *)instanceID
@@ -42,19 +53,55 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Kicks off required calls for some messaging tests.
 - (void)start;
+- (void)setupRmqManager;
+
+@end
+
+@interface FIRMessagingRmqManager (ExposedForTest)
+
+- (void)removeDatabase;
 
 @end
 
 @implementation FIRMessagingTestUtilities
 
-+ (FIRMessaging *)messagingForTestsWithUserDefaults:(GULUserDefaults *)userDefaults
-                                     mockInstanceID:(id)mockInstanceID {
-  // Create the messaging instance and call `start`.
-  FIRMessaging *messaging = [[FIRMessaging alloc] initWithAnalytics:nil
-                                                     withInstanceID:mockInstanceID
-                                                   withUserDefaults:userDefaults];
-  [messaging start];
-  return messaging;
+- (instancetype)initWithUserDefaults:(GULUserDefaults *)userDefaults withRMQManager:(BOOL)withRMQManager {
+  self = [super init];
+  if (self) {
+    // `+[FIRInstallations installations]` supposed to be used on `-[FIRInstanceID start]` to get
+    // `FIRInstallations` default instance. Need to stub it before.
+    _mockInstallations = OCMClassMock([FIRInstallations class]);
+    OCMStub([self.mockInstallations installations]).andReturn(self.mockInstallations);
+
+    _instanceID = [[FIRInstanceID alloc] initPrivately];
+    [_instanceID start];
+
+    // Create the messaging instance and call `start`.
+    _messaging = [[FIRMessaging alloc] initWithAnalytics:nil
+                                                       withInstanceID:_instanceID
+                                                     withUserDefaults:userDefaults];
+    if (withRMQManager) {
+      [_messaging start];
+    }
+    _mockMessaging = OCMPartialMock(_messaging);
+    if (!withRMQManager) {
+      OCMStub([_mockMessaging setupRmqManager]).andDo(nil);
+      [(FIRMessaging *)_mockMessaging start];
+
+    }
+    _mockInstanceID = OCMPartialMock(_instanceID);
+    _mockPubsub = OCMPartialMock(_messaging.pubsub);
+  }
+  return self;
+}
+
+- (void)cleanupAfterTest {
+  [_messaging.rmq2Manager removeDatabase];
+  [_messaging.messagingUserDefaults removePersistentDomainForName:kFIRMessagingDefaultsTestDomain];
+  _messaging.shouldEstablishDirectChannel = NO;
+  [_mockPubsub stopMocking];
+  [_mockMessaging stopMocking];
+  [_mockInstanceID stopMocking];
 }
 
 @end

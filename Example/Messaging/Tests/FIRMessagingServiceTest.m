@@ -60,7 +60,9 @@ static NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test
   FIRMessaging *_messaging;
   FIRInstanceIDResult *_result;
   id _mockInstanceID;
+  id _mockMessaging;
   id _mockPubSub;
+  FIRMessagingTestUtilities *_testUtil;
 }
 
 @end
@@ -68,20 +70,22 @@ static NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test
 @implementation FIRMessagingServiceTest
 
 - (void)setUp {
-
-  GULUserDefaults *defaults = [[GULUserDefaults alloc] initWithSuiteName:kFIRMessagingTestsServiceSuiteName];
-  _mockInstanceID = OCMClassMock([FIRInstanceID class]);
-  _messaging = [FIRMessagingTestUtilities messagingForTestsWithUserDefaults:defaults mockInstanceID:_mockInstanceID];
-  _messaging.defaultFcmToken = kFakeToken;
-  _mockPubSub = OCMPartialMock(_messaging.pubsub);
+  [super setUp];
+  NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingTestsServiceSuiteName];
+  _testUtil = [[FIRMessagingTestUtilities alloc] initWithUserDefaults:defaults withRMQManager:NO];
+  _mockMessaging = _testUtil.mockMessaging;
+  _messaging = _testUtil.messaging;
+  OCMStub([_mockMessaging defaultFcmToken]).andReturn(kFakeToken);
+  _mockPubSub = _testUtil.mockPubsub;
   [_mockPubSub setClient:nil];
-
+  _mockInstanceID = _testUtil.mockInstanceID;
   _result = [[FIRInstanceIDResult alloc] init];
   _result.token = kFakeToken;
   _result.instanceID = kFakeID;
 }
 
 - (void)tearDown {
+  [_testUtil cleanupAfterTest];
   _messaging = nil;
   [_mockPubSub stopMocking];
   [[[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingTestsServiceSuiteName] removePersistentDomainForName:kFIRMessagingTestsServiceSuiteName];
@@ -152,7 +156,6 @@ static NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test
                               topic:topic
                             options:nil
                             handler:^(NSError *error){
-
                             }];
 
   // should call updateSubscription
