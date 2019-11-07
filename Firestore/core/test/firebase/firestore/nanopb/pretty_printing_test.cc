@@ -239,6 +239,18 @@ TEST(PrettyPrintingTest, PrintsOptionals) {
 )"));
 }
 
+TEST(PrettyPrintingTest, PrintsEmptyOptionals) {
+  Message<google_firestore_v1_Write> m;
+  m->has_update_mask = true;
+
+  // When set, an optional submessage should always be printed, even if it's
+  // "empty".
+  EXPECT_THAT(m, IsPrintedAs("Write", R"(
+  update_mask {
+  }
+)"));
+}
+
 TEST(PrettyPrintingTest, PrintsEmptyArrayElements) {
   Message<google_firestore_v1_Target_DocumentsTarget> m;
 
