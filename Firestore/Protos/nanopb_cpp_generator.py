@@ -356,70 +356,70 @@ def nanopb_fixup(file_contents):
   return delete_keyword.sub('delete_', file_contents)
 
 
-def nanopb_augment_header(request, file_pretty_printing):
-  """Augments a `.h` file generation request with pretty-printing support.
+def nanopb_augment_header(generated_header, file_pretty_printing):
+  """Augments a `.h` generated file with pretty-printing support.
 
   Also puts all code in `firebase::firestore` namespace.
+
   Args:
-    request: The file generation request; must be a request to generate a header
-      file.
+    generated_header: The `.h` file that will be generated.
     file_pretty_printing: `FilePrettyPrinting` for this header.
   """
-  request.insert('includes', '#include <string>\n\n')
+  generated_header.insert('includes', '#include <string>\n\n')
 
-  open_namespace(request)
+  open_namespace(generated_header)
 
   for e in file_pretty_printing.enums:
-    request.insert('eof', e.generate_declaration())
+    generated_header.insert('eof', e.generate_declaration())
   for m in file_pretty_printing.messages:
-    request.insert('struct:' + m.full_classname, m.generate_declaration())
+    generated_header.insert('struct:' + m.full_classname, m.generate_declaration())
 
-  close_namespace(request)
+  close_namespace(generated_header)
 
 
-def nanopb_augment_source(request, file_pretty_printing):
-  """Augments a `.cc` file generation request with pretty-printing support.
+def nanopb_augment_source(generated_source, file_pretty_printing):
+  """Augments a `.cc` generated file with pretty-printing support.
 
   Also puts all code in `firebase::firestore` namespace.
+
   Args:
-    request: The file generation request; must be a request to generate a source
-      file.
+    generated_source: The `.cc` file that will be generated.
     file_pretty_printing: `FilePrettyPrinting` for this source.
   """
-  request.insert('includes', textwrap.dedent('\
+  generated_source.insert('includes', textwrap.dedent('\
     #include "Firestore/core/src/firebase/firestore/nanopb/pretty_printing.h"\n\n'))
 
-  open_namespace(request)
-  add_using_declarations(request)
+  open_namespace(generated_source)
+  add_using_declarations(generated_source)
 
   for e in file_pretty_printing.enums:
-    request.insert('eof', e.generate_definition())
+    generated_source.insert('eof', e.generate_definition())
   for m in file_pretty_printing.messages:
-    request.insert('eof', m.generate_definition())
+    generated_source.insert('eof', m.generate_definition())
 
-  close_namespace(request)
+  close_namespace(generated_source)
 
 
-def open_namespace(request):
-  """Augments a file generation request by opening the `f::f` namespace.
+def open_namespace(generated_file):
+  """Augments a generated file by opening the `f::f` namespace.
   """
-  request.insert('includes', textwrap.dedent('''\
+  generated_file.insert('includes', textwrap.dedent('''\
       namespace firebase {
       namespace firestore {\n\n'''))
 
 
-def close_namespace(request):
-  """Augments a file generation request by closing the `f::f` namespace.
+def close_namespace(generated_file):
+  """Augments a generated file by closing the `f::f` namespace.
   """
-  request.insert('eof', textwrap.dedent('''\
+  generated_file.insert('eof', textwrap.dedent('''\
       }  // namespace firestore
       }  // namespace firebase\n\n'''))
 
 
-def add_using_declarations(request):
-  """Augments a file generation request by adding the necessary using declarations.
+def add_using_declarations(generated_file):
+  """Augments a generated file by adding the necessary using declarations.
   """
-  request.insert('includes', '''\
+  generated_file.insert('includes', '''\
 using nanopb::PrintEnumField;
 using nanopb::PrintHeader;
 using nanopb::PrintMessageField;
