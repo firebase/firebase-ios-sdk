@@ -63,9 +63,9 @@ std::unique_ptr<Persistence> PersistenceFactory() {
 
 }  // namespace
 
-INSTANTIATE_TEST_CASE_P(LevelDbMutationQueueTest,
-                        MutationQueueTest,
-                        testing::Values(PersistenceFactory));
+INSTANTIATE_TEST_SUITE_P(LevelDbMutationQueueTest,
+                         MutationQueueTest,
+                         testing::Values(PersistenceFactory));
 
 class LevelDbMutationQueueTest : public MutationQueueTestBase {
  public:
