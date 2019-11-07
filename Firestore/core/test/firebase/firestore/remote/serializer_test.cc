@@ -1905,7 +1905,7 @@ TEST_F(SerializerTest, EncodesInFilter) {
   v1::StructuredQuery::Filter proto;
   v1::StructuredQuery::FieldFilter& field = *proto.mutable_field_filter();
   field.mutable_field()->set_field_path("item.tags");
-  field.set_op(v1::StructuredQuery::FieldFilter::IN);
+  field.set_op(v1::StructuredQuery::FieldFilter::IN_);
   *field.mutable_value() = ValueProto(std::vector<FieldValue>{Value("food")});
 
   ExpectRoundTrip(model, proto);

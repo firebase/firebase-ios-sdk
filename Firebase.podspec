@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'Firebase'
-  s.version          = '6.11.0'
+  s.version          = '6.12.0'
   s.summary          = 'Firebase for iOS (plus community support for macOS and tvOS)'
 
   s.description      = <<-DESC
@@ -31,12 +31,12 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.default_subspec = 'Core'
 
   s.subspec 'Core' do |ss|
-    ss.ios.dependency 'FirebaseAnalytics', '6.1.3'
+    ss.ios.dependency 'FirebaseAnalytics', '6.1.5'
     ss.dependency 'Firebase/CoreOnly'
   end
 
   s.subspec 'CoreOnly' do |ss|
-    ss.dependency 'FirebaseCore', '6.3.2'
+    ss.dependency 'FirebaseCore', '6.3.3'
     ss.source_files = 'CoreOnly/Sources/Firebase.h'
     ss.preserve_paths = 'CoreOnly/Sources/module.modulemap'
     ss.user_target_xcconfig = {
@@ -65,7 +65,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
 
   s.subspec 'Database' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseDatabase', '~> 6.1.1'
+    ss.dependency 'FirebaseDatabase', '~> 6.1.2'
   end
 
   s.subspec 'DynamicLinks' do |ss|
@@ -75,7 +75,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
 
   s.subspec 'Firestore' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseFirestore', '~> 1.6.1'
+    ss.dependency 'FirebaseFirestore', '~> 1.7.0'
   end
 
   s.subspec 'Functions' do |ss|
@@ -95,17 +95,17 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
 
   s.subspec 'Messaging' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseMessaging', '~> 4.1.7'
+    ss.dependency 'FirebaseMessaging', '~> 4.1.8'
   end
 
   s.subspec 'Performance' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebasePerformance', '~> 3.1.5'
+    ss.ios.dependency 'FirebasePerformance', '~> 3.1.6'
   end
 
   s.subspec 'RemoteConfig' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseRemoteConfig', '~> 4.4.3'
+    ss.dependency 'FirebaseRemoteConfig', '~> 4.4.4'
   end
 
   s.subspec 'Storage' do |ss|

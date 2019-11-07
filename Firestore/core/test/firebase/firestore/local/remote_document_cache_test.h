@@ -52,8 +52,6 @@ class RemoteDocumentCacheTest : public ::testing::TestWithParam<FactoryFunc> {
   // `GetParam()` must return a factory function.
   RemoteDocumentCacheTest();
 
-  virtual ~RemoteDocumentCacheTest() = default;
-
  protected:
   model::Document SetTestDocument(absl::string_view path);
   void SetAndReadTestDocument(absl::string_view path);

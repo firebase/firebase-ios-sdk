@@ -854,7 +854,7 @@ class StructuredQuery_FieldFilter :
     StructuredQuery_FieldFilter_Operator_EQUAL;
   static constexpr Operator ARRAY_CONTAINS =
     StructuredQuery_FieldFilter_Operator_ARRAY_CONTAINS;
-  static constexpr Operator IN =
+  static constexpr Operator IN_ =
     StructuredQuery_FieldFilter_Operator_IN;
   static constexpr Operator ARRAY_CONTAINS_ANY =
     StructuredQuery_FieldFilter_Operator_ARRAY_CONTAINS_ANY;
