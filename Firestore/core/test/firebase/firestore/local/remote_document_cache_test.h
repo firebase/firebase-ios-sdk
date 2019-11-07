@@ -43,9 +43,9 @@ using FactoryFunc = std::unique_ptr<Persistence> (*)();
  * To test a specific implementation of RemoteDocumentCache:
  *
  * + Write a persistence factory function
- * + Call INSTANTIATE_TEST_CASE_P(MyNewRemoteDocumentCacheTest,
- *                                RemoteDocumentCacheTest,
- *                                testing::Values(PersistenceFactory));
+ * + Call INSTANTIATE_TEST_SUITE_P(MyNewRemoteDocumentCacheTest,
+ *                                 RemoteDocumentCacheTest,
+ *                                 testing::Values(PersistenceFactory));
  */
 class RemoteDocumentCacheTest : public ::testing::TestWithParam<FactoryFunc> {
  public:
