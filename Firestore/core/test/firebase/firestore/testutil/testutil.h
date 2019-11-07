@@ -319,8 +319,6 @@ inline model::UnknownDocument UnknownDoc(absl::string_view key,
   return model::UnknownDocument(Key(key), Version(version));
 }
 
-#if __APPLE__
-
 /**
  * Creates a DocumentComparator that will compare Documents by the given
  * fieldPath string then by key.
@@ -333,8 +331,6 @@ model::DocumentComparator DocComparator(absl::string_view field_path);
  */
 model::DocumentSet DocSet(model::DocumentComparator comp,
                           std::vector<model::Document> docs);
-
-#endif  // __APPLE__
 
 inline core::Filter::Operator OperatorFromString(absl::string_view s) {
   if (s == "<") {

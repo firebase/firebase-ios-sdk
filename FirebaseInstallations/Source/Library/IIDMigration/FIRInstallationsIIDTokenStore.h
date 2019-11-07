@@ -16,27 +16,20 @@
 
 #import <Foundation/Foundation.h>
 
+@class FBLPromise<ValueType>;
+
 NS_ASSUME_NONNULL_BEGIN
 
-@class FBLPromise<ValueType>;
-@class FIRInstallationsItem;
-
 /**
- * The class is responsible for managing FID for a given `FIRApp`.
+ * The class reads a default IID token from IID store if available.
  */
-@interface FIRInstallationsIDController : NSObject
+@interface FIRInstallationsIIDTokenStore : NSObject
 
-- (instancetype)initWithGoogleAppID:(NSString *)appID
-                            appName:(NSString *)appName
-                             APIKey:(NSString *)APIKey
-                          projectID:(NSString *)projectID
-                        GCMSenderID:(NSString *)GCMSenderID;
+- (instancetype)init NS_UNAVAILABLE;
 
-- (FBLPromise<FIRInstallationsItem *> *)getInstallationItem;
+- (instancetype)initWithGCMSenderID:(NSString *)GCMSenderID;
 
-- (FBLPromise<FIRInstallationsItem *> *)getAuthTokenForcingRefresh:(BOOL)forceRefresh;
-
-- (FBLPromise<NSNull *> *)deleteInstallation;
+- (FBLPromise<NSString *> *)existingIIDDefaultToken;
 
 @end
 
