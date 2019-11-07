@@ -36,7 +36,7 @@ BOOL GDTCORReachabilityFlagsContainWWAN(SCNetworkReachabilityFlags flags) {
   return NO;
 #endif  // TARGET_OS_IOS
 }
-#endif
+#endif // !TARGET_OS_WATCH
 
 @interface GDTCORApplication ()
 /**

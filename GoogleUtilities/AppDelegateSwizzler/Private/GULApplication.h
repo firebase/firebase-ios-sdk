@@ -40,6 +40,7 @@ static NSString *const kGULApplicationClassName = @"NSApplication";
 
 #import <WatchKit/WatchKit.h>
 
+// We match the according watchOS API but swizzling should not work in watch
 #define GULApplication WKExtension
 #define GULApplicationDelegate WKExtensionDelegate
 #define GULUserActivityRestoring NSUserActivityRestoring
