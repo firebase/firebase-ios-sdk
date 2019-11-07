@@ -133,6 +133,11 @@ def sync_firestore(test_only)
     ],
 
     'OTHER_CFLAGS' => [
+      # Protobuf C++ generates dead code.
+      '-Wno-unreachable-code',
+
+      # Our public build can't include -Werror, but for development it's quite
+      # helpful.
       '-Werror'
     ]
   }

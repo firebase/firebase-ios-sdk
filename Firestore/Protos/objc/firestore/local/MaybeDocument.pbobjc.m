@@ -29,15 +29,9 @@
  #import "GPBProtocolBuffers_RuntimeSupport.h"
 #endif
 
-#if GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS
- #import <Protobuf/Timestamp.pbobjc.h>
-#else
- #import "Timestamp.pbobjc.h"
-#endif
-
- #import "MaybeDocument.pbobjc.h"
- #import "Document.pbobjc.h"
- #import "Annotations.pbobjc.h"
+#import "MaybeDocument.pbobjc.h"
+#import "Document.pbobjc.h"
+#import "Annotations.pbobjc.h"
 // @@protoc_insertion_point(imports)
 
 #pragma clang diagnostic push
@@ -112,7 +106,9 @@ typedef struct FSTPBNoDocument__storage_ {
                                     fieldCount:(uint32_t)(sizeof(fields) / sizeof(GPBMessageFieldDescription))
                                    storageSize:sizeof(FSTPBNoDocument__storage_)
                                          flags:GPBDescriptorInitializationFlag_None];
-    NSAssert(descriptor == nil, @"Startup recursed!");
+    #if defined(DEBUG) && DEBUG
+      NSAssert(descriptor == nil, @"Startup recursed!");
+    #endif  // DEBUG
     descriptor = localDescriptor;
   }
   return descriptor;
@@ -166,7 +162,9 @@ typedef struct FSTPBUnknownDocument__storage_ {
                                     fieldCount:(uint32_t)(sizeof(fields) / sizeof(GPBMessageFieldDescription))
                                    storageSize:sizeof(FSTPBUnknownDocument__storage_)
                                          flags:GPBDescriptorInitializationFlag_None];
-    NSAssert(descriptor == nil, @"Startup recursed!");
+    #if defined(DEBUG) && DEBUG
+      NSAssert(descriptor == nil, @"Startup recursed!");
+    #endif  // DEBUG
     descriptor = localDescriptor;
   }
   return descriptor;
@@ -248,7 +246,9 @@ typedef struct FSTPBMaybeDocument__storage_ {
     [localDescriptor setupOneofs:oneofs
                            count:(uint32_t)(sizeof(oneofs) / sizeof(char*))
                    firstHasIndex:-1];
-    NSAssert(descriptor == nil, @"Startup recursed!");
+    #if defined(DEBUG) && DEBUG
+      NSAssert(descriptor == nil, @"Startup recursed!");
+    #endif  // DEBUG
     descriptor = localDescriptor;
   }
   return descriptor;
