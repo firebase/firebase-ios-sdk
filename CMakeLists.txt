@@ -14,7 +14,7 @@
 
 # Superbuild for Firebase
 
-cmake_minimum_required(VERSION 2.8.11)
+cmake_minimum_required(VERSION 3.5.1)
 
 # Disallow mixing keyword and non-keyword forms of target_link_libraries
 if(POLICY CMP0023)
@@ -208,11 +208,7 @@ target_include_directories(
 
 
 # XCTest
-if(${CMAKE_VERSION} VERSION_LESS "3.3.0")
-  set(XCTest_FOUND OFF)
-else()
-  find_package(XCTest)
-endif()
+find_package(XCTest)
 
 
 enable_testing()
