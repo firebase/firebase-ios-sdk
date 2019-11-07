@@ -191,7 +191,8 @@ NS_ASSUME_NONNULL_BEGIN
 #else
   if (![self isIIDVersionCompatible]) {
     [NSException raise:NSInternalInconsistencyException
-    format:@"FirebaseInstallations will not work correctly with current version of Firebase Instance ID. Please update your Firebase Instance ID version."];
+                format:@"FirebaseInstallations will not work correctly with current version of "
+                       @"Firebase Instance ID. Please update your Firebase Instance ID version."];
   }
 #endif
 }
