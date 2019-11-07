@@ -716,7 +716,7 @@ class StructuredQuery_FieldFilter : public ::google::protobuf::Message /* @@prot
     StructuredQuery_FieldFilter_Operator_EQUAL;
   static const Operator ARRAY_CONTAINS =
     StructuredQuery_FieldFilter_Operator_ARRAY_CONTAINS;
-  static const Operator IN =
+  static const Operator IN_ =
     StructuredQuery_FieldFilter_Operator_IN;
   static const Operator ARRAY_CONTAINS_ANY =
     StructuredQuery_FieldFilter_Operator_ARRAY_CONTAINS_ANY;

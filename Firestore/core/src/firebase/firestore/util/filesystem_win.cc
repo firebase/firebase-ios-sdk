@@ -116,7 +116,7 @@ Status DeleteDir(const Path& path) {
       StringFormat("Could not delete directory %s", path.ToUtf8String()));
 }
 
-Status DeleteFile(const Path& path) {
+Status DeleteSingleFile(const Path& path) {
   if (::DeleteFileW(path.c_str())) {
     return Status::OK();
   }

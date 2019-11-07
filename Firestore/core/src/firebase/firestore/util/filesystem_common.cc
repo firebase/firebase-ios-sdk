@@ -77,7 +77,7 @@ Status RecursivelyDelete(const Path& path) {
     case Error::FailedPrecondition:
       // Could be a file or something else. Attempt to delete it as a file
       // but otherwise allow that to fail if it's not a file.
-      return detail::DeleteFile(path);
+      return detail::DeleteSingleFile(path);
 
     case Error::NotFound:
       return Status::OK();
