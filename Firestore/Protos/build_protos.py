@@ -209,7 +209,8 @@ class CppProtobufGenerator(object):
     # TODO(wilhuff): strip trailing whitespace?
     post_process_files(
         sources,
-        add_copyright
+        add_copyright,
+        cpp_rename_in,
     )
 
   def __run_generator(self, out_dir):
@@ -314,6 +315,23 @@ def nanopb_remove_extern_c(lines):
         state = 'initial'
 
   return result
+
+
+def cpp_rename_in(lines):
+  """Renames an IN symbol to IN_.
+
+  If a proto uses a enum member named 'IN', protobuf happily uses that in the
+  message definition. This conflicts with the IN parameter annotation macro in
+  windows.h.
+
+  Args:
+    lines: The lines to fix.
+
+  Returns:
+    The lines, fixed.
+  """
+  in_macro = re.compile(r'\bIN\b')
+  return [in_macro.sub('IN_', line) for line in lines]
 
 
 def strip_trailing_whitespace(lines):

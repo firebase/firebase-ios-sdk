@@ -14,29 +14,25 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/test/firebase/firestore/local/index_manager_test.h"
-
-#include "Firestore/core/src/firebase/firestore/local/leveldb_index_manager.h"
-#include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
+#include "Firestore/core/src/firebase/firestore/local/memory_persistence.h"
+#include "Firestore/core/src/firebase/firestore/local/reference_delegate.h"
+#include "Firestore/core/test/firebase/firestore/local/mutation_queue_test.h"
 #include "Firestore/core/test/firebase/firestore/local/persistence_testing.h"
-#include "absl/memory/memory.h"
-#include "gtest/gtest.h"
 
 namespace firebase {
 namespace firestore {
 namespace local {
-
 namespace {
 
 std::unique_ptr<Persistence> PersistenceFactory() {
-  return LevelDbPersistenceForTesting();
+  return MemoryPersistenceWithEagerGcForTesting();
 }
 
 }  // namespace
 
-INSTANTIATE_TEST_SUITE_P(LevelDbIndexManagerTest,
-                         IndexManagerTest,
-                         ::testing::Values(PersistenceFactory));
+INSTANTIATE_TEST_CASE_P(MemoryMutationQueueTest,
+                        MutationQueueTest,
+                        testing::Values(PersistenceFactory));
 
 }  // namespace local
 }  // namespace firestore

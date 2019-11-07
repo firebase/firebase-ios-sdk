@@ -17,7 +17,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'GoogleTest'
-  s.version          = '1.8.1'
+  s.version          = '1.10.0'
   s.summary          = 'Google Test'
 
   s.description      = <<-DESC
@@ -85,6 +85,8 @@ Google's C++ test framework.
       '"${PODS_ROOT}/GoogleTest/googletest/include" ' +
       '"${PODS_ROOT}/GoogleTest/googletest"'
   }
+
+  s.compiler_flags = '$(inherited) -Wno-comma'
 
   s.prepare_command = <<-'CMD'
     # Remove includes of files in internal/custom
