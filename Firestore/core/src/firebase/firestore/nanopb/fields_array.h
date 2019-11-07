@@ -100,12 +100,6 @@ inline const pb_field_t* FieldsArray<google_firestore_v1_ListenResponse>() {
   return google_firestore_v1_ListenResponse_fields;
 }
 
-// For tests only.
-template <>
-inline const pb_field_t* FieldsArray<google_firestore_v1_RunQueryRequest>() {
-  return google_firestore_v1_RunQueryRequest_fields;
-}
-
 template <>
 inline const pb_field_t*
 FieldsArray<google_firestore_v1_StructuredQuery_Filter>() {
