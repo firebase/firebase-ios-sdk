@@ -54,7 +54,7 @@ For release engineers (Googlers packaging an upcoming Firebase release) these co
 Putting them all together, here's a common command to build a releaseable Zip file:
 
 ```
-swift run ZipBuilder -templateDir $(pwd)/Template -updatePodRepo false \
+swift run ReleasePackager -templateDir $(pwd)/Template -updatePodRepo false \
 -releasingSDKs <PATH_TO_current.textproto> \
 -existingVersions <PATH_TO_all_firebase_ios_sdks.textproto> \
 -customSpecRepos sso://cpdc-internal/firebase

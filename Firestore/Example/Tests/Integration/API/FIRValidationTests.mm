@@ -263,21 +263,28 @@ namespace testutil = firebase::firestore::testutil;
 
 - (void)testWritesWithReservedFieldsFail {
   [self expectWrite:@{@"__baz__" : @1}
-      toFailWithReason:@"Document fields cannot begin and end with __ (found in field __baz__)"];
+      toFailWithReason:@"Invalid data. Document fields cannot begin and end with \"__\" (found in "
+                       @"field __baz__)"];
   [self expectWrite:@{@"foo" : @{@"__baz__" : @1}}
-      toFailWithReason:
-          @"Document fields cannot begin and end with __ (found in field foo.__baz__)"];
+      toFailWithReason:@"Invalid data. Document fields cannot begin and end with \"__\" (found in "
+                       @"field foo.__baz__)"];
   [self expectWrite:@{@"__baz__" : @{@"foo" : @1}}
-      toFailWithReason:@"Document fields cannot begin and end with __ (found in field __baz__)"];
+      toFailWithReason:@"Invalid data. Document fields cannot begin and end with \"__\" (found in "
+                       @"field __baz__)"];
 
   [self expectUpdate:@{@"foo.__baz__" : @1}
-      toFailWithReason:
-          @"Document fields cannot begin and end with __ (found in field foo.__baz__)"];
+      toFailWithReason:@"Invalid data. Document fields cannot begin and end with \"__\" (found in "
+                       @"field foo.__baz__)"];
   [self expectUpdate:@{@"__baz__.foo" : @1}
-      toFailWithReason:
-          @"Document fields cannot begin and end with __ (found in field __baz__.foo)"];
+      toFailWithReason:@"Invalid data. Document fields cannot begin and end with \"__\" (found in "
+                       @"field __baz__.foo)"];
   [self expectUpdate:@{@1 : @1}
       toFailWithReason:@"Dictionary keys in updateData: must be NSStrings or FIRFieldPaths."];
+}
+
+- (void)testWritesMustNotContainEmptyFieldNames {
+  [self expectSet:@{@"" : @"foo"}
+      toFailWithReason:@"Invalid data. Document fields must not be empty (found in field ``)"];
 }
 
 - (void)testSetsWithFieldValueDeleteFail {

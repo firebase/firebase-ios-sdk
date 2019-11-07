@@ -254,12 +254,12 @@ NS_SWIFT_NAME(Query)
  * `arrayContains` or `in` filters.
  *
  * @param field The name of the field containing an array to search.
- * @param value The value that contains the values to match.
+ * @param values The array that contains the values to match.
  *
  * @return The created `FIRQuery`.
  */
 - (FIRQuery *)queryWhereField:(NSString *)field
-             arrayContainsAny:(NSArray<id> *)value NS_SWIFT_NAME(whereField(_:arrayContainsAny:));
+             arrayContainsAny:(NSArray<id> *)values NS_SWIFT_NAME(whereField(_:arrayContainsAny:));
 
 /**
  * Creates and returns a new `FIRQuery` with the additional filter that documents must contain
@@ -270,12 +270,12 @@ NS_SWIFT_NAME(Query)
  * `arrayContains` or `in` filters.
  *
  * @param path The path of the field containing an array to search.
- * @param value The value that contains the values to match.
+ * @param values The array that contains the values to match.
  *
  * @return The created `FIRQuery`.
  */
 - (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path
-                 arrayContainsAny:(NSArray<id> *)value
+                 arrayContainsAny:(NSArray<id> *)values
     NS_SWIFT_NAME(whereField(_:arrayContainsAny:));
 
 /**
@@ -286,12 +286,12 @@ NS_SWIFT_NAME(Query)
  * filter.
  *
  * @param field The name of the field to search.
- * @param value The value that contains the values to match.
+ * @param values The array that contains the values to match.
  *
  * @return The created `FIRQuery`.
  */
 - (FIRQuery *)queryWhereField:(NSString *)field
-                           in:(NSArray<id> *)value NS_SWIFT_NAME(whereField(_:in:));
+                           in:(NSArray<id> *)values NS_SWIFT_NAME(whereField(_:in:));
 
 /**
  * Creates and returns a new `FIRQuery` with the additional filter that documents must contain
@@ -301,12 +301,12 @@ NS_SWIFT_NAME(Query)
  * filter.
  *
  * @param path The path of the field to search.
- * @param value The value that contains the values to match.
+ * @param values The array that contains the values to match.
  *
  * @return The created `FIRQuery`.
  */
 - (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path
-                               in:(NSArray<id> *)value NS_SWIFT_NAME(whereField(_:in:));
+                               in:(NSArray<id> *)values NS_SWIFT_NAME(whereField(_:in:));
 
 /**
  * Creates and returns a new `FIRQuery` with the additional filter that documents must

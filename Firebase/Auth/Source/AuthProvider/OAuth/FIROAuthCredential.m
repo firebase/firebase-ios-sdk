@@ -26,8 +26,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIROAuthCredential ()
 
-@property(nonatomic, nullable) NSString *rawNonce;
-
 - (nullable instancetype)initWithProvider:(NSString *)provider NS_UNAVAILABLE;
 
 @end
@@ -42,14 +40,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithProviderID:(NSString *)providerID
                            IDToken:(nullable NSString *)IDToken
-                          rawNonce:(nullable NSString *)rawNonce
                        accessToken:(nullable NSString *)accessToken
                             secret:(nullable NSString *)secret
                       pendingToken:(nullable NSString *)pendingToken {
   self = [super initWithProvider:providerID];
   if (self) {
     _IDToken = IDToken;
-    _rawNonce = rawNonce;
     _accessToken = accessToken;
     _pendingToken = pendingToken;
     _secret = secret;
@@ -60,12 +56,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithProviderID:(NSString *)providerID
                          sessionID:(NSString *)sessionID
             OAuthResponseURLString:(NSString *)OAuthResponseURLString {
-  self = [self initWithProviderID:providerID
-                          IDToken:nil
-                         rawNonce:nil
-                      accessToken:nil
-                           secret:nil
-                     pendingToken:nil];
+  self =
+      [self initWithProviderID:providerID IDToken:nil accessToken:nil secret:nil pendingToken:nil];
   if (self) {
     _OAuthResponseURLString = OAuthResponseURLString;
     _sessionID = sessionID;
@@ -79,7 +71,6 @@ NS_ASSUME_NONNULL_BEGIN
       response.oauthSecretToken.length) {
     return [self initWithProviderID:response.providerID
                             IDToken:response.oauthIDToken
-                           rawNonce:nil
                         accessToken:response.oauthAccessToken
                              secret:response.oauthSecretToken
                        pendingToken:response.pendingToken];
@@ -89,7 +80,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)prepareVerifyAssertionRequest:(FIRVerifyAssertionRequest *)request {
   request.providerIDToken = _IDToken;
-  request.providerRawNonce = _rawNonce;
   request.providerAccessToken = _accessToken;
   request.requestURI = _OAuthResponseURLString;
   request.sessionID = _sessionID;
@@ -105,13 +95,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder {
   NSString *IDToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"IDToken"];
-  NSString *rawNonce = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"rawNonce"];
   NSString *accessToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"accessToken"];
   NSString *pendingToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"pendingToken"];
   NSString *secret = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"secret"];
   self = [self initWithProviderID:self.provider
                           IDToken:IDToken
-                         rawNonce:rawNonce
                       accessToken:accessToken
                            secret:secret
                      pendingToken:pendingToken];
@@ -120,7 +108,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)encodeWithCoder:(NSCoder *)aCoder {
   [aCoder encodeObject:self.IDToken forKey:@"IDToken"];
-  [aCoder encodeObject:self.IDToken forKey:@"rawNonce"];
   [aCoder encodeObject:self.accessToken forKey:@"accessToken"];
   [aCoder encodeObject:self.pendingToken forKey:@"pendingToken"];
   [aCoder encodeObject:self.secret forKey:@"secret"];

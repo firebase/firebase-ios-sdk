@@ -30,7 +30,7 @@ import shlex
 import textwrap
 
 from google.protobuf.descriptor_pb2 import FieldDescriptorProto
-from nanopb_pretty_printing import generators as printing
+from lib import pretty_printing as printing
 
 if sys.platform == 'win32':
   import msvcrt  # pylint: disable=g-import-not-at-top
@@ -61,8 +61,8 @@ def main():
   options = nanopb_parse_options(request)
   parsed_files = nanopb_parse_files(request, options)
   results = nanopb_generate(request, options, parsed_files)
-  pretty_printing_generators = create_pretty_printing_generators(parsed_files)
-  response = nanopb_write(results, pretty_printing_generators)
+  pretty_printing = create_pretty_printing(parsed_files)
+  response = nanopb_write(results, pretty_printing)
 
   # Write to stdout
   io.open(sys.stdout.fileno(), 'wb').write(response.SerializeToString())
@@ -204,8 +204,8 @@ def nanopb_parse_files(request, options):
   return parsed_files
 
 
-def create_pretty_printing_generators(parsed_files):
-  """Creates a `FilePrettyPrintingGenerator` for each of the given files.
+def create_pretty_printing(parsed_files):
+  """Creates a `FilePrettyPrinting` for each of the given files.
 
   Args:
     parsed_files: A dictionary of proto file names (e.g. `foo/bar/baz.proto`) to
@@ -213,14 +213,13 @@ def create_pretty_printing_generators(parsed_files):
 
   Returns:
     A dictionary of short (without extension) proto file names (e.g.,
-      `foo/bar/baz`) to `FilePrettyPrintingGenerator`s.
+      `foo/bar/baz`) to `FilePrettyPrinting` objects.
   """
-  pretty_printing_generators = {}
+  pretty_printing = {}
   for name, parsed_file in parsed_files.items():
     base_filename = name.replace('.proto', '')
-    pretty_printing_generators[
-      base_filename] = printing.FilePrettyPrintingGenerator(parsed_file)
-  return pretty_printing_generators
+    pretty_printing[base_filename] = printing.FilePrettyPrinting(parsed_file)
+  return pretty_printing
 
 
 def nanopb_generate(request, options, parsed_files):
@@ -255,14 +254,14 @@ def nanopb_generate(request, options, parsed_files):
   return output
 
 
-def nanopb_write(results, pretty_printing_generators):
+def nanopb_write(results, pretty_printing):
   """Translates nanopb output dictionaries to a CodeGeneratorResponse.
 
   Args:
     results: A list of generated source dictionaries, as returned by
       nanopb_generate().
-    pretty_printing_generators: A dictionary of `FilePrettyPrintingGenerator` objects,
-      indexed by short file name (without extension).
+    file_pretty_printing: A dictionary of `FilePrettyPrinting` objects, indexed
+      by short file name (without extension).
 
   Returns:
     A CodeGeneratorResponse describing the result of the code generation
@@ -272,24 +271,25 @@ def nanopb_write(results, pretty_printing_generators):
 
   for result in results:
     base_filename = result['headername'].replace('.nanopb.h', '')
-    pretty_printing_generator = pretty_printing_generators[base_filename]
+    file_pretty_printing = pretty_printing[base_filename]
 
-    header_request = FileGenerationRequest(response.file, result['headername'],
+    generated_header = GeneratedFile(response.file, result['headername'],
                                            nanopb_fixup(result['headerdata']))
-    nanopb_augment_header(header_request, pretty_printing_generator)
+    nanopb_augment_header(generated_header, file_pretty_printing)
 
-    source_request = FileGenerationRequest(response.file, result['sourcename'],
+    generated_source = GeneratedFile(response.file, result['sourcename'],
                                            nanopb_fixup(result['sourcedata']))
-    nanopb_augment_source(source_request, pretty_printing_generator)
+    nanopb_augment_source(generated_source, file_pretty_printing)
 
   return response
 
 
-class FileGenerationRequest:
+class GeneratedFile:
   """Represents a request to generate a file.
 
   The initial contents of the file can be augmented by inserting extra text at
-  insertion points. For each file, Nanopb defines the following insertion points:
+  insertion points. For each file, Nanopb defines the following insertion
+  points (each marked `@@protoc_insertion_point`):
 
   - 'includes' -- beginning of the file, after the last Nanopb include;
   - 'eof' -- the very end of file, right before the include guard.
@@ -304,12 +304,11 @@ class FileGenerationRequest:
   def __init__(self, files, file_name, contents):
     """
     Args:
-      files: The array of files to generate inside a `CodeGenerationRequest`.
+      files: The array of files to generate inside a `CodeGenerationResponse`.
         New files will be added to it.
       file_name: The name of the file to generate/augment.
       contents: The initial contents of the file, before any augmentation, as
         a single string.
-
     """
     self.files = files
     self.file_name = file_name
@@ -330,7 +329,8 @@ class FileGenerationRequest:
       insertion_point: The string identifier of the insertion point, e.g. 'eof'.
         The extra text will be inserted right before the insertion point. If
         `insert` is called repeatedly, insertions will be added in the order of
-        the calls.
+        the calls. All possible insertion points are defined by Nanopb; see the
+        class comment for additional details.
       to_insert: The text to insert as a string.
     """
     f = self.files.add()
@@ -356,51 +356,52 @@ def nanopb_fixup(file_contents):
   return delete_keyword.sub('delete_', file_contents)
 
 
-def nanopb_augment_header(request, pretty_printing_generator):
+def nanopb_augment_header(request, file_pretty_printing):
   """Augments a `.h` file generation request with pretty-printing support.
 
   Also puts all code in `firebase::firestore` namespace.
   Args:
     request: The file generation request; must be a request to generate a header
       file.
-    pretty_printing_generator: `FilePrettyPrintingGenerator` for this header.
+    file_pretty_printing: `FilePrettyPrinting` for this header.
   """
   request.insert('includes', '#include <string>\n\n')
 
   open_namespace(request)
 
-  for e in pretty_printing_generator.enums:
+  for e in file_pretty_printing.enums:
     request.insert('eof', e.generate_declaration())
-  for m in pretty_printing_generator.messages:
+  for m in file_pretty_printing.messages:
     request.insert('struct:' + m.full_classname, m.generate_declaration())
 
   close_namespace(request)
 
 
-def nanopb_augment_source(request, pretty_printing_generator):
+def nanopb_augment_source(request, file_pretty_printing):
   """Augments a `.cc` file generation request with pretty-printing support.
 
   Also puts all code in `firebase::firestore` namespace.
   Args:
     request: The file generation request; must be a request to generate a source
       file.
-    pretty_printing_generator: `FilePrettyPrintingGenerator` for this header.
+    file_pretty_printing: `FilePrettyPrinting` for this source.
   """
   request.insert('includes', textwrap.dedent('\
     #include "Firestore/core/src/firebase/firestore/nanopb/pretty_printing.h"\n\n'))
 
   open_namespace(request)
+  add_using_declarations(request)
 
-  for e in pretty_printing_generator.enums:
+  for e in file_pretty_printing.enums:
     request.insert('eof', e.generate_definition())
-  for m in pretty_printing_generator.messages:
+  for m in file_pretty_printing.messages:
     request.insert('eof', m.generate_definition())
 
   close_namespace(request)
 
 
 def open_namespace(request):
-  """Augments a file generation request by opening `f::f` namespace.
+  """Augments a file generation request by opening the `f::f` namespace.
   """
   request.insert('includes', textwrap.dedent('''\
       namespace firebase {
@@ -408,11 +409,22 @@ def open_namespace(request):
 
 
 def close_namespace(request):
-  """Augments a file generation request by opening `f::f` namespace.
+  """Augments a file generation request by closing the `f::f` namespace.
   """
   request.insert('eof', textwrap.dedent('''\
       }  // namespace firestore
       }  // namespace firebase\n\n'''))
+
+
+def add_using_declarations(request):
+  """Augments a file generation request by adding the necessary using declarations.
+  """
+  request.insert('includes', '''\
+using nanopb::PrintEnumField;
+using nanopb::PrintHeader;
+using nanopb::PrintMessageField;
+using nanopb::PrintPrimitiveField;
+using nanopb::PrintTail;\n\n''');
 
 
 if __name__ == '__main__':
