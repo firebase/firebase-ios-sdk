@@ -168,6 +168,14 @@ cc_library(
   EXCLUDE_FROM_ALL
 )
 
+if(CXX_CLANG OR CXX_GNU)
+  target_compile_options(
+    firebase_firestore_protos_libprotobuf PRIVATE
+    -Wno-unreachable-code
+  )
+endif()
+
+
 target_include_directories(
   firebase_firestore_protos_libprotobuf PUBLIC
   ${FIREBASE_SOURCE_DIR}/Firestore/Protos/cpp

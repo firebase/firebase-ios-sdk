@@ -87,9 +87,9 @@ class MutationQueueTestBase : public testing::Test {
  * To test a specific implementation of MutationQueue:
  *
  * + Write a persistence factory function
- * + Call INSTANTIATE_TEST_CASE_P(MyNewMutationQueueTest,
- *                                MutationQueueTest,
- *                                testing::Values(PersistenceFactory));
+ * + Call INSTANTIATE_TEST_SUITE_P(MyNewMutationQueueTest,
+ *                                 MutationQueueTest,
+ *                                 testing::Values(PersistenceFactory));
  */
 class MutationQueueTest : public MutationQueueTestBase,
                           public testing::WithParamInterface<FactoryFunc> {

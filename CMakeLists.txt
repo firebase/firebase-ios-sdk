@@ -178,7 +178,9 @@ endif()
 if(CXX_CLANG)
   target_compile_options(
     libprotobuf
-    PRIVATE -Wno-invalid-offsetof
+    PRIVATE
+      -Wno-inconsistent-missing-override
+      -Wno-invalid-offsetof
   )
 endif()
 
