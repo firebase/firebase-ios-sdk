@@ -478,7 +478,7 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
 
       // We had a successful fetch. Update the current eTag in settings if different.
       NSString *latestETag = ((NSHTTPURLResponse *)response).allHeaderFields[kETagHeaderName];
-      if (self->_settings.lastETag && !([self->_settings.lastETag isEqualToString:latestETag])) {
+      if (!self->_settings.lastETag || !([self->_settings.lastETag isEqualToString:latestETag])) {
         self->_settings.lastETag = latestETag;
       }
 
