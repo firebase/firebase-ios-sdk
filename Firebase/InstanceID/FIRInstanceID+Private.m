@@ -61,7 +61,7 @@
 
 /// Presence of this method indicates that this version of IID uses FirebaseInstallations under the
 /// hood. It is checked by FirebaseInstallations SDK.
-- (BOOL)usesFIS {
++ (BOOL)usesFIS {
   return YES;
 }
 
