@@ -31,7 +31,7 @@ def _indent(level):
   return ' ' * (indent_per_level * level)
 
 
-class FilePrettyPrintingGenerator:
+class FilePrettyPrinting:
   """Allows generating pretty-printing support for a proto file.
 
   Because two files (header and source) are generated for each proto file, this
@@ -45,12 +45,12 @@ class FilePrettyPrintingGenerator:
       file_desc: nanopb.ProtoFile describing this proto file.
     """
 
-    self.messages = [MessagePrettyPrintingGenerator(m) for m in
+    self.messages = [MessagePrettyPrinting(m) for m in
                      file_desc.messages]
-    self.enums = [EnumPrettyPrintingGenerator(e) for e in file_desc.enums]
+    self.enums = [EnumPrettyPrinting(e) for e in file_desc.enums]
 
 
-class MessagePrettyPrintingGenerator:
+class MessagePrettyPrinting:
   """Generates pretty-printing support for a message.
 
   Adds the following member function to the Nanopb generated class:
@@ -82,9 +82,9 @@ class MessagePrettyPrintingGenerator:
 
   def _create_field(self, field_desc, message_desc):
     if isinstance(field_desc, nanopb.OneOf):
-      return OneOfPrettyPrintingGenerator(field_desc, message_desc)
+      return OneOfPrettyPrinting(field_desc, message_desc)
     else:
-      return FieldPrettyPrintingGenerator(field_desc, message_desc)
+      return FieldPrettyPrinting(field_desc, message_desc)
 
   def generate_declaration(self):
     """Generates the declaration of a `ToString()` member function.
@@ -125,14 +125,14 @@ std::string %s::ToString(int indent) const {
     return result
 
 
-class FieldPrettyPrintingGenerator:
+class FieldPrettyPrinting:
   """Generates pretty-printing support for a field.
 
   The generated C++ code will output the field name and value; the output format
   is the proto text format, suitable for parsing. Unset fields are not printed.
   Repeated and optional fields are supported.
 
-  Oneofs are not supported; use `OneOfPrettyPrintingGenerator` instead.
+  Oneofs are not supported; use `OneOfPrettyPrinting` instead.
 
   The actual output will be delegated to a C++ function called
   `PrintPrimitiveField()`, `PrintEnumField()`, or `PrintMessageField()`,
@@ -210,7 +210,7 @@ class FieldPrettyPrintingGenerator:
         default value, or for a message, if each field it contains has the
         default value.
       parent_oneof: If the field is a member of a oneof, a reference to the
-        corresponding `OneOfPrettyPrintingGenerator`
+        corresponding `OneOfPrettyPrinting`
     """
 
     always_print = 'true' if always_print else 'false'
@@ -291,7 +291,7 @@ class FieldPrettyPrintingGenerator:
     return result
 
 
-class OneOfPrettyPrintingGenerator(FieldPrettyPrintingGenerator):
+class OneOfPrettyPrinting(FieldPrettyPrinting):
   """Generates pretty-printing support for a oneof field.
 
   This class represents the "whole" oneof, with all of its members nested, not
@@ -305,13 +305,13 @@ class OneOfPrettyPrintingGenerator(FieldPrettyPrintingGenerator):
       message_desc: nanopb.Message describing the message containing this field.
     """
 
-    FieldPrettyPrintingGenerator.__init__(self, field_desc, message_desc)
+    FieldPrettyPrinting.__init__(self, field_desc, message_desc)
 
     self._full_classname = str(message_desc.name)
 
     self._which = 'which_' + field_desc.name
     self.is_anonymous = field_desc.anonymous
-    self._fields = [FieldPrettyPrintingGenerator(f, message_desc) for f in
+    self._fields = [FieldPrettyPrinting(f, message_desc) for f in
                     field_desc.fields]
 
   def __str__(self):
@@ -339,7 +339,7 @@ class OneOfPrettyPrintingGenerator(FieldPrettyPrintingGenerator):
     return result
 
 
-class EnumPrettyPrintingGenerator:
+class EnumPrettyPrinting:
   """Generates pretty-printing support for an enumeration.
 
   Adds the following free function to the file:
