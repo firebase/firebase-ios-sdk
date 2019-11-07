@@ -31,9 +31,9 @@ typedef BOOL (*GULRealOpenURLSourceApplicationAnnotationIMP)(
 typedef BOOL (*GULRealOpenURLOptionsIMP)(
     id, SEL, GULApplication *, NSURL *, NSDictionary<NSString *, id> *);
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+#if UISCENE_SUPPORTED
 typedef void (*GULOpenURLContextsIMP)(id, SEL, UIScene *, NSSet<UIOpenURLContext *> *);
-#endif  // __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+#endif  // UISCENE_SUPPORTED
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wstrict-prototypes"
@@ -294,7 +294,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
         [GULAppDelegateSwizzler sharedApplication].delegate;
     [GULAppDelegateSwizzler proxyAppDelegate:originalDelegate];
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+#if UISCENE_SUPPORTED
     if (@available(iOS 13.0, *)) {
       if (![GULAppDelegateSwizzler isAppDelegateProxyEnabled]) {
         return;
@@ -306,7 +306,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
                  object:nil];
       }
     }
-#endif  // __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+#endif  // UISCENE_SUPPORTED
   });
 }
 
@@ -700,12 +700,12 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
   }];
 }
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+#if UISCENE_SUPPORTED
 + (void)handleSceneWillConnectToNotification:(NSNotification *)notification {
   UIScene *scene = (UIScene *)notification.object;
   [GULAppDelegateSwizzler proxySceneDelegate:scene];
 }
-#endif  // __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+#endif  // UISCENE_SUPPORTED
 
 // The methods below are donor methods which are added to the dynamic subclass of the App Delegate.
 // They are called within the scope of the real App Delegate so |self| does not refer to the
@@ -788,7 +788,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
 
 #pragma mark - [Donor Methods] UISceneDelegate URL handler
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+#if UISCENE_SUPPORTED
 - (void)scene:(UIScene *)scene openURLContexts:(NSSet<UIOpenURLContext *> *)URLContexts {
   NSLog(@"--------- Swizzler scene open url");
   SEL methodSelector = @selector(scene:openURLContexts:);
@@ -816,7 +816,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
     openURLContextsIMP(self, methodSelector, scene, URLContexts);
   }
 }
-#endif  // __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+#endif  // UISCENE_SUPPORTED
 
 #pragma mark - [Donor Methods] Network overridden handler methods
 
@@ -1059,7 +1059,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
   }
 }
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+#if UISCENE_SUPPORTED
 + (void)proxySceneDelegate:(UIScene *)scene API_AVAILABLE(ios(13.0)) {
   NSLog(@"--------- Swizzler proxy scene delegate");
   Class realClass = [scene.delegate class];
@@ -1141,7 +1141,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
                 [GULAppDelegateSwizzler correctAppDelegateProxyKey]);
   }
 }
-#endif  // __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+#endif  // UISCENE_SUPPORTED
 
 #pragma mark - Methods to print correct debug logs
 
