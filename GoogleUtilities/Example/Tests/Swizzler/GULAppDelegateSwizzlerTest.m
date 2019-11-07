@@ -1362,6 +1362,6 @@ API_AVAILABLE(ios(13.0))
   XCTAssertEqualObjects([realSceneDelegate class], realSceneDelegateClassBefore);
 }
 
-#endif // __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+#endif  // __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
 
 @end
