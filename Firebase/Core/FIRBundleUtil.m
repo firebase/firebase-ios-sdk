@@ -54,6 +54,7 @@
         [GULAppEnvironmentUtil isAppExtension]
             ? [self bundleIdentifierByRemovingLastPartFrom:bundle.bundleIdentifier]
             : bundle.bundleIdentifier;
+
     if ([applicationBundleIdentifier isEqualToString:bundleIdentifier]) {
       return YES;
     }

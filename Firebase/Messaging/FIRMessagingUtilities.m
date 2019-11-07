@@ -149,8 +149,24 @@ NSString *FIRMessagingCurrentAppVersion(void) {
   return version;
 }
 
+
+NSString * FIRMessagingBundleIdentifierByRemovingLastPartFrom(NSString *bundleIdentifier) {
+  NSString *bundleIDComponentsSeparator = @".";
+
+  NSMutableArray<NSString *> *bundleIDComponents =
+      [[bundleIdentifier componentsSeparatedByString:bundleIDComponentsSeparator] mutableCopy];
+  [bundleIDComponents removeLastObject];
+
+  return [bundleIDComponents componentsJoinedByString:bundleIDComponentsSeparator];
+}
+
 NSString *FIRMessagingAppIdentifier(void) {
-  return [[NSBundle mainBundle] bundleIdentifier];
+  NSString *bundleIdentifier = [[NSBundle mainBundle] bundleIdentifier];
+#if TARGET_OS_WATCH
+  return FIRMessagingBundleIdentifierByRemovingLastPartFrom(bundleIdentifier);
+#else
+  return bundleIdentifier;
+#endif
 }
 
 uint64_t FIRMessagingGetFreeDiskSpaceInMB(void) {

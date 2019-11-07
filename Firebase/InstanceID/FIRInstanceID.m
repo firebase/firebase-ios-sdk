@@ -675,7 +675,7 @@ static FIRInstanceID *gInstanceID;
   self.firebaseAppID = firApp.options.googleAppID;
 
   // FCM generates a FCM token during app start for sending push notification to device.
-  // This is not needed for app extension.
+  // This is not needed for app extension except for watch.
 #if TARGET_OS_WATCH
     [self didCompleteConfigure];
 #else
