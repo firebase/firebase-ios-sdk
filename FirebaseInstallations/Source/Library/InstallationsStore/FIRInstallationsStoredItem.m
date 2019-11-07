@@ -18,13 +18,12 @@
 
 #import "FIRInstallationsLogger.h"
 #import "FIRInstallationsStoredAuthToken.h"
-#import "FIRInstallationsStoredIIDCheckin.h"
 
 NSString *const kFIRInstallationsStoredItemFirebaseInstallationIDKey = @"firebaseInstallationID";
 NSString *const kFIRInstallationsStoredItemRefreshTokenKey = @"refreshToken";
 NSString *const kFIRInstallationsStoredItemAuthTokenKey = @"authToken";
 NSString *const kFIRInstallationsStoredItemRegistrationStatusKey = @"registrationStatus";
-NSString *const kFIRInstallationsStoredItemIIDCheckinKey = @"IIDCheckin";
+NSString *const kFIRInstallationsStoredItemIIDDefaultTokenKey = @"IIDDefaultToken";
 NSString *const kFIRInstallationsStoredItemStorageVersionKey = @"storageVersion";
 
 NSInteger const kFIRInstallationsStoredItemStorageVersion = 1;
@@ -42,7 +41,7 @@ NSInteger const kFIRInstallationsStoredItemStorageVersion = 1;
   [aCoder encodeObject:self.authToken forKey:kFIRInstallationsStoredItemAuthTokenKey];
   [aCoder encodeInteger:self.registrationStatus
                  forKey:kFIRInstallationsStoredItemRegistrationStatusKey];
-  [aCoder encodeObject:self.IIDCheckin forKey:kFIRInstallationsStoredItemIIDCheckinKey];
+  [aCoder encodeObject:self.IIDDefaultToken forKey:kFIRInstallationsStoredItemIIDDefaultTokenKey];
   [aCoder encodeInteger:self.storageVersion forKey:kFIRInstallationsStoredItemStorageVersionKey];
 }
 
@@ -67,8 +66,9 @@ NSInteger const kFIRInstallationsStoredItemStorageVersion = 1;
                                           forKey:kFIRInstallationsStoredItemAuthTokenKey];
   item.registrationStatus =
       [aDecoder decodeIntegerForKey:kFIRInstallationsStoredItemRegistrationStatusKey];
-  item.IIDCheckin = [aDecoder decodeObjectOfClass:[FIRInstallationsStoredIIDCheckin class]
-                                           forKey:kFIRInstallationsStoredItemIIDCheckinKey];
+  item.IIDDefaultToken =
+      [aDecoder decodeObjectOfClass:[NSString class]
+                             forKey:kFIRInstallationsStoredItemIIDDefaultTokenKey];
 
   return item;
 }

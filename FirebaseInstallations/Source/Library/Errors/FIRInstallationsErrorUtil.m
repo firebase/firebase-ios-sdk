@@ -59,9 +59,9 @@ void FIRInstallationsItemSetErrorToPointer(NSError *error, NSError **pointer) {
                           underlyingError:nil];
 }
 
-+ (NSError *)corruptedIIDCheckingData {
++ (NSError *)corruptedIIDTokenData {
   NSString *failureReason =
-      @"IID checking data stored in Keychain is corrupted or in an incompatible format.";
+      @"IID token data stored in Keychain is corrupted or in an incompatible format.";
   return [self installationsErrorWithCode:FIRInstallationsErrorCodeUnknown
                             failureReason:failureReason
                           underlyingError:nil];
