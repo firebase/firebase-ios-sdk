@@ -43,7 +43,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=macos
 
     - stage: test
-      osx_image: xcode10.2
+      osx_image: xcode10.3
       env:
         - PROJECT=Core METHOD=pod-lib-lint
       script:
@@ -70,7 +70,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCoreDiagnostics.podspec --platforms=macos
 
     - stage: test
-      osx_image: xcode10.2
+      osx_image: xcode10.3
       env:
         - PROJECT=CoreDiagnostics METHOD=pod-lib-lint
       script:
@@ -97,7 +97,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseABTesting.podspec --platforms=macos
 
     - stage: test
-      osx_image: xcode10.2
+      osx_image: xcode10.3
       env:
         - PROJECT=ABTesting METHOD=pod-lib-lint
       script:
@@ -128,7 +128,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
 
     - stage: test
-      osx_image: xcode10.2
+      osx_image: xcode10.3
       env:
         - PROJECT=Auth PLATFORM=iOS METHOD=xcodebuild
       before_install:
@@ -158,7 +158,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=macos
 
     - stage: test
-      osx_image: xcode10.2
+      osx_image: xcode10.3
       env:
         - PROJECT=InstanceID METHOD=pod-lib-lint
       script:
@@ -189,7 +189,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseDatabase.podspec --skip-tests --platforms=macos
 
     - stage: test
-      osx_image: xcode10.2
+      osx_image: xcode10.3
       env:
         - PROJECT=Database PLATFORM=all METHOD=xcodebuild
       before_install:
@@ -218,7 +218,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseDynamicLinks.podspec --use-modular-headers
 
     - stage: test
-      osx_image: xcode10.2
+      osx_image: xcode10.3
       env:
         - PROJECT=DynamicLinks METHOD=pod-lib-lint
       script:
@@ -233,7 +233,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=macos
 
     - stage: test
-      osx_image: xcode10.2
+      osx_image: xcode10.3
       env:
         - PROJECT=Messaging METHOD=pod-lib-lint
       script:
@@ -263,7 +263,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=macos
 
     - stage: test
-      osx_image: xcode10.2
+      osx_image: xcode10.3
       env:
         - PROJECT=RemoteConfig METHOD=pod-lib-lint
       script:
@@ -294,7 +294,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --skip-tests --platforms=macos
 
     - stage: test
-      osx_image: xcode10.2
+      osx_image: xcode10.3
       env:
         - PROJECT=Storage PLATFORM=all METHOD=xcodebuild
       before_install:
@@ -325,7 +325,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseFunctions.podspec --use-modular-headers
 
     - stage: test
-      osx_image: xcode10.2
+      osx_image: xcode10.3
       env:
         - PROJECT=Functions METHOD=pod-lib-lint
       before_install:
@@ -342,7 +342,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
 
     - stage: test
-      osx_image: xcode10.2
+      osx_image: xcode10.3
       env:
         - PROJECT=InAppMessaging PLATFORM=iOS METHOD=xcodebuild
       before_install:
@@ -359,7 +359,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
 
     - stage: test
-      osx_image: xcode10.2
+      osx_image: xcode10.3
       env:
         - PROJECT=InAppMessagingDisplay PLATFORM=iOS METHOD=xcodebuild
       before_install:
@@ -384,7 +384,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
     - stage: test
-      osx_image: xcode10.2
+      osx_image: xcode10.3
       env:
         - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild
       before_install:
@@ -399,7 +399,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleUtilities.podspec
 
     - stage: test
-      osx_image: xcode10.2
+      osx_image: xcode10.3
       env:
         - PROJECT=GoogleUtilities METHOD=pod-lib-lint
       script:
@@ -421,7 +421,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleUtilitiesComponents.podspec
 
     - stage: test
-      osx_image: xcode10.1
+      osx_image: xcode10.3
       env:
         - PROJECT=GoogleUtilitiesComponents METHOD=pod-lib-lint
       script:
@@ -442,7 +442,8 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseAnalyticsInterop.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseAuthInterop.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCoreDiagnosticsInterop.podspec
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInAppMessaging.podspec
+        # Fix analyze (#4163)
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInAppMessaging.podspec --no-analyze
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInAppMessagingDisplay.podspec
 
     - stage: test
@@ -451,7 +452,8 @@ jobs:
       script:
         # Eliminate the one warning from BoringSSL when CocoaPods 1.6.0 is available.
         # The travis_wait is necessary because the command takes more than 10 minutes.
-        - travis_wait 30 ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseFirestore.podspec --platforms=ios --allow-warnings --no-subspecs
+        # Some of the Firestore dependencies fail to analyze.
+        - travis_wait 30 ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseFirestore.podspec --platforms=ios --allow-warnings --no-subspecs --no-analyze
 
     # pod lib lint to check build and warnings for static library build - only on cron jobs
     - stage: test
@@ -459,8 +461,8 @@ jobs:
       env:
         - PROJECT=InAppMessagingCron METHOD=pod-lib-lint
       script:
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseInAppMessaging.podspec --use-libraries
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseInAppMessaging.podspec --use-modular-headers
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseInAppMessaging.podspec --use-libraries --no-analyze
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseInAppMessaging.podspec --use-modular-headers --no-analyze
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseInAppMessagingDisplay.podspec --use-libraries
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseInAppMessagingDisplay.podspec --use-modular-headers
 
@@ -471,7 +473,7 @@ jobs:
       script:
         # TBD - non-portable path warnings
         # The travis_wait is necessary because the command takes more than 10 minutes.
-        - travis_wait 45 ./scripts/pod_lib_lint.rb FirebaseFirestore.podspec --use-libraries --allow-warnings --no-subspecs
+        - travis_wait 45 ./scripts/pod_lib_lint.rb FirebaseFirestore.podspec --use-libraries --allow-warnings --no-subspecs --no-analyze
 
     - stage: test
       env:
@@ -482,7 +484,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=tvos
 
     - stage: test
-      osx_image: xcode10.2
+      osx_image: xcode10.3
       env:
         - PROJECT=GoogleDataTransport METHOD=pod-lib-lint
       script:
@@ -509,7 +511,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=tvos
 
     - stage: test
-      osx_image: xcode10.2
+      osx_image: xcode10.3
       env:
         - PROJECT=GoogleDataTransportCCTSupport METHOD=pod-lib-lint
       script:
@@ -669,6 +671,8 @@ jobs:
     - stage: test
       env:
         - PROJECT=Installations PLATFORM=iOS METHOD=pod-lib-lint
+        - FIS_ALLOWS_INCOMPATIBLE_IID_VERSION=1
+        - FIS_INTEGRATION_TESTS_REQUIRED=1
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
@@ -679,6 +683,8 @@ jobs:
     - stage: test
       env:
         - PROJECT=Installations PLATFORM=macOS METHOD=pod-lib-lint
+        - FIS_ALLOWS_INCOMPATIBLE_IID_VERSION=1
+        - FIS_INTEGRATION_TESTS_REQUIRED=1
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
@@ -689,6 +695,8 @@ jobs:
     - stage: test
       env:
         - PROJECT=Installations PLATFORM=tvOS METHOD=pod-lib-lint
+        - FIS_ALLOWS_INCOMPATIBLE_IID_VERSION=1
+        - FIS_INTEGRATION_TESTS_REQUIRED=1
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
@@ -718,10 +726,6 @@ jobs:
       - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=tsan
     - env:
       - PROJECT=GoogleDataTransportIntegrationTest PLATFORM=iOS METHOD=xcodebuild
-    - env:
-      - PROJECT=Messaging METHOD=pod-lib-lint
-    - env:
-      - PROJECT=MessagingCron METHOD=pod-lib-lint
 
   # TODO(varconst): enable if it's possible to make this flag work on build
   # stages. It's supposed to avoid waiting for jobs that are allowed to fail

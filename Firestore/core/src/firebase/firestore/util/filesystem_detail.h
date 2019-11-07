@@ -52,7 +52,7 @@ Status DeleteDir(const Path& path);
  * @return Ok if the file was deleted or did not exist. Returns a system-defined
  *     error if the path exists but is not a regular file.
  */
-Status DeleteFile(const Path& path);
+Status DeleteSingleFile(const Path& path);
 
 /**
  * Recursively deletes the contents of the given pathname that is known to be
