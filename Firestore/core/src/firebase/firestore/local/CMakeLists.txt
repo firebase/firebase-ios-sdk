@@ -51,14 +51,6 @@ cc_library(
   EXCLUDE_FROM_ALL
 )
 
-if(APPLE)
-  target_link_libraries(
-    firebase_firestore_local_persistence_leveldb
-    PRIVATE
-    firebase_firestore_protos_objc
-  )
-endif()
-
 cc_library(
   firebase_firestore_local
   SOURCES
@@ -119,10 +111,3 @@ cc_library(
     firebase_firestore_remote
     firebase_firestore_util
 )
-
-if(APPLE)
-  target_link_libraries(
-    firebase_firestore_local PRIVATE
-    firebase_firestore_protos_objc
-  )
-endif()

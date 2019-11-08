@@ -24,10 +24,12 @@
 // TODO(wilhuff): move this to the top once the test filename matches
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 
-#import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
-#import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
-
+#include "Firestore/Protos/nanopb/firestore/local/mutation.nanopb.h"
+#include "Firestore/Protos/nanopb/firestore/local/target.nanopb.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/message.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/util/path.h"
 #include "Firestore/core/test/firebase/firestore/local/persistence_testing.h"
 #include "absl/strings/string_view.h"
@@ -35,9 +37,14 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+using firebase::firestore::firestore_client_Target;
+using firebase::firestore::firestore_client_WriteBatch;
 using firebase::firestore::local::LevelDbDir;
 using firebase::firestore::local::LevelDbMutationKey;
 using firebase::firestore::local::LevelDbTransaction;
+using firebase::firestore::nanopb::ByteString;
+using firebase::firestore::nanopb::Message;
+using firebase::firestore::nanopb::StringReader;
 using firebase::firestore::util::Path;
 using leveldb::DB;
 using leveldb::Options;
@@ -199,22 +206,22 @@ using leveldb::WriteOptions;
 - (void)testProtobufSupport {
   LevelDbTransaction transaction(_db.get(), "testProtobufSupport");
 
-  FSTPBTarget *target = [FSTPBTarget message];
-  target.targetId = 1;
-  target.lastListenSequenceNumber = 2;
+  Message<firestore_client_Target> target;
+  target->target_id = 1;
+  target->last_listen_sequence_number = 2;
 
   std::string key("theKey");
   transaction.Put(key, target);
 
   std::string value;
   Status status = transaction.Get("theKey", &value);
-  NSData *result = [[NSData alloc] initWithBytesNoCopy:(void *)value.data()
-                                                length:value.size()
-                                          freeWhenDone:NO];
-  NSError *error;
-  FSTPBTarget *parsed = [FSTPBTarget parseFromData:result error:&error];
-  XCTAssertNil(error);
-  XCTAssertTrue([target isEqual:parsed]);
+
+  ByteString bytes{value};
+  StringReader reader{bytes};
+  auto parsed = Message<firestore_client_Target>::TryParse(&reader);
+  XCTAssertTrue(reader.ok());
+  XCTAssertEqual(target->target_id, parsed->target_id);
+  XCTAssertEqual(target->last_listen_sequence_number, parsed->last_listen_sequence_number);
 }
 
 - (void)testCanIterateAndDelete {
@@ -286,8 +293,8 @@ using leveldb::WriteOptions;
 
 - (void)testToString {
   std::string key = LevelDbMutationKey::Key("user1", 42);
-  FSTPBWriteBatch *message = [FSTPBWriteBatch message];
-  message.batchId = 42;
+  Message<firestore_client_WriteBatch> message;
+  message->batch_id = 42;
 
   LevelDbTransaction transaction(_db.get(), "testToString");
   std::string description = transaction.ToString();

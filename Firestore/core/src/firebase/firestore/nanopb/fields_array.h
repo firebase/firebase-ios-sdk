@@ -152,6 +152,11 @@ inline const pb_field_t* FieldsArray<google_firestore_v1_WriteResult>() {
   return google_firestore_v1_WriteResult_fields;
 }
 
+template <>
+inline const pb_field_t* FieldsArray<google_protobuf_Empty>() {
+  return google_protobuf_Empty_fields;
+}
+
 }  // namespace nanopb
 }  // namespace firestore
 }  // namespace firebase
