@@ -27,8 +27,8 @@ namespace {
 
 using remote::RemoteStore;
 using util::AsyncQueue;
-using util::TimerId;
 using util::Status;
+using util::TimerId;
 
 /** Maximum number of times a transaction can be retried before failing. */
 constexpr int kRetryCount = 5;

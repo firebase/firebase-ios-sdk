@@ -37,12 +37,12 @@ namespace {
 using model::DocumentKeySet;
 using model::DocumentSet;
 using model::OnlineState;
-using util::StatusOr;
-using util::StatusOrCallback;
-using testutil::Query;
 using testing::_;
 using testing::ElementsAre;
 using testing::StrictMock;
+using testutil::Query;
+using util::StatusOr;
+using util::StatusOrCallback;
 
 ViewSnapshot::Listener NoopViewSnapshotHandler() {
   return EventListener<ViewSnapshot>::Create(

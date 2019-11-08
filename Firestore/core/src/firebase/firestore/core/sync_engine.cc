@@ -35,8 +35,8 @@ namespace core {
 
 namespace {
 
-using firestore::Error;
 using auth::User;
+using firestore::Error;
 using local::LocalStore;
 using local::LocalViewChanges;
 using local::LocalWriteResult;
@@ -170,9 +170,10 @@ void SyncEngine::WriteMutations(std::vector<model::Mutation>&& mutations,
 
 void SyncEngine::RegisterPendingWritesCallback(StatusCallback callback) {
   if (!remote_store_->CanUseNetwork()) {
-    LOG_DEBUG("The network is disabled. The task returned by "
-              "'waitForPendingWrites()' will not "
-              "complete until the network is enabled.");
+    LOG_DEBUG(
+        "The network is disabled. The task returned by "
+        "'waitForPendingWrites()' will not "
+        "complete until the network is enabled.");
   }
 
   int largest_pending_batch_id =

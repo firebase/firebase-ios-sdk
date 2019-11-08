@@ -220,12 +220,14 @@ Query Query::OrderBy(FieldPath fieldPath, bool descending) const {
 Query Query::OrderBy(FieldPath fieldPath, Direction direction) const {
   ValidateNewOrderByPath(fieldPath);
   if (query_.start_at()) {
-    ThrowInvalidArgument("Invalid query. You must not specify a starting point "
-                         "before specifying the order by.");
+    ThrowInvalidArgument(
+        "Invalid query. You must not specify a starting point "
+        "before specifying the order by.");
   }
   if (query_.end_at()) {
-    ThrowInvalidArgument("Invalid query. You must not specify an ending point "
-                         "before specifying the order by.");
+    ThrowInvalidArgument(
+        "Invalid query. You must not specify an ending point "
+        "before specifying the order by.");
   }
   return Wrap(
       query_.AddingOrderBy(core::OrderBy(std::move(fieldPath), direction)));
@@ -290,10 +292,10 @@ void Query::ValidateNewFilter(const class Filter& filter) const {
               "Invalid Query. You cannot use more than one '%s' filter.",
               Describe(filter_op));
         } else {
-          ThrowInvalidArgument("Invalid Query. You cannot use '%s' filters with"
-                               " '%s' filters.",
-                               Describe(filter_op),
-                               Describe(conflicting_op.value()));
+          ThrowInvalidArgument(
+              "Invalid Query. You cannot use '%s' filters with"
+              " '%s' filters.",
+              Describe(filter_op), Describe(conflicting_op.value()));
         }
       }
     }
@@ -330,14 +332,16 @@ void Query::ValidateDisjunctiveFilterElements(
       field_value.type() == FieldValue::Type::Array,
       "A FieldValue of Array type is required for disjunctive filters.");
   if (field_value.array_value().size() == 0) {
-    ThrowInvalidArgument("Invalid Query. A non-empty array is required for '%s'"
-                         " filters.",
-                         Describe(op));
+    ThrowInvalidArgument(
+        "Invalid Query. A non-empty array is required for '%s'"
+        " filters.",
+        Describe(op));
   }
   if (field_value.array_value().size() > 10) {
-    ThrowInvalidArgument("Invalid Query. '%s' filters support a maximum of 10"
-                         " elements in the value array.",
-                         Describe(op));
+    ThrowInvalidArgument(
+        "Invalid Query. '%s' filters support a maximum of 10"
+        " elements in the value array.",
+        Describe(op));
   }
 
   std::vector<FieldValue> array = field_value.array_value();
@@ -349,9 +353,10 @@ void Query::ValidateDisjunctiveFilterElements(
           Describe(op));
     }
     if (val.is_nan()) {
-      ThrowInvalidArgument("Invalid Query. '%s' filters cannot contain 'NaN' in"
-                           " the value array.",
-                           Describe(op));
+      ThrowInvalidArgument(
+          "Invalid Query. '%s' filters cannot contain 'NaN' in"
+          " the value array.",
+          Describe(op));
     }
   }
 }

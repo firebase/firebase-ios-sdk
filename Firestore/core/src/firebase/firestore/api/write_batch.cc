@@ -82,8 +82,9 @@ void WriteBatch::VerifyNotCommitted() const {
 
 void WriteBatch::ValidateReference(const DocumentReference& reference) const {
   if (reference.firestore() != firestore_) {
-    ThrowInvalidArgument("Provided document reference is from a different "
-                         "Firestore instance.");
+    ThrowInvalidArgument(
+        "Provided document reference is from a different "
+        "Firestore instance.");
   }
 }
 

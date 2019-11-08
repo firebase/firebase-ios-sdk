@@ -191,7 +191,7 @@ void Transaction::Commit(util::StatusCallback&& callback) {
   std::unordered_set<DocumentKey, DocumentKeyHash> unwritten;
   for (const auto& kv : read_versions_) {
     unwritten.insert(kv.first);
-  };
+  }
   // For each mutation, note that the doc was written.
   for (const Mutation& mutation : mutations_) {
     unwritten.erase(mutation.key());
@@ -219,8 +219,9 @@ bool Transaction::IsPermanentlyFailed() const {
 }
 
 void Transaction::EnsureCommitNotCalled() {
-  HARD_ASSERT(!committed_, "A transaction object cannot be used after its "
-                           "update callback has been invoked.");
+  HARD_ASSERT(!committed_,
+              "A transaction object cannot be used after its "
+              "update callback has been invoked.");
 }
 
 absl::optional<SnapshotVersion> Transaction::GetVersion(
