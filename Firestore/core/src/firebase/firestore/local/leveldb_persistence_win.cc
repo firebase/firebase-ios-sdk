@@ -14,30 +14,43 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/test/firebase/firestore/local/index_manager_test.h"
+#if _WIN32
 
-#include "Firestore/core/src/firebase/firestore/local/leveldb_index_manager.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
-#include "Firestore/core/test/firebase/firestore/local/persistence_testing.h"
-#include "absl/memory/memory.h"
-#include "gtest/gtest.h"
+
+#include <Shlobj.h>
+
+#include <utility>
+
+#include "Firestore/core/src/firebase/firestore/util/path.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
 
 namespace firebase {
 namespace firestore {
 namespace local {
 
-namespace {
+using util::Path;
+using util::Status;
+using util::StatusOr;
 
-std::unique_ptr<Persistence> PersistenceFactory() {
-  return LevelDbPersistenceForTesting();
+StatusOr<Path> LevelDbPersistence::AppDataDirectory() {
+  wchar_t* path = nullptr;
+  HRESULT hr = SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, nullptr, &path);
+  if (FAILED(hr)) {
+    CoTaskMemFree(path);
+    return Status::FromLastError(
+        HRESULT_CODE(hr),
+        "Failed to find the local application data directory");
+  }
+
+  Path result = Path::FromUtf16(path, wcslen(path));
+  CoTaskMemFree(path);
+  return std::move(result);
 }
-
-}  // namespace
-
-INSTANTIATE_TEST_SUITE_P(LevelDbIndexManagerTest,
-                         IndexManagerTest,
-                         ::testing::Values(PersistenceFactory));
 
 }  // namespace local
 }  // namespace firestore
 }  // namespace firebase
+
+#endif  // _WIN32

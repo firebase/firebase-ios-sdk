@@ -239,9 +239,9 @@ inline std::unique_ptr<Executor> ExecutorFactory() {
 
 }  // namespace
 
-INSTANTIATE_TEST_CASE_P(ExecutorTestStd,
-                        ExecutorTest,
-                        ::testing::Values(ExecutorFactory));
+INSTANTIATE_TEST_SUITE_P(ExecutorTestStd,
+                         ExecutorTest,
+                         ::testing::Values(ExecutorFactory));
 
 }  // namespace util
 }  // namespace firestore

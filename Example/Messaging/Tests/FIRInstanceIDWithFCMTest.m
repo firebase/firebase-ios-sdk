@@ -27,17 +27,15 @@
 @interface FIRInstanceID (ExposedForTest)
 - (BOOL)isFCMAutoInitEnabled;
 - (instancetype)initPrivately;
-- (void)start;
-@end
-
-@interface FIRMessaging ()
-+ (FIRMessaging *)messagingForTests;
 @end
 
 @interface FIRInstanceIDTest : XCTestCase
 
 @property(nonatomic, readwrite, strong) FIRInstanceID *instanceID;
 @property(nonatomic, readwrite, strong) id mockFirebaseApp;
+@property(nonatomic, readwrite, strong) FIRMessagingTestUtilities *testUtil;
+@property(nonatomic, strong) FIRMessaging *messaging;
+
 
 @end
 
@@ -45,37 +43,36 @@
 
 - (void)setUp {
   [super setUp];
-  _instanceID = [[FIRInstanceID alloc] initPrivately];
-  [_instanceID start];
+  NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+  _testUtil = [[FIRMessagingTestUtilities alloc] initWithUserDefaults:defaults withRMQManager:NO];
+  _instanceID = _testUtil.instanceID;
+  _messaging = _testUtil.messaging;
   _mockFirebaseApp = OCMClassMock([FIRApp class]);
   OCMStub([_mockFirebaseApp defaultApp]).andReturn(_mockFirebaseApp);
 }
 
 - (void)tearDown {
-  self.instanceID = nil;
+  [_testUtil cleanupAfterTest];
+  _instanceID = nil;
+  _messaging = nil;
   [_mockFirebaseApp stopMocking];
   [super tearDown];
 }
 
 - (void)testFCMAutoInitEnabled {
-  // Use the standardUserDefaults since that's what IID expects and depends on.
-  NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-  FIRMessaging *messaging = [FIRMessagingTestUtilities messagingForTestsWithUserDefaults:defaults];
-  id classMock = OCMClassMock([FIRMessaging class]);
   OCMStub([_mockFirebaseApp isDataCollectionDefaultEnabled]).andReturn(YES);
-  messaging.autoInitEnabled = YES;
+  _messaging.autoInitEnabled = YES;
   XCTAssertTrue(
       [_instanceID isFCMAutoInitEnabled],
       @"When FCM is available, FCM Auto Init Enabled should be FCM's autoInitEnable property.");
 
-  messaging.autoInitEnabled = NO;
+  _messaging.autoInitEnabled = NO;
   XCTAssertFalse(
       [_instanceID isFCMAutoInitEnabled],
       @"When FCM is available, FCM Auto Init Enabled should be FCM's autoInitEnable property.");
 
-  messaging.autoInitEnabled = YES;
+  _messaging.autoInitEnabled = YES;
   XCTAssertTrue([_instanceID isFCMAutoInitEnabled]);
-  [classMock stopMocking];
 }
 
 @end

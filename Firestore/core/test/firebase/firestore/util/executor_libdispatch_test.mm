@@ -39,9 +39,9 @@ namespace chr = std::chrono;
 
 }  // namespace
 
-INSTANTIATE_TEST_CASE_P(ExecutorTestLibdispatch,
-                        ExecutorTest,
-                        ::testing::Values(ExecutorFactory));
+INSTANTIATE_TEST_SUITE_P(ExecutorTestLibdispatch,
+                         ExecutorTest,
+                         ::testing::Values(ExecutorFactory));
 
 namespace internal {
 class ExecutorLibdispatchOnlyTests : public ::testing::Test,
