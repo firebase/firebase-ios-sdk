@@ -62,8 +62,14 @@ other Google CocoaPods. They're not intended for direct public usage.
     rs.source_files = 'GoogleUtilities/Reachability/**/*.[mh]'
     rs.public_header_files = 'GoogleUtilities/Reachability/Private/*.h'
     rs.private_header_files = 'GoogleUtilities/Reachability/Private/*.h'
-    rs.frameworks = [
-    # 'SystemConfiguration'
+    rs.ios.frameworks = [
+      'SystemConfiguration'
+    ]
+    rs.osx.frameworks = [
+      'SystemConfiguration'
+    ]
+    rs.tvos.frameworks = [
+      'SystemConfiguration'
     ]
     rs.dependency 'GoogleUtilities/Logger'
   end

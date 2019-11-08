@@ -41,7 +41,9 @@ device, and it is completely free.
     # Unit tests do library imports using repo-root relative paths.
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
  }
-  #s.framework = 'SystemConfiguration'
+  s.ios.framework = 'SystemConfiguration'
+  s.tvos.framework = 'SystemConfiguration'
+  s.osx.framework = 'SystemConfiguration'
   s.weak_framework = 'UserNotifications'
   s.dependency 'FirebaseAnalyticsInterop', '~> 1.3'
   s.dependency 'FirebaseCore', '~> 6.2'
