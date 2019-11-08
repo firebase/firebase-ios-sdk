@@ -52,7 +52,6 @@ using nanopb::Message;
 using nanopb::Reader;
 using remote::ByteBufferReader;
 using remote::Serializer;
-using util::MakeString;
 using util::Status;
 using util::StatusOr;
 using util::StringFormat;
