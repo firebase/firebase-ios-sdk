@@ -57,7 +57,7 @@
  * @param directoryPathURL The path to the directory which needs to be created.
  * @param fileCoordinator The fileCoordinator object to coordinate writes to the directory.
  */
-+ (void)checkAndCreateDirectory:(NSURL *)directoryPathURL :(NSFileCoordinator *)fileCoordinator {
++ (void)checkAndCreateDirectory:(NSURL *)directoryPathURL:(NSFileCoordinator *)fileCoordinator {
   NSError *fileCoordinatorError = nil;
   [fileCoordinator
       coordinateWritingItemAtURL:directoryPathURL
