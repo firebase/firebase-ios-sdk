@@ -18,7 +18,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/// Stores either a date/dictionary to a specified file.
+// Stores either a date or a dictionary to a specified file.
 @interface GULHeartbeatDateStorage : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
