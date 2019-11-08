@@ -1,4 +1,4 @@
-# Copyright 2017 Google
+# Copyright 2019 Google
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,9 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-add_subdirectory(Protos)
-add_subdirectory(Source)
-add_subdirectory(core)
-add_subdirectory(fuzzing)
+add_executable(macOS_Example_App MACOSX_BUNDLE
+  macOS/main.m
+  macOS/AppDelegate.m
+  macOS/AppDelegate.h
+)
 
-add_subdirectory(Example)
+add_objc_flags(macOS_Example_App
+  macOS/main.m
+  macOS/AppDelegate.m
+  macOS/AppDelegate.h
+)
+
+target_link_libraries(macOS_Example_App PRIVATE "-framework AppKit")
+
+set_target_properties(macOS_Example_App PROPERTIES
+  MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/macOS/Info.plist
+  )
