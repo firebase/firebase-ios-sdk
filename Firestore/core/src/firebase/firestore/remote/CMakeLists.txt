@@ -112,9 +112,6 @@ cc_library(
     write_stream.h
 
   DEPENDS
-    # TODO(b/111328563) Force nanopb first to work around ODR violations
-    protobuf-nanopb-static
-
     firebase_firestore_core
     firebase_firestore_model
     firebase_firestore_nanopb
@@ -122,6 +119,6 @@ cc_library(
     firebase_firestore_remote_connectivity_monitor
     firebase_firestore_util
     firebase_firestore_version
-
     grpc++
+    protobuf-nanopb-static
 )
