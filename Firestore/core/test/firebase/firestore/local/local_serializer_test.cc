@@ -71,7 +71,6 @@ using model::TargetId;
 using model::UnknownDocument;
 using nanopb::ByteString;
 using nanopb::ByteStringWriter;
-using nanopb::FreeNanopbMessage;
 using nanopb::Message;
 using nanopb::ProtobufParse;
 using nanopb::ProtobufSerialize;

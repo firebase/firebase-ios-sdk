@@ -17,6 +17,8 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_NANOPB_MESSAGE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_NANOPB_MESSAGE_H_
 
+#include <pb.h>
+
 #include <string>
 #include <type_traits>
 #include <utility>
@@ -32,13 +34,6 @@
 namespace firebase {
 namespace firestore {
 namespace nanopb {
-
-/**
- * Free the dynamically-allocated memory within a Nanopb-generated message.
- *
- * This essentially wraps calls to Nanopb's `pb_release()` function.
- */
-void FreeNanopbMessage(const pb_field_t* fields, void* dest_struct);
 
 template <typename T>
 class Message;
@@ -173,7 +168,7 @@ class Message {
   // Important: this function does *not* modify `owns_proto_`.
   void Free() {
     if (owns_proto_) {
-      FreeNanopbMessage(fields(), &proto_);
+      pb_release(fields(), &proto_);
     }
   }
 
