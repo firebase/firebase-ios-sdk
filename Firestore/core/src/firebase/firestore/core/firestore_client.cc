@@ -48,7 +48,6 @@ namespace firebase {
 namespace firestore {
 namespace core {
 
-using firestore::Error;
 using api::DocumentReference;
 using api::DocumentSnapshot;
 using api::ListenerRegistration;
@@ -57,6 +56,7 @@ using api::Settings;
 using api::SnapshotMetadata;
 using auth::CredentialsProvider;
 using auth::User;
+using firestore::Error;
 using local::LevelDbPersistence;
 using local::LocalSerializer;
 using local::LocalStore;
