@@ -18,6 +18,7 @@
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_NANOPB_MESSAGE_H_
 
 #include <string>
+#include <type_traits>
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
@@ -25,6 +26,7 @@
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "absl/meta/type_traits.h"
 #include "grpcpp/support/byte_buffer.h"
 
 namespace firebase {
@@ -195,6 +197,23 @@ Message<T> Message<T>::TryParse(Reader* reader) {
     return Message<T>{};
   }
 
+  return result;
+}
+
+/**
+ * Deduces the type of the `Message` from the given initializer, similarly to
+ * `std::make_pair`.
+ */
+// The resulting message takes ownership of the given proto, so only rvalue
+// references should be accepted. Unfortunately, because this function is
+// a template, the argument type is actually a forwarding reference, which would
+// bind to lvalues and rvalues alike. To work around this, use some
+// metaprogramming.
+template <typename T,
+          typename = absl::enable_if_t<!std::is_lvalue_reference<T>::value>>
+Message<T> MakeMessage(T&& proto) {
+  Message<T> result;
+  *result = proto;
   return result;
 }
 

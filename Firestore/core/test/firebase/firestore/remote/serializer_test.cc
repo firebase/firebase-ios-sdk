@@ -93,13 +93,11 @@ using model::SnapshotVersion;
 using model::TransformMutation;
 using model::TransformOperation;
 using nanopb::ByteString;
-using nanopb::ByteStringWriter;
-using nanopb::FreeNanopbMessage;
+using nanopb::MakeMessage;
 using nanopb::Message;
 using nanopb::ProtobufParse;
 using nanopb::ProtobufSerialize;
 using nanopb::StringReader;
-using nanopb::Writer;
 using remote::Serializer;
 using testutil::Array;
 using testutil::Bytes;
@@ -188,7 +186,6 @@ class SerializerTest : public ::testing::Test {
   void ExpectDeserializationRoundTrip(const WatchChange& model,
                                       const v1::ListenResponse& proto) {
     auto actual_model = Decode<google_firestore_v1_ListenResponse>(
-        google_firestore_v1_ListenResponse_fields,
         std::mem_fn(&Serializer::DecodeWatchChange), proto);
 
     EXPECT_EQ(model, *actual_model);
@@ -198,7 +195,6 @@ class SerializerTest : public ::testing::Test {
                                       const v1::WriteResult& proto,
                                       const SnapshotVersion& commit_version) {
     auto actual_model = Decode<google_firestore_v1_WriteResult>(
-        google_firestore_v1_WriteResult_fields,
         std::mem_fn(&Serializer::DecodeMutationResult), proto, commit_version);
 
     EXPECT_EQ(model, actual_model);
@@ -207,7 +203,6 @@ class SerializerTest : public ::testing::Test {
   void ExpectDeserializationRoundTrip(const SnapshotVersion& model,
                                       const v1::ListenResponse& proto) {
     auto actual_model = Decode<google_firestore_v1_ListenResponse>(
-        google_firestore_v1_ListenResponse_fields,
         std::mem_fn(&Serializer::DecodeVersionFromListenResponse), proto);
 
     EXPECT_EQ(model, actual_model);
@@ -243,19 +238,16 @@ class SerializerTest : public ::testing::Test {
   }
 
   ByteString EncodeFieldValue(const FieldValue& fv) {
-    ByteStringWriter writer;
-    google_firestore_v1_Value proto = serializer.EncodeFieldValue(fv);
-    writer.Write(google_firestore_v1_Value_fields, &proto);
-    FreeNanopbMessage(google_firestore_v1_Value_fields, &proto);
-    return writer.Release();
+    return Encode(serializer.EncodeFieldValue(fv));
   }
 
   ByteString EncodeDocument(const DocumentKey& key, const ObjectValue& value) {
-    ByteStringWriter writer;
-    google_firestore_v1_Document proto = serializer.EncodeDocument(key, value);
-    writer.Write(google_firestore_v1_Document_fields, &proto);
-    FreeNanopbMessage(google_firestore_v1_Document_fields, &proto);
-    return writer.Release();
+    return Encode(serializer.EncodeDocument(key, value));
+  }
+
+  template <typename T>
+  ByteString Encode(T&& nanopb_proto) {
+    return MakeByteString(MakeMessage(std::move(nanopb_proto)));
   }
 
   void Mutate(pb_bytes_array_t* bytes,
@@ -486,8 +478,7 @@ class SerializerTest : public ::testing::Test {
 
   void ExpectSerializationRoundTrip(const QueryData& model,
                                     const v1::Target& proto) {
-    ByteString bytes = Encode(google_firestore_v1_Target_fields,
-                              serializer.EncodeTarget(model));
+    ByteString bytes = Encode(serializer.EncodeTarget(model));
     auto actual_proto = ProtobufParse<v1::Target>(bytes);
 
     EXPECT_TRUE(msg_diff.Compare(proto, actual_proto)) << message_differences;
@@ -498,12 +489,10 @@ class SerializerTest : public ::testing::Test {
     core::Query actual_model;
     if (proto.has_documents()) {
       actual_model = Decode<google_firestore_v1_Target_DocumentsTarget>(
-          google_firestore_v1_Target_DocumentsTarget_fields,
           std::mem_fn(&Serializer::DecodeDocumentsTarget), proto.documents());
 
     } else {
       actual_model = Decode<google_firestore_v1_Target_QueryTarget>(
-          google_firestore_v1_Target_QueryTarget_fields,
           std::mem_fn(&Serializer::DecodeQueryTarget), proto.query());
     }
 
@@ -512,8 +501,7 @@ class SerializerTest : public ::testing::Test {
 
   void ExpectSerializationRoundTrip(const Mutation& model,
                                     const v1::Write& proto) {
-    ByteString bytes = Encode(google_firestore_v1_Write_fields,
-                              serializer.EncodeMutation(model));
+    ByteString bytes = Encode(serializer.EncodeMutation(model));
     auto actual_proto = ProtobufParse<v1::Write>(bytes);
 
     EXPECT_TRUE(msg_diff.Compare(proto, actual_proto)) << message_differences;
@@ -522,7 +510,6 @@ class SerializerTest : public ::testing::Test {
   void ExpectDeserializationRoundTrip(const Mutation& model,
                                       const v1::Write& proto) {
     Mutation actual_model = Decode<google_firestore_v1_Write>(
-        google_firestore_v1_Write_fields,
         std::mem_fn(&Serializer::DecodeMutation), proto);
 
     EXPECT_EQ(model, actual_model);
@@ -530,8 +517,7 @@ class SerializerTest : public ::testing::Test {
 
   void ExpectSerializationRoundTrip(const core::Filter& model,
                                     const v1::StructuredQuery::Filter& proto) {
-    ByteString bytes = Encode(google_firestore_v1_StructuredQuery_Filter_fields,
-                              serializer.EncodeFilters({model}));
+    ByteString bytes = Encode(serializer.EncodeFilters({model}));
     auto actual_proto = ProtobufParse<v1::StructuredQuery::Filter>(bytes);
 
     EXPECT_TRUE(msg_diff.Compare(proto, actual_proto)) << message_differences;
@@ -541,25 +527,14 @@ class SerializerTest : public ::testing::Test {
       const core::Filter& model, const v1::StructuredQuery::Filter& proto) {
     FilterList actual_model =
         Decode<google_firestore_v1_StructuredQuery_Filter>(
-            google_firestore_v1_StructuredQuery_Filter_fields,
             std::mem_fn(&Serializer::DecodeFilters), proto);
 
     EXPECT_EQ(FilterList{model}, actual_model);
   }
 
-  template <typename T>
-  ByteString Encode(const pb_field_t* fields, T&& nanopb_proto) {
-    ByteStringWriter writer;
-    writer.Write(fields, &nanopb_proto);
-    FreeNanopbMessage(fields, &nanopb_proto);
-    return writer.Release();
-  }
-
   template <typename T, typename F, typename P, typename... Args>
-  auto Decode(const pb_field_t* fields,
-              F decode_func,
-              const P& proto,
-              const Args&... args) -> typename F::result_type {
+  auto Decode(F decode_func, const P& proto, const Args&... args) ->
+      typename F::result_type {
     ByteString bytes = ProtobufSerialize(proto);
     StringReader reader{bytes};
 
@@ -707,10 +682,7 @@ TEST_F(SerializerTest, EncodesNullBlobs) {
 
   // Encoding a Value message containing a blob_value of null bytes results
   // in a non-empty message.
-  ByteStringWriter writer;
-  writer.Write(google_firestore_v1_Value_fields, &proto);
-  FreeNanopbMessage(google_firestore_v1_Value_fields, &proto);
-  ByteString bytes = writer.Release();
+  ByteString bytes = Encode(std::move(proto));
   ASSERT_GT(bytes.size(), 0);
 
   // When parsed by protobuf, this should be indistinguishable from having sent

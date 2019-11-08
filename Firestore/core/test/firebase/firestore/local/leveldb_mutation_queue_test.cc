@@ -48,9 +48,9 @@ using leveldb::Status;
 using leveldb::WriteOptions;
 using model::BatchId;
 using nanopb::ByteString;
+using nanopb::MakeStdString;
 using nanopb::Message;
 using nanopb::StringReader;
-using nanopb::StringWriter;
 using util::OrderedCode;
 
 // A dummy mutation value, useful for testing code that's known to examine only
@@ -159,11 +159,8 @@ TEST_F(LevelDbMutationQueueTest, LoadNextBatchIdOnlyFindsMutations) {
 
 TEST_F(LevelDbMutationQueueTest, EmptyProtoCanBeUpgraded) {
   // An empty protocol buffer serializes to a zero-length byte buffer.
-  google_protobuf_Empty empty{};
-
-  StringWriter writer;
-  writer.Write(google_protobuf_Empty_fields, &empty);
-  std::string empty_data = writer.Release();
+  Message<google_protobuf_Empty> empty;
+  std::string empty_data = MakeStdString(empty);
   ASSERT_EQ(empty_data.size(), 0);
 
   // Choose some other (arbitrary) proto and parse it from the empty message and
