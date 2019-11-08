@@ -291,10 +291,10 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
       FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000068", @"Internal error activating config.");
       return;
     }
-    // If Fetched Config is no fresher than Active Config.
-    if (strongSelf->_settings.lastFetchTimeInterval == 0 ||
-        strongSelf->_settings.lastFetchTimeInterval <=
-            strongSelf->_settings.lastApplyTimeInterval) {
+    // Check if the last fetched config has already been activated. Fetches with no data change are
+    // ignored.
+    if (strongSelf->_settings.lastETagUpdateTime == 0 ||
+        strongSelf->_settings.lastETagUpdateTime <= strongSelf->_settings.lastApplyTimeInterval) {
       FIRLogWarning(kFIRLoggerRemoteConfig, @"I-RCN000069",
                     @"Most recently fetched config is already activated.");
       NSError *error = [NSError
