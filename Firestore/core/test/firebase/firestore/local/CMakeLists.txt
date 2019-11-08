@@ -23,6 +23,7 @@ cc_test(
     leveldb_persistence_test.cc
     leveldb_query_cache_test.cc
     leveldb_remote_document_cache_test.cc
+    leveldb_transaction_test.cc
     leveldb_util_test.cc
     local_serializer_test.cc
     memory_index_manager_test.cc
