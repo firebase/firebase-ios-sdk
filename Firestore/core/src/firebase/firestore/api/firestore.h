@@ -20,7 +20,6 @@
 #include <memory>
 #include <mutex>  // NOLINT(build/c++11)
 #include <string>
-
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/api/listener_registration.h"
