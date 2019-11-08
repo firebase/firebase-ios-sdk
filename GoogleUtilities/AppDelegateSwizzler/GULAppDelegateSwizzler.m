@@ -811,7 +811,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
       continueUserActivityIMPPointer.pointerValue;
 
   __block BOOL returnedValue = NO;
-  #if !TARGET_OS_WATCH
+#if !TARGET_OS_WATCH
   [GULAppDelegateSwizzler
       notifyInterceptorsWithMethodSelector:methodSelector
                                   callback:^(id<GULApplicationDelegate> interceptor) {
@@ -819,7 +819,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
                                                          continueUserActivity:userActivity
                                                            restorationHandler:restorationHandler];
                                   }];
-  #endif
+#endif
   // Call the real implementation if the real App Delegate has any.
   if (continueUserActivityIMP) {
     returnedValue |= continueUserActivityIMP(self, methodSelector, application, userActivity,

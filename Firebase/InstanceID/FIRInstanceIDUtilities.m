@@ -78,7 +78,7 @@ NSString *FIRInstanceIDCurrentAppVersion() {
   return version;
 }
 
-NSString * FIRInstanceIDBundleIdentifierByRemovingLastPartFrom(NSString *bundleIdentifier) {
+NSString *FIRInstanceIDBundleIdentifierByRemovingLastPartFrom(NSString *bundleIdentifier) {
   NSString *bundleIDComponentsSeparator = @".";
 
   NSMutableArray<NSString *> *bundleIDComponents =
@@ -88,7 +88,7 @@ NSString * FIRInstanceIDBundleIdentifierByRemovingLastPartFrom(NSString *bundleI
   return [bundleIDComponents componentsJoinedByString:bundleIDComponentsSeparator];
 }
 
-NSString * FIRInstanceIDAppIdentifier() {
+NSString *FIRInstanceIDAppIdentifier() {
   NSString *bundleIdentifier = [[NSBundle mainBundle] bundleIdentifier];
   if (!bundleIdentifier.length) {
     FIRInstanceIDLoggerError(kFIRInstanceIDMessageCodeUtilitiesMissingBundleIdentifier,

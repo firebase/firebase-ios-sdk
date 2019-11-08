@@ -61,7 +61,8 @@ NSInteger const kMaxRetryCountForDefaultToken = 5;
 #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_WATCH
 static NSString *const kEntitlementsAPSEnvironmentKey = @"Entitlements.aps-environment";
 #else
-static NSString *const kEntitlementsAPSEnvironmentKey = @"Entitlements.com.apple.developer.aps-environment";
+static NSString *const kEntitlementsAPSEnvironmentKey =
+    @"Entitlements.com.apple.developer.aps-environment";
 #endif
 static NSString *const kAPSEnvironmentDevelopmentValue = @"development";
 /// FIRMessaging selector that returns the current FIRMessaging auto init
@@ -677,7 +678,7 @@ static FIRInstanceID *gInstanceID;
   // FCM generates a FCM token during app start for sending push notification to device.
   // This is not needed for app extension except for watch.
 #if TARGET_OS_WATCH
-    [self didCompleteConfigure];
+  [self didCompleteConfigure];
 #else
   if (![GULAppEnvironmentUtil isAppExtension]) {
     [self didCompleteConfigure];

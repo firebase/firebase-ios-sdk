@@ -79,9 +79,9 @@ static NSString *const kGULReachabilityDisconnectedStatus = @"Disconnected";
 @synthesize reachabilityDelegate = reachabilityDelegate_;
 
 - (BOOL)isActive {
-  #if !TARGET_OS_WATCH
+#if !TARGET_OS_WATCH
   return reachability_ != nil;
-  #else
+#else
   return NO;
 #endif
 }
