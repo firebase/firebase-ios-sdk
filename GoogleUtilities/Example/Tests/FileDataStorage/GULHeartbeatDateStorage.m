@@ -53,30 +53,4 @@
                  [[self.storage heartbeatDateForTag:@"fire-iid"] timeIntervalSinceReferenceDate]);
 }
 
-- (void)testDateStorage {
-  NSDate *dateToSave = [NSDate date];
-
-  XCTAssertNil([self.storage date]);
-
-  NSError *error;
-  XCTAssertTrue([self.storage setDate:dateToSave error:&error]);
-
-  XCTAssertEqualObjects([self.storage date], dateToSave);
-
-  XCTAssertTrue([self.storage setDate:nil error:&error]);
-  XCTAssertNil([self.storage date]);
-}
-
-- (void)testDateIsStoredToFileSystem {
-  NSDate *date = [NSDate date];
-
-  NSError *error;
-  XCTAssert([self.storage setDate:date error:&error], @"Error: %@", error);
-
-  GULHeartbeatDateStorage *anotherStorage =
-      [[GULHeartbeatDateStorage alloc] initWithFileName:@"GULStorageHeartbeatTest"];
-
-  XCTAssertEqualObjects([anotherStorage date], date);
-}
-
 @end

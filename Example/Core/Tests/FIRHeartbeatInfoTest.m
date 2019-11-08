@@ -36,7 +36,7 @@
 
 - (void)testCombinedHeartbeat {
   FIRHeartbeatInfoCode heartbeatCode = [FIRHeartbeatInfo heartbeatCodeForTag:@"fire-iid"];
-  XCTAssertEqual(heartbeatCode, FIRHeartbeatInfoCodeCOMBINED);
+  XCTAssertEqual(heartbeatCode, FIRHeartbeatInfoCodeCombined);
 }
 
 - (void)testSdkOnlyHeartbeat {
@@ -48,7 +48,7 @@
 - (void)testGlobalOnlyHeartbeat {
   [self.dataStorage setHearbeatDate:[NSDate date] forTag:@"fire-iid"];
   FIRHeartbeatInfoCode heartbeatCode = [FIRHeartbeatInfo heartbeatCodeForTag:@"fire-iid"];
-  XCTAssertEqual(heartbeatCode, FIRHeartbeatInfoCodeGLOBAL);
+  XCTAssertEqual(heartbeatCode, FIRHeartbeatInfoCodeGlobal);
 }
 
 - (void)testNoHeartbeat {

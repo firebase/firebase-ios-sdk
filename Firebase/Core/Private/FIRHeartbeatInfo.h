@@ -22,8 +22,8 @@ NS_ASSUME_NONNULL_BEGIN
 typedef NS_ENUM(NSInteger, FIRHeartbeatInfoCode) {
   FIRHeartbeatInfoCodeNone = 0,
   FIRHeartbeatInfoCodeSDK = 1,
-  FIRHeartbeatInfoCodeGLOBAL = 2,
-  FIRHeartbeatInfoCodeCOMBINED = 3,
+  FIRHeartbeatInfoCodeGlobal = 2,
+  FIRHeartbeatInfoCodeCombined = 3,
 };
 
 /**

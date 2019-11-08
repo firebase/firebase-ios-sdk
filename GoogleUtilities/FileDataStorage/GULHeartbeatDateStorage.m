@@ -143,30 +143,4 @@
   return isWritingSuccess;
 }
 
-- (BOOL)setDate:(nullable NSDate *)date error:(NSError **)outError {
-  NSString *stringToSave = @"";
-
-  if (date != nil) {
-    NSTimeInterval timestamp = [date timeIntervalSinceReferenceDate];
-    stringToSave = [NSString stringWithFormat:@"%f", timestamp];
-  }
-  return [stringToSave writeToURL:self.fileURL
-                       atomically:YES
-                         encoding:NSUTF8StringEncoding
-                            error:outError];
-}
-
-// TODO(vguthal): Deprecate this and use setHeartbeatDate
-- (nullable NSDate *)date {
-  NSString *timestampString = [NSString stringWithContentsOfURL:self.fileURL
-                                                       encoding:NSUTF8StringEncoding
-                                                          error:nil];
-  if (timestampString.length == 0) {
-    return nil;
-  }
-
-  NSTimeInterval timestamp = timestampString.doubleValue;
-  return [NSDate dateWithTimeIntervalSinceReferenceDate:timestamp];
-}
-
 @end

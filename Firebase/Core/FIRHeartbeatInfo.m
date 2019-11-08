@@ -51,10 +51,10 @@
     return FIRHeartbeatInfoCodeSDK;
   } else if (!isSdkHeartbeatNeeded && isGlobalHeartbeatNeeded) {
     // Only global heartbeat needed.
-    return FIRHeartbeatInfoCodeGLOBAL;
+    return FIRHeartbeatInfoCodeGlobal;
   } else {
     // Both sdk and global heartbeat are needed.
-    return FIRHeartbeatInfoCodeCOMBINED;
+    return FIRHeartbeatInfoCodeCombined;
   }
 }
 @end

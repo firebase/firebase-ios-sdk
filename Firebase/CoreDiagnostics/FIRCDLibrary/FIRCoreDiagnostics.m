@@ -84,6 +84,7 @@ static NSString *const kFIRAppDiagnosticsConfigurationTypeKey =
 static NSString *const kFIRAppDiagnosticsFIRAppKey = @"FIRAppDiagnosticsFIRAppKey";
 static NSString *const kFIRAppDiagnosticsSDKNameKey = @"FIRAppDiagnosticsSDKNameKey";
 static NSString *const kFIRAppDiagnosticsSDKVersionKey = @"FIRAppDiagnosticsSDKVersionKey";
+static NSString *const kFIRCoreDiagnosticsHeartbeatTag = @"FIRCoreDiagnostics";
 
 /**
  * The file name to the recent heartbeat date.
@@ -616,7 +617,8 @@ void FIRPopulateProtoWithInfoPlistValues(logs_proto_mobilesdk_ios_ICoreConfigura
 - (void)setHeartbeatFlagIfNeededToConfig:(logs_proto_mobilesdk_ios_ICoreConfiguration *)config {
   // Check if need to send a heartbeat.
   NSDate *currentDate = [NSDate date];
-  NSDate *lastCheckin = [self.heartbeatDateStorage date];
+  NSDate *lastCheckin =
+      [self.heartbeatDateStorage heartbeatDateForTag:kFIRCoreDiagnosticsHeartbeatTag];
   if (lastCheckin) {
     // Ensure the previous checkin was on a different date in the past.
     if ([self isDate:currentDate inSameDayOrBeforeThan:lastCheckin]) {
@@ -625,12 +627,7 @@ void FIRPopulateProtoWithInfoPlistValues(logs_proto_mobilesdk_ios_ICoreConfigura
   }
 
   // Update heartbeat sent date.
-  NSError *error;
-  if (![self.heartbeatDateStorage setDate:currentDate error:&error]) {
-    GULLogError(kFIRCoreDiagnostics, NO, @"I-COR100004", @"Unable to persist internal state: %@",
-                error);
-  }
-
+  [self.heartbeatDateStorage setHearbeatDate:currentDate forTag:kFIRCoreDiagnosticsHeartbeatTag];
   // Set the flag.
   config->sdk_name = logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType_ICORE;
   config->has_sdk_name = 1;
