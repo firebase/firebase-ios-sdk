@@ -47,14 +47,14 @@ MATCHER_P2(IsPrintedAs, proto_name, contents, "") {
   // NOLINTNEXTLINE(whitespace/braces)
   std::string header = std::string{"<"} + proto_name + " 0x[0-9A-Fa-f]+>: {";
   std::string expected = header + contents + "}";
-  return testing::Value(arg.ToString(), MatchesRegex(expected));
+  return testing::Value(arg, MatchesRegex(expected));
 }
 
 TEST(PrettyPrintingTest, PrintsInt) {
   Message<firestore_client_WriteBatch> m;
   m->batch_id = 123;
 
-  EXPECT_THAT(m, IsPrintedAs("WriteBatch", R"(
+  EXPECT_THAT(m.ToString(), IsPrintedAs("WriteBatch", R"(
   batch_id: 123
 )"));
 }
@@ -63,7 +63,7 @@ TEST(PrettyPrintingTest, PrintsBool) {
   Message<firestore_client_MaybeDocument> m;
   m->has_committed_mutations = true;
 
-  EXPECT_THAT(m, IsPrintedAs("MaybeDocument", R"(
+  EXPECT_THAT(m.ToString(), IsPrintedAs("MaybeDocument", R"(
   has_committed_mutations: true
 )"));
 }
@@ -72,7 +72,7 @@ TEST(PrettyPrintingTest, PrintsString) {
   Message<firestore_client_MutationQueue> m;
   m->last_stream_token = MakeBytesArray("Abc123");
 
-  EXPECT_THAT(m, IsPrintedAs("MutationQueue", R"(
+  EXPECT_THAT(m.ToString(), IsPrintedAs("MutationQueue", R"(
   last_stream_token: "Abc123"
 )"));
 }
@@ -81,7 +81,7 @@ TEST(PrettyPrintingTest, PrintsBytes) {
   Message<firestore_client_MutationQueue> m;
   m->last_stream_token = MakeBytesArray("\001\002\003");
 
-  EXPECT_THAT(m, IsPrintedAs("MutationQueue", R"(
+  EXPECT_THAT(m.ToString(), IsPrintedAs("MutationQueue", R"(
   last_stream_token: "\\001\\002\\003"
 )"));
 }
@@ -91,7 +91,7 @@ TEST(PrettyPrintingTest, PrintsEnums) {
   m->target_change_type =
       google_firestore_v1_TargetChange_TargetChangeType_CURRENT;
 
-  EXPECT_THAT(m, IsPrintedAs("TargetChange", R"(
+  EXPECT_THAT(m.ToString(), IsPrintedAs("TargetChange", R"(
   target_change_type: CURRENT
 )"));
 }
@@ -101,7 +101,7 @@ TEST(PrettyPrintingTest, PrintsSubmessages) {
   m->snapshot_version.seconds = 123;
   m->snapshot_version.nanos = 456;
 
-  EXPECT_THAT(m, IsPrintedAs("Target", R"(
+  EXPECT_THAT(m.ToString(), IsPrintedAs("Target", R"(
   snapshot_version {
     seconds: 123
     nanos: 456
@@ -117,7 +117,7 @@ TEST(PrettyPrintingTest, PrintsArraysOfPrimitives) {
   m->documents[0] = MakeBytesArray("doc1");
   m->documents[1] = MakeBytesArray("doc2");
 
-  EXPECT_THAT(m, IsPrintedAs("DocumentsTarget", R"(
+  EXPECT_THAT(m.ToString(), IsPrintedAs("DocumentsTarget", R"(
   documents: "doc1"
   documents: "doc2"
 )"));
@@ -135,7 +135,7 @@ TEST(PrettyPrintingTest, PrintsArraysOfObjects) {
   m->labels[1].key = MakeBytesArray("key2");
   m->labels[1].value = MakeBytesArray("value2");
 
-  EXPECT_THAT(m, IsPrintedAs("ListenRequest", R"(
+  EXPECT_THAT(m.ToString(), IsPrintedAs("ListenRequest", R"(
   labels {
     key: "key1"
     value: "value1"
@@ -153,7 +153,7 @@ TEST(PrettyPrintingTest, PrintsPrimitivesInOneofs) {
   // Also checks for the special case with `delete` being a keyword in C++.
   m->delete_ = MakeBytesArray("abc");
 
-  EXPECT_THAT(m, IsPrintedAs("Write", R"(
+  EXPECT_THAT(m.ToString(), IsPrintedAs("Write", R"(
   delete: "abc"
 )"));
 }
@@ -181,7 +181,7 @@ TEST(PrettyPrintingTest, PrintsMessagesInOneofs) {
   doc.fields[1].value.which_value_type =
       google_firestore_v1_Value_timestamp_value_tag;
 
-  EXPECT_THAT(m, IsPrintedAs("Write", R"(
+  EXPECT_THAT(m.ToString(), IsPrintedAs("Write", R"(
   update {
     name: "some name"
     fields {
@@ -208,7 +208,7 @@ TEST(PrettyPrintingTest, PrintsNonAnonymousOneofs) {
       google_firestore_v1_RunQueryRequest_read_time_tag;
   m->consistency_selector.read_time.seconds = 123;
   m->consistency_selector.read_time.nanos = 456;
-  EXPECT_THAT(m, IsPrintedAs("RunQueryRequest", R"(
+  EXPECT_THAT(m.ToString(), IsPrintedAs("RunQueryRequest", R"(
   read_time {
     seconds: 123
     nanos: 456
@@ -228,10 +228,10 @@ TEST(PrettyPrintingTest, PrintsOptionals) {
   // `has_update_mask` is false, so `update_mask` shouldn't be printed.
   // Note that normally setting `update_mask` without setting `has_update_mask`
   // to true shouldn't happen.
-  EXPECT_THAT(m, IsPrintedAs("Write", "\n"));
+  EXPECT_THAT(m.ToString(), IsPrintedAs("Write", "\n"));
 
   m->has_update_mask = true;
-  EXPECT_THAT(m, IsPrintedAs("Write", R"(
+  EXPECT_THAT(m.ToString(), IsPrintedAs("Write", R"(
   update_mask {
     field_paths: "abc"
     field_paths: "def"
@@ -245,7 +245,7 @@ TEST(PrettyPrintingTest, PrintsEmptyOptionals) {
 
   // When set, an optional submessage should always be printed, even if it's
   // "empty".
-  EXPECT_THAT(m, IsPrintedAs("Write", R"(
+  EXPECT_THAT(m.ToString(), IsPrintedAs("Write", R"(
   update_mask {
   }
 )"));
@@ -259,7 +259,7 @@ TEST(PrettyPrintingTest, PrintsEmptyArrayElements) {
   m->documents[0] = MakeBytesArray("");
   m->documents[1] = MakeBytesArray("");
 
-  EXPECT_THAT(m, IsPrintedAs("DocumentsTarget", R"(
+  EXPECT_THAT(m.ToString(), IsPrintedAs("DocumentsTarget", R"(
   documents: ""
   documents: ""
 )"));
@@ -267,7 +267,7 @@ TEST(PrettyPrintingTest, PrintsEmptyArrayElements) {
 
 TEST(PrettyPrintingTest, PrintsEmptyMessageIfRoot) {
   Message<google_firestore_v1_Write> m;
-  EXPECT_THAT(m, IsPrintedAs("Write", "\n"));
+  EXPECT_THAT(m.ToString(), IsPrintedAs("Write", "\n"));
 }
 
 }  //  namespace

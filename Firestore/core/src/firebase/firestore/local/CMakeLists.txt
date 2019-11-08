@@ -29,6 +29,7 @@ cc_library(
     leveldb_persistence.h
     leveldb_persistence_apple.mm
     leveldb_persistence_posix.cc
+    leveldb_persistence_win.cc
     leveldb_query_cache.cc
     leveldb_query_cache.h
     leveldb_remote_document_cache.cc
@@ -102,6 +103,7 @@ cc_library(
     protobuf-nanopb-static
 
     absl_strings
+    firebase_firestore_auth
     firebase_firestore_local_persistence_leveldb
     firebase_firestore_model
     firebase_firestore_nanopb

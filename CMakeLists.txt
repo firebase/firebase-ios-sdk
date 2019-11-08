@@ -14,7 +14,7 @@
 
 # Superbuild for Firebase
 
-cmake_minimum_required(VERSION 2.8.11)
+cmake_minimum_required(VERSION 3.5.1)
 
 # Disallow mixing keyword and non-keyword forms of target_link_libraries
 if(POLICY CMP0023)
@@ -58,6 +58,7 @@ include(cc_rules)
 include(compiler_id)
 include(external_rules)
 include(podspec_rules)
+include(archive_options)
 include(sanitizer_options)
 include(fuzzing_options)
 
@@ -107,6 +108,16 @@ add_external_subdirectory(benchmark)
 set(old_build_testing ${BUILD_TESTING})
 set(ABSL_RUN_TESTS OFF CACHE BOOL "Disable Abseil tests" FORCE)
 add_external_subdirectory(abseil-cpp)
+
+if(CXX_CLANG)
+  target_compile_options(
+    absl_time_zone
+    PRIVATE
+      -Wno-unused-template
+      -Wno-shadow
+      -Wno-tautological-type-limit-compare
+  )
+endif()
 
 
 # gRPC
@@ -167,7 +178,9 @@ endif()
 if(CXX_CLANG)
   target_compile_options(
     libprotobuf
-    PRIVATE -Wno-invalid-offsetof
+    PRIVATE
+      -Wno-inconsistent-missing-override
+      -Wno-invalid-offsetof
   )
 endif()
 
@@ -208,11 +221,7 @@ target_include_directories(
 
 
 # XCTest
-if(${CMAKE_VERSION} VERSION_LESS "3.3.0")
-  set(XCTest_FOUND OFF)
-else()
-  find_package(XCTest)
-endif()
+find_package(XCTest)
 
 
 enable_testing()

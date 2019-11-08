@@ -56,14 +56,13 @@ using testing::Not;
 using testutil::Value;
 using util::AsyncQueue;
 using util::CompletionEndState;
+using util::CompletionResult;
 using util::Executor;
 using util::FakeCredentialsProvider;
 using util::FakeGrpcQueue;
 using util::GrpcStreamTester;
 using util::Status;
 using util::StatusOr;
-using util::CompletionResult::Error;
-using util::CompletionResult::Ok;
 
 using Type = GrpcCompletion::Type;
 
@@ -220,9 +219,10 @@ TEST_F(DatastoreTest, LookupDocumentsOneSuccessfulRead) {
   // Make sure Auth has a chance to run.
   worker_queue->EnqueueBlocking([] {});
 
-  ForceFinishAnyTypeOrder({{Type::Read, MakeFakeDocument("foo/1")},
-                           {Type::Write, Ok},
-                           /*Read after last*/ {Type::Read, Error}});
+  ForceFinishAnyTypeOrder(
+      {{Type::Read, MakeFakeDocument("foo/1")},
+       {Type::Write, CompletionResult::Ok},
+       /*Read after last*/ {Type::Read, CompletionResult::Error}});
   ForceFinish({{Type::Finish, grpc::Status::OK}});
 
   EXPECT_TRUE(done);
@@ -246,10 +246,11 @@ TEST_F(DatastoreTest, LookupDocumentsTwoSuccessfulReads) {
   // Make sure Auth has a chance to run.
   worker_queue->EnqueueBlocking([] {});
 
-  ForceFinishAnyTypeOrder({{Type::Write, Ok},
-                           {Type::Read, MakeFakeDocument("foo/1")},
-                           {Type::Read, MakeFakeDocument("foo/2")},
-                           /*Read after last*/ {Type::Read, Error}});
+  ForceFinishAnyTypeOrder(
+      {{Type::Write, CompletionResult::Ok},
+       {Type::Read, MakeFakeDocument("foo/1")},
+       {Type::Read, MakeFakeDocument("foo/2")},
+       /*Read after last*/ {Type::Read, CompletionResult::Error}});
   ForceFinish({{Type::Finish, grpc::Status::OK}});
 
   EXPECT_TRUE(done);
@@ -289,7 +290,8 @@ TEST_F(DatastoreTest, LookupDocumentsErrorBeforeFirstRead) {
   // Make sure Auth has a chance to run.
   worker_queue->EnqueueBlocking([] {});
 
-  ForceFinishAnyTypeOrder({{Type::Read, Error}, {Type::Write, Error}});
+  ForceFinishAnyTypeOrder({{Type::Read, CompletionResult::Error},
+                           {Type::Write, CompletionResult::Error}});
   ForceFinish({{Type::Finish, grpc::Status{grpc::UNAVAILABLE, ""}}});
 
   EXPECT_TRUE(done);
@@ -309,9 +311,9 @@ TEST_F(DatastoreTest, LookupDocumentsErrorAfterFirstRead) {
   // Make sure Auth has a chance to run.
   worker_queue->EnqueueBlocking([] {});
 
-  ForceFinishAnyTypeOrder({{Type::Write, Ok},
+  ForceFinishAnyTypeOrder({{Type::Write, CompletionResult::Ok},
                            {Type::Read, MakeFakeDocument("foo/1")},
-                           {Type::Read, Error}});
+                           {Type::Read, CompletionResult::Error}});
   ForceFinish({{Type::Finish, grpc::Status{grpc::UNAVAILABLE, ""}}});
 
   EXPECT_TRUE(done);

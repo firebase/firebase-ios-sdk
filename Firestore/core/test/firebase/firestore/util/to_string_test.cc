@@ -134,23 +134,23 @@ TEST(ToStringTest, FreeFunctionToStringIsConsidered) {
   EXPECT_EQ(ToString(Foo{}), "Foo");
 }
 
+struct Container {
+  using value_type = int;
+
+  explicit Container(std::vector<int>&& v) : v{std::move(v)} {
+  }
+
+  std::vector<int>::const_iterator begin() const {
+    return v.begin();
+  }
+  std::vector<int>::const_iterator end() const {
+    return v.end();
+  }
+
+  std::vector<int> v;
+};
+
 TEST(ToStringTest, Ordering) {
-  struct Container {
-    using value_type = int;
-
-    explicit Container(std::vector<int>&& v) : v{std::move(v)} {
-    }
-
-    std::vector<int>::const_iterator begin() const {
-      return v.begin();
-    }
-    std::vector<int>::const_iterator end() const {
-      return v.end();
-    }
-
-    std::vector<int> v;
-  };
-
   struct CustomToString : public Container {
     using Container::Container;
     std::string ToString() const {
