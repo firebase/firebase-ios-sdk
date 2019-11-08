@@ -48,7 +48,7 @@
   [self.dataStorage setHearbeatDate:[NSDate date] forTag:@"fire-iid"];
   [self.dataStorage setHearbeatDate:[NSDate date] forTag:@"GLOBAL"];
   FIRHeartbeatInfoCode heartbeatCode = [FIRHeartbeatInfo heartbeatCodeForTag:@"fire-iid"];
-  XCTAssertEqual(heartbeatCode, FIRHeartbeatInfoCodeNONE);
+  XCTAssertEqual(heartbeatCode, FIRHeartbeatInfoCodeNone);
 }
 
 @end

@@ -34,7 +34,7 @@
   BOOL isGlobalHeartbeatNeeded = [FIRHeartbeatInfo updateIfNeededHeartbeatDateForTag:globalTag];
   if (!isSdkHeartbeatNeeded && !isGlobalHeartbeatNeeded) {
     // Both sdk and global heartbeat not needed.
-    return FIRHeartbeatInfoCodeNONE;
+    return FIRHeartbeatInfoCodeNone;
   } else if (isSdkHeartbeatNeeded && !isGlobalHeartbeatNeeded) {
     // Only SDK heartbeat needed.
     return FIRHeartbeatInfoCodeSDK;

@@ -18,7 +18,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface GULStorageHeartbeatTest : NSObject
+@interface GULHeartbeatDateStorageTest : NSObject
 
 @end
 

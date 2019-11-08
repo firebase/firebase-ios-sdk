@@ -17,12 +17,12 @@
 #import <GoogleUtilities/GULHeartbeatDateStorage.h>
 #import <XCTest/XCTest.h>
 
-@interface GULStorageHeartbeatTest : XCTestCase
+@interface GULHeartbeatDateStorageTest : XCTestCase
 @property(nonatomic) NSURL *fileURL;
 @property(nonatomic) GULHeartbeatDateStorage *storage;
 @end
 
-@implementation GULStorageHeartbeatTest
+@implementation GULHeartbeatDateStorageTest
 
 - (void)setUp {
   NSString *documentsPath = [NSSearchPathForDirectoriesInDomains(
@@ -46,7 +46,7 @@
   self.storage = nil;
 }
 
-- (void)testDictionaryStorage {
+- (void)testHeartbeatDateForTag {
   NSDate *now = [NSDate date];
   [self.storage setHearbeatDate:now forTag:@"fire-iid"];
   XCTAssertEqual([now timeIntervalSinceReferenceDate],
