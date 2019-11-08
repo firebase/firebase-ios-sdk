@@ -78,29 +78,29 @@ NSString *FIRInstanceIDCurrentAppVersion() {
   return version;
 }
 
-NSString *FIRInstanceIDBundleIdentifierByRemovingLastPartFrom(NSString *bundleIdentifier) {
+NSString *FIRInstanceIDBundleIDByRemovingLastPartFrom(NSString *bundleID) {
   NSString *bundleIDComponentsSeparator = @".";
 
   NSMutableArray<NSString *> *bundleIDComponents =
-      [[bundleIdentifier componentsSeparatedByString:bundleIDComponentsSeparator] mutableCopy];
+      [[bundleID componentsSeparatedByString:bundleIDComponentsSeparator] mutableCopy];
   [bundleIDComponents removeLastObject];
 
   return [bundleIDComponents componentsJoinedByString:bundleIDComponentsSeparator];
 }
 
 NSString *FIRInstanceIDAppIdentifier() {
-  NSString *bundleIdentifier = [[NSBundle mainBundle] bundleIdentifier];
-  if (!bundleIdentifier.length) {
+  NSString *bundleID = [[NSBundle mainBundle] bundleIdentifier];
+  if (!bundleID.length) {
     FIRInstanceIDLoggerError(kFIRInstanceIDMessageCodeUtilitiesMissingBundleIdentifier,
                              @"The mainBundle's bundleIdentifier returned '%@'. Bundle identifier "
                              @"expected to be non-empty.",
-                             bundleIdentifier);
+                             bundleID);
     return @"";
   }
 #if TARGET_OS_WATCH
-  return FIRInstanceIDBundleIdentifierByRemovingLastPartFrom(bundleIdentifier);
+  return FIRInstanceIDBundleIDByRemovingLastPartFrom(bundleID);
 #endif
-  return bundleIdentifier;
+  return bundleID;
 }
 
 NSString *FIRInstanceIDFirebaseAppID() {

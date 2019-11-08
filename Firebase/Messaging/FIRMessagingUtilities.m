@@ -150,22 +150,22 @@ NSString *FIRMessagingCurrentAppVersion(void) {
 }
 
 
-NSString * FIRMessagingBundleIdentifierByRemovingLastPartFrom(NSString *bundleIdentifier) {
+NSString * FIRMessagingBundleIDByRemovingLastPartFrom(NSString *bundleID) {
   NSString *bundleIDComponentsSeparator = @".";
 
   NSMutableArray<NSString *> *bundleIDComponents =
-      [[bundleIdentifier componentsSeparatedByString:bundleIDComponentsSeparator] mutableCopy];
+      [[bundleID componentsSeparatedByString:bundleIDComponentsSeparator] mutableCopy];
   [bundleIDComponents removeLastObject];
 
   return [bundleIDComponents componentsJoinedByString:bundleIDComponentsSeparator];
 }
 
 NSString *FIRMessagingAppIdentifier(void) {
-  NSString *bundleIdentifier = [[NSBundle mainBundle] bundleIdentifier];
+  NSString *bundleID = [[NSBundle mainBundle] bundleIdentifier];
 #if TARGET_OS_WATCH
-  return FIRMessagingBundleIdentifierByRemovingLastPartFrom(bundleIdentifier);
+  return FIRMessagingBundleIDByRemovingLastPartFrom(bundleID);
 #else
-  return bundleIdentifier;
+  return bundleID;
 #endif
 }
 
