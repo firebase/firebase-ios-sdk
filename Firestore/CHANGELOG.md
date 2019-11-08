@@ -1,4 +1,7 @@
 # Unreleased
+- [changed] If you're manually tracking dependencies, Firestore SDK no longer
+  depends on `Protobuf` framework (note, however, that other Firebase components 
+  might still require it).
 
 # v1.7.0
 - [feature] Added `whereField(_:in:)` and `whereField(_:arrayContainsAny:)` query
