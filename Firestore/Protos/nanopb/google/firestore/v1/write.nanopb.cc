@@ -19,8 +19,16 @@
 
 #include "write.nanopb.h"
 
+#include "Firestore/core/src/firebase/firestore/nanopb/pretty_printing.h"
+
 namespace firebase {
 namespace firestore {
+
+using nanopb::PrintEnumField;
+using nanopb::PrintHeader;
+using nanopb::PrintMessageField;
+using nanopb::PrintPrimitiveField;
+using nanopb::PrintTail;
 
 /* @@protoc_insertion_point(includes) */
 #if PB_PROTO_HEADER_VERSION != 30
@@ -113,6 +121,186 @@ PB_STATIC_ASSERT((pb_membersize(google_firestore_v1_Write, update) < 65536 && pb
 PB_STATIC_ASSERT((pb_membersize(google_firestore_v1_Write, update) < 256 && pb_membersize(google_firestore_v1_Write, transform) < 256 && pb_membersize(google_firestore_v1_Write, update_mask) < 256 && pb_membersize(google_firestore_v1_Write, current_document) < 256 && pb_membersize(google_firestore_v1_DocumentTransform_FieldTransform, increment) < 256 && pb_membersize(google_firestore_v1_DocumentTransform_FieldTransform, maximum) < 256 && pb_membersize(google_firestore_v1_DocumentTransform_FieldTransform, minimum) < 256 && pb_membersize(google_firestore_v1_DocumentTransform_FieldTransform, append_missing_elements) < 256 && pb_membersize(google_firestore_v1_DocumentTransform_FieldTransform, remove_all_from_array) < 256 && pb_membersize(google_firestore_v1_WriteResult, update_time) < 256 && pb_membersize(google_firestore_v1_DocumentChange, document) < 256 && pb_membersize(google_firestore_v1_DocumentDelete, read_time) < 256 && pb_membersize(google_firestore_v1_DocumentRemove, read_time) < 256), YOU_MUST_DEFINE_PB_FIELD_16BIT_FOR_MESSAGES_google_firestore_v1_Write_google_firestore_v1_DocumentTransform_google_firestore_v1_DocumentTransform_FieldTransform_google_firestore_v1_WriteResult_google_firestore_v1_DocumentChange_google_firestore_v1_DocumentDelete_google_firestore_v1_DocumentRemove_google_firestore_v1_ExistenceFilter)
 #endif
 
+
+const char* EnumToString(
+  google_firestore_v1_DocumentTransform_FieldTransform_ServerValue value) {
+    switch (value) {
+    case google_firestore_v1_DocumentTransform_FieldTransform_ServerValue_SERVER_VALUE_UNSPECIFIED:
+        return "SERVER_VALUE_UNSPECIFIED";
+    case google_firestore_v1_DocumentTransform_FieldTransform_ServerValue_REQUEST_TIME:
+        return "REQUEST_TIME";
+    }
+    return "<unknown enum value>";
+}
+
+std::string google_firestore_v1_Write::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "Write", this);
+    std::string result;
+
+    switch (which_operation) {
+    case google_firestore_v1_Write_update_tag:
+        result += PrintMessageField("update ", update, indent + 1, true);
+        break;
+    case google_firestore_v1_Write_delete_tag:
+        result += PrintPrimitiveField("delete: ", delete_, indent + 1, true);
+        break;
+    case google_firestore_v1_Write_transform_tag:
+        result += PrintMessageField("transform ", transform, indent + 1, true);
+        break;
+    }
+    if (has_update_mask) {
+        result += PrintMessageField("update_mask ",
+            update_mask, indent + 1, true);
+    }
+    if (has_current_document) {
+        result += PrintMessageField("current_document ",
+            current_document, indent + 1, true);
+    }
+
+    std::string tail = PrintTail(indent);
+    return header + result + tail;
+}
+
+std::string google_firestore_v1_DocumentTransform::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "DocumentTransform", this);
+    std::string result;
+
+    result += PrintPrimitiveField("document: ", document, indent + 1, false);
+    for (pb_size_t i = 0; i != field_transforms_count; ++i) {
+        result += PrintMessageField("field_transforms ",
+            field_transforms[i], indent + 1, true);
+    }
+
+    bool is_root = indent == 0;
+    if (!result.empty() || is_root) {
+      std::string tail = PrintTail(indent);
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}
+
+std::string google_firestore_v1_DocumentTransform_FieldTransform::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "FieldTransform", this);
+    std::string result;
+
+    result += PrintPrimitiveField("field_path: ",
+        field_path, indent + 1, false);
+    switch (which_transform_type) {
+    case google_firestore_v1_DocumentTransform_FieldTransform_set_to_server_value_tag:
+        result += PrintEnumField("set_to_server_value: ",
+            set_to_server_value, indent + 1, true);
+        break;
+    case google_firestore_v1_DocumentTransform_FieldTransform_increment_tag:
+        result += PrintMessageField("increment ", increment, indent + 1, true);
+        break;
+    case google_firestore_v1_DocumentTransform_FieldTransform_maximum_tag:
+        result += PrintMessageField("maximum ", maximum, indent + 1, true);
+        break;
+    case google_firestore_v1_DocumentTransform_FieldTransform_minimum_tag:
+        result += PrintMessageField("minimum ", minimum, indent + 1, true);
+        break;
+    case google_firestore_v1_DocumentTransform_FieldTransform_append_missing_elements_tag:
+        result += PrintMessageField("append_missing_elements ",
+            append_missing_elements, indent + 1, true);
+        break;
+    case google_firestore_v1_DocumentTransform_FieldTransform_remove_all_from_array_tag:
+        result += PrintMessageField("remove_all_from_array ",
+            remove_all_from_array, indent + 1, true);
+        break;
+    }
+
+    bool is_root = indent == 0;
+    if (!result.empty() || is_root) {
+      std::string tail = PrintTail(indent);
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}
+
+std::string google_firestore_v1_WriteResult::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "WriteResult", this);
+    std::string result;
+
+    if (has_update_time) {
+        result += PrintMessageField("update_time ",
+            update_time, indent + 1, true);
+    }
+    for (pb_size_t i = 0; i != transform_results_count; ++i) {
+        result += PrintMessageField("transform_results ",
+            transform_results[i], indent + 1, true);
+    }
+
+    std::string tail = PrintTail(indent);
+    return header + result + tail;
+}
+
+std::string google_firestore_v1_DocumentChange::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "DocumentChange", this);
+    std::string result;
+
+    result += PrintMessageField("document ", document, indent + 1, false);
+    for (pb_size_t i = 0; i != target_ids_count; ++i) {
+        result += PrintPrimitiveField("target_ids: ",
+            target_ids[i], indent + 1, true);
+    }
+    for (pb_size_t i = 0; i != removed_target_ids_count; ++i) {
+        result += PrintPrimitiveField("removed_target_ids: ",
+            removed_target_ids[i], indent + 1, true);
+    }
+
+    std::string tail = PrintTail(indent);
+    return header + result + tail;
+}
+
+std::string google_firestore_v1_DocumentDelete::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "DocumentDelete", this);
+    std::string result;
+
+    result += PrintPrimitiveField("document: ", document, indent + 1, false);
+    if (has_read_time) {
+        result += PrintMessageField("read_time ", read_time, indent + 1, true);
+    }
+    for (pb_size_t i = 0; i != removed_target_ids_count; ++i) {
+        result += PrintPrimitiveField("removed_target_ids: ",
+            removed_target_ids[i], indent + 1, true);
+    }
+
+    std::string tail = PrintTail(indent);
+    return header + result + tail;
+}
+
+std::string google_firestore_v1_DocumentRemove::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "DocumentRemove", this);
+    std::string result;
+
+    result += PrintPrimitiveField("document: ", document, indent + 1, false);
+    for (pb_size_t i = 0; i != removed_target_ids_count; ++i) {
+        result += PrintPrimitiveField("removed_target_ids: ",
+            removed_target_ids[i], indent + 1, true);
+    }
+    result += PrintMessageField("read_time ", read_time, indent + 1, false);
+
+    std::string tail = PrintTail(indent);
+    return header + result + tail;
+}
+
+std::string google_firestore_v1_ExistenceFilter::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "ExistenceFilter", this);
+    std::string result;
+
+    result += PrintPrimitiveField("target_id: ", target_id, indent + 1, false);
+    result += PrintPrimitiveField("count: ", count, indent + 1, false);
+
+    bool is_root = indent == 0;
+    if (!result.empty() || is_root) {
+      std::string tail = PrintTail(indent);
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}
 
 }  // namespace firestore
 }  // namespace firebase

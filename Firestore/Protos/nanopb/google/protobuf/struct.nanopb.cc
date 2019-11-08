@@ -19,8 +19,16 @@
 
 #include "struct.nanopb.h"
 
+#include "Firestore/core/src/firebase/firestore/nanopb/pretty_printing.h"
+
 namespace firebase {
 namespace firestore {
+
+using nanopb::PrintEnumField;
+using nanopb::PrintHeader;
+using nanopb::PrintMessageField;
+using nanopb::PrintPrimitiveField;
+using nanopb::PrintTail;
 
 /* @@protoc_insertion_point(includes) */
 #if PB_PROTO_HEADER_VERSION != 30
@@ -80,6 +88,99 @@ PB_STATIC_ASSERT((pb_membersize(google_protobuf_Struct_FieldsEntry, value) < 655
 PB_STATIC_ASSERT((pb_membersize(google_protobuf_Struct_FieldsEntry, value) < 256 && pb_membersize(google_protobuf_Value, struct_value) < 256 && pb_membersize(google_protobuf_Value, list_value) < 256), YOU_MUST_DEFINE_PB_FIELD_16BIT_FOR_MESSAGES_google_protobuf_Struct_google_protobuf_Struct_FieldsEntry_google_protobuf_Value_google_protobuf_ListValue)
 #endif
 
+
+const char* EnumToString(
+  google_protobuf_NullValue value) {
+    switch (value) {
+    case google_protobuf_NullValue_NULL_VALUE:
+        return "NULL_VALUE";
+    }
+    return "<unknown enum value>";
+}
+
+std::string google_protobuf_Struct::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "Struct", this);
+    std::string result;
+
+    for (pb_size_t i = 0; i != fields_count; ++i) {
+        result += PrintMessageField("fields ", fields[i], indent + 1, true);
+    }
+
+    bool is_root = indent == 0;
+    if (!result.empty() || is_root) {
+      std::string tail = PrintTail(indent);
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}
+
+std::string google_protobuf_Struct_FieldsEntry::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "FieldsEntry", this);
+    std::string result;
+
+    result += PrintPrimitiveField("key: ", key, indent + 1, false);
+    result += PrintMessageField("value ", value, indent + 1, false);
+
+    std::string tail = PrintTail(indent);
+    return header + result + tail;
+}
+
+std::string google_protobuf_Value::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "Value", this);
+    std::string result;
+
+    switch (which_kind) {
+    case google_protobuf_Value_null_value_tag:
+        result += PrintEnumField("null_value: ", null_value, indent + 1, true);
+        break;
+    case google_protobuf_Value_number_value_tag:
+        result += PrintPrimitiveField("number_value: ",
+            number_value, indent + 1, true);
+        break;
+    case google_protobuf_Value_string_value_tag:
+        result += PrintPrimitiveField("string_value: ",
+            string_value, indent + 1, true);
+        break;
+    case google_protobuf_Value_bool_value_tag:
+        result += PrintPrimitiveField("bool_value: ",
+            bool_value, indent + 1, true);
+        break;
+    case google_protobuf_Value_struct_value_tag:
+        result += PrintMessageField("struct_value ",
+            struct_value, indent + 1, true);
+        break;
+    case google_protobuf_Value_list_value_tag:
+        result += PrintMessageField("list_value ",
+            list_value, indent + 1, true);
+        break;
+    }
+
+    bool is_root = indent == 0;
+    if (!result.empty() || is_root) {
+      std::string tail = PrintTail(indent);
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}
+
+std::string google_protobuf_ListValue::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "ListValue", this);
+    std::string result;
+
+    for (pb_size_t i = 0; i != values_count; ++i) {
+        result += PrintMessageField("values ", values[i], indent + 1, true);
+    }
+
+    bool is_root = indent == 0;
+    if (!result.empty() || is_root) {
+      std::string tail = PrintTail(indent);
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}
 
 }  // namespace firestore
 }  // namespace firebase

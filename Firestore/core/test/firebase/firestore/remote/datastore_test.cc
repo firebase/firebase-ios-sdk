@@ -21,6 +21,7 @@
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/Protos/nanopb/google/firestore/v1/firestore.nanopb.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/message.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_nanopb.h"
 #include "Firestore/core/src/firebase/firestore/remote/serializer.h"
@@ -49,6 +50,7 @@ using core::DatabaseInfo;
 using model::DatabaseId;
 using model::Document;
 using model::MaybeDocument;
+using nanopb::MakeArray;
 using nanopb::Message;
 using testing::Not;
 using testutil::Value;

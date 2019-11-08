@@ -53,12 +53,12 @@ using model::SnapshotVersion;
 using model::UnknownDocument;
 using nanopb::ByteString;
 using nanopb::CheckedSize;
+using nanopb::MakeArray;
 using nanopb::Message;
 using nanopb::Reader;
 using nanopb::SafeReadBoolean;
 using nanopb::Writer;
 using remote::InvalidQuery;
-using remote::MakeArray;
 using util::Status;
 using util::StringFormat;
 

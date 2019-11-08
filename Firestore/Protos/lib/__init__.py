@@ -1,4 +1,4 @@
-# Copyright 2018 Google
+# Copyright 2019 Google
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,17 +11,3 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-cc_test(
-  firebase_firestore_nanopb_test
-  SOURCES
-    byte_string_test.cc
-    message_test.cc
-    nanopb_testing.h
-    pretty_printing_test.cc
-    writer_test.cc
-  DEPENDS
-    GMock::GMock
-    firebase_firestore_nanopb
-    firebase_firestore_remote
-)

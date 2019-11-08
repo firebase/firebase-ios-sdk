@@ -104,6 +104,11 @@ inline bool SafeReadBoolean(const bool& nanopb_boolean) {
   return absl::bit_cast<int8_t>(nanopb_boolean) != 0;
 }
 
+template <typename T>
+T* _Nonnull MakeArray(pb_size_t count) {
+  return static_cast<T*>(calloc(count, sizeof(T)));
+}
+
 #if __OBJC__
 inline ByteString MakeByteString(NSData* _Nullable value) {
   if (value == nil) return ByteString();

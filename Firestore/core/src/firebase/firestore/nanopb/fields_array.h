@@ -101,6 +101,11 @@ inline const pb_field_t* FieldsArray<google_firestore_v1_ListenResponse>() {
 }
 
 template <>
+inline const pb_field_t* FieldsArray<google_firestore_v1_RunQueryRequest>() {
+  return google_firestore_v1_RunQueryRequest_fields;
+}
+
+template <>
 inline const pb_field_t*
 FieldsArray<google_firestore_v1_StructuredQuery_Filter>() {
   return google_firestore_v1_StructuredQuery_Filter_fields;
@@ -110,6 +115,11 @@ template <>
 inline const pb_field_t*
 FieldsArray<google_firestore_v1_Target_DocumentsTarget>() {
   return google_firestore_v1_Target_DocumentsTarget_fields;
+}
+
+template <>
+inline const pb_field_t* FieldsArray<google_firestore_v1_TargetChange>() {
+  return google_firestore_v1_TargetChange_fields;
 }
 
 template <>

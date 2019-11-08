@@ -96,8 +96,8 @@ cc_library(
     online_state_tracker.h
     remote_event.cc
     remote_event.h
+    remote_objc_bridge.cc
     remote_objc_bridge.h
-    remote_objc_bridge.mm
     remote_store.cc
     remote_store.h
     serializer.cc

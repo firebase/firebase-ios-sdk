@@ -19,8 +19,16 @@
 
 #include "firestore.nanopb.h"
 
+#include "Firestore/core/src/firebase/firestore/nanopb/pretty_printing.h"
+
 namespace firebase {
 namespace firestore {
+
+using nanopb::PrintEnumField;
+using nanopb::PrintHeader;
+using nanopb::PrintMessageField;
+using nanopb::PrintPrimitiveField;
+using nanopb::PrintTail;
 
 /* @@protoc_insertion_point(includes) */
 #if PB_PROTO_HEADER_VERSION != 30
@@ -258,6 +266,582 @@ PB_STATIC_ASSERT((pb_membersize(google_firestore_v1_GetDocumentRequest, read_tim
 PB_STATIC_ASSERT((pb_membersize(google_firestore_v1_GetDocumentRequest, read_time) < 256 && pb_membersize(google_firestore_v1_GetDocumentRequest, mask) < 256 && pb_membersize(google_firestore_v1_ListDocumentsRequest, read_time) < 256 && pb_membersize(google_firestore_v1_ListDocumentsRequest, mask) < 256 && pb_membersize(google_firestore_v1_CreateDocumentRequest, document) < 256 && pb_membersize(google_firestore_v1_CreateDocumentRequest, mask) < 256 && pb_membersize(google_firestore_v1_UpdateDocumentRequest, document) < 256 && pb_membersize(google_firestore_v1_UpdateDocumentRequest, update_mask) < 256 && pb_membersize(google_firestore_v1_UpdateDocumentRequest, mask) < 256 && pb_membersize(google_firestore_v1_UpdateDocumentRequest, current_document) < 256 && pb_membersize(google_firestore_v1_DeleteDocumentRequest, current_document) < 256 && pb_membersize(google_firestore_v1_BatchGetDocumentsRequest, new_transaction) < 256 && pb_membersize(google_firestore_v1_BatchGetDocumentsRequest, read_time) < 256 && pb_membersize(google_firestore_v1_BatchGetDocumentsRequest, mask) < 256 && pb_membersize(google_firestore_v1_BatchGetDocumentsResponse, found) < 256 && pb_membersize(google_firestore_v1_BatchGetDocumentsResponse, read_time) < 256 && pb_membersize(google_firestore_v1_BeginTransactionRequest, options) < 256 && pb_membersize(google_firestore_v1_CommitResponse, commit_time) < 256 && pb_membersize(google_firestore_v1_RunQueryRequest, query_type.structured_query) < 256 && pb_membersize(google_firestore_v1_RunQueryRequest, consistency_selector.new_transaction) < 256 && pb_membersize(google_firestore_v1_RunQueryRequest, consistency_selector.read_time) < 256 && pb_membersize(google_firestore_v1_RunQueryResponse, document) < 256 && pb_membersize(google_firestore_v1_RunQueryResponse, read_time) < 256 && pb_membersize(google_firestore_v1_WriteResponse, commit_time) < 256 && pb_membersize(google_firestore_v1_ListenRequest, add_target) < 256 && pb_membersize(google_firestore_v1_ListenResponse, target_change) < 256 && pb_membersize(google_firestore_v1_ListenResponse, document_change) < 256 && pb_membersize(google_firestore_v1_ListenResponse, document_delete) < 256 && pb_membersize(google_firestore_v1_ListenResponse, filter) < 256 && pb_membersize(google_firestore_v1_ListenResponse, document_remove) < 256 && pb_membersize(google_firestore_v1_Target, target_type.query) < 256 && pb_membersize(google_firestore_v1_Target, target_type.documents) < 256 && pb_membersize(google_firestore_v1_Target, resume_type.read_time) < 256 && pb_membersize(google_firestore_v1_Target_QueryTarget, structured_query) < 256 && pb_membersize(google_firestore_v1_TargetChange, cause) < 256 && pb_membersize(google_firestore_v1_TargetChange, read_time) < 256), YOU_MUST_DEFINE_PB_FIELD_16BIT_FOR_MESSAGES_google_firestore_v1_GetDocumentRequest_google_firestore_v1_ListDocumentsRequest_google_firestore_v1_ListDocumentsResponse_google_firestore_v1_CreateDocumentRequest_google_firestore_v1_UpdateDocumentRequest_google_firestore_v1_DeleteDocumentRequest_google_firestore_v1_BatchGetDocumentsRequest_google_firestore_v1_BatchGetDocumentsResponse_google_firestore_v1_BeginTransactionRequest_google_firestore_v1_BeginTransactionResponse_google_firestore_v1_CommitRequest_google_firestore_v1_CommitResponse_google_firestore_v1_RollbackRequest_google_firestore_v1_RunQueryRequest_google_firestore_v1_RunQueryResponse_google_firestore_v1_WriteRequest_google_firestore_v1_WriteRequest_LabelsEntry_google_firestore_v1_WriteResponse_google_firestore_v1_ListenRequest_google_firestore_v1_ListenRequest_LabelsEntry_google_firestore_v1_ListenResponse_google_firestore_v1_Target_google_firestore_v1_Target_DocumentsTarget_google_firestore_v1_Target_QueryTarget_google_firestore_v1_TargetChange_google_firestore_v1_ListCollectionIdsRequest_google_firestore_v1_ListCollectionIdsResponse)
 #endif
 
+
+const char* EnumToString(
+  google_firestore_v1_TargetChange_TargetChangeType value) {
+    switch (value) {
+    case google_firestore_v1_TargetChange_TargetChangeType_NO_CHANGE:
+        return "NO_CHANGE";
+    case google_firestore_v1_TargetChange_TargetChangeType_ADD:
+        return "ADD";
+    case google_firestore_v1_TargetChange_TargetChangeType_REMOVE:
+        return "REMOVE";
+    case google_firestore_v1_TargetChange_TargetChangeType_CURRENT:
+        return "CURRENT";
+    case google_firestore_v1_TargetChange_TargetChangeType_RESET:
+        return "RESET";
+    }
+    return "<unknown enum value>";
+}
+
+std::string google_firestore_v1_GetDocumentRequest::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "GetDocumentRequest", this);
+    std::string result;
+
+    result += PrintPrimitiveField("name: ", name, indent + 1, false);
+    result += PrintMessageField("mask ", mask, indent + 1, false);
+    switch (which_consistency_selector) {
+    case google_firestore_v1_GetDocumentRequest_transaction_tag:
+        result += PrintPrimitiveField("transaction: ",
+            transaction, indent + 1, true);
+        break;
+    case google_firestore_v1_GetDocumentRequest_read_time_tag:
+        result += PrintMessageField("read_time ", read_time, indent + 1, true);
+        break;
+    }
+
+    std::string tail = PrintTail(indent);
+    return header + result + tail;
+}
+
+std::string google_firestore_v1_ListDocumentsRequest::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "ListDocumentsRequest", this);
+    std::string result;
+
+    result += PrintPrimitiveField("parent: ", parent, indent + 1, false);
+    result += PrintPrimitiveField("collection_id: ",
+        collection_id, indent + 1, false);
+    result += PrintPrimitiveField("page_size: ", page_size, indent + 1, false);
+    result += PrintPrimitiveField("page_token: ",
+        page_token, indent + 1, false);
+    result += PrintPrimitiveField("order_by: ", order_by, indent + 1, false);
+    result += PrintMessageField("mask ", mask, indent + 1, false);
+    switch (which_consistency_selector) {
+    case google_firestore_v1_ListDocumentsRequest_transaction_tag:
+        result += PrintPrimitiveField("transaction: ",
+            transaction, indent + 1, true);
+        break;
+    case google_firestore_v1_ListDocumentsRequest_read_time_tag:
+        result += PrintMessageField("read_time ", read_time, indent + 1, true);
+        break;
+    }
+    result += PrintPrimitiveField("show_missing: ",
+        show_missing, indent + 1, false);
+
+    std::string tail = PrintTail(indent);
+    return header + result + tail;
+}
+
+std::string google_firestore_v1_ListDocumentsResponse::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "ListDocumentsResponse", this);
+    std::string result;
+
+    for (pb_size_t i = 0; i != documents_count; ++i) {
+        result += PrintMessageField("documents ",
+            documents[i], indent + 1, true);
+    }
+    result += PrintPrimitiveField("next_page_token: ",
+        next_page_token, indent + 1, false);
+
+    bool is_root = indent == 0;
+    if (!result.empty() || is_root) {
+      std::string tail = PrintTail(indent);
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}
+
+std::string google_firestore_v1_CreateDocumentRequest::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "CreateDocumentRequest", this);
+    std::string result;
+
+    result += PrintPrimitiveField("parent: ", parent, indent + 1, false);
+    result += PrintPrimitiveField("collection_id: ",
+        collection_id, indent + 1, false);
+    result += PrintPrimitiveField("document_id: ",
+        document_id, indent + 1, false);
+    result += PrintMessageField("document ", document, indent + 1, false);
+    result += PrintMessageField("mask ", mask, indent + 1, false);
+
+    std::string tail = PrintTail(indent);
+    return header + result + tail;
+}
+
+std::string google_firestore_v1_UpdateDocumentRequest::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "UpdateDocumentRequest", this);
+    std::string result;
+
+    result += PrintMessageField("document ", document, indent + 1, false);
+    result += PrintMessageField("update_mask ",
+        update_mask, indent + 1, false);
+    result += PrintMessageField("mask ", mask, indent + 1, false);
+    result += PrintMessageField("current_document ",
+        current_document, indent + 1, false);
+
+    std::string tail = PrintTail(indent);
+    return header + result + tail;
+}
+
+std::string google_firestore_v1_DeleteDocumentRequest::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "DeleteDocumentRequest", this);
+    std::string result;
+
+    result += PrintPrimitiveField("name: ", name, indent + 1, false);
+    result += PrintMessageField("current_document ",
+        current_document, indent + 1, false);
+
+    std::string tail = PrintTail(indent);
+    return header + result + tail;
+}
+
+std::string google_firestore_v1_BatchGetDocumentsRequest::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "BatchGetDocumentsRequest", this);
+    std::string result;
+
+    result += PrintPrimitiveField("database: ", database, indent + 1, false);
+    for (pb_size_t i = 0; i != documents_count; ++i) {
+        result += PrintPrimitiveField("documents: ",
+            documents[i], indent + 1, true);
+    }
+    result += PrintMessageField("mask ", mask, indent + 1, false);
+    switch (which_consistency_selector) {
+    case google_firestore_v1_BatchGetDocumentsRequest_transaction_tag:
+        result += PrintPrimitiveField("transaction: ",
+            transaction, indent + 1, true);
+        break;
+    case google_firestore_v1_BatchGetDocumentsRequest_new_transaction_tag:
+        result += PrintMessageField("new_transaction ",
+            new_transaction, indent + 1, true);
+        break;
+    case google_firestore_v1_BatchGetDocumentsRequest_read_time_tag:
+        result += PrintMessageField("read_time ", read_time, indent + 1, true);
+        break;
+    }
+
+    std::string tail = PrintTail(indent);
+    return header + result + tail;
+}
+
+std::string google_firestore_v1_BatchGetDocumentsResponse::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "BatchGetDocumentsResponse", this);
+    std::string result;
+
+    switch (which_result) {
+    case google_firestore_v1_BatchGetDocumentsResponse_found_tag:
+        result += PrintMessageField("found ", found, indent + 1, true);
+        break;
+    case google_firestore_v1_BatchGetDocumentsResponse_missing_tag:
+        result += PrintPrimitiveField("missing: ", missing, indent + 1, true);
+        break;
+    }
+    result += PrintPrimitiveField("transaction: ",
+        transaction, indent + 1, false);
+    result += PrintMessageField("read_time ", read_time, indent + 1, false);
+
+    std::string tail = PrintTail(indent);
+    return header + result + tail;
+}
+
+std::string google_firestore_v1_BeginTransactionRequest::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "BeginTransactionRequest", this);
+    std::string result;
+
+    result += PrintPrimitiveField("database: ", database, indent + 1, false);
+    result += PrintMessageField("options ", options, indent + 1, false);
+
+    std::string tail = PrintTail(indent);
+    return header + result + tail;
+}
+
+std::string google_firestore_v1_BeginTransactionResponse::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "BeginTransactionResponse", this);
+    std::string result;
+
+    result += PrintPrimitiveField("transaction: ",
+        transaction, indent + 1, false);
+
+    bool is_root = indent == 0;
+    if (!result.empty() || is_root) {
+      std::string tail = PrintTail(indent);
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}
+
+std::string google_firestore_v1_CommitRequest::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "CommitRequest", this);
+    std::string result;
+
+    result += PrintPrimitiveField("database: ", database, indent + 1, false);
+    for (pb_size_t i = 0; i != writes_count; ++i) {
+        result += PrintMessageField("writes ", writes[i], indent + 1, true);
+    }
+    result += PrintPrimitiveField("transaction: ",
+        transaction, indent + 1, false);
+
+    bool is_root = indent == 0;
+    if (!result.empty() || is_root) {
+      std::string tail = PrintTail(indent);
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}
+
+std::string google_firestore_v1_CommitResponse::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "CommitResponse", this);
+    std::string result;
+
+    for (pb_size_t i = 0; i != write_results_count; ++i) {
+        result += PrintMessageField("write_results ",
+            write_results[i], indent + 1, true);
+    }
+    result += PrintMessageField("commit_time ",
+        commit_time, indent + 1, false);
+
+    std::string tail = PrintTail(indent);
+    return header + result + tail;
+}
+
+std::string google_firestore_v1_RollbackRequest::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "RollbackRequest", this);
+    std::string result;
+
+    result += PrintPrimitiveField("database: ", database, indent + 1, false);
+    result += PrintPrimitiveField("transaction: ",
+        transaction, indent + 1, false);
+
+    bool is_root = indent == 0;
+    if (!result.empty() || is_root) {
+      std::string tail = PrintTail(indent);
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}
+
+std::string google_firestore_v1_RunQueryRequest::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "RunQueryRequest", this);
+    std::string result;
+
+    result += PrintPrimitiveField("parent: ", parent, indent + 1, false);
+    switch (which_query_type) {
+    case google_firestore_v1_RunQueryRequest_structured_query_tag:
+        result += PrintMessageField("structured_query ",
+            query_type.structured_query, indent + 1, true);
+        break;
+    }
+    switch (which_consistency_selector) {
+    case google_firestore_v1_RunQueryRequest_transaction_tag:
+        result += PrintPrimitiveField("transaction: ",
+            consistency_selector.transaction, indent + 1, true);
+        break;
+    case google_firestore_v1_RunQueryRequest_new_transaction_tag:
+        result += PrintMessageField("new_transaction ",
+            consistency_selector.new_transaction, indent + 1, true);
+        break;
+    case google_firestore_v1_RunQueryRequest_read_time_tag:
+        result += PrintMessageField("read_time ",
+            consistency_selector.read_time, indent + 1, true);
+        break;
+    }
+
+    bool is_root = indent == 0;
+    if (!result.empty() || is_root) {
+      std::string tail = PrintTail(indent);
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}
+
+std::string google_firestore_v1_RunQueryResponse::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "RunQueryResponse", this);
+    std::string result;
+
+    result += PrintMessageField("document ", document, indent + 1, false);
+    result += PrintPrimitiveField("transaction: ",
+        transaction, indent + 1, false);
+    result += PrintMessageField("read_time ", read_time, indent + 1, false);
+    result += PrintPrimitiveField("skipped_results: ",
+        skipped_results, indent + 1, false);
+
+    std::string tail = PrintTail(indent);
+    return header + result + tail;
+}
+
+std::string google_firestore_v1_WriteRequest::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "WriteRequest", this);
+    std::string result;
+
+    result += PrintPrimitiveField("database: ", database, indent + 1, false);
+    result += PrintPrimitiveField("stream_id: ", stream_id, indent + 1, false);
+    for (pb_size_t i = 0; i != writes_count; ++i) {
+        result += PrintMessageField("writes ", writes[i], indent + 1, true);
+    }
+    result += PrintPrimitiveField("stream_token: ",
+        stream_token, indent + 1, false);
+    for (pb_size_t i = 0; i != labels_count; ++i) {
+        result += PrintMessageField("labels ", labels[i], indent + 1, true);
+    }
+
+    bool is_root = indent == 0;
+    if (!result.empty() || is_root) {
+      std::string tail = PrintTail(indent);
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}
+
+std::string google_firestore_v1_WriteRequest_LabelsEntry::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "LabelsEntry", this);
+    std::string result;
+
+    result += PrintPrimitiveField("key: ", key, indent + 1, false);
+    result += PrintPrimitiveField("value: ", value, indent + 1, false);
+
+    bool is_root = indent == 0;
+    if (!result.empty() || is_root) {
+      std::string tail = PrintTail(indent);
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}
+
+std::string google_firestore_v1_WriteResponse::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "WriteResponse", this);
+    std::string result;
+
+    result += PrintPrimitiveField("stream_id: ", stream_id, indent + 1, false);
+    result += PrintPrimitiveField("stream_token: ",
+        stream_token, indent + 1, false);
+    for (pb_size_t i = 0; i != write_results_count; ++i) {
+        result += PrintMessageField("write_results ",
+            write_results[i], indent + 1, true);
+    }
+    result += PrintMessageField("commit_time ",
+        commit_time, indent + 1, false);
+
+    std::string tail = PrintTail(indent);
+    return header + result + tail;
+}
+
+std::string google_firestore_v1_ListenRequest::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "ListenRequest", this);
+    std::string result;
+
+    result += PrintPrimitiveField("database: ", database, indent + 1, false);
+    switch (which_target_change) {
+    case google_firestore_v1_ListenRequest_add_target_tag:
+        result += PrintMessageField("add_target ",
+            add_target, indent + 1, true);
+        break;
+    case google_firestore_v1_ListenRequest_remove_target_tag:
+        result += PrintPrimitiveField("remove_target: ",
+            remove_target, indent + 1, true);
+        break;
+    }
+    for (pb_size_t i = 0; i != labels_count; ++i) {
+        result += PrintMessageField("labels ", labels[i], indent + 1, true);
+    }
+
+    bool is_root = indent == 0;
+    if (!result.empty() || is_root) {
+      std::string tail = PrintTail(indent);
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}
+
+std::string google_firestore_v1_ListenRequest_LabelsEntry::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "LabelsEntry", this);
+    std::string result;
+
+    result += PrintPrimitiveField("key: ", key, indent + 1, false);
+    result += PrintPrimitiveField("value: ", value, indent + 1, false);
+
+    bool is_root = indent == 0;
+    if (!result.empty() || is_root) {
+      std::string tail = PrintTail(indent);
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}
+
+std::string google_firestore_v1_ListenResponse::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "ListenResponse", this);
+    std::string result;
+
+    switch (which_response_type) {
+    case google_firestore_v1_ListenResponse_target_change_tag:
+        result += PrintMessageField("target_change ",
+            target_change, indent + 1, true);
+        break;
+    case google_firestore_v1_ListenResponse_document_change_tag:
+        result += PrintMessageField("document_change ",
+            document_change, indent + 1, true);
+        break;
+    case google_firestore_v1_ListenResponse_document_delete_tag:
+        result += PrintMessageField("document_delete ",
+            document_delete, indent + 1, true);
+        break;
+    case google_firestore_v1_ListenResponse_filter_tag:
+        result += PrintMessageField("filter ", filter, indent + 1, true);
+        break;
+    case google_firestore_v1_ListenResponse_document_remove_tag:
+        result += PrintMessageField("document_remove ",
+            document_remove, indent + 1, true);
+        break;
+    }
+
+    bool is_root = indent == 0;
+    if (!result.empty() || is_root) {
+      std::string tail = PrintTail(indent);
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}
+
+std::string google_firestore_v1_Target::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "Target", this);
+    std::string result;
+
+    switch (which_target_type) {
+    case google_firestore_v1_Target_query_tag:
+        result += PrintMessageField("query ",
+            target_type.query, indent + 1, true);
+        break;
+    case google_firestore_v1_Target_documents_tag:
+        result += PrintMessageField("documents ",
+            target_type.documents, indent + 1, true);
+        break;
+    }
+    switch (which_resume_type) {
+    case google_firestore_v1_Target_resume_token_tag:
+        result += PrintPrimitiveField("resume_token: ",
+            resume_type.resume_token, indent + 1, true);
+        break;
+    case google_firestore_v1_Target_read_time_tag:
+        result += PrintMessageField("read_time ",
+            resume_type.read_time, indent + 1, true);
+        break;
+    }
+    result += PrintPrimitiveField("target_id: ", target_id, indent + 1, false);
+    result += PrintPrimitiveField("once: ", once, indent + 1, false);
+
+    bool is_root = indent == 0;
+    if (!result.empty() || is_root) {
+      std::string tail = PrintTail(indent);
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}
+
+std::string google_firestore_v1_Target_DocumentsTarget::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "DocumentsTarget", this);
+    std::string result;
+
+    for (pb_size_t i = 0; i != documents_count; ++i) {
+        result += PrintPrimitiveField("documents: ",
+            documents[i], indent + 1, true);
+    }
+
+    bool is_root = indent == 0;
+    if (!result.empty() || is_root) {
+      std::string tail = PrintTail(indent);
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}
+
+std::string google_firestore_v1_Target_QueryTarget::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "QueryTarget", this);
+    std::string result;
+
+    result += PrintPrimitiveField("parent: ", parent, indent + 1, false);
+    switch (which_query_type) {
+    case google_firestore_v1_Target_QueryTarget_structured_query_tag:
+        result += PrintMessageField("structured_query ",
+            structured_query, indent + 1, true);
+        break;
+    }
+
+    bool is_root = indent == 0;
+    if (!result.empty() || is_root) {
+      std::string tail = PrintTail(indent);
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}
+
+std::string google_firestore_v1_TargetChange::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "TargetChange", this);
+    std::string result;
+
+    result += PrintEnumField("target_change_type: ",
+        target_change_type, indent + 1, false);
+    for (pb_size_t i = 0; i != target_ids_count; ++i) {
+        result += PrintPrimitiveField("target_ids: ",
+            target_ids[i], indent + 1, true);
+    }
+    if (has_cause) {
+        result += PrintMessageField("cause ", cause, indent + 1, true);
+    }
+    result += PrintPrimitiveField("resume_token: ",
+        resume_token, indent + 1, false);
+    result += PrintMessageField("read_time ", read_time, indent + 1, false);
+
+    std::string tail = PrintTail(indent);
+    return header + result + tail;
+}
+
+std::string google_firestore_v1_ListCollectionIdsRequest::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "ListCollectionIdsRequest", this);
+    std::string result;
+
+    result += PrintPrimitiveField("parent: ", parent, indent + 1, false);
+    result += PrintPrimitiveField("page_size: ", page_size, indent + 1, false);
+    result += PrintPrimitiveField("page_token: ",
+        page_token, indent + 1, false);
+
+    bool is_root = indent == 0;
+    if (!result.empty() || is_root) {
+      std::string tail = PrintTail(indent);
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}
+
+std::string google_firestore_v1_ListCollectionIdsResponse::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "ListCollectionIdsResponse", this);
+    std::string result;
+
+    for (pb_size_t i = 0; i != collection_ids_count; ++i) {
+        result += PrintPrimitiveField("collection_ids: ",
+            collection_ids[i], indent + 1, true);
+    }
+    result += PrintPrimitiveField("next_page_token: ",
+        next_page_token, indent + 1, false);
+
+    bool is_root = indent == 0;
+    if (!result.empty() || is_root) {
+      std::string tail = PrintTail(indent);
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}
 
 }  // namespace firestore
 }  // namespace firebase
