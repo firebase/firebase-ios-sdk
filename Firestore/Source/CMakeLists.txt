@@ -89,11 +89,4 @@ if(APPLE)
       absl_strings
       firebase_firestore_api
   )
-
-  target_include_directories(
-    FirebaseFirestore
-    PUBLIC
-    ${FIREBASE_SOURCE_DIR}/Firestore/Source/Public
-  )
-
 endif()
