@@ -20,6 +20,7 @@ if(APPLE)
 
   objc_framework(
     FirebaseFirestore
+    SHARED
     HEADERS
       Public/FirebaseFirestore.h
       Public/FIRCollectionReference.h
@@ -86,7 +87,11 @@ if(APPLE)
       Core/FSTTypes.h
       Util/FSTClasses.h
     DEPENDS
+      absl_any
       absl_strings
       firebase_firestore_api
+      firebase_firestore_core_transaction
+      firebase_firestore_remote_datastore
+      firebase_firestore_version
   )
 endif()

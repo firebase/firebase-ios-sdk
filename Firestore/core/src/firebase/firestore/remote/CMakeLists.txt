@@ -64,13 +64,8 @@ add_custom_command(
 # TODO(wilhuff): Build grpc_root_certificate_finder_apple.mm NOLINT(not built)
 
 cc_library(
-  firebase_firestore_remote
+  firebase_firestore_remote_grpc
   SOURCES
-    datastore.cc
-    datastore.h
-    existence_filter.h
-    exponential_backoff.cc
-    exponential_backoff.h
     grpc_call.h
     grpc_completion.cc
     grpc_completion.h
@@ -92,16 +87,20 @@ cc_library(
     grpc_util.cc
     grpc_util.cc
     grpc_util.h
-    online_state_tracker.cc
-    online_state_tracker.h
-    remote_event.cc
-    remote_event.h
-    remote_objc_bridge.cc
-    remote_objc_bridge.h
-    remote_store.cc
-    remote_store.h
-    serializer.cc
-    serializer.h
+  DEPENDS
+    absl_optional
+    firebase_firestore_nanopb
+    firebase_firestore_protos_nanopb
+    firebase_firestore_version
+    grpc++
+    protobuf-nanopb-static
+)
+
+cc_library(
+  firebase_firestore_remote_datastore
+  SOURCES
+    datastore.cc
+    datastore.h
     stream.cc
     stream.h
     watch_change.cc
@@ -110,18 +109,49 @@ cc_library(
     watch_stream.h
     write_stream.cc
     write_stream.h
+  DEPENDS
+    absl_strings
+    firebase_firestore_remote_grpc
+)
+
+cc_library(
+  firebase_firestore_remote_serializer
+  SOURCES
+    serializer.cc
+    serializer.h
+  DEPENDS
+    firebase_firestore_core_query
+    firebase_firestore_model
+    protobuf-nanopb-static
+)
+
+cc_library(
+  firebase_firestore_remote
+  SOURCES
+    existence_filter.h
+    exponential_backoff.cc
+    exponential_backoff.h
+    online_state_tracker.cc
+    online_state_tracker.h
+    remote_event.cc
+    remote_event.h
+    remote_objc_bridge.cc
+    remote_objc_bridge.h
+    remote_store.cc
+    remote_store.h
 
   DEPENDS
     # TODO(b/111328563) Force nanopb first to work around ODR violations
     protobuf-nanopb-static
 
-    firebase_firestore_core
+    firebase_firestore_core_transaction
+    firebase_firestore_local
     firebase_firestore_model
     firebase_firestore_nanopb
     firebase_firestore_protos_nanopb
     firebase_firestore_remote_connectivity_monitor
+    firebase_firestore_remote_datastore
+    firebase_firestore_remote_serializer
     firebase_firestore_util
     firebase_firestore_version
-
-    grpc++
 )
