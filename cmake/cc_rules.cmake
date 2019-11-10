@@ -354,6 +354,37 @@ function(objc_framework target)
   endif()
 endfunction()
 
+function(objc_test target)
+  if(APPLE)
+    set(flag EXCLUDE_FROM_ALL)
+    set(single HOST VERSION)
+    set(multi DEPENDS DEFINES HEADERS INCLUDES SOURCES)
+    cmake_parse_arguments(ot "${flag}" "${single}" "${multi}" ${ARGN})
+
+    xctest_add_bundle(
+      ${target}
+      ${ot_HOST}
+      ${ot_SOURCES}
+    )
+
+    add_objc_flags(
+      ${target}
+      ${ot_SOURCES}
+    )
+
+    target_link_libraries(
+      ${target}
+      PRIVATE
+        ${ot_DEPENDS}
+    )
+
+    xctest_add_test(
+      ${target}
+      ${target}
+    )
+  endif()
+endfunction()
+
 # generate_dummy_source(name, sources_list)
 #
 # Generates a dummy source file containing a single symbol, suitable for use as
