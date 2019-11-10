@@ -286,18 +286,18 @@ function(objc_framework target)
     add_library(
       ${target}
       STATIC
+      ${of_HEADERS}
       ${of_SOURCES}
     )
+
+    add_objc_flags(${target} ${of_SOURCES})
 
     set_property(TARGET ${target} PROPERTY PUBLIC_HEADER ${of_HEADERS})
     set_property(TARGET ${target} PROPERTY FRAMEWORK ON)
     set_property(TARGET ${target} PROPERTY VERSION ${of_VERSION})
 
     if(of_EXCLUDE_FROM_ALL)
-      set_property(
-        TARGET ${name}
-        PROPERTY EXCLUDE_FROM_ALL ON
-      )
+      set_property(TARGET ${name} PROPERTY EXCLUDE_FROM_ALL ON)
     endif()
 
     target_compile_definitions(
