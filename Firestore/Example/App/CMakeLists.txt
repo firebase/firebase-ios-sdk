@@ -20,6 +20,11 @@ if(APPLE)
     macOS/AppDelegate.h
   )
 
+  set(
+    resources
+    GoogleService-Info.plist
+  )
+
   add_executable(
     firestore_example_app_macos MACOSX_BUNDLE
     ${sources}
@@ -38,6 +43,7 @@ if(APPLE)
   set_target_properties(
     firestore_example_app_macos PROPERTIES
     MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/macOS/Info.plist
+    RESOURCE "${resources}"
   )
 
 endif(APPLE)
