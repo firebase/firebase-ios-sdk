@@ -272,7 +272,7 @@ endfunction()
 # If SOURCES is not included, a dummy file will be generated.
 function(objc_framework target)
   if(APPLE)
-    set(flag EXCLUDE_FROM_ALL)
+    set(flag SHARED EXCLUDE_FROM_ALL)
     set(single VERSION)
     set(multi DEPENDS DEFINES HEADERS INCLUDES SOURCES)
     cmake_parse_arguments(of "${flag}" "${single}" "${multi}" ${ARGN})
@@ -281,9 +281,13 @@ function(objc_framework target)
       generate_dummy_source(${target} of_SOURCES)
     endif()
 
+    if(of_SHARED)
+      set(of_SHARED_FLAG SHARED)
+    endif()
+
     add_library(
       ${target}
-      STATIC
+      ${of_SHARED_FLAG}
       ${of_HEADERS}
       ${of_SOURCES}
     )
