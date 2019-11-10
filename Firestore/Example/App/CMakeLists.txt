@@ -12,20 +12,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-add_executable(macOS_Example_App MACOSX_BUNDLE
-  macOS/main.m
-  macOS/AppDelegate.m
-  macOS/AppDelegate.h
-)
-
-add_objc_flags(macOS_Example_App
-  macOS/main.m
-  macOS/AppDelegate.m
-  macOS/AppDelegate.h
-)
-
-target_link_libraries(macOS_Example_App PRIVATE "-framework AppKit")
-
-set_target_properties(macOS_Example_App PROPERTIES
-  MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/macOS/Info.plist
+if(APPLE)
+  set(
+    sources
+    macOS/main.m
+    macOS/AppDelegate.m
+    macOS/AppDelegate.h
   )
+
+  add_executable(
+    firestore_example_app_macos MACOSX_BUNDLE
+    ${sources}
+  )
+
+  add_objc_flags(
+    firestore_example_app_macos
+    ${sources}
+  )
+
+  target_link_libraries(
+    firestore_example_app_macos
+    PRIVATE "-framework AppKit"
+  )
+
+  set_target_properties(
+    firestore_example_app_macos PROPERTIES
+    MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/macOS/Info.plist
+  )
+
+endif(APPLE)
