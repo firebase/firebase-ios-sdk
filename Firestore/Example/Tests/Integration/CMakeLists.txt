@@ -12,57 +12,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-find_package(XCTest REQUIRED)
-enable_testing()
-
-xctest_add_bundle(firebase_firestore_objc_integration_tests
-  macOS_Example_App
-  FSTSmokeTests.mm
-  FSTDatastoreTests.mm
-  FSTTransactionTests.mm
-  API/FIRArrayTransformTests.mm
-  API/FIRFieldsTests.mm
-  API/FIRNumericTransformTests.mm
-  API/FIRTypeTests.mm
-  API/FIRCursorTests.mm
-  API/FIRFirestoreSourceTests.mm
-  API/FIRQueryTests.mm
-  # TODO(wuandy): Some tests interacting with FirebaseApp seem to fail.
-  # Investigate and enable them.
-  # API/FIRValidationTests.mm
-  # API/FIRDatabaseTests.mm
-  API/FIRListenerRegistrationTests.mm
-  API/FIRServerTimestampTests.mm
-  API/FIRWriteBatchTests.mm
+objc_test(
+  firebase_firestore_objc_integration_test
+  HOST firestore_example_app_macos
+  SOURCES
+    FSTSmokeTests.mm
+    FSTDatastoreTests.mm
+    FSTTransactionTests.mm
+    API/FIRArrayTransformTests.mm
+    API/FIRFieldsTests.mm
+    API/FIRNumericTransformTests.mm
+    API/FIRTypeTests.mm
+    API/FIRCursorTests.mm
+    API/FIRFirestoreSourceTests.mm
+    API/FIRQueryTests.mm
+    API/FIRValidationTests.mm
+    API/FIRDatabaseTests.mm
+    API/FIRListenerRegistrationTests.mm
+    API/FIRServerTimestampTests.mm
+    API/FIRWriteBatchTests.mm
+  DEPENDS
+    FirebaseFirestore
+    firebase_firestore_objc_test_util
 )
-
-add_objc_flags(firebase_firestore_objc_integration_tests
-  FSTSmokeTests.mm
-  FSTDatastoreTests.mm
-  FSTTransactionTests.mm
-  API/FIRArrayTransformTests.mm
-  API/FIRFieldsTests.mm
-  API/FIRNumericTransformTests.mm
-  API/FIRTypeTests.mm
-  API/FIRCursorTests.mm
-  API/FIRFirestoreSourceTests.mm
-  API/FIRQueryTests.mm
-  # API/FIRValidationTests.mm
-  # API/FIRDatabaseTests.mm
-  API/FIRListenerRegistrationTests.mm
-  API/FIRServerTimestampTests.mm
-  API/FIRWriteBatchTests.mm
-)
-
-target_include_directories(
-    firebase_firestore_objc_integration_tests
-    PUBLIC
-    ${FIREBASE_SOURCE_DIR}/Firestore/Source/Public
-    ${FIREBASE_SOURCE_DIR}/Firestore/Example/Tests/Util
-  )
-
-target_link_libraries(firebase_firestore_objc_integration_tests PUBLIC FirebaseFirestore)
-target_link_libraries(firebase_firestore_objc_integration_tests PUBLIC firebase_firestore_tests_util)
-
-xctest_add_test(firebase_firestore_objc_integration_tests
-  firebase_firestore_objc_integration_tests)
