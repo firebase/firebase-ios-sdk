@@ -1312,7 +1312,9 @@ API_AVAILABLE(ios(13.0))
   XCTAssertNotEqualObjects([originalAppDelegate class], originalAppDelegateClass);
 }
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+#pragma mark - Test UISceneDelegate proxy
+
+#if ((TARGET_OS_IOS || TARGET_OS_TV) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 130000))
 
 - (void)testProxySceneDelegate API_AVAILABLE(ios(13.0)) {
   GULTestSceneDelegate *realSceneDelegate = [[GULTestSceneDelegate alloc] init];
@@ -1337,9 +1339,7 @@ API_AVAILABLE(ios(13.0))
   XCTAssertEqual(sizeBefore, sizeAfter);
 
   // After being proxied, it should be able to respond to the required method selector.
-#if TARGET_OS_IOS || TARGET_OS_TV
   XCTAssertTrue([realSceneDelegate respondsToSelector:@selector(scene:openURLContexts:)]);
-#endif  // TARGET_OS_IOS || TARGET_OS_TV
 
   // Make sure that the class has changed.
   XCTAssertNotEqualObjects([realSceneDelegate class], realSceneDelegateClassBefore);
@@ -1362,6 +1362,6 @@ API_AVAILABLE(ios(13.0))
   XCTAssertEqualObjects([realSceneDelegate class], realSceneDelegateClassBefore);
 }
 
-#endif  // __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+#endif
 
 @end
