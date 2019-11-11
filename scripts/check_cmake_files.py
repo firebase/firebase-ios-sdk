@@ -42,7 +42,7 @@ _DEFAULT_DIRS = [
 # When scanning the filesystem, look for specific files or files with these
 # extensions.
 _INCLUDE_FILES = {'CMakeLists.txt'}
-_INCLUDE_EXTENSIONS = {'.cc', '.h', '.mm'}
+_INCLUDE_EXTENSIONS = {'.c', '.cc', '.h', '.m', '.mm'}
 
 # When scanning the filesystem, exclude any files or directories with these
 # names.
