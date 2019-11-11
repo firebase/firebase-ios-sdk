@@ -24,6 +24,7 @@ cc_library(
 cc_test(
   firebase_firestore_remote_test
   SOURCES
+    datastore_test.cc
     exponential_backoff_test.cc
     grpc_connection_test.cc
     grpc_stream_test.cc
@@ -31,7 +32,9 @@ cc_test(
     grpc_unary_call_test.cc
     remote_event_test.cc
     serializer_test.cc
-    watch_change_test.mm
+    stream_test.cc
+    watch_change_test.cc
+
   DEPENDS
     absl_base
     firebase_firestore_protos_libprotobuf
@@ -42,4 +45,5 @@ cc_test(
     firebase_firestore_remote_test_util
     firebase_firestore_testutil
     firebase_firestore_util_async_std
+    GMock::GMock
 )

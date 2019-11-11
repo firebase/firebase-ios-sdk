@@ -20,6 +20,7 @@
 
 #include "Firestore/core/src/firebase/firestore/nanopb/message.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_nanopb.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
@@ -32,8 +33,8 @@ using auth::CredentialsProvider;
 using auth::Token;
 using model::Mutation;
 using nanopb::ByteString;
-using nanopb::MaybeMessage;
 using nanopb::Message;
+using remote::ByteBufferReader;
 using util::AsyncQueue;
 using util::Status;
 using util::TimerId;
@@ -65,8 +66,8 @@ void WriteStream::WriteHandshake() {
 
   auto request = write_serializer_.EncodeHandshake();
   LOG_DEBUG("%s initial request: %s", GetDebugDescription(),
-            write_serializer_.Describe(request));
-  Write(request.ToByteBuffer());
+            request.ToString());
+  Write(MakeByteBuffer(request));
 
   // TODO(dimond): Support stream resumption. We intentionally do not set the
   // stream token on the handshake, ignoring any stream token we might have.
@@ -80,9 +81,8 @@ void WriteStream::WriteMutations(const std::vector<Mutation>& mutations) {
 
   auto request = write_serializer_.EncodeWriteMutationsRequest(
       mutations, last_stream_token());
-  LOG_DEBUG("%s write request: %s", GetDebugDescription(),
-            write_serializer_.Describe(request));
-  Write(request.ToByteBuffer());
+  LOG_DEBUG("%s write request: %s", GetDebugDescription(), request.ToString());
+  Write(MakeByteBuffer(request));
 }
 
 std::unique_ptr<GrpcStream> WriteStream::CreateGrpcStream(
@@ -98,7 +98,7 @@ void WriteStream::TearDown(GrpcStream* grpc_stream) {
     // resources.
     auto request =
         write_serializer_.EncodeEmptyMutationsList(last_stream_token());
-    grpc_stream->WriteAndFinish(request.ToByteBuffer());
+    grpc_stream->WriteAndFinish(MakeByteBuffer(request));
   } else {
     grpc_stream->FinishImmediately();
   }
@@ -116,15 +116,14 @@ void WriteStream::NotifyStreamClose(const Status& status) {
 }
 
 Status WriteStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
-  MaybeMessage<google_firestore_v1_WriteResponse> maybe_response =
-      write_serializer_.ParseResponse(message);
-  if (!maybe_response.ok()) {
-    return maybe_response.status();
+  ByteBufferReader reader{message};
+  Message<google_firestore_v1_WriteResponse> response =
+      write_serializer_.ParseResponse(&reader);
+  if (!reader.ok()) {
+    return reader.status();
   }
 
-  auto& response = maybe_response.ValueOrDie();
-  LOG_DEBUG("%s response: %s", GetDebugDescription(),
-            write_serializer_.Describe(response));
+  LOG_DEBUG("%s response: %s", GetDebugDescription(), response.ToString());
 
   // Always capture the last stream token.
   set_last_stream_token(ByteString::Take(response->stream_token));
@@ -140,7 +139,6 @@ Status WriteStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
     // write itself might be causing an error we want to back off from.
     backoff_.Reset();
 
-    nanopb::Reader reader;
     auto version = write_serializer_.DecodeCommitVersion(&reader, *response);
     auto results = write_serializer_.DecodeMutationResults(&reader, *response);
     if (!reader.ok()) {

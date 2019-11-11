@@ -68,7 +68,6 @@ struct LaunchArgs {
   ///                  `FileManager.default`.
   init(userDefaults defaults: UserDefaults = UserDefaults.standard,
        fileChecker: FileChecker = FileManager.default) {
-
     // Parse the current releases key.
     guard let currentRelease = defaults.string(forKey: Key.releasingPods.rawValue) else {
       LaunchArgs.exitWithUsageAndLog("Missing required key: `\(Key.releasingPods)` for the file " +

@@ -97,12 +97,12 @@ typedef NS_ENUM(NSInteger, FIRMessagingMessageCode) {
   kFIRMessagingMessageCodeContextManagerService004 = 6004,  // I-FCM006004
   kFIRMessagingMessageCodeContextManagerService005 = 6005,  // I-FCM006005
   // FIRMessagingDataMessageManager.m
+  // DO NOT USE 7005
   kFIRMessagingMessageCodeDataMessageManager000 = 7000,  // I-FCM007000
   kFIRMessagingMessageCodeDataMessageManager001 = 7001,  // I-FCM007001
   kFIRMessagingMessageCodeDataMessageManager002 = 7002,  // I-FCM007002
   kFIRMessagingMessageCodeDataMessageManager003 = 7003,  // I-FCM007003
   kFIRMessagingMessageCodeDataMessageManager004 = 7004,  // I-FCM007004
-  kFIRMessagingMessageCodeDataMessageManager005 = 7005,  // I-FCM007005
   kFIRMessagingMessageCodeDataMessageManager006 = 7006,  // I-FCM007006
   kFIRMessagingMessageCodeDataMessageManager007 = 7007,  // I-FCM007007
   kFIRMessagingMessageCodeDataMessageManager008 = 7008,  // I-FCM007008
@@ -164,10 +164,9 @@ typedef NS_ENUM(NSInteger, FIRMessagingMessageCode) {
   kFIRMessagingMessageCodeSecureSocket015 = 15015,  // I-FCM015015
   kFIRMessagingMessageCodeSecureSocket016 = 15016,  // I-FCM015016
   // FIRMessagingSyncMessageManager.m
-  kFIRMessagingMessageCodeSyncMessageManager000 = 16000,  // I-FCM016000
+  // DO NOT USE 16000, 16003
   kFIRMessagingMessageCodeSyncMessageManager001 = 16001,  // I-FCM016001
   kFIRMessagingMessageCodeSyncMessageManager002 = 16002,  // I-FCM016002
-  kFIRMessagingMessageCodeSyncMessageManager003 = 16003,  // I-FCM016003
   kFIRMessagingMessageCodeSyncMessageManager004 = 16004,  // I-FCM016004
   kFIRMessagingMessageCodeSyncMessageManager005 = 16005,  // I-FCM016005
   kFIRMessagingMessageCodeSyncMessageManager006 = 16006,  // I-FCM016006

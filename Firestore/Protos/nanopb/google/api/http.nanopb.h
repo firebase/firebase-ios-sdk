@@ -21,6 +21,8 @@
 #define PB_GOOGLE_API_HTTP_NANOPB_H_INCLUDED
 #include <pb.h>
 
+#include <string>
+
 namespace firebase {
 namespace firestore {
 
@@ -34,6 +36,8 @@ namespace firestore {
 typedef struct _google_api_CustomHttpPattern {
     pb_bytes_array_t *kind;
     pb_bytes_array_t *path;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_api_CustomHttpPattern) */
 } google_api_CustomHttpPattern;
 
@@ -41,6 +45,8 @@ typedef struct _google_api_Http {
     pb_size_t rules_count;
     struct _google_api_HttpRule *rules;
     bool fully_decode_reserved_expansion;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_api_Http) */
 } google_api_Http;
 
@@ -58,6 +64,8 @@ typedef struct _google_api_HttpRule {
     pb_bytes_array_t *body;
     pb_size_t additional_bindings_count;
     struct _google_api_HttpRule *additional_bindings;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_api_HttpRule) */
 } google_api_HttpRule;
 

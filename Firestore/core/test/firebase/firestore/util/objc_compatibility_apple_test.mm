@@ -16,20 +16,12 @@
 
 #include "Firestore/core/src/firebase/firestore/objc/objc_compatibility.h"
 
-#import <FirebaseFirestore/FIRGeoPoint.h>
-#import <Foundation/NSArray.h>
+#import <Foundation/Foundation.h>
 
 #include <string>
 #include <unordered_map>
 #include <vector>
 
-#import "Firestore/Example/Tests/Util/FSTHelpers.h"
-
-#include "Firestore/core/src/firebase/firestore/immutable/sorted_map.h"
-#include "Firestore/core/src/firebase/firestore/model/document.h"
-#include "Firestore/core/src/firebase/firestore/model/document_key.h"
-#include "Firestore/core/src/firebase/firestore/model/document_map.h"
-#include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 #include "gtest/gtest.h"
 
 // Include this to validate that it does not cause ambiguity.
@@ -39,41 +31,43 @@ namespace firebase {
 namespace firestore {
 namespace objc {
 
-using model::Document;
-using model::DocumentState;
-
-using testutil::Doc;
-using testutil::Map;
+NSString* MakeString(const char* contents) {
+  return [[NSMutableString alloc] initWithCString:contents
+                                         encoding:NSUTF8StringEncoding];
+}
 
 TEST(ObjCCompatibilityTest, Equals) {
-  auto point_1a = [[FIRGeoPoint alloc] initWithLatitude:25 longitude:50];
-  auto point_1b = [[FIRGeoPoint alloc] initWithLatitude:25 longitude:50];
-  auto point_2 = [[FIRGeoPoint alloc] initWithLatitude:25 longitude:40];
+  auto str_1a = MakeString("foo");
+  auto str_1b = MakeString("foo");
+  auto str_2 = MakeString("bar");
 
-  EXPECT_TRUE(Equals(point_1a, point_1b));
-  EXPECT_FALSE(Equals(point_1a, point_2));
-  EXPECT_FALSE(Equals(point_1b, point_2));
+  // Ensure these are distinct instances.
+  ASSERT_NE(str_1a, str_1b);
+
+  EXPECT_TRUE(Equals(str_1a, str_1b));
+  EXPECT_FALSE(Equals(str_1a, str_2));
+  EXPECT_FALSE(Equals(str_1b, str_2));
 }
 
 TEST(ObjCCompatibilityTest, ContainerEquals) {
-  auto point_1a = [[FIRGeoPoint alloc] initWithLatitude:25 longitude:50];
-  auto point_1b = [[FIRGeoPoint alloc] initWithLatitude:25 longitude:50];
-  auto point_2a = [[FIRGeoPoint alloc] initWithLatitude:40 longitude:20];
-  auto point_2b = [[FIRGeoPoint alloc] initWithLatitude:40 longitude:20];
+  auto str_1a = MakeString("foo");
+  auto str_1b = MakeString("foo");
+  auto str_2a = MakeString("bar");
+  auto str_2b = MakeString("bar");
 
-  NSArray<FIRGeoPoint*>* v1 = @[ point_1a, point_2a ];
-  NSArray<FIRGeoPoint*>* v2 = @[ point_1b, point_2b ];
-  NSArray<FIRGeoPoint*>* v3 = @[ point_1a, point_1b ];
+  NSArray<NSString*>* v1 = @[ str_1a, str_2a ];
+  NSArray<NSString*>* v2 = @[ str_1b, str_2b ];
+  NSArray<NSString*>* v3 = @[ str_1a, str_1b ];
   EXPECT_TRUE(Equals(v1, v2));
   EXPECT_FALSE(Equals(v1, v3));
   EXPECT_FALSE(Equals(v2, v3));
 }
 
 TEST(ObjCCompatibilityTest, NilEquals) {
-  FIRGeoPoint* point_1;
-  FIRGeoPoint* point_2;
-  EXPECT_FALSE([point_1 isEqual:point_2]);
-  EXPECT_TRUE(Equals(point_1, point_2));
+  NSString* str_1;
+  NSString* str_2;
+  EXPECT_FALSE([str_1 isEqual:str_2]);
+  EXPECT_TRUE(Equals(str_1, str_2));
 }
 
 TEST(ObjCCompatibilityTest, Description) {

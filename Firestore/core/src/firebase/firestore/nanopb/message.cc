@@ -16,45 +16,9 @@
 
 #include "Firestore/core/src/firebase/firestore/nanopb/message.h"
 
-#include <cstdint>
-#include <vector>
-
-#include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
-#include "Firestore/core/src/firebase/firestore/remote/grpc_util.h"
-
 namespace firebase {
 namespace firestore {
-
-using remote::ConvertStatus;
-using util::Status;
-using util::StatusOr;
-
 namespace nanopb {
-
-namespace internal {
-
-StatusOr<ByteString> ToByteString(const grpc::ByteBuffer& buffer) {
-  std::vector<grpc::Slice> slices;
-  grpc::Status status = buffer.Dump(&slices);
-  // Conversion may fail if compression is used and gRPC tries to decompress an
-  // ill-formed buffer.
-  if (!status.ok()) {
-    Status error{Error::Internal,
-                 "Trying to convert an invalid grpc::ByteBuffer"};
-    error.CausedBy(ConvertStatus(status));
-    return error;
-  }
-
-  ByteStringWriter writer;
-  writer.Reserve(buffer.Length());
-  for (const auto& slice : slices) {
-    writer.Append(slice.begin(), slice.size());
-  }
-
-  return writer.Release();
-}
-
-}  // namespace internal
 
 void FreeNanopbMessage(const pb_field_t* fields, void* dest_struct) {
   pb_release(fields, dest_struct);

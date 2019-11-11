@@ -18,15 +18,15 @@ if(TARGET benchmark)
   return()
 endif()
 
-set(commit v1.4.1)
+set(version v1.5.0)
 
 ExternalProject_Add(
   benchmark
 
   DOWNLOAD_DIR ${FIREBASE_DOWNLOAD_DIR}
-  DOWNLOAD_NAME benchmark-${commit}.tar.gz
-  URL https://github.com/google/benchmark/archive/${commit}.tar.gz
-  URL_HASH SHA256=f8e525db3c42efc9c7f3bc5176a8fa893a9a9920bbd08cef30fb56a51854d60d
+  DOWNLOAD_NAME benchmark-${version}.tar.gz
+  URL https://github.com/google/benchmark/archive/${version}.tar.gz
+  URL_HASH SHA256=3c6a165b6ecc948967a1ead710d4a181d7b0fbcaa183ef7ea84604994966221a
 
   PREFIX ${PROJECT_BINARY_DIR}
 

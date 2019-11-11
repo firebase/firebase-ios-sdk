@@ -20,7 +20,9 @@
 
 #import "Firestore/Example/FuzzTests/FuzzingTargets/FSTFuzzTestSerializer.h"
 
+#include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/message.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/remote/serializer.h"
 
@@ -29,7 +31,8 @@ namespace firestore {
 namespace fuzzing {
 
 using firebase::firestore::model::DatabaseId;
-using firebase::firestore::nanopb::Reader;
+using firebase::firestore::nanopb::Message;
+using firebase::firestore::nanopb::StringReader;
 using firebase::firestore::remote::Serializer;
 
 int FuzzTestDeserialization(const uint8_t *data, size_t size) {
@@ -37,10 +40,9 @@ int FuzzTestDeserialization(const uint8_t *data, size_t size) {
 
   @autoreleasepool {
     @try {
-      Reader reader(data, size);
-      google_firestore_v1_Value nanopb_proto{};
-      reader.ReadNanopbMessage(google_firestore_v1_Value_fields, &nanopb_proto);
-      serializer.DecodeFieldValue(&reader, nanopb_proto);
+      StringReader reader{data, size};
+      auto message = Message<google_firestore_v1_Value>::TryParse(&reader);
+      serializer.DecodeFieldValue(&reader, *message);
     } @catch (...) {
       // Caught exceptions are ignored because the input might be malformed and
       // the deserialization might throw an error as intended. Fuzzing focuses on

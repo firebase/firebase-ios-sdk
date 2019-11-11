@@ -17,13 +17,8 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_PROTO_SIZER_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_PROTO_SIZER_H_
 
-#if !defined(__OBJC__)
-#error "This header only supports Objective-C++"
-#endif  // !defined(__OBJC__)
-
+#include "Firestore/core/src/firebase/firestore/local/local_serializer.h"
 #include "Firestore/core/src/firebase/firestore/local/sizer.h"
-
-@class FSTLocalSerializer;
 
 namespace firebase {
 namespace firestore {
@@ -35,7 +30,7 @@ namespace local {
  */
 class ProtoSizer : public Sizer {
  public:
-  explicit ProtoSizer(FSTLocalSerializer* serializer);
+  explicit ProtoSizer(LocalSerializer serializer);
 
   int64_t CalculateByteSize(
       const model::MaybeDocument& maybe_doc) const override;
@@ -46,7 +41,7 @@ class ProtoSizer : public Sizer {
   int64_t CalculateByteSize(const QueryData& query_data) const override;
 
  private:
-  FSTLocalSerializer* serializer_;
+  LocalSerializer serializer_;
 };
 
 }  // namespace local

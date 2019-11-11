@@ -92,6 +92,7 @@ using model::TransformMutation;
 using model::TransformOperation;
 using nanopb::ByteString;
 using nanopb::CheckedSize;
+using nanopb::MakeArray;
 using nanopb::MakeStringView;
 using nanopb::Reader;
 using nanopb::SafeReadBoolean;
@@ -651,8 +652,8 @@ Mutation Serializer::DecodeMutation(
       DocumentKey key = DecodeKey(reader, mutation.update.name);
       ObjectValue value = DecodeFields(reader, mutation.update.fields_count,
                                        mutation.update.fields);
-      FieldMask mask = DecodeFieldMask(mutation.update_mask);
-      if (mask.size() > 0) {
+      if (mutation.has_update_mask) {
+        FieldMask mask = DecodeFieldMask(mutation.update_mask);
         return PatchMutation(std::move(key), std::move(value), std::move(mask),
                              std::move(precondition));
       } else {
@@ -1619,10 +1620,12 @@ std::unique_ptr<WatchChange> Serializer::DecodeDocumentChange(
               "Got a document change with no snapshot version");
   SnapshotVersion version = DecodeVersion(reader, change.document.update_time);
 
-  // TODO(wuandy): Originally `document` is constructed with `change.document`
-  // as last argument, such that it does not have to encode the proto again
-  // when saving it. It's dangerous because last argument is an `any` type.
-  // Revisit this when porting local serializer to see if we can do it safely.
+  // TODO(b/142956770): other platforms memoize `change.document` inside the
+  // `Document`. This currently cannot be implemented efficiently because it
+  // would require a reference-counted ownership model for the proto (copying it
+  // would defeat the purpose). Note, however, that even without this
+  // optimization C++ implementation is on par with the preceding Objective-C
+  // implementation.
   Document document(std::move(value), key, version, DocumentState::kSynced);
 
   std::vector<TargetId> updated_target_ids(

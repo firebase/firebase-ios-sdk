@@ -118,7 +118,7 @@ if is_platform(:ios)
     # The next line is the forcing function for the Firebase pod. The Firebase
     # version's subspecs should depend on the component versions in their
     # corresponding podspecs.
-    pod 'Firebase/CoreOnly', '6.10.0'
+    pod 'Firebase/CoreOnly', '6.12.0'
 
     configure_local_pods()
 
@@ -158,7 +158,6 @@ if is_platform(:ios)
       platform :ios, '9.0'
 
       pod 'LibFuzzer', :podspec => 'LibFuzzer.podspec', :inhibit_warnings => true
-      pod '!ProtoCompiler'
     end
   end
 end

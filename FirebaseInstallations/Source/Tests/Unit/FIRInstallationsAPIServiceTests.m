@@ -24,7 +24,6 @@
 #import "FIRInstallationsErrorUtil.h"
 #import "FIRInstallationsHTTPError.h"
 #import "FIRInstallationsStoredAuthToken.h"
-#import "FIRInstallationsStoredIIDCheckin.h"
 #import "FIRInstallationsVersion.h"
 
 typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
@@ -59,17 +58,15 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
   self.projectID = nil;
   self.APIKey = nil;
 
-  //  // Wait for any pending promises to complete.
-  //  XCTAssert(FBLWaitForPromisesWithTimeout(2));
+  // Wait for any pending promises to complete.
+  XCTAssert(FBLWaitForPromisesWithTimeout(2));
 }
 
 - (void)testRegisterInstallationSuccess {
   FIRInstallationsItem *installation = [[FIRInstallationsItem alloc] initWithAppID:@"app-id"
                                                                    firebaseAppName:@"name"];
   installation.firebaseInstallationID = [FIRInstallationsItem generateFID];
-  installation.IIDCheckin =
-      [[FIRInstallationsStoredIIDCheckin alloc] initWithDeviceID:@"IIDDeviceID"
-                                                     secretToken:@"IIDSecretToken"];
+  installation.IIDDefaultToken = @"iid-auth-token";
 
   // 1. Stub URL session:
 
@@ -81,8 +78,10 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
         @"https://firebaseinstallations.googleapis.com/v1/projects/project-id/installations/");
     XCTAssertEqualObjects([request valueForHTTPHeaderField:@"Content-Type"], @"application/json");
     XCTAssertEqualObjects([request valueForHTTPHeaderField:@"X-Goog-Api-Key"], self.APIKey);
+    XCTAssertEqualObjects([request valueForHTTPHeaderField:@"X-Ios-Bundle-Identifier"],
+                          [[NSBundle mainBundle] bundleIdentifier]);
 
-    NSString *expectedIIDMigrationHeader = @"IIDDeviceID:IIDSecretToken";
+    NSString *expectedIIDMigrationHeader = installation.IIDDefaultToken;
     XCTAssertEqualObjects([request valueForHTTPHeaderField:@"x-goog-fis-ios-iid-migration-auth"],
                           expectedIIDMigrationHeader);
 
@@ -132,7 +131,7 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
   taskCompletion(successResponseData, [self responseWithStatusCode:201], nil);
 
   // 6. Check result.
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   XCTAssertNil(promise.error);
   XCTAssertNotNil(promise.value);
@@ -254,7 +253,7 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
   taskCompletion(successResponseData, [self responseWithStatusCode:200], nil);
 
   // 6. Check result.
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   XCTAssertNil(promise.error);
   XCTAssertNotNil(promise.value);
@@ -313,7 +312,7 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
   taskCompletion(errorResponseData, [self responseWithStatusCode:401], nil);
 
   // 6. Check result.
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   XCTAssertTrue([FIRInstallationsErrorUtil isAPIError:promise.error withHTTPCode:401]);
   XCTAssertNil(promise.value);
@@ -426,7 +425,7 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
   taskCompletion(nil, [self responseWithStatusCode:200], nil);
 
   // 6. Check result.
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   XCTAssertEqualObjects(promise.error.userInfo[NSLocalizedFailureReasonErrorKey],
                         @"Failed to serialize JSON data.");
@@ -472,7 +471,7 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
   taskCompletion(successResponseData, [self responseWithStatusCode:200], nil);
 
   // 6. Check result.
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   XCTAssertNil(promise.error);
   XCTAssertEqual(promise.value, installation);
@@ -516,7 +515,7 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
   taskCompletion(nil, [self responseWithStatusCode:404], nil);
 
   // 6. Check result.
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   XCTAssertTrue([FIRInstallationsErrorUtil isAPIError:promise.error withHTTPCode:404]);
   XCTAssertNil(promise.value);
@@ -575,7 +574,7 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
                  nil);
 
   // 7. Check result.
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   XCTAssertTrue([FIRInstallationsErrorUtil
         isAPIError:promise.error
