@@ -82,7 +82,7 @@ static GULLoggerService kGULHeartbeatDateStorage = @"GULHeartbeatDateStorage";
                       }];
 }
 
-- (nullable NSMutableDictionary *)heartbeatDictionary:(NSURL *)readingFileURL {
+- (nullable NSMutableDictionary *)heartbeatDictionaryWithFileURL:(NSURL *)readingFileURL {
   NSError *error;
   NSMutableDictionary *dict;
   NSData *objectData = [NSData dataWithContentsOfURL:readingFileURL options:0 error:&error];
@@ -105,7 +105,7 @@ static GULLoggerService kGULHeartbeatDateStorage = @"GULHeartbeatDateStorage";
                                            options:0
                                              error:&error
                                         byAccessor:^(NSURL *readingURL) {
-                                          dict = [self heartbeatDictionary:readingURL];
+                                          dict = [self heartbeatDictionaryWithFileURL:readingURL];
                                         }];
   if (error != nil) {
     GULLogWarning(kGULHeartbeatDateStorage, YES, @"I-COR100001",
@@ -124,7 +124,7 @@ static GULLoggerService kGULHeartbeatDateStorage = @"GULHeartbeatDateStorage";
                          options:0
                            error:&error
                       byAccessor:^(NSURL *readingURL, NSURL *writingURL) {
-                        NSMutableDictionary *dictionary = [self heartbeatDictionary:readingURL];
+                        NSMutableDictionary *dictionary = [self heartbeatDictionaryWithFileURL:readingURL];
                         dictionary[tag] = date;
                         NSError *error;
                         isSuccess = [self writeDictionary:dictionary

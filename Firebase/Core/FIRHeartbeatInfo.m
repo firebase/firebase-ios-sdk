@@ -16,6 +16,7 @@
 #import <GoogleUtilities/GULHeartbeatDateStorage.h>
 #import <GoogleUtilities/GULLogger.h>
 
+static long secondsInDay = 84000;
 @implementation FIRHeartbeatInfo : NSObject
 
 /** Updates the storage with the heartbeat information corresponding to this tag.
@@ -31,7 +32,7 @@
     NSDate *currentDate = [NSDate date];
     if (heartbeatTime != nil) {
       NSTimeInterval secondsBetween = [currentDate timeIntervalSinceDate:heartbeatTime];
-      if (secondsBetween < 84000) {
+      if (secondsBetween < secondsInDay) {
         return false;
       }
     }
