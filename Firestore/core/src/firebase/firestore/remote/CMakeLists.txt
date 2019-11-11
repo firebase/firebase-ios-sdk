@@ -141,9 +141,6 @@ cc_library(
     remote_store.h
 
   DEPENDS
-    # TODO(b/111328563) Force nanopb first to work around ODR violations
-    protobuf-nanopb-static
-
     firebase_firestore_core_transaction
     firebase_firestore_local
     firebase_firestore_model
@@ -154,4 +151,5 @@ cc_library(
     firebase_firestore_remote_serializer
     firebase_firestore_util
     firebase_firestore_version
+    protobuf-nanopb-static
 )

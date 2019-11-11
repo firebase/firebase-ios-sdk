@@ -65,9 +65,6 @@ cc_library(
     leveldb_util.cc
     leveldb_util.h
   DEPENDS
-    # TODO(b/111328563) Force nanopb first to work around ODR violations
-    protobuf-nanopb-static
-
     LevelDB::LevelDB
     absl_memory
     absl_strings
@@ -76,6 +73,7 @@ cc_library(
     firebase_firestore_nanopb
     firebase_firestore_protos_nanopb
     firebase_firestore_util
+    protobuf-nanopb-static
   EXCLUDE_FROM_ALL
 )
 
@@ -114,9 +112,6 @@ cc_library(
     simple_query_engine.h
     sizer.h
   DEPENDS
-    # TODO(b/111328563) Force nanopb first to work around ODR violations
-    protobuf-nanopb-static
-
     absl_strings
     firebase_firestore_auth
     firebase_firestore_core_query
@@ -128,4 +123,5 @@ cc_library(
     firebase_firestore_nanopb
     firebase_firestore_protos_nanopb
     firebase_firestore_util
+    protobuf-nanopb-static
 )

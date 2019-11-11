@@ -45,8 +45,8 @@ using ::testing::MatchesRegex;
 // `contents`.
 MATCHER_P2(IsPrintedAs, proto_name, contents, "") {
   // NOLINTNEXTLINE(whitespace/braces)
-  std::string header = std::string{"<"} + proto_name + " 0x[0-9A-Fa-f]+>: {";
-  std::string expected = header + contents + "}";
+  std::string header = std::string{"<"} + proto_name + " 0x[0-9A-Fa-f]+>: \\{";
+  std::string expected = header + contents + "\\}";
   return testing::Value(arg, MatchesRegex(expected));
 }
 
@@ -102,10 +102,10 @@ TEST(PrettyPrintingTest, PrintsSubmessages) {
   m->snapshot_version.nanos = 456;
 
   EXPECT_THAT(m.ToString(), IsPrintedAs("Target", R"(
-  snapshot_version {
+  snapshot_version \{
     seconds: 123
     nanos: 456
-  }
+  \}
 )"));
 }
 
@@ -136,14 +136,14 @@ TEST(PrettyPrintingTest, PrintsArraysOfObjects) {
   m->labels[1].value = MakeBytesArray("value2");
 
   EXPECT_THAT(m.ToString(), IsPrintedAs("ListenRequest", R"(
-  labels {
+  labels \{
     key: "key1"
     value: "value1"
-  }
-  labels {
+  \}
+  labels \{
     key: "key2"
     value: "value2"
-  }
+  \}
 )"));
 }
 
@@ -182,22 +182,22 @@ TEST(PrettyPrintingTest, PrintsMessagesInOneofs) {
       google_firestore_v1_Value_timestamp_value_tag;
 
   EXPECT_THAT(m.ToString(), IsPrintedAs("Write", R"(
-  update {
+  update \{
     name: "some name"
-    fields {
+    fields \{
       key: "key1"
-      value {
+      value \{
         boolean_value: false
-      }
-    }
-    fields {
+      \}
+    \}
+    fields \{
       key: "key2"
-      value {
-        timestamp_value {
-        }
-      }
-    }
-  }
+      value \{
+        timestamp_value \{
+        \}
+      \}
+    \}
+  \}
 )"));
 }
 
@@ -209,10 +209,10 @@ TEST(PrettyPrintingTest, PrintsNonAnonymousOneofs) {
   m->consistency_selector.read_time.seconds = 123;
   m->consistency_selector.read_time.nanos = 456;
   EXPECT_THAT(m.ToString(), IsPrintedAs("RunQueryRequest", R"(
-  read_time {
+  read_time \{
     seconds: 123
     nanos: 456
-  }
+  \}
 )"));
 }
 
@@ -232,10 +232,10 @@ TEST(PrettyPrintingTest, PrintsOptionals) {
 
   m->has_update_mask = true;
   EXPECT_THAT(m.ToString(), IsPrintedAs("Write", R"(
-  update_mask {
+  update_mask \{
     field_paths: "abc"
     field_paths: "def"
-  }
+  \}
 )"));
 }
 
@@ -246,8 +246,8 @@ TEST(PrettyPrintingTest, PrintsEmptyOptionals) {
   // When set, an optional submessage should always be printed, even if it's
   // "empty".
   EXPECT_THAT(m.ToString(), IsPrintedAs("Write", R"(
-  update_mask {
-  }
+  update_mask \{
+  \}
 )"));
 }
 
