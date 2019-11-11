@@ -66,12 +66,10 @@ cc_library(
     unknown_document.cc
     unknown_document.h
   DEPENDS
-    # TODO(b/111328563) Force nanopb first to work around ODR violations
-    firebase_firestore_nanopb
-
     absl_optional
     absl_strings
     firebase_firestore_immutable
+    firebase_firestore_nanopb
     firebase_firestore_objc
     firebase_firestore_util
     firebase_firestore_types

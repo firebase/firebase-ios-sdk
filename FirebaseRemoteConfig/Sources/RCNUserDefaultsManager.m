@@ -21,6 +21,7 @@
 static NSString *const kRCNGroupPrefix = @"group";
 static NSString *const kRCNGroupSuffix = @"firebase";
 static NSString *const kRCNUserDefaultsKeyNamelastETag = @"lastETag";
+static NSString *const kRCNUserDefaultsKeyNamelastETagUpdateTime = @"lastETagUpdateTime";
 static NSString *const kRCNUserDefaultsKeyNameLastSuccessfulFetchTime = @"lastSuccessfulFetchTime";
 static NSString *const kRCNUserDefaultsKeyNamelastFetchStatus = @"lastFetchStatus";
 static NSString *const kRCNUserDefaultsKeyNameIsClientThrottled =
@@ -102,6 +103,19 @@ static NSString *const kRCNUserDefaultsKeyNamecurrentThrottlingRetryInterval =
 - (void)setLastETag:(NSString *)lastETag {
   if (lastETag) {
     [self setInstanceUserDefaultsValue:lastETag forKey:kRCNUserDefaultsKeyNamelastETag];
+  }
+}
+
+- (NSTimeInterval)lastETagUpdateTime {
+  NSNumber *lastETagUpdateTime =
+      [[self instanceUserDefaults] objectForKey:kRCNUserDefaultsKeyNamelastETagUpdateTime];
+  return lastETagUpdateTime.doubleValue;
+}
+
+- (void)setLastETagUpdateTime:(NSTimeInterval)lastETagUpdateTime {
+  if (lastETagUpdateTime) {
+    [self setInstanceUserDefaultsValue:@(lastETagUpdateTime)
+                                forKey:kRCNUserDefaultsKeyNamelastETagUpdateTime];
   }
 }
 
