@@ -295,7 +295,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
     [GULAppDelegateSwizzler proxyAppDelegate:originalDelegate];
 
 #if UISCENE_SUPPORTED
-    if (@available(iOS 13.0, *)) {
+    if (@available(iOS 13.0, tvOS 13.0)) {
       if (![GULAppDelegateSwizzler isAppDelegateProxyEnabled]) {
         return;
       } else {
@@ -1060,7 +1060,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
 }
 
 #if UISCENE_SUPPORTED
-+ (void)proxySceneDelegate:(UIScene *)scene API_AVAILABLE(ios(13.0), tvos(13.0)) {
++ (void)proxySceneDelegate:(UIScene *)scene {
   NSLog(@"--------- Swizzler proxy scene delegate");
   Class realClass = [scene.delegate class];
 

@@ -282,14 +282,14 @@ static BOOL gRespondsToHandleBackgroundSession;
 
 #pragma mark - Scene Delegate
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+#if ((TARGET_OS_IOS || TARGET_OS_TV) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 130000))
 API_AVAILABLE(ios(13.0), tvos(13.0))
 @interface GULTestSceneDelegate : NSObject <UISceneDelegate>
 @end
 
 @implementation GULTestSceneDelegate
 @end
-#endif  // __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+#endif
 
 @interface GULAppDelegateSwizzlerTest : XCTestCase
 @property(nonatomic, strong) id mockSharedApplication;
