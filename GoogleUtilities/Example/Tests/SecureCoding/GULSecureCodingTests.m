@@ -59,12 +59,12 @@
   XCTAssertNil(error);
   XCTAssertNotNil(archiveData);
 
-  NSDictionary *unarchivedObject = [GULSecureCoding unarchivedObjectOfClasses:[NSSet setWithArray:@[NSDictionary.class, NSDate.class]]
-                                                                   fromData:archiveData
-                                                                      error:&error];
+  NSDictionary *unarchivedObject = [GULSecureCoding
+      unarchivedObjectOfClasses:[NSSet setWithArray:@[ NSDictionary.class, NSDate.class ]]
+                       fromData:archiveData
+                          error:&error];
   XCTAssertNil(error);
   XCTAssert([objectToArchive isEqualToDictionary:unarchivedObject]);
-
 }
 
 - (void)testArchivingIncompatibleObjectError {

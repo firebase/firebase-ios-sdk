@@ -18,10 +18,9 @@ NSString *const kGULSecureCodingError = @"GULSecureCodingError";
 
 @implementation GULSecureCoding
 
-
 + (nullable id)unarchivedObjectOfClasses:(NSSet<Class> *)classes
-                              fromData:(NSData *)data
-                                 error:(NSError **)outError {
+                                fromData:(NSData *)data
+                                   error:(NSError **)outError {
   id object;
 #if __has_builtin(__builtin_available)
   if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
