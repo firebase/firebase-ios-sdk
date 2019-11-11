@@ -295,7 +295,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
     [GULAppDelegateSwizzler proxyAppDelegate:originalDelegate];
 
 #if UISCENE_SUPPORTED
-    if (@available(iOS 13.0, tvOS 13.0)) {
+    if (@available(iOS 13.0, tvOS 13.0, *)) {
       if (![GULAppDelegateSwizzler isAppDelegateProxyEnabled]) {
         return;
       } else {
