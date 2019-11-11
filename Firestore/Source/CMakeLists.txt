@@ -41,6 +41,8 @@ if(APPLE)
       Public/FIRTimestamp.h
       Public/FIRTransaction.h
       Public/FIRWriteBatch.h
+    INCLUDES
+      Public
     SOURCES
       API/FIRCollectionReference+Internal.h
       API/FIRCollectionReference.mm
