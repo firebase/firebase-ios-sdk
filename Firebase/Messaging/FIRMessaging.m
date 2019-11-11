@@ -363,15 +363,7 @@ const BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
 - (void)setupSyncMessageManager {
   self.syncMessageManager =
       [[FIRMessagingSyncMessageManager alloc] initWithRmqManager:self.rmq2Manager];
-
-  // Delete the expired messages with a delay. We don't want to block startup with a somewhat
-  // expensive db call.
-  FIRMessaging_WEAKIFY(self);
-  dispatch_time_t time = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5.0 * NSEC_PER_SEC));
-  dispatch_after(time, dispatch_get_main_queue(), ^{
-    FIRMessaging_STRONGIFY(self);
-    [self.syncMessageManager removeExpiredSyncMessages];
-  });
+  [self.syncMessageManager removeExpiredSyncMessages];
 }
 
 - (void)teardown {

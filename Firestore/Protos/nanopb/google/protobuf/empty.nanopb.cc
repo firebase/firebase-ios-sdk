@@ -19,8 +19,16 @@
 
 #include "empty.nanopb.h"
 
+#include "Firestore/core/src/firebase/firestore/nanopb/pretty_printing.h"
+
 namespace firebase {
 namespace firestore {
+
+using nanopb::PrintEnumField;
+using nanopb::PrintHeader;
+using nanopb::PrintMessageField;
+using nanopb::PrintPrimitiveField;
+using nanopb::PrintTail;
 
 /* @@protoc_insertion_point(includes) */
 #if PB_PROTO_HEADER_VERSION != 30
@@ -33,6 +41,20 @@ const pb_field_t google_protobuf_Empty_fields[1] = {
     PB_LAST_FIELD
 };
 
+
+std::string google_protobuf_Empty::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "Empty", this);
+    std::string result;
+
+
+    bool is_root = indent == 0;
+    if (!result.empty() || is_root) {
+      std::string tail = PrintTail(indent);
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}
 
 }  // namespace firestore
 }  // namespace firebase

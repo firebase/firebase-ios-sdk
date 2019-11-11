@@ -70,7 +70,7 @@ typedef ::testing::Types<SortedMap<int, int>,
                          impl::ArraySortedMap<int, int>,
                          impl::TreeSortedMap<int, int>>
     TestedTypes;
-TYPED_TEST_CASE(SortedMapTest, TestedTypes);
+TYPED_TEST_SUITE(SortedMapTest, TestedTypes);
 
 TYPED_TEST(SortedMapTest, EmptySize) {
   TypeParam map;

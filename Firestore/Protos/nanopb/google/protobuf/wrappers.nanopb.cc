@@ -19,8 +19,16 @@
 
 #include "wrappers.nanopb.h"
 
+#include "Firestore/core/src/firebase/firestore/nanopb/pretty_printing.h"
+
 namespace firebase {
 namespace firestore {
+
+using nanopb::PrintEnumField;
+using nanopb::PrintHeader;
+using nanopb::PrintMessageField;
+using nanopb::PrintPrimitiveField;
+using nanopb::PrintTail;
 
 /* @@protoc_insertion_point(includes) */
 #if PB_PROTO_HEADER_VERSION != 30
@@ -80,6 +88,141 @@ const pb_field_t google_protobuf_BytesValue_fields[2] = {
  * To get rid of this error, remove any double fields from your .proto.
  */
 PB_STATIC_ASSERT(sizeof(double) == 8, DOUBLE_MUST_BE_8_BYTES)
+
+std::string google_protobuf_DoubleValue::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "DoubleValue", this);
+    std::string result;
+
+    result += PrintPrimitiveField("value: ", value, indent + 1, false);
+
+    bool is_root = indent == 0;
+    if (!result.empty() || is_root) {
+      std::string tail = PrintTail(indent);
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}
+
+std::string google_protobuf_FloatValue::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "FloatValue", this);
+    std::string result;
+
+    result += PrintPrimitiveField("value: ", value, indent + 1, false);
+
+    bool is_root = indent == 0;
+    if (!result.empty() || is_root) {
+      std::string tail = PrintTail(indent);
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}
+
+std::string google_protobuf_Int64Value::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "Int64Value", this);
+    std::string result;
+
+    result += PrintPrimitiveField("value: ", value, indent + 1, false);
+
+    bool is_root = indent == 0;
+    if (!result.empty() || is_root) {
+      std::string tail = PrintTail(indent);
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}
+
+std::string google_protobuf_UInt64Value::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "UInt64Value", this);
+    std::string result;
+
+    result += PrintPrimitiveField("value: ", value, indent + 1, false);
+
+    bool is_root = indent == 0;
+    if (!result.empty() || is_root) {
+      std::string tail = PrintTail(indent);
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}
+
+std::string google_protobuf_Int32Value::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "Int32Value", this);
+    std::string result;
+
+    result += PrintPrimitiveField("value: ", value, indent + 1, false);
+
+    bool is_root = indent == 0;
+    if (!result.empty() || is_root) {
+      std::string tail = PrintTail(indent);
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}
+
+std::string google_protobuf_UInt32Value::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "UInt32Value", this);
+    std::string result;
+
+    result += PrintPrimitiveField("value: ", value, indent + 1, false);
+
+    bool is_root = indent == 0;
+    if (!result.empty() || is_root) {
+      std::string tail = PrintTail(indent);
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}
+
+std::string google_protobuf_BoolValue::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "BoolValue", this);
+    std::string result;
+
+    result += PrintPrimitiveField("value: ", value, indent + 1, false);
+
+    bool is_root = indent == 0;
+    if (!result.empty() || is_root) {
+      std::string tail = PrintTail(indent);
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}
+
+std::string google_protobuf_StringValue::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "StringValue", this);
+    std::string result;
+
+    result += PrintPrimitiveField("value: ", value, indent + 1, false);
+
+    bool is_root = indent == 0;
+    if (!result.empty() || is_root) {
+      std::string tail = PrintTail(indent);
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}
+
+std::string google_protobuf_BytesValue::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "BytesValue", this);
+    std::string result;
+
+    result += PrintPrimitiveField("value: ", value, indent + 1, false);
+
+    bool is_root = indent == 0;
+    if (!result.empty() || is_root) {
+      std::string tail = PrintTail(indent);
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}
 
 }  // namespace firestore
 }  // namespace firebase

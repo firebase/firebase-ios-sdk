@@ -20,6 +20,7 @@
 
 #include "Firestore/core/src/firebase/firestore/nanopb/message.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_nanopb.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
@@ -32,8 +33,8 @@ using auth::CredentialsProvider;
 using auth::Token;
 using local::QueryData;
 using model::TargetId;
-using nanopb::MaybeMessage;
 using nanopb::Message;
+using remote::ByteBufferReader;
 using util::AsyncQueue;
 using util::Status;
 using util::TimerId;
@@ -54,9 +55,8 @@ void WatchStream::WatchQuery(const QueryData& query) {
   EnsureOnQueue();
 
   auto request = watch_serializer_.EncodeWatchRequest(query);
-  LOG_DEBUG("%s watch: %s", GetDebugDescription(),
-            watch_serializer_.Describe(request));
-  Write(request.ToByteBuffer());
+  LOG_DEBUG("%s watch: %s", GetDebugDescription(), request.ToString());
+  Write(MakeByteBuffer(request));
 }
 
 void WatchStream::UnwatchTargetId(TargetId target_id) {
@@ -64,9 +64,8 @@ void WatchStream::UnwatchTargetId(TargetId target_id) {
 
   auto request = watch_serializer_.EncodeUnwatchRequest(target_id);
 
-  LOG_DEBUG("%s unwatch: %s", GetDebugDescription(),
-            watch_serializer_.Describe(request));
-  Write(request.ToByteBuffer());
+  LOG_DEBUG("%s unwatch: %s", GetDebugDescription(), request.ToString());
+  Write(MakeByteBuffer(request));
 }
 
 std::unique_ptr<GrpcStream> WatchStream::CreateGrpcStream(
@@ -84,21 +83,17 @@ void WatchStream::NotifyStreamOpen() {
 }
 
 Status WatchStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
-  MaybeMessage<google_firestore_v1_ListenResponse> maybe_response =
-      watch_serializer_.ParseResponse(message);
-  if (!maybe_response.ok()) {
-    return maybe_response.status();
+  ByteBufferReader reader{message};
+  auto response = watch_serializer_.ParseResponse(&reader);
+  if (!reader.ok()) {
+    return reader.status();
   }
 
-  const auto& response = maybe_response.ValueOrDie();
-
-  LOG_DEBUG("%s response: %s", GetDebugDescription(),
-            watch_serializer_.Describe(response));
+  LOG_DEBUG("%s response: %s", GetDebugDescription(), response.ToString());
 
   // A successful response means the stream is healthy.
   backoff_.Reset();
 
-  nanopb::Reader reader;
   auto watch_change = watch_serializer_.DecodeWatchChange(&reader, *response);
   auto version = watch_serializer_.DecodeSnapshotVersion(&reader, *response);
   if (!reader.ok()) {

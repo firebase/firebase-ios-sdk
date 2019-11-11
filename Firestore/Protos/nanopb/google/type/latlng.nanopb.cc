@@ -19,8 +19,16 @@
 
 #include "latlng.nanopb.h"
 
+#include "Firestore/core/src/firebase/firestore/nanopb/pretty_printing.h"
+
 namespace firebase {
 namespace firestore {
+
+using nanopb::PrintEnumField;
+using nanopb::PrintHeader;
+using nanopb::PrintMessageField;
+using nanopb::PrintPrimitiveField;
+using nanopb::PrintTail;
 
 /* @@protoc_insertion_point(includes) */
 #if PB_PROTO_HEADER_VERSION != 30
@@ -41,6 +49,22 @@ const pb_field_t google_type_LatLng_fields[3] = {
  * To get rid of this error, remove any double fields from your .proto.
  */
 PB_STATIC_ASSERT(sizeof(double) == 8, DOUBLE_MUST_BE_8_BYTES)
+
+std::string google_type_LatLng::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "LatLng", this);
+    std::string result;
+
+    result += PrintPrimitiveField("latitude: ", latitude, indent + 1, false);
+    result += PrintPrimitiveField("longitude: ", longitude, indent + 1, false);
+
+    bool is_root = indent == 0;
+    if (!result.empty() || is_root) {
+      std::string tail = PrintTail(indent);
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}
 
 }  // namespace firestore
 }  // namespace firebase

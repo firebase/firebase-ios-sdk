@@ -20,8 +20,9 @@
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/firestore.nanopb.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/message.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
-#include "Firestore/core/src/firebase/firestore/remote/serializer.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_nanopb.h"
 #include "Firestore/core/test/firebase/firestore/util/status_testing.h"
 #include "grpcpp/impl/codegen/grpc_library.h"
 #include "grpcpp/support/byte_buffer.h"
@@ -32,32 +33,27 @@ namespace firestore {
 namespace nanopb {
 namespace {
 
-using model::DatabaseId;
-using remote::Serializer;
+using remote::ByteBufferReader;
+using remote::ByteBufferWriter;
 
 // This proto is chosen mostly because it's relatively small but still has some
 // dynamically-allocated members.
 using Proto = google_firestore_v1_WriteResponse;
 using TestMessage = Message<Proto>;
-using TestMaybeMessage = MaybeMessage<Proto>;
-const auto* const kFields = google_firestore_v1_WriteResponse_fields;
 
 class MessageTest : public testing::Test {
  public:
   grpc::ByteBuffer GoodProto() const {
-    Proto proto{};
+    TestMessage message;
 
     // A couple of fields should be enough -- these tests are primarily
     // concerned with ownership, not parsing.
-    proto.stream_id = serializer_.EncodeString("stream_id");
-    proto.stream_token = serializer_.EncodeString("stream_token");
+    message->stream_id = MakeBytesArray("stream_id");
+    message->stream_token = MakeBytesArray("stream_token");
 
-    ByteStringWriter writer;
-    writer.WriteNanopbMessage(kFields, &proto);
-    ByteString bytes = writer.Release();
-
-    grpc::Slice slice{bytes.data(), bytes.size()};
-    return grpc::ByteBuffer{&slice, 1};
+    ByteBufferWriter writer;
+    writer.Write(message.fields(), message.get());
+    return writer.Release();
   }
 
   grpc::ByteBuffer BadProto() const {
@@ -69,13 +65,12 @@ class MessageTest : public testing::Test {
   // initialized, which is normally done by inheriting from this class (which
   // does initialization in its constructor).
   grpc::GrpcLibraryCodegen grpc_initializer_;
-  Serializer serializer_{DatabaseId{"p", "d"}};
 };
 
 TEST_F(MessageTest, Move) {
-  TestMaybeMessage maybe_message = TestMessage::TryParse(kFields, GoodProto());
-  ASSERT_OK(maybe_message);
-  TestMessage message1 = std::move(maybe_message).ValueOrDie();
+  ByteBufferReader reader{GoodProto()};
+  auto message1 = TestMessage::TryParse(&reader);
+  ASSERT_OK(reader.status());
   TestMessage message2 = std::move(message1);
   EXPECT_EQ(message1.get(), nullptr);
   EXPECT_NE(message2.get(), nullptr);
@@ -84,8 +79,9 @@ TEST_F(MessageTest, Move) {
 }
 
 TEST_F(MessageTest, ParseFailure) {
-  TestMaybeMessage maybe_message = TestMessage::TryParse(kFields, BadProto());
-  EXPECT_NOT_OK(maybe_message);
+  ByteBufferReader reader{BadProto()};
+  auto message = TestMessage::TryParse(&reader);
+  EXPECT_NOT_OK(reader.status());
 }
 
 }  //  namespace

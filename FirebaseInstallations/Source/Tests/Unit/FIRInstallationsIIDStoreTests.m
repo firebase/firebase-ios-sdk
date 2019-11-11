@@ -60,7 +60,7 @@
 
   FBLPromise<NSString *> *IIDPromise = [self.IIDStore existingIID];
 
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   XCTAssertNil(IIDPromise.error);
   XCTAssertEqualObjects(IIDPromise.value, existingIID);
@@ -73,14 +73,14 @@
 
   // 2. Delete IID.
   FBLPromise<NSNull *> *deletePromise = [self.IIDStore deleteExistingIID];
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   XCTAssertNil(deletePromise.error);
   XCTAssertTrue(deletePromise.isFulfilled);
 
   // 3. Check there is no IID.
   FBLPromise<NSString *> *IIDPromise = [self.IIDStore existingIID];
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   XCTAssertNotNil(IIDPromise.error);
   XCTAssertTrue(IIDPromise.isRejected);
