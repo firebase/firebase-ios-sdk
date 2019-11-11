@@ -61,7 +61,7 @@ NS_ASSUME_NONNULL_BEGIN
  *  @param scene The scene whose delegate needs to be isa swizzled. This should conform to the
  *      scene delegate protocol.
  */
-+ (void)proxySceneDelegate:(UIScene *)scene API_AVAILABLE(ios(13.0));
++ (void)proxySceneDelegate:(UIScene *)scene API_AVAILABLE(ios(13.0), tvos(13.0));
 
 #endif  // UISCENE_SUPPORTED
 

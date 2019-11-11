@@ -283,7 +283,7 @@ static BOOL gRespondsToHandleBackgroundSession;
 #pragma mark - Scene Delegate
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
-API_AVAILABLE(ios(13.0))
+API_AVAILABLE(ios(13.0), tvos(13.0))
 @interface GULTestSceneDelegate : NSObject <UISceneDelegate>
 @end
 
@@ -1316,7 +1316,7 @@ API_AVAILABLE(ios(13.0))
 
 #if ((TARGET_OS_IOS || TARGET_OS_TV) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 130000))
 
-- (void)testProxySceneDelegate API_AVAILABLE(ios(13.0)) {
+- (void)testProxySceneDelegate API_AVAILABLE(ios(13.0), tvos(13.0)) {
   GULTestSceneDelegate *realSceneDelegate = [[GULTestSceneDelegate alloc] init];
   id mockSharedScene = OCMClassMock([UIScene class]);
   OCMStub([mockSharedScene delegate]).andReturn(realSceneDelegate);
@@ -1345,7 +1345,7 @@ API_AVAILABLE(ios(13.0))
   XCTAssertNotEqualObjects([realSceneDelegate class], realSceneDelegateClassBefore);
 }
 
-- (void)testProxyProxiedSceneDelegate API_AVAILABLE(ios(13.0)) {
+- (void)testProxyProxiedSceneDelegate API_AVAILABLE(ios(13.0), tvos(13.0)) {
   GULTestSceneDelegate *realSceneDelegate = [[GULTestSceneDelegate alloc] init];
   id mockSharedScene = OCMClassMock([UIScene class]);
   OCMStub([mockSharedScene delegate]).andReturn(realSceneDelegate);
