@@ -80,16 +80,16 @@ inline model::FieldValue Value(std::nullptr_t) {
  */
 template <typename T, typename V>
 using EnableForExactlyBool =
-    typename std::enable_if<std::is_same<bool, T>{}, V>::type;
+    typename std::enable_if<std::is_same<bool, T>::value, V>::type;
 
 /**
  * A type definition that evaluates to type V only if T is an integral type but
  * not `bool`.
  */
 template <typename T, typename V>
-using EnableForInts =
-    typename std::enable_if<std::is_integral<T>{} && !std::is_same<bool, T>{},
-                            V>::type;
+using EnableForInts = typename std::enable_if<std::is_integral<T>::value &&
+                                                  !std::is_same<bool, T>::value,
+                                              V>::type;
 
 /**
  * Creates a boolean FieldValue.
@@ -319,8 +319,6 @@ inline model::UnknownDocument UnknownDoc(absl::string_view key,
   return model::UnknownDocument(Key(key), Version(version));
 }
 
-#if __APPLE__
-
 /**
  * Creates a DocumentComparator that will compare Documents by the given
  * fieldPath string then by key.
@@ -333,8 +331,6 @@ model::DocumentComparator DocComparator(absl::string_view field_path);
  */
 model::DocumentSet DocSet(model::DocumentComparator comp,
                           std::vector<model::Document> docs);
-
-#endif  // __APPLE__
 
 inline core::Filter::Operator OperatorFromString(absl::string_view s) {
   if (s == "<") {

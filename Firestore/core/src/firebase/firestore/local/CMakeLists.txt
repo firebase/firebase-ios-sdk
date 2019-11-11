@@ -28,6 +28,8 @@ cc_library(
     leveldb_mutation_queue.h
     leveldb_persistence.h
     leveldb_persistence_apple.mm
+    leveldb_persistence_posix.cc
+    leveldb_persistence_win.cc
     leveldb_query_cache.cc
     leveldb_query_cache.h
     leveldb_remote_document_cache.cc
@@ -37,25 +39,15 @@ cc_library(
     leveldb_util.cc
     leveldb_util.h
   DEPENDS
-    # TODO(b/111328563) Force nanopb first to work around ODR violations
-    protobuf-nanopb-static
-
     LevelDB::LevelDB
     absl_strings
     firebase_firestore_model
     firebase_firestore_nanopb
     firebase_firestore_protos_nanopb
     firebase_firestore_util
+    protobuf-nanopb-static
   EXCLUDE_FROM_ALL
 )
-
-if(APPLE)
-  target_link_libraries(
-    firebase_firestore_local_persistence_leveldb
-    PRIVATE
-    firebase_firestore_protos_objc
-  )
-endif()
 
 cc_library(
   firebase_firestore_local
@@ -105,21 +97,13 @@ cc_library(
     simple_query_engine.h
     sizer.h
   DEPENDS
-    # TODO(b/111328563) Force nanopb first to work around ODR violations
-    protobuf-nanopb-static
-
     absl_strings
+    firebase_firestore_auth
     firebase_firestore_local_persistence_leveldb
     firebase_firestore_model
     firebase_firestore_nanopb
     firebase_firestore_protos_nanopb
     firebase_firestore_remote
     firebase_firestore_util
+    protobuf-nanopb-static
 )
-
-if(APPLE)
-  target_link_libraries(
-    firebase_firestore_local PRIVATE
-    firebase_firestore_protos_objc
-  )
-endif()

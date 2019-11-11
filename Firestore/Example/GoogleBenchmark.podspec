@@ -17,7 +17,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'GoogleBenchmark'
-  s.version          = '1.4.0'
+  s.version          = '1.5.0'
   s.summary          = 'Google Benchmark'
 
   s.description      = <<-DESC
@@ -56,6 +56,8 @@ Google's C++ benchmark framework.
       'HEADER_SEARCH_PATHS' =>
         '"${PODS_ROOT}/GoogleBenchmark/include" "${PODS_ROOT}/GoogleBenchmark/src"'
   }
+
+  s.compiler_flags = '$(inherited) -Wno-deprecated-declarations'
 
   s.library = 'c++'
 end

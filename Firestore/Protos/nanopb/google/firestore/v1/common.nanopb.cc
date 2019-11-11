@@ -19,8 +19,16 @@
 
 #include "common.nanopb.h"
 
+#include "Firestore/core/src/firebase/firestore/nanopb/pretty_printing.h"
+
 namespace firebase {
 namespace firestore {
+
+using nanopb::PrintEnumField;
+using nanopb::PrintHeader;
+using nanopb::PrintMessageField;
+using nanopb::PrintPrimitiveField;
+using nanopb::PrintTail;
 
 /* @@protoc_insertion_point(includes) */
 #if PB_PROTO_HEADER_VERSION != 30
@@ -80,6 +88,105 @@ PB_STATIC_ASSERT((pb_membersize(google_firestore_v1_Precondition, update_time) <
 PB_STATIC_ASSERT((pb_membersize(google_firestore_v1_Precondition, update_time) < 256 && pb_membersize(google_firestore_v1_TransactionOptions, read_only) < 256 && pb_membersize(google_firestore_v1_TransactionOptions, read_write) < 256 && pb_membersize(google_firestore_v1_TransactionOptions_ReadOnly, read_time) < 256), YOU_MUST_DEFINE_PB_FIELD_16BIT_FOR_MESSAGES_google_firestore_v1_DocumentMask_google_firestore_v1_Precondition_google_firestore_v1_TransactionOptions_google_firestore_v1_TransactionOptions_ReadWrite_google_firestore_v1_TransactionOptions_ReadOnly)
 #endif
 
+
+std::string google_firestore_v1_DocumentMask::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "DocumentMask", this);
+    std::string result;
+
+    for (pb_size_t i = 0; i != field_paths_count; ++i) {
+        result += PrintPrimitiveField("field_paths: ",
+            field_paths[i], indent + 1, true);
+    }
+
+    bool is_root = indent == 0;
+    if (!result.empty() || is_root) {
+      std::string tail = PrintTail(indent);
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}
+
+std::string google_firestore_v1_Precondition::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "Precondition", this);
+    std::string result;
+
+    switch (which_condition_type) {
+    case google_firestore_v1_Precondition_exists_tag:
+        result += PrintPrimitiveField("exists: ", exists, indent + 1, true);
+        break;
+    case google_firestore_v1_Precondition_update_time_tag:
+        result += PrintMessageField("update_time ",
+            update_time, indent + 1, true);
+        break;
+    }
+
+    bool is_root = indent == 0;
+    if (!result.empty() || is_root) {
+      std::string tail = PrintTail(indent);
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}
+
+std::string google_firestore_v1_TransactionOptions::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "TransactionOptions", this);
+    std::string result;
+
+    switch (which_mode) {
+    case google_firestore_v1_TransactionOptions_read_only_tag:
+        result += PrintMessageField("read_only ", read_only, indent + 1, true);
+        break;
+    case google_firestore_v1_TransactionOptions_read_write_tag:
+        result += PrintMessageField("read_write ",
+            read_write, indent + 1, true);
+        break;
+    }
+
+    bool is_root = indent == 0;
+    if (!result.empty() || is_root) {
+      std::string tail = PrintTail(indent);
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}
+
+std::string google_firestore_v1_TransactionOptions_ReadWrite::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "ReadWrite", this);
+    std::string result;
+
+    result += PrintPrimitiveField("retry_transaction: ",
+        retry_transaction, indent + 1, false);
+
+    bool is_root = indent == 0;
+    if (!result.empty() || is_root) {
+      std::string tail = PrintTail(indent);
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}
+
+std::string google_firestore_v1_TransactionOptions_ReadOnly::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "ReadOnly", this);
+    std::string result;
+
+    switch (which_consistency_selector) {
+    case google_firestore_v1_TransactionOptions_ReadOnly_read_time_tag:
+        result += PrintMessageField("read_time ", read_time, indent + 1, true);
+        break;
+    }
+
+    bool is_root = indent == 0;
+    if (!result.empty() || is_root) {
+      std::string tail = PrintTail(indent);
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}
 
 }  // namespace firestore
 }  // namespace firebase

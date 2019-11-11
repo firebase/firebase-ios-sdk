@@ -19,8 +19,16 @@
 
 #include "http.nanopb.h"
 
+#include "Firestore/core/src/firebase/firestore/nanopb/pretty_printing.h"
+
 namespace firebase {
 namespace firestore {
+
+using nanopb::PrintEnumField;
+using nanopb::PrintHeader;
+using nanopb::PrintMessageField;
+using nanopb::PrintPrimitiveField;
+using nanopb::PrintTail;
 
 /* @@protoc_insertion_point(includes) */
 #if PB_PROTO_HEADER_VERSION != 30
@@ -78,6 +86,81 @@ PB_STATIC_ASSERT((pb_membersize(google_api_HttpRule, custom) < 65536), YOU_MUST_
 PB_STATIC_ASSERT((pb_membersize(google_api_HttpRule, custom) < 256), YOU_MUST_DEFINE_PB_FIELD_16BIT_FOR_MESSAGES_google_api_Http_google_api_HttpRule_google_api_CustomHttpPattern)
 #endif
 
+
+std::string google_api_Http::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "Http", this);
+    std::string result;
+
+    for (pb_size_t i = 0; i != rules_count; ++i) {
+        result += PrintMessageField("rules ", rules[i], indent + 1, true);
+    }
+    result += PrintPrimitiveField("fully_decode_reserved_expansion: ",
+        fully_decode_reserved_expansion, indent + 1, false);
+
+    bool is_root = indent == 0;
+    if (!result.empty() || is_root) {
+      std::string tail = PrintTail(indent);
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}
+
+std::string google_api_HttpRule::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "HttpRule", this);
+    std::string result;
+
+    result += PrintPrimitiveField("selector: ", selector, indent + 1, false);
+    switch (which_pattern) {
+    case google_api_HttpRule_get_tag:
+        result += PrintPrimitiveField("get: ", get, indent + 1, true);
+        break;
+    case google_api_HttpRule_put_tag:
+        result += PrintPrimitiveField("put: ", put, indent + 1, true);
+        break;
+    case google_api_HttpRule_post_tag:
+        result += PrintPrimitiveField("post: ", post, indent + 1, true);
+        break;
+    case google_api_HttpRule_delete_tag:
+        result += PrintPrimitiveField("delete: ", delete_, indent + 1, true);
+        break;
+    case google_api_HttpRule_patch_tag:
+        result += PrintPrimitiveField("patch: ", patch, indent + 1, true);
+        break;
+    case google_api_HttpRule_custom_tag:
+        result += PrintMessageField("custom ", custom, indent + 1, true);
+        break;
+    }
+    result += PrintPrimitiveField("body: ", body, indent + 1, false);
+    for (pb_size_t i = 0; i != additional_bindings_count; ++i) {
+        result += PrintMessageField("additional_bindings ",
+            additional_bindings[i], indent + 1, true);
+    }
+
+    bool is_root = indent == 0;
+    if (!result.empty() || is_root) {
+      std::string tail = PrintTail(indent);
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}
+
+std::string google_api_CustomHttpPattern::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "CustomHttpPattern", this);
+    std::string result;
+
+    result += PrintPrimitiveField("kind: ", kind, indent + 1, false);
+    result += PrintPrimitiveField("path: ", path, indent + 1, false);
+
+    bool is_root = indent == 0;
+    if (!result.empty() || is_root) {
+      std::string tail = PrintTail(indent);
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}
 
 }  // namespace firestore
 }  // namespace firebase

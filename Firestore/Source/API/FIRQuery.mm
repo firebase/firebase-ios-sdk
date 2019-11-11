@@ -252,22 +252,22 @@ FIRQuery *Wrap(Query &&query) {
                                  value:value];
 }
 
-- (FIRQuery *)queryWhereField:(NSString *)field arrayContainsAny:(NSArray<id> *)value {
-  return [self queryWithFilterOperator:Filter::Operator::ArrayContainsAny field:field value:value];
+- (FIRQuery *)queryWhereField:(NSString *)field arrayContainsAny:(NSArray<id> *)values {
+  return [self queryWithFilterOperator:Filter::Operator::ArrayContainsAny field:field value:values];
 }
 
-- (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path arrayContainsAny:(NSArray<id> *)value {
+- (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path arrayContainsAny:(NSArray<id> *)values {
   return [self queryWithFilterOperator:Filter::Operator::ArrayContainsAny
                                   path:path.internalValue
-                                 value:value];
+                                 value:values];
 }
 
-- (FIRQuery *)queryWhereField:(NSString *)field in:(NSArray<id> *)value {
-  return [self queryWithFilterOperator:Filter::Operator::In field:field value:value];
+- (FIRQuery *)queryWhereField:(NSString *)field in:(NSArray<id> *)values {
+  return [self queryWithFilterOperator:Filter::Operator::In field:field value:values];
 }
 
-- (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path in:(NSArray<id> *)value {
-  return [self queryWithFilterOperator:Filter::Operator::In path:path.internalValue value:value];
+- (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path in:(NSArray<id> *)values {
+  return [self queryWithFilterOperator:Filter::Operator::In path:path.internalValue value:values];
 }
 
 - (FIRQuery *)queryFilteredUsingComparisonPredicate:(NSPredicate *)predicate {
