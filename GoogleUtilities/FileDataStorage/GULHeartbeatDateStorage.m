@@ -18,6 +18,8 @@
 #import <GoogleUtilities/GULLogger.h>
 #import <GoogleUtilities/GULSecureCoding.h>
 
+static GULLoggerService kGULHeartbeatDateStorage = @"GULHeartbeatDateStorage";
+
 @interface GULHeartbeatDateStorage ()
 /** The storage to store the date of the last sent heartbeat. */
 @property(nonatomic, readonly) NSFileCoordinator *fileCoordinator;
@@ -68,7 +70,6 @@
                         if (![writingDirectoryURL checkResourceIsReachableAndReturnError:&error]) {
                           // If fail creating the Application Support directory, log warning.
                           NSError *error;
-                          GULLoggerService kGULHeartbeatDateStorage = @"GULHeartbeatDateStorage";
                           if (![[NSFileManager defaultManager]
                                          createDirectoryAtURL:writingDirectoryURL
                                   withIntermediateDirectories:YES
@@ -81,66 +82,73 @@
                       }];
 }
 
-- (nullable NSMutableDictionary *)heartbeatDictionary {
-  NSError *fileCoordinatorError = nil;
-  __block NSMutableDictionary *dict;
-  [self.fileCoordinator
-      coordinateReadingItemAtURL:self.fileURL
-                         options:0
-                           error:&fileCoordinatorError
-                      byAccessor:^(NSURL *readingFileUrl) {
-                        NSError *error;
-                        NSData *objectData = [NSData dataWithContentsOfURL:readingFileUrl
-                                                                   options:0
-                                                                     error:&error];
-                        if (objectData == nil || error != nil) {
-                          dict = [NSMutableDictionary dictionary];
-                        } else {
-                          dict = [GULSecureCoding unarchivedObjectOfClass:NSObject.class
-                                                                 fromData:objectData
-                                                                    error:&error];
-                          if (dict == nil || error != nil) {
-                            dict = [NSMutableDictionary dictionary];
-                          }
-                        }
-                      }];
+- (nullable NSMutableDictionary *)heartbeatDictionary:(NSURL *)readingFileURL {
+  NSError *error;
+  NSMutableDictionary *dict;
+  NSData *objectData = [NSData dataWithContentsOfURL:readingFileURL options:0 error:&error];
+  if (objectData == nil || error != nil) {
+    dict = [NSMutableDictionary dictionary];
+  } else {
+    dict =
+        [GULSecureCoding unarchivedObjectOfClass:NSObject.class fromData:objectData error:&error];
+    if (dict == nil || error != nil) {
+      dict = [NSMutableDictionary dictionary];
+    }
+  }
   return dict;
 }
 
 - (nullable NSDate *)heartbeatDateForTag:(NSString *)tag {
-  NSMutableDictionary *dictionary = [self heartbeatDictionary];
-  return dictionary[tag];
+  __block NSMutableDictionary *dict;
+  NSError *error;
+  [self.fileCoordinator coordinateReadingItemAtURL:self.fileURL
+                                           options:0
+                                             error:&error
+                                        byAccessor:^(NSURL *readingURL) {
+                                          dict = [self heartbeatDictionary:readingURL];
+                                        }];
+  if (error != nil) {
+    GULLogWarning(kGULHeartbeatDateStorage, YES, @"I-COR100001",
+                  @"Failed getting dictionary from file: %@", error);
+  }
+  return dict[tag];
 }
 
 - (BOOL)setHearbeatDate:(NSDate *)date forTag:(NSString *)tag {
-  NSMutableDictionary *dictionary = [self heartbeatDictionary];
-  dictionary[tag] = date;
   NSError *error;
-  BOOL isSuccess = [self writeDictionary:dictionary error:&error];
-  if (isSuccess == false) {
-    NSLog(@"Error writing dictionary data %@", error);
-  }
+  __block BOOL isSuccess = false;
+  [self.fileCoordinator
+      coordinateReadingItemAtURL:self.fileURL
+                         options:0
+                writingItemAtURL:self.fileURL
+                         options:0
+                           error:&error
+                      byAccessor:^(NSURL *readingURL, NSURL *writingURL) {
+                        NSMutableDictionary *dictionary = [self heartbeatDictionary:readingURL];
+                        dictionary[tag] = date;
+                        NSError *error;
+                        isSuccess = [self writeDictionary:dictionary
+                                            forWritingURL:writingURL
+                                                    error:&error];
+                        if (isSuccess == false) {
+                          GULLogWarning(kGULHeartbeatDateStorage, YES, @"I-COR100001",
+                                        @"Failed to write dictionary to file: %@", error);
+                        }
+                      }];
   return isSuccess;
 }
 
-- (BOOL)writeDictionary:(NSMutableDictionary *)dictionary error:(NSError **)outError {
-  NSError *fileCoordinatorError = nil;
-  __block bool isWritingSuccess = false;
-  [self.fileCoordinator
-      coordinateWritingItemAtURL:self.fileURL
-                         options:0
-                           error:&fileCoordinatorError
-                      byAccessor:^(NSURL *writingFileUrl) {
-                        NSError *error;
-                        NSData *data = [GULSecureCoding archivedDataWithRootObject:dictionary
-                                                                             error:&error];
-                        if (error != nil) {
-                          NSLog(@"Error getting encoded data %@", error);
-                        } else {
-                          isWritingSuccess = [data writeToURL:writingFileUrl atomically:YES];
-                        }
-                      }];
-  return isWritingSuccess;
+- (BOOL)writeDictionary:(NSMutableDictionary *)dictionary
+          forWritingURL:(NSURL *)writingFileURL
+                  error:(NSError **)outError {
+  NSData *data = [GULSecureCoding archivedDataWithRootObject:dictionary error:outError];
+  if (*outError != nil) {
+    GULLogWarning(kGULHeartbeatDateStorage, YES, @"I-COR100001",
+                  @"Unable to archive dictionary: %@", *outError);
+    return false;
+  } else {
+    return [data writeToURL:writingFileURL atomically:YES];
+  }
 }
 
 @end
