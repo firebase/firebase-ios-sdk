@@ -116,7 +116,7 @@ cc_library(
   SOURCES
     ${NANOPB_GENERATED_SOURCES}
   DEPENDS
-    firebase_firestore_nanopb
+    firebase_firestore_nanopb_runtime
     protobuf-nanopb-static
 )
 

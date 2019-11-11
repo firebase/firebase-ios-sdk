@@ -113,6 +113,8 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
 - (void)setUp {
   [super setUp];
 
+  LoadXCTestCaseAwait();
+
   _fakeCredentialsProvider = std::make_shared<FakeCredentialsProvider>();
 
   [self clearPersistenceOnce];
@@ -511,29 +513,6 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
   if (!predicate()) {
     XCTFail(@"Timeout");
   }
-}
-
-static const double kExpectationWaitSeconds = 25.0;
-
-- (void)awaitExpectations {
-  [self waitForExpectationsWithTimeout:kExpectationWaitSeconds
-                               handler:^(NSError *_Nullable expectationError) {
-                                 if (expectationError) {
-                                   XCTFail(@"Error waiting for timeout: %@", expectationError);
-                                 }
-                               }];
-}
-
-- (double)defaultExpectationWaitSeconds {
-  return kExpectationWaitSeconds;
-}
-
-- (FSTVoidErrorBlock)completionForExpectationWithName:(NSString *)expectationName {
-  XCTestExpectation *expectation = [self expectationWithDescription:expectationName];
-  return ^(NSError *error) {
-    XCTAssertNil(error);
-    [expectation fulfill];
-  };
 }
 
 extern "C" NSArray<NSDictionary<NSString *, id> *> *FIRQuerySnapshotGetData(

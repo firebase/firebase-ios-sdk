@@ -60,7 +60,7 @@ if(APPLE AND XCTest_FOUND)
     SOURCES
       xcgmock_test.mm
     DEPENDS
-      firebase_firestore_objc_api
+      FirebaseFirestore
       firebase_firestore_testutil
   )
 endif()

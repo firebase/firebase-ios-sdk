@@ -272,32 +272,34 @@ endfunction()
 # If SOURCES is not included, a dummy file will be generated.
 function(objc_framework target)
   if(APPLE)
-    set(flag EXCLUDE_FROM_ALL)
+    set(flag SHARED EXCLUDE_FROM_ALL)
     set(single VERSION)
     set(multi DEPENDS DEFINES HEADERS INCLUDES SOURCES)
     cmake_parse_arguments(of "${flag}" "${single}" "${multi}" ${ARGN})
-
-    podspec_prep_headers(${target} ${of_HEADERS})
 
     if (NOT cf_SOURCES)
       generate_dummy_source(${target} of_SOURCES)
     endif()
 
+    if(of_SHARED)
+      set(of_SHARED_FLAG SHARED)
+    endif()
+
     add_library(
       ${target}
-      STATIC
+      ${of_SHARED_FLAG}
+      ${of_HEADERS}
       ${of_SOURCES}
     )
+
+    add_objc_flags(${target} ${of_SOURCES})
 
     set_property(TARGET ${target} PROPERTY PUBLIC_HEADER ${of_HEADERS})
     set_property(TARGET ${target} PROPERTY FRAMEWORK ON)
     set_property(TARGET ${target} PROPERTY VERSION ${of_VERSION})
 
     if(of_EXCLUDE_FROM_ALL)
-      set_property(
-        TARGET ${name}
-        PROPERTY EXCLUDE_FROM_ALL ON
-      )
+      set_property(TARGET ${name} PROPERTY EXCLUDE_FROM_ALL ON)
     endif()
 
     target_compile_definitions(
@@ -316,15 +318,69 @@ function(objc_framework target)
         -Wno-unused-parameter
     )
 
+    # Include directories are carefully crafted to support the following forms
+    # of import, both before and after the framework is built.
+    #   * #import <Framework/Header.h>
+    #   * #import "Header.h"
+    #
+    # Do not use #import "Firestore/Source/Public/Header.h".
+    podspec_prep_headers(${target} ${of_HEADERS})
     target_include_directories(
       ${target}
-      PUBLIC ${PROJECT_BINARY_DIR}/Headers
+      # Before the framework is built, Framework.framework/Headers isn't
+      # available yet, so use podspec_prep_headers to create symbolic links
+      # fitting the <Framework/Header.h> pattern.
+      PRIVATE ${PROJECT_BINARY_DIR}/Headers
       PRIVATE ${of_INCLUDES}
+
+      # Building the framework copies public headers into it. Unfortunately
+      # these copies defeat Clang's #import deduplication mechanism, so the
+      # podspec_prep_headers versions (and any original locations) must not be
+      # made available to clients of the framework. Clients get the qualified
+      # form through the public header support in Clang's module system, and
+      # unqualified names through this additional entry.
+      PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/${target}.framework/Headers
+    )
+
+    target_link_options(
+      ${target} PRIVATE
+      -ObjC
     )
 
     target_link_libraries(
       ${target} PUBLIC
       ${of_DEPENDS}
+    )
+  endif()
+endfunction()
+
+function(objc_test target)
+  if(APPLE)
+    set(flag EXCLUDE_FROM_ALL)
+    set(single HOST VERSION)
+    set(multi DEPENDS DEFINES HEADERS INCLUDES SOURCES)
+    cmake_parse_arguments(ot "${flag}" "${single}" "${multi}" ${ARGN})
+
+    xctest_add_bundle(
+      ${target}
+      ${ot_HOST}
+      ${ot_SOURCES}
+    )
+
+    add_objc_flags(
+      ${target}
+      ${ot_SOURCES}
+    )
+
+    target_link_libraries(
+      ${target}
+      PRIVATE
+        ${ot_DEPENDS}
+    )
+
+    xctest_add_test(
+      ${target}
+      ${target}
     )
   endif()
 endfunction()

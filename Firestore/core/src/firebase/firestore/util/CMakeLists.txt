@@ -208,6 +208,8 @@ cc_select(
 cc_library(
   firebase_firestore_util_status
   SOURCES
+    error_apple.h
+    error_apple.mm
     status.cc
     status.h
     status_apple.mm
@@ -253,8 +255,6 @@ cc_library(
     config.h
     delayed_constructor.h
     empty.h
-    error_apple.h
-    error_apple.mm
     equality.h
     hashing.h
     iterator_adaptors.h

@@ -12,41 +12,35 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-find_package(XCTest REQUIRED)
-
-objc_framework(
-  firebase_firestore_tests_util
-  HEADERS
-    FSTEventAccumulator.h
-    # XCTestCase+Await.h
-    FSTIntegrationTestCase.h
-    FIRFirestore+Testing.h
-    FSTHelpers.h
-  SOURCES
-    FSTEventAccumulator.mm
-    # XCTestCase+Await.mm
-    FSTIntegrationTestCase.mm
-    FSTHelpers.mm
-  DEPENDS
-    absl_any
-    absl_strings
-    FirebaseFirestore
-    firebase_firestore_auth
-    firebase_firestore_core
-    firebase_firestore_local
-    firebase_firestore_model
-    firebase_firestore_util
-    firebase_firestore_remote
-    firebase_firestore_remote_testing
-    firebase_firestore_nanopb
-    firebase_firestore_protos_nanopb
-    firebase_firestore_testutil
-    ${XCTest_LIBRARIES}
-    GTest::GTest
-)
-
-target_include_directories(
-    firebase_firestore_tests_util
-    PUBLIC
-    ${FIREBASE_SOURCE_DIR}/Firestore/Source/Public
-)
+if(APPLE)
+  cc_library(
+    firebase_firestore_objc_test_util
+    HEADERS
+      FSTEventAccumulator.h
+      XCTestCase+Await.h
+      FSTIntegrationTestCase.h
+      FIRFirestore+Testing.h
+      FSTHelpers.h
+    SOURCES
+      FSTEventAccumulator.mm
+      XCTestCase+Await.mm
+      FSTIntegrationTestCase.mm
+      FSTHelpers.mm
+    DEPENDS
+      absl_any
+      absl_strings
+      FirebaseFirestore
+      firebase_firestore_auth
+      firebase_firestore_core
+      firebase_firestore_local
+      firebase_firestore_model
+      firebase_firestore_util
+      firebase_firestore_remote
+      firebase_firestore_remote_testing
+      firebase_firestore_nanopb
+      firebase_firestore_protos_nanopb
+      firebase_firestore_testutil
+      ${XCTest_LIBRARIES}
+      GTest::GTest
+  )
+endif(APPLE)
