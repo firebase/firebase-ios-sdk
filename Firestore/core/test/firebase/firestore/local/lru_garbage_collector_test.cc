@@ -229,8 +229,7 @@ TEST_P(LruGarbageCollectorTest, PickSequenceNumberPercentile) {
     // number expected to be calculated as 10%
     int expected;
   };
-  struct Case test_cases[num_test_cases] = {
-      {0, 0}, {10, 1}, {9, 0}, {50, 5}, {49, 4}};
+  Case test_cases[num_test_cases] = {{0, 0}, {10, 1}, {9, 0}, {50, 5}, {49, 4}};
 
   for (int i = 0; i < num_test_cases; i++) {
     // Fill the query cache.
@@ -240,6 +239,7 @@ TEST_P(LruGarbageCollectorTest, PickSequenceNumberPercentile) {
     for (int j = 0; j < num_queries; j++) {
       AddNextQuery();
     }
+
     int tenth = QueryCountForPercentile(10);
     ASSERT_EQ(expected_tenth_percentile, tenth)
         << "Total query count: " << num_queries;
@@ -253,7 +253,6 @@ TEST_P(LruGarbageCollectorTest, SequenceNumberNoQueries) {
   NewTestResources();
   ASSERT_EQ(local::kListenSequenceNumberInvalid,
             SequenceNumberForQueryCount(0));
-  persistence_->Shutdown();
 }
 
 TEST_P(LruGarbageCollectorTest, SequenceNumberForFiftyQueries) {
@@ -264,8 +263,8 @@ TEST_P(LruGarbageCollectorTest, SequenceNumberForFiftyQueries) {
   for (int i = 0; i < 50; i++) {
     AddNextQuery();
   }
+
   ASSERT_EQ(initial_sequence_number_ + 10, SequenceNumberForQueryCount(10));
-  persistence_->Shutdown();
 }
 
 TEST_P(LruGarbageCollectorTest,
@@ -278,11 +277,12 @@ TEST_P(LruGarbageCollectorTest,
       AddNextQueryInTransaction();
     }
   });
+
   for (int i = 9; i < 50; i++) {
     AddNextQuery();
   }
+
   ASSERT_EQ(2 + initial_sequence_number_, SequenceNumberForQueryCount(10));
-  persistence_->Shutdown();
 }
 
 // Ensure that even if all of the queries are added in a single transaction, we
@@ -298,13 +298,14 @@ TEST_P(LruGarbageCollectorTest, AllCollectedQueriesInSingleTransaction) {
       AddNextQueryInTransaction();
     }
   });
+
   for (int i = 11; i < 50; i++) {
     AddNextQuery();
   }
+
   // We expect to GC the targets from the first transaction, since they account
   // for at least the first 10 of the targets.
   ASSERT_EQ(1 + initial_sequence_number_, SequenceNumberForQueryCount(10));
-  persistence_->Shutdown();
 }
 
 TEST_P(LruGarbageCollectorTest,
@@ -316,14 +317,14 @@ TEST_P(LruGarbageCollectorTest,
   for (int i = 0; i < 50; i++) {
     AddNextQuery();
   }
+
   ASSERT_EQ(10 + initial_sequence_number_, SequenceNumberForQueryCount(10));
-  persistence_->Shutdown();
 }
 
 TEST_P(LruGarbageCollectorTest, SequenceNumbersWithMutationsInQueries) {
   // Add mutated docs, then add one of them to a query target so it doesn't get
   // GC'd. Expect 3 past the initial value: the mutations not part of a query,
-  // and two queries
+  // and two queries.
   NewTestResources();
   Document doc_in_query = NextTestDocument();
   persistence_->Run("mark mutations", [&] {
@@ -334,9 +335,11 @@ TEST_P(LruGarbageCollectorTest, SequenceNumbersWithMutationsInQueries) {
       CreateDocumentEligibleForGcInTransaction();
     }
   });
+
   for (int i = 0; i < 49; i++) {
     AddNextQuery();
   }
+
   persistence_->Run("query with mutation", [&] {
     QueryData query_data = AddNextQueryInTransaction();
     // This should keep the document from getting GC'd, since it is no longer
@@ -347,7 +350,6 @@ TEST_P(LruGarbageCollectorTest, SequenceNumbersWithMutationsInQueries) {
   // This should catch the remaining 8 documents, plus the first two queries we
   // added.
   ASSERT_EQ(3 + initial_sequence_number_, SequenceNumberForQueryCount(10));
-  persistence_->Shutdown();
 }
 
 TEST_P(LruGarbageCollectorTest, RemoveQueriesUpThroughSequenceNumber) {
@@ -360,10 +362,12 @@ TEST_P(LruGarbageCollectorTest, RemoveQueriesUpThroughSequenceNumber) {
       live_queries[query_data.target_id()] = query_data;
     }
   }
+
   // GC up through 20th query, which is 20%.
   // Expect to have GC'd 10 targets, since every other target is live
   int removed = RemoveTargets(20 + initial_sequence_number_, live_queries);
   ASSERT_EQ(10, removed);
+
   // Make sure we removed the even targets with target_id <= 20.
   persistence_->Run("verify remaining targets are > 20 or odd", [&] {
     query_cache_->EnumerateTargets([&](const QueryData& query_data) {
@@ -371,23 +375,23 @@ TEST_P(LruGarbageCollectorTest, RemoveQueriesUpThroughSequenceNumber) {
                   query_data.target_id() % 2 == 1);
     });
   });
-  persistence_->Shutdown();
 }
 
 TEST_P(LruGarbageCollectorTest, RemoveOrphanedDocuments) {
   NewTestResources();
-  // Track documents we expect to be retained so we can verify post-GC.
-  // This will contain documents associated with targets that survive GC, as
-  // well as any documents with pending mutations.
+  // Track documents we expect to be retained so we can verify post-GC. This
+  // will contain documents associated with targets that survive GC, as well as
+  // any documents with pending mutations.
   std::unordered_set<DocumentKey, DocumentKeyHash> expected_retained;
-  // we add two mutations later, for now track them in an array.
+
+  // Add two mutations later, for now track them in an vector.
   std::vector<Mutation> mutations;
 
   // Add a target and add two documents to it. The documents are expected to be
   // retained, since their membership in the target keeps them alive.
   persistence_->Run("add a target and add two documents to it", [&] {
     // Add two documents to first target, queue a mutation on the second
-    // document
+    // document.
     QueryData query_data = AddNextQueryInTransaction();
     Document doc1 = CacheADocumentInTransaction();
     AddDocument(doc1.key(), query_data.target_id());
@@ -399,7 +403,7 @@ TEST_P(LruGarbageCollectorTest, RemoveOrphanedDocuments) {
     mutations.push_back(MutationForDocument(doc2.key()));
   });
 
-  // Add a second query and register a third document on it
+  // Add a second query and register a third document on it.
   persistence_->Run("second query", [&] {
     QueryData query_data = AddNextQueryInTransaction();
     Document doc3 = CacheADocumentInTransaction();
@@ -407,7 +411,7 @@ TEST_P(LruGarbageCollectorTest, RemoveOrphanedDocuments) {
     AddDocument(doc3.key(), query_data.target_id());
   });
 
-  // cache another document and prepare a mutation on it.
+  // Cache another document and prepare a mutation on it.
   persistence_->Run("queue a mutation", [&] {
     Document doc4 = CacheADocumentInTransaction();
     mutations.push_back(MutationForDocument(doc4.key()));
@@ -435,7 +439,7 @@ TEST_P(LruGarbageCollectorTest, RemoveOrphanedDocuments) {
   });
 
   // We expect only the orphaned documents, those not in a mutation or a target,
-  // to be removed. use a large sequence number to remove as much as possible
+  // to be removed. Use a large sequence number to remove as much as possible.
   int removed = RemoveOrphanedDocuments(1000);
   ASSERT_EQ(to_be_removed.size(), removed);
   persistence_->Run("verify", [&] {
@@ -448,29 +452,32 @@ TEST_P(LruGarbageCollectorTest, RemoveOrphanedDocuments) {
           << "Missing document " << key.ToString().c_str();
     }
   });
-  persistence_->Shutdown();
 }
 
 // TODO(gsoltis): write a test that includes limbo documents
 
 TEST_P(LruGarbageCollectorTest, RemoveTargetsThenGC) {
-  // Create 3 targets, add docs to all of them
-  // Leave oldest target alone, it is still live
-  // Remove newest target
-  // Blind write 2 documents
-  // Add one of the blind write docs to oldest target (preserves it)
-  // Remove some documents from middle target (bumps sequence number)
-  // Add some documents from newest target to oldest target (preserves them)
-  // Update a doc from middle target
-  // Remove middle target
-  // Do a blind write
-  // GC up to but not including the removal of the middle target
+  // Setup:
+  //   - Create 3 targets, add docs to all of them.
+  //   - Leave oldest target alone, it is still alive.
+  //   - Remove newest target.
+  //   - Blind write 2 documents.
+  //   - Add one of the blind write docs to oldest target (preserves it).
+  //   - Remove some documents from middle target (bumps sequence number).
+  //   - Add some documents from newest target to oldest target (preserves
+  //   - them).
+  //   - Update a doc from middle target.
+  //   - Remove middle target.
+  //   - Do a blind write.
+  //   - GC up to but not including the removal of the middle target.
   //
   // Expect:
-  // All docs in oldest target are still around
-  // One blind write is gone, the first one not added to oldest target
-  // Documents removed from middle target are gone, except ones added to oldest
-  // target Documents from newest target are gone, except
+  //   - All docs in oldest target are still around.
+  //   - One blind write is gone, the first one not added to oldest target.
+  //   - Documents removed from middle target are gone, except ones added to
+  //     oldest target.
+  //   - Documents from newest target are gone, except ones added to the oldest
+  //     target.
 
   NewTestResources();
 
@@ -496,12 +503,14 @@ TEST_P(LruGarbageCollectorTest, RemoveTargetsThenGC) {
   // Add middle target and docs. Some docs will be removed from this target
   // later, which we track here.
   DocumentKeySet middle_docs_to_remove;
+
   // This will be the document in this target that gets an update later
   DocumentKey middle_doc_to_update;
   QueryData middle_target =
       persistence_->Run("Add middle target and docs", [&] {
         QueryData middle_target = AddNextQueryInTransaction();
-        // these docs will be removed from this target later, triggering a bump
+
+        // These docs will be removed from this target later, triggering a bump
         // to their sequence numbers. Since they will not be a part of the
         // target, we expect them to be removed.
         for (int i = 0; i < 2; i++) {
@@ -510,7 +519,8 @@ TEST_P(LruGarbageCollectorTest, RemoveTargetsThenGC) {
           AddDocument(doc.key(), middle_target.target_id());
           middle_docs_to_remove = middle_docs_to_remove.insert(doc.key());
         }
-        // these docs stay in this target and only this target. There presence
+
+        // These docs stay in this target and only this target. There presence
         // in this target prevents them from being GC'd, so they are also
         // expected to be retained.
         for (int i = 2; i < 4; i++) {
@@ -518,6 +528,7 @@ TEST_P(LruGarbageCollectorTest, RemoveTargetsThenGC) {
           expected_retained.insert(doc.key());
           AddDocument(doc.key(), middle_target.target_id());
         }
+
         // This doc stays in this target, but gets updated.
         {
           Document doc = CacheADocumentInTransaction();
@@ -535,6 +546,7 @@ TEST_P(LruGarbageCollectorTest, RemoveTargetsThenGC) {
   DocumentKeySet newest_docs_to_add_to_oldest;
   persistence_->Run("Add newest target and docs", [&] {
     QueryData newest_target = AddNextQueryInTransaction();
+
     // These documents are only in this target. They are expected to be removed
     // because this target will also be removed.
     for (int i = 0; i < 3; i++) {
@@ -542,8 +554,9 @@ TEST_P(LruGarbageCollectorTest, RemoveTargetsThenGC) {
       expected_removed.insert(doc.key());
       AddDocument(doc.key(), newest_target.target_id());
     }
-    // docs to add to the oldest target in addition to this target. They will be
-    // retained
+
+    // Docs to add to the oldest target in addition to this target. They will be
+    // retained.
     for (int i = 3; i < 5; i++) {
       Document doc = CacheADocumentInTransaction();
       expected_retained.insert(doc.key());
@@ -553,9 +566,9 @@ TEST_P(LruGarbageCollectorTest, RemoveTargetsThenGC) {
     }
   });
 
-  // 2 doc writes, add one of them to the oldest target.
+  // Two doc writes, add one of them to the oldest target.
   persistence_->Run("2 doc writes, add one of them to the oldest target", [&] {
-    // write two docs and have them ack'd by the server. can skip mutation queue
+    // Write two docs and have them ack'd by the server. Can skip mutation queue
     // and set them in document cache. Add potentially orphaned first, also add
     // one doc to a target.
     Document doc1 = CacheADocumentInTransaction();
@@ -567,7 +580,7 @@ TEST_P(LruGarbageCollectorTest, RemoveTargetsThenGC) {
 
     Document doc2 = CacheADocumentInTransaction();
     MarkDocumentEligibleForGcInTransaction(doc2.key());
-    // nothing is keeping doc2 around, it should be removed
+    // Nothing is keeping doc2 around, it should be removed.
     expected_removed.insert(doc2.key());
   });
 
@@ -580,7 +593,7 @@ TEST_P(LruGarbageCollectorTest, RemoveTargetsThenGC) {
   });
 
   // Add a couple docs from the newest target to the oldest (preserves them past
-  // the point where newest was removed) upper_bound is the sequence number
+  // the point where newest was removed). upper_bound is the sequence number
   // right before middle_target is updated, then removed.
   ListenSequenceNumber upper_bound = persistence_->Run(
       "Add a couple docs from the newest target to the oldest", [&] {
@@ -600,7 +613,7 @@ TEST_P(LruGarbageCollectorTest, RemoveTargetsThenGC) {
     UpdateTargetInTransaction(middle_target);
   });
 
-  // middle_target removed here, no update needed
+  // middle_target removed here, no update needed.
 
   // Write a doc and get an ack, not part of a target.
   persistence_->Run("Write a doc and get an ack, not part of a target", [&] {
@@ -613,7 +626,7 @@ TEST_P(LruGarbageCollectorTest, RemoveTargetsThenGC) {
   });
 
   // Finally, do the garbage collection, up to but not including the removal of
-  // middle_target
+  // middle_target.
   std::unordered_map<TargetId, QueryData> live_queries{
       {oldest_target.target_id(), oldest_target}};
 
@@ -637,8 +650,6 @@ TEST_P(LruGarbageCollectorTest, RemoveTargetsThenGC) {
           << " in document cache";
     }
   });
-
-  persistence_->Shutdown();
 }
 
 TEST_P(LruGarbageCollectorTest, GetsSize) {
@@ -647,7 +658,7 @@ TEST_P(LruGarbageCollectorTest, GetsSize) {
   size_t initial_size = gc_->CalculateByteSize();
 
   persistence_->Run("fill cache", [&] {
-    // Simulate a bunch of ack'd mutations
+    // Simulate a bunch of ack'd mutations.
     for (int i = 0; i < 50; i++) {
       Document doc = CacheADocumentInTransaction();
       MarkDocumentEligibleForGcInTransaction(doc.key());
@@ -656,8 +667,6 @@ TEST_P(LruGarbageCollectorTest, GetsSize) {
 
   size_t final_size = gc_->CalculateByteSize();
   ASSERT_GT(final_size, initial_size);
-
-  persistence_->Shutdown();
 }
 
 TEST_P(LruGarbageCollectorTest, Disabled) {
@@ -665,7 +674,7 @@ TEST_P(LruGarbageCollectorTest, Disabled) {
   NewTestResources(params);
 
   persistence_->Run("fill cache", [&] {
-    // Simulate a bunch of ack'd mutations
+    // Simulate a bunch of ack'd mutations.
     for (int i = 0; i < 500; i++) {
       Document doc = CacheADocumentInTransaction();
       MarkDocumentEligibleForGcInTransaction(doc.key());
@@ -675,8 +684,6 @@ TEST_P(LruGarbageCollectorTest, Disabled) {
   LruResults results =
       persistence_->Run("GC", [&] { return gc_->Collect({}); });
   ASSERT_FALSE(results.did_run);
-
-  persistence_->Shutdown();
 }
 
 TEST_P(LruGarbageCollectorTest, CacheTooSmall) {
@@ -684,7 +691,7 @@ TEST_P(LruGarbageCollectorTest, CacheTooSmall) {
   NewTestResources(params);
 
   persistence_->Run("fill cache", [&] {
-    // Simulate a bunch of ack'd mutations
+    // Simulate a bunch of ack'd mutations.
     for (int i = 0; i < 50; i++) {
       Document doc = CacheADocumentInTransaction();
       MarkDocumentEligibleForGcInTransaction(doc.key());
@@ -692,24 +699,22 @@ TEST_P(LruGarbageCollectorTest, CacheTooSmall) {
   });
 
   int64_t cache_size = gc_->CalculateByteSize();
-  // Verify that we don't have enough in our cache to warrant collection
+  // Verify that we don't have enough in our cache to warrant collection.
   ASSERT_LT(cache_size, params.min_bytes_threshold);
 
-  // Try collection and verify that it didn't run
+  // Try collection and verify that it didn't run.
   LruResults results =
       persistence_->Run("GC", [&] { return gc_->Collect({}); });
   ASSERT_FALSE(results.did_run);
-
-  persistence_->Shutdown();
 }
 
 TEST_P(LruGarbageCollectorTest, GCRan) {
   LruParams params = LruParams::Default();
-  // Set a low threshold so we will definitely run
+  // Set a low threshold so we will definitely run.
   params.min_bytes_threshold = 100;
   NewTestResources(params);
 
-  // Add 100 targets and 10 documents to each
+  // Add 100 targets and 10 documents to each.
   for (int i = 0; i < 100; i++) {
     // Use separate transactions so that each target and associated documents
     // get their own sequence number.
@@ -732,7 +737,6 @@ TEST_P(LruGarbageCollectorTest, GCRan) {
   ASSERT_TRUE(results.did_run);
   ASSERT_EQ(10, results.targets_removed);
   ASSERT_EQ(100, results.documents_removed);
-  persistence_->Shutdown();
 }
 
 }  // namespace local

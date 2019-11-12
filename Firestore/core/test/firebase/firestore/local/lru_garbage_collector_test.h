@@ -129,9 +129,9 @@ class LruGarbageCollectorTest : public ::testing::TestWithParam<FactoryFunc> {
    * Creates and marks a document as eligible for GC, in a new transaction.
    *
    * Simulates a document being mutated and then having that mutation ack'd.
-   * Since the document is not in a mutation queue any more, there is
-   * potentially nothing keeping it live. We mark it with the current sequence
-   * number so it can be collected later.
+   * Since the document is not in a mutation queue anymore, there is potentially
+   * nothing keeping it alive. We mark it with the current sequence number so it
+   * can be collected later.
    */
   model::DocumentKey CreateDocumentEligibleForGc();
 
@@ -144,15 +144,14 @@ class LruGarbageCollectorTest : public ::testing::TestWithParam<FactoryFunc> {
   model::DocumentKey CreateDocumentEligibleForGcInTransaction();
 
   /**
-   * Marks a document as eligible for garbage collection, in a new transaction.
+   * Marks a document as eligible for GC, in a new transaction.
    *
    * See CreateDocumentEligibleForGc for discussion.
    */
   void MarkDocumentEligibleForGc(const model::DocumentKey& doc_key);
 
   /**
-   * Marks a document as eligible for garbage collection, within an existing
-   * transaction.
+   * Marks a document as eligible for GC, within an existing transaction.
    *
    * See CreateDocumentEligibleForGc for discussion.
    */
@@ -161,14 +160,14 @@ class LruGarbageCollectorTest : public ::testing::TestWithParam<FactoryFunc> {
 
   /**
    * Adds the given document to the given target, as if the server said it
-   * matched the query the target represents.
+   * matched the query that the target represents.
    */
   void AddDocument(const model::DocumentKey& doc_key,
                    model::TargetId target_id);
 
   /**
    * Removes the given document from the given target, as if the server said it
-   * no longer matched the query the target represents.
+   * no longer matched the query that the target represents.
    */
   void RemoveDocument(const model::DocumentKey& doc_key,
                       model::TargetId target_id);
