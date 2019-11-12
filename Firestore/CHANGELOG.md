@@ -1,7 +1,7 @@
 # Unreleased
 
-# v1.7.1
-- [changed] Removed the Firestore's dependency on the `Protobuf` CocoaPod. If
+# v1.8.0
+- [changed] Removed Firestore's dependency on the `Protobuf` CocoaPod. If
   you're manually tracking dependencies, you may be able to remove it from your
   build (note, however, that other Firebase components may still require it).
 - [changed] Added a dependency on the `abseil` CocoaPod. If you're manually
