@@ -18,13 +18,13 @@ NSString *const kGULSecureCodingError = @"GULSecureCodingError";
 
 @implementation GULSecureCoding
 
-+ (nullable id)unarchivedObjectOfClass:(Class)class
-                              fromData:(NSData *)data
-                                 error:(NSError **)outError {
++ (nullable id)unarchivedObjectOfClasses:(NSSet<Class> *)classes
+                                fromData:(NSData *)data
+                                   error:(NSError **)outError {
   id object;
 #if __has_builtin(__builtin_available)
   if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-    object = [NSKeyedUnarchiver unarchivedObjectOfClass:class fromData:data error:outError];
+    object = [NSKeyedUnarchiver unarchivedObjectOfClasses:classes fromData:data error:outError];
   } else
 #endif  // __has_builtin(__builtin_available)
   {
@@ -32,7 +32,7 @@ NSString *const kGULSecureCodingError = @"GULSecureCodingError";
       NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
       unarchiver.requiresSecureCoding = YES;
 
-      object = [unarchiver decodeObjectOfClass:class forKey:NSKeyedArchiveRootObjectKey];
+      object = [unarchiver decodeObjectOfClasses:classes forKey:NSKeyedArchiveRootObjectKey];
     } @catch (NSException *exception) {
       if (outError) {
         *outError = [self archivingErrorWithException:exception];
@@ -48,6 +48,12 @@ NSString *const kGULSecureCodingError = @"GULSecureCodingError";
   }
 
   return object;
+}
+
++ (nullable id)unarchivedObjectOfClass:(Class)class
+                              fromData:(NSData *)data
+                                 error:(NSError **)outError {
+  return [self unarchivedObjectOfClasses:[NSSet setWithObject:class] fromData:data error:outError];
 }
 
 + (nullable NSData *)archivedDataWithRootObject:(id<NSCoding>)object error:(NSError **)outError {
