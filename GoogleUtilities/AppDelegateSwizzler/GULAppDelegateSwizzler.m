@@ -703,8 +703,10 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
 
 #if UISCENE_SUPPORTED
 + (void)handleSceneWillConnectToNotification:(NSNotification *)notification {
-  UIScene *scene = (UIScene *)notification.object;
-  [GULAppDelegateSwizzler proxySceneDelegate:scene];
+  if (@available(iOS 13.0, tvOS 13.0, *)) {
+    UIScene *scene = (UIScene *)notification.object;
+    [GULAppDelegateSwizzler proxySceneDelegate:scene];
+  }
 }
 #endif  // UISCENE_SUPPORTED
 
@@ -791,30 +793,31 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
 
 #if UISCENE_SUPPORTED
 - (void)scene:(UIScene *)scene openURLContexts:(NSSet<UIOpenURLContext *> *)URLContexts {
-  NSLog(@"--------- Swizzler scene open url");
-  SEL methodSelector = @selector(scene:openURLContexts:);
-  // Call the real implementation if the real App Delegate has any.
-  NSValue *openURLContextsIMPPointer =
-      [GULAppDelegateSwizzler originalImplementationForSelector:methodSelector object:self];
-  GULOpenURLContextsIMP openURLContextsIMP = [openURLContextsIMPPointer pointerValue];
+  if (@available(iOS 13.0, tvOS 13.0, *)) {
+    SEL methodSelector = @selector(scene:openURLContexts:);
+    // Call the real implementation if the real App Delegate has any.
+    NSValue *openURLContextsIMPPointer =
+        [GULAppDelegateSwizzler originalImplementationForSelector:methodSelector object:self];
+    GULOpenURLContextsIMP openURLContextsIMP = [openURLContextsIMPPointer pointerValue];
 
-  // This is needed for the library to be warning free on iOS versions < 9.
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunguarded-availability"
-  [GULAppDelegateSwizzler
-      notifyInterceptorsWithMethodSelector:methodSelector
-                                  callback:^(id<GULApplicationDelegate> interceptor) {
-                                    if ([interceptor
-                                            conformsToProtocol:@protocol(UISceneDelegate)]) {
-                                      id<UISceneDelegate> sceneInterceptor =
-                                          (id<UISceneDelegate>)interceptor;
-                                      [sceneInterceptor scene:scene openURLContexts:URLContexts];
-                                    }
-                                  }];
-#pragma clang diagnostic pop
+    // This is needed for the library to be warning free on iOS versions < 9.
+  #pragma clang diagnostic push
+  #pragma clang diagnostic ignored "-Wunguarded-availability"
+    [GULAppDelegateSwizzler
+        notifyInterceptorsWithMethodSelector:methodSelector
+                                    callback:^(id<GULApplicationDelegate> interceptor) {
+                                      if ([interceptor
+                                              conformsToProtocol:@protocol(UISceneDelegate)]) {
+                                        id<UISceneDelegate> sceneInterceptor =
+                                            (id<UISceneDelegate>)interceptor;
+                                        [sceneInterceptor scene:scene openURLContexts:URLContexts];
+                                      }
+                                    }];
+  #pragma clang diagnostic pop
 
-  if (openURLContextsIMP) {
-    openURLContextsIMP(self, methodSelector, scene, URLContexts);
+    if (openURLContextsIMP) {
+      openURLContextsIMP(self, methodSelector, scene, URLContexts);
+    }
   }
 }
 #endif  // UISCENE_SUPPORTED
