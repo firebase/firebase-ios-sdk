@@ -18,6 +18,10 @@
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
 #import <GoogleUtilities/GULMutableDictionary.h>
 
+#if ((TARGET_OS_IOS || TARGET_OS_TV) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 130000))
+#define UISCENE_SUPPORTED 1
+#endif
+
 @class GULApplication;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -50,16 +54,16 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (id<GULApplicationDelegate>)originalDelegate;
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+#if UISCENE_SUPPORTED
 
 /** ISA Swizzles the given appDelegate as the original app delegate would be.
  *
  *  @param scene The scene whose delegate needs to be isa swizzled. This should conform to the
  *      scene delegate protocol.
  */
-+ (void)proxySceneDelegate:(UIScene *)scene API_AVAILABLE(ios(13.0));
++ (void)proxySceneDelegate:(UIScene *)scene API_AVAILABLE(ios(13.0), tvos(13.0));
 
-#endif  // __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+#endif  // UISCENE_SUPPORTED
 
 @end
 

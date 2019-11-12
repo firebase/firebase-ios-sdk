@@ -231,7 +231,11 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 #pragma mark - FIRAuth
 
 #if TARGET_OS_IOS
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
 @interface FIRAuth () <UIApplicationDelegate, UISceneDelegate, FIRLibrary, FIRComponentLifecycleMaintainer>
+#else
+@interface FIRAuth () <UIApplicationDelegate, FIRLibrary, FIRComponentLifecycleMaintainer>
+#endif
 #else
 @interface FIRAuth () <FIRLibrary, FIRComponentLifecycleMaintainer>
 #endif
@@ -1390,14 +1394,15 @@ didReceiveRemoteNotification:(NSDictionary *)userInfo {
 }
 
 #pragma mark - UISceneDelegate
-
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
 - (void)scene:(UIScene *)scene openURLContexts:(NSSet<UIOpenURLContext *> *)URLContexts API_AVAILABLE(ios(13.0)) {
   for (UIOpenURLContext *urlContext in URLContexts) {
     NSURL *url = [urlContext URL];
     [self canHandleURL:url];
   }
 }
-#endif
+#endif  // __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+#endif  // TARGET_OS_IOS
 
 #pragma mark - Internal Methods
 
