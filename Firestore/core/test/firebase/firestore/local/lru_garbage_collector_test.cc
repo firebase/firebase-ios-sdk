@@ -384,7 +384,7 @@ TEST_P(LruGarbageCollectorTest, RemoveOrphanedDocuments) {
   // any documents with pending mutations.
   std::unordered_set<DocumentKey, DocumentKeyHash> expected_retained;
 
-  // Add two mutations later, for now track them in an vector.
+  // Add two mutations later, for now track them in a vector.
   std::vector<Mutation> mutations;
 
   // Add a target and add two documents to it. The documents are expected to be
@@ -462,9 +462,9 @@ TEST_P(LruGarbageCollectorTest, RemoveTargetsThenGC) {
   //   - Leave oldest target alone, it is still alive.
   //   - Remove newest target.
   //   - Blind write 2 documents.
-  //   - Add one of the blind write docs to oldest target (preserves it).
+  //   - Add one of the blind write docs to the oldest target (preserves it).
   //   - Remove some documents from middle target (bumps sequence number).
-  //   - Add some documents from newest target to oldest target (preserves
+  //   - Add some documents from newest target to the oldest target (preserves
   //   - them).
   //   - Update a doc from middle target.
   //   - Remove middle target.
@@ -473,7 +473,7 @@ TEST_P(LruGarbageCollectorTest, RemoveTargetsThenGC) {
   //
   // Expect:
   //   - All docs in oldest target are still around.
-  //   - One blind write is gone, the first one not added to oldest target.
+  //   - One blind write is gone, the first one not added to the oldest target.
   //   - Documents removed from middle target are gone, except ones added to
   //     oldest target.
   //   - Documents from newest target are gone, except ones added to the oldest
