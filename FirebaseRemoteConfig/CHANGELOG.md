@@ -1,3 +1,6 @@
+# v4.4.5
+- Do not re-activate if a NO_CHANGE has been signaled by the Remote Config backend. (#4260)
+
 # v4.4.4
 - Minor internal project structure changes.
 
