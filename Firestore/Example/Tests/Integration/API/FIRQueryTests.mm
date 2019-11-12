@@ -335,7 +335,7 @@
   };
   FIRCollectionReference *collection = [self collectionRefWithDocuments:testDocs];
 
-  // Search for zips matching [98101, 98103].
+  // Search for zips matching 98101, 98103, and [98101, 98102].
   FIRQuerySnapshot *snapshot = [self
       readDocumentSetForRef:[collection queryWhereField:@"zip"
                                                      in:@[ @98101, @98103, @[ @98101, @98102 ] ]]];
