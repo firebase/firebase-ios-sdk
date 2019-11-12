@@ -161,6 +161,7 @@ bool ParseContext::write() const {
     case UserDataSource::Update:
       return true;
     case UserDataSource::Argument:
+    case UserDataSource::ArrayArgument:
       return false;
     default:
       ThrowInvalidArgument("Unexpected case for UserDataSource: %s",

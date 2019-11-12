@@ -81,6 +81,7 @@ typedef id _Nullable (^FSTPreConverterBlock)(id _Nullable);
 
 /** Parse a "query value" (e.g. value in a where filter or a value in a cursor bound). */
 - (model::FieldValue)parsedQueryValue:(id)input;
+- (model::FieldValue)parsedQueryValue:(id)input allowArrays:(bool)allowArrays;
 
 @end
 
