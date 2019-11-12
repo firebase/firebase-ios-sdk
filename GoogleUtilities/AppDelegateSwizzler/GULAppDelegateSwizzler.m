@@ -792,7 +792,8 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
 #pragma mark - [Donor Methods] UISceneDelegate URL handler
 
 #if UISCENE_SUPPORTED
-- (void)scene:(UIScene *)scene openURLContexts:(NSSet<UIOpenURLContext *> *)URLContexts {
+- (void)scene:(UIScene *)scene openURLContexts:(NSSet<UIOpenURLContext *> *)URLContexts
+API_AVAILABLE(ios(13.0), tvos(13.0)) {
   if (@available(iOS 13.0, tvOS 13.0, *)) {
     SEL methodSelector = @selector(scene:openURLContexts:);
     // Call the real implementation if the real App Delegate has any.
