@@ -286,6 +286,9 @@ case "$product-$method-$platform" in
     ;;
 
   Firestore-cmake-macOS)
+    "${firestore_emulator}" start
+    trap '"${firestore_emulator}" stop' ERR EXIT
+
     test -d build || mkdir build
     echo "Preparing cmake build ..."
     (cd build; cmake "${cmake_options[@]}" ..)
