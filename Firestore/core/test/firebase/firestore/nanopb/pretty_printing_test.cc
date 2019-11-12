@@ -44,8 +44,16 @@ using ::testing::MatchesRegex;
 // contain any newlines; the appropriate newlines must be included in
 // `contents`.
 MATCHER_P2(IsPrintedAs, proto_name, contents, "") {
+#if GTEST_USES_POSIX_RE
+  std::string hex = "0x[0-9A-Fa-f]+";
+#else
+  // On windows, validate more loosely because GoogleTest doesn't support
+  // matching with brackets.
+  std::string hex = "0x\\w+";
+#endif
+
   // NOLINTNEXTLINE(whitespace/braces)
-  std::string header = std::string{"<"} + proto_name + " 0x[0-9A-Fa-f]+>: \\{";
+  std::string header = std::string{"<"} + proto_name + " " + hex + ">: \\{";
   std::string expected = header + contents + "\\}";
   return testing::Value(arg, MatchesRegex(expected));
 }
