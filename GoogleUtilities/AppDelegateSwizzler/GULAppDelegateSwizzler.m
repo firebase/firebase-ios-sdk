@@ -32,6 +32,7 @@ typedef BOOL (*GULRealOpenURLOptionsIMP)(
     id, SEL, GULApplication *, NSURL *, NSDictionary<NSString *, id> *);
 
 #if UISCENE_SUPPORTED
+API_AVAILABLE(ios(13.0), tvos(13.0))
 typedef void (*GULOpenURLContextsIMP)(id, SEL, UIScene *, NSSet<UIOpenURLContext *> *);
 #endif  // UISCENE_SUPPORTED
 
