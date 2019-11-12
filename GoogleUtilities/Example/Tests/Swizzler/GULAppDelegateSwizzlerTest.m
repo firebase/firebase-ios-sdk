@@ -282,7 +282,7 @@ static BOOL gRespondsToHandleBackgroundSession;
 
 #pragma mark - Scene Delegate
 
-#if (TARGET_OS_IOS && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 130000))
+#if ((TARGET_OS_IOS || TARGET_OS_TV) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 130000))
 API_AVAILABLE(ios(13.0), tvos(13.0))
 @interface GULTestSceneDelegate : NSObject <UISceneDelegate>
 @end
@@ -1314,52 +1314,56 @@ API_AVAILABLE(ios(13.0), tvos(13.0))
 
 #pragma mark - Test UISceneDelegate proxy
 
-#if (TARGET_OS_IOS && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 130000))
+#if ((TARGET_OS_IOS || TARGET_OS_TV) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 130000))
 
-- (void)testProxySceneDelegate API_AVAILABLE(ios(13.0), tvos(13.0)) {
-  GULTestSceneDelegate *realSceneDelegate = [[GULTestSceneDelegate alloc] init];
-  id mockSharedScene = OCMClassMock([UIScene class]);
-  OCMStub([mockSharedScene delegate]).andReturn(realSceneDelegate);
-  size_t sizeBefore = class_getInstanceSize([GULTestSceneDelegate class]);
+- (void)testProxySceneDelegate {
+  if (@available(iOS 13, tvOS 13, *)) {
+    GULTestSceneDelegate *realSceneDelegate = [[GULTestSceneDelegate alloc] init];
+    id mockSharedScene = OCMClassMock([UIScene class]);
+    OCMStub([mockSharedScene delegate]).andReturn(realSceneDelegate);
+    size_t sizeBefore = class_getInstanceSize([GULTestSceneDelegate class]);
 
-  Class realSceneDelegateClassBefore = [realSceneDelegate class];
+    Class realSceneDelegateClassBefore = [realSceneDelegate class];
 
-  [GULAppDelegateSwizzler proxySceneDelegate:mockSharedScene];
+    [GULAppDelegateSwizzler proxySceneDelegate:mockSharedScene];
 
-  XCTAssertTrue([realSceneDelegate isKindOfClass:[GULTestSceneDelegate class]]);
+    XCTAssertTrue([realSceneDelegate isKindOfClass:[GULTestSceneDelegate class]]);
 
-  NSString *newClassName = NSStringFromClass([realSceneDelegate class]);
-  XCTAssertTrue([newClassName hasPrefix:@"GUL_"]);
-  // It is no longer GULTestSceneDelegate class instance.
-  XCTAssertFalse([realSceneDelegate isMemberOfClass:[GULTestSceneDelegate class]]);
+    NSString *newClassName = NSStringFromClass([realSceneDelegate class]);
+    XCTAssertTrue([newClassName hasPrefix:@"GUL_"]);
+    // It is no longer GULTestSceneDelegate class instance.
+    XCTAssertFalse([realSceneDelegate isMemberOfClass:[GULTestSceneDelegate class]]);
 
-  size_t sizeAfter = class_getInstanceSize([realSceneDelegate class]);
+    size_t sizeAfter = class_getInstanceSize([realSceneDelegate class]);
 
-  // Class size must stay the same.
-  XCTAssertEqual(sizeBefore, sizeAfter);
+    // Class size must stay the same.
+    XCTAssertEqual(sizeBefore, sizeAfter);
 
-  // After being proxied, it should be able to respond to the required method selector.
-  XCTAssertTrue([realSceneDelegate respondsToSelector:@selector(scene:openURLContexts:)]);
+    // After being proxied, it should be able to respond to the required method selector.
+    XCTAssertTrue([realSceneDelegate respondsToSelector:@selector(scene:openURLContexts:)]);
 
-  // Make sure that the class has changed.
-  XCTAssertNotEqualObjects([realSceneDelegate class], realSceneDelegateClassBefore);
+    // Make sure that the class has changed.
+    XCTAssertNotEqualObjects([realSceneDelegate class], realSceneDelegateClassBefore);
+  }
 }
 
-- (void)testProxyProxiedSceneDelegate API_AVAILABLE(ios(13.0), tvos(13.0)) {
-  GULTestSceneDelegate *realSceneDelegate = [[GULTestSceneDelegate alloc] init];
-  id mockSharedScene = OCMClassMock([UIScene class]);
-  OCMStub([mockSharedScene delegate]).andReturn(realSceneDelegate);
+- (void)testProxyProxiedSceneDelegate {
+  if (@available(iOS 13, tvOS 13, *)) {
+    GULTestSceneDelegate *realSceneDelegate = [[GULTestSceneDelegate alloc] init];
+    id mockSharedScene = OCMClassMock([UIScene class]);
+    OCMStub([mockSharedScene delegate]).andReturn(realSceneDelegate);
 
-  // Proxy the scene delegate for the 1st time.
-  [GULAppDelegateSwizzler proxySceneDelegate:mockSharedScene];
+    // Proxy the scene delegate for the 1st time.
+    [GULAppDelegateSwizzler proxySceneDelegate:mockSharedScene];
 
-  Class realSceneDelegateClassBefore = [realSceneDelegate class];
+    Class realSceneDelegateClassBefore = [realSceneDelegate class];
 
-  // Proxy the scene delegate for the 2nd time.
-  [GULAppDelegateSwizzler proxySceneDelegate:mockSharedScene];
+    // Proxy the scene delegate for the 2nd time.
+    [GULAppDelegateSwizzler proxySceneDelegate:mockSharedScene];
 
-  // Make sure that the class isn't changed.
-  XCTAssertEqualObjects([realSceneDelegate class], realSceneDelegateClassBefore);
+    // Make sure that the class isn't changed.
+    XCTAssertEqualObjects([realSceneDelegate class], realSceneDelegateClassBefore);
+  }
 }
 
 #endif
