@@ -282,7 +282,7 @@ static BOOL gRespondsToHandleBackgroundSession;
 
 #pragma mark - Scene Delegate
 
-#if ((TARGET_OS_IOS || TARGET_OS_TV) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 130000))
+#if (TARGET_OS_IOS && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 130000))
 API_AVAILABLE(ios(13.0), tvos(13.0))
 @interface GULTestSceneDelegate : NSObject <UISceneDelegate>
 @end
@@ -1314,7 +1314,7 @@ API_AVAILABLE(ios(13.0), tvos(13.0))
 
 #pragma mark - Test UISceneDelegate proxy
 
-#if ((TARGET_OS_IOS || TARGET_OS_TV) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 130000))
+#if (TARGET_OS_IOS && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 130000))
 
 - (void)testProxySceneDelegate API_AVAILABLE(ios(13.0), tvos(13.0)) {
   GULTestSceneDelegate *realSceneDelegate = [[GULTestSceneDelegate alloc] init];

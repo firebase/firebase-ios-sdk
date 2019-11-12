@@ -18,7 +18,7 @@
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
 #import <GoogleUtilities/GULMutableDictionary.h>
 
-#if ((TARGET_OS_IOS || TARGET_OS_TV) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 130000))
+#if (TARGET_OS_IOS && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 130000))
 #define UISCENE_SUPPORTED 1
 #endif
 
