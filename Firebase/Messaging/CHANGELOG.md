@@ -1,3 +1,6 @@
+# 2019-11-19 -- v4.1.9
+- [changed] Move reliable message queue delete operation in a sync queue to avoid race conditions in unit tests. (#4236)
+
 # 2019-11-05 -- v4.1.8
 - [changed] Moved reliable message queue database operation off main thread. (#4053)
 
