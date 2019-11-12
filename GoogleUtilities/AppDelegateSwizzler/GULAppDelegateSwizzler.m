@@ -801,8 +801,8 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
     GULOpenURLContextsIMP openURLContextsIMP = [openURLContextsIMPPointer pointerValue];
 
     // This is needed for the library to be warning free on iOS versions < 9.
-  #pragma clang diagnostic push
-  #pragma clang diagnostic ignored "-Wunguarded-availability"
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunguarded-availability"
     [GULAppDelegateSwizzler
         notifyInterceptorsWithMethodSelector:methodSelector
                                     callback:^(id<GULApplicationDelegate> interceptor) {
@@ -813,7 +813,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
                                         [sceneInterceptor scene:scene openURLContexts:URLContexts];
                                       }
                                     }];
-  #pragma clang diagnostic pop
+#pragma clang diagnostic pop
 
     if (openURLContextsIMP) {
       openURLContextsIMP(self, methodSelector, scene, URLContexts);
