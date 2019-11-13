@@ -29,7 +29,7 @@
 - (void)setUp {
   NSString *const kHeartbeatStorageFile = @"HEARTBEAT_INFO_STORAGE";
   self.dataStorage = [[GULHeartbeatDateStorage alloc] initWithFileName:kHeartbeatStorageFile];
-  NSDate *pastTime = [NSDate dateWithTimeIntervalSinceNow:-96400];
+  NSDate *pastTime = [NSDate dateWithTimeIntervalSinceNow:-996400];
   [self.dataStorage setHearbeatDate:pastTime forTag:@"fire-iid"];
   [self.dataStorage setHearbeatDate:pastTime forTag:@"GLOBAL"];
 }

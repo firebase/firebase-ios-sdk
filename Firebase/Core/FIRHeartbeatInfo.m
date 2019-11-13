@@ -16,7 +16,7 @@
 #import <GoogleUtilities/GULHeartbeatDateStorage.h>
 #import <GoogleUtilities/GULLogger.h>
 
-static long secondsInDay = 84000;
+const static long secondsInDay = 864000;
 @implementation FIRHeartbeatInfo : NSObject
 
 /** Updates the storage with the heartbeat information corresponding to this tag.
