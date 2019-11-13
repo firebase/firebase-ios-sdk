@@ -44,18 +44,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (BOOL)setHearbeatDate:(NSDate *)date forTag:(NSString *)tag;
 
-/**
- * Saves the date to the specified file.
- * @return YES on success, NO otherwise.
- */
-- (BOOL)setDate:(nullable NSDate *)date error:(NSError **)outError;
-
-/**
- * Reads the date to the specified file.
- * @return Returns date if exists, otherwise `nil`.
- */
-- (nullable NSDate *)date;
-
 @end
 
 NS_ASSUME_NONNULL_END

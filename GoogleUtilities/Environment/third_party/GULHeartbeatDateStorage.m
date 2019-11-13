@@ -36,7 +36,7 @@ static GULLoggerService kGULHeartbeatDateStorage = @"GULHeartbeatDateStorage";
   if (self) {
     _fileCoordinator = [[NSFileCoordinator alloc] initWithFilePresenter:nil];
     NSURL *directoryURL = [[self class] directoryPathURL];
-    [[self class] checkAndCreateDirectory:directoryURL:_fileCoordinator];
+    [[self class] checkAndCreateDirectory:directoryURL fileCoordinator:_fileCoordinator];
     _fileURL = [directoryURL URLByAppendingPathComponent:fileName];
   }
   return self;
@@ -59,7 +59,7 @@ static GULLoggerService kGULHeartbeatDateStorage = @"GULHeartbeatDateStorage";
  * @param directoryPathURL The path to the directory which needs to be created.
  * @param fileCoordinator The fileCoordinator object to coordinate writes to the directory.
  */
-+ (void)checkAndCreateDirectory:(NSURL *)directoryPathURL:(NSFileCoordinator *)fileCoordinator {
++ (void)checkAndCreateDirectory:(NSURL *)directoryPathURL fileCoordinator:(NSFileCoordinator *)fileCoordinator {
   NSError *fileCoordinatorError = nil;
   [fileCoordinator
       coordinateWritingItemAtURL:directoryPathURL
