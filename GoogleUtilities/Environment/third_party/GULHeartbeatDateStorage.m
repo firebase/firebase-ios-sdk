@@ -89,8 +89,10 @@ static GULLoggerService kGULHeartbeatDateStorage = @"GULHeartbeatDateStorage";
   if (objectData == nil || error != nil) {
     dict = [NSMutableDictionary dictionary];
   } else {
-    dict =
-        [GULSecureCoding unarchivedObjectOfClass:NSObject.class fromData:objectData error:&error];
+    dict = [GULSecureCoding
+            unarchivedObjectOfClasses:[NSSet setWithArray:@[ NSDictionary.class, NSDate.class ]]
+            fromData:objectData
+            error:&error];
     if (dict == nil || error != nil) {
       dict = [NSMutableDictionary dictionary];
     }

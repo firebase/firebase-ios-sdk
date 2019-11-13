@@ -28,6 +28,7 @@ other Google CocoaPods. They're not intended for direct public usage.
     es.source_files = 'GoogleUtilities/Environment/third_party/*.[mh]'
     es.public_header_files = 'GoogleUtilities/Environment/third_party/*.h'
     es.private_header_files = 'GoogleUtilities/Environment/third_party/*.h'
+    es.dependency 'GoogleUtilities/SecureCoding'
   end
 
   s.subspec 'Logger' do |ls|
