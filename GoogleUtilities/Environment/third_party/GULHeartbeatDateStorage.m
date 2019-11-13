@@ -15,10 +15,7 @@
  */
 
 #import "GULHeartbeatDateStorage.h"
-#import <GoogleUtilities/GULLogger.h>
 #import <GoogleUtilities/GULSecureCoding.h>
-
-static GULLoggerService kGULHeartbeatDateStorage = @"GULHeartbeatDateStorage";
 
 @interface GULHeartbeatDateStorage ()
 /** The storage to store the date of the last sent heartbeat. */
@@ -70,14 +67,11 @@ static GULLoggerService kGULHeartbeatDateStorage = @"GULHeartbeatDateStorage";
                         if (![writingDirectoryURL checkResourceIsReachableAndReturnError:&error]) {
                           // If fail creating the Application Support directory, log warning.
                           NSError *error;
-                          if (![[NSFileManager defaultManager]
+                          [[NSFileManager defaultManager]
                                          createDirectoryAtURL:writingDirectoryURL
                                   withIntermediateDirectories:YES
                                                    attributes:nil
-                                                        error:&error]) {
-                            GULLogWarning(kGULHeartbeatDateStorage, YES, @"I-COR100001",
-                                          @"Unable to create internal state storage: %@", error);
-                          }
+                           error:&error];
                         }
                       }];
 }
@@ -109,10 +103,6 @@ static GULLoggerService kGULHeartbeatDateStorage = @"GULHeartbeatDateStorage";
                                         byAccessor:^(NSURL *readingURL) {
                                           dict = [self heartbeatDictionaryWithFileURL:readingURL];
                                         }];
-  if (error != nil) {
-    GULLogWarning(kGULHeartbeatDateStorage, YES, @"I-COR100001",
-                  @"Failed getting dictionary from file: %@", error);
-  }
   return dict[tag];
 }
 
@@ -132,10 +122,6 @@ static GULLoggerService kGULHeartbeatDateStorage = @"GULHeartbeatDateStorage";
                         isSuccess = [self writeDictionary:dictionary
                                             forWritingURL:writingURL
                                                     error:&error];
-                        if (isSuccess == false) {
-                          GULLogWarning(kGULHeartbeatDateStorage, YES, @"I-COR100001",
-                                        @"Failed to write dictionary to file: %@", error);
-                        }
                       }];
   return isSuccess;
 }
@@ -145,8 +131,6 @@ static GULLoggerService kGULHeartbeatDateStorage = @"GULHeartbeatDateStorage";
                   error:(NSError **)outError {
   NSData *data = [GULSecureCoding archivedDataWithRootObject:dictionary error:outError];
   if (*outError != nil) {
-    GULLogWarning(kGULHeartbeatDateStorage, YES, @"I-COR100001",
-                  @"Unable to archive dictionary: %@", *outError);
     return false;
   } else {
     return [data writeToURL:writingFileURL atomically:YES];
