@@ -30,9 +30,14 @@ namespace {
 
 using testutil::Expectation;
 
-std::unique_ptr<Executor> ExecutorFactory() {
-  return absl::make_unique<ExecutorLibdispatch>(
-      dispatch_queue_create("ExecutorLibdispatchTests", DISPATCH_QUEUE_SERIAL));
+std::unique_ptr<Executor> ExecutorFactory(int threads = 1) {
+  if (threads == 1) {
+    return absl::make_unique<ExecutorLibdispatch>(dispatch_queue_create(
+        "ExecutorLibdispatchTests", DISPATCH_QUEUE_SERIAL));
+  } else {
+    return absl::make_unique<ExecutorLibdispatch>(dispatch_queue_create(
+        "ExecutorLibdispatchTests", DISPATCH_QUEUE_CONCURRENT));
+  }
 }
 
 namespace chr = std::chrono;

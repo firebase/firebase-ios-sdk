@@ -16,7 +16,8 @@
 
 #include "Firestore/core/test/firebase/firestore/util/executor_test.h"
 
-#include <chrono>  // NOLINT(build/c++11)
+#include <chrono>              // NOLINT(build/c++11)
+#include <condition_variable>  // NOLINT(build/c++11)
 #include <cstdlib>
 #include <future>  // NOLINT(build/c++11)
 #include <string>
@@ -58,7 +59,7 @@ TEST_P(ExecutorTest, ExecuteBlocking) {
 
 TEST_P(ExecutorTest, DestructorDoesNotBlockIfThereArePendingTasks) {
   const auto future = Async([&] {
-    auto another_executor = GetParam()();
+    auto another_executor = GetParam()(/* threads */ 1);
     Schedule(another_executor.get(), chr::minutes(5), [] {});
     Schedule(another_executor.get(), chr::minutes(10), [] {});
     // Destructor shouldn't block waiting for the 5/10-minute-away operations.
@@ -241,6 +242,60 @@ TEST_P(ExecutorTest, DuplicateTagsOnOperationsAreAllowed) {
   // Despite having the same tag, the operations should have been ordered
   // according to their scheduled time and preserved their identity.
   EXPECT_EQ(steps, "12");
+}
+
+TEST_P(ExecutorTest, ConcurrentExecutorsWork) {
+  /**
+   * A mix of a countdown latch and a barrier. All threads that bump the
+   * countdown block until the count becomes zero.
+   */
+  class BlockingCountdown {
+   public:
+    explicit BlockingCountdown(int threads) : threads_(threads) {
+    }
+
+    int count() const {
+      std::lock_guard<std::mutex> lock(mutex_);
+      return threads_;
+    }
+
+    /** Awaits the completion of all threads. */
+    void Await() {
+      std::unique_lock<std::mutex> lock(mutex_);
+      while (threads_ > 0) {
+        is_zero_.wait(lock);
+      }
+    }
+
+    /**
+     * Bumps the counter down by one and waits for the counter to become zero.
+     */
+    void Bump() {
+      std::unique_lock<std::mutex> lock(mutex_);
+
+      threads_ -= 1;
+
+      is_zero_.wait(lock, [this] { return threads_ == 0; });
+
+      is_zero_.notify_all();
+    }
+
+   private:
+    mutable std::mutex mutex_;
+    std::condition_variable is_zero_;
+    int threads_ = 0;
+  };
+
+  const int threads = 5;
+  executor = GetParam()(threads);
+  auto countdown = std::make_shared<BlockingCountdown>(threads);
+
+  for (int i = 0; i < threads; i++) {
+    executor->Execute([countdown] { countdown->Bump(); });
+  }
+
+  countdown->Await();
+  ASSERT_EQ(0, countdown->count());
 }
 
 }  // namespace util
