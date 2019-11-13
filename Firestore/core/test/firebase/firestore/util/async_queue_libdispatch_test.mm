@@ -44,9 +44,9 @@ std::unique_ptr<Executor> CreateExecutorLibdispatch() {
 
 }  // namespace
 
-INSTANTIATE_TEST_CASE_P(AsyncQueueLibdispatch,
-                        AsyncQueueTest,
-                        ::testing::Values(CreateExecutorLibdispatch));
+INSTANTIATE_TEST_SUITE_P(AsyncQueueLibdispatch,
+                         AsyncQueueTest,
+                         ::testing::Values(CreateExecutorLibdispatch));
 
 class AsyncQueueTestLibdispatchOnly : public ::testing::Test,
                                       public testutil::AsyncTest {

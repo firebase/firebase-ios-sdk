@@ -22,18 +22,18 @@ cc_library(
     message.h
     nanopb_util.cc
     nanopb_util.h
+    pretty_printing.cc
+    pretty_printing.h
     reader.cc
     reader.h
     writer.cc
     writer.h
   DEPENDS
-    # TODO(b/111328563) Force nanopb first to work around ODR violations
-    protobuf-nanopb-static
-
     firebase_firestore_model
     firebase_firestore_util
     firebase_firestore_protos_nanopb
     grpc++
+    protobuf-nanopb-static
 )
 
 target_compile_definitions(

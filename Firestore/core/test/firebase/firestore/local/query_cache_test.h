@@ -49,7 +49,7 @@ using FactoryFunc = std::unique_ptr<Persistence> (*)();
  * A test fixture for implementing tests of QueryCache interface.
  *
  * This is separate from QueryCacheTest below in order to make additional
- * implementation-specific tests
+ * implementation-specific tests.
  */
 class QueryCacheTestBase : public testing::Test {
  protected:
@@ -84,9 +84,9 @@ class QueryCacheTestBase : public testing::Test {
  * To test a specific implementation of QueryCache:
  *
  * + Write a persistence factory function
- * + Call INSTANTIATE_TEST_CASE_P(MyNewQueryCacheTest,
- *                                QueryCacheTest,
- *                                testing::Values(PersistenceFactory));
+ * + Call INSTANTIATE_TEST_SUITE_P(MyNewQueryCacheTest,
+ *                                 QueryCacheTest,
+ *                                 testing::Values(PersistenceFactory));
  */
 class QueryCacheTest : public QueryCacheTestBase,
                        public testing::WithParamInterface<FactoryFunc> {
