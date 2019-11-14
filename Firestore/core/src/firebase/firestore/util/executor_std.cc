@@ -57,8 +57,8 @@ ExecutorStd::~ExecutorStd() {
   shutting_down_ = true;
 
   // Make sure the worker threads are not blocked, so that the call to `join`
-  // doesn't hang. It's not deterministic which threads will pick up the entries
-  // so an entry for all threads before attempting to join.
+  // doesn't hang. It's not deterministic which thread will pick up an entry,
+  // so add an entry for each thread before attempting to join.
   for (size_t i = 0; i < worker_thread_pool_.size(); ++i) {
     UnblockQueue();
   }
@@ -145,7 +145,7 @@ std::string ExecutorStd::CurrentExecutorName() const {
 }
 
 std::string ExecutorStd::Name() const {
-  return ThreadIdToString(worker_thread_pool_[0].get_id());
+  return ThreadIdToString(worker_thread_pool_.front().get_id());
 }
 
 void ExecutorStd::ExecuteBlocking(Operation&& operation) {
@@ -178,7 +178,7 @@ absl::optional<Executor::TaggedOperation> ExecutorStd::PopFromSchedule() {
 #if !__APPLE__
 
 std::unique_ptr<Executor> Executor::CreateSerial(const char*) {
-  return absl::make_unique<ExecutorStd>(/* threads= */ 1);
+  return absl::make_unique<ExecutorStd>(/*threads=*/1);
 }
 
 std::unique_ptr<Executor> Executor::CreateConcurrent(const char* label,

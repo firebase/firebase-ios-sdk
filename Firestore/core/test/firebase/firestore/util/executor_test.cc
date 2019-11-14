@@ -251,20 +251,18 @@ TEST_P(ExecutorTest, ConcurrentExecutorsWork) {
    */
   class BlockingCountdown {
    public:
-    explicit BlockingCountdown(int threads) : threads_(threads) {
+    explicit BlockingCountdown(int threads) : threads_count_(threads) {
     }
 
     int count() const {
       std::lock_guard<std::mutex> lock(mutex_);
-      return threads_;
+      return threads_count_;
     }
 
     /** Awaits the completion of all threads. */
     void Await() {
       std::unique_lock<std::mutex> lock(mutex_);
-      while (threads_ > 0) {
-        is_zero_.wait(lock);
-      }
+      is_zero_.wait(lock, [this] { return threads_count_ == 0; });
     }
 
     /**
@@ -273,24 +271,25 @@ TEST_P(ExecutorTest, ConcurrentExecutorsWork) {
     void Bump() {
       std::unique_lock<std::mutex> lock(mutex_);
 
-      threads_ -= 1;
+      --threads_count_;
 
-      is_zero_.wait(lock, [this] { return threads_ == 0; });
-
+      // Block until all threads have come through here to ensure that the
+      // executor is actually executing tasks concurrently.
+      is_zero_.wait(lock, [this] { return threads_count_ == 0; });
       is_zero_.notify_all();
     }
 
    private:
     mutable std::mutex mutex_;
     std::condition_variable is_zero_;
-    int threads_ = 0;
+    int threads_count_ = 0;
   };
 
-  const int threads = 5;
-  executor = GetParam()(threads);
-  auto countdown = std::make_shared<BlockingCountdown>(threads);
+  const int threads_count = 5;
+  executor = GetParam()(threads_count);
+  auto countdown = std::make_shared<BlockingCountdown>(threads_count);
 
-  for (int i = 0; i < threads; i++) {
+  for (int i = 0; i < threads_count; i++) {
     executor->Execute([countdown] { countdown->Bump(); });
   }
 

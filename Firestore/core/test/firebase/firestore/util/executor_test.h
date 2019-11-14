@@ -34,7 +34,7 @@ class ExecutorTest : public ::testing::TestWithParam<FactoryFunc>,
                      public testutil::AsyncTest {
  public:
   // `GetParam()` must return a factory function.
-  ExecutorTest() : executor{GetParam()(/* threads= */ 1)} {
+  ExecutorTest() : executor{GetParam()(/*threads=*/1)} {
   }
 
   std::unique_ptr<Executor> executor;

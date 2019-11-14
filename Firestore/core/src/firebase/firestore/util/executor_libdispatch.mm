@@ -342,7 +342,10 @@ std::unique_ptr<Executor> Executor::CreateSerial(const char* label) {
   return absl::make_unique<ExecutorLibdispatch>(queue);
 }
 
-std::unique_ptr<Executor> Executor::CreateConcurrent(const char* label, int) {
+std::unique_ptr<Executor> Executor::CreateConcurrent(const char* label,
+                                                     int threads) {
+  HARD_ASSERT(threads > 1);
+
   // Concurrent queues auto-create enough threads to avoid deadlock so there's
   // no need to honor the threads argument.
   dispatch_queue_t queue =
