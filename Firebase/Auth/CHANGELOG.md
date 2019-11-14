@@ -1,3 +1,6 @@
+# v6.4.0
+- [feature] Added support for Sign-in with Apple. (#4183)
+
 # v6.3.1
 - [fixed] Removed usage of a deprecated property on iOS 13. (#4066)
 

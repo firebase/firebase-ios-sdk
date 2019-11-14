@@ -14,23 +14,21 @@
  * limitations under the License.
  */
 
+#import <GoogleUtilities/GULHeartbeatDateStorage.h>
 #import <XCTest/XCTest.h>
-#import "FIRCDLibrary/FIRCoreDiagnosticsDateFileStorage.h"
 
-@interface FIRCoreDiagnosticsDateFileStorageTests : XCTestCase
+@interface GULHeartbeatDateStorageTest : XCTestCase
 @property(nonatomic) NSURL *fileURL;
-@property(nonatomic) FIRCoreDiagnosticsDateFileStorage *storage;
+@property(nonatomic) GULHeartbeatDateStorage *storage;
 @end
 
-@implementation FIRCoreDiagnosticsDateFileStorageTests
+@implementation GULHeartbeatDateStorageTest
 
 - (void)setUp {
   NSString *documentsPath = [NSSearchPathForDirectoriesInDomains(
       NSApplicationSupportDirectory, NSUserDomainMask, YES) firstObject];
   XCTAssertNotNil(documentsPath);
   NSURL *documentsURL = [NSURL fileURLWithPath:documentsPath];
-  self.fileURL = [documentsURL URLByAppendingPathComponent:@"FIRDiagnosticsDateFileStorageTests"
-                                               isDirectory:NO];
 
   NSError *error;
   if (![documentsURL checkResourceIsReachableAndReturnError:&error]) {
@@ -40,40 +38,19 @@
                                                              error:&error],
               @"Error: %@", error);
   }
-
-  self.storage = [[FIRCoreDiagnosticsDateFileStorage alloc] initWithFileURL:self.fileURL];
+  self.storage = [[GULHeartbeatDateStorage alloc] initWithFileName:@"GULStorageHeartbeatTest"];
 }
 
 - (void)tearDown {
-  [[NSFileManager defaultManager] removeItemAtURL:self.fileURL error:nil];
-  self.fileURL = nil;
+  [[NSFileManager defaultManager] removeItemAtURL:[self.storage fileURL] error:nil];
   self.storage = nil;
 }
 
-- (void)testDateStorage {
-  NSDate *dateToSave = [NSDate date];
-
-  XCTAssertNil([self.storage date]);
-
-  NSError *error;
-  XCTAssertTrue([self.storage setDate:dateToSave error:&error]);
-
-  XCTAssertEqualObjects([self.storage date], dateToSave);
-
-  XCTAssertTrue([self.storage setDate:nil error:&error]);
-  XCTAssertNil([self.storage date]);
-}
-
-- (void)testDateIsStoredToFileSystem {
-  NSDate *date = [NSDate date];
-
-  NSError *error;
-  XCTAssert([self.storage setDate:date error:&error], @"Error: %@", error);
-
-  FIRCoreDiagnosticsDateFileStorage *anotherStorage =
-      [[FIRCoreDiagnosticsDateFileStorage alloc] initWithFileURL:self.fileURL];
-
-  XCTAssertEqualObjects([anotherStorage date], date);
+- (void)testHeartbeatDateForTag {
+  NSDate *now = [NSDate date];
+  [self.storage setHearbeatDate:now forTag:@"fire-iid"];
+  XCTAssertEqual([now timeIntervalSinceReferenceDate],
+                 [[self.storage heartbeatDateForTag:@"fire-iid"] timeIntervalSinceReferenceDate]);
 }
 
 @end

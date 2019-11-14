@@ -1,3 +1,7 @@
+# v6.4.0 -- M60
+- [changed] Administrative minor version update to prepare for an upcoming Firebase pod
+  open source.
+
 # v6.3.3 -- M59
 - [changed] Carthage and zip file distributions are now built with Xcode 11.0.
   The Carthage and zip file distributions no longer support Xcode 10.3 and below.
