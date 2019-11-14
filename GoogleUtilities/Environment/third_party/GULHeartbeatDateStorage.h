@@ -18,29 +18,31 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/// Stores a date to a specified file.
-@interface FIRCoreDiagnosticsDateFileStorage : NSObject
+/// Stores either a date or a dictionary to a specified file.
+@interface GULHeartbeatDateStorage : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
 
+@property(nonatomic, readonly) NSURL *fileURL;
+
 /**
  * Default initializer.
- * @param fileURL The URL of the file to store the date. The directory must exist, the file may not
+ * @param fileName The name of the file to store the date information.
  * exist, it will be created if needed.
  */
-- (instancetype)initWithFileURL:(NSURL *)fileURL;
+- (instancetype)initWithFileName:(NSString *)fileName;
 
 /**
- * Saves the date to the specified file.
- * @return YES on success, NO otherwise.
- */
-- (BOOL)setDate:(nullable NSDate *)date error:(NSError **)outError;
-
-/**
- * Reads the date to the specified file.
+ * Reads the date from the specified file for the given tag.
  * @return Returns date if exists, otherwise `nil`.
  */
-- (nullable NSDate *)date;
+- (nullable NSDate *)heartbeatDateForTag:(NSString *)tag;
+
+/**
+ * Saves the date for the specified tag in the specified file.
+ * @return YES on success, NO otherwise.
+ */
+- (BOOL)setHearbeatDate:(NSDate *)date forTag:(NSString *)tag;
 
 @end
 

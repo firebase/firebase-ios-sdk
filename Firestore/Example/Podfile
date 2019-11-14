@@ -57,6 +57,7 @@ end
 def configure_local_pods()
   # Firestore is always local; that's what's under development here.
   pod 'FirebaseFirestore', :path => '../../'
+  pod 'GoogleUtilities', :path => '../..'
 
   # FirebaseCore must always be a local pod so that CI builds that make changes
   # to its podspec can still function. See Firestore-*-xcodebuild in
@@ -66,7 +67,6 @@ def configure_local_pods()
   # Pull in local sources conditionally.
   maybe_local_pod 'FirebaseAuth'
   maybe_local_pod 'FirebaseAuthInterop'
-  maybe_local_pod 'GoogleUtilities'
 
   if xcode_major_version() >= 9
     # Firestore still compiles with Xcode 8 to help verify general conformance
