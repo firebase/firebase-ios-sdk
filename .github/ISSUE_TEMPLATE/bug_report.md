@@ -1,3 +1,10 @@
+---
+name: Bug report
+about: Issue template for a bug report.
+title: ''
+labels: ''
+assignees: ''
+---
 ### Step 0: Are you in the right place?
 
   * For issues or feature requests related to __the code in this repository__

@@ -1,3 +1,10 @@
+---
+name: Feature request
+about: Issue template for a feature request.
+title: ''
+labels: 'type: feature-request'
+assignees: ''
+---
 ### [READ] Guidelines
 
 When filing a feature request please make sure the issue title starts with "FR:".
