@@ -33,6 +33,7 @@
 #import "Firebase/InstanceID/NSError+FIRInstanceID.h"
 
 #import <FirebaseCore/FIRAppInternal.h>
+#import <GoogleUtilities/GULHeartbeatDateStorage.h>
 
 static NSString *kDeviceID = @"fakeDeviceID";
 static NSString *kSecretToken = @"fakeSecretToken";
@@ -83,6 +84,11 @@ static NSString *const kPublicKeyPairTag = @"com.iid.regclient.test.public";
   _keyPair =
       [[FIRInstanceIDKeychain sharedInstance] generateKeyPairWithPrivateTag:kPrivateKeyPairTag
                                                                   publicTag:kPublicKeyPairTag];
+
+  NSString *const kHeartbeatStorageFile = @"HEARTBEAT_INFO_STORAGE";
+  GULHeartbeatDateStorage *dataStorage =
+  [[GULHeartbeatDateStorage alloc] initWithFileName:kHeartbeatStorageFile];
+  [[NSFileManager defaultManager] removeItemAtURL:[dataStorage fileURL] error:nil];
 }
 
 - (void)tearDown {

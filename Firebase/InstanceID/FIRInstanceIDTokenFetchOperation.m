@@ -35,6 +35,7 @@ static int phoneRegistrationErrorRetryCount = 0;
 static const int kMaxPhoneRegistrationErrorRetryCount = 10;
 NSString *const kFIRInstanceIDFirebaseUserAgentKey = @"X-firebase-client";
 NSString *const kFIRInstanceIDFirebaseHeartbeatKey = @"X-firebase-client-log-type";
+NSString *const kFIRInstanceIDHeartbeatTag = @"fire-iid";
 
 @implementation FIRInstanceIDTokenFetchOperation
 
@@ -62,7 +63,7 @@ NSString *const kFIRInstanceIDFirebaseHeartbeatKey = @"X-firebase-client-log-typ
   [request setValue:checkinVersionInfo forHTTPHeaderField:@"info"];
   [request setValue:[FIRApp firebaseUserAgent]
       forHTTPHeaderField:kFIRInstanceIDFirebaseUserAgentKey];
-  [request setValue:@([FIRHeartbeatInfo heartbeatCodeForTag:@"fire-iid"]).stringValue
+  [request setValue:@([FIRHeartbeatInfo heartbeatCodeForTag:kFIRInstanceIDHeartbeatTag]).stringValue
       forHTTPHeaderField:kFIRInstanceIDFirebaseHeartbeatKey];
 
   // Build form-encoded body
