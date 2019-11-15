@@ -20,7 +20,7 @@ assignees: ''
   * Once you've read this section and determined that your issue is appropriate for
     this repository, please delete this section.
 
-### Step 1: Describe your environment
+### [REQUIRED] Step 1: Describe your environment
 
   * Xcode version: _____
   * Firebase SDK version: _____
@@ -28,7 +28,7 @@ assignees: ''
   * Component version: _____
   * Installation method: `CocoaPods | Carthage | Zip file` (select one)
 
-### Step 2: Describe the problem
+### [REQUIRED] Step 2: Describe the problem
 
 #### Steps to reproduce:
 
