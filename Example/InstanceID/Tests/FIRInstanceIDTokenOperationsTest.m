@@ -87,7 +87,7 @@ static NSString *const kPublicKeyPairTag = @"com.iid.regclient.test.public";
 
   NSString *const kHeartbeatStorageFile = @"HEARTBEAT_INFO_STORAGE";
   GULHeartbeatDateStorage *dataStorage =
-  [[GULHeartbeatDateStorage alloc] initWithFileName:kHeartbeatStorageFile];
+      [[GULHeartbeatDateStorage alloc] initWithFileName:kHeartbeatStorageFile];
   [[NSFileManager defaultManager] removeItemAtURL:[dataStorage fileURL] error:nil];
 }
 
