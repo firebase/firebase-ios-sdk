@@ -183,7 +183,9 @@ NSNotificationName const GDTFLLUploadCompleteNotification = @"com.GDTFLLUploader
     NSData *requestProtoData =
         [self constructRequestProtoFromPackage:(GDTCORUploadPackage *)package];
     NSData *gzippedData = [GDTFLLUploader gzippedData:requestProtoData];
-    NSURLRequest *request = [self constructRequestWithURL:serverURL data:gzippedData];
+    BOOL usingGzipData = gzippedData != nil && gzippedData.length < requestProtoData.length;
+    NSData *dataToSend = usingGzipData ? gzippedData : requestProtoData;
+    NSURLRequest *request = [self constructRequestWithURL:serverURL data:dataToSend];
     self.currentTask = [self.uploaderSession uploadTaskWithRequest:request
                                                           fromData:gzippedData
                                                  completionHandler:completionHandler];
@@ -321,10 +323,14 @@ NSNotificationName const GDTFLLUploadCompleteNotification = @"com.GDTFLLUploader
  * @return A new NSURLRequest ready to be sent to FLL.
  */
 - (NSURLRequest *)constructRequestWithURL:(NSURL *)URL data:(NSData *)data {
+  const UInt8 *bytes = (const UInt8 *)data.bytes;
+  BOOL isGzipped = (data.length >= 2 && bytes[0] == 0x1f && bytes[1] == 0x8b);
   NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
   [request setValue:[self defaultAPIKey] forHTTPHeaderField:@"X-Goog-Api-Key"];
   [request setValue:@"application/x-protobuf" forHTTPHeaderField:@"Content-Type"];
-  [request setValue:@"gzip" forHTTPHeaderField:@"Content-Encoding"];
+  if (isGzipped) {
+    [request setValue:@"gzip" forHTTPHeaderField:@"Content-Encoding"];
+  }
   [request setValue:@"gzip" forHTTPHeaderField:@"Accept-Encoding"];
   NSString *userAgent = [NSString stringWithFormat:@"datatransport/%@ fllsupport/%@ apple/",
                                                    kGDTCORVersion, kGDTCCTSupportSDKVersion];
