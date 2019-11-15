@@ -50,6 +50,7 @@
   [self.testServer stop];
 }
 
+/** Tests a standard upload with a set of normal conditions. */
 - (void)testFLLUploadGivenConditions {
   NSArray<GDTCORStoredEvent *> *storedEventsA =
       [self.generator generateTheFiveConsistentStoredEvents];
@@ -78,6 +79,47 @@
   dispatch_sync(uploader.uploaderQueue, ^{
     XCTAssertNil(uploader.currentTask);
   });
+}
+
+/** Tests a standard upload when the server responds with a redirect. */
+- (void)testFLLUploadWithRedirect {
+  [self.testServer stop];
+  [self.testServer registerRedirectPaths];
+  [self.testServer start];
+
+  NSArray<NSString *> *redirectURLs = @[ @"logRedirect301", @"logRedirect302", @"logRedirect307" ];
+
+  for (NSString *redirectPath in redirectURLs) {
+    NSArray<GDTCORStoredEvent *> *storedEventsA =
+        [self.generator generateTheFiveConsistentStoredEvents];
+    NSSet<GDTCORStoredEvent *> *storedEvents = [NSSet setWithArray:storedEventsA];
+
+    GDTCORUploadPackage *package = [[GDTCORUploadPackage alloc] initWithTarget:kGDTCORTargetFLL];
+    package.events = storedEvents;
+    GDTFLLUploader *uploader = [[GDTFLLUploader alloc] init];
+    uploader.serverURL = [self.testServer.serverURL URLByAppendingPathComponent:redirectPath];
+    __weak id weakSelf = self;
+    XCTestExpectation *responseSentExpectation =
+        [self expectationWithDescription:[NSString stringWithFormat:@"response sent for path %@",
+                                                                    redirectPath]];
+    self.testServer.responseCompletedBlock =
+        ^(GCDWebServerRequest *_Nonnull request, GCDWebServerResponse *_Nonnull response) {
+          // Redefining the self var addresses strong self capturing in the XCTAssert macros.
+          id self = weakSelf;
+          XCTAssertNotNil(self);
+          [responseSentExpectation fulfill];
+          XCTAssertEqual(response.statusCode, 200);
+          XCTAssertTrue(response.hasBody);
+        };
+    [uploader uploadPackage:package];
+    dispatch_sync(uploader.uploaderQueue, ^{
+      XCTAssertNotNil(uploader.currentTask);
+    });
+    [self waitForExpectations:@[ responseSentExpectation ] timeout:30.0];
+    dispatch_sync(uploader.uploaderQueue, ^{
+      XCTAssertNil(uploader.currentTask);
+    });
+  }
 }
 
 @end
