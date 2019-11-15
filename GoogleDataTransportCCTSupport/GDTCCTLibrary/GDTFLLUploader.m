@@ -324,6 +324,7 @@ NSNotificationName const GDTFLLUploadCompleteNotification = @"com.GDTFLLUploader
  */
 - (NSURLRequest *)constructRequestWithURL:(NSURL *)URL data:(NSData *)data {
   const UInt8 *bytes = (const UInt8 *)data.bytes;
+  // From https://en.wikipedia.org/wiki/Gzip, gzip's magic number is 1f 8b.
   BOOL isGzipped = (data.length >= 2 && bytes[0] == 0x1f && bytes[1] == 0x8b);
   NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
   [request setValue:[self defaultAPIKey] forHTTPHeaderField:@"X-Goog-Api-Key"];
