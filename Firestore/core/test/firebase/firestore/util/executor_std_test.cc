@@ -233,8 +233,8 @@ TEST_F(ScheduleTest, PopBlockingIsNotAffectedByIrrelevantRemovals) {
 
 namespace {
 
-inline std::unique_ptr<Executor> ExecutorFactory() {
-  return absl::make_unique<ExecutorStd>();
+inline std::unique_ptr<Executor> ExecutorFactory(int threads) {
+  return absl::make_unique<ExecutorStd>(threads);
 }
 
 }  // namespace
