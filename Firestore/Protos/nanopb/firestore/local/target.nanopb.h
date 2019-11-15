@@ -25,6 +25,8 @@
 
 #include "google/protobuf/timestamp.nanopb.h"
 
+#include <string>
+
 namespace firebase {
 namespace firestore {
 
@@ -45,6 +47,8 @@ typedef struct _firestore_client_Target {
         google_firestore_v1_Target_QueryTarget query;
         google_firestore_v1_Target_DocumentsTarget documents;
     };
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:firestore_client_Target) */
 } firestore_client_Target;
 
@@ -53,6 +57,8 @@ typedef struct _firestore_client_TargetGlobal {
     int64_t highest_listen_sequence_number;
     google_protobuf_Timestamp last_remote_snapshot_version;
     int32_t target_count;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:firestore_client_TargetGlobal) */
 } firestore_client_TargetGlobal;
 

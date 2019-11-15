@@ -76,6 +76,7 @@ the following software:
 
   * Xcode 10.1 (or later)
   * CocoaPods 1.7.2 (or later)
+  * [CocoaPods generate](https://github.com/square/cocoapods-generate)
 
 For the pod that you want to develop:
 

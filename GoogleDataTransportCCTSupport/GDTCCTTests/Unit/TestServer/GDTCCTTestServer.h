@@ -38,8 +38,11 @@ NS_ASSUME_NONNULL_BEGIN
 /** YES if the server is running, NO otherwise. */
 @property(nonatomic, readonly) BOOL isRunning;
 
-/** Registers the /log/batch path, which responds with some JSON. */
+/** Registers the /logBatch path, which responds with some JSON. */
 - (void)registerLogBatchPath;
+
+/** Registers the /logRedirect30(1|2|7) paths, which responds with a redirect to /logBatch. */
+- (void)registerRedirectPaths;
 
 /** Starts the server. Can be called after calling `-stop`. */
 - (void)start;

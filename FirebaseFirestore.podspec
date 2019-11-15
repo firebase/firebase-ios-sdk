@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFirestore'
-  s.version          = '1.7.0'
+  s.version          = '1.8.0'
   s.summary          = 'Google Cloud Firestore for iOS'
 
   s.description      = <<-DESC
@@ -73,7 +73,6 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
 
   s.dependency 'gRPC-C++', '0.0.9'
   s.dependency 'leveldb-library', '~> 1.22'
-  s.dependency 'Protobuf', '~> 3.9', '>= 3.9.2'
   s.dependency 'nanopb', '~> 0.3.901'
 
   s.ios.frameworks = 'MobileCoreServices', 'SystemConfiguration'
@@ -86,7 +85,6 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
       "FIRFirestore_VERSION=#{s.version} " +
-      'GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1 ' +
       # The nanopb pod sets these defs, so we must too. (We *do* require 16bit
       # (or larger) fields, so we'd have to set at least PB_FIELD_16BIT
       # anyways.)

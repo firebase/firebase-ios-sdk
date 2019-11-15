@@ -330,14 +330,17 @@
     @"c" : @{@"zip" : @98103},
     @"d" : @{@"zip" : @[ @98101 ]},
     @"e" : @{@"zip" : @[ @"98101", @{@"zip" : @98101} ]},
-    @"f" : @{@"zip" : @{@"code" : @500}}
+    @"f" : @{@"zip" : @{@"code" : @500}},
+    @"g" : @{@"zip" : @[ @98101, @98102 ]}
   };
   FIRCollectionReference *collection = [self collectionRefWithDocuments:testDocs];
 
-  // Search for zips matching [98101, 98103].
-  FIRQuerySnapshot *snapshot =
-      [self readDocumentSetForRef:[collection queryWhereField:@"zip" in:@[ @98101, @98103 ]]];
-  XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[ testDocs[@"a"], testDocs[@"c"] ]));
+  // Search for zips matching 98101, 98103, and [98101, 98102].
+  FIRQuerySnapshot *snapshot = [self
+      readDocumentSetForRef:[collection queryWhereField:@"zip"
+                                                     in:@[ @98101, @98103, @[ @98101, @98102 ] ]]];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot),
+                        (@[ testDocs[@"a"], testDocs[@"c"], testDocs[@"g"] ]));
 
   // With objects
   snapshot = [self readDocumentSetForRef:[collection queryWhereField:@"zip"

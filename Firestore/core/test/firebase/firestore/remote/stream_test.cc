@@ -41,12 +41,14 @@
 namespace firebase {
 namespace firestore {
 namespace remote {
+namespace {
 
 using auth::CredentialsProvider;
 using auth::Token;
 using util::AsyncQueue;
 using util::ByteBufferToString;
 using util::CompletionEndState;
+using util::CompletionResult;
 using util::CreateNoOpConnectivityMonitor;
 using util::FakeCredentialsProvider;
 using util::GetFirestoreErrorName;
@@ -54,11 +56,8 @@ using util::GrpcStreamTester;
 using util::MakeByteBuffer;
 using util::StringFormat;
 using util::TimerId;
-using util::CompletionResult::Error;
-using util::CompletionResult::Ok;
-using Type = GrpcCompletion::Type;
 
-namespace {
+using Type = GrpcCompletion::Type;
 
 const auto kIdleTimerId = TimerId::ListenStreamIdle;
 const auto kBackoffTimerId = TimerId::ListenStreamConnectionBackoff;
@@ -306,7 +305,7 @@ TEST_F(StreamTest, ObserverReceivesStreamClose) {
 TEST_F(StreamTest, ObserverReceivesStreamCloseOnError) {
   StartStream();
 
-  ForceFinish({{Type::Read, Error},
+  ForceFinish({{Type::Read, CompletionResult::Error},
                {Type::Finish, grpc::Status{grpc::UNAVAILABLE, ""}}});
 
   worker_queue->EnqueueBlocking([&] {
@@ -433,7 +432,7 @@ TEST_F(StreamTest, Backoff) {
 
   // "ResourceExhausted" sets backoff to max, virtually guaranteeing that the
   // backoff won't kick in in-between the checks.
-  ForceFinish({{Type::Read, Error},
+  ForceFinish({{Type::Read, CompletionResult::Error},
                {Type::Finish, grpc::Status{grpc::RESOURCE_EXHAUSTED, ""}}});
   EXPECT_FALSE(worker_queue->IsScheduled(kBackoffTimerId));
 
@@ -446,7 +445,7 @@ TEST_F(StreamTest, Backoff) {
   worker_queue->EnqueueBlocking(
       [&] { EXPECT_TRUE(firestore_stream->IsOpen()); });
 
-  ForceFinish({{Type::Read, Error},
+  ForceFinish({{Type::Read, CompletionResult::Error},
                {Type::Finish, grpc::Status{grpc::RESOURCE_EXHAUSTED, ""}}});
   worker_queue->EnqueueBlocking([&] { firestore_stream->InhibitBackoff(); });
   StartStream();
@@ -500,7 +499,7 @@ TEST_F(StreamTest, ClientSideErrorOnRead) {
   StartStream();
 
   firestore_stream->FailNextStreamRead();
-  ForceFinish({{Type::Read, Ok}});
+  ForceFinish({{Type::Read, CompletionResult::Ok}});
 
   worker_queue->EnqueueBlocking([&] {
     EXPECT_FALSE(firestore_stream->IsStarted());
@@ -511,7 +510,7 @@ TEST_F(StreamTest, ClientSideErrorOnRead) {
 
 TEST_F(StreamTest, RefreshesTokenUponExpiration) {
   StartStream();
-  ForceFinish({{Type::Read, Error},
+  ForceFinish({{Type::Read, CompletionResult::Error},
                {Type::Finish, grpc::Status{grpc::UNAUTHENTICATED, ""}}});
   // Error "Unauthenticated" should invalidate the token.
   EXPECT_EQ(credentials->observed_states(),
@@ -519,7 +518,7 @@ TEST_F(StreamTest, RefreshesTokenUponExpiration) {
 
   worker_queue->EnqueueBlocking([&] { firestore_stream->InhibitBackoff(); });
   StartStream();
-  ForceFinish({{Type::Read, Error},
+  ForceFinish({{Type::Read, CompletionResult::Error},
                {Type::Finish, grpc::Status{grpc::UNAVAILABLE, ""}}});
   // Simulate a different error -- token should not be invalidated this time.
   EXPECT_EQ(credentials->observed_states(),

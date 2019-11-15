@@ -1,5 +1,12 @@
 # Unreleased
 
+# v1.8.0
+- [changed] Removed Firestore's dependency on the `Protobuf` CocoaPod. If
+  you're manually tracking dependencies, you may be able to remove it from your
+  build (note, however, that other Firebase components may still require it).
+- [changed] Added a dependency on the `abseil` CocoaPod. If you're manually
+  tracking dependencies, you need to add it to your build.
+
 # v1.7.0
 - [feature] Added `whereField(_:in:)` and `whereField(_:arrayContainsAny:)` query
   operators. `whereField(_:in:)` finds documents where a specified field’s value

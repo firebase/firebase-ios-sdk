@@ -55,8 +55,7 @@ void WatchStream::WatchQuery(const QueryData& query) {
   EnsureOnQueue();
 
   auto request = watch_serializer_.EncodeWatchRequest(query);
-  LOG_DEBUG("%s watch: %s", GetDebugDescription(),
-            watch_serializer_.Describe(request));
+  LOG_DEBUG("%s watch: %s", GetDebugDescription(), request.ToString());
   Write(MakeByteBuffer(request));
 }
 
@@ -65,8 +64,7 @@ void WatchStream::UnwatchTargetId(TargetId target_id) {
 
   auto request = watch_serializer_.EncodeUnwatchRequest(target_id);
 
-  LOG_DEBUG("%s unwatch: %s", GetDebugDescription(),
-            watch_serializer_.Describe(request));
+  LOG_DEBUG("%s unwatch: %s", GetDebugDescription(), request.ToString());
   Write(MakeByteBuffer(request));
 }
 
@@ -91,8 +89,7 @@ Status WatchStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
     return reader.status();
   }
 
-  LOG_DEBUG("%s response: %s", GetDebugDescription(),
-            watch_serializer_.Describe(response));
+  LOG_DEBUG("%s response: %s", GetDebugDescription(), response.ToString());
 
   // A successful response means the stream is healthy.
   backoff_.Reset();

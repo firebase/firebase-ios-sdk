@@ -96,8 +96,8 @@ cc_library(
     online_state_tracker.h
     remote_event.cc
     remote_event.h
+    remote_objc_bridge.cc
     remote_objc_bridge.h
-    remote_objc_bridge.mm
     remote_store.cc
     remote_store.h
     serializer.cc
@@ -112,17 +112,13 @@ cc_library(
     write_stream.h
 
   DEPENDS
-    # TODO(b/111328563) Force nanopb first to work around ODR violations
-    protobuf-nanopb-static
-
     firebase_firestore_core
     firebase_firestore_model
     firebase_firestore_nanopb
     firebase_firestore_protos_nanopb
-    firebase_firestore_protos_objc
     firebase_firestore_remote_connectivity_monitor
     firebase_firestore_util
     firebase_firestore_version
-
     grpc++
+    protobuf-nanopb-static
 )

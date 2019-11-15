@@ -58,6 +58,18 @@ static NSTimeInterval RCNUserDefaultsSampleTimeStamp = 0;
   XCTAssertEqual([manager lastFetchTime], RCNUserDefaultsSampleTimeStamp - 1000);
 }
 
+- (void)testUserDefaultsLastETagUpdateTimeWriteAndRead {
+  RCNUserDefaultsManager* manager =
+      [[RCNUserDefaultsManager alloc] initWithAppName:@"TESTING"
+                                             bundleID:[NSBundle mainBundle].bundleIdentifier
+                                            namespace:@"testNamespace1"];
+  [manager setLastETagUpdateTime:RCNUserDefaultsSampleTimeStamp];
+  XCTAssertEqual([manager lastETagUpdateTime], RCNUserDefaultsSampleTimeStamp);
+
+  [manager setLastETagUpdateTime:RCNUserDefaultsSampleTimeStamp - 1000];
+  XCTAssertEqual([manager lastETagUpdateTime], RCNUserDefaultsSampleTimeStamp - 1000);
+}
+
 - (void)testUserDefaultsLastFetchStatusWriteAndRead {
   RCNUserDefaultsManager* manager =
       [[RCNUserDefaultsManager alloc] initWithAppName:@"TESTING"

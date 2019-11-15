@@ -10,6 +10,7 @@ pod 'FirebaseCoreDiagnostics', :path => '../..'
 pod 'FirebaseCoreDiagnosticsInterop', :path => '../..'
 pod 'GoogleDataTransport', :path => '../..'
 pod 'GoogleDataTransportCCTSupport', :path => '../..'
+pod 'GoogleUtilities', :path => '../..'
 
 target 'InAppMessaging_Example_iOS' do
   platform :ios, '8.0'

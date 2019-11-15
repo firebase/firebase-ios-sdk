@@ -44,9 +44,9 @@ std::unique_ptr<Persistence> PersistenceFactory() {
 
 }  // namespace
 
-INSTANTIATE_TEST_CASE_P(LevelDbQueryCacheTest,
-                        QueryCacheTest,
-                        testing::Values(PersistenceFactory));
+INSTANTIATE_TEST_SUITE_P(LevelDbQueryCacheTest,
+                         QueryCacheTest,
+                         testing::Values(PersistenceFactory));
 
 class LevelDbQueryCacheTest : public QueryCacheTestBase {
  public:

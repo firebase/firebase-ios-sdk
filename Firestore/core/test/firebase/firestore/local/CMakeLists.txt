@@ -19,13 +19,19 @@ cc_test(
     index_manager_test.h
     leveldb_index_manager_test.cc
     leveldb_key_test.cc
+    leveldb_lru_garbage_collector_test.cc
+    leveldb_migrations_test.cc
     leveldb_mutation_queue_test.cc
     leveldb_persistence_test.cc
     leveldb_query_cache_test.cc
     leveldb_remote_document_cache_test.cc
+    leveldb_transaction_test.cc
     leveldb_util_test.cc
     local_serializer_test.cc
+    lru_garbage_collector_test.cc
+    lru_garbage_collector_test.h
     memory_index_manager_test.cc
+    memory_lru_garbage_collector_test.cc
     memory_mutation_queue_test.cc
     memory_query_cache_test.cc
     memory_remote_document_cache_test.cc
