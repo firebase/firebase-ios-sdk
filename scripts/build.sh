@@ -261,6 +261,9 @@ case "$product-$method-$platform" in
     ;;
 
   Firestore-xcodebuild-*)
+    # Make travis_retry more likely to succeed.
+    rm -rf ~/Library/Developer/Xcode/DerivedData
+
     "${firestore_emulator}" start
     trap '"${firestore_emulator}" stop' ERR EXIT
 
