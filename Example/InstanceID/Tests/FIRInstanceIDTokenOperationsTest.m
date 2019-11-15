@@ -319,7 +319,7 @@ static NSString *const kPublicKeyPairTag = @"com.iid.regclient.test.public";
   XCTAssertEqualObjects(generatedHeader, expectedHeader);
 }
 
-- (void)testTokenFetchOperationFirebaseUserAgentHeader {
+- (void)testTokenFetchOperationFirebaseUserAgentAndHeartbeatHeader {
   XCTestExpectation *completionExpectation =
       [self expectationWithDescription:@"completionExpectation"];
 
@@ -336,6 +336,8 @@ static NSString *const kPublicKeyPairTag = @"com.iid.regclient.test.public";
       ^(NSURLRequest *request, FIRInstanceIDURLRequestTestResponseBlock response) {
         NSString *userAgentValue = request.allHTTPHeaderFields[kFIRInstanceIDFirebaseUserAgentKey];
         XCTAssertEqualObjects(userAgentValue, [FIRApp firebaseUserAgent]);
+        NSString *heartBeatCode = request.allHTTPHeaderFields[kFIRInstanceIDFirebaseHeartbeatKey];
+        XCTAssertEqualObjects(heartBeatCode, @"3");
 
         // Return a response with Error=RST
         NSData *responseBody = [self dataForFetchRequest:request returnValidToken:NO];
