@@ -15,6 +15,7 @@
  */
 
 import Foundation
+import ManifestReader
 
 /// Describes an object that can check if a file eists in the filesystem. Used to allow for better
 /// testing with FileManager.
@@ -51,6 +52,7 @@ struct LaunchArgs {
     case rc
     case templateDir
     case updatePodRepo
+    case zipPods
 
     /// Usage description for the key.
     var usage: String {
@@ -85,6 +87,8 @@ struct LaunchArgs {
           "building source based frameworks"
       case .updatePodRepo:
         return "A flag to run `pod repo update` before building the zip file."
+      case .zipPods:
+        return "The path to a textproto file listing the pods to repackage to a zip."
       }
     }
   }
@@ -130,6 +134,9 @@ struct LaunchArgs {
 
   /// A flag to update the Pod Repo or not.
   let updatePodRepo: Bool
+
+  /// The path to a textproto file listing the pods to repackage to a zip.
+  let zipPods: [String]
 
   /// The shared instance for processing launch args using default arguments.
   static let shared: LaunchArgs = LaunchArgs()
@@ -197,6 +204,29 @@ struct LaunchArgs {
     } else {
       // No argument was passed in.
       currentReleasePath = nil
+    }
+
+    // Parse the zipPods key.
+    if let zipPodsPath = defaults.string(forKey: Key.zipPods.rawValue) {
+      let url = URL(fileURLWithPath: zipPodsPath)
+      guard fileChecker.fileExists(atPath: url.path) else {
+        LaunchArgs.exitWithUsageAndLog("Could not parse \(Key.releasingSDKs) key: value passed " +
+          "in is not a file URL or the file does not exist. Value: \(zipPodsPath)")
+      }
+
+      let buildPods = ManifestReader.loadAllReleasedSDKs(fromTextproto: url)
+      print("Parsed the following pods to build:")
+
+      var collectPods : [String] = []
+      for pod in buildPods.sdk {
+        collectPods.append(pod.name)
+        print("\(pod.name): \(pod.publicVersion)")  // TODO: handle test version not specified
+      }
+      zipPods = CocoaPod.allCases.map{ $0.rawValue }
+
+    } else {
+      // Default zipPods is all Firebase pods
+      zipPods = CocoaPod.allCases.map{$0.rawValue}
     }
 
     // Parse the output directory key.
