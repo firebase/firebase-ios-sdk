@@ -43,25 +43,40 @@ cc_select(
   DEFAULT firebase_firestore_remote_connectivity_monitor_noop
 )
 
+# Generate output in-place. So long as the build is idempotent this helps
+# verify that the protoc-generated output isn't changing.
+set(OUTPUT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+
+list(
+  APPEND GRPC_ROOT_CERTIFICATE_SOURCES
+  ${OUTPUT_DIR}/grpc_root_certificates_generated.h  # NOLINT(generated)
+  ${OUTPUT_DIR}/grpc_root_certificates_generated.cc # NOLINT(generated)
+)
+
 # `roots.pem` is a file containing root certificates that is distributed
 # alongside gRPC and is necessary to establish SSL connections. Embed this file
 # into the binary by converting it to a char array.
 add_custom_command(
   OUTPUT
-    grpc_root_certificates_generated.h  # NOLINT(generated)
-    grpc_root_certificates_generated.cc # NOLINT(generated)
+    ${GRPC_ROOT_CERTIFICATE_SOURCES}
   COMMAND python ${FIREBASE_SOURCE_DIR}/scripts/binary_to_array.py
-      --output_header=grpc_root_certificates_generated.h
-      --output_source=grpc_root_certificates_generated.cc
+      --output_header=${OUTPUT_DIR}/grpc_root_certificates_generated.h
+      --output_source=${OUTPUT_DIR}/grpc_root_certificates_generated.cc
       --cpp_namespace=firebase::firestore::remote
       --array=grpc_root_certificates_generated_data
       --array_size=grpc_root_certificates_generated_size
       ${FIREBASE_EXTERNAL_SOURCE_DIR}/grpc/etc/roots.pem
   DEPENDS
+    grpc
+    ${FIREBASE_SOURCE_DIR}/scripts/binary_to_array.py
     ${FIREBASE_EXTERNAL_SOURCE_DIR}/grpc/etc/roots.pem
 )
 
-# TODO(wilhuff): Build grpc_root_certificate_finder_apple.mm NOLINT(not built)
+add_custom_target(
+  generate_grpc_root_certificates
+  DEPENDS
+    ${GRPC_ROOT_CERTIFICATE_SOURCES}
+)
 
 cc_library(
   firebase_firestore_remote
