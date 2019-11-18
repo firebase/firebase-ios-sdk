@@ -88,7 +88,7 @@ def header(header_guard, namespaces, array_name, array_size_name, fileid):
 
   data = []
   data.extend([
-      "// Copyright 2018 Google Inc. All Rights Reserved.",
+      "// Copyright 2019 Google Inc. All Rights Reserved.",
       "",
       "#ifndef %s" % header_guard,
       "#define %s" % header_guard,
@@ -151,7 +151,7 @@ def source(namespaces, array_name, array_size_name, fileid, filename,
   """
   data = []
   data.extend([
-      "// Copyright 2016 Google Inc. All Rights Reserved.",
+      "// Copyright 2019 Google Inc. All Rights Reserved.",
       "",
       "#include <stdlib.h>",
       ""
