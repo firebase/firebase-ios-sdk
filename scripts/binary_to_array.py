@@ -155,7 +155,8 @@ def source(namespaces, array_name, array_size_name, fileid, filename,
       "",
       "#include <cstdlib>",
       "",
-      "#include \"Firestore/core/src/firebase/firestore/remote/grpc_root_certificates_generated.h\"",
+      "#include \"Firestore/core/src/firebase/firestore/remote/" +
+        "grpc_root_certificates_generated.h\"",
       ""
   ])
   if namespaces:
