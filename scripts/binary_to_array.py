@@ -180,7 +180,7 @@ def source(namespaces, array_name, array_size_name, fileid, filename,
   line = ""
   for idx in range(0, length):
     if idx % WIDTH == 0:
-      line += "  "
+      line += "    "
     else:
       line += " "
     line += "0x%02x," % input_bytes[idx]
@@ -188,16 +188,15 @@ def source(namespaces, array_name, array_size_name, fileid, filename,
       data.append(line)
       line = ""
   data.append(line)
-  data.append("  0x00  // Extra \\0 to make it a C string")
+  data.append("    0x00  // Extra \\0 to make it a C string")
 
   data.extend([
       "};",
       "",
       "const size_t %s =" % array_size_name,
-      "  sizeof(%s) - 1;" % array_name,
+      "    sizeof(%s) - 1;" % array_name,
       "",
-      "const char %s[] =" % fileid,
-      "  \"%s\";" % filename,
+      "const char %s[] = \"%s\";" % (fileid, filename),
       "",
   ])
 
