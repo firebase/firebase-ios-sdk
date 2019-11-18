@@ -26,6 +26,9 @@
 #import "FIRInstallationsStoredAuthToken.h"
 #import "FIRInstallationsVersion.h"
 
+#import <FirebaseCore/FIRAppInternal.h>
+#import <GoogleUtilities/GULHeartbeatDateStorage.h>
+
 typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
 
 @interface FIRInstallationsAPIService (Tests)
@@ -50,6 +53,10 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
   self.service = [[FIRInstallationsAPIService alloc] initWithURLSession:self.mockURLSession
                                                                  APIKey:self.APIKey
                                                               projectID:self.projectID];
+  NSString *const kHeartbeatStorageFile = @"HEARTBEAT_INFO_STORAGE";
+  GULHeartbeatDateStorage *dataStorage =
+      [[GULHeartbeatDateStorage alloc] initWithFileName:kHeartbeatStorageFile];
+  [[NSFileManager defaultManager] removeItemAtURL:[dataStorage fileURL] error:nil];
 }
 
 - (void)tearDown {
@@ -80,6 +87,9 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
     XCTAssertEqualObjects([request valueForHTTPHeaderField:@"X-Goog-Api-Key"], self.APIKey);
     XCTAssertEqualObjects([request valueForHTTPHeaderField:@"X-Ios-Bundle-Identifier"],
                           [[NSBundle mainBundle] bundleIdentifier]);
+    XCTAssertEqualObjects([request valueForHTTPHeaderField:kFIRInstallationsUserAgentKey],
+                          [FIRApp firebaseUserAgent]);
+    XCTAssertEqualObjects([request valueForHTTPHeaderField:kFIRInstallationsHeartbeatKey], @"3");
 
     NSString *expectedIIDMigrationHeader = installation.IIDDefaultToken;
     XCTAssertEqualObjects([request valueForHTTPHeaderField:@"x-goog-fis-ios-iid-migration-auth"],
@@ -624,6 +634,9 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
                           @"%@", self.name);
     XCTAssertEqualObjects([request valueForHTTPHeaderField:@"X-Goog-Api-Key"], self.APIKey, @"%@",
                           self.name);
+    XCTAssertEqualObjects([request valueForHTTPHeaderField:kFIRInstallationsUserAgentKey],
+                          [FIRApp firebaseUserAgent]);
+    XCTAssertEqualObjects([request valueForHTTPHeaderField:kFIRInstallationsHeartbeatKey], @"3");
     NSString *expectedAuthHeader =
         [NSString stringWithFormat:@"FIS_v2 %@", installation.refreshToken];
     XCTAssertEqualObjects(request.allHTTPHeaderFields[@"Authorization"], expectedAuthHeader, @"%@",
