@@ -120,7 +120,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)encodeWithCoder:(NSCoder *)aCoder {
   [aCoder encodeObject:self.IDToken forKey:@"IDToken"];
-  [aCoder encodeObject:self.IDToken forKey:@"rawNonce"];
+  [aCoder encodeObject:self.rawNonce forKey:@"rawNonce"];
   [aCoder encodeObject:self.accessToken forKey:@"accessToken"];
   [aCoder encodeObject:self.pendingToken forKey:@"pendingToken"];
   [aCoder encodeObject:self.secret forKey:@"secret"];
