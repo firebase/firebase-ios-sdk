@@ -153,7 +153,9 @@ def source(namespaces, array_name, array_size_name, fileid, filename,
   data.extend([
       "// Copyright 2019 Google Inc. All Rights Reserved.",
       "",
-      "#include <stdlib.h>",
+      "#include <cstdlib>",
+      "",
+      "#include \"Firestore/core/src/firebase/firestore/remote/grpc_root_certificates_generated.h\"",
       ""
   ])
   if namespaces:
