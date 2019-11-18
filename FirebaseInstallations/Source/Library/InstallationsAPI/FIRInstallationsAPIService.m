@@ -27,11 +27,18 @@
 #import "FIRInstallationsErrorUtil.h"
 #import "FIRInstallationsItem+RegisterInstallationAPI.h"
 #import "FIRInstallationsLogger.h"
+#import <FirebaseCore/FIRHeartbeatInfo.h>
+
+
 
 NSString *const kFIRInstallationsAPIBaseURL = @"https://firebaseinstallations.googleapis.com";
 NSString *const kFIRInstallationsAPIKey = @"X-Goog-Api-Key";
 NSString *const kFIRInstallationsBundleId = @"X-Ios-Bundle-Identifier";
 NSString *const kFIRInstallationsIIDMigrationAuthHeader = @"x-goog-fis-ios-iid-migration-auth";
+NSString *const kFIRInstallationsHeartbeatKey = @"X-firebase-client-log-type";
+NSString *const kFIRInstallationsHeartbeatTag = @"fire-installations";
+NSString *const kFIRInstallationsUserAgentkey = @"X-firebase-client";
+
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -251,7 +258,12 @@ NS_ASSUME_NONNULL_END
     NSString *authHeader = [NSString stringWithFormat:@"FIS_v2 %@", refreshToken];
     [request setValue:authHeader forHTTPHeaderField:@"Authorization"];
   }
-
+  // User agent Header.
+  [request setValue:[FIRApp firebaseUserAgent]
+ forHTTPHeaderField:kFIRInstallationsUserAgentkey];
+  // Heartbeat Header.
+  [request setValue:@([FIRHeartbeatInfo heartbeatCodeForTag:kFIRInstallationsHeartbeatTag]).stringValue
+ forHTTPHeaderField:kFIRInstallationsHeartbeatTag];
   [additionalHeaders enumerateKeysAndObjectsUsingBlock:^(
                          NSString *_Nonnull key, NSString *_Nonnull obj, BOOL *_Nonnull stop) {
     [request setValue:obj forHTTPHeaderField:key];
