@@ -7,7 +7,7 @@ The current [Zip Builder](https://github.com/firebase/firebase-ios-sdk/tree/mast
 is Firebase specific. This is a proposal and initial plan
 to evolve the Zip Builder into a multi-purpose Apple binary framework creation tool.
 
-It would be useful to have a generic 
+It would be useful to have a generic
 zip builder for other Google SDKs and other open source projects. In addition,
 providing a generic ZipBuilder would enable Firebase users to generate binary
 frameworks for configurations outside the standard Zip and Carthage distributions
