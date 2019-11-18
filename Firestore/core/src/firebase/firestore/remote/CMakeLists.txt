@@ -43,8 +43,8 @@ cc_select(
   DEFAULT firebase_firestore_remote_connectivity_monitor_noop
 )
 
-# Generate output in-place. So long as the build is idempotent this helps
-# verify that the protoc-generated output isn't changing.
+# Source files should be generated in place so that the XCode build can pick
+# them up.
 set(OUTPUT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
 list(
@@ -57,6 +57,7 @@ list(
 # alongside gRPC and is necessary to establish SSL connections. Embed this file
 # into the binary by converting it to a char array.
 add_custom_command(
+  COMMENT "Generating root certificates for embedding"
   OUTPUT
     ${GRPC_ROOT_CERTIFICATE_SOURCES}
   COMMAND python ${FIREBASE_SOURCE_DIR}/scripts/binary_to_array.py
@@ -67,12 +68,15 @@ add_custom_command(
       --array_size=grpc_root_certificates_generated_size
       --header_guard=FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_ROOT_CERTIFICATES_GENERATED_H_
       ${FIREBASE_EXTERNAL_SOURCE_DIR}/grpc/etc/roots.pem
+  VERBATIM
   DEPENDS
     grpc
     ${FIREBASE_SOURCE_DIR}/scripts/binary_to_array.py
     ${FIREBASE_EXTERNAL_SOURCE_DIR}/grpc/etc/roots.pem
 )
 
+# gRPC certificates have to be regenerated manually on each new gRPC release
+# (which typically has updated certificates).
 add_custom_target(
   generate_grpc_root_certificates
   DEPENDS
