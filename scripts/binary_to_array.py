@@ -244,7 +244,9 @@ def main():
 
   logical_directory = args.logical_directory
   if not logical_directory:
+    logical_directory = ''
     logging.debug("Using current folder for output")
+
   physical_directory = args.physical_directory
   if not physical_directory:
     physical_directory = logical_directory
