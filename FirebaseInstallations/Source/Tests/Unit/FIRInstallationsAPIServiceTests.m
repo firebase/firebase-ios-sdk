@@ -27,7 +27,7 @@
 #import "FIRInstallationsVersion.h"
 
 #import <FirebaseCore/FIRAppInternal.h>
-#import <GoogleUtilities/GULHeartbeatDateStorage.h>
+#import <FirebaseCore/FIRHeartbeatInfo.h>
 
 typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
 
@@ -53,10 +53,9 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
   self.service = [[FIRInstallationsAPIService alloc] initWithURLSession:self.mockURLSession
                                                                  APIKey:self.APIKey
                                                               projectID:self.projectID];
-  NSString *const kHeartbeatStorageFile = @"HEARTBEAT_INFO_STORAGE";
-  GULHeartbeatDateStorage *dataStorage =
-      [[GULHeartbeatDateStorage alloc] initWithFileName:kHeartbeatStorageFile];
-  [[NSFileManager defaultManager] removeItemAtURL:[dataStorage fileURL] error:nil];
+  id heartbeatMock = OCMClassMock([FIRHeartbeatInfo class]);
+  OCMStub([heartbeatMock heartbeatCodeForTag:@"fire-installations"])
+      .andReturn(FIRHeartbeatInfoCodeCombined);
 }
 
 - (void)tearDown {
