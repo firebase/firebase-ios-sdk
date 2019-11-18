@@ -83,6 +83,7 @@ if(APPLE)
     -Werror=objc-root-class
 
     -Wblock-capture-autoreleasing
+    -Wimplicit-atomic-properties
     -Wnon-modular-include-in-framework-module
 
     -fobjc-arc

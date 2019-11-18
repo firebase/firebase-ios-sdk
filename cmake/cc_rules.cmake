@@ -382,6 +382,12 @@ function(objc_test target)
       ${target}
       ${target}
     )
+
+    if(WITH_ASAN)
+      set_property(TEST ${target} APPEND PROPERTY
+        ENVIRONMENT
+        DYLD_INSERT_LIBRARIES=/usr/local/opt/llvm/lib/clang/8.0.0/lib/darwin/libclang_rt.asan_osx_dynamic.dylib)
+    endif()
   endif()
 endfunction()
 
