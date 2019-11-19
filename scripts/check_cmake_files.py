@@ -28,9 +28,9 @@ import argparse
 import collections
 import os
 import re
-import subprocess
 import sys
 
+from lib import git
 
 # Directories relative to the repo root that will be scanned by default if no
 # arguments are passed.
@@ -78,8 +78,7 @@ def main(args):
 def default_args():
   """Returns a default list of directories to scan.
   """
-  command = ['git', 'rev-parse', '--show-toplevel']
-  toplevel = subprocess.check_output(command).rstrip()
+  toplevel = git.get_repo_root()
 
   return [os.path.join(toplevel, dirname) for dirname in _DEFAULT_DIRS]
 
