@@ -44,7 +44,7 @@ services.
   s.test_spec 'unit' do |unit_tests|
     unit_tests.source_files = 'Example/InstanceID/Tests/*.[mh]'
     unit_tests.requires_app_host = true
-    unit_tests.dependency 'OCMock', '~> 3.4.0'
+    unit_tests.dependency 'OCMock'
     unit_tests.pod_target_xcconfig = {
       # Unit tests do library imports using repo-root relative paths.
       'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
