@@ -67,7 +67,7 @@
     }
 
     resourceBundle = [NSBundle bundleWithURL:bundleURL];
-
+    
     if (resourceBundle == nil) {
       FIRLogWarning(kFIRLoggerInAppMessagingDisplay, @"I-FID100007",
                     @"FIAM Display Resource bundle "
