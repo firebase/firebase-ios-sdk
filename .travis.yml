@@ -735,4 +735,3 @@ jobs:
 branches:
   only:
     - master
-    - wilhuff/firestore-m60-fixes
