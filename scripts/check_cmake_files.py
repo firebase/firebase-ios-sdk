@@ -28,7 +28,6 @@ import argparse
 import collections
 import os
 import re
-import subprocess
 import sys
 
 from lib import git

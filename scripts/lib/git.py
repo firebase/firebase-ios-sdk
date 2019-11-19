@@ -125,7 +125,7 @@ def is_within_repo():
   try:
     subprocess.check_output(['git', 'status'])
     return True
-  except:
+  except CalledProcessError:
     return False
 
 
