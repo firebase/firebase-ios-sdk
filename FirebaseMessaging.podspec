@@ -57,6 +57,6 @@ device, and it is completely free.
     unit_tests.pod_target_xcconfig = {
      'CLANG_ENABLE_OBJC_WEAK' => 'YES'
     }
-    unit_tests.dependency 'OCMock'
+    unit_tests.dependency 'OCMock', '~> 3.4.0'
   end
 end
