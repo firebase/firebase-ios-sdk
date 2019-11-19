@@ -14,17 +14,10 @@
  * limitations under the License.
  */
 
-#import "FIDBannerViewUIWindow.h"
+#import <UIKit/UIKit.h>
 
-@implementation FIDBannerViewUIWindow
+NS_ASSUME_NONNULL_BEGIN
+@interface FIRIAMBannerViewUIWindow : UIWindow
 
-// For banner view message, we still allow the user to interact with the app's underlying view
-// outside banner view's visible area.
-- (BOOL)pointInside:(CGPoint)point withEvent:(UIEvent *)event {
-  if (self.rootViewController && self.rootViewController.view) {
-    return CGRectContainsPoint(self.rootViewController.view.frame, point);
-  } else {
-    return NO;
-  }
-}
 @end
+NS_ASSUME_NONNULL_END

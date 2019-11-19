@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import "FIDBaseRenderingViewController.h"
+#import "FIRIAMBaseRenderingViewController.h"
 #import "FIDTimeFetcher.h"
 #import "FIRCore+InAppMessagingDisplay.h"
 
-@interface FIDBaseRenderingViewController ()
+@interface FIRIAMBaseRenderingViewController ()
 // For fiam messages, it's required to be kMinValidImpressionTime to
 // be considered as a valid impression help. If the app is closed before that's reached,
 // SDK may try to render the same message again in the future.
@@ -31,7 +31,7 @@
 
 static const NSTimeInterval kMinValidImpressionTime = 3.0;
 
-@implementation FIDBaseRenderingViewController
+@implementation FIRIAMBaseRenderingViewController
 
 - (nullable FIRInAppMessagingDisplayMessage *)inAppMessage {
   return nil;

@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
  * supposed to set the rootViewController to be the appropriate view controller for the in-app
  * message and call setHidden:NO to make it really visible.
  */
-@interface FIDRenderingWindowHelper : NSObject
+@interface FIRIAMRenderingWindowHelper : NSObject
 
 // Return the singleton UIWindow that can be used for rendering modal IAM views
 + (UIWindow *)UIWindowForModalView;

@@ -16,18 +16,16 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIDBaseRenderingViewController.h"
+#import "FIRIAMBaseRenderingViewController.h"
 
-@class FIRInAppMessagingBannerDisplay;
-@class FIDBaseRenderingViewController;
-@protocol FIDTimeFetcher;
+@class FIRInAppMessagingModalDisplay;
 @protocol FIRInAppMessagingDisplayDelegate;
 
 NS_ASSUME_NONNULL_BEGIN
-@interface FIDBannerViewController : FIDBaseRenderingViewController
-+ (FIDBannerViewController *)
+@interface FIRIAMModalViewController : FIRIAMBaseRenderingViewController
++ (FIRIAMModalViewController *)
     instantiateViewControllerWithResourceBundle:(NSBundle *)resourceBundle
-                                 displayMessage:(FIRInAppMessagingBannerDisplay *)bannerMessage
+                                 displayMessage:(FIRInAppMessagingModalDisplay *)modalMessage
                                 displayDelegate:
                                     (id<FIRInAppMessagingDisplayDelegate>)displayDelegate
                                     timeFetcher:(id<FIDTimeFetcher>)timeFetcher;

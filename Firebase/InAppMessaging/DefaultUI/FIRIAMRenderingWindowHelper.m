@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FIDRenderingWindowHelper.h"
-#import "FIDBannerViewUIWindow.h"
+#import "FIRIAMRenderingWindowHelper.h"
+#import "FIRIAMBannerViewUIWindow.h"
 
-@implementation FIDRenderingWindowHelper
+@implementation FIRIAMRenderingWindowHelper
 
 + (UIWindow *)UIWindowForModalView {
   static UIWindow *UIWindowForModal;
@@ -47,11 +47,11 @@
 #if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     if (@available(iOS 13.0, *)) {
       UIWindowScene *foregroundedScene = [[self class] foregroundedScene];
-      UIWindowForBanner = [[FIDBannerViewUIWindow alloc] initWithWindowScene:foregroundedScene];
+      UIWindowForBanner = [[FIRIAMBannerViewUIWindow alloc] initWithWindowScene:foregroundedScene];
     } else {
 #endif  // defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
       UIWindowForBanner =
-          [[FIDBannerViewUIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+          [[FIRIAMBannerViewUIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
 #if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     }
 #endif

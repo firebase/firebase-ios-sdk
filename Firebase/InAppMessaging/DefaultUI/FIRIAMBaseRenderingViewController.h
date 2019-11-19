@@ -22,7 +22,7 @@
 @protocol FIRInAppMessagingDisplayDelegate;
 
 NS_ASSUME_NONNULL_BEGIN
-@interface FIDBaseRenderingViewController : UIViewController
+@interface FIRIAMBaseRenderingViewController : UIViewController
 @property(nonatomic, readwrite) id<FIDTimeFetcher> timeFetcher;
 
 @property(nonatomic, readwrite) id<FIRInAppMessagingDisplayDelegate> displayDelegate;

@@ -10,7 +10,7 @@
         <!--Image Only View Controller-->
         <scene sceneID="Uc0-ks-ER1">
             <objects>
-                <viewController storyboardIdentifier="image-only-vc" id="lGH-bl-7Xw" customClass="FIDImageOnlyViewController" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="image-only-vc" id="lGH-bl-7Xw" customClass="FIRIAMImageOnlyViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="LA8-MJ-IeW"/>
                         <viewControllerLayoutGuide type="bottom" id="8Ta-Lb-9Rg"/>
@@ -51,7 +51,7 @@
         <!--Banner View Controller-->
         <scene sceneID="zJa-hc-tKk">
             <objects>
-                <viewController storyboardIdentifier="banner-view-vc" id="lbb-HM-tHJ" customClass="FIDBannerViewController" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="banner-view-vc" id="lbb-HM-tHJ" customClass="FIRIAMBannerViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="lHf-Ux-dEc"/>
                         <viewControllerLayoutGuide type="bottom" id="K7E-8I-Yw5"/>
@@ -121,7 +121,7 @@
         <!--Modal View Controller-->
         <scene sceneID="hvu-tO-txi">
             <objects>
-                <viewController storyboardIdentifier="modal-view-vc" id="x01-lq-3r6" customClass="FIDModalViewController" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="modal-view-vc" id="x01-lq-3r6" customClass="FIRIAMModalViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="42w-41-Nyy"/>
                         <viewControllerLayoutGuide type="bottom" id="1nT-S0-O8H"/>
@@ -378,7 +378,7 @@
         <!--Card View Controller-->
         <scene sceneID="5eQ-Ln-que">
             <objects>
-                <viewController storyboardIdentifier="card-view-vc" id="oTF-1C-LZP" customClass="FIDCardViewController" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="card-view-vc" id="oTF-1C-LZP" customClass="FIRIAMCardViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="1Sy-cb-zoy"/>
                         <viewControllerLayoutGuide type="bottom" id="I6y-sz-UcT"/>

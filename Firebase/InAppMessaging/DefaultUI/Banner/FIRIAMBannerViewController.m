@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FIDBannerViewController.h"
+#import "FIRIAMBannerViewController.h"
 #import "FIRCore+InAppMessagingDisplay.h"
 
-@interface FIDBannerViewController ()
+@interface FIRIAMBannerViewController ()
 
 @property(nonatomic, readwrite) FIRInAppMessagingBannerDisplay *bannerDisplayMessage;
 
@@ -57,9 +57,9 @@ static const CGFloat kBannerViewMaxWidth = 736;
 
 static const CGFloat kSwipeUpThreshold = -10.0f;
 
-@implementation FIDBannerViewController
+@implementation FIRIAMBannerViewController
 
-+ (FIDBannerViewController *)
++ (FIRIAMBannerViewController *)
     instantiateViewControllerWithResourceBundle:(NSBundle *)resourceBundle
                                  displayMessage:(FIRInAppMessagingBannerDisplay *)bannerMessage
                                 displayDelegate:
@@ -75,7 +75,7 @@ static const CGFloat kSwipeUpThreshold = -10.0f;
                 resourceBundle);
     return nil;
   }
-  FIDBannerViewController *bannerVC = (FIDBannerViewController *)[storyboard
+  FIRIAMBannerViewController *bannerVC = (FIRIAMBannerViewController *)[storyboard
       instantiateViewControllerWithIdentifier:@"banner-view-vc"];
   bannerVC.displayDelegate = displayDelegate;
   bannerVC.bannerDisplayMessage = bannerMessage;

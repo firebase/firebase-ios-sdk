@@ -16,7 +16,7 @@
 
 #import "FIDTimeFetcher.h"
 
-@implementation FIDTimerWithNSDate
+@implementation FIRIAMTimerWithNSDate
 - (NSTimeInterval)currentTimestampInSeconds {
   return [[NSDate date] timeIntervalSince1970];
 }

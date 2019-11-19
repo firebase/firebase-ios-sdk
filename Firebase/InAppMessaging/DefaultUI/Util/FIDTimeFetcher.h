@@ -23,6 +23,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSTimeInterval)currentTimestampInSeconds;
 @end
 
-@interface FIDTimerWithNSDate : NSObject <FIDTimeFetcher>
+@interface FIRIAMTimerWithNSDate : NSObject <FIDTimeFetcher>
 @end
 NS_ASSUME_NONNULL_END

@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FIDCardViewController.h"
+#import "FIRIAMCardViewController.h"
 #import "FIRCore+InAppMessagingDisplay.h"
 
-@interface FIDCardViewController ()
+@interface FIRIAMCardViewController ()
 
 @property(nonatomic, readwrite) FIRInAppMessagingCardDisplay *cardDisplayMessage;
 
@@ -31,9 +31,9 @@
 
 @end
 
-@implementation FIDCardViewController
+@implementation FIRIAMCardViewController
 
-+ (FIDCardViewController *)
++ (FIRIAMCardViewController *)
     instantiateViewControllerWithResourceBundle:(NSBundle *)resourceBundle
                                  displayMessage:(FIRInAppMessagingCardDisplay *)cardMessage
                                 displayDelegate:
@@ -49,8 +49,8 @@
                 resourceBundle);
     return nil;
   }
-  FIDCardViewController *cardVC =
-      (FIDCardViewController *)[storyboard instantiateViewControllerWithIdentifier:@"card-view-vc"];
+  FIRIAMCardViewController *cardVC = (FIRIAMCardViewController *)[storyboard
+      instantiateViewControllerWithIdentifier:@"card-view-vc"];
   cardVC.displayDelegate = displayDelegate;
   cardVC.cardDisplayMessage = cardMessage;
   cardVC.timeFetcher = timeFetcher;

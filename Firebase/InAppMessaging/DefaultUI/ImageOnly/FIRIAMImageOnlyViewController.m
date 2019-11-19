@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FIDImageOnlyViewController.h"
+#import "FIRIAMImageOnlyViewController.h"
 #import "FIRCore+InAppMessagingDisplay.h"
 
-@interface FIDImageOnlyViewController ()
+@interface FIRIAMImageOnlyViewController ()
 
 @property(nonatomic, readwrite) FIRInAppMessagingImageOnlyDisplay *imageOnlyMessage;
 
@@ -26,9 +26,9 @@
 @property(nonatomic, assign) CGSize imageOriginalSize;
 @end
 
-@implementation FIDImageOnlyViewController
+@implementation FIRIAMImageOnlyViewController
 
-+ (FIDImageOnlyViewController *)
++ (FIRIAMImageOnlyViewController *)
     instantiateViewControllerWithResourceBundle:(NSBundle *)resourceBundle
                                  displayMessage:
                                      (FIRInAppMessagingImageOnlyDisplay *)imageOnlyMessage
@@ -45,7 +45,7 @@
                 resourceBundle);
     return nil;
   }
-  FIDImageOnlyViewController *imageOnlyVC = (FIDImageOnlyViewController *)[storyboard
+  FIRIAMImageOnlyViewController *imageOnlyVC = (FIRIAMImageOnlyViewController *)[storyboard
       instantiateViewControllerWithIdentifier:@"image-only-vc"];
   imageOnlyVC.displayDelegate = displayDelegate;
   imageOnlyVC.imageOnlyMessage = imageOnlyMessage;

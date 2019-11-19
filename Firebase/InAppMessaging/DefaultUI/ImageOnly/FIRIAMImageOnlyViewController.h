@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2018 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,22 @@
  * limitations under the License.
  */
 
-#import "FIDBaseRenderingViewController.h"
+#import <Foundation/Foundation.h>
 
-@class FIRInAppMessagingCardDisplay;
+#import "FIRIAMBaseRenderingViewController.h"
+
+@class FIRInAppMessagingImageOnlyDisplay;
+@protocol FIDTimeFetcher;
 @protocol FIRInAppMessagingDisplayDelegate;
 
 NS_ASSUME_NONNULL_BEGIN
-@interface FIDCardViewController : FIDBaseRenderingViewController
-
-+ (FIDCardViewController *)
+@interface FIRIAMImageOnlyViewController : FIRIAMBaseRenderingViewController
++ (FIRIAMImageOnlyViewController *)
     instantiateViewControllerWithResourceBundle:(NSBundle *)resourceBundle
-                                 displayMessage:(FIRInAppMessagingCardDisplay *)cardMessage
+                                 displayMessage:
+                                     (FIRInAppMessagingImageOnlyDisplay *)imageOnlyMessage
                                 displayDelegate:
                                     (id<FIRInAppMessagingDisplayDelegate>)displayDelegate
                                     timeFetcher:(id<FIDTimeFetcher>)timeFetcher;
-
 @end
 NS_ASSUME_NONNULL_END

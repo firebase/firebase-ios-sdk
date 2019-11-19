@@ -20,14 +20,14 @@
 
 #import <FirebaseInAppMessaging/FIRInAppMessaging.h>
 #import <FirebaseInAppMessaging/FIRInAppMessagingRendering.h>
-#import "FIDBannerViewController.h"
-#import "FIDCardViewController.h"
-#import "FIDImageOnlyViewController.h"
-#import "FIDModalViewController.h"
-#import "FIDRenderingWindowHelper.h"
 #import "FIDTimeFetcher.h"
 #import "FIRCore+InAppMessagingDisplay.h"
+#import "FIRIAMBannerViewController.h"
+#import "FIRIAMCardViewController.h"
 #import "FIRIAMDefaultDisplayImpl.h"
+#import "FIRIAMImageOnlyViewController.h"
+#import "FIRIAMModalViewController.h"
+#import "FIRIAMRenderingWindowHelper.h"
 
 @implementation FIRIAMDefaultDisplayImpl
 
@@ -67,7 +67,7 @@
     }
 
     resourceBundle = [NSBundle bundleWithURL:bundleURL];
-    
+
     if (resourceBundle == nil) {
       FIRLogWarning(kFIRLoggerInAppMessagingDisplay, @"I-FID100007",
                     @"FIAM Display Resource bundle "
@@ -92,12 +92,12 @@
       return;
     }
 
-    FIDTimerWithNSDate *timeFetcher = [[FIDTimerWithNSDate alloc] init];
-    FIDCardViewController *cardVC =
-        [FIDCardViewController instantiateViewControllerWithResourceBundle:resourceBundle
-                                                            displayMessage:cardMessage
-                                                           displayDelegate:displayDelegate
-                                                               timeFetcher:timeFetcher];
+    FIRIAMTimerWithNSDate *timeFetcher = [[FIRIAMTimerWithNSDate alloc] init];
+    FIRIAMCardViewController *cardVC =
+        [FIRIAMCardViewController instantiateViewControllerWithResourceBundle:resourceBundle
+                                                               displayMessage:cardMessage
+                                                              displayDelegate:displayDelegate
+                                                                  timeFetcher:timeFetcher];
 
     if (cardVC == nil) {
       FIRLogWarning(kFIRLoggerInAppMessagingDisplay, @"I-FID100011",
@@ -110,7 +110,7 @@
       return;
     }
 
-    UIWindow *displayUIWindow = [FIDRenderingWindowHelper UIWindowForModalView];
+    UIWindow *displayUIWindow = [FIRIAMRenderingWindowHelper UIWindowForModalView];
     displayUIWindow.rootViewController = cardVC;
     [displayUIWindow setHidden:NO];
   });
@@ -130,12 +130,12 @@
       return;
     }
 
-    FIDTimerWithNSDate *timeFetcher = [[FIDTimerWithNSDate alloc] init];
-    FIDModalViewController *modalVC =
-        [FIDModalViewController instantiateViewControllerWithResourceBundle:resourceBundle
-                                                             displayMessage:modalMessage
-                                                            displayDelegate:displayDelegate
-                                                                timeFetcher:timeFetcher];
+    FIRIAMTimerWithNSDate *timeFetcher = [[FIRIAMTimerWithNSDate alloc] init];
+    FIRIAMModalViewController *modalVC =
+        [FIRIAMModalViewController instantiateViewControllerWithResourceBundle:resourceBundle
+                                                                displayMessage:modalMessage
+                                                               displayDelegate:displayDelegate
+                                                                   timeFetcher:timeFetcher];
 
     if (modalVC == nil) {
       FIRLogWarning(kFIRLoggerInAppMessagingDisplay, @"I-FID100004",
@@ -147,7 +147,7 @@
       return;
     }
 
-    UIWindow *displayUIWindow = [FIDRenderingWindowHelper UIWindowForModalView];
+    UIWindow *displayUIWindow = [FIRIAMRenderingWindowHelper UIWindowForModalView];
     displayUIWindow.rootViewController = modalVC;
     [displayUIWindow setHidden:NO];
   });
@@ -167,12 +167,12 @@
       return;
     }
 
-    FIDTimerWithNSDate *timeFetcher = [[FIDTimerWithNSDate alloc] init];
-    FIDBannerViewController *bannerVC =
-        [FIDBannerViewController instantiateViewControllerWithResourceBundle:resourceBundle
-                                                              displayMessage:bannerMessage
-                                                             displayDelegate:displayDelegate
-                                                                 timeFetcher:timeFetcher];
+    FIRIAMTimerWithNSDate *timeFetcher = [[FIRIAMTimerWithNSDate alloc] init];
+    FIRIAMBannerViewController *bannerVC =
+        [FIRIAMBannerViewController instantiateViewControllerWithResourceBundle:resourceBundle
+                                                                 displayMessage:bannerMessage
+                                                                displayDelegate:displayDelegate
+                                                                    timeFetcher:timeFetcher];
 
     if (bannerVC == nil) {
       FIRLogWarning(kFIRLoggerInAppMessagingDisplay, @"I-FID100008",
@@ -184,7 +184,7 @@
       return;
     }
 
-    UIWindow *displayUIWindow = [FIDRenderingWindowHelper UIWindowForBannerView];
+    UIWindow *displayUIWindow = [FIRIAMRenderingWindowHelper UIWindowForBannerView];
     displayUIWindow.rootViewController = bannerVC;
     [displayUIWindow setHidden:NO];
   });
@@ -205,12 +205,12 @@
       return;
     }
 
-    FIDTimerWithNSDate *timeFetcher = [[FIDTimerWithNSDate alloc] init];
-    FIDImageOnlyViewController *imageOnlyVC =
-        [FIDImageOnlyViewController instantiateViewControllerWithResourceBundle:resourceBundle
-                                                                 displayMessage:imageOnlyMessage
-                                                                displayDelegate:displayDelegate
-                                                                    timeFetcher:timeFetcher];
+    FIRIAMTimerWithNSDate *timeFetcher = [[FIRIAMTimerWithNSDate alloc] init];
+    FIRIAMImageOnlyViewController *imageOnlyVC =
+        [FIRIAMImageOnlyViewController instantiateViewControllerWithResourceBundle:resourceBundle
+                                                                    displayMessage:imageOnlyMessage
+                                                                   displayDelegate:displayDelegate
+                                                                       timeFetcher:timeFetcher];
 
     if (imageOnlyVC == nil) {
       FIRLogWarning(kFIRLoggerInAppMessagingDisplay, @"I-FID100006",
@@ -222,7 +222,7 @@
       return;
     }
 
-    UIWindow *displayUIWindow = [FIDRenderingWindowHelper UIWindowForImageOnlyView];
+    UIWindow *displayUIWindow = [FIRIAMRenderingWindowHelper UIWindowForImageOnlyView];
     displayUIWindow.rootViewController = imageOnlyVC;
     [displayUIWindow setHidden:NO];
   });

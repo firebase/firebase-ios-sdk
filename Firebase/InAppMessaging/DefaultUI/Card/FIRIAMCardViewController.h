@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import "FIRIAMBaseRenderingViewController.h"
 
-#import "FIDBaseRenderingViewController.h"
-
-@class FIRInAppMessagingModalDisplay;
+@class FIRInAppMessagingCardDisplay;
 @protocol FIRInAppMessagingDisplayDelegate;
 
 NS_ASSUME_NONNULL_BEGIN
-@interface FIDModalViewController : FIDBaseRenderingViewController
-+ (FIDModalViewController *)
+@interface FIRIAMCardViewController : FIRIAMBaseRenderingViewController
+
++ (FIRIAMCardViewController *)
     instantiateViewControllerWithResourceBundle:(NSBundle *)resourceBundle
-                                 displayMessage:(FIRInAppMessagingModalDisplay *)modalMessage
+                                 displayMessage:(FIRInAppMessagingCardDisplay *)cardMessage
                                 displayDelegate:
                                     (id<FIRInAppMessagingDisplayDelegate>)displayDelegate
                                     timeFetcher:(id<FIDTimeFetcher>)timeFetcher;
+
 @end
 NS_ASSUME_NONNULL_END

@@ -16,10 +16,10 @@
 
 #import <UIKit/UIKit.h>
 
-#import "FIDModalViewController.h"
 #import "FIRCore+InAppMessagingDisplay.h"
+#import "FIRIAMModalViewController.h"
 
-@interface FIDModalViewController ()
+@interface FIRIAMModalViewController ()
 
 @property(nonatomic, readwrite) FIRInAppMessagingModalDisplay *modalDisplayMessage;
 
@@ -66,9 +66,9 @@ static CGFloat TopBottomPaddingAroundMsgCard = 30;
 // the horizontal spacing between image column and text/button column in landscape mode
 static CGFloat LandScapePaddingBetweenImageAndTextColumn = 24;
 
-@implementation FIDModalViewController
+@implementation FIRIAMModalViewController
 
-+ (FIDModalViewController *)
++ (FIRIAMModalViewController *)
     instantiateViewControllerWithResourceBundle:(NSBundle *)resourceBundle
                                  displayMessage:(FIRInAppMessagingModalDisplay *)modalMessage
                                 displayDelegate:
@@ -84,7 +84,7 @@ static CGFloat LandScapePaddingBetweenImageAndTextColumn = 24;
                 resourceBundle);
     return nil;
   }
-  FIDModalViewController *modalVC = (FIDModalViewController *)[storyboard
+  FIRIAMModalViewController *modalVC = (FIRIAMModalViewController *)[storyboard
       instantiateViewControllerWithIdentifier:@"modal-view-vc"];
   modalVC.displayDelegate = displayDelegate;
   modalVC.modalDisplayMessage = modalMessage;
