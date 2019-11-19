@@ -26,15 +26,13 @@ IGNORE = frozenset([
     'Firestore/Protos/nanopb',
     'Firestore/Protos/cpp',
     'Firestore/Protos/objc',
+    'Firestore/core/src/firebase/firestore/remote/'
+    + 'grpc_root_certificates_generated.cc',
+    'Firestore/core/src/firebase/firestore/remote/'
+    + 'grpc_root_certificates_generated.h',
     'Firestore/third_party/abseil-cpp',
     'GoogleDataTransportCCTSupport/GDTCCTLibrary/Protogen/nanopb',
     'GoogleDataTransportCCTSupport/ProtoSupport',
-])
-
-# Individual files that should be ignored.
-IGNORE_FILES = frozenset([
-    'Firestore/core/src/remote/grpc_root_certificates_generated.cc',
-    'Firestore/core/src/remote/grpc_root_certificates_generated.h',
 ])
 
 FIRESTORE_CORE = ['Firestore/core']
@@ -116,8 +114,6 @@ def categorize_files(files):
 
   for filename in files:
     if _in_directories(filename, IGNORE):
-      continue
-    if filename in IGNORE_FILES:
       continue
 
     ext = os.path.splitext(filename)[1]

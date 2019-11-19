@@ -147,7 +147,9 @@ s%^./%%
 # Sources controlled outside this tree
 \%/third_party/% d
 
-# Generated source
+# Generated sources
+\%Firestore/core/src/firebase/firestore/remote/grpc_root_certificates_generated.cc% d
+\%Firestore/core/src/firebase/firestore/remote/grpc_root_certificates_generated.h% d
 \%/Firestore/core/src/firebase/firestore/util/config.h% d
 
 # Sources pulled in by travis bundler
