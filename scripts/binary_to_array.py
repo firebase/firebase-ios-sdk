@@ -64,8 +64,8 @@ arg_parser.add_argument("--output_header",
                              "folder.")
 arg_parser.add_argument("--logical_directory",
                         help="The relative path to where the generated files "
-                              "will be located, used to generate header guards "
-                              "and includes. By default, the current folder.")
+                             "will be located, used to generate header guards "
+                             "and includes. By default, the current folder.")
 arg_parser.add_argument("--physical_directory",
                         help="The absolute path to where the generated files "
                              "will be located. By default, equal to "
@@ -251,8 +251,8 @@ def main():
 
   if path.dirname(output_source) or path.dirname(output_header):
     raise ValueError("output_source and output_header should be short file "
-        + "names. Use logical_directory and/or physical_directory to specify "
-        + "the folder.")
+                   + "names. Use logical_directory and/or physical_directory "
+                   + "to specify the folder.")
 
   logical_directory = args.logical_directory
   if not logical_directory:
