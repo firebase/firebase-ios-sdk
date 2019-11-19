@@ -5,6 +5,10 @@ title: ''
 labels: 'type: feature-request'
 assignees: ''
 ---
+<!-- DO NOT DELETE 
+validate_template=true
+template_path=.github/ISSUE_TEMPLATE/feature_request.md
+-->
 ### [READ] Guidelines
 
 When filing a feature request please make sure the issue title starts with "FR:".
