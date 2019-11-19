@@ -735,3 +735,5 @@ jobs:
 branches:
   only:
     - master
+    # TODO: Don't merge to master!
+    - release-6.13.0
