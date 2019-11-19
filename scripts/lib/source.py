@@ -26,10 +26,6 @@ IGNORE = frozenset([
     'Firestore/Protos/nanopb',
     'Firestore/Protos/cpp',
     'Firestore/Protos/objc',
-    'Firestore/core/src/firebase/firestore/remote/'
-    + 'grpc_root_certificates_generated.cc',
-    'Firestore/core/src/firebase/firestore/remote/'
-    + 'grpc_root_certificates_generated.h',
     'Firestore/third_party/abseil-cpp',
     'GoogleDataTransportCCTSupport/GDTCCTLibrary/Protogen/nanopb',
     'GoogleDataTransportCCTSupport/ProtoSupport',
