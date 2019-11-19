@@ -2,7 +2,7 @@
 - Switch the backend for diagnostics to FLL from CCT.
 
 # v1.1.1
-- GDT was reprefixed to GDTCOR, so usage has been updated.
+- Updated nanopb from 0.3.9.2 to 0.3.9.3.
 
 # v1.1.0
 - Updates GDT dependency to GDTCOR prefixed version.
