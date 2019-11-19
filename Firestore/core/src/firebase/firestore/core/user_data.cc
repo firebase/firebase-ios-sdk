@@ -18,19 +18,18 @@
 
 #include <utility>
 
-#include "Firestore/core/src/firebase/firestore/api/input_validation.h"
 #include "Firestore/core/src/firebase/firestore/model/mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/patch_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/set_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/transform_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/transform_operation.h"
+#include "Firestore/core/src/firebase/firestore/util/exception.h"
 #include "absl/strings/match.h"
 
 namespace firebase {
 namespace firestore {
 namespace core {
 
-using api::ThrowInvalidArgument;
 using model::DocumentKey;
 using model::FieldMask;
 using model::FieldPath;
@@ -42,6 +41,7 @@ using model::Precondition;
 using model::SetMutation;
 using model::TransformMutation;
 using model::TransformOperation;
+using util::ThrowInvalidArgument;
 
 // MARK: - ParseAccumulator
 
@@ -161,6 +161,7 @@ bool ParseContext::write() const {
     case UserDataSource::Update:
       return true;
     case UserDataSource::Argument:
+    case UserDataSource::ArrayArgument:
       return false;
     default:
       ThrowInvalidArgument("Unexpected case for UserDataSource: %s",
@@ -181,10 +182,15 @@ void ParseContext::ValidatePath() const {
 
 void ParseContext::ValidatePathSegment(absl::string_view segment) const {
   absl::string_view designator{RESERVED_FIELD_DESIGNATOR};
+  if (segment.empty()) {
+    ThrowInvalidArgument("Invalid data. Document fields must not be empty%s",
+                         FieldDescription());
+  }
   if (write() && absl::StartsWith(segment, designator) &&
       absl::EndsWith(segment, designator)) {
-    ThrowInvalidArgument("Document fields cannot begin and end with %s%s",
-                         RESERVED_FIELD_DESIGNATOR, FieldDescription());
+    ThrowInvalidArgument(
+        "Invalid data. Document fields cannot begin and end with \"%s\"%s",
+        RESERVED_FIELD_DESIGNATOR, FieldDescription());
   }
 }
 

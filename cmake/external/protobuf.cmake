@@ -22,15 +22,17 @@ endif()
 # the SOURCE_DIR when unpacking so this must come after grpc despite the fact
 # that grpc logically depends upon this.
 
+set(version 3.9.2)
+
 ExternalProject_Add(
   protobuf
   DEPENDS
     grpc-download
 
   DOWNLOAD_DIR ${FIREBASE_DOWNLOAD_DIR}
-  DOWNLOAD_NAME protobuf-v3.5.1.1.tar.gz
-  URL https://github.com/google/protobuf/archive/v3.5.1.1.tar.gz
-  URL_HASH SHA256=56b5d9e1ab2bf4f5736c4cfba9f4981fbc6976246721e7ded5602fbaee6d6869
+  DOWNLOAD_NAME protobuf-${version}.tar.gz
+  URL https://github.com/google/protobuf/archive/v${version}.tar.gz
+  URL_HASH SHA256=1fbf1c2962af287607232b2eddeaec9b4f4a7a6f5934e1a9276e9af76952f7e0
 
   PREFIX ${PROJECT_BINARY_DIR}
   SOURCE_DIR ${PROJECT_BINARY_DIR}/src/grpc/third_party/protobuf

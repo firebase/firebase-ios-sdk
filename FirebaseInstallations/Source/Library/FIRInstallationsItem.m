@@ -46,6 +46,7 @@
   self.refreshToken = item.refreshToken;
   self.authToken = item.authToken;
   self.registrationStatus = item.registrationStatus;
+  self.IIDDefaultToken = item.IIDDefaultToken;
 }
 
 - (FIRInstallationsStoredItem *)storedItem {
@@ -54,6 +55,7 @@
   storedItem.refreshToken = self.refreshToken;
   storedItem.authToken = self.authToken;
   storedItem.registrationStatus = self.registrationStatus;
+  storedItem.IIDDefaultToken = self.IIDDefaultToken;
   return storedItem;
 }
 

@@ -19,7 +19,7 @@
 #include <algorithm>
 #include <utility>
 
-#include "Firestore/core/src/firebase/firestore/api/input_validation.h"
+#include "Firestore/core/src/firebase/firestore/util/exception.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/strings/str_join.h"
 #include "absl/strings/str_replace.h"
@@ -29,7 +29,7 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-using api::ThrowInvalidArgument;
+using util::ThrowInvalidArgument;
 
 namespace {
 
@@ -181,6 +181,20 @@ bool FieldPath::IsKeyFieldPath() const {
 
 std::string FieldPath::CanonicalString() const {
   return absl::StrJoin(begin(), end(), ".", JoinEscaped());
+}
+
+void FieldPath::ValidateSegments(const SegmentsT& segments) {
+  if (segments.empty()) {
+    ThrowInvalidArgument(
+        "Invalid field path. Provided names must not be empty.");
+  }
+
+  for (size_t i = 0; i < segments.size(); i++) {
+    if (segments[i].empty()) {
+      ThrowInvalidArgument(
+          "Invalid field name at index %s. Field names must not be empty.", i);
+    }
+  }
 }
 
 }  // namespace model

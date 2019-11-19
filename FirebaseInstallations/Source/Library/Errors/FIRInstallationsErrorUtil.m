@@ -59,6 +59,14 @@ void FIRInstallationsItemSetErrorToPointer(NSError *error, NSError **pointer) {
                           underlyingError:nil];
 }
 
++ (NSError *)corruptedIIDTokenData {
+  NSString *failureReason =
+      @"IID token data stored in Keychain is corrupted or in an incompatible format.";
+  return [self installationsErrorWithCode:FIRInstallationsErrorCodeUnknown
+                            failureReason:failureReason
+                          underlyingError:nil];
+}
+
 + (FIRInstallationsHTTPError *)APIErrorWithHTTPResponse:(NSHTTPURLResponse *)HTTPResponse
                                                    data:(nullable NSData *)data {
   return [[FIRInstallationsHTTPError alloc] initWithHTTPResponse:HTTPResponse data:data];

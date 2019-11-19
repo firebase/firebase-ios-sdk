@@ -37,6 +37,7 @@ private enum Architecture: String, CaseIterable {
   }
 
   case arm64
+  case arm64e
   case armv7
   case i386
   case x86_64
@@ -44,7 +45,7 @@ private enum Architecture: String, CaseIterable {
   /// The platform associated with the architecture.
   var platform: TargetPlatform {
     switch self {
-    case .arm64, .armv7: return .device
+    case .arm64, .arm64e, .armv7: return .device
     case .i386, .x86_64: return .simulator
     }
   }

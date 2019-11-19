@@ -28,13 +28,13 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-using FactoryFunc = std::unique_ptr<Executor> (*)();
+using FactoryFunc = std::unique_ptr<Executor> (*)(int threads);
 
 class ExecutorTest : public ::testing::TestWithParam<FactoryFunc>,
                      public testutil::AsyncTest {
  public:
   // `GetParam()` must return a factory function.
-  ExecutorTest() : executor{GetParam()()} {
+  ExecutorTest() : executor{GetParam()(/*threads=*/1)} {
   }
 
   std::unique_ptr<Executor> executor;

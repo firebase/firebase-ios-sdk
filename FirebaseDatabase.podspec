@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseDatabase'
-  s.version          = '6.1.0'
+  s.version          = '6.1.2'
   s.summary          = 'Firebase Open Source Libraries for iOS (plus community support for macOS and tvOS)'
 
   s.description      = <<-DESC

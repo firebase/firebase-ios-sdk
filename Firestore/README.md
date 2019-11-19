@@ -44,6 +44,6 @@ b/hotlists/1578399 tracks outstanding issues.
 
 ### Building Protos
 
-Typically you should not need to worrying about regenerating the Objective-C
-files from the .proto files. If you do, see instructions at
+Typically you should not need to worrying about regenerating the C++ files from
+the .proto files. If you do, see instructions at
 [Protos/README.md](Protos/README.md).

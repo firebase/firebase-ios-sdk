@@ -19,8 +19,16 @@
 
 #include "maybe_document.nanopb.h"
 
+#include "Firestore/core/src/firebase/firestore/nanopb/pretty_printing.h"
+
 namespace firebase {
 namespace firestore {
+
+using nanopb::PrintEnumField;
+using nanopb::PrintHeader;
+using nanopb::PrintMessageField;
+using nanopb::PrintPrimitiveField;
+using nanopb::PrintTail;
 
 /* @@protoc_insertion_point(includes) */
 #if PB_PROTO_HEADER_VERSION != 30
@@ -73,6 +81,57 @@ PB_STATIC_ASSERT((pb_membersize(firestore_client_NoDocument, read_time) < 65536 
 PB_STATIC_ASSERT((pb_membersize(firestore_client_NoDocument, read_time) < 256 && pb_membersize(firestore_client_UnknownDocument, version) < 256 && pb_membersize(firestore_client_MaybeDocument, no_document) < 256 && pb_membersize(firestore_client_MaybeDocument, document) < 256 && pb_membersize(firestore_client_MaybeDocument, unknown_document) < 256), YOU_MUST_DEFINE_PB_FIELD_16BIT_FOR_MESSAGES_firestore_client_NoDocument_firestore_client_UnknownDocument_firestore_client_MaybeDocument)
 #endif
 
+
+std::string firestore_client_NoDocument::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "NoDocument", this);
+    std::string result;
+
+    result += PrintPrimitiveField("name: ", name, indent + 1, false);
+    result += PrintMessageField("read_time ", read_time, indent + 1, false);
+
+    std::string tail = PrintTail(indent);
+    return header + result + tail;
+}
+
+std::string firestore_client_UnknownDocument::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "UnknownDocument", this);
+    std::string result;
+
+    result += PrintPrimitiveField("name: ", name, indent + 1, false);
+    result += PrintMessageField("version ", version, indent + 1, false);
+
+    std::string tail = PrintTail(indent);
+    return header + result + tail;
+}
+
+std::string firestore_client_MaybeDocument::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "MaybeDocument", this);
+    std::string result;
+
+    switch (which_document_type) {
+    case firestore_client_MaybeDocument_no_document_tag:
+        result += PrintMessageField("no_document ",
+            no_document, indent + 1, true);
+        break;
+    case firestore_client_MaybeDocument_document_tag:
+        result += PrintMessageField("document ", document, indent + 1, true);
+        break;
+    case firestore_client_MaybeDocument_unknown_document_tag:
+        result += PrintMessageField("unknown_document ",
+            unknown_document, indent + 1, true);
+        break;
+    }
+    result += PrintPrimitiveField("has_committed_mutations: ",
+        has_committed_mutations, indent + 1, false);
+
+    bool is_root = indent == 0;
+    if (!result.empty() || is_root) {
+      std::string tail = PrintTail(indent);
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}
 
 }  // namespace firestore
 }  // namespace firebase

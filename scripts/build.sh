@@ -222,6 +222,14 @@ case "$product-$method-$platform" in
     fi
     ;;
 
+  FirebasePod-xcodebuild-*)
+    RunXcodebuild \
+        -workspace 'CoreOnly/Tests/FirebasePodTest/FirebasePodTest.xcworkspace' \
+        -scheme "FirebasePodTest" \
+        "${xcb_flags[@]}" \
+        build
+    ;;
+
   Auth-xcodebuild-*)
     if [[ "$TRAVIS_PULL_REQUEST" == "false" ||
           "$TRAVIS_PULL_REQUEST_SLUG" == "$TRAVIS_REPO_SLUG" ]]; then
@@ -278,6 +286,9 @@ case "$product-$method-$platform" in
     ;;
 
   Firestore-cmake-macOS)
+    "${firestore_emulator}" start
+    trap '"${firestore_emulator}" stop' ERR EXIT
+
     test -d build || mkdir build
     echo "Preparing cmake build ..."
     (cd build; cmake "${cmake_options[@]}" ..)

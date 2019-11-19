@@ -57,6 +57,7 @@ end
 def configure_local_pods()
   # Firestore is always local; that's what's under development here.
   pod 'FirebaseFirestore', :path => '../../'
+  pod 'GoogleUtilities', :path => '../..'
 
   # FirebaseCore must always be a local pod so that CI builds that make changes
   # to its podspec can still function. See Firestore-*-xcodebuild in
@@ -66,7 +67,6 @@ def configure_local_pods()
   # Pull in local sources conditionally.
   maybe_local_pod 'FirebaseAuth'
   maybe_local_pod 'FirebaseAuthInterop'
-  maybe_local_pod 'GoogleUtilities'
 
   if xcode_major_version() >= 9
     # Firestore still compiles with Xcode 8 to help verify general conformance
@@ -118,7 +118,7 @@ if is_platform(:ios)
     # The next line is the forcing function for the Firebase pod. The Firebase
     # version's subspecs should depend on the component versions in their
     # corresponding podspecs.
-    pod 'Firebase/CoreOnly', '6.9.0'
+    pod 'Firebase/CoreOnly', '6.13.0'
 
     configure_local_pods()
 
@@ -158,7 +158,6 @@ if is_platform(:ios)
       platform :ios, '9.0'
 
       pod 'LibFuzzer', :podspec => 'LibFuzzer.podspec', :inhibit_warnings => true
-      pod '!ProtoCompiler'
     end
   end
 end

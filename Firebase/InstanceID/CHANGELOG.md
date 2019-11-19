@@ -1,10 +1,19 @@
-# 2019-09 -- 4.2.5
-- [fixed] Fix private header imports (#3796).
+# 2019-11-05 -- 4.2.7
+- [fixed] Fixed a crash in `checkTokenRefreshPolicyWithIID:` and ensure `tokenWithAuthorizedEntity:scope:options:handler` method is refreshing token if token is not freshed any more. (#4167)
+- [changed] Updated deprecated keychain access level. (#4172)
 
-# 2019-09 -- 4.2.4
+# 2019-10-22 -- 4.2.6
+- [fixed] Fixed InstanceID initialization timing issue (#4030).
+- [changed] Added check to see if token and IID are inconsistent (#4025).
+- [changed] Removed migration logic from document folder to application folder (#4033).
+
+# 2019-10-08 -- 4.2.5
+- [fixed] Fixed private header imports (#3796).
+
+# 2019-09-23 -- 4.2.4
 - [changed] Moved two headers from internal to private for Remote Config open sourcing (#3621).
 
-# 2019-08 -- 4.2.3
+# 2019-08-20 -- 4.2.3
 - [fixed] Fixed a crash that could occur if InstanceID was shut down when fetching a new instance ID (#3439).
 
 # 2019-07-12 -- 4.2.2

@@ -17,7 +17,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'ProtobufCpp'
-  s.version          = '3.5.2'
+  s.version          = '3.9.2'
   s.summary          = 'Protocol Buffers v.3 runtime library for C++.'
   s.homepage         = 'https://github.com/google/protobuf'
   s.license          = '3-Clause BSD License'
@@ -33,7 +33,7 @@ Pod::Spec.new do |s|
   s.osx.deployment_target = '10.11'
   s.tvos.deployment_target = '10.0'
 
-  s.source_files = 'src/**/*.{h,cc}'
+  s.source_files = 'src/**/*.{h,cc,inc}'
   s.exclude_files = # skip test files. (Yes, the test files are intermixed with
                     # the source. No there doesn't seem to be a common/simple
                     # pattern we could use to exclude them; 'test' appears in
@@ -71,7 +71,11 @@ Pod::Spec.new do |s|
   # Disable warnings that upstream does not concern itself with
   s.compiler_flags = '$(inherited) ' +
     '-Wno-comma ' +
-    '-Wno-shorten-64-to-32'
+    '-Wno-inconsistent-missing-override ' +
+    '-Wno-invalid-offsetof ' +
+    '-Wno-shorten-64-to-32 ' +
+    '-Wno-unreachable-code ' +
+    '-Wno-unused-parameter'
 
   s.requires_arc = false
   s.library = 'c++'

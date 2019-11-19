@@ -16,12 +16,12 @@
 
 #import "Firestore/Example/Tests/Local/FSTLocalStoreTests.h"
 
-#import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
-
 #include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
+#include "Firestore/core/test/firebase/firestore/local/persistence_testing.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
+using firebase::firestore::local::LevelDbPersistenceForTesting;
 using firebase::firestore::local::Persistence;
 
 /**
@@ -35,7 +35,7 @@ using firebase::firestore::local::Persistence;
 @implementation FSTLevelDBLocalStoreTests
 
 - (std::unique_ptr<Persistence>)persistence {
-  return [FSTPersistenceTestHelpers levelDBPersistence];
+  return LevelDbPersistenceForTesting();
 }
 
 - (BOOL)gcIsEager {

@@ -17,10 +17,6 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_DATASTORE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_DATASTORE_H_
 
-#if !defined(__OBJC__)
-#error "This header only supports Objective-C++"
-#endif  // !defined(__OBJC__)
-
 #include <functional>
 #include <memory>
 #include <string>
@@ -63,9 +59,8 @@ namespace remote {
  */
 class Datastore : public std::enable_shared_from_this<Datastore> {
  public:
-  // TODO(varconst): change this to take a single `StatusOr` parameter.
   using LookupCallback = std::function<void(
-      const std::vector<model::MaybeDocument>&, const util::Status&)>;
+      const util::StatusOr<std::vector<model::MaybeDocument>>&)>;
   using CommitCallback = std::function<void(const util::Status&)>;
 
   Datastore(const core::DatabaseInfo& database_info,
@@ -195,7 +190,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
   GrpcConnection grpc_connection_;
 
   std::vector<std::unique_ptr<GrpcCall>> active_calls_;
-  bridge::DatastoreSerializer serializer_bridge_;
+  DatastoreSerializer datastore_serializer_;
 };
 
 }  // namespace remote

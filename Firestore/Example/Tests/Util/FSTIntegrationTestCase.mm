@@ -69,6 +69,7 @@ using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::CreateAutoId;
 using firebase::firestore::util::Path;
 using firebase::firestore::util::Status;
+using firebase::firestore::util::StatusOr;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -112,6 +113,8 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
 - (void)setUp {
   [super setUp];
 
+  LoadXCTestCaseAwait();
+
   _fakeCredentialsProvider = std::make_shared<FakeCredentialsProvider>();
 
   [self clearPersistenceOnce];
@@ -143,8 +146,10 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
 
   @synchronized([FSTIntegrationTestCase class]) {
     if (clearedPersistence) return;
+    StatusOr<Path> maybe_dir = LevelDbPersistence::AppDataDirectory();
+    ASSERT_OK(maybe_dir);
 
-    Path levelDBDir = LevelDbPersistence::AppDataDirectory();
+    Path levelDBDir = maybe_dir.ValueOrDie();
     Status status = util::RecursivelyDelete(levelDBDir);
     ASSERT_OK(status);
 
@@ -170,6 +175,8 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
  * values trigger which configurations.
  */
 + (void)setUpDefaults {
+  if (defaultSettings) return;
+
   defaultSettings = [[FIRFirestoreSettings alloc] init];
   defaultSettings.persistenceEnabled = YES;
 
@@ -245,10 +252,7 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
 }
 
 + (FIRFirestoreSettings *)settings {
-  if (!defaultSettings) {
-    [self setUpDefaults];
-  }
-
+  [self setUpDefaults];
   return defaultSettings;
 }
 
@@ -283,6 +287,12 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
 - (void)primeBackend {
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
+    [FSTIntegrationTestCase setUpDefaults];
+    if (runningAgainstEmulator) {
+      // Priming not required against the emulator.
+      return;
+    }
+
     FIRFirestore *db = [self firestore];
     XCTestExpectation *watchInitialized =
         [self expectationWithDescription:@"Prime backend: Watch initialized"];

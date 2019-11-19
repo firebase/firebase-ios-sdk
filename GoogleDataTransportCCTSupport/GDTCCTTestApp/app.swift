@@ -37,14 +37,18 @@ import GoogleDataTransport
 
     var transport: GDTCORTransport {
       var theTransport: GDTCORTransport = fllTransport
-      if Globals.IsMonkeyTesting {
-        backendSwitch?.selectedSegmentIndex = Int(arc4random_uniform(2))
-      }
+
       if !Thread.current.isMainThread {
         DispatchQueue.main.sync {
+          if Globals.IsMonkeyTesting {
+            backendSwitch?.selectedSegmentIndex = Int(arc4random_uniform(2))
+          }
           theTransport = backendSwitch?.selectedSegmentIndex == 0 ? cctTransport : fllTransport
         }
       } else {
+        if Globals.IsMonkeyTesting {
+          backendSwitch?.selectedSegmentIndex = Int(arc4random_uniform(2))
+        }
         theTransport = backendSwitch?.selectedSegmentIndex == 0 ? cctTransport : fllTransport
       }
       return theTransport
@@ -69,14 +73,17 @@ import GoogleDataTransport
 
     var transport: GDTCORTransport {
       var theTransport: GDTCORTransport = fllTransport
-      if Globals.IsMonkeyTesting {
-        backendSwitch?.selectedSegment = Int(arc4random_uniform(2))
-      }
       if !Thread.current.isMainThread {
         DispatchQueue.main.sync {
+          if Globals.IsMonkeyTesting {
+            backendSwitch?.selectedSegmentIndex = Int(arc4random_uniform(2))
+          }
           theTransport = backendSwitch?.selectedSegment == 0 ? cctTransport : fllTransport
         }
       } else {
+        if Globals.IsMonkeyTesting {
+          backendSwitch?.selectedSegmentIndex = Int(arc4random_uniform(2))
+        }
         theTransport = backendSwitch?.selectedSegment == 0 ? cctTransport : fllTransport
       }
       return theTransport

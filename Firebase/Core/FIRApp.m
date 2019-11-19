@@ -191,6 +191,10 @@ static NSMutableDictionary *sLibraryVersions;
     }
 
     [FIRApp addAppToAppDictionary:app];
+
+    // The FIRApp instance is ready to go, `sDefaultApp` is assigned, other SDKs are now ready to be
+    // instantiated.
+    [app.container instantiateEagerComponents];
     [FIRApp sendNotificationsToSDKs:app];
   }
 }

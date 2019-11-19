@@ -49,8 +49,6 @@
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
 #include "absl/algorithm/container.h"
-#include "absl/base/casts.h"
-#include "absl/memory/memory.h"
 
 namespace firebase {
 namespace firestore {
@@ -89,12 +87,15 @@ using model::ResourcePath;
 using model::ServerTimestampTransform;
 using model::SetMutation;
 using model::SnapshotVersion;
+using model::TargetId;
 using model::TransformMutation;
 using model::TransformOperation;
 using nanopb::ByteString;
 using nanopb::CheckedSize;
+using nanopb::MakeArray;
 using nanopb::MakeStringView;
 using nanopb::Reader;
+using nanopb::SafeReadBoolean;
 using nanopb::Writer;
 using remote::WatchChange;
 using util::Status;
@@ -114,7 +115,7 @@ namespace {
  * Creates the prefix for a fully qualified resource path, without a local path
  * on the end.
  */
-ResourcePath EncodeDatabaseId(const DatabaseId& database_id) {
+ResourcePath DatabaseName(const DatabaseId& database_id) {
   return ResourcePath{"projects", database_id.project_id(), "databases",
                       database_id.database_id()};
 }
@@ -125,7 +126,7 @@ ResourcePath EncodeDatabaseId(const DatabaseId& database_id) {
  */
 pb_bytes_array_t* EncodeResourceName(const DatabaseId& database_id,
                                      const ResourcePath& path) {
-  return Serializer::EncodeString(EncodeDatabaseId(database_id)
+  return Serializer::EncodeString(DatabaseName(database_id)
                                       .Append("documents")
                                       .Append(path)
                                       .CanonicalString());
@@ -196,13 +197,11 @@ Query InvalidQuery() {
 }
 
 Serializer::Serializer(DatabaseId database_id)
-    : database_id_(std::move(database_id)),
-      database_name_(EncodeDatabaseId(database_id_).CanonicalString()) {
+    : database_id_(std::move(database_id)) {
 }
 
-void Serializer::FreeNanopbMessage(const pb_field_t fields[],
-                                   void* dest_struct) {
-  pb_release(fields, dest_struct);
+pb_bytes_array_t* Serializer::EncodeDatabaseName() const {
+  return EncodeString(DatabaseName(database_id_).CanonicalString());
 }
 
 google_firestore_v1_Value Serializer::EncodeFieldValue(
@@ -351,7 +350,7 @@ FieldValue::Map::value_type Serializer::DecodeFieldsEntry(
   return FieldValue::Map::value_type{std::move(key), std::move(value)};
 }
 
-FieldValue::Map Serializer::DecodeFields(
+ObjectValue Serializer::DecodeFields(
     Reader* reader,
     size_t count,
     const google_firestore_v1_Document_FieldsEntry* fields) const {
@@ -361,7 +360,7 @@ FieldValue::Map Serializer::DecodeFields(
     result = result.insert(std::move(kv.first), std::move(kv.second));
   }
 
-  return result;
+  return ObjectValue::FromMap(result);
 }
 
 FieldValue::Map Serializer::DecodeMapValue(
@@ -388,13 +387,7 @@ FieldValue Serializer::DecodeFieldValue(
       return FieldValue::Null();
 
     case google_firestore_v1_Value_boolean_value_tag: {
-      // Due to the nanopb implementation, msg.boolean_value could be an integer
-      // other than 0 or 1, (such as 2). This leads to undefined behaviour when
-      // it's read as a boolean. eg. on at least gcc, the value is treated as
-      // both true *and* false. So we'll instead memcpy to an integer (via
-      // absl::bit_cast) and compare with 0.
-      int bool_as_int = absl::bit_cast<int8_t>(msg.boolean_value);
-      return FieldValue::FromBoolean(bool_as_int != 0);
+      return FieldValue::FromBoolean(SafeReadBoolean(msg.boolean_value));
     }
 
     case google_firestore_v1_Value_integer_value_tag:
@@ -547,17 +540,16 @@ Document Serializer::DecodeFoundDocument(
               "Tried to deserialize a found document from a missing document.");
 
   DocumentKey key = DecodeKey(reader, response.found.name);
-  FieldValue::Map value =
+  ObjectValue value =
       DecodeFields(reader, response.found.fields_count, response.found.fields);
-  SnapshotVersion version =
-      DecodeSnapshotVersion(reader, response.found.update_time);
+  SnapshotVersion version = DecodeVersion(reader, response.found.update_time);
 
   if (version == SnapshotVersion::None()) {
     reader->Fail("Got a document response with no snapshot version");
   }
 
-  return Document(ObjectValue::FromMap(std::move(value)), std::move(key),
-                  version, DocumentState::kSynced);
+  return Document(std::move(value), std::move(key), version,
+                  DocumentState::kSynced);
 }
 
 NoDocument Serializer::DecodeMissingDocument(
@@ -568,7 +560,7 @@ NoDocument Serializer::DecodeMissingDocument(
               "Tried to deserialize a missing document from a found document.");
 
   DocumentKey key = DecodeKey(reader, response.missing);
-  SnapshotVersion version = DecodeSnapshotVersion(reader, response.read_time);
+  SnapshotVersion version = DecodeVersion(reader, response.read_time);
 
   if (version == SnapshotVersion::None()) {
     reader->Fail("Got a no document response with no snapshot version");
@@ -579,23 +571,13 @@ NoDocument Serializer::DecodeMissingDocument(
                     /*has_committed_mutations=*/false);
 }
 
-Document Serializer::DecodeDocument(
-    Reader* reader, const google_firestore_v1_Document& proto) const {
-  FieldValue::Map fields_internal =
-      DecodeFields(reader, proto.fields_count, proto.fields);
-  SnapshotVersion version = DecodeSnapshotVersion(reader, proto.update_time);
-
-  return Document(ObjectValue::FromMap(std::move(fields_internal)),
-                  DecodeKey(reader, proto.name), version,
-                  DocumentState::kSynced);
-}
-
 google_firestore_v1_Write Serializer::EncodeMutation(
     const Mutation& mutation) const {
   HARD_ASSERT(mutation.is_valid(), "Invalid mutation encountered.");
   google_firestore_v1_Write result{};
 
   if (!mutation.precondition().is_none()) {
+    result.has_current_document = true;
     result.current_document = EncodePrecondition(mutation.precondition());
   }
 
@@ -611,7 +593,13 @@ google_firestore_v1_Write Serializer::EncodeMutation(
       result.which_operation = google_firestore_v1_Write_update_tag;
       auto patch_mutation = static_cast<const PatchMutation&>(mutation);
       result.update = EncodeDocument(mutation.key(), patch_mutation.value());
-      result.update_mask = EncodeFieldMask(patch_mutation.mask());
+      // Note: the fact that this field is set (even if the mask is empty) is
+      // what makes the backend treat this as a patch mutation, not a set
+      // mutation.
+      result.has_update_mask = true;
+      if (patch_mutation.mask().size() != 0) {
+        result.update_mask = EncodeFieldMask(patch_mutation.mask());
+      }
       return result;
     }
 
@@ -632,6 +620,13 @@ google_firestore_v1_Write Serializer::EncodeMutation(
             EncodeFieldTransform(field_transform);
         i++;
       }
+
+      // NOTE: We set a precondition of exists: true as a safety-check, since we
+      // always combine TransformMutations with a SetMutation or PatchMutation
+      // which (if successful) should end up with an existing document.
+      result.has_current_document = true;
+      result.current_document = EncodePrecondition(Precondition::Exists(true));
+
       return result;
     }
 
@@ -647,16 +642,18 @@ google_firestore_v1_Write Serializer::EncodeMutation(
 
 Mutation Serializer::DecodeMutation(
     nanopb::Reader* reader, const google_firestore_v1_Write& mutation) const {
-  Precondition precondition =
-      DecodePrecondition(reader, mutation.current_document);
+  auto precondition = Precondition::None();
+  if (mutation.has_current_document) {
+    precondition = DecodePrecondition(reader, mutation.current_document);
+  }
 
   switch (mutation.which_operation) {
     case google_firestore_v1_Write_update_tag: {
       DocumentKey key = DecodeKey(reader, mutation.update.name);
-      ObjectValue value = ObjectValue::FromMap(DecodeFields(
-          reader, mutation.update.fields_count, mutation.update.fields));
-      FieldMask mask = DecodeFieldMask(mutation.update_mask);
-      if (mask.size() > 0) {
+      ObjectValue value = DecodeFields(reader, mutation.update.fields_count,
+                                       mutation.update.fields);
+      if (mutation.has_update_mask) {
+        FieldMask mask = DecodeFieldMask(mutation.update_mask);
         return PatchMutation(std::move(key), std::move(value), std::move(mask),
                              std::move(precondition));
       } else {
@@ -739,7 +736,7 @@ Precondition Serializer::DecodePrecondition(
     }
     case google_firestore_v1_Precondition_update_time_tag:
       return Precondition::UpdateTime(
-          DecodeSnapshotVersion(reader, precondition.update_time));
+          DecodeVersion(reader, precondition.update_time));
   }
 
   reader->Fail(StringFormat("Unknown Precondition type: %s",
@@ -805,6 +802,8 @@ Serializer::EncodeFieldTransform(const FieldTransform& field_transform) const {
       return proto;
 
     case Type::Increment: {
+      proto.which_transform_type =
+          google_firestore_v1_DocumentTransform_FieldTransform_increment_tag;
       const auto& increment = static_cast<const NumericIncrementTransform&>(
           field_transform.transformation());
       proto.increment = EncodeFieldValue(increment.operand());
@@ -1382,7 +1381,7 @@ google_protobuf_Timestamp Serializer::EncodeTimestamp(
   return result;
 }
 
-SnapshotVersion Serializer::DecodeSnapshotVersion(
+SnapshotVersion Serializer::DecodeVersion(
     nanopb::Reader* reader, const google_protobuf_Timestamp& proto) {
   return SnapshotVersion{DecodeTimestamp(reader, proto)};
 }
@@ -1486,101 +1485,199 @@ google_firestore_v1_MapValue Serializer::EncodeMapValue(
   return result;
 }
 
-// TODO(varconst): everything below
-
 MutationResult Serializer::DecodeMutationResult(
+    nanopb::Reader* reader,
     const google_firestore_v1_WriteResult& write_result,
     const SnapshotVersion& commit_version) const {
-  // TODO(varconst): implement.
-  // - (MutationResult)decodedMutationResult:(GCFSWriteResult *)mutation
-  //     commitVersion:(const SnapshotVersion &)commitVersion;
-  return MutationResult{{}, {}};
+  // NOTE: Deletes don't have an update_time, use commit_version instead.
+  SnapshotVersion version =
+      write_result.has_update_time
+          ? DecodeVersion(reader, write_result.update_time)
+          : commit_version;
+
+  absl::optional<std::vector<FieldValue>> transform_results;
+  if (write_result.transform_results_count > 0) {
+    transform_results = std::vector<FieldValue>{};
+    for (pb_size_t i = 0; i < write_result.transform_results_count; i++) {
+      transform_results->push_back(
+          DecodeFieldValue(reader, write_result.transform_results[i]));
+    }
+  }
+
+  return MutationResult(version, std::move(transform_results));
 }
 
-std::unordered_map<std::string, std::string>
+std::vector<google_firestore_v1_ListenRequest_LabelsEntry>
 Serializer::EncodeListenRequestLabels(const QueryData& query_data) const {
-  // TODO(varconst): implement.
-  // - (nullable NSMutableDictionary<NSString *, NSString *> *)
-  //     encodedListenRequestLabelsForQueryData: (const QueryData &)queryData;
-  return {};
+  std::vector<google_firestore_v1_ListenRequest_LabelsEntry> result;
+  auto value = EncodeLabel(query_data.purpose());
+  if (value.empty()) {
+    return result;
+  }
+
+  result.push_back({/* key */ EncodeString("goog-listen-tags"),
+                    /* value */ EncodeString(value)});
+
+  return result;
 }
 
 std::string Serializer::EncodeLabel(QueryPurpose purpose) const {
-  // TODO(varconst): implement.
-  // - (nullable NSString *)encodedLabelForPurpose:(QueryPurpose)purpose;
-  return {};
+  switch (purpose) {
+    case QueryPurpose::Listen:
+      return "";
+    case QueryPurpose::ExistenceFilterMismatch:
+      return "existence-filter-mismatch";
+    case QueryPurpose::LimboResolution:
+      return "limbo-document";
+  }
+  UNREACHABLE();
 }
 
 std::unique_ptr<WatchChange> Serializer::DecodeWatchChange(
     nanopb::Reader* reader,
     const google_firestore_v1_ListenResponse& watch_change) const {
-  // TODO(varconst): implement.
-  // - (std::unique_ptr<WatchChange>)decodedWatchChange:
-  //     (GCFSListenResponse *)watchChange;
-  return {};
+  switch (watch_change.which_response_type) {
+    case google_firestore_v1_ListenResponse_target_change_tag:
+      return DecodeTargetChange(reader, watch_change.target_change);
+
+    case google_firestore_v1_ListenResponse_document_change_tag:
+      return DecodeDocumentChange(reader, watch_change.document_change);
+
+    case google_firestore_v1_ListenResponse_document_delete_tag:
+      return DecodeDocumentDelete(reader, watch_change.document_delete);
+
+    case google_firestore_v1_ListenResponse_document_remove_tag:
+      return DecodeDocumentRemove(reader, watch_change.document_remove);
+
+    case google_firestore_v1_ListenResponse_filter_tag:
+      return DecodeExistenceFilterWatchChange(reader, watch_change.filter);
+  }
+  UNREACHABLE();
 }
 
-SnapshotVersion Serializer::DecodeVersion(
+SnapshotVersion Serializer::DecodeVersionFromListenResponse(
     nanopb::Reader* reader,
     const google_firestore_v1_ListenResponse& listen_response) const {
-  // TODO(varconst): implement.
-  // - (SnapshotVersion)versionFromListenResponse:
-  //     (GCFSListenResponse *)watchChange;
-  return {};
+  // We have only reached a consistent snapshot for the entire stream if there
+  // is a read_time set and it applies to all targets (i.e. the list of targets
+  // is empty). The backend is guaranteed to send such responses.
+  if (listen_response.which_response_type !=
+      google_firestore_v1_ListenResponse_target_change_tag) {
+    return SnapshotVersion::None();
+  }
+  if (listen_response.target_change.target_ids_count != 0) {
+    return SnapshotVersion::None();
+  }
+
+  return DecodeVersion(reader, listen_response.target_change.read_time);
 }
 
 std::unique_ptr<WatchChange> Serializer::DecodeTargetChange(
     nanopb::Reader* reader,
     const google_firestore_v1_TargetChange& change) const {
-  // TODO(varconst): implement.
-  // - (std::unique_ptr<WatchChange>)decodedTargetChangeFromWatchChange:
-  //     (GCFSTargetChange *)change;
-  return {};
+  WatchTargetChangeState state =
+      DecodeTargetChangeState(reader, change.target_change_type);
+  std::vector<TargetId> target_ids(change.target_ids,
+                                   change.target_ids + change.target_ids_count);
+  ByteString resume_token(change.resume_token);
+
+  util::Status cause;
+  if (change.has_cause) {
+    cause = util::Status{static_cast<Error>(change.cause.code),
+                         DecodeString(change.cause.message)};
+  }
+
+  return absl::make_unique<WatchTargetChange>(
+      state, std::move(target_ids), std::move(resume_token), std::move(cause));
 }
 
 WatchTargetChangeState Serializer::DecodeTargetChangeState(
     nanopb::Reader* reader,
     const google_firestore_v1_TargetChange_TargetChangeType state) {
-  // TODO(varconst): implement.
-  // -(WatchTargetChangeState)decodedWatchTargetChangeState:
-  //     (GCFSTargetChange_TargetChangeType)state;
-  return {};
+  switch (state) {
+    case google_firestore_v1_TargetChange_TargetChangeType_NO_CHANGE:
+      return WatchTargetChangeState::NoChange;
+    case google_firestore_v1_TargetChange_TargetChangeType_ADD:
+      return WatchTargetChangeState::Added;
+    case google_firestore_v1_TargetChange_TargetChangeType_REMOVE:
+      return WatchTargetChangeState::Removed;
+    case google_firestore_v1_TargetChange_TargetChangeType_CURRENT:
+      return WatchTargetChangeState::Current;
+    case google_firestore_v1_TargetChange_TargetChangeType_RESET:
+      return WatchTargetChangeState::Reset;
+  }
+  UNREACHABLE();
 }
 
 std::unique_ptr<WatchChange> Serializer::DecodeDocumentChange(
     nanopb::Reader* reader,
     const google_firestore_v1_DocumentChange& change) const {
-  // TODO(varconst): implement.
-  // -(std::unique_ptr<WatchChange>)decodedDocumentChange:
-  //     (GCFSDocumentChange*)change;
-  return {};
+  ObjectValue value = DecodeFields(reader, change.document.fields_count,
+                                   change.document.fields);
+  DocumentKey key = DecodeKey(reader, change.document.name);
+
+  HARD_ASSERT(change.document.has_update_time,
+              "Got a document change with no snapshot version");
+  SnapshotVersion version = DecodeVersion(reader, change.document.update_time);
+
+  // TODO(b/142956770): other platforms memoize `change.document` inside the
+  // `Document`. This currently cannot be implemented efficiently because it
+  // would require a reference-counted ownership model for the proto (copying it
+  // would defeat the purpose). Note, however, that even without this
+  // optimization C++ implementation is on par with the preceding Objective-C
+  // implementation.
+  Document document(std::move(value), key, version, DocumentState::kSynced);
+
+  std::vector<TargetId> updated_target_ids(
+      change.target_ids, change.target_ids + change.target_ids_count);
+  std::vector<TargetId> removed_target_ids(
+      change.removed_target_ids,
+      change.removed_target_ids + change.removed_target_ids_count);
+
+  return absl::make_unique<DocumentWatchChange>(
+      std::move(updated_target_ids), std::move(removed_target_ids),
+      std::move(key), std::move(document));
 }
 
 std::unique_ptr<WatchChange> Serializer::DecodeDocumentDelete(
     nanopb::Reader* reader,
     const google_firestore_v1_DocumentDelete& change) const {
-  // TODO(varconst): implement.
-  // -(std::unique_ptr<WatchChange>)decodedDocumentDelete:
-  //     (GCFSDocumentDelete*)change;
-  return {};
+  DocumentKey key = DecodeKey(reader, change.document);
+  // Note that version might be unset in which case we use
+  // SnapshotVersion::None().
+  SnapshotVersion version = change.has_read_time
+                                ? DecodeVersion(reader, change.read_time)
+                                : SnapshotVersion::None();
+  NoDocument document(key, version, /* has_committed_mutations= */ false);
+
+  std::vector<TargetId> removed_target_ids(
+      change.removed_target_ids,
+      change.removed_target_ids + change.removed_target_ids_count);
+
+  return absl::make_unique<DocumentWatchChange>(
+      std::vector<TargetId>{}, std::move(removed_target_ids), std::move(key),
+      std::move(document));
 }
 
 std::unique_ptr<WatchChange> Serializer::DecodeDocumentRemove(
     nanopb::Reader* reader,
     const google_firestore_v1_DocumentRemove& change) const {
-  // TODO(varconst): implement.
-  // -(std::unique_ptr<WatchChange>)decodedDocumentRemove:
-  //     (GCFSDocumentRemove*)change;
-  return {};
+  DocumentKey key = DecodeKey(reader, change.document);
+  std::vector<TargetId> removed_target_ids(
+      change.removed_target_ids,
+      change.removed_target_ids + change.removed_target_ids_count);
+
+  return absl::make_unique<DocumentWatchChange>(std::vector<TargetId>{},
+                                                std::move(removed_target_ids),
+                                                std::move(key), absl::nullopt);
 }
 
 std::unique_ptr<WatchChange> Serializer::DecodeExistenceFilterWatchChange(
     nanopb::Reader* reader,
     const google_firestore_v1_ExistenceFilter& filter) const {
-  // TODO(varconst): implement.
-  // -(std::unique_ptr<WatchChange>) decodedExistenceFilterWatchChange:
-  //     (GCFSExistenceFilter*)filter;
-  return {};
+  ExistenceFilter existence_filter{filter.count};
+  return absl::make_unique<ExistenceFilterWatchChange>(existence_filter,
+                                                       filter.target_id);
 }
 
 }  // namespace remote

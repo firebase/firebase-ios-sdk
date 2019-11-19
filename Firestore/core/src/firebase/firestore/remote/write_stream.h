@@ -17,11 +17,6 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_WRITE_STREAM_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_WRITE_STREAM_H_
 
-#if !defined(__OBJC__)
-#error "This header only supports Objective-C++"
-#endif  // !defined(__OBJC__)
-
-#import <Foundation/Foundation.h>
 #include <memory>
 #include <string>
 #include <vector>
@@ -35,11 +30,11 @@
 #include "absl/strings/string_view.h"
 #include "grpcpp/support/byte_buffer.h"
 
-#import "Firestore/Source/Remote/FSTSerializerBeta.h"
-
 namespace firebase {
 namespace firestore {
 namespace remote {
+
+class Serializer;
 
 class WriteStreamCallback {
  public:
@@ -97,11 +92,11 @@ class WriteStream : public Stream {
  public:
   WriteStream(const std::shared_ptr<util::AsyncQueue>& async_queue,
               std::shared_ptr<auth::CredentialsProvider> credentials_provider,
-              FSTSerializerBeta* serializer,
+              Serializer serializer,
               GrpcConnection* grpc_connection,
               WriteStreamCallback* callback);
 
-  void SetLastStreamToken(const nanopb::ByteString& token);
+  void set_last_stream_token(nanopb::ByteString token);
   /**
    * The last received stream token from the server, used to acknowledge which
    * responses the client has processed. Stream tokens are opaque checkpoint
@@ -110,7 +105,7 @@ class WriteStream : public Stream {
    * `WriteStream` manages propagating this value from responses to the
    * next request.
    */
-  nanopb::ByteString GetLastStreamToken() const;
+  const nanopb::ByteString& last_stream_token() const;
 
   /**
    * Tracks whether or not a handshake has been successfully exchanged and
@@ -148,9 +143,10 @@ class WriteStream : public Stream {
     return "WriteStream";
   }
 
-  bridge::WriteStreamSerializer serializer_bridge_;
+  WriteStreamSerializer write_serializer_;
   WriteStreamCallback* callback_ = nullptr;
   bool handshake_complete_ = false;
+  nanopb::ByteString last_stream_token_;
 };
 
 }  // namespace remote

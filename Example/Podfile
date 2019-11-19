@@ -21,11 +21,11 @@ target 'Core_Example_iOS' do
   # The next line is the forcing function for the Firebase pod. The Firebase
   # version's subspecs should depend on the component versions in the
   # corresponding podspec's in this repo.
-  pod 'Firebase/CoreOnly', '6.9.0'
+  pod 'Firebase/CoreOnly', '6.13.0'
 
   target 'Core_Tests_iOS' do
     inherit! :search_paths
-    pod 'OCMock'
+    pod 'OCMock', '~> 3.4.0'
   end
 end
 
@@ -36,7 +36,7 @@ target 'Auth_Example_iOS' do
 
   target 'Auth_Tests_iOS' do
     inherit! :search_paths
-    pod 'OCMock'
+    pod 'OCMock', '~> 3.4.0'
   end
 end
 
@@ -63,7 +63,7 @@ target 'DynamicLinks_Example_iOS' do
 
   target 'DynamicLinks_Tests_iOS' do
     inherit! :search_paths
-    pod 'OCMock'
+    pod 'OCMock', '~> 3.4.0'
   end
 end
 
@@ -85,7 +85,7 @@ target 'InstanceID_Example_iOS' do
 
   target 'InstanceID_Tests_iOS' do
     inherit! :search_paths
-    pod 'OCMock'
+    pod 'OCMock', '~> 3.4.0'
   end
 end
 
@@ -96,7 +96,7 @@ target 'Messaging_Example_iOS' do
 
   target 'Messaging_Tests_iOS' do
     inherit! :search_paths
-    pod 'OCMock'
+    pod 'OCMock', '~> 3.4.0'
   end
 end
 
@@ -118,7 +118,7 @@ target 'Storage_Example_iOS' do
 
   target 'Storage_Tests_iOS' do
     inherit! :search_paths
-    pod 'OCMock'
+    pod 'OCMock', '~> 3.4.0'
   end
 
   target 'Storage_IntegrationTests_iOS' do

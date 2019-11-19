@@ -76,6 +76,8 @@
 @property(nonatomic, readwrite, assign) NSTimeInterval lastSetDefaultsTimeInterval;
 /// The latest eTag value stored from the last successful response.
 @property(nonatomic, readwrite, assign) NSString *lastETag;
+/// The timestamp of the last eTag update.
+@property(nonatomic, readwrite, assign) NSTimeInterval lastETagUpdateTime;
 
 #pragma mark Throttling properties
 

@@ -133,6 +133,11 @@ def sync_firestore(test_only)
     ],
 
     'OTHER_CFLAGS' => [
+      # Protobuf C++ generates dead code.
+      '-Wno-unreachable-code',
+
+      # Our public build can't include -Werror, but for development it's quite
+      # helpful.
       '-Werror'
     ]
   }
@@ -546,7 +551,7 @@ class Syncer
         next
       end
 
-      path = PODFILE_DIR.join(config.base_configuration_reference.path)
+      path = PODFILE_DIR.join(config.base_configuration_reference.real_path)
       if !File.file?(path)
         puts "Skipping #{target.name} (#{config.name}); missing xcconfig"
         next

@@ -1,3 +1,11 @@
+# v1.2.2
+- Added redirect response handling to FLL.
+- Only use gzipped data when it's smaller than the original and successful.
+
+# v1.2.1
+- Fixes sanitizer issues and runtime errors. (#4039, #4027)
+- Fixes a threading issue with ivar access in GDTCORUploadCoordinator. (#4019)
+
 # v1.2.0
 - Updates GDT dependency to improve backgrounding logic.
 - Reduces requests for background task creation. (#3893)

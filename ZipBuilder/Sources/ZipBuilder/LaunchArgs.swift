@@ -221,7 +221,7 @@ struct LaunchArgs {
       carthageDir = nil
     }
 
-    // Parse the Carthage directory key.
+    // Parse the Build Root key.
     if let buildRoot = defaults.string(forKey: Key.buildRoot.rawValue) {
       let url = URL(fileURLWithPath: buildRoot)
       guard fileChecker.directoryExists(at: url) else {

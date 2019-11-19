@@ -24,6 +24,12 @@
 
 static NSString *const kRmqSqliteFilename = @"rmq-sync-manager-test";
 
+@interface FIRMessagingRmqManager (ExposedForTest)
+
+- (void)removeDatabase;
+
+@end
+
 @interface FIRMessagingSyncMessageManagerTest : XCTestCase
 
 @property(nonatomic, readwrite, strong) FIRMessagingRmqManager *rmqManager;
@@ -36,13 +42,12 @@ static NSString *const kRmqSqliteFilename = @"rmq-sync-manager-test";
 - (void)setUp {
   [super setUp];
   // Make sure the db state is clean before we begin.
-  [FIRMessagingRmqManager removeDatabaseWithName:kRmqSqliteFilename];
-  self.rmqManager = [[FIRMessagingRmqManager alloc] initWithDatabaseName:kRmqSqliteFilename];
+  _rmqManager = [[FIRMessagingRmqManager alloc] initWithDatabaseName:kRmqSqliteFilename];
   self.syncMessageManager = [[FIRMessagingSyncMessageManager alloc] initWithRmqManager:self.rmqManager];
 }
 
 - (void)tearDown {
-  [[self.rmqManager class] removeDatabaseWithName:kRmqSqliteFilename];
+  [_rmqManager removeDatabase];
   [super tearDown];
 }
 
@@ -208,7 +213,7 @@ static NSString *const kRmqSqliteFilename = @"rmq-sync-manager-test";
   XCTAssertFalse([self.syncMessageManager didReceiveAPNSSyncMessage:noTTLMessage]);
 
   // Mark the no-TTL message as received via MCS too
-  XCTAssertTrue([self.rmqManager updateSyncMessageViaMCSWithRmqID:noTTLMessageID error:nil]);
+  [self.rmqManager updateSyncMessageViaMCSWithRmqID:noTTLMessageID];
 
   [self.syncMessageManager removeExpiredSyncMessages];
 
@@ -243,7 +248,7 @@ static NSString *const kRmqSqliteFilename = @"rmq-sync-manager-test";
   XCTAssertFalse([self.syncMessageManager didReceiveAPNSSyncMessage:noTTLMessage]);
 
   // Mark the no-TTL message as received via MCS too
-  XCTAssertTrue([self.rmqManager updateSyncMessageViaMCSWithRmqID:noTTLMessageID error:nil]);
+  [self.rmqManager updateSyncMessageViaMCSWithRmqID:noTTLMessageID];
 
   // Remove expired or finished sync messages.
   [self.syncMessageManager removeExpiredSyncMessages];

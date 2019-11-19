@@ -58,6 +58,11 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     install_secrets
     ;;
 
+  FirebasePod-iOS-xcodebuild)
+    gem install xcpretty
+    bundle exec pod install --project-directory=CoreOnly/Tests/FirebasePodTest --repo-update
+    ;;
+
   Auth-*)
     # Install the workspace for integration testing.
     gem install xcpretty

@@ -21,6 +21,8 @@
 #define PB_GOOGLE_PROTOBUF_WRAPPERS_NANOPB_H_INCLUDED
 #include <pb.h>
 
+#include <string>
+
 namespace firebase {
 namespace firestore {
 
@@ -33,46 +35,64 @@ namespace firestore {
 /* Struct definitions */
 typedef struct _google_protobuf_BytesValue {
     pb_bytes_array_t *value;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_protobuf_BytesValue) */
 } google_protobuf_BytesValue;
 
 typedef struct _google_protobuf_StringValue {
     pb_bytes_array_t *value;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_protobuf_StringValue) */
 } google_protobuf_StringValue;
 
 typedef struct _google_protobuf_BoolValue {
     bool value;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_protobuf_BoolValue) */
 } google_protobuf_BoolValue;
 
 typedef struct _google_protobuf_DoubleValue {
     double value;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_protobuf_DoubleValue) */
 } google_protobuf_DoubleValue;
 
 typedef struct _google_protobuf_FloatValue {
     float value;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_protobuf_FloatValue) */
 } google_protobuf_FloatValue;
 
 typedef struct _google_protobuf_Int32Value {
     int32_t value;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_protobuf_Int32Value) */
 } google_protobuf_Int32Value;
 
 typedef struct _google_protobuf_Int64Value {
     int64_t value;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_protobuf_Int64Value) */
 } google_protobuf_Int64Value;
 
 typedef struct _google_protobuf_UInt32Value {
     uint32_t value;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_protobuf_UInt32Value) */
 } google_protobuf_UInt32Value;
 
 typedef struct _google_protobuf_UInt64Value {
     uint64_t value;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_protobuf_UInt64Value) */
 } google_protobuf_UInt64Value;
 

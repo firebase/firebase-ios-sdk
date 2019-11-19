@@ -61,11 +61,6 @@ class LocalSerializer;
 
 namespace remote {
 
-template <typename T>
-T* MakeArray(pb_size_t count) {
-  return static_cast<T*>(calloc(count, sizeof(T)));
-}
-
 core::Query InvalidQuery();
 
 /**
@@ -76,8 +71,8 @@ core::Query InvalidQuery();
  * protocol buffer, and methods starting with "Decode" convert from a nanopb
  * protocol buffer to a model object.
  *
- * For encoded messages, FreeNanopbMessage() must be called on the returned
- * nanopb proto buffer or a memory leak will occur.
+ * For encoded messages, `nanopb::FreeNanopbMessage()` must be called on the
+ * returned nanopb proto buffer or a memory leak will occur.
  *
  * All errors that occur during serialization are fatal.
  *
@@ -125,11 +120,10 @@ class Serializer {
   static pb_bytes_array_t* EncodeBytes(const std::vector<uint8_t>& bytes);
 
   /**
-   * Release memory allocated by the Encode* methods that return protos.
-   *
-   * This essentially wraps calls to nanopb's pb_release() method.
+   * Returns the database ID, such as
+   * `projects/{project_id}/databases/{database_id}`.
    */
-  static void FreeNanopbMessage(const pb_field_t fields[], void* dest_struct);
+  pb_bytes_array_t* EncodeDatabaseName() const;
 
   /**
    * @brief Converts the FieldValue model passed into bytes.
@@ -196,17 +190,15 @@ class Serializer {
       const google_firestore_v1_DocumentTransform_FieldTransform& proto) const;
 
   model::MutationResult DecodeMutationResult(
+      nanopb::Reader* reader,
       const google_firestore_v1_WriteResult& write_result,
       const model::SnapshotVersion& commit_version) const;
 
-  std::unordered_map<std::string, std::string> EncodeListenRequestLabels(
-      const local::QueryData& query_data) const;
+  std::vector<google_firestore_v1_ListenRequest_LabelsEntry>
+  EncodeListenRequestLabels(const local::QueryData& query_data) const;
 
   static pb_bytes_array_t* EncodeFieldPath(const model::FieldPath& field_path);
   static model::FieldPath DecodeFieldPath(const pb_bytes_array_t* field_path);
-
-  model::Document DecodeDocument(
-      nanopb::Reader* reader, const google_firestore_v1_Document& proto) const;
 
   static google_protobuf_Timestamp EncodeVersion(
       const model::SnapshotVersion& version);
@@ -214,7 +206,7 @@ class Serializer {
   static google_protobuf_Timestamp EncodeTimestamp(
       const Timestamp& timestamp_value);
 
-  static model::SnapshotVersion DecodeSnapshotVersion(
+  static model::SnapshotVersion DecodeVersion(
       nanopb::Reader* reader, const google_protobuf_Timestamp& proto);
 
   static Timestamp DecodeTimestamp(
@@ -249,6 +241,22 @@ class Serializer {
       nanopb::Reader* reader,
       const google_firestore_v1_ListenResponse& watch_change) const;
 
+  model::SnapshotVersion DecodeVersionFromListenResponse(
+      nanopb::Reader* reader,
+      const google_firestore_v1_ListenResponse& listen_response) const;
+
+  model::ObjectValue DecodeFields(
+      nanopb::Reader* reader,
+      size_t count,
+      const google_firestore_v1_Document_FieldsEntry* fields) const;
+
+  // Public for the sake of tests.
+  google_firestore_v1_StructuredQuery_Filter EncodeFilters(
+      const core::FilterList& filters) const;
+  core::FilterList DecodeFilters(
+      nanopb::Reader* reader,
+      const google_firestore_v1_StructuredQuery_Filter& proto) const;
+
  private:
   google_firestore_v1_Value EncodeNull() const;
   google_firestore_v1_Value EncodeBoolean(bool value) const;
@@ -278,10 +286,6 @@ class Serializer {
   model::FieldValue::Map::value_type DecodeFieldsEntry(
       nanopb::Reader* reader,
       const google_firestore_v1_Document_FieldsEntry& fields) const;
-  model::FieldValue::Map DecodeFields(
-      nanopb::Reader* reader,
-      size_t count,
-      const google_firestore_v1_Document_FieldsEntry* fields) const;
 
   model::FieldValue::Map DecodeMapValue(
       nanopb::Reader* reader,
@@ -293,12 +297,6 @@ class Serializer {
       nanopb::Reader* reader, const pb_bytes_array_t* resource_name_raw) const;
 
   std::string EncodeLabel(local::QueryPurpose purpose) const;
-
-  google_firestore_v1_StructuredQuery_Filter EncodeFilters(
-      const core::FilterList& filters) const;
-  core::FilterList DecodeFilters(
-      nanopb::Reader* reader,
-      const google_firestore_v1_StructuredQuery_Filter& proto) const;
 
   google_firestore_v1_StructuredQuery_Filter EncodeSingularFilter(
       const core::FieldFilter& filter) const;
@@ -334,10 +332,6 @@ class Serializer {
   std::shared_ptr<core::Bound> DecodeBound(
       nanopb::Reader* reader, const google_firestore_v1_Cursor& cursor) const;
 
-  model::SnapshotVersion DecodeVersion(
-      nanopb::Reader* reader,
-      const google_firestore_v1_ListenResponse& listen_response) const;
-
   std::unique_ptr<remote::WatchChange> DecodeTargetChange(
       nanopb::Reader* reader,
       const google_firestore_v1_TargetChange& change) const;
@@ -359,7 +353,8 @@ class Serializer {
       const google_firestore_v1_ExistenceFilter& filter) const;
 
   model::DatabaseId database_id_;
-  const std::string database_name_;
+  // TODO(varconst): Android caches the result of calling `EncodeDatabaseName`
+  // as well, consider implementing that.
 };
 
 }  // namespace remote

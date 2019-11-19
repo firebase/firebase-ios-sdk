@@ -233,15 +233,15 @@ TEST_F(ScheduleTest, PopBlockingIsNotAffectedByIrrelevantRemovals) {
 
 namespace {
 
-inline std::unique_ptr<Executor> ExecutorFactory() {
-  return absl::make_unique<ExecutorStd>();
+inline std::unique_ptr<Executor> ExecutorFactory(int threads) {
+  return absl::make_unique<ExecutorStd>(threads);
 }
 
 }  // namespace
 
-INSTANTIATE_TEST_CASE_P(ExecutorTestStd,
-                        ExecutorTest,
-                        ::testing::Values(ExecutorFactory));
+INSTANTIATE_TEST_SUITE_P(ExecutorTestStd,
+                         ExecutorTest,
+                         ::testing::Values(ExecutorFactory));
 
 }  // namespace util
 }  // namespace firestore
