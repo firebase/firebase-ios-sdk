@@ -47,8 +47,8 @@ cc_select(
 # them up.
 set(OUTPUT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
-list(
-  APPEND GRPC_ROOT_CERTIFICATE_SOURCES
+set(
+  GRPC_ROOT_CERTIFICATE_SOURCES
   ${OUTPUT_DIR}/grpc_root_certificates_generated.h  # NOLINT(generated)
   ${OUTPUT_DIR}/grpc_root_certificates_generated.cc # NOLINT(generated)
 )

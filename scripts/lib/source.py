@@ -31,6 +31,12 @@ IGNORE = frozenset([
     'GoogleDataTransportCCTSupport/ProtoSupport',
 ])
 
+# Individual files that should be ignored.
+IGNORE_FILES = frozenset([
+    'Firestore/core/src/remote/grpc_root_certificates_generated.cc',
+    'Firestore/core/src/remote/grpc_root_certificates_generated.h',
+])
+
 FIRESTORE_CORE = ['Firestore/core']
 FIRESTORE_OBJC = ['Firestore/Source', 'Firestore/Example/Tests']
 FIRESTORE_SWIFT = ['Firestore/Swift']
@@ -110,6 +116,8 @@ def categorize_files(files):
 
   for filename in files:
     if _in_directories(filename, IGNORE):
+      continue
+    if filename in IGNORE_FILES:
       continue
 
     ext = os.path.splitext(filename)[1]
