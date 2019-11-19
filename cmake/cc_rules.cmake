@@ -13,6 +13,7 @@
 # limitations under the License.
 
 include(CMakeParseArguments)
+include(FindASANDylib)
 
 # cc_library(
 #   target
@@ -386,7 +387,7 @@ function(objc_test target)
     if(WITH_ASAN)
       set_property(TEST ${target} APPEND PROPERTY
         ENVIRONMENT
-        DYLD_INSERT_LIBRARIES=/usr/local/opt/llvm/lib/clang/8.0.0/lib/darwin/libclang_rt.asan_osx_dynamic.dylib)
+        DYLD_INSERT_LIBRARIES=${ASAN_DYLIB})
     endif()
   endif()
 endfunction()
