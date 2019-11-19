@@ -251,8 +251,8 @@ def main():
 
   if path.dirname(output_source) or path.dirname(output_header):
     raise ValueError("output_source and output_header should be short file "
-                   + "names. Use logical_directory and/or physical_directory "
-                   + "to specify the folder.")
+                     + "names. Use logical_directory and/or physical_directory "
+                     + "to specify the folder.")
 
   logical_directory = args.logical_directory
   if not logical_directory:
