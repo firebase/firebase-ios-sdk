@@ -1,4 +1,4 @@
-# Copyright 2017 Google
+# Copyright 2019 Google
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,9 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-add_subdirectory(Protos)
-add_subdirectory(Source)
-add_subdirectory(core)
-add_subdirectory(fuzzing)
+# Finds `libclang_rt.asan_osx_dynamic.dylib` on Apple platform, it is typically
+# under ${CMAKE_CXX_COMPILER}/../lib.
+get_filename_component(compiler_bin_dir ${CMAKE_CXX_COMPILER} DIRECTORY)
+get_filename_component(compiler_dir ${compiler_bin_dir} DIRECTORY)
 
-add_subdirectory(Example)
+file(GLOB_RECURSE ASAN_DYLIB
+  ${compiler_dir}/libclang_rt.asan_osx_dynamic.dylib)
