@@ -248,7 +248,7 @@ static NSString *const kSecret = @"test-secret";
   [[niceMockCheckinStore reject]
       removeCheckinPreferencesWithHandler:[OCMArg invokeBlockWithArgs:[NSNull null], nil]];
   // Always setting up stub after expect.
-  OCMStub([_checkinStore cachedCheckinPreferences]).andReturn(nil);
+  OCMStub([_mockCheckinStore cachedCheckinPreferences]).andReturn(nil);
 
   [_instanceIDStore resetCredentialsIfNeeded];
   OCMVerifyAll(niceMockCheckinStore);
