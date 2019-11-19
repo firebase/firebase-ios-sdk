@@ -48,28 +48,16 @@ import argparse
 import logging
 import os
 
+from lib import git
+
 arg_parser = argparse.ArgumentParser()
 
 arg_parser.add_argument("input",
                         help="Input file containing binary data to embed.")
 arg_parser.add_argument("--output_source",
-                        help="Output source file, defining the array data."
-                             "Must be a short file name; use logical_directory "
-                             "and/or physical_directory to configure the "
-                             "folder.")
+                        help="Output source file, defining the array data.")
 arg_parser.add_argument("--output_header",
-                        help="Output header file, declaring the array data."
-                             "Must be a short file name; use logical_directory "
-                             "and/or physical_directory to configure the "
-                             "folder.")
-arg_parser.add_argument("--logical_directory",
-                        help="The relative path to where the generated files "
-                             "will be located, used to generate header guards "
-                             "and includes. By default, the current folder.")
-arg_parser.add_argument("--physical_directory",
-                        help="The absolute path to where the generated files "
-                             "will be located. By default, equal to "
-                             "logical_directory.")
+                        help="Output header file, declaring the array data.")
 arg_parser.add_argument("--array", help="Identifier for the array.")
 arg_parser.add_argument("--array_size", help="Identifier for the array size.")
 arg_parser.add_argument("--filename", help="Override file name in code.")
@@ -233,6 +221,8 @@ def source(namespaces, array_name, array_size_name, fileid, filename,
 def main():
   """Read an binary input file and output to a C/C++ source file as an array.
   """
+  if not git.is_within_repo():
+    raise ImportError("This script must be run from within a Git repository.")
 
   args = arg_parser.parse_args()
 
@@ -249,20 +239,9 @@ def main():
     output_header = input_file_base + ".h"
     logging.debug("Using default --output_header='%s'", output_header)
 
-  if path.dirname(output_source) or path.dirname(output_header):
-    raise ValueError("output_source and output_header should be short file "
-                     + "names. Use logical_directory and/or physical_directory "
-                     + "to specify the folder.")
-
-  logical_directory = args.logical_directory
-  if not logical_directory:
-    logical_directory = ''
-    logging.debug("Using current folder for output")
-
-  physical_directory = args.physical_directory
-  if not physical_directory:
-    physical_directory = logical_directory
-    logging.debug("Using the same physical directory as the logical directory")
+  absolute_dir = path.dirname(output_header)
+  relative_dir = path.relpath(absolute_dir, git.get_repo_root())
+  relative_header_path = path.join(relative_dir, path.basename(output_header))
 
   identifier_base = sub("[^0-9a-zA-Z]+", "_", path.basename(input_file_base))
   array_name = args.array
@@ -287,8 +266,7 @@ def main():
 
   header_guard = args.header_guard
   if not header_guard:
-    relative_header_name = path.join(logical_directory, output_header)
-    header_guard = sub("[^0-9a-zA-Z]+", "_", relative_header_name).upper() + '_'
+    header_guard = sub("[^0-9a-zA-Z]+", "_", relative_header_path).upper() + '_'
     # Avoid double underscores to stay compliant with the Standard.
     header_guard = sub("[_]+", "_", header_guard)
     logging.debug("Using default --header_guard='%s'", header_guard)
@@ -302,17 +280,15 @@ def main():
 
   header_text = "\n".join(header(header_guard, namespaces, array_name,
                                  array_size_name, fileid))
-  include_name = path.join(logical_directory, output_header)
   source_text = "\n".join(source(namespaces, array_name, array_size_name,
-                                 fileid, filename, input_bytes, include_name))
+                                 fileid, filename, input_bytes,
+                                 relative_header_path))
 
-  output_header_path = path.join(physical_directory, output_header)
-  with open(output_header_path, "w") as hdr:
+  with open(output_header, "w") as hdr:
     hdr.write(header_text)
     logging.debug("Wrote header file %s", output_header)
 
-  output_source_path = path.join(physical_directory, output_source)
-  with open(output_source_path, "w") as src:
+  with open(output_source, "w") as src:
     src.write(source_text)
     logging.debug("Wrote source file %s", output_source)
 

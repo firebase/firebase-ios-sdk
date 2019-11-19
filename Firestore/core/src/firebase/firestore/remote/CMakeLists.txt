@@ -61,10 +61,8 @@ add_custom_command(
   OUTPUT
     ${GRPC_ROOT_CERTIFICATE_SOURCES}
   COMMAND python ${FIREBASE_SOURCE_DIR}/scripts/binary_to_array.py
-      --output_header=grpc_root_certificates_generated.h
-      --output_source=grpc_root_certificates_generated.cc
-      --logical_directory=Firestore/core/src/firebase/firestore/remote
-      --physical_directory=${OUTPUT_DIR}
+      --output_header=${OUTPUT_DIR}/grpc_root_certificates_generated.h
+      --output_source=${OUTPUT_DIR}/grpc_root_certificates_generated.cc
       --cpp_namespace=firebase::firestore::remote
       --array=grpc_root_certificates_generated_data
       --array_size=grpc_root_certificates_generated_size
