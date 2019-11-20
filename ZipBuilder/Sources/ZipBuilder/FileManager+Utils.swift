@@ -71,7 +71,7 @@ public extension FileManager {
   }
 
   /// Returns the URL to the Firebase cache directory, and creates it if it doesn't exist.
-  func firebaseCacheDirectory() throws -> URL {
+  func firebaseCacheDirectory(withSubdir subdir: String = "") throws -> URL {
     // Get the URL for the cache directory.
     let cacheDir: URL = try url(for: .cachesDirectory,
                                 in: .userDomainMask,
@@ -79,13 +79,13 @@ public extension FileManager {
                                 create: true)
 
     // Get the cache root path, and if it already exists just return the URL.
-    let cacheRoot = cacheDir.appendingPathComponent("firebase_oss_framework_cache")
+    let cacheRoot = cacheDir.appendingPathComponents(["firebase_oss_framework_cache", subdir])
     if directoryExists(at: cacheRoot) {
       return cacheRoot
     }
 
     // The cache root folder doesn't exist yet, create it.
-    try createDirectory(at: cacheRoot, withIntermediateDirectories: false, attributes: nil)
+    try createDirectory(at: cacheRoot, withIntermediateDirectories: true)
 
     return cacheRoot
   }
