@@ -122,7 +122,7 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     brew outdated go || brew upgrade go # Somehow the build for Abseil requires this.
 
     # Install python packages required to generate proto sources
-    pip install six
+    easy_install install six
     ;;
 
   SymbolCollision-*-xcodebuild)
