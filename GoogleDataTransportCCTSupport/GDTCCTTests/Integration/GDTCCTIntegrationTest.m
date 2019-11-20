@@ -99,7 +99,9 @@ typedef void (^GDTCCTIntegrationTestBlock)(NSURLSessionUploadTask *_Nullable);
   event.dataObject = [[GDTCCTTestDataObject alloc] init];
   event.qosTier = qosTier;
   [self.transport sendDataEvent:event];
-  self.totalEventsGenerated += 1;
+  dispatch_async(dispatch_get_main_queue(), ^{
+    self.totalEventsGenerated += 1;
+  });
 }
 
 /** Generates events recursively at random intervals between 0 and 5 seconds. */
