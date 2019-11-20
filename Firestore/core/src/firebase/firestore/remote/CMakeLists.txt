@@ -132,6 +132,7 @@ cc_library(
     write_stream.h
   DEPENDS
     absl_strings
+    firebase_firestore_remote_connectivity_monitor
     firebase_firestore_remote_grpc
 )
 
@@ -165,7 +166,7 @@ cc_library(
     firebase_firestore_model
     firebase_firestore_nanopb
     firebase_firestore_protos_nanopb
-    firebase_firestore_remote_connectivity_monitor
+    #firebase_firestore_remote_connectivity_monitor
     firebase_firestore_remote_datastore
     firebase_firestore_remote_serializer
     firebase_firestore_util
