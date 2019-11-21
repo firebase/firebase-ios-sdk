@@ -23,33 +23,19 @@
 const NSString *kTimestamp = @"timestamp";
 const NSString *kIncrement = @"increment";
 
-BOOL longCanHold(NSNumber *num) {
+BOOL canBeRepresentedAsLong(NSNumber *num) {
     switch (num.objCType[0]) {
     case 'f': // float; fallthrough
     case 'd': // double
-        break;
+        return NO;
     case 'L': // unsigned long; fallthrough
     case 'Q': // unsigned long long; fallthrough
         // Only use ulong(long) if there isn't an overflow.
         if (num.unsignedLongLongValue > LONG_MAX) {
-            break;
+            return NO;
         }
-    default:
-        return YES;
     }
-    return NO;
-}
-
-NSNumber *overflowAwareAddLong(long x, long y) {
-    long r = x + y;
-
-    // See "Hacker's Delight" 2-12: Overflow if both arguments have the opposite
-    // sign of the result
-    if (((x ^ r) & (y ^ r)) >= 0) {
-        return @(r);
-    }
-
-  return [NSNumber numberWithDouble:(double)x + y];
+    return YES;
 }
 
 @interface FServerValues ()
@@ -113,11 +99,19 @@ NSNumber *overflowAwareAddLong(long x, long y) {
     }
 
     NSNumber *existingNum = existingLeaf.value;
-    BOOL incrLong = longCanHold(delta);
-    BOOL baseLong = longCanHold(existingNum);
+    BOOL incrLong = canBeRepresentedAsLong(delta);
+    BOOL baseLong = canBeRepresentedAsLong(existingNum);
 
     if (incrLong && baseLong) {
-      return overflowAwareAddLong(delta.longValue, existingNum.longValue);
+      long x = delta.longValue;
+      long y = existingNum.longValue;
+      long r = x + y;
+
+      // See "Hacker's Delight" 2-12: Overflow if both arguments have the opposite
+      // sign of the result
+      if (((x ^ r) & (y ^ r)) >= 0) {
+          return @(r);
+      }
     }
     return @(delta.doubleValue + existingNum.doubleValue);
 }
