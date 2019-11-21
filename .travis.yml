@@ -19,7 +19,7 @@ jobs:
       before_install:
         - brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/e3496d9/Formula/clang-format.rb
         - brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/7963c3d/Formula/swiftformat.rb
-        - pip install flake8
+        - pip2 install flake8
       script:
         - ./scripts/check.sh --test-only
 
