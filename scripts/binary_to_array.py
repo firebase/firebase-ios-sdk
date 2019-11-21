@@ -227,12 +227,14 @@ def _get_repo_root(filename):
 
   # CMake builds can be run out of source tree, so use the directory containing
   # a source file as the starting point for the calculation.
-  if not os.path.isdir(filename):
-    filename = os.path.dirname(filename)
+  if os.path.isdir(filename):
+    dir_in_repo = filename
+  else:
+    dir_in_repo = os.path.dirname(filename)
 
   starting_dir = os.getcwd()
 
-  os.chdir(filename)
+  os.chdir(dir_in_repo)
   root_dir = git.get_repo_root()
 
   os.chdir(starting_dir)
