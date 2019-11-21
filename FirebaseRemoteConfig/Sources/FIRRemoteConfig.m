@@ -224,8 +224,8 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
   if (completionHandler) {
     completionHandlerCopy = [completionHandler copy];
   }
-  [_configFetch fetchAllConfigsWithExpirationDuration:expirationDuration
-                                    completionHandler:completionHandlerCopy];
+  [_configFetch fetchConfigWithExpirationDuration:expirationDuration
+                                completionHandler:completionHandlerCopy];
 }
 
 #pragma mark - fetchAndActivate
