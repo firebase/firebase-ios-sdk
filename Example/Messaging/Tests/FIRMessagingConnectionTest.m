@@ -207,8 +207,8 @@ static FIRMessagingProtoTag currentProtoSendTag;
          rmqId:[OCMArg isNil]];
 
   // swizzle disconnect socket
-  OCMVerify([[[socketMock stub] andCall:@selector(_disconnectSocket)
-                               onObject:self] disconnect]);
+  [[[socketMock stub] andCall:@selector(_disconnectSocket)
+                     onObject:self] disconnect];
 
   currentProtoSendTag = kFIRMessagingProtoTagLoginRequest;
   // send login request
@@ -217,6 +217,7 @@ static FIRMessagingProtoTag currentProtoSendTag;
   // verify login request sent
   XCTAssertEqual(1, self.fakeConnection.outStreamId);
   XCTAssertTrue(self.didSuccessfullySendData);
+  [socketMock verify];
 }
 
 - (void)testLoginRequest_withPendingMessagesInRmq {

@@ -1,5 +1,12 @@
 # Unreleased
 
+# v1.8.1
+- [fixed] Firestore no longer loads its TLS certificates from a bundle, which
+  fixes crashes at startup when the bundle can't be loaded. This fixes a
+  specific case where the bundle couldn't be loaded due to international
+  characters in the application name. If you're manually tracking dependencies,
+  you can now remove `gRPCCertificates-Cpp.bundle` from your build. (#3951).
+
 # v1.8.0
 - [changed] Removed Firestore's dependency on the `Protobuf` CocoaPod. If
   you're manually tracking dependencies, you may be able to remove it from your
