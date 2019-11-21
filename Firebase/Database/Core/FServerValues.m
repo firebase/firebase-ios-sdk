@@ -103,15 +103,15 @@ BOOL canBeRepresentedAsLong(NSNumber *num) {
     BOOL baseLong = canBeRepresentedAsLong(existingNum);
 
     if (incrLong && baseLong) {
-      long x = delta.longValue;
-      long y = existingNum.longValue;
-      long r = x + y;
+        long x = delta.longValue;
+        long y = existingNum.longValue;
+        long r = x + y;
 
-      // See "Hacker's Delight" 2-12: Overflow if both arguments have the opposite
-      // sign of the result
-      if (((x ^ r) & (y ^ r)) >= 0) {
-          return @(r);
-      }
+        // See "Hacker's Delight" 2-12: Overflow if both arguments have the
+        // opposite sign of the result
+        if (((x ^ r) & (y ^ r)) >= 0) {
+            return @(r);
+        }
     }
     return @(delta.doubleValue + existingNum.doubleValue);
 }
