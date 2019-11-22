@@ -16,13 +16,31 @@
 
 #include "Firestore/core/src/firebase/firestore/util/filesystem.h"
 
-#if defined(__APPLE__)
+#if __APPLE__
 
 #import <Foundation/Foundation.h>
+
+#include "Firestore/core/src/firebase/firestore/util/path.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
 
 namespace firebase {
 namespace firestore {
 namespace util {
+
+Status ExcludeFromBackups(const Path& dir) {
+  NSURL* dir_url = [NSURL fileURLWithPath:dir.ToNSString()];
+  NSError* error = nil;
+  if (![dir_url setResourceValue:@YES
+                          forKey:NSURLIsExcludedFromBackupKey
+                           error:&error]) {
+    return Status{
+        Error::Internal,
+        "Failed to mark persistence directory as excluded from backups"}
+        .CausedBy(Status::FromNSError(error));
+  }
+
+  return Status::OK();
+}
 
 StatusOr<Path> AppDataDir(absl::string_view app_name) {
 #if TARGET_OS_IOS
@@ -62,4 +80,4 @@ Path TempDir() {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // defined(__APPLE__)
+#endif  // __APPLE__

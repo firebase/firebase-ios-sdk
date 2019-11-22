@@ -62,6 +62,12 @@ Status RecursivelyCreateDir(const Path& path);
 Status RecursivelyDelete(const Path& path);
 
 /**
+ * Marks the given directory as excluded from platform-specific backup schemes
+ * like iCloud backup.
+ */
+Status ExcludeFromBackups(const Path& dir);
+
+/**
  * Returns a system-defined best directory in which to create application data.
  * Values vary wildly across platforms. They include:
  *

@@ -53,7 +53,6 @@ cc_library(
     leveldb_mutation_queue.h
     leveldb_persistence.cc
     leveldb_persistence.h
-    leveldb_persistence_apple.mm
     leveldb_query_cache.cc
     leveldb_query_cache.h
     leveldb_remote_document_cache.cc
