@@ -125,7 +125,7 @@ public enum CocoaPodUtils {
     }
 
     // Run pod install on the directory that contains the Podfile and blank Xcode project.
-    let result = Shell.executeCommandFromScript("pod _1.5.3_ install", workingDir: directory)
+    let result = Shell.executeCommandFromScript("pod _1.8.4_ install", workingDir: directory)
     switch result {
     case let .error(code, output):
       fatalError("""
@@ -239,7 +239,7 @@ public enum CocoaPodUtils {
       let reposText = customSpecsRepos.map { "source '\($0)'" }
       podfile += """
       \(reposText.joined(separator: "\n"))
-      source 'https://github.com/CocoaPods/Specs.git'
+      source 'https://cdn.cocoapods.org/'
 
       """ // Explicit newline above to ensure it's included in the String.
     }
@@ -247,6 +247,7 @@ public enum CocoaPodUtils {
     // Include the calculated minimum iOS version.
     podfile += """
     platform :ios, '\(largestMinVersion.podVersion())'
+    use_modular_headers!
     target 'FrameworkMaker' do\n
     """
 
