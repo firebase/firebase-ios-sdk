@@ -88,7 +88,8 @@ struct FrameworkBuilder {
     let fileManager = FileManager.default
     var cachedFrameworkRoot: URL
     do {
-      let cacheDir = try fileManager.firebaseCacheDirectory()
+      let subDir = carthageBuild ? "carthage" : ""
+      let cacheDir = try fileManager.firebaseCacheDirectory(withSubdir: subDir)
       cachedFrameworkRoot = cacheDir.appendingPathComponents([podName, version])
     } catch {
       fatalError("Could not create caches directory for building frameworks: \(error)")

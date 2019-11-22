@@ -122,6 +122,10 @@ LevelDbPersistence::LevelDbPersistence(std::unique_ptr<leveldb::DB> db,
 
 // MARK: - Storage location
 
+StatusOr<Path> LevelDbPersistence::AppDataDirectory() {
+  return util::AppDataDir(kReservedPathComponent);
+}
+
 util::Path LevelDbPersistence::StorageDirectory(
     const core::DatabaseInfo& database_info, const util::Path& documents_dir) {
   // Use two different path formats:

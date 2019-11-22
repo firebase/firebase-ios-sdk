@@ -24,6 +24,26 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
+StatusOr<Path> AppDataDir(absl::string_view app_name) {
+#if TARGET_OS_IOS
+  NSArray<NSString*>* directories = NSSearchPathForDirectoriesInDomains(
+      NSDocumentDirectory, NSUserDomainMask, YES);
+  return Path::FromNSString(directories[0]).AppendUtf8(app_name);
+
+#elif TARGET_OS_TV
+  NSArray<NSString*>* directories = NSSearchPathForDirectoriesInDomains(
+      NSCachesDirectory, NSUserDomainMask, YES);
+  return Path::FromNSString(directories[0]).AppendUtf8(app_name);
+
+#elif TARGET_OS_OSX
+  std::string dot_prefixed = absl::StrCat(".", app_name);
+  return Path::FromNSString(NSHomeDirectory()).AppendUtf8(dot_prefixed);
+
+#else
+#error "Don't know where to store documents on this platform."
+#endif
+}
+
 Path TempDir() {
   const char* env_tmpdir = getenv("TMPDIR");
   if (env_tmpdir) {
