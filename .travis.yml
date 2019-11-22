@@ -334,7 +334,8 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
 
     - stage: test
-      if: type = cron
+# delete comment before merge
+#      if: type = cron
       env:
         - PROJECT=InAppMessaging PLATFORM=iPad METHOD=xcodebuild
       before_install:
