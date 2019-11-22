@@ -556,6 +556,16 @@ jobs:
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
+    - state: test
+      os: linux
+      dist: xenial
+      env:
+        - PROJECT=Firestore PLATFORM=Linux METHOD=cmake
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+
     # Test Firestore on Xcode 8 to use old llvm to ensure C++ portability.
     # Disabled while we resolve issues discussed in #4084 and #4085
     # - stage: test
