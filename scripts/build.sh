@@ -249,9 +249,7 @@ case "$product-$method-$platform" in
         "${xcb_flags[@]}" \
         build \
         test
-  ;;
 
-  InAppMessagingDisplay-xcodebuild-*)
     RunXcodebuild \
         -workspace 'InAppMessagingDisplay/Example/InAppMessagingDisplay-Sample.xcworkspace' \
         -scheme 'FiamDisplaySwiftExample' \
