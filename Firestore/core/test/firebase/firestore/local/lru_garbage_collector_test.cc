@@ -107,7 +107,7 @@ void LruGarbageCollectorTest::ExpectSentinelRemoved(const DocumentKey& key) {
   ASSERT_FALSE(SentinelExists(key));
 }
 
-#pragma mark - helpers
+// MARK: - helpers
 
 ListenSequenceNumber LruGarbageCollectorTest::SequenceNumberForQueryCount(
     int query_count) {
@@ -219,7 +219,7 @@ Document LruGarbageCollectorTest::NextTestDocument() {
   return NextTestDocumentWithValue(test_value_);
 }
 
-#pragma mark - tests
+// MARK: - tests
 
 TEST_P(LruGarbageCollectorTest, PickSequenceNumberPercentile) {
   const int num_test_cases = 5;
