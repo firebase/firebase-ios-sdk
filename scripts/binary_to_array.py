@@ -218,11 +218,32 @@ def source(namespaces, array_name, array_size_name, fileid, filename,
   return data
 
 
+def _get_repo_root(filename):
+  """Returns the root of the repository containing the given file.
+
+  Args:
+    filename: A source file or directory in the repository.
+  """
+
+  # CMake builds can be run out of source tree, so use the directory containing
+  # a source file as the starting point for the calculation.
+  if os.path.isdir(filename):
+    dir_in_repo = filename
+  else:
+    dir_in_repo = os.path.dirname(filename)
+
+  starting_dir = os.getcwd()
+
+  os.chdir(dir_in_repo)
+  root_dir = git.get_repo_root()
+
+  os.chdir(starting_dir)
+  return root_dir
+
+
 def main():
   """Read an binary input file and output to a C/C++ source file as an array.
   """
-  if not git.is_within_repo():
-    raise ImportError("This script must be run from within a Git repository.")
 
   args = arg_parser.parse_args()
 
@@ -240,7 +261,9 @@ def main():
     logging.debug("Using default --output_header='%s'", output_header)
 
   absolute_dir = path.dirname(output_header)
-  relative_dir = path.relpath(absolute_dir, git.get_repo_root())
+  root_dir = _get_repo_root(absolute_dir)
+
+  relative_dir = path.relpath(absolute_dir, root_dir)
   relative_header_path = path.join(relative_dir, path.basename(output_header))
 
   identifier_base = sub("[^0-9a-zA-Z]+", "_", path.basename(input_file_base))
