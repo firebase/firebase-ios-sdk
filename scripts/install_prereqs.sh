@@ -118,8 +118,13 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     ;;
 
   Firestore-*-cmake)
-    brew outdated cmake || brew upgrade cmake
-    brew outdated go || brew upgrade go # Somehow the build for Abseil requires this.
+    if [[ "$PLATFORM" == "Linux" ]]; then
+      which cmake >& /dev/null || sudo apt-get install cmake
+      which go >& /dev/null || sudo apt-get install golang-go
+    else
+      brew outdated cmake || brew upgrade cmake
+      brew outdated go || brew upgrade go # Somehow the build for Abseil requires this.
+    fi
 
     # Install python packages required to generate proto sources
     pip install six

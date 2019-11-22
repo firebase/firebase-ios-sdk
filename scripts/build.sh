@@ -75,9 +75,18 @@ fi
 scripts_dir=$(dirname "${BASH_SOURCE[0]}")
 firestore_emulator="${scripts_dir}/run_firestore_emulator.sh"
 
-xcode_version=$(xcodebuild -version | head -n 1)
-xcode_version="${xcode_version/Xcode /}"
-xcode_major="${xcode_version/.*/}"
+system=$(uname -s)
+case "$system" in
+  Darwin)
+    xcode_version=$(xcodebuild -version | head -n 1)
+    xcode_version="${xcode_version/Xcode /}"
+    xcode_major="${xcode_version/.*/}"
+    ;;
+  *)
+    xcode_major="0"
+    ;;
+esac
+
 
 # Runs xcodebuild with the given flags, piping output to xcpretty
 # If xcodebuild fails with known error codes, retries once.
@@ -144,6 +153,10 @@ case "$platform" in
     xcb_flags=()
     ;;
 
+  Linux)
+    xcb_flags=()
+    ;;
+
   *)
     echo "Unknown platform '$platform'" 1>&2
     exit 1
@@ -201,6 +214,20 @@ if [[ -n "${SANITIZERS:-}" ]]; then
     esac
   done
 fi
+
+function num_cpus() {
+  case "$system" in
+    Darwin)
+      sysctl -n hw.ncpu
+      ;;
+    Linux)
+      nproc
+      ;;
+    *)
+      echo "Unknown system '$system'" 1>&2
+      exit 1
+  esac
+}
 
 case "$product-$method-$platform" in
   Firebase-xcodebuild-*)
@@ -285,7 +312,7 @@ case "$product-$method-$platform" in
     fi
     ;;
 
-  Firestore-cmake-macOS)
+  Firestore-cmake-macOS | Firestore-cmake-Linux)
     "${firestore_emulator}" start
     trap '"${firestore_emulator}" stop' ERR EXIT
 
@@ -294,7 +321,7 @@ case "$product-$method-$platform" in
     (cd build; cmake "${cmake_options[@]}" ..)
 
     echo "Building cmake build ..."
-    cpus=$(sysctl -n hw.ncpu)
+    cpus=$(num_cpus)
     (cd build; env make -j $cpus all generate_protos)
     (cd build; env CTEST_OUTPUT_ON_FAILURE=1 make -j $cpus test)
     ;;
