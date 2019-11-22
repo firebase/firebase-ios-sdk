@@ -137,7 +137,6 @@ StatusOr<Path> AppDataDir(absl::string_view app_name) {
 #endif  // __linux__ && !__ANDROID__
 }
 
-
 Path TempDir() {
   const char* env_tmpdir = getenv("TMPDIR");
   if (env_tmpdir) {

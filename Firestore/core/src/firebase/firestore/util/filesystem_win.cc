@@ -18,8 +18,8 @@
 
 #if defined(_WIN32)
 
-#include <windows.h>
 #include <Shlobj.h>
+#include <windows.h>
 
 #include <cerrno>
 #include <string>
