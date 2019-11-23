@@ -313,6 +313,8 @@ case "$product-$method-$platform" in
     ;;
 
   Firestore-cmake-macOS | Firestore-cmake-Linux)
+    cmake --version
+
     "${firestore_emulator}" start
     trap '"${firestore_emulator}" stop' ERR EXIT
 
