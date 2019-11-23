@@ -152,6 +152,11 @@ def source(namespaces, array_name, array_size_name, fileid, filename,
   Returns:
     A string containing the C/C++ source file.
   """
+
+  if os.name == 'nt':
+    # Force forward slashes on Windows
+    include_name = include_name.replace('\\', '/')
+
   data = []
   data.extend([
       "// Copyright 2019 Google Inc. All Rights Reserved.",

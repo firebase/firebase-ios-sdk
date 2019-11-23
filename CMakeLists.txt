@@ -119,6 +119,15 @@ if(CXX_CLANG)
   )
 endif()
 
+if(MSVC)
+  # Disable warnings about unsafe use of std::copy
+  target_compile_definitions(
+    absl_strings
+    PUBLIC
+      _SCL_SECURE_NO_WARNINGS=1
+  )
+endif()
+
 
 # gRPC
 find_package(OpenSSL QUIET)
