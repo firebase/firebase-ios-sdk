@@ -124,12 +124,6 @@ class LevelDbPersistence : public Persistence {
    */
   static util::Status EnsureDirectory(const util::Path& dir);
 
-  /**
-   * Marks the given directory as excluded from platform-specific backup schemes
-   * like iCloud backup.
-   */
-  static util::Status ExcludeFromBackups(const util::Path& dir);
-
   /** Opens the database within the given directory. */
   static util::StatusOr<std::unique_ptr<leveldb::DB>> OpenDb(
       const util::Path& dir);
