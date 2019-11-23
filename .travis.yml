@@ -556,7 +556,7 @@ jobs:
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
-    - state: test
+    - stage: test
       os: linux
       dist: xenial
       env:
