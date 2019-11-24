@@ -343,9 +343,9 @@ function(objc_framework target)
       PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/${target}.framework/Headers
     )
 
-    target_link_options(
+    target_link_libraries(
       ${target} PRIVATE
-      -ObjC
+      "-ObjC"
     )
 
     target_link_libraries(
