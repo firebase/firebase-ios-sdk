@@ -1,6 +1,9 @@
-os: osx
+os:
+  - osx
+  - linux
 osx_image: xcode11.1
 language: objective-c
+dist: xenial
 cache:
   - bundler
   - cocoapods
@@ -15,6 +18,7 @@ before_script:
 jobs:
   include:
     - stage: checks
+      os: osx
       # This only needs to be run once, so restrict it to an arbitrary combination
       before_install:
         - brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/e3496d9/Formula/clang-format.rb
@@ -27,6 +31,7 @@ jobs:
     # Travis will schedule them in the same order they are listed here.
 
     - stage: test
+      os: osx
       env:
         - PROJECT=Firebase PLATFORM=iOS METHOD=xcodebuild
       before_install:
@@ -35,6 +40,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
 
     - stage: test
+      os: osx
       env:
         - PROJECT=Core METHOD=pod-lib-lint
       script:
@@ -43,6 +49,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=macos
 
     - stage: test
+      os: osx
       osx_image: xcode10.3
       env:
         - PROJECT=Core METHOD=pod-lib-lint
@@ -51,6 +58,7 @@ jobs:
 
     - stage: test
       if: type = cron
+      os: osx
       env:
         - PROJECT=CoreCron METHOD=pod-lib-lint
       script:
@@ -62,6 +70,7 @@ jobs:
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=macos --use-modular-headers
 
     - stage: test
+      os: osx
       env:
         - PROJECT=CoreDiagnostics METHOD=pod-lib-lint
       script:
@@ -70,6 +79,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCoreDiagnostics.podspec --platforms=macos
 
     - stage: test
+      os: osx
       osx_image: xcode10.3
       env:
         - PROJECT=CoreDiagnostics METHOD=pod-lib-lint
@@ -78,6 +88,7 @@ jobs:
 
     - stage: test
       if: type = cron
+      os: osx
       env:
         - PROJECT=CoreDiagnosticsCron METHOD=pod-lib-lint
       script:
@@ -89,6 +100,7 @@ jobs:
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseCoreDiagnostics.podspec --platforms=macos --use-modular-headers
 
     - stage: test
+      os: osx
       env:
         - PROJECT=ABTesting METHOD=pod-lib-lint
       script:
@@ -97,6 +109,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseABTesting.podspec --platforms=macos
 
     - stage: test
+      os: osx
       osx_image: xcode10.3
       env:
         - PROJECT=ABTesting METHOD=pod-lib-lint
@@ -105,6 +118,7 @@ jobs:
 
     - stage: test
       if: type = cron
+      os: osx
       env:
         - PROJECT=ABTestingCron METHOD=pod-lib-lint
       script:
@@ -117,6 +131,7 @@ jobs:
         # - travis_retry ./scripts/pod_lib_lint.rb FirebaseABTesting.podspec --platforms=macos --use-modular-headers
 
     - stage: test
+      os: osx
       env:
         - PROJECT=Auth PLATFORM=iOS METHOD=xcodebuild
       before_install:
@@ -128,6 +143,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
 
     - stage: test
+      os: osx
       osx_image: xcode10.3
       env:
         - PROJECT=Auth PLATFORM=iOS METHOD=xcodebuild
@@ -138,6 +154,7 @@ jobs:
 
     - stage: test
       if: type = cron
+      os: osx
       env:
         - PROJECT=AuthCron METHOD=pod-lib-lint
       script:
@@ -150,6 +167,7 @@ jobs:
         # TODO(paulb777): Retry on next Xcode version update
 
     - stage: test
+      os: osx
       env:
         - PROJECT=InstanceID METHOD=pod-lib-lint
       script:
@@ -158,6 +176,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=macos
 
     - stage: test
+      os: osx
       osx_image: xcode10.3
       env:
         - PROJECT=InstanceID METHOD=pod-lib-lint
@@ -166,6 +185,7 @@ jobs:
 
     - stage: test
       if: type = cron
+      os: osx
       env:
         - PROJECT=InstanceIDCron METHOD=pod-lib-lint
       script:
@@ -177,6 +197,7 @@ jobs:
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=macos --use-modular-headers
 
     - stage: test
+      os: osx
       env:
         - PROJECT=Database PLATFORM=all METHOD=xcodebuild
       before_install:
@@ -189,6 +210,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseDatabase.podspec --skip-tests --platforms=macos
 
     - stage: test
+      os: osx
       osx_image: xcode10.3
       env:
         - PROJECT=Database PLATFORM=all METHOD=xcodebuild
@@ -199,6 +221,7 @@ jobs:
 
     - stage: test
       if: type = cron
+      os: osx
       env:
         - PROJECT=DatabaseCron METHOD=pod-lib-lint
       script:
@@ -210,6 +233,7 @@ jobs:
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseDatabase.podspec --use-modular-headers --skip-tests --platforms=macos
 
     - stage: test
+      os: osx
       env:
         - PROJECT=DynamicLinks METHOD=pod-lib-lint
       script:
@@ -218,6 +242,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseDynamicLinks.podspec --use-modular-headers
 
     - stage: test
+      os: osx
       osx_image: xcode10.3
       env:
         - PROJECT=DynamicLinks METHOD=pod-lib-lint
@@ -225,6 +250,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseDynamicLinks.podspec
 
     - stage: test
+      os: osx
       env:
         - PROJECT=Messaging METHOD=pod-lib-lint
       script:
@@ -233,6 +259,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=macos
 
     - stage: test
+      os: osx
       osx_image: xcode10.3
       env:
         - PROJECT=Messaging METHOD=pod-lib-lint
@@ -241,6 +268,7 @@ jobs:
 
     - stage: test
       if: type = cron
+      os: osx
       env:
         - PROJECT=MessagingCron METHOD=pod-lib-lint
       script:
@@ -255,6 +283,7 @@ jobs:
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=macos --use-modular-headers
 
     - stage: test
+      os: osx
       env:
         - PROJECT=RemoteConfig METHOD=pod-lib-lint
       script:
@@ -263,6 +292,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=macos
 
     - stage: test
+      os: osx
       osx_image: xcode10.3
       env:
         - PROJECT=RemoteConfig METHOD=pod-lib-lint
@@ -271,6 +301,7 @@ jobs:
 
     - stage: test
       if: type = cron
+      os: osx
       env:
         - PROJECT=RemoteConfigCron METHOD=pod-lib-lint
       script:
@@ -282,6 +313,7 @@ jobs:
         - travis_retry  ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-modular-headers --platforms=macos
 
     - stage: test
+      os: osx
       env:
         - PROJECT=Storage PLATFORM=all METHOD=xcodebuild
       before_install:
@@ -294,6 +326,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --skip-tests --platforms=macos
 
     - stage: test
+      os: osx
       osx_image: xcode10.3
       env:
         - PROJECT=Storage PLATFORM=all METHOD=xcodebuild
@@ -304,6 +337,7 @@ jobs:
 
     - stage: test
       if: type = cron
+      os: osx
       env:
         - PROJECT=StorageCron METHOD=pod-lib-lint
       script:
@@ -315,6 +349,7 @@ jobs:
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --use-modular-headers --skip-tests --platforms=macos
 
     - stage: test
+      os: osx
       env:
         - PROJECT=Functions METHOD=pod-lib-lint
       before_install:
@@ -325,6 +360,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseFunctions.podspec --use-modular-headers
 
     - stage: test
+      os: osx
       osx_image: xcode10.3
       env:
         - PROJECT=Functions METHOD=pod-lib-lint
@@ -334,6 +370,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseFunctions.podspec
 
     - stage: test
+      os: osx
       env:
         - PROJECT=InAppMessaging PLATFORM=iOS METHOD=xcodebuild
       before_install:
@@ -342,6 +379,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
 
     - stage: test
+      os: osx
       osx_image: xcode10.3
       env:
         - PROJECT=InAppMessaging PLATFORM=iOS METHOD=xcodebuild
@@ -351,6 +389,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
 
     - stage: test
+      os: osx
       env:
         - PROJECT=InAppMessagingDisplay PLATFORM=iOS METHOD=xcodebuild
       before_install:
@@ -359,6 +398,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
 
     - stage: test
+      os: osx
       osx_image: xcode10.3
       env:
         - PROJECT=InAppMessagingDisplay PLATFORM=iOS METHOD=xcodebuild
@@ -368,6 +408,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
 
     - stage: test
+      os: osx
       env:
         - PROJECT=InAppMessagingDisplay PLATFORM=iPad METHOD=xcodebuild
       before_install:
@@ -376,6 +417,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
 
     - stage: test
+      os: osx
       env:
         - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild
       before_install:
@@ -384,6 +426,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
     - stage: test
+      os: osx
       osx_image: xcode10.3
       env:
         - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild
@@ -393,12 +436,14 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
     - stage: test
+      os: osx
       env:
         - PROJECT=GoogleUtilities METHOD=pod-lib-lint
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleUtilities.podspec
 
     - stage: test
+      os: osx
       osx_image: xcode10.3
       env:
         - PROJECT=GoogleUtilities METHOD=pod-lib-lint
@@ -406,6 +451,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleUtilities.podspec
 
     - stage: test
+      os: osx
       if: type = cron
       env:
         - PROJECT=GoogleUtilitiesCron METHOD=pod-lib-lint
@@ -415,12 +461,14 @@ jobs:
         - travis_retry ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --use-modular-headers
 
     - stage: test
+      os: osx
       env:
         - PROJECT=GoogleUtilitiesComponents METHOD=pod-lib-lint
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleUtilitiesComponents.podspec
 
     - stage: test
+      os: osx
       osx_image: xcode10.3
       env:
         - PROJECT=GoogleUtilitiesComponents METHOD=pod-lib-lint
@@ -429,6 +477,7 @@ jobs:
 
     - stage: test
       if: type = cron
+      os: osx
       env:
         - PROJECT=GoogleUtilitiesComponentsCron METHOD=pod-lib-lint
       script:
@@ -436,6 +485,7 @@ jobs:
         - travis_retry ./scripts/pod_lib_lint.rb GoogleUtilitiesComponents.podspec --use-modular-headers
 
     - stage: test
+      os: osx
       env:
         - PROJECT=Firebase METHOD=pod-lib-lint
       script:
@@ -447,6 +497,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInAppMessagingDisplay.podspec
 
     - stage: test
+      os: osx
       env:
         - PROJECT=Firestore METHOD=pod-lib-lint
       script:
@@ -458,6 +509,7 @@ jobs:
     # pod lib lint to check build and warnings for static library build - only on cron jobs
     - stage: test
       if: type = cron
+      os: osx
       env:
         - PROJECT=InAppMessagingCron METHOD=pod-lib-lint
       script:
@@ -468,6 +520,7 @@ jobs:
 
     - stage: test
       if: type = cron
+      os: osx
       env:
         - PROJECT=Firestore METHOD=pod-lib-lint
       script:
@@ -476,6 +529,7 @@ jobs:
         - travis_wait 45 ./scripts/pod_lib_lint.rb FirebaseFirestore.podspec --use-libraries --allow-warnings --no-subspecs --no-analyze
 
     - stage: test
+      os: osx
       env:
         - PROJECT=GoogleDataTransport METHOD=pod-lib-lint
       script:
@@ -484,6 +538,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=tvos
 
     - stage: test
+      os: osx
       osx_image: xcode10.3
       env:
         - PROJECT=GoogleDataTransport METHOD=pod-lib-lint
@@ -492,6 +547,7 @@ jobs:
 
     - stage: test
       if: type = cron
+      os: osx
       env:
         - PROJECT=GoogleDataTransportCron METHOD=pod-lib-lint
       script:
@@ -503,6 +559,7 @@ jobs:
         - travis_retry ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=tvos --use-modular-headers
 
     - stage: test
+      os: osx
       env:
         - PROJECT=GoogleDataTransportCCTSupport METHOD=pod-lib-lint
       script:
@@ -511,6 +568,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=tvos
 
     - stage: test
+      os: osx
       osx_image: xcode10.3
       env:
         - PROJECT=GoogleDataTransportCCTSupport METHOD=pod-lib-lint
@@ -519,6 +577,7 @@ jobs:
 
     - stage: test
       if: type = cron
+      os: osx
       env:
         - PROJECT=GoogleDataTransportCCTSupportCron METHOD=pod-lib-lint
       script:
@@ -530,6 +589,7 @@ jobs:
         - travis_retry ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=tvos --use-modular-headers
 
     - stage: test
+      os: osx
       env:
         - PROJECT=FirebasePod PLATFORM=iOS METHOD=xcodebuild
       before_install:
@@ -540,6 +600,7 @@ jobs:
     # Daily test for symbol collisions between Firebase and CocoaPods.
     - stage: test
       if: type = cron
+      os: osx
       env:
         - PROJECT=SymbolCollision PLATFORM=iOS METHOD=xcodebuild
       before_install:
@@ -549,6 +610,7 @@ jobs:
 
     # Alternative platforms
     - stage: test
+      os: osx
       env:
         - PROJECT=Firestore PLATFORM=macOS METHOD=cmake
       before_install:
@@ -558,7 +620,6 @@ jobs:
 
     - stage: test
       os: linux
-      dist: xenial
       env:
         - PROJECT=Firestore PLATFORM=Linux METHOD=cmake
       before_install:
@@ -578,6 +639,7 @@ jobs:
     #     - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
     - stage: test
+      os: osx
       env:
         - PROJECT=Firestore PLATFORM=macOS METHOD=xcodebuild
       before_install:
@@ -586,6 +648,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
 
     - stage: test
+      os: osx
       env:
         - PROJECT=Firestore PLATFORM=tvOS METHOD=xcodebuild
       before_install:
@@ -596,6 +659,7 @@ jobs:
     # Firestore sanitizers
 
     - stage:
+      os: osx
       env:
         - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=asan
       before_install:
@@ -604,6 +668,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
     - stage: test
+      os: osx
       env:
         - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=tsan
       before_install:
@@ -616,6 +681,7 @@ jobs:
     # usable on its own, too).
 
     - stage: test
+      os: osx
       env:
         - PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=asan
       before_install:
@@ -624,6 +690,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
     - stage: test
+      os: osx
       env:
         - PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=tsan
       before_install:
@@ -636,6 +703,7 @@ jobs:
     # Validate Cocoapods 1.7.0 compatibility
     - stage: test
       if: type = cron
+      os: osx
       env:
         - POD_CONFIG_DIR=Cocoapods1_7_0_multiprojects_frameworks
       script:
@@ -643,6 +711,7 @@ jobs:
 
     - stage: test
       if: type = cron
+      os: osx
       env:
         - POD_CONFIG_DIR=Cocoapods1_7_0_frameworks
       script:
@@ -650,6 +719,7 @@ jobs:
 
     - stage: test
       if: type = cron
+      os: osx
       env:
         - POD_CONFIG_DIR=Cocoapods1_7_0_multiprojects_staticLibs
       script:
@@ -657,6 +727,7 @@ jobs:
 
     - stage: test
       if: type = cron
+      os: osx
       env:
         - POD_CONFIG_DIR=Cocoapods1_7_0_staticLibs
       script:
@@ -665,6 +736,7 @@ jobs:
     # Validate Cocoapods 1.6.1 compatibility
     - stage: test
       if: type = cron
+      os: osx
       env:
         - POD_CONFIG_DIR=Cocoapods1_6_1_frameworks
       script:
@@ -672,6 +744,7 @@ jobs:
 
     - stage: test
       if: type = cron
+      os: osx
       env:
         - POD_CONFIG_DIR=Cocoapods1_6_1_staticLibs
       script:
@@ -679,6 +752,7 @@ jobs:
 
     # FIS
     - stage: test
+      os: osx
       env:
         - PROJECT=Installations PLATFORM=iOS METHOD=pod-lib-lint
         - FIS_ALLOWS_INCOMPATIBLE_IID_VERSION=1
@@ -691,6 +765,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstallations.podspec --use-modular-headers --platforms=ios --ignore-local-podspecs=FirebaseInstanceID.podspec
 
     - stage: test
+      os: osx
       env:
         - PROJECT=Installations PLATFORM=macOS METHOD=pod-lib-lint
         - FIS_ALLOWS_INCOMPATIBLE_IID_VERSION=1
@@ -703,6 +778,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstallations.podspec --use-modular-headers --platforms=macos --ignore-local-podspecs=FirebaseInstanceID.podspec
 
     - stage: test
+      os: osx
       env:
         - PROJECT=Installations PLATFORM=tvOS METHOD=pod-lib-lint
         - FIS_ALLOWS_INCOMPATIBLE_IID_VERSION=1
