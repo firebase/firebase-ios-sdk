@@ -14,8 +14,21 @@
 
 # Finds `libclang_rt.asan_osx_dynamic.dylib` on Apple platform, it is typically
 # under ${CMAKE_CXX_COMPILER}/../lib.
-get_filename_component(compiler_bin_dir ${CMAKE_CXX_COMPILER} DIRECTORY)
-get_filename_component(compiler_dir ${compiler_bin_dir} DIRECTORY)
+if(APPLE AND CXX_CLANG)
+  get_filename_component(compiler_bin_dir ${CMAKE_CXX_COMPILER} DIRECTORY)
+  get_filename_component(compiler_dir ${compiler_bin_dir} DIRECTORY)
 
-file(GLOB_RECURSE ASAN_DYLIB
-  ${compiler_dir}/libclang_rt.asan_osx_dynamic.dylib)
+  if(WITH_ASAN)
+    file(
+      GLOB_RECURSE CLANG_ASAN_DYLIB
+      ${compiler_dir}/libclang_rt.asan_osx_dynamic.dylib
+    )
+  endif()
+
+  if(WITH_TSAN)
+    file(
+      GLOB_RECURSE CLANG_TSAN_DYLIB
+      ${compiler_dir}/libclang_rt.tsan_osx_dynamic.dylib
+    )
+  endif()
+endif(APPLE AND CXX_CLANG)
