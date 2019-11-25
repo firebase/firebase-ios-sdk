@@ -13,7 +13,6 @@ pod 'GoogleUtilities', :path => '../..'
 target 'InAppMessaging_Example_iOS' do
   platform :ios, '8.0'
 
-  pod 'FirebaseInAppMessagingDisplay', :path => '../..'
   pod 'FirebaseInAppMessaging', :path => '../..'
   pod 'FirebaseAnalyticsInterop',  :path => '../..'
   pod 'FirebaseDynamicLinks',  :path => '../..'

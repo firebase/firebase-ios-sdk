@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		257270CD238C813900238991 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 257270CC238C813900238991 /* GoogleService-Info.plist */; };
 		25C6745121EEC868005A4C23 /* NSString+InterlaceStringsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 25C6745021EEC868005A4C23 /* NSString+InterlaceStringsTests.m */; };
 		AD0E370C1F7C63BC00BBF23C /* FIRIAMMsgFetcherUsingRestfulTests.m in Sources */ = {isa = PBXBuildFile; fileRef = AD0E370B1F7C63BC00BBF23C /* FIRIAMMsgFetcherUsingRestfulTests.m */; };
 		AD0E37101F7DB3D500BBF23C /* FIRIAMFetchResponseParserTests.m in Sources */ = {isa = PBXBuildFile; fileRef = AD0E370F1F7DB3D500BBF23C /* FIRIAMFetchResponseParserTests.m */; };
@@ -36,7 +37,6 @@
 		ADB47AE320A111D5002D52E9 /* TestJsonDataWithTestMessageFromFetch.txt in Resources */ = {isa = PBXBuildFile; fileRef = ADB47AE120A110F4002D52E9 /* TestJsonDataWithTestMessageFromFetch.txt */; };
 		ADBC527A1F4CD18300A4BEF9 /* FIRIAMFetchFlowTests.m in Sources */ = {isa = PBXBuildFile; fileRef = ADBC52791F4CD18300A4BEF9 /* FIRIAMFetchFlowTests.m */; };
 		ADC4298A1F8BEAFD00027599 /* UIColor+FIRIAMHexStringTests.m in Sources */ = {isa = PBXBuildFile; fileRef = ADC429891F8BEAFD00027599 /* UIColor+FIRIAMHexStringTests.m */; };
-		ADC4298F1F8D3DD500027599 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = ADC4298E1F8D3DD500027599 /* GoogleService-Info.plist */; };
 		ADCC091020782E2D009BFC2F /* FIRIAMSDKModeManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = ADCC090F20782E2D009BFC2F /* FIRIAMSDKModeManagerTests.m */; };
 		ADD981962006D1C500944751 /* FIRIAMClearcutLoggerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = ADD981952006D1C500944751 /* FIRIAMClearcutLoggerTests.m */; };
 		ADE5BB60200988A1001A1395 /* FIRIAMClearcutRetryLocalStorageTests.m in Sources */ = {isa = PBXBuildFile; fileRef = ADE5BB5F200988A1001A1395 /* FIRIAMClearcutRetryLocalStorageTests.m */; };
@@ -53,6 +53,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		257270CC238C813900238991 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		25C6745021EEC868005A4C23 /* NSString+InterlaceStringsTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "NSString+InterlaceStringsTests.m"; path = "Tests/NSString+InterlaceStringsTests.m"; sourceTree = "<group>"; };
 		AD00D6E61F26655B00DB4967 /* InAppMessaging_Example_iOS_SwiftUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppMessaging_Example_iOS_SwiftUITests.swift; sourceTree = "<group>"; };
 		AD00D6E81F26655B00DB4967 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -91,7 +92,6 @@
 		ADB47AE120A110F4002D52E9 /* TestJsonDataWithTestMessageFromFetch.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = TestJsonDataWithTestMessageFromFetch.txt; sourceTree = "<group>"; };
 		ADBC52791F4CD18300A4BEF9 /* FIRIAMFetchFlowTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRIAMFetchFlowTests.m; path = Tests/FIRIAMFetchFlowTests.m; sourceTree = "<group>"; };
 		ADC429891F8BEAFD00027599 /* UIColor+FIRIAMHexStringTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "UIColor+FIRIAMHexStringTests.m"; path = "Tests/UIColor+FIRIAMHexStringTests.m"; sourceTree = "<group>"; };
-		ADC4298E1F8D3DD500027599 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "App/InAppMessaging-Example-iOS/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		ADCC090F20782E2D009BFC2F /* FIRIAMSDKModeManagerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FIRIAMSDKModeManagerTests.m; sourceTree = "<group>"; };
 		ADD981952006D1C500944751 /* FIRIAMClearcutLoggerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = FIRIAMClearcutLoggerTests.m; path = Tests/FIRIAMClearcutLoggerTests.m; sourceTree = "<group>"; };
 		ADE5BB5F200988A1001A1395 /* FIRIAMClearcutRetryLocalStorageTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = FIRIAMClearcutRetryLocalStorageTests.m; path = Tests/FIRIAMClearcutRetryLocalStorageTests.m; sourceTree = "<group>"; };
@@ -116,6 +116,13 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0A9517BC5F68A542BA4D7C54 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
 		AD00D6E51F26655B00DB4967 /* InAppMessaging_Example_iOS_SwiftUITests */ = {
 			isa = PBXGroup;
 			children = (
@@ -166,6 +173,7 @@
 				AD811A471F13FB3A00BF632A /* App */,
 				AD811A2E1F13F88800BF632A /* Products */,
 				AE2B80A4702458F0BCEF595B /* Frameworks */,
+				0A9517BC5F68A542BA4D7C54 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -197,13 +205,13 @@
 		AD8121E01F13FC3800BF632A /* objc */ = {
 			isa = PBXGroup;
 			children = (
+				257270CC238C813900238991 /* GoogleService-Info.plist */,
 				AD764A2D1FE4856300378AE0 /* AutoDisplayFlowViewController.h */,
 				AD764A2E1FE4856300378AE0 /* AutoDisplayFlowViewController.m */,
 				AD764A2C1FE4856300378AE0 /* AutoDisplayMesagesTableVC.h */,
 				AD764A331FE4856300378AE0 /* AutoDisplayMesagesTableVC.m */,
 				AD764A311FE4856300378AE0 /* LogDumpViewController.h */,
 				AD764A301FE4856300378AE0 /* LogDumpViewController.m */,
-				ADC4298E1F8D3DD500027599 /* GoogleService-Info.plist */,
 				AD81221B1F14064800BF632A /* LaunchScreen.storyboard */,
 				AD8122181F14052100BF632A /* Main.storyboard */,
 				AD811A331F13F88800BF632A /* AppDelegate.h */,
@@ -355,6 +363,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 				Base,
 			);
@@ -376,11 +385,11 @@
 			files = (
 				AD8122431F14148100BF632A /* LaunchScreen.storyboard in Resources */,
 				AD8122441F14148100BF632A /* Main.storyboard in Resources */,
-				ADC4298F1F8D3DD500027599 /* GoogleService-Info.plist in Resources */,
 				AD39268920AB55B700FA3FDF /* JsonDataWithInvalidMessagesFromFetch.txt in Resources */,
 				ADB47ADF20A107C6002D52E9 /* TestJsonDataFromFetch.txt in Resources */,
 				AD811A3D1F13F88800BF632A /* Shared.xcassets in Resources */,
 				ADB47AE220A110F4002D52E9 /* TestJsonDataWithTestMessageFromFetch.txt in Resources */,
+				257270CD238C813900238991 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

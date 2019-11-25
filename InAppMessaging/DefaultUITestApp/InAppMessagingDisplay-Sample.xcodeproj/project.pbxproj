@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 51;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -72,6 +72,13 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		33B30E4BD5C0ED26964F0443 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
 		AD7200B32124D19200AFD5F3 /* FiamDisplaySwiftExample */ = {
 			isa = PBXGroup;
 			children = (
@@ -108,6 +115,7 @@
 				AD7200B32124D19200AFD5F3 /* FiamDisplaySwiftExample */,
 				AD7200D22125F92100AFD5F3 /* InAppMessagingDisplay-UITests */,
 				ADA7B5B921223CED00B1C614 /* Products */,
+				33B30E4BD5C0ED26964F0443 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -285,7 +293,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.experimental1.dev.FiamDisplaySwiftExample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
-				"SWIFT_OBJC_BRIDGING_HEADER[arch=*]" = ../../Firebase/InAppMessagingDisplay/Public/FirebaseInAppMessagingDisplay.h;
+				"SWIFT_OBJC_BRIDGING_HEADER[arch=*]" = ../../Firebase/InAppMessaging/DefaultUI/FirebaseInAppMessagingDisplay.h;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -305,7 +313,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.experimental1.dev.FiamDisplaySwiftExample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_COMPILATION_MODE = wholemodule;
-				"SWIFT_OBJC_BRIDGING_HEADER[arch=*]" = ../../Firebase/InAppMessagingDisplay/Public/FirebaseInAppMessagingDisplay.h;
+				"SWIFT_OBJC_BRIDGING_HEADER[arch=*]" = ../../Firebase/InAppMessaging/DefaultUI/FirebaseInAppMessagingDisplay.h;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
