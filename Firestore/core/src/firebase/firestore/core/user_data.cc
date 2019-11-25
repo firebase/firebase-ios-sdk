@@ -24,6 +24,7 @@
 #include "Firestore/core/src/firebase/firestore/model/transform_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/transform_operation.h"
 #include "Firestore/core/src/firebase/firestore/util/exception.h"
+#include "absl/memory/memory.h"
 #include "absl/strings/match.h"
 
 namespace firebase {
