@@ -42,6 +42,7 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
 @property(nonatomic) id mockURLSession;
 @property(nonatomic) NSString *APIKey;
 @property(nonatomic) NSString *projectID;
+@property(nonatomic) id heartbeatMock;
 @end
 
 @implementation FIRInstallationsAPIServiceTests
@@ -53,7 +54,7 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
   self.service = [[FIRInstallationsAPIService alloc] initWithURLSession:self.mockURLSession
                                                                  APIKey:self.APIKey
                                                               projectID:self.projectID];
-  id heartbeatMock = OCMClassMock([FIRHeartbeatInfo class]);
+  self.heartbeatMock = OCMClassMock([FIRHeartbeatInfo class]);
   OCMStub([heartbeatMock heartbeatCodeForTag:@"fire-installations"])
       .andReturn(FIRHeartbeatInfoCodeCombined);
 }
@@ -63,6 +64,7 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
   self.mockURLSession = nil;
   self.projectID = nil;
   self.APIKey = nil;
+  self.heartbeatMock = nil;
 
   // Wait for any pending promises to complete.
   XCTAssert(FBLWaitForPromisesWithTimeout(2));
