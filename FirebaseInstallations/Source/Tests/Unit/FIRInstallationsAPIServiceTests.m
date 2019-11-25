@@ -55,7 +55,7 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
                                                                  APIKey:self.APIKey
                                                               projectID:self.projectID];
   self.heartbeatMock = OCMClassMock([FIRHeartbeatInfo class]);
-  OCMStub([heartbeatMock heartbeatCodeForTag:@"fire-installations"])
+  OCMStub([self.heartbeatMock heartbeatCodeForTag:@"fire-installations"])
       .andReturn(FIRHeartbeatInfoCodeCombined);
 }
 
