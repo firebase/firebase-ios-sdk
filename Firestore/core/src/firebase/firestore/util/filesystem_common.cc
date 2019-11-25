@@ -26,14 +26,15 @@
 namespace firebase {
 namespace firestore {
 namespace util {
-namespace detail {
 
 #if !__APPLE__
-Status ExcludeFromBackups(const Path& dir) {
+Status ExcludeFromBackups(const Path&) {
   // Non-Apple platforms don't yet implement exclusion from backups.
   return Status::OK();
 }
 #endif  // !__APPLE__
+
+namespace detail {
 
 Status RecursivelyDeleteDir(const Path& parent) {
   std::unique_ptr<DirectoryIterator> iter = DirectoryIterator::Create(parent);
