@@ -242,16 +242,14 @@ case "$product-$method-$platform" in
     fi
     ;;
 
-  InAppMessaging-xcodebuild-iOS)
+  InAppMessaging-xcodebuild-*)
     RunXcodebuild \
         -workspace 'InAppMessaging/Example/InAppMessaging-Example-iOS.xcworkspace' \
         -scheme 'InAppMessaging_Example_iOS' \
         "${xcb_flags[@]}" \
         build \
         test
-  ;;
 
-  InAppMessagingDisplay-xcodebuild-*)
     RunXcodebuild \
         -workspace 'InAppMessagingDisplay/Example/InAppMessagingDisplay-Sample.xcworkspace' \
         -scheme 'FiamDisplaySwiftExample' \
@@ -286,6 +284,9 @@ case "$product-$method-$platform" in
     ;;
 
   Firestore-cmake-macOS)
+    "${firestore_emulator}" start
+    trap '"${firestore_emulator}" stop' ERR EXIT
+
     test -d build || mkdir build
     echo "Preparing cmake build ..."
     (cd build; cmake "${cmake_options[@]}" ..)

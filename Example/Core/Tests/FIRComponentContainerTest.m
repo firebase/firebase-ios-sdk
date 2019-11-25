@@ -78,7 +78,7 @@
   // Verify that the block is stored.
   NSString *protocolName = NSStringFromProtocol(@protocol(FIRTestProtocol));
   FIRComponentCreationBlock creationBlock = container.components[protocolName];
-  OCMExpect(creationBlock);
+  XCTAssertNotNil(creationBlock);
 }
 
 #pragma mark - Caching Tests

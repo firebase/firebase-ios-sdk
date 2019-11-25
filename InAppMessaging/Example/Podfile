@@ -26,5 +26,5 @@ target 'InAppMessaging_Tests_iOS' do
   pod 'FirebaseInAppMessaging', :path => '../..'
   pod 'FirebaseInstanceID',  :path => '../..'
   pod 'FirebaseAnalyticsInterop',  :path => '../..'
-  pod 'OCMock'
+  pod 'OCMock', '~> 3.4.0'
 end

@@ -23,12 +23,17 @@
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
 
-using firebase::firestore::util::Path;
-
 namespace firebase {
 namespace firestore {
 namespace util {
 namespace detail {
+
+#if !__APPLE__
+Status ExcludeFromBackups(const Path& dir) {
+  // Non-Apple platforms don't yet implement exclusion from backups.
+  return Status::OK();
+}
+#endif  // !__APPLE__
 
 Status RecursivelyDeleteDir(const Path& parent) {
   std::unique_ptr<DirectoryIterator> iter = DirectoryIterator::Create(parent);

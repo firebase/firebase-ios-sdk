@@ -35,6 +35,6 @@ Not intended for direct public usage.
     unit_tests.source_files = 'GoogleUtilitiesComponents/Tests/**/*.[mh]'
     unit_tests.requires_arc = 'GoogleUtilitiesComponents/Tests/*/*.[mh]'
     unit_tests.requires_app_host = true
-    unit_tests.dependency 'OCMock'
+    unit_tests.dependency 'OCMock', '~> 3.4.0'
   end
 end
