@@ -17,7 +17,8 @@
 #import <GoogleDataTransport/GDTCORPlatform.h>
 
 #import <GoogleDataTransport/GDTCORAssert.h>
-#import <GoogleDataTransport/GDTCORRegistrar_Private.h>
+
+#import "GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
 
 #ifdef GDTCOR_VERSION
 #define STR(x) STR_EXPAND(x)

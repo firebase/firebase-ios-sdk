@@ -120,6 +120,8 @@ cc_library(
   SOURCES
     datastore.cc
     datastore.h
+    remote_objc_bridge.cc
+    remote_objc_bridge.h
     stream.cc
     stream.h
     watch_change.cc
@@ -130,7 +132,11 @@ cc_library(
     write_stream.h
   DEPENDS
     absl_strings
+    firebase_firestore_nanopb
+    firebase_firestore_protos_nanopb
+    firebase_firestore_remote_connectivity_monitor
     firebase_firestore_remote_grpc
+    firebase_firestore_remote_serializer
 )
 
 cc_library(
@@ -154,8 +160,6 @@ cc_library(
     online_state_tracker.h
     remote_event.cc
     remote_event.h
-    remote_objc_bridge.cc
-    remote_objc_bridge.h
     remote_store.cc
     remote_store.h
 
@@ -163,8 +167,6 @@ cc_library(
     firebase_firestore_core_transaction
     firebase_firestore_local
     firebase_firestore_model
-    firebase_firestore_nanopb
-    firebase_firestore_protos_nanopb
     firebase_firestore_remote_connectivity_monitor
     firebase_firestore_remote_datastore
     firebase_firestore_remote_serializer

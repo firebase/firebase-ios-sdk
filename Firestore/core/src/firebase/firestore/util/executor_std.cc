@@ -20,6 +20,8 @@
 #include <memory>
 #include <sstream>
 
+#include "absl/memory/memory.h"
+
 namespace firebase {
 namespace firestore {
 namespace util {
@@ -181,8 +183,7 @@ std::unique_ptr<Executor> Executor::CreateSerial(const char*) {
   return absl::make_unique<ExecutorStd>(/*threads=*/1);
 }
 
-std::unique_ptr<Executor> Executor::CreateConcurrent(const char* label,
-                                                     int threads) {
+std::unique_ptr<Executor> Executor::CreateConcurrent(const char*, int threads) {
   return absl::make_unique<ExecutorStd>(threads);
 }
 
