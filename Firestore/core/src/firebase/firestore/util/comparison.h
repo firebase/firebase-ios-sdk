@@ -155,6 +155,7 @@ struct Comparator<std::string> {
   Comparator(const Comparator&) {
   }
   Comparator& operator=(const Comparator&) {
+    return *this;
   }
 
   ComparisonResult Compare(const std::string& left,
