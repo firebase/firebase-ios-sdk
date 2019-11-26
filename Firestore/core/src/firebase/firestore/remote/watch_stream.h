@@ -43,8 +43,12 @@ class Serializer;
  */
 class WatchStreamCallback {
  public:
-  /** Called by the `WatchStream` when it is ready to accept outbound request
-   * messages. */
+  virtual ~WatchStreamCallback() = default;
+
+  /**
+   * Called by the `WatchStream` when it is ready to accept outbound request
+   * messages.
+   */
   virtual void OnWatchStreamOpen() = 0;
 
   /**

@@ -20,6 +20,8 @@
 #include <memory>
 #include <sstream>
 
+#include "absl/memory/memory.h"
+
 namespace firebase {
 namespace firestore {
 namespace util {

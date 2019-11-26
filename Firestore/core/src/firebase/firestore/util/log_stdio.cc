@@ -25,7 +25,11 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
+namespace {
+
 LogLevel g_log_level = kLogLevelWarning;
+
+}  // namespace
 
 void LogSetLevel(LogLevel level) {
   g_log_level = level;

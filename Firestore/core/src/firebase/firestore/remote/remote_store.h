@@ -46,6 +46,8 @@ namespace remote {
  */
 class RemoteStoreCallback {
  public:
+  virtual ~RemoteStoreCallback() = default;
+
   /**
    * Applies a remote event to the sync engine, notifying any views of the
    * changes, and releasing any pending mutation batches that would become
