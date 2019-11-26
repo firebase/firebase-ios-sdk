@@ -12,9 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Finds `libclang_rt.asan_osx_dynamic.dylib` on Apple platform, it is typically
-# under ${CMAKE_CXX_COMPILER}/../lib.
 if(APPLE AND CXX_CLANG)
+  # Sanitizers in Clang are supported by a specific runtime and Clang
+  # automatically links against the right runtime. When building staticly
+  # linked binaries, the resulting binary will contain the runtime. Dynamically
+  # linked binaries will link against the dynamic version of the library.
+  #
+  # xctest bundles are necessarily dynamicly linked, but linked in such a way
+  # that the sanitizer runtime is assumed to be on the @rpath. This finds the
+  # clang runtimes so that they can be supplied as needed.
   get_filename_component(compiler_bin_dir ${CMAKE_CXX_COMPILER} DIRECTORY)
   get_filename_component(compiler_dir ${compiler_bin_dir} DIRECTORY)
 
