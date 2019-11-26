@@ -98,7 +98,7 @@ public enum CocoaPodUtils {
   /// Install an array of pods in a specific directory, returning an array of PodInfo for each pod
   /// that was installed.
   @discardableResult
-  public static func installPods(_ pods: [CocoaPod],
+  public static func installPods(_ pods: [String],
                                  inDir directory: URL,
                                  customSpecRepos: [URL]? = nil) -> [PodInfo] {
     let fileManager = FileManager.default
@@ -125,7 +125,7 @@ public enum CocoaPodUtils {
     }
 
     // Run pod install on the directory that contains the Podfile and blank Xcode project.
-    let result = Shell.executeCommandFromScript("pod _1.5.3_ install", workingDir: directory)
+    let result = Shell.executeCommandFromScript("pod _1.8.4_ install", workingDir: directory)
     switch result {
     case let .error(code, output):
       fatalError("""
@@ -179,6 +179,33 @@ public enum CocoaPodUtils {
     }
   }
 
+  public static func podInstallPrepare(inProjectDir projectDir: URL) {
+    do {
+      // Create the directory and all intermediate directories.
+      try FileManager.default.createDirectory(at: projectDir, withIntermediateDirectories: true)
+    } catch {
+      // Use `do/catch` instead of `guard let tempDir = try?` so we can print the error thrown.
+      fatalError("Cannot create temporary directory at beginning of script: \(error)")
+    }
+    // Copy the Xcode project needed in order to be able to install Pods there.
+    let templateFiles = Constants.ProjectPath.requiredFilesForBuilding.map {
+      paths.templateDir.appendingPathComponent($0)
+    }
+    for file in templateFiles {
+      // Each file should be copied to the temporary project directory with the same name.
+      let destination = projectDir.appendingPathComponent(file.lastPathComponent)
+      do {
+        if !FileManager.default.fileExists(atPath: destination.path) {
+          print("Copying template file \(file) to \(destination)...")
+          try FileManager.default.copyItem(at: file, to: destination)
+        }
+      } catch {
+        fatalError("Could not copy template project to temporary directory in order to install " +
+          "pods. Failed while attempting to copy \(file) to \(destination). \(error)")
+      }
+    }
+  }
+
   // MARK: - Private Helpers
 
   // Tests the input to see if it matches a CocoaPod framework and its version.
@@ -212,12 +239,21 @@ public enum CocoaPodUtils {
     return (framework, version)
   }
 
+  private static func minSupportedIOSVersion(pod : String) -> OperatingSystemVersion {
+    // All ML pods have a minimum iOS version of 9.0.
+    if pod.hasPrefix("ML") {
+      return OperatingSystemVersion(majorVersion: 9, minorVersion: 0, patchVersion: 0)
+    } else {
+      return OperatingSystemVersion(majorVersion: 8, minorVersion: 0, patchVersion: 0)
+    }
+  }
+
   /// Create the contents of a Podfile for an array of subspecs. This assumes the array of subspecs
   /// is not empty.
-  private static func generatePodfile(for pods: [CocoaPod],
+  private static func generatePodfile(for pods: [String],
                                       customSpecsRepos: [URL]? = nil) -> String {
     // Get the largest minimum supported iOS version from the array of subspecs.
-    let minVersions = pods.map { $0.minSupportedIOSVersion() }
+    let minVersions = pods.map { minSupportedIOSVersion(pod:$0) }
 
     // Get the maximum version out of all the minimum versions supported.
     guard let largestMinVersion = minVersions.max() else {
@@ -239,7 +275,7 @@ public enum CocoaPodUtils {
       let reposText = customSpecsRepos.map { "source '\($0)'" }
       podfile += """
       \(reposText.joined(separator: "\n"))
-      source 'https://github.com/CocoaPods/Specs.git'
+      source 'https://cdn.cocoapods.org/'
 
       """ // Explicit newline above to ensure it's included in the String.
     }
@@ -252,7 +288,7 @@ public enum CocoaPodUtils {
 
     // Loop through the subspecs passed in and use the rawValue (actual Pod name).
     for pod in pods {
-      podfile += "  pod '\(pod.podName)'\n"
+      podfile += "  pod '\(CocoaPod.podName(pod:pod))'\n"
     }
 
     podfile += "end"
@@ -298,7 +334,7 @@ public enum CocoaPodUtils {
 
   /// Write a podfile that contains all the pods passed in to the directory passed in with a name
   /// "Podfile".
-  private static func writePodfile(for pods: [CocoaPod],
+  private static func writePodfile(for pods: [String],
                                    toDirectory directory: URL,
                                    customSpecRepos: [URL]?) throws {
     guard FileManager.default.directoryExists(at: directory) else {
