@@ -32,8 +32,8 @@ namespace api {
  */
 class Settings {
  public:
-  // Note: a constexpr array of char (`char[]`) doesn't work with older versions
-  // of Visual Studio.
+  // Note: a constexpr array of char (`char[]`) doesn't work with Visual Studio
+  // 2015.
   static constexpr const char* DefaultHost = "firestore.googleapis.com";
   static constexpr bool DefaultSslEnabled = true;
   static constexpr bool DefaultPersistenceEnabled = true;
