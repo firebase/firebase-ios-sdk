@@ -704,8 +704,10 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
 #if UISCENE_SUPPORTED
 + (void)handleSceneWillConnectToNotification:(NSNotification *)notification {
   if (@available(iOS 13.0, tvOS 13.0, *)) {
-    UIScene *scene = (UIScene *)notification.object;
-    [GULAppDelegateSwizzler proxySceneDelegate:scene];
+    if ([notification.object isKindOfClass:[UIScene class]]){
+      UIScene *scene = (UIScene *)notification.object;
+      [GULAppDelegateSwizzler proxySceneDelegate:scene];
+    }
   }
 }
 #endif  // UISCENE_SUPPORTED
@@ -801,9 +803,6 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
         [GULAppDelegateSwizzler originalImplementationForSelector:methodSelector object:self];
     GULOpenURLContextsIMP openURLContextsIMP = [openURLContextsIMPPointer pointerValue];
 
-    // This is needed for the library to be warning free on iOS versions < 9.
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunguarded-availability"
     [GULAppDelegateSwizzler
         notifyInterceptorsWithMethodSelector:methodSelector
                                     callback:^(id<GULApplicationDelegate> interceptor) {
@@ -814,7 +813,6 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
                                         [sceneInterceptor scene:scene openURLContexts:URLContexts];
                                       }
                                     }];
-#pragma clang diagnostic pop
 
     if (openURLContextsIMP) {
       openURLContextsIMP(self, methodSelector, scene, URLContexts);
@@ -1067,15 +1065,16 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
 #if UISCENE_SUPPORTED
 + (void)proxySceneDelegate:(UIScene *)scene {
   Class realClass = [scene.delegate class];
+  NSString *className = NSStringFromClass(realClass);
 
   // Skip proxying if the class has a prefix of kGULAppDelegatePrefix, which means it has been
   // proxied before.
-  if ([NSStringFromClass(realClass) hasPrefix:kGULAppDelegatePrefix]) {
+  if ([className hasPrefix:kGULAppDelegatePrefix]) {
     return;
   }
 
   NSString *classNameWithPrefix =
-      [kGULAppDelegatePrefix stringByAppendingString:NSStringFromClass(realClass)];
+      [kGULAppDelegatePrefix stringByAppendingString:className];
   NSString *newClassName =
       [NSString stringWithFormat:@"%@-%@", classNameWithPrefix, [NSUUID UUID].UUIDString];
 
@@ -1083,9 +1082,9 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
     GULLogError(kGULLoggerSwizzler, NO,
                 [NSString stringWithFormat:@"I-SWZ%06ld",
                                            (long)kGULSwizzlerMessageCodeAppDelegateSwizzling005],
-                @"Cannot create a proxy for App Delegate. Subclass already exists. Original Class: "
-                @"%@, subclass: %@",
-                NSStringFromClass(realClass), newClassName);
+                @"Cannot create a proxy for Scene Delegate. Subclass already exists. Original Class"
+                @": %@, subclass: %@",
+                className, newClassName);
     return;
   }
 
@@ -1096,9 +1095,9 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
     GULLogError(kGULLoggerSwizzler, NO,
                 [NSString stringWithFormat:@"I-SWZ%06ld",
                                            (long)kGULSwizzlerMessageCodeAppDelegateSwizzling006],
-                @"Cannot create a proxy for App Delegate. Subclass already exists. Original Class: "
-                @"%@, subclass: Nil",
-                NSStringFromClass(realClass));
+                @"Cannot create a proxy for Scene Delegate. Subclass already exists. Original Class"
+                @": %@, subclass: Nil",
+                className);
     return;
   }
 
@@ -1129,12 +1128,12 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
                                            (long)kGULSwizzlerMessageCodeAppDelegateSwizzling007],
                 @"Cannot create subclass of App Delegate, because the created subclass is not the "
                 @"same size. %@",
-                NSStringFromClass(realClass));
+                className);
     NSAssert(NO, @"Classes must be the same size to swizzle isa");
     return;
   }
 
-  // Make the newly created class to be the subclass of the real App Delegate class.
+  // Make the newly created class to be the subclass of the real Scene Delegate class.
   objc_registerClassPair(sceneDelegateSubClass);
   if (object_setClass(scene.delegate, sceneDelegateSubClass)) {
     GULLogDebug(kGULLoggerSwizzler, NO,

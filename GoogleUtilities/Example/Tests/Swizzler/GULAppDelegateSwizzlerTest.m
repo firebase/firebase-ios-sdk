@@ -283,6 +283,9 @@ static BOOL gRespondsToHandleBackgroundSession;
 #pragma mark - Scene Delegate
 
 #if ((TARGET_OS_IOS || TARGET_OS_TV) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 130000))
+@protocol TestSceneProtocol <GULApplicationDelegate, UISceneDelegate>
+@end
+
 API_AVAILABLE(ios(13.0), tvos(13.0))
 @interface GULTestSceneDelegate : NSObject <UISceneDelegate>
 @end
@@ -1363,6 +1366,31 @@ API_AVAILABLE(ios(13.0), tvos(13.0))
 
     // Make sure that the class isn't changed.
     XCTAssertEqualObjects([realSceneDelegate class], realSceneDelegateClassBefore);
+  }
+}
+
+- (void)testSceneOpenURLContextsIsInvokedOnInterceptors {
+  if (@available(iOS 13, tvOS 13, *)) {
+    NSSet *urlContexts = [NSSet set];
+
+    GULTestSceneDelegate *realSceneDelegate = [[GULTestSceneDelegate alloc] init];
+    id mockSharedScene = OCMClassMock([UIScene class]);
+    OCMStub([mockSharedScene delegate]).andReturn(realSceneDelegate);
+
+    id interceptor = OCMProtocolMock(@protocol(TestSceneProtocol));
+    OCMExpect([interceptor scene:mockSharedScene openURLContexts:urlContexts]);
+
+    id interceptor2 = OCMProtocolMock(@protocol(TestSceneProtocol));
+    OCMExpect([interceptor2 scene:mockSharedScene openURLContexts:urlContexts]);
+
+    [GULAppDelegateSwizzler proxySceneDelegate:mockSharedScene];
+
+    [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor];
+    [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor2];
+
+    [realSceneDelegate scene:mockSharedScene openURLContexts:urlContexts];
+    OCMVerifyAll(interceptor);
+    OCMVerifyAll(interceptor2);
   }
 }
 
