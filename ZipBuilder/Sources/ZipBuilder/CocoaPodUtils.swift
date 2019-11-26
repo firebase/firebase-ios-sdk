@@ -239,7 +239,7 @@ public enum CocoaPodUtils {
     return (framework, version)
   }
 
-  private static func minSupportedIOSVersion(pod : String) -> OperatingSystemVersion {
+  private static func minSupportedIOSVersion(pod: String) -> OperatingSystemVersion {
     // All ML pods have a minimum iOS version of 9.0.
     if pod.hasPrefix("ML") {
       return OperatingSystemVersion(majorVersion: 9, minorVersion: 0, patchVersion: 0)
@@ -253,7 +253,7 @@ public enum CocoaPodUtils {
   private static func generatePodfile(for pods: [String],
                                       customSpecsRepos: [URL]? = nil) -> String {
     // Get the largest minimum supported iOS version from the array of subspecs.
-    let minVersions = pods.map { minSupportedIOSVersion(pod:$0) }
+    let minVersions = pods.map { minSupportedIOSVersion(pod: $0) }
 
     // Get the maximum version out of all the minimum versions supported.
     guard let largestMinVersion = minVersions.max() else {
@@ -288,7 +288,7 @@ public enum CocoaPodUtils {
 
     // Loop through the subspecs passed in and use the rawValue (actual Pod name).
     for pod in pods {
-      podfile += "  pod '\(CocoaPod.podName(pod:pod))'\n"
+      podfile += "  pod '\(CocoaPod.podName(pod: pod))'\n"
     }
 
     podfile += "end"

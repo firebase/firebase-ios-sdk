@@ -157,7 +157,7 @@ struct ZipBuilder {
     // Break the `podsToInstall` into a variable since it's helpful when debugging builds to just
     // install a subset of pods, like the following line:
     //    let podsToInstall: [String] = ["", "Core", "Analytics", "Storage"]
-    let podsToInstall = CocoaPod.allCases.map{$0.rawValue}
+    let podsToInstall = CocoaPod.allCases.map { $0.rawValue }
 
     // Remove CocoaPods cache so the build gets updates after a version is rebuilt during the
     // release process.
@@ -451,7 +451,7 @@ struct ZipBuilder {
   ///            integrate for the product to work. Formatted and ready for insertion into the
   ///            README.
   private func dependencyString(for pod: String, in dir: URL, frameworks: [String]) -> String {
-    var result = CocoaPod.readmeHeader(pod:pod)
+    var result = CocoaPod.readmeHeader(pod: pod)
     for framework in frameworks.sorted() {
       result += "- \(framework).framework\n"
     }
@@ -540,7 +540,7 @@ struct ZipBuilder {
                                              toDirectory: productDir,
                                              frameworkLocations: builtFrameworks,
                                              podsToIgnore: podsToIgnore,
-                                             foldersToIgnore: CocoaPod.duplicateFrameworksToRemove(pod:pod))
+                                             foldersToIgnore: CocoaPod.duplicateFrameworksToRemove(pod: pod))
 
     let copiedFrameworks = namedFrameworks.filter {
       // Only return the frameworks that aren't contained in the "podsToIgnore" array, aren't an

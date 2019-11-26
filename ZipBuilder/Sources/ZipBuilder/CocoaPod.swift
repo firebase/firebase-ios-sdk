@@ -60,8 +60,8 @@ public enum CocoaPod: String, CaseIterable {
   }
 
   /// The name of the pod in the CocoaPods repo.
-  public static func podName(pod :String) -> String {
-    if (!pod.starts(with:"Google") && CocoaPod.allCases.map{ $0.rawValue }.contains(pod)) {
+  public static func podName(pod: String) -> String {
+    if (!pod.starts(with: "Google") && CocoaPod.allCases.map { $0.rawValue }.contains(pod)) {
       return "Firebase\(pod)"
     }
     return pod

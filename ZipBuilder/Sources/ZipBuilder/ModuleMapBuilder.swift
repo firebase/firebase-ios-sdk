@@ -19,7 +19,6 @@ import Foundation
 /// A struct to build a .modulemap in a given framework directory.
 ///
 struct ModuleMapBuilder {
-
   /// Information associated with a framework
   private class FrameworkInfo {
     let isOpenSource: Bool
@@ -45,7 +44,7 @@ struct ModuleMapBuilder {
 
   /// Default initializer.
   init(fromFrameworks frameworks: [String: [URL]], customSpecRepos: [URL]?) {
-    self.projectDir = FileManager.default.temporaryDirectory(withName: "module")
+    projectDir = FileManager.default.temporaryDirectory(withName: "module")
     CocoaPodUtils.podInstallPrepare(inProjectDir: projectDir)
 
     self.customSpecRepos = customSpecRepos
@@ -56,11 +55,11 @@ struct ModuleMapBuilder {
     } catch {
       fatalError("Could not find framework cache directory: \(error)")
     }
-    var installedPods : [String: FrameworkInfo] = [:]
+    var installedPods: [String: FrameworkInfo] = [:]
     for framework in frameworks {
       for url in framework.value {
         let frameworkFullName = url.lastPathComponent
-        let frameworkName = frameworkFullName.replacingOccurrences(of:".framework", with: "")
+        let frameworkName = frameworkFullName.replacingOccurrences(of: ".framework", with: "")
         let isOpenSource = url.absoluteString.contains(cacheDir.absoluteString)
         installedPods[frameworkName] = FrameworkInfo(isOpenSource: isOpenSource, location: url)
       }
@@ -73,8 +72,8 @@ struct ModuleMapBuilder {
   /// Build the module map files for the source frameworks.
   ///
   public func build() {
-    for (podName, info) in self.installedPods {
-      if (info.isOpenSource == false || info.transitiveFrameworks != nil) {
+    for (podName, info) in installedPods {
+      if info.isOpenSource == false || info.transitiveFrameworks != nil {
         continue
       }
       generate(podName: podName, framework: info)
@@ -84,12 +83,12 @@ struct ModuleMapBuilder {
   // MARK: - Internal Functions
 
   /// Build a module map for a single framework.
-  private func generate(podName: String, framework: FrameworkInfo) { //, inLocation location: URL) {
-    _ = CocoaPodUtils.installPods([podName], inDir: self.projectDir, customSpecRepos: customSpecRepos)
-    let xcconfigFile = self.projectDir.appendingPathComponents(["Pods", "Target Support Files",
-                                                          "Pods-FrameworkMaker",
-                                                          "Pods-FrameworkMaker.release.xcconfig"])
-    makeModuleMap(forFrameworkNamed: podName, forFramework: framework, withXcconfigFile:xcconfigFile)
+  private func generate(podName: String, framework: FrameworkInfo) { // , inLocation location: URL) {
+    _ = CocoaPodUtils.installPods([podName], inDir: projectDir, customSpecRepos: customSpecRepos)
+    let xcconfigFile = projectDir.appendingPathComponents(["Pods", "Target Support Files",
+                                                           "Pods-FrameworkMaker",
+                                                           "Pods-FrameworkMaker.release.xcconfig"])
+    makeModuleMap(forFrameworkNamed: podName, forFramework: framework, withXcconfigFile: xcconfigFile)
   }
 
   // Extract the framework and library dependencies for a framework from
@@ -130,8 +129,7 @@ struct ModuleMapBuilder {
   private func makeModuleMap(forFrameworkNamed name: String,
                              forFramework framework: FrameworkInfo,
                              withXcconfigFile xcconfigFile: URL) {
-
-    let dependencies = getModuleDependencies(forFrameworkNamed: name, withXcconfigFile:xcconfigFile)
+    let dependencies = getModuleDependencies(forFrameworkNamed: name, withXcconfigFile: xcconfigFile)
 
     let frameworkDeps = Set(dependencies.frameworks)
     let libraryDeps = Set(dependencies.libraries)
@@ -165,8 +163,8 @@ struct ModuleMapBuilder {
         }
       }
     }
-    self.installedPods[name]?.transitiveFrameworks = transitiveFrameworkDeps
-    self.installedPods[name]?.transitiveLibraries = transitiveLibraryDeps
+    installedPods[name]?.transitiveFrameworks = transitiveFrameworkDeps
+    installedPods[name]?.transitiveLibraries = transitiveLibraryDeps
 
     let moduleDir = framework.location.appendingPathComponent("Modules")
     do {

@@ -272,7 +272,7 @@ struct FrameworkBuilder {
                                   buildDir: buildDir,
                                   logRoot: logsDir)
       thinArchives.append(thinArchive)
-      // TODO DElete next line before merge
+      // TODO: DElete next line before merge
       break
     }
 
