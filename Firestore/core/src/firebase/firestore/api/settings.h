@@ -32,7 +32,7 @@ namespace api {
  */
 class Settings {
  public:
-  static constexpr char DefaultHost[] = "firestore.googleapis.com";
+  static constexpr const char* DefaultHost = "firestore.googleapis.com";
   static constexpr bool DefaultSslEnabled = true;
   static constexpr bool DefaultPersistenceEnabled = true;
   static constexpr int64_t DefaultCacheSizeBytes = 100 * 1024 * 1024;
