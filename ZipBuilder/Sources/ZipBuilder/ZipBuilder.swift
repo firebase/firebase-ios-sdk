@@ -157,7 +157,9 @@ struct ZipBuilder {
     // Break the `podsToInstall` into a variable since it's helpful when debugging builds to just
     // install a subset of pods, like the following line:
     //    let podsToInstall: [String] = ["", "Core", "Analytics", "Storage"]
-    let podsToInstall = CocoaPod.allCases.map { $0.rawValue }
+    let podsToInstall = CocoaPod.allCases.map { CocoaPodUtils.PodInfo(name:$0.rawValue,
+                                                                      version:"",
+                                                                      installedLocation: URL(fileURLWithPath: "dummy")) }
 
     // Remove CocoaPods cache so the build gets updates after a version is rebuilt during the
     // release process.
@@ -247,7 +249,8 @@ struct ZipBuilder {
     do {
       // This returns the Analytics directory and a list of framework names that Analytics reqires.
       /// Example: ["FirebaseInstanceID", "GoogleAppMeasurement", "nanopb", <...>]
-      let (dir, frameworks) = try installAndCopyFrameworks(forPod: "Analytics",
+      let analyticsPod = podsToInstall.filter { $0.name == "Analytics" }
+      let (dir, frameworks) = try installAndCopyFrameworks(forPod: analyticsPod[0],
                                                            projectDir: projectDir,
                                                            rootZipDir: zipDir,
                                                            builtFrameworks: frameworks)
@@ -264,7 +267,7 @@ struct ZipBuilder {
 
     // Loop through all the other subspecs that aren't Core and Analytics and write them to their
     // final destination, including resources.
-    let remainingPods = podsToInstall.filter { $0 != "Analytics" && $0 != "Core" }
+    let remainingPods = podsToInstall.filter { $0.name != "Analytics" && $0.name != "Core" && $0.name != ""}
     for pod in remainingPods {
       do {
         let (productDir, podFrameworks) =
@@ -275,7 +278,7 @@ struct ZipBuilder {
                                        podsToIgnore: analyticsFrameworks)
 
         // Update the README.
-        readmeDeps += dependencyString(for: pod, in: productDir, frameworks: podFrameworks)
+        readmeDeps += dependencyString(for: pod.name, in: productDir, frameworks: podFrameworks)
       } catch {
         fatalError("Could not copy frameworks from \(pod) into the zip file: \(error)")
       }
@@ -527,7 +530,7 @@ struct ZipBuilder {
   ///            that were copied for this subspec.
   @discardableResult
   func installAndCopyFrameworks(
-    forPod pod: String,
+    forPod pod: CocoaPodUtils.PodInfo,
     projectDir: URL,
     rootZipDir: URL,
     builtFrameworks: [String: [URL]],
@@ -535,12 +538,12 @@ struct ZipBuilder {
   ) throws -> (productDir: URL, frameworks: [String]) {
     let installedPods = CocoaPodUtils.installPods([pod], inDir: projectDir, customSpecRepos: customSpecRepos)
     // Copy the frameworks into the proper product directory.
-    let productDir = rootZipDir.appendingPathComponent(pod)
+    let productDir = rootZipDir.appendingPathComponent(pod.name)
     let namedFrameworks = try copyFrameworks(fromPods: installedPods,
                                              toDirectory: productDir,
                                              frameworkLocations: builtFrameworks,
                                              podsToIgnore: podsToIgnore,
-                                             foldersToIgnore: CocoaPod.duplicateFrameworksToRemove(pod: pod))
+                                             foldersToIgnore: CocoaPod.duplicateFrameworksToRemove(pod: pod.name))
 
     let copiedFrameworks = namedFrameworks.filter {
       // Only return the frameworks that aren't contained in the "podsToIgnore" array, aren't an

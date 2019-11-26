@@ -98,7 +98,7 @@ public enum CocoaPodUtils {
   /// Install an array of pods in a specific directory, returning an array of PodInfo for each pod
   /// that was installed.
   @discardableResult
-  public static func installPods(_ pods: [String],
+  public static func installPods(_ pods: [PodInfo],
                                  inDir directory: URL,
                                  customSpecRepos: [URL]? = nil) -> [PodInfo] {
     let fileManager = FileManager.default
@@ -241,7 +241,7 @@ public enum CocoaPodUtils {
 
   /// Create the contents of a Podfile for an array of subspecs. This assumes the array of subspecs
   /// is not empty.
-  private static func generatePodfile(for pods: [String],
+  private static func generatePodfile(for pods: [PodInfo],
                                       customSpecsRepos: [URL]? = nil) -> String {
     // Start assembling the Podfile.
     var podfile: String = ""
@@ -265,7 +265,8 @@ public enum CocoaPodUtils {
 
     // Loop through the subspecs passed in and use the rawValue (actual Pod name).
     for pod in pods {
-      podfile += "  pod '\(CocoaPod.podName(pod: pod))'\n"
+      podfile += "  pod '\(CocoaPod.podName(pod: pod.name))" + "'" +
+        (pod.version == "" ? "" : ", '\(pod.version)'") + "\n"
     }
 
     podfile += "end"
@@ -311,7 +312,7 @@ public enum CocoaPodUtils {
 
   /// Write a podfile that contains all the pods passed in to the directory passed in with a name
   /// "Podfile".
-  private static func writePodfile(for pods: [String],
+  private static func writePodfile(for pods: [PodInfo],
                                    toDirectory directory: URL,
                                    customSpecRepos: [URL]?) throws {
     guard FileManager.default.directoryExists(at: directory) else {
