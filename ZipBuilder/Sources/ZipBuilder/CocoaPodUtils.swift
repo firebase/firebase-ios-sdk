@@ -239,33 +239,10 @@ public enum CocoaPodUtils {
     return (framework, version)
   }
 
-  private static func minSupportedIOSVersion(pod: String) -> OperatingSystemVersion {
-    // All ML pods have a minimum iOS version of 9.0.
-    if pod.hasPrefix("ML") {
-      return OperatingSystemVersion(majorVersion: 9, minorVersion: 0, patchVersion: 0)
-    } else {
-      return OperatingSystemVersion(majorVersion: 8, minorVersion: 0, patchVersion: 0)
-    }
-  }
-
   /// Create the contents of a Podfile for an array of subspecs. This assumes the array of subspecs
   /// is not empty.
   private static func generatePodfile(for pods: [String],
                                       customSpecsRepos: [URL]? = nil) -> String {
-    // Get the largest minimum supported iOS version from the array of subspecs.
-    let minVersions = pods.map { minSupportedIOSVersion(pod: $0) }
-
-    // Get the maximum version out of all the minimum versions supported.
-    guard let largestMinVersion = minVersions.max() else {
-      // This shouldn't happen, but in the interest of completeness quit the script and describe
-      // how this could be fixed.
-      fatalError("""
-      Could not retrieve the largest minimum iOS version for the Podfile - array of subspecs
-      to install is likely empty. This is likely a programmer error - no function should be
-      calling \(#function) before validating that the subspecs array is not empty.
-      """)
-    }
-
     // Start assembling the Podfile.
     var podfile: String = ""
 
@@ -282,7 +259,7 @@ public enum CocoaPodUtils {
 
     // Include the calculated minimum iOS version.
     podfile += """
-    platform :ios, '\(largestMinVersion.podVersion())'
+    platform :ios, '\(LaunchArgs.shared.minimumIOSVersion)'
     target 'FrameworkMaker' do\n
     """
 
