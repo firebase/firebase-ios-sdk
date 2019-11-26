@@ -704,7 +704,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
 #if UISCENE_SUPPORTED
 + (void)handleSceneWillConnectToNotification:(NSNotification *)notification {
   if (@available(iOS 13.0, tvOS 13.0, *)) {
-    if ([notification.object isKindOfClass:[UIScene class]]){
+    if ([notification.object isKindOfClass:[UIScene class]]) {
       UIScene *scene = (UIScene *)notification.object;
       [GULAppDelegateSwizzler proxySceneDelegate:scene];
     }
@@ -1073,8 +1073,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
     return;
   }
 
-  NSString *classNameWithPrefix =
-      [kGULAppDelegatePrefix stringByAppendingString:className];
+  NSString *classNameWithPrefix = [kGULAppDelegatePrefix stringByAppendingString:className];
   NSString *newClassName =
       [NSString stringWithFormat:@"%@-%@", classNameWithPrefix, [NSUUID UUID].UUIDString];
 
