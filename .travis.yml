@@ -11,14 +11,6 @@ before_script:
 
 jobs:
   include:
-    - os: osx
-      osx_image: xcode11.1
-      language: objective-c
-
-    - os: linux
-      dist: trusty
-      language: c++
-
     - stage: checks
       os: osx
       # This only needs to be run once, so restrict it to an arbitrary combination
@@ -34,6 +26,8 @@ jobs:
 
     - stage: test
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - PROJECT=Firebase PLATFORM=iOS METHOD=xcodebuild
       before_install:
@@ -43,6 +37,8 @@ jobs:
 
     - stage: test
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - PROJECT=Core METHOD=pod-lib-lint
       script:
@@ -56,6 +52,7 @@ jobs:
     - stage: test
       os: osx
       osx_image: xcode10.3
+      language: objective-c
       env:
         - PROJECT=Core METHOD=pod-lib-lint
       script:
@@ -65,6 +62,8 @@ jobs:
     - stage: test
       if: type = cron
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - PROJECT=CoreCron METHOD=pod-lib-lint
       script:
@@ -83,6 +82,8 @@ jobs:
 
     - stage: test
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - PROJECT=ABTesting METHOD=pod-lib-lint
       script:
@@ -93,6 +94,7 @@ jobs:
     - stage: test
       os: osx
       osx_image: xcode10.3
+      language: objective-c
       env:
         - PROJECT=ABTesting METHOD=pod-lib-lint
       script:
@@ -101,6 +103,8 @@ jobs:
     - stage: test
       if: type = cron
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - PROJECT=ABTestingCron METHOD=pod-lib-lint
       script:
@@ -114,6 +118,8 @@ jobs:
 
     - stage: test
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - PROJECT=Auth PLATFORM=iOS METHOD=xcodebuild
       before_install:
@@ -127,6 +133,7 @@ jobs:
     - stage: test
       os: osx
       osx_image: xcode10.3
+      language: objective-c
       env:
         - PROJECT=Auth PLATFORM=iOS METHOD=xcodebuild
       before_install:
@@ -137,6 +144,8 @@ jobs:
     - stage: test
       if: type = cron
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - PROJECT=AuthCron METHOD=pod-lib-lint
       script:
@@ -150,6 +159,8 @@ jobs:
 
     - stage: test
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - PROJECT=InstanceID METHOD=pod-lib-lint
       script:
@@ -160,6 +171,7 @@ jobs:
     - stage: test
       os: osx
       osx_image: xcode10.3
+      language: objective-c
       env:
         - PROJECT=InstanceID METHOD=pod-lib-lint
       script:
@@ -168,6 +180,8 @@ jobs:
     - stage: test
       if: type = cron
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - PROJECT=InstanceIDCron METHOD=pod-lib-lint
       script:
@@ -180,6 +194,8 @@ jobs:
 
     - stage: test
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - PROJECT=Database PLATFORM=all METHOD=xcodebuild
       before_install:
@@ -194,6 +210,7 @@ jobs:
     - stage: test
       os: osx
       osx_image: xcode10.3
+      language: objective-c
       env:
         - PROJECT=Database PLATFORM=all METHOD=xcodebuild
       before_install:
@@ -204,6 +221,8 @@ jobs:
     - stage: test
       if: type = cron
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - PROJECT=DatabaseCron METHOD=pod-lib-lint
       script:
@@ -216,6 +235,8 @@ jobs:
 
     - stage: test
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - PROJECT=DynamicLinks METHOD=pod-lib-lint
       script:
@@ -226,6 +247,7 @@ jobs:
     - stage: test
       os: osx
       osx_image: xcode10.3
+      language: objective-c
       env:
         - PROJECT=DynamicLinks METHOD=pod-lib-lint
       script:
@@ -233,6 +255,8 @@ jobs:
 
     - stage: test
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - PROJECT=Messaging METHOD=pod-lib-lint
       script:
@@ -243,6 +267,7 @@ jobs:
     - stage: test
       os: osx
       osx_image: xcode10.3
+      language: objective-c
       env:
         - PROJECT=Messaging METHOD=pod-lib-lint
       script:
@@ -251,6 +276,8 @@ jobs:
     - stage: test
       if: type = cron
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - PROJECT=MessagingCron METHOD=pod-lib-lint
       script:
@@ -266,6 +293,8 @@ jobs:
 
     - stage: test
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - PROJECT=RemoteConfig METHOD=pod-lib-lint
       script:
@@ -276,6 +305,7 @@ jobs:
     - stage: test
       os: osx
       osx_image: xcode10.3
+      language: objective-c
       env:
         - PROJECT=RemoteConfig METHOD=pod-lib-lint
       script:
@@ -284,6 +314,8 @@ jobs:
     - stage: test
       if: type = cron
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - PROJECT=RemoteConfigCron METHOD=pod-lib-lint
       script:
@@ -296,6 +328,8 @@ jobs:
 
     - stage: test
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - PROJECT=Storage PLATFORM=all METHOD=xcodebuild
       before_install:
@@ -310,6 +344,7 @@ jobs:
     - stage: test
       os: osx
       osx_image: xcode10.3
+      language: objective-c
       env:
         - PROJECT=Storage PLATFORM=all METHOD=xcodebuild
       before_install:
@@ -320,6 +355,8 @@ jobs:
     - stage: test
       if: type = cron
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - PROJECT=StorageCron METHOD=pod-lib-lint
       script:
@@ -332,6 +369,8 @@ jobs:
 
     - stage: test
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - PROJECT=Functions METHOD=pod-lib-lint
       before_install:
@@ -344,6 +383,7 @@ jobs:
     - stage: test
       os: osx
       osx_image: xcode10.3
+      language: objective-c
       env:
         - PROJECT=Functions METHOD=pod-lib-lint
       before_install:
@@ -353,6 +393,8 @@ jobs:
 
     - stage: test
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - PROJECT=InAppMessaging PLATFORM=iOS METHOD=xcodebuild
       before_install:
@@ -363,6 +405,7 @@ jobs:
     - stage: test
       os: osx
       osx_image: xcode10.3
+      language: objective-c
       env:
         - PROJECT=InAppMessaging PLATFORM=iOS METHOD=xcodebuild
       before_install:
@@ -373,6 +416,8 @@ jobs:
     - stage: test
       if: type = cron
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - PROJECT=InAppMessaging PLATFORM=iPad METHOD=xcodebuild
       before_install:
@@ -382,6 +427,8 @@ jobs:
 
     - stage: test
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild
       before_install:
@@ -392,6 +439,7 @@ jobs:
     - stage: test
       os: osx
       osx_image: xcode10.3
+      language: objective-c
       env:
         - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild
       before_install:
@@ -401,6 +449,8 @@ jobs:
 
     - stage: test
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - PROJECT=GoogleUtilities METHOD=pod-lib-lint
       script:
@@ -409,14 +459,17 @@ jobs:
     - stage: test
       os: osx
       osx_image: xcode10.3
+      language: objective-c
       env:
         - PROJECT=GoogleUtilities METHOD=pod-lib-lint
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleUtilities.podspec
 
     - stage: test
-      os: osx
       if: type = cron
+      os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - PROJECT=GoogleUtilitiesCron METHOD=pod-lib-lint
       script:
@@ -426,6 +479,8 @@ jobs:
 
     - stage: test
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - PROJECT=GoogleUtilitiesComponents METHOD=pod-lib-lint
       script:
@@ -434,6 +489,7 @@ jobs:
     - stage: test
       os: osx
       osx_image: xcode10.3
+      language: objective-c
       env:
         - PROJECT=GoogleUtilitiesComponents METHOD=pod-lib-lint
       script:
@@ -442,6 +498,8 @@ jobs:
     - stage: test
       if: type = cron
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - PROJECT=GoogleUtilitiesComponentsCron METHOD=pod-lib-lint
       script:
@@ -450,6 +508,8 @@ jobs:
 
     - stage: test
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - PROJECT=Firebase METHOD=pod-lib-lint
       script:
@@ -462,6 +522,8 @@ jobs:
 
     - stage: test
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - PROJECT=Firestore METHOD=pod-lib-lint
       script:
@@ -474,6 +536,8 @@ jobs:
     - stage: test
       if: type = cron
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - PROJECT=InAppMessagingCron METHOD=pod-lib-lint
       script:
@@ -485,6 +549,8 @@ jobs:
     - stage: test
       if: type = cron
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - PROJECT=Firestore METHOD=pod-lib-lint
       script:
@@ -494,6 +560,8 @@ jobs:
 
     - stage: test
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - PROJECT=GoogleDataTransport METHOD=pod-lib-lint
       script:
@@ -507,6 +575,7 @@ jobs:
     - stage: test
       os: osx
       osx_image: xcode10.3
+      language: objective-c
       env:
         - PROJECT=GoogleDataTransport METHOD=pod-lib-lint
       script:
@@ -516,6 +585,8 @@ jobs:
     - stage: test
       if: type = cron
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - PROJECT=GoogleDataTransportCron METHOD=pod-lib-lint
       script:
@@ -534,6 +605,8 @@ jobs:
 
     - stage: test
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - PROJECT=FirebasePod PLATFORM=iOS METHOD=xcodebuild
       before_install:
@@ -545,6 +618,8 @@ jobs:
     - stage: test
       if: type = cron
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - PROJECT=SymbolCollision PLATFORM=iOS METHOD=xcodebuild
       before_install:
@@ -555,6 +630,8 @@ jobs:
     # Alternative platforms
     - stage: test
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - PROJECT=Firestore PLATFORM=macOS METHOD=cmake
       before_install:
@@ -564,17 +641,23 @@ jobs:
 
     - stage: test
       os: linux
+      dist: trusty
+      language: c++
       env:
         - PROJECT=Firestore PLATFORM=Linux METHOD=cmake
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
+        - gcc --version
+        - cmake --version
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
     # Test Firestore on Xcode 8 to use old llvm to ensure C++ portability.
     # Disabled while we resolve issues discussed in #4084 and #4085
     # - stage: test
+    #   os: osx
     #   osx_image: xcode8.3
+    #   language: objective-c
     #   env:
     #     - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild XCODE_VERSION=8.3.3
     #   before_install:
@@ -584,6 +667,8 @@ jobs:
 
     - stage: test
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - PROJECT=Firestore PLATFORM=macOS METHOD=xcodebuild
       before_install:
@@ -593,6 +678,8 @@ jobs:
 
     - stage: test
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - PROJECT=Firestore PLATFORM=tvOS METHOD=xcodebuild
       before_install:
@@ -604,6 +691,8 @@ jobs:
 
     - stage:
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=asan
       before_install:
@@ -613,6 +702,8 @@ jobs:
 
     - stage: test
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=tsan
       before_install:
@@ -626,6 +717,8 @@ jobs:
 
     - stage: test
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=asan
       before_install:
@@ -635,6 +728,8 @@ jobs:
 
     - stage: test
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=tsan
       before_install:
@@ -648,6 +743,8 @@ jobs:
     - stage: test
       if: type = cron
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - POD_CONFIG_DIR=Cocoapods1_7_0_multiprojects_frameworks
       script:
@@ -656,6 +753,8 @@ jobs:
     - stage: test
       if: type = cron
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - POD_CONFIG_DIR=Cocoapods1_7_0_frameworks
       script:
@@ -664,6 +763,8 @@ jobs:
     - stage: test
       if: type = cron
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - POD_CONFIG_DIR=Cocoapods1_7_0_multiprojects_staticLibs
       script:
@@ -672,6 +773,8 @@ jobs:
     - stage: test
       if: type = cron
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - POD_CONFIG_DIR=Cocoapods1_7_0_staticLibs
       script:
@@ -681,6 +784,8 @@ jobs:
     - stage: test
       if: type = cron
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - POD_CONFIG_DIR=Cocoapods1_6_1_frameworks
       script:
@@ -689,6 +794,8 @@ jobs:
     - stage: test
       if: type = cron
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - POD_CONFIG_DIR=Cocoapods1_6_1_staticLibs
       script:
@@ -697,6 +804,8 @@ jobs:
     # FIS
     - stage: test
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - PROJECT=Installations PLATFORM=iOS METHOD=pod-lib-lint
         - FIS_ALLOWS_INCOMPATIBLE_IID_VERSION=1
@@ -710,6 +819,8 @@ jobs:
 
     - stage: test
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - PROJECT=Installations PLATFORM=macOS METHOD=pod-lib-lint
         - FIS_ALLOWS_INCOMPATIBLE_IID_VERSION=1
@@ -723,6 +834,8 @@ jobs:
 
     - stage: test
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       env:
         - PROJECT=Installations PLATFORM=tvOS METHOD=pod-lib-lint
         - FIS_ALLOWS_INCOMPATIBLE_IID_VERSION=1
