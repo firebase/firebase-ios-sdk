@@ -13,6 +13,8 @@ jobs:
   include:
     - stage: checks
       os: osx
+      osx_image: xcode11.1
+      language: objective-c
       # This only needs to be run once, so restrict it to an arbitrary combination
       before_install:
         - brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/e3496d9/Formula/clang-format.rb
