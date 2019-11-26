@@ -243,10 +243,10 @@ struct LaunchArgs {
 
     // Parse the minimum iOS version key.
     if let minVersion = defaults.string(forKey: Key.minimumIOSVersion.rawValue) {
-      self.minimumIOSVersion = minVersion
+      minimumIOSVersion = minVersion
     } else {
       // No argument was passed in.
-      self.minimumIOSVersion = "9.0"
+      minimumIOSVersion = "9.0"
     }
 
     updatePodRepo = defaults.bool(forKey: Key.updatePodRepo.rawValue)

@@ -157,8 +157,8 @@ struct ZipBuilder {
     // Break the `podsToInstall` into a variable since it's helpful when debugging builds to just
     // install a subset of pods, like the following line:
     //    let podsToInstall: [String] = ["", "Core", "Analytics", "Storage"]
-    let podsToInstall = CocoaPod.allCases.map { CocoaPodUtils.PodInfo(name:$0.rawValue,
-                                                                      version:"",
+    let podsToInstall = CocoaPod.allCases.map { CocoaPodUtils.PodInfo(name: $0.rawValue,
+                                                                      version: "",
                                                                       installedLocation: URL(fileURLWithPath: "dummy")) }
 
     // Remove CocoaPods cache so the build gets updates after a version is rebuilt during the
@@ -267,7 +267,7 @@ struct ZipBuilder {
 
     // Loop through all the other subspecs that aren't Core and Analytics and write them to their
     // final destination, including resources.
-    let remainingPods = podsToInstall.filter { $0.name != "Analytics" && $0.name != "Core" && $0.name != ""}
+    let remainingPods = podsToInstall.filter { $0.name != "Analytics" && $0.name != "Core" && $0.name != "" }
     for pod in remainingPods {
       do {
         let (productDir, podFrameworks) =
