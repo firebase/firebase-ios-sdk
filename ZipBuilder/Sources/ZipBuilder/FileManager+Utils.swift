@@ -70,16 +70,10 @@ public extension FileManager {
     return directoryExists(at: url)
   }
 
-  /// Returns the URL to the Firebase cache directory, and creates it if it doesn't exist.
+  /// Returns the URL to the source Pod cache directory, and creates it if it doesn't exist.
   func sourcePodCacheDirectory(withSubdir subdir: String = "") throws -> URL {
-    // Get the URL for the cache directory.
-    let cacheDir: URL = try url(for: .cachesDirectory,
-                                in: .userDomainMask,
-                                appropriateFor: nil,
-                                create: true)
-
-    // Get the cache root path, and if it already exists just return the URL.
-    let cacheRoot = cacheDir.appendingPathComponents(["firebase_oss_framework_cache", subdir])
+    let cacheDir = FileManager.default.temporaryDirectory(withName: "cache")
+    let cacheRoot = cacheDir.appendingPathComponents([subdir])
     if directoryExists(at: cacheRoot) {
       return cacheRoot
     }
@@ -107,6 +101,9 @@ public extension FileManager {
     }
   }
 
+  // Enable a single unique temporary workspace per execution.
+  static var uniq: String?
+
   /// Returns a deterministic path of a temporary directory for the given name. Note: This does
   /// *not* create the directory if it doesn't exist, merely generates the name for creation.
   func temporaryDirectory(withName name: String) -> URL {
@@ -122,7 +119,11 @@ public extension FileManager {
     }
 
     // Organize all temporary directories into a "FirebaseZipRelease" directory.
-    let firebaseDir = tempDir.appendingPathComponent("FirebaseZipRelease", isDirectory: true)
+    if FileManager.uniq == nil {
+      FileManager.uniq = UUID().uuidString
+    }
+    let uniq = FileManager.uniq!
+    let firebaseDir = tempDir.appendingPathComponent("ZipRelease" + uniq, isDirectory: true)
     return firebaseDir.appendingPathComponent(name, isDirectory: true)
   }
 
