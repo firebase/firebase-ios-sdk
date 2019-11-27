@@ -33,6 +33,7 @@ typedef NS_ENUM(NSInteger, GULSwizzlerMessageCode) {
   kGULSwizzlerMessageCodeAppDelegateSwizzling012 = 1012,                 // I-SWZ001012
   kGULSwizzlerMessageCodeAppDelegateSwizzling013 = 1013,                 // I-SWZ001013
   kGULSwizzlerMessageCodeAppDelegateSwizzlingInvalidAppDelegate = 1014,  // I-SWZ001014
+  kGULSwizzlerMessageCodeAppDelegateSwizzlingInvalidSceneDelegate = 1015,// I-SWZ001014
 
   // Method Swizzling.
   kGULSwizzlerMessageCodeMethodSwizzling000 = 2000,  // I-SWZ002000

@@ -706,7 +706,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
   if (@available(iOS 13.0, tvOS 13.0, *)) {
     if ([notification.object isKindOfClass:[UIScene class]]) {
       UIScene *scene = (UIScene *)notification.object;
-      [GULAppDelegateSwizzler proxySceneDelegate:scene];
+      [GULAppDelegateSwizzler proxySceneDelegateIfNeeded:scene];
     }
   }
 }
@@ -1063,7 +1063,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
 }
 
 #if UISCENE_SUPPORTED
-+ (void)proxySceneDelegate:(UIScene *)scene {
++ (void)proxySceneDelegateIfNeeded:(UIScene *)scene {
   Class realClass = [scene.delegate class];
   NSString *className = NSStringFromClass(realClass);
 
@@ -1078,12 +1078,14 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
       [NSString stringWithFormat:@"%@-%@", classNameWithPrefix, [NSUUID UUID].UUIDString];
 
   if (NSClassFromString(newClassName)) {
-    GULLogError(kGULLoggerSwizzler, NO,
-                [NSString stringWithFormat:@"I-SWZ%06ld",
-                                           (long)kGULSwizzlerMessageCodeAppDelegateSwizzling005],
-                @"Cannot create a proxy for Scene Delegate. Subclass already exists. Original Class"
-                @": %@, subclass: %@",
-                className, newClassName);
+    GULLogError(
+        kGULLoggerSwizzler, NO,
+        [NSString
+            stringWithFormat:@"I-SWZ%06ld",
+                             (long)kGULSwizzlerMessageCodeAppDelegateSwizzlingInvalidSceneDelegate],
+        @"Cannot create a proxy for Scene Delegate. Subclass already exists. Original Class"
+        @": %@, subclass: %@",
+        className, newClassName);
     return;
   }
 
@@ -1091,12 +1093,14 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
   // size.
   Class sceneDelegateSubClass = objc_allocateClassPair(realClass, newClassName.UTF8String, 0);
   if (sceneDelegateSubClass == Nil) {
-    GULLogError(kGULLoggerSwizzler, NO,
-                [NSString stringWithFormat:@"I-SWZ%06ld",
-                                           (long)kGULSwizzlerMessageCodeAppDelegateSwizzling006],
-                @"Cannot create a proxy for Scene Delegate. Subclass already exists. Original Class"
-                @": %@, subclass: Nil",
-                className);
+    GULLogError(
+        kGULLoggerSwizzler, NO,
+        [NSString
+            stringWithFormat:@"I-SWZ%06ld",
+                             (long)kGULSwizzlerMessageCodeAppDelegateSwizzlingInvalidSceneDelegate],
+        @"Cannot create a proxy for Scene Delegate. Subclass already exists. Original Class"
+        @": %@, subclass: Nil",
+        className);
     return;
   }
 
@@ -1122,12 +1126,14 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
   // cannot have more ivars/properties than its superclass since it will cause an offset in memory
   // that can lead to overwriting the isa of an object in the next frame.
   if (class_getInstanceSize(realClass) != class_getInstanceSize(sceneDelegateSubClass)) {
-    GULLogError(kGULLoggerSwizzler, NO,
-                [NSString stringWithFormat:@"I-SWZ%06ld",
-                                           (long)kGULSwizzlerMessageCodeAppDelegateSwizzling007],
-                @"Cannot create subclass of App Delegate, because the created subclass is not the "
-                @"same size. %@",
-                className);
+    GULLogError(
+        kGULLoggerSwizzler, NO,
+        [NSString
+            stringWithFormat:@"I-SWZ%06ld",
+                             (long)kGULSwizzlerMessageCodeAppDelegateSwizzlingInvalidSceneDelegate],
+        @"Cannot create subclass of Scene Delegate, because the created subclass is not the "
+        @"same size. %@",
+        className);
     NSAssert(NO, @"Classes must be the same size to swizzle isa");
     return;
   }
@@ -1135,12 +1141,14 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
   // Make the newly created class to be the subclass of the real Scene Delegate class.
   objc_registerClassPair(sceneDelegateSubClass);
   if (object_setClass(scene.delegate, sceneDelegateSubClass)) {
-    GULLogDebug(kGULLoggerSwizzler, NO,
-                [NSString stringWithFormat:@"I-SWZ%06ld",
-                                           (long)kGULSwizzlerMessageCodeAppDelegateSwizzling008],
-                @"Successfully created App Delegate Proxy automatically. To disable the "
-                @"proxy, set the flag %@ to NO (Boolean) in the Info.plist",
-                [GULAppDelegateSwizzler correctAppDelegateProxyKey]);
+    GULLogDebug(
+        kGULLoggerSwizzler, NO,
+        [NSString
+            stringWithFormat:@"I-SWZ%06ld",
+                             (long)kGULSwizzlerMessageCodeAppDelegateSwizzlingInvalidSceneDelegate],
+        @"Successfully created Scene Delegate Proxy automatically. To disable the "
+        @"proxy, set the flag %@ to NO (Boolean) in the Info.plist",
+        [GULAppDelegateSwizzler correctAppDelegateProxyKey]);
   }
 }
 #endif  // UISCENE_SUPPORTED
