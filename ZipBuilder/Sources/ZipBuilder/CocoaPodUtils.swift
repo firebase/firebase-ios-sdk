@@ -249,20 +249,6 @@ public enum CocoaPodUtils {
   /// is not empty.
   private static func generatePodfile(for pods: [VersionedPod],
                                       customSpecsRepos: [URL]? = nil) -> String {
-    // Get the largest minimum supported iOS version from the array of subspecs.
-    let minVersions = pods.map { CocoaPodUtils.minSupportedIOSVersion(pod:$0) }
-// Convert to pods util
-    // Get the maximum version out of all the minimum versions supported.
-    guard let largestMinVersion = minVersions.max() else {
-      // This shouldn't happen, but in the interest of completeness quit the script and describe
-      // how this could be fixed.
-      fatalError("""
-      Could not retrieve the largest minimum iOS version for the Podfile - array of subspecs
-      to install is likely empty. This is likely a programmer error - no function should be
-      calling \(#function) before validating that the subspecs array is not empty.
-      """)
-    }
-
     // Start assembling the Podfile.
     var podfile: String = ""
 
