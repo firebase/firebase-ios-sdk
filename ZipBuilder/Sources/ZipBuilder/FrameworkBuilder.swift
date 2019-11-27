@@ -17,7 +17,7 @@
 import Foundation
 
 /// Different architectures to build frameworks for.
-private enum Architecture: String, CaseIterable {
+public enum Architecture: String, CaseIterable {
   /// The target platform that the framework is built for.
   enum TargetPlatform: String {
     case device = "iphoneos"
@@ -265,10 +265,10 @@ struct FrameworkBuilder {
     // TODO: Pass in supported architectures here, for those open source SDKs that don't support
     // individual architectures.
     var thinArchives = [URL]()
-    for arch in Architecture.allCases {
-      let buildDir = projectDir.appendingPathComponent(arch.rawValue)
+    for arch in LaunchArgs.shared.archs {
+      let buildDir = projectDir.appendingPathComponent(arch)
       let thinArchive = buildThin(framework: framework,
-                                  arch: arch,
+                                  arch: Architecture(rawValue: arch)!,
                                   buildDir: buildDir,
                                   logRoot: logsDir)
       thinArchives.append(thinArchive)
