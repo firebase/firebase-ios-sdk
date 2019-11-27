@@ -48,7 +48,7 @@ Pod::Spec.new do |s|
                               base_dir + 'Tests/Utils/**/*.[mh]'
     unit_tests.resources = base_dir + 'Tests/Fixture/**/*'
     unit_tests.requires_app_host = true
-    unit_tests.dependency 'OCMock', '~> 3.4.0'
+    unit_tests.dependency 'OCMock'
     unit_tests.dependency 'FirebaseInstanceID', '~> 4.2.0' # The version before FirebaseInstanceID updated to use FirebaseInstallations under the hood.
 
   end
@@ -63,6 +63,6 @@ Pod::Spec.new do |s|
       }
     end
     int_tests.requires_app_host = true
-    int_tests.dependency 'OCMock', '~> 3.4.0'
+    int_tests.dependency 'OCMock'
   end
 end
