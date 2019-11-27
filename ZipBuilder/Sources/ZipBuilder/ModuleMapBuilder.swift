@@ -22,13 +22,15 @@ struct ModuleMapBuilder {
   /// Information associated with a framework
   private class FrameworkInfo {
     let isSourcePod: Bool
-    let podInfo: CocoaPodUtils.PodInfo
+    let installedLocation: URL
+    let versionedPod: CocoaPodUtils.VersionedPod
     var transitiveFrameworks: Set<String>?
     var transitiveLibraries: Set<String>?
 
-    init(isSourcePod: Bool, podInfo: CocoaPodUtils.PodInfo) {
+    init(isSourcePod: Bool, installedLocation: URL, versionedPod: CocoaPodUtils.VersionedPod) {
       self.isSourcePod = isSourcePod
-      self.podInfo = podInfo
+      self.installedLocation = installedLocation
+      self.versionedPod = versionedPod
     }
   }
 
@@ -63,8 +65,11 @@ struct ModuleMapBuilder {
         // The cacheDir is only used for source pods.
         let isSourcePod = url.absoluteString.contains(cacheDir.absoluteString)
         let version = isSourcePod ? url.deletingLastPathComponent().lastPathComponent : ""
-        let podInfo = CocoaPodUtils.PodInfo(name: frameworkName, version: version, installedLocation: url)
-        installedPods[frameworkName] = FrameworkInfo(isSourcePod: isSourcePod, podInfo: podInfo)
+        let installedLocation = url
+        let versionedPod = CocoaPodUtils.VersionedPod(name: frameworkName, version: version)
+        installedPods[frameworkName] = FrameworkInfo(isSourcePod: isSourcePod,
+                                                     installedLocation: installedLocation,
+                                                     versionedPod: versionedPod)
       }
     }
     self.installedPods = installedPods
@@ -87,7 +92,7 @@ struct ModuleMapBuilder {
 
   /// Build a module map for a single framework.
   private func generate(framework: FrameworkInfo) {
-    _ = CocoaPodUtils.installPods([framework.podInfo], inDir: projectDir, customSpecRepos: customSpecRepos)
+    _ = CocoaPodUtils.installPods([framework.versionedPod], inDir: projectDir, customSpecRepos: customSpecRepos)
     let xcconfigFile = projectDir.appendingPathComponents(["Pods", "Target Support Files",
                                                            "Pods-FrameworkMaker",
                                                            "Pods-FrameworkMaker.release.xcconfig"])
@@ -130,7 +135,7 @@ struct ModuleMapBuilder {
 
   private func makeModuleMap(forFramework framework: FrameworkInfo,
                              withXcconfigFile xcconfigFile: URL) {
-    let name = framework.podInfo.name
+    let name = framework.versionedPod.name
     let dependencies = getModuleDependencies(withXcconfigFile: xcconfigFile)
     let frameworkDeps = Set(dependencies.frameworks)
     let libraryDeps = Set(dependencies.libraries)
@@ -169,7 +174,7 @@ struct ModuleMapBuilder {
     installedPods[name]?.transitiveFrameworks = transitiveFrameworkDeps
     installedPods[name]?.transitiveLibraries = transitiveLibraryDeps
 
-    let moduleDir = framework.podInfo.installedLocation.appendingPathComponent("Modules")
+    let moduleDir = framework.installedLocation.appendingPathComponent("Modules")
     do {
       try FileManager.default.createDirectory(at: moduleDir, withIntermediateDirectories: true)
     } catch {

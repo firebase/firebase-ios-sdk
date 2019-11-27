@@ -154,16 +154,15 @@ struct ZipBuilder {
       fatalError("Could not get contents of the README template: \(error)")
     }
 
-    // Break the `podsToInstall` into a variable since it's helpful when debugging builds to just
-    // install a subset of pods, like the following line:
-    //    let podsToInstall: [String] = ["", "Core", "Analytics", "Storage"]
-    let podsToInstall = CocoaPod.allCases.map { CocoaPodUtils.PodInfo(name: $0.rawValue,
-                                                                      version: "",
-                                                                      installedLocation: URL(fileURLWithPath: "dummy")) }
-
     // Remove CocoaPods cache so the build gets updates after a version is rebuilt during the
     // release process.
     CocoaPodUtils.cleanPodCache()
+
+    // Break the `inputPods` into a variable since it's helpful when debugging builds to just
+    // install a subset of pods, like the following line:
+    //    let inputPods: [String] = ["", "Core", "Analytics", "Storage"]
+    let inputPods = CocoaPod.allCases.map { $0.rawValue }
+    let podsToInstall = inputPods.map { CocoaPodUtils.VersionedPod(name: $0, version: "") }
 
     // We need to install all the pods in order to get every single framework that we'll need
     // for the zip file. We can't install each one individually since some pods depend on different
@@ -185,7 +184,7 @@ struct ZipBuilder {
 
     // We need the Firebase pod to get the version for Carthage and to copy the `Firebase.h` and
     // `module.modulemap` file from it.
-    guard let firebasePod = installedPods.first(where: { $0.name == "Firebase" }) else {
+    guard let firebasePod = installedPods.first(where: { $0.name() == "Firebase" }) else {
       fatalError("Could not get the Firebase pod from list of installed pods. All pods " +
         "installed: \(installedPods)")
     }
@@ -306,7 +305,7 @@ struct ZipBuilder {
 
     print("Contents of the packaged release were assembled at: \(zipDir)")
     return ReleaseArtifacts(carthageDiagnostics: carthageCoreDiagnostics,
-                            firebaseVersion: firebasePod.version,
+                            firebaseVersion: firebasePod.version(),
                             outputDir: zipDir)
   }
 
@@ -316,7 +315,7 @@ struct ZipBuilder {
                                              inProjectDir projectDir: URL) -> URL {
     // FirebaseCoreDiagnostics needs to be re-compiled for Carthage. It should be included in all
     // builds, so ensure it's there.
-    guard let coreDiag = pods.first(where: { $0.name == Constants.coreDiagnosticsName }) else {
+    guard let coreDiag = pods.first(where: { $0.name() == Constants.coreDiagnosticsName }) else {
       fatalError("Could not get FirebaseCoreDiagnostics pod to re-compile for Carthage. Pods " +
         "installed: \(pods.map { $0.name })")
     }
@@ -369,14 +368,14 @@ struct ZipBuilder {
     // it to the destination directory.
     for pod in installedPods {
       // Skip the Firebase pod, any Interop pods, and specifically ignored frameworks.
-      guard pod.name != "Firebase",
-        !pod.name.contains("Interop"),
-        !podsToIgnore.contains(pod.name) else {
+      guard pod.name() != "Firebase",
+        !pod.name().contains("Interop"),
+        !podsToIgnore.contains(pod.name()) else {
         continue
       }
 
-      guard let frameworks = frameworkLocations[pod.name] else {
-        let reason = "Unable to find frameworks for \(pod.name) in cache of frameworks built to " +
+      guard let frameworks = frameworkLocations[pod.name()] else {
+        let reason = "Unable to find frameworks for \(pod.name()) in cache of frameworks built to " +
           "include in the Zip file for that framework's folder."
         let error = NSError(domain: "com.firebase.zipbuilder",
                             code: 1,
@@ -460,8 +459,8 @@ struct ZipBuilder {
   /// - Returns: A string with a header for the subspec name, and a list of frameworks required to
   ///            integrate for the product to work. Formatted and ready for insertion into the
   ///            README.
-  private func dependencyString(for pod: String, in dir: URL, frameworks: [String]) -> String {
-    var result = CocoaPod.readmeHeader(pod: pod)
+  private func dependencyString(for podName: String, in dir: URL, frameworks: [String]) -> String {
+    var result = CocoaPod.readmeHeader(podName: podName)
     for framework in frameworks.sorted() {
       result += "- \(framework).framework\n"
     }
@@ -479,7 +478,7 @@ struct ZipBuilder {
       }
     } catch {
       fatalError("""
-      Tried to find Resources directory for \(pod) in order to build the README, but an error
+      Tried to find Resources directory for \(podName) in order to build the README, but an error
       occurred: \(error).
       """)
     }
@@ -537,7 +536,7 @@ struct ZipBuilder {
   ///            that were copied for this subspec.
   @discardableResult
   func installAndCopyFrameworks(
-    forPod pod: CocoaPodUtils.PodInfo,
+    forPod pod: CocoaPodUtils.VersionedPod,
     projectDir: URL,
     rootZipDir: URL,
     builtFrameworks: [String: [URL]],
@@ -612,14 +611,14 @@ struct ZipBuilder {
   private func versionsString(for pods: [CocoaPodUtils.PodInfo]) -> String {
     // Get the longest name in order to generate padding with spaces so it looks nicer.
     let maxLength: Int = {
-      guard let pod = pods.max(by: { $0.name.count < $1.name.count }) else {
+      guard let pod = pods.max(by: { $0.name().count < $1.name().count }) else {
         // The longest pod as of this writing is 29 characters, if for whatever reason this fails
         // just assume 30 characters long.
         return 30
       }
 
       // Return room for a space afterwards.
-      return pod.name.count + 1
+      return pod.name().count + 1
     }()
 
     let header: String = {
@@ -646,17 +645,17 @@ struct ZipBuilder {
     }()
 
     // Sort the pods by name for a cleaner display.
-    let sortedPods = pods.sorted { $0.name < $1.name }
+    let sortedPods = pods.sorted { $0.name() < $1.name() }
 
     // Get the name and version of each pod, padding it along the way.
     var podVersions: String = ""
     for pod in sortedPods {
       // Insert the name and enough spaces to reach the end of the column.
-      let podName = pod.name
+      let podName = pod.name()
       podVersions += podName + String(repeating: " ", count: maxLength - podName.count)
 
       // Add a pipe and the version.
-      podVersions += "| " + pod.version + "\n"
+      podVersions += "| " + pod.version() + "\n"
     }
 
     return header + podVersions
@@ -697,7 +696,7 @@ struct ZipBuilder {
     for pod in pods {
       var frameworks: [URL] = []
       // Ignore any Interop pods or the Firebase umbrella pod.
-      guard !pod.name.contains("Interop"), pod.name != "Firebase" else {
+      guard !pod.name().contains("Interop"), pod.name() != "Firebase" else {
         continue
       }
 
@@ -715,8 +714,8 @@ struct ZipBuilder {
       // get a framework.
       if foundFrameworks.isEmpty {
         let builder = FrameworkBuilder(projectDir: projectDir, carthageBuild: carthageBuild)
-        let framework = builder.buildFramework(withName: pod.name,
-                                               version: pod.version,
+        let framework = builder.buildFramework(withName: pod.name(),
+                                               version: pod.version(),
                                                logsOutputDir: paths.logsOutputDir)
 
         frameworks = [framework]
@@ -726,7 +725,7 @@ struct ZipBuilder {
           // TODO: Figure out if we need to exclude bundles here or not.
           try ResourcesManager.packageAllResources(containedIn: pod.installedLocation)
         } catch {
-          fatalError("Tried to package resources for \(pod.name) but it failed: \(error)")
+          fatalError("Tried to package resources for \(pod.name()) but it failed: \(error)")
         }
 
         // Copy each of the frameworks to a known temporary directory and store the location.
@@ -747,7 +746,7 @@ struct ZipBuilder {
         }
       }
 
-      toInstall[pod.name] = frameworks
+      toInstall[pod.name()] = frameworks
     }
 
     return toInstall
