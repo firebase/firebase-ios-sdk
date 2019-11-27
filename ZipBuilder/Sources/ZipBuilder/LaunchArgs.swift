@@ -136,7 +136,7 @@ struct LaunchArgs {
   let updatePodRepo: Bool
 
   /// The path to a textproto file listing the pods to repackage to a zip.
-  let zipPods: [String]
+  let zipPods: [String]?
 
   /// The shared instance for processing launch args using default arguments.
   static let shared: LaunchArgs = LaunchArgs()
@@ -225,8 +225,7 @@ struct LaunchArgs {
       zipPods = CocoaPod.allCases.map{ $0.rawValue }
 
     } else {
-      // Default zipPods is all Firebase pods
-      zipPods = CocoaPod.allCases.map{$0.rawValue}
+      zipPods = nil
     }
 
     // Parse the output directory key.

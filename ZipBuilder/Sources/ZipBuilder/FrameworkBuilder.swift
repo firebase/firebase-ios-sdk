@@ -272,6 +272,8 @@ struct FrameworkBuilder {
                                   buildDir: buildDir,
                                   logRoot: logsDir)
       thinArchives.append(thinArchive)
+      // TODO DElete next line before merge
+      break
     }
 
     // Create the framework directory in the filesystem for the thin archives to go.
