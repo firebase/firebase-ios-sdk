@@ -36,8 +36,8 @@ public enum CocoaPodUtils {
     /// The location of the pod on disk.
     var installedLocation: URL
 
-    var name: String { return self.versionedPod.name }
-    var version: String { return self.versionedPod.version ?? "" }
+    var name: String { return versionedPod.name }
+    var version: String { return versionedPod.version ?? "" }
   }
 
   /// Executes the `pod cache clean --all` command to remove any cached CocoaPods.
