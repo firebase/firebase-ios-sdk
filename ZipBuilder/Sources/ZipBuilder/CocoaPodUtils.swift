@@ -26,7 +26,7 @@ public enum CocoaPodUtils {
     let name: String
 
     /// The version of the pod.
-    let version: String
+    let version: String?
   }
 
   /// Information associated with an installed pod.
@@ -36,13 +36,8 @@ public enum CocoaPodUtils {
     /// The location of the pod on disk.
     var installedLocation: URL
 
-    func name() -> String {
-      return versionedPod.name
-    }
-
-    func version() -> String {
-      return versionedPod.version
-    }
+    var name: String { return self.versionedPod.name }
+    var version: String { return self.versionedPod.version ?? "" }
   }
 
   /// Executes the `pod cache clean --all` command to remove any cached CocoaPods.
@@ -276,7 +271,7 @@ public enum CocoaPodUtils {
 
     // Loop through the subspecs passed in and use the actual Pod name.
     for pod in pods {
-      let version = pod.version.isEmpty ? "" : ", '\(pod.version)'"
+      let version = pod.version == nil ? "" : ", '\(pod.version!)'"
       podfile += "  pod '\(CocoaPod.podName(pod: pod.name))'" + version + "\n"
     }
 
