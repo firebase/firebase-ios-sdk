@@ -236,6 +236,15 @@ struct LaunchArgs {
     }
 
     updatePodRepo = defaults.bool(forKey: Key.updatePodRepo.rawValue)
+
+    // Check for extra invalid options.
+    let validArgs = Key.allCases.map { $0.rawValue }
+    for arg in ProcessInfo.processInfo.arguments {
+      let dashDroppedArg = String(arg.dropFirst())
+      if arg.starts(with:"-") && !validArgs.contains(dashDroppedArg) {
+        LaunchArgs.exitWithUsageAndLog("\(arg) is not a valid option.")
+      }
+    }
   }
 
   /// Prints an error that occurred, the proper usage String, and quits the application.
