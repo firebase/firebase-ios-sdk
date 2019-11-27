@@ -255,7 +255,7 @@ struct LaunchArgs {
     let validArgs = Key.allCases.map { $0.rawValue }
     for arg in ProcessInfo.processInfo.arguments {
       let dashDroppedArg = String(arg.dropFirst())
-      if arg.starts(with:"-") && !validArgs.contains(dashDroppedArg) {
+      if arg.starts(with: "-"), !validArgs.contains(dashDroppedArg) {
         LaunchArgs.exitWithUsageAndLog("\(arg) is not a valid option.")
       }
     }
