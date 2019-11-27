@@ -384,10 +384,20 @@ function(objc_test target)
       ${target}
     )
 
-    if(WITH_ASAN)
-      set_property(TEST ${target} APPEND PROPERTY
+    if(APPLE AND WITH_ASAN)
+      set_property(
+        TEST ${target} APPEND PROPERTY
         ENVIRONMENT
-        DYLD_INSERT_LIBRARIES=${ASAN_DYLIB})
+        DYLD_INSERT_LIBRARIES=${CLANG_ASAN_DYLIB}
+      )
+    endif()
+
+    if(APPLE AND WITH_TSAN)
+      set_property(
+        TEST ${target} APPEND PROPERTY
+        ENVIRONMENT
+        DYLD_INSERT_LIBRARIES=${CLANG_TSAN_DYLIB}
+      )
     endif()
   endif()
 endfunction()
