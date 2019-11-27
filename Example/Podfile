@@ -26,7 +26,7 @@ target 'Core_Example_iOS' do
 
   target 'Core_Tests_iOS' do
     inherit! :search_paths
-    pod 'OCMock'
+    pod 'OCMock', '~> 3.4.0'
   end
 end
 
@@ -37,7 +37,7 @@ target 'Auth_Example_iOS' do
 
   target 'Auth_Tests_iOS' do
     inherit! :search_paths
-    pod 'OCMock'
+    pod 'OCMock', '~> 3.4.0'
   end
 end
 
@@ -64,7 +64,7 @@ target 'DynamicLinks_Example_iOS' do
 
   target 'DynamicLinks_Tests_iOS' do
     inherit! :search_paths
-    pod 'OCMock'
+    pod 'OCMock', '~> 3.4.0'
   end
 end
 
@@ -86,7 +86,7 @@ target 'InstanceID_Example_iOS' do
 
   target 'InstanceID_Tests_iOS' do
     inherit! :search_paths
-    pod 'OCMock'
+    pod 'OCMock', '~> 3.4.0'
   end
 end
 
@@ -97,7 +97,7 @@ target 'Messaging_Example_iOS' do
 
   target 'Messaging_Tests_iOS' do
     inherit! :search_paths
-    pod 'OCMock'
+    pod 'OCMock', '~> 3.4.0'
   end
 end
 
@@ -119,7 +119,7 @@ target 'Storage_Example_iOS' do
 
   target 'Storage_Tests_iOS' do
     inherit! :search_paths
-    pod 'OCMock'
+    pod 'OCMock', '~> 3.4.0'
   end
 
   target 'Storage_IntegrationTests_iOS' do

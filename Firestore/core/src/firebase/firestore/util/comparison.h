@@ -149,6 +149,15 @@ struct Comparator<absl::string_view> {
 
 template <>
 struct Comparator<std::string> {
+  Comparator() = default;
+  // GCC 4.8.5 has trouble implicitly generating copy operations (`=default`
+  // doesn't work as well).
+  Comparator(const Comparator&) {
+  }
+  Comparator& operator=(const Comparator&) {
+    return *this;
+  }
+
   ComparisonResult Compare(const std::string& left,
                            const std::string& right) const;
 };

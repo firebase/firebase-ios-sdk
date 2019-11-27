@@ -26,8 +26,11 @@ option(WITH_TSAN "Build with Thread Sanitizer (mutually exculsive with other san
 option(WITH_UBSAN "Build with Undefined Behavior sanitizer" OFF)
 
 macro(add_to_compile_and_link_flags flag)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${flag}")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${flag}")
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${flag}")
+  set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} ${flag}")
+  set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${flag}")
 endmacro()
 
 if(CXX_CLANG OR CXX_GNU)

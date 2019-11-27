@@ -80,7 +80,7 @@
   // Verify that the block is stored.
   NSString *protocolName = NSStringFromProtocol(@protocol(GULCCTestProtocol));
   GULCCComponentCreationBlock creationBlock = container.components[protocolName];
-  OCMExpect(creationBlock);
+  XCTAssertNotNil(creationBlock);
 }
 
 #pragma mark - Caching Tests

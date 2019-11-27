@@ -31,6 +31,7 @@
 #import "Firebase/InstanceID/NSError+FIRInstanceID.h"
 
 #import <FirebaseCore/FIRAppInternal.h>
+#import <GoogleUtilities/GULHeartbeatDateStorage.h>
 
 static NSString *kDeviceID = @"fakeDeviceID";
 static NSString *kSecretToken = @"fakeSecretToken";
@@ -68,8 +69,12 @@ static NSString *kRegistrationToken = @"token-12345";
   _mockCheckinService = OCMPartialMock(_checkinService);
   _authService = [[FIRInstanceIDAuthService alloc] initWithCheckinService:_mockCheckinService
                                                                     store:_mockStore];
-  // Create a temporary keypair in Keychain
   _instanceID = @"instanceID";
+
+  NSString *const kHeartbeatStorageFile = @"HEARTBEAT_INFO_STORAGE";
+  GULHeartbeatDateStorage *dataStorage =
+      [[GULHeartbeatDateStorage alloc] initWithFileName:kHeartbeatStorageFile];
+  [[NSFileManager defaultManager] removeItemAtURL:[dataStorage fileURL] error:nil];
 }
 
 - (void)testThatTokenOperationsAuthHeaderStringMatchesCheckin {
@@ -299,7 +304,7 @@ static NSString *kRegistrationToken = @"token-12345";
   XCTAssertEqualObjects(generatedHeader, expectedHeader);
 }
 
-- (void)testTokenFetchOperationFirebaseUserAgentHeader {
+- (void)testTokenFetchOperationFirebaseUserAgentAndHeartbeatHeader {
   XCTestExpectation *completionExpectation =
       [self expectationWithDescription:@"completionExpectation"];
 
@@ -316,6 +321,8 @@ static NSString *kRegistrationToken = @"token-12345";
       ^(NSURLRequest *request, FIRInstanceIDURLRequestTestResponseBlock response) {
         NSString *userAgentValue = request.allHTTPHeaderFields[kFIRInstanceIDFirebaseUserAgentKey];
         XCTAssertEqualObjects(userAgentValue, [FIRApp firebaseUserAgent]);
+        NSString *heartBeatCode = request.allHTTPHeaderFields[kFIRInstanceIDFirebaseHeartbeatKey];
+        XCTAssertEqualObjects(heartBeatCode, @"3");
 
         // Return a response with Error=RST
         NSData *responseBody = [self dataForFetchRequest:request returnValidToken:NO];

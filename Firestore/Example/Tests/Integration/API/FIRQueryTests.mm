@@ -264,20 +264,20 @@
       [collection addSnapshotListener:self.eventAccumulator.valueEventHandler];
 
   FIRQuerySnapshot *querySnap = [self.eventAccumulator awaitEventWithName:@"initial event"];
-  XCTAssertEqual(querySnap.documentChanges.count, 1);
+  XCTAssertEqual(querySnap.documentChanges.count, 1ul);
 
   FIRDocumentChange *change = querySnap.documentChanges[0];
   XCTAssertEqual(change.oldIndex, NSNotFound);
-  XCTAssertEqual(change.newIndex, 0);
+  XCTAssertEqual(change.newIndex, 0ul);
 
   FIRDocumentReference *doc = change.document.reference;
   [self deleteDocumentRef:doc];
 
   querySnap = [self.eventAccumulator awaitEventWithName:@"delete"];
-  XCTAssertEqual(querySnap.documentChanges.count, 1);
+  XCTAssertEqual(querySnap.documentChanges.count, 1ul);
 
   change = querySnap.documentChanges[0];
-  XCTAssertEqual(change.oldIndex, 0);
+  XCTAssertEqual(change.oldIndex, 0ul);
   XCTAssertEqual(change.newIndex, NSNotFound);
 
   [registration remove];
