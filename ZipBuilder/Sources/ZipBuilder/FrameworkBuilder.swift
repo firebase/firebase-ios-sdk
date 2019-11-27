@@ -89,7 +89,7 @@ struct FrameworkBuilder {
     var cachedFrameworkRoot: URL
     do {
       let subDir = carthageBuild ? "carthage" : ""
-      let cacheDir = try fileManager.firebaseCacheDirectory(withSubdir: subDir)
+      let cacheDir = try fileManager.sourcePodCacheDirectory(withSubdir: subDir)
       cachedFrameworkRoot = cacheDir.appendingPathComponents([podName, version])
     } catch {
       fatalError("Could not create caches directory for building frameworks: \(error)")
@@ -234,76 +234,6 @@ struct FrameworkBuilder {
     }
   }
 
-  // Extract the framework and library dependencies for a framework from
-  // Pods/Target Support Files/{framework}/{framework}.xcconfig.
-  private func getModuleDependencies(forFramework framework: String) ->
-    (frameworks: [String], libraries: [String]) {
-    let xcconfigFile = podsDir.appendingPathComponents(["Target Support Files",
-                                                        framework,
-                                                        "\(framework).xcconfig"])
-    do {
-      let text = try String(contentsOf: xcconfigFile)
-      let lines = text.components(separatedBy: .newlines)
-      for line in lines {
-        if line.hasPrefix("OTHER_LDFLAGS =") {
-          var dependencyFrameworks: [String] = []
-          var dependencyLibraries: [String] = []
-          let tokens = line.components(separatedBy: " ")
-          var addNext = false
-          for token in tokens {
-            if addNext {
-              dependencyFrameworks.append(token)
-              addNext = false
-            } else if token == "-framework" {
-              addNext = true
-            } else if token.hasPrefix("-l") {
-              let index = token.index(token.startIndex, offsetBy: 2)
-              dependencyLibraries.append(String(token[index...]))
-            }
-          }
-
-          return (dependencyFrameworks, dependencyLibraries)
-        }
-      }
-    } catch {
-      fatalError("Failed to open \(xcconfigFile): \(error)")
-    }
-    return ([], [])
-  }
-
-  private func makeModuleMap(baseDir: URL, framework: String, dir: URL) {
-    let dependencies = getModuleDependencies(forFramework: framework)
-    let moduleDir = dir.appendingPathComponent("Modules")
-    do {
-      try FileManager.default.createDirectory(at: moduleDir, withIntermediateDirectories: true)
-    } catch {
-      fatalError("Could not create Modules directory for framework: \(framework). \(error)")
-    }
-
-    let modulemap = moduleDir.appendingPathComponent("module.modulemap")
-    // The base of the module map. The empty line at the end is intentional, do not remove it.
-    var content = """
-    framework module \(framework) {
-    umbrella header "\(framework).h"
-    export *
-    module * { export * }
-
-    """
-    for framework in dependencies.frameworks {
-      content += "  link framework " + framework + "\n"
-    }
-    for library in dependencies.libraries {
-      content += "  link " + library + "\n"
-    }
-    content += "}\n"
-
-    do {
-      try content.write(to: modulemap, atomically: true, encoding: .utf8)
-    } catch {
-      fatalError("Could not write modulemap to disk for \(framework): \(error)")
-    }
-  }
-
   /// Compiles the specified framework in a temporary directory and writes the build logs to file.
   /// This will compile all architectures and use the lipo command to create a "fat" archive.
   ///
@@ -418,7 +348,6 @@ struct FrameworkBuilder {
         "\(error)")
     }
 
-    makeModuleMap(baseDir: outputDir, framework: framework, dir: frameworkDir)
     return frameworkDir
   }
 

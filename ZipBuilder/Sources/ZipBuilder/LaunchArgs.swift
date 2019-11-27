@@ -43,6 +43,7 @@ struct LaunchArgs {
     case carthageDir
     case customSpecRepos
     case existingVersions
+    case minimumIOSVersion
     case outputDir
     case releasingSDKs
     case rc
@@ -63,6 +64,8 @@ struct LaunchArgs {
       case .existingVersions:
         return "The file path to a textproto file containing the existing released SDK versions, " +
           "of type `ZipBuilder_FirebaseSDKs`."
+      case .minimumIOSVersion:
+        return "The minimum supported iOS version. The default is 9.0."
       case .outputDir:
         return "The directory to copy the built Zip file to."
       case .rc:
@@ -97,6 +100,9 @@ struct LaunchArgs {
   /// Custom CocoaPods spec repos to be used. If not provided, the tool will only use the CocoaPods
   /// master repo.
   let customSpecRepos: [URL]?
+
+  /// The minimum iOS Version to build for.
+  let minimumIOSVersion: String
 
   /// The directory to copy the built Zip file to. If this is not set, the path to the Zip file will
   /// just be logged to the console.
@@ -235,13 +241,21 @@ struct LaunchArgs {
       buildRoot = nil
     }
 
+    // Parse the minimum iOS version key.
+    if let minVersion = defaults.string(forKey: Key.minimumIOSVersion.rawValue) {
+      minimumIOSVersion = minVersion
+    } else {
+      // No argument was passed in.
+      minimumIOSVersion = "9.0"
+    }
+
     updatePodRepo = defaults.bool(forKey: Key.updatePodRepo.rawValue)
 
     // Check for extra invalid options.
     let validArgs = Key.allCases.map { $0.rawValue }
     for arg in ProcessInfo.processInfo.arguments {
       let dashDroppedArg = String(arg.dropFirst())
-      if arg.starts(with:"-") && !validArgs.contains(dashDroppedArg) {
+      if arg.starts(with: "-"), !validArgs.contains(dashDroppedArg) {
         LaunchArgs.exitWithUsageAndLog("\(arg) is not a valid option.")
       }
     }
