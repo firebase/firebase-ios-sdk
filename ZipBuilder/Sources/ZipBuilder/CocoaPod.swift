@@ -68,9 +68,9 @@ public enum CocoaPod: String, CaseIterable {
   }
 
   /// Describes the dependency on other frameworks for the README file.
-  public static func readmeHeader(pod: String) -> String {
-    var header = "## \(pod)"
-    if !(pod == "Analytics" || pod == "GoogleSignIn") {
+  public static func readmeHeader(podName: String) -> String {
+    var header = "## \(podName)"
+    if !(podName == "Analytics" || podName == "GoogleSignIn") {
       header += " (~> Analytics)"
     }
     header += "\n"

@@ -21,13 +21,13 @@ import Foundation
 struct ModuleMapBuilder {
   /// Information associated with a framework
   private class FrameworkInfo {
-    let isOpenSource: Bool
+    let isSourcePod: Bool
     let podInfo: CocoaPodUtils.PodInfo
     var transitiveFrameworks: Set<String>?
     var transitiveLibraries: Set<String>?
 
-    init(isOpenSource: Bool, podInfo: CocoaPodUtils.PodInfo) {
-      self.isOpenSource = isOpenSource
+    init(isSourcePod: Bool, podInfo: CocoaPodUtils.PodInfo) {
+      self.isSourcePod = isSourcePod
       self.podInfo = podInfo
     }
   }
@@ -43,7 +43,7 @@ struct ModuleMapBuilder {
   private var installedPods: [String: FrameworkInfo]
 
   /// Default initializer.
-  init(fromFrameworks frameworks: [String: [URL]], customSpecRepos: [URL]?) {
+  init(frameworks: [String: [URL]], customSpecRepos: [URL]?) {
     projectDir = FileManager.default.temporaryDirectory(withName: "module")
     CocoaPodUtils.podInstallPrepare(inProjectDir: projectDir)
 
@@ -51,7 +51,7 @@ struct ModuleMapBuilder {
 
     var cacheDir: URL
     do {
-      cacheDir = try FileManager.default.firebaseCacheDirectory(withSubdir: "")
+      cacheDir = try FileManager.default.sourcePodCacheDirectory(withSubdir: "")
     } catch {
       fatalError("Could not find framework cache directory: \(error)")
     }
@@ -60,10 +60,11 @@ struct ModuleMapBuilder {
       for url in framework.value {
         let frameworkFullName = url.lastPathComponent
         let frameworkName = frameworkFullName.replacingOccurrences(of: ".framework", with: "")
-        let isOpenSource = url.absoluteString.contains(cacheDir.absoluteString)
-        let version = isOpenSource ? url.deletingLastPathComponent().lastPathComponent : ""
+        // The cacheDir is only used for source pods.
+        let isSourcePod = url.absoluteString.contains(cacheDir.absoluteString)
+        let version = isSourcePod ? url.deletingLastPathComponent().lastPathComponent : ""
         let podInfo = CocoaPodUtils.PodInfo(name: frameworkName, version: version, installedLocation: url)
-        installedPods[frameworkName] = FrameworkInfo(isOpenSource: isOpenSource, podInfo: podInfo)
+        installedPods[frameworkName] = FrameworkInfo(isSourcePod: isSourcePod, podInfo: podInfo)
       }
     }
     self.installedPods = installedPods
@@ -75,7 +76,7 @@ struct ModuleMapBuilder {
   ///
   public func build() {
     for (_, info) in installedPods {
-      if info.isOpenSource == false || info.transitiveFrameworks != nil {
+      if info.isSourcePod == false || info.transitiveFrameworks != nil {
         continue
       }
       generate(framework: info)
@@ -85,7 +86,7 @@ struct ModuleMapBuilder {
   // MARK: - Internal Functions
 
   /// Build a module map for a single framework.
-  private func generate(framework: FrameworkInfo) { // , inLocation location: URL) {
+  private func generate(framework: FrameworkInfo) {
     _ = CocoaPodUtils.installPods([framework.podInfo], inDir: projectDir, customSpecRepos: customSpecRepos)
     let xcconfigFile = projectDir.appendingPathComponents(["Pods", "Target Support Files",
                                                            "Pods-FrameworkMaker",
@@ -94,8 +95,8 @@ struct ModuleMapBuilder {
   }
 
   // Extract the framework and library dependencies for a framework from
-  // by starting with the xcconfig file from an app generate from a Podfile only with that
-  // framework and removing the frameworks and libraries from its transitive dependencies.
+  // the xcconfig file from an app generated from a Podfile only with that
+  // CocoaPod and removing the frameworks and libraries from its transitive dependencies.
   private func getModuleDependencies(withXcconfigFile xcconfigFile: URL) ->
     (frameworks: [String], libraries: [String]) {
     do {

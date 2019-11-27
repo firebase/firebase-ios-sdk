@@ -18,7 +18,7 @@ import Foundation
 
 // Delete the cache directory, if it exists.
 do {
-  let cacheDir = try FileManager.default.firebaseCacheDirectory()
+  let cacheDir = try FileManager.default.sourcePodCacheDirectory()
   FileManager.default.removeDirectoryIfExists(at: cacheDir)
 } catch {
   fatalError("Could not remove the cache before packaging the release: \(error)")

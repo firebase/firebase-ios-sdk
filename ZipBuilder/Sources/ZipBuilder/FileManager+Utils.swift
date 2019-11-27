@@ -71,7 +71,7 @@ public extension FileManager {
   }
 
   /// Returns the URL to the Firebase cache directory, and creates it if it doesn't exist.
-  func firebaseCacheDirectory(withSubdir subdir: String = "") throws -> URL {
+  func sourcePodCacheDirectory(withSubdir subdir: String = "") throws -> URL {
     // Get the URL for the cache directory.
     let cacheDir: URL = try url(for: .cachesDirectory,
                                 in: .userDomainMask,

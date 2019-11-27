@@ -257,16 +257,16 @@ public enum CocoaPodUtils {
       """ // Explicit newline above to ensure it's included in the String.
     }
 
-    // Include the calculated minimum iOS version.
+    // Include the minimum iOS version.
     podfile += """
     platform :ios, '\(LaunchArgs.shared.minimumIOSVersion)'
     target 'FrameworkMaker' do\n
     """
 
-    // Loop through the subspecs passed in and use the rawValue (actual Pod name).
+    // Loop through the subspecs passed in and use the actual Pod name.
     for pod in pods {
-      podfile += "  pod '\(CocoaPod.podName(pod: pod.name))" + "'" +
-        (pod.version == "" ? "" : ", '\(pod.version)'") + "\n"
+      let version = pod.version.isEmpty ? "" : ", '\(pod.version)'"
+      podfile += "  pod '\(CocoaPod.podName(pod: pod.name))" + version + "\n"
     }
 
     podfile += "end"

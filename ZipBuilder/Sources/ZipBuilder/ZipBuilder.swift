@@ -194,7 +194,7 @@ struct ZipBuilder {
     // copied in each product's directory.
     let frameworks = generateFrameworks(fromPods: installedPods, inProjectDir: projectDir)
 
-    ModuleMapBuilder(fromFrameworks: frameworks, customSpecRepos: customSpecRepos).build()
+    ModuleMapBuilder(frameworks: frameworks, customSpecRepos: customSpecRepos).build()
 
     for (framework, paths) in frameworks {
       print("Frameworks for pod: \(framework) were compiled at \(paths)")
@@ -204,8 +204,15 @@ struct ZipBuilder {
     let carthageCoreDiagnostics: URL = createCarthageCoreDiagnostics(fromPods: installedPods,
                                                                      inProjectDir: projectDir)
 
+    // Copy the CoreDiagnostics zip module map to the Carthage build.
+    guard let coreDiagnosticsFramework = frameworks["FirebaseCoreDiagnostics"] else {
+      fatalError("Failed to find FirebaseCoreDiagnostics framework for Carthage copy.")
+    }
+    guard let coreDiagnosticModuleMapLocation = coreDiagnosticsFramework.first else {
+      fatalError("Failed to find FirebaseCoreDiagnostics module map location for Carthage copy.")
+    }
+    let coreDiagnosticModuleMap = coreDiagnosticModuleMapLocation.appendingPathComponent("Modules")
     do {
-      let coreDiagnosticModuleMap = frameworks["FirebaseCoreDiagnostics"]![0].appendingPathComponent("Modules")
       try FileManager.default.copyItem(at: coreDiagnosticModuleMap, to: carthageCoreDiagnostics.appendingPathComponent("Modules"))
     } catch {
       fatalError("Failed to copy module map to \(carthageCoreDiagnostics)")
