@@ -20,9 +20,19 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
+/**
+ * Class providing the userAgent and the hearbeat information.
+ */
 class GrpcMetadataProvider {
  public:
+  /**
+   * Called by grpc_connection.cc. Provides the heartbeatcode corresponding to
+   * firestore.
+   */
   static std::string getHeartbeatCode();
+  /**
+   * Called by grpc_connection.cc. Provides the userAgentString.
+   */
   static std::string getUserAgentString();
 };
 }  // namespace remote
