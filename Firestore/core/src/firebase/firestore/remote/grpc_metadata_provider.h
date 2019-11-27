@@ -14,25 +14,17 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/remote/grpc_metadata_provider.h"
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRHeartbeatInfo.h>
-#import <Foundation/Foundation.h>
 #include <string>
-
-NSString* const kFirebaseFirestoreHeartbeatTag = @"fire-fst";
 
 namespace firebase {
 namespace firestore {
 namespace remote {
-std::string GrpcMetadataProvider::getHeartbeatCode() {
-  return std::string(
-      [@([FIRHeartbeatInfo heartbeatCodeForTag:kFirebaseFirestoreHeartbeatTag])
-              .stringValue UTF8String]);
-}
-std::string GrpcMetadataProvider::getUserAgentString() {
-  return std::string([[FIRApp firebaseUserAgent] UTF8String]);
-}
+
+class GrpcMetadataProvider {
+ public:
+  static std::string getHeartbeatCode();
+  static std::string getUserAgentString();
+};
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase

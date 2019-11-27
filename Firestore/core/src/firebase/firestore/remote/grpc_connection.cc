@@ -25,8 +25,8 @@
 #include "Firestore/core/include/firebase/firestore/firestore_version.h"
 #include "Firestore/core/src/firebase/firestore/auth/token.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
-#include "Firestore/core/src/firebase/firestore/remote/grpc_root_certificate_finder.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_metadata_provider.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_root_certificate_finder.h"
 #include "Firestore/core/src/firebase/firestore/util/filesystem.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
@@ -173,8 +173,13 @@ std::unique_ptr<grpc::ClientContext> GrpcConnection::CreateContext(
   context->AddMetadata(kGoogleCloudResourcePrefix,
                        StringFormat("projects/%s/databases/%s",
                                     db_id.project_id(), db_id.database_id()));
-  context->AddMetadata(kFirebaseFirestoreHeartbeatKey, GrpcMetadataProvider::getHeartbeatCode());
-  context->AddMetadata(kFirebaseFirestoreUserAgentKey, GrpcMetadataProvider::getUserAgentString());
+  std::string heartbeatCode = GrpcMetadataProvider::getHeartbeatCode();
+  if (heartbeatCode != "0") {
+    context->AddMetadata(kFirebaseFirestoreHeartbeatKey,
+                         GrpcMetadataProvider::getHeartbeatCode());
+    context->AddMetadata(kFirebaseFirestoreUserAgentKey,
+                         GrpcMetadataProvider::getUserAgentString());
+  }
   return context;
 }
 
