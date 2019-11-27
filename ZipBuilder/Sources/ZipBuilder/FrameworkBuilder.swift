@@ -266,9 +266,9 @@ struct FrameworkBuilder {
     // individual architectures.
     var thinArchives = [URL]()
     for arch in LaunchArgs.shared.archs {
-      let buildDir = projectDir.appendingPathComponent(arch)
+      let buildDir = projectDir.appendingPathComponent(arch.rawValue)
       let thinArchive = buildThin(framework: framework,
-                                  arch: Architecture(rawValue: arch)!,
+                                  arch: arch,
                                   buildDir: buildDir,
                                   logRoot: logsDir)
       thinArchives.append(thinArchive)

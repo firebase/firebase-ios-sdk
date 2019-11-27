@@ -87,7 +87,7 @@ struct LaunchArgs {
   }
 
   /// The list of architectures to build for.
-  let archs: [String]
+  let archs: [Architecture]
 
   /// A file URL to a textproto with the contents of a `ZipBuilder_FirebaseSDKs` object. Used to
   /// verify expected version numbers.
@@ -151,15 +151,18 @@ struct LaunchArgs {
     // Parse the archs list.
     if let archs = defaults.string(forKey: Key.archs.rawValue) {
       let archs = archs.components(separatedBy: ",")
-      guard Set(archs).isSubset(of: Set(Architecture.allCases.map{$0.rawValue})) else {
-        LaunchArgs.exitWithUsageAndLog("Could not parse \(Key.archs) key: value " +
-          "must be a subset of \(Architecture.allCases.map{$0.rawValue})")
+      var archList : [Architecture] = []
+      for arch in archs {
+        guard let addArch = Architecture(rawValue: arch) else {
+          LaunchArgs.exitWithUsageAndLog("Specified arch option \(arch) " +
+            "must be one of \(Architecture.allCases.map{$0.rawValue})")
+        }
+        archList.append(addArch)
       }
-      self.archs = archs
-
+      self.archs = archList
     } else {
       // No argument was passed in.
-      archs = Architecture.allCases.map{$0.rawValue}
+      archs = Architecture.allCases
     }
 
     // Parse the existing versions key.
