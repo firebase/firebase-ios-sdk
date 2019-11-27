@@ -64,7 +64,7 @@ struct ModuleMapBuilder {
         let frameworkName = frameworkFullName.replacingOccurrences(of: ".framework", with: "")
         // The cacheDir is only used for source pods.
         let isSourcePod = url.absoluteString.contains(cacheDir.absoluteString)
-        let version = isSourcePod ? url.deletingLastPathComponent().lastPathComponent : ""
+        let version = isSourcePod ? url.deletingLastPathComponent().lastPathComponent : nil
         let installedLocation = url
         let versionedPod = CocoaPodUtils.VersionedPod(name: frameworkName, version: version)
         installedPods[frameworkName] = FrameworkInfo(isSourcePod: isSourcePod,
