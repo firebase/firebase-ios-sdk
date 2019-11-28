@@ -70,16 +70,10 @@ public extension FileManager {
     return directoryExists(at: url)
   }
 
-  /// Returns the URL to the Firebase cache directory, and creates it if it doesn't exist.
+  /// Returns the URL to the source Pod cache directory, and creates it if it doesn't exist.
   func sourcePodCacheDirectory(withSubdir subdir: String = "") throws -> URL {
-    // Get the URL for the cache directory.
-    let cacheDir: URL = try url(for: .cachesDirectory,
-                                in: .userDomainMask,
-                                appropriateFor: nil,
-                                create: true)
-
-    // Get the cache root path, and if it already exists just return the URL.
-    let cacheRoot = cacheDir.appendingPathComponents(["firebase_oss_framework_cache", subdir])
+    let cacheDir = FileManager.default.temporaryDirectory(withName: "cache")
+    let cacheRoot = cacheDir.appendingPathComponents([subdir])
     if directoryExists(at: cacheRoot) {
       return cacheRoot
     }
@@ -90,12 +84,12 @@ public extension FileManager {
     return cacheRoot
   }
 
-  /// Removes a directory if it exists. This is helpful to clean up error handling for checks that
+  /// Removes a directory or file if it exists. This is helpful to clean up error handling for checks that
   /// shouldn't fail. The only situation this could potentially fail is permission errors or if a
   /// folder is open in Finder, and in either state the user needs to close the window or fix the
   /// permissions. A fatal error will be thrown in those situations.
-  func removeDirectoryIfExists(at url: URL) {
-    guard directoryExists(at: url) else { return }
+  func removeIfExists(at url: URL) {
+    guard directoryExists(at: url) || fileExists(atPath: url.path) else { return }
 
     do {
       try removeItem(at: url)
@@ -106,6 +100,9 @@ public extension FileManager {
       """)
     }
   }
+
+  // Enable a single unique temporary workspace per execution.
+  static let unique: String = UUID().uuidString
 
   /// Returns a deterministic path of a temporary directory for the given name. Note: This does
   /// *not* create the directory if it doesn't exist, merely generates the name for creation.
@@ -122,7 +119,8 @@ public extension FileManager {
     }
 
     // Organize all temporary directories into a "FirebaseZipRelease" directory.
-    let firebaseDir = tempDir.appendingPathComponent("FirebaseZipRelease", isDirectory: true)
+    let unique = FileManager.unique
+    let firebaseDir = tempDir.appendingPathComponent("ZipRelease" + unique, isDirectory: true)
     return firebaseDir.appendingPathComponent(name, isDirectory: true)
   }
 

@@ -101,7 +101,7 @@ struct FrameworkBuilder {
     do {
       // Remove the previously cached framework if it exists, otherwise the `moveItem` call will
       // fail.
-      fileManager.removeDirectoryIfExists(at: cachedFrameworkDir)
+      fileManager.removeIfExists(at: cachedFrameworkDir)
 
       // Create the root cache directory if it doesn't exist.
       if !fileManager.directoryExists(at: cachedFrameworkRoot) {

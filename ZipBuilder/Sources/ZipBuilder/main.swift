@@ -16,14 +16,6 @@
 
 import Foundation
 
-// Delete the cache directory, if it exists.
-do {
-  let cacheDir = try FileManager.default.sourcePodCacheDirectory()
-  FileManager.default.removeDirectoryIfExists(at: cacheDir)
-} catch {
-  fatalError("Could not remove the cache before packaging the release: \(error)")
-}
-
 // Get the launch arguments, parsed by user defaults.
 let args = LaunchArgs.shared
 
@@ -60,12 +52,12 @@ do {
       let carthagePath =
         location.deletingLastPathComponent().appendingPathComponent("carthage_build")
       let fileManager = FileManager.default
-      fileManager.removeDirectoryIfExists(at: carthagePath)
+      fileManager.removeIfExists(at: carthagePath)
       try fileManager.copyItem(at: location, to: carthagePath)
 
       // Package the Carthage distribution with the current directory structure.
       let carthageDir = location.deletingLastPathComponent().appendingPathComponent("carthage")
-      fileManager.removeDirectoryIfExists(at: carthageDir)
+      fileManager.removeIfExists(at: carthageDir)
       var output = carthageDir.appendingPathComponent(firebaseVersion)
       if let rcNumber = args.rcNumber {
         output.appendPathComponent("rc\(rcNumber)")
@@ -81,7 +73,7 @@ do {
                                             outputDir: output)
 
       // Remove the duplicated Carthage build directory.
-      fileManager.removeDirectoryIfExists(at: carthagePath)
+      fileManager.removeIfExists(at: carthagePath)
       print("Done creating Carthage release! Files written to \(output)")
 
       // Save the directory for later copying.
@@ -129,7 +121,7 @@ do {
   if let outputDir = args.outputDir {
     do {
       // Clear out the output directory if it exists.
-      FileManager.default.removeDirectoryIfExists(at: outputDir)
+      FileManager.default.removeIfExists(at: outputDir)
       try FileManager.default.createDirectory(at: outputDir, withIntermediateDirectories: true)
 
       // We want the output to be in the X_Y_Z directory.
@@ -153,7 +145,21 @@ do {
       }
     }
   } else {
-    print("Success! Zip file can be found at \(zipped.path)")
+    // Move zip to parent directory so it doesn't get removed with other artifacts.
+    let parentLocation =
+      zipped.deletingLastPathComponent().deletingLastPathComponent().appendingPathComponent(zipped.lastPathComponent)
+    // Clear out the output file if it exists.
+    FileManager.default.removeIfExists(at: parentLocation)
+    do {
+      try FileManager.default.moveItem(at: zipped, to: parentLocation)
+    } catch {
+      fatalError("Could not move Zip file to output directory: \(error)")
+    }
+    print("Success! Zip file can be found at \(parentLocation.path)")
+  }
+
+  if !args.keepBuildArtifacts {
+    FileManager.default.removeIfExists(at: projectDir.deletingLastPathComponent())
   }
 
   // Get the time since the start of the build to get the full time.
