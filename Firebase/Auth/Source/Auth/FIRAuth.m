@@ -1884,17 +1884,10 @@ didReceiveRemoteNotification:(NSDictionary *)userInfo {
     return [[FIRAuth alloc] initWithApp:container.app];
   };
   FIRComponent *authInterop = [FIRComponent componentWithProtocol:@protocol(FIRAuthInterop)
+                                              instantiationTiming:FIRInstantiationTimingAlwaysEager
+                                                     dependencies:@[]
                                                     creationBlock:authCreationBlock];
   return @[authInterop];
-}
-
-#pragma mark - FIRCoreConfigurable
-
-+ (void)configureWithApp:(nonnull FIRApp *)app {
-  // TODO: Evaluate what actually needs to be configured here instead of initializing a full
-  // instance.
-  // Ensures the @c FIRAuth instance for a given app gets loaded as soon as the app is ready.
-  [FIRAuth authWithApp:app];
 }
 
 #pragma mark - FIRComponentLifecycleMaintainer
