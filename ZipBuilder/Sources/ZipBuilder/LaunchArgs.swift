@@ -39,6 +39,7 @@ extension FileManager: FileChecker {}
 struct LaunchArgs {
   /// Keys associated with the launch args. See `Usage` for descriptions of each flag.
   private enum Key: String, CaseIterable {
+    case archs
     case buildRoot
     case carthageDir
     case customSpecRepos
@@ -53,6 +54,9 @@ struct LaunchArgs {
     /// Usage description for the key.
     var usage: String {
       switch self {
+      case .archs:
+        return "The list of architectures to build for. The default list is " +
+          "\(Architecture.allCases.map { $0.rawValue })."
       case .buildRoot:
         return "The root directory for build artifacts. If `nil`, a temporary directory will be " +
           "used."
@@ -81,6 +85,9 @@ struct LaunchArgs {
       }
     }
   }
+
+  /// The list of architectures to build for.
+  let archs: [Architecture]
 
   /// A file URL to a textproto with the contents of a `ZipBuilder_FirebaseSDKs` object. Used to
   /// verify expected version numbers.
@@ -140,6 +147,23 @@ struct LaunchArgs {
     }
 
     templateDir = URL(fileURLWithPath: templatePath)
+
+    // Parse the archs list.
+    if let archs = defaults.string(forKey: Key.archs.rawValue) {
+      let archs = archs.components(separatedBy: ",")
+      var archList: [Architecture] = []
+      for arch in archs {
+        guard let addArch = Architecture(rawValue: arch) else {
+          LaunchArgs.exitWithUsageAndLog("Specified arch option \(arch) " +
+            "must be one of \(Architecture.allCases.map { $0.rawValue })")
+        }
+        archList.append(addArch)
+      }
+      self.archs = archList
+    } else {
+      // No argument was passed in.
+      archs = Architecture.allCases
+    }
 
     // Parse the existing versions key.
     if let existingVersions = defaults.string(forKey: Key.existingVersions.rawValue) {
