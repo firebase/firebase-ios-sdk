@@ -102,7 +102,7 @@ public extension FileManager {
   }
 
   // Enable a single unique temporary workspace per execution.
-  static var uniq: String?
+  static var unique: String?
 
   /// Returns a deterministic path of a temporary directory for the given name. Note: This does
   /// *not* create the directory if it doesn't exist, merely generates the name for creation.
@@ -119,11 +119,11 @@ public extension FileManager {
     }
 
     // Organize all temporary directories into a "FirebaseZipRelease" directory.
-    if FileManager.uniq == nil {
-      FileManager.uniq = UUID().uuidString
+    if FileManager.unique == nil {
+      FileManager.unique = UUID().uuidString
     }
-    let uniq = FileManager.uniq!
-    let firebaseDir = tempDir.appendingPathComponent("ZipRelease" + uniq, isDirectory: true)
+    let unique = FileManager.unique!
+    let firebaseDir = tempDir.appendingPathComponent("ZipRelease" + unique, isDirectory: true)
     return firebaseDir.appendingPathComponent(name, isDirectory: true)
   }
 

@@ -145,7 +145,19 @@ do {
       }
     }
   } else {
-    print("Success! Zip file can be found at \(zipped.path)")
+    // Move zip to parent directory so it doesn't get removed with other artifacts.
+    let parentLocation =
+      zipped.deletingLastPathComponent().deletingLastPathComponent().appendingPathComponent(zipped.lastPathComponent)
+    do {
+      try FileManager.default.moveItem(at: zipped, to: parentLocation)
+    } catch {
+      fatalError("Could not move Zip file to output directory: \(error)")
+    }
+    print("Success! Zip file can be found at \(parentLocation.path)")
+  }
+
+  if !args.keepBuildArtifacts {
+    FileManager.default.removeDirectoryIfExists(at: projectDir.deletingLastPathComponent())
   }
 
   // Get the time since the start of the build to get the full time.
