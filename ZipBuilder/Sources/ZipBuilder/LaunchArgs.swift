@@ -56,7 +56,7 @@ struct LaunchArgs {
       switch self {
       case .archs:
         return "The list of architectures to build for. The default list is " +
-          "\(Architecture.allCases.map{$0.rawValue})."
+          "\(Architecture.allCases.map { $0.rawValue })."
       case .buildRoot:
         return "The root directory for build artifacts. If `nil`, a temporary directory will be " +
           "used."
@@ -151,11 +151,11 @@ struct LaunchArgs {
     // Parse the archs list.
     if let archs = defaults.string(forKey: Key.archs.rawValue) {
       let archs = archs.components(separatedBy: ",")
-      var archList : [Architecture] = []
+      var archList: [Architecture] = []
       for arch in archs {
         guard let addArch = Architecture(rawValue: arch) else {
           LaunchArgs.exitWithUsageAndLog("Specified arch option \(arch) " +
-            "must be one of \(Architecture.allCases.map{$0.rawValue})")
+            "must be one of \(Architecture.allCases.map { $0.rawValue })")
         }
         archList.append(addArch)
       }
