@@ -17,6 +17,8 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_TARGET_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_TARGET_H_
 
+#include <iosfwd>
+#include <limits>
 #include <memory>
 #include <string>
 #include <utility>
@@ -54,12 +56,12 @@ class Target {
    * property.
    */
   Target(model::ResourcePath path,
-        CollectionGroupId collection_group,
-        FilterList filters,
-        OrderByList order_bys,
-        int32_t limit,
-        std::shared_ptr<Bound> start_at,
-        std::shared_ptr<Bound> end_at)
+         CollectionGroupId collection_group,
+         FilterList filters,
+         OrderByList order_bys,
+         int32_t limit,
+         std::shared_ptr<Bound> start_at,
+         std::shared_ptr<Bound> end_at)
       : path_(std::move(path)),
         collection_group_(std::move(collection_group)),
         filters_(std::move(filters)),

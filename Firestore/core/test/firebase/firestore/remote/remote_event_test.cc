@@ -122,7 +122,7 @@ std::unordered_map<TargetId, QueryData> ActiveQueries(
   for (TargetId target_id : target_ids) {
     core::Query query = Query("coll");
     targets[target_id] =
-        QueryData(std::move(query), target_id, 0, QueryPurpose::Listen);
+        QueryData(*query.ToTarget(), target_id, 0, QueryPurpose::Listen);
   }
   return targets;
 }
@@ -136,7 +136,7 @@ std::unordered_map<TargetId, QueryData> ActiveLimboQueries(
   std::unordered_map<TargetId, QueryData> targets;
   for (TargetId target_id : target_ids) {
     core::Query query = Query("coll/limbo");
-    targets[target_id] = QueryData(std::move(query), target_id, 0,
+    targets[target_id] = QueryData(*query.ToTarget(), target_id, 0,
                                    QueryPurpose::LimboResolution);
   }
   return targets;

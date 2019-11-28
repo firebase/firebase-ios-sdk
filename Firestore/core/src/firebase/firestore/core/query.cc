@@ -58,7 +58,8 @@ bool Query::IsDocumentQuery() const {
 }
 
 bool Query::MatchesAllDocuments() const {
-  return filters_.empty() && limit_ == Target::kNoLimit && !start_at_ && !end_at_ &&
+  return filters_.empty() && limit_ == Target::kNoLimit && !start_at_ &&
+         !end_at_ &&
          (explicit_order_bys_.empty() ||
           (explicit_order_bys_.size() == 1 &&
            explicit_order_bys_.front().field().IsKeyFieldPath()));
@@ -298,16 +299,10 @@ std::string Query::ToString() const {
 }
 
 const std::shared_ptr<Target> Query::ToTarget() const {
-  if(memoized_target == nullptr) {
-    memoized_target = std::make_shared<Target>(
-      path(),
-      collection_group(),
-      filters(),
-      order_bys(),
-      limit(),
-      start_at(),
-      end_at()
-    );
+  if (memoized_target == nullptr) {
+    memoized_target =
+        std::make_shared<Target>(path(), collection_group(), filters(),
+                                 order_bys(), limit(), start_at(), end_at());
   }
 
   return memoized_target;

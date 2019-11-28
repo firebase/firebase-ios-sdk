@@ -28,7 +28,7 @@ namespace firebase {
 namespace firestore {
 namespace local {
 
-using core::Query;
+using core::Target;
 using model::DocumentKey;
 using model::DocumentKeySet;
 using model::ListenSequenceNumber;
@@ -40,11 +40,11 @@ MemoryQueryCache::MemoryQueryCache(MemoryPersistence* persistence)
       highest_listen_sequence_number_(ListenSequenceNumber(0)),
       highest_target_id_(TargetId(0)),
       last_remote_snapshot_version_(SnapshotVersion::None()),
-      queries_() {
+      targets_() {
 }
 
 void MemoryQueryCache::AddTarget(const QueryData& query_data) {
-  queries_[query_data.query()] = query_data;
+  targets_[query_data.target()] = query_data;
   if (query_data.target_id() > highest_target_id_) {
     highest_target_id_ = query_data.target_id();
   }
@@ -59,17 +59,17 @@ void MemoryQueryCache::UpdateTarget(const QueryData& query_data) {
 }
 
 void MemoryQueryCache::RemoveTarget(const QueryData& query_data) {
-  queries_.erase(query_data.query());
+  targets_.erase(query_data.target());
   references_.RemoveReferences(query_data.target_id());
 }
 
-absl::optional<QueryData> MemoryQueryCache::GetTarget(const Query& query) {
-  auto iter = queries_.find(query);
-  return iter == queries_.end() ? absl::optional<QueryData>{} : iter->second;
+absl::optional<QueryData> MemoryQueryCache::GetTarget(const Target& target) {
+  auto iter = targets_.find(target);
+  return iter == targets_.end() ? absl::optional<QueryData>{} : iter->second;
 }
 
 void MemoryQueryCache::EnumerateTargets(const TargetCallback& callback) {
-  for (const auto& kv : queries_) {
+  for (const auto& kv : targets_) {
     callback(kv.second);
   }
 }
@@ -77,21 +77,21 @@ void MemoryQueryCache::EnumerateTargets(const TargetCallback& callback) {
 int MemoryQueryCache::RemoveTargets(
     model::ListenSequenceNumber upper_bound,
     const std::unordered_map<TargetId, QueryData>& live_targets) {
-  std::vector<const Query*> to_remove;
-  for (const auto& kv : queries_) {
-    const Query& query = kv.first;
+  std::vector<const Target*> to_remove;
+  for (const auto& kv : targets_) {
+    const Target& target = kv.first;
     const QueryData& query_data = kv.second;
 
     if (query_data.sequence_number() <= upper_bound) {
       if (live_targets.find(query_data.target_id()) == live_targets.end()) {
-        to_remove.push_back(&query);
+        to_remove.push_back(&target);
         references_.RemoveReferences(query_data.target_id());
       }
     }
   }
 
-  for (const Query* element : to_remove) {
-    queries_.erase(*element);
+  for (const Target* element : to_remove) {
+    targets_.erase(*element);
   }
   return static_cast<int>(to_remove.size());
 }
@@ -122,7 +122,7 @@ bool MemoryQueryCache::Contains(const DocumentKey& key) {
 
 int64_t MemoryQueryCache::CalculateByteSize(const Sizer& sizer) {
   int64_t count = 0;
-  for (const auto& kv : queries_) {
+  for (const auto& kv : targets_) {
     count += sizer.CalculateByteSize(kv.second);
   }
   return count;
