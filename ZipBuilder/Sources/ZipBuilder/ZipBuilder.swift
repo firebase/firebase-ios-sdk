@@ -160,7 +160,7 @@ struct ZipBuilder {
 
     // Break the `inputPods` into a variable since it's helpful when debugging builds to just
     // install a subset of pods, like the following line:
-    //    let inputPods: [String] = ["", "Core", "Analytics", "Storage"]
+    // let inputPods: [String] = ["", "Core", "Analytics", "Storage"]
     let inputPods = CocoaPod.allCases.map { $0.rawValue }
     let podsToInstall = inputPods.map { CocoaPodUtils.VersionedPod(name: $0, version: nil) }
 
@@ -734,7 +734,7 @@ struct ZipBuilder {
           let copiedLocation = tempDir.appendingPathComponent(framework.lastPathComponent)
 
           // Remove the framework if it exists since it could be out of date.
-          fileManager.removeDirectoryIfExists(at: copiedLocation)
+          fileManager.removeIfExists(at: copiedLocation)
           do {
             try fileManager.copyItem(at: framework, to: copiedLocation)
           } catch {
