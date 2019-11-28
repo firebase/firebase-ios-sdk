@@ -18,6 +18,7 @@
 
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/core/target.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
 
 namespace firebase {
@@ -118,7 +119,7 @@ ViewDocumentChanges View::ComputeDocumentChanges(
   // Note that this should never get used in a refill (when previous_changes is
   // set), because there will only be adds -- no deletes or updates.
   absl::optional<Document> last_doc_in_limit;
-  if (query_.limit() != Query::kNoLimit &&
+  if (query_.limit() != Target::kNoLimit &&
       old_document_set.size() == static_cast<size_t>(query_.limit())) {
     last_doc_in_limit = old_document_set.GetLastDocument();
   }
@@ -209,7 +210,7 @@ ViewDocumentChanges View::ComputeDocumentChanges(
   }
 
   int32_t limit = query_.limit();
-  if (limit != Query::kNoLimit &&
+  if (limit != Target::kNoLimit &&
       new_document_set.size() > static_cast<size_t>(limit)) {
     for (size_t i = new_document_set.size() - limit; i > 0; --i) {
       absl::optional<Document> found = new_document_set.GetLastDocument();

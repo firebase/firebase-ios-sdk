@@ -63,6 +63,7 @@ using core::FilterList;
 using core::OrderBy;
 using core::OrderByList;
 using core::Query;
+using core::Target;
 using local::QueryData;
 using local::QueryPurpose;
 using model::ArrayTransform;
@@ -947,7 +948,7 @@ google_firestore_v1_Target_QueryTarget Serializer::EncodeQueryTarget(
     result.structured_query.order_by = EncodeOrderBys(orders);
   }
 
-  if (query.limit() != Query::kNoLimit) {
+  if (query.limit() != Target::kNoLimit) {
     result.structured_query.has_limit = true;
     result.structured_query.limit.value = query.limit();
   }
@@ -1007,7 +1008,7 @@ Query Serializer::DecodeQueryTarget(
     order_by = DecodeOrderBys(reader, query.order_by, query.order_by_count);
   }
 
-  int32_t limit = Query::kNoLimit;
+  int32_t limit = Target::kNoLimit;
   if (query.has_limit) {
     limit = query.limit.value;
   }
