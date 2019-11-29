@@ -55,7 +55,7 @@ std::ostream& operator<<(std::ostream& os, QueryPurpose purpose) {
 
 // MARK: - QueryData
 
-QueryData::QueryData(Target target,
+QueryData::QueryData(std::shared_ptr<const Target> target,
                      TargetId target_id,
                      ListenSequenceNumber sequence_number,
                      QueryPurpose purpose,
@@ -69,7 +69,7 @@ QueryData::QueryData(Target target,
       resume_token_(std::move(resume_token)) {
 }
 
-QueryData::QueryData(Target target,
+QueryData::QueryData(std::shared_ptr<const Target> target,
                      int target_id,
                      ListenSequenceNumber sequence_number,
                      QueryPurpose purpose)
@@ -82,25 +82,25 @@ QueryData::QueryData(Target target,
 }
 
 QueryData QueryData::Invalid() {
-  return QueryData(Target(), /*target_id=*/-1, /*sequence_number=*/-1,
-                   QueryPurpose::Listen,
+  return QueryData(std::make_shared<const Target>(), /*target_id=*/-1,
+                   /*sequence_number=*/-1, QueryPurpose::Listen,
                    SnapshotVersion(SnapshotVersion::None()), {});
 }
 
 QueryData QueryData::WithSequenceNumber(
     ListenSequenceNumber sequence_number) const {
-  return QueryData(Target(target_), target_id_, sequence_number, purpose_,
+  return QueryData(target_, target_id_, sequence_number, purpose_,
                    snapshot_version_, resume_token_);
 }
 
 QueryData QueryData::WithResumeToken(ByteString resume_token,
                                      SnapshotVersion snapshot_version) const {
-  return QueryData(Target(target_), target_id_, sequence_number_, purpose_,
+  return QueryData(target_, target_id_, sequence_number_, purpose_,
                    std::move(snapshot_version), std::move(resume_token));
 }
 
 bool operator==(const QueryData& lhs, const QueryData& rhs) {
-  return lhs.target() == rhs.target() && lhs.target_id() == rhs.target_id() &&
+  return *lhs.target() == *rhs.target() && lhs.target_id() == rhs.target_id() &&
          lhs.sequence_number() == rhs.sequence_number() &&
          lhs.purpose() == rhs.purpose() &&
          lhs.snapshot_version() == rhs.snapshot_version() &&
@@ -108,7 +108,7 @@ bool operator==(const QueryData& lhs, const QueryData& rhs) {
 }
 
 size_t QueryData::Hash() const {
-  return util::Hash(target_, target_id_, sequence_number_, purpose_,
+  return util::Hash(*target_, target_id_, sequence_number_, purpose_,
                     snapshot_version_, resume_token_);
 }
 
@@ -119,8 +119,9 @@ std::string QueryData::ToString() const {
 }
 
 std::ostream& operator<<(std::ostream& os, const QueryData& value) {
-  return os << "QueryData(target=," << value.target_
-            << ", target=" << value.target_id_ << ", purpose=" << value.purpose_
+  return os << "QueryData(target=" << *value.target_
+            << ", target_id=" << value.target_id_
+            << ", purpose=" << value.purpose_
             << ", version=" << value.snapshot_version_
             << ", resume_token=" << value.resume_token_ << ")";
 }

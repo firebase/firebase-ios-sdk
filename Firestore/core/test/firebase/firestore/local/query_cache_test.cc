@@ -70,7 +70,7 @@ QueryData QueryCacheTestBase::MakeQueryData(
     ListenSequenceNumber sequence_number,
     int64_t version) {
   ByteString resume_token = ResumeToken(version);
-  return QueryData(*query.ToTarget(), target_id, sequence_number,
+  return QueryData(query.ToTarget(), target_id, sequence_number,
                    QueryPurpose::Listen, Version(version), resume_token);
 }
 
@@ -105,7 +105,7 @@ TEST_P(QueryCacheTest, SetAndReadAQuery) {
 
     auto result = cache_->GetTarget(*query_rooms_.ToTarget());
     ASSERT_NE(result, absl::nullopt);
-    ASSERT_EQ(result->target(), query_data.target());
+    ASSERT_EQ(*result->target(), *query_data.target());
     ASSERT_EQ(result->target_id(), query_data.target_id());
     ASSERT_EQ(result->resume_token(), query_data.resume_token());
   });
@@ -243,10 +243,10 @@ TEST_P(QueryCacheTest, MatchingKeysForTargetID) {
 
 TEST_P(QueryCacheTest, HighestListenSequenceNumber) {
   persistence_->Run("test_highest_listen_sequence_number", [&]() {
-    QueryData query1(*testutil::Query("rooms").ToTarget(), 1, 10,
+    QueryData query1(testutil::Query("rooms").ToTarget(), 1, 10,
                      QueryPurpose::Listen);
     cache_->AddTarget(query1);
-    QueryData query2(*testutil::Query("halls").ToTarget(), 2, 20,
+    QueryData query2(testutil::Query("halls").ToTarget(), 2, 20,
                      QueryPurpose::Listen);
     cache_->AddTarget(query2);
     ASSERT_EQ(cache_->highest_listen_sequence_number(), 20);
@@ -255,7 +255,7 @@ TEST_P(QueryCacheTest, HighestListenSequenceNumber) {
     cache_->RemoveTarget(query2);
     ASSERT_EQ(cache_->highest_listen_sequence_number(), 20);
 
-    QueryData query3(*testutil::Query("garages").ToTarget(), 42, 100,
+    QueryData query3(testutil::Query("garages").ToTarget(), 42, 100,
                      QueryPurpose::Listen);
     cache_->AddTarget(query3);
     ASSERT_EQ(cache_->highest_listen_sequence_number(), 100);
@@ -272,7 +272,7 @@ TEST_P(QueryCacheTest, HighestTargetID) {
   persistence_->Run("test_highest_target_id", [&]() {
     ASSERT_EQ(cache_->highest_target_id(), 0);
 
-    QueryData query1(*testutil::Query("rooms").ToTarget(), 1, 10,
+    QueryData query1(testutil::Query("rooms").ToTarget(), 1, 10,
                      QueryPurpose::Listen);
     DocumentKey key1 = Key("rooms/bar");
     DocumentKey key2 = Key("rooms/foo");
@@ -280,7 +280,7 @@ TEST_P(QueryCacheTest, HighestTargetID) {
     AddMatchingKey(key1, 1);
     AddMatchingKey(key2, 1);
 
-    QueryData query2(*testutil::Query("halls").ToTarget(), 2, 20,
+    QueryData query2(testutil::Query("halls").ToTarget(), 2, 20,
                      QueryPurpose::Listen);
     DocumentKey key3 = Key("halls/foo");
     cache_->AddTarget(query2);
@@ -292,7 +292,7 @@ TEST_P(QueryCacheTest, HighestTargetID) {
     ASSERT_EQ(cache_->highest_target_id(), 2);
 
     // A query with an empty result set still counts.
-    QueryData query3(*testutil::Query("garages").ToTarget(), 42, 100,
+    QueryData query3(testutil::Query("garages").ToTarget(), 42, 100,
                      QueryPurpose::Listen);
     cache_->AddTarget(query3);
     ASSERT_EQ(cache_->highest_target_id(), 42);

@@ -492,7 +492,7 @@ void SyncEngine::TrackLimboChange(const LimboDocumentChange& limbo_change) {
 
     TargetId limbo_target_id = target_id_generator_.NextId();
     Query query(key.path());
-    QueryData query_data(*query.ToTarget(), limbo_target_id,
+    QueryData query_data(query.ToTarget(), limbo_target_id,
                          kIrrelevantSequenceNumber,
                          QueryPurpose::LimboResolution);
     limbo_resolutions_by_target_.emplace(limbo_target_id, LimboResolution{key});

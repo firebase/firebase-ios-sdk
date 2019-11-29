@@ -421,7 +421,8 @@ QueryData LocalStore::AllocateTarget(Target target) {
     absl::optional<QueryData> cached = query_cache_->GetTarget(target);
     // TODO(mcg): freshen last accessed date if cached exists?
     if (!cached) {
-      cached = QueryData(target, target_id_generator_.NextId(),
+      cached = QueryData(std::make_shared<Target>(std::move(target)),
+                         target_id_generator_.NextId(),
                          persistence_->current_sequence_number(),
                          QueryPurpose::Listen);
       query_cache_->AddTarget(*cached);

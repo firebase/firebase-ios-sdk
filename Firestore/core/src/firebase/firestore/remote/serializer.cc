@@ -860,7 +860,7 @@ FieldTransform Serializer::DecodeFieldTransform(
 google_firestore_v1_Target Serializer::EncodeTarget(
     const QueryData& query_data) const {
   google_firestore_v1_Target result{};
-  const Target& target = query_data.target();
+  const Target& target = *query_data.target();
 
   if (target.IsDocumentQuery()) {
     result.which_target_type = google_firestore_v1_Target_documents_tag;

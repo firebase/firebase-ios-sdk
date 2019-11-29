@@ -18,6 +18,7 @@
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_QUERY_DATA_H_
 
 #include <iosfwd>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -65,7 +66,7 @@ class QueryData {
    *     data that matches the query. The resume token essentially identifies a
    *     point in time from which the server should resume sending results.
    */
-  QueryData(core::Target target,
+  QueryData(std::shared_ptr<const core::Target> target,
             model::TargetId target_id,
             model::ListenSequenceNumber sequence_number,
             QueryPurpose purpose,
@@ -76,7 +77,7 @@ class QueryData {
    * Convenience constructor for use when creating a QueryData for the first
    * time.
    */
-  QueryData(core::Target target,
+  QueryData(std::shared_ptr<const core::Target> target,
             int target_id,
             model::ListenSequenceNumber sequence_number,
             QueryPurpose purpose);
@@ -93,7 +94,7 @@ class QueryData {
   static QueryData Invalid();
 
   /** The target being listened to. */
-  const core::Target& target() const {
+  const std::shared_ptr<const core::Target> target() const {
     return target_;
   }
 
@@ -149,7 +150,7 @@ class QueryData {
   friend std::ostream& operator<<(std::ostream& os, const QueryData& value);
 
  private:
-  core::Target target_;
+  std::shared_ptr<const core::Target> target_;
   model::TargetId target_id_;
   model::ListenSequenceNumber sequence_number_;
   QueryPurpose purpose_;

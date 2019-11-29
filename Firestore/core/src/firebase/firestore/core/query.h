@@ -217,7 +217,7 @@ class Query {
    * Returns a `Target` instance this query will be mapped to in backend
    * and local store.
    */
-  const std::shared_ptr<Target> ToTarget() const;
+  const std::shared_ptr<const Target> ToTarget() const;
 
   friend std::ostream& operator<<(std::ostream& os, const Query& query);
 
@@ -250,7 +250,7 @@ class Query {
   std::shared_ptr<Bound> end_at_;
 
   // The corresponding Target of this Query instance.
-  mutable std::shared_ptr<Target> memoized_target;
+  mutable std::shared_ptr<const Target> memoized_target;
 };
 
 bool operator==(const Query& lhs, const Query& rhs);

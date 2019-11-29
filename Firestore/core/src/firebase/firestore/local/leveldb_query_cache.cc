@@ -101,7 +101,7 @@ void LevelDbQueryCache::Start() {
 void LevelDbQueryCache::AddTarget(const QueryData& query_data) {
   Save(query_data);
 
-  const std::string& canonical_id = query_data.target().CanonicalId();
+  const std::string& canonical_id = query_data.target()->CanonicalId();
   std::string index_key =
       LevelDbQueryTargetKey::Key(canonical_id, query_data.target_id());
   std::string empty_buffer;
@@ -129,7 +129,7 @@ void LevelDbQueryCache::RemoveTarget(const QueryData& query_data) {
   db_->current_transaction()->Delete(key);
 
   std::string index_key =
-      LevelDbQueryTargetKey::Key(query_data.target().CanonicalId(), target_id);
+      LevelDbQueryTargetKey::Key(query_data.target()->CanonicalId(), target_id);
   db_->current_transaction()->Delete(index_key);
 
   metadata_->target_count--;
@@ -178,7 +178,7 @@ absl::optional<QueryData> LevelDbQueryCache::GetTarget(const Target& target) {
     // Finally after finding a potential match, check that the target is
     // actually equal to the requested target.
     QueryData target_data = DecodeTarget(target_iterator->value());
-    if (target_data.target() == target) {
+    if (*target_data.target() == target) {
       return target_data;
     }
   }

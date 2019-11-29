@@ -318,7 +318,7 @@ TEST_F(LocalSerializerTest, EncodesQueryData) {
   SnapshotVersion version = testutil::Version(1039);
   ByteString resume_token = testutil::ResumeToken(1039);
 
-  QueryData query_data(*query.ToTarget(), target_id, sequence_number,
+  QueryData query_data(query.ToTarget(), target_id, sequence_number,
                        QueryPurpose::Listen, SnapshotVersion(version),
                        ByteString(resume_token));
 
@@ -351,7 +351,7 @@ TEST_F(LocalSerializerTest, EncodesQueryDataWithDocumentQuery) {
   SnapshotVersion version = testutil::Version(1039);
   ByteString resume_token = testutil::ResumeToken(1039);
 
-  QueryData query_data(*query.ToTarget(), target_id, sequence_number,
+  QueryData query_data(query.ToTarget(), target_id, sequence_number,
                        QueryPurpose::Listen, SnapshotVersion(version),
                        ByteString(resume_token));
 

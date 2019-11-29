@@ -298,7 +298,7 @@ std::string Query::ToString() const {
   return absl::StrCat("Query(canonical_id=", CanonicalId(), ")");
 }
 
-const std::shared_ptr<Target> Query::ToTarget() const {
+const std::shared_ptr<const Target> Query::ToTarget() const {
   if (memoized_target == nullptr) {
     memoized_target =
         std::make_shared<Target>(path(), collection_group(), filters(),

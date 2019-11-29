@@ -651,7 +651,7 @@ ByteString MakeResumeToken(NSString *specString) {
             // the spec tests. For now, hard-code that it's a listen despite the fact that it's not
             // always the right value.
             expectedActiveTargets[targetID] =
-                QueryData(*query.ToTarget(), targetID, 0, QueryPurpose::Listen,
+                QueryData(query.ToTarget(), targetID, 0, QueryPurpose::Listen,
                           SnapshotVersion::None(), std::move(resumeToken));
           }];
       [self.driver setExpectedActiveTargets:expectedActiveTargets];

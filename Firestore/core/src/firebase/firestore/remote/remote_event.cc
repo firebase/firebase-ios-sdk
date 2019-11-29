@@ -216,7 +216,7 @@ void WatchChangeAggregator::HandleExistenceFilter(
 
   absl::optional<QueryData> query_data = QueryDataForActiveTarget(target_id);
   if (query_data) {
-    const Target& target = query_data->target();
+    const Target& target = *query_data->target();
     if (target.IsDocumentQuery()) {
       if (expected_count == 0) {
         // The existence filter told us the document does not exist. We deduce
@@ -257,12 +257,12 @@ RemoteEvent WatchChangeAggregator::CreateRemoteEvent(
 
     absl::optional<QueryData> query_data = QueryDataForActiveTarget(target_id);
     if (query_data) {
-      if (target_state.current() && query_data->target().IsDocumentQuery()) {
+      if (target_state.current() && query_data->target()->IsDocumentQuery()) {
         // Document queries for document that don't exist can produce an empty
         // result set. To update our local cache, we synthesize a document
         // delete if we have not previously received the document. This resolves
         // the limbo state of the document, removing it from limboDocumentRefs.
-        DocumentKey key{query_data->target().path()};
+        DocumentKey key{query_data->target()->path()};
         if (pending_document_updates_.find(key) ==
                 pending_document_updates_.end() &&
             !TargetContainsDocument(target_id, key)) {
