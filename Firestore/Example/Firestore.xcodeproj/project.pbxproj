@@ -196,6 +196,7 @@
 		2D3401180516B739494C7EFC /* field_value_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB356EF6200EA5EB0089B766 /* field_value_test.cc */; };
 		2D65D31D71A75B046C47B0EB /* view_testing.cc in Sources */ = {isa = PBXBuildFile; fileRef = A5466E7809AD2871FFDE6C76 /* view_testing.cc */; };
 		2DB56B6DED2C93014AE5C51A /* write_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 54DA12A51F315EE100DD57A1 /* write_spec_test.json */; };
+		2DD1991728F1701C630AE04D /* index_free_query_engine_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 299752013F200FE5BAB1555B /* index_free_query_engine_test.cc */; };
 		2E0BBA7E627EB240BA11B0D0 /* exponential_backoff_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6D1B68420E2AB1A00B35856 /* exponential_backoff_test.cc */; };
 		2E169CF1E9E499F054BB873A /* FSTEventAccumulator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E0392021401F00B64F25 /* FSTEventAccumulator.mm */; };
 		2E6E6164F44B9E3C6BB88313 /* xcgmock_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4425A513895DEC60325A139E /* xcgmock_test.mm */; };
@@ -216,6 +217,7 @@
 		32B0739404FA588608E1F41A /* CodableTimestampTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B65C996438B84DBC7616640 /* CodableTimestampTests.swift */; };
 		32F022CB75AEE48CDDAF2982 /* mutation_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = C8522DE226C467C54E6788D8 /* mutation_test.cc */; };
 		32F8B4652010E8224E353041 /* persistence_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 54DA12A31F315EE100DD57A1 /* persistence_spec_test.json */; };
+		3319A3AC3F11EFF6AE0FAF8F /* index_free_query_engine_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 299752013F200FE5BAB1555B /* index_free_query_engine_test.cc */; };
 		333FCB7BB0C9986B5DF28FC8 /* grpc_stream_tester.cc in Sources */ = {isa = PBXBuildFile; fileRef = B1A7E1959AF8141FA7E6B888 /* grpc_stream_tester.cc */; };
 		338DFD5BCD142DF6C82A0D56 /* cc_compilation_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1B342370EAE3AA02393E33EB /* cc_compilation_test.cc */; };
 		339CFFD1323BDCA61EAAFE31 /* query_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B9C261C26C5D311E1E3C0CB9 /* query_test.cc */; };
@@ -3780,7 +3782,7 @@
 				5CADE71A1CA6358E1599F0F9 /* hashing_test.cc in Sources */,
 				3B256CCF6AEEE12E22F16BB8 /* hashing_test_apple.mm in Sources */,
 				AB8209455BAA17850D5E196D /* http.pb.cc in Sources */,
-				BE1914FC4E3DD86BA276052F /* index_free_query_engine_test.cc in Sources */,
+				2DD1991728F1701C630AE04D /* index_free_query_engine_test.cc in Sources */,
 				4BFEEB7FDD7CD5A693B5B5C1 /* index_manager_test.cc in Sources */,
 				FA334ADC73CFDB703A7C17CD /* iterator_adaptors_test.cc in Sources */,
 				CBC891BEEC525F4D8F40A319 /* latlng.pb.cc in Sources */,
@@ -4159,7 +4161,7 @@
 				54511E8E209805F8005BD28F /* hashing_test.cc in Sources */,
 				B69CF3F12227386500B281C8 /* hashing_test_apple.mm in Sources */,
 				618BBEB020B89AAC00B5BCE7 /* http.pb.cc in Sources */,
-				BBC5C230747C5986EF641568 /* index_free_query_engine_test.cc in Sources */,
+				3319A3AC3F11EFF6AE0FAF8F /* index_free_query_engine_test.cc in Sources */,
 				E6357221227031DD77EE5265 /* index_manager_test.cc in Sources */,
 				54A0353520A3D8CB003E0143 /* iterator_adaptors_test.cc in Sources */,
 				618BBEAE20B89AAC00B5BCE7 /* latlng.pb.cc in Sources */,
