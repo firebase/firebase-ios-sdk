@@ -139,7 +139,8 @@ DocumentMap LevelDbRemoteDocumentCache::GetMatching(
   if (since_read_time != SnapshotVersion::None()) {
     // Execute an index-free query and filter by read time. This is safe since
     // all document changes to queries that have a
-    // last_limbo_free_snapshot_version (`since_read_time`) have a read time set.
+    // last_limbo_free_snapshot_version (`since_read_time`) have a read time
+    // set.
     std::string start_key = LevelDbRemoteDocumentReadTimeKey::KeyPrefix(
         query_path, since_read_time);
     auto it = db_->current_transaction()->NewIterator();

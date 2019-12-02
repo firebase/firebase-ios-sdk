@@ -33,8 +33,8 @@ using model::DocumentMap;
 using model::ListenSequenceNumber;
 using model::MaybeDocument;
 using model::MaybeDocumentMap;
-using model::SnapshotVersion;
 using model::OptionalMaybeDocumentMap;
+using model::SnapshotVersion;
 
 MemoryRemoteDocumentCache::MemoryRemoteDocumentCache(
     MemoryPersistence* persistence) {
