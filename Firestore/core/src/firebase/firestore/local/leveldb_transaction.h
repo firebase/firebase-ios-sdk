@@ -30,10 +30,6 @@
 #include "absl/strings/string_view.h"
 #include "leveldb/db.h"
 
-#if __OBJC__
-#import <Protobuf/GPBProtocolBuffers.h>
-#endif
-
 namespace firebase {
 namespace firestore {
 namespace local {
@@ -158,19 +154,6 @@ class LevelDbTransaction {
    * did not exist in the database.
    */
   void Delete(absl::string_view key);
-
-#if __OBJC__
-  /**
-   * Schedules the row identified by `key` to be set to the given protocol
-   * buffer message when this transaction commits.
-   */
-  void Put(absl::string_view key, GPBMessage* message) {
-    NSData* data = [message data];
-    std::string key_string(key);
-    mutations_[key_string] = std::string((const char*)data.bytes, data.length);
-    version_++;
-  }
-#endif
 
   /**
    * Schedules the row identified by `key` to be set to `value` when this

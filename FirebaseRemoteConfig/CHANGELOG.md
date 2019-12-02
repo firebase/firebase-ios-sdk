@@ -1,3 +1,9 @@
+# v4.4.5
+- [changed] Remote Config no longer re-activates the current config on fetch if it receives no changes from the backend. (#4260)
+
+# v4.4.4
+- Minor internal project structure changes.
+
 # v4.4.3
 - Removed existing usage of an internal deprecated API. (#3993)
 

@@ -113,10 +113,11 @@ NSString *GINFingerprintJSMethodString() {
                 [webView
                     evaluateJavaScript:GINFingerprintJSMethodString()
                      completionHandler:^(id _Nullable result, NSError *_Nullable functionError) {
+                       __typeof__(self) strongSelf = weakSelf;
                        if ([result isKindOfClass:[NSString class]]) {
-                         [weakSelf handleExecutionResult:result];
+                         [strongSelf handleExecutionResult:result];
                        } else {
-                         [weakSelf handleExecutionError:nil];
+                         [strongSelf handleExecutionError:nil];
                        }
                      }];
               } else {

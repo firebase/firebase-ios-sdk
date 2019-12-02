@@ -29,6 +29,14 @@
 
 #import "GDTCCTLibrary/Protogen/nanopb/cct.nanopb.h"
 
+#ifdef GDTCCTSUPPORT_VERSION
+#define STR(x) STR_EXPAND(x)
+#define STR_EXPAND(x) #x
+static NSString *const kGDTCCTSupportSDKVersion = @STR(GDTCCTSUPPORT_VERSION);
+#else
+static NSString *const kGDTCCTSupportSDKVersion = @"UNKNOWN";
+#endif  // GDTCCTSUPPORT_VERSION
+
 #if !NDEBUG
 NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader.UploadComplete";
 #endif  // #if !NDEBUG
@@ -108,6 +116,9 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
     }
     NSURL *serverURL = self.serverURL ? self.serverURL : [self defaultServerURL];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:serverURL];
+    NSString *userAgent = [NSString stringWithFormat:@"datatransport/%@ fllsupport/%@ apple/",
+                                                     kGDTCORVersion, kGDTCCTSupportSDKVersion];
+    [request setValue:userAgent forHTTPHeaderField:@"User-Agent"];
     request.HTTPMethod = @"POST";
 
     id completionHandler = ^(NSData *_Nullable data, NSURLResponse *_Nullable response,

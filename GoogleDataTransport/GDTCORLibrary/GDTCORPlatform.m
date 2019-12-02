@@ -18,6 +18,16 @@
 
 #import <GoogleDataTransport/GDTCORAssert.h>
 
+#import "GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
+
+#ifdef GDTCOR_VERSION
+#define STR(x) STR_EXPAND(x)
+#define STR_EXPAND(x) #x
+NSString *const kGDTCORVersion = @STR(GDTCOR_VERSION);
+#else
+NSString *const kGDTCORVersion = @"Unknown";
+#endif  // GDTCOR_VERSION
+
 const GDTCORBackgroundIdentifier GDTCORBackgroundIdentifierInvalid = 0;
 
 NSString *const kGDTCORApplicationDidEnterBackgroundNotification =

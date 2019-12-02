@@ -110,6 +110,12 @@ gdt_cct_LogRequest GDTCCTConstructLogRequest(int32_t logSource,
   }
   logRequest.log_event_count = (pb_size_t)logSet.count;
 
+  GDTCORClock *currentTime = [GDTCORClock snapshot];
+  logRequest.request_time_ms = currentTime.timeMillis;
+  logRequest.has_request_time_ms = 1;
+  logRequest.request_uptime_ms = currentTime.uptime;
+  logRequest.has_request_uptime_ms = 1;
+
   return logRequest;
 }
 

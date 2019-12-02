@@ -153,7 +153,9 @@ NSError *FUNInvalidNumberError(id value, id wrapped) {
     NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
     NSNumber *n = [formatter numberFromString:value];
     if (n == nil) {
-      *error = FUNInvalidNumberError(value, wrapped);
+      if (error != NULL) {
+        *error = FUNInvalidNumberError(value, wrapped);
+      }
       return nil;
     }
     return n;
@@ -164,12 +166,16 @@ NSError *FUNInvalidNumberError(id value, id wrapped) {
     unsigned long long n = strtoull(str, &end, 10);
     if (errno == ERANGE) {
       // This number was actually too big for an unsigned long long.
-      *error = FUNInvalidNumberError(value, wrapped);
+      if (error != NULL) {
+        *error = FUNInvalidNumberError(value, wrapped);
+      }
       return nil;
     }
     if (*end) {
       // The whole string wasn't parsed.
-      *error = FUNInvalidNumberError(value, wrapped);
+      if (error != NULL) {
+        *error = FUNInvalidNumberError(value, wrapped);
+      }
       return nil;
     }
     return @(n);
@@ -202,7 +208,9 @@ NSError *FUNInvalidNumberError(id value, id wrapped) {
           decoded[key] = decodedItem;
         }];
     if (decodeError) {
-      *error = decodeError;
+      if (error != NULL) {
+        *error = decodeError;
+      }
       return nil;
     }
     return decoded;

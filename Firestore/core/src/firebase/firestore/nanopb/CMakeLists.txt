@@ -13,26 +13,37 @@
 # limitations under the License.
 
 cc_library(
-  firebase_firestore_nanopb
+  firebase_firestore_nanopb_runtime
   SOURCES
     byte_string.cc
     byte_string.h
-    message.cc
-    message.h
     nanopb_util.cc
     nanopb_util.h
+    pretty_printing.cc
+    pretty_printing.h
+
+  DEPENDS
+    absl_strings
+    firebase_firestore_util
+    protobuf-nanopb-static
+)
+
+cc_library(
+  firebase_firestore_nanopb
+  SOURCES
+    fields_array.h
+    message.cc
+    message.h
     reader.cc
     reader.h
     writer.cc
     writer.h
   DEPENDS
-    # TODO(b/111328563) Force nanopb first to work around ODR violations
-    protobuf-nanopb-static
-
-    firebase_firestore_model
-    firebase_firestore_util
+    firebase_firestore_nanopb_runtime
     firebase_firestore_protos_nanopb
+    firebase_firestore_util
     grpc++
+    protobuf-nanopb-static
 )
 
 target_compile_definitions(

@@ -31,11 +31,19 @@
 
 #import "GDTCCTLibrary/Protogen/nanopb/cct.nanopb.h"
 
+#ifdef GDTCCTSUPPORT_VERSION
+#define STR(x) STR_EXPAND(x)
+#define STR_EXPAND(x) #x
+static NSString *const kGDTCCTSupportSDKVersion = @STR(GDTCCTSUPPORT_VERSION);
+#else
+static NSString *const kGDTCCTSupportSDKVersion = @"UNKNOWN";
+#endif  // GDTCCTSUPPORT_VERSION
+
 #if !NDEBUG
 NSNotificationName const GDTFLLUploadCompleteNotification = @"com.GDTFLLUploader.UploadComplete";
 #endif  // #if !NDEBUG
 
-@interface GDTFLLUploader ()
+@interface GDTFLLUploader () <NSURLSessionDelegate>
 
 // Redeclared as readwrite.
 @property(nullable, nonatomic, readwrite) NSURLSessionUploadTask *currentTask;
@@ -63,7 +71,9 @@ NSNotificationName const GDTFLLUploadCompleteNotification = @"com.GDTFLLUploader
   if (self) {
     _uploaderQueue = dispatch_queue_create("com.google.GDTFLLUploader", DISPATCH_QUEUE_SERIAL);
     NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
-    _uploaderSession = [NSURLSession sessionWithConfiguration:config];
+    _uploaderSession = [NSURLSession sessionWithConfiguration:config
+                                                     delegate:self
+                                                delegateQueue:nil];
   }
   return self;
 }
@@ -128,12 +138,6 @@ NSNotificationName const GDTFLLUploadCompleteNotification = @"com.GDTFLLUploader
       return;
     }
     NSURL *serverURL = self.serverURL ? self.serverURL : [self defaultServerURL];
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:serverURL];
-    [request setValue:[self defaultAPIKey] forHTTPHeaderField:@"X-Goog-Api-Key"];
-    [request setValue:@"application/x-protobuf" forHTTPHeaderField:@"Content-Type"];
-    [request setValue:@"gzip" forHTTPHeaderField:@"Content-Encoding"];
-    [request setValue:@"gzip" forHTTPHeaderField:@"Accept-Encoding"];
-    request.HTTPMethod = @"POST";
 
     id completionHandler = ^(NSData *_Nullable data, NSURLResponse *_Nullable response,
                              NSError *_Nullable error) {
@@ -179,6 +183,9 @@ NSNotificationName const GDTFLLUploadCompleteNotification = @"com.GDTFLLUploader
     NSData *requestProtoData =
         [self constructRequestProtoFromPackage:(GDTCORUploadPackage *)package];
     NSData *gzippedData = [GDTFLLUploader gzippedData:requestProtoData];
+    BOOL usingGzipData = gzippedData != nil && gzippedData.length < requestProtoData.length;
+    NSData *dataToSend = usingGzipData ? gzippedData : requestProtoData;
+    NSURLRequest *request = [self constructRequestWithURL:serverURL data:dataToSend];
     self.currentTask = [self.uploaderSession uploadTaskWithRequest:request
                                                           fromData:gzippedData
                                                  completionHandler:completionHandler];
@@ -309,6 +316,31 @@ NSNotificationName const GDTFLLUploadCompleteNotification = @"com.GDTFLLUploader
   return data ? data : [[NSData alloc] init];
 }
 
+/** Constructs a request to FLL given a URL and request body data.
+ *
+ * @param URL The URL to send the request to.
+ * @param data The request body data.
+ * @return A new NSURLRequest ready to be sent to FLL.
+ */
+- (NSURLRequest *)constructRequestWithURL:(NSURL *)URL data:(NSData *)data {
+  const UInt8 *bytes = (const UInt8 *)data.bytes;
+  // From https://en.wikipedia.org/wiki/Gzip, gzip's magic number is 1f 8b.
+  BOOL isGzipped = (data.length >= 2 && bytes[0] == 0x1f && bytes[1] == 0x8b);
+  NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
+  [request setValue:[self defaultAPIKey] forHTTPHeaderField:@"X-Goog-Api-Key"];
+  [request setValue:@"application/x-protobuf" forHTTPHeaderField:@"Content-Type"];
+  if (isGzipped) {
+    [request setValue:@"gzip" forHTTPHeaderField:@"Content-Encoding"];
+  }
+  [request setValue:@"gzip" forHTTPHeaderField:@"Accept-Encoding"];
+  NSString *userAgent = [NSString stringWithFormat:@"datatransport/%@ fllsupport/%@ apple/",
+                                                   kGDTCORVersion, kGDTCCTSupportSDKVersion];
+  [request setValue:userAgent forHTTPHeaderField:@"User-Agent"];
+  request.HTTPMethod = @"POST";
+  [request setHTTPBody:data];
+  return request;
+}
+
 #pragma mark - GDTCORUploadPackageProtocol
 
 - (void)packageExpired:(GDTCORUploadPackage *)package {
@@ -326,6 +358,25 @@ NSNotificationName const GDTFLLUploadCompleteNotification = @"com.GDTFLLUploader
     [self.currentTask cancel];
     [self.currentUploadPackage completeDelivery];
   });
+}
+
+#pragma mark - NSURLSessionDelegate
+
+- (void)URLSession:(NSURLSession *)session
+                          task:(NSURLSessionTask *)task
+    willPerformHTTPRedirection:(NSHTTPURLResponse *)response
+                    newRequest:(NSURLRequest *)request
+             completionHandler:(void (^)(NSURLRequest *_Nullable))completionHandler {
+  if (!completionHandler) {
+    return;
+  }
+  if (response.statusCode == 302 || response.statusCode == 301) {
+    NSURLRequest *newRequest = [self constructRequestWithURL:request.URL
+                                                        data:task.originalRequest.HTTPBody];
+    completionHandler(newRequest);
+  } else {
+    completionHandler(request);
+  }
 }
 
 @end

@@ -1,3 +1,18 @@
+# Unreleased
+- [added] Updated the binary distributions to include arm64e slices. See
+  https://developer.apple.com/documentation/security/preparing_your_app_to_work_with_pointer_authentication.
+  Support for the open source libraries is now included in the zip and Carthage
+  distributions. Support for the closed source libraries (Analytics, Performance,
+  and MLKit will be included the next time they release. (#4110)
+
+# v6.4.0 -- M60
+- [changed] Administrative minor version update to prepare for an upcoming Firebase pod
+  open source.
+
+# v6.3.3 -- M59
+- [changed] Carthage and zip file distributions are now built with Xcode 11.0.
+  The Carthage and zip file distributions no longer support Xcode 10.3 and below.
+
 # v6.3.2 -- M58
 - [fixed] Fix container instantiation timing, IID startup. (#4030)
 - [changed] Open-sourced Firebase pod. This enables `import Firebase` module

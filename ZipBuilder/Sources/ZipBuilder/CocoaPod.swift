@@ -20,12 +20,13 @@ import Foundation
 /// All the CocoaPods related to packaging and distributing Firebase.
 public enum CocoaPod: String, CaseIterable {
   case abTesting = "ABTesting"
-  case adMob = "AdMob"
+  case adMob = "Google-Mobile-Ads-SDK"
   case analytics = "Analytics"
   case auth = "Auth"
   case core = "Core"
   case database = "Database"
   case dynamicLinks = "DynamicLinks"
+  case firebase = "" // The Firebase pod
   case firestore = "Firestore"
   case functions = "Functions"
   case googleSignIn = "GoogleSignIn"
@@ -59,27 +60,17 @@ public enum CocoaPod: String, CaseIterable {
   }
 
   /// The name of the pod in the CocoaPods repo.
-  public var podName: String {
-    switch self {
-    case .googleSignIn: return rawValue
-    default: return "Firebase/\(rawValue)"
+  public static func podName(pod: String) -> String {
+    if (!pod.starts(with: "Google") && CocoaPod.allCases.map { $0.rawValue }.contains(pod)) {
+      return "Firebase\(pod)"
     }
-  }
-
-  /// The minimum supported iOS version.
-  public func minSupportedIOSVersion() -> OperatingSystemVersion {
-    // All ML pods have a minimum iOS version of 9.0.
-    if rawValue.hasPrefix("ML") {
-      return OperatingSystemVersion(majorVersion: 9, minorVersion: 0, patchVersion: 0)
-    } else {
-      return OperatingSystemVersion(majorVersion: 8, minorVersion: 0, patchVersion: 0)
-    }
+    return pod
   }
 
   /// Describes the dependency on other frameworks for the README file.
-  public func readmeHeader() -> String {
-    var header = "## \(rawValue)"
-    if !(self == .analytics || self == .googleSignIn) {
+  public static func readmeHeader(podName: String) -> String {
+    var header = "## \(podName)"
+    if !(podName == "Analytics" || podName == "GoogleSignIn") {
       header += " (~> Analytics)"
     }
     header += "\n"
@@ -91,82 +82,12 @@ public enum CocoaPod: String, CaseIterable {
   /// Returns folders to remove from the Zip file from a specific pod for de-duplication. This
   /// is necessary for the MLKit frameworks because of their unique structure, an unnecessary amount
   /// of frameworks get pulled in.
-  public func duplicateFrameworksToRemove() -> [String] {
-    switch self {
-    case .mlVisionBarcodeModel, .mlVisionFaceModel, .mlVisionLabelModel, .mlVisionTextModel:
+  public static func duplicateFrameworksToRemove(pod: String) -> [String] {
+    switch pod {
+    case "MLVisionBarcodeModel", "MLVisionFaceModel", "MLVisionLabelModel", "MLVisionTextModel":
       return ["GTMSessionFetcher.framework", "Protobuf.framework"]
-    case .abTesting,
-         .adMob,
-         .analytics,
-         .auth,
-         .core,
-         .database,
-         .dynamicLinks,
-         .firestore,
-         .functions,
-         .googleSignIn,
-         .inAppMessaging,
-         .inAppMessagingDisplay,
-         .messaging,
-         .mlModelInterpreter,
-         .mlNaturalLanguage,
-         .mlNLLanguageID,
-         .mlNLSmartReply,
-         .mlNLTranslate,
-         .mlVision,
-         .mlVisionAutoML,
-         .mlVisionObjectDetection,
-         .performance,
-         .remoteConfig,
-         .storage:
-      // By default, no folders need to be removed. Explicitly declare each case so we make an
-      // intentional decision to not exclude frameworks.
+    default:
       return []
     }
-  }
-}
-
-/// Add comparitor for OperatingSystemVersion. We only need the `>` since we don't care about equals
-/// or anything else, we just need to find the largest value between two structs.
-extension OperatingSystemVersion: Comparable, Equatable {
-  public static func < (lhs: OperatingSystemVersion, rhs: OperatingSystemVersion) -> Bool {
-    // The priority is major.minor.patch, only keep searching to lower importance if the higher
-    // levels are equal.
-    if lhs.majorVersion < rhs.majorVersion { return true }
-    if lhs.majorVersion > rhs.majorVersion { return false }
-
-    // Major version must be equal, continue to minor.
-    if lhs.minorVersion < rhs.minorVersion { return true }
-    if lhs.minorVersion > rhs.minorVersion { return false }
-
-    // Down to patch, just return the comparison since there are no more levels.
-    return lhs.minorVersion < rhs.minorVersion
-  }
-
-  public static func > (lhs: OperatingSystemVersion, rhs: OperatingSystemVersion) -> Bool {
-    // The priority is major.minor.patch, only keep searching to lower importance if the higher
-    // levels are equal.
-    if lhs.majorVersion > rhs.majorVersion { return true }
-    if lhs.majorVersion < rhs.majorVersion { return false }
-
-    // Major version must be equal, continue to minor.
-    if lhs.minorVersion > rhs.minorVersion { return true }
-    if lhs.minorVersion < rhs.minorVersion { return false }
-
-    // Down to patch, just return the comparison since there are no more levels.
-    return lhs.minorVersion > rhs.minorVersion
-  }
-
-  public static func == (lhs: OperatingSystemVersion, rhs: OperatingSystemVersion) -> Bool {
-    return lhs.majorVersion == rhs.majorVersion &&
-      lhs.minorVersion == rhs.minorVersion &&
-      lhs.patchVersion == rhs.patchVersion
-  }
-}
-
-extension OperatingSystemVersion {
-  /// The string to define this operating system in a Podfile. In the form "MAJOR.MINOR"
-  public func podVersion() -> String {
-    return "\(majorVersion).\(minorVersion)"
   }
 }

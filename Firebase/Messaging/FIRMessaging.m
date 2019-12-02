@@ -225,6 +225,13 @@ const BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
       [FIRDependency dependencyWithProtocol:@protocol(FIRAnalyticsInterop) isRequired:NO];
   FIRComponentCreationBlock creationBlock =
       ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
+    if (!container.app.isDefaultApp) {
+      // Only start for the default FIRApp.
+      FIRMessagingLoggerDebug(kFIRMessagingMessageCodeFIRApp001,
+                              @"Firebase Messaging only works with the default app.");
+      return nil;
+    }
+
     // Ensure it's cached so it returns the same instance every time messaging is called.
     *isCacheable = YES;
     id<FIRAnalyticsInterop> analytics = FIR_COMPONENT(FIRAnalyticsInterop, container);
@@ -233,28 +240,19 @@ const BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
                                  withInstanceID:[FIRInstanceID instanceID]
                                withUserDefaults:[GULUserDefaults standardUserDefaults]];
     [messaging start];
+    [messaging configureNotificationSwizzlingIfEnabled];
     return messaging;
   };
   FIRComponent *messagingProvider =
       [FIRComponent componentWithProtocol:@protocol(FIRMessagingInstanceProvider)
-                      instantiationTiming:FIRInstantiationTimingLazy
+                      instantiationTiming:FIRInstantiationTimingEagerInDefaultApp
                              dependencies:@[ analyticsDep ]
                            creationBlock:creationBlock];
 
   return @[ messagingProvider ];
 }
 
-+ (void)configureWithApp:(FIRApp *)app {
-  if (!app.isDefaultApp) {
-    // Only configure for the default FIRApp.
-    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeFIRApp001,
-                            @"Firebase Messaging only works with the default app.");
-    return;
-  }
-  [[FIRMessaging messaging] configureMessaging:app];
-}
-
-- (void)configureMessaging:(FIRApp *)app {
+- (void)configureNotificationSwizzlingIfEnabled {
   // Swizzle remote-notification-related methods (app delegate and UNUserNotificationCenter)
   if ([FIRMessagingRemoteNotificationsProxy canSwizzleMethods]) {
     NSString *docsURLString = @"https://firebase.google.com/docs/cloud-messaging/ios/client"
@@ -365,15 +363,7 @@ const BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
 - (void)setupSyncMessageManager {
   self.syncMessageManager =
       [[FIRMessagingSyncMessageManager alloc] initWithRmqManager:self.rmq2Manager];
-
-  // Delete the expired messages with a delay. We don't want to block startup with a somewhat
-  // expensive db call.
-  FIRMessaging_WEAKIFY(self);
-  dispatch_time_t time = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5.0 * NSEC_PER_SEC));
-  dispatch_after(time, dispatch_get_main_queue(), ^{
-    FIRMessaging_STRONGIFY(self);
-    [self.syncMessageManager removeExpiredSyncMessages];
-  });
+  [self.syncMessageManager removeExpiredSyncMessages];
 }
 
 - (void)teardown {

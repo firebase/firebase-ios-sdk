@@ -34,9 +34,9 @@ std::unique_ptr<Persistence> PersistenceFactory() {
 
 }  // namespace
 
-INSTANTIATE_TEST_CASE_P(LevelDbIndexManagerTest,
-                        IndexManagerTest,
-                        ::testing::Values(PersistenceFactory));
+INSTANTIATE_TEST_SUITE_P(LevelDbIndexManagerTest,
+                         IndexManagerTest,
+                         ::testing::Values(PersistenceFactory));
 
 }  // namespace local
 }  // namespace firestore

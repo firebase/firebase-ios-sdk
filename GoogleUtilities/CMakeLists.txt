@@ -18,12 +18,14 @@ if(APPLE)
     GLOB sources
     Environment/third_party/*.m
     Logger/*.m
+    SecureCoding/*.m
   )
   file(
     GLOB headers
     Environment/third_party/*.h
     Logger/Private/*.h
     Logger/Public/*.h
+    SecureCoding/Public/*.h
   )
 
   podspec_version(version ${PROJECT_SOURCE_DIR}/GoogleUtilities.podspec)
@@ -39,5 +41,11 @@ if(APPLE)
     DEPENDS
       "-framework Foundation"
     EXCLUDE_FROM_ALL
+  )
+
+  target_compile_options(
+    GoogleUtilities
+    PRIVATE
+      -Wno-deprecated-declarations
   )
 endif()

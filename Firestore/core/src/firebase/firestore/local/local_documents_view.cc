@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Firestore/core/src/firebase/firestore/local/local_documents_view.h"
+#include "Firestore/core/src/firebase/firestore/local/local_documents_view.h"
 
 #include <string>
 #include <utility>
@@ -46,7 +46,6 @@ using model::NoDocument;
 using model::OptionalMaybeDocumentMap;
 using model::ResourcePath;
 using model::SnapshotVersion;
-using util::MakeString;
 
 absl::optional<MaybeDocument> LocalDocumentsView::GetDocument(
     const DocumentKey& key) {

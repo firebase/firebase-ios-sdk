@@ -1,3 +1,6 @@
+# 3.4.2
+- [fixed] Internal changes to addres -Wunused-property-ivar violation (#4281).
+
 # 3.4.1
 - [fixed] Fix crash in FIRStorageUploadTask (#3750).
 

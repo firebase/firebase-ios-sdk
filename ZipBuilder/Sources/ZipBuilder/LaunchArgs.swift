@@ -39,10 +39,13 @@ extension FileManager: FileChecker {}
 struct LaunchArgs {
   /// Keys associated with the launch args. See `Usage` for descriptions of each flag.
   private enum Key: String, CaseIterable {
+    case archs
     case buildRoot
     case carthageDir
     case customSpecRepos
     case existingVersions
+    case keepBuildArtifacts
+    case minimumIOSVersion
     case outputDir
     case releasingSDKs
     case rc
@@ -52,6 +55,9 @@ struct LaunchArgs {
     /// Usage description for the key.
     var usage: String {
       switch self {
+      case .archs:
+        return "The list of architectures to build for. The default list is " +
+          "\(Architecture.allCases.map { $0.rawValue })."
       case .buildRoot:
         return "The root directory for build artifacts. If `nil`, a temporary directory will be " +
           "used."
@@ -63,6 +69,10 @@ struct LaunchArgs {
       case .existingVersions:
         return "The file path to a textproto file containing the existing released SDK versions, " +
           "of type `ZipBuilder_FirebaseSDKs`."
+      case .keepBuildArtifacts:
+        return "A flag to indicate keeping (not deleting) the build artifacts."
+      case .minimumIOSVersion:
+        return "The minimum supported iOS version. The default is 9.0."
       case .outputDir:
         return "The directory to copy the built Zip file to."
       case .rc:
@@ -78,6 +88,9 @@ struct LaunchArgs {
       }
     }
   }
+
+  /// The list of architectures to build for.
+  let archs: [Architecture]
 
   /// A file URL to a textproto with the contents of a `ZipBuilder_FirebaseSDKs` object. Used to
   /// verify expected version numbers.
@@ -97,6 +110,12 @@ struct LaunchArgs {
   /// Custom CocoaPods spec repos to be used. If not provided, the tool will only use the CocoaPods
   /// master repo.
   let customSpecRepos: [URL]?
+
+  /// A flag to keep the build artifacts after this script completes.
+  let keepBuildArtifacts: Bool
+
+  /// The minimum iOS Version to build for.
+  let minimumIOSVersion: String
 
   /// The directory to copy the built Zip file to. If this is not set, the path to the Zip file will
   /// just be logged to the console.
@@ -134,6 +153,23 @@ struct LaunchArgs {
     }
 
     templateDir = URL(fileURLWithPath: templatePath)
+
+    // Parse the archs list.
+    if let archs = defaults.string(forKey: Key.archs.rawValue) {
+      let archs = archs.components(separatedBy: ",")
+      var archList: [Architecture] = []
+      for arch in archs {
+        guard let addArch = Architecture(rawValue: arch) else {
+          LaunchArgs.exitWithUsageAndLog("Specified arch option \(arch) " +
+            "must be one of \(Architecture.allCases.map { $0.rawValue })")
+        }
+        archList.append(addArch)
+      }
+      self.archs = archList
+    } else {
+      // No argument was passed in.
+      archs = Architecture.allCases
+    }
 
     // Parse the existing versions key.
     if let existingVersions = defaults.string(forKey: Key.existingVersions.rawValue) {
@@ -235,7 +271,25 @@ struct LaunchArgs {
       buildRoot = nil
     }
 
+    // Parse the minimum iOS version key.
+    if let minVersion = defaults.string(forKey: Key.minimumIOSVersion.rawValue) {
+      minimumIOSVersion = minVersion
+    } else {
+      // No argument was passed in.
+      minimumIOSVersion = "9.0"
+    }
+
     updatePodRepo = defaults.bool(forKey: Key.updatePodRepo.rawValue)
+    keepBuildArtifacts = defaults.bool(forKey: Key.keepBuildArtifacts.rawValue)
+
+    // Check for extra invalid options.
+    let validArgs = Key.allCases.map { $0.rawValue }
+    for arg in ProcessInfo.processInfo.arguments {
+      let dashDroppedArg = String(arg.dropFirst())
+      if arg.starts(with: "-"), !validArgs.contains(dashDroppedArg) {
+        LaunchArgs.exitWithUsageAndLog("\(arg) is not a valid option.")
+      }
+    }
   }
 
   /// Prints an error that occurred, the proper usage String, and quits the application.

@@ -162,6 +162,11 @@ class Message {
     return FieldsArray<T>();
   }
 
+  /** Creates a pretty-printed description of the proto for debugging. */
+  std::string ToString() const {
+    return proto_.ToString();
+  }
+
  private:
   // Important: this function does *not* modify `owns_proto_`.
   void Free() {

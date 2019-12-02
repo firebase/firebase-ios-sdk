@@ -48,10 +48,12 @@ import argparse
 import logging
 import os
 
+from lib import git
+
 arg_parser = argparse.ArgumentParser()
 
 arg_parser.add_argument("input",
-                        help="Input file containing binary data to embed")
+                        help="Input file containing binary data to embed.")
 arg_parser.add_argument("--output_source",
                         help="Output source file, defining the array data.")
 arg_parser.add_argument("--output_header",
@@ -88,7 +90,7 @@ def header(header_guard, namespaces, array_name, array_size_name, fileid):
 
   data = []
   data.extend([
-      "// Copyright 2018 Google Inc. All Rights Reserved.",
+      "// Copyright 2019 Google Inc. All Rights Reserved.",
       "",
       "#ifndef %s" % header_guard,
       "#define %s" % header_guard,
@@ -135,7 +137,7 @@ def header(header_guard, namespaces, array_name, array_size_name, fileid):
 
 
 def source(namespaces, array_name, array_size_name, fileid, filename,
-           input_bytes):
+           input_bytes, include_name):
   """Return a C/C++ source file for the given array.
 
   Args:
@@ -145,15 +147,23 @@ def source(namespaces, array_name, array_size_name, fileid, filename,
     fileid: Name of the identifier containing the filename.
     filename: The original data filename itself.
     input_bytes: Binary data to put into the array.
+    include_name: Name of the corresponding header file to include.
 
   Returns:
     A string containing the C/C++ source file.
   """
+
+  if os.name == 'nt':
+    # Force forward slashes on Windows
+    include_name = include_name.replace('\\', '/')
+
   data = []
   data.extend([
-      "// Copyright 2016 Google Inc. All Rights Reserved.",
+      "// Copyright 2019 Google Inc. All Rights Reserved.",
       "",
-      "#include <stdlib.h>",
+      "#include <cstdlib>",
+      "",
+      "#include \"%s\"" % include_name,
       ""
   ])
   if namespaces:
@@ -177,7 +187,7 @@ def source(namespaces, array_name, array_size_name, fileid, filename,
   line = ""
   for idx in range(0, length):
     if idx % WIDTH == 0:
-      line += "  "
+      line += "    "
     else:
       line += " "
     line += "0x%02x," % input_bytes[idx]
@@ -185,16 +195,15 @@ def source(namespaces, array_name, array_size_name, fileid, filename,
       data.append(line)
       line = ""
   data.append(line)
-  data.append("  0x00  // Extra \\0 to make it a C string")
+  data.append("    0x00  // Extra \\0 to make it a C string")
 
   data.extend([
       "};",
       "",
       "const size_t %s =" % array_size_name,
-      "  sizeof(%s) - 1;" % array_name,
+      "    sizeof(%s) - 1;" % array_name,
       "",
-      "const char %s[] =" % fileid,
-      "  \"%s\";" % filename,
+      "const char %s[] = \"%s\";" % (fileid, filename),
       "",
   ])
 
@@ -212,6 +221,29 @@ def source(namespaces, array_name, array_size_name, fileid, filename,
       ""
   ])
   return data
+
+
+def _get_repo_root(filename):
+  """Returns the root of the repository containing the given file.
+
+  Args:
+    filename: A source file or directory in the repository.
+  """
+
+  # CMake builds can be run out of source tree, so use the directory containing
+  # a source file as the starting point for the calculation.
+  if os.path.isdir(filename):
+    dir_in_repo = filename
+  else:
+    dir_in_repo = os.path.dirname(filename)
+
+  starting_dir = os.getcwd()
+
+  os.chdir(dir_in_repo)
+  root_dir = git.get_repo_root()
+
+  os.chdir(starting_dir)
+  return root_dir
 
 
 def main():
@@ -232,6 +264,12 @@ def main():
   if not output_header:
     output_header = input_file_base + ".h"
     logging.debug("Using default --output_header='%s'", output_header)
+
+  absolute_dir = path.dirname(output_header)
+  root_dir = _get_repo_root(absolute_dir)
+
+  relative_dir = path.relpath(absolute_dir, root_dir)
+  relative_header_path = path.join(relative_dir, path.basename(output_header))
 
   identifier_base = sub("[^0-9a-zA-Z]+", "_", path.basename(input_file_base))
   array_name = args.array
@@ -256,7 +294,7 @@ def main():
 
   header_guard = args.header_guard
   if not header_guard:
-    header_guard = sub("[^0-9a-zA-Z]+", "_", output_header).upper()
+    header_guard = sub("[^0-9a-zA-Z]+", "_", relative_header_path).upper() + '_'
     # Avoid double underscores to stay compliant with the Standard.
     header_guard = sub("[_]+", "_", header_guard)
     logging.debug("Using default --header_guard='%s'", header_guard)
@@ -271,7 +309,8 @@ def main():
   header_text = "\n".join(header(header_guard, namespaces, array_name,
                                  array_size_name, fileid))
   source_text = "\n".join(source(namespaces, array_name, array_size_name,
-                                 fileid, filename, input_bytes))
+                                 fileid, filename, input_bytes,
+                                 relative_header_path))
 
   with open(output_header, "w") as hdr:
     hdr.write(header_text)

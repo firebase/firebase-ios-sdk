@@ -25,6 +25,7 @@
 #include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "absl/memory/memory.h"
 #include "absl/strings/match.h"
 
 namespace firebase {

@@ -45,7 +45,6 @@ using model::NoDocument;
 using model::SnapshotVersion;
 using model::TargetId;
 using nanopb::ByteString;
-using util::MakeString;
 using util::Status;
 
 using testutil::DeletedDoc;

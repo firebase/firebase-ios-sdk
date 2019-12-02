@@ -14,7 +14,7 @@
 
 # Superbuild for Firebase
 
-cmake_minimum_required(VERSION 2.8.11)
+cmake_minimum_required(VERSION 3.5.1)
 
 # Disallow mixing keyword and non-keyword forms of target_link_libraries
 if(POLICY CMP0023)
@@ -54,12 +54,15 @@ enable_language(CXX)
 
 
 list(INSERT CMAKE_MODULE_PATH 0 ${PROJECT_SOURCE_DIR}/cmake)
-include(cc_rules)
 include(compiler_id)
-include(external_rules)
-include(podspec_rules)
+include(archive_options)
 include(sanitizer_options)
 include(fuzzing_options)
+
+# rules depend on properties and options set above
+include(external_rules)
+include(podspec_rules)
+include(cc_rules)
 
 
 # If no build type is specified, make it a debug build
@@ -106,10 +109,26 @@ add_external_subdirectory(benchmark)
 # Force disable Abseil's tests, which don't compile under VS2017.
 set(old_build_testing ${BUILD_TESTING})
 set(ABSL_RUN_TESTS OFF CACHE BOOL "Disable Abseil tests" FORCE)
-add_subdirectory(
-  Firestore/third_party/abseil-cpp
-  EXCLUDE_FROM_ALL
-)
+add_external_subdirectory(abseil-cpp)
+
+if(CXX_CLANG)
+  target_compile_options(
+    absl_time_zone
+    PRIVATE
+      -Wno-unused-template
+      -Wno-shadow
+      -Wno-tautological-type-limit-compare
+  )
+endif()
+
+if(MSVC)
+  # Disable warnings about unsafe use of std::copy
+  target_compile_definitions(
+    absl_strings
+    PUBLIC
+      _SCL_SECURE_NO_WARNINGS=1
+  )
+endif()
 
 
 # gRPC
@@ -170,7 +189,9 @@ endif()
 if(CXX_CLANG)
   target_compile_options(
     libprotobuf
-    PRIVATE -Wno-invalid-offsetof
+    PRIVATE
+      -Wno-inconsistent-missing-override
+      -Wno-invalid-offsetof
   )
 endif()
 
@@ -208,6 +229,10 @@ target_include_directories(
   $<BUILD_INTERFACE:${FIREBASE_EXTERNAL_SOURCE_DIR}>
   $<BUILD_INTERFACE:${FIREBASE_EXTERNAL_SOURCE_DIR}/nanopb>
 )
+
+
+# XCTest
+find_package(XCTest)
 
 
 enable_testing()

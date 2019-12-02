@@ -170,7 +170,7 @@ static GTMSessionFetcherRetryBlock _retryWhenOffline;
   FIRStorage *storage = [[[self class] allocWithZone:zone] initWithApp:_app
                                                                 bucket:_storageBucket
                                                                   auth:_auth];
-  storage.callbackQueue = _callbackQueue;
+  storage.callbackQueue = self.callbackQueue;
   return storage;
 }
 
@@ -195,7 +195,7 @@ static GTMSessionFetcherRetryBlock _retryWhenOffline;
 }
 
 - (NSUInteger)hash {
-  NSUInteger hash = [_app hash] ^ [_callbackQueue hash];
+  NSUInteger hash = [_app hash] ^ [self.callbackQueue hash];
   return hash;
 }
 
@@ -234,6 +234,10 @@ static GTMSessionFetcherRetryBlock _retryWhenOffline;
 - (FIRStorageReference *)referenceWithPath:(NSString *)string {
   FIRStorageReference *reference = [[self reference] child:string];
   return reference;
+}
+
+- (dispatch_queue_t)callbackQueue {
+  return _fetcherServiceForApp.callbackQueue;
 }
 
 - (void)setCallbackQueue:(dispatch_queue_t)callbackQueue {

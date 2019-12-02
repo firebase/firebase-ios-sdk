@@ -19,8 +19,16 @@
 
 #include "target.nanopb.h"
 
+#include "Firestore/core/src/firebase/firestore/nanopb/pretty_printing.h"
+
 namespace firebase {
 namespace firestore {
+
+using nanopb::PrintEnumField;
+using nanopb::PrintHeader;
+using nanopb::PrintMessageField;
+using nanopb::PrintPrimitiveField;
+using nanopb::PrintTail;
 
 /* @@protoc_insertion_point(includes) */
 #if PB_PROTO_HEADER_VERSION != 30
@@ -71,6 +79,47 @@ PB_STATIC_ASSERT((pb_membersize(firestore_client_Target, query) < 65536 && pb_me
 PB_STATIC_ASSERT((pb_membersize(firestore_client_Target, query) < 256 && pb_membersize(firestore_client_Target, documents) < 256 && pb_membersize(firestore_client_Target, snapshot_version) < 256 && pb_membersize(firestore_client_TargetGlobal, last_remote_snapshot_version) < 256), YOU_MUST_DEFINE_PB_FIELD_16BIT_FOR_MESSAGES_firestore_client_Target_firestore_client_TargetGlobal)
 #endif
 
+
+std::string firestore_client_Target::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "Target", this);
+    std::string result;
+
+    result += PrintPrimitiveField("target_id: ", target_id, indent + 1, false);
+    result += PrintMessageField("snapshot_version ",
+        snapshot_version, indent + 1, false);
+    result += PrintPrimitiveField("resume_token: ",
+        resume_token, indent + 1, false);
+    result += PrintPrimitiveField("last_listen_sequence_number: ",
+        last_listen_sequence_number, indent + 1, false);
+    switch (which_target_type) {
+    case firestore_client_Target_query_tag:
+        result += PrintMessageField("query ", query, indent + 1, true);
+        break;
+    case firestore_client_Target_documents_tag:
+        result += PrintMessageField("documents ", documents, indent + 1, true);
+        break;
+    }
+
+    std::string tail = PrintTail(indent);
+    return header + result + tail;
+}
+
+std::string firestore_client_TargetGlobal::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "TargetGlobal", this);
+    std::string result;
+
+    result += PrintPrimitiveField("highest_target_id: ",
+        highest_target_id, indent + 1, false);
+    result += PrintPrimitiveField("highest_listen_sequence_number: ",
+        highest_listen_sequence_number, indent + 1, false);
+    result += PrintMessageField("last_remote_snapshot_version ",
+        last_remote_snapshot_version, indent + 1, false);
+    result += PrintPrimitiveField("target_count: ",
+        target_count, indent + 1, false);
+
+    std::string tail = PrintTail(indent);
+    return header + result + tail;
+}
 
 }  // namespace firestore
 }  // namespace firebase

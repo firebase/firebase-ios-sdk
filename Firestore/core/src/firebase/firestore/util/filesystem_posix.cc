@@ -17,6 +17,7 @@
 #include "Firestore/core/src/firebase/firestore/util/filesystem.h"
 
 #include <dirent.h>
+#include <pwd.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -71,15 +72,78 @@ Status IsDirectory(const Path& path) {
   return Status::OK();
 }
 
-#if !defined(__APPLE__)
-// See filesystem_apple.mm for an alternative implementation.
+#if !__APPLE__ && !_WIN32
+// See filesystem_apple.mm and filesystem_win.cc for other implementations.
+
+namespace {
+
+StatusOr<Path> HomeDir() {
+  const char* home_dir = getenv("HOME");
+  if (home_dir) return Path::FromUtf8(home_dir);
+
+  passwd pwd;
+  passwd* result;
+  auto buffer_size = static_cast<size_t>(sysconf(_SC_GETPW_R_SIZE_MAX));
+  std::string buffer(buffer_size, '\0');
+  uid_t uid = getuid();
+  int rc;
+  do {
+    rc = getpwuid_r(uid, &pwd, &buffer[0], buffer_size, &result);
+  } while (rc == EINTR);
+
+  if (rc != 0) {
+    return Status::FromErrno(
+        rc, "Failed to find the home directory for the current user");
+  }
+
+  return Path::FromUtf8(pwd.pw_dir);
+}
+
+#if __linux__ && !__ANDROID__
+StatusOr<Path> XdgDataHomeDir() {
+  const char* data_home = getenv("XDG_DATA_HOME");
+  if (data_home) return Path::FromUtf8(data_home);
+
+  StatusOr<Path> maybe_home_dir = HomeDir();
+  if (!maybe_home_dir.ok()) return maybe_home_dir;
+
+  const Path& home_dir = maybe_home_dir.ValueOrDie();
+  return home_dir.AppendUtf8(".local/share");
+}
+#endif  // __linux__ && !__ANDROID__
+
+}  // namespace
+
+StatusOr<Path> AppDataDir(absl::string_view app_name) {
+#if __linux__ && !__ANDROID__
+  // On Linux, use XDG data home, usually $HOME/.local/share/$app_name
+  StatusOr<Path> maybe_data_home = XdgDataHomeDir();
+  if (!maybe_data_home.ok()) return maybe_data_home;
+
+  return maybe_data_home.ValueOrDie().AppendUtf8(app_name);
+
+#elif !__ANDROID__
+  // On any other UNIX, use an old school dotted directory in $HOME.
+  StatusOr<Path> maybe_home = HomeDir();
+  if (!maybe_home.ok()) return maybe_home;
+
+  std::string dot_prefixed = absl::StrCat(".", app_name);
+  return maybe_home.ValueOrDie().AppendUtf8(dot_prefixed);
+
+#else
+  // TODO(wilhuff): On Android, use internal storage
+#error "Don't know where to store documents on this platform."
+
+#endif  // __linux__ && !__ANDROID__
+}
+
 Path TempDir() {
   const char* env_tmpdir = getenv("TMPDIR");
   if (env_tmpdir) {
     return Path::FromUtf8(env_tmpdir);
   }
 
-#if defined(__ANDROID__)
+#if __ANDROID__
   // The /tmp directory doesn't exist as a fallback; each application is
   // supposed to keep its own temporary files. Previously /data/local/tmp may
   // have been reasonable, but current lore points to this being unreliable for
@@ -92,9 +156,9 @@ Path TempDir() {
 
 #else
   return Path::FromUtf8("/tmp");
-#endif  // defined(__ANDROID__)
+#endif  // __ANDROID__
 }
-#endif  // !defined(__APPLE__)
+#endif  // !__APPLE__ && !_WIN32
 
 StatusOr<int64_t> FileSize(const Path& path) {
   struct stat st {};
@@ -131,7 +195,7 @@ Status DeleteDir(const Path& path) {
   return Status::OK();
 }
 
-Status DeleteFile(const Path& path) {
+Status DeleteSingleFile(const Path& path) {
   if (::unlink(path.c_str())) {
     if (errno != ENOENT) {
       return Status::FromErrno(
