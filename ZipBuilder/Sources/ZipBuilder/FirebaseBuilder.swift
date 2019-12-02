@@ -19,7 +19,6 @@ import Foundation
 /// Wrapper for the Firebase zip build.  Unlike the generic zip builder, the Firebase build creates a two-level
 /// zip with the option to install different Firebase library subsets.
 struct FirebaseBuilder {
-
   /// ZipBuilder instance.
   private let zipBuilder: ZipBuilder
 
@@ -32,6 +31,7 @@ struct FirebaseBuilder {
   init(zipBuilder: ZipBuilder) {
     self.zipBuilder = zipBuilder
   }
+
   func build(in projectDir: URL) {
     // Build the zip file and get the path.
     do {

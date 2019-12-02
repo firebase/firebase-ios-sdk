@@ -135,7 +135,7 @@ struct LaunchArgs {
   let updatePodRepo: Bool
 
   /// The path to a JSON file listing the pods to repackage to a zip.
-  let zipPods : [CocoaPodUtils.VersionedPod]?
+  let zipPods: [CocoaPodUtils.VersionedPod]?
 
   /// The shared instance for processing launch args using default arguments.
   static let shared: LaunchArgs = LaunchArgs()

@@ -129,7 +129,7 @@ struct ZipBuilder {
   }
 
   func buildAndAssembleZip(podsToInstall: [CocoaPodUtils.VersionedPod]) ->
-    ([CocoaPodUtils.PodInfo], [String : [URL]]) {
+    ([CocoaPodUtils.PodInfo], [String: [URL]]) {
     // Remove CocoaPods cache so the build gets updates after a version is rebuilt during the
     // release process.
     CocoaPodUtils.cleanPodCache()
@@ -351,10 +351,10 @@ struct ZipBuilder {
   //            doesn't exist in `frameworkLocations`.
   @discardableResult
   func copyFrameworks(fromPods installedPods: [CocoaPodUtils.PodInfo],
-                              toDirectory dir: URL,
-                              frameworkLocations: [String: [URL]],
-                              podsToIgnore: [String] = [],
-                              foldersToIgnore: [String] = []) throws -> [String] {
+                      toDirectory dir: URL,
+                      frameworkLocations: [String: [URL]],
+                      podsToIgnore: [String] = [],
+                      foldersToIgnore: [String] = []) throws -> [String] {
     let fileManager = FileManager.default
     if !fileManager.directoryExists(at: dir) {
       try fileManager.createDirectory(at: dir, withIntermediateDirectories: false, attributes: nil)

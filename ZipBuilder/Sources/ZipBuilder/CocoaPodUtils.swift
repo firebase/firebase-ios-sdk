@@ -21,7 +21,7 @@ import Foundation
 public enum CocoaPodUtils {
   // MARK: - Public API
 
-  public struct VersionedPod : Decodable {
+  public struct VersionedPod: Decodable {
     /// Public name of the pod.
     let name: String
 
