@@ -57,3 +57,4 @@ installation, when `--zipPods` is specified a single zip file of frameworks will
   * Swift Package Manager
   * Dynamic Framework support
   * More option customization
+  * Tests
