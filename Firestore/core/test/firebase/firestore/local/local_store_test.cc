@@ -98,75 +98,75 @@ std::vector<Document> DocMapToArray(const DocumentMap& docs) {
   return result;
 }
 
-RemoteEvent FSTTestUpdateRemoteEventWithLimboTargets(
+RemoteEvent UpdateRemoteEventWithLimboTargets(
     const MaybeDocument& doc,
-    const std::vector<TargetId>& updatedInTargets,
-    const std::vector<TargetId>& removedFromTargets,
-    const std::vector<TargetId>& limboTargets) {
+    const std::vector<TargetId>& updated_in_targets,
+    const std::vector<TargetId>& removed_from_targets,
+    const std::vector<TargetId>& limbo_targets) {
   HARD_ASSERT(!doc.is_document() || !Document(doc).has_local_mutations(),
               "Docs from remote updates shouldn't have local changes.");
-  DocumentWatchChange change{updatedInTargets, removedFromTargets, doc.key(),
-                             doc};
+  DocumentWatchChange change{updated_in_targets, removed_from_targets,
+                             doc.key(), doc};
 
-  std::vector<TargetId> listens = updatedInTargets;
-  listens.insert(listens.end(), removedFromTargets.begin(),
-                 removedFromTargets.end());
+  std::vector<TargetId> listens = updated_in_targets;
+  listens.insert(listens.end(), removed_from_targets.begin(),
+                 removed_from_targets.end());
 
-  auto metadataProvider =
+  auto metadata_provider =
       FakeTargetMetadataProvider::CreateSingleResultProvider(doc.key(), listens,
-                                                             limboTargets);
-  WatchChangeAggregator aggregator{&metadataProvider};
+                                                             limbo_targets);
+  WatchChangeAggregator aggregator{&metadata_provider};
   aggregator.HandleDocumentChange(change);
   return aggregator.CreateRemoteEvent(doc.version());
 }
 
 /** Creates a remote event that inserts a list of documents. */
-RemoteEvent FSTTestAddedRemoteEvent(
-    const std::vector<MaybeDocument>& docs,
-    const std::vector<TargetId>& addedToTargets) {
+RemoteEvent AddedRemoteEvent(const std::vector<MaybeDocument>& docs,
+                             const std::vector<TargetId>& added_to_targets) {
   HARD_ASSERT(!docs.empty(), "Cannot pass empty docs array");
 
-  const ResourcePath& collectionPath = docs[0].key().path().PopLast();
-  auto metadataProvider = FakeTargetMetadataProvider::CreateEmptyResultProvider(
-      collectionPath, addedToTargets);
-  WatchChangeAggregator aggregator{&metadataProvider};
+  const ResourcePath& collection_path = docs[0].key().path().PopLast();
+  auto metadata_provider =
+      FakeTargetMetadataProvider::CreateEmptyResultProvider(collection_path,
+                                                            added_to_targets);
+  WatchChangeAggregator aggregator{&metadata_provider};
   for (const MaybeDocument& doc : docs) {
     HARD_ASSERT(!doc.is_document() || !Document(doc).has_local_mutations(),
                 "Docs from remote updates shouldn't have local changes.");
-    DocumentWatchChange change{addedToTargets, {}, doc.key(), doc};
+    DocumentWatchChange change{added_to_targets, {}, doc.key(), doc};
     aggregator.HandleDocumentChange(change);
   }
   return aggregator.CreateRemoteEvent(docs[0].version());
 }
 
 /** Creates a remote event that inserts a new document. */
-RemoteEvent FSTTestAddedRemoteEvent(
-    const MaybeDocument& doc, const std::vector<TargetId>& addedToTargets) {
+RemoteEvent AddedRemoteEvent(const MaybeDocument& doc,
+                             const std::vector<TargetId>& added_to_targets) {
   std::vector<MaybeDocument> docs{doc};
-  return FSTTestAddedRemoteEvent(docs, addedToTargets);
+  return AddedRemoteEvent(docs, added_to_targets);
 }
 
 /** Creates a remote event with changes to a document. */
-RemoteEvent FSTTestUpdateRemoteEvent(
+RemoteEvent UpdateRemoteEvent(
     const MaybeDocument& doc,
-    const std::vector<TargetId>& updatedInTargets,
-    const std::vector<TargetId>& removedFromTargets) {
-  return FSTTestUpdateRemoteEventWithLimboTargets(doc, updatedInTargets,
-                                                  removedFromTargets, {});
+    const std::vector<TargetId>& updated_in_targets,
+    const std::vector<TargetId>& removed_from_targets) {
+  return UpdateRemoteEventWithLimboTargets(doc, updated_in_targets,
+                                           removed_from_targets, {});
 }
 
-LocalViewChanges TestViewChanges(TargetId targetID,
-                                 std::vector<std::string> addedKeys,
-                                 std::vector<std::string> removedKeys) {
+LocalViewChanges TestViewChanges(TargetId target_id,
+                                 std::vector<std::string> added_keys,
+                                 std::vector<std::string> removed_keys) {
   DocumentKeySet added;
-  for (const std::string& keyPath : addedKeys) {
-    added = added.insert(Key(keyPath));
+  for (const std::string& key_path : added_keys) {
+    added = added.insert(Key(key_path));
   }
   DocumentKeySet removed;
-  for (const std::string& keyPath : removedKeys) {
-    removed = removed.insert(Key(keyPath));
+  for (const std::string& key_path : removed_keys) {
+    removed = removed.insert(Key(key_path));
   }
-  return LocalViewChanges(targetID, std::move(added), std::move(removed));
+  return LocalViewChanges(target_id, std::move(added), std::move(removed));
 }
 
 }  // namespace
@@ -321,8 +321,8 @@ TEST_P(LocalStoreTest, HandlesSetMutationThenDocument) {
 
   TargetId target_id = AllocateQuery(Query("foo"));
 
-  ApplyRemoteEvent(FSTTestUpdateRemoteEvent(
-      Doc("foo/bar", 2, Map("it", "changed")), {target_id}, {}));
+  ApplyRemoteEvent(UpdateRemoteEvent(Doc("foo/bar", 2, Map("it", "changed")),
+                                     {target_id}, {}));
   FSTAssertChanged(
       Doc("foo/bar", 2, Map("foo", "bar"), DocumentState::kLocalMutations));
   FSTAssertContains(
@@ -364,8 +364,8 @@ TEST_P(LocalStoreTest, HandlesAckThenRejectThenRemoteEvent) {
   FSTAssertRemoved("bar/baz");
   FSTAssertNotContains("bar/baz");
 
-  ApplyRemoteEvent(FSTTestAddedRemoteEvent(
-      Doc("foo/bar", 2, Map("it", "changed")), {target_id}));
+  ApplyRemoteEvent(
+      AddedRemoteEvent(Doc("foo/bar", 2, Map("it", "changed")), {target_id}));
   FSTAssertChanged(Doc("foo/bar", 2, Map("it", "changed")));
   FSTAssertContains(Doc("foo/bar", 2, Map("it", "changed")));
   FSTAssertNotContains("bar/baz");
@@ -376,7 +376,7 @@ TEST_P(LocalStoreTest, HandlesDeletedDocumentThenSetMutationThenAck) {
   TargetId target_id = AllocateQuery(query);
 
   ApplyRemoteEvent(
-      FSTTestUpdateRemoteEvent(DeletedDoc("foo/bar", 2), {target_id}, {}));
+      UpdateRemoteEvent(DeletedDoc("foo/bar", 2), {target_id}, {}));
   FSTAssertRemoved("foo/bar");
   // Under eager GC, there is no longer a reference for the document, and it
   // should be deleted.
@@ -416,7 +416,7 @@ TEST_P(LocalStoreTest, HandlesSetMutationThenDeletedDocument) {
       Doc("foo/bar", 0, Map("foo", "bar"), DocumentState::kLocalMutations));
 
   ApplyRemoteEvent(
-      FSTTestUpdateRemoteEvent(DeletedDoc("foo/bar", 2), {target_id}, {}));
+      UpdateRemoteEvent(DeletedDoc("foo/bar", 2), {target_id}, {}));
   FSTAssertChanged(
       Doc("foo/bar", 0, Map("foo", "bar"), DocumentState::kLocalMutations));
   FSTAssertContains(
@@ -428,8 +428,8 @@ TEST_P(LocalStoreTest, HandlesDocumentThenSetMutationThenAckThenDocument) {
   core::Query query = Query("foo");
   TargetId target_id = AllocateQuery(query);
 
-  ApplyRemoteEvent(FSTTestAddedRemoteEvent(Doc("foo/bar", 2, Map("it", "base")),
-                                           {target_id}));
+  ApplyRemoteEvent(
+      AddedRemoteEvent(Doc("foo/bar", 2, Map("it", "base")), {target_id}));
   FSTAssertChanged(Doc("foo/bar", 2, Map("it", "base")));
   FSTAssertContains(Doc("foo/bar", 2, Map("it", "base")));
 
@@ -446,8 +446,8 @@ TEST_P(LocalStoreTest, HandlesDocumentThenSetMutationThenAckThenDocument) {
   FSTAssertContains(
       Doc("foo/bar", 3, Map("foo", "bar"), DocumentState::kCommittedMutations));
 
-  ApplyRemoteEvent(FSTTestUpdateRemoteEvent(
-      Doc("foo/bar", 3, Map("it", "changed")), {target_id}, {}));
+  ApplyRemoteEvent(UpdateRemoteEvent(Doc("foo/bar", 3, Map("it", "changed")),
+                                     {target_id}, {}));
   FSTAssertChanged(Doc("foo/bar", 3, Map("it", "changed")));
   FSTAssertContains(Doc("foo/bar", 3, Map("it", "changed")));
 }
@@ -474,8 +474,8 @@ TEST_P(LocalStoreTest, HandlesPatchMutationThenDocumentThenAck) {
   core::Query query = Query("foo");
   TargetId target_id = AllocateQuery(query);
 
-  ApplyRemoteEvent(FSTTestAddedRemoteEvent(Doc("foo/bar", 1, Map("it", "base")),
-                                           {target_id}));
+  ApplyRemoteEvent(
+      AddedRemoteEvent(Doc("foo/bar", 1, Map("it", "base")), {target_id}));
   FSTAssertChanged(Doc("foo/bar", 1, Map("foo", "bar", "it", "base"),
                        DocumentState::kLocalMutations));
   FSTAssertContains(Doc("foo/bar", 1, Map("foo", "bar", "it", "base"),
@@ -489,7 +489,7 @@ TEST_P(LocalStoreTest, HandlesPatchMutationThenDocumentThenAck) {
   FSTAssertContains(Doc("foo/bar", 2, Map("foo", "bar", "it", "base"),
                         DocumentState::kCommittedMutations));
 
-  ApplyRemoteEvent(FSTTestUpdateRemoteEvent(
+  ApplyRemoteEvent(UpdateRemoteEvent(
       Doc("foo/bar", 2, Map("foo", "bar", "it", "base")), {target_id}, {}));
 
   FSTAssertChanged(Doc("foo/bar", 2, Map("foo", "bar", "it", "base")));
@@ -514,8 +514,8 @@ TEST_P(LocalStoreTest, HandlesPatchMutationThenAckThenDocument) {
   core::Query query = Query("foo");
   TargetId target_id = AllocateQuery(query);
 
-  ApplyRemoteEvent(FSTTestUpdateRemoteEvent(
-      Doc("foo/bar", 1, Map("it", "base")), {target_id}, {}));
+  ApplyRemoteEvent(
+      UpdateRemoteEvent(Doc("foo/bar", 1, Map("it", "base")), {target_id}, {}));
   FSTAssertChanged(Doc("foo/bar", 1, Map("it", "base")));
   FSTAssertContains(Doc("foo/bar", 1, Map("it", "base")));
 }
@@ -537,8 +537,8 @@ TEST_P(LocalStoreTest, HandlesDocumentThenDeleteMutationThenAck) {
   core::Query query = Query("foo");
   TargetId target_id = AllocateQuery(query);
 
-  ApplyRemoteEvent(FSTTestUpdateRemoteEvent(
-      Doc("foo/bar", 1, Map("it", "base")), {target_id}, {}));
+  ApplyRemoteEvent(
+      UpdateRemoteEvent(Doc("foo/bar", 1, Map("it", "base")), {target_id}, {}));
   FSTAssertChanged(Doc("foo/bar", 1, Map("it", "base")));
   FSTAssertContains(Doc("foo/bar", 1, Map("it", "base")));
 
@@ -567,8 +567,8 @@ TEST_P(LocalStoreTest, HandlesDeleteMutationThenDocumentThenAck) {
 
   // Add the document to a target so it will remain in persistence even when
   // ack'd
-  ApplyRemoteEvent(FSTTestUpdateRemoteEvent(
-      Doc("foo/bar", 1, Map("it", "base")), {target_id}, {}));
+  ApplyRemoteEvent(
+      UpdateRemoteEvent(Doc("foo/bar", 1, Map("it", "base")), {target_id}, {}));
   FSTAssertRemoved("foo/bar");
   FSTAssertContains(DeletedDoc("foo/bar"));
 
@@ -588,20 +588,20 @@ TEST_P(LocalStoreTest, HandlesDocumentThenDeletedDocumentThenDocument) {
   core::Query query = Query("foo");
   TargetId target_id = AllocateQuery(query);
 
-  ApplyRemoteEvent(FSTTestUpdateRemoteEvent(
-      Doc("foo/bar", 1, Map("it", "base")), {target_id}, {}));
+  ApplyRemoteEvent(
+      UpdateRemoteEvent(Doc("foo/bar", 1, Map("it", "base")), {target_id}, {}));
   FSTAssertChanged(Doc("foo/bar", 1, Map("it", "base")));
   FSTAssertContains(Doc("foo/bar", 1, Map("it", "base")));
 
   ApplyRemoteEvent(
-      FSTTestUpdateRemoteEvent(DeletedDoc("foo/bar", 2), {target_id}, {}));
+      UpdateRemoteEvent(DeletedDoc("foo/bar", 2), {target_id}, {}));
   FSTAssertRemoved("foo/bar");
   if (!IsGcEager()) {
     FSTAssertContains(DeletedDoc("foo/bar", 2));
   }
 
-  ApplyRemoteEvent(FSTTestUpdateRemoteEvent(
-      Doc("foo/bar", 3, Map("it", "changed")), {target_id}, {}));
+  ApplyRemoteEvent(UpdateRemoteEvent(Doc("foo/bar", 3, Map("it", "changed")),
+                                     {target_id}, {}));
   FSTAssertChanged(Doc("foo/bar", 3, Map("it", "changed")));
   FSTAssertContains(Doc("foo/bar", 3, Map("it", "changed")));
 }
@@ -623,8 +623,8 @@ TEST_P(LocalStoreTest,
   core::Query query = Query("foo");
   TargetId target_id = AllocateQuery(query);
 
-  ApplyRemoteEvent(FSTTestUpdateRemoteEvent(
-      Doc("foo/bar", 1, Map("it", "base")), {target_id}, {}));
+  ApplyRemoteEvent(
+      UpdateRemoteEvent(Doc("foo/bar", 1, Map("it", "base")), {target_id}, {}));
   FSTAssertChanged(
       Doc("foo/bar", 1, Map("foo", "bar"), DocumentState::kLocalMutations));
   FSTAssertContains(
@@ -717,11 +717,11 @@ TEST_P(LocalStoreTest, HandlesDeleteMutationThenPatchMutationThenAckThenAck) {
 TEST_P(LocalStoreTest, CollectsGarbageAfterChangeBatchWithNoTargetIDs) {
   if (!IsGcEager()) return;
 
-  ApplyRemoteEvent(FSTTestUpdateRemoteEventWithLimboTargets(
-      DeletedDoc("foo/bar", 2), {}, {}, {1}));
+  ApplyRemoteEvent(
+      UpdateRemoteEventWithLimboTargets(DeletedDoc("foo/bar", 2), {}, {}, {1}));
   FSTAssertNotContains("foo/bar");
 
-  ApplyRemoteEvent(FSTTestUpdateRemoteEventWithLimboTargets(
+  ApplyRemoteEvent(UpdateRemoteEventWithLimboTargets(
       Doc("foo/bar", 2, Map("foo", "bar")), {}, {}, {1}));
   FSTAssertNotContains("foo/bar");
 }
@@ -732,12 +732,12 @@ TEST_P(LocalStoreTest, CollectsGarbageAfterChangeBatch) {
   core::Query query = Query("foo");
   TargetId target_id = AllocateQuery(query);
 
-  ApplyRemoteEvent(FSTTestAddedRemoteEvent(Doc("foo/bar", 2, Map("foo", "bar")),
-                                           {target_id}));
+  ApplyRemoteEvent(
+      AddedRemoteEvent(Doc("foo/bar", 2, Map("foo", "bar")), {target_id}));
   FSTAssertContains(Doc("foo/bar", 2, Map("foo", "bar")));
 
-  ApplyRemoteEvent(FSTTestUpdateRemoteEvent(
-      Doc("foo/bar", 2, Map("foo", "baz")), {}, {target_id}));
+  ApplyRemoteEvent(
+      UpdateRemoteEvent(Doc("foo/bar", 2, Map("foo", "baz")), {}, {target_id}));
 
   FSTAssertNotContains("foo/bar");
 }
@@ -748,8 +748,8 @@ TEST_P(LocalStoreTest, CollectsGarbageAfterAcknowledgedMutation) {
   core::Query query = Query("foo");
   TargetId target_id = AllocateQuery(query);
 
-  ApplyRemoteEvent(FSTTestUpdateRemoteEvent(
-      Doc("foo/bar", 0, Map("foo", "old")), {target_id}, {}));
+  ApplyRemoteEvent(
+      UpdateRemoteEvent(Doc("foo/bar", 0, Map("foo", "old")), {target_id}, {}));
   WriteMutation(testutil::PatchMutation("foo/bar", Map("foo", "bar"), {}));
   // Release the query so that our target count goes back to 0 and we are
   // considered up-to-date.
@@ -786,8 +786,8 @@ TEST_P(LocalStoreTest, CollectsGarbageAfterRejectedMutation) {
   core::Query query = Query("foo");
   TargetId target_id = AllocateQuery(query);
 
-  ApplyRemoteEvent(FSTTestUpdateRemoteEvent(
-      Doc("foo/bar", 0, Map("foo", "old")), {target_id}, {}));
+  ApplyRemoteEvent(
+      UpdateRemoteEvent(Doc("foo/bar", 0, Map("foo", "old")), {target_id}, {}));
   WriteMutation(testutil::PatchMutation("foo/bar", Map("foo", "bar"), {}));
   // Release the query so that our target count goes back to 0 and we are
   // considered up-to-date.
@@ -824,8 +824,8 @@ TEST_P(LocalStoreTest, PinsDocumentsInTheLocalView) {
   core::Query query = Query("foo");
   TargetId target_id = AllocateQuery(query);
 
-  ApplyRemoteEvent(FSTTestAddedRemoteEvent(Doc("foo/bar", 1, Map("foo", "bar")),
-                                           {target_id}));
+  ApplyRemoteEvent(
+      AddedRemoteEvent(Doc("foo/bar", 1, Map("foo", "bar")), {target_id}));
   WriteMutation(testutil::SetMutation("foo/baz", Map("foo", "baz")));
   FSTAssertContains(Doc("foo/bar", 1, Map("foo", "bar")));
   FSTAssertContains(
@@ -834,10 +834,10 @@ TEST_P(LocalStoreTest, PinsDocumentsInTheLocalView) {
   NotifyLocalViewChanges(
       TestViewChanges(target_id, {"foo/bar", "foo/baz"}, {}));
   FSTAssertContains(Doc("foo/bar", 1, Map("foo", "bar")));
-  ApplyRemoteEvent(FSTTestUpdateRemoteEvent(
-      Doc("foo/bar", 1, Map("foo", "bar")), {}, {target_id}));
-  ApplyRemoteEvent(FSTTestUpdateRemoteEvent(
-      Doc("foo/baz", 2, Map("foo", "baz")), {target_id}, {}));
+  ApplyRemoteEvent(
+      UpdateRemoteEvent(Doc("foo/bar", 1, Map("foo", "bar")), {}, {target_id}));
+  ApplyRemoteEvent(
+      UpdateRemoteEvent(Doc("foo/baz", 2, Map("foo", "baz")), {target_id}, {}));
   FSTAssertContains(
       Doc("foo/baz", 2, Map("foo", "baz"), DocumentState::kLocalMutations));
   AcknowledgeMutationWithVersion(2);
@@ -857,8 +857,8 @@ TEST_P(LocalStoreTest, ThrowsAwayDocumentsWithUnknownTargetIDsImmediately) {
   if (!IsGcEager()) return;
 
   TargetId target_id = 321;
-  ApplyRemoteEvent(FSTTestUpdateRemoteEventWithLimboTargets(
-      Doc("foo/bar", 1, Map()), {}, {}, {target_id}));
+  ApplyRemoteEvent(UpdateRemoteEventWithLimboTargets(Doc("foo/bar", 1, Map()),
+                                                     {}, {}, {target_id}));
 
   FSTAssertNotContains("foo/bar");
 }
@@ -895,9 +895,9 @@ TEST_P(LocalStoreTest, CanExecuteMixedCollectionQueries) {
   FSTAssertTargetID(2);
 
   ApplyRemoteEvent(
-      FSTTestUpdateRemoteEvent(Doc("foo/baz", 10, Map("a", "b")), {2}, {}));
+      UpdateRemoteEvent(Doc("foo/baz", 10, Map("a", "b")), {2}, {}));
   ApplyRemoteEvent(
-      FSTTestUpdateRemoteEvent(Doc("foo/bar", 20, Map("a", "b")), {2}, {}));
+      UpdateRemoteEvent(Doc("foo/bar", 20, Map("a", "b")), {2}, {}));
 
   local_store_.WriteLocally({testutil::SetMutation("foo/bonk", Map("a", "b"))});
 
@@ -947,10 +947,8 @@ TEST_P(LocalStoreTest, RemoteDocumentKeysForTarget) {
   AllocateQuery(query);
   FSTAssertTargetID(2);
 
-  ApplyRemoteEvent(
-      FSTTestAddedRemoteEvent(Doc("foo/baz", 10, Map("a", "b")), {2}));
-  ApplyRemoteEvent(
-      FSTTestAddedRemoteEvent(Doc("foo/bar", 20, Map("a", "b")), {2}));
+  ApplyRemoteEvent(AddedRemoteEvent(Doc("foo/baz", 10, Map("a", "b")), {2}));
+  ApplyRemoteEvent(AddedRemoteEvent(Doc("foo/bar", 20, Map("a", "b")), {2}));
 
   local_store_.WriteLocally({testutil::SetMutation("foo/bonk", Map("a", "b"))});
 
@@ -1044,8 +1042,7 @@ TEST_P(
   FSTAssertChanged(
       Doc("foo/bar", 0, Map("sum", 0), DocumentState::kLocalMutations));
 
-  ApplyRemoteEvent(
-      FSTTestAddedRemoteEvent(Doc("foo/bar", 1, Map("sum", 0)), {2}));
+  ApplyRemoteEvent(AddedRemoteEvent(Doc("foo/bar", 1, Map("sum", 0)), {2}));
 
   AcknowledgeMutationWithVersion(1);
   FSTAssertContains(Doc("foo/bar", 1, Map("sum", 0)));
@@ -1061,7 +1058,7 @@ TEST_P(
   // The value in this remote event gets ignored since we still have a pending
   // transform mutation.
   ApplyRemoteEvent(
-      FSTTestUpdateRemoteEvent(Doc("foo/bar", 2, Map("sum", 0)), {2}, {}));
+      UpdateRemoteEvent(Doc("foo/bar", 2, Map("sum", 0)), {2}, {}));
   FSTAssertContains(
       Doc("foo/bar", 2, Map("sum", 1), DocumentState::kLocalMutations));
   FSTAssertChanged(
@@ -1103,7 +1100,7 @@ TEST_P(LocalStoreTest, HoldsBackOnlyNonIdempotentTransforms) {
   FSTAssertChanged(Doc("foo/bar", 1, Map("sum", 0, "array_union", Array()),
                        DocumentState::kCommittedMutations));
 
-  ApplyRemoteEvent(FSTTestAddedRemoteEvent(
+  ApplyRemoteEvent(AddedRemoteEvent(
       Doc("foo/bar", 1, Map("sum", 0, "array_union", Array())), {2}));
   FSTAssertChanged(Doc("foo/bar", 1, Map("sum", 0, "array_union", Array())));
 
@@ -1120,7 +1117,7 @@ TEST_P(LocalStoreTest, HoldsBackOnlyNonIdempotentTransforms) {
   // The sum transform is not idempotent and the backend's updated value is
   // ignored. The ArrayUnion transform is recomputed and includes the backend
   // value.
-  ApplyRemoteEvent(FSTTestUpdateRemoteEvent(
+  ApplyRemoteEvent(UpdateRemoteEvent(
       Doc("foo/bar", 2, Map("sum", 1337, "array_union", Array("bar"))), {2},
       {}));
   FSTAssertChanged(Doc("foo/bar", 2,
@@ -1145,8 +1142,7 @@ TEST_P(LocalStoreTest, HandlesMergeMutationWithTransformThenRemoteEvent) {
   FSTAssertChanged(
       Doc("foo/bar", 0, Map("sum", 1), DocumentState::kLocalMutations));
 
-  ApplyRemoteEvent(
-      FSTTestAddedRemoteEvent(Doc("foo/bar", 1, Map("sum", 1337)), {2}));
+  ApplyRemoteEvent(AddedRemoteEvent(Doc("foo/bar", 1, Map("sum", 1337)), {2}));
 
   FSTAssertContains(
       Doc("foo/bar", 1, Map("sum", 1), DocumentState::kLocalMutations));
@@ -1170,8 +1166,7 @@ TEST_P(LocalStoreTest, HandlesPatchMutationWithTransformThenRemoteEvent) {
 
   // Note: This test reflects the current behavior, but it may be preferable to
   // replay the mutation once we receive the first value from the remote event.
-  ApplyRemoteEvent(
-      FSTTestAddedRemoteEvent(Doc("foo/bar", 1, Map("sum", 1337)), {2}));
+  ApplyRemoteEvent(AddedRemoteEvent(Doc("foo/bar", 1, Map("sum", 1337)), {2}));
 
   FSTAssertContains(
       Doc("foo/bar", 1, Map("sum", 1), DocumentState::kLocalMutations));
@@ -1200,15 +1195,13 @@ TEST_P(LocalStoreTest, OnlyPersistsUpdatesForDocumentsWhenVersionChanges) {
   AllocateQuery(query);
   FSTAssertTargetID(2);
 
-  ApplyRemoteEvent(
-      FSTTestAddedRemoteEvent(Doc("foo/bar", 1, Map("val", "old")), {2}));
+  ApplyRemoteEvent(AddedRemoteEvent(Doc("foo/bar", 1, Map("val", "old")), {2}));
   FSTAssertContains(Doc("foo/bar", 1, Map("val", "old")));
   FSTAssertChanged(Doc("foo/bar", 1, Map("val", "old")));
 
-  ApplyRemoteEvent(
-      FSTTestAddedRemoteEvent({Doc("foo/bar", 1, Map("val", "new")),
-                               Doc("foo/baz", 2, Map("val", "new"))},
-                              {2}));
+  ApplyRemoteEvent(AddedRemoteEvent({Doc("foo/bar", 1, Map("val", "new")),
+                                     Doc("foo/baz", 2, Map("val", "new"))},
+                                    {2}));
   // The update to foo/bar is ignored.
   FSTAssertContains(Doc("foo/bar", 1, Map("val", "old")));
   FSTAssertContains(Doc("foo/baz", 2, Map("val", "new")));

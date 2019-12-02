@@ -53,7 +53,7 @@ namespace firestore {
 namespace model {
 class TransformMutation;
 class TransformOperation;
-}
+}  // namespace model
 
 namespace testutil {
 
