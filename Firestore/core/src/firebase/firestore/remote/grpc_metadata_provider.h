@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,14 +29,12 @@ class GrpcMetadataProvider {
   /** Creates a platform-specific GrpcMetadataProvider. */
   static std::unique_ptr<GrpcMetadataProvider> Create();
   /**
-   * Called by grpc_connection.cc. Provides the heartbeatcode corresponding to
-   * firestore.
+   * Called by grpc_connection.cc. Updates the metadata with the
+   * heartbeat and the useragent header.
    */
-  virtual void UpdateMetadata(grpc::ClientContext* context) = 0;
+  virtual void UpdateMetadata(
+      std::unique_ptr<grpc::ClientContext>& context) = 0;
 
-  /**
-   * Called by grpc_connection.cc. Provides the userAgentString.
-   */
   virtual ~GrpcMetadataProvider() = default;
 };
 }  // namespace remote

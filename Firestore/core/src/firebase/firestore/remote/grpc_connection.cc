@@ -172,8 +172,8 @@ std::unique_ptr<grpc::ClientContext> GrpcConnection::CreateContext(
                        StringFormat("projects/%s/databases/%s",
                                     db_id.project_id(), db_id.database_id()));
 
-  GrpcMetadataProvider * provider = GrpcMetadataProvider.create();
-  provider.UpdateMetadata(context);
+  auto provider = GrpcMetadataProvider::Create();
+  provider->UpdateMetadata(context);
 
   return context;
 }

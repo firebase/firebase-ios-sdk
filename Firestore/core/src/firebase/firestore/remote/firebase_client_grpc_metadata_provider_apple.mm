@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,46 +14,42 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/remote/grpc_metadata_provider.h"
-#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #import <FirebaseCore/FIRAppInternal.h>
-#include "grpcpp/client_context.h"
 #import <FirebaseCore/FIRHeartbeatInfo.h>
 #import <Foundation/Foundation.h>
 #include <string>
+#include "Firestore/core/src/firebase/firestore/remote/grpc_metadata_provider.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "absl/memory/memory.h"
+#include "grpcpp/client_context.h"
 
 NSString* const kFirebaseFirestoreHeartbeatTag = @"fire-fst";
 
 namespace firebase {
 namespace firestore {
 namespace remote {
-  class FirebaseClientGrpcMetadataProviderApple : public GrpcMetadataProvider {
-  public:
-    explicit FirebaseClientGrpcMetadataProviderApple()
-    : GrpcMetadataProvider() {
-    }
-
-    void UpdateMetadata(grpc::ClientContext* context) {
-      std::string kFirebaseFirestoreHeartbeatKey = "X-firebase-client-log-type";
-      std::string kFirebaseFirestoreUserAgentKey = "X-firebase-client";
-      std::string heartbeatCode = util::MakeString(@([FIRHeartbeatInfo heartbeatCodeForTag:kFirebaseFirestoreHeartbeatTag])
-                                                   .stringValue);
-      /*
-      std::string heartbeatCode = GrpcMetadataProvider::getHeartbeatCode();
-      if (heartbeatCode != "0") {
-        context->AddMetadata(kFirebaseFirestoreHeartbeatKey,
-                             GrpcMetadataProvider::getHeartbeatCode());
-        context->AddMetadata(kFirebaseFirestoreUserAgentKey,
-                             GrpcMetadataProvider::getUserAgentString());
-      }
-       */
-      return;
-    }
-  };
-  std::unique_ptr<GrpcMetadataProvider> GrpcMetadataProvider::Create() {
-    return absl::make_unique<FirebaseClientGrpcMetadataProviderApple>();
+class FirebaseClientGrpcMetadataProviderApple : public GrpcMetadataProvider {
+ public:
+  explicit FirebaseClientGrpcMetadataProviderApple() : GrpcMetadataProvider() {
   }
+
+  void UpdateMetadata(std::unique_ptr<grpc::ClientContext>& context) {
+    std::string kFirebaseFirestoreHeartbeatKey = "X-firebase-client-log-type";
+    std::string kFirebaseFirestoreUserAgentKey = "X-firebase-client";
+    std::string heartbeatCode = util::MakeString(
+        @([FIRHeartbeatInfo heartbeatCodeForTag:kFirebaseFirestoreHeartbeatTag])
+            .stringValue);
+    std::string userAgentString = util::MakeString([FIRApp firebaseUserAgent]);
+    if (heartbeatCode != "0") {
+      context->AddMetadata(kFirebaseFirestoreHeartbeatKey, heartbeatCode);
+      context->AddMetadata(kFirebaseFirestoreUserAgentKey, userAgentString);
+    }
+    return;
+  }
+};
+std::unique_ptr<GrpcMetadataProvider> GrpcMetadataProvider::Create() {
+  return absl::make_unique<FirebaseClientGrpcMetadataProviderApple>();
+}
 }  // namespace remote
 }  // namespace firestore
-} // namespace firebase
+}  // namespace firebase
