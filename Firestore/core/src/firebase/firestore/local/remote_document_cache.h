@@ -84,7 +84,7 @@ class RemoteDocumentCache {
    * Cached DeletedDocument entries have no bearing on query results.
    *
    * @param query The query to match documents against.
-   * @param since_read_time If not set to SnapshotVersion::NONE(), return only
+   * @param since_read_time If not set to SnapshotVersion::None(), return only
    * documents that have been read since this snapshot version (exclusive).
    * @return The set of matching documents.
    */
