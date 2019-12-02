@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
                 portraitImageData:(FIRInAppMessagingImageData *)portraitImageData
                   backgroundColor:(UIColor *)backgroundColor
               primaryActionButton:(FIRInAppMessagingActionButton *)primaryActionButton
-                 primaryActionURL:(NSURL *)primaryActionURL;
+                 primaryActionURL:(nullable NSURL *)primaryActionURL;
 
 @end
 
