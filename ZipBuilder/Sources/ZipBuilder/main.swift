@@ -34,147 +34,29 @@ paths.allSDKsPath = args.allSDKsPath
 paths.currentReleasePath = args.currentReleasePath
 paths.logsOutputDir = args.outputDir?.appendingPathComponent("build_logs")
 let builder = ZipBuilder(paths: paths, customSpecRepos: args.customSpecRepos)
+let projectDir = FileManager.default.temporaryDirectory(withName: "project")
 
-do {
-  // Build the zip file and get the path.
-  let projectDir = FileManager.default.temporaryDirectory(withName: "project")
-  let artifacts = try builder.buildAndAssembleRelease(inProjectDir: projectDir)
-  let firebaseVersion = artifacts.firebaseVersion
-  let location = artifacts.outputDir
-  print("Firebase \(firebaseVersion) directory is ready to be packaged: \(location)")
-
-  // Package carthage if it's enabled.
-  var carthageRoot: URL?
-  if let carthageJSONDir = args.carthageDir {
-    do {
-      print("Creating Carthage release...")
-      // Create a copy of the release directory since we'll be modifying it.
-      let carthagePath =
-        location.deletingLastPathComponent().appendingPathComponent("carthage_build")
-      let fileManager = FileManager.default
-      fileManager.removeIfExists(at: carthagePath)
-      try fileManager.copyItem(at: location, to: carthagePath)
-
-      // Package the Carthage distribution with the current directory structure.
-      let carthageDir = location.deletingLastPathComponent().appendingPathComponent("carthage")
-      fileManager.removeIfExists(at: carthageDir)
-      var output = carthageDir.appendingPathComponent(firebaseVersion)
-      if let rcNumber = args.rcNumber {
-        output.appendPathComponent("rc\(rcNumber)")
-      } else {
-        output.appendPathComponent("latest-non-rc")
-      }
-      try fileManager.createDirectory(at: output, withIntermediateDirectories: true)
-      CarthageUtils.generateCarthageRelease(fromPackagedDir: carthagePath,
-                                            templateDir: args.templateDir,
-                                            jsonDir: carthageJSONDir,
-                                            firebaseVersion: firebaseVersion,
-                                            coreDiagnosticsPath: artifacts.carthageDiagnostics,
-                                            outputDir: output)
-
-      // Remove the duplicated Carthage build directory.
-      fileManager.removeIfExists(at: carthagePath)
-      print("Done creating Carthage release! Files written to \(output)")
-
-      // Save the directory for later copying.
-      carthageRoot = carthageDir
-    } catch {
-      // TODO: This can fail on CI due to size requirements, let's fail gracefully in the meantime
-      //       and not block the rest of the build.
-      //      fatalError("Could not copy output directory for Carthage build: \(error)")
-      print("--------- CARTHAGE ERROR ---------")
-      print("Could not copy output directory for Carthage build: \(error)")
-      print("------- END CARTHAGE ERROR -------")
-    }
-  }
-
-  // Prepare the release directory for zip packaging.
-  do {
-    // Move the Resources out of each directory in order to maintain the existing Zip structure.
-    let fileManager = FileManager.default
-    let contents = try fileManager.contentsOfDirectory(atPath: location.path)
-    for fileOrFolder in contents {
-      let fullPath = location.appendingPathComponent(fileOrFolder)
-
-      // Ignore any files.
-      guard fileManager.isDirectory(at: fullPath) else { continue }
-
-      // Move all the bundles in the frameworks out to a common "Resources" directory to match the
-      // existing Zip structure.
-      let resourcesDir = fullPath.appendingPathComponent("Resources")
-      _ = try ResourcesManager.moveAllBundles(inDirectory: fullPath, to: resourcesDir)
-    }
-  }
-
-  print("Attempting to Zip the directory...")
-  var candidateName = "Firebase-\(firebaseVersion)"
-  if let rcNumber = args.rcNumber {
-    candidateName += "-rc\(rcNumber)"
-  } else {
-    candidateName += "-latest-manual"
-  }
-  candidateName += ".zip"
-  let zipped = Zip.zipContents(ofDir: location, name: candidateName)
-
-  // If an output directory was specified, copy the Zip file to that directory. Otherwise just print
-  // the location for further use.
-  if let outputDir = args.outputDir {
-    do {
-      // Clear out the output directory if it exists.
-      FileManager.default.removeIfExists(at: outputDir)
-      try FileManager.default.createDirectory(at: outputDir, withIntermediateDirectories: true)
-
-      // We want the output to be in the X_Y_Z directory.
-      let underscoredVersion = firebaseVersion.replacingOccurrences(of: ".", with: "_")
-      let versionedOutputDir = outputDir.appendingPathComponent(underscoredVersion)
-      try FileManager.default.createDirectory(at: versionedOutputDir,
-                                              withIntermediateDirectories: true)
-      let destination = versionedOutputDir.appendingPathComponent(zipped.lastPathComponent)
-      try FileManager.default.copyItem(at: zipped, to: destination)
-    } catch {
-      fatalError("Could not copy Zip file to output directory: \(error)")
-    }
-
-    // Move the Carthage directory, if it exists.
-    if let carthageOutput = carthageRoot {
-      do {
-        let carthageDir = outputDir.appendingPathComponent("carthage")
-        try FileManager.default.copyItem(at: carthageOutput, to: carthageDir)
-      } catch {
-        fatalError("Could not copy Carthage output to directory: \(error)")
-      }
-    }
-  } else {
-    // Move zip to parent directory so it doesn't get removed with other artifacts.
-    let parentLocation =
-      zipped.deletingLastPathComponent().deletingLastPathComponent().appendingPathComponent(zipped.lastPathComponent)
-    // Clear out the output file if it exists.
-    FileManager.default.removeIfExists(at: parentLocation)
-    do {
-      try FileManager.default.moveItem(at: zipped, to: parentLocation)
-    } catch {
-      fatalError("Could not move Zip file to output directory: \(error)")
-    }
-    print("Success! Zip file can be found at \(parentLocation.path)")
-  }
-
-  if !args.keepBuildArtifacts {
-    FileManager.default.removeIfExists(at: projectDir.deletingLastPathComponent())
-  }
-
-  // Get the time since the start of the build to get the full time.
-  let secondsSinceStart = -Int(buildStart.timeIntervalSinceNow)
-  print("""
-  Time profile:
-    It took \(secondsSinceStart) seconds (~\(secondsSinceStart / 60)m) to build the zip file.
-    \(cocoaPodsUpdateMessage)
-  """)
-} catch {
-  let secondsSinceStart = -buildStart.timeIntervalSinceNow
-  print("""
-  Time profile:
-    The build failed in \(secondsSinceStart) seconds (~\(secondsSinceStart / 60)m).
-    \(cocoaPodsUpdateMessage)
-  """)
-  fatalError("Could not build the zip file: \(error)")
+// If it exists, remove it before we re-create it. This is simpler than removing all objects.
+if FileManager.default.directoryExists(at: projectDir) {
+  try FileManager.default.removeItem(at: projectDir)
 }
+
+CocoaPodUtils.podInstallPrepare(inProjectDir: projectDir)
+
+if args.zipPods != nil {
+  // Do a Firebase build.
+  FirebaseBuilder(zipBuilder: builder).build(in: projectDir)
+} else {
+  _ = builder.buildAndAssembleZip(podsToInstall: LaunchArgs.shared.zipPods!)
+}
+if !args.keepBuildArtifacts {
+  FileManager.default.removeIfExists(at: projectDir.deletingLastPathComponent())
+}
+
+// Get the time since the start of the build to get the full time.
+let secondsSinceStart = -Int(buildStart.timeIntervalSinceNow)
+print("""
+Time profile:
+  It took \(secondsSinceStart) seconds (~\(secondsSinceStart / 60)m) to build the zip file.
+  \(cocoaPodsUpdateMessage)
+""")

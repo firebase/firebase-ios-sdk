@@ -15,7 +15,6 @@
  */
 
 import Foundation
-import ManifestReader
 
 /// Describes an object that can check if a file eists in the filesystem. Used to allow for better
 /// testing with FileManager.
@@ -136,7 +135,7 @@ struct LaunchArgs {
   let updatePodRepo: Bool
 
   /// The path to a textproto file listing the pods to repackage to a zip.
-  let zipPods: [String]?
+  let zipPods : [CocoaPodUtils.VersionedPod]?
 
   /// The shared instance for processing launch args using default arguments.
   static let shared: LaunchArgs = LaunchArgs()
@@ -214,15 +213,30 @@ struct LaunchArgs {
           "in is not a file URL or the file does not exist. Value: \(zipPodsPath)")
       }
 
-      let buildPods = ManifestReader.loadAllReleasedSDKs(fromTextproto: url)
-      print("Parsed the following pods to build:")
-
-      var collectPods : [String] = []
-      for pod in buildPods.sdk {
-        collectPods.append(pod.name)
-        print("\(pod.name): \(pod.publicVersion)")  // TODO: handle test version not specified
+      let jsonData: Data
+      do {
+        jsonData = try Data(contentsOf: url)
+      } catch {
+        fatalError("Could not read JSON file at \(url). \(error)")
       }
-      zipPods = CocoaPod.allCases.map{ $0.rawValue }
+
+      // Get pods, with optional version, from the JSON file.
+      let decoder = JSONDecoder()
+      do {
+        zipPods = try decoder.decode([CocoaPodUtils.VersionedPod].self, from: jsonData)
+      } catch {
+        fatalError("Could not parse JSON manifest at \(url). \(error)")
+      }
+
+      // let buildPods = ManifestReader.loadAllReleasedSDKs(fromTextproto: url)
+      // print("Parsed the following pods to build:")
+
+      // var collectPods : [String] = []
+      // for pod in buildPods.sdk {
+      //   collectPods.append(pod.name)
+      //   print("\(pod.name): \(pod.publicVersion)")  // TODO: handle test version not specified
+      // }
+      // zipPods = CocoaPod.allCases.map{ $0.rawValue }
 
     } else {
       zipPods = nil

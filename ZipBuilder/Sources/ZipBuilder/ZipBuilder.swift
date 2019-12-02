@@ -128,41 +128,11 @@ struct ZipBuilder {
     self.customSpecRepos = customSpecRepos
   }
 
-  // TODO: This function contains a lot of "copy these paths to this directory, fail if there are
-  //   errors" code. It could probably be broken out into a cleaner interface or broken out into
-  //   separate functions.
-  /// Try to build and package the contents of the Zip file. This will throw an error as soon as it
-  /// encounters an error, or will quit due to a fatal error with the appropriate log.
-  ///
-  /// - Returns: Information related to the built artifacts.
-  /// - Throws: One of many errors that could have happened during the build phase.
-  func buildAndAssembleRelease(inProjectDir projectDir: URL) throws -> ReleaseArtifacts {
-    // If it exists, remove it before we re-create it. This is simpler than removing all objects.
-    if FileManager.default.directoryExists(at: projectDir) {
-      try FileManager.default.removeItem(at: projectDir)
-    }
-
-    CocoaPodUtils.podInstallPrepare(inProjectDir: projectDir)
-
-    // Get the README template ready (before attempting to build everything in case this fails,
-    // otherwise debugging it will take a long time).
-    let readmePath = paths.templateDir.appendingPathComponent(Constants.ProjectPath.readmeName)
-    let readmeTemplate: String
-    do {
-      readmeTemplate = try String(contentsOf: readmePath)
-    } catch {
-      fatalError("Could not get contents of the README template: \(error)")
-    }
-
+  func buildAndAssembleZip(podsToInstall: [CocoaPodUtils.VersionedPod]) ->
+    ([CocoaPodUtils.PodInfo], [String : [URL]]) {
     // Remove CocoaPods cache so the build gets updates after a version is rebuilt during the
     // release process.
     CocoaPodUtils.cleanPodCache()
-
-    // Break the `inputPods` into a variable since it's helpful when debugging builds to just
-    // install a subset of pods, like the following line:
-    // let inputPods: [String] = ["", "Core", "Analytics", "Storage"]
-    let inputPods = CocoaPod.allCases.map { $0.rawValue }
-    let podsToInstall = inputPods.map { CocoaPodUtils.VersionedPod(name: $0, version: nil) }
 
     // We need to install all the pods in order to get every single framework that we'll need
     // for the zip file. We can't install each one individually since some pods depend on different
@@ -182,13 +152,6 @@ struct ZipBuilder {
     // Find out what pods were installed with the above commands.
     let installedPods = CocoaPodUtils.installedPodsInfo(inProjectDir: projectDir)
 
-    // We need the Firebase pod to get the version for Carthage and to copy the `Firebase.h` and
-    // `module.modulemap` file from it.
-    guard let firebasePod = installedPods.first(where: { $0.name == "Firebase" }) else {
-      fatalError("Could not get the Firebase pod from list of installed pods. All pods " +
-        "installed: \(installedPods)")
-    }
-
     // Generate the frameworks. Each key is the pod name and the URLs are all frameworks to be
     // copied in each product's directory.
     let frameworks = generateFrameworks(fromPods: installedPods, inProjectDir: projectDir)
@@ -198,6 +161,35 @@ struct ZipBuilder {
     for (framework, paths) in frameworks {
       print("Frameworks for pod: \(framework) were compiled at \(paths)")
     }
+    return (installedPods, frameworks)
+  }
+
+  // TODO: This function contains a lot of "copy these paths to this directory, fail if there are
+  //   errors" code. It could probably be broken out into a cleaner interface or broken out into
+  //   separate functions.
+  /// Try to build and package the contents of the Zip file. This will throw an error as soon as it
+  /// encounters an error, or will quit due to a fatal error with the appropriate log.
+  ///
+  /// - Returns: Information related to the built artifacts.
+  /// - Throws: One of many errors that could have happened during the build phase.
+  func buildAndAssembleFirebaseRelease(inProjectDir projectDir: URL) throws -> ReleaseArtifacts {
+    // Get the README template ready (before attempting to build everything in case this fails,
+    // otherwise debugging it will take a long time).
+    let readmePath = paths.templateDir.appendingPathComponent(Constants.ProjectPath.readmeName)
+    let readmeTemplate: String
+    do {
+      readmeTemplate = try String(contentsOf: readmePath)
+    } catch {
+      fatalError("Could not get contents of the README template: \(error)")
+    }
+
+    // Break the `inputPods` into a variable since it's helpful when debugging builds to just
+    // install a subset of pods, like the following line:
+    // let inputPods: [String] = ["", "Core", "Analytics", "Storage"]
+    let inputPods = CocoaPod.allCases.map { $0.rawValue }
+    let podsToInstall = inputPods.map { CocoaPodUtils.VersionedPod(name: $0, version: nil) }
+
+    let (installedPods, frameworks) = buildAndAssembleZip(podsToInstall: podsToInstall)
 
     // Create the CoreDiagnostics framework for Carthage, since it needs to be recompiled.
     let carthageCoreDiagnostics: URL = createCarthageCoreDiagnostics(fromPods: installedPods,
@@ -241,6 +233,12 @@ struct ZipBuilder {
                                               attributes: nil)
     }
 
+    // We need the Firebase pod to get the version for Carthage and to copy the `Firebase.h` and
+    // `module.modulemap` file from it.
+    guard let firebasePod = installedPods.first(where: { $0.name == "Firebase" }) else {
+      fatalError("Could not get the Firebase pod from list of installed pods. All pods " +
+        "installed: \(installedPods)")
+    }
     // Copy all required files from the Firebase pod. This will cause a fatalError if anything
     // fails.
     copyFirebasePodFiles(fromDir: firebasePod.installedLocation, to: zipDir)
