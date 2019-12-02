@@ -43,12 +43,42 @@ if FileManager.default.directoryExists(at: projectDir) {
 
 CocoaPodUtils.podInstallPrepare(inProjectDir: projectDir)
 
-if args.zipPods != nil {
+if let outputDir = args.outputDir {
+  do {
+    // Clear out the output directory if it exists.
+    FileManager.default.removeIfExists(at: outputDir)
+    try FileManager.default.createDirectory(at: outputDir, withIntermediateDirectories: true)
+  }
+}
+
+var zipped: URL
+if args.zipPods == nil {
   // Do a Firebase build.
   FirebaseBuilder(zipBuilder: builder).build(in: projectDir)
 } else {
-  _ = builder.buildAndAssembleZip(podsToInstall: LaunchArgs.shared.zipPods!)
+  let (installedPods, frameworks) = builder.buildAndAssembleZip(podsToInstall: LaunchArgs.shared.zipPods!)
+  let staging = FileManager.default.temporaryDirectory(withName: "staging")
+  try builder.copyFrameworks(fromPods: installedPods, toDirectory: staging, frameworkLocations: frameworks)
+  zipped = Zip.zipContents(ofDir: staging, name: "Frameworks.zip")
+  print(zipped.absoluteString)
+  if let outputDir = args.outputDir {
+    try FileManager.default.copyItem(at: zipped, to: outputDir)
+    print("Success! Zip file can be found at \(outputDir.path)")
+  } else {
+    // Move zip to parent directory so it doesn't get removed with other artifacts.
+    let parentLocation =
+      zipped.deletingLastPathComponent().deletingLastPathComponent().appendingPathComponent(zipped.lastPathComponent)
+    // Clear out the output file if it exists.
+    FileManager.default.removeIfExists(at: parentLocation)
+    do {
+      try FileManager.default.moveItem(at: zipped, to: parentLocation)
+    } catch {
+      fatalError("Could not move Zip file to output directory: \(error)")
+    }
+    print("Success! Zip file can be found at \(parentLocation.path)")
+  }
 }
+
 if !args.keepBuildArtifacts {
   FileManager.default.removeIfExists(at: projectDir.deletingLastPathComponent())
 }

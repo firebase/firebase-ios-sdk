@@ -349,11 +349,12 @@ struct ZipBuilder {
   /// - Returns: The filenames of the frameworks that were copied.
   /// - Throws: Various FileManager errors in case the copying fails, or an error if the framework
   //            doesn't exist in `frameworkLocations`.
-  private func copyFrameworks(fromPods installedPods: [CocoaPodUtils.PodInfo],
+  @discardableResult
+  func copyFrameworks(fromPods installedPods: [CocoaPodUtils.PodInfo],
                               toDirectory dir: URL,
                               frameworkLocations: [String: [URL]],
-                              podsToIgnore: [String],
-                              foldersToIgnore: [String]) throws -> [String] {
+                              podsToIgnore: [String] = [],
+                              foldersToIgnore: [String] = []) throws -> [String] {
     let fileManager = FileManager.default
     if !fileManager.directoryExists(at: dir) {
       try fileManager.createDirectory(at: dir, withIntermediateDirectories: false, attributes: nil)

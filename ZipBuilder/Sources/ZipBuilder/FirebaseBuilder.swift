@@ -20,8 +20,7 @@ import Foundation
 /// zip with the option to install different Firebase library subsets.
 struct FirebaseBuilder {
 
-  /// Custom CocoaPods spec repos to be used. If not provided, the tool will only use the CocoaPods
-  /// master repo.
+  /// ZipBuilder instance.
   private let zipBuilder: ZipBuilder
 
   /// Default initializer. If allSDKsPath and currentReleasePath are provided, it will also verify
@@ -118,10 +117,6 @@ struct FirebaseBuilder {
       // the location for further use.
       if let outputDir = args.outputDir {
         do {
-          // Clear out the output directory if it exists.
-          FileManager.default.removeIfExists(at: outputDir)
-          try FileManager.default.createDirectory(at: outputDir, withIntermediateDirectories: true)
-
           // We want the output to be in the X_Y_Z directory.
           let underscoredVersion = firebaseVersion.replacingOccurrences(of: ".", with: "_")
           let versionedOutputDir = outputDir.appendingPathComponent(underscoredVersion)

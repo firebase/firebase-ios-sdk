@@ -87,7 +87,7 @@ struct LaunchArgs {
       case .updatePodRepo:
         return "A flag to run `pod repo update` before building the zip file."
       case .zipPods:
-        return "The path to a textproto file listing the pods to repackage to a zip."
+        return "The path to a JSON file of the pods (with optional version) to package into a zip."
       }
     }
   }
@@ -134,7 +134,7 @@ struct LaunchArgs {
   /// A flag to update the Pod Repo or not.
   let updatePodRepo: Bool
 
-  /// The path to a textproto file listing the pods to repackage to a zip.
+  /// The path to a JSON file listing the pods to repackage to a zip.
   let zipPods : [CocoaPodUtils.VersionedPod]?
 
   /// The shared instance for processing launch args using default arguments.

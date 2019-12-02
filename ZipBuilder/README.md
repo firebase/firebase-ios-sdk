@@ -8,8 +8,8 @@ you can fix issues or dig in without having to dig too deep into the code.
 
 ## Zip Builder
 
-This is a small Swift Package Manager project that allows users to package a Firebase iOS Zip file. With no launch
-arguments, it will use the most recent public versions of all SDKs included in the zip file.
+This is a small Swift Package Manager project that allows users to package an iOS Zip file of binary
+packages.
 
 ### Requirements
 
@@ -38,6 +38,27 @@ These arguments assume you're running the command from the `ZipBuilder` director
 **Required** arguments:
 - `-templateDir $(pwd)/Template`
   - This should always be the same.
+
+Typical argument (all use cases except Firebase release build):
+- `-zipPods <PATH_TO.json>`
+  - This is a JSON list of the pods to consolidate into a zip of binary frameworks. For example,
+
+```
+[
+  { 
+    "name": "GoogleDataTransport",
+    "version" : "3.2.0" 
+  },
+  {
+    "name": "FirebaseMessaging"
+  }
+]
+```
+
+Indicates to install the version 3.2.0 of "GoogleDataTransport" and the latest
+version of "FirebaseMessaging". The version string is optional and can be any
+valid [CocoaPods Podfile version specifier](https://guides.cocoapods.org/syntax/podfile.html#pod).
+
 
 Optional common arguments:
 - `-updatePodRepo false`
