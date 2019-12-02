@@ -71,7 +71,8 @@ OptionalMaybeDocumentMap MemoryRemoteDocumentCache::GetAll(
   return results;
 }
 
-DocumentMap MemoryRemoteDocumentCache::GetMatching(const Query& query) {
+DocumentMap MemoryRemoteDocumentCache::GetMatching(
+    const Query& query, const SnapshotVersion& since_read_time) {
   HARD_ASSERT(
       !query.IsCollectionGroupQuery(),
       "CollectionGroup queries should be handled in LocalDocumentsView");
@@ -88,6 +89,11 @@ DocumentMap MemoryRemoteDocumentCache::GetMatching(const Query& query) {
     }
     const MaybeDocument& maybe_doc = it->second.first;
     if (!maybe_doc.is_document()) {
+      continue;
+    }
+
+    const SnapshotVersion& read_time = it->second.second;
+    if (read_time <= since_read_time) {
       continue;
     }
 

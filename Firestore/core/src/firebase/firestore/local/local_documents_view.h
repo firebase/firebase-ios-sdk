@@ -103,11 +103,11 @@ class LocalDocumentsView {
       const model::ResourcePath& doc_path);
 
   model::DocumentMap GetDocumentsMatchingCollectionGroupQuery(
-      const core::Query& query);
+      const core::Query& query, const model::SnapshotVersion& since_read_time);
 
   /** Queries the remote documents and overlays mutations. */
   model::DocumentMap GetDocumentsMatchingCollectionQuery(
-      const core::Query& query);
+      const core::Query& query, const model::SnapshotVersion& since_read_time);
 
   /**
    * It is possible that a `PatchMutation` can make a document match a query,

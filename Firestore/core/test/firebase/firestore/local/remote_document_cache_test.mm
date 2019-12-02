@@ -25,6 +25,7 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
+#include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 #include "absl/strings/string_view.h"
@@ -46,6 +47,7 @@ using model::MaybeDocument;
 using model::MaybeDocumentMap;
 using model::NoDocument;
 using model::OptionalMaybeDocumentMap;
+using model::SnapshotVersion;
 
 using testing::Matches;
 using testing::IsSupersetOf;
@@ -54,6 +56,7 @@ using testutil::DeletedDoc;
 using testutil::Doc;
 using testutil::Map;
 using testutil::Query;
+using testutil::Version;
 
 const char* kDocPath = "a/b";
 const char* kLongDocPath = "a/b/c/d/e/f";
@@ -192,7 +195,7 @@ TEST_P(RemoteDocumentCacheTest, DocumentsMatchingQuery) {
     SetTestDocument("c/1");
 
     core::Query query = Query("b");
-    DocumentMap results = cache_->GetMatching(query);
+    DocumentMap results = cache_->GetMatching(query, SnapshotVersion::None());
     std::vector<Document> docs = {
         Doc("b/1", kVersion, kDocData),
         Doc("b/2", kVersion, kDocData),
@@ -201,13 +204,49 @@ TEST_P(RemoteDocumentCacheTest, DocumentsMatchingQuery) {
   });
 }
 
+TEST_P(RemoteDocumentCacheTest, DocumentsMatchingQuerySinceReadTime) {
+  persistence_->Run("test_documents_matching_query_since_read_time", [&] {
+    SetTestDocument("b/old", /* updateTime= */ 1, /* readTime= */ 11);
+    SetTestDocument("b/current", /* updateTime= */ 2, /* readTime= = */ 12);
+    SetTestDocument("b/new", /* updateTime= */ 3, /* readTime= = */ 13);
+
+    core::Query query = Query("b");
+    DocumentMap results = cache_->GetMatching(query, Version(12));
+    std::vector<Document> docs = {
+        Doc("b/new", 3, kDocData),
+    };
+    EXPECT_THAT(results.underlying_map(), HasExactlyDocs(docs));
+  });
+}
+
+TEST_P(RemoteDocumentCacheTest, DocumentsMatchingUsesReadTimeNotUpdateTime) {
+  persistence_->Run(
+      "test_documents_matching_query_uses_read_time_not_update_time", [&] {
+        SetTestDocument("b/old", /* updateTime= */ 1, /* readTime= */ 2);
+        SetTestDocument("b/new", /* updateTime= */ 2, /* readTime= */ 1);
+
+        core::Query query = Query("b");
+        DocumentMap results = cache_->GetMatching(query, Version(1));
+        std::vector<Document> docs = {
+            Doc("b/old", 1, kDocData),
+        };
+        EXPECT_THAT(results.underlying_map(), HasExactlyDocs(docs));
+      });
+}
+
 // MARK: - Helpers
+
+Document RemoteDocumentCacheTest::SetTestDocument(const absl::string_view path,
+                                                  int update_time,
+                                                  int read_time) {
+  Document doc = Doc(path, update_time, kDocData);
+  cache_->Add(doc, Version(read_time));
+  return doc;
+}
 
 Document RemoteDocumentCacheTest::SetTestDocument(
     const absl::string_view path) {
-  Document doc = Doc(path, kVersion, kDocData);
-  cache_->Add(doc, doc.version());
-  return doc;
+  return SetTestDocument(path, kVersion, kVersion);
 }
 
 void RemoteDocumentCacheTest::SetAndReadTestDocument(
