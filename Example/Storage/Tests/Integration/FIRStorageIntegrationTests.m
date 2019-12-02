@@ -64,7 +64,6 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 60;
 
   self.app = [FIRApp defaultApp];
   self.storage = [FIRStorage storageForApp:self.app];
-  self.storage.callbackQueue = nil;
 
   static dispatch_once_t once;
   dispatch_once(&once, ^{
