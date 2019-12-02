@@ -82,22 +82,22 @@ std::string RemoteDocumentReadTimeKey(absl::string_view collection_path,
   ASSERT_EQ((expected_description), DescribeKey(key))
 
 TEST(LevelDbMutationKeyTest, Prefixing) {
-  auto tableKey = LevelDbMutationKey::KeyPrefix();
-  auto emptyUserKey = LevelDbMutationKey::KeyPrefix("");
-  auto fooUserKey = LevelDbMutationKey::KeyPrefix("foo");
+  auto table_key = LevelDbMutationKey::KeyPrefix();
+  auto empty_user_key = LevelDbMutationKey::KeyPrefix("");
+  auto foo_user_key = LevelDbMutationKey::KeyPrefix("foo");
 
-  auto foo2Key = LevelDbMutationKey::Key("foo", 2);
+  auto foo2_key = LevelDbMutationKey::Key("foo", 2);
 
-  ASSERT_TRUE(absl::StartsWith(emptyUserKey, tableKey));
+  ASSERT_TRUE(absl::StartsWith(empty_user_key, table_key));
 
   // This is critical: prefixes of the a value don't convert into prefixes of
   // the key.
-  ASSERT_TRUE(absl::StartsWith(fooUserKey, tableKey));
-  ASSERT_FALSE(absl::StartsWith(fooUserKey, emptyUserKey));
+  ASSERT_TRUE(absl::StartsWith(foo_user_key, table_key));
+  ASSERT_FALSE(absl::StartsWith(foo_user_key, empty_user_key));
 
   // However whole segments in common are prefixes.
-  ASSERT_TRUE(absl::StartsWith(foo2Key, tableKey));
-  ASSERT_TRUE(absl::StartsWith(foo2Key, fooUserKey));
+  ASSERT_TRUE(absl::StartsWith(foo2_key, table_key));
+  ASSERT_TRUE(absl::StartsWith(foo2_key, foo_user_key));
 }
 
 TEST(LevelDbMutationKeyTest, EncodeDecodeCycle) {
@@ -327,9 +327,9 @@ TEST(DocumentTargetKeyTest, Ordering) {
 }
 
 TEST(RemoteDocumentKeyTest, Prefixing) {
-  auto tableKey = LevelDbRemoteDocumentKey::KeyPrefix();
+  auto table_key = LevelDbRemoteDocumentKey::KeyPrefix();
 
-  ASSERT_TRUE(absl::StartsWith(RemoteDocKey("foo/bar"), tableKey));
+  ASSERT_TRUE(absl::StartsWith(RemoteDocKey("foo/bar"), table_key));
 
   // This is critical: foo/bar2 should not contain foo/bar.
   ASSERT_FALSE(

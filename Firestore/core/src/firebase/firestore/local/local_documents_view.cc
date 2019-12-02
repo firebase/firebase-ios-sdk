@@ -85,10 +85,6 @@ MaybeDocumentMap LocalDocumentsView::GetDocuments(const DocumentKeySet& keys) {
   return GetLocalViewOfDocuments(docs);
 }
 
-/**
- * Similar to `documentsForKeys`, but creates the local view from the given
- * `baseDocs` without retrieving documents from the local store.
- */
 MaybeDocumentMap LocalDocumentsView::GetLocalViewOfDocuments(
     const OptionalMaybeDocumentMap& base_docs) {
   DocumentKeySet all_keys;
