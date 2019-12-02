@@ -212,14 +212,12 @@ struct LaunchArgs {
         LaunchArgs.exitWithUsageAndLog("Could not parse \(Key.releasingSDKs) key: value passed " +
           "in is not a file URL or the file does not exist. Value: \(zipPodsPath)")
       }
-
       let jsonData: Data
       do {
         jsonData = try Data(contentsOf: url)
       } catch {
         fatalError("Could not read JSON file at \(url). \(error)")
       }
-
       // Get pods, with optional version, from the JSON file.
       let decoder = JSONDecoder()
       do {
@@ -227,17 +225,6 @@ struct LaunchArgs {
       } catch {
         fatalError("Could not parse JSON manifest at \(url). \(error)")
       }
-
-      // let buildPods = ManifestReader.loadAllReleasedSDKs(fromTextproto: url)
-      // print("Parsed the following pods to build:")
-
-      // var collectPods : [String] = []
-      // for pod in buildPods.sdk {
-      //   collectPods.append(pod.name)
-      //   print("\(pod.name): \(pod.publicVersion)")  // TODO: handle test version not specified
-      // }
-      // zipPods = CocoaPod.allCases.map{ $0.rawValue }
-
     } else {
       zipPods = nil
     }
