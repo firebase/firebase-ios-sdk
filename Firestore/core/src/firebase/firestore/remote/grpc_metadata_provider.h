@@ -15,6 +15,7 @@
  */
 
 #include <string>
+#include "grpcpp/client_context.h"
 
 namespace firebase {
 namespace firestore {
@@ -25,15 +26,18 @@ namespace remote {
  */
 class GrpcMetadataProvider {
  public:
+  /** Creates a platform-specific GrpcMetadataProvider. */
+  static std::unique_ptr<GrpcMetadataProvider> Create();
   /**
    * Called by grpc_connection.cc. Provides the heartbeatcode corresponding to
    * firestore.
    */
-  static std::string getHeartbeatCode();
+  virtual void UpdateMetadata(grpc::ClientContext* context) = 0;
+
   /**
    * Called by grpc_connection.cc. Provides the userAgentString.
    */
-  static std::string getUserAgentString();
+  virtual ~GrpcMetadataProvider() = default;
 };
 }  // namespace remote
 }  // namespace firestore

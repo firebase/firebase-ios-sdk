@@ -51,8 +51,6 @@ namespace {
 
 const char* const kXGoogAPIClientHeader = "x-goog-api-client";
 const char* const kGoogleCloudResourcePrefix = "google-cloud-resource-prefix";
-const char* const kFirebaseFirestoreHeartbeatKey = "X-firebase-client-log-type";
-const char* const kFirebaseFirestoreUserAgentKey = "X-firebase-client";
 
 std::string MakeString(absl::string_view view) {
   return view.data() ? std::string{view.data(), view.size()} : std::string{};
@@ -173,13 +171,10 @@ std::unique_ptr<grpc::ClientContext> GrpcConnection::CreateContext(
   context->AddMetadata(kGoogleCloudResourcePrefix,
                        StringFormat("projects/%s/databases/%s",
                                     db_id.project_id(), db_id.database_id()));
-  std::string heartbeatCode = GrpcMetadataProvider::getHeartbeatCode();
-  if (heartbeatCode != "0") {
-    context->AddMetadata(kFirebaseFirestoreHeartbeatKey,
-                         GrpcMetadataProvider::getHeartbeatCode());
-    context->AddMetadata(kFirebaseFirestoreUserAgentKey,
-                         GrpcMetadataProvider::getUserAgentString());
-  }
+
+  GrpcMetadataProvider * provider = GrpcMetadataProvider.create();
+  provider.UpdateMetadata(context);
+
   return context;
 }
 
