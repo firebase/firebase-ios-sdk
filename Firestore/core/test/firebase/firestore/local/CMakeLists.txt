@@ -15,6 +15,7 @@
 cc_test(
   firebase_firestore_local_test
   SOURCES
+    index_free_query_engine_test.cc
     index_manager_test.cc
     index_manager_test.h
     leveldb_index_manager_test.cc
@@ -28,15 +29,6 @@ cc_test(
     leveldb_transaction_test.cc
     leveldb_util_test.cc
     local_serializer_test.cc
-<<<<<<< HEAD
-    index_free_query_engine_test.cc
-    #memory_index_manager_test.cc
-    #memory_remote_document_cache_test.cc
-    #persistence_testing.h
-    #persistence_testing.cc
-    #remote_document_cache_test.h
-    #remote_document_cache_test.cc
-=======
     lru_garbage_collector_test.cc
     lru_garbage_collector_test.h
     memory_index_manager_test.cc
@@ -53,7 +45,7 @@ cc_test(
     reference_set_test.cc
     remote_document_cache_test.cc
     remote_document_cache_test.h
->>>>>>> master
+
   DEPENDS
     GMock::GMock
     firebase_firestore_auth
