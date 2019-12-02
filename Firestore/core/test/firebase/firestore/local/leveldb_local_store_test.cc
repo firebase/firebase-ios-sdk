@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,34 +14,37 @@
  * limitations under the License.
  */
 
-#import "Firestore/Example/Tests/Local/FSTLocalStoreTests.h"
-
 #include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
+#include "Firestore/core/test/firebase/firestore/local/local_store_test.h"
 #include "Firestore/core/test/firebase/firestore/local/persistence_testing.h"
 
-NS_ASSUME_NONNULL_BEGIN
+namespace firebase {
+namespace firestore {
+namespace local {
+namespace {
 
-using firebase::firestore::local::LevelDbPersistenceForTesting;
-using firebase::firestore::local::Persistence;
+class TestHelper : public LocalStoreTestHelper {
+ public:
+  std::unique_ptr<Persistence> MakePersistence() override {
+    return LevelDbPersistenceForTesting();
+  }
 
-/**
- * The tests for FSTLevelDBLocalStore are performed on the FSTLocalStore protocol in
- * FSTLocalStoreTests. This class is merely responsible for creating a new Persistence
- * implementation on demand.
- */
-@interface FSTLevelDBLocalStoreTests : FSTLocalStoreTests
-@end
+  /** Returns true if the garbage collector is eager, false if LRU. */
+  bool IsGcEager() const override {
+    return false;
+  }
+};
 
-@implementation FSTLevelDBLocalStoreTests
-
-- (std::unique_ptr<Persistence>)persistence {
-  return LevelDbPersistenceForTesting();
+std::unique_ptr<LocalStoreTestHelper> Factory() {
+  return absl::make_unique<TestHelper>();
 }
 
-- (BOOL)gcIsEager {
-  return NO;
-}
+}  // namespace
 
-@end
+INSTANTIATE_TEST_SUITE_P(LevelDbLocalStoreTest,
+                         LocalStoreTest,
+                         ::testing::Values(Factory));
 
-NS_ASSUME_NONNULL_END
+}  // namespace local
+}  // namespace firestore
+}  // namespace firebase

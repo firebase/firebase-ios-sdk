@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,29 +14,92 @@
  * limitations under the License.
  */
 
-#import <XCTest/XCTest.h>
+#ifndef FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_LOCAL_LOCAL_STORE_TEST_H_
+#define FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_LOCAL_LOCAL_STORE_TEST_H_
 
 #include <memory>
+#include <vector>
 
-#include "Firestore/core/src/firebase/firestore/local/persistence.h"
+#include "Firestore/core/src/firebase/firestore/local/local_store.h"
+#include "Firestore/core/src/firebase/firestore/model/document_map.h"
+#include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
+#include "gtest/gtest.h"
 
-namespace local = firebase::firestore::local;
+namespace firebase {
+namespace firestore {
 
-NS_ASSUME_NONNULL_BEGIN
+namespace core {
+class Query;
+}
+
+namespace remote {
+class RemoteEvent;
+}
+
+namespace local {
+
+class Persistence;
+class LocalStore;
+class LocalViewChanges;
 
 /**
- * These are tests for any implementation of the FSTLocalStore protocol.
- *
- * To test a specific implementation of FSTLocalStore:
- *
- * + Subclass FSTLocalStoreTests
- * + override -persistence, creating a new instance of Persistence.
+ * A set of helper methods needed by LocalStoreTest that customize it to the
+ * specific implementation it is testing.
  */
-@interface FSTLocalStoreTests : XCTestCase
+class LocalStoreTestHelper {
+ public:
+  virtual ~LocalStoreTestHelper() = default;
 
-/** Creates and returns an appropriate Persistence implementation. */
-- (std::unique_ptr<local::Persistence>)persistence;
+  /** Creates a new instance of Persistence. */
+  virtual std::unique_ptr<Persistence> MakePersistence() = 0;
 
-@end
+  /** Returns true if the garbage collector is eager, false if LRU. */
+  virtual bool IsGcEager() const = 0;
+};
 
-NS_ASSUME_NONNULL_END
+using FactoryFunc = std::unique_ptr<LocalStoreTestHelper> (*)();
+
+/**
+ * These are tests for any configuration of the LocalStore.
+ *
+ * To test a specific configuration of LocalStore:
+ *
+ * + Write an implementation of LocalStoreTestHelper
+ * + Call INSTANTIATE_TEST_SUITE_P(MyNewLocalStoreTest,
+ *                                 LocalStoreTest,
+ *                                 testing::Values(MyNewLocalStoreTestHelper));
+ */
+class LocalStoreTest : public ::testing::TestWithParam<FactoryFunc> {
+ protected:
+  LocalStoreTest();
+
+  bool IsGcEager() const {
+    return test_helper_->IsGcEager();
+  }
+
+  void WriteMutation(model::Mutation mutation);
+  void WriteMutations(std::vector<model::Mutation>&& mutations);
+
+  void ApplyRemoteEvent(const remote::RemoteEvent& event);
+  void NotifyLocalViewChanges(LocalViewChanges changes);
+  void AcknowledgeMutationWithVersion(
+      int64_t document_version,
+      absl::optional<model::FieldValue> transform_result = absl::nullopt);
+  void RejectMutation();
+  model::TargetId AllocateQuery(core::Query query);
+
+  std::unique_ptr<LocalStoreTestHelper> test_helper_;
+
+  std::unique_ptr<Persistence> persistence_;
+  LocalStore local_store_;
+  std::vector<model::MutationBatch> batches_;
+  model::MaybeDocumentMap last_changes_;
+
+  model::TargetId last_target_id_ = 0;
+};
+
+}  // namespace local
+}  // namespace firestore
+}  // namespace firebase
+
+#endif  // FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_LOCAL_LOCAL_STORE_TEST_H_

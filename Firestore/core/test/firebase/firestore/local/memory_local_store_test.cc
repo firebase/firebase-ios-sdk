@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,35 +14,38 @@
  * limitations under the License.
  */
 
-#import "Firestore/Example/Tests/Local/FSTLocalStoreTests.h"
-
 #include "Firestore/core/src/firebase/firestore/local/memory_persistence.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_delegate.h"
+#include "Firestore/core/test/firebase/firestore/local/local_store_test.h"
 #include "Firestore/core/test/firebase/firestore/local/persistence_testing.h"
 
-NS_ASSUME_NONNULL_BEGIN
+namespace firebase {
+namespace firestore {
+namespace local {
+namespace {
 
-using firebase::firestore::local::MemoryPersistenceWithEagerGcForTesting;
-using firebase::firestore::local::Persistence;
+class TestHelper : public LocalStoreTestHelper {
+ public:
+  std::unique_ptr<Persistence> MakePersistence() override {
+    return MemoryPersistenceWithEagerGcForTesting();
+  }
 
-/**
- * This tests the FSTLocalStore with an FSTMemoryPersistence persistence implementation. The tests
- * are in FSTLocalStoreTests and this class is merely responsible for creating a new Persistence
- * implementation on demand.
- */
-@interface FSTMemoryLocalStoreTests : FSTLocalStoreTests
-@end
+  /** Returns true if the garbage collector is eager, false if LRU. */
+  bool IsGcEager() const override {
+    return true;
+  }
+};
 
-@implementation FSTMemoryLocalStoreTests
-
-- (std::unique_ptr<Persistence>)persistence {
-  return MemoryPersistenceWithEagerGcForTesting();
+std::unique_ptr<LocalStoreTestHelper> Factory() {
+  return absl::make_unique<TestHelper>();
 }
 
-- (BOOL)gcIsEager {
-  return YES;
-}
+}  // namespace
 
-@end
+INSTANTIATE_TEST_SUITE_P(MemoryLocalStoreTest,
+                         LocalStoreTest,
+                         ::testing::Values(Factory));
 
-NS_ASSUME_NONNULL_END
+}  // namespace local
+}  // namespace firestore
+}  // namespace firebase
