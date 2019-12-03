@@ -1328,7 +1328,7 @@ API_AVAILABLE(ios(13.0), tvos(13.0))
 
     Class realSceneDelegateClassBefore = [realSceneDelegate class];
 
-    [GULAppDelegateSwizzler proxySceneDelegate:mockSharedScene];
+    [GULAppDelegateSwizzler proxySceneDelegateIfNeeded:mockSharedScene];
 
     XCTAssertTrue([realSceneDelegate isKindOfClass:[GULTestSceneDelegate class]]);
 
@@ -1357,12 +1357,12 @@ API_AVAILABLE(ios(13.0), tvos(13.0))
     OCMStub([mockSharedScene delegate]).andReturn(realSceneDelegate);
 
     // Proxy the scene delegate for the 1st time.
-    [GULAppDelegateSwizzler proxySceneDelegate:mockSharedScene];
+    [GULAppDelegateSwizzler proxySceneDelegateIfNeeded:mockSharedScene];
 
     Class realSceneDelegateClassBefore = [realSceneDelegate class];
 
     // Proxy the scene delegate for the 2nd time.
-    [GULAppDelegateSwizzler proxySceneDelegate:mockSharedScene];
+    [GULAppDelegateSwizzler proxySceneDelegateIfNeeded:mockSharedScene];
 
     // Make sure that the class isn't changed.
     XCTAssertEqualObjects([realSceneDelegate class], realSceneDelegateClassBefore);
@@ -1383,7 +1383,7 @@ API_AVAILABLE(ios(13.0), tvos(13.0))
     id interceptor2 = OCMProtocolMock(@protocol(TestSceneProtocol));
     OCMExpect([interceptor2 scene:mockSharedScene openURLContexts:urlContexts]);
 
-    [GULAppDelegateSwizzler proxySceneDelegate:mockSharedScene];
+    [GULAppDelegateSwizzler proxySceneDelegateIfNeeded:mockSharedScene];
 
     [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor];
     [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor2];
