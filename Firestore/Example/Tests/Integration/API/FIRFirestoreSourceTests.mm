@@ -505,7 +505,7 @@
   // get collection and ensure it's empty and that it's *not* from the cache.
   FIRQuerySnapshot *snapshot = [self readDocumentSetForRef:col];
   XCTAssertEqual(snapshot.count, 0);
-  XCTAssertEqual(snapshot.documentChanges.count, 0);
+  XCTAssertEqual(snapshot.documentChanges.count, 0ul);
   XCTAssertFalse(snapshot.metadata.fromCache);
   XCTAssertFalse(snapshot.metadata.hasPendingWrites);
 }
@@ -557,7 +557,7 @@
   // get collection and ensure it's empty and that it *is* from the cache.
   FIRQuerySnapshot *snapshot = [self readDocumentSetForRef:col];
   XCTAssertEqual(snapshot.count, 0);
-  XCTAssertEqual(snapshot.documentChanges.count, 0);
+  XCTAssertEqual(snapshot.documentChanges.count, 0ul);
   XCTAssertTrue(snapshot.metadata.fromCache);
   XCTAssertFalse(snapshot.metadata.hasPendingWrites);
 }
@@ -584,7 +584,7 @@
   // get collection and ensure it's empty and that it *is* from the cache.
   FIRQuerySnapshot *snapshot = [self readDocumentSetForRef:col source:FIRFirestoreSourceCache];
   XCTAssertEqual(snapshot.count, 0);
-  XCTAssertEqual(snapshot.documentChanges.count, 0);
+  XCTAssertEqual(snapshot.documentChanges.count, 0ul);
   XCTAssertTrue(snapshot.metadata.fromCache);
   XCTAssertFalse(snapshot.metadata.hasPendingWrites);
 }
@@ -635,7 +635,7 @@
   // get collection and ensure it's empty and that it *is* from the cache.
   FIRQuerySnapshot *snapshot = [self readDocumentSetForRef:col source:FIRFirestoreSourceCache];
   XCTAssertEqual(snapshot.count, 0);
-  XCTAssertEqual(snapshot.documentChanges.count, 0);
+  XCTAssertEqual(snapshot.documentChanges.count, 0ul);
   XCTAssertTrue(snapshot.metadata.fromCache);
   XCTAssertFalse(snapshot.metadata.hasPendingWrites);
 }
@@ -656,7 +656,7 @@
   // get collection and ensure that it's empty and that it's *not* from the cache.
   FIRQuerySnapshot *snapshot = [self readDocumentSetForRef:col source:FIRFirestoreSourceServer];
   XCTAssertEqual(snapshot.count, 0);
-  XCTAssertEqual(snapshot.documentChanges.count, 0);
+  XCTAssertEqual(snapshot.documentChanges.count, 0ul);
   XCTAssertFalse(snapshot.metadata.fromCache);
   XCTAssertFalse(snapshot.metadata.hasPendingWrites);
 }

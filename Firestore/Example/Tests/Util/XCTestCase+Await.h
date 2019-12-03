@@ -18,6 +18,11 @@
 
 #import "Firestore/Source/Core/FSTTypes.h"
 
+/**
+ * Force the linker to see these extensions even if compiled without -ObjC.
+ */
+void LoadXCTestCaseAwait();
+
 @interface XCTestCase (Await)
 
 /**

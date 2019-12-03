@@ -54,13 +54,15 @@ enable_language(CXX)
 
 
 list(INSERT CMAKE_MODULE_PATH 0 ${PROJECT_SOURCE_DIR}/cmake)
-include(cc_rules)
 include(compiler_id)
-include(external_rules)
-include(podspec_rules)
 include(archive_options)
 include(sanitizer_options)
 include(fuzzing_options)
+
+# rules depend on properties and options set above
+include(external_rules)
+include(podspec_rules)
+include(cc_rules)
 
 
 # If no build type is specified, make it a debug build
@@ -116,6 +118,15 @@ if(CXX_CLANG)
       -Wno-unused-template
       -Wno-shadow
       -Wno-tautological-type-limit-compare
+  )
+endif()
+
+if(MSVC)
+  # Disable warnings about unsafe use of std::copy
+  target_compile_definitions(
+    absl_strings
+    PUBLIC
+      _SCL_SECURE_NO_WARNINGS=1
   )
 endif()
 

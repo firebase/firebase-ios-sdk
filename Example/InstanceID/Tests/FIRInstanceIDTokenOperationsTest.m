@@ -33,6 +33,7 @@
 #import "Firebase/InstanceID/NSError+FIRInstanceID.h"
 
 #import <FirebaseCore/FIRAppInternal.h>
+#import <GoogleUtilities/GULHeartbeatDateStorage.h>
 
 static NSString *kDeviceID = @"fakeDeviceID";
 static NSString *kSecretToken = @"fakeSecretToken";
@@ -83,6 +84,11 @@ static NSString *const kPublicKeyPairTag = @"com.iid.regclient.test.public";
   _keyPair =
       [[FIRInstanceIDKeychain sharedInstance] generateKeyPairWithPrivateTag:kPrivateKeyPairTag
                                                                   publicTag:kPublicKeyPairTag];
+
+  NSString *const kHeartbeatStorageFile = @"HEARTBEAT_INFO_STORAGE";
+  GULHeartbeatDateStorage *dataStorage =
+      [[GULHeartbeatDateStorage alloc] initWithFileName:kHeartbeatStorageFile];
+  [[NSFileManager defaultManager] removeItemAtURL:[dataStorage fileURL] error:nil];
 }
 
 - (void)tearDown {
@@ -319,7 +325,7 @@ static NSString *const kPublicKeyPairTag = @"com.iid.regclient.test.public";
   XCTAssertEqualObjects(generatedHeader, expectedHeader);
 }
 
-- (void)testTokenFetchOperationFirebaseUserAgentHeader {
+- (void)testTokenFetchOperationFirebaseUserAgentAndHeartbeatHeader {
   XCTestExpectation *completionExpectation =
       [self expectationWithDescription:@"completionExpectation"];
 
@@ -336,6 +342,8 @@ static NSString *const kPublicKeyPairTag = @"com.iid.regclient.test.public";
       ^(NSURLRequest *request, FIRInstanceIDURLRequestTestResponseBlock response) {
         NSString *userAgentValue = request.allHTTPHeaderFields[kFIRInstanceIDFirebaseUserAgentKey];
         XCTAssertEqualObjects(userAgentValue, [FIRApp firebaseUserAgent]);
+        NSString *heartBeatCode = request.allHTTPHeaderFields[kFIRInstanceIDFirebaseHeartbeatKey];
+        XCTAssertEqualObjects(heartBeatCode, @"3");
 
         // Return a response with Error=RST
         NSData *responseBody = [self dataForFetchRequest:request returnValidToken:NO];

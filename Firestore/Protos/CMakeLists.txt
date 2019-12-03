@@ -116,7 +116,7 @@ cc_library(
   SOURCES
     ${NANOPB_GENERATED_SOURCES}
   DEPENDS
-    firebase_firestore_nanopb
+    firebase_firestore_nanopb_runtime
     protobuf-nanopb-static
 )
 
@@ -205,34 +205,37 @@ add_custom_command(
     ${NANOPB_PROTO}
 )
 
-add_custom_command(
-  COMMENT "Generating nanopb sources"
-  OUTPUT ${NANOPB_GENERATED_SOURCES}
-  COMMAND
-    ${CMAKE_CURRENT_SOURCE_DIR}/build_protos.py
-      --nanopb
-      --protoc=$<TARGET_FILE:protoc>
-      --pythonpath=${PROTOBUF_DIR}/python:${NANOPB_DIR}/generator
-      --output_dir=${OUTPUT_DIR}
-      ${PROTO_INCLUDES}
-  VERBATIM
-  DEPENDS
-    protoc
-    ${CMAKE_CURRENT_SOURCE_DIR}/build_protos.py
-    ${CMAKE_CURRENT_SOURCE_DIR}/nanopb_cpp_generator.py
-    ${CMAKE_CURRENT_SOURCE_DIR}/lib/pretty_printing.py
-    ${NANOPB_PYTHON}
-    ${PROTOBUF_PYTHON}
-    ${PROTO_FILES}
-    ${PROTO_FILES_OPTIONS}
-    ${WELL_KNOWN_PROTO_FILES}
-)
+if(NOT WIN32)
+  add_custom_command(
+    COMMENT "Generating nanopb sources"
+    OUTPUT ${NANOPB_GENERATED_SOURCES}
+    COMMAND
+      python
+        ${CMAKE_CURRENT_SOURCE_DIR}/build_protos.py
+        --nanopb
+        --protoc=$<TARGET_FILE:protoc>
+        --pythonpath=${PROTOBUF_DIR}/python:${NANOPB_DIR}/generator
+        --output_dir=${OUTPUT_DIR}
+        ${PROTO_INCLUDES}
+    VERBATIM
+    DEPENDS
+      protoc
+      ${CMAKE_CURRENT_SOURCE_DIR}/build_protos.py
+      ${CMAKE_CURRENT_SOURCE_DIR}/nanopb_cpp_generator.py
+      ${CMAKE_CURRENT_SOURCE_DIR}/lib/pretty_printing.py
+      ${NANOPB_PYTHON}
+      ${PROTOBUF_PYTHON}
+      ${PROTO_FILES}
+      ${PROTO_FILES_OPTIONS}
+      ${WELL_KNOWN_PROTO_FILES}
+  )
 
-add_custom_target(
-  generate_nanopb_protos
-  DEPENDS
-    ${NANOPB_GENERATED_SOURCES}
-)
+  add_custom_target(
+    generate_nanopb_protos
+    DEPENDS
+      ${NANOPB_GENERATED_SOURCES}
+  )
+endif(NOT WIN32)
 
 add_custom_command(
   COMMENT "Generating C++ protobuf sources"

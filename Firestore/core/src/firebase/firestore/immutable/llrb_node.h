@@ -22,6 +22,7 @@
 
 #include "Firestore/core/src/firebase/firestore/immutable/llrb_node_iterator.h"
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_container.h"
+#include "Firestore/core/src/firebase/firestore/util/comparison.h"
 
 namespace firebase {
 namespace firestore {

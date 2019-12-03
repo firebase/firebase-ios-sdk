@@ -1,3 +1,6 @@
+# v3.2.0
+- Expose the library version with a #define to a const string var.
+
 # v3.1.0
 - Fixes additional sanitizer issues and runtime errors.
 
