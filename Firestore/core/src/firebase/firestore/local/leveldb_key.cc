@@ -46,6 +46,7 @@ const char* kTargetDocumentsTable = "target_document";
 const char* kDocumentTargetsTable = "document_target";
 const char* kRemoteDocumentsTable = "remote_document";
 const char* kCollectionParentsTable = "collection_parent";
+const char* kRemoteDocumentReadTimeTable = "remote_document_read_time";
 
 /**
  * Labels for the components of keys. These serve to make keys self-describing.
@@ -95,6 +96,15 @@ enum ComponentLabel {
    * collection_parent table, but not for collection IDs within paths).
    */
   CollectionId = 14,
+
+  /**
+   * A component containing a standalone document ID (as used by the
+   * remote_document_read_time table).
+   */
+  DocumentId = 15,
+
+  /** A component containing a snapshot version. */
+  SnapshotVersion = 16,
 
   /**
    * A path segment describes just a single segment in a resource path. Path
@@ -169,6 +179,16 @@ class Reader {
   std::string ReadCollectionId() {
     return ReadLabeledString(ComponentLabel::CollectionId);
   }
+
+  std::string ReadDocumentId() {
+    return ReadLabeledString(ComponentLabel::DocumentId);
+  }
+
+  /**
+   * Reads a snapshot version, encoded as a component label and a pair of
+   * seconds (int64) and nanoseconds (int32).
+   */
+  model::SnapshotVersion ReadSnapshotVersion();
 
   /**
    * Reads component labels and strings from the key until it finds a component
@@ -323,6 +343,18 @@ class Reader {
   }
 
   /**
+   * Reads a signed number from the key.
+   *
+   * If the read is unsuccessful, returns 0 and fails the Reader.
+   *
+   * Otherwise, returns the number and advances the Reader to the next unread
+   * byte.
+   */
+  int64_t ReadInt64() {
+    return ReadSignedNumIncreasing();
+  }
+
+  /**
    * Reads a component label and a string from the key verifies that the label
    * matches the expected_label.
    *
@@ -408,6 +440,17 @@ DocumentKey Reader::ReadDocumentKey() {
   return DocumentKey{};
 }
 
+model::SnapshotVersion Reader::ReadSnapshotVersion() {
+  if (!ReadComponentLabelMatching(ComponentLabel::SnapshotVersion)) {
+    Fail();
+  }
+
+  int64_t seconds = ReadInt64();
+  int32_t nanos = ReadInt32();
+
+  return model::SnapshotVersion({seconds, nanos});
+}
+
 /**
  * Returns a base64-encoded string for an invalid key, used for debug-friendly
  * description text.
@@ -485,6 +528,18 @@ std::string Reader::Describe() {
         absl::StrAppend(&description, " collection_id=", collection_id);
       }
 
+    } else if (label == ComponentLabel::DocumentId) {
+      std::string document_id = ReadDocumentId();
+      if (ok_) {
+        absl::StrAppend(&description, " document_id=", document_id);
+      }
+
+    } else if (label == ComponentLabel::SnapshotVersion) {
+      model::SnapshotVersion snapshot_version = ReadSnapshotVersion();
+      if (ok_) {
+        absl::StrAppend(&description,
+                        " snapshot_version=", snapshot_version.ToString());
+      }
     } else {
       absl::StrAppend(&description, " unknown label=", static_cast<int>(label));
       Fail();
@@ -534,6 +589,18 @@ class Writer {
 
   void WriteCollectionId(absl::string_view collection_id) {
     WriteLabeledString(ComponentLabel::CollectionId, collection_id);
+  }
+
+  void WriteDocumentId(absl::string_view document_id) {
+    WriteLabeledString(ComponentLabel::DocumentId, document_id);
+  }
+
+  void WriteSnapshotVersion(model::SnapshotVersion snapshot_version) {
+    WriteComponentLabel(ComponentLabel::SnapshotVersion);
+    OrderedCode::WriteSignedNumIncreasing(
+        &dest_, snapshot_version.timestamp().seconds());
+    OrderedCode::WriteSignedNumIncreasing(
+        &dest_, snapshot_version.timestamp().nanoseconds());
   }
 
   /**
@@ -911,6 +978,39 @@ bool LevelDbCollectionParentKey::Decode(absl::string_view key) {
   reader.ReadTableNameMatching(kCollectionParentsTable);
   collection_id_ = reader.ReadCollectionId();
   parent_ = reader.ReadResourcePath();
+  reader.ReadTerminator();
+  return reader.ok();
+}
+
+std::string LevelDbRemoteDocumentReadTimeKey::KeyPrefix(
+    const model::ResourcePath& collection_path,
+    model::SnapshotVersion read_time) {
+  Writer writer;
+  writer.WriteTableName(kRemoteDocumentReadTimeTable);
+  writer.WriteResourcePath(collection_path);
+  writer.WriteSnapshotVersion(read_time);
+  return writer.result();
+}
+
+std::string LevelDbRemoteDocumentReadTimeKey::Key(
+    const model::ResourcePath& collection_path,
+    model::SnapshotVersion read_time,
+    absl::string_view document_id) {
+  Writer writer;
+  writer.WriteTableName(kRemoteDocumentReadTimeTable);
+  writer.WriteResourcePath(collection_path);
+  writer.WriteSnapshotVersion(read_time);
+  writer.WriteDocumentId(document_id);
+  writer.WriteTerminator();
+  return writer.result();
+}
+
+bool LevelDbRemoteDocumentReadTimeKey::Decode(absl::string_view key) {
+  Reader reader{key};
+  reader.ReadTableNameMatching(kRemoteDocumentReadTimeTable);
+  collection_path_ = reader.ReadResourcePath();
+  read_time_ = reader.ReadSnapshotVersion();
+  document_id_ = reader.ReadDocumentId();
   reader.ReadTerminator();
   return reader.ok();
 }

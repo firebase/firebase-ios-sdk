@@ -198,7 +198,7 @@ void LocalStore::ApplyBatchResult(const MutationBatchResult& batch_result) {
             "Mutation batch %s applied to document %s resulted in nullopt.",
             batch.ToString(), util::ToString(remote_doc));
       } else {
-        remote_document_cache_->Add(*doc);
+        remote_document_cache_->Add(*doc, batch_result.commit_version());
       }
     }
   }
@@ -313,11 +313,9 @@ model::MaybeDocumentMap LocalStore::ApplyRemoteEvent(
       } else if (!existing_doc || doc.version() > existing_doc->version() ||
                  (doc.version() == existing_doc->version() &&
                   existing_doc->has_pending_writes())) {
-        // TODO(index-free): Comment in this assert when we enable Index-Free
-        // queries HARD_ASSERT(remoteEvent.snapshot_version() !=
-        // SnapshotVersion::None(),
-        //            "Cannot add a document when the remote version is zero");
-        remote_document_cache_->Add(doc);
+        HARD_ASSERT(remote_event.snapshot_version() != SnapshotVersion::None(),
+                    "Cannot add a document when the remote version is zero");
+        remote_document_cache_->Add(doc, remote_event.snapshot_version());
         changed_docs = changed_docs.insert(key, doc);
       } else {
         LOG_DEBUG(
@@ -473,7 +471,8 @@ void LocalStore::ReleaseQuery(const Query& query) {
 
 DocumentMap LocalStore::ExecuteQuery(const Query& query) {
   return persistence_->Run("ExecuteQuery", [&] {
-    return local_documents_->GetDocumentsMatchingQuery(query);
+    return local_documents_->GetDocumentsMatchingQuery(query,
+                                                       SnapshotVersion::None());
   });
 }
 

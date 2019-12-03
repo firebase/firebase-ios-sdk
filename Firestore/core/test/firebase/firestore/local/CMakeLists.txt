@@ -15,6 +15,7 @@
 cc_test(
   firebase_firestore_local_test
   SOURCES
+    index_free_query_engine_test.cc
     index_manager_test.cc
     index_manager_test.h
     leveldb_index_manager_test.cc
@@ -44,8 +45,10 @@ cc_test(
     reference_set_test.cc
     remote_document_cache_test.cc
     remote_document_cache_test.h
+
   DEPENDS
     GMock::GMock
+    firebase_firestore_auth
     firebase_firestore_core
     firebase_firestore_local
     firebase_firestore_local_persistence_leveldb

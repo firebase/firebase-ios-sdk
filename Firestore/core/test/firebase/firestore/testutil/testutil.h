@@ -377,8 +377,16 @@ inline core::FieldFilter Filter(absl::string_view key,
 
 inline core::FieldFilter Filter(absl::string_view key,
                                 absl::string_view op,
-                                const std::string& value) {
+                                const char* value) {
   return Filter(key, op, model::FieldValue::FromString(value));
+}
+
+template <typename T,
+          typename = typename std::enable_if<std::is_same<bool, T>{}>::type>
+inline core::FieldFilter Filter(absl::string_view key,
+                                absl::string_view op,
+                                T value) {
+  return Filter(key, op, model::FieldValue::FromBoolean(value));
 }
 
 inline core::FieldFilter Filter(absl::string_view key,
