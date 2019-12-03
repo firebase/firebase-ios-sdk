@@ -279,7 +279,7 @@ CGFloat FETCH_MIN_INTERVALS = 1;
   OCMVerify([self.mockSDKModeManager registerOneMoreFetch]);
 
   // we expect that the message cache is checked for app launch messages
-  OCMVerify([self.flow checkForAppLaunchMessage]);
+  OCMVerify([self.mockDisplayExecutor checkAndDisplayNextAppLaunchMessage]);
 }
 
 // Fetch always in testing app instance mode
