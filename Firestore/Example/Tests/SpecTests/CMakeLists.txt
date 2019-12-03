@@ -12,10 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-add_subdirectory(Benchmarks)
-
-add_subdirectory(App)
-add_subdirectory(Tests/API)
-add_subdirectory(Tests/Integration)
-add_subdirectory(Tests/SpecTests)
-add_subdirectory(Tests/Util)
+if(APPLE)
+  objc_test(
+    firebase_firestore_objc_spec_test
+    HOST firestore_example_app_macos
+    SOURCES
+      FSTLevelDBSpecTests.mm
+      FSTMemorySpecTests.mm
+      FSTMockDatastore.h
+      FSTMockDatastore.mm
+      FSTSpecTests.h
+      FSTSpecTests.mm
+      FSTSyncEngineTestDriver.h
+      FSTSyncEngineTestDriver.mm
+    DEPENDS
+      FirebaseFirestore
+      firebase_firestore_local_testing
+      firebase_firestore_objc_test_util
+      firebase_firestore_remote_test_util
+  )
+endif(APPLE)
