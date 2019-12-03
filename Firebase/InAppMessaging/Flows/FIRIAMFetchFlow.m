@@ -36,8 +36,9 @@ NSString *const kFIRIAMFetchIsDoneNotification = @"FIRIAMFetchIsDoneNotification
 @property(nonatomic, nonnull, readonly) id<FIRIAMBookKeeper> fetchBookKeeper;
 @property(nonatomic, nonnull, readonly) FIRIAMActivityLogger *activityLogger;
 @property(nonatomic, nonnull, readonly) id<FIRIAMAnalyticsEventLogger> analyticsEventLogger;
-
 @property(nonatomic, nonnull, readonly) FIRIAMSDKModeManager *sdkModeManager;
+@property(nonatomic, nonnull, readonly) FIRIAMDisplayExecutor *displayExecutor;
+
 @end
 
 @implementation FIRIAMFetchFlow
@@ -48,7 +49,8 @@ NSString *const kFIRIAMFetchIsDoneNotification = @"FIRIAMFetchIsDoneNotification
                      bookKeeper:(id<FIRIAMBookKeeper>)fetchBookKeeper
                  activityLogger:(FIRIAMActivityLogger *)activityLogger
            analyticsEventLogger:(id<FIRIAMAnalyticsEventLogger>)analyticsEventLogger
-           FIRIAMSDKModeManager:(FIRIAMSDKModeManager *)sdkModeManager {
+           FIRIAMSDKModeManager:(FIRIAMSDKModeManager *)sdkModeManager
+                displayExecutor:(FIRIAMDisplayExecutor *)displayExecutor {
   if (self = [super init]) {
     _timeFetcher = timeFetcher;
     _lastFetchTime = [fetchBookKeeper lastFetchTime];
@@ -59,6 +61,7 @@ NSString *const kFIRIAMFetchIsDoneNotification = @"FIRIAMFetchIsDoneNotification
     _activityLogger = activityLogger;
     _analyticsEventLogger = analyticsEventLogger;
     _sdkModeManager = sdkModeManager;
+    _displayExecutor = displayExecutor;
   }
   return self;
 }
@@ -257,7 +260,6 @@ NSString *const kFIRIAMFetchIsDoneNotification = @"FIRIAMFetchIsDoneNotification
 }
 
 - (void)checkForAppLaunchMessage {
-  [[FIRIAMRuntimeManager getSDKRuntimeInstance]
-          .displayExecutor checkAndDisplayNextAppLaunchMessage];
+  [self.displayExecutor checkAndDisplayNextAppLaunchMessage];
 }
 @end
