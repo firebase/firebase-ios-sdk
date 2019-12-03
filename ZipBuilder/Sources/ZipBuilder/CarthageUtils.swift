@@ -81,7 +81,7 @@ public extension CarthageUtils {
 
       // Analytics includes all the Core frameworks and Firebase module, do extra work to package
       // it.
-      if product == "Analytics" {
+      if product == "FirebaseAnalytics" {
         createFirebaseFramework(inDir: fullPath, rootDir: packagedDir, templateDir: templateDir)
 
         // Copy the NOTICES file from FirebaseCore.

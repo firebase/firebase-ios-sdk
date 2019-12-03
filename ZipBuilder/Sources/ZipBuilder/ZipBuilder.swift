@@ -189,7 +189,7 @@ struct ZipBuilder {
 
     // Break the `inputPods` into a variable since it's helpful when debugging builds to just
     // install a subset of pods, like the following line:
-    // let inputPods: [String] = ["", "Core", "Analytics", "Storage"]
+    // let inputPods: [String] = ["", "FirebaseCore", "FirebaseAnalytics", "FirebaseStorage"]
     let inputPods = FirebasePods.allCases.map { $0.rawValue }
     let podsToInstall = inputPods.map { CocoaPodUtils.VersionedPod(name: $0, version: nil) }
 
@@ -257,7 +257,7 @@ struct ZipBuilder {
     do {
       // This returns the Analytics directory and a list of framework names that Analytics requires.
       /// Example: ["FirebaseInstanceID", "GoogleAppMeasurement", "nanopb", <...>]
-      let analyticsPod = podsToInstall.filter { $0.name == "Analytics" }
+      let analyticsPod = podsToInstall.filter { $0.name == "FirebaseAnalytics" }
       let (dir, frameworks) = try installAndCopyFrameworks(forPod: analyticsPod[0],
                                                            projectDir: projectDir,
                                                            rootZipDir: zipDir,
@@ -269,13 +269,14 @@ struct ZipBuilder {
     }
 
     // Start the README dependencies string with the frameworks built in Analytics.
-    var readmeDeps = dependencyString(for: "Analytics",
+    var readmeDeps = dependencyString(for: "FirebaseAnalytics",
                                       in: analyticsDir,
                                       frameworks: analyticsFrameworks)
 
     // Loop through all the other subspecs that aren't Core and Analytics and write them to their
     // final destination, including resources.
-    let remainingPods = podsToInstall.filter { $0.name != "Analytics" && $0.name != "Core" && $0.name != "" }
+    let remainingPods = podsToInstall.filter { $0.name != "FirebaseAnalytics" &&
+      $0.name != "FirebaseCore" && $0.name != "" }
     for pod in remainingPods {
       do {
         let (productDir, podFrameworks) =

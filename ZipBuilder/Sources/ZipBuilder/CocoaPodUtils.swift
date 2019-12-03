@@ -272,7 +272,7 @@ public enum CocoaPodUtils {
     // Loop through the subspecs passed in and use the actual Pod name.
     for pod in pods {
       let version = pod.version == nil ? "" : ", '\(pod.version!)'"
-      podfile += "  pod '\(FirebasePods.podName(pod: pod.name))'" + version + "\n"
+      podfile += "  pod '\(pod.name)'" + version + "\n"
     }
 
     podfile += "end"

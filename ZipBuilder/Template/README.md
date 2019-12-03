@@ -15,7 +15,7 @@ To integrate a Firebase SDK with your app:
 2. Make sure you have an Xcode project open in Xcode.
 3. In Xcode, hit `⌘-1` to open the Project Navigator pane. It will open on
    left side of the Xcode window if it wasn't already open.
-4. Drag each framework from the "Analytics" directory into the Project
+4. Drag each framework from the "FirebaseAnalytics" directory into the Project
    Navigator pane. In the dialog box that appears, make sure the target you
    want the framework to be added to has a checkmark next to it, and that
    you've selected "Copy items if needed". If you already have Firebase
@@ -66,11 +66,6 @@ frameworks and libraries listed in each Firebase framework's
 
 "(~> X)" below means that the SDK requires all of the frameworks from X. You
 should make sure to include all of the frameworks from X when including the SDK.
-
-NOTE: If you are upgrading FirebaseAnalytics from before Firebase 5.5.0,
-      `FirebaseNanoPB` has been renamed to `MeasurementNanoPB`. After you add
-      `MeasurementNanoPB` to your project, please remove `FirebaseNanoPB` as it
-      no longer provides any functionality.
 
 __INTEGRATION__
 # Samples
