@@ -26,7 +26,6 @@
 #include <vector>
 
 #import "Firestore/Source/API/FSTUserDataConverter.h"
-#import "Firestore/Source/Util/FSTClasses.h"
 
 #import "Firestore/Example/Tests/SpecTests/FSTSyncEngineTestDriver.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
@@ -151,6 +150,12 @@ ByteString MakeResumeToken(NSString *specString) {
   BOOL _networkEnabled;
   FSTUserDataConverter *_converter;
 }
+
+#define FSTAbstractMethodException()                                                               \
+  [NSException exceptionWithName:NSInternalInconsistencyException                                  \
+                          reason:[NSString stringWithFormat:@"You must override %s in a subclass", \
+                                                            __func__]                              \
+                        userInfo:nil];
 
 - (std::unique_ptr<Persistence>)persistenceWithGCEnabled:(BOOL)GCEnabled {
   @throw FSTAbstractMethodException();  // NOLINT

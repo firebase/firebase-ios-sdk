@@ -86,7 +86,6 @@ if(APPLE)
       API/FSTUserDataConverter.mm
       API/converters.h
       API/converters.mm
-      Util/FSTClasses.h
     DEPENDS
       absl_any
       absl_strings
