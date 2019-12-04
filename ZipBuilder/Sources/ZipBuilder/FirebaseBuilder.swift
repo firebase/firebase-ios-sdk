@@ -21,7 +21,7 @@ import Foundation
 struct FirebaseBuilder {
   /// ZipBuilder instance.
   private let zipBuilder: ZipBuilder
-  ///
+  /// Default initializer.
   /// - Parameters:
   ///   - zipBuilder: The zipBuilder object for this Firebase build.
   init(zipBuilder: ZipBuilder) {
