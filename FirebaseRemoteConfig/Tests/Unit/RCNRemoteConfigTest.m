@@ -190,7 +190,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                                                    namespace:fullyQualifiedNamespace
                                                                      options:currentOptions]);
 
-    OCMStub([_configFetch[i] fetchAllConfigsWithExpirationDuration:43200
+    OCMStub([_configFetch[i] fetchConfigWithExpirationDuration:43200
                                                  completionHandler:OCMOCK_ANY])
         .andDo(^(NSInvocation *invocation) {
           void (^handler)(FIRRemoteConfigFetchStatus status, NSError *_Nullable error) = nil;
@@ -498,7 +498,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                                                    namespace:fullyQualifiedNamespace
                                                                      options:currentOptions]);
 
-    OCMStub([_configFetch[i] fetchAllConfigsWithExpirationDuration:43200
+    OCMStub([_configFetch[i] fetchConfigWithExpirationDuration:43200
                                                  completionHandler:OCMOCK_ANY])
         .andDo(^(NSInvocation *invocation) {
           void (^handler)(FIRRemoteConfigFetchStatus status, NSError *_Nullable error) = nil;
@@ -627,7 +627,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                                                    namespace:fullyQualifiedNamespace
                                                                      options:currentOptions]);
 
-    OCMStub([_configFetch[i] fetchAllConfigsWithExpirationDuration:43200
+    OCMStub([_configFetch[i] fetchConfigWithExpirationDuration:43200
                                                  completionHandler:OCMOCK_ANY])
         .andDo(^(NSInvocation *invocation) {
           void (^handler)(FIRRemoteConfigFetchStatus status, NSError *_Nullable error) = nil;
