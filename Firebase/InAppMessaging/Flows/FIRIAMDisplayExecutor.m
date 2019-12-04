@@ -389,10 +389,6 @@
   NSString *body = renderData.contentData.bodyText;
 
   // Action button data is never nil for a card message.
-  assert(renderData.contentData.actionButtonText != nil);
-  assert(renderData.renderingEffectSettings.btnTextColor != nil);
-  assert(renderData.renderingEffectSettings.btnBGColor != nil);
-
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
   FIRInAppMessagingActionButton *primaryActionButton = [[FIRInAppMessagingActionButton alloc]
@@ -524,8 +520,10 @@
                             triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType {
   switch (definition.renderData.renderingEffectSettings.viewMode) {
     case FIRIAMRenderAsCardView:
-      // Image data is never nil for a card message.
-      assert(imageData != nil);
+      // Image data should never nil for a valid card message.
+      if (imageData == nil) {
+        return nil;
+      }
       return [self cardDisplayMessageWithMessageDefinition:definition
                                          portraitImageData:imageData
                                         landscapeImageData:landscapeImageData
