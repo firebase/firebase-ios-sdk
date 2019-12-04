@@ -30,6 +30,7 @@ needed for other package managers.
 ```
 brew install cmake
 brew install golang
+brew install ccache     # optional
 brew install ninja      # optional
 gem install cocoapods   # may need sudo
 ```
@@ -46,6 +47,7 @@ sufficient.
 ```
 sudo apt-get install build-essential
 sudo apt-get install cmake
+sudo apt-get install ccache       # optional
 sudo apt-get install ninja-build  # optional
 
 sudo apt-get install golang
@@ -68,7 +70,7 @@ choco install ninja  # optional
 
 choco install activeperl
 choco install golang
-choco install yasm
+choco install nasm
 ```
 
 ## Building
