@@ -161,18 +161,9 @@ static NSMutableDictionary *sLibraryVersions;
 
   if ([name isEqualToString:kFIRDefaultAppName]) {
     if (sDefaultApp) {
-      // The default app already exists - this may be okay if we're in an extension where the
-      // entry point is called multiple times.
-      if ([self canConfigureAppMultipleTimes:sDefaultApp usingOptions:options]) {
-        // Everything is identical but the extension's lifecycle triggered `configure` twice. Ignore
-        // duplicate calls and return since everthing should still be in a valid state.
-        FIRLogDebug(kFIRLoggerCore, @"I-COR000035",
-                    @"Ignoring second `configure` call in an extension.");
-        return;
-      } else {
-        [NSException raise:kFirebaseCoreErrorDomain
-                    format:@"Default app has already been configured."];
-      }
+      // The default app already exixts. Handle duplicate `configure` calls and return.
+      [self appWasConfiguredTwice:sDefaultApp usingOptions:options];
+      return;
     }
 
     FIRLogDebug(kFIRLoggerCore, @"I-COR000001", @"Configuring the default app.");
@@ -188,16 +179,9 @@ static NSMutableDictionary *sLibraryVersions;
 
     @synchronized(self) {
       if (sAllApps && sAllApps[name]) {
-        // The app already exists but check to see if multiple `configure` calls are okay.
-        if ([self canConfigureAppMultipleTimes:sAllApps[name] usingOptions:options]) {
-          // Everything is identical but the extension's lifecycle triggered `configure` twice.
-          // Ignore duplicate calls and return since everthing should still be in a valid state.
-          FIRLogDebug(kFIRLoggerCore, @"I-COR000035",
-                      @"Ignoring second `configure` call in an extension.");
-        } else {
-          [NSException raise:kFirebaseCoreErrorDomain
-                      format:@"App named %@ has already been configured.", name];
-        }
+        // The app already exists. Handle a duplicate `configure` call and return.
+        [self appWasConfiguredTwice:sAllApps[name] usingOptions:options];
+        return;
       }
     }
 
@@ -219,15 +203,34 @@ static NSMutableDictionary *sLibraryVersions;
   }
 }
 
-+ (BOOL)canConfigureAppMultipleTimes:(FIRApp *)app usingOptions:(FIROptions *)options {
-  // Only extensions should potentially be able to use
+/// Called when `configure` has been called multiple times for the same app. This can either throw
+/// an exception (most cases) or ignore the duplicate configuration in situations where it's allowed
+/// like an extension.
++ (void)appWasConfiguredTwice:(FIRApp *)app usingOptions:(FIROptions *)options {
+  // Only extensions should potentially be able to call `configure` more than once.
   if (![GULAppEnvironmentUtil isAppExtension]) {
-    return NO;
+    // Throw an exception since this is now an invalid state.
+    if (app.isDefaultApp) {
+      [NSException raise:kFirebaseCoreErrorDomain
+                  format:@"Default app has already been configured."];
+    } else {
+      [NSException raise:kFirebaseCoreErrorDomain
+                  format:@"App named %@ has already been configured.", app.name];
+    }
   }
 
   // In an extension, the entry point could be called multiple times. As long as the options are
   // identical we should allow multiple `configure` calls.
-  return [options isEqual:app.options];
+  if ([options isEqual:app.options]) {
+    // Everything is identical but the extension's lifecycle triggered `configure` twice.
+    // Ignore duplicate calls and return since everything should still be in a valid state.
+    FIRLogDebug(kFIRLoggerCore, @"I-COR000035",
+                @"Ignoring second `configure` call in an extension.");
+    return;
+  } else {
+    [NSException raise:kFirebaseCoreErrorDomain
+                format:@"App named %@ has already been configured.", app.name];
+  }
 }
 
 + (FIRApp *)defaultApp {
