@@ -370,9 +370,6 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
           }
         }
         if (statusCode != kRCNFetchResponseHTTPStatusCodeOK) {
-          // Update metadata about fetch failure.
-          [strongSelf->_settings updateMetadataWithFetchSuccessStatus:NO];
-
           FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000026",
                       @"RCN Fetch failure. Response http error code: %ld", (long)statusCode);
           // Response error code 429, 500, 503 will trigger exponential backoff mode.
