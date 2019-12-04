@@ -18,7 +18,7 @@ import Foundation
 
 // TODO: Auto generate this list from the Firebase.podspec and others, probably with a script.
 /// All the CocoaPods related to packaging and distributing Firebase.
-public enum CocoaPod: String, CaseIterable {
+public enum FirebasePods: String, CaseIterable {
   case abTesting = "ABTesting"
   case adMob = "Google-Mobile-Ads-SDK"
   case analytics = "Analytics"
@@ -61,7 +61,7 @@ public enum CocoaPod: String, CaseIterable {
 
   /// The name of the pod in the CocoaPods repo.
   public static func podName(pod: String) -> String {
-    if (!pod.starts(with: "Google") && CocoaPod.allCases.map { $0.rawValue }.contains(pod)) {
+    if (!pod.starts(with: "Google") && allCases.map { $0.rawValue }.contains(pod)) {
       return "Firebase\(pod)"
     }
     return pod
