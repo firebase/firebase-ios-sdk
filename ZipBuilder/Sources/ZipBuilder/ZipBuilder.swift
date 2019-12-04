@@ -276,7 +276,8 @@ struct ZipBuilder {
     // Loop through all the other subspecs that aren't Core and Analytics and write them to their
     // final destination, including resources.
     let remainingPods = podsToInstall.filter { $0.name != "FirebaseAnalytics" &&
-      $0.name != "FirebaseCore" && $0.name != "" }
+      $0.name != "FirebaseCore" && $0.name != ""
+    }
     for pod in remainingPods {
       do {
         let (productDir, podFrameworks) =
