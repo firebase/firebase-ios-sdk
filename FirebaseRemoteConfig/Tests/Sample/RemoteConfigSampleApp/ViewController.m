@@ -159,36 +159,39 @@ static NSString *const FIRSecondFIRAppName = @"secondFIRApp";
 - (IBAction)fetchAndActivateButtonPressed:(id)sender {
   // fetchConfig api callback, this is triggered when client receives response from server
   ViewController *__weak weakSelf = self;
-  FIRRemoteConfigFetchAndActivateCompletion fetchAndActivateCompletion = ^(
-      FIRRemoteConfigFetchAndActivateStatus status, NSError *error) {
-    ViewController *strongSelf = weakSelf;
-    if (!strongSelf) {
-      return;
-    }
-    NSMutableString *output = [NSMutableString
-        stringWithFormat:@"Fetch and activate status : %@.\n\n",
-                         (status == FIRRemoteConfigFetchAndActivateStatusSuccessFetchedFromRemote ||
-                          status == FIRRemoteConfigFetchAndActivateStatusSuccessUsingPreFetchedData)
-                             ? @"Success"
-                             : [NSString
-                                   stringWithFormat:@"Failure: %@", [error localizedDescription]]];
-    if (error) {
-      [output appendFormat:@"%@\n", error];
-    }
-    if (status == FIRRemoteConfigFetchAndActivateStatusError) {
-      [output appendString:[NSString stringWithFormat:@"Fetch And Activate Error :%@.\n",
-                                                      [strongSelf errorString:error.code]]];
-      if (error.code == FIRRemoteConfigErrorThrottled) {
-        [output appendString:[NSString stringWithFormat:@"Throttled.\n"]];
-      }
-    }
-    // activate status
-    [[FRCLog sharedInstance] logToConsole:output];
-    if (status == FIRRemoteConfigFetchAndActivateStatusSuccessFetchedFromRemote ||
-        status == FIRRemoteConfigFetchAndActivateStatusSuccessUsingPreFetchedData) {
-      [strongSelf printResult:[[NSMutableString alloc] init]];
-    }
-  };
+  FIRRemoteConfigFetchAndActivateCompletion fetchAndActivateCompletion =
+      ^(FIRRemoteConfigFetchAndActivateStatus status, NSError *error) {
+        ViewController *strongSelf = weakSelf;
+        if (!strongSelf) {
+          return;
+        }
+        NSMutableString *output = @"Fetch and activate status :";
+        if (status == FIRRemoteConfigFetchAndActivateStatusSuccessFetchedFromRemote) {
+          [output appendString:@"Success from remote fetch."];
+        } else if (status == FIRRemoteConfigFetchAndActivateStatusSuccessUsingPreFetchedData) {
+          [output appendString:@"Success using pre-fetched data."];
+        } else if (status == FIRRemoteConfigFetchAndActivateStatusError) {
+          output appendString
+              : [NSString stringWithFormat:@"Failure: %@", [error localizedDescription]];
+        }
+
+        if (error) {
+          [output appendFormat:@"%@\n", error];
+        }
+        if (status == FIRRemoteConfigFetchAndActivateStatusError) {
+          [output appendString:[NSString stringWithFormat:@"Fetch And Activate Error :%@.\n",
+                                                          [strongSelf errorString:error.code]]];
+          if (error.code == FIRRemoteConfigErrorThrottled) {
+            [output appendString:[NSString stringWithFormat:@"Throttled.\n"]];
+          }
+        }
+        // activate status
+        [[FRCLog sharedInstance] logToConsole:output];
+        if (status == FIRRemoteConfigFetchAndActivateStatusSuccessFetchedFromRemote ||
+            status == FIRRemoteConfigFetchAndActivateStatusSuccessUsingPreFetchedData) {
+          [strongSelf printResult:[[NSMutableString alloc] init]];
+        }
+      };
 
   // fetchConfig api call
   [self.RCInstances[self.currentNamespace][self.FIRAppName]
