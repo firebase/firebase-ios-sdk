@@ -209,21 +209,15 @@ struct LaunchArgs {
     if let zipPodsPath = defaults.string(forKey: Key.zipPods.rawValue) {
       let url = URL(fileURLWithPath: zipPodsPath)
       guard fileChecker.fileExists(atPath: url.path) else {
-        LaunchArgs.exitWithUsageAndLog("Could not parse \(Key.releasingSDKs) key: value passed " +
+        LaunchArgs.exitWithUsageAndLog("Could not parse \(Key.zipPods) key: value passed " +
           "in is not a file URL or the file does not exist. Value: \(zipPodsPath)")
       }
-      let jsonData: Data
       do {
-        jsonData = try Data(contentsOf: url)
+        // Get pods, with optional version, from the JSON file.
+        let jsonData = try Data(contentsOf: url)
+        zipPods = try JSONDecoder().decode([CocoaPodUtils.VersionedPod].self, from: jsonData)
       } catch {
-        fatalError("Could not read JSON file at \(url). \(error)")
-      }
-      // Get pods, with optional version, from the JSON file.
-      let decoder = JSONDecoder()
-      do {
-        zipPods = try decoder.decode([CocoaPodUtils.VersionedPod].self, from: jsonData)
-      } catch {
-        fatalError("Could not parse JSON manifest at \(url). \(error)")
+        fatalError("Could not read and parse JSON file at \(url). \(error)")
       }
     } else {
       zipPods = nil

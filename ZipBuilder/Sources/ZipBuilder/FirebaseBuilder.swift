@@ -21,17 +21,15 @@ import Foundation
 struct FirebaseBuilder {
   /// ZipBuilder instance.
   private let zipBuilder: ZipBuilder
-
-  /// Default initializer. If allSDKsPath and currentReleasePath are provided, it will also verify
-  /// that the
   ///
   /// - Parameters:
-  ///   - paths: Paths that are needed throughout the process of packaging the Zip file.
-  ///   - customSpecRepo: A custom spec repo to be used for fetching CocoaPods from.
+  ///   - zipBuilder: The zipBuilder object for this Firebase build.
   init(zipBuilder: ZipBuilder) {
     self.zipBuilder = zipBuilder
   }
 
+  /// Wrapper around a generic zip builder that adds in Firebase specific steps including a multi-level zip file, a README, and a
+  /// Carthage build.
   func build(in projectDir: URL) {
     // Build the zip file and get the path.
     do {
@@ -76,12 +74,7 @@ struct FirebaseBuilder {
           // Save the directory for later copying.
           carthageRoot = carthageDir
         } catch {
-          // TODO: This can fail on CI due to size requirements, let's fail gracefully in the meantime
-          //       and not block the rest of the build.
-          //      fatalError("Could not copy output directory for Carthage build: \(error)")
-          print("--------- CARTHAGE ERROR ---------")
-          print("Could not copy output directory for Carthage build: \(error)")
-          print("------- END CARTHAGE ERROR -------")
+          fatalError("Could not copy output directory for Carthage build: \(error)")
         }
       }
 

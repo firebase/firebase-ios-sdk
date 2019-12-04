@@ -128,6 +128,10 @@ struct ZipBuilder {
     self.customSpecRepos = customSpecRepos
   }
 
+  /// Builds and assembles the contents for the zip build.
+  ///
+  /// - Parameter podsToInstall: All pods to install.
+  /// - Returns: Arrays of pod install info and the frameworks installed.
   func buildAndAssembleZip(podsToInstall: [CocoaPodUtils.VersionedPod]) ->
     ([CocoaPodUtils.PodInfo], [String: [URL]]) {
     // Remove CocoaPods cache so the build gets updates after a version is rebuilt during the
