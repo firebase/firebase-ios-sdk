@@ -118,10 +118,10 @@ public extension FileManager {
       tempDir = URL(fileURLWithPath: NSTemporaryDirectory())
     }
 
-    // Organize all temporary directories into a "FirebaseZipRelease" directory.
+    // Organize all temporary directories into a "ZipRelease" directory.
     let unique = FileManager.unique
-    let firebaseDir = tempDir.appendingPathComponent("ZipRelease" + unique, isDirectory: true)
-    return firebaseDir.appendingPathComponent(name, isDirectory: true)
+    let zipDir = tempDir.appendingPathComponent("ZipRelease" + unique, isDirectory: true)
+    return zipDir.appendingPathComponent(name, isDirectory: true)
   }
 
   // MARK: Searching

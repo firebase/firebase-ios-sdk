@@ -749,7 +749,7 @@ TEST_P(LocalStoreTest, CollectsGarbageAfterAcknowledgedMutation) {
   TargetId target_id = AllocateQuery(query);
 
   ApplyRemoteEvent(
-      UpdateRemoteEvent(Doc("foo/bar", 0, Map("foo", "old")), {target_id}, {}));
+      UpdateRemoteEvent(Doc("foo/bar", 1, Map("foo", "old")), {target_id}, {}));
   WriteMutation(testutil::PatchMutation("foo/bar", Map("foo", "bar"), {}));
   // Release the query so that our target count goes back to 0 and we are
   // considered up-to-date.
@@ -758,7 +758,7 @@ TEST_P(LocalStoreTest, CollectsGarbageAfterAcknowledgedMutation) {
   WriteMutation(testutil::SetMutation("foo/bah", Map("foo", "bah")));
   WriteMutation(testutil::DeleteMutation("foo/baz"));
   FSTAssertContains(
-      Doc("foo/bar", 0, Map("foo", "bar"), DocumentState::kLocalMutations));
+      Doc("foo/bar", 1, Map("foo", "bar"), DocumentState::kLocalMutations));
   FSTAssertContains(
       Doc("foo/bah", 0, Map("foo", "bah"), DocumentState::kLocalMutations));
   FSTAssertContains(DeletedDoc("foo/baz"));
@@ -787,7 +787,7 @@ TEST_P(LocalStoreTest, CollectsGarbageAfterRejectedMutation) {
   TargetId target_id = AllocateQuery(query);
 
   ApplyRemoteEvent(
-      UpdateRemoteEvent(Doc("foo/bar", 0, Map("foo", "old")), {target_id}, {}));
+      UpdateRemoteEvent(Doc("foo/bar", 1, Map("foo", "old")), {target_id}, {}));
   WriteMutation(testutil::PatchMutation("foo/bar", Map("foo", "bar"), {}));
   // Release the query so that our target count goes back to 0 and we are
   // considered up-to-date.
@@ -796,7 +796,7 @@ TEST_P(LocalStoreTest, CollectsGarbageAfterRejectedMutation) {
   WriteMutation(testutil::SetMutation("foo/bah", Map("foo", "bah")));
   WriteMutation(testutil::DeleteMutation("foo/baz"));
   FSTAssertContains(
-      Doc("foo/bar", 0, Map("foo", "bar"), DocumentState::kLocalMutations));
+      Doc("foo/bar", 1, Map("foo", "bar"), DocumentState::kLocalMutations));
   FSTAssertContains(
       Doc("foo/bah", 0, Map("foo", "bah"), DocumentState::kLocalMutations));
   FSTAssertContains(DeletedDoc("foo/baz"));

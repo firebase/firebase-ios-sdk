@@ -51,6 +51,7 @@ struct LaunchArgs {
     case rc
     case templateDir
     case updatePodRepo
+    case zipPods
 
     /// Usage description for the key.
     var usage: String {
@@ -85,6 +86,8 @@ struct LaunchArgs {
           "building source based frameworks"
       case .updatePodRepo:
         return "A flag to run `pod repo update` before building the zip file."
+      case .zipPods:
+        return "The path to a JSON file of the pods (with optional version) to package into a zip."
       }
     }
   }
@@ -130,6 +133,9 @@ struct LaunchArgs {
 
   /// A flag to update the Pod Repo or not.
   let updatePodRepo: Bool
+
+  /// The path to a JSON file listing the pods to repackage to a zip.
+  let zipPods: [CocoaPodUtils.VersionedPod]?
 
   /// The shared instance for processing launch args using default arguments.
   static let shared: LaunchArgs = LaunchArgs()
@@ -197,6 +203,24 @@ struct LaunchArgs {
     } else {
       // No argument was passed in.
       currentReleasePath = nil
+    }
+
+    // Parse the zipPods key.
+    if let zipPodsPath = defaults.string(forKey: Key.zipPods.rawValue) {
+      let url = URL(fileURLWithPath: zipPodsPath)
+      guard fileChecker.fileExists(atPath: url.path) else {
+        LaunchArgs.exitWithUsageAndLog("Could not parse \(Key.zipPods) key: value passed " +
+          "in is not a file URL or the file does not exist. Value: \(zipPodsPath)")
+      }
+      do {
+        // Get pods, with optional version, from the JSON file.
+        let jsonData = try Data(contentsOf: url)
+        zipPods = try JSONDecoder().decode([CocoaPodUtils.VersionedPod].self, from: jsonData)
+      } catch {
+        fatalError("Could not read and parse JSON file at \(url). \(error)")
+      }
+    } else {
+      zipPods = nil
     }
 
     // Parse the output directory key.

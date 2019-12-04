@@ -47,6 +47,8 @@ class LocalDocumentsView {
         index_manager_{index_manager} {
   }
 
+  virtual ~LocalDocumentsView() = default;
+
   /**
    * Gets the local view of the document identified by `key`.
    *
@@ -71,8 +73,16 @@ class LocalDocumentsView {
   model::MaybeDocumentMap GetLocalViewOfDocuments(
       const model::OptionalMaybeDocumentMap& base_docs);
 
-  /** Performs a query against the local view of all documents. */
-  model::DocumentMap GetDocumentsMatchingQuery(const core::Query& query);
+  /**
+   * Performs a query against the local view of all documents.
+   *
+   * @param query The query to match documents against.
+   * @param since_read_time If not set to SnapshotVersion::None(), return only
+   *     documents that have been read since this snapshot version (exclusive).
+   */
+  // Virtual for testing.
+  virtual model::DocumentMap GetDocumentsMatchingQuery(
+      const core::Query& query, const model::SnapshotVersion& since_read_time);
 
  private:
   /** Internal version of GetDocument that allows re-using batches. */
@@ -93,11 +103,11 @@ class LocalDocumentsView {
       const model::ResourcePath& doc_path);
 
   model::DocumentMap GetDocumentsMatchingCollectionGroupQuery(
-      const core::Query& query);
+      const core::Query& query, const model::SnapshotVersion& since_read_time);
 
   /** Queries the remote documents and overlays mutations. */
   model::DocumentMap GetDocumentsMatchingCollectionQuery(
-      const core::Query& query);
+      const core::Query& query, const model::SnapshotVersion& since_read_time);
 
   /**
    * It is possible that a `PatchMutation` can make a document match a query,

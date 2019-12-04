@@ -129,8 +129,8 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
 
 #pragma mark - Fetch Config API
 
-- (void)fetchAllConfigsWithExpirationDuration:(NSTimeInterval)expirationDuration
-                            completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler {
+- (void)fetchConfigWithExpirationDuration:(NSTimeInterval)expirationDuration
+                        completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler {
   // Note: We expect the googleAppID to always be available.
   BOOL hasDeviceContextChanged =
       FIRRemoteConfigHasDeviceContextChanged(_settings.deviceContext, _options.googleAppID);
@@ -139,6 +139,7 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
   RCNConfigFetch *fetchWithExpirationSelf = weakSelf;
   dispatch_async(fetchWithExpirationSelf->_lockQueue, ^{
     RCNConfigFetch *strongSelf = fetchWithExpirationSelf;
+
     // Check whether we are outside of the minimum fetch interval.
     if (![strongSelf->_settings hasMinimumFetchIntervalElapsed:expirationDuration] &&
         !hasDeviceContextChanged) {
@@ -147,7 +148,10 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
                                         withStatus:FIRRemoteConfigFetchStatusSuccess
                                          withError:nil];
     }
+
+    // Check if a fetch is already in progress.
     if (strongSelf->_settings.isFetchInProgress) {
+      // Check if we have some fetched data.
       if (strongSelf->_settings.lastFetchTimeInterval > 0) {
         FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000052",
                     @"A fetch is already in progress. Using previous fetch results.");

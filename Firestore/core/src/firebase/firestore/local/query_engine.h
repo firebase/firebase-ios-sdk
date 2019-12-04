@@ -59,7 +59,7 @@ class QueryEngine {
   virtual model::DocumentMap GetDocumentsMatchingQuery(
       const core::Query& query,
       const model::SnapshotVersion& last_limbo_free_snapshot_version,
-      const model::DocumentKeySet& remote_keys) const = 0;
+      const model::DocumentKeySet& remote_keys) = 0;
 };
 
 }  // namespace local
