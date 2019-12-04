@@ -190,10 +190,10 @@ struct ModuleMapBuilder {
     module * { export * }
 
     """
-    for framework in myFrameworkDeps {
+    for framework in myFrameworkDeps.sorted() {
       content += "  link framework " + framework + "\n"
     }
-    for library in myLibraryDeps {
+    for library in myLibraryDeps.sorted() {
       content += "  link " + library + "\n"
     }
     content += "}\n"
