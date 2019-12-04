@@ -312,9 +312,12 @@
 
   [alert addAction:defaultAction];
 
-  [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:alert
-                                                                               animated:YES
-                                                                             completion:nil];
+  dispatch_async(dispatch_get_main_queue(), ^{
+    [[UIApplication sharedApplication].delegate.window.rootViewController
+        presentViewController:alert
+                     animated:YES
+                   completion:nil];
+  });
 }
 
 - (instancetype)initWithInAppMessaging:(FIRInAppMessaging *)inAppMessaging
