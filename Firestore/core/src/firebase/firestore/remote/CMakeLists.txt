@@ -26,6 +26,18 @@ cc_library(
 )
 
 cc_library(
+  firebase_firestore_firebase_client_metadata_provider_apple
+  SOURCES
+    grpc_metadata_provider.h
+    firebase_client_grpc_metadata_provider_apple.mm
+  DEPENDS
+    absl_base
+    firebase_firestore_util
+    "-framework SystemConfiguration"
+  EXCLUDE_FROM_ALL
+)
+
+cc_library(
   firebase_firestore_remote_connectivity_monitor_noop
   SOURCES
     connectivity_monitor.cc

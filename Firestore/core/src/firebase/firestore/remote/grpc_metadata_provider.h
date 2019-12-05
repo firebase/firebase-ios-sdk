@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_METADATA_PROVIDER_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_METADATA_PROVIDER_H_
+
+#include <memory>
 #include <string>
 #include "grpcpp/client_context.h"
 
@@ -33,10 +37,11 @@ class GrpcMetadataProvider {
    * heartbeat and the useragent header.
    */
   virtual void UpdateMetadata(
-      std::unique_ptr<grpc::ClientContext>& context) = 0;
+      const std::unique_ptr<grpc::ClientContext>& context) = 0;
 
   virtual ~GrpcMetadataProvider() = default;
 };
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_METADATA_PROVIDER_H_

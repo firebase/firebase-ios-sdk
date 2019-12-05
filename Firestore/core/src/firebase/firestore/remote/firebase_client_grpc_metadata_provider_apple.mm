@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
+#include "Firestore/core/src/firebase/firestore/remote/grpc_metadata_provider.h"
+
+#if defined(__APPLE__)
+
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRHeartbeatInfo.h>
 #import <Foundation/Foundation.h>
+#include <memory>
 #include <string>
-#include "Firestore/core/src/firebase/firestore/remote/grpc_metadata_provider.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "absl/memory/memory.h"
 #include "grpcpp/client_context.h"
@@ -30,10 +34,10 @@ namespace firestore {
 namespace remote {
 class FirebaseClientGrpcMetadataProviderApple : public GrpcMetadataProvider {
  public:
-  explicit FirebaseClientGrpcMetadataProviderApple() : GrpcMetadataProvider() {
+  FirebaseClientGrpcMetadataProviderApple() : GrpcMetadataProvider() {
   }
 
-  void UpdateMetadata(std::unique_ptr<grpc::ClientContext>& context) {
+  void UpdateMetadata(const std::unique_ptr<grpc::ClientContext>& context) {
     std::string kFirebaseFirestoreHeartbeatKey = "X-firebase-client-log-type";
     std::string kFirebaseFirestoreUserAgentKey = "X-firebase-client";
     std::string heartbeatCode = util::MakeString(
@@ -53,3 +57,5 @@ std::unique_ptr<GrpcMetadataProvider> GrpcMetadataProvider::Create() {
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
+
+#endif  // defined(__APPLE__)
