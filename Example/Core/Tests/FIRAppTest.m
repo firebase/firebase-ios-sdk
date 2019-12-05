@@ -735,6 +735,10 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"InvalidLibrary`/1.0.0"]);
 }
 
+- (void)testSwiftFlagWithNoSwift {
+  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"swift-runtime"]);
+}
+
 #pragma mark - Core Diagnostics
 
 - (void)testCoreDiagnosticsLoggedWhenFIRAppIsConfigured {

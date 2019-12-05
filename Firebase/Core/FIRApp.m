@@ -35,6 +35,8 @@
 #import "Private/FIROptionsInternal.h"
 #import "Private/FIRVersion.h"
 
+#import <objc/runtime.h>
+
 // The kFIRService strings are only here while transitioning CoreDiagnostics from the Analytics
 // pod to a Core dependency. These symbols are not used and should be deleted after the transition.
 NSString *const kFIRServiceAdMob;
@@ -537,7 +539,13 @@ static NSMutableDictionary *sLibraryVersions;
       if (sdkVersion) {
         [FIRApp registerLibrary:@"apple-sdk" withVersion:sdkVersion];
       }
+
+      if([self hasSwiftRuntime]) {
+        // Add "swift-runtime" flag to the `firebaseUserAgent`.
+        [FIRApp registerLibrary:@"swift-runtime" withVersion:@"true"];
+      }
     });
+
     NSMutableArray<NSString *> *libraries =
         [[NSMutableArray<NSString *> alloc] initWithCapacity:sLibraryVersions.count];
     for (NSString *libraryName in sLibraryVersions) {
@@ -547,6 +555,10 @@ static NSMutableDictionary *sLibraryVersions;
     [libraries sortUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
     return [libraries componentsJoinedByString:@" "];
   }
+}
+
++ (BOOL)hasSwiftRuntime {
+  return objc_lookUpClass("Swift._SwiftObject") != nil;
 }
 
 - (void)checkExpectedBundleID {
