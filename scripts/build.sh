@@ -86,14 +86,23 @@ function RunXcodebuild() {
 
   xcodebuild "$@" | xcpretty; result=$?
   if [[ $result == 65 ]]; then
+    ExportLogs "$@"
+
     echo "xcodebuild exited with 65, retrying" 1>&2
     sleep 5
 
     xcodebuild "$@" | xcpretty; result=$?
   fi
   if [[ $result != 0 ]]; then
+    ExportLogs "$@"
+
     exit $result
   fi
+}
+
+function ExportLogs() {
+  exporter="${scripts_dir}/xcresult_logs.py"
+  python "$exporter" "$@"
 }
 
 if [[ "$xcode_major" -lt 11 ]]; then
