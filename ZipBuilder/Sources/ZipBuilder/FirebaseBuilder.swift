@@ -30,7 +30,7 @@ struct FirebaseBuilder {
 
   /// Wrapper around a generic zip builder that adds in Firebase specific steps including a multi-level zip file, a README, and a
   /// Carthage build.
-  func build(in projectDir: URL) {
+  func build(in projectDir: URL, podsToInstall: [CocoaPodUtils.VersionedPod]) {
     // Build the zip file and get the path.
     do {
       let artifacts = try builder.buildAndAssembleFirebaseRelease(inProjectDir: projectDir)

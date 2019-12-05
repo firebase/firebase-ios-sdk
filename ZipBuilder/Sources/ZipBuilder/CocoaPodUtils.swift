@@ -304,12 +304,35 @@ public enum CocoaPodUtils {
     target 'FrameworkMaker' do\n
     """
 
+    var versionsSpecified = false
+
     // Loop through the subspecs passed in and use the actual Pod name.
     for pod in pods {
-      let version = pod.version == nil ? "" : ", '\(pod.version!)'"
-      podfile += "  pod '\(pod.name)'" + version + "\n"
+      podfile += "  pod '\(pod.name)'"
+      // Check if we want to use a local version of the podspec.
+      if let localURL = LaunchArgs.shared.localPodspecPath,
+         FileManager.default.fileExists(atPath: localURL.appendingPathComponent(pod.name + ".podspec").path) {
+        podfile += ", :path => '" + localURL.path + "'"
+      } else if pod.version != nil {
+        podfile += ", '\(pod.version!)'"
+      }
+      podfile += "\n"
+      if pod.version != nil {
+        versionsSpecified = true
+      }
     }
 
+    // If we're using local pods, explicitly add Google* podspecs if they exist and there are no
+    // explicit versions in the Podfile.
+    if !versionsSpecified, let localURL = LaunchArgs.shared.localPodspecPath {
+      let podspecs = try! FileManager.default.contentsOfDirectory(atPath: localURL.path)
+      for podspec in podspecs {
+        if podspec.starts(with:"Google") && podspec.hasSuffix(".podspec") {
+          let podName = podspec.replacingOccurrences(of:".podspec", with:"")
+          podfile += "  pod '\(podName)', :path => '\(localURL.path)/\(podspec)'\n"
+        }
+      }
+    }
     podfile += "end"
     return podfile
   }
