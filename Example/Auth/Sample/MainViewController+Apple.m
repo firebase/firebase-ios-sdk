@@ -19,7 +19,6 @@
 #import <AuthenticationServices/AuthenticationServices.h>
 
 #import "AppManager.h"
-#import "FirebaseAuth.h"
 #import "MainViewController+Internal.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -27,7 +26,6 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation MainViewController (Apple)
 
 - (StaticContentTableViewSection *)appleAuthSection API_AVAILABLE(ios(13.0)) {
-  __weak typeof(self) weakSelf = self;
   return [StaticContentTableViewSection sectionWithTitle:@"Apple Auth" cells:@[]];
 }
 
