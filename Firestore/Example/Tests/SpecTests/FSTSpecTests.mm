@@ -776,15 +776,13 @@ ByteString MakeResumeToken(NSString *specString) {
   BOOL exclusiveMode = NO;
 
   auto source_file = Path::FromUtf8(__FILE__);
+  Path json_ext = Path::FromUtf8(".json");
   auto spec_dir = source_file.Dirname();
   auto json_dir = spec_dir.AppendUtf8("json");
+
   auto iter = util::DirectoryIterator::Create(json_dir);
-
-  Path json_ext = Path::FromUtf8(".json");
-  while (iter->Valid()) {
+  for (; iter->Valid(); iter->Next()) {
     Path entry = iter->file();
-    iter->Next();
-
     if (!entry.HasExtension(json_ext)) {
       continue;
     }
