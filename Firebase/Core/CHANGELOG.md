@@ -9,6 +9,8 @@
   full name of each Firebase pod name in the directory structure. For example, the former
   `Storage` directory is now `FirebaseStorage`.
 
+- [changed] Speed up initialization by lazily registering for the user agent. (#1306)
+
 # v6.4.0 -- M60
 - [changed] Administrative minor version update to prepare for an upcoming Firebase pod
   open source.

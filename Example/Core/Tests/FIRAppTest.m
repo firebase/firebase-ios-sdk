@@ -703,7 +703,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 
 - (void)testInvalidLibraryName {
   [FIRApp registerLibrary:@"Oops>" withVersion:@"1.0.0"];
-  XCTAssertTrue([[FIRApp firebaseUserAgent] isEqualToString:@""]);
+  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"Oops"]);
 }
 
 - (void)testInvalidLibraryVersion {
