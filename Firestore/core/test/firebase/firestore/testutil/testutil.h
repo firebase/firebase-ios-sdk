@@ -49,11 +49,10 @@
 
 namespace firebase {
 namespace firestore {
-namespace model {
 
+namespace model {
 class TransformMutation;
 class TransformOperation;
-
 }  // namespace model
 
 namespace testutil {
@@ -124,7 +123,7 @@ inline model::FieldValue Value(double value) {
 }
 
 inline model::FieldValue Value(Timestamp value) {
-  return model::FieldValue::FromTimestamp(std::move(value));
+  return model::FieldValue::FromTimestamp(value);
 }
 
 inline model::FieldValue Value(const char* value) {
@@ -418,7 +417,7 @@ inline core::OrderBy OrderBy(absl::string_view key,
 
 inline core::OrderBy OrderBy(model::FieldPath field_path,
                              core::Direction direction) {
-  return core::OrderBy(std::move(field_path), std::move(direction));
+  return core::OrderBy(std::move(field_path), direction);
 }
 
 inline core::Query Query(absl::string_view path) {
@@ -445,6 +444,22 @@ model::PatchMutation PatchMutation(
 model::TransformMutation TransformMutation(
     absl::string_view path,
     std::vector<std::pair<std::string, model::TransformOperation>> transforms);
+
+/**
+ * Creates a pair of field name, TransformOperation that represents a numeric
+ * increment on the given field, suitable for passing to TransformMutation,
+ * above.
+ */
+std::pair<std::string, model::TransformOperation> Increment(
+    std::string field, model::FieldValue operand);
+
+/**
+ * Creates a pair of field name, TransformOperation that represents an array
+ * union on the given field, suitable for passing to TransformMutation,
+ * above.
+ */
+std::pair<std::string, model::TransformOperation> ArrayUnion(
+    std::string field, std::vector<model::FieldValue> operands);
 
 inline model::DeleteMutation DeleteMutation(absl::string_view path) {
   return model::DeleteMutation(Key(path), model::Precondition::None());
