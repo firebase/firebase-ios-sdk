@@ -140,13 +140,13 @@ struct ZipBuilder {
                               inDir: projectDir,
                               customSpecRepos: customSpecRepos)
 
+    // Find out what pods were installed with the above commands.
+    let installedPods = CocoaPodUtils.installedPodsInfo(inProjectDir: projectDir)
+
     // If any expected versions were passed in, we should verify that those were actually installed
     // and get the list of actual versions we'll be using to build the Zip file. This method will
     // throw a fatalError if any versions are mismatched.
-    validateExpectedVersions(inProjectDir: projectDir)
-
-    // Find out what pods were installed with the above commands.
-    let installedPods = CocoaPodUtils.installedPodsInfo(inProjectDir: projectDir)
+    validateExpectedVersions(installedPods: installedPods)
 
     // Generate the frameworks. Each key is the pod name and the URLs are all frameworks to be
     // copied in each product's directory.
@@ -537,41 +537,32 @@ struct ZipBuilder {
   /// directory.
   ///
   /// - Parameter projectDir: The directory containing the Podfile.lock file of installed pods.
-  private func validateExpectedVersions(inProjectDir projectDir: URL) {
+  private func validateExpectedVersions(installedPods: [CocoaPodUtils.PodInfo]) {
     // Get the expected versions based on the release manifests, if there are any. We'll use this to
     // validate the versions pulled from CocoaPods. Expected versions could be empty, in which case
     // validation succeeds.
     let expected = expectedVersions()
     if !expected.isEmpty {
-      // There are some expected versions, read from the CocoaPods Podfile.lock and grab the
-      // installed versions.
-      let podfileLock: String
-      do {
-        podfileLock = try String(contentsOf: projectDir.appendingPathComponent("Podfile.lock"))
-      } catch {
-        fatalError("Could not read contents of `Podfile.lock` to validate versions in " +
-          "\(projectDir): \(error)")
-      }
-
-      // Get the versions in the format of [PodName: VersionString].
-      let actual = CocoaPodUtils.loadVersionsFromPodfileLock(contents: podfileLock)
-
-      // Loop through the expected versions and verify the actual versions match.
-      for podName in expected.keys where !podName.contains("SmartReply") {
-        guard let actualVersion = actual[podName],
-          let expectedVersion = expected[podName],
-          actualVersion == expectedVersion else {
+      // If there are some expected versions,verify them.
+      for podInfo in installedPods {
+        let podName = podInfo.name
+        if podName.contains("SmartReply") {
+          continue
+        }
+        guard let expectedVersion = expected[podName] else {
+          continue
+        }
+        guard expectedVersion == podInfo.version else {
           fatalError("""
           Version mismatch from expected versions and version installed in CocoaPods:
           Pod Name: \(podName)
           Expected Version: \(String(describing: expected[podName]))
-          Actual Version: \(String(describing: actual[podName]))
+          Actual Version: \(podInfo.version)
           Please verify that the expected version is correct, and the Podspec dependencies are
           appropriately versioned.
           """)
         }
-
-        print("Successfully verified version of \(podName) is \(actualVersion)")
+        print("Successfully verified version of \(podName) is \(expectedVersion)")
       }
     }
   }
