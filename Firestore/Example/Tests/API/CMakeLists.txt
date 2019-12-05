@@ -12,25 +12,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-objc_test(
-  firebase_firestore_objc_api_test
-  HOST firestore_example_app_macos
-  SOURCES
-    FIRCollectionReferenceTests.mm
-    FIRDocumentReferenceTests.mm
-    FIRDocumentSnapshotTests.mm
-    FIRFieldPathTests.mm
-    FIRFieldValueTests.mm
-    FIRFirestoreTests.mm
-    FIRGeoPointTests.mm
-    FIRQuerySnapshotTests.mm
-    FIRQueryUnitTests.mm
-    FIRSnapshotMetadataTests.mm
-    FIRTimestampTest.m
-    FSTAPIHelpers.h
-    FSTAPIHelpers.mm
-    FSTUserDataConverterTests.mm
-  DEPENDS
-    FirebaseFirestore
-    firebase_firestore_objc_test_util
-)
+if(APPLE)
+  objc_test(
+    firebase_firestore_objc_api_test
+    HOST firestore_example_app_macos
+    SOURCES
+      FIRCollectionReferenceTests.mm
+      FIRDocumentReferenceTests.mm
+      FIRDocumentSnapshotTests.mm
+      FIRFieldPathTests.mm
+      FIRFieldValueTests.mm
+      FIRFirestoreTests.mm
+      FIRGeoPointTests.mm
+      FIRQuerySnapshotTests.mm
+      FIRQueryUnitTests.mm
+      FIRSnapshotMetadataTests.mm
+      FIRTimestampTest.m
+      FSTAPIHelpers.h
+      FSTAPIHelpers.mm
+      FSTUserDataConverterTests.mm
+    DEPENDS
+      FirebaseFirestore
+      firebase_firestore_objc_test_util
+  )
+endif(APPLE)
