@@ -558,6 +558,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                }];
 }
 
+// TODO(mandard): Break up test with helper methods.
 - (void)testFetchConfigsFailedErrorNoNetwork {
   // Override the setup values to return back an error status.
   RCNConfigContent *configContent = [[RCNConfigContent alloc] initWithDBManager:_DBManager];
