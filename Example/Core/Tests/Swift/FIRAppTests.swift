@@ -17,6 +17,6 @@ import XCTest
 
 class FIRAppTests: XCTestCase {
   func testSwiftFlagWithSwift() {
-    XCTAssertTrue(FirebaseApp.firebaseUserAgent().contains("swift-runtime"))
+    XCTAssertTrue(FirebaseApp.firebaseUserAgent().contains("swift"))
   }
 }

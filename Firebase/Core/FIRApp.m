@@ -541,8 +541,8 @@ static NSMutableDictionary *sLibraryVersions;
       }
 
       if([self hasSwiftRuntime]) {
-        // Add "swift-runtime" flag to the `firebaseUserAgent`.
-        [FIRApp registerLibrary:@"swift-runtime" withVersion:@"true"];
+        // Add "swift" flag to the `firebaseUserAgent`.
+        [FIRApp registerLibrary:@"swift" withVersion:@"true"];
       }
     });
 

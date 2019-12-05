@@ -736,7 +736,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 }
 
 - (void)testSwiftFlagWithNoSwift {
-  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"swift-runtime"]);
+  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"swift"]);
 }
 
 #pragma mark - Core Diagnostics
