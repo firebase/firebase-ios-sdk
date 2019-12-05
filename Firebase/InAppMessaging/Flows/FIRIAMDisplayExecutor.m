@@ -331,10 +331,10 @@
 #else  // defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     self.alertWindow = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
 #endif
-    UIViewController *vc = [[UIViewController alloc] init];
-    self.alertWindow.rootViewController = vc;
+    UIViewController *alertViewController = [[UIViewController alloc] init];
+    self.alertWindow.rootViewController = alertViewController;
     self.alertWindow.hidden = NO;
-    [vc presentViewController:alert animated:YES completion:nil];
+    [alertViewController presentViewController:alert animated:YES completion:nil];
   });
 }
 
