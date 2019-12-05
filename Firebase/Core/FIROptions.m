@@ -110,22 +110,6 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 
 #pragma mark - Private class methods
 
-+ (void)initialize {
-  // Report FirebaseCore version for useragent string
-  [FIRApp registerLibrary:@"fire-ios"
-              withVersion:[NSString stringWithUTF8String:FIRCoreVersionString]];
-
-  NSDictionary<NSString *, id> *info = [[NSBundle mainBundle] infoDictionary];
-  NSString *xcodeVersion = info[@"DTXcodeBuild"];
-  NSString *sdkVersion = info[@"DTSDKBuild"];
-  if (xcodeVersion) {
-    [FIRApp registerLibrary:@"xcode" withVersion:xcodeVersion];
-  }
-  if (sdkVersion) {
-    [FIRApp registerLibrary:@"apple-sdk" withVersion:sdkVersion];
-  }
-}
-
 + (NSDictionary *)defaultOptionsDictionary {
   if (sDefaultOptionsDictionary != nil) {
     return sDefaultOptionsDictionary;

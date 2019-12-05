@@ -33,6 +33,7 @@
 #import "Private/FIRLibrary.h"
 #import "Private/FIRLogger.h"
 #import "Private/FIROptionsInternal.h"
+#import "Private/FIRVersion.h"
 
 // The kFIRService strings are only here while transitioning CoreDiagnostics from the Analytics
 // pod to a Core dependency. These symbols are not used and should be deleted after the transition.
@@ -521,6 +522,22 @@ static NSMutableDictionary *sLibraryVersions;
 
 + (NSString *)firebaseUserAgent {
   @synchronized(self) {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+      // Report FirebaseCore version for useragent string
+      [FIRApp registerLibrary:@"fire-ios"
+                  withVersion:[NSString stringWithUTF8String:FIRCoreVersionString]];
+
+      NSDictionary<NSString *, id> *info = [[NSBundle mainBundle] infoDictionary];
+      NSString *xcodeVersion = info[@"DTXcodeBuild"];
+      NSString *sdkVersion = info[@"DTSDKBuild"];
+      if (xcodeVersion) {
+        [FIRApp registerLibrary:@"xcode" withVersion:xcodeVersion];
+      }
+      if (sdkVersion) {
+        [FIRApp registerLibrary:@"apple-sdk" withVersion:sdkVersion];
+      }
+    });
     NSMutableArray<NSString *> *libraries =
         [[NSMutableArray<NSString *> alloc] initWithCapacity:sLibraryVersions.count];
     for (NSString *libraryName in sLibraryVersions) {
