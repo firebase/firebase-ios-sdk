@@ -41,6 +41,8 @@
 @property(nonatomic) BOOL impressionRecorded;
 @property(nonatomic, nonnull, readonly) id<FIRIAMAnalyticsEventLogger> analyticsEventLogger;
 @property(nonatomic, nonnull, readonly) FIRIAMActionURLFollower *actionURLFollower;
+// Used for displaying the test on device message error alert.
+@property(nonatomic, strong) UIWindow *alertWindow;
 @end
 
 @implementation FIRIAMDisplayExecutor {
@@ -307,16 +309,32 @@
 
   UIAlertAction *defaultAction = [UIAlertAction actionWithTitle:@"OK"
                                                           style:UIAlertActionStyleDefault
-                                                        handler:^(UIAlertAction *action){
+                                                        handler:^(UIAlertAction *action) {
+                                                          self.alertWindow.hidden = NO;
+                                                          self.alertWindow = nil;
                                                         }];
 
   [alert addAction:defaultAction];
 
   dispatch_async(dispatch_get_main_queue(), ^{
-    [[UIApplication sharedApplication].delegate.window.rootViewController
-        presentViewController:alert
-                     animated:YES
-                   completion:nil];
+#if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+    if (@available(iOS 13.0, *)) {
+      UIWindowScene *foregroundedScene = nil;
+      for (UIWindowScene *connectedScene in [UIApplication sharedApplication].connectedScenes) {
+        if (connectedScene.activationState == UISceneActivationStateForegroundActive) {
+          foregroundedScene = connectedScene;
+          break;
+        }
+      }
+      self.alertWindow = [[UIWindow alloc] initWithWindowScene:foregroundedScene];
+    }
+#else  // defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+    self.alertWindow = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+#endif
+    UIViewController *vc = [[UIViewController alloc] init];
+    self.alertWindow.rootViewController = vc;
+    self.alertWindow.hidden = NO;
+    [vc presentViewController:alert animated:YES completion:nil];
   });
 }
 
