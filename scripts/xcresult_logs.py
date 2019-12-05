@@ -24,9 +24,14 @@ and it will find the output associated with the most recent invocation.
 """
 
 import json
+import logging
 import os
 import subprocess
 import sys
+
+from lib import command_trace
+
+_logger = logging.getLogger('xcresult')
 
 
 def main():
@@ -34,6 +39,8 @@ def main():
   if not args:
     sys.stdout.write(__doc__)
     sys.exit(1)
+
+  logging.basicConfig(format='%(message)s', level=logging.DEBUG)
 
   flags, args = parse_xcodebuild_flags(args)
 
@@ -82,6 +89,7 @@ def project_from_workspace_path(path):
   """
   root, ext = os.path.splitext(os.path.basename(path))
   if ext == '.xcworkspace':
+    _logger.debug('Using project %s from workspace %s', root, path)
     return root
 
   raise ValueError('%s is not a valid workspace path' % path)
@@ -101,11 +109,13 @@ def find_xcresult_path(project, scheme):
   bundle_dir = os.path.join(project_path, 'Logs/Test')
   prefix = 'Run-' + scheme + '-'
 
+  _logger.debug('Logging for xcresult bundles in %s', bundle_dir)
   xcresult = find_newest_matching_prefix(bundle_dir, prefix)
   if xcresult is None:
     raise LookupError(
         'Could not find xcresult bundle for %s in %s' % (scheme, bundle_dir))
 
+  _logger.debug('Found xcresult: %s', xcresult)
   return xcresult
 
 
@@ -127,8 +137,9 @@ def find_project_path(project):
   result = find_newest_matching_prefix(path, prefix)
   if result is None:
     raise LookupError(
-        'Could not find project data for %s in %s' % (project, path))
+        'Could not find project derived data for %s in %s' % (project, path))
 
+  _logger.debug('Using project derived data in %s', result)
   return result
 
 
@@ -172,7 +183,9 @@ def find_log_id(xcresult_path):
   actions = parsed['actions']['_values']
   action = actions[-1]
 
-  return action['actionResult']['logRef']['id']['_value']
+  result = action['actionResult']['logRef']['id']['_value']
+  _logger.debug('Using log id %s', result)
+  return result
 
 
 def export_log(xcresult_path, log_id):
@@ -213,6 +226,8 @@ def xcresulttool(*args):
   """Runs xcresulttool and returns its output as a string."""
   cmd = ['xcrun', 'xcresulttool']
   cmd.extend(args)
+
+  command_trace.log(cmd)
 
   return subprocess.check_output(cmd)
 
