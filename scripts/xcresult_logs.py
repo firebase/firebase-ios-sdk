@@ -14,7 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Prints logs from test runs captured in Apple .xcresult bundles
+"""Prints logs from test runs captured in Apple .xcresult bundles.
+
+USAGE: xcresult_logs.py -workspace <path> -scheme <scheme> [other flags...]
+
+xcresult_logs.py finds and displays the log output associated with an xcodebuild
+invocation. Pass your entire xcodebuild command-line as arguments to this script
+and it will find the output associated with the most recent invocation.
 """
 
 import json
@@ -24,14 +30,19 @@ import sys
 
 
 def main():
-  switches, args = parse_args(sys.argv[1:])
-  if 'test' not in args:
-    return
+  args = sys.argv[1:]
+  if not args:
+    sys.stdout.write(__doc__)
+    sys.exit(1)
 
-  xcresult_path = switches.get('-resultBundlePath')
+  flags, args = parse_xcodebuild_flags(args)
+
+  # If the result bundle path is specified in the xcodebuild flags, use that
+  # otherwise, deduce
+  xcresult_path = flags.get('-resultBundlePath')
   if xcresult_path is None:
-    project = project_from_workspace_path(switches['-workspace'])
-    scheme = switches['-scheme']
+    project = project_from_workspace_path(flags['-workspace'])
+    scheme = flags['-scheme']
     xcresult_path = find_xcresult_path(project, scheme)
 
   log_id = find_log_id(xcresult_path)
@@ -39,8 +50,11 @@ def main():
   sys.stdout.write(log)
 
 
-def parse_args(args):
-  """Parses switches from xcodebuild flags.
+def parse_xcodebuild_flags(args):
+  """Parses the xcodebuild command-line.
+
+  Extracts flags like -workspace and -scheme that dictate the location of the
+  logs.
   """
   result = {}
   key = None
@@ -146,22 +160,19 @@ def find_newest_matching_prefix(path, prefix):
 
 
 def find_log_id(xcresult_path):
-  """Finds the id of the test logs.
+  """Finds the id of the last action's logs.
 
   Args:
     xcresult_path: The path to an xcresult bundle.
 
   Returns:
-    The id of the test log output, suitable for use with xcresulttool get --id.
+    The id of the log output, suitable for use with xcresulttool get --id.
   """
   parsed = xcresulttool_json('get', '--path', xcresult_path)
-  for action in parsed['actions']['_values']:
-    if action['schemeCommandName']['_value'] != u'Test':
-      continue
+  actions = parsed['actions']['_values']
+  action = actions[-1]
 
-    return action['actionResult']['logRef']['id']['_value']
-
-  raise ValueError('Could not find a log id in xcresult at %s' % xcresult_path)
+  return action['actionResult']['logRef']['id']['_value']
 
 
 def export_log(xcresult_path, log_id):
