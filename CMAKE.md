@@ -66,7 +66,7 @@ choco install git
 choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System'
 choco install ninja
 
-# Build scripts use uses bash and python
+# Build scripts use bash and python
 choco install msys2
 
 # Required for building gRPC and its dependencies
