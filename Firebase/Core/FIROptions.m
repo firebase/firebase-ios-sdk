@@ -393,6 +393,9 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 - (NSUInteger)hash {
   // This is strongly recommended for any object that implements a custom `isEqual:` method to
   // ensure that dictionary and set behavior matches other `isEqual:` checks.
+  // Note: `self.analyticsOptionsDictionary` was left out here since it solely relies on the
+  // contents of the main bundle's `Info.plist`. We should avoid reading that file and the contents
+  // should be identical.
   return self.optionsDictionary.hash ^ self.deepLinkURLScheme.hash ^ self.appGroupID.hash;
 }
 
