@@ -775,6 +775,7 @@ ByteString MakeResumeToken(NSString *specString) {
   NSMutableArray<NSDictionary *> *parsedSpecs = [NSMutableArray array];
   BOOL exclusiveMode = NO;
 
+  // TODO(wilhuff): Fix this when running spec tests using a real device
   auto source_file = Path::FromUtf8(__FILE__);
   Path json_ext = Path::FromUtf8(".json");
   auto spec_dir = source_file.Dirname();
