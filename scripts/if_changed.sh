@@ -157,6 +157,7 @@ fi
 check_changes '^.travis.yml'
 check_changes '^Gemfile.lock'
 check_changes '^scripts/(build|install_prereqs|pod_lib_lint).(rb|sh)'
+check_changes '^scripts/xcresult_logs.py'
 
 if [[ "$run" == true ]]; then
   "$@"
