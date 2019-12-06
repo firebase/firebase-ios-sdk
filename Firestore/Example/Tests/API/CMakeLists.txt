@@ -14,24 +14,23 @@
 
 if(APPLE)
   objc_test(
-    firebase_firestore_objc_integration_test
+    firebase_firestore_objc_api_test
     HOST firestore_example_app_macos
     SOURCES
-      FSTSmokeTests.mm
-      FSTDatastoreTests.mm
-      FSTTransactionTests.mm
-      API/FIRArrayTransformTests.mm
-      API/FIRFieldsTests.mm
-      API/FIRNumericTransformTests.mm
-      API/FIRTypeTests.mm
-      API/FIRCursorTests.mm
-      API/FIRFirestoreSourceTests.mm
-      API/FIRQueryTests.mm
-      API/FIRValidationTests.mm
-      API/FIRDatabaseTests.mm
-      API/FIRListenerRegistrationTests.mm
-      API/FIRServerTimestampTests.mm
-      API/FIRWriteBatchTests.mm
+      FIRCollectionReferenceTests.mm
+      FIRDocumentReferenceTests.mm
+      FIRDocumentSnapshotTests.mm
+      FIRFieldPathTests.mm
+      FIRFieldValueTests.mm
+      FIRFirestoreTests.mm
+      FIRGeoPointTests.mm
+      FIRQuerySnapshotTests.mm
+      FIRQueryUnitTests.mm
+      FIRSnapshotMetadataTests.mm
+      FIRTimestampTest.m
+      FSTAPIHelpers.h
+      FSTAPIHelpers.mm
+      FSTUserDataConverterTests.mm
     DEPENDS
       FirebaseFirestore
       firebase_firestore_objc_test_util
