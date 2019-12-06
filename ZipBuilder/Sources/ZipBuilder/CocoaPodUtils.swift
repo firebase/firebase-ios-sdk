@@ -171,10 +171,14 @@ public enum CocoaPodUtils {
     let podsDir = projectDir.appendingPathComponent("Pods")
     var installedPods: [String: PodInfo] = [:]
     for (podName, version) in pods {
-      let podDir = podsDir.appendingPathComponent(podName)
-      guard FileManager.default.directoryExists(at: podDir) else {
-        fatalError("Directory for \(podName) doesn't exist at \(podDir) - failed while getting " +
-          "information for installed Pods.")
+      var podDir: URL
+      podDir = podsDir.appendingPathComponent(podName)
+      if !FileManager.default.directoryExists(at: podDir) {
+        guard let repoDir = LaunchArgs.shared.localPodspecPath else {
+          fatalError("Directory for \(podName) doesn't exist at \(podDir) - failed while getting " +
+            "information for installed Pods.")
+        }
+        podDir = repoDir
       }
       let dependencies = [String](deps[podName] ?? [])
       let podInfo = PodInfo(version: version, dependencies: dependencies, installedLocation: podDir)

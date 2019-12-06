@@ -672,7 +672,7 @@ struct ZipBuilder {
 
       // Get all the frameworks contained in this directory.
       var foundFrameworks: [URL] = []
-      if pod.installedLocation != LaunchArgs.shared.localPodspecPath {
+      if podInfo.installedLocation != LaunchArgs.shared.localPodspecPath {
         do {
           foundFrameworks = try fileManager.recursivelySearch(for: .frameworks,
                                                               in: podInfo.installedLocation)

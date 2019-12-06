@@ -52,23 +52,11 @@ if let outputDir = args.outputDir {
 }
 
 var zipped: URL
-var podsToInstall: [CocoaPodUtils.VersionedPod]
-if LaunchArgs.shared.zipPods != nil {
-  podsToInstall = LaunchArgs.shared.zipPods!
-} else {
-  // Break the `inputPods` into a variable since it's helpful when debugging builds to just
-  // install a subset of pods, like the following line:
-  // let inputPods: [String] = ["", "FirebaseCore", "FirebaseAnalytics", "FirebaseStorage"]
-  let inputPods = FirebasePods.allCases.map { $0.rawValue }
-  podsToInstall = inputPods.map { CocoaPodUtils.VersionedPod(name: $0, version: nil) }
-}
-
-if args.zipPods == nil, args.localPodspecPath != nil {
+if args.zipPods == nil {
   // Do a Firebase build.
-  // TODO: add support for staging local pods to support localPodspecPath here.
-  FirebaseBuilder(zipBuilder: builder).build(in: projectDir, podsToInstall: podsToInstall)
+  FirebaseBuilder(zipBuilder: builder).build(in: projectDir)
 } else {
-  let (installedPods, frameworks) = builder.buildAndAssembleZip(podsToInstall: podsToInstall)
+  let (installedPods, frameworks) = builder.buildAndAssembleZip(podsToInstall: LaunchArgs.shared.zipPods!)
   let staging = FileManager.default.temporaryDirectory(withName: "staging")
   try builder.copyFrameworks(fromPods: Array(installedPods.keys), toDirectory: staging,
                              frameworkLocations: frameworks)
