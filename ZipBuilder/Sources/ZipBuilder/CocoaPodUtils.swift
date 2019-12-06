@@ -315,7 +315,7 @@ public enum CocoaPodUtils {
       podfile += "  pod '\(pod.name)'"
       // Check if we want to use a local version of the podspec.
       if let localURL = LaunchArgs.shared.localPodspecPath,
-         FileManager.default.fileExists(atPath: localURL.appendingPathComponent(pod.name + ".podspec").path) {
+        FileManager.default.fileExists(atPath: localURL.appendingPathComponent(pod.name + ".podspec").path) {
         podfile += ", :path => '" + localURL.path + "'"
       } else if pod.version != nil {
         podfile += ", '\(pod.version!)'"
@@ -331,8 +331,8 @@ public enum CocoaPodUtils {
     if !versionsSpecified, let localURL = LaunchArgs.shared.localPodspecPath {
       let podspecs = try! FileManager.default.contentsOfDirectory(atPath: localURL.path)
       for podspec in podspecs {
-        if podspec.starts(with:"Google") && podspec.hasSuffix(".podspec") {
-          let podName = podspec.replacingOccurrences(of:".podspec", with:"")
+        if podspec.starts(with: "Google"), podspec.hasSuffix(".podspec") {
+          let podName = podspec.replacingOccurrences(of: ".podspec", with: "")
           podfile += "  pod '\(podName)', :path => '\(localURL.path)/\(podspec)'\n"
         }
       }
