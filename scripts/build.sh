@@ -24,6 +24,7 @@ function pod_gen() {
 }
 
 set -euo pipefail
+set -x
 
 if [[ $# -lt 1 ]]; then
   cat 1>&2 <<EOF
