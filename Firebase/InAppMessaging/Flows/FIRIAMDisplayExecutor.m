@@ -15,6 +15,7 @@
  */
 
 #import <FirebaseCore/FIRLogger.h>
+#import <UIKit/UIKit.h>
 
 #import "FIRCore+InAppMessaging.h"
 #import "FIRIAMActivityLogger.h"
