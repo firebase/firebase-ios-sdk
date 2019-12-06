@@ -36,6 +36,7 @@ from lib import git
 # arguments are passed.
 _DEFAULT_DIRS = [
     'Firestore/core',
+    'Firestore/Example/Tests'
     'Firestore/Source'
 ]
 
