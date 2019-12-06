@@ -37,6 +37,8 @@
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 
+#import <objc/runtime.h>
+
 // The kFIRService strings are only here while transitioning CoreDiagnostics from the Analytics
 // pod to a Core dependency. These symbols are not used and should be deleted after the transition.
 NSString *const kFIRServiceAdMob;
@@ -114,6 +116,7 @@ static NSMutableArray<Class<FIRLibrary>> *sRegisteredAsConfigurable;
 static NSMutableDictionary *sAllApps;
 static FIRApp *sDefaultApp;
 static NSMutableDictionary *sLibraryVersions;
+static dispatch_once_t sFirebaseUserAgentOnceToken;
 
 + (void)configure {
   FIROptions *options = [FIROptions defaultOptions];
@@ -275,6 +278,7 @@ static NSMutableDictionary *sLibraryVersions;
     sAllApps = nil;
     [sLibraryVersions removeAllObjects];
     sLibraryVersions = nil;
+    sFirebaseUserAgentOnceToken = 0;
   }
 }
 
@@ -556,8 +560,7 @@ static NSMutableDictionary *sLibraryVersions;
 
 + (NSString *)firebaseUserAgent {
   @synchronized(self) {
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
+    dispatch_once(&sFirebaseUserAgentOnceToken, ^{
       // Report FirebaseCore version for useragent string
       [FIRApp registerLibrary:@"fire-ios"
                   withVersion:[NSString stringWithUTF8String:FIRCoreVersionString]];
@@ -571,7 +574,11 @@ static NSMutableDictionary *sLibraryVersions;
       if (sdkVersion) {
         [FIRApp registerLibrary:@"apple-sdk" withVersion:sdkVersion];
       }
+
+      NSString *swiftFlagValue = [self hasSwiftRuntime] ? @"true" : @"false";
+      [FIRApp registerLibrary:@"swift" withVersion:swiftFlagValue];
     });
+
     NSMutableArray<NSString *> *libraries =
         [[NSMutableArray<NSString *> alloc] initWithCapacity:sLibraryVersions.count];
     for (NSString *libraryName in sLibraryVersions) {
@@ -581,6 +588,20 @@ static NSMutableDictionary *sLibraryVersions;
     [libraries sortUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
     return [libraries componentsJoinedByString:@" "];
   }
+}
+
++ (BOOL)hasSwiftRuntime {
+  // The class
+  // [Swift._SwiftObject](https://github.com/apple/swift/blob/5eac3e2818eb340b11232aff83edfbd1c307fa03/stdlib/public/runtime/SwiftObject.h#L35)
+  // is a part of Swift runtime, so it should be present if Swift runtime is available.
+
+  BOOL hasSwiftRuntime =
+      objc_lookUpClass("Swift._SwiftObject") != nil ||
+      // Swift object class name before
+      // https://github.com/apple/swift/commit/9637b4a6e11ddca72f5f6dbe528efc7c92f14d01
+      objc_getClass("_TtCs12_SwiftObject") != nil;
+
+  return hasSwiftRuntime;
 }
 
 - (void)checkExpectedBundleID {
