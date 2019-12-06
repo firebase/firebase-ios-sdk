@@ -63,8 +63,8 @@ Path LevelDbDir() {
 
 std::unique_ptr<LevelDbPersistence> LevelDbPersistenceForTesting(
     Path dir, LruParams lru_params) {
-  auto created = LevelDbPersistence::Create(std::move(dir),
-                                            MakeLocalSerializer(), lru_params);
+  auto created =
+      LevelDbPersistence::Create(dir, MakeLocalSerializer(), lru_params);
   if (!created.ok()) {
     util::ThrowIllegalState("Failed to open leveldb in dir %s: %s",
                             dir.ToUtf8String(), created.status().ToString());
