@@ -558,6 +558,9 @@ static NSMutableDictionary *sLibraryVersions;
 }
 
 + (BOOL)hasSwiftRuntime {
+  // The class
+  // [Swift._SwiftObject](https://github.com/apple/swift/blob/master/stdlib/public/runtime/SwiftObject.mm)
+  // is a part of Swift runtime, so it should be present if Swift runtime is available.
   return objc_lookUpClass("Swift._SwiftObject") != nil;
 }
 
