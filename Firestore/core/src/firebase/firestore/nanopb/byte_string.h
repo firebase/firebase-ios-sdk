@@ -17,10 +17,6 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_NANOPB_BYTE_STRING_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_NANOPB_BYTE_STRING_H_
 
-#if __OBJC__
-#import <Foundation/Foundation.h>
-#endif
-
 #include <pb.h>
 
 #include <cstdint>
