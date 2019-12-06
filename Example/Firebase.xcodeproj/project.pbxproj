@@ -117,7 +117,6 @@
 		40CC5510221B9B4700032423 /* CustomAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 40CC5508221B9B4700032423 /* CustomAuthTests.m */; };
 		40CC5512221B9B4700032423 /* AnonymousAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 40CC550A221B9B4700032423 /* AnonymousAuthTests.m */; };
 		40CC5513221B9B4700032423 /* FacebookAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 40CC550B221B9B4700032423 /* FacebookAuthTests.m */; };
-		40DED7BE2350F60300768D88 /* MainViewController+Apple.m in Sources */ = {isa = PBXBuildFile; fileRef = 40DED7BD2350F60200768D88 /* MainViewController+Apple.m */; };
 		40EE3B822256B23200BE59CE /* MainViewController+GameCenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 40EE3B812256B23200BE59CE /* MainViewController+GameCenter.m */; };
 		40EE3B862256B5A000BE59CE /* MainViewController+Phone.m in Sources */ = {isa = PBXBuildFile; fileRef = 40EE3B852256B5A000BE59CE /* MainViewController+Phone.m */; };
 		40EE3B892256B9A600BE59CE /* MainViewController+User.m in Sources */ = {isa = PBXBuildFile; fileRef = 40EE3B882256B9A600BE59CE /* MainViewController+User.m */; };
@@ -1083,8 +1082,6 @@
 		40CC550A221B9B4700032423 /* AnonymousAuthTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AnonymousAuthTests.m; sourceTree = "<group>"; };
 		40CC550B221B9B4700032423 /* FacebookAuthTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FacebookAuthTests.m; sourceTree = "<group>"; };
 		40CC550C221B9B4700032423 /* FIRAuthApiTestsBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRAuthApiTestsBase.h; sourceTree = "<group>"; };
-		40DED7BC2350F60200768D88 /* MainViewController+Apple.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MainViewController+Apple.h"; sourceTree = "<group>"; };
-		40DED7BD2350F60200768D88 /* MainViewController+Apple.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MainViewController+Apple.m"; sourceTree = "<group>"; };
 		40EE3B802256B23200BE59CE /* MainViewController+GameCenter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MainViewController+GameCenter.h"; sourceTree = "<group>"; };
 		40EE3B812256B23200BE59CE /* MainViewController+GameCenter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "MainViewController+GameCenter.m"; sourceTree = "<group>"; };
 		40EE3B832256B39800BE59CE /* MainViewController+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MainViewController+Internal.h"; sourceTree = "<group>"; };
@@ -2306,8 +2303,6 @@
 				DE26D1E81F70333E004AE1D3 /* MainViewController.xib */,
 				40EE3B8D2256C0AD00BE59CE /* MainViewController+App.h */,
 				40EE3B8E2256C0AD00BE59CE /* MainViewController+App.m */,
-				40DED7BC2350F60200768D88 /* MainViewController+Apple.h */,
-				40DED7BD2350F60200768D88 /* MainViewController+Apple.m */,
 				40EE3BA22256C8DD00BE59CE /* MainViewController+Auth.h */,
 				40EE3BA32256C8DE00BE59CE /* MainViewController+Auth.m */,
 				40EE3B902256C2E800BE59CE /* MainViewController+AutoTests.h */,
@@ -4819,7 +4814,6 @@
 				DE26D24E1F7039BC004AE1D3 /* UIViewController+Alerts.m in Sources */,
 				DE26D24B1F7039BC004AE1D3 /* MainViewController.m in Sources */,
 				40EE3BA02256C77200BE59CE /* MainViewController+Custom.m in Sources */,
-				40DED7BE2350F60300768D88 /* MainViewController+Apple.m in Sources */,
 				40EE3B8C2256BBB200BE59CE /* MainViewController+OOB.m in Sources */,
 				DE26D24A1F7039BC004AE1D3 /* main.m in Sources */,
 				DE26D2481F7039BC004AE1D3 /* FacebookAuthProvider.m in Sources */,
