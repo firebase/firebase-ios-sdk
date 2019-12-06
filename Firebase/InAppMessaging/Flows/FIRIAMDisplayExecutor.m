@@ -327,6 +327,10 @@
           break;
         }
       }
+      
+      if (foregroundedScene == nil) {
+        return;
+      }
       self.alertWindow = [[UIWindow alloc] initWithWindowScene:foregroundedScene];
     }
 #else  // defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
