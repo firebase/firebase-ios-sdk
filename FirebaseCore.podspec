@@ -53,7 +53,7 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
     swift_unit_tests.source_files = 'Example/Core/Tests/Swift/**/*.swift',
                                     'Example/Core/Tests/Swift/**/*.h'
     swift_unit_tests.pod_target_xcconfig = {
-      'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_ROOT)/../../Example/Core/Tests/Swift/FirebaseCore-iOS-Unit-swift-unit-Bridging-Header.h'
+      'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/Example/Core/Tests/Swift/FirebaseCore-iOS-Unit-swift-unit-Bridging-Header.h'
     }
   end
 end
