@@ -19,10 +19,10 @@
 #import "FIRAuthApiTestsBase.h"
 
 /** The testing email address for testCreateAccountWithEmailAndPassword. */
-static NSString *const kOldUserEmail = @"iosgcip+user_old_email@gmail.com";
+static NSString *const kOldUserEmail = @"user+user_old_email@example.com";
 
 /** The testing email address for testUpdatingUsersEmail. */
-static NSString *const kNewUserEmail = @"iosgcip+user_new_email@gmail.com";
+static NSString *const kNewUserEmail = @"user+user_new_email@example.com";
 
 @interface AccountInfoTests : FIRAuthApiTestsBase
 

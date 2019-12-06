@@ -53,9 +53,7 @@ tl;dr (remove the whitespace):
 
 $KFACEBOOK_USER_NAME
 The name of the test user for Facebook Login. A test user with this name will
-be created and deleted as part of these tests. It's reasonable to leave this as
-the default, unless that would conflict with an existing test user in your
-facebook app.
+be created and deleted as part of these tests. e.g. "Fname Lname"
 
 $KCUSTOM_AUTH_TOKEN_URL
 A URL to return a Custom Auth token.
@@ -72,7 +70,7 @@ The ID of the test user in the Custom Auth token.
 #define KGOOGLE_USER_NAME $KGOOGLE_USER_NAME
 #define KFACEBOOK_APP_ID $KFACEBOOK_APP_ID
 #define KFACEBOOK_APP_ACCESS_TOKEN $KFACEBOOK_APP_ACCESS_TOKEN
-#define KFACEBOOK_USER_NAME @"Fname Lname"
+#define KFACEBOOK_USER_NAME KFACEBOOK_USER_NAME
 
 // The custom auth test is currently disabled. These values are ignored (though
 // must be present).

@@ -113,7 +113,7 @@ following auth providers:
 * Anonymous
 
 You'll also need to create a user with email
-`iosgcip+email_existing_user@gmail.com` and password of `password`.
+`user+email_existing_user@example.com` and password of `password`.
 
 ## Usage
 
