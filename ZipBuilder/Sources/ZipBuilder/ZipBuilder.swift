@@ -154,7 +154,7 @@ struct ZipBuilder {
     // copied in each product's directory.
     let frameworks = generateFrameworks(fromPods: installedPods, inProjectDir: projectDir)
 
-      ModuleMapBuilder(frameworks: frameworks, customSpecRepos: customSpecRepos, allPods: installedPods).build()
+    ModuleMapBuilder(frameworks: frameworks, customSpecRepos: customSpecRepos, allPods: installedPods).build()
 
     for (framework, paths) in frameworks {
       print("Frameworks for pod: \(framework) were compiled at \(paths)")
@@ -183,7 +183,7 @@ struct ZipBuilder {
 
     // Break the `inputPods` into a variable since it's helpful when debugging builds to just
     // install a subset of pods, like the following line:
-    //let inputPods: [String] = ["Firebase", "FirebaseCore", "FirebaseAnalytics", "FirebaseStorage"]
+    // let inputPods: [String] = ["Firebase", "FirebaseCore", "FirebaseAnalytics", "FirebaseStorage"]
     let inputPods = FirebasePods.allCases.map { $0.rawValue }
     let podsToInstall = inputPods.map { CocoaPodUtils.VersionedPod(name: $0, version: nil) }
 
@@ -269,10 +269,10 @@ struct ZipBuilder {
     // final destination, including resources.
     let remainingPods = installedPods.filter {
       $0.key != "FirebaseAnalytics" &&
-      $0.key != "FirebaseCore" &&
-      $0.key != "Firebase" &&
-      podsToInstall.map { $0.name }.contains($0.key)
-    }.sorted{$0.key < $1.key}
+        $0.key != "FirebaseCore" &&
+        $0.key != "Firebase" &&
+        podsToInstall.map { $0.name }.contains($0.key)
+    }.sorted { $0.key < $1.key }
     for pod in remainingPods {
       do {
         let (productDir, podFrameworks) =
@@ -545,7 +545,7 @@ struct ZipBuilder {
   /// directory.
   ///
   /// - Parameter projectDir: The directory containing the Podfile.lock file of installed pods.
-  private func validateExpectedVersions(installedPods: [String : CocoaPodUtils.PodInfo]) {
+  private func validateExpectedVersions(installedPods: [String: CocoaPodUtils.PodInfo]) {
     // Get the expected versions based on the release manifests, if there are any. We'll use this to
     // validate the versions pulled from CocoaPods. Expected versions could be empty, in which case
     // validation succeeds.
@@ -638,7 +638,7 @@ struct ZipBuilder {
   /// CocoaPods. Returns a dictionary with the framework name for the key and all information for
   /// frameworks to install EXCLUDING resources, as they are handled later (if not included in the
   /// .framework file already).
-  private func generateFrameworks(fromPods pods: [String : CocoaPodUtils.PodInfo],
+  private func generateFrameworks(fromPods pods: [String: CocoaPodUtils.PodInfo],
                                   inProjectDir projectDir: URL,
                                   carthageBuild: Bool = false) -> [String: [URL]] {
     // Verify the Pods folder exists and we can get the contents of it.
