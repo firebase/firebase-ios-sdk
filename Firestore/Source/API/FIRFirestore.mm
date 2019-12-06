@@ -367,10 +367,6 @@ NS_ASSUME_NONNULL_BEGIN
   return _firestore->database_id();
 }
 
-+ (BOOL)isLoggingEnabled {
-  return util::LogIsLoggable(util::kLogLevelDebug);
-}
-
 + (FIRFirestore *)recoverFromFirestore:(std::shared_ptr<Firestore>)firestore {
   return (__bridge FIRFirestore *)firestore->extension();
 }
