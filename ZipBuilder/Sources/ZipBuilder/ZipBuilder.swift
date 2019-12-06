@@ -439,7 +439,7 @@ struct ZipBuilder {
       result += "- \(framework).framework\n"
     }
 
-    result += "\n"
+    result += "\n" // Necessary for Resource message to print properly in markdown.
 
     // Check if there is a Resources directory, and if so, add the disclaimer to the dependency
     // string.
@@ -449,6 +449,7 @@ struct ZipBuilder {
                                                            in: dir)
       if !resourceDirs.isEmpty {
         result += Constants.resourcesRequiredText
+        result += "\n" // Separate from next pod in listing for text version.
       }
     } catch {
       fatalError("""
