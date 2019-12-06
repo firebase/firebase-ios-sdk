@@ -436,6 +436,9 @@ struct ZipBuilder {
     for framework in frameworks.sorted() {
       result += "- \(framework).framework\n"
     }
+
+    result += "\n" // Necessary for Resource message to print properly in markdown.
+
     // Check if there is a Resources directory, and if so, add the disclaimer to the dependency
     // string.
     do {
@@ -444,6 +447,7 @@ struct ZipBuilder {
                                                            in: dir)
       if !resourceDirs.isEmpty {
         result += Constants.resourcesRequiredText
+        result += "\n" // Separate from next pod in listing for text version.
       }
     } catch {
       fatalError("""
@@ -451,7 +455,6 @@ struct ZipBuilder {
       occurred: \(error).
       """)
     }
-    result += "\n"
 
     return result
   }
