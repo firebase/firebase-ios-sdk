@@ -436,9 +436,6 @@ struct ZipBuilder {
     for framework in frameworks.sorted() {
       result += "- \(framework).framework\n"
     }
-
-    result += "\n"
-
     // Check if there is a Resources directory, and if so, add the disclaimer to the dependency
     // string.
     do {
@@ -454,6 +451,7 @@ struct ZipBuilder {
       occurred: \(error).
       """)
     }
+    result += "\n"
 
     return result
   }
