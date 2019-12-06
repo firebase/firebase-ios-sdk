@@ -128,7 +128,9 @@ struct ZipBuilder {
     ([CocoaPodUtils.PodInfo], [String: [URL]]) {
     // Remove CocoaPods cache so the build gets updates after a version is rebuilt during the
     // release process.
-    CocoaPodUtils.cleanPodCache()
+    if LaunchArgs.shared.updatePodRepo {
+      CocoaPodUtils.cleanPodCache()
+    }
 
     // We need to install all the pods in order to get every single framework that we'll need
     // for the zip file. We can't install each one individually since some pods depend on different

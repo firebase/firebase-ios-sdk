@@ -85,7 +85,8 @@ struct LaunchArgs {
         return "The path to the directory containing the blank xcodeproj and Info.plist for " +
           "building source based frameworks"
       case .updatePodRepo:
-        return "A flag to run `pod repo update` before building the zip file."
+        return "A flag to run `pod repo update` and `pod cache clean -all` before building the " +
+          "zip file."
       case .zipPods:
         return "The path to a JSON file of the pods (with optional version) to package into a zip."
       }
@@ -149,7 +150,7 @@ struct LaunchArgs {
   init(userDefaults defaults: UserDefaults = UserDefaults.standard,
        fileChecker: FileChecker = FileManager.default) {
     // Override default values for specific keys.
-    //   - Always run `pod repo update` unless explicitly set to false.
+    //   - Always run `pod repo update` and pod cache clean -all` unless explicitly set to false.
     defaults.register(defaults: [Key.updatePodRepo.rawValue: true])
 
     // Get the project template directory, and fail if it doesn't exist.
