@@ -707,8 +707,9 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 }
 
 - (void)testInvalidLibraryVersion {
+  NSString *originalFirebaseUserAgent = [FIRApp firebaseUserAgent];
   [FIRApp registerLibrary:@"ValidName" withVersion:@"1.0.0+"];
-  XCTAssertTrue([[FIRApp firebaseUserAgent] isEqualToString:@""]);
+  XCTAssertTrue([[FIRApp firebaseUserAgent] isEqualToString:originalFirebaseUserAgent]);
 }
 
 - (void)testSingleLibrary {
@@ -736,7 +737,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 }
 
 - (void)testSwiftFlagWithNoSwift {
-  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"swift"]);
+  XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"swift/false"]);
 }
 
 #pragma mark - Core Diagnostics

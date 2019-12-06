@@ -114,6 +114,7 @@ static NSMutableArray<Class<FIRLibrary>> *sRegisteredAsConfigurable;
 static NSMutableDictionary *sAllApps;
 static FIRApp *sDefaultApp;
 static NSMutableDictionary *sLibraryVersions;
+static dispatch_once_t sFirebaseUserAgentOnceToken;
 
 + (void)configure {
   FIROptions *options = [FIROptions defaultOptions];
@@ -243,6 +244,7 @@ static NSMutableDictionary *sLibraryVersions;
     sAllApps = nil;
     [sLibraryVersions removeAllObjects];
     sLibraryVersions = nil;
+    sFirebaseUserAgentOnceToken = 0;
   }
 }
 
@@ -524,8 +526,7 @@ static NSMutableDictionary *sLibraryVersions;
 
 + (NSString *)firebaseUserAgent {
   @synchronized(self) {
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
+    dispatch_once(&sFirebaseUserAgentOnceToken, ^{
       // Report FirebaseCore version for useragent string
       [FIRApp registerLibrary:@"fire-ios"
                   withVersion:[NSString stringWithUTF8String:FIRCoreVersionString]];
@@ -540,10 +541,8 @@ static NSMutableDictionary *sLibraryVersions;
         [FIRApp registerLibrary:@"apple-sdk" withVersion:sdkVersion];
       }
 
-      if ([self hasSwiftRuntime]) {
-        // Add "swift" flag to the `firebaseUserAgent`.
-        [FIRApp registerLibrary:@"swift" withVersion:@"true"];
-      }
+      NSString *swiftFlagValue = [self hasSwiftRuntime] ? @"true" : @"false";
+      [FIRApp registerLibrary:@"swift" withVersion:swiftFlagValue];
     });
 
     NSMutableArray<NSString *> *libraries =
