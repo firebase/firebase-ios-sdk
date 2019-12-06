@@ -27,9 +27,10 @@ the Mac App Store.
 You can get other development tools via [homebrew](https://brew.sh). Adjust as
 needed for other package managers.
 
-```
+```bash
 brew install cmake
 brew install golang
+brew install ccache     # optional
 brew install ninja      # optional
 gem install cocoapods   # may need sudo
 ```
@@ -43,9 +44,10 @@ need to be set up and no `pod install` is required for the CMake build.
 If you're on a relatively recent Linux, the system-provided CMake may be
 sufficient.
 
-```
+```bash
 sudo apt-get install build-essential
 sudo apt-get install cmake
+sudo apt-get install ccache       # optional
 sudo apt-get install ninja-build  # optional
 
 sudo apt-get install golang
@@ -59,16 +61,21 @@ support for Visual Studio 2015.
 
 An easy way to get development tools is via [Chocolatey](https://chocolatey.org/).
 
-Unfortunately, the `cmake.install` package is semi-broken, so use the portable
-version.
+```cmd
+choco install git
+choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System'
+choco install ninja
 
-```
-choco install cmake.portable
-choco install ninja  # optional
+# Build scripts use bash and python
+choco install msys2
 
+# Required for building gRPC and its dependencies
 choco install activeperl
 choco install golang
-choco install yasm
+choco install nasm
+
+# Optional: can speed up builds
+choco install openssl
 ```
 
 ## Building
@@ -90,7 +97,7 @@ The basic shape of the build is to:
 
 On most systems that looks like this:
 
-```
+```bash
 mkdir build
 cd build
 cmake ..
@@ -123,9 +130,17 @@ Firebase-specific goodies:
 
 For example:
 
-```
-mkdir build
+On Mac or Linux:
+```bash
+cmake -H. -Bbuild -G Ninja -DFIREBASE_DOWNLOAD_DIR:PATH=$HOME/.downloads
 cd build
-cmake -G Ninja -DFIREBASE_DOWNLOAD_DIR:PATH=.downloads ..
 ninja && ninja test
+```
+
+On Windows:
+```cmd
+mkdir %USERPROFILE%\AppData\LocalLow\CMake
+cmake -H. -Bbuild -G Ninja ^
+    -DFIREBASE_DOWNLOAD_DIR:PATH=%USERPROFILE%\AppData\LocalLow\CMake ^
+    -DOPENSSL_ROOT_DIR:Path="c:\Program Files\OpenSSL-Win64"
 ```

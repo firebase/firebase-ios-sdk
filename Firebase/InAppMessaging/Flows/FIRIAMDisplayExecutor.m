@@ -400,7 +400,7 @@
 
 - (FIRInAppMessagingCardDisplay *)
     cardDisplayMessageWithMessageDefinition:(FIRIAMMessageDefinition *)definition
-                          portraitImageData:(FIRInAppMessagingImageData *)portraitImageData
+                          portraitImageData:(nonnull FIRInAppMessagingImageData *)portraitImageData
                          landscapeImageData:
                              (nullable FIRInAppMessagingImageData *)landscapeImageData
                                 triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType {
@@ -410,16 +410,15 @@
   NSString *title = renderData.contentData.titleText;
   NSString *body = renderData.contentData.bodyText;
 
-  FIRInAppMessagingActionButton *primaryActionButton = nil;
-  if (definition.renderData.contentData.actionButtonText) {
+  // Action button data is never nil for a card message.
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    primaryActionButton = [[FIRInAppMessagingActionButton alloc]
-        initWithButtonText:renderData.contentData.actionButtonText
-           buttonTextColor:renderData.renderingEffectSettings.btnTextColor
-           backgroundColor:renderData.renderingEffectSettings.btnBGColor];
+  FIRInAppMessagingActionButton *primaryActionButton = [[FIRInAppMessagingActionButton alloc]
+      initWithButtonText:renderData.contentData.actionButtonText
+         buttonTextColor:renderData.renderingEffectSettings.btnTextColor
+         backgroundColor:renderData.renderingEffectSettings.btnBGColor];
+
 #pragma clang diagnostic pop
-  }
 
   FIRInAppMessagingActionButton *secondaryActionButton = nil;
   if (definition.renderData.contentData.secondaryActionButtonText) {
@@ -543,6 +542,10 @@
                             triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType {
   switch (definition.renderData.renderingEffectSettings.viewMode) {
     case FIRIAMRenderAsCardView:
+      // Image data should never nil for a valid card message.
+      if (imageData == nil) {
+        return nil;
+      }
       return [self cardDisplayMessageWithMessageDefinition:definition
                                          portraitImageData:imageData
                                         landscapeImageData:landscapeImageData

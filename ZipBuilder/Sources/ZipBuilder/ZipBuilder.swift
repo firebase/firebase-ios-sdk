@@ -31,18 +31,10 @@ public struct Constants {
 
     // Required for distribution.
     public static let readmeName = "README.md"
-    public static let notices = "NOTICES"
-
-    /// All required files for distribution. Note: the readmeTemplate is also needed for
-    /// distribution but is copied separately since it's modified.
-    public static let requiredFilesForDistribution: [String] = [notices]
 
     // Required from the Firebase pod.
     public static let firebaseHeader = "Firebase.h"
     public static let modulemap = "module.modulemap"
-
-    /// All required files needed from the Firebase pod.
-    public static let requiredFilesFromFirebasePod: [String] = [firebaseHeader, modulemap]
 
     /// The dummy Firebase library for Carthage distribution.
     public static let dummyFirebaseLib = "dummy_Firebase_lib"
@@ -136,7 +128,9 @@ struct ZipBuilder {
     ([CocoaPodUtils.PodInfo], [String: [URL]]) {
     // Remove CocoaPods cache so the build gets updates after a version is rebuilt during the
     // release process.
-    CocoaPodUtils.cleanPodCache()
+    if LaunchArgs.shared.updatePodRepo {
+      CocoaPodUtils.cleanPodCache()
+    }
 
     // We need to install all the pods in order to get every single framework that we'll need
     // for the zip file. We can't install each one individually since some pods depend on different
@@ -246,9 +240,6 @@ struct ZipBuilder {
     // Copy all required files from the Firebase pod. This will cause a fatalError if anything
     // fails.
     copyFirebasePodFiles(fromDir: firebasePod.installedLocation, to: zipDir)
-
-    // Copy all the other required files to the Zip directory.
-    copyRequiredFilesForDistribution(to: zipDir)
 
     // Start with installing Analytics, since we'll need to exclude those frameworks from the rest
     // of the folders.
@@ -404,41 +395,19 @@ struct ZipBuilder {
     return copiedFrameworkNames
   }
 
-  /// Copies required files from the Firebase pod (i.e. `Firebase.h`, `module.modulemap`, etc) into
+  /// Copies required files from the Firebase pod (`Firebase.h`, `module.modulemap`, and `NOTICES`) into
   /// the given `zipDir`. Will cause a fatalError if anything fails since the zip file can't exist
   /// without these files.
   private func copyFirebasePodFiles(fromDir firebasePodDir: URL, to zipDir: URL) {
-    // The `Firebase.h` and `module.modulemap` file are in the "CoreOnly/Sources" directory. We are
-    // hardcoding this instead of trying a recurisve search in the `firebasePodDir` directory
-    // because if the location changes we'll want to know.
-    let firebaseFiles = firebasePodDir.appendingPathComponent("CoreOnly/Sources")
-    let firebaseFilesToCopy = Constants.ProjectPath.requiredFilesFromFirebasePod.map {
+    let firebasePodFiles = ["NOTICES", "Sources/" + Constants.ProjectPath.firebaseHeader,
+                            "Sources/" + Constants.ProjectPath.modulemap]
+    let firebaseFiles = firebasePodDir.appendingPathComponent("CoreOnly")
+    let firebaseFilesToCopy = firebasePodFiles.map {
       firebaseFiles.appendingPathComponent($0)
     }
 
     // Copy each Firebase file.
     for file in firebaseFilesToCopy {
-      // Each file should be copied to the destination project directory with the same name.
-      let destination = zipDir.appendingPathComponent(file.lastPathComponent)
-      do {
-        if !FileManager.default.fileExists(atPath: destination.path) {
-          print("Copying final distribution file \(file) to \(destination)...")
-          try FileManager.default.copyItem(at: file, to: destination)
-        }
-      } catch {
-        fatalError("Could not copy final distribution files to temporary directory before " +
-          "building. Failed while attempting to copy \(file) to \(destination). \(error)")
-      }
-    }
-  }
-
-  /// Copies required files based on the project
-  private func copyRequiredFilesForDistribution(to zipDir: URL) {
-    let distributionFiles = Constants.ProjectPath.requiredFilesForDistribution.map {
-      paths.templateDir.appendingPathComponent($0)
-    }
-
-    for file in distributionFiles {
       // Each file should be copied to the destination project directory with the same name.
       let destination = zipDir.appendingPathComponent(file.lastPathComponent)
       do {
@@ -470,7 +439,7 @@ struct ZipBuilder {
       result += "- \(framework).framework\n"
     }
 
-    result += "\n"
+    result += "\n" // Necessary for Resource message to print properly in markdown.
 
     // Check if there is a Resources directory, and if so, add the disclaimer to the dependency
     // string.
@@ -480,6 +449,7 @@ struct ZipBuilder {
                                                            in: dir)
       if !resourceDirs.isEmpty {
         result += Constants.resourcesRequiredText
+        result += "\n" // Separate from next pod in listing for text version.
       }
     } catch {
       fatalError("""

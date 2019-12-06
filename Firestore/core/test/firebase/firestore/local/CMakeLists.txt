@@ -12,6 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+cc_library(
+  firebase_firestore_local_testing
+  SOURCES
+    persistence_testing.cc
+    persistence_testing.h
+  DEPENDS
+    firebase_firestore_local
+    firebase_firestore_local_persistence_leveldb
+)
+
 cc_test(
   firebase_firestore_local_test
   SOURCES
@@ -20,6 +30,7 @@ cc_test(
     index_manager_test.h
     leveldb_index_manager_test.cc
     leveldb_key_test.cc
+    leveldb_local_store_test.cc
     leveldb_lru_garbage_collector_test.cc
     leveldb_migrations_test.cc
     leveldb_mutation_queue_test.cc
@@ -29,17 +40,18 @@ cc_test(
     leveldb_transaction_test.cc
     leveldb_util_test.cc
     local_serializer_test.cc
+    local_store_test.cc
+    local_store_test.h
     lru_garbage_collector_test.cc
     lru_garbage_collector_test.h
     memory_index_manager_test.cc
+    memory_local_store_test.cc
     memory_lru_garbage_collector_test.cc
     memory_mutation_queue_test.cc
     memory_query_cache_test.cc
     memory_remote_document_cache_test.cc
     mutation_queue_test.cc
     mutation_queue_test.h
-    persistence_testing.cc
-    persistence_testing.h
     query_cache_test.cc
     query_cache_test.h
     reference_set_test.cc
@@ -52,7 +64,9 @@ cc_test(
     firebase_firestore_core
     firebase_firestore_local
     firebase_firestore_local_persistence_leveldb
+    firebase_firestore_local_testing
     firebase_firestore_model
     firebase_firestore_protos_libprotobuf
+    firebase_firestore_remote_testing
     firebase_firestore_testutil
 )

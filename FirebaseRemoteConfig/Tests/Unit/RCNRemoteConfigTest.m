@@ -558,6 +558,129 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                }];
 }
 
+// TODO(mandard): Break up test with helper methods.
+- (void)testFetchConfigsFailedErrorNoNetwork {
+  // Override the setup values to return back an error status.
+  RCNConfigContent *configContent = [[RCNConfigContent alloc] initWithDBManager:_DBManager];
+  // Populate the default, second app, second namespace instances.
+  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
+    NSString *currentAppName = nil;
+    FIROptions *currentOptions = nil;
+    NSString *currentNamespace = nil;
+    switch (i) {
+      case RCNTestRCInstanceSecondNamespace:
+        currentAppName = RCNTestsDefaultFIRAppName;
+        currentOptions = [self firstAppOptions];
+        currentNamespace = RCNTestsPerfNamespace;
+        break;
+      case RCNTestRCInstanceSecondApp:
+        currentAppName = RCNTestsSecondFIRAppName;
+        currentOptions = [self secondAppOptions];
+        currentNamespace = FIRNamespaceGoogleMobilePlatform;
+        break;
+      case RCNTestRCInstanceDefault:
+      default:
+        currentAppName = RCNTestsDefaultFIRAppName;
+        currentOptions = [self firstAppOptions];
+        currentNamespace = RCNTestsFIRNamespace;
+        break;
+    }
+    NSString *fullyQualifiedNamespace =
+        [NSString stringWithFormat:@"%@:%@", currentNamespace, currentAppName];
+    RCNUserDefaultsManager *userDefaultsManager =
+        [[RCNUserDefaultsManager alloc] initWithAppName:currentAppName
+                                               bundleID:[NSBundle mainBundle].bundleIdentifier
+                                              namespace:fullyQualifiedNamespace];
+    userDefaultsManager.lastFetchTime = 0;
+
+    FIRRemoteConfig *config =
+        OCMPartialMock([[FIRRemoteConfig alloc] initWithAppName:currentAppName
+                                                     FIROptions:currentOptions
+                                                      namespace:currentNamespace
+                                                      DBManager:_DBManager
+                                                  configContent:configContent
+                                                      analytics:nil]);
+
+    _configInstances[i] = config;
+    RCNConfigSettings *settings =
+        [[RCNConfigSettings alloc] initWithDatabaseManager:_DBManager
+                                                 namespace:fullyQualifiedNamespace
+                                           firebaseAppName:currentAppName
+                                               googleAppID:currentOptions.googleAppID];
+    dispatch_queue_t queue = dispatch_queue_create(
+        [[NSString stringWithFormat:@"testqueue: %d", i] cStringUsingEncoding:NSUTF8StringEncoding],
+        DISPATCH_QUEUE_SERIAL);
+    _configFetch[i] = OCMPartialMock([[RCNConfigFetch alloc] initWithContent:configContent
+                                                                   DBManager:_DBManager
+                                                                    settings:settings
+                                                                   analytics:nil
+                                                                  experiment:nil
+                                                                       queue:queue
+                                                                   namespace:fullyQualifiedNamespace
+                                                                     options:currentOptions]);
+
+    OCMStub([_configFetch[i] fetchConfigWithExpirationDuration:43200 completionHandler:OCMOCK_ANY])
+        .andDo(^(NSInvocation *invocation) {
+          void (^handler)(FIRRemoteConfigFetchStatus status, NSError *_Nullable error) = nil;
+          // void (^handler)(FIRRemoteConfigFetchCompletion);
+          [invocation getArgument:&handler atIndex:3];
+          [_configFetch[i] fetchWithUserProperties:[[NSDictionary alloc] init]
+                                 completionHandler:handler];
+        });
+
+    _response[i] = @{};
+
+    _responseData[i] = [NSJSONSerialization dataWithJSONObject:_response[i] options:0 error:nil];
+
+    // A no network error is accompanied with an HTTP status code of 0.
+    _URLResponse[i] =
+        [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@"https://firebase.com"]
+                                    statusCode:0
+                                   HTTPVersion:nil
+                                  headerFields:@{@"etag" : @"etag1"}];
+
+    id completionBlock =
+        [OCMArg invokeBlockWithArgs:_responseData[i], _URLResponse[i], [NSNull null], nil];
+
+    OCMExpect([_configFetch[i] URLSessionDataTaskWithContent:[OCMArg any]
+                                           completionHandler:completionBlock])
+        .andReturn(nil);
+    [_configInstances[i] updateWithNewInstancesForConfigFetch:_configFetch[i]
+                                                configContent:configContent
+                                               configSettings:settings
+                                             configExperiment:nil];
+  }
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+  // Make the fetch calls for all instances.
+  NSMutableArray<XCTestExpectation *> *expectations =
+      [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
+
+  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
+    expectations[i] = [self
+        expectationWithDescription:
+            [NSString stringWithFormat:@"Test enumerating configs successfully - instance %d", i]];
+    XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusNoFetchYet);
+    FIRRemoteConfigFetchCompletion fetchCompletion =
+        ^void(FIRRemoteConfigFetchStatus status, NSError *error) {
+          XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusFailure);
+          XCTAssertFalse([_configInstances[i] activateFetched]);
+          XCTAssertNotNil(error);
+          // No such key, still return a static value.
+          FIRRemoteConfigValue *value = _configInstances[RCNTestRCInstanceDefault][@"key1"];
+          XCTAssertEqual((int)value.source, (int)FIRRemoteConfigSourceStatic);
+          XCTAssertEqualObjects(value.stringValue, @"");
+          XCTAssertEqual(value.boolValue, NO);
+          [expectations[i] fulfill];
+        };
+    [_configInstances[i] fetchWithExpirationDuration:43200 completionHandler:fetchCompletion];
+  }
+  [self waitForExpectationsWithTimeout:_expectationTimeout
+                               handler:^(NSError *error) {
+                                 XCTAssertNil(error);
+                               }];
+}
+
 // Activate should return false if a fetch response returns 200 with NO_CHANGE as the response body.
 - (void)testActivateOnFetchNoChangeStatus {
   // Override the setup values to return back an error status.

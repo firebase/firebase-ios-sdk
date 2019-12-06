@@ -91,7 +91,7 @@ NSDate *TestDate(int year, int month, int day, int hour, int minute, int second)
     [[FIRTimestamp alloc] initWithSeconds:12345 nanoseconds:100000001],
     [[FIRTimestamp alloc] initWithSeconds:12346 nanoseconds:0],
   ];
-  for (int i = 0; i < timestamps.count - 1; ++i) {
+  for (NSUInteger i = 0; i < timestamps.count - 1; ++i) {
     XCTAssertEqual([timestamps[i] compare:timestamps[i + 1]], NSOrderedAscending);
     XCTAssertEqual([timestamps[i + 1] compare:timestamps[i]], NSOrderedDescending);
   }
