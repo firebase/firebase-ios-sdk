@@ -20,6 +20,8 @@
 #import <FirebaseCore/FIRCoreDiagnosticsConnector.h>
 #import <FirebaseCore/FIROptionsInternal.h>
 
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
+
 NSString *const kFIRTestAppName1 = @"test_app_name_1";
 NSString *const kFIRTestAppName2 = @"test-app-name-2";
 
@@ -212,6 +214,81 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   XCTAssertEqualObjects(app.name, kFIRTestAppName2);
   XCTAssertEqualObjects(app.options.googleAppID, kGoogleAppID);
   XCTAssertEqualObjects(app.options.APIKey, kCustomizedAPIKey);
+}
+
+- (void)testConfigureThrowsAfterConfigured {
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
+                                                    GCMSenderID:kGCMSenderID];
+  [FIRApp configureWithOptions:options];
+  XCTAssertNotNil([FIRApp defaultApp]);
+
+  // A second configure call should throw, since Firebase is already configured.
+  XCTAssertThrows([FIRApp configureWithOptions:options]);
+
+  // Test the same with a custom named app.
+  [FIRApp configureWithName:kFIRTestAppName1 options:options];
+  XCTAssertNotNil([FIRApp appNamed:kFIRTestAppName1]);
+
+  // A second configure call should throw, since Firebase is already configured.
+  XCTAssertThrows([FIRApp configureWithName:kFIRTestAppName1 options:options]);
+}
+
+- (void)testConfigureDefaultAppInExtension {
+  id environmentMock = OCMClassMock([GULAppEnvironmentUtil class]);
+  OCMStub([environmentMock isAppExtension]).andReturn(YES);
+
+  // Set up the default app like a standard app.
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
+                                                    GCMSenderID:kGCMSenderID];
+  [FIRApp configureWithOptions:options];
+  XCTAssertNotNil([FIRApp defaultApp]);
+  XCTAssertEqual([FIRApp allApps].count, 1);
+
+  // Configuring with the same set of options shouldn't throw.
+  XCTAssertNoThrow([FIRApp configureWithOptions:options]);
+
+  // Only 1 app should have been configured still, the default app.
+  XCTAssertNotNil([FIRApp defaultApp]);
+  XCTAssertEqual([FIRApp allApps].count, 1);
+
+  // Use a set of a different options to call configure again, which should throw.
+  FIROptions *differentOptions = [[FIROptions alloc] initWithGoogleAppID:@"1:789:ios:789XYZ"
+                                                             GCMSenderID:kGCMSenderID];
+  XCTAssertThrows([FIRApp configureWithOptions:differentOptions]);
+  XCTAssertEqual([FIRApp allApps].count, 1);
+
+  // Explicily stop the environmentMock.
+  [environmentMock stopMocking];
+  environmentMock = nil;
+}
+
+- (void)testConfigureCustomAppInExtension {
+  id environmentMock = OCMClassMock([GULAppEnvironmentUtil class]);
+  OCMStub([environmentMock isAppExtension]).andReturn(YES);
+
+  // Set up a custom named app like a standard app.
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
+                                                    GCMSenderID:kGCMSenderID];
+  [FIRApp configureWithName:kFIRTestAppName1 options:options];
+  XCTAssertNotNil([FIRApp appNamed:kFIRTestAppName1]);
+  XCTAssertEqual([FIRApp allApps].count, 1);
+
+  // Configuring with the same set of options shouldn't throw.
+  XCTAssertNoThrow([FIRApp configureWithName:kFIRTestAppName1 options:options]);
+
+  // Only 1 app should have been configured still.
+  XCTAssertNotNil([FIRApp appNamed:kFIRTestAppName1]);
+  XCTAssertEqual([FIRApp allApps].count, 1);
+
+  // Use a set of a different options to call configure again, which should throw.
+  FIROptions *differentOptions = [[FIROptions alloc] initWithGoogleAppID:@"1:789:ios:789XYZ"
+                                                             GCMSenderID:kGCMSenderID];
+  XCTAssertThrows([FIRApp configureWithName:kFIRTestAppName1 options:differentOptions]);
+  XCTAssertEqual([FIRApp allApps].count, 1);
+
+  // Explicily stop the environmentMock.
+  [environmentMock stopMocking];
+  environmentMock = nil;
 }
 
 - (void)testValidName {
