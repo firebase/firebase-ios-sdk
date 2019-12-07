@@ -79,8 +79,8 @@ enum CocoaPodUtils {
   /// - Returns: A dictionary of PodInfo's keyed by the pod name.
   @discardableResult
   static func installPods(_ pods: [VersionedPod],
-                                 inDir directory: URL,
-                                 customSpecRepos: [URL]? = nil) -> [String: PodInfo] {
+                          inDir directory: URL,
+                          customSpecRepos: [URL]? = nil) -> [String: PodInfo] {
     let fileManager = FileManager.default
     // Ensure the directory exists, otherwise we can't install all subspecs.
     guard fileManager.directoryExists(at: directory) else {

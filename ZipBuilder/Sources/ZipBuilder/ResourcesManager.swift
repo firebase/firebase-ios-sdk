@@ -59,7 +59,7 @@ extension ResourcesManager {
   /// - Throws: Any file system errors that occur.
   @discardableResult
   static func packageAllResources(containedIn dir: URL,
-                                         bundlesToIgnore: [String] = []) throws -> Bool {
+                                  bundlesToIgnore: [String] = []) throws -> Bool {
     let resourcesFound = try directoryContainsResources(dir)
 
     // Quit early if there are no resources to deal with.
