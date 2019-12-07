@@ -18,7 +18,7 @@ import Foundation
 
 // TODO: Auto generate this list from the Firebase.podspec and others, probably with a script.
 /// All the CocoaPods related to packaging and distributing Firebase.
-public enum FirebasePods: String, CaseIterable {
+enum FirebasePods: String, CaseIterable {
   case abTesting = "FirebaseABTesting"
   case adMob = "Google-Mobile-Ads-SDK"
   case analytics = "FirebaseAnalytics"
@@ -50,7 +50,7 @@ public enum FirebasePods: String, CaseIterable {
   case storage = "FirebaseStorage"
 
   /// Flag to explicitly exclude any Resources from being copied.
-  public var excludeResources: Bool {
+  var excludeResources: Bool {
     switch self {
     case .mlVision, .mlVisionBarcodeModel, .mlVisionLabelModel:
       return true
@@ -60,7 +60,7 @@ public enum FirebasePods: String, CaseIterable {
   }
 
   /// Describes the dependency on other frameworks for the README file.
-  public static func readmeHeader(podName: String) -> String {
+  static func readmeHeader(podName: String) -> String {
     var header = "## \(podName)"
     if !(podName == "FirebaseAnalytics" || podName == "GoogleSignIn") {
       header += " (~> FirebaseAnalytics)"
@@ -74,7 +74,7 @@ public enum FirebasePods: String, CaseIterable {
   /// Returns folders to remove from the Zip file from a specific pod for de-duplication. This
   /// is necessary for the MLKit frameworks because of their unique structure, an unnecessary amount
   /// of frameworks get pulled in.
-  public static func duplicateFrameworksToRemove(pod: String) -> [String] {
+  static func duplicateFrameworksToRemove(pod: String) -> [String] {
     switch pod {
     case "FirebaseMLVisionBarcodeModel", "FirebaseMLVisionFaceModel", "FirebaseMLVisionLabelModel",
          "FirebaseMLVisionTextModel":

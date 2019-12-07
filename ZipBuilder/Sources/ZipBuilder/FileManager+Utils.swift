@@ -17,7 +17,7 @@
 import Foundation
 
 // Extensions to FileManager that make scripting easier or cleaner for error reporting.
-public extension FileManager {
+extension FileManager {
   // MARK: - Helper Enum Declarations
 
   /// Describes a type of file to be searched for.

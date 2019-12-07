@@ -20,9 +20,9 @@ import Foundation
 /// Hashing related utility functions. The enum type is used as a namespace here instead of having
 /// root functions, and no cases should be added to it. Note: this would be named `Hasher` but it
 /// collide's with Foundation's `Hasher` type.
-public enum HashCalculator {}
+enum HashCalculator {}
 
-public extension HashCalculator {
+extension HashCalculator {
   enum HashError: Error {
     /// Real errors aren't thrown, so just give text what happened.
     case failed(String)

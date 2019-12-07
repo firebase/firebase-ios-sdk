@@ -26,7 +26,7 @@ extension ResourcesManager {
   /// - Parameter dir: The directory to search for any sign of resources.
   /// - Returns: True if any resources could be found, otherwise false.
   /// - Throws: A FileManager API that was thrown while searching.
-  public static func directoryContainsResources(_ dir: URL) throws -> Bool {
+  static func directoryContainsResources(_ dir: URL) throws -> Bool {
     // First search for any .bundle files.
     let fileManager = FileManager.default
     let bundles = try fileManager.recursivelySearch(for: .bundles, in: dir)
@@ -58,7 +58,7 @@ extension ResourcesManager {
   /// - Returns: True if any resources were moved and packaged, otherwise false.
   /// - Throws: Any file system errors that occur.
   @discardableResult
-  public static func packageAllResources(containedIn dir: URL,
+  static func packageAllResources(containedIn dir: URL,
                                          bundlesToIgnore: [String] = []) throws -> Bool {
     let resourcesFound = try directoryContainsResources(dir)
 
@@ -162,7 +162,7 @@ extension ResourcesManager {
   /// - Returns: An array of URLs pointing to the newly located bundles.
   /// - Throws: Any file system errors that occur.
   @discardableResult
-  public static func moveAllBundles(inDirectory dir: URL, to resourceDir: URL) throws -> [URL] {
+  static func moveAllBundles(inDirectory dir: URL, to resourceDir: URL) throws -> [URL] {
     let fileManager = FileManager.default
     let allBundles = try fileManager.recursivelySearch(for: .bundles, in: dir)
 
@@ -183,7 +183,7 @@ extension ResourcesManager {
   /// This is a recrusive search.
   ///
   /// - Parameter dir: The directory to recursively search for Resources directories in.
-  public static func removeEmptyResourcesDirectories(in dir: URL) {
+  static func removeEmptyResourcesDirectories(in dir: URL) {
     // Find all the Resources directories to begin with.
     let fileManager = FileManager.default
     guard let resourceDirs = try? fileManager.recursivelySearch(for: .directories(name: "Resources"), in: dir) else {

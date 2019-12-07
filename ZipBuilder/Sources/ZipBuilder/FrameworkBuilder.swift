@@ -17,7 +17,7 @@
 import Foundation
 
 /// Different architectures to build frameworks for.
-public enum Architecture: String, CaseIterable {
+enum Architecture: String, CaseIterable {
   /// The target platform that the framework is built for.
   enum TargetPlatform: String {
     case device = "iphoneos"
@@ -79,7 +79,7 @@ struct FrameworkBuilder {
   ///   - version: String representation of the version.
   /// - Parameter logsOutputDir: The path to the directory to place build logs.
   /// - Returns: A URL to the framework that was built (or pulled from the cache).
-  public func buildFramework(withName podName: String,
+  func buildFramework(withName podName: String,
                              version: String,
                              logsOutputDir: URL? = nil) -> URL {
     print("Building \(podName)")
