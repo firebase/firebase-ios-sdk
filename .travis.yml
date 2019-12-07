@@ -54,7 +54,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCoreDiagnostics.podspec --platforms=ios
 
     - stage: test
-#      if: type = cron
+      if: type = cron
       env:
         - PROJECT=CoreCron METHOD=pod-lib-lint
       script:
