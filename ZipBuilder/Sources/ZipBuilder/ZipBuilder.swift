@@ -128,7 +128,9 @@ struct ZipBuilder {
     ([CocoaPodUtils.PodInfo], [String: [URL]]) {
     // Remove CocoaPods cache so the build gets updates after a version is rebuilt during the
     // release process.
-    CocoaPodUtils.cleanPodCache()
+    if LaunchArgs.shared.updatePodRepo {
+      CocoaPodUtils.cleanPodCache()
+    }
 
     // We need to install all the pods in order to get every single framework that we'll need
     // for the zip file. We can't install each one individually since some pods depend on different
@@ -437,7 +439,7 @@ struct ZipBuilder {
       result += "- \(framework).framework\n"
     }
 
-    result += "\n"
+    result += "\n" // Necessary for Resource message to print properly in markdown.
 
     // Check if there is a Resources directory, and if so, add the disclaimer to the dependency
     // string.
@@ -447,6 +449,7 @@ struct ZipBuilder {
                                                            in: dir)
       if !resourceDirs.isEmpty {
         result += Constants.resourcesRequiredText
+        result += "\n" // Separate from next pod in listing for text version.
       }
     } catch {
       fatalError("""
