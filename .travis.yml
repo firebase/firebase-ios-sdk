@@ -54,13 +54,13 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCoreDiagnostics.podspec --platforms=ios
 
     - stage: test
-      if: type = cron
+#      if: type = cron
       env:
         - PROJECT=CoreCron METHOD=pod-lib-lint
       script:
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=ios --use-libraries
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=tvos --use-libraries
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=macos --use-libraries
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=ios --use-libraries --skip-tests
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=tvos --use-libraries --skip-tests
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=macos --use-libraries --skip-tests
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=ios --use-modular-headers
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=tvos --use-modular-headers
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=macos --use-modular-headers
