@@ -58,9 +58,9 @@ jobs:
       env:
         - PROJECT=CoreCron METHOD=pod-lib-lint
       script:
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=ios --use-libraries
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=tvos --use-libraries
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=macos --use-libraries
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=ios --use-libraries --skip-tests
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=tvos --use-libraries --skip-tests
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=macos --use-libraries --skip-tests
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=ios --use-modular-headers
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=tvos --use-modular-headers
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=macos --use-modular-headers
