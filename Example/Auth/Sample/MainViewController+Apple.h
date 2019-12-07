@@ -14,11 +14,15 @@
 * limitations under the License.
 */
 
-#import <Foundation/Foundation.h>
+#import "MainViewController.h"
+
+#import "StaticContentTableViewManager.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MainViewController (Apple)
+
+- (StaticContentTableViewSection *)appleAuthSection;
 
 @end
 
