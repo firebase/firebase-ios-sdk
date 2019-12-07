@@ -16,6 +16,6 @@
 
 #import "MainViewController+Apple.h"
 
-@implementation MainViewController_Apple
+@implementation MainViewController (Apple)
 
 @end

@@ -18,7 +18,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MainViewController_Apple : NSObject
+@interface MainViewController (Apple)
 
 @end
 
