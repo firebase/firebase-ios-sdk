@@ -320,7 +320,7 @@ inline model::UnknownDocument UnknownDoc(absl::string_view key,
 
 /**
  * Creates a DocumentComparator that will compare Documents by the given
- * fieldPath string then by key.
+ * field_path string then by key.
  */
 model::DocumentComparator DocComparator(absl::string_view field_path);
 

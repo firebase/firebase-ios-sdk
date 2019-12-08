@@ -69,12 +69,12 @@ class FieldMask {
   }
 
   /**
-   * Verifies that `fieldPath` is included by at least one field in this field
+   * Verifies that `field_path` is included by at least one field in this field
    * mask.
    *
    * This is an O(n) operation, where `n` is the size of the field mask.
    */
-  bool covers(const FieldPath& fieldPath) const;
+  bool covers(const FieldPath& field_path) const;
 
   std::string ToString() const;
 

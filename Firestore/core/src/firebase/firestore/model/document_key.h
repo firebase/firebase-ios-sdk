@@ -87,7 +87,7 @@ class DocumentKey : public util::InequalityComparable<DocumentKey> {
     return path_ ? *path_ : Empty().path();
   }
 
-  /** Returns true if the document is in the specified collectionId. */
+  /** Returns true if the document is in the specified collection_id. */
   bool HasCollectionId(absl::string_view collection_id) const {
     size_t size = path().size();
     return size >= 2 && path()[size - 2] == collection_id;

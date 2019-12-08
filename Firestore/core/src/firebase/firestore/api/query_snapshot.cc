@@ -68,10 +68,10 @@ size_t QuerySnapshot::Hash() const {
 
 void QuerySnapshot::ForEachDocument(
     const std::function<void(DocumentSnapshot)>& callback) const {
-  DocumentSet documentSet = snapshot_.documents();
+  DocumentSet document_set = snapshot_.documents();
   bool from_cache = metadata_.from_cache();
 
-  for (const Document& document : documentSet) {
+  for (const Document& document : document_set) {
     bool has_pending_writes = snapshot_.mutated_keys().contains(document.key());
     DocumentSnapshot snap(firestore_, document.key(), document, from_cache,
                           has_pending_writes);

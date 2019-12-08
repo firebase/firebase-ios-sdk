@@ -405,7 +405,7 @@ absl::optional<MaybeDocument> LocalStore::ReadDocument(const DocumentKey& key) {
 }
 
 BatchId LocalStore::GetHighestUnacknowledgedBatchId() {
-  return persistence_->Run("getHighestUnacknowledgedBatchId", [&] {
+  return persistence_->Run("GetHighestUnacknowledgedBatchId", [&] {
     return mutation_queue_->GetHighestUnacknowledgedBatchId();
   });
 }
@@ -447,7 +447,7 @@ void LocalStore::ReleaseQuery(const Query& query) {
 
       if (cached_query_data.snapshot_version() >
           query_data->snapshot_version()) {
-        // If we've been avoiding persisting the resumeToken (see
+        // If we've been avoiding persisting the resume_token (see
         // ShouldPersistQueryData for conditions and rationale) we need to
         // persist the token now because there will no longer be an in-memory
         // version to fall back on.

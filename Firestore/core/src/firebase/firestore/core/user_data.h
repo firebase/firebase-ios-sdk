@@ -288,7 +288,7 @@ class ParsedUpdateData {
  public:
   ParsedUpdateData(model::ObjectValue data,
                    model::FieldMask field_mask,
-                   std::vector<model::FieldTransform> fieldTransforms);
+                   std::vector<model::FieldTransform> field_transforms);
 
   const model::ObjectValue& data() const {
     return data_;

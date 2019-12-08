@@ -229,7 +229,7 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
 
     /**
      * Set to true once we've received a document. This is used in
-     * remoteKeysForTarget and ultimately used by `WatchChangeAggregator` to
+     * RemoteKeysForTarget and ultimately used by `WatchChangeAggregator` to
      * decide whether it needs to manufacture a delete event for the target once
      * the target is CURRENT.
      */

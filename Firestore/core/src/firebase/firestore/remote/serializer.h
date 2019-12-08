@@ -143,7 +143,7 @@ class Serializer {
 
   /**
    * Encodes the given document key as a fully qualified name. This includes the
-   * databaseId associated with this Serializer and the key path.
+   * DatabaseId associated with this Serializer and the key path.
    */
   pb_bytes_array_t* EncodeKey(
       const firebase::firestore::model::DocumentKey& key) const;

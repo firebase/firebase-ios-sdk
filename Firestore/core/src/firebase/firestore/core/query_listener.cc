@@ -139,7 +139,8 @@ bool QueryListener::ShouldRaiseEvent(const ViewSnapshot& snapshot) const {
   }
 
   // Generally we should have hit one of the cases above, but it's possible to
-  // get here if there were only metadata docChanges and they got stripped out.
+  // get here if there were only metadata document changes and they got stripped
+  // out.
   return false;
 }
 
