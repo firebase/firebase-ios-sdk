@@ -327,7 +327,7 @@
           break;
         }
       }
-      
+
       if (foregroundedScene == nil) {
         return;
       }
