@@ -194,10 +194,6 @@ Filter InvalidFilter() {
 
 }  // namespace
 
-Target InvalidTarget() {
-  return Target();
-}
-
 Serializer::Serializer(DatabaseId database_id)
     : database_id_(std::move(database_id)) {
 }
@@ -860,7 +856,7 @@ FieldTransform Serializer::DecodeFieldTransform(
 google_firestore_v1_Target Serializer::EncodeTarget(
     const QueryData& query_data) const {
   google_firestore_v1_Target result{};
-  const Target& target = *query_data.target();
+  const Target& target = query_data.target();
 
   if (target.IsDocumentQuery()) {
     result.which_target_type = google_firestore_v1_Target_documents_tag;
@@ -898,11 +894,11 @@ Target Serializer::DecodeDocumentsTarget(
     reader->Fail(
         StringFormat("DocumentsTarget contained other than 1 document %s",
                      proto.documents_count));
-    return InvalidTarget();
+    return {};
   }
 
   ResourcePath path = DecodeQueryPath(reader, DecodeString(proto.documents[0]));
-  return *Query(std::move(path)).ToTarget();
+  return Query(std::move(path)).ToTarget();
 }
 
 google_firestore_v1_Target_QueryTarget Serializer::EncodeQueryTarget(
@@ -973,7 +969,7 @@ Target Serializer::DecodeQueryTarget(
       google_firestore_v1_Target_QueryTarget_structured_query_tag) {
     reader->Fail(
         StringFormat("Unknown query_type: %s", proto.which_query_type));
-    return InvalidTarget();
+    return {};
   }
 
   ResourcePath path = DecodeQueryPath(reader, DecodeString(proto.parent));
@@ -986,7 +982,7 @@ Target Serializer::DecodeQueryTarget(
       reader->Fail(
           "StructuredQuery.from with more than one collection is not "
           "supported.");
-      return InvalidTarget();
+      return {};
     }
 
     google_firestore_v1_StructuredQuery_CollectionSelector& from =
@@ -1024,10 +1020,10 @@ Target Serializer::DecodeQueryTarget(
     end_at = DecodeBound(reader, query.end_at);
   }
 
-  return *Query(std::move(path), std::move(collection_group),
-                std::move(filter_by), std::move(order_by), limit,
-                std::move(start_at), std::move(end_at))
-              .ToTarget();
+  return Query(std::move(path), std::move(collection_group),
+               std::move(filter_by), std::move(order_by), limit,
+               std::move(start_at), std::move(end_at))
+      .ToTarget();
 }
 
 google_firestore_v1_StructuredQuery_Filter Serializer::EncodeFilters(

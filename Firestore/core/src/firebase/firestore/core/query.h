@@ -40,9 +40,10 @@ namespace core {
 using CollectionGroupId = std::shared_ptr<const std::string>;
 
 /**
- * Encapsulates all the query attributes we support in the SDK. It can be run
- * against the LocalStore, as well as be converted to a `Target` to query the
- * RemoteStore results.
+ * Encapsulates all the query attributes we support in the SDK. It represents
+ * query features visible to user, and can be run against the LocalStore.
+ * `Query` is first convert to `Target` to run against RemoteStore to query
+ * backend results, because `Target` encapsulates features backend knows about.
  */
 class Query {
  public:
@@ -217,7 +218,7 @@ class Query {
    * Returns a `Target` instance this query will be mapped to in backend
    * and local store.
    */
-  const std::shared_ptr<const Target> ToTarget() const;
+  const Target& ToTarget() const&;
 
   friend std::ostream& operator<<(std::ostream& os, const Query& query);
 

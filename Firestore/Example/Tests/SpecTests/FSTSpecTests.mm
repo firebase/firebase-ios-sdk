@@ -85,7 +85,6 @@ using firebase::firestore::nanopb::MakeByteString;
 using firebase::firestore::remote::ExistenceFilter;
 using firebase::firestore::remote::DocumentWatchChange;
 using firebase::firestore::remote::ExistenceFilterWatchChange;
-using firebase::firestore::remote::InvalidTarget;
 using firebase::firestore::remote::WatchTargetChange;
 using firebase::firestore::remote::WatchTargetChangeState;
 using firebase::firestore::util::MakeString;

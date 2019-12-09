@@ -44,7 +44,7 @@ MemoryQueryCache::MemoryQueryCache(MemoryPersistence* persistence)
 }
 
 void MemoryQueryCache::AddTarget(const QueryData& query_data) {
-  targets_[*query_data.target()] = query_data;
+  targets_[query_data.target()] = query_data;
   if (query_data.target_id() > highest_target_id_) {
     highest_target_id_ = query_data.target_id();
   }
@@ -59,7 +59,7 @@ void MemoryQueryCache::UpdateTarget(const QueryData& query_data) {
 }
 
 void MemoryQueryCache::RemoveTarget(const QueryData& query_data) {
-  targets_.erase(*query_data.target());
+  targets_.erase(query_data.target());
   references_.RemoveReferences(query_data.target_id());
 }
 

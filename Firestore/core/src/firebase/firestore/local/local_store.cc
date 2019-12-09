@@ -413,16 +413,15 @@ BatchId LocalStore::GetHighestUnacknowledgedBatchId() {
   });
 }
 QueryData LocalStore::AllocateQuery(Query query) {
-  return AllocateTarget(*query.ToTarget());
+  return AllocateTarget(query.ToTarget());
 }
 
 QueryData LocalStore::AllocateTarget(Target target) {
-  QueryData query_data = persistence_->Run("Allocate query", [&] {
+  QueryData query_data = persistence_->Run("Allocate target", [&] {
     absl::optional<QueryData> cached = query_cache_->GetTarget(target);
     // TODO(mcg): freshen last accessed date if cached exists?
     if (!cached) {
-      cached = QueryData(std::make_shared<Target>(std::move(target)),
-                         target_id_generator_.NextId(),
+      cached = QueryData(std::move(target), target_id_generator_.NextId(),
                          persistence_->current_sequence_number(),
                          QueryPurpose::Listen);
       query_cache_->AddTarget(*cached);
@@ -440,13 +439,13 @@ QueryData LocalStore::AllocateTarget(Target target) {
   return query_data;
 }
 void LocalStore::ReleaseQuery(const core::Query& query) {
-  ReleaseTarget(*query.ToTarget());
+  ReleaseTarget(query.ToTarget());
 }
 
 void LocalStore::ReleaseTarget(const Target& target) {
-  persistence_->Run("Release query", [&] {
+  persistence_->Run("Release target", [&] {
     absl::optional<QueryData> query_data = query_cache_->GetTarget(target);
-    HARD_ASSERT(query_data, "Tried to release nonexistent query: %s",
+    HARD_ASSERT(query_data, "Tried to release nonexistent target: %s",
                 target.ToString());
 
     TargetId target_id = query_data->target_id();

@@ -59,7 +59,6 @@ using nanopb::Message;
 using nanopb::Reader;
 using nanopb::SafeReadBoolean;
 using nanopb::Writer;
-using remote::InvalidTarget;
 using util::Status;
 using util::StringFormat;
 
@@ -232,7 +231,7 @@ Message<firestore_client_Target> LocalSerializer::EncodeQueryData(
   result->resume_token =
       nanopb::CopyBytesArray(query_data.resume_token().get());
 
-  const Target& target = *query_data.target();
+  const Target& target = query_data.target();
   if (target.IsDocumentQuery()) {
     result->which_target_type = firestore_client_Target_documents_tag;
     result->documents = rpc_serializer_.EncodeDocumentsTarget(target);
@@ -255,7 +254,7 @@ QueryData LocalSerializer::DecodeQueryData(
   SnapshotVersion version =
       rpc_serializer_.DecodeVersion(reader, proto.snapshot_version);
   ByteString resume_token(proto.resume_token);
-  Target target = InvalidTarget();
+  Target target;
 
   switch (proto.which_target_type) {
     case firestore_client_Target_query_tag:
@@ -272,8 +271,8 @@ QueryData LocalSerializer::DecodeQueryData(
   }
 
   if (!reader->status().ok()) return QueryData::Invalid();
-  return QueryData(std::make_shared<Target>(target), target_id, sequence_number,
-                   QueryPurpose::Listen, version, std::move(resume_token));
+  return QueryData(target, target_id, sequence_number, QueryPurpose::Listen,
+                   version, std::move(resume_token));
 }
 
 Message<firestore_client_WriteBatch> LocalSerializer::EncodeMutationBatch(

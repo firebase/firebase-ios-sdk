@@ -47,30 +47,6 @@ class Target {
 
   Target() = default;
 
-  /**
-   * Initializes a Target with a path and additional query constraints.
-   * Path must currently be empty if this is a collection group query.
-   *
-   * NOTE: you should always construct Target from `Query.toTarget` instead
-   * of using this constructor, because Query provides an implicit `orderBy`
-   * property.
-   */
-  Target(model::ResourcePath path,
-         CollectionGroupId collection_group,
-         FilterList filters,
-         OrderByList order_bys,
-         int32_t limit,
-         std::shared_ptr<Bound> start_at,
-         std::shared_ptr<Bound> end_at)
-      : path_(std::move(path)),
-        collection_group_(std::move(collection_group)),
-        filters_(std::move(filters)),
-        order_bys_(std::move(order_bys)),
-        limit_(limit),
-        start_at_(std::move(start_at)),
-        end_at_(std::move(end_at)) {
-  }
-
   // MARK: - Accessors
 
   /** The base path of the target. */
@@ -117,6 +93,31 @@ class Target {
   size_t Hash() const;
 
  private:
+  /**
+   * Initializes a Target with a path and additional query constraints.
+   * Path must currently be empty if this is a collection group query.
+   *
+   * NOTE: This is made private and onlyy accessible by `Query`. You should
+   * always construct Target from `Query.toTarget` because Query provides
+   * an implicit `orderBy` property.
+   */
+  Target(model::ResourcePath path,
+         CollectionGroupId collection_group,
+         FilterList filters,
+         OrderByList order_bys,
+         int32_t limit,
+         std::shared_ptr<Bound> start_at,
+         std::shared_ptr<Bound> end_at)
+      : path_(std::move(path)),
+        collection_group_(std::move(collection_group)),
+        filters_(std::move(filters)),
+        order_bys_(std::move(order_bys)),
+        limit_(limit),
+        start_at_(std::move(start_at)),
+        end_at_(std::move(end_at)) {
+  }
+  friend class Query;
+
   model::ResourcePath path_;
   std::shared_ptr<const std::string> collection_group_;
   FilterList filters_;

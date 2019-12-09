@@ -287,7 +287,7 @@ model::DocumentComparator Query::Comparator() const {
 }
 
 const std::string& Query::CanonicalId() const {
-  return ToTarget()->CanonicalId();
+  return ToTarget().CanonicalId();
 }
 
 size_t Query::Hash() const {
@@ -298,14 +298,15 @@ std::string Query::ToString() const {
   return absl::StrCat("Query(canonical_id=", CanonicalId(), ")");
 }
 
-const std::shared_ptr<const Target> Query::ToTarget() const {
+const Target& Query::ToTarget() const& {
   if (memoized_target == nullptr) {
-    memoized_target =
-        std::make_shared<Target>(path(), collection_group(), filters(),
-                                 order_bys(), limit(), start_at(), end_at());
+    // Not using `make_shared` because the constructor is private.
+    memoized_target = std::shared_ptr<Target>(
+        new Target(path(), collection_group(), filters(), order_bys(), limit(),
+                   start_at(), end_at()));
   }
 
-  return memoized_target;
+  return *memoized_target;
 }
 
 std::ostream& operator<<(std::ostream& os, const Query& query) {
@@ -313,7 +314,7 @@ std::ostream& operator<<(std::ostream& os, const Query& query) {
 }
 
 bool operator==(const Query& lhs, const Query& rhs) {
-  return (*lhs.ToTarget()) == (*rhs.ToTarget());
+  return lhs.ToTarget() == rhs.ToTarget();
 }
 
 }  // namespace core

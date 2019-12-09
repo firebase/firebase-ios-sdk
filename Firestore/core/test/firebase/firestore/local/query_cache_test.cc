@@ -94,7 +94,7 @@ QueryCacheTest::~QueryCacheTest() = default;
 
 TEST_P(QueryCacheTest, ReadQueryNotInCache) {
   persistence_->Run("test_read_query_not_in_cache", [&]() {
-    ASSERT_EQ(cache_->GetTarget(*query_rooms_.ToTarget()), absl::nullopt);
+    ASSERT_EQ(cache_->GetTarget(query_rooms_.ToTarget()), absl::nullopt);
   });
 }
 
@@ -103,9 +103,9 @@ TEST_P(QueryCacheTest, SetAndReadAQuery) {
     QueryData query_data = MakeQueryData(query_rooms_);
     cache_->AddTarget(query_data);
 
-    auto result = cache_->GetTarget(*query_rooms_.ToTarget());
+    auto result = cache_->GetTarget(query_rooms_.ToTarget());
     ASSERT_NE(result, absl::nullopt);
-    ASSERT_EQ(*result->target(), *query_data.target());
+    ASSERT_EQ(result->target(), query_data.target());
     ASSERT_EQ(result->target_id(), query_data.target_id());
     ASSERT_EQ(result->resume_token(), query_data.resume_token());
   });
@@ -124,24 +124,24 @@ TEST_P(QueryCacheTest, CanonicalIDCollision) {
 
     // Using the other query should not return the query cache entry despite
     // equal canonical_i_ds.
-    ASSERT_EQ(cache_->GetTarget(*q2.ToTarget()), absl::nullopt);
-    ASSERT_EQ(cache_->GetTarget(*q1.ToTarget()), data1);
+    ASSERT_EQ(cache_->GetTarget(q2.ToTarget()), absl::nullopt);
+    ASSERT_EQ(cache_->GetTarget(q1.ToTarget()), data1);
 
     QueryData data2 = MakeQueryData(q2);
     cache_->AddTarget(data2);
     ASSERT_EQ(cache_->size(), 2);
 
-    ASSERT_EQ(cache_->GetTarget(*q1.ToTarget()), data1);
-    ASSERT_EQ(cache_->GetTarget(*q2.ToTarget()), data2);
+    ASSERT_EQ(cache_->GetTarget(q1.ToTarget()), data1);
+    ASSERT_EQ(cache_->GetTarget(q2.ToTarget()), data2);
 
     cache_->RemoveTarget(data1);
-    ASSERT_EQ(cache_->GetTarget(*q1.ToTarget()), absl::nullopt);
-    ASSERT_EQ(cache_->GetTarget(*q2.ToTarget()), data2);
+    ASSERT_EQ(cache_->GetTarget(q1.ToTarget()), absl::nullopt);
+    ASSERT_EQ(cache_->GetTarget(q2.ToTarget()), data2);
     ASSERT_EQ(cache_->size(), 1);
 
     cache_->RemoveTarget(data2);
-    ASSERT_EQ(cache_->GetTarget(*q1.ToTarget()), absl::nullopt);
-    ASSERT_EQ(cache_->GetTarget(*q2.ToTarget()), absl::nullopt);
+    ASSERT_EQ(cache_->GetTarget(q1.ToTarget()), absl::nullopt);
+    ASSERT_EQ(cache_->GetTarget(q2.ToTarget()), absl::nullopt);
     ASSERT_EQ(cache_->size(), 0);
   });
 }
@@ -154,7 +154,7 @@ TEST_P(QueryCacheTest, SetQueryToNewValue) {
     QueryData query_data2 = MakeQueryData(query_rooms_, 1, 10, 2);
     cache_->AddTarget(query_data2);
 
-    auto result = cache_->GetTarget(*query_rooms_.ToTarget());
+    auto result = cache_->GetTarget(query_rooms_.ToTarget());
     ASSERT_NE(query_data2.resume_token(), query_data1.resume_token());
     ASSERT_NE(query_data2.snapshot_version(), query_data1.snapshot_version());
     ASSERT_EQ(result->resume_token(), query_data2.resume_token());
@@ -169,7 +169,7 @@ TEST_P(QueryCacheTest, RemoveQuery) {
 
     cache_->RemoveTarget(query_data1);
 
-    auto result = cache_->GetTarget(*query_rooms_.ToTarget());
+    auto result = cache_->GetTarget(query_rooms_.ToTarget());
     ASSERT_EQ(result, absl::nullopt);
   });
 }

@@ -55,7 +55,7 @@ std::ostream& operator<<(std::ostream& os, QueryPurpose purpose) {
 
 // MARK: - QueryData
 
-QueryData::QueryData(std::shared_ptr<const Target> target,
+QueryData::QueryData(Target target,
                      TargetId target_id,
                      ListenSequenceNumber sequence_number,
                      QueryPurpose purpose,
@@ -69,7 +69,7 @@ QueryData::QueryData(std::shared_ptr<const Target> target,
       resume_token_(std::move(resume_token)) {
 }
 
-QueryData::QueryData(std::shared_ptr<const Target> target,
+QueryData::QueryData(Target target,
                      int target_id,
                      ListenSequenceNumber sequence_number,
                      QueryPurpose purpose)
@@ -82,7 +82,7 @@ QueryData::QueryData(std::shared_ptr<const Target> target,
 }
 
 QueryData QueryData::Invalid() {
-  return QueryData(std::make_shared<const Target>(), /*target_id=*/-1,
+  return QueryData({}, /*target_id=*/-1,
                    /*sequence_number=*/-1, QueryPurpose::Listen,
                    SnapshotVersion(SnapshotVersion::None()), {});
 }
@@ -100,7 +100,7 @@ QueryData QueryData::WithResumeToken(ByteString resume_token,
 }
 
 bool operator==(const QueryData& lhs, const QueryData& rhs) {
-  return *lhs.target() == *rhs.target() && lhs.target_id() == rhs.target_id() &&
+  return lhs.target() == rhs.target() && lhs.target_id() == rhs.target_id() &&
          lhs.sequence_number() == rhs.sequence_number() &&
          lhs.purpose() == rhs.purpose() &&
          lhs.snapshot_version() == rhs.snapshot_version() &&
@@ -108,7 +108,7 @@ bool operator==(const QueryData& lhs, const QueryData& rhs) {
 }
 
 size_t QueryData::Hash() const {
-  return util::Hash(*target_, target_id_, sequence_number_, purpose_,
+  return util::Hash(target_, target_id_, sequence_number_, purpose_,
                     snapshot_version_, resume_token_);
 }
 
@@ -119,7 +119,7 @@ std::string QueryData::ToString() const {
 }
 
 std::ostream& operator<<(std::ostream& os, const QueryData& value) {
-  return os << "QueryData(target=" << *value.target_
+  return os << "QueryData(target=" << value.target_
             << ", target_id=" << value.target_id_
             << ", purpose=" << value.purpose_
             << ", version=" << value.snapshot_version_
