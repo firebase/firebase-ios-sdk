@@ -31,12 +31,11 @@ NSString *FIRInstanceIDWebSafeBase64(NSData *data) {
 }
 
 NSData *FIRInstanceIDSHA1(NSData *data) {
-  unsigned int outputLength = CC_SHA1_DIGEST_LENGTH;
-  unsigned char output[outputLength];
+  unsigned char output[CC_SHA1_DIGEST_LENGTH];
   unsigned int length = (unsigned int)[data length];
 
   CC_SHA1(data.bytes, length, output);
-  return [NSMutableData dataWithBytes:output length:outputLength];
+  return [NSMutableData dataWithBytes:output length:CC_SHA1_DIGEST_LENGTH];
 }
 
 NSDictionary *FIRInstanceIDKeyPairQuery(NSString *tag, BOOL addReturnAttr, BOOL returnData) {
