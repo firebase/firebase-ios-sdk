@@ -22,7 +22,7 @@ if(APPLE)
   )
   file(
     GLOB headers
-    Environment/*.h
+    Environment/Public/*.h
     Environment/third_party/*.h
     Logger/Private/*.h
     Logger/Public/*.h
