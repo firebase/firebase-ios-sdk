@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "GULHeartbeatDateStorage.h"
+#import <GoogleUtilities/GULHeartbeatDateStorage.h>
 #import <GoogleUtilities/GULSecureCoding.h>
 
 @interface GULHeartbeatDateStorage ()
