@@ -1,9 +1,9 @@
-# Unreleased
+# v6.4.0 -- M61
 - [added] Updated the binary distributions to include arm64e slices. See
   https://developer.apple.com/documentation/security/preparing_your_app_to_work_with_pointer_authentication.
   Support for the open source libraries is now included in the zip and Carthage
-  distributions. Support for the closed source libraries (Analytics and Performance)
-  will be included the next time they release. MLKit support is not yet planned. (#4110)
+  distributions. All libraries now support building for arm64e except the MLKit
+  ones who's support is TBD. (#4110)
 
 - [changed] The directory structure of the zip distribution has changed to include
   full name of each Firebase pod name in the directory structure. For example, the former
