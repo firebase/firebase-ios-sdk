@@ -246,7 +246,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
       // Facebook Auth
       [weakSelf facebookAuthSection],
       // Apple Auth
-      [weakSelf appleAuthSection],
+      // [weakSelf appleAuthSection],
       // OAuth
       [weakSelf oAuthSection],
       // Custom Auth
