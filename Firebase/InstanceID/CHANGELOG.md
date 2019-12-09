@@ -1,3 +1,6 @@
+# 2019-12 -- 4.2.8
+- [changed] Added heartbeat support for InstanceID (#4323)
+
 # 2019-11-05 -- 4.2.7
 - [fixed] Fixed a crash in `checkTokenRefreshPolicyWithIID:` and ensure `tokenWithAuthorizedEntity:scope:options:handler` method is refreshing token if token is not freshed any more. (#4167)
 - [changed] Updated deprecated keychain access level. (#4172)
