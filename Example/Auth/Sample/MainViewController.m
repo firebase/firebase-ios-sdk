@@ -16,7 +16,7 @@
 
 #import "MainViewController.h"
 #import "MainViewController+App.h"
-#import "MainViewController+Apple.h"
+//#import "MainViewController+Apple.h"
 #import "MainViewController+Auth.h"
 #import "MainViewController+AutoTests.h"
 #import "MainViewController+Custom.h"
