@@ -67,6 +67,7 @@ NSString *FIRInstanceIDAppIdentity(FIRInstanceIDKeyPair *keyPair) {
     return nil;
   }
   NSData *publicKeyData = keyPair.publicKeyData;
+  // This is used to generate a unique random string, not for encryption/decryption.
   NSData *publicKeySHA1 = FIRInstanceIDSHA1(publicKeyData);
 
   const uint8_t *bytes = publicKeySHA1.bytes;
