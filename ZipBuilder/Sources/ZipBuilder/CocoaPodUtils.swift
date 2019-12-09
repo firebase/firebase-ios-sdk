@@ -171,8 +171,8 @@ public enum CocoaPodUtils {
     let podsDir = projectDir.appendingPathComponent("Pods")
     var installedPods: [String: PodInfo] = [:]
     for (podName, version) in pods {
-      var podDir: URL
-      podDir = podsDir.appendingPathComponent(podName)
+      var podDir = podsDir.appendingPathComponent(podName)
+      // Make sure that pod got installed if it's not coming from a local podspec.
       if !FileManager.default.directoryExists(at: podDir) {
         guard let repoDir = LaunchArgs.shared.localPodspecPath else {
           fatalError("Directory for \(podName) doesn't exist at \(podDir) - failed while getting " +
@@ -316,18 +316,21 @@ public enum CocoaPodUtils {
       // Check if we want to use a local version of the podspec.
       if let localURL = LaunchArgs.shared.localPodspecPath,
         FileManager.default.fileExists(atPath: localURL.appendingPathComponent(pod.name + ".podspec").path) {
-        podfile += ", :path => '" + localURL.path + "'"
+        podfile += ", :path => '\(localURL.path)'"
       } else if pod.version != nil {
-        podfile += ", '\(pod.version!)'"
+        podfile += ", '\(pod.version!)'" 
       }
-      podfile += "\n"
       if pod.version != nil {
+        // Don't add Google pods if versions were specified or we're doing a secondary install
+        // to create module maps.
         versionsSpecified = true
       }
+      podfile += "\n"
     }
 
     // If we're using local pods, explicitly add Google* podspecs if they exist and there are no
-    // explicit versions in the Podfile.
+    // explicit versions in the Podfile. Note there are versions for local podspecs if we're doing
+    // the secondary install for module map building.
     if !versionsSpecified, let localURL = LaunchArgs.shared.localPodspecPath {
       let podspecs = try! FileManager.default.contentsOfDirectory(atPath: localURL.path)
       for podspec in podspecs {
