@@ -24,9 +24,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MainViewController () <ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding> {
-
-}
+@interface MainViewController () <ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding>
 
 @end
 
@@ -46,12 +44,16 @@ NS_ASSUME_NONNULL_BEGIN
   ]];
 }
 
-- (void)signInWithApple API_AVAILABLE(ios(13.0)) {
-  ASAuthorizationAppleIDProvider* provider = [[ASAuthorizationAppleIDProvider alloc] init];
-  ASAuthorizationAppleIDRequest* request = [provider createRequest];
+- (ASAuthorizationAppleIDRequest *)appleIDRequestWithState:(NSString *)state API_AVAILABLE(ios(13.0)) {
+  ASAuthorizationAppleIDRequest *request = [[[ASAuthorizationAppleIDProvider alloc] init] createRequest];
   request.requestedScopes = @[ASAuthorizationScopeEmail, ASAuthorizationScopeFullName];
-  request.nonce = @"c3ab8ff13720e8ad9047dd39466b3c8974e592c2fa383d4a3960714caef0c4f2";
-  request.state = @"signIn";
+//  request.nonce = @"REPLACE_ME_WITH_YOUR_NONCE"; //
+  request.state = state;
+  return request;
+}
+
+- (void)signInWithApple API_AVAILABLE(ios(13.0)) {
+  ASAuthorizationAppleIDRequest* request = [self appleIDRequestWithState:@"signIn"];
 
   ASAuthorizationController* controller = [[ASAuthorizationController alloc] initWithAuthorizationRequests:@[request]];
   controller.delegate = self;
@@ -60,11 +62,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)linkWithApple API_AVAILABLE(ios(13.0)) {
-  ASAuthorizationAppleIDProvider* provider = [[ASAuthorizationAppleIDProvider alloc] init];
-  ASAuthorizationAppleIDRequest* request = [provider createRequest];
-  request.requestedScopes = @[ASAuthorizationScopeEmail, ASAuthorizationScopeFullName];
-  request.nonce = @"c3ab8ff13720e8ad9047dd39466b3c8974e592c2fa383d4a3960714caef0c4f2";
-  request.state = @"link";
+  ASAuthorizationAppleIDRequest* request = [self appleIDRequestWithState:@"link"];
 
   ASAuthorizationController* controller = [[ASAuthorizationController alloc] initWithAuthorizationRequests:@[request]];
   controller.delegate = self;
@@ -73,11 +71,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)reauthenticateWithApple API_AVAILABLE(ios(13.0)) {
-  ASAuthorizationAppleIDProvider* provider = [[ASAuthorizationAppleIDProvider alloc] init];
-  ASAuthorizationAppleIDRequest* request = [provider createRequest];
-  request.requestedScopes = @[ASAuthorizationScopeEmail, ASAuthorizationScopeFullName];
-  request.nonce = @"c3ab8ff13720e8ad9047dd39466b3c8974e592c2fa383d4a3960714caef0c4f2";
-  request.state = @"reauth";
+  ASAuthorizationAppleIDRequest* request = [self appleIDRequestWithState:@"reauth"];
 
   ASAuthorizationController* controller = [[ASAuthorizationController alloc] initWithAuthorizationRequests:@[request]];
   controller.delegate = self;
@@ -90,7 +84,7 @@ NS_ASSUME_NONNULL_BEGIN
   NSString *idToken = [NSString stringWithUTF8String:[appleIDCredential.identityToken bytes]];
   FIROAuthCredential *credential = [FIROAuthProvider credentialWithProviderID:@"apple.com"
                                                                       IDToken:idToken
-                                                                     rawNonce:@"foobar"
+                                                                     rawNonce:@"REPLACE_ME_WITH_YOUR_RAW_NONCE"
                                                                   accessToken:nil];
 
   if ([appleIDCredential.state isEqualToString:@"signIn"]) {
