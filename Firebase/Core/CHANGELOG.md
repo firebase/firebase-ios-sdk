@@ -11,6 +11,10 @@
 
 - [changed] Speed up initialization by lazily registering for the user agent. (#1306)
 
+- [added] Added a Swift usage flag to `firebaseUserAgent`. The information will
+  be used to support product decisions related to Swift, e.g. adding a Swift specific
+  API, SDKs, etc. (#4448)
+
 # v6.4.0 -- M60
 - [changed] Administrative minor version update to prepare for an upcoming Firebase pod
   open source.
