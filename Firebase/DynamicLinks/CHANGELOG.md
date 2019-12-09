@@ -1,3 +1,6 @@
+# v4.0.5
+- [fixed] Removed references to UIWebViewDelegate to comply with App Store Submission warning. (#3722)
+
 # v4.0.4
 - [fixed] Removed references to UIWebView to comply with App Store Submission warning. (#3722)
 

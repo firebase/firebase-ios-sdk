@@ -17,10 +17,6 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_WATCH_STREAM_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_WATCH_STREAM_H_
 
-#if !defined(__OBJC__)
-#error "This header only supports Objective-C++"
-#endif  // !defined(__OBJC__)
-
 #include <memory>
 #include <string>
 
@@ -32,24 +28,27 @@
 #include "Firestore/core/src/firebase/firestore/remote/stream.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
-#include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
 #include "absl/strings/string_view.h"
 #include "grpcpp/support/byte_buffer.h"
-
-#import "Firestore/Source/Core/FSTTypes.h"
-#import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
 namespace firebase {
 namespace firestore {
 namespace remote {
+
+class Serializer;
 
 /**
  * An interface defining the events that can be emitted by the `WatchStream`.
  */
 class WatchStreamCallback {
  public:
-  /** Called by the `WatchStream` when it is ready to accept outbound request
-   * messages. */
+  virtual ~WatchStreamCallback() = default;
+
+  /**
+   * Called by the `WatchStream` when it is ready to accept outbound request
+   * messages.
+   */
   virtual void OnWatchStreamOpen() = 0;
 
   /**
@@ -83,7 +82,7 @@ class WatchStream : public Stream {
  public:
   WatchStream(const std::shared_ptr<util::AsyncQueue>& async_queue,
               std::shared_ptr<auth::CredentialsProvider> credentials_provider,
-              FSTSerializerBeta* serializer,
+              Serializer serializer,
               GrpcConnection* grpc_connection,
               WatchStreamCallback* callback);
 
@@ -116,7 +115,7 @@ class WatchStream : public Stream {
     return "WatchStream";
   }
 
-  bridge::WatchStreamSerializer serializer_bridge_;
+  WatchStreamSerializer watch_serializer_;
   WatchStreamCallback* callback_;
 };
 

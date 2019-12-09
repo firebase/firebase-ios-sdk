@@ -52,6 +52,8 @@ class WatchChange {
   virtual Type type() const = 0;
 };
 
+bool operator==(const WatchChange& lhs, const WatchChange& rhs);
+
 /**
  * `DocumentWatchChange` represents a changed document and a list of target ids
  * to which this change applies.

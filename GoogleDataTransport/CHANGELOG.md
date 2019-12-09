@@ -1,16 +1,35 @@
+# v3.2.0
+- Expose the library version with a #define to a const string var.
+
+# v3.1.0
+- Fixes additional sanitizer issues and runtime errors.
+
+# v3.0.1
+- Fixes sanitizer issues and runtime errors. (#4039, #4027)
+
+# v3.0.0
+- Changes backgrounding logic to reduce background usage and properly complete
+all tasks. (#3893)
+- Fix Catalyst define checks. (#3695)
+- Fix ubsan issues in GDT (#3910)
+- Add support for FLL. (#3867)
+
+# v2.0.0
+- Change/rename all classes and references from GDT to GDTCOR. (#3729)
+
 # v1.2.0
 - Removes all NSAsserts in favor of custom asserts. (#3747)
 
 # v1.1.3
-- Wrap decoding in GDTUploadCoordinator in a try catch. (#3676)
+- Wrap decoding in GDTCORUploadCoordinator in a try catch. (#3676)
 
 # v1.1.2
 - Add initial support for iOS 13.
 - Add initial support for Catalyst.
-- Backgrounding in GDTStorage is fixed. (#3623 and #3625)
+- Backgrounding in GDTCORStorage is fixed. (#3623 and #3625)
 
 # v1.1.1
-- Fixes a crash in GDTUploadPackage and GDTStorage. (#3547)
+- Fixes a crash in GDTCORUploadPackage and GDTCORStorage. (#3547)
 
 # v1.1.0
 - Remove almost all NSAsserts and NSCAsserts for a better development

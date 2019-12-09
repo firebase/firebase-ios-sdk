@@ -22,19 +22,19 @@
 #include "gtest/gtest.h"
 
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
-#include "Firestore/core/test/firebase/firestore/util/async_tests_util.h"
+#include "Firestore/core/test/firebase/firestore/testutil/async_testing.h"
 
 namespace firebase {
 namespace firestore {
 namespace util {
 
-using FactoryFunc = std::unique_ptr<Executor> (*)();
+using FactoryFunc = std::unique_ptr<Executor> (*)(int threads);
 
-class ExecutorTest : public TestWithTimeoutMixin,
-                     public ::testing::TestWithParam<FactoryFunc> {
+class ExecutorTest : public ::testing::TestWithParam<FactoryFunc>,
+                     public testutil::AsyncTest {
  public:
   // `GetParam()` must return a factory function.
-  ExecutorTest() : executor{GetParam()()} {
+  ExecutorTest() : executor{GetParam()(/*threads=*/1)} {
   }
 
   std::unique_ptr<Executor> executor;

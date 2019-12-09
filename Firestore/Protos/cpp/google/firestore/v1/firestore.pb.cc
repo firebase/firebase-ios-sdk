@@ -22,141 +22,135 @@
 #include <algorithm>
 
 #include <google/protobuf/stubs/common.h>
-#include <google/protobuf/stubs/port.h>
-#include <google/protobuf/stubs/once.h>
 #include <google/protobuf/io/coded_stream.h>
-#include <google/protobuf/wire_format_lite_inl.h>
+#include <google/protobuf/extension_set.h>
+#include <google/protobuf/wire_format_lite.h>
 #include <google/protobuf/descriptor.h>
 #include <google/protobuf/generated_message_reflection.h>
 #include <google/protobuf/reflection_ops.h>
 #include <google/protobuf/wire_format.h>
-// This is a temporary google only hack
-#ifdef GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-#include "third_party/protobuf/version.h"
-#endif
 // @@protoc_insertion_point(includes)
+#include <google/protobuf/port_def.inc>
+extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fdocument_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_Document_google_2ffirestore_2fv1_2fdocument_2eproto;
+extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fwrite_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_DocumentChange_google_2ffirestore_2fv1_2fwrite_2eproto;
+extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fwrite_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_DocumentDelete_google_2ffirestore_2fv1_2fwrite_2eproto;
+extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fcommon_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_DocumentMask_google_2ffirestore_2fv1_2fcommon_2eproto;
+extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fwrite_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_DocumentRemove_google_2ffirestore_2fv1_2fwrite_2eproto;
+extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fwrite_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_ExistenceFilter_google_2ffirestore_2fv1_2fwrite_2eproto;
+extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2ffirestore_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_ListenRequest_LabelsEntry_DoNotUse_google_2ffirestore_2fv1_2ffirestore_2eproto;
+extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fcommon_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_Precondition_google_2ffirestore_2fv1_2fcommon_2eproto;
+extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fquery_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<6> scc_info_StructuredQuery_google_2ffirestore_2fv1_2fquery_2eproto;
+extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2ffirestore_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<3> scc_info_Target_google_2ffirestore_2fv1_2ffirestore_2eproto;
+extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2ffirestore_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Target_DocumentsTarget_google_2ffirestore_2fv1_2ffirestore_2eproto;
+extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2ffirestore_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_Target_QueryTarget_google_2ffirestore_2fv1_2ffirestore_2eproto;
+extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2ffirestore_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_TargetChange_google_2ffirestore_2fv1_2ffirestore_2eproto;
+extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fcommon_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_TransactionOptions_google_2ffirestore_2fv1_2fcommon_2eproto;
+extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fwrite_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<4> scc_info_Write_google_2ffirestore_2fv1_2fwrite_2eproto;
+extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2ffirestore_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_WriteRequest_LabelsEntry_DoNotUse_google_2ffirestore_2fv1_2ffirestore_2eproto;
+extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fwrite_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_WriteResult_google_2ffirestore_2fv1_2fwrite_2eproto;
+extern PROTOBUF_INTERNAL_EXPORT_google_2fprotobuf_2ftimestamp_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Timestamp_google_2fprotobuf_2ftimestamp_2eproto;
+extern PROTOBUF_INTERNAL_EXPORT_google_2frpc_2fstatus_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_Status_google_2frpc_2fstatus_2eproto;
 namespace google {
 namespace firestore {
 namespace v1 {
 class GetDocumentRequestDefaultTypeInternal {
  public:
-  ::google::protobuf::internal::ExplicitlyConstructed<GetDocumentRequest>
-      _instance;
-  ::google::protobuf::internal::ArenaStringPtr transaction_;
-  const ::google::protobuf::Timestamp* read_time_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<GetDocumentRequest> _instance;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr transaction_;
+  const PROTOBUF_NAMESPACE_ID::Timestamp* read_time_;
 } _GetDocumentRequest_default_instance_;
 class ListDocumentsRequestDefaultTypeInternal {
  public:
-  ::google::protobuf::internal::ExplicitlyConstructed<ListDocumentsRequest>
-      _instance;
-  ::google::protobuf::internal::ArenaStringPtr transaction_;
-  const ::google::protobuf::Timestamp* read_time_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<ListDocumentsRequest> _instance;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr transaction_;
+  const PROTOBUF_NAMESPACE_ID::Timestamp* read_time_;
 } _ListDocumentsRequest_default_instance_;
 class ListDocumentsResponseDefaultTypeInternal {
  public:
-  ::google::protobuf::internal::ExplicitlyConstructed<ListDocumentsResponse>
-      _instance;
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<ListDocumentsResponse> _instance;
 } _ListDocumentsResponse_default_instance_;
 class CreateDocumentRequestDefaultTypeInternal {
  public:
-  ::google::protobuf::internal::ExplicitlyConstructed<CreateDocumentRequest>
-      _instance;
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<CreateDocumentRequest> _instance;
 } _CreateDocumentRequest_default_instance_;
 class UpdateDocumentRequestDefaultTypeInternal {
  public:
-  ::google::protobuf::internal::ExplicitlyConstructed<UpdateDocumentRequest>
-      _instance;
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<UpdateDocumentRequest> _instance;
 } _UpdateDocumentRequest_default_instance_;
 class DeleteDocumentRequestDefaultTypeInternal {
  public:
-  ::google::protobuf::internal::ExplicitlyConstructed<DeleteDocumentRequest>
-      _instance;
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<DeleteDocumentRequest> _instance;
 } _DeleteDocumentRequest_default_instance_;
 class BatchGetDocumentsRequestDefaultTypeInternal {
  public:
-  ::google::protobuf::internal::ExplicitlyConstructed<BatchGetDocumentsRequest>
-      _instance;
-  ::google::protobuf::internal::ArenaStringPtr transaction_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<BatchGetDocumentsRequest> _instance;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr transaction_;
   const ::google::firestore::v1::TransactionOptions* new_transaction_;
-  const ::google::protobuf::Timestamp* read_time_;
+  const PROTOBUF_NAMESPACE_ID::Timestamp* read_time_;
 } _BatchGetDocumentsRequest_default_instance_;
 class BatchGetDocumentsResponseDefaultTypeInternal {
  public:
-  ::google::protobuf::internal::ExplicitlyConstructed<BatchGetDocumentsResponse>
-      _instance;
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<BatchGetDocumentsResponse> _instance;
   const ::google::firestore::v1::Document* found_;
-  ::google::protobuf::internal::ArenaStringPtr missing_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr missing_;
 } _BatchGetDocumentsResponse_default_instance_;
 class BeginTransactionRequestDefaultTypeInternal {
  public:
-  ::google::protobuf::internal::ExplicitlyConstructed<BeginTransactionRequest>
-      _instance;
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<BeginTransactionRequest> _instance;
 } _BeginTransactionRequest_default_instance_;
 class BeginTransactionResponseDefaultTypeInternal {
  public:
-  ::google::protobuf::internal::ExplicitlyConstructed<BeginTransactionResponse>
-      _instance;
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<BeginTransactionResponse> _instance;
 } _BeginTransactionResponse_default_instance_;
 class CommitRequestDefaultTypeInternal {
  public:
-  ::google::protobuf::internal::ExplicitlyConstructed<CommitRequest>
-      _instance;
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<CommitRequest> _instance;
 } _CommitRequest_default_instance_;
 class CommitResponseDefaultTypeInternal {
  public:
-  ::google::protobuf::internal::ExplicitlyConstructed<CommitResponse>
-      _instance;
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<CommitResponse> _instance;
 } _CommitResponse_default_instance_;
 class RollbackRequestDefaultTypeInternal {
  public:
-  ::google::protobuf::internal::ExplicitlyConstructed<RollbackRequest>
-      _instance;
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<RollbackRequest> _instance;
 } _RollbackRequest_default_instance_;
 class RunQueryRequestDefaultTypeInternal {
  public:
-  ::google::protobuf::internal::ExplicitlyConstructed<RunQueryRequest>
-      _instance;
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<RunQueryRequest> _instance;
   const ::google::firestore::v1::StructuredQuery* structured_query_;
-  ::google::protobuf::internal::ArenaStringPtr transaction_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr transaction_;
   const ::google::firestore::v1::TransactionOptions* new_transaction_;
-  const ::google::protobuf::Timestamp* read_time_;
+  const PROTOBUF_NAMESPACE_ID::Timestamp* read_time_;
 } _RunQueryRequest_default_instance_;
 class RunQueryResponseDefaultTypeInternal {
  public:
-  ::google::protobuf::internal::ExplicitlyConstructed<RunQueryResponse>
-      _instance;
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<RunQueryResponse> _instance;
 } _RunQueryResponse_default_instance_;
 class WriteRequest_LabelsEntry_DoNotUseDefaultTypeInternal {
  public:
-  ::google::protobuf::internal::ExplicitlyConstructed<WriteRequest_LabelsEntry_DoNotUse>
-      _instance;
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<WriteRequest_LabelsEntry_DoNotUse> _instance;
 } _WriteRequest_LabelsEntry_DoNotUse_default_instance_;
 class WriteRequestDefaultTypeInternal {
  public:
-  ::google::protobuf::internal::ExplicitlyConstructed<WriteRequest>
-      _instance;
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<WriteRequest> _instance;
 } _WriteRequest_default_instance_;
 class WriteResponseDefaultTypeInternal {
  public:
-  ::google::protobuf::internal::ExplicitlyConstructed<WriteResponse>
-      _instance;
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<WriteResponse> _instance;
 } _WriteResponse_default_instance_;
 class ListenRequest_LabelsEntry_DoNotUseDefaultTypeInternal {
  public:
-  ::google::protobuf::internal::ExplicitlyConstructed<ListenRequest_LabelsEntry_DoNotUse>
-      _instance;
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<ListenRequest_LabelsEntry_DoNotUse> _instance;
 } _ListenRequest_LabelsEntry_DoNotUse_default_instance_;
 class ListenRequestDefaultTypeInternal {
  public:
-  ::google::protobuf::internal::ExplicitlyConstructed<ListenRequest>
-      _instance;
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<ListenRequest> _instance;
   const ::google::firestore::v1::Target* add_target_;
-  ::google::protobuf::int32 remove_target_;
+  ::PROTOBUF_NAMESPACE_ID::int32 remove_target_;
 } _ListenRequest_default_instance_;
 class ListenResponseDefaultTypeInternal {
  public:
-  ::google::protobuf::internal::ExplicitlyConstructed<ListenResponse>
-      _instance;
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<ListenResponse> _instance;
   const ::google::firestore::v1::TargetChange* target_change_;
   const ::google::firestore::v1::DocumentChange* document_change_;
   const ::google::firestore::v1::DocumentDelete* document_delete_;
@@ -165,457 +159,254 @@ class ListenResponseDefaultTypeInternal {
 } _ListenResponse_default_instance_;
 class Target_DocumentsTargetDefaultTypeInternal {
  public:
-  ::google::protobuf::internal::ExplicitlyConstructed<Target_DocumentsTarget>
-      _instance;
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<Target_DocumentsTarget> _instance;
 } _Target_DocumentsTarget_default_instance_;
 class Target_QueryTargetDefaultTypeInternal {
  public:
-  ::google::protobuf::internal::ExplicitlyConstructed<Target_QueryTarget>
-      _instance;
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<Target_QueryTarget> _instance;
   const ::google::firestore::v1::StructuredQuery* structured_query_;
 } _Target_QueryTarget_default_instance_;
 class TargetDefaultTypeInternal {
  public:
-  ::google::protobuf::internal::ExplicitlyConstructed<Target>
-      _instance;
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<Target> _instance;
   const ::google::firestore::v1::Target_QueryTarget* query_;
   const ::google::firestore::v1::Target_DocumentsTarget* documents_;
-  ::google::protobuf::internal::ArenaStringPtr resume_token_;
-  const ::google::protobuf::Timestamp* read_time_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr resume_token_;
+  const PROTOBUF_NAMESPACE_ID::Timestamp* read_time_;
 } _Target_default_instance_;
 class TargetChangeDefaultTypeInternal {
  public:
-  ::google::protobuf::internal::ExplicitlyConstructed<TargetChange>
-      _instance;
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<TargetChange> _instance;
 } _TargetChange_default_instance_;
 class ListCollectionIdsRequestDefaultTypeInternal {
  public:
-  ::google::protobuf::internal::ExplicitlyConstructed<ListCollectionIdsRequest>
-      _instance;
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<ListCollectionIdsRequest> _instance;
 } _ListCollectionIdsRequest_default_instance_;
 class ListCollectionIdsResponseDefaultTypeInternal {
  public:
-  ::google::protobuf::internal::ExplicitlyConstructed<ListCollectionIdsResponse>
-      _instance;
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<ListCollectionIdsResponse> _instance;
 } _ListCollectionIdsResponse_default_instance_;
 }  // namespace v1
 }  // namespace firestore
 }  // namespace google
-namespace protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto {
-void InitDefaultsGetDocumentRequestImpl() {
+static void InitDefaultsscc_info_BatchGetDocumentsRequest_google_2ffirestore_2fv1_2ffirestore_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-#ifdef GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  ::google::protobuf::internal::InitProtobufDefaultsForceUnique();
-#else
-  ::google::protobuf::internal::InitProtobufDefaults();
-#endif  // GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  protobuf_google_2ffirestore_2fv1_2fcommon_2eproto::InitDefaultsDocumentMask();
-  protobuf_google_2fprotobuf_2ftimestamp_2eproto::InitDefaultsTimestamp();
-  {
-    void* ptr = &::google::firestore::v1::_GetDocumentRequest_default_instance_;
-    new (ptr) ::google::firestore::v1::GetDocumentRequest();
-    ::google::protobuf::internal::OnShutdownDestroyMessage(ptr);
-  }
-  ::google::firestore::v1::GetDocumentRequest::InitAsDefaultInstance();
-}
-
-void InitDefaultsGetDocumentRequest() {
-  static GOOGLE_PROTOBUF_DECLARE_ONCE(once);
-  ::google::protobuf::GoogleOnceInit(&once, &InitDefaultsGetDocumentRequestImpl);
-}
-
-void InitDefaultsListDocumentsRequestImpl() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-#ifdef GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  ::google::protobuf::internal::InitProtobufDefaultsForceUnique();
-#else
-  ::google::protobuf::internal::InitProtobufDefaults();
-#endif  // GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  protobuf_google_2ffirestore_2fv1_2fcommon_2eproto::InitDefaultsDocumentMask();
-  protobuf_google_2fprotobuf_2ftimestamp_2eproto::InitDefaultsTimestamp();
-  {
-    void* ptr = &::google::firestore::v1::_ListDocumentsRequest_default_instance_;
-    new (ptr) ::google::firestore::v1::ListDocumentsRequest();
-    ::google::protobuf::internal::OnShutdownDestroyMessage(ptr);
-  }
-  ::google::firestore::v1::ListDocumentsRequest::InitAsDefaultInstance();
-}
-
-void InitDefaultsListDocumentsRequest() {
-  static GOOGLE_PROTOBUF_DECLARE_ONCE(once);
-  ::google::protobuf::GoogleOnceInit(&once, &InitDefaultsListDocumentsRequestImpl);
-}
-
-void InitDefaultsListDocumentsResponseImpl() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-#ifdef GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  ::google::protobuf::internal::InitProtobufDefaultsForceUnique();
-#else
-  ::google::protobuf::internal::InitProtobufDefaults();
-#endif  // GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  protobuf_google_2ffirestore_2fv1_2fdocument_2eproto::InitDefaultsDocument();
-  {
-    void* ptr = &::google::firestore::v1::_ListDocumentsResponse_default_instance_;
-    new (ptr) ::google::firestore::v1::ListDocumentsResponse();
-    ::google::protobuf::internal::OnShutdownDestroyMessage(ptr);
-  }
-  ::google::firestore::v1::ListDocumentsResponse::InitAsDefaultInstance();
-}
-
-void InitDefaultsListDocumentsResponse() {
-  static GOOGLE_PROTOBUF_DECLARE_ONCE(once);
-  ::google::protobuf::GoogleOnceInit(&once, &InitDefaultsListDocumentsResponseImpl);
-}
-
-void InitDefaultsCreateDocumentRequestImpl() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-#ifdef GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  ::google::protobuf::internal::InitProtobufDefaultsForceUnique();
-#else
-  ::google::protobuf::internal::InitProtobufDefaults();
-#endif  // GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  protobuf_google_2ffirestore_2fv1_2fdocument_2eproto::InitDefaultsDocument();
-  protobuf_google_2ffirestore_2fv1_2fcommon_2eproto::InitDefaultsDocumentMask();
-  {
-    void* ptr = &::google::firestore::v1::_CreateDocumentRequest_default_instance_;
-    new (ptr) ::google::firestore::v1::CreateDocumentRequest();
-    ::google::protobuf::internal::OnShutdownDestroyMessage(ptr);
-  }
-  ::google::firestore::v1::CreateDocumentRequest::InitAsDefaultInstance();
-}
-
-void InitDefaultsCreateDocumentRequest() {
-  static GOOGLE_PROTOBUF_DECLARE_ONCE(once);
-  ::google::protobuf::GoogleOnceInit(&once, &InitDefaultsCreateDocumentRequestImpl);
-}
-
-void InitDefaultsUpdateDocumentRequestImpl() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-#ifdef GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  ::google::protobuf::internal::InitProtobufDefaultsForceUnique();
-#else
-  ::google::protobuf::internal::InitProtobufDefaults();
-#endif  // GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  protobuf_google_2ffirestore_2fv1_2fdocument_2eproto::InitDefaultsDocument();
-  protobuf_google_2ffirestore_2fv1_2fcommon_2eproto::InitDefaultsDocumentMask();
-  protobuf_google_2ffirestore_2fv1_2fcommon_2eproto::InitDefaultsPrecondition();
-  {
-    void* ptr = &::google::firestore::v1::_UpdateDocumentRequest_default_instance_;
-    new (ptr) ::google::firestore::v1::UpdateDocumentRequest();
-    ::google::protobuf::internal::OnShutdownDestroyMessage(ptr);
-  }
-  ::google::firestore::v1::UpdateDocumentRequest::InitAsDefaultInstance();
-}
-
-void InitDefaultsUpdateDocumentRequest() {
-  static GOOGLE_PROTOBUF_DECLARE_ONCE(once);
-  ::google::protobuf::GoogleOnceInit(&once, &InitDefaultsUpdateDocumentRequestImpl);
-}
-
-void InitDefaultsDeleteDocumentRequestImpl() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-#ifdef GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  ::google::protobuf::internal::InitProtobufDefaultsForceUnique();
-#else
-  ::google::protobuf::internal::InitProtobufDefaults();
-#endif  // GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  protobuf_google_2ffirestore_2fv1_2fcommon_2eproto::InitDefaultsPrecondition();
-  {
-    void* ptr = &::google::firestore::v1::_DeleteDocumentRequest_default_instance_;
-    new (ptr) ::google::firestore::v1::DeleteDocumentRequest();
-    ::google::protobuf::internal::OnShutdownDestroyMessage(ptr);
-  }
-  ::google::firestore::v1::DeleteDocumentRequest::InitAsDefaultInstance();
-}
-
-void InitDefaultsDeleteDocumentRequest() {
-  static GOOGLE_PROTOBUF_DECLARE_ONCE(once);
-  ::google::protobuf::GoogleOnceInit(&once, &InitDefaultsDeleteDocumentRequestImpl);
-}
-
-void InitDefaultsBatchGetDocumentsRequestImpl() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-#ifdef GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  ::google::protobuf::internal::InitProtobufDefaultsForceUnique();
-#else
-  ::google::protobuf::internal::InitProtobufDefaults();
-#endif  // GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  protobuf_google_2ffirestore_2fv1_2fcommon_2eproto::InitDefaultsDocumentMask();
-  protobuf_google_2ffirestore_2fv1_2fcommon_2eproto::InitDefaultsTransactionOptions();
-  protobuf_google_2fprotobuf_2ftimestamp_2eproto::InitDefaultsTimestamp();
   {
     void* ptr = &::google::firestore::v1::_BatchGetDocumentsRequest_default_instance_;
     new (ptr) ::google::firestore::v1::BatchGetDocumentsRequest();
-    ::google::protobuf::internal::OnShutdownDestroyMessage(ptr);
+    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
   }
   ::google::firestore::v1::BatchGetDocumentsRequest::InitAsDefaultInstance();
 }
 
-void InitDefaultsBatchGetDocumentsRequest() {
-  static GOOGLE_PROTOBUF_DECLARE_ONCE(once);
-  ::google::protobuf::GoogleOnceInit(&once, &InitDefaultsBatchGetDocumentsRequestImpl);
-}
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<3> scc_info_BatchGetDocumentsRequest_google_2ffirestore_2fv1_2ffirestore_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 3, InitDefaultsscc_info_BatchGetDocumentsRequest_google_2ffirestore_2fv1_2ffirestore_2eproto}, {
+      &scc_info_DocumentMask_google_2ffirestore_2fv1_2fcommon_2eproto.base,
+      &scc_info_TransactionOptions_google_2ffirestore_2fv1_2fcommon_2eproto.base,
+      &scc_info_Timestamp_google_2fprotobuf_2ftimestamp_2eproto.base,}};
 
-void InitDefaultsBatchGetDocumentsResponseImpl() {
+static void InitDefaultsscc_info_BatchGetDocumentsResponse_google_2ffirestore_2fv1_2ffirestore_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-#ifdef GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  ::google::protobuf::internal::InitProtobufDefaultsForceUnique();
-#else
-  ::google::protobuf::internal::InitProtobufDefaults();
-#endif  // GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  protobuf_google_2ffirestore_2fv1_2fdocument_2eproto::InitDefaultsDocument();
-  protobuf_google_2fprotobuf_2ftimestamp_2eproto::InitDefaultsTimestamp();
   {
     void* ptr = &::google::firestore::v1::_BatchGetDocumentsResponse_default_instance_;
     new (ptr) ::google::firestore::v1::BatchGetDocumentsResponse();
-    ::google::protobuf::internal::OnShutdownDestroyMessage(ptr);
+    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
   }
   ::google::firestore::v1::BatchGetDocumentsResponse::InitAsDefaultInstance();
 }
 
-void InitDefaultsBatchGetDocumentsResponse() {
-  static GOOGLE_PROTOBUF_DECLARE_ONCE(once);
-  ::google::protobuf::GoogleOnceInit(&once, &InitDefaultsBatchGetDocumentsResponseImpl);
-}
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_BatchGetDocumentsResponse_google_2ffirestore_2fv1_2ffirestore_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 2, InitDefaultsscc_info_BatchGetDocumentsResponse_google_2ffirestore_2fv1_2ffirestore_2eproto}, {
+      &scc_info_Document_google_2ffirestore_2fv1_2fdocument_2eproto.base,
+      &scc_info_Timestamp_google_2fprotobuf_2ftimestamp_2eproto.base,}};
 
-void InitDefaultsBeginTransactionRequestImpl() {
+static void InitDefaultsscc_info_BeginTransactionRequest_google_2ffirestore_2fv1_2ffirestore_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-#ifdef GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  ::google::protobuf::internal::InitProtobufDefaultsForceUnique();
-#else
-  ::google::protobuf::internal::InitProtobufDefaults();
-#endif  // GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  protobuf_google_2ffirestore_2fv1_2fcommon_2eproto::InitDefaultsTransactionOptions();
   {
     void* ptr = &::google::firestore::v1::_BeginTransactionRequest_default_instance_;
     new (ptr) ::google::firestore::v1::BeginTransactionRequest();
-    ::google::protobuf::internal::OnShutdownDestroyMessage(ptr);
+    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
   }
   ::google::firestore::v1::BeginTransactionRequest::InitAsDefaultInstance();
 }
 
-void InitDefaultsBeginTransactionRequest() {
-  static GOOGLE_PROTOBUF_DECLARE_ONCE(once);
-  ::google::protobuf::GoogleOnceInit(&once, &InitDefaultsBeginTransactionRequestImpl);
-}
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_BeginTransactionRequest_google_2ffirestore_2fv1_2ffirestore_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, InitDefaultsscc_info_BeginTransactionRequest_google_2ffirestore_2fv1_2ffirestore_2eproto}, {
+      &scc_info_TransactionOptions_google_2ffirestore_2fv1_2fcommon_2eproto.base,}};
 
-void InitDefaultsBeginTransactionResponseImpl() {
+static void InitDefaultsscc_info_BeginTransactionResponse_google_2ffirestore_2fv1_2ffirestore_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-#ifdef GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  ::google::protobuf::internal::InitProtobufDefaultsForceUnique();
-#else
-  ::google::protobuf::internal::InitProtobufDefaults();
-#endif  // GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
   {
     void* ptr = &::google::firestore::v1::_BeginTransactionResponse_default_instance_;
     new (ptr) ::google::firestore::v1::BeginTransactionResponse();
-    ::google::protobuf::internal::OnShutdownDestroyMessage(ptr);
+    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
   }
   ::google::firestore::v1::BeginTransactionResponse::InitAsDefaultInstance();
 }
 
-void InitDefaultsBeginTransactionResponse() {
-  static GOOGLE_PROTOBUF_DECLARE_ONCE(once);
-  ::google::protobuf::GoogleOnceInit(&once, &InitDefaultsBeginTransactionResponseImpl);
-}
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_BeginTransactionResponse_google_2ffirestore_2fv1_2ffirestore_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, InitDefaultsscc_info_BeginTransactionResponse_google_2ffirestore_2fv1_2ffirestore_2eproto}, {}};
 
-void InitDefaultsCommitRequestImpl() {
+static void InitDefaultsscc_info_CommitRequest_google_2ffirestore_2fv1_2ffirestore_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-#ifdef GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  ::google::protobuf::internal::InitProtobufDefaultsForceUnique();
-#else
-  ::google::protobuf::internal::InitProtobufDefaults();
-#endif  // GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  protobuf_google_2ffirestore_2fv1_2fwrite_2eproto::InitDefaultsWrite();
   {
     void* ptr = &::google::firestore::v1::_CommitRequest_default_instance_;
     new (ptr) ::google::firestore::v1::CommitRequest();
-    ::google::protobuf::internal::OnShutdownDestroyMessage(ptr);
+    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
   }
   ::google::firestore::v1::CommitRequest::InitAsDefaultInstance();
 }
 
-void InitDefaultsCommitRequest() {
-  static GOOGLE_PROTOBUF_DECLARE_ONCE(once);
-  ::google::protobuf::GoogleOnceInit(&once, &InitDefaultsCommitRequestImpl);
-}
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_CommitRequest_google_2ffirestore_2fv1_2ffirestore_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, InitDefaultsscc_info_CommitRequest_google_2ffirestore_2fv1_2ffirestore_2eproto}, {
+      &scc_info_Write_google_2ffirestore_2fv1_2fwrite_2eproto.base,}};
 
-void InitDefaultsCommitResponseImpl() {
+static void InitDefaultsscc_info_CommitResponse_google_2ffirestore_2fv1_2ffirestore_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-#ifdef GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  ::google::protobuf::internal::InitProtobufDefaultsForceUnique();
-#else
-  ::google::protobuf::internal::InitProtobufDefaults();
-#endif  // GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  protobuf_google_2ffirestore_2fv1_2fwrite_2eproto::InitDefaultsWriteResult();
-  protobuf_google_2fprotobuf_2ftimestamp_2eproto::InitDefaultsTimestamp();
   {
     void* ptr = &::google::firestore::v1::_CommitResponse_default_instance_;
     new (ptr) ::google::firestore::v1::CommitResponse();
-    ::google::protobuf::internal::OnShutdownDestroyMessage(ptr);
+    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
   }
   ::google::firestore::v1::CommitResponse::InitAsDefaultInstance();
 }
 
-void InitDefaultsCommitResponse() {
-  static GOOGLE_PROTOBUF_DECLARE_ONCE(once);
-  ::google::protobuf::GoogleOnceInit(&once, &InitDefaultsCommitResponseImpl);
-}
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_CommitResponse_google_2ffirestore_2fv1_2ffirestore_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 2, InitDefaultsscc_info_CommitResponse_google_2ffirestore_2fv1_2ffirestore_2eproto}, {
+      &scc_info_WriteResult_google_2ffirestore_2fv1_2fwrite_2eproto.base,
+      &scc_info_Timestamp_google_2fprotobuf_2ftimestamp_2eproto.base,}};
 
-void InitDefaultsRollbackRequestImpl() {
+static void InitDefaultsscc_info_CreateDocumentRequest_google_2ffirestore_2fv1_2ffirestore_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-#ifdef GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  ::google::protobuf::internal::InitProtobufDefaultsForceUnique();
-#else
-  ::google::protobuf::internal::InitProtobufDefaults();
-#endif  // GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
   {
-    void* ptr = &::google::firestore::v1::_RollbackRequest_default_instance_;
-    new (ptr) ::google::firestore::v1::RollbackRequest();
-    ::google::protobuf::internal::OnShutdownDestroyMessage(ptr);
+    void* ptr = &::google::firestore::v1::_CreateDocumentRequest_default_instance_;
+    new (ptr) ::google::firestore::v1::CreateDocumentRequest();
+    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
   }
-  ::google::firestore::v1::RollbackRequest::InitAsDefaultInstance();
+  ::google::firestore::v1::CreateDocumentRequest::InitAsDefaultInstance();
 }
 
-void InitDefaultsRollbackRequest() {
-  static GOOGLE_PROTOBUF_DECLARE_ONCE(once);
-  ::google::protobuf::GoogleOnceInit(&once, &InitDefaultsRollbackRequestImpl);
-}
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_CreateDocumentRequest_google_2ffirestore_2fv1_2ffirestore_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 2, InitDefaultsscc_info_CreateDocumentRequest_google_2ffirestore_2fv1_2ffirestore_2eproto}, {
+      &scc_info_Document_google_2ffirestore_2fv1_2fdocument_2eproto.base,
+      &scc_info_DocumentMask_google_2ffirestore_2fv1_2fcommon_2eproto.base,}};
 
-void InitDefaultsRunQueryRequestImpl() {
+static void InitDefaultsscc_info_DeleteDocumentRequest_google_2ffirestore_2fv1_2ffirestore_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-#ifdef GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  ::google::protobuf::internal::InitProtobufDefaultsForceUnique();
-#else
-  ::google::protobuf::internal::InitProtobufDefaults();
-#endif  // GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  protobuf_google_2ffirestore_2fv1_2fquery_2eproto::InitDefaultsStructuredQuery();
-  protobuf_google_2ffirestore_2fv1_2fcommon_2eproto::InitDefaultsTransactionOptions();
-  protobuf_google_2fprotobuf_2ftimestamp_2eproto::InitDefaultsTimestamp();
   {
-    void* ptr = &::google::firestore::v1::_RunQueryRequest_default_instance_;
-    new (ptr) ::google::firestore::v1::RunQueryRequest();
-    ::google::protobuf::internal::OnShutdownDestroyMessage(ptr);
+    void* ptr = &::google::firestore::v1::_DeleteDocumentRequest_default_instance_;
+    new (ptr) ::google::firestore::v1::DeleteDocumentRequest();
+    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
   }
-  ::google::firestore::v1::RunQueryRequest::InitAsDefaultInstance();
+  ::google::firestore::v1::DeleteDocumentRequest::InitAsDefaultInstance();
 }
 
-void InitDefaultsRunQueryRequest() {
-  static GOOGLE_PROTOBUF_DECLARE_ONCE(once);
-  ::google::protobuf::GoogleOnceInit(&once, &InitDefaultsRunQueryRequestImpl);
-}
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_DeleteDocumentRequest_google_2ffirestore_2fv1_2ffirestore_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, InitDefaultsscc_info_DeleteDocumentRequest_google_2ffirestore_2fv1_2ffirestore_2eproto}, {
+      &scc_info_Precondition_google_2ffirestore_2fv1_2fcommon_2eproto.base,}};
 
-void InitDefaultsRunQueryResponseImpl() {
+static void InitDefaultsscc_info_GetDocumentRequest_google_2ffirestore_2fv1_2ffirestore_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-#ifdef GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  ::google::protobuf::internal::InitProtobufDefaultsForceUnique();
-#else
-  ::google::protobuf::internal::InitProtobufDefaults();
-#endif  // GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  protobuf_google_2ffirestore_2fv1_2fdocument_2eproto::InitDefaultsDocument();
-  protobuf_google_2fprotobuf_2ftimestamp_2eproto::InitDefaultsTimestamp();
   {
-    void* ptr = &::google::firestore::v1::_RunQueryResponse_default_instance_;
-    new (ptr) ::google::firestore::v1::RunQueryResponse();
-    ::google::protobuf::internal::OnShutdownDestroyMessage(ptr);
+    void* ptr = &::google::firestore::v1::_GetDocumentRequest_default_instance_;
+    new (ptr) ::google::firestore::v1::GetDocumentRequest();
+    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
   }
-  ::google::firestore::v1::RunQueryResponse::InitAsDefaultInstance();
+  ::google::firestore::v1::GetDocumentRequest::InitAsDefaultInstance();
 }
 
-void InitDefaultsRunQueryResponse() {
-  static GOOGLE_PROTOBUF_DECLARE_ONCE(once);
-  ::google::protobuf::GoogleOnceInit(&once, &InitDefaultsRunQueryResponseImpl);
-}
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_GetDocumentRequest_google_2ffirestore_2fv1_2ffirestore_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 2, InitDefaultsscc_info_GetDocumentRequest_google_2ffirestore_2fv1_2ffirestore_2eproto}, {
+      &scc_info_DocumentMask_google_2ffirestore_2fv1_2fcommon_2eproto.base,
+      &scc_info_Timestamp_google_2fprotobuf_2ftimestamp_2eproto.base,}};
 
-void InitDefaultsWriteRequest_LabelsEntry_DoNotUseImpl() {
+static void InitDefaultsscc_info_ListCollectionIdsRequest_google_2ffirestore_2fv1_2ffirestore_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-#ifdef GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  ::google::protobuf::internal::InitProtobufDefaultsForceUnique();
-#else
-  ::google::protobuf::internal::InitProtobufDefaults();
-#endif  // GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
   {
-    void* ptr = &::google::firestore::v1::_WriteRequest_LabelsEntry_DoNotUse_default_instance_;
-    new (ptr) ::google::firestore::v1::WriteRequest_LabelsEntry_DoNotUse();
+    void* ptr = &::google::firestore::v1::_ListCollectionIdsRequest_default_instance_;
+    new (ptr) ::google::firestore::v1::ListCollectionIdsRequest();
+    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
   }
-  ::google::firestore::v1::WriteRequest_LabelsEntry_DoNotUse::InitAsDefaultInstance();
+  ::google::firestore::v1::ListCollectionIdsRequest::InitAsDefaultInstance();
 }
 
-void InitDefaultsWriteRequest_LabelsEntry_DoNotUse() {
-  static GOOGLE_PROTOBUF_DECLARE_ONCE(once);
-  ::google::protobuf::GoogleOnceInit(&once, &InitDefaultsWriteRequest_LabelsEntry_DoNotUseImpl);
-}
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_ListCollectionIdsRequest_google_2ffirestore_2fv1_2ffirestore_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, InitDefaultsscc_info_ListCollectionIdsRequest_google_2ffirestore_2fv1_2ffirestore_2eproto}, {}};
 
-void InitDefaultsWriteRequestImpl() {
+static void InitDefaultsscc_info_ListCollectionIdsResponse_google_2ffirestore_2fv1_2ffirestore_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-#ifdef GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  ::google::protobuf::internal::InitProtobufDefaultsForceUnique();
-#else
-  ::google::protobuf::internal::InitProtobufDefaults();
-#endif  // GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  protobuf_google_2ffirestore_2fv1_2fwrite_2eproto::InitDefaultsWrite();
-  protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsWriteRequest_LabelsEntry_DoNotUse();
   {
-    void* ptr = &::google::firestore::v1::_WriteRequest_default_instance_;
-    new (ptr) ::google::firestore::v1::WriteRequest();
-    ::google::protobuf::internal::OnShutdownDestroyMessage(ptr);
+    void* ptr = &::google::firestore::v1::_ListCollectionIdsResponse_default_instance_;
+    new (ptr) ::google::firestore::v1::ListCollectionIdsResponse();
+    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
   }
-  ::google::firestore::v1::WriteRequest::InitAsDefaultInstance();
+  ::google::firestore::v1::ListCollectionIdsResponse::InitAsDefaultInstance();
 }
 
-void InitDefaultsWriteRequest() {
-  static GOOGLE_PROTOBUF_DECLARE_ONCE(once);
-  ::google::protobuf::GoogleOnceInit(&once, &InitDefaultsWriteRequestImpl);
-}
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_ListCollectionIdsResponse_google_2ffirestore_2fv1_2ffirestore_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, InitDefaultsscc_info_ListCollectionIdsResponse_google_2ffirestore_2fv1_2ffirestore_2eproto}, {}};
 
-void InitDefaultsWriteResponseImpl() {
+static void InitDefaultsscc_info_ListDocumentsRequest_google_2ffirestore_2fv1_2ffirestore_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-#ifdef GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  ::google::protobuf::internal::InitProtobufDefaultsForceUnique();
-#else
-  ::google::protobuf::internal::InitProtobufDefaults();
-#endif  // GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  protobuf_google_2ffirestore_2fv1_2fwrite_2eproto::InitDefaultsWriteResult();
-  protobuf_google_2fprotobuf_2ftimestamp_2eproto::InitDefaultsTimestamp();
   {
-    void* ptr = &::google::firestore::v1::_WriteResponse_default_instance_;
-    new (ptr) ::google::firestore::v1::WriteResponse();
-    ::google::protobuf::internal::OnShutdownDestroyMessage(ptr);
+    void* ptr = &::google::firestore::v1::_ListDocumentsRequest_default_instance_;
+    new (ptr) ::google::firestore::v1::ListDocumentsRequest();
+    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
   }
-  ::google::firestore::v1::WriteResponse::InitAsDefaultInstance();
+  ::google::firestore::v1::ListDocumentsRequest::InitAsDefaultInstance();
 }
 
-void InitDefaultsWriteResponse() {
-  static GOOGLE_PROTOBUF_DECLARE_ONCE(once);
-  ::google::protobuf::GoogleOnceInit(&once, &InitDefaultsWriteResponseImpl);
-}
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_ListDocumentsRequest_google_2ffirestore_2fv1_2ffirestore_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 2, InitDefaultsscc_info_ListDocumentsRequest_google_2ffirestore_2fv1_2ffirestore_2eproto}, {
+      &scc_info_DocumentMask_google_2ffirestore_2fv1_2fcommon_2eproto.base,
+      &scc_info_Timestamp_google_2fprotobuf_2ftimestamp_2eproto.base,}};
 
-void InitDefaultsListenRequest_LabelsEntry_DoNotUseImpl() {
+static void InitDefaultsscc_info_ListDocumentsResponse_google_2ffirestore_2fv1_2ffirestore_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-#ifdef GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  ::google::protobuf::internal::InitProtobufDefaultsForceUnique();
-#else
-  ::google::protobuf::internal::InitProtobufDefaults();
-#endif  // GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
+  {
+    void* ptr = &::google::firestore::v1::_ListDocumentsResponse_default_instance_;
+    new (ptr) ::google::firestore::v1::ListDocumentsResponse();
+    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
+  }
+  ::google::firestore::v1::ListDocumentsResponse::InitAsDefaultInstance();
+}
+
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_ListDocumentsResponse_google_2ffirestore_2fv1_2ffirestore_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, InitDefaultsscc_info_ListDocumentsResponse_google_2ffirestore_2fv1_2ffirestore_2eproto}, {
+      &scc_info_Document_google_2ffirestore_2fv1_2fdocument_2eproto.base,}};
+
+static void InitDefaultsscc_info_ListenRequest_google_2ffirestore_2fv1_2ffirestore_2eproto() {
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+  {
+    void* ptr = &::google::firestore::v1::_ListenRequest_default_instance_;
+    new (ptr) ::google::firestore::v1::ListenRequest();
+    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
+  }
+  ::google::firestore::v1::ListenRequest::InitAsDefaultInstance();
+}
+
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_ListenRequest_google_2ffirestore_2fv1_2ffirestore_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 2, InitDefaultsscc_info_ListenRequest_google_2ffirestore_2fv1_2ffirestore_2eproto}, {
+      &scc_info_Target_google_2ffirestore_2fv1_2ffirestore_2eproto.base,
+      &scc_info_ListenRequest_LabelsEntry_DoNotUse_google_2ffirestore_2fv1_2ffirestore_2eproto.base,}};
+
+static void InitDefaultsscc_info_ListenRequest_LabelsEntry_DoNotUse_google_2ffirestore_2fv1_2ffirestore_2eproto() {
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
+
   {
     void* ptr = &::google::firestore::v1::_ListenRequest_LabelsEntry_DoNotUse_default_instance_;
     new (ptr) ::google::firestore::v1::ListenRequest_LabelsEntry_DoNotUse();
@@ -623,444 +414,452 @@ void InitDefaultsListenRequest_LabelsEntry_DoNotUseImpl() {
   ::google::firestore::v1::ListenRequest_LabelsEntry_DoNotUse::InitAsDefaultInstance();
 }
 
-void InitDefaultsListenRequest_LabelsEntry_DoNotUse() {
-  static GOOGLE_PROTOBUF_DECLARE_ONCE(once);
-  ::google::protobuf::GoogleOnceInit(&once, &InitDefaultsListenRequest_LabelsEntry_DoNotUseImpl);
-}
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_ListenRequest_LabelsEntry_DoNotUse_google_2ffirestore_2fv1_2ffirestore_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, InitDefaultsscc_info_ListenRequest_LabelsEntry_DoNotUse_google_2ffirestore_2fv1_2ffirestore_2eproto}, {}};
 
-void InitDefaultsListenRequestImpl() {
+static void InitDefaultsscc_info_ListenResponse_google_2ffirestore_2fv1_2ffirestore_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-#ifdef GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  ::google::protobuf::internal::InitProtobufDefaultsForceUnique();
-#else
-  ::google::protobuf::internal::InitProtobufDefaults();
-#endif  // GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsTarget();
-  protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsListenRequest_LabelsEntry_DoNotUse();
-  {
-    void* ptr = &::google::firestore::v1::_ListenRequest_default_instance_;
-    new (ptr) ::google::firestore::v1::ListenRequest();
-    ::google::protobuf::internal::OnShutdownDestroyMessage(ptr);
-  }
-  ::google::firestore::v1::ListenRequest::InitAsDefaultInstance();
-}
-
-void InitDefaultsListenRequest() {
-  static GOOGLE_PROTOBUF_DECLARE_ONCE(once);
-  ::google::protobuf::GoogleOnceInit(&once, &InitDefaultsListenRequestImpl);
-}
-
-void InitDefaultsListenResponseImpl() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-#ifdef GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  ::google::protobuf::internal::InitProtobufDefaultsForceUnique();
-#else
-  ::google::protobuf::internal::InitProtobufDefaults();
-#endif  // GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsTargetChange();
-  protobuf_google_2ffirestore_2fv1_2fwrite_2eproto::InitDefaultsDocumentChange();
-  protobuf_google_2ffirestore_2fv1_2fwrite_2eproto::InitDefaultsDocumentDelete();
-  protobuf_google_2ffirestore_2fv1_2fwrite_2eproto::InitDefaultsDocumentRemove();
-  protobuf_google_2ffirestore_2fv1_2fwrite_2eproto::InitDefaultsExistenceFilter();
   {
     void* ptr = &::google::firestore::v1::_ListenResponse_default_instance_;
     new (ptr) ::google::firestore::v1::ListenResponse();
-    ::google::protobuf::internal::OnShutdownDestroyMessage(ptr);
+    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
   }
   ::google::firestore::v1::ListenResponse::InitAsDefaultInstance();
 }
 
-void InitDefaultsListenResponse() {
-  static GOOGLE_PROTOBUF_DECLARE_ONCE(once);
-  ::google::protobuf::GoogleOnceInit(&once, &InitDefaultsListenResponseImpl);
-}
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<5> scc_info_ListenResponse_google_2ffirestore_2fv1_2ffirestore_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 5, InitDefaultsscc_info_ListenResponse_google_2ffirestore_2fv1_2ffirestore_2eproto}, {
+      &scc_info_TargetChange_google_2ffirestore_2fv1_2ffirestore_2eproto.base,
+      &scc_info_DocumentChange_google_2ffirestore_2fv1_2fwrite_2eproto.base,
+      &scc_info_DocumentDelete_google_2ffirestore_2fv1_2fwrite_2eproto.base,
+      &scc_info_DocumentRemove_google_2ffirestore_2fv1_2fwrite_2eproto.base,
+      &scc_info_ExistenceFilter_google_2ffirestore_2fv1_2fwrite_2eproto.base,}};
 
-void InitDefaultsTarget_DocumentsTargetImpl() {
+static void InitDefaultsscc_info_RollbackRequest_google_2ffirestore_2fv1_2ffirestore_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-#ifdef GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  ::google::protobuf::internal::InitProtobufDefaultsForceUnique();
-#else
-  ::google::protobuf::internal::InitProtobufDefaults();
-#endif  // GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
   {
-    void* ptr = &::google::firestore::v1::_Target_DocumentsTarget_default_instance_;
-    new (ptr) ::google::firestore::v1::Target_DocumentsTarget();
-    ::google::protobuf::internal::OnShutdownDestroyMessage(ptr);
+    void* ptr = &::google::firestore::v1::_RollbackRequest_default_instance_;
+    new (ptr) ::google::firestore::v1::RollbackRequest();
+    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
   }
-  ::google::firestore::v1::Target_DocumentsTarget::InitAsDefaultInstance();
+  ::google::firestore::v1::RollbackRequest::InitAsDefaultInstance();
 }
 
-void InitDefaultsTarget_DocumentsTarget() {
-  static GOOGLE_PROTOBUF_DECLARE_ONCE(once);
-  ::google::protobuf::GoogleOnceInit(&once, &InitDefaultsTarget_DocumentsTargetImpl);
-}
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_RollbackRequest_google_2ffirestore_2fv1_2ffirestore_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, InitDefaultsscc_info_RollbackRequest_google_2ffirestore_2fv1_2ffirestore_2eproto}, {}};
 
-void InitDefaultsTarget_QueryTargetImpl() {
+static void InitDefaultsscc_info_RunQueryRequest_google_2ffirestore_2fv1_2ffirestore_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-#ifdef GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  ::google::protobuf::internal::InitProtobufDefaultsForceUnique();
-#else
-  ::google::protobuf::internal::InitProtobufDefaults();
-#endif  // GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  protobuf_google_2ffirestore_2fv1_2fquery_2eproto::InitDefaultsStructuredQuery();
   {
-    void* ptr = &::google::firestore::v1::_Target_QueryTarget_default_instance_;
-    new (ptr) ::google::firestore::v1::Target_QueryTarget();
-    ::google::protobuf::internal::OnShutdownDestroyMessage(ptr);
+    void* ptr = &::google::firestore::v1::_RunQueryRequest_default_instance_;
+    new (ptr) ::google::firestore::v1::RunQueryRequest();
+    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
   }
-  ::google::firestore::v1::Target_QueryTarget::InitAsDefaultInstance();
+  ::google::firestore::v1::RunQueryRequest::InitAsDefaultInstance();
 }
 
-void InitDefaultsTarget_QueryTarget() {
-  static GOOGLE_PROTOBUF_DECLARE_ONCE(once);
-  ::google::protobuf::GoogleOnceInit(&once, &InitDefaultsTarget_QueryTargetImpl);
-}
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<3> scc_info_RunQueryRequest_google_2ffirestore_2fv1_2ffirestore_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 3, InitDefaultsscc_info_RunQueryRequest_google_2ffirestore_2fv1_2ffirestore_2eproto}, {
+      &scc_info_StructuredQuery_google_2ffirestore_2fv1_2fquery_2eproto.base,
+      &scc_info_TransactionOptions_google_2ffirestore_2fv1_2fcommon_2eproto.base,
+      &scc_info_Timestamp_google_2fprotobuf_2ftimestamp_2eproto.base,}};
 
-void InitDefaultsTargetImpl() {
+static void InitDefaultsscc_info_RunQueryResponse_google_2ffirestore_2fv1_2ffirestore_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-#ifdef GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  ::google::protobuf::internal::InitProtobufDefaultsForceUnique();
-#else
-  ::google::protobuf::internal::InitProtobufDefaults();
-#endif  // GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsTarget_QueryTarget();
-  protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsTarget_DocumentsTarget();
-  protobuf_google_2fprotobuf_2ftimestamp_2eproto::InitDefaultsTimestamp();
+  {
+    void* ptr = &::google::firestore::v1::_RunQueryResponse_default_instance_;
+    new (ptr) ::google::firestore::v1::RunQueryResponse();
+    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
+  }
+  ::google::firestore::v1::RunQueryResponse::InitAsDefaultInstance();
+}
+
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_RunQueryResponse_google_2ffirestore_2fv1_2ffirestore_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 2, InitDefaultsscc_info_RunQueryResponse_google_2ffirestore_2fv1_2ffirestore_2eproto}, {
+      &scc_info_Document_google_2ffirestore_2fv1_2fdocument_2eproto.base,
+      &scc_info_Timestamp_google_2fprotobuf_2ftimestamp_2eproto.base,}};
+
+static void InitDefaultsscc_info_Target_google_2ffirestore_2fv1_2ffirestore_2eproto() {
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
+
   {
     void* ptr = &::google::firestore::v1::_Target_default_instance_;
     new (ptr) ::google::firestore::v1::Target();
-    ::google::protobuf::internal::OnShutdownDestroyMessage(ptr);
+    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
   }
   ::google::firestore::v1::Target::InitAsDefaultInstance();
 }
 
-void InitDefaultsTarget() {
-  static GOOGLE_PROTOBUF_DECLARE_ONCE(once);
-  ::google::protobuf::GoogleOnceInit(&once, &InitDefaultsTargetImpl);
-}
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<3> scc_info_Target_google_2ffirestore_2fv1_2ffirestore_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 3, InitDefaultsscc_info_Target_google_2ffirestore_2fv1_2ffirestore_2eproto}, {
+      &scc_info_Target_QueryTarget_google_2ffirestore_2fv1_2ffirestore_2eproto.base,
+      &scc_info_Target_DocumentsTarget_google_2ffirestore_2fv1_2ffirestore_2eproto.base,
+      &scc_info_Timestamp_google_2fprotobuf_2ftimestamp_2eproto.base,}};
 
-void InitDefaultsTargetChangeImpl() {
+static void InitDefaultsscc_info_Target_DocumentsTarget_google_2ffirestore_2fv1_2ffirestore_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-#ifdef GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  ::google::protobuf::internal::InitProtobufDefaultsForceUnique();
-#else
-  ::google::protobuf::internal::InitProtobufDefaults();
-#endif  // GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  protobuf_google_2frpc_2fstatus_2eproto::InitDefaultsStatus();
-  protobuf_google_2fprotobuf_2ftimestamp_2eproto::InitDefaultsTimestamp();
+  {
+    void* ptr = &::google::firestore::v1::_Target_DocumentsTarget_default_instance_;
+    new (ptr) ::google::firestore::v1::Target_DocumentsTarget();
+    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
+  }
+  ::google::firestore::v1::Target_DocumentsTarget::InitAsDefaultInstance();
+}
+
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Target_DocumentsTarget_google_2ffirestore_2fv1_2ffirestore_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, InitDefaultsscc_info_Target_DocumentsTarget_google_2ffirestore_2fv1_2ffirestore_2eproto}, {}};
+
+static void InitDefaultsscc_info_Target_QueryTarget_google_2ffirestore_2fv1_2ffirestore_2eproto() {
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+  {
+    void* ptr = &::google::firestore::v1::_Target_QueryTarget_default_instance_;
+    new (ptr) ::google::firestore::v1::Target_QueryTarget();
+    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
+  }
+  ::google::firestore::v1::Target_QueryTarget::InitAsDefaultInstance();
+}
+
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_Target_QueryTarget_google_2ffirestore_2fv1_2ffirestore_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, InitDefaultsscc_info_Target_QueryTarget_google_2ffirestore_2fv1_2ffirestore_2eproto}, {
+      &scc_info_StructuredQuery_google_2ffirestore_2fv1_2fquery_2eproto.base,}};
+
+static void InitDefaultsscc_info_TargetChange_google_2ffirestore_2fv1_2ffirestore_2eproto() {
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
+
   {
     void* ptr = &::google::firestore::v1::_TargetChange_default_instance_;
     new (ptr) ::google::firestore::v1::TargetChange();
-    ::google::protobuf::internal::OnShutdownDestroyMessage(ptr);
+    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
   }
   ::google::firestore::v1::TargetChange::InitAsDefaultInstance();
 }
 
-void InitDefaultsTargetChange() {
-  static GOOGLE_PROTOBUF_DECLARE_ONCE(once);
-  ::google::protobuf::GoogleOnceInit(&once, &InitDefaultsTargetChangeImpl);
-}
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_TargetChange_google_2ffirestore_2fv1_2ffirestore_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 2, InitDefaultsscc_info_TargetChange_google_2ffirestore_2fv1_2ffirestore_2eproto}, {
+      &scc_info_Status_google_2frpc_2fstatus_2eproto.base,
+      &scc_info_Timestamp_google_2fprotobuf_2ftimestamp_2eproto.base,}};
 
-void InitDefaultsListCollectionIdsRequestImpl() {
+static void InitDefaultsscc_info_UpdateDocumentRequest_google_2ffirestore_2fv1_2ffirestore_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-#ifdef GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  ::google::protobuf::internal::InitProtobufDefaultsForceUnique();
-#else
-  ::google::protobuf::internal::InitProtobufDefaults();
-#endif  // GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
   {
-    void* ptr = &::google::firestore::v1::_ListCollectionIdsRequest_default_instance_;
-    new (ptr) ::google::firestore::v1::ListCollectionIdsRequest();
-    ::google::protobuf::internal::OnShutdownDestroyMessage(ptr);
+    void* ptr = &::google::firestore::v1::_UpdateDocumentRequest_default_instance_;
+    new (ptr) ::google::firestore::v1::UpdateDocumentRequest();
+    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
   }
-  ::google::firestore::v1::ListCollectionIdsRequest::InitAsDefaultInstance();
+  ::google::firestore::v1::UpdateDocumentRequest::InitAsDefaultInstance();
 }
 
-void InitDefaultsListCollectionIdsRequest() {
-  static GOOGLE_PROTOBUF_DECLARE_ONCE(once);
-  ::google::protobuf::GoogleOnceInit(&once, &InitDefaultsListCollectionIdsRequestImpl);
-}
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<3> scc_info_UpdateDocumentRequest_google_2ffirestore_2fv1_2ffirestore_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 3, InitDefaultsscc_info_UpdateDocumentRequest_google_2ffirestore_2fv1_2ffirestore_2eproto}, {
+      &scc_info_Document_google_2ffirestore_2fv1_2fdocument_2eproto.base,
+      &scc_info_DocumentMask_google_2ffirestore_2fv1_2fcommon_2eproto.base,
+      &scc_info_Precondition_google_2ffirestore_2fv1_2fcommon_2eproto.base,}};
 
-void InitDefaultsListCollectionIdsResponseImpl() {
+static void InitDefaultsscc_info_WriteRequest_google_2ffirestore_2fv1_2ffirestore_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-#ifdef GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  ::google::protobuf::internal::InitProtobufDefaultsForceUnique();
-#else
-  ::google::protobuf::internal::InitProtobufDefaults();
-#endif  // GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
   {
-    void* ptr = &::google::firestore::v1::_ListCollectionIdsResponse_default_instance_;
-    new (ptr) ::google::firestore::v1::ListCollectionIdsResponse();
-    ::google::protobuf::internal::OnShutdownDestroyMessage(ptr);
+    void* ptr = &::google::firestore::v1::_WriteRequest_default_instance_;
+    new (ptr) ::google::firestore::v1::WriteRequest();
+    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
   }
-  ::google::firestore::v1::ListCollectionIdsResponse::InitAsDefaultInstance();
+  ::google::firestore::v1::WriteRequest::InitAsDefaultInstance();
 }
 
-void InitDefaultsListCollectionIdsResponse() {
-  static GOOGLE_PROTOBUF_DECLARE_ONCE(once);
-  ::google::protobuf::GoogleOnceInit(&once, &InitDefaultsListCollectionIdsResponseImpl);
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_WriteRequest_google_2ffirestore_2fv1_2ffirestore_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 2, InitDefaultsscc_info_WriteRequest_google_2ffirestore_2fv1_2ffirestore_2eproto}, {
+      &scc_info_Write_google_2ffirestore_2fv1_2fwrite_2eproto.base,
+      &scc_info_WriteRequest_LabelsEntry_DoNotUse_google_2ffirestore_2fv1_2ffirestore_2eproto.base,}};
+
+static void InitDefaultsscc_info_WriteRequest_LabelsEntry_DoNotUse_google_2ffirestore_2fv1_2ffirestore_2eproto() {
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+  {
+    void* ptr = &::google::firestore::v1::_WriteRequest_LabelsEntry_DoNotUse_default_instance_;
+    new (ptr) ::google::firestore::v1::WriteRequest_LabelsEntry_DoNotUse();
+  }
+  ::google::firestore::v1::WriteRequest_LabelsEntry_DoNotUse::InitAsDefaultInstance();
 }
 
-::google::protobuf::Metadata file_level_metadata[27];
-const ::google::protobuf::EnumDescriptor* file_level_enum_descriptors[1];
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_WriteRequest_LabelsEntry_DoNotUse_google_2ffirestore_2fv1_2ffirestore_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, InitDefaultsscc_info_WriteRequest_LabelsEntry_DoNotUse_google_2ffirestore_2fv1_2ffirestore_2eproto}, {}};
 
-const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
+static void InitDefaultsscc_info_WriteResponse_google_2ffirestore_2fv1_2ffirestore_2eproto() {
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+  {
+    void* ptr = &::google::firestore::v1::_WriteResponse_default_instance_;
+    new (ptr) ::google::firestore::v1::WriteResponse();
+    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
+  }
+  ::google::firestore::v1::WriteResponse::InitAsDefaultInstance();
+}
+
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_WriteResponse_google_2ffirestore_2fv1_2ffirestore_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 2, InitDefaultsscc_info_WriteResponse_google_2ffirestore_2fv1_2ffirestore_2eproto}, {
+      &scc_info_WriteResult_google_2ffirestore_2fv1_2fwrite_2eproto.base,
+      &scc_info_Timestamp_google_2fprotobuf_2ftimestamp_2eproto.base,}};
+
+static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_google_2ffirestore_2fv1_2ffirestore_2eproto[27];
+static const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* file_level_enum_descriptors_google_2ffirestore_2fv1_2ffirestore_2eproto[1];
+static constexpr ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor const** file_level_service_descriptors_google_2ffirestore_2fv1_2ffirestore_2eproto = nullptr;
+
+const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_google_2ffirestore_2fv1_2ffirestore_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   ~0u,  // no _has_bits_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::GetDocumentRequest, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::GetDocumentRequest, _internal_metadata_),
   ~0u,  // no _extensions_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::GetDocumentRequest, _oneof_case_[0]),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::GetDocumentRequest, _oneof_case_[0]),
   ~0u,  // no _weak_field_map_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::GetDocumentRequest, name_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::GetDocumentRequest, mask_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::GetDocumentRequest, name_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::GetDocumentRequest, mask_),
   offsetof(::google::firestore::v1::GetDocumentRequestDefaultTypeInternal, transaction_),
   offsetof(::google::firestore::v1::GetDocumentRequestDefaultTypeInternal, read_time_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::GetDocumentRequest, consistency_selector_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::GetDocumentRequest, consistency_selector_),
   ~0u,  // no _has_bits_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::ListDocumentsRequest, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::ListDocumentsRequest, _internal_metadata_),
   ~0u,  // no _extensions_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::ListDocumentsRequest, _oneof_case_[0]),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::ListDocumentsRequest, _oneof_case_[0]),
   ~0u,  // no _weak_field_map_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::ListDocumentsRequest, parent_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::ListDocumentsRequest, collection_id_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::ListDocumentsRequest, page_size_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::ListDocumentsRequest, page_token_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::ListDocumentsRequest, order_by_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::ListDocumentsRequest, mask_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::ListDocumentsRequest, parent_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::ListDocumentsRequest, collection_id_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::ListDocumentsRequest, page_size_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::ListDocumentsRequest, page_token_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::ListDocumentsRequest, order_by_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::ListDocumentsRequest, mask_),
   offsetof(::google::firestore::v1::ListDocumentsRequestDefaultTypeInternal, transaction_),
   offsetof(::google::firestore::v1::ListDocumentsRequestDefaultTypeInternal, read_time_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::ListDocumentsRequest, show_missing_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::ListDocumentsRequest, consistency_selector_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::ListDocumentsRequest, show_missing_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::ListDocumentsRequest, consistency_selector_),
   ~0u,  // no _has_bits_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::ListDocumentsResponse, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::ListDocumentsResponse, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::ListDocumentsResponse, documents_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::ListDocumentsResponse, next_page_token_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::ListDocumentsResponse, documents_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::ListDocumentsResponse, next_page_token_),
   ~0u,  // no _has_bits_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::CreateDocumentRequest, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::CreateDocumentRequest, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::CreateDocumentRequest, parent_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::CreateDocumentRequest, collection_id_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::CreateDocumentRequest, document_id_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::CreateDocumentRequest, document_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::CreateDocumentRequest, mask_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::CreateDocumentRequest, parent_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::CreateDocumentRequest, collection_id_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::CreateDocumentRequest, document_id_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::CreateDocumentRequest, document_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::CreateDocumentRequest, mask_),
   ~0u,  // no _has_bits_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::UpdateDocumentRequest, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::UpdateDocumentRequest, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::UpdateDocumentRequest, document_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::UpdateDocumentRequest, update_mask_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::UpdateDocumentRequest, mask_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::UpdateDocumentRequest, current_document_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::UpdateDocumentRequest, document_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::UpdateDocumentRequest, update_mask_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::UpdateDocumentRequest, mask_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::UpdateDocumentRequest, current_document_),
   ~0u,  // no _has_bits_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::DeleteDocumentRequest, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::DeleteDocumentRequest, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::DeleteDocumentRequest, name_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::DeleteDocumentRequest, current_document_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::DeleteDocumentRequest, name_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::DeleteDocumentRequest, current_document_),
   ~0u,  // no _has_bits_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::BatchGetDocumentsRequest, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::BatchGetDocumentsRequest, _internal_metadata_),
   ~0u,  // no _extensions_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::BatchGetDocumentsRequest, _oneof_case_[0]),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::BatchGetDocumentsRequest, _oneof_case_[0]),
   ~0u,  // no _weak_field_map_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::BatchGetDocumentsRequest, database_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::BatchGetDocumentsRequest, documents_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::BatchGetDocumentsRequest, mask_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::BatchGetDocumentsRequest, database_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::BatchGetDocumentsRequest, documents_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::BatchGetDocumentsRequest, mask_),
   offsetof(::google::firestore::v1::BatchGetDocumentsRequestDefaultTypeInternal, transaction_),
   offsetof(::google::firestore::v1::BatchGetDocumentsRequestDefaultTypeInternal, new_transaction_),
   offsetof(::google::firestore::v1::BatchGetDocumentsRequestDefaultTypeInternal, read_time_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::BatchGetDocumentsRequest, consistency_selector_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::BatchGetDocumentsRequest, consistency_selector_),
   ~0u,  // no _has_bits_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::BatchGetDocumentsResponse, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::BatchGetDocumentsResponse, _internal_metadata_),
   ~0u,  // no _extensions_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::BatchGetDocumentsResponse, _oneof_case_[0]),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::BatchGetDocumentsResponse, _oneof_case_[0]),
   ~0u,  // no _weak_field_map_
   offsetof(::google::firestore::v1::BatchGetDocumentsResponseDefaultTypeInternal, found_),
   offsetof(::google::firestore::v1::BatchGetDocumentsResponseDefaultTypeInternal, missing_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::BatchGetDocumentsResponse, transaction_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::BatchGetDocumentsResponse, read_time_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::BatchGetDocumentsResponse, result_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::BatchGetDocumentsResponse, transaction_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::BatchGetDocumentsResponse, read_time_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::BatchGetDocumentsResponse, result_),
   ~0u,  // no _has_bits_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::BeginTransactionRequest, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::BeginTransactionRequest, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::BeginTransactionRequest, database_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::BeginTransactionRequest, options_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::BeginTransactionRequest, database_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::BeginTransactionRequest, options_),
   ~0u,  // no _has_bits_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::BeginTransactionResponse, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::BeginTransactionResponse, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::BeginTransactionResponse, transaction_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::BeginTransactionResponse, transaction_),
   ~0u,  // no _has_bits_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::CommitRequest, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::CommitRequest, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::CommitRequest, database_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::CommitRequest, writes_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::CommitRequest, transaction_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::CommitRequest, database_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::CommitRequest, writes_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::CommitRequest, transaction_),
   ~0u,  // no _has_bits_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::CommitResponse, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::CommitResponse, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::CommitResponse, write_results_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::CommitResponse, commit_time_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::CommitResponse, write_results_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::CommitResponse, commit_time_),
   ~0u,  // no _has_bits_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::RollbackRequest, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::RollbackRequest, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::RollbackRequest, database_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::RollbackRequest, transaction_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::RollbackRequest, database_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::RollbackRequest, transaction_),
   ~0u,  // no _has_bits_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::RunQueryRequest, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::RunQueryRequest, _internal_metadata_),
   ~0u,  // no _extensions_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::RunQueryRequest, _oneof_case_[0]),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::RunQueryRequest, _oneof_case_[0]),
   ~0u,  // no _weak_field_map_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::RunQueryRequest, parent_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::RunQueryRequest, parent_),
   offsetof(::google::firestore::v1::RunQueryRequestDefaultTypeInternal, structured_query_),
   offsetof(::google::firestore::v1::RunQueryRequestDefaultTypeInternal, transaction_),
   offsetof(::google::firestore::v1::RunQueryRequestDefaultTypeInternal, new_transaction_),
   offsetof(::google::firestore::v1::RunQueryRequestDefaultTypeInternal, read_time_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::RunQueryRequest, query_type_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::RunQueryRequest, consistency_selector_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::RunQueryRequest, query_type_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::RunQueryRequest, consistency_selector_),
   ~0u,  // no _has_bits_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::RunQueryResponse, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::RunQueryResponse, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::RunQueryResponse, transaction_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::RunQueryResponse, document_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::RunQueryResponse, read_time_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::RunQueryResponse, skipped_results_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::WriteRequest_LabelsEntry_DoNotUse, _has_bits_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::WriteRequest_LabelsEntry_DoNotUse, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::RunQueryResponse, transaction_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::RunQueryResponse, document_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::RunQueryResponse, read_time_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::RunQueryResponse, skipped_results_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::WriteRequest_LabelsEntry_DoNotUse, _has_bits_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::WriteRequest_LabelsEntry_DoNotUse, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::WriteRequest_LabelsEntry_DoNotUse, key_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::WriteRequest_LabelsEntry_DoNotUse, value_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::WriteRequest_LabelsEntry_DoNotUse, key_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::WriteRequest_LabelsEntry_DoNotUse, value_),
   0,
   1,
   ~0u,  // no _has_bits_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::WriteRequest, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::WriteRequest, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::WriteRequest, database_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::WriteRequest, stream_id_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::WriteRequest, writes_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::WriteRequest, stream_token_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::WriteRequest, labels_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::WriteRequest, database_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::WriteRequest, stream_id_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::WriteRequest, writes_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::WriteRequest, stream_token_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::WriteRequest, labels_),
   ~0u,  // no _has_bits_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::WriteResponse, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::WriteResponse, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::WriteResponse, stream_id_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::WriteResponse, stream_token_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::WriteResponse, write_results_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::WriteResponse, commit_time_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::ListenRequest_LabelsEntry_DoNotUse, _has_bits_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::ListenRequest_LabelsEntry_DoNotUse, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::WriteResponse, stream_id_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::WriteResponse, stream_token_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::WriteResponse, write_results_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::WriteResponse, commit_time_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::ListenRequest_LabelsEntry_DoNotUse, _has_bits_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::ListenRequest_LabelsEntry_DoNotUse, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::ListenRequest_LabelsEntry_DoNotUse, key_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::ListenRequest_LabelsEntry_DoNotUse, value_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::ListenRequest_LabelsEntry_DoNotUse, key_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::ListenRequest_LabelsEntry_DoNotUse, value_),
   0,
   1,
   ~0u,  // no _has_bits_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::ListenRequest, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::ListenRequest, _internal_metadata_),
   ~0u,  // no _extensions_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::ListenRequest, _oneof_case_[0]),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::ListenRequest, _oneof_case_[0]),
   ~0u,  // no _weak_field_map_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::ListenRequest, database_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::ListenRequest, database_),
   offsetof(::google::firestore::v1::ListenRequestDefaultTypeInternal, add_target_),
   offsetof(::google::firestore::v1::ListenRequestDefaultTypeInternal, remove_target_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::ListenRequest, labels_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::ListenRequest, target_change_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::ListenRequest, labels_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::ListenRequest, target_change_),
   ~0u,  // no _has_bits_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::ListenResponse, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::ListenResponse, _internal_metadata_),
   ~0u,  // no _extensions_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::ListenResponse, _oneof_case_[0]),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::ListenResponse, _oneof_case_[0]),
   ~0u,  // no _weak_field_map_
   offsetof(::google::firestore::v1::ListenResponseDefaultTypeInternal, target_change_),
   offsetof(::google::firestore::v1::ListenResponseDefaultTypeInternal, document_change_),
   offsetof(::google::firestore::v1::ListenResponseDefaultTypeInternal, document_delete_),
   offsetof(::google::firestore::v1::ListenResponseDefaultTypeInternal, document_remove_),
   offsetof(::google::firestore::v1::ListenResponseDefaultTypeInternal, filter_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::ListenResponse, response_type_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::ListenResponse, response_type_),
   ~0u,  // no _has_bits_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::Target_DocumentsTarget, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::Target_DocumentsTarget, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::Target_DocumentsTarget, documents_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::Target_DocumentsTarget, documents_),
   ~0u,  // no _has_bits_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::Target_QueryTarget, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::Target_QueryTarget, _internal_metadata_),
   ~0u,  // no _extensions_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::Target_QueryTarget, _oneof_case_[0]),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::Target_QueryTarget, _oneof_case_[0]),
   ~0u,  // no _weak_field_map_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::Target_QueryTarget, parent_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::Target_QueryTarget, parent_),
   offsetof(::google::firestore::v1::Target_QueryTargetDefaultTypeInternal, structured_query_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::Target_QueryTarget, query_type_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::Target_QueryTarget, query_type_),
   ~0u,  // no _has_bits_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::Target, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::Target, _internal_metadata_),
   ~0u,  // no _extensions_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::Target, _oneof_case_[0]),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::Target, _oneof_case_[0]),
   ~0u,  // no _weak_field_map_
   offsetof(::google::firestore::v1::TargetDefaultTypeInternal, query_),
   offsetof(::google::firestore::v1::TargetDefaultTypeInternal, documents_),
   offsetof(::google::firestore::v1::TargetDefaultTypeInternal, resume_token_),
   offsetof(::google::firestore::v1::TargetDefaultTypeInternal, read_time_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::Target, target_id_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::Target, once_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::Target, target_type_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::Target, resume_type_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::Target, target_id_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::Target, once_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::Target, target_type_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::Target, resume_type_),
   ~0u,  // no _has_bits_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::TargetChange, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::TargetChange, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::TargetChange, target_change_type_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::TargetChange, target_ids_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::TargetChange, cause_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::TargetChange, resume_token_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::TargetChange, read_time_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::TargetChange, target_change_type_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::TargetChange, target_ids_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::TargetChange, cause_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::TargetChange, resume_token_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::TargetChange, read_time_),
   ~0u,  // no _has_bits_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::ListCollectionIdsRequest, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::ListCollectionIdsRequest, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::ListCollectionIdsRequest, parent_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::ListCollectionIdsRequest, page_size_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::ListCollectionIdsRequest, page_token_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::ListCollectionIdsRequest, parent_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::ListCollectionIdsRequest, page_size_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::ListCollectionIdsRequest, page_token_),
   ~0u,  // no _has_bits_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::ListCollectionIdsResponse, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::ListCollectionIdsResponse, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::ListCollectionIdsResponse, collection_ids_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1::ListCollectionIdsResponse, next_page_token_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::ListCollectionIdsResponse, collection_ids_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::ListCollectionIdsResponse, next_page_token_),
 };
-static const ::google::protobuf::internal::MigrationSchema schemas[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
+static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, sizeof(::google::firestore::v1::GetDocumentRequest)},
   { 10, -1, sizeof(::google::firestore::v1::ListDocumentsRequest)},
   { 25, -1, sizeof(::google::firestore::v1::ListDocumentsResponse)},
@@ -1090,268 +889,272 @@ static const ::google::protobuf::internal::MigrationSchema schemas[] GOOGLE_PROT
   { 239, -1, sizeof(::google::firestore::v1::ListCollectionIdsResponse)},
 };
 
-static ::google::protobuf::Message const * const file_default_instances[] = {
-  reinterpret_cast<const ::google::protobuf::Message*>(&::google::firestore::v1::_GetDocumentRequest_default_instance_),
-  reinterpret_cast<const ::google::protobuf::Message*>(&::google::firestore::v1::_ListDocumentsRequest_default_instance_),
-  reinterpret_cast<const ::google::protobuf::Message*>(&::google::firestore::v1::_ListDocumentsResponse_default_instance_),
-  reinterpret_cast<const ::google::protobuf::Message*>(&::google::firestore::v1::_CreateDocumentRequest_default_instance_),
-  reinterpret_cast<const ::google::protobuf::Message*>(&::google::firestore::v1::_UpdateDocumentRequest_default_instance_),
-  reinterpret_cast<const ::google::protobuf::Message*>(&::google::firestore::v1::_DeleteDocumentRequest_default_instance_),
-  reinterpret_cast<const ::google::protobuf::Message*>(&::google::firestore::v1::_BatchGetDocumentsRequest_default_instance_),
-  reinterpret_cast<const ::google::protobuf::Message*>(&::google::firestore::v1::_BatchGetDocumentsResponse_default_instance_),
-  reinterpret_cast<const ::google::protobuf::Message*>(&::google::firestore::v1::_BeginTransactionRequest_default_instance_),
-  reinterpret_cast<const ::google::protobuf::Message*>(&::google::firestore::v1::_BeginTransactionResponse_default_instance_),
-  reinterpret_cast<const ::google::protobuf::Message*>(&::google::firestore::v1::_CommitRequest_default_instance_),
-  reinterpret_cast<const ::google::protobuf::Message*>(&::google::firestore::v1::_CommitResponse_default_instance_),
-  reinterpret_cast<const ::google::protobuf::Message*>(&::google::firestore::v1::_RollbackRequest_default_instance_),
-  reinterpret_cast<const ::google::protobuf::Message*>(&::google::firestore::v1::_RunQueryRequest_default_instance_),
-  reinterpret_cast<const ::google::protobuf::Message*>(&::google::firestore::v1::_RunQueryResponse_default_instance_),
-  reinterpret_cast<const ::google::protobuf::Message*>(&::google::firestore::v1::_WriteRequest_LabelsEntry_DoNotUse_default_instance_),
-  reinterpret_cast<const ::google::protobuf::Message*>(&::google::firestore::v1::_WriteRequest_default_instance_),
-  reinterpret_cast<const ::google::protobuf::Message*>(&::google::firestore::v1::_WriteResponse_default_instance_),
-  reinterpret_cast<const ::google::protobuf::Message*>(&::google::firestore::v1::_ListenRequest_LabelsEntry_DoNotUse_default_instance_),
-  reinterpret_cast<const ::google::protobuf::Message*>(&::google::firestore::v1::_ListenRequest_default_instance_),
-  reinterpret_cast<const ::google::protobuf::Message*>(&::google::firestore::v1::_ListenResponse_default_instance_),
-  reinterpret_cast<const ::google::protobuf::Message*>(&::google::firestore::v1::_Target_DocumentsTarget_default_instance_),
-  reinterpret_cast<const ::google::protobuf::Message*>(&::google::firestore::v1::_Target_QueryTarget_default_instance_),
-  reinterpret_cast<const ::google::protobuf::Message*>(&::google::firestore::v1::_Target_default_instance_),
-  reinterpret_cast<const ::google::protobuf::Message*>(&::google::firestore::v1::_TargetChange_default_instance_),
-  reinterpret_cast<const ::google::protobuf::Message*>(&::google::firestore::v1::_ListCollectionIdsRequest_default_instance_),
-  reinterpret_cast<const ::google::protobuf::Message*>(&::google::firestore::v1::_ListCollectionIdsResponse_default_instance_),
+static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::google::firestore::v1::_GetDocumentRequest_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::google::firestore::v1::_ListDocumentsRequest_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::google::firestore::v1::_ListDocumentsResponse_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::google::firestore::v1::_CreateDocumentRequest_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::google::firestore::v1::_UpdateDocumentRequest_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::google::firestore::v1::_DeleteDocumentRequest_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::google::firestore::v1::_BatchGetDocumentsRequest_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::google::firestore::v1::_BatchGetDocumentsResponse_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::google::firestore::v1::_BeginTransactionRequest_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::google::firestore::v1::_BeginTransactionResponse_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::google::firestore::v1::_CommitRequest_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::google::firestore::v1::_CommitResponse_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::google::firestore::v1::_RollbackRequest_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::google::firestore::v1::_RunQueryRequest_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::google::firestore::v1::_RunQueryResponse_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::google::firestore::v1::_WriteRequest_LabelsEntry_DoNotUse_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::google::firestore::v1::_WriteRequest_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::google::firestore::v1::_WriteResponse_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::google::firestore::v1::_ListenRequest_LabelsEntry_DoNotUse_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::google::firestore::v1::_ListenRequest_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::google::firestore::v1::_ListenResponse_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::google::firestore::v1::_Target_DocumentsTarget_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::google::firestore::v1::_Target_QueryTarget_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::google::firestore::v1::_Target_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::google::firestore::v1::_TargetChange_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::google::firestore::v1::_ListCollectionIdsRequest_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::google::firestore::v1::_ListCollectionIdsResponse_default_instance_),
 };
 
-void protobuf_AssignDescriptors() {
-  AddDescriptors();
-  ::google::protobuf::MessageFactory* factory = NULL;
-  AssignDescriptors(
-      "google/firestore/v1/firestore.proto", schemas, file_default_instances, TableStruct::offsets, factory,
-      file_level_metadata, file_level_enum_descriptors, NULL);
-}
+const char descriptor_table_protodef_google_2ffirestore_2fv1_2ffirestore_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
+  "\n#google/firestore/v1/firestore.proto\022\023g"
+  "oogle.firestore.v1\032\034google/api/annotatio"
+  "ns.proto\032 google/firestore/v1/common.pro"
+  "to\032\"google/firestore/v1/document.proto\032\037"
+  "google/firestore/v1/query.proto\032\037google/"
+  "firestore/v1/write.proto\032\033google/protobu"
+  "f/empty.proto\032\037google/protobuf/timestamp"
+  ".proto\032\027google/rpc/status.proto\"\263\001\n\022GetD"
+  "ocumentRequest\022\014\n\004name\030\001 \001(\t\022/\n\004mask\030\002 \001"
+  "(\0132!.google.firestore.v1.DocumentMask\022\025\n"
+  "\013transaction\030\003 \001(\014H\000\022/\n\tread_time\030\005 \001(\0132"
+  "\032.google.protobuf.TimestampH\000B\026\n\024consist"
+  "ency_selector\"\235\002\n\024ListDocumentsRequest\022\016"
+  "\n\006parent\030\001 \001(\t\022\025\n\rcollection_id\030\002 \001(\t\022\021\n"
+  "\tpage_size\030\003 \001(\005\022\022\n\npage_token\030\004 \001(\t\022\020\n\010"
+  "order_by\030\006 \001(\t\022/\n\004mask\030\007 \001(\0132!.google.fi"
+  "restore.v1.DocumentMask\022\025\n\013transaction\030\010"
+  " \001(\014H\000\022/\n\tread_time\030\n \001(\0132\032.google.proto"
+  "buf.TimestampH\000\022\024\n\014show_missing\030\014 \001(\010B\026\n"
+  "\024consistency_selector\"b\n\025ListDocumentsRe"
+  "sponse\0220\n\tdocuments\030\001 \003(\0132\035.google.fires"
+  "tore.v1.Document\022\027\n\017next_page_token\030\002 \001("
+  "\t\"\265\001\n\025CreateDocumentRequest\022\016\n\006parent\030\001 "
+  "\001(\t\022\025\n\rcollection_id\030\002 \001(\t\022\023\n\013document_i"
+  "d\030\003 \001(\t\022/\n\010document\030\004 \001(\0132\035.google.fires"
+  "tore.v1.Document\022/\n\004mask\030\005 \001(\0132!.google."
+  "firestore.v1.DocumentMask\"\356\001\n\025UpdateDocu"
+  "mentRequest\022/\n\010document\030\001 \001(\0132\035.google.f"
+  "irestore.v1.Document\0226\n\013update_mask\030\002 \001("
+  "\0132!.google.firestore.v1.DocumentMask\022/\n\004"
+  "mask\030\003 \001(\0132!.google.firestore.v1.Documen"
+  "tMask\022;\n\020current_document\030\004 \001(\0132!.google"
+  ".firestore.v1.Precondition\"b\n\025DeleteDocu"
+  "mentRequest\022\014\n\004name\030\001 \001(\t\022;\n\020current_doc"
+  "ument\030\002 \001(\0132!.google.firestore.v1.Precon"
+  "dition\"\224\002\n\030BatchGetDocumentsRequest\022\020\n\010d"
+  "atabase\030\001 \001(\t\022\021\n\tdocuments\030\002 \003(\t\022/\n\004mask"
+  "\030\003 \001(\0132!.google.firestore.v1.DocumentMas"
+  "k\022\025\n\013transaction\030\004 \001(\014H\000\022B\n\017new_transact"
+  "ion\030\005 \001(\0132\'.google.firestore.v1.Transact"
+  "ionOptionsH\000\022/\n\tread_time\030\007 \001(\0132\032.google"
+  ".protobuf.TimestampH\000B\026\n\024consistency_sel"
+  "ector\"\254\001\n\031BatchGetDocumentsResponse\022.\n\005f"
+  "ound\030\001 \001(\0132\035.google.firestore.v1.Documen"
+  "tH\000\022\021\n\007missing\030\002 \001(\tH\000\022\023\n\013transaction\030\003 "
+  "\001(\014\022-\n\tread_time\030\004 \001(\0132\032.google.protobuf"
+  ".TimestampB\010\n\006result\"e\n\027BeginTransaction"
+  "Request\022\020\n\010database\030\001 \001(\t\0228\n\007options\030\002 \001"
+  "(\0132\'.google.firestore.v1.TransactionOpti"
+  "ons\"/\n\030BeginTransactionResponse\022\023\n\013trans"
+  "action\030\001 \001(\014\"b\n\rCommitRequest\022\020\n\010databas"
+  "e\030\001 \001(\t\022*\n\006writes\030\002 \003(\0132\032.google.firesto"
+  "re.v1.Write\022\023\n\013transaction\030\003 \001(\014\"z\n\016Comm"
+  "itResponse\0227\n\rwrite_results\030\001 \003(\0132 .goog"
+  "le.firestore.v1.WriteResult\022/\n\013commit_ti"
+  "me\030\002 \001(\0132\032.google.protobuf.Timestamp\"8\n\017"
+  "RollbackRequest\022\020\n\010database\030\001 \001(\t\022\023\n\013tra"
+  "nsaction\030\002 \001(\014\"\225\002\n\017RunQueryRequest\022\016\n\006pa"
+  "rent\030\001 \001(\t\022@\n\020structured_query\030\002 \001(\0132$.g"
+  "oogle.firestore.v1.StructuredQueryH\000\022\025\n\013"
+  "transaction\030\005 \001(\014H\001\022B\n\017new_transaction\030\006"
+  " \001(\0132\'.google.firestore.v1.TransactionOp"
+  "tionsH\001\022/\n\tread_time\030\007 \001(\0132\032.google.prot"
+  "obuf.TimestampH\001B\014\n\nquery_typeB\026\n\024consis"
+  "tency_selector\"\240\001\n\020RunQueryResponse\022\023\n\013t"
+  "ransaction\030\002 \001(\014\022/\n\010document\030\001 \001(\0132\035.goo"
+  "gle.firestore.v1.Document\022-\n\tread_time\030\003"
+  " \001(\0132\032.google.protobuf.Timestamp\022\027\n\017skip"
+  "ped_results\030\004 \001(\005\"\343\001\n\014WriteRequest\022\020\n\010da"
+  "tabase\030\001 \001(\t\022\021\n\tstream_id\030\002 \001(\t\022*\n\006write"
+  "s\030\003 \003(\0132\032.google.firestore.v1.Write\022\024\n\014s"
+  "tream_token\030\004 \001(\014\022=\n\006labels\030\005 \003(\0132-.goog"
+  "le.firestore.v1.WriteRequest.LabelsEntry"
+  "\032-\n\013LabelsEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 "
+  "\001(\t:\0028\001\"\242\001\n\rWriteResponse\022\021\n\tstream_id\030\001"
+  " \001(\t\022\024\n\014stream_token\030\002 \001(\014\0227\n\rwrite_resu"
+  "lts\030\003 \003(\0132 .google.firestore.v1.WriteRes"
+  "ult\022/\n\013commit_time\030\004 \001(\0132\032.google.protob"
+  "uf.Timestamp\"\355\001\n\rListenRequest\022\020\n\010databa"
+  "se\030\001 \001(\t\0221\n\nadd_target\030\002 \001(\0132\033.google.fi"
+  "restore.v1.TargetH\000\022\027\n\rremove_target\030\003 \001"
+  "(\005H\000\022>\n\006labels\030\004 \003(\0132..google.firestore."
+  "v1.ListenRequest.LabelsEntry\032-\n\013LabelsEn"
+  "try\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t:\0028\001B\017\n\rt"
+  "arget_change\"\325\002\n\016ListenResponse\022:\n\rtarge"
+  "t_change\030\002 \001(\0132!.google.firestore.v1.Tar"
+  "getChangeH\000\022>\n\017document_change\030\003 \001(\0132#.g"
+  "oogle.firestore.v1.DocumentChangeH\000\022>\n\017d"
+  "ocument_delete\030\004 \001(\0132#.google.firestore."
+  "v1.DocumentDeleteH\000\022>\n\017document_remove\030\006"
+  " \001(\0132#.google.firestore.v1.DocumentRemov"
+  "eH\000\0226\n\006filter\030\005 \001(\0132$.google.firestore.v"
+  "1.ExistenceFilterH\000B\017\n\rresponse_type\"\241\003\n"
+  "\006Target\0228\n\005query\030\002 \001(\0132\'.google.firestor"
+  "e.v1.Target.QueryTargetH\000\022@\n\tdocuments\030\003"
+  " \001(\0132+.google.firestore.v1.Target.Docume"
+  "ntsTargetH\000\022\026\n\014resume_token\030\004 \001(\014H\001\022/\n\tr"
+  "ead_time\030\013 \001(\0132\032.google.protobuf.Timesta"
+  "mpH\001\022\021\n\ttarget_id\030\005 \001(\005\022\014\n\004once\030\006 \001(\010\032$\n"
+  "\017DocumentsTarget\022\021\n\tdocuments\030\002 \003(\t\032m\n\013Q"
+  "ueryTarget\022\016\n\006parent\030\001 \001(\t\022@\n\020structured"
+  "_query\030\002 \001(\0132$.google.firestore.v1.Struc"
+  "turedQueryH\000B\014\n\nquery_typeB\r\n\013target_typ"
+  "eB\r\n\013resume_type\"\252\002\n\014TargetChange\022N\n\022tar"
+  "get_change_type\030\001 \001(\01622.google.firestore"
+  ".v1.TargetChange.TargetChangeType\022\022\n\ntar"
+  "get_ids\030\002 \003(\005\022!\n\005cause\030\003 \001(\0132\022.google.rp"
+  "c.Status\022\024\n\014resume_token\030\004 \001(\014\022-\n\tread_t"
+  "ime\030\006 \001(\0132\032.google.protobuf.Timestamp\"N\n"
+  "\020TargetChangeType\022\r\n\tNO_CHANGE\020\000\022\007\n\003ADD\020"
+  "\001\022\n\n\006REMOVE\020\002\022\013\n\007CURRENT\020\003\022\t\n\005RESET\020\004\"Q\n"
+  "\030ListCollectionIdsRequest\022\016\n\006parent\030\001 \001("
+  "\t\022\021\n\tpage_size\030\002 \001(\005\022\022\n\npage_token\030\003 \001(\t"
+  "\"L\n\031ListCollectionIdsResponse\022\026\n\016collect"
+  "ion_ids\030\001 \003(\t\022\027\n\017next_page_token\030\002 \001(\t2\204"
+  "\022\n\tFirestore\022\217\001\n\013GetDocument\022\'.google.fi"
+  "restore.v1.GetDocumentRequest\032\035.google.f"
+  "irestore.v1.Document\"8\202\323\344\223\0022\0220/v1/{name="
+  "projects/*/databases/*/documents/*/**}\022\262"
+  "\001\n\rListDocuments\022).google.firestore.v1.L"
+  "istDocumentsRequest\032*.google.firestore.v"
+  "1.ListDocumentsResponse\"J\202\323\344\223\002D\022B/v1/{pa"
+  "rent=projects/*/databases/*/documents/*/"
+  "**}/{collection_id}\022\257\001\n\016CreateDocument\022*"
+  ".google.firestore.v1.CreateDocumentReque"
+  "st\032\035.google.firestore.v1.Document\"R\202\323\344\223\002"
+  "L\"@/v1/{parent=projects/*/databases/*/do"
+  "cuments/**}/{collection_id}:\010document\022\250\001"
+  "\n\016UpdateDocument\022*.google.firestore.v1.U"
+  "pdateDocumentRequest\032\035.google.firestore."
+  "v1.Document\"K\202\323\344\223\002E29/v1/{document.name="
+  "projects/*/databases/*/documents/*/**}:\010"
+  "document\022\216\001\n\016DeleteDocument\022*.google.fir"
+  "estore.v1.DeleteDocumentRequest\032\026.google"
+  ".protobuf.Empty\"8\202\323\344\223\0022*0/v1/{name=proje"
+  "cts/*/databases/*/documents/*/**}\022\271\001\n\021Ba"
+  "tchGetDocuments\022-.google.firestore.v1.Ba"
+  "tchGetDocumentsRequest\032..google.firestor"
+  "e.v1.BatchGetDocumentsResponse\"C\202\323\344\223\002=\"8"
+  "/v1/{database=projects/*/databases/*}/do"
+  "cuments:batchGet:\001*0\001\022\274\001\n\020BeginTransacti"
+  "on\022,.google.firestore.v1.BeginTransactio"
+  "nRequest\032-.google.firestore.v1.BeginTran"
+  "sactionResponse\"K\202\323\344\223\002E\"@/v1/{database=p"
+  "rojects/*/databases/*}/documents:beginTr"
+  "ansaction:\001*\022\224\001\n\006Commit\022\".google.firesto"
+  "re.v1.CommitRequest\032#.google.firestore.v"
+  "1.CommitResponse\"A\202\323\344\223\002;\"6/v1/{database="
+  "projects/*/databases/*}/documents:commit"
+  ":\001*\022\215\001\n\010Rollback\022$.google.firestore.v1.R"
+  "ollbackRequest\032\026.google.protobuf.Empty\"C"
+  "\202\323\344\223\002=\"8/v1/{database=projects/*/databas"
+  "es/*}/documents:rollback:\001*\022\337\001\n\010RunQuery"
+  "\022$.google.firestore.v1.RunQueryRequest\032%"
+  ".google.firestore.v1.RunQueryResponse\"\203\001"
+  "\202\323\344\223\002}\"6/v1/{parent=projects/*/databases"
+  "/*/documents}:runQuery:\001*Z@\";/v1/{parent"
+  "=projects/*/databases/*/documents/*/**}:"
+  "runQuery:\001*0\001\022\224\001\n\005Write\022!.google.firesto"
+  "re.v1.WriteRequest\032\".google.firestore.v1"
+  ".WriteResponse\"@\202\323\344\223\002:\"5/v1/{database=pr"
+  "ojects/*/databases/*}/documents:write:\001*"
+  "(\0010\001\022\230\001\n\006Listen\022\".google.firestore.v1.Li"
+  "stenRequest\032#.google.firestore.v1.Listen"
+  "Response\"A\202\323\344\223\002;\"6/v1/{database=projects"
+  "/*/databases/*}/documents:listen:\001*(\0010\001\022"
+  "\213\002\n\021ListCollectionIds\022-.google.firestore"
+  ".v1.ListCollectionIdsRequest\032..google.fi"
+  "restore.v1.ListCollectionIdsResponse\"\226\001\202"
+  "\323\344\223\002\217\001\"\?/v1/{parent=projects/*/databases"
+  "/*/documents}:listCollectionIds:\001*ZI\"D/v"
+  "1/{parent=projects/*/databases/*/documen"
+  "ts/*/**}:listCollectionIds:\001*B\262\001\n\027com.go"
+  "ogle.firestore.v1B\016FirestoreProtoP\001Z<goo"
+  "gle.golang.org/genproto/googleapis/fires"
+  "tore/v1;firestore\242\002\004GCFS\252\002\036Google.Cloud."
+  "Firestore.V1Beta1\312\002\036Google\\Cloud\\Firesto"
+  "re\\V1beta1b\006proto3"
+  ;
+static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_google_2ffirestore_2fv1_2ffirestore_2eproto_deps[8] = {
+  &::descriptor_table_google_2fapi_2fannotations_2eproto,
+  &::descriptor_table_google_2ffirestore_2fv1_2fcommon_2eproto,
+  &::descriptor_table_google_2ffirestore_2fv1_2fdocument_2eproto,
+  &::descriptor_table_google_2ffirestore_2fv1_2fquery_2eproto,
+  &::descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto,
+  &::descriptor_table_google_2fprotobuf_2fempty_2eproto,
+  &::descriptor_table_google_2fprotobuf_2ftimestamp_2eproto,
+  &::descriptor_table_google_2frpc_2fstatus_2eproto,
+};
+static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_google_2ffirestore_2fv1_2ffirestore_2eproto_sccs[27] = {
+  &scc_info_BatchGetDocumentsRequest_google_2ffirestore_2fv1_2ffirestore_2eproto.base,
+  &scc_info_BatchGetDocumentsResponse_google_2ffirestore_2fv1_2ffirestore_2eproto.base,
+  &scc_info_BeginTransactionRequest_google_2ffirestore_2fv1_2ffirestore_2eproto.base,
+  &scc_info_BeginTransactionResponse_google_2ffirestore_2fv1_2ffirestore_2eproto.base,
+  &scc_info_CommitRequest_google_2ffirestore_2fv1_2ffirestore_2eproto.base,
+  &scc_info_CommitResponse_google_2ffirestore_2fv1_2ffirestore_2eproto.base,
+  &scc_info_CreateDocumentRequest_google_2ffirestore_2fv1_2ffirestore_2eproto.base,
+  &scc_info_DeleteDocumentRequest_google_2ffirestore_2fv1_2ffirestore_2eproto.base,
+  &scc_info_GetDocumentRequest_google_2ffirestore_2fv1_2ffirestore_2eproto.base,
+  &scc_info_ListCollectionIdsRequest_google_2ffirestore_2fv1_2ffirestore_2eproto.base,
+  &scc_info_ListCollectionIdsResponse_google_2ffirestore_2fv1_2ffirestore_2eproto.base,
+  &scc_info_ListDocumentsRequest_google_2ffirestore_2fv1_2ffirestore_2eproto.base,
+  &scc_info_ListDocumentsResponse_google_2ffirestore_2fv1_2ffirestore_2eproto.base,
+  &scc_info_ListenRequest_google_2ffirestore_2fv1_2ffirestore_2eproto.base,
+  &scc_info_ListenRequest_LabelsEntry_DoNotUse_google_2ffirestore_2fv1_2ffirestore_2eproto.base,
+  &scc_info_ListenResponse_google_2ffirestore_2fv1_2ffirestore_2eproto.base,
+  &scc_info_RollbackRequest_google_2ffirestore_2fv1_2ffirestore_2eproto.base,
+  &scc_info_RunQueryRequest_google_2ffirestore_2fv1_2ffirestore_2eproto.base,
+  &scc_info_RunQueryResponse_google_2ffirestore_2fv1_2ffirestore_2eproto.base,
+  &scc_info_Target_google_2ffirestore_2fv1_2ffirestore_2eproto.base,
+  &scc_info_Target_DocumentsTarget_google_2ffirestore_2fv1_2ffirestore_2eproto.base,
+  &scc_info_Target_QueryTarget_google_2ffirestore_2fv1_2ffirestore_2eproto.base,
+  &scc_info_TargetChange_google_2ffirestore_2fv1_2ffirestore_2eproto.base,
+  &scc_info_UpdateDocumentRequest_google_2ffirestore_2fv1_2ffirestore_2eproto.base,
+  &scc_info_WriteRequest_google_2ffirestore_2fv1_2ffirestore_2eproto.base,
+  &scc_info_WriteRequest_LabelsEntry_DoNotUse_google_2ffirestore_2fv1_2ffirestore_2eproto.base,
+  &scc_info_WriteResponse_google_2ffirestore_2fv1_2ffirestore_2eproto.base,
+};
+static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_google_2ffirestore_2fv1_2ffirestore_2eproto_once;
+static bool descriptor_table_google_2ffirestore_2fv1_2ffirestore_2eproto_initialized = false;
+const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_google_2ffirestore_2fv1_2ffirestore_2eproto = {
+  &descriptor_table_google_2ffirestore_2fv1_2ffirestore_2eproto_initialized, descriptor_table_protodef_google_2ffirestore_2fv1_2ffirestore_2eproto, "google/firestore/v1/firestore.proto", 7098,
+  &descriptor_table_google_2ffirestore_2fv1_2ffirestore_2eproto_once, descriptor_table_google_2ffirestore_2fv1_2ffirestore_2eproto_sccs, descriptor_table_google_2ffirestore_2fv1_2ffirestore_2eproto_deps, 27, 8,
+  schemas, file_default_instances, TableStruct_google_2ffirestore_2fv1_2ffirestore_2eproto::offsets,
+  file_level_metadata_google_2ffirestore_2fv1_2ffirestore_2eproto, 27, file_level_enum_descriptors_google_2ffirestore_2fv1_2ffirestore_2eproto, file_level_service_descriptors_google_2ffirestore_2fv1_2ffirestore_2eproto,
+};
 
-void protobuf_AssignDescriptorsOnce() {
-  static GOOGLE_PROTOBUF_DECLARE_ONCE(once);
-  ::google::protobuf::GoogleOnceInit(&once, &protobuf_AssignDescriptors);
-}
-
-void protobuf_RegisterTypes(const ::std::string&) GOOGLE_PROTOBUF_ATTRIBUTE_COLD;
-void protobuf_RegisterTypes(const ::std::string&) {
-  protobuf_AssignDescriptorsOnce();
-  ::google::protobuf::internal::RegisterAllTypes(file_level_metadata, 27);
-}
-
-void AddDescriptorsImpl() {
-  InitDefaults();
-  static const char descriptor[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
-      "\n#google/firestore/v1/firestore.proto\022\023g"
-      "oogle.firestore.v1\032\034google/api/annotatio"
-      "ns.proto\032 google/firestore/v1/common.pro"
-      "to\032\"google/firestore/v1/document.proto\032\037"
-      "google/firestore/v1/query.proto\032\037google/"
-      "firestore/v1/write.proto\032\033google/protobu"
-      "f/empty.proto\032\037google/protobuf/timestamp"
-      ".proto\032\027google/rpc/status.proto\"\263\001\n\022GetD"
-      "ocumentRequest\022\014\n\004name\030\001 \001(\t\022/\n\004mask\030\002 \001"
-      "(\0132!.google.firestore.v1.DocumentMask\022\025\n"
-      "\013transaction\030\003 \001(\014H\000\022/\n\tread_time\030\005 \001(\0132"
-      "\032.google.protobuf.TimestampH\000B\026\n\024consist"
-      "ency_selector\"\235\002\n\024ListDocumentsRequest\022\016"
-      "\n\006parent\030\001 \001(\t\022\025\n\rcollection_id\030\002 \001(\t\022\021\n"
-      "\tpage_size\030\003 \001(\005\022\022\n\npage_token\030\004 \001(\t\022\020\n\010"
-      "order_by\030\006 \001(\t\022/\n\004mask\030\007 \001(\0132!.google.fi"
-      "restore.v1.DocumentMask\022\025\n\013transaction\030\010"
-      " \001(\014H\000\022/\n\tread_time\030\n \001(\0132\032.google.proto"
-      "buf.TimestampH\000\022\024\n\014show_missing\030\014 \001(\010B\026\n"
-      "\024consistency_selector\"b\n\025ListDocumentsRe"
-      "sponse\0220\n\tdocuments\030\001 \003(\0132\035.google.fires"
-      "tore.v1.Document\022\027\n\017next_page_token\030\002 \001("
-      "\t\"\265\001\n\025CreateDocumentRequest\022\016\n\006parent\030\001 "
-      "\001(\t\022\025\n\rcollection_id\030\002 \001(\t\022\023\n\013document_i"
-      "d\030\003 \001(\t\022/\n\010document\030\004 \001(\0132\035.google.fires"
-      "tore.v1.Document\022/\n\004mask\030\005 \001(\0132!.google."
-      "firestore.v1.DocumentMask\"\356\001\n\025UpdateDocu"
-      "mentRequest\022/\n\010document\030\001 \001(\0132\035.google.f"
-      "irestore.v1.Document\0226\n\013update_mask\030\002 \001("
-      "\0132!.google.firestore.v1.DocumentMask\022/\n\004"
-      "mask\030\003 \001(\0132!.google.firestore.v1.Documen"
-      "tMask\022;\n\020current_document\030\004 \001(\0132!.google"
-      ".firestore.v1.Precondition\"b\n\025DeleteDocu"
-      "mentRequest\022\014\n\004name\030\001 \001(\t\022;\n\020current_doc"
-      "ument\030\002 \001(\0132!.google.firestore.v1.Precon"
-      "dition\"\224\002\n\030BatchGetDocumentsRequest\022\020\n\010d"
-      "atabase\030\001 \001(\t\022\021\n\tdocuments\030\002 \003(\t\022/\n\004mask"
-      "\030\003 \001(\0132!.google.firestore.v1.DocumentMas"
-      "k\022\025\n\013transaction\030\004 \001(\014H\000\022B\n\017new_transact"
-      "ion\030\005 \001(\0132\'.google.firestore.v1.Transact"
-      "ionOptionsH\000\022/\n\tread_time\030\007 \001(\0132\032.google"
-      ".protobuf.TimestampH\000B\026\n\024consistency_sel"
-      "ector\"\254\001\n\031BatchGetDocumentsResponse\022.\n\005f"
-      "ound\030\001 \001(\0132\035.google.firestore.v1.Documen"
-      "tH\000\022\021\n\007missing\030\002 \001(\tH\000\022\023\n\013transaction\030\003 "
-      "\001(\014\022-\n\tread_time\030\004 \001(\0132\032.google.protobuf"
-      ".TimestampB\010\n\006result\"e\n\027BeginTransaction"
-      "Request\022\020\n\010database\030\001 \001(\t\0228\n\007options\030\002 \001"
-      "(\0132\'.google.firestore.v1.TransactionOpti"
-      "ons\"/\n\030BeginTransactionResponse\022\023\n\013trans"
-      "action\030\001 \001(\014\"b\n\rCommitRequest\022\020\n\010databas"
-      "e\030\001 \001(\t\022*\n\006writes\030\002 \003(\0132\032.google.firesto"
-      "re.v1.Write\022\023\n\013transaction\030\003 \001(\014\"z\n\016Comm"
-      "itResponse\0227\n\rwrite_results\030\001 \003(\0132 .goog"
-      "le.firestore.v1.WriteResult\022/\n\013commit_ti"
-      "me\030\002 \001(\0132\032.google.protobuf.Timestamp\"8\n\017"
-      "RollbackRequest\022\020\n\010database\030\001 \001(\t\022\023\n\013tra"
-      "nsaction\030\002 \001(\014\"\225\002\n\017RunQueryRequest\022\016\n\006pa"
-      "rent\030\001 \001(\t\022@\n\020structured_query\030\002 \001(\0132$.g"
-      "oogle.firestore.v1.StructuredQueryH\000\022\025\n\013"
-      "transaction\030\005 \001(\014H\001\022B\n\017new_transaction\030\006"
-      " \001(\0132\'.google.firestore.v1.TransactionOp"
-      "tionsH\001\022/\n\tread_time\030\007 \001(\0132\032.google.prot"
-      "obuf.TimestampH\001B\014\n\nquery_typeB\026\n\024consis"
-      "tency_selector\"\240\001\n\020RunQueryResponse\022\023\n\013t"
-      "ransaction\030\002 \001(\014\022/\n\010document\030\001 \001(\0132\035.goo"
-      "gle.firestore.v1.Document\022-\n\tread_time\030\003"
-      " \001(\0132\032.google.protobuf.Timestamp\022\027\n\017skip"
-      "ped_results\030\004 \001(\005\"\343\001\n\014WriteRequest\022\020\n\010da"
-      "tabase\030\001 \001(\t\022\021\n\tstream_id\030\002 \001(\t\022*\n\006write"
-      "s\030\003 \003(\0132\032.google.firestore.v1.Write\022\024\n\014s"
-      "tream_token\030\004 \001(\014\022=\n\006labels\030\005 \003(\0132-.goog"
-      "le.firestore.v1.WriteRequest.LabelsEntry"
-      "\032-\n\013LabelsEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 "
-      "\001(\t:\0028\001\"\242\001\n\rWriteResponse\022\021\n\tstream_id\030\001"
-      " \001(\t\022\024\n\014stream_token\030\002 \001(\014\0227\n\rwrite_resu"
-      "lts\030\003 \003(\0132 .google.firestore.v1.WriteRes"
-      "ult\022/\n\013commit_time\030\004 \001(\0132\032.google.protob"
-      "uf.Timestamp\"\355\001\n\rListenRequest\022\020\n\010databa"
-      "se\030\001 \001(\t\0221\n\nadd_target\030\002 \001(\0132\033.google.fi"
-      "restore.v1.TargetH\000\022\027\n\rremove_target\030\003 \001"
-      "(\005H\000\022>\n\006labels\030\004 \003(\0132..google.firestore."
-      "v1.ListenRequest.LabelsEntry\032-\n\013LabelsEn"
-      "try\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t:\0028\001B\017\n\rt"
-      "arget_change\"\325\002\n\016ListenResponse\022:\n\rtarge"
-      "t_change\030\002 \001(\0132!.google.firestore.v1.Tar"
-      "getChangeH\000\022>\n\017document_change\030\003 \001(\0132#.g"
-      "oogle.firestore.v1.DocumentChangeH\000\022>\n\017d"
-      "ocument_delete\030\004 \001(\0132#.google.firestore."
-      "v1.DocumentDeleteH\000\022>\n\017document_remove\030\006"
-      " \001(\0132#.google.firestore.v1.DocumentRemov"
-      "eH\000\0226\n\006filter\030\005 \001(\0132$.google.firestore.v"
-      "1.ExistenceFilterH\000B\017\n\rresponse_type\"\241\003\n"
-      "\006Target\0228\n\005query\030\002 \001(\0132\'.google.firestor"
-      "e.v1.Target.QueryTargetH\000\022@\n\tdocuments\030\003"
-      " \001(\0132+.google.firestore.v1.Target.Docume"
-      "ntsTargetH\000\022\026\n\014resume_token\030\004 \001(\014H\001\022/\n\tr"
-      "ead_time\030\013 \001(\0132\032.google.protobuf.Timesta"
-      "mpH\001\022\021\n\ttarget_id\030\005 \001(\005\022\014\n\004once\030\006 \001(\010\032$\n"
-      "\017DocumentsTarget\022\021\n\tdocuments\030\002 \003(\t\032m\n\013Q"
-      "ueryTarget\022\016\n\006parent\030\001 \001(\t\022@\n\020structured"
-      "_query\030\002 \001(\0132$.google.firestore.v1.Struc"
-      "turedQueryH\000B\014\n\nquery_typeB\r\n\013target_typ"
-      "eB\r\n\013resume_type\"\252\002\n\014TargetChange\022N\n\022tar"
-      "get_change_type\030\001 \001(\01622.google.firestore"
-      ".v1.TargetChange.TargetChangeType\022\022\n\ntar"
-      "get_ids\030\002 \003(\005\022!\n\005cause\030\003 \001(\0132\022.google.rp"
-      "c.Status\022\024\n\014resume_token\030\004 \001(\014\022-\n\tread_t"
-      "ime\030\006 \001(\0132\032.google.protobuf.Timestamp\"N\n"
-      "\020TargetChangeType\022\r\n\tNO_CHANGE\020\000\022\007\n\003ADD\020"
-      "\001\022\n\n\006REMOVE\020\002\022\013\n\007CURRENT\020\003\022\t\n\005RESET\020\004\"Q\n"
-      "\030ListCollectionIdsRequest\022\016\n\006parent\030\001 \001("
-      "\t\022\021\n\tpage_size\030\002 \001(\005\022\022\n\npage_token\030\003 \001(\t"
-      "\"L\n\031ListCollectionIdsResponse\022\026\n\016collect"
-      "ion_ids\030\001 \003(\t\022\027\n\017next_page_token\030\002 \001(\t2\204"
-      "\022\n\tFirestore\022\217\001\n\013GetDocument\022\'.google.fi"
-      "restore.v1.GetDocumentRequest\032\035.google.f"
-      "irestore.v1.Document\"8\202\323\344\223\0022\0220/v1/{name="
-      "projects/*/databases/*/documents/*/**}\022\262"
-      "\001\n\rListDocuments\022).google.firestore.v1.L"
-      "istDocumentsRequest\032*.google.firestore.v"
-      "1.ListDocumentsResponse\"J\202\323\344\223\002D\022B/v1/{pa"
-      "rent=projects/*/databases/*/documents/*/"
-      "**}/{collection_id}\022\257\001\n\016CreateDocument\022*"
-      ".google.firestore.v1.CreateDocumentReque"
-      "st\032\035.google.firestore.v1.Document\"R\202\323\344\223\002"
-      "L\"@/v1/{parent=projects/*/databases/*/do"
-      "cuments/**}/{collection_id}:\010document\022\250\001"
-      "\n\016UpdateDocument\022*.google.firestore.v1.U"
-      "pdateDocumentRequest\032\035.google.firestore."
-      "v1.Document\"K\202\323\344\223\002E29/v1/{document.name="
-      "projects/*/databases/*/documents/*/**}:\010"
-      "document\022\216\001\n\016DeleteDocument\022*.google.fir"
-      "estore.v1.DeleteDocumentRequest\032\026.google"
-      ".protobuf.Empty\"8\202\323\344\223\0022*0/v1/{name=proje"
-      "cts/*/databases/*/documents/*/**}\022\271\001\n\021Ba"
-      "tchGetDocuments\022-.google.firestore.v1.Ba"
-      "tchGetDocumentsRequest\032..google.firestor"
-      "e.v1.BatchGetDocumentsResponse\"C\202\323\344\223\002=\"8"
-      "/v1/{database=projects/*/databases/*}/do"
-      "cuments:batchGet:\001*0\001\022\274\001\n\020BeginTransacti"
-      "on\022,.google.firestore.v1.BeginTransactio"
-      "nRequest\032-.google.firestore.v1.BeginTran"
-      "sactionResponse\"K\202\323\344\223\002E\"@/v1/{database=p"
-      "rojects/*/databases/*}/documents:beginTr"
-      "ansaction:\001*\022\224\001\n\006Commit\022\".google.firesto"
-      "re.v1.CommitRequest\032#.google.firestore.v"
-      "1.CommitResponse\"A\202\323\344\223\002;\"6/v1/{database="
-      "projects/*/databases/*}/documents:commit"
-      ":\001*\022\215\001\n\010Rollback\022$.google.firestore.v1.R"
-      "ollbackRequest\032\026.google.protobuf.Empty\"C"
-      "\202\323\344\223\002=\"8/v1/{database=projects/*/databas"
-      "es/*}/documents:rollback:\001*\022\337\001\n\010RunQuery"
-      "\022$.google.firestore.v1.RunQueryRequest\032%"
-      ".google.firestore.v1.RunQueryResponse\"\203\001"
-      "\202\323\344\223\002}\"6/v1/{parent=projects/*/databases"
-      "/*/documents}:runQuery:\001*Z@\";/v1/{parent"
-      "=projects/*/databases/*/documents/*/**}:"
-      "runQuery:\001*0\001\022\224\001\n\005Write\022!.google.firesto"
-      "re.v1.WriteRequest\032\".google.firestore.v1"
-      ".WriteResponse\"@\202\323\344\223\002:\"5/v1/{database=pr"
-      "ojects/*/databases/*}/documents:write:\001*"
-      "(\0010\001\022\230\001\n\006Listen\022\".google.firestore.v1.Li"
-      "stenRequest\032#.google.firestore.v1.Listen"
-      "Response\"A\202\323\344\223\002;\"6/v1/{database=projects"
-      "/*/databases/*}/documents:listen:\001*(\0010\001\022"
-      "\213\002\n\021ListCollectionIds\022-.google.firestore"
-      ".v1.ListCollectionIdsRequest\032..google.fi"
-      "restore.v1.ListCollectionIdsResponse\"\226\001\202"
-      "\323\344\223\002\217\001\"\?/v1/{parent=projects/*/databases"
-      "/*/documents}:listCollectionIds:\001*ZI\"D/v"
-      "1/{parent=projects/*/databases/*/documen"
-      "ts/*/**}:listCollectionIds:\001*B\262\001\n\027com.go"
-      "ogle.firestore.v1B\016FirestoreProtoP\001Z<goo"
-      "gle.golang.org/genproto/googleapis/fires"
-      "tore/v1;firestore\242\002\004GCFS\252\002\036Google.Cloud."
-      "Firestore.V1Beta1\312\002\036Google\\Cloud\\Firesto"
-      "re\\V1beta1b\006proto3"
-  };
-  ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 7098);
-  ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
-    "google/firestore/v1/firestore.proto", &protobuf_RegisterTypes);
-  ::protobuf_google_2fapi_2fannotations_2eproto::AddDescriptors();
-  ::protobuf_google_2ffirestore_2fv1_2fcommon_2eproto::AddDescriptors();
-  ::protobuf_google_2ffirestore_2fv1_2fdocument_2eproto::AddDescriptors();
-  ::protobuf_google_2ffirestore_2fv1_2fquery_2eproto::AddDescriptors();
-  ::protobuf_google_2ffirestore_2fv1_2fwrite_2eproto::AddDescriptors();
-  ::protobuf_google_2fprotobuf_2fempty_2eproto::AddDescriptors();
-  ::protobuf_google_2fprotobuf_2ftimestamp_2eproto::AddDescriptors();
-  ::protobuf_google_2frpc_2fstatus_2eproto::AddDescriptors();
-}
-
-void AddDescriptors() {
-  static GOOGLE_PROTOBUF_DECLARE_ONCE(once);
-  ::google::protobuf::GoogleOnceInit(&once, &AddDescriptorsImpl);
-}
-// Force AddDescriptors() to be called at dynamic initialization time.
-struct StaticDescriptorInitializer {
-  StaticDescriptorInitializer() {
-    AddDescriptors();
-  }
-} static_descriptor_initializer;
-}  // namespace protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto
+// Force running AddDescriptors() at dynamic initialization time.
+static bool dynamic_init_dummy_google_2ffirestore_2fv1_2ffirestore_2eproto = (  ::PROTOBUF_NAMESPACE_ID::internal::AddDescriptors(&descriptor_table_google_2ffirestore_2fv1_2ffirestore_2eproto), true);
 namespace google {
 namespace firestore {
 namespace v1 {
-const ::google::protobuf::EnumDescriptor* TargetChange_TargetChangeType_descriptor() {
-  protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_enum_descriptors[0];
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* TargetChange_TargetChangeType_descriptor() {
+  ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2ffirestore_2fv1_2ffirestore_2eproto);
+  return file_level_enum_descriptors_google_2ffirestore_2fv1_2ffirestore_2eproto[0];
 }
 bool TargetChange_TargetChangeType_IsValid(int value) {
   switch (value) {
@@ -1366,16 +1169,16 @@ bool TargetChange_TargetChangeType_IsValid(int value) {
   }
 }
 
-#if !defined(_MSC_VER) || _MSC_VER >= 1900
-const TargetChange_TargetChangeType TargetChange::NO_CHANGE;
-const TargetChange_TargetChangeType TargetChange::ADD;
-const TargetChange_TargetChangeType TargetChange::REMOVE;
-const TargetChange_TargetChangeType TargetChange::CURRENT;
-const TargetChange_TargetChangeType TargetChange::RESET;
-const TargetChange_TargetChangeType TargetChange::TargetChangeType_MIN;
-const TargetChange_TargetChangeType TargetChange::TargetChangeType_MAX;
-const int TargetChange::TargetChangeType_ARRAYSIZE;
-#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+#if (__cplusplus < 201703) && (!defined(_MSC_VER) || _MSC_VER >= 1900)
+constexpr TargetChange_TargetChangeType TargetChange::NO_CHANGE;
+constexpr TargetChange_TargetChangeType TargetChange::ADD;
+constexpr TargetChange_TargetChangeType TargetChange::REMOVE;
+constexpr TargetChange_TargetChangeType TargetChange::CURRENT;
+constexpr TargetChange_TargetChangeType TargetChange::RESET;
+constexpr TargetChange_TargetChangeType TargetChange::TargetChangeType_MIN;
+constexpr TargetChange_TargetChangeType TargetChange::TargetChangeType_MAX;
+constexpr int TargetChange::TargetChangeType_ARRAYSIZE;
+#endif  // (__cplusplus < 201703) && (!defined(_MSC_VER) || _MSC_VER >= 1900)
 
 // ===================================================================
 
@@ -1383,24 +1186,38 @@ void GetDocumentRequest::InitAsDefaultInstance() {
   ::google::firestore::v1::_GetDocumentRequest_default_instance_._instance.get_mutable()->mask_ = const_cast< ::google::firestore::v1::DocumentMask*>(
       ::google::firestore::v1::DocumentMask::internal_default_instance());
   ::google::firestore::v1::_GetDocumentRequest_default_instance_.transaction_.UnsafeSetDefault(
-      &::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  ::google::firestore::v1::_GetDocumentRequest_default_instance_.read_time_ = const_cast< ::google::protobuf::Timestamp*>(
-      ::google::protobuf::Timestamp::internal_default_instance());
+      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  ::google::firestore::v1::_GetDocumentRequest_default_instance_.read_time_ = const_cast< PROTOBUF_NAMESPACE_ID::Timestamp*>(
+      PROTOBUF_NAMESPACE_ID::Timestamp::internal_default_instance());
+}
+class GetDocumentRequest::_Internal {
+ public:
+  static const ::google::firestore::v1::DocumentMask& mask(const GetDocumentRequest* msg);
+  static const PROTOBUF_NAMESPACE_ID::Timestamp& read_time(const GetDocumentRequest* msg);
+};
+
+const ::google::firestore::v1::DocumentMask&
+GetDocumentRequest::_Internal::mask(const GetDocumentRequest* msg) {
+  return *msg->mask_;
+}
+const PROTOBUF_NAMESPACE_ID::Timestamp&
+GetDocumentRequest::_Internal::read_time(const GetDocumentRequest* msg) {
+  return *msg->consistency_selector_.read_time_;
 }
 void GetDocumentRequest::clear_mask() {
-  if (GetArenaNoVirtual() == NULL && mask_ != NULL) {
+  if (GetArenaNoVirtual() == nullptr && mask_ != nullptr) {
     delete mask_;
   }
-  mask_ = NULL;
+  mask_ = nullptr;
 }
-void GetDocumentRequest::set_allocated_read_time(::google::protobuf::Timestamp* read_time) {
-  ::google::protobuf::Arena* message_arena = GetArenaNoVirtual();
+void GetDocumentRequest::set_allocated_read_time(PROTOBUF_NAMESPACE_ID::Timestamp* read_time) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
   clear_consistency_selector();
   if (read_time) {
-    ::google::protobuf::Arena* submessage_arena =
-      reinterpret_cast< ::google::protobuf::MessageLite*>(read_time)->GetArena();
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+      reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(read_time)->GetArena();
     if (message_arena != submessage_arena) {
-      read_time = ::google::protobuf::internal::GetOwnedMessage(
+      read_time = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
           message_arena, read_time, submessage_arena);
     }
     set_has_read_time();
@@ -1414,34 +1231,23 @@ void GetDocumentRequest::clear_read_time() {
     clear_has_consistency_selector();
   }
 }
-#if !defined(_MSC_VER) || _MSC_VER >= 1900
-const int GetDocumentRequest::kNameFieldNumber;
-const int GetDocumentRequest::kMaskFieldNumber;
-const int GetDocumentRequest::kTransactionFieldNumber;
-const int GetDocumentRequest::kReadTimeFieldNumber;
-#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
-
 GetDocumentRequest::GetDocumentRequest()
-  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
-  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
-    ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsGetDocumentRequest();
-  }
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:google.firestore.v1.GetDocumentRequest)
 }
 GetDocumentRequest::GetDocumentRequest(const GetDocumentRequest& from)
-  : ::google::protobuf::Message(),
-      _internal_metadata_(NULL),
-      _cached_size_(0) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
+      _internal_metadata_(nullptr) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  name_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  if (from.name().size() > 0) {
-    name_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.name_);
+  name_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from.name().empty()) {
+    name_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.name_);
   }
   if (from.has_mask()) {
     mask_ = new ::google::firestore::v1::DocumentMask(*from.mask_);
   } else {
-    mask_ = NULL;
+    mask_ = nullptr;
   }
   clear_has_consistency_selector();
   switch (from.consistency_selector_case()) {
@@ -1450,7 +1256,7 @@ GetDocumentRequest::GetDocumentRequest(const GetDocumentRequest& from)
       break;
     }
     case kReadTime: {
-      mutable_read_time()->::google::protobuf::Timestamp::MergeFrom(from.read_time());
+      mutable_read_time()->PROTOBUF_NAMESPACE_ID::Timestamp::MergeFrom(from.read_time());
       break;
     }
     case CONSISTENCY_SELECTOR_NOT_SET: {
@@ -1461,10 +1267,10 @@ GetDocumentRequest::GetDocumentRequest(const GetDocumentRequest& from)
 }
 
 void GetDocumentRequest::SharedCtor() {
-  name_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  mask_ = NULL;
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_GetDocumentRequest_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
+  name_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  mask_ = nullptr;
   clear_has_consistency_selector();
-  _cached_size_ = 0;
 }
 
 GetDocumentRequest::~GetDocumentRequest() {
@@ -1473,7 +1279,7 @@ GetDocumentRequest::~GetDocumentRequest() {
 }
 
 void GetDocumentRequest::SharedDtor() {
-  name_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  name_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   if (this != internal_default_instance()) delete mask_;
   if (has_consistency_selector()) {
     clear_consistency_selector();
@@ -1481,33 +1287,19 @@ void GetDocumentRequest::SharedDtor() {
 }
 
 void GetDocumentRequest::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  _cached_size_.Set(size);
 }
-const ::google::protobuf::Descriptor* GetDocumentRequest::descriptor() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages].descriptor;
-}
-
 const GetDocumentRequest& GetDocumentRequest::default_instance() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsGetDocumentRequest();
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_GetDocumentRequest_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
   return *internal_default_instance();
 }
 
-GetDocumentRequest* GetDocumentRequest::New(::google::protobuf::Arena* arena) const {
-  GetDocumentRequest* n = new GetDocumentRequest;
-  if (arena != NULL) {
-    arena->Own(n);
-  }
-  return n;
-}
 
 void GetDocumentRequest::clear_consistency_selector() {
 // @@protoc_insertion_point(one_of_clear_start:google.firestore.v1.GetDocumentRequest)
   switch (consistency_selector_case()) {
     case kTransaction: {
-      consistency_selector_.transaction_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+      consistency_selector_.transaction_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
       break;
     }
     case kReadTime: {
@@ -1524,38 +1316,93 @@ void GetDocumentRequest::clear_consistency_selector() {
 
 void GetDocumentRequest::Clear() {
 // @@protoc_insertion_point(message_clear_start:google.firestore.v1.GetDocumentRequest)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  name_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  if (GetArenaNoVirtual() == NULL && mask_ != NULL) {
+  name_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (GetArenaNoVirtual() == nullptr && mask_ != nullptr) {
     delete mask_;
   }
-  mask_ = NULL;
+  mask_ = nullptr;
   clear_consistency_selector();
   _internal_metadata_.Clear();
 }
 
+#if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
+const char* GetDocumentRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    CHK_(ptr);
+    switch (tag >> 3) {
+      // string name = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParserUTF8(mutable_name(), ptr, ctx, "google.firestore.v1.GetDocumentRequest.name");
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // .google.firestore.v1.DocumentMask mask = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
+          ptr = ctx->ParseMessage(mutable_mask(), ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // bytes transaction = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(mutable_transaction(), ptr, ctx);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // .google.protobuf.Timestamp read_time = 5;
+      case 5:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 42)) {
+          ptr = ctx->ParseMessage(mutable_read_time(), ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
+    }  // switch
+  }  // while
+success:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto success;
+#undef CHK_
+}
+#else  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 bool GetDocumentRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
+    ::PROTOBUF_NAMESPACE_ID::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!PROTOBUF_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::PROTOBUF_NAMESPACE_ID::uint32 tag;
   // @@protoc_insertion_point(parse_start:google.firestore.v1.GetDocumentRequest)
   for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    ::std::pair<::PROTOBUF_NAMESPACE_ID::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
     tag = p.first;
     if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+    switch (::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::GetTagFieldNumber(tag)) {
       // string name = 1;
       case 1: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(10u /* 10 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (10 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadString(
                 input, this->mutable_name()));
-          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
             this->name().data(), static_cast<int>(this->name().length()),
-            ::google::protobuf::internal::WireFormatLite::PARSE,
+            ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE,
             "google.firestore.v1.GetDocumentRequest.name"));
         } else {
           goto handle_unusual;
@@ -1565,9 +1412,8 @@ bool GetDocumentRequest::MergePartialFromCodedStream(
 
       // .google.firestore.v1.DocumentMask mask = 2;
       case 2: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(18u /* 18 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (18 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
                input, mutable_mask()));
         } else {
           goto handle_unusual;
@@ -1577,9 +1423,8 @@ bool GetDocumentRequest::MergePartialFromCodedStream(
 
       // bytes transaction = 3;
       case 3: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(26u /* 26 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadBytes(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (26 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadBytes(
                 input, this->mutable_transaction()));
         } else {
           goto handle_unusual;
@@ -1589,9 +1434,8 @@ bool GetDocumentRequest::MergePartialFromCodedStream(
 
       // .google.protobuf.Timestamp read_time = 5;
       case 5: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(42u /* 42 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (42 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
                input, mutable_read_time()));
         } else {
           goto handle_unusual;
@@ -1604,7 +1448,7 @@ bool GetDocumentRequest::MergePartialFromCodedStream(
         if (tag == 0) {
           goto success;
         }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
+        DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SkipField(
               input, tag, _internal_metadata_.mutable_unknown_fields()));
         break;
       }
@@ -1618,90 +1462,90 @@ failure:
   return false;
 #undef DO_
 }
+#endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 
 void GetDocumentRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
+    ::PROTOBUF_NAMESPACE_ID::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:google.firestore.v1.GetDocumentRequest)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // string name = 1;
   if (this->name().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->name().data(), static_cast<int>(this->name().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.GetDocumentRequest.name");
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringMaybeAliased(
       1, this->name(), output);
   }
 
   // .google.firestore.v1.DocumentMask mask = 2;
   if (this->has_mask()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, *this->mask_, output);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
+      2, _Internal::mask(this), output);
   }
 
   // bytes transaction = 3;
   if (has_transaction()) {
-    ::google::protobuf::internal::WireFormatLite::WriteBytesMaybeAliased(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBytesMaybeAliased(
       3, this->transaction(), output);
   }
 
   // .google.protobuf.Timestamp read_time = 5;
   if (has_read_time()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      5, *consistency_selector_.read_time_, output);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
+      5, _Internal::read_time(this), output);
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
+  if (_internal_metadata_.have_unknown_fields()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFields(
+        _internal_metadata_.unknown_fields(), output);
   }
   // @@protoc_insertion_point(serialize_end:google.firestore.v1.GetDocumentRequest)
 }
 
-::google::protobuf::uint8* GetDocumentRequest::InternalSerializeWithCachedSizesToArray(
-    bool deterministic, ::google::protobuf::uint8* target) const {
-  (void)deterministic; // Unused
+::PROTOBUF_NAMESPACE_ID::uint8* GetDocumentRequest::InternalSerializeWithCachedSizesToArray(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target) const {
   // @@protoc_insertion_point(serialize_to_array_start:google.firestore.v1.GetDocumentRequest)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // string name = 1;
   if (this->name().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->name().data(), static_cast<int>(this->name().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.GetDocumentRequest.name");
     target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringToArray(
         1, this->name(), target);
   }
 
   // .google.firestore.v1.DocumentMask mask = 2;
   if (this->has_mask()) {
-    target = ::google::protobuf::internal::WireFormatLite::
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        2, *this->mask_, deterministic, target);
+        2, _Internal::mask(this), target);
   }
 
   // bytes transaction = 3;
   if (has_transaction()) {
     target =
-      ::google::protobuf::internal::WireFormatLite::WriteBytesToArray(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBytesToArray(
         3, this->transaction(), target);
   }
 
   // .google.protobuf.Timestamp read_time = 5;
   if (has_read_time()) {
-    target = ::google::protobuf::internal::WireFormatLite::
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        5, *consistency_selector_.read_time_, deterministic, target);
+        5, _Internal::read_time(this), target);
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), target);
+  if (_internal_metadata_.have_unknown_fields()) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.GetDocumentRequest)
   return target;
@@ -1711,37 +1555,41 @@ size_t GetDocumentRequest::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:google.firestore.v1.GetDocumentRequest)
   size_t total_size = 0;
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
+  if (_internal_metadata_.have_unknown_fields()) {
     total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()));
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::ComputeUnknownFieldsSize(
+        _internal_metadata_.unknown_fields());
   }
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
   // string name = 1;
   if (this->name().size() > 0) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->name());
   }
 
   // .google.firestore.v1.DocumentMask mask = 2;
   if (this->has_mask()) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::MessageSize(
-        *this->mask_);
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
+        *mask_);
   }
 
   switch (consistency_selector_case()) {
     // bytes transaction = 3;
     case kTransaction: {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::BytesSize(
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
           this->transaction());
       break;
     }
     // .google.protobuf.Timestamp read_time = 5;
     case kReadTime: {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSize(
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
           *consistency_selector_.read_time_);
       break;
     }
@@ -1749,22 +1597,20 @@ size_t GetDocumentRequest::ByteSizeLong() const {
       break;
     }
   }
-  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = cached_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
   return total_size;
 }
 
-void GetDocumentRequest::MergeFrom(const ::google::protobuf::Message& from) {
+void GetDocumentRequest::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_merge_from_start:google.firestore.v1.GetDocumentRequest)
   GOOGLE_DCHECK_NE(&from, this);
   const GetDocumentRequest* source =
-      ::google::protobuf::internal::DynamicCastToGenerated<const GetDocumentRequest>(
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<GetDocumentRequest>(
           &from);
-  if (source == NULL) {
+  if (source == nullptr) {
   // @@protoc_insertion_point(generalized_merge_from_cast_fail:google.firestore.v1.GetDocumentRequest)
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
   } else {
   // @@protoc_insertion_point(generalized_merge_from_cast_success:google.firestore.v1.GetDocumentRequest)
     MergeFrom(*source);
@@ -1775,12 +1621,12 @@ void GetDocumentRequest::MergeFrom(const GetDocumentRequest& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.GetDocumentRequest)
   GOOGLE_DCHECK_NE(&from, this);
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   if (from.name().size() > 0) {
 
-    name_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.name_);
+    name_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.name_);
   }
   if (from.has_mask()) {
     mutable_mask()->::google::firestore::v1::DocumentMask::MergeFrom(from.mask());
@@ -1791,7 +1637,7 @@ void GetDocumentRequest::MergeFrom(const GetDocumentRequest& from) {
       break;
     }
     case kReadTime: {
-      mutable_read_time()->::google::protobuf::Timestamp::MergeFrom(from.read_time());
+      mutable_read_time()->PROTOBUF_NAMESPACE_ID::Timestamp::MergeFrom(from.read_time());
       break;
     }
     case CONSISTENCY_SELECTOR_NOT_SET: {
@@ -1800,7 +1646,7 @@ void GetDocumentRequest::MergeFrom(const GetDocumentRequest& from) {
   }
 }
 
-void GetDocumentRequest::CopyFrom(const ::google::protobuf::Message& from) {
+void GetDocumentRequest::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_copy_from_start:google.firestore.v1.GetDocumentRequest)
   if (&from == this) return;
   Clear();
@@ -1818,23 +1664,18 @@ bool GetDocumentRequest::IsInitialized() const {
   return true;
 }
 
-void GetDocumentRequest::Swap(GetDocumentRequest* other) {
-  if (other == this) return;
-  InternalSwap(other);
-}
 void GetDocumentRequest::InternalSwap(GetDocumentRequest* other) {
   using std::swap;
-  name_.Swap(&other->name_);
+  _internal_metadata_.Swap(&other->_internal_metadata_);
+  name_.Swap(&other->name_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
   swap(mask_, other->mask_);
   swap(consistency_selector_, other->consistency_selector_);
   swap(_oneof_case_[0], other->_oneof_case_[0]);
-  _internal_metadata_.Swap(&other->_internal_metadata_);
-  swap(_cached_size_, other->_cached_size_);
 }
 
-::google::protobuf::Metadata GetDocumentRequest::GetMetadata() const {
-  protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages];
+::PROTOBUF_NAMESPACE_ID::Metadata GetDocumentRequest::GetMetadata() const {
+  return GetMetadataStatic();
 }
 
 
@@ -1844,24 +1685,38 @@ void ListDocumentsRequest::InitAsDefaultInstance() {
   ::google::firestore::v1::_ListDocumentsRequest_default_instance_._instance.get_mutable()->mask_ = const_cast< ::google::firestore::v1::DocumentMask*>(
       ::google::firestore::v1::DocumentMask::internal_default_instance());
   ::google::firestore::v1::_ListDocumentsRequest_default_instance_.transaction_.UnsafeSetDefault(
-      &::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  ::google::firestore::v1::_ListDocumentsRequest_default_instance_.read_time_ = const_cast< ::google::protobuf::Timestamp*>(
-      ::google::protobuf::Timestamp::internal_default_instance());
+      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  ::google::firestore::v1::_ListDocumentsRequest_default_instance_.read_time_ = const_cast< PROTOBUF_NAMESPACE_ID::Timestamp*>(
+      PROTOBUF_NAMESPACE_ID::Timestamp::internal_default_instance());
+}
+class ListDocumentsRequest::_Internal {
+ public:
+  static const ::google::firestore::v1::DocumentMask& mask(const ListDocumentsRequest* msg);
+  static const PROTOBUF_NAMESPACE_ID::Timestamp& read_time(const ListDocumentsRequest* msg);
+};
+
+const ::google::firestore::v1::DocumentMask&
+ListDocumentsRequest::_Internal::mask(const ListDocumentsRequest* msg) {
+  return *msg->mask_;
+}
+const PROTOBUF_NAMESPACE_ID::Timestamp&
+ListDocumentsRequest::_Internal::read_time(const ListDocumentsRequest* msg) {
+  return *msg->consistency_selector_.read_time_;
 }
 void ListDocumentsRequest::clear_mask() {
-  if (GetArenaNoVirtual() == NULL && mask_ != NULL) {
+  if (GetArenaNoVirtual() == nullptr && mask_ != nullptr) {
     delete mask_;
   }
-  mask_ = NULL;
+  mask_ = nullptr;
 }
-void ListDocumentsRequest::set_allocated_read_time(::google::protobuf::Timestamp* read_time) {
-  ::google::protobuf::Arena* message_arena = GetArenaNoVirtual();
+void ListDocumentsRequest::set_allocated_read_time(PROTOBUF_NAMESPACE_ID::Timestamp* read_time) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
   clear_consistency_selector();
   if (read_time) {
-    ::google::protobuf::Arena* submessage_arena =
-      reinterpret_cast< ::google::protobuf::MessageLite*>(read_time)->GetArena();
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+      reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(read_time)->GetArena();
     if (message_arena != submessage_arena) {
-      read_time = ::google::protobuf::internal::GetOwnedMessage(
+      read_time = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
           message_arena, read_time, submessage_arena);
     }
     set_has_read_time();
@@ -1875,51 +1730,35 @@ void ListDocumentsRequest::clear_read_time() {
     clear_has_consistency_selector();
   }
 }
-#if !defined(_MSC_VER) || _MSC_VER >= 1900
-const int ListDocumentsRequest::kParentFieldNumber;
-const int ListDocumentsRequest::kCollectionIdFieldNumber;
-const int ListDocumentsRequest::kPageSizeFieldNumber;
-const int ListDocumentsRequest::kPageTokenFieldNumber;
-const int ListDocumentsRequest::kOrderByFieldNumber;
-const int ListDocumentsRequest::kMaskFieldNumber;
-const int ListDocumentsRequest::kTransactionFieldNumber;
-const int ListDocumentsRequest::kReadTimeFieldNumber;
-const int ListDocumentsRequest::kShowMissingFieldNumber;
-#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
-
 ListDocumentsRequest::ListDocumentsRequest()
-  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
-  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
-    ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsListDocumentsRequest();
-  }
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:google.firestore.v1.ListDocumentsRequest)
 }
 ListDocumentsRequest::ListDocumentsRequest(const ListDocumentsRequest& from)
-  : ::google::protobuf::Message(),
-      _internal_metadata_(NULL),
-      _cached_size_(0) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
+      _internal_metadata_(nullptr) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  parent_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  if (from.parent().size() > 0) {
-    parent_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.parent_);
+  parent_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from.parent().empty()) {
+    parent_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.parent_);
   }
-  collection_id_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  if (from.collection_id().size() > 0) {
-    collection_id_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.collection_id_);
+  collection_id_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from.collection_id().empty()) {
+    collection_id_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.collection_id_);
   }
-  page_token_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  if (from.page_token().size() > 0) {
-    page_token_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.page_token_);
+  page_token_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from.page_token().empty()) {
+    page_token_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.page_token_);
   }
-  order_by_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  if (from.order_by().size() > 0) {
-    order_by_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.order_by_);
+  order_by_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from.order_by().empty()) {
+    order_by_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.order_by_);
   }
   if (from.has_mask()) {
     mask_ = new ::google::firestore::v1::DocumentMask(*from.mask_);
   } else {
-    mask_ = NULL;
+    mask_ = nullptr;
   }
   ::memcpy(&page_size_, &from.page_size_,
     static_cast<size_t>(reinterpret_cast<char*>(&show_missing_) -
@@ -1931,7 +1770,7 @@ ListDocumentsRequest::ListDocumentsRequest(const ListDocumentsRequest& from)
       break;
     }
     case kReadTime: {
-      mutable_read_time()->::google::protobuf::Timestamp::MergeFrom(from.read_time());
+      mutable_read_time()->PROTOBUF_NAMESPACE_ID::Timestamp::MergeFrom(from.read_time());
       break;
     }
     case CONSISTENCY_SELECTOR_NOT_SET: {
@@ -1942,15 +1781,15 @@ ListDocumentsRequest::ListDocumentsRequest(const ListDocumentsRequest& from)
 }
 
 void ListDocumentsRequest::SharedCtor() {
-  parent_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  collection_id_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  page_token_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  order_by_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_ListDocumentsRequest_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
+  parent_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  collection_id_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  page_token_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  order_by_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   ::memset(&mask_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&show_missing_) -
       reinterpret_cast<char*>(&mask_)) + sizeof(show_missing_));
   clear_has_consistency_selector();
-  _cached_size_ = 0;
 }
 
 ListDocumentsRequest::~ListDocumentsRequest() {
@@ -1959,10 +1798,10 @@ ListDocumentsRequest::~ListDocumentsRequest() {
 }
 
 void ListDocumentsRequest::SharedDtor() {
-  parent_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  collection_id_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  page_token_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  order_by_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  parent_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  collection_id_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  page_token_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  order_by_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   if (this != internal_default_instance()) delete mask_;
   if (has_consistency_selector()) {
     clear_consistency_selector();
@@ -1970,33 +1809,19 @@ void ListDocumentsRequest::SharedDtor() {
 }
 
 void ListDocumentsRequest::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  _cached_size_.Set(size);
 }
-const ::google::protobuf::Descriptor* ListDocumentsRequest::descriptor() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages].descriptor;
-}
-
 const ListDocumentsRequest& ListDocumentsRequest::default_instance() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsListDocumentsRequest();
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_ListDocumentsRequest_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
   return *internal_default_instance();
 }
 
-ListDocumentsRequest* ListDocumentsRequest::New(::google::protobuf::Arena* arena) const {
-  ListDocumentsRequest* n = new ListDocumentsRequest;
-  if (arena != NULL) {
-    arena->Own(n);
-  }
-  return n;
-}
 
 void ListDocumentsRequest::clear_consistency_selector() {
 // @@protoc_insertion_point(one_of_clear_start:google.firestore.v1.ListDocumentsRequest)
   switch (consistency_selector_case()) {
     case kTransaction: {
-      consistency_selector_.transaction_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+      consistency_selector_.transaction_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
       break;
     }
     case kReadTime: {
@@ -2013,18 +1838,18 @@ void ListDocumentsRequest::clear_consistency_selector() {
 
 void ListDocumentsRequest::Clear() {
 // @@protoc_insertion_point(message_clear_start:google.firestore.v1.ListDocumentsRequest)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  parent_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  collection_id_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  page_token_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  order_by_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  if (GetArenaNoVirtual() == NULL && mask_ != NULL) {
+  parent_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  collection_id_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  page_token_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  order_by_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (GetArenaNoVirtual() == nullptr && mask_ != nullptr) {
     delete mask_;
   }
-  mask_ = NULL;
+  mask_ = nullptr;
   ::memset(&page_size_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&show_missing_) -
       reinterpret_cast<char*>(&page_size_)) + sizeof(show_missing_));
@@ -2032,25 +1857,115 @@ void ListDocumentsRequest::Clear() {
   _internal_metadata_.Clear();
 }
 
+#if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
+const char* ListDocumentsRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    CHK_(ptr);
+    switch (tag >> 3) {
+      // string parent = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParserUTF8(mutable_parent(), ptr, ctx, "google.firestore.v1.ListDocumentsRequest.parent");
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // string collection_id = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParserUTF8(mutable_collection_id(), ptr, ctx, "google.firestore.v1.ListDocumentsRequest.collection_id");
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // int32 page_size = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 24)) {
+          page_size_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // string page_token = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParserUTF8(mutable_page_token(), ptr, ctx, "google.firestore.v1.ListDocumentsRequest.page_token");
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // string order_by = 6;
+      case 6:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 50)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParserUTF8(mutable_order_by(), ptr, ctx, "google.firestore.v1.ListDocumentsRequest.order_by");
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // .google.firestore.v1.DocumentMask mask = 7;
+      case 7:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 58)) {
+          ptr = ctx->ParseMessage(mutable_mask(), ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // bytes transaction = 8;
+      case 8:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 66)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(mutable_transaction(), ptr, ctx);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // .google.protobuf.Timestamp read_time = 10;
+      case 10:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 82)) {
+          ptr = ctx->ParseMessage(mutable_read_time(), ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // bool show_missing = 12;
+      case 12:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 96)) {
+          show_missing_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
+    }  // switch
+  }  // while
+success:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto success;
+#undef CHK_
+}
+#else  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 bool ListDocumentsRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
+    ::PROTOBUF_NAMESPACE_ID::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!PROTOBUF_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::PROTOBUF_NAMESPACE_ID::uint32 tag;
   // @@protoc_insertion_point(parse_start:google.firestore.v1.ListDocumentsRequest)
   for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    ::std::pair<::PROTOBUF_NAMESPACE_ID::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
     tag = p.first;
     if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+    switch (::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::GetTagFieldNumber(tag)) {
       // string parent = 1;
       case 1: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(10u /* 10 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (10 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadString(
                 input, this->mutable_parent()));
-          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
             this->parent().data(), static_cast<int>(this->parent().length()),
-            ::google::protobuf::internal::WireFormatLite::PARSE,
+            ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE,
             "google.firestore.v1.ListDocumentsRequest.parent"));
         } else {
           goto handle_unusual;
@@ -2060,13 +1975,12 @@ bool ListDocumentsRequest::MergePartialFromCodedStream(
 
       // string collection_id = 2;
       case 2: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(18u /* 18 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (18 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadString(
                 input, this->mutable_collection_id()));
-          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
             this->collection_id().data(), static_cast<int>(this->collection_id().length()),
-            ::google::protobuf::internal::WireFormatLite::PARSE,
+            ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE,
             "google.firestore.v1.ListDocumentsRequest.collection_id"));
         } else {
           goto handle_unusual;
@@ -2076,11 +1990,10 @@ bool ListDocumentsRequest::MergePartialFromCodedStream(
 
       // int32 page_size = 3;
       case 3: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(24u /* 24 & 0xFF */)) {
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (24 & 0xFF)) {
 
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+          DO_((::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadPrimitive<
+                   ::PROTOBUF_NAMESPACE_ID::int32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32>(
                  input, &page_size_)));
         } else {
           goto handle_unusual;
@@ -2090,13 +2003,12 @@ bool ListDocumentsRequest::MergePartialFromCodedStream(
 
       // string page_token = 4;
       case 4: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(34u /* 34 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (34 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadString(
                 input, this->mutable_page_token()));
-          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
             this->page_token().data(), static_cast<int>(this->page_token().length()),
-            ::google::protobuf::internal::WireFormatLite::PARSE,
+            ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE,
             "google.firestore.v1.ListDocumentsRequest.page_token"));
         } else {
           goto handle_unusual;
@@ -2106,13 +2018,12 @@ bool ListDocumentsRequest::MergePartialFromCodedStream(
 
       // string order_by = 6;
       case 6: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(50u /* 50 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (50 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadString(
                 input, this->mutable_order_by()));
-          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
             this->order_by().data(), static_cast<int>(this->order_by().length()),
-            ::google::protobuf::internal::WireFormatLite::PARSE,
+            ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE,
             "google.firestore.v1.ListDocumentsRequest.order_by"));
         } else {
           goto handle_unusual;
@@ -2122,9 +2033,8 @@ bool ListDocumentsRequest::MergePartialFromCodedStream(
 
       // .google.firestore.v1.DocumentMask mask = 7;
       case 7: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(58u /* 58 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (58 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
                input, mutable_mask()));
         } else {
           goto handle_unusual;
@@ -2134,9 +2044,8 @@ bool ListDocumentsRequest::MergePartialFromCodedStream(
 
       // bytes transaction = 8;
       case 8: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(66u /* 66 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadBytes(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (66 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadBytes(
                 input, this->mutable_transaction()));
         } else {
           goto handle_unusual;
@@ -2146,9 +2055,8 @@ bool ListDocumentsRequest::MergePartialFromCodedStream(
 
       // .google.protobuf.Timestamp read_time = 10;
       case 10: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(82u /* 82 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (82 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
                input, mutable_read_time()));
         } else {
           goto handle_unusual;
@@ -2158,11 +2066,10 @@ bool ListDocumentsRequest::MergePartialFromCodedStream(
 
       // bool show_missing = 12;
       case 12: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(96u /* 96 & 0xFF */)) {
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (96 & 0xFF)) {
 
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
+          DO_((::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadPrimitive<
+                   bool, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL>(
                  input, &show_missing_)));
         } else {
           goto handle_unusual;
@@ -2175,7 +2082,7 @@ bool ListDocumentsRequest::MergePartialFromCodedStream(
         if (tag == 0) {
           goto success;
         }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
+        DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SkipField(
               input, tag, _internal_metadata_.mutable_unknown_fields()));
         break;
       }
@@ -2189,173 +2096,173 @@ failure:
   return false;
 #undef DO_
 }
+#endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 
 void ListDocumentsRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
+    ::PROTOBUF_NAMESPACE_ID::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:google.firestore.v1.ListDocumentsRequest)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // string parent = 1;
   if (this->parent().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->parent().data(), static_cast<int>(this->parent().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.ListDocumentsRequest.parent");
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringMaybeAliased(
       1, this->parent(), output);
   }
 
   // string collection_id = 2;
   if (this->collection_id().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->collection_id().data(), static_cast<int>(this->collection_id().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.ListDocumentsRequest.collection_id");
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringMaybeAliased(
       2, this->collection_id(), output);
   }
 
   // int32 page_size = 3;
   if (this->page_size() != 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteInt32(3, this->page_size(), output);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32(3, this->page_size(), output);
   }
 
   // string page_token = 4;
   if (this->page_token().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->page_token().data(), static_cast<int>(this->page_token().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.ListDocumentsRequest.page_token");
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringMaybeAliased(
       4, this->page_token(), output);
   }
 
   // string order_by = 6;
   if (this->order_by().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->order_by().data(), static_cast<int>(this->order_by().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.ListDocumentsRequest.order_by");
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringMaybeAliased(
       6, this->order_by(), output);
   }
 
   // .google.firestore.v1.DocumentMask mask = 7;
   if (this->has_mask()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      7, *this->mask_, output);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
+      7, _Internal::mask(this), output);
   }
 
   // bytes transaction = 8;
   if (has_transaction()) {
-    ::google::protobuf::internal::WireFormatLite::WriteBytesMaybeAliased(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBytesMaybeAliased(
       8, this->transaction(), output);
   }
 
   // .google.protobuf.Timestamp read_time = 10;
   if (has_read_time()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      10, *consistency_selector_.read_time_, output);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
+      10, _Internal::read_time(this), output);
   }
 
   // bool show_missing = 12;
   if (this->show_missing() != 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteBool(12, this->show_missing(), output);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBool(12, this->show_missing(), output);
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
+  if (_internal_metadata_.have_unknown_fields()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFields(
+        _internal_metadata_.unknown_fields(), output);
   }
   // @@protoc_insertion_point(serialize_end:google.firestore.v1.ListDocumentsRequest)
 }
 
-::google::protobuf::uint8* ListDocumentsRequest::InternalSerializeWithCachedSizesToArray(
-    bool deterministic, ::google::protobuf::uint8* target) const {
-  (void)deterministic; // Unused
+::PROTOBUF_NAMESPACE_ID::uint8* ListDocumentsRequest::InternalSerializeWithCachedSizesToArray(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target) const {
   // @@protoc_insertion_point(serialize_to_array_start:google.firestore.v1.ListDocumentsRequest)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // string parent = 1;
   if (this->parent().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->parent().data(), static_cast<int>(this->parent().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.ListDocumentsRequest.parent");
     target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringToArray(
         1, this->parent(), target);
   }
 
   // string collection_id = 2;
   if (this->collection_id().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->collection_id().data(), static_cast<int>(this->collection_id().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.ListDocumentsRequest.collection_id");
     target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringToArray(
         2, this->collection_id(), target);
   }
 
   // int32 page_size = 3;
   if (this->page_size() != 0) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(3, this->page_size(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(3, this->page_size(), target);
   }
 
   // string page_token = 4;
   if (this->page_token().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->page_token().data(), static_cast<int>(this->page_token().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.ListDocumentsRequest.page_token");
     target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringToArray(
         4, this->page_token(), target);
   }
 
   // string order_by = 6;
   if (this->order_by().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->order_by().data(), static_cast<int>(this->order_by().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.ListDocumentsRequest.order_by");
     target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringToArray(
         6, this->order_by(), target);
   }
 
   // .google.firestore.v1.DocumentMask mask = 7;
   if (this->has_mask()) {
-    target = ::google::protobuf::internal::WireFormatLite::
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        7, *this->mask_, deterministic, target);
+        7, _Internal::mask(this), target);
   }
 
   // bytes transaction = 8;
   if (has_transaction()) {
     target =
-      ::google::protobuf::internal::WireFormatLite::WriteBytesToArray(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBytesToArray(
         8, this->transaction(), target);
   }
 
   // .google.protobuf.Timestamp read_time = 10;
   if (has_read_time()) {
-    target = ::google::protobuf::internal::WireFormatLite::
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        10, *consistency_selector_.read_time_, deterministic, target);
+        10, _Internal::read_time(this), target);
   }
 
   // bool show_missing = 12;
   if (this->show_missing() != 0) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(12, this->show_missing(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBoolToArray(12, this->show_missing(), target);
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), target);
+  if (_internal_metadata_.have_unknown_fields()) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.ListDocumentsRequest)
   return target;
@@ -2365,50 +2272,54 @@ size_t ListDocumentsRequest::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:google.firestore.v1.ListDocumentsRequest)
   size_t total_size = 0;
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
+  if (_internal_metadata_.have_unknown_fields()) {
     total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()));
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::ComputeUnknownFieldsSize(
+        _internal_metadata_.unknown_fields());
   }
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
   // string parent = 1;
   if (this->parent().size() > 0) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->parent());
   }
 
   // string collection_id = 2;
   if (this->collection_id().size() > 0) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->collection_id());
   }
 
   // string page_token = 4;
   if (this->page_token().size() > 0) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->page_token());
   }
 
   // string order_by = 6;
   if (this->order_by().size() > 0) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->order_by());
   }
 
   // .google.firestore.v1.DocumentMask mask = 7;
   if (this->has_mask()) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::MessageSize(
-        *this->mask_);
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
+        *mask_);
   }
 
   // int32 page_size = 3;
   if (this->page_size() != 0) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::Int32Size(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
         this->page_size());
   }
 
@@ -2421,14 +2332,14 @@ size_t ListDocumentsRequest::ByteSizeLong() const {
     // bytes transaction = 8;
     case kTransaction: {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::BytesSize(
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
           this->transaction());
       break;
     }
     // .google.protobuf.Timestamp read_time = 10;
     case kReadTime: {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSize(
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
           *consistency_selector_.read_time_);
       break;
     }
@@ -2436,22 +2347,20 @@ size_t ListDocumentsRequest::ByteSizeLong() const {
       break;
     }
   }
-  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = cached_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
   return total_size;
 }
 
-void ListDocumentsRequest::MergeFrom(const ::google::protobuf::Message& from) {
+void ListDocumentsRequest::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_merge_from_start:google.firestore.v1.ListDocumentsRequest)
   GOOGLE_DCHECK_NE(&from, this);
   const ListDocumentsRequest* source =
-      ::google::protobuf::internal::DynamicCastToGenerated<const ListDocumentsRequest>(
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<ListDocumentsRequest>(
           &from);
-  if (source == NULL) {
+  if (source == nullptr) {
   // @@protoc_insertion_point(generalized_merge_from_cast_fail:google.firestore.v1.ListDocumentsRequest)
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
   } else {
   // @@protoc_insertion_point(generalized_merge_from_cast_success:google.firestore.v1.ListDocumentsRequest)
     MergeFrom(*source);
@@ -2462,24 +2371,24 @@ void ListDocumentsRequest::MergeFrom(const ListDocumentsRequest& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.ListDocumentsRequest)
   GOOGLE_DCHECK_NE(&from, this);
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   if (from.parent().size() > 0) {
 
-    parent_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.parent_);
+    parent_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.parent_);
   }
   if (from.collection_id().size() > 0) {
 
-    collection_id_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.collection_id_);
+    collection_id_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.collection_id_);
   }
   if (from.page_token().size() > 0) {
 
-    page_token_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.page_token_);
+    page_token_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.page_token_);
   }
   if (from.order_by().size() > 0) {
 
-    order_by_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.order_by_);
+    order_by_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.order_by_);
   }
   if (from.has_mask()) {
     mutable_mask()->::google::firestore::v1::DocumentMask::MergeFrom(from.mask());
@@ -2496,7 +2405,7 @@ void ListDocumentsRequest::MergeFrom(const ListDocumentsRequest& from) {
       break;
     }
     case kReadTime: {
-      mutable_read_time()->::google::protobuf::Timestamp::MergeFrom(from.read_time());
+      mutable_read_time()->PROTOBUF_NAMESPACE_ID::Timestamp::MergeFrom(from.read_time());
       break;
     }
     case CONSISTENCY_SELECTOR_NOT_SET: {
@@ -2505,7 +2414,7 @@ void ListDocumentsRequest::MergeFrom(const ListDocumentsRequest& from) {
   }
 }
 
-void ListDocumentsRequest::CopyFrom(const ::google::protobuf::Message& from) {
+void ListDocumentsRequest::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_copy_from_start:google.firestore.v1.ListDocumentsRequest)
   if (&from == this) return;
   Clear();
@@ -2523,28 +2432,26 @@ bool ListDocumentsRequest::IsInitialized() const {
   return true;
 }
 
-void ListDocumentsRequest::Swap(ListDocumentsRequest* other) {
-  if (other == this) return;
-  InternalSwap(other);
-}
 void ListDocumentsRequest::InternalSwap(ListDocumentsRequest* other) {
   using std::swap;
-  parent_.Swap(&other->parent_);
-  collection_id_.Swap(&other->collection_id_);
-  page_token_.Swap(&other->page_token_);
-  order_by_.Swap(&other->order_by_);
+  _internal_metadata_.Swap(&other->_internal_metadata_);
+  parent_.Swap(&other->parent_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
+  collection_id_.Swap(&other->collection_id_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
+  page_token_.Swap(&other->page_token_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
+  order_by_.Swap(&other->order_by_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
   swap(mask_, other->mask_);
   swap(page_size_, other->page_size_);
   swap(show_missing_, other->show_missing_);
   swap(consistency_selector_, other->consistency_selector_);
   swap(_oneof_case_[0], other->_oneof_case_[0]);
-  _internal_metadata_.Swap(&other->_internal_metadata_);
-  swap(_cached_size_, other->_cached_size_);
 }
 
-::google::protobuf::Metadata ListDocumentsRequest::GetMetadata() const {
-  protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages];
+::PROTOBUF_NAMESPACE_ID::Metadata ListDocumentsRequest::GetMetadata() const {
+  return GetMetadataStatic();
 }
 
 
@@ -2552,38 +2459,33 @@ void ListDocumentsRequest::InternalSwap(ListDocumentsRequest* other) {
 
 void ListDocumentsResponse::InitAsDefaultInstance() {
 }
+class ListDocumentsResponse::_Internal {
+ public:
+};
+
 void ListDocumentsResponse::clear_documents() {
   documents_.Clear();
 }
-#if !defined(_MSC_VER) || _MSC_VER >= 1900
-const int ListDocumentsResponse::kDocumentsFieldNumber;
-const int ListDocumentsResponse::kNextPageTokenFieldNumber;
-#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
-
 ListDocumentsResponse::ListDocumentsResponse()
-  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
-  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
-    ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsListDocumentsResponse();
-  }
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:google.firestore.v1.ListDocumentsResponse)
 }
 ListDocumentsResponse::ListDocumentsResponse(const ListDocumentsResponse& from)
-  : ::google::protobuf::Message(),
-      _internal_metadata_(NULL),
-      documents_(from.documents_),
-      _cached_size_(0) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
+      _internal_metadata_(nullptr),
+      documents_(from.documents_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  next_page_token_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  if (from.next_page_token().size() > 0) {
-    next_page_token_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.next_page_token_);
+  next_page_token_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from.next_page_token().empty()) {
+    next_page_token_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.next_page_token_);
   }
   // @@protoc_insertion_point(copy_constructor:google.firestore.v1.ListDocumentsResponse)
 }
 
 void ListDocumentsResponse::SharedCtor() {
-  next_page_token_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  _cached_size_ = 0;
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_ListDocumentsResponse_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
+  next_page_token_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 
 ListDocumentsResponse::~ListDocumentsResponse() {
@@ -2592,58 +2494,91 @@ ListDocumentsResponse::~ListDocumentsResponse() {
 }
 
 void ListDocumentsResponse::SharedDtor() {
-  next_page_token_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  next_page_token_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 
 void ListDocumentsResponse::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  _cached_size_.Set(size);
 }
-const ::google::protobuf::Descriptor* ListDocumentsResponse::descriptor() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages].descriptor;
-}
-
 const ListDocumentsResponse& ListDocumentsResponse::default_instance() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsListDocumentsResponse();
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_ListDocumentsResponse_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
   return *internal_default_instance();
 }
 
-ListDocumentsResponse* ListDocumentsResponse::New(::google::protobuf::Arena* arena) const {
-  ListDocumentsResponse* n = new ListDocumentsResponse;
-  if (arena != NULL) {
-    arena->Own(n);
-  }
-  return n;
-}
 
 void ListDocumentsResponse::Clear() {
 // @@protoc_insertion_point(message_clear_start:google.firestore.v1.ListDocumentsResponse)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
   documents_.Clear();
-  next_page_token_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  next_page_token_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   _internal_metadata_.Clear();
 }
 
+#if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
+const char* ListDocumentsResponse::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    CHK_(ptr);
+    switch (tag >> 3) {
+      // repeated .google.firestore.v1.Document documents = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
+          ptr -= 1;
+          do {
+            ptr += 1;
+            ptr = ctx->ParseMessage(add_documents(), ptr);
+            CHK_(ptr);
+            if (!ctx->DataAvailable(ptr)) break;
+          } while (::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<::PROTOBUF_NAMESPACE_ID::uint8>(ptr) == 10);
+        } else goto handle_unusual;
+        continue;
+      // string next_page_token = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParserUTF8(mutable_next_page_token(), ptr, ctx, "google.firestore.v1.ListDocumentsResponse.next_page_token");
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
+    }  // switch
+  }  // while
+success:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto success;
+#undef CHK_
+}
+#else  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 bool ListDocumentsResponse::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
+    ::PROTOBUF_NAMESPACE_ID::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!PROTOBUF_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::PROTOBUF_NAMESPACE_ID::uint32 tag;
   // @@protoc_insertion_point(parse_start:google.firestore.v1.ListDocumentsResponse)
   for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    ::std::pair<::PROTOBUF_NAMESPACE_ID::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
     tag = p.first;
     if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+    switch (::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::GetTagFieldNumber(tag)) {
       // repeated .google.firestore.v1.Document documents = 1;
       case 1: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(10u /* 10 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(input, add_documents()));
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (10 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
+                input, add_documents()));
         } else {
           goto handle_unusual;
         }
@@ -2652,13 +2587,12 @@ bool ListDocumentsResponse::MergePartialFromCodedStream(
 
       // string next_page_token = 2;
       case 2: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(18u /* 18 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (18 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadString(
                 input, this->mutable_next_page_token()));
-          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
             this->next_page_token().data(), static_cast<int>(this->next_page_token().length()),
-            ::google::protobuf::internal::WireFormatLite::PARSE,
+            ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE,
             "google.firestore.v1.ListDocumentsResponse.next_page_token"));
         } else {
           goto handle_unusual;
@@ -2671,7 +2605,7 @@ bool ListDocumentsResponse::MergePartialFromCodedStream(
         if (tag == 0) {
           goto success;
         }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
+        DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SkipField(
               input, tag, _internal_metadata_.mutable_unknown_fields()));
         break;
       }
@@ -2685,66 +2619,68 @@ failure:
   return false;
 #undef DO_
 }
+#endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 
 void ListDocumentsResponse::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
+    ::PROTOBUF_NAMESPACE_ID::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:google.firestore.v1.ListDocumentsResponse)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // repeated .google.firestore.v1.Document documents = 1;
   for (unsigned int i = 0,
       n = static_cast<unsigned int>(this->documents_size()); i < n; i++) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->documents(static_cast<int>(i)), output);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
+      1,
+      this->documents(static_cast<int>(i)),
+      output);
   }
 
   // string next_page_token = 2;
   if (this->next_page_token().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->next_page_token().data(), static_cast<int>(this->next_page_token().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.ListDocumentsResponse.next_page_token");
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringMaybeAliased(
       2, this->next_page_token(), output);
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
+  if (_internal_metadata_.have_unknown_fields()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFields(
+        _internal_metadata_.unknown_fields(), output);
   }
   // @@protoc_insertion_point(serialize_end:google.firestore.v1.ListDocumentsResponse)
 }
 
-::google::protobuf::uint8* ListDocumentsResponse::InternalSerializeWithCachedSizesToArray(
-    bool deterministic, ::google::protobuf::uint8* target) const {
-  (void)deterministic; // Unused
+::PROTOBUF_NAMESPACE_ID::uint8* ListDocumentsResponse::InternalSerializeWithCachedSizesToArray(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target) const {
   // @@protoc_insertion_point(serialize_to_array_start:google.firestore.v1.ListDocumentsResponse)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // repeated .google.firestore.v1.Document documents = 1;
   for (unsigned int i = 0,
       n = static_cast<unsigned int>(this->documents_size()); i < n; i++) {
-    target = ::google::protobuf::internal::WireFormatLite::
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        1, this->documents(static_cast<int>(i)), deterministic, target);
+        1, this->documents(static_cast<int>(i)), target);
   }
 
   // string next_page_token = 2;
   if (this->next_page_token().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->next_page_token().data(), static_cast<int>(this->next_page_token().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.ListDocumentsResponse.next_page_token");
     target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringToArray(
         2, this->next_page_token(), target);
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), target);
+  if (_internal_metadata_.have_unknown_fields()) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.ListDocumentsResponse)
   return target;
@@ -2754,18 +2690,22 @@ size_t ListDocumentsResponse::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:google.firestore.v1.ListDocumentsResponse)
   size_t total_size = 0;
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
+  if (_internal_metadata_.have_unknown_fields()) {
     total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()));
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::ComputeUnknownFieldsSize(
+        _internal_metadata_.unknown_fields());
   }
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
   // repeated .google.firestore.v1.Document documents = 1;
   {
     unsigned int count = static_cast<unsigned int>(this->documents_size());
     total_size += 1UL * count;
     for (unsigned int i = 0; i < count; i++) {
       total_size +=
-        ::google::protobuf::internal::WireFormatLite::MessageSize(
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
           this->documents(static_cast<int>(i)));
     }
   }
@@ -2773,26 +2713,24 @@ size_t ListDocumentsResponse::ByteSizeLong() const {
   // string next_page_token = 2;
   if (this->next_page_token().size() > 0) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->next_page_token());
   }
 
-  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = cached_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
   return total_size;
 }
 
-void ListDocumentsResponse::MergeFrom(const ::google::protobuf::Message& from) {
+void ListDocumentsResponse::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_merge_from_start:google.firestore.v1.ListDocumentsResponse)
   GOOGLE_DCHECK_NE(&from, this);
   const ListDocumentsResponse* source =
-      ::google::protobuf::internal::DynamicCastToGenerated<const ListDocumentsResponse>(
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<ListDocumentsResponse>(
           &from);
-  if (source == NULL) {
+  if (source == nullptr) {
   // @@protoc_insertion_point(generalized_merge_from_cast_fail:google.firestore.v1.ListDocumentsResponse)
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
   } else {
   // @@protoc_insertion_point(generalized_merge_from_cast_success:google.firestore.v1.ListDocumentsResponse)
     MergeFrom(*source);
@@ -2803,17 +2741,17 @@ void ListDocumentsResponse::MergeFrom(const ListDocumentsResponse& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.ListDocumentsResponse)
   GOOGLE_DCHECK_NE(&from, this);
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   documents_.MergeFrom(from.documents_);
   if (from.next_page_token().size() > 0) {
 
-    next_page_token_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.next_page_token_);
+    next_page_token_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.next_page_token_);
   }
 }
 
-void ListDocumentsResponse::CopyFrom(const ::google::protobuf::Message& from) {
+void ListDocumentsResponse::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_copy_from_start:google.firestore.v1.ListDocumentsResponse)
   if (&from == this) return;
   Clear();
@@ -2831,21 +2769,16 @@ bool ListDocumentsResponse::IsInitialized() const {
   return true;
 }
 
-void ListDocumentsResponse::Swap(ListDocumentsResponse* other) {
-  if (other == this) return;
-  InternalSwap(other);
-}
 void ListDocumentsResponse::InternalSwap(ListDocumentsResponse* other) {
   using std::swap;
-  documents_.InternalSwap(&other->documents_);
-  next_page_token_.Swap(&other->next_page_token_);
   _internal_metadata_.Swap(&other->_internal_metadata_);
-  swap(_cached_size_, other->_cached_size_);
+  CastToBase(&documents_)->InternalSwap(CastToBase(&other->documents_));
+  next_page_token_.Swap(&other->next_page_token_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
 }
 
-::google::protobuf::Metadata ListDocumentsResponse::GetMetadata() const {
-  protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages];
+::PROTOBUF_NAMESPACE_ID::Metadata ListDocumentsResponse::GetMetadata() const {
+  return GetMetadataStatic();
 }
 
 
@@ -2857,72 +2790,74 @@ void CreateDocumentRequest::InitAsDefaultInstance() {
   ::google::firestore::v1::_CreateDocumentRequest_default_instance_._instance.get_mutable()->mask_ = const_cast< ::google::firestore::v1::DocumentMask*>(
       ::google::firestore::v1::DocumentMask::internal_default_instance());
 }
+class CreateDocumentRequest::_Internal {
+ public:
+  static const ::google::firestore::v1::Document& document(const CreateDocumentRequest* msg);
+  static const ::google::firestore::v1::DocumentMask& mask(const CreateDocumentRequest* msg);
+};
+
+const ::google::firestore::v1::Document&
+CreateDocumentRequest::_Internal::document(const CreateDocumentRequest* msg) {
+  return *msg->document_;
+}
+const ::google::firestore::v1::DocumentMask&
+CreateDocumentRequest::_Internal::mask(const CreateDocumentRequest* msg) {
+  return *msg->mask_;
+}
 void CreateDocumentRequest::clear_document() {
-  if (GetArenaNoVirtual() == NULL && document_ != NULL) {
+  if (GetArenaNoVirtual() == nullptr && document_ != nullptr) {
     delete document_;
   }
-  document_ = NULL;
+  document_ = nullptr;
 }
 void CreateDocumentRequest::clear_mask() {
-  if (GetArenaNoVirtual() == NULL && mask_ != NULL) {
+  if (GetArenaNoVirtual() == nullptr && mask_ != nullptr) {
     delete mask_;
   }
-  mask_ = NULL;
+  mask_ = nullptr;
 }
-#if !defined(_MSC_VER) || _MSC_VER >= 1900
-const int CreateDocumentRequest::kParentFieldNumber;
-const int CreateDocumentRequest::kCollectionIdFieldNumber;
-const int CreateDocumentRequest::kDocumentIdFieldNumber;
-const int CreateDocumentRequest::kDocumentFieldNumber;
-const int CreateDocumentRequest::kMaskFieldNumber;
-#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
-
 CreateDocumentRequest::CreateDocumentRequest()
-  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
-  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
-    ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsCreateDocumentRequest();
-  }
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:google.firestore.v1.CreateDocumentRequest)
 }
 CreateDocumentRequest::CreateDocumentRequest(const CreateDocumentRequest& from)
-  : ::google::protobuf::Message(),
-      _internal_metadata_(NULL),
-      _cached_size_(0) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
+      _internal_metadata_(nullptr) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  parent_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  if (from.parent().size() > 0) {
-    parent_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.parent_);
+  parent_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from.parent().empty()) {
+    parent_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.parent_);
   }
-  collection_id_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  if (from.collection_id().size() > 0) {
-    collection_id_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.collection_id_);
+  collection_id_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from.collection_id().empty()) {
+    collection_id_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.collection_id_);
   }
-  document_id_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  if (from.document_id().size() > 0) {
-    document_id_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.document_id_);
+  document_id_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from.document_id().empty()) {
+    document_id_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.document_id_);
   }
   if (from.has_document()) {
     document_ = new ::google::firestore::v1::Document(*from.document_);
   } else {
-    document_ = NULL;
+    document_ = nullptr;
   }
   if (from.has_mask()) {
     mask_ = new ::google::firestore::v1::DocumentMask(*from.mask_);
   } else {
-    mask_ = NULL;
+    mask_ = nullptr;
   }
   // @@protoc_insertion_point(copy_constructor:google.firestore.v1.CreateDocumentRequest)
 }
 
 void CreateDocumentRequest::SharedCtor() {
-  parent_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  collection_id_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  document_id_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_CreateDocumentRequest_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
+  parent_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  collection_id_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  document_id_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   ::memset(&document_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&mask_) -
       reinterpret_cast<char*>(&document_)) + sizeof(mask_));
-  _cached_size_ = 0;
 }
 
 CreateDocumentRequest::~CreateDocumentRequest() {
@@ -2931,75 +2866,123 @@ CreateDocumentRequest::~CreateDocumentRequest() {
 }
 
 void CreateDocumentRequest::SharedDtor() {
-  parent_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  collection_id_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  document_id_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  parent_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  collection_id_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  document_id_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   if (this != internal_default_instance()) delete document_;
   if (this != internal_default_instance()) delete mask_;
 }
 
 void CreateDocumentRequest::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  _cached_size_.Set(size);
 }
-const ::google::protobuf::Descriptor* CreateDocumentRequest::descriptor() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages].descriptor;
-}
-
 const CreateDocumentRequest& CreateDocumentRequest::default_instance() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsCreateDocumentRequest();
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_CreateDocumentRequest_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
   return *internal_default_instance();
 }
 
-CreateDocumentRequest* CreateDocumentRequest::New(::google::protobuf::Arena* arena) const {
-  CreateDocumentRequest* n = new CreateDocumentRequest;
-  if (arena != NULL) {
-    arena->Own(n);
-  }
-  return n;
-}
 
 void CreateDocumentRequest::Clear() {
 // @@protoc_insertion_point(message_clear_start:google.firestore.v1.CreateDocumentRequest)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  parent_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  collection_id_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  document_id_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  if (GetArenaNoVirtual() == NULL && document_ != NULL) {
+  parent_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  collection_id_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  document_id_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (GetArenaNoVirtual() == nullptr && document_ != nullptr) {
     delete document_;
   }
-  document_ = NULL;
-  if (GetArenaNoVirtual() == NULL && mask_ != NULL) {
+  document_ = nullptr;
+  if (GetArenaNoVirtual() == nullptr && mask_ != nullptr) {
     delete mask_;
   }
-  mask_ = NULL;
+  mask_ = nullptr;
   _internal_metadata_.Clear();
 }
 
+#if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
+const char* CreateDocumentRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    CHK_(ptr);
+    switch (tag >> 3) {
+      // string parent = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParserUTF8(mutable_parent(), ptr, ctx, "google.firestore.v1.CreateDocumentRequest.parent");
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // string collection_id = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParserUTF8(mutable_collection_id(), ptr, ctx, "google.firestore.v1.CreateDocumentRequest.collection_id");
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // string document_id = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParserUTF8(mutable_document_id(), ptr, ctx, "google.firestore.v1.CreateDocumentRequest.document_id");
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // .google.firestore.v1.Document document = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
+          ptr = ctx->ParseMessage(mutable_document(), ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // .google.firestore.v1.DocumentMask mask = 5;
+      case 5:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 42)) {
+          ptr = ctx->ParseMessage(mutable_mask(), ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
+    }  // switch
+  }  // while
+success:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto success;
+#undef CHK_
+}
+#else  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 bool CreateDocumentRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
+    ::PROTOBUF_NAMESPACE_ID::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!PROTOBUF_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::PROTOBUF_NAMESPACE_ID::uint32 tag;
   // @@protoc_insertion_point(parse_start:google.firestore.v1.CreateDocumentRequest)
   for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    ::std::pair<::PROTOBUF_NAMESPACE_ID::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
     tag = p.first;
     if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+    switch (::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::GetTagFieldNumber(tag)) {
       // string parent = 1;
       case 1: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(10u /* 10 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (10 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadString(
                 input, this->mutable_parent()));
-          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
             this->parent().data(), static_cast<int>(this->parent().length()),
-            ::google::protobuf::internal::WireFormatLite::PARSE,
+            ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE,
             "google.firestore.v1.CreateDocumentRequest.parent"));
         } else {
           goto handle_unusual;
@@ -3009,13 +2992,12 @@ bool CreateDocumentRequest::MergePartialFromCodedStream(
 
       // string collection_id = 2;
       case 2: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(18u /* 18 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (18 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadString(
                 input, this->mutable_collection_id()));
-          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
             this->collection_id().data(), static_cast<int>(this->collection_id().length()),
-            ::google::protobuf::internal::WireFormatLite::PARSE,
+            ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE,
             "google.firestore.v1.CreateDocumentRequest.collection_id"));
         } else {
           goto handle_unusual;
@@ -3025,13 +3007,12 @@ bool CreateDocumentRequest::MergePartialFromCodedStream(
 
       // string document_id = 3;
       case 3: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(26u /* 26 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (26 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadString(
                 input, this->mutable_document_id()));
-          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
             this->document_id().data(), static_cast<int>(this->document_id().length()),
-            ::google::protobuf::internal::WireFormatLite::PARSE,
+            ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE,
             "google.firestore.v1.CreateDocumentRequest.document_id"));
         } else {
           goto handle_unusual;
@@ -3041,9 +3022,8 @@ bool CreateDocumentRequest::MergePartialFromCodedStream(
 
       // .google.firestore.v1.Document document = 4;
       case 4: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(34u /* 34 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (34 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
                input, mutable_document()));
         } else {
           goto handle_unusual;
@@ -3053,9 +3033,8 @@ bool CreateDocumentRequest::MergePartialFromCodedStream(
 
       // .google.firestore.v1.DocumentMask mask = 5;
       case 5: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(42u /* 42 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (42 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
                input, mutable_mask()));
         } else {
           goto handle_unusual;
@@ -3068,7 +3047,7 @@ bool CreateDocumentRequest::MergePartialFromCodedStream(
         if (tag == 0) {
           goto success;
         }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
+        DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SkipField(
               input, tag, _internal_metadata_.mutable_unknown_fields()));
         break;
       }
@@ -3082,119 +3061,119 @@ failure:
   return false;
 #undef DO_
 }
+#endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 
 void CreateDocumentRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
+    ::PROTOBUF_NAMESPACE_ID::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:google.firestore.v1.CreateDocumentRequest)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // string parent = 1;
   if (this->parent().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->parent().data(), static_cast<int>(this->parent().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.CreateDocumentRequest.parent");
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringMaybeAliased(
       1, this->parent(), output);
   }
 
   // string collection_id = 2;
   if (this->collection_id().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->collection_id().data(), static_cast<int>(this->collection_id().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.CreateDocumentRequest.collection_id");
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringMaybeAliased(
       2, this->collection_id(), output);
   }
 
   // string document_id = 3;
   if (this->document_id().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->document_id().data(), static_cast<int>(this->document_id().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.CreateDocumentRequest.document_id");
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringMaybeAliased(
       3, this->document_id(), output);
   }
 
   // .google.firestore.v1.Document document = 4;
   if (this->has_document()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      4, *this->document_, output);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
+      4, _Internal::document(this), output);
   }
 
   // .google.firestore.v1.DocumentMask mask = 5;
   if (this->has_mask()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      5, *this->mask_, output);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
+      5, _Internal::mask(this), output);
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
+  if (_internal_metadata_.have_unknown_fields()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFields(
+        _internal_metadata_.unknown_fields(), output);
   }
   // @@protoc_insertion_point(serialize_end:google.firestore.v1.CreateDocumentRequest)
 }
 
-::google::protobuf::uint8* CreateDocumentRequest::InternalSerializeWithCachedSizesToArray(
-    bool deterministic, ::google::protobuf::uint8* target) const {
-  (void)deterministic; // Unused
+::PROTOBUF_NAMESPACE_ID::uint8* CreateDocumentRequest::InternalSerializeWithCachedSizesToArray(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target) const {
   // @@protoc_insertion_point(serialize_to_array_start:google.firestore.v1.CreateDocumentRequest)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // string parent = 1;
   if (this->parent().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->parent().data(), static_cast<int>(this->parent().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.CreateDocumentRequest.parent");
     target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringToArray(
         1, this->parent(), target);
   }
 
   // string collection_id = 2;
   if (this->collection_id().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->collection_id().data(), static_cast<int>(this->collection_id().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.CreateDocumentRequest.collection_id");
     target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringToArray(
         2, this->collection_id(), target);
   }
 
   // string document_id = 3;
   if (this->document_id().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->document_id().data(), static_cast<int>(this->document_id().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.CreateDocumentRequest.document_id");
     target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringToArray(
         3, this->document_id(), target);
   }
 
   // .google.firestore.v1.Document document = 4;
   if (this->has_document()) {
-    target = ::google::protobuf::internal::WireFormatLite::
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        4, *this->document_, deterministic, target);
+        4, _Internal::document(this), target);
   }
 
   // .google.firestore.v1.DocumentMask mask = 5;
   if (this->has_mask()) {
-    target = ::google::protobuf::internal::WireFormatLite::
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        5, *this->mask_, deterministic, target);
+        5, _Internal::mask(this), target);
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), target);
+  if (_internal_metadata_.have_unknown_fields()) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.CreateDocumentRequest)
   return target;
@@ -3204,62 +3183,64 @@ size_t CreateDocumentRequest::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:google.firestore.v1.CreateDocumentRequest)
   size_t total_size = 0;
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
+  if (_internal_metadata_.have_unknown_fields()) {
     total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()));
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::ComputeUnknownFieldsSize(
+        _internal_metadata_.unknown_fields());
   }
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
   // string parent = 1;
   if (this->parent().size() > 0) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->parent());
   }
 
   // string collection_id = 2;
   if (this->collection_id().size() > 0) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->collection_id());
   }
 
   // string document_id = 3;
   if (this->document_id().size() > 0) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->document_id());
   }
 
   // .google.firestore.v1.Document document = 4;
   if (this->has_document()) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::MessageSize(
-        *this->document_);
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
+        *document_);
   }
 
   // .google.firestore.v1.DocumentMask mask = 5;
   if (this->has_mask()) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::MessageSize(
-        *this->mask_);
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
+        *mask_);
   }
 
-  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = cached_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
   return total_size;
 }
 
-void CreateDocumentRequest::MergeFrom(const ::google::protobuf::Message& from) {
+void CreateDocumentRequest::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_merge_from_start:google.firestore.v1.CreateDocumentRequest)
   GOOGLE_DCHECK_NE(&from, this);
   const CreateDocumentRequest* source =
-      ::google::protobuf::internal::DynamicCastToGenerated<const CreateDocumentRequest>(
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<CreateDocumentRequest>(
           &from);
-  if (source == NULL) {
+  if (source == nullptr) {
   // @@protoc_insertion_point(generalized_merge_from_cast_fail:google.firestore.v1.CreateDocumentRequest)
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
   } else {
   // @@protoc_insertion_point(generalized_merge_from_cast_success:google.firestore.v1.CreateDocumentRequest)
     MergeFrom(*source);
@@ -3270,20 +3251,20 @@ void CreateDocumentRequest::MergeFrom(const CreateDocumentRequest& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.CreateDocumentRequest)
   GOOGLE_DCHECK_NE(&from, this);
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   if (from.parent().size() > 0) {
 
-    parent_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.parent_);
+    parent_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.parent_);
   }
   if (from.collection_id().size() > 0) {
 
-    collection_id_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.collection_id_);
+    collection_id_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.collection_id_);
   }
   if (from.document_id().size() > 0) {
 
-    document_id_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.document_id_);
+    document_id_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.document_id_);
   }
   if (from.has_document()) {
     mutable_document()->::google::firestore::v1::Document::MergeFrom(from.document());
@@ -3293,7 +3274,7 @@ void CreateDocumentRequest::MergeFrom(const CreateDocumentRequest& from) {
   }
 }
 
-void CreateDocumentRequest::CopyFrom(const ::google::protobuf::Message& from) {
+void CreateDocumentRequest::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_copy_from_start:google.firestore.v1.CreateDocumentRequest)
   if (&from == this) return;
   Clear();
@@ -3311,24 +3292,21 @@ bool CreateDocumentRequest::IsInitialized() const {
   return true;
 }
 
-void CreateDocumentRequest::Swap(CreateDocumentRequest* other) {
-  if (other == this) return;
-  InternalSwap(other);
-}
 void CreateDocumentRequest::InternalSwap(CreateDocumentRequest* other) {
   using std::swap;
-  parent_.Swap(&other->parent_);
-  collection_id_.Swap(&other->collection_id_);
-  document_id_.Swap(&other->document_id_);
+  _internal_metadata_.Swap(&other->_internal_metadata_);
+  parent_.Swap(&other->parent_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
+  collection_id_.Swap(&other->collection_id_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
+  document_id_.Swap(&other->document_id_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
   swap(document_, other->document_);
   swap(mask_, other->mask_);
-  _internal_metadata_.Swap(&other->_internal_metadata_);
-  swap(_cached_size_, other->_cached_size_);
 }
 
-::google::protobuf::Metadata CreateDocumentRequest::GetMetadata() const {
-  protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages];
+::PROTOBUF_NAMESPACE_ID::Metadata CreateDocumentRequest::GetMetadata() const {
+  return GetMetadataStatic();
 }
 
 
@@ -3344,78 +3322,91 @@ void UpdateDocumentRequest::InitAsDefaultInstance() {
   ::google::firestore::v1::_UpdateDocumentRequest_default_instance_._instance.get_mutable()->current_document_ = const_cast< ::google::firestore::v1::Precondition*>(
       ::google::firestore::v1::Precondition::internal_default_instance());
 }
+class UpdateDocumentRequest::_Internal {
+ public:
+  static const ::google::firestore::v1::Document& document(const UpdateDocumentRequest* msg);
+  static const ::google::firestore::v1::DocumentMask& update_mask(const UpdateDocumentRequest* msg);
+  static const ::google::firestore::v1::DocumentMask& mask(const UpdateDocumentRequest* msg);
+  static const ::google::firestore::v1::Precondition& current_document(const UpdateDocumentRequest* msg);
+};
+
+const ::google::firestore::v1::Document&
+UpdateDocumentRequest::_Internal::document(const UpdateDocumentRequest* msg) {
+  return *msg->document_;
+}
+const ::google::firestore::v1::DocumentMask&
+UpdateDocumentRequest::_Internal::update_mask(const UpdateDocumentRequest* msg) {
+  return *msg->update_mask_;
+}
+const ::google::firestore::v1::DocumentMask&
+UpdateDocumentRequest::_Internal::mask(const UpdateDocumentRequest* msg) {
+  return *msg->mask_;
+}
+const ::google::firestore::v1::Precondition&
+UpdateDocumentRequest::_Internal::current_document(const UpdateDocumentRequest* msg) {
+  return *msg->current_document_;
+}
 void UpdateDocumentRequest::clear_document() {
-  if (GetArenaNoVirtual() == NULL && document_ != NULL) {
+  if (GetArenaNoVirtual() == nullptr && document_ != nullptr) {
     delete document_;
   }
-  document_ = NULL;
+  document_ = nullptr;
 }
 void UpdateDocumentRequest::clear_update_mask() {
-  if (GetArenaNoVirtual() == NULL && update_mask_ != NULL) {
+  if (GetArenaNoVirtual() == nullptr && update_mask_ != nullptr) {
     delete update_mask_;
   }
-  update_mask_ = NULL;
+  update_mask_ = nullptr;
 }
 void UpdateDocumentRequest::clear_mask() {
-  if (GetArenaNoVirtual() == NULL && mask_ != NULL) {
+  if (GetArenaNoVirtual() == nullptr && mask_ != nullptr) {
     delete mask_;
   }
-  mask_ = NULL;
+  mask_ = nullptr;
 }
 void UpdateDocumentRequest::clear_current_document() {
-  if (GetArenaNoVirtual() == NULL && current_document_ != NULL) {
+  if (GetArenaNoVirtual() == nullptr && current_document_ != nullptr) {
     delete current_document_;
   }
-  current_document_ = NULL;
+  current_document_ = nullptr;
 }
-#if !defined(_MSC_VER) || _MSC_VER >= 1900
-const int UpdateDocumentRequest::kDocumentFieldNumber;
-const int UpdateDocumentRequest::kUpdateMaskFieldNumber;
-const int UpdateDocumentRequest::kMaskFieldNumber;
-const int UpdateDocumentRequest::kCurrentDocumentFieldNumber;
-#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
-
 UpdateDocumentRequest::UpdateDocumentRequest()
-  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
-  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
-    ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsUpdateDocumentRequest();
-  }
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:google.firestore.v1.UpdateDocumentRequest)
 }
 UpdateDocumentRequest::UpdateDocumentRequest(const UpdateDocumentRequest& from)
-  : ::google::protobuf::Message(),
-      _internal_metadata_(NULL),
-      _cached_size_(0) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
+      _internal_metadata_(nullptr) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   if (from.has_document()) {
     document_ = new ::google::firestore::v1::Document(*from.document_);
   } else {
-    document_ = NULL;
+    document_ = nullptr;
   }
   if (from.has_update_mask()) {
     update_mask_ = new ::google::firestore::v1::DocumentMask(*from.update_mask_);
   } else {
-    update_mask_ = NULL;
+    update_mask_ = nullptr;
   }
   if (from.has_mask()) {
     mask_ = new ::google::firestore::v1::DocumentMask(*from.mask_);
   } else {
-    mask_ = NULL;
+    mask_ = nullptr;
   }
   if (from.has_current_document()) {
     current_document_ = new ::google::firestore::v1::Precondition(*from.current_document_);
   } else {
-    current_document_ = NULL;
+    current_document_ = nullptr;
   }
   // @@protoc_insertion_point(copy_constructor:google.firestore.v1.UpdateDocumentRequest)
 }
 
 void UpdateDocumentRequest::SharedCtor() {
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_UpdateDocumentRequest_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
   ::memset(&document_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&current_document_) -
       reinterpret_cast<char*>(&document_)) + sizeof(current_document_));
-  _cached_size_ = 0;
 }
 
 UpdateDocumentRequest::~UpdateDocumentRequest() {
@@ -3431,68 +3422,109 @@ void UpdateDocumentRequest::SharedDtor() {
 }
 
 void UpdateDocumentRequest::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  _cached_size_.Set(size);
 }
-const ::google::protobuf::Descriptor* UpdateDocumentRequest::descriptor() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages].descriptor;
-}
-
 const UpdateDocumentRequest& UpdateDocumentRequest::default_instance() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsUpdateDocumentRequest();
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_UpdateDocumentRequest_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
   return *internal_default_instance();
 }
 
-UpdateDocumentRequest* UpdateDocumentRequest::New(::google::protobuf::Arena* arena) const {
-  UpdateDocumentRequest* n = new UpdateDocumentRequest;
-  if (arena != NULL) {
-    arena->Own(n);
-  }
-  return n;
-}
 
 void UpdateDocumentRequest::Clear() {
 // @@protoc_insertion_point(message_clear_start:google.firestore.v1.UpdateDocumentRequest)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  if (GetArenaNoVirtual() == NULL && document_ != NULL) {
+  if (GetArenaNoVirtual() == nullptr && document_ != nullptr) {
     delete document_;
   }
-  document_ = NULL;
-  if (GetArenaNoVirtual() == NULL && update_mask_ != NULL) {
+  document_ = nullptr;
+  if (GetArenaNoVirtual() == nullptr && update_mask_ != nullptr) {
     delete update_mask_;
   }
-  update_mask_ = NULL;
-  if (GetArenaNoVirtual() == NULL && mask_ != NULL) {
+  update_mask_ = nullptr;
+  if (GetArenaNoVirtual() == nullptr && mask_ != nullptr) {
     delete mask_;
   }
-  mask_ = NULL;
-  if (GetArenaNoVirtual() == NULL && current_document_ != NULL) {
+  mask_ = nullptr;
+  if (GetArenaNoVirtual() == nullptr && current_document_ != nullptr) {
     delete current_document_;
   }
-  current_document_ = NULL;
+  current_document_ = nullptr;
   _internal_metadata_.Clear();
 }
 
+#if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
+const char* UpdateDocumentRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    CHK_(ptr);
+    switch (tag >> 3) {
+      // .google.firestore.v1.Document document = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
+          ptr = ctx->ParseMessage(mutable_document(), ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // .google.firestore.v1.DocumentMask update_mask = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
+          ptr = ctx->ParseMessage(mutable_update_mask(), ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // .google.firestore.v1.DocumentMask mask = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
+          ptr = ctx->ParseMessage(mutable_mask(), ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // .google.firestore.v1.Precondition current_document = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
+          ptr = ctx->ParseMessage(mutable_current_document(), ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
+    }  // switch
+  }  // while
+success:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto success;
+#undef CHK_
+}
+#else  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 bool UpdateDocumentRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
+    ::PROTOBUF_NAMESPACE_ID::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!PROTOBUF_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::PROTOBUF_NAMESPACE_ID::uint32 tag;
   // @@protoc_insertion_point(parse_start:google.firestore.v1.UpdateDocumentRequest)
   for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    ::std::pair<::PROTOBUF_NAMESPACE_ID::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
     tag = p.first;
     if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+    switch (::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::GetTagFieldNumber(tag)) {
       // .google.firestore.v1.Document document = 1;
       case 1: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(10u /* 10 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (10 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
                input, mutable_document()));
         } else {
           goto handle_unusual;
@@ -3502,9 +3534,8 @@ bool UpdateDocumentRequest::MergePartialFromCodedStream(
 
       // .google.firestore.v1.DocumentMask update_mask = 2;
       case 2: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(18u /* 18 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (18 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
                input, mutable_update_mask()));
         } else {
           goto handle_unusual;
@@ -3514,9 +3545,8 @@ bool UpdateDocumentRequest::MergePartialFromCodedStream(
 
       // .google.firestore.v1.DocumentMask mask = 3;
       case 3: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(26u /* 26 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (26 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
                input, mutable_mask()));
         } else {
           goto handle_unusual;
@@ -3526,9 +3556,8 @@ bool UpdateDocumentRequest::MergePartialFromCodedStream(
 
       // .google.firestore.v1.Precondition current_document = 4;
       case 4: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(34u /* 34 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (34 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
                input, mutable_current_document()));
         } else {
           goto handle_unusual;
@@ -3541,7 +3570,7 @@ bool UpdateDocumentRequest::MergePartialFromCodedStream(
         if (tag == 0) {
           goto success;
         }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
+        DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SkipField(
               input, tag, _internal_metadata_.mutable_unknown_fields()));
         break;
       }
@@ -3555,82 +3584,82 @@ failure:
   return false;
 #undef DO_
 }
+#endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 
 void UpdateDocumentRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
+    ::PROTOBUF_NAMESPACE_ID::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:google.firestore.v1.UpdateDocumentRequest)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // .google.firestore.v1.Document document = 1;
   if (this->has_document()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, *this->document_, output);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
+      1, _Internal::document(this), output);
   }
 
   // .google.firestore.v1.DocumentMask update_mask = 2;
   if (this->has_update_mask()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, *this->update_mask_, output);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
+      2, _Internal::update_mask(this), output);
   }
 
   // .google.firestore.v1.DocumentMask mask = 3;
   if (this->has_mask()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      3, *this->mask_, output);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
+      3, _Internal::mask(this), output);
   }
 
   // .google.firestore.v1.Precondition current_document = 4;
   if (this->has_current_document()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      4, *this->current_document_, output);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
+      4, _Internal::current_document(this), output);
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
+  if (_internal_metadata_.have_unknown_fields()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFields(
+        _internal_metadata_.unknown_fields(), output);
   }
   // @@protoc_insertion_point(serialize_end:google.firestore.v1.UpdateDocumentRequest)
 }
 
-::google::protobuf::uint8* UpdateDocumentRequest::InternalSerializeWithCachedSizesToArray(
-    bool deterministic, ::google::protobuf::uint8* target) const {
-  (void)deterministic; // Unused
+::PROTOBUF_NAMESPACE_ID::uint8* UpdateDocumentRequest::InternalSerializeWithCachedSizesToArray(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target) const {
   // @@protoc_insertion_point(serialize_to_array_start:google.firestore.v1.UpdateDocumentRequest)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // .google.firestore.v1.Document document = 1;
   if (this->has_document()) {
-    target = ::google::protobuf::internal::WireFormatLite::
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        1, *this->document_, deterministic, target);
+        1, _Internal::document(this), target);
   }
 
   // .google.firestore.v1.DocumentMask update_mask = 2;
   if (this->has_update_mask()) {
-    target = ::google::protobuf::internal::WireFormatLite::
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        2, *this->update_mask_, deterministic, target);
+        2, _Internal::update_mask(this), target);
   }
 
   // .google.firestore.v1.DocumentMask mask = 3;
   if (this->has_mask()) {
-    target = ::google::protobuf::internal::WireFormatLite::
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        3, *this->mask_, deterministic, target);
+        3, _Internal::mask(this), target);
   }
 
   // .google.firestore.v1.Precondition current_document = 4;
   if (this->has_current_document()) {
-    target = ::google::protobuf::internal::WireFormatLite::
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        4, *this->current_document_, deterministic, target);
+        4, _Internal::current_document(this), target);
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), target);
+  if (_internal_metadata_.have_unknown_fields()) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.UpdateDocumentRequest)
   return target;
@@ -3640,55 +3669,57 @@ size_t UpdateDocumentRequest::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:google.firestore.v1.UpdateDocumentRequest)
   size_t total_size = 0;
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
+  if (_internal_metadata_.have_unknown_fields()) {
     total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()));
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::ComputeUnknownFieldsSize(
+        _internal_metadata_.unknown_fields());
   }
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
   // .google.firestore.v1.Document document = 1;
   if (this->has_document()) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::MessageSize(
-        *this->document_);
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
+        *document_);
   }
 
   // .google.firestore.v1.DocumentMask update_mask = 2;
   if (this->has_update_mask()) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::MessageSize(
-        *this->update_mask_);
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
+        *update_mask_);
   }
 
   // .google.firestore.v1.DocumentMask mask = 3;
   if (this->has_mask()) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::MessageSize(
-        *this->mask_);
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
+        *mask_);
   }
 
   // .google.firestore.v1.Precondition current_document = 4;
   if (this->has_current_document()) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::MessageSize(
-        *this->current_document_);
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
+        *current_document_);
   }
 
-  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = cached_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
   return total_size;
 }
 
-void UpdateDocumentRequest::MergeFrom(const ::google::protobuf::Message& from) {
+void UpdateDocumentRequest::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_merge_from_start:google.firestore.v1.UpdateDocumentRequest)
   GOOGLE_DCHECK_NE(&from, this);
   const UpdateDocumentRequest* source =
-      ::google::protobuf::internal::DynamicCastToGenerated<const UpdateDocumentRequest>(
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<UpdateDocumentRequest>(
           &from);
-  if (source == NULL) {
+  if (source == nullptr) {
   // @@protoc_insertion_point(generalized_merge_from_cast_fail:google.firestore.v1.UpdateDocumentRequest)
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
   } else {
   // @@protoc_insertion_point(generalized_merge_from_cast_success:google.firestore.v1.UpdateDocumentRequest)
     MergeFrom(*source);
@@ -3699,7 +3730,7 @@ void UpdateDocumentRequest::MergeFrom(const UpdateDocumentRequest& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.UpdateDocumentRequest)
   GOOGLE_DCHECK_NE(&from, this);
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   if (from.has_document()) {
@@ -3716,7 +3747,7 @@ void UpdateDocumentRequest::MergeFrom(const UpdateDocumentRequest& from) {
   }
 }
 
-void UpdateDocumentRequest::CopyFrom(const ::google::protobuf::Message& from) {
+void UpdateDocumentRequest::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_copy_from_start:google.firestore.v1.UpdateDocumentRequest)
   if (&from == this) return;
   Clear();
@@ -3734,23 +3765,17 @@ bool UpdateDocumentRequest::IsInitialized() const {
   return true;
 }
 
-void UpdateDocumentRequest::Swap(UpdateDocumentRequest* other) {
-  if (other == this) return;
-  InternalSwap(other);
-}
 void UpdateDocumentRequest::InternalSwap(UpdateDocumentRequest* other) {
   using std::swap;
+  _internal_metadata_.Swap(&other->_internal_metadata_);
   swap(document_, other->document_);
   swap(update_mask_, other->update_mask_);
   swap(mask_, other->mask_);
   swap(current_document_, other->current_document_);
-  _internal_metadata_.Swap(&other->_internal_metadata_);
-  swap(_cached_size_, other->_cached_size_);
 }
 
-::google::protobuf::Metadata UpdateDocumentRequest::GetMetadata() const {
-  protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages];
+::PROTOBUF_NAMESPACE_ID::Metadata UpdateDocumentRequest::GetMetadata() const {
+  return GetMetadataStatic();
 }
 
 
@@ -3760,46 +3785,46 @@ void DeleteDocumentRequest::InitAsDefaultInstance() {
   ::google::firestore::v1::_DeleteDocumentRequest_default_instance_._instance.get_mutable()->current_document_ = const_cast< ::google::firestore::v1::Precondition*>(
       ::google::firestore::v1::Precondition::internal_default_instance());
 }
+class DeleteDocumentRequest::_Internal {
+ public:
+  static const ::google::firestore::v1::Precondition& current_document(const DeleteDocumentRequest* msg);
+};
+
+const ::google::firestore::v1::Precondition&
+DeleteDocumentRequest::_Internal::current_document(const DeleteDocumentRequest* msg) {
+  return *msg->current_document_;
+}
 void DeleteDocumentRequest::clear_current_document() {
-  if (GetArenaNoVirtual() == NULL && current_document_ != NULL) {
+  if (GetArenaNoVirtual() == nullptr && current_document_ != nullptr) {
     delete current_document_;
   }
-  current_document_ = NULL;
+  current_document_ = nullptr;
 }
-#if !defined(_MSC_VER) || _MSC_VER >= 1900
-const int DeleteDocumentRequest::kNameFieldNumber;
-const int DeleteDocumentRequest::kCurrentDocumentFieldNumber;
-#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
-
 DeleteDocumentRequest::DeleteDocumentRequest()
-  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
-  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
-    ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsDeleteDocumentRequest();
-  }
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:google.firestore.v1.DeleteDocumentRequest)
 }
 DeleteDocumentRequest::DeleteDocumentRequest(const DeleteDocumentRequest& from)
-  : ::google::protobuf::Message(),
-      _internal_metadata_(NULL),
-      _cached_size_(0) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
+      _internal_metadata_(nullptr) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  name_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  if (from.name().size() > 0) {
-    name_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.name_);
+  name_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from.name().empty()) {
+    name_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.name_);
   }
   if (from.has_current_document()) {
     current_document_ = new ::google::firestore::v1::Precondition(*from.current_document_);
   } else {
-    current_document_ = NULL;
+    current_document_ = nullptr;
   }
   // @@protoc_insertion_point(copy_constructor:google.firestore.v1.DeleteDocumentRequest)
 }
 
 void DeleteDocumentRequest::SharedCtor() {
-  name_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  current_document_ = NULL;
-  _cached_size_ = 0;
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_DeleteDocumentRequest_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
+  name_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  current_document_ = nullptr;
 }
 
 DeleteDocumentRequest::~DeleteDocumentRequest() {
@@ -3808,66 +3833,93 @@ DeleteDocumentRequest::~DeleteDocumentRequest() {
 }
 
 void DeleteDocumentRequest::SharedDtor() {
-  name_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  name_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   if (this != internal_default_instance()) delete current_document_;
 }
 
 void DeleteDocumentRequest::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  _cached_size_.Set(size);
 }
-const ::google::protobuf::Descriptor* DeleteDocumentRequest::descriptor() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages].descriptor;
-}
-
 const DeleteDocumentRequest& DeleteDocumentRequest::default_instance() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsDeleteDocumentRequest();
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_DeleteDocumentRequest_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
   return *internal_default_instance();
 }
 
-DeleteDocumentRequest* DeleteDocumentRequest::New(::google::protobuf::Arena* arena) const {
-  DeleteDocumentRequest* n = new DeleteDocumentRequest;
-  if (arena != NULL) {
-    arena->Own(n);
-  }
-  return n;
-}
 
 void DeleteDocumentRequest::Clear() {
 // @@protoc_insertion_point(message_clear_start:google.firestore.v1.DeleteDocumentRequest)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  name_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  if (GetArenaNoVirtual() == NULL && current_document_ != NULL) {
+  name_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (GetArenaNoVirtual() == nullptr && current_document_ != nullptr) {
     delete current_document_;
   }
-  current_document_ = NULL;
+  current_document_ = nullptr;
   _internal_metadata_.Clear();
 }
 
+#if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
+const char* DeleteDocumentRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    CHK_(ptr);
+    switch (tag >> 3) {
+      // string name = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParserUTF8(mutable_name(), ptr, ctx, "google.firestore.v1.DeleteDocumentRequest.name");
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // .google.firestore.v1.Precondition current_document = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
+          ptr = ctx->ParseMessage(mutable_current_document(), ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
+    }  // switch
+  }  // while
+success:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto success;
+#undef CHK_
+}
+#else  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 bool DeleteDocumentRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
+    ::PROTOBUF_NAMESPACE_ID::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!PROTOBUF_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::PROTOBUF_NAMESPACE_ID::uint32 tag;
   // @@protoc_insertion_point(parse_start:google.firestore.v1.DeleteDocumentRequest)
   for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    ::std::pair<::PROTOBUF_NAMESPACE_ID::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
     tag = p.first;
     if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+    switch (::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::GetTagFieldNumber(tag)) {
       // string name = 1;
       case 1: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(10u /* 10 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (10 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadString(
                 input, this->mutable_name()));
-          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
             this->name().data(), static_cast<int>(this->name().length()),
-            ::google::protobuf::internal::WireFormatLite::PARSE,
+            ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE,
             "google.firestore.v1.DeleteDocumentRequest.name"));
         } else {
           goto handle_unusual;
@@ -3877,9 +3929,8 @@ bool DeleteDocumentRequest::MergePartialFromCodedStream(
 
       // .google.firestore.v1.Precondition current_document = 2;
       case 2: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(18u /* 18 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (18 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
                input, mutable_current_document()));
         } else {
           goto handle_unusual;
@@ -3892,7 +3943,7 @@ bool DeleteDocumentRequest::MergePartialFromCodedStream(
         if (tag == 0) {
           goto success;
         }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
+        DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SkipField(
               input, tag, _internal_metadata_.mutable_unknown_fields()));
         break;
       }
@@ -3906,64 +3957,64 @@ failure:
   return false;
 #undef DO_
 }
+#endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 
 void DeleteDocumentRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
+    ::PROTOBUF_NAMESPACE_ID::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:google.firestore.v1.DeleteDocumentRequest)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // string name = 1;
   if (this->name().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->name().data(), static_cast<int>(this->name().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.DeleteDocumentRequest.name");
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringMaybeAliased(
       1, this->name(), output);
   }
 
   // .google.firestore.v1.Precondition current_document = 2;
   if (this->has_current_document()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, *this->current_document_, output);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
+      2, _Internal::current_document(this), output);
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
+  if (_internal_metadata_.have_unknown_fields()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFields(
+        _internal_metadata_.unknown_fields(), output);
   }
   // @@protoc_insertion_point(serialize_end:google.firestore.v1.DeleteDocumentRequest)
 }
 
-::google::protobuf::uint8* DeleteDocumentRequest::InternalSerializeWithCachedSizesToArray(
-    bool deterministic, ::google::protobuf::uint8* target) const {
-  (void)deterministic; // Unused
+::PROTOBUF_NAMESPACE_ID::uint8* DeleteDocumentRequest::InternalSerializeWithCachedSizesToArray(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target) const {
   // @@protoc_insertion_point(serialize_to_array_start:google.firestore.v1.DeleteDocumentRequest)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // string name = 1;
   if (this->name().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->name().data(), static_cast<int>(this->name().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.DeleteDocumentRequest.name");
     target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringToArray(
         1, this->name(), target);
   }
 
   // .google.firestore.v1.Precondition current_document = 2;
   if (this->has_current_document()) {
-    target = ::google::protobuf::internal::WireFormatLite::
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        2, *this->current_document_, deterministic, target);
+        2, _Internal::current_document(this), target);
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), target);
+  if (_internal_metadata_.have_unknown_fields()) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.DeleteDocumentRequest)
   return target;
@@ -3973,41 +4024,43 @@ size_t DeleteDocumentRequest::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:google.firestore.v1.DeleteDocumentRequest)
   size_t total_size = 0;
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
+  if (_internal_metadata_.have_unknown_fields()) {
     total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()));
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::ComputeUnknownFieldsSize(
+        _internal_metadata_.unknown_fields());
   }
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
   // string name = 1;
   if (this->name().size() > 0) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->name());
   }
 
   // .google.firestore.v1.Precondition current_document = 2;
   if (this->has_current_document()) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::MessageSize(
-        *this->current_document_);
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
+        *current_document_);
   }
 
-  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = cached_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
   return total_size;
 }
 
-void DeleteDocumentRequest::MergeFrom(const ::google::protobuf::Message& from) {
+void DeleteDocumentRequest::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_merge_from_start:google.firestore.v1.DeleteDocumentRequest)
   GOOGLE_DCHECK_NE(&from, this);
   const DeleteDocumentRequest* source =
-      ::google::protobuf::internal::DynamicCastToGenerated<const DeleteDocumentRequest>(
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<DeleteDocumentRequest>(
           &from);
-  if (source == NULL) {
+  if (source == nullptr) {
   // @@protoc_insertion_point(generalized_merge_from_cast_fail:google.firestore.v1.DeleteDocumentRequest)
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
   } else {
   // @@protoc_insertion_point(generalized_merge_from_cast_success:google.firestore.v1.DeleteDocumentRequest)
     MergeFrom(*source);
@@ -4018,19 +4071,19 @@ void DeleteDocumentRequest::MergeFrom(const DeleteDocumentRequest& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.DeleteDocumentRequest)
   GOOGLE_DCHECK_NE(&from, this);
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   if (from.name().size() > 0) {
 
-    name_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.name_);
+    name_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.name_);
   }
   if (from.has_current_document()) {
     mutable_current_document()->::google::firestore::v1::Precondition::MergeFrom(from.current_document());
   }
 }
 
-void DeleteDocumentRequest::CopyFrom(const ::google::protobuf::Message& from) {
+void DeleteDocumentRequest::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_copy_from_start:google.firestore.v1.DeleteDocumentRequest)
   if (&from == this) return;
   Clear();
@@ -4048,21 +4101,16 @@ bool DeleteDocumentRequest::IsInitialized() const {
   return true;
 }
 
-void DeleteDocumentRequest::Swap(DeleteDocumentRequest* other) {
-  if (other == this) return;
-  InternalSwap(other);
-}
 void DeleteDocumentRequest::InternalSwap(DeleteDocumentRequest* other) {
   using std::swap;
-  name_.Swap(&other->name_);
-  swap(current_document_, other->current_document_);
   _internal_metadata_.Swap(&other->_internal_metadata_);
-  swap(_cached_size_, other->_cached_size_);
+  name_.Swap(&other->name_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
+  swap(current_document_, other->current_document_);
 }
 
-::google::protobuf::Metadata DeleteDocumentRequest::GetMetadata() const {
-  protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages];
+::PROTOBUF_NAMESPACE_ID::Metadata DeleteDocumentRequest::GetMetadata() const {
+  return GetMetadataStatic();
 }
 
 
@@ -4072,25 +4120,44 @@ void BatchGetDocumentsRequest::InitAsDefaultInstance() {
   ::google::firestore::v1::_BatchGetDocumentsRequest_default_instance_._instance.get_mutable()->mask_ = const_cast< ::google::firestore::v1::DocumentMask*>(
       ::google::firestore::v1::DocumentMask::internal_default_instance());
   ::google::firestore::v1::_BatchGetDocumentsRequest_default_instance_.transaction_.UnsafeSetDefault(
-      &::google::protobuf::internal::GetEmptyStringAlreadyInited());
+      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   ::google::firestore::v1::_BatchGetDocumentsRequest_default_instance_.new_transaction_ = const_cast< ::google::firestore::v1::TransactionOptions*>(
       ::google::firestore::v1::TransactionOptions::internal_default_instance());
-  ::google::firestore::v1::_BatchGetDocumentsRequest_default_instance_.read_time_ = const_cast< ::google::protobuf::Timestamp*>(
-      ::google::protobuf::Timestamp::internal_default_instance());
+  ::google::firestore::v1::_BatchGetDocumentsRequest_default_instance_.read_time_ = const_cast< PROTOBUF_NAMESPACE_ID::Timestamp*>(
+      PROTOBUF_NAMESPACE_ID::Timestamp::internal_default_instance());
+}
+class BatchGetDocumentsRequest::_Internal {
+ public:
+  static const ::google::firestore::v1::DocumentMask& mask(const BatchGetDocumentsRequest* msg);
+  static const ::google::firestore::v1::TransactionOptions& new_transaction(const BatchGetDocumentsRequest* msg);
+  static const PROTOBUF_NAMESPACE_ID::Timestamp& read_time(const BatchGetDocumentsRequest* msg);
+};
+
+const ::google::firestore::v1::DocumentMask&
+BatchGetDocumentsRequest::_Internal::mask(const BatchGetDocumentsRequest* msg) {
+  return *msg->mask_;
+}
+const ::google::firestore::v1::TransactionOptions&
+BatchGetDocumentsRequest::_Internal::new_transaction(const BatchGetDocumentsRequest* msg) {
+  return *msg->consistency_selector_.new_transaction_;
+}
+const PROTOBUF_NAMESPACE_ID::Timestamp&
+BatchGetDocumentsRequest::_Internal::read_time(const BatchGetDocumentsRequest* msg) {
+  return *msg->consistency_selector_.read_time_;
 }
 void BatchGetDocumentsRequest::clear_mask() {
-  if (GetArenaNoVirtual() == NULL && mask_ != NULL) {
+  if (GetArenaNoVirtual() == nullptr && mask_ != nullptr) {
     delete mask_;
   }
-  mask_ = NULL;
+  mask_ = nullptr;
 }
 void BatchGetDocumentsRequest::set_allocated_new_transaction(::google::firestore::v1::TransactionOptions* new_transaction) {
-  ::google::protobuf::Arena* message_arena = GetArenaNoVirtual();
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
   clear_consistency_selector();
   if (new_transaction) {
-    ::google::protobuf::Arena* submessage_arena = NULL;
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
     if (message_arena != submessage_arena) {
-      new_transaction = ::google::protobuf::internal::GetOwnedMessage(
+      new_transaction = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
           message_arena, new_transaction, submessage_arena);
     }
     set_has_new_transaction();
@@ -4104,14 +4171,14 @@ void BatchGetDocumentsRequest::clear_new_transaction() {
     clear_has_consistency_selector();
   }
 }
-void BatchGetDocumentsRequest::set_allocated_read_time(::google::protobuf::Timestamp* read_time) {
-  ::google::protobuf::Arena* message_arena = GetArenaNoVirtual();
+void BatchGetDocumentsRequest::set_allocated_read_time(PROTOBUF_NAMESPACE_ID::Timestamp* read_time) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
   clear_consistency_selector();
   if (read_time) {
-    ::google::protobuf::Arena* submessage_arena =
-      reinterpret_cast< ::google::protobuf::MessageLite*>(read_time)->GetArena();
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+      reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(read_time)->GetArena();
     if (message_arena != submessage_arena) {
-      read_time = ::google::protobuf::internal::GetOwnedMessage(
+      read_time = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
           message_arena, read_time, submessage_arena);
     }
     set_has_read_time();
@@ -4125,37 +4192,24 @@ void BatchGetDocumentsRequest::clear_read_time() {
     clear_has_consistency_selector();
   }
 }
-#if !defined(_MSC_VER) || _MSC_VER >= 1900
-const int BatchGetDocumentsRequest::kDatabaseFieldNumber;
-const int BatchGetDocumentsRequest::kDocumentsFieldNumber;
-const int BatchGetDocumentsRequest::kMaskFieldNumber;
-const int BatchGetDocumentsRequest::kTransactionFieldNumber;
-const int BatchGetDocumentsRequest::kNewTransactionFieldNumber;
-const int BatchGetDocumentsRequest::kReadTimeFieldNumber;
-#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
-
 BatchGetDocumentsRequest::BatchGetDocumentsRequest()
-  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
-  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
-    ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsBatchGetDocumentsRequest();
-  }
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:google.firestore.v1.BatchGetDocumentsRequest)
 }
 BatchGetDocumentsRequest::BatchGetDocumentsRequest(const BatchGetDocumentsRequest& from)
-  : ::google::protobuf::Message(),
-      _internal_metadata_(NULL),
-      documents_(from.documents_),
-      _cached_size_(0) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
+      _internal_metadata_(nullptr),
+      documents_(from.documents_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  database_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  if (from.database().size() > 0) {
-    database_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.database_);
+  database_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from.database().empty()) {
+    database_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.database_);
   }
   if (from.has_mask()) {
     mask_ = new ::google::firestore::v1::DocumentMask(*from.mask_);
   } else {
-    mask_ = NULL;
+    mask_ = nullptr;
   }
   clear_has_consistency_selector();
   switch (from.consistency_selector_case()) {
@@ -4168,7 +4222,7 @@ BatchGetDocumentsRequest::BatchGetDocumentsRequest(const BatchGetDocumentsReques
       break;
     }
     case kReadTime: {
-      mutable_read_time()->::google::protobuf::Timestamp::MergeFrom(from.read_time());
+      mutable_read_time()->PROTOBUF_NAMESPACE_ID::Timestamp::MergeFrom(from.read_time());
       break;
     }
     case CONSISTENCY_SELECTOR_NOT_SET: {
@@ -4179,10 +4233,10 @@ BatchGetDocumentsRequest::BatchGetDocumentsRequest(const BatchGetDocumentsReques
 }
 
 void BatchGetDocumentsRequest::SharedCtor() {
-  database_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  mask_ = NULL;
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_BatchGetDocumentsRequest_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
+  database_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  mask_ = nullptr;
   clear_has_consistency_selector();
-  _cached_size_ = 0;
 }
 
 BatchGetDocumentsRequest::~BatchGetDocumentsRequest() {
@@ -4191,7 +4245,7 @@ BatchGetDocumentsRequest::~BatchGetDocumentsRequest() {
 }
 
 void BatchGetDocumentsRequest::SharedDtor() {
-  database_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  database_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   if (this != internal_default_instance()) delete mask_;
   if (has_consistency_selector()) {
     clear_consistency_selector();
@@ -4199,33 +4253,19 @@ void BatchGetDocumentsRequest::SharedDtor() {
 }
 
 void BatchGetDocumentsRequest::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  _cached_size_.Set(size);
 }
-const ::google::protobuf::Descriptor* BatchGetDocumentsRequest::descriptor() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages].descriptor;
-}
-
 const BatchGetDocumentsRequest& BatchGetDocumentsRequest::default_instance() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsBatchGetDocumentsRequest();
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_BatchGetDocumentsRequest_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
   return *internal_default_instance();
 }
 
-BatchGetDocumentsRequest* BatchGetDocumentsRequest::New(::google::protobuf::Arena* arena) const {
-  BatchGetDocumentsRequest* n = new BatchGetDocumentsRequest;
-  if (arena != NULL) {
-    arena->Own(n);
-  }
-  return n;
-}
 
 void BatchGetDocumentsRequest::clear_consistency_selector() {
 // @@protoc_insertion_point(one_of_clear_start:google.firestore.v1.BatchGetDocumentsRequest)
   switch (consistency_selector_case()) {
     case kTransaction: {
-      consistency_selector_.transaction_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+      consistency_selector_.transaction_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
       break;
     }
     case kNewTransaction: {
@@ -4246,39 +4286,113 @@ void BatchGetDocumentsRequest::clear_consistency_selector() {
 
 void BatchGetDocumentsRequest::Clear() {
 // @@protoc_insertion_point(message_clear_start:google.firestore.v1.BatchGetDocumentsRequest)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
   documents_.Clear();
-  database_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  if (GetArenaNoVirtual() == NULL && mask_ != NULL) {
+  database_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (GetArenaNoVirtual() == nullptr && mask_ != nullptr) {
     delete mask_;
   }
-  mask_ = NULL;
+  mask_ = nullptr;
   clear_consistency_selector();
   _internal_metadata_.Clear();
 }
 
+#if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
+const char* BatchGetDocumentsRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    CHK_(ptr);
+    switch (tag >> 3) {
+      // string database = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParserUTF8(mutable_database(), ptr, ctx, "google.firestore.v1.BatchGetDocumentsRequest.database");
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // repeated string documents = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
+          ptr -= 1;
+          do {
+            ptr += 1;
+            ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParserUTF8(add_documents(), ptr, ctx, "google.firestore.v1.BatchGetDocumentsRequest.documents");
+            CHK_(ptr);
+            if (!ctx->DataAvailable(ptr)) break;
+          } while (::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<::PROTOBUF_NAMESPACE_ID::uint8>(ptr) == 18);
+        } else goto handle_unusual;
+        continue;
+      // .google.firestore.v1.DocumentMask mask = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
+          ptr = ctx->ParseMessage(mutable_mask(), ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // bytes transaction = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(mutable_transaction(), ptr, ctx);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // .google.firestore.v1.TransactionOptions new_transaction = 5;
+      case 5:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 42)) {
+          ptr = ctx->ParseMessage(mutable_new_transaction(), ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // .google.protobuf.Timestamp read_time = 7;
+      case 7:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 58)) {
+          ptr = ctx->ParseMessage(mutable_read_time(), ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
+    }  // switch
+  }  // while
+success:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto success;
+#undef CHK_
+}
+#else  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 bool BatchGetDocumentsRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
+    ::PROTOBUF_NAMESPACE_ID::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!PROTOBUF_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::PROTOBUF_NAMESPACE_ID::uint32 tag;
   // @@protoc_insertion_point(parse_start:google.firestore.v1.BatchGetDocumentsRequest)
   for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    ::std::pair<::PROTOBUF_NAMESPACE_ID::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
     tag = p.first;
     if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+    switch (::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::GetTagFieldNumber(tag)) {
       // string database = 1;
       case 1: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(10u /* 10 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (10 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadString(
                 input, this->mutable_database()));
-          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
             this->database().data(), static_cast<int>(this->database().length()),
-            ::google::protobuf::internal::WireFormatLite::PARSE,
+            ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE,
             "google.firestore.v1.BatchGetDocumentsRequest.database"));
         } else {
           goto handle_unusual;
@@ -4288,14 +4402,13 @@ bool BatchGetDocumentsRequest::MergePartialFromCodedStream(
 
       // repeated string documents = 2;
       case 2: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(18u /* 18 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (18 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadString(
                 input, this->add_documents()));
-          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
             this->documents(this->documents_size() - 1).data(),
             static_cast<int>(this->documents(this->documents_size() - 1).length()),
-            ::google::protobuf::internal::WireFormatLite::PARSE,
+            ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE,
             "google.firestore.v1.BatchGetDocumentsRequest.documents"));
         } else {
           goto handle_unusual;
@@ -4305,9 +4418,8 @@ bool BatchGetDocumentsRequest::MergePartialFromCodedStream(
 
       // .google.firestore.v1.DocumentMask mask = 3;
       case 3: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(26u /* 26 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (26 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
                input, mutable_mask()));
         } else {
           goto handle_unusual;
@@ -4317,9 +4429,8 @@ bool BatchGetDocumentsRequest::MergePartialFromCodedStream(
 
       // bytes transaction = 4;
       case 4: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(34u /* 34 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadBytes(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (34 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadBytes(
                 input, this->mutable_transaction()));
         } else {
           goto handle_unusual;
@@ -4329,9 +4440,8 @@ bool BatchGetDocumentsRequest::MergePartialFromCodedStream(
 
       // .google.firestore.v1.TransactionOptions new_transaction = 5;
       case 5: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(42u /* 42 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (42 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
                input, mutable_new_transaction()));
         } else {
           goto handle_unusual;
@@ -4341,9 +4451,8 @@ bool BatchGetDocumentsRequest::MergePartialFromCodedStream(
 
       // .google.protobuf.Timestamp read_time = 7;
       case 7: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(58u /* 58 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (58 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
                input, mutable_read_time()));
         } else {
           goto handle_unusual;
@@ -4356,7 +4465,7 @@ bool BatchGetDocumentsRequest::MergePartialFromCodedStream(
         if (tag == 0) {
           goto success;
         }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
+        DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SkipField(
               input, tag, _internal_metadata_.mutable_unknown_fields()));
         break;
       }
@@ -4370,123 +4479,123 @@ failure:
   return false;
 #undef DO_
 }
+#endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 
 void BatchGetDocumentsRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
+    ::PROTOBUF_NAMESPACE_ID::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:google.firestore.v1.BatchGetDocumentsRequest)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // string database = 1;
   if (this->database().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->database().data(), static_cast<int>(this->database().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.BatchGetDocumentsRequest.database");
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringMaybeAliased(
       1, this->database(), output);
   }
 
   // repeated string documents = 2;
   for (int i = 0, n = this->documents_size(); i < n; i++) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->documents(i).data(), static_cast<int>(this->documents(i).length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.BatchGetDocumentsRequest.documents");
-    ::google::protobuf::internal::WireFormatLite::WriteString(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteString(
       2, this->documents(i), output);
   }
 
   // .google.firestore.v1.DocumentMask mask = 3;
   if (this->has_mask()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      3, *this->mask_, output);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
+      3, _Internal::mask(this), output);
   }
 
   // bytes transaction = 4;
   if (has_transaction()) {
-    ::google::protobuf::internal::WireFormatLite::WriteBytesMaybeAliased(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBytesMaybeAliased(
       4, this->transaction(), output);
   }
 
   // .google.firestore.v1.TransactionOptions new_transaction = 5;
   if (has_new_transaction()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      5, *consistency_selector_.new_transaction_, output);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
+      5, _Internal::new_transaction(this), output);
   }
 
   // .google.protobuf.Timestamp read_time = 7;
   if (has_read_time()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      7, *consistency_selector_.read_time_, output);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
+      7, _Internal::read_time(this), output);
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
+  if (_internal_metadata_.have_unknown_fields()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFields(
+        _internal_metadata_.unknown_fields(), output);
   }
   // @@protoc_insertion_point(serialize_end:google.firestore.v1.BatchGetDocumentsRequest)
 }
 
-::google::protobuf::uint8* BatchGetDocumentsRequest::InternalSerializeWithCachedSizesToArray(
-    bool deterministic, ::google::protobuf::uint8* target) const {
-  (void)deterministic; // Unused
+::PROTOBUF_NAMESPACE_ID::uint8* BatchGetDocumentsRequest::InternalSerializeWithCachedSizesToArray(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target) const {
   // @@protoc_insertion_point(serialize_to_array_start:google.firestore.v1.BatchGetDocumentsRequest)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // string database = 1;
   if (this->database().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->database().data(), static_cast<int>(this->database().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.BatchGetDocumentsRequest.database");
     target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringToArray(
         1, this->database(), target);
   }
 
   // repeated string documents = 2;
   for (int i = 0, n = this->documents_size(); i < n; i++) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->documents(i).data(), static_cast<int>(this->documents(i).length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.BatchGetDocumentsRequest.documents");
-    target = ::google::protobuf::internal::WireFormatLite::
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       WriteStringToArray(2, this->documents(i), target);
   }
 
   // .google.firestore.v1.DocumentMask mask = 3;
   if (this->has_mask()) {
-    target = ::google::protobuf::internal::WireFormatLite::
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        3, *this->mask_, deterministic, target);
+        3, _Internal::mask(this), target);
   }
 
   // bytes transaction = 4;
   if (has_transaction()) {
     target =
-      ::google::protobuf::internal::WireFormatLite::WriteBytesToArray(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBytesToArray(
         4, this->transaction(), target);
   }
 
   // .google.firestore.v1.TransactionOptions new_transaction = 5;
   if (has_new_transaction()) {
-    target = ::google::protobuf::internal::WireFormatLite::
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        5, *consistency_selector_.new_transaction_, deterministic, target);
+        5, _Internal::new_transaction(this), target);
   }
 
   // .google.protobuf.Timestamp read_time = 7;
   if (has_read_time()) {
-    target = ::google::protobuf::internal::WireFormatLite::
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        7, *consistency_selector_.read_time_, deterministic, target);
+        7, _Internal::read_time(this), target);
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), target);
+  if (_internal_metadata_.have_unknown_fields()) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.BatchGetDocumentsRequest)
   return target;
@@ -4496,52 +4605,56 @@ size_t BatchGetDocumentsRequest::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:google.firestore.v1.BatchGetDocumentsRequest)
   size_t total_size = 0;
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
+  if (_internal_metadata_.have_unknown_fields()) {
     total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()));
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::ComputeUnknownFieldsSize(
+        _internal_metadata_.unknown_fields());
   }
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
   // repeated string documents = 2;
   total_size += 1 *
-      ::google::protobuf::internal::FromIntSize(this->documents_size());
+      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->documents_size());
   for (int i = 0, n = this->documents_size(); i < n; i++) {
-    total_size += ::google::protobuf::internal::WireFormatLite::StringSize(
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
       this->documents(i));
   }
 
   // string database = 1;
   if (this->database().size() > 0) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->database());
   }
 
   // .google.firestore.v1.DocumentMask mask = 3;
   if (this->has_mask()) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::MessageSize(
-        *this->mask_);
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
+        *mask_);
   }
 
   switch (consistency_selector_case()) {
     // bytes transaction = 4;
     case kTransaction: {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::BytesSize(
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
           this->transaction());
       break;
     }
     // .google.firestore.v1.TransactionOptions new_transaction = 5;
     case kNewTransaction: {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSize(
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
           *consistency_selector_.new_transaction_);
       break;
     }
     // .google.protobuf.Timestamp read_time = 7;
     case kReadTime: {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSize(
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
           *consistency_selector_.read_time_);
       break;
     }
@@ -4549,22 +4662,20 @@ size_t BatchGetDocumentsRequest::ByteSizeLong() const {
       break;
     }
   }
-  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = cached_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
   return total_size;
 }
 
-void BatchGetDocumentsRequest::MergeFrom(const ::google::protobuf::Message& from) {
+void BatchGetDocumentsRequest::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_merge_from_start:google.firestore.v1.BatchGetDocumentsRequest)
   GOOGLE_DCHECK_NE(&from, this);
   const BatchGetDocumentsRequest* source =
-      ::google::protobuf::internal::DynamicCastToGenerated<const BatchGetDocumentsRequest>(
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<BatchGetDocumentsRequest>(
           &from);
-  if (source == NULL) {
+  if (source == nullptr) {
   // @@protoc_insertion_point(generalized_merge_from_cast_fail:google.firestore.v1.BatchGetDocumentsRequest)
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
   } else {
   // @@protoc_insertion_point(generalized_merge_from_cast_success:google.firestore.v1.BatchGetDocumentsRequest)
     MergeFrom(*source);
@@ -4575,13 +4686,13 @@ void BatchGetDocumentsRequest::MergeFrom(const BatchGetDocumentsRequest& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.BatchGetDocumentsRequest)
   GOOGLE_DCHECK_NE(&from, this);
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   documents_.MergeFrom(from.documents_);
   if (from.database().size() > 0) {
 
-    database_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.database_);
+    database_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.database_);
   }
   if (from.has_mask()) {
     mutable_mask()->::google::firestore::v1::DocumentMask::MergeFrom(from.mask());
@@ -4596,7 +4707,7 @@ void BatchGetDocumentsRequest::MergeFrom(const BatchGetDocumentsRequest& from) {
       break;
     }
     case kReadTime: {
-      mutable_read_time()->::google::protobuf::Timestamp::MergeFrom(from.read_time());
+      mutable_read_time()->PROTOBUF_NAMESPACE_ID::Timestamp::MergeFrom(from.read_time());
       break;
     }
     case CONSISTENCY_SELECTOR_NOT_SET: {
@@ -4605,7 +4716,7 @@ void BatchGetDocumentsRequest::MergeFrom(const BatchGetDocumentsRequest& from) {
   }
 }
 
-void BatchGetDocumentsRequest::CopyFrom(const ::google::protobuf::Message& from) {
+void BatchGetDocumentsRequest::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_copy_from_start:google.firestore.v1.BatchGetDocumentsRequest)
   if (&from == this) return;
   Clear();
@@ -4623,24 +4734,19 @@ bool BatchGetDocumentsRequest::IsInitialized() const {
   return true;
 }
 
-void BatchGetDocumentsRequest::Swap(BatchGetDocumentsRequest* other) {
-  if (other == this) return;
-  InternalSwap(other);
-}
 void BatchGetDocumentsRequest::InternalSwap(BatchGetDocumentsRequest* other) {
   using std::swap;
-  documents_.InternalSwap(&other->documents_);
-  database_.Swap(&other->database_);
+  _internal_metadata_.Swap(&other->_internal_metadata_);
+  documents_.InternalSwap(CastToBase(&other->documents_));
+  database_.Swap(&other->database_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
   swap(mask_, other->mask_);
   swap(consistency_selector_, other->consistency_selector_);
   swap(_oneof_case_[0], other->_oneof_case_[0]);
-  _internal_metadata_.Swap(&other->_internal_metadata_);
-  swap(_cached_size_, other->_cached_size_);
 }
 
-::google::protobuf::Metadata BatchGetDocumentsRequest::GetMetadata() const {
-  protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages];
+::PROTOBUF_NAMESPACE_ID::Metadata BatchGetDocumentsRequest::GetMetadata() const {
+  return GetMetadataStatic();
 }
 
 
@@ -4650,17 +4756,31 @@ void BatchGetDocumentsResponse::InitAsDefaultInstance() {
   ::google::firestore::v1::_BatchGetDocumentsResponse_default_instance_.found_ = const_cast< ::google::firestore::v1::Document*>(
       ::google::firestore::v1::Document::internal_default_instance());
   ::google::firestore::v1::_BatchGetDocumentsResponse_default_instance_.missing_.UnsafeSetDefault(
-      &::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  ::google::firestore::v1::_BatchGetDocumentsResponse_default_instance_._instance.get_mutable()->read_time_ = const_cast< ::google::protobuf::Timestamp*>(
-      ::google::protobuf::Timestamp::internal_default_instance());
+      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  ::google::firestore::v1::_BatchGetDocumentsResponse_default_instance_._instance.get_mutable()->read_time_ = const_cast< PROTOBUF_NAMESPACE_ID::Timestamp*>(
+      PROTOBUF_NAMESPACE_ID::Timestamp::internal_default_instance());
+}
+class BatchGetDocumentsResponse::_Internal {
+ public:
+  static const ::google::firestore::v1::Document& found(const BatchGetDocumentsResponse* msg);
+  static const PROTOBUF_NAMESPACE_ID::Timestamp& read_time(const BatchGetDocumentsResponse* msg);
+};
+
+const ::google::firestore::v1::Document&
+BatchGetDocumentsResponse::_Internal::found(const BatchGetDocumentsResponse* msg) {
+  return *msg->result_.found_;
+}
+const PROTOBUF_NAMESPACE_ID::Timestamp&
+BatchGetDocumentsResponse::_Internal::read_time(const BatchGetDocumentsResponse* msg) {
+  return *msg->read_time_;
 }
 void BatchGetDocumentsResponse::set_allocated_found(::google::firestore::v1::Document* found) {
-  ::google::protobuf::Arena* message_arena = GetArenaNoVirtual();
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
   clear_result();
   if (found) {
-    ::google::protobuf::Arena* submessage_arena = NULL;
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
     if (message_arena != submessage_arena) {
-      found = ::google::protobuf::internal::GetOwnedMessage(
+      found = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
           message_arena, found, submessage_arena);
     }
     set_has_found();
@@ -4675,39 +4795,28 @@ void BatchGetDocumentsResponse::clear_found() {
   }
 }
 void BatchGetDocumentsResponse::clear_read_time() {
-  if (GetArenaNoVirtual() == NULL && read_time_ != NULL) {
+  if (GetArenaNoVirtual() == nullptr && read_time_ != nullptr) {
     delete read_time_;
   }
-  read_time_ = NULL;
+  read_time_ = nullptr;
 }
-#if !defined(_MSC_VER) || _MSC_VER >= 1900
-const int BatchGetDocumentsResponse::kFoundFieldNumber;
-const int BatchGetDocumentsResponse::kMissingFieldNumber;
-const int BatchGetDocumentsResponse::kTransactionFieldNumber;
-const int BatchGetDocumentsResponse::kReadTimeFieldNumber;
-#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
-
 BatchGetDocumentsResponse::BatchGetDocumentsResponse()
-  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
-  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
-    ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsBatchGetDocumentsResponse();
-  }
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:google.firestore.v1.BatchGetDocumentsResponse)
 }
 BatchGetDocumentsResponse::BatchGetDocumentsResponse(const BatchGetDocumentsResponse& from)
-  : ::google::protobuf::Message(),
-      _internal_metadata_(NULL),
-      _cached_size_(0) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
+      _internal_metadata_(nullptr) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  transaction_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  if (from.transaction().size() > 0) {
-    transaction_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.transaction_);
+  transaction_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from.transaction().empty()) {
+    transaction_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.transaction_);
   }
   if (from.has_read_time()) {
-    read_time_ = new ::google::protobuf::Timestamp(*from.read_time_);
+    read_time_ = new PROTOBUF_NAMESPACE_ID::Timestamp(*from.read_time_);
   } else {
-    read_time_ = NULL;
+    read_time_ = nullptr;
   }
   clear_has_result();
   switch (from.result_case()) {
@@ -4727,10 +4836,10 @@ BatchGetDocumentsResponse::BatchGetDocumentsResponse(const BatchGetDocumentsResp
 }
 
 void BatchGetDocumentsResponse::SharedCtor() {
-  transaction_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  read_time_ = NULL;
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_BatchGetDocumentsResponse_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
+  transaction_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  read_time_ = nullptr;
   clear_has_result();
-  _cached_size_ = 0;
 }
 
 BatchGetDocumentsResponse::~BatchGetDocumentsResponse() {
@@ -4739,7 +4848,7 @@ BatchGetDocumentsResponse::~BatchGetDocumentsResponse() {
 }
 
 void BatchGetDocumentsResponse::SharedDtor() {
-  transaction_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  transaction_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   if (this != internal_default_instance()) delete read_time_;
   if (has_result()) {
     clear_result();
@@ -4747,27 +4856,13 @@ void BatchGetDocumentsResponse::SharedDtor() {
 }
 
 void BatchGetDocumentsResponse::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  _cached_size_.Set(size);
 }
-const ::google::protobuf::Descriptor* BatchGetDocumentsResponse::descriptor() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages].descriptor;
-}
-
 const BatchGetDocumentsResponse& BatchGetDocumentsResponse::default_instance() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsBatchGetDocumentsResponse();
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_BatchGetDocumentsResponse_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
   return *internal_default_instance();
 }
 
-BatchGetDocumentsResponse* BatchGetDocumentsResponse::New(::google::protobuf::Arena* arena) const {
-  BatchGetDocumentsResponse* n = new BatchGetDocumentsResponse;
-  if (arena != NULL) {
-    arena->Own(n);
-  }
-  return n;
-}
 
 void BatchGetDocumentsResponse::clear_result() {
 // @@protoc_insertion_point(one_of_clear_start:google.firestore.v1.BatchGetDocumentsResponse)
@@ -4777,7 +4872,7 @@ void BatchGetDocumentsResponse::clear_result() {
       break;
     }
     case kMissing: {
-      result_.missing_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+      result_.missing_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
       break;
     }
     case RESULT_NOT_SET: {
@@ -4790,34 +4885,89 @@ void BatchGetDocumentsResponse::clear_result() {
 
 void BatchGetDocumentsResponse::Clear() {
 // @@protoc_insertion_point(message_clear_start:google.firestore.v1.BatchGetDocumentsResponse)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  transaction_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  if (GetArenaNoVirtual() == NULL && read_time_ != NULL) {
+  transaction_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (GetArenaNoVirtual() == nullptr && read_time_ != nullptr) {
     delete read_time_;
   }
-  read_time_ = NULL;
+  read_time_ = nullptr;
   clear_result();
   _internal_metadata_.Clear();
 }
 
+#if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
+const char* BatchGetDocumentsResponse::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    CHK_(ptr);
+    switch (tag >> 3) {
+      // .google.firestore.v1.Document found = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
+          ptr = ctx->ParseMessage(mutable_found(), ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // string missing = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParserUTF8(mutable_missing(), ptr, ctx, "google.firestore.v1.BatchGetDocumentsResponse.missing");
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // bytes transaction = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(mutable_transaction(), ptr, ctx);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // .google.protobuf.Timestamp read_time = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
+          ptr = ctx->ParseMessage(mutable_read_time(), ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
+    }  // switch
+  }  // while
+success:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto success;
+#undef CHK_
+}
+#else  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 bool BatchGetDocumentsResponse::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
+    ::PROTOBUF_NAMESPACE_ID::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!PROTOBUF_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::PROTOBUF_NAMESPACE_ID::uint32 tag;
   // @@protoc_insertion_point(parse_start:google.firestore.v1.BatchGetDocumentsResponse)
   for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    ::std::pair<::PROTOBUF_NAMESPACE_ID::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
     tag = p.first;
     if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+    switch (::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::GetTagFieldNumber(tag)) {
       // .google.firestore.v1.Document found = 1;
       case 1: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(10u /* 10 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (10 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
                input, mutable_found()));
         } else {
           goto handle_unusual;
@@ -4827,13 +4977,12 @@ bool BatchGetDocumentsResponse::MergePartialFromCodedStream(
 
       // string missing = 2;
       case 2: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(18u /* 18 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (18 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadString(
                 input, this->mutable_missing()));
-          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
             this->missing().data(), static_cast<int>(this->missing().length()),
-            ::google::protobuf::internal::WireFormatLite::PARSE,
+            ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE,
             "google.firestore.v1.BatchGetDocumentsResponse.missing"));
         } else {
           goto handle_unusual;
@@ -4843,9 +4992,8 @@ bool BatchGetDocumentsResponse::MergePartialFromCodedStream(
 
       // bytes transaction = 3;
       case 3: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(26u /* 26 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadBytes(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (26 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadBytes(
                 input, this->mutable_transaction()));
         } else {
           goto handle_unusual;
@@ -4855,9 +5003,8 @@ bool BatchGetDocumentsResponse::MergePartialFromCodedStream(
 
       // .google.protobuf.Timestamp read_time = 4;
       case 4: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(34u /* 34 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (34 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
                input, mutable_read_time()));
         } else {
           goto handle_unusual;
@@ -4870,7 +5017,7 @@ bool BatchGetDocumentsResponse::MergePartialFromCodedStream(
         if (tag == 0) {
           goto success;
         }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
+        DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SkipField(
               input, tag, _internal_metadata_.mutable_unknown_fields()));
         break;
       }
@@ -4884,90 +5031,90 @@ failure:
   return false;
 #undef DO_
 }
+#endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 
 void BatchGetDocumentsResponse::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
+    ::PROTOBUF_NAMESPACE_ID::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:google.firestore.v1.BatchGetDocumentsResponse)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // .google.firestore.v1.Document found = 1;
   if (has_found()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, *result_.found_, output);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
+      1, _Internal::found(this), output);
   }
 
   // string missing = 2;
   if (has_missing()) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->missing().data(), static_cast<int>(this->missing().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.BatchGetDocumentsResponse.missing");
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringMaybeAliased(
       2, this->missing(), output);
   }
 
   // bytes transaction = 3;
   if (this->transaction().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteBytesMaybeAliased(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBytesMaybeAliased(
       3, this->transaction(), output);
   }
 
   // .google.protobuf.Timestamp read_time = 4;
   if (this->has_read_time()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      4, *this->read_time_, output);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
+      4, _Internal::read_time(this), output);
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
+  if (_internal_metadata_.have_unknown_fields()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFields(
+        _internal_metadata_.unknown_fields(), output);
   }
   // @@protoc_insertion_point(serialize_end:google.firestore.v1.BatchGetDocumentsResponse)
 }
 
-::google::protobuf::uint8* BatchGetDocumentsResponse::InternalSerializeWithCachedSizesToArray(
-    bool deterministic, ::google::protobuf::uint8* target) const {
-  (void)deterministic; // Unused
+::PROTOBUF_NAMESPACE_ID::uint8* BatchGetDocumentsResponse::InternalSerializeWithCachedSizesToArray(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target) const {
   // @@protoc_insertion_point(serialize_to_array_start:google.firestore.v1.BatchGetDocumentsResponse)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // .google.firestore.v1.Document found = 1;
   if (has_found()) {
-    target = ::google::protobuf::internal::WireFormatLite::
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        1, *result_.found_, deterministic, target);
+        1, _Internal::found(this), target);
   }
 
   // string missing = 2;
   if (has_missing()) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->missing().data(), static_cast<int>(this->missing().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.BatchGetDocumentsResponse.missing");
     target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringToArray(
         2, this->missing(), target);
   }
 
   // bytes transaction = 3;
   if (this->transaction().size() > 0) {
     target =
-      ::google::protobuf::internal::WireFormatLite::WriteBytesToArray(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBytesToArray(
         3, this->transaction(), target);
   }
 
   // .google.protobuf.Timestamp read_time = 4;
   if (this->has_read_time()) {
-    target = ::google::protobuf::internal::WireFormatLite::
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        4, *this->read_time_, deterministic, target);
+        4, _Internal::read_time(this), target);
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), target);
+  if (_internal_metadata_.have_unknown_fields()) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.BatchGetDocumentsResponse)
   return target;
@@ -4977,37 +5124,41 @@ size_t BatchGetDocumentsResponse::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:google.firestore.v1.BatchGetDocumentsResponse)
   size_t total_size = 0;
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
+  if (_internal_metadata_.have_unknown_fields()) {
     total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()));
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::ComputeUnknownFieldsSize(
+        _internal_metadata_.unknown_fields());
   }
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
   // bytes transaction = 3;
   if (this->transaction().size() > 0) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::BytesSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->transaction());
   }
 
   // .google.protobuf.Timestamp read_time = 4;
   if (this->has_read_time()) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::MessageSize(
-        *this->read_time_);
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
+        *read_time_);
   }
 
   switch (result_case()) {
     // .google.firestore.v1.Document found = 1;
     case kFound: {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSize(
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
           *result_.found_);
       break;
     }
     // string missing = 2;
     case kMissing: {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::StringSize(
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
           this->missing());
       break;
     }
@@ -5015,22 +5166,20 @@ size_t BatchGetDocumentsResponse::ByteSizeLong() const {
       break;
     }
   }
-  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = cached_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
   return total_size;
 }
 
-void BatchGetDocumentsResponse::MergeFrom(const ::google::protobuf::Message& from) {
+void BatchGetDocumentsResponse::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_merge_from_start:google.firestore.v1.BatchGetDocumentsResponse)
   GOOGLE_DCHECK_NE(&from, this);
   const BatchGetDocumentsResponse* source =
-      ::google::protobuf::internal::DynamicCastToGenerated<const BatchGetDocumentsResponse>(
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<BatchGetDocumentsResponse>(
           &from);
-  if (source == NULL) {
+  if (source == nullptr) {
   // @@protoc_insertion_point(generalized_merge_from_cast_fail:google.firestore.v1.BatchGetDocumentsResponse)
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
   } else {
   // @@protoc_insertion_point(generalized_merge_from_cast_success:google.firestore.v1.BatchGetDocumentsResponse)
     MergeFrom(*source);
@@ -5041,15 +5190,15 @@ void BatchGetDocumentsResponse::MergeFrom(const BatchGetDocumentsResponse& from)
 // @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.BatchGetDocumentsResponse)
   GOOGLE_DCHECK_NE(&from, this);
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   if (from.transaction().size() > 0) {
 
-    transaction_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.transaction_);
+    transaction_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.transaction_);
   }
   if (from.has_read_time()) {
-    mutable_read_time()->::google::protobuf::Timestamp::MergeFrom(from.read_time());
+    mutable_read_time()->PROTOBUF_NAMESPACE_ID::Timestamp::MergeFrom(from.read_time());
   }
   switch (from.result_case()) {
     case kFound: {
@@ -5066,7 +5215,7 @@ void BatchGetDocumentsResponse::MergeFrom(const BatchGetDocumentsResponse& from)
   }
 }
 
-void BatchGetDocumentsResponse::CopyFrom(const ::google::protobuf::Message& from) {
+void BatchGetDocumentsResponse::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_copy_from_start:google.firestore.v1.BatchGetDocumentsResponse)
   if (&from == this) return;
   Clear();
@@ -5084,23 +5233,18 @@ bool BatchGetDocumentsResponse::IsInitialized() const {
   return true;
 }
 
-void BatchGetDocumentsResponse::Swap(BatchGetDocumentsResponse* other) {
-  if (other == this) return;
-  InternalSwap(other);
-}
 void BatchGetDocumentsResponse::InternalSwap(BatchGetDocumentsResponse* other) {
   using std::swap;
-  transaction_.Swap(&other->transaction_);
+  _internal_metadata_.Swap(&other->_internal_metadata_);
+  transaction_.Swap(&other->transaction_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
   swap(read_time_, other->read_time_);
   swap(result_, other->result_);
   swap(_oneof_case_[0], other->_oneof_case_[0]);
-  _internal_metadata_.Swap(&other->_internal_metadata_);
-  swap(_cached_size_, other->_cached_size_);
 }
 
-::google::protobuf::Metadata BatchGetDocumentsResponse::GetMetadata() const {
-  protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages];
+::PROTOBUF_NAMESPACE_ID::Metadata BatchGetDocumentsResponse::GetMetadata() const {
+  return GetMetadataStatic();
 }
 
 
@@ -5110,46 +5254,46 @@ void BeginTransactionRequest::InitAsDefaultInstance() {
   ::google::firestore::v1::_BeginTransactionRequest_default_instance_._instance.get_mutable()->options_ = const_cast< ::google::firestore::v1::TransactionOptions*>(
       ::google::firestore::v1::TransactionOptions::internal_default_instance());
 }
+class BeginTransactionRequest::_Internal {
+ public:
+  static const ::google::firestore::v1::TransactionOptions& options(const BeginTransactionRequest* msg);
+};
+
+const ::google::firestore::v1::TransactionOptions&
+BeginTransactionRequest::_Internal::options(const BeginTransactionRequest* msg) {
+  return *msg->options_;
+}
 void BeginTransactionRequest::clear_options() {
-  if (GetArenaNoVirtual() == NULL && options_ != NULL) {
+  if (GetArenaNoVirtual() == nullptr && options_ != nullptr) {
     delete options_;
   }
-  options_ = NULL;
+  options_ = nullptr;
 }
-#if !defined(_MSC_VER) || _MSC_VER >= 1900
-const int BeginTransactionRequest::kDatabaseFieldNumber;
-const int BeginTransactionRequest::kOptionsFieldNumber;
-#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
-
 BeginTransactionRequest::BeginTransactionRequest()
-  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
-  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
-    ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsBeginTransactionRequest();
-  }
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:google.firestore.v1.BeginTransactionRequest)
 }
 BeginTransactionRequest::BeginTransactionRequest(const BeginTransactionRequest& from)
-  : ::google::protobuf::Message(),
-      _internal_metadata_(NULL),
-      _cached_size_(0) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
+      _internal_metadata_(nullptr) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  database_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  if (from.database().size() > 0) {
-    database_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.database_);
+  database_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from.database().empty()) {
+    database_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.database_);
   }
   if (from.has_options()) {
     options_ = new ::google::firestore::v1::TransactionOptions(*from.options_);
   } else {
-    options_ = NULL;
+    options_ = nullptr;
   }
   // @@protoc_insertion_point(copy_constructor:google.firestore.v1.BeginTransactionRequest)
 }
 
 void BeginTransactionRequest::SharedCtor() {
-  database_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  options_ = NULL;
-  _cached_size_ = 0;
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_BeginTransactionRequest_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
+  database_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  options_ = nullptr;
 }
 
 BeginTransactionRequest::~BeginTransactionRequest() {
@@ -5158,66 +5302,93 @@ BeginTransactionRequest::~BeginTransactionRequest() {
 }
 
 void BeginTransactionRequest::SharedDtor() {
-  database_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  database_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   if (this != internal_default_instance()) delete options_;
 }
 
 void BeginTransactionRequest::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  _cached_size_.Set(size);
 }
-const ::google::protobuf::Descriptor* BeginTransactionRequest::descriptor() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages].descriptor;
-}
-
 const BeginTransactionRequest& BeginTransactionRequest::default_instance() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsBeginTransactionRequest();
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_BeginTransactionRequest_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
   return *internal_default_instance();
 }
 
-BeginTransactionRequest* BeginTransactionRequest::New(::google::protobuf::Arena* arena) const {
-  BeginTransactionRequest* n = new BeginTransactionRequest;
-  if (arena != NULL) {
-    arena->Own(n);
-  }
-  return n;
-}
 
 void BeginTransactionRequest::Clear() {
 // @@protoc_insertion_point(message_clear_start:google.firestore.v1.BeginTransactionRequest)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  database_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  if (GetArenaNoVirtual() == NULL && options_ != NULL) {
+  database_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (GetArenaNoVirtual() == nullptr && options_ != nullptr) {
     delete options_;
   }
-  options_ = NULL;
+  options_ = nullptr;
   _internal_metadata_.Clear();
 }
 
+#if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
+const char* BeginTransactionRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    CHK_(ptr);
+    switch (tag >> 3) {
+      // string database = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParserUTF8(mutable_database(), ptr, ctx, "google.firestore.v1.BeginTransactionRequest.database");
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // .google.firestore.v1.TransactionOptions options = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
+          ptr = ctx->ParseMessage(mutable_options(), ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
+    }  // switch
+  }  // while
+success:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto success;
+#undef CHK_
+}
+#else  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 bool BeginTransactionRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
+    ::PROTOBUF_NAMESPACE_ID::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!PROTOBUF_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::PROTOBUF_NAMESPACE_ID::uint32 tag;
   // @@protoc_insertion_point(parse_start:google.firestore.v1.BeginTransactionRequest)
   for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    ::std::pair<::PROTOBUF_NAMESPACE_ID::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
     tag = p.first;
     if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+    switch (::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::GetTagFieldNumber(tag)) {
       // string database = 1;
       case 1: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(10u /* 10 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (10 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadString(
                 input, this->mutable_database()));
-          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
             this->database().data(), static_cast<int>(this->database().length()),
-            ::google::protobuf::internal::WireFormatLite::PARSE,
+            ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE,
             "google.firestore.v1.BeginTransactionRequest.database"));
         } else {
           goto handle_unusual;
@@ -5227,9 +5398,8 @@ bool BeginTransactionRequest::MergePartialFromCodedStream(
 
       // .google.firestore.v1.TransactionOptions options = 2;
       case 2: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(18u /* 18 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (18 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
                input, mutable_options()));
         } else {
           goto handle_unusual;
@@ -5242,7 +5412,7 @@ bool BeginTransactionRequest::MergePartialFromCodedStream(
         if (tag == 0) {
           goto success;
         }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
+        DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SkipField(
               input, tag, _internal_metadata_.mutable_unknown_fields()));
         break;
       }
@@ -5256,64 +5426,64 @@ failure:
   return false;
 #undef DO_
 }
+#endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 
 void BeginTransactionRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
+    ::PROTOBUF_NAMESPACE_ID::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:google.firestore.v1.BeginTransactionRequest)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // string database = 1;
   if (this->database().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->database().data(), static_cast<int>(this->database().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.BeginTransactionRequest.database");
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringMaybeAliased(
       1, this->database(), output);
   }
 
   // .google.firestore.v1.TransactionOptions options = 2;
   if (this->has_options()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, *this->options_, output);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
+      2, _Internal::options(this), output);
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
+  if (_internal_metadata_.have_unknown_fields()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFields(
+        _internal_metadata_.unknown_fields(), output);
   }
   // @@protoc_insertion_point(serialize_end:google.firestore.v1.BeginTransactionRequest)
 }
 
-::google::protobuf::uint8* BeginTransactionRequest::InternalSerializeWithCachedSizesToArray(
-    bool deterministic, ::google::protobuf::uint8* target) const {
-  (void)deterministic; // Unused
+::PROTOBUF_NAMESPACE_ID::uint8* BeginTransactionRequest::InternalSerializeWithCachedSizesToArray(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target) const {
   // @@protoc_insertion_point(serialize_to_array_start:google.firestore.v1.BeginTransactionRequest)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // string database = 1;
   if (this->database().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->database().data(), static_cast<int>(this->database().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.BeginTransactionRequest.database");
     target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringToArray(
         1, this->database(), target);
   }
 
   // .google.firestore.v1.TransactionOptions options = 2;
   if (this->has_options()) {
-    target = ::google::protobuf::internal::WireFormatLite::
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        2, *this->options_, deterministic, target);
+        2, _Internal::options(this), target);
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), target);
+  if (_internal_metadata_.have_unknown_fields()) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.BeginTransactionRequest)
   return target;
@@ -5323,41 +5493,43 @@ size_t BeginTransactionRequest::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:google.firestore.v1.BeginTransactionRequest)
   size_t total_size = 0;
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
+  if (_internal_metadata_.have_unknown_fields()) {
     total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()));
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::ComputeUnknownFieldsSize(
+        _internal_metadata_.unknown_fields());
   }
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
   // string database = 1;
   if (this->database().size() > 0) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->database());
   }
 
   // .google.firestore.v1.TransactionOptions options = 2;
   if (this->has_options()) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::MessageSize(
-        *this->options_);
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
+        *options_);
   }
 
-  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = cached_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
   return total_size;
 }
 
-void BeginTransactionRequest::MergeFrom(const ::google::protobuf::Message& from) {
+void BeginTransactionRequest::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_merge_from_start:google.firestore.v1.BeginTransactionRequest)
   GOOGLE_DCHECK_NE(&from, this);
   const BeginTransactionRequest* source =
-      ::google::protobuf::internal::DynamicCastToGenerated<const BeginTransactionRequest>(
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<BeginTransactionRequest>(
           &from);
-  if (source == NULL) {
+  if (source == nullptr) {
   // @@protoc_insertion_point(generalized_merge_from_cast_fail:google.firestore.v1.BeginTransactionRequest)
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
   } else {
   // @@protoc_insertion_point(generalized_merge_from_cast_success:google.firestore.v1.BeginTransactionRequest)
     MergeFrom(*source);
@@ -5368,19 +5540,19 @@ void BeginTransactionRequest::MergeFrom(const BeginTransactionRequest& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.BeginTransactionRequest)
   GOOGLE_DCHECK_NE(&from, this);
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   if (from.database().size() > 0) {
 
-    database_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.database_);
+    database_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.database_);
   }
   if (from.has_options()) {
     mutable_options()->::google::firestore::v1::TransactionOptions::MergeFrom(from.options());
   }
 }
 
-void BeginTransactionRequest::CopyFrom(const ::google::protobuf::Message& from) {
+void BeginTransactionRequest::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_copy_from_start:google.firestore.v1.BeginTransactionRequest)
   if (&from == this) return;
   Clear();
@@ -5398,21 +5570,16 @@ bool BeginTransactionRequest::IsInitialized() const {
   return true;
 }
 
-void BeginTransactionRequest::Swap(BeginTransactionRequest* other) {
-  if (other == this) return;
-  InternalSwap(other);
-}
 void BeginTransactionRequest::InternalSwap(BeginTransactionRequest* other) {
   using std::swap;
-  database_.Swap(&other->database_);
-  swap(options_, other->options_);
   _internal_metadata_.Swap(&other->_internal_metadata_);
-  swap(_cached_size_, other->_cached_size_);
+  database_.Swap(&other->database_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
+  swap(options_, other->options_);
 }
 
-::google::protobuf::Metadata BeginTransactionRequest::GetMetadata() const {
-  protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages];
+::PROTOBUF_NAMESPACE_ID::Metadata BeginTransactionRequest::GetMetadata() const {
+  return GetMetadataStatic();
 }
 
 
@@ -5420,33 +5587,29 @@ void BeginTransactionRequest::InternalSwap(BeginTransactionRequest* other) {
 
 void BeginTransactionResponse::InitAsDefaultInstance() {
 }
-#if !defined(_MSC_VER) || _MSC_VER >= 1900
-const int BeginTransactionResponse::kTransactionFieldNumber;
-#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+class BeginTransactionResponse::_Internal {
+ public:
+};
 
 BeginTransactionResponse::BeginTransactionResponse()
-  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
-  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
-    ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsBeginTransactionResponse();
-  }
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:google.firestore.v1.BeginTransactionResponse)
 }
 BeginTransactionResponse::BeginTransactionResponse(const BeginTransactionResponse& from)
-  : ::google::protobuf::Message(),
-      _internal_metadata_(NULL),
-      _cached_size_(0) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
+      _internal_metadata_(nullptr) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  transaction_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  if (from.transaction().size() > 0) {
-    transaction_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.transaction_);
+  transaction_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from.transaction().empty()) {
+    transaction_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.transaction_);
   }
   // @@protoc_insertion_point(copy_constructor:google.firestore.v1.BeginTransactionResponse)
 }
 
 void BeginTransactionResponse::SharedCtor() {
-  transaction_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  _cached_size_ = 0;
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_BeginTransactionResponse_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
+  transaction_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 
 BeginTransactionResponse::~BeginTransactionResponse() {
@@ -5455,57 +5618,77 @@ BeginTransactionResponse::~BeginTransactionResponse() {
 }
 
 void BeginTransactionResponse::SharedDtor() {
-  transaction_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  transaction_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 
 void BeginTransactionResponse::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  _cached_size_.Set(size);
 }
-const ::google::protobuf::Descriptor* BeginTransactionResponse::descriptor() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages].descriptor;
-}
-
 const BeginTransactionResponse& BeginTransactionResponse::default_instance() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsBeginTransactionResponse();
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_BeginTransactionResponse_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
   return *internal_default_instance();
 }
 
-BeginTransactionResponse* BeginTransactionResponse::New(::google::protobuf::Arena* arena) const {
-  BeginTransactionResponse* n = new BeginTransactionResponse;
-  if (arena != NULL) {
-    arena->Own(n);
-  }
-  return n;
-}
 
 void BeginTransactionResponse::Clear() {
 // @@protoc_insertion_point(message_clear_start:google.firestore.v1.BeginTransactionResponse)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  transaction_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  transaction_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   _internal_metadata_.Clear();
 }
 
+#if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
+const char* BeginTransactionResponse::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    CHK_(ptr);
+    switch (tag >> 3) {
+      // bytes transaction = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(mutable_transaction(), ptr, ctx);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
+    }  // switch
+  }  // while
+success:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto success;
+#undef CHK_
+}
+#else  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 bool BeginTransactionResponse::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
+    ::PROTOBUF_NAMESPACE_ID::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!PROTOBUF_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::PROTOBUF_NAMESPACE_ID::uint32 tag;
   // @@protoc_insertion_point(parse_start:google.firestore.v1.BeginTransactionResponse)
   for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    ::std::pair<::PROTOBUF_NAMESPACE_ID::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
     tag = p.first;
     if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+    switch (::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::GetTagFieldNumber(tag)) {
       // bytes transaction = 1;
       case 1: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(10u /* 10 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadBytes(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (10 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadBytes(
                 input, this->mutable_transaction()));
         } else {
           goto handle_unusual;
@@ -5518,7 +5701,7 @@ bool BeginTransactionResponse::MergePartialFromCodedStream(
         if (tag == 0) {
           goto success;
         }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
+        DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SkipField(
               input, tag, _internal_metadata_.mutable_unknown_fields()));
         break;
       }
@@ -5532,43 +5715,43 @@ failure:
   return false;
 #undef DO_
 }
+#endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 
 void BeginTransactionResponse::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
+    ::PROTOBUF_NAMESPACE_ID::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:google.firestore.v1.BeginTransactionResponse)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // bytes transaction = 1;
   if (this->transaction().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteBytesMaybeAliased(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBytesMaybeAliased(
       1, this->transaction(), output);
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
+  if (_internal_metadata_.have_unknown_fields()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFields(
+        _internal_metadata_.unknown_fields(), output);
   }
   // @@protoc_insertion_point(serialize_end:google.firestore.v1.BeginTransactionResponse)
 }
 
-::google::protobuf::uint8* BeginTransactionResponse::InternalSerializeWithCachedSizesToArray(
-    bool deterministic, ::google::protobuf::uint8* target) const {
-  (void)deterministic; // Unused
+::PROTOBUF_NAMESPACE_ID::uint8* BeginTransactionResponse::InternalSerializeWithCachedSizesToArray(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target) const {
   // @@protoc_insertion_point(serialize_to_array_start:google.firestore.v1.BeginTransactionResponse)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // bytes transaction = 1;
   if (this->transaction().size() > 0) {
     target =
-      ::google::protobuf::internal::WireFormatLite::WriteBytesToArray(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBytesToArray(
         1, this->transaction(), target);
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), target);
+  if (_internal_metadata_.have_unknown_fields()) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.BeginTransactionResponse)
   return target;
@@ -5578,34 +5761,36 @@ size_t BeginTransactionResponse::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:google.firestore.v1.BeginTransactionResponse)
   size_t total_size = 0;
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
+  if (_internal_metadata_.have_unknown_fields()) {
     total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()));
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::ComputeUnknownFieldsSize(
+        _internal_metadata_.unknown_fields());
   }
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
   // bytes transaction = 1;
   if (this->transaction().size() > 0) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::BytesSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->transaction());
   }
 
-  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = cached_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
   return total_size;
 }
 
-void BeginTransactionResponse::MergeFrom(const ::google::protobuf::Message& from) {
+void BeginTransactionResponse::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_merge_from_start:google.firestore.v1.BeginTransactionResponse)
   GOOGLE_DCHECK_NE(&from, this);
   const BeginTransactionResponse* source =
-      ::google::protobuf::internal::DynamicCastToGenerated<const BeginTransactionResponse>(
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<BeginTransactionResponse>(
           &from);
-  if (source == NULL) {
+  if (source == nullptr) {
   // @@protoc_insertion_point(generalized_merge_from_cast_fail:google.firestore.v1.BeginTransactionResponse)
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
   } else {
   // @@protoc_insertion_point(generalized_merge_from_cast_success:google.firestore.v1.BeginTransactionResponse)
     MergeFrom(*source);
@@ -5616,16 +5801,16 @@ void BeginTransactionResponse::MergeFrom(const BeginTransactionResponse& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.BeginTransactionResponse)
   GOOGLE_DCHECK_NE(&from, this);
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   if (from.transaction().size() > 0) {
 
-    transaction_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.transaction_);
+    transaction_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.transaction_);
   }
 }
 
-void BeginTransactionResponse::CopyFrom(const ::google::protobuf::Message& from) {
+void BeginTransactionResponse::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_copy_from_start:google.firestore.v1.BeginTransactionResponse)
   if (&from == this) return;
   Clear();
@@ -5643,20 +5828,15 @@ bool BeginTransactionResponse::IsInitialized() const {
   return true;
 }
 
-void BeginTransactionResponse::Swap(BeginTransactionResponse* other) {
-  if (other == this) return;
-  InternalSwap(other);
-}
 void BeginTransactionResponse::InternalSwap(BeginTransactionResponse* other) {
   using std::swap;
-  transaction_.Swap(&other->transaction_);
   _internal_metadata_.Swap(&other->_internal_metadata_);
-  swap(_cached_size_, other->_cached_size_);
+  transaction_.Swap(&other->transaction_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
 }
 
-::google::protobuf::Metadata BeginTransactionResponse::GetMetadata() const {
-  protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages];
+::PROTOBUF_NAMESPACE_ID::Metadata BeginTransactionResponse::GetMetadata() const {
+  return GetMetadataStatic();
 }
 
 
@@ -5664,44 +5844,38 @@ void BeginTransactionResponse::InternalSwap(BeginTransactionResponse* other) {
 
 void CommitRequest::InitAsDefaultInstance() {
 }
+class CommitRequest::_Internal {
+ public:
+};
+
 void CommitRequest::clear_writes() {
   writes_.Clear();
 }
-#if !defined(_MSC_VER) || _MSC_VER >= 1900
-const int CommitRequest::kDatabaseFieldNumber;
-const int CommitRequest::kWritesFieldNumber;
-const int CommitRequest::kTransactionFieldNumber;
-#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
-
 CommitRequest::CommitRequest()
-  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
-  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
-    ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsCommitRequest();
-  }
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:google.firestore.v1.CommitRequest)
 }
 CommitRequest::CommitRequest(const CommitRequest& from)
-  : ::google::protobuf::Message(),
-      _internal_metadata_(NULL),
-      writes_(from.writes_),
-      _cached_size_(0) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
+      _internal_metadata_(nullptr),
+      writes_(from.writes_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  database_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  if (from.database().size() > 0) {
-    database_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.database_);
+  database_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from.database().empty()) {
+    database_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.database_);
   }
-  transaction_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  if (from.transaction().size() > 0) {
-    transaction_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.transaction_);
+  transaction_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from.transaction().empty()) {
+    transaction_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.transaction_);
   }
   // @@protoc_insertion_point(copy_constructor:google.firestore.v1.CommitRequest)
 }
 
 void CommitRequest::SharedCtor() {
-  database_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  transaction_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  _cached_size_ = 0;
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_CommitRequest_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
+  database_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  transaction_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 
 CommitRequest::~CommitRequest() {
@@ -5710,64 +5884,103 @@ CommitRequest::~CommitRequest() {
 }
 
 void CommitRequest::SharedDtor() {
-  database_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  transaction_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  database_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  transaction_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 
 void CommitRequest::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  _cached_size_.Set(size);
 }
-const ::google::protobuf::Descriptor* CommitRequest::descriptor() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages].descriptor;
-}
-
 const CommitRequest& CommitRequest::default_instance() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsCommitRequest();
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_CommitRequest_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
   return *internal_default_instance();
 }
 
-CommitRequest* CommitRequest::New(::google::protobuf::Arena* arena) const {
-  CommitRequest* n = new CommitRequest;
-  if (arena != NULL) {
-    arena->Own(n);
-  }
-  return n;
-}
 
 void CommitRequest::Clear() {
 // @@protoc_insertion_point(message_clear_start:google.firestore.v1.CommitRequest)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
   writes_.Clear();
-  database_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  transaction_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  database_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  transaction_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   _internal_metadata_.Clear();
 }
 
+#if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
+const char* CommitRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    CHK_(ptr);
+    switch (tag >> 3) {
+      // string database = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParserUTF8(mutable_database(), ptr, ctx, "google.firestore.v1.CommitRequest.database");
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // repeated .google.firestore.v1.Write writes = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
+          ptr -= 1;
+          do {
+            ptr += 1;
+            ptr = ctx->ParseMessage(add_writes(), ptr);
+            CHK_(ptr);
+            if (!ctx->DataAvailable(ptr)) break;
+          } while (::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<::PROTOBUF_NAMESPACE_ID::uint8>(ptr) == 18);
+        } else goto handle_unusual;
+        continue;
+      // bytes transaction = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(mutable_transaction(), ptr, ctx);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
+    }  // switch
+  }  // while
+success:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto success;
+#undef CHK_
+}
+#else  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 bool CommitRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
+    ::PROTOBUF_NAMESPACE_ID::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!PROTOBUF_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::PROTOBUF_NAMESPACE_ID::uint32 tag;
   // @@protoc_insertion_point(parse_start:google.firestore.v1.CommitRequest)
   for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    ::std::pair<::PROTOBUF_NAMESPACE_ID::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
     tag = p.first;
     if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+    switch (::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::GetTagFieldNumber(tag)) {
       // string database = 1;
       case 1: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(10u /* 10 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (10 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadString(
                 input, this->mutable_database()));
-          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
             this->database().data(), static_cast<int>(this->database().length()),
-            ::google::protobuf::internal::WireFormatLite::PARSE,
+            ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE,
             "google.firestore.v1.CommitRequest.database"));
         } else {
           goto handle_unusual;
@@ -5777,9 +5990,9 @@ bool CommitRequest::MergePartialFromCodedStream(
 
       // repeated .google.firestore.v1.Write writes = 2;
       case 2: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(18u /* 18 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(input, add_writes()));
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (18 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
+                input, add_writes()));
         } else {
           goto handle_unusual;
         }
@@ -5788,9 +6001,8 @@ bool CommitRequest::MergePartialFromCodedStream(
 
       // bytes transaction = 3;
       case 3: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(26u /* 26 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadBytes(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (26 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadBytes(
                 input, this->mutable_transaction()));
         } else {
           goto handle_unusual;
@@ -5803,7 +6015,7 @@ bool CommitRequest::MergePartialFromCodedStream(
         if (tag == 0) {
           goto success;
         }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
+        DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SkipField(
               input, tag, _internal_metadata_.mutable_unknown_fields()));
         break;
       }
@@ -5817,79 +6029,81 @@ failure:
   return false;
 #undef DO_
 }
+#endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 
 void CommitRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
+    ::PROTOBUF_NAMESPACE_ID::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:google.firestore.v1.CommitRequest)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // string database = 1;
   if (this->database().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->database().data(), static_cast<int>(this->database().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.CommitRequest.database");
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringMaybeAliased(
       1, this->database(), output);
   }
 
   // repeated .google.firestore.v1.Write writes = 2;
   for (unsigned int i = 0,
       n = static_cast<unsigned int>(this->writes_size()); i < n; i++) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->writes(static_cast<int>(i)), output);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
+      2,
+      this->writes(static_cast<int>(i)),
+      output);
   }
 
   // bytes transaction = 3;
   if (this->transaction().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteBytesMaybeAliased(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBytesMaybeAliased(
       3, this->transaction(), output);
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
+  if (_internal_metadata_.have_unknown_fields()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFields(
+        _internal_metadata_.unknown_fields(), output);
   }
   // @@protoc_insertion_point(serialize_end:google.firestore.v1.CommitRequest)
 }
 
-::google::protobuf::uint8* CommitRequest::InternalSerializeWithCachedSizesToArray(
-    bool deterministic, ::google::protobuf::uint8* target) const {
-  (void)deterministic; // Unused
+::PROTOBUF_NAMESPACE_ID::uint8* CommitRequest::InternalSerializeWithCachedSizesToArray(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target) const {
   // @@protoc_insertion_point(serialize_to_array_start:google.firestore.v1.CommitRequest)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // string database = 1;
   if (this->database().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->database().data(), static_cast<int>(this->database().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.CommitRequest.database");
     target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringToArray(
         1, this->database(), target);
   }
 
   // repeated .google.firestore.v1.Write writes = 2;
   for (unsigned int i = 0,
       n = static_cast<unsigned int>(this->writes_size()); i < n; i++) {
-    target = ::google::protobuf::internal::WireFormatLite::
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        2, this->writes(static_cast<int>(i)), deterministic, target);
+        2, this->writes(static_cast<int>(i)), target);
   }
 
   // bytes transaction = 3;
   if (this->transaction().size() > 0) {
     target =
-      ::google::protobuf::internal::WireFormatLite::WriteBytesToArray(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBytesToArray(
         3, this->transaction(), target);
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), target);
+  if (_internal_metadata_.have_unknown_fields()) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.CommitRequest)
   return target;
@@ -5899,18 +6113,22 @@ size_t CommitRequest::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:google.firestore.v1.CommitRequest)
   size_t total_size = 0;
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
+  if (_internal_metadata_.have_unknown_fields()) {
     total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()));
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::ComputeUnknownFieldsSize(
+        _internal_metadata_.unknown_fields());
   }
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
   // repeated .google.firestore.v1.Write writes = 2;
   {
     unsigned int count = static_cast<unsigned int>(this->writes_size());
     total_size += 1UL * count;
     for (unsigned int i = 0; i < count; i++) {
       total_size +=
-        ::google::protobuf::internal::WireFormatLite::MessageSize(
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
           this->writes(static_cast<int>(i)));
     }
   }
@@ -5918,33 +6136,31 @@ size_t CommitRequest::ByteSizeLong() const {
   // string database = 1;
   if (this->database().size() > 0) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->database());
   }
 
   // bytes transaction = 3;
   if (this->transaction().size() > 0) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::BytesSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->transaction());
   }
 
-  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = cached_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
   return total_size;
 }
 
-void CommitRequest::MergeFrom(const ::google::protobuf::Message& from) {
+void CommitRequest::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_merge_from_start:google.firestore.v1.CommitRequest)
   GOOGLE_DCHECK_NE(&from, this);
   const CommitRequest* source =
-      ::google::protobuf::internal::DynamicCastToGenerated<const CommitRequest>(
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<CommitRequest>(
           &from);
-  if (source == NULL) {
+  if (source == nullptr) {
   // @@protoc_insertion_point(generalized_merge_from_cast_fail:google.firestore.v1.CommitRequest)
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
   } else {
   // @@protoc_insertion_point(generalized_merge_from_cast_success:google.firestore.v1.CommitRequest)
     MergeFrom(*source);
@@ -5955,21 +6171,21 @@ void CommitRequest::MergeFrom(const CommitRequest& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.CommitRequest)
   GOOGLE_DCHECK_NE(&from, this);
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   writes_.MergeFrom(from.writes_);
   if (from.database().size() > 0) {
 
-    database_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.database_);
+    database_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.database_);
   }
   if (from.transaction().size() > 0) {
 
-    transaction_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.transaction_);
+    transaction_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.transaction_);
   }
 }
 
-void CommitRequest::CopyFrom(const ::google::protobuf::Message& from) {
+void CommitRequest::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_copy_from_start:google.firestore.v1.CommitRequest)
   if (&from == this) return;
   Clear();
@@ -5987,70 +6203,66 @@ bool CommitRequest::IsInitialized() const {
   return true;
 }
 
-void CommitRequest::Swap(CommitRequest* other) {
-  if (other == this) return;
-  InternalSwap(other);
-}
 void CommitRequest::InternalSwap(CommitRequest* other) {
   using std::swap;
-  writes_.InternalSwap(&other->writes_);
-  database_.Swap(&other->database_);
-  transaction_.Swap(&other->transaction_);
   _internal_metadata_.Swap(&other->_internal_metadata_);
-  swap(_cached_size_, other->_cached_size_);
+  CastToBase(&writes_)->InternalSwap(CastToBase(&other->writes_));
+  database_.Swap(&other->database_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
+  transaction_.Swap(&other->transaction_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
 }
 
-::google::protobuf::Metadata CommitRequest::GetMetadata() const {
-  protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages];
+::PROTOBUF_NAMESPACE_ID::Metadata CommitRequest::GetMetadata() const {
+  return GetMetadataStatic();
 }
 
 
 // ===================================================================
 
 void CommitResponse::InitAsDefaultInstance() {
-  ::google::firestore::v1::_CommitResponse_default_instance_._instance.get_mutable()->commit_time_ = const_cast< ::google::protobuf::Timestamp*>(
-      ::google::protobuf::Timestamp::internal_default_instance());
+  ::google::firestore::v1::_CommitResponse_default_instance_._instance.get_mutable()->commit_time_ = const_cast< PROTOBUF_NAMESPACE_ID::Timestamp*>(
+      PROTOBUF_NAMESPACE_ID::Timestamp::internal_default_instance());
+}
+class CommitResponse::_Internal {
+ public:
+  static const PROTOBUF_NAMESPACE_ID::Timestamp& commit_time(const CommitResponse* msg);
+};
+
+const PROTOBUF_NAMESPACE_ID::Timestamp&
+CommitResponse::_Internal::commit_time(const CommitResponse* msg) {
+  return *msg->commit_time_;
 }
 void CommitResponse::clear_write_results() {
   write_results_.Clear();
 }
 void CommitResponse::clear_commit_time() {
-  if (GetArenaNoVirtual() == NULL && commit_time_ != NULL) {
+  if (GetArenaNoVirtual() == nullptr && commit_time_ != nullptr) {
     delete commit_time_;
   }
-  commit_time_ = NULL;
+  commit_time_ = nullptr;
 }
-#if !defined(_MSC_VER) || _MSC_VER >= 1900
-const int CommitResponse::kWriteResultsFieldNumber;
-const int CommitResponse::kCommitTimeFieldNumber;
-#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
-
 CommitResponse::CommitResponse()
-  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
-  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
-    ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsCommitResponse();
-  }
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:google.firestore.v1.CommitResponse)
 }
 CommitResponse::CommitResponse(const CommitResponse& from)
-  : ::google::protobuf::Message(),
-      _internal_metadata_(NULL),
-      write_results_(from.write_results_),
-      _cached_size_(0) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
+      _internal_metadata_(nullptr),
+      write_results_(from.write_results_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   if (from.has_commit_time()) {
-    commit_time_ = new ::google::protobuf::Timestamp(*from.commit_time_);
+    commit_time_ = new PROTOBUF_NAMESPACE_ID::Timestamp(*from.commit_time_);
   } else {
-    commit_time_ = NULL;
+    commit_time_ = nullptr;
   }
   // @@protoc_insertion_point(copy_constructor:google.firestore.v1.CommitResponse)
 }
 
 void CommitResponse::SharedCtor() {
-  commit_time_ = NULL;
-  _cached_size_ = 0;
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_CommitResponse_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
+  commit_time_ = nullptr;
 }
 
 CommitResponse::~CommitResponse() {
@@ -6063,57 +6275,90 @@ void CommitResponse::SharedDtor() {
 }
 
 void CommitResponse::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  _cached_size_.Set(size);
 }
-const ::google::protobuf::Descriptor* CommitResponse::descriptor() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages].descriptor;
-}
-
 const CommitResponse& CommitResponse::default_instance() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsCommitResponse();
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_CommitResponse_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
   return *internal_default_instance();
 }
 
-CommitResponse* CommitResponse::New(::google::protobuf::Arena* arena) const {
-  CommitResponse* n = new CommitResponse;
-  if (arena != NULL) {
-    arena->Own(n);
-  }
-  return n;
-}
 
 void CommitResponse::Clear() {
 // @@protoc_insertion_point(message_clear_start:google.firestore.v1.CommitResponse)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
   write_results_.Clear();
-  if (GetArenaNoVirtual() == NULL && commit_time_ != NULL) {
+  if (GetArenaNoVirtual() == nullptr && commit_time_ != nullptr) {
     delete commit_time_;
   }
-  commit_time_ = NULL;
+  commit_time_ = nullptr;
   _internal_metadata_.Clear();
 }
 
+#if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
+const char* CommitResponse::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    CHK_(ptr);
+    switch (tag >> 3) {
+      // repeated .google.firestore.v1.WriteResult write_results = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
+          ptr -= 1;
+          do {
+            ptr += 1;
+            ptr = ctx->ParseMessage(add_write_results(), ptr);
+            CHK_(ptr);
+            if (!ctx->DataAvailable(ptr)) break;
+          } while (::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<::PROTOBUF_NAMESPACE_ID::uint8>(ptr) == 10);
+        } else goto handle_unusual;
+        continue;
+      // .google.protobuf.Timestamp commit_time = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
+          ptr = ctx->ParseMessage(mutable_commit_time(), ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
+    }  // switch
+  }  // while
+success:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto success;
+#undef CHK_
+}
+#else  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 bool CommitResponse::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
+    ::PROTOBUF_NAMESPACE_ID::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!PROTOBUF_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::PROTOBUF_NAMESPACE_ID::uint32 tag;
   // @@protoc_insertion_point(parse_start:google.firestore.v1.CommitResponse)
   for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    ::std::pair<::PROTOBUF_NAMESPACE_ID::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
     tag = p.first;
     if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+    switch (::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::GetTagFieldNumber(tag)) {
       // repeated .google.firestore.v1.WriteResult write_results = 1;
       case 1: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(10u /* 10 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(input, add_write_results()));
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (10 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
+                input, add_write_results()));
         } else {
           goto handle_unusual;
         }
@@ -6122,9 +6367,8 @@ bool CommitResponse::MergePartialFromCodedStream(
 
       // .google.protobuf.Timestamp commit_time = 2;
       case 2: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(18u /* 18 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (18 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
                input, mutable_commit_time()));
         } else {
           goto handle_unusual;
@@ -6137,7 +6381,7 @@ bool CommitResponse::MergePartialFromCodedStream(
         if (tag == 0) {
           goto success;
         }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
+        DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SkipField(
               input, tag, _internal_metadata_.mutable_unknown_fields()));
         break;
       }
@@ -6151,58 +6395,60 @@ failure:
   return false;
 #undef DO_
 }
+#endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 
 void CommitResponse::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
+    ::PROTOBUF_NAMESPACE_ID::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:google.firestore.v1.CommitResponse)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // repeated .google.firestore.v1.WriteResult write_results = 1;
   for (unsigned int i = 0,
       n = static_cast<unsigned int>(this->write_results_size()); i < n; i++) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->write_results(static_cast<int>(i)), output);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
+      1,
+      this->write_results(static_cast<int>(i)),
+      output);
   }
 
   // .google.protobuf.Timestamp commit_time = 2;
   if (this->has_commit_time()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, *this->commit_time_, output);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
+      2, _Internal::commit_time(this), output);
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
+  if (_internal_metadata_.have_unknown_fields()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFields(
+        _internal_metadata_.unknown_fields(), output);
   }
   // @@protoc_insertion_point(serialize_end:google.firestore.v1.CommitResponse)
 }
 
-::google::protobuf::uint8* CommitResponse::InternalSerializeWithCachedSizesToArray(
-    bool deterministic, ::google::protobuf::uint8* target) const {
-  (void)deterministic; // Unused
+::PROTOBUF_NAMESPACE_ID::uint8* CommitResponse::InternalSerializeWithCachedSizesToArray(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target) const {
   // @@protoc_insertion_point(serialize_to_array_start:google.firestore.v1.CommitResponse)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // repeated .google.firestore.v1.WriteResult write_results = 1;
   for (unsigned int i = 0,
       n = static_cast<unsigned int>(this->write_results_size()); i < n; i++) {
-    target = ::google::protobuf::internal::WireFormatLite::
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        1, this->write_results(static_cast<int>(i)), deterministic, target);
+        1, this->write_results(static_cast<int>(i)), target);
   }
 
   // .google.protobuf.Timestamp commit_time = 2;
   if (this->has_commit_time()) {
-    target = ::google::protobuf::internal::WireFormatLite::
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        2, *this->commit_time_, deterministic, target);
+        2, _Internal::commit_time(this), target);
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), target);
+  if (_internal_metadata_.have_unknown_fields()) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.CommitResponse)
   return target;
@@ -6212,18 +6458,22 @@ size_t CommitResponse::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:google.firestore.v1.CommitResponse)
   size_t total_size = 0;
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
+  if (_internal_metadata_.have_unknown_fields()) {
     total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()));
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::ComputeUnknownFieldsSize(
+        _internal_metadata_.unknown_fields());
   }
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
   // repeated .google.firestore.v1.WriteResult write_results = 1;
   {
     unsigned int count = static_cast<unsigned int>(this->write_results_size());
     total_size += 1UL * count;
     for (unsigned int i = 0; i < count; i++) {
       total_size +=
-        ::google::protobuf::internal::WireFormatLite::MessageSize(
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
           this->write_results(static_cast<int>(i)));
     }
   }
@@ -6231,26 +6481,24 @@ size_t CommitResponse::ByteSizeLong() const {
   // .google.protobuf.Timestamp commit_time = 2;
   if (this->has_commit_time()) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::MessageSize(
-        *this->commit_time_);
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
+        *commit_time_);
   }
 
-  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = cached_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
   return total_size;
 }
 
-void CommitResponse::MergeFrom(const ::google::protobuf::Message& from) {
+void CommitResponse::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_merge_from_start:google.firestore.v1.CommitResponse)
   GOOGLE_DCHECK_NE(&from, this);
   const CommitResponse* source =
-      ::google::protobuf::internal::DynamicCastToGenerated<const CommitResponse>(
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<CommitResponse>(
           &from);
-  if (source == NULL) {
+  if (source == nullptr) {
   // @@protoc_insertion_point(generalized_merge_from_cast_fail:google.firestore.v1.CommitResponse)
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
   } else {
   // @@protoc_insertion_point(generalized_merge_from_cast_success:google.firestore.v1.CommitResponse)
     MergeFrom(*source);
@@ -6261,16 +6509,16 @@ void CommitResponse::MergeFrom(const CommitResponse& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.CommitResponse)
   GOOGLE_DCHECK_NE(&from, this);
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   write_results_.MergeFrom(from.write_results_);
   if (from.has_commit_time()) {
-    mutable_commit_time()->::google::protobuf::Timestamp::MergeFrom(from.commit_time());
+    mutable_commit_time()->PROTOBUF_NAMESPACE_ID::Timestamp::MergeFrom(from.commit_time());
   }
 }
 
-void CommitResponse::CopyFrom(const ::google::protobuf::Message& from) {
+void CommitResponse::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_copy_from_start:google.firestore.v1.CommitResponse)
   if (&from == this) return;
   Clear();
@@ -6288,21 +6536,15 @@ bool CommitResponse::IsInitialized() const {
   return true;
 }
 
-void CommitResponse::Swap(CommitResponse* other) {
-  if (other == this) return;
-  InternalSwap(other);
-}
 void CommitResponse::InternalSwap(CommitResponse* other) {
   using std::swap;
-  write_results_.InternalSwap(&other->write_results_);
-  swap(commit_time_, other->commit_time_);
   _internal_metadata_.Swap(&other->_internal_metadata_);
-  swap(_cached_size_, other->_cached_size_);
+  CastToBase(&write_results_)->InternalSwap(CastToBase(&other->write_results_));
+  swap(commit_time_, other->commit_time_);
 }
 
-::google::protobuf::Metadata CommitResponse::GetMetadata() const {
-  protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages];
+::PROTOBUF_NAMESPACE_ID::Metadata CommitResponse::GetMetadata() const {
+  return GetMetadataStatic();
 }
 
 
@@ -6310,39 +6552,34 @@ void CommitResponse::InternalSwap(CommitResponse* other) {
 
 void RollbackRequest::InitAsDefaultInstance() {
 }
-#if !defined(_MSC_VER) || _MSC_VER >= 1900
-const int RollbackRequest::kDatabaseFieldNumber;
-const int RollbackRequest::kTransactionFieldNumber;
-#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+class RollbackRequest::_Internal {
+ public:
+};
 
 RollbackRequest::RollbackRequest()
-  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
-  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
-    ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsRollbackRequest();
-  }
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:google.firestore.v1.RollbackRequest)
 }
 RollbackRequest::RollbackRequest(const RollbackRequest& from)
-  : ::google::protobuf::Message(),
-      _internal_metadata_(NULL),
-      _cached_size_(0) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
+      _internal_metadata_(nullptr) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  database_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  if (from.database().size() > 0) {
-    database_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.database_);
+  database_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from.database().empty()) {
+    database_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.database_);
   }
-  transaction_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  if (from.transaction().size() > 0) {
-    transaction_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.transaction_);
+  transaction_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from.transaction().empty()) {
+    transaction_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.transaction_);
   }
   // @@protoc_insertion_point(copy_constructor:google.firestore.v1.RollbackRequest)
 }
 
 void RollbackRequest::SharedCtor() {
-  database_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  transaction_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  _cached_size_ = 0;
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_RollbackRequest_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
+  database_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  transaction_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 
 RollbackRequest::~RollbackRequest() {
@@ -6351,63 +6588,90 @@ RollbackRequest::~RollbackRequest() {
 }
 
 void RollbackRequest::SharedDtor() {
-  database_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  transaction_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  database_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  transaction_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 
 void RollbackRequest::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  _cached_size_.Set(size);
 }
-const ::google::protobuf::Descriptor* RollbackRequest::descriptor() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages].descriptor;
-}
-
 const RollbackRequest& RollbackRequest::default_instance() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsRollbackRequest();
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_RollbackRequest_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
   return *internal_default_instance();
 }
 
-RollbackRequest* RollbackRequest::New(::google::protobuf::Arena* arena) const {
-  RollbackRequest* n = new RollbackRequest;
-  if (arena != NULL) {
-    arena->Own(n);
-  }
-  return n;
-}
 
 void RollbackRequest::Clear() {
 // @@protoc_insertion_point(message_clear_start:google.firestore.v1.RollbackRequest)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  database_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  transaction_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  database_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  transaction_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   _internal_metadata_.Clear();
 }
 
+#if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
+const char* RollbackRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    CHK_(ptr);
+    switch (tag >> 3) {
+      // string database = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParserUTF8(mutable_database(), ptr, ctx, "google.firestore.v1.RollbackRequest.database");
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // bytes transaction = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(mutable_transaction(), ptr, ctx);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
+    }  // switch
+  }  // while
+success:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto success;
+#undef CHK_
+}
+#else  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 bool RollbackRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
+    ::PROTOBUF_NAMESPACE_ID::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!PROTOBUF_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::PROTOBUF_NAMESPACE_ID::uint32 tag;
   // @@protoc_insertion_point(parse_start:google.firestore.v1.RollbackRequest)
   for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    ::std::pair<::PROTOBUF_NAMESPACE_ID::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
     tag = p.first;
     if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+    switch (::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::GetTagFieldNumber(tag)) {
       // string database = 1;
       case 1: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(10u /* 10 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (10 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadString(
                 input, this->mutable_database()));
-          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
             this->database().data(), static_cast<int>(this->database().length()),
-            ::google::protobuf::internal::WireFormatLite::PARSE,
+            ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE,
             "google.firestore.v1.RollbackRequest.database"));
         } else {
           goto handle_unusual;
@@ -6417,9 +6681,8 @@ bool RollbackRequest::MergePartialFromCodedStream(
 
       // bytes transaction = 2;
       case 2: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(18u /* 18 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadBytes(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (18 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadBytes(
                 input, this->mutable_transaction()));
         } else {
           goto handle_unusual;
@@ -6432,7 +6695,7 @@ bool RollbackRequest::MergePartialFromCodedStream(
         if (tag == 0) {
           goto success;
         }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
+        DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SkipField(
               input, tag, _internal_metadata_.mutable_unknown_fields()));
         break;
       }
@@ -6446,64 +6709,64 @@ failure:
   return false;
 #undef DO_
 }
+#endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 
 void RollbackRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
+    ::PROTOBUF_NAMESPACE_ID::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:google.firestore.v1.RollbackRequest)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // string database = 1;
   if (this->database().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->database().data(), static_cast<int>(this->database().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.RollbackRequest.database");
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringMaybeAliased(
       1, this->database(), output);
   }
 
   // bytes transaction = 2;
   if (this->transaction().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteBytesMaybeAliased(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBytesMaybeAliased(
       2, this->transaction(), output);
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
+  if (_internal_metadata_.have_unknown_fields()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFields(
+        _internal_metadata_.unknown_fields(), output);
   }
   // @@protoc_insertion_point(serialize_end:google.firestore.v1.RollbackRequest)
 }
 
-::google::protobuf::uint8* RollbackRequest::InternalSerializeWithCachedSizesToArray(
-    bool deterministic, ::google::protobuf::uint8* target) const {
-  (void)deterministic; // Unused
+::PROTOBUF_NAMESPACE_ID::uint8* RollbackRequest::InternalSerializeWithCachedSizesToArray(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target) const {
   // @@protoc_insertion_point(serialize_to_array_start:google.firestore.v1.RollbackRequest)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // string database = 1;
   if (this->database().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->database().data(), static_cast<int>(this->database().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.RollbackRequest.database");
     target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringToArray(
         1, this->database(), target);
   }
 
   // bytes transaction = 2;
   if (this->transaction().size() > 0) {
     target =
-      ::google::protobuf::internal::WireFormatLite::WriteBytesToArray(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBytesToArray(
         2, this->transaction(), target);
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), target);
+  if (_internal_metadata_.have_unknown_fields()) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.RollbackRequest)
   return target;
@@ -6513,41 +6776,43 @@ size_t RollbackRequest::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:google.firestore.v1.RollbackRequest)
   size_t total_size = 0;
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
+  if (_internal_metadata_.have_unknown_fields()) {
     total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()));
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::ComputeUnknownFieldsSize(
+        _internal_metadata_.unknown_fields());
   }
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
   // string database = 1;
   if (this->database().size() > 0) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->database());
   }
 
   // bytes transaction = 2;
   if (this->transaction().size() > 0) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::BytesSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->transaction());
   }
 
-  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = cached_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
   return total_size;
 }
 
-void RollbackRequest::MergeFrom(const ::google::protobuf::Message& from) {
+void RollbackRequest::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_merge_from_start:google.firestore.v1.RollbackRequest)
   GOOGLE_DCHECK_NE(&from, this);
   const RollbackRequest* source =
-      ::google::protobuf::internal::DynamicCastToGenerated<const RollbackRequest>(
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<RollbackRequest>(
           &from);
-  if (source == NULL) {
+  if (source == nullptr) {
   // @@protoc_insertion_point(generalized_merge_from_cast_fail:google.firestore.v1.RollbackRequest)
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
   } else {
   // @@protoc_insertion_point(generalized_merge_from_cast_success:google.firestore.v1.RollbackRequest)
     MergeFrom(*source);
@@ -6558,20 +6823,20 @@ void RollbackRequest::MergeFrom(const RollbackRequest& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.RollbackRequest)
   GOOGLE_DCHECK_NE(&from, this);
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   if (from.database().size() > 0) {
 
-    database_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.database_);
+    database_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.database_);
   }
   if (from.transaction().size() > 0) {
 
-    transaction_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.transaction_);
+    transaction_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.transaction_);
   }
 }
 
-void RollbackRequest::CopyFrom(const ::google::protobuf::Message& from) {
+void RollbackRequest::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_copy_from_start:google.firestore.v1.RollbackRequest)
   if (&from == this) return;
   Clear();
@@ -6589,21 +6854,17 @@ bool RollbackRequest::IsInitialized() const {
   return true;
 }
 
-void RollbackRequest::Swap(RollbackRequest* other) {
-  if (other == this) return;
-  InternalSwap(other);
-}
 void RollbackRequest::InternalSwap(RollbackRequest* other) {
   using std::swap;
-  database_.Swap(&other->database_);
-  transaction_.Swap(&other->transaction_);
   _internal_metadata_.Swap(&other->_internal_metadata_);
-  swap(_cached_size_, other->_cached_size_);
+  database_.Swap(&other->database_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
+  transaction_.Swap(&other->transaction_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
 }
 
-::google::protobuf::Metadata RollbackRequest::GetMetadata() const {
-  protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages];
+::PROTOBUF_NAMESPACE_ID::Metadata RollbackRequest::GetMetadata() const {
+  return GetMetadataStatic();
 }
 
 
@@ -6613,19 +6874,38 @@ void RunQueryRequest::InitAsDefaultInstance() {
   ::google::firestore::v1::_RunQueryRequest_default_instance_.structured_query_ = const_cast< ::google::firestore::v1::StructuredQuery*>(
       ::google::firestore::v1::StructuredQuery::internal_default_instance());
   ::google::firestore::v1::_RunQueryRequest_default_instance_.transaction_.UnsafeSetDefault(
-      &::google::protobuf::internal::GetEmptyStringAlreadyInited());
+      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   ::google::firestore::v1::_RunQueryRequest_default_instance_.new_transaction_ = const_cast< ::google::firestore::v1::TransactionOptions*>(
       ::google::firestore::v1::TransactionOptions::internal_default_instance());
-  ::google::firestore::v1::_RunQueryRequest_default_instance_.read_time_ = const_cast< ::google::protobuf::Timestamp*>(
-      ::google::protobuf::Timestamp::internal_default_instance());
+  ::google::firestore::v1::_RunQueryRequest_default_instance_.read_time_ = const_cast< PROTOBUF_NAMESPACE_ID::Timestamp*>(
+      PROTOBUF_NAMESPACE_ID::Timestamp::internal_default_instance());
+}
+class RunQueryRequest::_Internal {
+ public:
+  static const ::google::firestore::v1::StructuredQuery& structured_query(const RunQueryRequest* msg);
+  static const ::google::firestore::v1::TransactionOptions& new_transaction(const RunQueryRequest* msg);
+  static const PROTOBUF_NAMESPACE_ID::Timestamp& read_time(const RunQueryRequest* msg);
+};
+
+const ::google::firestore::v1::StructuredQuery&
+RunQueryRequest::_Internal::structured_query(const RunQueryRequest* msg) {
+  return *msg->query_type_.structured_query_;
+}
+const ::google::firestore::v1::TransactionOptions&
+RunQueryRequest::_Internal::new_transaction(const RunQueryRequest* msg) {
+  return *msg->consistency_selector_.new_transaction_;
+}
+const PROTOBUF_NAMESPACE_ID::Timestamp&
+RunQueryRequest::_Internal::read_time(const RunQueryRequest* msg) {
+  return *msg->consistency_selector_.read_time_;
 }
 void RunQueryRequest::set_allocated_structured_query(::google::firestore::v1::StructuredQuery* structured_query) {
-  ::google::protobuf::Arena* message_arena = GetArenaNoVirtual();
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
   clear_query_type();
   if (structured_query) {
-    ::google::protobuf::Arena* submessage_arena = NULL;
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
     if (message_arena != submessage_arena) {
-      structured_query = ::google::protobuf::internal::GetOwnedMessage(
+      structured_query = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
           message_arena, structured_query, submessage_arena);
     }
     set_has_structured_query();
@@ -6640,12 +6920,12 @@ void RunQueryRequest::clear_structured_query() {
   }
 }
 void RunQueryRequest::set_allocated_new_transaction(::google::firestore::v1::TransactionOptions* new_transaction) {
-  ::google::protobuf::Arena* message_arena = GetArenaNoVirtual();
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
   clear_consistency_selector();
   if (new_transaction) {
-    ::google::protobuf::Arena* submessage_arena = NULL;
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
     if (message_arena != submessage_arena) {
-      new_transaction = ::google::protobuf::internal::GetOwnedMessage(
+      new_transaction = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
           message_arena, new_transaction, submessage_arena);
     }
     set_has_new_transaction();
@@ -6659,14 +6939,14 @@ void RunQueryRequest::clear_new_transaction() {
     clear_has_consistency_selector();
   }
 }
-void RunQueryRequest::set_allocated_read_time(::google::protobuf::Timestamp* read_time) {
-  ::google::protobuf::Arena* message_arena = GetArenaNoVirtual();
+void RunQueryRequest::set_allocated_read_time(PROTOBUF_NAMESPACE_ID::Timestamp* read_time) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
   clear_consistency_selector();
   if (read_time) {
-    ::google::protobuf::Arena* submessage_arena =
-      reinterpret_cast< ::google::protobuf::MessageLite*>(read_time)->GetArena();
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+      reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(read_time)->GetArena();
     if (message_arena != submessage_arena) {
-      read_time = ::google::protobuf::internal::GetOwnedMessage(
+      read_time = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
           message_arena, read_time, submessage_arena);
     }
     set_has_read_time();
@@ -6680,30 +6960,18 @@ void RunQueryRequest::clear_read_time() {
     clear_has_consistency_selector();
   }
 }
-#if !defined(_MSC_VER) || _MSC_VER >= 1900
-const int RunQueryRequest::kParentFieldNumber;
-const int RunQueryRequest::kStructuredQueryFieldNumber;
-const int RunQueryRequest::kTransactionFieldNumber;
-const int RunQueryRequest::kNewTransactionFieldNumber;
-const int RunQueryRequest::kReadTimeFieldNumber;
-#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
-
 RunQueryRequest::RunQueryRequest()
-  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
-  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
-    ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsRunQueryRequest();
-  }
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:google.firestore.v1.RunQueryRequest)
 }
 RunQueryRequest::RunQueryRequest(const RunQueryRequest& from)
-  : ::google::protobuf::Message(),
-      _internal_metadata_(NULL),
-      _cached_size_(0) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
+      _internal_metadata_(nullptr) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  parent_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  if (from.parent().size() > 0) {
-    parent_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.parent_);
+  parent_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from.parent().empty()) {
+    parent_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.parent_);
   }
   clear_has_query_type();
   switch (from.query_type_case()) {
@@ -6726,7 +6994,7 @@ RunQueryRequest::RunQueryRequest(const RunQueryRequest& from)
       break;
     }
     case kReadTime: {
-      mutable_read_time()->::google::protobuf::Timestamp::MergeFrom(from.read_time());
+      mutable_read_time()->PROTOBUF_NAMESPACE_ID::Timestamp::MergeFrom(from.read_time());
       break;
     }
     case CONSISTENCY_SELECTOR_NOT_SET: {
@@ -6737,10 +7005,10 @@ RunQueryRequest::RunQueryRequest(const RunQueryRequest& from)
 }
 
 void RunQueryRequest::SharedCtor() {
-  parent_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_RunQueryRequest_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
+  parent_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   clear_has_query_type();
   clear_has_consistency_selector();
-  _cached_size_ = 0;
 }
 
 RunQueryRequest::~RunQueryRequest() {
@@ -6749,7 +7017,7 @@ RunQueryRequest::~RunQueryRequest() {
 }
 
 void RunQueryRequest::SharedDtor() {
-  parent_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  parent_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   if (has_query_type()) {
     clear_query_type();
   }
@@ -6759,27 +7027,13 @@ void RunQueryRequest::SharedDtor() {
 }
 
 void RunQueryRequest::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  _cached_size_.Set(size);
 }
-const ::google::protobuf::Descriptor* RunQueryRequest::descriptor() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages].descriptor;
-}
-
 const RunQueryRequest& RunQueryRequest::default_instance() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsRunQueryRequest();
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_RunQueryRequest_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
   return *internal_default_instance();
 }
 
-RunQueryRequest* RunQueryRequest::New(::google::protobuf::Arena* arena) const {
-  RunQueryRequest* n = new RunQueryRequest;
-  if (arena != NULL) {
-    arena->Own(n);
-  }
-  return n;
-}
 
 void RunQueryRequest::clear_query_type() {
 // @@protoc_insertion_point(one_of_clear_start:google.firestore.v1.RunQueryRequest)
@@ -6799,7 +7053,7 @@ void RunQueryRequest::clear_consistency_selector() {
 // @@protoc_insertion_point(one_of_clear_start:google.firestore.v1.RunQueryRequest)
   switch (consistency_selector_case()) {
     case kTransaction: {
-      consistency_selector_.transaction_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+      consistency_selector_.transaction_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
       break;
     }
     case kNewTransaction: {
@@ -6820,35 +7074,97 @@ void RunQueryRequest::clear_consistency_selector() {
 
 void RunQueryRequest::Clear() {
 // @@protoc_insertion_point(message_clear_start:google.firestore.v1.RunQueryRequest)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  parent_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  parent_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   clear_query_type();
   clear_consistency_selector();
   _internal_metadata_.Clear();
 }
 
+#if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
+const char* RunQueryRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    CHK_(ptr);
+    switch (tag >> 3) {
+      // string parent = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParserUTF8(mutable_parent(), ptr, ctx, "google.firestore.v1.RunQueryRequest.parent");
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // .google.firestore.v1.StructuredQuery structured_query = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
+          ptr = ctx->ParseMessage(mutable_structured_query(), ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // bytes transaction = 5;
+      case 5:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 42)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(mutable_transaction(), ptr, ctx);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // .google.firestore.v1.TransactionOptions new_transaction = 6;
+      case 6:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 50)) {
+          ptr = ctx->ParseMessage(mutable_new_transaction(), ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // .google.protobuf.Timestamp read_time = 7;
+      case 7:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 58)) {
+          ptr = ctx->ParseMessage(mutable_read_time(), ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
+    }  // switch
+  }  // while
+success:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto success;
+#undef CHK_
+}
+#else  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 bool RunQueryRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
+    ::PROTOBUF_NAMESPACE_ID::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!PROTOBUF_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::PROTOBUF_NAMESPACE_ID::uint32 tag;
   // @@protoc_insertion_point(parse_start:google.firestore.v1.RunQueryRequest)
   for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    ::std::pair<::PROTOBUF_NAMESPACE_ID::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
     tag = p.first;
     if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+    switch (::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::GetTagFieldNumber(tag)) {
       // string parent = 1;
       case 1: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(10u /* 10 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (10 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadString(
                 input, this->mutable_parent()));
-          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
             this->parent().data(), static_cast<int>(this->parent().length()),
-            ::google::protobuf::internal::WireFormatLite::PARSE,
+            ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE,
             "google.firestore.v1.RunQueryRequest.parent"));
         } else {
           goto handle_unusual;
@@ -6858,9 +7174,8 @@ bool RunQueryRequest::MergePartialFromCodedStream(
 
       // .google.firestore.v1.StructuredQuery structured_query = 2;
       case 2: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(18u /* 18 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (18 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
                input, mutable_structured_query()));
         } else {
           goto handle_unusual;
@@ -6870,9 +7185,8 @@ bool RunQueryRequest::MergePartialFromCodedStream(
 
       // bytes transaction = 5;
       case 5: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(42u /* 42 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadBytes(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (42 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadBytes(
                 input, this->mutable_transaction()));
         } else {
           goto handle_unusual;
@@ -6882,9 +7196,8 @@ bool RunQueryRequest::MergePartialFromCodedStream(
 
       // .google.firestore.v1.TransactionOptions new_transaction = 6;
       case 6: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(50u /* 50 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (50 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
                input, mutable_new_transaction()));
         } else {
           goto handle_unusual;
@@ -6894,9 +7207,8 @@ bool RunQueryRequest::MergePartialFromCodedStream(
 
       // .google.protobuf.Timestamp read_time = 7;
       case 7: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(58u /* 58 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (58 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
                input, mutable_read_time()));
         } else {
           goto handle_unusual;
@@ -6909,7 +7221,7 @@ bool RunQueryRequest::MergePartialFromCodedStream(
         if (tag == 0) {
           goto success;
         }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
+        DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SkipField(
               input, tag, _internal_metadata_.mutable_unknown_fields()));
         break;
       }
@@ -6923,103 +7235,103 @@ failure:
   return false;
 #undef DO_
 }
+#endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 
 void RunQueryRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
+    ::PROTOBUF_NAMESPACE_ID::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:google.firestore.v1.RunQueryRequest)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // string parent = 1;
   if (this->parent().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->parent().data(), static_cast<int>(this->parent().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.RunQueryRequest.parent");
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringMaybeAliased(
       1, this->parent(), output);
   }
 
   // .google.firestore.v1.StructuredQuery structured_query = 2;
   if (has_structured_query()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, *query_type_.structured_query_, output);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
+      2, _Internal::structured_query(this), output);
   }
 
   // bytes transaction = 5;
   if (has_transaction()) {
-    ::google::protobuf::internal::WireFormatLite::WriteBytesMaybeAliased(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBytesMaybeAliased(
       5, this->transaction(), output);
   }
 
   // .google.firestore.v1.TransactionOptions new_transaction = 6;
   if (has_new_transaction()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      6, *consistency_selector_.new_transaction_, output);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
+      6, _Internal::new_transaction(this), output);
   }
 
   // .google.protobuf.Timestamp read_time = 7;
   if (has_read_time()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      7, *consistency_selector_.read_time_, output);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
+      7, _Internal::read_time(this), output);
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
+  if (_internal_metadata_.have_unknown_fields()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFields(
+        _internal_metadata_.unknown_fields(), output);
   }
   // @@protoc_insertion_point(serialize_end:google.firestore.v1.RunQueryRequest)
 }
 
-::google::protobuf::uint8* RunQueryRequest::InternalSerializeWithCachedSizesToArray(
-    bool deterministic, ::google::protobuf::uint8* target) const {
-  (void)deterministic; // Unused
+::PROTOBUF_NAMESPACE_ID::uint8* RunQueryRequest::InternalSerializeWithCachedSizesToArray(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target) const {
   // @@protoc_insertion_point(serialize_to_array_start:google.firestore.v1.RunQueryRequest)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // string parent = 1;
   if (this->parent().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->parent().data(), static_cast<int>(this->parent().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.RunQueryRequest.parent");
     target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringToArray(
         1, this->parent(), target);
   }
 
   // .google.firestore.v1.StructuredQuery structured_query = 2;
   if (has_structured_query()) {
-    target = ::google::protobuf::internal::WireFormatLite::
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        2, *query_type_.structured_query_, deterministic, target);
+        2, _Internal::structured_query(this), target);
   }
 
   // bytes transaction = 5;
   if (has_transaction()) {
     target =
-      ::google::protobuf::internal::WireFormatLite::WriteBytesToArray(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBytesToArray(
         5, this->transaction(), target);
   }
 
   // .google.firestore.v1.TransactionOptions new_transaction = 6;
   if (has_new_transaction()) {
-    target = ::google::protobuf::internal::WireFormatLite::
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        6, *consistency_selector_.new_transaction_, deterministic, target);
+        6, _Internal::new_transaction(this), target);
   }
 
   // .google.protobuf.Timestamp read_time = 7;
   if (has_read_time()) {
-    target = ::google::protobuf::internal::WireFormatLite::
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        7, *consistency_selector_.read_time_, deterministic, target);
+        7, _Internal::read_time(this), target);
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), target);
+  if (_internal_metadata_.have_unknown_fields()) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.RunQueryRequest)
   return target;
@@ -7029,15 +7341,19 @@ size_t RunQueryRequest::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:google.firestore.v1.RunQueryRequest)
   size_t total_size = 0;
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
+  if (_internal_metadata_.have_unknown_fields()) {
     total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()));
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::ComputeUnknownFieldsSize(
+        _internal_metadata_.unknown_fields());
   }
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
   // string parent = 1;
   if (this->parent().size() > 0) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->parent());
   }
 
@@ -7045,7 +7361,7 @@ size_t RunQueryRequest::ByteSizeLong() const {
     // .google.firestore.v1.StructuredQuery structured_query = 2;
     case kStructuredQuery: {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSize(
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
           *query_type_.structured_query_);
       break;
     }
@@ -7057,21 +7373,21 @@ size_t RunQueryRequest::ByteSizeLong() const {
     // bytes transaction = 5;
     case kTransaction: {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::BytesSize(
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
           this->transaction());
       break;
     }
     // .google.firestore.v1.TransactionOptions new_transaction = 6;
     case kNewTransaction: {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSize(
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
           *consistency_selector_.new_transaction_);
       break;
     }
     // .google.protobuf.Timestamp read_time = 7;
     case kReadTime: {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSize(
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
           *consistency_selector_.read_time_);
       break;
     }
@@ -7079,22 +7395,20 @@ size_t RunQueryRequest::ByteSizeLong() const {
       break;
     }
   }
-  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = cached_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
   return total_size;
 }
 
-void RunQueryRequest::MergeFrom(const ::google::protobuf::Message& from) {
+void RunQueryRequest::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_merge_from_start:google.firestore.v1.RunQueryRequest)
   GOOGLE_DCHECK_NE(&from, this);
   const RunQueryRequest* source =
-      ::google::protobuf::internal::DynamicCastToGenerated<const RunQueryRequest>(
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<RunQueryRequest>(
           &from);
-  if (source == NULL) {
+  if (source == nullptr) {
   // @@protoc_insertion_point(generalized_merge_from_cast_fail:google.firestore.v1.RunQueryRequest)
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
   } else {
   // @@protoc_insertion_point(generalized_merge_from_cast_success:google.firestore.v1.RunQueryRequest)
     MergeFrom(*source);
@@ -7105,12 +7419,12 @@ void RunQueryRequest::MergeFrom(const RunQueryRequest& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.RunQueryRequest)
   GOOGLE_DCHECK_NE(&from, this);
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   if (from.parent().size() > 0) {
 
-    parent_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.parent_);
+    parent_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.parent_);
   }
   switch (from.query_type_case()) {
     case kStructuredQuery: {
@@ -7131,7 +7445,7 @@ void RunQueryRequest::MergeFrom(const RunQueryRequest& from) {
       break;
     }
     case kReadTime: {
-      mutable_read_time()->::google::protobuf::Timestamp::MergeFrom(from.read_time());
+      mutable_read_time()->PROTOBUF_NAMESPACE_ID::Timestamp::MergeFrom(from.read_time());
       break;
     }
     case CONSISTENCY_SELECTOR_NOT_SET: {
@@ -7140,7 +7454,7 @@ void RunQueryRequest::MergeFrom(const RunQueryRequest& from) {
   }
 }
 
-void RunQueryRequest::CopyFrom(const ::google::protobuf::Message& from) {
+void RunQueryRequest::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_copy_from_start:google.firestore.v1.RunQueryRequest)
   if (&from == this) return;
   Clear();
@@ -7158,24 +7472,19 @@ bool RunQueryRequest::IsInitialized() const {
   return true;
 }
 
-void RunQueryRequest::Swap(RunQueryRequest* other) {
-  if (other == this) return;
-  InternalSwap(other);
-}
 void RunQueryRequest::InternalSwap(RunQueryRequest* other) {
   using std::swap;
-  parent_.Swap(&other->parent_);
-  swap(query_type_, other->query_type_);
-  swap(_oneof_case_[0], other->_oneof_case_[0]);
-  swap(consistency_selector_, other->consistency_selector_);
-  swap(_oneof_case_[1], other->_oneof_case_[1]);
   _internal_metadata_.Swap(&other->_internal_metadata_);
-  swap(_cached_size_, other->_cached_size_);
+  parent_.Swap(&other->parent_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
+  swap(query_type_, other->query_type_);
+  swap(consistency_selector_, other->consistency_selector_);
+  swap(_oneof_case_[0], other->_oneof_case_[0]);
+  swap(_oneof_case_[1], other->_oneof_case_[1]);
 }
 
-::google::protobuf::Metadata RunQueryRequest::GetMetadata() const {
-  protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages];
+::PROTOBUF_NAMESPACE_ID::Metadata RunQueryRequest::GetMetadata() const {
+  return GetMetadataStatic();
 }
 
 
@@ -7184,65 +7493,68 @@ void RunQueryRequest::InternalSwap(RunQueryRequest* other) {
 void RunQueryResponse::InitAsDefaultInstance() {
   ::google::firestore::v1::_RunQueryResponse_default_instance_._instance.get_mutable()->document_ = const_cast< ::google::firestore::v1::Document*>(
       ::google::firestore::v1::Document::internal_default_instance());
-  ::google::firestore::v1::_RunQueryResponse_default_instance_._instance.get_mutable()->read_time_ = const_cast< ::google::protobuf::Timestamp*>(
-      ::google::protobuf::Timestamp::internal_default_instance());
+  ::google::firestore::v1::_RunQueryResponse_default_instance_._instance.get_mutable()->read_time_ = const_cast< PROTOBUF_NAMESPACE_ID::Timestamp*>(
+      PROTOBUF_NAMESPACE_ID::Timestamp::internal_default_instance());
+}
+class RunQueryResponse::_Internal {
+ public:
+  static const ::google::firestore::v1::Document& document(const RunQueryResponse* msg);
+  static const PROTOBUF_NAMESPACE_ID::Timestamp& read_time(const RunQueryResponse* msg);
+};
+
+const ::google::firestore::v1::Document&
+RunQueryResponse::_Internal::document(const RunQueryResponse* msg) {
+  return *msg->document_;
+}
+const PROTOBUF_NAMESPACE_ID::Timestamp&
+RunQueryResponse::_Internal::read_time(const RunQueryResponse* msg) {
+  return *msg->read_time_;
 }
 void RunQueryResponse::clear_document() {
-  if (GetArenaNoVirtual() == NULL && document_ != NULL) {
+  if (GetArenaNoVirtual() == nullptr && document_ != nullptr) {
     delete document_;
   }
-  document_ = NULL;
+  document_ = nullptr;
 }
 void RunQueryResponse::clear_read_time() {
-  if (GetArenaNoVirtual() == NULL && read_time_ != NULL) {
+  if (GetArenaNoVirtual() == nullptr && read_time_ != nullptr) {
     delete read_time_;
   }
-  read_time_ = NULL;
+  read_time_ = nullptr;
 }
-#if !defined(_MSC_VER) || _MSC_VER >= 1900
-const int RunQueryResponse::kTransactionFieldNumber;
-const int RunQueryResponse::kDocumentFieldNumber;
-const int RunQueryResponse::kReadTimeFieldNumber;
-const int RunQueryResponse::kSkippedResultsFieldNumber;
-#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
-
 RunQueryResponse::RunQueryResponse()
-  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
-  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
-    ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsRunQueryResponse();
-  }
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:google.firestore.v1.RunQueryResponse)
 }
 RunQueryResponse::RunQueryResponse(const RunQueryResponse& from)
-  : ::google::protobuf::Message(),
-      _internal_metadata_(NULL),
-      _cached_size_(0) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
+      _internal_metadata_(nullptr) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  transaction_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  if (from.transaction().size() > 0) {
-    transaction_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.transaction_);
+  transaction_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from.transaction().empty()) {
+    transaction_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.transaction_);
   }
   if (from.has_document()) {
     document_ = new ::google::firestore::v1::Document(*from.document_);
   } else {
-    document_ = NULL;
+    document_ = nullptr;
   }
   if (from.has_read_time()) {
-    read_time_ = new ::google::protobuf::Timestamp(*from.read_time_);
+    read_time_ = new PROTOBUF_NAMESPACE_ID::Timestamp(*from.read_time_);
   } else {
-    read_time_ = NULL;
+    read_time_ = nullptr;
   }
   skipped_results_ = from.skipped_results_;
   // @@protoc_insertion_point(copy_constructor:google.firestore.v1.RunQueryResponse)
 }
 
 void RunQueryResponse::SharedCtor() {
-  transaction_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_RunQueryResponse_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
+  transaction_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   ::memset(&document_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&skipped_results_) -
       reinterpret_cast<char*>(&document_)) + sizeof(skipped_results_));
-  _cached_size_ = 0;
 }
 
 RunQueryResponse::~RunQueryResponse() {
@@ -7251,68 +7563,109 @@ RunQueryResponse::~RunQueryResponse() {
 }
 
 void RunQueryResponse::SharedDtor() {
-  transaction_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  transaction_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   if (this != internal_default_instance()) delete document_;
   if (this != internal_default_instance()) delete read_time_;
 }
 
 void RunQueryResponse::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  _cached_size_.Set(size);
 }
-const ::google::protobuf::Descriptor* RunQueryResponse::descriptor() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages].descriptor;
-}
-
 const RunQueryResponse& RunQueryResponse::default_instance() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsRunQueryResponse();
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_RunQueryResponse_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
   return *internal_default_instance();
 }
 
-RunQueryResponse* RunQueryResponse::New(::google::protobuf::Arena* arena) const {
-  RunQueryResponse* n = new RunQueryResponse;
-  if (arena != NULL) {
-    arena->Own(n);
-  }
-  return n;
-}
 
 void RunQueryResponse::Clear() {
 // @@protoc_insertion_point(message_clear_start:google.firestore.v1.RunQueryResponse)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  transaction_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  if (GetArenaNoVirtual() == NULL && document_ != NULL) {
+  transaction_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (GetArenaNoVirtual() == nullptr && document_ != nullptr) {
     delete document_;
   }
-  document_ = NULL;
-  if (GetArenaNoVirtual() == NULL && read_time_ != NULL) {
+  document_ = nullptr;
+  if (GetArenaNoVirtual() == nullptr && read_time_ != nullptr) {
     delete read_time_;
   }
-  read_time_ = NULL;
+  read_time_ = nullptr;
   skipped_results_ = 0;
   _internal_metadata_.Clear();
 }
 
+#if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
+const char* RunQueryResponse::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    CHK_(ptr);
+    switch (tag >> 3) {
+      // .google.firestore.v1.Document document = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
+          ptr = ctx->ParseMessage(mutable_document(), ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // bytes transaction = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(mutable_transaction(), ptr, ctx);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // .google.protobuf.Timestamp read_time = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
+          ptr = ctx->ParseMessage(mutable_read_time(), ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // int32 skipped_results = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 32)) {
+          skipped_results_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
+    }  // switch
+  }  // while
+success:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto success;
+#undef CHK_
+}
+#else  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 bool RunQueryResponse::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
+    ::PROTOBUF_NAMESPACE_ID::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!PROTOBUF_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::PROTOBUF_NAMESPACE_ID::uint32 tag;
   // @@protoc_insertion_point(parse_start:google.firestore.v1.RunQueryResponse)
   for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    ::std::pair<::PROTOBUF_NAMESPACE_ID::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
     tag = p.first;
     if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+    switch (::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::GetTagFieldNumber(tag)) {
       // .google.firestore.v1.Document document = 1;
       case 1: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(10u /* 10 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (10 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
                input, mutable_document()));
         } else {
           goto handle_unusual;
@@ -7322,9 +7675,8 @@ bool RunQueryResponse::MergePartialFromCodedStream(
 
       // bytes transaction = 2;
       case 2: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(18u /* 18 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadBytes(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (18 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadBytes(
                 input, this->mutable_transaction()));
         } else {
           goto handle_unusual;
@@ -7334,9 +7686,8 @@ bool RunQueryResponse::MergePartialFromCodedStream(
 
       // .google.protobuf.Timestamp read_time = 3;
       case 3: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(26u /* 26 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (26 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
                input, mutable_read_time()));
         } else {
           goto handle_unusual;
@@ -7346,11 +7697,10 @@ bool RunQueryResponse::MergePartialFromCodedStream(
 
       // int32 skipped_results = 4;
       case 4: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(32u /* 32 & 0xFF */)) {
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (32 & 0xFF)) {
 
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+          DO_((::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadPrimitive<
+                   ::PROTOBUF_NAMESPACE_ID::int32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32>(
                  input, &skipped_results_)));
         } else {
           goto handle_unusual;
@@ -7363,7 +7713,7 @@ bool RunQueryResponse::MergePartialFromCodedStream(
         if (tag == 0) {
           goto success;
         }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
+        DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SkipField(
               input, tag, _internal_metadata_.mutable_unknown_fields()));
         break;
       }
@@ -7377,79 +7727,79 @@ failure:
   return false;
 #undef DO_
 }
+#endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 
 void RunQueryResponse::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
+    ::PROTOBUF_NAMESPACE_ID::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:google.firestore.v1.RunQueryResponse)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // .google.firestore.v1.Document document = 1;
   if (this->has_document()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, *this->document_, output);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
+      1, _Internal::document(this), output);
   }
 
   // bytes transaction = 2;
   if (this->transaction().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteBytesMaybeAliased(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBytesMaybeAliased(
       2, this->transaction(), output);
   }
 
   // .google.protobuf.Timestamp read_time = 3;
   if (this->has_read_time()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      3, *this->read_time_, output);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
+      3, _Internal::read_time(this), output);
   }
 
   // int32 skipped_results = 4;
   if (this->skipped_results() != 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteInt32(4, this->skipped_results(), output);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32(4, this->skipped_results(), output);
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
+  if (_internal_metadata_.have_unknown_fields()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFields(
+        _internal_metadata_.unknown_fields(), output);
   }
   // @@protoc_insertion_point(serialize_end:google.firestore.v1.RunQueryResponse)
 }
 
-::google::protobuf::uint8* RunQueryResponse::InternalSerializeWithCachedSizesToArray(
-    bool deterministic, ::google::protobuf::uint8* target) const {
-  (void)deterministic; // Unused
+::PROTOBUF_NAMESPACE_ID::uint8* RunQueryResponse::InternalSerializeWithCachedSizesToArray(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target) const {
   // @@protoc_insertion_point(serialize_to_array_start:google.firestore.v1.RunQueryResponse)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // .google.firestore.v1.Document document = 1;
   if (this->has_document()) {
-    target = ::google::protobuf::internal::WireFormatLite::
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        1, *this->document_, deterministic, target);
+        1, _Internal::document(this), target);
   }
 
   // bytes transaction = 2;
   if (this->transaction().size() > 0) {
     target =
-      ::google::protobuf::internal::WireFormatLite::WriteBytesToArray(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBytesToArray(
         2, this->transaction(), target);
   }
 
   // .google.protobuf.Timestamp read_time = 3;
   if (this->has_read_time()) {
-    target = ::google::protobuf::internal::WireFormatLite::
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        3, *this->read_time_, deterministic, target);
+        3, _Internal::read_time(this), target);
   }
 
   // int32 skipped_results = 4;
   if (this->skipped_results() != 0) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(4, this->skipped_results(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(4, this->skipped_results(), target);
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), target);
+  if (_internal_metadata_.have_unknown_fields()) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.RunQueryResponse)
   return target;
@@ -7459,55 +7809,57 @@ size_t RunQueryResponse::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:google.firestore.v1.RunQueryResponse)
   size_t total_size = 0;
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
+  if (_internal_metadata_.have_unknown_fields()) {
     total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()));
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::ComputeUnknownFieldsSize(
+        _internal_metadata_.unknown_fields());
   }
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
   // bytes transaction = 2;
   if (this->transaction().size() > 0) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::BytesSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->transaction());
   }
 
   // .google.firestore.v1.Document document = 1;
   if (this->has_document()) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::MessageSize(
-        *this->document_);
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
+        *document_);
   }
 
   // .google.protobuf.Timestamp read_time = 3;
   if (this->has_read_time()) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::MessageSize(
-        *this->read_time_);
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
+        *read_time_);
   }
 
   // int32 skipped_results = 4;
   if (this->skipped_results() != 0) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::Int32Size(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
         this->skipped_results());
   }
 
-  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = cached_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
   return total_size;
 }
 
-void RunQueryResponse::MergeFrom(const ::google::protobuf::Message& from) {
+void RunQueryResponse::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_merge_from_start:google.firestore.v1.RunQueryResponse)
   GOOGLE_DCHECK_NE(&from, this);
   const RunQueryResponse* source =
-      ::google::protobuf::internal::DynamicCastToGenerated<const RunQueryResponse>(
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<RunQueryResponse>(
           &from);
-  if (source == NULL) {
+  if (source == nullptr) {
   // @@protoc_insertion_point(generalized_merge_from_cast_fail:google.firestore.v1.RunQueryResponse)
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
   } else {
   // @@protoc_insertion_point(generalized_merge_from_cast_success:google.firestore.v1.RunQueryResponse)
     MergeFrom(*source);
@@ -7518,25 +7870,25 @@ void RunQueryResponse::MergeFrom(const RunQueryResponse& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.RunQueryResponse)
   GOOGLE_DCHECK_NE(&from, this);
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   if (from.transaction().size() > 0) {
 
-    transaction_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.transaction_);
+    transaction_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.transaction_);
   }
   if (from.has_document()) {
     mutable_document()->::google::firestore::v1::Document::MergeFrom(from.document());
   }
   if (from.has_read_time()) {
-    mutable_read_time()->::google::protobuf::Timestamp::MergeFrom(from.read_time());
+    mutable_read_time()->PROTOBUF_NAMESPACE_ID::Timestamp::MergeFrom(from.read_time());
   }
   if (from.skipped_results() != 0) {
     set_skipped_results(from.skipped_results());
   }
 }
 
-void RunQueryResponse::CopyFrom(const ::google::protobuf::Message& from) {
+void RunQueryResponse::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_copy_from_start:google.firestore.v1.RunQueryResponse)
   if (&from == this) return;
   Clear();
@@ -7554,40 +7906,35 @@ bool RunQueryResponse::IsInitialized() const {
   return true;
 }
 
-void RunQueryResponse::Swap(RunQueryResponse* other) {
-  if (other == this) return;
-  InternalSwap(other);
-}
 void RunQueryResponse::InternalSwap(RunQueryResponse* other) {
   using std::swap;
-  transaction_.Swap(&other->transaction_);
+  _internal_metadata_.Swap(&other->_internal_metadata_);
+  transaction_.Swap(&other->transaction_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
   swap(document_, other->document_);
   swap(read_time_, other->read_time_);
   swap(skipped_results_, other->skipped_results_);
-  _internal_metadata_.Swap(&other->_internal_metadata_);
-  swap(_cached_size_, other->_cached_size_);
 }
 
-::google::protobuf::Metadata RunQueryResponse::GetMetadata() const {
-  protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages];
+::PROTOBUF_NAMESPACE_ID::Metadata RunQueryResponse::GetMetadata() const {
+  return GetMetadataStatic();
 }
 
 
 // ===================================================================
 
 WriteRequest_LabelsEntry_DoNotUse::WriteRequest_LabelsEntry_DoNotUse() {}
-WriteRequest_LabelsEntry_DoNotUse::WriteRequest_LabelsEntry_DoNotUse(::google::protobuf::Arena* arena) : SuperType(arena) {}
+WriteRequest_LabelsEntry_DoNotUse::WriteRequest_LabelsEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
+    : SuperType(arena) {}
 void WriteRequest_LabelsEntry_DoNotUse::MergeFrom(const WriteRequest_LabelsEntry_DoNotUse& other) {
   MergeFromInternal(other);
 }
-::google::protobuf::Metadata WriteRequest_LabelsEntry_DoNotUse::GetMetadata() const {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[15];
+::PROTOBUF_NAMESPACE_ID::Metadata WriteRequest_LabelsEntry_DoNotUse::GetMetadata() const {
+  return GetMetadataStatic();
 }
 void WriteRequest_LabelsEntry_DoNotUse::MergeFrom(
-    const ::google::protobuf::Message& other) {
-  ::google::protobuf::Message::MergeFrom(other);
+    const ::PROTOBUF_NAMESPACE_ID::Message& other) {
+  ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom(other);
 }
 
 
@@ -7595,52 +7942,44 @@ void WriteRequest_LabelsEntry_DoNotUse::MergeFrom(
 
 void WriteRequest::InitAsDefaultInstance() {
 }
+class WriteRequest::_Internal {
+ public:
+};
+
 void WriteRequest::clear_writes() {
   writes_.Clear();
 }
-#if !defined(_MSC_VER) || _MSC_VER >= 1900
-const int WriteRequest::kDatabaseFieldNumber;
-const int WriteRequest::kStreamIdFieldNumber;
-const int WriteRequest::kWritesFieldNumber;
-const int WriteRequest::kStreamTokenFieldNumber;
-const int WriteRequest::kLabelsFieldNumber;
-#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
-
 WriteRequest::WriteRequest()
-  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
-  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
-    ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsWriteRequest();
-  }
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:google.firestore.v1.WriteRequest)
 }
 WriteRequest::WriteRequest(const WriteRequest& from)
-  : ::google::protobuf::Message(),
-      _internal_metadata_(NULL),
-      writes_(from.writes_),
-      _cached_size_(0) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
+      _internal_metadata_(nullptr),
+      writes_(from.writes_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   labels_.MergeFrom(from.labels_);
-  database_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  if (from.database().size() > 0) {
-    database_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.database_);
+  database_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from.database().empty()) {
+    database_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.database_);
   }
-  stream_id_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  if (from.stream_id().size() > 0) {
-    stream_id_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.stream_id_);
+  stream_id_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from.stream_id().empty()) {
+    stream_id_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.stream_id_);
   }
-  stream_token_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  if (from.stream_token().size() > 0) {
-    stream_token_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.stream_token_);
+  stream_token_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from.stream_token().empty()) {
+    stream_token_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.stream_token_);
   }
   // @@protoc_insertion_point(copy_constructor:google.firestore.v1.WriteRequest)
 }
 
 void WriteRequest::SharedCtor() {
-  database_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  stream_id_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  stream_token_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  _cached_size_ = 0;
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_WriteRequest_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
+  database_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  stream_id_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  stream_token_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 
 WriteRequest::~WriteRequest() {
@@ -7649,67 +7988,125 @@ WriteRequest::~WriteRequest() {
 }
 
 void WriteRequest::SharedDtor() {
-  database_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  stream_id_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  stream_token_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  database_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  stream_id_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  stream_token_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 
 void WriteRequest::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  _cached_size_.Set(size);
 }
-const ::google::protobuf::Descriptor* WriteRequest::descriptor() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages].descriptor;
-}
-
 const WriteRequest& WriteRequest::default_instance() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsWriteRequest();
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_WriteRequest_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
   return *internal_default_instance();
 }
 
-WriteRequest* WriteRequest::New(::google::protobuf::Arena* arena) const {
-  WriteRequest* n = new WriteRequest;
-  if (arena != NULL) {
-    arena->Own(n);
-  }
-  return n;
-}
 
 void WriteRequest::Clear() {
 // @@protoc_insertion_point(message_clear_start:google.firestore.v1.WriteRequest)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
   writes_.Clear();
   labels_.Clear();
-  database_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  stream_id_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  stream_token_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  database_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  stream_id_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  stream_token_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   _internal_metadata_.Clear();
 }
 
+#if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
+const char* WriteRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    CHK_(ptr);
+    switch (tag >> 3) {
+      // string database = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParserUTF8(mutable_database(), ptr, ctx, "google.firestore.v1.WriteRequest.database");
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // string stream_id = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParserUTF8(mutable_stream_id(), ptr, ctx, "google.firestore.v1.WriteRequest.stream_id");
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // repeated .google.firestore.v1.Write writes = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
+          ptr -= 1;
+          do {
+            ptr += 1;
+            ptr = ctx->ParseMessage(add_writes(), ptr);
+            CHK_(ptr);
+            if (!ctx->DataAvailable(ptr)) break;
+          } while (::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<::PROTOBUF_NAMESPACE_ID::uint8>(ptr) == 26);
+        } else goto handle_unusual;
+        continue;
+      // bytes stream_token = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(mutable_stream_token(), ptr, ctx);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // map<string, string> labels = 5;
+      case 5:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 42)) {
+          ptr -= 1;
+          do {
+            ptr += 1;
+            ptr = ctx->ParseMessage(&labels_, ptr);
+            CHK_(ptr);
+            if (!ctx->DataAvailable(ptr)) break;
+          } while (::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<::PROTOBUF_NAMESPACE_ID::uint8>(ptr) == 42);
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
+    }  // switch
+  }  // while
+success:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto success;
+#undef CHK_
+}
+#else  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 bool WriteRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
+    ::PROTOBUF_NAMESPACE_ID::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!PROTOBUF_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::PROTOBUF_NAMESPACE_ID::uint32 tag;
   // @@protoc_insertion_point(parse_start:google.firestore.v1.WriteRequest)
   for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    ::std::pair<::PROTOBUF_NAMESPACE_ID::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
     tag = p.first;
     if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+    switch (::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::GetTagFieldNumber(tag)) {
       // string database = 1;
       case 1: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(10u /* 10 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (10 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadString(
                 input, this->mutable_database()));
-          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
             this->database().data(), static_cast<int>(this->database().length()),
-            ::google::protobuf::internal::WireFormatLite::PARSE,
+            ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE,
             "google.firestore.v1.WriteRequest.database"));
         } else {
           goto handle_unusual;
@@ -7719,13 +8116,12 @@ bool WriteRequest::MergePartialFromCodedStream(
 
       // string stream_id = 2;
       case 2: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(18u /* 18 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (18 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadString(
                 input, this->mutable_stream_id()));
-          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
             this->stream_id().data(), static_cast<int>(this->stream_id().length()),
-            ::google::protobuf::internal::WireFormatLite::PARSE,
+            ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE,
             "google.firestore.v1.WriteRequest.stream_id"));
         } else {
           goto handle_unusual;
@@ -7735,9 +8131,9 @@ bool WriteRequest::MergePartialFromCodedStream(
 
       // repeated .google.firestore.v1.Write writes = 3;
       case 3: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(26u /* 26 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(input, add_writes()));
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (26 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
+                input, add_writes()));
         } else {
           goto handle_unusual;
         }
@@ -7746,9 +8142,8 @@ bool WriteRequest::MergePartialFromCodedStream(
 
       // bytes stream_token = 4;
       case 4: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(34u /* 34 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadBytes(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (34 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadBytes(
                 input, this->mutable_stream_token()));
         } else {
           goto handle_unusual;
@@ -7758,24 +8153,23 @@ bool WriteRequest::MergePartialFromCodedStream(
 
       // map<string, string> labels = 5;
       case 5: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(42u /* 42 & 0xFF */)) {
-          WriteRequest_LabelsEntry_DoNotUse::Parser< ::google::protobuf::internal::MapField<
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (42 & 0xFF)) {
+          WriteRequest_LabelsEntry_DoNotUse::Parser< ::PROTOBUF_NAMESPACE_ID::internal::MapField<
               WriteRequest_LabelsEntry_DoNotUse,
-              ::std::string, ::std::string,
-              ::google::protobuf::internal::WireFormatLite::TYPE_STRING,
-              ::google::protobuf::internal::WireFormatLite::TYPE_STRING,
+              std::string, std::string,
+              ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
+              ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
               0 >,
-            ::google::protobuf::Map< ::std::string, ::std::string > > parser(&labels_);
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+            ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > > parser(&labels_);
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessageNoVirtual(
               input, &parser));
-          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
             parser.key().data(), static_cast<int>(parser.key().length()),
-            ::google::protobuf::internal::WireFormatLite::PARSE,
+            ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE,
             "google.firestore.v1.WriteRequest.LabelsEntry.key"));
-          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
             parser.value().data(), static_cast<int>(parser.value().length()),
-            ::google::protobuf::internal::WireFormatLite::PARSE,
+            ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE,
             "google.firestore.v1.WriteRequest.LabelsEntry.value"));
         } else {
           goto handle_unusual;
@@ -7788,7 +8182,7 @@ bool WriteRequest::MergePartialFromCodedStream(
         if (tag == 0) {
           goto success;
         }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
+        DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SkipField(
               input, tag, _internal_metadata_.mutable_unknown_fields()));
         break;
       }
@@ -7802,210 +8196,192 @@ failure:
   return false;
 #undef DO_
 }
+#endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 
 void WriteRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
+    ::PROTOBUF_NAMESPACE_ID::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:google.firestore.v1.WriteRequest)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // string database = 1;
   if (this->database().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->database().data(), static_cast<int>(this->database().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.WriteRequest.database");
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringMaybeAliased(
       1, this->database(), output);
   }
 
   // string stream_id = 2;
   if (this->stream_id().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->stream_id().data(), static_cast<int>(this->stream_id().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.WriteRequest.stream_id");
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringMaybeAliased(
       2, this->stream_id(), output);
   }
 
   // repeated .google.firestore.v1.Write writes = 3;
   for (unsigned int i = 0,
       n = static_cast<unsigned int>(this->writes_size()); i < n; i++) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      3, this->writes(static_cast<int>(i)), output);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
+      3,
+      this->writes(static_cast<int>(i)),
+      output);
   }
 
   // bytes stream_token = 4;
   if (this->stream_token().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteBytesMaybeAliased(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBytesMaybeAliased(
       4, this->stream_token(), output);
   }
 
   // map<string, string> labels = 5;
   if (!this->labels().empty()) {
-    typedef ::google::protobuf::Map< ::std::string, ::std::string >::const_pointer
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_pointer
         ConstPtr;
     typedef ConstPtr SortItem;
-    typedef ::google::protobuf::internal::CompareByDerefFirst<SortItem> Less;
+    typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByDerefFirst<SortItem> Less;
     struct Utf8Check {
       static void Check(ConstPtr p) {
-        ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
           p->first.data(), static_cast<int>(p->first.length()),
-          ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+          ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
           "google.firestore.v1.WriteRequest.LabelsEntry.key");
-        ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
           p->second.data(), static_cast<int>(p->second.length()),
-          ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+          ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
           "google.firestore.v1.WriteRequest.LabelsEntry.value");
       }
     };
 
     if (output->IsSerializationDeterministic() &&
         this->labels().size() > 1) {
-      ::google::protobuf::scoped_array<SortItem> items(
+      ::std::unique_ptr<SortItem[]> items(
           new SortItem[this->labels().size()]);
-      typedef ::google::protobuf::Map< ::std::string, ::std::string >::size_type size_type;
+      typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::size_type size_type;
       size_type n = 0;
-      for (::google::protobuf::Map< ::std::string, ::std::string >::const_iterator
+      for (::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_iterator
           it = this->labels().begin();
           it != this->labels().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      ::google::protobuf::scoped_ptr<WriteRequest_LabelsEntry_DoNotUse> entry;
       for (size_type i = 0; i < n; i++) {
-        entry.reset(labels_.NewEntryWrapper(
-            items[static_cast<ptrdiff_t>(i)]->first, items[static_cast<ptrdiff_t>(i)]->second));
-        ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-            5, *entry, output);
-        Utf8Check::Check(items[static_cast<ptrdiff_t>(i)]);
+        WriteRequest_LabelsEntry_DoNotUse::Funcs::SerializeToCodedStream(5, items[static_cast<ptrdiff_t>(i)]->first, items[static_cast<ptrdiff_t>(i)]->second, output);
+        Utf8Check::Check(&(*items[static_cast<ptrdiff_t>(i)]));
       }
     } else {
-      ::google::protobuf::scoped_ptr<WriteRequest_LabelsEntry_DoNotUse> entry;
-      for (::google::protobuf::Map< ::std::string, ::std::string >::const_iterator
+      for (::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_iterator
           it = this->labels().begin();
           it != this->labels().end(); ++it) {
-        entry.reset(labels_.NewEntryWrapper(
-            it->first, it->second));
-        ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-            5, *entry, output);
-        Utf8Check::Check(&*it);
+        WriteRequest_LabelsEntry_DoNotUse::Funcs::SerializeToCodedStream(5, it->first, it->second, output);
+        Utf8Check::Check(&(*it));
       }
     }
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
+  if (_internal_metadata_.have_unknown_fields()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFields(
+        _internal_metadata_.unknown_fields(), output);
   }
   // @@protoc_insertion_point(serialize_end:google.firestore.v1.WriteRequest)
 }
 
-::google::protobuf::uint8* WriteRequest::InternalSerializeWithCachedSizesToArray(
-    bool deterministic, ::google::protobuf::uint8* target) const {
-  (void)deterministic; // Unused
+::PROTOBUF_NAMESPACE_ID::uint8* WriteRequest::InternalSerializeWithCachedSizesToArray(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target) const {
   // @@protoc_insertion_point(serialize_to_array_start:google.firestore.v1.WriteRequest)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // string database = 1;
   if (this->database().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->database().data(), static_cast<int>(this->database().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.WriteRequest.database");
     target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringToArray(
         1, this->database(), target);
   }
 
   // string stream_id = 2;
   if (this->stream_id().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->stream_id().data(), static_cast<int>(this->stream_id().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.WriteRequest.stream_id");
     target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringToArray(
         2, this->stream_id(), target);
   }
 
   // repeated .google.firestore.v1.Write writes = 3;
   for (unsigned int i = 0,
       n = static_cast<unsigned int>(this->writes_size()); i < n; i++) {
-    target = ::google::protobuf::internal::WireFormatLite::
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        3, this->writes(static_cast<int>(i)), deterministic, target);
+        3, this->writes(static_cast<int>(i)), target);
   }
 
   // bytes stream_token = 4;
   if (this->stream_token().size() > 0) {
     target =
-      ::google::protobuf::internal::WireFormatLite::WriteBytesToArray(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBytesToArray(
         4, this->stream_token(), target);
   }
 
   // map<string, string> labels = 5;
   if (!this->labels().empty()) {
-    typedef ::google::protobuf::Map< ::std::string, ::std::string >::const_pointer
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_pointer
         ConstPtr;
     typedef ConstPtr SortItem;
-    typedef ::google::protobuf::internal::CompareByDerefFirst<SortItem> Less;
+    typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByDerefFirst<SortItem> Less;
     struct Utf8Check {
       static void Check(ConstPtr p) {
-        ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
           p->first.data(), static_cast<int>(p->first.length()),
-          ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+          ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
           "google.firestore.v1.WriteRequest.LabelsEntry.key");
-        ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
           p->second.data(), static_cast<int>(p->second.length()),
-          ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+          ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
           "google.firestore.v1.WriteRequest.LabelsEntry.value");
       }
     };
 
-    if (deterministic &&
+    if (false &&
         this->labels().size() > 1) {
-      ::google::protobuf::scoped_array<SortItem> items(
+      ::std::unique_ptr<SortItem[]> items(
           new SortItem[this->labels().size()]);
-      typedef ::google::protobuf::Map< ::std::string, ::std::string >::size_type size_type;
+      typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::size_type size_type;
       size_type n = 0;
-      for (::google::protobuf::Map< ::std::string, ::std::string >::const_iterator
+      for (::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_iterator
           it = this->labels().begin();
           it != this->labels().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      ::google::protobuf::scoped_ptr<WriteRequest_LabelsEntry_DoNotUse> entry;
       for (size_type i = 0; i < n; i++) {
-        entry.reset(labels_.NewEntryWrapper(
-            items[static_cast<ptrdiff_t>(i)]->first, items[static_cast<ptrdiff_t>(i)]->second));
-        target = ::google::protobuf::internal::WireFormatLite::
-                   InternalWriteMessageNoVirtualToArray(
-                       5, *entry, deterministic, target);
-;
-        Utf8Check::Check(items[static_cast<ptrdiff_t>(i)]);
+        target = WriteRequest_LabelsEntry_DoNotUse::Funcs::SerializeToArray(5, items[static_cast<ptrdiff_t>(i)]->first, items[static_cast<ptrdiff_t>(i)]->second, target);
+        Utf8Check::Check(&(*items[static_cast<ptrdiff_t>(i)]));
       }
     } else {
-      ::google::protobuf::scoped_ptr<WriteRequest_LabelsEntry_DoNotUse> entry;
-      for (::google::protobuf::Map< ::std::string, ::std::string >::const_iterator
+      for (::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_iterator
           it = this->labels().begin();
           it != this->labels().end(); ++it) {
-        entry.reset(labels_.NewEntryWrapper(
-            it->first, it->second));
-        target = ::google::protobuf::internal::WireFormatLite::
-                   InternalWriteMessageNoVirtualToArray(
-                       5, *entry, deterministic, target);
-;
-        Utf8Check::Check(&*it);
+        target = WriteRequest_LabelsEntry_DoNotUse::Funcs::SerializeToArray(5, it->first, it->second, target);
+        Utf8Check::Check(&(*it));
       }
     }
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), target);
+  if (_internal_metadata_.have_unknown_fields()) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.WriteRequest)
   return target;
@@ -8015,73 +8391,70 @@ size_t WriteRequest::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:google.firestore.v1.WriteRequest)
   size_t total_size = 0;
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
+  if (_internal_metadata_.have_unknown_fields()) {
     total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()));
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::ComputeUnknownFieldsSize(
+        _internal_metadata_.unknown_fields());
   }
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
   // repeated .google.firestore.v1.Write writes = 3;
   {
     unsigned int count = static_cast<unsigned int>(this->writes_size());
     total_size += 1UL * count;
     for (unsigned int i = 0; i < count; i++) {
       total_size +=
-        ::google::protobuf::internal::WireFormatLite::MessageSize(
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
           this->writes(static_cast<int>(i)));
     }
   }
 
   // map<string, string> labels = 5;
   total_size += 1 *
-      ::google::protobuf::internal::FromIntSize(this->labels_size());
-  {
-    ::google::protobuf::scoped_ptr<WriteRequest_LabelsEntry_DoNotUse> entry;
-    for (::google::protobuf::Map< ::std::string, ::std::string >::const_iterator
-        it = this->labels().begin();
-        it != this->labels().end(); ++it) {
-      entry.reset(labels_.NewEntryWrapper(it->first, it->second));
-      total_size += ::google::protobuf::internal::WireFormatLite::
-          MessageSizeNoVirtual(*entry);
-    }
+      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->labels_size());
+  for (::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_iterator
+      it = this->labels().begin();
+      it != this->labels().end(); ++it) {
+    total_size += WriteRequest_LabelsEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // string database = 1;
   if (this->database().size() > 0) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->database());
   }
 
   // string stream_id = 2;
   if (this->stream_id().size() > 0) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->stream_id());
   }
 
   // bytes stream_token = 4;
   if (this->stream_token().size() > 0) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::BytesSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->stream_token());
   }
 
-  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = cached_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
   return total_size;
 }
 
-void WriteRequest::MergeFrom(const ::google::protobuf::Message& from) {
+void WriteRequest::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_merge_from_start:google.firestore.v1.WriteRequest)
   GOOGLE_DCHECK_NE(&from, this);
   const WriteRequest* source =
-      ::google::protobuf::internal::DynamicCastToGenerated<const WriteRequest>(
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<WriteRequest>(
           &from);
-  if (source == NULL) {
+  if (source == nullptr) {
   // @@protoc_insertion_point(generalized_merge_from_cast_fail:google.firestore.v1.WriteRequest)
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
   } else {
   // @@protoc_insertion_point(generalized_merge_from_cast_success:google.firestore.v1.WriteRequest)
     MergeFrom(*source);
@@ -8092,26 +8465,26 @@ void WriteRequest::MergeFrom(const WriteRequest& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.WriteRequest)
   GOOGLE_DCHECK_NE(&from, this);
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   writes_.MergeFrom(from.writes_);
   labels_.MergeFrom(from.labels_);
   if (from.database().size() > 0) {
 
-    database_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.database_);
+    database_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.database_);
   }
   if (from.stream_id().size() > 0) {
 
-    stream_id_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.stream_id_);
+    stream_id_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.stream_id_);
   }
   if (from.stream_token().size() > 0) {
 
-    stream_token_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.stream_token_);
+    stream_token_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.stream_token_);
   }
 }
 
-void WriteRequest::CopyFrom(const ::google::protobuf::Message& from) {
+void WriteRequest::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_copy_from_start:google.firestore.v1.WriteRequest)
   if (&from == this) return;
   Clear();
@@ -8129,84 +8502,79 @@ bool WriteRequest::IsInitialized() const {
   return true;
 }
 
-void WriteRequest::Swap(WriteRequest* other) {
-  if (other == this) return;
-  InternalSwap(other);
-}
 void WriteRequest::InternalSwap(WriteRequest* other) {
   using std::swap;
-  writes_.InternalSwap(&other->writes_);
-  labels_.Swap(&other->labels_);
-  database_.Swap(&other->database_);
-  stream_id_.Swap(&other->stream_id_);
-  stream_token_.Swap(&other->stream_token_);
   _internal_metadata_.Swap(&other->_internal_metadata_);
-  swap(_cached_size_, other->_cached_size_);
+  CastToBase(&writes_)->InternalSwap(CastToBase(&other->writes_));
+  labels_.Swap(&other->labels_);
+  database_.Swap(&other->database_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
+  stream_id_.Swap(&other->stream_id_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
+  stream_token_.Swap(&other->stream_token_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
 }
 
-::google::protobuf::Metadata WriteRequest::GetMetadata() const {
-  protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages];
+::PROTOBUF_NAMESPACE_ID::Metadata WriteRequest::GetMetadata() const {
+  return GetMetadataStatic();
 }
 
 
 // ===================================================================
 
 void WriteResponse::InitAsDefaultInstance() {
-  ::google::firestore::v1::_WriteResponse_default_instance_._instance.get_mutable()->commit_time_ = const_cast< ::google::protobuf::Timestamp*>(
-      ::google::protobuf::Timestamp::internal_default_instance());
+  ::google::firestore::v1::_WriteResponse_default_instance_._instance.get_mutable()->commit_time_ = const_cast< PROTOBUF_NAMESPACE_ID::Timestamp*>(
+      PROTOBUF_NAMESPACE_ID::Timestamp::internal_default_instance());
+}
+class WriteResponse::_Internal {
+ public:
+  static const PROTOBUF_NAMESPACE_ID::Timestamp& commit_time(const WriteResponse* msg);
+};
+
+const PROTOBUF_NAMESPACE_ID::Timestamp&
+WriteResponse::_Internal::commit_time(const WriteResponse* msg) {
+  return *msg->commit_time_;
 }
 void WriteResponse::clear_write_results() {
   write_results_.Clear();
 }
 void WriteResponse::clear_commit_time() {
-  if (GetArenaNoVirtual() == NULL && commit_time_ != NULL) {
+  if (GetArenaNoVirtual() == nullptr && commit_time_ != nullptr) {
     delete commit_time_;
   }
-  commit_time_ = NULL;
+  commit_time_ = nullptr;
 }
-#if !defined(_MSC_VER) || _MSC_VER >= 1900
-const int WriteResponse::kStreamIdFieldNumber;
-const int WriteResponse::kStreamTokenFieldNumber;
-const int WriteResponse::kWriteResultsFieldNumber;
-const int WriteResponse::kCommitTimeFieldNumber;
-#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
-
 WriteResponse::WriteResponse()
-  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
-  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
-    ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsWriteResponse();
-  }
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:google.firestore.v1.WriteResponse)
 }
 WriteResponse::WriteResponse(const WriteResponse& from)
-  : ::google::protobuf::Message(),
-      _internal_metadata_(NULL),
-      write_results_(from.write_results_),
-      _cached_size_(0) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
+      _internal_metadata_(nullptr),
+      write_results_(from.write_results_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  stream_id_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  if (from.stream_id().size() > 0) {
-    stream_id_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.stream_id_);
+  stream_id_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from.stream_id().empty()) {
+    stream_id_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.stream_id_);
   }
-  stream_token_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  if (from.stream_token().size() > 0) {
-    stream_token_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.stream_token_);
+  stream_token_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from.stream_token().empty()) {
+    stream_token_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.stream_token_);
   }
   if (from.has_commit_time()) {
-    commit_time_ = new ::google::protobuf::Timestamp(*from.commit_time_);
+    commit_time_ = new PROTOBUF_NAMESPACE_ID::Timestamp(*from.commit_time_);
   } else {
-    commit_time_ = NULL;
+    commit_time_ = nullptr;
   }
   // @@protoc_insertion_point(copy_constructor:google.firestore.v1.WriteResponse)
 }
 
 void WriteResponse::SharedCtor() {
-  stream_id_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  stream_token_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  commit_time_ = NULL;
-  _cached_size_ = 0;
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_WriteResponse_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
+  stream_id_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  stream_token_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  commit_time_ = nullptr;
 }
 
 WriteResponse::~WriteResponse() {
@@ -8215,69 +8583,115 @@ WriteResponse::~WriteResponse() {
 }
 
 void WriteResponse::SharedDtor() {
-  stream_id_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  stream_token_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  stream_id_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  stream_token_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   if (this != internal_default_instance()) delete commit_time_;
 }
 
 void WriteResponse::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  _cached_size_.Set(size);
 }
-const ::google::protobuf::Descriptor* WriteResponse::descriptor() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages].descriptor;
-}
-
 const WriteResponse& WriteResponse::default_instance() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsWriteResponse();
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_WriteResponse_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
   return *internal_default_instance();
 }
 
-WriteResponse* WriteResponse::New(::google::protobuf::Arena* arena) const {
-  WriteResponse* n = new WriteResponse;
-  if (arena != NULL) {
-    arena->Own(n);
-  }
-  return n;
-}
 
 void WriteResponse::Clear() {
 // @@protoc_insertion_point(message_clear_start:google.firestore.v1.WriteResponse)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
   write_results_.Clear();
-  stream_id_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  stream_token_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  if (GetArenaNoVirtual() == NULL && commit_time_ != NULL) {
+  stream_id_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  stream_token_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (GetArenaNoVirtual() == nullptr && commit_time_ != nullptr) {
     delete commit_time_;
   }
-  commit_time_ = NULL;
+  commit_time_ = nullptr;
   _internal_metadata_.Clear();
 }
 
+#if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
+const char* WriteResponse::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    CHK_(ptr);
+    switch (tag >> 3) {
+      // string stream_id = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParserUTF8(mutable_stream_id(), ptr, ctx, "google.firestore.v1.WriteResponse.stream_id");
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // bytes stream_token = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(mutable_stream_token(), ptr, ctx);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // repeated .google.firestore.v1.WriteResult write_results = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
+          ptr -= 1;
+          do {
+            ptr += 1;
+            ptr = ctx->ParseMessage(add_write_results(), ptr);
+            CHK_(ptr);
+            if (!ctx->DataAvailable(ptr)) break;
+          } while (::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<::PROTOBUF_NAMESPACE_ID::uint8>(ptr) == 26);
+        } else goto handle_unusual;
+        continue;
+      // .google.protobuf.Timestamp commit_time = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
+          ptr = ctx->ParseMessage(mutable_commit_time(), ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
+    }  // switch
+  }  // while
+success:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto success;
+#undef CHK_
+}
+#else  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 bool WriteResponse::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
+    ::PROTOBUF_NAMESPACE_ID::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!PROTOBUF_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::PROTOBUF_NAMESPACE_ID::uint32 tag;
   // @@protoc_insertion_point(parse_start:google.firestore.v1.WriteResponse)
   for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    ::std::pair<::PROTOBUF_NAMESPACE_ID::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
     tag = p.first;
     if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+    switch (::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::GetTagFieldNumber(tag)) {
       // string stream_id = 1;
       case 1: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(10u /* 10 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (10 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadString(
                 input, this->mutable_stream_id()));
-          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
             this->stream_id().data(), static_cast<int>(this->stream_id().length()),
-            ::google::protobuf::internal::WireFormatLite::PARSE,
+            ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE,
             "google.firestore.v1.WriteResponse.stream_id"));
         } else {
           goto handle_unusual;
@@ -8287,9 +8701,8 @@ bool WriteResponse::MergePartialFromCodedStream(
 
       // bytes stream_token = 2;
       case 2: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(18u /* 18 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadBytes(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (18 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadBytes(
                 input, this->mutable_stream_token()));
         } else {
           goto handle_unusual;
@@ -8299,9 +8712,9 @@ bool WriteResponse::MergePartialFromCodedStream(
 
       // repeated .google.firestore.v1.WriteResult write_results = 3;
       case 3: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(26u /* 26 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(input, add_write_results()));
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (26 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
+                input, add_write_results()));
         } else {
           goto handle_unusual;
         }
@@ -8310,9 +8723,8 @@ bool WriteResponse::MergePartialFromCodedStream(
 
       // .google.protobuf.Timestamp commit_time = 4;
       case 4: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(34u /* 34 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (34 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
                input, mutable_commit_time()));
         } else {
           goto handle_unusual;
@@ -8325,7 +8737,7 @@ bool WriteResponse::MergePartialFromCodedStream(
         if (tag == 0) {
           goto success;
         }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
+        DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SkipField(
               input, tag, _internal_metadata_.mutable_unknown_fields()));
         break;
       }
@@ -8339,92 +8751,94 @@ failure:
   return false;
 #undef DO_
 }
+#endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 
 void WriteResponse::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
+    ::PROTOBUF_NAMESPACE_ID::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:google.firestore.v1.WriteResponse)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // string stream_id = 1;
   if (this->stream_id().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->stream_id().data(), static_cast<int>(this->stream_id().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.WriteResponse.stream_id");
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringMaybeAliased(
       1, this->stream_id(), output);
   }
 
   // bytes stream_token = 2;
   if (this->stream_token().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteBytesMaybeAliased(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBytesMaybeAliased(
       2, this->stream_token(), output);
   }
 
   // repeated .google.firestore.v1.WriteResult write_results = 3;
   for (unsigned int i = 0,
       n = static_cast<unsigned int>(this->write_results_size()); i < n; i++) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      3, this->write_results(static_cast<int>(i)), output);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
+      3,
+      this->write_results(static_cast<int>(i)),
+      output);
   }
 
   // .google.protobuf.Timestamp commit_time = 4;
   if (this->has_commit_time()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      4, *this->commit_time_, output);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
+      4, _Internal::commit_time(this), output);
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
+  if (_internal_metadata_.have_unknown_fields()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFields(
+        _internal_metadata_.unknown_fields(), output);
   }
   // @@protoc_insertion_point(serialize_end:google.firestore.v1.WriteResponse)
 }
 
-::google::protobuf::uint8* WriteResponse::InternalSerializeWithCachedSizesToArray(
-    bool deterministic, ::google::protobuf::uint8* target) const {
-  (void)deterministic; // Unused
+::PROTOBUF_NAMESPACE_ID::uint8* WriteResponse::InternalSerializeWithCachedSizesToArray(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target) const {
   // @@protoc_insertion_point(serialize_to_array_start:google.firestore.v1.WriteResponse)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // string stream_id = 1;
   if (this->stream_id().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->stream_id().data(), static_cast<int>(this->stream_id().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.WriteResponse.stream_id");
     target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringToArray(
         1, this->stream_id(), target);
   }
 
   // bytes stream_token = 2;
   if (this->stream_token().size() > 0) {
     target =
-      ::google::protobuf::internal::WireFormatLite::WriteBytesToArray(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBytesToArray(
         2, this->stream_token(), target);
   }
 
   // repeated .google.firestore.v1.WriteResult write_results = 3;
   for (unsigned int i = 0,
       n = static_cast<unsigned int>(this->write_results_size()); i < n; i++) {
-    target = ::google::protobuf::internal::WireFormatLite::
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        3, this->write_results(static_cast<int>(i)), deterministic, target);
+        3, this->write_results(static_cast<int>(i)), target);
   }
 
   // .google.protobuf.Timestamp commit_time = 4;
   if (this->has_commit_time()) {
-    target = ::google::protobuf::internal::WireFormatLite::
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        4, *this->commit_time_, deterministic, target);
+        4, _Internal::commit_time(this), target);
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), target);
+  if (_internal_metadata_.have_unknown_fields()) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.WriteResponse)
   return target;
@@ -8434,18 +8848,22 @@ size_t WriteResponse::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:google.firestore.v1.WriteResponse)
   size_t total_size = 0;
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
+  if (_internal_metadata_.have_unknown_fields()) {
     total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()));
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::ComputeUnknownFieldsSize(
+        _internal_metadata_.unknown_fields());
   }
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
   // repeated .google.firestore.v1.WriteResult write_results = 3;
   {
     unsigned int count = static_cast<unsigned int>(this->write_results_size());
     total_size += 1UL * count;
     for (unsigned int i = 0; i < count; i++) {
       total_size +=
-        ::google::protobuf::internal::WireFormatLite::MessageSize(
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
           this->write_results(static_cast<int>(i)));
     }
   }
@@ -8453,40 +8871,38 @@ size_t WriteResponse::ByteSizeLong() const {
   // string stream_id = 1;
   if (this->stream_id().size() > 0) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->stream_id());
   }
 
   // bytes stream_token = 2;
   if (this->stream_token().size() > 0) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::BytesSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->stream_token());
   }
 
   // .google.protobuf.Timestamp commit_time = 4;
   if (this->has_commit_time()) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::MessageSize(
-        *this->commit_time_);
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
+        *commit_time_);
   }
 
-  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = cached_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
   return total_size;
 }
 
-void WriteResponse::MergeFrom(const ::google::protobuf::Message& from) {
+void WriteResponse::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_merge_from_start:google.firestore.v1.WriteResponse)
   GOOGLE_DCHECK_NE(&from, this);
   const WriteResponse* source =
-      ::google::protobuf::internal::DynamicCastToGenerated<const WriteResponse>(
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<WriteResponse>(
           &from);
-  if (source == NULL) {
+  if (source == nullptr) {
   // @@protoc_insertion_point(generalized_merge_from_cast_fail:google.firestore.v1.WriteResponse)
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
   } else {
   // @@protoc_insertion_point(generalized_merge_from_cast_success:google.firestore.v1.WriteResponse)
     MergeFrom(*source);
@@ -8497,24 +8913,24 @@ void WriteResponse::MergeFrom(const WriteResponse& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.WriteResponse)
   GOOGLE_DCHECK_NE(&from, this);
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   write_results_.MergeFrom(from.write_results_);
   if (from.stream_id().size() > 0) {
 
-    stream_id_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.stream_id_);
+    stream_id_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.stream_id_);
   }
   if (from.stream_token().size() > 0) {
 
-    stream_token_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.stream_token_);
+    stream_token_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.stream_token_);
   }
   if (from.has_commit_time()) {
-    mutable_commit_time()->::google::protobuf::Timestamp::MergeFrom(from.commit_time());
+    mutable_commit_time()->PROTOBUF_NAMESPACE_ID::Timestamp::MergeFrom(from.commit_time());
   }
 }
 
-void WriteResponse::CopyFrom(const ::google::protobuf::Message& from) {
+void WriteResponse::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_copy_from_start:google.firestore.v1.WriteResponse)
   if (&from == this) return;
   Clear();
@@ -8532,40 +8948,36 @@ bool WriteResponse::IsInitialized() const {
   return true;
 }
 
-void WriteResponse::Swap(WriteResponse* other) {
-  if (other == this) return;
-  InternalSwap(other);
-}
 void WriteResponse::InternalSwap(WriteResponse* other) {
   using std::swap;
-  write_results_.InternalSwap(&other->write_results_);
-  stream_id_.Swap(&other->stream_id_);
-  stream_token_.Swap(&other->stream_token_);
-  swap(commit_time_, other->commit_time_);
   _internal_metadata_.Swap(&other->_internal_metadata_);
-  swap(_cached_size_, other->_cached_size_);
+  CastToBase(&write_results_)->InternalSwap(CastToBase(&other->write_results_));
+  stream_id_.Swap(&other->stream_id_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
+  stream_token_.Swap(&other->stream_token_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
+  swap(commit_time_, other->commit_time_);
 }
 
-::google::protobuf::Metadata WriteResponse::GetMetadata() const {
-  protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages];
+::PROTOBUF_NAMESPACE_ID::Metadata WriteResponse::GetMetadata() const {
+  return GetMetadataStatic();
 }
 
 
 // ===================================================================
 
 ListenRequest_LabelsEntry_DoNotUse::ListenRequest_LabelsEntry_DoNotUse() {}
-ListenRequest_LabelsEntry_DoNotUse::ListenRequest_LabelsEntry_DoNotUse(::google::protobuf::Arena* arena) : SuperType(arena) {}
+ListenRequest_LabelsEntry_DoNotUse::ListenRequest_LabelsEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
+    : SuperType(arena) {}
 void ListenRequest_LabelsEntry_DoNotUse::MergeFrom(const ListenRequest_LabelsEntry_DoNotUse& other) {
   MergeFromInternal(other);
 }
-::google::protobuf::Metadata ListenRequest_LabelsEntry_DoNotUse::GetMetadata() const {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[18];
+::PROTOBUF_NAMESPACE_ID::Metadata ListenRequest_LabelsEntry_DoNotUse::GetMetadata() const {
+  return GetMetadataStatic();
 }
 void ListenRequest_LabelsEntry_DoNotUse::MergeFrom(
-    const ::google::protobuf::Message& other) {
-  ::google::protobuf::Message::MergeFrom(other);
+    const ::PROTOBUF_NAMESPACE_ID::Message& other) {
+  ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom(other);
 }
 
 
@@ -8576,13 +8988,22 @@ void ListenRequest::InitAsDefaultInstance() {
       ::google::firestore::v1::Target::internal_default_instance());
   ::google::firestore::v1::_ListenRequest_default_instance_.remove_target_ = 0;
 }
+class ListenRequest::_Internal {
+ public:
+  static const ::google::firestore::v1::Target& add_target(const ListenRequest* msg);
+};
+
+const ::google::firestore::v1::Target&
+ListenRequest::_Internal::add_target(const ListenRequest* msg) {
+  return *msg->target_change_.add_target_;
+}
 void ListenRequest::set_allocated_add_target(::google::firestore::v1::Target* add_target) {
-  ::google::protobuf::Arena* message_arena = GetArenaNoVirtual();
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
   clear_target_change();
   if (add_target) {
-    ::google::protobuf::Arena* submessage_arena = NULL;
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
     if (message_arena != submessage_arena) {
-      add_target = ::google::protobuf::internal::GetOwnedMessage(
+      add_target = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
           message_arena, add_target, submessage_arena);
     }
     set_has_add_target();
@@ -8590,30 +9011,19 @@ void ListenRequest::set_allocated_add_target(::google::firestore::v1::Target* ad
   }
   // @@protoc_insertion_point(field_set_allocated:google.firestore.v1.ListenRequest.add_target)
 }
-#if !defined(_MSC_VER) || _MSC_VER >= 1900
-const int ListenRequest::kDatabaseFieldNumber;
-const int ListenRequest::kAddTargetFieldNumber;
-const int ListenRequest::kRemoveTargetFieldNumber;
-const int ListenRequest::kLabelsFieldNumber;
-#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
-
 ListenRequest::ListenRequest()
-  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
-  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
-    ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsListenRequest();
-  }
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:google.firestore.v1.ListenRequest)
 }
 ListenRequest::ListenRequest(const ListenRequest& from)
-  : ::google::protobuf::Message(),
-      _internal_metadata_(NULL),
-      _cached_size_(0) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
+      _internal_metadata_(nullptr) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   labels_.MergeFrom(from.labels_);
-  database_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  if (from.database().size() > 0) {
-    database_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.database_);
+  database_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from.database().empty()) {
+    database_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.database_);
   }
   clear_has_target_change();
   switch (from.target_change_case()) {
@@ -8633,9 +9043,9 @@ ListenRequest::ListenRequest(const ListenRequest& from)
 }
 
 void ListenRequest::SharedCtor() {
-  database_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_ListenRequest_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
+  database_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   clear_has_target_change();
-  _cached_size_ = 0;
 }
 
 ListenRequest::~ListenRequest() {
@@ -8644,34 +9054,20 @@ ListenRequest::~ListenRequest() {
 }
 
 void ListenRequest::SharedDtor() {
-  database_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  database_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   if (has_target_change()) {
     clear_target_change();
   }
 }
 
 void ListenRequest::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  _cached_size_.Set(size);
 }
-const ::google::protobuf::Descriptor* ListenRequest::descriptor() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages].descriptor;
-}
-
 const ListenRequest& ListenRequest::default_instance() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsListenRequest();
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_ListenRequest_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
   return *internal_default_instance();
 }
 
-ListenRequest* ListenRequest::New(::google::protobuf::Arena* arena) const {
-  ListenRequest* n = new ListenRequest;
-  if (arena != NULL) {
-    arena->Own(n);
-  }
-  return n;
-}
 
 void ListenRequest::clear_target_change() {
 // @@protoc_insertion_point(one_of_clear_start:google.firestore.v1.ListenRequest)
@@ -8694,35 +9090,95 @@ void ListenRequest::clear_target_change() {
 
 void ListenRequest::Clear() {
 // @@protoc_insertion_point(message_clear_start:google.firestore.v1.ListenRequest)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
   labels_.Clear();
-  database_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  database_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   clear_target_change();
   _internal_metadata_.Clear();
 }
 
+#if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
+const char* ListenRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    CHK_(ptr);
+    switch (tag >> 3) {
+      // string database = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParserUTF8(mutable_database(), ptr, ctx, "google.firestore.v1.ListenRequest.database");
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // .google.firestore.v1.Target add_target = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
+          ptr = ctx->ParseMessage(mutable_add_target(), ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // int32 remove_target = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 24)) {
+          set_remove_target(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr));
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // map<string, string> labels = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
+          ptr -= 1;
+          do {
+            ptr += 1;
+            ptr = ctx->ParseMessage(&labels_, ptr);
+            CHK_(ptr);
+            if (!ctx->DataAvailable(ptr)) break;
+          } while (::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<::PROTOBUF_NAMESPACE_ID::uint8>(ptr) == 34);
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
+    }  // switch
+  }  // while
+success:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto success;
+#undef CHK_
+}
+#else  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 bool ListenRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
+    ::PROTOBUF_NAMESPACE_ID::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!PROTOBUF_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::PROTOBUF_NAMESPACE_ID::uint32 tag;
   // @@protoc_insertion_point(parse_start:google.firestore.v1.ListenRequest)
   for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    ::std::pair<::PROTOBUF_NAMESPACE_ID::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
     tag = p.first;
     if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+    switch (::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::GetTagFieldNumber(tag)) {
       // string database = 1;
       case 1: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(10u /* 10 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (10 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadString(
                 input, this->mutable_database()));
-          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
             this->database().data(), static_cast<int>(this->database().length()),
-            ::google::protobuf::internal::WireFormatLite::PARSE,
+            ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE,
             "google.firestore.v1.ListenRequest.database"));
         } else {
           goto handle_unusual;
@@ -8732,9 +9188,8 @@ bool ListenRequest::MergePartialFromCodedStream(
 
       // .google.firestore.v1.Target add_target = 2;
       case 2: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(18u /* 18 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (18 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
                input, mutable_add_target()));
         } else {
           goto handle_unusual;
@@ -8744,11 +9199,10 @@ bool ListenRequest::MergePartialFromCodedStream(
 
       // int32 remove_target = 3;
       case 3: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(24u /* 24 & 0xFF */)) {
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (24 & 0xFF)) {
           clear_target_change();
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+          DO_((::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadPrimitive<
+                   ::PROTOBUF_NAMESPACE_ID::int32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32>(
                  input, &target_change_.remove_target_)));
           set_has_remove_target();
         } else {
@@ -8759,24 +9213,23 @@ bool ListenRequest::MergePartialFromCodedStream(
 
       // map<string, string> labels = 4;
       case 4: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(34u /* 34 & 0xFF */)) {
-          ListenRequest_LabelsEntry_DoNotUse::Parser< ::google::protobuf::internal::MapField<
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (34 & 0xFF)) {
+          ListenRequest_LabelsEntry_DoNotUse::Parser< ::PROTOBUF_NAMESPACE_ID::internal::MapField<
               ListenRequest_LabelsEntry_DoNotUse,
-              ::std::string, ::std::string,
-              ::google::protobuf::internal::WireFormatLite::TYPE_STRING,
-              ::google::protobuf::internal::WireFormatLite::TYPE_STRING,
+              std::string, std::string,
+              ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
+              ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
               0 >,
-            ::google::protobuf::Map< ::std::string, ::std::string > > parser(&labels_);
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+            ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > > parser(&labels_);
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessageNoVirtual(
               input, &parser));
-          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
             parser.key().data(), static_cast<int>(parser.key().length()),
-            ::google::protobuf::internal::WireFormatLite::PARSE,
+            ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE,
             "google.firestore.v1.ListenRequest.LabelsEntry.key"));
-          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
             parser.value().data(), static_cast<int>(parser.value().length()),
-            ::google::protobuf::internal::WireFormatLite::PARSE,
+            ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE,
             "google.firestore.v1.ListenRequest.LabelsEntry.value"));
         } else {
           goto handle_unusual;
@@ -8789,7 +9242,7 @@ bool ListenRequest::MergePartialFromCodedStream(
         if (tag == 0) {
           goto success;
         }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
+        DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SkipField(
               input, tag, _internal_metadata_.mutable_unknown_fields()));
         break;
       }
@@ -8803,184 +9256,164 @@ failure:
   return false;
 #undef DO_
 }
+#endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 
 void ListenRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
+    ::PROTOBUF_NAMESPACE_ID::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:google.firestore.v1.ListenRequest)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // string database = 1;
   if (this->database().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->database().data(), static_cast<int>(this->database().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.ListenRequest.database");
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringMaybeAliased(
       1, this->database(), output);
   }
 
   // .google.firestore.v1.Target add_target = 2;
   if (has_add_target()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, *target_change_.add_target_, output);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
+      2, _Internal::add_target(this), output);
   }
 
   // int32 remove_target = 3;
   if (has_remove_target()) {
-    ::google::protobuf::internal::WireFormatLite::WriteInt32(3, this->remove_target(), output);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32(3, this->remove_target(), output);
   }
 
   // map<string, string> labels = 4;
   if (!this->labels().empty()) {
-    typedef ::google::protobuf::Map< ::std::string, ::std::string >::const_pointer
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_pointer
         ConstPtr;
     typedef ConstPtr SortItem;
-    typedef ::google::protobuf::internal::CompareByDerefFirst<SortItem> Less;
+    typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByDerefFirst<SortItem> Less;
     struct Utf8Check {
       static void Check(ConstPtr p) {
-        ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
           p->first.data(), static_cast<int>(p->first.length()),
-          ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+          ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
           "google.firestore.v1.ListenRequest.LabelsEntry.key");
-        ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
           p->second.data(), static_cast<int>(p->second.length()),
-          ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+          ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
           "google.firestore.v1.ListenRequest.LabelsEntry.value");
       }
     };
 
     if (output->IsSerializationDeterministic() &&
         this->labels().size() > 1) {
-      ::google::protobuf::scoped_array<SortItem> items(
+      ::std::unique_ptr<SortItem[]> items(
           new SortItem[this->labels().size()]);
-      typedef ::google::protobuf::Map< ::std::string, ::std::string >::size_type size_type;
+      typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::size_type size_type;
       size_type n = 0;
-      for (::google::protobuf::Map< ::std::string, ::std::string >::const_iterator
+      for (::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_iterator
           it = this->labels().begin();
           it != this->labels().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      ::google::protobuf::scoped_ptr<ListenRequest_LabelsEntry_DoNotUse> entry;
       for (size_type i = 0; i < n; i++) {
-        entry.reset(labels_.NewEntryWrapper(
-            items[static_cast<ptrdiff_t>(i)]->first, items[static_cast<ptrdiff_t>(i)]->second));
-        ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-            4, *entry, output);
-        Utf8Check::Check(items[static_cast<ptrdiff_t>(i)]);
+        ListenRequest_LabelsEntry_DoNotUse::Funcs::SerializeToCodedStream(4, items[static_cast<ptrdiff_t>(i)]->first, items[static_cast<ptrdiff_t>(i)]->second, output);
+        Utf8Check::Check(&(*items[static_cast<ptrdiff_t>(i)]));
       }
     } else {
-      ::google::protobuf::scoped_ptr<ListenRequest_LabelsEntry_DoNotUse> entry;
-      for (::google::protobuf::Map< ::std::string, ::std::string >::const_iterator
+      for (::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_iterator
           it = this->labels().begin();
           it != this->labels().end(); ++it) {
-        entry.reset(labels_.NewEntryWrapper(
-            it->first, it->second));
-        ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-            4, *entry, output);
-        Utf8Check::Check(&*it);
+        ListenRequest_LabelsEntry_DoNotUse::Funcs::SerializeToCodedStream(4, it->first, it->second, output);
+        Utf8Check::Check(&(*it));
       }
     }
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
+  if (_internal_metadata_.have_unknown_fields()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFields(
+        _internal_metadata_.unknown_fields(), output);
   }
   // @@protoc_insertion_point(serialize_end:google.firestore.v1.ListenRequest)
 }
 
-::google::protobuf::uint8* ListenRequest::InternalSerializeWithCachedSizesToArray(
-    bool deterministic, ::google::protobuf::uint8* target) const {
-  (void)deterministic; // Unused
+::PROTOBUF_NAMESPACE_ID::uint8* ListenRequest::InternalSerializeWithCachedSizesToArray(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target) const {
   // @@protoc_insertion_point(serialize_to_array_start:google.firestore.v1.ListenRequest)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // string database = 1;
   if (this->database().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->database().data(), static_cast<int>(this->database().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.ListenRequest.database");
     target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringToArray(
         1, this->database(), target);
   }
 
   // .google.firestore.v1.Target add_target = 2;
   if (has_add_target()) {
-    target = ::google::protobuf::internal::WireFormatLite::
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        2, *target_change_.add_target_, deterministic, target);
+        2, _Internal::add_target(this), target);
   }
 
   // int32 remove_target = 3;
   if (has_remove_target()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(3, this->remove_target(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(3, this->remove_target(), target);
   }
 
   // map<string, string> labels = 4;
   if (!this->labels().empty()) {
-    typedef ::google::protobuf::Map< ::std::string, ::std::string >::const_pointer
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_pointer
         ConstPtr;
     typedef ConstPtr SortItem;
-    typedef ::google::protobuf::internal::CompareByDerefFirst<SortItem> Less;
+    typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByDerefFirst<SortItem> Less;
     struct Utf8Check {
       static void Check(ConstPtr p) {
-        ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
           p->first.data(), static_cast<int>(p->first.length()),
-          ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+          ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
           "google.firestore.v1.ListenRequest.LabelsEntry.key");
-        ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
           p->second.data(), static_cast<int>(p->second.length()),
-          ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+          ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
           "google.firestore.v1.ListenRequest.LabelsEntry.value");
       }
     };
 
-    if (deterministic &&
+    if (false &&
         this->labels().size() > 1) {
-      ::google::protobuf::scoped_array<SortItem> items(
+      ::std::unique_ptr<SortItem[]> items(
           new SortItem[this->labels().size()]);
-      typedef ::google::protobuf::Map< ::std::string, ::std::string >::size_type size_type;
+      typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::size_type size_type;
       size_type n = 0;
-      for (::google::protobuf::Map< ::std::string, ::std::string >::const_iterator
+      for (::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_iterator
           it = this->labels().begin();
           it != this->labels().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      ::google::protobuf::scoped_ptr<ListenRequest_LabelsEntry_DoNotUse> entry;
       for (size_type i = 0; i < n; i++) {
-        entry.reset(labels_.NewEntryWrapper(
-            items[static_cast<ptrdiff_t>(i)]->first, items[static_cast<ptrdiff_t>(i)]->second));
-        target = ::google::protobuf::internal::WireFormatLite::
-                   InternalWriteMessageNoVirtualToArray(
-                       4, *entry, deterministic, target);
-;
-        Utf8Check::Check(items[static_cast<ptrdiff_t>(i)]);
+        target = ListenRequest_LabelsEntry_DoNotUse::Funcs::SerializeToArray(4, items[static_cast<ptrdiff_t>(i)]->first, items[static_cast<ptrdiff_t>(i)]->second, target);
+        Utf8Check::Check(&(*items[static_cast<ptrdiff_t>(i)]));
       }
     } else {
-      ::google::protobuf::scoped_ptr<ListenRequest_LabelsEntry_DoNotUse> entry;
-      for (::google::protobuf::Map< ::std::string, ::std::string >::const_iterator
+      for (::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_iterator
           it = this->labels().begin();
           it != this->labels().end(); ++it) {
-        entry.reset(labels_.NewEntryWrapper(
-            it->first, it->second));
-        target = ::google::protobuf::internal::WireFormatLite::
-                   InternalWriteMessageNoVirtualToArray(
-                       4, *entry, deterministic, target);
-;
-        Utf8Check::Check(&*it);
+        target = ListenRequest_LabelsEntry_DoNotUse::Funcs::SerializeToArray(4, it->first, it->second, target);
+        Utf8Check::Check(&(*it));
       }
     }
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), target);
+  if (_internal_metadata_.have_unknown_fields()) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.ListenRequest)
   return target;
@@ -8990,29 +9423,28 @@ size_t ListenRequest::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:google.firestore.v1.ListenRequest)
   size_t total_size = 0;
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
+  if (_internal_metadata_.have_unknown_fields()) {
     total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()));
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::ComputeUnknownFieldsSize(
+        _internal_metadata_.unknown_fields());
   }
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
   // map<string, string> labels = 4;
   total_size += 1 *
-      ::google::protobuf::internal::FromIntSize(this->labels_size());
-  {
-    ::google::protobuf::scoped_ptr<ListenRequest_LabelsEntry_DoNotUse> entry;
-    for (::google::protobuf::Map< ::std::string, ::std::string >::const_iterator
-        it = this->labels().begin();
-        it != this->labels().end(); ++it) {
-      entry.reset(labels_.NewEntryWrapper(it->first, it->second));
-      total_size += ::google::protobuf::internal::WireFormatLite::
-          MessageSizeNoVirtual(*entry);
-    }
+      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->labels_size());
+  for (::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_iterator
+      it = this->labels().begin();
+      it != this->labels().end(); ++it) {
+    total_size += ListenRequest_LabelsEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // string database = 1;
   if (this->database().size() > 0) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->database());
   }
 
@@ -9020,14 +9452,14 @@ size_t ListenRequest::ByteSizeLong() const {
     // .google.firestore.v1.Target add_target = 2;
     case kAddTarget: {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSize(
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
           *target_change_.add_target_);
       break;
     }
     // int32 remove_target = 3;
     case kRemoveTarget: {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::Int32Size(
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
           this->remove_target());
       break;
     }
@@ -9035,22 +9467,20 @@ size_t ListenRequest::ByteSizeLong() const {
       break;
     }
   }
-  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = cached_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
   return total_size;
 }
 
-void ListenRequest::MergeFrom(const ::google::protobuf::Message& from) {
+void ListenRequest::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_merge_from_start:google.firestore.v1.ListenRequest)
   GOOGLE_DCHECK_NE(&from, this);
   const ListenRequest* source =
-      ::google::protobuf::internal::DynamicCastToGenerated<const ListenRequest>(
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<ListenRequest>(
           &from);
-  if (source == NULL) {
+  if (source == nullptr) {
   // @@protoc_insertion_point(generalized_merge_from_cast_fail:google.firestore.v1.ListenRequest)
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
   } else {
   // @@protoc_insertion_point(generalized_merge_from_cast_success:google.firestore.v1.ListenRequest)
     MergeFrom(*source);
@@ -9061,13 +9491,13 @@ void ListenRequest::MergeFrom(const ListenRequest& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.ListenRequest)
   GOOGLE_DCHECK_NE(&from, this);
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   labels_.MergeFrom(from.labels_);
   if (from.database().size() > 0) {
 
-    database_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.database_);
+    database_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.database_);
   }
   switch (from.target_change_case()) {
     case kAddTarget: {
@@ -9084,7 +9514,7 @@ void ListenRequest::MergeFrom(const ListenRequest& from) {
   }
 }
 
-void ListenRequest::CopyFrom(const ::google::protobuf::Message& from) {
+void ListenRequest::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_copy_from_start:google.firestore.v1.ListenRequest)
   if (&from == this) return;
   Clear();
@@ -9102,23 +9532,18 @@ bool ListenRequest::IsInitialized() const {
   return true;
 }
 
-void ListenRequest::Swap(ListenRequest* other) {
-  if (other == this) return;
-  InternalSwap(other);
-}
 void ListenRequest::InternalSwap(ListenRequest* other) {
   using std::swap;
+  _internal_metadata_.Swap(&other->_internal_metadata_);
   labels_.Swap(&other->labels_);
-  database_.Swap(&other->database_);
+  database_.Swap(&other->database_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
   swap(target_change_, other->target_change_);
   swap(_oneof_case_[0], other->_oneof_case_[0]);
-  _internal_metadata_.Swap(&other->_internal_metadata_);
-  swap(_cached_size_, other->_cached_size_);
 }
 
-::google::protobuf::Metadata ListenRequest::GetMetadata() const {
-  protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages];
+::PROTOBUF_NAMESPACE_ID::Metadata ListenRequest::GetMetadata() const {
+  return GetMetadataStatic();
 }
 
 
@@ -9136,13 +9561,42 @@ void ListenResponse::InitAsDefaultInstance() {
   ::google::firestore::v1::_ListenResponse_default_instance_.filter_ = const_cast< ::google::firestore::v1::ExistenceFilter*>(
       ::google::firestore::v1::ExistenceFilter::internal_default_instance());
 }
+class ListenResponse::_Internal {
+ public:
+  static const ::google::firestore::v1::TargetChange& target_change(const ListenResponse* msg);
+  static const ::google::firestore::v1::DocumentChange& document_change(const ListenResponse* msg);
+  static const ::google::firestore::v1::DocumentDelete& document_delete(const ListenResponse* msg);
+  static const ::google::firestore::v1::DocumentRemove& document_remove(const ListenResponse* msg);
+  static const ::google::firestore::v1::ExistenceFilter& filter(const ListenResponse* msg);
+};
+
+const ::google::firestore::v1::TargetChange&
+ListenResponse::_Internal::target_change(const ListenResponse* msg) {
+  return *msg->response_type_.target_change_;
+}
+const ::google::firestore::v1::DocumentChange&
+ListenResponse::_Internal::document_change(const ListenResponse* msg) {
+  return *msg->response_type_.document_change_;
+}
+const ::google::firestore::v1::DocumentDelete&
+ListenResponse::_Internal::document_delete(const ListenResponse* msg) {
+  return *msg->response_type_.document_delete_;
+}
+const ::google::firestore::v1::DocumentRemove&
+ListenResponse::_Internal::document_remove(const ListenResponse* msg) {
+  return *msg->response_type_.document_remove_;
+}
+const ::google::firestore::v1::ExistenceFilter&
+ListenResponse::_Internal::filter(const ListenResponse* msg) {
+  return *msg->response_type_.filter_;
+}
 void ListenResponse::set_allocated_target_change(::google::firestore::v1::TargetChange* target_change) {
-  ::google::protobuf::Arena* message_arena = GetArenaNoVirtual();
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
   clear_response_type();
   if (target_change) {
-    ::google::protobuf::Arena* submessage_arena = NULL;
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
     if (message_arena != submessage_arena) {
-      target_change = ::google::protobuf::internal::GetOwnedMessage(
+      target_change = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
           message_arena, target_change, submessage_arena);
     }
     set_has_target_change();
@@ -9151,12 +9605,12 @@ void ListenResponse::set_allocated_target_change(::google::firestore::v1::Target
   // @@protoc_insertion_point(field_set_allocated:google.firestore.v1.ListenResponse.target_change)
 }
 void ListenResponse::set_allocated_document_change(::google::firestore::v1::DocumentChange* document_change) {
-  ::google::protobuf::Arena* message_arena = GetArenaNoVirtual();
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
   clear_response_type();
   if (document_change) {
-    ::google::protobuf::Arena* submessage_arena = NULL;
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
     if (message_arena != submessage_arena) {
-      document_change = ::google::protobuf::internal::GetOwnedMessage(
+      document_change = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
           message_arena, document_change, submessage_arena);
     }
     set_has_document_change();
@@ -9171,12 +9625,12 @@ void ListenResponse::clear_document_change() {
   }
 }
 void ListenResponse::set_allocated_document_delete(::google::firestore::v1::DocumentDelete* document_delete) {
-  ::google::protobuf::Arena* message_arena = GetArenaNoVirtual();
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
   clear_response_type();
   if (document_delete) {
-    ::google::protobuf::Arena* submessage_arena = NULL;
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
     if (message_arena != submessage_arena) {
-      document_delete = ::google::protobuf::internal::GetOwnedMessage(
+      document_delete = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
           message_arena, document_delete, submessage_arena);
     }
     set_has_document_delete();
@@ -9191,12 +9645,12 @@ void ListenResponse::clear_document_delete() {
   }
 }
 void ListenResponse::set_allocated_document_remove(::google::firestore::v1::DocumentRemove* document_remove) {
-  ::google::protobuf::Arena* message_arena = GetArenaNoVirtual();
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
   clear_response_type();
   if (document_remove) {
-    ::google::protobuf::Arena* submessage_arena = NULL;
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
     if (message_arena != submessage_arena) {
-      document_remove = ::google::protobuf::internal::GetOwnedMessage(
+      document_remove = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
           message_arena, document_remove, submessage_arena);
     }
     set_has_document_remove();
@@ -9211,12 +9665,12 @@ void ListenResponse::clear_document_remove() {
   }
 }
 void ListenResponse::set_allocated_filter(::google::firestore::v1::ExistenceFilter* filter) {
-  ::google::protobuf::Arena* message_arena = GetArenaNoVirtual();
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
   clear_response_type();
   if (filter) {
-    ::google::protobuf::Arena* submessage_arena = NULL;
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
     if (message_arena != submessage_arena) {
-      filter = ::google::protobuf::internal::GetOwnedMessage(
+      filter = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
           message_arena, filter, submessage_arena);
     }
     set_has_filter();
@@ -9230,26 +9684,14 @@ void ListenResponse::clear_filter() {
     clear_has_response_type();
   }
 }
-#if !defined(_MSC_VER) || _MSC_VER >= 1900
-const int ListenResponse::kTargetChangeFieldNumber;
-const int ListenResponse::kDocumentChangeFieldNumber;
-const int ListenResponse::kDocumentDeleteFieldNumber;
-const int ListenResponse::kDocumentRemoveFieldNumber;
-const int ListenResponse::kFilterFieldNumber;
-#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
-
 ListenResponse::ListenResponse()
-  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
-  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
-    ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsListenResponse();
-  }
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:google.firestore.v1.ListenResponse)
 }
 ListenResponse::ListenResponse(const ListenResponse& from)
-  : ::google::protobuf::Message(),
-      _internal_metadata_(NULL),
-      _cached_size_(0) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
+      _internal_metadata_(nullptr) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   clear_has_response_type();
   switch (from.response_type_case()) {
@@ -9281,8 +9723,8 @@ ListenResponse::ListenResponse(const ListenResponse& from)
 }
 
 void ListenResponse::SharedCtor() {
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_ListenResponse_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
   clear_has_response_type();
-  _cached_size_ = 0;
 }
 
 ListenResponse::~ListenResponse() {
@@ -9297,27 +9739,13 @@ void ListenResponse::SharedDtor() {
 }
 
 void ListenResponse::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  _cached_size_.Set(size);
 }
-const ::google::protobuf::Descriptor* ListenResponse::descriptor() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages].descriptor;
-}
-
 const ListenResponse& ListenResponse::default_instance() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsListenResponse();
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_ListenResponse_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
   return *internal_default_instance();
 }
 
-ListenResponse* ListenResponse::New(::google::protobuf::Arena* arena) const {
-  ListenResponse* n = new ListenResponse;
-  if (arena != NULL) {
-    arena->Own(n);
-  }
-  return n;
-}
 
 void ListenResponse::clear_response_type() {
 // @@protoc_insertion_point(one_of_clear_start:google.firestore.v1.ListenResponse)
@@ -9352,7 +9780,7 @@ void ListenResponse::clear_response_type() {
 
 void ListenResponse::Clear() {
 // @@protoc_insertion_point(message_clear_start:google.firestore.v1.ListenResponse)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
@@ -9360,21 +9788,83 @@ void ListenResponse::Clear() {
   _internal_metadata_.Clear();
 }
 
+#if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
+const char* ListenResponse::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    CHK_(ptr);
+    switch (tag >> 3) {
+      // .google.firestore.v1.TargetChange target_change = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
+          ptr = ctx->ParseMessage(mutable_target_change(), ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // .google.firestore.v1.DocumentChange document_change = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
+          ptr = ctx->ParseMessage(mutable_document_change(), ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // .google.firestore.v1.DocumentDelete document_delete = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
+          ptr = ctx->ParseMessage(mutable_document_delete(), ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // .google.firestore.v1.ExistenceFilter filter = 5;
+      case 5:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 42)) {
+          ptr = ctx->ParseMessage(mutable_filter(), ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // .google.firestore.v1.DocumentRemove document_remove = 6;
+      case 6:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 50)) {
+          ptr = ctx->ParseMessage(mutable_document_remove(), ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
+    }  // switch
+  }  // while
+success:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto success;
+#undef CHK_
+}
+#else  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 bool ListenResponse::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
+    ::PROTOBUF_NAMESPACE_ID::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!PROTOBUF_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::PROTOBUF_NAMESPACE_ID::uint32 tag;
   // @@protoc_insertion_point(parse_start:google.firestore.v1.ListenResponse)
   for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    ::std::pair<::PROTOBUF_NAMESPACE_ID::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
     tag = p.first;
     if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+    switch (::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::GetTagFieldNumber(tag)) {
       // .google.firestore.v1.TargetChange target_change = 2;
       case 2: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(18u /* 18 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (18 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
                input, mutable_target_change()));
         } else {
           goto handle_unusual;
@@ -9384,9 +9874,8 @@ bool ListenResponse::MergePartialFromCodedStream(
 
       // .google.firestore.v1.DocumentChange document_change = 3;
       case 3: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(26u /* 26 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (26 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
                input, mutable_document_change()));
         } else {
           goto handle_unusual;
@@ -9396,9 +9885,8 @@ bool ListenResponse::MergePartialFromCodedStream(
 
       // .google.firestore.v1.DocumentDelete document_delete = 4;
       case 4: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(34u /* 34 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (34 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
                input, mutable_document_delete()));
         } else {
           goto handle_unusual;
@@ -9408,9 +9896,8 @@ bool ListenResponse::MergePartialFromCodedStream(
 
       // .google.firestore.v1.ExistenceFilter filter = 5;
       case 5: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(42u /* 42 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (42 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
                input, mutable_filter()));
         } else {
           goto handle_unusual;
@@ -9420,9 +9907,8 @@ bool ListenResponse::MergePartialFromCodedStream(
 
       // .google.firestore.v1.DocumentRemove document_remove = 6;
       case 6: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(50u /* 50 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (50 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
                input, mutable_document_remove()));
         } else {
           goto handle_unusual;
@@ -9435,7 +9921,7 @@ bool ListenResponse::MergePartialFromCodedStream(
         if (tag == 0) {
           goto success;
         }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
+        DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SkipField(
               input, tag, _internal_metadata_.mutable_unknown_fields()));
         break;
       }
@@ -9449,95 +9935,95 @@ failure:
   return false;
 #undef DO_
 }
+#endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 
 void ListenResponse::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
+    ::PROTOBUF_NAMESPACE_ID::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:google.firestore.v1.ListenResponse)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // .google.firestore.v1.TargetChange target_change = 2;
   if (has_target_change()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, *response_type_.target_change_, output);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
+      2, _Internal::target_change(this), output);
   }
 
   // .google.firestore.v1.DocumentChange document_change = 3;
   if (has_document_change()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      3, *response_type_.document_change_, output);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
+      3, _Internal::document_change(this), output);
   }
 
   // .google.firestore.v1.DocumentDelete document_delete = 4;
   if (has_document_delete()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      4, *response_type_.document_delete_, output);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
+      4, _Internal::document_delete(this), output);
   }
 
   // .google.firestore.v1.ExistenceFilter filter = 5;
   if (has_filter()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      5, *response_type_.filter_, output);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
+      5, _Internal::filter(this), output);
   }
 
   // .google.firestore.v1.DocumentRemove document_remove = 6;
   if (has_document_remove()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      6, *response_type_.document_remove_, output);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
+      6, _Internal::document_remove(this), output);
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
+  if (_internal_metadata_.have_unknown_fields()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFields(
+        _internal_metadata_.unknown_fields(), output);
   }
   // @@protoc_insertion_point(serialize_end:google.firestore.v1.ListenResponse)
 }
 
-::google::protobuf::uint8* ListenResponse::InternalSerializeWithCachedSizesToArray(
-    bool deterministic, ::google::protobuf::uint8* target) const {
-  (void)deterministic; // Unused
+::PROTOBUF_NAMESPACE_ID::uint8* ListenResponse::InternalSerializeWithCachedSizesToArray(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target) const {
   // @@protoc_insertion_point(serialize_to_array_start:google.firestore.v1.ListenResponse)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // .google.firestore.v1.TargetChange target_change = 2;
   if (has_target_change()) {
-    target = ::google::protobuf::internal::WireFormatLite::
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        2, *response_type_.target_change_, deterministic, target);
+        2, _Internal::target_change(this), target);
   }
 
   // .google.firestore.v1.DocumentChange document_change = 3;
   if (has_document_change()) {
-    target = ::google::protobuf::internal::WireFormatLite::
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        3, *response_type_.document_change_, deterministic, target);
+        3, _Internal::document_change(this), target);
   }
 
   // .google.firestore.v1.DocumentDelete document_delete = 4;
   if (has_document_delete()) {
-    target = ::google::protobuf::internal::WireFormatLite::
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        4, *response_type_.document_delete_, deterministic, target);
+        4, _Internal::document_delete(this), target);
   }
 
   // .google.firestore.v1.ExistenceFilter filter = 5;
   if (has_filter()) {
-    target = ::google::protobuf::internal::WireFormatLite::
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        5, *response_type_.filter_, deterministic, target);
+        5, _Internal::filter(this), target);
   }
 
   // .google.firestore.v1.DocumentRemove document_remove = 6;
   if (has_document_remove()) {
-    target = ::google::protobuf::internal::WireFormatLite::
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        6, *response_type_.document_remove_, deterministic, target);
+        6, _Internal::document_remove(this), target);
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), target);
+  if (_internal_metadata_.have_unknown_fields()) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.ListenResponse)
   return target;
@@ -9547,44 +10033,48 @@ size_t ListenResponse::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:google.firestore.v1.ListenResponse)
   size_t total_size = 0;
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
+  if (_internal_metadata_.have_unknown_fields()) {
     total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()));
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::ComputeUnknownFieldsSize(
+        _internal_metadata_.unknown_fields());
   }
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
   switch (response_type_case()) {
     // .google.firestore.v1.TargetChange target_change = 2;
     case kTargetChange: {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSize(
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
           *response_type_.target_change_);
       break;
     }
     // .google.firestore.v1.DocumentChange document_change = 3;
     case kDocumentChange: {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSize(
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
           *response_type_.document_change_);
       break;
     }
     // .google.firestore.v1.DocumentDelete document_delete = 4;
     case kDocumentDelete: {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSize(
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
           *response_type_.document_delete_);
       break;
     }
     // .google.firestore.v1.DocumentRemove document_remove = 6;
     case kDocumentRemove: {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSize(
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
           *response_type_.document_remove_);
       break;
     }
     // .google.firestore.v1.ExistenceFilter filter = 5;
     case kFilter: {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSize(
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
           *response_type_.filter_);
       break;
     }
@@ -9592,22 +10082,20 @@ size_t ListenResponse::ByteSizeLong() const {
       break;
     }
   }
-  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = cached_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
   return total_size;
 }
 
-void ListenResponse::MergeFrom(const ::google::protobuf::Message& from) {
+void ListenResponse::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_merge_from_start:google.firestore.v1.ListenResponse)
   GOOGLE_DCHECK_NE(&from, this);
   const ListenResponse* source =
-      ::google::protobuf::internal::DynamicCastToGenerated<const ListenResponse>(
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<ListenResponse>(
           &from);
-  if (source == NULL) {
+  if (source == nullptr) {
   // @@protoc_insertion_point(generalized_merge_from_cast_fail:google.firestore.v1.ListenResponse)
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
   } else {
   // @@protoc_insertion_point(generalized_merge_from_cast_success:google.firestore.v1.ListenResponse)
     MergeFrom(*source);
@@ -9618,7 +10106,7 @@ void ListenResponse::MergeFrom(const ListenResponse& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.ListenResponse)
   GOOGLE_DCHECK_NE(&from, this);
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   switch (from.response_type_case()) {
@@ -9648,7 +10136,7 @@ void ListenResponse::MergeFrom(const ListenResponse& from) {
   }
 }
 
-void ListenResponse::CopyFrom(const ::google::protobuf::Message& from) {
+void ListenResponse::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_copy_from_start:google.firestore.v1.ListenResponse)
   if (&from == this) return;
   Clear();
@@ -9666,21 +10154,15 @@ bool ListenResponse::IsInitialized() const {
   return true;
 }
 
-void ListenResponse::Swap(ListenResponse* other) {
-  if (other == this) return;
-  InternalSwap(other);
-}
 void ListenResponse::InternalSwap(ListenResponse* other) {
   using std::swap;
+  _internal_metadata_.Swap(&other->_internal_metadata_);
   swap(response_type_, other->response_type_);
   swap(_oneof_case_[0], other->_oneof_case_[0]);
-  _internal_metadata_.Swap(&other->_internal_metadata_);
-  swap(_cached_size_, other->_cached_size_);
 }
 
-::google::protobuf::Metadata ListenResponse::GetMetadata() const {
-  protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages];
+::PROTOBUF_NAMESPACE_ID::Metadata ListenResponse::GetMetadata() const {
+  return GetMetadataStatic();
 }
 
 
@@ -9688,29 +10170,25 @@ void ListenResponse::InternalSwap(ListenResponse* other) {
 
 void Target_DocumentsTarget::InitAsDefaultInstance() {
 }
-#if !defined(_MSC_VER) || _MSC_VER >= 1900
-const int Target_DocumentsTarget::kDocumentsFieldNumber;
-#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+class Target_DocumentsTarget::_Internal {
+ public:
+};
 
 Target_DocumentsTarget::Target_DocumentsTarget()
-  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
-  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
-    ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsTarget_DocumentsTarget();
-  }
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:google.firestore.v1.Target.DocumentsTarget)
 }
 Target_DocumentsTarget::Target_DocumentsTarget(const Target_DocumentsTarget& from)
-  : ::google::protobuf::Message(),
-      _internal_metadata_(NULL),
-      documents_(from.documents_),
-      _cached_size_(0) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
+      _internal_metadata_(nullptr),
+      documents_(from.documents_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   // @@protoc_insertion_point(copy_constructor:google.firestore.v1.Target.DocumentsTarget)
 }
 
 void Target_DocumentsTarget::SharedCtor() {
-  _cached_size_ = 0;
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_Target_DocumentsTarget_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
 }
 
 Target_DocumentsTarget::~Target_DocumentsTarget() {
@@ -9722,31 +10200,17 @@ void Target_DocumentsTarget::SharedDtor() {
 }
 
 void Target_DocumentsTarget::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  _cached_size_.Set(size);
 }
-const ::google::protobuf::Descriptor* Target_DocumentsTarget::descriptor() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages].descriptor;
-}
-
 const Target_DocumentsTarget& Target_DocumentsTarget::default_instance() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsTarget_DocumentsTarget();
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_Target_DocumentsTarget_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
   return *internal_default_instance();
 }
 
-Target_DocumentsTarget* Target_DocumentsTarget::New(::google::protobuf::Arena* arena) const {
-  Target_DocumentsTarget* n = new Target_DocumentsTarget;
-  if (arena != NULL) {
-    arena->Own(n);
-  }
-  return n;
-}
 
 void Target_DocumentsTarget::Clear() {
 // @@protoc_insertion_point(message_clear_start:google.firestore.v1.Target.DocumentsTarget)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
@@ -9754,26 +10218,65 @@ void Target_DocumentsTarget::Clear() {
   _internal_metadata_.Clear();
 }
 
+#if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
+const char* Target_DocumentsTarget::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    CHK_(ptr);
+    switch (tag >> 3) {
+      // repeated string documents = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
+          ptr -= 1;
+          do {
+            ptr += 1;
+            ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParserUTF8(add_documents(), ptr, ctx, "google.firestore.v1.Target.DocumentsTarget.documents");
+            CHK_(ptr);
+            if (!ctx->DataAvailable(ptr)) break;
+          } while (::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<::PROTOBUF_NAMESPACE_ID::uint8>(ptr) == 18);
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
+    }  // switch
+  }  // while
+success:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto success;
+#undef CHK_
+}
+#else  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 bool Target_DocumentsTarget::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
+    ::PROTOBUF_NAMESPACE_ID::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!PROTOBUF_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::PROTOBUF_NAMESPACE_ID::uint32 tag;
   // @@protoc_insertion_point(parse_start:google.firestore.v1.Target.DocumentsTarget)
   for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    ::std::pair<::PROTOBUF_NAMESPACE_ID::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
     tag = p.first;
     if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+    switch (::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::GetTagFieldNumber(tag)) {
       // repeated string documents = 2;
       case 2: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(18u /* 18 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (18 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadString(
                 input, this->add_documents()));
-          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
             this->documents(this->documents_size() - 1).data(),
             static_cast<int>(this->documents(this->documents_size() - 1).length()),
-            ::google::protobuf::internal::WireFormatLite::PARSE,
+            ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE,
             "google.firestore.v1.Target.DocumentsTarget.documents"));
         } else {
           goto handle_unusual;
@@ -9786,7 +10289,7 @@ bool Target_DocumentsTarget::MergePartialFromCodedStream(
         if (tag == 0) {
           goto success;
         }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
+        DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SkipField(
               input, tag, _internal_metadata_.mutable_unknown_fields()));
         break;
       }
@@ -9800,50 +10303,50 @@ failure:
   return false;
 #undef DO_
 }
+#endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 
 void Target_DocumentsTarget::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
+    ::PROTOBUF_NAMESPACE_ID::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:google.firestore.v1.Target.DocumentsTarget)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // repeated string documents = 2;
   for (int i = 0, n = this->documents_size(); i < n; i++) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->documents(i).data(), static_cast<int>(this->documents(i).length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.Target.DocumentsTarget.documents");
-    ::google::protobuf::internal::WireFormatLite::WriteString(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteString(
       2, this->documents(i), output);
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
+  if (_internal_metadata_.have_unknown_fields()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFields(
+        _internal_metadata_.unknown_fields(), output);
   }
   // @@protoc_insertion_point(serialize_end:google.firestore.v1.Target.DocumentsTarget)
 }
 
-::google::protobuf::uint8* Target_DocumentsTarget::InternalSerializeWithCachedSizesToArray(
-    bool deterministic, ::google::protobuf::uint8* target) const {
-  (void)deterministic; // Unused
+::PROTOBUF_NAMESPACE_ID::uint8* Target_DocumentsTarget::InternalSerializeWithCachedSizesToArray(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target) const {
   // @@protoc_insertion_point(serialize_to_array_start:google.firestore.v1.Target.DocumentsTarget)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // repeated string documents = 2;
   for (int i = 0, n = this->documents_size(); i < n; i++) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->documents(i).data(), static_cast<int>(this->documents(i).length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.Target.DocumentsTarget.documents");
-    target = ::google::protobuf::internal::WireFormatLite::
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       WriteStringToArray(2, this->documents(i), target);
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), target);
+  if (_internal_metadata_.have_unknown_fields()) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.Target.DocumentsTarget)
   return target;
@@ -9853,35 +10356,37 @@ size_t Target_DocumentsTarget::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:google.firestore.v1.Target.DocumentsTarget)
   size_t total_size = 0;
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
+  if (_internal_metadata_.have_unknown_fields()) {
     total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()));
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::ComputeUnknownFieldsSize(
+        _internal_metadata_.unknown_fields());
   }
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
   // repeated string documents = 2;
   total_size += 1 *
-      ::google::protobuf::internal::FromIntSize(this->documents_size());
+      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->documents_size());
   for (int i = 0, n = this->documents_size(); i < n; i++) {
-    total_size += ::google::protobuf::internal::WireFormatLite::StringSize(
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
       this->documents(i));
   }
 
-  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = cached_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
   return total_size;
 }
 
-void Target_DocumentsTarget::MergeFrom(const ::google::protobuf::Message& from) {
+void Target_DocumentsTarget::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_merge_from_start:google.firestore.v1.Target.DocumentsTarget)
   GOOGLE_DCHECK_NE(&from, this);
   const Target_DocumentsTarget* source =
-      ::google::protobuf::internal::DynamicCastToGenerated<const Target_DocumentsTarget>(
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<Target_DocumentsTarget>(
           &from);
-  if (source == NULL) {
+  if (source == nullptr) {
   // @@protoc_insertion_point(generalized_merge_from_cast_fail:google.firestore.v1.Target.DocumentsTarget)
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
   } else {
   // @@protoc_insertion_point(generalized_merge_from_cast_success:google.firestore.v1.Target.DocumentsTarget)
     MergeFrom(*source);
@@ -9892,13 +10397,13 @@ void Target_DocumentsTarget::MergeFrom(const Target_DocumentsTarget& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.Target.DocumentsTarget)
   GOOGLE_DCHECK_NE(&from, this);
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   documents_.MergeFrom(from.documents_);
 }
 
-void Target_DocumentsTarget::CopyFrom(const ::google::protobuf::Message& from) {
+void Target_DocumentsTarget::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_copy_from_start:google.firestore.v1.Target.DocumentsTarget)
   if (&from == this) return;
   Clear();
@@ -9916,20 +10421,14 @@ bool Target_DocumentsTarget::IsInitialized() const {
   return true;
 }
 
-void Target_DocumentsTarget::Swap(Target_DocumentsTarget* other) {
-  if (other == this) return;
-  InternalSwap(other);
-}
 void Target_DocumentsTarget::InternalSwap(Target_DocumentsTarget* other) {
   using std::swap;
-  documents_.InternalSwap(&other->documents_);
   _internal_metadata_.Swap(&other->_internal_metadata_);
-  swap(_cached_size_, other->_cached_size_);
+  documents_.InternalSwap(CastToBase(&other->documents_));
 }
 
-::google::protobuf::Metadata Target_DocumentsTarget::GetMetadata() const {
-  protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages];
+::PROTOBUF_NAMESPACE_ID::Metadata Target_DocumentsTarget::GetMetadata() const {
+  return GetMetadataStatic();
 }
 
 
@@ -9939,13 +10438,22 @@ void Target_QueryTarget::InitAsDefaultInstance() {
   ::google::firestore::v1::_Target_QueryTarget_default_instance_.structured_query_ = const_cast< ::google::firestore::v1::StructuredQuery*>(
       ::google::firestore::v1::StructuredQuery::internal_default_instance());
 }
+class Target_QueryTarget::_Internal {
+ public:
+  static const ::google::firestore::v1::StructuredQuery& structured_query(const Target_QueryTarget* msg);
+};
+
+const ::google::firestore::v1::StructuredQuery&
+Target_QueryTarget::_Internal::structured_query(const Target_QueryTarget* msg) {
+  return *msg->query_type_.structured_query_;
+}
 void Target_QueryTarget::set_allocated_structured_query(::google::firestore::v1::StructuredQuery* structured_query) {
-  ::google::protobuf::Arena* message_arena = GetArenaNoVirtual();
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
   clear_query_type();
   if (structured_query) {
-    ::google::protobuf::Arena* submessage_arena = NULL;
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
     if (message_arena != submessage_arena) {
-      structured_query = ::google::protobuf::internal::GetOwnedMessage(
+      structured_query = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
           message_arena, structured_query, submessage_arena);
     }
     set_has_structured_query();
@@ -9959,27 +10467,18 @@ void Target_QueryTarget::clear_structured_query() {
     clear_has_query_type();
   }
 }
-#if !defined(_MSC_VER) || _MSC_VER >= 1900
-const int Target_QueryTarget::kParentFieldNumber;
-const int Target_QueryTarget::kStructuredQueryFieldNumber;
-#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
-
 Target_QueryTarget::Target_QueryTarget()
-  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
-  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
-    ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsTarget_QueryTarget();
-  }
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:google.firestore.v1.Target.QueryTarget)
 }
 Target_QueryTarget::Target_QueryTarget(const Target_QueryTarget& from)
-  : ::google::protobuf::Message(),
-      _internal_metadata_(NULL),
-      _cached_size_(0) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
+      _internal_metadata_(nullptr) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  parent_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  if (from.parent().size() > 0) {
-    parent_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.parent_);
+  parent_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from.parent().empty()) {
+    parent_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.parent_);
   }
   clear_has_query_type();
   switch (from.query_type_case()) {
@@ -9995,9 +10494,9 @@ Target_QueryTarget::Target_QueryTarget(const Target_QueryTarget& from)
 }
 
 void Target_QueryTarget::SharedCtor() {
-  parent_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_Target_QueryTarget_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
+  parent_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   clear_has_query_type();
-  _cached_size_ = 0;
 }
 
 Target_QueryTarget::~Target_QueryTarget() {
@@ -10006,34 +10505,20 @@ Target_QueryTarget::~Target_QueryTarget() {
 }
 
 void Target_QueryTarget::SharedDtor() {
-  parent_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  parent_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   if (has_query_type()) {
     clear_query_type();
   }
 }
 
 void Target_QueryTarget::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  _cached_size_.Set(size);
 }
-const ::google::protobuf::Descriptor* Target_QueryTarget::descriptor() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages].descriptor;
-}
-
 const Target_QueryTarget& Target_QueryTarget::default_instance() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsTarget_QueryTarget();
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_Target_QueryTarget_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
   return *internal_default_instance();
 }
 
-Target_QueryTarget* Target_QueryTarget::New(::google::protobuf::Arena* arena) const {
-  Target_QueryTarget* n = new Target_QueryTarget;
-  if (arena != NULL) {
-    arena->Own(n);
-  }
-  return n;
-}
 
 void Target_QueryTarget::clear_query_type() {
 // @@protoc_insertion_point(one_of_clear_start:google.firestore.v1.Target.QueryTarget)
@@ -10052,34 +10537,75 @@ void Target_QueryTarget::clear_query_type() {
 
 void Target_QueryTarget::Clear() {
 // @@protoc_insertion_point(message_clear_start:google.firestore.v1.Target.QueryTarget)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  parent_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  parent_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   clear_query_type();
   _internal_metadata_.Clear();
 }
 
+#if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
+const char* Target_QueryTarget::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    CHK_(ptr);
+    switch (tag >> 3) {
+      // string parent = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParserUTF8(mutable_parent(), ptr, ctx, "google.firestore.v1.Target.QueryTarget.parent");
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // .google.firestore.v1.StructuredQuery structured_query = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
+          ptr = ctx->ParseMessage(mutable_structured_query(), ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
+    }  // switch
+  }  // while
+success:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto success;
+#undef CHK_
+}
+#else  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 bool Target_QueryTarget::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
+    ::PROTOBUF_NAMESPACE_ID::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!PROTOBUF_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::PROTOBUF_NAMESPACE_ID::uint32 tag;
   // @@protoc_insertion_point(parse_start:google.firestore.v1.Target.QueryTarget)
   for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    ::std::pair<::PROTOBUF_NAMESPACE_ID::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
     tag = p.first;
     if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+    switch (::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::GetTagFieldNumber(tag)) {
       // string parent = 1;
       case 1: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(10u /* 10 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (10 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadString(
                 input, this->mutable_parent()));
-          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
             this->parent().data(), static_cast<int>(this->parent().length()),
-            ::google::protobuf::internal::WireFormatLite::PARSE,
+            ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE,
             "google.firestore.v1.Target.QueryTarget.parent"));
         } else {
           goto handle_unusual;
@@ -10089,9 +10615,8 @@ bool Target_QueryTarget::MergePartialFromCodedStream(
 
       // .google.firestore.v1.StructuredQuery structured_query = 2;
       case 2: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(18u /* 18 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (18 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
                input, mutable_structured_query()));
         } else {
           goto handle_unusual;
@@ -10104,7 +10629,7 @@ bool Target_QueryTarget::MergePartialFromCodedStream(
         if (tag == 0) {
           goto success;
         }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
+        DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SkipField(
               input, tag, _internal_metadata_.mutable_unknown_fields()));
         break;
       }
@@ -10118,64 +10643,64 @@ failure:
   return false;
 #undef DO_
 }
+#endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 
 void Target_QueryTarget::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
+    ::PROTOBUF_NAMESPACE_ID::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:google.firestore.v1.Target.QueryTarget)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // string parent = 1;
   if (this->parent().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->parent().data(), static_cast<int>(this->parent().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.Target.QueryTarget.parent");
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringMaybeAliased(
       1, this->parent(), output);
   }
 
   // .google.firestore.v1.StructuredQuery structured_query = 2;
   if (has_structured_query()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, *query_type_.structured_query_, output);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
+      2, _Internal::structured_query(this), output);
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
+  if (_internal_metadata_.have_unknown_fields()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFields(
+        _internal_metadata_.unknown_fields(), output);
   }
   // @@protoc_insertion_point(serialize_end:google.firestore.v1.Target.QueryTarget)
 }
 
-::google::protobuf::uint8* Target_QueryTarget::InternalSerializeWithCachedSizesToArray(
-    bool deterministic, ::google::protobuf::uint8* target) const {
-  (void)deterministic; // Unused
+::PROTOBUF_NAMESPACE_ID::uint8* Target_QueryTarget::InternalSerializeWithCachedSizesToArray(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target) const {
   // @@protoc_insertion_point(serialize_to_array_start:google.firestore.v1.Target.QueryTarget)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // string parent = 1;
   if (this->parent().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->parent().data(), static_cast<int>(this->parent().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.Target.QueryTarget.parent");
     target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringToArray(
         1, this->parent(), target);
   }
 
   // .google.firestore.v1.StructuredQuery structured_query = 2;
   if (has_structured_query()) {
-    target = ::google::protobuf::internal::WireFormatLite::
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        2, *query_type_.structured_query_, deterministic, target);
+        2, _Internal::structured_query(this), target);
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), target);
+  if (_internal_metadata_.have_unknown_fields()) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.Target.QueryTarget)
   return target;
@@ -10185,15 +10710,19 @@ size_t Target_QueryTarget::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:google.firestore.v1.Target.QueryTarget)
   size_t total_size = 0;
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
+  if (_internal_metadata_.have_unknown_fields()) {
     total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()));
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::ComputeUnknownFieldsSize(
+        _internal_metadata_.unknown_fields());
   }
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
   // string parent = 1;
   if (this->parent().size() > 0) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->parent());
   }
 
@@ -10201,7 +10730,7 @@ size_t Target_QueryTarget::ByteSizeLong() const {
     // .google.firestore.v1.StructuredQuery structured_query = 2;
     case kStructuredQuery: {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSize(
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
           *query_type_.structured_query_);
       break;
     }
@@ -10209,22 +10738,20 @@ size_t Target_QueryTarget::ByteSizeLong() const {
       break;
     }
   }
-  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = cached_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
   return total_size;
 }
 
-void Target_QueryTarget::MergeFrom(const ::google::protobuf::Message& from) {
+void Target_QueryTarget::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_merge_from_start:google.firestore.v1.Target.QueryTarget)
   GOOGLE_DCHECK_NE(&from, this);
   const Target_QueryTarget* source =
-      ::google::protobuf::internal::DynamicCastToGenerated<const Target_QueryTarget>(
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<Target_QueryTarget>(
           &from);
-  if (source == NULL) {
+  if (source == nullptr) {
   // @@protoc_insertion_point(generalized_merge_from_cast_fail:google.firestore.v1.Target.QueryTarget)
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
   } else {
   // @@protoc_insertion_point(generalized_merge_from_cast_success:google.firestore.v1.Target.QueryTarget)
     MergeFrom(*source);
@@ -10235,12 +10762,12 @@ void Target_QueryTarget::MergeFrom(const Target_QueryTarget& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.Target.QueryTarget)
   GOOGLE_DCHECK_NE(&from, this);
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   if (from.parent().size() > 0) {
 
-    parent_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.parent_);
+    parent_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.parent_);
   }
   switch (from.query_type_case()) {
     case kStructuredQuery: {
@@ -10253,7 +10780,7 @@ void Target_QueryTarget::MergeFrom(const Target_QueryTarget& from) {
   }
 }
 
-void Target_QueryTarget::CopyFrom(const ::google::protobuf::Message& from) {
+void Target_QueryTarget::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_copy_from_start:google.firestore.v1.Target.QueryTarget)
   if (&from == this) return;
   Clear();
@@ -10271,22 +10798,17 @@ bool Target_QueryTarget::IsInitialized() const {
   return true;
 }
 
-void Target_QueryTarget::Swap(Target_QueryTarget* other) {
-  if (other == this) return;
-  InternalSwap(other);
-}
 void Target_QueryTarget::InternalSwap(Target_QueryTarget* other) {
   using std::swap;
-  parent_.Swap(&other->parent_);
+  _internal_metadata_.Swap(&other->_internal_metadata_);
+  parent_.Swap(&other->parent_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
   swap(query_type_, other->query_type_);
   swap(_oneof_case_[0], other->_oneof_case_[0]);
-  _internal_metadata_.Swap(&other->_internal_metadata_);
-  swap(_cached_size_, other->_cached_size_);
 }
 
-::google::protobuf::Metadata Target_QueryTarget::GetMetadata() const {
-  protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages];
+::PROTOBUF_NAMESPACE_ID::Metadata Target_QueryTarget::GetMetadata() const {
+  return GetMetadataStatic();
 }
 
 
@@ -10298,17 +10820,36 @@ void Target::InitAsDefaultInstance() {
   ::google::firestore::v1::_Target_default_instance_.documents_ = const_cast< ::google::firestore::v1::Target_DocumentsTarget*>(
       ::google::firestore::v1::Target_DocumentsTarget::internal_default_instance());
   ::google::firestore::v1::_Target_default_instance_.resume_token_.UnsafeSetDefault(
-      &::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  ::google::firestore::v1::_Target_default_instance_.read_time_ = const_cast< ::google::protobuf::Timestamp*>(
-      ::google::protobuf::Timestamp::internal_default_instance());
+      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  ::google::firestore::v1::_Target_default_instance_.read_time_ = const_cast< PROTOBUF_NAMESPACE_ID::Timestamp*>(
+      PROTOBUF_NAMESPACE_ID::Timestamp::internal_default_instance());
+}
+class Target::_Internal {
+ public:
+  static const ::google::firestore::v1::Target_QueryTarget& query(const Target* msg);
+  static const ::google::firestore::v1::Target_DocumentsTarget& documents(const Target* msg);
+  static const PROTOBUF_NAMESPACE_ID::Timestamp& read_time(const Target* msg);
+};
+
+const ::google::firestore::v1::Target_QueryTarget&
+Target::_Internal::query(const Target* msg) {
+  return *msg->target_type_.query_;
+}
+const ::google::firestore::v1::Target_DocumentsTarget&
+Target::_Internal::documents(const Target* msg) {
+  return *msg->target_type_.documents_;
+}
+const PROTOBUF_NAMESPACE_ID::Timestamp&
+Target::_Internal::read_time(const Target* msg) {
+  return *msg->resume_type_.read_time_;
 }
 void Target::set_allocated_query(::google::firestore::v1::Target_QueryTarget* query) {
-  ::google::protobuf::Arena* message_arena = GetArenaNoVirtual();
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
   clear_target_type();
   if (query) {
-    ::google::protobuf::Arena* submessage_arena = NULL;
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
     if (message_arena != submessage_arena) {
-      query = ::google::protobuf::internal::GetOwnedMessage(
+      query = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
           message_arena, query, submessage_arena);
     }
     set_has_query();
@@ -10317,12 +10858,12 @@ void Target::set_allocated_query(::google::firestore::v1::Target_QueryTarget* qu
   // @@protoc_insertion_point(field_set_allocated:google.firestore.v1.Target.query)
 }
 void Target::set_allocated_documents(::google::firestore::v1::Target_DocumentsTarget* documents) {
-  ::google::protobuf::Arena* message_arena = GetArenaNoVirtual();
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
   clear_target_type();
   if (documents) {
-    ::google::protobuf::Arena* submessage_arena = NULL;
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
     if (message_arena != submessage_arena) {
-      documents = ::google::protobuf::internal::GetOwnedMessage(
+      documents = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
           message_arena, documents, submessage_arena);
     }
     set_has_documents();
@@ -10330,14 +10871,14 @@ void Target::set_allocated_documents(::google::firestore::v1::Target_DocumentsTa
   }
   // @@protoc_insertion_point(field_set_allocated:google.firestore.v1.Target.documents)
 }
-void Target::set_allocated_read_time(::google::protobuf::Timestamp* read_time) {
-  ::google::protobuf::Arena* message_arena = GetArenaNoVirtual();
+void Target::set_allocated_read_time(PROTOBUF_NAMESPACE_ID::Timestamp* read_time) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
   clear_resume_type();
   if (read_time) {
-    ::google::protobuf::Arena* submessage_arena =
-      reinterpret_cast< ::google::protobuf::MessageLite*>(read_time)->GetArena();
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+      reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(read_time)->GetArena();
     if (message_arena != submessage_arena) {
-      read_time = ::google::protobuf::internal::GetOwnedMessage(
+      read_time = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
           message_arena, read_time, submessage_arena);
     }
     set_has_read_time();
@@ -10351,27 +10892,14 @@ void Target::clear_read_time() {
     clear_has_resume_type();
   }
 }
-#if !defined(_MSC_VER) || _MSC_VER >= 1900
-const int Target::kQueryFieldNumber;
-const int Target::kDocumentsFieldNumber;
-const int Target::kResumeTokenFieldNumber;
-const int Target::kReadTimeFieldNumber;
-const int Target::kTargetIdFieldNumber;
-const int Target::kOnceFieldNumber;
-#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
-
 Target::Target()
-  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
-  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
-    ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsTarget();
-  }
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:google.firestore.v1.Target)
 }
 Target::Target(const Target& from)
-  : ::google::protobuf::Message(),
-      _internal_metadata_(NULL),
-      _cached_size_(0) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
+      _internal_metadata_(nullptr) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   ::memcpy(&target_id_, &from.target_id_,
     static_cast<size_t>(reinterpret_cast<char*>(&once_) -
@@ -10397,7 +10925,7 @@ Target::Target(const Target& from)
       break;
     }
     case kReadTime: {
-      mutable_read_time()->::google::protobuf::Timestamp::MergeFrom(from.read_time());
+      mutable_read_time()->PROTOBUF_NAMESPACE_ID::Timestamp::MergeFrom(from.read_time());
       break;
     }
     case RESUME_TYPE_NOT_SET: {
@@ -10408,12 +10936,12 @@ Target::Target(const Target& from)
 }
 
 void Target::SharedCtor() {
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_Target_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
   ::memset(&target_id_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&once_) -
       reinterpret_cast<char*>(&target_id_)) + sizeof(once_));
   clear_has_target_type();
   clear_has_resume_type();
-  _cached_size_ = 0;
 }
 
 Target::~Target() {
@@ -10431,27 +10959,13 @@ void Target::SharedDtor() {
 }
 
 void Target::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  _cached_size_.Set(size);
 }
-const ::google::protobuf::Descriptor* Target::descriptor() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages].descriptor;
-}
-
 const Target& Target::default_instance() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsTarget();
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_Target_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
   return *internal_default_instance();
 }
 
-Target* Target::New(::google::protobuf::Arena* arena) const {
-  Target* n = new Target;
-  if (arena != NULL) {
-    arena->Own(n);
-  }
-  return n;
-}
 
 void Target::clear_target_type() {
 // @@protoc_insertion_point(one_of_clear_start:google.firestore.v1.Target)
@@ -10475,7 +10989,7 @@ void Target::clear_resume_type() {
 // @@protoc_insertion_point(one_of_clear_start:google.firestore.v1.Target)
   switch (resume_type_case()) {
     case kResumeToken: {
-      resume_type_.resume_token_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+      resume_type_.resume_token_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
       break;
     }
     case kReadTime: {
@@ -10492,7 +11006,7 @@ void Target::clear_resume_type() {
 
 void Target::Clear() {
 // @@protoc_insertion_point(message_clear_start:google.firestore.v1.Target)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
@@ -10504,21 +11018,90 @@ void Target::Clear() {
   _internal_metadata_.Clear();
 }
 
+#if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
+const char* Target::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    CHK_(ptr);
+    switch (tag >> 3) {
+      // .google.firestore.v1.Target.QueryTarget query = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
+          ptr = ctx->ParseMessage(mutable_query(), ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // .google.firestore.v1.Target.DocumentsTarget documents = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
+          ptr = ctx->ParseMessage(mutable_documents(), ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // bytes resume_token = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(mutable_resume_token(), ptr, ctx);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // int32 target_id = 5;
+      case 5:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 40)) {
+          target_id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // bool once = 6;
+      case 6:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 48)) {
+          once_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // .google.protobuf.Timestamp read_time = 11;
+      case 11:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 90)) {
+          ptr = ctx->ParseMessage(mutable_read_time(), ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
+    }  // switch
+  }  // while
+success:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto success;
+#undef CHK_
+}
+#else  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 bool Target::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
+    ::PROTOBUF_NAMESPACE_ID::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!PROTOBUF_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::PROTOBUF_NAMESPACE_ID::uint32 tag;
   // @@protoc_insertion_point(parse_start:google.firestore.v1.Target)
   for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    ::std::pair<::PROTOBUF_NAMESPACE_ID::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
     tag = p.first;
     if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+    switch (::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::GetTagFieldNumber(tag)) {
       // .google.firestore.v1.Target.QueryTarget query = 2;
       case 2: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(18u /* 18 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (18 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
                input, mutable_query()));
         } else {
           goto handle_unusual;
@@ -10528,9 +11111,8 @@ bool Target::MergePartialFromCodedStream(
 
       // .google.firestore.v1.Target.DocumentsTarget documents = 3;
       case 3: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(26u /* 26 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (26 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
                input, mutable_documents()));
         } else {
           goto handle_unusual;
@@ -10540,9 +11122,8 @@ bool Target::MergePartialFromCodedStream(
 
       // bytes resume_token = 4;
       case 4: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(34u /* 34 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadBytes(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (34 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadBytes(
                 input, this->mutable_resume_token()));
         } else {
           goto handle_unusual;
@@ -10552,11 +11133,10 @@ bool Target::MergePartialFromCodedStream(
 
       // int32 target_id = 5;
       case 5: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(40u /* 40 & 0xFF */)) {
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (40 & 0xFF)) {
 
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+          DO_((::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadPrimitive<
+                   ::PROTOBUF_NAMESPACE_ID::int32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32>(
                  input, &target_id_)));
         } else {
           goto handle_unusual;
@@ -10566,11 +11146,10 @@ bool Target::MergePartialFromCodedStream(
 
       // bool once = 6;
       case 6: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(48u /* 48 & 0xFF */)) {
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (48 & 0xFF)) {
 
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
+          DO_((::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadPrimitive<
+                   bool, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL>(
                  input, &once_)));
         } else {
           goto handle_unusual;
@@ -10580,9 +11159,8 @@ bool Target::MergePartialFromCodedStream(
 
       // .google.protobuf.Timestamp read_time = 11;
       case 11: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(90u /* 90 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (90 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
                input, mutable_read_time()));
         } else {
           goto handle_unusual;
@@ -10595,7 +11173,7 @@ bool Target::MergePartialFromCodedStream(
         if (tag == 0) {
           goto success;
         }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
+        DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SkipField(
               input, tag, _internal_metadata_.mutable_unknown_fields()));
         break;
       }
@@ -10609,102 +11187,102 @@ failure:
   return false;
 #undef DO_
 }
+#endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 
 void Target::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
+    ::PROTOBUF_NAMESPACE_ID::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:google.firestore.v1.Target)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // .google.firestore.v1.Target.QueryTarget query = 2;
   if (has_query()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, *target_type_.query_, output);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
+      2, _Internal::query(this), output);
   }
 
   // .google.firestore.v1.Target.DocumentsTarget documents = 3;
   if (has_documents()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      3, *target_type_.documents_, output);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
+      3, _Internal::documents(this), output);
   }
 
   // bytes resume_token = 4;
   if (has_resume_token()) {
-    ::google::protobuf::internal::WireFormatLite::WriteBytesMaybeAliased(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBytesMaybeAliased(
       4, this->resume_token(), output);
   }
 
   // int32 target_id = 5;
   if (this->target_id() != 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteInt32(5, this->target_id(), output);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32(5, this->target_id(), output);
   }
 
   // bool once = 6;
   if (this->once() != 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteBool(6, this->once(), output);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBool(6, this->once(), output);
   }
 
   // .google.protobuf.Timestamp read_time = 11;
   if (has_read_time()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      11, *resume_type_.read_time_, output);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
+      11, _Internal::read_time(this), output);
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
+  if (_internal_metadata_.have_unknown_fields()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFields(
+        _internal_metadata_.unknown_fields(), output);
   }
   // @@protoc_insertion_point(serialize_end:google.firestore.v1.Target)
 }
 
-::google::protobuf::uint8* Target::InternalSerializeWithCachedSizesToArray(
-    bool deterministic, ::google::protobuf::uint8* target) const {
-  (void)deterministic; // Unused
+::PROTOBUF_NAMESPACE_ID::uint8* Target::InternalSerializeWithCachedSizesToArray(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target) const {
   // @@protoc_insertion_point(serialize_to_array_start:google.firestore.v1.Target)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // .google.firestore.v1.Target.QueryTarget query = 2;
   if (has_query()) {
-    target = ::google::protobuf::internal::WireFormatLite::
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        2, *target_type_.query_, deterministic, target);
+        2, _Internal::query(this), target);
   }
 
   // .google.firestore.v1.Target.DocumentsTarget documents = 3;
   if (has_documents()) {
-    target = ::google::protobuf::internal::WireFormatLite::
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        3, *target_type_.documents_, deterministic, target);
+        3, _Internal::documents(this), target);
   }
 
   // bytes resume_token = 4;
   if (has_resume_token()) {
     target =
-      ::google::protobuf::internal::WireFormatLite::WriteBytesToArray(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBytesToArray(
         4, this->resume_token(), target);
   }
 
   // int32 target_id = 5;
   if (this->target_id() != 0) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(5, this->target_id(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(5, this->target_id(), target);
   }
 
   // bool once = 6;
   if (this->once() != 0) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(6, this->once(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBoolToArray(6, this->once(), target);
   }
 
   // .google.protobuf.Timestamp read_time = 11;
   if (has_read_time()) {
-    target = ::google::protobuf::internal::WireFormatLite::
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        11, *resume_type_.read_time_, deterministic, target);
+        11, _Internal::read_time(this), target);
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), target);
+  if (_internal_metadata_.have_unknown_fields()) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.Target)
   return target;
@@ -10714,15 +11292,19 @@ size_t Target::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:google.firestore.v1.Target)
   size_t total_size = 0;
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
+  if (_internal_metadata_.have_unknown_fields()) {
     total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()));
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::ComputeUnknownFieldsSize(
+        _internal_metadata_.unknown_fields());
   }
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
   // int32 target_id = 5;
   if (this->target_id() != 0) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::Int32Size(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
         this->target_id());
   }
 
@@ -10735,14 +11317,14 @@ size_t Target::ByteSizeLong() const {
     // .google.firestore.v1.Target.QueryTarget query = 2;
     case kQuery: {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSize(
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
           *target_type_.query_);
       break;
     }
     // .google.firestore.v1.Target.DocumentsTarget documents = 3;
     case kDocuments: {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSize(
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
           *target_type_.documents_);
       break;
     }
@@ -10754,14 +11336,14 @@ size_t Target::ByteSizeLong() const {
     // bytes resume_token = 4;
     case kResumeToken: {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::BytesSize(
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
           this->resume_token());
       break;
     }
     // .google.protobuf.Timestamp read_time = 11;
     case kReadTime: {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSize(
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
           *resume_type_.read_time_);
       break;
     }
@@ -10769,22 +11351,20 @@ size_t Target::ByteSizeLong() const {
       break;
     }
   }
-  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = cached_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
   return total_size;
 }
 
-void Target::MergeFrom(const ::google::protobuf::Message& from) {
+void Target::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_merge_from_start:google.firestore.v1.Target)
   GOOGLE_DCHECK_NE(&from, this);
   const Target* source =
-      ::google::protobuf::internal::DynamicCastToGenerated<const Target>(
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<Target>(
           &from);
-  if (source == NULL) {
+  if (source == nullptr) {
   // @@protoc_insertion_point(generalized_merge_from_cast_fail:google.firestore.v1.Target)
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
   } else {
   // @@protoc_insertion_point(generalized_merge_from_cast_success:google.firestore.v1.Target)
     MergeFrom(*source);
@@ -10795,7 +11375,7 @@ void Target::MergeFrom(const Target& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.Target)
   GOOGLE_DCHECK_NE(&from, this);
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   if (from.target_id() != 0) {
@@ -10823,7 +11403,7 @@ void Target::MergeFrom(const Target& from) {
       break;
     }
     case kReadTime: {
-      mutable_read_time()->::google::protobuf::Timestamp::MergeFrom(from.read_time());
+      mutable_read_time()->PROTOBUF_NAMESPACE_ID::Timestamp::MergeFrom(from.read_time());
       break;
     }
     case RESUME_TYPE_NOT_SET: {
@@ -10832,7 +11412,7 @@ void Target::MergeFrom(const Target& from) {
   }
 }
 
-void Target::CopyFrom(const ::google::protobuf::Message& from) {
+void Target::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_copy_from_start:google.firestore.v1.Target)
   if (&from == this) return;
   Clear();
@@ -10850,25 +11430,19 @@ bool Target::IsInitialized() const {
   return true;
 }
 
-void Target::Swap(Target* other) {
-  if (other == this) return;
-  InternalSwap(other);
-}
 void Target::InternalSwap(Target* other) {
   using std::swap;
+  _internal_metadata_.Swap(&other->_internal_metadata_);
   swap(target_id_, other->target_id_);
   swap(once_, other->once_);
   swap(target_type_, other->target_type_);
-  swap(_oneof_case_[0], other->_oneof_case_[0]);
   swap(resume_type_, other->resume_type_);
+  swap(_oneof_case_[0], other->_oneof_case_[0]);
   swap(_oneof_case_[1], other->_oneof_case_[1]);
-  _internal_metadata_.Swap(&other->_internal_metadata_);
-  swap(_cached_size_, other->_cached_size_);
 }
 
-::google::protobuf::Metadata Target::GetMetadata() const {
-  protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages];
+::PROTOBUF_NAMESPACE_ID::Metadata Target::GetMetadata() const {
+  return GetMetadataStatic();
 }
 
 
@@ -10877,67 +11451,69 @@ void Target::InternalSwap(Target* other) {
 void TargetChange::InitAsDefaultInstance() {
   ::google::firestore::v1::_TargetChange_default_instance_._instance.get_mutable()->cause_ = const_cast< ::google::rpc::Status*>(
       ::google::rpc::Status::internal_default_instance());
-  ::google::firestore::v1::_TargetChange_default_instance_._instance.get_mutable()->read_time_ = const_cast< ::google::protobuf::Timestamp*>(
-      ::google::protobuf::Timestamp::internal_default_instance());
+  ::google::firestore::v1::_TargetChange_default_instance_._instance.get_mutable()->read_time_ = const_cast< PROTOBUF_NAMESPACE_ID::Timestamp*>(
+      PROTOBUF_NAMESPACE_ID::Timestamp::internal_default_instance());
+}
+class TargetChange::_Internal {
+ public:
+  static const ::google::rpc::Status& cause(const TargetChange* msg);
+  static const PROTOBUF_NAMESPACE_ID::Timestamp& read_time(const TargetChange* msg);
+};
+
+const ::google::rpc::Status&
+TargetChange::_Internal::cause(const TargetChange* msg) {
+  return *msg->cause_;
+}
+const PROTOBUF_NAMESPACE_ID::Timestamp&
+TargetChange::_Internal::read_time(const TargetChange* msg) {
+  return *msg->read_time_;
 }
 void TargetChange::clear_cause() {
-  if (GetArenaNoVirtual() == NULL && cause_ != NULL) {
+  if (GetArenaNoVirtual() == nullptr && cause_ != nullptr) {
     delete cause_;
   }
-  cause_ = NULL;
+  cause_ = nullptr;
 }
 void TargetChange::clear_read_time() {
-  if (GetArenaNoVirtual() == NULL && read_time_ != NULL) {
+  if (GetArenaNoVirtual() == nullptr && read_time_ != nullptr) {
     delete read_time_;
   }
-  read_time_ = NULL;
+  read_time_ = nullptr;
 }
-#if !defined(_MSC_VER) || _MSC_VER >= 1900
-const int TargetChange::kTargetChangeTypeFieldNumber;
-const int TargetChange::kTargetIdsFieldNumber;
-const int TargetChange::kCauseFieldNumber;
-const int TargetChange::kResumeTokenFieldNumber;
-const int TargetChange::kReadTimeFieldNumber;
-#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
-
 TargetChange::TargetChange()
-  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
-  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
-    ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsTargetChange();
-  }
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:google.firestore.v1.TargetChange)
 }
 TargetChange::TargetChange(const TargetChange& from)
-  : ::google::protobuf::Message(),
-      _internal_metadata_(NULL),
-      target_ids_(from.target_ids_),
-      _cached_size_(0) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
+      _internal_metadata_(nullptr),
+      target_ids_(from.target_ids_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  resume_token_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  if (from.resume_token().size() > 0) {
-    resume_token_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.resume_token_);
+  resume_token_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from.resume_token().empty()) {
+    resume_token_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.resume_token_);
   }
   if (from.has_cause()) {
     cause_ = new ::google::rpc::Status(*from.cause_);
   } else {
-    cause_ = NULL;
+    cause_ = nullptr;
   }
   if (from.has_read_time()) {
-    read_time_ = new ::google::protobuf::Timestamp(*from.read_time_);
+    read_time_ = new PROTOBUF_NAMESPACE_ID::Timestamp(*from.read_time_);
   } else {
-    read_time_ = NULL;
+    read_time_ = nullptr;
   }
   target_change_type_ = from.target_change_type_;
   // @@protoc_insertion_point(copy_constructor:google.firestore.v1.TargetChange)
 }
 
 void TargetChange::SharedCtor() {
-  resume_token_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_TargetChange_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
+  resume_token_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   ::memset(&cause_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&target_change_type_) -
       reinterpret_cast<char*>(&cause_)) + sizeof(target_change_type_));
-  _cached_size_ = 0;
 }
 
 TargetChange::~TargetChange() {
@@ -10946,71 +11522,123 @@ TargetChange::~TargetChange() {
 }
 
 void TargetChange::SharedDtor() {
-  resume_token_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  resume_token_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   if (this != internal_default_instance()) delete cause_;
   if (this != internal_default_instance()) delete read_time_;
 }
 
 void TargetChange::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  _cached_size_.Set(size);
 }
-const ::google::protobuf::Descriptor* TargetChange::descriptor() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages].descriptor;
-}
-
 const TargetChange& TargetChange::default_instance() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsTargetChange();
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_TargetChange_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
   return *internal_default_instance();
 }
 
-TargetChange* TargetChange::New(::google::protobuf::Arena* arena) const {
-  TargetChange* n = new TargetChange;
-  if (arena != NULL) {
-    arena->Own(n);
-  }
-  return n;
-}
 
 void TargetChange::Clear() {
 // @@protoc_insertion_point(message_clear_start:google.firestore.v1.TargetChange)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
   target_ids_.Clear();
-  resume_token_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  if (GetArenaNoVirtual() == NULL && cause_ != NULL) {
+  resume_token_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (GetArenaNoVirtual() == nullptr && cause_ != nullptr) {
     delete cause_;
   }
-  cause_ = NULL;
-  if (GetArenaNoVirtual() == NULL && read_time_ != NULL) {
+  cause_ = nullptr;
+  if (GetArenaNoVirtual() == nullptr && read_time_ != nullptr) {
     delete read_time_;
   }
-  read_time_ = NULL;
+  read_time_ = nullptr;
   target_change_type_ = 0;
   _internal_metadata_.Clear();
 }
 
+#if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
+const char* TargetChange::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    CHK_(ptr);
+    switch (tag >> 3) {
+      // .google.firestore.v1.TargetChange.TargetChangeType target_change_type = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
+          ::PROTOBUF_NAMESPACE_ID::uint64 val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
+          CHK_(ptr);
+          set_target_change_type(static_cast<::google::firestore::v1::TargetChange_TargetChangeType>(val));
+        } else goto handle_unusual;
+        continue;
+      // repeated int32 target_ids = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedInt32Parser(mutable_target_ids(), ptr, ctx);
+          CHK_(ptr);
+        } else if (static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16) {
+          add_target_ids(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr));
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // .google.rpc.Status cause = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
+          ptr = ctx->ParseMessage(mutable_cause(), ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // bytes resume_token = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(mutable_resume_token(), ptr, ctx);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // .google.protobuf.Timestamp read_time = 6;
+      case 6:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 50)) {
+          ptr = ctx->ParseMessage(mutable_read_time(), ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
+    }  // switch
+  }  // while
+success:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto success;
+#undef CHK_
+}
+#else  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 bool TargetChange::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
+    ::PROTOBUF_NAMESPACE_ID::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!PROTOBUF_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::PROTOBUF_NAMESPACE_ID::uint32 tag;
   // @@protoc_insertion_point(parse_start:google.firestore.v1.TargetChange)
   for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    ::std::pair<::PROTOBUF_NAMESPACE_ID::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
     tag = p.first;
     if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+    switch (::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::GetTagFieldNumber(tag)) {
       // .google.firestore.v1.TargetChange.TargetChangeType target_change_type = 1;
       case 1: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(8u /* 8 & 0xFF */)) {
-          int value;
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   int, ::google::protobuf::internal::WireFormatLite::TYPE_ENUM>(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (8 & 0xFF)) {
+          int value = 0;
+          DO_((::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadPrimitive<
+                   int, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_ENUM>(
                  input, &value)));
           set_target_change_type(static_cast< ::google::firestore::v1::TargetChange_TargetChangeType >(value));
         } else {
@@ -11021,16 +11649,13 @@ bool TargetChange::MergePartialFromCodedStream(
 
       // repeated int32 target_ids = 2;
       case 2: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(18u /* 18 & 0xFF */)) {
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitive<
-                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (18 & 0xFF)) {
+          DO_((::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadPackedPrimitive<
+                   ::PROTOBUF_NAMESPACE_ID::int32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32>(
                  input, this->mutable_target_ids())));
-        } else if (
-            static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(16u /* 16 & 0xFF */)) {
-          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
-                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+        } else if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (16 & 0xFF)) {
+          DO_((::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
+                   ::PROTOBUF_NAMESPACE_ID::int32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32>(
                  1, 18u, input, this->mutable_target_ids())));
         } else {
           goto handle_unusual;
@@ -11040,9 +11665,8 @@ bool TargetChange::MergePartialFromCodedStream(
 
       // .google.rpc.Status cause = 3;
       case 3: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(26u /* 26 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (26 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
                input, mutable_cause()));
         } else {
           goto handle_unusual;
@@ -11052,9 +11676,8 @@ bool TargetChange::MergePartialFromCodedStream(
 
       // bytes resume_token = 4;
       case 4: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(34u /* 34 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadBytes(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (34 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadBytes(
                 input, this->mutable_resume_token()));
         } else {
           goto handle_unusual;
@@ -11064,9 +11687,8 @@ bool TargetChange::MergePartialFromCodedStream(
 
       // .google.protobuf.Timestamp read_time = 6;
       case 6: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(50u /* 50 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (50 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
                input, mutable_read_time()));
         } else {
           goto handle_unusual;
@@ -11079,7 +11701,7 @@ bool TargetChange::MergePartialFromCodedStream(
         if (tag == 0) {
           goto success;
         }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
+        DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SkipField(
               input, tag, _internal_metadata_.mutable_unknown_fields()));
         break;
       }
@@ -11093,105 +11715,105 @@ failure:
   return false;
 #undef DO_
 }
+#endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 
 void TargetChange::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
+    ::PROTOBUF_NAMESPACE_ID::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:google.firestore.v1.TargetChange)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // .google.firestore.v1.TargetChange.TargetChangeType target_change_type = 1;
   if (this->target_change_type() != 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteEnum(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnum(
       1, this->target_change_type(), output);
   }
 
   // repeated int32 target_ids = 2;
   if (this->target_ids_size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteTag(2, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
-    output->WriteVarint32(static_cast< ::google::protobuf::uint32>(
-        _target_ids_cached_byte_size_));
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteTag(2, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
+    output->WriteVarint32(_target_ids_cached_byte_size_.load(
+        std::memory_order_relaxed));
   }
   for (int i = 0, n = this->target_ids_size(); i < n; i++) {
-    ::google::protobuf::internal::WireFormatLite::WriteInt32NoTag(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32NoTag(
       this->target_ids(i), output);
   }
 
   // .google.rpc.Status cause = 3;
   if (this->has_cause()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      3, *this->cause_, output);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
+      3, _Internal::cause(this), output);
   }
 
   // bytes resume_token = 4;
   if (this->resume_token().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteBytesMaybeAliased(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBytesMaybeAliased(
       4, this->resume_token(), output);
   }
 
   // .google.protobuf.Timestamp read_time = 6;
   if (this->has_read_time()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      6, *this->read_time_, output);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
+      6, _Internal::read_time(this), output);
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
+  if (_internal_metadata_.have_unknown_fields()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFields(
+        _internal_metadata_.unknown_fields(), output);
   }
   // @@protoc_insertion_point(serialize_end:google.firestore.v1.TargetChange)
 }
 
-::google::protobuf::uint8* TargetChange::InternalSerializeWithCachedSizesToArray(
-    bool deterministic, ::google::protobuf::uint8* target) const {
-  (void)deterministic; // Unused
+::PROTOBUF_NAMESPACE_ID::uint8* TargetChange::InternalSerializeWithCachedSizesToArray(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target) const {
   // @@protoc_insertion_point(serialize_to_array_start:google.firestore.v1.TargetChange)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // .google.firestore.v1.TargetChange.TargetChangeType target_change_type = 1;
   if (this->target_change_type() != 0) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteEnumToArray(
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(
       1, this->target_change_type(), target);
   }
 
   // repeated int32 target_ids = 2;
   if (this->target_ids_size() > 0) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteTagToArray(
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteTagToArray(
       2,
-      ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED,
       target);
-    target = ::google::protobuf::io::CodedOutputStream::WriteVarint32ToArray(
-        static_cast< ::google::protobuf::int32>(
-            _target_ids_cached_byte_size_), target);
-    target = ::google::protobuf::internal::WireFormatLite::
+    target = ::PROTOBUF_NAMESPACE_ID::io::CodedOutputStream::WriteVarint32ToArray(
+        _target_ids_cached_byte_size_.load(std::memory_order_relaxed),
+         target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       WriteInt32NoTagToArray(this->target_ids_, target);
   }
 
   // .google.rpc.Status cause = 3;
   if (this->has_cause()) {
-    target = ::google::protobuf::internal::WireFormatLite::
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        3, *this->cause_, deterministic, target);
+        3, _Internal::cause(this), target);
   }
 
   // bytes resume_token = 4;
   if (this->resume_token().size() > 0) {
     target =
-      ::google::protobuf::internal::WireFormatLite::WriteBytesToArray(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBytesToArray(
         4, this->resume_token(), target);
   }
 
   // .google.protobuf.Timestamp read_time = 6;
   if (this->has_read_time()) {
-    target = ::google::protobuf::internal::WireFormatLite::
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        6, *this->read_time_, deterministic, target);
+        6, _Internal::read_time(this), target);
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), target);
+  if (_internal_metadata_.have_unknown_fields()) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.TargetChange)
   return target;
@@ -11201,70 +11823,71 @@ size_t TargetChange::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:google.firestore.v1.TargetChange)
   size_t total_size = 0;
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
+  if (_internal_metadata_.have_unknown_fields()) {
     total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()));
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::ComputeUnknownFieldsSize(
+        _internal_metadata_.unknown_fields());
   }
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
   // repeated int32 target_ids = 2;
   {
-    size_t data_size = ::google::protobuf::internal::WireFormatLite::
+    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       Int32Size(this->target_ids_);
     if (data_size > 0) {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::Int32Size(
-            static_cast< ::google::protobuf::int32>(data_size));
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+            static_cast<::PROTOBUF_NAMESPACE_ID::int32>(data_size));
     }
-    int cached_size = ::google::protobuf::internal::ToCachedSize(data_size);
-    GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-    _target_ids_cached_byte_size_ = cached_size;
-    GOOGLE_SAFE_CONCURRENT_WRITES_END();
+    int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(data_size);
+    _target_ids_cached_byte_size_.store(cached_size,
+                                    std::memory_order_relaxed);
     total_size += data_size;
   }
 
   // bytes resume_token = 4;
   if (this->resume_token().size() > 0) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::BytesSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->resume_token());
   }
 
   // .google.rpc.Status cause = 3;
   if (this->has_cause()) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::MessageSize(
-        *this->cause_);
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
+        *cause_);
   }
 
   // .google.protobuf.Timestamp read_time = 6;
   if (this->has_read_time()) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::MessageSize(
-        *this->read_time_);
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
+        *read_time_);
   }
 
   // .google.firestore.v1.TargetChange.TargetChangeType target_change_type = 1;
   if (this->target_change_type() != 0) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::EnumSize(this->target_change_type());
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->target_change_type());
   }
 
-  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = cached_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
   return total_size;
 }
 
-void TargetChange::MergeFrom(const ::google::protobuf::Message& from) {
+void TargetChange::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_merge_from_start:google.firestore.v1.TargetChange)
   GOOGLE_DCHECK_NE(&from, this);
   const TargetChange* source =
-      ::google::protobuf::internal::DynamicCastToGenerated<const TargetChange>(
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<TargetChange>(
           &from);
-  if (source == NULL) {
+  if (source == nullptr) {
   // @@protoc_insertion_point(generalized_merge_from_cast_fail:google.firestore.v1.TargetChange)
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
   } else {
   // @@protoc_insertion_point(generalized_merge_from_cast_success:google.firestore.v1.TargetChange)
     MergeFrom(*source);
@@ -11275,26 +11898,26 @@ void TargetChange::MergeFrom(const TargetChange& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.TargetChange)
   GOOGLE_DCHECK_NE(&from, this);
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   target_ids_.MergeFrom(from.target_ids_);
   if (from.resume_token().size() > 0) {
 
-    resume_token_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.resume_token_);
+    resume_token_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.resume_token_);
   }
   if (from.has_cause()) {
     mutable_cause()->::google::rpc::Status::MergeFrom(from.cause());
   }
   if (from.has_read_time()) {
-    mutable_read_time()->::google::protobuf::Timestamp::MergeFrom(from.read_time());
+    mutable_read_time()->PROTOBUF_NAMESPACE_ID::Timestamp::MergeFrom(from.read_time());
   }
   if (from.target_change_type() != 0) {
     set_target_change_type(from.target_change_type());
   }
 }
 
-void TargetChange::CopyFrom(const ::google::protobuf::Message& from) {
+void TargetChange::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_copy_from_start:google.firestore.v1.TargetChange)
   if (&from == this) return;
   Clear();
@@ -11312,24 +11935,19 @@ bool TargetChange::IsInitialized() const {
   return true;
 }
 
-void TargetChange::Swap(TargetChange* other) {
-  if (other == this) return;
-  InternalSwap(other);
-}
 void TargetChange::InternalSwap(TargetChange* other) {
   using std::swap;
+  _internal_metadata_.Swap(&other->_internal_metadata_);
   target_ids_.InternalSwap(&other->target_ids_);
-  resume_token_.Swap(&other->resume_token_);
+  resume_token_.Swap(&other->resume_token_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
   swap(cause_, other->cause_);
   swap(read_time_, other->read_time_);
   swap(target_change_type_, other->target_change_type_);
-  _internal_metadata_.Swap(&other->_internal_metadata_);
-  swap(_cached_size_, other->_cached_size_);
 }
 
-::google::protobuf::Metadata TargetChange::GetMetadata() const {
-  protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages];
+::PROTOBUF_NAMESPACE_ID::Metadata TargetChange::GetMetadata() const {
+  return GetMetadataStatic();
 }
 
 
@@ -11337,42 +11955,36 @@ void TargetChange::InternalSwap(TargetChange* other) {
 
 void ListCollectionIdsRequest::InitAsDefaultInstance() {
 }
-#if !defined(_MSC_VER) || _MSC_VER >= 1900
-const int ListCollectionIdsRequest::kParentFieldNumber;
-const int ListCollectionIdsRequest::kPageSizeFieldNumber;
-const int ListCollectionIdsRequest::kPageTokenFieldNumber;
-#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+class ListCollectionIdsRequest::_Internal {
+ public:
+};
 
 ListCollectionIdsRequest::ListCollectionIdsRequest()
-  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
-  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
-    ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsListCollectionIdsRequest();
-  }
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:google.firestore.v1.ListCollectionIdsRequest)
 }
 ListCollectionIdsRequest::ListCollectionIdsRequest(const ListCollectionIdsRequest& from)
-  : ::google::protobuf::Message(),
-      _internal_metadata_(NULL),
-      _cached_size_(0) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
+      _internal_metadata_(nullptr) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  parent_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  if (from.parent().size() > 0) {
-    parent_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.parent_);
+  parent_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from.parent().empty()) {
+    parent_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.parent_);
   }
-  page_token_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  if (from.page_token().size() > 0) {
-    page_token_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.page_token_);
+  page_token_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from.page_token().empty()) {
+    page_token_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.page_token_);
   }
   page_size_ = from.page_size_;
   // @@protoc_insertion_point(copy_constructor:google.firestore.v1.ListCollectionIdsRequest)
 }
 
 void ListCollectionIdsRequest::SharedCtor() {
-  parent_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  page_token_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_ListCollectionIdsRequest_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
+  parent_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  page_token_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   page_size_ = 0;
-  _cached_size_ = 0;
 }
 
 ListCollectionIdsRequest::~ListCollectionIdsRequest() {
@@ -11381,64 +11993,98 @@ ListCollectionIdsRequest::~ListCollectionIdsRequest() {
 }
 
 void ListCollectionIdsRequest::SharedDtor() {
-  parent_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  page_token_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  parent_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  page_token_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 
 void ListCollectionIdsRequest::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  _cached_size_.Set(size);
 }
-const ::google::protobuf::Descriptor* ListCollectionIdsRequest::descriptor() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages].descriptor;
-}
-
 const ListCollectionIdsRequest& ListCollectionIdsRequest::default_instance() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsListCollectionIdsRequest();
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_ListCollectionIdsRequest_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
   return *internal_default_instance();
 }
 
-ListCollectionIdsRequest* ListCollectionIdsRequest::New(::google::protobuf::Arena* arena) const {
-  ListCollectionIdsRequest* n = new ListCollectionIdsRequest;
-  if (arena != NULL) {
-    arena->Own(n);
-  }
-  return n;
-}
 
 void ListCollectionIdsRequest::Clear() {
 // @@protoc_insertion_point(message_clear_start:google.firestore.v1.ListCollectionIdsRequest)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  parent_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  page_token_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  parent_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  page_token_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   page_size_ = 0;
   _internal_metadata_.Clear();
 }
 
+#if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
+const char* ListCollectionIdsRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    CHK_(ptr);
+    switch (tag >> 3) {
+      // string parent = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParserUTF8(mutable_parent(), ptr, ctx, "google.firestore.v1.ListCollectionIdsRequest.parent");
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // int32 page_size = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
+          page_size_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // string page_token = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParserUTF8(mutable_page_token(), ptr, ctx, "google.firestore.v1.ListCollectionIdsRequest.page_token");
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
+    }  // switch
+  }  // while
+success:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto success;
+#undef CHK_
+}
+#else  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 bool ListCollectionIdsRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
+    ::PROTOBUF_NAMESPACE_ID::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!PROTOBUF_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::PROTOBUF_NAMESPACE_ID::uint32 tag;
   // @@protoc_insertion_point(parse_start:google.firestore.v1.ListCollectionIdsRequest)
   for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    ::std::pair<::PROTOBUF_NAMESPACE_ID::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
     tag = p.first;
     if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+    switch (::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::GetTagFieldNumber(tag)) {
       // string parent = 1;
       case 1: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(10u /* 10 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (10 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadString(
                 input, this->mutable_parent()));
-          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
             this->parent().data(), static_cast<int>(this->parent().length()),
-            ::google::protobuf::internal::WireFormatLite::PARSE,
+            ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE,
             "google.firestore.v1.ListCollectionIdsRequest.parent"));
         } else {
           goto handle_unusual;
@@ -11448,11 +12094,10 @@ bool ListCollectionIdsRequest::MergePartialFromCodedStream(
 
       // int32 page_size = 2;
       case 2: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(16u /* 16 & 0xFF */)) {
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (16 & 0xFF)) {
 
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+          DO_((::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadPrimitive<
+                   ::PROTOBUF_NAMESPACE_ID::int32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32>(
                  input, &page_size_)));
         } else {
           goto handle_unusual;
@@ -11462,13 +12107,12 @@ bool ListCollectionIdsRequest::MergePartialFromCodedStream(
 
       // string page_token = 3;
       case 3: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(26u /* 26 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (26 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadString(
                 input, this->mutable_page_token()));
-          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
             this->page_token().data(), static_cast<int>(this->page_token().length()),
-            ::google::protobuf::internal::WireFormatLite::PARSE,
+            ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE,
             "google.firestore.v1.ListCollectionIdsRequest.page_token"));
         } else {
           goto handle_unusual;
@@ -11481,7 +12125,7 @@ bool ListCollectionIdsRequest::MergePartialFromCodedStream(
         if (tag == 0) {
           goto success;
         }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
+        DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SkipField(
               input, tag, _internal_metadata_.mutable_unknown_fields()));
         break;
       }
@@ -11495,82 +12139,82 @@ failure:
   return false;
 #undef DO_
 }
+#endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 
 void ListCollectionIdsRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
+    ::PROTOBUF_NAMESPACE_ID::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:google.firestore.v1.ListCollectionIdsRequest)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // string parent = 1;
   if (this->parent().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->parent().data(), static_cast<int>(this->parent().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.ListCollectionIdsRequest.parent");
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringMaybeAliased(
       1, this->parent(), output);
   }
 
   // int32 page_size = 2;
   if (this->page_size() != 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteInt32(2, this->page_size(), output);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32(2, this->page_size(), output);
   }
 
   // string page_token = 3;
   if (this->page_token().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->page_token().data(), static_cast<int>(this->page_token().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.ListCollectionIdsRequest.page_token");
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringMaybeAliased(
       3, this->page_token(), output);
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
+  if (_internal_metadata_.have_unknown_fields()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFields(
+        _internal_metadata_.unknown_fields(), output);
   }
   // @@protoc_insertion_point(serialize_end:google.firestore.v1.ListCollectionIdsRequest)
 }
 
-::google::protobuf::uint8* ListCollectionIdsRequest::InternalSerializeWithCachedSizesToArray(
-    bool deterministic, ::google::protobuf::uint8* target) const {
-  (void)deterministic; // Unused
+::PROTOBUF_NAMESPACE_ID::uint8* ListCollectionIdsRequest::InternalSerializeWithCachedSizesToArray(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target) const {
   // @@protoc_insertion_point(serialize_to_array_start:google.firestore.v1.ListCollectionIdsRequest)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // string parent = 1;
   if (this->parent().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->parent().data(), static_cast<int>(this->parent().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.ListCollectionIdsRequest.parent");
     target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringToArray(
         1, this->parent(), target);
   }
 
   // int32 page_size = 2;
   if (this->page_size() != 0) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(2, this->page_size(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(2, this->page_size(), target);
   }
 
   // string page_token = 3;
   if (this->page_token().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->page_token().data(), static_cast<int>(this->page_token().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.ListCollectionIdsRequest.page_token");
     target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringToArray(
         3, this->page_token(), target);
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), target);
+  if (_internal_metadata_.have_unknown_fields()) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.ListCollectionIdsRequest)
   return target;
@@ -11580,48 +12224,50 @@ size_t ListCollectionIdsRequest::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:google.firestore.v1.ListCollectionIdsRequest)
   size_t total_size = 0;
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
+  if (_internal_metadata_.have_unknown_fields()) {
     total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()));
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::ComputeUnknownFieldsSize(
+        _internal_metadata_.unknown_fields());
   }
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
   // string parent = 1;
   if (this->parent().size() > 0) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->parent());
   }
 
   // string page_token = 3;
   if (this->page_token().size() > 0) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->page_token());
   }
 
   // int32 page_size = 2;
   if (this->page_size() != 0) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::Int32Size(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
         this->page_size());
   }
 
-  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = cached_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
   return total_size;
 }
 
-void ListCollectionIdsRequest::MergeFrom(const ::google::protobuf::Message& from) {
+void ListCollectionIdsRequest::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_merge_from_start:google.firestore.v1.ListCollectionIdsRequest)
   GOOGLE_DCHECK_NE(&from, this);
   const ListCollectionIdsRequest* source =
-      ::google::protobuf::internal::DynamicCastToGenerated<const ListCollectionIdsRequest>(
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<ListCollectionIdsRequest>(
           &from);
-  if (source == NULL) {
+  if (source == nullptr) {
   // @@protoc_insertion_point(generalized_merge_from_cast_fail:google.firestore.v1.ListCollectionIdsRequest)
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
   } else {
   // @@protoc_insertion_point(generalized_merge_from_cast_success:google.firestore.v1.ListCollectionIdsRequest)
     MergeFrom(*source);
@@ -11632,23 +12278,23 @@ void ListCollectionIdsRequest::MergeFrom(const ListCollectionIdsRequest& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.ListCollectionIdsRequest)
   GOOGLE_DCHECK_NE(&from, this);
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   if (from.parent().size() > 0) {
 
-    parent_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.parent_);
+    parent_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.parent_);
   }
   if (from.page_token().size() > 0) {
 
-    page_token_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.page_token_);
+    page_token_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.page_token_);
   }
   if (from.page_size() != 0) {
     set_page_size(from.page_size());
   }
 }
 
-void ListCollectionIdsRequest::CopyFrom(const ::google::protobuf::Message& from) {
+void ListCollectionIdsRequest::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_copy_from_start:google.firestore.v1.ListCollectionIdsRequest)
   if (&from == this) return;
   Clear();
@@ -11666,22 +12312,18 @@ bool ListCollectionIdsRequest::IsInitialized() const {
   return true;
 }
 
-void ListCollectionIdsRequest::Swap(ListCollectionIdsRequest* other) {
-  if (other == this) return;
-  InternalSwap(other);
-}
 void ListCollectionIdsRequest::InternalSwap(ListCollectionIdsRequest* other) {
   using std::swap;
-  parent_.Swap(&other->parent_);
-  page_token_.Swap(&other->page_token_);
-  swap(page_size_, other->page_size_);
   _internal_metadata_.Swap(&other->_internal_metadata_);
-  swap(_cached_size_, other->_cached_size_);
+  parent_.Swap(&other->parent_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
+  page_token_.Swap(&other->page_token_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
+  swap(page_size_, other->page_size_);
 }
 
-::google::protobuf::Metadata ListCollectionIdsRequest::GetMetadata() const {
-  protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages];
+::PROTOBUF_NAMESPACE_ID::Metadata ListCollectionIdsRequest::GetMetadata() const {
+  return GetMetadataStatic();
 }
 
 
@@ -11689,35 +12331,30 @@ void ListCollectionIdsRequest::InternalSwap(ListCollectionIdsRequest* other) {
 
 void ListCollectionIdsResponse::InitAsDefaultInstance() {
 }
-#if !defined(_MSC_VER) || _MSC_VER >= 1900
-const int ListCollectionIdsResponse::kCollectionIdsFieldNumber;
-const int ListCollectionIdsResponse::kNextPageTokenFieldNumber;
-#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+class ListCollectionIdsResponse::_Internal {
+ public:
+};
 
 ListCollectionIdsResponse::ListCollectionIdsResponse()
-  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
-  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
-    ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsListCollectionIdsResponse();
-  }
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:google.firestore.v1.ListCollectionIdsResponse)
 }
 ListCollectionIdsResponse::ListCollectionIdsResponse(const ListCollectionIdsResponse& from)
-  : ::google::protobuf::Message(),
-      _internal_metadata_(NULL),
-      collection_ids_(from.collection_ids_),
-      _cached_size_(0) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
+      _internal_metadata_(nullptr),
+      collection_ids_(from.collection_ids_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  next_page_token_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  if (from.next_page_token().size() > 0) {
-    next_page_token_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.next_page_token_);
+  next_page_token_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from.next_page_token().empty()) {
+    next_page_token_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.next_page_token_);
   }
   // @@protoc_insertion_point(copy_constructor:google.firestore.v1.ListCollectionIdsResponse)
 }
 
 void ListCollectionIdsResponse::SharedCtor() {
-  next_page_token_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  _cached_size_ = 0;
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_ListCollectionIdsResponse_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
+  next_page_token_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 
 ListCollectionIdsResponse::~ListCollectionIdsResponse() {
@@ -11726,63 +12363,95 @@ ListCollectionIdsResponse::~ListCollectionIdsResponse() {
 }
 
 void ListCollectionIdsResponse::SharedDtor() {
-  next_page_token_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  next_page_token_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 
 void ListCollectionIdsResponse::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  _cached_size_.Set(size);
 }
-const ::google::protobuf::Descriptor* ListCollectionIdsResponse::descriptor() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages].descriptor;
-}
-
 const ListCollectionIdsResponse& ListCollectionIdsResponse::default_instance() {
-  ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::InitDefaultsListCollectionIdsResponse();
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_ListCollectionIdsResponse_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
   return *internal_default_instance();
 }
 
-ListCollectionIdsResponse* ListCollectionIdsResponse::New(::google::protobuf::Arena* arena) const {
-  ListCollectionIdsResponse* n = new ListCollectionIdsResponse;
-  if (arena != NULL) {
-    arena->Own(n);
-  }
-  return n;
-}
 
 void ListCollectionIdsResponse::Clear() {
 // @@protoc_insertion_point(message_clear_start:google.firestore.v1.ListCollectionIdsResponse)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
   collection_ids_.Clear();
-  next_page_token_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  next_page_token_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   _internal_metadata_.Clear();
 }
 
+#if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
+const char* ListCollectionIdsResponse::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    CHK_(ptr);
+    switch (tag >> 3) {
+      // repeated string collection_ids = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
+          ptr -= 1;
+          do {
+            ptr += 1;
+            ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParserUTF8(add_collection_ids(), ptr, ctx, "google.firestore.v1.ListCollectionIdsResponse.collection_ids");
+            CHK_(ptr);
+            if (!ctx->DataAvailable(ptr)) break;
+          } while (::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<::PROTOBUF_NAMESPACE_ID::uint8>(ptr) == 10);
+        } else goto handle_unusual;
+        continue;
+      // string next_page_token = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParserUTF8(mutable_next_page_token(), ptr, ctx, "google.firestore.v1.ListCollectionIdsResponse.next_page_token");
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
+    }  // switch
+  }  // while
+success:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto success;
+#undef CHK_
+}
+#else  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 bool ListCollectionIdsResponse::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
+    ::PROTOBUF_NAMESPACE_ID::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!PROTOBUF_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::PROTOBUF_NAMESPACE_ID::uint32 tag;
   // @@protoc_insertion_point(parse_start:google.firestore.v1.ListCollectionIdsResponse)
   for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    ::std::pair<::PROTOBUF_NAMESPACE_ID::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
     tag = p.first;
     if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+    switch (::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::GetTagFieldNumber(tag)) {
       // repeated string collection_ids = 1;
       case 1: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(10u /* 10 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (10 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadString(
                 input, this->add_collection_ids()));
-          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
             this->collection_ids(this->collection_ids_size() - 1).data(),
             static_cast<int>(this->collection_ids(this->collection_ids_size() - 1).length()),
-            ::google::protobuf::internal::WireFormatLite::PARSE,
+            ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE,
             "google.firestore.v1.ListCollectionIdsResponse.collection_ids"));
         } else {
           goto handle_unusual;
@@ -11792,13 +12461,12 @@ bool ListCollectionIdsResponse::MergePartialFromCodedStream(
 
       // string next_page_token = 2;
       case 2: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(18u /* 18 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (18 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadString(
                 input, this->mutable_next_page_token()));
-          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
             this->next_page_token().data(), static_cast<int>(this->next_page_token().length()),
-            ::google::protobuf::internal::WireFormatLite::PARSE,
+            ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE,
             "google.firestore.v1.ListCollectionIdsResponse.next_page_token"));
         } else {
           goto handle_unusual;
@@ -11811,7 +12479,7 @@ bool ListCollectionIdsResponse::MergePartialFromCodedStream(
         if (tag == 0) {
           goto success;
         }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
+        DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SkipField(
               input, tag, _internal_metadata_.mutable_unknown_fields()));
         break;
       }
@@ -11825,71 +12493,71 @@ failure:
   return false;
 #undef DO_
 }
+#endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 
 void ListCollectionIdsResponse::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
+    ::PROTOBUF_NAMESPACE_ID::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:google.firestore.v1.ListCollectionIdsResponse)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // repeated string collection_ids = 1;
   for (int i = 0, n = this->collection_ids_size(); i < n; i++) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->collection_ids(i).data(), static_cast<int>(this->collection_ids(i).length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.ListCollectionIdsResponse.collection_ids");
-    ::google::protobuf::internal::WireFormatLite::WriteString(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteString(
       1, this->collection_ids(i), output);
   }
 
   // string next_page_token = 2;
   if (this->next_page_token().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->next_page_token().data(), static_cast<int>(this->next_page_token().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.ListCollectionIdsResponse.next_page_token");
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringMaybeAliased(
       2, this->next_page_token(), output);
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
+  if (_internal_metadata_.have_unknown_fields()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFields(
+        _internal_metadata_.unknown_fields(), output);
   }
   // @@protoc_insertion_point(serialize_end:google.firestore.v1.ListCollectionIdsResponse)
 }
 
-::google::protobuf::uint8* ListCollectionIdsResponse::InternalSerializeWithCachedSizesToArray(
-    bool deterministic, ::google::protobuf::uint8* target) const {
-  (void)deterministic; // Unused
+::PROTOBUF_NAMESPACE_ID::uint8* ListCollectionIdsResponse::InternalSerializeWithCachedSizesToArray(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target) const {
   // @@protoc_insertion_point(serialize_to_array_start:google.firestore.v1.ListCollectionIdsResponse)
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // repeated string collection_ids = 1;
   for (int i = 0, n = this->collection_ids_size(); i < n; i++) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->collection_ids(i).data(), static_cast<int>(this->collection_ids(i).length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.ListCollectionIdsResponse.collection_ids");
-    target = ::google::protobuf::internal::WireFormatLite::
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       WriteStringToArray(1, this->collection_ids(i), target);
   }
 
   // string next_page_token = 2;
   if (this->next_page_token().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->next_page_token().data(), static_cast<int>(this->next_page_token().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.ListCollectionIdsResponse.next_page_token");
     target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringToArray(
         2, this->next_page_token(), target);
   }
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), target);
+  if (_internal_metadata_.have_unknown_fields()) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.ListCollectionIdsResponse)
   return target;
@@ -11899,42 +12567,44 @@ size_t ListCollectionIdsResponse::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:google.firestore.v1.ListCollectionIdsResponse)
   size_t total_size = 0;
 
-  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
+  if (_internal_metadata_.have_unknown_fields()) {
     total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()));
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::ComputeUnknownFieldsSize(
+        _internal_metadata_.unknown_fields());
   }
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
   // repeated string collection_ids = 1;
   total_size += 1 *
-      ::google::protobuf::internal::FromIntSize(this->collection_ids_size());
+      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->collection_ids_size());
   for (int i = 0, n = this->collection_ids_size(); i < n; i++) {
-    total_size += ::google::protobuf::internal::WireFormatLite::StringSize(
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
       this->collection_ids(i));
   }
 
   // string next_page_token = 2;
   if (this->next_page_token().size() > 0) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->next_page_token());
   }
 
-  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = cached_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
   return total_size;
 }
 
-void ListCollectionIdsResponse::MergeFrom(const ::google::protobuf::Message& from) {
+void ListCollectionIdsResponse::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_merge_from_start:google.firestore.v1.ListCollectionIdsResponse)
   GOOGLE_DCHECK_NE(&from, this);
   const ListCollectionIdsResponse* source =
-      ::google::protobuf::internal::DynamicCastToGenerated<const ListCollectionIdsResponse>(
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<ListCollectionIdsResponse>(
           &from);
-  if (source == NULL) {
+  if (source == nullptr) {
   // @@protoc_insertion_point(generalized_merge_from_cast_fail:google.firestore.v1.ListCollectionIdsResponse)
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
   } else {
   // @@protoc_insertion_point(generalized_merge_from_cast_success:google.firestore.v1.ListCollectionIdsResponse)
     MergeFrom(*source);
@@ -11945,17 +12615,17 @@ void ListCollectionIdsResponse::MergeFrom(const ListCollectionIdsResponse& from)
 // @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.ListCollectionIdsResponse)
   GOOGLE_DCHECK_NE(&from, this);
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  ::google::protobuf::uint32 cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   collection_ids_.MergeFrom(from.collection_ids_);
   if (from.next_page_token().size() > 0) {
 
-    next_page_token_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.next_page_token_);
+    next_page_token_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.next_page_token_);
   }
 }
 
-void ListCollectionIdsResponse::CopyFrom(const ::google::protobuf::Message& from) {
+void ListCollectionIdsResponse::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_copy_from_start:google.firestore.v1.ListCollectionIdsResponse)
   if (&from == this) return;
   Clear();
@@ -11973,21 +12643,16 @@ bool ListCollectionIdsResponse::IsInitialized() const {
   return true;
 }
 
-void ListCollectionIdsResponse::Swap(ListCollectionIdsResponse* other) {
-  if (other == this) return;
-  InternalSwap(other);
-}
 void ListCollectionIdsResponse::InternalSwap(ListCollectionIdsResponse* other) {
   using std::swap;
-  collection_ids_.InternalSwap(&other->collection_ids_);
-  next_page_token_.Swap(&other->next_page_token_);
   _internal_metadata_.Swap(&other->_internal_metadata_);
-  swap(_cached_size_, other->_cached_size_);
+  collection_ids_.InternalSwap(CastToBase(&other->collection_ids_));
+  next_page_token_.Swap(&other->next_page_token_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
 }
 
-::google::protobuf::Metadata ListCollectionIdsResponse::GetMetadata() const {
-  protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_google_2ffirestore_2fv1_2ffirestore_2eproto::file_level_metadata[kIndexInFileMessages];
+::PROTOBUF_NAMESPACE_ID::Metadata ListCollectionIdsResponse::GetMetadata() const {
+  return GetMetadataStatic();
 }
 
 
@@ -11995,5 +12660,89 @@ void ListCollectionIdsResponse::InternalSwap(ListCollectionIdsResponse* other) {
 }  // namespace v1
 }  // namespace firestore
 }  // namespace google
+PROTOBUF_NAMESPACE_OPEN
+template<> PROTOBUF_NOINLINE ::google::firestore::v1::GetDocumentRequest* Arena::CreateMaybeMessage< ::google::firestore::v1::GetDocumentRequest >(Arena* arena) {
+  return Arena::CreateInternal< ::google::firestore::v1::GetDocumentRequest >(arena);
+}
+template<> PROTOBUF_NOINLINE ::google::firestore::v1::ListDocumentsRequest* Arena::CreateMaybeMessage< ::google::firestore::v1::ListDocumentsRequest >(Arena* arena) {
+  return Arena::CreateInternal< ::google::firestore::v1::ListDocumentsRequest >(arena);
+}
+template<> PROTOBUF_NOINLINE ::google::firestore::v1::ListDocumentsResponse* Arena::CreateMaybeMessage< ::google::firestore::v1::ListDocumentsResponse >(Arena* arena) {
+  return Arena::CreateInternal< ::google::firestore::v1::ListDocumentsResponse >(arena);
+}
+template<> PROTOBUF_NOINLINE ::google::firestore::v1::CreateDocumentRequest* Arena::CreateMaybeMessage< ::google::firestore::v1::CreateDocumentRequest >(Arena* arena) {
+  return Arena::CreateInternal< ::google::firestore::v1::CreateDocumentRequest >(arena);
+}
+template<> PROTOBUF_NOINLINE ::google::firestore::v1::UpdateDocumentRequest* Arena::CreateMaybeMessage< ::google::firestore::v1::UpdateDocumentRequest >(Arena* arena) {
+  return Arena::CreateInternal< ::google::firestore::v1::UpdateDocumentRequest >(arena);
+}
+template<> PROTOBUF_NOINLINE ::google::firestore::v1::DeleteDocumentRequest* Arena::CreateMaybeMessage< ::google::firestore::v1::DeleteDocumentRequest >(Arena* arena) {
+  return Arena::CreateInternal< ::google::firestore::v1::DeleteDocumentRequest >(arena);
+}
+template<> PROTOBUF_NOINLINE ::google::firestore::v1::BatchGetDocumentsRequest* Arena::CreateMaybeMessage< ::google::firestore::v1::BatchGetDocumentsRequest >(Arena* arena) {
+  return Arena::CreateInternal< ::google::firestore::v1::BatchGetDocumentsRequest >(arena);
+}
+template<> PROTOBUF_NOINLINE ::google::firestore::v1::BatchGetDocumentsResponse* Arena::CreateMaybeMessage< ::google::firestore::v1::BatchGetDocumentsResponse >(Arena* arena) {
+  return Arena::CreateInternal< ::google::firestore::v1::BatchGetDocumentsResponse >(arena);
+}
+template<> PROTOBUF_NOINLINE ::google::firestore::v1::BeginTransactionRequest* Arena::CreateMaybeMessage< ::google::firestore::v1::BeginTransactionRequest >(Arena* arena) {
+  return Arena::CreateInternal< ::google::firestore::v1::BeginTransactionRequest >(arena);
+}
+template<> PROTOBUF_NOINLINE ::google::firestore::v1::BeginTransactionResponse* Arena::CreateMaybeMessage< ::google::firestore::v1::BeginTransactionResponse >(Arena* arena) {
+  return Arena::CreateInternal< ::google::firestore::v1::BeginTransactionResponse >(arena);
+}
+template<> PROTOBUF_NOINLINE ::google::firestore::v1::CommitRequest* Arena::CreateMaybeMessage< ::google::firestore::v1::CommitRequest >(Arena* arena) {
+  return Arena::CreateInternal< ::google::firestore::v1::CommitRequest >(arena);
+}
+template<> PROTOBUF_NOINLINE ::google::firestore::v1::CommitResponse* Arena::CreateMaybeMessage< ::google::firestore::v1::CommitResponse >(Arena* arena) {
+  return Arena::CreateInternal< ::google::firestore::v1::CommitResponse >(arena);
+}
+template<> PROTOBUF_NOINLINE ::google::firestore::v1::RollbackRequest* Arena::CreateMaybeMessage< ::google::firestore::v1::RollbackRequest >(Arena* arena) {
+  return Arena::CreateInternal< ::google::firestore::v1::RollbackRequest >(arena);
+}
+template<> PROTOBUF_NOINLINE ::google::firestore::v1::RunQueryRequest* Arena::CreateMaybeMessage< ::google::firestore::v1::RunQueryRequest >(Arena* arena) {
+  return Arena::CreateInternal< ::google::firestore::v1::RunQueryRequest >(arena);
+}
+template<> PROTOBUF_NOINLINE ::google::firestore::v1::RunQueryResponse* Arena::CreateMaybeMessage< ::google::firestore::v1::RunQueryResponse >(Arena* arena) {
+  return Arena::CreateInternal< ::google::firestore::v1::RunQueryResponse >(arena);
+}
+template<> PROTOBUF_NOINLINE ::google::firestore::v1::WriteRequest_LabelsEntry_DoNotUse* Arena::CreateMaybeMessage< ::google::firestore::v1::WriteRequest_LabelsEntry_DoNotUse >(Arena* arena) {
+  return Arena::CreateInternal< ::google::firestore::v1::WriteRequest_LabelsEntry_DoNotUse >(arena);
+}
+template<> PROTOBUF_NOINLINE ::google::firestore::v1::WriteRequest* Arena::CreateMaybeMessage< ::google::firestore::v1::WriteRequest >(Arena* arena) {
+  return Arena::CreateInternal< ::google::firestore::v1::WriteRequest >(arena);
+}
+template<> PROTOBUF_NOINLINE ::google::firestore::v1::WriteResponse* Arena::CreateMaybeMessage< ::google::firestore::v1::WriteResponse >(Arena* arena) {
+  return Arena::CreateInternal< ::google::firestore::v1::WriteResponse >(arena);
+}
+template<> PROTOBUF_NOINLINE ::google::firestore::v1::ListenRequest_LabelsEntry_DoNotUse* Arena::CreateMaybeMessage< ::google::firestore::v1::ListenRequest_LabelsEntry_DoNotUse >(Arena* arena) {
+  return Arena::CreateInternal< ::google::firestore::v1::ListenRequest_LabelsEntry_DoNotUse >(arena);
+}
+template<> PROTOBUF_NOINLINE ::google::firestore::v1::ListenRequest* Arena::CreateMaybeMessage< ::google::firestore::v1::ListenRequest >(Arena* arena) {
+  return Arena::CreateInternal< ::google::firestore::v1::ListenRequest >(arena);
+}
+template<> PROTOBUF_NOINLINE ::google::firestore::v1::ListenResponse* Arena::CreateMaybeMessage< ::google::firestore::v1::ListenResponse >(Arena* arena) {
+  return Arena::CreateInternal< ::google::firestore::v1::ListenResponse >(arena);
+}
+template<> PROTOBUF_NOINLINE ::google::firestore::v1::Target_DocumentsTarget* Arena::CreateMaybeMessage< ::google::firestore::v1::Target_DocumentsTarget >(Arena* arena) {
+  return Arena::CreateInternal< ::google::firestore::v1::Target_DocumentsTarget >(arena);
+}
+template<> PROTOBUF_NOINLINE ::google::firestore::v1::Target_QueryTarget* Arena::CreateMaybeMessage< ::google::firestore::v1::Target_QueryTarget >(Arena* arena) {
+  return Arena::CreateInternal< ::google::firestore::v1::Target_QueryTarget >(arena);
+}
+template<> PROTOBUF_NOINLINE ::google::firestore::v1::Target* Arena::CreateMaybeMessage< ::google::firestore::v1::Target >(Arena* arena) {
+  return Arena::CreateInternal< ::google::firestore::v1::Target >(arena);
+}
+template<> PROTOBUF_NOINLINE ::google::firestore::v1::TargetChange* Arena::CreateMaybeMessage< ::google::firestore::v1::TargetChange >(Arena* arena) {
+  return Arena::CreateInternal< ::google::firestore::v1::TargetChange >(arena);
+}
+template<> PROTOBUF_NOINLINE ::google::firestore::v1::ListCollectionIdsRequest* Arena::CreateMaybeMessage< ::google::firestore::v1::ListCollectionIdsRequest >(Arena* arena) {
+  return Arena::CreateInternal< ::google::firestore::v1::ListCollectionIdsRequest >(arena);
+}
+template<> PROTOBUF_NOINLINE ::google::firestore::v1::ListCollectionIdsResponse* Arena::CreateMaybeMessage< ::google::firestore::v1::ListCollectionIdsResponse >(Arena* arena) {
+  return Arena::CreateInternal< ::google::firestore::v1::ListCollectionIdsResponse >(arena);
+}
+PROTOBUF_NAMESPACE_CLOSE
 
 // @@protoc_insertion_point(global_scope)
+#include <google/protobuf/port_undef.inc>

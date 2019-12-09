@@ -83,8 +83,10 @@
   XCTAssertTrue([FIRMessagingContextManagerService handleContextManagerMessage:message]);
 
   XCTAssertEqual(self.scheduledLocalNotifications.count, 1);
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   UILocalNotification *notification = [self.scheduledLocalNotifications firstObject];
+#pragma clang diagnostic pop
   NSDate *date = [self.dateFormatter dateFromString:startTimeString];
   XCTAssertEqual([notification.fireDate compare:date], NSOrderedSame);
 #endif
@@ -134,7 +136,10 @@
   XCTAssertTrue([FIRMessagingContextManagerService handleContextManagerMessage:message]);
 
   XCTAssertEqual(self.scheduledLocalNotifications.count, 1);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   UILocalNotification *notification = [self.scheduledLocalNotifications firstObject];
+#pragma clang diagnostic pop
   // schedule notification after start date
   XCTAssertEqual([notification.fireDate compare:startDate], NSOrderedDescending);
   // schedule notification after end date
@@ -163,7 +168,10 @@
   XCTAssertTrue([FIRMessagingContextManagerService handleContextManagerMessage:message]);
 
   XCTAssertEqual(self.scheduledLocalNotifications.count, 1);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   UILocalNotification *notification = [self.scheduledLocalNotifications firstObject];
+#pragma clang diagnostic pop
   XCTAssertEqualObjects(notification.userInfo[messageIdentifierKey], messageIdentifier);
   XCTAssertEqualObjects(notification.userInfo[customDataKey], customData);
 #endif
@@ -175,6 +183,8 @@
 - (void)mockSchedulingLocalNotifications {
 #if TARGET_OS_IOS
   id mockApplication = OCMPartialMock([UIApplication sharedApplication]);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   __block UILocalNotification *notificationToSchedule;
   [[[mockApplication stub]
       andDo:^(NSInvocation *invocation) {
@@ -189,6 +199,7 @@
         }
         return NO;
       }]];
+#pragma clang diagnostic pop
 #endif
 }
 

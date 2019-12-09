@@ -325,16 +325,6 @@ static NSString *const kFirebaseInAppMessagingAutoDataCollectionKey =
       [[FIRIAMSDKModeManager alloc] initWithUserDefaults:NSUserDefaults.standardUserDefaults
                                      testingModeListener:self];
 
-  self.fetchOnAppForegroundFlow =
-      [[FIRIAMFetchOnAppForegroundFlow alloc] initWithSetting:fetchSetting
-                                                 messageCache:self.messageCache
-                                               messageFetcher:self.restfulFetcher
-                                                  timeFetcher:timeFetcher
-                                                   bookKeeper:self.bookKeeper
-                                               activityLogger:self.activityLogger
-                                         analyticsEventLogger:analyticsEventLogger
-                                         FIRIAMSDKModeManager:sdkModeManager];
-
   FIRIAMActionURLFollower *actionFollower = [FIRIAMActionURLFollower actionURLFollower];
 
   self.displayExecutor =
@@ -347,10 +337,23 @@ static NSString *const kFirebaseInAppMessagingAutoDataCollectionKey =
                                              activityLogger:self.activityLogger
                                        analyticsEventLogger:analyticsEventLogger];
 
-  // Setting the display component. It's needed in case headless SDK is initialized after
-  // the display component is already set on FIRInAppMessaging.
+  self.fetchOnAppForegroundFlow =
+      [[FIRIAMFetchOnAppForegroundFlow alloc] initWithSetting:fetchSetting
+                                                 messageCache:self.messageCache
+                                               messageFetcher:self.restfulFetcher
+                                                  timeFetcher:timeFetcher
+                                                   bookKeeper:self.bookKeeper
+                                               activityLogger:self.activityLogger
+                                         analyticsEventLogger:analyticsEventLogger
+                                         FIRIAMSDKModeManager:sdkModeManager
+                                              displayExecutor:self.displayExecutor];
+
+  // Setting the message display component and suppression. It's needed in case
+  // headless SDK is initialized after the these properties are already set on FIRInAppMessaging.
   self.displayExecutor.messageDisplayComponent =
       FIRInAppMessaging.inAppMessaging.messageDisplayComponent;
+  self.displayExecutor.suppressMessageDisplay =
+      FIRInAppMessaging.inAppMessaging.messageDisplaySuppressed;
 
   // Both display flows are created on startup. But they would only be turned on (started) based on
   // the sdk mode for the current instance

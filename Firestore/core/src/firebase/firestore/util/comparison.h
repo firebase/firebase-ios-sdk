@@ -149,6 +149,15 @@ struct Comparator<absl::string_view> {
 
 template <>
 struct Comparator<std::string> {
+  Comparator() = default;
+  // GCC 4.8.5 has trouble implicitly generating copy operations (`=default`
+  // doesn't work as well).
+  Comparator(const Comparator&) {
+  }
+  Comparator& operator=(const Comparator&) {
+    return *this;
+  }
+
   ComparisonResult Compare(const std::string& left,
                            const std::string& right) const;
 };
@@ -320,7 +329,7 @@ bool DoubleBitwiseEquals(double left, double right);
 
 /**
  * Computes a bitwise hash of a double, but normalizes NaN values, suitable for
- * use when using FSTDoublesAreBitwiseEqual for equality.
+ * use when using DoubleBitwiseEquals for equality.
  */
 size_t DoubleBitwiseHash(double d);
 
@@ -336,6 +345,33 @@ class Comparable {
   friend bool operator==(const T& lhs, const T& rhs) {
     return Same(lhs.CompareTo(rhs));
   }
+  friend bool operator!=(const T& lhs, const T& rhs) {
+    return !(lhs == rhs);
+  }
+  friend bool operator<(const T& lhs, const T& rhs) {
+    return Ascending(lhs.CompareTo(rhs));
+  }
+  friend bool operator>(const T& lhs, const T& rhs) {
+    return Descending(lhs.CompareTo(rhs));
+  }
+  friend bool operator<=(const T& lhs, const T& rhs) {
+    return !(rhs < lhs);
+  }
+  friend bool operator>=(const T& lhs, const T& rhs) {
+    return !(lhs < rhs);
+  }
+};
+
+/**
+ * Same as `Comparable`, but deliberately not defining `operator==`, which
+ * instead is left for the class inheriting from this mixin to implement. This
+ * is an optimization that avoids doing an extra comparison when comparing for
+ * equality (`Comparable` would have to check for both "less-than" and
+ * "greater-than" to determine whether two values are equal).
+ */
+template <typename T>
+class InequalityComparable {
+ public:
   friend bool operator!=(const T& lhs, const T& rhs) {
     return !(lhs == rhs);
   }

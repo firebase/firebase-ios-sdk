@@ -24,7 +24,7 @@
 
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
-#include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
 
 namespace firebase {
 namespace firestore {
@@ -39,7 +39,7 @@ namespace remote {
  * up to `kMaxWatchStreamFailures` within `kOnlineStateTimeout` for a connection
  * to succeed. If we have too many failures or the timeout elapses, then we set
  * the `OnlineState` to `Offline`, and the client will behave as if it is
- * offline (`getDocument()` calls will return cached data, etc.).
+ * offline (`GetDocument()` calls will return cached data, etc.).
  */
 class OnlineStateTracker {
  public:
@@ -57,7 +57,7 @@ class OnlineStateTracker {
    * each backoff attempt).
    *
    * If this is the first attempt, it sets the `OnlineState` to `Unknown` and
-   * starts the `onlineStateTimer`.
+   * starts the `online_state_timer_`.
    */
   void HandleWatchStreamStart();
 

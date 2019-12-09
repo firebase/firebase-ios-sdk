@@ -17,10 +17,6 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_SYNC_ENGINE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_SYNC_ENGINE_H_
 
-#if !defined(__OBJC__)
-#error "This header only supports Objective-C++"
-#endif  // !defined(__OBJC__)
-
 #include <map>
 #include <memory>
 #include <string>
@@ -28,12 +24,11 @@
 #include <utility>
 #include <vector>
 
-#import "Firestore/Source/Local/FSTLocalStore.h"
-
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
 #include "Firestore/core/src/firebase/firestore/core/view.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
+#include "Firestore/core/src/firebase/firestore/local/local_store.h"
 #include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
@@ -104,7 +99,7 @@ class QueryEventSource {
  */
 class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
  public:
-  SyncEngine(FSTLocalStore* local_store,
+  SyncEngine(local::LocalStore* local_store,
              remote::RemoteStore* remote_store,
              const auth::User& initial_user);
 
@@ -234,7 +229,7 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
 
     /**
      * Set to true once we've received a document. This is used in
-     * remoteKeysForTarget and ultimately used by `WatchChangeAggregator` to
+     * RemoteKeysForTarget and ultimately used by `WatchChangeAggregator` to
      * decide whether it needs to manufacture a delete event for the target once
      * the target is CURRENT.
      */
@@ -271,7 +266,7 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
   void FailOutstandingPendingWriteCallbacks(absl::string_view message);
 
   /** The local store, used to persist mutations and cached documents. */
-  FSTLocalStore* local_store_;
+  local::LocalStore* local_store_ = nullptr;
 
   /** The remote store for sending writes, watches, etc. to the backend. */
   remote::RemoteStore* remote_store_ = nullptr;

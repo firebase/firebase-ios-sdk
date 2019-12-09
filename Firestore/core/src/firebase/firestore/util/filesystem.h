@@ -62,6 +62,31 @@ Status RecursivelyCreateDir(const Path& path);
 Status RecursivelyDelete(const Path& path);
 
 /**
+ * Marks the given directory as excluded from platform-specific backup schemes
+ * like iCloud backup.
+ */
+Status ExcludeFromBackups(const Path& dir);
+
+/**
+ * Returns a system-defined best directory in which to create application data.
+ * Values vary wildly across platforms. They include:
+ *
+ *   * iOS: $container/Documents/$app_name
+ *   * Linux: $HOME/.local/share/$app_name
+ *   * macOS: $HOME/.$app_name
+ *   * Other UNIX: $HOME/.$app_name
+ *   * tvOS: $HOME/Library/Caches/$app_name
+ *   * Windows: %USERPROFILE%/AppData/Local
+ *
+ * Note: the returned path is just where the system thinks the application data
+ * should be stored, but AppDataDir does not actually guarantee that this path
+ * exists.
+ *
+ * @param app_name The name of the application.
+ */
+StatusOr<Path> AppDataDir(absl::string_view app_name);
+
+/**
  * Returns system-defined best directory in which to create temporary files.
  * Typical return values are like `/tmp` on UNIX systems. Clients should create
  * randomly named directories or files within this location to avoid collisions.
@@ -100,8 +125,7 @@ class DirectoryIterator {
    */
   static std::unique_ptr<DirectoryIterator> Create(const Path& path);
 
-  virtual ~DirectoryIterator() {
-  }
+  virtual ~DirectoryIterator() = default;
 
   /**
    * Advances the iterator.

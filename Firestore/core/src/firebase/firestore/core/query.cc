@@ -57,6 +57,13 @@ bool Query::IsDocumentQuery() const {
          filters_.empty();
 }
 
+bool Query::MatchesAllDocuments() const {
+  return filters_.empty() && limit_ == kNoLimit && !start_at_ && !end_at_ &&
+         (explicit_order_bys_.empty() ||
+          (explicit_order_bys_.size() == 1 &&
+           explicit_order_bys_.front().field().IsKeyFieldPath()));
+}
+
 const FieldPath* Query::InequalityFilterField() const {
   for (const auto& filter : filters_) {
     if (filter.IsInequality()) {

@@ -16,6 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
+#import <FirebaseInstanceID/FIRInstanceIDCheckinPreferences.h>
 #import <OCMock/OCMock.h>
 #import "FIRInstanceIDFakeKeychain.h"
 #import "Firebase/InstanceID/FIRInstanceIDBackupExcludedPlist.h"
@@ -26,7 +27,6 @@
 #import "Firebase/InstanceID/FIRInstanceIDTokenInfo.h"
 #import "Firebase/InstanceID/FIRInstanceIDTokenStore.h"
 #import "Firebase/InstanceID/FIRInstanceIDUtilities.h"
-#import "Firebase/InstanceID/Private/FIRInstanceIDCheckinPreferences.h"
 
 static NSString *const kSubDirectoryName = @"FirebaseInstanceIDStoreTest";
 
@@ -248,7 +248,7 @@ static NSString *const kSecret = @"test-secret";
   [[niceMockCheckinStore reject]
       removeCheckinPreferencesWithHandler:[OCMArg invokeBlockWithArgs:[NSNull null], nil]];
   // Always setting up stub after expect.
-  OCMStub([_checkinStore cachedCheckinPreferences]).andReturn(nil);
+  OCMStub([_mockCheckinStore cachedCheckinPreferences]).andReturn(nil);
 
   [_instanceIDStore resetCredentialsIfNeeded];
   OCMVerifyAll(niceMockCheckinStore);

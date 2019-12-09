@@ -664,7 +664,7 @@ TEST(QueryTest, ImplicitOrderBy) {
 
 MATCHER_P(HasCanonicalId, expected, "") {
   const std::string& actual = arg.CanonicalId();
-  *result_listener << "which has canonicalID " << actual;
+  *result_listener << "which has CanonicalId " << actual;
   return actual == expected;
 }
 
@@ -706,6 +706,29 @@ TEST(QueryTest, CanonicalIDs) {
           .EndingAt(Bound({Value("SFO"), Value(2000)}, /* is_before= */ false));
   EXPECT_THAT(bounds, HasCanonicalId("airports|f:|ob:nameascscoredesc__name__"
                                      "desc|lb:b:OAK1000|ub:a:SFO2000"));
+}
+
+TEST(QueryTest, MatchesAllDocuments) {
+  auto base_query = testutil::Query("coll");
+  EXPECT_TRUE(base_query.MatchesAllDocuments());
+
+  auto query = base_query.AddingOrderBy(OrderBy("__name__"));
+  EXPECT_TRUE(query.MatchesAllDocuments());
+
+  query = base_query.AddingOrderBy(OrderBy("foo"));
+  EXPECT_FALSE(query.MatchesAllDocuments());
+
+  query = base_query.AddingFilter(Filter("foo", "==", "bar"));
+  EXPECT_FALSE(query.MatchesAllDocuments());
+
+  query = base_query.WithLimit(1);
+  EXPECT_FALSE(query.MatchesAllDocuments());
+
+  query = base_query.StartingAt(Bound({Value("SFO")}, true));
+  EXPECT_FALSE(query.MatchesAllDocuments());
+
+  query = base_query.StartingAt(Bound({Value("OAK")}, true));
+  EXPECT_FALSE(query.MatchesAllDocuments());
 }
 
 }  // namespace core

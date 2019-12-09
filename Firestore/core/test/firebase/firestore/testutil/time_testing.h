@@ -27,6 +27,10 @@ namespace testutil {
 
 using time_point = std::chrono::system_clock::time_point;
 
+/** Returns the current time, in milliseconds. */
+std::chrono::time_point<std::chrono::steady_clock, std::chrono::milliseconds>
+Now();
+
 /**
  * Makes a TimePoint from the given date components, given in UTC.
  */

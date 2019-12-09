@@ -130,6 +130,10 @@
                        queue:_backgroundQueue
       usingBackgroundSession:NO
            completionHandler:^(NSHTTPURLResponse *response, NSData *data, NSError *error) {
+             XCTAssertNotNil(data);
+             NSString *responseBody = [[NSString alloc] initWithData:data
+                                                            encoding:NSUTF8StringEncoding];
+             XCTAssertEqualObjects(responseBody, @"<html><body>Hello, World!</body></html>");
              [self verifyResponse:response error:error];
              [self verifyRequest];
              XCTAssertFalse(self->_network.hasUploadInProgress, "There must be no pending request");
@@ -317,6 +321,10 @@
                        queue:_backgroundQueue
       usingBackgroundSession:YES
            completionHandler:^(NSHTTPURLResponse *response, NSData *data, NSError *error) {
+             XCTAssertNotNil(data);
+             NSString *responseBody = [[NSString alloc] initWithData:data
+                                                            encoding:NSUTF8StringEncoding];
+             XCTAssertEqualObjects(responseBody, @"<html><body>Hello, World!</body></html>");
              [self verifyResponse:response error:error];
              [self verifyRequest];
              XCTAssertFalse(self->_network.hasUploadInProgress, "There must be no pending request");

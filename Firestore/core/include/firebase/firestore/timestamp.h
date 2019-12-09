@@ -236,18 +236,4 @@ std::chrono::time_point<Clock, Duration> Timestamp::ToTimePoint() const {
 
 }  // namespace firebase
 
-namespace std {
-/** Convenience-only specialization of `std::hash`. */
-template <>
-struct hash<firebase::Timestamp> {
-  /**
-   * Hashes the given `timestamp`.
-   *
-   * @note: specialization of `std::hash` is provided for convenience only. The
-   * implementation is subject to change.
-   */
-  size_t operator()(const firebase::Timestamp& timestamp) const;
-};
-}  // namespace std
-
 #endif  // FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_TIMESTAMP_H_

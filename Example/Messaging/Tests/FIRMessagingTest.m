@@ -37,6 +37,9 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 @property(nonatomic, readwrite, strong) NSData *apnsTokenData;
 @property(nonatomic, readwrite, strong) FIRInstanceID *instanceID;
 
+// Expose autoInitEnabled static method for IID.
++ (BOOL)isAutoInitEnabledWithUserDefaults:(NSUserDefaults *)userDefaults;
+
 // Direct Channel Methods
 - (void)updateAutomaticClientConnection;
 - (BOOL)shouldBeConnectedAutomatically;
@@ -49,6 +52,7 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 @property(nonatomic, readwrite, strong) id mockMessaging;
 @property(nonatomic, readwrite, strong) id mockInstanceID;
 @property(nonatomic, readwrite, strong) id mockFirebaseApp;
+@property(nonatomic, strong) FIRMessagingTestUtilities *testUtil;
 
 @end
 
@@ -60,21 +64,19 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
   // Create the messaging instance with all the necessary dependencies.
   NSUserDefaults *defaults =
       [[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingDefaultsTestDomain];
-  _messaging = [FIRMessagingTestUtilities messagingForTestsWithUserDefaults:defaults];
+  _testUtil = [[FIRMessagingTestUtilities alloc] initWithUserDefaults:defaults  withRMQManager:NO];
+  _mockMessaging = _testUtil.mockMessaging;
+  _messaging = _testUtil.messaging;
+
   _mockFirebaseApp = OCMClassMock([FIRApp class]);
    OCMStub([_mockFirebaseApp defaultApp]).andReturn(_mockFirebaseApp);
-  _mockInstanceID = OCMPartialMock(self.messaging.instanceID);
+  _mockInstanceID = _testUtil.mockInstanceID;
   [[NSUserDefaults standardUserDefaults]
       removePersistentDomainForName:[NSBundle mainBundle].bundleIdentifier];
 }
 
 - (void)tearDown {
-  [self.messaging.messagingUserDefaults removePersistentDomainForName:kFIRMessagingDefaultsTestDomain];
-  self.messaging.shouldEstablishDirectChannel = NO;
-  self.messaging.defaultFcmToken = nil;
-  self.messaging.apnsTokenData = nil;
-  [_mockMessaging stopMocking];
-  [_mockInstanceID stopMocking];
+  [_testUtil cleanupAfterTest];
   [_mockFirebaseApp stopMocking];
   _messaging = nil;
   [super tearDown];
@@ -127,6 +129,26 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 
   XCTAssertFalse(self.messaging.isAutoInitEnabled);
   [bundleMock stopMocking];
+}
+
+- (void)testAutoInitEnabledMatchesStaticMethod {
+  // Flag is set to YES in user defaults.
+  NSUserDefaults *defaults = self.messaging.messagingUserDefaults;
+  [defaults setObject:@YES forKey:kFIRMessagingUserDefaultsKeyAutoInitEnabled];
+
+  XCTAssertTrue(self.messaging.isAutoInitEnabled);
+  XCTAssertEqual(self.messaging.isAutoInitEnabled,
+                 [FIRMessaging isAutoInitEnabledWithUserDefaults:defaults]);
+}
+
+- (void)testAutoInitDisabledMatchesStaticMethod {
+  // Flag is set to NO in user defaults.
+  NSUserDefaults *defaults = self.messaging.messagingUserDefaults;
+  [defaults setObject:@NO forKey:kFIRMessagingUserDefaultsKeyAutoInitEnabled];
+
+  XCTAssertFalse(self.messaging.isAutoInitEnabled);
+  XCTAssertEqual(self.messaging.isAutoInitEnabled,
+                 [FIRMessaging isAutoInitEnabledWithUserDefaults:defaults]);
 }
 
 #pragma mark - Direct Channel Establishment Testing

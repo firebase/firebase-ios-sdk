@@ -46,12 +46,14 @@ NS_ASSUME_NONNULL_BEGIN
     @brief Designated initializer.
     @param providerID The provider ID associated with the credential being created.
     @param IDToken The ID Token associated with the credential being created.
+    @param rawNonce The raw nonce associated with the Auth credential being created.
     @param accessToken The access token associated with the credential being created.
     @param secret The secret associated with the credential being created.
     @param pendingToken The pending token associated with the credential being created.
  */
 - (instancetype)initWithProviderID:(NSString *)providerID
                            IDToken:(nullable NSString *)IDToken
+                          rawNonce:(nullable NSString *)rawNonce
                        accessToken:(nullable NSString *)accessToken
                             secret:(nullable NSString *)secret
                       pendingToken:(nullable NSString *)pendingToken NS_DESIGNATED_INITIALIZER;

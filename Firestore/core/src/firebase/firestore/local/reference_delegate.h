@@ -17,10 +17,6 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_REFERENCE_DELEGATE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_REFERENCE_DELEGATE_H_
 
-#if __OBJC__
-#import "Firestore/Source/Local/FSTPersistence.h"
-#endif  // __OBJC__
-
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "absl/strings/string_view.h"
 
@@ -51,6 +47,8 @@ class ReferenceSet;
  */
 class ReferenceDelegate {
  public:
+  virtual ~ReferenceDelegate() = default;
+
   virtual model::ListenSequenceNumber current_sequence_number() const = 0;
 
   /**
@@ -96,63 +94,28 @@ class ReferenceDelegate {
   virtual void OnTransactionCommitted() = 0;
 };
 
-#if __OBJC__
-
-class ReferenceDelegateBridge : public ReferenceDelegate {
- public:
-  ReferenceDelegateBridge() = default;
-
-  explicit ReferenceDelegateBridge(id<FSTReferenceDelegate> target)
-      : target_(target) {
+/**
+ * Calls `OnTransactionStarted` in its constructor and then ensures that
+ * `OnTransactionCommitted` is called at the close of any block in which it is
+ * declared.
+ */
+struct TransactionGuard {
+  TransactionGuard(ReferenceDelegate* reference_delegate,
+                   absl::string_view label)
+      : reference_delegate_(reference_delegate) {
+    reference_delegate_->OnTransactionStarted(label);
   }
 
-  model::ListenSequenceNumber current_sequence_number() const override {
-    return target_.currentSequenceNumber;
+  ~TransactionGuard() {
+    reference_delegate_->OnTransactionCommitted();
   }
 
-  void AddInMemoryPins(ReferenceSet* set) override {
-    [target_ addInMemoryPins:set];
-  }
-
-  void AddReference(const model::DocumentKey& key) override {
-    [target_ addReference:key];
-  }
-
-  void RemoveReference(const model::DocumentKey& key) override {
-    [target_ removeReference:key];
-  }
-
-  void RemoveMutationReference(const model::DocumentKey& key) override {
-    [target_ removeMutationReference:key];
-  }
-
-  void RemoveTarget(const local::QueryData& query_data) override {
-    [target_ removeTarget:query_data];
-  }
-
-  void UpdateLimboDocument(const model::DocumentKey& key) override {
-    [target_ limboDocumentUpdated:key];
-  }
-
-  void OnTransactionStarted(absl::string_view label) override {
-    if ([target_ conformsToProtocol:@protocol(FSTTransactional)]) {
-      auto transactional = static_cast<id<FSTTransactional>>(target_);
-      [transactional startTransaction:label];
-    }
-  }
-
-  void OnTransactionCommitted() override {
-    if ([target_ conformsToProtocol:@protocol(FSTTransactional)]) {
-      auto transactional = static_cast<id<FSTTransactional>>(target_);
-      [transactional commitTransaction];
-    }
-  }
+  TransactionGuard(const TransactionGuard&) = delete;
+  TransactionGuard& operator=(const TransactionGuard&) = delete;
 
  private:
-  __weak id<FSTReferenceDelegate> target_;
+  ReferenceDelegate* reference_delegate_;
 };
-
-#endif  // __OBJC__
 
 }  // namespace local
 }  // namespace firestore

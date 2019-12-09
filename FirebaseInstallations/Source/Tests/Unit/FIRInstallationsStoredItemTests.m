@@ -38,6 +38,7 @@
   item.refreshToken = @"refresh-token";
   item.authToken = authToken;
   item.registrationStatus = FIRInstallationStatusRegistered;
+  item.IIDDefaultToken = @"IIDTokenValue";
 
   NSError *error;
   NSData *archivedItem = [FIRKeyedArchivingUtils archivedDataWithRootObject:item error:&error];
@@ -54,6 +55,7 @@
   XCTAssertEqualObjects(unarchivedItem.authToken.token, item.authToken.token);
   XCTAssertEqualObjects(unarchivedItem.authToken.expirationDate, item.authToken.expirationDate);
   XCTAssertEqual(unarchivedItem.registrationStatus, item.registrationStatus);
+  XCTAssertEqualObjects(unarchivedItem.IIDDefaultToken, item.IIDDefaultToken);
 }
 
 @end

@@ -18,6 +18,7 @@
 
 #import <OCMock/OCMock.h>
 
+#import <FirebaseInstanceID/FIRInstanceIDCheckinPreferences.h>
 #import "FIRInstanceIDFakeKeychain.h"
 #import "Firebase/InstanceID/FIRInstanceIDAuthKeyChain.h"
 #import "Firebase/InstanceID/FIRInstanceIDBackupExcludedPlist.h"
@@ -27,7 +28,6 @@
 #import "Firebase/InstanceID/FIRInstanceIDStore.h"
 #import "Firebase/InstanceID/FIRInstanceIDUtilities.h"
 #import "Firebase/InstanceID/FIRInstanceIDVersionUtilities.h"
-#import "Firebase/InstanceID/Private/FIRInstanceIDCheckinPreferences.h"
 
 static const NSTimeInterval kExpectationTimeout = 12;
 
@@ -213,7 +213,6 @@ static int64_t const kLastCheckinTimestamp = 123456;
   NSData *data = [checkinKeychainContent dataUsingEncoding:NSUTF8StringEncoding];
   [fakeKeychain setData:data
              forService:kFIRInstanceIDLegacyCheckinKeychainService
-          accessibility:nil
                 account:kFIRInstanceIDLegacyCheckinKeychainAccount
                 handler:^(NSError *error) {
                   XCTAssertNil(error);

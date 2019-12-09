@@ -225,6 +225,13 @@ const BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
       [FIRDependency dependencyWithProtocol:@protocol(FIRAnalyticsInterop) isRequired:NO];
   FIRComponentCreationBlock creationBlock =
       ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
+    if (!container.app.isDefaultApp) {
+      // Only start for the default FIRApp.
+      FIRMessagingLoggerDebug(kFIRMessagingMessageCodeFIRApp001,
+                              @"Firebase Messaging only works with the default app.");
+      return nil;
+    }
+
     // Ensure it's cached so it returns the same instance every time messaging is called.
     *isCacheable = YES;
     id<FIRAnalyticsInterop> analytics = FIR_COMPONENT(FIRAnalyticsInterop, container);
@@ -233,28 +240,19 @@ const BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
                                  withInstanceID:[FIRInstanceID instanceID]
                                withUserDefaults:[GULUserDefaults standardUserDefaults]];
     [messaging start];
+    [messaging configureNotificationSwizzlingIfEnabled];
     return messaging;
   };
   FIRComponent *messagingProvider =
       [FIRComponent componentWithProtocol:@protocol(FIRMessagingInstanceProvider)
-                      instantiationTiming:FIRInstantiationTimingLazy
+                      instantiationTiming:FIRInstantiationTimingEagerInDefaultApp
                              dependencies:@[ analyticsDep ]
                            creationBlock:creationBlock];
 
   return @[ messagingProvider ];
 }
 
-+ (void)configureWithApp:(FIRApp *)app {
-  if (!app.isDefaultApp) {
-    // Only configure for the default FIRApp.
-    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeFIRApp001,
-                            @"Firebase Messaging only works with the default app.");
-    return;
-  }
-  [[FIRMessaging messaging] configureMessaging:app];
-}
-
-- (void)configureMessaging:(FIRApp *)app {
+- (void)configureNotificationSwizzlingIfEnabled {
   // Swizzle remote-notification-related methods (app delegate and UNUserNotificationCenter)
   if ([FIRMessagingRemoteNotificationsProxy canSwizzleMethods]) {
     NSString *docsURLString = @"https://firebase.google.com/docs/cloud-messaging/ios/client"
@@ -365,15 +363,7 @@ const BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
 - (void)setupSyncMessageManager {
   self.syncMessageManager =
       [[FIRMessagingSyncMessageManager alloc] initWithRmqManager:self.rmq2Manager];
-
-  // Delete the expired messages with a delay. We don't want to block startup with a somewhat
-  // expensive db call.
-  FIRMessaging_WEAKIFY(self);
-  dispatch_time_t time = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5.0 * NSEC_PER_SEC));
-  dispatch_after(time, dispatch_get_main_queue(), ^{
-    FIRMessaging_STRONGIFY(self);
-    [self.syncMessageManager removeExpiredSyncMessages];
-  });
+  [self.syncMessageManager removeExpiredSyncMessages];
 }
 
 - (void)teardown {
@@ -541,9 +531,21 @@ const BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
 #pragma mark - FCM
 
 - (BOOL)isAutoInitEnabled {
+  // Defer to the class method since we're just reading from regular userDefaults and we need to
+  // read this from IID without instantiating the Messaging singleton.
+  return [[self class] isAutoInitEnabledWithUserDefaults:_messagingUserDefaults];
+}
+
+/// Checks if Messaging auto-init is enabled in the user defaults instance passed in. This is
+/// exposed as a class property for IID to fetch the property without instantiating an instance of
+/// Messaging. Since Messaging can only be used with the default FIRApp, we can have one point of
+/// entry without context of which FIRApp instance is being used.
+/// ** THIS METHOD IS DEPENDED ON INTERNALLY BY IID USING REFLECTION. PLEASE DO NOT CHANGE THE
+///  SIGNATURE, AS IT WOULD BREAK AUTOINIT FUNCTIONALITY WITHIN IID. **
++ (BOOL)isAutoInitEnabledWithUserDefaults:(GULUserDefaults *)userDefaults {
   // Check storage
   id isAutoInitEnabledObject =
-      [_messagingUserDefaults objectForKey:kFIRMessagingUserDefaultsKeyAutoInitEnabled];
+      [userDefaults objectForKey:kFIRMessagingUserDefaultsKeyAutoInitEnabled];
   if (isAutoInitEnabledObject) {
     return [isAutoInitEnabledObject boolValue];
   }
@@ -874,7 +876,7 @@ const BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunguarded-availability"
     [self.delegate messaging:self didReceiveMessage:remoteMessage];
-#pragma pop
+#pragma clang diagnostic pop
   } else {
     // Delegate methods weren't implemented, so messages are being dropped, log a warning
     FIRMessagingLoggerWarn(kFIRMessagingMessageCodeRemoteMessageDelegateMethodNotImplemented,

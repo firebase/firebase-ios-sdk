@@ -1,3 +1,40 @@
+# v6.4.0 -- M61
+- [added] Updated the binary distributions to include arm64e slices. See
+  https://developer.apple.com/documentation/security/preparing_your_app_to_work_with_pointer_authentication.
+  Support for the open source libraries is now included in the zip and Carthage
+  distributions. All libraries now support building for arm64e except the MLKit
+  ones who's support is TBD. (#4110)
+
+- [changed] The directory structure of the zip distribution has changed to include
+  full name of each Firebase pod name in the directory structure. For example, the former
+  `Storage` directory is now `FirebaseStorage`.
+
+- [changed] Speed up initialization by lazily registering for the user agent. (#1306)
+
+- [added] Added a Swift usage flag to `firebaseUserAgent`. The information will
+  be used to support product decisions related to Swift, e.g. adding a Swift specific
+  API, SDKs, etc. (#4448)
+
+# v6.4.0 -- M60
+- [changed] Administrative minor version update to prepare for an upcoming Firebase pod
+  open source.
+
+# v6.3.3 -- M59
+- [changed] Carthage and zip file distributions are now built with Xcode 11.0.
+  The Carthage and zip file distributions no longer support Xcode 10.3 and below.
+
+# v6.3.2 -- M58
+- [fixed] Fix container instantiation timing, IID startup. (#4030)
+- [changed] Open-sourced Firebase pod. This enables `import Firebase` module
+  support for tvOS and macOS. (#4021)
+
+# v6.3.1 -- M57
+- [fixed] Fixed race condition in component container. (#3967, #3924)
+
+# v6.3.0 -- M56
+- [changed] Transitive GoogleDataTransport dependency incremented to v2.0.0. (#3729)
+- [fixed] Fixed "expiclitlySet" typo. (#3853)
+
 # v6.2.0 -- M53
 - [added] Added AppKit dependency on macOS and UIKit dependency on iOS and tvOS. (#3459)
 - [added] Added support for Firebase Segmentation. (#3430)

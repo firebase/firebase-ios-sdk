@@ -274,18 +274,6 @@ TEST(Timestamp, Comparison) {
   EXPECT_NE(Timestamp(123, 123456789), Timestamp(123, 123456780));
 }
 
-TEST(Timestamp, Hash) {
-  const Timestamp foo1{123, 456000000};
-  const Timestamp foo2 = foo1;
-  const Timestamp foo3 =
-      Timestamp::FromTimePoint(TimePoint{Sec(123) + Ms(456)});
-  EXPECT_EQ(std::hash<Timestamp>()(foo1), std::hash<Timestamp>()(foo2));
-  EXPECT_EQ(std::hash<Timestamp>()(foo2), std::hash<Timestamp>()(foo3));
-
-  const Timestamp bar{123, 456};
-  EXPECT_NE(std::hash<Timestamp>()(foo1), std::hash<Timestamp>()(bar));
-}
-
 TEST(Timestamp, InvalidArguments) {
   // Negative nanoseconds.
   ASSERT_ANY_THROW(Timestamp(0, -1));

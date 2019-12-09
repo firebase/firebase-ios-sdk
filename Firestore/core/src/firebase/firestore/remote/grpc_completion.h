@@ -24,7 +24,7 @@
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
-#include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
 #include "grpcpp/support/byte_buffer.h"
 
 namespace firebase {

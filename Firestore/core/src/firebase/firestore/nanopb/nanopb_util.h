@@ -27,6 +27,8 @@
 #include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/nullability.h"
+#include "absl/base/casts.h"
+#include "absl/memory/memory.h"
 
 namespace firebase {
 namespace firestore {
@@ -86,6 +88,25 @@ std::string MakeString(const pb_bytes_array_t* _Nullable str);
  */
 inline std::vector<uint8_t> MakeVector(const ByteString& str) {
   return {str.begin(), str.end()};
+}
+
+/**
+ * Due to the nanopb implementation, nanopb_boolean could be an integer
+ * other than 0 or 1, (such as 2). This leads to undefined behaviour when
+ * it's read as a boolean. eg. on at least gcc, the value is treated as
+ * both true *and* false. So we'll instead memcpy to an integer (via
+ * absl::bit_cast) and compare with 0.
+ *
+ * Note that it is necessary to pass-by-reference here to get the original
+ * value of `nanopb_boolean`.
+ */
+inline bool SafeReadBoolean(const bool& nanopb_boolean) {
+  return absl::bit_cast<int8_t>(nanopb_boolean) != 0;
+}
+
+template <typename T>
+T* _Nonnull MakeArray(pb_size_t count) {
+  return static_cast<T*>(calloc(count, sizeof(T)));
 }
 
 #if __OBJC__

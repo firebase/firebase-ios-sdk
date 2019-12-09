@@ -1,3 +1,17 @@
+# 6.4.0
+- Add function to gul secure encoding to encode multiple classes. (#4282)
+- Add heartbeat feature. (#4098)
+- Support UISceneDelegate changes in Auth. (#4380)
+
+# 6.3.1
+- Fix GULMutableDictionary keyed subscript methods. (#3882)
+- Update Networking to receive data for POST requests. (#3940)
+- Fix crash in GULLogBasic. (#3928)
+
+# 6.3.0
+- GULSecureCoding introduced. (#3707)
+- Mark unused variables. (#3854)
+
 # 6.2.5
 - Remove test-only method and update tests to include Catalyst. (#3544)
 

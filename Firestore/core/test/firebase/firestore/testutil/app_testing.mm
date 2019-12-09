@@ -33,14 +33,17 @@ FIROptions* OptionsForUnitTesting(absl::string_view project_id) {
 }
 
 FIRApp* AppForUnitTesting(absl::string_view project_id) {
+  FIROptions* options = OptionsForUnitTesting(project_id);
+  return AppForUnitTesting(options);
+}
+
+FIRApp* AppForUnitTesting(FIROptions* options) {
   static int counter = 0;
 
-  NSString* appName =
+  NSString* app_name =
       [NSString stringWithFormat:@"app_for_unit_testing_%d", counter++];
-  FIROptions* options = OptionsForUnitTesting(project_id);
-  [FIRApp configureWithName:appName options:options];
-
-  return [FIRApp appNamed:appName];
+  [FIRApp configureWithName:app_name options:options];
+  return [FIRApp appNamed:app_name];
 }
 
 }  // namespace testutil

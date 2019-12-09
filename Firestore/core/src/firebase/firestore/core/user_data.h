@@ -61,6 +61,11 @@ enum class UserDataSource {
    * false.
    */
   Argument,
+  /**
+   * Indicates that the source is an Argument that may directly contain nested
+   * arrays (e.g. the operand of a `in` query).
+   */
+  ArrayArgument
 };
 
 /**
@@ -182,7 +187,7 @@ class ParseAccumulator {
 class ParseContext {
  public:
   /**
-   * Initializes a FSTParseContext with the given source and path.
+   * Initializes a ParseContext with the given source and path.
    *
    * @param path A path within the object being parsed. This could be an empty
    * path (in which case the context represents the root of the data being
@@ -227,7 +232,7 @@ class ParseContext {
 
   std::string FieldDescription() const;
 
-  // Helpers to get a FSTParseContext for a child field.
+  // Helpers to get a ParseContext for a child field.
   ParseContext ChildContext(const std::string& field_name);
   ParseContext ChildContext(const model::FieldPath& field_path);
   ParseContext ChildContext(size_t array_index);
@@ -283,7 +288,7 @@ class ParsedUpdateData {
  public:
   ParsedUpdateData(model::ObjectValue data,
                    model::FieldMask field_mask,
-                   std::vector<model::FieldTransform> fieldTransforms);
+                   std::vector<model::FieldTransform> field_transforms);
 
   const model::ObjectValue& data() const {
     return data_;

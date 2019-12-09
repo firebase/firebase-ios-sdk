@@ -29,7 +29,6 @@
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
-#include "Firestore/core/src/firebase/firestore/util/statusor_callback.h"
 #include "absl/types/any.h"
 #include "absl/types/optional.h"
 
@@ -48,9 +47,8 @@ class ParsedUpdateData;
 
 class Transaction {
  public:
-  // TODO(varconst): change this to take a single `StatusOr` parameter.
   using LookupCallback = std::function<void(
-      const std::vector<model::MaybeDocument>&, const util::Status&)>;
+      const util::StatusOr<std::vector<model::MaybeDocument>>&)>;
 
   Transaction() = default;
   explicit Transaction(remote::Datastore* transaction);
@@ -132,7 +130,7 @@ class Transaction {
 
   std::vector<model::Mutation> mutations_;
   bool committed_ = false;
-  bool permanentError_ = false;
+  bool permanent_error_ = false;
 
   /**
    * A deferred usage error that occurred previously in this transaction that

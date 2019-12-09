@@ -26,9 +26,17 @@
                                            selector:@selector(appWillEnterForeground:)
                                                name:UIApplicationWillEnterForegroundNotification
                                              object:nil];
+#if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+  if (@available(iOS 13.0, *)) {
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(appWillEnterForeground:)
+                                                 name:UISceneWillEnterForegroundNotification
+                                               object:nil];
+  }
+#endif  // defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
 }
 
-- (void)appWillEnterForeground:(UIApplication *)application {
+- (void)appWillEnterForeground:(NSNotification *)notification {
   FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM600001",
               @"App foregrounded, wake up to see if we can fetch in-app messaging.");
   // for fetch operation, dispatch it to non main UI thread to avoid blocking. It's ok to dispatch

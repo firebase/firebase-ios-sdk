@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseRemoteConfig'
-  s.version          = '4.4.0'
+  s.version          = '4.4.5'
   s.summary          = 'Firebase RemoteConfig for iOS'
 
   s.description      = <<-DESC
@@ -30,6 +30,7 @@ app update.
   s.source_files = base_dir + '**/*.[mh]'
   s.requires_arc = base_dir + '*.m'
   s.public_header_files = base_dir + 'Public/*.h'
+  s.private_header_files = base_dir + 'Private/*.h'
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
@@ -43,7 +44,7 @@ app update.
   s.dependency 'FirebaseInstanceID', '~> 4.2'
   s.dependency 'GoogleUtilities/Environment', '~> 6.2'
   s.dependency 'GoogleUtilities/NSData+zlib', '~> 6.2'
-  s.dependency 'Protobuf', '~> 3.9'
+  s.dependency 'Protobuf', '~> 3.9', '>= 3.9.2'
 
   s.test_spec 'unit' do |unit_tests|
     # TODO(dmandar) - Update or delete the commented files.
@@ -66,6 +67,6 @@ app update.
         'FirebaseRemoteConfig/Tests/Unit/Defaults-testInfo.plist',
         'FirebaseRemoteConfig/Tests/Unit/SecondApp-GoogleService-Info.plist'
     unit_tests.requires_app_host = true
-    unit_tests.dependency 'OCMock'
+    unit_tests.dependency 'OCMock', '~> 3.4.0'
   end
 end

@@ -29,6 +29,8 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
+#include "Firestore/core/src/firebase/firestore/local/local_store.h"
+#include "Firestore/core/src/firebase/firestore/local/memory_persistence.h"
 #include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -37,10 +39,10 @@
 #include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_store.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
-#include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "Firestore/core/test/firebase/firestore/testutil/async_testing.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 #include "absl/memory/memory.h"
 
@@ -49,7 +51,11 @@ namespace testutil = firebase::firestore::testutil;
 
 using firebase::Timestamp;
 using firebase::firestore::auth::EmptyCredentialsProvider;
+using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
+using firebase::firestore::local::LocalStore;
+using firebase::firestore::local::MemoryPersistence;
+using firebase::firestore::local::Persistence;
 using firebase::firestore::local::QueryData;
 using firebase::firestore::model::BatchId;
 using firebase::firestore::model::DatabaseId;
@@ -69,7 +75,6 @@ using firebase::firestore::remote::RemoteStoreCallback;
 using firebase::firestore::testutil::Map;
 using firebase::firestore::testutil::WrapObject;
 using firebase::firestore::util::AsyncQueue;
-using firebase::firestore::util::ExecutorLibdispatch;
 using firebase::firestore::util::Status;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -204,7 +209,8 @@ class RemoteStoreEventCapture : public RemoteStoreCallback {
 
 @implementation FSTDatastoreTests {
   std::shared_ptr<AsyncQueue> _testWorkerQueue;
-  FSTLocalStore *_localStore;
+  std::unique_ptr<LocalStore> _localStore;
+  std::unique_ptr<Persistence> _persistence;
 
   DatabaseInfo _databaseInfo;
   std::shared_ptr<Datastore> _datastore;
@@ -225,14 +231,15 @@ class RemoteStoreEventCapture : public RemoteStoreCallback {
   _databaseInfo =
       DatabaseInfo(database_id, "test-key", util::MakeString(settings.host), settings.sslEnabled);
 
-  dispatch_queue_t queue = dispatch_queue_create(
-      "com.google.firestore.FSTDatastoreTestsWorkerQueue", DISPATCH_QUEUE_SERIAL);
-  _testWorkerQueue = std::make_shared<AsyncQueue>(absl::make_unique<ExecutorLibdispatch>(queue));
+  _testWorkerQueue = testutil::AsyncQueueForTesting();
   _datastore = std::make_shared<Datastore>(_databaseInfo, _testWorkerQueue,
                                            std::make_shared<EmptyCredentialsProvider>());
 
-  _remoteStore =
-      absl::make_unique<RemoteStore>(_localStore, _datastore, _testWorkerQueue, [](OnlineState) {});
+  _persistence = MemoryPersistence::WithEagerGarbageCollector();
+  _localStore = absl::make_unique<LocalStore>(_persistence.get(), User::Unauthenticated());
+
+  _remoteStore = absl::make_unique<RemoteStore>(_localStore.get(), _datastore, _testWorkerQueue,
+                                                [](OnlineState) {});
 
   _testWorkerQueue->Enqueue([=] { _remoteStore->Start(); });
 }

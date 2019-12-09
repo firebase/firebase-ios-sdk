@@ -140,13 +140,12 @@ s%^./%%
 # pod gen output
 \%^gen/% d
 
-# Firestore/Swift contains code that is under 'third_party' but should be
+# FirestoreEncoder is under 'third_party' for licensing reasons but should be
 # formatted.
-\%Firestore/Swift/% p
+\%Firestore/third_party/FirestoreEncoder/.*\.swift% p
 
 # Sources controlled outside this tree
 \%/third_party/% d
-\%/Firestore/Port/% d
 
 # Generated source
 \%/Firestore/core/src/firebase/firestore/util/config.h% d
@@ -156,6 +155,9 @@ s%^./%%
 
 # Sources within the tree that are not subject to formatting
 \%^(Example|Firebase)/(Auth|AuthSamples|Messaging)/% d
+
+# Keep Firebase.h indenting
+\%^CoreOnly/Sources/Firebase.h% d
 
 # Checked-in generated code
 \%\.pb(objc|rpc)\.% d
@@ -171,7 +173,10 @@ needs_formatting=false
 for f in $files; do
   if [[ "${f: -6}" == '.swift' ]]; then
     if [[ "$system" == 'Darwin' ]]; then
-      swiftformat "${swift_options[@]}" "$f" 2> /dev/null | grep 'would have updated' > /dev/null
+      # Match output that says:
+      # 1/1 files would have been formatted.  (with --dryrun)
+      # 1/1 files formatted.                  (without --dryrun)
+      swiftformat "${swift_options[@]}" "$f" 2>&1 | grep '^1/1 files' > /dev/null
     else
       false
     fi

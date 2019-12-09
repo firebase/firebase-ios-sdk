@@ -1,3 +1,7 @@
+# 2019-10-08 -- v0.15.5
+- [added] Added support for UIScene based application lifecycle (#3927).
+- [fixed] Fixed storyboard layout error in Xcode 11 (#3748).
+
 # 2019-07-23 -- v0.15.2
 - [fixed] Fixed bug with body text color for card messages (#3286).
 

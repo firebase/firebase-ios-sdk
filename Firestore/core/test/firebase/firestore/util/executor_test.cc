@@ -16,7 +16,8 @@
 
 #include "Firestore/core/test/firebase/firestore/util/executor_test.h"
 
-#include <chrono>  // NOLINT(build/c++11)
+#include <chrono>              // NOLINT(build/c++11)
+#include <condition_variable>  // NOLINT(build/c++11)
 #include <cstdlib>
 #include <future>  // NOLINT(build/c++11)
 #include <string>
@@ -28,10 +29,11 @@
 namespace firebase {
 namespace firestore {
 namespace util {
+namespace {
 
 namespace chr = std::chrono;
 
-namespace {
+using testutil::Expectation;
 
 DelayedOperation Schedule(Executor* const executor,
                           const Executor::Milliseconds delay,
@@ -44,8 +46,9 @@ DelayedOperation Schedule(Executor* const executor,
 }  // namespace
 
 TEST_P(ExecutorTest, Execute) {
-  executor->Execute([&] { signal_finished(); });
-  EXPECT_TRUE(WaitForTestToFinish());
+  Expectation ran;
+  executor->Execute(ran.AsCallback());
+  Await(ran);
 }
 
 TEST_P(ExecutorTest, ExecuteBlocking) {
@@ -55,14 +58,14 @@ TEST_P(ExecutorTest, ExecuteBlocking) {
 }
 
 TEST_P(ExecutorTest, DestructorDoesNotBlockIfThereArePendingTasks) {
-  const auto future = std::async(std::launch::async, [&] {
-    auto another_executor = GetParam()();
+  const auto future = Async([&] {
+    auto another_executor = GetParam()(/* threads */ 1);
     Schedule(another_executor.get(), chr::minutes(5), [] {});
     Schedule(another_executor.get(), chr::minutes(10), [] {});
     // Destructor shouldn't block waiting for the 5/10-minute-away operations.
   });
 
-  ABORT_ON_TIMEOUT(future);
+  Await(future);
 }
 
 // TODO(varconst): this test is inherently flaky because it can't be guaranteed
@@ -71,23 +74,24 @@ TEST_P(ExecutorTest, DestructorDoesNotBlockIfThereArePendingTasks) {
 // test is unlikely to fail in practice. Need to revisit this.
 TEST_P(ExecutorTest, CanScheduleOperationsInTheFuture) {
   std::string steps;
-
+  Expectation ran;
   executor->Execute([&steps] { steps += '1'; });
   Schedule(executor.get(), Executor::Milliseconds(20), [&] {
     steps += '4';
-    signal_finished();
+    ran.Fulfill();
   });
   Schedule(executor.get(), Executor::Milliseconds(10),
            [&steps] { steps += '3'; });
   executor->Execute([&steps] { steps += '2'; });
 
-  EXPECT_TRUE(WaitForTestToFinish());
+  Await(ran);
   EXPECT_EQ(steps, "1234");
 }
 
 TEST_P(ExecutorTest, CanCancelDelayedOperations) {
   std::string steps;
 
+  Expectation ran;
   executor->Execute([&] {
     executor->Execute([&steps] { steps += '1'; });
 
@@ -96,21 +100,23 @@ TEST_P(ExecutorTest, CanCancelDelayedOperations) {
 
     Schedule(executor.get(), Executor::Milliseconds(5), [&] {
       steps += '3';
-      signal_finished();
+      ran.Fulfill();
     });
 
     delayed_operation.Cancel();
   });
 
-  EXPECT_TRUE(WaitForTestToFinish());
+  Await(ran);
   EXPECT_EQ(steps, "13");
 }
 
 TEST_P(ExecutorTest, DelayedOperationIsValidAfterTheOperationHasRun) {
-  DelayedOperation delayed_operation = Schedule(
-      executor.get(), Executor::Milliseconds(1), [&] { signal_finished(); });
+  Expectation ran;
 
-  EXPECT_TRUE(WaitForTestToFinish());
+  DelayedOperation delayed_operation =
+      Schedule(executor.get(), Executor::Milliseconds(1), ran.AsCallback());
+
+  Await(ran);
   EXPECT_NO_THROW(delayed_operation.Cancel());
 }
 
@@ -122,19 +128,20 @@ TEST_P(ExecutorTest, CancelingEmptyDelayedOperationIsValid) {
 TEST_P(ExecutorTest, DoubleCancelingDelayedOperationIsValid) {
   std::string steps;
 
+  Expectation ran;
   executor->Execute([&] {
     DelayedOperation delayed_operation = Schedule(
         executor.get(), Executor::Milliseconds(1), [&steps] { steps += '1'; });
     Schedule(executor.get(), Executor::Milliseconds(5), [&] {
       steps += '2';
-      signal_finished();
+      ran.Fulfill();
     });
 
     delayed_operation.Cancel();
     delayed_operation.Cancel();
   });
 
-  EXPECT_TRUE(WaitForTestToFinish());
+  Await(ran);
   EXPECT_EQ(steps, "2");
 }
 
@@ -152,13 +159,14 @@ TEST_P(ExecutorTest, IsCurrentExecutor) {
     EXPECT_EQ(executor->Name(), executor->CurrentExecutorName());
   });
 
+  Expectation ran;
   Schedule(executor.get(), Executor::Milliseconds(1), [&] {
     EXPECT_TRUE(executor->IsCurrentExecutor());
     EXPECT_EQ(executor->Name(), executor->CurrentExecutorName());
-    signal_finished();
+    ran.Fulfill();
   });
 
-  EXPECT_TRUE(WaitForTestToFinish());
+  Await(ran);
 }
 
 TEST_P(ExecutorTest, OperationsCanBeRemovedFromScheduleBeforeTheyRun) {
@@ -234,6 +242,59 @@ TEST_P(ExecutorTest, DuplicateTagsOnOperationsAreAllowed) {
   // Despite having the same tag, the operations should have been ordered
   // according to their scheduled time and preserved their identity.
   EXPECT_EQ(steps, "12");
+}
+
+TEST_P(ExecutorTest, ConcurrentExecutorsWork) {
+  /**
+   * A mix of a countdown latch and a barrier. All threads that bump the
+   * countdown block until the count becomes zero.
+   */
+  class BlockingCountdown {
+   public:
+    explicit BlockingCountdown(int threads) : threads_count_(threads) {
+    }
+
+    int count() const {
+      std::lock_guard<std::mutex> lock(mutex_);
+      return threads_count_;
+    }
+
+    /** Awaits the completion of all threads. */
+    void Await() {
+      std::unique_lock<std::mutex> lock(mutex_);
+      is_zero_.wait(lock, [this] { return threads_count_ == 0; });
+    }
+
+    /**
+     * Bumps the counter down by one and waits for the counter to become zero.
+     */
+    void Bump() {
+      std::unique_lock<std::mutex> lock(mutex_);
+
+      --threads_count_;
+
+      // Block until all threads have come through here to ensure that the
+      // executor is actually executing tasks concurrently.
+      is_zero_.wait(lock, [this] { return threads_count_ == 0; });
+      is_zero_.notify_all();
+    }
+
+   private:
+    mutable std::mutex mutex_;
+    std::condition_variable is_zero_;
+    int threads_count_ = 0;
+  };
+
+  const int threads_count = 5;
+  executor = GetParam()(threads_count);
+  auto countdown = std::make_shared<BlockingCountdown>(threads_count);
+
+  for (int i = 0; i < threads_count; i++) {
+    executor->Execute([countdown] { countdown->Bump(); });
+  }
+
+  countdown->Await();
+  ASSERT_EQ(0, countdown->count());
 }
 
 }  // namespace util

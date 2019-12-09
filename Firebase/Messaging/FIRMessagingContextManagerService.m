@@ -149,7 +149,7 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunguarded-availability"
       notification.alertTitle = apsDictionary[kFIRMessagingContextManagerTitleKey];
-#pragma pop
+#pragma clang diagnostic pop
     }
   }
 
@@ -175,7 +175,10 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
   if (!application) {
     return;
   }
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   [application scheduleLocalNotification:notification];
+#pragma clang diagnostic pop
 #endif
 }
 

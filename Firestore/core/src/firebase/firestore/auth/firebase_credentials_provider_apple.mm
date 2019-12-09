@@ -80,7 +80,7 @@ void FirebaseCredentialsProvider::GetToken(TokenListener completion) {
   HARD_ASSERT(auth_listener_handle_,
               "GetToken cannot be called after listener removed.");
 
-  // Take note of the current value of the tokenCounter so that this method can
+  // Take note of the current value of the token_counter so that this method can
   // fail if there is a token change while the request is outstanding.
   int initial_token_counter = contents_->token_counter;
 
@@ -98,7 +98,7 @@ void FirebaseCredentialsProvider::GetToken(TokenListener completion) {
       // outstanding so the response is likely for a previous user (which
       // user, we can't be sure).
       completion(util::Status(Error::Aborted,
-                              "getToken aborted due to token change."));
+                              "GetToken aborted due to token change."));
     } else {
       if (error == nil) {
         if (token != nil) {
@@ -134,19 +134,19 @@ void FirebaseCredentialsProvider::InvalidateToken() {
 }
 
 void FirebaseCredentialsProvider::SetCredentialChangeListener(
-    CredentialChangeListener changeListener) {
+    CredentialChangeListener change_listener) {
   std::unique_lock<std::mutex> lock(contents_->mutex);
-  if (changeListener) {
+  if (change_listener) {
     HARD_ASSERT(!change_listener_, "set change_listener twice!");
     // Fire initial event.
-    changeListener(contents_->current_user);
+    change_listener(contents_->current_user);
   } else {
     HARD_ASSERT(auth_listener_handle_, "removed change_listener twice!");
     HARD_ASSERT(change_listener_, "change_listener removed without being set!");
     [[NSNotificationCenter defaultCenter] removeObserver:auth_listener_handle_];
     auth_listener_handle_ = nil;
   }
-  change_listener_ = changeListener;
+  change_listener_ = change_listener;
 }
 
 }  // namespace auth

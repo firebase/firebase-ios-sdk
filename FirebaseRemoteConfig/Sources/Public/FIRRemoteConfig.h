@@ -44,12 +44,12 @@ typedef NS_ENUM(NSInteger, FIRRemoteConfigFetchStatus) {
 
 /// Indicates whether updated data was successfully fetched and activated.
 typedef NS_ENUM(NSInteger, FIRRemoteConfigFetchAndActivateStatus) {
-  // The remote fetch succeeded and fetched data was activated.
+  /// The remote fetch succeeded and fetched data was activated.
   FIRRemoteConfigFetchAndActivateStatusSuccessFetchedFromRemote,
-  // The fetch and activate succeeded from already fetched but yet unexpired config data. You can
-  // control this using minimumFetchInterval property in FIRRemoteConfigSettings.
+  /// The fetch and activate succeeded from already fetched but yet unexpired config data. You can
+  /// control this using minimumFetchInterval property in FIRRemoteConfigSettings.
   FIRRemoteConfigFetchAndActivateStatusSuccessUsingPreFetchedData,
-  // The fetch and activate failed.
+  /// The fetch and activate failed.
   FIRRemoteConfigFetchAndActivateStatusError
 } NS_SWIFT_NAME(RemoteConfigFetchAndActivateStatus);
 
@@ -237,7 +237,7 @@ NS_SWIFT_NAME(RemoteConfig)
 /// @param completionHandler Activate operation callback.
 - (void)activateWithCompletionHandler:(nullable FIRRemoteConfigActivateCompletion)completionHandler;
 
-/// This method is deprecated. Please use -[FIRRemoteConfig activate] instead.
+/// This method is deprecated. Please use -[FIRRemoteConfig activateWithCompletionHandler:] instead.
 /// Applies Fetched Config data to the Active Config, causing updates to the behavior and appearance
 /// of the app to take effect (depending on how config data is used in the app).
 /// Returns true if there was a Fetched Config, and it was activated.

@@ -17,8 +17,6 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LOCAL_DOCUMENTS_VIEW_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LOCAL_DOCUMENTS_VIEW_H_
 
-#import <Foundation/Foundation.h>
-
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/core/query.h"
@@ -29,17 +27,15 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
 
-NS_ASSUME_NONNULL_BEGIN
-
 namespace firebase {
 namespace firestore {
 namespace local {
 
 /**
  * A readonly view of the local state of all documents we're tracking (i.e. we
- * have a cached version in remoteDocumentCache or local mutations for the
+ * have a cached version in the RemoteDocumentCache or local mutations for the
  * document). The view is computed by applying the mutations in the
- * FSTMutationQueue to the FSTRemoteDocumentCache.
+ * MutationQueue to the RemoteDocumentCache.
  */
 class LocalDocumentsView {
  public:
@@ -50,6 +46,8 @@ class LocalDocumentsView {
         mutation_queue_{mutation_queue},
         index_manager_{index_manager} {
   }
+
+  virtual ~LocalDocumentsView() = default;
 
   /**
    * Gets the local view of the document identified by `key`.
@@ -69,14 +67,22 @@ class LocalDocumentsView {
   model::MaybeDocumentMap GetDocuments(const model::DocumentKeySet& keys);
 
   /**
-   * Similar to `documentsForKeys`, but creates the local view from the given
-   * `baseDocs` without retrieving documents from the local store.
+   * Similar to `GetDocuments`, but creates the local view from the given
+   * `base_docs` without retrieving documents from the local store.
    */
   model::MaybeDocumentMap GetLocalViewOfDocuments(
       const model::OptionalMaybeDocumentMap& base_docs);
 
-  /** Performs a query against the local view of all documents. */
-  model::DocumentMap GetDocumentsMatchingQuery(const core::Query& query);
+  /**
+   * Performs a query against the local view of all documents.
+   *
+   * @param query The query to match documents against.
+   * @param since_read_time If not set to SnapshotVersion::None(), return only
+   *     documents that have been read since this snapshot version (exclusive).
+   */
+  // Virtual for testing.
+  virtual model::DocumentMap GetDocumentsMatchingQuery(
+      const core::Query& query, const model::SnapshotVersion& since_read_time);
 
  private:
   /** Internal version of GetDocument that allows re-using batches. */
@@ -97,17 +103,17 @@ class LocalDocumentsView {
       const model::ResourcePath& doc_path);
 
   model::DocumentMap GetDocumentsMatchingCollectionGroupQuery(
-      const core::Query& query);
+      const core::Query& query, const model::SnapshotVersion& since_read_time);
 
   /** Queries the remote documents and overlays mutations. */
   model::DocumentMap GetDocumentsMatchingCollectionQuery(
-      const core::Query& query);
+      const core::Query& query, const model::SnapshotVersion& since_read_time);
 
   /**
    * It is possible that a `PatchMutation` can make a document match a query,
    * even if the version in the `RemoteDocumentCache` is not a match yet
    * (waiting for server to ack). To handle this, we find all document keys
-   * affected by the `PatchMutation`s that are not in `existingDocs` yet, and
+   * affected by the `PatchMutation`s that are not in `existing_docs` yet, and
    * back fill them via `remote_document_cache_->GetAll`, otherwise those
    * `PatchMutation`s will be ignored because no base document can be found, and
    * lead to missing results for the query.
@@ -124,7 +130,5 @@ class LocalDocumentsView {
 }  // namespace local
 }  // namespace firestore
 }  // namespace firebase
-
-NS_ASSUME_NONNULL_END
 
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LOCAL_DOCUMENTS_VIEW_H_

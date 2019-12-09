@@ -19,8 +19,16 @@
 
 #include "mutation.nanopb.h"
 
+#include "Firestore/core/src/firebase/firestore/nanopb/pretty_printing.h"
+
 namespace firebase {
 namespace firestore {
+
+using nanopb::PrintEnumField;
+using nanopb::PrintHeader;
+using nanopb::PrintMessageField;
+using nanopb::PrintPrimitiveField;
+using nanopb::PrintTail;
 
 /* @@protoc_insertion_point(includes) */
 #if PB_PROTO_HEADER_VERSION != 30
@@ -67,6 +75,43 @@ PB_STATIC_ASSERT((pb_membersize(firestore_client_WriteBatch, local_write_time) <
 PB_STATIC_ASSERT((pb_membersize(firestore_client_WriteBatch, local_write_time) < 256), YOU_MUST_DEFINE_PB_FIELD_16BIT_FOR_MESSAGES_firestore_client_MutationQueue_firestore_client_WriteBatch)
 #endif
 
+
+std::string firestore_client_MutationQueue::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "MutationQueue", this);
+    std::string result;
+
+    result += PrintPrimitiveField("last_acknowledged_batch_id: ",
+        last_acknowledged_batch_id, indent + 1, false);
+    result += PrintPrimitiveField("last_stream_token: ",
+        last_stream_token, indent + 1, false);
+
+    bool is_root = indent == 0;
+    if (!result.empty() || is_root) {
+      std::string tail = PrintTail(indent);
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}
+
+std::string firestore_client_WriteBatch::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "WriteBatch", this);
+    std::string result;
+
+    result += PrintPrimitiveField("batch_id: ", batch_id, indent + 1, false);
+    for (pb_size_t i = 0; i != writes_count; ++i) {
+        result += PrintMessageField("writes ", writes[i], indent + 1, true);
+    }
+    result += PrintMessageField("local_write_time ",
+        local_write_time, indent + 1, false);
+    for (pb_size_t i = 0; i != base_writes_count; ++i) {
+        result += PrintMessageField("base_writes ",
+            base_writes[i], indent + 1, true);
+    }
+
+    std::string tail = PrintTail(indent);
+    return header + result + tail;
+}
 
 }  // namespace firestore
 }  // namespace firebase

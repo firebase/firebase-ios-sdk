@@ -29,6 +29,8 @@
 
 #include "google/type/latlng.nanopb.h"
 
+#include <string>
+
 namespace firebase {
 namespace firestore {
 
@@ -42,12 +44,16 @@ namespace firestore {
 typedef struct _google_firestore_v1_ArrayValue {
     pb_size_t values_count;
     struct _google_firestore_v1_Value *values;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_ArrayValue) */
 } google_firestore_v1_ArrayValue;
 
 typedef struct _google_firestore_v1_MapValue {
     pb_size_t fields_count;
     struct _google_firestore_v1_MapValue_FieldsEntry *fields;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_MapValue) */
 } google_firestore_v1_MapValue;
 
@@ -56,7 +62,10 @@ typedef struct _google_firestore_v1_Document {
     pb_size_t fields_count;
     struct _google_firestore_v1_Document_FieldsEntry *fields;
     google_protobuf_Timestamp create_time;
+    bool has_update_time;
     google_protobuf_Timestamp update_time;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_Document) */
 } google_firestore_v1_Document;
 
@@ -75,31 +84,37 @@ typedef struct _google_firestore_v1_Value {
         pb_bytes_array_t *string_value;
         pb_bytes_array_t *bytes_value;
     };
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_Value) */
 } google_firestore_v1_Value;
 
 typedef struct _google_firestore_v1_Document_FieldsEntry {
     pb_bytes_array_t *key;
     google_firestore_v1_Value value;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_Document_FieldsEntry) */
 } google_firestore_v1_Document_FieldsEntry;
 
 typedef struct _google_firestore_v1_MapValue_FieldsEntry {
     pb_bytes_array_t *key;
     google_firestore_v1_Value value;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_MapValue_FieldsEntry) */
 } google_firestore_v1_MapValue_FieldsEntry;
 
 /* Default values for struct fields */
 
 /* Initializer values for message structs */
-#define google_firestore_v1_Document_init_default {NULL, 0, NULL, google_protobuf_Timestamp_init_default, google_protobuf_Timestamp_init_default}
+#define google_firestore_v1_Document_init_default {NULL, 0, NULL, google_protobuf_Timestamp_init_default, false, google_protobuf_Timestamp_init_default}
 #define google_firestore_v1_Document_FieldsEntry_init_default {NULL, google_firestore_v1_Value_init_default}
 #define google_firestore_v1_Value_init_default   {0, {0}}
 #define google_firestore_v1_ArrayValue_init_default {0, NULL}
 #define google_firestore_v1_MapValue_init_default {0, NULL}
 #define google_firestore_v1_MapValue_FieldsEntry_init_default {NULL, google_firestore_v1_Value_init_default}
-#define google_firestore_v1_Document_init_zero   {NULL, 0, NULL, google_protobuf_Timestamp_init_zero, google_protobuf_Timestamp_init_zero}
+#define google_firestore_v1_Document_init_zero   {NULL, 0, NULL, google_protobuf_Timestamp_init_zero, false, google_protobuf_Timestamp_init_zero}
 #define google_firestore_v1_Document_FieldsEntry_init_zero {NULL, google_firestore_v1_Value_init_zero}
 #define google_firestore_v1_Value_init_zero      {0, {0}}
 #define google_firestore_v1_ArrayValue_init_zero {0, NULL}

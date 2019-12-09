@@ -28,11 +28,11 @@ cc_test(
     async_queue_std_test.cc
     async_queue_test.cc
     async_queue_test.h
-    async_tests_util.h
     executor_std_test.cc
     executor_test.cc
     executor_test.h
   DEPENDS
+    firebase_firestore_testutil
     firebase_firestore_util_async_std
 )
 
@@ -43,11 +43,11 @@ if(HAVE_LIBDISPATCH)
       async_queue_libdispatch_test.mm
       async_queue_test.cc
       async_queue_test.h
-      async_tests_util.h
       executor_libdispatch_test.mm
       executor_test.cc
       executor_test.h
     DEPENDS
+      firebase_firestore_testutil
       firebase_firestore_util_async_libdispatch
   )
 endif()
@@ -86,6 +86,7 @@ if(APPLE)
       filesystem_test.cc
       path_test.cc
     DEPENDS
+      GMock::GMock
       absl_optional
       firebase_firestore_util_autoid
       firebase_firestore_util_filesystem_apple
@@ -152,7 +153,9 @@ cc_test(
     comparison_test.cc
     delayed_constructor_test.cc
     hashing_test.cc
+    hashing_test_apple.mm
     iterator_adaptors_test.cc
+    objc_compatibility_apple_test.mm
     ordered_code_test.cc
     status_apple_test.mm
     status_test.cc
@@ -163,9 +166,12 @@ cc_test(
     string_format_test.cc
     string_util_test.cc
     string_win_test.cc
+    to_string_apple_test.mm
+    to_string_test.cc
   DEPENDS
     absl_base
     absl_strings
+    firebase_firestore_model
     firebase_firestore_util
     GMock::GMock
 )
@@ -187,6 +193,7 @@ cc_library(
     firebase_firestore_auth
     firebase_firestore_core
     firebase_firestore_remote
+    firebase_firestore_testutil
     firebase_firestore_util
     grpc++
 )

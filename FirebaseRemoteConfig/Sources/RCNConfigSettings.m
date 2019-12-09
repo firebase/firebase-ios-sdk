@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseRemoteConfig/Sources/RCNConfigSettings.h"
+#import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
 
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
@@ -67,6 +67,8 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
   NSString *_googleAppID;
   /// The user defaults manager scoped to this RC instance of FIRApp and namespace.
   RCNUserDefaultsManager *_userDefaultsManager;
+  /// The timestamp of last eTag update.
+  NSTimeInterval _lastETagUpdateTime;
 }
 @end
 
@@ -111,11 +113,20 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
 }
 
 - (void)setLastETag:(NSString *)lastETag {
+  [self setLastETagUpdateTime:[[NSDate date] timeIntervalSince1970]];
   [_userDefaultsManager setLastETag:lastETag];
+}
+
+- (void)setLastETagUpdateTime:(NSTimeInterval)lastETagUpdateTime {
+  [_userDefaultsManager setLastETagUpdateTime:lastETagUpdateTime];
 }
 
 - (NSTimeInterval)lastFetchTimeInterval {
   return _userDefaultsManager.lastFetchTime;
+}
+
+- (NSTimeInterval)lastETagUpdateTime {
+  return _userDefaultsManager.lastETagUpdateTime;
 }
 
 // TODO: Update logic for app extensions as required.

@@ -58,10 +58,9 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     install_secrets
     ;;
 
-  Firebase-*-xcodebuild)
+  FirebasePod-iOS-xcodebuild)
     gem install xcpretty
-    bundle exec pod install --project-directory=Example --repo-update
-    bundle exec pod install --project-directory=GoogleUtilities/Example
+    bundle exec pod install --project-directory=CoreOnly/Tests/FirebasePodTest --repo-update
     ;;
 
   Auth-*)
@@ -88,10 +87,10 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     install_secrets
     ;;
 
-  InAppMessaging-iOS-xcodebuild)
+  InAppMessaging-*-xcodebuild)
     gem install xcpretty
-    bundle exec pod install --project-directory=InAppMessagingDisplay/Example --repo-update
     bundle exec pod install --project-directory=InAppMessaging/Example --repo-update
+    bundle exec pod install --project-directory=InAppMessagingDisplay/Example --no-repo-update
     ;;
 
   Firestore-*-xcodebuild | Firestore-*-fuzz)

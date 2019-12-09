@@ -20,11 +20,11 @@
 
 #import <FirebaseCore/FIRAppInternal.h>
 #import <OCMock/OCMock.h>
+#import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigContent.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigDefines.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigSettings.h"
 #import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
 
 @interface RCNConfigDBManager (Test)
@@ -252,6 +252,88 @@
   };
 
   [_DBManager insertMetadataTableWithValues:columnNameToValue completionHandler:completion];
+  [self waitForExpectationsWithTimeout:_expectionTimeout
+                               handler:^(NSError *error) {
+                                 XCTAssertNil(error);
+                               }];
+}
+
+// Create a key each for two namespaces, delete it from one namespace, read both namespaces.
+- (void)testDeleteParamAndLoadMainTable {
+  XCTestExpectation *namespaceDeleteExpectation =
+      [self expectationWithDescription:@"Contents of 'namespace_delete' should be deleted."];
+  XCTestExpectation *namespaceKeepExpectation =
+      [self expectationWithDescription:@"Write a key to namespace_keep and read back again."];
+  NSString *namespaceToDelete = @"namespace_delete";
+  NSString *namespaceToKeep = @"namespace_keep";
+  NSString *bundleIdentifier = @"testBundleID";
+
+  // Write something to the database for both namespaces.
+  // Completion handler for the write to namespace_delete namespace.
+  RCNDBCompletion insertNamespace1Completion = ^void(BOOL success, NSDictionary *result) {
+    XCTAssertTrue(success);
+
+    // Delete the key for given namespace.
+    [_DBManager deleteRecordFromMainTableWithNamespace:namespaceToDelete
+                                      bundleIdentifier:bundleIdentifier
+                                            fromSource:RCNDBSourceActive];
+
+    // Read from the database and verify expected values.
+    [_DBManager
+        loadMainWithBundleIdentifier:bundleIdentifier
+                   completionHandler:^(BOOL success, NSDictionary *fetchedConfig,
+                                       NSDictionary *activeConfig, NSDictionary *defaultConfig) {
+                     NSMutableDictionary *res = [activeConfig mutableCopy];
+                     XCTAssertTrue(success);
+                     FIRRemoteConfigValue *value = res[namespaceToDelete][@"keyToDelete"];
+                     XCTAssertNil(value);
+
+                     FIRRemoteConfigValue *value2 = res[namespaceToKeep][@"keyToRetain"];
+                     XCTAssertTrue([value2.stringValue isEqualToString:@"valueToRetain"]);
+
+                     [namespaceDeleteExpectation fulfill];
+                   }];
+  };
+
+  // Insert a key into the second namespace.
+  RCNDBCompletion insertNamespace2Completion = ^void(BOOL success, NSDictionary *result) {
+    XCTAssertTrue(success);
+
+    // Ensure DB read succeeds.
+    [_DBManager
+        loadMainWithBundleIdentifier:bundleIdentifier
+                   completionHandler:^(BOOL success, NSDictionary *fetchedConfig,
+                                       NSDictionary *activeConfig, NSDictionary *defaultConfig) {
+                     NSMutableDictionary *res = [activeConfig mutableCopy];
+                     XCTAssertTrue(success);
+                     FIRRemoteConfigValue *value2 = res[namespaceToKeep][@"keyToRetain"];
+                     XCTAssertTrue([value2.stringValue isEqualToString:@"valueToRetain"]);
+
+                     [namespaceKeepExpectation fulfill];
+                   }];
+  };
+  // We will delete this key after storing in the database.
+  NSString *valueToDelete = @"valueToDelete";
+  NSString *keyToDelete = @"keyToDelete";
+  NSArray *items = @[
+    bundleIdentifier, namespaceToDelete, keyToDelete,
+    [valueToDelete dataUsingEncoding:NSUTF8StringEncoding]
+  ];
+  [_DBManager insertMainTableWithValues:items
+                             fromSource:RCNDBSourceActive
+                      completionHandler:insertNamespace1Completion];
+
+  // This key value will be retained.
+  NSString *valueToRetain = @"valueToRetain";
+  NSString *keyToRetain = @"keyToRetain";
+  NSArray *items2 = @[
+    bundleIdentifier, namespaceToKeep, keyToRetain,
+    [valueToRetain dataUsingEncoding:NSUTF8StringEncoding]
+  ];
+  [_DBManager insertMainTableWithValues:items2
+                             fromSource:RCNDBSourceActive
+                      completionHandler:insertNamespace2Completion];
+
   [self waitForExpectationsWithTimeout:_expectionTimeout
                                handler:^(NSError *error) {
                                  XCTAssertNil(error);

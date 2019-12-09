@@ -17,7 +17,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -79,7 +79,7 @@
           "version": 1000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -123,7 +123,7 @@
             "v": 2
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -179,7 +179,7 @@
         "writeAck": {
           "version": 2000
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/a"
@@ -187,7 +187,7 @@
             "rejectedDocs": []
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -220,7 +220,7 @@
             "v": 2
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -276,7 +276,7 @@
         "writeAck": {
           "version": 2500
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/b"
@@ -284,7 +284,7 @@
             "rejectedDocs": []
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -330,7 +330,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -381,7 +381,7 @@
           "version": 1000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection/key",
@@ -414,7 +414,7 @@
             "v": 2
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection/key",
@@ -470,7 +470,7 @@
         "writeAck": {
           "version": 2000
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/key"
@@ -478,7 +478,7 @@
             "rejectedDocs": []
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection/key",
@@ -532,7 +532,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -544,7 +544,7 @@
             }
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -593,7 +593,7 @@
         "writeAck": {
           "version": 1000
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/doc"
@@ -611,7 +611,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -623,7 +623,7 @@
             }
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -669,7 +669,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -708,7 +708,7 @@
           "version": 250,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -733,7 +733,7 @@
         "writeAck": {
           "version": 1000
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/doc"
@@ -793,7 +793,7 @@
           "version": 1000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -839,7 +839,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -890,7 +890,7 @@
           "version": 1000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection/key",
@@ -923,7 +923,7 @@
             "v": 2
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection/key",
@@ -979,7 +979,7 @@
         "writeAck": {
           "version": 2000
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/key"
@@ -987,7 +987,7 @@
             "rejectedDocs": []
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection/key",
@@ -1033,7 +1033,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -1084,7 +1084,7 @@
           "version": 1000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection/key",
@@ -1117,7 +1117,7 @@
             "v": 2
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection/key",
@@ -1147,7 +1147,7 @@
         "writeAck": {
           "version": 2000
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/key"
@@ -1181,7 +1181,7 @@
           "version": 2000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection/key",
@@ -1227,7 +1227,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -1278,7 +1278,7 @@
           "version": 1000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -1311,7 +1311,7 @@
             "v": 3
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -1341,7 +1341,7 @@
         "writeAck": {
           "version": 3000
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/key"
@@ -1412,7 +1412,7 @@
           "version": 3000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -1479,7 +1479,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -1491,7 +1491,7 @@
             }
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -1521,7 +1521,7 @@
         "writeAck": {
           "version": 1000
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/doc"
@@ -1569,7 +1569,7 @@
           "version": 2000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -1603,7 +1603,7 @@
             "local": 5
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -1634,7 +1634,7 @@
         "writeAck": {
           "version": 5000
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/doc"
@@ -1723,7 +1723,7 @@
           "version": 5000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -1770,7 +1770,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -1803,7 +1803,7 @@
             "v": 1
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -1836,7 +1836,7 @@
             "v": 1
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -1869,7 +1869,7 @@
             "v": 1
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -1902,7 +1902,7 @@
             "v": 1
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -1935,7 +1935,7 @@
             "v": 1
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -1968,7 +1968,7 @@
             "v": 1
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -2001,7 +2001,7 @@
             "v": 1
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -2034,7 +2034,7 @@
             "v": 1
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -2067,7 +2067,7 @@
             "v": 1
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -2100,7 +2100,7 @@
             "v": 1
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -2133,7 +2133,7 @@
             "v": 1
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -2166,7 +2166,7 @@
             "v": 1
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -2199,7 +2199,7 @@
             "v": 1
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -2232,7 +2232,7 @@
             "v": 1
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -2265,7 +2265,7 @@
             "v": 1
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -2290,7 +2290,7 @@
             "hasPendingWrites": true
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "numOutstandingWrites": 10
         }
       },
@@ -2298,7 +2298,7 @@
         "writeAck": {
           "version": 1000
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/a0"
@@ -2332,7 +2332,7 @@
           "version": 1000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -2362,7 +2362,7 @@
         "writeAck": {
           "version": 2000
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/a1"
@@ -2396,7 +2396,7 @@
           "version": 2000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -2426,7 +2426,7 @@
         "writeAck": {
           "version": 3000
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/a2"
@@ -2460,7 +2460,7 @@
           "version": 3000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -2490,7 +2490,7 @@
         "writeAck": {
           "version": 4000
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/a3"
@@ -2524,7 +2524,7 @@
           "version": 4000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -2554,7 +2554,7 @@
         "writeAck": {
           "version": 5000
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/a4"
@@ -2588,7 +2588,7 @@
           "version": 5000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -2618,7 +2618,7 @@
         "writeAck": {
           "version": 6000
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/a5"
@@ -2652,7 +2652,7 @@
           "version": 6000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -2682,7 +2682,7 @@
         "writeAck": {
           "version": 7000
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/a6"
@@ -2716,7 +2716,7 @@
           "version": 7000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -2746,7 +2746,7 @@
         "writeAck": {
           "version": 8000
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/a7"
@@ -2780,7 +2780,7 @@
           "version": 8000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -2810,7 +2810,7 @@
         "writeAck": {
           "version": 9000
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/a8"
@@ -2844,7 +2844,7 @@
           "version": 9000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -2874,7 +2874,7 @@
         "writeAck": {
           "version": 10000
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/a9"
@@ -2908,7 +2908,7 @@
           "version": 10000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -2938,7 +2938,7 @@
         "writeAck": {
           "version": 11000
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/a10"
@@ -2972,7 +2972,7 @@
           "version": 11000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -3002,7 +3002,7 @@
         "writeAck": {
           "version": 12000
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/a11"
@@ -3036,7 +3036,7 @@
           "version": 12000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -3066,7 +3066,7 @@
         "writeAck": {
           "version": 13000
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/a12"
@@ -3100,7 +3100,7 @@
           "version": 13000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -3130,7 +3130,7 @@
         "writeAck": {
           "version": 14000
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/a13"
@@ -3164,7 +3164,7 @@
           "version": 14000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -3194,7 +3194,7 @@
         "writeAck": {
           "version": 15000
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/a14"
@@ -3228,7 +3228,7 @@
           "version": 15000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -3274,7 +3274,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -3294,7 +3294,7 @@
             "v": 1
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -3327,7 +3327,7 @@
             "v": 1
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -3360,7 +3360,7 @@
             "v": 1
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -3393,7 +3393,7 @@
             "v": 1
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -3426,7 +3426,7 @@
             "v": 1
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -3459,7 +3459,7 @@
             "v": 1
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -3492,7 +3492,7 @@
             "v": 1
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -3525,7 +3525,7 @@
             "v": 1
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -3558,7 +3558,7 @@
             "v": 1
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -3591,7 +3591,7 @@
             "v": 1
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -3624,7 +3624,7 @@
             "v": 1
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -3657,7 +3657,7 @@
             "v": 1
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -3690,7 +3690,7 @@
             "v": 1
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -3723,7 +3723,7 @@
             "v": 1
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -3756,7 +3756,7 @@
             "v": 1
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -3781,7 +3781,7 @@
             "hasPendingWrites": true
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "numOutstandingWrites": 10
         }
       },
@@ -3791,7 +3791,7 @@
             "code": 7
           }
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [],
             "rejectedDocs": [
@@ -3799,7 +3799,7 @@
             ]
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -3831,7 +3831,7 @@
             "code": 7
           }
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [],
             "rejectedDocs": [
@@ -3839,7 +3839,7 @@
             ]
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -3871,7 +3871,7 @@
             "code": 7
           }
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [],
             "rejectedDocs": [
@@ -3879,7 +3879,7 @@
             ]
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -3911,7 +3911,7 @@
             "code": 7
           }
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [],
             "rejectedDocs": [
@@ -3919,7 +3919,7 @@
             ]
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -3951,7 +3951,7 @@
             "code": 7
           }
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [],
             "rejectedDocs": [
@@ -3959,7 +3959,7 @@
             ]
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -3991,7 +3991,7 @@
             "code": 7
           }
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [],
             "rejectedDocs": [
@@ -3999,7 +3999,7 @@
             ]
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -4031,7 +4031,7 @@
             "code": 7
           }
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [],
             "rejectedDocs": [
@@ -4039,7 +4039,7 @@
             ]
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -4071,7 +4071,7 @@
             "code": 7
           }
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [],
             "rejectedDocs": [
@@ -4079,7 +4079,7 @@
             ]
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -4111,7 +4111,7 @@
             "code": 7
           }
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [],
             "rejectedDocs": [
@@ -4119,7 +4119,7 @@
             ]
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -4151,7 +4151,7 @@
             "code": 7
           }
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [],
             "rejectedDocs": [
@@ -4159,7 +4159,7 @@
             ]
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -4191,7 +4191,7 @@
             "code": 7
           }
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [],
             "rejectedDocs": [
@@ -4199,7 +4199,7 @@
             ]
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -4231,7 +4231,7 @@
             "code": 7
           }
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [],
             "rejectedDocs": [
@@ -4239,7 +4239,7 @@
             ]
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -4271,7 +4271,7 @@
             "code": 7
           }
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [],
             "rejectedDocs": [
@@ -4279,7 +4279,7 @@
             ]
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -4311,7 +4311,7 @@
             "code": 7
           }
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [],
             "rejectedDocs": [
@@ -4319,7 +4319,7 @@
             ]
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -4351,7 +4351,7 @@
             "code": 7
           }
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [],
             "rejectedDocs": [
@@ -4360,7 +4360,7 @@
           },
           "numOutstandingWrites": 0
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -4406,7 +4406,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -4457,7 +4457,7 @@
           "version": 1000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -4490,7 +4490,7 @@
             "v": 1
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -4520,7 +4520,7 @@
         "writeAck": {
           "version": 2000
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/b"
@@ -4536,7 +4536,7 @@
             "v": 2
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -4568,7 +4568,7 @@
             "code": 7
           }
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [],
             "rejectedDocs": [
@@ -4576,7 +4576,7 @@
             ]
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -4627,7 +4627,7 @@
           "version": 2000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -4673,7 +4673,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -4712,7 +4712,7 @@
           "version": 500,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -4732,7 +4732,7 @@
             "v": 1
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -4762,7 +4762,7 @@
         "writeAck": {
           "version": 1000
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/a"
@@ -4778,7 +4778,7 @@
             "v": 1
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -4808,7 +4808,7 @@
         "writeAck": {
           "version": 2000
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/b"
@@ -4853,7 +4853,7 @@
           "version": 2000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -4910,7 +4910,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -4949,7 +4949,7 @@
           "version": 500,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -4969,7 +4969,7 @@
             "v": 1
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -4999,7 +4999,7 @@
         "writeAck": {
           "version": 1000
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/a"
@@ -5011,12 +5011,12 @@
       },
       {
         "enableNetwork": false,
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {},
           "limboDocs": [],
           "writeStreamRequestCount": 3
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -5031,7 +5031,7 @@
       },
       {
         "enableNetwork": true,
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -5083,7 +5083,7 @@
           "version": 2000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -5132,7 +5132,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -5171,7 +5171,7 @@
           "version": 500,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -5191,7 +5191,7 @@
             "v": 1
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -5221,7 +5221,7 @@
         "writeAck": {
           "version": 1000
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/a"
@@ -5239,7 +5239,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {}
         }
       },
@@ -5252,7 +5252,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "4": {
               "query": {
@@ -5285,7 +5285,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -5305,7 +5305,7 @@
             "foo": "bar"
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection/key",
@@ -5337,7 +5337,7 @@
             "code": 3
           }
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [],
             "rejectedDocs": [
@@ -5345,7 +5345,7 @@
             ]
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection/key",
@@ -5391,7 +5391,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -5411,7 +5411,7 @@
             "foo": "bar"
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection/key",
@@ -5443,7 +5443,7 @@
             "code": 5
           }
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [],
             "rejectedDocs": [
@@ -5451,7 +5451,7 @@
             ]
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection/key",
@@ -5497,7 +5497,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -5517,7 +5517,7 @@
             "foo": "bar"
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection/key",
@@ -5549,7 +5549,7 @@
             "code": 6
           }
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [],
             "rejectedDocs": [
@@ -5557,7 +5557,7 @@
             ]
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection/key",
@@ -5603,7 +5603,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -5623,7 +5623,7 @@
             "foo": "bar"
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection/key",
@@ -5655,7 +5655,7 @@
             "code": 7
           }
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [],
             "rejectedDocs": [
@@ -5663,7 +5663,7 @@
             ]
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection/key",
@@ -5709,7 +5709,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -5729,7 +5729,7 @@
             "foo": "bar"
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection/key",
@@ -5761,7 +5761,7 @@
             "code": 9
           }
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [],
             "rejectedDocs": [
@@ -5769,7 +5769,7 @@
             ]
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection/key",
@@ -5815,7 +5815,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -5835,7 +5835,7 @@
             "foo": "bar"
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection/key",
@@ -5867,7 +5867,7 @@
             "code": 11
           }
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [],
             "rejectedDocs": [
@@ -5875,7 +5875,7 @@
             ]
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection/key",
@@ -5921,7 +5921,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -5941,7 +5941,7 @@
             "foo": "bar"
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection/key",
@@ -5973,7 +5973,7 @@
             "code": 12
           }
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [],
             "rejectedDocs": [
@@ -5981,7 +5981,7 @@
             ]
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection/key",
@@ -6027,7 +6027,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -6047,7 +6047,7 @@
             "foo": "bar"
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection/key",
@@ -6079,7 +6079,7 @@
             "code": 15
           }
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [],
             "rejectedDocs": [
@@ -6087,7 +6087,7 @@
             ]
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection/key",
@@ -6133,7 +6133,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -6153,7 +6153,7 @@
             "foo": "bar"
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection/key",
@@ -6207,7 +6207,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -6227,7 +6227,7 @@
             "foo": "bar"
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection/key",
@@ -6265,7 +6265,7 @@
         "writeAck": {
           "version": 1000
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/key"
@@ -6312,7 +6312,7 @@
           "version": 1000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection/key",
@@ -6358,7 +6358,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -6378,7 +6378,7 @@
             "foo": "bar"
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection/key",
@@ -6416,7 +6416,7 @@
         "writeAck": {
           "version": 1000
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/key"
@@ -6463,7 +6463,7 @@
           "version": 1000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection/key",
@@ -6509,7 +6509,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -6529,7 +6529,7 @@
             "foo": "bar"
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection/key",
@@ -6567,7 +6567,7 @@
         "writeAck": {
           "version": 1000
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/key"
@@ -6614,7 +6614,7 @@
           "version": 1000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection/key",
@@ -6660,7 +6660,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -6680,7 +6680,7 @@
             "foo": "bar"
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection/key",
@@ -6718,7 +6718,7 @@
         "writeAck": {
           "version": 1000
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/key"
@@ -6765,7 +6765,7 @@
           "version": 1000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection/key",
@@ -6811,7 +6811,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -6831,7 +6831,7 @@
             "foo": "bar"
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection/key",
@@ -6869,7 +6869,7 @@
         "writeAck": {
           "version": 1000
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/key"
@@ -6916,7 +6916,7 @@
           "version": 1000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection/key",
@@ -6962,7 +6962,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -6982,7 +6982,7 @@
             "foo": "bar"
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection/key",
@@ -7020,7 +7020,7 @@
         "writeAck": {
           "version": 1000
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/key"
@@ -7067,7 +7067,7 @@
           "version": 1000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection/key",
@@ -7113,7 +7113,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -7133,7 +7133,7 @@
             "foo": "bar"
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection/key",
@@ -7171,7 +7171,7 @@
         "writeAck": {
           "version": 1000
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/key"
@@ -7218,7 +7218,7 @@
           "version": 1000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection/key",
@@ -7264,7 +7264,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -7318,7 +7318,7 @@
           "version": 500,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection/doc",
@@ -7355,7 +7355,7 @@
             "a.c": "<DELETE>"
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection/doc",
@@ -7417,7 +7417,7 @@
         "writeAck": {
           "version": 2000
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/doc"
@@ -7425,7 +7425,7 @@
             "rejectedDocs": []
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection/doc",
@@ -7472,13 +7472,13 @@
             "foo": "bar"
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "numOutstandingWrites": 1
         }
       },
       {
         "enableNetwork": false,
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {},
           "limboDocs": [],
           "writeStreamRequestCount": 3
@@ -7486,7 +7486,7 @@
       },
       {
         "enableNetwork": true,
-        "stateExpect": {
+        "expectedState": {
           "writeStreamRequestCount": 5,
           "numOutstandingWrites": 1
         }
@@ -7495,7 +7495,7 @@
         "writeAck": {
           "version": 1
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/key"
@@ -7530,7 +7530,7 @@
             "code": 9
           }
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [],
             "rejectedDocs": [
@@ -7551,7 +7551,7 @@
         "writeAck": {
           "version": 2000
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/b"
@@ -7608,7 +7608,7 @@
       },
       {
         "drainQueue": true,
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/a"
@@ -7668,7 +7668,7 @@
       },
       {
         "drainQueue": true,
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [],
             "rejectedDocs": [
@@ -7704,7 +7704,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -7747,7 +7747,7 @@
           "version": 500,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -7768,7 +7768,7 @@
             "v": 1
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -7808,7 +7808,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -7820,7 +7820,7 @@
             }
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -7858,7 +7858,7 @@
             "v": 2
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -7887,7 +7887,7 @@
       },
       {
         "drainQueue": true,
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -7921,7 +7921,7 @@
             "v": 3
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -7950,7 +7950,7 @@
       },
       {
         "drainQueue": true,
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -8009,7 +8009,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -8052,7 +8052,7 @@
           "version": 500,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -8079,7 +8079,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -8091,7 +8091,7 @@
             }
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -8112,7 +8112,7 @@
             "v": 1
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -8141,7 +8141,7 @@
       },
       {
         "drainQueue": true,
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -8200,7 +8200,7 @@
           "version": 1000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -8229,7 +8229,7 @@
       },
       {
         "drainQueue": true,
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/a"
@@ -8237,7 +8237,7 @@
             "rejectedDocs": []
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -8290,7 +8290,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -8333,7 +8333,7 @@
           "version": 500,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -8360,7 +8360,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -8372,7 +8372,7 @@
             }
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -8393,7 +8393,7 @@
             "v": 1
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -8422,7 +8422,7 @@
       },
       {
         "drainQueue": true,
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -8455,7 +8455,7 @@
             "code": 9
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -8484,7 +8484,7 @@
       },
       {
         "drainQueue": true,
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [],
             "rejectedDocs": [
@@ -8492,7 +8492,7 @@
             ]
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -8545,7 +8545,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -8588,7 +8588,7 @@
           "version": 500,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -8617,7 +8617,7 @@
       },
       {
         "drainQueue": true,
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -8652,7 +8652,7 @@
       },
       {
         "drainQueue": true,
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/a"
@@ -8692,7 +8692,7 @@
           "version": 2000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -8745,7 +8745,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -8766,7 +8766,7 @@
             "v": 1
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -8822,7 +8822,7 @@
           "version": 1000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -8840,7 +8840,7 @@
         "writeAck": {
           "version": 2000
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/doc"
@@ -8858,7 +8858,7 @@
         "applyClientState": {
           "primary": true
         },
-        "stateExpect": {
+        "expectedState": {
           "isPrimary": true,
           "activeTargets": {
             "2": {
@@ -8882,7 +8882,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -8902,7 +8902,7 @@
             }
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection/doc",
@@ -8986,7 +8986,7 @@
           "version": 2000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection/doc",
@@ -9002,7 +9002,7 @@
       },
       {
         "drainQueue": true,
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -9026,10 +9026,10 @@
       },
       {
         "runTimer": "client_metadata_refresh",
-        "stateExpect": {
+        "expectedState": {
           "isPrimary": false
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -9129,7 +9129,7 @@
         "writeAck": {
           "version": 1000
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/a"
@@ -9161,7 +9161,7 @@
       },
       {
         "drainQueue": true,
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/b"
@@ -9173,7 +9173,7 @@
       },
       {
         "drainQueue": true,
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/c"
@@ -9185,7 +9185,7 @@
       },
       {
         "drainQueue": true,
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [],
             "rejectedDocs": [
@@ -9255,7 +9255,7 @@
         "writeAck": {
           "version": 4000
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/f"
@@ -9287,7 +9287,7 @@
       },
       {
         "drainQueue": true,
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/g"
@@ -9299,7 +9299,7 @@
       },
       {
         "drainQueue": true,
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/h"
@@ -9311,7 +9311,7 @@
       },
       {
         "drainQueue": true,
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [],
             "rejectedDocs": [
@@ -9378,7 +9378,7 @@
       },
       {
         "drainQueue": true,
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/j",
@@ -9412,14 +9412,14 @@
         "applyClientState": {
           "visibility": "visible"
         },
-        "stateExpect": {
+        "expectedState": {
           "isPrimary": true
         },
         "clientIndex": 0
       },
       {
         "drainQueue": true,
-        "stateExpect": {
+        "expectedState": {
           "isPrimary": false
         },
         "clientIndex": 1
@@ -9454,7 +9454,7 @@
       },
       {
         "shutdown": true,
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {},
           "limboDocs": []
         },
@@ -9462,7 +9462,7 @@
       },
       {
         "drainQueue": true,
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/a"
@@ -9474,7 +9474,7 @@
       },
       {
         "runTimer": "client_metadata_refresh",
-        "stateExpect": {
+        "expectedState": {
           "isPrimary": true
         },
         "clientIndex": 1
@@ -9483,7 +9483,7 @@
         "writeAck": {
           "version": 2000
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/b"
@@ -9519,7 +9519,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -9544,7 +9544,7 @@
             "v": 1
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -9588,7 +9588,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -9600,7 +9600,7 @@
             }
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -9634,7 +9634,7 @@
             "v": 1
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -9663,7 +9663,7 @@
       },
       {
         "drainQueue": true,
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -9692,7 +9692,7 @@
       },
       {
         "changeUser": "user2",
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -9737,7 +9737,7 @@
             "v": 1
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -9770,7 +9770,7 @@
       },
       {
         "changeUser": "user2",
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -9823,7 +9823,7 @@
       },
       {
         "changeUser": "user1",
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -9880,7 +9880,7 @@
       },
       {
         "changeUser": "user1",
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -9991,7 +9991,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -10003,7 +10003,7 @@
             }
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -10043,7 +10043,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -10055,7 +10055,7 @@
             }
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -10097,7 +10097,7 @@
     "steps": [
       {
         "drainQueue": true,
-        "stateExpect": {
+        "expectedState": {
           "isPrimary": true
         },
         "clientIndex": 0
@@ -10124,7 +10124,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -10136,7 +10136,7 @@
             }
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -10165,7 +10165,7 @@
       },
       {
         "drainQueue": true,
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -10187,7 +10187,7 @@
         "applyClientState": {
           "primary": true
         },
-        "stateExpect": {
+        "expectedState": {
           "isPrimary": true
         },
         "clientIndex": 1
@@ -10239,7 +10239,7 @@
           "version": 1000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -10268,7 +10268,7 @@
       },
       {
         "drainQueue": true,
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/a"
@@ -10293,14 +10293,14 @@
     "steps": [
       {
         "drainQueue": true,
-        "stateExpect": {
+        "expectedState": {
           "isPrimary": true
         },
         "clientIndex": 0
       },
       {
         "drainQueue": true,
-        "stateExpect": {
+        "expectedState": {
           "isPrimary": false
         },
         "clientIndex": 1
@@ -10320,7 +10320,7 @@
       },
       {
         "shutdown": true,
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {},
           "limboDocs": []
         },
@@ -10328,7 +10328,7 @@
       },
       {
         "drainQueue": true,
-        "stateExpect": {
+        "expectedState": {
           "isPrimary": true,
           "numOutstandingWrites": 1
         },
@@ -10342,7 +10342,7 @@
       },
       {
         "drainQueue": true,
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/a"
@@ -10367,7 +10367,7 @@
     "steps": [
       {
         "drainQueue": true,
-        "stateExpect": {
+        "expectedState": {
           "isPrimary": true
         },
         "clientIndex": 0
@@ -10385,7 +10385,7 @@
         "writeAck": {
           "version": 1000
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/a"
@@ -10416,7 +10416,7 @@
         "applyClientState": {
           "primary": true
         },
-        "stateExpect": {
+        "expectedState": {
           "isPrimary": true
         },
         "clientIndex": 2
@@ -10444,7 +10444,7 @@
       },
       {
         "drainQueue": true,
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/b"
@@ -10469,7 +10469,7 @@
     "steps": [
       {
         "drainQueue": true,
-        "stateExpect": {
+        "expectedState": {
           "isPrimary": true
         },
         "clientIndex": 0
@@ -10487,7 +10487,7 @@
         "writeAck": {
           "version": 1000
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/a"
@@ -10518,7 +10518,7 @@
         "applyClientState": {
           "primary": true
         },
-        "stateExpect": {
+        "expectedState": {
           "isPrimary": true
         },
         "clientIndex": 2
@@ -10550,7 +10550,7 @@
       },
       {
         "drainQueue": true,
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [],
             "rejectedDocs": [
@@ -10575,7 +10575,7 @@
     "steps": [
       {
         "drainQueue": true,
-        "stateExpect": {
+        "expectedState": {
           "isPrimary": true
         },
         "clientIndex": 0
@@ -10606,7 +10606,7 @@
         "applyClientState": {
           "primary": true
         },
-        "stateExpect": {
+        "expectedState": {
           "isPrimary": true
         },
         "clientIndex": 1
@@ -10619,7 +10619,7 @@
       },
       {
         "drainQueue": true,
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/a"
@@ -10633,7 +10633,7 @@
         "applyClientState": {
           "primary": true
         },
-        "stateExpect": {
+        "expectedState": {
           "isPrimary": true
         },
         "clientIndex": 0
@@ -10642,7 +10642,7 @@
         "writeAck": {
           "version": 2000
         },
-        "stateExpect": {
+        "expectedState": {
           "userCallbacks": {
             "acknowledgedDocs": [
               "collection/b"
@@ -10661,7 +10661,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -10673,7 +10673,7 @@
             }
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",

@@ -26,14 +26,13 @@
 #include <vector>
 
 #import "Firestore/Source/API/FSTUserDataConverter.h"
-#import "Firestore/Source/Local/FSTPersistence.h"
-#import "Firestore/Source/Util/FSTClasses.h"
 
 #import "Firestore/Example/Tests/SpecTests/FSTSyncEngineTestDriver.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/local/persistence.h"
 #include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -47,11 +46,14 @@
 #include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "Firestore/core/src/firebase/firestore/objc/objc_compatibility.h"
 #include "Firestore/core/src/firebase/firestore/remote/existence_filter.h"
+#include "Firestore/core/src/firebase/firestore/remote/serializer.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
+#include "Firestore/core/src/firebase/firestore/util/filesystem.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
+#include "Firestore/core/src/firebase/firestore/util/path.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
@@ -64,6 +66,7 @@ using firebase::firestore::Error;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::Query;
+using firebase::firestore::local::Persistence;
 using firebase::firestore::local::QueryData;
 using firebase::firestore::local::QueryPurpose;
 using firebase::firestore::model::Document;
@@ -83,9 +86,11 @@ using firebase::firestore::nanopb::MakeByteString;
 using firebase::firestore::remote::ExistenceFilter;
 using firebase::firestore::remote::DocumentWatchChange;
 using firebase::firestore::remote::ExistenceFilterWatchChange;
+using firebase::firestore::remote::InvalidQuery;
 using firebase::firestore::remote::WatchTargetChange;
 using firebase::firestore::remote::WatchTargetChangeState;
 using firebase::firestore::util::MakeString;
+using firebase::firestore::util::Path;
 using firebase::firestore::util::Status;
 using firebase::firestore::util::TimerId;
 
@@ -146,7 +151,13 @@ ByteString MakeResumeToken(NSString *specString) {
   FSTUserDataConverter *_converter;
 }
 
-- (id<FSTPersistence>)persistenceWithGCEnabled:(BOOL)GCEnabled {
+#define FSTAbstractMethodException()                                                               \
+  [NSException exceptionWithName:NSInternalInconsistencyException                                  \
+                          reason:[NSString stringWithFormat:@"You must override %s in a subclass", \
+                                                            __func__]                              \
+                        userInfo:nil];
+
+- (std::unique_ptr<Persistence>)persistenceWithGCEnabled:(BOOL)GCEnabled {
   @throw FSTAbstractMethodException();  // NOLINT
 }
 
@@ -171,8 +182,8 @@ ByteString MakeResumeToken(NSString *specString) {
   if (numClients) {
     XCTAssertEqualObjects(numClients, @1, @"The iOS client does not support multi-client tests");
   }
-  id<FSTPersistence> persistence = [self persistenceWithGCEnabled:_gcEnabled];
-  self.driver = [[FSTSyncEngineTestDriver alloc] initWithPersistence:persistence];
+  std::unique_ptr<Persistence> persistence = [self persistenceWithGCEnabled:_gcEnabled];
+  self.driver = [[FSTSyncEngineTestDriver alloc] initWithPersistence:std::move(persistence)];
   [self.driver start];
 }
 
@@ -225,7 +236,7 @@ ByteString MakeResumeToken(NSString *specString) {
     return query;
   } else {
     XCTFail(@"Invalid query: %@", querySpec);
-    return Query::Invalid();
+    return InvalidQuery();
   }
 }
 
@@ -275,6 +286,14 @@ ByteString MakeResumeToken(NSString *specString) {
 
 - (void)doDelete:(NSString *)key {
   [self.driver writeUserMutation:FSTTestDeleteMutation(key)];
+}
+
+- (void)doAddSnapshotsInSyncListener {
+  [self.driver addSnapshotsInSyncListener];
+}
+
+- (void)doRemoveSnapshotsInSyncListener {
+  [self.driver removeSnapshotsInSyncListener];
 }
 
 - (void)doWatchAck:(NSArray<NSNumber *> *)ackedTargets {
@@ -457,8 +476,8 @@ ByteString MakeResumeToken(NSString *specString) {
 
   [self.driver shutdown];
 
-  id<FSTPersistence> persistence = [self persistenceWithGCEnabled:_gcEnabled];
-  self.driver = [[FSTSyncEngineTestDriver alloc] initWithPersistence:persistence
+  std::unique_ptr<Persistence> persistence = [self persistenceWithGCEnabled:_gcEnabled];
+  self.driver = [[FSTSyncEngineTestDriver alloc] initWithPersistence:std::move(persistence)
                                                          initialUser:currentUser
                                                    outstandingWrites:outstandingWrites];
   [self.driver start];
@@ -478,6 +497,10 @@ ByteString MakeResumeToken(NSString *specString) {
     [self doPatch:step[@"userPatch"]];
   } else if (step[@"userDelete"]) {
     [self doDelete:step[@"userDelete"]];
+  } else if (step[@"addSnapshotsInSyncListener"]) {
+    [self doAddSnapshotsInSyncListener];
+  } else if (step[@"removeSnapshotsInSyncListener"]) {
+    [self doRemoveSnapshotsInSyncListener];
   } else if (step[@"drainQueue"]) {
     [self doDrainQueue];
   } else if (step[@"watchAck"]) {
@@ -566,23 +589,23 @@ ByteString MakeResumeToken(NSString *specString) {
   }
 }
 
-- (void)validateStepExpectations:(NSArray *_Nullable)stepExpectations {
+- (void)validateExpectedSnapshotEvents:(NSArray *_Nullable)expectedEvents {
   NSArray<FSTQueryEvent *> *events = self.driver.capturedEventsSinceLastCall;
 
-  if (!stepExpectations) {
-    XCTAssertEqual(events.count, 0);
+  if (!expectedEvents) {
+    XCTAssertEqual(events.count, 0u);
     for (FSTQueryEvent *event in events) {
       XCTFail(@"Unexpected event: %@", event);
     }
     return;
   }
 
-  XCTAssertEqual(events.count, stepExpectations.count);
+  XCTAssertEqual(events.count, expectedEvents.count);
   events =
       [events sortedArrayUsingComparator:^NSComparisonResult(FSTQueryEvent *q1, FSTQueryEvent *q2) {
         return util::WrapCompare(q1.query.CanonicalId(), q2.query.CanonicalId());
       }];
-  stepExpectations = [stepExpectations
+  expectedEvents = [expectedEvents
       sortedArrayUsingComparator:^NSComparisonResult(NSDictionary *left, NSDictionary *right) {
         Query leftQuery = [self parseQuery:left[@"query"]];
         Query rightQuery = [self parseQuery:right[@"query"]];
@@ -590,42 +613,43 @@ ByteString MakeResumeToken(NSString *specString) {
       }];
 
   NSUInteger i = 0;
-  for (; i < stepExpectations.count && i < events.count; ++i) {
-    [self validateEvent:events[i] matches:stepExpectations[i]];
+  for (; i < expectedEvents.count && i < events.count; ++i) {
+    [self validateEvent:events[i] matches:expectedEvents[i]];
   }
-  for (; i < stepExpectations.count; ++i) {
-    XCTFail(@"Missing event: %@", stepExpectations[i]);
+  for (; i < expectedEvents.count; ++i) {
+    XCTFail(@"Missing event: %@", expectedEvents[i]);
   }
   for (; i < events.count; ++i) {
     XCTFail(@"Unexpected event: %@", events[i]);
   }
 }
 
-- (void)validateStateExpectations:(nullable NSDictionary *)expected {
-  if (expected) {
-    if (expected[@"numOutstandingWrites"]) {
-      XCTAssertEqual([self.driver sentWritesCount], [expected[@"numOutstandingWrites"] intValue]);
+- (void)validateExpectedState:(nullable NSDictionary *)expectedState {
+  if (expectedState) {
+    if (expectedState[@"numOutstandingWrites"]) {
+      XCTAssertEqual([self.driver sentWritesCount],
+                     [expectedState[@"numOutstandingWrites"] intValue]);
     }
-    if (expected[@"writeStreamRequestCount"]) {
+    if (expectedState[@"writeStreamRequestCount"]) {
       XCTAssertEqual([self.driver writeStreamRequestCount],
-                     [expected[@"writeStreamRequestCount"] intValue]);
+                     [expectedState[@"writeStreamRequestCount"] intValue]);
     }
-    if (expected[@"watchStreamRequestCount"]) {
+    if (expectedState[@"watchStreamRequestCount"]) {
       XCTAssertEqual([self.driver watchStreamRequestCount],
-                     [expected[@"watchStreamRequestCount"] intValue]);
+                     [expectedState[@"watchStreamRequestCount"] intValue]);
     }
-    if (expected[@"limboDocs"]) {
+    if (expectedState[@"limboDocs"]) {
       DocumentKeySet expectedLimboDocuments;
-      NSArray *docNames = expected[@"limboDocs"];
+      NSArray *docNames = expectedState[@"limboDocs"];
       for (NSString *name in docNames) {
         expectedLimboDocuments = expectedLimboDocuments.insert(FSTTestDocKey(name));
       }
       // Update the expected limbo documents
       [self.driver setExpectedLimboDocuments:std::move(expectedLimboDocuments)];
     }
-    if (expected[@"activeTargets"]) {
+    if (expectedState[@"activeTargets"]) {
       __block std::unordered_map<TargetId, QueryData> expectedActiveTargets;
-      [expected[@"activeTargets"]
+      [expectedState[@"activeTargets"]
           enumerateKeysAndObjectsUsingBlock:^(NSString *targetIDString, NSDictionary *queryData,
                                               BOOL *stop) {
             TargetId targetID = [targetIDString intValue];
@@ -643,11 +667,16 @@ ByteString MakeResumeToken(NSString *specString) {
   }
 
   // Always validate the we received the expected number of callbacks.
-  [self validateUserCallbacks:expected];
+  [self validateUserCallbacks:expectedState];
   // Always validate that the expected limbo docs match the actual limbo docs.
   [self validateLimboDocuments];
   // Always validate that the expected active targets match the actual active targets.
   [self validateActiveTargets];
+}
+
+- (void)validateSnapshotsInSyncEvents:(int)expectedSnapshotInSyncEvents {
+  XCTAssertEqual(expectedSnapshotInSyncEvents, [self.driver snapshotsInSyncEvents]);
+  [self.driver resetSnapshotsInSyncEvents];
 }
 
 - (void)validateUserCallbacks:(nullable NSDictionary *)expected {
@@ -660,8 +689,8 @@ ByteString MakeResumeToken(NSString *specString) {
     XCTAssertTrue([actualAcknowledgedDocs isEqualToArray:expectedCallbacks[@"acknowledgedDocs"]]);
     XCTAssertTrue([actualRejectedDocs isEqualToArray:expectedCallbacks[@"rejectedDocs"]]);
   } else {
-    XCTAssertEqual([actualAcknowledgedDocs count], 0);
-    XCTAssertEqual([actualRejectedDocs count], 0);
+    XCTAssertEqual([actualAcknowledgedDocs count], 0u);
+    XCTAssertEqual([actualRejectedDocs count], 0u);
   }
 }
 
@@ -725,8 +754,10 @@ ByteString MakeResumeToken(NSString *specString) {
     for (NSDictionary *step in steps) {
       LOG_DEBUG("Doing step %s", step);
       [self doStep:step];
-      [self validateStepExpectations:step[@"expect"]];
-      [self validateStateExpectations:step[@"stateExpect"]];
+      [self validateExpectedSnapshotEvents:step[@"expectedSnapshotEvents"]];
+      [self validateExpectedState:step[@"expectedState"]];
+      int expectedSnapshotsInSyncEvents = [step[@"expectedSnapshotsInSyncEvents"] intValue];
+      [self validateSnapshotsInSyncEvents:expectedSnapshotsInSyncEvents];
     }
     [self.driver validateUsage];
   } @finally {
@@ -747,17 +778,23 @@ ByteString MakeResumeToken(NSString *specString) {
   // Enumerate the .json files containing the spec tests.
   NSMutableArray<NSString *> *specFiles = [NSMutableArray array];
   NSMutableArray<NSDictionary *> *parsedSpecs = [NSMutableArray array];
-  NSBundle *bundle = [NSBundle bundleForClass:[self class]];
-  NSFileManager *fs = [NSFileManager defaultManager];
   BOOL exclusiveMode = NO;
-  for (NSString *file in [fs enumeratorAtPath:[bundle resourcePath]]) {
-    if (![@"json" isEqual:[file pathExtension]]) {
+
+  // TODO(wilhuff): Fix this when running spec tests using a real device
+  auto source_file = Path::FromUtf8(__FILE__);
+  Path json_ext = Path::FromUtf8(".json");
+  auto spec_dir = source_file.Dirname();
+  auto json_dir = spec_dir.AppendUtf8("json");
+
+  auto iter = util::DirectoryIterator::Create(json_dir);
+  for (; iter->Valid(); iter->Next()) {
+    Path entry = iter->file();
+    if (!entry.HasExtension(json_ext)) {
       continue;
     }
 
     // Read and parse the JSON from the file.
-    NSString *fileName = [file stringByDeletingPathExtension];
-    NSString *path = [bundle pathForResource:fileName ofType:@"json"];
+    NSString *path = entry.ToNSString();
     NSData *json = [NSData dataWithContentsOfFile:path];
     XCTAssertNotNil(json);
     NSError *error = nil;
@@ -767,7 +804,7 @@ ByteString MakeResumeToken(NSString *specString) {
     NSDictionary *testDict = (NSDictionary *)parsed;
 
     exclusiveMode = exclusiveMode || [self anyTestsAreMarkedExclusive:testDict];
-    [specFiles addObject:fileName];
+    [specFiles addObject:entry.Basename().ToNSString()];
     [parsedSpecs addObject:testDict];
   }
 

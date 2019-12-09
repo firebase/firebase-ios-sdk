@@ -17,7 +17,10 @@
 #include "Firestore/core/src/firebase/firestore/util/executor_std.h"
 
 #include <future>  // NOLINT(build/c++11)
+#include <memory>
 #include <sstream>
+
+#include "absl/memory/memory.h"
 
 namespace firebase {
 namespace firestore {
@@ -35,7 +38,11 @@ std::string ThreadIdToString(const std::thread::id thread_id) {
 
 }  // namespace
 
-ExecutorStd::ExecutorStd() {
+// MARK: - ExecutorStd
+
+ExecutorStd::ExecutorStd(int threads) {
+  HARD_ASSERT(threads > 0);
+
   // Somewhat counter-intuitively, constructor of `std::atomic` assigns the
   // value non-atomically, so the atomic initialization must be provided here,
   // before the worker thread is started.
@@ -43,15 +50,24 @@ ExecutorStd::ExecutorStd() {
   // on the constructor.
   current_id_ = 0;
   shutting_down_ = false;
-  worker_thread_ = std::thread{&ExecutorStd::PollingThread, this};
+  for (int i = 0; i < threads; ++i) {
+    worker_thread_pool_.emplace_back(&ExecutorStd::PollingThread, this);
+  }
 }
 
 ExecutorStd::~ExecutorStd() {
   shutting_down_ = true;
-  // Make sure the worker thread is not blocked, so that the call to `join`
-  // doesn't hang.
-  UnblockQueue();
-  worker_thread_.join();
+
+  // Make sure the worker threads are not blocked, so that the call to `join`
+  // doesn't hang. It's not deterministic which thread will pick up an entry,
+  // so add an entry for each thread before attempting to join.
+  for (size_t i = 0; i < worker_thread_pool_.size(); ++i) {
+    UnblockQueue();
+  }
+
+  for (std::thread& thread : worker_thread_pool_) {
+    thread.join();
+  }
 }
 
 void ExecutorStd::Execute(Operation&& operation) {
@@ -113,15 +129,25 @@ ExecutorStd::Id ExecutorStd::NextId() {
 }
 
 bool ExecutorStd::IsCurrentExecutor() const {
-  return std::this_thread::get_id() == worker_thread_.get_id();
+  auto current_id = std::this_thread::get_id();
+  for (const std::thread& thread : worker_thread_pool_) {
+    if (thread.get_id() == current_id) {
+      return true;
+    }
+  }
+  return false;
 }
 
 std::string ExecutorStd::CurrentExecutorName() const {
-  return ThreadIdToString(std::this_thread::get_id());
+  if (IsCurrentExecutor()) {
+    return Name();
+  } else {
+    return ThreadIdToString(std::this_thread::get_id());
+  }
 }
 
 std::string ExecutorStd::Name() const {
-  return ThreadIdToString(worker_thread_.get_id());
+  return ThreadIdToString(worker_thread_pool_.front().get_id());
 }
 
 void ExecutorStd::ExecuteBlocking(Operation&& operation) {
@@ -146,6 +172,22 @@ absl::optional<Executor::TaggedOperation> ExecutorStd::PopFromSchedule() {
   }
   return {std::move(removed.value().tagged)};
 }
+
+// MARK: - Executor
+
+// Only defined on non-Apple platforms. On Apple platforms, see the alternative
+// definition in executor_libdispatch.mm.
+#if !__APPLE__
+
+std::unique_ptr<Executor> Executor::CreateSerial(const char*) {
+  return absl::make_unique<ExecutorStd>(/*threads=*/1);
+}
+
+std::unique_ptr<Executor> Executor::CreateConcurrent(const char*, int threads) {
+  return absl::make_unique<ExecutorStd>(threads);
+}
+
+#endif  // !__APPLE__
 
 }  // namespace util
 }  // namespace firestore

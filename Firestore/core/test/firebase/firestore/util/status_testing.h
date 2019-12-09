@@ -17,8 +17,7 @@
 #ifndef FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_UTIL_STATUS_TESTING_H_
 #define FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_UTIL_STATUS_TESTING_H_
 
-#include "Firestore/core/src/firebase/firestore/util/status.h"
-#include "Firestore/core/src/firebase/firestore/util/statusor.h"
+#include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
 #include "gtest/gtest.h"
 
 namespace firebase {

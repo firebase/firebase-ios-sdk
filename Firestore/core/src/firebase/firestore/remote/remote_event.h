@@ -337,8 +337,8 @@ class WatchChangeAggregator {
 
  private:
   /**
-   * Returns all `targetId`s that the watch change applies to: either the
-   * `targetId`s explicitly listed in the change or the `targetId`s of all
+   * Returns all `TargetId`s that the watch change applies to: either the
+   * `TargetId`s explicitly listed in the change or the `TargetId`s of all
    * currently active targets.
    */
   std::vector<model::TargetId> GetTargetIds(

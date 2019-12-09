@@ -38,7 +38,7 @@ class IndexManager {
   }
 
   /**
-   * Creates an index entry mapping the collectionId (last segment of the path)
+   * Creates an index entry mapping the collection_id (last segment of the path)
    * to the parent path (either the containing document location or the empty
    * path for root-level collections). Index entries can be retrieved via
    * GetCollectionParents().
@@ -50,7 +50,7 @@ class IndexManager {
       const model::ResourcePath& collection_path) = 0;
 
   /**
-   * Retrieves all parent locations containing the given collectionId, as a set
+   * Retrieves all parent locations containing the given collection_id, as a set
    * of paths (each path being either a document location or the empty path for
    * a root-level collection).
    */

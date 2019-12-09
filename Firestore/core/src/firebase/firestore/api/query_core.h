@@ -77,8 +77,8 @@ class Query {
    *
    * @return A ListenerRegistration that can be used to remove this listener.
    */
-  ListenerRegistration AddSnapshotListener(core::ListenOptions options,
-                                           QuerySnapshot::Listener&& listener);
+  std::unique_ptr<ListenerRegistration> AddSnapshotListener(
+      core::ListenOptions options, QuerySnapshot::Listener&& listener);
 
   /**
    * Creates and returns a new `Query` with the additional filter that documents
@@ -161,9 +161,9 @@ class Query {
 
  private:
   void ValidateNewFilter(const core::Filter& filter) const;
-  void ValidateNewOrderByPath(const model::FieldPath& fieldPath) const;
-  void ValidateOrderByField(const model::FieldPath& orderByField,
-                            const model::FieldPath& inequalityField) const;
+  void ValidateNewOrderByPath(const model::FieldPath& field_path) const;
+  void ValidateOrderByField(const model::FieldPath& order_by_field,
+                            const model::FieldPath& inequality_field) const;
   /**
    * Validates that the value passed into a disjunctive filter satisfies all
    * array requirements.

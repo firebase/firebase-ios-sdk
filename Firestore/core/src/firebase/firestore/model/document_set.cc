@@ -98,7 +98,7 @@ DocumentSet DocumentSet::insert(
   }
 
   // Remove any prior mapping of the document's key before adding, preventing
-  // sortedSet from accumulating values that aren't in the index.
+  // the sorted_set_ from accumulating values that aren't in the index.
   const DocumentKey& key = document->key();
   DocumentSet removed = erase(key);
 

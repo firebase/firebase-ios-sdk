@@ -531,6 +531,42 @@ using firebase::firestore::util::TimerId;
   [self awaitExpectations];
 }
 
+- (void)testSnapshotsInSyncListenerFiresAfterListenersInSync {
+  FIRCollectionReference *coll = [self.db collectionWithPath:@"collection"];
+  FIRDocumentReference *ref = [coll addDocumentWithData:@{@"foo" : @1}];
+  NSMutableArray<NSString *> *events = [NSMutableArray array];
+
+  XCTestExpectation *gotInitialSnapshot = [self expectationWithDescription:@"gotInitialSnapshot"];
+  __block bool setupComplete = false;
+  [ref addSnapshotListener:^(FIRDocumentSnapshot *snapshot, NSError *error) {
+    XCTAssertNil(error);
+    [events addObject:@"doc"];
+    // Wait for the initial event from the backend so that we know we'll get exactly one snapshot
+    // event for our local write below.
+    if (!setupComplete) {
+      setupComplete = true;
+      [gotInitialSnapshot fulfill];
+    }
+  }];
+
+  [self awaitExpectations];
+  [events removeAllObjects];
+
+  XCTestExpectation *done = [self expectationWithDescription:@"SnapshotsInSyncListenerDone"];
+  [ref.firestore addSnapshotsInSyncListener:^() {
+    [events addObject:@"snapshots-in-sync"];
+    if ([events count] == 3) {
+      // We should have an initial snapshots-in-sync event, then a snapshot event
+      // for set(), then another event to indicate we're in sync again.
+      NSArray<NSString *> *expected = @[ @"snapshots-in-sync", @"doc", @"snapshots-in-sync" ];
+      XCTAssertEqualObjects(events, expected);
+      [done fulfill];
+    }
+  }];
+
+  [self writeDocumentRef:ref data:@{@"foo" : @3}];
+}
+
 - (void)testListenCanBeCalledMultipleTimes {
   FIRCollectionReference *coll = [self.db collectionWithPath:@"collection"];
   FIRDocumentReference *doc = [coll documentWithAutoID];

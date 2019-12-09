@@ -25,9 +25,6 @@
 #include <utility>
 #include <vector>
 
-#import "Firestore/Source/Local/FSTLocalStore.h"
-#import "Firestore/Source/Local/FSTPersistence.h"
-
 #import "Firestore/Example/Tests/SpecTests/FSTMockDatastore.h"
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
@@ -36,6 +33,8 @@
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/core/event_manager.h"
 #include "Firestore/core/src/firebase/firestore/core/sync_engine.h"
+#include "Firestore/core/src/firebase/firestore/local/local_store.h"
+#include "Firestore/core/src/firebase/firestore/local/persistence.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/objc/objc_compatibility.h"
@@ -43,26 +42,32 @@
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/delayed_constructor.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
-#include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
+#include "Firestore/core/src/firebase/firestore/util/executor.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
 #include "Firestore/core/src/firebase/firestore/util/to_string.h"
+#include "Firestore/core/test/firebase/firestore/testutil/async_testing.h"
 #include "absl/memory/memory.h"
+
+namespace testutil = firebase::firestore::testutil;
 
 using firebase::firestore::Error;
 using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::auth::HashUser;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
+using firebase::firestore::core::EventListener;
 using firebase::firestore::core::EventManager;
 using firebase::firestore::core::ListenOptions;
 using firebase::firestore::core::Query;
 using firebase::firestore::core::QueryListener;
 using firebase::firestore::core::SyncEngine;
 using firebase::firestore::core::ViewSnapshot;
+using firebase::firestore::local::LocalStore;
+using firebase::firestore::local::Persistence;
 using firebase::firestore::local::QueryData;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
@@ -77,7 +82,8 @@ using firebase::firestore::remote::RemoteStore;
 using firebase::firestore::remote::WatchChange;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::DelayedConstructor;
-using firebase::firestore::util::ExecutorLibdispatch;
+using firebase::firestore::util::Empty;
+using firebase::firestore::util::Executor;
 using firebase::firestore::util::MakeNSError;
 using firebase::firestore::util::MakeNSString;
 using firebase::firestore::util::MakeString;
@@ -128,9 +134,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - Parts of the Firestore system that the spec tests need to control.
 
-@property(nonatomic, strong, readonly) FSTLocalStore *localStore;
-@property(nonatomic, strong, readonly) id<FSTPersistence> persistence;
-
 #pragma mark - Data structures for holding events sent by the watch stream.
 
 /** A block for the FSTEventAggregator to use to report events to the test. */
@@ -148,6 +151,10 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @implementation FSTSyncEngineTestDriver {
+  std::unique_ptr<Persistence> _persistence;
+
+  std::unique_ptr<LocalStore> _localStore;
+
   std::unique_ptr<SyncEngine> _syncEngine;
 
   std::shared_ptr<AsyncQueue> _workerQueue;
@@ -168,16 +175,19 @@ NS_ASSUME_NONNULL_BEGIN
   DatabaseInfo _databaseInfo;
   User _currentUser;
 
+  std::vector<std::shared_ptr<EventListener<Empty>>> _snapshotsInSyncListeners;
   std::shared_ptr<MockDatastore> _datastore;
+
+  int _snapshotsInSyncEvents;
 }
 
-- (instancetype)initWithPersistence:(id<FSTPersistence>)persistence {
-  return [self initWithPersistence:persistence
+- (instancetype)initWithPersistence:(std::unique_ptr<Persistence>)persistence {
+  return [self initWithPersistence:std::move(persistence)
                        initialUser:User::Unauthenticated()
                  outstandingWrites:{}];
 }
 
-- (instancetype)initWithPersistence:(id<FSTPersistence>)persistence
+- (instancetype)initWithPersistence:(std::unique_ptr<Persistence>)persistence
                         initialUser:(const User &)initialUser
                   outstandingWrites:(const FSTOutstandingWriteQueues &)outstandingWrites {
   if (self = [super init]) {
@@ -191,20 +201,18 @@ NS_ASSUME_NONNULL_BEGIN
     _databaseInfo = {DatabaseId{"project", "database"}, "persistence", "host", false};
 
     // Set up the sync engine and various stores.
-    dispatch_queue_t queue =
-        dispatch_queue_create("sync_engine_test_driver", DISPATCH_QUEUE_SERIAL);
-    _workerQueue = std::make_shared<AsyncQueue>(absl::make_unique<ExecutorLibdispatch>(queue));
-    _persistence = persistence;
-    _localStore = [[FSTLocalStore alloc] initWithPersistence:persistence initialUser:initialUser];
+    _workerQueue = testutil::AsyncQueueForTesting();
+    _persistence = std::move(persistence);
+    _localStore = absl::make_unique<LocalStore>(_persistence.get(), initialUser);
 
     _datastore = std::make_shared<MockDatastore>(_databaseInfo, _workerQueue,
                                                  std::make_shared<EmptyCredentialsProvider>());
     _remoteStore = absl::make_unique<RemoteStore>(
-        _localStore, _datastore, _workerQueue,
+        _localStore.get(), _datastore, _workerQueue,
         [self](OnlineState onlineState) { _syncEngine->HandleOnlineStateChange(onlineState); });
     ;
 
-    _syncEngine = absl::make_unique<SyncEngine>(_localStore, _remoteStore.get(), initialUser);
+    _syncEngine = absl::make_unique<SyncEngine>(_localStore.get(), _remoteStore.get(), initialUser);
     _remoteStore->set_sync_engine(_syncEngine.get());
     _eventManager.Init(_syncEngine.get());
 
@@ -244,9 +252,37 @@ NS_ASSUME_NONNULL_BEGIN
   return _currentUser;
 }
 
+- (void)incrementSnapshotsInSyncEvents {
+  _snapshotsInSyncEvents += 1;
+}
+
+- (void)resetSnapshotsInSyncEvents {
+  _snapshotsInSyncEvents = 0;
+}
+
+- (void)addSnapshotsInSyncListener {
+  std::shared_ptr<EventListener<Empty>> eventListener = EventListener<Empty>::Create(
+      [self](const StatusOr<Empty> &) { [self incrementSnapshotsInSyncEvents]; });
+  _snapshotsInSyncListeners.push_back(eventListener);
+  _eventManager->AddSnapshotsInSyncListener(eventListener);
+}
+
+- (void)removeSnapshotsInSyncListener {
+  if (_snapshotsInSyncListeners.empty()) {
+    HARD_FAIL("There must be a listener to unlisten to");
+  } else {
+    _eventManager->RemoveSnapshotsInSyncListener(_snapshotsInSyncListeners.back());
+    _snapshotsInSyncListeners.pop_back();
+  }
+}
+
+- (int)snapshotsInSyncEvents {
+  return _snapshotsInSyncEvents;
+}
+
 - (void)start {
   _workerQueue->EnqueueBlocking([&] {
-    [self.localStore start];
+    _localStore->Start();
     _remoteStore->Start();
   });
 }
@@ -260,7 +296,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)shutdown {
   _workerQueue->EnqueueBlocking([&] {
     _remoteStore->Shutdown();
-    [self.persistence shutdown];
+    _persistence->Shutdown();
   });
 }
 

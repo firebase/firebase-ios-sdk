@@ -18,11 +18,11 @@
 
 #include <utility>
 
-#include "Firestore/core/src/firebase/firestore/api/input_validation.h"
 #include "Firestore/core/src/firebase/firestore/api/query_core.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/objc/objc_compatibility.h"
+#include "Firestore/core/src/firebase/firestore/util/exception.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/types/optional.h"
 
@@ -36,6 +36,7 @@ using core::ViewSnapshot;
 using model::Document;
 using model::DocumentComparator;
 using model::DocumentSet;
+using util::ThrowInvalidArgument;
 
 QuerySnapshot::QuerySnapshot(std::shared_ptr<Firestore> firestore,
                              core::Query query,
@@ -67,10 +68,10 @@ size_t QuerySnapshot::Hash() const {
 
 void QuerySnapshot::ForEachDocument(
     const std::function<void(DocumentSnapshot)>& callback) const {
-  DocumentSet documentSet = snapshot_.documents();
+  DocumentSet document_set = snapshot_.documents();
   bool from_cache = metadata_.from_cache();
 
-  for (const Document& document : documentSet) {
+  for (const Document& document : document_set) {
     bool has_pending_writes = snapshot_.mutated_keys().contains(document.key());
     DocumentSnapshot snap(firestore_, document.key(), document, from_cache,
                           has_pending_writes);
