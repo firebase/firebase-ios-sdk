@@ -1,5 +1,6 @@
 # 2019-12 -- 4.2.8
 - [changed] Added heartbeat support for InstanceID (#4323)
+- [fixed] Fixed the documentations on a few random generation and hash methods to clarify its use case to avoid confusions. (#4469, #4444, #4326)
 
 # 2019-11-05 -- 4.2.7
 - [fixed] Fixed a crash in `checkTokenRefreshPolicyWithIID:` and ensure `tokenWithAuthorizedEntity:scope:options:handler` method is refreshing token if token is not freshed any more. (#4167)
