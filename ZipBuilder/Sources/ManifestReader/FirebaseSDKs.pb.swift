@@ -52,31 +52,31 @@ public struct ZipBuilder_SDK {
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
-  /// SDK name
+  /// SDK name.
   public var name: String {
     get {return _storage._name}
     set {_uniqueStorage()._name = newValue}
   }
 
-  /// MPM name for the blueprint
+  /// MPM name for the blueprint.
   var mpmName: String {
     get {return _storage._mpmName}
     set {_uniqueStorage()._mpmName = newValue}
   }
 
-  /// Public version
+  /// Public version.
   public var publicVersion: String {
     get {return _storage._publicVersion}
     set {_uniqueStorage()._publicVersion = newValue}
   }
 
-  /// List of MPM patterns to build
+  /// List of MPM patterns to build.
   var mpmPattern: [String] {
     get {return _storage._mpmPattern}
     set {_uniqueStorage()._mpmPattern = newValue}
   }
 
-  /// An optional list of additional blaze flags
+  /// An optional list of additional blaze flags.
   var blazeFlags: ZipBuilder_BlazeFlag {
     get {return _storage._blazeFlags ?? ZipBuilder_BlazeFlag()}
     set {_uniqueStorage()._blazeFlags = newValue}
@@ -86,32 +86,32 @@ public struct ZipBuilder_SDK {
   /// Clears the value of `blazeFlags`. Subsequent reads from it will return its default value.
   mutating func clearBlazeFlags() {_uniqueStorage()._blazeFlags = nil}
 
-  /// List of MPM patterns to build (optional nightly override)
+  /// List of MPM patterns to build (optional nightly override).
   var nightlyMpmPattern: [String] {
     get {return _storage._nightlyMpmPattern}
     set {_uniqueStorage()._nightlyMpmPattern = newValue}
   }
 
-  /// Whether or not the SDK is built from open-source
+  /// Whether or not the SDK is built from open-source.
   var openSource: Bool {
     get {return _storage._openSource}
     set {_uniqueStorage()._openSource = newValue}
   }
 
-  /// Whether or not to strip the i386 architecture from the build
+  /// Whether or not to strip the i386 architecture from the build.
   var stripI386: Bool {
     get {return _storage._stripI386}
     set {_uniqueStorage()._stripI386 = newValue}
   }
 
-  /// List of build targets to build the SDK - used for collecting licenses
+  /// List of build targets to build the SDK - used for collecting licenses.
   var buildTarget: [String] {
     get {return _storage._buildTarget}
     set {_uniqueStorage()._buildTarget = newValue}
   }
 
   /// Whether or not to strip both the i386 and armv7 architectures from the
-  /// build
+  /// build.
   var strip32Bits: Bool {
     get {return _storage._strip32Bits}
     set {_uniqueStorage()._strip32Bits = newValue}
@@ -124,13 +124,13 @@ public struct ZipBuilder_SDK {
     set {_uniqueStorage()._publicPod = newValue}
   }
 
-  /// Whether or not to use the builtin flags
+  /// Whether or not to use the builtin flags.
   var noBuiltinFlags: Bool {
     get {return _storage._noBuiltinFlags}
     set {_uniqueStorage()._noBuiltinFlags = newValue}
   }
 
-  /// Whether or not to build arm64e slice
+  /// Whether or not to build arm64e slice.
   var buildArm64E: Bool {
     get {return _storage._buildArm64E}
     set {_uniqueStorage()._buildArm64E = newValue}
