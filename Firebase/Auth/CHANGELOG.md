@@ -1,5 +1,6 @@
 # v6.4.1
 - [fixed] Added support of UISceneDelegate for URL redirect. (#4380)
+- [fixed] Fixed rawNonce in encoder. (#4337)
 
 # v6.4.0
 - [feature] Added support for Sign-in with Apple. (#4183)
