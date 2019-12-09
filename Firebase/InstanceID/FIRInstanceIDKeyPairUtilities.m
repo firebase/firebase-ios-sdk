@@ -30,6 +30,8 @@ NSString *FIRInstanceIDWebSafeBase64(NSData *data) {
   return [encoding encode:data];
 }
 
+// This is NOT used for cryptographic purpose for any encryption or decryption.
+// This is solely to generate a random unique string for instanceID.
 NSData *FIRInstanceIDSHA1(NSData *data) {
   unsigned char output[CC_SHA1_DIGEST_LENGTH];
   unsigned int length = (unsigned int)[data length];
