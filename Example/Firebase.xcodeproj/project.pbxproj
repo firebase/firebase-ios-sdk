@@ -108,7 +108,6 @@
 		405EEF4D2216518B00B08FF4 /* FIRAuthLifeCycleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 405EEF4B2216518A00B08FF4 /* FIRAuthLifeCycleTests.m */; };
 		405EEF4E2216518B00B08FF4 /* FIRAuthLifeCycleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 405EEF4B2216518A00B08FF4 /* FIRAuthLifeCycleTests.m */; };
 		4061967622B9B1960016A40F /* GoogleAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4061967522B9B1960016A40F /* GoogleAuthTests.m */; };
-		407B190C239B1E9500ECFF35 /* MainViewController+Apple.m in Sources */ = {isa = PBXBuildFile; fileRef = 407B190B239B1E9500ECFF35 /* MainViewController+Apple.m */; };
 		408870AB21AE0218008AAE73 /* FIRSignInWithGameCenterTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 408870AA21AE0218008AAE73 /* FIRSignInWithGameCenterTests.m */; };
 		4090ADFD2217948D00547281 /* FIRAuthE2eTestsBase.m in Sources */ = {isa = PBXBuildFile; fileRef = 4090ADFC2217948D00547281 /* FIRAuthE2eTestsBase.m */; };
 		4090ADFF2217978300547281 /* BYOAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4090ADFE2217978300547281 /* BYOAuthTests.m */; };
@@ -1072,8 +1071,6 @@
 		0697B1211EC13D8A00542174 /* Base64.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Base64.m; sourceTree = "<group>"; };
 		405EEF4B2216518A00B08FF4 /* FIRAuthLifeCycleTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRAuthLifeCycleTests.m; sourceTree = "<group>"; };
 		4061967522B9B1960016A40F /* GoogleAuthTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GoogleAuthTests.m; sourceTree = "<group>"; };
-		407B190A239B1E9500ECFF35 /* MainViewController+Apple.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MainViewController+Apple.h"; sourceTree = "<group>"; };
-		407B190B239B1E9500ECFF35 /* MainViewController+Apple.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "MainViewController+Apple.m"; sourceTree = "<group>"; };
 		408870AA21AE0218008AAE73 /* FIRSignInWithGameCenterTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRSignInWithGameCenterTests.m; sourceTree = "<group>"; };
 		4090ADFB2217948D00547281 /* FIRAuthE2eTestsBase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FIRAuthE2eTestsBase.h; sourceTree = "<group>"; };
 		4090ADFC2217948D00547281 /* FIRAuthE2eTestsBase.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FIRAuthE2eTestsBase.m; sourceTree = "<group>"; };
@@ -2306,8 +2303,6 @@
 				DE26D1E81F70333E004AE1D3 /* MainViewController.xib */,
 				40EE3B8D2256C0AD00BE59CE /* MainViewController+App.h */,
 				40EE3B8E2256C0AD00BE59CE /* MainViewController+App.m */,
-				407B190A239B1E9500ECFF35 /* MainViewController+Apple.h */,
-				407B190B239B1E9500ECFF35 /* MainViewController+Apple.m */,
 				40EE3BA22256C8DD00BE59CE /* MainViewController+Auth.h */,
 				40EE3BA32256C8DE00BE59CE /* MainViewController+Auth.m */,
 				40EE3B902256C2E800BE59CE /* MainViewController+AutoTests.h */,
@@ -4819,7 +4814,6 @@
 				DE26D24E1F7039BC004AE1D3 /* UIViewController+Alerts.m in Sources */,
 				DE26D24B1F7039BC004AE1D3 /* MainViewController.m in Sources */,
 				40EE3BA02256C77200BE59CE /* MainViewController+Custom.m in Sources */,
-				407B190C239B1E9500ECFF35 /* MainViewController+Apple.m in Sources */,
 				40EE3B8C2256BBB200BE59CE /* MainViewController+OOB.m in Sources */,
 				DE26D24A1F7039BC004AE1D3 /* main.m in Sources */,
 				DE26D2481F7039BC004AE1D3 /* FacebookAuthProvider.m in Sources */,
