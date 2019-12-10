@@ -16,7 +16,7 @@
 
 #import "MainViewController.h"
 #import "MainViewController+App.h"
-//#import "MainViewController+Apple.h"
+#import "MainViewController+Apple.h"
 #import "MainViewController+Auth.h"
 #import "MainViewController+AutoTests.h"
 #import "MainViewController+Custom.h"
@@ -246,7 +246,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
       // Facebook Auth
       [weakSelf facebookAuthSection],
       // Apple Auth
-      // [weakSelf appleAuthSection],
+      [weakSelf appleAuthSection],
       // OAuth
       [weakSelf oAuthSection],
       // Custom Auth
