@@ -55,7 +55,7 @@ class DocumentKeyReference {
   }
 
   /**
-   * The targetId of a referring target or the batchId of a referring mutation
+   * The TargetId of a referring target or the BatchId of a referring mutation
    * batch. (Which this is depends upon which ReferenceSet this reference is
    * a part of.)
    */

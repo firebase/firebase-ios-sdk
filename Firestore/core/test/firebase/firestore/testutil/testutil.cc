@@ -93,6 +93,23 @@ model::TransformMutation TransformMutation(
   return model::TransformMutation(Key(key), std::move(field_transforms));
 }
 
+std::pair<std::string, model::TransformOperation> Increment(
+    std::string field, model::FieldValue operand) {
+  model::NumericIncrementTransform transform(std::move(operand));
+
+  return std::pair<std::string, model::TransformOperation>(
+      std::move(field), std::move(transform));
+}
+
+std::pair<std::string, model::TransformOperation> ArrayUnion(
+    std::string field, std::vector<model::FieldValue> operands) {
+  model::ArrayTransform transform(model::TransformOperation::Type::ArrayUnion,
+                                  std::move(operands));
+
+  return std::pair<std::string, model::TransformOperation>(
+      std::move(field), std::move(transform));
+}
+
 }  // namespace testutil
 }  // namespace firestore
 }  // namespace firebase

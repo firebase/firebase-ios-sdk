@@ -125,8 +125,7 @@ class DirectoryIterator {
    */
   static std::unique_ptr<DirectoryIterator> Create(const Path& path);
 
-  virtual ~DirectoryIterator() {
-  }
+  virtual ~DirectoryIterator() = default;
 
   /**
    * Advances the iterator.

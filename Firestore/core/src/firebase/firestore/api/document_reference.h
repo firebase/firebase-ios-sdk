@@ -73,9 +73,9 @@ class DocumentReference {
   CollectionReference GetCollectionReference(
       const std::string& collection_path) const;
 
-  void SetData(core::ParsedSetData&& setData, util::StatusCallback callback);
+  void SetData(core::ParsedSetData&& set_data, util::StatusCallback callback);
 
-  void UpdateData(core::ParsedUpdateData&& updateData,
+  void UpdateData(core::ParsedUpdateData&& update_data,
                   util::StatusCallback callback);
 
   void DeleteDocument(util::StatusCallback callback);

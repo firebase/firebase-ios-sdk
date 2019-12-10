@@ -160,7 +160,7 @@ class LocalStore {
 
   /**
    * Returns the keys of the documents that are associated with the given
-   * targetID in the remote table.
+   * target_id in the remote table.
    */
   model::DocumentKeySet GetRemoteDocumentKeys(model::TargetId target_id);
 
@@ -188,7 +188,7 @@ class LocalStore {
       const std::vector<local::LocalViewChanges>& view_changes);
 
   /**
-   * Gets the mutation batch after the passed in batchId in the mutation queue
+   * Gets the mutation batch after the passed in batch_id in the mutation queue
    * or `nullopt` if empty.
    *
    * @param batch_id The batch to search after, or `kBatchIdUnknown` for the
@@ -229,7 +229,7 @@ class LocalStore {
   /** Manages our in-memory or durable persistence. Owned by FirestoreClient. */
   Persistence* persistence_ = nullptr;
 
-  /** Used to generate targetIDs for queries tracked locally. */
+  /** Used to generate target IDs for queries tracked locally. */
   core::TargetIdGenerator target_id_generator_;
 
   /**

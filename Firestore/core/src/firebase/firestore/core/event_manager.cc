@@ -42,7 +42,7 @@ model::TargetId EventManager::AddQueryListener(
 
   bool raised_event = listener->OnOnlineStateChanged(online_state_);
   HARD_ASSERT(!raised_event,
-              "onOnlineStateChanged() shouldn't raise an event "
+              "OnOnlineStateChanged() shouldn't raise an event "
               "for brand-new listeners.");
 
   if (query_info.view_snapshot().has_value()) {

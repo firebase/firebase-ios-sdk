@@ -49,6 +49,15 @@ A more flexible Zip Builder would enable the following scenarios:
 Unlike the Firebase zip build which builds a two-level zip file with a configurable set of
 installation, when `--zipPods` is specified a single zip file of frameworks will be created.
 
+## Implementation
+  * Add check for invalid options (#4411)
+  * Build Zip with modern CocoaPods (#4404)
+  * Add archs option to ZipBuilder (#4405)
+  * Support concurrent Zip Builder runs (#4409)
+  * ZipBuilder: -zipPods option (#4422)
+  * Rename CocoaPod.swift to FirebasePods.swift (#4423)
+  * Simplify Firebase pod naming (#4428)
+
 ## Future Directions
 
   * Binary support for Catalyst
@@ -57,3 +66,4 @@ installation, when `--zipPods` is specified a single zip file of frameworks will
   * Swift Package Manager
   * Dynamic Framework support
   * More option customization
+  * Tests

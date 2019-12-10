@@ -15,5 +15,7 @@
 add_subdirectory(Benchmarks)
 
 add_subdirectory(App)
-add_subdirectory(Tests/Util)
+add_subdirectory(Tests/API)
 add_subdirectory(Tests/Integration)
+add_subdirectory(Tests/SpecTests)
+add_subdirectory(Tests/Util)

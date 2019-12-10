@@ -84,7 +84,7 @@
 /// Throttling intervals are based on https://cloud.google.com/storage/docs/exponential-backoff
 /// Returns true if client has fetched config and has not got back from server. This is used to
 /// determine whether there is another config task infight when fetching.
-@property(nonatomic, readwrite, assign) BOOL isFetchInProgress;
+@property(atomic, readwrite, assign) BOOL isFetchInProgress;
 /// Returns the current retry interval in seconds set for exponential backoff.
 @property(nonatomic, readwrite, assign) double exponentialBackoffRetryInterval;
 /// Returns the time in seconds until the next request is allowed while in exponential backoff mode.

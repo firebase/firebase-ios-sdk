@@ -12,26 +12,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-objc_test(
-  firebase_firestore_objc_integration_test
-  HOST firestore_example_app_macos
-  SOURCES
-    FSTSmokeTests.mm
-    FSTDatastoreTests.mm
-    FSTTransactionTests.mm
-    API/FIRArrayTransformTests.mm
-    API/FIRFieldsTests.mm
-    API/FIRNumericTransformTests.mm
-    API/FIRTypeTests.mm
-    API/FIRCursorTests.mm
-    API/FIRFirestoreSourceTests.mm
-    API/FIRQueryTests.mm
-    API/FIRValidationTests.mm
-    API/FIRDatabaseTests.mm
-    API/FIRListenerRegistrationTests.mm
-    API/FIRServerTimestampTests.mm
-    API/FIRWriteBatchTests.mm
-  DEPENDS
-    FirebaseFirestore
-    firebase_firestore_objc_test_util
-)
+if(APPLE)
+  objc_test(
+    firebase_firestore_objc_integration_test
+    HOST firestore_example_app_macos
+    SOURCES
+      FSTSmokeTests.mm
+      FSTDatastoreTests.mm
+      FSTTransactionTests.mm
+      API/FIRArrayTransformTests.mm
+      API/FIRFieldsTests.mm
+      API/FIRNumericTransformTests.mm
+      API/FIRTypeTests.mm
+      API/FIRCursorTests.mm
+      API/FIRFirestoreSourceTests.mm
+      API/FIRQueryTests.mm
+      API/FIRValidationTests.mm
+      API/FIRDatabaseTests.mm
+      API/FIRListenerRegistrationTests.mm
+      API/FIRServerTimestampTests.mm
+      API/FIRWriteBatchTests.mm
+    DEPENDS
+      FirebaseFirestore
+      firebase_firestore_objc_test_util
+  )
+endif(APPLE)

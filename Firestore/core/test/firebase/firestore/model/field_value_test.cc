@@ -116,12 +116,12 @@ TEST(FieldValueTest, ExtractsFieldMask) {
                  Map("a", 1, "b", true, "c", "string", "nested", Map("d", "e")),
                  "emptymap", Map());
 
-  FieldMask expectedMask =
+  FieldMask expected_mask =
       FieldMask({Field("a"), Field("map.a"), Field("map.b"), Field("map.c"),
                  Field("map.nested.d"), Field("emptymap")});
-  FieldMask actualMask = value.ToFieldMask();
+  FieldMask actual_mask = value.ToFieldMask();
 
-  EXPECT_EQ(expectedMask, actualMask);
+  EXPECT_EQ(expected_mask, actual_mask);
 }
 
 TEST(FieldValueTest, OverwritesExistingFields) {
@@ -250,7 +250,7 @@ TEST(FieldValueTest, Equality) {
       .AddEqualityGroup(Value(0.0 / zero), Value(ToDouble(kCanonicalNanBits)),
                         Value(ToDouble(kAlternateNanBits)),
                         Value(std::nan("1")), Value(std::nan("2")))
-      // -0.0 and 0.0 compareTo the same but are not equal.
+      // -0.0 and 0.0 compare the same but are not equal.
       .AddEqualityGroup(Value(-0.0))
       .AddEqualityGroup(Value(0.0))
       .AddEqualityGroup(Value(1), FieldValue::FromInteger(1LL))

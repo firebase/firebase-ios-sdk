@@ -53,8 +53,8 @@ class QueryCache {
   /**
    * Adds an entry in the cache.
    *
-   * The cache key is extracted from `queryData.query`. The key must not already
-   * exist in the cache.
+   * The cache key is extracted from `QueryData::query()`. The key must not
+   * already exist in the cache.
    *
    * @param query_data A new QueryData instance to put in the cache.
    */
@@ -63,8 +63,8 @@ class QueryCache {
   /**
    * Updates an entry in the cache.
    *
-   * The cache key is extracted from `queryData.query`. The entry must already
-   * exist in the cache, and it will be replaced.
+   * The cache key is extracted from `QueryData::query()`. The entry must
+   * already exist in the cache, and it will be replaced.
    *
    * @param query_data A QueryData instance to replace an existing entry in
    *     the cache

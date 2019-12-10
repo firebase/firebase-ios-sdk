@@ -1,3 +1,7 @@
+# v1.2.3
+- Fixed issues discovered by tsan in tests.
+- Add the request time to the outgoing proto.
+
 # v1.2.2
 - Added redirect response handling to FLL.
 - Only use gzipped data when it's smaller than the original and successful.
