@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
+#include "Firestore/core/src/firebase/firestore/local/index_free_query_engine.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
+#include "Firestore/core/src/firebase/firestore/local/query_engine.h"
+#include "Firestore/core/src/firebase/firestore/local/simple_query_engine.h"
 #include "Firestore/core/test/firebase/firestore/local/local_store_test.h"
 #include "Firestore/core/test/firebase/firestore/local/persistence_testing.h"
 
@@ -25,25 +28,48 @@ namespace {
 
 class TestHelper : public LocalStoreTestHelper {
  public:
+  TestHelper(std::unique_ptr<QueryEngine> query_engine, bool index_free)
+      : query_engine_(std::move(query_engine)), index_free_(index_free) {
+  }
+
   std::unique_ptr<Persistence> MakePersistence() override {
     return LevelDbPersistenceForTesting();
+  }
+
+  QueryEngine* query_engine() override {
+    return query_engine_.get();
   }
 
   /** Returns true if the garbage collector is eager, false if LRU. */
   bool IsGcEager() const override {
     return false;
   }
+
+  bool IsIndexFree() const override {
+    return index_free_;
+  }
+
+ private:
+  std::unique_ptr<QueryEngine> query_engine_;
+  bool index_free_;
 };
 
-std::unique_ptr<LocalStoreTestHelper> Factory() {
-  return absl::make_unique<TestHelper>();
+std::unique_ptr<LocalStoreTestHelper> SimpleQueryEngineFactory() {
+  return absl::make_unique<TestHelper>(absl::make_unique<SimpleQueryEngine>(),
+                                       /* index_free= */ false);
+}
+
+std::unique_ptr<LocalStoreTestHelper> IndexFreeQueryEngineFactory() {
+  return absl::make_unique<TestHelper>(
+      absl::make_unique<IndexFreeQueryEngine>(), /* index_free= */ true);
 }
 
 }  // namespace
 
 INSTANTIATE_TEST_SUITE_P(LevelDbLocalStoreTest,
                          LocalStoreTest,
-                         ::testing::Values(Factory));
+                         ::testing::Values(SimpleQueryEngineFactory,
+                                           IndexFreeQueryEngineFactory));
 
 }  // namespace local
 }  // namespace firestore

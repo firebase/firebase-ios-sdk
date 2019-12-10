@@ -660,7 +660,7 @@ ByteString MakeResumeToken(NSString *specString) {
             // always the right value.
             expectedActiveTargets[targetID] =
                 QueryData(std::move(query), targetID, 0, QueryPurpose::Listen,
-                          SnapshotVersion::None(), std::move(resumeToken));
+                          SnapshotVersion::None(), SnapshotVersion::None(), std::move(resumeToken));
           }];
       [self.driver setExpectedActiveTargets:expectedActiveTargets];
     }

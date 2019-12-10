@@ -27,6 +27,7 @@
 #include "Firestore/core/src/firebase/firestore/nanopb/message.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "Firestore/core/src/firebase/firestore/util/string_util.h"
 #include "leveldb/db.h"
 
 namespace firebase {
@@ -144,7 +145,7 @@ DocumentMap LevelDbRemoteDocumentCache::GetMatching(
     std::string start_key = LevelDbRemoteDocumentReadTimeKey::KeyPrefix(
         query_path, since_read_time);
     auto it = db_->current_transaction()->NewIterator();
-    it->Seek(start_key);
+    it->Seek(util::ImmediateSuccessor(start_key));
 
     DocumentKeySet remote_keys;
 

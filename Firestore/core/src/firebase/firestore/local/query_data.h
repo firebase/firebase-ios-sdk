@@ -60,6 +60,8 @@ class QueryData {
    *     LocalStore for user queries or the SyncEngine for limbo queries.
    * @param purpose The purpose of the query.
    * @param snapshot_version The latest snapshot version seen for this target.
+   * @param last_limbo_free_snapshot_version The maximum snapshot version at
+   *     which the associated target view contained no limbo documents.
    * @param resume_token An opaque, server-assigned token that allows watching a
    *     query to be resumed after disconnecting without retransmitting all the
    *     data that matches the query. The resume token essentially identifies a
@@ -70,6 +72,7 @@ class QueryData {
             model::ListenSequenceNumber sequence_number,
             QueryPurpose purpose,
             model::SnapshotVersion snapshot_version,
+            model::SnapshotVersion last_limbo_free_snapshot_version,
             nanopb::ByteString resume_token);
 
   /**
@@ -120,6 +123,14 @@ class QueryData {
   }
 
   /**
+   * Returns the last snapshot version for which the associated view contained
+   * no limbo documents.
+   */
+  const model::SnapshotVersion& last_limbo_free_snapshot_version() const {
+    return last_limbo_free_snapshot_version_;
+  }
+
+  /**
    * An opaque, server-assigned token that allows watching a query to be resumed
    * after disconnecting without retransmitting all the data that matches the
    * query. The resume token essentially identifies a point in time from which
@@ -134,11 +145,18 @@ class QueryData {
       model::ListenSequenceNumber sequence_number) const;
 
   /**
-   *  Creates a new query data instance with an updated resume token and
-   * snapshot version.
+   * Creates a new query data instance with an updated resume token and snapshot
+   * version.
    */
   QueryData WithResumeToken(nanopb::ByteString resume_token,
                             model::SnapshotVersion snapshot_version) const;
+
+  /**
+   * Creates a new query data instance with an updated last limbo free snapshot
+   * version.
+   */
+  QueryData WithLastLimboFreeSnapshotVersion(
+      model::SnapshotVersion last_limbo_free_snapshot_version) const;
 
   friend bool operator==(const QueryData& lhs, const QueryData& rhs);
 
@@ -154,6 +172,7 @@ class QueryData {
   model::ListenSequenceNumber sequence_number_;
   QueryPurpose purpose_;
   model::SnapshotVersion snapshot_version_;
+  model::SnapshotVersion last_limbo_free_snapshot_version_;
   nanopb::ByteString resume_token_;
 };
 

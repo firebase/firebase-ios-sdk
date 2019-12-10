@@ -20,6 +20,7 @@
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/core/transaction_runner.h"
 #include "Firestore/core/src/firebase/firestore/local/query_data.h"
+#include "Firestore/core/src/firebase/firestore/local/query_result.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
@@ -42,6 +43,7 @@ using local::LocalViewChanges;
 using local::LocalWriteResult;
 using local::QueryData;
 using local::QueryPurpose;
+using local::QueryResult;
 using model::BatchId;
 using model::DocumentKey;
 using model::DocumentKeySet;
@@ -106,13 +108,12 @@ TargetId SyncEngine::Listen(Query query) {
 
 ViewSnapshot SyncEngine::InitializeViewAndComputeSnapshot(
     const local::QueryData& query_data) {
-  DocumentMap docs = local_store_->ExecuteQuery(query_data.query());
-  DocumentKeySet remote_keys =
-      local_store_->GetRemoteDocumentKeys(query_data.target_id());
+  QueryResult query_result = local_store_->ExecuteQuery(
+      query_data.query(), /* use_previous_results= */ true);
 
-  View view(query_data.query(), std::move(remote_keys));
+  View view(query_data.query(), std::move(query_result.remote_keys()));
   ViewDocumentChanges view_doc_changes =
-      view.ComputeDocumentChanges(docs.underlying_map());
+      view.ComputeDocumentChanges(query_result.documents().underlying_map());
   ViewChange view_change = view.ApplyChanges(view_doc_changes);
   HARD_ASSERT(view_change.limbo_changes().empty(),
               "View returned limbo docs before target ack from the server.");
@@ -429,9 +430,10 @@ void SyncEngine::EmitNewSnapshotsAndNotifyLocalStore(
       // The query has a limit and some docs were removed/updated, so we need to
       // re-run the query against the local store to make sure we didn't lose
       // any good docs that had been past the limit.
-      DocumentMap docs = local_store_->ExecuteQuery(query_view->query());
-      view_doc_changes =
-          view.ComputeDocumentChanges(docs.underlying_map(), view_doc_changes);
+      QueryResult query_result = local_store_->ExecuteQuery(
+          query_view->query(), /* use_previous_results= */ false);
+      view_doc_changes = view.ComputeDocumentChanges(
+          query_result.documents().underlying_map(), view_doc_changes);
     }
 
     absl::optional<TargetChange> target_changes;

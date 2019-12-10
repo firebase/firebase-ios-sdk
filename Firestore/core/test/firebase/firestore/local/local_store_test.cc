@@ -27,6 +27,7 @@
 #include "Firestore/core/src/firebase/firestore/local/local_write_result.h"
 #include "Firestore/core/src/firebase/firestore/local/persistence.h"
 #include "Firestore/core/src/firebase/firestore/local/query_data.h"
+#include "Firestore/core/src/firebase/firestore/local/query_result.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/model/mutation_batch_result.h"
@@ -46,6 +47,7 @@ namespace local {
 namespace {
 
 using auth::User;
+using local::QueryResult;
 using model::Document;
 using model::DocumentKey;
 using model::DocumentKeySet;
@@ -120,6 +122,27 @@ RemoteEvent UpdateRemoteEventWithLimboTargets(
   return aggregator.CreateRemoteEvent(doc.version());
 }
 
+RemoteEvent NoChangeEvent(int target_id,
+                          int version,
+                          nanopb::ByteString resume_token) {
+  remote::FakeTargetMetadataProvider metadata_provider;
+
+  // Register query data for the target. The query itself is not inspected, so
+  // we can listen to any path.
+  QueryData query_data(Query("foo"), target_id, 0, QueryPurpose::Listen);
+  metadata_provider.SetSyncedKeys(DocumentKeySet{}, query_data);
+
+  WatchChangeAggregator aggregator{&metadata_provider};
+  WatchTargetChange watch_change(remote::WatchTargetChangeState::NoChange,
+                                 {target_id}, resume_token);
+  aggregator.HandleTargetChange(watch_change);
+  return aggregator.CreateRemoteEvent(testutil::Version(version));
+}
+
+RemoteEvent NoChangeEvent(int target_id, int version) {
+  return NoChangeEvent(target_id, version, testutil::ResumeToken(version));
+}
+
 /** Creates a remote event that inserts a list of documents. */
 RemoteEvent AddedRemoteEvent(const std::vector<MaybeDocument>& docs,
                              const std::vector<TargetId>& added_to_targets) {
@@ -130,13 +153,17 @@ RemoteEvent AddedRemoteEvent(const std::vector<MaybeDocument>& docs,
       FakeTargetMetadataProvider::CreateEmptyResultProvider(collection_path,
                                                             added_to_targets);
   WatchChangeAggregator aggregator{&metadata_provider};
+
+  SnapshotVersion version;
   for (const MaybeDocument& doc : docs) {
     HARD_ASSERT(!doc.is_document() || !Document(doc).has_local_mutations(),
                 "Docs from remote updates shouldn't have local changes.");
     DocumentWatchChange change{added_to_targets, {}, doc.key(), doc};
     aggregator.HandleDocumentChange(change);
+    version = version > doc.version() ? version : doc.version();
   }
-  return aggregator.CreateRemoteEvent(docs[0].version());
+
+  return aggregator.CreateRemoteEvent(version);
 }
 
 /** Creates a remote event that inserts a new document. */
@@ -156,6 +183,7 @@ RemoteEvent UpdateRemoteEvent(
 }
 
 LocalViewChanges TestViewChanges(TargetId target_id,
+                                 bool from_cache,
                                  std::vector<std::string> added_keys,
                                  std::vector<std::string> removed_keys) {
   DocumentKeySet added;
@@ -166,7 +194,8 @@ LocalViewChanges TestViewChanges(TargetId target_id,
   for (const std::string& key_path : removed_keys) {
     removed = removed.insert(Key(key_path));
   }
-  return LocalViewChanges(target_id, std::move(added), std::move(removed));
+  return LocalViewChanges(target_id, from_cache, std::move(added),
+                          std::move(removed));
 }
 
 }  // namespace
@@ -174,7 +203,9 @@ LocalViewChanges TestViewChanges(TargetId target_id,
 LocalStoreTest::LocalStoreTest()
     : test_helper_(GetParam()()),
       persistence_(test_helper_->MakePersistence()),
-      local_store_(persistence_.get(), User::Unauthenticated()) {
+      query_engine_(test_helper_->query_engine(), test_helper_->IsIndexFree()),
+      local_store_(
+          persistence_.get(), &query_engine_, User::Unauthenticated()) {
   local_store_.Start();
 }
 
@@ -198,6 +229,10 @@ void LocalStoreTest::ApplyRemoteEvent(const RemoteEvent& event) {
 void LocalStoreTest::NotifyLocalViewChanges(LocalViewChanges changes) {
   local_store_.NotifyLocalViewChanges(
       std::vector<LocalViewChanges>{std::move(changes)});
+}
+
+void LocalStoreTest::UpdateViews(int target_id, bool from_cache) {
+  NotifyLocalViewChanges(TestViewChanges(target_id, from_cache, {}, {}));
 }
 
 void LocalStoreTest::AcknowledgeMutationWithVersion(
@@ -232,6 +267,26 @@ TargetId LocalStoreTest::AllocateQuery(core::Query query) {
   return query_data.target_id();
 }
 
+void LocalStoreTest::ReleaseQuery(core::Query query) {
+  local_store_.ReleaseQuery(std::move(query));
+}
+
+QueryData LocalStoreTest::GetQueryData(const core::Query& query) {
+  return persistence_->Run("GetQueryData",
+                           [&] { return *local_store_.GetQueryData(query); });
+}
+
+QueryResult LocalStoreTest::ExecuteQuery(const core::Query& query) {
+  ResetPersistenceStats();
+  last_query_result_ =
+      local_store_.ExecuteQuery(query, /* use_previous_results= */ true);
+  return last_query_result_;
+}
+
+void LocalStoreTest::ResetPersistenceStats() {
+  query_engine_.ResetCounts();
+}
+
 /** Asserts that the last target ID is the given number. */
 #define FSTAssertTargetID(target_id)       \
   do {                                     \
@@ -246,6 +301,24 @@ TargetId LocalStoreTest::AllocateQuery(core::Query query) {
     auto last_changes_list = DocMapToArray(last_changes_); \
     ASSERT_EQ(last_changes_list, expected);                \
     last_changes_ = MaybeDocumentMap{};                    \
+  } while (0)
+
+/**
+ * Asserts that the last ExecuteQuery results contain the docs in the given
+ * array.
+ */
+#define FSTAssertQueryReturned(...)                                          \
+  do {                                                                       \
+    std::vector<std::string> expected_keys = {__VA_ARGS__};                  \
+    ASSERT_EQ(last_query_result_.documents().size(), expected_keys.size());  \
+    auto expected_keys_iterator = expected_keys.begin();                     \
+    for (const auto& kv : last_query_result_.documents().underlying_map()) { \
+      const DocumentKey& actual_key = kv.first;                              \
+      DocumentKey expected_key = Key(*expected_keys_iterator);               \
+      ASSERT_EQ(actual_key, expected_key);                                   \
+      ++expected_keys_iterator;                                              \
+    }                                                                        \
+    last_query_result_ = QueryResult{};                                      \
   } while (0)
 
 /** Asserts that the given keys were removed. */
@@ -280,6 +353,30 @@ TargetId LocalStoreTest::AllocateQuery(core::Query query) {
     DocumentKey key = Key(key_path_string);                                \
     absl::optional<MaybeDocument> actual = local_store_.ReadDocument(key); \
     ASSERT_EQ(actual, absl::nullopt);                                      \
+  } while (0)
+
+/**
+ * Asserts the expected numbers of documents read by the RemoteDocumentCache
+ * since the last call to `ResetPersistenceStats()`.
+ */
+#define FSTAssertRemoteDocumentsRead(by_key, by_query)             \
+  do {                                                             \
+    ASSERT_EQ(query_engine_.documents_read_by_key(), (by_key))     \
+        << "Remote documents read (by key)";                       \
+    ASSERT_EQ(query_engine_.documents_read_by_query(), (by_query)) \
+        << "Remote documents read (by query)";                     \
+  } while (0)
+
+/**
+ * Asserts the expected numbers of documents read by the MutationQueue since the
+ * last call to `ResetPersistenceStats()`.
+ */
+#define FSTAssertMutationsRead(by_key, by_query)                   \
+  do {                                                             \
+    ASSERT_EQ(query_engine_.mutations_read_by_key(), (by_key))     \
+        << "Mutations read (by key)";                              \
+    ASSERT_EQ(query_engine_.mutations_read_by_query(), (by_query)) \
+        << "Mutations read (by query)";                            \
   } while (0)
 
 TEST_P(LocalStoreTest, MutationBatchKeys) {
@@ -392,7 +489,7 @@ TEST_P(LocalStoreTest, HandlesDeletedDocumentThenSetMutationThenAck) {
   FSTAssertContains(
       Doc("foo/bar", 0, Map("foo", "bar"), DocumentState::kLocalMutations));
   // Can now remove the target, since we have a mutation pinning the document
-  local_store_.ReleaseQuery(query);
+  ReleaseQuery(query);
   // Verify we didn't lose anything
   FSTAssertContains(
       Doc("foo/bar", 0, Map("foo", "bar"), DocumentState::kLocalMutations));
@@ -547,7 +644,7 @@ TEST_P(LocalStoreTest, HandlesDocumentThenDeleteMutationThenAck) {
   FSTAssertContains(DeletedDoc("foo/bar"));
 
   // Remove the target so only the mutation is pinning the document
-  local_store_.ReleaseQuery(query);
+  ReleaseQuery(query);
 
   AcknowledgeMutationWithVersion(2);
   FSTAssertRemoved("foo/bar");
@@ -573,7 +670,7 @@ TEST_P(LocalStoreTest, HandlesDeleteMutationThenDocumentThenAck) {
   FSTAssertContains(DeletedDoc("foo/bar"));
 
   // Don't need to keep it pinned anymore
-  local_store_.ReleaseQuery(query);
+  ReleaseQuery(query);
 
   AcknowledgeMutationWithVersion(2);
   FSTAssertRemoved("foo/bar");
@@ -630,7 +727,7 @@ TEST_P(LocalStoreTest,
   FSTAssertContains(
       Doc("foo/bar", 1, Map("foo", "bar"), DocumentState::kLocalMutations));
 
-  local_store_.ReleaseQuery(query);
+  ReleaseQuery(query);
   AcknowledgeMutationWithVersion(2);  // delete mutation
   FSTAssertChanged(
       Doc("foo/bar", 2, Map("foo", "bar"), DocumentState::kLocalMutations));
@@ -753,7 +850,7 @@ TEST_P(LocalStoreTest, CollectsGarbageAfterAcknowledgedMutation) {
   WriteMutation(testutil::PatchMutation("foo/bar", Map("foo", "bar"), {}));
   // Release the query so that our target count goes back to 0 and we are
   // considered up-to-date.
-  local_store_.ReleaseQuery(query);
+  ReleaseQuery(query);
 
   WriteMutation(testutil::SetMutation("foo/bah", Map("foo", "bah")));
   WriteMutation(testutil::DeleteMutation("foo/baz"));
@@ -791,7 +888,7 @@ TEST_P(LocalStoreTest, CollectsGarbageAfterRejectedMutation) {
   WriteMutation(testutil::PatchMutation("foo/bar", Map("foo", "bar"), {}));
   // Release the query so that our target count goes back to 0 and we are
   // considered up-to-date.
-  local_store_.ReleaseQuery(query);
+  ReleaseQuery(query);
 
   WriteMutation(testutil::SetMutation("foo/bah", Map("foo", "bah")));
   WriteMutation(testutil::DeleteMutation("foo/baz"));
@@ -831,8 +928,8 @@ TEST_P(LocalStoreTest, PinsDocumentsInTheLocalView) {
   FSTAssertContains(
       Doc("foo/baz", 0, Map("foo", "baz"), DocumentState::kLocalMutations));
 
-  NotifyLocalViewChanges(
-      TestViewChanges(target_id, {"foo/bar", "foo/baz"}, {}));
+  NotifyLocalViewChanges(TestViewChanges(target_id, /* from_cache= */ false,
+                                         {"foo/bar", "foo/baz"}, {}));
   FSTAssertContains(Doc("foo/bar", 1, Map("foo", "bar")));
   ApplyRemoteEvent(
       UpdateRemoteEvent(Doc("foo/bar", 1, Map("foo", "bar")), {}, {target_id}));
@@ -845,12 +942,12 @@ TEST_P(LocalStoreTest, PinsDocumentsInTheLocalView) {
   FSTAssertContains(Doc("foo/bar", 1, Map("foo", "bar")));
   FSTAssertContains(Doc("foo/baz", 2, Map("foo", "baz")));
 
-  NotifyLocalViewChanges(
-      TestViewChanges(target_id, {}, {"foo/bar", "foo/baz"}));
+  NotifyLocalViewChanges(TestViewChanges(target_id, /* from_cache= */ false, {},
+                                         {"foo/bar", "foo/baz"}));
   FSTAssertNotContains("foo/bar");
   FSTAssertNotContains("foo/baz");
 
-  local_store_.ReleaseQuery(query);
+  ReleaseQuery(query);
 }
 
 TEST_P(LocalStoreTest, ThrowsAwayDocumentsWithUnknownTargetIDsImmediately) {
@@ -869,9 +966,10 @@ TEST_P(LocalStoreTest, CanExecuteDocumentQueries) {
        testutil::SetMutation("foo/baz", Map("foo", "baz")),
        testutil::SetMutation("foo/bar/Foo/Bar", Map("Foo", "Bar"))});
   core::Query query = Query("foo/bar");
-  DocumentMap docs = local_store_.ExecuteQuery(query);
-  ASSERT_EQ(DocMapToArray(docs), Vector(Doc("foo/bar", 0, Map("foo", "bar"),
-                                            DocumentState::kLocalMutations)));
+  QueryResult query_result = ExecuteQuery(query);
+  ASSERT_EQ(DocMapToArray(query_result.documents()),
+            Vector(Doc("foo/bar", 0, Map("foo", "bar"),
+                       DocumentState::kLocalMutations)));
 }
 
 TEST_P(LocalStoreTest, CanExecuteCollectionQueries) {
@@ -882,11 +980,12 @@ TEST_P(LocalStoreTest, CanExecuteCollectionQueries) {
        testutil::SetMutation("foo/bar/Foo/Bar", Map("Foo", "Bar")),
        testutil::SetMutation("fooo/blah", Map("fooo", "blah"))});
   core::Query query = Query("foo");
-  DocumentMap docs = local_store_.ExecuteQuery(query);
-  ASSERT_EQ(DocMapToArray(docs), Vector(Doc("foo/bar", 0, Map("foo", "bar"),
-                                            DocumentState::kLocalMutations),
-                                        Doc("foo/baz", 0, Map("foo", "baz"),
-                                            DocumentState::kLocalMutations)));
+  QueryResult query_result = ExecuteQuery(query);
+  ASSERT_EQ(DocMapToArray(query_result.documents()),
+            Vector(Doc("foo/bar", 0, Map("foo", "bar"),
+                       DocumentState::kLocalMutations),
+                   Doc("foo/baz", 0, Map("foo", "baz"),
+                       DocumentState::kLocalMutations)));
 }
 
 TEST_P(LocalStoreTest, CanExecuteMixedCollectionQueries) {
@@ -901,11 +1000,28 @@ TEST_P(LocalStoreTest, CanExecuteMixedCollectionQueries) {
 
   local_store_.WriteLocally({testutil::SetMutation("foo/bonk", Map("a", "b"))});
 
-  DocumentMap docs = local_store_.ExecuteQuery(query);
-  ASSERT_EQ(DocMapToArray(docs), Vector(Doc("foo/bar", 20, Map("a", "b")),
-                                        Doc("foo/baz", 10, Map("a", "b")),
-                                        Doc("foo/bonk", 0, Map("a", "b"),
-                                            DocumentState::kLocalMutations)));
+  QueryResult query_result = ExecuteQuery(query);
+  ASSERT_EQ(
+      DocMapToArray(query_result.documents()),
+      Vector(
+          Doc("foo/bar", 20, Map("a", "b")), Doc("foo/baz", 10, Map("a", "b")),
+          Doc("foo/bonk", 0, Map("a", "b"), DocumentState::kLocalMutations)));
+}
+
+TEST_P(LocalStoreTest, ReadsAllDocumentsForInitialCollectionQueries) {
+  core::Query query = Query("foo");
+  local_store_.AllocateQuery(query);
+
+  ApplyRemoteEvent(UpdateRemoteEvent(Doc("foo/baz", 10, Map()), {2}, {}));
+  ApplyRemoteEvent(UpdateRemoteEvent(Doc("foo/bar", 20, Map()), {2}, {}));
+  WriteMutation(testutil::SetMutation("foo/bonk", Map()));
+
+  ResetPersistenceStats();
+
+  ExecuteQuery(query);
+
+  FSTAssertRemoteDocumentsRead(/* by_key= */ 0, /* by_query= */ 2);
+  FSTAssertMutationsRead(/* by_key= */ 0, /* by_query= */ 1);
 }
 
 TEST_P(LocalStoreTest, PersistsResumeTokens) {
@@ -930,7 +1046,7 @@ TEST_P(LocalStoreTest, PersistsResumeTokens) {
   ApplyRemoteEvent(remote_event);
 
   // Stop listening so that the query should become inactive (but persistent)
-  local_store_.ReleaseQuery(query);
+  ReleaseQuery(query);
 
   // Should come back with the same resume token
   QueryData query_data2 = local_store_.AllocateQuery(query);
@@ -1027,6 +1143,177 @@ TEST_P(
       Doc("foo/bar", 2, Map("sum", 3), DocumentState::kLocalMutations));
   FSTAssertChanged(
       Doc("foo/bar", 2, Map("sum", 3), DocumentState::kLocalMutations));
+}
+
+TEST_P(LocalStoreTest, UsesTargetMappingToExecuteQueries) {
+  if (IsGcEager()) return;
+  if (!query_engine_.is_index_free()) return;
+
+  // This test verifies that once a target mapping has been written, only
+  // documents that match the query are read from the RemoteDocumentCache.
+
+  core::Query query =
+      Query("foo").AddingFilter(testutil::Filter("matches", "==", true));
+  TargetId target_id = AllocateQuery(query);
+
+  WriteMutation(testutil::SetMutation("foo/a", Map("matches", true)));
+  WriteMutation(testutil::SetMutation("foo/b", Map("matches", true)));
+  WriteMutation(testutil::SetMutation("foo/ignored", Map("matches", false)));
+  AcknowledgeMutationWithVersion(10);
+  AcknowledgeMutationWithVersion(10);
+  AcknowledgeMutationWithVersion(10);
+
+  // Execute the query, but note that we read all existing documents from the
+  // RemoteDocumentCache since we do not yet have target mapping.
+  ExecuteQuery(query);
+  FSTAssertRemoteDocumentsRead(/* by_key */ 0, /* by_query= */ 3);
+
+  // Issue a RemoteEvent to persist the target mapping.
+  ApplyRemoteEvent(AddedRemoteEvent({Doc("foo/a", 10, Map("matches", true)),
+                                     Doc("foo/b", 10, Map("matches", true))},
+                                    {target_id}));
+  ApplyRemoteEvent(NoChangeEvent(target_id, 10));
+  UpdateViews(target_id, /* from_cache= */ false);
+
+  // Execute the query again, this time verifying that we only read the two
+  // documents that match the query.
+  ExecuteQuery(query);
+  FSTAssertRemoteDocumentsRead(/* by_key */ 2, /* by_query= */ 0);
+  FSTAssertQueryReturned("foo/a", "foo/b");
+}
+
+TEST_P(LocalStoreTest, LastLimboFreeSnapshotIsAdvancedDuringViewProcessing) {
+  // This test verifies that the `last_limbo_free_snapshot` version for
+  // QueryData is advanced when we compute a limbo-free free view and that the
+  // mapping is persisted when we release a query.
+
+  core::Query query = Query("foo");
+  TargetId target_id = AllocateQuery(query);
+
+  // Advance the target snapshot.
+  ApplyRemoteEvent(NoChangeEvent(target_id, 10));
+
+  // At this point, we have not yet confirmed that the query is limbo free.
+  QueryData cached_query_data = GetQueryData(query);
+  ASSERT_EQ(SnapshotVersion::None(),
+            cached_query_data.last_limbo_free_snapshot_version());
+
+  // Mark the view synced, which updates the last limbo free snapshot version.
+  UpdateViews(target_id, /* from_cache= */ false);
+  cached_query_data = GetQueryData(query);
+  ASSERT_EQ(testutil::Version(10),
+            cached_query_data.last_limbo_free_snapshot_version());
+
+  // The last limbo free snapshot version is persisted even if we release the
+  // query.
+  ReleaseQuery(query);
+
+  if (!IsGcEager()) {
+    cached_query_data = GetQueryData(query);
+    ASSERT_EQ(testutil::Version(10),
+              cached_query_data.last_limbo_free_snapshot_version());
+  }
+}
+
+TEST_P(LocalStoreTest, QueriesIncludeLocallyModifiedDocuments) {
+  if (IsGcEager()) return;
+
+  // This test verifies that queries that have a persisted TargetMapping include
+  // documents that were modified by local edits after the target mapping was
+  // written.
+  core::Query query =
+      Query("foo").AddingFilter(testutil::Filter("matches", "==", true));
+  TargetId target_id = AllocateQuery(query);
+
+  ApplyRemoteEvent(
+      AddedRemoteEvent({Doc("foo/a", 10, Map("matches", true))}, {target_id}));
+  ApplyRemoteEvent(NoChangeEvent(target_id, 10));
+  UpdateViews(target_id, /* from_cache= */ false);
+
+  // Execute the query based on the RemoteEvent.
+  ExecuteQuery(query);
+  FSTAssertQueryReturned("foo/a");
+
+  // Write a document.
+  WriteMutation(testutil::SetMutation("foo/b", Map("matches", true)));
+
+  // Execute the query and make sure that the pending mutation is included in
+  // the result.
+  ExecuteQuery(query);
+  FSTAssertQueryReturned("foo/a", "foo/b");
+
+  AcknowledgeMutationWithVersion(11);
+
+  // Execute the query and make sure that the acknowledged mutation is included
+  // in the result.
+  ExecuteQuery(query);
+  FSTAssertQueryReturned("foo/a", "foo/b");
+}
+
+TEST_P(LocalStoreTest, QueriesIncludeDocumentsFromOtherQueries) {
+  if (IsGcEager()) return;
+
+  // This test verifies that queries that have a persisted TargetMapping include
+  // documents that were modified by other queries after the target mapping was
+  // written.
+
+  core::Query filtered_query =
+      Query("foo").AddingFilter(testutil::Filter("matches", "==", true));
+  TargetId target_id = AllocateQuery(filtered_query);
+
+  ApplyRemoteEvent(
+      AddedRemoteEvent({Doc("foo/a", 10, Map("matches", true))}, {target_id}));
+  ApplyRemoteEvent(NoChangeEvent(target_id, 10));
+  UpdateViews(target_id, /* from_cache=*/false);
+  ReleaseQuery(filtered_query);
+
+  // Start another query and add more matching documents to the collection.
+  core::Query full_query = Query("foo");
+  target_id = AllocateQuery(full_query);
+  ApplyRemoteEvent(AddedRemoteEvent({Doc("foo/a", 10, Map("matches", true)),
+                                     Doc("foo/b", 20, Map("matches", true))},
+                                    {target_id}));
+  ReleaseQuery(full_query);
+
+  // Run the original query again and ensure that both the original matches as
+  // well as all new matches are included in the result set.
+  AllocateQuery(filtered_query);
+  ExecuteQuery(filtered_query);
+  FSTAssertQueryReturned("foo/a", "foo/b");
+}
+
+TEST_P(LocalStoreTest, QueriesFilterDocumentsThatNoLongerMatch) {
+  if (IsGcEager()) return;
+
+  // This test verifies that documents that once matched a query are
+  // post-filtered if they no longer match the query filter.
+
+  // Add two document results for a simple filter query
+  core::Query filtered_query =
+      Query("foo").AddingFilter(testutil::Filter("matches", "==", true));
+  TargetId target_id = AllocateQuery(filtered_query);
+
+  ApplyRemoteEvent(AddedRemoteEvent({Doc("foo/a", 10, Map("matches", true)),
+                                     Doc("foo/b", 10, Map("matches", true))},
+                                    {target_id}));
+  ApplyRemoteEvent(NoChangeEvent(target_id, 10));
+  UpdateViews(target_id, /* from_cache= */ false);
+  ReleaseQuery(filtered_query);
+
+  // Modify one of the documents to no longer match while the filtered query is
+  // inactive.
+  core::Query full_query = Query("foo");
+  target_id = AllocateQuery(full_query);
+  ApplyRemoteEvent(AddedRemoteEvent({Doc("foo/a", 10, Map("matches", true)),
+                                     Doc("foo/b", 20, Map("matches", false))},
+                                    {target_id}));
+  ReleaseQuery(full_query);
+
+  // Re-run the filtered query and verify that the modified document is no
+  // longer returned.
+  AllocateQuery(filtered_query);
+  ExecuteQuery(filtered_query);
+  FSTAssertQueryReturned("foo/a");
 }
 
 TEST_P(

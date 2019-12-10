@@ -21,8 +21,10 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/local/local_store.h"
+#include "Firestore/core/src/firebase/firestore/local/simple_query_engine.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
+#include "Firestore/core/test/firebase/firestore/local/counting_query_engine.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
@@ -41,6 +43,7 @@ namespace local {
 class Persistence;
 class LocalStore;
 class LocalViewChanges;
+class QueryResult;
 
 /**
  * A set of helper methods needed by LocalStoreTest that customize it to the
@@ -53,8 +56,18 @@ class LocalStoreTestHelper {
   /** Creates a new instance of Persistence. */
   virtual std::unique_ptr<Persistence> MakePersistence() = 0;
 
+  /** Returns the query engine associcated with the test helper. */
+  virtual QueryEngine* query_engine() = 0;
+
   /** Returns true if the garbage collector is eager, false if LRU. */
   virtual bool IsGcEager() const = 0;
+
+  /**
+   * Returns true if the query engine is optimized to perform key-based
+   * lookups.
+   */
+  // TODO(mrschmidt): Come up with a name that describes the behavior change
+  virtual bool IsIndexFree() const = 0;
 };
 
 using FactoryFunc = std::unique_ptr<LocalStoreTestHelper> (*)();
@@ -77,6 +90,11 @@ class LocalStoreTest : public ::testing::TestWithParam<FactoryFunc> {
     return test_helper_->IsGcEager();
   }
 
+  /**
+   * Resets the count of entities read by MutationQueue and the
+   * RemoteDocumentCache.
+   */
+  void ResetPersistenceStats();
   void WriteMutation(model::Mutation mutation);
   void WriteMutations(std::vector<model::Mutation>&& mutations);
 
@@ -87,15 +105,26 @@ class LocalStoreTest : public ::testing::TestWithParam<FactoryFunc> {
       absl::optional<model::FieldValue> transform_result = absl::nullopt);
   void RejectMutation();
   model::TargetId AllocateQuery(core::Query query);
+  void ReleaseQuery(core::Query query);
+  local::QueryData GetQueryData(const core::Query& query);
+  local::QueryResult ExecuteQuery(const core::Query& query);
+
+  /**
+   * Applies the `from_cache` state to the given target via a synthesized
+   * RemoteEvent.
+   */
+  void UpdateViews(int target_id, bool from_cache);
 
   std::unique_ptr<LocalStoreTestHelper> test_helper_;
 
   std::unique_ptr<Persistence> persistence_;
+  CountingQueryEngine query_engine_;
   LocalStore local_store_;
   std::vector<model::MutationBatch> batches_;
   model::MaybeDocumentMap last_changes_;
 
   model::TargetId last_target_id_ = 0;
+  local::QueryResult last_query_result_;
 };
 
 }  // namespace local

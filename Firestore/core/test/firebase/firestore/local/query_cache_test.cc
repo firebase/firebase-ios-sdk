@@ -71,7 +71,8 @@ QueryData QueryCacheTestBase::MakeQueryData(
     int64_t version) {
   ByteString resume_token = ResumeToken(version);
   return QueryData(std::move(query), target_id, sequence_number,
-                   QueryPurpose::Listen, Version(version), resume_token);
+                   QueryPurpose::Listen, Version(version), Version(version),
+                   resume_token);
 }
 
 void QueryCacheTestBase::AddMatchingKey(const DocumentKey& key,
