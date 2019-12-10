@@ -196,7 +196,7 @@ void LruGarbageCollectorTest::RemoveDocument(const DocumentKey& doc_key,
 
 Document LruGarbageCollectorTest::CacheADocumentInTransaction() {
   Document doc = NextTestDocument();
-  document_cache_->Add(doc);
+  document_cache_->Add(doc, doc.version());
   return doc;
 }
 
@@ -609,7 +609,7 @@ TEST_P(LruGarbageCollectorTest, RemoveTargetsThenGC) {
     int64_t version = 3;
     Document doc(ObjectValue(test_value_), middle_doc_to_update,
                  Version(version), DocumentState::kSynced);
-    document_cache_->Add(doc);
+    document_cache_->Add(doc, doc.version());
     UpdateTargetInTransaction(middle_target);
   });
 

@@ -38,6 +38,7 @@
 @property FIRIAMFetchFlow *flow;
 @property FIRIAMActivityLogger *activityLogger;
 @property FIRIAMSDKModeManager *mockSDKModeManager;
+@property FIRIAMDisplayExecutor *mockDisplayExecutor;
 
 @property id<FIRIAMAnalyticsEventLogger> mockAnaltycisEventLogger;
 
@@ -159,6 +160,7 @@ CGFloat FETCH_MIN_INTERVALS = 1;
   self.mockSDKModeManager = OCMClassMock([FIRIAMSDKModeManager class]);
 
   self.mockTimeFetcher = OCMProtocolMock(@protocol(FIRIAMTimeFetcher));
+  self.mockDisplayExecutor = OCMClassMock([FIRIAMDisplayExecutor class]);
 
   self.flow = [[FIRIAMFetchFlow alloc] initWithSetting:self.fetchSetting
                                           messageCache:self.clientMessageCache
@@ -167,7 +169,8 @@ CGFloat FETCH_MIN_INTERVALS = 1;
                                             bookKeeper:self.mockBookkeeper
                                         activityLogger:self.activityLogger
                                   analyticsEventLogger:self.mockAnaltycisEventLogger
-                                  FIRIAMSDKModeManager:self.mockSDKModeManager];
+                                  FIRIAMSDKModeManager:self.mockSDKModeManager
+                                       displayExecutor:self.mockDisplayExecutor];
 }
 
 - (void)tearDown {
@@ -276,7 +279,7 @@ CGFloat FETCH_MIN_INTERVALS = 1;
   OCMVerify([self.mockSDKModeManager registerOneMoreFetch]);
 
   // we expect that the message cache is checked for app launch messages
-  OCMVerify([self.flow checkForAppLaunchMessage]);
+  OCMVerify([self.mockDisplayExecutor checkAndDisplayNextAppLaunchMessage]);
 }
 
 // Fetch always in testing app instance mode

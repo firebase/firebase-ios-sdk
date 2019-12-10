@@ -664,7 +664,7 @@ TEST(QueryTest, ImplicitOrderBy) {
 
 MATCHER_P(HasCanonicalId, expected, "") {
   const std::string& actual = arg.CanonicalId();
-  *result_listener << "which has canonicalID " << actual;
+  *result_listener << "which has CanonicalId " << actual;
   return actual == expected;
 }
 
@@ -709,25 +709,25 @@ TEST(QueryTest, CanonicalIDs) {
 }
 
 TEST(QueryTest, MatchesAllDocuments) {
-  auto baseQuery = testutil::Query("coll");
-  EXPECT_TRUE(baseQuery.MatchesAllDocuments());
+  auto base_query = testutil::Query("coll");
+  EXPECT_TRUE(base_query.MatchesAllDocuments());
 
-  auto query = baseQuery.AddingOrderBy(OrderBy("__name__"));
+  auto query = base_query.AddingOrderBy(OrderBy("__name__"));
   EXPECT_TRUE(query.MatchesAllDocuments());
 
-  query = baseQuery.AddingOrderBy(OrderBy("foo"));
+  query = base_query.AddingOrderBy(OrderBy("foo"));
   EXPECT_FALSE(query.MatchesAllDocuments());
 
-  query = baseQuery.AddingFilter(Filter("foo", "==", "bar"));
+  query = base_query.AddingFilter(Filter("foo", "==", "bar"));
   EXPECT_FALSE(query.MatchesAllDocuments());
 
-  query = baseQuery.WithLimit(1);
+  query = base_query.WithLimit(1);
   EXPECT_FALSE(query.MatchesAllDocuments());
 
-  query = baseQuery.StartingAt(Bound({Value("SFO")}, true));
+  query = base_query.StartingAt(Bound({Value("SFO")}, true));
   EXPECT_FALSE(query.MatchesAllDocuments());
 
-  query = baseQuery.StartingAt(Bound({Value("OAK")}, true));
+  query = base_query.StartingAt(Bound({Value("OAK")}, true));
   EXPECT_FALSE(query.MatchesAllDocuments());
 }
 

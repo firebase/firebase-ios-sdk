@@ -52,7 +52,7 @@ class EventManager : public SyncEngineCallback {
    * listen in the SyncEngine and will perform a listen if it's the first
    * QueryListener added for a query.
    *
-   * Returns the targetId of the listen call in the SyncEngine.
+   * Returns the TargetId of the listen call in the SyncEngine.
    */
   model::TargetId AddQueryListener(
       std::shared_ptr<core::QueryListener> listener);

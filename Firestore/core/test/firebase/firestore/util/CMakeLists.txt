@@ -86,6 +86,7 @@ if(APPLE)
       filesystem_test.cc
       path_test.cc
     DEPENDS
+      GMock::GMock
       absl_optional
       firebase_firestore_util_autoid
       firebase_firestore_util_filesystem_apple

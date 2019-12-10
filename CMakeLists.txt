@@ -40,6 +40,13 @@ if(POLICY CMP0058)
   cmake_policy(SET CMP0058 OLD)
 endif()
 
+# Enable the ccache compilation cache, if available.
+find_program(CCACHE_PROGRAM ccache)
+if(CCACHE_PROGRAM)
+  set(CMAKE_C_COMPILER_LAUNCHER   "${CCACHE_PROGRAM}")
+  set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+endif()
+
 # Defer enabling any languages.
 project(firebase NONE)
 

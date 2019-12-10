@@ -131,12 +131,12 @@ void RemoteStore::Shutdown() {
 // Watch Stream
 
 void RemoteStore::Listen(const QueryData& query_data) {
-  TargetId targetKey = query_data.target_id();
-  HARD_ASSERT(listen_targets_.find(targetKey) == listen_targets_.end(),
-              "Listen called with duplicate target id: %s", targetKey);
+  TargetId target_key = query_data.target_id();
+  HARD_ASSERT(listen_targets_.find(target_key) == listen_targets_.end(),
+              "Listen called with duplicate target id: %s", target_key);
 
   // Mark this as something the client is currently listening for.
-  listen_targets_[targetKey] = query_data;
+  listen_targets_[target_key] = query_data;
 
   if (ShouldStartWatchStream()) {
     // The listen will be sent in `OnWatchStreamOpen`
@@ -252,7 +252,7 @@ void RemoteStore::OnWatchStreamChange(const WatchChange& change,
   } else {
     HARD_ASSERT(
         change.type() == WatchChange::Type::ExistenceFilter,
-        "Expected watchChange to be an instance of ExistenceFilterWatchChange");
+        "Expected WatchChange to be an instance of ExistenceFilterWatchChange");
     watch_change_aggregator_->HandleExistenceFilter(
         static_cast<const ExistenceFilterWatchChange&>(change));
   }
@@ -276,9 +276,9 @@ void RemoteStore::RaiseWatchSnapshot(const SnapshotVersion& snapshot_version) {
   // view of these when applying the completed `RemoteEvent`.
   for (const auto& entry : remote_event.target_changes()) {
     const TargetChange& target_change = entry.second;
-    const ByteString& resumeToken = target_change.resume_token();
+    const ByteString& resume_token = target_change.resume_token();
 
-    if (!resumeToken.empty()) {
+    if (!resume_token.empty()) {
       TargetId target_id = entry.first;
       auto found = listen_targets_.find(target_id);
       absl::optional<QueryData> query_data;
@@ -289,7 +289,7 @@ void RemoteStore::RaiseWatchSnapshot(const SnapshotVersion& snapshot_version) {
       // A watched target might have been removed already.
       if (query_data) {
         listen_targets_[target_id] =
-            query_data->WithResumeToken(resumeToken, snapshot_version);
+            query_data->WithResumeToken(resume_token, snapshot_version);
       }
     }
   }

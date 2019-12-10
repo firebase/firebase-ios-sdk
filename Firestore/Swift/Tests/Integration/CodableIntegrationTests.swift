@@ -66,7 +66,7 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
         }
         return nil
       }) { object, error in
-        completion?(error)
+        completion(error)
       }
     }
 

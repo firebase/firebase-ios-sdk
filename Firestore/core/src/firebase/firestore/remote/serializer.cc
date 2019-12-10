@@ -123,8 +123,8 @@ ResourcePath DatabaseName(const DatabaseId& database_id) {
 }
 
 /**
- * Encodes a databaseId and resource path into the following form:
- * /projects/$projectId/database/$databaseId/documents/$path
+ * Encodes a database ID and resource path into the following form:
+ * /projects/$project_id/database/$database_id/documents/$path
  */
 pb_bytes_array_t* EncodeResourceName(const DatabaseId& database_id,
                                      const ResourcePath& path) {
@@ -136,7 +136,7 @@ pb_bytes_array_t* EncodeResourceName(const DatabaseId& database_id,
 
 /**
  * Validates that a path has a prefix that looks like a valid encoded
- * databaseId.
+ * database ID.
  */
 bool IsValidResourceName(const ResourcePath& path) {
   // Resource names have at least 4 components (project ID, database ID)

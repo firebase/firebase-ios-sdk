@@ -26,7 +26,6 @@
 #include <vector>
 
 #import "Firestore/Source/API/FSTUserDataConverter.h"
-#import "Firestore/Source/Util/FSTClasses.h"
 
 #import "Firestore/Example/Tests/SpecTests/FSTSyncEngineTestDriver.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
@@ -51,8 +50,10 @@
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
+#include "Firestore/core/src/firebase/firestore/util/filesystem.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
+#include "Firestore/core/src/firebase/firestore/util/path.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
@@ -88,6 +89,7 @@ using firebase::firestore::remote::ExistenceFilterWatchChange;
 using firebase::firestore::remote::WatchTargetChange;
 using firebase::firestore::remote::WatchTargetChangeState;
 using firebase::firestore::util::MakeString;
+using firebase::firestore::util::Path;
 using firebase::firestore::util::Status;
 using firebase::firestore::util::TimerId;
 
@@ -147,6 +149,12 @@ ByteString MakeResumeToken(NSString *specString) {
   BOOL _networkEnabled;
   FSTUserDataConverter *_converter;
 }
+
+#define FSTAbstractMethodException()                                                               \
+  [NSException exceptionWithName:NSInternalInconsistencyException                                  \
+                          reason:[NSString stringWithFormat:@"You must override %s in a subclass", \
+                                                            __func__]                              \
+                        userInfo:nil];
 
 - (std::unique_ptr<Persistence>)persistenceWithGCEnabled:(BOOL)GCEnabled {
   @throw FSTAbstractMethodException();  // NOLINT
@@ -584,7 +592,7 @@ ByteString MakeResumeToken(NSString *specString) {
   NSArray<FSTQueryEvent *> *events = self.driver.capturedEventsSinceLastCall;
 
   if (!expectedEvents) {
-    XCTAssertEqual(events.count, 0);
+    XCTAssertEqual(events.count, 0u);
     for (FSTQueryEvent *event in events) {
       XCTFail(@"Unexpected event: %@", event);
     }
@@ -680,8 +688,8 @@ ByteString MakeResumeToken(NSString *specString) {
     XCTAssertTrue([actualAcknowledgedDocs isEqualToArray:expectedCallbacks[@"acknowledgedDocs"]]);
     XCTAssertTrue([actualRejectedDocs isEqualToArray:expectedCallbacks[@"rejectedDocs"]]);
   } else {
-    XCTAssertEqual([actualAcknowledgedDocs count], 0);
-    XCTAssertEqual([actualRejectedDocs count], 0);
+    XCTAssertEqual([actualAcknowledgedDocs count], 0u);
+    XCTAssertEqual([actualRejectedDocs count], 0u);
   }
 }
 
@@ -769,17 +777,23 @@ ByteString MakeResumeToken(NSString *specString) {
   // Enumerate the .json files containing the spec tests.
   NSMutableArray<NSString *> *specFiles = [NSMutableArray array];
   NSMutableArray<NSDictionary *> *parsedSpecs = [NSMutableArray array];
-  NSBundle *bundle = [NSBundle bundleForClass:[self class]];
-  NSFileManager *fs = [NSFileManager defaultManager];
   BOOL exclusiveMode = NO;
-  for (NSString *file in [fs enumeratorAtPath:[bundle resourcePath]]) {
-    if (![@"json" isEqual:[file pathExtension]]) {
+
+  // TODO(wilhuff): Fix this when running spec tests using a real device
+  auto source_file = Path::FromUtf8(__FILE__);
+  Path json_ext = Path::FromUtf8(".json");
+  auto spec_dir = source_file.Dirname();
+  auto json_dir = spec_dir.AppendUtf8("json");
+
+  auto iter = util::DirectoryIterator::Create(json_dir);
+  for (; iter->Valid(); iter->Next()) {
+    Path entry = iter->file();
+    if (!entry.HasExtension(json_ext)) {
       continue;
     }
 
     // Read and parse the JSON from the file.
-    NSString *fileName = [file stringByDeletingPathExtension];
-    NSString *path = [bundle pathForResource:fileName ofType:@"json"];
+    NSString *path = entry.ToNSString();
     NSData *json = [NSData dataWithContentsOfFile:path];
     XCTAssertNotNil(json);
     NSError *error = nil;
@@ -789,7 +803,7 @@ ByteString MakeResumeToken(NSString *specString) {
     NSDictionary *testDict = (NSDictionary *)parsed;
 
     exclusiveMode = exclusiveMode || [self anyTestsAreMarkedExclusive:testDict];
-    [specFiles addObject:fileName];
+    [specFiles addObject:entry.Basename().ToNSString()];
     [parsedSpecs addObject:testDict];
   }
 

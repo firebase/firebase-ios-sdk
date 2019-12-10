@@ -70,7 +70,7 @@ class ExponentialBackoff {
   /**
    * Resets the backoff delay.
    *
-   * The very next `backoffAndRun` will have no delay. If it is called again
+   * The very next `BackoffAndRun` will have no delay. If it is called again
    * (i.e. due to an error), `initial_delay` (plus jitter) will be used, and
    * subsequent ones will increase according to the `backoff_factor`.
    */
