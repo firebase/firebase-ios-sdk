@@ -18,10 +18,10 @@ import Foundation
 
 /// CocoaPod related utility functions. The enum type is used as a namespace here instead of having
 /// root functions, and no cases should be added to it.
-public enum CocoaPodUtils {
+enum CocoaPodUtils {
   // MARK: - Public API
 
-  public struct VersionedPod: Decodable {
+  struct VersionedPod: Decodable {
     /// Public name of the pod.
     let name: String
 
@@ -30,7 +30,7 @@ public enum CocoaPodUtils {
   }
 
   /// Information associated with an installed pod.
-  public struct PodInfo {
+  struct PodInfo {
     /// The version of the generated pod.
     let version: String
 
@@ -42,7 +42,7 @@ public enum CocoaPodUtils {
   }
 
   /// Executes the `pod cache clean --all` command to remove any cached CocoaPods.
-  public static func cleanPodCache() {
+  static func cleanPodCache() {
     let result = Shell.executeCommandFromScript("pod cache clean --all", outputToConsole: false)
     switch result {
     case let .error(code):
@@ -56,7 +56,7 @@ public enum CocoaPodUtils {
   }
 
   /// Gets metadata from installed Pods. Reads the `Podfile.lock` file and parses it.
-  public static func installedPodsInfo(inProjectDir projectDir: URL) -> [String: PodInfo] {
+  static func installedPodsInfo(inProjectDir projectDir: URL) -> [String: PodInfo] {
     // Read from the Podfile.lock to get the installed versions and names.
     let podfileLock: String
     do {
@@ -78,9 +78,9 @@ public enum CocoaPodUtils {
   ///   - customSpecRepos: Additional spec repos to check for installation.
   /// - Returns: A dictionary of PodInfo's keyed by the pod name.
   @discardableResult
-  public static func installPods(_ pods: [VersionedPod],
-                                 inDir directory: URL,
-                                 customSpecRepos: [URL]? = nil) -> [String: PodInfo] {
+  static func installPods(_ pods: [VersionedPod],
+                          inDir directory: URL,
+                          customSpecRepos: [URL]? = nil) -> [String: PodInfo] {
     let fileManager = FileManager.default
     // Ensure the directory exists, otherwise we can't install all subspecs.
     guard fileManager.directoryExists(at: directory) else {
@@ -126,7 +126,7 @@ public enum CocoaPodUtils {
   ///
   /// - Parameter contents: The contents of a `Podfile.lock` file.
   /// - Returns: A dictionary of PodInfo structs keyed by the pod name.
-  public static func loadPodInfoFromPodfileLock(contents: String) -> [String: PodInfo] {
+  static func loadPodInfoFromPodfileLock(contents: String) -> [String: PodInfo] {
     // This pattern matches a pod name with its version (two to three components)
     // Examples:
     //  - FirebaseUI/Google (4.1.1):
@@ -187,7 +187,7 @@ public enum CocoaPodUtils {
     return installedPods
   }
 
-  public static func updateRepos() {
+  static func updateRepos() {
     let result = Shell.executeCommandFromScript("pod repo update")
     switch result {
     case let .error(_, output):
@@ -197,7 +197,7 @@ public enum CocoaPodUtils {
     }
   }
 
-  public static func podInstallPrepare(inProjectDir projectDir: URL) {
+  static func podInstallPrepare(inProjectDir projectDir: URL) {
     do {
       // Create the directory and all intermediate directories.
       try FileManager.default.createDirectory(at: projectDir, withIntermediateDirectories: true)
