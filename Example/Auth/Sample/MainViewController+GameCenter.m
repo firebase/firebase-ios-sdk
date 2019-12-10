@@ -17,6 +17,7 @@
 #import "MainViewController+GameCenter.h"
 
 #import "AppManager.h"
+#import "FirebaseAuth.h"
 #import "MainViewController+Internal.h"
 
 NS_ASSUME_NONNULL_BEGIN
