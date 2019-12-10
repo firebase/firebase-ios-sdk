@@ -1,3 +1,7 @@
+# v4.0.6
+- [fixed] Fix component startup time. (#4137)
+- [changed] Internal code cleanup. (#4325)
+
 # v4.0.5
 - [fixed] Removed references to UIWebViewDelegate to comply with App Store Submission warning. (#3722)
 
