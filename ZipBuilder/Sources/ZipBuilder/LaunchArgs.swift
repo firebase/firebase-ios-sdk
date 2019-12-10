@@ -45,6 +45,7 @@ struct LaunchArgs {
     case customSpecRepos
     case existingVersions
     case keepBuildArtifacts
+    case localPodspecPath
     case minimumIOSVersion
     case outputDir
     case releasingSDKs
@@ -72,6 +73,8 @@ struct LaunchArgs {
           "of type `ZipBuilder_FirebaseSDKs`."
       case .keepBuildArtifacts:
         return "A flag to indicate keeping (not deleting) the build artifacts."
+      case .localPodspecPath:
+        return "Path to override podspec search with local podspec."
       case .minimumIOSVersion:
         return "The minimum supported iOS version. The default is 9.0."
       case .outputDir:
@@ -117,6 +120,9 @@ struct LaunchArgs {
 
   /// A flag to keep the build artifacts after this script completes.
   let keepBuildArtifacts: Bool
+
+  /// Path to override podspec search with local podspec.
+  let localPodspecPath: URL?
 
   /// The minimum iOS Version to build for.
   let minimumIOSVersion: String
@@ -236,6 +242,20 @@ struct LaunchArgs {
     } else {
       // No argument was passed in.
       outputDir = nil
+    }
+
+    // Parse the local podspec search path.
+    if let localPath = defaults.string(forKey: Key.localPodspecPath.rawValue) {
+      let url = URL(fileURLWithPath: localPath)
+      guard fileChecker.directoryExists(at: url) else {
+        LaunchArgs.exitWithUsageAndLog("Could not parse \(Key.localPodspecPath) key: value " +
+          "passed in is not a file URL or the directory does not exist. Value: \(localPath)")
+      }
+
+      localPodspecPath = url.standardizedFileURL
+    } else {
+      // No argument was passed in.
+      localPodspecPath = nil
     }
 
     // Parse the release candidate number. Note: if the String passed in isn't an integer, ignore

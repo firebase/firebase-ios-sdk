@@ -671,13 +671,15 @@ struct ZipBuilder {
       }
 
       // Get all the frameworks contained in this directory.
-      var foundFrameworks: [URL]
-      do {
-        foundFrameworks = try fileManager.recursivelySearch(for: .frameworks,
-                                                            in: podInfo.installedLocation)
-      } catch {
-        fatalError("Cannot search for .framework files in Pods directory " +
-          "\(podInfo.installedLocation): \(error)")
+      var foundFrameworks: [URL] = []
+      if podInfo.installedLocation != LaunchArgs.shared.localPodspecPath {
+        do {
+          foundFrameworks = try fileManager.recursivelySearch(for: .frameworks,
+                                                              in: podInfo.installedLocation)
+        } catch {
+          fatalError("Cannot search for .framework files in Pods directory " +
+            "\(podInfo.installedLocation): \(error)")
+        }
       }
 
       // If there are no frameworks, it's an open source pod and we need to compile the source to
