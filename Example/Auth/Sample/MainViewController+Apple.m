@@ -31,21 +31,22 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation MainViewController (Apple)
 
 - (StaticContentTableViewSection *)appleAuthSection {
-  if (@available(iOS 13, *)) {
-    __weak typeof(self) weakSelf = self;
-    return [StaticContentTableViewSection sectionWithTitle:@"Apple Auth" cells:@[
-      [StaticContentTableViewCell cellWithTitle:@"Sign in with Apple"
-                                         action:^{ [weakSelf signInWithApple]; }],
-      [StaticContentTableViewCell cellWithTitle:@"Link with Apple"
-                                         action:^{ [weakSelf linkWithApple]; }],
-      [StaticContentTableViewCell cellWithTitle:@"Unlink with Apple"
-                                         action:^{ [weakSelf unlinkFromProvider:@"apple.com" completion:nil]; }],
-      [StaticContentTableViewCell cellWithTitle:@"Reauthenticate with Apple"
-                                         action:^{ [weakSelf reauthenticateWithApple]; }],
-    ]];
-  } else {
-    return [StaticContentTableViewSection sectionWithTitle:@"Apple Auth" cells:@[]];
-  }
+//  if (@available(iOS 13, *)) {
+//    __weak typeof(self) weakSelf = self;
+//    return [StaticContentTableViewSection sectionWithTitle:@"Apple Auth" cells:@[
+//      [StaticContentTableViewCell cellWithTitle:@"Sign in with Apple"
+//                                         action:^{ [weakSelf signInWithApple]; }],
+//      [StaticContentTableViewCell cellWithTitle:@"Link with Apple"
+//                                         action:^{ [weakSelf linkWithApple]; }],
+//      [StaticContentTableViewCell cellWithTitle:@"Unlink with Apple"
+//                                         action:^{ [weakSelf unlinkFromProvider:@"apple.com" completion:nil]; }],
+//      [StaticContentTableViewCell cellWithTitle:@"Reauthenticate with Apple"
+//                                         action:^{ [weakSelf reauthenticateWithApple]; }],
+//    ]];
+//  } else {
+//    return [StaticContentTableViewSection sectionWithTitle:@"Apple Auth" cells:@[]];
+//  }
+  return [StaticContentTableViewSection sectionWithTitle:@"Apple Auth" cells:@[]];
 }
 
 - (ASAuthorizationAppleIDRequest *)appleIDRequestWithState:(NSString *)state API_AVAILABLE(ios(13.0)) {
