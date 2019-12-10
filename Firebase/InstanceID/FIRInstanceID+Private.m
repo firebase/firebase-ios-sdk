@@ -40,6 +40,7 @@
 }
 
 - (NSString *)appInstanceID:(NSError **)outError {
+  // TODO: Delete the property and related code when the method is deleted.
   return self.firebaseInstallationsID;
 }
 
