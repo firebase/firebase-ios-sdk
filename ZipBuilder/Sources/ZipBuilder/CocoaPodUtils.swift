@@ -317,8 +317,8 @@ public enum CocoaPodUtils {
       if let localURL = LaunchArgs.shared.localPodspecPath,
         FileManager.default.fileExists(atPath: localURL.appendingPathComponent(pod.name + ".podspec").path) {
         podfile += ", :path => '\(localURL.path)'"
-      } else if pod.version != nil {
-        podfile += ", '\(pod.version!)'"
+      } else if let podVersion = pod.version {
+        podfile += ", '\(podVersion)'"
       }
       if pod.version != nil {
         // Don't add Google pods if versions were specified or we're doing a secondary install
