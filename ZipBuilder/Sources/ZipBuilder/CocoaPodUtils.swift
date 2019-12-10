@@ -34,7 +34,7 @@ public enum CocoaPodUtils {
     /// The version of the generated pod.
     let version: String
 
-    /// The pod dependencies
+    /// The pod dependencies.
     let dependencies: [String]
 
     /// The location of the pod on disk.
@@ -70,8 +70,13 @@ public enum CocoaPodUtils {
     return loadPodInfoFromPodfileLock(contents: podfileLock)
   }
 
-  /// Install an array of pods in a specific directory, returning an array of PodInfo for each pod
+  /// Install an array of pods in a specific directory, returning a dictionary of PodInfo for each pod
   /// that was installed.
+  /// - Parameters:
+  ///   - pods: List of VersionedPods to install
+  ///   - directory: Destination directory for the pods.
+  ///   - customSpecRepos: Additional spec repos to check for installation.
+  /// - Returns: A dictionary of PodInfo's keyed by the pod name.
   @discardableResult
   public static func installPods(_ pods: [VersionedPod],
                                  inDir directory: URL,
@@ -120,7 +125,7 @@ public enum CocoaPodUtils {
   /// Load installed Pods from the contents of a `Podfile.lock` file.
   ///
   /// - Parameter contents: The contents of a `Podfile.lock` file.
-  /// - Returns: An array of PodInfo structs.
+  /// - Returns: A dictionary of PodInfo structs keyed by the pod name.
   public static func loadPodInfoFromPodfileLock(contents: String) -> [String: PodInfo] {
     // This pattern matches a pod name with its version (two to three components)
     // Examples:
@@ -145,18 +150,18 @@ public enum CocoaPodUtils {
         let corePod = pod.components(separatedBy: "/")[0]
         currentPod = corePod.trimmingCharacters(in: quotes)
         pods[currentPod!] = version
-      } else if let curPod = currentPod {
+      } else if let currentPod = currentPod {
         let matches = depRegex.matches(in: line, range: NSRange(location: 0, length: line.utf8.count))
         // Match something like - GTMSessionFetcher/Full (= 1.3.0)
         if let match = matches.first {
           let depLine = (line as NSString).substring(with: match.range(at: 0)) as String
           // Split spaces and subspecs.
           let dep = depLine.components(separatedBy: [" ", "/"])[2].trimmingCharacters(in: quotes)
-          if dep != curPod {
-            if deps[curPod] == nil {
-              deps[curPod] = Set()
+          if dep != currentPod {
+            if deps[currentPod] == nil {
+              deps[currentPod] = Set()
             }
-            deps[curPod]?.insert(dep)
+            deps[currentPod]?.insert(dep)
           }
         }
       }
@@ -216,7 +221,7 @@ public enum CocoaPodUtils {
   }
 
   /// Get all transitive pod dependencies for a pod.
-  /// - Returns: An array of Strings
+  /// - Returns: An array of Strings of pod names.
   static func transitivePodDependencies(for podName: String,
                                         in installedPods: [String: PodInfo]) -> [String] {
     var newDeps = Set([podName])
@@ -234,7 +239,7 @@ public enum CocoaPodUtils {
   }
 
   /// Get all transitive pod dependencies for a pod.
-  /// - Returns: An array of VersionedPod
+  /// - Returns: An array of dependencies with versions for a given pod.
   static func transitiveVersionedPodDependencies(for podName: String,
                                                  in installedPods: [String: PodInfo]) -> [VersionedPod] {
     return transitivePodDependencies(for: podName, in: installedPods).map {

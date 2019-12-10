@@ -341,15 +341,15 @@ struct ZipBuilder {
   /// them to the destination directory.
   ///
   /// - Parameters:
-  ///   - installedPods: All the Pods installed for a given set of pods, which will be used as a
-  ///               list to find out what frameworks to copy to the destination.
+  ///   - installedPods: Names of all the pods installed, which will be used as a
+  ///                    list to find out what frameworks to copy to the destination.
   ///   - dir: Destination directory for all the frameworks.
   ///   - frameworkLocations: A dictionary containing the pod name as the key and a location to
   ///                         the compiled frameworks.
   ///   - ignoreFrameworks: A list of Pod
   /// - Returns: The filenames of the frameworks that were copied.
   /// - Throws: Various FileManager errors in case the copying fails, or an error if the framework
-  //            doesn't exist in `frameworkLocations`.
+  ///           doesn't exist in `frameworkLocations`.
   @discardableResult
   func copyFrameworks(fromPods installedPods: [String],
                       toDirectory dir: URL,
@@ -544,7 +544,7 @@ struct ZipBuilder {
   /// one) match the expected versions installed and listed in the Podfile.lock in a project
   /// directory.
   ///
-  /// - Parameter projectDir: The directory containing the Podfile.lock file of installed pods.
+  /// - Parameter projectDir: The dictionary that summarizes the pod info parsed from the Podfile.lock.
   private func validateExpectedVersions(installedPods: [String: CocoaPodUtils.PodInfo]) {
     // Get the expected versions based on the release manifests, if there are any. We'll use this to
     // validate the versions pulled from CocoaPods. Expected versions could be empty, in which case
