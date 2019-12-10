@@ -20,6 +20,7 @@
 
 #import <FirebaseInstanceID/FIRInstanceID_Private.h>
 #import "FIRInstanceIDAuthService.h"
+#import "FIRInstanceIDDefines.h"
 #import "FIRInstanceIDTokenManager.h"
 
 @class FIRInstallations;
@@ -39,22 +40,7 @@
 }
 
 - (NSString *)appInstanceID:(NSError **)outError {
-  dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-  __block NSString *instanceID;
-  __block NSError *error;
-  [self.installations installationIDWithCompletion:^(NSString *_Nullable identifier,
-                                                     NSError *_Nullable installationIDError) {
-    instanceID = identifier;
-    error = installationIDError;
-    dispatch_semaphore_signal(semaphore);
-  }];
-
-  dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
-  if (error && outError) {
-    *outError = error;
-  }
-
-  return instanceID;
+  return self.firebaseInstallationsID;
 }
 
 #pragma mark - Firebase Installations Compatibility

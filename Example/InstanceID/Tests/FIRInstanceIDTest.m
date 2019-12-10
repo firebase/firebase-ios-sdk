@@ -51,6 +51,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 @property(nonatomic, readwrite, strong) FIRInstanceIDTokenManager *tokenManager;
 @property(nonatomic, readwrite, strong) FIRInstallations *installations;
 @property(nonatomic, readwrite, copy) NSString *fcmSenderID;
+@property(nonatomic, readwrite, copy) NSString *firebaseAppID;
 
 - (NSInteger)retryIntervalToFetchDefaultToken;
 - (BOOL)isFCMAutoInitEnabled;
@@ -149,6 +150,9 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   // The shared instance should be `nil` before the app is configured.
   XCTAssertNil([FIRInstanceID instanceID]);
 
+  // Expect FID to be requested at the start.
+  [self expectInstallationsInstallationIDWithFID:@"fid" error:nil];
+
   // The shared instance relies on the default app being configured. Configure it.
   FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
                                                     GCMSenderID:kGCMSenderID];
@@ -161,33 +165,84 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   FIRInstanceID *secondInstanceID = [FIRInstanceID instanceID];
   XCTAssertEqualObjects(instanceID, secondInstanceID);
 
+  // Verify FirebaseInstallations requested for FID.
+  OCMVerifyAll(self.mockInstallations);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+  XCTAssertEqualObjects([instanceID appInstanceID:NULL], @"fid");
+#pragma clang diagnostic pop
+
   // Reset the default app for the next test.
   [FIRApp resetApps];
 }
 
-- (void)testSyncAppInstanceIDSuccess {
-  [self stubInstallationsInstallationIDWithFID:@"validID" error:nil];
+- (void)testSyncAppInstanceIDIsUpdatedOnFIDUpdateNotificationIfAppIDMatches {
+  NSString *firebaseAppID = @"firebaseAppID";
+  _instanceID.firebaseAppID = firebaseAppID;
 
+  [self expectInstallationsInstallationIDWithFID:@"fid-1" error:nil];
+  // Simulate FID update notification.
+  [[NSNotificationCenter defaultCenter]
+      postNotificationName:FIRInstallationIDDidChangeNotification
+                    object:nil
+                  userInfo:@{kFIRInstallationIDDidChangeNotificationAppNameKey : firebaseAppID}];
+
+  OCMVerifyAll(self.mockInstallations);
   NSError *error = nil;
 #pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  XCTAssertEqualObjects([self.instanceID appInstanceID:&error], @"validID");
+  XCTAssertEqualObjects([self.instanceID appInstanceID:&error], @"fid-1");
+#pragma clang diagnostic pop
+  XCTAssertNil(error);
+
+  [self expectInstallationsInstallationIDWithFID:@"fid-2" error:nil];
+  // Simulate FID update notification.
+  [[NSNotificationCenter defaultCenter]
+      postNotificationName:FIRInstallationIDDidChangeNotification
+                    object:nil
+                  userInfo:@{kFIRInstallationIDDidChangeNotificationAppNameKey : firebaseAppID}];
+
+  OCMVerifyAll(self.mockInstallations);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+  XCTAssertEqualObjects([self.instanceID appInstanceID:&error], @"fid-2");
 #pragma clang diagnostic pop
   XCTAssertNil(error);
 }
 
-- (void)testSyncAppInstanceIDError {
-  NSError *expectedError = [NSError errorWithDomain:@"Tests" code:-1 userInfo:nil];
-  [self stubInstallationsInstallationIDWithFID:nil error:expectedError];
+- (void)testSyncAppInstanceIDIsNotUpdatedOnFIDUpdateNotificationIfAppIDMismatches {
+  NSString *firebaseAppID = @"firebaseAppID";
+  _instanceID.firebaseAppID = firebaseAppID;
 
-  NSError *error;
+  [self expectInstallationsInstallationIDWithFID:@"fid-1" error:nil];
+  // Simulate FID update notification.
+  [[NSNotificationCenter defaultCenter]
+      postNotificationName:FIRInstallationIDDidChangeNotification
+                    object:nil
+                  userInfo:@{kFIRInstallationIDDidChangeNotificationAppNameKey : firebaseAppID}];
+
+  OCMVerifyAll(self.mockInstallations);
+  NSError *error = nil;
 #pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  XCTAssertNil([self.instanceID appInstanceID:&error]);
+  XCTAssertEqualObjects([self.instanceID appInstanceID:&error], @"fid-1");
 #pragma clang diagnostic pop
-  XCTAssertEqualObjects(error, expectedError);
+  XCTAssertNil(error);
+
+  OCMReject([self.mockInstallations installationIDWithCompletion:[OCMArg any]]);
+  // Simulate FID update notification.
+  NSString *differentAppID = [firebaseAppID stringByAppendingString:@"different"];
+  [[NSNotificationCenter defaultCenter]
+      postNotificationName:FIRInstallationIDDidChangeNotification
+                    object:nil
+                  userInfo:@{kFIRInstallationIDDidChangeNotificationAppNameKey : differentAppID}];
+
+  OCMVerifyAll(self.mockInstallations);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+  XCTAssertEqualObjects([self.instanceID appInstanceID:&error], @"fid-1");
+#pragma clang diagnostic pop
+  XCTAssertNil(error);
 }
 
 - (void)testFCMAutoInitEnabled {
@@ -204,8 +259,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
                          scope:[OCMArg any]
                        options:[OCMArg any]
                        handler:[OCMArg any]];
-  id installationIDArgs = [OCMArg invokeBlockWithArgs:kToken, [NSNull null], nil];
-  OCMStub([self.mockInstallations installationIDWithCompletion:installationIDArgs]);
+  [self expectInstallationsInstallationIDWithFID:kToken error:nil];
 
   [self.mockInstanceID didCompleteConfigure];
   OCMVerify([self.mockInstanceID defaultTokenWithHandler:nil]);
@@ -252,9 +306,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
                                 options:tokenOptions
                                 handler:[OCMArg invokeBlockWithArgs:@"differentIID:newToken",
                                                                     [NSNull null], nil]];
-  [[self.mockInstallations stub]
-      installationIDWithCompletion:[OCMArg
-                                       invokeBlockWithArgs:@"differentIID", [NSNull null], nil]];
+  [self expectInstallationsInstallationIDWithFID:@"differentIID" error:nil];
 
   [self.mockInstanceID
       tokenWithAuthorizedEntity:kGCMSenderID
@@ -284,7 +336,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   XCTestExpectation *tokenExpectation = [self
       expectationWithDescription:@"Token is refreshed when getID is called to avoid IID conflict."];
 
-  [self stubInstallationsInstallationIDWithFID:kFakeIID error:nil];
+  [self expectInstallationsInstallationIDWithFID:kFakeIID error:nil];
 
   [self.mockInstanceID getIDWithHandler:^(NSString *identity, NSError *error) {
     XCTAssertNotNil(identity);
@@ -1147,7 +1199,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 
   // Simulate keypair fetch/generation failure.
   NSError *installationIDError = [NSError errorWithDomain:@"Test" code:-1 userInfo:nil];
-  [self stubInstallationsInstallationIDWithFID:nil error:installationIDError];
+  [self expectInstallationsInstallationIDWithFID:nil error:installationIDError];
 
   [[self.mockTokenManager reject] fetchNewTokenWithAuthorizedEntity:kAuthorizedEntity
                                                               scope:kScope
@@ -1286,7 +1338,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 
   // Simulate keypair fetch/generation failure.
   NSError *error = [NSError errorWithFIRInstanceIDErrorCode:kFIRInstanceIDErrorCodeInvalidKeyPair];
-  [self stubInstallationsInstallationIDWithFID:nil error:error];
+  [self expectInstallationsInstallationIDWithFID:nil error:error];
 
   [self.instanceID getIDWithHandler:^(NSString *_Nullable identity, NSError *_Nullable error) {
     XCTAssertNil(identity);
@@ -1302,7 +1354,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
       [self expectationWithDescription:@"InstanceID deleteID handler invoked."];
 
   NSString *instanceID = @"validID";
-  [self stubInstallationsInstallationIDWithFID:instanceID error:nil];
+  [self expectInstallationsInstallationIDWithFID:instanceID error:nil];
   [self expectTokenManagerDeleteAllTokensWithIID:instanceID completeWithError:nil];
   [self expectTokenManagerDeleteAllTokensLocallyWithError:nil];
   [self expectInstallationsDeleteWithError:nil];
@@ -1324,7 +1376,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
       [self expectationWithDescription:@"InstanceID deleteID handler invoked."];
 
   NSString *instanceID = @"validID";
-  [self stubInstallationsInstallationIDWithFID:instanceID error:nil];
+  [self expectInstallationsInstallationIDWithFID:instanceID error:nil];
   [self expectTokenManagerDeleteAllTokensWithIID:instanceID completeWithError:nil];
   [self expectTokenManagerDeleteAllTokensLocallyWithError:nil];
   [self expectAuthServiceResetCheckinWithError:nil];
@@ -1379,8 +1431,8 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
      }]];
 }
 
-- (void)stubInstallationsInstallationIDWithFID:(nullable NSString *)FID
-                                         error:(nullable NSError *)error {
+- (void)expectInstallationsInstallationIDWithFID:(nullable NSString *)FID
+                                           error:(nullable NSError *)error {
   OCMExpect([self.mockInstallations
       installationIDWithCompletion:[OCMArg
                                        checkWithBlock:^BOOL(FIRInstallationsIDHandler completion) {
