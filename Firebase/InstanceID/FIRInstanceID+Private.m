@@ -39,8 +39,9 @@
   [self.tokenManager.authService fetchCheckinInfoWithHandler:handler];
 }
 
+// TODO(#4486): Delete the method, `self.firebaseInstallationsID` and related
+// code for Firebase 7 release.
 - (NSString *)appInstanceID:(NSError **)outError {
-  // TODO: Delete the property and related code when the method is deleted.
   return self.firebaseInstallationsID;
 }
 
