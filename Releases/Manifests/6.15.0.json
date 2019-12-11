@@ -3,5 +3,6 @@
   "FirebaseCore":"6.6.0",
   "FirebaseMessaging":"4.2.0",
   "FirebaseInstanceID":"4.3.0",
-  "FirebaseInstallations":"1.0.0"
+  "FirebaseInstallations":"1.0.0",
+  "GoogleUtilities":"6.4.0"
 }
