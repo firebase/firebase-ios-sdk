@@ -36,7 +36,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   end
 
   s.subspec 'CoreOnly' do |ss|
-    ss.dependency 'FirebaseCore', '6.4.0'
+    ss.dependency 'FirebaseCore', '6.6.0'
     ss.source_files = 'CoreOnly/Sources/Firebase.h'
     ss.preserve_paths = 'CoreOnly/Sources/module.modulemap'
     ss.user_target_xcconfig = {

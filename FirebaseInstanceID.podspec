@@ -38,7 +38,7 @@ services.
   }
   s.framework = 'Security'
   s.dependency 'FirebaseCore', '~> 6.4' # Should go to 6.5 in M61 for new private header access
-  s.dependency 'FirebaseInstallations', '~> 0.1'
+  s.dependency 'FirebaseInstallations', '~> 1.0'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 6.0'
   s.dependency 'GoogleUtilities/Environment', '~> 6.0'
 
