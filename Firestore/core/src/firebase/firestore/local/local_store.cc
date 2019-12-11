@@ -479,11 +479,12 @@ void LocalStore::ReleaseQuery(const Query& query) {
     for (const DocumentKey& key : removed) {
       persistence_->reference_delegate()->RemoveReference(key);
     }
-    query_data_by_target_.erase(query_data->target_id());
-    target_id_by_query_.erase(query);
 
     // Note: This also updates the query cache
     persistence_->reference_delegate()->RemoveTarget(*query_data);
+
+    query_data_by_target_.erase(query_data->target_id());
+    target_id_by_query_.erase(query);
   });
 }
 

@@ -27,7 +27,8 @@ using model::DocumentKeySet;
 using model::DocumentMap;
 using model::SnapshotVersion;
 
-// Begin CountingQueryEngine
+#pragma mark - CountingQueryEngine
+
 void CountingQueryEngine::SetLocalDocumentsView(
     LocalDocumentsView* local_documents) {
   remote_documents_ = absl::make_unique<WrappedRemoteDocumentCache>(
@@ -55,7 +56,8 @@ void CountingQueryEngine::ResetCounts() {
   documents_read_by_key_ = 0;
 }
 
-// Begin WrappedMutationQueue
+// #pragma mark - WrappedMutationQueue
+
 void WrappedMutationQueue::Start() {
   subject_->Start();
 }
@@ -139,7 +141,8 @@ void WrappedMutationQueue::SetLastStreamToken(nanopb::ByteString stream_token) {
   subject_->SetLastStreamToken(stream_token);
 }
 
-// Begin WrappedRemoteDocumentCache
+#pragma mark - WrappedRemoteDocumentCache
+
 void WrappedRemoteDocumentCache::Add(const model::MaybeDocument& document,
                                      const model::SnapshotVersion& read_time) {
   subject_->Add(document, read_time);
