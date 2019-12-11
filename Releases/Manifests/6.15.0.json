@@ -1,0 +1,7 @@
+{
+  "Firebase":"6.15.0",
+  "FirebaseCore":"6.6.0",
+  "FirebaseMessaging":"4.2.0",
+  "FirebaseInstanceID":"4.3.0",
+  "FirebaseInstallations":"1.0.0"
+}

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'Firebase'
-  s.version          = '6.13.0'
+  s.version          = '6.15.0'
   s.summary          = 'Firebase for iOS (plus community support for macOS and tvOS)'
 
   s.description      = <<-DESC
@@ -95,7 +95,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
 
   s.subspec 'Messaging' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseMessaging', '~> 4.1.9'
+    ss.dependency 'FirebaseMessaging', '~> 4.2.0'
   end
 
   s.subspec 'Performance' do |ss|
