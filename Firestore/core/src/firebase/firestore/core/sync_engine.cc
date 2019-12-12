@@ -93,7 +93,8 @@ TargetId SyncEngine::Listen(Query query) {
               "We already listen to query: %s", query.ToString());
 
   QueryData query_data = local_store_->AllocateQuery(query);
-  ViewSnapshot view_snapshot = InitializeViewAndComputeSnapshot(query_data);
+  ViewSnapshot view_snapshot =
+      InitializeViewAndComputeSnapshot(query, query_data.target_id());
   std::vector<ViewSnapshot> snapshots;
   // Not using the `std::initializer_list` constructor to avoid extra copies.
   snapshots.push_back(std::move(view_snapshot));
@@ -104,13 +105,12 @@ TargetId SyncEngine::Listen(Query query) {
   return query_data.target_id();
 }
 
-ViewSnapshot SyncEngine::InitializeViewAndComputeSnapshot(
-    const local::QueryData& query_data) {
-  DocumentMap docs = local_store_->ExecuteQuery(query_data.query());
-  DocumentKeySet remote_keys =
-      local_store_->GetRemoteDocumentKeys(query_data.target_id());
+ViewSnapshot SyncEngine::InitializeViewAndComputeSnapshot(const Query& query,
+                                                          TargetId target_id) {
+  DocumentMap docs = local_store_->ExecuteQuery(query);
+  DocumentKeySet remote_keys = local_store_->GetRemoteDocumentKeys(target_id);
 
-  View view(query_data.query(), std::move(remote_keys));
+  View view(query, std::move(remote_keys));
   ViewDocumentChanges view_doc_changes =
       view.ComputeDocumentChanges(docs.underlying_map());
   ViewChange view_change = view.ApplyChanges(view_doc_changes);
@@ -118,10 +118,9 @@ ViewSnapshot SyncEngine::InitializeViewAndComputeSnapshot(
               "View returned limbo docs before target ack from the server.");
 
   auto query_view =
-      std::make_shared<QueryView>(query_data.query(), query_data.target_id(),
-                                  query_data.resume_token(), std::move(view));
-  query_views_by_query_[query_data.query()] = query_view;
-  query_views_by_target_[query_data.target_id()] = query_view;
+      std::make_shared<QueryView>(query, target_id, std::move(view));
+  query_views_by_query_[query] = query_view;
+  query_views_by_target_[target_id] = query_view;
 
   HARD_ASSERT(
       view_change.snapshot().has_value(),
@@ -493,7 +492,7 @@ void SyncEngine::TrackLimboChange(const LimboDocumentChange& limbo_change) {
 
     TargetId limbo_target_id = target_id_generator_.NextId();
     Query query(key.path());
-    QueryData query_data(std::move(query), limbo_target_id,
+    QueryData query_data(query.ToTarget(), limbo_target_id,
                          kIrrelevantSequenceNumber,
                          QueryPurpose::LimboResolution);
     limbo_resolutions_by_target_.emplace(limbo_target_id, LimboResolution{key});

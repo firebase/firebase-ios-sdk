@@ -19,6 +19,7 @@
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/core/query.h"
+#include "Firestore/core/src/firebase/firestore/core/target.h"
 #include "Firestore/core/src/firebase/firestore/local/local_documents_view.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
@@ -30,6 +31,7 @@ namespace firestore {
 namespace local {
 
 using core::Query;
+using core::Target;
 using model::Document;
 using model::DocumentKeySet;
 using model::DocumentMap;
@@ -60,7 +62,7 @@ DocumentMap IndexFreeQueryEngine::GetDocumentsMatchingQuery(
   MaybeDocumentMap documents = local_documents_view_->GetDocuments(remote_keys);
   DocumentSet previous_results = ApplyQuery(query, documents);
 
-  if (query.limit() != Query::kNoLimit &&
+  if (query.limit() != Target::kNoLimit &&
       NeedsRefill(previous_results, remote_keys,
                   last_limbo_free_snapshot_version)) {
     return ExecuteFullCollectionScan(query);

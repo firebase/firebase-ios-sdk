@@ -164,15 +164,19 @@ class LocalStore {
    */
   model::DocumentKeySet GetRemoteDocumentKeys(model::TargetId target_id);
 
+  // TODO(wuandy): Delete this method, it's only for change isolation.
+  local::QueryData AllocateQuery(core::Query query);
   /**
-   * Assigns a query an internal ID so that its results can be pinned so they
-   * don't get GC'd. A query must be allocated in the local store before the
+   * Assigns a target an internal ID so that its results can be pinned so they
+   * don't get GC'd. A target must be allocated in the local store before the
    * store can be used to manage its view.
    */
-  local::QueryData AllocateQuery(core::Query query);
+  local::QueryData AllocateTarget(core::Target target);
 
-  /** Unpin all the documents associated with a query. */
+  // TODO(wuandy): Delete this method, it's only for change isolation.
   void ReleaseQuery(const core::Query& query);
+  /** Unpin all the documents associated with a target. */
+  void ReleaseTarget(const core::Target& target);
 
   /**
    * Runs a query against all the documents in the local store and returns the

@@ -27,6 +27,7 @@
 #include "Firestore/core/src/firebase/firestore/core/bound.h"
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/core/order_by.h"
+#include "Firestore/core/src/firebase/firestore/core/target.h"
 #include "Firestore/core/src/firebase/firestore/immutable/append_only_list.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
@@ -39,13 +40,13 @@ namespace core {
 using CollectionGroupId = std::shared_ptr<const std::string>;
 
 /**
- * Represents the internal structure of a Firestore Query. Query instances are
- * immutable.
+ * Encapsulates all the query attributes we support in the SDK. It represents
+ * query features visible to user, and can be run against the LocalStore.
+ * `Query` is first convert to `Target` to run against RemoteStore to query
+ * backend results, because `Target` encapsulates features backend knows about.
  */
 class Query {
  public:
-  static constexpr int32_t kNoLimit = std::numeric_limits<int32_t>::max();
-
   Query() = default;
 
   explicit Query(model::ResourcePath path,
@@ -213,6 +214,12 @@ class Query {
 
   std::string ToString() const;
 
+  /**
+   * Returns a `Target` instance this query will be mapped to in backend
+   * and local store.
+   */
+  const Target& ToTarget() const&;
+
   friend std::ostream& operator<<(std::ostream& os, const Query& query);
 
   size_t Hash() const;
@@ -239,11 +246,12 @@ class Query {
   // The memoized list of sort orders.
   mutable OrderByList memoized_order_bys_;
 
-  int32_t limit_ = kNoLimit;
+  int32_t limit_ = Target::kNoLimit;
   std::shared_ptr<Bound> start_at_;
   std::shared_ptr<Bound> end_at_;
 
-  mutable std::string canonical_id_;
+  // The corresponding Target of this Query instance.
+  mutable std::shared_ptr<const Target> memoized_target;
 };
 
 bool operator==(const Query& lhs, const Query& rhs);

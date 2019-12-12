@@ -86,7 +86,6 @@ using firebase::firestore::nanopb::MakeByteString;
 using firebase::firestore::remote::ExistenceFilter;
 using firebase::firestore::remote::DocumentWatchChange;
 using firebase::firestore::remote::ExistenceFilterWatchChange;
-using firebase::firestore::remote::InvalidQuery;
 using firebase::firestore::remote::WatchTargetChange;
 using firebase::firestore::remote::WatchTargetChangeState;
 using firebase::firestore::util::MakeString;
@@ -236,7 +235,7 @@ ByteString MakeResumeToken(NSString *specString) {
     return query;
   } else {
     XCTFail(@"Invalid query: %@", querySpec);
-    return InvalidQuery();
+    return Query();
   }
 }
 
@@ -659,7 +658,7 @@ ByteString MakeResumeToken(NSString *specString) {
             // the spec tests. For now, hard-code that it's a listen despite the fact that it's not
             // always the right value.
             expectedActiveTargets[targetID] =
-                QueryData(std::move(query), targetID, 0, QueryPurpose::Listen,
+                QueryData(query.ToTarget(), targetID, 0, QueryPurpose::Listen,
                           SnapshotVersion::None(), std::move(resumeToken));
           }];
       [self.driver setExpectedActiveTargets:expectedActiveTargets];
@@ -736,7 +735,7 @@ ByteString MakeResumeToken(NSString *specString) {
     // XCTAssertEqualObjects(actualTargets[targetID], queryData);
 
     const QueryData &actual = found->second;
-    XCTAssertEqual(actual.query(), queryData.query());
+    XCTAssertEqual(actual.target(), queryData.target());
     XCTAssertEqual(actual.target_id(), queryData.target_id());
     XCTAssertEqual(actual.snapshot_version(), queryData.snapshot_version());
     XCTAssertEqual(actual.resume_token(), queryData.resume_token());

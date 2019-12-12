@@ -87,10 +87,10 @@ class TargetChange {
   }
 
   /**
-   * An opaque, server-assigned token that allows watching a query to be resumed
-   * after disconnecting without retransmitting all the data that matches the
-   * query. The resume token essentially identifies a point in time from which
-   * the server should resume sending results.
+   * An opaque, server-assigned token that allows watching a target to be
+   * resumed after disconnecting without retransmitting all the data that
+   * matches the target. The resume token essentially identifies a point in time
+   * from which the server should resume sending results.
    */
   const nanopb::ByteString& resume_token() const {
     return resume_token_;

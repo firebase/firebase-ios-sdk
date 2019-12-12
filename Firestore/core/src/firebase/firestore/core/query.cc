@@ -58,7 +58,8 @@ bool Query::IsDocumentQuery() const {
 }
 
 bool Query::MatchesAllDocuments() const {
-  return filters_.empty() && limit_ == kNoLimit && !start_at_ && !end_at_ &&
+  return filters_.empty() && limit_ == Target::kNoLimit && !start_at_ &&
+         !end_at_ &&
          (explicit_order_bys_.empty() ||
           (explicit_order_bys_.size() == 1 &&
            explicit_order_bys_.front().field().IsKeyFieldPath()));
@@ -286,42 +287,7 @@ model::DocumentComparator Query::Comparator() const {
 }
 
 const std::string& Query::CanonicalId() const {
-  if (!canonical_id_.empty()) return canonical_id_;
-
-  std::string result;
-  absl::StrAppend(&result, path_.CanonicalString());
-
-  if (collection_group_) {
-    absl::StrAppend(&result, "|cg:", *collection_group_);
-  }
-
-  // Add filters.
-  absl::StrAppend(&result, "|f:");
-  for (const auto& filter : filters_) {
-    absl::StrAppend(&result, filter.CanonicalId());
-  }
-
-  // Add order by.
-  absl::StrAppend(&result, "|ob:");
-  for (const OrderBy& order_by : order_bys()) {
-    absl::StrAppend(&result, order_by.CanonicalId());
-  }
-
-  // Add limit.
-  if (limit_ != kNoLimit) {
-    absl::StrAppend(&result, "|l:", limit_);
-  }
-
-  if (start_at_) {
-    absl::StrAppend(&result, "|lb:", start_at_->CanonicalId());
-  }
-
-  if (end_at_) {
-    absl::StrAppend(&result, "|ub:", end_at_->CanonicalId());
-  }
-
-  canonical_id_ = std::move(result);
-  return canonical_id_;
+  return ToTarget().CanonicalId();
 }
 
 size_t Query::Hash() const {
@@ -332,17 +298,22 @@ std::string Query::ToString() const {
   return absl::StrCat("Query(canonical_id=", CanonicalId(), ")");
 }
 
+const Target& Query::ToTarget() const& {
+  if (memoized_target == nullptr) {
+    Target target(path(), collection_group(), filters(), order_bys(), limit(),
+                  start_at(), end_at());
+    memoized_target = std::make_shared<Target>(std::move(target));
+  }
+
+  return *memoized_target;
+}
+
 std::ostream& operator<<(std::ostream& os, const Query& query) {
   return os << query.ToString();
 }
 
 bool operator==(const Query& lhs, const Query& rhs) {
-  return lhs.path() == rhs.path() &&
-         util::Equals(lhs.collection_group(), rhs.collection_group()) &&
-         lhs.filters() == rhs.filters() && lhs.order_bys() == rhs.order_bys() &&
-         lhs.limit() == rhs.limit() &&
-         util::Equals(lhs.start_at(), rhs.start_at()) &&
-         util::Equals(lhs.end_at(), rhs.end_at());
+  return lhs.ToTarget() == rhs.ToTarget();
 }
 
 }  // namespace core

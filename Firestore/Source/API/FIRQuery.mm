@@ -375,8 +375,8 @@ FIRQuery *Wrap(Query &&query) {
 
 - (FIRQuery *)queryLimitedTo:(NSInteger)limit {
   int32_t internalLimit;
-  if (limit == NSNotFound || limit >= core::Query::kNoLimit) {
-    internalLimit = core::Query::kNoLimit;
+  if (limit == NSNotFound || limit >= core::Target::kNoLimit) {
+    internalLimit = core::Target::kNoLimit;
   } else {
     internalLimit = static_cast<int32_t>(limit);
   }

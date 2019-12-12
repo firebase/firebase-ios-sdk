@@ -36,7 +36,7 @@ namespace firebase {
 namespace firestore {
 namespace local {
 
-using core::Query;
+using core::Target;
 using leveldb::Status;
 using model::DocumentKey;
 using model::DocumentKeySet;
@@ -101,7 +101,7 @@ void LevelDbQueryCache::Start() {
 void LevelDbQueryCache::AddTarget(const QueryData& query_data) {
   Save(query_data);
 
-  const std::string& canonical_id = query_data.query().CanonicalId();
+  const std::string& canonical_id = query_data.target().CanonicalId();
   std::string index_key =
       LevelDbQueryTargetKey::Key(canonical_id, query_data.target_id());
   std::string empty_buffer;
@@ -129,18 +129,18 @@ void LevelDbQueryCache::RemoveTarget(const QueryData& query_data) {
   db_->current_transaction()->Delete(key);
 
   std::string index_key =
-      LevelDbQueryTargetKey::Key(query_data.query().CanonicalId(), target_id);
+      LevelDbQueryTargetKey::Key(query_data.target().CanonicalId(), target_id);
   db_->current_transaction()->Delete(index_key);
 
   metadata_->target_count--;
   SaveMetadata();
 }
 
-absl::optional<QueryData> LevelDbQueryCache::GetTarget(const Query& query) {
+absl::optional<QueryData> LevelDbQueryCache::GetTarget(const Target& target) {
   // Scan the query-target index starting with a prefix starting with the given
-  // query's canonical_id. Note that this is a scan rather than a get because
+  // target's canonical_id. Note that this is a scan rather than a get because
   // canonical_ids are not required to be unique per target.
-  const std::string& canonical_id = query.CanonicalId();
+  const std::string& canonical_id = target.CanonicalId();
   auto index_iterator = db_->current_transaction()->NewIterator();
   std::string index_prefix = LevelDbQueryTargetKey::KeyPrefix(canonical_id);
   index_iterator->Seek(index_prefix);
@@ -175,11 +175,11 @@ absl::optional<QueryData> LevelDbQueryCache::GetTarget(const Query& query) {
           DescribeKey(target_iterator));
     }
 
-    // Finally after finding a potential match, check that the query is actually
-    // equal to the requested query.
-    QueryData target = DecodeTarget(target_iterator->value());
-    if (target.query() == query) {
-      return target;
+    // Finally after finding a potential match, check that the target is
+    // actually equal to the requested target.
+    QueryData target_data = DecodeTarget(target_iterator->value());
+    if (target_data.target() == target) {
+      return target_data;
     }
   }
 

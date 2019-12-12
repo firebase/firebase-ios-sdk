@@ -30,6 +30,7 @@ namespace {
 
 using auth::User;
 using core::Query;
+using core::Target;
 using core::TargetIdGenerator;
 using model::BatchId;
 using model::DocumentKey;
@@ -409,13 +410,16 @@ BatchId LocalStore::GetHighestUnacknowledgedBatchId() {
     return mutation_queue_->GetHighestUnacknowledgedBatchId();
   });
 }
-
 QueryData LocalStore::AllocateQuery(Query query) {
-  QueryData query_data = persistence_->Run("Allocate query", [&] {
-    absl::optional<QueryData> cached = query_cache_->GetTarget(query);
+  return AllocateTarget(query.ToTarget());
+}
+
+QueryData LocalStore::AllocateTarget(Target target) {
+  QueryData query_data = persistence_->Run("Allocate target", [&] {
+    absl::optional<QueryData> cached = query_cache_->GetTarget(target);
     // TODO(mcg): freshen last accessed date if cached exists?
     if (!cached) {
-      cached = QueryData(query, target_id_generator_.NextId(),
+      cached = QueryData(std::move(target), target_id_generator_.NextId(),
                          persistence_->current_sequence_number(),
                          QueryPurpose::Listen);
       query_cache_->AddTarget(*cached);
@@ -427,17 +431,20 @@ QueryData LocalStore::AllocateQuery(Query query) {
   // active.
   TargetId target_id = query_data.target_id();
   HARD_ASSERT(target_ids.find(target_id) == target_ids.end(),
-              "Tried to allocate an already allocated query: %s",
-              query.ToString());
+              "Tried to allocate an already allocated target: %s",
+              target.ToString());
   target_ids[target_id] = query_data;
   return query_data;
 }
+void LocalStore::ReleaseQuery(const core::Query& query) {
+  ReleaseTarget(query.ToTarget());
+}
 
-void LocalStore::ReleaseQuery(const Query& query) {
-  persistence_->Run("Release query", [&] {
-    absl::optional<QueryData> query_data = query_cache_->GetTarget(query);
-    HARD_ASSERT(query_data, "Tried to release nonexistent query: %s",
-                query.ToString());
+void LocalStore::ReleaseTarget(const Target& target) {
+  persistence_->Run("Release target", [&] {
+    absl::optional<QueryData> query_data = query_cache_->GetTarget(target);
+    HARD_ASSERT(query_data, "Tried to release nonexistent target: %s",
+                target.ToString());
 
     TargetId target_id = query_data->target_id();
 

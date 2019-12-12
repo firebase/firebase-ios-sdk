@@ -18,6 +18,7 @@
 
 #include <cstdlib>
 #include <limits>
+#include <memory>
 #include <string>
 #include <utility>
 
@@ -40,7 +41,7 @@ namespace local {
 
 namespace {
 
-using core::Query;
+using core::Target;
 using model::Document;
 using model::DocumentState;
 using model::FieldValue;
@@ -58,7 +59,6 @@ using nanopb::Message;
 using nanopb::Reader;
 using nanopb::SafeReadBoolean;
 using nanopb::Writer;
-using remote::InvalidQuery;
 using util::Status;
 using util::StringFormat;
 
@@ -231,13 +231,13 @@ Message<firestore_client_Target> LocalSerializer::EncodeQueryData(
   result->resume_token =
       nanopb::CopyBytesArray(query_data.resume_token().get());
 
-  const Query& query = query_data.query();
-  if (query.IsDocumentQuery()) {
+  const Target& target = query_data.target();
+  if (target.IsDocumentQuery()) {
     result->which_target_type = firestore_client_Target_documents_tag;
-    result->documents = rpc_serializer_.EncodeDocumentsTarget(query);
+    result->documents = rpc_serializer_.EncodeDocumentsTarget(target);
   } else {
     result->which_target_type = firestore_client_Target_query_tag;
-    result->query = rpc_serializer_.EncodeQueryTarget(query);
+    result->query = rpc_serializer_.EncodeQueryTarget(target);
   }
 
   return result;
@@ -254,15 +254,15 @@ QueryData LocalSerializer::DecodeQueryData(
   SnapshotVersion version =
       rpc_serializer_.DecodeVersion(reader, proto.snapshot_version);
   ByteString resume_token(proto.resume_token);
-  Query query = InvalidQuery();
+  Target target;
 
   switch (proto.which_target_type) {
     case firestore_client_Target_query_tag:
-      query = rpc_serializer_.DecodeQueryTarget(reader, proto.query);
+      target = rpc_serializer_.DecodeQueryTarget(reader, proto.query);
       break;
 
     case firestore_client_Target_documents_tag:
-      query = rpc_serializer_.DecodeDocumentsTarget(reader, proto.documents);
+      target = rpc_serializer_.DecodeDocumentsTarget(reader, proto.documents);
       break;
 
     default:
@@ -271,8 +271,8 @@ QueryData LocalSerializer::DecodeQueryData(
   }
 
   if (!reader->status().ok()) return QueryData::Invalid();
-  return QueryData(std::move(query), target_id, sequence_number,
-                   QueryPurpose::Listen, version, std::move(resume_token));
+  return QueryData(target, target_id, sequence_number, QueryPurpose::Listen,
+                   version, std::move(resume_token));
 }
 
 Message<firestore_client_WriteBatch> LocalSerializer::EncodeMutationBatch(
