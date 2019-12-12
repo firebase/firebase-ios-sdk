@@ -300,10 +300,9 @@ std::string Query::ToString() const {
 
 const Target& Query::ToTarget() const& {
   if (memoized_target == nullptr) {
-    // Not using `make_shared` because the constructor is private.
-    memoized_target = std::shared_ptr<Target>(
-        new Target(path(), collection_group(), filters(), order_bys(), limit(),
-                   start_at(), end_at()));
+    Target target(path(), collection_group(), filters(), order_bys(), limit(),
+                  start_at(), end_at());
+    memoized_target = std::make_shared<Target>(std::move(target));
   }
 
   return *memoized_target;
