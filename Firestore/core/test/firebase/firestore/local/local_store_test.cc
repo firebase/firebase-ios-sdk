@@ -227,7 +227,7 @@ void LocalStoreTest::RejectMutation() {
 }
 
 TargetId LocalStoreTest::AllocateQuery(core::Query query) {
-  QueryData query_data = local_store_.AllocateQuery(std::move(query));
+  QueryData query_data = local_store_.AllocateTarget(query.ToTarget());
   last_target_id_ = query_data.target_id();
   return query_data.target_id();
 }
@@ -392,7 +392,7 @@ TEST_P(LocalStoreTest, HandlesDeletedDocumentThenSetMutationThenAck) {
   FSTAssertContains(
       Doc("foo/bar", 0, Map("foo", "bar"), DocumentState::kLocalMutations));
   // Can now remove the target, since we have a mutation pinning the document
-  local_store_.ReleaseQuery(query);
+  local_store_.ReleaseTarget(target_id);
   // Verify we didn't lose anything
   FSTAssertContains(
       Doc("foo/bar", 0, Map("foo", "bar"), DocumentState::kLocalMutations));
@@ -547,7 +547,7 @@ TEST_P(LocalStoreTest, HandlesDocumentThenDeleteMutationThenAck) {
   FSTAssertContains(DeletedDoc("foo/bar"));
 
   // Remove the target so only the mutation is pinning the document
-  local_store_.ReleaseQuery(query);
+  local_store_.ReleaseTarget(target_id);
 
   AcknowledgeMutationWithVersion(2);
   FSTAssertRemoved("foo/bar");
@@ -573,7 +573,7 @@ TEST_P(LocalStoreTest, HandlesDeleteMutationThenDocumentThenAck) {
   FSTAssertContains(DeletedDoc("foo/bar"));
 
   // Don't need to keep it pinned anymore
-  local_store_.ReleaseQuery(query);
+  local_store_.ReleaseTarget(target_id);
 
   AcknowledgeMutationWithVersion(2);
   FSTAssertRemoved("foo/bar");
@@ -630,7 +630,7 @@ TEST_P(LocalStoreTest,
   FSTAssertContains(
       Doc("foo/bar", 1, Map("foo", "bar"), DocumentState::kLocalMutations));
 
-  local_store_.ReleaseQuery(query);
+  local_store_.ReleaseTarget(target_id);
   AcknowledgeMutationWithVersion(2);  // delete mutation
   FSTAssertChanged(
       Doc("foo/bar", 2, Map("foo", "bar"), DocumentState::kLocalMutations));
@@ -751,9 +751,9 @@ TEST_P(LocalStoreTest, CollectsGarbageAfterAcknowledgedMutation) {
   ApplyRemoteEvent(
       UpdateRemoteEvent(Doc("foo/bar", 1, Map("foo", "old")), {target_id}, {}));
   WriteMutation(testutil::PatchMutation("foo/bar", Map("foo", "bar"), {}));
-  // Release the query so that our target count goes back to 0 and we are
+  // Release the target so that our target count goes back to 0 and we are
   // considered up-to-date.
-  local_store_.ReleaseQuery(query);
+  local_store_.ReleaseTarget(target_id);
 
   WriteMutation(testutil::SetMutation("foo/bah", Map("foo", "bah")));
   WriteMutation(testutil::DeleteMutation("foo/baz"));
@@ -789,9 +789,9 @@ TEST_P(LocalStoreTest, CollectsGarbageAfterRejectedMutation) {
   ApplyRemoteEvent(
       UpdateRemoteEvent(Doc("foo/bar", 1, Map("foo", "old")), {target_id}, {}));
   WriteMutation(testutil::PatchMutation("foo/bar", Map("foo", "bar"), {}));
-  // Release the query so that our target count goes back to 0 and we are
+  // Release the target so that our target count goes back to 0 and we are
   // considered up-to-date.
-  local_store_.ReleaseQuery(query);
+  local_store_.ReleaseTarget(target_id);
 
   WriteMutation(testutil::SetMutation("foo/bah", Map("foo", "bah")));
   WriteMutation(testutil::DeleteMutation("foo/baz"));
@@ -850,7 +850,7 @@ TEST_P(LocalStoreTest, PinsDocumentsInTheLocalView) {
   FSTAssertNotContains("foo/bar");
   FSTAssertNotContains("foo/baz");
 
-  local_store_.ReleaseQuery(query);
+  local_store_.ReleaseTarget(target_id);
 }
 
 TEST_P(LocalStoreTest, ThrowsAwayDocumentsWithUnknownTargetIDsImmediately) {
@@ -913,7 +913,7 @@ TEST_P(LocalStoreTest, PersistsResumeTokens) {
   if (IsGcEager()) return;
 
   core::Query query = Query("foo/bar");
-  QueryData query_data = local_store_.AllocateQuery(query);
+  QueryData query_data = local_store_.AllocateTarget(query.ToTarget());
   ListenSequenceNumber initial_sequence_number = query_data.sequence_number();
   TargetId target_id = query_data.target_id();
   ByteString resume_token = testutil::ResumeToken(1000);
@@ -930,10 +930,10 @@ TEST_P(LocalStoreTest, PersistsResumeTokens) {
   ApplyRemoteEvent(remote_event);
 
   // Stop listening so that the query should become inactive (but persistent)
-  local_store_.ReleaseQuery(query);
+  local_store_.ReleaseTarget(target_id);
 
   // Should come back with the same resume token
-  QueryData query_data2 = local_store_.AllocateQuery(query);
+  QueryData query_data2 = local_store_.AllocateTarget(query.ToTarget());
   ASSERT_EQ(query_data2.resume_token(), resume_token);
 
   // The sequence number should have been bumped when we saved the new resume
