@@ -374,9 +374,13 @@ DocumentKeySet SyncEngine::GetRemoteKeys(TargetId target_id) const {
     return DocumentKeySet{it->second.key};
   } else {
     DocumentKeySet keys;
-    for (auto& query : queries_by_target_.at(target_id)) {
+    if (queries_by_target_.count(target_id) == 0) {
+      return keys;
+    }
+
+    for (auto& query : queries_by_target_[target_id]) {
       for (auto& key :
-           query_views_by_query_.at(query)->view().synced_documents()) {
+           query_views_by_query_[query]->view().synced_documents()) {
         keys = keys.insert(key);
       }
     }
