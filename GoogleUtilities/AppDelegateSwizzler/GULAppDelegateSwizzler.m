@@ -1069,7 +1069,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
 
   // Skip proxying if the class has a prefix of kGULAppDelegatePrefix, which means it has been
   // proxied before.
-  if ([className hasPrefix:kGULAppDelegatePrefix]) {
+  if (className == nil || [className hasPrefix:kGULAppDelegatePrefix]) {
     return;
   }
 

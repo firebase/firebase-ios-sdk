@@ -17,7 +17,7 @@
 import Foundation
 
 /// Utilities to simplify URL manipulation.
-public extension URL {
+extension URL {
   /// Appends each item in the array as a component to the existing URL.
   func appendingPathComponents(_ components: [String]) -> URL {
     // Append multiple path components in a single call to prevent long lines of multiple calls.

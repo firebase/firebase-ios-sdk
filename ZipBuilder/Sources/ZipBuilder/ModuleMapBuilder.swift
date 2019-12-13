@@ -83,7 +83,7 @@ struct ModuleMapBuilder {
 
   /// Build the module map files for the source frameworks.
   ///
-  public func build() {
+  func build() {
     for (_, info) in installedPods {
       if info.isSourcePod == false || info.transitiveFrameworks != nil {
         continue

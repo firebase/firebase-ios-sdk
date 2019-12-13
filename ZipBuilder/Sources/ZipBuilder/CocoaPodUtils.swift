@@ -18,10 +18,10 @@ import Foundation
 
 /// CocoaPod related utility functions. The enum type is used as a namespace here instead of having
 /// root functions, and no cases should be added to it.
-public enum CocoaPodUtils {
+enum CocoaPodUtils {
   // MARK: - Public API
 
-  public struct VersionedPod: Decodable {
+  struct VersionedPod: Decodable {
     /// Public name of the pod.
     let name: String
 
@@ -30,7 +30,7 @@ public enum CocoaPodUtils {
   }
 
   /// Information associated with an installed pod.
-  public struct PodInfo {
+  struct PodInfo {
     /// The version of the generated pod.
     let version: String
 
@@ -42,7 +42,7 @@ public enum CocoaPodUtils {
   }
 
   /// Executes the `pod cache clean --all` command to remove any cached CocoaPods.
-  public static func cleanPodCache() {
+  static func cleanPodCache() {
     let result = Shell.executeCommandFromScript("pod cache clean --all", outputToConsole: false)
     switch result {
     case let .error(code):
@@ -56,7 +56,7 @@ public enum CocoaPodUtils {
   }
 
   /// Gets metadata from installed Pods. Reads the `Podfile.lock` file and parses it.
-  public static func installedPodsInfo(inProjectDir projectDir: URL) -> [String: PodInfo] {
+  static func installedPodsInfo(inProjectDir projectDir: URL) -> [String: PodInfo] {
     // Read from the Podfile.lock to get the installed versions and names.
     let podfileLock: String
     do {
@@ -78,9 +78,9 @@ public enum CocoaPodUtils {
   ///   - customSpecRepos: Additional spec repos to check for installation.
   /// - Returns: A dictionary of PodInfo's keyed by the pod name.
   @discardableResult
-  public static func installPods(_ pods: [VersionedPod],
-                                 inDir directory: URL,
-                                 customSpecRepos: [URL]? = nil) -> [String: PodInfo] {
+  static func installPods(_ pods: [VersionedPod],
+                          inDir directory: URL,
+                          customSpecRepos: [URL]? = nil) -> [String: PodInfo] {
     let fileManager = FileManager.default
     // Ensure the directory exists, otherwise we can't install all subspecs.
     guard fileManager.directoryExists(at: directory) else {
@@ -126,7 +126,7 @@ public enum CocoaPodUtils {
   ///
   /// - Parameter contents: The contents of a `Podfile.lock` file.
   /// - Returns: A dictionary of PodInfo structs keyed by the pod name.
-  public static func loadPodInfoFromPodfileLock(contents: String) -> [String: PodInfo] {
+  static func loadPodInfoFromPodfileLock(contents: String) -> [String: PodInfo] {
     // This pattern matches a pod name with its version (two to three components)
     // Examples:
     //  - FirebaseUI/Google (4.1.1):
@@ -171,10 +171,14 @@ public enum CocoaPodUtils {
     let podsDir = projectDir.appendingPathComponent("Pods")
     var installedPods: [String: PodInfo] = [:]
     for (podName, version) in pods {
-      let podDir = podsDir.appendingPathComponent(podName)
-      guard FileManager.default.directoryExists(at: podDir) else {
-        fatalError("Directory for \(podName) doesn't exist at \(podDir) - failed while getting " +
-          "information for installed Pods.")
+      var podDir = podsDir.appendingPathComponent(podName)
+      // Make sure that pod got installed if it's not coming from a local podspec.
+      if !FileManager.default.directoryExists(at: podDir) {
+        guard let repoDir = LaunchArgs.shared.localPodspecPath else {
+          fatalError("Directory for \(podName) doesn't exist at \(podDir) - failed while getting " +
+            "information for installed Pods.")
+        }
+        podDir = repoDir
       }
       let dependencies = [String](deps[podName] ?? [])
       let podInfo = PodInfo(version: version, dependencies: dependencies, installedLocation: podDir)
@@ -183,7 +187,7 @@ public enum CocoaPodUtils {
     return installedPods
   }
 
-  public static func updateRepos() {
+  static func updateRepos() {
     let result = Shell.executeCommandFromScript("pod repo update")
     switch result {
     case let .error(_, output):
@@ -193,7 +197,7 @@ public enum CocoaPodUtils {
     }
   }
 
-  public static func podInstallPrepare(inProjectDir projectDir: URL) {
+  static func podInstallPrepare(inProjectDir projectDir: URL) {
     do {
       // Create the directory and all intermediate directories.
       try FileManager.default.createDirectory(at: projectDir, withIntermediateDirectories: true)
@@ -304,12 +308,38 @@ public enum CocoaPodUtils {
     target 'FrameworkMaker' do\n
     """
 
+    var versionsSpecified = false
+
     // Loop through the subspecs passed in and use the actual Pod name.
     for pod in pods {
-      let version = pod.version == nil ? "" : ", '\(pod.version!)'"
-      podfile += "  pod '\(pod.name)'" + version + "\n"
+      podfile += "  pod '\(pod.name)'"
+      // Check if we want to use a local version of the podspec.
+      if let localURL = LaunchArgs.shared.localPodspecPath,
+        FileManager.default.fileExists(atPath: localURL.appendingPathComponent(pod.name + ".podspec").path) {
+        podfile += ", :path => '\(localURL.path)'"
+      } else if let podVersion = pod.version {
+        podfile += ", '\(podVersion)'"
+      }
+      if pod.version != nil {
+        // Don't add Google pods if versions were specified or we're doing a secondary install
+        // to create module maps.
+        versionsSpecified = true
+      }
+      podfile += "\n"
     }
 
+    // If we're using local pods, explicitly add Google* podspecs if they exist and there are no
+    // explicit versions in the Podfile. Note there are versions for local podspecs if we're doing
+    // the secondary install for module map building.
+    if !versionsSpecified, let localURL = LaunchArgs.shared.localPodspecPath {
+      let podspecs = try! FileManager.default.contentsOfDirectory(atPath: localURL.path)
+      for podspec in podspecs {
+        if podspec.starts(with: "Google"), podspec.hasSuffix(".podspec") {
+          let podName = podspec.replacingOccurrences(of: ".podspec", with: "")
+          podfile += "  pod '\(podName)', :path => '\(localURL.path)/\(podspec)'\n"
+        }
+      }
+    }
     podfile += "end"
     return podfile
   }

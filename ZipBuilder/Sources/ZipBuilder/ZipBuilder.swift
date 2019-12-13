@@ -19,25 +19,25 @@ import Foundation
 import ManifestReader
 
 /// Misc. constants used in the build tool.
-public struct Constants {
+struct Constants {
   /// Constants related to the Xcode project template.
-  public struct ProjectPath {
+  struct ProjectPath {
     // Required for building.
-    public static let infoPlist = "Info.plist"
-    public static let projectFile = "FrameworkMaker.xcodeproj"
+    static let infoPlist = "Info.plist"
+    static let projectFile = "FrameworkMaker.xcodeproj"
 
     /// All required files for building the Zip file.
-    public static let requiredFilesForBuilding: [String] = [projectFile, infoPlist]
+    static let requiredFilesForBuilding: [String] = [projectFile, infoPlist]
 
     // Required for distribution.
-    public static let readmeName = "README.md"
+    static let readmeName = "README.md"
 
     // Required from the Firebase pod.
-    public static let firebaseHeader = "Firebase.h"
-    public static let modulemap = "module.modulemap"
+    static let firebaseHeader = "Firebase.h"
+    static let modulemap = "module.modulemap"
 
     /// The dummy Firebase library for Carthage distribution.
-    public static let dummyFirebaseLib = "dummy_Firebase_lib"
+    static let dummyFirebaseLib = "dummy_Firebase_lib"
 
     // Make the struct un-initializable.
     @available(*, unavailable)
@@ -46,14 +46,14 @@ public struct Constants {
 
   /// The text added to the README for a product if it contains Resources. The empty line at the end
   /// is intentional.
-  public static let resourcesRequiredText = """
+  static let resourcesRequiredText = """
   You'll also need to add the resources in the Resources
   directory into your target's main bundle.
 
   """
 
   /// The name of the Core Diagnostics pod.
-  public static let coreDiagnosticsName: String = "FirebaseCoreDiagnostics"
+  static let coreDiagnosticsName: String = "FirebaseCoreDiagnostics"
 
   // Make the struct un-initializable.
   @available(*, unavailable)
@@ -671,13 +671,15 @@ struct ZipBuilder {
       }
 
       // Get all the frameworks contained in this directory.
-      var foundFrameworks: [URL]
-      do {
-        foundFrameworks = try fileManager.recursivelySearch(for: .frameworks,
-                                                            in: podInfo.installedLocation)
-      } catch {
-        fatalError("Cannot search for .framework files in Pods directory " +
-          "\(podInfo.installedLocation): \(error)")
+      var foundFrameworks: [URL] = []
+      if podInfo.installedLocation != LaunchArgs.shared.localPodspecPath {
+        do {
+          foundFrameworks = try fileManager.recursivelySearch(for: .frameworks,
+                                                              in: podInfo.installedLocation)
+        } catch {
+          fatalError("Cannot search for .framework files in Pods directory " +
+            "\(podInfo.installedLocation): \(error)")
+        }
       }
 
       // If there are no frameworks, it's an open source pod and we need to compile the source to
