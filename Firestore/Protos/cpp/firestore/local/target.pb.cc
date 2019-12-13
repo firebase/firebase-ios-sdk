@@ -96,6 +96,7 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_firestore_2flocal_2ftarget_2ep
   PROTOBUF_FIELD_OFFSET(::firestore::client::Target, last_listen_sequence_number_),
   offsetof(::firestore::client::TargetDefaultTypeInternal, query_),
   offsetof(::firestore::client::TargetDefaultTypeInternal, documents_),
+  PROTOBUF_FIELD_OFFSET(::firestore::client::Target, last_limbo_free_snapshot_version_),
   PROTOBUF_FIELD_OFFSET(::firestore::client::Target, target_type_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::firestore::client::TargetGlobal, _internal_metadata_),
@@ -109,7 +110,7 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_firestore_2flocal_2ftarget_2ep
 };
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, sizeof(::firestore::client::Target)},
-  { 12, -1, sizeof(::firestore::client::TargetGlobal)},
+  { 13, -1, sizeof(::firestore::client::TargetGlobal)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -120,20 +121,22 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
 const char descriptor_table_protodef_firestore_2flocal_2ftarget_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\034firestore/local/target.proto\022\020firestor"
   "e.client\032#google/firestore/v1/firestore."
-  "proto\032\037google/protobuf/timestamp.proto\"\227"
+  "proto\032\037google/protobuf/timestamp.proto\"\335"
   "\002\n\006Target\022\021\n\ttarget_id\030\001 \001(\005\0224\n\020snapshot"
   "_version\030\002 \001(\0132\032.google.protobuf.Timesta"
   "mp\022\024\n\014resume_token\030\003 \001(\014\022#\n\033last_listen_"
   "sequence_number\030\004 \001(\003\0228\n\005query\030\005 \001(\0132\'.g"
   "oogle.firestore.v1.Target.QueryTargetH\000\022"
   "@\n\tdocuments\030\006 \001(\0132+.google.firestore.v1"
-  ".Target.DocumentsTargetH\000B\r\n\013target_type"
-  "\"\251\001\n\014TargetGlobal\022\031\n\021highest_target_id\030\001"
-  " \001(\005\022&\n\036highest_listen_sequence_number\030\002"
-  " \001(\003\022@\n\034last_remote_snapshot_version\030\003 \001"
-  "(\0132\032.google.protobuf.Timestamp\022\024\n\014target"
-  "_count\030\004 \001(\005B/\n#com.google.firebase.fire"
-  "store.protoP\001\242\002\005FSTPBb\006proto3"
+  ".Target.DocumentsTargetH\000\022D\n last_limbo_"
+  "free_snapshot_version\030\007 \001(\0132\032.google.pro"
+  "tobuf.TimestampB\r\n\013target_type\"\251\001\n\014Targe"
+  "tGlobal\022\031\n\021highest_target_id\030\001 \001(\005\022&\n\036hi"
+  "ghest_listen_sequence_number\030\002 \001(\003\022@\n\034la"
+  "st_remote_snapshot_version\030\003 \001(\0132\032.googl"
+  "e.protobuf.Timestamp\022\024\n\014target_count\030\004 \001"
+  "(\005B/\n#com.google.firebase.firestore.prot"
+  "oP\001\242\002\005FSTPBb\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_firestore_2flocal_2ftarget_2eproto_deps[2] = {
   &::descriptor_table_google_2ffirestore_2fv1_2ffirestore_2eproto,
@@ -146,7 +149,7 @@ static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_fir
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_firestore_2flocal_2ftarget_2eproto_once;
 static bool descriptor_table_firestore_2flocal_2ftarget_2eproto_initialized = false;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_firestore_2flocal_2ftarget_2eproto = {
-  &descriptor_table_firestore_2flocal_2ftarget_2eproto_initialized, descriptor_table_protodef_firestore_2flocal_2ftarget_2eproto, "firestore/local/target.proto", 629,
+  &descriptor_table_firestore_2flocal_2ftarget_2eproto_initialized, descriptor_table_protodef_firestore_2flocal_2ftarget_2eproto, "firestore/local/target.proto", 699,
   &descriptor_table_firestore_2flocal_2ftarget_2eproto_once, descriptor_table_firestore_2flocal_2ftarget_2eproto_sccs, descriptor_table_firestore_2flocal_2ftarget_2eproto_deps, 2, 2,
   schemas, file_default_instances, TableStruct_firestore_2flocal_2ftarget_2eproto::offsets,
   file_level_metadata_firestore_2flocal_2ftarget_2eproto, 2, file_level_enum_descriptors_firestore_2flocal_2ftarget_2eproto, file_level_service_descriptors_firestore_2flocal_2ftarget_2eproto,
@@ -166,12 +169,15 @@ void Target::InitAsDefaultInstance() {
       ::google::firestore::v1::Target_QueryTarget::internal_default_instance());
   ::firestore::client::_Target_default_instance_.documents_ = const_cast< ::google::firestore::v1::Target_DocumentsTarget*>(
       ::google::firestore::v1::Target_DocumentsTarget::internal_default_instance());
+  ::firestore::client::_Target_default_instance_._instance.get_mutable()->last_limbo_free_snapshot_version_ = const_cast< PROTOBUF_NAMESPACE_ID::Timestamp*>(
+      PROTOBUF_NAMESPACE_ID::Timestamp::internal_default_instance());
 }
 class Target::_Internal {
  public:
   static const PROTOBUF_NAMESPACE_ID::Timestamp& snapshot_version(const Target* msg);
   static const ::google::firestore::v1::Target_QueryTarget& query(const Target* msg);
   static const ::google::firestore::v1::Target_DocumentsTarget& documents(const Target* msg);
+  static const PROTOBUF_NAMESPACE_ID::Timestamp& last_limbo_free_snapshot_version(const Target* msg);
 };
 
 const PROTOBUF_NAMESPACE_ID::Timestamp&
@@ -185,6 +191,10 @@ Target::_Internal::query(const Target* msg) {
 const ::google::firestore::v1::Target_DocumentsTarget&
 Target::_Internal::documents(const Target* msg) {
   return *msg->target_type_.documents_;
+}
+const PROTOBUF_NAMESPACE_ID::Timestamp&
+Target::_Internal::last_limbo_free_snapshot_version(const Target* msg) {
+  return *msg->last_limbo_free_snapshot_version_;
 }
 void Target::clear_snapshot_version() {
   if (GetArenaNoVirtual() == nullptr && snapshot_version_ != nullptr) {
@@ -232,6 +242,12 @@ void Target::clear_documents() {
     clear_has_target_type();
   }
 }
+void Target::clear_last_limbo_free_snapshot_version() {
+  if (GetArenaNoVirtual() == nullptr && last_limbo_free_snapshot_version_ != nullptr) {
+    delete last_limbo_free_snapshot_version_;
+  }
+  last_limbo_free_snapshot_version_ = nullptr;
+}
 Target::Target()
   : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
@@ -249,6 +265,11 @@ Target::Target(const Target& from)
     snapshot_version_ = new PROTOBUF_NAMESPACE_ID::Timestamp(*from.snapshot_version_);
   } else {
     snapshot_version_ = nullptr;
+  }
+  if (from.has_last_limbo_free_snapshot_version()) {
+    last_limbo_free_snapshot_version_ = new PROTOBUF_NAMESPACE_ID::Timestamp(*from.last_limbo_free_snapshot_version_);
+  } else {
+    last_limbo_free_snapshot_version_ = nullptr;
   }
   ::memcpy(&last_listen_sequence_number_, &from.last_listen_sequence_number_,
     static_cast<size_t>(reinterpret_cast<char*>(&target_id_) -
@@ -287,6 +308,7 @@ Target::~Target() {
 void Target::SharedDtor() {
   resume_token_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   if (this != internal_default_instance()) delete snapshot_version_;
+  if (this != internal_default_instance()) delete last_limbo_free_snapshot_version_;
   if (has_target_type()) {
     clear_target_type();
   }
@@ -331,6 +353,10 @@ void Target::Clear() {
     delete snapshot_version_;
   }
   snapshot_version_ = nullptr;
+  if (GetArenaNoVirtual() == nullptr && last_limbo_free_snapshot_version_ != nullptr) {
+    delete last_limbo_free_snapshot_version_;
+  }
+  last_limbo_free_snapshot_version_ = nullptr;
   ::memset(&last_listen_sequence_number_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&target_id_) -
       reinterpret_cast<char*>(&last_listen_sequence_number_)) + sizeof(target_id_));
@@ -385,6 +411,13 @@ const char* Target::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::int
       case 6:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 50)) {
           ptr = ctx->ParseMessage(mutable_documents(), ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // .google.protobuf.Timestamp last_limbo_free_snapshot_version = 7;
+      case 7:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 58)) {
+          ptr = ctx->ParseMessage(mutable_last_limbo_free_snapshot_version(), ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -488,6 +521,17 @@ bool Target::MergePartialFromCodedStream(
         break;
       }
 
+      // .google.protobuf.Timestamp last_limbo_free_snapshot_version = 7;
+      case 7: {
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (58 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
+               input, mutable_last_limbo_free_snapshot_version()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
       default: {
       handle_unusual:
         if (tag == 0) {
@@ -549,6 +593,12 @@ void Target::SerializeWithCachedSizes(
       6, _Internal::documents(this), output);
   }
 
+  // .google.protobuf.Timestamp last_limbo_free_snapshot_version = 7;
+  if (this->has_last_limbo_free_snapshot_version()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
+      7, _Internal::last_limbo_free_snapshot_version(this), output);
+  }
+
   if (_internal_metadata_.have_unknown_fields()) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFields(
         _internal_metadata_.unknown_fields(), output);
@@ -600,6 +650,13 @@ void Target::SerializeWithCachedSizes(
         6, _Internal::documents(this), target);
   }
 
+  // .google.protobuf.Timestamp last_limbo_free_snapshot_version = 7;
+  if (this->has_last_limbo_free_snapshot_version()) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+      InternalWriteMessageToArray(
+        7, _Internal::last_limbo_free_snapshot_version(this), target);
+  }
+
   if (_internal_metadata_.have_unknown_fields()) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields(), target);
@@ -633,6 +690,13 @@ size_t Target::ByteSizeLong() const {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *snapshot_version_);
+  }
+
+  // .google.protobuf.Timestamp last_limbo_free_snapshot_version = 7;
+  if (this->has_last_limbo_free_snapshot_version()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
+        *last_limbo_free_snapshot_version_);
   }
 
   // int64 last_listen_sequence_number = 4;
@@ -702,6 +766,9 @@ void Target::MergeFrom(const Target& from) {
   if (from.has_snapshot_version()) {
     mutable_snapshot_version()->PROTOBUF_NAMESPACE_ID::Timestamp::MergeFrom(from.snapshot_version());
   }
+  if (from.has_last_limbo_free_snapshot_version()) {
+    mutable_last_limbo_free_snapshot_version()->PROTOBUF_NAMESPACE_ID::Timestamp::MergeFrom(from.last_limbo_free_snapshot_version());
+  }
   if (from.last_listen_sequence_number() != 0) {
     set_last_listen_sequence_number(from.last_listen_sequence_number());
   }
@@ -747,6 +814,7 @@ void Target::InternalSwap(Target* other) {
   resume_token_.Swap(&other->resume_token_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
     GetArenaNoVirtual());
   swap(snapshot_version_, other->snapshot_version_);
+  swap(last_limbo_free_snapshot_version_, other->last_limbo_free_snapshot_version_);
   swap(last_listen_sequence_number_, other->last_listen_sequence_number_);
   swap(target_id_, other->target_id_);
   swap(target_type_, other->target_type_);

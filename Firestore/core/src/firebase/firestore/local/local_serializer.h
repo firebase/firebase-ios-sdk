@@ -116,7 +116,7 @@ class LocalSerializer {
  private:
   /**
    * Encodes a Document for local storage. This differs from the v1 RPC
-   * serializer for Documents in that it preserves the updateTime, which is
+   * serializer for Documents in that it preserves the update_time, which is
    * considered an output only value by the server.
    */
   google_firestore_v1_Document EncodeDocument(const model::Document& doc) const;

@@ -26,10 +26,9 @@ other Google CocoaPods. They're not intended for direct public usage.
   s.prefix_header_file = false
 
   s.subspec 'Environment' do |es|
-    es.source_files = 'GoogleUtilities/Environment/third_party/*.[mh]'
-    es.public_header_files = 'GoogleUtilities/Environment/third_party/*.h'
-    es.private_header_files = 'GoogleUtilities/Environment/third_party/*.h'
-    es.dependency 'GoogleUtilities/SecureCoding'
+    es.source_files = 'GoogleUtilities/Environment/**/*.[mh]'
+    es.public_header_files = 'GoogleUtilities/Environment/**/*.h'
+    es.private_header_files = 'GoogleUtilities/Environment/**/*.h'
   end
 
   s.subspec 'Logger' do |ls|
@@ -111,11 +110,6 @@ other Google CocoaPods. They're not intended for direct public usage.
     ud.public_header_files = 'GoogleUtilities/UserDefaults/Private/*.h'
     ud.private_header_files = 'GoogleUtilities/UserDefaults/Private/*.h'
     ud.dependency 'GoogleUtilities/Logger'
-  end
-
-  s.subspec 'SecureCoding' do |sc|
-    sc.source_files = 'GoogleUtilities/SecureCoding/**/*.[hm]'
-    sc.public_header_files = 'GoogleUtilities/SecureCoding/Public/*.h'
   end
 
   s.test_spec 'unit' do |unit_tests|

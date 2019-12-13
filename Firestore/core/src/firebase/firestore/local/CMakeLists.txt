@@ -77,6 +77,11 @@ cc_library(
 cc_library(
   firebase_firestore_local
   SOURCES
+    document_key_reference.cc
+    document_key_reference.h
+    index_free_query_engine.cc
+    index_free_query_engine.h
+    index_manager.h
     listen_sequence.h
     local_documents_view.cc
     local_documents_view.h

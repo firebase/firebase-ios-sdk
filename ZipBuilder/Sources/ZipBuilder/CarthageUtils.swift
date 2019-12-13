@@ -19,9 +19,9 @@ import Foundation
 
 /// Carthage related utility functions. The enum type is used as a namespace here instead of having
 /// root functions, and no cases should be added to it.
-public enum CarthageUtils {}
+enum CarthageUtils {}
 
-public extension CarthageUtils {
+extension CarthageUtils {
   /// Generates all required files for a Carthage release.
   ///
   /// - Parameters:
@@ -81,7 +81,7 @@ public extension CarthageUtils {
 
       // Analytics includes all the Core frameworks and Firebase module, do extra work to package
       // it.
-      if product == "Analytics" {
+      if product == "FirebaseAnalytics" {
         createFirebaseFramework(inDir: fullPath, rootDir: packagedDir, templateDir: templateDir)
 
         // Copy the NOTICES file from FirebaseCore.

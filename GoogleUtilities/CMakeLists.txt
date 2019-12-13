@@ -16,16 +16,16 @@ if(APPLE)
   # Environment and Logger subspecs
   file(
     GLOB sources
+    Environment/*.m
     Environment/third_party/*.m
     Logger/*.m
-    SecureCoding/*.m
   )
   file(
     GLOB headers
+    Environment/Public/*.h
     Environment/third_party/*.h
     Logger/Private/*.h
     Logger/Public/*.h
-    SecureCoding/Public/*.h
   )
 
   podspec_version(version ${PROJECT_SOURCE_DIR}/GoogleUtilities.podspec)

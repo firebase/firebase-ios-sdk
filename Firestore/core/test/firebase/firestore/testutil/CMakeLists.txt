@@ -17,7 +17,6 @@ cc_library(
   SOURCES
     app_testing.h
     app_testing.mm
-    xcgmock.h
   DEPENDS
     FirebaseCore
     absl_strings
@@ -51,14 +50,3 @@ cc_library(
     firebase_firestore_nanopb
     firebase_firestore_util
 )
-
-if(APPLE AND XCTest_FOUND)
-  cc_test(
-    firebase_firestore_testutil_test
-    SOURCES
-      xcgmock_test.mm
-    DEPENDS
-      FirebaseFirestore
-      firebase_firestore_testutil
-  )
-endif()

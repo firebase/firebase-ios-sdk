@@ -1,5 +1,8 @@
 # Unreleased
 
+# v1.8.2
+- [changed] Internal improvements.
+
 # v1.8.1
 - [fixed] Firestore no longer loads its TLS certificates from a bundle, which
   fixes crashes at startup when the bundle can't be loaded. This fixes a

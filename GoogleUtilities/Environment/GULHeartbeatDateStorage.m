@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "GULHeartbeatDateStorage.h"
+#import <GoogleUtilities/GULHeartbeatDateStorage.h>
 #import <GoogleUtilities/GULSecureCoding.h>
 
 @interface GULHeartbeatDateStorage ()
@@ -56,7 +56,8 @@
  * @param directoryPathURL The path to the directory which needs to be created.
  * @param fileCoordinator The fileCoordinator object to coordinate writes to the directory.
  */
-+ (void)checkAndCreateDirectory:(NSURL *)directoryPathURL fileCoordinator:(NSFileCoordinator *)fileCoordinator {
++ (void)checkAndCreateDirectory:(NSURL *)directoryPathURL
+                fileCoordinator:(NSFileCoordinator *)fileCoordinator {
   NSError *fileCoordinatorError = nil;
   [fileCoordinator
       coordinateWritingItemAtURL:directoryPathURL
@@ -67,11 +68,10 @@
                         if (![writingDirectoryURL checkResourceIsReachableAndReturnError:&error]) {
                           // If fail creating the Application Support directory, log warning.
                           NSError *error;
-                          [[NSFileManager defaultManager]
-                                         createDirectoryAtURL:writingDirectoryURL
-                                  withIntermediateDirectories:YES
-                                                   attributes:nil
-                           error:&error];
+                          [[NSFileManager defaultManager] createDirectoryAtURL:writingDirectoryURL
+                                                   withIntermediateDirectories:YES
+                                                                    attributes:nil
+                                                                         error:&error];
                         }
                       }];
 }
@@ -84,9 +84,9 @@
     dict = [NSMutableDictionary dictionary];
   } else {
     dict = [GULSecureCoding
-            unarchivedObjectOfClasses:[NSSet setWithArray:@[ NSDictionary.class, NSDate.class ]]
-            fromData:objectData
-            error:&error];
+        unarchivedObjectOfClasses:[NSSet setWithArray:@[ NSDictionary.class, NSDate.class ]]
+                         fromData:objectData
+                            error:&error];
     if (dict == nil || error != nil) {
       dict = [NSMutableDictionary dictionary];
     }
@@ -109,20 +109,20 @@
 - (BOOL)setHearbeatDate:(NSDate *)date forTag:(NSString *)tag {
   NSError *error;
   __block BOOL isSuccess = false;
-  [self.fileCoordinator
-      coordinateReadingItemAtURL:self.fileURL
-                         options:0
-                writingItemAtURL:self.fileURL
-                         options:0
-                           error:&error
-                      byAccessor:^(NSURL *readingURL, NSURL *writingURL) {
-                        NSMutableDictionary *dictionary = [self heartbeatDictionaryWithFileURL:readingURL];
-                        dictionary[tag] = date;
-                        NSError *error;
-                        isSuccess = [self writeDictionary:dictionary
-                                            forWritingURL:writingURL
-                                                    error:&error];
-                      }];
+  [self.fileCoordinator coordinateReadingItemAtURL:self.fileURL
+                                           options:0
+                                  writingItemAtURL:self.fileURL
+                                           options:0
+                                             error:&error
+                                        byAccessor:^(NSURL *readingURL, NSURL *writingURL) {
+                                          NSMutableDictionary *dictionary =
+                                              [self heartbeatDictionaryWithFileURL:readingURL];
+                                          dictionary[tag] = date;
+                                          NSError *error;
+                                          isSuccess = [self writeDictionary:dictionary
+                                                              forWritingURL:writingURL
+                                                                      error:&error];
+                                        }];
   return isSuccess;
 }
 

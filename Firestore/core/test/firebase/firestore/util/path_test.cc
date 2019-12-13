@@ -16,11 +16,14 @@
 
 #include "Firestore/core/src/firebase/firestore/util/path.h"
 
+#include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
 namespace firestore {
 namespace util {
+
+using testing::Not;
 
 // There are several potential sources of inspiration for what is correct
 // behavior for these functions.
@@ -227,6 +230,20 @@ TEST(PathTest, IsAbsolute) {
   EXPECT_TRUE(Path::FromUtf8("/foo").IsAbsolute());
   EXPECT_FALSE(Path::FromUtf8("foo").IsAbsolute());
   EXPECT_FALSE(Path::FromUtf8("foo/bar").IsAbsolute());
+}
+
+MATCHER_P(HasExtension, ext, "") {
+  return Path::FromUtf8(arg).HasExtension(Path::FromUtf8(ext));
+}
+
+TEST(PathTest, HasExtension) {
+  EXPECT_THAT("", Not(HasExtension(".json")));
+  EXPECT_THAT("foo.json", HasExtension(".json"));
+  EXPECT_THAT("foo.json", Not(HasExtension(".foo")));
+
+  EXPECT_THAT("foo.json", HasExtension(""));
+  EXPECT_THAT("foo.json", HasExtension("foo.json"));
+  EXPECT_THAT("foo.json", Not(HasExtension("longer.foo.json")));
 }
 
 TEST(PathTest, Join_Absolute) {
