@@ -434,11 +434,10 @@ void FirestoreClient::Transaction(int retries,
 
   // Dispatch the result back onto the user dispatch queue.
   auto shared_this = shared_from_this();
-  auto async_callback = [shared_this,
-                         result_callback](StatusOr<absl::any> maybe_value) {
+  auto async_callback = [shared_this, result_callback](Status status) {
     if (result_callback) {
       shared_this->user_executor()->Execute(
-          [=] { result_callback(std::move(maybe_value)); });
+          [=] { result_callback(std::move(status)); });
     }
   };
 
