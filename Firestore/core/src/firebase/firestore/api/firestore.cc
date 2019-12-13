@@ -96,13 +96,13 @@ void Firestore::set_user_executor(std::unique_ptr<Executor> user_executor) {
 }
 
 CollectionReference Firestore::GetCollection(
-    absl::string_view collection_path) {
+    const std::string& collection_path) {
   EnsureClientConfigured();
   ResourcePath path = ResourcePath::FromString(collection_path);
   return CollectionReference{std::move(path), shared_from_this()};
 }
 
-DocumentReference Firestore::GetDocument(absl::string_view document_path) {
+DocumentReference Firestore::GetDocument(const std::string& document_path) {
   EnsureClientConfigured();
   return DocumentReference{ResourcePath::FromString(document_path),
                            shared_from_this()};

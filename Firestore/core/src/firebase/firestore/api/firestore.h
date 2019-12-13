@@ -81,8 +81,8 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
 
   void set_user_executor(std::unique_ptr<util::Executor> user_executor);
 
-  CollectionReference GetCollection(absl::string_view collection_path);
-  DocumentReference GetDocument(absl::string_view document_path);
+  CollectionReference GetCollection(const std::string& collection_path);
+  DocumentReference GetDocument(const std::string& document_path);
   WriteBatch GetBatch();
   core::Query GetCollectionGroup(std::string collection_id);
 
