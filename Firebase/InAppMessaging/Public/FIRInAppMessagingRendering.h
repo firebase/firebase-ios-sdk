@@ -91,6 +91,7 @@ NS_SWIFT_NAME(InAppMessagingImageData)
 
 /** Defines the metadata for the campaign to which a FIAM message belongs.
  */
+NS_SWIFT_NAME(InAppMessagingCampaignInfo)
 @interface FIRInAppMessagingCampaignInfo : NSObject
 
 /**
