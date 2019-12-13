@@ -1319,6 +1319,14 @@ API_AVAILABLE(ios(13.0), tvos(13.0))
 
 #if ((TARGET_OS_IOS || TARGET_OS_TV) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 130000))
 
+- (void)testProxySceneDelegateWithNoSceneDelegate {
+  if (@available(iOS 13, tvOS 13, *)) {
+    id mockSharedScene = OCMClassMock([UIScene class]);
+    OCMStub([mockSharedScene delegate]).andReturn(nil);
+    XCTAssertNoThrow([GULAppDelegateSwizzler proxySceneDelegateIfNeeded:mockSharedScene]);
+  }
+}
+
 - (void)testProxySceneDelegate {
   if (@available(iOS 13, tvOS 13, *)) {
     GULTestSceneDelegate *realSceneDelegate = [[GULTestSceneDelegate alloc] init];
