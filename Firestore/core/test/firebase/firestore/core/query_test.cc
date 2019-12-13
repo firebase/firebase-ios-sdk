@@ -513,7 +513,7 @@ TEST(QueryTest, Equality) {
                      .AddingFilter(Filter("bar", ">", 2))
                      .AddingOrderBy(OrderBy("bar", "asc"));
 
-  auto q61 = testutil::Query("foo").WithLimit(10);
+  auto q61 = testutil::Query("foo").WithLimitToFirst(10);
 
   // ASSERT_EQ(q12, q11);  // TODO(klimt): not canonical yet
   ASSERT_NE(q21, q11);
@@ -577,7 +577,7 @@ TEST(QueryTest, UniqueIds) {
                      .AddingFilter(Filter("bar", ">", 2))
                      .AddingOrderBy(OrderBy("bar", "asc"));
 
-  auto q61 = testutil::Query("foo").WithLimit(10);
+  auto q61 = testutil::Query("foo").WithLimitToFirst(10);
 
   // XCTAssertEqual(q11.Hash(), q12.Hash());  // TODO(klimt): not canonical yet
   ASSERT_NE(q21.Hash(), q11.Hash());
@@ -670,33 +670,33 @@ MATCHER_P(HasCanonicalId, expected, "") {
 
 TEST(QueryTest, CanonicalIDs) {
   auto query = testutil::Query("coll");
-  EXPECT_THAT(query, HasCanonicalId("coll|f:|ob:__name__asc"));
+  EXPECT_THAT(query, HasCanonicalId("coll|f:|ob:__name__asc|lt:f"));
 
   auto cg = CollectionGroupQuery("foo");
-  EXPECT_THAT(cg, HasCanonicalId("|cg:foo|f:|ob:__name__asc"));
+  EXPECT_THAT(cg, HasCanonicalId("|cg:foo|f:|ob:__name__asc|lt:f"));
 
   auto subcoll = testutil::Query("foo/bar/baz");
-  EXPECT_THAT(subcoll, HasCanonicalId("foo/bar/baz|f:|ob:__name__asc"));
+  EXPECT_THAT(subcoll, HasCanonicalId("foo/bar/baz|f:|ob:__name__asc|lt:f"));
 
   auto filters =
       testutil::Query("coll").AddingFilter(Filter("str", "==", "foo"));
-  EXPECT_THAT(filters, HasCanonicalId("coll|f:str==foo|ob:__name__asc"));
+  EXPECT_THAT(filters, HasCanonicalId("coll|f:str==foo|ob:__name__asc|lt:f"));
 
   // Inequality filters end up in the order by too
   filters = filters.AddingFilter(Filter("int", "<", 42));
-  EXPECT_THAT(filters,
-              HasCanonicalId("coll|f:str==fooint<42|ob:intasc__name__asc"));
+  EXPECT_THAT(filters, HasCanonicalId(
+                           "coll|f:str==fooint<42|ob:intasc__name__asc|lt:f"));
 
   auto order_bys = testutil::Query("coll").AddingOrderBy(OrderBy("up", "asc"));
-  EXPECT_THAT(order_bys, HasCanonicalId("coll|f:|ob:upasc__name__asc"));
+  EXPECT_THAT(order_bys, HasCanonicalId("coll|f:|ob:upasc__name__asc|lt:f"));
 
   // __name__'s order matches the trailing component
   order_bys = order_bys.AddingOrderBy(OrderBy("down", "desc"));
   EXPECT_THAT(order_bys,
-              HasCanonicalId("coll|f:|ob:upascdowndesc__name__desc"));
+              HasCanonicalId("coll|f:|ob:upascdowndesc__name__desc|lt:f"));
 
-  auto limit = testutil::Query("coll").WithLimit(25);
-  EXPECT_THAT(limit, HasCanonicalId("coll|f:|ob:__name__asc|l:25"));
+  auto limit = testutil::Query("coll").WithLimitToFirst(25);
+  EXPECT_THAT(limit, HasCanonicalId("coll|f:|ob:__name__asc|l:25|lt:f"));
 
   auto bounds =
       testutil::Query("airports")
@@ -705,7 +705,7 @@ TEST(QueryTest, CanonicalIDs) {
           .StartingAt(Bound({Value("OAK"), Value(1000)}, /* is_before= */ true))
           .EndingAt(Bound({Value("SFO"), Value(2000)}, /* is_before= */ false));
   EXPECT_THAT(bounds, HasCanonicalId("airports|f:|ob:nameascscoredesc__name__"
-                                     "desc|lb:b:OAK1000|ub:a:SFO2000"));
+                                     "desc|lb:b:OAK1000|ub:a:SFO2000|lt:f"));
 }
 
 TEST(QueryTest, MatchesAllDocuments) {
@@ -721,7 +721,7 @@ TEST(QueryTest, MatchesAllDocuments) {
   query = base_query.AddingFilter(Filter("foo", "==", "bar"));
   EXPECT_FALSE(query.MatchesAllDocuments());
 
-  query = base_query.WithLimit(1);
+  query = base_query.WithLimitToFirst(1);
   EXPECT_FALSE(query.MatchesAllDocuments());
 
   query = base_query.StartingAt(Bound({Value("SFO")}, true));

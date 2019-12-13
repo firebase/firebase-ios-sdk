@@ -213,7 +213,7 @@ ByteString MakeResumeToken(NSString *specString) {
     if (queryDict[@"limit"]) {
       NSNumber *limitNumber = queryDict[@"limit"];
       auto limit = static_cast<int32_t>(limitNumber.integerValue);
-      query = query.WithLimit(limit);
+      query = query.WithLimitToFirst(limit);
     }
     if (queryDict[@"filters"]) {
       NSArray<NSArray<id> *> *filters = queryDict[@"filters"];

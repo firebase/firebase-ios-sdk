@@ -168,10 +168,17 @@ class LocalStore {
    * Assigns a target an internal ID so that its results can be pinned so they
    * don't get GC'd. A target must be allocated in the local store before the
    * store can be used to manage its view.
+   *
+   * Allocating an already allocated target will return the existing
+   * `TargetData` for that target.
    */
   local::QueryData AllocateTarget(core::Target target);
 
-  /** Unpin all the documents associated with a target. */
+  /**
+   * Unpin all the documents associated with a target.
+   *
+   * Releasing a non-existing target is an error.
+   */
   void ReleaseTarget(model::TargetId target_id);
 
   /**

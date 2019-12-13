@@ -156,6 +156,24 @@ const FieldPath* Query::FirstOrderByField() const {
   return &explicit_order_bys_.front().field();
 }
 
+int32_t Query::limit_to_first() const {
+  HARD_ASSERT(has_limit_to_first(),
+              "Called limit_to_first() when no limit was set");
+  return limit_;
+}
+
+int32_t Query::limit_to_last() const {
+  HARD_ASSERT(has_limit_to_last(),
+              "Called limit_to_last() when no limit was set");
+  return limit_;
+}
+
+LimitType Query::limit_type() const {
+  HARD_ASSERT(has_limit_to_first() || has_limit_to_last(),
+              "Called limit_type() when no limit was set.");
+  return limit_type_;
+}
+
 // MARK: - Builder methods
 
 Query Query::AddingFilter(Filter filter) const {
@@ -173,7 +191,7 @@ Query Query::AddingFilter(Filter filter) const {
   // TODO(rsgowman): ensure first orderby must match inequality field
 
   return Query(path_, collection_group_, filters_.push_back(std::move(filter)),
-               explicit_order_bys_, limit_, start_at_, end_at_);
+               explicit_order_bys_, limit_, limit_type_, start_at_, end_at_);
 }
 
 Query Query::AddingOrderBy(OrderBy order_by) const {
@@ -187,27 +205,33 @@ Query Query::AddingOrderBy(OrderBy order_by) const {
 
   return Query(path_, collection_group_, filters_,
                explicit_order_bys_.push_back(std::move(order_by)), limit_,
-               start_at_, end_at_);
+               limit_type_, start_at_, end_at_);
 }
 
-Query Query::WithLimit(int32_t limit) const {
+Query Query::WithLimitToFirst(int32_t limit) const {
   return Query(path_, collection_group_, filters_, explicit_order_bys_, limit,
-               start_at_, end_at_);
+               LimitType::LimitToFirst, start_at_, end_at_);
+}
+
+Query Query::WithLimitToLast(int32_t limit) const {
+  return Query(path_, collection_group_, filters_, explicit_order_bys_, limit,
+               LimitType::LimitToLast, start_at_, end_at_);
 }
 
 Query Query::StartingAt(Bound bound) const {
   return Query(path_, collection_group_, filters_, explicit_order_bys_, limit_,
-               std::make_shared<Bound>(std::move(bound)), end_at_);
+               limit_type_, std::make_shared<Bound>(std::move(bound)), end_at_);
 }
 
 Query Query::EndingAt(Bound bound) const {
   return Query(path_, collection_group_, filters_, explicit_order_bys_, limit_,
-               start_at_, std::make_shared<Bound>(std::move(bound)));
+               limit_type_, start_at_,
+               std::make_shared<Bound>(std::move(bound)));
 }
 
 Query Query::AsCollectionQueryAtPath(ResourcePath path) const {
   return Query(path, /*collection_group=*/nullptr, filters_,
-               explicit_order_bys_, limit_, start_at_, end_at_);
+               explicit_order_bys_, limit_, limit_type_, start_at_, end_at_);
 }
 
 // MARK: - Matching
@@ -286,8 +310,9 @@ model::DocumentComparator Query::Comparator() const {
       });
 }
 
-const std::string& Query::CanonicalId() const {
-  return ToTarget().CanonicalId();
+const std::string Query::CanonicalId() const {
+  return absl::StrCat(ToTarget().CanonicalId(), "|lt:",
+                      (limit_type_ == LimitType::LimitToLast) ? "l" : "f");
 }
 
 size_t Query::Hash() const {
@@ -300,9 +325,34 @@ std::string Query::ToString() const {
 
 const Target& Query::ToTarget() const& {
   if (memoized_target == nullptr) {
-    Target target(path(), collection_group(), filters(), order_bys(), limit(),
-                  start_at(), end_at());
-    memoized_target = std::make_shared<Target>(std::move(target));
+    if (limit_type_ == LimitType::LimitToFirst) {
+      Target target(path(), collection_group(), filters(), order_bys(), limit_,
+                    start_at(), end_at());
+      memoized_target = std::make_shared<Target>(std::move(target));
+    } else {
+      // Flip the orderBy directions since we want the last results
+      OrderByList new_order_bys;
+      for (const auto& order_by : order_bys()) {
+        Direction dir = order_by.direction() == Direction::Descending
+                            ? Direction::Ascending
+                            : Direction::Descending;
+        new_order_bys = new_order_bys.push_back(OrderBy(order_by.field(), dir));
+      }
+
+      // We need to swap the cursors to match the now-flipped query ordering.
+      auto new_start_at =
+          (end_at_ != nullptr)
+              ? std::make_shared<Bound>(end_at_->position(), !end_at_->before())
+              : nullptr;
+      auto new_end_at = (start_at_ != nullptr)
+                            ? std::make_shared<Bound>(start_at_->position(),
+                                                      !start_at_->before())
+                            : nullptr;
+
+      Target target(path(), collection_group(), filters(), new_order_bys,
+                    limit_, new_start_at, new_end_at);
+      memoized_target = std::make_shared<Target>(std::move(target));
+    }
   }
 
   return *memoized_target;
@@ -313,7 +363,8 @@ std::ostream& operator<<(std::ostream& os, const Query& query) {
 }
 
 bool operator==(const Query& lhs, const Query& rhs) {
-  return lhs.ToTarget() == rhs.ToTarget();
+  return (lhs.limit_type_ == rhs.limit_type_) &&
+         (lhs.ToTarget() == rhs.ToTarget());
 }
 
 }  // namespace core
