@@ -67,6 +67,9 @@ class TransformOperation {
     return rep().type();
   }
 
+ private:
+  friend class TransformMutation;
+
   /**
    * Computes the local transform result against the provided `previous_value`,
    * optionally using the provided local_write_time.
@@ -106,6 +109,7 @@ class TransformOperation {
     return rep().ComputeBaseValue(previous_value);
   }
 
+ public:
   /** Returns whether the two are equal. */
   friend bool operator==(const TransformOperation& lhs,
                          const TransformOperation& rhs);
