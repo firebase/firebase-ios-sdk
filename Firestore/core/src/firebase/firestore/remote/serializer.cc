@@ -121,18 +121,6 @@ ResourcePath DatabaseName(const DatabaseId& database_id) {
 }
 
 /**
- * Encodes a database ID and resource path into the following form:
- * /projects/$project_id/database/$database_id/documents/$path
- */
-pb_bytes_array_t* EncodeResourceName(const DatabaseId& database_id,
-                                     const ResourcePath& path) {
-  return Serializer::EncodeString(DatabaseName(database_id)
-                                      .Append("documents")
-                                      .Append(path)
-                                      .CanonicalString());
-}
-
-/**
  * Validates that a path has a prefix that looks like a valid encoded
  * database ID.
  */
@@ -140,20 +128,6 @@ bool IsValidResourceName(const ResourcePath& path) {
   // Resource names have at least 4 components (project ID, database ID)
   // and commonly the (root) resource type, e.g. documents
   return path.size() >= 4 && path[0] == "projects" && path[2] == "databases";
-}
-
-/**
- * Decodes a fully qualified resource name into a resource path and validates
- * that there is a project and database encoded in the path. There are no
- * guarantees that a local path is also encoded in this resource name.
- */
-ResourcePath DecodeResourceName(Reader* reader, absl::string_view encoded) {
-  ResourcePath resource = ResourcePath::FromString(encoded);
-  if (!IsValidResourceName(resource)) {
-    reader->Fail(StringFormat("Tried to deserialize an invalid key %s",
-                              resource.CanonicalString()));
-  }
-  return resource;
 }
 
 /**
@@ -169,19 +143,6 @@ ResourcePath ExtractLocalPathFromResourceName(
     return ResourcePath{};
   }
   return resource_name.PopFirst(5);
-}
-
-ResourcePath DecodeQueryPath(Reader* reader, absl::string_view name) {
-  ResourcePath resource = DecodeResourceName(reader, name);
-  if (resource.size() == 4) {
-    // In v1beta1 queries for collections at the root did not have a trailing
-    // "/documents". In v1 all resource paths contain "/documents". Preserve the
-    // ability to read the v1beta1 form for compatibility with queries persisted
-    // in the local query cache.
-    return ResourcePath::Empty();
-  } else {
-    return ExtractLocalPathFromResourceName(reader, resource);
-  }
 }
 
 Filter InvalidFilter() {
@@ -477,6 +438,42 @@ DocumentKey Serializer::DecodeKey(Reader* reader,
   // Avoid assertion failures in DocumentKey if local_path is invalid.
   if (!reader->status().ok()) return DocumentKey{};
   return DocumentKey{std::move(local_path)};
+}
+
+pb_bytes_array_t* Serializer::EncodeQueryPath(const ResourcePath& path) const {
+  return EncodeResourceName(database_id_, path);
+}
+
+ResourcePath Serializer::DecodeQueryPath(Reader* reader,
+                                         absl::string_view name) const {
+  ResourcePath resource = DecodeResourceName(reader, name);
+  if (resource.size() == 4) {
+    // In v1beta1 queries for collections at the root did not have a trailing
+    // "/documents". In v1 all resource paths contain "/documents". Preserve the
+    // ability to read the v1beta1 form for compatibility with queries persisted
+    // in the local query cache.
+    return ResourcePath::Empty();
+  } else {
+    return ExtractLocalPathFromResourceName(reader, resource);
+  }
+}
+
+pb_bytes_array_t* Serializer::EncodeResourceName(
+    const DatabaseId& database_id, const ResourcePath& path) const {
+  return Serializer::EncodeString(DatabaseName(database_id)
+                                      .Append("documents")
+                                      .Append(path)
+                                      .CanonicalString());
+}
+
+ResourcePath Serializer::DecodeResourceName(Reader* reader,
+                                            absl::string_view encoded) const {
+  ResourcePath resource = ResourcePath::FromString(encoded);
+  if (!IsValidResourceName(resource)) {
+    reader->Fail(StringFormat("Tried to deserialize an invalid key %s",
+                              resource.CanonicalString()));
+  }
+  return resource;
 }
 
 DatabaseId Serializer::DecodeDatabaseId(
@@ -1362,10 +1359,6 @@ pb_bytes_array_t* Serializer::EncodeFieldPath(const FieldPath& field_path) {
 FieldPath Serializer::DecodeFieldPath(const pb_bytes_array_t* field_path) {
   absl::string_view str = MakeStringView(field_path);
   return FieldPath::FromServerFormat(str);
-}
-
-pb_bytes_array_t* Serializer::EncodeQueryPath(const ResourcePath& path) const {
-  return EncodeResourceName(database_id_, path);
 }
 
 google_protobuf_Timestamp Serializer::EncodeVersion(
