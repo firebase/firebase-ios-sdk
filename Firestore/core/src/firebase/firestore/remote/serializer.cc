@@ -468,7 +468,7 @@ pb_bytes_array_t* Serializer::EncodeResourceName(
 
 ResourcePath Serializer::DecodeResourceName(Reader* reader,
                                             absl::string_view encoded) const {
-  ResourcePath resource = ResourcePath::FromString(encoded);
+  ResourcePath resource = ResourcePath::FromStringView(encoded);
   if (!IsValidResourceName(resource)) {
     reader->Fail(StringFormat("Tried to deserialize an invalid key %s",
                               resource.CanonicalString()));
@@ -1358,7 +1358,7 @@ pb_bytes_array_t* Serializer::EncodeFieldPath(const FieldPath& field_path) {
 /* static */
 FieldPath Serializer::DecodeFieldPath(const pb_bytes_array_t* field_path) {
   absl::string_view str = MakeStringView(field_path);
-  return FieldPath::FromServerFormat(str);
+  return FieldPath::FromServerFormatView(str);
 }
 
 google_protobuf_Timestamp Serializer::EncodeVersion(

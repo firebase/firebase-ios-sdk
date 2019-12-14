@@ -245,7 +245,7 @@ inline model::DocumentKey Key(absl::string_view path) {
 }
 
 inline model::FieldPath Field(absl::string_view field) {
-  return model::FieldPath::FromServerFormat(field);
+  return model::FieldPath::FromServerFormat(std::string(field));
 }
 
 inline model::DatabaseId DbId(std::string project = "project/(default)") {
@@ -264,7 +264,7 @@ inline model::FieldValue Ref(std::string project, absl::string_view path) {
 }
 
 inline model::ResourcePath Resource(absl::string_view field) {
-  return model::ResourcePath::FromString(field);
+  return model::ResourcePath::FromString(std::string(field));
 }
 
 /**

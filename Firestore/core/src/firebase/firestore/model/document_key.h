@@ -52,7 +52,7 @@ class DocumentKey : public util::InequalityComparable<DocumentKey> {
    * segments.
    */
   static DocumentKey FromPathString(absl::string_view path) {
-    return DocumentKey{ResourcePath::FromString(path)};
+    return DocumentKey{ResourcePath::FromStringView(path)};
   }
 
   /** Creates and returns a new document key with the given segments. */
