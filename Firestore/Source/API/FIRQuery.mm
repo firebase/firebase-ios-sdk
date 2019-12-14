@@ -383,6 +383,16 @@ FIRQuery *Wrap(Query &&query) {
   return Wrap(_query.Limit(internalLimit));
 }
 
+- (FIRQuery *)queryLimitedToLast:(NSInteger)limit {
+  int32_t internalLimit;
+  if (limit == NSNotFound || limit >= core::Target::kNoLimit) {
+    internalLimit = core::Target::kNoLimit;
+  } else {
+    internalLimit = static_cast<int32_t>(limit);
+  }
+  return Wrap(_query.LimitToLast(internalLimit));
+}
+
 - (FIRQuery *)queryStartingAtDocument:(FIRDocumentSnapshot *)snapshot {
   Bound bound = [self boundFromSnapshot:snapshot isBefore:YES];
   return Wrap(_query.StartAt(std::move(bound)));

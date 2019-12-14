@@ -263,11 +263,51 @@ TEST_F(IndexFreeQueryEngineTest,
 }
 
 TEST_F(IndexFreeQueryEngineTest,
+       DoesNotUseInitialResultsForLimitToLastQueryWithDocumentRemoval) {
+  core::Query query = Query("coll")
+                          .AddingFilter(Filter("matches", "==", true))
+                          .AddingOrderBy(OrderBy("order", "desc"))
+                          .WithLimitToLast(1);
+
+  // While the backend would never add DocA to the set of remote keys, this
+  // allows us to easily simulate what would happen when a document no longer
+  // matches due to an out-of-band update.
+  AddDocuments({kNonMatchingDocA});
+  PersistQueryMapping({kMatchingDocA.key()});
+
+  AddDocuments({kMatchingDocB});
+
+  DocumentSet docs = ExpectFullCollectionQuery(
+      [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
+  EXPECT_EQ(docs, DocSet(query.Comparator(), {kMatchingDocB}));
+}
+
+TEST_F(IndexFreeQueryEngineTest,
        DoesNotUseInitialResultsForLimitQueryWhenLastDocumentHasPendingWrite) {
   core::Query query = Query("coll")
                           .AddingFilter(Filter("matches", "==", true))
                           .AddingOrderBy(OrderBy("order", "desc"))
                           .WithLimitToFirst(1);
+
+  // Add a query mapping for a document that matches, but that sorts below
+  // another document due to a pending write.
+  AddDocuments({pPendingMatchingDocA});
+  PersistQueryMapping({pPendingMatchingDocA.key()});
+
+  AddDocuments({kMatchingDocB});
+
+  DocumentSet docs = ExpectFullCollectionQuery(
+      [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
+  EXPECT_EQ(docs, DocSet(query.Comparator(), {kMatchingDocB}));
+}
+
+TEST_F(
+    IndexFreeQueryEngineTest,
+    DoesNotUseInitialResultsForLimitToLastQueryWhenLastDocumentHasPendingWrite) {
+  core::Query query = Query("coll")
+                          .AddingFilter(Filter("matches", "==", true))
+                          .AddingOrderBy(OrderBy("order", "asc"))
+                          .WithLimitToLast(1);
 
   // Add a query mapping for a document that matches, but that sorts below
   // another document due to a pending write.
@@ -287,6 +327,27 @@ TEST_F(IndexFreeQueryEngineTest,
                           .AddingFilter(Filter("matches", "==", true))
                           .AddingOrderBy(OrderBy("order", "desc"))
                           .WithLimitToFirst(1);
+
+  // Add a query mapping for a document that matches, but that sorts below
+  // another document based due to an update that the SDK received after the
+  // query's snapshot was persisted.
+  AddDocuments({kUpdatedDocA});
+  PersistQueryMapping({kUpdatedDocA.key()});
+
+  AddDocuments({kMatchingDocB});
+
+  DocumentSet docs = ExpectFullCollectionQuery(
+      [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
+  EXPECT_EQ(docs, DocSet(query.Comparator(), {kMatchingDocB}));
+}
+
+TEST_F(
+    IndexFreeQueryEngineTest,
+    DoesNotUseInitialResultsForLimitToLastQueryWhenLastDocumentUpdatedOutOfBand) {
+  core::Query query = Query("coll")
+                          .AddingFilter(Filter("matches", "==", true))
+                          .AddingOrderBy(OrderBy("order", "asc"))
+                          .WithLimitToLast(1);
 
   // Add a query mapping for a document that matches, but that sorts below
   // another document based due to an update that the SDK received after the

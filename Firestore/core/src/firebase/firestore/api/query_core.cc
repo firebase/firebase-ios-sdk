@@ -53,7 +53,6 @@ using model::FieldValue;
 using model::ResourcePath;
 using util::Status;
 using util::StatusOr;
-using util::ThrowIllegalState;
 using util::ThrowInvalidArgument;
 
 using Operator = Filter::Operator;
@@ -340,7 +339,7 @@ void Query::ValidateOrderByField(const FieldPath& order_by_field,
 
 void Query::ValidateHasExplicitOrderByForLimitToLast() const {
   if (query_.has_limit_to_last() && query_.explicit_order_bys().empty()) {
-    ThrowIllegalState(
+    ThrowInvalidArgument(
         "LimitToLast queries require specifying at least one OrderBy() "
         "clause.");
   }
