@@ -29,6 +29,10 @@
 
 namespace firebase {
 namespace firestore {
+namespace remote {
+class Serializer;
+}  // namespace remote
+
 namespace model {
 
 /** Describes the `has_pending_writes` state of a document. */
@@ -62,12 +66,16 @@ class Document : public MaybeDocument {
            SnapshotVersion version,
            DocumentState document_state);
 
+ private:
+  friend class remote::Serializer;
+
   Document(ObjectValue data,
            DocumentKey key,
            SnapshotVersion version,
            DocumentState document_state,
            absl::any proto);
 
+ public:
   /**
    * Casts a MaybeDocument to a Document. This is a checked operation that will
    * assert if the type of the MaybeDocument isn't actually Type::Document.
