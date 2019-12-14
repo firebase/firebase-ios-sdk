@@ -762,11 +762,10 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
 
     if (handler) {
       dispatch_async(dispatch_get_main_queue(), ^{
-        handler(
-            YES, @{
-              @RCNExperimentTableKeyPayload : [experimentPayloads copy],
-              @RCNExperimentTableKeyMetadata : [experimentMetadata copy]
-            });
+        handler(YES, @{
+          @RCNExperimentTableKeyPayload : [experimentPayloads copy],
+          @RCNExperimentTableKeyMetadata : [experimentMetadata copy]
+        });
       });
     }
   });
