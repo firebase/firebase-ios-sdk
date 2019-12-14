@@ -35,9 +35,14 @@ extern NSString *const kFIRInstallationsMessageCodeAPIResponseParsingAuthTokenSu
 extern NSString *const kFIRInstallationsMessageCodeNewGetInstallationOperationCreated;
 extern NSString *const kFIRInstallationsMessageCodeNewGetAuthTokenOperationCreated;
 extern NSString *const kFIRInstallationsMessageCodeNewDeleteInstallationOperationCreated;
+extern NSString *const kFIRInstallationsMessageCodeInvalidFirebaseConfiguration;
 
 // FIRInstallationsStoredItem.m
 extern NSString *const kFIRInstallationsMessageCodeInstallationCoderVersionMismatch;
 
 // FIRInstallationsStoredAuthToken.m
 extern NSString *const kFIRInstallationsMessageCodeAuthTokenCoderVersionMismatch;
+
+// FIRInstallationsStoredIIDCheckin.m
+extern NSString *const kFIRInstallationsMessageCodeIIDCheckinCoderVersionMismatch;
+extern NSString *const kFIRInstallationsMessageCodeIIDCheckinFailedToDecode;

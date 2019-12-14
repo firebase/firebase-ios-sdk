@@ -18,14 +18,6 @@
 
 #import "DynamicLinks/FIRDLJavaScriptExecutor.h"
 
-// define below needed because nullability of UIWebViewDelegate method param was changed between
-// iOS SDK versions
-#if (defined(__IPHONE_10_0) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0))
-#define FIRDL_NULLABLE_IOS9_NONNULLABLE_IOS10 nonnull
-#else
-#define FIRDL_NULLABLE_IOS9_NONNULLABLE_IOS10 nullable
-#endif
-
 NS_ASSUME_NONNULL_BEGIN
 
 static NSString *const kJSMethodName = @"generateFingerprint";
@@ -50,16 +42,15 @@ NSString *GINFingerprintJSMethodString() {
   return methodString;
 }
 
-@interface FIRDLJavaScriptExecutor () <UIWebViewDelegate, WKNavigationDelegate>
+@interface FIRDLJavaScriptExecutor () <WKNavigationDelegate>
 @end
 
 @implementation FIRDLJavaScriptExecutor {
   __weak id<FIRDLJavaScriptExecutorDelegate> _delegate;
   NSString *_script;
 
-  // Web views with which to run JavaScript.
-  UIWebView *_uiWebView;  // Used in iOS 7 only.
-  WKWebView *_wkWebView;  // Used in iOS 8+ only.
+  // Web view with which to run JavaScript.
+  WKWebView *_wkWebView;
 }
 
 - (instancetype)initWithDelegate:(id<FIRDLJavaScriptExecutorDelegate>)delegate
@@ -82,17 +73,9 @@ NSString *GINFingerprintJSMethodString() {
   NSString *htmlContent =
       [NSString stringWithFormat:@"<html><head><script>%@</script></head></html>", _script];
 
-  // Use WKWebView if available as it executes JavaScript more quickly, otherwise, fall back
-  // on UIWebView.
-  if ([WKWebView class]) {
-    _wkWebView = [[WKWebView alloc] init];
-    _wkWebView.navigationDelegate = self;
-    [_wkWebView loadHTMLString:htmlContent baseURL:nil];
-  } else {
-    _uiWebView = [[UIWebView alloc] init];
-    _uiWebView.delegate = self;
-    [_uiWebView loadHTMLString:htmlContent baseURL:nil];
-  }
+  _wkWebView = [[WKWebView alloc] init];
+  _wkWebView.navigationDelegate = self;
+  [_wkWebView loadHTMLString:htmlContent baseURL:nil];
 }
 
 - (void)handleExecutionResult:(NSString *)result {
@@ -109,8 +92,6 @@ NSString *GINFingerprintJSMethodString() {
 }
 
 - (void)cleanup {
-  _uiWebView.delegate = nil;
-  _uiWebView = nil;
   _wkWebView.navigationDelegate = nil;
   _wkWebView = nil;
 }
@@ -132,10 +113,11 @@ NSString *GINFingerprintJSMethodString() {
                 [webView
                     evaluateJavaScript:GINFingerprintJSMethodString()
                      completionHandler:^(id _Nullable result, NSError *_Nullable functionError) {
+                       __typeof__(self) strongSelf = weakSelf;
                        if ([result isKindOfClass:[NSString class]]) {
-                         [weakSelf handleExecutionResult:result];
+                         [strongSelf handleExecutionResult:result];
                        } else {
-                         [weakSelf handleExecutionError:nil];
+                         [strongSelf handleExecutionError:nil];
                        }
                      }];
               } else {
@@ -147,33 +129,6 @@ NSString *GINFingerprintJSMethodString() {
 - (void)webView:(WKWebView *)webView
     didFailNavigation:(null_unspecified WKNavigation *)navigation
             withError:(NSError *)error {
-  [self handleExecutionError:error];
-}
-
-#pragma mark - UIWebViewDelegate
-
-- (void)webViewDidFinishLoad:(UIWebView *)webView {
-  // Make sure that the javascript was loaded successfully before calling the method.
-  NSString *methodType =
-      [webView stringByEvaluatingJavaScriptFromString:FIRDLTypeofFingerprintJSMethodNameString()];
-  if (![methodType isEqualToString:@"function"]) {
-    // Javascript was not loaded successfully.
-    [self handleExecutionError:nil];
-    return;
-  }
-
-  // Get the result from javascript.
-  NSString *result =
-      [webView stringByEvaluatingJavaScriptFromString:GINFingerprintJSMethodString()];
-  if ([result isKindOfClass:[NSString class]]) {
-    [self handleExecutionResult:result];
-  } else {
-    [self handleExecutionError:nil];
-  }
-}
-
-- (void)webView:(UIWebView *)webView
-    didFailLoadWithError:(FIRDL_NULLABLE_IOS9_NONNULLABLE_IOS10 NSError *)error {
   [self handleExecutionError:error];
 }
 

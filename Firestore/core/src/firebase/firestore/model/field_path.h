@@ -21,7 +21,6 @@
 #include <string>
 #include <utility>
 
-#include "Firestore/core/src/firebase/firestore/api/input_validation.h"
 #include "Firestore/core/src/firebase/firestore/model/base_path.h"
 #include "absl/strings/string_view.h"
 
@@ -38,7 +37,7 @@ class FieldPath : public impl::BasePath<FieldPath>,
                   public util::Comparable<FieldPath> {
  public:
   /** The field path string that represents the document's key. */
-  static constexpr char kDocumentKeyPath[] = "__name__";
+  static constexpr const char* kDocumentKeyPath = "__name__";
 
   // Note: Xcode 8.2 requires explicit specification of the constructor.
   FieldPath() : impl::BasePath<FieldPath>() {
@@ -83,26 +82,14 @@ class FieldPath : public impl::BasePath<FieldPath>,
   /** Returns a field path that represents a document key. */
   static const FieldPath& KeyFieldPath();
 
-  /** Returns a standardized string representation of this path. */
-  std::string CanonicalString() const;
   /** True if this FieldPath represents a document key. */
   bool IsKeyFieldPath() const;
 
- private:
-  static void ValidateSegments(const SegmentsT& segments) {
-    if (segments.empty()) {
-      api::ThrowInvalidArgument(
-          "Invalid field path. Provided names must not be empty.");
-    }
+  /** Returns a standardized string representation of this path. */
+  std::string CanonicalString() const;
 
-    for (size_t i = 0; i < segments.size(); i++) {
-      if (segments[i].empty()) {
-        api::ThrowInvalidArgument(
-            "Invalid field name at index %s. Field names must not be empty.",
-            i);
-      }
-    }
-  }
+ private:
+  static void ValidateSegments(const SegmentsT& segments);
 };
 
 }  // namespace model

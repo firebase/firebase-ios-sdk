@@ -27,6 +27,8 @@
 
 #include "google/protobuf/wrappers.nanopb.h"
 
+#include <string>
+
 namespace firebase {
 namespace firestore {
 
@@ -81,12 +83,16 @@ typedef enum _google_firestore_v1_StructuredQuery_UnaryFilter_Operator {
 /* Struct definitions */
 typedef struct _google_firestore_v1_StructuredQuery_FieldReference {
     pb_bytes_array_t *field_path;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_StructuredQuery_FieldReference) */
 } google_firestore_v1_StructuredQuery_FieldReference;
 
 typedef struct _google_firestore_v1_StructuredQuery_Projection {
     pb_size_t fields_count;
     struct _google_firestore_v1_StructuredQuery_FieldReference *fields;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_StructuredQuery_Projection) */
 } google_firestore_v1_StructuredQuery_Projection;
 
@@ -94,12 +100,16 @@ typedef struct _google_firestore_v1_Cursor {
     pb_size_t values_count;
     struct _google_firestore_v1_Value *values;
     bool before;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_Cursor) */
 } google_firestore_v1_Cursor;
 
 typedef struct _google_firestore_v1_StructuredQuery_CollectionSelector {
     pb_bytes_array_t *collection_id;
     bool all_descendants;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_StructuredQuery_CollectionSelector) */
 } google_firestore_v1_StructuredQuery_CollectionSelector;
 
@@ -107,6 +117,8 @@ typedef struct _google_firestore_v1_StructuredQuery_CompositeFilter {
     google_firestore_v1_StructuredQuery_CompositeFilter_Operator op;
     pb_size_t filters_count;
     struct _google_firestore_v1_StructuredQuery_Filter *filters;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_StructuredQuery_CompositeFilter) */
 } google_firestore_v1_StructuredQuery_CompositeFilter;
 
@@ -114,12 +126,16 @@ typedef struct _google_firestore_v1_StructuredQuery_FieldFilter {
     google_firestore_v1_StructuredQuery_FieldReference field;
     google_firestore_v1_StructuredQuery_FieldFilter_Operator op;
     google_firestore_v1_Value value;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_StructuredQuery_FieldFilter) */
 } google_firestore_v1_StructuredQuery_FieldFilter;
 
 typedef struct _google_firestore_v1_StructuredQuery_Order {
     google_firestore_v1_StructuredQuery_FieldReference field;
     google_firestore_v1_StructuredQuery_Direction direction;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_StructuredQuery_Order) */
 } google_firestore_v1_StructuredQuery_Order;
 
@@ -129,6 +145,8 @@ typedef struct _google_firestore_v1_StructuredQuery_UnaryFilter {
     union {
         google_firestore_v1_StructuredQuery_FieldReference field;
     };
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_StructuredQuery_UnaryFilter) */
 } google_firestore_v1_StructuredQuery_UnaryFilter;
 
@@ -139,6 +157,8 @@ typedef struct _google_firestore_v1_StructuredQuery_Filter {
         google_firestore_v1_StructuredQuery_FieldFilter field_filter;
         google_firestore_v1_StructuredQuery_UnaryFilter unary_filter;
     };
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_StructuredQuery_Filter) */
 } google_firestore_v1_StructuredQuery_Filter;
 
@@ -149,17 +169,20 @@ typedef struct _google_firestore_v1_StructuredQuery {
     google_firestore_v1_StructuredQuery_Filter where;
     pb_size_t order_by_count;
     struct _google_firestore_v1_StructuredQuery_Order *order_by;
+    bool has_limit;
     google_protobuf_Int32Value limit;
     int32_t offset;
     google_firestore_v1_Cursor start_at;
     google_firestore_v1_Cursor end_at;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_StructuredQuery) */
 } google_firestore_v1_StructuredQuery;
 
 /* Default values for struct fields */
 
 /* Initializer values for message structs */
-#define google_firestore_v1_StructuredQuery_init_default {google_firestore_v1_StructuredQuery_Projection_init_default, 0, NULL, google_firestore_v1_StructuredQuery_Filter_init_default, 0, NULL, google_protobuf_Int32Value_init_default, 0, google_firestore_v1_Cursor_init_default, google_firestore_v1_Cursor_init_default}
+#define google_firestore_v1_StructuredQuery_init_default {google_firestore_v1_StructuredQuery_Projection_init_default, 0, NULL, google_firestore_v1_StructuredQuery_Filter_init_default, 0, NULL, false, google_protobuf_Int32Value_init_default, 0, google_firestore_v1_Cursor_init_default, google_firestore_v1_Cursor_init_default}
 #define google_firestore_v1_StructuredQuery_CollectionSelector_init_default {NULL, 0}
 #define google_firestore_v1_StructuredQuery_Filter_init_default {0, {google_firestore_v1_StructuredQuery_CompositeFilter_init_default}}
 #define google_firestore_v1_StructuredQuery_CompositeFilter_init_default {_google_firestore_v1_StructuredQuery_CompositeFilter_Operator_MIN, 0, NULL}
@@ -169,7 +192,7 @@ typedef struct _google_firestore_v1_StructuredQuery {
 #define google_firestore_v1_StructuredQuery_FieldReference_init_default {NULL}
 #define google_firestore_v1_StructuredQuery_Projection_init_default {0, NULL}
 #define google_firestore_v1_Cursor_init_default  {0, NULL, 0}
-#define google_firestore_v1_StructuredQuery_init_zero {google_firestore_v1_StructuredQuery_Projection_init_zero, 0, NULL, google_firestore_v1_StructuredQuery_Filter_init_zero, 0, NULL, google_protobuf_Int32Value_init_zero, 0, google_firestore_v1_Cursor_init_zero, google_firestore_v1_Cursor_init_zero}
+#define google_firestore_v1_StructuredQuery_init_zero {google_firestore_v1_StructuredQuery_Projection_init_zero, 0, NULL, google_firestore_v1_StructuredQuery_Filter_init_zero, 0, NULL, false, google_protobuf_Int32Value_init_zero, 0, google_firestore_v1_Cursor_init_zero, google_firestore_v1_Cursor_init_zero}
 #define google_firestore_v1_StructuredQuery_CollectionSelector_init_zero {NULL, 0}
 #define google_firestore_v1_StructuredQuery_Filter_init_zero {0, {google_firestore_v1_StructuredQuery_CompositeFilter_init_zero}}
 #define google_firestore_v1_StructuredQuery_CompositeFilter_init_zero {_google_firestore_v1_StructuredQuery_CompositeFilter_Operator_MIN, 0, NULL}
@@ -240,6 +263,13 @@ extern const pb_field_t google_firestore_v1_Cursor_fields[3];
 
 #endif
 
+const char* EnumToString(google_firestore_v1_StructuredQuery_Direction value);
+const char* EnumToString(
+    google_firestore_v1_StructuredQuery_CompositeFilter_Operator value);
+const char* EnumToString(
+    google_firestore_v1_StructuredQuery_FieldFilter_Operator value);
+const char* EnumToString(
+    google_firestore_v1_StructuredQuery_UnaryFilter_Operator value);
 }  // namespace firestore
 }  // namespace firebase
 

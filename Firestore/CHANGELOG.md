@@ -1,7 +1,63 @@
 # Unreleased
+
+# v1.8.2
+- [changed] Internal improvements.
+
+# v1.8.1
+- [fixed] Firestore no longer loads its TLS certificates from a bundle, which
+  fixes crashes at startup when the bundle can't be loaded. This fixes a
+  specific case where the bundle couldn't be loaded due to international
+  characters in the application name. If you're manually tracking dependencies,
+  you can now remove `gRPCCertificates-Cpp.bundle` from your build. (#3951).
+
+# v1.8.0
+- [changed] Removed Firestore's dependency on the `Protobuf` CocoaPod. If
+  you're manually tracking dependencies, you may be able to remove it from your
+  build (note, however, that other Firebase components may still require it).
+- [changed] Added a dependency on the `abseil` CocoaPod. If you're manually
+  tracking dependencies, you need to add it to your build.
+
+# v1.7.0
+- [feature] Added `whereField(_:in:)` and `whereField(_:arrayContainsAny:)` query
+  operators. `whereField(_:in:)` finds documents where a specified field’s value
+  is IN a specified array. `whereField(_:arrayContainsAny:)` finds documents
+  where a specified field is an array and contains ANY element of a specified
+  array.
+- [changed] Firestore SDK now uses Nanopb rather than the Objective-C Protobuf
+  library for parsing protos. This change does not affect visible behavior of
+  the SDK in any way. While we don't anticipate any issues, please [report any
+  issues with network behavior or
+  persistence](https://github.com/firebase/firebase-ios-sdk/issues/new) that you
+  experience.
+
+# v1.6.1
+- [fixed] Fix a race condition that could cause a segmentation fault during
+  client initialization.
+
+# v1.6.0
+- [feature] Added an `addSnapshotsInSyncListener()` method to
+  `FIRFirestore` that notifies you when all your snapshot listeners are
+  in sync with each other.
+
+# v1.5.1
+- [fixed] Fixed a memory access error discovered using the sanitizers in Xcode
+  11.
+
+# v1.5.0
 - [changed] Transactions now perform exponential backoff before retrying.
   This means transactions on highly contended documents are more likely to
   succeed.
+- [feature] Added a `waitForPendingWrites()` method to `FIRFirestore` class
+  which allows users to wait on a promise that resolves when all pending
+  writes are acknowledged by the Firestore backend.
+- [feature] Added a `terminate()` method to `FIRFirestore` which terminates
+  the instance, releasing any held resources. Once it completes, you can
+  optionally call `clearPersistence()` to wipe persisted Firestore data
+  from disk.
+
+# v1.4.5
+- [fixed] Fixed a crash that would happen when changing networks or going from
+  online to offline. (#3661).
 
 # v1.4.4
 - [changed] Internal improvements.
@@ -83,7 +139,7 @@
 - [changed] **Breaking change:** The `areTimestampsInSnapshotsEnabled` setting
   is now enabled by default. Timestamp fields that read from a
   `FIRDocumentSnapshot` will be returned as `FIRTimestamp` objects instead of
-  `NSDate` objects. Update any code that expects to recive a `NSDate` object.
+  `NSDate` objects. Update any code that expects to receive an `NSDate` object.
   See [the reference
   documentation](https://firebase.google.com/docs/reference/ios/firebasefirestore/api/reference/Classes/FIRFirestoreSettings#/c:objc(cs)FIRFirestoreSettings(py)timestampsInSnapshotsEnabled)
   for more details.
@@ -170,7 +226,7 @@
 # v0.13.0
 - [feature] Added `FieldValue.arrayUnion()` and `FieldValue.arrayRemove()` to
   atomically add and remove elements from an array field in a document.
-- [feature] Added `whereField(arrayContains:)` query filter to find
+- [feature] Added `whereField(_:arrayContains:)` query filter to find
   documents where an array field contains a specific element.
 - [fixed] Fixed compilation with older Xcode versions (#1517).
 - [fixed] Fixed a performance issue where large write batches with hundreds of

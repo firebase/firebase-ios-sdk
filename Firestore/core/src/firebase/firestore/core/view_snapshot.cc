@@ -71,41 +71,41 @@ void DocumentViewChangeSet::AddChange(DocumentViewChange&& change) {
   DocumentViewChange::Type new_type = change.type();
 
   // Merge the new change with the existing change.
-  if (new_type != DocumentViewChange::Type::kAdded &&
-      old_type == DocumentViewChange::Type::kMetadata) {
+  if (new_type != DocumentViewChange::Type::Added &&
+      old_type == DocumentViewChange::Type::Metadata) {
     change_map_ = change_map_.insert(key, change);
 
-  } else if (new_type == DocumentViewChange::Type::kMetadata &&
-             old_type != DocumentViewChange::Type::kRemoved) {
+  } else if (new_type == DocumentViewChange::Type::Metadata &&
+             old_type != DocumentViewChange::Type::Removed) {
     DocumentViewChange new_change{change.document(), old_type};
     change_map_ = change_map_.insert(key, new_change);
 
-  } else if (new_type == DocumentViewChange::Type::kModified &&
-             old_type == DocumentViewChange::Type::kModified) {
+  } else if (new_type == DocumentViewChange::Type::Modified &&
+             old_type == DocumentViewChange::Type::Modified) {
     DocumentViewChange new_change{change.document(),
-                                  DocumentViewChange::Type::kModified};
+                                  DocumentViewChange::Type::Modified};
     change_map_ = change_map_.insert(key, new_change);
 
-  } else if (new_type == DocumentViewChange::Type::kModified &&
-             old_type == DocumentViewChange::Type::kAdded) {
+  } else if (new_type == DocumentViewChange::Type::Modified &&
+             old_type == DocumentViewChange::Type::Added) {
     DocumentViewChange new_change{change.document(),
-                                  DocumentViewChange::Type::kAdded};
+                                  DocumentViewChange::Type::Added};
     change_map_ = change_map_.insert(key, new_change);
 
-  } else if (new_type == DocumentViewChange::Type::kRemoved &&
-             old_type == DocumentViewChange::Type::kAdded) {
+  } else if (new_type == DocumentViewChange::Type::Removed &&
+             old_type == DocumentViewChange::Type::Added) {
     change_map_ = change_map_.erase(key);
 
-  } else if (new_type == DocumentViewChange::Type::kRemoved &&
-             old_type == DocumentViewChange::Type::kModified) {
+  } else if (new_type == DocumentViewChange::Type::Removed &&
+             old_type == DocumentViewChange::Type::Modified) {
     DocumentViewChange new_change{old.document(),
-                                  DocumentViewChange::Type::kRemoved};
+                                  DocumentViewChange::Type::Removed};
     change_map_ = change_map_.insert(key, new_change);
 
-  } else if (new_type == DocumentViewChange::Type::kAdded &&
-             old_type == DocumentViewChange::Type::kRemoved) {
+  } else if (new_type == DocumentViewChange::Type::Added &&
+             old_type == DocumentViewChange::Type::Removed) {
     DocumentViewChange new_change{change.document(),
-                                  DocumentViewChange::Type::kModified};
+                                  DocumentViewChange::Type::Modified};
     change_map_ = change_map_.insert(key, new_change);
 
   } else {
@@ -162,7 +162,7 @@ ViewSnapshot ViewSnapshot::FromInitialDocuments(
     bool excludes_metadata_changes) {
   std::vector<DocumentViewChange> view_changes;
   for (const Document& doc : documents) {
-    view_changes.emplace_back(doc, DocumentViewChange::Type::kAdded);
+    view_changes.emplace_back(doc, DocumentViewChange::Type::Added);
   }
 
   DocumentSet old_documents(query.Comparator());

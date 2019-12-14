@@ -1,13 +1,36 @@
+# 2019-12 -- v4.1.10
+- [fixed] Fix component startup time. (#4137)
+
+# 2019-11-19 -- v4.1.9
+- [changed] Moved message queue delete operation to a serial queue to avoid race conditions in unit tests. (#4236)
+
+# 2019-11-05 -- v4.1.8
+- [changed] Moved reliable message queue database operation off main thread. (#4053)
+
+# 2019-10-22 -- v4.1.7
+- [fixed] Fixed IID and Messaging container instantiation timing issue. (#4030)
+- [changed] Internal cleanup and remove migration logic from document folder to application folder. (#4033, #4045)
+
+# 2019-10-08 -- v4.1.6
+- [changed] Internal cleanup. (#3857)
+
+# 2019-09-23 -- v4.1.5
+- [fixed] Mute FCM deprecated warnings with Xcode 11 and min iOS >= 10. (#3857)
+
+# 2019-09-03 -- v4.1.4
+- [fixed] Fixed notification open event is not logged when scheduling a local timezone message. (#3670, #3638)
+- [fixed] Fixed FirebaseApp.delete() results in unusable Messaging singleton. (#3411)
+
 # 2019-08-20 -- v4.1.3
 - [changed] Cleaned up the documents, unused macros, and folders. (#3490, #3537, #3556, #3498)
 - [changed] Updated the header path to pod repo relative. (#3527)
-- [fixed] Fix singleton functionality after a FirebaseApp is deleted and recreated. (#3411)
+- [fixed] Fixed singleton functionality after a FirebaseApp is deleted and recreated. (#3411)
 
 # 2019-08-08 -- v4.1.2
-- [fixed] Fix hang when token is not available before topic subscription and unsubscription. (#3438)
+- [fixed] Fixed hang when token is not available before topic subscription and unsubscription. (#3438)
 
 # 2019-07-18 -- v4.1.1
-- [fixed] Fix Xcode 11 tvOS build issue - (#3216)
+- [fixed] Fixed Xcode 11 tvOS build issue - (#3216)
 
 # 2019-06-18 -- v4.1.0
 - [feature] Adding macOS support for Messaging. You can now send push notification to your mac app with Firebase Messaging.(#2880)
@@ -16,7 +39,7 @@
 - [fixed] Disable data protection when opening the Rmq2PeristentStore. (#2963)
 
 # 2019-05-21 -- v4.0.1
-- [fixed] Fix race condition checkin is deleted before writing during app start. This cleans up the corrupted checkin and fixes #2438. (#2860)
+- [fixed] Fixed race condition checkin is deleted before writing during app start. This cleans up the corrupted checkin and fixes #2438. (#2860)
 - [fixed] Separete APNS proxy methods in GULAppDelegateSwizzler so developers don't need to swizzle APNS related method unless explicitly requested, this fixes #2807. (#2835)
 - [changed] Clean up code. Remove extra layer of class. (#2853)
 

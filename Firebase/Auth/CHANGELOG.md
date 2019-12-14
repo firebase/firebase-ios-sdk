@@ -1,3 +1,16 @@
+# v6.4.1
+- [fixed] Added support of UISceneDelegate for URL redirect. (#4380)
+- [fixed] Fixed rawNonce in encoder. (#4337)
+
+# v6.4.0
+- [feature] Added support for Sign-in with Apple. (#4183)
+
+# v6.3.1
+- [fixed] Removed usage of a deprecated property on iOS 13. (#4066)
+
+# v6.3.0
+- [added] Added methods allowing developers to link and reauthenticate with federated providers. (#3971)
+
 # v6.2.3
 - [fixed] Make sure the first valid auth domain is retrieved. (#3493)
 - [fixed] Add assertion for Facebook generic IDP flow. (#3208)

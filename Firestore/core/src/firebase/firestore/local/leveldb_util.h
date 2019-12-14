@@ -19,7 +19,7 @@
 
 #include <string>
 
-#include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
 #include "absl/strings/string_view.h"
 #include "leveldb/slice.h"
 #include "leveldb/status.h"

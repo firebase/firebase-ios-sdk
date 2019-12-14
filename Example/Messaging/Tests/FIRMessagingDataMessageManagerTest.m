@@ -50,6 +50,12 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
 
 @end
 
+@interface FIRMessagingRmqManager (ExposedForTest)
+
+- (void)removeDatabase;
+
+@end
+
 @interface FIRMessagingDataMessageManagerTest : XCTestCase
 
 @property(nonatomic, readwrite, strong) id mockClient;
@@ -67,7 +73,10 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
   [super setUp];
   _mockClient = OCMClassMock([FIRMessagingClient class]);
   _mockReceiver = OCMClassMock([FIRMessagingReceiver class]);
-  _mockRmqManager = OCMClassMock([FIRMessagingRmqManager class]);
+  FIRMessagingRmqManager *newRmqManager =
+      [[FIRMessagingRmqManager alloc] initWithDatabaseName:kRmqDatabaseName];
+  [newRmqManager loadRmqId];
+  _mockRmqManager = OCMPartialMock(newRmqManager);
   _mockSyncMessageManager = OCMClassMock([FIRMessagingSyncMessageManager class]);
   _dataMessageManager = [[FIRMessagingDataMessageManager alloc]
         initWithDelegate:_mockReceiver
@@ -78,6 +87,12 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
   _mockDataMessageManager = OCMPartialMock(_dataMessageManager);
 }
 
+-(void)tearDown {
+    if (_dataMessageManager.rmq2Manager) {
+        [_dataMessageManager.rmq2Manager removeDatabase];
+    }
+    [super tearDown];
+}
 
 - (void)testSendValidMessage_withNoConnection {
   // mock no connection initially
@@ -98,9 +113,8 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
   };
   OCMExpect([self.mockReceiver willSendDataMessageWithID:[OCMArg isEqual:messageID]
                                                    error:[OCMArg isNil]]);
-  [[[self.mockRmqManager stub] andReturnValue:@YES]
-      saveRmqMessage:[OCMArg checkWithBlock:isValidStanza]
-               error:[OCMArg anyObjectRef]];
+  [[self.mockRmqManager stub] saveRmqMessage:[OCMArg checkWithBlock:isValidStanza]
+                       withCompletionHandler:[OCMArg invokeBlockWithArgs:@(YES), nil]];
 
   // should be logged into the service
   [self.dataMessageManager setDeviceAuthID:@"auth-id" secretToken:@"secret-token"];
@@ -192,8 +206,8 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
 - (void)testSendValidMessage_withRmqSaveError {
   NSString *messageID = @"1";
   NSMutableDictionary *message = [self standardFIRMessagingMessageWithMessageID:messageID];
-  [[[self.mockRmqManager stub] andReturnValue:@NO]
-      saveRmqMessage:[OCMArg any] error:[OCMArg anyObjectRef]];
+  [[self.mockRmqManager stub] saveRmqMessage:[OCMArg any]
+                       withCompletionHandler:[OCMArg invokeBlockWithArgs:@(NO), nil]];
 
   OCMExpect([self.mockReceiver
       willSendDataMessageWithID:[OCMArg isEqual:messageID]
@@ -249,7 +263,6 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
   NSString *messageID = @"1";
   NSMutableDictionary *message = [self upstreamMessageWithID:messageID ttl:0 delay:0];
 
-
   BOOL(^isValidStanza)(id obj) = ^BOOL(id obj) {
     if ([obj isKindOfClass:[GtalkDataMessageStanza class]]) {
       GtalkDataMessageStanza *stanza = (GtalkDataMessageStanza *)obj;
@@ -271,8 +284,7 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
   OCMVerifyAll(self.mockClient);
 }
 
-// TODO: Investigate why this test is flaky
-- (void)xxx_testSendValidMessage_withTTL0AndNoNetwork {
+- (void)testSendValidMessage_withTTL0AndNoNetwork {
   // simulate a invalid connection
   [[[self.mockClient stub] andReturnValue:@NO] isConnectionActive];
 
@@ -309,9 +321,8 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
   NSMutableDictionary *message = [self upstreamMessageWithID:messageID ttl:ttl delay:1];
 
   __block GtalkDataMessageStanza *firstMessageStanza;
-
-  OCMStub([self.mockRmqManager saveRmqMessage:[OCMArg any]
-                                        error:[OCMArg anyObjectRef]]).andReturn(YES);
+  [[self.mockRmqManager stub] saveRmqMessage:[OCMArg any]
+                       withCompletionHandler:[OCMArg invokeBlockWithArgs:@(YES), nil]];
 
   OCMExpect([self.mockReceiver willSendDataMessageWithID:[OCMArg isEqual:messageID]
                                                    error:[OCMArg isNil]]);
@@ -319,17 +330,8 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
   [self.dataMessageManager setDeviceAuthID:@"auth-id" secretToken:@"secret-token"];
   [self.dataMessageManager sendDataMessageStanza:message];
 
-  __block FIRMessagingDataMessageHandler dataMessageHandler;
-
-  [[[self.mockRmqManager stub] andDo:^(NSInvocation *invocation) {
-    dataMessageHandler([FIRMessagingGetRmq2Id(firstMessageStanza) longLongValue],
-                       firstMessageStanza);
-  }]
-      scanWithRmqMessageHandler:[OCMArg isNil]
-             dataMessageHandler:[OCMArg checkWithBlock:^BOOL(id obj) {
-               dataMessageHandler = obj;
-               return YES;
-             }]];
+  [[self.mockRmqManager stub] scanWithRmqMessageHandler:
+   [OCMArg invokeBlockWithArgs:@{FIRMessagingGetRmq2Id(firstMessageStanza): firstMessageStanza}, nil]];
 
   // expect both 1 and 2 messages to be sent once we regain connection
   __block BOOL firstMessageSent = NO;
@@ -469,21 +471,12 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
  *  the client receives a Streaming ACK which should result in resending RMQ messages.
  */
 - (void)testResendSavedMessages {
-  static BOOL isClientConnected = NO;
-  [[[self.mockClient stub] andDo:^(NSInvocation *invocation) {
-    [invocation setReturnValue:&isClientConnected];
-  }] isConnectionActive];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"scan is complete"];
 
+  static BOOL isClientConnected = NO;
+  [[[self.mockClient stub] andReturnValue:@(isClientConnected)] isConnectionActive];
   // Set a fake, valid bundle identifier
   [[[self.mockDataMessageManager stub] andReturn:@"gcm-dmm-test"] categoryForUpstreamMessages];
-
-  [FIRMessagingRmqManager removeDatabaseWithName:kRmqDatabaseName];
-  FIRMessagingRmqManager *newRmqManager =
-      [[FIRMessagingRmqManager alloc] initWithDatabaseName:kRmqDatabaseName];
-  [newRmqManager loadRmqId];
-  // have a real RMQ store
-  [self.dataMessageManager setRmq2Manager:newRmqManager];
-
   [self.dataMessageManager setDeviceAuthID:@"auth-id" secretToken:@"secret-token"];
 
   // send a couple of message with no connection should be saved to RMQ
@@ -506,23 +499,25 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
       NSLog(@"hello resending %@, %d", message.id_p, didRecieveMessages);
       if ([@"1" isEqualToString:message.id_p]) {
         didRecieveMessages |= 1; // right most bit for 1st message
-        return YES;
       } else if ([@"2" isEqualToString:message.id_p]) {
         didRecieveMessages |= (1<<1); // second from RMB for 2nd message
-        return YES;
+      } else {
+        return NO;
       }
+      if (didRecieveMessages == 3) {
+        [expectation fulfill];
+      }
+      return YES;
     }
     return NO;
   };
-  [[[mockConnection stub] andDo:^(NSInvocation *invocation) {
-    // pass
-  }] sendProto:[OCMArg checkWithBlock:resendMessageBlock]];
-
+  [[mockConnection stub] sendProto:[OCMArg checkWithBlock:resendMessageBlock]];
   [self.dataMessageManager resendMessagesWithConnection:mockConnection];
 
   // should send both messages
-  XCTAssert(didRecieveMessages == 3);
   OCMVerifyAll(mockConnection);
+
+  [self waitForExpectationsWithTimeout:5.0 handler:nil];
 }
 
 - (void)testResendingExpiredMessagesFails {
@@ -535,13 +530,6 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
   // Set a fake, valid bundle identifier
   [[[self.mockDataMessageManager stub] andReturn:@"gcm-dmm-test"] categoryForUpstreamMessages];
 
-  [FIRMessagingRmqManager removeDatabaseWithName:kRmqDatabaseName];
-  FIRMessagingRmqManager *newRmqManager =
-      [[FIRMessagingRmqManager alloc] initWithDatabaseName:kRmqDatabaseName];
-  [newRmqManager loadRmqId];
-  // have a real RMQ store
-  [self.dataMessageManager setRmq2Manager:newRmqManager];
-
   [self.dataMessageManager setDeviceAuthID:@"auth-id" secretToken:@"secret-token"];
   // send a message that expires in 1 sec
   [self.dataMessageManager sendDataMessageStanza:
@@ -552,15 +540,13 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
   isClientConnected = YES;
 
   id mockConnection = OCMClassMock([FIRMessagingConnection class]);
-
   [[mockConnection reject] sendProto:[OCMArg any]];
-  [self.dataMessageManager resendMessagesWithConnection:mockConnection];
+  [[self.mockRmqManager stub] scanWithRmqMessageHandler:[OCMArg checkWithBlock:^BOOL(id obj) {
+        return YES;
+    }]];
 
-  // rmq should not have any pending messages
-  [newRmqManager scanWithRmqMessageHandler:^(int64_t rmqId, int8_t tag, NSData *data) {
-    XCTFail(@"RMQ should not have any message");
-  }
-                        dataMessageHandler:nil];
+  [self.dataMessageManager resendMessagesWithConnection:mockConnection];
+  OCMVerifyAll(self.mockRmqManager);
 }
 
 #pragma mark - Create Packet

@@ -63,8 +63,8 @@ extern "C" {
  */
 - (FIRFirestore *)firestoreWithApp:(FIRApp *)app;
 
-/** Synchronously shuts down the given firestore. */
-- (void)shutdownFirestore:(FIRFirestore *)firestore;
+/** Synchronously terminates the given firestore. */
+- (void)terminateFirestore:(FIRFirestore *)firestore;
 
 /** Synchronously deletes the given FIRapp. */
 - (void)deleteApp:(FIRApp *)app;

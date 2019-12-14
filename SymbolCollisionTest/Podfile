@@ -8,7 +8,7 @@ target 'SymbolCollisionTest' do
   # use_frameworks!
 
   # Firebase Pods
-    pod 'Firebase', '6.7.0'
+    pod 'Firebase', '6.13.0'
     pod 'FirebaseAnalytics'
     pod 'FirebaseAuth'
     pod 'FirebaseCore'
@@ -48,7 +48,7 @@ target 'SymbolCollisionTest' do
     pod 'GoogleIDFASupport'
     pod 'GoogleInterchangeUtilities'
     pod 'GoogleMaps'
-    pod 'GoogleMobileVision'
+#    pod 'GoogleMobileVision' # After Firebase 6.8.0, conflicts with FirebaseML
     pod 'GoogleNetworkingUtilities'
     pod 'GoogleParsingUtilities'
     pod 'GooglePlacePicker'

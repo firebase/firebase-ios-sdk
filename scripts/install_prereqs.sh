@@ -26,7 +26,7 @@ function install_secrets() {
   # requests from forks. See
   # https://docs.travis-ci.com/user/pull-requests#pull-requests-and-security-restrictions
   if [[ ! -z $encrypted_d6a88994a5ab_key ]]; then
-    openssl aes-256-cbc -K $encrypted_b02643c8c602_key -iv $encrypted_b02643c8c602_iv \
+    openssl aes-256-cbc -K $encrypted_3360571ebe7a_key -iv $encrypted_3360571ebe7a_iv \
     -in scripts/travis-encrypted/Secrets.tar.enc \
     -out scripts/travis-encrypted/Secrets.tar -d
 
@@ -43,27 +43,24 @@ function install_secrets() {
     cp Secrets/Storage/App/GoogleService-Info.plist Example/Database/App/GoogleService-Info.plist
 
     cp Secrets/Metrics/database.config Metrics/database.config
-  fi
-}
 
-function pod_gen() {
-  # Call pod gen with a podspec and additonal optional arguments.
-  bundle exec pod gen --local-sources=./ --sources=https://cdn.cocoapods.org/ "$@"
+    # Firebase Installations
+    fis_resources_dir=FirebaseInstallations/Source/Tests/Resources/
+    mkdir -p "$fis_resources_dir"
+    cp Secrets/Installations/GoogleService-Info.plist "$fis_resources_dir"
+  fi
 }
 
 case "$PROJECT-$PLATFORM-$METHOD" in
   Firebase-iOS-xcodebuild)
     gem install xcpretty
     bundle exec pod install --project-directory=Example --repo-update
-    bundle exec pod install --project-directory=Functions/Example
-    bundle exec pod install --project-directory=GoogleUtilities/Example
     install_secrets
     ;;
 
-  Firebase-*-xcodebuild)
+  FirebasePod-iOS-xcodebuild)
     gem install xcpretty
-    bundle exec pod install --project-directory=Example --repo-update
-    bundle exec pod install --project-directory=GoogleUtilities/Example
+    bundle exec pod install --project-directory=CoreOnly/Tests/FirebasePodTest --repo-update
     ;;
 
   Auth-*)
@@ -74,9 +71,6 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     ;;
 
   Database-*)
-    # Install the workspace to have better control over test runs than
-    # pod lib lint, since the integration tests can be flaky.
-    pod_gen FirebaseDatabase.podspec
     install_secrets
     ;;
 
@@ -85,26 +79,33 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     ./Functions/Backend/start.sh synchronous
     ;;
 
-  Messaging-*)
-    # Install the workspace to have better control over test runs than
-    # pod lib lint, since the integration tests can be flaky.
-    pod_gen FirebaseMessaging.podspec
-    ;;
-
   Storage-*)
-    # Install the workspace to have better control over test runs than
-    # pod lib lint, since the integration tests can be flaky.
-    pod_gen FirebaseStorage.podspec
     install_secrets
     ;;
 
-  InAppMessaging-iOS-xcodebuild)
+  Installations-*)
+    install_secrets
+    ;;
+
+  InAppMessaging-*-xcodebuild)
     gem install xcpretty
-    bundle exec pod install --project-directory=InAppMessagingDisplay/Example --repo-update
     bundle exec pod install --project-directory=InAppMessaging/Example --repo-update
+    bundle exec pod install --project-directory=InAppMessagingDisplay/Example --no-repo-update
     ;;
 
   Firestore-*-xcodebuild | Firestore-*-fuzz)
+    if [[ $XCODE_VERSION == "8."* ]]; then
+      # Firestore still compiles with Xcode 8 to help verify general
+      # conformance with C++11 by using an older compiler that doesn't have as
+      # many extensions from later versions of the language. However, Firebase
+      # as a whole does not support this environment and @available checks in
+      # GoogleDataTransport would otherwise break this build.
+      #
+      # This drops the dependency that adds GoogleDataTransport into
+      # Firestore's dependencies.
+      sed -i.bak "/s.dependency 'FirebaseCoreDiagnostics'/d" FirebaseCore.podspec
+    fi
+
     gem install xcpretty
     bundle exec pod install --project-directory=Firestore/Example --repo-update
     ;;
@@ -125,25 +126,6 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     bundle exec pod install --project-directory=SymbolCollisionTest --repo-update
     ;;
 
-  FirebaseCoreDiagnostics-*-xcodebuild)
-    gem install xcpretty
-    pod_gen FirebaseCoreDiagnostics.podspec
-    ;;
-
-  GoogleDataTransport-*-xcodebuild)
-    gem install xcpretty
-    pod_gen GoogleDataTransport.podspec
-    ;;
-
-  GoogleDataTransportIntegrationTest-*-xcodebuild)
-    gem install xcpretty
-    pod_gen GoogleDataTransport.podspec
-    ;;
-
-  GoogleDataTransportCCTSupport-*-xcodebuild)
-    gem install xcpretty
-    pod_gen GoogleDataTransportCCTSupport.podspec
-    ;;
   *)
     echo "Unknown project-platform-method combo" 1>&2
     echo "  PROJECT=$PROJECT" 1>&2

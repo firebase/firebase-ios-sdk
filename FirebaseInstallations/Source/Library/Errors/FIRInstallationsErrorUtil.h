@@ -39,6 +39,8 @@ void FIRInstallationsItemSetErrorToPointer(NSError *error, NSError **pointer);
 
 + (NSError *)FIDRegistrationErrorWithResponseMissingField:(NSString *)missingFieldName;
 
++ (NSError *)corruptedIIDTokenData;
+
 + (FIRInstallationsHTTPError *)APIErrorWithHTTPResponse:(NSHTTPURLResponse *)HTTPResponse
                                                    data:(nullable NSData *)data;
 + (BOOL)isAPIError:(NSError *)error withHTTPCode:(NSInteger)HTTPCode;

@@ -1,7 +1,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'GoogleDataTransportCCTSupport'
-  s.version          = '1.0.2'
+  s.version          = '1.2.2'
   s.summary          = 'Support library for the GoogleDataTransport CCT backend target.'
 
 
@@ -21,7 +21,7 @@ Support library to provide event prioritization and uploading for the GoogleData
   s.osx.deployment_target = '10.11'
   s.tvos.deployment_target = '10.0'
 
-  # To develop or run the tests, >= 1.6.0 must be installed.
+  # To develop or run the tests, >= 1.8.0.beta.1 must be installed.
   s.cocoapods_version = '>= 1.4.0'
 
   s.static_framework = true
@@ -30,8 +30,10 @@ Support library to provide event prioritization and uploading for the GoogleData
   s.source_files = 'GoogleDataTransportCCTSupport/GDTCCTLibrary/**/*'
   s.private_header_files = 'GoogleDataTransportCCTSupport/GDTCCTLibrary/Private/*.h'
 
-  s.dependency 'GoogleDataTransport', '~> 1.1'
-  s.dependency 'nanopb'
+  s.libraries = ['z']
+
+  s.dependency 'GoogleDataTransport', '~> 3.2'
+  s.dependency 'nanopb', '~> 0.3.901'
 
   header_search_paths = {
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}/GoogleDataTransportCCTSupport/"'
@@ -45,8 +47,24 @@ Support library to provide event prioritization and uploading for the GoogleData
       # The nanopb pod sets these defs, so we must too. (We *do* require 16bit
       # (or larger) fields, so we'd have to set at least PB_FIELD_16BIT
       # anyways.)
-      'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',
+      'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1 GDTCCTSUPPORT_VERSION=' + s.version.to_s,
   }.merge(header_search_paths)
+
+  # Test app specs
+  if ENV['GDT_DEV'] && ENV['GDT_DEV'] == '1' then
+    s.app_spec 'TestApp' do |app_spec|
+      app_spec.source_files = 'GoogleDataTransportCCTSupport/GDTCCTTestApp/**/*.swift'
+      app_spec.ios.resources = ['GoogleDataTransportCCTSupport/GDTCCTTestApp/ios/*.storyboard']
+      app_spec.macos.resources = ['GoogleDataTransportCCTSupport/GDTCCTTestApp/macos/*.storyboard']
+      app_spec.tvos.resources = ['GoogleDataTransportCCTSupport/GDTCCTTestApp/tvos/*.storyboard']
+      app_spec.dependency 'SwiftProtobuf'
+      app_spec.info_plist = {
+        'UILaunchStoryboardName' => 'Main',
+        'UIMainStoryboardFile' => 'Main',
+        'NSMainStoryboardFile' => 'Main'
+      }
+    end
+  end
 
   # Test specs
   s.test_spec 'Tests-Unit' do |test_spec|
@@ -62,6 +80,19 @@ Support library to provide event prioritization and uploading for the GoogleData
     test_spec.source_files = 'GoogleDataTransportCCTSupport/GDTCCTTests/Integration/**/*.{h,m}'
     test_spec.resources = ['GoogleDataTransportCCTSupport/GDTCCTTests/Data/**/*']
     test_spec.pod_target_xcconfig = header_search_paths
+  end
+
+  # Monkey test specs, only enabled for development.
+  if ENV['GDT_DEV'] && ENV['GDT_DEV'] == '1' then
+    s.test_spec 'Tests-Monkey' do |test_spec|
+      test_spec.requires_app_host = true
+      test_spec.app_host_name = 'GoogleDataTransportCCTSupport/TestApp'
+      test_spec.dependency 'GoogleDataTransportCCTSupport/TestApp'
+      test_spec.source_files = ['GoogleDataTransportCCTSupport/GDTCCTTests/Monkey/**/*.{swift}']
+      test_spec.info_plist = {
+        'GDT_MONKEYTEST' => '1'
+      }
+    end
   end
 
 end

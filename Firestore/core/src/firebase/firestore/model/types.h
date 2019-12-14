@@ -19,10 +19,6 @@
 
 #include <cstdint>
 
-#if defined(__OBJC__)
-#import <Foundation/Foundation.h>
-#endif
-
 namespace firebase {
 namespace firestore {
 namespace model {
@@ -51,7 +47,7 @@ using TargetId = int32_t;
  * indicate whether or not the remote store is trying to connect or not. This is
  * primarily used by the View / EventManager code to change their behavior while
  * offline (e.g. get() calls shouldn't wait for data from the server and
- * snapshot events should set metadata.isFromCache=true).
+ * snapshot events should set metadata.from_cache() to true).
  */
 enum class OnlineState {
   /**
@@ -71,7 +67,7 @@ enum class OnlineState {
 
   /**
    * The client is either trying to establish a connection but failing, or it
-   * has been explicitly marked offline via a call to `disableNetwork`.
+   * has been explicitly marked offline via a call to `DisableNetwork`.
    * Higher-level components should operate in offline mode.
    */
   Offline

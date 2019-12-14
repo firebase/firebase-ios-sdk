@@ -3404,7 +3404,7 @@
               "coverage": 0.8181818181818182
             },
             {
-              "name": "-[FIROptions isAnalyticsCollectionExpicitlySet]",
+              "name": "-[FIROptions isAnalyticsCollectionExplicitlySet]",
               "coverage": 1
             },
             {
@@ -4837,7 +4837,7 @@
               "coverage": 0.8181818181818182
             },
             {
-              "name": "-[FIROptions isAnalyticsCollectionExpicitlySet]",
+              "name": "-[FIROptions isAnalyticsCollectionExplicitlySet]",
               "coverage": 1
             },
             {
@@ -11611,7 +11611,7 @@
               "coverage": 0.8181818181818182
             },
             {
-              "name": "-[FIROptions isAnalyticsCollectionExpicitlySet]",
+              "name": "-[FIROptions isAnalyticsCollectionExplicitlySet]",
               "coverage": 1
             },
             {
@@ -15694,7 +15694,7 @@
               "coverage": 0.8181818181818182
             },
             {
-              "name": "-[FIROptions isAnalyticsCollectionExpicitlySet]",
+              "name": "-[FIROptions isAnalyticsCollectionExplicitlySet]",
               "coverage": 1
             },
             {
@@ -21414,7 +21414,7 @@
               "coverage": 0.8181818181818182
             },
             {
-              "name": "-[FIROptions isAnalyticsCollectionExpicitlySet]",
+              "name": "-[FIROptions isAnalyticsCollectionExplicitlySet]",
               "coverage": 1
             },
             {
@@ -25941,7 +25941,7 @@
               "coverage": 0.8181818181818182
             },
             {
-              "name": "-[FIROptions isAnalyticsCollectionExpicitlySet]",
+              "name": "-[FIROptions isAnalyticsCollectionExplicitlySet]",
               "coverage": 1
             },
             {
@@ -37299,7 +37299,7 @@
               "coverage": 0.8181818181818182
             },
             {
-              "name": "-[FIROptions isAnalyticsCollectionExpicitlySet]",
+              "name": "-[FIROptions isAnalyticsCollectionExplicitlySet]",
               "coverage": 1
             },
             {

@@ -25,6 +25,8 @@
 
 #include "google/protobuf/timestamp.nanopb.h"
 
+#include <string>
+
 namespace firebase {
 namespace firestore {
 
@@ -45,6 +47,9 @@ typedef struct _firestore_client_Target {
         google_firestore_v1_Target_QueryTarget query;
         google_firestore_v1_Target_DocumentsTarget documents;
     };
+    google_protobuf_Timestamp last_limbo_free_snapshot_version;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:firestore_client_Target) */
 } firestore_client_Target;
 
@@ -53,15 +58,17 @@ typedef struct _firestore_client_TargetGlobal {
     int64_t highest_listen_sequence_number;
     google_protobuf_Timestamp last_remote_snapshot_version;
     int32_t target_count;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:firestore_client_TargetGlobal) */
 } firestore_client_TargetGlobal;
 
 /* Default values for struct fields */
 
 /* Initializer values for message structs */
-#define firestore_client_Target_init_default     {0, google_protobuf_Timestamp_init_default, NULL, 0, 0, {google_firestore_v1_Target_QueryTarget_init_default}}
+#define firestore_client_Target_init_default     {0, google_protobuf_Timestamp_init_default, NULL, 0, 0, {google_firestore_v1_Target_QueryTarget_init_default}, google_protobuf_Timestamp_init_default}
 #define firestore_client_TargetGlobal_init_default {0, 0, google_protobuf_Timestamp_init_default, 0}
-#define firestore_client_Target_init_zero        {0, google_protobuf_Timestamp_init_zero, NULL, 0, 0, {google_firestore_v1_Target_QueryTarget_init_zero}}
+#define firestore_client_Target_init_zero        {0, google_protobuf_Timestamp_init_zero, NULL, 0, 0, {google_firestore_v1_Target_QueryTarget_init_zero}, google_protobuf_Timestamp_init_zero}
 #define firestore_client_TargetGlobal_init_zero  {0, 0, google_protobuf_Timestamp_init_zero, 0}
 
 /* Field tags (for use in manual encoding/decoding) */
@@ -71,13 +78,14 @@ typedef struct _firestore_client_TargetGlobal {
 #define firestore_client_Target_snapshot_version_tag 2
 #define firestore_client_Target_resume_token_tag 3
 #define firestore_client_Target_last_listen_sequence_number_tag 4
+#define firestore_client_Target_last_limbo_free_snapshot_version_tag 7
 #define firestore_client_TargetGlobal_highest_target_id_tag 1
 #define firestore_client_TargetGlobal_highest_listen_sequence_number_tag 2
 #define firestore_client_TargetGlobal_last_remote_snapshot_version_tag 3
 #define firestore_client_TargetGlobal_target_count_tag 4
 
 /* Struct field encoding specification for nanopb */
-extern const pb_field_t firestore_client_Target_fields[7];
+extern const pb_field_t firestore_client_Target_fields[8];
 extern const pb_field_t firestore_client_TargetGlobal_fields[5];
 
 /* Maximum encoded size of messages (where known) */

@@ -27,8 +27,9 @@
 namespace firebase {
 namespace firestore {
 namespace util {
-
 namespace {
+
+using testutil::Expectation;
 
 // In these generic tests the specific timer ids don't matter.
 const TimerId kTimerId1 = TimerId::ListenStreamConnectionBackoff;
@@ -38,27 +39,32 @@ const TimerId kTimerId3 = TimerId::WriteStreamConnectionBackoff;
 }  // namespace
 
 TEST_P(AsyncQueueTest, Enqueue) {
-  queue.Enqueue([&] { signal_finished(); });
-  EXPECT_TRUE(WaitForTestToFinish());
+  Expectation ran;
+  queue.Enqueue(ran.AsCallback());
+  Await(ran);
 }
 
 TEST_P(AsyncQueueTest, EnqueueDisallowsNesting) {
-  queue.Enqueue([&] {  // clang-format off
-    // clang-format on
+  Expectation ran;
+  // clang-format off
+  queue.Enqueue([&] {
     EXPECT_ANY_THROW(queue.Enqueue([] {}));
-    signal_finished();
+    ran.Fulfill();
   });
+  // clang-format on
 
-  EXPECT_TRUE(WaitForTestToFinish());
+  Await(ran);
 }
 
 TEST_P(AsyncQueueTest, EnqueueRelaxedWorksFromWithinEnqueue) {
-  queue.Enqueue([&] {  // clang-format off
-    queue.EnqueueRelaxed([&] { signal_finished(); });
-    // clang-format on
+  Expectation ran;
+  // clang-format off
+  queue.Enqueue([&] {
+    queue.EnqueueRelaxed(ran.AsCallback());
   });
+  // clang-format on
 
-  EXPECT_TRUE(WaitForTestToFinish());
+  Await(ran);
 }
 
 TEST_P(AsyncQueueTest, EnqueueBlocking) {
@@ -68,10 +74,11 @@ TEST_P(AsyncQueueTest, EnqueueBlocking) {
 }
 
 TEST_P(AsyncQueueTest, EnqueueBlockingDisallowsNesting) {
-  queue.EnqueueBlocking([&] {  // clang-format off
+  // clang-format off
+  queue.EnqueueBlocking([&] {
     EXPECT_ANY_THROW(queue.EnqueueBlocking([] {}););
-    // clang-format on
   });
+  // clang-format on
 }
 
 TEST_P(AsyncQueueTest, ExecuteBlockingDisallowsNesting) {
@@ -88,24 +95,26 @@ TEST_P(AsyncQueueTest, VerifyIsCurrentQueueWorksWithOperationInProgress) {
 // a chance to even enqueue the next operation. Delays are chosen so that the
 // test is unlikely to fail in practice. Need to revisit this.
 TEST_P(AsyncQueueTest, CanScheduleOperationsInTheFuture) {
+  Expectation ran;
   std::string steps;
 
   queue.Enqueue([&steps] { steps += '1'; });
   queue.Enqueue([&] {
     queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(20), kTimerId1, [&] {
       steps += '4';
-      signal_finished();
+      ran.Fulfill();
     });
     queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(10), kTimerId2,
                             [&steps] { steps += '3'; });
     queue.EnqueueRelaxed([&steps] { steps += '2'; });
   });
 
-  EXPECT_TRUE(WaitForTestToFinish());
+  Await(ran);
   EXPECT_EQ(steps, "1234");
 }
 
 TEST_P(AsyncQueueTest, CanCancelDelayedOperations) {
+  Expectation ran;
   std::string steps;
 
   queue.Enqueue([&] {
@@ -119,7 +128,7 @@ TEST_P(AsyncQueueTest, CanCancelDelayedOperations) {
 
     queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(5), kTimerId2, [&] {
       steps += '3';
-      signal_finished();
+      ran.Fulfill();
     });
 
     EXPECT_TRUE(queue.IsScheduled(kTimerId1));
@@ -127,25 +136,28 @@ TEST_P(AsyncQueueTest, CanCancelDelayedOperations) {
     EXPECT_FALSE(queue.IsScheduled(kTimerId1));
   });
 
-  EXPECT_TRUE(WaitForTestToFinish());
+  Await(ran);
   EXPECT_EQ(steps, "13");
   EXPECT_FALSE(queue.IsScheduled(kTimerId1));
 }
 
 TEST_P(AsyncQueueTest, CanCallCancelOnDelayedOperationAfterTheOperationHasRun) {
+  Expectation ran;
+
   DelayedOperation delayed_operation;
   queue.Enqueue([&] {
-    delayed_operation = queue.EnqueueAfterDelay(
-        AsyncQueue::Milliseconds(10), kTimerId1, [&] { signal_finished(); });
+    delayed_operation = queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(10),
+                                                kTimerId1, ran.AsCallback());
     EXPECT_TRUE(queue.IsScheduled(kTimerId1));
   });
 
-  EXPECT_TRUE(WaitForTestToFinish());
+  Await(ran);
   EXPECT_FALSE(queue.IsScheduled(kTimerId1));
   EXPECT_NO_THROW(delayed_operation.Cancel());
 }
 
 TEST_P(AsyncQueueTest, CanManuallyDrainAllDelayedOperationsForTesting) {
+  Expectation ran;
   std::string steps;
 
   queue.Enqueue([&] {
@@ -155,15 +167,16 @@ TEST_P(AsyncQueueTest, CanManuallyDrainAllDelayedOperationsForTesting) {
     queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(10000), kTimerId2,
                             [&steps] { steps += '3'; });
     queue.EnqueueRelaxed([&steps] { steps += '2'; });
-    signal_finished();
+    ran.Fulfill();
   });
 
-  EXPECT_TRUE(WaitForTestToFinish());
+  Await(ran);
   queue.RunScheduledOperationsUntil(TimerId::All);
   EXPECT_EQ(steps, "1234");
 }
 
 TEST_P(AsyncQueueTest, CanManuallyDrainSpecificDelayedOperationsForTesting) {
+  Expectation ran;
   std::string steps;
 
   queue.Enqueue([&] {
@@ -175,24 +188,25 @@ TEST_P(AsyncQueueTest, CanManuallyDrainSpecificDelayedOperationsForTesting) {
     queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(15000), kTimerId3,
                             [&steps] { steps += '4'; });
     queue.EnqueueRelaxed([&] { steps += '2'; });
-    signal_finished();
+    ran.Fulfill();
   });
 
-  EXPECT_TRUE(WaitForTestToFinish());
+  Await(ran);
   queue.RunScheduledOperationsUntil(kTimerId3);
   EXPECT_EQ(steps, "1234");
 }
 
 TEST_P(AsyncQueueTest, CanScheduleOprationsWithRespectsToShutdownState) {
+  Expectation ran;
   std::string steps;
 
   queue.Enqueue([&] { steps += '1'; });
   queue.EnqueueAndInitiateShutdown([&] { steps += '2'; });
   queue.Enqueue([&] { steps += '3'; });
   queue.EnqueueEvenAfterShutdown([&] { steps += '4'; });
-  queue.EnqueueEvenAfterShutdown([&] { signal_finished(); });
+  queue.EnqueueEvenAfterShutdown(ran.AsCallback());
 
-  EXPECT_TRUE(WaitForTestToFinish());
+  Await(ran);
   EXPECT_EQ(steps, "124");
 }
 

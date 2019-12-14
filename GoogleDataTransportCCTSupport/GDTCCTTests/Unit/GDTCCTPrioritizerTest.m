@@ -30,7 +30,7 @@
 @implementation GDTCCTPrioritizerTest
 
 - (void)setUp {
-  self.generator = [[GDTCCTEventGenerator alloc] init];
+  self.generator = [[GDTCCTEventGenerator alloc] initWithTarget:kGDTCORTargetFLL];
 }
 
 - (void)tearDown {
@@ -39,100 +39,104 @@
 }
 
 /** Tests prioritizing events. */
-- (void)testPrioritizeEvent {
+- (void)testCCTPrioritizeEvent {
   GDTCCTPrioritizer *prioritizer = [[GDTCCTPrioritizer alloc] init];
-  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTEventQosDefault]];
+  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQosDefault]];
   dispatch_sync(prioritizer.queue, ^{
     XCTAssertEqual(prioritizer.events.count, 1);
   });
 }
 
 /** Tests prioritizing multiple events. */
-- (void)testPrioritizeMultipleEvents {
+- (void)testCCTPrioritizeMultipleEvents {
   GDTCCTPrioritizer *prioritizer = [[GDTCCTPrioritizer alloc] init];
-  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTEventQosDefault]];
-  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTEventQosDefault]];
-  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTEventQosDefault]];
-  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTEventQosDefault]];
-  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTEventQosDefault]];
-  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTEventQosDefault]];
-  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTEventQosDefault]];
-  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTEventQosDefault]];
-  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTEventQosDefault]];
+  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQosDefault]];
+  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQosDefault]];
+  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQosDefault]];
+  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQosDefault]];
+  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQosDefault]];
+  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQosDefault]];
+  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQosDefault]];
+  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQosDefault]];
+  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQosDefault]];
   dispatch_sync(prioritizer.queue, ^{
     XCTAssertEqual(prioritizer.events.count, 9);
   });
 }
 
 /** Tests unprioritizing events. */
-- (void)testPackageDelivered {
+- (void)testCCTPackageDelivered {
   GDTCCTPrioritizer *prioritizer = [[GDTCCTPrioritizer alloc] init];
-  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTEventQosDefault]];
-  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTEventQosDefault]];
-  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTEventQosDefault]];
-  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTEventQosDefault]];
-  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTEventQosDefault]];
-  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTEventQosDefault]];
-  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTEventQosDefault]];
-  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTEventQosDefault]];
-  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTEventQosDefault]];
+  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQosDefault]];
+  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQosDefault]];
+  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQosDefault]];
+  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQosDefault]];
+  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQosDefault]];
+  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQosDefault]];
+  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQosDefault]];
+  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQosDefault]];
+  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQosDefault]];
   dispatch_sync(prioritizer.queue, ^{
     XCTAssertEqual(prioritizer.events.count, 9);
   });
-  GDTUploadPackage *package = [prioritizer uploadPackageWithConditions:GDTUploadConditionWifiData];
+  GDTCORUploadPackage *package =
+      [prioritizer uploadPackageWithConditions:GDTCORUploadConditionWifiData];
   [prioritizer packageDelivered:package successful:YES];
-  package = [prioritizer uploadPackageWithConditions:GDTUploadConditionWifiData];
+  package = [prioritizer uploadPackageWithConditions:GDTCORUploadConditionWifiData];
   XCTAssertEqual(package.events.count, 0);
 }
 
 /** Tests providing events for upload. */
-- (void)testEventsForUpload {
+- (void)testCCTEventsForUpload {
   GDTCCTPrioritizer *prioritizer = [[GDTCCTPrioritizer alloc] init];
-  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTEventQoSWifiOnly]];
-  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTEventQoSTelemetry]];
-  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTEventQosDefault]];
-  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTEventQosDefault]];
-  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTEventQoSWifiOnly]];
-  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTEventQosDefault]];
-  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTEventQosDefault]];
-  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTEventQoSDaily]];
-  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTEventQoSTelemetry]];
-  GDTUploadPackage *package = [prioritizer uploadPackageWithConditions:GDTUploadConditionWifiData];
-  for (GDTStoredEvent *storedEvent in package.events) {
-    XCTAssertTrue(
-        storedEvent.qosTier == GDTEventQoSTelemetry || storedEvent.qosTier == GDTEventQoSWifiOnly ||
-        storedEvent.qosTier == GDTEventQosDefault || storedEvent.qosTier == GDTEventQoSDaily);
+  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQoSWifiOnly]];
+  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQoSTelemetry]];
+  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQosDefault]];
+  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQosDefault]];
+  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQoSWifiOnly]];
+  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQosDefault]];
+  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQosDefault]];
+  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQoSDaily]];
+  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQoSTelemetry]];
+  GDTCORUploadPackage *package =
+      [prioritizer uploadPackageWithConditions:GDTCORUploadConditionWifiData];
+  for (GDTCORStoredEvent *storedEvent in package.events) {
+    XCTAssertTrue(storedEvent.qosTier == GDTCOREventQoSTelemetry ||
+                  storedEvent.qosTier == GDTCOREventQoSWifiOnly ||
+                  storedEvent.qosTier == GDTCOREventQosDefault ||
+                  storedEvent.qosTier == GDTCOREventQoSDaily);
   }
   XCTAssertEqual(package.events.count, 9);
-  package = [prioritizer uploadPackageWithConditions:GDTUploadConditionMobileData];
-  for (GDTStoredEvent *storedEvent in package.events) {
-    XCTAssertTrue(storedEvent.qosTier == GDTEventQoSTelemetry ||
-                  storedEvent.qosTier == GDTEventQosDefault);
+  package = [prioritizer uploadPackageWithConditions:GDTCORUploadConditionMobileData];
+  for (GDTCORStoredEvent *storedEvent in package.events) {
+    XCTAssertTrue(storedEvent.qosTier == GDTCOREventQoSTelemetry ||
+                  storedEvent.qosTier == GDTCOREventQosDefault);
   }
   XCTAssertEqual(package.events.count, 4);
 }
 
 /** Tests providing daily uploaded events. */
-- (void)testDailyUpload {
+- (void)testCCTDailyUpload {
   GDTCCTPrioritizer *prioritizer = [[GDTCCTPrioritizer alloc] init];
-  GDTStoredEvent *dailyEvent = [_generator generateStoredEvent:GDTEventQoSDaily];
-  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTEventQoSWifiOnly]];
-  GDTStoredEvent *telemetryEvent = [_generator generateStoredEvent:GDTEventQoSTelemetry];
+  GDTCORStoredEvent *dailyEvent = [_generator generateStoredEvent:GDTCOREventQoSDaily];
+  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQoSWifiOnly]];
+  GDTCORStoredEvent *telemetryEvent = [_generator generateStoredEvent:GDTCOREventQoSTelemetry];
   [prioritizer prioritizeEvent:dailyEvent];
   [prioritizer prioritizeEvent:telemetryEvent];
-  GDTUploadPackage *package = [prioritizer uploadPackageWithConditions:GDTUploadConditionWifiData];
+  GDTCORUploadPackage *package =
+      [prioritizer uploadPackageWithConditions:GDTCORUploadConditionWifiData];
   // If no previous daily upload time existed, the daily event will be included.
   XCTAssertTrue([package.events containsObject:dailyEvent]);
 
   // If a previous daily upload time exists, but now is not > 24h from then, it is excluded.
-  package = [prioritizer uploadPackageWithConditions:GDTUploadConditionMobileData];
+  package = [prioritizer uploadPackageWithConditions:GDTCORUploadConditionMobileData];
   XCTAssertFalse([package.events containsObject:dailyEvent]);
 
   // If a previous daily upload time exists and it's > 24h ago, daily logs are included.
-  prioritizer.timeOfLastDailyUpload = [GDTClock snapshot];
+  prioritizer.timeOfLastDailyUpload = [GDTCORClock snapshot];
   int64_t previousTime = prioritizer.timeOfLastDailyUpload.timeMillis - (24 * 60 * 60 * 1000 + 1);
   [prioritizer.timeOfLastDailyUpload setValue:@(previousTime) forKeyPath:@"timeMillis"];
-  package = [prioritizer uploadPackageWithConditions:GDTUploadConditionMobileData];
+  package = [prioritizer uploadPackageWithConditions:GDTCORUploadConditionMobileData];
   XCTAssertTrue([package.events containsObject:dailyEvent]);
   XCTAssertTrue([package.events containsObject:telemetryEvent]);
 }

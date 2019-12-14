@@ -33,6 +33,8 @@ class LocalWriteResult {
       : batch_id_(batch_id), changes_(std::move(changes)) {
   }
 
+  LocalWriteResult() = default;
+
   /** The batch ID of the local write. */
   model::BatchId batch_id() const {
     return batch_id_;

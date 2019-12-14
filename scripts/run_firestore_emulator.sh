@@ -20,7 +20,7 @@
 
 set -euo pipefail
 
-VERSION='1.6.2'
+VERSION='1.10.2'
 FILENAME="cloud-firestore-emulator-v${VERSION}.jar"
 URL="https://storage.googleapis.com/firebase-preview-drop/emulator/${FILENAME}"
 

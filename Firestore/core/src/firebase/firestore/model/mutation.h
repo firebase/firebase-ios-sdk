@@ -78,6 +78,13 @@ class MutationResult {
     return transform_results_;
   }
 
+  std::string ToString() const;
+
+  friend std::ostream& operator<<(std::ostream& os,
+                                  const MutationResult& result);
+
+  friend bool operator==(const MutationResult& lhs, const MutationResult& rhs);
+
  private:
   SnapshotVersion version_;
   absl::optional<const std::vector<FieldValue>> transform_results_;

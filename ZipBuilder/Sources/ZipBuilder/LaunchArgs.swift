@@ -39,33 +39,44 @@ extension FileManager: FileChecker {}
 struct LaunchArgs {
   /// Keys associated with the launch args. See `Usage` for descriptions of each flag.
   private enum Key: String, CaseIterable {
-    case cacheEnabled
+    case archs
+    case buildRoot
     case carthageDir
     case customSpecRepos
-    case deleteCache
     case existingVersions
+    case keepBuildArtifacts
+    case localPodspecPath
+    case minimumIOSVersion
     case outputDir
     case releasingSDKs
     case rc
     case templateDir
     case updatePodRepo
+    case zipPods
 
     /// Usage description for the key.
     var usage: String {
       switch self {
-      case .cacheEnabled:
-        return "A flag to control using the cache for frameworks."
+      case .archs:
+        return "The list of architectures to build for. The default list is " +
+          "\(Architecture.allCases.map { $0.rawValue })."
+      case .buildRoot:
+        return "The root directory for build artifacts. If `nil`, a temporary directory will be " +
+          "used."
       case .carthageDir:
         return "The directory pointing to all Carthage JSON manifests. Passing this flag enables" +
           "the Carthage build."
       case .customSpecRepos:
         return "A comma separated list of custom CocoaPod Spec repos."
-      case .deleteCache:
-        return "A flag to empty the cache. Note: if this flag and the `cacheEnabled` flag is " +
-          "set, it will fail since that's probably unintended."
       case .existingVersions:
         return "The file path to a textproto file containing the existing released SDK versions, " +
           "of type `ZipBuilder_FirebaseSDKs`."
+      case .keepBuildArtifacts:
+        return "A flag to indicate keeping (not deleting) the build artifacts."
+      case .localPodspecPath:
+        return "Path to override podspec search with local podspec."
+      case .minimumIOSVersion:
+        return "The minimum supported iOS version. The default is 9.0."
       case .outputDir:
         return "The directory to copy the built Zip file to."
       case .rc:
@@ -77,14 +88,23 @@ struct LaunchArgs {
         return "The path to the directory containing the blank xcodeproj and Info.plist for " +
           "building source based frameworks"
       case .updatePodRepo:
-        return "A flag to run `pod repo update` before building the zip file."
+        return "A flag to run `pod repo update` and `pod cache clean -all` before building the " +
+          "zip file."
+      case .zipPods:
+        return "The path to a JSON file of the pods (with optional version) to package into a zip."
       }
     }
   }
 
+  /// The list of architectures to build for.
+  let archs: [Architecture]
+
   /// A file URL to a textproto with the contents of a `ZipBuilder_FirebaseSDKs` object. Used to
   /// verify expected version numbers.
   let allSDKsPath: URL?
+
+  /// The root directory for build artifacts. If `nil`, a temporary directory will be used.
+  let buildRoot: URL?
 
   /// The directory pointing to all Carthage JSON manifests. Passing this flag enables the Carthage
   /// build.
@@ -98,6 +118,15 @@ struct LaunchArgs {
   /// master repo.
   let customSpecRepos: [URL]?
 
+  /// A flag to keep the build artifacts after this script completes.
+  let keepBuildArtifacts: Bool
+
+  /// Path to override podspec search with local podspec.
+  let localPodspecPath: URL?
+
+  /// The minimum iOS Version to build for.
+  let minimumIOSVersion: String
+
   /// The directory to copy the built Zip file to. If this is not set, the path to the Zip file will
   /// just be logged to the console.
   let outputDir: URL?
@@ -106,17 +135,17 @@ struct LaunchArgs {
   /// based frameworks.
   let templateDir: URL
 
-  /// A flag to control using the cache for frameworks.
-  let cacheEnabled: Bool
-
-  /// A flag to delete the cache from the cache directory.
-  let deleteCache: Bool
-
   /// The release candidate number, zero indexed.
   let rcNumber: Int?
 
   /// A flag to update the Pod Repo or not.
   let updatePodRepo: Bool
+
+  /// The path to a JSON file listing the pods to repackage to a zip.
+  let zipPods: [CocoaPodUtils.VersionedPod]?
+
+  /// The shared instance for processing launch args using default arguments.
+  static let shared: LaunchArgs = LaunchArgs()
 
   /// Initializes with values pulled from the instance of UserDefaults passed in.
   ///
@@ -127,7 +156,7 @@ struct LaunchArgs {
   init(userDefaults defaults: UserDefaults = UserDefaults.standard,
        fileChecker: FileChecker = FileManager.default) {
     // Override default values for specific keys.
-    //   - Always run `pod repo update` unless explicitly set to false.
+    //   - Always run `pod repo update` and pod cache clean -all` unless explicitly set to false.
     defaults.register(defaults: [Key.updatePodRepo.rawValue: true])
 
     // Get the project template directory, and fail if it doesn't exist.
@@ -137,6 +166,23 @@ struct LaunchArgs {
     }
 
     templateDir = URL(fileURLWithPath: templatePath)
+
+    // Parse the archs list.
+    if let archs = defaults.string(forKey: Key.archs.rawValue) {
+      let archs = archs.components(separatedBy: ",")
+      var archList: [Architecture] = []
+      for arch in archs {
+        guard let addArch = Architecture(rawValue: arch) else {
+          LaunchArgs.exitWithUsageAndLog("Specified arch option \(arch) " +
+            "must be one of \(Architecture.allCases.map { $0.rawValue })")
+        }
+        archList.append(addArch)
+      }
+      self.archs = archList
+    } else {
+      // No argument was passed in.
+      archs = Architecture.allCases
+    }
 
     // Parse the existing versions key.
     if let existingVersions = defaults.string(forKey: Key.existingVersions.rawValue) {
@@ -166,6 +212,24 @@ struct LaunchArgs {
       currentReleasePath = nil
     }
 
+    // Parse the zipPods key.
+    if let zipPodsPath = defaults.string(forKey: Key.zipPods.rawValue) {
+      let url = URL(fileURLWithPath: zipPodsPath)
+      guard fileChecker.fileExists(atPath: url.path) else {
+        LaunchArgs.exitWithUsageAndLog("Could not parse \(Key.zipPods) key: value passed " +
+          "in is not a file URL or the file does not exist. Value: \(zipPodsPath)")
+      }
+      do {
+        // Get pods, with optional version, from the JSON file.
+        let jsonData = try Data(contentsOf: url)
+        zipPods = try JSONDecoder().decode([CocoaPodUtils.VersionedPod].self, from: jsonData)
+      } catch {
+        fatalError("Could not read and parse JSON file at \(url). \(error)")
+      }
+    } else {
+      zipPods = nil
+    }
+
     // Parse the output directory key.
     if let outputPath = defaults.string(forKey: Key.outputDir.rawValue) {
       let url = URL(fileURLWithPath: outputPath)
@@ -180,23 +244,29 @@ struct LaunchArgs {
       outputDir = nil
     }
 
-    // Parse the release candidate number. This should only be used in conjunction with the other
-    // release related flags.
-    if let rcFlag = defaults.string(forKey: Key.rc.rawValue) {
-      guard let parsedFlag = Int(rcFlag) else {
-        LaunchArgs.exitWithUsageAndLog("Could not parse \(Key.rc) key: value passed in is not " +
-          "an integer. Value: \(rcFlag)")
+    // Parse the local podspec search path.
+    if let localPath = defaults.string(forKey: Key.localPodspecPath.rawValue) {
+      let url = URL(fileURLWithPath: localPath)
+      guard fileChecker.directoryExists(at: url) else {
+        LaunchArgs.exitWithUsageAndLog("Could not parse \(Key.localPodspecPath) key: value " +
+          "passed in is not a file URL or the directory does not exist. Value: \(localPath)")
       }
 
+      localPodspecPath = url.standardizedFileURL
+    } else {
+      // No argument was passed in.
+      localPodspecPath = nil
+    }
+
+    // Parse the release candidate number. Note: if the String passed in isn't an integer, ignore
+    // it and don't fail since we can append something else to the filenames.
+    if let rcFlag = defaults.string(forKey: Key.rc.rawValue),
+      !rcFlag.isEmpty,
+      let parsedFlag = Int(rcFlag) {
+      print("Parsed release candidate version number \(parsedFlag).")
       rcNumber = parsedFlag
     } else {
-      // TEMPORARY REMOVAL: We don't currently pass in the RC to Kokoro, so ignore the missing flag.
-      // Check if we have other release related flags. If so, fail since we need an RC number.
-//      guard currentReleasePath == nil else {
-//        LaunchArgs.exitWithUsageAndLog("Invalid combination of keys: \(Key.rc) must be passed " +
-//          "in when specifiying \(Key.releasingSDKs).")
-//      }
-
+      print("Did not parse a release candidate version number.")
       rcNumber = nil
     }
 
@@ -232,16 +302,38 @@ struct LaunchArgs {
       carthageDir = nil
     }
 
+    // Parse the Build Root key.
+    if let buildRoot = defaults.string(forKey: Key.buildRoot.rawValue) {
+      let url = URL(fileURLWithPath: buildRoot)
+      guard fileChecker.directoryExists(at: url) else {
+        LaunchArgs.exitWithUsageAndLog("Could not parse \(Key.buildRoot) key: value " +
+          "passed in is not a file URL or the directory does not exist. Value: \(buildRoot)")
+      }
+
+      self.buildRoot = url.standardizedFileURL
+    } else {
+      // No argument was passed in.
+      buildRoot = nil
+    }
+
+    // Parse the minimum iOS version key.
+    if let minVersion = defaults.string(forKey: Key.minimumIOSVersion.rawValue) {
+      minimumIOSVersion = minVersion
+    } else {
+      // No argument was passed in.
+      minimumIOSVersion = "9.0"
+    }
+
     updatePodRepo = defaults.bool(forKey: Key.updatePodRepo.rawValue)
+    keepBuildArtifacts = defaults.bool(forKey: Key.keepBuildArtifacts.rawValue)
 
-    // Parse the cache keys. If no value is provided for each, it defaults to `false`.
-    cacheEnabled = defaults.bool(forKey: Key.cacheEnabled.rawValue)
-    deleteCache = defaults.bool(forKey: Key.deleteCache.rawValue)
-
-    if deleteCache, cacheEnabled {
-      LaunchArgs.exitWithUsageAndLog("Invalid pair - attempted to delete the cache and enable " +
-        "it at the same time. Please remove on of the keys and try " +
-        "again.")
+    // Check for extra invalid options.
+    let validArgs = Key.allCases.map { $0.rawValue }
+    for arg in ProcessInfo.processInfo.arguments {
+      let dashDroppedArg = String(arg.dropFirst())
+      if arg.starts(with: "-"), !validArgs.contains(dashDroppedArg) {
+        LaunchArgs.exitWithUsageAndLog("\(arg) is not a valid option.")
+      }
     }
   }
 

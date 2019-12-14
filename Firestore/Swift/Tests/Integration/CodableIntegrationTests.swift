@@ -55,19 +55,20 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
       doc.firestore.runTransaction({ (transaction, errorPointer) -> Any? in
         do {
           if let merge = merge {
-            _ = try transaction.setData(from: value, forDocument: doc, merge: merge)
+            try transaction.setData(from: value, forDocument: doc, merge: merge)
           } else if let mergeFields = mergeFields {
-            _ = try transaction.setData(from: value, forDocument: doc, mergeFields: mergeFields)
+            try transaction.setData(from: value, forDocument: doc, mergeFields: mergeFields)
           } else {
-            _ = try transaction.setData(from: value, forDocument: doc)
+            try transaction.setData(from: value, forDocument: doc)
           }
         } catch {
           XCTFail("setData with transaction failed.")
         }
         return nil
       }) { object, error in
-        completion?(error)
-    } }
+        completion(error)
+      }
+    }
 
     awaitExpectations()
   }
@@ -96,12 +97,37 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
     }
   }
 
-  func testServerTimestamp() throws {
+  #if swift(>=5.1)
+    func testServerTimestamp() throws {
+      struct Model: Codable, Equatable {
+        var name: String
+        @ServerTimestamp var ts: Timestamp? = nil
+      }
+      let model = Model(name: "name")
+      let docToWrite = documentRef()
+
+      for flavor in allFlavors {
+        try setData(from: model, forDocument: docToWrite, withFlavor: flavor)
+
+        let decoded = try readDocument(forRef: docToWrite).data(as: Model.self)
+
+        XCTAssertNotNil(decoded?.ts, "Failed with flavor \(flavor)")
+        if let ts = decoded?.ts {
+          XCTAssertGreaterThan(ts.seconds, 1_500_000_000, "Failed with flavor \(flavor)")
+        } else {
+          XCTFail("Expect server timestamp is set, but getting .pending")
+        }
+      }
+    }
+  #endif // swift(>=5.1)
+
+  @available(swift, deprecated: 5.1)
+  func testSwift4ServerTimestamp() throws {
     struct Model: Codable, Equatable {
       var name: String
-      var ts: ServerTimestamp
+      var ts: Swift4ServerTimestamp
     }
-    let model = Model(name: "name", ts: ServerTimestamp.pending)
+    let model = Model(name: "name", ts: .pending)
     let docToWrite = documentRef()
 
     for flavor in allFlavors {
@@ -143,11 +169,39 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
     }
   }
 
-  func testExplicitNull() throws {
+  #if swift(>=5.1)
+    func testExplicitNull() throws {
+      struct Model: Encodable {
+        var name: String
+        @ExplicitNull var explicitNull: String?
+        var optional: String?
+      }
+      let model = Model(
+        name: "name",
+        explicitNull: nil,
+        optional: nil
+      )
+
+      let docToWrite = documentRef()
+
+      for flavor in allFlavors {
+        try setData(from: model, forDocument: docToWrite, withFlavor: flavor)
+
+        let data = readDocument(forRef: docToWrite).data()
+
+        XCTAssertTrue(data!.keys.contains("explicitNull"), "Failed with flavor \(flavor)")
+        XCTAssertEqual(data!["explicitNull"] as! NSNull, NSNull(), "Failed with flavor \(flavor)")
+        XCTAssertFalse(data!.keys.contains("optional"), "Failed with flavor \(flavor)")
+      }
+    }
+  #endif // swift(>=5.1)
+
+  @available(swift, deprecated: 5.1)
+  func testSwift4ExplicitNull() throws {
     struct Model: Encodable {
       var name: String
-      var explicitNull: ExplicitNull<String>
-      var optional: Optional<String>
+      var explicitNull: Swift4ExplicitNull<String>
+      var optional: String?
     }
     let model = Model(
       name: "name",
@@ -167,6 +221,31 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
       XCTAssertFalse(data!.keys.contains("optional"), "Failed with flavor \(flavor)")
     }
   }
+
+  #if swift(>=5.1)
+    func testSelfDocumentID() throws {
+      struct Model: Codable, Equatable {
+        var name: String
+        @DocumentID var docId: DocumentReference?
+      }
+
+      let docToWrite = documentRef()
+      let model = Model(
+        name: "name",
+        docId: nil
+      )
+
+      try setData(from: model, forDocument: docToWrite, withFlavor: .docRef)
+      let data = readDocument(forRef: docToWrite).data()
+
+      // "docId" is ignored during encoding
+      XCTAssertEqual(data! as! [String: String], ["name": "name"])
+
+      // Decoded result has "docId" auto-populated.
+      let decoded = try readDocument(forRef: docToWrite).data(as: Model.self)
+      XCTAssertEqual(decoded!, Model(name: "name", docId: docToWrite))
+    }
+  #endif // swift(>=5.1)
 
   func testSetThenMerge() throws {
     struct Model: Codable, Equatable {
@@ -197,5 +276,24 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
       XCTAssertEqual(readAfterUpdate!, Model(name: "test",
                                              age: 10, hobby: "Play"), "Failed with flavor \(flavor)")
     }
+  }
+
+  func testAddDocument() throws {
+    struct Model: Codable, Equatable {
+      var name: String
+    }
+
+    let collection = collectionRef()
+    let model = Model(name: "test")
+
+    let added = expectation(description: "Add document")
+    let docRef = try collection.addDocument(from: model) { error in
+      XCTAssertNil(error)
+      added.fulfill()
+    }
+    awaitExpectations()
+
+    let result = try readDocument(forRef: docRef).data(as: Model.self)
+    XCTAssertEqual(model, result)
   }
 }

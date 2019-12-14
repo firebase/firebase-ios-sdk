@@ -137,7 +137,7 @@ union DoubleBits {
 }
 
 - (void)testConvertsBlobs {
-  NSArray<NSData *> *values = @[ FSTTestData(1, 2, 3), FSTTestData(1, 2) ];
+  NSArray<NSData *> *values = @[ FSTTestData(1, 2, 3, -1), FSTTestData(1, 2, -1) ];
   for (NSData *value in values) {
     FieldValue wrapped = FSTTestFieldValue(value);
     XCTAssertEqual(wrapped.type(), FieldValue::Type::Blob);
@@ -223,7 +223,7 @@ union DoubleBits {
     @"bar.baz" :
         [FIRFieldValue fieldValueForArrayUnion:@[ @YES, @{@"nested" : @{@"a" : @[ @1, @2 ]}} ]]
   });
-  XCTAssertEqual(transform.field_transforms().size(), 2);
+  XCTAssertEqual(transform.field_transforms().size(), 2u);
 
   const FieldTransform &first = transform.field_transforms()[0];
   XCTAssertEqual(first.path(), FieldPath({"foo"}));
@@ -248,7 +248,7 @@ union DoubleBits {
   TransformMutation transform = FSTTestTransformMutation(@"collection/key", @{
     @"foo" : [FIRFieldValue fieldValueForArrayRemove:@[ @"tag" ]],
   });
-  XCTAssertEqual(transform.field_transforms().size(), 1);
+  XCTAssertEqual(transform.field_transforms().size(), 1u);
 
   const FieldTransform &first = transform.field_transforms()[0];
   XCTAssertEqual(first.path(), FieldPath({"foo"}));

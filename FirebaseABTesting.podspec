@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseABTesting'
-  s.version          = '3.1.0'
+  s.version          = '3.1.2'
   s.summary          = 'Firebase ABTesting for iOS'
 
   s.description      = <<-DESC
@@ -31,7 +31,8 @@ Firebase Cloud Messaging and Firebase Remote Config in your app.
   base_dir = "FirebaseABTesting/Sources/"
   s.source_files = base_dir + '**/*.[mh]'
   s.requires_arc = base_dir + '*.m'
-  s.public_header_files = base_dir + 'Public/*.h'
+  s.public_header_files = base_dir + 'Public/*.h', base_dir + 'Protos/developers/mobile/abt/proto/*.h'
+  s.private_header_files = base_dir + 'Protos/developers/mobile/abt/proto/*.h'
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
@@ -41,7 +42,7 @@ Firebase Cloud Messaging and Firebase Remote Config in your app.
   }
   s.dependency 'FirebaseAnalyticsInterop', '~> 1.3'
   s.dependency 'FirebaseCore', '~> 6.1'
-  s.dependency 'Protobuf', '~> 3.8'
+  s.dependency 'Protobuf', '~> 3.9', '>= 3.9.2'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.source_files = 'FirebaseABTesting/Tests/Unit/*.[mh]'

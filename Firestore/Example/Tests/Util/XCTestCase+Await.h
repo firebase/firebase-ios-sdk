@@ -16,7 +16,19 @@
 
 #import <XCTest/XCTest.h>
 
-#import "Firestore/Source/Core/FSTTypes.h"
+NS_ASSUME_NONNULL_BEGIN
+
+/**
+ * Force the linker to see these extensions even if compiled without -ObjC.
+ */
+void LoadXCTestCaseAwait();
+
+/**
+ * FSTVoidErrorBlock is a block that gets an error, if one occurred.
+ *
+ * @param error The error if it occurred, or nil.
+ */
+typedef void (^FSTVoidErrorBlock)(NSError *_Nullable error);
 
 @interface XCTestCase (Await)
 
@@ -38,3 +50,5 @@
 - (FSTVoidErrorBlock)completionForExpectationWithName:(NSString *)expectationName;
 
 @end
+
+NS_ASSUME_NONNULL_END

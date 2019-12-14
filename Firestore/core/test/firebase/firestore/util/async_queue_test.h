@@ -22,7 +22,7 @@
 #include "gtest/gtest.h"
 
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
-#include "Firestore/core/test/firebase/firestore/util/async_tests_util.h"
+#include "Firestore/core/test/firebase/firestore/testutil/async_testing.h"
 
 namespace firebase {
 namespace firestore {
@@ -30,8 +30,8 @@ namespace util {
 
 using FactoryFunc = std::unique_ptr<Executor> (*)();
 
-class AsyncQueueTest : public TestWithTimeoutMixin,
-                       public ::testing::TestWithParam<FactoryFunc> {
+class AsyncQueueTest : public ::testing::TestWithParam<FactoryFunc>,
+                       public testutil::AsyncTest {
  public:
   // `GetParam()` must return a factory function.
   AsyncQueueTest() : queue{GetParam()()} {

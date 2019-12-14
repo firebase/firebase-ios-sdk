@@ -98,8 +98,8 @@ NS_ASSUME_NONNULL_BEGIN
   DocumentSet oldDocuments = DocSet(DocumentComparator::ByKey(), {doc1Old, doc2Old});
   DocumentSet newDocuments = DocSet(DocumentComparator::ByKey(), {doc2New, doc2New});
   std::vector<DocumentViewChange> documentChanges{
-      DocumentViewChange(doc1New, DocumentViewChange::Type::kMetadata),
-      DocumentViewChange(doc2New, DocumentViewChange::Type::kModified),
+      DocumentViewChange(doc1New, DocumentViewChange::Type::Metadata),
+      DocumentViewChange(doc2New, DocumentViewChange::Type::Modified),
   };
 
   std::shared_ptr<Firestore> firestore = FSTTestFirestore().wrapped;

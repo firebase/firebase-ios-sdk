@@ -15,6 +15,7 @@
  */
 
 #import <FirebaseCore/FIRLogger.h>
+#import <UIKit/UIKit.h>
 
 #import "FIRCore+InAppMessaging.h"
 #import "FIRIAMActivityLogger.h"
@@ -41,6 +42,8 @@
 @property(nonatomic) BOOL impressionRecorded;
 @property(nonatomic, nonnull, readonly) id<FIRIAMAnalyticsEventLogger> analyticsEventLogger;
 @property(nonatomic, nonnull, readonly) FIRIAMActionURLFollower *actionURLFollower;
+// Used for displaying the test on device message error alert.
+@property(nonatomic, strong) UIWindow *alertWindow;
 @end
 
 @implementation FIRIAMDisplayExecutor {
@@ -307,14 +310,37 @@
 
   UIAlertAction *defaultAction = [UIAlertAction actionWithTitle:@"OK"
                                                           style:UIAlertActionStyleDefault
-                                                        handler:^(UIAlertAction *action){
+                                                        handler:^(UIAlertAction *action) {
+                                                          self.alertWindow.hidden = NO;
+                                                          self.alertWindow = nil;
                                                         }];
 
   [alert addAction:defaultAction];
 
-  [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:alert
-                                                                               animated:YES
-                                                                             completion:nil];
+  dispatch_async(dispatch_get_main_queue(), ^{
+#if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+    if (@available(iOS 13.0, *)) {
+      UIWindowScene *foregroundedScene = nil;
+      for (UIWindowScene *connectedScene in [UIApplication sharedApplication].connectedScenes) {
+        if (connectedScene.activationState == UISceneActivationStateForegroundActive) {
+          foregroundedScene = connectedScene;
+          break;
+        }
+      }
+
+      if (foregroundedScene == nil) {
+        return;
+      }
+      self.alertWindow = [[UIWindow alloc] initWithWindowScene:foregroundedScene];
+    }
+#else  // defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+    self.alertWindow = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+#endif
+    UIViewController *alertViewController = [[UIViewController alloc] init];
+    self.alertWindow.rootViewController = alertViewController;
+    self.alertWindow.hidden = NO;
+    [alertViewController presentViewController:alert animated:YES completion:nil];
+  });
 }
 
 - (instancetype)initWithInAppMessaging:(FIRInAppMessaging *)inAppMessaging
@@ -378,7 +404,7 @@
 
 - (FIRInAppMessagingCardDisplay *)
     cardDisplayMessageWithMessageDefinition:(FIRIAMMessageDefinition *)definition
-                          portraitImageData:(FIRInAppMessagingImageData *)portraitImageData
+                          portraitImageData:(nonnull FIRInAppMessagingImageData *)portraitImageData
                          landscapeImageData:
                              (nullable FIRInAppMessagingImageData *)landscapeImageData
                                 triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType {
@@ -388,16 +414,15 @@
   NSString *title = renderData.contentData.titleText;
   NSString *body = renderData.contentData.bodyText;
 
-  FIRInAppMessagingActionButton *primaryActionButton = nil;
-  if (definition.renderData.contentData.actionButtonText) {
+  // Action button data is never nil for a card message.
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    primaryActionButton = [[FIRInAppMessagingActionButton alloc]
-        initWithButtonText:renderData.contentData.actionButtonText
-           buttonTextColor:renderData.renderingEffectSettings.btnTextColor
-           backgroundColor:renderData.renderingEffectSettings.btnBGColor];
+  FIRInAppMessagingActionButton *primaryActionButton = [[FIRInAppMessagingActionButton alloc]
+      initWithButtonText:renderData.contentData.actionButtonText
+         buttonTextColor:renderData.renderingEffectSettings.btnTextColor
+         backgroundColor:renderData.renderingEffectSettings.btnBGColor];
+
 #pragma clang diagnostic pop
-  }
 
   FIRInAppMessagingActionButton *secondaryActionButton = nil;
   if (definition.renderData.contentData.secondaryActionButtonText) {
@@ -521,6 +546,10 @@
                             triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType {
   switch (definition.renderData.renderingEffectSettings.viewMode) {
     case FIRIAMRenderAsCardView:
+      // Image data should never nil for a valid card message.
+      if (imageData == nil) {
+        return nil;
+      }
       return [self cardDisplayMessageWithMessageDefinition:definition
                                          portraitImageData:imageData
                                         landscapeImageData:landscapeImageData

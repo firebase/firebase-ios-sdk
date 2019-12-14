@@ -246,7 +246,7 @@ NSArray *ABTExperimentsToClearFromPayloads(
 
 - (NSTimeInterval)latestExperimentStartTimestampBetweenTimestamp:(NSTimeInterval)timestamp
                                                      andPayloads:(NSArray<NSData *> *)payloads {
-  for (NSData *payload in payloads) {
+  for (NSData *payload in [payloads copy]) {
     ABTExperimentPayload *experimentPayload = ABTDeserializeExperimentPayload(payload);
     if (!experimentPayload) {
       FIRLogInfo(kFIRLoggerABTesting, @"I-ABT000002",

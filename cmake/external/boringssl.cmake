@@ -22,11 +22,9 @@ endif()
 # the SOURCE_DIR when unpacking so this must come after grpc despite the fact
 # that grpc logically depends upon this.
 
-# grpc at v1.8.3 includes boringssl at be2ee342d3781ddb954f91f8a7e660c6f59e87e5
-# (2017-02-03). Unfortunately, that boringssl includes a conflicting gtest
-# target that makes it unsuitable for use via add_subdirectory.
-
-set(commit e0afc85719db9a0842bcfddcf4b15e856b253ee2)  # master@{2018-07-10}
+# grpc v1.24.3 includes boringssl at b29b21a81b32ec273f118f589f46d56ad3332420
+# (2018-05-22). This is woefully out of date, so pin to a newer one.
+set(commit 9638f8fba961a593c064e3036bb580bdace29e8f)  # master@{2019-10-01}
 
 ExternalProject_Add(
   boringssl
@@ -36,7 +34,7 @@ ExternalProject_Add(
   DOWNLOAD_DIR ${FIREBASE_DOWNLOAD_DIR}
   DOWNLOAD_NAME boringssl-${commit}.tar.gz
   URL https://github.com/google/boringssl/archive/${commit}.tar.gz
-  URL_HASH SHA256=2aa66e912651d2256ab266b712a2647c22e7e9347a09544e684732a599a194a8
+  URL_HASH SHA256=cfd843fda9fdf9ea92b1ae5f5d379ec7d7cb09d5c7d41197ee935a0e30aecb23
 
   PREFIX ${PROJECT_BINARY_DIR}
   SOURCE_DIR ${PROJECT_BINARY_DIR}/src/grpc/third_party/boringssl

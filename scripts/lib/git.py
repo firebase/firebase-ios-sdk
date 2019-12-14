@@ -120,6 +120,21 @@ def standard_exclusions():
   return result
 
 
+def is_within_repo():
+  """Returns whether the current working directory is within a git repo."""
+  try:
+    subprocess.check_output(['git', 'status'])
+    return True
+  except subprocess.CalledProcessError:
+    return False
+
+
+def get_repo_root():
+  """Returns the absolute path to the root of the current git repo."""
+  command = ['git', 'rev-parse', '--show-toplevel']
+  return subprocess.check_output(command).rstrip()
+
+
 def _null_split_output(command):
   """Runs the given command and splits its output on the null byte."""
   command_trace.log(command)

@@ -23,7 +23,7 @@
 
 #include "Firestore/core/src/firebase/firestore/api/document_reference.h"
 #include "Firestore/core/src/firebase/firestore/model/mutation.h"
-#include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
 
 namespace firebase {
 namespace firestore {
@@ -45,9 +45,9 @@ class WriteBatch {
   }
 
   void SetData(const DocumentReference& reference,
-               core::ParsedSetData&& setData);
+               core::ParsedSetData&& set_data);
   void UpdateData(const DocumentReference& reference,
-                  core::ParsedUpdateData&& updateData);
+                  core::ParsedUpdateData&& update_data);
   void DeleteData(const DocumentReference& reference);
 
   void Commit(util::StatusCallback callback);

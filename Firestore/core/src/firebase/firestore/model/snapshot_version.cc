@@ -18,6 +18,8 @@
 
 #include <ostream>
 
+#include "Firestore/core/src/firebase/firestore/util/hashing.h"
+
 namespace firebase {
 namespace firestore {
 namespace model {
@@ -37,7 +39,7 @@ util::ComparisonResult SnapshotVersion::CompareTo(
 }
 
 size_t SnapshotVersion::Hash() const {
-  return std::hash<Timestamp>{}(timestamp_);
+  return util::Hash(timestamp_.seconds(), timestamp_.nanoseconds());
 }
 
 std::string SnapshotVersion::ToString() const {

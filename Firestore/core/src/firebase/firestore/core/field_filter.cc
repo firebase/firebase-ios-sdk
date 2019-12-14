@@ -19,13 +19,13 @@
 #include <utility>
 #include <vector>
 
-#include "Firestore/core/src/firebase/firestore/api/input_validation.h"
 #include "Firestore/core/src/firebase/firestore/core/array_contains_any_filter.h"
 #include "Firestore/core/src/firebase/firestore/core/array_contains_filter.h"
 #include "Firestore/core/src/firebase/firestore/core/in_filter.h"
 #include "Firestore/core/src/firebase/firestore/core/key_field_filter.h"
 #include "Firestore/core/src/firebase/firestore/core/key_field_in_filter.h"
 #include "Firestore/core/src/firebase/firestore/core/operator.h"
+#include "Firestore/core/src/firebase/firestore/util/exception.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
 #include "absl/algorithm/container.h"
 #include "absl/strings/str_cat.h"
@@ -35,10 +35,10 @@ namespace firebase {
 namespace firestore {
 namespace core {
 
-using api::ThrowInvalidArgument;
 using model::FieldPath;
 using model::FieldValue;
 using util::ComparisonResult;
+using util::ThrowInvalidArgument;
 
 namespace {
 

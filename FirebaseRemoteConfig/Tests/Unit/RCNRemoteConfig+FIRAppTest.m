@@ -20,7 +20,7 @@
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIROptionsInternal.h>
 #import <OCMock/OCMock.h>
-#import "FIRRemoteConfig_Internal.h"
+#import "FIRRemoteConfig_Private.h"
 #import "third_party/firebase/ios/Releases/FirebaseCore/Tests/FIRTestCase.h"
 
 @interface RCNRemoteConfig_FIRAppTest : FIRTestCase

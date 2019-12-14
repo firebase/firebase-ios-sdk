@@ -19,6 +19,7 @@
 #import "FIRInstallationsStatus.h"
 
 @class FIRInstallationsStoredAuthToken;
+@class FIRInstallationsStoredIIDCheckin;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -40,8 +41,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, nullable) FIRInstallationsStoredAuthToken *authToken;
 @property(nonatomic) FIRInstallationsStatus registrationStatus;
 
+/// Instance ID default auth token imported from IID store as a part of IID migration.
+@property(nonatomic, nullable) NSString *IIDDefaultToken;
+
 /// The version of local storage.
-@property(nonatomic) NSInteger storageVersion;
+@property(nonatomic, readonly) NSInteger storageVersion;
 @end
 
 NS_ASSUME_NONNULL_END

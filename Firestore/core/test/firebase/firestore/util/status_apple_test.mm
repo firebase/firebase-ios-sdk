@@ -86,6 +86,14 @@ TEST(Status, CausedBy_Chain_NSError) {
   EXPECT_TRUE([not_found_nserror isEqual:cause]);
 }
 
+TEST(Status, MovedFromToNSError) {
+  Status not_found(Error::NotFound, "Some file not found");
+  Status unused = std::move(not_found);
+
+  EXPECT_EQ(not_found.ToNSError().domain, FIRFirestoreErrorDomain);
+  EXPECT_EQ(not_found.ToNSError().code, Internal);
+}
+
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase

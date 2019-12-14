@@ -16,8 +16,13 @@ cc_test(
   firebase_firestore_core_test
   SOURCES
     database_info_test.cc
-    target_id_generator_test.cc
+    event_manager_test.cc
+    field_filter_test.cc
+    query_listener_test.cc
     query_test.cc
+    target_id_generator_test.cc
+    view_snapshot_test.cc
+    view_test.cc
   DEPENDS
     GMock::GMock
     firebase_firestore_core

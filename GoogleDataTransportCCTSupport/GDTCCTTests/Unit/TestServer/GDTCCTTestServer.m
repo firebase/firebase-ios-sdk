@@ -16,6 +16,8 @@
 
 #import "GDTCCTTests/Unit/TestServer/GDTCCTTestServer.h"
 
+#import <GoogleDataTransport/GDTCORAssert.h>
+
 #import <nanopb/pb_decode.h>
 #import <nanopb/pb_encode.h>
 
@@ -50,16 +52,16 @@
 }
 
 - (void)start {
-  NSAssert(self.server.isRunning == NO, @"The server should not be already running.");
+  GDTCORAssert(self.server.isRunning == NO, @"The server should not be already running.");
   NSError *error;
   [self.server
       startWithOptions:@{GCDWebServerOption_Port : @0, GCDWebServerOption_BindToLocalhost : @YES}
                  error:&error];
-  NSAssert(error == nil, @"Error when starting server: %@", error);
+  GDTCORAssert(error == nil, @"Error when starting server: %@", error);
 }
 
 - (void)stop {
-  NSAssert(self.server.isRunning, @"The server should be running before stopping.");
+  GDTCORAssert(self.server.isRunning, @"The server should be running before stopping.");
   [self.server stop];
 }
 
@@ -85,7 +87,7 @@
   pb_ostream_t sizestream = PB_OSTREAM_SIZING;
   // Encode 1 time to determine the size.
   if (!pb_encode(&sizestream, gdt_cct_LogResponse_fields, &logResponse)) {
-    NSCAssert(NO, @"Error in nanopb encoding for size: %s", PB_GET_ERROR(&sizestream));
+    GDTCORAssert(NO, @"Error in nanopb encoding for size: %s", PB_GET_ERROR(&sizestream));
   }
 
   // Encode a 2nd time to actually get the bytes from it.
@@ -93,7 +95,7 @@
   CFMutableDataRef dataRef = CFDataCreateMutable(CFAllocatorGetDefault(), bufferSize);
   pb_ostream_t ostream = pb_ostream_from_buffer((void *)CFDataGetBytePtr(dataRef), bufferSize);
   if (!pb_encode(&sizestream, gdt_cct_LogResponse_fields, &logResponse)) {
-    NSCAssert(NO, @"Error in nanopb encoding for bytes: %s", PB_GET_ERROR(&ostream));
+    GDTCORAssert(NO, @"Error in nanopb encoding for bytes: %s", PB_GET_ERROR(&ostream));
   }
   CFDataSetLength(dataRef, ostream.bytes_written);
   pb_release(gdt_cct_LogResponse_fields, &logResponse);
@@ -120,6 +122,47 @@
                               path:@"/logBatch"
                       requestClass:[GCDWebServerRequest class]
                       processBlock:processBlock];
+}
+
+- (void)registerRedirectPaths {
+  id processBlock301 = ^GCDWebServerResponse *(__kindof GCDWebServerRequest *request) {
+    NSURL *redirectURL = [self->_server.serverURL URLByAppendingPathComponent:@"logBatch"];
+    GCDWebServerResponse *response = [GCDWebServerResponse responseWithRedirect:redirectURL
+                                                                      permanent:NO];
+    response.statusCode = 301;
+    response.gzipContentEncodingEnabled = YES;
+    return response;
+  };
+  [self.server addHandlerForMethod:@"POST"
+                              path:@"/logRedirect301"
+                      requestClass:[GCDWebServerRequest class]
+                      processBlock:processBlock301];
+
+  id processBlock302 = ^GCDWebServerResponse *(__kindof GCDWebServerRequest *request) {
+    NSURL *redirectURL = [self->_server.serverURL URLByAppendingPathComponent:@"logBatch"];
+    GCDWebServerResponse *response = [GCDWebServerResponse responseWithRedirect:redirectURL
+                                                                      permanent:NO];
+    response.statusCode = 302;
+    response.gzipContentEncodingEnabled = YES;
+    return response;
+  };
+  [self.server addHandlerForMethod:@"POST"
+                              path:@"/logRedirect302"
+                      requestClass:[GCDWebServerRequest class]
+                      processBlock:processBlock302];
+
+  id processBlock307 = ^GCDWebServerResponse *(__kindof GCDWebServerRequest *request) {
+    NSURL *redirectURL = [self->_server.serverURL URLByAppendingPathComponent:@"logBatch"];
+    GCDWebServerResponse *response = [GCDWebServerResponse responseWithRedirect:redirectURL
+                                                                      permanent:NO];
+    response.statusCode = 307;
+    response.gzipContentEncodingEnabled = YES;
+    return response;
+  };
+  [self.server addHandlerForMethod:@"POST"
+                              path:@"/logRedirect307"
+                      requestClass:[GCDWebServerRequest class]
+                      processBlock:processBlock307];
 }
 
 @end

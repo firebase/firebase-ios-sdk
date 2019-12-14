@@ -79,7 +79,7 @@ NS_SWIFT_NAME(DocumentSnapshot)
  * exist.
  *
  * Server-provided timestamps that have not yet been set to their final value will be returned as
- * `NSNull`. You can use `dataWithOptions()` to configure this behavior.
+ * `NSNull`. You can use `dataWithServerTimestampBehavior()` to configure this behavior.
  *
  * @return An `NSDictionary` containing all fields in the document or `nil` if the document doesn't
  *     exist.
@@ -103,7 +103,7 @@ NS_SWIFT_NAME(DocumentSnapshot)
  * exist.
  *
  * The timestamps that have not yet been set to their final value will be returned as `NSNull`. The
- * can use `get(_:options:)` to configure this behavior.
+ * can use `get(_:serverTimestampBehavior:)` to configure this behavior.
  *
  * @param field The field to retrieve.
  * @return The value contained in the field or `nil` if the document or field doesn't exist.
@@ -115,7 +115,7 @@ NS_SWIFT_NAME(DocumentSnapshot)
  * exist.
  *
  * The timestamps that have not yet been set to their final value will be returned as `NSNull`. The
- * can use `get(_:options:)` to configure this behavior.
+ * can use `get(_:serverTimestampBehavior:)` to configure this behavior.
  *
  * @param field The field to retrieve.
  * @param serverTimestampBehavior Configures how server timestamps that have not yet been set to
@@ -159,7 +159,7 @@ NS_SWIFT_NAME(QueryDocumentSnapshot)
  * Retrieves all fields in the document as an `NSDictionary`.
  *
  * Server-provided timestamps that have not yet been set to their final value will be returned as
- * `NSNull`. You can use `dataWithOptions()` to configure this behavior.
+ * `NSNull`. You can use `dataWithServerTimestampBehavior()` to configure this behavior.
  *
  * @return An `NSDictionary` containing all fields in the document.
  */

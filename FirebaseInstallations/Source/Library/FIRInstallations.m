@@ -70,7 +70,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   FIRComponent *installationsProvider =
       [FIRComponent componentWithProtocol:@protocol(FIRInstallationsInstanceProvider)
-                      instantiationTiming:FIRInstantiationTimingLazy
+                      instantiationTiming:FIRInstantiationTimingAlwaysEager
                              dependencies:@[]
                             creationBlock:creationBlock];
   return @[ installationsProvider ];
@@ -85,7 +85,9 @@ NS_ASSUME_NONNULL_BEGIN
       [[FIRInstallationsIDController alloc] initWithGoogleAppID:appOptions.googleAppID
                                                         appName:appName
                                                          APIKey:appOptions.APIKey
-                                                      projectID:appOptions.projectID];
+                                                      projectID:appOptions.projectID
+                                                    GCMSenderID:appOptions.GCMSenderID
+                                                    accessGroup:appOptions.appGroupID];
   return [self initWithAppOptions:appOptions
                           appName:appName
         installationsIDController:IDController
@@ -99,6 +101,8 @@ NS_ASSUME_NONNULL_BEGIN
                  prefetchAuthToken:(BOOL)prefetchAuthToken {
   self = [super init];
   if (self) {
+    [[self class] assertCompatibleIIDVersion];
+
     _appOptions = [appOptions copy];
     _appName = [appName copy];
     _installationsIDController = installationsIDController;
@@ -177,6 +181,32 @@ NS_ASSUME_NONNULL_BEGIN
       .catch(^void(NSError *error) {
         completion([FIRInstallationsErrorUtil publicDomainErrorWithError:error]);
       });
+}
+
+#pragma mark - IID version compatibility
+
++ (void)assertCompatibleIIDVersion {
+  // We use this flag to disable IID compatibility exception for unit tests.
+#ifdef FIR_INSTALLATIONS_ALLOWS_INCOMPATIBLE_IID_VERSION
+  return;
+#else
+  if (![self isIIDVersionCompatible]) {
+    [NSException raise:NSInternalInconsistencyException
+                format:@"FirebaseInstallations will not work correctly with current version of "
+                       @"Firebase Instance ID. Please update your Firebase Instance ID version."];
+  }
+#endif
+}
+
++ (BOOL)isIIDVersionCompatible {
+  Class IIDClass = NSClassFromString(@"FIRInstanceID");
+  if (IIDClass == nil) {
+    // It is OK if there is no IID at all.
+    return YES;
+  }
+  // We expect a compatible version having the method `+[FIRInstanceID usesFIS]` defined.
+  BOOL isCompatibleVersion = [IIDClass respondsToSelector:NSSelectorFromString(@"usesFIS")];
+  return isCompatibleVersion;
 }
 
 @end

@@ -18,6 +18,7 @@
 
 #include <cstdlib>
 #include <ostream>
+#include <sstream>
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/model/document.h"
@@ -25,10 +26,27 @@
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/to_string.h"
+#include "absl/strings/str_cat.h"
 
 namespace firebase {
 namespace firestore {
 namespace model {
+
+std::string MutationResult::ToString() const {
+  return absl::StrCat(
+      "MutationResult(version=", version_.ToString(),
+      ", transform_results=", util::ToString(transform_results_), ")");
+}
+
+std::ostream& operator<<(std::ostream& os, const MutationResult& result) {
+  return os << result.ToString();
+}
+
+bool operator==(const MutationResult& lhs, const MutationResult& rhs) {
+  return lhs.version() == rhs.version() &&
+         lhs.transform_results() == rhs.transform_results();
+}
 
 Mutation::Rep::Rep(DocumentKey&& key, Precondition&& precondition)
     : key_(std::move(key)), precondition_(std::move(precondition)) {

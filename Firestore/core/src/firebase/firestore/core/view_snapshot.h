@@ -45,7 +45,7 @@ class DocumentViewChange {
    * NOTE: We sort document changes by their type, so the ordering of this enum
    * is significant.
    */
-  enum class Type { kRemoved = 0, kAdded, kModified, kMetadata };
+  enum class Type { Removed = 0, Added, Modified, Metadata };
 
   DocumentViewChange() = default;
 

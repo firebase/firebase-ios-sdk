@@ -28,6 +28,8 @@ options=(
 git grep "${options[@]}" -- \
     ':(exclude)Firebase/CoreDiagnostics/FIRCDLibrary/Protogen/nanopb' \
     ':(exclude)Firebase/CoreDiagnostics/ProtoSupport' \
+    ':(exclude)CoreOnly/NOTICES' \
+    ':(exclude)Firebase/Firebase/NOTICES' \
     ':(exclude)Firebase/InAppMessaging/ProtoSupport' \
     ':(exclude)Firebase/InAppMessaging/Analytics/Protogen/nanopb' \
     ':(exclude)Firestore/Protos/nanopb' \
@@ -35,7 +37,8 @@ git grep "${options[@]}" -- \
     ':(exclude)Firestore/Protos/objc' \
     ':(exclude)Firestore/third_party/abseil-cpp' \
     ':(exclude)GoogleDataTransportCCTSupport/GDTCCTLibrary/Protogen/nanopb' \
-    ':(exclude)GoogleDataTransportCCTSupport/ProtoSupport'
+    ':(exclude)GoogleDataTransportCCTSupport/ProtoSupport' \
+    ':(exclude)ZipBuilder/Template/NOTICES'
 
 if [[ $? == 0 ]]; then
   echo "ERROR: Trailing whitespace found in the files above. Please fix."

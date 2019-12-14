@@ -17,18 +17,15 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_REMOTE_STORE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_REMOTE_STORE_H_
 
-#if !defined(__OBJC__)
-#error "This header only supports Objective-C++"
-#endif  // !defined(__OBJC__)
-
-#import <Foundation/Foundation.h>
-
 #include <memory>
 #include <unordered_map>
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
+#include "Firestore/core/src/firebase/firestore/local/local_store.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
+#include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
+#include "Firestore/core/src/firebase/firestore/model/mutation_batch_result.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
@@ -38,92 +35,86 @@
 #include "Firestore/core/src/firebase/firestore/remote/watch_stream.h"
 #include "Firestore/core/src/firebase/firestore/remote/write_stream.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
-#include "Firestore/core/src/firebase/firestore/util/status.h"
-
-@class FSTLocalStore;
-@class FSTMutationBatch;
-@class FSTMutationBatchResult;
-@class FSTTransaction;
-
-NS_ASSUME_NONNULL_BEGIN
-
-/**
- * A protocol that describes the actions the `RemoteStore` needs to perform on
- * a cooperating synchronization engine.
- */
-@protocol FSTRemoteSyncer
-
-/**
- * Applies one remote event to the sync engine, notifying any views of the
- * changes, and releasing any pending mutation batches that would become visible
- * because of the snapshot version the remote event contains.
- */
-- (void)applyRemoteEvent:
-    (const firebase::firestore::remote::RemoteEvent&)remoteEvent;
-
-/**
- * Rejects the listen for the given targetID. This can be triggered by the
- * backend for any active target.
- *
- * @param targetID The targetID corresponding to a listen initiated via
- *     `RemoteStore::Listen`.
- * @param error A description of the condition that has forced the rejection.
- * Nearly always this will be an indication that the user is no longer
- * authorized to see the data matching the target.
- */
-- (void)rejectListenWithTargetID:
-            (const firebase::firestore::model::TargetId)targetID
-                           error:
-                               (NSError*)error;  // NOLINT(readability/casting)
-
-/**
- * Applies the result of a successful write of a mutation batch to the sync
- * engine, emitting snapshots in any views that the mutation applies to, and
- * removing the batch from the mutation queue.
- */
-- (void)applySuccessfulWriteWithResult:
-    (FSTMutationBatchResult*)batchResult;  // NOLINT(readability/casting)
-
-/**
- * Rejects the batch, removing the batch from the mutation queue, recomputing
- * the local view of any documents affected by the batch and then, emitting
- * snapshots with the reverted value.
- */
-- (void)
-    rejectFailedWriteWithBatchID:(firebase::firestore::model::BatchId)batchID
-                           error:
-                               (NSError*)error;  // NOLINT(readability/casting)
-
-/**
- * Returns the set of remote document keys for the given target ID. This list
- * includes the documents that were assigned to the target when we received the
- * last snapshot.
- */
-- (firebase::firestore::model::DocumentKeySet)remoteKeysForTarget:
-    (firebase::firestore::model::TargetId)targetId;
-
-@end
+#include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
 
 namespace firebase {
 namespace firestore {
 namespace remote {
 
+/**
+ * A callback interface for events from remote store.
+ */
+class RemoteStoreCallback {
+ public:
+  virtual ~RemoteStoreCallback() = default;
+
+  /**
+   * Applies a remote event to the sync engine, notifying any views of the
+   * changes, and releasing any pending mutation batches that would become
+   * visible because of the snapshot version the remote event contains.
+   */
+  virtual void ApplyRemoteEvent(const RemoteEvent& remote_event) = 0;
+
+  /**
+   * Handles rejection of listen for the given target id. This can be triggered
+   * by the backend for any active target.
+   *
+   * @param target_id The target ID corresponding to a listen initiated via
+   * RemoteStore::Listen()
+   * @param error A description of the condition that has forced the rejection.
+   * Nearly always this will be an indication that the user is no longer
+   * authorized to see the data matching the target.
+   */
+  virtual void HandleRejectedListen(model::TargetId target_id,
+                                    util::Status error) = 0;
+
+  /**
+   * Applies the result of a successful write of a mutation batch to the sync
+   * engine, emitting snapshots in any views that the mutation applies to, and
+   * removing the batch from the mutation queue.
+   */
+  virtual void HandleSuccessfulWrite(
+      const model::MutationBatchResult& batch_result) = 0;
+
+  /**
+   * Rejects the batch, removing the batch from the mutation queue, recomputing
+   * the local view of any documents affected by the batch and then, emitting
+   * snapshots with the reverted value.
+   */
+  virtual void HandleRejectedWrite(model::BatchId batch_id,
+                                   util::Status error) = 0;
+
+  /**
+   * Applies an OnlineState change to the sync engine and notifies any views of
+   * the change.
+   */
+  virtual void HandleOnlineStateChange(model::OnlineState online_state) = 0;
+
+  /**
+   * Returns the set of remote document keys for the given target ID. This list
+   * includes the documents that were assigned to the target when we received
+   * the last snapshot.
+   */
+  virtual model::DocumentKeySet GetRemoteKeys(
+      model::TargetId target_id) const = 0;
+};
+
 class RemoteStore : public TargetMetadataProvider,
                     public WatchStreamCallback,
                     public WriteStreamCallback {
  public:
-  RemoteStore(FSTLocalStore* local_store,
+  RemoteStore(local::LocalStore* local_store,
               std::shared_ptr<Datastore> datastore,
               const std::shared_ptr<util::AsyncQueue>& worker_queue,
               std::function<void(model::OnlineState)> online_state_handler);
 
-  void set_sync_engine(id<FSTRemoteSyncer> sync_engine) {
+  void set_sync_engine(RemoteStoreCallback* sync_engine) {
     sync_engine_ = sync_engine;
   }
 
   /**
    * Starts up the remote store, creating streams, restoring state from
-   * `FSTLocalStore`, etc.
+   * `LocalStore`, etc.
    */
   void Start();
 
@@ -163,10 +154,10 @@ class RemoteStore : public TargetMetadataProvider,
   void StopListening(model::TargetId target_id);
 
   /**
-   * Attempts to fill our write pipeline with writes from the `FSTLocalStore`.
+   * Attempts to fill our write pipeline with writes from the `LocalStore`.
    *
    * Called internally to bootstrap or refill the write pipeline and by
-   * `FSTSyncEngine` whenever there are new mutations to process.
+   * `SyncEngine` whenever there are new mutations to process.
    *
    * Starts the write stream if necessary.
    */
@@ -176,7 +167,7 @@ class RemoteStore : public TargetMetadataProvider,
    * Queues additional writes to be sent to the write stream, sending them
    * immediately if the write stream is established.
    */
-  void AddToWritePipeline(FSTMutationBatch* batch);
+  void AddToWritePipeline(const model::MutationBatch& batch);
 
   /** Returns a new transaction backed by this remote store. */
   // TODO(c++14): return a plain value when it becomes possible to move
@@ -243,13 +234,13 @@ class RemoteStore : public TargetMetadataProvider,
 
   void CleanUpWatchStreamState();
 
-  id<FSTRemoteSyncer> sync_engine_ = nil;
+  RemoteStoreCallback* sync_engine_ = nullptr;
 
   /**
    * The local store, used to fill the write pipeline with outbound mutations
    * and resolve existence filter mismatches.
    */
-  FSTLocalStore* local_store_ = nil;
+  local::LocalStore* local_store_ = nullptr;
 
   /** The client-side proxy for interacting with the backend. */
   std::shared_ptr<Datastore> datastore_;
@@ -294,13 +285,11 @@ class RemoteStore : public TargetMetadataProvider,
    * purely based on order, and so we can just remove writes from the front of
    * the `write_pipeline_` as we receive responses.
    */
-  std::vector<FSTMutationBatch*> write_pipeline_;
+  std::vector<model::MutationBatch> write_pipeline_;
 };
 
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
-
-NS_ASSUME_NONNULL_END
 
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_REMOTE_STORE_H_

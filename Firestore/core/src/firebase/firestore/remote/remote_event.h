@@ -17,14 +17,6 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_REMOTE_EVENT_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_REMOTE_EVENT_H_
 
-#if !defined(__OBJC__)
-// TODO(varconst): the only dependency is `NSData`
-// (used to represent the resume token).
-#error "This header only supports Objective-C++"
-#endif  // !defined(__OBJC__)
-
-#import <Foundation/Foundation.h>
-
 #include <set>
 #include <unordered_map>
 #include <unordered_set>
@@ -40,8 +32,6 @@
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
-
-NS_ASSUME_NONNULL_BEGIN
 
 namespace firebase {
 namespace firestore {
@@ -347,8 +337,8 @@ class WatchChangeAggregator {
 
  private:
   /**
-   * Returns all `targetId`s that the watch change applies to: either the
-   * `targetId`s explicitly listed in the change or the `targetId`s of all
+   * Returns all `TargetId`s that the watch change applies to: either the
+   * `TargetId`s explicitly listed in the change or the `TargetId`s of all
    * currently active targets.
    */
   std::vector<model::TargetId> GetTargetIds(
@@ -442,7 +432,5 @@ class WatchChangeAggregator {
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
-
-NS_ASSUME_NONNULL_END
 
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_REMOTE_EVENT_H_

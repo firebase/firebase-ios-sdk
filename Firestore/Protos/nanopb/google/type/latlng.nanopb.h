@@ -21,6 +21,8 @@
 #define PB_GOOGLE_TYPE_LATLNG_NANOPB_H_INCLUDED
 #include <pb.h>
 
+#include <string>
+
 namespace firebase {
 namespace firestore {
 
@@ -34,6 +36,8 @@ namespace firestore {
 typedef struct _google_type_LatLng {
     double latitude;
     double longitude;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_type_LatLng) */
 } google_type_LatLng;
 

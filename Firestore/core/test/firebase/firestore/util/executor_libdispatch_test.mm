@@ -19,31 +19,34 @@
 #include <memory>
 
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
+#include "Firestore/core/test/firebase/firestore/testutil/async_testing.h"
 #include "absl/memory/memory.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
 namespace firestore {
 namespace util {
-
 namespace {
 
-std::unique_ptr<Executor> ExecutorFactory() {
+using testutil::Expectation;
+
+std::unique_ptr<Executor> ExecutorFactory(int threads = 1) {
+  auto attr = threads == 1 ? DISPATCH_QUEUE_SERIAL : DISPATCH_QUEUE_CONCURRENT;
   return absl::make_unique<ExecutorLibdispatch>(
-      dispatch_queue_create("ExecutorLibdispatchTests", DISPATCH_QUEUE_SERIAL));
+      dispatch_queue_create("ExecutorLibdispatchTests", attr));
 }
 
 namespace chr = std::chrono;
 
 }  // namespace
 
-INSTANTIATE_TEST_CASE_P(ExecutorTestLibdispatch,
-                        ExecutorTest,
-                        ::testing::Values(ExecutorFactory));
+INSTANTIATE_TEST_SUITE_P(ExecutorTestLibdispatch,
+                         ExecutorTest,
+                         ::testing::Values(ExecutorFactory));
 
 namespace internal {
-class ExecutorLibdispatchOnlyTests : public TestWithTimeoutMixin,
-                                     public ::testing::Test {
+class ExecutorLibdispatchOnlyTests : public ::testing::Test,
+                                     public testutil::AsyncTest {
  public:
   ExecutorLibdispatchOnlyTests() : executor{ExecutorFactory()} {
   }
@@ -52,22 +55,24 @@ class ExecutorLibdispatchOnlyTests : public TestWithTimeoutMixin,
 };
 
 TEST_F(ExecutorLibdispatchOnlyTests, NameReturnsLabelOfTheQueue) {
+  Expectation ran;
   EXPECT_EQ(executor->Name(), "ExecutorLibdispatchTests");
   executor->Execute([&] {
     EXPECT_EQ(executor->CurrentExecutorName(), "ExecutorLibdispatchTests");
-    signal_finished();
+    ran.Fulfill();
   });
-  EXPECT_TRUE(WaitForTestToFinish());
+  Await(ran);
 }
 
 TEST_F(ExecutorLibdispatchOnlyTests,
        ExecuteBlockingOnTheCurrentQueueIsNotAllowed) {
+  Expectation ran;
   EXPECT_NO_THROW(executor->ExecuteBlocking([] {}));
   executor->Execute([&] {
     EXPECT_ANY_THROW(executor->ExecuteBlocking([] {}));
-    signal_finished();
+    ran.Fulfill();
   });
-  EXPECT_TRUE(WaitForTestToFinish());
+  Await(ran);
 }
 
 TEST_F(ExecutorLibdispatchOnlyTests, ScheduledOperationOutlivesExecutor) {

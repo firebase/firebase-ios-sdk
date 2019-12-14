@@ -17,7 +17,7 @@
 import Foundation
 
 // Extensions to FileManager that make scripting easier or cleaner for error reporting.
-public extension FileManager {
+extension FileManager {
   // MARK: - Helper Enum Declarations
 
   /// Describes a type of file to be searched for.
@@ -70,32 +70,26 @@ public extension FileManager {
     return directoryExists(at: url)
   }
 
-  /// Returns the URL to the Firebase cache directory, and creates it if it doesn't exist.
-  func firebaseCacheDirectory() throws -> URL {
-    // Get the URL for the cache directory.
-    let cacheDir: URL = try url(for: .cachesDirectory,
-                                in: .userDomainMask,
-                                appropriateFor: nil,
-                                create: true)
-
-    // Get the cache root path, and if it already exists just return the URL.
-    let cacheRoot = cacheDir.appendingPathComponent("firebase_oss_framework_cache")
+  /// Returns the URL to the source Pod cache directory, and creates it if it doesn't exist.
+  func sourcePodCacheDirectory(withSubdir subdir: String = "") throws -> URL {
+    let cacheDir = FileManager.default.temporaryDirectory(withName: "cache")
+    let cacheRoot = cacheDir.appendingPathComponents([subdir])
     if directoryExists(at: cacheRoot) {
       return cacheRoot
     }
 
     // The cache root folder doesn't exist yet, create it.
-    try createDirectory(at: cacheRoot, withIntermediateDirectories: false, attributes: nil)
+    try createDirectory(at: cacheRoot, withIntermediateDirectories: true)
 
     return cacheRoot
   }
 
-  /// Removes a directory if it exists. This is helpful to clean up error handling for checks that
+  /// Removes a directory or file if it exists. This is helpful to clean up error handling for checks that
   /// shouldn't fail. The only situation this could potentially fail is permission errors or if a
   /// folder is open in Finder, and in either state the user needs to close the window or fix the
   /// permissions. A fatal error will be thrown in those situations.
-  func removeDirectoryIfExists(at url: URL) {
-    guard directoryExists(at: url) else { return }
+  func removeIfExists(at url: URL) {
+    guard directoryExists(at: url) || fileExists(atPath: url.path) else { return }
 
     do {
       try removeItem(at: url)
@@ -107,20 +101,27 @@ public extension FileManager {
     }
   }
 
+  // Enable a single unique temporary workspace per execution.
+  static let unique: String = UUID().uuidString
+
   /// Returns a deterministic path of a temporary directory for the given name. Note: This does
   /// *not* create the directory if it doesn't exist, merely generates the name for creation.
   func temporaryDirectory(withName name: String) -> URL {
-    // Get access to the temporary directory.
+    // Get access to the temporary directory. This could be passed in via `LaunchArgs`, or use the
+    // default temporary directory.
     let tempDir: URL
-    if #available(OSX 10.12, *) {
+    if let root = LaunchArgs.shared.buildRoot {
+      tempDir = root
+    } else if #available(OSX 10.12, *) {
       tempDir = temporaryDirectory
     } else {
       tempDir = URL(fileURLWithPath: NSTemporaryDirectory())
     }
 
-    // Organize all temporary directories into a "FirebaseZipRelease" directory.
-    let firebaseDir = tempDir.appendingPathComponent("FirebaseZipRelease", isDirectory: true)
-    return firebaseDir.appendingPathComponent(name, isDirectory: true)
+    // Organize all temporary directories into a "ZipRelease" directory.
+    let unique = FileManager.unique
+    let zipDir = tempDir.appendingPathComponent("ZipRelease" + unique, isDirectory: true)
+    return zipDir.appendingPathComponent(name, isDirectory: true)
   }
 
   // MARK: Searching

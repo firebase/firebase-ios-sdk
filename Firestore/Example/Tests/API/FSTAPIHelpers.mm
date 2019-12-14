@@ -138,7 +138,7 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
         Doc(documentKey, 1, doc,
             hasPendingWrites ? DocumentState::kLocalMutations : DocumentState::kSynced);
     newDocuments = newDocuments.insert(docToAdd);
-    documentChanges.emplace_back(docToAdd, DocumentViewChange::Type::kAdded);
+    documentChanges.emplace_back(docToAdd, DocumentViewChange::Type::Added);
     if (hasPendingWrites) {
       mutatedKeys = mutatedKeys.insert(testutil::Key(documentKey));
     }

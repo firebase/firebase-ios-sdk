@@ -23,6 +23,8 @@
 
 #include "google/api/http.nanopb.h"
 
+#include <string>
+
 namespace firebase {
 namespace firestore {
 

@@ -22,13 +22,13 @@
 #import <FirebaseCore/FIRLogger.h>
 #import <FirebaseCore/FIROptionsInternal.h>
 #import "FirebaseRemoteConfig/Sources/FIRRemoteConfigComponent.h"
-#import "FirebaseRemoteConfig/Sources/FIRRemoteConfig_Internal.h"
+#import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"
+#import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigContent.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigFetch.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigSettings.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
 #import "FirebaseRemoteConfig/Sources/RCNDevice.h"
 
@@ -48,6 +48,10 @@ static NSString *const kRemoteConfigFetchTimeoutKey = @"_rcn_fetch_timeout";
   BOOL _developerModeEnabled;
 }
 @end
+
+// Implementations depend upon multiple deprecated APIs
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
 @implementation FIRRemoteConfigSettings
 - (instancetype)initWithDeveloperModeEnabled:(BOOL)developerModeEnabled {
@@ -164,6 +168,8 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
     /// Serial queue for read and write lock.
     _queue = [FIRRemoteConfig sharedRemoteConfigSerialQueue];
 
+    // Initialize with default config settings.
+    [self setDefaultConfigSettings];
     _configFetch = [[RCNConfigFetch alloc] initWithContent:_configContent
                                                  DBManager:_DBManager
                                                   settings:_settings
@@ -174,10 +180,15 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
                                                    options:options];
 
     [_settings loadConfigFromMetadataTable];
-    self->_settings.fetchTimeout = RCNHTTPDefaultConnectionTimeout;
-    self->_settings.minimumFetchInterval = RCNDefaultMinimumFetchInterval;
   }
   return self;
+}
+
+// Initialize with default config settings.
+- (void)setDefaultConfigSettings {
+  // Set the default config settings.
+  self->_settings.fetchTimeout = RCNHTTPDefaultConnectionTimeout;
+  self->_settings.minimumFetchInterval = RCNDefaultMinimumFetchInterval;
 }
 
 - (void)ensureInitializedWithCompletionHandler:
@@ -213,8 +224,8 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
   if (completionHandler) {
     completionHandlerCopy = [completionHandler copy];
   }
-  [_configFetch fetchAllConfigsWithExpirationDuration:expirationDuration
-                                    completionHandler:completionHandlerCopy];
+  [_configFetch fetchConfigWithExpirationDuration:expirationDuration
+                                completionHandler:completionHandlerCopy];
 }
 
 #pragma mark - fetchAndActivate
@@ -280,10 +291,10 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
       FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000068", @"Internal error activating config.");
       return;
     }
-    // If Fetched Config is no fresher than Active Config.
-    if (strongSelf->_settings.lastFetchTimeInterval == 0 ||
-        strongSelf->_settings.lastFetchTimeInterval <=
-            strongSelf->_settings.lastApplyTimeInterval) {
+    // Check if the last fetched config has already been activated. Fetches with no data change are
+    // ignored.
+    if (strongSelf->_settings.lastETagUpdateTime == 0 ||
+        strongSelf->_settings.lastETagUpdateTime <= strongSelf->_settings.lastApplyTimeInterval) {
       FIRLogWarning(kFIRLoggerRemoteConfig, @"I-RCN000069",
                     @"Most recently fetched config is already activated.");
       NSError *error = [NSError
@@ -400,15 +411,17 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
   __block NSUInteger localValue;
   dispatch_sync(_queue, ^{
     localValue =
-        [self->_configContent.activeConfig[_FIRNamespace] countByEnumeratingWithState:state
-                                                                              objects:stackbuf
-                                                                                count:len];
+        [self->_configContent.activeConfig[self->_FIRNamespace] countByEnumeratingWithState:state
+                                                                                    objects:stackbuf
+                                                                                      count:len];
   });
   return localValue;
 }
 
 #pragma mark - Properties
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-property-ivar"
 /// Last fetch completion time.
 - (NSDate *)lastFetchTime {
   __block NSDate *fetchTime;
@@ -418,6 +431,7 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
   });
   return fetchTime;
 }
+#pragma clang diagnostic pop
 
 - (FIRRemoteConfigFetchStatus)lastFetchStatus {
   __block FIRRemoteConfigFetchStatus currentStatus;
@@ -588,6 +602,8 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
       [[FIRRemoteConfigSettings alloc] initWithDeveloperModeEnabled:developerModeEnabled];
   settings.minimumFetchInterval = minimumFetchInterval;
   settings.fetchTimeout = fetchTimeout;
+  /// The NSURLSession needs to be recreated whenever the fetch timeout may be updated.
+  [_configFetch recreateNetworkSession];
   return settings;
 }
 
@@ -603,6 +619,8 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
     self->_settings.customVariables = settingsToSave;
     self->_settings.minimumFetchInterval = configSettings.minimumFetchInterval;
     self->_settings.fetchTimeout = configSettings.fetchTimeout;
+    /// The NSURLSession needs to be recreated whenever the fetch timeout may be updated.
+    [self->_configFetch recreateNetworkSession];
     FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000067",
                 @"Successfully set configSettings. Developer Mode: %@, Minimum Fetch Interval:%f, "
                 @"Fetch timeout:%f",
@@ -611,5 +629,7 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
   };
   dispatch_async(_queue, setConfigSettingsBlock);
 }
+
+#pragma clang diagnostic push  // "-Wdeprecated-declarations"
 
 @end

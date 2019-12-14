@@ -22,6 +22,9 @@
 // Conformance Tests flakiness or gotten answers from GRPC about reconnect delays.
 static const double kExpectationWaitSeconds = 25.0;
 
+void LoadXCTestCaseAwait() {
+}
+
 @implementation XCTestCase (Await)
 
 - (void)awaitExpectations {

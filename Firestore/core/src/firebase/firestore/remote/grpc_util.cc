@@ -17,6 +17,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/grpc_util.h"
 
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
 
 namespace firebase {
 namespace firestore {

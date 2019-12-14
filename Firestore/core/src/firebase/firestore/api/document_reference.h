@@ -26,10 +26,9 @@
 #include "Firestore/core/src/firebase/firestore/core/listen_options.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/util/nullability.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
-#include "Firestore/core/src/firebase/firestore/util/statusor_callback.h"
-
-NS_ASSUME_NONNULL_BEGIN
+#include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
 
 namespace firebase {
 namespace firestore {
@@ -74,16 +73,16 @@ class DocumentReference {
   CollectionReference GetCollectionReference(
       const std::string& collection_path) const;
 
-  void SetData(core::ParsedSetData&& setData, util::StatusCallback callback);
+  void SetData(core::ParsedSetData&& set_data, util::StatusCallback callback);
 
-  void UpdateData(core::ParsedUpdateData&& updateData,
+  void UpdateData(core::ParsedUpdateData&& update_data,
                   util::StatusCallback callback);
 
   void DeleteDocument(util::StatusCallback callback);
 
   void GetDocument(Source source, DocumentSnapshot::Listener&& callback);
 
-  ListenerRegistration AddSnapshotListener(
+  std::unique_ptr<ListenerRegistration> AddSnapshotListener(
       core::ListenOptions options, DocumentSnapshot::Listener&& listener);
 
  private:
@@ -96,7 +95,5 @@ bool operator==(const DocumentReference& lhs, const DocumentReference& rhs);
 }  // namespace api
 }  // namespace firestore
 }  // namespace firebase
-
-NS_ASSUME_NONNULL_END
 
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_API_DOCUMENT_REFERENCE_H_

@@ -20,6 +20,7 @@
 #include <string>
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/util/exception.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
 #include "absl/base/optimization.h"
 
@@ -36,9 +37,9 @@
  * @param message The failure message.
  * @param condition The string form of the expression that failed (optional)
  */
-#define INVOKE_INTERNAL_FAIL(...)                                              \
-  firebase::firestore::util::internal::Fail(__FILE__, FIRESTORE_FUNCTION_NAME, \
-                                            __LINE__, __VA_ARGS__)
+#define INVOKE_INTERNAL_FAIL(...)                     \
+  firebase::firestore::util::internal::FailAssertion( \
+      __FILE__, FIRESTORE_FUNCTION_NAME, __LINE__, __VA_ARGS__)
 
 /**
  * Fails the current function if the given condition is false.
@@ -104,16 +105,16 @@ namespace util {
 namespace internal {
 
 // A no-return helper function. To raise an assertion, use Macro instead.
-ABSL_ATTRIBUTE_NORETURN void Fail(const char* file,
-                                  const char* func,
-                                  int line,
-                                  const std::string& message);
+ABSL_ATTRIBUTE_NORETURN void FailAssertion(const char* file,
+                                           const char* func,
+                                           int line,
+                                           const std::string& message);
 
-ABSL_ATTRIBUTE_NORETURN void Fail(const char* file,
-                                  const char* func,
-                                  int line,
-                                  const std::string& message,
-                                  const char* condition);
+ABSL_ATTRIBUTE_NORETURN void FailAssertion(const char* file,
+                                           const char* func,
+                                           int line,
+                                           const std::string& message,
+                                           const char* condition);
 
 }  // namespace internal
 }  // namespace util

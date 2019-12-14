@@ -63,6 +63,12 @@ func main() {
   clearPersistence(database: db)
 
   types()
+
+  waitForPendingWrites(database: db)
+
+  addSnapshotsInSyncListener(database: db)
+
+  terminateDb(database: db)
 }
 
 func initializeDb() -> Firestore {
@@ -104,7 +110,10 @@ func makeQuery(collection collectionRef: CollectionReference) -> Query {
     .whereField("age", isGreaterThanOrEqualTo: 24)
     .whereField("tags", arrayContains: "active")
     .whereField(FieldPath(["tags"]), arrayContains: "active")
-    .whereField(FieldPath(["tags"]), arrayContains: "active")
+    .whereField("tags", arrayContainsAny: ["active", "squat"])
+    .whereField(FieldPath(["tags"]), arrayContainsAny: ["active", "squat"])
+    .whereField("tags", in: ["active", "squat"])
+    .whereField(FieldPath(["tags"]), in: ["active", "squat"])
     .whereField(FieldPath.documentID(), isEqualTo: "fred")
     .order(by: FieldPath(["age"]))
     .order(by: "name", descending: true)
@@ -447,4 +456,29 @@ func types() {
   let _: SnapshotMetadata
   let _: Transaction
   let _: WriteBatch
+}
+
+func waitForPendingWrites(database db: Firestore) {
+  db.waitForPendingWrites { error in
+    if let e = error {
+      print("Uh oh! \(e)")
+      return
+    }
+  }
+}
+
+func addSnapshotsInSyncListener(database db: Firestore) {
+  let listener = db.addSnapshotsInSyncListener {}
+
+  // Unsubscribe
+  listener.remove()
+}
+
+func terminateDb(database db: Firestore) {
+  db.terminate { error in
+    if let e = error {
+      print("Uh oh! \(e)")
+      return
+    }
+  }
 }

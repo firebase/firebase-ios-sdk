@@ -17,12 +17,13 @@
 #import <objc/runtime.h>
 #include <sys/utsname.h>
 
-#import <GoogleDataTransport/GDTConsoleLogger.h>
-#import <GoogleDataTransport/GDTEvent.h>
-#import <GoogleDataTransport/GDTTargets.h>
-#import <GoogleDataTransport/GDTTransport.h>
+#import <GoogleDataTransport/GDTCORConsoleLogger.h>
+#import <GoogleDataTransport/GDTCOREvent.h>
+#import <GoogleDataTransport/GDTCORTargets.h>
+#import <GoogleDataTransport/GDTCORTransport.h>
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
+#import <GoogleUtilities/GULHeartbeatDateStorage.h>
 #import <GoogleUtilities/GULLogger.h>
 
 #import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsData.h>
@@ -33,8 +34,6 @@
 #import <nanopb/pb_encode.h>
 
 #import "FIRCDLibrary/Protogen/nanopb/firebasecore.nanopb.h"
-
-#import "FIRCDLibrary/FIRCoreDiagnosticsDateFileStorage.h"
 
 /** The logger service string to use when printing to the console. */
 static GULLoggerService kFIRCoreDiagnostics = @"[FirebaseCoreDiagnostics/FIRCoreDiagnostics]";
@@ -85,6 +84,7 @@ static NSString *const kFIRAppDiagnosticsConfigurationTypeKey =
 static NSString *const kFIRAppDiagnosticsFIRAppKey = @"FIRAppDiagnosticsFIRAppKey";
 static NSString *const kFIRAppDiagnosticsSDKNameKey = @"FIRAppDiagnosticsSDKNameKey";
 static NSString *const kFIRAppDiagnosticsSDKVersionKey = @"FIRAppDiagnosticsSDKVersionKey";
+static NSString *const kFIRCoreDiagnosticsHeartbeatTag = @"FIRCoreDiagnostics";
 
 /**
  * The file name to the recent heartbeat date.
@@ -92,7 +92,8 @@ static NSString *const kFIRAppDiagnosticsSDKVersionKey = @"FIRAppDiagnosticsSDKV
 NSString *const kFIRCoreDiagnosticsHeartbeatDateFileName = @"FIREBASE_DIAGNOSTICS_HEARTBEAT_DATE";
 
 /**
- * @note This should implement the GDTEventDataObject protocol, but can't because of weak-linking.
+ * @note This should implement the GDTCOREventDataObject protocol, but can't because of
+ * weak-linking.
  */
 @interface FIRCoreDiagnosticsLog : NSObject
 
@@ -111,14 +112,14 @@ NSString *const kFIRCoreDiagnosticsHeartbeatDateFileName = @"FIREBASE_DIAGNOSTIC
   return self;
 }
 
-// Provided and required by the GDTEventDataObject protocol.
+// Provided and required by the GDTCOREventDataObject protocol.
 - (NSData *)transportBytes {
   pb_ostream_t sizestream = PB_OSTREAM_SIZING;
 
   // Encode 1 time to determine the size.
   if (!pb_encode(&sizestream, logs_proto_mobilesdk_ios_ICoreConfiguration_fields, &_config)) {
-    GDTLogError(GDTMCETransportBytesError, @"Error in nanopb encoding for size: %s",
-                PB_GET_ERROR(&sizestream));
+    GDTCORLogError(GDTCORMCETransportBytesError, @"Error in nanopb encoding for size: %s",
+                   PB_GET_ERROR(&sizestream));
   }
 
   // Encode a 2nd time to actually get the bytes from it.
@@ -126,8 +127,8 @@ NSString *const kFIRCoreDiagnosticsHeartbeatDateFileName = @"FIREBASE_DIAGNOSTIC
   CFMutableDataRef dataRef = CFDataCreateMutable(CFAllocatorGetDefault(), bufferSize);
   pb_ostream_t ostream = pb_ostream_from_buffer((void *)CFDataGetBytePtr(dataRef), bufferSize);
   if (!pb_encode(&ostream, logs_proto_mobilesdk_ios_ICoreConfiguration_fields, &_config)) {
-    GDTLogError(GDTMCETransportBytesError, @"Error in nanopb encoding for bytes: %s",
-                PB_GET_ERROR(&ostream));
+    GDTCORLogError(GDTCORMCETransportBytesError, @"Error in nanopb encoding for bytes: %s",
+                   PB_GET_ERROR(&ostream));
   }
   CFDataSetLength(dataRef, ostream.bytes_written);
 
@@ -149,10 +150,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, readonly) dispatch_queue_t diagnosticsQueue;
 
 /** The transport object used to send data. */
-@property(nonatomic, readonly) GDTTransport *transport;
+@property(nonatomic, readonly) GDTCORTransport *transport;
 
 /** The storage to store the date of the last sent heartbeat. */
-@property(nonatomic, readonly) FIRCoreDiagnosticsDateFileStorage *heartbeatDateStorage;
+@property(nonatomic, readonly) GULHeartbeatDateStorage *heartbeatDateStorage;
 
 @end
 
@@ -170,24 +171,24 @@ NS_ASSUME_NONNULL_END
 }
 
 - (instancetype)init {
-  GDTTransport *transport = [[GDTTransport alloc] initWithMappingID:@"137"
-                                                       transformers:nil
-                                                             target:kGDTTargetCCT];
+  GDTCORTransport *transport = [[GDTCORTransport alloc] initWithMappingID:@"137"
+                                                             transformers:nil
+                                                                   target:kGDTCORTargetFLL];
 
-  FIRCoreDiagnosticsDateFileStorage *dateStorage = [[FIRCoreDiagnosticsDateFileStorage alloc]
-      initWithFileURL:[[self class] filePathURLWithName:kFIRCoreDiagnosticsHeartbeatDateFileName]];
+  GULHeartbeatDateStorage *dateStorage =
+      [[GULHeartbeatDateStorage alloc] initWithFileName:kFIRCoreDiagnosticsHeartbeatDateFileName];
 
   return [self initWithTransport:transport heartbeatDateStorage:dateStorage];
 }
 
 /** Initializer for unit tests.
  *
- * @param transport A `GDTTransport` instance which that be used to send event.
+ * @param transport A `GDTCORTransport` instance which that be used to send event.
  * @param heartbeatDateStorage An instanse of date storage to track heartbeat sending.
  * @return Returns the initialized `FIRCoreDiagnostics` instance.
  */
-- (instancetype)initWithTransport:(GDTTransport *)transport
-             heartbeatDateStorage:(FIRCoreDiagnosticsDateFileStorage *)heartbeatDateStorage {
+- (instancetype)initWithTransport:(GDTCORTransport *)transport
+             heartbeatDateStorage:(GULHeartbeatDateStorage *)heartbeatDateStorage {
   self = [super init];
   if (self) {
     _diagnosticsQueue =
@@ -196,37 +197,6 @@ NS_ASSUME_NONNULL_END
     _heartbeatDateStorage = heartbeatDateStorage;
   }
   return self;
-}
-
-#pragma mark - File path helpers
-
-/** Returns the URL path of the file with name fileName under the Application Support folder for
- * local logging. Creates the Application Support folder if the folder doesn't exist.
- *
- * @return the URL path of the file with the name fileName in Application Support.
- */
-+ (NSURL *)filePathURLWithName:(NSString *)fileName {
-  @synchronized(self) {
-    NSArray<NSString *> *paths =
-        NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
-    NSArray<NSString *> *components = @[ paths.lastObject, @"Google/FIRApp" ];
-    NSString *directoryString = [NSString pathWithComponents:components];
-    NSURL *directoryURL = [NSURL fileURLWithPath:directoryString];
-
-    NSError *error;
-    if (![directoryURL checkResourceIsReachableAndReturnError:&error]) {
-      // If fail creating the Application Support directory, return nil.
-      if (![[NSFileManager defaultManager] createDirectoryAtURL:directoryURL
-                                    withIntermediateDirectories:YES
-                                                     attributes:nil
-                                                          error:&error]) {
-        GULLogWarning(kFIRCoreDiagnostics, YES, @"I-COR100001",
-                      @"Unable to create internal state storage: %@", error);
-        return nil;
-      }
-    }
-    return [directoryURL URLByAppendingPathComponent:fileName];
-  }
 }
 
 #pragma mark - Metadata helpers
@@ -374,7 +344,8 @@ void FIRPopulateProtoWithCommonInfoFromApp(logs_proto_mobilesdk_ios_ICoreConfigu
   config->has_pod_name = 1;
 
   if (!diagnosticObjects[kFIRCDllAppsCountKey]) {
-    GDTLogError(GDTMCEGeneralError, @"%@", @"App count is a required value in the data dict.");
+    GDTCORLogError(GDTCORMCEGeneralError, @"%@",
+                   @"App count is a required value in the data dict.");
   }
   config->app_count = (int32_t)[diagnosticObjects[kFIRCDllAppsCountKey] integerValue];
   config->has_app_count = 1;
@@ -635,8 +606,8 @@ void FIRPopulateProtoWithInfoPlistValues(logs_proto_mobilesdk_ios_ICoreConfigura
     FIRCoreDiagnosticsLog *log = [[FIRCoreDiagnosticsLog alloc] initWithConfig:icore_config];
 
     // Send the log as a telemetry event.
-    GDTEvent *event = [self.transport eventForTransport];
-    event.dataObject = (id<GDTEventDataObject>)log;
+    GDTCOREvent *event = [self.transport eventForTransport];
+    event.dataObject = (id<GDTCOREventDataObject>)log;
     [self.transport sendTelemetryEvent:event];
   });
 }
@@ -646,7 +617,8 @@ void FIRPopulateProtoWithInfoPlistValues(logs_proto_mobilesdk_ios_ICoreConfigura
 - (void)setHeartbeatFlagIfNeededToConfig:(logs_proto_mobilesdk_ios_ICoreConfiguration *)config {
   // Check if need to send a heartbeat.
   NSDate *currentDate = [NSDate date];
-  NSDate *lastCheckin = [self.heartbeatDateStorage date];
+  NSDate *lastCheckin =
+      [self.heartbeatDateStorage heartbeatDateForTag:kFIRCoreDiagnosticsHeartbeatTag];
   if (lastCheckin) {
     // Ensure the previous checkin was on a different date in the past.
     if ([self isDate:currentDate inSameDayOrBeforeThan:lastCheckin]) {
@@ -655,12 +627,7 @@ void FIRPopulateProtoWithInfoPlistValues(logs_proto_mobilesdk_ios_ICoreConfigura
   }
 
   // Update heartbeat sent date.
-  NSError *error;
-  if (![self.heartbeatDateStorage setDate:currentDate error:&error]) {
-    GULLogError(kFIRCoreDiagnostics, NO, @"I-COR100004", @"Unable to persist internal state: %@",
-                error);
-  }
-
+  [self.heartbeatDateStorage setHearbeatDate:currentDate forTag:kFIRCoreDiagnosticsHeartbeatTag];
   // Set the flag.
   config->sdk_name = logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType_ICORE;
   config->has_sdk_name = 1;

@@ -27,9 +27,9 @@
 
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
-#import "Firestore/Source/Core/FSTView.h"
 
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
+#include "Firestore/core/src/firebase/firestore/core/view.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/local/local_view_changes.h"
 #include "Firestore/core/src/firebase/firestore/local/query_data.h"
@@ -51,6 +51,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "Firestore/core/test/firebase/firestore/remote/fake_target_metadata_provider.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 #include "absl/memory/memory.h"
 
@@ -60,6 +61,8 @@ using firebase::firestore::core::Direction;
 using firebase::firestore::core::Filter;
 using firebase::firestore::core::ParsedUpdateData;
 using firebase::firestore::core::Query;
+using firebase::firestore::core::View;
+using firebase::firestore::core::ViewChange;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::local::LocalViewChanges;
 using firebase::firestore::local::QueryData;
@@ -92,21 +95,15 @@ using firebase::firestore::model::TransformOperation;
 using firebase::firestore::model::UnknownDocument;
 using firebase::firestore::nanopb::ByteString;
 using firebase::firestore::remote::DocumentWatchChange;
+using firebase::firestore::remote::FakeTargetMetadataProvider;
 using firebase::firestore::remote::RemoteEvent;
 using firebase::firestore::remote::TargetChange;
 using firebase::firestore::remote::WatchChangeAggregator;
-using firebase::firestore::testutil::OrderBy;
-using firebase::firestore::testutil::Query;
 
 NS_ASSUME_NONNULL_BEGIN
 
 /** A string sentinel that can be used with FSTTestPatchMutation() to mark a field for deletion. */
 static NSString *const kDeleteSentinel = @"<DELETE>";
-
-FIRTimestamp *FSTTestTimestamp(int year, int month, int day, int hour, int minute, int second) {
-  NSDate *date = FSTTestDate(year, month, day, hour, minute, second);
-  return [FIRTimestamp timestampWithDate:date];
-}
 
 NSDate *FSTTestDate(int year, int month, int day, int hour, int minute, int second) {
   NSDateComponents *comps = FSTTestDateComponents(year, month, day, hour, minute, second);
@@ -218,165 +215,6 @@ TransformMutation FSTTestTransformMutation(NSString *path, NSDictionary<NSString
 
 DeleteMutation FSTTestDeleteMutation(NSString *path) {
   return DeleteMutation(FSTTestDocKey(path), Precondition::None());
-}
-
-MaybeDocumentMap FSTTestDocUpdates(const std::vector<MaybeDocument> &docs) {
-  MaybeDocumentMap updates;
-  for (const MaybeDocument &doc : docs) {
-    updates = updates.insert(doc.key(), doc);
-  }
-  return updates;
-}
-
-absl::optional<ViewSnapshot> FSTTestApplyChanges(FSTView *view,
-                                                 const std::vector<MaybeDocument> &docs,
-                                                 const absl::optional<TargetChange> &targetChange) {
-  FSTViewChange *change =
-      [view applyChangesToDocuments:[view computeChangesWithDocuments:FSTTestDocUpdates(docs)]
-                       targetChange:targetChange];
-  return std::move(change.snapshot);
-}
-
-namespace firebase {
-namespace firestore {
-namespace remote {
-
-TestTargetMetadataProvider TestTargetMetadataProvider::CreateSingleResultProvider(
-    DocumentKey document_key,
-    const std::vector<TargetId> &listen_targets,
-    const std::vector<TargetId> &limbo_targets) {
-  TestTargetMetadataProvider metadata_provider;
-  core::Query query(document_key.path());
-
-  for (TargetId target_id : listen_targets) {
-    QueryData query_data(query, target_id, 0, QueryPurpose::Listen);
-    metadata_provider.SetSyncedKeys(DocumentKeySet{document_key}, query_data);
-  }
-  for (TargetId target_id : limbo_targets) {
-    QueryData query_data(query, target_id, 0, QueryPurpose::LimboResolution);
-    metadata_provider.SetSyncedKeys(DocumentKeySet{document_key}, query_data);
-  }
-
-  return metadata_provider;
-}
-
-TestTargetMetadataProvider TestTargetMetadataProvider::CreateSingleResultProvider(
-    DocumentKey document_key, const std::vector<TargetId> &targets) {
-  return CreateSingleResultProvider(document_key, targets, /*limbo_targets=*/{});
-}
-
-TestTargetMetadataProvider TestTargetMetadataProvider::CreateEmptyResultProvider(
-    const DocumentKey &document_key, const std::vector<TargetId> &targets) {
-  TestTargetMetadataProvider metadata_provider;
-  core::Query query(document_key.path());
-
-  for (TargetId target_id : targets) {
-    QueryData query_data(query, target_id, 0, QueryPurpose::Listen);
-    metadata_provider.SetSyncedKeys(DocumentKeySet{}, query_data);
-  }
-
-  return metadata_provider;
-}
-
-void TestTargetMetadataProvider::SetSyncedKeys(DocumentKeySet keys, QueryData query_data) {
-  synced_keys_[query_data.target_id()] = keys;
-  query_data_[query_data.target_id()] = std::move(query_data);
-}
-
-DocumentKeySet TestTargetMetadataProvider::GetRemoteKeysForTarget(TargetId target_id) const {
-  auto it = synced_keys_.find(target_id);
-  HARD_ASSERT(it != synced_keys_.end(), "Cannot process unknown target %s", target_id);
-  return it->second;
-}
-
-absl::optional<QueryData> TestTargetMetadataProvider::GetQueryDataForTarget(
-    TargetId target_id) const {
-  auto it = query_data_.find(target_id);
-  HARD_ASSERT(it != query_data_.end(), "Cannot process unknown target %s", target_id);
-  return it->second;
-}
-
-}  // namespace remote
-}  // namespace firestore
-}  // namespace firebase
-
-using firebase::firestore::remote::TestTargetMetadataProvider;
-
-RemoteEvent FSTTestAddedRemoteEvent(const MaybeDocument &doc,
-                                    const std::vector<TargetId> &addedToTargets) {
-  HARD_ASSERT(!doc.is_document() || !Document(doc).has_local_mutations(),
-              "Docs from remote updates shouldn't have local changes.");
-  DocumentWatchChange change{addedToTargets, {}, doc.key(), doc};
-  auto metadataProvider =
-      TestTargetMetadataProvider::CreateEmptyResultProvider(doc.key(), addedToTargets);
-  WatchChangeAggregator aggregator{&metadataProvider};
-  aggregator.HandleDocumentChange(change);
-  return aggregator.CreateRemoteEvent(doc.version());
-}
-
-TargetChange FSTTestTargetChangeMarkCurrent() {
-  return {ByteString(),
-          /*current=*/true,
-          /*added_documents=*/DocumentKeySet{},
-          /*modified_documents=*/DocumentKeySet{},
-          /*removed_documents=*/DocumentKeySet{}};
-}
-
-TargetChange FSTTestTargetChangeAckDocuments(DocumentKeySet docs) {
-  return {ByteString(),
-          /*current=*/true,
-          /*added_documents*/ std::move(docs),
-          /*modified_documents*/ DocumentKeySet{},
-          /*removed_documents*/ DocumentKeySet{}};
-}
-
-RemoteEvent FSTTestUpdateRemoteEventWithLimboTargets(
-    const MaybeDocument &doc,
-    const std::vector<TargetId> &updatedInTargets,
-    const std::vector<TargetId> &removedFromTargets,
-    const std::vector<TargetId> &limboTargets) {
-  HARD_ASSERT(!doc.is_document() || !Document(doc).has_local_mutations(),
-              "Docs from remote updates shouldn't have local changes.");
-  DocumentWatchChange change{updatedInTargets, removedFromTargets, doc.key(), doc};
-
-  std::vector<TargetId> listens = updatedInTargets;
-  listens.insert(listens.end(), removedFromTargets.begin(), removedFromTargets.end());
-
-  auto metadataProvider =
-      TestTargetMetadataProvider::CreateSingleResultProvider(doc.key(), listens, limboTargets);
-  WatchChangeAggregator aggregator{&metadataProvider};
-  aggregator.HandleDocumentChange(change);
-  return aggregator.CreateRemoteEvent(doc.version());
-}
-
-RemoteEvent FSTTestUpdateRemoteEvent(const MaybeDocument &doc,
-                                     const std::vector<TargetId> &updatedInTargets,
-                                     const std::vector<TargetId> &removedFromTargets) {
-  return FSTTestUpdateRemoteEventWithLimboTargets(doc, updatedInTargets, removedFromTargets, {});
-}
-
-/** Creates a resume token to match the given snapshot version. */
-NSData *_Nullable FSTTestResumeTokenFromSnapshotVersion(FSTTestSnapshotVersion snapshotVersion) {
-  if (snapshotVersion == 0) {
-    return nil;
-  }
-
-  NSString *snapshotString = [NSString stringWithFormat:@"snapshot-%" PRId64, snapshotVersion];
-  return [snapshotString dataUsingEncoding:NSUTF8StringEncoding];
-}
-
-LocalViewChanges TestViewChanges(TargetId targetID,
-                                 NSArray<NSString *> *addedKeys,
-                                 NSArray<NSString *> *removedKeys) {
-  DocumentKeySet added;
-  for (NSString *keyPath in addedKeys) {
-    added = added.insert(testutil::Key(util::MakeString(keyPath)));
-  }
-  DocumentKeySet removed;
-  for (NSString *keyPath in removedKeys) {
-    removed = removed.insert(testutil::Key(util::MakeString(keyPath)));
-  }
-  return LocalViewChanges(targetID, std::move(added), std::move(removed));
 }
 
 NS_ASSUME_NONNULL_END

@@ -1,5 +1,5 @@
 os: osx
-osx_image: xcode10.1
+osx_image: xcode11.1
 language: objective-c
 cache:
   - bundler
@@ -9,13 +9,16 @@ stages:
   - checks
   - test
 
+before_script:
+  - '[ ! -z $DANGER_GITHUB_API_TOKEN ] && bundle exec danger || echo "Skipping Danger for External Contributor"'
+
 jobs:
   include:
     - stage: checks
       # This only needs to be run once, so restrict it to an arbitrary combination
       before_install:
-        - brew install clang-format
-        - brew install swiftformat
+        - brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/e3496d9/Formula/clang-format.rb
+        - brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/7963c3d/Formula/swiftformat.rb
         - pip install flake8
       script:
         - ./scripts/check.sh --test-only
@@ -23,9 +26,6 @@ jobs:
     # The order of builds matters (even though they are run in parallel):
     # Travis will schedule them in the same order they are listed here.
 
-    # Primary platforms
-
-    # Run unit tests
     - stage: test
       env:
         - PROJECT=Firebase PLATFORM=iOS METHOD=xcodebuild
@@ -36,20 +36,68 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=Core PLATFORM=iOS METHOD=pod-lib-lint
-      before_install:
-        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+        - PROJECT=Core METHOD=pod-lib-lint
       script:
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCore.podspec
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCore.podspec --use-libraries
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=ios
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=tvos
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=macos
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCoreDiagnostics.podspec --platforms=ios
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCoreDiagnostics.podspec --platforms=tvos
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCoreDiagnostics.podspec --platforms=macos
+
+    - stage: test
+      osx_image: xcode10.3
+      env:
+        - PROJECT=Core METHOD=pod-lib-lint
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=ios
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCoreDiagnostics.podspec --platforms=ios
+
+    - stage: test
+      if: type = cron
+      env:
+        - PROJECT=CoreCron METHOD=pod-lib-lint
+      script:
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=ios --use-libraries --skip-tests
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=tvos --use-libraries --skip-tests
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=macos --use-libraries --skip-tests
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=ios --use-modular-headers
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=tvos --use-modular-headers
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=macos --use-modular-headers
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseCoreDiagnostics.podspec --platforms=ios --use-libraries
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseCoreDiagnostics.podspec --platforms=tvos --use-libraries
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseCoreDiagnostics.podspec --platforms=macos --use-libraries
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseCoreDiagnostics.podspec --platforms=ios --use-modular-headers
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseCoreDiagnostics.podspec --platforms=tvos --use-modular-headers
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseCoreDiagnostics.podspec --platforms=macos --use-modular-headers
 
     - stage: test
       env:
-        - PROJECT=ABTesting PLATFORM=iOS METHOD=pod-lib-lint
+        - PROJECT=ABTesting METHOD=pod-lib-lint
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseABTesting.podspec --platforms=ios
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseABTesting.podspec --platforms=tvos
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseABTesting.podspec --platforms=macos
+
+    - stage: test
+      osx_image: xcode10.3
+      env:
+        - PROJECT=ABTesting METHOD=pod-lib-lint
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseABTesting.podspec --platforms=ios
+
+    - stage: test
+      if: type = cron
+      env:
+        - PROJECT=ABTestingCron METHOD=pod-lib-lint
+      script:
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseABTesting.podspec --platforms=ios --use-libraries
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseABTesting.podspec --platforms=tvos --use-libraries
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseABTesting.podspec --platforms=macos --use-libraries
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseABTesting.podspec --platforms=ios --use-modular-headers
+        # One of the next two consistently hang on Travis. Commenting for now.
+        # - travis_retry ./scripts/pod_lib_lint.rb FirebaseABTesting.podspec --platforms=tvos --use-modular-headers
+        # - travis_retry ./scripts/pod_lib_lint.rb FirebaseABTesting.podspec --platforms=macos --use-modular-headers
 
     - stage: test
       env:
@@ -63,12 +111,53 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
 
     - stage: test
+      osx_image: xcode10.3
       env:
-        - PROJECT=InstanceID PLATFORM=iOS METHOD=pod-lib-lint
+        - PROJECT=Auth PLATFORM=iOS METHOD=xcodebuild
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseAuth.podspec --platforms=ios
+
+    - stage: test
+      if: type = cron
+      env:
+        - PROJECT=AuthCron METHOD=pod-lib-lint
+      script:
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseAuth.podspec --platforms=ios --use-libraries
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseAuth.podspec --platforms=tvos --use-libraries
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseAuth.podspec --platforms=macos --use-libraries
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseAuth.podspec --platforms=ios --use-modular-headers
+        # The tvOS and macOS --use-modular-headers tests do not work on travis, perhaps because of interactive
+        # keystore validation requirements? See  https://travis-ci.org/firebase/firebase-ios-sdk/jobs/578656148
+        # TODO(paulb777): Retry on next Xcode version update
+
+    - stage: test
+      env:
+        - PROJECT=InstanceID METHOD=pod-lib-lint
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=ios
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=tvos
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=macos
+
+    - stage: test
+      osx_image: xcode10.3
+      env:
+        - PROJECT=InstanceID METHOD=pod-lib-lint
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=ios
+
+    - stage: test
+      if: type = cron
+      env:
+        - PROJECT=InstanceIDCron METHOD=pod-lib-lint
+      script:
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=ios --use-libraries
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=tvos --use-libraries
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=macos --use-libraries
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=ios --use-modular-headers
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=tvos --use-modular-headers
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=macos --use-modular-headers
 
     - stage: test
       env:
@@ -78,27 +167,102 @@ jobs:
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
         # The pod lib lint tests are fast enough that it's not worth a separate stage.
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseDatabase.podspec --skip-tests
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseDatabase.podspec --use-libraries --skip-tests
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseDatabase.podspec --use-modular-headers --skip-tests
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseDatabase.podspec --skip-tests --platforms=ios
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseDatabase.podspec --skip-tests --platforms=tvos
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseDatabase.podspec --skip-tests --platforms=macos
+
+    - stage: test
+      osx_image: xcode10.3
+      env:
+        - PROJECT=Database PLATFORM=all METHOD=xcodebuild
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseDatabase.podspec --skip-tests --platforms=ios
+
+    - stage: test
+      if: type = cron
+      env:
+        - PROJECT=DatabaseCron METHOD=pod-lib-lint
+      script:
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseDatabase.podspec --use-libraries --skip-tests --platforms=ios
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseDatabase.podspec --use-libraries --skip-tests --platforms=tvos
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseDatabase.podspec --use-libraries --skip-tests --platforms=macos
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseDatabase.podspec --use-modular-headers --skip-tests --platforms=ios
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseDatabase.podspec --use-modular-headers --skip-tests --platforms=tvos
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseDatabase.podspec --use-modular-headers --skip-tests --platforms=macos
 
     - stage: test
       env:
-        - PROJECT=DynamicLinks PLATFORM=all METHOD=pod-lib-lint
+        - PROJECT=DynamicLinks METHOD=pod-lib-lint
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseDynamicLinks.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseDynamicLinks.podspec --use-libraries
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseDynamicLinks.podspec --use-modular-headers
 
     - stage: test
+      osx_image: xcode10.3
       env:
-        - PROJECT=Messaging PLATFORM=all METHOD=xcodebuild
-      before_install:
-        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+        - PROJECT=DynamicLinks METHOD=pod-lib-lint
       script:
-        # Run both build.sh and pod lib lint tests to get multi iOS version test coverage
-        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseDynamicLinks.podspec
+
+    - stage: test
+      env:
+        - PROJECT=Messaging METHOD=pod-lib-lint
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=ios
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=tvos
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=macos
+
+    - stage: test
+      osx_image: xcode10.3
+      env:
+        - PROJECT=Messaging METHOD=pod-lib-lint
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=ios
+
+    - stage: test
+      if: type = cron
+      env:
+        - PROJECT=MessagingCron METHOD=pod-lib-lint
+      script:
+        # FirebaseMessaging includes Swift unit tests so it is not testable with --use-libraries.
+        # TODO(paulb777): Migrate FirebaseMessaging to pod gen driven tests with a separate test
+        # target for Swift.
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=ios --use-libraries --skip-tests
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=tvos --use-libraries --skip-tests
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=macos --use-libraries --skip-tests
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=ios --use-modular-headers
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=tvos --use-modular-headers
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=macos --use-modular-headers
+
+    - stage: test
+      env:
+        - PROJECT=RemoteConfig METHOD=pod-lib-lint
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=ios
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=tvos
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=macos
+
+    - stage: test
+      osx_image: xcode10.3
+      env:
+        - PROJECT=RemoteConfig METHOD=pod-lib-lint
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=ios
+
+    - stage: test
+      if: type = cron
+      env:
+        - PROJECT=RemoteConfigCron METHOD=pod-lib-lint
+      script:
+        - travis_retry  ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --platforms=ios
+        - travis_retry  ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --platforms=tvos
+        - travis_retry  ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --platforms=macos
+        - travis_retry  ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-modular-headers --platforms=ios
+        - travis_retry  ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-modular-headers --platforms=tvos
+        - travis_retry  ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-modular-headers --platforms=macos
 
     - stage: test
       env:
@@ -108,13 +272,34 @@ jobs:
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
         # The pod lib lint tests are fast enough that it's not worth a separate stage.
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --skip-tests
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --use-libraries --skip-tests
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --use-modular-headers --skip-tests
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --skip-tests --platforms=ios
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --skip-tests --platforms=tvos
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --skip-tests --platforms=macos
+
+    - stage: test
+      osx_image: xcode10.3
+      env:
+        - PROJECT=Storage PLATFORM=all METHOD=xcodebuild
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --skip-tests --platforms=ios
+
+    - stage: test
+      if: type = cron
+      env:
+        - PROJECT=StorageCron METHOD=pod-lib-lint
+      script:
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --use-libraries --skip-tests --platforms=ios
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --use-libraries --skip-tests --platforms=tvos
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --use-libraries --skip-tests --platforms=macos
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --use-modular-headers --skip-tests --platforms=ios
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --use-modular-headers --skip-tests --platforms=tvos
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --use-modular-headers --skip-tests --platforms=macos
 
     - stage: test
       env:
-        - PROJECT=Functions PLATFORM=iOS METHOD=pod-lib-lint
+        - PROJECT=Functions METHOD=pod-lib-lint
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh # Start integration test server
       script:
@@ -123,8 +308,35 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseFunctions.podspec --use-modular-headers
 
     - stage: test
+      osx_image: xcode10.3
+      env:
+        - PROJECT=Functions METHOD=pod-lib-lint
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh # Start integration test server
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseFunctions.podspec
+
+    - stage: test
       env:
         - PROJECT=InAppMessaging PLATFORM=iOS METHOD=xcodebuild
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
+
+    - stage: test
+      osx_image: xcode10.3
+      env:
+        - PROJECT=InAppMessaging PLATFORM=iOS METHOD=xcodebuild
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
+
+    - stage: test
+      if: type = cron
+      env:
+        - PROJECT=InAppMessaging PLATFORM=iPad METHOD=xcodebuild
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
@@ -139,115 +351,140 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
     - stage: test
+      osx_image: xcode10.3
       env:
-        - PROJECT=GoogleUtilities PLATFORM=iOS METHOD=pod-lib-lint
+        - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+
+    - stage: test
+      env:
+        - PROJECT=GoogleUtilities METHOD=pod-lib-lint
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleUtilities.podspec
 
-    # pod lib lint to check build and warnings for dynamic framework build (use_frameworks!)
+    - stage: test
+      osx_image: xcode10.3
+      env:
+        - PROJECT=GoogleUtilities METHOD=pod-lib-lint
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleUtilities.podspec
+
+    - stage: test
+      if: type = cron
+      env:
+        - PROJECT=GoogleUtilitiesCron METHOD=pod-lib-lint
+      script:
+
+        - travis_retry ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --use-libraries
+        - travis_retry ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --use-modular-headers
+
     - stage: test
       env:
-        - PROJECT=Firebase PLATFORM=iOS METHOD=pod-lib-lint
+        - PROJECT=GoogleUtilitiesComponents METHOD=pod-lib-lint
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleUtilitiesComponents.podspec
+
+    - stage: test
+      osx_image: xcode10.3
+      env:
+        - PROJECT=GoogleUtilitiesComponents METHOD=pod-lib-lint
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleUtilitiesComponents.podspec
+
+    - stage: test
+      if: type = cron
+      env:
+        - PROJECT=GoogleUtilitiesComponentsCron METHOD=pod-lib-lint
+      script:
+        - travis_retry ./scripts/pod_lib_lint.rb GoogleUtilitiesComponents.podspec --use-libraries
+        - travis_retry ./scripts/pod_lib_lint.rb GoogleUtilitiesComponents.podspec --use-modular-headers
+
+    - stage: test
+      env:
+        - PROJECT=Firebase METHOD=pod-lib-lint
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseAnalyticsInterop.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseAuthInterop.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCoreDiagnosticsInterop.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInAppMessaging.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInAppMessagingDisplay.podspec
 
     - stage: test
       env:
-        - PROJECT=Firestore PLATFORM=iOS METHOD=pod-lib-lint
+        - PROJECT=Firestore METHOD=pod-lib-lint
       script:
         # Eliminate the one warning from BoringSSL when CocoaPods 1.6.0 is available.
         # The travis_wait is necessary because the command takes more than 10 minutes.
-        - travis_wait 30 ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseFirestore.podspec --platforms=ios --allow-warnings --no-subspecs
+        # Some of the Firestore dependencies fail to analyze.
+        - travis_wait 30 ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseFirestore.podspec --platforms=ios --allow-warnings --no-subspecs --no-analyze
 
     # pod lib lint to check build and warnings for static library build - only on cron jobs
     - stage: test
       if: type = cron
       env:
-        - PROJECT=FirebasePllCron1 PLATFORM=iOS METHOD=pod-lib-lint
+        - PROJECT=InAppMessagingCron METHOD=pod-lib-lint
       script:
-        # TODO investigate why macos tests hang for FirebaseAuth - keychain related?
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseAuth.podspec --use-libraries --platforms=ios,tvos
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseAuth.podspec --use-modular-headers --platforms=ios,tvos
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseAuth.podspec --use-libraries --platforms=macos --skip-tests
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseAuth.podspec --use-modular-headers --platforms=macos --skip-tests
-
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseAnalyticsInterop.podspec --use-libraries
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseAnalyticsInterop.podspec --use-modular-headers
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseAuthInterop.podspec --use-libraries
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseAuthInterop.podspec --use-modular-headers
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseInAppMessaging.podspec --use-libraries
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseInAppMessaging.podspec --use-modular-headers
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseInAppMessagingDisplay.podspec --use-libraries
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseInAppMessagingDisplay.podspec --use-modular-headers
 
-    # Part 2: Split from previous stage to avoid overflowing 45 minute sub-job limit.
     - stage: test
       if: type = cron
       env:
-        - PROJECT=FirebasePllCron2 PLATFORM=iOS METHOD=pod-lib-lint
-      script:
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --use-libraries --platforms=ios
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --use-libraries --platforms=tvos
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --use-libraries --platforms=macos
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --use-modular-headers --platforms=ios
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --use-modular-headers --platforms=tvos
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --use-modular-headers --platforms=macos
-
-    # Part 3: Split from previous stage to avoid overflowing 45 minute sub-job limit.
-    - stage: test
-      if: type = cron
-      env:
-        - PROJECT=FirebasePllCron3 PLATFORM=iOS METHOD=pod-lib-lint
-      script:
-        # The Protobuf dependency of FirebaseMessaging has warnings with --use-libraries.
-        # FirebaseMessaging includes Swift unit tests so it is not testable with --use-libraries.
-        # TODO(paulb777): Migrate FirebaseMessaging to pod gen driven tests with a separate test
-        # target for Swift.
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --use-libraries --allow-warnings --skip-tests
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --use-modular-headers
-        - travis_retry ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --use-libraries
-        - travis_retry ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --use-modular-headers
-
-    - stage: test
-      if: type = cron
-      env:
-        - PROJECT=Firestore PLATFORM=iOS METHOD=pod-lib-lint
+        - PROJECT=Firestore METHOD=pod-lib-lint
       script:
         # TBD - non-portable path warnings
         # The travis_wait is necessary because the command takes more than 10 minutes.
-        - travis_wait 45 ./scripts/pod_lib_lint.rb FirebaseFirestore.podspec --use-libraries --allow-warnings --no-subspecs
+        - travis_wait 45 ./scripts/pod_lib_lint.rb FirebaseFirestore.podspec --use-libraries --allow-warnings --no-subspecs --no-analyze
 
-    # GoogleDataTransport unit tests and pod linting using the default Xcode version.
     - stage: test
       env:
-        - PROJECT=GoogleDataTransport PLATFORM=iOS METHOD=xcodebuild
+        - PROJECT=GoogleDataTransport METHOD=pod-lib-lint
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=ios
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=macos
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=tvos
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=ios
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=macos
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=tvos
+
+    - stage: test
+      osx_image: xcode10.3
+      env:
+        - PROJECT=GoogleDataTransport METHOD=pod-lib-lint
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=ios
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=ios
+
+    - stage: test
+      if: type = cron
+      env:
+        - PROJECT=GoogleDataTransportCron METHOD=pod-lib-lint
+      script:
+        - travis_retry ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=ios --use-libraries
+        - travis_retry ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=macos --use-libraries
+        - travis_retry ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=tvos --use-libraries
+        - travis_retry ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=ios --use-modular-headers
+        - travis_retry ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=macos --use-modular-headers
+        - travis_retry ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=tvos --use-modular-headers
+        - travis_retry ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=ios --use-libraries
+        - travis_retry ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=macos --use-libraries
+        - travis_retry ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=tvos --use-libraries
+        - travis_retry ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=ios --use-modular-headers
+        - travis_retry ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=macos --use-modular-headers
+        - travis_retry ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=tvos --use-modular-headers
+
+    - stage: test
+      env:
+        - PROJECT=FirebasePod PLATFORM=iOS METHOD=xcodebuild
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec
-
-    # GoogleDataTransport integration tests using the default Xcode version.
-    - stage: test
-      env:
-        - PROJECT=GoogleDataTransportIntegrationTest PLATFORM=iOS METHOD=xcodebuild
-      before_install:
-        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
-      script:
-        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
-
-    # GoogleDataTransportCCTSupport unit tests and pod linting using the default Xcode version.
-    - stage: test
-      env:
-        - PROJECT=GoogleDataTransportCCTSupport PLATFORM=iOS METHOD=xcodebuild
-      before_install:
-        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
-      script:
-        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
-        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec
 
     # Daily test for symbol collisions between Firebase and CocoaPods.
     - stage: test
@@ -269,32 +506,15 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
     # Test Firestore on Xcode 8 to use old llvm to ensure C++ portability.
-    - stage: test
-      osx_image: xcode8.3
-      env:
-        - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild XCODE_VERSION=8.3.3
-      before_install:
-        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
-      script:
-        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
-
-    # Community-supported platforms
-
-    - stage: test
-      env:
-        - PROJECT=Firebase PLATFORM=macOS METHOD=xcodebuild
-      before_install:
-        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
-      script:
-        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
-
-    - stage: test
-      env:
-        - PROJECT=Firebase PLATFORM=tvOS METHOD=xcodebuild
-      before_install:
-        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
-      script:
-        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
+    # Disabled while we resolve issues discussed in #4084 and #4085
+    # - stage: test
+    #   osx_image: xcode8.3
+    #   env:
+    #     - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild XCODE_VERSION=8.3.3
+    #   before_install:
+    #     - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+    #   script:
+    #     - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
     - stage: test
       env:
@@ -314,9 +534,17 @@ jobs:
 
     # Firestore sanitizers
 
-    - stage: test
+    - stage:
       env:
         - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=asan
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+
+    - stage: test
+      env:
+        - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=tsan
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
@@ -392,14 +620,38 @@ jobs:
     - stage: test
       env:
         - PROJECT=Installations PLATFORM=iOS METHOD=pod-lib-lint
+        - FIS_ALLOWS_INCOMPATIBLE_IID_VERSION=1
+        - FIS_INTEGRATION_TESTS_REQUIRED=1
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstallations.podspec --platforms=ios,tvos --ignore-local-podspecs=FirebaseInstanceID.podspec
-        # TODO: Fix FBLPromises warnings for macOS.
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstallations.podspec --platforms=macos --allow-warnings --ignore-local-podspecs=FirebaseInstanceID.podspec
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstallations.podspec --use-libraries --ignore-local-podspecs=FirebaseInstanceID.podspec
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstallations.podspec --use-modular-headers --platforms=ios,tvos --ignore-local-podspecs=FirebaseInstanceID.podspec
-        # TODO: Fix FBLPromises warnings for macOS.
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstallations.podspec --use-modular-headers --platforms=macos --allow-warnings --ignore-local-podspecs=FirebaseInstanceID.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstallations.podspec --platforms=ios --ignore-local-podspecs=FirebaseInstanceID.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstallations.podspec --platforms=ios --use-libraries --ignore-local-podspecs=FirebaseInstanceID.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstallations.podspec --use-modular-headers --platforms=ios --ignore-local-podspecs=FirebaseInstanceID.podspec
+
+    - stage: test
+      env:
+        - PROJECT=Installations PLATFORM=macOS METHOD=pod-lib-lint
+        - FIS_ALLOWS_INCOMPATIBLE_IID_VERSION=1
+        - FIS_INTEGRATION_TESTS_REQUIRED=1
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstallations.podspec --platforms=macos --ignore-local-podspecs=FirebaseInstanceID.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstallations.podspec --platforms=macos --use-libraries --ignore-local-podspecs=FirebaseInstanceID.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstallations.podspec --use-modular-headers --platforms=macos --ignore-local-podspecs=FirebaseInstanceID.podspec
+
+    - stage: test
+      env:
+        - PROJECT=Installations PLATFORM=tvOS METHOD=pod-lib-lint
+        - FIS_ALLOWS_INCOMPATIBLE_IID_VERSION=1
+        - FIS_INTEGRATION_TESTS_REQUIRED=1
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstallations.podspec --platforms=tvos --ignore-local-podspecs=FirebaseInstanceID.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstallations.podspec --platforms=tvos --use-libraries --ignore-local-podspecs=FirebaseInstanceID.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstallations.podspec --use-modular-headers --platforms=tvos --ignore-local-podspecs=FirebaseInstanceID.podspec
 
   allow_failures:
     # Run fuzz tests only on cron jobs.
@@ -418,15 +670,11 @@ jobs:
 
   # TODO(varconst): disallow sanitizers to fail once we fix all existing issues.
     - env:
-      - PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=asan
-    - env:
       - PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=tsan
     - env:
-      - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=asan
+      - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=tsan
     - env:
       - PROJECT=GoogleDataTransportIntegrationTest PLATFORM=iOS METHOD=xcodebuild
-    - env:
-      - PROJECT=InAppMessaging PLATFORM=iOS METHOD=xcodebuild
 
   # TODO(varconst): enable if it's possible to make this flag work on build
   # stages. It's supposed to avoid waiting for jobs that are allowed to fail

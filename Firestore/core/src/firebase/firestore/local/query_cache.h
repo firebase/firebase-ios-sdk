@@ -17,12 +17,6 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_QUERY_CACHE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_QUERY_CACHE_H_
 
-#if !defined(__OBJC__)
-#error "For now, this file must only be included by ObjC source files."
-#endif  // !defined(__OBJC__)
-
-#import <Foundation/Foundation.h>
-
 #include <functional>
 #include <unordered_map>
 
@@ -32,8 +26,6 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
-
-NS_ASSUME_NONNULL_BEGIN
 
 namespace firebase {
 namespace firestore {
@@ -61,8 +53,8 @@ class QueryCache {
   /**
    * Adds an entry in the cache.
    *
-   * The cache key is extracted from `queryData.query`. The key must not already
-   * exist in the cache.
+   * The cache key is extracted from `QueryData::query()`. The key must not
+   * already exist in the cache.
    *
    * @param query_data A new QueryData instance to put in the cache.
    */
@@ -71,8 +63,8 @@ class QueryCache {
   /**
    * Updates an entry in the cache.
    *
-   * The cache key is extracted from `queryData.query`. The entry must already
-   * exist in the cache, and it will be replaced.
+   * The cache key is extracted from `QueryData::query()`. The entry must
+   * already exist in the cache, and it will be replaced.
    *
    * @param query_data A QueryData instance to replace an existing entry in
    *     the cache
@@ -153,7 +145,5 @@ class QueryCache {
 }  // namespace local
 }  // namespace firestore
 }  // namespace firebase
-
-NS_ASSUME_NONNULL_END
 
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_QUERY_CACHE_H_

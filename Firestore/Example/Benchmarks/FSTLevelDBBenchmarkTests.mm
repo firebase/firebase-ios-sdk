@@ -19,14 +19,12 @@
 
 #include <cstdint>
 
-#import "Firestore/Source/Local/FSTLevelDB.h"
-#import "Firestore/Source/Local/FSTLocalSerializer.h"
-#import "Firestore/Source/Remote/FSTSerializerBeta.h"
-
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
+#include "Firestore/core/src/firebase/firestore/local/local_serializer.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/remote/serializer.h"
 #include "Firestore/core/src/firebase/firestore/util/filesystem.h"
 #include "Firestore/core/src/firebase/firestore/util/path.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
@@ -39,9 +37,11 @@ using firebase::firestore::local::LevelDbDocumentTargetKey;
 using firebase::firestore::local::LevelDbRemoteDocumentKey;
 using firebase::firestore::local::LevelDbTargetDocumentKey;
 using firebase::firestore::local::LevelDbTransaction;
+using firebase::firestore::local::LocalSerializer;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::remote::Serializer;
 using firebase::firestore::util::StringFormat;
 using firebase::firestore::util::Path;
 
@@ -60,13 +60,13 @@ std::string UpdatedDocumentData(int64_t documentSize) {
 
 FSTLevelDB *LevelDBPersistence() {
   DatabaseId db_id("p", "d");
-  auto remoteSerializer = [[FSTSerializerBeta alloc] initWithDatabaseID:db_id];
-  auto serializer = [[FSTLocalSerializer alloc] initWithRemoteSerializer:remoteSerializer];
+  Serializer remoteSerializer{db_id};
+  LocalSerializer serializer{std::move(remoteSerializer)};
 
   FSTLevelDB *db;
   Path path = util::TempDir().AppendUtf8("FSTLevelDBBenchmarkTests");
   util::Status status = [FSTLevelDB dbWithDirectory:std::move(path)
-                                         serializer:serializer
+                                         serializer:std::move(serializer)
                                           lruParams:local::LruParams::Disabled()
                                                 ptr:&db];
   if (!status.ok()) {
@@ -86,8 +86,8 @@ class LevelDBFixture : public benchmark::Fixture {
   }
 
   void TearDown(benchmark::State &state) override {
-    [db_ shutdown];
-    db_ = nil;
+    db_->Shutdown();
+    db_.reset();
   }
 
   void FillDB() {

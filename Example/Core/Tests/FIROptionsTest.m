@@ -510,42 +510,42 @@ extern NSString *const kFIRLibraryVersionID;
   NSDictionary *optionsDictionary = @{};
   FIROptions *options = [[FIROptions alloc] initInternalWithOptionsDictionary:optionsDictionary];
   NSDictionary *analyticsOptions = [options analyticsOptionsDictionaryWithInfoDictionary:@{}];
-  XCTAssertFalse([options isAnalyticsCollectionExpicitlySet]);
+  XCTAssertFalse([options isAnalyticsCollectionExplicitlySet]);
 
   // Test deactivation flag.
   optionsDictionary = @{kFIRIsAnalyticsCollectionDeactivated : @YES};
   options = [[FIROptions alloc] initInternalWithOptionsDictionary:optionsDictionary];
   analyticsOptions = [options analyticsOptionsDictionaryWithInfoDictionary:@{}];
-  XCTAssertTrue([options isAnalyticsCollectionExpicitlySet]);
+  XCTAssertTrue([options isAnalyticsCollectionExplicitlySet]);
 
   // If "deactivated" == NO, that doesn't mean it's explicitly set / enabled so it should be treated
   // as if it's not set.
   optionsDictionary = @{kFIRIsAnalyticsCollectionDeactivated : @NO};
   options = [[FIROptions alloc] initInternalWithOptionsDictionary:optionsDictionary];
   analyticsOptions = [options analyticsOptionsDictionaryWithInfoDictionary:@{}];
-  XCTAssertFalse([options isAnalyticsCollectionExpicitlySet]);
+  XCTAssertFalse([options isAnalyticsCollectionExplicitlySet]);
 
   // Test the collection enabled flag.
   optionsDictionary = @{kFIRIsAnalyticsCollectionEnabled : @YES};
   options = [[FIROptions alloc] initInternalWithOptionsDictionary:optionsDictionary];
   analyticsOptions = [options analyticsOptionsDictionaryWithInfoDictionary:@{}];
-  XCTAssertTrue([options isAnalyticsCollectionExpicitlySet]);
+  XCTAssertTrue([options isAnalyticsCollectionExplicitlySet]);
 
   optionsDictionary = @{kFIRIsAnalyticsCollectionEnabled : @NO};
   options = [[FIROptions alloc] initInternalWithOptionsDictionary:optionsDictionary];
   analyticsOptions = [options analyticsOptionsDictionaryWithInfoDictionary:@{}];
-  XCTAssertTrue([options isAnalyticsCollectionExpicitlySet]);
+  XCTAssertTrue([options isAnalyticsCollectionExplicitlySet]);
 
   // Test the old measurement flag.
   options = [[FIROptions alloc] initInternalWithOptionsDictionary:@{}];
   analyticsOptions =
       [options analyticsOptionsDictionaryWithInfoDictionary:@{kFIRIsMeasurementEnabled : @YES}];
-  XCTAssertTrue([options isAnalyticsCollectionExpicitlySet]);
+  XCTAssertTrue([options isAnalyticsCollectionExplicitlySet]);
 
   options = [[FIROptions alloc] initInternalWithOptionsDictionary:@{}];
   analyticsOptions =
       [options analyticsOptionsDictionaryWithInfoDictionary:@{kFIRIsMeasurementEnabled : @NO}];
-  XCTAssertTrue([options isAnalyticsCollectionExpicitlySet]);
+  XCTAssertTrue([options isAnalyticsCollectionExplicitlySet]);
 
   // For good measure, a combination of all 3 (even if they conflict).
   optionsDictionary =
@@ -553,7 +553,7 @@ extern NSString *const kFIRLibraryVersionID;
   options = [[FIROptions alloc] initInternalWithOptionsDictionary:optionsDictionary];
   analyticsOptions =
       [options analyticsOptionsDictionaryWithInfoDictionary:@{kFIRIsMeasurementEnabled : @NO}];
-  XCTAssertTrue([options isAnalyticsCollectionExpicitlySet]);
+  XCTAssertTrue([options isAnalyticsCollectionExplicitlySet]);
 }
 
 - (void)testModifyingOptionsThrows {

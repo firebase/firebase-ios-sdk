@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#include <memory>
+
 #import "FIRListenerRegistration.h"
 
 #include "Firestore/core/src/firebase/firestore/api/listener_registration.h"
@@ -25,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** Private implementation of the FIRListenerRegistration protocol. */
 @interface FSTListenerRegistration : NSObject <FIRListenerRegistration>
 
-- (instancetype)initWithRegistration:(api::ListenerRegistration &&)registration;
+- (instancetype)initWithRegistration:(std::unique_ptr<api::ListenerRegistration>)registration;
 
 @end
 

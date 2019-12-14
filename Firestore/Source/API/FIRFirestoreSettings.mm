@@ -16,8 +16,8 @@
 
 #import "FIRFirestoreSettings.h"
 
-#include "Firestore/core/src/firebase/firestore/api/input_validation.h"
 #include "Firestore/core/src/firebase/firestore/api/settings.h"
+#include "Firestore/core/src/firebase/firestore/util/exception.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/warnings.h"
 #include "absl/base/attributes.h"
@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 namespace api = firebase::firestore::api;
 namespace util = firebase::firestore::util;
 using api::Settings;
-using api::ThrowInvalidArgument;
+using util::ThrowInvalidArgument;
 
 // Public constant
 ABSL_CONST_INIT extern "C" const int64_t kFIRFirestoreCacheSizeUnlimited =

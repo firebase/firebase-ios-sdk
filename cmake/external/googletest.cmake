@@ -14,19 +14,15 @@
 
 include(ExternalProject)
 
-# Googletest 1.8.0 fails to build on VS 2017:
-# https://github.com/google/googletest/issues/1111.
-#
-# No release has been made since, so just pick a commit since then.
-set(commit ba96d0b1161f540656efdaed035b3c062b60e006)  # master@{2018-07-10}
+set(version 1.10.0)
 
 ExternalProject_Add(
   googletest
 
   DOWNLOAD_DIR ${FIREBASE_DOWNLOAD_DIR}
-  DOWNLOAD_NAME googletest-${commit}.tar.gz
-  URL https://github.com/google/googletest/archive/${commit}.tar.gz
-  URL_HASH SHA256=949c556896cf31ed52e53449e17a1276b8b26d3ee5932f5ca49ee929f4b35c51
+  DOWNLOAD_NAME googletest-${version}.tar.gz
+  URL https://github.com/google/googletest/archive/release-${version}.tar.gz
+  URL_HASH SHA256=9dc9157a9a1551ec7a7e43daea9a694a0bb5fb8bec81235d8a1e6ef64c716dcb
 
   PREFIX ${PROJECT_BINARY_DIR}
 

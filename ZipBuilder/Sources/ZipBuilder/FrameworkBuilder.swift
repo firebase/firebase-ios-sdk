@@ -17,7 +17,7 @@
 import Foundation
 
 /// Different architectures to build frameworks for.
-private enum Architecture: String, CaseIterable {
+enum Architecture: String, CaseIterable {
   /// The target platform that the framework is built for.
   enum TargetPlatform: String {
     case device = "iphoneos"
@@ -37,6 +37,7 @@ private enum Architecture: String, CaseIterable {
   }
 
   case arm64
+  case arm64e
   case armv7
   case i386
   case x86_64
@@ -44,7 +45,7 @@ private enum Architecture: String, CaseIterable {
   /// The platform associated with the architecture.
   var platform: TargetPlatform {
     switch self {
-    case .arm64, .armv7: return .device
+    case .arm64, .arm64e, .armv7: return .device
     case .i386, .x86_64: return .simulator
     }
   }
@@ -76,78 +77,44 @@ struct FrameworkBuilder {
   /// - Parameters:
   ///   - framework: The name of the Framework being built.
   ///   - version: String representation of the version.
-  ///   - cacheKey: The key used for caching this framework build. If nil, the framework name will
-  ///               be used.
-  ///   - cacheEnabled: Flag for enabling the cache. Defaults to false.
   /// - Parameter logsOutputDir: The path to the directory to place build logs.
   /// - Returns: A URL to the framework that was built (or pulled from the cache).
-  public func buildFramework(withName podName: String,
-                             version: String,
-                             cacheKey: String?,
-                             cacheEnabled: Bool = false,
-                             logsOutputDir: URL? = nil) -> URL {
+  func buildFramework(withName podName: String,
+                      version: String,
+                      logsOutputDir: URL? = nil) -> URL {
     print("Building \(podName)")
-
-//  Cache is temporarily disabled due to pod cache list issues.
-    // Get the CocoaPods cache to see if we can pull from any frameworks already built.
-//    let podsCache = CocoaPodUtils.listPodCache(inDir: projectDir)
-//
-//    guard let cachedVersions = podsCache[podName] else {
-//      fatalError("Cannot find a pod cache for framework \(podName).")
-//    }
-//
-//    guard let podInfo = cachedVersions[version] else {
-//      fatalError("""
-//      Cannot find a pod cache for framework \(podName) at version \(version).
-//      Something could be wrong with your CocoaPods cache - try running the following:
-//
-//      pod cache clean '\(podName)' --all
-//      """)
-//    }
-//
-//    // TODO: Figure out if we need the MD5 at all.
-    let md5 = podName
-//    let md5 = Shell.calculateMD5(for: podInfo.installedLocation)
 
     // Get (or create) the cache directory for storing built frameworks.
     let fileManager = FileManager.default
     var cachedFrameworkRoot: URL
     do {
-      let cacheDir = try fileManager.firebaseCacheDirectory()
-      cachedFrameworkRoot = cacheDir.appendingPathComponents([podName, version, md5])
-      if let cacheKey = cacheKey {
-        cachedFrameworkRoot.appendPathComponent(cacheKey)
-      }
+      let subDir = carthageBuild ? "carthage" : ""
+      let cacheDir = try fileManager.sourcePodCacheDirectory(withSubdir: subDir)
+      cachedFrameworkRoot = cacheDir.appendingPathComponents([podName, version])
     } catch {
       fatalError("Could not create caches directory for building frameworks: \(error)")
     }
 
     // Build the full cached framework path.
     let cachedFrameworkDir = cachedFrameworkRoot.appendingPathComponent("\(podName).framework")
-    let cachedFrameworkExists = fileManager.directoryExists(at: cachedFrameworkDir)
-    if cachedFrameworkExists, cacheEnabled {
-      print("Framework \(podName) version \(version) has already been built and cached at " +
-        "\(cachedFrameworkDir)")
-      return cachedFrameworkDir
-    } else {
-      let frameworkDir = compileFrameworkAndResources(withName: podName)
-      do {
-        // Remove the previously cached framework, if it exists, otherwise the `moveItem` call will
-        // fail.
-        if cachedFrameworkExists {
-          try fileManager.removeItem(at: cachedFrameworkDir)
-        } else if !fileManager.directoryExists(at: cachedFrameworkRoot) {
-          // If the root directory doesn't exist, create it so the `moveItem` will succeed.
-          try fileManager.createDirectory(at: cachedFrameworkRoot,
-                                          withIntermediateDirectories: true)
-        }
+    let frameworkDir = compileFrameworkAndResources(withName: podName)
+    do {
+      // Remove the previously cached framework if it exists, otherwise the `moveItem` call will
+      // fail.
+      fileManager.removeIfExists(at: cachedFrameworkDir)
 
-        // Move the newly built framework to the cache directory.
-        try fileManager.moveItem(at: frameworkDir, to: cachedFrameworkDir)
-        return cachedFrameworkDir
-      } catch {
-        fatalError("Could not move built frameworks into the cached frameworks directory: \(error)")
+      // Create the root cache directory if it doesn't exist.
+      if !fileManager.directoryExists(at: cachedFrameworkRoot) {
+        // If the root directory doesn't exist, create it so the `moveItem` will succeed.
+        try fileManager.createDirectory(at: cachedFrameworkRoot,
+                                        withIntermediateDirectories: true)
       }
+
+      // Move the newly built framework to the cache directory.
+      try fileManager.moveItem(at: frameworkDir, to: cachedFrameworkDir)
+      return cachedFrameworkDir
+    } catch {
+      fatalError("Could not move built frameworks into the cached frameworks directory: \(error)")
     }
   }
 
@@ -267,76 +234,6 @@ struct FrameworkBuilder {
     }
   }
 
-  // Extract the framework and library dependencies for a framework from
-  // Pods/Target Support Files/{framework}/{framework}.xcconfig.
-  private func getModuleDependencies(forFramework framework: String) ->
-    (frameworks: [String], libraries: [String]) {
-    let xcconfigFile = podsDir.appendingPathComponents(["Target Support Files",
-                                                        framework,
-                                                        "\(framework).xcconfig"])
-    do {
-      let text = try String(contentsOf: xcconfigFile)
-      let lines = text.components(separatedBy: .newlines)
-      for line in lines {
-        if line.hasPrefix("OTHER_LDFLAGS =") {
-          var dependencyFrameworks: [String] = []
-          var dependencyLibraries: [String] = []
-          let tokens = line.components(separatedBy: " ")
-          var addNext = false
-          for token in tokens {
-            if addNext {
-              dependencyFrameworks.append(token)
-              addNext = false
-            } else if token == "-framework" {
-              addNext = true
-            } else if token.hasPrefix("-l") {
-              let index = token.index(token.startIndex, offsetBy: 2)
-              dependencyLibraries.append(String(token[index...]))
-            }
-          }
-
-          return (dependencyFrameworks, dependencyLibraries)
-        }
-      }
-    } catch {
-      fatalError("Failed to open \(xcconfigFile): \(error)")
-    }
-    return ([], [])
-  }
-
-  private func makeModuleMap(baseDir: URL, framework: String, dir: URL) {
-    let dependencies = getModuleDependencies(forFramework: framework)
-    let moduleDir = dir.appendingPathComponent("Modules")
-    do {
-      try FileManager.default.createDirectory(at: moduleDir, withIntermediateDirectories: true)
-    } catch {
-      fatalError("Could not create Modules directory for framework: \(framework). \(error)")
-    }
-
-    let modulemap = moduleDir.appendingPathComponent("module.modulemap")
-    // The base of the module map. The empty line at the end is intentional, do not remove it.
-    var content = """
-    framework module \(framework) {
-    umbrella header "\(framework).h"
-    export *
-    module * { export * }
-
-    """
-    for framework in dependencies.frameworks {
-      content += "  link framework " + framework + "\n"
-    }
-    for library in dependencies.libraries {
-      content += "  link " + library + "\n"
-    }
-    content += "}\n"
-
-    do {
-      try content.write(to: modulemap, atomically: true, encoding: .utf8)
-    } catch {
-      fatalError("Could not write modulemap to disk for \(framework): \(error)")
-    }
-  }
-
   /// Compiles the specified framework in a temporary directory and writes the build logs to file.
   /// This will compile all architectures and use the lipo command to create a "fat" archive.
   ///
@@ -368,7 +265,7 @@ struct FrameworkBuilder {
     // TODO: Pass in supported architectures here, for those open source SDKs that don't support
     // individual architectures.
     var thinArchives = [URL]()
-    for arch in Architecture.allCases {
+    for arch in LaunchArgs.shared.archs {
       let buildDir = projectDir.appendingPathComponent(arch.rawValue)
       let thinArchive = buildThin(framework: framework,
                                   arch: arch,
@@ -451,7 +348,6 @@ struct FrameworkBuilder {
         "\(error)")
     }
 
-    makeModuleMap(baseDir: outputDir, framework: framework, dir: frameworkDir)
     return frameworkDir
   }
 
@@ -476,12 +372,22 @@ struct FrameworkBuilder {
     // imports for nested folders.
     let aliasedHeaders = try fileManager.recursivelySearch(for: .headers, in: headersDir)
     let mappedHeaders: [(relativePath: String, resolvedLocation: URL)] = aliasedHeaders.map {
+      // The `headersDir` and `aliasedHeader` prefixes may be different, but they both should have
+      // `Pods/Headers/` in the path. Ignore everything up until that, then strip the remainder of
+      // the `headersDir` from the `aliasedHeader` in order to get path relative to the headers
+      // directory.
+      let trimmedHeader = removeHeaderPathPrefix(from: $0)
+      let trimmedDir = removeHeaderPathPrefix(from: headersDir)
+      var relativePath = trimmedHeader.replacingOccurrences(of: trimmedDir, with: "")
+
+      // Remove any leading `/` for the relative path.
+      if relativePath.starts(with: "/") {
+        _ = relativePath.removeFirst()
+      }
+
       // Standardize the URL because the aliasedHeaders could be at `/private/var` or `/var` which
-      // are symlinked to each other on macOS. This will let us remove the `headersDir` prefix and
-      // be left with just the relative path we need.
-      let standardized = $0.standardizedFileURL
-      let relativePath = standardized.path.replacingOccurrences(of: "\(headersDir.path)/", with: "")
-      let resolvedLocation = standardized.resolvingSymlinksInPath()
+      // are symlinked to each other on macOS.
+      let resolvedLocation = $0.standardizedFileURL.resolvingSymlinksInPath()
       return (relativePath, resolvedLocation)
     }
 
@@ -498,5 +404,17 @@ struct FrameworkBuilder {
 
       try fileManager.copyItem(at: location, to: finalPath)
     }
+  }
+
+  private func removeHeaderPathPrefix(from url: URL) -> String {
+    let fullPath = url.standardizedFileURL.path
+    guard let foundRange = fullPath.range(of: "Pods/Headers/") else {
+      fatalError("Could not copy headers for framework: full path do not contain `Pods/Headers`:" +
+        fullPath)
+    }
+
+    // Replace everything from the start of the string until the end of the `Pods/Headers/`.
+    let toRemove = fullPath.startIndex ..< foundRange.upperBound
+    return fullPath.replacingCharacters(in: toRemove, with: "")
   }
 }

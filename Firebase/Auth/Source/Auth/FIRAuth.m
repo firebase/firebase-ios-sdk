@@ -231,7 +231,11 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 #pragma mark - FIRAuth
 
 #if TARGET_OS_IOS
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+@interface FIRAuth () <UIApplicationDelegate, UISceneDelegate, FIRLibrary, FIRComponentLifecycleMaintainer>
+#else
 @interface FIRAuth () <UIApplicationDelegate, FIRLibrary, FIRComponentLifecycleMaintainer>
+#endif
 #else
 @interface FIRAuth () <FIRLibrary, FIRComponentLifecycleMaintainer>
 #endif
@@ -1295,8 +1299,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 
 - (void)useAppLanguage {
   dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
-    self->_requestConfiguration.languageCode =
-        [NSBundle mainBundle].preferredLocalizations.firstObject;
+    self->_requestConfiguration.languageCode = [[NSLocale preferredLanguages] firstObject];
   });
 }
 
@@ -1321,6 +1324,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 }
 
 #if TARGET_OS_IOS
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-property-ivar"
+// The warning is ignored because we use the token manager to get the token, instead of using the ivar.
 - (nullable NSData *)APNSToken {
   __block NSData *result = nil;
   dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
@@ -1328,6 +1334,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   });
   return result;
 }
+#pragma clang diagnostic pop
 
 #pragma mark - UIApplicationDelegate
 
@@ -1388,7 +1395,17 @@ didReceiveRemoteNotification:(NSDictionary *)userInfo {
   });
   return result;
 }
-#endif
+
+#pragma mark - UISceneDelegate
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+- (void)scene:(UIScene *)scene openURLContexts:(NSSet<UIOpenURLContext *> *)URLContexts API_AVAILABLE(ios(13.0)) {
+  for (UIOpenURLContext *urlContext in URLContexts) {
+    NSURL *url = [urlContext URL];
+    [self canHandleURL:url];
+  }
+}
+#endif  // __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+#endif  // TARGET_OS_IOS
 
 #pragma mark - Internal Methods
 
@@ -1885,17 +1902,10 @@ didReceiveRemoteNotification:(NSDictionary *)userInfo {
     return [[FIRAuth alloc] initWithApp:container.app];
   };
   FIRComponent *authInterop = [FIRComponent componentWithProtocol:@protocol(FIRAuthInterop)
+                                              instantiationTiming:FIRInstantiationTimingAlwaysEager
+                                                     dependencies:@[]
                                                     creationBlock:authCreationBlock];
   return @[authInterop];
-}
-
-#pragma mark - FIRCoreConfigurable
-
-+ (void)configureWithApp:(nonnull FIRApp *)app {
-  // TODO: Evaluate what actually needs to be configured here instead of initializing a full
-  // instance.
-  // Ensures the @c FIRAuth instance for a given app gets loaded as soon as the app is ready.
-  [FIRAuth authWithApp:app];
 }
 
 #pragma mark - FIRComponentLifecycleMaintainer

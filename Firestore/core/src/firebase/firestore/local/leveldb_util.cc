@@ -17,6 +17,7 @@
 #include "Firestore/core/src/firebase/firestore/local/leveldb_util.h"
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "absl/strings/str_cat.h"
 
 namespace firebase {

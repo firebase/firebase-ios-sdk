@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 
+#include <ostream>
+
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
 
@@ -38,6 +40,14 @@ util::ComparisonResult DatabaseId::CompareTo(
   if (!util::Same(cmp)) return cmp;
 
   return util::Compare(database_id(), rhs.database_id());
+}
+
+std::string DatabaseId::ToString() const {
+  return absl::StrCat("DatabaseId(", project_id(), ":", database_id(), ")");
+}
+
+std::ostream& operator<<(std::ostream& out, const DatabaseId& database_id) {
+  return out << database_id.ToString();
 }
 
 size_t DatabaseId::Hash() const {

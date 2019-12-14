@@ -40,6 +40,12 @@ foreach(root ${PROTO_FILE_ROOTS})
     APPEND PROTO_FILES
     ${OUTPUT_DIR}/protos/${root}.proto
   )
+  if(EXISTS ${OUTPUT_DIR}/protos/${root}.options)
+    list(
+      APPEND PROTO_FILES_OPTIONS
+      ${OUTPUT_DIR}/protos/${root}.options
+    )
+  endif()
 endforeach()
 
 # Filename "roots" (i.e. without the .proto) from within the proto directory,
@@ -105,45 +111,12 @@ function(snake_case_to_camel_case str var)
   set(${var} ${str} PARENT_SCOPE)
 endfunction()
 
-# Populate PROTOBUF_OBJC_GENERATED_SOURCES with the list of libprotobuf
-# Objective-C sources. These are used by the old Objective-C implementation
-# that we're replacing.
-#
-# Libprotobuf Objective-C also includes the well-known protos so they must be
-# omitted here.
-set(
-  PROTOBUF_OBJC_GENERATED_SOURCES
-  ${OUTPUT_DIR}/objc/google/firestore/v1/Firestore.pbrpc.h
-  ${OUTPUT_DIR}/objc/google/firestore/v1/Firestore.pbrpc.m
-)
-foreach(root ${PROTO_FILE_ROOTS})
-  get_filename_component(dir ${root} DIRECTORY)
-  get_filename_component(fname ${root} NAME)
-
-  # protoc converts the filename from snake case to camel case, so we must do
-  # that too.
-  if(${fname} STREQUAL "http")
-    # Hack: Something, somewhere is causing protoc to special case 'http' and
-    # convert it to HTTP (rather than Http) for objc. So we'll special case it
-    # here too.
-    set(fname "HTTP")
-  else()
-    snake_case_to_camel_case(${fname} fname)
-  endif()
-
-  list(
-    APPEND PROTOBUF_OBJC_GENERATED_SOURCES
-    ${OUTPUT_DIR}/objc/${dir}/${fname}.pbobjc.h
-    ${OUTPUT_DIR}/objc/${dir}/${fname}.pbobjc.m
-  )
-endforeach()
-
-
 cc_library(
   firebase_firestore_protos_nanopb
   SOURCES
     ${NANOPB_GENERATED_SOURCES}
   DEPENDS
+    firebase_firestore_nanopb_runtime
     protobuf-nanopb-static
 )
 
@@ -164,11 +137,18 @@ cc_library(
   EXCLUDE_FROM_ALL
 )
 
+if(CXX_CLANG OR CXX_GNU)
+  target_compile_options(
+    firebase_firestore_protos_libprotobuf PRIVATE
+    -Wno-unreachable-code
+  )
+endif()
+
+
 target_include_directories(
   firebase_firestore_protos_libprotobuf PUBLIC
   ${FIREBASE_SOURCE_DIR}/Firestore/Protos/cpp
 )
-
 
 # Generate the python representation of descriptor.proto.
 set(PROTOBUF_DIR ${FIREBASE_BINARY_DIR}/external/src/grpc/third_party/protobuf)
@@ -225,32 +205,37 @@ add_custom_command(
     ${NANOPB_PROTO}
 )
 
-add_custom_command(
-  COMMENT "Generating nanopb sources"
-  OUTPUT ${NANOPB_GENERATED_SOURCES}
-  COMMAND
-    ${CMAKE_CURRENT_SOURCE_DIR}/build_protos.py
-      --nanopb
-      --protoc=$<TARGET_FILE:protoc>
-      --pythonpath=${PROTOBUF_DIR}/python:${NANOPB_DIR}/generator
-      --output_dir=${OUTPUT_DIR}
-      ${PROTO_INCLUDES}
-  VERBATIM
-  DEPENDS
-    protoc
-    ${CMAKE_CURRENT_SOURCE_DIR}/build_protos.py
-    ${CMAKE_CURRENT_SOURCE_DIR}/nanopb_cpp_generator.py
-    ${NANOPB_PYTHON}
-    ${PROTOBUF_PYTHON}
-    ${PROTO_FILES}
-    ${WELL_KNOWN_PROTO_FILES}
-)
+if(NOT WIN32)
+  add_custom_command(
+    COMMENT "Generating nanopb sources"
+    OUTPUT ${NANOPB_GENERATED_SOURCES}
+    COMMAND
+      python
+        ${CMAKE_CURRENT_SOURCE_DIR}/build_protos.py
+        --nanopb
+        --protoc=$<TARGET_FILE:protoc>
+        --pythonpath=${PROTOBUF_DIR}/python:${NANOPB_DIR}/generator
+        --output_dir=${OUTPUT_DIR}
+        ${PROTO_INCLUDES}
+    VERBATIM
+    DEPENDS
+      protoc
+      ${CMAKE_CURRENT_SOURCE_DIR}/build_protos.py
+      ${CMAKE_CURRENT_SOURCE_DIR}/nanopb_cpp_generator.py
+      ${CMAKE_CURRENT_SOURCE_DIR}/lib/pretty_printing.py
+      ${NANOPB_PYTHON}
+      ${PROTOBUF_PYTHON}
+      ${PROTO_FILES}
+      ${PROTO_FILES_OPTIONS}
+      ${WELL_KNOWN_PROTO_FILES}
+  )
 
-add_custom_target(
-  generate_nanopb_protos
-  DEPENDS
-    ${NANOPB_GENERATED_SOURCES}
-)
+  add_custom_target(
+    generate_nanopb_protos
+    DEPENDS
+      ${NANOPB_GENERATED_SOURCES}
+  )
+endif(NOT WIN32)
 
 add_custom_command(
   COMMENT "Generating C++ protobuf sources"
@@ -274,28 +259,6 @@ add_custom_target(
     ${PROTOBUF_CPP_GENERATED_SOURCES}
 )
 
-add_custom_command(
-  COMMENT "Generating Objective-C protobuf sources"
-  OUTPUT ${PROTOBUF_OBJC_GENERATED_SOURCES}
-  COMMAND
-    ${CMAKE_CURRENT_SOURCE_DIR}/build_protos.py
-      --objc
-      --protoc=$<TARGET_FILE:protoc>
-      --output_dir=${OUTPUT_DIR}
-      ${PROTO_INCLUDES}
-  VERBATIM
-  DEPENDS
-    protoc
-    ${CMAKE_CURRENT_SOURCE_DIR}/build_protos.py
-    ${PROTO_FILES}
-)
-
-add_custom_target(
-  generate_objc_protos
-  DEPENDS
-    ${PROTOBUF_OBJC_GENERATED_SOURCES}
-)
-
 # Custom target that runs a script to generate the proto sources. This isn't
 # hooked into the build, so must be run manually. (It would be easy enough to
 # hook into the (posix) cmake build, but for consistency with windows and xcode
@@ -306,5 +269,4 @@ add_custom_target(
   DEPENDS
     generate_nanopb_protos
     generate_cpp_protos
-    generate_objc_protos
 )

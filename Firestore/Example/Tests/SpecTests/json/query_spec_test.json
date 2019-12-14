@@ -17,7 +17,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -68,7 +68,7 @@
           "version": 1000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "cg/1",
@@ -103,7 +103,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -162,7 +162,7 @@
           "version": 1000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "cg/2",
@@ -197,7 +197,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -264,7 +264,7 @@
           "version": 1000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "not-cg/nope/cg/3",
@@ -299,7 +299,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -374,7 +374,7 @@
           "version": 1000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "not-cg/nope",
@@ -409,7 +409,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -492,7 +492,7 @@
           "version": 1000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "cg/1/not-cg/nope",
@@ -528,7 +528,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -581,7 +581,7 @@
             }
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "",
@@ -646,7 +646,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -714,7 +714,7 @@
             }
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "",
@@ -778,7 +778,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -829,7 +829,7 @@
           "version": 1000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "cg/1",
@@ -864,7 +864,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -923,7 +923,7 @@
           "version": 1000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "not-cg/nope",
@@ -983,7 +983,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -1012,7 +1012,7 @@
             }
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "",
@@ -1077,7 +1077,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -1121,7 +1121,7 @@
             }
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "",
@@ -1185,7 +1185,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -1236,7 +1236,7 @@
           "version": 1000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -1269,7 +1269,7 @@
             "match": true
           }
         ],
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -1310,7 +1310,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -1336,7 +1336,7 @@
             }
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
