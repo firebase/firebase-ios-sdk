@@ -42,10 +42,13 @@ class DocumentSnapshot {
 
   DocumentSnapshot() = default;
 
-  DocumentSnapshot(std::shared_ptr<Firestore> firestore,
-                   model::DocumentKey document_key,
-                   absl::optional<model::Document> document,
-                   SnapshotMetadata metadata);
+  static DocumentSnapshot FromDocument(std::shared_ptr<Firestore> firestore,
+                                       model::Document document,
+                                       SnapshotMetadata metadata);
+
+  static DocumentSnapshot FromNoDocument(std::shared_ptr<Firestore> firestore,
+                                         model::DocumentKey key,
+                                         SnapshotMetadata metadata);
 
   size_t Hash() const;
 
@@ -69,6 +72,14 @@ class DocumentSnapshot {
 
   friend bool operator==(const DocumentSnapshot& lhs,
                          const DocumentSnapshot& rhs);
+
+ private:
+  friend class DocumentReference;
+
+  DocumentSnapshot(std::shared_ptr<Firestore> firestore,
+                   model::DocumentKey document_key,
+                   absl::optional<model::Document> document,
+                   SnapshotMetadata metadata);
 
  private:
   std::shared_ptr<Firestore> firestore_;

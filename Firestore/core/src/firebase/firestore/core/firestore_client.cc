@@ -345,16 +345,16 @@ void FirestoreClient::GetDocumentFromLocalCache(
 
     if (maybe_document && maybe_document->is_document()) {
       Document document(*maybe_document);
-      maybe_snapshot = DocumentSnapshot{
-          doc.firestore(), doc.key(), document,
+      maybe_snapshot = DocumentSnapshot::FromDocument(
+          doc.firestore(), document,
           SnapshotMetadata{
               /*has_pending_writes=*/document.has_local_mutations(),
-              /*from_cache=*/true}};
+              /*from_cache=*/true});
     } else if (maybe_document && maybe_document->is_no_document()) {
-      maybe_snapshot =
-          DocumentSnapshot{doc.firestore(), doc.key(), absl::nullopt,
-                           SnapshotMetadata{/*has_pending_writes=*/false,
-                                            /*from_cache=*/true}};
+      maybe_snapshot = DocumentSnapshot::FromNoDocument(
+          doc.firestore(), doc.key(),
+          SnapshotMetadata{/*has_pending_writes=*/false,
+                           /*from_cache=*/true});
     } else {
       maybe_snapshot =
           Status{Error::Unavailable,

@@ -32,6 +32,22 @@ using model::FieldPath;
 using model::FieldValue;
 using model::ObjectValue;
 
+DocumentSnapshot DocumentSnapshot::FromDocument(
+    std::shared_ptr<Firestore> firestore,
+    model::Document document,
+    SnapshotMetadata metadata) {
+  return DocumentSnapshot{std::move(firestore), document.key(), document,
+                          std::move(metadata)};
+}
+
+DocumentSnapshot DocumentSnapshot::FromNoDocument(
+    std::shared_ptr<Firestore> firestore,
+    model::DocumentKey key,
+    SnapshotMetadata metadata) {
+  return DocumentSnapshot{std::move(firestore), key, absl::nullopt,
+                          std::move(metadata)};
+}
+
 DocumentSnapshot::DocumentSnapshot(std::shared_ptr<Firestore> firestore,
                                    model::DocumentKey document_key,
                                    absl::optional<Document> document,
