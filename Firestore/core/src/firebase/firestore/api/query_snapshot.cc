@@ -73,8 +73,8 @@ void QuerySnapshot::ForEachDocument(
 
   for (const Document& document : document_set) {
     bool has_pending_writes = snapshot_.mutated_keys().contains(document.key());
-    DocumentSnapshot snap(firestore_, document.key(), document, from_cache,
-                          has_pending_writes);
+    DocumentSnapshot snap(firestore_, document.key(), document,
+                          SnapshotMetadata(has_pending_writes, from_cache));
     callback(std::move(snap));
   }
 }

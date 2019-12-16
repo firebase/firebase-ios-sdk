@@ -47,12 +47,6 @@ class DocumentSnapshot {
                    absl::optional<model::Document> document,
                    SnapshotMetadata metadata);
 
-  DocumentSnapshot(std::shared_ptr<Firestore> firestore,
-                   model::DocumentKey document_key,
-                   absl::optional<model::Document> document,
-                   bool from_cache,
-                   bool has_pending_writes);
-
   size_t Hash() const;
 
   bool exists() const;
