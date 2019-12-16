@@ -74,6 +74,8 @@ class DocumentSnapshot {
                          const DocumentSnapshot& rhs);
 
  private:
+  // TODO(b/146372592): Make this public once we can use Abseil across
+  // iOS/public C++ library boundaries.
   friend class DocumentReference;
 
   DocumentSnapshot(std::shared_ptr<Firestore> firestore,

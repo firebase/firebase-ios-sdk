@@ -66,6 +66,8 @@ class FieldPath : public impl::BasePath<FieldPath>,
   static FieldPath FromDotSeparatedString(const std::string& path);
 
  private:
+  // TODO(b/146372592): Make this public once we can use Abseil across
+  // iOS/public C++ library boundaries.
   friend class remote::Serializer;
 
   static FieldPath FromDotSeparatedStringView(absl::string_view path);
@@ -89,6 +91,8 @@ class FieldPath : public impl::BasePath<FieldPath>,
   static FieldPath FromServerFormat(const std::string& path);
 
  private:
+  // TODO(b/146372592): Make this public once we can use Abseil across
+  // iOS/public C++ library boundaries.
   static FieldPath FromServerFormatView(absl::string_view path);
 
  public:

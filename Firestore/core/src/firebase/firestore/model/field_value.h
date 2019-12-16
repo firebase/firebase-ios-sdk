@@ -196,6 +196,8 @@ class FieldValue {
   static FieldValue FromServerTimestamp(const Timestamp& local_write_time);
 
  private:
+  // TODO(b/146372592): Make this public once we can use Abseil across
+  // iOS/public C++ library boundaries.
   friend class FieldValueTest;
   friend class ServerTimestampTransform;
 
@@ -382,6 +384,8 @@ class FieldValue::Reference {
 
 class FieldValue::ServerTimestamp {
  private:
+  // TODO(b/146372592): Make this public once we can use Abseil across
+  // iOS/public C++ library boundaries.
   friend class FieldValue;
 
   ServerTimestamp(Timestamp local_write_time,

@@ -56,6 +56,8 @@ class ResourcePath : public impl::BasePath<ResourcePath>,
   static ResourcePath FromString(const std::string& path);
 
  private:
+  // TODO(b/146372592): Make this public once we can use Abseil across
+  // iOS/public C++ library boundaries.
   friend class DocumentKey;
   friend class remote::Serializer;
 
