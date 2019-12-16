@@ -55,6 +55,7 @@ device, and it is completely free.
   s.dependency 'Protobuf', '~> 3.9', '>= 3.9.2'
 
   s.test_spec 'unit' do |unit_tests|
+    unit_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
     unit_tests.source_files = 'Example/Messaging/Tests/*.{m,h,swift}'
     unit_tests.requires_app_host = true
     unit_tests.pod_target_xcconfig = {
