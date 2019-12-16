@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#include <TargetConditionals.h>
+#if !TARGET_OS_OSX
+
 #import "FIRAuthAPNSTokenManager.h"
 
 #import <FirebaseCore/FIRLogger.h>
@@ -245,3 +248,5 @@ static const NSTimeInterval kLegacyRegistrationTimeout = 30;
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif
