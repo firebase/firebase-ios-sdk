@@ -241,7 +241,7 @@ model::FieldValue::Map Map(Args... key_value_pairs) {
 }
 
 inline model::DocumentKey Key(absl::string_view path) {
-  return model::DocumentKey::FromPathString(path);
+  return model::DocumentKey::FromPathString(std::string(path));
 }
 
 inline model::FieldPath Field(absl::string_view field) {
