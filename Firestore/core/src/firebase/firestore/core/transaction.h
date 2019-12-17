@@ -152,7 +152,7 @@ class Transaction {
       read_versions_;
 };
 
-using TransactionResultCallback = util::StatusOrCallback<absl::any>;
+using TransactionResultCallback = util::StatusCallback;
 
 /**
  * TransactionUpdateCallback is a block that wraps a user's transaction update

@@ -77,7 +77,7 @@ class CollectionReference : public Query {
    *
    * @return The `DocumentReference` for the specified document path.
    */
-  DocumentReference Document(absl::string_view document_path) const;
+  DocumentReference Document(const std::string& document_path) const;
 
   /**
    * Add a new document to this collection with the specified data, assigning it

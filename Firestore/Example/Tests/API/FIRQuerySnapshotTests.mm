@@ -115,8 +115,8 @@ NS_ASSUME_NONNULL_BEGIN
                                                                   snapshot:std::move(viewSnapshot)
                                                                   metadata:std::move(metadata)];
 
-  DocumentSnapshot doc1Snap(firestore, doc1New.key(), doc1New, SnapshotMetadata());
-  DocumentSnapshot doc2Snap(firestore, doc2New.key(), doc2New, SnapshotMetadata());
+  auto doc1Snap = DocumentSnapshot::FromDocument(firestore, doc1New, SnapshotMetadata());
+  auto doc2Snap = DocumentSnapshot::FromDocument(firestore, doc2New, SnapshotMetadata());
 
   NSArray<FIRDocumentChange *> *changesWithoutMetadata = @[
     [[FIRDocumentChange alloc]
