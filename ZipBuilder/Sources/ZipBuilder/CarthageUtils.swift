@@ -134,7 +134,7 @@ extension CarthageUtils {
       jsonManifest[firebaseVersion] = url
 
       // Write the updated manifest.
-      let manifestPath = outputDir.appendingPathComponent("Firebase" + product + "Binary.json")
+      let manifestPath = outputDir.appendingPathComponent(getJSONFileName(product: product))
 
       // Unfortunate workaround: There's a strange issue when serializing to JSON on macOS: URLs
       // will have the `/` escaped leading to an odd JSON output. Instead, let's output the
@@ -256,7 +256,7 @@ extension CarthageUtils {
   /// - Returns: A dictionary with versions as keys and URLs as values.
   private static func parseJSONFile(fromDir dir: URL, product: String) -> [String: URL] {
     // Parse the JSON manifest.
-    let jsonFileName = "Firebase\(product)Binary.json"
+    let jsonFileName = getJSONFileName(product: product)
     let jsonFile = dir.appendingPathComponent(jsonFileName)
     guard FileManager.default.fileExists(atPath: jsonFile.path) else {
       fatalError("Could not find JSON manifest for \(product) during Carthage build. " +
@@ -280,5 +280,23 @@ extension CarthageUtils {
       fatalError("Could not parse JSON manifest for \(product) during Carthage build. " +
         "Location: \(jsonFile). \(error)")
     }
+  }
+
+  /// Get the JSON filename for a product
+  /// Consider using just the product name post Firebase 7. The conditions are to handle Firebase 6 compatibility.
+  ///
+  /// - Parameters:
+  ///   - product: The name of the Firebase product.
+  /// - Returns: JSON file name for a product.
+  private static func getJSONFileName(product: String) -> String {
+    var jsonFileName: String
+    if product == "GoogleSignIn" {
+      jsonFileName = "FirebaseGoogleSignIn"
+    } else if product == "Google-Mobile-Ads-SDK" {
+      jsonFileName = "FirebaseAdMob"
+    } else {
+      jsonFileName = product
+    }
+    return jsonFileName + "Binary.json"
   }
 }
