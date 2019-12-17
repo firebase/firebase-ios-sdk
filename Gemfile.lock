@@ -1,28 +1,3 @@
-GIT
-  remote: https://github.com/CocoaPods/CocoaPods.git
-  revision: f40de6ce1d8d1c74f5235227c649a80882cbc1ab
-  ref: f40de6c
-  specs:
-    cocoapods (1.9.0.beta.1)
-      activesupport (>= 4.0.2, < 5)
-      claide (>= 1.0.2, < 2.0)
-      cocoapods-core (= 1.9.0.beta.1)
-      cocoapods-deintegrate (>= 1.0.3, < 2.0)
-      cocoapods-downloader (>= 1.2.2, < 2.0)
-      cocoapods-plugins (>= 1.0.0, < 2.0)
-      cocoapods-search (>= 1.0.0, < 2.0)
-      cocoapods-stats (>= 1.0.0, < 2.0)
-      cocoapods-trunk (>= 1.4.0, < 2.0)
-      cocoapods-try (>= 1.1.0, < 2.0)
-      colored2 (~> 3.1)
-      escape (~> 0.0.4)
-      fourflusher (>= 2.3.0, < 3.0)
-      gh_inspector (~> 1.0)
-      molinillo (~> 0.6.6)
-      nap (~> 1.0)
-      ruby-macho (~> 1.4)
-      xcodeproj (>= 1.14.0, < 2.0)
-
 GEM
   remote: https://rubygems.org/
   specs:
@@ -43,6 +18,25 @@ GEM
       cork
       nap
       open4 (~> 1.3)
+    cocoapods (1.9.0.beta.1)
+      activesupport (>= 4.0.2, < 5)
+      claide (>= 1.0.2, < 2.0)
+      cocoapods-core (= 1.9.0.beta.1)
+      cocoapods-deintegrate (>= 1.0.3, < 2.0)
+      cocoapods-downloader (>= 1.2.2, < 2.0)
+      cocoapods-plugins (>= 1.0.0, < 2.0)
+      cocoapods-search (>= 1.0.0, < 2.0)
+      cocoapods-stats (>= 1.0.0, < 2.0)
+      cocoapods-trunk (>= 1.4.0, < 2.0)
+      cocoapods-try (>= 1.1.0, < 2.0)
+      colored2 (~> 3.1)
+      escape (~> 0.0.4)
+      fourflusher (>= 2.3.0, < 3.0)
+      gh_inspector (~> 1.0)
+      molinillo (~> 0.6.6)
+      nap (~> 1.0)
+      ruby-macho (~> 1.4)
+      xcodeproj (>= 1.14.0, < 2.0)
     cocoapods-core (1.9.0.beta.1)
       activesupport (>= 4.0.2, < 6)
       algoliasearch (~> 1.0)
@@ -134,7 +128,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  cocoapods!
+  cocoapods (= 1.9.0.beta.1)
   cocoapods-generate (= 1.6.0)
   danger (= 6.1.0)
 
