@@ -93,7 +93,12 @@ class Schedule {
 
       // To minimize busy waiting, sleep until either the nearest entry in the
       // future either changes, or else becomes due.
-      const auto until = scheduled_.front().due;
+
+      // Workaround for Visual Studio 2015: cast to a time point with resolution
+      // that's at least as fine-grained as the clock on which `wait_until` is
+      // parametrized.
+      const auto until =
+          std::chrono::time_point_cast<Clock::duration>(scheduled_.front().due);
       cv_.wait_until(lock, until, [this, until] {
         return scheduled_.empty() || scheduled_.front().due != until;
       });
