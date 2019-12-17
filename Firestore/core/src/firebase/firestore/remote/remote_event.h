@@ -74,6 +74,9 @@ class TargetChange {
  public:
   TargetChange() = default;
 
+  explicit TargetChange(bool current) : current_{current} {
+  }
+
   TargetChange(nanopb::ByteString resume_token,
                bool current,
                model::DocumentKeySet added_documents,
