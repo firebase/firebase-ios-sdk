@@ -384,7 +384,7 @@ NS_SWIFT_NAME(Query)
  *
  * @return The created `FIRQuery`.
  */
-- (FIRQuery *)queryLimitedToLast:(NSInteger)limit NS_SWIFT_NAME(limitToLast(to:));
+- (FIRQuery *)queryLimitedToLast:(NSInteger)limit NS_SWIFT_NAME(limit(toLast:));
 
 #pragma mark - Choosing Endpoints
 /**

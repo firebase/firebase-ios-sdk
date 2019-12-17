@@ -263,7 +263,7 @@ TEST_F(IndexFreeQueryEngineTest,
 }
 
 TEST_F(IndexFreeQueryEngineTest,
-       DoesNotUseInitialResultsForLimitToLastQueryWithDocumentRemoval) {
+       DoesNotUseInitialResultsForLimitToLastWithDocumentRemoval) {
   core::Query query = Query("coll")
                           .AddingFilter(Filter("matches", "==", true))
                           .AddingOrderBy(OrderBy("order", "desc"))
@@ -301,9 +301,8 @@ TEST_F(IndexFreeQueryEngineTest,
   EXPECT_EQ(docs, DocSet(query.Comparator(), {kMatchingDocB}));
 }
 
-TEST_F(
-    IndexFreeQueryEngineTest,
-    DoesNotUseInitialResultsForLimitToLastQueryWhenLastDocumentHasPendingWrite) {
+TEST_F(IndexFreeQueryEngineTest,
+       DoesNotUseInitialResultsForLimitToLastWhenLastDocumentHasPendingWrite) {
   core::Query query = Query("coll")
                           .AddingFilter(Filter("matches", "==", true))
                           .AddingOrderBy(OrderBy("order", "asc"))
@@ -341,9 +340,8 @@ TEST_F(IndexFreeQueryEngineTest,
   EXPECT_EQ(docs, DocSet(query.Comparator(), {kMatchingDocB}));
 }
 
-TEST_F(
-    IndexFreeQueryEngineTest,
-    DoesNotUseInitialResultsForLimitToLastQueryWhenLastDocumentUpdatedOutOfBand) {
+TEST_F(IndexFreeQueryEngineTest,
+       DoesNotUseInitialResultsForLimitToLastWhenLastDocumentUpdatedOutOfBand) {
   core::Query query = Query("coll")
                           .AddingFilter(Filter("matches", "==", true))
                           .AddingOrderBy(OrderBy("order", "asc"))
