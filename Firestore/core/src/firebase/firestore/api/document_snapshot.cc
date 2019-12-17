@@ -32,6 +32,22 @@ using model::FieldPath;
 using model::FieldValue;
 using model::ObjectValue;
 
+DocumentSnapshot DocumentSnapshot::FromDocument(
+    std::shared_ptr<Firestore> firestore,
+    model::Document document,
+    SnapshotMetadata metadata) {
+  return DocumentSnapshot{std::move(firestore), document.key(), document,
+                          std::move(metadata)};
+}
+
+DocumentSnapshot DocumentSnapshot::FromNoDocument(
+    std::shared_ptr<Firestore> firestore,
+    model::DocumentKey key,
+    SnapshotMetadata metadata) {
+  return DocumentSnapshot{std::move(firestore), key, absl::nullopt,
+                          std::move(metadata)};
+}
+
 DocumentSnapshot::DocumentSnapshot(std::shared_ptr<Firestore> firestore,
                                    model::DocumentKey document_key,
                                    absl::optional<Document> document,
@@ -40,17 +56,6 @@ DocumentSnapshot::DocumentSnapshot(std::shared_ptr<Firestore> firestore,
       internal_key_{std::move(document_key)},
       internal_document_{std::move(document)},
       metadata_{std::move(metadata)} {
-}
-
-DocumentSnapshot::DocumentSnapshot(std::shared_ptr<Firestore> firestore,
-                                   model::DocumentKey document_key,
-                                   absl::optional<Document> document,
-                                   bool from_cache,
-                                   bool has_pending_writes)
-    : firestore_{std::move(firestore)},
-      internal_key_{std::move(document_key)},
-      internal_document_{std::move(document)},
-      metadata_{has_pending_writes, from_cache} {
 }
 
 size_t DocumentSnapshot::Hash() const {

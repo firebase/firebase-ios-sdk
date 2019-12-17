@@ -73,7 +73,16 @@ MATCHER(IsNan, "a NaN") {
 
 }  // namespace
 
-TEST(FieldValueTest, ValueHelpers) {
+class FieldValueTest : public testing::Test {
+ public:
+  static FieldValue FromServerTimestamp(
+      const Timestamp& local_write_time,
+      absl::optional<FieldValue> previous_value = absl::nullopt) {
+    return FieldValue::FromServerTimestamp(local_write_time, previous_value);
+  }
+};
+
+TEST_F(FieldValueTest, ValueHelpers) {
   // Validates that the Value helpers in testutil produce the right types
   FieldValue bool_value = Value(true);
   ASSERT_EQ(bool_value.type(), Type::Boolean);
@@ -96,7 +105,7 @@ TEST(FieldValueTest, ValueHelpers) {
   EXPECT_EQ(double_value.double_value(), 2.0);
 }
 
-TEST(FieldValueTest, ExtractsFields) {
+TEST_F(FieldValueTest, ExtractsFields) {
   ObjectValue value = WrapObject("foo", Map("a", 1, "b", true, "c", "string"));
 
   ASSERT_EQ(Type::Object, value.Get(Field("foo"))->type());
@@ -110,7 +119,7 @@ TEST(FieldValueTest, ExtractsFields) {
   EXPECT_EQ(nullopt, value.Get(Field("bar.a")));
 }
 
-TEST(FieldValueTest, ExtractsFieldMask) {
+TEST_F(FieldValueTest, ExtractsFieldMask) {
   ObjectValue value =
       WrapObject("a", "b", "map",
                  Map("a", 1, "b", true, "c", "string", "nested", Map("d", "e")),
@@ -124,7 +133,7 @@ TEST(FieldValueTest, ExtractsFieldMask) {
   EXPECT_EQ(expected_mask, actual_mask);
 }
 
-TEST(FieldValueTest, OverwritesExistingFields) {
+TEST_F(FieldValueTest, OverwritesExistingFields) {
   ObjectValue old = WrapObject("a", "old");
   ObjectValue mod = old.Set(Field("a"), Value("mod"));
   EXPECT_NE(old, mod);
@@ -132,7 +141,7 @@ TEST(FieldValueTest, OverwritesExistingFields) {
   EXPECT_EQ(WrapObject("a", "mod"), mod);
 }
 
-TEST(FieldValueTest, AddsNewFields) {
+TEST_F(FieldValueTest, AddsNewFields) {
   ObjectValue empty = ObjectValue::Empty();
   ObjectValue mod = empty.Set(Field("a"), Value("mod"));
   EXPECT_EQ(ObjectValue::Empty(), empty);
@@ -144,7 +153,7 @@ TEST(FieldValueTest, AddsNewFields) {
   EXPECT_EQ(WrapObject("a", "mod", "b", 1), mod);
 }
 
-TEST(FieldValueTest, ImplicitlyCreatesObjects) {
+TEST_F(FieldValueTest, ImplicitlyCreatesObjects) {
   ObjectValue old = WrapObject("a", "old");
   ObjectValue mod = old.Set(Field("b.c.d"), Value("mod"));
 
@@ -153,7 +162,7 @@ TEST(FieldValueTest, ImplicitlyCreatesObjects) {
   EXPECT_EQ(WrapObject("a", "old", "b", Map("c", Map("d", "mod"))), mod);
 }
 
-TEST(FieldValueTest, CanOverwritePrimitivesWithObjects) {
+TEST_F(FieldValueTest, CanOverwritePrimitivesWithObjects) {
   ObjectValue old = WrapObject("a", Map("b", "old"));
   ObjectValue mod = old.Set(Field("a"), WrapObject("b", "mod"));
   EXPECT_NE(old, mod);
@@ -161,7 +170,7 @@ TEST(FieldValueTest, CanOverwritePrimitivesWithObjects) {
   EXPECT_EQ(WrapObject("a", Map("b", "mod")), mod);
 }
 
-TEST(FieldValueTest, AddsToNestedObjects) {
+TEST_F(FieldValueTest, AddsToNestedObjects) {
   ObjectValue old = WrapObject("a", Map("b", "old"));
   ObjectValue mod = old.Set(Field("a.c"), Value("mod"));
   EXPECT_NE(old, mod);
@@ -169,7 +178,7 @@ TEST(FieldValueTest, AddsToNestedObjects) {
   EXPECT_EQ(WrapObject("a", Map("b", "old", "c", "mod")), mod);
 }
 
-TEST(FieldValueTest, DeletesKey) {
+TEST_F(FieldValueTest, DeletesKey) {
   ObjectValue old = WrapObject("a", 1, "b", 2);
   ObjectValue mod = old.Delete(Field("a"));
 
@@ -183,7 +192,7 @@ TEST(FieldValueTest, DeletesKey) {
   EXPECT_EQ(ObjectValue::Empty(), empty);
 }
 
-TEST(FieldValueTest, DeletesHandleMissingKeys) {
+TEST_F(FieldValueTest, DeletesHandleMissingKeys) {
   ObjectValue old = WrapObject("a", Map("b", 1, "c", 2));
   ObjectValue mod = old.Delete(Field("b"));
   EXPECT_EQ(mod, old);
@@ -198,7 +207,7 @@ TEST(FieldValueTest, DeletesHandleMissingKeys) {
   EXPECT_EQ(WrapObject("a", Map("b", 1, "c", 2)), mod);
 }
 
-TEST(FieldValueTest, DeletesNestedKeys) {
+TEST_F(FieldValueTest, DeletesNestedKeys) {
   FieldValue::Map orig = Map("a", Map("b", 1, "c", Map("d", 2, "e", 3)));
   ObjectValue old = WrapObject(orig);
   ObjectValue mod = old.Delete(Field("a.c.d"));
@@ -240,7 +249,7 @@ static Timestamp kTimestamp1{1463739600, 0};
 static time_point kDate2 = testutil::MakeTimePoint(2016, 10, 21, 15, 32, 0);
 static Timestamp kTimestamp2{1477063920, 0};
 
-TEST(FieldValueTest, Equality) {
+TEST_F(FieldValueTest, Equality) {
   // Avoid statically dividing by zero; MSVC considers this an error.
   double zero = 0.0;
   testutil::EqualsTester<FieldValue>()
@@ -297,7 +306,7 @@ TEST(FieldValueTest, Equality) {
 // Validates that NSNumber/CFNumber normalize NaNs to the same values that
 // Firestore does. This uses CoreFoundation's CFNumber instead of NSNumber just
 // to keep the test in a single file.
-TEST(FieldValueTest, CanonicalBitsAreCanonical) {
+TEST_F(FieldValueTest, CanonicalBitsAreCanonical) {
   double input = ToDouble(kAlternateNanBits);
   CFNumberRef number = CFNumberCreate(nullptr, kCFNumberDoubleType, &input);
 
@@ -309,7 +318,7 @@ TEST(FieldValueTest, CanonicalBitsAreCanonical) {
 }
 #endif  // __APPLE__
 
-TEST(FieldValueTest, NormalizesNaNs) {
+TEST_F(FieldValueTest, NormalizesNaNs) {
   // NOTE: With v1 query semantics, it's no longer as important that our NaN
   // representation matches the backend, since all NaNs are defined to sort as
   // equal, but we preserve the normalization and this test regardless for now.
@@ -343,7 +352,7 @@ TEST(FieldValueTest, NormalizesNaNs) {
   EXPECT_EQ(kCanonicalNanBits, Normalize(0xfff4000000000000ULL));
 }
 
-TEST(FieldValue, ToString) {
+TEST_F(FieldValueTest, ToString) {
   EXPECT_EQ("null", FieldValue::Null().ToString());
   EXPECT_EQ("nan", FieldValue::Nan().ToString());
   EXPECT_EQ("true", FieldValue::True().ToString());
@@ -389,13 +398,13 @@ TEST(FieldValue, ToString) {
   EXPECT_EQ("{key1: value, key2: 42}", object.ToString());
 }
 
-TEST(FieldValue, NullType) {
+TEST_F(FieldValueTest, NullType) {
   const FieldValue value = FieldValue::Null();
   EXPECT_EQ(Type::Null, value.type());
   EXPECT_FALSE(value < value);
 }
 
-TEST(FieldValue, BooleanType) {
+TEST_F(FieldValueTest, BooleanType) {
   const FieldValue true_value = FieldValue::FromBoolean(true);
   const FieldValue false_value = FieldValue::FromBoolean(false);
   EXPECT_EQ(Type::Boolean, true_value.type());
@@ -405,7 +414,7 @@ TEST(FieldValue, BooleanType) {
   EXPECT_TRUE(false_value < true_value);
 }
 
-TEST(FieldValue, NumberType) {
+TEST_F(FieldValueTest, NumberType) {
   const FieldValue nan_value = FieldValue::Nan();
   const FieldValue integer_value = FieldValue::FromInteger(10L);
   const FieldValue double_value = FieldValue::FromDouble(10.1);
@@ -451,7 +460,7 @@ TEST(FieldValue, NumberType) {
   EXPECT_TRUE(FieldValue::FromInteger(1) < FieldValue::FromDouble(1.234));
 }
 
-TEST(FieldValue, TimestampType) {
+TEST_F(FieldValueTest, TimestampType) {
   const FieldValue o = FieldValue::FromTimestamp(Timestamp());
   const FieldValue a = FieldValue::FromTimestamp({100, 0});
   const FieldValue b = FieldValue::FromTimestamp({200, 0});
@@ -459,9 +468,9 @@ TEST(FieldValue, TimestampType) {
   EXPECT_TRUE(o < a);
   EXPECT_TRUE(a < b);
   EXPECT_FALSE(a < a);
-  const FieldValue c = FieldValue::FromServerTimestamp({100, 0});
-  const FieldValue d = FieldValue::FromServerTimestamp(
-      {200, 0}, FieldValue::FromTimestamp({300, 0}));
+  const FieldValue c = FromServerTimestamp({100, 0});
+  const FieldValue d =
+      FromServerTimestamp({200, 0}, FieldValue::FromTimestamp({300, 0}));
   EXPECT_EQ(Type::ServerTimestamp, c.type());
   EXPECT_EQ(Type::ServerTimestamp, d.type());
   EXPECT_TRUE(c < d);
@@ -477,7 +486,7 @@ TEST(FieldValue, TimestampType) {
   EXPECT_FALSE(d < b);
 }
 
-TEST(FieldValue, StringType) {
+TEST_F(FieldValueTest, StringType) {
   const FieldValue a = FieldValue::FromString("abc");
   std::string xyz("xyz");
   const FieldValue b = FieldValue::FromString(xyz);
@@ -489,7 +498,7 @@ TEST(FieldValue, StringType) {
   EXPECT_FALSE(a < a);
 }
 
-TEST(FieldValue, BlobType) {
+TEST_F(FieldValueTest, BlobType) {
   const FieldValue a = FieldValue::FromBlob(ByteString("abc"));
   const FieldValue b = FieldValue::FromBlob(ByteString("def"));
   EXPECT_EQ(Type::Blob, a.type());
@@ -498,7 +507,7 @@ TEST(FieldValue, BlobType) {
   EXPECT_FALSE(a < a);
 }
 
-TEST(FieldValue, ReferenceType) {
+TEST_F(FieldValueTest, ReferenceType) {
   DatabaseId id("project", "database");
   FieldValue a = FieldValue::FromReference(id, Key("root/abc"));
   DocumentKey key = Key("root/def");
@@ -511,7 +520,7 @@ TEST(FieldValue, ReferenceType) {
   EXPECT_FALSE(a < a);
 }
 
-TEST(FieldValue, GeoPointType) {
+TEST_F(FieldValueTest, GeoPointType) {
   const FieldValue a = FieldValue::FromGeoPoint({1, 2});
   const FieldValue b = FieldValue::FromGeoPoint({3, 4});
   EXPECT_EQ(Type::GeoPoint, a.type());
@@ -520,7 +529,7 @@ TEST(FieldValue, GeoPointType) {
   EXPECT_FALSE(a < a);
 }
 
-TEST(FieldValue, ArrayType) {
+TEST_F(FieldValueTest, ArrayType) {
   const FieldValue empty = FieldValue::FromArray(std::vector<FieldValue>{});
   std::vector<FieldValue> array{FieldValue::Null(),
                                 FieldValue::FromBoolean(true),
@@ -541,7 +550,7 @@ TEST(FieldValue, ArrayType) {
   EXPECT_FALSE(large < small);
 }
 
-TEST(FieldValue, ObjectType) {
+TEST_F(FieldValueTest, ObjectType) {
   const ObjectValue empty = ObjectValue::Empty();
   FieldValue::Map object{{"null", FieldValue::Null()},
                          {"true", FieldValue::True()},
@@ -559,7 +568,7 @@ TEST(FieldValue, ObjectType) {
   EXPECT_FALSE(large < small);
 }
 
-TEST(FieldValue, Copy) {
+TEST_F(FieldValueTest, Copy) {
   FieldValue clone = FieldValue::True();
   const FieldValue null_value = FieldValue::Null();
   clone = null_value;
@@ -613,18 +622,15 @@ TEST(FieldValue, Copy) {
   clone = null_value;
   EXPECT_EQ(FieldValue::Null(), clone);
 
-  const FieldValue server_timestamp_value = FieldValue::FromServerTimestamp(
-      {1, 2}, FieldValue::FromTimestamp({3, 4}));
+  const FieldValue server_timestamp_value =
+      FromServerTimestamp({1, 2}, FieldValue::FromTimestamp({3, 4}));
   clone = server_timestamp_value;
-  EXPECT_EQ(FieldValue::FromServerTimestamp({1, 2},
-                                            FieldValue::FromTimestamp({3, 4})),
+  EXPECT_EQ(FromServerTimestamp({1, 2}, FieldValue::FromTimestamp({3, 4})),
             clone);
-  EXPECT_EQ(FieldValue::FromServerTimestamp({1, 2},
-                                            FieldValue::FromTimestamp({3, 4})),
+  EXPECT_EQ(FromServerTimestamp({1, 2}, FieldValue::FromTimestamp({3, 4})),
             server_timestamp_value);
   clone = *&clone;
-  EXPECT_EQ(FieldValue::FromServerTimestamp({1, 2},
-                                            FieldValue::FromTimestamp({3, 4})),
+  EXPECT_EQ(FromServerTimestamp({1, 2}, FieldValue::FromTimestamp({3, 4})),
             clone);
   clone = null_value;
   EXPECT_EQ(FieldValue::Null(), clone);
@@ -701,7 +707,7 @@ TEST(FieldValue, Copy) {
   EXPECT_EQ(FieldValue::Null(), clone);
 }
 
-TEST(FieldValue, CompareMixedType) {
+TEST_F(FieldValueTest, CompareMixedType) {
   const FieldValue null_value = FieldValue::Null();
   const FieldValue true_value = FieldValue::True();
   const FieldValue number_value = FieldValue::Nan();
@@ -726,7 +732,7 @@ TEST(FieldValue, CompareMixedType) {
   EXPECT_TRUE(array_value < object_value);
 }
 
-TEST(FieldValue, CompareWithOperator) {
+TEST_F(FieldValueTest, CompareWithOperator) {
   const FieldValue small = FieldValue::Null();
   const FieldValue large = FieldValue::True();
 
@@ -753,7 +759,7 @@ TEST(FieldValue, CompareWithOperator) {
   EXPECT_FALSE(small == large);
 }
 
-TEST(FieldValue, IsSmallish) {
+TEST_F(FieldValueTest, IsSmallish) {
   // We expect the FV to use 4 bytes to track the type of the union, plus 8
   // bytes for the union contents themselves. The other 4 is for padding. We
   // want to keep FV as small as possible.
