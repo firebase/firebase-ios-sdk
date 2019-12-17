@@ -58,13 +58,13 @@ typedef void (*GULRealDidFailToRegisterForRemoteNotificationsIMP)(id,
 
 typedef void (*GULRealDidReceiveRemoteNotificationIMP)(id, SEL, GULApplication *, NSDictionary *);
 
-#if !TARGET_OS_WATCH
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000 && !TARGET_OS_WATCH
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunguarded-availability"
 typedef void (*GULRealDidReceiveRemoteNotificationWithCompletionIMP)(
     id, SEL, GULApplication *, NSDictionary *, void (^)(UIBackgroundFetchResult));
 #pragma clang diagnostic pop
-#endif  // !TARGET_OS_WATCH
+#endif  // __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000 && !TARGET_OS_WATCH
 
 typedef void (^GULAppDelegateInterceptorCallback)(id<GULApplicationDelegate>);
 
@@ -536,7 +536,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
        storeDestinationImplementationTo:realImplementationsBySelector];
 
   // For application:didReceiveRemoteNotification:fetchCompletionHandler:
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000 && !TARGET_OS_WATCH
+#if !TARGET_OS_WATCH
   if ([GULAppEnvironmentUtil isIOS7OrHigher]) {
     SEL didReceiveRemoteNotificationWithCompletionSEL =
         NSSelectorFromString(kGULDidReceiveRemoteNotificationWithCompletionSEL);
@@ -557,7 +557,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
            storeDestinationImplementationTo:realImplementationsBySelector];
     }
   }
-#endif  // __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000 && !TARGET_OS_WATCH
+#endif  // !TARGET_OS_WATCH
 }
 
 /// We have to do this to invalidate the cache that caches the original respondsToSelector of
