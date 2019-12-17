@@ -68,6 +68,8 @@ class TransformOperation {
   }
 
  private:
+  // TODO(b/146372592): Make this public once we can use Abseil across
+  // iOS/public C++ library boundaries.
   friend class TransformMutation;
 
   /**

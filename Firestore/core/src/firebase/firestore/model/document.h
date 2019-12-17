@@ -67,6 +67,8 @@ class Document : public MaybeDocument {
            DocumentState document_state);
 
  private:
+  // TODO(b/146372592): Make this public once we can use Abseil across
+  // iOS/public C++ library boundaries.
   friend class remote::Serializer;
 
   Document(ObjectValue data,
