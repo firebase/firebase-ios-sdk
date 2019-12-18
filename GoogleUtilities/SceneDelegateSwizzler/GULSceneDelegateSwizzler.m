@@ -462,4 +462,4 @@ static NSString *const kGULSceneDelegatePrefix = @"GUL_";
 
 @end
 
-#endif // UISCENE_SUPPORTED
+#endif  // UISCENE_SUPPORTED

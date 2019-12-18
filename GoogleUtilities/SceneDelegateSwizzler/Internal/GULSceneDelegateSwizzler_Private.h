@@ -41,7 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (void)proxySceneDelegateIfNeeded:(UIScene *)scene API_AVAILABLE(ios(13.0), tvos(13.0));
 
-#endif // UISCENE_SUPPORTED
+#endif  // UISCENE_SUPPORTED
 
 @end
 
