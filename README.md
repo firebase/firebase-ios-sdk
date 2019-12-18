@@ -80,10 +80,13 @@ the following software:
 
 For the pod that you want to develop:
 
-`pod gen Firebase{name here}.podspec --local-sources=./ --auto-open`
+`pod gen Firebase{name here}.podspec --local-sources=./ --auto-open --platforms=ios`
 
 Note: If the CocoaPods cache is out of date, you may need to run
 `pod repo update` before the `pod gen` command.
+
+Note: Use macos or tvos to develop/test for those platforms. Since 10.2, Xcode
+does not properly handle multi-platform CocoaPods workspaces.
 
 Firestore has a self contained Xcode project. See
 [Firestore/README.md](Firestore/README.md).
