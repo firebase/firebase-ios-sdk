@@ -59,7 +59,7 @@ class TargetIdGenerator {
    */
   static TargetIdGenerator QueryCacheTargetIdGenerator(model::TargetId after) {
     TargetIdGenerator generator(TargetIdGeneratorId::QueryCache, after);
-    // Make sure that the next call to `nextId()` returns the first value after
+    // Make sure that the next call to `NextId()` returns the first value after
     // 'after'.
     generator.NextId();
     return generator;

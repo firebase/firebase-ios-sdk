@@ -49,11 +49,10 @@
 
 namespace firebase {
 namespace firestore {
-namespace model {
 
+namespace model {
 class TransformMutation;
 class TransformOperation;
-
 }  // namespace model
 
 namespace testutil {
@@ -124,7 +123,7 @@ inline model::FieldValue Value(double value) {
 }
 
 inline model::FieldValue Value(Timestamp value) {
-  return model::FieldValue::FromTimestamp(std::move(value));
+  return model::FieldValue::FromTimestamp(value);
 }
 
 inline model::FieldValue Value(const char* value) {
@@ -242,11 +241,11 @@ model::FieldValue::Map Map(Args... key_value_pairs) {
 }
 
 inline model::DocumentKey Key(absl::string_view path) {
-  return model::DocumentKey::FromPathString(path);
+  return model::DocumentKey::FromPathString(std::string(path));
 }
 
 inline model::FieldPath Field(absl::string_view field) {
-  return model::FieldPath::FromServerFormat(field);
+  return model::FieldPath::FromServerFormat(std::string(field));
 }
 
 inline model::DatabaseId DbId(std::string project = "project/(default)") {
@@ -265,7 +264,7 @@ inline model::FieldValue Ref(std::string project, absl::string_view path) {
 }
 
 inline model::ResourcePath Resource(absl::string_view field) {
-  return model::ResourcePath::FromString(field);
+  return model::ResourcePath::FromString(std::string(field));
 }
 
 /**
@@ -321,7 +320,7 @@ inline model::UnknownDocument UnknownDoc(absl::string_view key,
 
 /**
  * Creates a DocumentComparator that will compare Documents by the given
- * fieldPath string then by key.
+ * field_path string then by key.
  */
 model::DocumentComparator DocComparator(absl::string_view field_path);
 
@@ -377,8 +376,16 @@ inline core::FieldFilter Filter(absl::string_view key,
 
 inline core::FieldFilter Filter(absl::string_view key,
                                 absl::string_view op,
-                                const std::string& value) {
+                                const char* value) {
   return Filter(key, op, model::FieldValue::FromString(value));
+}
+
+template <typename T,
+          typename = typename std::enable_if<std::is_same<bool, T>{}>::type>
+inline core::FieldFilter Filter(absl::string_view key,
+                                absl::string_view op,
+                                T value) {
+  return Filter(key, op, model::FieldValue::FromBoolean(value));
 }
 
 inline core::FieldFilter Filter(absl::string_view key,
@@ -410,7 +417,7 @@ inline core::OrderBy OrderBy(absl::string_view key,
 
 inline core::OrderBy OrderBy(model::FieldPath field_path,
                              core::Direction direction) {
-  return core::OrderBy(std::move(field_path), std::move(direction));
+  return core::OrderBy(std::move(field_path), direction);
 }
 
 inline core::Query Query(absl::string_view path) {
@@ -437,6 +444,22 @@ model::PatchMutation PatchMutation(
 model::TransformMutation TransformMutation(
     absl::string_view path,
     std::vector<std::pair<std::string, model::TransformOperation>> transforms);
+
+/**
+ * Creates a pair of field name, TransformOperation that represents a numeric
+ * increment on the given field, suitable for passing to TransformMutation,
+ * above.
+ */
+std::pair<std::string, model::TransformOperation> Increment(
+    std::string field, model::FieldValue operand);
+
+/**
+ * Creates a pair of field name, TransformOperation that represents an array
+ * union on the given field, suitable for passing to TransformMutation,
+ * above.
+ */
+std::pair<std::string, model::TransformOperation> ArrayUnion(
+    std::string field, std::vector<model::FieldValue> operands);
 
 inline model::DeleteMutation DeleteMutation(absl::string_view path) {
   return model::DeleteMutation(Key(path), model::Precondition::None());

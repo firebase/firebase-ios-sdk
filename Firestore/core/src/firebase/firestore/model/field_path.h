@@ -26,6 +26,10 @@
 
 namespace firebase {
 namespace firestore {
+namespace remote {
+class Serializer;
+}
+
 namespace model {
 
 /**
@@ -59,8 +63,16 @@ class FieldPath : public impl::BasePath<FieldPath>,
    * PORTING NOTE: We define this on the model class to avoid having a tiny
    * api::FieldPath wrapper class.
    */
-  static FieldPath FromDotSeparatedString(absl::string_view path);
+  static FieldPath FromDotSeparatedString(const std::string& path);
 
+ private:
+  // TODO(b/146372592): Make this public once we can use Abseil across
+  // iOS/public C++ library boundaries.
+  friend class remote::Serializer;
+
+  static FieldPath FromDotSeparatedStringView(absl::string_view path);
+
+ public:
   /**
    * Creates and returns a new path from a set of segments received from the
    * public API.
@@ -76,7 +88,14 @@ class FieldPath : public impl::BasePath<FieldPath>,
    * where path segments are separated by a dot "." and optionally encoded using
    * backticks.
    */
-  static FieldPath FromServerFormat(absl::string_view path);
+  static FieldPath FromServerFormat(const std::string& path);
+
+ private:
+  // TODO(b/146372592): Make this public once we can use Abseil across
+  // iOS/public C++ library boundaries.
+  static FieldPath FromServerFormatView(absl::string_view path);
+
+ public:
   /** Returns a field path that represents an empty path. */
   static const FieldPath& EmptyPath();
   /** Returns a field path that represents a document key. */

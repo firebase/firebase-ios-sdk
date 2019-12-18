@@ -51,8 +51,8 @@ class DocumentKey : public util::InequalityComparable<DocumentKey> {
    * Creates and returns a new document key using '/' to split the string into
    * segments.
    */
-  static DocumentKey FromPathString(absl::string_view path) {
-    return DocumentKey{ResourcePath::FromString(path)};
+  static DocumentKey FromPathString(const std::string& path) {
+    return DocumentKey{ResourcePath::FromStringView(path)};
   }
 
   /** Creates and returns a new document key with the given segments. */
@@ -87,8 +87,8 @@ class DocumentKey : public util::InequalityComparable<DocumentKey> {
     return path_ ? *path_ : Empty().path();
   }
 
-  /** Returns true if the document is in the specified collectionId. */
-  bool HasCollectionId(absl::string_view collection_id) const {
+  /** Returns true if the document is in the specified collection_id. */
+  bool HasCollectionId(const std::string& collection_id) const {
     size_t size = path().size();
     return size >= 2 && path()[size - 2] == collection_id;
   }

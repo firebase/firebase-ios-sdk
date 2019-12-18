@@ -70,10 +70,11 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
                             appName:(NSString *)appName
                              APIKey:(NSString *)APIKey
                           projectID:(NSString *)projectID
-                        GCMSenderID:(NSString *)GCMSenderID {
+                        GCMSenderID:(NSString *)GCMSenderID
+                        accessGroup:(NSString *)accessGroup {
   FIRSecureStorage *secureStorage = [[FIRSecureStorage alloc] init];
   FIRInstallationsStore *installationsStore =
-      [[FIRInstallationsStore alloc] initWithSecureStorage:secureStorage accessGroup:nil];
+      [[FIRInstallationsStore alloc] initWithSecureStorage:secureStorage accessGroup:accessGroup];
   FIRInstallationsAPIService *apiService =
       [[FIRInstallationsAPIService alloc] initWithAPIKey:APIKey projectID:projectID];
   FIRInstallationsIIDStore *IIDStore = [[FIRInstallationsIIDStore alloc] init];

@@ -47,11 +47,11 @@ typedef void (^RCNConfigFetcherTestBlock)(RCNConfigFetcherCompletion completion)
                       namespace:(NSString *)firebaseNamespace
                         options:(FIROptions *)firebaseOptions NS_DESIGNATED_INITIALIZER;
 
-/// Fetches all config data keyed by namespace. Completion block will be called on the main queue.
+/// Fetches config data keyed by namespace. Completion block will be called on the main queue.
 /// @param expirationDuration  Expiration duration, in seconds.
 /// @param completionHandler   Callback handler.
-- (void)fetchAllConfigsWithExpirationDuration:(NSTimeInterval)expirationDuration
-                            completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler;
+- (void)fetchConfigWithExpirationDuration:(NSTimeInterval)expirationDuration
+                        completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler;
 
 /// Add the ability to update NSURLSession's timeout after a session has already been created.
 - (void)recreateNetworkSession;

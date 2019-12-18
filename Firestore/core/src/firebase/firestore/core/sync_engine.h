@@ -229,7 +229,7 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
 
     /**
      * Set to true once we've received a document. This is used in
-     * remoteKeysForTarget and ultimately used by `WatchChangeAggregator` to
+     * RemoteKeysForTarget and ultimately used by `WatchChangeAggregator` to
      * decide whether it needs to manufacture a delete event for the target once
      * the target is CURRENT.
      */
@@ -263,7 +263,7 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
    * server, if there are any.
    */
   void TriggerPendingWriteCallbacks(model::BatchId batch_id);
-  void FailOutstandingPendingWriteCallbacks(absl::string_view message);
+  void FailOutstandingPendingWriteCallbacks(const std::string& message);
 
   /** The local store, used to persist mutations and cached documents. */
   local::LocalStore* local_store_ = nullptr;

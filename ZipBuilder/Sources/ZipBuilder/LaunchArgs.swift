@@ -45,12 +45,14 @@ struct LaunchArgs {
     case customSpecRepos
     case existingVersions
     case keepBuildArtifacts
+    case localPodspecPath
     case minimumIOSVersion
     case outputDir
     case releasingSDKs
     case rc
     case templateDir
     case updatePodRepo
+    case zipPods
 
     /// Usage description for the key.
     var usage: String {
@@ -71,6 +73,8 @@ struct LaunchArgs {
           "of type `ZipBuilder_FirebaseSDKs`."
       case .keepBuildArtifacts:
         return "A flag to indicate keeping (not deleting) the build artifacts."
+      case .localPodspecPath:
+        return "Path to override podspec search with local podspec."
       case .minimumIOSVersion:
         return "The minimum supported iOS version. The default is 9.0."
       case .outputDir:
@@ -84,7 +88,10 @@ struct LaunchArgs {
         return "The path to the directory containing the blank xcodeproj and Info.plist for " +
           "building source based frameworks"
       case .updatePodRepo:
-        return "A flag to run `pod repo update` before building the zip file."
+        return "A flag to run `pod repo update` and `pod cache clean -all` before building the " +
+          "zip file."
+      case .zipPods:
+        return "The path to a JSON file of the pods (with optional version) to package into a zip."
       }
     }
   }
@@ -114,6 +121,9 @@ struct LaunchArgs {
   /// A flag to keep the build artifacts after this script completes.
   let keepBuildArtifacts: Bool
 
+  /// Path to override podspec search with local podspec.
+  let localPodspecPath: URL?
+
   /// The minimum iOS Version to build for.
   let minimumIOSVersion: String
 
@@ -131,6 +141,9 @@ struct LaunchArgs {
   /// A flag to update the Pod Repo or not.
   let updatePodRepo: Bool
 
+  /// The path to a JSON file listing the pods to repackage to a zip.
+  let zipPods: [CocoaPodUtils.VersionedPod]?
+
   /// The shared instance for processing launch args using default arguments.
   static let shared: LaunchArgs = LaunchArgs()
 
@@ -143,7 +156,7 @@ struct LaunchArgs {
   init(userDefaults defaults: UserDefaults = UserDefaults.standard,
        fileChecker: FileChecker = FileManager.default) {
     // Override default values for specific keys.
-    //   - Always run `pod repo update` unless explicitly set to false.
+    //   - Always run `pod repo update` and pod cache clean -all` unless explicitly set to false.
     defaults.register(defaults: [Key.updatePodRepo.rawValue: true])
 
     // Get the project template directory, and fail if it doesn't exist.
@@ -199,6 +212,24 @@ struct LaunchArgs {
       currentReleasePath = nil
     }
 
+    // Parse the zipPods key.
+    if let zipPodsPath = defaults.string(forKey: Key.zipPods.rawValue) {
+      let url = URL(fileURLWithPath: zipPodsPath)
+      guard fileChecker.fileExists(atPath: url.path) else {
+        LaunchArgs.exitWithUsageAndLog("Could not parse \(Key.zipPods) key: value passed " +
+          "in is not a file URL or the file does not exist. Value: \(zipPodsPath)")
+      }
+      do {
+        // Get pods, with optional version, from the JSON file.
+        let jsonData = try Data(contentsOf: url)
+        zipPods = try JSONDecoder().decode([CocoaPodUtils.VersionedPod].self, from: jsonData)
+      } catch {
+        fatalError("Could not read and parse JSON file at \(url). \(error)")
+      }
+    } else {
+      zipPods = nil
+    }
+
     // Parse the output directory key.
     if let outputPath = defaults.string(forKey: Key.outputDir.rawValue) {
       let url = URL(fileURLWithPath: outputPath)
@@ -211,6 +242,20 @@ struct LaunchArgs {
     } else {
       // No argument was passed in.
       outputDir = nil
+    }
+
+    // Parse the local podspec search path.
+    if let localPath = defaults.string(forKey: Key.localPodspecPath.rawValue) {
+      let url = URL(fileURLWithPath: localPath)
+      guard fileChecker.directoryExists(at: url) else {
+        LaunchArgs.exitWithUsageAndLog("Could not parse \(Key.localPodspecPath) key: value " +
+          "passed in is not a file URL or the directory does not exist. Value: \(localPath)")
+      }
+
+      localPodspecPath = url.standardizedFileURL
+    } else {
+      // No argument was passed in.
+      localPodspecPath = nil
     }
 
     // Parse the release candidate number. Note: if the String passed in isn't an integer, ignore

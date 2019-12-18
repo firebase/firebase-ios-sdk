@@ -18,39 +18,39 @@ import Foundation
 
 // TODO: Auto generate this list from the Firebase.podspec and others, probably with a script.
 /// All the CocoaPods related to packaging and distributing Firebase.
-public enum CocoaPod: String, CaseIterable {
-  case abTesting = "ABTesting"
+enum FirebasePods: String, CaseIterable {
+  case abTesting = "FirebaseABTesting"
   case adMob = "Google-Mobile-Ads-SDK"
-  case analytics = "Analytics"
-  case auth = "Auth"
-  case core = "Core"
-  case database = "Database"
-  case dynamicLinks = "DynamicLinks"
-  case firebase = "" // The Firebase pod
-  case firestore = "Firestore"
-  case functions = "Functions"
+  case analytics = "FirebaseAnalytics"
+  case auth = "FirebaseAuth"
+  case core = "FirebaseCore"
+  case database = "FirebaseDatabase"
+  case dynamicLinks = "FirebaseDynamicLinks"
+  case firebase = "Firebase"
+  case firestore = "FirebaseFirestore"
+  case functions = "FirebaseFunctions"
   case googleSignIn = "GoogleSignIn"
-  case inAppMessaging = "InAppMessaging"
-  case inAppMessagingDisplay = "InAppMessagingDisplay"
-  case messaging = "Messaging"
-  case mlModelInterpreter = "MLModelInterpreter"
-  case mlNaturalLanguage = "MLNaturalLanguage"
-  case mlNLLanguageID = "MLNLLanguageID"
-  case mlNLSmartReply = "MLNLSmartReply"
-  case mlNLTranslate = "MLNLTranslate"
-  case mlVision = "MLVision"
-  case mlVisionAutoML = "MLVisionAutoML"
-  case mlVisionObjectDetection = "MLVisionObjectDetection"
-  case mlVisionBarcodeModel = "MLVisionBarcodeModel"
-  case mlVisionFaceModel = "MLVisionFaceModel"
-  case mlVisionLabelModel = "MLVisionLabelModel"
-  case mlVisionTextModel = "MLVisionTextModel"
-  case performance = "Performance"
-  case remoteConfig = "RemoteConfig"
-  case storage = "Storage"
+  case inAppMessaging = "FirebaseInAppMessaging"
+  case inAppMessagingDisplay = "FirebaseInAppMessagingDisplay"
+  case messaging = "FirebaseMessaging"
+  case mlModelInterpreter = "FirebaseMLModelInterpreter"
+  case mlNaturalLanguage = "FirebaseMLNaturalLanguage"
+  case mlNLLanguageID = "FirebaseMLNLLanguageID"
+  case mlNLSmartReply = "FirebaseMLNLSmartReply"
+  case mlNLTranslate = "FirebaseMLNLTranslate"
+  case mlVision = "FirebaseMLVision"
+  case mlVisionAutoML = "FirebaseMLVisionAutoML"
+  case mlVisionObjectDetection = "FirebaseMLVisionObjectDetection"
+  case mlVisionBarcodeModel = "FirebaseMLVisionBarcodeModel"
+  case mlVisionFaceModel = "FirebaseMLVisionFaceModel"
+  case mlVisionLabelModel = "FirebaseMLVisionLabelModel"
+  case mlVisionTextModel = "FirebaseMLVisionTextModel"
+  case performance = "FirebasePerformance"
+  case remoteConfig = "FirebaseRemoteConfig"
+  case storage = "FirebaseStorage"
 
   /// Flag to explicitly exclude any Resources from being copied.
-  public var excludeResources: Bool {
+  var excludeResources: Bool {
     switch self {
     case .mlVision, .mlVisionBarcodeModel, .mlVisionLabelModel:
       return true
@@ -59,19 +59,11 @@ public enum CocoaPod: String, CaseIterable {
     }
   }
 
-  /// The name of the pod in the CocoaPods repo.
-  public static func podName(pod: String) -> String {
-    if (!pod.starts(with: "Google") && CocoaPod.allCases.map { $0.rawValue }.contains(pod)) {
-      return "Firebase\(pod)"
-    }
-    return pod
-  }
-
   /// Describes the dependency on other frameworks for the README file.
-  public static func readmeHeader(podName: String) -> String {
+  static func readmeHeader(podName: String) -> String {
     var header = "## \(podName)"
-    if !(podName == "Analytics" || podName == "GoogleSignIn") {
-      header += " (~> Analytics)"
+    if !(podName == "FirebaseAnalytics" || podName == "GoogleSignIn") {
+      header += " (~> FirebaseAnalytics)"
     }
     header += "\n"
     return header
@@ -82,9 +74,10 @@ public enum CocoaPod: String, CaseIterable {
   /// Returns folders to remove from the Zip file from a specific pod for de-duplication. This
   /// is necessary for the MLKit frameworks because of their unique structure, an unnecessary amount
   /// of frameworks get pulled in.
-  public static func duplicateFrameworksToRemove(pod: String) -> [String] {
+  static func duplicateFrameworksToRemove(pod: String) -> [String] {
     switch pod {
-    case "MLVisionBarcodeModel", "MLVisionFaceModel", "MLVisionLabelModel", "MLVisionTextModel":
+    case "FirebaseMLVisionBarcodeModel", "FirebaseMLVisionFaceModel", "FirebaseMLVisionLabelModel",
+         "FirebaseMLVisionTextModel":
       return ["GTMSessionFetcher.framework", "Protobuf.framework"]
     default:
       return []
