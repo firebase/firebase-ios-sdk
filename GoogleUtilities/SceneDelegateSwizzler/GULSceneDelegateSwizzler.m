@@ -31,8 +31,6 @@ typedef void (*GULOpenURLContextsIMP)(id, SEL, UIScene *, NSSet<UIOpenURLContext
 API_AVAILABLE(ios(13.0), tvos(13.0))
 typedef void (^GULSceneDelegateInterceptorCallback)(id<UISceneDelegate>);
 
-#endif  // UISCENE_SUPPORTED
-
 // The strings below are the keys for associated objects.
 static char const *const kGULRealIMPBySelectorKey = "GUL_realIMPBySelector";
 static char const *const kGULRealClassKey = "GUL_realClass";
@@ -463,3 +461,5 @@ static NSString *const kGULSceneDelegatePrefix = @"GUL_";
 }
 
 @end
+
+#endif // UISCENE_SUPPORTED

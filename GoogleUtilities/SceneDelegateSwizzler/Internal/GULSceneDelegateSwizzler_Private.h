@@ -18,13 +18,11 @@
 #import <GoogleUtilities/GULMutableDictionary.h>
 #import <GoogleUtilities/GULSceneDelegateSwizzler.h>
 
-#if ((TARGET_OS_IOS || TARGET_OS_TV) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 130000))
-#define UISCENE_SUPPORTED 1
-#endif
-
 NS_ASSUME_NONNULL_BEGIN
 
 @interface GULSceneDelegateSwizzler ()
+
+#if UISCENE_SUPPORTED
 
 /** Returns a dictionary containing interceptor IDs mapped to a GULZeroingWeakContainer.
  *
@@ -36,8 +34,6 @@ NS_ASSUME_NONNULL_BEGIN
 /** Deletes all the registered interceptors. */
 + (void)clearInterceptors;
 
-#if UISCENE_SUPPORTED
-
 /** ISA Swizzles the given appDelegate as the original app delegate would be.
  *
  *  @param scene The scene whose delegate needs to be isa swizzled. This should conform to the
@@ -45,7 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (void)proxySceneDelegateIfNeeded:(UIScene *)scene API_AVAILABLE(ios(13.0), tvos(13.0));
 
-#endif  // UISCENE_SUPPORTED
+#endif // UISCENE_SUPPORTED
 
 @end
 

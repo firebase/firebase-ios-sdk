@@ -16,12 +16,18 @@
 
 #import <UIKit/UIKit.h>
 
+#if ((TARGET_OS_IOS || TARGET_OS_TV) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 130000))
+#define UISCENE_SUPPORTED 1
+#endif
+
 NS_ASSUME_NONNULL_BEGIN
 
 typedef NSString *const GULSceneDelegateInterceptorID;
 
 /** This class contains methods that isa swizzle the scene delegate. */
 @interface GULSceneDelegateSwizzler : NSProxy
+
+#if UISCENE_SUPPORTED
 
 /** Registers an app delegate interceptor whose methods will be invoked as they're invoked on the
  *  original app delegate.
@@ -65,6 +71,8 @@ typedef NSString *const GULSceneDelegateInterceptorID;
 /** Do not initialize this class. */
 - (instancetype)init NS_UNAVAILABLE;
 
-NS_ASSUME_NONNULL_END
+#endif  // UISCENE_SUPPORTED
 
 @end
+
+NS_ASSUME_NONNULL_END

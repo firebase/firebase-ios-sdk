@@ -19,25 +19,10 @@
 #import <XCTest/XCTest.h>
 #import <objc/runtime.h>
 
-#if (defined(__IPHONE_9_0) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_9_0))
-#define SDK_HAS_USERACTIVITY 1
-#endif
-
-/** Plist key that allows Firebase developers to disable App Delegate Proxying.  Source of truth is
- *  the GULAppDelegateSwizzler class.
- */
-static NSString *const kGULFirebaseAppDelegateProxyEnabledPlistKey =
-    @"FirebaseAppDelegateProxyEnabled";
-
-/** Plist key that allows non-Firebase developers to disable App Delegate Proxying.  Source of truth
- *  is the GULAppDelegateSwizzler class.
- */
-static NSString *const kGULGoogleAppDelegateProxyEnabledPlistKey =
-    @"GoogleUtilitiesAppDelegateProxyEnabled";
-
 #pragma mark - Scene Delegate
 
-#if ((TARGET_OS_IOS || TARGET_OS_TV) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 130000))
+#if UISCENE_SUPPORTED
+
 @protocol TestSceneProtocol <UISceneDelegate>
 @end
 
@@ -47,7 +32,6 @@ API_AVAILABLE(ios(13.0), tvos(13.0))
 
 @implementation GULTestSceneDelegate
 @end
-#endif
 
 @interface GULSceneDelegateSwizzlerTest : XCTestCase
 @end
@@ -59,11 +43,8 @@ API_AVAILABLE(ios(13.0), tvos(13.0))
 }
 
 - (void)tearDown {
-  //  [GULSceneDelegateSwizzler clearInterceptors];
   [super tearDown];
 }
-
-#if ((TARGET_OS_IOS || TARGET_OS_TV) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 130000))
 
 - (void)testProxySceneDelegateWithNoSceneDelegate {
   if (@available(iOS 13, tvOS 13, *)) {
@@ -148,6 +129,6 @@ API_AVAILABLE(ios(13.0), tvos(13.0))
   }
 }
 
-#endif
-
 @end
+
+#endif // UISCENE_SUPPORTED
