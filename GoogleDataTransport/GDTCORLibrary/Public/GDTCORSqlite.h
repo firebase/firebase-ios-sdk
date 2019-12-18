@@ -22,6 +22,9 @@ NS_ASSUME_NONNULL_BEGIN
 /** Convenience typedef to define a block ran on each row of a query result. */
 typedef void (^GDTCORSqliteRowResultBlock)(sqlite3_stmt *stmt);
 
+/** Convenience typedef for a block invoked in the callback of sqlite3_exec. */
+typedef int (^GDTCORExecuteSQLRowResultCallbackBlock)(NSDictionary<NSString *, NSString *> *row);
+
 /** Instantiates a sqlite3 object given the filename.
  *
  * @param db The db reference to instantiate.
