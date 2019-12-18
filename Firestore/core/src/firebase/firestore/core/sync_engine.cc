@@ -282,9 +282,10 @@ void SyncEngine::HandleRejectedListen(TargetId target_id, Status error) {
     NoDocument doc(limbo_key, SnapshotVersion::None(),
                    /* has_committed_mutations= */ false);
 
-    // Explicitly instantiate these to work around a spurious "chosen
-    // constructor is explicit in copy-initialization" error in the RemoteEvent
-    // constructor on GCC 4.9.
+    // Explicitly instantiate these to work around a bug in the default
+    // constructor of the std::unordered_map that comes with GCC 4.8. Without
+    // this GCC emits a spurious "chosen constructor is explicit in
+    // copy-initialization" error.
     DocumentKeySet limbo_documents{limbo_key};
     RemoteEvent::TargetChangeMap target_changes;
     RemoteEvent::TargetSet target_mismatches;
