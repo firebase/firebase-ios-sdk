@@ -684,3 +684,4 @@ jobs:
 branches:
   only:
     - master
+    - mm/fis-integration-master
