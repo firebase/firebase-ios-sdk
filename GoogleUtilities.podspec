@@ -77,6 +77,15 @@ other Google CocoaPods. They're not intended for direct public usage.
     adss.dependency 'GoogleUtilities/Environment'
   end
 
+  s.subspec 'SceneDelegateSwizzler' do |sdss|
+    sdss.source_files = 'GoogleUtilities/SceneDelegateSwizzler/**/*.[mh]'
+    sdss.public_header_files = 'GoogleUtilities/SceneDelegateSwizzler/Private/*.h'
+    sdss.private_header_files = 'GoogleUtilities/SceneDelegateSwizzler/Private/*.h'
+    sdss.dependency 'GoogleUtilities/Logger'
+    sdss.dependency 'GoogleUtilities/Network'
+    sdss.dependency 'GoogleUtilities/Environment'
+  end
+
   s.subspec 'ISASwizzler' do |iss|
     iss.source_files = 'GoogleUtilities/ISASwizzler/**/*.[mh]', 'GoogleUtilities/Common/*.h'
     iss.public_header_files = 'GoogleUtilities/ISASwizzler/Private/*.h'

@@ -29,6 +29,7 @@
 #import <FirebaseCore/FIRLogger.h>
 #import <FirebaseCore/FIROptions.h>
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
+#import <GoogleUtilities/GULSceneDelegateSwizzler.h>
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 
 #import "FIREmailPasswordAuthCredential.h"
@@ -384,6 +385,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     UIApplication *application = [applicationClass sharedApplication];
 
     [GULAppDelegateSwizzler proxyOriginalDelegateIncludingAPNSMethods];
+    [GULSceneDelegateSwizzler proxyOriginalSceneDelegate];
     #endif
 
     // Continue with the rest of initialization in the work thread.
@@ -439,6 +441,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
           appCredentialManager:strongSelf->_appCredentialManager];
 
       [GULAppDelegateSwizzler registerAppDelegateInterceptor:strongSelf];
+      [GULSceneDelegateSwizzler registerSceneDelegateInterceptor:strongSelf];
       #endif
     });
   }

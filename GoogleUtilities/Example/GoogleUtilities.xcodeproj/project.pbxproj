@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		40C06D7323AAABE40055BC8B /* GULSceneDelegateSwizzlerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 40C06D7223AAABE40055BC8B /* GULSceneDelegateSwizzlerTest.m */; };
+		40C06D7423AAABE40055BC8B /* GULSceneDelegateSwizzlerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 40C06D7223AAABE40055BC8B /* GULSceneDelegateSwizzlerTest.m */; };
 		6003F58E195388D20070C39A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F58D195388D20070C39A /* Foundation.framework */; };
 		6003F590195388D20070C39A /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F58F195388D20070C39A /* CoreGraphics.framework */; };
 		6003F592195388D20070C39A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F591195388D20070C39A /* UIKit.framework */; };
@@ -88,6 +90,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		40C06D7223AAABE40055BC8B /* GULSceneDelegateSwizzlerTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GULSceneDelegateSwizzlerTest.m; sourceTree = "<group>"; };
 		6003F58A195388D20070C39A /* Example_iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Example_iOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6003F58D195388D20070C39A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		6003F58F195388D20070C39A /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -376,6 +379,7 @@
 				EFBE67F72101401100E756A7 /* GULRuntimeStateHelperTests.m */,
 				EFBE67F82101401100E756A7 /* GULRuntimeSnapshotTests.m */,
 				EFBE67F92101401100E756A7 /* GULAppDelegateSwizzlerTest.m */,
+				40C06D7223AAABE40055BC8B /* GULSceneDelegateSwizzlerTest.m */,
 			);
 			path = Swizzler;
 			sourceTree = "<group>";
@@ -526,6 +530,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 				Base,
 			);
@@ -624,6 +629,7 @@
 				9A7C37C2224BD9C600033B0D /* GULAppDelegateSwizzlerTest.m in Sources */,
 				EFBE67FE2101401100E756A7 /* GULRuntimeClassSnapshotTests.m in Sources */,
 				EFBE67FC2101401100E756A7 /* GULRuntimeClassDiffTests.m in Sources */,
+				40C06D7323AAABE40055BC8B /* GULSceneDelegateSwizzlerTest.m in Sources */,
 				DE5CF98E20F686310063FFDD /* GULAppEnvironmentUtilTest.m in Sources */,
 				DEC977D720F68C3300014E20 /* GULReachabilityCheckerTest.m in Sources */,
 				EFBE67FB2101401100E756A7 /* GULSwizzlingCacheTest.m in Sources */,
@@ -674,6 +680,7 @@
 				DEC9786A20F6D66300014E20 /* GULMutableDictionaryTest.m in Sources */,
 				DE84BBC621D7EC900048A176 /* GULUserDefaultsTests.m in Sources */,
 				DEC9786C20F6D66700014E20 /* GULReachabilityCheckerTest.m in Sources */,
+				40C06D7423AAABE40055BC8B /* GULSceneDelegateSwizzlerTest.m in Sources */,
 				9A414672225259F900B08D77 /* GULAppDelegateSwizzlerTest.m in Sources */,
 				DEC9786820F6D65B00014E20 /* GULLoggerTest.m in Sources */,
 				DEC9786D20F6D66B00014E20 /* GULAppEnvironmentUtilTest.m in Sources */,
@@ -887,6 +894,7 @@
 					"$(inherited)",
 					"$(SRCROOT)/../Reachability",
 					"$(SRCROOT)/../AppDelegateSwizzler/Internal",
+					"$(SRCROOT)/../SceneDelegateSwizzler/Internal",
 				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
@@ -911,6 +919,7 @@
 					"$(inherited)",
 					"$(SRCROOT)/../Reachability",
 					"$(SRCROOT)/../AppDelegateSwizzler/Internal",
+					"$(SRCROOT)/../SceneDelegateSwizzler/Internal",
 				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
@@ -1101,6 +1110,7 @@
 					"$(inherited)",
 					"$(SRCROOT)/../Reachability",
 					"$(SRCROOT)/../AppDelegateSwizzler/Internal",
+					"$(SRCROOT)/../SceneDelegateSwizzler/Internal",
 				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -1132,6 +1142,7 @@
 					"$(inherited)",
 					"$(SRCROOT)/../Reachability",
 					"$(SRCROOT)/../AppDelegateSwizzler/Internal",
+					"$(SRCROOT)/../SceneDelegateSwizzler/Internal",
 				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
