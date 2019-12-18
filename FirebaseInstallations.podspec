@@ -29,7 +29,7 @@ Pod::Spec.new do |s|
   s.public_header_files = base_dir + 'Library/Public/*.h'
 
   s.framework = 'Security'
-  s.dependency 'FirebaseCore', '~> 6.4'
+  s.dependency 'FirebaseCore', '~> 6.5'
   s.dependency 'PromisesObjC', '~> 1.2'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 6.4'
 
