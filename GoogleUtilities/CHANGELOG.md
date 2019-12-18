@@ -1,6 +1,3 @@
-# Unreleased
-- Update comments in `GULAppDelegateSwizzler` (#4518)
-
 # 6.4.0
 - Add function to gul secure encoding to encode multiple classes. (#4282)
 - Add heartbeat feature. (#4098)
