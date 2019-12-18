@@ -405,7 +405,7 @@ void SyncEngine::TriggerPendingWriteCallbacks(BatchId batch_id) {
 }
 
 void SyncEngine::FailOutstandingPendingWriteCallbacks(
-    absl::string_view message) {
+    const std::string& message) {
   for (const auto& entry : pending_writes_callbacks_) {
     for (const auto& callback : entry.second) {
       callback(Status(Error::Cancelled, message));
