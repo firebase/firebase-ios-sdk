@@ -38,14 +38,6 @@ API_AVAILABLE(ios(13.0), tvos(13.0))
 
 @implementation GULSceneDelegateSwizzlerTest
 
-- (void)setUp {
-  [super setUp];
-}
-
-- (void)tearDown {
-  [super tearDown];
-}
-
 - (void)testProxySceneDelegateWithNoSceneDelegate {
   if (@available(iOS 13, tvOS 13, *)) {
     id mockSharedScene = OCMClassMock([UIScene class]);
