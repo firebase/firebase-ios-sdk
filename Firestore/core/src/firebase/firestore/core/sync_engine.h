@@ -263,7 +263,7 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
    * server, if there are any.
    */
   void TriggerPendingWriteCallbacks(model::BatchId batch_id);
-  void FailOutstandingPendingWriteCallbacks(absl::string_view message);
+  void FailOutstandingPendingWriteCallbacks(const std::string& message);
 
   /** The local store, used to persist mutations and cached documents. */
   local::LocalStore* local_store_ = nullptr;
