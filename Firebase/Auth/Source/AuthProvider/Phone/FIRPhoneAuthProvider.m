@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#include <TargetConditionals.h>
+#if !TARGET_OS_OSX && !TARGET_OS_TV
+
 #import "FIRPhoneAuthProvider.h"
 
 #import <FirebaseCore/FIRLogger.h>
@@ -443,3 +446,5 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?";
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif

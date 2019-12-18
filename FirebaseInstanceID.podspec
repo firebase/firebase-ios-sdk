@@ -37,10 +37,10 @@ services.
       'FIRInstanceID_LIB_VERSION=' + String(s.version)
   }
   s.framework = 'Security'
-  s.dependency 'FirebaseCore', '~> 6.4' # Should go to 6.5 in M61 for new private header access
+  s.dependency 'FirebaseCore', '~> 6.5'
   s.dependency 'FirebaseInstallations', '~> 0.1'
-  s.dependency 'GoogleUtilities/UserDefaults', '~> 6.0'
-  s.dependency 'GoogleUtilities/Environment', '~> 6.0'
+  s.dependency 'GoogleUtilities/UserDefaults', '~> 6.4'
+  s.dependency 'GoogleUtilities/Environment', '~> 6.4'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.source_files = 'Example/InstanceID/Tests/*.[mh]'
