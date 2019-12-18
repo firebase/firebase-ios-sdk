@@ -29,9 +29,9 @@ Pod::Spec.new do |s|
   s.public_header_files = base_dir + 'Library/Public/*.h'
 
   s.framework = 'Security'
-  s.dependency 'FirebaseCore', '~> 6.0'
+  s.dependency 'FirebaseCore', '~> 6.5'
   s.dependency 'PromisesObjC', '~> 1.2'
-  s.dependency 'GoogleUtilities/UserDefaults', '~> 6.2'
+  s.dependency 'GoogleUtilities/UserDefaults', '~> 6.4'
 
   preprocessor_definitions = 'FIRInstallations_LIB_VERSION=' + String(s.version)
   if ENV['FIS_ALLOWS_INCOMPATIBLE_IID_VERSION'] && ENV['FIS_ALLOWS_INCOMPATIBLE_IID_VERSION'] == '1' then
