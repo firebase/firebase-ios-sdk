@@ -336,13 +336,20 @@
                                                contentData:msgData
                                            renderingEffect:renderEffect];
 
+    /// Is this necessary, or can I just do NSDictionary * appData = messageNode[@"dataBundle"]?
+    NSDictionary *dataBundle = nil;
+    id dataBundleNode = messageNode[@"dataBundle"];
+    if ([dataBundleNode isKindOfClass:[NSDictionary class]]) {
+      dataBundle = dataBundleNode;
+    }
     if (isTestMessage) {
       return [[FIRIAMMessageDefinition alloc] initTestMessageWithRenderData:renderData];
     } else {
       return [[FIRIAMMessageDefinition alloc] initWithRenderData:renderData
                                                        startTime:startTimeInSeconds
                                                          endTime:endTimeInSeconds
-                                               triggerDefinition:triggersDefinition];
+                                               triggerDefinition:triggersDefinition
+                                                         appData:dataBundle];
     }
   } @catch (NSException *e) {
     FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM900006",

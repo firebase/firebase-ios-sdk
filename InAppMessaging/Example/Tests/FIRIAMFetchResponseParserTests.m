@@ -92,12 +92,16 @@
   XCTAssertEqualObjects(first.renderData.contentData.actionURL.absoluteString,
                         @"https://www.google.com");
   XCTAssertEqual(FIRIAMRenderTriggerOnAppForeground, first.renderTriggers[0].triggerType);
+  XCTAssertEqual(first.appData.count, 2);
+  XCTAssertEqualObjects(first.appData[@"a"], @"b");
+  XCTAssertEqualObjects(first.appData[@"c"], @"d");
 
   FIRIAMMessageDefinition *second = results[1];
   XCTAssertEqualObjects(@"9350598726327992320", second.renderData.messageID);
   XCTAssertEqualObjects(@"Inception1", second.renderData.name);
   XCTAssertEqualObjects(@"Test 2", second.renderData.contentData.titleText);
   XCTAssertNil(second.renderData.contentData.bodyText);
+  XCTAssertNil(second.appData);
   XCTAssertEqual(FIRIAMRenderAsModalView, second.renderData.renderingEffectSettings.viewMode);
   XCTAssertEqual(2, second.renderTriggers.count);
 

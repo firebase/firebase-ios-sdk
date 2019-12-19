@@ -36,15 +36,28 @@
 - (instancetype)initWithRenderData:(FIRIAMMessageRenderData *)renderData
                          startTime:(NSTimeInterval)startTime
                            endTime:(NSTimeInterval)endTime
-                 triggerDefinition:(NSArray<FIRIAMDisplayTriggerDefinition *> *)renderTriggers {
+                 triggerDefinition:(NSArray<FIRIAMDisplayTriggerDefinition *> *)renderTriggers
+                           appData:(nullable NSDictionary *)appData {
   if (self = [super init]) {
     _renderData = renderData;
     _renderTriggers = renderTriggers;
     _startTime = startTime;
     _endTime = endTime;
     _isTestMessage = NO;
+    _appData = appData;
   }
   return self;
+}
+
+- (instancetype)initWithRenderData:(FIRIAMMessageRenderData *)renderData
+                         startTime:(NSTimeInterval)startTime
+                           endTime:(NSTimeInterval)endTime
+                 triggerDefinition:(NSArray<FIRIAMDisplayTriggerDefinition *> *)renderTriggers {
+  return [self initWithRenderData:renderData
+                        startTime:startTime
+                          endTime:endTime
+                triggerDefinition:renderTriggers
+                          appData:nil];
 }
 
 - (instancetype)initTestMessageWithRenderData:(FIRIAMMessageRenderData *)renderData {
