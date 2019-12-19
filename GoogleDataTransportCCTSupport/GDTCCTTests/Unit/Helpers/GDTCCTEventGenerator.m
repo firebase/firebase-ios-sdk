@@ -94,7 +94,13 @@
     [event.clockSnapshot setValue:@(1111111111111222) forKeyPath:@"kernelBootTime"];
     [event.clockSnapshot setValue:@(1235567890) forKeyPath:@"uptime"];
     event.qosTier = GDTCOREventQosDefault;
-    event.customPrioritizationParams = @{@"customParam" : @1337};
+    NSError *error;
+    event.customBytes = [NSJSONSerialization dataWithJSONObject:@{
+      @"customParam" : @1337
+    }
+                                                        options:0
+                                                          error:&error];
+    GDTCORAssert(error == nil, @"There shouldn't be an issue turning into JSON");
     NSURL *messageDataURL = [self writeConsistentMessageToDisk:@"message-32347456.dat"];
     GDTCORDataFuture *future = [[GDTCORDataFuture alloc] initWithFileURL:messageDataURL];
     GDTCORStoredEvent *storedEvent = [event storedEventWithDataFuture:future];
@@ -137,7 +143,11 @@
     [event.clockSnapshot setValue:@(1111111111111555) forKeyPath:@"kernelBootTime"];
     [event.clockSnapshot setValue:@(1238567890) forKeyPath:@"uptime"];
     event.qosTier = GDTCOREventQosDefault;
-    event.customPrioritizationParams = @{@"customParam1" : @"aValue1"};
+    NSError *error;
+    event.customBytes = [NSJSONSerialization dataWithJSONObject:@{@"customParam1" : @"aValue1"}
+                                                        options:0
+                                                          error:&error];
+    GDTCORAssert(error == nil, @"There shouldn't be an issue turning into JSON");
     NSURL *messageDataURL = [self writeConsistentMessageToDisk:@"message-40043840.dat"];
     GDTCORDataFuture *future = [[GDTCORDataFuture alloc] initWithFileURL:messageDataURL];
     GDTCORStoredEvent *storedEvent = [event storedEventWithDataFuture:future];
@@ -152,7 +162,13 @@
     [event.clockSnapshot setValue:@(1111111111111666) forKeyPath:@"kernelBootTime"];
     [event.clockSnapshot setValue:@(1239567890) forKeyPath:@"uptime"];
     event.qosTier = GDTCOREventQoSTelemetry;
-    event.customPrioritizationParams = @{@"customParam2" : @(34)};
+    NSError *error;
+    event.customBytes = [NSJSONSerialization dataWithJSONObject:@{
+      @"customParam2" : @(34)
+    }
+                                                        options:0
+                                                          error:&error];
+    GDTCORAssert(error == nil, @"There shouldn't be an issue turning into JSON");
     NSURL *messageDataURL = [self writeConsistentMessageToDisk:@"message-40657984.dat"];
     GDTCORDataFuture *future = [[GDTCORDataFuture alloc] initWithFileURL:messageDataURL];
     GDTCORStoredEvent *storedEvent = [event storedEventWithDataFuture:future];
