@@ -21,6 +21,57 @@
 
 #pragma mark - Helper functions and statics
 
+/** Executes a block as the callback for sqlite3_exec.
+ *
+ * @param blockCallback A void* declared block that is a GDTCORExecuteSQLRowResultCallbackBlock;
+ * @param columns The number of columns in the result set.
+ * @param values An array of string-formatted result set values.
+ * @param names An array of column names corresponding to the result set values.
+ * @return A SQLITE result code. Should be SQLITE_OK if everything was ok.
+ */
+static int GDTCORExecuteSQLCallback(void *blockCallback, int columns, char **values, char **names) {
+  if (!blockCallback || columns == 0) {
+    return SQLITE_OK;
+  }
+  NSMutableDictionary<NSString *, NSString *> *row = [[NSMutableDictionary alloc] init];
+  for (int i = 0; i < columns; i++) {
+    NSString *name = [NSString stringWithUTF8String:names[i]];
+    id value = values[i] ? [NSString stringWithUTF8String:values[i]] : [NSNull null];
+    value = value ? value : [NSNull null];
+    row[name] = value;
+  }
+
+  return ((__bridge GDTCORExecuteSQLRowResultCallbackBlock)blockCallback)(row);
+}
+
+/** Executes a string of sql using sqlite3_exec. This string can contain multiple statements.
+ *
+ * @param db The sqlite3 db to operate on.
+ * @param sql The SQL string to run.
+ * @param block The block to process the result set, or nil if no results are needed.
+ * @return YES if running the SQL succeeded, NO otherwise.
+ */
+static BOOL ExecuteSQL(sqlite3 *db, NSString *sql, GDTCORExecuteSQLRowResultCallbackBlock block) {
+  if (sql == nil || sql.length == 0) {
+    GDTCORLogError(GDTCORMCEDatabaseError, @"%@", @"SQL string was empty");
+    return NO;
+  }
+  char *errMsg;
+  void *callback = block != nil ? GDTCORExecuteSQLCallback : NULL;
+  void *firstArgToCallback = block != nil ? (__bridge void *)block : NULL;
+  if (sqlite3_exec(db, [sql UTF8String], callback, firstArgToCallback, &errMsg) != SQLITE_OK) {
+    if (errMsg) {
+      GDTCORLogError(GDTCORMCEDatabaseError, @"sqlite3_exec failed: %s", errMsg);
+      sqlite3_free(errMsg);
+    } else {
+      GDTCORLogError(GDTCORMCEDatabaseError, @"sqlite3_exec failed without an error message: %@",
+                     sql);
+    }
+    return NO;
+  }
+  return YES;
+}
+
 /** Sets the user_version PRAGMA of the sqlite db.
  *
  * @note -1 is a reserved value to signify an error fetching the user_version value.
@@ -33,14 +84,10 @@ static void SetUserVersion(sqlite3 *db, int userVersion) {
     GDTCORLogError(GDTCORMCEDatabaseError, @"%@", @"The database is closed");
     return;
   }
-  sqlite3_stmt *stmt;
-  NSString *sql = [NSString stringWithFormat:@"PRAGMA user_version = %d;", userVersion];
-  if (GDTCORSQLCompileSQL(&stmt, db, sql)) {
-    if (!GDTCORSQLRunNonQuery(db, stmt)) {
-      GDTCORLogError(GDTCORMCEDatabaseError, @"%@", @"There was an error setting user_version");
-    }
+  if (!ExecuteSQL(db, [NSString stringWithFormat:@"PRAGMA user_version = %d;", userVersion], nil)) {
+    GDTCORLogError(GDTCORMCEDatabaseError, @"%@", @"Setting user_version pragma failed.");
+    return;
   }
-  GDTCORSQLFinalize(stmt);
 }
 
 /** Gets the user_version PRAGMA of the sqlite db.
@@ -54,14 +101,39 @@ static int GetUserVersion(sqlite3 *db) {
     return -1;
   }
   __block int userVersion = -1;
-  sqlite3_stmt *stmt;
-  if (GDTCORSQLCompileSQL(&stmt, db, @"PRAGMA user_version;")) {
-    GDTCORSQLRunQuery(db, stmt, ^(sqlite3_stmt *stmt) {
-      userVersion = sqlite3_column_int(stmt, 0);
-    });
+  BOOL result = ExecuteSQL(db, @"PRAGMA user_version;",
+                           ^int(NSDictionary<NSString *, NSString *> *_Nonnull row) {
+                             userVersion = [row[@"user_version"] intValue];
+                             return SQLITE_OK;
+                           });
+  if (!result) {
+    GDTCORLogError(GDTCORMCEDatabaseError, @"%@", @"Unable to retrieve user_version.");
+    return -1;
   }
-  GDTCORSQLFinalize(stmt);
   return userVersion;
+}
+
+/** Gets the schema_version PRAGMA of the sqlite db.
+ *
+ * @param db The db to check.
+ * @return the int value of the user_version PRAGMA, or -1 if there was an error.
+ */
+static int GetSchemaVersion(sqlite3 *db) {
+  if (!db) {
+    GDTCORLogError(GDTCORMCEDatabaseError, @"%@", @"The database is closed");
+    return -1;
+  }
+  __block int schemaVersion = -1;
+  BOOL result = ExecuteSQL(db, @"PRAGMA schema_version;",
+                           ^int(NSDictionary<NSString *, NSString *> *_Nonnull row) {
+                             schemaVersion = [row[@"schema_version"] intValue];
+                             return SQLITE_OK;
+                           });
+  if (!result) {
+    GDTCORLogError(GDTCORMCEDatabaseError, @"%@", @"Unable to retrieve user_version.");
+    return -1;
+  }
+  return schemaVersion;
 }
 
 /** Executes a non-query SQL statement. Non-queries have no result set.
@@ -69,7 +141,7 @@ static int GetUserVersion(sqlite3 *db) {
  * @param db The db to operate on.
  * @param bindings The objects to bind to the params of the statement. Bindings to a statement are
  * 1-based.
- * @param sql The SQL string to execute.
+ * @param sql The SQL string to execute. This should only be a single statement.
  * @param stmtCache The statement cache.
  * @param cacheStmt YES if the resulting stmt should be stored in the stmtCache.
  * @return YES if running the non-query was successful.
@@ -189,7 +261,7 @@ static void RunMigrations(sqlite3 *db,
   [migrations enumerateKeysAndObjectsUsingBlock:^(NSNumber *_Nonnull key, NSString *_Nonnull obj,
                                                   BOOL *_Nonnull stop) {
     if (key.intValue > newUserVersion) {
-      if (RunNonQuery(db, nil, obj, stmtCache, NO)) {
+      if (ExecuteSQL(db, obj, nil)) {
         newUserVersion = key.intValue;
       } else {
         GDTCORLogError(GDTCORMCEDatabaseError, @"%@", @"Migration failed: version:%@ statement:%@",
@@ -276,8 +348,9 @@ static BOOL InstanceExistsForPath(NSString *path) {
 }
 
 - (nullable instancetype)initWithURL:(nullable NSURL *)dbFileURL
+                         creationSQL:(NSString *)sql
                  migrationStatements:
-                     (nonnull NSDictionary<NSNumber *, NSString *> *)migrationStatements {
+                     (nullable NSDictionary<NSNumber *, NSString *> *)migrationStatements {
   NSString *dbPath = dbFileURL ? dbFileURL.path : @":memory:";
   // Return nil if there's already an instance for the given path, or if the DB fails to open.
   if (InstanceExistsForPath(dbPath) || !GDTCORSQLOpenDB(&_db, dbPath)) {
@@ -290,6 +363,10 @@ static BOOL InstanceExistsForPath(NSString *path) {
     _stmtCache =
         CFDictionaryCreateMutable(CFAllocatorGetDefault(), 0, &kCFTypeDictionaryKeyCallBacks, NULL);
     dispatch_async(_dbQueue, ^{
+      if (GetSchemaVersion(self->_db) == 0) {
+        // Run the creation statements only if this is a brand-new DB.
+        ExecuteSQL(self->_db, sql, nil);
+      }
       RunMigrations(self->_db, [migrationStatements copy], self -> _stmtCache);
     });
     SetInstanceToFileMap(self, _path, NO);
@@ -345,8 +422,16 @@ static BOOL InstanceExistsForPath(NSString *path) {
   return userVersion;
 }
 
+- (int)schemaVersion {
+  __block int schemaVersion = -1;
+  dispatch_sync(_dbQueue, ^{
+    schemaVersion = GetSchemaVersion(self->_db);
+  });
+  return schemaVersion;
+}
+
 - (BOOL)runNonQuery:(NSString *)sql
-           bindings:(NSDictionary<NSNumber *, NSString *> *)bindings
+           bindings:(nullable NSDictionary<NSNumber *, NSString *> *)bindings
           cacheStmt:(BOOL)cacheStmt {
   __block BOOL returnStatus = NO;
   dispatch_sync(_dbQueue, ^{
@@ -356,12 +441,21 @@ static BOOL InstanceExistsForPath(NSString *path) {
 }
 
 - (BOOL)runQuery:(NSString *)sql
-        bindings:(NSDictionary<NSNumber *, NSString *> *)bindings
+        bindings:(nullable NSDictionary<NSNumber *, NSString *> *)bindings
          eachRow:(GDTCORSqliteRowResultBlock)eachRow
        cacheStmt:(BOOL)cacheStmt {
   __block BOOL returnStatus = NO;
   dispatch_sync(_dbQueue, ^{
     returnStatus = RunQuery(self->_db, bindings, eachRow, sql, self->_stmtCache, cacheStmt);
+  });
+  return returnStatus;
+}
+
+- (BOOL)executeSQL:(NSString *)sql
+          callback:(nullable GDTCORExecuteSQLRowResultCallbackBlock)callback {
+  __block BOOL returnStatus = NO;
+  dispatch_sync(_dbQueue, ^{
+    returnStatus = ExecuteSQL(self->_db, sql, callback);
   });
   return returnStatus;
 }

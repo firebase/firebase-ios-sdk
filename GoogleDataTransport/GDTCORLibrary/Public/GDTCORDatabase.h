@@ -26,6 +26,9 @@ NS_ASSUME_NONNULL_BEGIN
 /** The user_version PRAGMA of the db. */
 @property(atomic) int userVersion;
 
+/** */
+@property(atomic, readonly) int schemaVersion;
+
 /** The path of the db. */
 @property(nullable, nonatomic, readonly) NSString *path;
 
@@ -33,17 +36,22 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @note Automatically opens the database, but doesn't call -open.
  * @param dbFileURL The file URL of the db, or nil if this should be an in-memory store.
+ * @param sql The SQL statements to create the database schema.
  * @param migrationStatements A map of user_versions and their corresponding SQL statements needed
- *   to move from whatever user_version the db is at to the higher version.
+ *   to move from whatever user_version the db is at to the higher version or nil if no migrations
+ *   are needed.
  * @return The instantiated db, or nil if the db could not be created for some reason.
  */
 - (nullable instancetype)initWithURL:(nullable NSURL *)dbFileURL
-                 migrationStatements:(NSDictionary<NSNumber *, NSString *> *)migrationStatements;
+                         creationSQL:(NSString *)sql
+                 migrationStatements:
+                     (nullable NSDictionary<NSNumber *, NSString *> *)migrationStatements;
 
 /** Runs a non-query SQL statement on the db. Non-queries are statements that have no result set.
  *
  * @param sql The SQL statement to run.
- * @param bindings The object bindings of the statement, or nil if there are none.
+ * @param bindings The object bindings of the statement, or nil if there are none. Note: bindings
+ *   lists are 1-based.
  * @param cacheStmt Set to YES if you want the db to cache this statement for later use.
  * @return YES if running the non-query was successful, NO otherwise.
  */
@@ -51,10 +59,20 @@ NS_ASSUME_NONNULL_BEGIN
            bindings:(nullable NSDictionary<NSNumber *, NSString *> *)bindings
           cacheStmt:(BOOL)cacheStmt;
 
+/** Executes a SQL string potentially containing multiple statements without any caching.
+ *
+ * @param sql The SQL string to run. The string can be multiple SQL statements.
+ * @param callback The callback block to handle the result set, or nil if it's not needed.
+ * @return YES if running the SQL was successful, NO otherwise.
+ */
+- (BOOL)executeSQL:(NSString *)sql
+          callback:(nullable GDTCORExecuteSQLRowResultCallbackBlock)callback;
+
 /** Runs a query SQL statement on the db. Queries are statements that have results.
  *
  * @param sql The SQL statement to run.
- * @param bindings The object bindings of the statement, or nil if there are none.
+ * @param bindings The object bindings of the statement, or nil if there are none. Note: bindings
+ *   lists are 1-based.
  * @param eachRow A block to be run on each row of the result set.
  * @param cacheStmt Set to YES if you want the db to cache this statement for later use.
  * @return YES if running the non-query was successful, NO otherwise.
