@@ -1069,8 +1069,8 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
   Class realClass = [scene.delegate class];
   NSString *className = NSStringFromClass(realClass);
 
-  // Skip proxying if the class has a prefix of kGULAppDelegatePrefix, which means it has been
-  // proxied before.
+  // Skip proxying if failed to get the delegate class name for some reason (e.g. `delegate == nil`)
+  // or the class has a prefix of kGULAppDelegatePrefix, which means it has been proxied before.
   if (className == nil || [className hasPrefix:kGULAppDelegatePrefix]) {
     return;
   }

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseInstanceID'
-  s.version          = '4.2.7'
+  s.version          = '4.2.8'
   s.summary          = 'Firebase InstanceID for iOS'
 
   s.description      = <<-DESC
@@ -38,9 +38,9 @@ services.
       'FIRInstanceID_LIB_VERSION=' + String(s.version)
   }
   s.framework = 'Security'
-  s.dependency 'FirebaseCore', '~> 6.4' # Should go to 6.5 in M61 for new private header access
-  s.dependency 'GoogleUtilities/UserDefaults', '~> 6.0'
-  s.dependency 'GoogleUtilities/Environment', '~> 6.0'
+  s.dependency 'FirebaseCore', '~> 6.5'
+  s.dependency 'GoogleUtilities/UserDefaults', '~> 6.4'
+  s.dependency 'GoogleUtilities/Environment', '~> 6.4'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}

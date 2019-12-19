@@ -277,6 +277,23 @@ class Serializer {
       const google_firestore_v1_BatchGetDocumentsResponse& response) const;
 
   pb_bytes_array_t* EncodeQueryPath(const model::ResourcePath& path) const;
+  model::ResourcePath DecodeQueryPath(nanopb::Reader* reader,
+                                      absl::string_view name) const;
+
+  /**
+   * Encodes a database ID and resource path into the following form:
+   * /projects/$project_id/database/$database_id/documents/$path
+   */
+  pb_bytes_array_t* EncodeResourceName(const model::DatabaseId& database_id,
+                                       const model::ResourcePath& path) const;
+
+  /**
+   * Decodes a fully qualified resource name into a resource path and validates
+   * that there is a project and database encoded in the path. There are no
+   * guarantees that a local path is also encoded in this resource name.
+   */
+  model::ResourcePath DecodeResourceName(nanopb::Reader* reader,
+                                         absl::string_view encoded) const;
 
   void ValidateDocumentKeyPath(nanopb::Reader* reader,
                                const model::ResourcePath& resource_name) const;

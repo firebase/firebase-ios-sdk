@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#include <TargetConditionals.h>
+#if !TARGET_OS_OSX
+
 #import "FIRAuthAppCredentialManager.h"
 
 #import "FIRAuthAppCredential.h"
@@ -162,3 +165,5 @@ static const NSUInteger kMaximumNumberOfPendingReceipts = 32;
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif
