@@ -38,6 +38,8 @@ class Serializer;
 
 class WriteStreamCallback {
  public:
+  virtual ~WriteStreamCallback() = default;
+
   /**
    * Called by the `WriteStream` when it is ready to accept outbound request
    * messages.

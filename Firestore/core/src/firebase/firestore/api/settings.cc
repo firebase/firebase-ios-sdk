@@ -22,7 +22,7 @@ namespace firebase {
 namespace firestore {
 namespace api {
 
-constexpr char Settings::DefaultHost[];
+constexpr const char* Settings::DefaultHost;
 constexpr bool Settings::DefaultSslEnabled;
 constexpr bool Settings::DefaultPersistenceEnabled;
 constexpr int64_t Settings::DefaultCacheSizeBytes;

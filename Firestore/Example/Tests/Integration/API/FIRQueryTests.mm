@@ -264,20 +264,20 @@
       [collection addSnapshotListener:self.eventAccumulator.valueEventHandler];
 
   FIRQuerySnapshot *querySnap = [self.eventAccumulator awaitEventWithName:@"initial event"];
-  XCTAssertEqual(querySnap.documentChanges.count, 1);
+  XCTAssertEqual(querySnap.documentChanges.count, 1ul);
 
   FIRDocumentChange *change = querySnap.documentChanges[0];
   XCTAssertEqual(change.oldIndex, NSNotFound);
-  XCTAssertEqual(change.newIndex, 0);
+  XCTAssertEqual(change.newIndex, 0ul);
 
   FIRDocumentReference *doc = change.document.reference;
   [self deleteDocumentRef:doc];
 
   querySnap = [self.eventAccumulator awaitEventWithName:@"delete"];
-  XCTAssertEqual(querySnap.documentChanges.count, 1);
+  XCTAssertEqual(querySnap.documentChanges.count, 1ul);
 
   change = querySnap.documentChanges[0];
-  XCTAssertEqual(change.oldIndex, 0);
+  XCTAssertEqual(change.oldIndex, 0ul);
   XCTAssertEqual(change.newIndex, NSNotFound);
 
   [registration remove];
@@ -330,14 +330,17 @@
     @"c" : @{@"zip" : @98103},
     @"d" : @{@"zip" : @[ @98101 ]},
     @"e" : @{@"zip" : @[ @"98101", @{@"zip" : @98101} ]},
-    @"f" : @{@"zip" : @{@"code" : @500}}
+    @"f" : @{@"zip" : @{@"code" : @500}},
+    @"g" : @{@"zip" : @[ @98101, @98102 ]}
   };
   FIRCollectionReference *collection = [self collectionRefWithDocuments:testDocs];
 
-  // Search for zips matching [98101, 98103].
-  FIRQuerySnapshot *snapshot =
-      [self readDocumentSetForRef:[collection queryWhereField:@"zip" in:@[ @98101, @98103 ]]];
-  XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[ testDocs[@"a"], testDocs[@"c"] ]));
+  // Search for zips matching 98101, 98103, and [98101, 98102].
+  FIRQuerySnapshot *snapshot = [self
+      readDocumentSetForRef:[collection queryWhereField:@"zip"
+                                                     in:@[ @98101, @98103, @[ @98101, @98102 ] ]]];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot),
+                        (@[ testDocs[@"a"], testDocs[@"c"], testDocs[@"g"] ]));
 
   // With objects
   snapshot = [self readDocumentSetForRef:[collection queryWhereField:@"zip"

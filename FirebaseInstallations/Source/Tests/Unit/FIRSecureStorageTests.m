@@ -146,7 +146,7 @@
   XCTAssert(FBLWaitForPromisesWithTimeout(1));
   XCTAssertNil(setPromise.error, @"%@", self.name);
 
-  OCMVerify(self.mockCache);
+  OCMVerifyAll(self.mockCache);
 
   // Check in-memory cache.
   XCTAssertEqualObjects([self.cache objectForKey:key], object);

@@ -213,12 +213,12 @@ Query Query::Filter(FieldPath field_path,
   return Wrap(query_.AddingFilter(std::move(filter)));
 }
 
-Query Query::OrderBy(FieldPath fieldPath, bool descending) const {
-  return OrderBy(fieldPath, Direction::FromDescending(descending));
+Query Query::OrderBy(FieldPath field_path, bool descending) const {
+  return OrderBy(field_path, Direction::FromDescending(descending));
 }
 
-Query Query::OrderBy(FieldPath fieldPath, Direction direction) const {
-  ValidateNewOrderByPath(fieldPath);
+Query Query::OrderBy(FieldPath field_path, Direction direction) const {
+  ValidateNewOrderByPath(field_path);
   if (query_.start_at()) {
     ThrowInvalidArgument(
         "Invalid query. You must not specify a starting point "
@@ -230,7 +230,7 @@ Query Query::OrderBy(FieldPath fieldPath, Direction direction) const {
         "before specifying the order by.");
   }
   return Wrap(
-      query_.AddingOrderBy(core::OrderBy(std::move(fieldPath), direction)));
+      query_.AddingOrderBy(core::OrderBy(std::move(field_path), direction)));
 }
 
 Query Query::Limit(int32_t limit) const {
@@ -302,27 +302,27 @@ void Query::ValidateNewFilter(const class Filter& filter) const {
   }
 }
 
-void Query::ValidateNewOrderByPath(const FieldPath& fieldPath) const {
+void Query::ValidateNewOrderByPath(const FieldPath& field_path) const {
   if (!query_.FirstOrderByField()) {
     // This is the first order by. It must match any inequality.
-    const FieldPath* inequalityField = query_.InequalityFilterField();
-    if (inequalityField) {
-      ValidateOrderByField(fieldPath, *inequalityField);
+    const FieldPath* inequality_field = query_.InequalityFilterField();
+    if (inequality_field) {
+      ValidateOrderByField(field_path, *inequality_field);
     }
   }
 }
 
-void Query::ValidateOrderByField(const FieldPath& orderByField,
-                                 const FieldPath& inequalityField) const {
-  if (orderByField != inequalityField) {
+void Query::ValidateOrderByField(const FieldPath& order_by_field,
+                                 const FieldPath& inequality_field) const {
+  if (order_by_field != inequality_field) {
     ThrowInvalidArgument(
         "Invalid query. You have a where filter with an inequality "
         "(lessThan, lessThanOrEqual, greaterThan, or greaterThanOrEqual) on "
         "field '%s' and so you must also use '%s' as your first queryOrderedBy "
         "field, but your first queryOrderedBy is currently on field '%s' "
         "instead.",
-        inequalityField.CanonicalString(), inequalityField.CanonicalString(),
-        orderByField.CanonicalString());
+        inequality_field.CanonicalString(), inequality_field.CanonicalString(),
+        order_by_field.CanonicalString());
   }
 }
 

@@ -1,7 +1,24 @@
 # Unreleased
-- [changed] Removed the Firestore's dependency on `Protobuf`. If you're manually
-  tracking dependencies, you may be able to remove it from your build (note,
-  however, that other Firebase components may still require it).
+
+# v1.8.3
+- [changed] Internal improvements.
+
+# v1.8.2
+- [changed] Internal improvements.
+
+# v1.8.1
+- [fixed] Firestore no longer loads its TLS certificates from a bundle, which
+  fixes crashes at startup when the bundle can't be loaded. This fixes a
+  specific case where the bundle couldn't be loaded due to international
+  characters in the application name. If you're manually tracking dependencies,
+  you can now remove `gRPCCertificates-Cpp.bundle` from your build. (#3951).
+
+# v1.8.0
+- [changed] Removed Firestore's dependency on the `Protobuf` CocoaPod. If
+  you're manually tracking dependencies, you may be able to remove it from your
+  build (note, however, that other Firebase components may still require it).
+- [changed] Added a dependency on the `abseil` CocoaPod. If you're manually
+  tracking dependencies, you need to add it to your build.
 
 # v1.7.0
 - [feature] Added `whereField(_:in:)` and `whereField(_:arrayContainsAny:)` query

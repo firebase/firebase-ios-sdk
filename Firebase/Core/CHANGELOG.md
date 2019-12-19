@@ -1,3 +1,24 @@
+# v6.4.0 -- M61
+- [added] Updated the binary distributions to include arm64e slices. See
+  https://developer.apple.com/documentation/security/preparing_your_app_to_work_with_pointer_authentication.
+  Support for the open source libraries is now included in the zip and Carthage
+  distributions. All libraries now support building for arm64e except the MLKit
+  ones who's support is TBD. (#4110)
+
+- [changed] The directory structure of the zip distribution has changed to include
+  full name of each Firebase pod name in the directory structure. For example, the former
+  `Storage` directory is now `FirebaseStorage`.
+
+- [changed] Speed up initialization by lazily registering for the user agent. (#1306)
+
+- [added] Added a Swift usage flag to `firebaseUserAgent`. The information will
+  be used to support product decisions related to Swift, e.g. adding a Swift specific
+  API, SDKs, etc. (#4448)
+
+# v6.4.0 -- M60
+- [changed] Administrative minor version update to prepare for an upcoming Firebase pod
+  open source.
+
 # v6.3.3 -- M59
 - [changed] Carthage and zip file distributions are now built with Xcode 11.0.
   The Carthage and zip file distributions no longer support Xcode 10.3 and below.

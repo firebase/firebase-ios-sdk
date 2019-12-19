@@ -735,6 +735,10 @@ FieldValue FieldValue::FromTimestamp(const Timestamp& value) {
   return FieldValue(std::make_shared<TimestampValue>(value));
 }
 
+FieldValue FieldValue::FromServerTimestamp(const Timestamp& local_write_time) {
+  return FromServerTimestamp(local_write_time, absl::nullopt);
+}
+
 FieldValue FieldValue::FromServerTimestamp(
     const Timestamp& local_write_time,
     absl::optional<FieldValue> previous_value) {

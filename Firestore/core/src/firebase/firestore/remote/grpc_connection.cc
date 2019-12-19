@@ -200,7 +200,7 @@ std::shared_ptr<grpc::Channel> GrpcConnection::CreateChannel() const {
         host, CreateSslCredentials(root_certificate), args);
   }
 
-  // For the case when `Settings.sslEnabled == false`.
+  // For the case when `Settings.set_ssl_enabled(false)`.
   if (host_config->use_insecure_channel) {
     return grpc::CreateCustomChannel(host, grpc::InsecureChannelCredentials(),
                                      args);

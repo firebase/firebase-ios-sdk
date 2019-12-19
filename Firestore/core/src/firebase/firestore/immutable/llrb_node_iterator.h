@@ -21,7 +21,6 @@
 #include <stack>
 #include <utility>
 
-#include "Firestore/core/src/firebase/firestore/immutable/llrb_node.h"
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 

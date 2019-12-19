@@ -429,6 +429,10 @@ FIRQuery *Wrap(Query &&query) {
   return [self.firestore.dataConverter parsedQueryValue:value];
 }
 
+- (FieldValue)parsedQueryValue:(id)value allowArrays:(bool)allowArrays {
+  return [self.firestore.dataConverter parsedQueryValue:value allowArrays:allowArrays];
+}
+
 - (QuerySnapshot::Listener)wrapQuerySnapshotBlock:(FIRQuerySnapshotBlock)block {
   class Converter : public EventListener<QuerySnapshot> {
    public:
@@ -462,7 +466,8 @@ FIRQuery *Wrap(Query &&query) {
 - (FIRQuery *)queryWithFilterOperator:(Filter::Operator)filterOperator
                                  path:(const FieldPath &)fieldPath
                                 value:(id)value {
-  FieldValue fieldValue = [self parsedQueryValue:value];
+  FieldValue fieldValue = [self parsedQueryValue:value
+                                     allowArrays:filterOperator == Filter::Operator::In];
   auto describer = [value] { return util::MakeString(NSStringFromClass([value class])); };
   return Wrap(_query.Filter(fieldPath, filterOperator, std::move(fieldValue), describer));
 }

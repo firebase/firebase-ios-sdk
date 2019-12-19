@@ -26,6 +26,7 @@
 #include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 #include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/sizer.h"
+#include "absl/memory/memory.h"
 
 namespace firebase {
 namespace firestore {

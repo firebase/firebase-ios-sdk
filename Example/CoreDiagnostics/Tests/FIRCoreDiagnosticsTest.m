@@ -26,6 +26,7 @@
 #import <GoogleDataTransport/GDTCORTransport.h>
 #import <GoogleDataTransportCCTSupport/GDTCCTPrioritizer.h>
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
+#import <GoogleUtilities/GULHeartbeatDateStorage.h>
 #import <GoogleUtilities/GULUserDefaults.h>
 #import <OCMock/OCMock.h>
 #import <nanopb/pb_decode.h>
@@ -33,14 +34,13 @@
 
 #import "FIRCDLibrary/Protogen/nanopb/firebasecore.nanopb.h"
 
-#import "FIRCDLibrary/FIRCoreDiagnosticsDateFileStorage.h"
-
 extern NSString *const kFIRAppDiagnosticsNotification;
 extern NSString *const kFIRLastCheckinDateKey;
 
 static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 static NSString *const kBundleID = @"com.google.FirebaseSDKTests";
 static NSString *const kLibraryVersionID = @"1.2.3";
+static NSString *const kFIRCoreDiagnosticsHeartbeatTag = @"FIRCoreDiagnostics";
 
 #pragma mark - Testing interfaces
 
@@ -48,17 +48,16 @@ static NSString *const kLibraryVersionID = @"1.2.3";
 // Initialization.
 + (instancetype)sharedInstance;
 - (instancetype)initWithTransport:(GDTCORTransport *)transport
-             heartbeatDateStorage:(FIRCoreDiagnosticsDateFileStorage *)heartbeatDateStorage;
+             heartbeatDateStorage:(GULHeartbeatDateStorage *)heartbeatDateStorage;
 
 // Properties.
 @property(nonatomic, readonly) dispatch_queue_t diagnosticsQueue;
 @property(nonatomic, readonly) GDTCORTransport *transport;
-@property(nonatomic, readonly) FIRCoreDiagnosticsDateFileStorage *heartbeatDateStorage;
+@property(nonatomic, readonly) GULHeartbeatDateStorage *heartbeatDateStorage;
 
 // Install string helpers.
 + (NSString *)installString;
 + (BOOL)writeString:(NSString *)string toURL:(NSURL *)filePathURL;
-+ (NSURL *)filePathURLWithName:(NSString *)fileName;
 + (NSString *)stringAtURL:(NSURL *)filePathURL;
 
 // Metadata helpers.
@@ -140,7 +139,7 @@ extern void FIRPopulateProtoWithInfoPlistValues(
   OCMStub([self.mockTransport eventForTransport])
       .andReturn([[GDTCOREvent alloc] initWithMappingID:@"111" target:2]);
 
-  self.mockDateStorage = OCMClassMock([FIRCoreDiagnosticsDateFileStorage class]);
+  self.mockDateStorage = OCMClassMock([GULHeartbeatDateStorage class]);
   self.diagnostics = [[FIRCoreDiagnostics alloc] initWithTransport:self.mockTransport
                                               heartbeatDateStorage:self.mockDateStorage];
 }
@@ -244,18 +243,20 @@ extern void FIRPopulateProtoWithInfoPlistValues(
 
   // Verify start of the day
   NSDate *startOfTheDay = [calendar dateFromComponents:dateComponents];
-  OCMExpect([self.mockDateStorage date]).andReturn(startOfTheDay);
-  OCMReject([self.mockDateStorage setDate:[self OCMArgToCheckDateEqualTo:[OCMArg any]]
-                                    error:[OCMArg anyObjectRef]]);
+  OCMExpect([self.mockDateStorage heartbeatDateForTag:kFIRCoreDiagnosticsHeartbeatTag])
+      .andReturn(startOfTheDay);
+  OCMReject([self.mockDateStorage setHearbeatDate:[self OCMArgToCheckDateEqualTo:[OCMArg any]]
+                                           forTag:kFIRCoreDiagnosticsHeartbeatTag]);
 
   [self assertEventSentWithHeartbeat:NO];
 
   // Verify middle of the day
   dateComponents.hour = 12;
   NSDate *middleOfTheDay = [calendar dateFromComponents:dateComponents];
-  OCMExpect([self.mockDateStorage date]).andReturn(middleOfTheDay);
-  OCMReject([self.mockDateStorage setDate:[self OCMArgToCheckDateEqualTo:[OCMArg any]]
-                                    error:[OCMArg anyObjectRef]]);
+  OCMExpect([self.mockDateStorage heartbeatDateForTag:kFIRCoreDiagnosticsHeartbeatTag])
+      .andReturn(middleOfTheDay);
+  OCMReject([self.mockDateStorage setHearbeatDate:[self OCMArgToCheckDateEqualTo:[OCMArg any]]
+                                           forTag:kFIRCoreDiagnosticsHeartbeatTag]);
 
   [self assertEventSentWithHeartbeat:NO];
 
@@ -264,17 +265,18 @@ extern void FIRPopulateProtoWithInfoPlistValues(
   dateComponents.day += 1;
   NSDate *startOfNextDay = [calendar dateFromComponents:dateComponents];
   NSDate *endOfTheDay = [startOfNextDay dateByAddingTimeInterval:-1];
-  OCMExpect([self.mockDateStorage date]).andReturn(endOfTheDay);
-  OCMReject([self.mockDateStorage setDate:[self OCMArgToCheckDateEqualTo:[OCMArg any]]
-                                    error:[OCMArg anyObjectRef]]);
-
+  OCMExpect([self.mockDateStorage heartbeatDateForTag:kFIRCoreDiagnosticsHeartbeatTag])
+      .andReturn(endOfTheDay);
+  OCMReject([self.mockDateStorage setHearbeatDate:[self OCMArgToCheckDateEqualTo:[OCMArg any]]
+                                           forTag:kFIRCoreDiagnosticsHeartbeatTag]);
   [self assertEventSentWithHeartbeat:NO];
 }
 
 - (void)testHeartbeatSentNoPreviousCheckin {
-  OCMExpect([self.mockDateStorage date]).andReturn(nil);
-  OCMExpect([self.mockDateStorage setDate:[self OCMArgToCheckDateEqualTo:[NSDate date]]
-                                    error:[OCMArg anyObjectRef]]);
+  OCMExpect([self.mockDateStorage heartbeatDateForTag:kFIRCoreDiagnosticsHeartbeatTag])
+      .andReturn(nil);
+  OCMExpect([self.mockDateStorage setHearbeatDate:[self OCMArgToCheckDateEqualTo:[NSDate date]]
+                                           forTag:kFIRCoreDiagnosticsHeartbeatTag]);
 
   [self assertEventSentWithHeartbeat:YES];
 }
@@ -283,9 +285,10 @@ extern void FIRPopulateProtoWithInfoPlistValues(
   NSDate *startOfToday = [[NSCalendar currentCalendar] startOfDayForDate:[NSDate date]];
   NSDate *endOfYesterday = [startOfToday dateByAddingTimeInterval:-1];
 
-  OCMExpect([self.mockDateStorage date]).andReturn(endOfYesterday);
-  OCMExpect([self.mockDateStorage setDate:[self OCMArgToCheckDateEqualTo:[NSDate date]]
-                                    error:[OCMArg anyObjectRef]]);
+  OCMExpect([self.mockDateStorage heartbeatDateForTag:kFIRCoreDiagnosticsHeartbeatTag])
+      .andReturn(endOfYesterday);
+  OCMExpect([self.mockDateStorage setHearbeatDate:[self OCMArgToCheckDateEqualTo:[NSDate date]]
+                                           forTag:kFIRCoreDiagnosticsHeartbeatTag]);
 
   [self assertEventSentWithHeartbeat:YES];
 }
@@ -295,16 +298,16 @@ extern void FIRPopulateProtoWithInfoPlistValues(
 - (void)testSharedInstanceDateStorageProperlyInitialized {
   FIRCoreDiagnostics *sharedInstance = [FIRCoreDiagnostics sharedInstance];
   XCTAssertNotNil(sharedInstance.heartbeatDateStorage);
-  XCTAssert([sharedInstance.heartbeatDateStorage
-      isKindOfClass:[FIRCoreDiagnosticsDateFileStorage class]]);
+  XCTAssert([sharedInstance.heartbeatDateStorage isKindOfClass:[GULHeartbeatDateStorage class]]);
 
   NSDate *date = [NSDate date];
 
-  NSError *error;
-  XCTAssertTrue([sharedInstance.heartbeatDateStorage setDate:date error:&error], @"Error %@",
-                error);
-
-  XCTAssertEqualObjects([sharedInstance.heartbeatDateStorage date], date);
+  XCTAssertTrue([sharedInstance.heartbeatDateStorage
+      setHearbeatDate:date
+               forTag:kFIRCoreDiagnosticsHeartbeatTag]);
+  XCTAssertEqualObjects(
+      [sharedInstance.heartbeatDateStorage heartbeatDateForTag:kFIRCoreDiagnosticsHeartbeatTag],
+      date);
 }
 
 #pragma mark - Helpers

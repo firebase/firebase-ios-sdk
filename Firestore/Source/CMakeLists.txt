@@ -13,10 +13,36 @@
 # limitations under the License.
 
 if(APPLE)
-  podspec_version(firestore_version ${PROJECT_SOURCE_DIR}/FirebaseFirestore.podspec)
+  podspec_version(
+    firestore_version
+    ${PROJECT_SOURCE_DIR}/FirebaseFirestore.podspec
+  )
 
-  cc_library(
-    firebase_firestore_objc_api
+  objc_framework(
+    FirebaseFirestore
+    SHARED
+    HEADERS
+      Public/FirebaseFirestore.h
+      Public/FIRCollectionReference.h
+      Public/FIRDocumentChange.h
+      Public/FIRDocumentReference.h
+      Public/FIRDocumentSnapshot.h
+      Public/FIRFieldPath.h
+      Public/FIRFieldValue.h
+      Public/FIRFirestore.h
+      Public/FIRFirestoreErrors.h
+      Public/FIRFirestoreSettings.h
+      Public/FIRFirestoreSource.h
+      Public/FIRGeoPoint.h
+      Public/FIRListenerRegistration.h
+      Public/FIRQuery.h
+      Public/FIRQuerySnapshot.h
+      Public/FIRSnapshotMetadata.h
+      Public/FIRTimestamp.h
+      Public/FIRTransaction.h
+      Public/FIRWriteBatch.h
+    INCLUDES
+      Public
     SOURCES
       API/FIRCollectionReference+Internal.h
       API/FIRCollectionReference.mm
@@ -48,6 +74,7 @@ if(APPLE)
       API/FIRQuerySnapshot.mm
       API/FIRSnapshotMetadata+Internal.h
       API/FIRSnapshotMetadata.mm
+      API/FIRTimestamp.m
       API/FIRTimestamp+Internal.h
       API/FIRTransaction+Internal.h
       API/FIRTransaction.mm
@@ -59,35 +86,12 @@ if(APPLE)
       API/FSTUserDataConverter.mm
       API/converters.h
       API/converters.mm
-      Core/FSTTypes.h
-      Public/FIRCollectionReference.h
-      Public/FIRDocumentChange.h
-      Public/FIRDocumentReference.h
-      Public/FIRDocumentSnapshot.h
-      Public/FIRFieldPath.h
-      Public/FIRFieldValue.h
-      Public/FIRFirestore.h
-      Public/FIRFirestoreErrors.h
-      Public/FIRFirestoreSettings.h
-      Public/FIRFirestoreSource.h
-      Public/FIRGeoPoint.h
-      Public/FIRListenerRegistration.h
-      Public/FIRQuery.h
-      Public/FIRQuerySnapshot.h
-      Public/FIRSnapshotMetadata.h
-      Public/FIRTimestamp.h
-      Public/FIRTransaction.h
-      Public/FIRWriteBatch.h
-      Public/FirebaseFirestore.h
-      Util/FSTClasses.h
     DEPENDS
+      absl_any
       absl_strings
       firebase_firestore_api
-  )
-
-  target_include_directories(
-    firebase_firestore_objc_api
-    PUBLIC
-    ${FIREBASE_SOURCE_DIR}/Firestore/Source/Public
+      firebase_firestore_core_transaction
+      firebase_firestore_remote_datastore
+      firebase_firestore_version
   )
 endif()

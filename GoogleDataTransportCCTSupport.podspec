@@ -1,7 +1,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'GoogleDataTransportCCTSupport'
-  s.version          = '1.2.1'
+  s.version          = '1.2.3'
   s.summary          = 'Support library for the GoogleDataTransport CCT backend target.'
 
 
@@ -32,7 +32,7 @@ Support library to provide event prioritization and uploading for the GoogleData
 
   s.libraries = ['z']
 
-  s.dependency 'GoogleDataTransport', '~> 3.0'
+  s.dependency 'GoogleDataTransport', '~> 3.2'
   s.dependency 'nanopb', '~> 0.3.901'
 
   header_search_paths = {
@@ -47,7 +47,7 @@ Support library to provide event prioritization and uploading for the GoogleData
       # The nanopb pod sets these defs, so we must too. (We *do* require 16bit
       # (or larger) fields, so we'd have to set at least PB_FIELD_16BIT
       # anyways.)
-      'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',
+      'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1 GDTCCTSUPPORT_VERSION=' + s.version.to_s,
   }.merge(header_search_paths)
 
   # Test app specs

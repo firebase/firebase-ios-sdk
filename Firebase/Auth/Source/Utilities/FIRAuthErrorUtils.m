@@ -463,6 +463,12 @@ static NSString *const kFIRAuthErrorMessageDynamicLinkNotActivated =
 static NSString *const kFIRAuthErrorMessageRejectedCredential =
     @"The request contains malformed or mismatching credentials.";
 
+/** @var kFIRAuthErrorMessageMissingOrInvalidNonce
+    @brief Error message constant describing @c FIRAuthErrorCodeMissingOrInvalidNonce errors.
+ */
+static NSString *const kFIRAuthErrorMessageMissingOrInvalidNonce =
+    @"The request contains malformed or mismatched credentials.";
+
 /** @var FIRAuthErrorDescription
     @brief The error descrioption, based on the error code.
     @remarks No default case so that we get a compiler warning if a new value was added to the enum.
@@ -599,6 +605,8 @@ static NSString *FIRAuthErrorDescription(FIRAuthErrorCode code) {
       return kFIRAuthErrorMessageDynamicLinkNotActivated;
     case FIRAuthErrorCodeRejectedCredential:
       return kFIRAuthErrorMessageRejectedCredential;
+    case FIRAuthErrorCodeMissingOrInvalidNonce:
+      return kFIRAuthErrorMessageMissingOrInvalidNonce;
   }
 }
 
@@ -738,6 +746,8 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
       return @"ERROR_DYNAMIC_LINK_NOT_ACTIVATED";
     case FIRAuthErrorCodeRejectedCredential:
       return @"ERROR_REJECTED_CREDENTIAL";
+    case FIRAuthErrorCodeMissingOrInvalidNonce:
+      return @"ERROR_MISSING_OR_INVALID_NONCE";
   }
 }
 
@@ -1177,6 +1187,10 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
 
 + (NSError *)invalidDynamicLinkDomainErrorWithMessage:(nullable NSString *)message {
   return [self errorWithCode:FIRAuthInternalErrorCodeInvalidDynamicLinkDomain message:message];
+}
+
++ (NSError *)missingOrInvalidNonceErrorWithMessage:(nullable NSString *)message {
+  return [self errorWithCode:FIRAuthInternalErrorCodeMissingOrInvalidNonce message:message];
 }
 
 + (NSError *)keychainErrorWithFunction:(NSString *)keychainFunction status:(OSStatus)status {

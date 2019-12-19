@@ -165,13 +165,16 @@ static NSString *const FIRSecondFIRAppName = @"secondFIRApp";
     if (!strongSelf) {
       return;
     }
-    NSMutableString *output = [NSMutableString
-        stringWithFormat:@"Fetch and activate status : %@.\n\n",
-                         (status == FIRRemoteConfigFetchAndActivateStatusSuccessFetchedFromRemote ||
-                          status == FIRRemoteConfigFetchAndActivateStatusSuccessUsingPreFetchedData)
-                             ? @"Success"
-                             : [NSString
-                                   stringWithFormat:@"Failure: %@", [error localizedDescription]]];
+    NSMutableString *output = [@"Fetch and activate status :" mutableCopy];
+    if (status == FIRRemoteConfigFetchAndActivateStatusSuccessFetchedFromRemote) {
+      [output appendString:@"Success from remote fetch."];
+    } else if (status == FIRRemoteConfigFetchAndActivateStatusSuccessUsingPreFetchedData) {
+      [output appendString:@"Success using pre-fetched data."];
+    } else if (status == FIRRemoteConfigFetchAndActivateStatusError) {
+      [output
+          appendString:[NSString stringWithFormat:@"Failure: %@", [error localizedDescription]]];
+    }
+
     if (error) {
       [output appendFormat:@"%@\n", error];
     }

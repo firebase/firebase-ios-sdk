@@ -35,8 +35,8 @@ bool MemoryCollectionParentIndex::Add(const ResourcePath& collection_path) {
 
   std::string collection_id = collection_path.last_segment();
   ResourcePath parent_path = collection_path.PopLast();
-  std::set<ResourcePath>& existingParents = index_[collection_id];
-  bool inserted = existingParents.insert(parent_path).second;
+  std::set<ResourcePath>& existing_parents = index_[collection_id];
+  bool inserted = existing_parents.insert(parent_path).second;
   return inserted;
 }
 

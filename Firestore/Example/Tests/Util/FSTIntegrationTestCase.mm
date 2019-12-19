@@ -113,6 +113,8 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
 - (void)setUp {
   [super setUp];
 
+  LoadXCTestCaseAwait();
+
   _fakeCredentialsProvider = std::make_shared<FakeCredentialsProvider>();
 
   [self clearPersistenceOnce];

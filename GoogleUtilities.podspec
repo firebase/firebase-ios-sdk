@@ -1,10 +1,10 @@
 Pod::Spec.new do |s|
   s.name             = 'GoogleUtilities'
-  s.version          = '6.3.1'
+  s.version          = '6.4.0'
   s.summary          = 'Google Utilities for iOS (plus community support for macOS and tvOS)'
 
   s.description      = <<-DESC
-Internal Google Utilities including Network, Reachability Environment, Logger, and Swizzling for
+Internal Google Utilities including Network, Reachability Environment, Logger and Swizzling for
 other Google CocoaPods. They're not intended for direct public usage.
                        DESC
 
@@ -25,9 +25,9 @@ other Google CocoaPods. They're not intended for direct public usage.
   s.prefix_header_file = false
 
   s.subspec 'Environment' do |es|
-    es.source_files = 'GoogleUtilities/Environment/third_party/*.[mh]'
-    es.public_header_files = 'GoogleUtilities/Environment/third_party/*.h'
-    es.private_header_files = 'GoogleUtilities/Environment/third_party/*.h'
+    es.source_files = 'GoogleUtilities/Environment/**/*.[mh]'
+    es.public_header_files = 'GoogleUtilities/Environment/**/*.h'
+    es.private_header_files = 'GoogleUtilities/Environment/**/*.h'
   end
 
   s.subspec 'Logger' do |ls|
@@ -36,6 +36,7 @@ other Google CocoaPods. They're not intended for direct public usage.
     ls.private_header_files = 'GoogleUtilities/Logger/Private/*.h'
     ls.dependency 'GoogleUtilities/Environment'
   end
+
 
   s.subspec 'Network' do |ns|
     ns.source_files = 'GoogleUtilities/Network/**/*.[mh]'
@@ -102,11 +103,6 @@ other Google CocoaPods. They're not intended for direct public usage.
     ud.public_header_files = 'GoogleUtilities/UserDefaults/Private/*.h'
     ud.private_header_files = 'GoogleUtilities/UserDefaults/Private/*.h'
     ud.dependency 'GoogleUtilities/Logger'
-  end
-
-  s.subspec 'SecureCoding' do |sc|
-    sc.source_files = 'GoogleUtilities/SecureCoding/**/*.[hm]'
-    sc.public_header_files = 'GoogleUtilities/SecureCoding/Public/*.h'
   end
 
   s.test_spec 'unit' do |unit_tests|

@@ -78,7 +78,7 @@ util::StatusOr<std::unique_ptr<LevelDbPersistence>> LevelDbPersistence::Create(
   Status status = EnsureDirectory(dir);
   if (!status.ok()) return status;
 
-  status = ExcludeFromBackups(dir);
+  status = util::ExcludeFromBackups(dir);
   if (!status.ok()) return status;
 
   StatusOr<std::unique_ptr<DB>> created = OpenDb(dir);
@@ -122,6 +122,10 @@ LevelDbPersistence::LevelDbPersistence(std::unique_ptr<leveldb::DB> db,
 
 // MARK: - Storage location
 
+StatusOr<Path> LevelDbPersistence::AppDataDirectory() {
+  return util::AppDataDir(kReservedPathComponent);
+}
+
 util::Path LevelDbPersistence::StorageDirectory(
     const core::DatabaseInfo& database_info, const util::Path& documents_dir) {
   // Use two different path formats:
@@ -153,15 +157,6 @@ Status LevelDbPersistence::EnsureDirectory(const Path& dir) {
 
   return Status::OK();
 }
-
-#if !defined(__APPLE__)
-
-Status LevelDbPersistence::ExcludeFromBackups(const Path& directory) {
-  // Non-Apple platforms don't yet implement exclusion from backups.
-  return Status::OK();
-}
-
-#endif
 
 StatusOr<std::unique_ptr<DB>> LevelDbPersistence::OpenDb(const Path& dir) {
   leveldb::Options options;

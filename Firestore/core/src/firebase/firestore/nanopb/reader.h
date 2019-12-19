@@ -20,6 +20,7 @@
 #include <pb.h>
 #include <pb_decode.h>
 
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -60,8 +61,8 @@ class ReadContext {
    * `ReadContext`'s status will be set to `Error::DataLoss` with the specified
    * description.
    */
-  void Fail(absl::string_view description) {
-    status_.Update(util::Status(Error::DataLoss, description));
+  void Fail(std::string description) {
+    status_.Update(util::Status(Error::DataLoss, std::move(description)));
   }
 
  private:
@@ -119,8 +120,8 @@ class Reader {
     return &context_;
   }
 
-  void Fail(absl::string_view description) {
-    context_.Fail(description);
+  void Fail(std::string description) {
+    context_.Fail(std::move(description));
   }
 
  private:

@@ -1,3 +1,10 @@
+# v4.4.6
+- [fixed] Fix the return status code when app is offline. (#4100)
+- [changed] Internal code cleanup. (#4297, #4403, #4379)
+
+# v4.4.5
+- [changed] Remote Config no longer re-activates the current config on fetch if it receives no changes from the backend. (#4260)
+
 # v4.4.4
 - Minor internal project structure changes.
 

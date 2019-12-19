@@ -62,7 +62,7 @@ model::MaybeDocumentMap DocUpdates(
 absl::optional<core::ViewSnapshot> ApplyChanges(
     core::View* view,
     const std::vector<model::MaybeDocument>& docs,
-    const absl::optional<remote::TargetChange>& targetChange);
+    const absl::optional<remote::TargetChange>& target_change);
 
 /**
  * Creates a test target change that acks all 'docs' and  marks the target as
