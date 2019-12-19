@@ -69,21 +69,12 @@ other Google CocoaPods. They're not intended for direct public usage.
   end
 
   s.subspec 'AppDelegateSwizzler' do |adss|
-    adss.source_files = 'GoogleUtilities/AppDelegateSwizzler/**/*.[mh]', 'GoogleUtilities/Common/*.h'
-    adss.public_header_files = 'GoogleUtilities/AppDelegateSwizzler/Private/*.h'
-    adss.private_header_files = 'GoogleUtilities/AppDelegateSwizzler/Private/*.h'
+    adss.source_files = 'GoogleUtilities/AppDelegateSwizzler/**/*.[mh]', 'GoogleUtilities/SceneDelegateSwizzler/**/*.[mh]', 'GoogleUtilities/Common/*.h'
+    adss.public_header_files = 'GoogleUtilities/AppDelegateSwizzler/Private/*.h', 'GoogleUtilities/SceneDelegateSwizzler/Private/*.h'
+    adss.private_header_files = 'GoogleUtilities/AppDelegateSwizzler/Private/*.h', 'GoogleUtilities/SceneDelegateSwizzler/Private/*.h'
     adss.dependency 'GoogleUtilities/Logger'
     adss.dependency 'GoogleUtilities/Network'
     adss.dependency 'GoogleUtilities/Environment'
-  end
-
-  s.subspec 'SceneDelegateSwizzler' do |sdss|
-    sdss.source_files = 'GoogleUtilities/SceneDelegateSwizzler/**/*.[mh]'
-    sdss.public_header_files = 'GoogleUtilities/SceneDelegateSwizzler/Private/*.h'
-    sdss.private_header_files = 'GoogleUtilities/SceneDelegateSwizzler/Private/*.h'
-    sdss.dependency 'GoogleUtilities/Logger'
-    sdss.dependency 'GoogleUtilities/Network'
-    sdss.dependency 'GoogleUtilities/Environment'
   end
 
   s.subspec 'ISASwizzler' do |iss|
