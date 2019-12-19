@@ -247,8 +247,8 @@ model::MaybeDocumentMap LocalStore::ApplyRemoteEvent(
       TargetId target_id = entry.first;
       const TargetChange& change = entry.second;
 
-      auto found = target_ids.find(target_id);
-      if (found == target_ids.end()) {
+      auto found = target_ids_.find(target_id);
+      if (found == target_ids_.end()) {
         // We don't update the remote keys if the query is not active. This
         // ensures that we persist the updated query data along with the updated
         // assignment.
@@ -271,7 +271,7 @@ model::MaybeDocumentMap LocalStore::ApplyRemoteEvent(
             old_query_data
                 .WithResumeToken(resume_token, remote_event.snapshot_version())
                 .WithSequenceNumber(sequence_number);
-        target_ids[target_id] = new_query_data;
+        target_ids_[target_id] = new_query_data;
 
         // Update the query data if there are target changes (or if sufficient
         // time has passed since the last update).
@@ -410,9 +410,6 @@ BatchId LocalStore::GetHighestUnacknowledgedBatchId() {
     return mutation_queue_->GetHighestUnacknowledgedBatchId();
   });
 }
-QueryData LocalStore::AllocateQuery(Query query) {
-  return AllocateTarget(query.ToTarget());
-}
 
 QueryData LocalStore::AllocateTarget(Target target) {
   QueryData query_data = persistence_->Run("Allocate target", [&] {
@@ -430,38 +427,20 @@ QueryData LocalStore::AllocateTarget(Target target) {
   // Sanity check to ensure that even when resuming a query it's not currently
   // active.
   TargetId target_id = query_data.target_id();
-  HARD_ASSERT(target_ids.find(target_id) == target_ids.end(),
+  HARD_ASSERT(target_ids_.find(target_id) == target_ids_.end(),
               "Tried to allocate an already allocated target: %s",
               target.ToString());
-  target_ids[target_id] = query_data;
+  target_ids_[target_id] = query_data;
   return query_data;
 }
-void LocalStore::ReleaseQuery(const core::Query& query) {
-  ReleaseTarget(query.ToTarget());
-}
 
-void LocalStore::ReleaseTarget(const Target& target) {
+void LocalStore::ReleaseTarget(TargetId target_id) {
   persistence_->Run("Release target", [&] {
-    absl::optional<QueryData> query_data = query_cache_->GetTarget(target);
-    HARD_ASSERT(query_data, "Tried to release nonexistent target: %s",
-                target.ToString());
+    auto found = target_ids_.find(target_id);
+    HARD_ASSERT(found != target_ids_.end(),
+                "Tried to release a non-existent target: %s", target_id);
 
-    TargetId target_id = query_data->target_id();
-
-    auto found = target_ids.find(target_id);
-    if (found != target_ids.end()) {
-      const QueryData& cached_query_data = found->second;
-
-      if (cached_query_data.snapshot_version() >
-          query_data->snapshot_version()) {
-        // If we've been avoiding persisting the resume_token (see
-        // ShouldPersistQueryData for conditions and rationale) we need to
-        // persist the token now because there will no longer be an in-memory
-        // version to fall back on.
-        query_data = cached_query_data;
-        query_cache_->UpdateTarget(*query_data);
-      }
-    }
+    const QueryData& query_data = found->second;
 
     // References for documents sent via Watch are automatically removed when we
     // delete a query's target data from the reference delegate. Since this does
@@ -471,8 +450,10 @@ void LocalStore::ReleaseTarget(const Target& target) {
     for (const DocumentKey& key : removed) {
       persistence_->reference_delegate()->RemoveReference(key);
     }
-    target_ids.erase(target_id);
-    persistence_->reference_delegate()->RemoveTarget(*query_data);
+
+    // Note: This also updates the query cache.
+    persistence_->reference_delegate()->RemoveTarget(query_data);
+    target_ids_.erase(target_id);
   });
 }
 
@@ -491,7 +472,7 @@ DocumentKeySet LocalStore::GetRemoteDocumentKeys(TargetId target_id) {
 
 LruResults LocalStore::CollectGarbage(LruGarbageCollector* garbage_collector) {
   return persistence_->Run("Collect garbage", [&] {
-    return garbage_collector->Collect(target_ids);
+    return garbage_collector->Collect(target_ids_);
   });
 }
 

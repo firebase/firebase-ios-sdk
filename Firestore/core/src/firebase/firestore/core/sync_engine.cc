@@ -92,7 +92,7 @@ TargetId SyncEngine::Listen(Query query) {
   HARD_ASSERT(query_views_by_query_.find(query) == query_views_by_query_.end(),
               "We already listen to query: %s", query.ToString());
 
-  QueryData query_data = local_store_->AllocateQuery(query);
+  QueryData query_data = local_store_->AllocateTarget(query.ToTarget());
   ViewSnapshot view_snapshot =
       InitializeViewAndComputeSnapshot(query, query_data.target_id());
   std::vector<ViewSnapshot> snapshots;
@@ -120,7 +120,8 @@ ViewSnapshot SyncEngine::InitializeViewAndComputeSnapshot(const Query& query,
   auto query_view =
       std::make_shared<QueryView>(query, target_id, std::move(view));
   query_views_by_query_[query] = query_view;
-  query_views_by_target_[target_id] = query_view;
+
+  queries_by_target_[target_id].push_back(query);
 
   HARD_ASSERT(
       view_change.snapshot().has_value(),
@@ -134,19 +135,34 @@ void SyncEngine::StopListening(const Query& query) {
   auto query_view = query_views_by_query_[query];
   HARD_ASSERT(query_view, "Trying to stop listening to a query not found");
 
-  local_store_->ReleaseQuery(query);
-  remote_store_->StopListening(query_view->target_id());
-  RemoveAndCleanupQuery(query_view);
+  query_views_by_query_.erase(query);
+
+  TargetId target_id = query_view->target_id();
+  auto& queries = queries_by_target_[target_id];
+  queries.erase(std::remove(queries.begin(), queries.end(), query));
+
+  if (queries.empty()) {
+    local_store_->ReleaseTarget(target_id);
+    remote_store_->StopListening(target_id);
+    RemoveAndCleanupTarget(target_id, Status::OK());
+  }
 }
 
-void SyncEngine::RemoveAndCleanupQuery(
-    const std::shared_ptr<QueryView>& query_view) {
-  query_views_by_query_.erase(query_view->query());
-  query_views_by_target_.erase(query_view->target_id());
+void SyncEngine::RemoveAndCleanupTarget(TargetId target_id, Status status) {
+  for (const Query& query : queries_by_target_.at(target_id)) {
+    query_views_by_query_.erase(query);
+    if (!status.ok()) {
+      sync_engine_callback_->OnError(query, status);
+      if (ErrorIsInteresting(status)) {
+        LOG_WARN("Listen for query at %s failed: %s",
+                 query.path().CanonicalString(), status.error_message());
+      }
+    }
+  }
+  queries_by_target_.erase(target_id);
 
-  DocumentKeySet limbo_keys =
-      limbo_document_refs_.ReferencedKeys(query_view->target_id());
-  limbo_document_refs_.RemoveReferences(query_view->target_id());
+  DocumentKeySet limbo_keys = limbo_document_refs_.ReferencedKeys(target_id);
+  limbo_document_refs_.RemoveReferences(target_id);
   for (const DocumentKey& key : limbo_keys) {
     if (!limbo_document_refs_.ContainsKey(key)) {
       // We removed the last reference for this key.
@@ -288,18 +304,8 @@ void SyncEngine::HandleRejectedListen(TargetId target_id, Status error) {
     ApplyRemoteEvent(event);
 
   } else {
-    auto found = query_views_by_target_.find(target_id);
-    HARD_ASSERT(found != query_views_by_target_.end(), "Unknown target id: %s",
-                target_id);
-    auto query_view = found->second;
-    const Query& query = query_view->query();
-    local_store_->ReleaseQuery(query);
-    RemoveAndCleanupQuery(query_view);
-    if (ErrorIsInteresting(error)) {
-      LOG_WARN("Listen for query at %s failed: %s",
-               query.path().CanonicalString(), error.error_message());
-    }
-    sync_engine_callback_->OnError(query, std::move(error));
+    local_store_->ReleaseTarget(target_id);
+    RemoveAndCleanupTarget(target_id, error);
   }
 }
 
@@ -367,11 +373,18 @@ DocumentKeySet SyncEngine::GetRemoteKeys(TargetId target_id) const {
       it->second.document_received) {
     return DocumentKeySet{it->second.key};
   } else {
-    auto found = query_views_by_target_.find(target_id);
-    if (found != query_views_by_target_.end()) {
-      return found->second->view().synced_documents();
+    DocumentKeySet keys;
+    if (queries_by_target_.count(target_id) == 0) {
+      return keys;
     }
-    return DocumentKeySet{};
+
+    for (const auto& query : queries_by_target_.at(target_id)) {
+      for (const auto& key :
+           query_views_by_query_.at(query)->view().synced_documents()) {
+        keys = keys.insert(key);
+      }
+    }
+    return keys;
   }
 }
 

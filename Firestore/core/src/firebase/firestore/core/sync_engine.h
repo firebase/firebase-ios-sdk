@@ -227,7 +227,7 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
   ViewSnapshot InitializeViewAndComputeSnapshot(const Query& query,
                                                 model::TargetId target_id);
 
-  void RemoveAndCleanupQuery(const std::shared_ptr<QueryView>& query_view);
+  void RemoveAndCleanupTarget(model::TargetId target_id, util::Status status);
 
   void RemoveLimboTarget(const model::DocumentKey& key);
 
@@ -281,9 +281,8 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
   /** QueryViews for all active queries, indexed by query. */
   std::unordered_map<Query, std::shared_ptr<QueryView>> query_views_by_query_;
 
-  /** QueryViews for all active queries, indexed by target ID. */
-  std::unordered_map<model::TargetId, std::shared_ptr<QueryView>>
-      query_views_by_target_;
+  /** Queries mapped to Targets, indexed by target ID. */
+  std::unordered_map<model::TargetId, std::vector<Query>> queries_by_target_;
 
   /**
    * When a document is in limbo, we create a special listen to resolve it. This

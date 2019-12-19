@@ -164,8 +164,6 @@ class LocalStore {
    */
   model::DocumentKeySet GetRemoteDocumentKeys(model::TargetId target_id);
 
-  // TODO(wuandy): Delete this method, it's only for change isolation.
-  local::QueryData AllocateQuery(core::Query query);
   /**
    * Assigns a target an internal ID so that its results can be pinned so they
    * don't get GC'd. A target must be allocated in the local store before the
@@ -173,10 +171,8 @@ class LocalStore {
    */
   local::QueryData AllocateTarget(core::Target target);
 
-  // TODO(wuandy): Delete this method, it's only for change isolation.
-  void ReleaseQuery(const core::Query& query);
   /** Unpin all the documents associated with a target. */
-  void ReleaseTarget(const core::Target& target);
+  void ReleaseTarget(model::TargetId target_id);
 
   /**
    * Runs a query against all the documents in the local store and returns the
@@ -258,7 +254,7 @@ class LocalStore {
   ReferenceSet local_view_references_;
 
   /** Maps target ids to data about their queries. */
-  std::unordered_map<model::TargetId, QueryData> target_ids;
+  std::unordered_map<model::TargetId, QueryData> target_ids_;
 };
 
 }  // namespace local
