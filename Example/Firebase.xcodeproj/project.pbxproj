@@ -2050,13 +2050,6 @@
 			name = "Podspec Metadata";
 			sourceTree = "<group>";
 		};
-		85A00DB227791D3B865D0CE2 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Pods;
-			sourceTree = "<group>";
-		};
 		9AB3705C226765A900ACD3AE /* NotificationService */ = {
 			isa = PBXGroup;
 			children = (
