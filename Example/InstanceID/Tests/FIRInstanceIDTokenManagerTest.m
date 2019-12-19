@@ -59,7 +59,7 @@ static NSString *const kNewAPNSTokenString = @"newAPNSData";
 - (void)updateToAPNSDeviceToken:(NSData *)deviceToken isSandbox:(BOOL)isSandbox;
 /**
  *  Create a fetch operation. This method can be stubbed to return a particular operation instance,
- *  which makes it easier to unit test different behaviours.
+ *  which makes it easier to unit test different behaviors.
  */
 - (FIRInstanceIDTokenFetchOperation *)
     createFetchOperationWithAuthorizedEntity:(NSString *)authorizedEntity
@@ -69,7 +69,7 @@ static NSString *const kNewAPNSTokenString = @"newAPNSData";
 
 /**
  *  Create a delete operation. This method can be stubbed to return a particular operation instance,
- *  which makes it easier to unit test different behaviours.
+ *  which makes it easier to unit test different behaviors.
  */
 - (FIRInstanceIDTokenDeleteOperation *)
     createDeleteOperationWithAuthorizedEntity:(NSString *)authorizedEntity

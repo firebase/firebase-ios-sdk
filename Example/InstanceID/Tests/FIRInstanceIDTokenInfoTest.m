@@ -194,5 +194,4 @@ static BOOL const kAPNSSandbox = NO;
                  firebaseAppID:FIRInstanceIDFirebaseAppID()];
   XCTAssertFalse([self.validTokenInfo isFreshWithIID:kIID]);
 }
-
 @end
