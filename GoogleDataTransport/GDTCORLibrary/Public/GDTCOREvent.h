@@ -63,12 +63,11 @@ typedef NS_ENUM(NSInteger, GDTCOREventQoS) {
 /** The clock snapshot at the time of the event. */
 @property(nonatomic) GDTCORClock *clockSnapshot;
 
-/** A dictionary provided to aid prioritizers by allowing the passing of arbitrary data. It will be
- * retained by a copy in -copy, but not used for -hash.
+/** Bytes that can be used by a prioritizer or uploader later on. It's the prioritizer or uploader's
+ * responsibility to serialize and deserialize these bytes.
  *
- * @note Ensure that classes contained therein implement NSSecureCoding to prevent loss of data.
  */
-@property(nullable, nonatomic) NSDictionary *customPrioritizationParams;
+@property(nullable, nonatomic) NSData *customBytes;
 
 // Please use the designated initializer.
 - (instancetype)init NS_UNAVAILABLE;

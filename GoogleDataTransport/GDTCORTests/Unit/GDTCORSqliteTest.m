@@ -58,7 +58,6 @@
   XCTestExpectation *expectation = [self expectationWithDescription:@"row block ran"];
   XCTAssertTrue(GDTCORSQLRunQuery(db, getStmt, ^(sqlite3_stmt *stmt) {
     int userVersion = sqlite3_column_int(getStmt, 0);
-    NSLog(@"mph: %d", userVersion);
     XCTAssertEqual(userVersion, 123);
     [expectation fulfill];
   }));
@@ -90,7 +89,6 @@
   XCTestExpectation *expectation = [self expectationWithDescription:@"row block ran"];
   XCTAssertTrue(GDTCORSQLRunQuery(_db, getStmt, ^(sqlite3_stmt *stmt) {
     int userVersion = sqlite3_column_int(getStmt, 0);
-    NSLog(@"mph: %d", userVersion);
     XCTAssertEqual(userVersion, 123);
     [expectation fulfill];
   }));
