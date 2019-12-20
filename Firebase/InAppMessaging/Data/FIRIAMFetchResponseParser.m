@@ -336,7 +336,6 @@
                                                contentData:msgData
                                            renderingEffect:renderEffect];
 
-    /// Is this necessary, or can I just do NSDictionary * appData = messageNode[@"dataBundle"]?
     NSDictionary *dataBundle = nil;
     id dataBundleNode = messageNode[@"dataBundle"];
     if ([dataBundleNode isKindOfClass:[NSDictionary class]]) {
