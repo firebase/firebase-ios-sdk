@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseInstanceID'
-  s.version          = '4.2.8'
+  s.version          = '4.3.0'
   s.summary          = 'Firebase InstanceID for iOS'
 
   s.description      = <<-DESC
@@ -39,6 +39,7 @@ services.
   }
   s.framework = 'Security'
   s.dependency 'FirebaseCore', '~> 6.5'
+  s.dependency 'FirebaseInstallations', '~> 1.0'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 6.4'
   s.dependency 'GoogleUtilities/Environment', '~> 6.4'
 

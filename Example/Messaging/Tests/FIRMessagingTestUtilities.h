@@ -19,6 +19,8 @@
 #import <FirebaseMessaging/FIRMessaging.h>
 #import <FirebaseInstanceID/FIRInstanceID.h>
 
+@class GULUserDefaults;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRMessaging (TestUtilities)
@@ -32,6 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong) id mockInstanceID;
 @property(nonatomic, strong) id mockPubsub;
 @property(nonatomic, strong) id mockMessaging;
+@property(nonatomic, strong) id mockInstallations;
 @property(nonatomic, readonly, strong) FIRMessaging *messaging;
 @property(nonatomic, readonly, strong) FIRInstanceID *instanceID;
 

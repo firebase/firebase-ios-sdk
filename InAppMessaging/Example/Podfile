@@ -4,6 +4,8 @@ source 'https://cdn.cocoapods.org/'
 
 pod 'FirebaseAnalytics'
 pod 'FirebaseCore', :path => '../..'
+pod 'FirebaseInstanceID',  :path => '../..'
+pod 'FirebaseInstallations', :path => '../..'
 pod 'FirebaseCoreDiagnostics', :path => '../..'
 pod 'FirebaseCoreDiagnosticsInterop', :path => '../..'
 pod 'GoogleDataTransport', :path => '../..'
@@ -17,14 +19,12 @@ target 'InAppMessaging_Example_iOS' do
   pod 'FirebaseInAppMessaging', :path => '../..'
   pod 'FirebaseAnalyticsInterop',  :path => '../..'
   pod 'FirebaseDynamicLinks',  :path => '../..'
-  pod 'FirebaseInstanceID',  :path => '../..'
+
 end
 
 target 'InAppMessaging_Tests_iOS' do
   platform :ios, '8.0'
-
   pod 'FirebaseInAppMessaging', :path => '../..'
-  pod 'FirebaseInstanceID',  :path => '../..'
   pod 'FirebaseAnalyticsInterop',  :path => '../..'
   pod 'OCMock'
 end

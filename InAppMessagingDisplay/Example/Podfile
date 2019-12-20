@@ -3,6 +3,7 @@ source 'https://cdn.cocoapods.org/'
 use_frameworks!
 
 pod 'FirebaseCore', :path => '../..'
+pod 'FirebaseInstallations', :path => '../..'
 pod 'FirebaseCoreDiagnostics', :path => '../..'
 pod 'FirebaseCoreDiagnosticsInterop', :path => '../..'
 pod 'GoogleDataTransport', :path => '../..'

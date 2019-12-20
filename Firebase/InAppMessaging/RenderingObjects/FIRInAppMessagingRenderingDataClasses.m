@@ -209,7 +209,8 @@
 
 @implementation FIRInAppMessagingAction
 
-- (instancetype)initWithActionText:(nullable NSString *)actionText actionURL:(NSURL *)actionURL {
+- (instancetype)initWithActionText:(nullable NSString *)actionText
+                         actionURL:(nullable NSURL *)actionURL {
   if (self = [super init]) {
     _actionText = actionText;
     _actionURL = actionURL;
