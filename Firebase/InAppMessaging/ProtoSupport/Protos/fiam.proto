@@ -1,0 +1,73 @@
+syntax = "proto2";
+
+package logs.proto.firebase.inappmessaging;
+
+message CampaignAnalytics {
+  optional string project_number = 1;
+
+  optional string campaign_id = 2;
+
+  optional ClientAppInfo client_app = 3;
+
+  optional int64 client_timestamp_millis = 4;
+
+  oneof event {
+    EventType event_type = 5;
+
+    DismissType dismiss_type = 6;
+
+    RenderErrorReason render_error_reason = 7;
+
+    FetchErrorReason fetch_error_reason = 8;
+  }
+
+  optional string fiam_sdk_version = 9;
+}
+
+enum EventType {
+  UNKNOWN_EVENT_TYPE = 0;
+
+  IMPRESSION_EVENT_TYPE = 1;
+
+  CLICK_EVENT_TYPE = 2;
+
+  TEST_MESSAGE_IMPRESSION_EVENT_TYPE = 3;
+
+  TEST_MESSAGE_CLICK_EVENT_TYPE = 4;
+}
+
+enum DismissType {
+  UNKNOWN_DISMISS_TYPE = 0;
+
+  AUTO = 1;
+
+  CLICK = 2;
+
+  SWIPE = 3;
+}
+
+enum RenderErrorReason {
+  UNSPECIFIED_RENDER_ERROR = 0;
+
+  IMAGE_FETCH_ERROR = 1;
+
+  IMAGE_DISPLAY_ERROR = 2;
+
+  IMAGE_UNSUPPORTED_FORMAT = 3;
+}
+
+enum FetchErrorReason {
+  UNSPECIFIED_FETCH_ERROR = 0;
+
+  SERVER_ERROR = 1;
+
+  CLIENT_ERROR = 2;
+
+  NETWORK_ERROR = 3;
+}
+
+message ClientAppInfo {
+  optional string google_app_id = 1;
+
+  optional string firebase_instance_id = 2;
+}
