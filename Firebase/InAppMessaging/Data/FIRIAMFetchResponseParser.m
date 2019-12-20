@@ -348,7 +348,8 @@
                                                        startTime:startTimeInSeconds
                                                          endTime:endTimeInSeconds
                                                triggerDefinition:triggersDefinition
-                                                         appData:dataBundle];
+                                                         appData:dataBundle
+                                                   isTestMessage:NO];
     }
   } @catch (NSException *e) {
     FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM900006",

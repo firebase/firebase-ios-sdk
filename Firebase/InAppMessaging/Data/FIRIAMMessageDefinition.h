@@ -47,7 +47,8 @@ NS_ASSUME_NONNULL_BEGIN
                          startTime:(NSTimeInterval)startTime
                            endTime:(NSTimeInterval)endTime
                  triggerDefinition:(NSArray<FIRIAMDisplayTriggerDefinition *> *)renderTriggers
-                           appData:(nullable NSDictionary *)appData NS_DESIGNATED_INITIALIZER;
+                           appData:(nullable NSDictionary *)appData
+                     isTestMessage:(BOOL)isTestMessage NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)initWithRenderData:(FIRIAMMessageRenderData *)renderData
                          startTime:(NSTimeInterval)startTime

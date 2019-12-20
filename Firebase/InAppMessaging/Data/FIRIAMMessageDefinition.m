@@ -37,13 +37,14 @@
                          startTime:(NSTimeInterval)startTime
                            endTime:(NSTimeInterval)endTime
                  triggerDefinition:(NSArray<FIRIAMDisplayTriggerDefinition *> *)renderTriggers
-                           appData:(nullable NSDictionary *)appData {
+                           appData:(nullable NSDictionary *)appData
+                     isTestMessage:(BOOL)isTestMessage {
   if (self = [super init]) {
     _renderData = renderData;
     _renderTriggers = renderTriggers;
     _startTime = startTime;
     _endTime = endTime;
-    _isTestMessage = NO;
+    _isTestMessage = isTestMessage;
     _appData = appData;
   }
   return self;
@@ -57,15 +58,17 @@
                         startTime:startTime
                           endTime:endTime
                 triggerDefinition:renderTriggers
-                          appData:nil];
+                          appData:nil
+                    isTestMessage:NO];
 }
 
 - (instancetype)initTestMessageWithRenderData:(FIRIAMMessageRenderData *)renderData {
-  if (self = [super init]) {
-    _renderData = renderData;
-    _isTestMessage = YES;
-  }
-  return self;
+  return [self initWithRenderData:renderData
+                        startTime:0
+                          endTime:0
+                triggerDefinition:@[]
+                          appData:nil
+                    isTestMessage:YES];
 }
 
 - (BOOL)messageHasExpired {
