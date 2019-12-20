@@ -203,6 +203,12 @@ bool Path::IsAbsolute() const {
   return util::IsAbsolute(c_str(), size());
 }
 
+bool Path::HasExtension(const Path& ext) const {
+  return pathname_.size() >= ext.size() &&
+         pathname_.compare(pathname_.size() - ext.size(), ext.size(),
+                           ext.native_value()) == 0;
+}
+
 Path Path::AppendUtf8(absl::string_view path) const {
   Path result{*this};
   result.MutableAppendUtf8(path);

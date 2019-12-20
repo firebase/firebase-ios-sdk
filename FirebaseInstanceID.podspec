@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseInstanceID'
-  s.version          = '4.2.7'
+  s.version          = '4.3.0'
   s.summary          = 'Firebase InstanceID for iOS'
 
   s.description      = <<-DESC
@@ -37,14 +37,15 @@ services.
       'FIRInstanceID_LIB_VERSION=' + String(s.version)
   }
   s.framework = 'Security'
-  s.dependency 'FirebaseCore', '~> 6.4' # Should go to 6.5 in M61 for new private header access
-  s.dependency 'GoogleUtilities/UserDefaults', '~> 6.0'
-  s.dependency 'GoogleUtilities/Environment', '~> 6.0'
+  s.dependency 'FirebaseCore', '~> 6.5'
+  s.dependency 'FirebaseInstallations', '~> 1.0'
+  s.dependency 'GoogleUtilities/UserDefaults', '~> 6.4'
+  s.dependency 'GoogleUtilities/Environment', '~> 6.4'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.source_files = 'Example/InstanceID/Tests/*.[mh]'
     unit_tests.requires_app_host = true
-    unit_tests.dependency 'OCMock', '~> 3.4.0'
+    unit_tests.dependency 'OCMock'
     unit_tests.pod_target_xcconfig = {
       # Unit tests do library imports using repo-root relative paths.
       'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',

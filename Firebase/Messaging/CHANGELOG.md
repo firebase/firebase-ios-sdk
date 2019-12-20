@@ -1,3 +1,6 @@
+# 2019-12 -- v4.1.10
+- [fixed] Fix component startup time. (#4137)
+
 # 2019-11-19 -- v4.1.9
 - [changed] Moved message queue delete operation to a serial queue to avoid race conditions in unit tests. (#4236)
 

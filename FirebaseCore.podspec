@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCore'
-  s.version          = '6.4.0'
+  s.version          = '6.5.0'
   s.summary          = 'Firebase Core for iOS (plus community support for macOS and tvOS)'
 
   s.description      = <<-DESC
@@ -39,7 +39,7 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
-      'FIRCore_VERSION=' + s.version.to_s + ' Firebase_VERSION=6.13.0',
+      'FIRCore_VERSION=' + s.version.to_s + ' Firebase_VERSION=6.14.0',
     'OTHER_CFLAGS' => '-fno-autolink'
   }
   s.test_spec 'unit' do |unit_tests|
@@ -47,5 +47,13 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
     unit_tests.requires_app_host = true
     unit_tests.dependency 'OCMock'
     unit_tests.resources = 'Example/Core/App/GoogleService-Info.plist'
+  end
+
+  s.test_spec 'swift-unit' do |swift_unit_tests|
+    swift_unit_tests.source_files = 'Example/Core/Tests/Swift/**/*.swift',
+                                    'Example/Core/Tests/Swift/**/*.h'
+    swift_unit_tests.pod_target_xcconfig = {
+      'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/Example/Core/Tests/Swift/FirebaseCore-iOS-Unit-swift-unit-Bridging-Header.h'
+    }
   end
 end

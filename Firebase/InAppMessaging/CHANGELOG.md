@@ -1,3 +1,8 @@
+# 2019-12-17 -- v0.15.6
+- [fixed] Issues with nullability in card message (#4435).
+- [fixed] Unit test failure with OCMock 3.5.0 (#4420).
+- [fixed] Crash in test on device error flow (#4446).
+
 # 2019-10-08 -- v0.15.5
 - [added] Added support for UIScene based application lifecycle (#3927).
 

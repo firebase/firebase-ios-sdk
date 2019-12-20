@@ -17,12 +17,14 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
+#import <FirebaseInstanceID/FIRInstanceID.h>
+#import <GoogleUtilities/GULUserDefaults.h>
+
 #import <FirebaseMessaging/FIRMessaging.h>
 
 #import "Example/Messaging/Tests/FIRMessagingTestNotificationUtilities.h"
 #import "Example/Messaging/Tests/FIRMessagingTestUtilities.h"
 #import "Firebase/Messaging/FIRMessagingConstants.h"
-
 
 NSString *const kFIRMessagingTestsLinkHandlingSuiteName = @"com.messaging.test_linkhandling";
 
@@ -53,6 +55,7 @@ NSString *const kFIRMessagingTestsLinkHandlingSuiteName = @"com.messaging.test_l
 - (void)tearDown {
   [_testUtil cleanupAfterTest];
   _messaging = nil;
+  [[[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingTestsLinkHandlingSuiteName] removePersistentDomainForName:kFIRMessagingTestsLinkHandlingSuiteName];
   [super tearDown];
 }
 

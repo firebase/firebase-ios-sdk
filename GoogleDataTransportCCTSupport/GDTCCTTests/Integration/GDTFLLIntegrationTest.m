@@ -99,7 +99,9 @@ typedef void (^GDTFLLIntegrationTestBlock)(NSURLSessionUploadTask *_Nullable);
   event.dataObject = [[GDTFLLTestDataObject alloc] init];
   event.qosTier = qosTier;
   [self.transport sendDataEvent:event];
-  self.totalEventsGenerated += 1;
+  dispatch_async(dispatch_get_main_queue(), ^{
+    self.totalEventsGenerated += 1;
+  });
 }
 
 /** Generates events recursively at random intervals between 0 and 5 seconds. */
@@ -193,7 +195,11 @@ typedef void (^GDTFLLIntegrationTestBlock)(NSURLSessionUploadTask *_Nullable);
                 // We don't necessarily need *all* uploads to have happened, just some (due to
                 // timing). As long as there are some events uploaded, call it a success.
                 NSInteger eventsUploaded = eventsUploadedNumber.integerValue;
-                if (eventsUploaded > 0 && eventsUploaded <= self.totalEventsGenerated) {
+                __block NSInteger eventsGenerated;
+                dispatch_sync(dispatch_get_main_queue(), ^{
+                  eventsGenerated = self.totalEventsGenerated;
+                });
+                if (eventsUploaded > 0 && eventsUploaded <= eventsGenerated) {
                   [expectation fulfill];
                 }
               }];

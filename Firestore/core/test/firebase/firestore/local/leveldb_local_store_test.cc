@@ -14,43 +14,37 @@
  * limitations under the License.
  */
 
-#if _WIN32
-
 #include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
-
-#include <Shlobj.h>
-
-#include <utility>
-
-#include "Firestore/core/src/firebase/firestore/util/path.h"
-#include "Firestore/core/src/firebase/firestore/util/status.h"
-#include "Firestore/core/src/firebase/firestore/util/statusor.h"
+#include "Firestore/core/test/firebase/firestore/local/local_store_test.h"
+#include "Firestore/core/test/firebase/firestore/local/persistence_testing.h"
 
 namespace firebase {
 namespace firestore {
 namespace local {
+namespace {
 
-using util::Path;
-using util::Status;
-using util::StatusOr;
-
-StatusOr<Path> LevelDbPersistence::AppDataDirectory() {
-  wchar_t* path = nullptr;
-  HRESULT hr = SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, nullptr, &path);
-  if (FAILED(hr)) {
-    CoTaskMemFree(path);
-    return Status::FromLastError(
-        HRESULT_CODE(hr),
-        "Failed to find the local application data directory");
+class TestHelper : public LocalStoreTestHelper {
+ public:
+  std::unique_ptr<Persistence> MakePersistence() override {
+    return LevelDbPersistenceForTesting();
   }
 
-  Path result = Path::FromUtf16(path, wcslen(path));
-  CoTaskMemFree(path);
-  return std::move(result);
+  /** Returns true if the garbage collector is eager, false if LRU. */
+  bool IsGcEager() const override {
+    return false;
+  }
+};
+
+std::unique_ptr<LocalStoreTestHelper> Factory() {
+  return absl::make_unique<TestHelper>();
 }
+
+}  // namespace
+
+INSTANTIATE_TEST_SUITE_P(LevelDbLocalStoreTest,
+                         LocalStoreTest,
+                         ::testing::Values(Factory));
 
 }  // namespace local
 }  // namespace firestore
 }  // namespace firebase
-
-#endif  // _WIN32

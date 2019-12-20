@@ -22,6 +22,7 @@
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
+#include "absl/memory/memory.h"
 
 namespace firebase {
 namespace firestore {

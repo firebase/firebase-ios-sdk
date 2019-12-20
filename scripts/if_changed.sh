@@ -54,7 +54,8 @@ else
 'FirebaseStorage.podspec|FirebaseStorage.podspec|Firebase/InAppMessagingDisplay|'\
 'InAppMessagingDisplay|InAppMessaging|Firebase/InAppMessaging|'\
 'FirebaseInAppMessaging.podspec|FirebaseInAppMessagingDisplay.podspec|'\
-'Firebase/InstanceID|FirebaseInstanceID.podspec)'
+'Firebase/InstanceID|FirebaseInstanceID.podspec|'\
+'FirebaseInstallations|FirebaseInstallations.podspec)'
       ;;
 
     Firebase-*)
@@ -63,7 +64,8 @@ else
 'FirebaseAnalyticsIntop.podspec|FirebaseAuth.podspec|FirebaseAuthInterop.podspec|'\
 'FirebaseCore.podspec|FirebaseCoreDiagnostics.podspec|FirebaseCoreDiagnosticsInterop.podspec|'\
 'FirebaseDatabase.podspec|FirebaseDynamicLinks.podspec|FirebaseMessaging.podspec|'\
-'FirebaseStorage.podspec|FirebaseStorage.podspec|Firebase/InstanceID|FirebaseInstanceID.podspec)'
+'FirebaseStorage.podspec|FirebaseStorage.podspec|Firebase/InstanceID|FirebaseInstanceID.podspec|'\
+'FirebaseInstallations|FirebaseInstallations.podspec)'
       ;;
 
     FirebasePod-*)
@@ -72,7 +74,8 @@ else
 
     Core-*)
       check_changes '^(Firebase/Core|Example/Core/Tests|GoogleUtilities|FirebaseCore.podspec'\
-'FirebaseCoreDiagnostics.podspec|FirebaseCoreDiagnosticsInterop|FirebaseCoreDiagnosticsInterop.podspec)'
+'Firebase/CoreDiagnostics|Example/CoreDiagnostics/Tests|FirebaseCoreDiagnostics.podspec|'\
+'FirebaseCoreDiagnosticsInterop|FirebaseCoreDiagnosticsInterop.podspec)'
       ;;
 
     ABTesting-*)
@@ -81,11 +84,6 @@ else
 
     Auth-*)
       check_changes '^(Firebase/Core|Firebase/Auth|Example/Auth|GoogleUtilities|FirebaseAuth.podspec)'
-      ;;
-
-    CoreDiagnostics-*)
-      check_changes '^(Firebase/CoreDiagnostics|Example/CoreDiagnostics/Tests|FirebaseCoreDiagnostics.podspec|'\
-'FirebaseCoreDiagnosticsInterop|FirebaseCoreDiagnosticsInterop.podspec)'
       ;;
 
     Database-*)
@@ -109,17 +107,13 @@ else
       ;;
 
     InAppMessaging-*)
-      check_changes '^(InAppMessaging|Firebase/InAppMessaging)'
-      ;;
-
-    InAppMessagingDisplay-*)
-      check_changes '^(Firebase/InAppMessagingDisplay|InAppMessagingDisplay|InAppMessaging|'\
-'Firebase/InAppMessaging)'
+      check_changes '^(InAppMessaging|Firebase/InAppMessaging|Firebase/InAppMessagingDisplay|InAppMessagingDisplay|'\
+'FirebaseInAppMessaging.podspec|FirebaseInAppMessagingDisplay.podspec)'
       ;;
 
     InstanceID-*)
       check_changes '^(Firebase/InstanceID|Example/InstanceID|Firebase/Core|GoogleUtilities|'\
-'FirebaseInstanceID.podspec)'
+'FirebaseInstanceID.podspec|FirebaseInstallations|FirebaseInstallations.podspec)'
       ;;
 
     Firestore-xcodebuild|Firestore-pod-lib-lint)
@@ -132,19 +126,13 @@ else
       ;;
 
     GoogleDataTransport-*)
-      check_changes '^(GoogleDataTransport|GoogleDataTransport.podspec)'
-      ;;
-
-    GoogleDataTransportIntegrationTest-*)
-      check_changes '^(GoogleDataTransport|GoogleDataTransport.podspec)'
-      ;;
-
-    GoogleDataTransportCCTSupport-*)
-      check_changes '^(GoogleDataTransportCCTSupport|GoogleDataTransportCCTSupport.podspec|GoogleDataTransport|GoogleDataTransport.podspec)'
+      check_changes '^(GoogleDataTransport|GoogleDataTransport.podspec|'\
+'GoogleDataTransportCCTSupport|GoogleDataTransportCCTSupport.podspec)'
       ;;
 
     Messaging-*)
-      check_changes '^(Firebase/Core|Firebase/Messaging|Example/Messaging|GoogleUtilities|FirebaseMessaging.podspec|Firebase/InstanceID)'
+      check_changes '^(Firebase/Core|Firebase/Messaging|Example/Messaging|GoogleUtilities|FirebaseMessaging.podspec|Firebase/InstanceID|'\
+'FirebaseInstallations|FirebaseInstallations.podspec)'
       ;;
 
     RemoteConfig-*)

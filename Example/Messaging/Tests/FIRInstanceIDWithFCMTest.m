@@ -19,6 +19,8 @@
 
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseInstanceID/FirebaseInstanceID.h>
+#import <GoogleUtilities/GULUserDefaults.h>
+
 #import <FirebaseMessaging/FIRMessaging.h>
 
 #import "Firebase/Messaging/FIRMessaging_Private.h"

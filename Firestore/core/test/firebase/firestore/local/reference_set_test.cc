@@ -30,53 +30,53 @@ using model::DocumentKey;
 TEST(ReferenceSetTest, AddOrRemoveReferences) {
   DocumentKey key = testutil::Key("foo/bar");
 
-  ReferenceSet referenceSet{};
-  EXPECT_TRUE(referenceSet.empty());
-  EXPECT_FALSE(referenceSet.ContainsKey(key));
+  ReferenceSet reference_set{};
+  EXPECT_TRUE(reference_set.empty());
+  EXPECT_FALSE(reference_set.ContainsKey(key));
 
-  referenceSet.AddReference(key, 1);
-  EXPECT_TRUE(referenceSet.ContainsKey(key));
-  EXPECT_FALSE(referenceSet.empty());
+  reference_set.AddReference(key, 1);
+  EXPECT_TRUE(reference_set.ContainsKey(key));
+  EXPECT_FALSE(reference_set.empty());
 
-  referenceSet.AddReference(key, 2);
-  EXPECT_TRUE(referenceSet.ContainsKey(key));
+  reference_set.AddReference(key, 2);
+  EXPECT_TRUE(reference_set.ContainsKey(key));
 
-  referenceSet.RemoveReference(key, 1);
-  EXPECT_TRUE(referenceSet.ContainsKey(key));
+  reference_set.RemoveReference(key, 1);
+  EXPECT_TRUE(reference_set.ContainsKey(key));
 
-  referenceSet.RemoveReference(key, 3);
-  EXPECT_TRUE(referenceSet.ContainsKey(key));
+  reference_set.RemoveReference(key, 3);
+  EXPECT_TRUE(reference_set.ContainsKey(key));
 
-  referenceSet.RemoveReference(key, 2);
-  EXPECT_FALSE(referenceSet.ContainsKey(key));
-  EXPECT_TRUE(referenceSet.empty());
+  reference_set.RemoveReference(key, 2);
+  EXPECT_FALSE(reference_set.ContainsKey(key));
+  EXPECT_TRUE(reference_set.empty());
 }
 
 TEST(ReferenceSetTest, RemoteAllReferencesForTargetId) {
   DocumentKey key1 = testutil::Key("foo/bar");
   DocumentKey key2 = testutil::Key("foo/baz");
   DocumentKey key3 = testutil::Key("foo/blah");
-  ReferenceSet referenceSet{};
+  ReferenceSet reference_set{};
 
-  referenceSet.AddReference(key1, 1);
-  referenceSet.AddReference(key2, 1);
-  referenceSet.AddReference(key3, 2);
-  EXPECT_FALSE(referenceSet.empty());
-  EXPECT_TRUE(referenceSet.ContainsKey(key1));
-  EXPECT_TRUE(referenceSet.ContainsKey(key2));
-  EXPECT_TRUE(referenceSet.ContainsKey(key3));
+  reference_set.AddReference(key1, 1);
+  reference_set.AddReference(key2, 1);
+  reference_set.AddReference(key3, 2);
+  EXPECT_FALSE(reference_set.empty());
+  EXPECT_TRUE(reference_set.ContainsKey(key1));
+  EXPECT_TRUE(reference_set.ContainsKey(key2));
+  EXPECT_TRUE(reference_set.ContainsKey(key3));
 
-  referenceSet.RemoveReferences(1);
-  EXPECT_FALSE(referenceSet.empty());
-  EXPECT_FALSE(referenceSet.ContainsKey(key1));
-  EXPECT_FALSE(referenceSet.ContainsKey(key2));
-  EXPECT_TRUE(referenceSet.ContainsKey(key3));
+  reference_set.RemoveReferences(1);
+  EXPECT_FALSE(reference_set.empty());
+  EXPECT_FALSE(reference_set.ContainsKey(key1));
+  EXPECT_FALSE(reference_set.ContainsKey(key2));
+  EXPECT_TRUE(reference_set.ContainsKey(key3));
 
-  referenceSet.RemoveReferences(2);
-  EXPECT_TRUE(referenceSet.empty());
-  EXPECT_FALSE(referenceSet.ContainsKey(key1));
-  EXPECT_FALSE(referenceSet.ContainsKey(key2));
-  EXPECT_FALSE(referenceSet.ContainsKey(key3));
+  reference_set.RemoveReferences(2);
+  EXPECT_TRUE(reference_set.empty());
+  EXPECT_FALSE(reference_set.ContainsKey(key1));
+  EXPECT_FALSE(reference_set.ContainsKey(key2));
+  EXPECT_FALSE(reference_set.ContainsKey(key3));
 }
 
 }  // namespace local

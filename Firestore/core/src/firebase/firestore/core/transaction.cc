@@ -211,11 +211,11 @@ void Transaction::Commit(util::StatusCallback&& callback) {
 }
 
 void Transaction::MarkPermanentlyFailed() {
-  permanentError_ = true;
+  permanent_error_ = true;
 }
 
 bool Transaction::IsPermanentlyFailed() const {
-  return permanentError_;
+  return permanent_error_;
 }
 
 void Transaction::EnsureCommitNotCalled() {

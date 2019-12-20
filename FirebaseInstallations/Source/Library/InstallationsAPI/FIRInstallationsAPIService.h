@@ -21,6 +21,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+FOUNDATION_EXPORT NSString *const kFIRInstallationsUserAgentKey;
+
+FOUNDATION_EXPORT NSString *const kFIRInstallationsHeartbeatKey;
+
 /**
  * The class is responsible for interacting with HTTP REST API for Installations.
  */

@@ -6,6 +6,7 @@ target 'RemoteConfigSampleApp' do
   use_frameworks!
   pod 'FirebaseAnalytics'
   pod 'FirebaseCore', :path => '../../../'
+  pod 'FirebaseInstallations', :path => '../../../'
   pod 'FirebaseInstanceID', :path => '../../../'
   pod 'FirebaseRemoteConfig', :path => '../../../'
 

@@ -23,9 +23,9 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-bool FieldMask::covers(const FieldPath& fieldPath) const {
-  for (const FieldPath& fieldMaskPath : fields_) {
-    if (fieldMaskPath.IsPrefixOf(fieldPath)) {
+bool FieldMask::covers(const FieldPath& field_path) const {
+  for (const FieldPath& field_mask_path : fields_) {
+    if (field_mask_path.IsPrefixOf(field_path)) {
       return true;
     }
   }

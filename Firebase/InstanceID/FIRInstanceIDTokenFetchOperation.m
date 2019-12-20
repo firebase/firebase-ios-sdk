@@ -43,22 +43,20 @@ NSString *const kFIRInstanceIDHeartbeatTag = @"fire-iid";
                                    scope:(NSString *)scope
                                  options:(nullable NSDictionary<NSString *, NSString *> *)options
                       checkinPreferences:(FIRInstanceIDCheckinPreferences *)checkinPreferences
-                                 keyPair:(FIRInstanceIDKeyPair *)keyPair {
+                              instanceID:(NSString *)instanceID {
   self = [super initWithAction:FIRInstanceIDTokenActionFetch
            forAuthorizedEntity:authorizedEntity
                          scope:scope
                        options:options
             checkinPreferences:checkinPreferences
-                       keyPair:keyPair];
+                    instanceID:instanceID];
   if (self) {
   }
   return self;
 }
 
 - (void)performTokenOperation {
-  NSString *authHeader =
-      [FIRInstanceIDTokenOperation HTTPAuthHeaderFromCheckin:self.checkinPreferences];
-  NSMutableURLRequest *request = [[self class] requestWithAuthHeader:authHeader];
+  NSMutableURLRequest *request = [self tokenRequest];
   NSString *checkinVersionInfo = self.checkinPreferences.versionInfo;
   [request setValue:checkinVersionInfo forHTTPHeaderField:@"info"];
   [request setValue:[FIRApp firebaseUserAgent]
@@ -75,7 +73,7 @@ NSString *const kFIRInstanceIDHeartbeatTag = @"fire-iid";
   [queryItems addObject:[FIRInstanceIDURLQueryItem queryItemWithName:@"X-subtype"
                                                                value:self.authorizedEntity]];
 
-  [queryItems addObjectsFromArray:[self queryItemsWithKeyPair:self.keyPair]];
+  [queryItems addObjectsFromArray:[self queryItemsWithInstanceID:self.instanceID]];
 
   // Create query items from passed-in options
   id apnsTokenData = self.options[kFIRInstanceIDTokenOptionsAPNSKey];

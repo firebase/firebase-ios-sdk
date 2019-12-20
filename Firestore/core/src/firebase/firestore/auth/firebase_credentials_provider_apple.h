@@ -71,7 +71,7 @@ class FirebaseCredentialsProvider : public CredentialsProvider {
   void GetToken(TokenListener completion) override;
 
   void SetCredentialChangeListener(
-      CredentialChangeListener changeListener) override;
+      CredentialChangeListener change_listener) override;
 
   void InvalidateToken() override;
 
@@ -108,7 +108,7 @@ class FirebaseCredentialsProvider : public CredentialsProvider {
   };
 
   /**
-   * Handle used to stop receiving auth changes once userChangeListener is
+   * Handle used to stop receiving auth changes once CredentialChangeListener is
    * removed.
    */
   id<NSObject> auth_listener_handle_;

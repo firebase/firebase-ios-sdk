@@ -48,9 +48,9 @@ model::MaybeDocumentMap DocUpdates(
 absl::optional<ViewSnapshot> ApplyChanges(
     View* view,
     const std::vector<MaybeDocument>& docs,
-    const absl::optional<TargetChange>& targetChange) {
+    const absl::optional<TargetChange>& target_change) {
   ViewChange change = view->ApplyChanges(
-      view->ComputeDocumentChanges(DocUpdates(docs)), targetChange);
+      view->ComputeDocumentChanges(DocUpdates(docs)), target_change);
   return change.snapshot();
 }
 

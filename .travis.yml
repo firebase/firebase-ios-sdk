@@ -1,5 +1,5 @@
 os: osx
-osx_image: xcode11.2
+osx_image: xcode11.3
 language: objective-c
 cache:
   - bundler
@@ -41,30 +41,6 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=ios
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=tvos
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=macos
-
-    - stage: test
-      osx_image: xcode10.3
-      env:
-        - PROJECT=Core METHOD=pod-lib-lint
-      script:
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=ios
-
-    - stage: test
-      if: type = cron
-      env:
-        - PROJECT=CoreCron METHOD=pod-lib-lint
-      script:
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=ios --use-libraries
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=tvos --use-libraries
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=macos --use-libraries
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=ios --use-modular-headers
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=tvos --use-modular-headers
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=macos --use-modular-headers
-
-    - stage: test
-      env:
-        - PROJECT=CoreDiagnostics METHOD=pod-lib-lint
-      script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCoreDiagnostics.podspec --platforms=ios
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCoreDiagnostics.podspec --platforms=tvos
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCoreDiagnostics.podspec --platforms=macos
@@ -72,15 +48,22 @@ jobs:
     - stage: test
       osx_image: xcode10.3
       env:
-        - PROJECT=CoreDiagnostics METHOD=pod-lib-lint
+        - PROJECT=Core METHOD=pod-lib-lint
       script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=ios
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCoreDiagnostics.podspec --platforms=ios
 
     - stage: test
       if: type = cron
       env:
-        - PROJECT=CoreDiagnosticsCron METHOD=pod-lib-lint
+        - PROJECT=CoreCron METHOD=pod-lib-lint
       script:
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=ios --use-libraries --skip-tests
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=tvos --use-libraries --skip-tests
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=macos --use-libraries --skip-tests
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=ios --use-modular-headers
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=tvos --use-modular-headers
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=macos --use-modular-headers
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseCoreDiagnostics.podspec --platforms=ios --use-libraries
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseCoreDiagnostics.podspec --platforms=tvos --use-libraries
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseCoreDiagnostics.podspec --platforms=macos --use-libraries
@@ -351,25 +334,9 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
 
     - stage: test
+      if: type = cron
       env:
-        - PROJECT=InAppMessagingDisplay PLATFORM=iOS METHOD=xcodebuild
-      before_install:
-        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
-      script:
-        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
-
-    - stage: test
-      osx_image: xcode10.3
-      env:
-        - PROJECT=InAppMessagingDisplay PLATFORM=iOS METHOD=xcodebuild
-      before_install:
-        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
-      script:
-        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
-
-    - stage: test
-      env:
-        - PROJECT=InAppMessagingDisplay PLATFORM=iPad METHOD=xcodebuild
+        - PROJECT=InAppMessaging PLATFORM=iPad METHOD=xcodebuild
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
@@ -442,8 +409,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseAnalyticsInterop.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseAuthInterop.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCoreDiagnosticsInterop.podspec
-        # Fix analyze (#4163)
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInAppMessaging.podspec --no-analyze
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInAppMessaging.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInAppMessagingDisplay.podspec
 
     - stage: test
@@ -461,8 +427,8 @@ jobs:
       env:
         - PROJECT=InAppMessagingCron METHOD=pod-lib-lint
       script:
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseInAppMessaging.podspec --use-libraries --no-analyze
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseInAppMessaging.podspec --use-modular-headers --no-analyze
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseInAppMessaging.podspec --use-libraries
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseInAppMessaging.podspec --use-modular-headers
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseInAppMessagingDisplay.podspec --use-libraries
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseInAppMessagingDisplay.podspec --use-modular-headers
 
@@ -482,6 +448,9 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=ios
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=macos
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=tvos
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=ios
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=macos
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=tvos
 
     - stage: test
       osx_image: xcode10.3
@@ -489,6 +458,7 @@ jobs:
         - PROJECT=GoogleDataTransport METHOD=pod-lib-lint
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=ios
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=ios
 
     - stage: test
       if: type = cron
@@ -501,27 +471,6 @@ jobs:
         - travis_retry ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=ios --use-modular-headers
         - travis_retry ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=macos --use-modular-headers
         - travis_retry ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=tvos --use-modular-headers
-
-    - stage: test
-      env:
-        - PROJECT=GoogleDataTransportCCTSupport METHOD=pod-lib-lint
-      script:
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=ios
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=macos
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=tvos
-
-    - stage: test
-      osx_image: xcode10.3
-      env:
-        - PROJECT=GoogleDataTransportCCTSupport METHOD=pod-lib-lint
-      script:
-        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=ios
-
-    - stage: test
-      if: type = cron
-      env:
-        - PROJECT=GoogleDataTransportCCTSupportCron METHOD=pod-lib-lint
-      script:
         - travis_retry ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=ios --use-libraries
         - travis_retry ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=macos --use-libraries
         - travis_retry ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=tvos --use-libraries

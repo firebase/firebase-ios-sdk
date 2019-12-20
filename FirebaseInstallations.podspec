@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseInstallations'
-  s.version          = '0.1.0'
+  s.version          = '1.0.0'
   s.summary          = 'Firebase Installations for iOS'
 
   s.description      = <<-DESC
@@ -29,9 +29,9 @@ Pod::Spec.new do |s|
   s.public_header_files = base_dir + 'Library/Public/*.h'
 
   s.framework = 'Security'
-  s.dependency 'FirebaseCore', '~> 6.0'
+  s.dependency 'FirebaseCore', '~> 6.5'
   s.dependency 'PromisesObjC', '~> 1.2'
-  s.dependency 'GoogleUtilities/UserDefaults', '~> 6.2'
+  s.dependency 'GoogleUtilities/UserDefaults', '~> 6.4'
 
   preprocessor_definitions = 'FIRInstallations_LIB_VERSION=' + String(s.version)
   if ENV['FIS_ALLOWS_INCOMPATIBLE_IID_VERSION'] && ENV['FIS_ALLOWS_INCOMPATIBLE_IID_VERSION'] == '1' then
@@ -48,7 +48,7 @@ Pod::Spec.new do |s|
                               base_dir + 'Tests/Utils/**/*.[mh]'
     unit_tests.resources = base_dir + 'Tests/Fixture/**/*'
     unit_tests.requires_app_host = true
-    unit_tests.dependency 'OCMock', '~> 3.4.0'
+    unit_tests.dependency 'OCMock'
     unit_tests.dependency 'FirebaseInstanceID', '~> 4.2.0' # The version before FirebaseInstanceID updated to use FirebaseInstallations under the hood.
 
   end
@@ -63,6 +63,6 @@ Pod::Spec.new do |s|
       }
     end
     int_tests.requires_app_host = true
-    int_tests.dependency 'OCMock', '~> 3.4.0'
+    int_tests.dependency 'OCMock'
   end
 end
