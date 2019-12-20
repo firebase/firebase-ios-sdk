@@ -26,12 +26,12 @@ See more product details at https://firebase.google.com/products/in-app-messagin
   base_dir = "Firebase/InAppMessaging/"
 	display_dir = base_dir + "DefaultUI/"
   s.source_files = base_dir + '**/*.[cmh]'
-  s.public_header_files = base_dir + 'Public/*.h'
+  s.public_header_files = base_dir + 'Sources/Public/*.h'
 
   s.resource_bundles = {
-    'InAppMessagingDisplayResources' => [ display_dir + 'Resources/*.xib',
-                                   display_dir + 'Resources/*.storyboard',
-                                   display_dir + 'Resources/*.png']
+    'InAppMessagingDisplayResources' => [ base_dir + 'Resources/*.xib',
+                                   base_dir + 'Resources/*.storyboard',
+                                   base_dir + 'Resources/*.png']
   }
 
   s.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' =>
