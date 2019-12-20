@@ -44,7 +44,7 @@
   copy.dataObjectTransportBytes = _dataObjectTransportBytes;
   copy.qosTier = _qosTier;
   copy.clockSnapshot = _clockSnapshot;
-  copy.customPrioritizationParams = _customPrioritizationParams;
+  copy.customBytes = _customBytes;
   return copy;
 }
 

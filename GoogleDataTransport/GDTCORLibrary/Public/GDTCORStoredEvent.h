@@ -39,11 +39,8 @@ NS_ASSUME_NONNULL_BEGIN
 /** The clock snapshot at the time of the event. */
 @property(readonly, nonatomic) GDTCORClock *clockSnapshot;
 
-/** A dictionary provided to aid prioritizers by allowing the passing of arbitrary data.
- *
- * @note Ensure that custom classes in this dict implement NSSecureCoding to prevent loss of data.
- */
-@property(readonly, nullable, nonatomic) NSDictionary *customPrioritizationParams;
+/** Bytes provided to aid prioritizers by allowing the passing of arbitrary data. */
+@property(readonly, nullable, nonatomic) NSData *customBytes;
 
 /** Initializes a stored event with the given URL and event.
  *

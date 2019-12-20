@@ -61,7 +61,7 @@ BOOL GDTCORSQLCompileSQL(sqlite3_stmt **stmt, sqlite3 *db, NSString *statement) 
     const char *errMsg = sqlite3_errmsg(db);
     if (errMsg) {
       GDTCORLogError(GDTCORMCEDatabaseError, @"Failed to compile statement: %s\nError: %s",
-                     statement, errMsg);
+                     statement.UTF8String, errMsg);
       return NO;
     }
   }

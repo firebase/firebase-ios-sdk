@@ -31,7 +31,7 @@
     _target = @(event.target);
     _qosTier = event.qosTier;
     _clockSnapshot = event.clockSnapshot;
-    _customPrioritizationParams = event.customPrioritizationParams;
+    _customBytes = event.customBytes;
   }
   return self;
 }
@@ -53,8 +53,8 @@ static NSString *kQosTierKey = @"GDTCORStoredEventQosTierKey";
 /** Coding key for clockSnapshot ivar. */
 static NSString *kClockSnapshotKey = @"GDTCORStoredEventClockSnapshotKey";
 
-/** Coding key for customPrioritizationParams ivar. */
-static NSString *kCustomPrioritizationParamsKey = @"GDTCORStoredEventcustomPrioritizationParamsKey";
+/** Coding key for customBytes ivar. */
+static NSString *kCustomBytesParamsKey = @"GDTCORStoredEventcustomBytesParamsKey";
 
 + (BOOL)supportsSecureCoding {
   return YES;
@@ -66,7 +66,7 @@ static NSString *kCustomPrioritizationParamsKey = @"GDTCORStoredEventcustomPrior
   [aCoder encodeObject:_target forKey:kTargetKey];
   [aCoder encodeObject:@(_qosTier) forKey:kQosTierKey];
   [aCoder encodeObject:_clockSnapshot forKey:kClockSnapshotKey];
-  [aCoder encodeObject:_customPrioritizationParams forKey:kCustomPrioritizationParamsKey];
+  [aCoder encodeObject:_customBytes forKey:kCustomBytesParamsKey];
 }
 
 - (nullable instancetype)initWithCoder:(nonnull NSCoder *)aDecoder {
@@ -78,8 +78,7 @@ static NSString *kCustomPrioritizationParamsKey = @"GDTCORStoredEventcustomPrior
     NSNumber *qosTier = [aDecoder decodeObjectOfClass:[NSNumber class] forKey:kQosTierKey];
     _qosTier = [qosTier intValue];
     _clockSnapshot = [aDecoder decodeObjectOfClass:[GDTCORClock class] forKey:kClockSnapshotKey];
-    _customPrioritizationParams = [aDecoder decodeObjectOfClass:[NSDictionary class]
-                                                         forKey:kCustomPrioritizationParamsKey];
+    _customBytes = [aDecoder decodeObjectOfClass:[NSDictionary class] forKey:kCustomBytesParamsKey];
   }
   return self;
 }

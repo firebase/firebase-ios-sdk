@@ -51,12 +51,13 @@
   XCTAssertNotNil(storedEvent.target);
   XCTAssertEqual(storedEvent.qosTier, GDTCOREventQoSTelemetry);
   XCTAssertNotNil(storedEvent.clockSnapshot);
-  XCTAssertNil(storedEvent.customPrioritizationParams);
+  XCTAssertNil(storedEvent.customBytes);
   XCTAssertNotNil(storedEvent.dataFuture.fileURL);
 }
 
 /** Tests equality between GDTCORStoredEvents. */
 - (void)testIsEqualAndHash {
+  NSError *error;
   GDTCOREvent *event1 = [[GDTCOREvent alloc] initWithMappingID:@"1018" target:1];
   event1.clockSnapshot = [GDTCORClock snapshot];
   [event1.clockSnapshot setValue:@(1553534573010) forKeyPath:@"timeMillis"];
@@ -64,7 +65,10 @@
   [event1.clockSnapshot setValue:@(1552576634359451) forKeyPath:@"kernelBootTime"];
   [event1.clockSnapshot setValue:@(961141365197) forKeyPath:@"uptime"];
   event1.qosTier = GDTCOREventQosDefault;
-  event1.customPrioritizationParams = @{@"customParam1" : @"aValue1"};
+  event1.customBytes = [NSJSONSerialization dataWithJSONObject:@{@"customParam1" : @"aValue1"}
+                                                       options:0
+                                                         error:&error];
+  XCTAssertNil(error);
   GDTCORDataFuture *dataFuture1 =
       [[GDTCORDataFuture alloc] initWithFileURL:[NSURL fileURLWithPath:@"/tmp/fake.txt"]];
   GDTCORStoredEvent *storedEvent1 = [[GDTCORStoredEvent alloc] initWithEvent:event1
@@ -77,7 +81,10 @@
   [event2.clockSnapshot setValue:@(1552576634359451) forKeyPath:@"kernelBootTime"];
   [event2.clockSnapshot setValue:@(961141365197) forKeyPath:@"uptime"];
   event2.qosTier = GDTCOREventQosDefault;
-  event2.customPrioritizationParams = @{@"customParam1" : @"aValue1"};
+  event1.customBytes = [NSJSONSerialization dataWithJSONObject:@{@"customParam1" : @"aValue1"}
+                                                       options:0
+                                                         error:&error];
+  XCTAssertNil(error);
   GDTCORDataFuture *dataFuture2 =
       [[GDTCORDataFuture alloc] initWithFileURL:[NSURL fileURLWithPath:@"/tmp/fake.txt"]];
   GDTCORStoredEvent *storedEvent2 = [[GDTCORStoredEvent alloc] initWithEvent:event2
