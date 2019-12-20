@@ -40,13 +40,14 @@ typedef NSString *const GULSceneDelegateInterceptorID;
  *      if it fails.
  */
 + (nullable GULSceneDelegateInterceptorID)registerSceneDelegateInterceptor:
-    (id<UISceneDelegate>)interceptor API_AVAILABLE(ios(13.0));
+    (id<UISceneDelegate>)interceptor API_AVAILABLE(ios(13.0), tvos(13.0));
 
 /** Unregisters an interceptor with the given ID if it exists.
  *
  *  @param interceptorID The object that was generated when the interceptor was registered.
  */
-+ (void)unregisterSceneDelegateInterceptorWithID:(GULSceneDelegateInterceptorID)interceptorID;
++ (void)unregisterSceneDelegateInterceptorWithID:(GULSceneDelegateInterceptorID)interceptorID
+    API_AVAILABLE(ios(13.0), tvos(13.0));
 
 /** This method ensures that the original app delegate has been proxied. Call this before
  *  registering your interceptor. This method is safe to call multiple times (but it only proxies
@@ -62,13 +63,13 @@ typedef NSString *const GULSceneDelegateInterceptorID;
  *
  *  The method has no effect for extensions.
  */
-+ (void)proxyOriginalSceneDelegate;
++ (void)proxyOriginalSceneDelegate API_AVAILABLE(ios(13.0), tvos(13.0));
 
 /** Indicates whether app delegate proxy is explicitly disabled or enabled. Enabled by default.
  *
  *  @return YES if SceneDelegateProxy is Enabled, NO otherwise.
  */
-+ (BOOL)isSceneDelegateProxyEnabled;
++ (BOOL)isSceneDelegateProxyEnabled API_AVAILABLE(ios(13.0), tvos(13.0));
 
 /** Do not initialize this class. */
 - (instancetype)init NS_UNAVAILABLE;

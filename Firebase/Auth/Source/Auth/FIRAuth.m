@@ -385,7 +385,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     UIApplication *application = [applicationClass sharedApplication];
 
     [GULAppDelegateSwizzler proxyOriginalDelegateIncludingAPNSMethods];
-    [GULSceneDelegateSwizzler proxyOriginalSceneDelegate];
+    if (@available(iOS 13, tvos 13, *)) {
+      [GULSceneDelegateSwizzler proxyOriginalSceneDelegate];
+    }
     #endif
 
     // Continue with the rest of initialization in the work thread.
@@ -441,7 +443,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
           appCredentialManager:strongSelf->_appCredentialManager];
 
       [GULAppDelegateSwizzler registerAppDelegateInterceptor:strongSelf];
-      [GULSceneDelegateSwizzler registerSceneDelegateInterceptor:strongSelf];
+      if (@available(iOS 13, tvos 13, *)) {
+        [GULSceneDelegateSwizzler registerSceneDelegateInterceptor:strongSelf];
+      }
       #endif
     });
   }
