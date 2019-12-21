@@ -83,21 +83,20 @@
     @"d" : @{@"k" : @"d", @"sort" : @2},
   }];
 
+  // Setup a `limit` query.
   FIRQuery *limit = [[collRef queryOrderedByField:@"sort" descending:NO] queryLimitedTo:2];
   FSTEventAccumulator *limitAccumulator = [FSTEventAccumulator accumulatorForTest:self];
   id<FIRListenerRegistration> limitRegistration =
       [limit addSnapshotListener:limitAccumulator.valueEventHandler];
 
+  // Setup a mirroring `limitToLast` query.
   FIRQuery *limitToLast = [[collRef queryOrderedByField:@"sort"
                                              descending:YES] queryLimitedToLast:2];
   FSTEventAccumulator *limitToLastAccumulator = [FSTEventAccumulator accumulatorForTest:self];
   id<FIRListenerRegistration> limitToLastRegistration =
       [limitToLast addSnapshotListener:limitToLastAccumulator.valueEventHandler];
 
-  [limitRegistration description];
-  [limitToLastRegistration description];
-
-  // Verify both query get expected result.
+  // Verify both queries get expected result.
   FIRQuerySnapshot *snapshot = [limitAccumulator awaitEventWithName:@"Snapshot"];
   NSArray *expected = @[ @{@"k" : @"a", @"sort" : @0}, @{@"k" : @"b", @"sort" : @1} ];
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), expected);
@@ -117,7 +116,7 @@
   // Add a document that would change the result set.
   [self addDocumentRef:collRef data:@{@"k" : @"e", @"sort" : @-1}];
 
-  // Verify both query get expected result.
+  // Verify both queries get expected result.
   snapshot = [limitAccumulator awaitEventWithName:@"Snapshot"];
   expected = @[ @{@"k" : @"e", @"sort" : @-1}, @{@"k" : @"a", @"sort" : @0} ];
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), expected);
@@ -130,7 +129,7 @@
   [self updateDocumentRef:[collRef documentWithPath:@"a"] data:@{@"k" : @"a", @"sort" : @-2}];
   [limitToLast addSnapshotListener:[limitToLastAccumulator valueEventHandler]];
 
-  // Verify both query get expected result.
+  // Verify both queries get expected result.
   snapshot = [limitAccumulator awaitEventWithName:@"Snapshot"];
   expected = @[ @{@"k" : @"a", @"sort" : @-2}, @{@"k" : @"e", @"sort" : @-1} ];
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), expected);

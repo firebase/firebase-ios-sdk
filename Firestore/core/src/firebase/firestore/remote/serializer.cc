@@ -1023,7 +1023,7 @@ Target Serializer::DecodeQueryTarget(
 
   return Query(std::move(path), std::move(collection_group),
                std::move(filter_by), std::move(order_by), limit,
-               LimitType::LimitToFirst, std::move(start_at), std::move(end_at))
+               LimitType::None, std::move(start_at), std::move(end_at))
       .ToTarget();
 }
 

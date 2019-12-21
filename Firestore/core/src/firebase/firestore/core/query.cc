@@ -156,22 +156,14 @@ const FieldPath* Query::FirstOrderByField() const {
   return &explicit_order_bys_.front().field();
 }
 
-int32_t Query::limit_to_first() const {
-  HARD_ASSERT(has_limit_to_first(),
-              "Called limit_to_first() when no limit was set");
-  return limit_;
-}
-
-int32_t Query::limit_to_last() const {
-  HARD_ASSERT(has_limit_to_last(),
-              "Called limit_to_last() when no limit was set");
-  return limit_;
-}
-
 LimitType Query::limit_type() const {
-  HARD_ASSERT(has_limit_to_first() || has_limit_to_last(),
-              "Called limit_type() when no limit was set.");
   return limit_type_;
+}
+
+int32_t Query::limit() const {
+  HARD_ASSERT(limit_type_ != LimitType::None,
+              "Called limit() when no limit was set");
+  return limit_;
 }
 
 // MARK: - Builder methods
@@ -210,12 +202,12 @@ Query Query::AddingOrderBy(OrderBy order_by) const {
 
 Query Query::WithLimitToFirst(int32_t limit) const {
   return Query(path_, collection_group_, filters_, explicit_order_bys_, limit,
-               LimitType::LimitToFirst, start_at_, end_at_);
+               LimitType::First, start_at_, end_at_);
 }
 
 Query Query::WithLimitToLast(int32_t limit) const {
   return Query(path_, collection_group_, filters_, explicit_order_bys_, limit,
-               LimitType::LimitToLast, start_at_, end_at_);
+               LimitType::Last, start_at_, end_at_);
 }
 
 Query Query::StartingAt(Bound bound) const {
@@ -311,8 +303,11 @@ model::DocumentComparator Query::Comparator() const {
 }
 
 const std::string Query::CanonicalId() const {
-  return absl::StrCat(ToTarget().CanonicalId(), "|lt:",
-                      (limit_type_ == LimitType::LimitToLast) ? "l" : "f");
+  if (limit_type_ != LimitType::None) {
+    return absl::StrCat(ToTarget().CanonicalId(),
+                        "|lt:", (limit_type_ == LimitType::Last) ? "l" : "f");
+  }
+  return ToTarget().CanonicalId();
 }
 
 size_t Query::Hash() const {
@@ -325,11 +320,7 @@ std::string Query::ToString() const {
 
 const Target& Query::ToTarget() const& {
   if (memoized_target == nullptr) {
-    if (limit_type_ == LimitType::LimitToFirst) {
-      Target target(path(), collection_group(), filters(), order_bys(), limit_,
-                    start_at(), end_at());
-      memoized_target = std::make_shared<Target>(std::move(target));
-    } else {
+    if (limit_type_ == LimitType::Last) {
       // Flip the orderBy directions since we want the last results
       OrderByList new_order_bys;
       for (const auto& order_by : order_bys()) {
@@ -351,6 +342,10 @@ const Target& Query::ToTarget() const& {
 
       Target target(path(), collection_group(), filters(), new_order_bys,
                     limit_, new_start_at, new_end_at);
+      memoized_target = std::make_shared<Target>(std::move(target));
+    } else {
+      Target target(path(), collection_group(), filters(), order_bys(), limit_,
+                    start_at(), end_at());
       memoized_target = std::make_shared<Target>(std::move(target));
     }
   }

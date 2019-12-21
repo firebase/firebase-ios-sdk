@@ -93,6 +93,16 @@ FIRQuery *Wrap(Query &&query) {
   return [[FIRQuery alloc] initWithQuery:std::move(query)];
 }
 
+int32_t SaturatedLimitValue(NSInteger limit) {
+  int32_t internal_limit;
+  if (limit == NSNotFound || limit >= core::Target::kNoLimit) {
+    internal_limit = core::Target::kNoLimit;
+  } else {
+    internal_limit = static_cast<int32_t>(limit);
+  }
+  return internal_limit;
+}
+
 }  // namespace
 
 @implementation FIRQuery {
@@ -374,23 +384,11 @@ FIRQuery *Wrap(Query &&query) {
 }
 
 - (FIRQuery *)queryLimitedTo:(NSInteger)limit {
-  int32_t internalLimit;
-  if (limit == NSNotFound || limit >= core::Target::kNoLimit) {
-    internalLimit = core::Target::kNoLimit;
-  } else {
-    internalLimit = static_cast<int32_t>(limit);
-  }
-  return Wrap(_query.Limit(internalLimit));
+  return Wrap(_query.LimitToFirst(SaturatedLimitValue(limit)));
 }
 
 - (FIRQuery *)queryLimitedToLast:(NSInteger)limit {
-  int32_t internalLimit;
-  if (limit == NSNotFound || limit >= core::Target::kNoLimit) {
-    internalLimit = core::Target::kNoLimit;
-  } else {
-    internalLimit = static_cast<int32_t>(limit);
-  }
-  return Wrap(_query.LimitToLast(internalLimit));
+  return Wrap(_query.LimitToLast(SaturatedLimitValue(limit)));
 }
 
 - (FIRQuery *)queryStartingAtDocument:(FIRDocumentSnapshot *)snapshot {

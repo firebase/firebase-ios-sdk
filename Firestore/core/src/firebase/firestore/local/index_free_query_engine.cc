@@ -63,7 +63,7 @@ DocumentMap IndexFreeQueryEngine::GetDocumentsMatchingQuery(
   MaybeDocumentMap documents = local_documents_view_->GetDocuments(remote_keys);
   DocumentSet previous_results = ApplyQuery(query, documents);
 
-  if ((query.has_limit_to_first() || query.has_limit_to_last()) &&
+  if (query.limit_type() != LimitType::None &&
       NeedsRefill(query.limit_type(), previous_results, remote_keys,
                   last_limbo_free_snapshot_version)) {
     return ExecuteFullCollectionScan(query);
@@ -126,7 +126,7 @@ bool IndexFreeQueryEngine::NeedsRefill(
   // from cache will continue to be "rejected" by this boundary. Therefore, we
   // can ignore any modifications that don't affect the last document.
   absl::optional<Document> document_at_limit_edge =
-      (limit_type == LimitType::LimitToFirst)
+      (limit_type == LimitType::First)
           ? sorted_previous_results.GetLastDocument()
           : sorted_previous_results.GetFirstDocument();
   if (!document_at_limit_edge) {
