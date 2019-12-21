@@ -34,7 +34,7 @@ cc_test(
     leveldb_lru_garbage_collector_test.cc
     leveldb_migrations_test.cc
     leveldb_mutation_queue_test.cc
-    leveldb_persistence_test.cc
+    leveldb_opener_test.cc
     leveldb_query_cache_test.cc
     leveldb_remote_document_cache_test.cc
     leveldb_transaction_test.cc

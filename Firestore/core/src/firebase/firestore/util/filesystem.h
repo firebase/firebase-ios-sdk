@@ -20,13 +20,16 @@
 #include <memory>
 #include <string>
 
-#include "Firestore/core/src/firebase/firestore/util/path.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
-#include "Firestore/core/src/firebase/firestore/util/statusor.h"
 
 namespace firebase {
 namespace firestore {
 namespace util {
+
+class Path;
+
+template <typename T>
+class StatusOr;
 
 // High-level routines for the manipulating the filesystem. All filesystems
 // are required to implement these routines.

@@ -51,6 +51,8 @@ cc_library(
     leveldb_migrations.h
     leveldb_mutation_queue.cc
     leveldb_mutation_queue.h
+    leveldb_opener.cc
+    leveldb_opener.h
     leveldb_persistence.cc
     leveldb_persistence.h
     leveldb_query_cache.cc

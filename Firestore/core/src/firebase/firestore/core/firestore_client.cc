@@ -25,6 +25,7 @@
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/core/event_manager.h"
 #include "Firestore/core/src/firebase/firestore/core/view.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_opener.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
 #include "Firestore/core/src/firebase/firestore/local/local_serializer.h"
 #include "Firestore/core/src/firebase/firestore/local/memory_persistence.h"
@@ -57,6 +58,7 @@ using api::SnapshotMetadata;
 using auth::CredentialsProvider;
 using auth::User;
 using firestore::Error;
+using local::LevelDbOpener;
 using local::LevelDbPersistence;
 using local::LocalSerializer;
 using local::LocalStore;
@@ -151,7 +153,7 @@ void FirestoreClient::Initialize(const User& user, const Settings& settings) {
   // more work) since external write/listen operations could get queued to run
   // before that subsequent work completes.
   if (settings.persistence_enabled()) {
-    auto maybe_data_dir = LevelDbPersistence::AppDataDirectory();
+    auto maybe_data_dir = LevelDbOpener::AppDataDir();
     HARD_ASSERT(maybe_data_dir.ok(),
                 "Failed to find the App data directory for the current user.");
 

@@ -14,21 +14,33 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
-
-#include <iostream>
-
-#include "Firestore/core/src/firebase/firestore/util/filesystem.h"
-#include "gtest/gtest.h"
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LEVELDB_OPENER_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LEVELDB_OPENER_H_
 
 namespace firebase {
 namespace firestore {
+
+namespace util {
+class Path;
+
+template <typename T>
+class StatusOr;
+
+}  // namespace util
+
 namespace local {
 
-TEST(LevelDbPersistenceTest, CanFindAppDataDirectory) {
-  EXPECT_TRUE(LevelDbPersistence::AppDataDirectory().ok());
-}
+class LevelDbOpener {
+ public:
+  /**
+   * Finds a suitable directory to serve as the root of all Firestore local
+   * storage.
+   */
+  static util::StatusOr<util::Path> AppDataDir();
+};
 
 }  // namespace local
 }  // namespace firestore
 }  // namespace firebase
+
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LEVELDB_OPENER_H_

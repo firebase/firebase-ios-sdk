@@ -23,6 +23,7 @@
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_lru_reference_delegate.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_migrations.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_opener.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_util.h"
 #include "Firestore/core/src/firebase/firestore/local/listen_sequence.h"
 #include "Firestore/core/src/firebase/firestore/local/lru_garbage_collector.h"
@@ -122,10 +123,6 @@ LevelDbPersistence::LevelDbPersistence(std::unique_ptr<leveldb::DB> db,
 
 // MARK: - Storage location
 
-StatusOr<Path> LevelDbPersistence::AppDataDirectory() {
-  return util::AppDataDir(kReservedPathComponent);
-}
-
 util::Path LevelDbPersistence::StorageDirectory(
     const core::DatabaseInfo& database_info, const util::Path& documents_dir) {
   // Use two different path formats:
@@ -184,7 +181,7 @@ LevelDbTransaction* LevelDbPersistence::current_transaction() {
 
 util::Status LevelDbPersistence::ClearPersistence(
     const core::DatabaseInfo& database_info) {
-  const StatusOr<Path>& maybe_data_dir = AppDataDirectory();
+  const StatusOr<Path>& maybe_data_dir = LevelDbOpener::AppDataDir();
   HARD_ASSERT(maybe_data_dir.ok(),
               "Failed to find the App data directory for the current user.");
 
@@ -260,8 +257,6 @@ void LevelDbPersistence::RunInternal(absl::string_view label,
   transaction_->Commit();
   transaction_.reset();
 }
-
-constexpr const char* LevelDbPersistence::kReservedPathComponent;
 
 leveldb::ReadOptions StandardReadOptions() {
   // For now this is paranoid, but perhaps disable that in production builds.
