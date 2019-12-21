@@ -137,6 +137,10 @@ StatusOr<Path> AppDataDir(absl::string_view app_name) {
 #endif  // __linux__ && !__ANDROID__
 }
 
+StatusOr<Path> LegacyDocumentsDir(absl::string_view app_name) {
+  return AppDataDir(app_name);
+}
+
 Path TempDir() {
   const char* env_tmpdir = getenv("TMPDIR");
   if (env_tmpdir) {

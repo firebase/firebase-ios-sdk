@@ -74,11 +74,11 @@ Status ExcludeFromBackups(const Path& dir);
  * Returns a system-defined best directory in which to create application data.
  * Values vary wildly across platforms. They include:
  *
- *   * iOS: $container/Documents/$app_name
+ *   * iOS: $container/Library/Application Support/$app_name
  *   * Linux: $HOME/.local/share/$app_name
- *   * macOS: $HOME/.$app_name
+ *   * macOS: $container/Library/Application Support/$app_name
  *   * Other UNIX: $HOME/.$app_name
- *   * tvOS: $HOME/Library/Caches/$app_name
+ *   * tvOS: $container/Library/Caches/$app_name
  *   * Windows: %USERPROFILE%/AppData/Local
  *
  * Note: the returned path is just where the system thinks the application data
@@ -88,6 +88,24 @@ Status ExcludeFromBackups(const Path& dir);
  * @param app_name The name of the application.
  */
 StatusOr<Path> AppDataDir(absl::string_view app_name);
+
+/**
+ * Returns the Documents directory in which Firestore used to store application
+ * data. Values vary wildly across platforms. They include:
+ *
+ *   * iOS: $container/Documents/$app_name
+ *   * macOS: $HOME/.$app_name
+ *
+ * Note: the returned path is just where the system thinks the documents
+ * directory should be stored, but LegacyDocumentsDir does not actually
+ * guarantee that this path exists.
+ *
+ * @param app_name The name of the application.
+ *
+ * @returns The documents directory path or the value of AppDataDir(app_name) if
+ *     the current platform does not have a legacy documents directory.
+ */
+StatusOr<Path> LegacyDocumentsDir(absl::string_view app_name);
 
 /**
  * Returns system-defined best directory in which to create temporary files.

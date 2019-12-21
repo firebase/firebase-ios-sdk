@@ -61,6 +61,10 @@ StatusOr<Path> AppDataDir(absl::string_view app_name) {
   return std::move(result);
 }
 
+StatusOr<Path> LegacyDocumentsDir(absl::string_view app_name) {
+  return AppDataDir(app_name);
+}
+
 Path TempDir() {
   // Returns a null-terminated string with a trailing backslash.
   wchar_t buffer[MAX_PATH + 1];

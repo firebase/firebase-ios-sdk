@@ -37,7 +37,7 @@ constexpr const char* kReservedPathComponent = "firestore";
 }  // namespace
 
 StatusOr<Path> LevelDbOpener::AppDataDir() {
-  return util::AppDataDir(kReservedPathComponent);
+  return util::LegacyDocumentsDir(kReservedPathComponent);
 }
 
 Path LevelDbOpener::StorageDir(const Path& base_path,
