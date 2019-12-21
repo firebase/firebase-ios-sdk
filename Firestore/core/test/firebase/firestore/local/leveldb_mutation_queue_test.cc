@@ -31,7 +31,7 @@
 #include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
 #include "Firestore/core/test/firebase/firestore/local/mutation_queue_test.h"
 #include "Firestore/core/test/firebase/firestore/local/persistence_testing.h"
-#include "Firestore/core/test/firebase/firestore/util/status_testing.h"
+#include "Firestore/core/test/firebase/firestore/testutil/status_testing.h"
 #include "absl/strings/string_view.h"
 #include "gtest/gtest.h"
 #include "leveldb/db.h"

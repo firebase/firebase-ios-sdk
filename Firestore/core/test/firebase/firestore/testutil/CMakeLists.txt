@@ -35,6 +35,8 @@ cc_library(
     async_testing.cc
     async_testing.h
     equals_tester.h
+    status_testing.cc
+    status_testing.h
     testutil.cc
     testutil.h
     time_testing.cc
