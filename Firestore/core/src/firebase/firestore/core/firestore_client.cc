@@ -153,18 +153,16 @@ void FirestoreClient::Initialize(const User& user, const Settings& settings) {
   // more work) since external write/listen operations could get queued to run
   // before that subsequent work completes.
   if (settings.persistence_enabled()) {
-    auto maybe_data_dir = LevelDbOpener::AppDataDir();
-    HARD_ASSERT(maybe_data_dir.ok(),
-                "Failed to find the App data directory for the current user.");
+    LevelDbOpener opener(database_info_);
 
-    Path dir =
-        LevelDbOpener::StorageDir(maybe_data_dir.ValueOrDie(), database_info_);
+    auto data_dir = opener.AppDataDir();
+    if (!opener.PreferredExists(data_dir)) {
+      auto docs_dir = opener.LegacyDocumentsDir();
+      opener.MaybeMigrate(docs_dir);
+    }
 
-    Serializer remote_serializer{database_info_.database_id()};
-
-    auto created = LevelDbPersistence::Create(
-        std::move(dir), LocalSerializer{std::move(remote_serializer)},
-        LruParams::WithCacheSize(settings.cache_size_bytes()));
+    auto created =
+        opener.Create(LruParams::WithCacheSize(settings.cache_size_bytes()));
     // If leveldb fails to start then just throw up our hands: the error is
     // unrecoverable. There's nothing an end-user can do and nearly all
     // failures indicate the developer is doing something grossly wrong so we

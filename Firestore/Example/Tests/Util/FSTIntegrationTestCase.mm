@@ -61,6 +61,7 @@ using firebase::firestore::auth::CredentialChangeListener;
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::auth::User;
+using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::local::LevelDbOpener;
 using firebase::firestore::local::LevelDbPersistence;
 using firebase::firestore::model::DatabaseId;
@@ -148,10 +149,11 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
 
   @synchronized([FSTIntegrationTestCase class]) {
     if (clearedPersistence) return;
-    StatusOr<Path> maybe_dir = LevelDbOpener::AppDataDir();
-    ASSERT_OK(maybe_dir);
+    DatabaseInfo db_info;
+    LevelDbOpener opener(db_info);
+    Path levelDBDir = opener.AppDataDir();
+    ASSERT_OK(opener.status());
 
-    Path levelDBDir = maybe_dir.ValueOrDie();
     Status status = util::RecursivelyDelete(levelDBDir);
     ASSERT_OK(status);
 

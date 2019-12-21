@@ -17,29 +17,39 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LEVELDB_OPENER_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LEVELDB_OPENER_H_
 
+#include <memory>
+
+#include "Firestore/core/src/firebase/firestore/core/database_info.h"
+#include "Firestore/core/src/firebase/firestore/util/path.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
+
 namespace firebase {
 namespace firestore {
 
-namespace core {
-class DatabaseInfo;
-}  // namespace core
-
 namespace util {
-class Path;
-
 template <typename T>
 class StatusOr;
 }  // namespace util
 
 namespace local {
 
+class LevelDbPersistence;
+struct LruParams;
+
 class LevelDbOpener {
  public:
+  explicit LevelDbOpener(core::DatabaseInfo database_info);
+
   /**
    * Finds a suitable directory to serve as the root of all Firestore local
    * storage.
    */
-  static util::StatusOr<util::Path> AppDataDir();
+  util::Path AppDataDir();
+
+  /**
+   * Finds the location where Firestore used to keep local storage.
+   */
+  util::Path LegacyDocumentsDir();
 
   /**
    * Computes a unique storage directory for the given identifying components of
@@ -48,13 +58,36 @@ class LevelDbOpener {
    * @param base_path The root application data directory relative to which
    *     the instance-specific storage directory will be created. Usually just
    *     `AppDataDir()`.
-   * @param database_info The identifying information for the local storage
-   *     instance.
    * @return A storage directory unique to the instance identified by
    *     `database_info`.
    */
-  static util::Path StorageDir(const util::Path& base_path,
-                               const core::DatabaseInfo& database_info);
+  util::Path StorageDir(const util::Path& base_path);
+
+  bool PreferredExists(const util::Path& app_data_dir);
+
+  void MaybeMigrate(const util::Path& legacy_docs_dir);
+
+  util::StatusOr<std::unique_ptr<LevelDbPersistence>> Create(
+      const LruParams& lru_params);
+
+  bool ok() const {
+    return status_.ok();
+  }
+
+  const util::Status& status() const {
+    return status_;
+  }
+
+ private:
+  bool IsDirectory(const util::Path& path);
+
+  static void RecursivelyCleanupLegacyDirs(util::Path legacy_dir,
+                                           const util::Path& container_dir);
+
+  core::DatabaseInfo database_info_;
+  util::Path preferred_dir_;
+  bool preferred_exists_ = false;
+  util::Status status_;
 };
 
 }  // namespace local

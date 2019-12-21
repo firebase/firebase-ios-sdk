@@ -159,12 +159,12 @@ LevelDbTransaction* LevelDbPersistence::current_transaction() {
 
 util::Status LevelDbPersistence::ClearPersistence(
     const core::DatabaseInfo& database_info) {
-  const StatusOr<Path>& maybe_data_dir = LevelDbOpener::AppDataDir();
-  HARD_ASSERT(maybe_data_dir.ok(),
+  LevelDbOpener opener(database_info);
+  Path data_dir = opener.AppDataDir();
+  HARD_ASSERT(opener.ok(),
               "Failed to find the App data directory for the current user.");
 
-  Path leveldb_dir =
-      LevelDbOpener::StorageDir(maybe_data_dir.ValueOrDie(), database_info);
+  Path leveldb_dir = opener.StorageDir(data_dir);
   LOG_DEBUG("Clearing persistence for path: %s", leveldb_dir.ToUtf8String());
   return util::RecursivelyDelete(leveldb_dir);
 }
