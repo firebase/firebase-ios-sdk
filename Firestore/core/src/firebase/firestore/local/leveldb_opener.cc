@@ -16,6 +16,9 @@
 
 #include "Firestore/core/src/firebase/firestore/local/leveldb_opener.h"
 
+#include <string>
+
+#include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/util/filesystem.h"
 #include "Firestore/core/src/firebase/firestore/util/path.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
@@ -25,6 +28,7 @@ namespace firestore {
 namespace local {
 namespace {
 
+using core::DatabaseInfo;
 using util::Path;
 using util::StatusOr;
 
@@ -34,6 +38,26 @@ constexpr const char* kReservedPathComponent = "firestore";
 
 StatusOr<Path> LevelDbOpener::AppDataDir() {
   return util::AppDataDir(kReservedPathComponent);
+}
+
+Path LevelDbOpener::StorageDir(const Path& base_path,
+                               const DatabaseInfo& database_info) {
+  // Use two different path formats:
+  //
+  //   * persistence_key / project_id . database_id / name
+  //   * persistence_key / project_id / name
+  //
+  // project_ids are DNS-compatible names and cannot contain dots so there's
+  // no danger of collisions.
+  std::string project_key = database_info.database_id().project_id();
+  if (!database_info.database_id().IsDefaultDatabase()) {
+    absl::StrAppend(&project_key, ".",
+                    database_info.database_id().database_id());
+  }
+
+  // Reserve one additional path component to allow multiple physical databases
+  return Path::JoinUtf8(base_path, database_info.persistence_key(), project_key,
+                        "main");
 }
 
 }  // namespace local

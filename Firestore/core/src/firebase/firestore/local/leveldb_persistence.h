@@ -56,21 +56,6 @@ class LevelDbPersistence : public Persistence {
   static util::StatusOr<std::unique_ptr<LevelDbPersistence>> Create(
       util::Path dir, LocalSerializer serializer, const LruParams& lru_params);
 
-  /**
-   * Computes a unique storage directory for the given identifying components of
-   * local storage.
-   *
-   * @param database_info The identifying information for the local storage
-   *     instance.
-   * @param documents_dir The root document directory relative to which
-   *     the storage directory will be created. Usually just
-   *     `LevelDbOpener::AppDataDir()`.
-   * @return A storage directory unique to the instance identified by
-   *     `database_info`.
-   */
-  static util::Path StorageDirectory(const core::DatabaseInfo& database_info,
-                                     const util::Path& documents_dir);
-
   LevelDbTransaction* current_transaction();
 
   leveldb::DB* ptr() {

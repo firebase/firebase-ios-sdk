@@ -20,12 +20,15 @@
 namespace firebase {
 namespace firestore {
 
+namespace core {
+class DatabaseInfo;
+}  // namespace core
+
 namespace util {
 class Path;
 
 template <typename T>
 class StatusOr;
-
 }  // namespace util
 
 namespace local {
@@ -37,6 +40,21 @@ class LevelDbOpener {
    * storage.
    */
   static util::StatusOr<util::Path> AppDataDir();
+
+  /**
+   * Computes a unique storage directory for the given identifying components of
+   * local storage.
+   *
+   * @param base_path The root application data directory relative to which
+   *     the instance-specific storage directory will be created. Usually just
+   *     `AppDataDir()`.
+   * @param database_info The identifying information for the local storage
+   *     instance.
+   * @return A storage directory unique to the instance identified by
+   *     `database_info`.
+   */
+  static util::Path StorageDir(const util::Path& base_path,
+                               const core::DatabaseInfo& database_info);
 };
 
 }  // namespace local

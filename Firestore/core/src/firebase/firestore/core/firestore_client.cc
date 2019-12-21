@@ -157,8 +157,8 @@ void FirestoreClient::Initialize(const User& user, const Settings& settings) {
     HARD_ASSERT(maybe_data_dir.ok(),
                 "Failed to find the App data directory for the current user.");
 
-    Path dir = LevelDbPersistence::StorageDirectory(
-        database_info_, maybe_data_dir.ValueOrDie());
+    Path dir =
+        LevelDbOpener::StorageDir(maybe_data_dir.ValueOrDie(), database_info_);
 
     Serializer remote_serializer{database_info_.database_id()};
 

@@ -121,28 +121,6 @@ LevelDbPersistence::LevelDbPersistence(std::unique_ptr<leveldb::DB> db,
   started_ = true;
 }
 
-// MARK: - Storage location
-
-util::Path LevelDbPersistence::StorageDirectory(
-    const core::DatabaseInfo& database_info, const util::Path& documents_dir) {
-  // Use two different path formats:
-  //
-  //   * persistence_key / project_id . database_id / name
-  //   * persistence_key / project_id / name
-  //
-  // project_ids are DNS-compatible names and cannot contain dots so there's
-  // no danger of collisions.
-  std::string project_key = database_info.database_id().project_id();
-  if (!database_info.database_id().IsDefaultDatabase()) {
-    absl::StrAppend(&project_key, ".",
-                    database_info.database_id().database_id());
-  }
-
-  // Reserve one additional path component to allow multiple physical databases
-  return Path::JoinUtf8(documents_dir, database_info.persistence_key(),
-                        project_key, "main");
-}
-
 // MARK: - Startup
 
 Status LevelDbPersistence::EnsureDirectory(const Path& dir) {
@@ -186,7 +164,7 @@ util::Status LevelDbPersistence::ClearPersistence(
               "Failed to find the App data directory for the current user.");
 
   Path leveldb_dir =
-      StorageDirectory(database_info, maybe_data_dir.ValueOrDie());
+      LevelDbOpener::StorageDir(maybe_data_dir.ValueOrDie(), database_info);
   LOG_DEBUG("Clearing persistence for path: %s", leveldb_dir.ToUtf8String());
   return util::RecursivelyDelete(leveldb_dir);
 }
