@@ -121,18 +121,18 @@ class Query {
   Query OrderBy(model::FieldPath field_path, core::Direction direction) const;
 
   /**
-   * Creates and returns a new `Query` that returns the first matching documents
-   * up to the specified number.
+   * Creates and returns a new `Query` that only returns the first matching
+   * documents up to the specified number.
    *
    * @param limit The maximum number of items to return.
    *
    * @return The created `Query`.
    */
-  Query Limit(int32_t limit) const;
+  Query LimitToFirst(int32_t limit) const;
 
   /**
-   * Creates and returns a new `Query` that returns the last matching documents
-   * up to the specified number.
+   * Creates and returns a new `Query` that only returns the last matching
+   * documents up to the specified number.
    *
    * You must specify at least one `OrderBy` clause for `LimitToLast` queries,
    * it is an error otherwise when the query is executed.

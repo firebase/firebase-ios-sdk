@@ -670,30 +670,30 @@ MATCHER_P(HasCanonicalId, expected, "") {
 
 TEST(QueryTest, CanonicalIDs) {
   auto query = testutil::Query("coll");
-  EXPECT_THAT(query, HasCanonicalId("coll|f:|ob:__name__asc|lt:f"));
+  EXPECT_THAT(query, HasCanonicalId("coll|f:|ob:__name__asc"));
 
   auto cg = CollectionGroupQuery("foo");
-  EXPECT_THAT(cg, HasCanonicalId("|cg:foo|f:|ob:__name__asc|lt:f"));
+  EXPECT_THAT(cg, HasCanonicalId("|cg:foo|f:|ob:__name__asc"));
 
   auto subcoll = testutil::Query("foo/bar/baz");
-  EXPECT_THAT(subcoll, HasCanonicalId("foo/bar/baz|f:|ob:__name__asc|lt:f"));
+  EXPECT_THAT(subcoll, HasCanonicalId("foo/bar/baz|f:|ob:__name__asc"));
 
   auto filters =
       testutil::Query("coll").AddingFilter(Filter("str", "==", "foo"));
-  EXPECT_THAT(filters, HasCanonicalId("coll|f:str==foo|ob:__name__asc|lt:f"));
+  EXPECT_THAT(filters, HasCanonicalId("coll|f:str==foo|ob:__name__asc"));
 
   // Inequality filters end up in the order by too
   filters = filters.AddingFilter(Filter("int", "<", 42));
-  EXPECT_THAT(filters, HasCanonicalId(
-                           "coll|f:str==fooint<42|ob:intasc__name__asc|lt:f"));
+  EXPECT_THAT(filters,
+              HasCanonicalId("coll|f:str==fooint<42|ob:intasc__name__asc"));
 
   auto order_bys = testutil::Query("coll").AddingOrderBy(OrderBy("up", "asc"));
-  EXPECT_THAT(order_bys, HasCanonicalId("coll|f:|ob:upasc__name__asc|lt:f"));
+  EXPECT_THAT(order_bys, HasCanonicalId("coll|f:|ob:upasc__name__asc"));
 
   // __name__'s order matches the trailing component
   order_bys = order_bys.AddingOrderBy(OrderBy("down", "desc"));
   EXPECT_THAT(order_bys,
-              HasCanonicalId("coll|f:|ob:upascdowndesc__name__desc|lt:f"));
+              HasCanonicalId("coll|f:|ob:upascdowndesc__name__desc"));
 
   auto limit = testutil::Query("coll").WithLimitToFirst(25);
   EXPECT_THAT(limit, HasCanonicalId("coll|f:|ob:__name__asc|l:25|lt:f"));
@@ -705,7 +705,7 @@ TEST(QueryTest, CanonicalIDs) {
           .StartingAt(Bound({Value("OAK"), Value(1000)}, /* is_before= */ true))
           .EndingAt(Bound({Value("SFO"), Value(2000)}, /* is_before= */ false));
   EXPECT_THAT(bounds, HasCanonicalId("airports|f:|ob:nameascscoredesc__name__"
-                                     "desc|lb:b:OAK1000|ub:a:SFO2000|lt:f"));
+                                     "desc|lb:b:OAK1000|ub:a:SFO2000"));
 }
 
 TEST(QueryTest, MatchesAllDocuments) {

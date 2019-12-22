@@ -235,7 +235,7 @@ Query Query::OrderBy(FieldPath field_path, Direction direction) const {
       query_.AddingOrderBy(core::OrderBy(std::move(field_path), direction)));
 }
 
-Query Query::Limit(int32_t limit) const {
+Query Query::LimitToFirst(int32_t limit) const {
   if (limit <= 0) {
     ThrowInvalidArgument(
         "Invalid Query. Query limit (%s) is invalid. Limit must be positive.",
@@ -340,7 +340,7 @@ void Query::ValidateOrderByField(const FieldPath& order_by_field,
 void Query::ValidateHasExplicitOrderByForLimitToLast() const {
   if (query_.has_limit_to_last() && query_.explicit_order_bys().empty()) {
     ThrowInvalidArgument(
-        "LimitToLast queries require specifying at least one OrderBy() "
+        "limit(toLast:) queries require specifying at least one OrderBy() "
         "clause.");
   }
 }

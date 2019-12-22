@@ -102,7 +102,9 @@ extern "C" {
 - (void)updateDocumentRef:(FIRDocumentReference *)ref data:(NSDictionary<NSString *, id> *)data;
 
 - (void)deleteDocumentRef:(FIRDocumentReference *)ref;
-- (void)addDocumentRef:(FIRCollectionReference *)ref data:(NSDictionary<NSString *, id> *)data;
+
+- (FIRDocumentReference *)addDocumentRef:(FIRCollectionReference *)ref
+                                    data:(NSDictionary<NSString *, id> *)data;
 
 - (void)mergeDocumentRef:(FIRDocumentReference *)ref data:(NSDictionary<NSString *, id> *)data;
 

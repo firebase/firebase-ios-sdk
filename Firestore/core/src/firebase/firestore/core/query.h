@@ -39,10 +39,7 @@ namespace core {
 
 using CollectionGroupId = std::shared_ptr<const std::string>;
 
-enum LimitType {
-  LimitToFirst = 0,
-  LimitToLast = 1,
-};
+enum class LimitType { First, Last, None };
 
 /**
  * Encapsulates all the query attributes we support in the SDK. It represents
@@ -155,18 +152,16 @@ class Query {
   const model::FieldPath* FirstOrderByField() const;
 
   bool has_limit_to_first() const {
-    return limit_type_ == LimitType::LimitToFirst && limit_ != Target::kNoLimit;
+    return limit_type_ == LimitType::First && limit_ != Target::kNoLimit;
   }
-
-  int32_t limit_to_first() const;
 
   bool has_limit_to_last() const {
-    return limit_type_ == LimitType::LimitToLast && limit_ != Target::kNoLimit;
+    return limit_type_ == LimitType::Last && limit_ != Target::kNoLimit;
   }
 
-  int32_t limit_to_last() const;
-
   LimitType limit_type() const;
+
+  int32_t limit() const;
 
   const std::shared_ptr<Bound>& start_at() const {
     return start_at_;
@@ -278,7 +273,7 @@ class Query {
   mutable OrderByList memoized_order_bys_;
 
   int32_t limit_ = Target::kNoLimit;
-  LimitType limit_type_ = LimitType::LimitToFirst;
+  LimitType limit_type_ = LimitType::None;
 
   std::shared_ptr<Bound> start_at_;
   std::shared_ptr<Bound> end_at_;

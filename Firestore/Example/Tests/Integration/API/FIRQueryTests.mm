@@ -21,6 +21,7 @@
 #import "Firestore/Source/API/FIRQuery+Internal.h"
 
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
+#import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
 @interface FIRQueryTests : FSTIntegrationTestCase
@@ -59,14 +60,10 @@
 - (void)testLimitToLastMustAlsoHaveExplicitOrderBy {
   FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{}];
   FIRQuery *query = [collRef queryLimitedToLast:2];
-  @try {
-    [query getDocumentsWithCompletion:^(FIRQuerySnapshot *documentSet, NSError *error){
-    }];
-  } @catch (NSException *exception) {
-    XCTAssertEqualObjects([exception name], @"FIRInvalidArgumentException");
-    return;
-  }
-  XCTFail("Expect exception but not thrown.");
+  FSTAssertThrows(
+      [query getDocumentsWithCompletion:^(FIRQuerySnapshot *documentSet, NSError *error){
+      }],
+      @"limit(toLast:) queries require specifying at least one OrderBy() clause.");
 }
 
 // Two queries that mapped to the same target ID are referred to as
@@ -83,21 +80,20 @@
     @"d" : @{@"k" : @"d", @"sort" : @2},
   }];
 
+  // Setup a `limit` query.
   FIRQuery *limit = [[collRef queryOrderedByField:@"sort" descending:NO] queryLimitedTo:2];
   FSTEventAccumulator *limitAccumulator = [FSTEventAccumulator accumulatorForTest:self];
   id<FIRListenerRegistration> limitRegistration =
       [limit addSnapshotListener:limitAccumulator.valueEventHandler];
 
+  // Setup a mirroring `limitToLast` query.
   FIRQuery *limitToLast = [[collRef queryOrderedByField:@"sort"
                                              descending:YES] queryLimitedToLast:2];
   FSTEventAccumulator *limitToLastAccumulator = [FSTEventAccumulator accumulatorForTest:self];
   id<FIRListenerRegistration> limitToLastRegistration =
       [limitToLast addSnapshotListener:limitToLastAccumulator.valueEventHandler];
 
-  [limitRegistration description];
-  [limitToLastRegistration description];
-
-  // Verify both query get expected result.
+  // Verify both queries get expected result.
   FIRQuerySnapshot *snapshot = [limitAccumulator awaitEventWithName:@"Snapshot"];
   NSArray *expected = @[ @{@"k" : @"a", @"sort" : @0}, @{@"k" : @"b", @"sort" : @1} ];
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), expected);
@@ -117,7 +113,7 @@
   // Add a document that would change the result set.
   [self addDocumentRef:collRef data:@{@"k" : @"e", @"sort" : @-1}];
 
-  // Verify both query get expected result.
+  // Verify both queries get expected result.
   snapshot = [limitAccumulator awaitEventWithName:@"Snapshot"];
   expected = @[ @{@"k" : @"e", @"sort" : @-1}, @{@"k" : @"a", @"sort" : @0} ];
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), expected);
@@ -130,7 +126,7 @@
   [self updateDocumentRef:[collRef documentWithPath:@"a"] data:@{@"k" : @"a", @"sort" : @-2}];
   [limitToLast addSnapshotListener:[limitToLastAccumulator valueEventHandler]];
 
-  // Verify both query get expected result.
+  // Verify both queries get expected result.
   snapshot = [limitAccumulator awaitEventWithName:@"Snapshot"];
   expected = @[ @{@"k" : @"a", @"sort" : @-2}, @{@"k" : @"e", @"sort" : @-1} ];
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), expected);

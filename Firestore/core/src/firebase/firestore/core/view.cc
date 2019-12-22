@@ -120,12 +120,12 @@ ViewDocumentChanges View::ComputeDocumentChanges(
   // set), because there will only be adds -- no deletes or updates.
   absl::optional<Document> last_doc_in_limit;
   if (query_.has_limit_to_first() &&
-      old_document_set.size() == static_cast<size_t>(query_.limit_to_first())) {
+      old_document_set.size() == static_cast<size_t>(query_.limit())) {
     last_doc_in_limit = old_document_set.GetLastDocument();
   }
   absl::optional<Document> first_doc_in_limit;
   if (query_.has_limit_to_last() &&
-      old_document_set.size() == static_cast<size_t>(query_.limit_to_last())) {
+      old_document_set.size() == static_cast<size_t>(query_.limit())) {
     first_doc_in_limit = old_document_set.GetFirstDocument();
   }
 
@@ -167,13 +167,13 @@ ViewDocumentChanges View::ComputeDocumentChanges(
               DocumentViewChange{*new_doc, DocumentViewChange::Type::Modified});
           change_applied = true;
 
-          bool move_out_limit =
+          bool outside_limit =
               last_doc_in_limit &&
               util::Descending(Compare(*new_doc, *last_doc_in_limit));
-          bool move_out_limit_to_last =
+          bool outside_limit_to_last =
               first_doc_in_limit &&
               util::Ascending(Compare(*new_doc, *first_doc_in_limit));
-          if (move_out_limit || move_out_limit_to_last) {
+          if (outside_limit || outside_limit_to_last) {
             // This doc moved from inside the limit to after the limit. That
             // means there may be some doc in the local cache that's actually
             // less than this one.
@@ -220,10 +220,8 @@ ViewDocumentChanges View::ComputeDocumentChanges(
   }
 
   // Drop documents out to meet limitToFirst/limitToLast requirement.
-  if ((query_.has_limit_to_first() || query_.has_limit_to_last())) {
-    auto limit = static_cast<size_t>(query_.has_limit_to_first()
-                                         ? query_.limit_to_first()
-                                         : query_.limit_to_last());
+  if (query_.limit_type() != LimitType::None) {
+    auto limit = static_cast<size_t>(query_.limit());
     if (limit < new_document_set.size()) {
       for (size_t i = new_document_set.size() - limit; i > 0; --i) {
         absl::optional<Document> found =
