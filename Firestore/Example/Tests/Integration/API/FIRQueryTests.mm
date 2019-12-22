@@ -21,6 +21,7 @@
 #import "Firestore/Source/API/FIRQuery+Internal.h"
 
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
+#import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
 @interface FIRQueryTests : FSTIntegrationTestCase
@@ -59,14 +60,10 @@
 - (void)testLimitToLastMustAlsoHaveExplicitOrderBy {
   FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{}];
   FIRQuery *query = [collRef queryLimitedToLast:2];
-  @try {
-    [query getDocumentsWithCompletion:^(FIRQuerySnapshot *documentSet, NSError *error){
-    }];
-  } @catch (NSException *exception) {
-    XCTAssertEqualObjects([exception name], @"FIRInvalidArgumentException");
-    return;
-  }
-  XCTFail("Expect exception but not thrown.");
+  FSTAssertThrows(
+      [query getDocumentsWithCompletion:^(FIRQuerySnapshot *documentSet, NSError *error){
+      }],
+      @"limit(toLast:) queries require specifying at least one OrderBy() clause.");
 }
 
 // Two queries that mapped to the same target ID are referred to as
