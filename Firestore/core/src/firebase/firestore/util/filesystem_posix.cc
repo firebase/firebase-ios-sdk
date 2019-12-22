@@ -23,6 +23,7 @@
 #include <unistd.h>
 
 #include <cerrno>
+#include <cstdio>
 #include <deque>
 #include <string>
 
@@ -67,6 +68,15 @@ Status IsDirectory(const Path& path) {
     return Status{Error::FailedPrecondition,
                   StringFormat("Path %s exists but is not a directory",
                                path.ToUtf8String())};
+  }
+
+  return Status::OK();
+}
+
+Status Rename(const Path& from_path, const Path& to_path) {
+  if (::rename(from_path.ToUtf8String().c_str(),
+               to_path.ToUtf8String().c_str())) {
+    return Status::FromErrno(errno, from_path.ToUtf8String());
   }
 
   return Status::OK();

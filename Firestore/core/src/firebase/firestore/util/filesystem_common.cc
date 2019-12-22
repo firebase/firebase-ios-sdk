@@ -108,6 +108,12 @@ StatusOr<std::string> ReadFile(const Path& path) {
   return buffer.str();
 }
 
+bool IsEmptyDir(const Path& path) {
+  // If the DirectoryIterator is valid there's at least one entry.
+  auto iter = DirectoryIterator::Create(path);
+  return iter->status().ok() && !iter->Valid();
+}
+
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase

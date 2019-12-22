@@ -277,6 +277,38 @@ TEST(FilesystemTest, ReadFile) {
   ASSERT_EQ(result.ValueOrDie(), "foobar");
 }
 
+TEST(FilesystemTest, IsEmptyDir) {
+  TestTempDir root_dir;
+
+  Path dir = root_dir.Child("empty");
+  ASSERT_FALSE(IsEmptyDir(dir));
+
+  ASSERT_OK(RecursivelyCreateDir(dir));
+  ASSERT_TRUE(IsEmptyDir(dir));
+
+  Path file = Path::JoinUtf8(dir, RandomFilename());
+  Touch(file);
+  ASSERT_FALSE(IsEmptyDir(dir));
+}
+
+TEST(FilesystemTest, Rename) {
+  TestTempDir root_dir;
+
+  Path src_file = root_dir.Child("src");
+  Path dest_file = root_dir.Child("dest");
+
+  EXPECT_NOT_FOUND(IsDirectory(src_file));
+  EXPECT_NOT_FOUND(IsDirectory(dest_file));
+
+  ASSERT_OK(RecursivelyCreateDir(src_file));
+  EXPECT_OK(IsDirectory(src_file));
+  EXPECT_NOT_FOUND(IsDirectory(dest_file));
+
+  ASSERT_OK(Rename(src_file, dest_file));
+  EXPECT_NOT_FOUND(IsDirectory(src_file));
+  EXPECT_OK(IsDirectory(dest_file));
+}
+
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase

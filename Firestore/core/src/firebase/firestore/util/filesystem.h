@@ -64,6 +64,8 @@ Status RecursivelyCreateDir(const Path& path);
  */
 Status RecursivelyDelete(const Path& path);
 
+Status Rename(const Path& from_path, const Path& to_path);
+
 /**
  * Marks the given directory as excluded from platform-specific backup schemes
  * like iCloud backup.
@@ -131,6 +133,11 @@ StatusOr<int64_t> FileSize(const Path& path);
  * a string.
  */
 StatusOr<std::string> ReadFile(const Path& path);
+
+/**
+ * Returns true if the path is an accessible directory and is empty.
+ */
+bool IsEmptyDir(const Path& path);
 
 /**
  * Implements an iterator over the contents of a directory. Initializes to the
