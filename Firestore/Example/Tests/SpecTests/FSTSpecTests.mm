@@ -673,7 +673,7 @@ ByteString MakeResumeToken(NSString *specString) {
             }
             expectedActiveTargets[targetID] = std::make_pair(std::move(queries), resumeToken);
           }];
-      [self.driver setExpectedActiveTargets:expectedActiveTargets];
+      [self.driver setExpectedActiveTargets:std::move(expectedActiveTargets)];
     }
   }
 

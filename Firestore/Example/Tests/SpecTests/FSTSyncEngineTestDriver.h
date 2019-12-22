@@ -32,6 +32,7 @@
 #include "Firestore/core/src/firebase/firestore/model/mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
@@ -52,6 +53,9 @@ namespace local = firebase::firestore::local;
 namespace model = firebase::firestore::model;
 namespace nanopb = firebase::firestore::nanopb;
 
+// A map holds expected information about currently active targets. The keys are
+// target ID, and the values are a vector of `QueryData`s mapped to the target and
+// the target's resume token.
 using ActiveTargetMap =
     std::unordered_map<model::TargetId,
                        std::pair<std::vector<local::QueryData>, nanopb::ByteString>>;
@@ -346,7 +350,7 @@ typedef std::unordered_map<firebase::firestore::auth::User,
 /** The expected set of active targets, keyed by target ID. */
 - (const ActiveTargetMap &)expectedActiveTargets;
 
-- (void)setExpectedActiveTargets:(const ActiveTargetMap &)targets;
+- (void)setExpectedActiveTargets:(ActiveTargetMap)targets;
 
 @end
 

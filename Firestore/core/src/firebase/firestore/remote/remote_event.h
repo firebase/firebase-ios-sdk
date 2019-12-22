@@ -72,10 +72,11 @@ class TargetMetadataProvider {
  */
 class TargetChange {
  public:
-  TargetChange() = default;
-
-  explicit TargetChange(bool current) : current_{current} {
+  static TargetChange CreateSynthesizedTargetChange(bool current) {
+    return TargetChange(current);
   }
+
+  TargetChange() = default;
 
   TargetChange(nanopb::ByteString resume_token,
                bool current,
@@ -133,6 +134,9 @@ class TargetChange {
   }
 
  private:
+  explicit TargetChange(bool current) : current_{current} {
+  }
+
   nanopb::ByteString resume_token_;
   bool current_ = false;
   model::DocumentKeySet added_documents_;

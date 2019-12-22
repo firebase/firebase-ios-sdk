@@ -113,13 +113,13 @@ ViewSnapshot SyncEngine::InitializeViewAndComputeSnapshot(const Query& query,
   // If there are already queries mapped to the target id, create a synthesized
   // target change to apply the sync state from those queries to the new query.
   auto current_sync_state = SyncState::None;
-  TargetChange synthesized_current_change;
+  absl::optional<TargetChange> synthesized_current_change;
   if (queries_by_target_.find(target_id) != queries_by_target_.end()) {
     const Query& mirror_query = queries_by_target_[target_id][0];
     current_sync_state =
         query_views_by_query_[mirror_query]->view().sync_state();
-    synthesized_current_change =
-        TargetChange(current_sync_state == SyncState::Synced);
+    synthesized_current_change = TargetChange::CreateSynthesizedTargetChange(
+        current_sync_state == SyncState::Synced);
   }
 
   View view(query, std::move(remote_keys));

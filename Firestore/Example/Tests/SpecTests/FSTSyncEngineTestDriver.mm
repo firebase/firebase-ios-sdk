@@ -479,8 +479,8 @@ NS_ASSUME_NONNULL_BEGIN
   return _expectedActiveTargets;
 }
 
-- (void)setExpectedActiveTargets:(const ActiveTargetMap &)targets {
-  _expectedActiveTargets = targets;
+- (void)setExpectedActiveTargets:(ActiveTargetMap)targets {
+  _expectedActiveTargets = std::move(targets);
 }
 
 #pragma mark - Helper Methods
