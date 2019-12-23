@@ -386,7 +386,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 
     [GULAppDelegateSwizzler proxyOriginalDelegateIncludingAPNSMethods];
     #if ((TARGET_OS_IOS || TARGET_OS_TV) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 130000))
+      if (@available(iOS 13, tvos 13, *)) {
       [GULSceneDelegateSwizzler proxyOriginalSceneDelegate];
+    }
     #endif
     #endif
 
@@ -444,7 +446,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 
       [GULAppDelegateSwizzler registerAppDelegateInterceptor:strongSelf];
       #if ((TARGET_OS_IOS || TARGET_OS_TV) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 130000))
+        if (@available(iOS 13, tvos 13, *)) {
         [GULSceneDelegateSwizzler registerSceneDelegateInterceptor:strongSelf];
+      }
       #endif
       #endif
     });
