@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 #include "Firestore/core/src/firebase/firestore/local/leveldb_remote_document_cache.h"
 
 #include <string>
+#include <thread>  // NOLINT(build/c++11)
 #include <utility>
 
 #include "Firestore/Protos/nanopb/firestore/local/maybe_document.nanopb.h"
@@ -26,6 +27,8 @@
 #include "Firestore/core/src/firebase/firestore/local/local_serializer.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/message.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
+#include "Firestore/core/src/firebase/firestore/util/background_queue.h"
+#include "Firestore/core/src/firebase/firestore/util/executor.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/string_util.h"
 #include "leveldb/db.h"
@@ -48,11 +51,44 @@ using model::SnapshotVersion;
 using nanopb::ByteString;
 using nanopb::Message;
 using nanopb::StringReader;
+using util::BackgroundQueue;
+using util::Executor;
+
+template <typename T>
+class AsyncResults {
+ public:
+  using key_type = typename T::key_type;
+  using mapped_type = typename T::mapped_type;
+
+  void Insert(const key_type& key, const mapped_type& value) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    values_ = values_.insert(key, value);
+  }
+
+  T&& Result() {
+    std::lock_guard<std::mutex> lock(mutex_);
+    return std::move(values_);
+  }
+
+ private:
+  T values_;
+  std::mutex mutex_;
+};
 
 LevelDbRemoteDocumentCache::LevelDbRemoteDocumentCache(
     LevelDbPersistence* db, LocalSerializer* serializer)
     : db_(db), serializer_(NOT_NULL(serializer)) {
+  auto hw_concurrency = std::thread::hardware_concurrency();
+  if (hw_concurrency == 0) {
+    // If the standard library doesn't know, guess something reasonable.
+    hw_concurrency = 4;
+  }
+  executor_ = Executor::CreateConcurrent("com.google.firebase.firestore.query",
+                                         static_cast<int>(hw_concurrency));
 }
+
+// Out of line because of unique_ptrs to incomplete types.
+LevelDbRemoteDocumentCache::~LevelDbRemoteDocumentCache() = default;
 
 void LevelDbRemoteDocumentCache::Add(const MaybeDocument& document,
                                      const SnapshotVersion& read_time) {
@@ -93,7 +129,8 @@ absl::optional<MaybeDocument> LevelDbRemoteDocumentCache::Get(
 
 OptionalMaybeDocumentMap LevelDbRemoteDocumentCache::GetAll(
     const DocumentKeySet& keys) {
-  OptionalMaybeDocumentMap results;
+  BackgroundQueue tasks(executor_.get());
+  AsyncResults<OptionalMaybeDocumentMap> results;
 
   LevelDbRemoteDocumentKey current_key;
   auto it = db_->current_transaction()->NewIterator();
@@ -102,13 +139,17 @@ OptionalMaybeDocumentMap LevelDbRemoteDocumentCache::GetAll(
     it->Seek(LevelDbRemoteDocumentKey::Key(key));
     if (!it->Valid() || !current_key.Decode(it->key()) ||
         current_key.document_key() != key) {
-      results = results.insert(key, absl::nullopt);
+      results.Insert(key, absl::nullopt);
     } else {
-      results = results.insert(key, DecodeMaybeDocument(it->value(), key));
+      const std::string& contents = it->value();
+      tasks.Execute([this, &results, key, contents] {
+        results.Insert(key, DecodeMaybeDocument(contents, key));
+      });
     }
   }
 
-  return results;
+  tasks.AwaitAll();
+  return results.Result();
 }
 
 DocumentMap LevelDbRemoteDocumentCache::GetAllExisting(
@@ -165,7 +206,8 @@ DocumentMap LevelDbRemoteDocumentCache::GetMatching(
 
     return LevelDbRemoteDocumentCache::GetAllExisting(remote_keys);
   } else {
-    DocumentMap results;
+    BackgroundQueue tasks(executor_.get());
+    AsyncResults<DocumentMap> results;
 
     // Documents are ordered by key, so we can use a prefix scan to narrow down
     // the documents we need to match the query against.
@@ -185,15 +227,21 @@ DocumentMap LevelDbRemoteDocumentCache::GetMatching(
         continue;
       }
 
-      MaybeDocument maybe_doc = DecodeMaybeDocument(it->value(), document_key);
-      if (!query_path.IsPrefixOf(maybe_doc.key().path())) {
+      if (!query_path.IsPrefixOf(document_key.path())) {
         break;
-      } else if (maybe_doc.is_document()) {
-        results = results.insert(maybe_doc.key(), Document(maybe_doc));
       }
+
+      const std::string& contents = it->value();
+      tasks.Execute([this, &results, document_key, contents] {
+        MaybeDocument maybe_doc = DecodeMaybeDocument(contents, document_key);
+        if (maybe_doc.is_document()) {
+          results.Insert(maybe_doc.key(), Document(maybe_doc));
+        }
+      });
     }
 
-    return results;
+    tasks.AwaitAll();
+    return results.Result();
   }
 }
 
