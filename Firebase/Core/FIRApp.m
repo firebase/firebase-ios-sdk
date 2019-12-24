@@ -887,16 +887,16 @@ static dispatch_once_t sFirebaseUserAgentOnceToken;
 - (void)subscribeForAppDidBecomeActiveNotifications {
 #if TARGET_OS_IOS || TARGET_OS_TV
   NSNotificationName notificationName = UIApplicationDidBecomeActiveNotification;
-#endif
-
-#if TARGET_OS_OSX
+#elif TARGET_OS_OSX
   NSNotificationName notificationName = NSApplicationDidBecomeActiveNotification;
 #endif
 
+#if !TARGET_OS_WATCH
   [[NSNotificationCenter defaultCenter] addObserver:self
                                            selector:@selector(appDidBecomeActive:)
                                                name:notificationName
                                              object:nil];
+#endif
 }
 
 - (void)appDidBecomeActive:(NSNotification *)notification {

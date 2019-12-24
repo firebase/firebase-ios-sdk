@@ -387,7 +387,10 @@
       OSStatus trustError;
 
       @synchronized([GULNetworkURLSession class]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         trustError = SecTrustEvaluate(serverTrust, &trustEval);
+#pragma clang dianostic pop
       }
 
       if (trustError != errSecSuccess) {

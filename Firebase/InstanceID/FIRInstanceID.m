@@ -60,12 +60,12 @@ int64_t const kMinRetryIntervalForDefaultTokenInSeconds = 10;       // 10 second
 // change.
 NSInteger const kMaxRetryCountForDefaultToken = 5;
 
-#if TARGET_OS_IOS || TARGET_OS_TV
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_WATCH
 static NSString *const kEntitlementsAPSEnvironmentKey = @"Entitlements.aps-environment";
 #else
-static NSString *const kEntitlementsAPSEnvironmentKey = @"com.apple.developer.aps-environment";
+static NSString *const kEntitlementsAPSEnvironmentKey =
+    @"Entitlements.com.apple.developer.aps-environment";
 #endif
-static NSString *const kEntitlementsKeyForMac = @"Entitlements";
 static NSString *const kAPSEnvironmentDevelopmentValue = @"development";
 /// FIRMessaging selector that returns the current FIRMessaging auto init
 /// enabled flag.
@@ -617,10 +617,14 @@ static FIRInstanceID *gInstanceID;
   [self updateFirebaseInstallationID];
 
   // FCM generates a FCM token during app start for sending push notification to device.
-  // This is not needed for app extension.
+  // This is not needed for app extension except for watch.
+#if TARGET_OS_WATCH
+  [self didCompleteConfigure];
+#else
   if (![GULAppEnvironmentUtil isAppExtension]) {
     [self didCompleteConfigure];
   }
+#endif
 }
 
 // This is used to start any operations when we receive FirebaseSDK setup notification
@@ -978,7 +982,7 @@ static FIRInstanceID *gInstanceID;
     // Apps distributed via AppStore or TestFlight use the Production APNS certificates.
     return defaultAppTypeProd;
   }
-#if TARGET_OS_IOS || TARGET_OS_TV
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_WATCH
   NSString *path = [[[NSBundle mainBundle] bundlePath]
       stringByAppendingPathComponent:@"embedded.mobileprovision"];
 #elif TARGET_OS_OSX
@@ -1061,13 +1065,7 @@ static FIRInstanceID *gInstanceID;
                              @"most likely a Dev profile.");
   }
 
-#if TARGET_OS_IOS || TARGET_OS_TV
   NSString *apsEnvironment = [plistMap valueForKeyPath:kEntitlementsAPSEnvironmentKey];
-#elif TARGET_OS_OSX
-  NSDictionary *entitlements = [plistMap valueForKey:kEntitlementsKeyForMac];
-  NSString *apsEnvironment = [entitlements valueForKey:kEntitlementsAPSEnvironmentKey];
-#endif
-
   NSString *debugString __unused =
       [NSString stringWithFormat:@"APNS Environment in profile: %@", apsEnvironment];
   FIRInstanceIDLoggerDebug(kFIRInstanceIDMessageCodeInstanceID013, @"%@", debugString);

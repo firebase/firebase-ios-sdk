@@ -78,16 +78,29 @@ NSString *FIRInstanceIDCurrentAppVersion() {
   return version;
 }
 
+NSString *FIRInstanceIDBundleIDByRemovingLastPartFrom(NSString *bundleID) {
+  NSString *bundleIDComponentsSeparator = @".";
+
+  NSMutableArray<NSString *> *bundleIDComponents =
+      [[bundleID componentsSeparatedByString:bundleIDComponentsSeparator] mutableCopy];
+  [bundleIDComponents removeLastObject];
+
+  return [bundleIDComponents componentsJoinedByString:bundleIDComponentsSeparator];
+}
+
 NSString *FIRInstanceIDAppIdentifier() {
-  NSString *bundleIdentifier = [[NSBundle mainBundle] bundleIdentifier];
-  if (!bundleIdentifier.length) {
+  NSString *bundleID = [[NSBundle mainBundle] bundleIdentifier];
+  if (!bundleID.length) {
     FIRInstanceIDLoggerError(kFIRInstanceIDMessageCodeUtilitiesMissingBundleIdentifier,
                              @"The mainBundle's bundleIdentifier returned '%@'. Bundle identifier "
                              @"expected to be non-empty.",
-                             bundleIdentifier);
+                             bundleID);
     return @"";
   }
-  return bundleIdentifier;
+#if TARGET_OS_WATCH
+  return FIRInstanceIDBundleIDByRemovingLastPartFrom(bundleID);
+#endif
+  return bundleID;
 }
 
 NSString *FIRInstanceIDFirebaseAppID() {
@@ -111,7 +124,7 @@ NSString *FIRInstanceIDDeviceModel() {
 NSString *FIRInstanceIDOperatingSystemVersion() {
 #if TARGET_OS_IOS || TARGET_OS_TV
   return [UIDevice currentDevice].systemVersion;
-#elif TARGET_OS_OSX
+#elif TARGET_OS_OSX || TARGET_OS_WATCH
   return [NSProcessInfo processInfo].operatingSystemVersionString;
 #endif
 }

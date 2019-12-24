@@ -19,6 +19,7 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   s.ios.deployment_target = '8.0'
   s.osx.deployment_target = '10.11'
   s.tvos.deployment_target = '10.0'
+  s.watchos.deployment_target = '6.0'
 
   s.cocoapods_version = '>= 1.4.0'
   s.static_framework = true
@@ -43,6 +44,7 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
     'OTHER_CFLAGS' => '-fno-autolink'
   }
   s.test_spec 'unit' do |unit_tests|
+    unit_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
     unit_tests.source_files = 'Example/Core/Tests/**/*.[mh]'
     unit_tests.requires_app_host = true
     unit_tests.dependency 'OCMock'
