@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,21 +34,28 @@ FIRFirestore* OpenFirestore() {
   FIRApp* app = AppForUnitTesting();
   auto db = [FIRFirestore firestoreForApp:app];
   auto settings = db.settings;
+
+  // Default to running against the emulator because we're evaluating local execution speed.
   settings.host = @"localhost:8080";
   settings.sslEnabled = NO;
+
+  // The default is the main queue and this deadlocks because the benchmark does not start an event
+  // loop and just runs on the main thread.
   settings.dispatchQueue = dispatch_queue_create("results", DISPATCH_QUEUE_SERIAL);
   db.settings = settings;
 
   return db;
 }
 
-NSMutableDictionary<NSString*, id>* MakeDocument() {
+NSMutableDictionary<NSString*, id>* MakeDocumentData() {
   NSMutableDictionary<NSString*, id>* doc = [[NSMutableDictionary alloc] init];
   NSString* value = MakeNSString(std::string('a', 100));
 
+  // Create keys "a", "b", "c", ..., "j", each associated with the 100 byte
+  // value. This makes the total document size ~1 kb.
   std::string key_bytes("a");
   for (int i = 0; i < 10; i++) {
-    key_bytes[0] = 'a' + i;
+    key_bytes[0] = static_cast<char>('a' + i);
     doc[MakeNSString(key_bytes)] = value;
   }
   return doc;
@@ -76,7 +83,7 @@ void WaitForPendingWrites(FIRFirestore* db) {
 }
 
 void WriteDocs(FIRCollectionReference* collection, int64_t count, bool match) {
-  auto doc = MakeDocument();
+  auto doc = MakeDocumentData();
   for (int64_t i = 0; i < count; i++) {
     doc[@"match"] = @(match);
     FIRDocumentReference* ref = [collection documentWithAutoID];
