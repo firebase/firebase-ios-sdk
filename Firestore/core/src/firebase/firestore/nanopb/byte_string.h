@@ -146,7 +146,7 @@ class ByteString : public util::Comparable<ByteString> {
   std::string ToString() const;
   friend std::ostream& operator<<(std::ostream& out, const ByteString& str);
 
-  // Represents the value as hexademical values.
+  // Represents the value as hexadecimal values.
   std::string ToHexString() const;
 
  private:
