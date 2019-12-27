@@ -12,6 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
+# Script to run in a CI `script` phase to build the associated quickstart
+# sample and run its tests.
+
 SAMPLE=$1
 cd quickstart-ios
 ./scripts/test.sh

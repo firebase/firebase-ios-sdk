@@ -12,9 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-SAMPLE=$1
 
-git clone git@github.com:firebase/quickstart-ios.git
+# Script to run in a CI `before_install` phase to setup the quickstart repo
+# so that it can be used for integration testing.
+
+SAMPLE=$1
+git clone https://github.com/firebase/quickstart-ios.git
 cd quickstart-ios/"$SAMPLE"
 bundle exec pod install --repo-update
 ../scripts/install_prereqs/"$SAMPLE.sh"
