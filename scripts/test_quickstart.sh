@@ -19,5 +19,6 @@
 if [[ "$TRAVIS_PULL_REQUEST" == "false" ||
       "$TRAVIS_PULL_REQUEST_SLUG" == "$TRAVIS_REPO_SLUG" ]]; then
   cd quickstart-ios
-  SAMPLE="$1" ./scripts/test.sh
+  TRAVIS_PULL_REQUEST="$TRAVIS_PULL_REQUEST" TRAVIS_PULL_REQUEST_SLUG=$"TRAVIS_PULL_REQUEST_SLUG" \
+    SAMPLE="$1" ./scripts/test.sh
 fi
