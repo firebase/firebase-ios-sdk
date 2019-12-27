@@ -203,7 +203,10 @@
   } else {
     @try {
       NSMutableData *data = [NSMutableData data];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
       NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData:data];
+#pragma clang diagnostic pop
       archiver.requiresSecureCoding = YES;
 
       [archiver encodeObject:object forKey:NSKeyedArchiveRootObjectKey];
@@ -232,7 +235,10 @@
     }
   } else {
     @try {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
       NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
+#pragma clang diagnostic pop
       unarchiver.requiresSecureCoding = YES;
 
       object = [unarchiver decodeObjectOfClass:class forKey:NSKeyedArchiveRootObjectKey];

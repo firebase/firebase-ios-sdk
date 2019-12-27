@@ -216,8 +216,9 @@ std::unique_ptr<ListenerRegistration> DocumentReference::AddSnapshotListener(
                    // We don't raise `has_pending_writes` for deleted documents.
                    : false;
 
-      DocumentSnapshot result{firestore_, key_, document, snapshot.from_cache(),
-                              has_pending_writes};
+      DocumentSnapshot result{
+          firestore_, key_, document,
+          SnapshotMetadata{has_pending_writes, snapshot.from_cache()}};
       user_listener_->OnEvent(std::move(result));
     }
 

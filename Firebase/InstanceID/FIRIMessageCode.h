@@ -76,29 +76,12 @@ typedef NS_ENUM(NSInteger, FIRInstanceIDMessageCode) {
   kFIRInstanceIDMessageCodeCheckinStore003 = 8003,
   kFIRInstanceIDMessageCodeCheckinStoreCheckinPlistDeleted = 8009,
   kFIRInstanceIDMessageCodeCheckinStoreCheckinPlistSaved = 8010,
-  // FIRInstanceIDKeyPair.m
-  // DO NOT USE 9001, 9003
-  kFIRInstanceIDMessageCodeKeyPair000 = 9000,
-  kFIRInstanceIDMessageCodeKeyPair002 = 9002,
-  kFIRInstanceIDMessageCodeKeyPairMigrationError = 9004,
-  kFIRInstanceIDMessageCodeKeyPairMigrationSuccess = 9005,
-  kFIRInstanceIDMessageCodeKeyPairNoLegacyKeyPair = 9006,
 
-  // FIRInstanceIDKeyPairStore.m
-  kFIRInstanceIDMessageCodeKeyPairStore000 = 10000,
-  kFIRInstanceIDMessageCodeKeyPairStore001 = 10001,
-  kFIRInstanceIDMessageCodeKeyPairStore002 = 10002,
-  kFIRInstanceIDMessageCodeKeyPairStore003 = 10003,
-  kFIRInstanceIDMessageCodeKeyPairStore004 = 10004,
-  kFIRInstanceIDMessageCodeKeyPairStore005 = 10005,
-  kFIRInstanceIDMessageCodeKeyPairStore006 = 10006,
-  kFIRInstanceIDMessageCodeKeyPairStore007 = 10007,
-  kFIRInstanceIDMessageCodeKeyPairStore008 = 10008,
-  kFIRInstanceIDMessageCodeKeyPairStoreCouldNotLoadKeyPair = 10009,
-  // FIRInstanceIDKeyPairUtilities.m
-  kFIRInstanceIDMessageCodeKeyPairUtilities000 = 11000,
-  kFIRInstanceIDMessageCodeKeyPairUtilities001 = 11001,
-  kFIRInstanceIDMessageCodeKeyPairUtilitiesFirstConcatenateParamNil = 11002,
+  // DO NOT USE 9000 - 9006
+
+  // DO NOT USE 10000 - 10009
+
+  // DO NOT USE 11000 - 11002
 
   // DO NOT USE 12000 - 12014
 

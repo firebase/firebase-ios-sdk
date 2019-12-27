@@ -18,6 +18,7 @@ Shared library for iOS SDK data transport needs.
   s.ios.deployment_target = '8.0'
   s.osx.deployment_target = '10.11'
   s.tvos.deployment_target = '10.0'
+  s.watchos.deployment_target = '6.0'
 
   # To develop or run the tests, >= 1.8.0.beta.1 must be installed.
   s.cocoapods_version = '>= 1.4.0'
@@ -59,12 +60,14 @@ Shared library for iOS SDK data transport needs.
 
   # Unit test specs
   s.test_spec 'Tests-Unit' do |test_spec|
+    test_spec.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
     test_spec.requires_app_host = false
     test_spec.source_files = ['GoogleDataTransport/GDTCORTests/Unit/**/*.{h,m}'] + common_test_sources
     test_spec.pod_target_xcconfig = header_search_paths
   end
 
   s.test_spec 'Tests-Lifecycle' do |test_spec|
+    test_spec.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
     test_spec.requires_app_host = false
     test_spec.source_files = ['GoogleDataTransport/GDTCORTests/Lifecycle/**/*.{h,m}'] + common_test_sources
     test_spec.pod_target_xcconfig = header_search_paths
@@ -72,6 +75,7 @@ Shared library for iOS SDK data transport needs.
 
   # Integration test specs
   s.test_spec 'Tests-Integration' do |test_spec|
+    test_spec.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
     test_spec.requires_app_host = false
     test_spec.source_files = ['GoogleDataTransport/GDTCORTests/Integration/**/*.{h,m}'] + common_test_sources
     test_spec.pod_target_xcconfig = header_search_paths
@@ -81,6 +85,7 @@ Shared library for iOS SDK data transport needs.
   # Monkey test specs TODO(mikehaney24): Uncomment when travis is running >= cocoapods-1.8.0
   if ENV['GDT_DEV'] && ENV['GDT_DEV'] == '1' then
     s.test_spec 'Tests-Monkey' do |test_spec|
+      test_spec.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
       test_spec.requires_app_host = true
       test_spec.app_host_name = 'GoogleDataTransport/TestApp'
       test_spec.dependency 'GoogleDataTransport/TestApp'

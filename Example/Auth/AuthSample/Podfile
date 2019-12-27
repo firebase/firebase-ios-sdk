@@ -15,6 +15,7 @@ target 'AuthSample' do
   pod 'GoogleDataTransportCCTSupport', :path => '../../../'
   pod 'GoogleUtilities', :path => '../../../'
   pod 'FirebaseAuth', :path => '../../../', :testspecs => ['unit']
+  pod 'FirebaseInstallations', :path => '../../..'
   pod 'FirebaseInstanceID', :path => '../../..'
   pod 'FBSDKLoginKit'
   pod 'GoogleSignIn', '~> 5'

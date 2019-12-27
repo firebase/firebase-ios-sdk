@@ -1,5 +1,5 @@
 os: osx
-osx_image: xcode11.1
+osx_image: xcode11.3
 language: objective-c
 cache:
   - bundler
@@ -370,7 +370,9 @@ jobs:
       env:
         - PROJECT=GoogleUtilities METHOD=pod-lib-lint
       script:
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleUtilities.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --platforms=ios
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --platforms=tvos
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --platforms=macos
 
     - stage: test
       if: type = cron
@@ -378,8 +380,12 @@ jobs:
         - PROJECT=GoogleUtilitiesCron METHOD=pod-lib-lint
       script:
 
-        - travis_retry ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --use-libraries
-        - travis_retry ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --use-modular-headers
+        - travis_retry ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --use-libraries --platforms=ios
+        - travis_retry ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --use-libraries --platforms=tvos
+        - travis_retry ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --use-libraries --platforms=macos
+        - travis_retry ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --use-modular-headers --platforms=ios
+        - travis_retry ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --use-modular-headers --platforms=tvos
+        - travis_retry ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --use-modular-headers --platforms=macos
 
     - stage: test
       env:

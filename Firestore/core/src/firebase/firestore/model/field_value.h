@@ -192,9 +192,20 @@ class FieldValue {
   static FieldValue FromInteger(int64_t value);
   static FieldValue FromDouble(double value);
   static FieldValue FromTimestamp(const Timestamp& value);
+
+  static FieldValue FromServerTimestamp(const Timestamp& local_write_time);
+
+ private:
+  // TODO(b/146372592): Make this public once we can use Abseil across
+  // iOS/public C++ library boundaries.
+  friend class FieldValueTest;
+  friend class ServerTimestampTransform;
+
   static FieldValue FromServerTimestamp(
       const Timestamp& local_write_time,
-      absl::optional<FieldValue> previous_value = absl::nullopt);
+      absl::optional<FieldValue> previous_value);
+
+ public:
   static FieldValue FromString(const char* value);
   static FieldValue FromString(const std::string& value);
   static FieldValue FromString(std::string&& value);
@@ -372,13 +383,18 @@ class FieldValue::Reference {
 };
 
 class FieldValue::ServerTimestamp {
- public:
+ private:
+  // TODO(b/146372592): Make this public once we can use Abseil across
+  // iOS/public C++ library boundaries.
+  friend class FieldValue;
+
   ServerTimestamp(Timestamp local_write_time,
                   absl::optional<FieldValue> previous_value)
       : local_write_time_(local_write_time),
         previous_value_(std::move(previous_value)) {
   }
 
+ public:
   const Timestamp& local_write_time() const {
     return local_write_time_;
   }

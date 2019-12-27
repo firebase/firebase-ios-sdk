@@ -1324,6 +1324,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 }
 
 #if TARGET_OS_IOS
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-property-ivar"
+// The warning is ignored because we use the token manager to get the token, instead of using the ivar.
 - (nullable NSData *)APNSToken {
   __block NSData *result = nil;
   dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
@@ -1331,6 +1334,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   });
   return result;
 }
+#pragma clang diagnostic pop
 
 #pragma mark - UIApplicationDelegate
 

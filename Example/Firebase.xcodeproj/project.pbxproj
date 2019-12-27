@@ -174,9 +174,6 @@
 		518854FC223067E900CA4141 /* FIRInstanceIDCheckinStoreTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BEB21F7DF0D00E6C1C5 /* FIRInstanceIDCheckinStoreTest.m */; };
 		518854FD223067E900CA4141 /* FIRInstanceIDFakeKeychain.h in Sources */ = {isa = PBXBuildFile; fileRef = DE958BE321F7DF0C00E6C1C5 /* FIRInstanceIDFakeKeychain.h */; };
 		518854FE223067E900CA4141 /* FIRInstanceIDFakeKeychain.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BDC21F7DF0B00E6C1C5 /* FIRInstanceIDFakeKeychain.m */; };
-		518854FF223067E900CA4141 /* FIRInstanceIDKeyPairMigrationTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BDF21F7DF0C00E6C1C5 /* FIRInstanceIDKeyPairMigrationTest.m */; };
-		51885500223067E900CA4141 /* FIRInstanceIDKeyPairStoreTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BE421F7DF0C00E6C1C5 /* FIRInstanceIDKeyPairStoreTest.m */; };
-		51885501223067E900CA4141 /* FIRInstanceIDKeyPairTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BE821F7DF0D00E6C1C5 /* FIRInstanceIDKeyPairTest.m */; };
 		51885502223067E900CA4141 /* FIRInstanceIDResultTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BDD21F7DF0C00E6C1C5 /* FIRInstanceIDResultTest.m */; };
 		51885503223067E900CA4141 /* FIRInstanceIDStoreTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BEA21F7DF0D00E6C1C5 /* FIRInstanceIDStoreTest.m */; };
 		51885504223067E900CA4141 /* FIRInstanceIDTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BE021F7DF0C00E6C1C5 /* FIRInstanceIDTest.m */; };
@@ -566,14 +563,11 @@
 		DE958BF221F7DF0D00E6C1C5 /* FIRInstanceIDFakeKeychain.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BDC21F7DF0B00E6C1C5 /* FIRInstanceIDFakeKeychain.m */; };
 		DE958BF321F7DF0D00E6C1C5 /* FIRInstanceIDResultTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BDD21F7DF0C00E6C1C5 /* FIRInstanceIDResultTest.m */; };
 		DE958BF421F7DF0D00E6C1C5 /* FIRInstanceIDAuthServiceTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BDE21F7DF0C00E6C1C5 /* FIRInstanceIDAuthServiceTest.m */; };
-		DE958BF521F7DF0D00E6C1C5 /* FIRInstanceIDKeyPairMigrationTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BDF21F7DF0C00E6C1C5 /* FIRInstanceIDKeyPairMigrationTest.m */; };
 		DE958BF621F7DF0E00E6C1C5 /* FIRInstanceIDTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BE021F7DF0C00E6C1C5 /* FIRInstanceIDTest.m */; };
 		DE958BF721F7DF0E00E6C1C5 /* FIRInstanceIDUtilitiesTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BE121F7DF0C00E6C1C5 /* FIRInstanceIDUtilitiesTest.m */; };
-		DE958BF921F7DF0E00E6C1C5 /* FIRInstanceIDKeyPairStoreTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BE421F7DF0C00E6C1C5 /* FIRInstanceIDKeyPairStoreTest.m */; };
 		DE958BFA21F7DF0E00E6C1C5 /* FIRInstanceIDAuthKeyChainTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BE521F7DF0C00E6C1C5 /* FIRInstanceIDAuthKeyChainTest.m */; };
 		DE958BFB21F7DF0E00E6C1C5 /* FIRInstanceIDTokenManager+Test.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BE621F7DF0C00E6C1C5 /* FIRInstanceIDTokenManager+Test.m */; };
 		DE958BFC21F7DF0E00E6C1C5 /* FIRInstanceIDCheckinServiceTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BE721F7DF0D00E6C1C5 /* FIRInstanceIDCheckinServiceTest.m */; };
-		DE958BFD21F7DF0E00E6C1C5 /* FIRInstanceIDKeyPairTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BE821F7DF0D00E6C1C5 /* FIRInstanceIDKeyPairTest.m */; };
 		DE958BFE21F7DF0E00E6C1C5 /* FIRInstanceIDBackupExcludedPlistTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BE921F7DF0D00E6C1C5 /* FIRInstanceIDBackupExcludedPlistTest.m */; };
 		DE958BFF21F7DF0E00E6C1C5 /* FIRInstanceIDStoreTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BEA21F7DF0D00E6C1C5 /* FIRInstanceIDStoreTest.m */; };
 		DE958C0021F7DF0E00E6C1C5 /* FIRInstanceIDCheckinStoreTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BEB21F7DF0D00E6C1C5 /* FIRInstanceIDCheckinStoreTest.m */; };
@@ -1428,15 +1422,12 @@
 		DE958BDC21F7DF0B00E6C1C5 /* FIRInstanceIDFakeKeychain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRInstanceIDFakeKeychain.m; sourceTree = "<group>"; };
 		DE958BDD21F7DF0C00E6C1C5 /* FIRInstanceIDResultTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRInstanceIDResultTest.m; sourceTree = "<group>"; };
 		DE958BDE21F7DF0C00E6C1C5 /* FIRInstanceIDAuthServiceTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRInstanceIDAuthServiceTest.m; sourceTree = "<group>"; };
-		DE958BDF21F7DF0C00E6C1C5 /* FIRInstanceIDKeyPairMigrationTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRInstanceIDKeyPairMigrationTest.m; sourceTree = "<group>"; };
 		DE958BE021F7DF0C00E6C1C5 /* FIRInstanceIDTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRInstanceIDTest.m; sourceTree = "<group>"; };
 		DE958BE121F7DF0C00E6C1C5 /* FIRInstanceIDUtilitiesTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRInstanceIDUtilitiesTest.m; sourceTree = "<group>"; };
 		DE958BE321F7DF0C00E6C1C5 /* FIRInstanceIDFakeKeychain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRInstanceIDFakeKeychain.h; sourceTree = "<group>"; };
-		DE958BE421F7DF0C00E6C1C5 /* FIRInstanceIDKeyPairStoreTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRInstanceIDKeyPairStoreTest.m; sourceTree = "<group>"; };
 		DE958BE521F7DF0C00E6C1C5 /* FIRInstanceIDAuthKeyChainTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRInstanceIDAuthKeyChainTest.m; sourceTree = "<group>"; };
 		DE958BE621F7DF0C00E6C1C5 /* FIRInstanceIDTokenManager+Test.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "FIRInstanceIDTokenManager+Test.m"; sourceTree = "<group>"; };
 		DE958BE721F7DF0D00E6C1C5 /* FIRInstanceIDCheckinServiceTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRInstanceIDCheckinServiceTest.m; sourceTree = "<group>"; };
-		DE958BE821F7DF0D00E6C1C5 /* FIRInstanceIDKeyPairTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRInstanceIDKeyPairTest.m; sourceTree = "<group>"; };
 		DE958BE921F7DF0D00E6C1C5 /* FIRInstanceIDBackupExcludedPlistTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRInstanceIDBackupExcludedPlistTest.m; sourceTree = "<group>"; };
 		DE958BEA21F7DF0D00E6C1C5 /* FIRInstanceIDStoreTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRInstanceIDStoreTest.m; sourceTree = "<group>"; };
 		DE958BEB21F7DF0D00E6C1C5 /* FIRInstanceIDCheckinStoreTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRInstanceIDCheckinStoreTest.m; sourceTree = "<group>"; };
@@ -2698,9 +2689,6 @@
 				DE958BEB21F7DF0D00E6C1C5 /* FIRInstanceIDCheckinStoreTest.m */,
 				DE958BE321F7DF0C00E6C1C5 /* FIRInstanceIDFakeKeychain.h */,
 				DE958BDC21F7DF0B00E6C1C5 /* FIRInstanceIDFakeKeychain.m */,
-				DE958BDF21F7DF0C00E6C1C5 /* FIRInstanceIDKeyPairMigrationTest.m */,
-				DE958BE421F7DF0C00E6C1C5 /* FIRInstanceIDKeyPairStoreTest.m */,
-				DE958BE821F7DF0D00E6C1C5 /* FIRInstanceIDKeyPairTest.m */,
 				DE958BDD21F7DF0C00E6C1C5 /* FIRInstanceIDResultTest.m */,
 				DE958BEA21F7DF0D00E6C1C5 /* FIRInstanceIDStoreTest.m */,
 				DE958BE021F7DF0C00E6C1C5 /* FIRInstanceIDTest.m */,
@@ -4467,9 +4455,6 @@
 				518854FC223067E900CA4141 /* FIRInstanceIDCheckinStoreTest.m in Sources */,
 				518854FD223067E900CA4141 /* FIRInstanceIDFakeKeychain.h in Sources */,
 				518854FE223067E900CA4141 /* FIRInstanceIDFakeKeychain.m in Sources */,
-				518854FF223067E900CA4141 /* FIRInstanceIDKeyPairMigrationTest.m in Sources */,
-				51885500223067E900CA4141 /* FIRInstanceIDKeyPairStoreTest.m in Sources */,
-				51885501223067E900CA4141 /* FIRInstanceIDKeyPairTest.m in Sources */,
 				51885502223067E900CA4141 /* FIRInstanceIDResultTest.m in Sources */,
 				51885503223067E900CA4141 /* FIRInstanceIDStoreTest.m in Sources */,
 				51885504223067E900CA4141 /* FIRInstanceIDTest.m in Sources */,
@@ -5102,10 +5087,7 @@
 				DE958BFB21F7DF0E00E6C1C5 /* FIRInstanceIDTokenManager+Test.m in Sources */,
 				DE958BF621F7DF0E00E6C1C5 /* FIRInstanceIDTest.m in Sources */,
 				DE958BFE21F7DF0E00E6C1C5 /* FIRInstanceIDBackupExcludedPlistTest.m in Sources */,
-				DE958BF521F7DF0D00E6C1C5 /* FIRInstanceIDKeyPairMigrationTest.m in Sources */,
-				DE958BFD21F7DF0E00E6C1C5 /* FIRInstanceIDKeyPairTest.m in Sources */,
 				5188550C2230873000CA4141 /* FIRInstanceIDAPNSInfoTest.m in Sources */,
-				DE958BF921F7DF0E00E6C1C5 /* FIRInstanceIDKeyPairStoreTest.m in Sources */,
 				DE958BEF21F7DF0D00E6C1C5 /* FIRInstanceIDTokenManagerTest.m in Sources */,
 				DE958BFF21F7DF0E00E6C1C5 /* FIRInstanceIDStoreTest.m in Sources */,
 				DE958BF121F7DF0D00E6C1C5 /* FIRInstanceIDTokenOperationsTest.m in Sources */,

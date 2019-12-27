@@ -19,10 +19,10 @@
 #import "FIRAuthApiTestsBase.h"
 
 /** The testing email address for testCreateAccountWithEmailAndPassword. */
-static NSString *const kNewEmailToCreateUser = @"iosgcip+email_new_user@gmail.com";
+static NSString *const kNewEmailToCreateUser = @"user+email_new_user@example.com";
 
 /** The testing email address for testSignInExistingUserWithEmailAndPassword. */
-static NSString *const kExistingEmailToSignIn = @"iosgcip+email_existing_user@gmail.com";
+static NSString *const kExistingEmailToSignIn = @"user+email_existing_user@example.com";
 
 /** The testing password for testSignInExistingUserWithEmailAndPassword. */
 static NSString *const kExistingPasswordToSignIn = @"password";

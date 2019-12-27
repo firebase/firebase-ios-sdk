@@ -50,7 +50,7 @@ case "$version" in
   *)
     echo "Please upgrade to clang-format version 8."
     echo "If it's installed via homebrew you can run:"
-    echo "brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/773cb75d360b58f32048f5964038d09825a507c8/Formula/clang-format.rb"
+    echo "brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/e3496d9/Formula/clang-format.rb"
     exit 1
     ;;
 esac
