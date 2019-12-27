@@ -16,16 +16,19 @@
 # Script to run in a CI `before_install` phase to setup the quickstart repo
 # so that it can be used for integration testing.
 
-SAMPLE=$1
-git clone https://github.com/firebase/quickstart-ios.git
-cd quickstart-ios/"$SAMPLE"
+if [[ "$TRAVIS_PULL_REQUEST" == "false" ||
+      "$TRAVIS_PULL_REQUEST_SLUG" == "$TRAVIS_REPO_SLUG" ]]; then
+  SAMPLE=$1
+  git clone https://github.com/firebase/quickstart-ios.git
+  cd quickstart-ios/"$SAMPLE"
 
-# To test a branch, uncomment the following line
-git checkout pb-test-check
-bundle exec pod install --repo-update
-TRAVIS_PULL_REQUEST="$TRAVIS_PULL_REQUEST" TRAVIS_PULL_REQUEST_SLUG=$"TRAVIS_PULL_REQUEST_SLUG" \
-  ../scripts/install_prereqs/"$SAMPLE.sh"
-# Secrets are repo specific, so we need to override with the firebase-ios-sdk
-# version.
-cp ../../Secrets/quickstart-ios/"$SAMPLE"/GoogleService-Info.plist ./
-cd -
+  # To test a branch, uncomment the following line
+  git checkout pb-test-check
+  bundle exec pod install --repo-update
+  TRAVIS_PULL_REQUEST="$TRAVIS_PULL_REQUEST" TRAVIS_PULL_REQUEST_SLUG=$"TRAVIS_PULL_REQUEST_SLUG" \
+    ../scripts/install_prereqs/"$SAMPLE.sh"
+  # Secrets are repo specific, so we need to override with the firebase-ios-sdk
+  # version.
+  cp ../../Secrets/quickstart-ios/"$SAMPLE"/GoogleService-Info.plist ./
+  cd -
+fi

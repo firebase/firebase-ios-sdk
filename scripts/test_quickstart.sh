@@ -16,5 +16,8 @@
 # Run a CI `script` phase to build the associated quickstart
 # sample and run its tests.
 
-cd quickstart-ios
-SAMPLE="$1" ./scripts/test.sh
+if [[ "$TRAVIS_PULL_REQUEST" == "false" ||
+      "$TRAVIS_PULL_REQUEST_SLUG" == "$TRAVIS_REPO_SLUG" ]]; then
+  cd quickstart-ios
+  SAMPLE="$1" ./scripts/test.sh
+fi
