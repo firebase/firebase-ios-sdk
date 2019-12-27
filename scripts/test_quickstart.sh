@@ -16,7 +16,6 @@
 # Script to run in a CI `script` phase to build the associated quickstart
 # sample and run its tests.
 
-SAMPLE=$1
 cd quickstart-ios
-./scripts/test.sh
+SAMPLE="$1" ./scripts/test.sh
 cd -
