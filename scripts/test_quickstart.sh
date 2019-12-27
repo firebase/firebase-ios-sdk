@@ -18,4 +18,3 @@
 
 cd quickstart-ios
 SAMPLE="$1" ./scripts/test.sh
-cd -
