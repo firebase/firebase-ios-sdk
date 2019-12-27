@@ -50,9 +50,9 @@ function install_secrets() {
     cp Secrets/Installations/GoogleService-Info.plist "$fis_resources_dir"
 
     # FirebaseInstanceID
-    iid_resources=Example/InstanceID/Resources/
-    mkdir -p "$iid_resources"
-    cp Secrets/Installations/GoogleService-Info.plist "$iid_resources"
+    iid_resources_dir=Example/InstanceID/Resources/
+    mkdir -p "$iid_resources_dir"
+    cp Secrets/Installations/GoogleService-Info.plist "$iid_resources_dir"
   fi
 }
 
@@ -89,6 +89,10 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     ;;
 
   Installations-*)
+    install_secrets
+    ;;
+
+  InstanceID*)
     install_secrets
     ;;
 
