@@ -19,8 +19,12 @@
 SAMPLE=$1
 git clone https://github.com/firebase/quickstart-ios.git
 cd quickstart-ios/"$SAMPLE"
+
+# To test a branch, uncomment the following line
+git checkout pb-test-check
 bundle exec pod install --repo-update
-../scripts/install_prereqs/"$SAMPLE.sh"
+TRAVIS_PULL_REQUEST="$TRAVIS_PULL_REQUEST" TRAVIS_PULL_REQUEST_SLUG=$"TRAVIS_PULL_REQUEST_SLUG" \
+  ../scripts/install_prereqs/"$SAMPLE.sh"
 # Secrets are repo specific, so we need to override with the firebase-ios-sdk
 # version.
 cp ../../Secrets/quickstart-ios/"$SAMPLE"/GoogleService-Info.plist ./
