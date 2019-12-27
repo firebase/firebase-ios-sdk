@@ -1,18 +1,18 @@
 /*
-* Copyright 2019 Google
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright 2019 Google
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #import <XCTest/XCTest.h>
 
@@ -43,25 +43,26 @@ static BOOL sFIRInstanceIDFirebaseDefaultAppConfigured = NO;
 
 - (void)testGetID {
   XCTestExpectation *expectation = [self expectationWithDescription:@"getID"];
-  [self.instanceID getIDWithHandler:^(NSString * _Nullable identity, NSError * _Nullable error) {
+  [self.instanceID getIDWithHandler:^(NSString *_Nullable identity, NSError *_Nullable error) {
     XCTAssertNil(error);
     XCTAssertEqual(identity.length, 22);
     [expectation fulfill];
   }];
-  [self waitForExpectations:@[expectation] timeout:5];
+  [self waitForExpectations:@[ expectation ] timeout:5];
 }
 
 - (void)testInstanceIDWithHandler {
   XCTestExpectation *expectation = [self expectationWithDescription:@"instanceIDWithHandler"];
-  [self.instanceID instanceIDWithHandler:^(FIRInstanceIDResult * _Nullable result, NSError * _Nullable error) {
-    XCTAssertNil(error);
-    XCTAssertNotNil(result);
-    XCTAssert(result.instanceID.length > 0);
-    XCTAssert(result.token.length > 0);
-    [expectation fulfill];
-  }];
+  [self.instanceID
+      instanceIDWithHandler:^(FIRInstanceIDResult *_Nullable result, NSError *_Nullable error) {
+        XCTAssertNil(error);
+        XCTAssertNotNil(result);
+        XCTAssert(result.instanceID.length > 0);
+        XCTAssert(result.token.length > 0);
+        [expectation fulfill];
+      }];
 
-  [self waitForExpectations:@[expectation] timeout:5];
+  [self waitForExpectations:@[ expectation ] timeout:5];
 }
 
 - (void)testTokenWithAuthorizedEntity {
@@ -72,35 +73,41 @@ static BOOL sFIRInstanceIDFirebaseDefaultAppConfigured = NO;
   [self assertTokenWithAuthorizedEntity];
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"testDeleteToken"];
-  [self.instanceID deleteTokenWithAuthorizedEntity:[self tokenAuthorizedEntity] scope:@"*" handler:^(NSError * _Nonnull error) {
-    XCTAssertNil(error);
-    [expectation fulfill];
-  }];
+  [self.instanceID deleteTokenWithAuthorizedEntity:[self tokenAuthorizedEntity]
+                                             scope:@"*"
+                                           handler:^(NSError *_Nonnull error) {
+                                             XCTAssertNil(error);
+                                             [expectation fulfill];
+                                           }];
 
-  [self waitForExpectations:@[expectation] timeout:5];
+  [self waitForExpectations:@[ expectation ] timeout:5];
 }
 
 - (void)testDeleteID {
   XCTestExpectation *expectation = [self expectationWithDescription:@"deleteID"];
-  [self.instanceID deleteIDWithHandler:^(NSError * _Nullable error) {
+  [self.instanceID deleteIDWithHandler:^(NSError *_Nullable error) {
     XCTAssertNil(error);
     [expectation fulfill];
   }];
 
-  [self waitForExpectations:@[expectation] timeout:5];
+  [self waitForExpectations:@[ expectation ] timeout:5];
 }
 
 #pragma mark - Helpers
 
 - (void)assertTokenWithAuthorizedEntity {
   XCTestExpectation *expectation = [self expectationWithDescription:@"tokenWithAuthorizedEntity"];
-  [self.instanceID tokenWithAuthorizedEntity:[self tokenAuthorizedEntity] scope:@"*" options:nil handler:^(NSString * _Nullable token, NSError * _Nullable error) {
-    XCTAssertNil(error);
-    XCTAssert(token > 0);
-    [expectation fulfill];
-  }];
+  [self.instanceID
+      tokenWithAuthorizedEntity:[self tokenAuthorizedEntity]
+                          scope:@"*"
+                        options:nil
+                        handler:^(NSString *_Nullable token, NSError *_Nullable error) {
+                          XCTAssertNil(error);
+                          XCTAssert(token > 0);
+                          [expectation fulfill];
+                        }];
 
-  [self waitForExpectations:@[expectation] timeout:5];
+  [self waitForExpectations:@[ expectation ] timeout:5];
 }
 
 - (NSString *)tokenAuthorizedEntity {
