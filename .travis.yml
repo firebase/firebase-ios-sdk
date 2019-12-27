@@ -270,9 +270,10 @@ jobs:
         - PROJECT=Storage PLATFORM=all METHOD=xcodebuild
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+        - ./scripts/if_changed.sh ./scripts/setup_quickstart.sh storage
       script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/test_quickstart.sh storage
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
-        # The pod lib lint tests are fast enough that it's not worth a separate stage.
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --skip-tests --platforms=ios
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --skip-tests --platforms=tvos
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --skip-tests --platforms=macos
@@ -281,8 +282,6 @@ jobs:
       osx_image: xcode10.3
       env:
         - PROJECT=Storage PLATFORM=all METHOD=xcodebuild
-      before_install:
-        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --skip-tests --platforms=ios
 
@@ -691,3 +690,4 @@ jobs:
 branches:
   only:
     - master
+    - pb-qs
