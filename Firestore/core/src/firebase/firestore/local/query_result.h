@@ -32,9 +32,7 @@ class QueryResult {
  public:
   QueryResult() = default;
 
-  /**
-   * Creates a new QueryResult with the given values.
-   */
+  /** Creates a new QueryResult with the given values. */
   QueryResult(model::DocumentMap documents, model::DocumentKeySet remote_keys)
       : documents_{std::move(documents)}, remote_keys_{std::move(remote_keys)} {
   }

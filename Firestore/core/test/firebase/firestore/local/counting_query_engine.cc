@@ -27,7 +27,7 @@ using model::DocumentKeySet;
 using model::DocumentMap;
 using model::SnapshotVersion;
 
-#pragma mark - CountingQueryEngine
+// MARK: - CountingQueryEngine
 
 void CountingQueryEngine::SetLocalDocumentsView(
     LocalDocumentsView* local_documents) {
@@ -56,7 +56,7 @@ void CountingQueryEngine::ResetCounts() {
   documents_read_by_key_ = 0;
 }
 
-// #pragma mark - WrappedMutationQueue
+// MARK: - WrappedMutationQueue
 
 void WrappedMutationQueue::Start() {
   subject_->Start();
@@ -141,7 +141,7 @@ void WrappedMutationQueue::SetLastStreamToken(nanopb::ByteString stream_token) {
   subject_->SetLastStreamToken(stream_token);
 }
 
-#pragma mark - WrappedRemoteDocumentCache
+// MARK: - WrappedRemoteDocumentCache
 
 void WrappedRemoteDocumentCache::Add(const model::MaybeDocument& document,
                                      const model::SnapshotVersion& read_time) {

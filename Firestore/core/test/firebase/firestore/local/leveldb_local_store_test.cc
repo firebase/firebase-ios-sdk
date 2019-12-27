@@ -28,8 +28,8 @@ namespace {
 
 class TestHelper : public LocalStoreTestHelper {
  public:
-  TestHelper(std::unique_ptr<QueryEngine> query_engine, bool index_free)
-      : query_engine_(std::move(query_engine)), index_free_(index_free) {
+  explicit TestHelper(std::unique_ptr<QueryEngine> query_engine)
+      : query_engine_(std::move(query_engine)) {
   }
 
   std::unique_ptr<Persistence> MakePersistence() override {
@@ -45,23 +45,17 @@ class TestHelper : public LocalStoreTestHelper {
     return false;
   }
 
-  bool IsIndexFree() const override {
-    return index_free_;
-  }
-
  private:
   std::unique_ptr<QueryEngine> query_engine_;
-  bool index_free_;
 };
 
 std::unique_ptr<LocalStoreTestHelper> SimpleQueryEngineFactory() {
-  return absl::make_unique<TestHelper>(absl::make_unique<SimpleQueryEngine>(),
-                                       /* index_free= */ false);
+  return absl::make_unique<TestHelper>(absl::make_unique<SimpleQueryEngine>());
 }
 
 std::unique_ptr<LocalStoreTestHelper> IndexFreeQueryEngineFactory() {
   return absl::make_unique<TestHelper>(
-      absl::make_unique<IndexFreeQueryEngine>(), /* index_free= */ true);
+      absl::make_unique<IndexFreeQueryEngine>());
 }
 
 }  // namespace

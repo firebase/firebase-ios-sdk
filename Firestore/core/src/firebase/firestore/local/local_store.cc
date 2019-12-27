@@ -404,17 +404,18 @@ void LocalStore::NotifyLocalViewChanges(
                                               target_id);
 
       if (!view_change.is_from_cache()) {
-        const auto& query_data = query_data_by_target_.find(target_id);
+        const auto& entry = query_data_by_target_.find(target_id);
         HARD_ASSERT(
-            query_data != query_data_by_target_.end(),
+            entry != query_data_by_target_.end(),
             "Can't set limbo-free snapshot version for unknown target: %s",
             target_id);
+        const QueryData& query_data = entry->second;
 
         // Advance the last limbo free snapshot version
         SnapshotVersion last_limbo_free_snapshot_version =
-            query_data->second.snapshot_version();
+            query_data.snapshot_version();
         QueryData updated_query_data =
-            query_data->second.WithLastLimboFreeSnapshotVersion(
+            query_data.WithLastLimboFreeSnapshotVersion(
                 last_limbo_free_snapshot_version);
         query_data_by_target_[target_id] = updated_query_data;
       }
@@ -506,8 +507,7 @@ QueryResult LocalStore::ExecuteQuery(const Query& query,
         use_previous_results ? last_limbo_free_snapshot_version
                              : SnapshotVersion::None(),
         use_previous_results ? remote_keys : DocumentKeySet{});
-    QueryResult query_result(std::move(documents), std::move(remote_keys));
-    return query_result;
+    return QueryResult(std::move(documents), std::move(remote_keys));
   });
 }
 

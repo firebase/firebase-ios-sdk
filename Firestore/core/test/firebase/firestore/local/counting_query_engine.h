@@ -43,8 +43,8 @@ class WrappedRemoteDocumentCache;
  */
 class CountingQueryEngine : public QueryEngine {
  public:
-  CountingQueryEngine(QueryEngine* query_engine, bool index_free)
-      : query_engine_(query_engine), index_free_(index_free) {
+  explicit CountingQueryEngine(QueryEngine* query_engine)
+      : query_engine_(query_engine) {
   }
 
   void ResetCounts();
@@ -56,13 +56,8 @@ class CountingQueryEngine : public QueryEngine {
       const model::SnapshotVersion& last_limbo_free_snapshot_version,
       const model::DocumentKeySet& remote_keys) override;
 
-  /**
-   * Returns whether the backing query engine is optimized to perform key-based
-   * lookups.
-   */
-  // TODO(mrschmidt): Come up with a name that describes the behavior change
-  bool is_index_free() {
-    return index_free_;
+  Type type() const override {
+    return query_engine_->type();
   }
 
   /**
@@ -104,8 +99,7 @@ class CountingQueryEngine : public QueryEngine {
   friend class WrappedMutationQueue;
   friend class WrappedRemoteDocumentCache;
 
-  QueryEngine* query_engine_;
-  bool index_free_;
+  QueryEngine* query_engine_ = nullptr;
 
   std::unique_ptr<LocalDocumentsView> local_documents_;
   std::unique_ptr<WrappedMutationQueue> mutation_queue_;
@@ -165,8 +159,8 @@ class WrappedMutationQueue : public MutationQueue {
   void SetLastStreamToken(nanopb::ByteString stream_token) override;
 
  private:
-  MutationQueue* subject_;
-  CountingQueryEngine* query_engine_;
+  MutationQueue* subject_ = nullptr;
+  CountingQueryEngine* query_engine_ = nullptr;
 };
 
 /** A RemoteDocumentCache that counts document reads. */
@@ -193,8 +187,8 @@ class WrappedRemoteDocumentCache : public RemoteDocumentCache {
       const model::SnapshotVersion& since_read_time) override;
 
  private:
-  RemoteDocumentCache* subject_;
-  CountingQueryEngine* query_engine_;
+  RemoteDocumentCache* subject_ = nullptr;
+  CountingQueryEngine* query_engine_ = nullptr;
 };
 
 }  // namespace local

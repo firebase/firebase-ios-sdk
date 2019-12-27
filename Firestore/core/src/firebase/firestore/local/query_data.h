@@ -168,9 +168,9 @@ class QueryData {
 
  private:
   core::Query query_;
-  model::TargetId target_id_;
-  model::ListenSequenceNumber sequence_number_;
-  QueryPurpose purpose_;
+  model::TargetId target_id_ = 0;
+  model::ListenSequenceNumber sequence_number_ = 0;
+  QueryPurpose purpose_ = QueryPurpose::Listen;
   model::SnapshotVersion snapshot_version_;
   model::SnapshotVersion last_limbo_free_snapshot_version_;
   nanopb::ByteString resume_token_;

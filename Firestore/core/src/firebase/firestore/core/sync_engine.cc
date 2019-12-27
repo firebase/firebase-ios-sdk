@@ -111,7 +111,7 @@ ViewSnapshot SyncEngine::InitializeViewAndComputeSnapshot(
   QueryResult query_result = local_store_->ExecuteQuery(
       query_data.query(), /* use_previous_results= */ true);
 
-  View view(query_data.query(), std::move(query_result.remote_keys()));
+  View view(query_data.query(), query_result.remote_keys());
   ViewDocumentChanges view_doc_changes =
       view.ComputeDocumentChanges(query_result.documents().underlying_map());
   ViewChange view_change = view.ApplyChanges(view_doc_changes);

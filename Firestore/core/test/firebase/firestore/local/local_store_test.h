@@ -21,7 +21,8 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/local/local_store.h"
-#include "Firestore/core/src/firebase/firestore/local/simple_query_engine.h"
+#include "Firestore/core/src/firebase/firestore/local/query_engine.h"
+#include "Firestore/core/src/firebase/firestore/local/query_result.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
 #include "Firestore/core/test/firebase/firestore/local/counting_query_engine.h"
@@ -43,7 +44,6 @@ namespace local {
 class Persistence;
 class LocalStore;
 class LocalViewChanges;
-class QueryResult;
 
 /**
  * A set of helper methods needed by LocalStoreTest that customize it to the
@@ -56,18 +56,11 @@ class LocalStoreTestHelper {
   /** Creates a new instance of Persistence. */
   virtual std::unique_ptr<Persistence> MakePersistence() = 0;
 
-  /** Returns the query engine associcated with the test helper. */
+  /** Returns the query engine associated with the test helper. */
   virtual QueryEngine* query_engine() = 0;
 
   /** Returns true if the garbage collector is eager, false if LRU. */
   virtual bool IsGcEager() const = 0;
-
-  /**
-   * Returns true if the query engine is optimized to perform key-based
-   * lookups.
-   */
-  // TODO(mrschmidt): Come up with a name that describes the behavior change
-  virtual bool IsIndexFree() const = 0;
 };
 
 using FactoryFunc = std::unique_ptr<LocalStoreTestHelper> (*)();
@@ -88,6 +81,10 @@ class LocalStoreTest : public ::testing::TestWithParam<FactoryFunc> {
 
   bool IsGcEager() const {
     return test_helper_->IsGcEager();
+  }
+
+  QueryEngine::Type QueryEngineType() const {
+    return test_helper_->query_engine()->type();
   }
 
   /**

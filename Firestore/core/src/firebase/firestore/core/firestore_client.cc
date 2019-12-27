@@ -387,7 +387,7 @@ void FirestoreClient::GetDocumentsFromLocalCache(
     QueryResult query_result = shared_this->local_store_->ExecuteQuery(
         query.query(), /* use_previous_results= */ true);
 
-    View view(query.query(), std::move(query_result.remote_keys()));
+    View view(query.query(), query_result.remote_keys());
     ViewDocumentChanges view_doc_changes =
         view.ComputeDocumentChanges(query_result.documents().underlying_map());
     ViewChange view_change = view.ApplyChanges(view_doc_changes);

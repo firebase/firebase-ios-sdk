@@ -68,8 +68,8 @@ class LocalViewChanges {
   }
 
  private:
-  model::TargetId target_id_;
-  bool from_cache_;
+  model::TargetId target_id_ = 0;
+  bool from_cache_ = false;
   model::DocumentKeySet added_keys_;
   model::DocumentKeySet removed_keys_;
 };
