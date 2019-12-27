@@ -23,5 +23,5 @@ bundle exec pod install --repo-update
 ../scripts/install_prereqs/"$SAMPLE.sh"
 # Secrets are repo specific, so we need to override with the firebase-ios-sdk
 # version.
-cp ../../scripts/Secrets/quickstart-ios/"$SAMPLE"/GoogleService-Info.plist ./
+cp ../../Secrets/quickstart-ios/"$SAMPLE"/GoogleService-Info.plist ./
 cd -
