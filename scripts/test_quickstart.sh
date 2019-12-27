@@ -13,7 +13,7 @@
 # limitations under the License.
 
 
-# Script to run in a CI `script` phase to build the associated quickstart
+# Run a CI `script` phase to build the associated quickstart
 # sample and run its tests.
 
 cd quickstart-ios
