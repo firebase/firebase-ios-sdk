@@ -51,9 +51,9 @@ for line in lines {
   var newLine = line
   let tokens = line.split(separator: " ")
   if tokens.count > 0, tokens[0] == "pod" {
-    var podName = String(tokens[1])
-    podName = podName.replacingOccurrences(of: "'", with: "")
-    if podName.starts(with: "Firebase/") {
+    let podNameRaw = String(tokens[1]).replacingOccurrences(of: "'", with: "")
+    var podName = podNameRaw
+    if podNameRaw.starts(with: "Firebase/") {
       podName = podName.replacingOccurrences(of: "Firebase/", with: "Firebase")
     }
     let podspec = repo.appendingPathComponent(podName + ".podspec").path
@@ -66,6 +66,9 @@ for line in lines {
         }
       }
       newLine = "pod '\(podName)', :path => '\(podspec)'"
+    } else if podNameRaw.starts(with: "Firebase/") {
+      // Update closed source pods referenced via a subspec from the Firebase pod.
+      newLine = "pod '\(podNameRaw)', :path => '\(podspec)'"
     }
   }
   outBuffer += newLine + "\n"
