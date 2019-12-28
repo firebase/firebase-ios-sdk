@@ -41,6 +41,7 @@ var url = URL(fileURLWithPath: FileManager().currentDirectoryPath)
 while url.path != "/", url.lastPathComponent != "firebase-ios-sdk" {
   url = url.deletingLastPathComponent()
 }
+
 let repo = url
 let lines = fileContents.components(separatedBy: .newlines)
 var outBuffer = ""
