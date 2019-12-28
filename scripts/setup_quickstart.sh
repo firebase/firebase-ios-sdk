@@ -23,7 +23,7 @@ if [[ "$TRAVIS_PULL_REQUEST" == "false" ||
   cd quickstart-ios/"$SAMPLE"
 
   # To test a branch, uncomment the following line
-  git checkout pb-test-check
+  # git checkout {BRANCH_NAME}
   bundle exec pod install --repo-update
   TRAVIS_PULL_REQUEST="$TRAVIS_PULL_REQUEST" TRAVIS_PULL_REQUEST_SLUG=$"TRAVIS_PULL_REQUEST_SLUG" \
     ../scripts/install_prereqs/"$SAMPLE.sh"
