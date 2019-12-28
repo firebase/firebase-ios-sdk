@@ -20,6 +20,8 @@ if [[ "$TRAVIS_PULL_REQUEST" == "false" ||
       "$TRAVIS_PULL_REQUEST_SLUG" == "$TRAVIS_REPO_SLUG" ]]; then
   SAMPLE=$1
   git clone https://github.com/firebase/quickstart-ios.git
+  ./scripts/localize_podfile.swift quickstart-ios/"$SAMPLE"/Podfile
+  cat quickstart-ios/"$SAMPLE"/Podfile #delete me
   cd quickstart-ios/"$SAMPLE"
 
   # To test a branch, uncomment the following line
