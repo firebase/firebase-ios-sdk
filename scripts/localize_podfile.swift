@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-
 // Modify a Podfile to get any podspec's defined in the firebase-ios-sdk repo locally
 
 import Foundation
