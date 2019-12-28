@@ -41,15 +41,12 @@ var url = URL(fileURLWithPath: FileManager().currentDirectoryPath)
 while url.path != "/", url.lastPathComponent != "firebase-ios-sdk" {
   url = url.deletingLastPathComponent()
 }
-
 let repo = url
-
 let lines = fileContents.components(separatedBy: .newlines)
-
 var outBuffer = ""
 for line in lines {
   var newLine = line
-  let tokens = line.split(separator: " ")
+  let tokens = line.components(separatedBy: [" ", ","] as CharacterSet)
   if tokens.count > 0, tokens[0] == "pod" {
     let podNameRaw = String(tokens[1]).replacingOccurrences(of: "'", with: "")
     var podName = podNameRaw
@@ -68,7 +65,8 @@ for line in lines {
       newLine = "pod '\(podName)', :path => '\(podspec)'"
     } else if podNameRaw.starts(with: "Firebase/") {
       // Update closed source pods referenced via a subspec from the Firebase pod.
-      newLine = "pod '\(podNameRaw)', :path => '\(podspec)'"
+      let firebasePodspec = repo.appendingPathComponent("Firebase.podspec").path
+      newLine = "pod '\(podNameRaw)', :path => '\(firebasePodspec)'"
     }
   }
   outBuffer += newLine + "\n"
