@@ -22,9 +22,10 @@ do {
 
 // Search the path upwards to find the root of the firebase-ios-sdk repo.
 var url = URL(fileURLWithPath: FileManager().currentDirectoryPath)
-while url.path != "/" && url.lastPathComponent != "firebase-ios-sdk" {
+while url.path != "/", url.lastPathComponent != "firebase-ios-sdk" {
   url = url.deletingLastPathComponent()
 }
+
 let repo = url
 
 let lines = fileContents.components(separatedBy: .newlines)
@@ -32,12 +33,12 @@ let lines = fileContents.components(separatedBy: .newlines)
 var outBuffer = ""
 for line in lines {
   var newLine = line
-  let tokens = line.split(separator:" ")
-  if tokens.count > 0 && tokens[0] == "pod" {
+  let tokens = line.split(separator: " ")
+  if tokens.count > 0, tokens[0] == "pod" {
     var podName = String(tokens[1])
     podName = podName.replacingOccurrences(of: "'", with: "")
     if podName.starts(with: "Firebase/") {
-      podName = podName.replacingOccurrences(of:"Firebase/", with:"Firebase")
+      podName = podName.replacingOccurrences(of: "Firebase/", with: "Firebase")
     }
     let podspec = repo.appendingPathComponent(podName + ".podspec").path
     if FileManager().fileExists(atPath: podspec) {
