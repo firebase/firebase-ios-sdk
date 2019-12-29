@@ -32,6 +32,10 @@ if [[ "$TRAVIS_PULL_REQUEST" == "false" ||
   # development pod install.
   export FIREBASE_POD_REPO_FOR_DEV_POD=`pwd`
   bundle exec pod install
+  cat "Pods/Local Podspecs/Firebase.podspec.json"
+  echo "AAAAA"
+  echo $FIREBASE_POD_REPO_FOR_DEV_POD
+  echo "ZZZZZ"
   TRAVIS_PULL_REQUEST="$TRAVIS_PULL_REQUEST" TRAVIS_PULL_REQUEST_SLUG=$"TRAVIS_PULL_REQUEST_SLUG" \
     ../scripts/install_prereqs/"$SAMPLE.sh"
   # Secrets are repo specific, so we need to override with the firebase-ios-sdk
