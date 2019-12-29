@@ -30,7 +30,8 @@ if [[ "$TRAVIS_PULL_REQUEST" == "false" ||
 
   # Specify repo so the Firebase module and header can be found in a
   # development pod install.
-  FIREBASE_POD_REPO_FOR_DEV_POD=`pwd` bundle exec pod install
+  export FIREBASE_POD_REPO_FOR_DEV_POD=`pwd`
+  bundle exec pod install
   TRAVIS_PULL_REQUEST="$TRAVIS_PULL_REQUEST" TRAVIS_PULL_REQUEST_SLUG=$"TRAVIS_PULL_REQUEST_SLUG" \
     ../scripts/install_prereqs/"$SAMPLE.sh"
   # Secrets are repo specific, so we need to override with the firebase-ios-sdk
