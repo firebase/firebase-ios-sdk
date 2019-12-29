@@ -21,12 +21,16 @@ if [[ "$TRAVIS_PULL_REQUEST" == "false" ||
   SAMPLE=$1
   git clone https://github.com/firebase/quickstart-ios.git
   ./scripts/localize_podfile.swift quickstart-ios/"$SAMPLE"/Podfile
-  cat quickstart-ios/"$SAMPLE"/Podfile #delete me
+  # Print resulting Podfile to help with debugging.
+  cat quickstart-ios/"$SAMPLE"/Podfile
   cd quickstart-ios/"$SAMPLE"
 
   # To test a branch, uncomment the following line
   # git checkout {BRANCH_NAME}
-  bundle exec pod install --repo-update
+
+  # Specify repo so the Firebase module and header can be found in a
+  # development pod install.
+  FIREBASE_POD_REPO_FOR_DEV_POD=`pwd` bundle exec pod install
   TRAVIS_PULL_REQUEST="$TRAVIS_PULL_REQUEST" TRAVIS_PULL_REQUEST_SLUG=$"TRAVIS_PULL_REQUEST_SLUG" \
     ../scripts/install_prereqs/"$SAMPLE.sh"
   # Secrets are repo specific, so we need to override with the firebase-ios-sdk
