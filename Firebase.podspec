@@ -41,7 +41,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
     ss.preserve_paths = 'CoreOnly/Sources/module.modulemap'
     if ENV['FIREBASE_POD_REPO_FOR_DEV_POD'] then
       ss.user_target_xcconfig = {
-        'HEADER_SEARCH_PATHS' => "$(inherited) \"" + ENV['FIREBASE_POD_REPO_FOR_DEV_POD'] + "/CoreOnly/Sources\""
+        'HEADER_SEARCH_PATHS' => "$(inherited)" + ENV['FIREBASE_POD_REPO_FOR_DEV_POD'] + "/CoreOnly/Sources"
       }
     else
       ss.user_target_xcconfig = {
