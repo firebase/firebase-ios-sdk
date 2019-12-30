@@ -51,6 +51,11 @@ function install_secrets() {
   fi
 }
 
+if [[ ! -z $QUICKSTART ]]; then
+  install_secrets
+  ./scripts/setup_quickstart.sh "$QUICKSTART"
+fi
+
 case "$PROJECT-$PLATFORM-$METHOD" in
   Firebase-iOS-xcodebuild)
     gem install xcpretty
@@ -67,11 +72,9 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     # Install the workspace for integration testing.
     gem install xcpretty
     bundle exec pod install --project-directory=Example/Auth/AuthSample --repo-update
-    install_secrets
     ;;
 
   Database-*)
-    install_secrets
     ;;
 
   Functions-*)
@@ -80,11 +83,9 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     ;;
 
   Storage-*)
-    install_secrets
     ;;
 
   Installations-*)
-    install_secrets
     ;;
 
   InAppMessaging-*-xcodebuild)

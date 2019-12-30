@@ -73,9 +73,9 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=ABTesting METHOD=pod-lib-lint
+        - PROJECT=ABTesting METHOD=pod-lib-lint QUICKSTART=abtesting
       before_install:
-        - ./scripts/if_changed.sh ./scripts/setup_quickstart.sh abtesting
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseABTesting.podspec --platforms=ios
         - travis_retry ./scripts/if_changed.sh ./scripts/test_quickstart.sh ABTesting
@@ -104,10 +104,9 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=Auth PLATFORM=iOS METHOD=xcodebuild
+        - PROJECT=Auth PLATFORM=iOS METHOD=xcodebuild QUICKSTART=authentication
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
-        - ./scripts/if_changed.sh ./scripts/setup_quickstart.sh authentication
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseAuth.podspec --platforms=ios
         - travis_retry ./scripts/if_changed.sh ./scripts/test_quickstart.sh Authentication
@@ -167,10 +166,9 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=Database PLATFORM=all METHOD=xcodebuild
+        - PROJECT=Database PLATFORM=all METHOD=xcodebuild QUICKSTART=database
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
-        - ./scripts/if_changed.sh ./scripts/setup_quickstart.sh database
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
         # The pod lib lint tests are fast enough that it's not worth a separate stage.
@@ -202,9 +200,9 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=DynamicLinks METHOD=pod-lib-lint
+        - PROJECT=DynamicLinks METHOD=pod-lib-lint QUICKSTART=dynamiclinks
       before_install:
-        - ./scripts/if_changed.sh ./scripts/setup_quickstart.sh dynamiclinks
+        - ./scripts/if_changed.sh ./scripts/install_prereqs
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseDynamicLinks.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/test_quickstart.sh DynamicLinks
@@ -220,9 +218,9 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=Messaging METHOD=pod-lib-lint
+        - PROJECT=Messaging METHOD=pod-lib-lint QUICKSTART=messaging
       before_install:
-        - ./scripts/if_changed.sh ./scripts/setup_quickstart.sh messaging
+        - ./scripts/if_changed.sh ./scripts/install_prereqs
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=ios
         - travis_retry ./scripts/if_changed.sh ./scripts/test_quickstart.sh Messaging
@@ -253,9 +251,9 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=RemoteConfig METHOD=pod-lib-lint
+        - PROJECT=RemoteConfig METHOD=pod-lib-lint QUICKSTART=config
       before_install:
-        - ./scripts/if_changed.sh ./scripts/setup_quickstart.sh config
+        - ./scripts/if_changed.sh ./scripts/install_prereqs
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=ios
         - travis_retry ./scripts/if_changed.sh ./scripts/test_quickstart.sh Config
@@ -283,10 +281,9 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=Storage PLATFORM=all METHOD=xcodebuild
+        - PROJECT=Storage PLATFORM=all METHOD=xcodebuild QUICKSTART=storage
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
-        - ./scripts/if_changed.sh ./scripts/setup_quickstart.sh storage
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --skip-tests --platforms=ios
@@ -315,10 +312,9 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=Functions METHOD=pod-lib-lint
+        - PROJECT=Functions METHOD=pod-lib-lint QUICKSTART=functions
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh # Start integration test server
-        - ./scripts/if_changed.sh ./scripts/setup_quickstart.sh functions
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseFunctions.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/test_quickstart.sh Functions
@@ -336,10 +332,9 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=InAppMessaging PLATFORM=iOS METHOD=xcodebuild
+        - PROJECT=InAppMessaging PLATFORM=iOS METHOD=xcodebuild QUICKSTART=InAppMessaging
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
-        - ./scripts/if_changed.sh ./scripts/setup_quickstart.sh inappmessaging
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
         - travis_retry ./scripts/if_changed.sh ./scripts/test_quickstart.sh InAppMessaging
@@ -364,10 +359,9 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild
+        - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild QUICKSTART=firestore
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
-        - ./scripts/if_changed.sh ./scripts/setup_quickstart.sh firestore
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
         - travis_retry ./scripts/if_changed.sh ./scripts/test_quickstart.sh Firestore
@@ -650,9 +644,9 @@ jobs:
         - PROJECT=Installations PLATFORM=iOS METHOD=pod-lib-lint
         - FIS_ALLOWS_INCOMPATIBLE_IID_VERSION=1
         - FIS_INTEGRATION_TESTS_REQUIRED=1
+        - QUICKSTART=installations
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
-        - ./scripts/if_changed.sh ./scripts/setup_quickstart.sh installations
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstallations.podspec --platforms=ios --ignore-local-podspecs=FirebaseInstanceID.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/test_quickstart.sh Installations
