@@ -650,7 +650,6 @@ jobs:
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstallations.podspec --platforms=ios --ignore-local-podspecs=FirebaseInstanceID.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/test_quickstart.sh Installations
-        - travis_retry ./scripts/if_changed.sh ./scripts/test_quickstart.sh InstallationsSwift
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstallations.podspec --platforms=ios --use-libraries --ignore-local-podspecs=FirebaseInstanceID.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstallations.podspec --use-modular-headers --platforms=ios --ignore-local-podspecs=FirebaseInstanceID.podspec
 
