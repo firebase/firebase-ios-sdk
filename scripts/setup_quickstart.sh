@@ -19,6 +19,11 @@
 if [[ "$TRAVIS_PULL_REQUEST" == "false" ||
       "$TRAVIS_PULL_REQUEST_SLUG" == "$TRAVIS_REPO_SLUG" ]]; then
   SAMPLE=$1
+
+  # Specify repo so the Firebase module and header can be found in a
+  # development pod install. This is needed for the `pod install` command.
+  export FIREBASE_POD_REPO_FOR_DEV_POD=`pwd`
+
   git clone https://github.com/firebase/quickstart-ios.git
   ./scripts/localize_podfile.swift quickstart-ios/"$SAMPLE"/Podfile
   # Print resulting Podfile to help with debugging.
@@ -28,9 +33,6 @@ if [[ "$TRAVIS_PULL_REQUEST" == "false" ||
   # To test a branch, uncomment the following line
   # git checkout {BRANCH_NAME}
 
-  # Specify repo so the Firebase module and header can be found in a
-  # development pod install.
-  export FIREBASE_POD_REPO_FOR_DEV_POD=`pwd`
   bundle exec pod install
   cat "Pods/Local Podspecs/Firebase.podspec.json"
   echo "AAAAA"
