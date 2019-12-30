@@ -202,7 +202,7 @@ jobs:
       env:
         - PROJECT=DynamicLinks METHOD=pod-lib-lint QUICKSTART=dynamiclinks
       before_install:
-        - ./scripts/if_changed.sh ./scripts/install_prereqs
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseDynamicLinks.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/test_quickstart.sh DynamicLinks
@@ -220,7 +220,7 @@ jobs:
       env:
         - PROJECT=Messaging METHOD=pod-lib-lint QUICKSTART=messaging
       before_install:
-        - ./scripts/if_changed.sh ./scripts/install_prereqs
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=ios
         - travis_retry ./scripts/if_changed.sh ./scripts/test_quickstart.sh Messaging
@@ -253,7 +253,7 @@ jobs:
       env:
         - PROJECT=RemoteConfig METHOD=pod-lib-lint QUICKSTART=config
       before_install:
-        - ./scripts/if_changed.sh ./scripts/install_prereqs
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=ios
         - travis_retry ./scripts/if_changed.sh ./scripts/test_quickstart.sh Config
@@ -709,4 +709,3 @@ jobs:
 branches:
   only:
     - master
-    - pb-qs
