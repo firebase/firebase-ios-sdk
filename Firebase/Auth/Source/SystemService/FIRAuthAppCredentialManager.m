@@ -70,8 +70,11 @@ static const NSUInteger kMaximumNumberOfPendingReceipts = 32;
     NSError *error;
     NSData *encodedData = [_keychainServices dataForKey:kKeychainDataKey error:&error];
     if (!error && encodedData) {
-      NSKeyedUnarchiver *unarchiver =
-          [[NSKeyedUnarchiver alloc] initForReadingWithData:encodedData];
+#if !TARGET_OS_WATCH
+        NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:encodedData];
+#else
+        NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingFromData:encodedData error:&error];
+#endif
       FIRAuthAppCredential *credential =
           [unarchiver decodeObjectOfClass:[FIRAuthAppCredential class]
                                    forKey:kFullCredentialKey];
@@ -137,11 +140,18 @@ static const NSUInteger kMaximumNumberOfPendingReceipts = 32;
     @brief Save the data in memory to the keychain ignoring any errors.
  */
 - (void)saveData {
+#if !TARGET_OS_WATCH
   NSMutableData *archiveData = [NSMutableData data];
   NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData:archiveData];
+#else
+  NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initRequiringSecureCoding:false];
+#endif
   [archiver encodeObject:_credential forKey:kFullCredentialKey];
   [archiver encodeObject:_pendingReceipts forKey:kPendingReceiptsKey];
   [archiver finishEncoding];
+#if TARGET_OS_WATCH
+  NSData *archiveData = archiver.encodedData;
+#endif
   [_keychainServices setData:archiveData forKey:kKeychainDataKey error:NULL];
 }
 

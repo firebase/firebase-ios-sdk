@@ -1820,11 +1820,17 @@ didReceiveRemoteNotification:(NSDictionary *)userInfo {
       success = [_keychainServices removeDataForKey:userKey error:outError];
     } else {
       // Encode the user object.
+#if !TARGET_OS_WATCH
       NSMutableData *archiveData = [NSMutableData data];
       NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData:archiveData];
+#else
+      NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initRequiringSecureCoding:false];
+#endif
       [archiver encodeObject:user forKey:userKey];
       [archiver finishEncoding];
-
+#if TARGET_OS_WATCH
+      NSData *archiveData = archiver.encodedData;
+#endif
       // Save the user object's encoded value.
       success = [_keychainServices setData:archiveData forKey:userKey error:outError];
     }
@@ -1868,8 +1874,14 @@ didReceiveRemoteNotification:(NSDictionary *)userInfo {
       *outUser = nil;
       return YES;
     }
+#if !TARGET_OS_WATCH
     NSKeyedUnarchiver *unarchiver =
         [[NSKeyedUnarchiver alloc] initForReadingWithData:encodedUserData];
+#else
+    NSError *error;
+    NSKeyedUnarchiver *unarchiver =
+      [[NSKeyedUnarchiver alloc] initForReadingFromData:encodedUserData error:&error];
+#endif
     FIRUser *user = [unarchiver decodeObjectOfClass:[FIRUser class] forKey:userKey];
     user.auth = self;
     *outUser = user;
@@ -2027,8 +2039,14 @@ didReceiveRemoteNotification:(NSDictionary *)userInfo {
       return nil;
     }
 
+#if !TARGET_OS_WATCH
     NSKeyedUnarchiver *unarchiver =
         [[NSKeyedUnarchiver alloc] initForReadingWithData:encodedUserData];
+#else
+    NSError *error;
+    NSKeyedUnarchiver *unarchiver =
+      [[NSKeyedUnarchiver alloc] initForReadingFromData:encodedUserData error:&error];
+#endif
     user = [unarchiver decodeObjectOfClass:[FIRUser class] forKey:userKey];
   } else {
     user = [self.storedUserManager getStoredUserForAccessGroup:self.userAccessGroup
