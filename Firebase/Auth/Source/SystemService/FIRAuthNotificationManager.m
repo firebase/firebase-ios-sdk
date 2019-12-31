@@ -52,10 +52,18 @@ static NSString *const kNotificationProberKey = @"warning";
 static const NSTimeInterval kProbingTimeout = 1;
 
 @implementation FIRAuthNotificationManager {
+    
+  #if !TARGET_OS_WATCH
   /** @var _application
       @brief The application.
    */
   UIApplication *_application;
+  #else
+  /** @var _application
+      @brief The extension.
+   */
+  WKExtension *_application;
+  #endif
 
   /** @var _appCredentialManager
       @brief The object to handle app credentials delivered via notification.
@@ -77,9 +85,13 @@ static const NSTimeInterval kProbingTimeout = 1;
    */
   NSMutableArray<FIRAuthNotificationForwardingCallback> *_pendingCallbacks;
 }
-
+#if !TARGET_OS_WATCH
 - (instancetype)initWithApplication:(UIApplication *)application
                appCredentialManager:(FIRAuthAppCredentialManager *)appCredentialManager {
+#else
+- (instancetype)initWithApplication:(WKExtension *)application
+appCredentialManager:(FIRAuthAppCredentialManager *)appCredentialManager {
+#endif
   self = [super init];
   if (self) {
     _application = application;
@@ -107,12 +119,20 @@ static const NSTimeInterval kProbingTimeout = 1;
         kNotificationProberKey : @"This fake notification should be forwarded to Firebase Auth."
       }
     };
+#if !TARGET_OS_WATCH
     if ([self->_application.delegate respondsToSelector:
             @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:)]) {
       [self->_application.delegate application:self->_application
             didReceiveRemoteNotification:proberNotification
                   fetchCompletionHandler:^(UIBackgroundFetchResult result) {}];
-#if !TARGET_OS_TV
+#else
+    if ([self->_application.delegate respondsToSelector:
+          @selector(didReceiveRemoteNotification:fetchCompletionHandler:)]) {
+    [self->_application.delegate
+          didReceiveRemoteNotification:proberNotification
+                fetchCompletionHandler:^(WKBackgroundFetchResult result) {}];
+#endif
+#if !TARGET_OS_TV && !TARGET_OS_WATCH
     } else if ([self->_application.delegate respondsToSelector:
                    @selector(application:didReceiveRemoteNotification:)]) {
       [self->_application.delegate application:self->_application
