@@ -55,7 +55,8 @@ else
 'InAppMessagingDisplay|InAppMessaging|Firebase/InAppMessaging|'\
 'FirebaseInAppMessaging.podspec|FirebaseInAppMessagingDisplay.podspec|'\
 'Firebase/InstanceID|FirebaseInstanceID.podspec|'\
-'FirebaseInstallations|FirebaseInstallations.podspec)'
+'FirebaseInstallations|FirebaseInstallations.podspec|'\
+'FirebaseSegmentation|FirebaseSegmentation.podspec)'
       ;;
 
     Firebase-*)
@@ -65,7 +66,7 @@ else
 'FirebaseCore.podspec|FirebaseCoreDiagnostics.podspec|FirebaseCoreDiagnosticsInterop.podspec|'\
 'FirebaseDatabase.podspec|FirebaseDynamicLinks.podspec|FirebaseMessaging.podspec|'\
 'FirebaseStorage.podspec|FirebaseStorage.podspec|Firebase/InstanceID|FirebaseInstanceID.podspec|'\
-'FirebaseInstallations|FirebaseInstallations.podspec)'
+'FirebaseInstallations|FirebaseInstallations.podspec|FirebaseSegmentation|FirebaseSegmentation.podspec)'
       ;;
 
     FirebasePod-*)
@@ -145,6 +146,10 @@ else
 
     Installations-*)
       check_changes '^(Firebase/Core|GoogleUtilities|FirebaseInstallations|FirebaseInstallations.podspec)'
+      ;;
+
+    Segmentation-*)
+      check_changes '^(Firebase/Core|FirebaseSegmentation|FirebaseSegmentation.podspec)'
       ;;
 
     *)
