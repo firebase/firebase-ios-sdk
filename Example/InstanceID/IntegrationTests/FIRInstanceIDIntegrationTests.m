@@ -103,7 +103,7 @@ static BOOL sFIRInstanceIDFirebaseDefaultAppConfigured = NO;
   if (![self isDefaultAppConfigured]) {
     return;
   }
-  
+
   XCTestExpectation *expectation = [self expectationWithDescription:@"deleteID"];
   [self.instanceID deleteIDWithHandler:^(NSError *_Nullable error) {
     XCTAssertNil(error);
@@ -162,8 +162,8 @@ static BOOL sFIRInstanceIDFirebaseDefaultAppConfigured = NO;
             @"your project.");
 #else
     NSLog(@"GoogleService-Info.plist for integration tests was not found. Skipping the test %@",
-    self.name);
-#endif // FIR_IID_INTEGRATION_TESTS_REQUIRED
+          self.name);
+#endif  // FIR_IID_INTEGRATION_TESTS_REQUIRED
   }
 
   return sFIRInstanceIDFirebaseDefaultAppConfigured;
