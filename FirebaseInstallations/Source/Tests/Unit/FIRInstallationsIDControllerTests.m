@@ -177,6 +177,7 @@
   // 5.5. Verify registered installation was saved.
   OCMVerifyAll(self.mockInstallationsStore);
   OCMVerifyAll(self.mockIIDStore);
+  OCMVerifyAll(self.mockAPIService);
 }
 
 - (void)testGetInstallationItem_WhenThereIsIIDAndNoFIDNotDefaultApp_ThenIIDIsUsedAsFID {
@@ -333,10 +334,16 @@
 - (void)testGetInstallationItem_WhenCalledSeveralTimes_OnlyOneOperationIsPerformed {
   // 1. Expect the installation to be requested from the store only once.
   FIRInstallationsItem *storedInstallation1 =
-      [FIRInstallationsItem createRegisteredInstallationItem];
+      [FIRInstallationsItem createUnregisteredInstallationItem];
   FBLPromise<FIRInstallationsItem *> *pendingStorePromise = [FBLPromise pendingPromise];
   OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
       .andReturn(pendingStorePromise);
+
+  // 2. Expect Create FID API request to be sent once.
+  FBLPromise<FIRInstallationsItem *> *registrationErrorPromise = [FBLPromise pendingPromise];
+  [registrationErrorPromise reject:[FIRInstallationsErrorUtil APIErrorWithHTTPCode:400]];
+  OCMExpect([self.mockAPIService registerInstallation:storedInstallation1])
+      .andReturn(registrationErrorPromise);
 
   // 3. Request installation n times
   NSInteger requestCount = 10;
