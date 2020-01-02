@@ -85,10 +85,12 @@ function stop() {
 }
 
 command="${1:-run}"
+shift
+
 case "${command}" in
   run)
     ensure_exists
-    run
+    run "$@"
     ;;
 
   start)
