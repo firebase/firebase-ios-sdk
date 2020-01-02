@@ -137,7 +137,8 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
 #pragma mark - Get Installation.
 
 - (FBLPromise<FIRInstallationsItem *> *)getInstallationItem {
-  return [self.getInstallationPromiseCache getExistingPendingOrCreateNewPromise];
+  return [self mostRecentInstallationOperation]
+             ?: [self.getInstallationPromiseCache getExistingPendingOrCreateNewPromise];
 }
 
 - (FBLPromise<FIRInstallationsItem *> *)createGetInstallationItemPromise {
@@ -305,7 +306,7 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
               @"appName: %@",
               @(forceRefresh), self.appName);
 
-  return [self getInstallationItem]
+  return [self.getInstallationPromiseCache getExistingPendingOrCreateNewPromise]
       .then(^FBLPromise<FIRInstallationsItem *> *(FIRInstallationsItem *installation) {
         return [self registerInstallationIfNeeded:installation];
       })
@@ -344,7 +345,7 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
     case FIRInstallationsAuthTokenHTTPCodeFIDNotFound:
       // The stored installation was damaged or blocked by the server.
       // Delete the stored installation then generate and register a new one.
-      return [self getInstallationItem]
+      return [self getStoredInstallation]
           .then(^FBLPromise<NSNull *> *(FIRInstallationsItem *installation) {
             return [self deleteInstallationLocally:installation];
           })

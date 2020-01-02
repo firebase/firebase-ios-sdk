@@ -339,11 +339,7 @@
   OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
       .andReturn(pendingStorePromise);
 
-  // 2. Expect FID registration to be done once.
-  // 2.1 Expect stored installation to be requested from the storage.
-  OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
-      .andReturn([FBLPromise resolvedWith:storedInstallation1]);
-  // 2.2 Expect Create FID API request to be sent once.
+  // 2. Expect Create FID API request to be sent once.
   FBLPromise<FIRInstallationsItem *> *registrationErrorPromise = [FBLPromise pendingPromise];
   [registrationErrorPromise reject:[FIRInstallationsErrorUtil APIErrorWithHTTPCode:400]];
   OCMExpect([self.mockAPIService registerInstallation:storedInstallation1])
