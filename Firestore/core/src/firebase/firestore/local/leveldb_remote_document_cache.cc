@@ -54,24 +54,31 @@ using nanopb::StringReader;
 using util::BackgroundQueue;
 using util::Executor;
 
+/**
+ * An accumulator for results produced asynchronously. This accumulates
+ * values in a vector to avoid contention caused by accumulating into more
+ * complex structures like immutable::SortedMap.
+ */
 template <typename T>
 class AsyncResults {
  public:
-  using key_type = typename T::key_type;
-  using mapped_type = typename T::mapped_type;
-
-  void Insert(const key_type& key, const mapped_type& value) {
+  void Insert(T&& value) {
     std::lock_guard<std::mutex> lock(mutex_);
-    values_ = values_.insert(key, value);
+    values_.push_back(std::move(value));
   }
 
-  T&& Result() {
+  void Insert(const T& value) {
     std::lock_guard<std::mutex> lock(mutex_);
-    return std::move(values_);
+    values_.push_back(value);
+  }
+
+  const std::vector<T>& Result() {
+    std::lock_guard<std::mutex> lock(mutex_);
+    return values_;
   }
 
  private:
-  T values_;
+  std::vector<T> values_;
   std::mutex mutex_;
 };
 
@@ -130,7 +137,7 @@ absl::optional<MaybeDocument> LevelDbRemoteDocumentCache::Get(
 OptionalMaybeDocumentMap LevelDbRemoteDocumentCache::GetAll(
     const DocumentKeySet& keys) {
   BackgroundQueue tasks(executor_.get());
-  AsyncResults<OptionalMaybeDocumentMap> results;
+  AsyncResults<std::pair<DocumentKey, absl::optional<MaybeDocument>>> results;
 
   LevelDbRemoteDocumentKey current_key;
   auto it = db_->current_transaction()->NewIterator();
@@ -139,17 +146,22 @@ OptionalMaybeDocumentMap LevelDbRemoteDocumentCache::GetAll(
     it->Seek(LevelDbRemoteDocumentKey::Key(key));
     if (!it->Valid() || !current_key.Decode(it->key()) ||
         current_key.document_key() != key) {
-      results.Insert(key, absl::nullopt);
+      results.Insert(std::make_pair(key, absl::nullopt));
     } else {
       const std::string& contents = it->value();
       tasks.Execute([this, &results, key, contents] {
-        results.Insert(key, DecodeMaybeDocument(contents, key));
+        results.Insert(std::make_pair(key, DecodeMaybeDocument(contents, key)));
       });
     }
   }
 
   tasks.AwaitAll();
-  return results.Result();
+
+  OptionalMaybeDocumentMap map;
+  for (const auto& entry : results.Result()) {
+    map = map.insert(entry.first, entry.second);
+  }
+  return map;
 }
 
 DocumentMap LevelDbRemoteDocumentCache::GetAllExisting(
@@ -207,7 +219,7 @@ DocumentMap LevelDbRemoteDocumentCache::GetMatching(
     return LevelDbRemoteDocumentCache::GetAllExisting(remote_keys);
   } else {
     BackgroundQueue tasks(executor_.get());
-    AsyncResults<DocumentMap> results;
+    AsyncResults<Document> results;
 
     // Documents are ordered by key, so we can use a prefix scan to narrow down
     // the documents we need to match the query against.
@@ -235,13 +247,18 @@ DocumentMap LevelDbRemoteDocumentCache::GetMatching(
       tasks.Execute([this, &results, document_key, contents] {
         MaybeDocument maybe_doc = DecodeMaybeDocument(contents, document_key);
         if (maybe_doc.is_document()) {
-          results.Insert(maybe_doc.key(), Document(maybe_doc));
+          results.Insert(Document(maybe_doc));
         }
       });
     }
 
     tasks.AwaitAll();
-    return results.Result();
+
+    DocumentMap map;
+    for (const Document& doc : results.Result()) {
+      map = map.insert(doc.key(), std::move(doc));
+    }
+    return map;
   }
 }
 
