@@ -25,8 +25,9 @@ function install_secrets() {
   # Set up secrets for integration tests and metrics collection. This does not work for pull
   # requests from forks. See
   # https://docs.travis-ci.com/user/pull-requests#pull-requests-and-security-restrictions
-  if [[ ! -z $encrypted_d6a88994a5ab_key ]]; then
-    openssl aes-256-cbc -K $encrypted_3360571ebe7a_key -iv $encrypted_3360571ebe7a_iv \
+  if [[ ! -z $encrypted_d6a88994a5ab_key && $secrets_installed != true ]]; then
+    secrets_installed=true
+    openssl aes-256-cbc -K $encrypted_5dda5f491369_key -iv $encrypted_5dda5f491369_iv \
     -in scripts/travis-encrypted/Secrets.tar.enc \
     -out scripts/travis-encrypted/Secrets.tar -d
 
@@ -51,6 +52,11 @@ function install_secrets() {
   fi
 }
 
+if [[ ! -z $QUICKSTART ]]; then
+  install_secrets
+  ./scripts/setup_quickstart.sh "$QUICKSTART"
+fi
+
 case "$PROJECT-$PLATFORM-$METHOD" in
   Firebase-iOS-xcodebuild)
     gem install xcpretty
@@ -67,11 +73,9 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     # Install the workspace for integration testing.
     gem install xcpretty
     bundle exec pod install --project-directory=Example/Auth/AuthSample --repo-update
-    install_secrets
     ;;
 
   Database-*)
-    install_secrets
     ;;
 
   Functions-*)
@@ -80,7 +84,6 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     ;;
 
   Storage-*)
-    install_secrets
     ;;
 
   Installations-*)
