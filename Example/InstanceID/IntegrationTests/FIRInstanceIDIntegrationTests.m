@@ -42,6 +42,10 @@ static BOOL sFIRInstanceIDFirebaseDefaultAppConfigured = NO;
 }
 
 - (void)testGetID {
+  if (![self isDefaultAppConfigured]) {
+    return;
+  }
+
   XCTestExpectation *expectation = [self expectationWithDescription:@"getID"];
   [self.instanceID getIDWithHandler:^(NSString *_Nullable identity, NSError *_Nullable error) {
     XCTAssertNil(error);
@@ -52,6 +56,10 @@ static BOOL sFIRInstanceIDFirebaseDefaultAppConfigured = NO;
 }
 
 - (void)testInstanceIDWithHandler {
+  if (![self isDefaultAppConfigured]) {
+    return;
+  }
+
   XCTestExpectation *expectation = [self expectationWithDescription:@"instanceIDWithHandler"];
   [self.instanceID
       instanceIDWithHandler:^(FIRInstanceIDResult *_Nullable result, NSError *_Nullable error) {
@@ -66,10 +74,18 @@ static BOOL sFIRInstanceIDFirebaseDefaultAppConfigured = NO;
 }
 
 - (void)testTokenWithAuthorizedEntity {
+  if (![self isDefaultAppConfigured]) {
+    return;
+  }
+
   [self assertTokenWithAuthorizedEntity];
 }
 
 - (void)testDeleteToken {
+  if (![self isDefaultAppConfigured]) {
+    return;
+  }
+
   [self assertTokenWithAuthorizedEntity];
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"testDeleteToken"];
@@ -84,6 +100,10 @@ static BOOL sFIRInstanceIDFirebaseDefaultAppConfigured = NO;
 }
 
 - (void)testDeleteID {
+  if (![self isDefaultAppConfigured]) {
+    return;
+  }
+  
   XCTestExpectation *expectation = [self expectationWithDescription:@"deleteID"];
   [self.instanceID deleteIDWithHandler:^(NSError *_Nullable error) {
     XCTAssertNil(error);
@@ -136,8 +156,14 @@ static BOOL sFIRInstanceIDFirebaseDefaultAppConfigured = NO;
 
 - (BOOL)isDefaultAppConfigured {
   if (!sFIRInstanceIDFirebaseDefaultAppConfigured) {
+// Fail tests requiring GoogleService-Info.plist only if it is required.
+#if FIR_IID_INTEGRATION_TESTS_REQUIRED
     XCTFail(@"GoogleService-Info.plist for integration tests was not found. Please add the file to "
             @"your project.");
+#else
+    NSLog(@"GoogleService-Info.plist for integration tests was not found. Skipping the test %@",
+    self.name);
+#endif // FIR_IID_INTEGRATION_TESTS_REQUIRED
   }
 
   return sFIRInstanceIDFirebaseDefaultAppConfigured;

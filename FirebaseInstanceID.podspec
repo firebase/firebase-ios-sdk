@@ -63,6 +63,12 @@ services.
     int_tests.source_files = 'Example/InstanceID/IntegrationTests/*.[mh]'
     int_tests.resources = 'Example/InstanceID/Resources/**/*'
     int_tests.requires_app_host = true
+    if ENV['FIR_IID_INTEGRATION_TESTS_REQUIRED'] && ENV['FIR_IID_INTEGRATION_TESTS_REQUIRED'] == '1' then
+      int_tests.pod_target_xcconfig = {
+      'GCC_PREPROCESSOR_DEFINITIONS' =>
+        'FIR_IID_INTEGRATION_TESTS_REQUIRED=1'
+      }
+    end
   end
 
 end
