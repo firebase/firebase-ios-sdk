@@ -99,7 +99,8 @@ static BOOL sFIRInstanceIDFirebaseDefaultAppConfigured = NO;
   [self waitForExpectations:@[ expectation ] timeout:5];
 }
 
-- (void)testDeleteID {
+// TODO: b/147102327 - re-enable the test once the bug fixed.
+- (void)disabled_testDeleteID {
   if (![self isDefaultAppConfigured]) {
     return;
   }
