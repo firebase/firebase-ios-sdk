@@ -20,7 +20,6 @@ import ManifestReader
 
 /// Updates the Firebase Pod with a release's version set.
 struct FirebasePod {
-
   /// Relevant paths in the filesystem to build the release directory.
   struct FilesystemPaths {
     // MARK: - Required Paths

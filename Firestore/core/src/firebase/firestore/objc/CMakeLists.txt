@@ -20,8 +20,6 @@ cc_library(
   firebase_firestore_objc
   HEADER_ONLY  # Still true on non-Apple platforms
   SOURCES
-    objc_class.h
-    objc_class.mm
     objc_compatibility.h
     objc_type_traits.h
   DEPENDS

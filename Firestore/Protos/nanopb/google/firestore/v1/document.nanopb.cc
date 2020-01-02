@@ -19,8 +19,16 @@
 
 #include "document.nanopb.h"
 
+#include "Firestore/core/src/firebase/firestore/nanopb/pretty_printing.h"
+
 namespace firebase {
 namespace firestore {
+
+using nanopb::PrintEnumField;
+using nanopb::PrintHeader;
+using nanopb::PrintMessageField;
+using nanopb::PrintPrimitiveField;
+using nanopb::PrintTail;
 
 /* @@protoc_insertion_point(includes) */
 #if PB_PROTO_HEADER_VERSION != 30
@@ -98,6 +106,139 @@ PB_STATIC_ASSERT((pb_membersize(google_firestore_v1_Document, create_time) < 655
 PB_STATIC_ASSERT((pb_membersize(google_firestore_v1_Document, create_time) < 256 && pb_membersize(google_firestore_v1_Document, update_time) < 256 && pb_membersize(google_firestore_v1_Document_FieldsEntry, value) < 256 && pb_membersize(google_firestore_v1_Value, map_value) < 256 && pb_membersize(google_firestore_v1_Value, geo_point_value) < 256 && pb_membersize(google_firestore_v1_Value, array_value) < 256 && pb_membersize(google_firestore_v1_Value, timestamp_value) < 256 && pb_membersize(google_firestore_v1_MapValue_FieldsEntry, value) < 256), YOU_MUST_DEFINE_PB_FIELD_16BIT_FOR_MESSAGES_google_firestore_v1_Document_google_firestore_v1_Document_FieldsEntry_google_firestore_v1_Value_google_firestore_v1_ArrayValue_google_firestore_v1_MapValue_google_firestore_v1_MapValue_FieldsEntry)
 #endif
 
+
+std::string google_firestore_v1_Document::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "Document", this);
+    std::string result;
+
+    result += PrintPrimitiveField("name: ", name, indent + 1, false);
+    for (pb_size_t i = 0; i != fields_count; ++i) {
+        result += PrintMessageField("fields ", fields[i], indent + 1, true);
+    }
+    result += PrintMessageField("create_time ",
+        create_time, indent + 1, false);
+    if (has_update_time) {
+        result += PrintMessageField("update_time ",
+            update_time, indent + 1, true);
+    }
+
+    std::string tail = PrintTail(indent);
+    return header + result + tail;
+}
+
+std::string google_firestore_v1_Document_FieldsEntry::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "FieldsEntry", this);
+    std::string result;
+
+    result += PrintPrimitiveField("key: ", key, indent + 1, false);
+    result += PrintMessageField("value ", value, indent + 1, false);
+
+    std::string tail = PrintTail(indent);
+    return header + result + tail;
+}
+
+std::string google_firestore_v1_Value::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "Value", this);
+    std::string result;
+
+    switch (which_value_type) {
+    case google_firestore_v1_Value_boolean_value_tag:
+        result += PrintPrimitiveField("boolean_value: ",
+            boolean_value, indent + 1, true);
+        break;
+    case google_firestore_v1_Value_integer_value_tag:
+        result += PrintPrimitiveField("integer_value: ",
+            integer_value, indent + 1, true);
+        break;
+    case google_firestore_v1_Value_double_value_tag:
+        result += PrintPrimitiveField("double_value: ",
+            double_value, indent + 1, true);
+        break;
+    case google_firestore_v1_Value_reference_value_tag:
+        result += PrintPrimitiveField("reference_value: ",
+            reference_value, indent + 1, true);
+        break;
+    case google_firestore_v1_Value_map_value_tag:
+        result += PrintMessageField("map_value ", map_value, indent + 1, true);
+        break;
+    case google_firestore_v1_Value_geo_point_value_tag:
+        result += PrintMessageField("geo_point_value ",
+            geo_point_value, indent + 1, true);
+        break;
+    case google_firestore_v1_Value_array_value_tag:
+        result += PrintMessageField("array_value ",
+            array_value, indent + 1, true);
+        break;
+    case google_firestore_v1_Value_timestamp_value_tag:
+        result += PrintMessageField("timestamp_value ",
+            timestamp_value, indent + 1, true);
+        break;
+    case google_firestore_v1_Value_null_value_tag:
+        result += PrintEnumField("null_value: ", null_value, indent + 1, true);
+        break;
+    case google_firestore_v1_Value_string_value_tag:
+        result += PrintPrimitiveField("string_value: ",
+            string_value, indent + 1, true);
+        break;
+    case google_firestore_v1_Value_bytes_value_tag:
+        result += PrintPrimitiveField("bytes_value: ",
+            bytes_value, indent + 1, true);
+        break;
+    }
+
+    bool is_root = indent == 0;
+    if (!result.empty() || is_root) {
+      std::string tail = PrintTail(indent);
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}
+
+std::string google_firestore_v1_ArrayValue::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "ArrayValue", this);
+    std::string result;
+
+    for (pb_size_t i = 0; i != values_count; ++i) {
+        result += PrintMessageField("values ", values[i], indent + 1, true);
+    }
+
+    bool is_root = indent == 0;
+    if (!result.empty() || is_root) {
+      std::string tail = PrintTail(indent);
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}
+
+std::string google_firestore_v1_MapValue::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "MapValue", this);
+    std::string result;
+
+    for (pb_size_t i = 0; i != fields_count; ++i) {
+        result += PrintMessageField("fields ", fields[i], indent + 1, true);
+    }
+
+    bool is_root = indent == 0;
+    if (!result.empty() || is_root) {
+      std::string tail = PrintTail(indent);
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}
+
+std::string google_firestore_v1_MapValue_FieldsEntry::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "FieldsEntry", this);
+    std::string result;
+
+    result += PrintPrimitiveField("key: ", key, indent + 1, false);
+    result += PrintMessageField("value ", value, indent + 1, false);
+
+    std::string tail = PrintTail(indent);
+    return header + result + tail;
+}
 
 }  // namespace firestore
 }  // namespace firebase

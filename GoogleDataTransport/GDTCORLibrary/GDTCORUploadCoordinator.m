@@ -132,6 +132,9 @@
  * @return The current upload conditions.
  */
 - (GDTCORUploadConditions)uploadConditions {
+#if TARGET_OS_WATCH
+  return GDTCORUploadConditionNoNetwork;
+#else
   SCNetworkReachabilityFlags currentFlags = [GDTCORReachability currentFlags];
   BOOL reachable =
       (currentFlags & kSCNetworkReachabilityFlagsReachable) == kSCNetworkReachabilityFlagsReachable;
@@ -149,6 +152,7 @@
   } else {
     return GDTCORUploadConditionWifiData;
   }
+#endif
 }
 
 #pragma mark - NSSecureCoding support

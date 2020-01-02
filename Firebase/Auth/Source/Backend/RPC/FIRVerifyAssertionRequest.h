@@ -66,6 +66,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, copy, nullable) NSString *providerIDToken;
 
+/** @property providerRawNonce
+    @brief An raw nonce from the IDP.
+ */
+@property(nonatomic, copy, nullable) NSString *providerRawNonce;
+
 /** @property returnIDPCredential
     @brief Whether the response should return the IDP credential directly.
  */

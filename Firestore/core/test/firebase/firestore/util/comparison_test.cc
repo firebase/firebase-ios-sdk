@@ -83,47 +83,47 @@ TEST(Comparison, DoubleCompare) {
   ASSERT_SAME(Compare<double>(-0, 0));
 }
 
-#define ASSERT_BIT_EQUALS(expected, actual)            \
-  do {                                                 \
-    uint64_t expectedBits = DoubleBits(expected);      \
-    uint64_t actualBits = DoubleBits(actual);          \
-    if (expectedBits != actualBits) {                  \
-      std::string message = StringFormat(              \
-          "Expected <%s> to compare equal to <%s> "    \
-          "with bits <%s> equal to <%s>",              \
-          actual, expected, actualBits, expectedBits); \
-      FAIL() << message;                               \
-    }                                                  \
+#define ASSERT_BIT_EQUALS(expected, actual)              \
+  do {                                                   \
+    uint64_t expected_bits = DoubleBits(expected);       \
+    uint64_t actual_bits = DoubleBits(actual);           \
+    if (expected_bits != actual_bits) {                  \
+      std::string message = StringFormat(                \
+          "Expected <%s> to compare equal to <%s> "      \
+          "with bits <%s> equal to <%s>",                \
+          actual, expected, actual_bits, expected_bits); \
+      FAIL() << message;                                 \
+    }                                                    \
   } while (0);
 
-#define ASSERT_MIXED_SAME(doubleValue, longValue)                            \
-  do {                                                                       \
-    ComparisonResult result = CompareMixedNumber(doubleValue, longValue);    \
-    if (result != ComparisonResult::Same) {                                  \
-      std::string message = StringFormat(                                    \
-          "Expected <%s> to compare equal to <%s>", doubleValue, longValue); \
-      FAIL() << message;                                                     \
-    }                                                                        \
+#define ASSERT_MIXED_SAME(double_value, long_value)                            \
+  do {                                                                         \
+    ComparisonResult result = CompareMixedNumber(double_value, long_value);    \
+    if (result != ComparisonResult::Same) {                                    \
+      std::string message = StringFormat(                                      \
+          "Expected <%s> to compare equal to <%s>", double_value, long_value); \
+      FAIL() << message;                                                       \
+    }                                                                          \
   } while (0);
 
-#define ASSERT_MIXED_DESCENDING(doubleValue, longValue)                      \
-  do {                                                                       \
-    ComparisonResult result = CompareMixedNumber(doubleValue, longValue);    \
-    if (result != ComparisonResult::Descending) {                            \
-      std::string message = StringFormat(                                    \
-          "Expected <%s> to compare equal to <%s>", doubleValue, longValue); \
-      FAIL() << message;                                                     \
-    }                                                                        \
+#define ASSERT_MIXED_DESCENDING(double_value, long_value)                      \
+  do {                                                                         \
+    ComparisonResult result = CompareMixedNumber(double_value, long_value);    \
+    if (result != ComparisonResult::Descending) {                              \
+      std::string message = StringFormat(                                      \
+          "Expected <%s> to compare equal to <%s>", double_value, long_value); \
+      FAIL() << message;                                                       \
+    }                                                                          \
   } while (0);
 
-#define ASSERT_MIXED_ASCENDING(doubleValue, longValue)                       \
-  do {                                                                       \
-    ComparisonResult result = CompareMixedNumber(doubleValue, longValue);    \
-    if (result != ComparisonResult::Ascending) {                             \
-      std::string message = StringFormat(                                    \
-          "Expected <%s> to compare equal to <%s>", doubleValue, longValue); \
-      FAIL() << message;                                                     \
-    }                                                                        \
+#define ASSERT_MIXED_ASCENDING(double_value, long_value)                       \
+  do {                                                                         \
+    ComparisonResult result = CompareMixedNumber(double_value, long_value);    \
+    if (result != ComparisonResult::Ascending) {                               \
+      std::string message = StringFormat(                                      \
+          "Expected <%s> to compare equal to <%s>", double_value, long_value); \
+      FAIL() << message;                                                       \
+    }                                                                          \
   } while (0);
 
 TEST(Comparison, MixedNumberCompare) {
@@ -193,9 +193,9 @@ TEST(Comparison, MixedNumberCompare) {
 
   // Note that 0x1.0p-1074 is a hex floating point literal representing the
   // minimum subnormal number: <https://en.wikipedia.org/wiki/Denormal_number>.
-  double minSubNormal = 0x1.0p-1074;
-  ASSERT_MIXED_DESCENDING(minSubNormal, 0LL);
-  ASSERT_MIXED_ASCENDING(-minSubNormal, 0LL);
+  double min_sub_normal = 0x1.0p-1074;
+  ASSERT_MIXED_DESCENDING(min_sub_normal, 0LL);
+  ASSERT_MIXED_ASCENDING(-min_sub_normal, 0LL);
 
   // Other sanity checks
   ASSERT_MIXED_ASCENDING(0.5, 1LL);

@@ -1,10 +1,10 @@
 Pod::Spec.new do |s|
   s.name             = 'GoogleUtilities'
-  s.version          = '6.3.1'
+  s.version          = '6.4.0'
   s.summary          = 'Google Utilities for iOS (plus community support for macOS and tvOS)'
 
   s.description      = <<-DESC
-Internal Google Utilities including Network, Reachability Environment, Logger, and Swizzling for
+Internal Google Utilities including Network, Reachability Environment, Logger and Swizzling for
 other Google CocoaPods. They're not intended for direct public usage.
                        DESC
 
@@ -20,14 +20,15 @@ other Google CocoaPods. They're not intended for direct public usage.
   s.ios.deployment_target = '8.0'
   s.osx.deployment_target = '10.11'
   s.tvos.deployment_target = '10.0'
+  s.watchos.deployment_target = '6.0'
 
   s.cocoapods_version = '>= 1.4.0'
   s.prefix_header_file = false
 
   s.subspec 'Environment' do |es|
-    es.source_files = 'GoogleUtilities/Environment/third_party/*.[mh]'
-    es.public_header_files = 'GoogleUtilities/Environment/third_party/*.h'
-    es.private_header_files = 'GoogleUtilities/Environment/third_party/*.h'
+    es.source_files = 'GoogleUtilities/Environment/**/*.[mh]'
+    es.public_header_files = 'GoogleUtilities/Environment/**/*.h'
+    es.private_header_files = 'GoogleUtilities/Environment/**/*.h'
   end
 
   s.subspec 'Logger' do |ls|
@@ -36,6 +37,7 @@ other Google CocoaPods. They're not intended for direct public usage.
     ls.private_header_files = 'GoogleUtilities/Logger/Private/*.h'
     ls.dependency 'GoogleUtilities/Environment'
   end
+
 
   s.subspec 'Network' do |ns|
     ns.source_files = 'GoogleUtilities/Network/**/*.[mh]'
@@ -61,7 +63,13 @@ other Google CocoaPods. They're not intended for direct public usage.
     rs.source_files = 'GoogleUtilities/Reachability/**/*.[mh]'
     rs.public_header_files = 'GoogleUtilities/Reachability/Private/*.h'
     rs.private_header_files = 'GoogleUtilities/Reachability/Private/*.h'
-    rs.frameworks = [
+    rs.ios.frameworks = [
+      'SystemConfiguration'
+    ]
+    rs.osx.frameworks = [
+      'SystemConfiguration'
+    ]
+    rs.tvos.frameworks = [
       'SystemConfiguration'
     ]
     rs.dependency 'GoogleUtilities/Logger'
@@ -104,13 +112,9 @@ other Google CocoaPods. They're not intended for direct public usage.
     ud.dependency 'GoogleUtilities/Logger'
   end
 
-  s.subspec 'SecureCoding' do |sc|
-    sc.source_files = 'GoogleUtilities/SecureCoding/**/*.[hm]'
-    sc.public_header_files = 'GoogleUtilities/SecureCoding/Public/*.h'
-  end
-
   s.test_spec 'unit' do |unit_tests|
     # All tests require arc except Tests/Network/third_party/GTMHTTPServer.m
+    unit_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
     unit_tests.source_files = 'GoogleUtilities/Example/Tests/**/*.[mh]'
     unit_tests.requires_arc = 'GoogleUtilities/Example/Tests/*/*.[mh]'
     unit_tests.requires_app_host = true

@@ -18,16 +18,18 @@
 
 @interface AppDelegate ()
 
-@property(weak) IBOutlet NSWindow *window;
+@property(weak, atomic) IBOutlet NSWindow *window;
 @end
 
 @implementation AppDelegate
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+  (void)aNotification;
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
   // Insert code here to tear down your application
+  (void)aNotification;
 }
 
 @end

@@ -21,6 +21,8 @@
 #define PB_GOOGLE_PROTOBUF_ANY_NANOPB_H_INCLUDED
 #include <pb.h>
 
+#include <string>
+
 namespace firebase {
 namespace firestore {
 
@@ -34,6 +36,8 @@ namespace firestore {
 typedef struct _google_protobuf_Any {
     pb_bytes_array_t *type_url;
     pb_bytes_array_t *value;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_protobuf_Any) */
 } google_protobuf_Any;
 

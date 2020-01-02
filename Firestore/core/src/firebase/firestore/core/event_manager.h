@@ -27,7 +27,6 @@
 #include "Firestore/core/src/firebase/firestore/core/sync_engine.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
-#include "Firestore/core/src/firebase/firestore/objc/objc_class.h"
 #include "Firestore/core/src/firebase/firestore/util/empty.h"
 #include "Firestore/core/src/firebase/firestore/util/nullability.h"
 #include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
@@ -53,7 +52,7 @@ class EventManager : public SyncEngineCallback {
    * listen in the SyncEngine and will perform a listen if it's the first
    * QueryListener added for a query.
    *
-   * Returns the targetId of the listen call in the SyncEngine.
+   * Returns the TargetId of the listen call in the SyncEngine.
    */
   model::TargetId AddQueryListener(
       std::shared_ptr<core::QueryListener> listener);

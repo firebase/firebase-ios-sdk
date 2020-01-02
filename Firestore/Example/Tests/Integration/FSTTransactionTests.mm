@@ -21,7 +21,6 @@
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
-#import "Firestore/Source/Util/FSTClasses.h"
 
 using firebase::firestore::util::TimerId;
 
@@ -401,7 +400,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
         return @YES;
       }
       completion:^(id _Nullable result, NSError *_Nullable error) {
-        XCTAssertEqualObjects(@YES, result);
+        XCTAssertEqualObjects(result, @YES);
         XCTAssertNil(error);
         [expectation fulfill];
       }];
@@ -455,7 +454,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
   [self awaitExpectations];
   // Now all transaction should be completed, so check the result.
   FIRDocumentSnapshot *snapshot = [self readDocumentForRef:doc];
-  XCTAssertEqualObjects(@(5.0 + total), snapshot[@"count"]);
+  XCTAssertEqualObjects(snapshot[@"count"], @(5.0 + total));
 }
 
 - (void)testUpdateTransactionally {
@@ -483,7 +482,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
           // Once all of the transactions have read, allow the first write. There should be 3
           // initial transaction runs.
           if (nowStarted == total) {
-            XCTAssertEqual(3, (int)(*counter));
+            XCTAssertEqual((int)(*counter), 3);
             dispatch_semaphore_signal(writeBarrier);
           }
 
@@ -505,7 +504,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
   XCTAssertLessThanOrEqual((int)(*counter), 6);
   // Now all transaction should be completed, so check the result.
   FIRDocumentSnapshot *snapshot = [self readDocumentForRef:doc];
-  XCTAssertEqualObjects(@(5.0 + total), snapshot[@"count"]);
+  XCTAssertEqualObjects(snapshot[@"count"], @(5.0 + total));
   XCTAssertEqualObjects(@"yes", snapshot[@"other"]);
 }
 
@@ -683,7 +682,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
         [expectation fulfill];
         XCTAssertNotNil(error);
         XCTAssertEqual(error.code, FIRFirestoreErrorCodeInvalidArgument);
-        XCTAssertEqual(1, (int)(*counter));
+        XCTAssertEqual((int)(*counter), 1);
       }];
   [self awaitExpectations];
 }
@@ -696,7 +695,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
         return @"yes";
       }
       completion:^(id _Nullable result, NSError *_Nullable error) {
-        XCTAssertEqualObjects(@"yes", result);
+        XCTAssertEqualObjects(result, @"yes");
         XCTAssertNil(error);
         [expectation fulfill];
       }];
@@ -721,11 +720,11 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
       completion:^(id _Nullable result, NSError *_Nullable error) {
         XCTAssertNil(result);
         XCTAssertNotNil(error);
-        XCTAssertEqual(35, error.code);
+        XCTAssertEqual(error.code, 35);
         [expectation fulfill];
       }];
   [self awaitExpectations];
-  XCTAssertEqual(1, (int)(*counter));
+  XCTAssertEqual((int)(*counter), 1);
   FIRDocumentSnapshot *snapshot = [self readDocumentForRef:doc];
   XCTAssertFalse(snapshot.exists);
 }

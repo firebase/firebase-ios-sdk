@@ -130,7 +130,7 @@ class Transaction {
 
   std::vector<model::Mutation> mutations_;
   bool committed_ = false;
-  bool permanentError_ = false;
+  bool permanent_error_ = false;
 
   /**
    * A deferred usage error that occurred previously in this transaction that
@@ -152,7 +152,7 @@ class Transaction {
       read_versions_;
 };
 
-using TransactionResultCallback = util::StatusOrCallback<absl::any>;
+using TransactionResultCallback = util::StatusCallback;
 
 /**
  * TransactionUpdateCallback is a block that wraps a user's transaction update

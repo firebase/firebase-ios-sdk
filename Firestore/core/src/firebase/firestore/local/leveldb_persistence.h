@@ -60,7 +60,7 @@ class LevelDbPersistence : public Persistence {
    * Finds a suitable directory to serve as the root of all Firestore local
    * storage.
    */
-  static util::Path AppDataDirectory();
+  static util::StatusOr<util::Path> AppDataDirectory();
 
   /**
    * Computes a unique storage directory for the given identifying components of
@@ -123,12 +123,6 @@ class LevelDbPersistence : public Persistence {
    * Ensures that the given directory exists.
    */
   static util::Status EnsureDirectory(const util::Path& dir);
-
-  /**
-   * Marks the given directory as excluded from platform-specific backup schemes
-   * like iCloud backup.
-   */
-  static util::Status ExcludeFromBackups(const util::Path& dir);
 
   /** Opens the database within the given directory. */
   static util::StatusOr<std::unique_ptr<leveldb::DB>> OpenDb(

@@ -124,4 +124,45 @@
                       processBlock:processBlock];
 }
 
+- (void)registerRedirectPaths {
+  id processBlock301 = ^GCDWebServerResponse *(__kindof GCDWebServerRequest *request) {
+    NSURL *redirectURL = [self->_server.serverURL URLByAppendingPathComponent:@"logBatch"];
+    GCDWebServerResponse *response = [GCDWebServerResponse responseWithRedirect:redirectURL
+                                                                      permanent:NO];
+    response.statusCode = 301;
+    response.gzipContentEncodingEnabled = YES;
+    return response;
+  };
+  [self.server addHandlerForMethod:@"POST"
+                              path:@"/logRedirect301"
+                      requestClass:[GCDWebServerRequest class]
+                      processBlock:processBlock301];
+
+  id processBlock302 = ^GCDWebServerResponse *(__kindof GCDWebServerRequest *request) {
+    NSURL *redirectURL = [self->_server.serverURL URLByAppendingPathComponent:@"logBatch"];
+    GCDWebServerResponse *response = [GCDWebServerResponse responseWithRedirect:redirectURL
+                                                                      permanent:NO];
+    response.statusCode = 302;
+    response.gzipContentEncodingEnabled = YES;
+    return response;
+  };
+  [self.server addHandlerForMethod:@"POST"
+                              path:@"/logRedirect302"
+                      requestClass:[GCDWebServerRequest class]
+                      processBlock:processBlock302];
+
+  id processBlock307 = ^GCDWebServerResponse *(__kindof GCDWebServerRequest *request) {
+    NSURL *redirectURL = [self->_server.serverURL URLByAppendingPathComponent:@"logBatch"];
+    GCDWebServerResponse *response = [GCDWebServerResponse responseWithRedirect:redirectURL
+                                                                      permanent:NO];
+    response.statusCode = 307;
+    response.gzipContentEncodingEnabled = YES;
+    return response;
+  };
+  [self.server addHandlerForMethod:@"POST"
+                              path:@"/logRedirect307"
+                      requestClass:[GCDWebServerRequest class]
+                      processBlock:processBlock307];
+}
+
 @end

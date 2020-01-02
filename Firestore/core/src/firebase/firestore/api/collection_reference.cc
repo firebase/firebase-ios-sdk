@@ -81,7 +81,7 @@ std::string CollectionReference::path() const {
 }
 
 DocumentReference CollectionReference::Document(
-    absl::string_view document_path) const {
+    const std::string& document_path) const {
   ResourcePath sub_path = ResourcePath::FromString(document_path);
   ResourcePath path = query().path().Append(sub_path);
   return DocumentReference(std::move(path), firestore());

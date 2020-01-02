@@ -19,8 +19,16 @@
 
 #include "timestamp.nanopb.h"
 
+#include "Firestore/core/src/firebase/firestore/nanopb/pretty_printing.h"
+
 namespace firebase {
 namespace firestore {
+
+using nanopb::PrintEnumField;
+using nanopb::PrintHeader;
+using nanopb::PrintMessageField;
+using nanopb::PrintPrimitiveField;
+using nanopb::PrintTail;
 
 /* @@protoc_insertion_point(includes) */
 #if PB_PROTO_HEADER_VERSION != 30
@@ -35,6 +43,22 @@ const pb_field_t google_protobuf_Timestamp_fields[3] = {
     PB_LAST_FIELD
 };
 
+
+std::string google_protobuf_Timestamp::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "Timestamp", this);
+    std::string result;
+
+    result += PrintPrimitiveField("seconds: ", seconds, indent + 1, false);
+    result += PrintPrimitiveField("nanos: ", nanos, indent + 1, false);
+
+    bool is_root = indent == 0;
+    if (!result.empty() || is_root) {
+      std::string tail = PrintTail(indent);
+      return header + result + tail;
+    } else {
+      return "";
+    }
+}
 
 }  // namespace firestore
 }  // namespace firebase

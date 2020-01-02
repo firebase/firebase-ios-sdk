@@ -68,13 +68,13 @@ size_t QuerySnapshot::Hash() const {
 
 void QuerySnapshot::ForEachDocument(
     const std::function<void(DocumentSnapshot)>& callback) const {
-  DocumentSet documentSet = snapshot_.documents();
+  DocumentSet document_set = snapshot_.documents();
   bool from_cache = metadata_.from_cache();
 
-  for (const Document& document : documentSet) {
+  for (const Document& document : document_set) {
     bool has_pending_writes = snapshot_.mutated_keys().contains(document.key());
-    DocumentSnapshot snap(firestore_, document.key(), document, from_cache,
-                          has_pending_writes);
+    auto snap = DocumentSnapshot::FromDocument(
+        firestore_, document, SnapshotMetadata(has_pending_writes, from_cache));
     callback(std::move(snap));
   }
 }
@@ -116,7 +116,8 @@ void QuerySnapshot::ForEachChange(
       SnapshotMetadata metadata(
           /*pending_writes=*/snapshot_.mutated_keys().contains(doc.key()),
           /*from_cache=*/snapshot_.from_cache());
-      DocumentSnapshot document(firestore_, doc.key(), doc, metadata);
+      auto document =
+          DocumentSnapshot::FromDocument(firestore_, doc, std::move(metadata));
 
       HARD_ASSERT(change.type() == DocumentViewChange::Type::Added,
                   "Invalid event type for first snapshot");
@@ -143,7 +144,7 @@ void QuerySnapshot::ForEachChange(
       SnapshotMetadata metadata(
           /*pending_writes=*/snapshot_.mutated_keys().contains(doc.key()),
           /*from_cache=*/snapshot_.from_cache());
-      DocumentSnapshot document(firestore_, doc.key(), doc, metadata);
+      auto document = DocumentSnapshot::FromDocument(firestore_, doc, metadata);
 
       size_t old_index = DocumentChange::npos;
       size_t new_index = DocumentChange::npos;

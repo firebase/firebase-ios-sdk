@@ -325,16 +325,6 @@ static NSString *const kFirebaseInAppMessagingAutoDataCollectionKey =
       [[FIRIAMSDKModeManager alloc] initWithUserDefaults:NSUserDefaults.standardUserDefaults
                                      testingModeListener:self];
 
-  self.fetchOnAppForegroundFlow =
-      [[FIRIAMFetchOnAppForegroundFlow alloc] initWithSetting:fetchSetting
-                                                 messageCache:self.messageCache
-                                               messageFetcher:self.restfulFetcher
-                                                  timeFetcher:timeFetcher
-                                                   bookKeeper:self.bookKeeper
-                                               activityLogger:self.activityLogger
-                                         analyticsEventLogger:analyticsEventLogger
-                                         FIRIAMSDKModeManager:sdkModeManager];
-
   FIRIAMActionURLFollower *actionFollower = [FIRIAMActionURLFollower actionURLFollower];
 
   self.displayExecutor =
@@ -346,6 +336,17 @@ static NSString *const kFirebaseInAppMessagingAutoDataCollectionKey =
                                           actionURLFollower:actionFollower
                                              activityLogger:self.activityLogger
                                        analyticsEventLogger:analyticsEventLogger];
+
+  self.fetchOnAppForegroundFlow =
+      [[FIRIAMFetchOnAppForegroundFlow alloc] initWithSetting:fetchSetting
+                                                 messageCache:self.messageCache
+                                               messageFetcher:self.restfulFetcher
+                                                  timeFetcher:timeFetcher
+                                                   bookKeeper:self.bookKeeper
+                                               activityLogger:self.activityLogger
+                                         analyticsEventLogger:analyticsEventLogger
+                                         FIRIAMSDKModeManager:sdkModeManager
+                                              displayExecutor:self.displayExecutor];
 
   // Setting the message display component and suppression. It's needed in case
   // headless SDK is initialized after the these properties are already set on FIRInAppMessaging.

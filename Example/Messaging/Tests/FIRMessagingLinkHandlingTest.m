@@ -17,12 +17,14 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
+#import <FirebaseInstanceID/FIRInstanceID.h>
+#import <GoogleUtilities/GULUserDefaults.h>
+
 #import <FirebaseMessaging/FIRMessaging.h>
 
 #import "Example/Messaging/Tests/FIRMessagingTestNotificationUtilities.h"
 #import "Example/Messaging/Tests/FIRMessagingTestUtilities.h"
 #import "Firebase/Messaging/FIRMessagingConstants.h"
-
 
 NSString *const kFIRMessagingTestsLinkHandlingSuiteName = @"com.messaging.test_linkhandling";
 
@@ -35,6 +37,8 @@ NSString *const kFIRMessagingTestsLinkHandlingSuiteName = @"com.messaging.test_l
 @interface FIRMessagingLinkHandlingTest : XCTestCase
 
 @property(nonatomic, readonly, strong) FIRMessaging *messaging;
+@property(nonatomic, strong) FIRMessagingTestUtilities * testUtil;
+
 
 @end
 
@@ -44,12 +48,14 @@ NSString *const kFIRMessagingTestsLinkHandlingSuiteName = @"com.messaging.test_l
   [super setUp];
 
   NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingTestsLinkHandlingSuiteName];
-  _messaging = [FIRMessagingTestUtilities messagingForTestsWithUserDefaults:defaults];
+  _testUtil = [[FIRMessagingTestUtilities alloc] initWithUserDefaults:defaults withRMQManager:NO];
+  _messaging = _testUtil.messaging;
 }
 
 - (void)tearDown {
-  [self.messaging.messagingUserDefaults removePersistentDomainForName:kFIRMessagingTestsLinkHandlingSuiteName];
+  [_testUtil cleanupAfterTest];
   _messaging = nil;
+  [[[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingTestsLinkHandlingSuiteName] removePersistentDomainForName:kFIRMessagingTestsLinkHandlingSuiteName];
   [super tearDown];
 }
 
@@ -58,7 +64,7 @@ NSString *const kFIRMessagingTestsLinkHandlingSuiteName = @"com.messaging.test_l
 - (void)testNonExistentLinkInMessage {
   NSMutableDictionary *notification =
       [FIRMessagingTestNotificationUtilities createBasicNotificationWithUniqueMessageID];
-  NSURL *url = [self.messaging linkURLFromMessage:notification];
+  NSURL *url = [_messaging linkURLFromMessage:notification];
   XCTAssertNil(url);
 }
 
@@ -66,7 +72,7 @@ NSString *const kFIRMessagingTestsLinkHandlingSuiteName = @"com.messaging.test_l
   NSMutableDictionary *notification =
       [FIRMessagingTestNotificationUtilities createBasicNotificationWithUniqueMessageID];
   notification[kFIRMessagingMessageLinkKey] = @"";
-  NSURL *url = [self.messaging linkURLFromMessage:notification];
+  NSURL *url = [_messaging linkURLFromMessage:notification];
   XCTAssertNil(url);
 }
 
@@ -74,7 +80,7 @@ NSString *const kFIRMessagingTestsLinkHandlingSuiteName = @"com.messaging.test_l
   NSMutableDictionary *notification =
       [FIRMessagingTestNotificationUtilities createBasicNotificationWithUniqueMessageID];
   notification[kFIRMessagingMessageLinkKey] = @(5);
-  NSURL *url = [self.messaging linkURLFromMessage:notification];
+  NSURL *url = [_messaging linkURLFromMessage:notification];
   XCTAssertNil(url);
 }
 
@@ -82,7 +88,7 @@ NSString *const kFIRMessagingTestsLinkHandlingSuiteName = @"com.messaging.test_l
   NSMutableDictionary *notification =
       [FIRMessagingTestNotificationUtilities createBasicNotificationWithUniqueMessageID];
   notification[kFIRMessagingMessageLinkKey] = @"This is not a valid url string";
-  NSURL *url = [self.messaging linkURLFromMessage:notification];
+  NSURL *url = [_messaging linkURLFromMessage:notification];
   XCTAssertNil(url);
 }
 
@@ -90,7 +96,7 @@ NSString *const kFIRMessagingTestsLinkHandlingSuiteName = @"com.messaging.test_l
   NSMutableDictionary *notification =
       [FIRMessagingTestNotificationUtilities createBasicNotificationWithUniqueMessageID];
   notification[kFIRMessagingMessageLinkKey] = @"https://www.google.com/";
-  NSURL *url = [self.messaging linkURLFromMessage:notification];
+  NSURL *url = [_messaging linkURLFromMessage:notification];
   XCTAssertTrue([url.absoluteString isEqualToString:@"https://www.google.com/"]);
 }
 

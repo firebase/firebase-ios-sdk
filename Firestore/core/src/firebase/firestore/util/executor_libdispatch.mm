@@ -116,16 +116,27 @@ void RunSynchronized(const ExecutorLibdispatch* const executor, Work&& work) {
 
 class TimeSlot {
  public:
+  using TimeSlotId = ExecutorLibdispatch::TimeSlotId;
+
   TimeSlot(ExecutorLibdispatch* executor,
            Executor::Milliseconds delay,
-           Executor::TaggedOperation&& operation);
+           Executor::TaggedOperation&& operation,
+           TimeSlotId slot_id);
 
   // Returns the operation that was scheduled for this time slot and turns the
   // slot into a no-op.
   Executor::TaggedOperation Unschedule();
 
   bool operator<(const TimeSlot& rhs) const {
-    return target_time_ < rhs.target_time_;
+    // Order by target time, then by the order in which entries were created.
+    if (target_time_ < rhs.target_time_) {
+      return true;
+    }
+    if (target_time_ > rhs.target_time_) {
+      return false;
+    }
+
+    return time_slot_id_ < rhs.time_slot_id_;
   }
   bool operator==(const Executor::Tag tag) const {
     return tagged_.tag == tag;
@@ -135,7 +146,7 @@ class TimeSlot {
     done_ = true;
   }
 
-  static void InvokedByLibdispatch(void* const raw_self);
+  static void InvokedByLibdispatch(void* raw_self);
 
  private:
   void Execute();
@@ -147,6 +158,7 @@ class TimeSlot {
   ExecutorLibdispatch* const executor_;
   const TimePoint target_time_;  // Used for sorting
   Executor::TaggedOperation tagged_;
+  TimeSlotId time_slot_id_ = 0;
 
   // True if the operation has either been run or canceled.
   //
@@ -157,12 +169,14 @@ class TimeSlot {
 
 TimeSlot::TimeSlot(ExecutorLibdispatch* const executor,
                    const Executor::Milliseconds delay,
-                   Executor::TaggedOperation&& operation)
+                   Executor::TaggedOperation&& operation,
+                   TimeSlotId slot_id)
     : executor_{executor},
       target_time_{std::chrono::time_point_cast<Executor::Milliseconds>(
                        std::chrono::steady_clock::now()) +
                    delay},
-      tagged_{std::move(operation)} {
+      tagged_{std::move(operation)},
+      time_slot_id_{slot_id} {
   // Only assignment of std::atomic is atomic; initialization in its constructor
   // isn't
   done_ = false;
@@ -175,7 +189,7 @@ Executor::TaggedOperation TimeSlot::Unschedule() {
   return std::move(tagged_);
 }
 
-void TimeSlot::InvokedByLibdispatch(void* const raw_self) {
+void TimeSlot::InvokedByLibdispatch(void* raw_self) {
   auto const self = static_cast<TimeSlot*>(raw_self);
   self->Execute();
   delete self;
@@ -196,7 +210,7 @@ void TimeSlot::Execute() {
 }
 
 void TimeSlot::RemoveFromSchedule() {
-  executor_->RemoveFromSchedule(this);
+  executor_->RemoveFromSchedule(time_slot_id_);
 }
 
 // MARK: - ExecutorLibdispatch
@@ -213,8 +227,8 @@ ExecutorLibdispatch::~ExecutorLibdispatch() {
   // already finished.
   // Note: this is thread-safe, because the underlying variable `done_` is
   // atomic. `RunSynchronized` may result in a deadlock.
-  for (auto slot : schedule_) {
-    slot->MarkDone();
+  for (const auto& entry : schedule_) {
+    entry.second->MarkDone();
   }
 }
 
@@ -246,28 +260,34 @@ DelayedOperation ExecutorLibdispatch::Schedule(const Milliseconds delay,
   // guaranteed to outlive the executor, and it's possible for work to be
   // invoked by libdispatch after the executor is destroyed. Executor only
   // stores an observer pointer to the operation.
+  TimeSlot* time_slot = nullptr;
+  TimeSlotId time_slot_id = 0;
+  RunSynchronized(this, [this, delay, &operation, &time_slot, &time_slot_id] {
+    time_slot_id = NextId();
+    time_slot = new TimeSlot{this, delay, std::move(operation), time_slot_id};
+    schedule_[time_slot_id] = time_slot;
+  });
 
-  auto const time_slot = new TimeSlot{this, delay, std::move(operation)};
   dispatch_after_f(delay_ns, dispatch_queue(), time_slot,
                    TimeSlot::InvokedByLibdispatch);
-  RunSynchronized(this, [this, time_slot] { schedule_.push_back(time_slot); });
-  return DelayedOperation{[this, time_slot] {
-    // `time_slot` might be destroyed by the time cancellation function runs.
-    // Therefore, don't access any methods on `time_slot`, only use it as
-    // a handle to remove from `schedule_`.
-    RemoveFromSchedule(time_slot);
+
+  return DelayedOperation{[this, time_slot_id] {
+    // `time_slot` might have been destroyed by the time cancellation function
+    // runs, in which case it's guaranteed to have been removed from the
+    // `schedule_`. If the `time_slot_id` refers to a slot that has been
+    // removed, the call to `RemoveFromSchedule` will be a no-op.
+    RemoveFromSchedule(time_slot_id);
   }};
 }
 
-void ExecutorLibdispatch::RemoveFromSchedule(const TimeSlot* const to_remove) {
+void ExecutorLibdispatch::RemoveFromSchedule(TimeSlotId to_remove) {
   RunSynchronized(this, [this, to_remove] {
-    const auto found = std::find_if(
-        schedule_.begin(), schedule_.end(),
-        [to_remove](const TimeSlot* op) { return op == to_remove; });
+    const auto found = schedule_.find(to_remove);
+
     // It's possible for the operation to be missing if libdispatch gets to run
     // it after it was force-run, for example.
     if (found != schedule_.end()) {
-      (*found)->MarkDone();
+      found->second->MarkDone();
       schedule_.erase(found);
     }
   });
@@ -278,9 +298,10 @@ void ExecutorLibdispatch::RemoveFromSchedule(const TimeSlot* const to_remove) {
 bool ExecutorLibdispatch::IsScheduled(const Tag tag) const {
   bool result = false;
   RunSynchronized(this, [this, tag, &result] {
-    result = std::any_of(
-        schedule_.begin(), schedule_.end(),
-        [&tag](const TimeSlot* const operation) { return *operation == tag; });
+    result = std::any_of(schedule_.begin(), schedule_.end(),
+                         [&tag](const ScheduleEntry& operation) {
+                           return *operation.second == tag;
+                         });
   });
   return result;
 }
@@ -289,26 +310,46 @@ absl::optional<Executor::TaggedOperation>
 ExecutorLibdispatch::PopFromSchedule() {
   absl::optional<Executor::TaggedOperation> result;
 
-  RunSynchronized(this, [this, &result] {
+  RunSynchronized(this, [this, &result]() -> void {
     if (schedule_.empty()) {
       return;
     }
-    // Sorting upon each call to `PopFromSchedule` is inefficient, which is
-    // consciously ignored because this function is only ever called from tests.
-    std::sort(
+
+    const auto nearest = std::min_element(
         schedule_.begin(), schedule_.end(),
-        [](const TimeSlot* lhs, const TimeSlot* rhs) { return *lhs < *rhs; });
-    const auto nearest = schedule_.begin();
-    result = (*nearest)->Unschedule();
+        [](const ScheduleEntry& lhs, const ScheduleEntry& rhs) {
+          return *lhs.second < *rhs.second;
+        });
+
+    result = nearest->second->Unschedule();
   });
 
   return result;
+}
+
+ExecutorLibdispatch::TimeSlotId ExecutorLibdispatch::NextId() {
+  // The wrap around after ~4 billion operations is explicitly ignored. Even if
+  // an instance of `ExecutorLibdispatch` runs long enough to get `current_id_`
+  // to overflow, it's extremely unlikely that any object still holds a
+  // reference that is old enough to cause a conflict.
+  return current_id_++;
 }
 
 // MARK: - Executor
 
 std::unique_ptr<Executor> Executor::CreateSerial(const char* label) {
   dispatch_queue_t queue = dispatch_queue_create(label, DISPATCH_QUEUE_SERIAL);
+  return absl::make_unique<ExecutorLibdispatch>(queue);
+}
+
+std::unique_ptr<Executor> Executor::CreateConcurrent(const char* label,
+                                                     int threads) {
+  HARD_ASSERT(threads > 1);
+
+  // Concurrent queues auto-create enough threads to avoid deadlock so there's
+  // no need to honor the threads argument.
+  dispatch_queue_t queue =
+      dispatch_queue_create(label, DISPATCH_QUEUE_CONCURRENT);
   return absl::make_unique<ExecutorLibdispatch>(queue);
 }
 

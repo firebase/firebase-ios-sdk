@@ -50,7 +50,7 @@ case "$version" in
   *)
     echo "Please upgrade to clang-format version 8."
     echo "If it's installed via homebrew you can run:"
-    echo "brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/773cb75d360b58f32048f5964038d09825a507c8/Formula/clang-format.rb"
+    echo "brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/e3496d9/Formula/clang-format.rb"
     exit 1
     ;;
 esac
@@ -173,7 +173,10 @@ needs_formatting=false
 for f in $files; do
   if [[ "${f: -6}" == '.swift' ]]; then
     if [[ "$system" == 'Darwin' ]]; then
-      swiftformat "${swift_options[@]}" "$f" 2> /dev/null | grep 'would have updated' > /dev/null
+      # Match output that says:
+      # 1/1 files would have been formatted.  (with --dryrun)
+      # 1/1 files formatted.                  (without --dryrun)
+      swiftformat "${swift_options[@]}" "$f" 2>&1 | grep '^1/1 files' > /dev/null
     else
       false
     fi

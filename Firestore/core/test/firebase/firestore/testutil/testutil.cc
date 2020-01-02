@@ -36,8 +36,6 @@ using model::ObjectValue;
 using model::Precondition;
 using model::TransformOperation;
 
-#if __APPLE__
-
 DocumentComparator DocComparator(absl::string_view field_path) {
   return Query("docs").AddingOrderBy(OrderBy(field_path)).Comparator();
 }
@@ -49,8 +47,6 @@ DocumentSet DocSet(DocumentComparator comp, std::vector<Document> docs) {
   }
   return set;
 }
-
-#endif  // __APPLE__
 
 model::PatchMutation PatchMutation(
     absl::string_view path,
@@ -95,6 +91,23 @@ model::TransformMutation TransformMutation(
   }
 
   return model::TransformMutation(Key(key), std::move(field_transforms));
+}
+
+std::pair<std::string, model::TransformOperation> Increment(
+    std::string field, model::FieldValue operand) {
+  model::NumericIncrementTransform transform(std::move(operand));
+
+  return std::pair<std::string, model::TransformOperation>(
+      std::move(field), std::move(transform));
+}
+
+std::pair<std::string, model::TransformOperation> ArrayUnion(
+    std::string field, std::vector<model::FieldValue> operands) {
+  model::ArrayTransform transform(model::TransformOperation::Type::ArrayUnion,
+                                  std::move(operands));
+
+  return std::pair<std::string, model::TransformOperation>(
+      std::move(field), std::move(transform));
 }
 
 }  // namespace testutil

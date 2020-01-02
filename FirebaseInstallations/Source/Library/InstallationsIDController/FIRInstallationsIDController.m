@@ -26,8 +26,8 @@
 
 #import "FIRInstallationsAPIService.h"
 #import "FIRInstallationsErrorUtil.h"
-#import "FIRInstallationsIIDCheckinStore.h"
 #import "FIRInstallationsIIDStore.h"
+#import "FIRInstallationsIIDTokenStore.h"
 #import "FIRInstallationsItem.h"
 #import "FIRInstallationsLogger.h"
 #import "FIRInstallationsSingleOperationPromiseCache.h"
@@ -36,7 +36,6 @@
 
 #import "FIRInstallationsHTTPError.h"
 #import "FIRInstallationsStoredAuthToken.h"
-#import "FIRInstallationsStoredIIDCheckin.h"
 
 const NSNotificationName FIRInstallationIDDidChangeNotification =
     @"FIRInstallationIDDidChangeNotification";
@@ -51,7 +50,7 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
 
 @property(nonatomic, readonly) FIRInstallationsStore *installationsStore;
 @property(nonatomic, readonly) FIRInstallationsIIDStore *IIDStore;
-@property(nonatomic, readonly) FIRInstallationsIIDCheckinStore *IIDCheckingStore;
+@property(nonatomic, readonly) FIRInstallationsIIDTokenStore *IIDTokenStore;
 
 @property(nonatomic, readonly) FIRInstallationsAPIService *APIService;
 
@@ -70,22 +69,24 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
 - (instancetype)initWithGoogleAppID:(NSString *)appID
                             appName:(NSString *)appName
                              APIKey:(NSString *)APIKey
-                          projectID:(NSString *)projectID {
+                          projectID:(NSString *)projectID
+                        GCMSenderID:(NSString *)GCMSenderID
+                        accessGroup:(NSString *)accessGroup {
   FIRSecureStorage *secureStorage = [[FIRSecureStorage alloc] init];
   FIRInstallationsStore *installationsStore =
-      [[FIRInstallationsStore alloc] initWithSecureStorage:secureStorage accessGroup:nil];
+      [[FIRInstallationsStore alloc] initWithSecureStorage:secureStorage accessGroup:accessGroup];
   FIRInstallationsAPIService *apiService =
       [[FIRInstallationsAPIService alloc] initWithAPIKey:APIKey projectID:projectID];
   FIRInstallationsIIDStore *IIDStore = [[FIRInstallationsIIDStore alloc] init];
-  FIRInstallationsIIDCheckinStore *IIDCheckingStore =
-      [[FIRInstallationsIIDCheckinStore alloc] init];
+  FIRInstallationsIIDTokenStore *IIDCheckingStore =
+      [[FIRInstallationsIIDTokenStore alloc] initWithGCMSenderID:GCMSenderID];
 
   return [self initWithGoogleAppID:appID
                            appName:appName
                 installationsStore:installationsStore
                         APIService:apiService
                           IIDStore:IIDStore
-                  IIDCheckingStore:IIDCheckingStore];
+                     IIDTokenStore:IIDCheckingStore];
 }
 
 /// The initializer is supposed to be used by tests to inject `installationsStore`.
@@ -94,7 +95,7 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
                  installationsStore:(FIRInstallationsStore *)installationsStore
                          APIService:(FIRInstallationsAPIService *)APIService
                            IIDStore:(FIRInstallationsIIDStore *)IIDStore
-                   IIDCheckingStore:(FIRInstallationsIIDCheckinStore *)IIDCheckingStore {
+                      IIDTokenStore:(FIRInstallationsIIDTokenStore *)IIDTokenStore {
   self = [super init];
   if (self) {
     _appID = appID;
@@ -102,7 +103,7 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
     _installationsStore = installationsStore;
     _APIService = APIService;
     _IIDStore = IIDStore;
-    _IIDCheckingStore = IIDCheckingStore;
+    _IIDTokenStore = IIDTokenStore;
 
     __weak FIRInstallationsIDController *weakSelf = self;
 
@@ -204,29 +205,28 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
   if (![self isDefaultApp]) {
     // Existing IID should be used only for default FirebaseApp.
     FIRInstallationsItem *installation =
-        [self createInstallationWithFID:[FIRInstallationsItem generateFID] IIDCheckin:nil];
+        [self createInstallationWithFID:[FIRInstallationsItem generateFID] IIDDefaultToken:nil];
     return [FBLPromise resolvedWith:installation];
   }
 
-  return
-      [[[FBLPromise all:@[ [self.IIDStore existingIID], [self.IIDCheckingStore existingCheckin] ]]
-          then:^id _Nullable(NSArray *_Nullable results) {
-            NSString *existingIID = results[0];
-            FIRInstallationsStoredIIDCheckin *IIDCheckin = results[1];
+  return [[[FBLPromise
+      all:@[ [self.IIDStore existingIID], [self.IIDTokenStore existingIIDDefaultToken] ]]
+      then:^id _Nullable(NSArray *_Nullable results) {
+        NSString *existingIID = results[0];
+        NSString *IIDDefaultToken = results[1];
 
-            return [self createInstallationWithFID:existingIID IIDCheckin:IIDCheckin];
-          }] recover:^id _Nullable(NSError *_Nonnull error) {
-        return [self createInstallationWithFID:[FIRInstallationsItem generateFID] IIDCheckin:nil];
-      }];
+        return [self createInstallationWithFID:existingIID IIDDefaultToken:IIDDefaultToken];
+      }] recover:^id _Nullable(NSError *_Nonnull error) {
+    return [self createInstallationWithFID:[FIRInstallationsItem generateFID] IIDDefaultToken:nil];
+  }];
 }
 
 - (FIRInstallationsItem *)createInstallationWithFID:(NSString *)FID
-                                         IIDCheckin:(nullable FIRInstallationsStoredIIDCheckin *)
-                                                        IIDCheckin {
+                                    IIDDefaultToken:(nullable NSString *)IIDDefaultToken {
   FIRInstallationsItem *installation = [[FIRInstallationsItem alloc] initWithAppID:self.appID
                                                                    firebaseAppName:self.appName];
   installation.firebaseInstallationID = FID;
-  installation.IIDCheckin = IIDCheckin;
+  installation.IIDDefaultToken = IIDDefaultToken;
   installation.registrationStatus = FIRInstallationStatusUnregistered;
   return installation;
 }
@@ -257,13 +257,9 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
         }
       })
       .then(^id(FIRInstallationsItem *registeredInstallation) {
-        // Expected successful result: @[FIRInstallationsItem *registeredInstallation, NSNull]
-        return [FBLPromise all:@[
-          registeredInstallation, [self.installationsStore saveInstallation:registeredInstallation]
-        ]];
+        return [self saveInstallation:registeredInstallation];
       })
-      .then(^FIRInstallationsItem *(NSArray *result) {
-        FIRInstallationsItem *registeredInstallation = result.firstObject;
+      .then(^FIRInstallationsItem *(FIRInstallationsItem *registeredInstallation) {
         // Server may respond with a different FID if the sent one cannot be accepted.
         if (![registeredInstallation.firebaseInstallationID
                 isEqualToString:installation.firebaseInstallationID]) {
@@ -318,7 +314,7 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
             [registeredInstallation.authToken.expirationDate timeIntervalSinceDate:[NSDate date]] <
             kFIRInstallationsTokenExpirationThreshold;
         if (forceRefresh || isTokenExpiredOrExpiresSoon) {
-          return [self.APIService refreshAuthTokenForInstallation:registeredInstallation];
+          return [self refreshAuthTokenForInstallation:registeredInstallation];
         } else {
           return registeredInstallation;
         }
@@ -326,6 +322,14 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
       .recover(^id(NSError *error) {
         return [self regenerateFIDOnRefreshTokenErrorIfNeeded:error];
       });
+}
+
+- (FBLPromise<FIRInstallationsItem *> *)refreshAuthTokenForInstallation:
+    (FIRInstallationsItem *)installation {
+  return [[self.APIService refreshAuthTokenForInstallation:installation]
+      then:^id _Nullable(FIRInstallationsItem *_Nullable refreshedInstallation) {
+        return [self saveInstallation:refreshedInstallation];
+      }];
 }
 
 - (id)regenerateFIDOnRefreshTokenErrorIfNeeded:(NSError *)error {

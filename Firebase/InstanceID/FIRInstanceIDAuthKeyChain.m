@@ -91,7 +91,7 @@ NSString *const kFIRInstanceIDKeychainWildcardIdentifier = @"*";
   // FIRInstanceIDKeychain should only take a query and return a result, will handle the query here.
   NSArray *passwordInfos =
       CFBridgingRelease([[FIRInstanceIDKeychain sharedInstance] itemWithQuery:keychainQuery]);
-#elif TARGET_OS_OSX
+#elif TARGET_OS_OSX || TARGET_OS_WATCH
   keychainQuery[(__bridge id)kSecMatchLimit] = (__bridge id)kSecMatchLimitOne;
   NSData *passwordInfos =
       CFBridgingRelease([[FIRInstanceIDKeychain sharedInstance] itemWithQuery:keychainQuery]);
@@ -120,7 +120,7 @@ NSString *const kFIRInstanceIDKeychainWildcardIdentifier = @"*";
       [results addObject:passwordInfo[(__bridge id)kSecValueData]];
     }
   }
-#elif TARGET_OS_OSX
+#elif TARGET_OS_OSX || TARGET_OS_WATCH
   [results addObject:passwordInfos];
 #endif
   // We query the keychain because it didn't exist in cache, now query is done, update the result in
@@ -167,10 +167,9 @@ NSString *const kFIRInstanceIDKeychainWildcardIdentifier = @"*";
 }
 
 - (void)setData:(NSData *)data
-       forService:(NSString *)service
-    accessibility:(CFTypeRef)accessibility
-          account:(NSString *)account
-          handler:(void (^)(NSError *))handler {
+     forService:(NSString *)service
+        account:(NSString *)account
+        handler:(void (^)(NSError *))handler {
   if ([service isEqualToString:kFIRInstanceIDKeychainWildcardIdentifier] ||
       [account isEqualToString:kFIRInstanceIDKeychainWildcardIdentifier]) {
     if (handler) {
@@ -194,14 +193,8 @@ NSString *const kFIRInstanceIDKeychainWildcardIdentifier = @"*";
                                    [self keychainQueryForService:service account:account];
                                keychainQuery[(__bridge id)kSecValueData] = data;
 
-                               if (accessibility != NULL) {
-                                 keychainQuery[(__bridge id)kSecAttrAccessible] =
-                                     (__bridge id)accessibility;
-                               } else {
-                                 // Defaults to No backup
-                                 keychainQuery[(__bridge id)kSecAttrAccessible] =
-                                     (__bridge id)kSecAttrAccessibleAlwaysThisDeviceOnly;
-                               }
+                               keychainQuery[(__bridge id)kSecAttrAccessible] =
+                                   (__bridge id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly;
                                [[FIRInstanceIDKeychain sharedInstance]
                                    addItemWithQuery:keychainQuery
                                             handler:handler];

@@ -18,6 +18,7 @@
 
 #if defined(_WIN32)
 
+#include <Shlobj.h>
 #include <windows.h>
 
 #include <cerrno>
@@ -43,6 +44,21 @@ Status IsDirectory(const Path& path) {
   }
 
   return Status{Error::FailedPrecondition, path.ToUtf8String()};
+}
+
+StatusOr<Path> AppDataDir(absl::string_view app_name) {
+  wchar_t* path = nullptr;
+  HRESULT hr = SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, nullptr, &path);
+  if (FAILED(hr)) {
+    CoTaskMemFree(path);
+    return Status::FromLastError(
+        HRESULT_CODE(hr),
+        "Failed to find the local application data directory");
+  }
+
+  Path result = Path::FromUtf16(path, wcslen(path)).AppendUtf8(app_name);
+  CoTaskMemFree(path);
+  return std::move(result);
 }
 
 Path TempDir() {
@@ -116,7 +132,7 @@ Status DeleteDir(const Path& path) {
       StringFormat("Could not delete directory %s", path.ToUtf8String()));
 }
 
-Status DeleteFile(const Path& path) {
+Status DeleteSingleFile(const Path& path) {
   if (::DeleteFileW(path.c_str())) {
     return Status::OK();
   }

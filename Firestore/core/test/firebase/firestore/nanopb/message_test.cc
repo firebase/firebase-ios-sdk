@@ -20,9 +20,9 @@
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/firestore.nanopb.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/message.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_nanopb.h"
-#include "Firestore/core/src/firebase/firestore/remote/serializer.h"
 #include "Firestore/core/test/firebase/firestore/util/status_testing.h"
 #include "grpcpp/impl/codegen/grpc_library.h"
 #include "grpcpp/support/byte_buffer.h"
@@ -33,10 +33,8 @@ namespace firestore {
 namespace nanopb {
 namespace {
 
-using model::DatabaseId;
 using remote::ByteBufferReader;
 using remote::ByteBufferWriter;
-using remote::Serializer;
 
 // This proto is chosen mostly because it's relatively small but still has some
 // dynamically-allocated members.
@@ -50,8 +48,8 @@ class MessageTest : public testing::Test {
 
     // A couple of fields should be enough -- these tests are primarily
     // concerned with ownership, not parsing.
-    message->stream_id = serializer_.EncodeString("stream_id");
-    message->stream_token = serializer_.EncodeString("stream_token");
+    message->stream_id = MakeBytesArray("stream_id");
+    message->stream_token = MakeBytesArray("stream_token");
 
     ByteBufferWriter writer;
     writer.Write(message.fields(), message.get());
@@ -67,7 +65,6 @@ class MessageTest : public testing::Test {
   // initialized, which is normally done by inheriting from this class (which
   // does initialization in its constructor).
   grpc::GrpcLibraryCodegen grpc_initializer_;
-  Serializer serializer_{DatabaseId{"p", "d"}};
 };
 
 TEST_F(MessageTest, Move) {
