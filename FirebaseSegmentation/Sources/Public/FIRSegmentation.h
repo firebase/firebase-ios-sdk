@@ -71,3 +71,5 @@ typedef NS_ENUM(NSInteger, FIRSegmentationErrorCode) {
                      completion:(nullable void (^)(NSError *))completionHandler;
 
 @end
+
+NS_ASSUME_NONNULL_END
