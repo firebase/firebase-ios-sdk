@@ -135,6 +135,7 @@ jobs:
     - stage: test
       env:
         - PROJECT=InstanceID METHOD=pod-lib-lint
+        - FIR_IID_INTEGRATION_TESTS_REQUIRED=$(if [[ "$TRAVIS_PULL_REQUEST" == "false" || "$TRAVIS_PULL_REQUEST_SLUG" == "$TRAVIS_REPO_SLUG" ]]; then echo "1"; else echo "0"; fi)
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
