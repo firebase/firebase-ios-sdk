@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-// Modify a Podfile to get any podspec's defined in the firebase-ios-sdk repo locally
+// Modify a Podfile to get any podspecs defined in the firebase-ios-sdk repo locally.
 
 import Foundation
 
@@ -48,9 +48,12 @@ var outBuffer = ""
 for line in lines {
   var newLine = line
   let tokens = line.components(separatedBy: [" ", ","] as CharacterSet)
-  if tokens.count > 0, tokens[0] == "pod" {
+  if tokens.first == "pod" {
     let podNameRaw = String(tokens[1]).replacingOccurrences(of: "'", with: "")
     var podName = podNameRaw
+
+    // Firebase test Podfile's often use the Firebase subspec to access the
+    // desired pod. We want to get the requested pod directly.
     if podNameRaw.starts(with: "Firebase/") {
       podName = podName.replacingOccurrences(of: "Firebase/", with: "Firebase")
     }
