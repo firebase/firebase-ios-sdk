@@ -78,20 +78,6 @@
          </BuildActionEntry>
          <BuildActionEntry
             buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "NO"
-            buildForArchiving = "NO"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "DEB13A0A1E73507E00AC236D"
-               BuildableName = "Storage_Tests_iOS.xctest"
-               BlueprintName = "Storage_Tests_iOS"
-               ReferencedContainer = "container:Firebase.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
             buildForRunning = "NO"
             buildForProfiling = "NO"
             buildForArchiving = "NO"
@@ -138,9 +124,18 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      shouldUseLaunchSchemeArgsEnv = "YES"
       disableMainThreadChecker = "YES"
-      codeCoverageEnabled = "YES"
-      shouldUseLaunchSchemeArgsEnv = "YES">
+      codeCoverageEnabled = "YES">
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "DE3373891E73773400881891"
+            BuildableName = "AllUnitTests_iOS"
+            BlueprintName = "AllUnitTests_iOS"
+            ReferencedContainer = "container:Firebase.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
       <Testables>
          <TestableReference
             skipped = "NO">
@@ -186,16 +181,6 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "DEB13A0A1E73507E00AC236D"
-               BuildableName = "Storage_Tests_iOS.xctest"
-               BlueprintName = "Storage_Tests_iOS"
-               ReferencedContainer = "container:Firebase.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
                BlueprintIdentifier = "DEDFF0121FD6135D00F7D466"
                BuildableName = "DynamicLinks_Tests_iOS.xctest"
                BlueprintName = "DynamicLinks_Tests_iOS"
@@ -213,17 +198,6 @@
             </BuildableReference>
          </TestableReference>
       </Testables>
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "DE3373891E73773400881891"
-            BuildableName = "AllUnitTests_iOS"
-            BlueprintName = "AllUnitTests_iOS"
-            ReferencedContainer = "container:Firebase.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
-      <AdditionalOptions>
-      </AdditionalOptions>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
@@ -244,8 +218,6 @@
             ReferencedContainer = "container:Firebase.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
-      <AdditionalOptions>
-      </AdditionalOptions>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -253,15 +225,6 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "DE3373891E73773400881891"
-            BuildableName = "AllUnitTests_iOS"
-            BlueprintName = "AllUnitTests_iOS"
-            ReferencedContainer = "container:Firebase.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

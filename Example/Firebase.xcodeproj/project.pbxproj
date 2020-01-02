@@ -16,7 +16,6 @@
 				D01853CB1EDAD636003A645C /* PBXTargetDependency */,
 				D0FE8A131ED9C349003F6722 /* PBXTargetDependency */,
 				D054E9C91EDA095300BE996B /* PBXTargetDependency */,
-				D054E9CD1EDA097200BE996B /* PBXTargetDependency */,
 			);
 			name = AllUnitTests_macOS;
 			productName = AllTests;
@@ -31,7 +30,6 @@
 				DEE14E0B1E844FDC006FA992 /* PBXTargetDependency */,
 				DEB5185A1E9008CB0089C938 /* PBXTargetDependency */,
 				DE6F01BA1E957157004AEE01 /* PBXTargetDependency */,
-				DE3373981E73776F00881891 /* PBXTargetDependency */,
 			);
 			name = AllUnitTests_iOS;
 			productName = AllTests;
@@ -44,7 +42,6 @@
 			dependencies = (
 				510395E322270D8E0055A64F /* PBXTargetDependency */,
 				DE545C881FBCA43200C637AE /* PBXTargetDependency */,
-				DE545C861FBCA42C00C637AE /* PBXTargetDependency */,
 				DE545C841FBCA41C00C637AE /* PBXTargetDependency */,
 			);
 			name = AllUnitTests_tvOS;
@@ -102,8 +99,6 @@
 		063CB4DB1EBAA89E00038A59 /* FSyncPointTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 063CB4581EBA7AE200038A59 /* FSyncPointTests.m */; };
 		0672F2F21EBBA7D900818E87 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0672F2F11EBBA7D900818E87 /* GoogleService-Info.plist */; };
 		0672F2F31EBBA7D900818E87 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0672F2F11EBBA7D900818E87 /* GoogleService-Info.plist */; };
-		069428831EC3B38C00F7BC69 /* 1mb.dat in Resources */ = {isa = PBXBuildFile; fileRef = 069428801EC3B35A00F7BC69 /* 1mb.dat */; };
-		06C24A061EC39BCB005208CA /* FIRStorageIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 06121ECA1EC39A0B0008D70E /* FIRStorageIntegrationTests.m */; };
 		405EEF4C2216518B00B08FF4 /* FIRAuthLifeCycleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 405EEF4B2216518A00B08FF4 /* FIRAuthLifeCycleTests.m */; };
 		405EEF4D2216518B00B08FF4 /* FIRAuthLifeCycleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 405EEF4B2216518A00B08FF4 /* FIRAuthLifeCycleTests.m */; };
 		405EEF4E2216518B00B08FF4 /* FIRAuthLifeCycleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 405EEF4B2216518A00B08FF4 /* FIRAuthLifeCycleTests.m */; };
@@ -262,23 +257,6 @@
 		D067EF831ED9BDE00095C27F /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
 		D067EF841ED9BDFF0095C27F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DEE14D711E844677006FA992 /* GoogleService-Info.plist */; };
 		D0EDB2C51EDA04F800B6C31B /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
-		D0EDB2D71EDA057800B6C31B /* FIRAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D0EDB2D21EDA056A00B6C31B /* FIRAppDelegate.m */; };
-		D0EDB2D81EDA057800B6C31B /* FIRViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D0EDB2D41EDA056A00B6C31B /* FIRViewController.m */; };
-		D0EDB2D91EDA057800B6C31B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D0EDB2D51EDA056A00B6C31B /* main.m */; };
-		D0EDB2DB1EDA058400B6C31B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D0EDB2CF1EDA056A00B6C31B /* Main.storyboard */; };
-		D0EDB2DC1EDA058700B6C31B /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DEB61EC11E7C5DBB00C04B96 /* GoogleService-Info.plist */; };
-		D0EDB2DD1EDA058A00B6C31B /* 1mb.dat in Resources */ = {isa = PBXBuildFile; fileRef = 069428801EC3B35A00F7BC69 /* 1mb.dat */; };
-		D0EDB2E31EDA06CB00B6C31B /* FIRStorageUtilsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB139CB1E734D9D00AC236D /* FIRStorageUtilsTests.m */; };
-		D0EDB2E41EDA06CB00B6C31B /* FIRStorageTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB139C81E734D9D00AC236D /* FIRStorageTests.m */; };
-		D0EDB2E51EDA06CB00B6C31B /* FIRStorageGetMetadataTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB139C21E734D9D00AC236D /* FIRStorageGetMetadataTests.m */; };
-		D0EDB2E61EDA06CB00B6C31B /* FIRStorageUpdateMetadataTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB139CA1E734D9D00AC236D /* FIRStorageUpdateMetadataTests.m */; };
-		D0EDB2E71EDA06CB00B6C31B /* FIRStorageDeleteTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB139C11E734D9D00AC236D /* FIRStorageDeleteTests.m */; };
-		D0EDB2E81EDA06CB00B6C31B /* FIRStorageTestHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB139C71E734D9D00AC236D /* FIRStorageTestHelpers.m */; };
-		D0EDB2E91EDA06CB00B6C31B /* FIRStorageMetadataTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB139C31E734D9D00AC236D /* FIRStorageMetadataTests.m */; };
-		D0EDB2EA1EDA06CB00B6C31B /* FIRStorageTokenAuthorizerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB139C91E734D9D00AC236D /* FIRStorageTokenAuthorizerTests.m */; };
-		D0EDB2EB1EDA06CB00B6C31B /* FIRStorageReferenceTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB139C51E734D9D00AC236D /* FIRStorageReferenceTests.m */; };
-		D0EDB2EC1EDA06CB00B6C31B /* FIRStoragePathTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB139C41E734D9D00AC236D /* FIRStoragePathTests.m */; };
-		D0EDB2FD1EDA06D500B6C31B /* FIRStorageIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 06121ECA1EC39A0B0008D70E /* FIRStorageIntegrationTests.m */; };
 		D0FE8A271ED9C804003F6722 /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
 		D0FE8A361ED9C86F003F6722 /* FTestHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = DE7B8D891E8EF202009EB6DF /* FTestHelpers.m */; };
 		D0FE8A371ED9C86F003F6722 /* FPathTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 063CB44E1EBA7AE200038A59 /* FPathTests.m */; };
@@ -346,9 +324,6 @@
 		D0FE8A941ED9CAAE003F6722 /* FIRAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D0FE8A1A1ED9C6D2003F6722 /* FIRAppDelegate.m */; };
 		D0FE8A951ED9CAAE003F6722 /* FIRViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D0FE8A1C1ED9C6D2003F6722 /* FIRViewController.m */; };
 		D0FE8A961ED9CAAE003F6722 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D0FE8A1D1ED9C6D2003F6722 /* main.m */; };
-		D5B2514347161203F929FA47 /* FIRStorageListTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D5B2545FC99E33265C65CAA4 /* FIRStorageListTests.m */; };
-		D5B251C16CD531364AA90C58 /* FIRStorageListTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D5B2545FC99E33265C65CAA4 /* FIRStorageListTests.m */; };
-		D5B253A8C57176FF8C368F4E /* FIRStorageListTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D5B2545FC99E33265C65CAA4 /* FIRStorageListTests.m */; };
 		D9B0D41E1F578F6D00A567C2 /* FIRGetProjectConfigRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D92C82C61F578DF000D5EAFF /* FIRGetProjectConfigRequestTests.m */; };
 		D9B0D41F1F578F6E00A567C2 /* FIRGetProjectConfigRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D92C82C61F578DF000D5EAFF /* FIRGetProjectConfigRequestTests.m */; };
 		D9B0D4201F578F7200A567C2 /* FIRGetProjectConfigResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D92C82C51F578DF000D5EAFF /* FIRGetProjectConfigResponseTests.m */; };
@@ -587,42 +562,9 @@
 		DEAAD3DA1FBA34250053BF48 /* FIROptionsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE14D7A1E844677006FA992 /* FIROptionsTest.m */; };
 		DEAAD3DB1FBA34250053BF48 /* FIRTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE14D7C1E844677006FA992 /* FIRTestCase.m */; };
 		DEAAD3DC1FBA36210053BF48 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DEE14D711E844677006FA992 /* GoogleService-Info.plist */; };
-		DEAAD41A1FBA470B0053BF48 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DEAAD4131FBA470A0053BF48 /* AppDelegate.m */; };
-		DEAAD41B1FBA470B0053BF48 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DEAAD4141FBA470A0053BF48 /* Assets.xcassets */; };
-		DEAAD41D1FBA470B0053BF48 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = DEAAD4161FBA470A0053BF48 /* main.m */; };
-		DEAAD41E1FBA470B0053BF48 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DEAAD4171FBA470A0053BF48 /* Main.storyboard */; };
-		DEAAD41F1FBA470B0053BF48 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DEAAD4191FBA470A0053BF48 /* ViewController.m */; };
-		DEAAD4201FBA47110053BF48 /* 1mb.dat in Resources */ = {isa = PBXBuildFile; fileRef = 069428801EC3B35A00F7BC69 /* 1mb.dat */; };
-		DEAAD4211FBA49D10053BF48 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DEB61EC11E7C5DBB00C04B96 /* GoogleService-Info.plist */; };
-		DEAAD4221FBA49ED0053BF48 /* FIRStorageDeleteTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB139C11E734D9D00AC236D /* FIRStorageDeleteTests.m */; };
-		DEAAD4231FBA49ED0053BF48 /* FIRStorageGetMetadataTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB139C21E734D9D00AC236D /* FIRStorageGetMetadataTests.m */; };
-		DEAAD4241FBA49ED0053BF48 /* FIRStorageMetadataTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB139C31E734D9D00AC236D /* FIRStorageMetadataTests.m */; };
-		DEAAD4251FBA49ED0053BF48 /* FIRStoragePathTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB139C41E734D9D00AC236D /* FIRStoragePathTests.m */; };
-		DEAAD4261FBA49ED0053BF48 /* FIRStorageReferenceTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB139C51E734D9D00AC236D /* FIRStorageReferenceTests.m */; };
-		DEAAD4271FBA49ED0053BF48 /* FIRStorageTestHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB139C71E734D9D00AC236D /* FIRStorageTestHelpers.m */; };
-		DEAAD4281FBA49ED0053BF48 /* FIRStorageTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB139C81E734D9D00AC236D /* FIRStorageTests.m */; };
-		DEAAD4291FBA49ED0053BF48 /* FIRStorageTokenAuthorizerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB139C91E734D9D00AC236D /* FIRStorageTokenAuthorizerTests.m */; };
-		DEAAD42A1FBA49ED0053BF48 /* FIRStorageUpdateMetadataTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB139CA1E734D9D00AC236D /* FIRStorageUpdateMetadataTests.m */; };
-		DEAAD42B1FBA49ED0053BF48 /* FIRStorageUtilsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB139CB1E734D9D00AC236D /* FIRStorageUtilsTests.m */; };
 		DEB139F41E73506A00AC236D /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F58F195388D20070C39A /* CoreGraphics.framework */; };
 		DEB139F51E73506A00AC236D /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F591195388D20070C39A /* UIKit.framework */; };
 		DEB139F61E73506A00AC236D /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F58D195388D20070C39A /* Foundation.framework */; };
-		DEB13A271E73518B00AC236D /* FIRStorageDeleteTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB139C11E734D9D00AC236D /* FIRStorageDeleteTests.m */; };
-		DEB13A281E73518B00AC236D /* FIRStorageGetMetadataTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB139C21E734D9D00AC236D /* FIRStorageGetMetadataTests.m */; };
-		DEB13A291E73518B00AC236D /* FIRStorageMetadataTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB139C31E734D9D00AC236D /* FIRStorageMetadataTests.m */; };
-		DEB13A2A1E73518B00AC236D /* FIRStoragePathTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB139C41E734D9D00AC236D /* FIRStoragePathTests.m */; };
-		DEB13A2B1E73518B00AC236D /* FIRStorageReferenceTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB139C51E734D9D00AC236D /* FIRStorageReferenceTests.m */; };
-		DEB13A2C1E73518B00AC236D /* FIRStorageTestHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB139C71E734D9D00AC236D /* FIRStorageTestHelpers.m */; };
-		DEB13A2D1E73518B00AC236D /* FIRStorageTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB139C81E734D9D00AC236D /* FIRStorageTests.m */; };
-		DEB13A2E1E73518B00AC236D /* FIRStorageTokenAuthorizerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB139C91E734D9D00AC236D /* FIRStorageTokenAuthorizerTests.m */; };
-		DEB13A2F1E73518B00AC236D /* FIRStorageUpdateMetadataTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB139CA1E734D9D00AC236D /* FIRStorageUpdateMetadataTests.m */; };
-		DEB13A301E73518B00AC236D /* FIRStorageUtilsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB139CB1E734D9D00AC236D /* FIRStorageUtilsTests.m */; };
-		DEB61EC51E7C5DBB00C04B96 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DEB61EB91E7C5DBB00C04B96 /* LaunchScreen.storyboard */; };
-		DEB61EC61E7C5DBB00C04B96 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DEB61EBB1E7C5DBB00C04B96 /* Main.storyboard */; };
-		DEB61EC71E7C5DBB00C04B96 /* FIRAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB61EBE1E7C5DBB00C04B96 /* FIRAppDelegate.m */; };
-		DEB61EC81E7C5DBB00C04B96 /* FIRViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB61EC01E7C5DBB00C04B96 /* FIRViewController.m */; };
-		DEB61EC91E7C5DBB00C04B96 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DEB61EC11E7C5DBB00C04B96 /* GoogleService-Info.plist */; };
-		DEB61ECB1E7C5DBB00C04B96 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB61EC31E7C5DBB00C04B96 /* main.m */; };
 		DECE039B1E9ED01600164CA4 /* FIRPhoneAuthProviderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DECE03991E9ECFF500164CA4 /* FIRPhoneAuthProviderTests.m */; };
 		DEE14D7E1E844677006FA992 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DEE14D681E844677006FA992 /* LaunchScreen.storyboard */; };
 		DEE14D7F1E844677006FA992 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DEE14D6A1E844677006FA992 /* Main.storyboard */; };
@@ -687,9 +629,6 @@
 		ED34CF5420DC16DD000EA5D1 /* FIRComponentTypeTest.m in Sources */ = {isa = PBXBuildFile; fileRef = ED34CF4D20DC16DD000EA5D1 /* FIRComponentTypeTest.m */; };
 		ED34CF5520DC16DD000EA5D1 /* FIRComponentTypeTest.m in Sources */ = {isa = PBXBuildFile; fileRef = ED34CF4D20DC16DD000EA5D1 /* FIRComponentTypeTest.m */; };
 		ED34CF5620DC16DD000EA5D1 /* FIRComponentTypeTest.m in Sources */ = {isa = PBXBuildFile; fileRef = ED34CF4D20DC16DD000EA5D1 /* FIRComponentTypeTest.m */; };
-		ED981885211A2E4800EDEBF4 /* FIRStorageComponentTests.m in Sources */ = {isa = PBXBuildFile; fileRef = ED981884211A2E4700EDEBF4 /* FIRStorageComponentTests.m */; };
-		ED981886211A2E4800EDEBF4 /* FIRStorageComponentTests.m in Sources */ = {isa = PBXBuildFile; fileRef = ED981884211A2E4700EDEBF4 /* FIRStorageComponentTests.m */; };
-		ED981887211A2E4800EDEBF4 /* FIRStorageComponentTests.m in Sources */ = {isa = PBXBuildFile; fileRef = ED981884211A2E4700EDEBF4 /* FIRStorageComponentTests.m */; };
 		EDD43AA420BF7C7B005EBB36 /* FIRAnalyticsConfigurationTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD43AA320BF7C7B005EBB36 /* FIRAnalyticsConfigurationTest.m */; };
 		EDD43AA520BF7C7B005EBB36 /* FIRAnalyticsConfigurationTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD43AA320BF7C7B005EBB36 /* FIRAnalyticsConfigurationTest.m */; };
 		EDD43AA620BF7C7B005EBB36 /* FIRAnalyticsConfigurationTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD43AA320BF7C7B005EBB36 /* FIRAnalyticsConfigurationTest.m */; };
@@ -773,13 +712,6 @@
 			remoteGlobalIDString = D0FE8A311ED9C86F003F6722;
 			remoteInfo = Database_Tests_macOS;
 		};
-		D054E9CC1EDA097200BE996B /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 6003F582195388D10070C39A /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = D0EDB2DE1EDA06CB00B6C31B;
-			remoteInfo = Storage_Tests_macOS;
-		};
 		D064E6C11ED9B369001956DF /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 6003F582195388D10070C39A /* Project object */;
@@ -857,13 +789,6 @@
 			remoteGlobalIDString = DE26D22D1F70398A004AE1D3;
 			remoteInfo = Auth_Sample;
 		};
-		DE3373971E73776F00881891 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 6003F582195388D10070C39A /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = DEB13A0A1E73507E00AC236D;
-			remoteInfo = Storage_Tests_iOS;
-		};
 		DE4A62E2214816BD00670B27 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 6003F582195388D10070C39A /* Project object */;
@@ -877,13 +802,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = DEAAD3941FBA11270053BF48;
 			remoteInfo = Core_Tests_tvOS;
-		};
-		DE545C851FBCA42C00C637AE /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 6003F582195388D10070C39A /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = DEAAD3F41FBA46AB0053BF48;
-			remoteInfo = Storage_Tests_tvOS;
 		};
 		DE545C871FBCA43200C637AE /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -1005,7 +923,6 @@
 
 /* Begin PBXFileReference section */
 		06121EBC1EC399C50008D70E /* Storage_IntegrationTests_iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Storage_IntegrationTests_iOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		06121ECA1EC39A0B0008D70E /* FIRStorageIntegrationTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRStorageIntegrationTests.m; sourceTree = "<group>"; };
 		0624F3E11EC0ECFA00E5940D /* Database_IntegrationTests_iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Database_IntegrationTests_iOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		063CB4471EBA7AE200038A59 /* FArraySortedDictionaryTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FArraySortedDictionaryTest.m; path = Database/Tests/Unit/FArraySortedDictionaryTest.m; sourceTree = SOURCE_ROOT; };
 		063CB4481EBA7AE200038A59 /* FCompoundHashTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FCompoundHashTest.m; path = Database/Tests/Unit/FCompoundHashTest.m; sourceTree = SOURCE_ROOT; };
@@ -1060,7 +977,6 @@
 		063CB48F1EBA7AEF00038A59 /* FTransactionTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FTransactionTest.m; path = Integration/FTransactionTest.m; sourceTree = "<group>"; };
 		063CB4901EBA7AEF00038A59 /* FTreeSortedDictionaryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FTreeSortedDictionaryTests.m; sourceTree = "<group>"; };
 		0672F2F11EBBA7D900818E87 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
-		069428801EC3B35A00F7BC69 /* 1mb.dat */ = {isa = PBXFileReference; lastKnownFileType = file; path = 1mb.dat; sourceTree = "<group>"; };
 		0697B1201EC13D8A00542174 /* Base64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Base64.h; sourceTree = "<group>"; };
 		0697B1211EC13D8A00542174 /* Base64.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Base64.m; sourceTree = "<group>"; };
 		405EEF4B2216518A00B08FF4 /* FIRAuthLifeCycleTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRAuthLifeCycleTests.m; sourceTree = "<group>"; };
@@ -1162,13 +1078,6 @@
 		D064E6A61ED9B1BF001956DF /* Core-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Core-Info.plist"; sourceTree = "<group>"; };
 		D064E6BF1ED9B31C001956DF /* Core_Tests_macOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Core_Tests_macOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0EDB2CD1EDA04F800B6C31B /* Storage_Example_macOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Storage_Example_macOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		D0EDB2D01EDA056A00B6C31B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		D0EDB2D11EDA056A00B6C31B /* FIRAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FIRAppDelegate.h; sourceTree = "<group>"; };
-		D0EDB2D21EDA056A00B6C31B /* FIRAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FIRAppDelegate.m; sourceTree = "<group>"; };
-		D0EDB2D31EDA056A00B6C31B /* FIRViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FIRViewController.h; sourceTree = "<group>"; };
-		D0EDB2D41EDA056A00B6C31B /* FIRViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FIRViewController.m; sourceTree = "<group>"; };
-		D0EDB2D51EDA056A00B6C31B /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		D0EDB2D61EDA056A00B6C31B /* Storage-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Storage-Info.plist"; sourceTree = "<group>"; };
 		D0EDB2F61EDA06CB00B6C31B /* Storage_Tests_macOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Storage_Tests_macOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0EDB3071EDA06D500B6C31B /* Storage_IntegrationTests_macOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Storage_IntegrationTests_macOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0FE8A171ED9C6D2003F6722 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = macOS/Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -1181,7 +1090,6 @@
 		D0FE8A2F1ED9C804003F6722 /* Database_Example_macOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Database_Example_macOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0FE8A621ED9C870003F6722 /* Database_Tests_macOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Database_Tests_macOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0FE8A8C1ED9C87B003F6722 /* Database_IntegrationTests_macOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Database_IntegrationTests_macOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		D5B2545FC99E33265C65CAA4 /* FIRStorageListTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRStorageListTests.m; sourceTree = "<group>"; };
 		D92C82C51F578DF000D5EAFF /* FIRGetProjectConfigResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRGetProjectConfigResponseTests.m; sourceTree = "<group>"; };
 		D92C82C61F578DF000D5EAFF /* FIRGetProjectConfigRequestTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRGetProjectConfigRequestTests.m; sourceTree = "<group>"; };
 		DE0E5BB51EA7D91C00FAA825 /* FIRAuthAppCredentialTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRAuthAppCredentialTests.m; sourceTree = "<group>"; };
@@ -1445,38 +1353,9 @@
 		DEAAD3D21FBA1F850053BF48 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		DEAAD3E11FBA46AA0053BF48 /* Storage_Example_tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Storage_Example_tvOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEAAD3F51FBA46AB0053BF48 /* Storage_Tests_tvOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Storage_Tests_tvOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		DEAAD4121FBA470A0053BF48 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
-		DEAAD4131FBA470A0053BF48 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		DEAAD4141FBA470A0053BF48 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		DEAAD4151FBA470A0053BF48 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		DEAAD4161FBA470A0053BF48 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		DEAAD4171FBA470A0053BF48 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
-		DEAAD4181FBA470A0053BF48 /* ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
-		DEAAD4191FBA470A0053BF48 /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
-		DEB139C11E734D9D00AC236D /* FIRStorageDeleteTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRStorageDeleteTests.m; sourceTree = "<group>"; };
-		DEB139C21E734D9D00AC236D /* FIRStorageGetMetadataTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRStorageGetMetadataTests.m; sourceTree = "<group>"; };
-		DEB139C31E734D9D00AC236D /* FIRStorageMetadataTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRStorageMetadataTests.m; sourceTree = "<group>"; };
-		DEB139C41E734D9D00AC236D /* FIRStoragePathTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRStoragePathTests.m; sourceTree = "<group>"; };
-		DEB139C51E734D9D00AC236D /* FIRStorageReferenceTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRStorageReferenceTests.m; sourceTree = "<group>"; };
-		DEB139C61E734D9D00AC236D /* FIRStorageTestHelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRStorageTestHelpers.h; sourceTree = "<group>"; };
-		DEB139C71E734D9D00AC236D /* FIRStorageTestHelpers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRStorageTestHelpers.m; sourceTree = "<group>"; };
-		DEB139C81E734D9D00AC236D /* FIRStorageTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRStorageTests.m; sourceTree = "<group>"; };
-		DEB139C91E734D9D00AC236D /* FIRStorageTokenAuthorizerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRStorageTokenAuthorizerTests.m; sourceTree = "<group>"; };
-		DEB139CA1E734D9D00AC236D /* FIRStorageUpdateMetadataTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRStorageUpdateMetadataTests.m; sourceTree = "<group>"; };
-		DEB139CB1E734D9D00AC236D /* FIRStorageUtilsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRStorageUtilsTests.m; sourceTree = "<group>"; };
-		DEB139CC1E734D9D00AC236D /* Tests-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Tests-Info.plist"; sourceTree = "<group>"; };
 		DEB13A081E73506A00AC236D /* Storage_Example_iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Storage_Example_iOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEB13A231E73507E00AC236D /* Storage_Tests_iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Storage_Tests_iOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEB61E781E7C542600C04B96 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
-		DEB61EBA1E7C5DBB00C04B96 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		DEB61EBC1E7C5DBB00C04B96 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		DEB61EBD1E7C5DBB00C04B96 /* FIRAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRAppDelegate.h; sourceTree = "<group>"; };
-		DEB61EBE1E7C5DBB00C04B96 /* FIRAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRAppDelegate.m; sourceTree = "<group>"; };
-		DEB61EBF1E7C5DBB00C04B96 /* FIRViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRViewController.h; sourceTree = "<group>"; };
-		DEB61EC01E7C5DBB00C04B96 /* FIRViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRViewController.m; sourceTree = "<group>"; };
-		DEB61EC11E7C5DBB00C04B96 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
-		DEB61EC31E7C5DBB00C04B96 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		DEB61EC41E7C5DBB00C04B96 /* Storage-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Storage-Info.plist"; sourceTree = "<group>"; };
 		DECE03991E9ECFF500164CA4 /* FIRPhoneAuthProviderTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRPhoneAuthProviderTests.m; sourceTree = "<group>"; };
 		DEDFF0131FD6135D00F7D466 /* DynamicLinks_Tests_iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DynamicLinks_Tests_iOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEDFF0371FD6143000F7D466 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
@@ -1518,7 +1397,6 @@
 		ED34CF4B20DC16DC000EA5D1 /* FIRTestComponents.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRTestComponents.m; sourceTree = "<group>"; };
 		ED34CF4C20DC16DD000EA5D1 /* FIRTestComponents.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRTestComponents.h; sourceTree = "<group>"; };
 		ED34CF4D20DC16DD000EA5D1 /* FIRComponentTypeTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRComponentTypeTest.m; sourceTree = "<group>"; };
-		ED981884211A2E4700EDEBF4 /* FIRStorageComponentTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRStorageComponentTests.m; sourceTree = "<group>"; };
 		EDD43AA320BF7C7B005EBB36 /* FIRAnalyticsConfigurationTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FIRAnalyticsConfigurationTest.m; sourceTree = "<group>"; };
 		EDD53E23211A442D00376BFF /* FIRAuthInteropFake.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FIRAuthInteropFake.h; path = Shared/FIRAuthInteropFake.h; sourceTree = "<group>"; };
 		EDD53E24211A442D00376BFF /* FIRAuthInteropFake.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAuthInteropFake.m; path = Shared/FIRAuthInteropFake.m; sourceTree = "<group>"; };
@@ -1860,34 +1738,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		06121EC81EC399E50008D70E /* Unit */ = {
-			isa = PBXGroup;
-			children = (
-				ED981884211A2E4700EDEBF4 /* FIRStorageComponentTests.m */,
-				DEB139C61E734D9D00AC236D /* FIRStorageTestHelpers.h */,
-				DEB139C11E734D9D00AC236D /* FIRStorageDeleteTests.m */,
-				DEB139C21E734D9D00AC236D /* FIRStorageGetMetadataTests.m */,
-				DEB139C31E734D9D00AC236D /* FIRStorageMetadataTests.m */,
-				DEB139C41E734D9D00AC236D /* FIRStoragePathTests.m */,
-				DEB139C51E734D9D00AC236D /* FIRStorageReferenceTests.m */,
-				DEB139C71E734D9D00AC236D /* FIRStorageTestHelpers.m */,
-				DEB139C81E734D9D00AC236D /* FIRStorageTests.m */,
-				DEB139C91E734D9D00AC236D /* FIRStorageTokenAuthorizerTests.m */,
-				DEB139CA1E734D9D00AC236D /* FIRStorageUpdateMetadataTests.m */,
-				DEB139CB1E734D9D00AC236D /* FIRStorageUtilsTests.m */,
-				D5B2545FC99E33265C65CAA4 /* FIRStorageListTests.m */,
-			);
-			path = Unit;
-			sourceTree = "<group>";
-		};
-		06121EC91EC39A020008D70E /* Integration */ = {
-			isa = PBXGroup;
-			children = (
-				06121ECA1EC39A0B0008D70E /* FIRStorageIntegrationTests.m */,
-			);
-			path = Integration;
-			sourceTree = "<group>";
-		};
 		063CB43C1EBA752300038A59 /* Integration */ = {
 			isa = PBXGroup;
 			children = (
@@ -1967,7 +1817,6 @@
 				DE958B9821F7D32200E6C1C5 /* InstanceID */,
 				DE9315B41E8738B70083EDBF /* Messaging */,
 				AFC8BAA01EC24B1600B8EEAE /* Shared */,
-				DEB139B31E734D9D00AC236D /* Storage */,
 				6003F58C195388D20070C39A /* Frameworks */,
 				6003F58B195388D20070C39A /* Products */,
 				D8BD83F806FF10D7C8C7B3C7 /* Pods */,
@@ -2127,35 +1976,6 @@
 				D064E6A31ED9B1BF001956DF /* Main.storyboard */,
 				D064E6A61ED9B1BF001956DF /* Core-Info.plist */,
 				D064E69C1ED9B1BF001956DF /* main.m */,
-			);
-			path = macOS;
-			sourceTree = "<group>";
-		};
-		D0EDB2BA1EDA041900B6C31B /* iOS */ = {
-			isa = PBXGroup;
-			children = (
-				DEB61EB91E7C5DBB00C04B96 /* LaunchScreen.storyboard */,
-				DEB61EBB1E7C5DBB00C04B96 /* Main.storyboard */,
-				DEB61EBD1E7C5DBB00C04B96 /* FIRAppDelegate.h */,
-				DEB61EBE1E7C5DBB00C04B96 /* FIRAppDelegate.m */,
-				DEB61EBF1E7C5DBB00C04B96 /* FIRViewController.h */,
-				DEB61EC01E7C5DBB00C04B96 /* FIRViewController.m */,
-				DEB61EC31E7C5DBB00C04B96 /* main.m */,
-				DEB61EC41E7C5DBB00C04B96 /* Storage-Info.plist */,
-			);
-			path = iOS;
-			sourceTree = "<group>";
-		};
-		D0EDB2BB1EDA041D00B6C31B /* macOS */ = {
-			isa = PBXGroup;
-			children = (
-				D0EDB2CF1EDA056A00B6C31B /* Main.storyboard */,
-				D0EDB2D11EDA056A00B6C31B /* FIRAppDelegate.h */,
-				D0EDB2D21EDA056A00B6C31B /* FIRAppDelegate.m */,
-				D0EDB2D31EDA056A00B6C31B /* FIRViewController.h */,
-				D0EDB2D41EDA056A00B6C31B /* FIRViewController.m */,
-				D0EDB2D51EDA056A00B6C31B /* main.m */,
-				D0EDB2D61EDA056A00B6C31B /* Storage-Info.plist */,
 			);
 			path = macOS;
 			sourceTree = "<group>";
@@ -2716,52 +2536,6 @@
 				DEAAD3BD1FBA1CD80053BF48 /* main.m */,
 			);
 			path = tvOS;
-			sourceTree = "<group>";
-		};
-		DEAAD4111FBA470A0053BF48 /* tvOS */ = {
-			isa = PBXGroup;
-			children = (
-				DEAAD4121FBA470A0053BF48 /* AppDelegate.h */,
-				DEAAD4131FBA470A0053BF48 /* AppDelegate.m */,
-				DEAAD4141FBA470A0053BF48 /* Assets.xcassets */,
-				DEAAD4151FBA470A0053BF48 /* Info.plist */,
-				DEAAD4161FBA470A0053BF48 /* main.m */,
-				DEAAD4171FBA470A0053BF48 /* Main.storyboard */,
-				DEAAD4181FBA470A0053BF48 /* ViewController.h */,
-				DEAAD4191FBA470A0053BF48 /* ViewController.m */,
-			);
-			path = tvOS;
-			sourceTree = "<group>";
-		};
-		DEB139B31E734D9D00AC236D /* Storage */ = {
-			isa = PBXGroup;
-			children = (
-				DEB61EB81E7C5DBB00C04B96 /* App */,
-				DEB139C01E734D9D00AC236D /* Tests */,
-			);
-			path = Storage;
-			sourceTree = "<group>";
-		};
-		DEB139C01E734D9D00AC236D /* Tests */ = {
-			isa = PBXGroup;
-			children = (
-				06121EC91EC39A020008D70E /* Integration */,
-				06121EC81EC399E50008D70E /* Unit */,
-				DEB139CC1E734D9D00AC236D /* Tests-Info.plist */,
-			);
-			path = Tests;
-			sourceTree = "<group>";
-		};
-		DEB61EB81E7C5DBB00C04B96 /* App */ = {
-			isa = PBXGroup;
-			children = (
-				DEAAD4111FBA470A0053BF48 /* tvOS */,
-				069428801EC3B35A00F7BC69 /* 1mb.dat */,
-				DEB61EC11E7C5DBB00C04B96 /* GoogleService-Info.plist */,
-				D0EDB2BA1EDA041900B6C31B /* iOS */,
-				D0EDB2BB1EDA041D00B6C31B /* macOS */,
-			);
-			path = App;
 			sourceTree = "<group>";
 		};
 		DEDFF0351FD6143000F7D466 /* DynamicLinks */ = {
@@ -4053,10 +3827,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D0EDB2DD1EDA058A00B6C31B /* 1mb.dat in Resources */,
-				D0EDB2DB1EDA058400B6C31B /* Main.storyboard in Resources */,
 				D0EDB2C51EDA04F800B6C31B /* Shared.xcassets in Resources */,
-				D0EDB2DC1EDA058700B6C31B /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4294,10 +4065,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DEAAD4201FBA47110053BF48 /* 1mb.dat in Resources */,
-				DEAAD4211FBA49D10053BF48 /* GoogleService-Info.plist in Resources */,
-				DEAAD41E1FBA470B0053BF48 /* Main.storyboard in Resources */,
-				DEAAD41B1FBA470B0053BF48 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4312,11 +4079,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				069428831EC3B38C00F7BC69 /* 1mb.dat in Resources */,
-				DEB61EC51E7C5DBB00C04B96 /* LaunchScreen.storyboard in Resources */,
 				AFAF36F91EC28C25004BDEE5 /* Shared.xcassets in Resources */,
-				DEB61EC61E7C5DBB00C04B96 /* Main.storyboard in Resources */,
-				DEB61EC91E7C5DBB00C04B96 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4352,7 +4115,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				06C24A061EC39BCB005208CA /* FIRStorageIntegrationTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4573,9 +4335,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D0EDB2D71EDA057800B6C31B /* FIRAppDelegate.m in Sources */,
-				D0EDB2D81EDA057800B6C31B /* FIRViewController.m in Sources */,
-				D0EDB2D91EDA057800B6C31B /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4583,20 +4342,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D0EDB2E31EDA06CB00B6C31B /* FIRStorageUtilsTests.m in Sources */,
-				D0EDB2E41EDA06CB00B6C31B /* FIRStorageTests.m in Sources */,
 				EDD53E26211A442D00376BFF /* FIRAuthInteropFake.m in Sources */,
-				D0EDB2E51EDA06CB00B6C31B /* FIRStorageGetMetadataTests.m in Sources */,
-				D0EDB2E61EDA06CB00B6C31B /* FIRStorageUpdateMetadataTests.m in Sources */,
-				D0EDB2E71EDA06CB00B6C31B /* FIRStorageDeleteTests.m in Sources */,
-				D0EDB2E81EDA06CB00B6C31B /* FIRStorageTestHelpers.m in Sources */,
-				D0EDB2E91EDA06CB00B6C31B /* FIRStorageMetadataTests.m in Sources */,
-				ED981886211A2E4800EDEBF4 /* FIRStorageComponentTests.m in Sources */,
 				EDD53E2B211B08A300376BFF /* FIRComponentTestUtilities.m in Sources */,
-				D0EDB2EA1EDA06CB00B6C31B /* FIRStorageTokenAuthorizerTests.m in Sources */,
-				D0EDB2EB1EDA06CB00B6C31B /* FIRStorageReferenceTests.m in Sources */,
-				D0EDB2EC1EDA06CB00B6C31B /* FIRStoragePathTests.m in Sources */,
-				D5B251C16CD531364AA90C58 /* FIRStorageListTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4604,7 +4351,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D0EDB2FD1EDA06D500B6C31B /* FIRStorageIntegrationTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5131,9 +4877,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DEAAD41F1FBA470B0053BF48 /* ViewController.m in Sources */,
-				DEAAD41D1FBA470B0053BF48 /* main.m in Sources */,
-				DEAAD41A1FBA470B0053BF48 /* AppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5141,20 +4884,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DEAAD4251FBA49ED0053BF48 /* FIRStoragePathTests.m in Sources */,
-				DEAAD42A1FBA49ED0053BF48 /* FIRStorageUpdateMetadataTests.m in Sources */,
 				EDD53E27211A442D00376BFF /* FIRAuthInteropFake.m in Sources */,
-				DEAAD4221FBA49ED0053BF48 /* FIRStorageDeleteTests.m in Sources */,
-				DEAAD4291FBA49ED0053BF48 /* FIRStorageTokenAuthorizerTests.m in Sources */,
-				DEAAD4231FBA49ED0053BF48 /* FIRStorageGetMetadataTests.m in Sources */,
-				DEAAD42B1FBA49ED0053BF48 /* FIRStorageUtilsTests.m in Sources */,
-				DEAAD4261FBA49ED0053BF48 /* FIRStorageReferenceTests.m in Sources */,
-				ED981887211A2E4800EDEBF4 /* FIRStorageComponentTests.m in Sources */,
 				EDD53E2C211B08A300376BFF /* FIRComponentTestUtilities.m in Sources */,
-				DEAAD4271FBA49ED0053BF48 /* FIRStorageTestHelpers.m in Sources */,
-				DEAAD4281FBA49ED0053BF48 /* FIRStorageTests.m in Sources */,
-				DEAAD4241FBA49ED0053BF48 /* FIRStorageMetadataTests.m in Sources */,
-				D5B253A8C57176FF8C368F4E /* FIRStorageListTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5162,9 +4893,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DEB61EC81E7C5DBB00C04B96 /* FIRViewController.m in Sources */,
-				DEB61ECB1E7C5DBB00C04B96 /* main.m in Sources */,
-				DEB61EC71E7C5DBB00C04B96 /* FIRAppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5172,20 +4900,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DEB13A301E73518B00AC236D /* FIRStorageUtilsTests.m in Sources */,
-				DEB13A2D1E73518B00AC236D /* FIRStorageTests.m in Sources */,
 				EDD53E25211A442D00376BFF /* FIRAuthInteropFake.m in Sources */,
-				DEB13A281E73518B00AC236D /* FIRStorageGetMetadataTests.m in Sources */,
-				DEB13A2F1E73518B00AC236D /* FIRStorageUpdateMetadataTests.m in Sources */,
-				DEB13A271E73518B00AC236D /* FIRStorageDeleteTests.m in Sources */,
-				DEB13A2C1E73518B00AC236D /* FIRStorageTestHelpers.m in Sources */,
-				DEB13A291E73518B00AC236D /* FIRStorageMetadataTests.m in Sources */,
-				ED981885211A2E4800EDEBF4 /* FIRStorageComponentTests.m in Sources */,
 				EDD53E2A211B08A300376BFF /* FIRComponentTestUtilities.m in Sources */,
-				DEB13A2E1E73518B00AC236D /* FIRStorageTokenAuthorizerTests.m in Sources */,
-				DEB13A2B1E73518B00AC236D /* FIRStorageReferenceTests.m in Sources */,
-				DEB13A2A1E73518B00AC236D /* FIRStoragePathTests.m in Sources */,
-				D5B2514347161203F929FA47 /* FIRStorageListTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5270,11 +4986,6 @@
 			target = D0FE8A311ED9C86F003F6722 /* Database_Tests_macOS */;
 			targetProxy = D054E9C81EDA095300BE996B /* PBXContainerItemProxy */;
 		};
-		D054E9CD1EDA097200BE996B /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = D0EDB2DE1EDA06CB00B6C31B /* Storage_Tests_macOS */;
-			targetProxy = D054E9CC1EDA097200BE996B /* PBXContainerItemProxy */;
-		};
 		D064E6C21ED9B369001956DF /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = D064E6951ED9B1BF001956DF /* Core_Example_macOS */;
@@ -5330,11 +5041,6 @@
 			target = DE26D22D1F70398A004AE1D3 /* Auth_Sample */;
 			targetProxy = DE26D2721F705C35004AE1D3 /* PBXContainerItemProxy */;
 		};
-		DE3373981E73776F00881891 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = DEB13A0A1E73507E00AC236D /* Storage_Tests_iOS */;
-			targetProxy = DE3373971E73776F00881891 /* PBXContainerItemProxy */;
-		};
 		DE4A62E3214816BD00670B27 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = DE17A39921472F3A002A15ED /* FDLBuilderTestAppObjC */;
@@ -5344,11 +5050,6 @@
 			isa = PBXTargetDependency;
 			target = DEAAD3941FBA11270053BF48 /* Core_Tests_tvOS */;
 			targetProxy = DE545C831FBCA41C00C637AE /* PBXContainerItemProxy */;
-		};
-		DE545C861FBCA42C00C637AE /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = DEAAD3F41FBA46AB0053BF48 /* Storage_Tests_tvOS */;
-			targetProxy = DE545C851FBCA42C00C637AE /* PBXContainerItemProxy */;
 		};
 		DE545C881FBCA43200C637AE /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -5445,14 +5146,6 @@
 			name = Main.storyboard;
 			sourceTree = "<group>";
 		};
-		D0EDB2CF1EDA056A00B6C31B /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				D0EDB2D01EDA056A00B6C31B /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
 		D0FE8A161ED9C6D2003F6722 /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -5545,22 +5238,6 @@
 			isa = PBXVariantGroup;
 			children = (
 				DE958BA021F7D32200E6C1C5 /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
-		DEB61EB91E7C5DBB00C04B96 /* LaunchScreen.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				DEB61EBA1E7C5DBB00C04B96 /* Base */,
-			);
-			name = LaunchScreen.storyboard;
-			sourceTree = "<group>";
-		};
-		DEB61EBB1E7C5DBB00C04B96 /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				DEB61EBC1E7C5DBB00C04B96 /* Base */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";

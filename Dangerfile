@@ -87,7 +87,7 @@ has_license_changes = didModify(["LICENSE"])
 @has_instanceid_changes = hasChangesIn("Firebase/InstanceID/")
 @has_messaging_changes = hasChangesIn("Firebase/Messaging/")
 @has_remoteconfig_changes = hasChangesIn("FirebaseRemoteConfig/")
-@has_storage_changes = hasChangesIn("Firebase/Storage/")
+@has_storage_changes = hasChangesIn("FirebaseStorage/")
 
 @has_gdt_changes = hasChangesIn("GoogleDataTransport/") ||
   hasChangesIn("GoogleDataTransportCCTSupport")
