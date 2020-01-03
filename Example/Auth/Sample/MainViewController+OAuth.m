@@ -16,6 +16,8 @@
 
 #import "MainViewController+OAuth.h"
 
+#import <AuthenticationServices/AuthenticationServices.h>
+
 #import "AppManager.h"
 #import "FIROAuthProvider.h"
 #import "MainViewController+Internal.h"
