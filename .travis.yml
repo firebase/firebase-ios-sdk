@@ -112,8 +112,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/test_quickstart.sh Authentication
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseAuth.podspec --platforms=tvos
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseAuth.podspec --platforms=macos
-        # Uncomment to reenable ApiTests when #4565 is fixed.
-        #- travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
+        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
 
     - stage: test
       osx_image: xcode10.3
