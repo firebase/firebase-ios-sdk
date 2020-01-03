@@ -121,6 +121,20 @@ API_AVAILABLE(ios(13.0), tvos(13.0))
   }
 }
 
+- (void)testNotificationCenterRegister {
+  if (@available(iOS 13, tvOS 13, *)) {
+    [GULSceneDelegateSwizzler proxyOriginalSceneDelegate];
+
+    XCTNSNotificationExpectation *expectation =
+        [[XCTNSNotificationExpectation alloc] initWithName:UISceneWillConnectNotification];
+
+    [[NSNotificationCenter defaultCenter]
+        postNotification:[NSNotification notificationWithName:UISceneWillConnectNotification
+                                                       object:nil]];
+    [self waitForExpectations:@[ expectation ] timeout:1];
+  }
+}
+
 @end
 
 #endif  // UISCENE_SUPPORTED
