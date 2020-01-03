@@ -1,3 +1,6 @@
+# Unreleased
+  [changed] Directory structure reorganization without functional changes.
+
 # v6.4.0 -- M61
 - [added] Updated the binary distributions to include arm64e slices. See
   https://developer.apple.com/documentation/security/preparing_your_app_to_work_with_pointer_authentication.
