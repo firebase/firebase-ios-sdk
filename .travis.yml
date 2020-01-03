@@ -31,3 +31,4 @@ jobs:
 branches:
   only:
     - master
+    - pb-zip-ci
