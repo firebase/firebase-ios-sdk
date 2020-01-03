@@ -121,7 +121,7 @@ const char* const kDatabaseId = "d";
 
 // These helper functions are just shorter aliases to reduce verbosity.
 ByteString ToBytes(const std::string& str) {
-  return ByteString{Serializer::EncodeString(str)};
+  return ByteString::Take(Serializer::EncodeString(str));
 }
 
 std::string FromBytes(pb_bytes_array_t*&& ptr) {
@@ -1516,6 +1516,8 @@ TEST_F(SerializerTest, EncodesListenRequestLabels) {
     for (auto& label_entry : result) {
       result_in_map[serializer.DecodeString(label_entry.key)] =
           serializer.DecodeString(label_entry.value);
+      pb_release(google_firestore_v1_ListenRequest_LabelsEntry_fields,
+                 &label_entry);
     }
 
     EXPECT_EQ(result_in_map, p.second);
