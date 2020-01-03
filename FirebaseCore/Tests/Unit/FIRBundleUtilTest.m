@@ -14,8 +14,8 @@
 
 #import "FirebaseCore/Tests/Unit/FIRTestCase.h"
 
-#import "FirebaseCore/Sources/FIRBundleUtil.h"
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
+#import "FirebaseCore/Sources/FIRBundleUtil.h"
 
 static NSString *const kResultPath = @"resultPath";
 static NSString *const kResourceName = @"resourceName";

@@ -24,16 +24,16 @@
 
 #import <FirebaseCore/FIRApp.h>
 
+#import "FirebaseCore/Sources/FIRBundleUtil.h"
+#import "FirebaseCore/Sources/FIRVersion.h"
 #import "FirebaseCore/Sources/Private/FIRAnalyticsConfiguration.h"
 #import "FirebaseCore/Sources/Private/FIRAppInternal.h"
-#import "FirebaseCore/Sources/FIRBundleUtil.h"
 #import "FirebaseCore/Sources/Private/FIRComponentContainerInternal.h"
 #import "FirebaseCore/Sources/Private/FIRConfigurationInternal.h"
 #import "FirebaseCore/Sources/Private/FIRCoreDiagnosticsConnector.h"
 #import "FirebaseCore/Sources/Private/FIRLibrary.h"
 #import "FirebaseCore/Sources/Private/FIRLogger.h"
 #import "FirebaseCore/Sources/Private/FIROptionsInternal.h"
-#import "FirebaseCore/Sources/FIRVersion.h"
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 
