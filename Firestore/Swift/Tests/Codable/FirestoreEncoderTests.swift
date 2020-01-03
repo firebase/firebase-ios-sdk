@@ -229,7 +229,7 @@ class FirestoreEncoderTests: XCTestCase {
       "s": "abc",
       "d": 123,
       "f": -4,
-      "l": 1_234_567_890_123,
+      "l": Int64(1_234_567_890_123),
       "i": -4444,
       "b": false,
       "sh": 123,
