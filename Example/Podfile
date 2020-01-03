@@ -112,21 +112,6 @@ target 'Messaging_Sample_iOS' do
   pod 'FirebaseMessaging' , :path => '../'
 end
 
-target 'Storage_Example_iOS' do
-  platform :ios, '8.0'
-
-  pod 'FirebaseStorage', :path => '../'
-
-  target 'Storage_Tests_iOS' do
-    inherit! :search_paths
-    pod 'OCMock', '~> 3.4.0'
-  end
-
-  target 'Storage_IntegrationTests_iOS' do
-    inherit! :search_paths
-  end
-end
-
 target 'Auth_Sample' do
   platform :ios, '8.0'
   pod 'FirebaseAuth', :path => '../'

@@ -41,6 +41,15 @@
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES">
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "DE545C7F1FBCA3F000C637AE"
+            BuildableName = "AllUnitTests_tvOS"
+            BlueprintName = "AllUnitTests_tvOS"
+            ReferencedContainer = "container:Firebase.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
       <Testables>
          <TestableReference
             skipped = "NO">
@@ -59,16 +68,6 @@
                BlueprintIdentifier = "DE1EC27E1FBA5E63007D18D8"
                BuildableName = "Database_Tests_tvOS.xctest"
                BlueprintName = "Database_Tests_tvOS"
-               ReferencedContainer = "container:Firebase.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "DEAAD3F41FBA46AB0053BF48"
-               BuildableName = "Storage_Tests_tvOS.xctest"
-               BlueprintName = "Storage_Tests_tvOS"
                ReferencedContainer = "container:Firebase.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -103,17 +102,6 @@
             </BuildableReference>
          </TestableReference>
       </Testables>
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "DE545C7F1FBCA3F000C637AE"
-            BuildableName = "AllUnitTests_tvOS"
-            BlueprintName = "AllUnitTests_tvOS"
-            ReferencedContainer = "container:Firebase.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
-      <AdditionalOptions>
-      </AdditionalOptions>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
@@ -134,8 +122,6 @@
             ReferencedContainer = "container:Firebase.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
-      <AdditionalOptions>
-      </AdditionalOptions>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
