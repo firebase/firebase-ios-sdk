@@ -246,14 +246,16 @@ fi
 
 # If there are changes to the Firestore project, ensure they're ordered
 # correctly to minimize conflicts.
-if ! git diff --quiet "${START_SHA}" -- Firestore; then
-  sync_project_cmd=("${top_dir}/scripts/sync_project.rb")
-  if [[ "${TEST_ONLY}" == true ]]; then
-    sync_project_cmd+=(--test-only)
-  fi
-  "${sync_project_cmd[@]}"
-  if ! git diff --quiet; then
-    maybe_commit "sync_project.rb generated changes"
+if [ -z "${GITHUB_WORKFLOW-}" ]; then
+  if ! git diff --quiet "${START_SHA}" -- Firestore; then
+    sync_project_cmd=("${top_dir}/scripts/sync_project.rb")
+    if [[ "${TEST_ONLY}" == true ]]; then
+      sync_project_cmd+=(--test-only)
+    fi
+    "${sync_project_cmd[@]}"
+    if ! git diff --quiet; then
+      maybe_commit "sync_project.rb generated changes"
+    fi
   fi
 fi
 
