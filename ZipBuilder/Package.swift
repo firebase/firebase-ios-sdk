@@ -26,7 +26,7 @@ let package = Package(
     .executable(name: "UpdateFirebasePod", targets: ["UpdateFirebasePod"]),
   ],
   dependencies: [
-    .package(url: "https://github.com/apple/swift-protobuf.git", .exact("1.2.0")),
+    .package(url: "https://github.com/apple/swift-protobuf.git", .exact("1.7.0")),
   ],
   targets: [
     .target(
