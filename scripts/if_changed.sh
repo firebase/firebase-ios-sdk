@@ -58,16 +58,6 @@ else
 'FirebaseInstallations|FirebaseInstallations.podspec)'
       ;;
 
-    Firebase-*)
-      check_changes '^(Firebase/Auth|Firebase/Core|Firebase/Database|Firebase/DynamicLinks|'\
-'Firebase/Messaging|FirebaseStorage|GoogleUtilities|Interop|Example|'\
-'FirebaseAnalyticsIntop.podspec|FirebaseAuth.podspec|FirebaseAuthInterop.podspec|'\
-'FirebaseCore.podspec|FirebaseCoreDiagnostics.podspec|FirebaseCoreDiagnosticsInterop.podspec|'\
-'FirebaseDatabase.podspec|FirebaseDynamicLinks.podspec|FirebaseMessaging.podspec|'\
-'FirebaseStorage.podspec|Firebase/InstanceID|FirebaseInstanceID.podspec|'\
-'FirebaseInstallations|FirebaseInstallations.podspec)'
-      ;;
-
     FirebasePod-*)
       check_changes '^(CoreOnly|Firebase.podspec)'
       ;;
