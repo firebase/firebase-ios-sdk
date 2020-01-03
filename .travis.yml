@@ -140,6 +140,9 @@ jobs:
     - stage: test
       env:
         - PROJECT=InstanceID METHOD=pod-lib-lint
+        - FIR_IID_INTEGRATION_TESTS_REQUIRED=$(if [[ "$TRAVIS_PULL_REQUEST" == "false" || "$TRAVIS_PULL_REQUEST_SLUG" == "$TRAVIS_REPO_SLUG" ]]; then echo "1"; else echo "0"; fi)
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=ios
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=tvos
@@ -149,6 +152,9 @@ jobs:
       osx_image: xcode10.3
       env:
         - PROJECT=InstanceID METHOD=pod-lib-lint
+        - FIR_IID_INTEGRATION_TESTS_REQUIRED=$(if [[ "$TRAVIS_PULL_REQUEST" == "false" || "$TRAVIS_PULL_REQUEST_SLUG" == "$TRAVIS_REPO_SLUG" ]]; then echo "1"; else echo "0"; fi)
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=ios
 
@@ -156,6 +162,9 @@ jobs:
       if: type = cron
       env:
         - PROJECT=InstanceIDCron METHOD=pod-lib-lint
+        - FIR_IID_INTEGRATION_TESTS_REQUIRED=$(if [[ "$TRAVIS_PULL_REQUEST" == "false" || "$TRAVIS_PULL_REQUEST_SLUG" == "$TRAVIS_REPO_SLUG" ]]; then echo "1"; else echo "0"; fi)
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=ios --use-libraries
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=tvos --use-libraries
