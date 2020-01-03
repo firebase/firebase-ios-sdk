@@ -17,8 +17,9 @@
 #ifndef FIRLibrary_h
 #define FIRLibrary_h
 
-#import <FirebaseCore/FIRComponent.h>
 #import <Foundation/Foundation.h>
+
+#import <FirebaseCore/FIRComponent.h>
 
 @class FIRApp;
 
