@@ -321,6 +321,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (ASAuthorizationAppleIDRequest *)appleIDRequestWithState:(NSString *)state API_AVAILABLE(ios(13.0)) {
   ASAuthorizationAppleIDRequest *request = [[[ASAuthorizationAppleIDProvider alloc] init] createRequest];
   request.requestedScopes = @[ASAuthorizationScopeEmail, ASAuthorizationScopeFullName];
+  request.nonce = @"REPLACE_ME_WITH_YOUR_NONCE";
   request.state = state;
   return request;
 }
@@ -363,6 +364,7 @@ NS_ASSUME_NONNULL_BEGIN
   NSString *idToken = [NSString stringWithUTF8String:[appleIDCredential.identityToken bytes]];
   FIROAuthCredential *credential = [FIROAuthProvider credentialWithProviderID:@"apple.com"
                                                                       IDToken:idToken
+                                                                     rawNonce:@"REPLACE_ME_WITH_YOUR_RAW_NONCE"
                                                                   accessToken:nil];
 
   if ([appleIDCredential.state isEqualToString:@"signIn"]) {
