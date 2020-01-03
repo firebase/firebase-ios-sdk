@@ -80,10 +80,8 @@ class ByteString : public util::Comparable<ByteString> {
 
   ~ByteString();
 
-  ByteString& operator=(ByteString other) {
-    swap(*this, other);
-    return *this;
-  }
+  ByteString& operator=(const ByteString& other);
+  ByteString& operator=(ByteString&& other);
 
   friend void swap(ByteString& lhs, ByteString& rhs) noexcept;
 
