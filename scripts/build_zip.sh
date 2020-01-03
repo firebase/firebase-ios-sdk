@@ -14,4 +14,4 @@
 REPO=`pwd`
 cd ZipBuilder
 swift run ReleasePackager -keepBuildArtifacts true -updatePodRepo false \
-  -templateDir "${REPO}"/ZipBuilder/Template -localPodspecPath "${REPO}"
+  -templateDir "${REPO}"/ZipBuilder/Template -localPodspecPath "${REPO}" -archs arm64
