@@ -240,9 +240,16 @@ void GrpcStream::FastFinishCompletionsBlocking() {
     completion->Cancel();
   }
 
+  bool queue_shutting_down = worker_queue_->is_shutting_down();
+
   for (auto completion : completions_) {
     // This is blocking.
     completion->WaitUntilOffQueue();
+
+    // If the queue is shutting down it won't allow any completions to fire.
+    if (queue_shutting_down) {
+      delete completion;
+    }
   }
   completions_.clear();
 }

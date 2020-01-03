@@ -41,7 +41,7 @@ void GrpcCompletion::WaitUntilOffQueue() {
   worker_queue_->VerifyIsCurrentQueue();
 
   EnsureValidFuture();
-  return off_queue_future_.wait();
+  off_queue_future_.wait();
 }
 
 std::future_status GrpcCompletion::WaitUntilOffQueue(
