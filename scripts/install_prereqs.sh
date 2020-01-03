@@ -63,11 +63,6 @@ if [[ ! -z $QUICKSTART ]]; then
 fi
 
 case "$PROJECT-$PLATFORM-$METHOD" in
-  Firebase-iOS-xcodebuild)
-    gem install xcpretty
-    bundle exec pod install --project-directory=Example --repo-update
-    install_secrets
-    ;;
 
   FirebasePod-iOS-xcodebuild)
     gem install xcpretty
