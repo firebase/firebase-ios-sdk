@@ -26,7 +26,7 @@ jobs:
     - stage: test
       osx_image: xcode11 # Xcode 11.0 for zip builder
       script:
-        - travis_wait 30 ./scripts/build_zip.sh
+        - travis_wait 45 ./scripts/build_zip.sh
 
 branches:
   only:
