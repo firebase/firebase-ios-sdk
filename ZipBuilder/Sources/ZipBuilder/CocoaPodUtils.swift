@@ -336,8 +336,8 @@ enum CocoaPodUtils {
       let podspecs = try! FileManager.default.contentsOfDirectory(atPath: localURL.path)
       for podspec in podspecs {
         if (podspec == "FirebaseInstanceID.podspec" ||
-            podspec == "FirebaseInstallations.podspec") ||
-           podspec.starts(with: "Google"), podspec.hasSuffix(".podspec") {
+          podspec == "FirebaseInstallations.podspec") ||
+          podspec.starts(with: "Google"), podspec.hasSuffix(".podspec") {
           let podName = podspec.replacingOccurrences(of: ".podspec", with: "")
           podfile += "  pod '\(podName)', :path => '\(localURL.path)/\(podspec)'\n"
         }
