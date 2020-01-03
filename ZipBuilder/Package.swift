@@ -26,6 +26,8 @@ let package = Package(
     .executable(name: "UpdateFirebasePod", targets: ["UpdateFirebasePod"]),
   ],
   dependencies: [
+    // Keep the generated protos in sync with the version below.
+    // See https://github.com/firebase/firebase-ios-sdk/tree/master/ZipBuilder#updating-protobuf-generated-swift-files.
     .package(url: "https://github.com/apple/swift-protobuf.git", .exact("1.7.0")),
   ],
   targets: [
