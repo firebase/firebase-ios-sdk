@@ -45,8 +45,8 @@
 
 - (void)testExample {
   [_segmentation setCustomInstallationID:@"test-custom-id"
-                              completion:^(NSError *error) {
-                                
+                              completion:^(NSError *error){
+
                               }];
 }
 
