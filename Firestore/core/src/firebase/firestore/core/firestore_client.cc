@@ -55,6 +55,7 @@ namespace core {
 
 using api::DocumentReference;
 using api::DocumentSnapshot;
+using api::DocumentSnapshotListener;
 using api::ListenerRegistration;
 using api::QuerySnapshot;
 using api::QuerySnapshotListener;
@@ -349,7 +350,7 @@ void FirestoreClient::RemoveListener(
 }
 
 void FirestoreClient::GetDocumentFromLocalCache(
-    const DocumentReference& doc, DocumentSnapshot::Listener&& callback) {
+    const DocumentReference& doc, DocumentSnapshotListener&& callback) {
   VerifyNotTerminated();
 
   // TODO(c++14): move `callback` into lambda.

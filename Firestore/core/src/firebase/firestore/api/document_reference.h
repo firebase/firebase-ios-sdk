@@ -80,10 +80,10 @@ class DocumentReference {
 
   void DeleteDocument(util::StatusCallback callback);
 
-  void GetDocument(Source source, DocumentSnapshot::Listener&& callback);
+  void GetDocument(Source source, DocumentSnapshotListener&& callback);
 
   std::unique_ptr<ListenerRegistration> AddSnapshotListener(
-      core::ListenOptions options, DocumentSnapshot::Listener&& listener);
+      core::ListenOptions options, DocumentSnapshotListener&& listener);
 
  private:
   std::shared_ptr<Firestore> firestore_;

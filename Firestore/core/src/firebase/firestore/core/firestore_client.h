@@ -123,7 +123,7 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
    * doesn't exist, an error will be sent to the callback.
    */
   void GetDocumentFromLocalCache(const api::DocumentReference& doc,
-                                 api::DocumentSnapshot::Listener&& callback);
+                                 api::DocumentSnapshotListener&& callback);
 
   /**
    * Retrieves a (possibly empty) set of documents from the cache via the
