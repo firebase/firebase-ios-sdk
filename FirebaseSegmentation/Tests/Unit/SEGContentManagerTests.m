@@ -16,12 +16,14 @@
 
 #import "SEGContentManager.h"
 #import "SEGNetworkManager.h"
+#import "SEGDatabaseManager.h"
 
+#import <FirebaseCore/FirebaseCore.h>
 #import <FirebaseInstanceID/FIRInstanceID.h>
 #import <OCMock/OCMock.h>
 
 @interface SEGContentManager (ForTest)
-- (instancetype)initWithFIROptions:(FIROptions *)options;
+- (instancetype)initWithDatabaseManager:databaseManager networkManager:networkManager;
 @end
 
 @interface FIRInstanceIDResult (ForTest)
@@ -41,6 +43,9 @@
 @implementation SEGContentManagerTests
 
 - (void)setUp {
+
+  // Setup FIRApp.
+  XCTAssertNoThrow([FIRApp configureWithOptions:[self FIRAppOptions]]);
   FIRInstanceID *instanceIDMock = OCMPartialMock([FIRInstanceID instanceIDForTests]);
   FIRInstanceIDResult *result = [[FIRInstanceIDResult alloc] init];
   result.instanceID = @"test-instance-id";
@@ -60,7 +65,7 @@
                                                   invokeBlockWithArgs:@YES, [NSNull null], nil])]);
 
   // Initialize the content manager.
-  _contentManager = [[SEGContentManager alloc] initWithFIROptions:options];
+  _contentManager = [[SEGContentManager alloc] initWithDatabaseManager:[SEGDatabaseManager sharedInstance] networkManager:networkManagerMock];
 }
 - (void)tearDown {
   // Put teardown code here. This method is called after the invocation of each test method in the
@@ -82,4 +87,13 @@
   [self waitForExpectationsWithTimeout:10 handler:nil];
 }
 
+#pragma mark private
+
+- (FIROptions *)FIRAppOptions {
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:@"1:123:ios:123abc"
+                                                    GCMSenderID:@"correct_gcm_sender_id"];
+  options.APIKey = @"correct_api_key";
+  options.projectID = @"abc-xyz-123";
+  return options;
+}
 @end

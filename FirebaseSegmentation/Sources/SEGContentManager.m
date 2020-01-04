@@ -36,19 +36,19 @@
   static dispatch_once_t onceToken;
   static SEGContentManager *sharedInstance;
   dispatch_once(&onceToken, ^{
-    sharedInstance = [[SEGContentManager alloc] initWithFIROptions:options];
+    sharedInstance = [[SEGContentManager alloc] initWithDatabaseManager:[SEGDatabaseManager sharedInstance] networkManager:[[SEGNetworkManager alloc] initWithFIROptions:options]];
   });
   return sharedInstance;
 }
 
-- (instancetype)initWithFIROptions:(FIROptions *)options {
+- (instancetype)initWithDatabaseManager:databaseManager networkManager:networkManager {
   self = [super init];
   if (self) {
     // Initialize the database manager.
-    _databaseManager = [SEGDatabaseManager sharedInstance];
+    _databaseManager = databaseManager;
 
     // Initialize the network manager.
-    _networkManager = [[SEGNetworkManager alloc] initWithFIROptions:options];
+    _networkManager = networkManager;
 
     NSAssert(_databaseManager != nil, @"Segmentation database could not be initialized");
 
