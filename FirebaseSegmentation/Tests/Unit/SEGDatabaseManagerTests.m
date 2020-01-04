@@ -16,7 +16,7 @@
 
 #import "SEGDatabaseManager.h"
 
-#import <OCMock/OCmock.h>
+#import <OCMock/OCMock.h>
 
 @interface SEGDatabaseManager (Test)
 - (NSString *)pathForSegmentationDatabase;

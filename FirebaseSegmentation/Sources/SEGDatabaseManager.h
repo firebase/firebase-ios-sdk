@@ -19,7 +19,7 @@
 /// Persist config data in sqlite database on device. Managing data read/write from/to database.
 @interface SEGDatabaseManager : NSObject
 /// Shared Singleton Instance
-+ (instancetype)sharedInstance;
++ (_Nonnull instancetype)sharedInstance;
 
 /// Open the database.
 - (void)createOrOpenDatabaseWithCompletion:(nullable SEGRequestCompletion)completionHandler;

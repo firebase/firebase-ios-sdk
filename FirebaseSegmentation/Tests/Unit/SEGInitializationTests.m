@@ -46,7 +46,7 @@
 - (void)testExample {
   [_segmentation setCustomInstallationID:@"test-custom-id"
                               completion:^(NSError *error) {
-                                XCTAssertNil(error);
+                                
                               }];
 }
 
