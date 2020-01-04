@@ -69,7 +69,7 @@ size_t Query::Hash() const {
   return util::Hash(firestore_.get(), query());
 }
 
-void Query::GetDocuments(Source source, QuerySnapshot::Listener&& callback) {
+void Query::GetDocuments(Source source, QuerySnapshotListener&& callback) {
   ValidateHasExplicitOrderByForLimitToLast();
   if (source == Source::Cache) {
     firestore_->client()->GetDocumentsFromLocalCache(*this,
@@ -84,7 +84,7 @@ void Query::GetDocuments(Source source, QuerySnapshot::Listener&& callback) {
 
   class ListenOnce : public EventListener<QuerySnapshot> {
    public:
-    ListenOnce(Source source, QuerySnapshot::Listener&& listener)
+    ListenOnce(Source source, QuerySnapshotListener&& listener)
         : source_(source), listener_(std::move(listener)) {
     }
 
@@ -119,7 +119,7 @@ void Query::GetDocuments(Source source, QuerySnapshot::Listener&& callback) {
 
    private:
     Source source_;
-    QuerySnapshot::Listener listener_;
+    QuerySnapshotListener listener_;
 
     std::promise<std::unique_ptr<ListenerRegistration>> registration_promise_;
   };
@@ -134,12 +134,12 @@ void Query::GetDocuments(Source source, QuerySnapshot::Listener&& callback) {
 }
 
 std::unique_ptr<ListenerRegistration> Query::AddSnapshotListener(
-    ListenOptions options, QuerySnapshot::Listener&& user_listener) {
+    ListenOptions options, QuerySnapshotListener&& user_listener) {
   ValidateHasExplicitOrderByForLimitToLast();
   // Convert from ViewSnapshots to QuerySnapshots.
   class Converter : public EventListener<ViewSnapshot> {
    public:
-    Converter(Query* parent, QuerySnapshot::Listener&& user_listener)
+    Converter(Query* parent, QuerySnapshotListener&& user_listener)
         : firestore_(parent->firestore()),
           query_(parent->query()),
           user_listener_(std::move(user_listener)) {
@@ -164,7 +164,7 @@ std::unique_ptr<ListenerRegistration> Query::AddSnapshotListener(
    private:
     std::shared_ptr<Firestore> firestore_;
     core::Query query_;
-    QuerySnapshot::Listener user_listener_;
+    QuerySnapshotListener user_listener_;
   };
   auto view_listener =
       absl::make_unique<Converter>(this, std::move(user_listener));

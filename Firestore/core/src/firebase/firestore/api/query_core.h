@@ -66,7 +66,7 @@ class Query {
    * @param callback a callback to execute once the documents have been
    *     successfully read.
    */
-  void GetDocuments(Source source, QuerySnapshot::Listener&& callback);
+  void GetDocuments(Source source, QuerySnapshotListener&& callback);
 
   /**
    * Attaches a listener for QuerySnapshot events.
@@ -78,7 +78,7 @@ class Query {
    * @return A ListenerRegistration that can be used to remove this listener.
    */
   std::unique_ptr<ListenerRegistration> AddSnapshotListener(
-      core::ListenOptions options, QuerySnapshot::Listener&& listener);
+      core::ListenOptions options, QuerySnapshotListener&& listener);
 
   /**
    * Creates and returns a new `Query` with the additional filter that documents

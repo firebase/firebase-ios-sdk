@@ -40,8 +40,6 @@ class Query;
  */
 class QuerySnapshot {
  public:
-  using Listener = std::unique_ptr<core::EventListener<QuerySnapshot>>;
-
   QuerySnapshot(std::shared_ptr<Firestore> firestore,
                 core::Query query,
                 core::ViewSnapshot&& snapshot,
@@ -96,6 +94,9 @@ class QuerySnapshot {
   core::ViewSnapshot snapshot_;
   SnapshotMetadata metadata_;
 };
+
+using QuerySnapshotListener =
+    std::unique_ptr<core::EventListener<QuerySnapshot>>;
 
 }  // namespace api
 }  // namespace firestore

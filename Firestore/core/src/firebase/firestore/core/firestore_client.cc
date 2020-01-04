@@ -20,6 +20,8 @@
 #include <memory>
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/api/query_core.h"
+#include "Firestore/core/src/firebase/firestore/api/query_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/api/settings.h"
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
@@ -55,6 +57,7 @@ using api::DocumentReference;
 using api::DocumentSnapshot;
 using api::ListenerRegistration;
 using api::QuerySnapshot;
+using api::QuerySnapshotListener;
 using api::Settings;
 using api::SnapshotMetadata;
 using auth::CredentialsProvider;
@@ -385,7 +388,7 @@ void FirestoreClient::GetDocumentFromLocalCache(
 }
 
 void FirestoreClient::GetDocumentsFromLocalCache(
-    const api::Query& query, QuerySnapshot::Listener&& callback) {
+    const api::Query& query, QuerySnapshotListener&& callback) {
   VerifyNotTerminated();
 
   // TODO(c++14): move `callback` into lambda.

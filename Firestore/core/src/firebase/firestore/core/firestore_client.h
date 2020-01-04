@@ -130,7 +130,7 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
    * indicated callback.
    */
   void GetDocumentsFromLocalCache(const api::Query& query,
-                                  api::QuerySnapshot::Listener&& callback);
+                                  api::QuerySnapshotListener&& callback);
 
   /**
    * Write mutations. callback will be notified when it's written to the
