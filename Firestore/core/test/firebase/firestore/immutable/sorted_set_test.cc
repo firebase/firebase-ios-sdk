@@ -94,21 +94,6 @@ TEST(SortedSetTest, IteratorsAreDefaultConstructible) {
       "is default constructible");
 }
 
-TEST(SortedSetTest, CanBeConstructedFromSortedMap) {
-  using Map = SortedMap<int, int>;
-
-  Map map = Map{}.insert(1, 2).insert(3, 4);
-  auto set = MakeSortedSet(map);
-
-  ASSERT_TRUE(Found(set, 1));
-  ASSERT_TRUE(NotFound(set, 2));
-
-  // Set insertion does not modify the underlying map
-  set = set.insert(2);
-  ASSERT_TRUE(Found(set, 2));
-  ASSERT_TRUE(NotFound(map, 2));
-}
-
 TEST(SortedSetTest, Iterator) {
   std::vector<int> all = Sequence(kLargeNumber);
   SortedSet<int> set = ToSet(Shuffled(all));
