@@ -40,13 +40,13 @@ class QueryListener {
   static std::shared_ptr<QueryListener> Create(
       Query query,
       ListenOptions options,
-      ViewSnapshot::SharedListener&& listener) {
+      ViewSnapshotSharedListener&& listener) {
     return std::make_shared<QueryListener>(std::move(query), std::move(options),
                                            std::move(listener));
   }
 
   static std::shared_ptr<QueryListener> Create(
-      Query query, ViewSnapshot::SharedListener&& listener) {
+      Query query, ViewSnapshotSharedListener&& listener) {
     return Create(std::move(query), ListenOptions::DefaultOptions(),
                   std::move(listener));
   }
@@ -69,7 +69,7 @@ class QueryListener {
 
   QueryListener(Query query,
                 ListenOptions options,
-                ViewSnapshot::SharedListener&& listener);
+                ViewSnapshotSharedListener&& listener);
 
   virtual ~QueryListener() {
   }
@@ -109,7 +109,7 @@ class QueryListener {
    * The EventListener that will process ViewSnapshots associated with this
    * query listener.
    */
-  ViewSnapshot::SharedListener listener_;
+  ViewSnapshotSharedListener listener_;
 
   /**
    * Initial snapshots (e.g. from cache) may not be propagated to the

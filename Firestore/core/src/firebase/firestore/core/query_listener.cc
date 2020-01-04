@@ -34,7 +34,7 @@ using util::Status;
 
 QueryListener::QueryListener(Query query,
                              ListenOptions options,
-                             ViewSnapshot::SharedListener&& listener)
+                             ViewSnapshotSharedListener&& listener)
     : query_(std::move(query)),
       options_(std::move(options)),
       listener_(std::move(listener)) {

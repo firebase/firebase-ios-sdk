@@ -320,9 +320,7 @@ bool FirestoreClient::is_terminated() const {
 }
 
 std::shared_ptr<QueryListener> FirestoreClient::ListenToQuery(
-    Query query,
-    ListenOptions options,
-    ViewSnapshot::SharedListener&& listener) {
+    Query query, ListenOptions options, ViewSnapshotSharedListener&& listener) {
   VerifyNotTerminated();
 
   auto query_listener = QueryListener::Create(

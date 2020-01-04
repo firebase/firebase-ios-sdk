@@ -44,7 +44,7 @@ using testutil::Query;
 using util::StatusOr;
 using util::StatusOrCallback;
 
-ViewSnapshot::Listener NoopViewSnapshotHandler() {
+ViewSnapshotListener NoopViewSnapshotHandler() {
   return EventListener<ViewSnapshot>::Create(
       [](const StatusOr<ViewSnapshot>&) {});
 }

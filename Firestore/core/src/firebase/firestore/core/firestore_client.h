@@ -113,7 +113,7 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
   std::shared_ptr<QueryListener> ListenToQuery(
       Query query,
       ListenOptions options,
-      ViewSnapshot::SharedListener&& listener);
+      ViewSnapshotSharedListener&& listener);
 
   /** Stops listening to a query previously listened to. */
   void RemoveListener(const std::shared_ptr<core::QueryListener>& listener);

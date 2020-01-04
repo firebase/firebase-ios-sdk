@@ -77,7 +77,7 @@ ViewSnapshot ExcludingMetadataChanges(const ViewSnapshot& snapshot) {
   };
 }
 
-ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot>* values) {
+ViewSnapshotListener Accumulating(std::vector<ViewSnapshot>* values) {
   return EventListener<ViewSnapshot>::Create(
       [values](const StatusOr<ViewSnapshot>& maybe_snapshot) {
         values->push_back(maybe_snapshot.ValueOrDie());
