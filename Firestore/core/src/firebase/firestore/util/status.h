@@ -233,12 +233,6 @@ inline bool Status::operator!=(const Status& x) const {
 
 typedef std::function<void(Status)> StatusCallback;
 
-extern std::string StatusCheckOpHelperOutOfLine(const Status& v,
-                                                const char* msg);
-
-#define STATUS_CHECK_OK(val) \
-  HARD_ASSERT(val.ok(), "%s", StatusCheckOpHelperOutOfLine(val, #val))
-
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase

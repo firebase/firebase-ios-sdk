@@ -31,15 +31,9 @@ TEST(Status, OK) {
   EXPECT_EQ(Status::OK().error_message(), "");
   EXPECT_OK(Status::OK());
   ASSERT_OK(Status::OK());
-  STATUS_CHECK_OK(Status::OK());
   EXPECT_EQ(Status::OK(), Status());
   Status s;
   EXPECT_TRUE(s.ok());
-}
-
-TEST(Status, DeathCheckOK) {
-  Status status(Error::InvalidArgument, "Invalid");
-  ASSERT_ANY_THROW(STATUS_CHECK_OK(status));
 }
 
 TEST(Status, Set) {
