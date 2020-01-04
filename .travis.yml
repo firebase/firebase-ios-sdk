@@ -23,12 +23,11 @@ jobs:
       script:
         - ./scripts/check.sh --test-only
 
-    - stage: test
-      osx_image: xcode11 # Xcode 11.0 for zip builder
-      script:
-        - travis_wait 45 ./scripts/build_zip.sh
+    # - stage: test
+    #   osx_image: xcode11 # Xcode 11.0 for zip builder
+    #   script:
+    #     - travis_wait 45 ./scripts/build_zip.sh
 
 branches:
   only:
     - master
-    - pb-zip-ci

@@ -37,3 +37,15 @@ jobs:
         bundle exec pod --version
     - name: FirebaseDynamicLinks
       run: ./scripts/pod_lib_lint.rb FirebaseDynamicLinks.podspec
+
+  zip:
+    needs: check
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up
+      run: |
+        bundle install
+        bundle exec pod --version
+    - name: ZipBuildingTest
+      run: ./scripts/build_zip.sh
