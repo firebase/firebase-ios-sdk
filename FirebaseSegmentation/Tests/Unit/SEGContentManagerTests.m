@@ -15,8 +15,8 @@
 #import <XCTest/XCTest.h>
 
 #import "SEGContentManager.h"
-#import "SEGNetworkManager.h"
 #import "SEGDatabaseManager.h"
+#import "SEGNetworkManager.h"
 
 #import <FirebaseCore/FirebaseCore.h>
 #import <FirebaseInstanceID/FIRInstanceID.h>
@@ -43,7 +43,6 @@
 @implementation SEGContentManagerTests
 
 - (void)setUp {
-
   // Setup FIRApp.
   XCTAssertNoThrow([FIRApp configureWithOptions:[self FIRAppOptions]]);
   FIRInstanceID *instanceIDMock = OCMPartialMock([FIRInstanceID instanceIDForTests]);
@@ -65,7 +64,9 @@
                                                   invokeBlockWithArgs:@YES, [NSNull null], nil])]);
 
   // Initialize the content manager.
-  _contentManager = [[SEGContentManager alloc] initWithDatabaseManager:[SEGDatabaseManager sharedInstance] networkManager:networkManagerMock];
+  _contentManager =
+      [[SEGContentManager alloc] initWithDatabaseManager:[SEGDatabaseManager sharedInstance]
+                                          networkManager:networkManagerMock];
 }
 - (void)tearDown {
   // Put teardown code here. This method is called after the invocation of each test method in the

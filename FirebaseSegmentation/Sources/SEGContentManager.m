@@ -36,7 +36,9 @@
   static dispatch_once_t onceToken;
   static SEGContentManager *sharedInstance;
   dispatch_once(&onceToken, ^{
-    sharedInstance = [[SEGContentManager alloc] initWithDatabaseManager:[SEGDatabaseManager sharedInstance] networkManager:[[SEGNetworkManager alloc] initWithFIROptions:options]];
+    sharedInstance = [[SEGContentManager alloc]
+        initWithDatabaseManager:[SEGDatabaseManager sharedInstance]
+                 networkManager:[[SEGNetworkManager alloc] initWithFIROptions:options]];
   });
   return sharedInstance;
 }
