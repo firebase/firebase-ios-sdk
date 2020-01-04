@@ -13,8 +13,8 @@
 // limitations under the License.
 
 #import "AppDelegate.h"
-@import FirebaseCore;
-@import FirebaseSegmentation;
+#import <FirebaseCore/FirebaseCore.h>
+#import "FirebaseSegmentation.h"
 
 @interface AppDelegate ()
 
