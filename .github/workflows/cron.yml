@@ -2,8 +2,8 @@ name: CRON
 
 on:
   schedule:
-    # Run every day at 8am
-    - cron:  '0 8 * * *'
+    # Run every day at 10am (PST) - cron uses UTC times
+    - cron:  '0 18 * * *'
 
 jobs:
   zip:
