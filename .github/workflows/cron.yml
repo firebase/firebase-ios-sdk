@@ -5,6 +5,7 @@ on:
     # Run every day at 8am
     - cron:  '0 8 * * *'
 
+jobs:
   zip:
     needs: check
     runs-on: macOS-latest
