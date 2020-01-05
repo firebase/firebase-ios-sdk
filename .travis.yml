@@ -677,11 +677,6 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstallations.podspec --platforms=tvos --use-libraries --ignore-local-podspecs=FirebaseInstanceID.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstallations.podspec --use-modular-headers --platforms=tvos --ignore-local-podspecs=FirebaseInstanceID.podspec
 
-    - stage: test
-      osx_image: xcode11 # Xcode 11.0 for zip builder
-      script:
-        - ./scripts/build_zip.sh
-
   allow_failures:
     # Run fuzz tests only on cron jobs.
     - stage: test
