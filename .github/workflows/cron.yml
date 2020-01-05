@@ -2,15 +2,15 @@ name: CRON
 
 on:
   schedule:
-    # Run every day at 10am (PST) - cron uses UTC times
-    - cron:  '0 18 * * *'
+    # Run every day at 1am (PST) - cron uses UTC times
+    - cron:  '0 7 * * *'
 
 jobs:
   zip:
     needs: check
     runs-on: macOS-latest
     steps:
-    - uses: actions/checkout@pb-zip-ci
+    - uses: actions/checkout@v1
     - name: Set up
       run: |
         bundle install
