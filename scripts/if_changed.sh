@@ -112,7 +112,7 @@ else
       ;;
 
     Firestore-cmake)
-      check_changes '^(Firestore/(core|third_party)|cmake|GoogleUtilities)'
+      check_changes '^(Firestore/(core|third_party)|cmake|FirebaseCore|GoogleUtilities)'
       ;;
 
     GoogleDataTransport-*)
