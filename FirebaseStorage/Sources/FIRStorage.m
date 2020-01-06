@@ -36,13 +36,51 @@ static NSMutableDictionary<
     NSMutableDictionary<NSString * /* bucket */, GTMSessionFetcherService *> *> *_fetcherServiceMap;
 static GTMSessionFetcherRetryBlock _retryWhenOffline;
 
-@interface FIRStorage () {
+//Should this be in FIRStorage_Private.h instead?
+@protocol FIRStorageInstanceProvider
+@end
+
+@interface FIRStorage () <FIRStorageInstanceProvider, FIRLibrary> {
   /// Stored Auth reference, if it exists. This needs to be stored for `copyWithZone:`.
   id<FIRAuthInterop> _Nullable _auth;
 }
 @end
 
 @implementation FIRStorage
+
++ (void)load {
+  // Register with Core as a library.  Adding FIRStorage as an Interop library enables
+  // proposed FirebaseExtended library SwiftLogForFireCloudStorage to depend on FIRStorage
+  // without making an explicit dependency of FIRStorage by SwiftLogForFireCloudStorage
+  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self
+                         withName:@"fire-storage"
+                      withVersion:[NSString stringWithUTF8String:FIRStorageVersionString]];
+}
+
+#pragma mark - Interoperability
+/// The components to register with Core.
++ (NSArray<FIRComponent *> *)componentsToRegister {
+  // Provide a component that will return an instance of `FIRStorage`.
+  FIRComponentCreationBlock storageCreationBlock =
+      ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
+        // Cache so the same `FIRStorage` instance is returned each time.
+        *isCacheable = YES;
+        return [[FIRStorage alloc] initWithApp:container.app
+                                        bucket:@""
+                                          auth:nil];
+      };
+  FIRComponent *storageInterop =
+      [FIRComponent componentWithProtocol:@protocol(FIRStorageInterop)
+                            creationBlock:storageCreationBlock];
+  return @[storageInterop];
+}
+
+//Is this truly unique from storageForApp?
++ (FIRStorage *)storageWithApp:(FIRApp *)app {
+  // Use the instance from the provided app's container.
+  id<FIRStorageInterop> storage = FIR_COMPONENT(FIRStorageInterop, app.container);
+  return (FIRStorage *)storage;
+}
 
 + (void)initialize {
   static dispatch_once_t onceToken;

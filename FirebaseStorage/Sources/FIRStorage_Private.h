@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
+#import <FirebaseStorageInterop/FIRStorageInterop.h>
+
 @class FIRApp;
 @class GTMSessionFetcherService;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRStorage ()
+@interface FIRStorage () <FIRStorageInterop>
 
 @property(strong, nonatomic, readwrite) FIRApp *app;
 
