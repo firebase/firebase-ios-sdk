@@ -65,6 +65,13 @@ static GTMSessionFetcherRetryBlock _retryWhenOffline;
       ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
         // Cache so the same `FIRStorage` instance is returned each time.
         *isCacheable = YES;
+        
+        //TODO:  timothywise(leisurehound) Bucket and auth here are mocked until determining
+        // how to retrieve these or perhaps to set a constraint that the user must first
+        // setup Storage before it can be vended out (since its not another Firebase library
+        // depenending on FIRStorageInterop but rather a Firebase Extneded library so it may
+        // be sufficient to assume the user has configured storage before trying to inject
+        // it into the SwiftLogForFireCloudStorage library.
         return [[FIRStorage alloc] initWithApp:container.app
                                         bucket:@""
                                           auth:nil];
