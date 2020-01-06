@@ -389,8 +389,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       if (@available(iOS 13, tvos 13, *)) {
       [GULSceneDelegateSwizzler proxyOriginalSceneDelegate];
     }
-    #endif
-    #endif
+    #endif // ((TARGET_OS_IOS || TARGET_OS_TV) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 130000))
+    #endif // TARGET_OS_IOS
 
     // Continue with the rest of initialization in the work thread.
     __weak FIRAuth *weakSelf = self;
@@ -449,8 +449,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
         if (@available(iOS 13, tvos 13, *)) {
         [GULSceneDelegateSwizzler registerSceneDelegateInterceptor:strongSelf];
       }
-      #endif
-      #endif
+      #endif // ((TARGET_OS_IOS || TARGET_OS_TV) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 130000))
+      #endif // TARGET_OS_IOS
     });
   }
   return self;

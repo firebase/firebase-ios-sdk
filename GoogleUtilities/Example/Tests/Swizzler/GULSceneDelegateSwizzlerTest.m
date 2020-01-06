@@ -19,6 +19,18 @@
 #import <XCTest/XCTest.h>
 #import <objc/runtime.h>
 
+/** Plist key that allows Firebase developers to disable App Delegate Proxying.  Source of truth is
+ *  the GULAppDelegateSwizzler class.
+ */
+static NSString *const kGULFirebaseSceneDelegateProxyEnabledPlistKey =
+    @"FirebaseAppDelegateProxyEnabled";
+
+/** Plist key that allows non-Firebase developers to disable App Delegate Proxying.  Source of truth
+ *  is the GULAppDelegateSwizzler class.
+ */
+static NSString *const kGULGoogleSceneDelegateProxyEnabledPlistKey =
+    @"GoogleUtilitiesAppDelegateProxyEnabled";
+
 #pragma mark - Scene Delegate
 
 #if UISCENE_SUPPORTED
@@ -133,6 +145,149 @@ API_AVAILABLE(ios(13.0), tvos(13.0))
                                                        object:nil]];
     [self waitForExpectations:@[ expectation ] timeout:1];
   }
+}
+
+#pragma mark - Tests to test that Plist flag is honored
+
+/** Tests that app delegate proxy is enabled when there is no Info.plist dictionary. */
+- (void)testAppProxyPlistFlag_NoFlag {
+  // No keys anywhere. If there is no key, the default should be enabled.
+  NSDictionary *mainDictionary = nil;
+  id mainBundleMock = OCMPartialMock([NSBundle mainBundle]);
+  [[[mainBundleMock expect] andReturn:mainDictionary] infoDictionary];
+
+  XCTAssertTrue([GULSceneDelegateSwizzler isSceneDelegateProxyEnabled]);
+  [mainBundleMock stopMocking];
+}
+
+/** Tests that app delegate proxy is enabled when there is neither the Firebase nor the non-Firebase
+ *  Info.plist key present.
+ */
+- (void)testAppProxyPlistFlag_NoSceneDelegateProxyKey {
+  // No app delegate disable key. If there is no key, the default should be enabled.
+  NSDictionary *mainDictionary = @{@"randomKey" : @"randomValue"};
+  id mainBundleMock = OCMPartialMock([NSBundle mainBundle]);
+  [[[mainBundleMock expect] andReturn:mainDictionary] infoDictionary];
+
+  XCTAssertTrue([GULSceneDelegateSwizzler isSceneDelegateProxyEnabled]);
+  [mainBundleMock stopMocking];
+}
+
+/** Tests that app delegate proxy is enabled when the Firebase plist is explicitly set to YES and
+ * the Google flag is not present. */
+- (void)testAppProxyPlistFlag_FirebaseEnabled {
+  // Set proxy enabled to YES.
+  NSDictionary *mainDictionary = @{kGULFirebaseSceneDelegateProxyEnabledPlistKey : @(YES)};
+  id mainBundleMock = OCMPartialMock([NSBundle mainBundle]);
+  [[[mainBundleMock expect] andReturn:mainDictionary] infoDictionary];
+
+  XCTAssertTrue([GULSceneDelegateSwizzler isSceneDelegateProxyEnabled]);
+  [mainBundleMock stopMocking];
+}
+
+/** Tests that app delegate proxy is enabled when the Google plist is explicitly set to YES and the
+ * Firebase flag is not present. */
+- (void)testAppProxyPlistFlag_GoogleEnabled {
+  // Set proxy enabled to YES.
+  NSDictionary *mainDictionary = @{kGULGoogleSceneDelegateProxyEnabledPlistKey : @(YES)};
+  id mainBundleMock = OCMPartialMock([NSBundle mainBundle]);
+  [[[mainBundleMock expect] andReturn:mainDictionary] infoDictionary];
+
+  XCTAssertTrue([GULSceneDelegateSwizzler isSceneDelegateProxyEnabled]);
+  [mainBundleMock stopMocking];
+}
+
+/** Tests that the App Delegate proxy is enabled when the Firebase flag has the wrong type of value
+ * and the Google flag is not present. */
+- (void)testAppProxyPlist_WrongFirebaseDisableFlagValueType {
+  // Set proxy enabled to "NO" - a string.
+  NSDictionary *mainDictionary = @{kGULFirebaseSceneDelegateProxyEnabledPlistKey : @"NO"};
+  id mainBundleMock = OCMPartialMock([NSBundle mainBundle]);
+  [[[mainBundleMock expect] andReturn:mainDictionary] infoDictionary];
+
+  XCTAssertTrue([GULSceneDelegateSwizzler isSceneDelegateProxyEnabled]);
+  [mainBundleMock stopMocking];
+}
+
+/** Tests that the App Delegate proxy is enabled when the Google flag has the wrong type of value
+ * and the Firebase flag is not present. */
+- (void)testAppProxyPlist_WrongGoogleDisableFlagValueType {
+  // Set proxy enabled to "NO" - a string.
+  NSDictionary *mainDictionary = @{kGULGoogleSceneDelegateProxyEnabledPlistKey : @"NO"};
+  id mainBundleMock = OCMPartialMock([NSBundle mainBundle]);
+  [[[mainBundleMock expect] andReturn:mainDictionary] infoDictionary];
+
+  XCTAssertTrue([GULSceneDelegateSwizzler isSceneDelegateProxyEnabled]);
+  [mainBundleMock stopMocking];
+}
+
+/** Tests that the App Delegate proxy is disabled when the Firebase flag is set to NO and the Google
+ * flag is not present. */
+- (void)testAppProxyPlist_FirebaseDisableFlag {
+  // Set proxy enabled to NO.
+  NSDictionary *mainDictionary = @{kGULFirebaseSceneDelegateProxyEnabledPlistKey : @(NO)};
+  id mainBundleMock = OCMPartialMock([NSBundle mainBundle]);
+  [[[mainBundleMock expect] andReturn:mainDictionary] infoDictionary];
+
+  XCTAssertFalse([GULSceneDelegateSwizzler isSceneDelegateProxyEnabled]);
+  [mainBundleMock stopMocking];
+}
+
+/** Tests that the App Delegate proxy is disabled when the Google flag is set to NO and the Firebase
+ * flag is not present. */
+- (void)testAppProxyPlist_GoogleDisableFlag {
+  // Set proxy enabled to NO.
+  NSDictionary *mainDictionary = @{kGULGoogleSceneDelegateProxyEnabledPlistKey : @(NO)};
+  id mainBundleMock = OCMPartialMock([NSBundle mainBundle]);
+  [[[mainBundleMock expect] andReturn:mainDictionary] infoDictionary];
+
+  XCTAssertFalse([GULSceneDelegateSwizzler isSceneDelegateProxyEnabled]);
+  [mainBundleMock stopMocking];
+}
+
+/** Tests that the App Delegate proxy is disabled when the Google flag is set to NO and the Firebase
+ * flag is set to YES. */
+- (void)testAppProxyPlist_GoogleDisableFlagFirebaseEnableFlag {
+  // Set proxy enabled to NO.
+  NSDictionary *mainDictionary = @{
+    kGULGoogleSceneDelegateProxyEnabledPlistKey : @(NO),
+    kGULFirebaseSceneDelegateProxyEnabledPlistKey : @(YES)
+  };
+  id mainBundleMock = OCMPartialMock([NSBundle mainBundle]);
+  [[[mainBundleMock expect] andReturn:mainDictionary] infoDictionary];
+
+  XCTAssertFalse([GULSceneDelegateSwizzler isSceneDelegateProxyEnabled]);
+  [mainBundleMock stopMocking];
+}
+
+/** Tests that the App Delegate proxy is disabled when the Google flag is set to NO and the Firebase
+ * flag is set to YES. */
+- (void)testAppProxyPlist_FirebaseDisableFlagGoogleEnableFlag {
+  // Set proxy enabled to NO.
+  NSDictionary *mainDictionary = @{
+    kGULGoogleSceneDelegateProxyEnabledPlistKey : @(YES),
+    kGULFirebaseSceneDelegateProxyEnabledPlistKey : @(NO)
+  };
+  id mainBundleMock = OCMPartialMock([NSBundle mainBundle]);
+  [[[mainBundleMock expect] andReturn:mainDictionary] infoDictionary];
+
+  XCTAssertFalse([GULSceneDelegateSwizzler isSceneDelegateProxyEnabled]);
+  [mainBundleMock stopMocking];
+}
+
+/** Tests that the App Delegate proxy is disabled when the Google flag is set to NO and the Firebase
+ * flag is set to NO. */
+- (void)testAppProxyPlist_FirebaseDisableFlagGoogleDisableFlag {
+  // Set proxy enabled to NO.
+  NSDictionary *mainDictionary = @{
+    kGULGoogleSceneDelegateProxyEnabledPlistKey : @(NO),
+    kGULFirebaseSceneDelegateProxyEnabledPlistKey : @(NO)
+  };
+  id mainBundleMock = OCMPartialMock([NSBundle mainBundle]);
+  [[[mainBundleMock expect] andReturn:mainDictionary] infoDictionary];
+
+  XCTAssertFalse([GULSceneDelegateSwizzler isSceneDelegateProxyEnabled]);
+  [mainBundleMock stopMocking];
 }
 
 @end

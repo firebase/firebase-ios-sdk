@@ -31,8 +31,8 @@ typedef NSString *const GULSceneDelegateInterceptorID;
 
 #if UISCENE_SUPPORTED
 
-/** Registers an app delegate interceptor whose methods will be invoked as they're invoked on the
- *  original app delegate.
+/** Registers a scene delegate interceptor whose methods will be invoked as they're invoked on the
+ *  original scene delegate.
  *
  *  @param interceptor An instance of a class that conforms to the application delegate protocol.
  *      The interceptor is NOT retained.
@@ -49,9 +49,9 @@ typedef NSString *const GULSceneDelegateInterceptorID;
 + (void)unregisterSceneDelegateInterceptorWithID:(GULSceneDelegateInterceptorID)interceptorID
     API_AVAILABLE(ios(13.0), tvos(13.0));
 
-/** This method ensures that the original app delegate has been proxied. Call this before
+/** This method ensures that the original scene delegate has been proxied. Call this before
  *  registering your interceptor. This method is safe to call multiple times (but it only proxies
- *  the app delegate once).
+ *  the scene delegate once).
  *
  *  This method doesn't proxy APNS related methods:
  *  @code
@@ -65,11 +65,11 @@ typedef NSString *const GULSceneDelegateInterceptorID;
  */
 + (void)proxyOriginalSceneDelegate API_AVAILABLE(ios(13.0), tvos(13.0));
 
-/** Indicates whether app delegate proxy is explicitly disabled or enabled. Enabled by default.
+/** Indicates whether scene delegate proxy is explicitly disabled or enabled. Enabled by default.
  *
  *  @return YES if SceneDelegateProxy is Enabled, NO otherwise.
  */
-+ (BOOL)isSceneDelegateProxyEnabled API_AVAILABLE(ios(13.0), tvos(13.0));
++ (BOOL)isSceneDelegateProxyEnabled;
 
 /** Do not initialize this class. */
 - (instancetype)init NS_UNAVAILABLE;

@@ -332,7 +332,7 @@ static NSString *const kGULSceneDelegatePrefix = @"GUL_";
     openURLContexts:(NSSet<UIOpenURLContext *> *)URLContexts API_AVAILABLE(ios(13.0), tvos(13.0)) {
   if (@available(iOS 13.0, tvOS 13.0, *)) {
     SEL methodSelector = @selector(scene:openURLContexts:);
-    // Call the real implementation if the real App Delegate has any.
+    // Call the real implementation if the real Scene Delegate has any.
     NSValue *openURLContextsIMPPointer =
         [GULSceneDelegateSwizzler originalImplementationForSelector:methodSelector object:self];
     GULOpenURLContextsIMP openURLContextsIMP = [openURLContextsIMPPointer pointerValue];
