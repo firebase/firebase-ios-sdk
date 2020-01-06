@@ -71,7 +71,10 @@ NSString *const kFirebaseSegmentationErrorDomain = @"com.firebase.segmentation";
   self = [super init];
   if (self) {
     _app = app;
-    _segmentationInstance = nil;
+    if (!_segmentationInstance) {
+      _segmentationInstance = [[FIRSegmentation alloc] initWithAppName:app.name
+                                                            FIROptions:app.options];
+    }
   }
   return self;
 }

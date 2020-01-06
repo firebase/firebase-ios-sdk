@@ -19,7 +19,7 @@
 #import <FirebaseCore/FIROptionsInternal.h>
 
 // TODO(dmandar): define in build file.
-//@@#define SEG_ALPHA_SERVER
+#define SEG_ALPHA_SERVER
 
 static NSString *const kServerURLDomain = @"https://firebasesegmentation.googleapis.com";
 

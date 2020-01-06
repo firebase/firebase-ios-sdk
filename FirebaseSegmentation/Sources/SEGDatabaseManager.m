@@ -107,7 +107,8 @@ static BOOL SegmentationCreateFilePathIfNotExist(NSString *filePath) {
     }
 
     // Read the database into memory.
-    NSDictionary<NSString *, NSString *> *associations = [self loadMainTable];
+    NSDictionary<NSString *, NSDictionary<NSString *, NSString *> *> *associations =
+        [self loadMainTable];
     completionHandler(YES, associations);
   });
   return;
