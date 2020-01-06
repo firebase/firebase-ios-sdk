@@ -245,7 +245,7 @@ find_package(XCTest)
 enable_testing()
 include(compiler_setup)
 
-add_subdirectory(Firebase/Core)
+add_subdirectory(FirebaseCore)
 add_subdirectory(Firestore)
 add_subdirectory(GoogleUtilities)
 add_subdirectory(Interop/Auth)

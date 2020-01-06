@@ -71,7 +71,7 @@ has_license_changes = didModify(["LICENSE"])
 @has_abtesting_changes = hasChangesIn("FirebaseABTesting/")
 @has_auth_changes = hasChangesIn("Firebase/Auth")
 @has_core_changes = hasChangesIn([
-  "Firebase/Core/",
+  "FirebaseCore/",
   "Firebase/CoreDiagnostics/",
   "CoreOnly/"])
 @has_database_changes = hasChangesIn("Firebase/Database/")
