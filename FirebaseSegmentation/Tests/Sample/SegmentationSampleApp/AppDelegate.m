@@ -27,7 +27,7 @@
   // Override point for customization after application launch.
   [FIRApp configure];
   FIRSegmentation *segmentation = [FIRSegmentation segmentation];
-  [segmentation setCustomInstallationID:@"mandard-test-custom-installation-id2"
+  [segmentation setCustomInstallationID:@"mandard-test-custom-installation-id3"
                              completion:^(NSError *error) {
                                if (error) {
                                  NSLog(@"Error! Could not set custom id");

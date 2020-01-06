@@ -19,7 +19,7 @@
 #import <FirebaseCore/FIROptionsInternal.h>
 
 // TODO(dmandar): define in build file.
-#define SEG_ALPHA_SERVER
+//@@#define SEG_ALPHA_SERVER
 
 static NSString *const kServerURLDomain = @"https://firebasesegmentation.googleapis.com";
 
@@ -54,11 +54,11 @@ static NSString *const kContentTypeValueJSON = @"application/json";
 // TODO: Handle error codes.
 /// HTTP status codes. Ref: https://cloud.google.com/apis/design/errors#error_retries
 static NSInteger const kSEGResponseHTTPStatusCodeOK = 200;
-static NSInteger const kSEGResponseHTTPStatusCodeConflict = 409;
-static NSInteger const kSEGResponseHTTPStatusTooManyRequests = 429;
-static NSInteger const kSEGResponseHTTPStatusCodeInternalError = 500;
-static NSInteger const kSEGResponseHTTPStatusCodeServiceUnavailable = 503;
-static NSInteger const kSEGResponseHTTPStatusCodeGatewayTimeout = 504;
+// static NSInteger const kSEGResponseHTTPStatusCodeConflict = 409;
+// static NSInteger const kSEGResponseHTTPStatusTooManyRequests = 429;
+// static NSInteger const kSEGResponseHTTPStatusCodeInternalError = 500;
+// static NSInteger const kSEGResponseHTTPStatusCodeServiceUnavailable = 503;
+// static NSInteger const kSEGResponseHTTPStatusCodeGatewayTimeout = 504;
 
 // HTTP default timeout.
 static NSTimeInterval const kSEGHTTPRequestTimeout = 60;

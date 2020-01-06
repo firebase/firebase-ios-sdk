@@ -333,6 +333,16 @@ static BOOL SegmentationCreateFilePathIfNotExist(NSString *filePath) {
   return YES;
 }
 
+/// TODO: (Check if required). Clear the record of given namespace and package name
+/// before updating the table.
+- (void)deleteRecordFromMainTableWithCustomInstanceIdentifier:
+    (nonnull NSString *)customInstanceIdentifier {
+}
+
+/// TODO: (Check if required). Remove all the records from a config content table.
+- (void)deleteAllRecordsFromTable {
+}
+
 #pragma mark - helper
 - (BOOL)executeQuery:(const char *)SQL withParams:(NSArray *)params {
   SEG_MUST_NOT_BE_MAIN_THREAD();
