@@ -71,7 +71,7 @@ ByteString& ByteString::operator=(const ByteString& other) {
   return *this;
 }
 
-ByteString& ByteString::operator=(ByteString&& other) {
+ByteString& ByteString::operator=(ByteString&& other) noexcept {
   if (bytes_ != other.bytes_) {
     std::free(bytes_);
     bytes_ = other.bytes_;

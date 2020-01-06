@@ -267,7 +267,7 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
 }
 
 - (id)convertedReference:(const FieldValue &)value {
-  auto ref = value.reference_value();
+  const auto &ref = value.reference_value();
   const DatabaseId &refDatabase = ref.database_id();
   const DatabaseId &database = _snapshot.firestore()->database_id();
   if (refDatabase != database) {

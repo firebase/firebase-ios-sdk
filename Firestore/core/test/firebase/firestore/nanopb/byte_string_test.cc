@@ -34,8 +34,7 @@ namespace {
 struct free_deleter {
   template <typename T>
   void operator()(T* value) const {
-    using non_const_T = typename std::remove_const<T*>::type;
-    free(const_cast<non_const_T>(value));
+    std::free(value);
   }
 };
 

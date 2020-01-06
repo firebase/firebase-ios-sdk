@@ -246,7 +246,10 @@ void GrpcStream::FastFinishCompletionsBlocking() {
     // This is blocking.
     completion->WaitUntilOffQueue();
 
-    // If the queue is shutting down it won't allow any completions to fire.
+    // If the queue is shutting down, it won't allow any completions to fire.
+    // This, in turn, causes them to leak because the completions delete
+    // themselves after calling their completion.
+    // TODO(wilhuff): Rework ownership here to avoid this ambiguity.
     if (queue_shutting_down) {
       delete completion;
     }
