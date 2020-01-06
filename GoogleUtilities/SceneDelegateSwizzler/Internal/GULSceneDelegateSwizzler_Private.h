@@ -24,15 +24,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 #if UISCENE_SUPPORTED
 
-/** ISA Swizzles the given appDelegate as the original app delegate would be.
- *
- *  @param scene The scene whose delegate needs to be isa swizzled. This should conform to the
- *      scene delegate protocol.
- */
-+ (void)proxySceneDelegateIfNeeded:(UIScene *)scene API_AVAILABLE(ios(13.0), tvos(13.0));
-
-#endif  // UISCENE_SUPPORTED
-
 /** Returns a dictionary containing interceptor IDs mapped to a GULZeroingWeakContainer.
  *
  *  @return A dictionary of the form {NSString : GULZeroingWeakContainer}, where the NSString is
@@ -42,6 +33,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Deletes all the registered interceptors. */
 + (void)clearInterceptors;
+
+/** ISA Swizzles the given appDelegate as the original app delegate would be.
+ *
+ *  @param scene The scene whose delegate needs to be isa swizzled. This should conform to the
+ *      scene delegate protocol.
+ */
++ (void)proxySceneDelegateIfNeeded:(UIScene *)scene API_AVAILABLE(ios(13.0), tvos(13.0));
+
+#endif  // UISCENE_SUPPORTED
 
 @end
 
