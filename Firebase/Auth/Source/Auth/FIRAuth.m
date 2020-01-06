@@ -1136,10 +1136,12 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
           kMissingEmailInvalidParameterExceptionReason];
     }
 
+#if !TARGET_OS_WATCH
     if (!actionCodeSettings.handleCodeInApp) {
       [FIRAuthExceptionUtils raiseInvalidParameterExceptionWithReason:
           kHandleCodeInAppFalseExceptionReason];
     }
+#endif
     FIRGetOOBConfirmationCodeRequest *request =
         [FIRGetOOBConfirmationCodeRequest signInWithEmailLinkRequest:email
                                                   actionCodeSettings:actionCodeSettings
