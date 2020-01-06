@@ -13,8 +13,8 @@
 # limitations under the License.
 
 if(APPLE)
-  file(GLOB sources *.m)
-  file(GLOB headers Private/*.h Public/*.h)
+  file(GLOB sources Sources/*.m)
+  file(GLOB headers Sources/Private/*.h Sources/Public/*.h)
 
   podspec_version(core_version ${PROJECT_SOURCE_DIR}/FirebaseCore.podspec)
   firebase_version(fb_version ${PROJECT_SOURCE_DIR}/FirebaseCore.podspec)
@@ -28,8 +28,9 @@ if(APPLE)
       FIRCore_VERSION=${core_version}
       Firebase_VERSION=${fb_version}
     INCLUDES
-      Private
-      Public
+      Sources/Private
+      Sources/Public
+      ${PROJECT_SOURCE_DIR}
     DEPENDS
       GoogleUtilities
       FirebaseCoreDiagnosticsInterop
