@@ -28,8 +28,9 @@ if(APPLE)
       FIRCore_VERSION=${core_version}
       Firebase_VERSION=${fb_version}
     INCLUDES
-      Private
-      Public
+      Sources/Private
+      Sources/Public
+      ${PROJECT_SOURCE_DIR}
     DEPENDS
       GoogleUtilities
       FirebaseCoreDiagnosticsInterop
