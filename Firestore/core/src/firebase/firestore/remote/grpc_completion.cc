@@ -32,9 +32,21 @@ GrpcCompletion::GrpcCompletion(
     : worker_queue_{worker_queue}, callback_{std::move(callback)}, type_{type} {
 }
 
+GrpcCompletion* GrpcCompletion::Retain() {
+  // New completions are owned by gRPC. The caller can also retain the
+  // shared_ptr if they care to. See comments on grpc_ownership_ for why this
+  // self-retain is intended.
+  grpc_ownership_ = shared_from_this();
+  return this;
+}
+
 void GrpcCompletion::Cancel() {
   worker_queue_->VerifyIsCurrentQueue();
   callback_ = {};
+
+  // Does not release grpc_ownership_. If gRPC still holds this completion it
+  // must remain valid to avoid a use-after-free once Complete is actually
+  // called.
 }
 
 void GrpcCompletion::WaitUntilOffQueue() {
@@ -64,12 +76,21 @@ void GrpcCompletion::Complete(bool ok) {
   // objects to be valid).
   off_queue_.set_value();
 
-  worker_queue_->Enqueue([this, ok] {
-    if (callback_) {
-      callback_(ok, this);
+  // The queued operation needs to also retain this completion. It's possible
+  // for Complete to fire, shutdown to start, and then have this queued
+  // operation run. If this weren't a retain that ordering would have the
+  // callback use after free.
+  auto shared_this = grpc_ownership_;
+  worker_queue_->Enqueue([shared_this, ok] {
+    if (shared_this->callback_) {
+      shared_this->callback_(ok, shared_this);
     }
-    delete this;
   });
+
+  // Having called Complete, gRPC has released its ownership interest in this
+  // object. Once the queued operation completes the `GrpcCompletion` will be
+  // deleted.
+  grpc_ownership_.reset();
 }
 
 }  // namespace remote

@@ -48,14 +48,16 @@ namespace remote {
  * operation). The buffer and/or the status may be unused by the corresponding
  * gRPC operation.
  *
- * `GrpcCompletion` is "self-owned"; `GrpcCompletion` deletes itself in its
- * `Complete` method.
+ * `GrpcCompletion` has shared ownership. While it has been submitted as a tag
+ * to a gRPC operation, gRPC owns it. Callers also potentially own the
+ * `GrpcCompletion` if they retain it. Once all interested parties have released
+ * their shared_ptrs, the `GrpcCompletion` is deleted.
  *
  * `GrpcCompletion` expects all gRPC objects pertaining to the current stream to
  * remain valid until the `GrpcCompletion` comes back from the gRPC completion
  * queue.
  */
-class GrpcCompletion {
+class GrpcCompletion : public std::enable_shared_from_this<GrpcCompletion> {
  public:
   /**
    * This is only to aid debugging and testing; type allows easily
@@ -69,11 +71,27 @@ class GrpcCompletion {
    *
    * The `GrpcCompletion` pointer will always point to `this`.
    */
-  using Callback = std::function<void(bool, const GrpcCompletion*)>;
+  using Callback =
+      std::function<void(bool, const std::shared_ptr<GrpcCompletion>&)>;
 
   GrpcCompletion(Type type,
                  const std::shared_ptr<util::AsyncQueue>& worker_queue,
                  Callback&& callback);
+
+  /**
+   * Prepares the `GrpcCompletion` for submission to gRPC, incrementing the
+   * internal reference count that will prevent the completion from being
+   * deleted, even if the backing `GrpcStream` is shut down.
+   *
+   * Note: this is a separate step from the constructor due to limitations in
+   * std::enable_shared_from_this. The internal weak_ptr that makes that work
+   * is is not initialized until after the shared_ptr for this object is
+   * created, which is only done after construction is complete.
+   *
+   * @returns this, making it easy to pass to a gRPC method via
+   * `completion->Retain()`.
+   */
+  GrpcCompletion* Retain();
 
   /**
    * Marks the `GrpcCompletion` as having come back from the gRPC completion
@@ -119,6 +137,37 @@ class GrpcCompletion {
   Callback callback_;
 
   void EnsureValidFuture();
+
+  // GrpcCompletions are meant to be created and passed to gRPC as a context
+  // object. gRPC's API only allows for a raw pointer though, and until gRPC
+  // invokes the callback with this GrpcCompletion as a context object the
+  // object must not be deleted.
+  //
+  // Previously we managed this by explicitly new/deleting GrpcCompletion but
+  // this creates timing problems during shutdown. During shutdown, the worker
+  // thread wants to cancel RPCs that are in flight, but this races with the
+  // completion event from gRPC.
+  //
+  // This used to work because we only allowed delete on the worker thread.
+  // Now that the AsyncQueue no longer admits tasks after shutdown has been
+  // started this now leaks the completion. If we called delete outside the
+  // worker thread this could cause cancellation to use-after-free so that
+  // doesn't work either.
+  //
+  // This field is an intentional retain cycle: while gRPC holds the
+  // GrpcCompletion this pointer is set and that keeps the raw pointer we give
+  // to gRPC alive. Once gRPC calls back, this pointer is released.
+  //
+  // Under normal operation, this works as before: the completion's self-release
+  // just decrements the reference count because GrpcStream still holds a
+  // reference in its completion list. Then, removing the completion
+  // from the list destroys the completion on the worker queue.
+  //
+  // During shutdown, the GrpcStream can now cancel all the completions in the
+  // queue because its shared_ptrs guarantee liveness. It can then release its
+  // shared_ptrs and then gRPC completion (whenever it actually happens) will
+  // actually destroy the GrpcCompletion block.
+  std::shared_ptr<GrpcCompletion> grpc_ownership_;
 
   // Note that even though `grpc::GenericClientAsyncReaderWriter::Write` takes
   // the byte buffer by const reference, it expects the buffer's lifetime to
