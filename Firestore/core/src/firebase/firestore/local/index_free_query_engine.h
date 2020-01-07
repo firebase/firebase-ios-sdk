@@ -60,6 +60,10 @@ class IndexFreeQueryEngine : public QueryEngine {
       const model::SnapshotVersion& last_limbo_free_snapshot_version,
       const model::DocumentKeySet& remote_keys) override;
 
+  Type type() const override {
+    return Type::IndexFree;
+  }
+
  private:
   /** Applies the query filter and sorting to the provided documents. */
   model::DocumentSet ApplyQuery(const core::Query& query,

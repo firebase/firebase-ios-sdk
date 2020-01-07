@@ -28,6 +28,8 @@
 #include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
 #include "Firestore/core/src/firebase/firestore/local/local_serializer.h"
 #include "Firestore/core/src/firebase/firestore/local/memory_persistence.h"
+#include "Firestore/core/src/firebase/firestore/local/query_result.h"
+#include "Firestore/core/src/firebase/firestore/local/simple_query_engine.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/model/mutation.h"
@@ -62,6 +64,8 @@ using local::LocalSerializer;
 using local::LocalStore;
 using local::LruParams;
 using local::MemoryPersistence;
+using local::QueryResult;
+using local::SimpleQueryEngine;
 using model::DatabaseId;
 using model::Document;
 using model::DocumentKeySet;
@@ -181,7 +185,10 @@ void FirestoreClient::Initialize(const User& user, const Settings& settings) {
     persistence_ = MemoryPersistence::WithEagerGarbageCollector();
   }
 
-  local_store_ = absl::make_unique<LocalStore>(persistence_.get(), user);
+  // TODO(index-free): Use IndexFreeQueryEngine
+  query_engine_ = absl::make_unique<SimpleQueryEngine>();
+  local_store_ = absl::make_unique<LocalStore>(persistence_.get(),
+                                               query_engine_.get(), user);
 
   auto datastore = std::make_shared<Datastore>(database_info_, worker_queue(),
                                                credentials_provider_);
@@ -378,11 +385,12 @@ void FirestoreClient::GetDocumentsFromLocalCache(
   auto shared_callback = absl::ShareUniquePtr(std::move(callback));
   auto shared_this = shared_from_this();
   worker_queue()->Enqueue([shared_this, query, shared_callback] {
-    DocumentMap docs = shared_this->local_store_->ExecuteQuery(query.query());
+    QueryResult query_result = shared_this->local_store_->ExecuteQuery(
+        query.query(), /* use_previous_results= */ true);
 
-    View view(query.query(), DocumentKeySet{});
+    View view(query.query(), query_result.remote_keys());
     ViewDocumentChanges view_doc_changes =
-        view.ComputeDocumentChanges(docs.underlying_map());
+        view.ComputeDocumentChanges(query_result.documents().underlying_map());
     ViewChange view_change = view.ApplyChanges(view_doc_changes);
     HARD_ASSERT(
         view_change.limbo_changes().empty(),
