@@ -14,6 +14,7 @@
 
 #import "TargetConditionals.h"
 
+#import <GoogleUtilities/GULAppDelegateSwizzler.h>
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <GoogleUtilities/GULLogger.h>
 #import <GoogleUtilities/GULMutableDictionary.h>
@@ -36,18 +37,6 @@ static char const *const kGULRealIMPBySelectorKey = "GUL_realIMPBySelector";
 static char const *const kGULRealClassKey = "GUL_realClass";
 
 static GULLoggerService kGULLoggerSwizzler = @"[GoogleUtilities/SceneDelegateSwizzler]";
-
-// Since Firebase SDKs also use this for app delegate proxying, in order to not be a breaking change
-// we disable App Delegate proxying when either of these two flags are set to NO.
-
-/** Plist key that allows Firebase developers to disable App and Scene Delegate Proxying. */
-static NSString *const kGULFirebaseSceneDelegateProxyEnabledPlistKey =
-    @"FirebaseAppDelegateProxyEnabled";
-
-/** Plist key that allows developers not using Firebase to disable App and Scene Delegate Proxying.
- */
-static NSString *const kGULGoogleUtilitiesSceneDelegateProxyEnabledPlistKey =
-    @"GoogleUtilitiesAppDelegateProxyEnabled";
 
 /** The prefix of the Scene Delegate. */
 static NSString *const kGULSceneDelegatePrefix = @"GUL_";
@@ -74,28 +63,7 @@ static NSString *const kGULSceneDelegatePrefix = @"GUL_";
 #pragma mark - Public methods
 
 + (BOOL)isSceneDelegateProxyEnabled {
-  NSDictionary *infoDictionary = [NSBundle mainBundle].infoDictionary;
-
-  id isFirebaseProxyEnabledPlistValue =
-      infoDictionary[kGULFirebaseSceneDelegateProxyEnabledPlistKey];
-  id isGoogleProxyEnabledPlistValue =
-      infoDictionary[kGULGoogleUtilitiesSceneDelegateProxyEnabledPlistKey];
-
-  // Enabled by default.
-  BOOL isFirebaseSceneDelegateProxyEnabled = YES;
-  BOOL isGoogleUtilitiesSceneDelegateProxyEnabled = YES;
-
-  if ([isFirebaseProxyEnabledPlistValue isKindOfClass:[NSNumber class]]) {
-    isFirebaseSceneDelegateProxyEnabled = [isFirebaseProxyEnabledPlistValue boolValue];
-  }
-
-  if ([isGoogleProxyEnabledPlistValue isKindOfClass:[NSNumber class]]) {
-    isGoogleUtilitiesSceneDelegateProxyEnabled = [isGoogleProxyEnabledPlistValue boolValue];
-  }
-
-  // Only deactivate the proxy if it is explicitly disabled by app developers using either one of
-  // the plist flags.
-  return isFirebaseSceneDelegateProxyEnabled && isGoogleUtilitiesSceneDelegateProxyEnabled;
+  return [GULAppDelegateSwizzler isAppDelegateProxyEnabled];
 }
 
 #if UISCENE_SUPPORTED
