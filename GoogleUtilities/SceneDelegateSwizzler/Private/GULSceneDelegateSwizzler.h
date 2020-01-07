@@ -49,6 +49,8 @@ typedef NSString *const GULSceneDelegateInterceptorID;
 + (void)unregisterSceneDelegateInterceptorWithID:(GULSceneDelegateInterceptorID)interceptorID
     API_AVAILABLE(ios(13.0), tvos(13.0));
 
+#endif  // UISCENE_SUPPORTED
+
 /** This method ensures that the original scene delegate has been proxied. Call this before
  *  registering your interceptor. This method is safe to call multiple times (but it only proxies
  *  the scene delegate once).
@@ -63,7 +65,7 @@ typedef NSString *const GULSceneDelegateInterceptorID;
  *
  *  The method has no effect for extensions.
  */
-+ (void)proxyOriginalSceneDelegate API_AVAILABLE(ios(13.0), tvos(13.0));
++ (void)proxyOriginalSceneDelegate;
 
 /** Indicates whether scene delegate proxy is explicitly disabled or enabled. Enabled by default.
  *
@@ -73,8 +75,6 @@ typedef NSString *const GULSceneDelegateInterceptorID;
 
 /** Do not initialize this class. */
 - (instancetype)init NS_UNAVAILABLE;
-
-#endif  // UISCENE_SUPPORTED
 
 @end
 
