@@ -447,6 +447,7 @@
       XCTAssertEqualObjects(value.firebaseInstallationID,
                             storedInstallation.firebaseInstallationID);
       [getFIDExpectation fulfill];
+      return nil;
     }];
 
     [self waitForExpectations:@[ getFIDExpectation ] timeout:0.5];
