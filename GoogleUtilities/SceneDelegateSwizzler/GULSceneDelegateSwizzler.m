@@ -38,6 +38,18 @@ static char const *const kGULRealClassKey = "GUL_realClass";
 
 static GULLoggerService kGULLoggerSwizzler = @"[GoogleUtilities/SceneDelegateSwizzler]";
 
+// Since Firebase SDKs also use this for app delegate proxying, in order to not be a breaking change
+// we disable App Delegate proxying when either of these two flags are set to NO.
+
+/** Plist key that allows Firebase developers to disable App and Scene Delegate Proxying. */
+static NSString *const kGULFirebaseSceneDelegateProxyEnabledPlistKey =
+    @"FirebaseAppDelegateProxyEnabled";
+
+/** Plist key that allows developers not using Firebase to disable App and Scene Delegate Proxying.
+ */
+static NSString *const kGULGoogleUtilitiesSceneDelegateProxyEnabledPlistKey =
+    @"GoogleUtilitiesAppDelegateProxyEnabled";
+
 /** The prefix of the Scene Delegate. */
 static NSString *const kGULSceneDelegatePrefix = @"GUL_";
 
