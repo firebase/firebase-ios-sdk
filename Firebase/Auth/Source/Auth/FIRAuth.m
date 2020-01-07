@@ -385,7 +385,11 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     UIApplication *application = [applicationClass sharedApplication];
 
     [GULAppDelegateSwizzler proxyOriginalDelegateIncludingAPNSMethods];
-    [GULSceneDelegateSwizzler proxyOriginalSceneDelegate];
+    #if ((TARGET_OS_IOS || TARGET_OS_TV) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 130000))
+      if (@available(iOS 13, tvos 13, *)) {
+      [GULSceneDelegateSwizzler proxyOriginalSceneDelegate];
+    }
+    #endif // ((TARGET_OS_IOS || TARGET_OS_TV) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 130000))
     #endif // TARGET_OS_IOS
 
     // Continue with the rest of initialization in the work thread.
