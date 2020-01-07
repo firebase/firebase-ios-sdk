@@ -452,7 +452,7 @@
     [self waitForExpectations:@[ getFIDExpectation ] timeout:0.5];
   }
 
-  //   3. Finish API request.
+  // 3. Finish API request.
   [registerAPIPromise reject:[FIRInstallationsErrorUtil APIErrorWithHTTPCode:400]];
 
   // 4. Verify mocks
