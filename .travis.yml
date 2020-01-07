@@ -2,8 +2,9 @@ os: osx
 osx_image: xcode11.3
 language: objective-c
 cache:
-  - bundler
-  - cocoapods
+  bundler: true
+  cocoapods: true
+  ccache: true
 
 stages:
   - checks
