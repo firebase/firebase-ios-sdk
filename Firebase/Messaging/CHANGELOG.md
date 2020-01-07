@@ -1,4 +1,7 @@
-# 2019-12 -- v4.1.10
+# 2020-01 -- v 4.2.0
+- [added] Added watchOS support for Firebase Messaging. This enables FCM push notification function on watch only app or independent watch app. (#4016)
+
+# 2019-12 -- v 4.1.10
 - [fixed] Fix component startup time. (#4137)
 
 # 2019-11-19 -- v4.1.9
