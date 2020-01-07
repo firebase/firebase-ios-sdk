@@ -64,8 +64,8 @@ class QueryCache {
   /**
    * Updates an entry in the cache.
    *
-   * The cache key is extracted from `queryData.target()`. The entry must already
-   * exist in the cache, and it will be replaced.
+   * The cache key is extracted from `queryData.target()`. The entry must
+   * already exist in the cache, and it will be replaced.
    *
    * @param query_data A QueryData instance to replace an existing entry in
    *     the cache

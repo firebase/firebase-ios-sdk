@@ -132,8 +132,9 @@ void RemoteStore::Shutdown() {
 
 void RemoteStore::Listen(const QueryData& query_data) {
   TargetId target_key = query_data.target_id();
-  HARD_ASSERT(listen_targets_.find(target_key) == listen_targets_.end(),
-              "Listen called with duplicate target id: %s", target_key);
+  if (listen_targets_.find(target_key) != listen_targets_.end()) {
+    return;
+  }
 
   // Mark this as something the client is currently listening for.
   listen_targets_[target_key] = query_data;

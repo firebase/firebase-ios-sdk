@@ -39,6 +39,8 @@ namespace core {
 
 using CollectionGroupId = std::shared_ptr<const std::string>;
 
+enum class LimitType { None, First, Last };
+
 /**
  * Encapsulates all the query attributes we support in the SDK. It represents
  * query features visible to user, and can be run against the LocalStore.
@@ -63,6 +65,7 @@ class Query {
         FilterList filters,
         OrderByList explicit_order_bys,
         int32_t limit,
+        LimitType limit_type,
         std::shared_ptr<Bound> start_at,
         std::shared_ptr<Bound> end_at)
       : path_(std::move(path)),
@@ -70,6 +73,7 @@ class Query {
         filters_(std::move(filters)),
         explicit_order_bys_(std::move(explicit_order_bys)),
         limit_(limit),
+        limit_type_(limit_type),
         start_at_(std::move(start_at)),
         end_at_(std::move(end_at)) {
   }
@@ -147,9 +151,17 @@ class Query {
   /** Returns the first field in an order-by constraint, or nullptr if none. */
   const model::FieldPath* FirstOrderByField() const;
 
-  int32_t limit() const {
-    return limit_;
+  bool has_limit_to_first() const {
+    return limit_type_ == LimitType::First && limit_ != Target::kNoLimit;
   }
+
+  bool has_limit_to_last() const {
+    return limit_type_ == LimitType::Last && limit_ != Target::kNoLimit;
+  }
+
+  LimitType limit_type() const;
+
+  int32_t limit() const;
 
   const std::shared_ptr<Bound>& start_at() const {
     return start_at_;
@@ -172,14 +184,27 @@ class Query {
   Query AddingOrderBy(OrderBy order_by) const;
 
   /**
-   * Returns a copy of this Query with the given limit on how many results can
-   * be returned.
+   * Returns a new `Query` that returns the first matching documents up to
+   * the specified number.
    *
    * @param limit The maximum number of results to return. If
    *     `limit == kNoLimit`, then no limit is applied. Otherwise, if
    *     `limit <= 0`, behavior is unspecified.
    */
-  Query WithLimit(int32_t limit) const;
+  Query WithLimitToFirst(int32_t limit) const;
+
+  /**
+   * Returns a new `Query` that returns the last matching documents up to
+   * the specified number.
+   *
+   * You must specify at least one `OrderBy` clause for `LimitToLast` queries,
+   * it is an error otherwise.
+   *
+   * @param limit The maximum number of results to return. If
+   *     `limit == kNoLimit`, then no limit is applied. Otherwise, if
+   *     `limit <= 0`, behavior is unspecified.
+   */
+  Query WithLimitToLast(int32_t limit) const;
 
   /**
    * Returns a copy of this Query starting at the provided bound.
@@ -210,7 +235,7 @@ class Query {
    */
   model::DocumentComparator Comparator() const;
 
-  const std::string& CanonicalId() const;
+  const std::string CanonicalId() const;
 
   std::string ToString() const;
 
@@ -222,6 +247,7 @@ class Query {
 
   friend std::ostream& operator<<(std::ostream& os, const Query& query);
 
+  friend bool operator==(const Query& lhs, const Query& rhs);
   size_t Hash() const;
 
  private:
@@ -247,6 +273,8 @@ class Query {
   mutable OrderByList memoized_order_bys_;
 
   int32_t limit_ = Target::kNoLimit;
+  LimitType limit_type_ = LimitType::None;
+
   std::shared_ptr<Bound> start_at_;
   std::shared_ptr<Bound> end_at_;
 
@@ -255,7 +283,6 @@ class Query {
 };
 
 bool operator==(const Query& lhs, const Query& rhs);
-
 inline bool operator!=(const Query& lhs, const Query& rhs) {
   return !(lhs == rhs);
 }

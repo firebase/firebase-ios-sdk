@@ -427,10 +427,10 @@ QueryData LocalStore::AllocateTarget(Target target) {
   // Sanity check to ensure that even when resuming a query it's not currently
   // active.
   TargetId target_id = query_data.target_id();
-  HARD_ASSERT(target_ids_.find(target_id) == target_ids_.end(),
-              "Tried to allocate an already allocated target: %s",
-              target.ToString());
-  target_ids_[target_id] = query_data;
+  if (target_ids_.find(target_id) == target_ids_.end()) {
+    target_ids_[target_id] = query_data;
+  }
+
   return query_data;
 }
 

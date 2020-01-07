@@ -61,6 +61,7 @@ using core::Direction;
 using core::FieldFilter;
 using core::Filter;
 using core::FilterList;
+using core::LimitType;
 using core::OrderBy;
 using core::OrderByList;
 using core::Query;
@@ -1022,7 +1023,7 @@ Target Serializer::DecodeQueryTarget(
 
   return Query(std::move(path), std::move(collection_group),
                std::move(filter_by), std::move(order_by), limit,
-               std::move(start_at), std::move(end_at))
+               LimitType::First, std::move(start_at), std::move(end_at))
       .ToTarget();
 }
 

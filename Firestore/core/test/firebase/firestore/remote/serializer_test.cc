@@ -1446,7 +1446,7 @@ TEST_F(SerializerTest, EncodesSortOrdersDescending) {
 }
 
 TEST_F(SerializerTest, EncodesLimits) {
-  QueryData model = CreateQueryData(Query("docs").WithLimit(26));
+  QueryData model = CreateQueryData(Query("docs").WithLimitToFirst(26));
 
   v1::Target proto;
   proto.mutable_query()->set_parent(ResourceName(""));
