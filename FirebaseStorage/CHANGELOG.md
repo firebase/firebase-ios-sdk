@@ -1,3 +1,6 @@
+# 3.5.0
+- [changed] Reorganized directory structure (#4573).
+
 # 3.4.2
 - [fixed] Internal changes to addres -Wunused-property-ivar violation (#4281).
 
