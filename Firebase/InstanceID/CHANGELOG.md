@@ -1,3 +1,7 @@
+# 2020-01 -- 4.3.0
+- [Added] Added watchOS support for InstanceID (#4016)
+- [changed] Added dependency on FirebaseInstallations (#4533)
+
 # 2019-12 -- 4.2.8
 - [changed] Added heartbeat support for InstanceID (#4323)
 - [fixed] Fixed the documentations on a few random generation and hash methods to clarify its use case to avoid confusions. (#4469, #4444, #4326)
