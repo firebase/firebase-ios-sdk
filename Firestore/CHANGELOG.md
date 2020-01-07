@@ -1,6 +1,6 @@
 # Unreleased
-- [feature] Added `FIRQuery.limitedToLast(_:limit)`, which returns the last
-  `limit` number of documents as the result.
+- [feature] Added a `limit(toLast:)` query operator, which returns the last
+  matching documents up to the given limit.
 
 # v1.8.3
 - [changed] Internal improvements.
