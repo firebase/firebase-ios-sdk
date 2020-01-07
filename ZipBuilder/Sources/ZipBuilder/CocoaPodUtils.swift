@@ -18,30 +18,31 @@ import Foundation
 
 /// CocoaPod related utility functions. The enum type is used as a namespace here instead of having
 /// root functions, and no cases should be added to it.
-public enum CocoaPodUtils {
+enum CocoaPodUtils {
   // MARK: - Public API
 
-  public struct VersionedPod: Decodable {
+  struct VersionedPod: Decodable {
     /// Public name of the pod.
     let name: String
 
-    /// The version of the pod.
+    /// The version of the requested pod.
     let version: String?
   }
 
   /// Information associated with an installed pod.
-  public struct PodInfo {
-    let versionedPod: VersionedPod
+  struct PodInfo {
+    /// The version of the generated pod.
+    let version: String
+
+    /// The pod dependencies.
+    let dependencies: [String]
 
     /// The location of the pod on disk.
-    var installedLocation: URL
-
-    var name: String { return versionedPod.name }
-    var version: String { return versionedPod.version ?? "" }
+    let installedLocation: URL
   }
 
   /// Executes the `pod cache clean --all` command to remove any cached CocoaPods.
-  public static func cleanPodCache() {
+  static func cleanPodCache() {
     let result = Shell.executeCommandFromScript("pod cache clean --all", outputToConsole: false)
     switch result {
     case let .error(code):
@@ -54,23 +55,8 @@ public enum CocoaPodUtils {
     }
   }
 
-  /// Executes the `pod cache list` command to get the Pods curerntly cached on your machine.
-  ///
-  /// - Parameter dir: The directory containing all installed pods.
-  /// - Returns: A dictionary keyed by the pod name, then by version number.
-  public static func listPodCache(inDir dir: URL) -> [String: [String: PodInfo]] {
-    let result = Shell.executeCommandFromScript("pod cache list", outputToConsole: false)
-    switch result {
-    case let .error(code):
-      fatalError("Could not list the pod cache in \(dir), the command exited with \(code). Try " +
-        "running in Terminal to see what's wrong.")
-    case let .success(output):
-      return parsePodsCache(output: output.components(separatedBy: "\n"))
-    }
-  }
-
   /// Gets metadata from installed Pods. Reads the `Podfile.lock` file and parses it.
-  public static func installedPodsInfo(inProjectDir projectDir: URL) -> [PodInfo] {
+  static func installedPodsInfo(inProjectDir projectDir: URL) -> [String: PodInfo] {
     // Read from the Podfile.lock to get the installed versions and names.
     let podfileLock: String
     do {
@@ -80,33 +66,21 @@ public enum CocoaPodUtils {
         "\(projectDir): \(error)")
     }
 
-    // Get the versions in the format of [PodName: VersionString].
-    let versions = loadVersionsFromPodfileLock(contents: podfileLock)
-
-    // Generate an InstalledPod for each Pod found.
-    let podsDir = projectDir.appendingPathComponent("Pods")
-    var installedPods: [PodInfo] = []
-    for (podName, version) in versions {
-      let podDir = podsDir.appendingPathComponent(podName)
-      guard FileManager.default.directoryExists(at: podDir) else {
-        fatalError("Directory for \(podName) doesn't exist at \(podDir) - failed while getting " +
-          "information for installed Pods.")
-      }
-
-      let podInfo = PodInfo(versionedPod: VersionedPod(name: podName, version: version),
-                            installedLocation: podDir)
-      installedPods.append(podInfo)
-    }
-
-    return installedPods
+    // Get the pods in the format of [PodInfo].
+    return loadPodInfoFromPodfileLock(contents: podfileLock)
   }
 
-  /// Install an array of pods in a specific directory, returning an array of PodInfo for each pod
+  /// Install an array of pods in a specific directory, returning a dictionary of PodInfo for each pod
   /// that was installed.
+  /// - Parameters:
+  ///   - pods: List of VersionedPods to install
+  ///   - directory: Destination directory for the pods.
+  ///   - customSpecRepos: Additional spec repos to check for installation.
+  /// - Returns: A dictionary of PodInfo's keyed by the pod name.
   @discardableResult
-  public static func installPods(_ pods: [VersionedPod],
-                                 inDir directory: URL,
-                                 customSpecRepos: [URL]? = nil) -> [PodInfo] {
+  static func installPods(_ pods: [VersionedPod],
+                          inDir directory: URL,
+                          customSpecRepos: [URL]? = nil) -> [String: PodInfo] {
     let fileManager = FileManager.default
     // Ensure the directory exists, otherwise we can't install all subspecs.
     guard fileManager.directoryExists(at: directory) else {
@@ -148,34 +122,72 @@ public enum CocoaPodUtils {
     }
   }
 
-  /// Load versions of installed Pods from the contents of a `Podfile.lock` file.
+  /// Load installed Pods from the contents of a `Podfile.lock` file.
   ///
   /// - Parameter contents: The contents of a `Podfile.lock` file.
-  /// - Returns: A dictionary with names of the pod for keys and a string representation of the
-  ///            version for values.
-  public static func loadVersionsFromPodfileLock(contents: String) -> [String: String] {
-    // This pattern matches a framework name with its version (two to three components)
+  /// - Returns: A dictionary of PodInfo structs keyed by the pod name.
+  static func loadPodInfoFromPodfileLock(contents: String) -> [String: PodInfo] {
+    // This pattern matches a pod name with its version (two to three components)
     // Examples:
     //  - FirebaseUI/Google (4.1.1):
     //  - GoogleSignIn (4.0.2):
 
     // Force unwrap the regular expression since we know it will work, it's a constant being passed
     // in. If any changes are made, be sure to run this script to ensure it works.
-    let regex = try! NSRegularExpression(pattern: " - (.+) \\((\\d+\\.\\d+\\.?\\d*)\\)",
-                                         options: [])
+    let podRegex = try! NSRegularExpression(pattern: " - (.+) \\((\\d+\\.\\d+\\.?\\d*)\\)",
+                                            options: [])
+    let depRegex: NSRegularExpression = try! NSRegularExpression(pattern: " - (.+).*",
+                                                                 options: [])
     let quotes = CharacterSet(charactersIn: "\"")
-    var frameworks: [String: String] = [:]
-    contents.components(separatedBy: .newlines).forEach { line in
-      if let (framework, version) = detectVersion(fromLine: line, matching: regex) {
-        let coreFramework = framework.components(separatedBy: "/")[0]
-        let key = coreFramework.trimmingCharacters(in: quotes)
-        frameworks[key] = version
+    var pods: [String: String] = [:]
+    var deps: [String: Set<String>] = [:]
+    var currentPod: String?
+    for line in contents.components(separatedBy: .newlines) {
+      if line.starts(with: "DEPENDENCIES:") {
+        break
+      }
+      if let (pod, version) = detectVersion(fromLine: line, matching: podRegex) {
+        let corePod = pod.components(separatedBy: "/")[0]
+        currentPod = corePod.trimmingCharacters(in: quotes)
+        pods[currentPod!] = version
+      } else if let currentPod = currentPod {
+        let matches = depRegex.matches(in: line, range: NSRange(location: 0, length: line.utf8.count))
+        // Match something like - GTMSessionFetcher/Full (= 1.3.0)
+        if let match = matches.first {
+          let depLine = (line as NSString).substring(with: match.range(at: 0)) as String
+          // Split spaces and subspecs.
+          let dep = depLine.components(separatedBy: [" ", "/"])[2].trimmingCharacters(in: quotes)
+          if dep != currentPod {
+            if deps[currentPod] == nil {
+              deps[currentPod] = Set()
+            }
+            deps[currentPod]?.insert(dep)
+          }
+        }
       }
     }
-    return frameworks
+
+    // Generate an InstalledPod for each Pod found.
+    let podsDir = projectDir.appendingPathComponent("Pods")
+    var installedPods: [String: PodInfo] = [:]
+    for (podName, version) in pods {
+      var podDir = podsDir.appendingPathComponent(podName)
+      // Make sure that pod got installed if it's not coming from a local podspec.
+      if !FileManager.default.directoryExists(at: podDir) {
+        guard let repoDir = LaunchArgs.shared.localPodspecPath else {
+          fatalError("Directory for \(podName) doesn't exist at \(podDir) - failed while getting " +
+            "information for installed Pods.")
+        }
+        podDir = repoDir
+      }
+      let dependencies = [String](deps[podName] ?? [])
+      let podInfo = PodInfo(version: version, dependencies: dependencies, installedLocation: podDir)
+      installedPods[podName] = podInfo
+    }
+    return installedPods
   }
 
-  public static func updateRepos() {
+  static func updateRepos() {
     let result = Shell.executeCommandFromScript("pod repo update")
     switch result {
     case let .error(_, output):
@@ -185,7 +197,7 @@ public enum CocoaPodUtils {
     }
   }
 
-  public static func podInstallPrepare(inProjectDir projectDir: URL) {
+  static func podInstallPrepare(inProjectDir projectDir: URL) {
     do {
       // Create the directory and all intermediate directories.
       try FileManager.default.createDirectory(at: projectDir, withIntermediateDirectories: true)
@@ -209,6 +221,33 @@ public enum CocoaPodUtils {
         fatalError("Could not copy template project to temporary directory in order to install " +
           "pods. Failed while attempting to copy \(file) to \(destination). \(error)")
       }
+    }
+  }
+
+  /// Get all transitive pod dependencies for a pod.
+  /// - Returns: An array of Strings of pod names.
+  static func transitivePodDependencies(for podName: String,
+                                        in installedPods: [String: PodInfo]) -> [String] {
+    var newDeps = Set([podName])
+    var returnDeps = Set<String>()
+    repeat {
+      var foundDeps = Set<String>()
+      for dep in newDeps {
+        let childDeps = installedPods[dep]?.dependencies ?? []
+        foundDeps.formUnion(Set(childDeps))
+      }
+      newDeps = foundDeps.subtracting(returnDeps)
+      returnDeps.formUnion(newDeps)
+    } while newDeps.count > 0
+    return Array(returnDeps)
+  }
+
+  /// Get all transitive pod dependencies for a pod.
+  /// - Returns: An array of dependencies with versions for a given pod.
+  static func transitiveVersionedPodDependencies(for podName: String,
+                                                 in installedPods: [String: PodInfo]) -> [VersionedPod] {
+    return transitivePodDependencies(for: podName, in: installedPods).map {
+      CocoaPodUtils.VersionedPod(name: $0, version: installedPods[$0]?.version)
     }
   }
 
@@ -269,52 +308,43 @@ public enum CocoaPodUtils {
     target 'FrameworkMaker' do\n
     """
 
+    var versionsSpecified = false
+
     // Loop through the subspecs passed in and use the actual Pod name.
     for pod in pods {
-      let version = pod.version == nil ? "" : ", '\(pod.version!)'"
-      podfile += "  pod '\(pod.name)'" + version + "\n"
+      podfile += "  pod '\(pod.name)'"
+      // Check if we want to use a local version of the podspec.
+      if let localURL = LaunchArgs.shared.localPodspecPath,
+        FileManager.default.fileExists(atPath: localURL.appendingPathComponent(pod.name + ".podspec").path) {
+        podfile += ", :path => '\(localURL.path)'"
+      } else if let podVersion = pod.version {
+        podfile += ", '\(podVersion)'"
+      }
+      if pod.version != nil {
+        // Don't add Google pods if versions were specified or we're doing a secondary install
+        // to create module maps.
+        versionsSpecified = true
+      }
+      podfile += "\n"
     }
 
-    podfile += "end"
-    return podfile
-  }
-
-  /// Parse the output from Pods Cache
-  private static func parsePodsCache(output: [String]) -> [String: [String: PodInfo]] {
-    var podName: String?
-    var podVersion: String?
-
-    var podsCache: [String: [String: PodInfo]] = [:]
-
-    for line in output {
-      let trimmedLine = line.trimmingCharacters(in: .whitespaces)
-      let parts = trimmedLine.components(separatedBy: ":")
-      if trimmedLine.hasSuffix(":") {
-        podName = parts[0]
-      } else {
-        guard parts.count == 2 else { continue }
-        let key = parts[0].trimmingCharacters(in: .whitespaces)
-        let value = parts[1].trimmingCharacters(in: .whitespaces)
-
-        switch key {
-        case "- Version":
-          podVersion = value
-        case "Pod":
-          let podLocation = URL(fileURLWithPath: value)
-          let podInfo = PodInfo(versionedPod: VersionedPod(name: podName!, version: podVersion!),
-                                installedLocation: podLocation)
-          if podsCache[podName!] == nil {
-            podsCache[podName!] = [:]
-          }
-          podsCache[podName!]![podVersion!] = podInfo
-
-        default:
-          break
+    // If we're using local pods, explicitly add FirebaseInstanceID, FirebaseInstallations,
+    // and any Google* podspecs if they exist and there are no
+    // explicit versions in the Podfile. Note there are versions for local podspecs if we're doing
+    // the secondary install for module map building.
+    if !versionsSpecified, let localURL = LaunchArgs.shared.localPodspecPath {
+      let podspecs = try! FileManager.default.contentsOfDirectory(atPath: localURL.path)
+      for podspec in podspecs {
+        if (podspec == "FirebaseInstanceID.podspec" ||
+          podspec == "FirebaseInstallations.podspec") ||
+          podspec.starts(with: "Google"), podspec.hasSuffix(".podspec") {
+          let podName = podspec.replacingOccurrences(of: ".podspec", with: "")
+          podfile += "  pod '\(podName)', :path => '\(localURL.path)/\(podspec)'\n"
         }
       }
     }
-
-    return podsCache
+    podfile += "end"
+    return podfile
   }
 
   /// Write a podfile that contains all the pods passed in to the directory passed in with a name

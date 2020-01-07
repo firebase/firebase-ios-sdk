@@ -1,8 +1,8 @@
 name: "Swift stdlib"
 description:
-    "This is the FirestoreEncoder and FirestoreDecoder, which are heavily "
-    "modified derivatives of the JSONEncoder and JSONDecoder from the Swift "
-    "stdlib's Foundation framework."
+  "This is the FirestoreEncoder and FirestoreDecoder, which are heavily "
+  "modified derivatives of the JSONEncoder and JSONDecoder from the Swift "
+  "stdlib's Foundation framework."
 
 third_party {
   url {

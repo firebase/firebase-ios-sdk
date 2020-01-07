@@ -18,6 +18,7 @@
 #import <XCTest/XCTest.h>
 
 #import <FirebaseInstanceID/FirebaseInstanceID.h>
+#import <GoogleUtilities/GULUserDefaults.h>
 
 #import "Example/Messaging/Tests/FIRMessagingTestUtilities.h"
 #import <FirebaseMessaging/FIRMessaging.h>
@@ -86,6 +87,8 @@ static NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test
 - (void)tearDown {
   [_testUtil cleanupAfterTest];
   _messaging = nil;
+  [_mockPubSub stopMocking];
+  [[[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingTestsServiceSuiteName] removePersistentDomainForName:kFIRMessagingTestsServiceSuiteName];
   [super tearDown];
 }
 

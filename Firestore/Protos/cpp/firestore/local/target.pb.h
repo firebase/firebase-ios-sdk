@@ -212,6 +212,7 @@ class Target :
   enum : int {
     kResumeTokenFieldNumber = 3,
     kSnapshotVersionFieldNumber = 2,
+    kLastLimboFreeSnapshotVersionFieldNumber = 7,
     kLastListenSequenceNumberFieldNumber = 4,
     kTargetIdFieldNumber = 1,
     kQueryFieldNumber = 5,
@@ -235,6 +236,14 @@ class Target :
   PROTOBUF_NAMESPACE_ID::Timestamp* release_snapshot_version();
   PROTOBUF_NAMESPACE_ID::Timestamp* mutable_snapshot_version();
   void set_allocated_snapshot_version(PROTOBUF_NAMESPACE_ID::Timestamp* snapshot_version);
+
+  // .google.protobuf.Timestamp last_limbo_free_snapshot_version = 7;
+  bool has_last_limbo_free_snapshot_version() const;
+  void clear_last_limbo_free_snapshot_version();
+  const PROTOBUF_NAMESPACE_ID::Timestamp& last_limbo_free_snapshot_version() const;
+  PROTOBUF_NAMESPACE_ID::Timestamp* release_last_limbo_free_snapshot_version();
+  PROTOBUF_NAMESPACE_ID::Timestamp* mutable_last_limbo_free_snapshot_version();
+  void set_allocated_last_limbo_free_snapshot_version(PROTOBUF_NAMESPACE_ID::Timestamp* last_limbo_free_snapshot_version);
 
   // int64 last_listen_sequence_number = 4;
   void clear_last_listen_sequence_number();
@@ -276,6 +285,7 @@ class Target :
   ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr resume_token_;
   PROTOBUF_NAMESPACE_ID::Timestamp* snapshot_version_;
+  PROTOBUF_NAMESPACE_ID::Timestamp* last_limbo_free_snapshot_version_;
   ::PROTOBUF_NAMESPACE_ID::int64 last_listen_sequence_number_;
   ::PROTOBUF_NAMESPACE_ID::int32 target_id_;
   union TargetTypeUnion {
@@ -647,6 +657,52 @@ inline ::google::firestore::v1::Target_DocumentsTarget* Target::mutable_document
   }
   // @@protoc_insertion_point(field_mutable:firestore.client.Target.documents)
   return target_type_.documents_;
+}
+
+// .google.protobuf.Timestamp last_limbo_free_snapshot_version = 7;
+inline bool Target::has_last_limbo_free_snapshot_version() const {
+  return this != internal_default_instance() && last_limbo_free_snapshot_version_ != nullptr;
+}
+inline const PROTOBUF_NAMESPACE_ID::Timestamp& Target::last_limbo_free_snapshot_version() const {
+  const PROTOBUF_NAMESPACE_ID::Timestamp* p = last_limbo_free_snapshot_version_;
+  // @@protoc_insertion_point(field_get:firestore.client.Target.last_limbo_free_snapshot_version)
+  return p != nullptr ? *p : *reinterpret_cast<const PROTOBUF_NAMESPACE_ID::Timestamp*>(
+      &PROTOBUF_NAMESPACE_ID::_Timestamp_default_instance_);
+}
+inline PROTOBUF_NAMESPACE_ID::Timestamp* Target::release_last_limbo_free_snapshot_version() {
+  // @@protoc_insertion_point(field_release:firestore.client.Target.last_limbo_free_snapshot_version)
+  
+  PROTOBUF_NAMESPACE_ID::Timestamp* temp = last_limbo_free_snapshot_version_;
+  last_limbo_free_snapshot_version_ = nullptr;
+  return temp;
+}
+inline PROTOBUF_NAMESPACE_ID::Timestamp* Target::mutable_last_limbo_free_snapshot_version() {
+  
+  if (last_limbo_free_snapshot_version_ == nullptr) {
+    auto* p = CreateMaybeMessage<PROTOBUF_NAMESPACE_ID::Timestamp>(GetArenaNoVirtual());
+    last_limbo_free_snapshot_version_ = p;
+  }
+  // @@protoc_insertion_point(field_mutable:firestore.client.Target.last_limbo_free_snapshot_version)
+  return last_limbo_free_snapshot_version_;
+}
+inline void Target::set_allocated_last_limbo_free_snapshot_version(PROTOBUF_NAMESPACE_ID::Timestamp* last_limbo_free_snapshot_version) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
+  if (message_arena == nullptr) {
+    delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(last_limbo_free_snapshot_version_);
+  }
+  if (last_limbo_free_snapshot_version) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+      reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(last_limbo_free_snapshot_version)->GetArena();
+    if (message_arena != submessage_arena) {
+      last_limbo_free_snapshot_version = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, last_limbo_free_snapshot_version, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  last_limbo_free_snapshot_version_ = last_limbo_free_snapshot_version;
+  // @@protoc_insertion_point(field_set_allocated:firestore.client.Target.last_limbo_free_snapshot_version)
 }
 
 inline bool Target::has_target_type() const {

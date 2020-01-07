@@ -99,7 +99,14 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
                       documentKey:(DocumentKey)documentKey
                          document:(const absl::optional<Document> &)document
                          metadata:(SnapshotMetadata)metadata {
-  DocumentSnapshot wrapped{firestore, std::move(documentKey), document, std::move(metadata)};
+  DocumentSnapshot wrapped;
+  if (document.has_value()) {
+    wrapped =
+        DocumentSnapshot::FromDocument(std::move(firestore), document.value(), std::move(metadata));
+  } else {
+    wrapped = DocumentSnapshot::FromNoDocument(std::move(firestore), std::move(documentKey),
+                                               std::move(metadata));
+  }
   return [self initWithSnapshot:std::move(wrapped)];
 }
 

@@ -13,21 +13,40 @@ identifier (e.g. `com.google.FirebaseExperimental1.dev`)
 4. Download the resulting `GoogleService-Info.plist` and place it in
 [Sample/GoogleService-Info.plist](Sample/GoogleService-Info.plist)
 
-#### GoogleService-Info_multi.plist files
+#### GoogleService-Info\_multi.plist files
 
-This feature is for advanced testing.
-1. The developer would need to get a GoogleService-Info.plist from a different iOS client (which
-can be in a different Firebase project)
-2. Save this plist file as GoogleService-Info_multi.plist in
-[Sample/GoogleService-Info_multi.plist](Sample/GoogleService-Info_multi.plist).
+1. Create a second sample app and download its `GoogleService_Info.plist` file.  This can be in the
+same Firebase project as the one above, or a different one.  Use a different app bundle identifier
+(e.g.  `com.google.FirebaseExperimental2.dev`).
+2. Save this plist file as `GoogleService-Info_multi.plist` in
+[Sample/GoogleService-Info\_multi.plist](Sample/GoogleService-Info_multi.plist).
 This enables testing that FirebaseAuth continues to work after switching the Firebase App in the
 runtime.
 
-#### Application.plist file
+#### Getting your own Credential files
 
 Please follow the instructions in
-[Sample/ApplicationTemplate.plist](Sample/ApplicationTemplate.plist)
-to generate the right Application.plist file.
+[Sample/AuthCredentialsTemplate.h](Sample/AuthCredentialsTemplate.h)
+to generate the AuthCredentials.h file.
+
+#### Application.plist file
+
+Generate the `Sample/Application.plist` file from
+[Sample/ApplicationTemplate.plist](Sample/ApplicationTemplate.plist) by replacing `$BUNDLE_ID` and
+`$REVERSED_CLIENT_ID` with their values from `GoogleService-Info.plist` and
+`$REVERSED_CLIENT_MULTI_ID` with its value from `GoogleService-Info_multi.plist`.
+
+This could be done in bash via something like this from within the `Sample` directory:
+```bash
+$ BUNDLE_ID=`xmllint --xpath "/plist/dict/key[.='BUNDLE_ID']/following-sibling::string[1]/text()" GoogleService-Info.plist`
+$ REVERSED_CLIENT_ID=`xmllint --xpath "/plist/dict/key[.='REVERSED_CLIENT_ID']/following-sibling::string[1]/text()" GoogleService-Info.plist`
+$ REVERSED_CLIENT_MULTI_ID=`xmllint --xpath "/plist/dict/key[.='REVERSED_CLIENT_ID']/following-sibling::string[1]/text()" GoogleService-Info_multi.plist`
+$ sed \
+      -e 's/\$BUNDLE_ID/'$BUNDLE_ID'/g' \
+      -e 's/\$REVERSED_CLIENT_ID/'$REVERSED_CLIENT_ID'/g' \
+      -e 's/\$REVERSED_CLIENT_MULTI_ID/'$REVERSED_CLIENT_MULTI_ID'/g' \
+      ApplicationTemplate.plist > Application.plist
+```
 
 #### Sample.entitlements file
 
@@ -83,6 +102,18 @@ In order to run the API tests, you'll need to follow the following steps!
 Please follow the instructions in
 [ApiTests/AuthCredentialsTemplate.h](ApiTests/AuthCredentialsTemplate.h)
 to generate the AuthCredentials.h file.
+
+#### Console
+
+In the Firebase conosle for your test project, you'll need to enable the
+following auth providers:
+* Email/Password
+* Google
+* Facebook
+* Anonymous
+
+You'll also need to create a user with email
+`user+email_existing_user@example.com` and password of `password`.
 
 ## Usage
 

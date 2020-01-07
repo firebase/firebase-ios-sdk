@@ -21,7 +21,7 @@ In order to build the Zip file, you will need:
 
 ### Running the Tool
 
-You can run the tool with `swift run ZipBuilder [ARGS]` or generate an Xcode project with
+You can run the tool with `swift run ReleasePackager [ARGS]` or generate an Xcode project with
 `swift package generate-xcodeproj` and run within Xcode.
 
 ### Launch Arguments
@@ -71,6 +71,8 @@ For release engineers (Googlers packaging an upcoming Firebase release) these co
 - `-existingVersions <PATH_TO_all_firebase_ios_sdks.textproto>`
   - Validates the version numbers fetched from CocoaPods staging against the expected released versions from these
     textprotos.
+- `-carthageDir <PATH_TO_Firebase/CarthageScripts/json>` Turns on generation of Carthage zips and json file updates.
+- `-keepBuildArtifacts true` Useful for debugging and verifying the zip build contents.
 
 Putting them all together, here's a common command to build a releaseable Zip file:
 
@@ -79,11 +81,13 @@ swift run ReleasePackager -templateDir $(pwd)/Template -updatePodRepo false \
 -releasingSDKs <PATH_TO_current.textproto> \
 -existingVersions <PATH_TO_all_firebase_ios_sdks.textproto> \
 -customSpecRepos sso://cpdc-internal/firebase
+-carthageDir <PATH_TO_Firebase/CarthageScripts/json>
+-keepBuildArtifacts true
 ```
 
 ### Carthage
 
-Carthage binaries can also be built at the same time as the zip file by passing in `-carthagePath
+Carthage binaries can also be built at the same time as the zip file by passing in `-carthageDir
 <path_to_json_files>` as a command line argument. This directory should contain JSON files describing versions
 and download locations for each product. This will result in a folder called "carthage" at the root where the zip
 directory exists containing all the zip files and JSON files necessary for distribution.

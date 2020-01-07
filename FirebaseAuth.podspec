@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAuth'
-  s.version          = '6.4.0'
+  s.version          = '6.4.1'
   s.summary          = 'The official iOS client for Firebase Authentication (plus community support for macOS and tvOS)'
 
   s.description      = <<-DESC
@@ -27,27 +27,6 @@ supports email and password accounts, as well as several 3rd party authenticatio
 
   source = 'Firebase/Auth/Source/'
   s.source_files = source + '**/*.[mh]'
-  s.osx.exclude_files = [
-    source + '**/FIRAuthNotificationManager.[mh]',
-    source + '**/FIRAuthAppCredentialManager.[mh]',
-    source + '**/FIRAuthAPNSTokenManager.[mh]',
-    source + '**/FIRAuthAPNSTokenType.[mh]',
-    source + '**/FIRAuthAPNSToken.[mh]',
-    source + '**/FIRAuthDefaultUIDelegate.[mh]',
-    source + '**/FIRAuthUIDelegate.h',
-    source + '**/FIRAuthURLPresenter.[mh]',
-    source + '**/FIRAuthWebView.[mh]',
-    source + '**/FIRAuthWebViewController.[mh]',
-    source + '**/FIRPhoneAuthCredential.[mh]',
-    source + '**/FIRPhoneAuthProvider.[mh]'
-  ]
-  s.tvos.exclude_files = [
-    source + '**/FIRAuthURLPresenter.[mh]',
-    source + '**/FIRAuthWebView.[mh]',
-    source + '**/FIRAuthWebViewController.[mh]',
-    source + '**/FIRPhoneAuthCredential.[mh]',
-    source + '**/FIRPhoneAuthProvider.[mh]'
-  ]
   s.public_header_files = source + 'Public/*.h'
   s.preserve_paths = [
     'Firebase/Auth/README.md',

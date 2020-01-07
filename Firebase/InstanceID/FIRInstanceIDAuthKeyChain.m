@@ -91,7 +91,7 @@ NSString *const kFIRInstanceIDKeychainWildcardIdentifier = @"*";
   // FIRInstanceIDKeychain should only take a query and return a result, will handle the query here.
   NSArray *passwordInfos =
       CFBridgingRelease([[FIRInstanceIDKeychain sharedInstance] itemWithQuery:keychainQuery]);
-#elif TARGET_OS_OSX
+#elif TARGET_OS_OSX || TARGET_OS_WATCH
   keychainQuery[(__bridge id)kSecMatchLimit] = (__bridge id)kSecMatchLimitOne;
   NSData *passwordInfos =
       CFBridgingRelease([[FIRInstanceIDKeychain sharedInstance] itemWithQuery:keychainQuery]);
@@ -120,7 +120,7 @@ NSString *const kFIRInstanceIDKeychainWildcardIdentifier = @"*";
       [results addObject:passwordInfo[(__bridge id)kSecValueData]];
     }
   }
-#elif TARGET_OS_OSX
+#elif TARGET_OS_OSX || TARGET_OS_WATCH
   [results addObject:passwordInfos];
 #endif
   // We query the keychain because it didn't exist in cache, now query is done, update the result in

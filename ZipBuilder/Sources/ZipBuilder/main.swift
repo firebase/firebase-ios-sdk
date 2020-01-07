@@ -58,7 +58,8 @@ if args.zipPods == nil {
 } else {
   let (installedPods, frameworks) = builder.buildAndAssembleZip(podsToInstall: LaunchArgs.shared.zipPods!)
   let staging = FileManager.default.temporaryDirectory(withName: "staging")
-  try builder.copyFrameworks(fromPods: installedPods, toDirectory: staging, frameworkLocations: frameworks)
+  try builder.copyFrameworks(fromPods: Array(installedPods.keys), toDirectory: staging,
+                             frameworkLocations: frameworks)
   zipped = Zip.zipContents(ofDir: staging, name: "Frameworks.zip")
   print(zipped.absoluteString)
   if let outputDir = args.outputDir {

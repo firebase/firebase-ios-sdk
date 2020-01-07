@@ -19,4 +19,4 @@ readonly DIR="$( git rev-parse --show-toplevel )"
 
 "$DIR/GoogleDataTransportCCTSupport/ProtoSupport/generate_cct_protos.sh" || echo "Something went wrong generating protos.";
 
-pod gen "${DIR}/GoogleDataTransportCCTSupport.podspec" --auto-open --gen-directory="${DIR}/gen" --local-sources="${DIR}" --clean
+pod gen "${DIR}/GoogleDataTransportCCTSupport.podspec" --auto-open --gen-directory="${DIR}/gen" --local-sources="${DIR}" --platforms=ios,macos,tvos --clean

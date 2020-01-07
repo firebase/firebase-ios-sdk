@@ -309,13 +309,20 @@ void SyncEngine::HandleRejectedListen(TargetId target_id, Status error) {
     // store's invariants with another method.
     NoDocument doc(limbo_key, SnapshotVersion::None(),
                    /* has_committed_mutations= */ false);
-    DocumentKeySet limbo_documents = DocumentKeySet{limbo_key};
-    RemoteEvent event{SnapshotVersion::None(), /*target_changes=*/{},
-                      /*target_mismatches=*/{},
-                      /*document_updates=*/{{limbo_key, doc}},
+
+    // Explicitly instantiate these to work around a bug in the default
+    // constructor of the std::unordered_map that comes with GCC 4.8. Without
+    // this GCC emits a spurious "chosen constructor is explicit in
+    // copy-initialization" error.
+    DocumentKeySet limbo_documents{limbo_key};
+    RemoteEvent::TargetChangeMap target_changes;
+    RemoteEvent::TargetSet target_mismatches;
+    RemoteEvent::DocumentUpdateMap document_updates{{limbo_key, doc}};
+
+    RemoteEvent event{SnapshotVersion::None(), std::move(target_changes),
+                      std::move(target_mismatches), std::move(document_updates),
                       std::move(limbo_documents)};
     ApplyRemoteEvent(event);
-
   } else {
     local_store_->ReleaseTarget(target_id);
     RemoveAndCleanupTarget(target_id, error);
@@ -326,10 +333,10 @@ void SyncEngine::HandleSuccessfulWrite(
     const model::MutationBatchResult& batch_result) {
   AssertCallbackExists("HandleSuccessfulWrite");
 
-  // The local store may or may not be able to apply the write result and raise
-  // events immediately (depending on whether the watcher is caught up), so we
-  // raise user callbacks first so that they consistently happen before listen
-  // events.
+  // The local store may or may not be able to apply the write result and
+  // raise events immediately (depending on whether the watcher is caught up),
+  // so we raise user callbacks first so that they consistently happen before
+  // listen events.
   NotifyUser(batch_result.batch().batch_id(), Status::OK());
 
   TriggerPendingWriteCallbacks(batch_result.batch().batch_id());
@@ -350,10 +357,10 @@ void SyncEngine::HandleRejectedWrite(
              error.error_message());
   }
 
-  // The local store may or may not be able to apply the write result and raise
-  // events immediately (depending on whether the watcher is caught up), so we
-  // raise user callbacks first so that they consistently happen before listen
-  // events.
+  // The local store may or may not be able to apply the write result and
+  // raise events immediately (depending on whether the watcher is caught up),
+  // so we raise user callbacks first so that they consistently happen before
+  // listen events.
   NotifyUser(batch_id, std::move(error));
 
   TriggerPendingWriteCallbacks(batch_id);
@@ -430,7 +437,7 @@ void SyncEngine::TriggerPendingWriteCallbacks(BatchId batch_id) {
 }
 
 void SyncEngine::FailOutstandingPendingWriteCallbacks(
-    absl::string_view message) {
+    const std::string& message) {
   for (const auto& entry : pending_writes_callbacks_) {
     for (const auto& callback : entry.second) {
       callback(Status(Error::Cancelled, message));
@@ -451,9 +458,9 @@ void SyncEngine::EmitNewSnapshotsAndNotifyLocalStore(
     View& view = query_view->view();
     ViewDocumentChanges view_doc_changes = view.ComputeDocumentChanges(changes);
     if (view_doc_changes.needs_refill()) {
-      // The query has a limit and some docs were removed/updated, so we need to
-      // re-run the query against the local store to make sure we didn't lose
-      // any good docs that had been past the limit.
+      // The query has a limit and some docs were removed/updated, so we need
+      // to re-run the query against the local store to make sure we didn't
+      // lose any good docs that had been past the limit.
       DocumentMap docs = local_store_->ExecuteQuery(query_view->query());
       view_doc_changes =
           view.ComputeDocumentChanges(docs.underlying_map(), view_doc_changes);

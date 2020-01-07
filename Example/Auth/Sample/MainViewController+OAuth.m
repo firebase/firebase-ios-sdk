@@ -16,11 +16,17 @@
 
 #import "MainViewController+OAuth.h"
 
+#import <AuthenticationServices/AuthenticationServices.h>
+
 #import "AppManager.h"
 #import "FIROAuthProvider.h"
 #import "MainViewController+Internal.h"
 
 NS_ASSUME_NONNULL_BEGIN
+
+@interface MainViewController () <ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding>
+
+@end
 
 @implementation MainViewController (OAuth)
 
@@ -33,6 +39,14 @@ NS_ASSUME_NONNULL_BEGIN
                                        action:^{ [weakSelf linkWithGoogleHeadfulLite]; }],
     [StaticContentTableViewCell cellWithTitle:@"Reauthenticate with Google"
                                        action:^{ [weakSelf reauthenticateWithGoogleHeadfulLite]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Sign in with Apple"
+                                       action:^{ [weakSelf signInWithApple]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Link with Apple"
+                                       action:^{ [weakSelf linkWithApple]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Unlink with Apple"
+                                       action:^{ [weakSelf unlinkFromProvider:@"apple.com" completion:nil]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Reauthenticate with Apple"
+                                       action:^{ [weakSelf reauthenticateWithApple]; }],
     [StaticContentTableViewCell cellWithTitle:@"Sign in with Twitter"
                                        action:^{ [weakSelf signInTwitterHeadfulLite]; }],
     [StaticContentTableViewCell cellWithTitle:@"Sign in with GitHub"
@@ -245,7 +259,6 @@ NS_ASSUME_NONNULL_BEGIN
   }];
 }
 
-
 - (void)signInMicrosoftHeadfulLite {
   FIROAuthProvider *provider = self.microsoftOAuthProvider;
   provider.customParameters = @{
@@ -303,6 +316,86 @@ NS_ASSUME_NONNULL_BEGIN
        }];
     }];
   }];
+}
+
+- (ASAuthorizationAppleIDRequest *)appleIDRequestWithState:(NSString *)state API_AVAILABLE(ios(13.0)) {
+  ASAuthorizationAppleIDRequest *request = [[[ASAuthorizationAppleIDProvider alloc] init] createRequest];
+  request.requestedScopes = @[ASAuthorizationScopeEmail, ASAuthorizationScopeFullName];
+  request.nonce = @"REPLACE_ME_WITH_YOUR_NONCE";
+  request.state = state;
+  return request;
+}
+
+- (void)signInWithApple {
+  if (@available(iOS 13, *)) {
+    ASAuthorizationAppleIDRequest* request = [self appleIDRequestWithState:@"signIn"];
+
+    ASAuthorizationController* controller = [[ASAuthorizationController alloc] initWithAuthorizationRequests:@[request]];
+    controller.delegate = self;
+    controller.presentationContextProvider = self;
+    [controller performRequests];
+  }
+}
+
+- (void)linkWithApple {
+  if (@available(iOS 13, *)) {
+    ASAuthorizationAppleIDRequest* request = [self appleIDRequestWithState:@"link"];
+
+    ASAuthorizationController* controller = [[ASAuthorizationController alloc] initWithAuthorizationRequests:@[request]];
+    controller.delegate = self;
+    controller.presentationContextProvider = self;
+    [controller performRequests];
+  }
+}
+
+- (void)reauthenticateWithApple {
+  if (@available(iOS 13, *)) {
+    ASAuthorizationAppleIDRequest* request = [self appleIDRequestWithState:@"reauth"];
+
+    ASAuthorizationController* controller = [[ASAuthorizationController alloc] initWithAuthorizationRequests:@[request]];
+    controller.delegate = self;
+    controller.presentationContextProvider = self;
+    [controller performRequests];
+  }
+}
+
+- (void)authorizationController:(ASAuthorizationController *)controller didCompleteWithAuthorization:(ASAuthorization *)authorization API_AVAILABLE(ios(13.0)) {
+  ASAuthorizationAppleIDCredential* appleIDCredential = authorization.credential;
+  NSString *idToken = [NSString stringWithUTF8String:[appleIDCredential.identityToken bytes]];
+  FIROAuthCredential *credential = [FIROAuthProvider credentialWithProviderID:@"apple.com"
+                                                                      IDToken:idToken
+                                                                     rawNonce:@"REPLACE_ME_WITH_YOUR_RAW_NONCE"
+                                                                  accessToken:nil];
+
+  if ([appleIDCredential.state isEqualToString:@"signIn"]) {
+    [FIRAuth.auth signInWithCredential:credential completion:^(FIRAuthDataResult * _Nullable authResult, NSError * _Nullable error) {
+      if (!error) {
+        NSLog(@"%@", authResult.description);
+      } else {
+        NSLog(@"%@", error.description);
+      }
+    }];
+  } else if ([appleIDCredential.state isEqualToString:@"link"]) {
+    [FIRAuth.auth.currentUser linkWithCredential:credential completion:^(FIRAuthDataResult * _Nullable authResult, NSError * _Nullable error) {
+      if (!error) {
+        NSLog(@"%@", authResult.description);
+      } else {
+        NSLog(@"%@", error.description);
+      }
+    }];
+  } else if ([appleIDCredential.state isEqualToString:@"reauth"]) {
+    [FIRAuth.auth.currentUser reauthenticateWithCredential:credential completion:^(FIRAuthDataResult * _Nullable authResult, NSError * _Nullable error) {
+      if (!error) {
+        NSLog(@"%@", authResult.description);
+      } else {
+        NSLog(@"%@", error.description);
+      }
+    }];
+  }
+}
+
+- (void)authorizationController:(ASAuthorizationController *)controller didCompleteWithError:(NSError *)error API_AVAILABLE(ios(13.0)) {
+  NSLog(@"%@", error.description);
 }
 
 @end

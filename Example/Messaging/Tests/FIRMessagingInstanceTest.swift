@@ -27,14 +27,6 @@ class FIRMessagingInstanceTest: XCTestCase {
     FirebaseApp.configure(options: options)
     let original = Messaging.messaging()
 
-    // Ensure the client is set up as expected.
-    guard let isOrigClientSetup = original.value(forKey: "isClientSetup") as? Bool else {
-      XCTFail("Could not get internal Messaging variable `isClientSetup`.")
-      return
-    }
-
-    XCTAssertTrue(isOrigClientSetup, "Property `isClientSetup` should be true after creation.")
-
     // Get and delete the default app.
     guard let defaultApp = FirebaseApp.app() else {
       XCTFail("Default app was not configured properly.")
@@ -54,13 +46,5 @@ class FIRMessagingInstanceTest: XCTestCase {
     // Get another instance of Messaging, make sure it's not the same instance.
     let postDelete = Messaging.messaging()
     XCTAssertNotEqual(original, postDelete)
-
-    // Ensure the new client is set up as expected.
-    guard let isClientSetup = postDelete.value(forKey: "isClientSetup") as? Bool else {
-      XCTFail("Could not get internal Messaging variable `isClientSetup`.")
-      return
-    }
-
-    XCTAssertTrue(isClientSetup, "Property `isClientSetup` should be true after creation.")
   }
 }

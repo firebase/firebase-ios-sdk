@@ -42,14 +42,18 @@ struct ModuleMapBuilder {
   private let customSpecRepos: [URL]?
 
   /// Dictionary of all installed pods.
+  private let allPods: [String: CocoaPodUtils.PodInfo]
+
+  /// Dictionary of installed pods required for this module.
   private var installedPods: [String: FrameworkInfo]
 
   /// Default initializer.
-  init(frameworks: [String: [URL]], customSpecRepos: [URL]?) {
+  init(frameworks: [String: [URL]], customSpecRepos: [URL]?, allPods: [String: CocoaPodUtils.PodInfo]) {
     projectDir = FileManager.default.temporaryDirectory(withName: "module")
     CocoaPodUtils.podInstallPrepare(inProjectDir: projectDir)
 
     self.customSpecRepos = customSpecRepos
+    self.allPods = allPods
 
     var cacheDir: URL
     do {
@@ -79,7 +83,7 @@ struct ModuleMapBuilder {
 
   /// Build the module map files for the source frameworks.
   ///
-  public func build() {
+  func build() {
     for (_, info) in installedPods {
       if info.isSourcePod == false || info.transitiveFrameworks != nil {
         continue
@@ -90,9 +94,15 @@ struct ModuleMapBuilder {
 
   // MARK: - Internal Functions
 
-  /// Build a module map for a single framework.
+  /// Build a module map for a single framework. A CocoaPod install is run to extract the required frameworks
+  /// and libraries from the generated xcconfig. All previously installed dependent pods are put into the Podfile
+  /// to make sure we install the right version and from the right location.
   private func generate(framework: FrameworkInfo) {
-    _ = CocoaPodUtils.installPods([framework.versionedPod], inDir: projectDir, customSpecRepos: customSpecRepos)
+    let podName = framework.versionedPod.name
+    let deps = CocoaPodUtils.transitiveVersionedPodDependencies(for: podName, in: allPods)
+    _ = CocoaPodUtils.installPods([framework.versionedPod] + deps,
+                                  inDir: projectDir,
+                                  customSpecRepos: customSpecRepos)
     let xcconfigFile = projectDir.appendingPathComponents(["Pods", "Target Support Files",
                                                            "Pods-FrameworkMaker",
                                                            "Pods-FrameworkMaker.release.xcconfig"])
