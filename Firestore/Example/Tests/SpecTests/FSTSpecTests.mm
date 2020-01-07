@@ -210,11 +210,18 @@ ByteString MakeResumeToken(NSString *specString) {
     std::shared_ptr<const std::string> collectionGroup =
         util::MakeStringPtr(queryDict[@"collectionGroup"]);
     Query query(std::move(resource_path), std::move(collectionGroup));
+
     if (queryDict[@"limit"]) {
       NSNumber *limitNumber = queryDict[@"limit"];
       auto limit = static_cast<int32_t>(limitNumber.integerValue);
-      query = query.WithLimitToFirst(limit);
+      NSString *limitType = queryDict[@"limitType"];
+      if ([limitType isEqualToString:@"LimitToFirst"]) {
+        query = query.WithLimitToFirst(limit);
+      } else {
+        query = query.WithLimitToLast(limit);
+      }
     }
+
     if (queryDict[@"filters"]) {
       NSArray<NSArray<id> *> *filters = queryDict[@"filters"];
       for (NSArray<id> *filter in filters) {
@@ -224,6 +231,7 @@ ByteString MakeResumeToken(NSString *specString) {
         query = query.AddingFilter(Filter(key, op, value));
       }
     }
+
     if (queryDict[@"orderBys"]) {
       NSArray *orderBys = queryDict[@"orderBys"];
       for (NSArray<NSString *> *orderBy in orderBys) {
@@ -647,21 +655,25 @@ ByteString MakeResumeToken(NSString *specString) {
       [self.driver setExpectedLimboDocuments:std::move(expectedLimboDocuments)];
     }
     if (expectedState[@"activeTargets"]) {
-      __block std::unordered_map<TargetId, QueryData> expectedActiveTargets;
+      __block ActiveTargetMap expectedActiveTargets;
       [expectedState[@"activeTargets"]
           enumerateKeysAndObjectsUsingBlock:^(NSString *targetIDString, NSDictionary *queryData,
                                               BOOL *stop) {
             TargetId targetID = [targetIDString intValue];
-            Query query = [self parseQuery:queryData[@"query"]];
             ByteString resumeToken = MakeResumeToken(queryData[@"resumeToken"]);
-            // TODO(mcg): populate the purpose of the target once it's possible to encode that in
-            // the spec tests. For now, hard-code that it's a listen despite the fact that it's not
-            // always the right value.
-            expectedActiveTargets[targetID] =
-                QueryData(query.ToTarget(), targetID, 0, QueryPurpose::Listen,
-                          SnapshotVersion::None(), std::move(resumeToken));
+            NSArray *queriesJson = queryData[@"queries"];
+            std::vector<QueryData> queries;
+            for (id queryJson in queriesJson) {
+              Query query = [self parseQuery:queryJson];
+              // TODO(mcg): populate the purpose of the target once it's possible to encode that in
+              // the spec tests. For now, hard-code that it's a listen despite the fact that it's
+              // not always the right value.
+              queries.push_back(QueryData(query.ToTarget(), targetID, 0, QueryPurpose::Listen,
+                                          SnapshotVersion::None(), std::move(resumeToken)));
+            }
+            expectedActiveTargets[targetID] = std::make_pair(std::move(queries), resumeToken);
           }];
-      [self.driver setExpectedActiveTargets:expectedActiveTargets];
+      [self.driver setExpectedActiveTargets:std::move(expectedActiveTargets)];
     }
   }
 
@@ -722,9 +734,10 @@ ByteString MakeResumeToken(NSString *specString) {
   // Create a copy so we can modify it below
   std::unordered_map<TargetId, QueryData> actualTargets = [self.driver activeTargets];
 
-  for (const auto &kv : [self.driver activeTargets]) {
+  for (const auto &kv : [self.driver expectedActiveTargets]) {
     TargetId targetID = kv.first;
-    const QueryData &queryData = kv.second;
+    const std::pair<std::vector<QueryData>, ByteString> &queries = kv.second;
+    const QueryData &queryData = queries.first[0];
 
     auto found = actualTargets.find(targetID);
     XCTAssertNotEqual(found, actualTargets.end(), @"Expected active target not found: %s",
