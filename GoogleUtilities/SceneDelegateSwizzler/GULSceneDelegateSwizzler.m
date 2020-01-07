@@ -14,7 +14,6 @@
 
 #import "TargetConditionals.h"
 
-#import <GoogleUtilities/GULAppDelegateSwizzler.h>
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <GoogleUtilities/GULLogger.h>
 #import <GoogleUtilities/GULMutableDictionary.h>
@@ -25,12 +24,12 @@
 #import <objc/runtime.h>
 
 #if UISCENE_SUPPORTED
+
 API_AVAILABLE(ios(13.0), tvos(13.0))
 typedef void (*GULOpenURLContextsIMP)(id, SEL, UIScene *, NSSet<UIOpenURLContext *> *);
 
 API_AVAILABLE(ios(13.0), tvos(13.0))
 typedef void (^GULSceneDelegateInterceptorCallback)(id<UISceneDelegate>);
-#endif  // UISCENE_SUPPORTED
 
 // The strings below are the keys for associated objects.
 static char const *const kGULRealIMPBySelectorKey = "GUL_realIMPBySelector";
@@ -75,10 +74,29 @@ static NSString *const kGULSceneDelegatePrefix = @"GUL_";
 #pragma mark - Public methods
 
 + (BOOL)isSceneDelegateProxyEnabled {
-  return [GULAppDelegateSwizzler isAppDelegateProxyEnabled];
-}
+  NSDictionary *infoDictionary = [NSBundle mainBundle].infoDictionary;
 
-#if UISCENE_SUPPORTED
+  id isFirebaseProxyEnabledPlistValue =
+      infoDictionary[kGULFirebaseSceneDelegateProxyEnabledPlistKey];
+  id isGoogleProxyEnabledPlistValue =
+      infoDictionary[kGULGoogleUtilitiesSceneDelegateProxyEnabledPlistKey];
+
+  // Enabled by default.
+  BOOL isFirebaseSceneDelegateProxyEnabled = YES;
+  BOOL isGoogleUtilitiesSceneDelegateProxyEnabled = YES;
+
+  if ([isFirebaseProxyEnabledPlistValue isKindOfClass:[NSNumber class]]) {
+    isFirebaseSceneDelegateProxyEnabled = [isFirebaseProxyEnabledPlistValue boolValue];
+  }
+
+  if ([isGoogleProxyEnabledPlistValue isKindOfClass:[NSNumber class]]) {
+    isGoogleUtilitiesSceneDelegateProxyEnabled = [isGoogleProxyEnabledPlistValue boolValue];
+  }
+
+  // Only deactivate the proxy if it is explicitly disabled by app developers using either one of
+  // the plist flags.
+  return isFirebaseSceneDelegateProxyEnabled && isGoogleUtilitiesSceneDelegateProxyEnabled;
+}
 
 + (GULSceneDelegateInterceptorID)registerSceneDelegateInterceptor:(id<UISceneDelegate>)interceptor {
   NSAssert(interceptor, @"SceneDelegateProxy cannot add nil interceptor");
@@ -144,8 +162,6 @@ static NSString *const kGULSceneDelegatePrefix = @"GUL_";
   [[GULSceneDelegateSwizzler interceptors] removeObjectForKey:interceptorID];
 }
 
-#endif  // UISCENE_SUPPORTED
-
 + (void)proxyOriginalSceneDelegate {
   if ([GULAppEnvironmentUtil isAppExtension]) {
     return;
@@ -171,7 +187,6 @@ static NSString *const kGULSceneDelegatePrefix = @"GUL_";
 
 #pragma mark - Helper methods
 
-#if UISCENE_SUPPORTED
 + (GULMutableDictionary *)interceptors {
   static dispatch_once_t onceToken;
   static GULMutableDictionary *sInterceptors;
@@ -299,6 +314,7 @@ static NSString *const kGULSceneDelegatePrefix = @"GUL_";
   }];
 }
 
+#if UISCENE_SUPPORTED
 + (void)handleSceneWillConnectToNotification:(NSNotification *)notification {
   if (@available(iOS 13.0, tvOS 13.0, *)) {
     if ([notification.object isKindOfClass:[UIScene class]]) {
@@ -307,9 +323,11 @@ static NSString *const kGULSceneDelegatePrefix = @"GUL_";
     }
   }
 }
+#endif  // UISCENE_SUPPORTED
 
 #pragma mark - [Donor Methods] UISceneDelegate URL handler
 
+#if UISCENE_SUPPORTED
 - (void)scene:(UIScene *)scene
     openURLContexts:(NSSet<UIOpenURLContext *> *)URLContexts API_AVAILABLE(ios(13.0), tvos(13.0)) {
   if (@available(iOS 13.0, tvOS 13.0, *)) {
@@ -335,7 +353,9 @@ static NSString *const kGULSceneDelegatePrefix = @"GUL_";
     }
   }
 }
+#endif  // UISCENE_SUPPORTED
 
+#if UISCENE_SUPPORTED
 + (void)proxySceneDelegateIfNeeded:(UIScene *)scene {
   Class realClass = [scene.delegate class];
   NSString *className = NSStringFromClass(realClass);
@@ -428,6 +448,7 @@ static NSString *const kGULSceneDelegatePrefix = @"GUL_";
         [GULSceneDelegateSwizzler correctSceneDelegateProxyKey]);
   }
 }
+#endif  // UISCENE_SUPPORTED
 
 #pragma mark - Methods to print correct debug logs
 
@@ -440,6 +461,6 @@ static NSString *const kGULSceneDelegatePrefix = @"GUL_";
   [[self interceptors] removeAllObjects];
 }
 
-#endif  // UISCENE_SUPPORTED
-
 @end
+
+#endif  // UISCENE_SUPPORTED
