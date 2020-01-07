@@ -1,5 +1,5 @@
 # 2020-01 -- 4.3.0
-- [Added] Added watchOS support for InstanceID (#4016)
+- [added] Added watchOS support for InstanceID (#4016)
 - [changed] Added dependency on FirebaseInstallations (#4533)
 
 # 2019-12 -- 4.2.8
