@@ -41,10 +41,9 @@ if(POLICY CMP0058)
 endif()
 
 # Enable the ccache compilation cache, if available.
-message("PATH is $ENV{PATH}")
 find_program(CCACHE_PROGRAM ccache)
 if(CCACHE_PROGRAM)
-  message("Using ccache: ${CCACHE_PROGRAM}")
+  message(STATUS "Found ccache: ${CCACHE_PROGRAM}")
   set(CMAKE_C_COMPILER_LAUNCHER   "${CCACHE_PROGRAM}")
   set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
 endif()
