@@ -163,9 +163,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   DelayedConstructor<EventManager> _eventManager;
 
-  // Set of active targets, keyed by target Id, mapped to corresponding resume token,
-  // and list of `QueryData`.
-  ActiveTargetMap _expectedActiveTargets;
+  std::unordered_map<TargetId, QueryData> _expectedActiveTargets;
 
   // ivar is declared as mutable.
   std::unordered_map<User, NSMutableArray<FSTOutstandingWrite *> *, HashUser> _outstandingWrites;
@@ -475,12 +473,12 @@ NS_ASSUME_NONNULL_BEGIN
   return _datastore->ActiveTargets();
 }
 
-- (const ActiveTargetMap &)expectedActiveTargets {
+- (const std::unordered_map<TargetId, QueryData> &)expectedActiveTargets {
   return _expectedActiveTargets;
 }
 
-- (void)setExpectedActiveTargets:(ActiveTargetMap)targets {
-  _expectedActiveTargets = std::move(targets);
+- (void)setExpectedActiveTargets:(const std::unordered_map<TargetId, QueryData> &)targets {
+  _expectedActiveTargets = targets;
 }
 
 #pragma mark - Helper Methods

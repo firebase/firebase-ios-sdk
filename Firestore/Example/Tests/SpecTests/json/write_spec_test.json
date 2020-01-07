@@ -20,13 +20,11 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }
@@ -335,13 +333,11 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection/key",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection/key",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }
@@ -539,13 +535,11 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }
@@ -620,13 +614,11 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }
@@ -680,13 +672,11 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }
@@ -852,13 +842,11 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection/key",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection/key",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }
@@ -1048,13 +1036,11 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection/key",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection/key",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }
@@ -1244,13 +1230,11 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }
@@ -1498,13 +1482,11 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }
@@ -1791,13 +1773,11 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }
@@ -3297,13 +3277,11 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }
@@ -4431,13 +4409,11 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }
@@ -4700,13 +4676,11 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }
@@ -4939,13 +4913,11 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }
@@ -5062,13 +5034,11 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": "resume-token-500"
             }
           },
@@ -5165,13 +5135,11 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }
@@ -5287,13 +5255,11 @@
         "expectedState": {
           "activeTargets": {
             "4": {
-              "queries": [
-                {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }
@@ -5322,13 +5288,11 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection/key",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection/key",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }
@@ -5430,13 +5394,11 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection/key",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection/key",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }
@@ -5538,13 +5500,11 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection/key",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection/key",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }
@@ -5646,13 +5606,11 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection/key",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection/key",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }
@@ -5754,13 +5712,11 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection/key",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection/key",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }
@@ -5862,13 +5818,11 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection/key",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection/key",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }
@@ -5970,13 +5924,11 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection/key",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection/key",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }
@@ -6078,13 +6030,11 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection/key",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection/key",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }
@@ -6186,13 +6136,11 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection/key",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection/key",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }
@@ -6262,13 +6210,11 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection/key",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection/key",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }
@@ -6415,13 +6361,11 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection/key",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection/key",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }
@@ -6568,13 +6512,11 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection/key",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection/key",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }
@@ -6721,13 +6663,11 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection/key",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection/key",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }
@@ -6874,13 +6814,11 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection/key",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection/key",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }
@@ -7027,13 +6965,11 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection/key",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection/key",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }
@@ -7180,13 +7116,11 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection/key",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection/key",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }
@@ -7333,13 +7267,11 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection/doc",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection/doc",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }
@@ -7775,13 +7707,11 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }
@@ -7881,13 +7811,11 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }
@@ -8084,13 +8012,11 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }
@@ -8156,13 +8082,11 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }
@@ -8369,13 +8293,11 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }
@@ -8441,13 +8363,11 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }
@@ -8628,13 +8548,11 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }
@@ -8830,13 +8748,11 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }
@@ -8946,13 +8862,11 @@
           "isPrimary": true,
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": "resume-token-1000"
             }
           }
@@ -8971,23 +8885,19 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": "resume-token-1000"
             },
             "4": {
-              "queries": [
-                {
-                  "path": "collection/doc",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection/doc",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }
@@ -9095,23 +9005,19 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             },
             "4": {
-              "queries": [
-                {
-                  "path": "collection/doc",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection/doc",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }
@@ -9616,13 +9522,11 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }
@@ -9687,13 +9591,11 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }
@@ -10092,13 +9994,11 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }
@@ -10146,13 +10046,11 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }
@@ -10229,13 +10127,11 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }
@@ -10272,13 +10168,11 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }
@@ -10770,13 +10664,11 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
               "resumeToken": ""
             }
           }

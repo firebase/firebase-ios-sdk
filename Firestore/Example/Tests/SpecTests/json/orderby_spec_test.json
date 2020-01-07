@@ -50,18 +50,16 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": [
-                    [
-                      "sort",
-                      "asc"
-                    ]
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": [
+                  [
+                    "sort",
+                    "asc"
                   ]
-                }
-              ],
+                ]
+              },
               "resumeToken": ""
             }
           }
@@ -196,18 +194,16 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": [
-                    [
-                      "sort",
-                      "asc"
-                    ]
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": [
+                  [
+                    "sort",
+                    "asc"
                   ]
-                }
-              ],
+                ]
+              },
               "resumeToken": ""
             }
           }
@@ -350,18 +346,16 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "queries": [
-                {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": [
-                    [
-                      "sort",
-                      "asc"
-                    ]
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": [
+                  [
+                    "sort",
+                    "asc"
                   ]
-                }
-              ],
+                ]
+              },
               "resumeToken": "resume-token-1002"
             }
           }
