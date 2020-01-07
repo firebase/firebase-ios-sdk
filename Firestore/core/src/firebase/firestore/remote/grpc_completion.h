@@ -74,24 +74,10 @@ class GrpcCompletion : public std::enable_shared_from_this<GrpcCompletion> {
   using Callback =
       std::function<void(bool, const std::shared_ptr<GrpcCompletion>&)>;
 
-  GrpcCompletion(Type type,
-                 const std::shared_ptr<util::AsyncQueue>& worker_queue,
-                 Callback&& callback);
-
-  /**
-   * Prepares the `GrpcCompletion` for submission to gRPC, incrementing the
-   * internal reference count that will prevent the completion from being
-   * deleted, even if the backing `GrpcStream` is shut down.
-   *
-   * Note: this is a separate step from the constructor due to limitations in
-   * std::enable_shared_from_this. The internal weak_ptr that makes that work
-   * is is not initialized until after the shared_ptr for this object is
-   * created, which is only done after construction is complete.
-   *
-   * @returns this, making it easy to pass to a gRPC method via
-   * `completion->Retain()`.
-   */
-  GrpcCompletion* Retain();
+  static std::shared_ptr<GrpcCompletion> Create(
+      Type type,
+      const std::shared_ptr<util::AsyncQueue>& worker_queue,
+      Callback&& callback);
 
   /**
    * Marks the `GrpcCompletion` as having come back from the gRPC completion
@@ -133,10 +119,14 @@ class GrpcCompletion : public std::enable_shared_from_this<GrpcCompletion> {
   }
 
  private:
-  std::shared_ptr<util::AsyncQueue> worker_queue_;
-  Callback callback_;
+  GrpcCompletion(Type type,
+                 const std::shared_ptr<util::AsyncQueue>& worker_queue,
+                 Callback&& callback);
 
   void EnsureValidFuture();
+
+  std::shared_ptr<util::AsyncQueue> worker_queue_;
+  Callback callback_;
 
   // GrpcCompletions are meant to be created and passed to gRPC as a context
   // object. gRPC's API only allows for a raw pointer though, and until gRPC

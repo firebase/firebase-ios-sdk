@@ -351,9 +351,8 @@ std::shared_ptr<GrpcCompletion> GrpcStream::NewCompletion(
       };
 
   // For lifetime details, see `GrpcCompletion` class comment.
-  auto completion = std::make_shared<GrpcCompletion>(tag, worker_queue_,
-                                                     std::move(decorated));
-  completion->Retain();
+  auto completion =
+      GrpcCompletion::Create(tag, worker_queue_, std::move(decorated));
   completions_.push_back(completion);
   return completion;
 }
