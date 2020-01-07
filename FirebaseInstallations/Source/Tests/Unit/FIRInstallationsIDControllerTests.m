@@ -392,10 +392,10 @@
     [installationPromises addObject:[self.controller getInstallationItem]];
   }
 
-  // 4. Resolve store promise.
+  // 3. Resolve store promise.
   [pendingStorePromise fulfill:storedInstallation1];
 
-  // 5. Wait for operation to be completed and check.
+  // 4. Wait for operation to be completed and check.
   XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   for (FBLPromise<FIRInstallationsItem *> *installationPromise in installationPromises) {
@@ -406,7 +406,7 @@
   OCMVerifyAll(self.mockInstallationsStore);
   OCMVerifyAll(self.mockAPIService);
 
-  // 6. Check that a new request is performed once previous finished.
+  // 5. Check that a new request is performed once previous finished.
   FIRInstallationsItem *storedInstallation2 =
       [FIRInstallationsItem createRegisteredInstallationItem];
   OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
