@@ -39,7 +39,7 @@ namespace core {
 
 using CollectionGroupId = std::shared_ptr<const std::string>;
 
-enum class LimitType { First, Last, None };
+enum class LimitType { None, First, Last };
 
 /**
  * Encapsulates all the query attributes we support in the SDK. It represents
