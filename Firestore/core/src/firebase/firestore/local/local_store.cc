@@ -62,17 +62,21 @@ const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 
 }  // namespace
 
-LocalStore::LocalStore(Persistence* persistence, const User& initial_user)
+LocalStore::LocalStore(Persistence* persistence,
+                       QueryEngine* query_engine,
+                       const User& initial_user)
     : persistence_(persistence),
       mutation_queue_(persistence->GetMutationQueueForUser(initial_user)),
       remote_document_cache_(persistence->remote_document_cache()),
       query_cache_(persistence->query_cache()),
+      query_engine_(query_engine),
       local_documents_(
           absl::make_unique<LocalDocumentsView>(remote_document_cache_,
                                                 mutation_queue_,
                                                 persistence->index_manager())) {
   persistence->reference_delegate()->AddInMemoryPins(&local_view_references_);
   target_id_generator_ = TargetIdGenerator::QueryCacheTargetIdGenerator(0);
+  query_engine_->SetLocalDocumentsView(local_documents_.get());
 }
 
 void LocalStore::Start() {
@@ -105,6 +109,7 @@ MaybeDocumentMap LocalStore::HandleUserChange(const User& user) {
     // Recreate our LocalDocumentsView using the new MutationQueue.
     local_documents_ = absl::make_unique<LocalDocumentsView>(
         remote_document_cache_, mutation_queue_, persistence_->index_manager());
+    query_engine_->SetLocalDocumentsView(local_documents_.get());
 
     // Union the old/new changed keys.
     DocumentKeySet changed_keys;
@@ -247,8 +252,8 @@ model::MaybeDocumentMap LocalStore::ApplyRemoteEvent(
       TargetId target_id = entry.first;
       const TargetChange& change = entry.second;
 
-      auto found = target_ids_.find(target_id);
-      if (found == target_ids_.end()) {
+      auto found = query_data_by_target_.find(target_id);
+      if (found == query_data_by_target_.end()) {
         // We don't update the remote keys if the query is not active. This
         // ensures that we persist the updated query data along with the updated
         // assignment.
@@ -271,7 +276,7 @@ model::MaybeDocumentMap LocalStore::ApplyRemoteEvent(
             old_query_data
                 .WithResumeToken(resume_token, remote_event.snapshot_version())
                 .WithSequenceNumber(sequence_number);
-        target_ids_[target_id] = new_query_data;
+        query_data_by_target_[target_id] = new_query_data;
 
         // Update the query data if there are target changes (or if sufficient
         // time has passed since the last update).
@@ -378,17 +383,43 @@ bool LocalStore::ShouldPersistQueryData(const QueryData& new_query_data,
   return changes > 0;
 }
 
+absl::optional<QueryData> LocalStore::GetQueryData(const core::Target& target) {
+  auto target_id = target_id_by_target_.find(target);
+  if (target_id != target_id_by_target_.end()) {
+    return query_data_by_target_[target_id->second];
+  }
+  return query_cache_->GetTarget(target);
+}
+
 void LocalStore::NotifyLocalViewChanges(
     const std::vector<local::LocalViewChanges>& view_changes) {
   persistence_->Run("NotifyLocalViewChanges", [&] {
     for (const LocalViewChanges& view_change : view_changes) {
+      int target_id = view_change.target_id();
+
       for (const DocumentKey& key : view_change.removed_keys()) {
         persistence_->reference_delegate()->RemoveReference(key);
       }
-      local_view_references_.AddReferences(view_change.added_keys(),
-                                           view_change.target_id());
+      local_view_references_.AddReferences(view_change.added_keys(), target_id);
       local_view_references_.RemoveReferences(view_change.removed_keys(),
-                                              view_change.target_id());
+                                              target_id);
+
+      if (!view_change.is_from_cache()) {
+        const auto& entry = query_data_by_target_.find(target_id);
+        HARD_ASSERT(
+            entry != query_data_by_target_.end(),
+            "Can't set limbo-free snapshot version for unknown target: %s",
+            target_id);
+        const QueryData& query_data = entry->second;
+
+        // Advance the last limbo free snapshot version
+        SnapshotVersion last_limbo_free_snapshot_version =
+            query_data.snapshot_version();
+        QueryData updated_query_data =
+            query_data.WithLastLimboFreeSnapshotVersion(
+                last_limbo_free_snapshot_version);
+        query_data_by_target_[target_id] = updated_query_data;
+      }
     }
   });
 }
@@ -427,8 +458,9 @@ QueryData LocalStore::AllocateTarget(Target target) {
   // Sanity check to ensure that even when resuming a query it's not currently
   // active.
   TargetId target_id = query_data.target_id();
-  if (target_ids_.find(target_id) == target_ids_.end()) {
-    target_ids_[target_id] = query_data;
+  if (query_data_by_target_.find(target_id) == query_data_by_target_.end()) {
+    query_data_by_target_[target_id] = query_data;
+    target_id_by_target_[query_data.target()] = target_id;
   }
 
   return query_data;
@@ -436,8 +468,8 @@ QueryData LocalStore::AllocateTarget(Target target) {
 
 void LocalStore::ReleaseTarget(TargetId target_id) {
   persistence_->Run("Release target", [&] {
-    auto found = target_ids_.find(target_id);
-    HARD_ASSERT(found != target_ids_.end(),
+    auto found = query_data_by_target_.find(target_id);
+    HARD_ASSERT(found != query_data_by_target_.end(),
                 "Tried to release a non-existent target: %s", target_id);
 
     const QueryData& query_data = found->second;
@@ -446,21 +478,38 @@ void LocalStore::ReleaseTarget(TargetId target_id) {
     // delete a query's target data from the reference delegate. Since this does
     // not remove references for locally mutated documents, we have to remove
     // the target associations for these documents manually.
-    DocumentKeySet removed = local_view_references_.RemoveReferences(target_id);
+    DocumentKeySet removed =
+        local_view_references_.RemoveReferences(query_data.target_id());
     for (const DocumentKey& key : removed) {
       persistence_->reference_delegate()->RemoveReference(key);
     }
 
     // Note: This also updates the query cache.
     persistence_->reference_delegate()->RemoveTarget(query_data);
-    target_ids_.erase(target_id);
+    query_data_by_target_.erase(target_id);
+    target_id_by_target_.erase(query_data.target());
   });
 }
 
-DocumentMap LocalStore::ExecuteQuery(const Query& query) {
+QueryResult LocalStore::ExecuteQuery(const Query& query,
+                                     bool use_previous_results) {
   return persistence_->Run("ExecuteQuery", [&] {
-    return local_documents_->GetDocumentsMatchingQuery(query,
-                                                       SnapshotVersion::None());
+    absl::optional<QueryData> query_data = GetQueryData(query.ToTarget());
+    SnapshotVersion last_limbo_free_snapshot_version;
+    DocumentKeySet remote_keys;
+
+    if (query_data) {
+      last_limbo_free_snapshot_version =
+          query_data->last_limbo_free_snapshot_version();
+      remote_keys = query_cache_->GetMatchingKeys(query_data->target_id());
+    }
+
+    model::DocumentMap documents = query_engine_->GetDocumentsMatchingQuery(
+        query,
+        use_previous_results ? last_limbo_free_snapshot_version
+                             : SnapshotVersion::None(),
+        use_previous_results ? remote_keys : DocumentKeySet{});
+    return QueryResult(std::move(documents), std::move(remote_keys));
   });
 }
 
@@ -472,7 +521,7 @@ DocumentKeySet LocalStore::GetRemoteDocumentKeys(TargetId target_id) {
 
 LruResults LocalStore::CollectGarbage(LruGarbageCollector* garbage_collector) {
   return persistence_->Run("Collect garbage", [&] {
-    return garbage_collector->Collect(target_ids_);
+    return garbage_collector->Collect(query_data_by_target_);
   });
 }
 

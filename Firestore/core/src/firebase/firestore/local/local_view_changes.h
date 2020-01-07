@@ -40,9 +40,11 @@ class LocalViewChanges {
                                            model::TargetId target_id);
 
   LocalViewChanges(model::TargetId target_id,
+                   bool from_cache,
                    model::DocumentKeySet added_keys,
                    model::DocumentKeySet removed_keys)
       : target_id_(target_id),
+        from_cache_(from_cache),
         added_keys_(std::move(added_keys)),
         removed_keys_(std::move(removed_keys)) {
   }
@@ -50,6 +52,10 @@ class LocalViewChanges {
   /** The batch ID of the local write. */
   model::TargetId target_id() const {
     return target_id_;
+  }
+
+  bool is_from_cache() const {
+    return from_cache_;
   }
 
   /** The document changes resulting from the local write. */
@@ -62,7 +68,8 @@ class LocalViewChanges {
   }
 
  private:
-  model::TargetId target_id_;
+  model::TargetId target_id_ = 0;
+  bool from_cache_ = false;
   model::DocumentKeySet added_keys_;
   model::DocumentKeySet removed_keys_;
 };

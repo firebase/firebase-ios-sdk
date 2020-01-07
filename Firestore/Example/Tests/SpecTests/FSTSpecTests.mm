@@ -669,7 +669,7 @@ ByteString MakeResumeToken(NSString *specString) {
               // the spec tests. For now, hard-code that it's a listen despite the fact that it's
               // not always the right value.
               queries.push_back(QueryData(query.ToTarget(), targetID, 0, QueryPurpose::Listen,
-                                          SnapshotVersion::None(), std::move(resumeToken)));
+                                          SnapshotVersion::None(), SnapshotVersion::None(), std::move(resumeToken)));
             }
             expectedActiveTargets[targetID] = std::make_pair(std::move(queries), resumeToken);
           }];

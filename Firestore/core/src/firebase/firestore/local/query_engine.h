@@ -45,6 +45,8 @@ class LocalDocumentsView;
  */
 class QueryEngine {
  public:
+  enum Type { Simple, IndexFree };
+
   virtual ~QueryEngine() = default;
 
   /**
@@ -60,6 +62,9 @@ class QueryEngine {
       const core::Query& query,
       const model::SnapshotVersion& last_limbo_free_snapshot_version,
       const model::DocumentKeySet& remote_keys) = 0;
+
+  /** Returns the underlying algorithm used by the query engine. */
+  virtual Type type() const = 0;
 };
 
 }  // namespace local

@@ -20,6 +20,7 @@
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/core/transaction_runner.h"
 #include "Firestore/core/src/firebase/firestore/local/query_data.h"
+#include "Firestore/core/src/firebase/firestore/local/query_result.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
@@ -42,6 +43,7 @@ using local::LocalViewChanges;
 using local::LocalWriteResult;
 using local::QueryData;
 using local::QueryPurpose;
+using local::QueryResult;
 using model::BatchId;
 using model::DocumentKey;
 using model::DocumentKeySet;
@@ -107,8 +109,8 @@ TargetId SyncEngine::Listen(Query query) {
 
 ViewSnapshot SyncEngine::InitializeViewAndComputeSnapshot(const Query& query,
                                                           TargetId target_id) {
-  DocumentMap docs = local_store_->ExecuteQuery(query);
-  DocumentKeySet remote_keys = local_store_->GetRemoteDocumentKeys(target_id);
+  QueryResult query_result = local_store_->ExecuteQuery(
+      query, /* use_previous_results= */ true);
 
   // If there are already queries mapped to the target id, create a synthesized
   // target change to apply the sync state from those queries to the new query.
@@ -122,9 +124,9 @@ ViewSnapshot SyncEngine::InitializeViewAndComputeSnapshot(const Query& query,
         current_sync_state == SyncState::Synced);
   }
 
-  View view(query, std::move(remote_keys));
+  View view(query, query_result.remote_keys());
   ViewDocumentChanges view_doc_changes =
-      view.ComputeDocumentChanges(docs.underlying_map());
+      view.ComputeDocumentChanges(query_result.documents().underlying_map());
   ViewChange view_change =
       view.ApplyChanges(view_doc_changes, synthesized_current_change);
   HARD_ASSERT(view_change.limbo_changes().empty(),
@@ -458,12 +460,13 @@ void SyncEngine::EmitNewSnapshotsAndNotifyLocalStore(
     View& view = query_view->view();
     ViewDocumentChanges view_doc_changes = view.ComputeDocumentChanges(changes);
     if (view_doc_changes.needs_refill()) {
-      // The query has a limit and some docs were removed/updated, so we need
-      // to re-run the query against the local store to make sure we didn't
-      // lose any good docs that had been past the limit.
-      DocumentMap docs = local_store_->ExecuteQuery(query_view->query());
-      view_doc_changes =
-          view.ComputeDocumentChanges(docs.underlying_map(), view_doc_changes);
+      // The query has a limit and some docs were removed/updated, so we need to
+      // re-run the query against the local store to make sure we didn't lose
+      // any good docs that had been past the limit.
+      QueryResult query_result = local_store_->ExecuteQuery(
+          query_view->query(), /* use_previous_results= */ false);
+      view_doc_changes = view.ComputeDocumentChanges(
+          query_result.documents().underlying_map(), view_doc_changes);
     }
 
     absl::optional<TargetChange> target_changes;
