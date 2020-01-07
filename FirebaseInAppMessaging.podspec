@@ -38,11 +38,18 @@ See more product details at https://firebase.google.com/products/in-app-messagin
       '$(inherited) ' +
       'FIRInAppMessaging_LIB_VERSION=' + String(s.version) + ' ' +
       'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1'
+			
   }
 
   s.dependency 'FirebaseCore', '~> 6.2'
   s.ios.dependency 'FirebaseAnalyticsInterop', '~> 1.3'
   s.dependency 'FirebaseInstanceID', '~> 4.0'
   s.dependency 'GoogleDataTransportCCTSupport', '~> 1.0'
+	
+	s.test_spec 'unit' do |unit_tests|
+	    unit_tests.source_files = 'Firebase/InAppMessaging/Tests/Unit/*.[mh]'
+	    unit_tests.requires_app_host = false
+	    unit_tests.dependency 'OCMock'
+	  end
 
 end

@@ -20,10 +20,3 @@ target 'InAppMessaging_Example_iOS' do
   pod 'FirebaseDynamicLinks',  :path => '../..'
 
 end
-
-target 'InAppMessaging_Tests_iOS' do
-  platform :ios, '8.0'
-  pod 'FirebaseInAppMessaging', :path => '../..'
-  pod 'FirebaseAnalyticsInterop',  :path => '../..'
-  pod 'OCMock'
-end
