@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,21 +15,14 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <GoogleUtilities/GULAppDelegateSwizzler.h>
 #import <GoogleUtilities/GULMutableDictionary.h>
-
-@class GULApplication;
+#import <GoogleUtilities/GULSceneDelegateSwizzler.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface GULAppDelegateSwizzler ()
+@interface GULSceneDelegateSwizzler ()
 
-/** ISA Swizzles the given appDelegate as the original app delegate would be.
- *
- *  @param appDelegate The object that needs to be isa swizzled. This should conform to the
- *      application delegate protocol.
- */
-+ (void)proxyAppDelegate:(id<GULApplicationDelegate>)appDelegate;
+#if UISCENE_SUPPORTED
 
 /** Returns a dictionary containing interceptor IDs mapped to a GULZeroingWeakContainer.
  *
@@ -41,14 +34,14 @@ NS_ASSUME_NONNULL_BEGIN
 /** Deletes all the registered interceptors. */
 + (void)clearInterceptors;
 
-/** Resets the token that prevents the app delegate proxy from being isa swizzled multiple times. */
-+ (void)resetProxyOriginalDelegateOnceToken;
-
-/** Returns the original app delegate that was proxied.
+/** ISA Swizzles the given appDelegate as the original app delegate would be.
  *
- *  @return The original app delegate instance that was proxied.
+ *  @param scene The scene whose delegate needs to be isa swizzled. This should conform to the
+ *      scene delegate protocol.
  */
-+ (id<GULApplicationDelegate>)originalDelegate;
++ (void)proxySceneDelegateIfNeeded:(UIScene *)scene API_AVAILABLE(ios(13.0), tvos(13.0));
+
+#endif  // UISCENE_SUPPORTED
 
 @end
 
