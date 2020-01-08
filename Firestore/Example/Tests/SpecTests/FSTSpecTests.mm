@@ -189,6 +189,9 @@ ByteString MakeResumeToken(NSString *specString) {
 
 - (void)tearDownForSpec {
   [self.driver shutdown];
+
+  // Help ARC realize that everything here can be collected earlier.
+  _driver = nil;
 }
 
 /**
@@ -749,24 +752,26 @@ ByteString MakeResumeToken(NSString *specString) {
 }
 
 - (void)runSpecTestSteps:(NSArray *)steps config:(NSDictionary *)config {
-  @try {
-    [self setUpForSpecWithConfig:config];
-    for (NSDictionary *step in steps) {
-      LOG_DEBUG("Doing step %s", step);
-      [self doStep:step];
-      [self validateExpectedSnapshotEvents:step[@"expectedSnapshotEvents"]];
-      [self validateExpectedState:step[@"expectedState"]];
-      int expectedSnapshotsInSyncEvents = [step[@"expectedSnapshotsInSyncEvents"] intValue];
-      [self validateSnapshotsInSyncEvents:expectedSnapshotsInSyncEvents];
+  @autoreleasepool {
+    @try {
+      [self setUpForSpecWithConfig:config];
+      for (NSDictionary *step in steps) {
+        LOG_DEBUG("Doing step %s", step);
+        [self doStep:step];
+        [self validateExpectedSnapshotEvents:step[@"expectedSnapshotEvents"]];
+        [self validateExpectedState:step[@"expectedState"]];
+        int expectedSnapshotsInSyncEvents = [step[@"expectedSnapshotsInSyncEvents"] intValue];
+        [self validateSnapshotsInSyncEvents:expectedSnapshotsInSyncEvents];
+      }
+      [self.driver validateUsage];
+    } @finally {
+      // Ensure that the driver is torn down even if the test is failing due to a thrown exception
+      // so that any resources held by the driver are released. This is important when the driver is
+      // backed by LevelDB because LevelDB locks its database. If -tearDownForSpec were not called
+      // after an exception then subsequent attempts to open the LevelDB will fail, making it harder
+      // to zero in on the spec tests as a culprit.
+      [self tearDownForSpec];
     }
-    [self.driver validateUsage];
-  } @finally {
-    // Ensure that the driver is torn down even if the test is failing due to a thrown exception so
-    // that any resources held by the driver are released. This is important when the driver is
-    // backed by LevelDB because LevelDB locks its database. If -tearDownForSpec were not called
-    // after an exception then subsequent attempts to open the LevelDB will fail, making it harder
-    // to zero in on the spec tests as a culprit.
-    [self tearDownForSpec];
   }
 }
 
