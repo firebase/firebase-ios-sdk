@@ -84,7 +84,7 @@ cd "${top_dir}"
 
 ALLOW_DIRTY=false
 COMMIT_METHOD="none"
-CHECK_DIFF=false
+CHECK_DIFF=true
 START_REVISION="origin/master"
 TEST_ONLY=false
 VERBOSE=false
@@ -149,7 +149,6 @@ while [[ $# -gt 0 ]]; do
       ;;
 
     *)
-      CHECK_DIFF=true
       START_REVISION="$1"
       shift
       break
@@ -204,7 +203,7 @@ if [[ "${START_REVISION}" == *..* ]]; then
     # between the PR and master. In this case just fall back on checking
     # everything.
     echo "Unable to detect base commit for change detection."
-    echo "Failling back on just checking everything."
+    echo "Falling back on just checking everything."
     CHECK_DIFF=false
     START_REVISION="origin/master"
     START_SHA="origin/master"
