@@ -35,6 +35,7 @@
 #include "Firestore/core/src/firebase/firestore/core/sync_engine.h"
 #include "Firestore/core/src/firebase/firestore/local/local_store.h"
 #include "Firestore/core/src/firebase/firestore/local/persistence.h"
+#include "Firestore/core/src/firebase/firestore/local/simple_query_engine.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_store.h"
@@ -68,6 +69,7 @@ using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::local::LocalStore;
 using firebase::firestore::local::Persistence;
 using firebase::firestore::local::QueryData;
+using firebase::firestore::local::SimpleQueryEngine;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
@@ -177,6 +179,9 @@ NS_ASSUME_NONNULL_BEGIN
   std::vector<std::shared_ptr<EventListener<Empty>>> _snapshotsInSyncListeners;
   std::shared_ptr<MockDatastore> _datastore;
 
+  // TODO(index-free): Use IndexFreeQueryEngine
+  SimpleQueryEngine _queryEngine;
+
   int _snapshotsInSyncEvents;
 }
 
@@ -202,7 +207,7 @@ NS_ASSUME_NONNULL_BEGIN
     // Set up the sync engine and various stores.
     _workerQueue = testutil::AsyncQueueForTesting();
     _persistence = std::move(persistence);
-    _localStore = absl::make_unique<LocalStore>(_persistence.get(), initialUser);
+    _localStore = absl::make_unique<LocalStore>(_persistence.get(), &_queryEngine, initialUser);
 
     _datastore = std::make_shared<MockDatastore>(_databaseInfo, _workerQueue,
                                                  std::make_shared<EmptyCredentialsProvider>());

@@ -54,6 +54,7 @@ Support library to provide event prioritization and uploading for the GoogleData
   # Test app specs
   if ENV['GDT_DEV'] && ENV['GDT_DEV'] == '1' then
     s.app_spec 'TestApp' do |app_spec|
+      app_spec.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
       app_spec.source_files = 'GoogleDataTransportCCTSupport/GDTCCTTestApp/**/*.swift'
       app_spec.ios.resources = ['GoogleDataTransportCCTSupport/GDTCCTTestApp/ios/*.storyboard']
       app_spec.macos.resources = ['GoogleDataTransportCCTSupport/GDTCCTTestApp/macos/*.storyboard']
@@ -69,6 +70,7 @@ Support library to provide event prioritization and uploading for the GoogleData
 
   # Test specs
   s.test_spec 'Tests-Unit' do |test_spec|
+    test_spec.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
     test_spec.requires_app_host = false
     test_spec.source_files = 'GoogleDataTransportCCTSupport/GDTCCTTests/Unit/**/*.{h,m}'
     test_spec.resources = ['GoogleDataTransportCCTSupport/GDTCCTTests/Data/**/*']
@@ -77,6 +79,7 @@ Support library to provide event prioritization and uploading for the GoogleData
   end
 
   s.test_spec 'Tests-Integration' do |test_spec|
+    test_spec.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
     test_spec.requires_app_host = false
     test_spec.source_files = 'GoogleDataTransportCCTSupport/GDTCCTTests/Integration/**/*.{h,m}'
     test_spec.resources = ['GoogleDataTransportCCTSupport/GDTCCTTests/Data/**/*']
@@ -86,6 +89,7 @@ Support library to provide event prioritization and uploading for the GoogleData
   # Monkey test specs, only enabled for development.
   if ENV['GDT_DEV'] && ENV['GDT_DEV'] == '1' then
     s.test_spec 'Tests-Monkey' do |test_spec|
+      test_spec.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
       test_spec.requires_app_host = true
       test_spec.app_host_name = 'GoogleDataTransportCCTSupport/TestApp'
       test_spec.dependency 'GoogleDataTransportCCTSupport/TestApp'

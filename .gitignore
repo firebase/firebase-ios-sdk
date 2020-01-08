@@ -7,7 +7,8 @@ Example/Auth/ApiTests/AuthCredentials.h
 
 Example/Database/App/GoogleService-Info.plist
 
-Example/Storage/App/GoogleService-Info.plist
+# FirebaseStorage integration tests GoogleService-Info.plist
+FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist
 
 # FirebaseInstallations integration tests GoogleService-Info.plist
 FirebaseInstallations/Source/Tests/Resources/GoogleService-Info.plist

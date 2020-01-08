@@ -18,4 +18,4 @@
 # From https://stackoverflow.com/questions/59895/getting-the-source-directory-of-a-bash-script-from-within
 readonly DIR="$(git rev-parse --show-toplevel)"
 
-pod gen "$DIR/GoogleDataTransport.podspec" --auto-open --gen-directory="$DIR/gen" --clean
+pod gen "$DIR/GoogleDataTransport.podspec" --auto-open --gen-directory="$DIR/gen" --platforms=ios,macos,tvos --clean
