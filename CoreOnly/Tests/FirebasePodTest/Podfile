@@ -13,6 +13,7 @@ target 'FirebasePodTest' do
   pod 'FirebaseCore', :path => '../../../'
   pod 'FirebaseCoreDiagnostics', :path => '../../../'
   pod 'FirebaseCoreDiagnosticsInterop', :path => '../../../'
+  pod 'FirebaseCrashlytics', :path => '../../../'
   pod 'FirebaseDatabase', :path => '../../../'
   pod 'FirebaseDynamicLinks', :path => '../../../'
   pod 'FirebaseFirestore', :path => '../../../'
