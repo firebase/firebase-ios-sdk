@@ -17,7 +17,11 @@
 
 #import <FirebaseCore/FIRLogger.h>
 
+#if __has_include(<FBLPromises/FBLPromises.h>)
+#import <FBLPromises/FBLPromises.h>
+#else
 #import "FBLPromises.h"
+#endif
 
 #include "FIRAEvent+Internal.h"
 #include "FIRCLSContext.h"
