@@ -51,7 +51,7 @@ static const NSTimeInterval kLegacyRegistrationTimeout = 30;
   #else
 
   /** @var _application
-    @brief The @c WKExtensi to request the token from.
+      @brief The @c WKExtension to request the token from.
   */
   WKExtension *_application;
     
