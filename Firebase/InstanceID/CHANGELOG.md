@@ -1,7 +1,6 @@
 # 2020-01 -- 4.3.0
 - [added] Added watchOS support for InstanceID (#4016)
-- [changed] Added dependency on FirebaseInstallations (#4533)
-- [added] Added a new dependency [Firebase Installations SDK](../../FirebaseInstallations/CHANGELOG.md). The Firebase Installations SDK introduces the [Firebase Installations API](https://pantheon.corp.google.com/apis/library/firebaseinstallations.googleapis.com). Developers that use API-restrictions for their API-Keys may experience blocked requests (https://stackoverflow.com/questions/58495985/). A solution is available [here](../../FirebaseInstallations/API_KEY_RESTRICTIONS.md).
+- [added] Added a new dependency [Firebase Installations SDK](../../FirebaseInstallations/CHANGELOG.md). The Firebase Installations SDK introduces the [Firebase Installations API](https://pantheon.corp.google.com/apis/library/firebaseinstallations.googleapis.com). Developers that use API-restrictions for their API-Keys may experience blocked requests (https://stackoverflow.com/questions/58495985/). A solution is available [here](../../FirebaseInstallations/API_KEY_RESTRICTIONS.md). (#4533)
 
 # 2019-12 -- 4.2.8
 - [changed] Added heartbeat support for InstanceID (#4323)
