@@ -1,5 +1,6 @@
 # 2020-01 -- v 4.2.0
 - [added] Added watchOS support for Firebase Messaging. This enables FCM push notification function on watch only app or independent watch app. (#4016)
+- [added] Added a new dependency [Firebase Installations SDK](../../FirebaseInstallations/CHANGELOG.md). The Firebase Installations SDK introduces the [Firebase Installations API](https://pantheon.corp.google.com/apis/library/firebaseinstallations.googleapis.com). Developers that use API-restrictions for their API-Key may experience blocked requests (https://stackoverflow.com/questions/58495985/). The solution is available [here](../../FirebaseInstallations/API_KEY_RESTRICTIONS.md).
 
 # 2019-12 -- v4.1.10
 - [fixed] Fix component startup time. (#4137)
