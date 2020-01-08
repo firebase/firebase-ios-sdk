@@ -108,8 +108,6 @@ NS_SWIFT_NAME(InAppMessagingImageData)
  */
 @property(nonatomic, readonly) BOOL renderAsTestMessage;
 
-@property(nonatomic, nullable, readonly) NSDictionary *appData;
-
 /// Unavailable.
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -163,6 +161,8 @@ NS_SWIFT_NAME(InAppMessagingDisplayMessage)
  * How this message should be triggered.
  */
 @property(nonatomic, readonly) FIRInAppMessagingDisplayTriggerType triggerType;
+
+@property(nonatomic, nullable, readonly) NSDictionary *appData;
 
 /// Unavailable.
 - (instancetype)init NS_UNAVAILABLE;
