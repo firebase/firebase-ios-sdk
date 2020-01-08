@@ -4,9 +4,10 @@ language: objective-c
 cache:
   bundler: true
   cocoapods: true
-  ccache: true
   directories:
     - Firestore/Example/Pods
+    - gen/Pods
+    - $HOME/.ccache
 
 stages:
   - checks
