@@ -72,7 +72,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.subspec 'Crashlytics' do |ss|
     ss.dependency 'Firebase/CoreOnly'
     ss.dependency 'FirebaseCrashlytics', '~> 4.0.0-beta.1'
-  en
+  end
 
   s.subspec 'Database' do |ss|
     ss.dependency 'Firebase/CoreOnly'
