@@ -52,7 +52,7 @@ static NSString *const kNotificationProberKey = @"warning";
 static const NSTimeInterval kProbingTimeout = 1;
 
 @implementation FIRAuthNotificationManager {
-    
+
   #if !TARGET_OS_WATCH
   /** @var _application
       @brief The application.
