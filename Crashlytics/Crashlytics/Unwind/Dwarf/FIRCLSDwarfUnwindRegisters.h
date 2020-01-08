@@ -16,6 +16,8 @@
 
 #include <stdint.h>
 
+#include "FIRCLSFeatures.h"
+
 #if CLS_CPU_X86_64
 enum {
   CLS_DWARF_X86_64_RAX = 0,
