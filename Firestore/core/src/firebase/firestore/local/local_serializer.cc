@@ -276,8 +276,9 @@ QueryData LocalSerializer::DecodeQueryData(
   }
 
   if (!reader->status().ok()) return QueryData::Invalid();
-  return QueryData(std::move(target), target_id, sequence_number, QueryPurpose::Listen,
-                   version, last_limbo_free_snapshot_version, std::move(resume_token));
+  return QueryData(std::move(target), target_id, sequence_number,
+                   QueryPurpose::Listen, version,
+                   last_limbo_free_snapshot_version, std::move(resume_token));
 }
 
 Message<firestore_client_WriteBatch> LocalSerializer::EncodeMutationBatch(

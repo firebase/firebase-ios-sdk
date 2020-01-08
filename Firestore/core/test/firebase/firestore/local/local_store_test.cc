@@ -129,7 +129,8 @@ RemoteEvent NoChangeEvent(int target_id,
 
   // Register query data for the target. The query itself is not inspected, so
   // we can listen to any path.
-  QueryData query_data(Query("foo").ToTarget(), target_id, 0, QueryPurpose::Listen);
+  QueryData query_data(Query("foo").ToTarget(), target_id, 0,
+                       QueryPurpose::Listen);
   metadata_provider.SetSyncedKeys(DocumentKeySet{}, query_data);
 
   WatchChangeAggregator aggregator{&metadata_provider};
@@ -268,8 +269,9 @@ TargetId LocalStoreTest::AllocateQuery(core::Query query) {
 }
 
 QueryData LocalStoreTest::GetQueryData(const core::Query& query) {
-  return persistence_->Run("GetQueryData",
-                           [&] { return *local_store_.GetQueryData(query.ToTarget()); });
+  return persistence_->Run("GetQueryData", [&] {
+    return *local_store_.GetQueryData(query.ToTarget());
+  });
 }
 
 QueryResult LocalStoreTest::ExecuteQuery(const core::Query& query) {

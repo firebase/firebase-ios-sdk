@@ -95,7 +95,8 @@ QueryData QueryData::Invalid() {
 QueryData QueryData::WithSequenceNumber(
     ListenSequenceNumber sequence_number) const {
   return QueryData(target_, target_id_, sequence_number, purpose_,
-                   snapshot_version_,last_limbo_free_snapshot_version_, resume_token_);
+                   snapshot_version_, last_limbo_free_snapshot_version_,
+                   resume_token_);
 }
 
 QueryData QueryData::WithResumeToken(ByteString resume_token,

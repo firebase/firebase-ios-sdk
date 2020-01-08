@@ -109,8 +109,8 @@ TargetId SyncEngine::Listen(Query query) {
 
 ViewSnapshot SyncEngine::InitializeViewAndComputeSnapshot(const Query& query,
                                                           TargetId target_id) {
-  QueryResult query_result = local_store_->ExecuteQuery(
-      query, /* use_previous_results= */ true);
+  QueryResult query_result =
+      local_store_->ExecuteQuery(query, /* use_previous_results= */ true);
 
   // If there are already queries mapped to the target id, create a synthesized
   // target change to apply the sync state from those queries to the new query.
