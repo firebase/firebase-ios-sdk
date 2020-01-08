@@ -41,7 +41,8 @@ using TargetCallback = std::function<void(const QueryData&)>;
  * both a mapping between targets and the documents that matched them according
  * to the server, but also metadata about the targets.
  *
- * The cache is keyed by Query and entries in the cache are QueryData instances.
+ * The cache is keyed by Target and entries in the cache are QueryData
+ * instances.
  */
 class QueryCache {
  public:
@@ -53,7 +54,7 @@ class QueryCache {
   /**
    * Adds an entry in the cache.
    *
-   * The cache key is extracted from `QueryData::query()`. The key must not
+   * The cache key is extracted from `queryData.target()`. The key must not
    * already exist in the cache.
    *
    * @param query_data A new QueryData instance to put in the cache.
@@ -63,7 +64,7 @@ class QueryCache {
   /**
    * Updates an entry in the cache.
    *
-   * The cache key is extracted from `QueryData::query()`. The entry must
+   * The cache key is extracted from `queryData.target()`. The entry must
    * already exist in the cache, and it will be replaced.
    *
    * @param query_data A QueryData instance to replace an existing entry in
@@ -78,11 +79,11 @@ class QueryCache {
   /**
    * Looks up a QueryData entry in the cache.
    *
-   * @param query The query corresponding to the entry to look up.
+   * @param target The target corresponding to the entry to look up.
    * @return The cached QueryData entry, or nullopt if the cache has no entry
-   * for the query.
+   * for the target.
    */
-  virtual absl::optional<QueryData> GetTarget(const core::Query& query) = 0;
+  virtual absl::optional<QueryData> GetTarget(const core::Target& target) = 0;
 
   virtual void EnumerateTargets(const TargetCallback& callback) = 0;
 
@@ -107,15 +108,15 @@ class QueryCache {
   virtual size_t size() const = 0;
 
   /**
-   * Returns the highest listen sequence number of any query seen by the cache.
+   * Returns the highest listen sequence number of any target seen by the cache.
    */
   virtual model::ListenSequenceNumber highest_listen_sequence_number()
       const = 0;
 
   /**
-   * Returns the highest target ID of any query in the cache. Typically called
+   * Returns the highest target ID of any target in the cache. Typically called
    * during startup to seed a target ID generator and avoid collisions with
-   * existing queries. If there are no queries in the cache, returns zero.
+   * existing queries. If there are no targets in the cache, returns zero.
    */
   virtual model::TargetId highest_target_id() const = 0;
 

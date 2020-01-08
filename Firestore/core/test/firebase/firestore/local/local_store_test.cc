@@ -129,7 +129,8 @@ RemoteEvent NoChangeEvent(int target_id,
 
   // Register query data for the target. The query itself is not inspected, so
   // we can listen to any path.
-  QueryData query_data(Query("foo"), target_id, 0, QueryPurpose::Listen);
+  QueryData query_data(Query("foo").ToTarget(), target_id, 0,
+                       QueryPurpose::Listen);
   metadata_provider.SetSyncedKeys(DocumentKeySet{}, query_data);
 
   WatchChangeAggregator aggregator{&metadata_provider};
@@ -262,18 +263,15 @@ void LocalStoreTest::RejectMutation() {
 }
 
 TargetId LocalStoreTest::AllocateQuery(core::Query query) {
-  QueryData query_data = local_store_.AllocateQuery(std::move(query));
+  QueryData query_data = local_store_.AllocateTarget(query.ToTarget());
   last_target_id_ = query_data.target_id();
   return query_data.target_id();
 }
 
-void LocalStoreTest::ReleaseQuery(core::Query query) {
-  local_store_.ReleaseQuery(std::move(query));
-}
-
 QueryData LocalStoreTest::GetQueryData(const core::Query& query) {
-  return persistence_->Run("GetQueryData",
-                           [&] { return *local_store_.GetQueryData(query); });
+  return persistence_->Run("GetQueryData", [&] {
+    return *local_store_.GetQueryData(query.ToTarget());
+  });
 }
 
 QueryResult LocalStoreTest::ExecuteQuery(const core::Query& query) {
@@ -489,7 +487,7 @@ TEST_P(LocalStoreTest, HandlesDeletedDocumentThenSetMutationThenAck) {
   FSTAssertContains(
       Doc("foo/bar", 0, Map("foo", "bar"), DocumentState::kLocalMutations));
   // Can now remove the target, since we have a mutation pinning the document
-  ReleaseQuery(query);
+  local_store_.ReleaseTarget(target_id);
   // Verify we didn't lose anything
   FSTAssertContains(
       Doc("foo/bar", 0, Map("foo", "bar"), DocumentState::kLocalMutations));
@@ -644,7 +642,7 @@ TEST_P(LocalStoreTest, HandlesDocumentThenDeleteMutationThenAck) {
   FSTAssertContains(DeletedDoc("foo/bar"));
 
   // Remove the target so only the mutation is pinning the document
-  ReleaseQuery(query);
+  local_store_.ReleaseTarget(target_id);
 
   AcknowledgeMutationWithVersion(2);
   FSTAssertRemoved("foo/bar");
@@ -670,7 +668,7 @@ TEST_P(LocalStoreTest, HandlesDeleteMutationThenDocumentThenAck) {
   FSTAssertContains(DeletedDoc("foo/bar"));
 
   // Don't need to keep it pinned anymore
-  ReleaseQuery(query);
+  local_store_.ReleaseTarget(target_id);
 
   AcknowledgeMutationWithVersion(2);
   FSTAssertRemoved("foo/bar");
@@ -727,7 +725,7 @@ TEST_P(LocalStoreTest,
   FSTAssertContains(
       Doc("foo/bar", 1, Map("foo", "bar"), DocumentState::kLocalMutations));
 
-  ReleaseQuery(query);
+  local_store_.ReleaseTarget(target_id);
   AcknowledgeMutationWithVersion(2);  // delete mutation
   FSTAssertChanged(
       Doc("foo/bar", 2, Map("foo", "bar"), DocumentState::kLocalMutations));
@@ -848,9 +846,9 @@ TEST_P(LocalStoreTest, CollectsGarbageAfterAcknowledgedMutation) {
   ApplyRemoteEvent(
       UpdateRemoteEvent(Doc("foo/bar", 1, Map("foo", "old")), {target_id}, {}));
   WriteMutation(testutil::PatchMutation("foo/bar", Map("foo", "bar"), {}));
-  // Release the query so that our target count goes back to 0 and we are
+  // Release the target so that our target count goes back to 0 and we are
   // considered up-to-date.
-  ReleaseQuery(query);
+  local_store_.ReleaseTarget(target_id);
 
   WriteMutation(testutil::SetMutation("foo/bah", Map("foo", "bah")));
   WriteMutation(testutil::DeleteMutation("foo/baz"));
@@ -886,9 +884,9 @@ TEST_P(LocalStoreTest, CollectsGarbageAfterRejectedMutation) {
   ApplyRemoteEvent(
       UpdateRemoteEvent(Doc("foo/bar", 1, Map("foo", "old")), {target_id}, {}));
   WriteMutation(testutil::PatchMutation("foo/bar", Map("foo", "bar"), {}));
-  // Release the query so that our target count goes back to 0 and we are
+  // Release the target so that our target count goes back to 0 and we are
   // considered up-to-date.
-  ReleaseQuery(query);
+  local_store_.ReleaseTarget(target_id);
 
   WriteMutation(testutil::SetMutation("foo/bah", Map("foo", "bah")));
   WriteMutation(testutil::DeleteMutation("foo/baz"));
@@ -947,7 +945,7 @@ TEST_P(LocalStoreTest, PinsDocumentsInTheLocalView) {
   FSTAssertNotContains("foo/bar");
   FSTAssertNotContains("foo/baz");
 
-  ReleaseQuery(query);
+  local_store_.ReleaseTarget(target_id);
 }
 
 TEST_P(LocalStoreTest, ThrowsAwayDocumentsWithUnknownTargetIDsImmediately) {
@@ -1010,7 +1008,7 @@ TEST_P(LocalStoreTest, CanExecuteMixedCollectionQueries) {
 
 TEST_P(LocalStoreTest, ReadsAllDocumentsForInitialCollectionQueries) {
   core::Query query = Query("foo");
-  local_store_.AllocateQuery(query);
+  local_store_.AllocateTarget(query.ToTarget());
 
   ApplyRemoteEvent(UpdateRemoteEvent(Doc("foo/baz", 10, Map()), {2}, {}));
   ApplyRemoteEvent(UpdateRemoteEvent(Doc("foo/bar", 20, Map()), {2}, {}));
@@ -1029,7 +1027,7 @@ TEST_P(LocalStoreTest, PersistsResumeTokens) {
   if (IsGcEager()) return;
 
   core::Query query = Query("foo/bar");
-  QueryData query_data = local_store_.AllocateQuery(query);
+  QueryData query_data = local_store_.AllocateTarget(query.ToTarget());
   ListenSequenceNumber initial_sequence_number = query_data.sequence_number();
   TargetId target_id = query_data.target_id();
   ByteString resume_token = testutil::ResumeToken(1000);
@@ -1046,10 +1044,10 @@ TEST_P(LocalStoreTest, PersistsResumeTokens) {
   ApplyRemoteEvent(remote_event);
 
   // Stop listening so that the query should become inactive (but persistent)
-  ReleaseQuery(query);
+  local_store_.ReleaseTarget(target_id);
 
   // Should come back with the same resume token
-  QueryData query_data2 = local_store_.AllocateQuery(query);
+  QueryData query_data2 = local_store_.AllocateTarget(query.ToTarget());
   ASSERT_EQ(query_data2.resume_token(), resume_token);
 
   // The sequence number should have been bumped when we saved the new resume
@@ -1206,7 +1204,7 @@ TEST_P(LocalStoreTest, LastLimboFreeSnapshotIsAdvancedDuringViewProcessing) {
 
   // The last limbo free snapshot version is persisted even if we release the
   // query.
-  ReleaseQuery(query);
+  local_store_.ReleaseTarget(target_id);
 
   if (!IsGcEager()) {
     cached_query_data = GetQueryData(query);
@@ -1265,7 +1263,7 @@ TEST_P(LocalStoreTest, QueriesIncludeDocumentsFromOtherQueries) {
       AddedRemoteEvent({Doc("foo/a", 10, Map("matches", true))}, {target_id}));
   ApplyRemoteEvent(NoChangeEvent(target_id, 10));
   UpdateViews(target_id, /* from_cache=*/false);
-  ReleaseQuery(filtered_query);
+  local_store_.ReleaseTarget(target_id);
 
   // Start another query and add more matching documents to the collection.
   core::Query full_query = Query("foo");
@@ -1273,7 +1271,7 @@ TEST_P(LocalStoreTest, QueriesIncludeDocumentsFromOtherQueries) {
   ApplyRemoteEvent(AddedRemoteEvent({Doc("foo/a", 10, Map("matches", true)),
                                      Doc("foo/b", 20, Map("matches", true))},
                                     {target_id}));
-  ReleaseQuery(full_query);
+  local_store_.ReleaseTarget(target_id);
 
   // Run the original query again and ensure that both the original matches as
   // well as all new matches are included in the result set.
@@ -1298,7 +1296,7 @@ TEST_P(LocalStoreTest, QueriesFilterDocumentsThatNoLongerMatch) {
                                     {target_id}));
   ApplyRemoteEvent(NoChangeEvent(target_id, 10));
   UpdateViews(target_id, /* from_cache= */ false);
-  ReleaseQuery(filtered_query);
+  local_store_.ReleaseTarget(target_id);
 
   // Modify one of the documents to no longer match while the filtered query is
   // inactive.
@@ -1307,7 +1305,7 @@ TEST_P(LocalStoreTest, QueriesFilterDocumentsThatNoLongerMatch) {
   ApplyRemoteEvent(AddedRemoteEvent({Doc("foo/a", 10, Map("matches", true)),
                                      Doc("foo/b", 20, Map("matches", false))},
                                     {target_id}));
-  ReleaseQuery(full_query);
+  local_store_.ReleaseTarget(target_id);
 
   // Re-run the filtered query and verify that the modified document is no
   // longer returned.
