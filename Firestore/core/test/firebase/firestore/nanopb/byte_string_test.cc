@@ -31,6 +31,21 @@ using testing::ContainerEq;
 
 namespace {
 
+struct free_deleter {
+  template <typename T>
+  void operator()(T* value) const {
+    std::free(value);
+  }
+};
+
+template <typename T>
+using freed_ptr = std::unique_ptr<T, free_deleter>;
+
+pb_bytes_array_t* MakeBytesArray(pb_size_t size) {
+  return static_cast<pb_bytes_array_t*>(
+      malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(size)));
+}
+
 std::vector<uint8_t> MakeVector(const std::string& str) {
   auto begin = reinterpret_cast<const uint8_t*>(str.data());
   return {begin, begin + str.size()};
@@ -57,14 +72,13 @@ TEST(ByteStringTest, DefaultConstructor) {
 }
 
 TEST(ByteStringTest, Copy) {
-  auto original =
-      static_cast<pb_bytes_array_t*>(malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(4)));
+  freed_ptr<pb_bytes_array_t> original(MakeBytesArray(4));
   memcpy(original->bytes, "foo", 4);  // null terminator
   original->size = 3;
 
-  ByteString copy{original};
+  ByteString copy{original.get()};
   EXPECT_THAT(copy, BytesEq("foo"));
-  EXPECT_NE(copy.get(), original);
+  EXPECT_NE(copy.get(), original.get());
 }
 
 TEST(ByteStringTest, FromStdString) {
@@ -86,8 +100,7 @@ TEST(ByteStringTest, FromCString) {
 }
 
 TEST(ByteStringTest, TakesNullTerminatedByteArray) {
-  auto original =
-      static_cast<pb_bytes_array_t*>(malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(4)));
+  auto original = MakeBytesArray(4);
   memcpy(original->bytes, "foo", 4);  // null terminator
   original->size = 3;
 
@@ -99,8 +112,7 @@ TEST(ByteStringTest, TakesNullTerminatedByteArray) {
 }
 
 TEST(ByteStringTest, TakesUnterminatedByteArray) {
-  auto original =
-      static_cast<pb_bytes_array_t*>(malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(3)));
+  auto original = MakeBytesArray(3);
   memcpy(original->bytes, "foo", 3);  // no null terminator
   original->size = 3;
 
@@ -112,8 +124,7 @@ TEST(ByteStringTest, TakesUnterminatedByteArray) {
 }
 
 TEST(ByteStringTest, TakesEmptyByteArray) {
-  auto original =
-      static_cast<pb_bytes_array_t*>(malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(0)));
+  auto original = MakeBytesArray(0);
   original->size = 0;
 
   ByteString wrapper = ByteString::Take(original);
