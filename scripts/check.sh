@@ -84,7 +84,7 @@ cd "${top_dir}"
 
 ALLOW_DIRTY=false
 COMMIT_METHOD="none"
-CHECK_DIFF=false
+CHECK_DIFF=true
 START_REVISION="origin/master"
 TEST_ONLY=false
 VERBOSE=false
@@ -149,7 +149,6 @@ while [[ $# -gt 0 ]]; do
       ;;
 
     *)
-      CHECK_DIFF=true
       START_REVISION="$1"
       shift
       break
