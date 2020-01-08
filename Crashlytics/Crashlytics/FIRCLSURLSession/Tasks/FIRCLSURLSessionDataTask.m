@@ -49,9 +49,13 @@
       return;
     }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     connection = [[NSURLConnection alloc] initWithRequest:[self originalRequest]
                                                  delegate:self
                                          startImmediately:NO];
+#pragma clang diagnostic pop
+
     [self setConnection:connection];
 
     // bummer we have to do this on a runloop, but other mechanisms require iOS 5 or 10.7
