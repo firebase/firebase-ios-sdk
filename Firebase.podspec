@@ -72,6 +72,8 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.subspec 'Crashlytics' do |ss|
     ss.dependency 'Firebase/CoreOnly'
     ss.ios.dependency 'FirebaseCrashlytics', '~> 4.0.0-beta.1'
+    ss.osx.dependency 'FirebaseCrashlytics', '~> 4.0.0-beta.1'
+    ss.tvos.dependency 'FirebaseCrashlytics', '~> 4.0.0-beta.1'
   en
 
   s.subspec 'Database' do |ss|
