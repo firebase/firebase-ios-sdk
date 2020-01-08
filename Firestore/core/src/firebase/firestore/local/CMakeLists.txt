@@ -108,6 +108,7 @@ cc_library(
     proto_sizer.h
     query_cache.h
     query_engine.h
+    query_result.h
     reference_delegate.h
     remote_document_cache.h
     simple_query_engine.cc

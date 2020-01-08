@@ -40,7 +40,7 @@ function install_secrets() {
     cp Secrets/Auth/Sample/Sample.entitlements Example/Auth/Sample/Sample.entitlements
     cp Secrets/Auth/ApiTests/AuthCredentials.h Example/Auth/ApiTests/AuthCredentials.h
 
-    cp Secrets/Storage/App/GoogleService-Info.plist Example/Storage/App/GoogleService-Info.plist
+    cp Secrets/Storage/App/GoogleService-Info.plist FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist
     cp Secrets/Storage/App/GoogleService-Info.plist Example/Database/App/GoogleService-Info.plist
 
     cp Secrets/Metrics/database.config Metrics/database.config
@@ -63,11 +63,6 @@ if [[ ! -z $QUICKSTART ]]; then
 fi
 
 case "$PROJECT-$PLATFORM-$METHOD" in
-  Firebase-iOS-xcodebuild)
-    gem install xcpretty
-    bundle exec pod install --project-directory=Example --repo-update
-    install_secrets
-    ;;
 
   FirebasePod-iOS-xcodebuild)
     gem install xcpretty

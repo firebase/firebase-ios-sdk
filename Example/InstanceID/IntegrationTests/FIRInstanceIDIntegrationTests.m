@@ -14,6 +14,11 @@
  * limitations under the License.
  */
 
+// macOS requests a user password when accessing the Keychain for the first time,
+// so the tests may fail. Disable integration tests on macOS so far.
+// TODO: Configure the tests to run on macOS without requesting the keychain password.
+#if !TARGET_OS_OSX
+
 #import <XCTest/XCTest.h>
 
 #import <FirebaseCore/FirebaseCore.h>
@@ -171,3 +176,5 @@ static BOOL sFIRInstanceIDFirebaseDefaultAppConfigured = NO;
 }
 
 @end
+
+#endif  // !TARGET_OS_OSX

@@ -15,6 +15,8 @@
 cc_library(
   firebase_firestore_local_testing
   SOURCES
+    counting_query_engine.cc
+    counting_query_engine.h
     persistence_testing.cc
     persistence_testing.h
   DEPENDS

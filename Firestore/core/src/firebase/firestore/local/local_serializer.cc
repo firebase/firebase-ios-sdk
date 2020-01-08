@@ -226,6 +226,8 @@ Message<firestore_client_Target> LocalSerializer::EncodeQueryData(
   result->last_listen_sequence_number = query_data.sequence_number();
   result->snapshot_version = rpc_serializer_.EncodeTimestamp(
       query_data.snapshot_version().timestamp());
+  result->last_limbo_free_snapshot_version = rpc_serializer_.EncodeTimestamp(
+      query_data.last_limbo_free_snapshot_version().timestamp());
 
   // Force a copy because pb_release would otherwise double-free.
   result->resume_token =
@@ -253,6 +255,9 @@ QueryData LocalSerializer::DecodeQueryData(
           proto.last_listen_sequence_number);
   SnapshotVersion version =
       rpc_serializer_.DecodeVersion(reader, proto.snapshot_version);
+  SnapshotVersion last_limbo_free_snapshot_version =
+      rpc_serializer_.DecodeVersion(reader,
+                                    proto.last_limbo_free_snapshot_version);
   ByteString resume_token(proto.resume_token);
   Query query = InvalidQuery();
 
@@ -272,7 +277,8 @@ QueryData LocalSerializer::DecodeQueryData(
 
   if (!reader->status().ok()) return QueryData::Invalid();
   return QueryData(std::move(query), target_id, sequence_number,
-                   QueryPurpose::Listen, version, std::move(resume_token));
+                   QueryPurpose::Listen, version,
+                   last_limbo_free_snapshot_version, std::move(resume_token));
 }
 
 Message<firestore_client_WriteBatch> LocalSerializer::EncodeMutationBatch(
