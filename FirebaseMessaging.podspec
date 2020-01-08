@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseMessaging'
-  s.version          = '4.1.10'
+  s.version          = '4.2.0'
   s.summary          = 'Firebase Messaging for iOS'
 
   s.description      = <<-DESC
@@ -45,8 +45,8 @@ device, and it is completely free.
   s.tvos.framework = 'SystemConfiguration'
   s.osx.framework = 'SystemConfiguration'
   s.weak_framework = 'UserNotifications'
-  s.dependency 'FirebaseAnalyticsInterop', '~> 1.3'
-  s.dependency 'FirebaseCore', '~> 6.2'
+  s.dependency 'FirebaseAnalyticsInterop', '~> 1.5'
+  s.dependency 'FirebaseCore', '~> 6.6'
   s.dependency 'FirebaseInstanceID', '~> 4.1'
   s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 6.2'
   s.dependency 'GoogleUtilities/Reachability', '~> 6.2'
