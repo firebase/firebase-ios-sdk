@@ -25,7 +25,6 @@
 #import <objc/runtime.h>
 
 #if UISCENE_SUPPORTED
-
 API_AVAILABLE(ios(13.0), tvos(13.0))
 typedef void (*GULOpenURLContextsIMP)(id, SEL, UIScene *, NSSet<UIOpenURLContext *> *);
 
@@ -35,6 +34,7 @@ typedef void (^GULSceneDelegateInterceptorCallback)(id<UISceneDelegate>);
 // The strings below are the keys for associated objects.
 static char const *const kGULRealIMPBySelectorKey = "GUL_realIMPBySelector";
 static char const *const kGULRealClassKey = "GUL_realClass";
+#endif  // UISCENE_SUPPORTED
 
 static GULLoggerService kGULLoggerSwizzler = @"[GoogleUtilities/SceneDelegateSwizzler]";
 
@@ -78,6 +78,30 @@ static NSString *const kGULSceneDelegatePrefix = @"GUL_";
   return [GULAppDelegateSwizzler isAppDelegateProxyEnabled];
 }
 
++ (void)proxyOriginalSceneDelegate {
+  if ([GULAppEnvironmentUtil isAppExtension]) {
+    return;
+  }
+
+#if UISCENE_SUPPORTED
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    if (@available(iOS 13.0, tvOS 13.0, *)) {
+      if (![GULSceneDelegateSwizzler isSceneDelegateProxyEnabled]) {
+        return;
+      } else {
+        [[NSNotificationCenter defaultCenter]
+            addObserver:self
+               selector:@selector(handleSceneWillConnectToNotification:)
+                   name:UISceneWillConnectNotification
+                 object:nil];
+      }
+    }
+  });
+#endif  // UISCENE_SUPPORTED
+}
+
+#if UISCENE_SUPPORTED
 + (GULSceneDelegateInterceptorID)registerSceneDelegateInterceptor:(id<UISceneDelegate>)interceptor {
   NSAssert(interceptor, @"SceneDelegateProxy cannot add nil interceptor");
   NSAssert([interceptor conformsToProtocol:@protocol(UISceneDelegate)],
@@ -142,29 +166,6 @@ static NSString *const kGULSceneDelegatePrefix = @"GUL_";
   [[GULSceneDelegateSwizzler interceptors] removeObjectForKey:interceptorID];
 }
 
-+ (void)proxyOriginalSceneDelegate {
-  if ([GULAppEnvironmentUtil isAppExtension]) {
-    return;
-  }
-
-#if UISCENE_SUPPORTED
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    if (@available(iOS 13.0, tvOS 13.0, *)) {
-      if (![GULSceneDelegateSwizzler isSceneDelegateProxyEnabled]) {
-        return;
-      } else {
-        [[NSNotificationCenter defaultCenter]
-            addObserver:self
-               selector:@selector(handleSceneWillConnectToNotification:)
-                   name:UISceneWillConnectNotification
-                 object:nil];
-      }
-    }
-  });
-#endif  // UISCENE_SUPPORTED
-}
-
 #pragma mark - Helper methods
 
 + (GULMutableDictionary *)interceptors {
@@ -174,6 +175,10 @@ static NSString *const kGULSceneDelegatePrefix = @"GUL_";
     sInterceptors = [[GULMutableDictionary alloc] init];
   });
   return sInterceptors;
+}
+
++ (void)clearInterceptors {
+  [[self interceptors] removeAllObjects];
 }
 
 + (nullable NSValue *)originalImplementationForSelector:(SEL)selector object:(id)object {
@@ -294,7 +299,6 @@ static NSString *const kGULSceneDelegatePrefix = @"GUL_";
   }];
 }
 
-#if UISCENE_SUPPORTED
 + (void)handleSceneWillConnectToNotification:(NSNotification *)notification {
   if (@available(iOS 13.0, tvOS 13.0, *)) {
     if ([notification.object isKindOfClass:[UIScene class]]) {
@@ -303,11 +307,9 @@ static NSString *const kGULSceneDelegatePrefix = @"GUL_";
     }
   }
 }
-#endif  // UISCENE_SUPPORTED
 
 #pragma mark - [Donor Methods] UISceneDelegate URL handler
 
-#if UISCENE_SUPPORTED
 - (void)scene:(UIScene *)scene
     openURLContexts:(NSSet<UIOpenURLContext *> *)URLContexts API_AVAILABLE(ios(13.0), tvos(13.0)) {
   if (@available(iOS 13.0, tvOS 13.0, *)) {
@@ -333,9 +335,7 @@ static NSString *const kGULSceneDelegatePrefix = @"GUL_";
     }
   }
 }
-#endif  // UISCENE_SUPPORTED
 
-#if UISCENE_SUPPORTED
 + (void)proxySceneDelegateIfNeeded:(UIScene *)scene {
   Class realClass = [scene.delegate class];
   NSString *className = NSStringFromClass(realClass);
@@ -428,19 +428,12 @@ static NSString *const kGULSceneDelegatePrefix = @"GUL_";
         [GULSceneDelegateSwizzler correctSceneDelegateProxyKey]);
   }
 }
-#endif  // UISCENE_SUPPORTED
-
-#pragma mark - Methods to print correct debug logs
 
 + (NSString *)correctSceneDelegateProxyKey {
   return NSClassFromString(@"FIRCore") ? kGULFirebaseSceneDelegateProxyEnabledPlistKey
                                        : kGULGoogleUtilitiesSceneDelegateProxyEnabledPlistKey;
 }
 
-+ (void)clearInterceptors {
-  [[self interceptors] removeAllObjects];
-}
+#endif  // UISCENE_SUPPORTED
 
 @end
-
-#endif  // UISCENE_SUPPORTED
