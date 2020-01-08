@@ -472,7 +472,7 @@ void LocalStore::ReleaseTarget(TargetId target_id) {
     HARD_ASSERT(found != query_data_by_target_.end(),
                 "Tried to release a non-existent target: %s", target_id);
 
-    const QueryData& query_data = found->second;
+    QueryData query_data = found->second;
 
     // References for documents sent via Watch are automatically removed when we
     // delete a query's target data from the reference delegate. Since this does
