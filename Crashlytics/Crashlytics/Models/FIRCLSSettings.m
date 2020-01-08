@@ -14,7 +14,11 @@
 
 #import "FIRCLSSettings.h"
 
-#import "FBLPromise.h"
+#if __has_include(<FBLPromises/FBLPromises.h>)
+#import <FBLPromises/FBLPromises.h>
+#else
+#import "FBLPromises.h"
+#endif
 
 #import "FIRCLSApplicationIdentifierModel.h"
 #import "FIRCLSConstants.h"
