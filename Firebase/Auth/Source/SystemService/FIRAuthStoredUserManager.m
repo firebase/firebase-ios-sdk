@@ -83,12 +83,10 @@ static NSString *kStoredUserCoderKey = @"firebase_auth_stored_user_coder_key";
 
   NSData *data = [self.keychainServices getItemWithQuery:query error:outError];
 #if !TARGET_OS_WATCH
-  NSKeyedUnarchiver *unarchiver =
-      [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
+  NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
 #else
   NSError *error;
-  NSKeyedUnarchiver *unarchiver =
-    [[NSKeyedUnarchiver alloc] initForReadingFromData:data error:&error];
+  NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingFromData:data error:&error];
 #endif
   FIRUser *user = [unarchiver decodeObjectOfClass:[FIRUser class] forKey:kStoredUserCoderKey];
 
@@ -109,7 +107,7 @@ static NSString *kStoredUserCoderKey = @"firebase_auth_stored_user_coder_key";
 
 #if !TARGET_OS_WATCH
   NSMutableData *data = [NSMutableData data];
-  NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData: data];
+  NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData:data];
 #else
   NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initRequiringSecureCoding:false];
 #endif
