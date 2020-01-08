@@ -75,6 +75,9 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     bundle exec pod install --project-directory=Example/Auth/AuthSample --repo-update
     ;;
 
+  Crashlytics-*)
+    ;;
+
   Database-*)
     ;;
 
