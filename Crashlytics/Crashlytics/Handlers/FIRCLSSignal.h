@@ -14,6 +14,7 @@
 
 #pragma once
 
+#include "FIRCLSFeatures.h"
 #include "FIRCLSFile.h"
 
 #include <signal.h>

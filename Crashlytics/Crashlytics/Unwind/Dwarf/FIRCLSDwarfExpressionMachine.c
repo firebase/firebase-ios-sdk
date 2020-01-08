@@ -16,7 +16,6 @@
 #include "FIRCLSDataParsing.h"
 #include "FIRCLSDefines.h"
 #include "FIRCLSDwarfUnwindRegisters.h"
-#include "FIRCLSFeatures.h"
 #include "FIRCLSUnwind_arch.h"
 #include "FIRCLSUtility.h"
 #include "dwarf.h"
