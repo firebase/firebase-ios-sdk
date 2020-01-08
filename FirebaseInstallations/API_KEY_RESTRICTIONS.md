@@ -4,14 +4,14 @@
 
 The following SDKs updates introduce a dependency on the [Firebase Installations API](https://pantheon.corp.google.com/apis/library/firebaseinstallations.googleapis.com), a new infrastructure service for Firebase:
 
-- Analytics,
-- Cloud Messaging,
-- Remote Config,
-- In-App Messaging,
-- A/B Testing,
-- Performance Monitoring,
-- ML Kit, and
-- Instance ID.
+- Analytics
+- Cloud Messaging
+- Remote Config
+- In-App Messaging
+- A/B Testing
+- Performance Monitoring
+- ML Kit
+- Instance ID
 
 
 As a result, API restrictions you may have applied to API keys used by your Firebase applications may have to be updated to allow your apps to call the Firebase Installations API.
