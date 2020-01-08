@@ -1,5 +1,17 @@
-# Unreleased
-  [changed] Directory structure reorganization without functional changes.
+# v6.6.0 -- M62
+- [changed] Directory structure reorganization without functional changes.
+- [changed] The following SDKs updates introduce a new transitive dependency on the [Firebase Installations API](https://pantheon.corp.google.com/apis/library/firebaseinstallations.googleapis.com):
+
+- Analytics
+- Cloud Messaging
+- Remote Config
+- In-App Messaging
+- A/B Testing
+- Performance Monitoring
+- ML Kit
+- Instance ID
+
+The Firebase Installations SDK introduces the [Firebase Installations API](https://pantheon.corp.google.com/apis/library/firebaseinstallations.googleapis.com). Developers that use API-restrictions for their API-Keys may experience blocked requests (https://stackoverflow.com/questions/58495985/). A solution is available [here](../../FirebaseInstallations/API_KEY_RESTRICTIONS.md). (#4533)
 
 # v6.5.0 -- M61
 - [added] Updated the binary distributions to include arm64e slices. See
