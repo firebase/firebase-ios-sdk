@@ -14,6 +14,7 @@
 
 #import "TargetConditionals.h"
 
+#import <GoogleUtilities/GULAppDelegateSwizzler.h>
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <GoogleUtilities/GULLogger.h>
 #import <GoogleUtilities/GULMutableDictionary.h>
@@ -74,28 +75,7 @@ static NSString *const kGULSceneDelegatePrefix = @"GUL_";
 #pragma mark - Public methods
 
 + (BOOL)isSceneDelegateProxyEnabled {
-  NSDictionary *infoDictionary = [NSBundle mainBundle].infoDictionary;
-
-  id isFirebaseProxyEnabledPlistValue =
-      infoDictionary[kGULFirebaseSceneDelegateProxyEnabledPlistKey];
-  id isGoogleProxyEnabledPlistValue =
-      infoDictionary[kGULGoogleUtilitiesSceneDelegateProxyEnabledPlistKey];
-
-  // Enabled by default.
-  BOOL isFirebaseSceneDelegateProxyEnabled = YES;
-  BOOL isGoogleUtilitiesSceneDelegateProxyEnabled = YES;
-
-  if ([isFirebaseProxyEnabledPlistValue isKindOfClass:[NSNumber class]]) {
-    isFirebaseSceneDelegateProxyEnabled = [isFirebaseProxyEnabledPlistValue boolValue];
-  }
-
-  if ([isGoogleProxyEnabledPlistValue isKindOfClass:[NSNumber class]]) {
-    isGoogleUtilitiesSceneDelegateProxyEnabled = [isGoogleProxyEnabledPlistValue boolValue];
-  }
-
-  // Only deactivate the proxy if it is explicitly disabled by app developers using either one of
-  // the plist flags.
-  return isFirebaseSceneDelegateProxyEnabled && isGoogleUtilitiesSceneDelegateProxyEnabled;
+  return [GULAppDelegateSwizzler isAppDelegateProxyEnabled];
 }
 
 + (GULSceneDelegateInterceptorID)registerSceneDelegateInterceptor:(id<UISceneDelegate>)interceptor {

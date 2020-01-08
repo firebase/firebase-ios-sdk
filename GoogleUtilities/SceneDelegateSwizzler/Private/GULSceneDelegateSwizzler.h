@@ -53,14 +53,6 @@ typedef NSString *const GULSceneDelegateInterceptorID;
  *  registering your interceptor. This method is safe to call multiple times (but it only proxies
  *  the scene delegate once).
  *
- *  This method doesn't proxy APNS related methods:
- *  @code
- *    - application:didRegisterForRemoteNotificationsWithDeviceToken:
- *    - application:didFailToRegisterForRemoteNotificationsWithError:
- *    - application:didReceiveRemoteNotification:fetchCompletionHandler:
- *    - application:didReceiveRemoteNotification:
- *  @endcode
- *
  *  The method has no effect for extensions.
  */
 + (void)proxyOriginalSceneDelegate API_AVAILABLE(ios(13.0), tvos(13.0));
