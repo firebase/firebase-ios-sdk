@@ -245,8 +245,29 @@ TEST_F(IndexFreeQueryEngineTest,
 
 TEST_F(IndexFreeQueryEngineTest,
        DoesNotUseInitialResultsForLimitQueryWithDocumentRemoval) {
-  core::Query query =
-      Query("coll").AddingFilter(Filter("matches", "==", true)).WithLimit(1);
+  core::Query query = Query("coll")
+                          .AddingFilter(Filter("matches", "==", true))
+                          .WithLimitToFirst(1);
+
+  // While the backend would never add DocA to the set of remote keys, this
+  // allows us to easily simulate what would happen when a document no longer
+  // matches due to an out-of-band update.
+  AddDocuments({kNonMatchingDocA});
+  PersistQueryMapping({kMatchingDocA.key()});
+
+  AddDocuments({kMatchingDocB});
+
+  DocumentSet docs = ExpectFullCollectionQuery(
+      [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
+  EXPECT_EQ(docs, DocSet(query.Comparator(), {kMatchingDocB}));
+}
+
+TEST_F(IndexFreeQueryEngineTest,
+       DoesNotUseInitialResultsForLimitToLastWithDocumentRemoval) {
+  core::Query query = Query("coll")
+                          .AddingFilter(Filter("matches", "==", true))
+                          .AddingOrderBy(OrderBy("order", "desc"))
+                          .WithLimitToLast(1);
 
   // While the backend would never add DocA to the set of remote keys, this
   // allows us to easily simulate what would happen when a document no longer
@@ -266,7 +287,26 @@ TEST_F(IndexFreeQueryEngineTest,
   core::Query query = Query("coll")
                           .AddingFilter(Filter("matches", "==", true))
                           .AddingOrderBy(OrderBy("order", "desc"))
-                          .WithLimit(1);
+                          .WithLimitToFirst(1);
+
+  // Add a query mapping for a document that matches, but that sorts below
+  // another document due to a pending write.
+  AddDocuments({pPendingMatchingDocA});
+  PersistQueryMapping({pPendingMatchingDocA.key()});
+
+  AddDocuments({kMatchingDocB});
+
+  DocumentSet docs = ExpectFullCollectionQuery(
+      [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
+  EXPECT_EQ(docs, DocSet(query.Comparator(), {kMatchingDocB}));
+}
+
+TEST_F(IndexFreeQueryEngineTest,
+       DoesNotUseInitialResultsForLimitToLastWhenLastDocumentHasPendingWrite) {
+  core::Query query = Query("coll")
+                          .AddingFilter(Filter("matches", "==", true))
+                          .AddingOrderBy(OrderBy("order", "asc"))
+                          .WithLimitToLast(1);
 
   // Add a query mapping for a document that matches, but that sorts below
   // another document due to a pending write.
@@ -285,7 +325,27 @@ TEST_F(IndexFreeQueryEngineTest,
   core::Query query = Query("coll")
                           .AddingFilter(Filter("matches", "==", true))
                           .AddingOrderBy(OrderBy("order", "desc"))
-                          .WithLimit(1);
+                          .WithLimitToFirst(1);
+
+  // Add a query mapping for a document that matches, but that sorts below
+  // another document based due to an update that the SDK received after the
+  // query's snapshot was persisted.
+  AddDocuments({kUpdatedDocA});
+  PersistQueryMapping({kUpdatedDocA.key()});
+
+  AddDocuments({kMatchingDocB});
+
+  DocumentSet docs = ExpectFullCollectionQuery(
+      [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
+  EXPECT_EQ(docs, DocSet(query.Comparator(), {kMatchingDocB}));
+}
+
+TEST_F(IndexFreeQueryEngineTest,
+       DoesNotUseInitialResultsForLimitToLastWhenLastDocumentUpdatedOutOfBand) {
+  core::Query query = Query("coll")
+                          .AddingFilter(Filter("matches", "==", true))
+                          .AddingOrderBy(OrderBy("order", "asc"))
+                          .WithLimitToLast(1);
 
   // Add a query mapping for a document that matches, but that sorts below
   // another document based due to an update that the SDK received after the
@@ -303,7 +363,7 @@ TEST_F(IndexFreeQueryEngineTest,
 TEST_F(IndexFreeQueryEngineTest,
        LimitQueriesUseInitialResultsIfLastDocumentInLimitIsUnchanged) {
   core::Query query =
-      Query("coll").AddingOrderBy(OrderBy("order")).WithLimit(2);
+      Query("coll").AddingOrderBy(OrderBy("order")).WithLimitToFirst(2);
 
   AddDocuments(
       {Doc("coll/a", 1, Map("order", 1)), Doc("coll/b", 1, Map("order", 3))});

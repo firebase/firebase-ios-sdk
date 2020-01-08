@@ -70,6 +70,7 @@ size_t Query::Hash() const {
 }
 
 void Query::GetDocuments(Source source, QuerySnapshot::Listener&& callback) {
+  ValidateHasExplicitOrderByForLimitToLast();
   if (source == Source::Cache) {
     firestore_->client()->GetDocumentsFromLocalCache(*this,
                                                      std::move(callback));
@@ -134,6 +135,7 @@ void Query::GetDocuments(Source source, QuerySnapshot::Listener&& callback) {
 
 std::unique_ptr<ListenerRegistration> Query::AddSnapshotListener(
     ListenOptions options, QuerySnapshot::Listener&& user_listener) {
+  ValidateHasExplicitOrderByForLimitToLast();
   // Convert from ViewSnapshots to QuerySnapshots.
   class Converter : public EventListener<ViewSnapshot> {
    public:
@@ -233,13 +235,22 @@ Query Query::OrderBy(FieldPath field_path, Direction direction) const {
       query_.AddingOrderBy(core::OrderBy(std::move(field_path), direction)));
 }
 
-Query Query::Limit(int32_t limit) const {
+Query Query::LimitToFirst(int32_t limit) const {
   if (limit <= 0) {
     ThrowInvalidArgument(
         "Invalid Query. Query limit (%s) is invalid. Limit must be positive.",
         limit);
   }
-  return Wrap(query_.WithLimit(limit));
+  return Wrap(query_.WithLimitToFirst(limit));
+}
+
+Query Query::LimitToLast(int32_t limit) const {
+  if (limit <= 0) {
+    ThrowInvalidArgument(
+        "Invalid Query. Query limit (%s) is invalid. Limit must be positive.",
+        limit);
+  }
+  return Wrap(query_.WithLimitToLast(limit));
 }
 
 Query Query::StartAt(Bound bound) const {
@@ -323,6 +334,14 @@ void Query::ValidateOrderByField(const FieldPath& order_by_field,
         "instead.",
         inequality_field.CanonicalString(), inequality_field.CanonicalString(),
         order_by_field.CanonicalString());
+  }
+}
+
+void Query::ValidateHasExplicitOrderByForLimitToLast() const {
+  if (query_.has_limit_to_last() && query_.explicit_order_bys().empty()) {
+    ThrowInvalidArgument(
+        "limit(toLast:) queries require specifying at least one OrderBy() "
+        "clause.");
   }
 }
 

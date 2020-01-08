@@ -319,7 +319,7 @@ TEST_F(LocalSerializerTest, EncodesQueryData) {
   SnapshotVersion limbo_free_version = testutil::Version(1000);
   ByteString resume_token = testutil::ResumeToken(1039);
 
-  QueryData query_data(core::Query(query), target_id, sequence_number,
+  QueryData query_data(query.ToTarget(), target_id, sequence_number,
                        QueryPurpose::Listen, SnapshotVersion(version),
                        SnapshotVersion(limbo_free_version),
                        ByteString(resume_token));
@@ -355,7 +355,7 @@ TEST_F(LocalSerializerTest, EncodesQueryDataWithDocumentQuery) {
   SnapshotVersion limbo_free_version = testutil::Version(1000);
   ByteString resume_token = testutil::ResumeToken(1039);
 
-  QueryData query_data(core::Query(query), target_id, sequence_number,
+  QueryData query_data(query.ToTarget(), target_id, sequence_number,
                        QueryPurpose::Listen, SnapshotVersion(version),
                        SnapshotVersion(limbo_free_version),
                        ByteString(resume_token));

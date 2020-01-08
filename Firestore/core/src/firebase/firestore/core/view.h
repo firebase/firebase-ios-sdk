@@ -188,6 +188,10 @@ class View {
    */
   core::ViewChange ApplyOnlineStateChange(model::OnlineState online_state);
 
+  core::SyncState sync_state() const {
+    return sync_state_;
+  }
+
  private:
   util::ComparisonResult Compare(const model::Document& lhs,
                                  const model::Document& rhs) const;
