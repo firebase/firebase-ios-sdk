@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #include "FIRCLSSignal.h"
-#include "FIRCLSFeatures.h"
 #include "FIRCLSGlobals.h"
 #include "FIRCLSHandler.h"
 #include "FIRCLSUtility.h"

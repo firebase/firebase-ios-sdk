@@ -15,7 +15,6 @@
 #pragma once
 
 #include "FIRCLSDwarfUnwindRegisters.h"
-#include "FIRCLSFeatures.h"
 #include "FIRCLSThreadState.h"
 
 #include <stdbool.h>
