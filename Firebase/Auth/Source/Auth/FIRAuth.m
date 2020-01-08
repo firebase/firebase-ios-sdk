@@ -29,6 +29,7 @@
 #import <FirebaseCore/FIRLogger.h>
 #import <FirebaseCore/FIROptions.h>
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
+#import <GoogleUtilities/GULSceneDelegateSwizzler.h>
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 
 #import "FIREmailPasswordAuthCredential.h"
@@ -384,7 +385,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     UIApplication *application = [applicationClass sharedApplication];
 
     [GULAppDelegateSwizzler proxyOriginalDelegateIncludingAPNSMethods];
-    #endif
+    [GULSceneDelegateSwizzler proxyOriginalSceneDelegate];
+    #endif // TARGET_OS_IOS
 
     // Continue with the rest of initialization in the work thread.
     __weak FIRAuth *weakSelf = self;
@@ -439,7 +441,12 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
           appCredentialManager:strongSelf->_appCredentialManager];
 
       [GULAppDelegateSwizzler registerAppDelegateInterceptor:strongSelf];
-      #endif
+      #if ((TARGET_OS_IOS || TARGET_OS_TV) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 130000))
+        if (@available(iOS 13, tvos 13, *)) {
+        [GULSceneDelegateSwizzler registerSceneDelegateInterceptor:strongSelf];
+      }
+      #endif // ((TARGET_OS_IOS || TARGET_OS_TV) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 130000))
+      #endif // TARGET_OS_IOS
     });
   }
   return self;
