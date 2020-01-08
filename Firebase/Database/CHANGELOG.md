@@ -1,5 +1,8 @@
 # Unreleased
 
+# v6.1.4
+- [changed] Addressed a performance regression introduced in 6.1.3.
+
 # v6.1.3
 - [changed] Internal changes.
 
