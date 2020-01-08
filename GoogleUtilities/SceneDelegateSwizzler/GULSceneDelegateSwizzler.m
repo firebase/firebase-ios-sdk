@@ -79,23 +79,22 @@ static NSString *const kGULSceneDelegatePrefix = @"GUL_";
 }
 
 + (void)proxyOriginalSceneDelegate {
+#if UISCENE_SUPPORTED
   if ([GULAppEnvironmentUtil isAppExtension]) {
     return;
   }
 
-#if UISCENE_SUPPORTED
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
     if (@available(iOS 13.0, tvOS 13.0, *)) {
       if (![GULSceneDelegateSwizzler isSceneDelegateProxyEnabled]) {
         return;
-      } else {
-        [[NSNotificationCenter defaultCenter]
-            addObserver:self
-               selector:@selector(handleSceneWillConnectToNotification:)
-                   name:UISceneWillConnectNotification
-                 object:nil];
       }
+      [[NSNotificationCenter defaultCenter]
+          addObserver:self
+             selector:@selector(handleSceneWillConnectToNotification:)
+                 name:UISceneWillConnectNotification
+               object:nil];
     }
   });
 #endif  // UISCENE_SUPPORTED
