@@ -5,6 +5,8 @@ cache:
   bundler: true
   cocoapods: true
   ccache: true
+  directories:
+    - Firestore/Example/Pods
 
 stages:
   - checks
