@@ -76,7 +76,7 @@ else
     Auth-*)
       check_changes '^(FirebaseCore|Firebase/Auth|Example/Auth|GoogleUtilities|FirebaseAuth.podspec)'
       ;;
-      
+
     Crashlytics-*)
       check_changes '^(FirebaseCore|Firebase/InstanceID|Firebase/Installations|GoogleUtilities|FirebaseCrashlytics|Firebase/Crashlytics|FirebaseCrashlytics.podspec)'
       ;;
