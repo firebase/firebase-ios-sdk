@@ -35,10 +35,8 @@ std::shared_ptr<GrpcCompletion> GrpcCompletion::Create(
 
   // Prepare the `GrpcCompletion` for submission to gRPC.
   //
-  // Note: this is a separate step from the constructor due to limitations in
-  // std::enable_shared_from_this. The internal weak_ptr that makes that work
-  // is is not initialized until after the shared_ptr for this object is
-  // created, which is only done after construction is complete.
+  // Note: this is done in a separate step because `shared_from_this` cannot be
+  // called in a constructor.
   completion->grpc_ownership_ = completion;
 
   return completion;

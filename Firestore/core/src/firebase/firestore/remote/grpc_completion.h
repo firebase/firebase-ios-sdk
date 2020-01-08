@@ -128,35 +128,20 @@ class GrpcCompletion : public std::enable_shared_from_this<GrpcCompletion> {
   std::shared_ptr<util::AsyncQueue> worker_queue_;
   Callback callback_;
 
-  // GrpcCompletions are meant to be created and passed to gRPC as a context
-  // object. gRPC's API only allows for a raw pointer though, and until gRPC
-  // invokes the callback with this GrpcCompletion as a context object the
-  // object must not be deleted.
+  // Ownership of the GrpcCompletion is shared between the Firestore gRPC
+  // wrapper object that initiated the operation (e.g., a `GrpcStream`) and gRPC
+  // itself, for as long as the completion is on the gRPC completion queue.
+  // While most of the time a completion gets removed from the gRPC completion
+  // queue first and then destroyed by the wrapper, during shutdown the gRPC
+  // wrapper can be destroyed first so in that case the completion needs to
+  // delete itself.
   //
-  // Previously we managed this by explicitly new/deleting GrpcCompletion but
-  // this creates timing problems during shutdown. During shutdown, the worker
-  // thread wants to cancel RPCs that are in flight, but this races with the
-  // completion event from gRPC.
-  //
-  // This used to work because we only allowed delete on the worker thread.
-  // Now that the AsyncQueue no longer admits tasks after shutdown has been
-  // started this now leaks the completion. If we called delete outside the
-  // worker thread this could cause cancellation to use-after-free so that
-  // doesn't work either.
-  //
-  // This field is an intentional retain cycle: while gRPC holds the
-  // GrpcCompletion this pointer is set and that keeps the raw pointer we give
-  // to gRPC alive. Once gRPC calls back, this pointer is released.
-  //
-  // Under normal operation, this works as before: the completion's self-release
-  // just decrements the reference count because GrpcStream still holds a
-  // reference in its completion list. Then, removing the completion
-  // from the list destroys the completion on the worker queue.
-  //
-  // During shutdown, the GrpcStream can now cancel all the completions in the
-  // queue because its shared_ptrs guarantee liveness. It can then release its
-  // shared_ptrs and then gRPC completion (whenever it actually happens) will
-  // actually destroy the GrpcCompletion block.
+  // To handle these two cases, `GrpcCompletion` is held by shared_ptr, and one
+  // shared_ptr is held here, within the `GrpcCompletion` itself to model gRPC's
+  // ownership. This works around a limitation in the gRPC API where it only
+  // accepts raw pointers for tag objects. Once this completion is completed,
+  // the grpc_ownership_ shared_ptr is reset, which models gRPC releasing its
+  // interest in the completion.
   std::shared_ptr<GrpcCompletion> grpc_ownership_;
 
   // Note that even though `grpc::GenericClientAsyncReaderWriter::Write` takes
