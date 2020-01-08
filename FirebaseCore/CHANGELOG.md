@@ -1,5 +1,5 @@
 # v6.6.0 -- M62
-- [changed] Directory structure reorganization without functional changes.
+- [changed] Reorganized directory structure.
 - [changed] The following SDKs updates introduce a new transitive dependency on the [Firebase Installations API](https://pantheon.corp.google.com/apis/library/firebaseinstallations.googleapis.com):
   - Analytics
   - Cloud Messaging
