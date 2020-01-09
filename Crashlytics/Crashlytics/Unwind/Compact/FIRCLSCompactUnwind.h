@@ -14,6 +14,7 @@
 
 #pragma once
 
+#include "FIRCLSFeatures.h"
 #include "FIRCLSThreadState.h"
 
 #include <stdbool.h>
