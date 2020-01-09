@@ -77,7 +77,7 @@ StatusOr<Path> XdgDataHomeDir() {
 
 }  // namespace
 
-StatusOr<Path> AppDataDir(absl::string_view app_name) {
+StatusOr<Path> Filesystem::AppDataDir(absl::string_view app_name) {
 #if __linux__ && !__ANDROID__
   // On Linux, use XDG data home, usually $HOME/.local/share/$app_name
   StatusOr<Path> maybe_data_home = XdgDataHomeDir();
