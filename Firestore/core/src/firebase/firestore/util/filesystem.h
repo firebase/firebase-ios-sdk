@@ -57,6 +57,12 @@ class Filesystem {
    *   * tvOS: $container/Library/Caches/$app_name
    *   * Windows: %USERPROFILE%/AppData/Local
    *
+   * On iOS, tvOS, and macOS (when running sandboxed), these locations are
+   * relative to the data container for the current application. On macOS when
+   * the application is not sandboxed, the returned value will be relative to
+   * $HOME instead. See "About the iOS File System" in the Apple "File System
+   * Programming Guide" at https://apple.co/2Nn7Bsb.
+   *
    * Note: the returned path is just where the system thinks the application
    * data should be stored, but AppDataDir does not actually guarantee that this
    * path exists.
@@ -66,11 +72,15 @@ class Filesystem {
   virtual StatusOr<Path> AppDataDir(absl::string_view app_name);
 
   /**
-   * Returns the Documents directory in which Firestore used to store application
-   * data. Values vary wildly across platforms. They include:
+   * Returns the Documents directory in which Firestore used to store
+   * application data. Values vary wildly across platforms. They include:
    *
    *   * iOS: $container/Documents/$app_name
    *   * macOS: $HOME/.$app_name
+   *
+   * On iOS, the Documents folder is relative to the data container for the
+   * current application. See "About the iOS File System" in the Apple "File
+   * System Programming Guide" at https://apple.co/2Nn7Bsb.
    *
    * Note: the returned path is just where the system thinks the documents
    * directory should be stored, but LegacyDocumentsDir does not actually
@@ -78,8 +88,8 @@ class Filesystem {
    *
    * @param app_name The name of the application.
    *
-   * @returns The documents directory path or the value of AppDataDir(app_name) if
-   *     the current platform does not have a legacy documents directory.
+   * @returns The documents directory path or the value of AppDataDir(app_name)
+   * if the current platform does not have a legacy documents directory.
    */
   virtual StatusOr<Path> LegacyDocumentsDir(absl::string_view app_name);
 

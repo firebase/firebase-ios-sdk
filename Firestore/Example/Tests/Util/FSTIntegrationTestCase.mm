@@ -41,7 +41,6 @@
 #include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_opener.h"
-#include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
@@ -63,7 +62,6 @@ using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::local::LevelDbOpener;
-using firebase::firestore::local::LevelDbPersistence;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::testutil::AppForUnitTesting;
 using firebase::firestore::testutil::AsyncQueueForTesting;
@@ -151,10 +149,11 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
 
   @synchronized([FSTIntegrationTestCase class]) {
     if (clearedPersistence) return;
-    DatabaseInfo db_info;
-    LevelDbOpener opener(db_info);
-    Path levelDBDir = opener.AppDataDir();
-    ASSERT_OK(opener.status());
+    DatabaseInfo dbInfo;
+    LevelDbOpener opener(dbInfo);
+    StatusOr<Path> maybeLevelDBDir = opener.FirestoreAppDataDir();
+    ASSERT_OK(maybeLevelDBDir.status());
+    Path levelDBDir = std::move(maybeLevelDBDir).ValueOrDie();
 
     Status status = fs->RecursivelyRemove(levelDBDir);
     ASSERT_OK(status);

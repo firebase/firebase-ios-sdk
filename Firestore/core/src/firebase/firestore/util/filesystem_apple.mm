@@ -69,7 +69,7 @@ StatusOr<Path> Filesystem::LegacyDocumentsDir(absl::string_view app_name) {
   return Path::FromNSString(NSHomeDirectory()).AppendUtf8(dot_prefixed);
 
 #else
-  return AppDataDir(app_name);
+  return Path();
 #endif
 }
 

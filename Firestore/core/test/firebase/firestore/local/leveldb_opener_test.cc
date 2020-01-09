@@ -28,6 +28,7 @@
 #include "Firestore/core/test/firebase/firestore/testutil/filesystem_testing.h"
 #include "Firestore/core/test/firebase/firestore/testutil/status_testing.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
+#include "absl/strings/str_cat.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
@@ -41,11 +42,18 @@ using model::DatabaseId;
 using remote::Serializer;
 using testutil::IsNotFound;
 using testutil::IsOk;
+using testutil::IsPermissionDenied;
+using testutil::IsUnimplemented;
 using testutil::TestTempDir;
 using util::CreateAutoId;
 using util::Filesystem;
 using util::Path;
 using util::Status;
+using util::StatusOr;
+
+using testing::_;
+using testing::NiceMock;
+using testing::Return;
 
 DatabaseInfo FakeDatabaseInfo() {
   return DatabaseInfo(testutil::DbId(), "key", "example.com", true);
@@ -59,98 +67,168 @@ DatabaseInfo FakeDatabaseInfoOtherProject() {
 void RunPersistence(LevelDbOpener* opener) {
   auto created = opener->Create(LruParams::Disabled());
 
-  EXPECT_OK(created.status());
+  ASSERT_OK(created.status());
   auto persistence = std::move(created).ValueOrDie();
   persistence->Shutdown();
 }
 
 }  // namespace
 
-class LevelDbOpenerTest : public testing::Test {
- protected:
-  Filesystem* fs_ = Filesystem::Default();
+TEST(LevelDbOpenerTest, CanFindAppDataDir) {
+  LevelDbOpener opener(FakeDatabaseInfo());
+  StatusOr<Path> maybe_dir = opener.FirestoreAppDataDir();
+  ASSERT_OK(maybe_dir.status());
+
+  Path dir = maybe_dir.ValueOrDie();
+  EXPECT_THAT(dir.Basename().ToUtf8String(), testing::EndsWith("firestore"));
+}
+
+TEST(LevelDbOpenerTest, CanFindLegacyAppDataDir) {
+  LevelDbOpener opener(FakeDatabaseInfo());
+  StatusOr<Path> maybe_dir = opener.FirestoreLegacyAppDataDir();
+#if TARGET_OS_IPHONE || TARGET_OS_MAC
+  EXPECT_OK(maybe_dir.status());
+
+  Path dir = maybe_dir.ValueOrDie();
+  EXPECT_THAT(dir.Basename().ToUtf8String(), testing::EndsWith("firestore"));
+#else
+
+  ASSERT_THAT(maybe_dir.status(), IsUnimplemented());
+#endif
+}
+
+/**
+ * A Filesystem that implements modern behavior for macOS and iOS, where data
+ * might be migrated.
+ */
+class MigratingFilesystem : public Filesystem {
+ public:
+  explicit MigratingFilesystem(Path root_dir) : root_dir_(std::move(root_dir)) {
+  }
+
+  StatusOr<Path> AppDataDir(absl::string_view app_name) override {
+    return Path::JoinUtf8(root_dir_, "Library/Application Support", app_name);
+  }
+
+  StatusOr<Path> LegacyDocumentsDir(absl::string_view app_name) override {
+    return Path::JoinUtf8(root_dir_, "Documents", app_name);
+  }
+
+ private:
+  Path root_dir_;
 };
 
-TEST_F(LevelDbOpenerTest, CanFindAppDataDir) {
-  LevelDbOpener opener(FakeDatabaseInfo());
-  Path path = opener.AppDataDir();
-  ASSERT_OK(opener.status());
-  EXPECT_THAT(path.Basename().ToUtf8String(), testing::EndsWith("firestore"));
-}
-
-TEST_F(LevelDbOpenerTest, CanFindLegacyDocumentsDir) {
-  LevelDbOpener opener(FakeDatabaseInfo());
-  Path path = opener.LegacyDocumentsDir();
-  EXPECT_OK(opener.status());
-  EXPECT_THAT(path.Basename().ToUtf8String(), testing::EndsWith("firestore"));
-}
-
-TEST_F(LevelDbOpenerTest, CanMigrateLegacyData) {
+TEST(LevelDbOpenerTest, CanMigrateLegacyData) {
   TestTempDir root_dir;
+  MigratingFilesystem fs(root_dir.path());
 
-  // These names don't actually matter, and work on any platform
-  Path legacy_dir = root_dir.Child("Documents/firestore");
-  Path new_dir = root_dir.Child("Library/Application Support/firestore");
-
-  ASSERT_THAT(fs_->IsDirectory(legacy_dir), IsNotFound());
-  ASSERT_THAT(fs_->IsDirectory(new_dir), IsNotFound());
+  Path modern_dir = fs.AppDataDir("firestore").ValueOrDie();
+  Path legacy_dir = fs.LegacyDocumentsDir("firestore").ValueOrDie();
 
   DatabaseInfo db_info = FakeDatabaseInfo();
   {
     // Open as if the old way
-    LevelDbOpener opener(db_info);
-    ASSERT_FALSE(opener.PreferredExists(legacy_dir));
-
+    LevelDbOpener opener(db_info, legacy_dir);
     RunPersistence(&opener);
-    ASSERT_THAT(fs_->IsDirectory(legacy_dir), IsOk());
-    ASSERT_THAT(fs_->IsDirectory(new_dir), IsNotFound());
+    ASSERT_THAT(fs.IsDirectory(modern_dir), IsNotFound());
+    ASSERT_THAT(fs.IsDirectory(legacy_dir), IsOk());
   }
 
   {
-    LevelDbOpener opener(db_info);
-    ASSERT_FALSE(opener.PreferredExists(new_dir));
-    opener.MaybeMigrate(legacy_dir);
-
+    // Using the new filesystem, verify the migration actually happened.
+    LevelDbOpener opener(db_info, &fs);
     RunPersistence(&opener);
-    ASSERT_THAT(fs_->IsDirectory(legacy_dir), IsNotFound());
-    ASSERT_THAT(fs_->IsDirectory(new_dir), IsOk());
+    ASSERT_THAT(fs.IsDirectory(modern_dir), IsOk());
+    ASSERT_THAT(fs.IsDirectory(legacy_dir), IsNotFound());
   }
 }
 
-TEST_F(LevelDbOpenerTest, MigrationPreservesUnrelatedData) {
+TEST(LevelDbOpenerTest, MigrationPreservesUnrelatedData) {
   TestTempDir root_dir;
-
-  Path legacy_dir = root_dir.Child("Documents/firestore");
-  Path new_dir = root_dir.Child("Library/Application Support/firestore");
+  MigratingFilesystem fs(root_dir.path());
 
   DatabaseInfo db_info = FakeDatabaseInfo();
   DatabaseInfo other_info = FakeDatabaseInfoOtherProject();
+
+  Path modern_dir = fs.AppDataDir("firestore").ValueOrDie();
+  Path legacy_dir = fs.LegacyDocumentsDir("firestore").ValueOrDie();
 
   Path db_path = Path::JoinUtf8(legacy_dir, "key/project/main");
   Path other_path = Path::JoinUtf8(legacy_dir, "key/other-project/main");
 
   {
     // Run both projects as if the old way.
-    LevelDbOpener db_opener(db_info);
-    ASSERT_FALSE(db_opener.PreferredExists(legacy_dir));
+    LevelDbOpener db_opener(db_info, legacy_dir);
     RunPersistence(&db_opener);
-    ASSERT_THAT(fs_->IsDirectory(db_path), IsOk());
+    ASSERT_THAT(fs.IsDirectory(db_path), IsOk());
 
-    LevelDbOpener other_opener(other_info);
-    ASSERT_FALSE(other_opener.PreferredExists(legacy_dir));
+    LevelDbOpener other_opener(other_info, legacy_dir);
     RunPersistence(&other_opener);
-    ASSERT_THAT(fs_->IsDirectory(other_path), IsOk());
+    ASSERT_THAT(fs.IsDirectory(other_path), IsOk());
   }
 
   {
-    LevelDbOpener db_opener(db_info);
-    ASSERT_FALSE(db_opener.PreferredExists(new_dir));
-    db_opener.MaybeMigrate(legacy_dir);
+    // Migrate one of them; the other data should be preserved.
+    LevelDbOpener db_opener(db_info, &fs);
     RunPersistence(&db_opener);
 
-    ASSERT_THAT(fs_->IsDirectory(db_path), IsNotFound());
-    ASSERT_THAT(fs_->IsDirectory(other_path), IsOk());
+    Path migrated = Path::JoinUtf8(modern_dir, "key/project/main");
+    ASSERT_THAT(fs.IsDirectory(migrated), IsOk());
+    ASSERT_THAT(fs.IsDirectory(db_path), IsNotFound());
+    ASSERT_THAT(fs.IsDirectory(other_path), IsOk());
   }
+}
+
+/**
+ * A Filesystem that implements modern behavior for other platforms, where
+ * there's no legacy documents directory.
+ */
+class OtherFilesystem : public Filesystem {
+ public:
+  explicit OtherFilesystem(Path root_dir) : root_dir_(std::move(root_dir)) {
+  }
+
+  StatusOr<Path> AppDataDir(absl::string_view app_name) override {
+    return Path::JoinUtf8(root_dir_, absl::StrCat(".", app_name));
+  }
+
+  StatusOr<Path> LegacyDocumentsDir(absl::string_view app_name) override {
+    return Status(Error::Unimplemented, "unimplemented");
+  }
+
+ private:
+  Path root_dir_;
+};
+
+TEST(LevelDbOpenerTest, WorksWithoutLegacyData) {
+  TestTempDir root_dir;
+  OtherFilesystem other_fs(root_dir.path());
+
+  Path data_dir = other_fs.AppDataDir("firestore").ValueOrDie();
+  ASSERT_THAT(other_fs.IsDirectory(data_dir), IsNotFound());
+
+  DatabaseInfo db_info = FakeDatabaseInfo();
+
+  LevelDbOpener opener(db_info, &other_fs);
+  RunPersistence(&opener);
+  ASSERT_THAT(other_fs.IsDirectory(data_dir), IsOk());
+}
+
+class MockFilesystem : public Filesystem {
+ public:
+  MOCK_METHOD1(AppDataDir, StatusOr<Path>(absl::string_view));
+};
+
+TEST(LevelDbOpenerTest, HandlesAppDataDirFailure) {
+  NiceMock<MockFilesystem> fs;
+
+  EXPECT_CALL(fs, AppDataDir)
+      .WillRepeatedly(Return(Status(Error::PermissionDenied, "EPERM")));
+
+  DatabaseInfo db_info = FakeDatabaseInfo();
+  LevelDbOpener opener(db_info, &fs);
+  auto created = opener.Create(LruParams::Disabled());
+  ASSERT_THAT(created.status(), IsPermissionDenied());
 }
 
 }  // namespace local

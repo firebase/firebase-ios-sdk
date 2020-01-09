@@ -62,7 +62,6 @@ using auth::User;
 using firestore::Error;
 using local::IndexFreeQueryEngine;
 using local::LevelDbOpener;
-using local::LevelDbPersistence;
 using local::LocalSerializer;
 using local::LocalStore;
 using local::LruParams;
@@ -158,12 +157,6 @@ void FirestoreClient::Initialize(const User& user, const Settings& settings) {
   // before that subsequent work completes.
   if (settings.persistence_enabled()) {
     LevelDbOpener opener(database_info_);
-
-    auto data_dir = opener.AppDataDir();
-    if (!opener.PreferredExists(data_dir)) {
-      auto docs_dir = opener.LegacyDocumentsDir();
-      opener.MaybeMigrate(docs_dir);
-    }
 
     auto created =
         opener.Create(LruParams::WithCacheSize(settings.cache_size_bytes()));
