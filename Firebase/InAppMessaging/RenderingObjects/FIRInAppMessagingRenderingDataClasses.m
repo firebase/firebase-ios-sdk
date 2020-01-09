@@ -82,7 +82,7 @@
     _displayBackgroundColor = backgroundColor;
     _primaryActionButton = primaryActionButton;
     _primaryActionURL = primaryActionURL;
-}
+  }
   return self;
 }
 
