@@ -30,6 +30,7 @@ namespace {
 
 using auth::User;
 using core::Query;
+using core::Target;
 using core::TargetIdGenerator;
 using model::BatchId;
 using model::DocumentKey;
@@ -382,12 +383,12 @@ bool LocalStore::ShouldPersistQueryData(const QueryData& new_query_data,
   return changes > 0;
 }
 
-absl::optional<QueryData> LocalStore::GetQueryData(const core::Query& query) {
-  auto target_id = target_id_by_query_.find(query);
-  if (target_id != target_id_by_query_.end()) {
+absl::optional<QueryData> LocalStore::GetQueryData(const core::Target& target) {
+  auto target_id = target_id_by_target_.find(target);
+  if (target_id != target_id_by_target_.end()) {
     return query_data_by_target_[target_id->second];
   }
-  return query_cache_->GetTarget(query);
+  return query_cache_->GetTarget(target);
 }
 
 void LocalStore::NotifyLocalViewChanges(
@@ -441,12 +442,12 @@ BatchId LocalStore::GetHighestUnacknowledgedBatchId() {
   });
 }
 
-QueryData LocalStore::AllocateQuery(Query query) {
-  QueryData query_data = persistence_->Run("Allocate query", [&] {
-    absl::optional<QueryData> cached = query_cache_->GetTarget(query);
+QueryData LocalStore::AllocateTarget(Target target) {
+  QueryData query_data = persistence_->Run("Allocate target", [&] {
+    absl::optional<QueryData> cached = query_cache_->GetTarget(target);
     // TODO(mcg): freshen last accessed date if cached exists?
     if (!cached) {
-      cached = QueryData(query, target_id_generator_.NextId(),
+      cached = QueryData(std::move(target), target_id_generator_.NextId(),
                          persistence_->current_sequence_number(),
                          QueryPurpose::Listen);
       query_cache_->AddTarget(*cached);
@@ -457,42 +458,43 @@ QueryData LocalStore::AllocateQuery(Query query) {
   // Sanity check to ensure that even when resuming a query it's not currently
   // active.
   TargetId target_id = query_data.target_id();
-  HARD_ASSERT(
-      query_data_by_target_.find(target_id) == query_data_by_target_.end(),
-      "Tried to allocate an already allocated query: %s", query.ToString());
-  query_data_by_target_[target_id] = query_data;
-  target_id_by_query_[query] = target_id;
+  if (query_data_by_target_.find(target_id) == query_data_by_target_.end()) {
+    query_data_by_target_[target_id] = query_data;
+    target_id_by_target_[query_data.target()] = target_id;
+  }
+
   return query_data;
 }
 
-void LocalStore::ReleaseQuery(const Query& query) {
-  persistence_->Run("Release query", [&] {
-    absl::optional<QueryData> query_data = GetQueryData(query);
-    HARD_ASSERT(query_data, "Tried to release nonexistent query: %s",
-                query.ToString());
+void LocalStore::ReleaseTarget(TargetId target_id) {
+  persistence_->Run("Release target", [&] {
+    auto found = query_data_by_target_.find(target_id);
+    HARD_ASSERT(found != query_data_by_target_.end(),
+                "Tried to release a non-existent target: %s", target_id);
+
+    QueryData query_data = found->second;
 
     // References for documents sent via Watch are automatically removed when we
     // delete a query's target data from the reference delegate. Since this does
     // not remove references for locally mutated documents, we have to remove
     // the target associations for these documents manually.
     DocumentKeySet removed =
-        local_view_references_.RemoveReferences(query_data->target_id());
+        local_view_references_.RemoveReferences(query_data.target_id());
     for (const DocumentKey& key : removed) {
       persistence_->reference_delegate()->RemoveReference(key);
     }
 
-    // Note: This also updates the query cache
-    persistence_->reference_delegate()->RemoveTarget(*query_data);
-
-    query_data_by_target_.erase(query_data->target_id());
-    target_id_by_query_.erase(query);
+    // Note: This also updates the query cache.
+    persistence_->reference_delegate()->RemoveTarget(query_data);
+    query_data_by_target_.erase(target_id);
+    target_id_by_target_.erase(query_data.target());
   });
 }
 
 QueryResult LocalStore::ExecuteQuery(const Query& query,
                                      bool use_previous_results) {
   return persistence_->Run("ExecuteQuery", [&] {
-    absl::optional<QueryData> query_data = GetQueryData(query);
+    absl::optional<QueryData> query_data = GetQueryData(query.ToTarget());
     SnapshotVersion last_limbo_free_snapshot_version;
     DocumentKeySet remote_keys;
 

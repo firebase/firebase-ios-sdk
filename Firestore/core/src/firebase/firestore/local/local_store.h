@@ -170,14 +170,21 @@ class LocalStore {
   model::DocumentKeySet GetRemoteDocumentKeys(model::TargetId target_id);
 
   /**
-   * Assigns a query an internal ID so that its results can be pinned so they
-   * don't get GC'd. A query must be allocated in the local store before the
+   * Assigns a target an internal ID so that its results can be pinned so they
+   * don't get GC'd. A target must be allocated in the local store before the
    * store can be used to manage its view.
+   *
+   * Allocating an already allocated target will return the existing
+   * `TargetData` for that target.
    */
-  local::QueryData AllocateQuery(core::Query query);
+  local::QueryData AllocateTarget(core::Target target);
 
-  /** Unpin all the documents associated with a query. */
-  void ReleaseQuery(const core::Query& query);
+  /**
+   * Unpin all the documents associated with a target.
+   *
+   * Releasing a non-existing target is an error.
+   */
+  void ReleaseTarget(model::TargetId target_id);
 
   /**
    * Runs the specified query against the local store and returns the results,
@@ -242,7 +249,7 @@ class LocalStore {
    * Returns the QueryData as seen by the LocalStore, including updates that may
    * have not yet been persisted to the QueryCache.
    */
-  absl::optional<QueryData> GetQueryData(const core::Query& query);
+  absl::optional<QueryData> GetQueryData(const core::Target& query);
 
   /** Manages our in-memory or durable persistence. Owned by FirestoreClient. */
   Persistence* persistence_ = nullptr;
@@ -281,7 +288,7 @@ class LocalStore {
   std::unordered_map<model::TargetId, QueryData> query_data_by_target_;
 
   /** Maps a target to its targetID. */
-  std::unordered_map<core::Query, model::TargetId> target_id_by_query_;
+  std::unordered_map<core::Target, model::TargetId> target_id_by_target_;
 };
 
 }  // namespace local

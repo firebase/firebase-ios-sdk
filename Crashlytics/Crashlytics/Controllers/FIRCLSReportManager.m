@@ -14,7 +14,11 @@
 
 #include <stdatomic.h>
 
+#if __has_include(<FBLPromises/FBLPromises.h>)
+#import <FBLPromises/FBLPromises.h>
+#else
 #import "FBLPromises.h"
+#endif
 
 #import "FIRCLSApplication.h"
 #import "FIRCLSDataCollectionArbiter.h"
@@ -777,11 +781,16 @@ static void (^reportSentCallback)(void);
                                            selector:@selector(didChangeOrientation:)
                                                name:UIDeviceOrientationDidChangeNotification
                                              object:nil];
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   [[NSNotificationCenter defaultCenter]
       addObserver:self
          selector:@selector(didChangeUIOrientation:)
              name:UIApplicationDidChangeStatusBarOrientationNotification
            object:nil];
+#pragma clang diagnostic pop
+
 #elif CLS_TARGET_OS_OSX
   [[NSNotificationCenter defaultCenter] addObserver:self
                                            selector:@selector(willBecomeActive:)

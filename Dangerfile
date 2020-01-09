@@ -38,6 +38,7 @@ def labelsForModifiedFiles()
   labels.push("api: abtesting") if @has_abtesting_changes
   labels.push("api: auth") if @has_auth_changes
   labels.push("api: core") if @has_core_changes
+  labels.push("api: crashlytics") if @has_crashlytics_changes
   labels.push("api: database") if @has_database_changes
   labels.push("api: dynamiclinks") if @has_dynamiclinks_changes
   labels.push("api: firestore") if @has_firestore_changes
@@ -74,6 +75,7 @@ has_license_changes = didModify(["LICENSE"])
   "FirebaseCore/",
   "Firebase/CoreDiagnostics/",
   "CoreOnly/"])
+@has_crashlytics_changes = hasChangesIn("Crashlytics/")
 @has_database_changes = hasChangesIn("Firebase/Database/")
 @has_dynamiclinks_changes = hasChangesIn("Firebase/DynamicLinks/")
 @has_firestore_changes = hasChangesIn("Firestore/")

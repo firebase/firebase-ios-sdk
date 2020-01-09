@@ -20,11 +20,13 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "query": {
-                "path": "cg/1",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "cg/1",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             }
           }
@@ -106,19 +108,23 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "query": {
-                "path": "cg/1",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "cg/1",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             },
             "4": {
-              "query": {
-                "path": "cg/2",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "cg/2",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             }
           }
@@ -200,27 +206,33 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "query": {
-                "path": "cg/1",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "cg/1",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             },
             "4": {
-              "query": {
-                "path": "cg/2",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "cg/2",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             },
             "6": {
-              "query": {
-                "path": "not-cg/nope/cg/3",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "not-cg/nope/cg/3",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             }
           }
@@ -302,35 +314,43 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "query": {
-                "path": "cg/1",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "cg/1",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             },
             "4": {
-              "query": {
-                "path": "cg/2",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "cg/2",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             },
             "6": {
-              "query": {
-                "path": "not-cg/nope/cg/3",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "not-cg/nope/cg/3",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             },
             "8": {
-              "query": {
-                "path": "not-cg/nope",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "not-cg/nope",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             }
           }
@@ -412,43 +432,53 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "query": {
-                "path": "cg/1",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "cg/1",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             },
             "4": {
-              "query": {
-                "path": "cg/2",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "cg/2",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             },
             "6": {
-              "query": {
-                "path": "not-cg/nope/cg/3",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "not-cg/nope/cg/3",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             },
             "8": {
-              "query": {
-                "path": "not-cg/nope",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "not-cg/nope",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             },
             "10": {
-              "query": {
-                "path": "cg/1/not-cg/nope",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "cg/1/not-cg/nope",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             }
           }
@@ -531,52 +561,64 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "query": {
-                "path": "cg/1",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "cg/1",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             },
             "4": {
-              "query": {
-                "path": "cg/2",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "cg/2",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             },
             "6": {
-              "query": {
-                "path": "not-cg/nope/cg/3",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "not-cg/nope/cg/3",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             },
             "8": {
-              "query": {
-                "path": "not-cg/nope",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "not-cg/nope",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             },
             "10": {
-              "query": {
-                "path": "cg/1/not-cg/nope",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "cg/1/not-cg/nope",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             },
             "12": {
-              "query": {
-                "path": "",
-                "collectionGroup": "cg",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "",
+                  "collectionGroup": "cg",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             }
           }
@@ -649,67 +691,81 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "query": {
-                "path": "cg/1",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "cg/1",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             },
             "4": {
-              "query": {
-                "path": "cg/2",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "cg/2",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             },
             "6": {
-              "query": {
-                "path": "not-cg/nope/cg/3",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "not-cg/nope/cg/3",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             },
             "8": {
-              "query": {
-                "path": "not-cg/nope",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "not-cg/nope",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             },
             "10": {
-              "query": {
-                "path": "cg/1/not-cg/nope",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "cg/1/not-cg/nope",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             },
             "12": {
-              "query": {
-                "path": "",
-                "collectionGroup": "cg",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "",
+                  "collectionGroup": "cg",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             },
             "14": {
-              "query": {
-                "path": "",
-                "collectionGroup": "cg",
-                "filters": [
-                  [
-                    "val",
-                    "==",
-                    1
-                  ]
-                ],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "",
+                  "collectionGroup": "cg",
+                  "filters": [
+                    [
+                      "val",
+                      "==",
+                      1
+                    ]
+                  ],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             }
           }
@@ -781,11 +837,13 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "query": {
-                "path": "cg/1",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "cg/1",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             }
           }
@@ -867,19 +925,23 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "query": {
-                "path": "cg/1",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "cg/1",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             },
             "4": {
-              "query": {
-                "path": "not-cg/nope",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "not-cg/nope",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             }
           }
@@ -986,28 +1048,34 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "query": {
-                "path": "cg/1",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "cg/1",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             },
             "4": {
-              "query": {
-                "path": "not-cg/nope",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "not-cg/nope",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             },
             "6": {
-              "query": {
-                "path": "",
-                "collectionGroup": "cg",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "",
+                  "collectionGroup": "cg",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             }
           }
@@ -1080,43 +1148,51 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "query": {
-                "path": "cg/1",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "cg/1",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             },
             "4": {
-              "query": {
-                "path": "not-cg/nope",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "not-cg/nope",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             },
             "6": {
-              "query": {
-                "path": "",
-                "collectionGroup": "cg",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "",
+                  "collectionGroup": "cg",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             },
             "8": {
-              "query": {
-                "path": "",
-                "collectionGroup": "cg",
-                "filters": [
-                  [
-                    "val",
-                    "==",
-                    1
-                  ]
-                ],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "",
+                  "collectionGroup": "cg",
+                  "filters": [
+                    [
+                      "val",
+                      "==",
+                      1
+                    ]
+                  ],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             }
           }
@@ -1188,11 +1264,13 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "query": {
-                "path": "collection",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             }
           }
@@ -1313,25 +1391,29 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "query": {
-                "path": "collection",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             },
             "4": {
-              "query": {
-                "path": "collection",
-                "filters": [
-                  [
-                    "match",
-                    "==",
-                    true
-                  ]
-                ],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection",
+                  "filters": [
+                    [
+                      "match",
+                      "==",
+                      true
+                    ]
+                  ],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             }
           }
