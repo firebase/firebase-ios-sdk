@@ -33,6 +33,7 @@ binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseABTestingBinary.j
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseAdMobBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseAnalyticsBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseAuthBinary.json"
+binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseCrashlyticsBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseDatabaseBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseDynamicLinksBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseFirestoreBinary.json"
@@ -78,6 +79,9 @@ binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseStorageBinary.jso
 The frameworks contain static libraries that are linked at build time.
 
 - Some additional libraries/frameworks may be needed depending on which Firebase frameworks you use, for example: libc++.tbd, sqlite3.tbd, StoreKit.framework, etc. For more information, [go here](https://github.com/firebase/firebase-ios-sdk/issues/9#issuecomment-387947163).
+
+- For Crashlytics:
+    - To automatically upload your app's symbols so your app's crashes are symbolicated, download [upload-symbols](https://github.com/firebase/firebase-ios-sdk/raw/master/Crashlytics/upload-symbols) and [run](https://github.com/firebase/firebase-ios-sdk/raw/master/Crashlytics/run). Then continue to follow the Crashlytics documentation to add a new run script phase in your XCode project.
 
 ## Versioning
 
