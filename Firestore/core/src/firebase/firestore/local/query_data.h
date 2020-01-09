@@ -18,10 +18,11 @@
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_QUERY_DATA_H_
 
 #include <iosfwd>
+#include <memory>
 #include <string>
 #include <vector>
 
-#include "Firestore/core/src/firebase/firestore/core/query.h"
+#include "Firestore/core/src/firebase/firestore/core/target.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
@@ -48,14 +49,14 @@ std::ostream& operator<<(std::ostream& os, QueryPurpose purpose);
 
 /**
  * An immutable set of metadata that the store will need to keep track of for
- * each query.
+ * each target.
  */
 class QueryData {
  public:
   /**
    * Creates a new QueryData with the given values.
    *
-   * @param query The query being listened to.
+   * @param target The target being listened to.
    * @param target_id The target to which the query corresponds, assigned by the
    *     LocalStore for user queries or the SyncEngine for limbo queries.
    * @param purpose The purpose of the query.
@@ -63,11 +64,11 @@ class QueryData {
    * @param last_limbo_free_snapshot_version The maximum snapshot version at
    *     which the associated target view contained no limbo documents.
    * @param resume_token An opaque, server-assigned token that allows watching a
-   *     query to be resumed after disconnecting without retransmitting all the
+   *     target to be resumed after disconnecting without retransmitting all the
    *     data that matches the query. The resume token essentially identifies a
    *     point in time from which the server should resume sending results.
    */
-  QueryData(core::Query query,
+  QueryData(core::Target target,
             model::TargetId target_id,
             model::ListenSequenceNumber sequence_number,
             QueryPurpose purpose,
@@ -79,7 +80,7 @@ class QueryData {
    * Convenience constructor for use when creating a QueryData for the first
    * time.
    */
-  QueryData(core::Query query,
+  QueryData(const core::Target target,
             int target_id,
             model::ListenSequenceNumber sequence_number,
             QueryPurpose purpose);
@@ -95,14 +96,14 @@ class QueryData {
    */
   static QueryData Invalid();
 
-  /** The query being listened to. */
-  const core::Query& query() const {
-    return query_;
+  /** The target being listened to. */
+  const core::Target& target() const {
+    return target_;
   }
 
   /**
-   * The TargetId to which the query corresponds, assigned by the LocalStore for
-   * user queries or the SyncEngine for limbo queries.
+   * The TargetId to which the target corresponds, assigned by the LocalStore
+   * for user queries or the SyncEngine for limbo queries.
    */
   model::TargetId target_id() const {
     return target_id_;
@@ -112,7 +113,7 @@ class QueryData {
     return sequence_number_;
   }
 
-  /** The purpose of the query. */
+  /** The purpose of the target. */
   QueryPurpose purpose() const {
     return purpose_;
   }
@@ -167,7 +168,7 @@ class QueryData {
   friend std::ostream& operator<<(std::ostream& os, const QueryData& value);
 
  private:
-  core::Query query_;
+  core::Target target_;
   model::TargetId target_id_ = 0;
   model::ListenSequenceNumber sequence_number_ = 0;
   QueryPurpose purpose_ = QueryPurpose::Listen;

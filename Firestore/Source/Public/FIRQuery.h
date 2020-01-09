@@ -364,14 +364,26 @@ NS_SWIFT_NAME(Query)
 
 #pragma mark - Limiting Data
 /**
- * Creates and returns a new `FIRQuery` that's additionally limited to only return up to
- * the specified number of documents.
+ * Creates and returns a new `FIRQuery` that only returns the first matching documents up to
+ * the specified number.
  *
  * @param limit The maximum number of items to return.
  *
  * @return The created `FIRQuery`.
  */
 - (FIRQuery *)queryLimitedTo:(NSInteger)limit NS_SWIFT_NAME(limit(to:));
+
+/**
+ * Creates and returns a new `FIRQuery` that only returns the last matching documents up to
+ * the specified number.
+ *
+ * A query with a `limit(ToLast:)` clause must have at least one `orderBy` clause.
+ *
+ * @param limit The maximum number of items to return.
+ *
+ * @return The created `FIRQuery`.
+ */
+- (FIRQuery *)queryLimitedToLast:(NSInteger)limit NS_SWIFT_NAME(limit(toLast:));
 
 #pragma mark - Choosing Endpoints
 /**

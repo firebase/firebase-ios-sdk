@@ -55,11 +55,29 @@ ByteString::ByteString(const ByteString& other)
 }
 
 ByteString::ByteString(ByteString&& other) noexcept {
-  swap(*this, other);
+  bytes_ = other.bytes_;
+  other.bytes_ = nullptr;
 }
 
 ByteString::~ByteString() {
   std::free(bytes_);
+}
+
+ByteString& ByteString::operator=(const ByteString& other) {
+  if (bytes_ != other.bytes_) {
+    std::free(bytes_);
+    bytes_ = MakeBytesArray(other.data(), other.size());
+  }
+  return *this;
+}
+
+ByteString& ByteString::operator=(ByteString&& other) noexcept {
+  if (bytes_ != other.bytes_) {
+    std::free(bytes_);
+    bytes_ = other.bytes_;
+    other.bytes_ = nullptr;
+  }
+  return *this;
 }
 
 /* static */ ByteString ByteString::Take(pb_bytes_array_t* bytes) {

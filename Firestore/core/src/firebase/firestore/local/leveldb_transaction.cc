@@ -83,12 +83,12 @@ void LevelDbTransaction::Iterator::Seek(const std::string& key) {
   last_version_ = txn_->version_;
 }
 
-absl::string_view LevelDbTransaction::Iterator::key() {
+const std::string& LevelDbTransaction::Iterator::key() const {
   HARD_ASSERT(Valid(), "key() called on invalid iterator");
   return current_.first;
 }
 
-absl::string_view LevelDbTransaction::Iterator::value() {
+const std::string& LevelDbTransaction::Iterator::value() const {
   HARD_ASSERT(Valid(), "value() called on invalid iterator");
   return current_.second;
 }

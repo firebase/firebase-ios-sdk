@@ -150,8 +150,8 @@ s%^./%%
 # Generated source
 \%/Firestore/core/src/firebase/firestore/util/config.h% d
 
-# Sources pulled in by travis bundler
-\%/vendor/bundle/% d
+# Sources pulled in by travis bundler, with and without a leading slash
+\%^/?vendor/bundle/% d
 
 # Sources within the tree that are not subject to formatting
 \%^(Example|Firebase)/(Auth|AuthSamples|Messaging)/% d

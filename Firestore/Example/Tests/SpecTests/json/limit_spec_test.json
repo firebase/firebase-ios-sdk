@@ -14,6 +14,7 @@
           {
             "path": "collection",
             "limit": 2,
+            "limitType": "LimitToFirst",
             "filters": [],
             "orderBys": []
           }
@@ -21,12 +22,15 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "query": {
-                "path": "collection",
-                "limit": 2,
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection",
+                  "limit": 2,
+                  "limitType": "LimitToFirst",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             }
           }
@@ -86,6 +90,7 @@
             "query": {
               "path": "collection",
               "limit": 2,
+              "limitType": "LimitToFirst",
               "filters": [],
               "orderBys": []
             },
@@ -169,6 +174,7 @@
             "query": {
               "path": "collection",
               "limit": 2,
+              "limitType": "LimitToFirst",
               "filters": [],
               "orderBys": []
             },
@@ -221,6 +227,7 @@
           {
             "path": "collection",
             "limit": 2,
+            "limitType": "LimitToFirst",
             "filters": [],
             "orderBys": []
           }
@@ -228,12 +235,15 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "query": {
-                "path": "collection",
-                "limit": 2,
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection",
+                  "limit": 2,
+                  "limitType": "LimitToFirst",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             }
           }
@@ -293,6 +303,7 @@
             "query": {
               "path": "collection",
               "limit": 2,
+              "limitType": "LimitToFirst",
               "filters": [],
               "orderBys": []
             },
@@ -332,6 +343,7 @@
           {
             "path": "collection",
             "limit": 2,
+            "limitType": "LimitToFirst",
             "filters": [],
             "orderBys": []
           }
@@ -354,6 +366,7 @@
           {
             "path": "collection",
             "limit": 2,
+            "limitType": "LimitToFirst",
             "filters": [],
             "orderBys": []
           }
@@ -361,12 +374,15 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "query": {
-                "path": "collection",
-                "limit": 2,
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection",
+                  "limit": 2,
+                  "limitType": "LimitToFirst",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": "resume-token-1000"
             }
           }
@@ -376,6 +392,7 @@
             "query": {
               "path": "collection",
               "limit": 2,
+              "limitType": "LimitToFirst",
               "filters": [],
               "orderBys": []
             },
@@ -426,6 +443,7 @@
           {
             "path": "collection",
             "limit": 2,
+            "limitType": "LimitToFirst",
             "filters": [],
             "orderBys": []
           }
@@ -433,12 +451,15 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "query": {
-                "path": "collection",
-                "limit": 2,
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection",
+                  "limit": 2,
+                  "limitType": "LimitToFirst",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             }
           }
@@ -498,6 +519,7 @@
             "query": {
               "path": "collection",
               "limit": 2,
+              "limitType": "LimitToFirst",
               "filters": [],
               "orderBys": []
             },
@@ -586,20 +608,25 @@
           ],
           "activeTargets": {
             "1": {
-              "query": {
-                "path": "collection/a",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection/a",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             },
             "2": {
-              "query": {
-                "path": "collection",
-                "limit": 2,
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection",
+                  "limit": 2,
+                  "limitType": "LimitToFirst",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             }
           }
@@ -609,6 +636,7 @@
             "query": {
               "path": "collection",
               "limit": 2,
+              "limitType": "LimitToFirst",
               "filters": [],
               "orderBys": []
             },
@@ -640,12 +668,15 @@
           "limboDocs": [],
           "activeTargets": {
             "2": {
-              "query": {
-                "path": "collection",
-                "limit": 2,
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection",
+                  "limit": 2,
+                  "limitType": "LimitToFirst",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             }
           }
@@ -655,6 +686,7 @@
             "query": {
               "path": "collection",
               "limit": 2,
+              "limitType": "LimitToFirst",
               "filters": [],
               "orderBys": []
             },
@@ -707,6 +739,7 @@
           {
             "path": "collection",
             "limit": 2,
+            "limitType": "LimitToFirst",
             "filters": [],
             "orderBys": []
           }
@@ -714,12 +747,15 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "query": {
-                "path": "collection",
-                "limit": 2,
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection",
+                  "limit": 2,
+                  "limitType": "LimitToFirst",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             }
           }
@@ -779,6 +815,7 @@
             "query": {
               "path": "collection",
               "limit": 2,
+              "limitType": "LimitToFirst",
               "filters": [],
               "orderBys": []
             },
@@ -849,12 +886,15 @@
           "limboDocs": [],
           "activeTargets": {
             "2": {
-              "query": {
-                "path": "collection",
-                "limit": 2,
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection",
+                  "limit": 2,
+                  "limitType": "LimitToFirst",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             }
           }
@@ -864,6 +904,7 @@
             "query": {
               "path": "collection",
               "limit": 2,
+              "limitType": "LimitToFirst",
               "filters": [],
               "orderBys": []
             },
@@ -916,6 +957,7 @@
           {
             "path": "collection",
             "limit": 2,
+            "limitType": "LimitToFirst",
             "filters": [],
             "orderBys": []
           }
@@ -923,12 +965,15 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "query": {
-                "path": "collection",
-                "limit": 2,
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection",
+                  "limit": 2,
+                  "limitType": "LimitToFirst",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             }
           }
@@ -940,6 +985,7 @@
           {
             "path": "collection",
             "limit": 3,
+            "limitType": "LimitToFirst",
             "filters": [],
             "orderBys": []
           }
@@ -947,21 +993,27 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "query": {
-                "path": "collection",
-                "limit": 2,
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection",
+                  "limit": 2,
+                  "limitType": "LimitToFirst",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             },
             "4": {
-              "query": {
-                "path": "collection",
-                "limit": 3,
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection",
+                  "limit": 3,
+                  "limitType": "LimitToFirst",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             }
           }
@@ -1065,6 +1117,7 @@
             "query": {
               "path": "collection",
               "limit": 2,
+              "limitType": "LimitToFirst",
               "filters": [],
               "orderBys": []
             },
@@ -1100,6 +1153,7 @@
             "query": {
               "path": "collection",
               "limit": 3,
+              "limitType": "LimitToFirst",
               "filters": [],
               "orderBys": []
             },
@@ -1171,21 +1225,27 @@
           "limboDocs": [],
           "activeTargets": {
             "2": {
-              "query": {
-                "path": "collection",
-                "limit": 2,
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection",
+                  "limit": 2,
+                  "limitType": "LimitToFirst",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             },
             "4": {
-              "query": {
-                "path": "collection",
-                "limit": 3,
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection",
+                  "limit": 3,
+                  "limitType": "LimitToFirst",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             }
           }
@@ -1195,6 +1255,7 @@
             "query": {
               "path": "collection",
               "limit": 2,
+              "limitType": "LimitToFirst",
               "filters": [],
               "orderBys": []
             },
@@ -1232,6 +1293,7 @@
             "query": {
               "path": "collection",
               "limit": 3,
+              "limitType": "LimitToFirst",
               "filters": [],
               "orderBys": []
             },
@@ -1283,17 +1345,19 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "query": {
-                "path": "collection",
-                "filters": [
-                  [
-                    "matches",
-                    "==",
-                    true
-                  ]
-                ],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection",
+                  "filters": [
+                    [
+                      "matches",
+                      "==",
+                      true
+                    ]
+                  ],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             }
           }
@@ -1438,6 +1502,7 @@
           {
             "path": "collection",
             "limit": 2,
+            "limitType": "LimitToFirst",
             "filters": [
               [
                 "matches",
@@ -1451,18 +1516,21 @@
         "expectedState": {
           "activeTargets": {
             "4": {
-              "query": {
-                "path": "collection",
-                "limit": 2,
-                "filters": [
-                  [
-                    "matches",
-                    "==",
-                    true
-                  ]
-                ],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection",
+                  "limit": 2,
+                  "limitType": "LimitToFirst",
+                  "filters": [
+                    [
+                      "matches",
+                      "==",
+                      true
+                    ]
+                  ],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             }
           }
@@ -1472,6 +1540,7 @@
             "query": {
               "path": "collection",
               "limit": 2,
+              "limitType": "LimitToFirst",
               "filters": [
                 [
                   "matches",
@@ -1523,6 +1592,7 @@
             "query": {
               "path": "collection",
               "limit": 2,
+              "limitType": "LimitToFirst",
               "filters": [
                 [
                   "matches",
@@ -1593,17 +1663,19 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "query": {
-                "path": "collection",
-                "filters": [
-                  [
-                    "matches",
-                    "==",
-                    true
-                  ]
-                ],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection",
+                  "filters": [
+                    [
+                      "matches",
+                      "==",
+                      true
+                    ]
+                  ],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             }
           }
@@ -1748,6 +1820,7 @@
           {
             "path": "collection",
             "limit": 2,
+            "limitType": "LimitToFirst",
             "filters": [
               [
                 "matches",
@@ -1761,18 +1834,21 @@
         "expectedState": {
           "activeTargets": {
             "4": {
-              "query": {
-                "path": "collection",
-                "limit": 2,
-                "filters": [
-                  [
-                    "matches",
-                    "==",
-                    true
-                  ]
-                ],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection",
+                  "limit": 2,
+                  "limitType": "LimitToFirst",
+                  "filters": [
+                    [
+                      "matches",
+                      "==",
+                      true
+                    ]
+                  ],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             }
           }
@@ -1782,6 +1858,7 @@
             "query": {
               "path": "collection",
               "limit": 2,
+              "limitType": "LimitToFirst",
               "filters": [
                 [
                   "matches",
@@ -1875,6 +1952,7 @@
             "query": {
               "path": "collection",
               "limit": 2,
+              "limitType": "LimitToFirst",
               "filters": [
                 [
                   "matches",
@@ -1896,6 +1974,7 @@
           {
             "path": "collection",
             "limit": 2,
+            "limitType": "LimitToFirst",
             "filters": [
               [
                 "matches",
@@ -1931,6 +2010,7 @@
           {
             "path": "collection",
             "limit": 2,
+            "limitType": "LimitToFirst",
             "filters": [
               [
                 "matches",
@@ -1944,18 +2024,21 @@
         "expectedState": {
           "activeTargets": {
             "4": {
-              "query": {
-                "path": "collection",
-                "limit": 2,
-                "filters": [
-                  [
-                    "matches",
-                    "==",
-                    true
-                  ]
-                ],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection",
+                  "limit": 2,
+                  "limitType": "LimitToFirst",
+                  "filters": [
+                    [
+                      "matches",
+                      "==",
+                      true
+                    ]
+                  ],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": "resume-token-1004"
             }
           }
@@ -1965,6 +2048,7 @@
             "query": {
               "path": "collection",
               "limit": 2,
+              "limitType": "LimitToFirst",
               "filters": [
                 [
                   "matches",
@@ -2027,11 +2111,13 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "query": {
-                "path": "collection",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             }
           }
@@ -2171,6 +2257,7 @@
           {
             "path": "collection",
             "limit": 2,
+            "limitType": "LimitToFirst",
             "filters": [],
             "orderBys": [
               [
@@ -2183,17 +2270,20 @@
         "expectedState": {
           "activeTargets": {
             "4": {
-              "query": {
-                "path": "collection",
-                "limit": 2,
-                "filters": [],
-                "orderBys": [
-                  [
-                    "pos",
-                    "asc"
+              "queries": [
+                {
+                  "path": "collection",
+                  "limit": 2,
+                  "limitType": "LimitToFirst",
+                  "filters": [],
+                  "orderBys": [
+                    [
+                      "pos",
+                      "asc"
+                    ]
                   ]
-                ]
-              },
+                }
+              ],
               "resumeToken": ""
             }
           }
@@ -2203,6 +2293,7 @@
             "query": {
               "path": "collection",
               "limit": 2,
+              "limitType": "LimitToFirst",
               "filters": [],
               "orderBys": [
                 [
@@ -2295,6 +2386,7 @@
             "query": {
               "path": "collection",
               "limit": 2,
+              "limitType": "LimitToFirst",
               "filters": [],
               "orderBys": [
                 [
@@ -2315,6 +2407,7 @@
           {
             "path": "collection",
             "limit": 2,
+            "limitType": "LimitToFirst",
             "filters": [],
             "orderBys": [
               [
@@ -2349,6 +2442,7 @@
           {
             "path": "collection",
             "limit": 2,
+            "limitType": "LimitToFirst",
             "filters": [],
             "orderBys": [
               [
@@ -2361,17 +2455,20 @@
         "expectedState": {
           "activeTargets": {
             "4": {
-              "query": {
-                "path": "collection",
-                "limit": 2,
-                "filters": [],
-                "orderBys": [
-                  [
-                    "pos",
-                    "asc"
+              "queries": [
+                {
+                  "path": "collection",
+                  "limit": 2,
+                  "limitType": "LimitToFirst",
+                  "filters": [],
+                  "orderBys": [
+                    [
+                      "pos",
+                      "asc"
+                    ]
                   ]
-                ]
-              },
+                }
+              ],
               "resumeToken": "resume-token-1004"
             }
           }
@@ -2381,6 +2478,7 @@
             "query": {
               "path": "collection",
               "limit": 2,
+              "limitType": "LimitToFirst",
               "filters": [],
               "orderBys": [
                 [
@@ -2442,11 +2540,13 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "query": {
-                "path": "collection",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             }
           }
@@ -2586,6 +2686,7 @@
           {
             "path": "collection",
             "limit": 2,
+            "limitType": "LimitToFirst",
             "filters": [],
             "orderBys": [
               [
@@ -2598,17 +2699,20 @@
         "expectedState": {
           "activeTargets": {
             "4": {
-              "query": {
-                "path": "collection",
-                "limit": 2,
-                "filters": [],
-                "orderBys": [
-                  [
-                    "pos",
-                    "asc"
+              "queries": [
+                {
+                  "path": "collection",
+                  "limit": 2,
+                  "limitType": "LimitToFirst",
+                  "filters": [],
+                  "orderBys": [
+                    [
+                      "pos",
+                      "asc"
+                    ]
                   ]
-                ]
-              },
+                }
+              ],
               "resumeToken": ""
             }
           }
@@ -2618,6 +2722,7 @@
             "query": {
               "path": "collection",
               "limit": 2,
+              "limitType": "LimitToFirst",
               "filters": [],
               "orderBys": [
                 [
@@ -2710,6 +2815,7 @@
             "query": {
               "path": "collection",
               "limit": 2,
+              "limitType": "LimitToFirst",
               "filters": [],
               "orderBys": [
                 [
@@ -2730,6 +2836,7 @@
           {
             "path": "collection",
             "limit": 2,
+            "limitType": "LimitToFirst",
             "filters": [],
             "orderBys": [
               [
@@ -2762,11 +2869,13 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "query": {
-                "path": "collection",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": "resume-token-1003"
             }
           }
@@ -2889,6 +2998,7 @@
           {
             "path": "collection",
             "limit": 2,
+            "limitType": "LimitToFirst",
             "filters": [],
             "orderBys": [
               [
@@ -2901,25 +3011,30 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "query": {
-                "path": "collection",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": "resume-token-1003"
             },
             "4": {
-              "query": {
-                "path": "collection",
-                "limit": 2,
-                "filters": [],
-                "orderBys": [
-                  [
-                    "pos",
-                    "asc"
+              "queries": [
+                {
+                  "path": "collection",
+                  "limit": 2,
+                  "limitType": "LimitToFirst",
+                  "filters": [],
+                  "orderBys": [
+                    [
+                      "pos",
+                      "asc"
+                    ]
                   ]
-                ]
-              },
+                }
+              ],
               "resumeToken": "resume-token-1004"
             }
           }
@@ -2929,6 +3044,7 @@
             "query": {
               "path": "collection",
               "limit": 2,
+              "limitType": "LimitToFirst",
               "filters": [],
               "orderBys": [
                 [
@@ -2986,6 +3102,7 @@
           {
             "path": "collection",
             "limit": 1,
+            "limitType": "LimitToFirst",
             "filters": [],
             "orderBys": [
               [
@@ -2998,17 +3115,20 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "query": {
-                "path": "collection",
-                "limit": 1,
-                "filters": [],
-                "orderBys": [
-                  [
-                    "a",
-                    "asc"
+              "queries": [
+                {
+                  "path": "collection",
+                  "limit": 1,
+                  "limitType": "LimitToFirst",
+                  "filters": [],
+                  "orderBys": [
+                    [
+                      "a",
+                      "asc"
+                    ]
                   ]
-                ]
-              },
+                }
+              ],
               "resumeToken": ""
             }
           }
@@ -3057,6 +3177,7 @@
             "query": {
               "path": "collection",
               "limit": 1,
+              "limitType": "LimitToFirst",
               "filters": [],
               "orderBys": [
                 [
@@ -3090,6 +3211,7 @@
           {
             "path": "collection",
             "limit": 1,
+            "limitType": "LimitToFirst",
             "filters": [],
             "orderBys": [
               [
@@ -3127,16 +3249,18 @@
         "expectedState": {
           "activeTargets": {
             "4": {
-              "query": {
-                "path": "collection",
-                "filters": [],
-                "orderBys": [
-                  [
-                    "a",
-                    "asc"
+              "queries": [
+                {
+                  "path": "collection",
+                  "filters": [],
+                  "orderBys": [
+                    [
+                      "a",
+                      "asc"
+                    ]
                   ]
-                ]
-              },
+                }
+              ],
               "resumeToken": ""
             }
           }
@@ -3288,24 +3412,28 @@
           ],
           "activeTargets": {
             "1": {
-              "query": {
-                "path": "collection/a",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection/a",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             },
             "4": {
-              "query": {
-                "path": "collection",
-                "filters": [],
-                "orderBys": [
-                  [
-                    "a",
-                    "asc"
+              "queries": [
+                {
+                  "path": "collection",
+                  "filters": [],
+                  "orderBys": [
+                    [
+                      "a",
+                      "asc"
+                    ]
                   ]
-                ]
-              },
+                }
+              ],
               "resumeToken": ""
             }
           }
@@ -3350,6 +3478,7 @@
           {
             "path": "collection",
             "limit": 1,
+            "limitType": "LimitToFirst",
             "filters": [],
             "orderBys": [
               [
@@ -3362,17 +3491,20 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "query": {
-                "path": "collection",
-                "limit": 1,
-                "filters": [],
-                "orderBys": [
-                  [
-                    "a",
-                    "asc"
+              "queries": [
+                {
+                  "path": "collection",
+                  "limit": 1,
+                  "limitType": "LimitToFirst",
+                  "filters": [],
+                  "orderBys": [
+                    [
+                      "a",
+                      "asc"
+                    ]
                   ]
-                ]
-              },
+                }
+              ],
               "resumeToken": "resume-token-1001"
             }
           }
@@ -3382,6 +3514,7 @@
             "query": {
               "path": "collection",
               "limit": 1,
+              "limitType": "LimitToFirst",
               "filters": [],
               "orderBys": [
                 [
@@ -3450,17 +3583,20 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "query": {
-                "path": "collection",
-                "limit": 1,
-                "filters": [],
-                "orderBys": [
-                  [
-                    "a",
-                    "asc"
+              "queries": [
+                {
+                  "path": "collection",
+                  "limit": 1,
+                  "limitType": "LimitToFirst",
+                  "filters": [],
+                  "orderBys": [
+                    [
+                      "a",
+                      "asc"
+                    ]
                   ]
-                ]
-              },
+                }
+              ],
               "resumeToken": ""
             }
           }
@@ -3517,25 +3653,30 @@
           ],
           "activeTargets": {
             "1": {
-              "query": {
-                "path": "collection/a",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection/a",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             },
             "2": {
-              "query": {
-                "path": "collection",
-                "limit": 1,
-                "filters": [],
-                "orderBys": [
-                  [
-                    "a",
-                    "asc"
+              "queries": [
+                {
+                  "path": "collection",
+                  "limit": 1,
+                  "limitType": "LimitToFirst",
+                  "filters": [],
+                  "orderBys": [
+                    [
+                      "a",
+                      "asc"
+                    ]
                   ]
-                ]
-              },
+                }
+              ],
               "resumeToken": ""
             }
           }
@@ -3563,17 +3704,20 @@
           "limboDocs": [],
           "activeTargets": {
             "2": {
-              "query": {
-                "path": "collection",
-                "limit": 1,
-                "filters": [],
-                "orderBys": [
-                  [
-                    "a",
-                    "asc"
+              "queries": [
+                {
+                  "path": "collection",
+                  "limit": 1,
+                  "limitType": "LimitToFirst",
+                  "filters": [],
+                  "orderBys": [
+                    [
+                      "a",
+                      "asc"
+                    ]
                   ]
-                ]
-              },
+                }
+              ],
               "resumeToken": ""
             }
           }
@@ -3583,6 +3727,7 @@
             "query": {
               "path": "collection",
               "limit": 1,
+              "limitType": "LimitToFirst",
               "filters": [],
               "orderBys": [
                 [
@@ -3640,6 +3785,7 @@
           {
             "path": "collection",
             "limit": 1,
+            "limitType": "LimitToFirst",
             "filters": [],
             "orderBys": [
               [
@@ -3652,17 +3798,20 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "query": {
-                "path": "collection",
-                "limit": 1,
-                "filters": [],
-                "orderBys": [
-                  [
-                    "a",
-                    "asc"
+              "queries": [
+                {
+                  "path": "collection",
+                  "limit": 1,
+                  "limitType": "LimitToFirst",
+                  "filters": [],
+                  "orderBys": [
+                    [
+                      "a",
+                      "asc"
+                    ]
                   ]
-                ]
-              },
+                }
+              ],
               "resumeToken": ""
             }
           }
@@ -3711,6 +3860,7 @@
             "query": {
               "path": "collection",
               "limit": 1,
+              "limitType": "LimitToFirst",
               "filters": [],
               "orderBys": [
                 [
@@ -3744,6 +3894,7 @@
           {
             "path": "collection",
             "limit": 1,
+            "limitType": "LimitToFirst",
             "filters": [],
             "orderBys": [
               [
@@ -3781,16 +3932,18 @@
         "expectedState": {
           "activeTargets": {
             "4": {
-              "query": {
-                "path": "collection",
-                "filters": [],
-                "orderBys": [
-                  [
-                    "a",
-                    "asc"
+              "queries": [
+                {
+                  "path": "collection",
+                  "filters": [],
+                  "orderBys": [
+                    [
+                      "a",
+                      "asc"
+                    ]
                   ]
-                ]
-              },
+                }
+              ],
               "resumeToken": ""
             }
           }
@@ -3950,6 +4103,7 @@
           {
             "path": "collection",
             "limit": 1,
+            "limitType": "LimitToFirst",
             "filters": [],
             "orderBys": [
               [
@@ -3962,17 +4116,20 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "query": {
-                "path": "collection",
-                "limit": 1,
-                "filters": [],
-                "orderBys": [
-                  [
-                    "a",
-                    "asc"
+              "queries": [
+                {
+                  "path": "collection",
+                  "limit": 1,
+                  "limitType": "LimitToFirst",
+                  "filters": [],
+                  "orderBys": [
+                    [
+                      "a",
+                      "asc"
+                    ]
                   ]
-                ]
-              },
+                }
+              ],
               "resumeToken": "resume-token-2001"
             }
           }
@@ -3982,6 +4139,7 @@
             "query": {
               "path": "collection",
               "limit": 1,
+              "limitType": "LimitToFirst",
               "filters": [],
               "orderBys": [
                 [
@@ -4026,6 +4184,7 @@
           {
             "path": "collection",
             "limit": 2,
+            "limitType": "LimitToFirst",
             "filters": [],
             "orderBys": []
           }
@@ -4033,12 +4192,15 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "query": {
-                "path": "collection",
-                "limit": 2,
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection",
+                  "limit": 2,
+                  "limitType": "LimitToFirst",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             }
           }
@@ -4098,6 +4260,7 @@
             "query": {
               "path": "collection",
               "limit": 2,
+              "limitType": "LimitToFirst",
               "filters": [],
               "orderBys": []
             },
@@ -4143,20 +4306,25 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "query": {
-                "path": "collection",
-                "limit": 2,
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection",
+                  "limit": 2,
+                  "limitType": "LimitToFirst",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             },
             "4": {
-              "query": {
-                "path": "collection",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             }
           }
@@ -4406,36 +4574,45 @@
           ],
           "activeTargets": {
             "1": {
-              "query": {
-                "path": "collection/a",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection/a",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             },
             "2": {
-              "query": {
-                "path": "collection",
-                "limit": 2,
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection",
+                  "limit": 2,
+                  "limitType": "LimitToFirst",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             },
             "3": {
-              "query": {
-                "path": "collection/b",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection/b",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             },
             "4": {
-              "query": {
-                "path": "collection",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             }
           }
@@ -4445,6 +4622,7 @@
             "query": {
               "path": "collection",
               "limit": 2,
+              "limitType": "LimitToFirst",
               "filters": [],
               "orderBys": []
             },
@@ -4479,36 +4657,45 @@
           ],
           "activeTargets": {
             "2": {
-              "query": {
-                "path": "collection",
-                "limit": 2,
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection",
+                  "limit": 2,
+                  "limitType": "LimitToFirst",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             },
             "3": {
-              "query": {
-                "path": "collection/b",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection/b",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             },
             "4": {
-              "query": {
-                "path": "collection",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             },
             "5": {
-              "query": {
-                "path": "collection/c",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection/c",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             }
           }
@@ -4541,6 +4728,7 @@
             "query": {
               "path": "collection",
               "limit": 2,
+              "limitType": "LimitToFirst",
               "filters": [],
               "orderBys": []
             },
@@ -4608,36 +4796,45 @@
           ],
           "activeTargets": {
             "2": {
-              "query": {
-                "path": "collection",
-                "limit": 2,
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection",
+                  "limit": 2,
+                  "limitType": "LimitToFirst",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             },
             "4": {
-              "query": {
-                "path": "collection",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             },
             "5": {
-              "query": {
-                "path": "collection/c",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection/c",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             },
             "7": {
-              "query": {
-                "path": "collection/d",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection/d",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             }
           }
@@ -4670,6 +4867,7 @@
             "query": {
               "path": "collection",
               "limit": 2,
+              "limitType": "LimitToFirst",
               "filters": [],
               "orderBys": []
             },
@@ -4736,28 +4934,35 @@
           ],
           "activeTargets": {
             "2": {
-              "query": {
-                "path": "collection",
-                "limit": 2,
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection",
+                  "limit": 2,
+                  "limitType": "LimitToFirst",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             },
             "4": {
-              "query": {
-                "path": "collection",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             },
             "7": {
-              "query": {
-                "path": "collection/d",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection/d",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             }
           }
@@ -4790,6 +4995,7 @@
             "query": {
               "path": "collection",
               "limit": 2,
+              "limitType": "LimitToFirst",
               "filters": [],
               "orderBys": []
             },
@@ -4854,20 +5060,25 @@
           "limboDocs": [],
           "activeTargets": {
             "2": {
-              "query": {
-                "path": "collection",
-                "limit": 2,
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection",
+                  "limit": 2,
+                  "limitType": "LimitToFirst",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             },
             "4": {
-              "query": {
-                "path": "collection",
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             }
           }
@@ -4900,6 +5111,7 @@
             "query": {
               "path": "collection",
               "limit": 2,
+              "limitType": "LimitToFirst",
               "filters": [],
               "orderBys": []
             },
@@ -4975,6 +5187,7 @@
           {
             "path": "collection",
             "limit": 2,
+            "limitType": "LimitToFirst",
             "filters": [],
             "orderBys": []
           }
@@ -4982,12 +5195,15 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "query": {
-                "path": "collection",
-                "limit": 2,
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection",
+                  "limit": 2,
+                  "limitType": "LimitToFirst",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             }
           }
@@ -4999,12 +5215,15 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "query": {
-                "path": "collection",
-                "limit": 2,
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection",
+                  "limit": 2,
+                  "limitType": "LimitToFirst",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             }
           }
@@ -5072,6 +5291,7 @@
             "query": {
               "path": "collection",
               "limit": 2,
+              "limitType": "LimitToFirst",
               "filters": [],
               "orderBys": []
             },
@@ -5166,6 +5386,7 @@
             "query": {
               "path": "collection",
               "limit": 2,
+              "limitType": "LimitToFirst",
               "filters": [],
               "orderBys": []
             },
@@ -5235,6 +5456,7 @@
           {
             "path": "collection",
             "limit": 2,
+            "limitType": "LimitToFirst",
             "filters": [],
             "orderBys": []
           }
@@ -5242,12 +5464,15 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "query": {
-                "path": "collection",
-                "limit": 2,
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection",
+                  "limit": 2,
+                  "limitType": "LimitToFirst",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             }
           }
@@ -5259,12 +5484,15 @@
         "expectedState": {
           "activeTargets": {
             "2": {
-              "query": {
-                "path": "collection",
-                "limit": 2,
-                "filters": [],
-                "orderBys": []
-              },
+              "queries": [
+                {
+                  "path": "collection",
+                  "limit": 2,
+                  "limitType": "LimitToFirst",
+                  "filters": [],
+                  "orderBys": []
+                }
+              ],
               "resumeToken": ""
             }
           }
@@ -5332,6 +5560,7 @@
             "query": {
               "path": "collection",
               "limit": 2,
+              "limitType": "LimitToFirst",
               "filters": [],
               "orderBys": []
             },
@@ -5386,6 +5615,7 @@
             "query": {
               "path": "collection",
               "limit": 2,
+              "limitType": "LimitToFirst",
               "filters": [],
               "orderBys": []
             },
@@ -5488,6 +5718,7 @@
             "query": {
               "path": "collection",
               "limit": 2,
+              "limitType": "LimitToFirst",
               "filters": [],
               "orderBys": []
             },

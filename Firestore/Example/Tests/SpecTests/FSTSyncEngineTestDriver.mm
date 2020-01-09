@@ -38,7 +38,6 @@
 #include "Firestore/core/src/firebase/firestore/local/persistence.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
-#include "Firestore/core/src/firebase/firestore/objc/objc_compatibility.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_store.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/delayed_constructor.h"
@@ -165,7 +164,9 @@ NS_ASSUME_NONNULL_BEGIN
 
   DelayedConstructor<EventManager> _eventManager;
 
-  std::unordered_map<TargetId, QueryData> _expectedActiveTargets;
+  // Set of active targets, keyed by target Id, mapped to corresponding resume token,
+  // and list of `QueryData`.
+  ActiveTargetMap _expectedActiveTargets;
 
   // ivar is declared as mutable.
   std::unordered_map<User, NSMutableArray<FSTOutstandingWrite *> *, HashUser> _outstandingWrites;
@@ -477,12 +478,12 @@ NS_ASSUME_NONNULL_BEGIN
   return _datastore->ActiveTargets();
 }
 
-- (const std::unordered_map<TargetId, QueryData> &)expectedActiveTargets {
+- (const ActiveTargetMap &)expectedActiveTargets {
   return _expectedActiveTargets;
 }
 
-- (void)setExpectedActiveTargets:(const std::unordered_map<TargetId, QueryData> &)targets {
-  _expectedActiveTargets = targets;
+- (void)setExpectedActiveTargets:(ActiveTargetMap)targets {
+  _expectedActiveTargets = std::move(targets);
 }
 
 #pragma mark - Helper Methods

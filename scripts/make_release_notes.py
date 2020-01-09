@@ -30,6 +30,7 @@ PRODUCTS = {
     'FirebaseABTesting/CHANGELOG.md': '{{ab_testing}}',
     'Firebase/Auth/CHANGELOG.md': '{{auth}}',
     'FirebaseCore/CHANGELOG.md': NO_HEADING,
+    'FirebaseCrashlytics/CHANGELOG.md': '{{crashlytics}}',
     'Firebase/Database/CHANGELOG.md': '{{database}}',
     'Firebase/DynamicLinks/CHANGELOG.md': '{{ddls}}',
     'Firebase/InAppMessaging/CHANGELOG.md': '{{inapp_messaging}}',

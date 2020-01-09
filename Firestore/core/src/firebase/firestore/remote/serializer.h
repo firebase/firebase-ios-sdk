@@ -31,7 +31,7 @@
 #include "Firestore/core/src/firebase/firestore/core/field_filter.h"
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/core/order_by.h"
-#include "Firestore/core/src/firebase/firestore/core/query.h"
+#include "Firestore/core/src/firebase/firestore/core/target.h"
 #include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
@@ -61,7 +61,7 @@ class LocalSerializer;
 
 namespace remote {
 
-core::Query InvalidQuery();
+core::Target InvalidTarget();
 
 /**
  * @brief Converts internal model objects to their equivalent protocol buffer
@@ -227,13 +227,13 @@ class Serializer {
   google_firestore_v1_Target EncodeTarget(
       const local::QueryData& query_data) const;
   google_firestore_v1_Target_DocumentsTarget EncodeDocumentsTarget(
-      const core::Query& query) const;
-  core::Query DecodeDocumentsTarget(
+      const core::Target& target) const;
+  core::Target DecodeDocumentsTarget(
       nanopb::Reader* reader,
       const google_firestore_v1_Target_DocumentsTarget& proto) const;
   google_firestore_v1_Target_QueryTarget EncodeQueryTarget(
-      const core::Query& query) const;
-  core::Query DecodeQueryTarget(
+      const core::Target& target) const;
+  core::Target DecodeQueryTarget(
       nanopb::Reader* reader,
       const google_firestore_v1_Target_QueryTarget& proto) const;
 

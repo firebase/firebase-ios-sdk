@@ -78,7 +78,7 @@ TEST_F(LevelDbQueryCacheTest, MetadataPersistedAcrossRestarts) {
 
   db1->Run("add query data", [&] {
     Query query = testutil::Query("some/path");
-    QueryData query_data(std::move(query), last_target_id,
+    QueryData query_data(query.ToTarget(), last_target_id,
                          minimum_sequence_number, QueryPurpose::Listen);
     query_cache->AddTarget(query_data);
     query_cache->SetLastRemoteSnapshotVersion(last_version);

@@ -233,8 +233,8 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
       completion:^(id _Nullable result, NSError *_Nullable error) {
         [expectation fulfill];
         NSString *message =
-            [NSString stringWithFormat:@"Expected the sequence %@, to succeed, but got %ld.",
-                                       [self stageNames], [error code]];
+            [NSString stringWithFormat:@"Expected the sequence %@, to succeed, but got %d.",
+                                       [self stageNames], (int)[error code]];
         [self->_testCase assertNilError:error message:message];
       }];
 

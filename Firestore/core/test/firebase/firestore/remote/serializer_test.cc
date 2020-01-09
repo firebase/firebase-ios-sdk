@@ -121,7 +121,7 @@ const char* const kDatabaseId = "d";
 
 // These helper functions are just shorter aliases to reduce verbosity.
 ByteString ToBytes(const std::string& str) {
-  return ByteString{Serializer::EncodeString(str)};
+  return ByteString::Take(Serializer::EncodeString(str));
 }
 
 std::string FromBytes(pb_bytes_array_t*&& ptr) {
@@ -130,7 +130,7 @@ std::string FromBytes(pb_bytes_array_t*&& ptr) {
 }
 
 QueryData CreateQueryData(core::Query query) {
-  return QueryData(std::move(query), 1, 0, QueryPurpose::Listen);
+  return QueryData(query.ToTarget(), 1, 0, QueryPurpose::Listen);
 }
 
 QueryData CreateQueryData(absl::string_view str) {
@@ -495,7 +495,7 @@ class SerializerTest : public ::testing::Test {
 
   void ExpectDeserializationRoundTrip(const QueryData& model,
                                       const v1::Target& proto) {
-    core::Query actual_model;
+    core::Target actual_model;
     if (proto.has_documents()) {
       actual_model = Decode<google_firestore_v1_Target_DocumentsTarget>(
           google_firestore_v1_Target_DocumentsTarget_fields,
@@ -507,7 +507,7 @@ class SerializerTest : public ::testing::Test {
           std::mem_fn(&Serializer::DecodeQueryTarget), proto.query());
     }
 
-    EXPECT_EQ(model.query(), actual_model);
+    EXPECT_EQ(model.target(), actual_model);
   }
 
   void ExpectSerializationRoundTrip(const Mutation& model,
@@ -1446,7 +1446,7 @@ TEST_F(SerializerTest, EncodesSortOrdersDescending) {
 }
 
 TEST_F(SerializerTest, EncodesLimits) {
-  QueryData model = CreateQueryData(Query("docs").WithLimit(26));
+  QueryData model = CreateQueryData(Query("docs").WithLimitToFirst(26));
 
   v1::Target proto;
   proto.mutable_query()->set_parent(ResourceName(""));
@@ -1472,7 +1472,7 @@ TEST_F(SerializerTest, EncodesLimits) {
 
 TEST_F(SerializerTest, EncodesResumeTokens) {
   core::Query q = Query("docs");
-  QueryData model(std::move(q), 1, 0, QueryPurpose::Listen,
+  QueryData model(q.ToTarget(), 1, 0, QueryPurpose::Listen,
                   SnapshotVersion::None(), SnapshotVersion::None(),
                   Bytes(1, 2, 3));
 
@@ -1510,13 +1510,15 @@ TEST_F(SerializerTest, EncodesListenRequestLabels) {
       };
 
   for (const auto& p : purpose_to_label) {
-    QueryData model(q, 1, 0, p.first);
+    QueryData model(q.ToTarget(), 1, 0, p.first);
 
     auto result = serializer.EncodeListenRequestLabels(model);
     std::unordered_map<std::string, std::string> result_in_map;
     for (auto& label_entry : result) {
       result_in_map[serializer.DecodeString(label_entry.key)] =
           serializer.DecodeString(label_entry.value);
+      pb_release(google_firestore_v1_ListenRequest_LabelsEntry_fields,
+                 &label_entry);
     }
 
     EXPECT_EQ(result_in_map, p.second);
