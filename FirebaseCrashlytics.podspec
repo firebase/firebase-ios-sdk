@@ -40,8 +40,8 @@ Pod::Spec.new do |s|
     cp -f ./Crashlytics/upload-symbols ./upload-symbols
   PREPARE_COMMAND_END
 
-  s.dependency 'FirebaseCore', '~> 6.3', '>= 6.3.2'
-  s.dependency 'FirebaseInstanceID', '~> 4.1'
+  s.dependency 'FirebaseCore', '~> 6.6'
+  s.dependency 'FirebaseInstanceID', '~> 4.3'
   s.dependency 'FirebaseAnalyticsInterop', '~> 1.2'
   s.dependency 'PromisesObjC', '~> 1.2'
 

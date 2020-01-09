@@ -33,7 +33,7 @@ Support library to provide event prioritization and uploading for the GoogleData
 
   s.libraries = ['z']
 
-  s.dependency 'GoogleDataTransport', '~> 3.2'
+  s.dependency 'GoogleDataTransport', '~> 3.3'
   s.dependency 'nanopb', '~> 0.3.901'
 
   header_search_paths = {
