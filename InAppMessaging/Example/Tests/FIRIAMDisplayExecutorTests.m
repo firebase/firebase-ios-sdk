@@ -23,7 +23,6 @@
 #import "FIRIAMMessageContentData.h"
 #import "FIRInAppMessaging.h"
 
-
 // A class implementing protocol FIRIAMMessageContentData to be used for unit testing
 @interface FIRIAMMessageContentDataForTesting : NSObject <FIRIAMMessageContentData>
 @property(nonatomic, readwrite, nonnull) NSString *titleText;
@@ -182,10 +181,10 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDelegateInteraction) {
 
 @interface FIRIAMDisplayExecutor (Testing)
 - (FIRInAppMessagingDisplayMessage *)
-displayMessageWithMessageDefinition:(FIRIAMMessageDefinition *)definition
-                          imageData:(FIRInAppMessagingImageData *)imageData
-                 landscapeImageData:(nullable FIRInAppMessagingImageData *)landscapeImageData
-triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType;
+    displayMessageWithMessageDefinition:(FIRIAMMessageDefinition *)definition
+                              imageData:(FIRInAppMessagingImageData *)imageData
+                     landscapeImageData:(nullable FIRInAppMessagingImageData *)landscapeImageData
+                            triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType;
 @end
 
 @interface FIRIAMDisplayExecutorTests : XCTestCase
@@ -327,10 +326,8 @@ triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType;
                                                       startTime:activeStartTime
                                                         endTime:activeEndTime
                                               triggerDefinition:@[ appOpentriggerDefinition ]
-                                                        appData:@{@"a":@"b",
-                                                                  @"up":@"dog"
-                                                        }
-                                                        isTestMessage:NO];
+                                                        appData:@{@"a" : @"b", @"up" : @"dog"}
+                                                  isTestMessage:NO];
 }
 
 NSTimeInterval DISPLAY_MIN_INTERVALS = 1;
@@ -923,26 +920,24 @@ NSTimeInterval DISPLAY_MIN_INTERVALS = 1;
   XCTAssertTrue(delegate.receivedMessageDismissedCallback);
 }
 
-
-
-
 - (void)testMessageWithDataBundle {
-    FIRInAppMessagingDisplayMessage *displayMessage = [self.displayExecutor displayMessageWithMessageDefinition:self.m4
-        imageData:nil
-        landscapeImageData:nil
-        triggerType:FIRInAppMessagingDisplayTriggerTypeOnAppForeground];
-    
-    XCTAssertEqual(displayMessage.appData.count, 2);
-    XCTAssertEqualObjects(displayMessage.appData[@"a"], @"b");
-    XCTAssertEqualObjects(displayMessage.appData[@"up"], @"dog");
+  FIRInAppMessagingDisplayMessage *displayMessage = [self.displayExecutor
+      displayMessageWithMessageDefinition:self.m4
+                                imageData:nil
+                       landscapeImageData:nil
+                              triggerType:FIRInAppMessagingDisplayTriggerTypeOnAppForeground];
+
+  XCTAssertEqual(displayMessage.appData.count, 2);
+  XCTAssertEqualObjects(displayMessage.appData[@"a"], @"b");
+  XCTAssertEqualObjects(displayMessage.appData[@"up"], @"dog");
 }
 
-
-- (void) testMessageWithoutDataBundle {
-    FIRInAppMessagingDisplayMessage *displayMessage = [self.displayExecutor displayMessageWithMessageDefinition:self.m3
-        imageData:nil
-        landscapeImageData:nil
-        triggerType:FIRInAppMessagingDisplayTriggerTypeOnAppForeground];
-    XCTAssertNil(displayMessage.appData);
+- (void)testMessageWithoutDataBundle {
+  FIRInAppMessagingDisplayMessage *displayMessage = [self.displayExecutor
+      displayMessageWithMessageDefinition:self.m3
+                                imageData:nil
+                       landscapeImageData:nil
+                              triggerType:FIRInAppMessagingDisplayTriggerTypeOnAppForeground];
+  XCTAssertNil(displayMessage.appData);
 }
 @end
