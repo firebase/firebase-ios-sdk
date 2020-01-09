@@ -14,5 +14,6 @@
   "FirebaseMessaging":"4.2.0",
   "FirebaseStorage":"3.5.0",
   "GoogleDataTransport":"3.3.0",
-  "GoogleDataTransportCCTSupport":"1.3.0"
+  "GoogleDataTransportCCTSupport":"1.3.0",
+  "GoogleUtilities":"6.5.0"
 }
