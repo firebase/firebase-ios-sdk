@@ -45,7 +45,7 @@ class MemoryQueryCache : public QueryCache {
 
   void RemoveTarget(const QueryData& query_data) override;
 
-  absl::optional<QueryData> GetTarget(const core::Query& query) override;
+  absl::optional<QueryData> GetTarget(const core::Target& target) override;
 
   void EnumerateTargets(const TargetCallback& callback) override;
 
@@ -68,7 +68,7 @@ class MemoryQueryCache : public QueryCache {
   int64_t CalculateByteSize(const Sizer& sizer);
 
   size_t size() const override {
-    return queries_.size();
+    return targets_.size();
   }
 
   model::ListenSequenceNumber highest_listen_sequence_number() const override {
@@ -94,8 +94,8 @@ class MemoryQueryCache : public QueryCache {
   /** The last received snapshot version. */
   model::SnapshotVersion last_remote_snapshot_version_;
 
-  /** Maps a query to the data about that query. */
-  std::unordered_map<core::Query, QueryData> queries_;
+  /** Maps a target to the data about that query. */
+  std::unordered_map<core::Target, QueryData> targets_;
 
   /**
    * A ordered bidirectional mapping between documents and the remote target

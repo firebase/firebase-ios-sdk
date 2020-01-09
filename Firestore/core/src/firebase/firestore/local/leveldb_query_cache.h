@@ -70,7 +70,7 @@ class LevelDbQueryCache : public QueryCache {
 
   void RemoveTarget(const QueryData& query_data) override;
 
-  absl::optional<QueryData> GetTarget(const core::Query& query) override;
+  absl::optional<QueryData> GetTarget(const core::Target& target) override;
 
   void EnumerateTargets(const TargetCallback& callback) override;
 

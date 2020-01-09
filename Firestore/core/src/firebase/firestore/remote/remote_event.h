@@ -72,6 +72,10 @@ class TargetMetadataProvider {
  */
 class TargetChange {
  public:
+  static TargetChange CreateSynthesizedTargetChange(bool current) {
+    return TargetChange(current);
+  }
+
   TargetChange() = default;
 
   TargetChange(nanopb::ByteString resume_token,
@@ -87,10 +91,10 @@ class TargetChange {
   }
 
   /**
-   * An opaque, server-assigned token that allows watching a query to be resumed
-   * after disconnecting without retransmitting all the data that matches the
-   * query. The resume token essentially identifies a point in time from which
-   * the server should resume sending results.
+   * An opaque, server-assigned token that allows watching a target to be
+   * resumed after disconnecting without retransmitting all the data that
+   * matches the target. The resume token essentially identifies a point in time
+   * from which the server should resume sending results.
    */
   const nanopb::ByteString& resume_token() const {
     return resume_token_;
@@ -130,6 +134,9 @@ class TargetChange {
   }
 
  private:
+  explicit TargetChange(bool current) : current_{current} {
+  }
+
   nanopb::ByteString resume_token_;
   bool current_ = false;
   model::DocumentKeySet added_documents_;

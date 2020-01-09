@@ -132,8 +132,9 @@ void RemoteStore::Shutdown() {
 
 void RemoteStore::Listen(const QueryData& query_data) {
   TargetId target_key = query_data.target_id();
-  HARD_ASSERT(listen_targets_.find(target_key) == listen_targets_.end(),
-              "Listen called with duplicate target id: %s", target_key);
+  if (listen_targets_.find(target_key) != listen_targets_.end()) {
+    return;
+  }
 
   // Mark this as something the client is currently listening for.
   listen_targets_[target_key] = query_data;
@@ -306,7 +307,7 @@ void RemoteStore::RaiseWatchSnapshot(const SnapshotVersion& snapshot_version) {
 
     // Clear the resume token for the query, since we're in a known mismatch
     // state.
-    query_data = QueryData(query_data.query(), target_id,
+    query_data = QueryData(query_data.target(), target_id,
                            query_data.sequence_number(), query_data.purpose());
     listen_targets_[target_id] = query_data;
 
@@ -318,7 +319,7 @@ void RemoteStore::RaiseWatchSnapshot(const SnapshotVersion& snapshot_version) {
     // mismatch, but don't actually retain that in listen_targets_. This ensures
     // that we flag the first re-listen this way without impacting future
     // listens of this target (that might happen e.g. on reconnect).
-    QueryData request_query_data(query_data.query(), target_id,
+    QueryData request_query_data(query_data.target(), target_id,
                                  query_data.sequence_number(),
                                  QueryPurpose::ExistenceFilterMismatch);
     SendWatchRequest(request_query_data);

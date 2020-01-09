@@ -130,7 +130,7 @@ std::string FromBytes(pb_bytes_array_t*&& ptr) {
 }
 
 QueryData CreateQueryData(core::Query query) {
-  return QueryData(std::move(query), 1, 0, QueryPurpose::Listen);
+  return QueryData(query.ToTarget(), 1, 0, QueryPurpose::Listen);
 }
 
 QueryData CreateQueryData(absl::string_view str) {
@@ -495,7 +495,7 @@ class SerializerTest : public ::testing::Test {
 
   void ExpectDeserializationRoundTrip(const QueryData& model,
                                       const v1::Target& proto) {
-    core::Query actual_model;
+    core::Target actual_model;
     if (proto.has_documents()) {
       actual_model = Decode<google_firestore_v1_Target_DocumentsTarget>(
           google_firestore_v1_Target_DocumentsTarget_fields,
@@ -507,7 +507,7 @@ class SerializerTest : public ::testing::Test {
           std::mem_fn(&Serializer::DecodeQueryTarget), proto.query());
     }
 
-    EXPECT_EQ(model.query(), actual_model);
+    EXPECT_EQ(model.target(), actual_model);
   }
 
   void ExpectSerializationRoundTrip(const Mutation& model,
@@ -1446,7 +1446,7 @@ TEST_F(SerializerTest, EncodesSortOrdersDescending) {
 }
 
 TEST_F(SerializerTest, EncodesLimits) {
-  QueryData model = CreateQueryData(Query("docs").WithLimit(26));
+  QueryData model = CreateQueryData(Query("docs").WithLimitToFirst(26));
 
   v1::Target proto;
   proto.mutable_query()->set_parent(ResourceName(""));
@@ -1472,8 +1472,9 @@ TEST_F(SerializerTest, EncodesLimits) {
 
 TEST_F(SerializerTest, EncodesResumeTokens) {
   core::Query q = Query("docs");
-  QueryData model(std::move(q), 1, 0, QueryPurpose::Listen,
-                  SnapshotVersion::None(), Bytes(1, 2, 3));
+  QueryData model(q.ToTarget(), 1, 0, QueryPurpose::Listen,
+                  SnapshotVersion::None(), SnapshotVersion::None(),
+                  Bytes(1, 2, 3));
 
   v1::Target proto;
   proto.mutable_query()->set_parent(ResourceName(""));
@@ -1509,7 +1510,7 @@ TEST_F(SerializerTest, EncodesListenRequestLabels) {
       };
 
   for (const auto& p : purpose_to_label) {
-    QueryData model(q, 1, 0, p.first);
+    QueryData model(q.ToTarget(), 1, 0, p.first);
 
     auto result = serializer.EncodeListenRequestLabels(model);
     std::unordered_map<std::string, std::string> result_in_map;

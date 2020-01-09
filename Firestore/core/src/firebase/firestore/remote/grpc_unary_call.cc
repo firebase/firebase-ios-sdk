@@ -55,7 +55,7 @@ void GrpcUnaryCall::Start(Callback&& callback) {
   call_->StartCall();
 
   // For lifetime details, see `GrpcCompletion` class comment.
-  finish_completion_ = std::make_shared<GrpcCompletion>(
+  finish_completion_ = GrpcCompletion::Create(
       Type::Finish, worker_queue_,
       [this](bool /*ignored_ok*/,
              const std::shared_ptr<GrpcCompletion>& completion) {
@@ -74,7 +74,7 @@ void GrpcUnaryCall::Start(Callback&& callback) {
       });
 
   call_->Finish(finish_completion_->message(), finish_completion_->status(),
-                finish_completion_->Retain());
+                finish_completion_.get());
 }
 
 void GrpcUnaryCall::FinishImmediately() {

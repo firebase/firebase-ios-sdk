@@ -28,14 +28,6 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=Firebase PLATFORM=iOS METHOD=xcodebuild
-      before_install:
-        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
-      script:
-        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
-
-    - stage: test
-      env:
         - PROJECT=Core METHOD=pod-lib-lint
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=ios
@@ -112,8 +104,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/test_quickstart.sh Authentication
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseAuth.podspec --platforms=tvos
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseAuth.podspec --platforms=macos
-        # Uncomment to reenable ApiTests when #4565 is fixed.
-        #- travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
+        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
 
     - stage: test
       osx_image: xcode10.3
@@ -338,6 +329,32 @@ jobs:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh # Start integration test server
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseFunctions.podspec
+
+    - stage: test
+      env:
+        - PROJECT=Crashlytics METHOD=pod-lib-lint QUICKSTART=crashlytics
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh # Start integration test server
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCrashlytics.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/test_quickstart.sh Crashlytics
+
+    - stage: test
+      osx_image: xcode10.3
+      env:
+        - PROJECT=Crashlytics METHOD=pod-lib-lint
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh # Start integration test server
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCrashlytics.podspec
+
+    - stage: test
+      if: type = cron
+      env:
+        - PROJECT=CrashlyticsCron METHOD=pod-lib-lint
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCrashlytics.podspec --use-libraries
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCrashlytics.podspec --use-modular-headers
 
     - stage: test
       env:
@@ -652,7 +669,7 @@ jobs:
       env:
         - PROJECT=Installations PLATFORM=iOS METHOD=pod-lib-lint
         - FIS_ALLOWS_INCOMPATIBLE_IID_VERSION=1
-        - FIS_INTEGRATION_TESTS_REQUIRED=1
+        - FIS_INTEGRATION_TESTS_REQUIRED=$(if [[ "$TRAVIS_PULL_REQUEST" == "false" || "$TRAVIS_PULL_REQUEST_SLUG" == "$TRAVIS_REPO_SLUG" ]]; then echo "1"; else echo "0"; fi)
         - QUICKSTART=installations
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
@@ -666,7 +683,7 @@ jobs:
       env:
         - PROJECT=Installations PLATFORM=macOS METHOD=pod-lib-lint
         - FIS_ALLOWS_INCOMPATIBLE_IID_VERSION=1
-        - FIS_INTEGRATION_TESTS_REQUIRED=1
+        - FIS_INTEGRATION_TESTS_REQUIRED=$(if [[ "$TRAVIS_PULL_REQUEST" == "false" || "$TRAVIS_PULL_REQUEST_SLUG" == "$TRAVIS_REPO_SLUG" ]]; then echo "1"; else echo "0"; fi)
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
@@ -678,7 +695,7 @@ jobs:
       env:
         - PROJECT=Installations PLATFORM=tvOS METHOD=pod-lib-lint
         - FIS_ALLOWS_INCOMPATIBLE_IID_VERSION=1
-        - FIS_INTEGRATION_TESTS_REQUIRED=1
+        - FIS_INTEGRATION_TESTS_REQUIRED=$(if [[ "$TRAVIS_PULL_REQUEST" == "false" || "$TRAVIS_PULL_REQUEST_SLUG" == "$TRAVIS_REPO_SLUG" ]]; then echo "1"; else echo "0"; fi)
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:

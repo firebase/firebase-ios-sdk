@@ -232,7 +232,7 @@ TEST(ViewTest, UpdatesDocumentsBasedOnQueryWithFilter) {
 }
 
 TEST(ViewTest, RemovesDocumentsForQueryWithLimit) {
-  Query query = QueryForMessages().WithLimit(2);
+  Query query = QueryForMessages().WithLimitToFirst(2);
   View view(query, DocumentKeySet{});
 
   Document doc1 = Doc("rooms/eros/messages/1", 0, Map("text", "msg1"));
@@ -260,7 +260,8 @@ TEST(ViewTest, RemovesDocumentsForQueryWithLimit) {
 }
 
 TEST(ViewTest, DoesntReportChangesForDocumentBeyondLimitOfQuery) {
-  Query query = QueryForMessages().AddingOrderBy(OrderBy("num")).WithLimit(2);
+  Query query =
+      QueryForMessages().AddingOrderBy(OrderBy("num")).WithLimitToFirst(2);
   View view(query, DocumentKeySet{});
 
   Document doc1 = Doc("rooms/eros/messages/1", 0, Map("num", 1));
@@ -354,7 +355,7 @@ TEST(ViewTest, ResumingQueryCreatesNoLimbos) {
 }
 
 TEST(ViewTest, ReturnsNeedsRefillOnDeleteInLimitQuery) {
-  Query query = QueryForMessages().WithLimit(2);
+  Query query = QueryForMessages().WithLimitToFirst(2);
   Document doc1 = Doc("rooms/eros/messages/0", 0, Map());
   Document doc2 = Doc("rooms/eros/messages/1", 0, Map());
   View view(query, DocumentKeySet{});
@@ -382,7 +383,8 @@ TEST(ViewTest, ReturnsNeedsRefillOnDeleteInLimitQuery) {
 }
 
 TEST(ViewTest, ReturnsNeedsRefillOnReorderInLimitQuery) {
-  Query query = QueryForMessages().AddingOrderBy(OrderBy("order")).WithLimit(2);
+  Query query =
+      QueryForMessages().AddingOrderBy(OrderBy("order")).WithLimitToFirst(2);
   Document doc1 = Doc("rooms/eros/messages/0", 0, Map("order", 1));
   Document doc2 = Doc("rooms/eros/messages/1", 0, Map("order", 2));
   Document doc3 = Doc("rooms/eros/messages/2", 0, Map("order", 3));
@@ -412,7 +414,8 @@ TEST(ViewTest, ReturnsNeedsRefillOnReorderInLimitQuery) {
 }
 
 TEST(ViewTest, DoesntNeedRefillOnReorderWithinLimit) {
-  Query query = QueryForMessages().AddingOrderBy(OrderBy("order")).WithLimit(3);
+  Query query =
+      QueryForMessages().AddingOrderBy(OrderBy("order")).WithLimitToFirst(3);
   Document doc1 = Doc("rooms/eros/messages/0", 0, Map("order", 1));
   Document doc2 = Doc("rooms/eros/messages/1", 0, Map("order", 2));
   Document doc3 = Doc("rooms/eros/messages/2", 0, Map("order", 3));
@@ -438,7 +441,8 @@ TEST(ViewTest, DoesntNeedRefillOnReorderWithinLimit) {
 }
 
 TEST(ViewTest, DoesntNeedRefillOnReorderAfterLimitQuery) {
-  Query query = QueryForMessages().AddingOrderBy(OrderBy("order")).WithLimit(3);
+  Query query =
+      QueryForMessages().AddingOrderBy(OrderBy("order")).WithLimitToFirst(3);
   Document doc1 = Doc("rooms/eros/messages/0", 0, Map("order", 1));
   Document doc2 = Doc("rooms/eros/messages/1", 0, Map("order", 2));
   Document doc3 = Doc("rooms/eros/messages/2", 0, Map("order", 3));
@@ -464,7 +468,7 @@ TEST(ViewTest, DoesntNeedRefillOnReorderAfterLimitQuery) {
 }
 
 TEST(ViewTest, DoesntNeedRefillForAdditionAfterTheLimit) {
-  Query query = QueryForMessages().WithLimit(2);
+  Query query = QueryForMessages().WithLimitToFirst(2);
   Document doc1 = Doc("rooms/eros/messages/0", 0, Map());
   Document doc2 = Doc("rooms/eros/messages/1", 0, Map());
   View view(query, DocumentKeySet{});
@@ -487,7 +491,7 @@ TEST(ViewTest, DoesntNeedRefillForAdditionAfterTheLimit) {
 }
 
 TEST(ViewTest, DoesntNeedRefillForDeletionsWhenNotNearTheLimit) {
-  Query query = QueryForMessages().WithLimit(20);
+  Query query = QueryForMessages().WithLimitToFirst(20);
   Document doc1 = Doc("rooms/eros/messages/0", 0, Map());
   Document doc2 = Doc("rooms/eros/messages/1", 0, Map());
   View view(query, DocumentKeySet{});
@@ -509,7 +513,7 @@ TEST(ViewTest, DoesntNeedRefillForDeletionsWhenNotNearTheLimit) {
 }
 
 TEST(ViewTest, HandlesApplyingIrrelevantDocs) {
-  Query query = QueryForMessages().WithLimit(2);
+  Query query = QueryForMessages().WithLimitToFirst(2);
   Document doc1 = Doc("rooms/eros/messages/0", 0, Map());
   Document doc2 = Doc("rooms/eros/messages/1", 0, Map());
   View view(query, DocumentKeySet{});

@@ -316,16 +316,19 @@ TEST_F(LocalSerializerTest, EncodesQueryData) {
   TargetId target_id = 42;
   ListenSequenceNumber sequence_number = 10;
   SnapshotVersion version = testutil::Version(1039);
+  SnapshotVersion limbo_free_version = testutil::Version(1000);
   ByteString resume_token = testutil::ResumeToken(1039);
 
-  QueryData query_data(core::Query(query), target_id, sequence_number,
+  QueryData query_data(query.ToTarget(), target_id, sequence_number,
                        QueryPurpose::Listen, SnapshotVersion(version),
+                       SnapshotVersion(limbo_free_version),
                        ByteString(resume_token));
 
   ::firestore::client::Target expected;
   expected.set_target_id(target_id);
   expected.set_last_listen_sequence_number(sequence_number);
   expected.mutable_snapshot_version()->set_nanos(1039000);
+  expected.mutable_last_limbo_free_snapshot_version()->set_nanos(1000000);
   expected.set_resume_token(resume_token.data(), resume_token.size());
   v1::Target::QueryTarget* query_proto = expected.mutable_query();
 
@@ -349,16 +352,19 @@ TEST_F(LocalSerializerTest, EncodesQueryDataWithDocumentQuery) {
   TargetId target_id = 42;
   ListenSequenceNumber sequence_number = 10;
   SnapshotVersion version = testutil::Version(1039);
+  SnapshotVersion limbo_free_version = testutil::Version(1000);
   ByteString resume_token = testutil::ResumeToken(1039);
 
-  QueryData query_data(core::Query(query), target_id, sequence_number,
+  QueryData query_data(query.ToTarget(), target_id, sequence_number,
                        QueryPurpose::Listen, SnapshotVersion(version),
+                       SnapshotVersion(limbo_free_version),
                        ByteString(resume_token));
 
   ::firestore::client::Target expected;
   expected.set_target_id(target_id);
   expected.set_last_listen_sequence_number(sequence_number);
   expected.mutable_snapshot_version()->set_nanos(1039000);
+  expected.mutable_last_limbo_free_snapshot_version()->set_nanos(1000000);
   expected.set_resume_token(resume_token.data(), resume_token.size());
   v1::Target::DocumentsTarget* documents_proto = expected.mutable_documents();
   documents_proto->add_documents("projects/p/databases/d/documents/room/1");

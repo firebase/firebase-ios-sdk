@@ -138,7 +138,7 @@ QueryData LruGarbageCollectorTest::NextTestQuery() {
   ListenSequenceNumber listen_sequence_number =
       persistence_->current_sequence_number();
   core::Query query = Query(absl::StrCat("path", target_id));
-  return QueryData(std::move(query), target_id, listen_sequence_number,
+  return QueryData(query.ToTarget(), target_id, listen_sequence_number,
                    QueryPurpose::Listen);
 }
 

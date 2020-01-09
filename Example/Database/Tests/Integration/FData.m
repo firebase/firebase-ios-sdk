@@ -21,7 +21,6 @@
 #import "FEventTester.h"
 #import "FIRDatabaseConfig_Private.h"
 #import "FIRDatabaseQuery_Private.h"
-#import "FIRServerValue_unreleased.h"
 #import "FRepo_Private.h"
 #import "FTestHelpers.h"
 #import "FTupleEventTypeString.h"
@@ -2572,7 +2571,7 @@
   WAIT_FOR(done);
 }
 
-- (void)testLocalServerTimestampEventuallyButNotImmediatelyMatchServer {
+- (void)testLocalServerValuesEventuallyButNotImmediatelyMatchServer {
   FTupleFirebase *refs = [FTestHelpers getRandomNodePair];
   FIRDatabaseReference *writer = refs.one;
   FIRDatabaseReference *reader = refs.two;
@@ -2636,7 +2635,7 @@
                         @"Eventual reader and writer priorities should be equal");
 }
 
-- (void)testServerTimestampSetWithPriorityRemoteEvents {
+- (void)testServerValuesSetWithPriorityRemoteEvents {
   FTupleFirebase *refs = [FTestHelpers getRandomNodePair];
   FIRDatabaseReference *writer = refs.one;
   FIRDatabaseReference *reader = refs.two;
@@ -2677,7 +2676,7 @@
        }];
 }
 
-- (void)testServerTimestampSetPriorityRemoteEvents {
+- (void)testServerValuesSetPriorityRemoteEvents {
   FTupleFirebase *refs = [FTestHelpers getRandomNodePair];
   FIRDatabaseReference *writer = refs.one;
   FIRDatabaseReference *reader = refs.two;
@@ -2709,7 +2708,7 @@
                 @"Number should be no more than 2 seconds ago");
 }
 
-- (void)testServerTimestampUpdateRemoteEvents {
+- (void)testServerValuesUpdateRemoteEvents {
   FTupleFirebase *refs = [FTestHelpers getRandomNodePair];
   FIRDatabaseReference *writer = refs.one;
   FIRDatabaseReference *reader = refs.two;
@@ -2739,7 +2738,7 @@
                 @"Number should be no more than 2 seconds ago");
 }
 
-- (void)testServerTimestampSetWithPriorityLocalEvents {
+- (void)testServerValuesSetWithPriorityLocalEvents {
   FIRDatabaseReference *node = [FTestHelpers getRandomNode];
 
   NSDictionary *data = @{
@@ -2784,7 +2783,7 @@
        }];
 }
 
-- (void)testServerTimestampSetPriorityLocalEvents {
+- (void)testServerValuesSetPriorityLocalEvents {
   FIRDatabaseReference *node = [FTestHelpers getRandomNode];
 
   __block FIRDataSnapshot *snap = nil;
@@ -2813,7 +2812,7 @@
                 @"Number should be no more than 2 seconds ago");
 }
 
-- (void)testServerTimestampUpdateLocalEvents {
+- (void)testServerValuesUpdateLocalEvents {
   FIRDatabaseReference *node1 = [FTestHelpers getRandomNode];
 
   __block FIRDataSnapshot *snap1 = nil;
@@ -2850,7 +2849,7 @@
                 @"Number should be no more than 2 seconds ago");
 }
 
-- (void)testServerTimestampTransactionLocalEvents {
+- (void)testServerValuesTransactionLocalEvents {
   FIRDatabaseReference *node = [FTestHelpers getRandomNode];
 
   __block FIRDataSnapshot *snap = nil;
@@ -2872,137 +2871,6 @@
                 @"Should get back number");
   XCTAssertTrue([now doubleValue] - [timestamp doubleValue] < 2000,
                 @"Number should be no more than 2 seconds ago");
-}
-
-- (void)testServerIncrementOverwritesExistingData {
-  FIRDatabaseReference *ref = [FTestHelpers getRandomNode];
-  __block NSMutableArray *found = [NSMutableArray new];
-  NSMutableArray *expected = [NSMutableArray new];
-  [ref observeEventType:FIRDataEventTypeValue
-              withBlock:^(FIRDataSnapshot *snap) {
-                [found addObject:snap.value];
-              }];
-
-  // Going offline ensures that local events get queued up before server events
-  [ref.repo interrupt];
-
-  // null + incr
-  [ref setValue:[FIRServerValue increment:@1]];
-  [expected addObject:@1];
-
-  // number + incr
-  [ref setValue:@5];
-  [ref setValue:[FIRServerValue increment:@1]];
-  [expected addObject:@5];
-  [expected addObject:@6];
-
-  // string + incr
-  [ref setValue:@"hello"];
-  [ref setValue:[FIRServerValue increment:@1]];
-  [expected addObject:@"hello"];
-  [expected addObject:@1];
-
-  // object + incr
-  [ref setValue:@{@"hello" : @"world"}];
-  [ref setValue:[FIRServerValue increment:@1]];
-  [expected addObject:@{@"hello" : @"world"}];
-  [expected addObject:@1];
-
-  [self waitUntil:^BOOL {
-    return found.count == expected.count;
-  }];
-  XCTAssertEqualObjects(expected, found);
-  [ref.repo resume];
-}
-
-- (void)testServerIncrementPriority {
-  FIRDatabaseReference *ref = [FTestHelpers getRandomNode];
-  __block NSMutableArray *found = [NSMutableArray new];
-  NSMutableArray *expected = [NSMutableArray new];
-  [ref observeEventType:FIRDataEventTypeValue
-              withBlock:^(FIRDataSnapshot *snap) {
-                [found addObject:snap.priority];
-              }];
-
-  // Going offline ensures that local events get queued up before server events
-  // Also necessary because increment may not be live yet in the server.
-  [ref.repo interrupt];
-
-  // null + incr
-  [ref setValue:@0 andPriority:[FIRServerValue increment:@1]];
-  [expected addObject:@1];
-  [ref setValue:@0 andPriority:[FIRServerValue increment:@1.5]];
-  [expected addObject:@2.5];
-
-  [self waitUntil:^BOOL {
-    return found.count == expected.count;
-  }];
-  XCTAssertEqualObjects(expected, found);
-  [ref.repo resume];
-}
-
-- (void)testServerIncrementOverflowAndTypeCoercion {
-  FIRDatabaseReference *ref = [FTestHelpers getRandomNode];
-  __block NSMutableArray *found = [NSMutableArray new];
-  __block NSMutableArray *foundTypes = [NSMutableArray new];
-  NSMutableArray *expected = [NSMutableArray new];
-  NSMutableArray *expectedTypes = [NSMutableArray new];
-  [ref observeEventType:FIRDataEventTypeValue
-              withBlock:^(FIRDataSnapshot *snap) {
-                [found addObject:snap.value];
-                [foundTypes addObject:@([(NSNumber *)snap.value objCType])];
-              }];
-
-  // Going offline ensures that local events get queued up before server events
-  // Also necessary because increment may not be live yet in the server.
-  [ref.repo interrupt];
-
-  // long + double = double
-  [ref setValue:@1];
-  [ref setValue:[FIRServerValue increment:@1.0]];
-  [expected addObject:@1];
-  [expected addObject:@2.0];
-  [expectedTypes addObject:@(@encode(int))];
-  [expectedTypes addObject:@(@encode(double))];
-
-  // double + long = double
-  [ref setValue:@1.5];
-  [ref setValue:[FIRServerValue increment:@1]];
-  [expected addObject:@1.5];
-  [expected addObject:@2.5];
-  [expectedTypes addObject:@(@encode(double))];
-  [expectedTypes addObject:@(@encode(double))];
-
-  // long overflow = double
-  [ref setValue:@(1)];
-  [ref setValue:[FIRServerValue increment:@(LONG_MAX)]];
-  [expected addObject:@(1)];
-  [expected addObject:@(LONG_MAX + 1.0)];
-  [expectedTypes addObject:@(@encode(int))];
-  [expectedTypes addObject:@(@encode(double))];
-
-  // unsigned long long overflow = double
-  [ref setValue:@1];
-  [ref setValue:[FIRServerValue increment:@((unsigned long long)ULLONG_MAX)]];
-  [expected addObject:@1];
-  [expected addObject:@((double)ULLONG_MAX + 1)];
-  [expectedTypes addObject:@(@encode(int))];
-  [expectedTypes addObject:@(@encode(double))];
-
-  // long underflow = double
-  [ref setValue:@(-1)];
-  [ref setValue:[FIRServerValue increment:@(LONG_MIN)]];
-  [expected addObject:@(-1)];
-  [expected addObject:@(LONG_MIN - 1.0)];
-  [expectedTypes addObject:@(@encode(int))];
-  [expectedTypes addObject:@(@encode(double))];
-
-  [self waitUntil:^BOOL {
-    return found.count == expected.count && foundTypes.count == expectedTypes.count;
-  }];
-  XCTAssertEqualObjects(expectedTypes, foundTypes);
-  XCTAssertEqualObjects(expected, found);
-  [ref.repo resume];
 }
 
 - (void)testUpdateAfterChildSet {
@@ -3081,7 +2949,7 @@
   [FRepoManager disposeRepos:cfg];
 }
 
-- (void)testServerTimestampEventualConsistencyBetweenLocalAndRemote {
+- (void)testServerValuesEventualConsistencyBetweenLocalAndRemote {
   FTupleFirebase *refs = [FTestHelpers getRandomNodePair];
   FIRDatabaseReference *writer = refs.one;
   FIRDatabaseReference *reader = refs.two;

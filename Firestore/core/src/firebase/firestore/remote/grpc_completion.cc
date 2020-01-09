@@ -25,19 +25,28 @@ namespace remote {
 
 using util::AsyncQueue;
 
+std::shared_ptr<GrpcCompletion> GrpcCompletion::Create(
+    Type type,
+    const std::shared_ptr<util::AsyncQueue>& worker_queue,
+    Callback&& callback) {
+  // Construct in two steps to use the private constructor.
+  GrpcCompletion partial(type, worker_queue, std::move(callback));
+  auto completion = std::make_shared<GrpcCompletion>(std::move(partial));
+
+  // Prepare the `GrpcCompletion` for submission to gRPC.
+  //
+  // Note: this is done in a separate step because `shared_from_this` cannot be
+  // called in a constructor.
+  completion->grpc_ownership_ = completion;
+
+  return completion;
+}
+
 GrpcCompletion::GrpcCompletion(
     Type type,
     const std::shared_ptr<util::AsyncQueue>& worker_queue,
     Callback&& callback)
     : worker_queue_{worker_queue}, callback_{std::move(callback)}, type_{type} {
-}
-
-GrpcCompletion* GrpcCompletion::Retain() {
-  // New completions are owned by gRPC. The caller can also retain the
-  // shared_ptr if they care to. See comments on grpc_ownership_ for why this
-  // self-retain is intended.
-  grpc_ownership_ = shared_from_this();
-  return this;
 }
 
 void GrpcCompletion::Cancel() {

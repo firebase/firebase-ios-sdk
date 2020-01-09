@@ -475,6 +475,15 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
   [self awaitExpectations];
 }
 
+- (FIRDocumentReference *)addDocumentRef:(FIRCollectionReference *)ref
+                                    data:(NSDictionary<NSString *, id> *)data {
+  FIRDocumentReference *doc =
+      [ref addDocumentWithData:data
+                    completion:[self completionForExpectationWithName:@"addDocument"]];
+  [self awaitExpectations];
+  return doc;
+}
+
 - (void)mergeDocumentRef:(FIRDocumentReference *)ref data:(NSDictionary<NSString *, id> *)data {
   [ref setData:data
            merge:YES

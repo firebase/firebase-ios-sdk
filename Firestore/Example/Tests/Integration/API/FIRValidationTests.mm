@@ -410,6 +410,10 @@ namespace testutil = firebase::firestore::testutil;
                   @"Invalid Query. Query limit (0) is invalid. Limit must be positive.");
   FSTAssertThrows([[self collectionRef] queryLimitedTo:-1],
                   @"Invalid Query. Query limit (-1) is invalid. Limit must be positive.");
+  FSTAssertThrows([[self collectionRef] queryLimitedToLast:0],
+                  @"Invalid Query. Query limit (0) is invalid. Limit must be positive.");
+  FSTAssertThrows([[self collectionRef] queryLimitedToLast:-1],
+                  @"Invalid Query. Query limit (-1) is invalid. Limit must be positive.");
 }
 
 - (void)testNonEqualityQueriesOnNullOrNaNFail {

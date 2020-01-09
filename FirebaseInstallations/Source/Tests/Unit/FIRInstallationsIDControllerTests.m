@@ -21,6 +21,7 @@
 #import <FirebaseCore/FIRAppInternal.h>
 
 #import "FBLPromise+Testing.h"
+#import "FBLPromise+Then.h"
 #import "FIRInstallationsErrorUtil+Tests.h"
 #import "FIRInstallationsItem+Tests.h"
 
@@ -177,7 +178,6 @@
   // 5.5. Verify registered installation was saved.
   OCMVerifyAll(self.mockInstallationsStore);
   OCMVerifyAll(self.mockIIDStore);
-  OCMVerifyAll(self.mockAPIService);
 }
 
 - (void)testGetInstallationItem_WhenThereIsIIDAndNoFIDNotDefaultApp_ThenIIDIsUsedAsFID {
@@ -331,31 +331,71 @@
   OCMVerifyAll(self.mockIIDTokenStore);
 }
 
-- (void)testGetInstallationItem_WhenCalledSeveralTimes_OnlyOneOperationIsPerformed {
+- (void)testGetInstallationItem_WhenCalledWhileRegistering_DoesNotWaitForAPIResponse {
   // 1. Expect the installation to be requested from the store only once.
   FIRInstallationsItem *storedInstallation1 =
       [FIRInstallationsItem createUnregisteredInstallationItem];
+  OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
+      .andReturn([FBLPromise resolvedWith:storedInstallation1]);
+
+  // 2. Expect registration API request to be sent.
+  FBLPromise<FIRInstallationsItem *> *pendingAPIPromise = [FBLPromise pendingPromise];
+  OCMExpect([self.mockAPIService registerInstallation:storedInstallation1])
+      .andReturn(pendingAPIPromise);
+
+  // 3. Request and wait for 1st FID.
+  FBLPromise<FIRInstallationsItem *> *getInstallationPromise1 =
+      [self.controller getInstallationItem];
+  XCTestExpectation *getInstallationsExpectation1 =
+      [self expectationWithDescription:@"getInstallationsExpectation1"];
+  getInstallationPromise1.then(^id(FIRInstallationsItem *installation) {
+    [getInstallationsExpectation1 fulfill];
+    return nil;
+  });
+  [self waitForExpectations:@[ getInstallationsExpectation1 ] timeout:0.5];
+
+  // 4. Request FID 2nd time.
+  OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
+      .andReturn([FBLPromise resolvedWith:storedInstallation1]);
+
+  FBLPromise<FIRInstallationsItem *> *getInstallationPromise2 =
+      [self.controller getInstallationItem];
+  XCTestExpectation *getInstallationsExpectation2 =
+      [self expectationWithDescription:@"getInstallationsExpectation2"];
+  getInstallationPromise2.then(^id(FIRInstallationsItem *installation) {
+    [getInstallationsExpectation2 fulfill];
+    return nil;
+  });
+  [self waitForExpectations:@[ getInstallationsExpectation2 ] timeout:0.5];
+
+  // 5. Resolve API promise.
+  [pendingAPIPromise reject:[FIRInstallationsErrorUtil APIErrorWithHTTPCode:400]];
+
+  // 6. Check
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
+  OCMVerifyAll(self.mockInstallationsStore);
+  OCMVerifyAll(self.mockAPIService);
+}
+
+- (void)testGetInstallationItem_WhenCalledSeveralTimesWaitingForStore_OnlyOneOperationIsPerformed {
+  // 1. Expect the installation to be requested from the store only once.
+  FIRInstallationsItem *storedInstallation1 =
+      [FIRInstallationsItem createRegisteredInstallationItem];
   FBLPromise<FIRInstallationsItem *> *pendingStorePromise = [FBLPromise pendingPromise];
   OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
       .andReturn(pendingStorePromise);
 
-  // 2. Expect Create FID API request to be sent once.
-  FBLPromise<FIRInstallationsItem *> *registrationErrorPromise = [FBLPromise pendingPromise];
-  [registrationErrorPromise reject:[FIRInstallationsErrorUtil APIErrorWithHTTPCode:400]];
-  OCMExpect([self.mockAPIService registerInstallation:storedInstallation1])
-      .andReturn(registrationErrorPromise);
-
-  // 3. Request installation n times
+  // 2. Request installation n times
   NSInteger requestCount = 10;
   NSMutableArray *installationPromises = [NSMutableArray arrayWithCapacity:requestCount];
   for (NSInteger i = 0; i < requestCount; i++) {
     [installationPromises addObject:[self.controller getInstallationItem]];
   }
 
-  // 4. Resolve store promise.
+  // 3. Resolve store promise.
   [pendingStorePromise fulfill:storedInstallation1];
 
-  // 5. Wait for operation to be completed and check.
+  // 4. Wait for operation to be completed and check.
   XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   for (FBLPromise<FIRInstallationsItem *> *installationPromise in installationPromises) {
@@ -366,7 +406,7 @@
   OCMVerifyAll(self.mockInstallationsStore);
   OCMVerifyAll(self.mockAPIService);
 
-  // 6. Check that a new request is performed once previous finished.
+  // 5. Check that a new request is performed once previous finished.
   FIRInstallationsItem *storedInstallation2 =
       [FIRInstallationsItem createRegisteredInstallationItem];
   OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
@@ -378,6 +418,46 @@
   XCTAssertNil(installationPromise.error);
   XCTAssertEqual(installationPromise.value, storedInstallation2);
 
+  OCMVerifyAll(self.mockInstallationsStore);
+  OCMVerifyAll(self.mockAPIService);
+}
+
+- (void)testGetInstallationItem_WhenCalledSeveralTimesWaitingForAPI_OnlyOneAPIRequestIsSent {
+  // 1. Expect a single API request.
+  FBLPromise<FIRInstallationsItem *> *registerAPIPromise = [FBLPromise pendingPromise];
+  OCMExpect([self.mockAPIService registerInstallation:[OCMArg any]]).andReturn(registerAPIPromise);
+
+  // 2. Request FID multiple times.
+  NSInteger requestCount = 10;
+  for (NSInteger i = 0; i < requestCount; i++) {
+    XCTestExpectation *getFIDExpectation = [self
+        expectationWithDescription:[NSString stringWithFormat:@"getFIDExpectation%ld", (long)i]];
+
+    // 2.1. Expect stored FID to be requested.
+    FIRInstallationsItem *storedInstallation =
+        [FIRInstallationsItem createUnregisteredInstallationItem];
+    OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
+        .andReturn([FBLPromise resolvedWith:storedInstallation]);
+
+    // 2.2. Expect the FID to be returned.
+    FBLPromise<FIRInstallationsItem *> *getFIDPromise = [self.controller getInstallationItem];
+
+    [getFIDPromise then:^id _Nullable(FIRInstallationsItem *_Nullable value) {
+      XCTAssertNotNil(value);
+      XCTAssertEqualObjects(value.firebaseInstallationID,
+                            storedInstallation.firebaseInstallationID);
+      [getFIDExpectation fulfill];
+      return nil;
+    }];
+
+    [self waitForExpectations:@[ getFIDExpectation ] timeout:0.5];
+  }
+
+  // 3. Finish API request.
+  [registerAPIPromise reject:[FIRInstallationsErrorUtil APIErrorWithHTTPCode:400]];
+
+  // 4. Verify mocks
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
   OCMVerifyAll(self.mockInstallationsStore);
   OCMVerifyAll(self.mockAPIService);
 }
