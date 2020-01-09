@@ -44,7 +44,6 @@
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
-#include "Firestore/core/src/firebase/firestore/objc/objc_compatibility.h"
 #include "Firestore/core/src/firebase/firestore/remote/existence_filter.h"
 #include "Firestore/core/src/firebase/firestore/remote/serializer.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
@@ -56,6 +55,7 @@
 #include "Firestore/core/src/firebase/firestore/util/path.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "Firestore/core/src/firebase/firestore/util/to_string.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 #include "absl/types/optional.h"
 
@@ -760,8 +760,8 @@ ByteString MakeResumeToken(NSString *specString) {
     actualTargets.erase(targetID);
   }
 
-  XCTAssertTrue(actualTargets.empty(), "Unexpected active targets: %@",
-                objc::Description(actualTargets));
+  XCTAssertTrue(actualTargets.empty(), "Unexpected active targets: %s",
+                util::ToString(actualTargets).c_str());
 }
 
 - (void)runSpecTestSteps:(NSArray *)steps config:(NSDictionary *)config {
