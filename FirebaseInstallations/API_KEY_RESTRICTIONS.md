@@ -22,8 +22,8 @@ Before upgrading your application(s) to the latest SDK version, please **make su
 
 - **Open** the [Google Cloud Platform Console](https://pantheon.corp.google.com/apis/credentials?folder).
 - **Choose** the project you use for your application(s).
-- **Open**  APIs & Services and **select** Credentials.
-- **Click** Edit API Key (pencil icon) for the API key in question.
-- **Scroll down** to the API restrictions section.
-- If the radio button shows Don't restrict key, the API key is not affected.
-Otherwise, from the dropdown menu, **add** the  Firebase Installations API to the list of permitted APIs, and click Save.
+- **Open**  `APIs & Services` and **select** `Credentials`.
+- **Click** `Edit API Key` (pencil icon) for the API key in question.
+- **Scroll down** to the `API restrictions` section.
+- If the radio button shows `Don't restrict key`, the API key is not affected.
+Otherwise, from the dropdown menu, **add** the `Firebase Installations API` to the list of permitted APIs, and click `Save`.
