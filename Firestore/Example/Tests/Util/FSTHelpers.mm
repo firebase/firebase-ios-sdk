@@ -16,89 +16,42 @@
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
-#import <FirebaseFirestore/FIRFieldPath.h>
 #import <FirebaseFirestore/FIRGeoPoint.h>
-#import <FirebaseFirestore/FIRTimestamp.h>
 
-#include <cinttypes>
-#include <list>
 #include <set>
 #include <utility>
 
-#import "Firestore/Source/API/FIRFieldPath+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 
-#include "Firestore/core/src/firebase/firestore/core/filter.h"
-#include "Firestore/core/src/firebase/firestore/core/view.h"
-#include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
-#include "Firestore/core/src/firebase/firestore/local/local_view_changes.h"
-#include "Firestore/core/src/firebase/firestore/local/query_data.h"
+#include "Firestore/core/src/firebase/firestore/core/user_data.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/delete_mutation.h"
-#include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
-#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
-#include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
-#include "Firestore/core/src/firebase/firestore/model/field_transform.h"
+#include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/patch_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
-#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/model/set_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/transform_mutation.h"
-#include "Firestore/core/src/firebase/firestore/model/transform_operation.h"
-#include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
-#include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
-#include "Firestore/core/test/firebase/firestore/remote/fake_target_metadata_provider.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
-#include "absl/memory/memory.h"
 
 namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
-using firebase::firestore::core::Direction;
-using firebase::firestore::core::Filter;
+
 using firebase::firestore::core::ParsedUpdateData;
-using firebase::firestore::core::Query;
-using firebase::firestore::core::View;
-using firebase::firestore::core::ViewChange;
-using firebase::firestore::core::ViewSnapshot;
-using firebase::firestore::local::LocalViewChanges;
-using firebase::firestore::local::QueryData;
-using firebase::firestore::local::QueryPurpose;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DeleteMutation;
-using firebase::firestore::model::Document;
-using firebase::firestore::model::DocumentComparator;
 using firebase::firestore::model::DocumentKey;
-using firebase::firestore::model::DocumentKeySet;
-using firebase::firestore::model::DocumentSet;
-using firebase::firestore::model::DocumentState;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
-using firebase::firestore::model::FieldTransform;
 using firebase::firestore::model::FieldValue;
-using firebase::firestore::model::MaybeDocument;
-using firebase::firestore::model::MaybeDocumentMap;
-using firebase::firestore::model::NoDocument;
 using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::PatchMutation;
 using firebase::firestore::model::Precondition;
-using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::SetMutation;
-using firebase::firestore::model::ServerTimestampTransform;
-using firebase::firestore::model::SnapshotVersion;
-using firebase::firestore::model::TargetId;
 using firebase::firestore::model::TransformMutation;
-using firebase::firestore::model::TransformOperation;
-using firebase::firestore::model::UnknownDocument;
-using firebase::firestore::nanopb::ByteString;
-using firebase::firestore::remote::DocumentWatchChange;
-using firebase::firestore::remote::FakeTargetMetadataProvider;
-using firebase::firestore::remote::RemoteEvent;
-using firebase::firestore::remote::TargetChange;
-using firebase::firestore::remote::WatchChangeAggregator;
 
 NS_ASSUME_NONNULL_BEGIN
 

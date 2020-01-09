@@ -155,7 +155,6 @@ cc_test(
     hashing_test.cc
     hashing_test_apple.mm
     iterator_adaptors_test.cc
-    objc_compatibility_apple_test.mm
     ordered_code_test.cc
     status_apple_test.mm
     status_test.cc
