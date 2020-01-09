@@ -27,22 +27,7 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-Status ExcludeFromBackups(const Path& dir) {
-  NSURL* dir_url = [NSURL fileURLWithPath:dir.ToNSString()];
-  NSError* error = nil;
-  if (![dir_url setResourceValue:@YES
-                          forKey:NSURLIsExcludedFromBackupKey
-                           error:&error]) {
-    return Status{
-        Error::Internal,
-        "Failed to mark persistence directory as excluded from backups"}
-        .CausedBy(Status::FromNSError(error));
-  }
-
-  return Status::OK();
-}
-
-StatusOr<Path> AppDataDir(absl::string_view app_name) {
+StatusOr<Path> Filesystem::AppDataDir(absl::string_view app_name) {
 #if TARGET_OS_IOS
   NSArray<NSString*>* directories = NSSearchPathForDirectoriesInDomains(
       NSDocumentDirectory, NSUserDomainMask, YES);
@@ -62,7 +47,7 @@ StatusOr<Path> AppDataDir(absl::string_view app_name) {
 #endif
 }
 
-Path TempDir() {
+Path Filesystem::TempDir() {
   const char* env_tmpdir = getenv("TMPDIR");
   if (env_tmpdir) {
     return Path::FromUtf8(env_tmpdir);
@@ -74,6 +59,21 @@ Path TempDir() {
   }
 
   return Path::FromUtf8("/tmp");
+}
+
+Status Filesystem::ExcludeFromBackups(const Path& dir) {
+  NSURL* dir_url = [NSURL fileURLWithPath:dir.ToNSString()];
+  NSError* error = nil;
+  if (![dir_url setResourceValue:@YES
+                          forKey:NSURLIsExcludedFromBackupKey
+                           error:&error]) {
+    return Status{
+        Error::Internal,
+        "Failed to mark persistence directory as excluded from backups"}
+        .CausedBy(Status::FromNSError(error));
+  }
+
+  return Status::OK();
 }
 
 }  // namespace util
