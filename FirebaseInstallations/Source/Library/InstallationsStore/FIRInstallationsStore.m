@@ -35,6 +35,7 @@ NSString *const kFIRInstallationsStoreUserDefaultsID = @"com.firebase.FIRInstall
 @property(nonatomic, readonly) FIRSecureStorage *secureStorage;
 @property(nonatomic, readonly, nullable) NSString *accessGroup;
 @property(nonatomic, readonly) dispatch_queue_t queue;
+@property(nonatomic, readonly) GULUserDefaults *userDefaults;
 @end
 
 @implementation FIRInstallationsStore
@@ -46,6 +47,9 @@ NSString *const kFIRInstallationsStoreUserDefaultsID = @"com.firebase.FIRInstall
     _secureStorage = storage;
     _accessGroup = [accessGroup copy];
     _queue = dispatch_queue_create("com.firebase.FIRInstallationsStore", DISPATCH_QUEUE_SERIAL);
+
+    NSString *userDefaultsSuiteName = _accessGroup ?: kFIRInstallationsStoreUserDefaultsID;
+    _userDefaults = [[GULUserDefaults alloc] initWithSuiteName:userDefaultsSuiteName];
   }
   return self;
 }
@@ -116,16 +120,6 @@ NSString *const kFIRInstallationsStoreUserDefaultsID = @"com.firebase.FIRInstall
 
                             return [NSNull null];
                           }];
-}
-
-- (GULUserDefaults *)userDefaults {
-  static GULUserDefaults *userDefaults;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    userDefaults = [[GULUserDefaults alloc] initWithSuiteName:kFIRInstallationsStoreUserDefaultsID];
-  });
-
-  return userDefaults;
 }
 
 @end

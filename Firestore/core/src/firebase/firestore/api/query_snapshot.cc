@@ -21,7 +21,6 @@
 #include "Firestore/core/src/firebase/firestore/api/query_core.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
-#include "Firestore/core/src/firebase/firestore/objc/objc_compatibility.h"
 #include "Firestore/core/src/firebase/firestore/util/exception.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/types/optional.h"
@@ -73,8 +72,8 @@ void QuerySnapshot::ForEachDocument(
 
   for (const Document& document : document_set) {
     bool has_pending_writes = snapshot_.mutated_keys().contains(document.key());
-    DocumentSnapshot snap(firestore_, document.key(), document, from_cache,
-                          has_pending_writes);
+    auto snap = DocumentSnapshot::FromDocument(
+        firestore_, document, SnapshotMetadata(has_pending_writes, from_cache));
     callback(std::move(snap));
   }
 }
@@ -116,7 +115,8 @@ void QuerySnapshot::ForEachChange(
       SnapshotMetadata metadata(
           /*pending_writes=*/snapshot_.mutated_keys().contains(doc.key()),
           /*from_cache=*/snapshot_.from_cache());
-      DocumentSnapshot document(firestore_, doc.key(), doc, metadata);
+      auto document =
+          DocumentSnapshot::FromDocument(firestore_, doc, std::move(metadata));
 
       HARD_ASSERT(change.type() == DocumentViewChange::Type::Added,
                   "Invalid event type for first snapshot");
@@ -143,7 +143,7 @@ void QuerySnapshot::ForEachChange(
       SnapshotMetadata metadata(
           /*pending_writes=*/snapshot_.mutated_keys().contains(doc.key()),
           /*from_cache=*/snapshot_.from_cache());
-      DocumentSnapshot document(firestore_, doc.key(), doc, metadata);
+      auto document = DocumentSnapshot::FromDocument(firestore_, doc, metadata);
 
       size_t old_index = DocumentChange::npos;
       size_t new_index = DocumentChange::npos;

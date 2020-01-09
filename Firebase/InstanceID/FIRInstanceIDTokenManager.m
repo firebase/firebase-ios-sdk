@@ -71,7 +71,7 @@
 
 - (void)fetchNewTokenWithAuthorizedEntity:(NSString *)authorizedEntity
                                     scope:(NSString *)scope
-                                  keyPair:(FIRInstanceIDKeyPair *)keyPair
+                               instanceID:(NSString *)instanceID
                                   options:(NSDictionary *)options
                                   handler:(FIRInstanceIDTokenHandler)handler {
   FIRInstanceIDLoggerDebug(kFIRInstanceIDMessageCodeTokenManager000,
@@ -81,7 +81,7 @@
       [self createFetchOperationWithAuthorizedEntity:authorizedEntity
                                                scope:scope
                                              options:options
-                                             keyPair:keyPair];
+                                          instanceID:instanceID];
   FIRInstanceID_WEAKIFY(self);
   FIRInstanceIDTokenOperationCompletion completion =
       ^(FIRInstanceIDTokenOperationResult result, NSString *_Nullable token,
@@ -143,7 +143,7 @@
 
 - (void)deleteTokenWithAuthorizedEntity:(NSString *)authorizedEntity
                                   scope:(NSString *)scope
-                                keyPair:(FIRInstanceIDKeyPair *)keyPair
+                             instanceID:(NSString *)instanceID
                                 handler:(FIRInstanceIDDeleteTokenHandler)handler {
   if ([self.instanceIDStore tokenInfoWithAuthorizedEntity:authorizedEntity scope:scope]) {
     [self.instanceIDStore removeCachedTokenWithAuthorizedEntity:authorizedEntity scope:scope];
@@ -155,7 +155,7 @@
       [self createDeleteOperationWithAuthorizedEntity:authorizedEntity
                                                 scope:scope
                                    checkinPreferences:checkinPreferences
-                                              keyPair:keyPair
+                                           instanceID:instanceID
                                                action:FIRInstanceIDTokenActionDeleteToken];
 
   if (handler) {
@@ -169,8 +169,8 @@
   [self.tokenOperations addOperation:operation];
 }
 
-- (void)deleteAllTokensWithKeyPair:(FIRInstanceIDKeyPair *)keyPair
-                           handler:(FIRInstanceIDDeleteHandler)handler {
+- (void)deleteAllTokensWithInstanceID:(NSString *)instanceID
+                              handler:(FIRInstanceIDDeleteHandler)handler {
   // delete all tokens
   FIRInstanceIDCheckinPreferences *checkinPreferences = self.authService.checkinPreferences;
   if (!checkinPreferences) {
@@ -185,7 +185,7 @@
       [self createDeleteOperationWithAuthorizedEntity:kFIRInstanceIDKeychainWildcardIdentifier
                                                 scope:kFIRInstanceIDKeychainWildcardIdentifier
                                    checkinPreferences:checkinPreferences
-                                              keyPair:keyPair
+                                           instanceID:instanceID
                                                action:FIRInstanceIDTokenActionDeleteTokenAndIID];
   if (handler) {
     [operation addCompletionHandler:^(FIRInstanceIDTokenOperationResult result,
@@ -222,7 +222,7 @@
       [self createDeleteOperationWithAuthorizedEntity:nil
                                                 scope:nil
                                    checkinPreferences:checkin
-                                              keyPair:nil
+                                           instanceID:nil
                                                action:FIRInstanceIDTokenActionDeleteToken];
   [operation addCompletionHandler:^(FIRInstanceIDTokenOperationResult result,
                                     NSString *_Nullable token, NSError *_Nullable error) {
@@ -245,14 +245,14 @@
     createFetchOperationWithAuthorizedEntity:(NSString *)authorizedEntity
                                        scope:(NSString *)scope
                                      options:(NSDictionary<NSString *, NSString *> *)options
-                                     keyPair:(FIRInstanceIDKeyPair *)keyPair {
+                                  instanceID:(NSString *)instanceID {
   FIRInstanceIDCheckinPreferences *checkinPreferences = self.authService.checkinPreferences;
   FIRInstanceIDTokenFetchOperation *operation =
       [[FIRInstanceIDTokenFetchOperation alloc] initWithAuthorizedEntity:authorizedEntity
                                                                    scope:scope
                                                                  options:options
                                                       checkinPreferences:checkinPreferences
-                                                                 keyPair:keyPair];
+                                                              instanceID:instanceID];
   return operation;
 }
 
@@ -261,13 +261,13 @@
     createDeleteOperationWithAuthorizedEntity:(NSString *)authorizedEntity
                                         scope:(NSString *)scope
                            checkinPreferences:(FIRInstanceIDCheckinPreferences *)checkinPreferences
-                                      keyPair:(FIRInstanceIDKeyPair *)keyPair
+                                   instanceID:(NSString *)instanceID
                                        action:(FIRInstanceIDTokenAction)action {
   FIRInstanceIDTokenDeleteOperation *operation =
       [[FIRInstanceIDTokenDeleteOperation alloc] initWithAuthorizedEntity:authorizedEntity
                                                                     scope:scope
                                                        checkinPreferences:checkinPreferences
-                                                                  keyPair:keyPair
+                                                               instanceID:instanceID
                                                                    action:action];
   return operation;
 }

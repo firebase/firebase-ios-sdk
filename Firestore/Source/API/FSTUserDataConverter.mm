@@ -200,7 +200,7 @@ NS_ASSUME_NONNULL_BEGIN
     FieldPath path;
 
     if ([key isKindOfClass:[NSString class]]) {
-      path = [FIRFieldPath pathWithDotSeparatedString:key].internalValue;
+      path = FieldPath::FromDotSeparatedString(util::MakeString(key));
     } else if ([key isKindOfClass:[FIRFieldPath class]]) {
       path = ((FIRFieldPath *)key).internalValue;
     } else {

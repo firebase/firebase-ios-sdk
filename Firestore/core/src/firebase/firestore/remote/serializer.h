@@ -31,7 +31,7 @@
 #include "Firestore/core/src/firebase/firestore/core/field_filter.h"
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/core/order_by.h"
-#include "Firestore/core/src/firebase/firestore/core/query.h"
+#include "Firestore/core/src/firebase/firestore/core/target.h"
 #include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
@@ -61,7 +61,7 @@ class LocalSerializer;
 
 namespace remote {
 
-core::Query InvalidQuery();
+core::Target InvalidTarget();
 
 /**
  * @brief Converts internal model objects to their equivalent protocol buffer
@@ -227,13 +227,13 @@ class Serializer {
   google_firestore_v1_Target EncodeTarget(
       const local::QueryData& query_data) const;
   google_firestore_v1_Target_DocumentsTarget EncodeDocumentsTarget(
-      const core::Query& query) const;
-  core::Query DecodeDocumentsTarget(
+      const core::Target& target) const;
+  core::Target DecodeDocumentsTarget(
       nanopb::Reader* reader,
       const google_firestore_v1_Target_DocumentsTarget& proto) const;
   google_firestore_v1_Target_QueryTarget EncodeQueryTarget(
-      const core::Query& query) const;
-  core::Query DecodeQueryTarget(
+      const core::Target& target) const;
+  core::Target DecodeQueryTarget(
       nanopb::Reader* reader,
       const google_firestore_v1_Target_QueryTarget& proto) const;
 
@@ -277,6 +277,23 @@ class Serializer {
       const google_firestore_v1_BatchGetDocumentsResponse& response) const;
 
   pb_bytes_array_t* EncodeQueryPath(const model::ResourcePath& path) const;
+  model::ResourcePath DecodeQueryPath(nanopb::Reader* reader,
+                                      absl::string_view name) const;
+
+  /**
+   * Encodes a database ID and resource path into the following form:
+   * /projects/$project_id/database/$database_id/documents/$path
+   */
+  pb_bytes_array_t* EncodeResourceName(const model::DatabaseId& database_id,
+                                       const model::ResourcePath& path) const;
+
+  /**
+   * Decodes a fully qualified resource name into a resource path and validates
+   * that there is a project and database encoded in the path. There are no
+   * guarantees that a local path is also encoded in this resource name.
+   */
+  model::ResourcePath DecodeResourceName(nanopb::Reader* reader,
+                                         absl::string_view encoded) const;
 
   void ValidateDocumentKeyPath(nanopb::Reader* reader,
                                const model::ResourcePath& resource_name) const;

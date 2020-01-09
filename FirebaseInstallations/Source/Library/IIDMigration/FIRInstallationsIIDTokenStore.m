@@ -83,7 +83,10 @@ static NSString *const kFIRInstallationsIIDTokenKeychainId = @"com.google.iid-to
     unarchiver = [[NSKeyedUnarchiver alloc] initForReadingFromData:data error:&archiverError];
   } else {
     @try {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
       unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
+#pragma clang diagnostic pop
     } @catch (NSException *exception) {
       archiverError = [FIRInstallationsErrorUtil keyedArchiverErrorWithException:exception];
     }

@@ -19,6 +19,7 @@
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/core/query.h"
+#include "Firestore/core/src/firebase/firestore/core/target.h"
 #include "Firestore/core/src/firebase/firestore/local/local_documents_view.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
@@ -29,7 +30,9 @@ namespace firebase {
 namespace firestore {
 namespace local {
 
+using core::LimitType;
 using core::Query;
+using core::Target;
 using model::Document;
 using model::DocumentKeySet;
 using model::DocumentMap;
@@ -60,8 +63,8 @@ DocumentMap IndexFreeQueryEngine::GetDocumentsMatchingQuery(
   MaybeDocumentMap documents = local_documents_view_->GetDocuments(remote_keys);
   DocumentSet previous_results = ApplyQuery(query, documents);
 
-  if (query.limit() != Query::kNoLimit &&
-      NeedsRefill(previous_results, remote_keys,
+  if (query.limit_type() != LimitType::None &&
+      NeedsRefill(query.limit_type(), previous_results, remote_keys,
                   last_limbo_free_snapshot_version)) {
     return ExecuteFullCollectionScan(query);
   }
@@ -104,6 +107,7 @@ DocumentSet IndexFreeQueryEngine::ApplyQuery(
 }
 
 bool IndexFreeQueryEngine::NeedsRefill(
+    LimitType limit_type,
     const DocumentSet& sorted_previous_results,
     const DocumentKeySet& remote_keys,
     const SnapshotVersion& limbo_free_snapshot_version) const {
@@ -115,20 +119,22 @@ bool IndexFreeQueryEngine::NeedsRefill(
 
   // Limit queries are not eligible for index-free query execution if there is a
   // potential that an older document from cache now sorts before a document
-  // that was previously part of the limit. This, however, can only happen if
-  // the last document of the limit sorts lower than it did when the query was
-  // last synchronized. If a document that is not the limit boundary sorts
+  // that was previously part of the limit.
+  // This, however, can only happen if the document at the edge of the limit
+  // goes out of limit. If a document that is not the limit boundary sorts
   // differently, the boundary of the limit itself did not change and documents
   // from cache will continue to be "rejected" by this boundary. Therefore, we
   // can ignore any modifications that don't affect the last document.
-  absl::optional<Document> last_document_in_limit =
-      sorted_previous_results.GetLastDocument();
-  if (!last_document_in_limit) {
+  absl::optional<Document> document_at_limit_edge =
+      (limit_type == LimitType::First)
+          ? sorted_previous_results.GetLastDocument()
+          : sorted_previous_results.GetFirstDocument();
+  if (!document_at_limit_edge) {
     // We don't need to refill the query if there were already no documents.
     return false;
   }
-  return last_document_in_limit->has_pending_writes() ||
-         last_document_in_limit->version() > limbo_free_snapshot_version;
+  return document_at_limit_edge->has_pending_writes() ||
+         document_at_limit_edge->version() > limbo_free_snapshot_version;
 }
 
 DocumentMap IndexFreeQueryEngine::ExecuteFullCollectionScan(

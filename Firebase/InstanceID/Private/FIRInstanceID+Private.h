@@ -56,6 +56,8 @@ typedef void (^FIRInstanceIDDeviceCheckinCompletion)(
  *
  *  @return The InstanceID for the app.
  */
-- (nullable NSString *)appInstanceID:(NSError *_Nullable *_Nullable)error;
+- (nullable NSString *)appInstanceID:(NSError *_Nullable *_Nullable)error
+    DEPRECATED_MSG_ATTRIBUTE("Please use getID(handler:) for Swift or "
+                             "getIDWithHandler: for Objective-C instead.");
 
 @end

@@ -75,8 +75,8 @@ void AsyncQueue::EnqueueAndInitiateShutdown(const Operation& operation) {
   if (is_shutting_down_) {
     return;
   }
-  executor_->Execute(Wrap(operation));
   is_shutting_down_ = true;
+  executor_->Execute(Wrap(operation));
 }
 
 void AsyncQueue::EnqueueEvenAfterShutdown(const Operation& operation) {

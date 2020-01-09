@@ -20,6 +20,7 @@
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/core/transaction_runner.h"
 #include "Firestore/core/src/firebase/firestore/local/query_data.h"
+#include "Firestore/core/src/firebase/firestore/local/query_result.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
@@ -42,6 +43,7 @@ using local::LocalViewChanges;
 using local::LocalWriteResult;
 using local::QueryData;
 using local::QueryPurpose;
+using local::QueryResult;
 using model::BatchId;
 using model::DocumentKey;
 using model::DocumentKeySet;
@@ -92,8 +94,9 @@ TargetId SyncEngine::Listen(Query query) {
   HARD_ASSERT(query_views_by_query_.find(query) == query_views_by_query_.end(),
               "We already listen to query: %s", query.ToString());
 
-  QueryData query_data = local_store_->AllocateQuery(query);
-  ViewSnapshot view_snapshot = InitializeViewAndComputeSnapshot(query_data);
+  QueryData query_data = local_store_->AllocateTarget(query.ToTarget());
+  ViewSnapshot view_snapshot =
+      InitializeViewAndComputeSnapshot(query, query_data.target_id());
   std::vector<ViewSnapshot> snapshots;
   // Not using the `std::initializer_list` constructor to avoid extra copies.
   snapshots.push_back(std::move(view_snapshot));
@@ -104,24 +107,36 @@ TargetId SyncEngine::Listen(Query query) {
   return query_data.target_id();
 }
 
-ViewSnapshot SyncEngine::InitializeViewAndComputeSnapshot(
-    const local::QueryData& query_data) {
-  DocumentMap docs = local_store_->ExecuteQuery(query_data.query());
-  DocumentKeySet remote_keys =
-      local_store_->GetRemoteDocumentKeys(query_data.target_id());
+ViewSnapshot SyncEngine::InitializeViewAndComputeSnapshot(const Query& query,
+                                                          TargetId target_id) {
+  QueryResult query_result =
+      local_store_->ExecuteQuery(query, /* use_previous_results= */ true);
 
-  View view(query_data.query(), std::move(remote_keys));
+  // If there are already queries mapped to the target id, create a synthesized
+  // target change to apply the sync state from those queries to the new query.
+  auto current_sync_state = SyncState::None;
+  absl::optional<TargetChange> synthesized_current_change;
+  if (queries_by_target_.find(target_id) != queries_by_target_.end()) {
+    const Query& mirror_query = queries_by_target_[target_id][0];
+    current_sync_state =
+        query_views_by_query_[mirror_query]->view().sync_state();
+    synthesized_current_change = TargetChange::CreateSynthesizedTargetChange(
+        current_sync_state == SyncState::Synced);
+  }
+
+  View view(query, query_result.remote_keys());
   ViewDocumentChanges view_doc_changes =
-      view.ComputeDocumentChanges(docs.underlying_map());
-  ViewChange view_change = view.ApplyChanges(view_doc_changes);
+      view.ComputeDocumentChanges(query_result.documents().underlying_map());
+  ViewChange view_change =
+      view.ApplyChanges(view_doc_changes, synthesized_current_change);
   HARD_ASSERT(view_change.limbo_changes().empty(),
               "View returned limbo docs before target ack from the server.");
 
   auto query_view =
-      std::make_shared<QueryView>(query_data.query(), query_data.target_id(),
-                                  query_data.resume_token(), std::move(view));
-  query_views_by_query_[query_data.query()] = query_view;
-  query_views_by_target_[query_data.target_id()] = query_view;
+      std::make_shared<QueryView>(query, target_id, std::move(view));
+  query_views_by_query_[query] = query_view;
+
+  queries_by_target_[target_id].push_back(query);
 
   HARD_ASSERT(
       view_change.snapshot().has_value(),
@@ -135,19 +150,34 @@ void SyncEngine::StopListening(const Query& query) {
   auto query_view = query_views_by_query_[query];
   HARD_ASSERT(query_view, "Trying to stop listening to a query not found");
 
-  local_store_->ReleaseQuery(query);
-  remote_store_->StopListening(query_view->target_id());
-  RemoveAndCleanupQuery(query_view);
+  query_views_by_query_.erase(query);
+
+  TargetId target_id = query_view->target_id();
+  auto& queries = queries_by_target_[target_id];
+  queries.erase(std::remove(queries.begin(), queries.end(), query));
+
+  if (queries.empty()) {
+    local_store_->ReleaseTarget(target_id);
+    remote_store_->StopListening(target_id);
+    RemoveAndCleanupTarget(target_id, Status::OK());
+  }
 }
 
-void SyncEngine::RemoveAndCleanupQuery(
-    const std::shared_ptr<QueryView>& query_view) {
-  query_views_by_query_.erase(query_view->query());
-  query_views_by_target_.erase(query_view->target_id());
+void SyncEngine::RemoveAndCleanupTarget(TargetId target_id, Status status) {
+  for (const Query& query : queries_by_target_.at(target_id)) {
+    query_views_by_query_.erase(query);
+    if (!status.ok()) {
+      sync_engine_callback_->OnError(query, status);
+      if (ErrorIsInteresting(status)) {
+        LOG_WARN("Listen for query at %s failed: %s",
+                 query.path().CanonicalString(), status.error_message());
+      }
+    }
+  }
+  queries_by_target_.erase(target_id);
 
-  DocumentKeySet limbo_keys =
-      limbo_document_refs_.ReferencedKeys(query_view->target_id());
-  limbo_document_refs_.RemoveReferences(query_view->target_id());
+  DocumentKeySet limbo_keys = limbo_document_refs_.ReferencedKeys(target_id);
+  limbo_document_refs_.RemoveReferences(target_id);
   for (const DocumentKey& key : limbo_keys) {
     if (!limbo_document_refs_.ContainsKey(key)) {
       // We removed the last reference for this key.
@@ -281,26 +311,23 @@ void SyncEngine::HandleRejectedListen(TargetId target_id, Status error) {
     // store's invariants with another method.
     NoDocument doc(limbo_key, SnapshotVersion::None(),
                    /* has_committed_mutations= */ false);
-    DocumentKeySet limbo_documents = DocumentKeySet{limbo_key};
-    RemoteEvent event{SnapshotVersion::None(), /*target_changes=*/{},
-                      /*target_mismatches=*/{},
-                      /*document_updates=*/{{limbo_key, doc}},
+
+    // Explicitly instantiate these to work around a bug in the default
+    // constructor of the std::unordered_map that comes with GCC 4.8. Without
+    // this GCC emits a spurious "chosen constructor is explicit in
+    // copy-initialization" error.
+    DocumentKeySet limbo_documents{limbo_key};
+    RemoteEvent::TargetChangeMap target_changes;
+    RemoteEvent::TargetSet target_mismatches;
+    RemoteEvent::DocumentUpdateMap document_updates{{limbo_key, doc}};
+
+    RemoteEvent event{SnapshotVersion::None(), std::move(target_changes),
+                      std::move(target_mismatches), std::move(document_updates),
                       std::move(limbo_documents)};
     ApplyRemoteEvent(event);
-
   } else {
-    auto found = query_views_by_target_.find(target_id);
-    HARD_ASSERT(found != query_views_by_target_.end(), "Unknown target id: %s",
-                target_id);
-    auto query_view = found->second;
-    const Query& query = query_view->query();
-    local_store_->ReleaseQuery(query);
-    RemoveAndCleanupQuery(query_view);
-    if (ErrorIsInteresting(error)) {
-      LOG_WARN("Listen for query at %s failed: %s",
-               query.path().CanonicalString(), error.error_message());
-    }
-    sync_engine_callback_->OnError(query, std::move(error));
+    local_store_->ReleaseTarget(target_id);
+    RemoveAndCleanupTarget(target_id, error);
   }
 }
 
@@ -308,10 +335,10 @@ void SyncEngine::HandleSuccessfulWrite(
     const model::MutationBatchResult& batch_result) {
   AssertCallbackExists("HandleSuccessfulWrite");
 
-  // The local store may or may not be able to apply the write result and raise
-  // events immediately (depending on whether the watcher is caught up), so we
-  // raise user callbacks first so that they consistently happen before listen
-  // events.
+  // The local store may or may not be able to apply the write result and
+  // raise events immediately (depending on whether the watcher is caught up),
+  // so we raise user callbacks first so that they consistently happen before
+  // listen events.
   NotifyUser(batch_result.batch().batch_id(), Status::OK());
 
   TriggerPendingWriteCallbacks(batch_result.batch().batch_id());
@@ -332,10 +359,10 @@ void SyncEngine::HandleRejectedWrite(
              error.error_message());
   }
 
-  // The local store may or may not be able to apply the write result and raise
-  // events immediately (depending on whether the watcher is caught up), so we
-  // raise user callbacks first so that they consistently happen before listen
-  // events.
+  // The local store may or may not be able to apply the write result and
+  // raise events immediately (depending on whether the watcher is caught up),
+  // so we raise user callbacks first so that they consistently happen before
+  // listen events.
   NotifyUser(batch_id, std::move(error));
 
   TriggerPendingWriteCallbacks(batch_id);
@@ -368,11 +395,18 @@ DocumentKeySet SyncEngine::GetRemoteKeys(TargetId target_id) const {
       it->second.document_received) {
     return DocumentKeySet{it->second.key};
   } else {
-    auto found = query_views_by_target_.find(target_id);
-    if (found != query_views_by_target_.end()) {
-      return found->second->view().synced_documents();
+    DocumentKeySet keys;
+    if (queries_by_target_.count(target_id) == 0) {
+      return keys;
     }
-    return DocumentKeySet{};
+
+    for (const auto& query : queries_by_target_.at(target_id)) {
+      for (const auto& key :
+           query_views_by_query_.at(query)->view().synced_documents()) {
+        keys = keys.insert(key);
+      }
+    }
+    return keys;
   }
 }
 
@@ -405,7 +439,7 @@ void SyncEngine::TriggerPendingWriteCallbacks(BatchId batch_id) {
 }
 
 void SyncEngine::FailOutstandingPendingWriteCallbacks(
-    absl::string_view message) {
+    const std::string& message) {
   for (const auto& entry : pending_writes_callbacks_) {
     for (const auto& callback : entry.second) {
       callback(Status(Error::Cancelled, message));
@@ -429,9 +463,10 @@ void SyncEngine::EmitNewSnapshotsAndNotifyLocalStore(
       // The query has a limit and some docs were removed/updated, so we need to
       // re-run the query against the local store to make sure we didn't lose
       // any good docs that had been past the limit.
-      DocumentMap docs = local_store_->ExecuteQuery(query_view->query());
-      view_doc_changes =
-          view.ComputeDocumentChanges(docs.underlying_map(), view_doc_changes);
+      QueryResult query_result = local_store_->ExecuteQuery(
+          query_view->query(), /* use_previous_results= */ false);
+      view_doc_changes = view.ComputeDocumentChanges(
+          query_result.documents().underlying_map(), view_doc_changes);
     }
 
     absl::optional<TargetChange> target_changes;
@@ -493,7 +528,7 @@ void SyncEngine::TrackLimboChange(const LimboDocumentChange& limbo_change) {
 
     TargetId limbo_target_id = target_id_generator_.NextId();
     Query query(key.path());
-    QueryData query_data(std::move(query), limbo_target_id,
+    QueryData query_data(query.ToTarget(), limbo_target_id,
                          kIrrelevantSequenceNumber,
                          QueryPurpose::LimboResolution);
     limbo_resolutions_by_target_.emplace(limbo_target_id, LimboResolution{key});

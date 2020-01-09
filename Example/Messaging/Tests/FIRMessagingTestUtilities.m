@@ -21,6 +21,7 @@
 #import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 #import <FirebaseInstanceID/FirebaseInstanceID.h>
 #import <GoogleUtilities/GULUserDefaults.h>
+#import <FirebaseInstallations/FIRInstallations.h>
 
 #import "Firebase/Messaging/FIRMessagingPubSub.h"
 #import "Firebase/Messaging/FIRMessagingRmqManager.h"
@@ -67,6 +68,11 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 - (instancetype)initWithUserDefaults:(GULUserDefaults *)userDefaults withRMQManager:(BOOL)withRMQManager {
   self = [super init];
   if (self) {
+    // `+[FIRInstallations installations]` supposed to be used on `-[FIRInstanceID start]` to get
+    // `FIRInstallations` default instance. Need to stub it before.
+    _mockInstallations = OCMClassMock([FIRInstallations class]);
+    OCMStub([self.mockInstallations installations]).andReturn(self.mockInstallations);
+
     _instanceID = [[FIRInstanceID alloc] initPrivately];
     [_instanceID start];
 

@@ -40,6 +40,8 @@ cc_library(
     order_by.h
     query.cc
     query.h
+    target.cc
+    target.h
   DEPENDS
     absl_strings
     firebase_firestore_model

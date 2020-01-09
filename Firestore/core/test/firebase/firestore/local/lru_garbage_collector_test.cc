@@ -138,7 +138,7 @@ QueryData LruGarbageCollectorTest::NextTestQuery() {
   ListenSequenceNumber listen_sequence_number =
       persistence_->current_sequence_number();
   core::Query query = Query(absl::StrCat("path", target_id));
-  return QueryData(std::move(query), target_id, listen_sequence_number,
+  return QueryData(query.ToTarget(), target_id, listen_sequence_number,
                    QueryPurpose::Listen);
 }
 
@@ -655,7 +655,7 @@ TEST_P(LruGarbageCollectorTest, RemoveTargetsThenGC) {
 TEST_P(LruGarbageCollectorTest, GetsSize) {
   NewTestResources();
 
-  size_t initial_size = gc_->CalculateByteSize();
+  int64_t initial_size = gc_->CalculateByteSize();
 
   persistence_->Run("fill cache", [&] {
     // Simulate a bunch of ack'd mutations.
@@ -665,7 +665,7 @@ TEST_P(LruGarbageCollectorTest, GetsSize) {
     }
   });
 
-  size_t final_size = gc_->CalculateByteSize();
+  int64_t final_size = gc_->CalculateByteSize();
   ASSERT_GT(final_size, initial_size);
 }
 

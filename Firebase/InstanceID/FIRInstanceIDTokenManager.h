@@ -18,7 +18,6 @@
 
 @class FIRInstanceIDAuthService;
 @class FIRInstanceIDCheckinPreferences;
-@class FIRInstanceIDKeyPair;
 @class FIRInstanceIDTokenInfo;
 @class FIRInstanceIDStore;
 
@@ -46,7 +45,7 @@ typedef NS_OPTIONS(NSUInteger, FIRInstanceIDInvalidTokenReason) {
  *
  *  @param authorizedEntity The authorized entity for the token, should not be nil.
  *  @param scope            The scope for the token, should not be nil.
- *  @param keyPair          The keyPair that represents the app identity.
+ *  @param instanceID       The unique string identifying the app instance.
  *  @param options          The options to be added to the fetch request.
  *  @param handler          The handler to be invoked once we have the token or the
  *                          fetch request to InstanceID backend results in an error. Also
@@ -55,7 +54,7 @@ typedef NS_OPTIONS(NSUInteger, FIRInstanceIDInvalidTokenReason) {
  */
 - (void)fetchNewTokenWithAuthorizedEntity:(NSString *)authorizedEntity
                                     scope:(NSString *)scope
-                                  keyPair:(FIRInstanceIDKeyPair *)keyPair
+                               instanceID:(NSString *)instanceID
                                   options:(NSDictionary *)options
                                   handler:(FIRInstanceIDTokenHandler)handler;
 
@@ -77,7 +76,7 @@ typedef NS_OPTIONS(NSUInteger, FIRInstanceIDInvalidTokenReason) {
  *
  *  @param authorizedEntity The authorized entity for the token, should not be nil.
  *  @param scope            The scope for the token, should not be nil.
- *  @param keyPair          The keyPair that represents the app identity.
+ *  @param instanceID       The unique string identifying the app instance.
  *  @param handler          The handler to be invoked once the delete request to
  *                          InstanceID backend has returned. If the request was
  *                          successful we invoke the handler with a nil error;
@@ -87,21 +86,21 @@ typedef NS_OPTIONS(NSUInteger, FIRInstanceIDInvalidTokenReason) {
  */
 - (void)deleteTokenWithAuthorizedEntity:(NSString *)authorizedEntity
                                   scope:(NSString *)scope
-                                keyPair:(FIRInstanceIDKeyPair *)keyPair
+                             instanceID:(NSString *)instanceID
                                 handler:(FIRInstanceIDDeleteTokenHandler)handler;
 
 /**
  *  Deletes all cached tokens from the persistent store. This method should only be triggered
  *  when InstanceID is deleted
  *
- *  @param keyPair The keyPair for the given app.
- *  @param handler The handler to be invoked once the delete request to InstanceID backend
- *                 has returned. If the request was successful we invoke the handler with
- *                 a nil error; else we pass in an appropriate error. This should be non-nil
- *                 and be called asynchronously.
+ *  @param instanceID The unique string identifying the app instance.
+ *  @param handler    The handler to be invoked once the delete request to InstanceID backend
+ *                    has returned. If the request was successful we invoke the handler with
+ *                    a nil error; else we pass in an appropriate error. This should be non-nil
+ *                    and be called asynchronously.
  */
-- (void)deleteAllTokensWithKeyPair:(FIRInstanceIDKeyPair *)keyPair
-                           handler:(FIRInstanceIDDeleteHandler)handler;
+- (void)deleteAllTokensWithInstanceID:(NSString *)instanceID
+                              handler:(FIRInstanceIDDeleteHandler)handler;
 
 /**
  *  Deletes all cached tokens from the persistent store.

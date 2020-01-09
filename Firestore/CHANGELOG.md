@@ -1,5 +1,12 @@
 # Unreleased
 
+# v1.9.0
+- [feature] Added a `limit(toLast:)` query operator, which returns the last
+  matching documents up to the given limit.
+
+# v1.8.3
+- [changed] Internal improvements.
+
 # v1.8.2
 - [changed] Internal improvements.
 

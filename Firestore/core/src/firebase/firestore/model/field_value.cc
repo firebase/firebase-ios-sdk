@@ -274,7 +274,7 @@ class TimestampValue : public BaseValue {
 class ServerTimestampValue : public FieldValue::BaseValue {
  public:
   explicit ServerTimestampValue(ServerTimestamp server_timestamp)
-      : server_timestamp_(server_timestamp) {
+      : server_timestamp_(std::move(server_timestamp)) {
   }
 
   Type type() const override {
@@ -733,6 +733,10 @@ FieldValue FieldValue::FromDouble(double value) {
 
 FieldValue FieldValue::FromTimestamp(const Timestamp& value) {
   return FieldValue(std::make_shared<TimestampValue>(value));
+}
+
+FieldValue FieldValue::FromServerTimestamp(const Timestamp& local_write_time) {
+  return FromServerTimestamp(local_write_time, absl::nullopt);
 }
 
 FieldValue FieldValue::FromServerTimestamp(

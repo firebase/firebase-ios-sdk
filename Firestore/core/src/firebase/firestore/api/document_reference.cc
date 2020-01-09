@@ -31,7 +31,6 @@
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
-#include "Firestore/core/src/firebase/firestore/objc/objc_compatibility.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
@@ -216,8 +215,9 @@ std::unique_ptr<ListenerRegistration> DocumentReference::AddSnapshotListener(
                    // We don't raise `has_pending_writes` for deleted documents.
                    : false;
 
-      DocumentSnapshot result{firestore_, key_, document, snapshot.from_cache(),
-                              has_pending_writes};
+      DocumentSnapshot result{
+          firestore_, key_, document,
+          SnapshotMetadata{has_pending_writes, snapshot.from_cache()}};
       user_listener_->OnEvent(std::move(result));
     }
 

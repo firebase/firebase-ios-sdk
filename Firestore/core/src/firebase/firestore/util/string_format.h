@@ -58,7 +58,7 @@ struct FormatChoice<5> {};
  *   * If the value is of type `const char*`, the text will be the value
  *     interpreted as a C string. To show the address of a single char or to
  *     show the `const char*` as an address, cast to `void*`.
- *   * If the value is any other pointer type, the text will be the hexidecimal
+ *   * If the value is any other pointer type, the text will be the hexadecimal
  *     formatting of the value as an unsigned integer.
  *   * Otherwise the value is interpreted as anything absl::AlphaNum accepts.
  */
@@ -122,7 +122,7 @@ class FormatArg : public absl::AlphaNum {
 
   /**
    * Creates a FormatArg from an arbitrary pointer, represented as a
-   * hexidecimal integer literal.
+   * hexadecimal integer literal.
    */
   template <typename T>
   FormatArg(T* pointer_value, internal::FormatChoice<4>)

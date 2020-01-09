@@ -19,6 +19,8 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class FIRInstanceIDCheckinPreferences;
+@class FIRInstallations;
+
 /**
  * Private API used by other Firebase SDKs.
  */
@@ -27,6 +29,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, readonly, strong) NSString *deviceAuthID;
 @property(nonatomic, readonly, strong) NSString *secretToken;
 @property(nonatomic, readonly, strong) NSString *versionInfo;
+
+@property(nonatomic, readonly, strong) FIRInstallations *installations;
+
+/// A cached value of FID. Should be used only for `-[FIRInstanceID appInstanceID:]`.
+@property(atomic, readonly, copy, nullable) NSString *firebaseInstallationsID;
 
 /**
  *  Private initializer.
