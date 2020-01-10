@@ -365,29 +365,6 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
   [[[tt withNonexistentDoc] runWithStages:@[ set1, set2 ]] expectDoc:@{@"foo" : @"bar2"}];
 }
 
-- (void)testGetDocuments {
-  FIRFirestore *firestore = [self firestore];
-  FIRDocumentReference *doc = [[firestore collectionWithPath:@"spaces"] documentWithAutoID];
-  [self writeDocumentRef:doc data:@{@"foo" : @1, @"desc" : @"Stuff", @"owner" : @"Jonny"}];
-
-  XCTestExpectation *expectation = [self expectationWithDescription:@"transaction"];
-  [firestore
-      runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **error) {
-        [transaction getDocument:doc error:error];
-        XCTAssertNil(*error);
-        return @YES;
-      }
-      completion:^(id _Nullable result, NSError *_Nullable error) {
-        XCTAssertNil(result);
-        // We currently require every document read to also be written.
-        // TODO(b/34879758): Fix this check once we drop that requirement.
-        XCTAssertNotNil(error);
-        XCTAssertEqual(error.code, FIRFirestoreErrorCodeInvalidArgument);
-        [expectation fulfill];
-      }];
-  [self awaitExpectations];
-}
-
 - (void)testSetDocumentWithMerge {
   FIRFirestore *firestore = [self firestore];
   FIRDocumentReference *doc = [[firestore collectionWithPath:@"towns"] documentWithAutoID];
@@ -508,10 +485,12 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
   XCTAssertEqualObjects(@"yes", snapshot[@"other"]);
 }
 
-- (void)testHandleReadingOneDocAndWritingAnother {
+- (void)testRetriesWhenDocumentThatWasReadWithoutBeingWrittenChanges {
   FIRFirestore *firestore = [self firestore];
   FIRDocumentReference *doc1 = [[firestore collectionWithPath:@"counters"] documentWithAutoID];
   FIRDocumentReference *doc2 = [[firestore collectionWithPath:@"counters"] documentWithAutoID];
+  auto counter_unique = absl::make_unique<std::atomic_int32_t>(0);
+  auto counter = counter_unique.get();
 
   [self writeDocumentRef:doc1 data:@{@"count" : @(15.0)}];
 
@@ -521,6 +500,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
   XCTestExpectation *expectation = [self expectationWithDescription:@"transaction"];
   [firestore
       runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **error) {
+        ++(*counter);
         // Get the first doc.
         [transaction getDocument:doc1 error:error];
         XCTAssertNil(*error);
@@ -543,21 +523,13 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
         return nil;
       }
       completion:^(id _Nullable result, NSError *_Nullable error) {
-        // We currently require every document read to also be written.
-        // TODO(b/34879758): Add this check back once we drop that.
-        // NSError *error = nil;
-        // FIRDocument *snapshot = [transaction getDocument:doc1 error:&error];
-        // XCTAssertNil(error);
-        // XCTAssertEquals(0, tries);
-        // XCTAssertEqualObjects(@(1234), snapshot[@"count"]);
-        // snapshot = [transaction getDocument:doc2 error:&error];
-        // XCTAssertNil(error);
-        // XCTAssertEqualObjects(@(16), snapshot[@"count"]);
-        XCTAssertNotNil(error);
-        XCTAssertEqual(error.code, FIRFirestoreErrorCodeInvalidArgument);
+        XCTAssertNil(error);
+        XCTAssertEqual((int)(*counter), 2);
         [expectation fulfill];
       }];
   [self awaitExpectations];
+  FIRDocumentSnapshot *snapshot = [self readDocumentForRef:doc1];
+  XCTAssertEqualObjects(snapshot[@"count"], @(1234));
 }
 
 - (void)testReadingADocTwiceWithDifferentVersions {
@@ -640,26 +612,26 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
   [self awaitExpectations];
 }
 
-- (void)testCannotHaveAGetWithoutMutations {
+- (void)testCanHaveGetsWithoutMutations {
   FIRFirestore *firestore = [self firestore];
   FIRDocumentReference *doc = [[firestore collectionWithPath:@"foo"] documentWithAutoID];
+  FIRDocumentReference *doc2 = [[firestore collectionWithPath:@"foo"] documentWithAutoID];
+
   [self writeDocumentRef:doc data:@{@"foo" : @"bar"}];
   XCTestExpectation *expectation = [self expectationWithDescription:@"transaction"];
   [firestore
       runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **error) {
-        FIRDocumentSnapshot *snapshot = [transaction getDocument:doc error:error];
-        XCTAssertTrue(snapshot.exists);
-        XCTAssertNil(*error);
+        [transaction getDocument:doc2 error:error];
+        [transaction getDocument:doc error:error];
         return nil;
       }
       completion:^(id _Nullable result, NSError *_Nullable error) {
-        // We currently require every document read to also be written.
-        // TODO(b/34879758): Fix this check once we drop that requirement.
-        XCTAssertNotNil(error);
-        XCTAssertEqual(error.code, FIRFirestoreErrorCodeInvalidArgument);
+        XCTAssertNil(error);
         [expectation fulfill];
       }];
   [self awaitExpectations];
+  FIRDocumentSnapshot *snapshot = [self readDocumentForRef:doc];
+  XCTAssertEqualObjects(snapshot[@"foo"], @"bar");
 }
 
 - (void)testDoesNotRetryOnPermanentError {

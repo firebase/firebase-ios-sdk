@@ -46,6 +46,7 @@
 #include "Firestore/core/src/firebase/firestore/model/set_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/transform_mutation.h"
+#include "Firestore/core/src/firebase/firestore/model/verify_mutation.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/message.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
@@ -92,6 +93,7 @@ using model::SetMutation;
 using model::SnapshotVersion;
 using model::TransformMutation;
 using model::TransformOperation;
+using model::VerifyMutation;
 using nanopb::ByteString;
 using nanopb::ByteStringWriter;
 using nanopb::FreeNanopbMessage;
@@ -1759,6 +1761,19 @@ TEST_F(SerializerTest, EncodesDeleteMutation) {
 
   v1::Write proto;
   proto.set_delete_(ResourceName("docs/1"));
+
+  ExpectRoundTrip(model, proto);
+}
+
+TEST_F(SerializerTest, EncodesVerifyMutation) {
+  VerifyMutation model = testutil::VerifyMutation("docs/1", 4);
+
+  v1::Write proto;
+  proto.set_verify(ResourceName("docs/1"));
+
+  google::protobuf::Timestamp timestamp;
+  timestamp.set_nanos(4000);
+  *proto.mutable_current_document()->mutable_update_time() = timestamp;
 
   ExpectRoundTrip(model, proto);
 }
