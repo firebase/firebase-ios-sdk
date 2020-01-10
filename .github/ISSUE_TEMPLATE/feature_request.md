@@ -1,9 +1,7 @@
 ---
 name: Feature request
 about: Issue template for a feature request.
-title: ''
-labels: 'type: feature-request'
-assignees: ''
+labels: 'type: feature request'
 ---
 <!-- DO NOT DELETE 
 validate_template=true

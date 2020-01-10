@@ -1,9 +1,6 @@
 ---
 name: Bug report
 about: Issue template for a bug report.
-title: ''
-labels: ''
-assignees: ''
 ---
 <!-- DO NOT DELETE 
 validate_template=true
