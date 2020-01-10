@@ -120,7 +120,6 @@ cc_library(
     filesystem.h
     filesystem_apple.mm
     filesystem_common.cc
-    filesystem_detail.h
     filesystem_posix.cc
     path.cc
     path.h
@@ -135,7 +134,6 @@ cc_library(
   SOURCES
     filesystem.h
     filesystem_common.cc
-    filesystem_detail.h
     filesystem_posix.cc
     path.cc
     path.h
@@ -150,7 +148,6 @@ cc_library(
   SOURCES
     filesystem.h
     filesystem_common.cc
-    filesystem_detail.h
     filesystem_win.cc
     path.cc
     path.h
