@@ -272,14 +272,16 @@ enum CocoaPodUtils {
     // The first component is simple, just the `-`.
     guard components.first == "-" else { return nil }
 
-    // The second component is a pod/framework name, which we want to return eventually.
-    let framework = components[1]
+    // The second component is a pod/framework name, which we want to return eventually. Remove any
+    // extraneous quotes.
+    let framework = components[1].trimmingCharacters(in: CharacterSet(charactersIn: "\""))
 
     // The third component is the version in parentheses, potentially with a `:` at the end. Let's
-    // just strip the unused characters and return the version. We don't necesarily have to match
-    // against semver since it's a non trivial regex and we don't actually care, `Podfile.lock` has a
-    // standard format that we know will be valid.
-    let version = components[2].trimmingCharacters(in: CharacterSet(charactersIn: "():"))
+    // just strip the unused characters (including quotes) and return the version. We don't
+    // necesarily have to match against semver since it's a non trivial regex and we don't actually
+    // care, `Podfile.lock` has a standard format that we know will be valid. Also strip out any
+    // extra quotes.
+    let version = components[2].trimmingCharacters(in: CharacterSet(charactersIn: "():\""))
 
     return (framework, version)
   }
