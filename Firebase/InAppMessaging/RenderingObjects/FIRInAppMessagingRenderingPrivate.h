@@ -34,7 +34,6 @@ NS_ASSUME_NONNULL_BEGIN
               primaryActionButton:(FIRInAppMessagingActionButton *)primaryActionButton
                  primaryActionURL:(NSURL *)primaryActionURL
                           appData:(NSDictionary *)appData;
-
 @end
 
 @interface FIRInAppMessagingActionButton (Private)
