@@ -9,7 +9,7 @@ other Google CocoaPods. They're not intended for direct public usage.
                        DESC
 
   s.homepage         = 'https://github.com/firebase/firebase-ios-sdk/tree/master/GoogleUtilities'
-  s.license          = { :type => 'Apache', :file => 'LICENSE' }
+  s.license          = { :type => 'Apache', :file => 'GoogleUtilities/LICENSE' }
   s.authors          = 'Google, Inc.'
 
   s.source           = {
@@ -24,6 +24,11 @@ other Google CocoaPods. They're not intended for direct public usage.
 
   s.cocoapods_version = '>= 1.4.0'
   s.prefix_header_file = false
+
+  s.pod_target_xcconfig = {
+    'GCC_C_LANGUAGE_STANDARD' => 'c99',
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
+  }
 
   s.subspec 'Environment' do |es|
     es.source_files = 'GoogleUtilities/Environment/**/*.[mh]'

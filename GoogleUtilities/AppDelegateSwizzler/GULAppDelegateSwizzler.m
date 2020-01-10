@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "TargetConditionals.h"
+#import <TargetConditionals.h>
 
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <GoogleUtilities/GULLogger.h>
 #import <GoogleUtilities/GULMutableDictionary.h>
-#import "../Common/GULLoggerCodes.h"
-#import "Internal/GULAppDelegateSwizzler_Private.h"
+#import "GoogleUtilities/AppDelegateSwizzler/Internal/GULAppDelegateSwizzler_Private.h"
+#import "GoogleUtilities/Common/GULLoggerCodes.h"
 
 #import <objc/runtime.h>
 
