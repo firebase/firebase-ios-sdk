@@ -19,8 +19,8 @@
 #import <GoogleUtilities/GULLogger.h>
 #import <GoogleUtilities/GULMutableDictionary.h>
 #import <GoogleUtilities/GULSceneDelegateSwizzler.h>
-#import "../Common/GULLoggerCodes.h"
-#import "Internal/GULSceneDelegateSwizzler_Private.h"
+#import "GoogleUtilities/Common/GULLoggerCodes.h"
+#import "GoogleUtilities/SceneDelegateSwizzler/Internal/GULSceneDelegateSwizzler_Private.h"
 
 #import <objc/runtime.h>
 
