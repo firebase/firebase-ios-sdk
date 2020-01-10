@@ -1,5 +1,5 @@
 # Unreleased
-- Reorganized directory structure.
+- Standardized import paths. (#4655)
 
 # 6.5.0
 - Swizzler changes.
