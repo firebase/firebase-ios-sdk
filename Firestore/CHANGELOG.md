@@ -1,4 +1,9 @@
-# Unreleased
+# Unreleased (v1.10.0)
+- [changed] Improved the performance of repeatedly executed queries when
+  persistence is enabled. Recently executed queries should see dramatic
+  improvements. This benefit is reduced if changes accumulate while the query
+  is inactive. Queries that use the `limit()` API may not always benefit,
+  depending on the accumulated changes.
 
 # v1.9.0
 - [feature] Added a `limit(toLast:)` query operator, which returns the last
