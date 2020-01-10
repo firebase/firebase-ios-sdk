@@ -156,7 +156,8 @@ Status Filesystem::Rename(const Path& from_path, const Path& to_path) {
 
   DWORD error = ::GetLastError();
   return Status::FromLastError(
-      error, StringFormat("Could not rename file %s to %s", from_path.ToUtf8String(), to_path.ToUtf8String()));
+      error, StringFormat("Could not rename file %s to %s",
+                          from_path.ToUtf8String(), to_path.ToUtf8String()));
 }
 
 namespace {
