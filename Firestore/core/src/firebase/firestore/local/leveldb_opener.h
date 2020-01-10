@@ -27,6 +27,8 @@ namespace firebase {
 namespace firestore {
 
 namespace util {
+class Filesystem;
+
 template <typename T>
 class StatusOr;
 }  // namespace util
@@ -81,13 +83,14 @@ class LevelDbOpener {
  private:
   bool IsDirectory(const util::Path& path);
 
-  static void RecursivelyCleanupLegacyDirs(util::Path legacy_dir,
+  void RecursivelyCleanupLegacyDirs(util::Path legacy_dir,
                                            const util::Path& container_dir);
 
   core::DatabaseInfo database_info_;
   util::Path preferred_dir_;
   bool preferred_exists_ = false;
   util::Status status_;
+  util::Filesystem* fs_ = nullptr;
 };
 
 }  // namespace local

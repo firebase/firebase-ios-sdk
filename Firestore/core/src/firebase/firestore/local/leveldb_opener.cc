@@ -24,7 +24,6 @@
 #include "Firestore/core/src/firebase/firestore/local/local_serializer.h"
 #include "Firestore/core/src/firebase/firestore/remote/serializer.h"
 #include "Firestore/core/src/firebase/firestore/util/filesystem.h"
-#include "Firestore/core/src/firebase/firestore/util/filesystem_detail.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/path.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
@@ -38,8 +37,8 @@ namespace {
 
 using core::DatabaseInfo;
 using remote::Serializer;
+using util::Filesystem;
 using util::Path;
-using util::RecursivelyCreateDir;
 using util::Status;
 using util::StatusOr;
 using util::StringFormat;
@@ -57,13 +56,14 @@ Status FromCause(const std::string& message,
 
 LevelDbOpener::LevelDbOpener(
     firebase::firestore::core::DatabaseInfo database_info)
-    : database_info_(std::move(database_info)) {
+    : database_info_(std::move(database_info)),
+      fs_(Filesystem::Default()) {
 }
 
 Path LevelDbOpener::AppDataDir() {
   if (!ok()) return {};
 
-  auto maybe_dir = util::AppDataDir(kReservedPathComponent);
+  auto maybe_dir = fs_->AppDataDir(kReservedPathComponent);
   if (!maybe_dir.ok()) {
     status_ =
         FromCause("Failed to find the App data directory for the current user",
@@ -76,7 +76,7 @@ Path LevelDbOpener::AppDataDir() {
 Path LevelDbOpener::LegacyDocumentsDir() {
   if (!ok()) return {};
 
-  auto maybe_dir = util::LegacyDocumentsDir(kReservedPathComponent);
+  auto maybe_dir = fs_->LegacyDocumentsDir(kReservedPathComponent);
   if (!maybe_dir.ok()) {
     status_ =
         FromCause("Failed to find the Documents directory for the current user",
@@ -129,7 +129,7 @@ void LevelDbOpener::MaybeMigrate(const Path& legacy_docs_dir) {
             legacy_dir.ToUtf8String());
 
   Path preferred_parent = preferred_dir_.Dirname();
-  Status created = RecursivelyCreateDir(preferred_parent);
+  Status created = fs_->RecursivelyCreateDir(preferred_parent);
   if (!created.ok()) {
     std::string message =
         StringFormat("Could not create LevelDB data directory %s",
@@ -138,7 +138,7 @@ void LevelDbOpener::MaybeMigrate(const Path& legacy_docs_dir) {
     return;
   }
 
-  Status renamed = util::Rename(legacy_dir, preferred_dir_);
+  Status renamed = fs_->Rename(legacy_dir, preferred_dir_);
   if (!renamed.ok()) {
     std::string message =
         StringFormat("Failed to migrate LevelDB data from %s to %s",
@@ -163,10 +163,10 @@ void LevelDbOpener::RecursivelyCleanupLegacyDirs(
 
   Path parent_most = container_dir.Dirname();
   for (; legacy_dir != parent_most; legacy_dir = legacy_dir.Dirname()) {
-    Status is_dir = util::IsDirectory(legacy_dir);
+    Status is_dir = fs_->IsDirectory(legacy_dir);
     if (is_dir.ok()) {
       if (util::IsEmptyDir(legacy_dir)) {
-        Status removed = util::detail::DeleteDir(legacy_dir);
+        Status removed = fs_->RemoveDir(legacy_dir);
         if (!removed.ok()) {
           LOG_WARN("Could not remove directory %s: %s",
                    legacy_dir.ToUtf8String(), removed.ToString());
@@ -194,7 +194,7 @@ util::StatusOr<std::unique_ptr<LevelDbPersistence>> LevelDbOpener::Create(
 }
 
 bool LevelDbOpener::IsDirectory(const Path& path) {
-  Status is_dir = util::IsDirectory(path);
+  Status is_dir = fs_->IsDirectory(path);
   switch (is_dir.code()) {
     case Error::Ok:
       return true;

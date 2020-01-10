@@ -70,6 +70,7 @@ using firebase::firestore::testutil::AsyncQueueForTesting;
 using firebase::firestore::remote::GrpcConnection;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::CreateAutoId;
+using firebase::firestore::util::Filesystem;
 using firebase::firestore::util::Path;
 using firebase::firestore::util::Status;
 using firebase::firestore::util::StatusOr;
@@ -145,6 +146,7 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
  * with each other.
  */
 - (void)clearPersistenceOnce {
+  auto *fs = Filesystem::Default();
   static bool clearedPersistence = false;
 
   @synchronized([FSTIntegrationTestCase class]) {
@@ -154,7 +156,7 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
     Path levelDBDir = opener.AppDataDir();
     ASSERT_OK(opener.status());
 
-    Status status = util::RecursivelyDelete(levelDBDir);
+    Status status = fs->RecursivelyRemove(levelDBDir);
     ASSERT_OK(status);
 
     clearedPersistence = true;

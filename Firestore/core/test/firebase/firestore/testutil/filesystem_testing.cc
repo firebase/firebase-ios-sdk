@@ -30,11 +30,9 @@ namespace firestore {
 namespace testutil {
 
 using util::CreateAutoId;
+using util::Filesystem;
 using util::Path;
-using util::RecursivelyCreateDir;
-using util::RecursivelyDelete;
 using util::Status;
-using util::TempDir;
 
 Path RandomFilename() {
   return Path::FromUtf8("firestore-testing-" + CreateAutoId());
@@ -45,9 +43,10 @@ void Touch(const Path& path) {
   ASSERT_TRUE(out.good());
 }
 
-TestTempDir::TestTempDir() {
-  path_ = Path::JoinUtf8(TempDir(), RandomFilename());
-  auto created = RecursivelyCreateDir(path_);
+TestTempDir::TestTempDir(Filesystem* fs)
+    : fs_(fs ? fs : Filesystem::Default()) {
+  path_ = Path::JoinUtf8(fs_->TempDir(), RandomFilename());
+  auto created = fs_->RecursivelyCreateDir(path_);
   if (!created.ok()) {
     ADD_FAILURE() << "Failed to create test directory " << path_.ToUtf8String()
                   << ": " << created.ToString();
@@ -56,7 +55,7 @@ TestTempDir::TestTempDir() {
 }
 
 TestTempDir::~TestTempDir() {
-  Status removed = RecursivelyDelete(path_);
+  Status removed = fs_->RecursivelyRemove(path_);
   if (!removed.ok()) {
     LOG_WARN("Failed to clean up temp dir %s: %s", path_.ToUtf8String(),
              removed.ToString());

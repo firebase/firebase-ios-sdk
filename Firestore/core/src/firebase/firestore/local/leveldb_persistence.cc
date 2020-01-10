@@ -44,6 +44,7 @@ namespace {
 using auth::User;
 using leveldb::DB;
 using model::ListenSequenceNumber;
+using util::Filesystem;
 using util::Path;
 using util::Status;
 using util::StatusOr;
@@ -76,10 +77,11 @@ std::set<std::string> CollectUserSet(LevelDbTransaction* transaction) {
 
 util::StatusOr<std::unique_ptr<LevelDbPersistence>> LevelDbPersistence::Create(
     util::Path dir, LocalSerializer serializer, const LruParams& lru_params) {
+  auto* fs = Filesystem::Default();
   Status status = EnsureDirectory(dir);
   if (!status.ok()) return status;
 
-  status = util::ExcludeFromBackups(dir);
+  status = fs->ExcludeFromBackups(dir);
   if (!status.ok()) return status;
 
   StatusOr<std::unique_ptr<DB>> created = OpenDb(dir);
@@ -124,7 +126,8 @@ LevelDbPersistence::LevelDbPersistence(std::unique_ptr<leveldb::DB> db,
 // MARK: - Startup
 
 Status LevelDbPersistence::EnsureDirectory(const Path& dir) {
-  Status status = util::RecursivelyCreateDir(dir);
+  auto* fs = Filesystem::Default();
+  Status status = fs->RecursivelyCreateDir(dir);
   if (!status.ok()) {
     return Status{Error::Internal, "Failed to create persistence directory"}
         .CausedBy(status);
@@ -166,14 +169,17 @@ util::Status LevelDbPersistence::ClearPersistence(
 
   Path leveldb_dir = opener.StorageDir(data_dir);
   LOG_DEBUG("Clearing persistence for path: %s", leveldb_dir.ToUtf8String());
-  return util::RecursivelyDelete(leveldb_dir);
+  auto* fs = Filesystem::Default();
+  return fs->RecursivelyRemove(leveldb_dir);
 }
 
 int64_t LevelDbPersistence::CalculateByteSize() {
+  auto* fs = Filesystem::Default();
+
   int64_t count = 0;
   auto iter = util::DirectoryIterator::Create(directory_);
   for (; iter->Valid(); iter->Next()) {
-    int64_t file_size = util::FileSize(iter->file()).ValueOrDie();
+    int64_t file_size = fs->FileSize(iter->file()).ValueOrDie();
     count += file_size;
   }
 

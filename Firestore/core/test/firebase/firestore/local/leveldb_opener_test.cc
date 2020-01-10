@@ -43,10 +43,9 @@ using testutil::IsNotFound;
 using testutil::IsOk;
 using testutil::TestTempDir;
 using util::CreateAutoId;
-using util::IsDirectory;
+using util::Filesystem;
 using util::Path;
 using util::Status;
-using util::TempDir;
 
 DatabaseInfo FakeDatabaseInfo() {
   return DatabaseInfo(testutil::DbId(), "key", "example.com", true);
@@ -67,29 +66,34 @@ void RunPersistence(LevelDbOpener* opener) {
 
 }  // namespace
 
-TEST(LevelDbOpenerTest, CanFindAppDataDir) {
+class LevelDbOpenerTest : public testing::Test {
+ protected:
+  Filesystem* fs_ = Filesystem::Default();
+};
+
+TEST_F(LevelDbOpenerTest, CanFindAppDataDir) {
   LevelDbOpener opener(FakeDatabaseInfo());
   Path path = opener.AppDataDir();
   ASSERT_OK(opener.status());
   EXPECT_THAT(path.Basename().ToUtf8String(), testing::EndsWith("firestore"));
 }
 
-TEST(LevelDbOpenerTest, CanFindLegacyDocumentsDir) {
+TEST_F(LevelDbOpenerTest, CanFindLegacyDocumentsDir) {
   LevelDbOpener opener(FakeDatabaseInfo());
   Path path = opener.LegacyDocumentsDir();
   EXPECT_OK(opener.status());
   EXPECT_THAT(path.Basename().ToUtf8String(), testing::EndsWith("firestore"));
 }
 
-TEST(LevelDbOpenerTest, CanMigrateLegacyData) {
+TEST_F(LevelDbOpenerTest, CanMigrateLegacyData) {
   TestTempDir root_dir;
 
   // These names don't actually matter, and work on any platform
   Path legacy_dir = root_dir.Child("Documents/firestore");
   Path new_dir = root_dir.Child("Library/Application Support/firestore");
 
-  ASSERT_THAT(IsDirectory(legacy_dir), IsNotFound());
-  ASSERT_THAT(IsDirectory(new_dir), IsNotFound());
+  ASSERT_THAT(fs_->IsDirectory(legacy_dir), IsNotFound());
+  ASSERT_THAT(fs_->IsDirectory(new_dir), IsNotFound());
 
   DatabaseInfo db_info = FakeDatabaseInfo();
   {
@@ -98,8 +102,8 @@ TEST(LevelDbOpenerTest, CanMigrateLegacyData) {
     ASSERT_FALSE(opener.PreferredExists(legacy_dir));
 
     RunPersistence(&opener);
-    ASSERT_THAT(IsDirectory(legacy_dir), IsOk());
-    ASSERT_THAT(IsDirectory(new_dir), IsNotFound());
+    ASSERT_THAT(fs_->IsDirectory(legacy_dir), IsOk());
+    ASSERT_THAT(fs_->IsDirectory(new_dir), IsNotFound());
   }
 
   {
@@ -108,12 +112,12 @@ TEST(LevelDbOpenerTest, CanMigrateLegacyData) {
     opener.MaybeMigrate(legacy_dir);
 
     RunPersistence(&opener);
-    ASSERT_THAT(IsDirectory(legacy_dir), IsNotFound());
-    ASSERT_THAT(IsDirectory(new_dir), IsOk());
+    ASSERT_THAT(fs_->IsDirectory(legacy_dir), IsNotFound());
+    ASSERT_THAT(fs_->IsDirectory(new_dir), IsOk());
   }
 }
 
-TEST(LevelDbOpenerTest, MigrationPreservesUnrelatedData) {
+TEST_F(LevelDbOpenerTest, MigrationPreservesUnrelatedData) {
   TestTempDir root_dir;
 
   Path legacy_dir = root_dir.Child("Documents/firestore");
@@ -130,12 +134,12 @@ TEST(LevelDbOpenerTest, MigrationPreservesUnrelatedData) {
     LevelDbOpener db_opener(db_info);
     ASSERT_FALSE(db_opener.PreferredExists(legacy_dir));
     RunPersistence(&db_opener);
-    ASSERT_THAT(IsDirectory(db_path), IsOk());
+    ASSERT_THAT(fs_->IsDirectory(db_path), IsOk());
 
     LevelDbOpener other_opener(other_info);
     ASSERT_FALSE(other_opener.PreferredExists(legacy_dir));
     RunPersistence(&other_opener);
-    ASSERT_THAT(IsDirectory(other_path), IsOk());
+    ASSERT_THAT(fs_->IsDirectory(other_path), IsOk());
   }
 
   {
@@ -144,8 +148,8 @@ TEST(LevelDbOpenerTest, MigrationPreservesUnrelatedData) {
     db_opener.MaybeMigrate(legacy_dir);
     RunPersistence(&db_opener);
 
-    ASSERT_THAT(IsDirectory(db_path), IsNotFound());
-    ASSERT_THAT(IsDirectory(other_path), IsOk());
+    ASSERT_THAT(fs_->IsDirectory(db_path), IsNotFound());
+    ASSERT_THAT(fs_->IsDirectory(other_path), IsOk());
   }
 }
 

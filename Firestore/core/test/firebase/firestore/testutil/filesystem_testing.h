@@ -21,6 +21,11 @@
 
 namespace firebase {
 namespace firestore {
+
+namespace util {
+class Filesystem;
+}  // namespace util
+
 namespace testutil {
 
 /** Creates a random filename that doesn't exist. */
@@ -31,7 +36,7 @@ void Touch(const util::Path& path);
 
 class TestTempDir {
  public:
-  TestTempDir();
+  explicit TestTempDir(util::Filesystem* fs = nullptr);
 
   ~TestTempDir();
 
@@ -44,6 +49,7 @@ class TestTempDir {
 
  private:
   util::Path path_;
+  util::Filesystem* fs_ = nullptr;
 };
 
 }  // namespace testutil

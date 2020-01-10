@@ -241,7 +241,8 @@ add_custom_command(
   COMMENT "Generating C++ protobuf sources"
   OUTPUT ${PROTOBUF_CPP_GENERATED_SOURCES}
   COMMAND
-    ${CMAKE_CURRENT_SOURCE_DIR}/build_protos.py
+    python
+      ${CMAKE_CURRENT_SOURCE_DIR}/build_protos.py
       --cpp
       --protoc=$<TARGET_FILE:protoc>
       --output_dir=${OUTPUT_DIR}
