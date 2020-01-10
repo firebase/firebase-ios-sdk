@@ -18,7 +18,7 @@
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <GoogleUtilities/GULLogger.h>
 #import <GoogleUtilities/GULMutableDictionary.h>
-#import "../Common/GULLoggerCodes.h"
+#import "GoogleUtilities/Common/GULLoggerCodes.h"
 #import "GoogleUtilities/AppDelegateSwizzler/Internal/GULAppDelegateSwizzler_Private.h"
 
 #import <objc/runtime.h>
