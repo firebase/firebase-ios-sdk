@@ -28,88 +28,139 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-// High-level routines for the manipulating the filesystem. All filesystems
-// are required to implement these routines.
-
 /**
- * Answers the question "is this path a directory? The path is not required to
- * have a trailing slash.
- *
- * Typical return codes include:
- *   * Ok - The path exists and is a directory.
- *   * FailedPrecondition - Some component of the path is not a directory. This
- *     does not necessarily imply that the path exists and is a file.
- *   * NotFound - The path does not exist
- *   * PermissionDenied - Insufficient permissions to access the path.
+ * A high-level interface describing filesystem operations.
  */
-Status IsDirectory(const Path& path);
+class Filesystem {
+ public:
+  Filesystem(const Filesystem&) = delete;
+  Filesystem& operator=(const Filesystem&) = delete;
 
-/**
- * Recursively creates all the directories in the path name if they don't
- * exist.
- *
- * @return Ok if the directory was created or already existed.
- */
-Status RecursivelyCreateDir(const Path& path);
+  /**
+   * Returns a singleton default filesystem implementation for the current
+   * operating system.
+   */
+  static Filesystem* Default();
 
-/**
- * Recursively deletes the contents of the given pathname. If the pathname is
- * a file, deletes just that file. The the pathname is a directory, deletes
- * everything within the directory.
- *
- * @return Ok if the directory was deleted or did not exist.
- */
-Status RecursivelyDelete(const Path& path);
+  /**
+   * Returns a system-defined best directory in which to create application
+   * data. Values vary wildly across platforms. They include:
+   *
+   *   * iOS: $container/Documents/$app_name
+   *   * Linux: $HOME/.local/share/$app_name
+   *   * macOS: $HOME/.$app_name
+   *   * Other UNIX: $HOME/.$app_name
+   *   * tvOS: $HOME/Library/Caches/$app_name
+   *   * Windows: %USERPROFILE%/AppData/Local
+   *
+   * Note: the returned path is just where the system thinks the application
+   * data should be stored, but AppDataDir does not actually guarantee that this
+   * path exists.
+   *
+   * @param app_name The name of the application.
+   */
+  virtual StatusOr<Path> AppDataDir(absl::string_view app_name);
 
-/**
- * Marks the given directory as excluded from platform-specific backup schemes
- * like iCloud backup.
- */
-Status ExcludeFromBackups(const Path& dir);
+  /**
+   * Returns system-defined best directory in which to create temporary files.
+   * Typical return values are like `/tmp` on UNIX systems. Clients should
+   * create randomly named directories or files within this location to avoid
+   * collisions. Absent any changes that might affect the underlying calls, the
+   * value returned from TempDir will be stable over time.
+   *
+   * Note: the returned path is just where the system thinks temporary files
+   * should be stored, but TempDir does not actually guarantee that this path
+   * exists.
+   */
+  virtual Path TempDir();
 
-/**
- * Returns a system-defined best directory in which to create application data.
- * Values vary wildly across platforms. They include:
- *
- *   * iOS: $container/Documents/$app_name
- *   * Linux: $HOME/.local/share/$app_name
- *   * macOS: $HOME/.$app_name
- *   * Other UNIX: $HOME/.$app_name
- *   * tvOS: $HOME/Library/Caches/$app_name
- *   * Windows: %USERPROFILE%/AppData/Local
- *
- * Note: the returned path is just where the system thinks the application data
- * should be stored, but AppDataDir does not actually guarantee that this path
- * exists.
- *
- * @param app_name The name of the application.
- */
-StatusOr<Path> AppDataDir(absl::string_view app_name);
+  /**
+   * Answers the question "is this path a directory? The path is not required to
+   * have a trailing slash.
+   *
+   * Typical return codes include:
+   *   * Ok - The path exists and is a directory.
+   *   * FailedPrecondition - Some component of the path is not a directory.
+   * This does not necessarily imply that the path exists and is a file.
+   *   * NotFound - The path does not exist
+   *   * PermissionDenied - Insufficient permissions to access the path.
+   */
+  virtual Status IsDirectory(const Path& path);
 
-/**
- * Returns system-defined best directory in which to create temporary files.
- * Typical return values are like `/tmp` on UNIX systems. Clients should create
- * randomly named directories or files within this location to avoid collisions.
- * Absent any changes that might affect the underlying calls, the value returned
- * from TempDir will be stable over time.
- *
- * Note: the returned path is just where the system thinks temporary files
- * should be stored, but TempDir does not actually guarantee that this path
- * exists.
- */
-Path TempDir();
+  /**
+   * On success, returns the size in bytes of the file specified by
+   * `path`.
+   */
+  virtual StatusOr<int64_t> FileSize(const Path& path);
 
-/**
- * On success, returns the size in bytes of the file specified by
- * `path`.
- */
-StatusOr<int64_t> FileSize(const Path& path);
+  /**
+   * Recursively creates all the directories in the path name if they don't
+   * exist.
+   *
+   * @return Ok if the directory was created or already existed.
+   */
+  virtual Status RecursivelyCreateDir(const Path& path);
 
-/**
- * On success, opens the file at the given `path` and returns its contents as
- * a string.
- */
-StatusOr<std::string> ReadFile(const Path& path);
+  /**
+   * Recursively deletes the contents of the given pathname. If the pathname is
+   * a file, deletes just that file. The the pathname is a directory, deletes
+   * everything within the directory.
+   *
+   * @return Ok if the directory was deleted or did not exist.
+   */
+  virtual Status RecursivelyRemove(const Path& path);
+
+  /**
+   * Creates the given directory. The immediate parent directory must already
+   * exist and not already be a file.
+   *
+   * @return Ok if the directory was created or already existed. On some systems
+   *     this may also return Ok if a regular file exists at the given path.
+   */
+  virtual Status CreateDir(const Path& path);
+
+  /**
+   * Deletes the given directory if it exists.
+   *
+   * @return Ok if the directory was deleted or did not exist. Returns a
+   *     system-defined error if the path is not a directory or the directory is
+   *     non-empty.
+   */
+  virtual Status RemoveDir(const Path& path);
+
+  /**
+   * Deletes the given file if it exists.
+   *
+   * @return Ok if the file was deleted or did not exist. Returns a
+   * system-defined error if the path exists but is not a regular file.
+   */
+  virtual Status RemoveFile(const Path& path);
+
+  /**
+   * Recursively deletes the contents of the given pathname that is known to be
+   * a directory.
+   *
+   * @return Ok if the directory was deleted or did not exist. Returns a
+   *     system-defined error if the path exists but is not a directory.
+   *
+   */
+  virtual Status RecursivelyRemoveDir(const Path& path);
+
+  /**
+   * Marks the given directory as excluded from platform-specific backup schemes
+   * like iCloud backup.
+   */
+  virtual Status ExcludeFromBackups(const Path& dir);
+
+  /**
+   * On success, opens the file at the given `path` and returns its contents as
+   * a string.
+   */
+  virtual StatusOr<std::string> ReadFile(const Path& path);
+
+ protected:
+  Filesystem() = default;
+};
 
 /**
  * Implements an iterator over the contents of a directory. Initializes to the
