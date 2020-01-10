@@ -26,6 +26,7 @@
 
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/path.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
 #include "absl/memory/memory.h"
 
@@ -146,6 +147,16 @@ Status Filesystem::RemoveFile(const Path& path) {
 
   return Status::FromLastError(
       error, StringFormat("Could not delete file %s", path.ToUtf8String()));
+}
+
+Status Filesystem::Rename(const Path& from_path, const Path& to_path) {
+  if (::MoveFileW(from_path.c_str(), to_path.c_str())) {
+    return Status::OK();
+  }
+
+  DWORD error = ::GetLastError();
+  return Status::FromLastError(
+      error, StringFormat("Could not rename file %s to %s", from_path.ToUtf8String(), to_path.ToUtf8String()));
 }
 
 namespace {
