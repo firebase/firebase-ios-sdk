@@ -47,6 +47,7 @@ cc_library(
     view_testing.h
   DEPENDS
     ${TESTUTIL_DEPENDS}
+    GMock::GMock
     GTest::GTest
     absl_time
     firebase_firestore_core

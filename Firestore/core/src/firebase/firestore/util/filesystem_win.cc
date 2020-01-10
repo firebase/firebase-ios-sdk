@@ -48,7 +48,7 @@ StatusOr<Path> Filesystem::AppDataDir(absl::string_view app_name) {
   return std::move(result);
 }
 
-StatusOr<Path> Filesystem::LegacyDocumentsDir(absl::string_view app_name) {
+StatusOr<Path> Filesystem::LegacyDocumentsDir(absl::string_view) {
   return Status(Error::Unimplemented, "No legacy storage on this platform");
 }
 
