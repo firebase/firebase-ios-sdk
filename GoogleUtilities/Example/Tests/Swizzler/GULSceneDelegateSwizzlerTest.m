@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #import <GoogleUtilities/GULSceneDelegateSwizzler.h>
-#import "GULSceneDelegateSwizzler_Private.h"
+#import "GoogleUtilities/SceneDelegateSwizzler/Internal/GULSceneDelegateSwizzler_Private.h"
 
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>

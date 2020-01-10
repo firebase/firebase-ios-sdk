@@ -14,7 +14,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "GULReachabilityChecker+Internal.h"
+#import "GoogleUtilities/Reachability/GULReachabilityChecker+Internal.h"
 #import "Private/GULReachabilityChecker.h"
 #import "Private/GULReachabilityMessageCode.h"
 
