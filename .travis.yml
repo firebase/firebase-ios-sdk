@@ -5,8 +5,7 @@ cache:
   bundler: true
   cocoapods: true
   directories:
-    - Firestore/Example/Pods
-    - gen/Pods
+    # Built-in support for ccache doesn't seem to pick this up
     - $HOME/.ccache
 
 stages:
