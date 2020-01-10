@@ -208,7 +208,7 @@ std::shared_ptr<grpc::Channel> GrpcConnection::CreateChannel() const {
   }
 
   // For tests only
-  auto fs = Filesystem::Default();
+  auto* fs = Filesystem::Default();
   args.SetSslTargetNameOverride(host_config->target_name);
   Path path = host_config->certificate_path;
   StatusOr<std::string> test_certificate = fs->ReadFile(path);

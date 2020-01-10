@@ -29,11 +29,12 @@ namespace firestore {
 namespace util {
 
 /**
- * A high-level interface describing
+ * A high-level interface describing filesystem operations.
  */
 class Filesystem {
  public:
   Filesystem(const Filesystem&) = delete;
+  Filesystem& operator=(const Filesystem&) = delete;
 
   /**
    * Returns a singleton default filesystem implementation for the current

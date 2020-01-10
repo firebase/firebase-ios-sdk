@@ -50,7 +50,7 @@ LocalSerializer MakeLocalSerializer() {
 }  // namespace
 
 Path LevelDbDir() {
-  auto fs = Filesystem::Default();
+  auto* fs = Filesystem::Default();
   Path dir = fs->TempDir().AppendUtf8("PersistenceTesting");
 
   // Delete the directory first to ensure isolation between runs.

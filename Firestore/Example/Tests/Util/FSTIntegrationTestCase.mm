@@ -143,7 +143,7 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
  * with each other.
  */
 - (void)clearPersistenceOnce {
-  auto fs = Filesystem::Default();
+  auto* fs = Filesystem::Default();
   static bool clearedPersistence = false;
 
   @synchronized([FSTIntegrationTestCase class]) {
