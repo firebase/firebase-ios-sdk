@@ -132,12 +132,16 @@ NSString *const FIRCLSNetworkClientBackgroundIdentifierSuffix = @".crash.backgro
 
 - (void)attemptToReconnectBackgroundSessionWithCompletionBlock:(void (^)(void))completionBlock {
   if (!self.supportsBackgroundRequests) {
-    completionBlock();
+    if (completionBlock) {
+      completionBlock();
+    }
     return;
   }
 
   // This is the absolute minimum necessary. Perhaps we can do better?
-  [[NSOperationQueue mainQueue] addOperationWithBlock:completionBlock];
+  if (completionBlock) {
+    [[NSOperationQueue mainQueue] addOperationWithBlock:completionBlock];
+  }
 }
 
 #pragma mark - API
