@@ -6,10 +6,10 @@
   depending on the accumulated changes.
 - [changed] Changed the location of Firestore's locally stored data from the
   Documents folder to Library/Application Support, hiding it from users of apps
-  that share their files with the iOS Files app. **Important** Older versions
-  of the Firestore SDK can't read data from the new location, so once user data
-  has been migrated to the new folder, downgrading to an older version will
-  cause that user to appear to lose data (#843).
+  that share their files with the iOS Files app. **Important**: After a user's
+  data is migrated, downgrading to an older version of the SDK will cause the
+  user to appear to lose data, since older versions of the SDK can't read data
+  from the new location (#843).
 
 # v1.9.0
 - [feature] Added a `limit(toLast:)` query operator, which returns the last
