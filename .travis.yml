@@ -2,8 +2,11 @@ os: osx
 osx_image: xcode11.3
 language: objective-c
 cache:
-  - bundler
-  - cocoapods
+  bundler: true
+  cocoapods: true
+  directories:
+    # Built-in support for ccache doesn't seem to pick this up
+    - $HOME/.ccache
 
 stages:
   - checks
