@@ -18,7 +18,6 @@
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LEVELDB_OPENER_H_
 
 #include <memory>
-#include <tuple>
 
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/util/path.h"
@@ -102,21 +101,6 @@ class LevelDbOpener {
    * Prepares the directory that contains the instance's data.
    */
   util::StatusOr<util::Path> PrepareDataDir();
-
-  /**
-   * Returns information about the storage directory for this instance.
-   *
-   * @param maybe_app_data_dir The result of `FirestoreAppDataDir()` or
-   *     `FirestoreLegacyAppDataDir`..
-   * @return A tuple of
-   *     * Status: non-OK if something failed (or maybe_app_data_dir itself
-   *       was already failed)
-   *     * Path: The directory in which to store the instance data. If Status
-   *       is not OK, will be the empty Path.
-   *     * bool: Whether or not the Path exists.
-   */
-  std::tuple<util::Status, util::Path, bool> StorageDirExists(
-      util::StatusOr<util::Path> maybe_app_data_dir);
 
   /**
    * Computes a unique storage directory for the given identifying components of

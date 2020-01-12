@@ -80,16 +80,6 @@ util::StatusOr<std::unique_ptr<LevelDbPersistence>> LevelDbOpener::Create(
                                     lru_params);
 }
 
-template <typename T, typename Function>
-auto Map(StatusOr<T> maybe_value, Function&& function)
-    -> StatusOr<decltype(function(std::move(maybe_value).ValueOrDie()))> {
-  if (!maybe_value.ok()) {
-    return maybe_value.status();
-  }
-  T value = maybe_value.ValueOrDie();
-  return function(value);
-}
-
 StatusOr<Path> LevelDbOpener::LevelDbDataDir() {
   StatusOr<Path> maybe_dir = FirestoreAppDataDir();
   if (!maybe_dir.ok()) return maybe_dir;
@@ -97,64 +87,50 @@ StatusOr<Path> LevelDbOpener::LevelDbDataDir() {
 }
 
 StatusOr<Path> LevelDbOpener::PrepareDataDir() {
-  Status status;
-  bool exists = false;
+  StatusOr<Path> maybe_dir = LevelDbDataDir();
+  if (!maybe_dir.ok()) return maybe_dir;
+  Path db_data_dir = std::move(maybe_dir).ValueOrDie();
 
   // Check for the preferred location. If it exists, we're done.
-  Path db_data_dir;
-  std::tie(status, db_data_dir, exists) =
-      StorageDirExists(FirestoreAppDataDir());
-  if (!status.ok()) {
-    return status;
-  } else if (exists) {
+  Status dir_status = fs_->IsDirectory(db_data_dir);
+  if (dir_status.ok()) {
     return db_data_dir;
+  } else if (dir_status.code() != Error::NotFound) {
+    return dir_status;
   }
 
   // The preferred dir doesn't exist so check for the legacy location. If it
   // exists, migrate.
+  maybe_dir = FirestoreLegacyAppDataDir();
   Path legacy_db_data_dir;
-  std::tie(status, legacy_db_data_dir, exists) =
-      StorageDirExists(FirestoreLegacyAppDataDir());
-  if (!status.ok()) {
-    return status;
-  } else if (exists) {
+  if (maybe_dir.ok()) {
+    legacy_db_data_dir = StorageDir(std::move(maybe_dir).ValueOrDie());
+    dir_status = fs_->IsDirectory(legacy_db_data_dir);
+  } else {
+    dir_status = maybe_dir.status();
+  }
+
+  if (dir_status.ok()) {
+    // The legacy directory does exist, so migrate
     return MigrateDataDir(legacy_db_data_dir, db_data_dir);
-  } else {
-    // Either we couldn't find the legacy directory or this platform has no
-    // legacy directory so create the new directory.
-    Status created = fs_->RecursivelyCreateDir(db_data_dir);
-    if (!created.ok()) {
-      std::string message =
-          StringFormat("Could not create LevelDB data directory %s",
-                       db_data_dir.ToUtf8String());
 
-      return FromCause(message, created);
-    }
-
-    return db_data_dir;
-  }
-}
-
-std::tuple<Status, Path, bool> LevelDbOpener::StorageDirExists(
-    util::StatusOr<util::Path> maybe_app_data_dir) {
-  if (!maybe_app_data_dir.ok()) {
-    if (maybe_app_data_dir.status().code() == Error::Unimplemented) {
-      return std::make_tuple(Status::OK(), Path(), false);
-    } else {
-      return std::make_tuple(maybe_app_data_dir.status(), Path(), false);
-    }
+  } else if (dir_status.code() != Error::NotFound &&
+             dir_status.code() != Error::Unimplemented) {
+    return dir_status;
   }
 
-  Path app_data_dir = maybe_app_data_dir.ValueOrDie();
-  Path instance_dir = StorageDir(app_data_dir);
-  Status is_dir = fs_->IsDirectory(instance_dir);
-  if (is_dir.ok()) {
-    return std::make_tuple(Status::OK(), instance_dir, true);
-  } else if (is_dir.code() == Error::NotFound) {
-    return std::make_tuple(Status::OK(), instance_dir, false);
-  } else {
-    return std::make_tuple(is_dir, Path(), false);
+  // Either we couldn't find the legacy directory or this platform has no legacy
+  // directory so create the new directory.
+  Status created = fs_->RecursivelyCreateDir(db_data_dir);
+  if (!created.ok()) {
+    std::string message =
+        StringFormat("Could not create LevelDB data directory %s",
+                     db_data_dir.ToUtf8String());
+
+    return FromCause(message, created);
   }
+
+  return db_data_dir;
 }
 
 StatusOr<Path> LevelDbOpener::FirestoreAppDataDir() {
