@@ -69,7 +69,7 @@ StatusOr<Path> Filesystem::LegacyDocumentsDir(absl::string_view app_name) {
   return Path::FromNSString(NSHomeDirectory()).AppendUtf8(dot_prefixed);
 
 #else
-  return Path();
+  return Status(Error::Unimplemented, "No legacy storage on this platform.")
 #endif
 }
 

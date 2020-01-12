@@ -164,8 +164,8 @@ util::Status LevelDbPersistence::ClearPersistence(
     const core::DatabaseInfo& database_info) {
   LevelDbOpener opener(database_info);
   StatusOr<Path> maybe_data_dir = opener.LevelDbDataDir();
-  HARD_ASSERT(maybe_data_dir.ok(),
-              "Failed to find the App data directory for the current user.");
+  HARD_ASSERT(maybe_data_dir.ok(), "Failed to find local LevelDB files: %s",
+              maybe_data_dir.status().ToString());
   Path leveldb_dir = std::move(maybe_data_dir).ValueOrDie();
 
   LOG_DEBUG("Clearing persistence for path: %s", leveldb_dir.ToUtf8String());
@@ -183,7 +183,7 @@ int64_t LevelDbPersistence::CalculateByteSize() {
     count += file_size;
   }
 
-  HARD_ASSERT(iter->status().ok(), "Failed to iterate leveldb directory: %s",
+  HARD_ASSERT(iter->status().ok(), "Failed to iterate LevelDB directory: %s",
               iter->status().error_message().c_str());
   HARD_ASSERT(count >= 0 && count <= std::numeric_limits<int64_t>::max(),
               "Overflowed counting bytes cached");

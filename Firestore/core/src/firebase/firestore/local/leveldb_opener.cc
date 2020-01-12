@@ -58,9 +58,10 @@ LevelDbOpener::LevelDbOpener(DatabaseInfo database_info, Filesystem* fs)
       fs_(fs ? fs : Filesystem::Default()) {
 }
 
-LevelDbOpener::LevelDbOpener(DatabaseInfo database_info, Path app_data_dir)
+LevelDbOpener::LevelDbOpener(DatabaseInfo database_info,
+                             Path firestore_app_data_dir)
     : database_info_(std::move(database_info)),
-      app_data_dir_(std::move(app_data_dir)),
+      app_data_dir_(std::move(firestore_app_data_dir)),
       fs_(Filesystem::Default()) {
 }
 
@@ -105,19 +106,14 @@ StatusOr<Path> LevelDbOpener::PrepareDataDir() {
   if (maybe_dir.ok()) {
     legacy_db_data_dir = StorageDir(std::move(maybe_dir).ValueOrDie());
     dir_status = fs_->IsDirectory(legacy_db_data_dir);
-  } else if (maybe_dir.status().code() == Error::Unimplemented) {
-    dir_status = maybe_dir.status();
   } else {
-    return maybe_dir;
+    dir_status = maybe_dir.status();
   }
 
   if (dir_status.ok()) {
-    auto migrated = MigrateDataDir(legacy_db_data_dir, db_data_dir);
-    if (migrated.ok()) {
-      return db_data_dir;
-    } else {
-      return migrated;
-    }
+    // The legacy directory does exist, so migrate
+    return MigrateDataDir(legacy_db_data_dir, db_data_dir);
+
   } else if (dir_status.code() != Error::NotFound &&
              dir_status.code() != Error::Unimplemented) {
     return dir_status;
@@ -182,7 +178,7 @@ Path LevelDbOpener::StorageDir(const Path& base_path) {
                         project_key, "main");
 }
 
-Status LevelDbOpener::MigrateDataDir(
+StatusOr<Path> LevelDbOpener::MigrateDataDir(
     const firebase::firestore::util::Path& legacy_db_data_dir,
     const firebase::firestore::util::Path& db_data_dir) {
   // At this point the legacy location exists and the preferred location doesn't
@@ -211,7 +207,7 @@ Status LevelDbOpener::MigrateDataDir(
   }
 
   RecursivelyCleanupLegacyDirs(legacy_db_data_dir);
-  return Status::OK();
+  return db_data_dir;
 }
 
 void LevelDbOpener::RecursivelyCleanupLegacyDirs(Path legacy_dir) {

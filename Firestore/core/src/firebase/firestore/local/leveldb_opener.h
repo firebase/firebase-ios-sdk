@@ -43,26 +43,30 @@ class LevelDbOpener {
  public:
   /**
    * Creates an opener that uses the given filesystem, or
-   * `Filesystem::Default()` if `fs` is `nullptr`.
+   * `Filesystem::Default()` if `fs` is `nullptr`. A non-default Filesystem
+   * should only be used in tests.
    */
   explicit LevelDbOpener(core::DatabaseInfo database_info,
                          util::Filesystem* fs = nullptr);
 
   /**
-   * Creates an opener that uses a pre-specified storage location.
+   * Creates an opener that uses a pre-specified storage location. This should
+   * only be used in tests.
    *
    * @param database_info The instance configuration
-   * @param app_data_dir The Firestore-specific application data directory.
+   * @param firestore_app_data_dir The Firestore-specific application data
+   * directory.
    */
-  LevelDbOpener(core::DatabaseInfo database_info, util::Path app_data_dir);
+  LevelDbOpener(core::DatabaseInfo database_info,
+                util::Path firestore_app_data_dir);
 
   /**
    * Creates the LevelDbPersistence instance.
    *
    * This process includes:
    *
-   *   * Migrating existing data from a legacy location into the (i.e. from
-   *     ~/Documents to ~/Library/Application Support on iOS);
+   *   * Migrating existing data from a legacy location into the new location
+   *     (i.e. from ~/Documents to ~/Library/Application Support on iOS);
    *   * Cleaning up the directory structure in the legacy location;
    *   * Creating the directory structure to uniquely hold the data for this
    *     instance.
@@ -87,8 +91,8 @@ class LevelDbOpener {
   util::StatusOr<util::Path> FirestoreLegacyAppDataDir();
 
   /**
-   * Returns the location of the data
-   * Firestore instances.
+   * Returns the location of the data for the single Firestore instance named
+   * by the DatabaseInfo passed to the `LevelDbOpener` constructor.
    */
   util::StatusOr<util::Path> LevelDbDataDir();
 
@@ -107,8 +111,8 @@ class LevelDbOpener {
    */
   util::Path StorageDir(const util::Path& base_path);
 
-  util::Status MigrateDataDir(const util::Path& legacy_db_data_dir,
-                              const util::Path& db_data_dir);
+  util::StatusOr<util::Path> MigrateDataDir(
+      const util::Path& legacy_db_data_dir, const util::Path& db_data_dir);
 
   void RecursivelyCleanupLegacyDirs(util::Path legacy_dir);
 
