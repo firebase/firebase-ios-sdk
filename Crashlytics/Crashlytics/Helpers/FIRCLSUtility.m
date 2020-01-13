@@ -172,7 +172,7 @@ NSString* FIRCLSNSDataToNSString(NSData* data) {
     FIRCLSErrorLog(@"Unable to malloc in FIRCLSNSDataToNSString");
     return nil;
   }
-    
+
   FIRCLSSafeHexToString([data bytes], length, buffer);
 
   string = [NSString stringWithUTF8String:buffer];
