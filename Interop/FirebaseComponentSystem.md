@@ -179,7 +179,8 @@ an example:
   return @[ internalProvider ];
 }
 
-+ (FIRFunctions *)functionsWithApp:(FIRApp *)app {
+// The public entry point for the SDK.
++ (FIRFunctions *)functionsForApp:(FIRApp *)app {
   // Get the instance from the `FIRApp`'s container. This will create a new instance the
   // first time it is called, and since `isCacheable` is set in the component creation
   // block, it will return the existing instance on subsequent calls.
@@ -238,7 +239,8 @@ could conform to and provide to other frameworks:
   return @[authInterop];
 }
 
-+ (FIRAuth *)authWithApp:(FIRApp *)app {
+// The public entry point for the SDK.
++ (FIRAuth *)authForApp:(FIRApp *)app {
   // Use the instance from the provided app's container.
   id<FIRAuthInteroperable> auth = FIR_COMPONENT(FIRAuthInteroperable, app.container);
   return (FIRAuth *)auth;
