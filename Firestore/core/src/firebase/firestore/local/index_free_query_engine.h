@@ -36,7 +36,7 @@ namespace local {
 
 /**
  * A query engine that takes advantage of the target document mapping in the
- * QueryCache. The IndexFreeQueryEngine optimizes query execution by only
+ * TargetCache. The IndexFreeQueryEngine optimizes query execution by only
  * reading the documents that previously matched a query plus any documents that
  * were edited after the query was last listened to.
  *

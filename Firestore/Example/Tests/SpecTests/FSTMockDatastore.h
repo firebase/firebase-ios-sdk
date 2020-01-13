@@ -71,7 +71,7 @@ class MockDatastore : public Datastore {
   void FailWatchStream(const util::Status& error);
 
   /** Returns the set of active targets on the watch stream. */
-  const std::unordered_map<model::TargetId, local::QueryData>& ActiveTargets() const;
+  const std::unordered_map<model::TargetId, local::TargetData>& ActiveTargets() const;
   /** Helper method to expose watch stream state to verify in tests. */
   bool IsWatchStreamOpen() const;
 

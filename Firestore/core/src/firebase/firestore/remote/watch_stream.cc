@@ -31,7 +31,7 @@ namespace remote {
 
 using auth::CredentialsProvider;
 using auth::Token;
-using local::QueryData;
+using local::TargetData;
 using model::TargetId;
 using nanopb::Message;
 using remote::ByteBufferReader;
@@ -51,7 +51,7 @@ WatchStream::WatchStream(
       callback_{NOT_NULL(callback)} {
 }
 
-void WatchStream::WatchQuery(const QueryData& query) {
+void WatchStream::WatchQuery(const TargetData& query) {
   EnsureOnQueue();
 
   auto request = watch_serializer_.EncodeWatchRequest(query);

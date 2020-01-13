@@ -49,8 +49,8 @@ int64_t ProtoSizer::CalculateByteSize(const model::MutationBatch& batch) const {
   return MakeByteString(serializer_.EncodeMutationBatch(batch)).size();
 }
 
-int64_t ProtoSizer::CalculateByteSize(const QueryData& query_data) const {
-  return MakeByteString(serializer_.EncodeQueryData(query_data)).size();
+int64_t ProtoSizer::CalculateByteSize(const TargetData& target_data) const {
+  return MakeByteString(serializer_.EncodeTargetData(target_data)).size();
 }
 
 }  // namespace local

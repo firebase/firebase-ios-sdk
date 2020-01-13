@@ -16,7 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/local/memory_persistence.h"
 #include "Firestore/core/test/firebase/firestore/local/persistence_testing.h"
-#include "Firestore/core/test/firebase/firestore/local/query_cache_test.h"
+#include "Firestore/core/test/firebase/firestore/local/target_cache_test.h"
 
 namespace firebase {
 namespace firestore {
@@ -29,8 +29,8 @@ std::unique_ptr<Persistence> PersistenceFactory() {
 
 }  // namespace
 
-INSTANTIATE_TEST_SUITE_P(MemoryQueryCacheTest,
-                         QueryCacheTest,
+INSTANTIATE_TEST_SUITE_P(MemoryTargetCacheTest,
+                         TargetCacheTest,
                          testing::Values(PersistenceFactory));
 
 }  // namespace local

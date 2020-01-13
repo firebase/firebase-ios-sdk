@@ -109,7 +109,7 @@ LevelDbPersistence::LevelDbPersistence(std::unique_ptr<leveldb::DB> db,
       directory_(std::move(directory)),
       users_(std::move(users)),
       serializer_(std::move(serializer)) {
-  query_cache_ = absl::make_unique<LevelDbQueryCache>(this, &serializer_);
+  target_cache_ = absl::make_unique<LevelDbTargetCache>(this, &serializer_);
   document_cache_ =
       absl::make_unique<LevelDbRemoteDocumentCache>(this, &serializer_);
   index_manager_ = absl::make_unique<LevelDbIndexManager>(this);
@@ -117,7 +117,7 @@ LevelDbPersistence::LevelDbPersistence(std::unique_ptr<leveldb::DB> db,
       absl::make_unique<LevelDbLruReferenceDelegate>(this, lru_params);
 
   // TODO(gsoltis): set up a leveldb transaction for these operations.
-  query_cache_->Start();
+  target_cache_->Start();
   reference_delegate_->Start();
   started_ = true;
 }
@@ -237,8 +237,8 @@ LevelDbMutationQueue* LevelDbPersistence::GetMutationQueueForUser(
   return current_mutation_queue_.get();
 }
 
-LevelDbQueryCache* LevelDbPersistence::query_cache() {
-  return query_cache_.get();
+LevelDbTargetCache* LevelDbPersistence::target_cache() {
+  return target_cache_.get();
 }
 
 LevelDbRemoteDocumentCache* LevelDbPersistence::remote_document_cache() {

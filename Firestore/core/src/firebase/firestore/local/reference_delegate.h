@@ -30,7 +30,7 @@ class DocumentKey;
 
 namespace local {
 
-class QueryData;
+class TargetData;
 class ReferenceSet;
 
 /**
@@ -76,7 +76,7 @@ class ReferenceDelegate {
   /**
    * Notifies the delegate that a target was removed.
    */
-  virtual void RemoveTarget(const local::QueryData& query_data) = 0;
+  virtual void RemoveTarget(const local::TargetData& target_data) = 0;
 
   /**
    * Notifies the delegate that a limbo document was updated.

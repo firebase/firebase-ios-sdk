@@ -66,8 +66,8 @@ using core::OrderBy;
 using core::OrderByList;
 using core::Query;
 using core::Target;
-using local::QueryData;
 using local::QueryPurpose;
+using local::TargetData;
 using model::ArrayTransform;
 using model::DatabaseId;
 using model::DeleteMutation;
@@ -450,7 +450,7 @@ ResourcePath Serializer::DecodeQueryPath(Reader* reader,
     // In v1beta1 queries for collections at the root did not have a trailing
     // "/documents". In v1 all resource paths contain "/documents". Preserve the
     // ability to read the v1beta1 form for compatibility with queries persisted
-    // in the local query cache.
+    // in the local target cache.
     return ResourcePath::Empty();
   } else {
     return ExtractLocalPathFromResourceName(reader, resource);
@@ -852,9 +852,9 @@ FieldTransform Serializer::DecodeFieldTransform(
 }
 
 google_firestore_v1_Target Serializer::EncodeTarget(
-    const QueryData& query_data) const {
+    const TargetData& target_data) const {
   google_firestore_v1_Target result{};
-  const Target& target = query_data.target();
+  const Target& target = target_data.target();
 
   if (target.IsDocumentQuery()) {
     result.which_target_type = google_firestore_v1_Target_documents_tag;
@@ -864,11 +864,11 @@ google_firestore_v1_Target Serializer::EncodeTarget(
     result.target_type.query = EncodeQueryTarget(target);
   }
 
-  result.target_id = query_data.target_id();
-  if (!query_data.resume_token().empty()) {
+  result.target_id = target_data.target_id();
+  if (!target_data.resume_token().empty()) {
     result.which_resume_type = google_firestore_v1_Target_resume_token_tag;
     result.resume_type.resume_token =
-        nanopb::CopyBytesArray(query_data.resume_token().get());
+        nanopb::CopyBytesArray(target_data.resume_token().get());
   }
 
   return result;
@@ -1501,9 +1501,9 @@ MutationResult Serializer::DecodeMutationResult(
 }
 
 std::vector<google_firestore_v1_ListenRequest_LabelsEntry>
-Serializer::EncodeListenRequestLabels(const QueryData& query_data) const {
+Serializer::EncodeListenRequestLabels(const TargetData& target_data) const {
   std::vector<google_firestore_v1_ListenRequest_LabelsEntry> result;
-  auto value = EncodeLabel(query_data.purpose());
+  auto value = EncodeLabel(target_data.purpose());
   if (value.empty()) {
     return result;
   }

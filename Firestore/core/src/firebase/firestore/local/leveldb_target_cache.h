@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LEVELDB_QUERY_CACHE_H_
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LEVELDB_QUERY_CACHE_H_
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LEVELDB_TARGET_CACHE_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LEVELDB_TARGET_CACHE_H_
 
 #include <unordered_map>
 
 #include "Firestore/Protos/nanopb/firestore/local/target.nanopb.h"
-#include "Firestore/core/src/firebase/firestore/local/query_cache.h"
-#include "Firestore/core/src/firebase/firestore/local/query_data.h"
+#include "Firestore/core/src/firebase/firestore/local/target_cache.h"
+#include "Firestore/core/src/firebase/firestore/local/target_data.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
@@ -38,7 +38,7 @@ class LevelDbPersistence;
 class LocalSerializer;
 
 /** Cached Queries backed by LevelDB. */
-class LevelDbQueryCache : public QueryCache {
+class LevelDbTargetCache : public TargetCache {
  public:
   /**
    * Retrieves the global singleton metadata row from the given database. If the
@@ -57,25 +57,25 @@ class LevelDbQueryCache : public QueryCache {
   TryReadMetadata(leveldb::DB* db);
 
   /**
-   * Creates a new query cache in the given LevelDB.
+   * Creates a new target cache in the given LevelDB.
    *
    * @param db The LevelDB in which to create the cache.
    */
-  LevelDbQueryCache(LevelDbPersistence* db, LocalSerializer* serializer);
+  LevelDbTargetCache(LevelDbPersistence* db, LocalSerializer* serializer);
 
   // Target-related methods
-  void AddTarget(const QueryData& query_data) override;
+  void AddTarget(const TargetData& target_data) override;
 
-  void UpdateTarget(const QueryData& query_data) override;
+  void UpdateTarget(const TargetData& target_data) override;
 
-  void RemoveTarget(const QueryData& query_data) override;
+  void RemoveTarget(const TargetData& target_data) override;
 
-  absl::optional<QueryData> GetTarget(const core::Target& target) override;
+  absl::optional<TargetData> GetTarget(const core::Target& target) override;
 
   void EnumerateTargets(const TargetCallback& callback) override;
 
   int RemoveTargets(model::ListenSequenceNumber upper_bound,
-                    const std::unordered_map<model::TargetId, QueryData>&
+                    const std::unordered_map<model::TargetId, TargetData>&
                         live_targets) override;
 
   // Key-related methods
@@ -125,22 +125,22 @@ class LevelDbQueryCache : public QueryCache {
   void EnumerateOrphanedDocuments(const OrphanedDocumentCallback& callback);
 
  private:
-  void Save(const QueryData& query_data);
-  bool UpdateMetadata(const QueryData& query_data);
+  void Save(const TargetData& target_data);
+  bool UpdateMetadata(const TargetData& target_data);
   void SaveMetadata();
 
   /**
    * Parses the given bytes as a `firestore_client_Target` protocol buffer and
-   * then converts to the equivalent query data.
+   * then converts to the equivalent target data.
    */
-  QueryData DecodeTarget(absl::string_view encoded);
+  TargetData DecodeTarget(absl::string_view encoded);
 
-  // The LevelDbQueryCache is owned by LevelDbPersistence.
+  // The LevelDbTargetCache is owned by LevelDbPersistence.
   LevelDbPersistence* db_;
   // Owned by LevelDbPersistence.
   LocalSerializer* serializer_ = nullptr;
 
-  /** A write-through cached copy of the metadata for the query cache. */
+  /** A write-through cached copy of the metadata for the target cache. */
   nanopb::Message<firestore_client_TargetGlobal> metadata_;
 
   model::SnapshotVersion last_remote_snapshot_version_;
@@ -150,4 +150,4 @@ class LevelDbQueryCache : public QueryCache {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LEVELDB_QUERY_CACHE_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LEVELDB_TARGET_CACHE_H_

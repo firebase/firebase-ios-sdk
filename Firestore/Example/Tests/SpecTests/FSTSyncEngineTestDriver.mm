@@ -69,7 +69,7 @@ using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::local::IndexFreeQueryEngine;
 using firebase::firestore::local::LocalStore;
 using firebase::firestore::local::Persistence;
-using firebase::firestore::local::QueryData;
+using firebase::firestore::local::TargetData;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
@@ -165,7 +165,7 @@ NS_ASSUME_NONNULL_BEGIN
   DelayedConstructor<EventManager> _eventManager;
 
   // Set of active targets, keyed by target Id, mapped to corresponding resume token,
-  // and list of `QueryData`.
+  // and list of `TargetData`.
   ActiveTargetMap _expectedActiveTargets;
 
   // ivar is declared as mutable.
@@ -474,7 +474,7 @@ NS_ASSUME_NONNULL_BEGIN
   return _syncEngine->GetCurrentLimboDocuments();
 }
 
-- (const std::unordered_map<TargetId, QueryData> &)activeTargets {
+- (const std::unordered_map<TargetId, TargetData> &)activeTargets {
   return _datastore->ActiveTargets();
 }
 
