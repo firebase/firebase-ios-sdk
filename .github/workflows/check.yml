@@ -1,0 +1,15 @@
+name: CI
+
+on: [pull_request]
+
+jobs:
+  check:
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Check
+      run: |
+        brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/e3496d9/Formula/clang-format.rb
+        brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/7963c3d/Formula/swiftformat.rb
+        pip install flake8
+        ./scripts/check.sh --test-only

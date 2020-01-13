@@ -1,4 +1,4 @@
-name: core
+name: dynamiclinks
 
 on:
   pull_request:
@@ -6,7 +6,7 @@ on:
     - 'FirebaseCore**'
 
 jobs:
-  core:
+  dynamiclinks:
     needs: check
     runs-on: macOS-latest
     steps:
@@ -15,5 +15,5 @@ jobs:
       run: |
         bundle install
         bundle exec pod --version
-    - name: FirebaseCore
-      run: ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=ios
+    - name: FirebaseDynamicLinks
+      run: ./scripts/pod_lib_lint.rb FirebaseDynamicLinks.podspec
