@@ -3,6 +3,7 @@ name: core
 on: 
 #  pull_request:
   push:
+    paths:
     - 'FirebaseCore**'
 
 jobs:
