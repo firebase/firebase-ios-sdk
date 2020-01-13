@@ -16,7 +16,7 @@ The Firebase Installations SDK introduces the [Firebase Installations API](https
 - [added] Updated the binary distributions to include arm64e slices. See
   https://developer.apple.com/documentation/security/preparing_your_app_to_work_with_pointer_authentication.
   Support for the open source libraries is now included in the zip and Carthage
-  distributions. All  libraries now support building for arm64e except the MLKit
+  distributions. All   libraries now support building for arm64e except the MLKit
   ones who's support is TBD. (#4110)
 
 - [changed] The directory structure of the zip distribution has changed to include
