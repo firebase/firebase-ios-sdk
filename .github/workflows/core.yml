@@ -7,7 +7,6 @@ on:
 
 jobs:
   core:
-    needs: check
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v1
