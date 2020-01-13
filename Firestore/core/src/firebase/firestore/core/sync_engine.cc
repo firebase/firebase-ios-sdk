@@ -17,6 +17,7 @@
 #include "Firestore/core/src/firebase/firestore/core/sync_engine.h"
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
+#include "Firestore/core/src/firebase/firestore/core/sync_engine_callback.h"
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/core/transaction_runner.h"
 #include "Firestore/core/src/firebase/firestore/local/query_result.h"

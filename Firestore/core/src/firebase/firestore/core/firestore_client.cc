@@ -26,6 +26,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/core/event_manager.h"
+#include "Firestore/core/src/firebase/firestore/core/sync_engine.h"
 #include "Firestore/core/src/firebase/firestore/core/view.h"
 #include "Firestore/core/src/firebase/firestore/local/index_free_query_engine.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_opener.h"

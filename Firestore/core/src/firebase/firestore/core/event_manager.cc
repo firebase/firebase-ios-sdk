@@ -17,6 +17,7 @@
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/core/event_manager.h"
+#include "Firestore/core/src/firebase/firestore/core/sync_engine.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 namespace firebase {
