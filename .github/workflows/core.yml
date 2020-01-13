@@ -1,10 +1,10 @@
 name: core
 
-on: 
+on:
 #  pull_request:
   push:
-#    paths:
-#    - 'FirebaseCore/**'
+    paths:
+    - '**FirebaseCore**'
 
 jobs:
   check:
