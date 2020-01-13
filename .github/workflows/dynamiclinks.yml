@@ -3,7 +3,9 @@ name: dynamiclinks
 on:
   pull_request:
     paths:
-    - 'FirebaseCore**'
+    - 'Firebase/DynamicLinks**'
+    - 'FirebaseDynamicLinks**'
+    - 'Example/DynamicLinks**'
 
 jobs:
   dynamiclinks:
