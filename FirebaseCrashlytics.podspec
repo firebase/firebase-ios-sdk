@@ -44,6 +44,8 @@ Pod::Spec.new do |s|
   s.dependency 'FirebaseInstanceID', '~> 4.3'
   s.dependency 'FirebaseAnalyticsInterop', '~> 1.2'
   s.dependency 'PromisesObjC', '~> 1.2'
+  s.dependency 'GoogleDataTransport', '~> 3.2'
+  s.dependency 'nanopb', '~> 0.3.901'
 
   s.libraries = 'c++', 'z'
   s.frameworks = 'Security', 'SystemConfiguration'
@@ -52,7 +54,9 @@ Pod::Spec.new do |s|
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
       'DISPLAY_VERSION=' + s.version.to_s + ' ' +
-      'CLS_SDK_NAME="Crashlytics iOS SDK" ',
+      'CLS_SDK_NAME="Crashlytics iOS SDK" ' +
+      # For FireLog:
+      'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1 GDTCCTSUPPORT_VERSION=' + s.version.to_s,
     'OTHER_LD_FLAGS' => '$(inherited) -sectcreate __TEXT __info_plist'
   }
 
