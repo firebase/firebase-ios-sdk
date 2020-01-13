@@ -24,8 +24,8 @@ cc_library(
     lru_garbage_collector.h
     memory_index_manager.cc
     memory_index_manager.h
-        target_data.cc
-        target_data.h
+    target_data.cc
+    target_data.h
     reference_set.cc
     reference_set.h
   DEPENDS
@@ -53,8 +53,8 @@ cc_library(
     leveldb_mutation_queue.h
     leveldb_persistence.cc
     leveldb_persistence.h
-        leveldb_target_cache.cc
-        leveldb_target_cache.h
+    leveldb_target_cache.cc
+    leveldb_target_cache.h
     leveldb_remote_document_cache.cc
     leveldb_remote_document_cache.h
     leveldb_transaction.cc
@@ -98,15 +98,15 @@ cc_library(
     memory_mutation_queue.h
     memory_persistence.cc
     memory_persistence.h
-        memory_target_cache.cc
-        memory_target_cache.h
+    memory_target_cache.cc
+    memory_target_cache.h
     memory_remote_document_cache.cc
     memory_remote_document_cache.h
     mutation_queue.h
     persistence.h
     proto_sizer.cc
     proto_sizer.h
-        target_cache.h
+    target_cache.h
     query_engine.h
     query_result.h
     reference_delegate.h
