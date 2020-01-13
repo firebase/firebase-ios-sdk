@@ -86,7 +86,7 @@ TEST(LevelDbOpenerTest, CanFindAppDataDir) {
 TEST(LevelDbOpenerTest, CanFindLegacyAppDataDir) {
   LevelDbOpener opener(FakeDatabaseInfo());
   StatusOr<Path> maybe_dir = opener.FirestoreLegacyAppDataDir();
-#if TARGET_OS_IPHONE || TARGET_OS_MAC
+#if TARGET_OS_IOS || TARGET_OS_OSX
   EXPECT_OK(maybe_dir.status());
 
   Path dir = maybe_dir.ValueOrDie();
