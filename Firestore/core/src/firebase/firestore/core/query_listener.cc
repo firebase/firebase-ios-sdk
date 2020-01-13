@@ -32,6 +32,34 @@ using model::OnlineState;
 using model::TargetId;
 using util::Status;
 
+std::shared_ptr<QueryListener> QueryListener::Create(
+    Query query, ListenOptions options, ViewSnapshotSharedListener&& listener) {
+  return std::make_shared<QueryListener>(std::move(query), std::move(options),
+                                         std::move(listener));
+}
+
+std::shared_ptr<QueryListener> QueryListener::Create(
+    Query query, ViewSnapshotSharedListener&& listener) {
+  return Create(std::move(query), ListenOptions::DefaultOptions(),
+                std::move(listener));
+}
+
+std::shared_ptr<QueryListener> QueryListener::Create(
+    Query query,
+    ListenOptions options,
+    util::StatusOrCallback<ViewSnapshot>&& listener) {
+  auto event_listener =
+      EventListener<ViewSnapshot>::Create(std::move(listener));
+  return Create(std::move(query), std::move(options),
+                std::move(event_listener));
+}
+
+std::shared_ptr<QueryListener> QueryListener::Create(
+    Query query, util::StatusOrCallback<ViewSnapshot>&& listener) {
+  return Create(std::move(query), ListenOptions::DefaultOptions(),
+                std::move(listener));
+}
+
 QueryListener::QueryListener(Query query,
                              ListenOptions options,
                              ViewSnapshotSharedListener&& listener)
