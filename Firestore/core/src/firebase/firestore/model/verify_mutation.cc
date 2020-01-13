@@ -38,7 +38,7 @@ VerifyMutation::VerifyMutation(DocumentKey key, Precondition precondition)
 }
 
 VerifyMutation::VerifyMutation(const Mutation& mutation) : Mutation(mutation) {
-  HARD_ASSERT(type() == Type::Delete);
+  HARD_ASSERT(type() == Type::Verify);
 }
 
 MaybeDocument VerifyMutation::Rep::ApplyToRemoteDocument(
