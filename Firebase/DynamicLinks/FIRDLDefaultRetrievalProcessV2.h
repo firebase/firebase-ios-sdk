@@ -18,7 +18,7 @@
 
 #import <Foundation/Foundation.h>
 
-@class FIRDynamicLinkNetworking;
+@class  FIRDynamicLinkNetworking;
 
 NS_ASSUME_NONNULL_BEGIN
 
