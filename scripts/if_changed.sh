@@ -55,7 +55,7 @@ else
 'InAppMessagingDisplay|InAppMessaging|Firebase/InAppMessaging|'\
 'FirebaseInAppMessaging.podspec|FirebaseInAppMessagingDisplay.podspec|'\
 'Firebase/InstanceID|FirebaseInstanceID.podspec|'\
-'FirebaseInstallations|FirebaseInstallations.podspec)'\
+'FirebaseInstallations|FirebaseInstallations.podspec'\
 'FirebaseCrashlytics.podspec)'\
       ;;
 
@@ -78,7 +78,7 @@ else
       ;;
 
     Crashlytics-*)
-      check_changes '^(FirebaseCore|Firebase/InstanceID|Firebase/Installations|GoogleUtilities|FirebaseCrashlytics|Firebase/Crashlytics|FirebaseCrashlytics.podspec)'
+      check_changes '^(FirebaseCore|Firebase/InstanceID|Firebase/Installations|GoogleUtilities|Crashlytics|FirebaseCrashlytics.podspec)'
       ;;
 
     Database-*)
