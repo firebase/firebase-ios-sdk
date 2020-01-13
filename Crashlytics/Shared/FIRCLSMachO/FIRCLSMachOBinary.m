@@ -146,6 +146,10 @@ static NSString* FIRCLSNSDataToNSString(NSData* data) {
   size = (length * 2) + 1;
   buffer = malloc(sizeof(char) * size);
 
+  if (!buffer) {
+    return nil;
+  }
+
   FIRCLSSafeHexToString([data bytes], length, buffer);
 
   string = [NSString stringWithUTF8String:buffer];
