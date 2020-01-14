@@ -35,9 +35,11 @@
 + (instancetype)instanceIDForTests;
 @end
 
-@interface SEGContentManagerTests : XCTestCase {
-  SEGContentManager *_contentManager;
-}
+@interface SEGContentManagerTests : XCTestCase
+@property(nonatomic) SEGContentManager *contentManager;
+@property(nonatomic) id instanceIDMock;
+@property(nonatomic) id networkManagerMock;
+
 @end
 
 @implementation SEGContentManagerTests
@@ -46,35 +48,40 @@
   // Setup FIRApp.
   XCTAssertNoThrow([FIRApp configureWithOptions:[self FIRAppOptions]]);
   // TODO (mandard): Investigate replacing the partial mock with a class mock.
-  FIRInstanceID *instanceIDMock = OCMPartialMock([FIRInstanceID instanceIDForTests]);
+  self.instanceIDMock = OCMPartialMock([FIRInstanceID instanceIDForTests]);
   FIRInstanceIDResult *result = [[FIRInstanceIDResult alloc] init];
   result.instanceID = @"test-instance-id";
   result.token = @"test-instance-id-token";
-  OCMStub([instanceIDMock
+  OCMStub([self.instanceIDMock
       instanceIDWithHandler:([OCMArg invokeBlockWithArgs:result, [NSNull null], nil])]);
 
   // Mock the network manager.
   FIROptions *options = [[FIROptions alloc] init];
   options.projectID = @"test-project-id";
   options.APIKey = @"test-api-key";
-  SEGNetworkManager *networkManagerMock = OCMClassMock([SEGNetworkManager class]);
-  OCMStub([networkManagerMock
+  self.networkManagerMock = OCMClassMock([SEGNetworkManager class]);
+  OCMStub([self.networkManagerMock
       makeAssociationRequestToBackendWithData:[OCMArg any]
                                         token:[OCMArg any]
                                    completion:([OCMArg
                                                   invokeBlockWithArgs:@YES, [NSNull null], nil])]);
 
   // Initialize the content manager.
-  _contentManager =
+  self.contentManager =
       [[SEGContentManager alloc] initWithDatabaseManager:[SEGDatabaseManager sharedInstance]
-                                          networkManager:networkManagerMock];
+                                          networkManager:self.networkManagerMock];
 }
+
 - (void)tearDown {
-  // Put teardown code here. This method is called after the invocation of each test method in the
-  // class.
+  [self.networkManagerMock stopMocking];
+  self.networkManagerMock = nil;
+  [self.instanceIDMock stopMocking];
+  self.instanceIDMock = nil;
+  self.contentManager = nil;
 }
 
 // Associate a fake custom installation id and fake firebase installation id.
+// TODO(mandard): check for result and add more tests.
 - (void)testAssociateCustomInstallationIdentifierSuccessfully {
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"associateCustomInstallation for contentmanager"];

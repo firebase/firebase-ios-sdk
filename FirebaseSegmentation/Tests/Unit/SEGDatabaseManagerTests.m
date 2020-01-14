@@ -25,6 +25,7 @@
 @interface SEGDatabaseManagerTests : XCTestCase {
   long _expectationTimeout;
 }
+@property(nonatomic) id databaseManagerMock;
 
 @end
 
@@ -32,8 +33,8 @@
 
 - (void)setUp {
   // Override the database path to create a test database.
-  id databaseManagerMock = OCMClassMock([SEGDatabaseManager class]);
-  OCMStub([databaseManagerMock pathForSegmentationDatabase])
+  self.databaseManagerMock = OCMClassMock([SEGDatabaseManager class]);
+  OCMStub([self.databaseManagerMock pathForSegmentationDatabase])
       .andReturn([self pathForSegmentationTestDatabase]);
 
   // Expectation timeout for each test.
@@ -41,8 +42,8 @@
 }
 
 - (void)tearDown {
-  // Put teardown code here. This method is called after the invocation of each test method in the
-  // class.
+  [self.databaseManagerMock stopMocking];
+  self.databaseManagerMock = nil;
 }
 
 - (void)testDatabaseCreateOrOpen {
