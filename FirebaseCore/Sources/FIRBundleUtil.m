@@ -22,7 +22,7 @@
   return @[ [NSBundle mainBundle], [NSBundle bundleForClass:[self class]] ];
 }
 
-+ (NSString *)optionsDictionaryPathWithResourceName:(NSString *)resourceName
++ (NSString *) optionsDictionaryPathWithResourceName:(NSString *)resourceName
                                         andFileType:(NSString *)fileType
                                           inBundles:(NSArray *)bundles {
   // Loop through all bundles to find the config dict.
