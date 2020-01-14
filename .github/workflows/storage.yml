@@ -1,4 +1,4 @@
-name: core
+name: storage
 
 on:
   push
@@ -10,14 +10,15 @@ jobs:
   core:
     runs-on: macOS-latest
     steps:
-      - name: Hello world action
-        with: # Set the secret as an input
-          super_secret: ${{ secrets.TestSecret }}
-        # env: # Or as an environment variable
-        #   super_secret: ${{ secrets.SuperSecret }}
-        run: |
-          cp ${{ secrets.TestSecret }} foo
-          cat foo
+    - uses: actions/checkout@v1
+    - name: Hello world action
+      with: # Set the secret as an input
+        super_secret: ${{ secrets.TestSecret }}
+      # env: # Or as an environment variable
+      #   super_secret: ${{ secrets.SuperSecret }}
+      run: |
+        cp ${{ secrets.TestSecret }} foo
+        cat foo
 
 
     # - uses: actions/checkout@v1
