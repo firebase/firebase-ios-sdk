@@ -20,6 +20,7 @@ Pod::Spec.new do |s|
   s.prefix_header_file = false
 
   s.source_files = 'Crashlytics/Crashlytics/**/*.{c,h,m,mm}',
+    'Crashlytics/Protogen/**/*.{c,h,m,mm}',
     'Crashlytics/Shared/**/*.{c,h,m,mm}',
     'Crashlytics/third_party/**/*.{c,h,m,mm}'
 
