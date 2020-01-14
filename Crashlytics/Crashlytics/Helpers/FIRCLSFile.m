@@ -73,6 +73,11 @@ static bool FIRCLSFileInit(FIRCLSFile* file, int fd, bool appendMode, bool buffe
   file->bufferWrites = bufferWrites;
   if (bufferWrites) {
     file->writeBuffer = malloc(FIRCLSWriteBufferLength * sizeof(char));
+    if (!file->writeBuffer) {
+      FIRCLSErrorLog(@"Unable to malloc in FIRCLSFileInit");
+      return false;
+    }
+
     file->writeBufferLength = 0;
   }
 
@@ -645,6 +650,7 @@ NSString* FIRCLSFileHexEncodeString(const char* string) {
   char* encodedBuffer = malloc(length * 2 + 1);
 
   if (!encodedBuffer) {
+    FIRCLSErrorLog(@"Unable to malloc in FIRCLSFileHexEncodeString");
     return nil;
   }
 
@@ -667,6 +673,10 @@ NSString* FIRCLSFileHexEncodeString(const char* string) {
 NSString* FIRCLSFileHexDecodeString(const char* string) {
   size_t length = strlen(string);
   char* decodedBuffer = malloc(length);  // too long, but safe
+  if (!decodedBuffer) {
+    FIRCLSErrorLog(@"Unable to malloc in FIRCLSFileHexDecodeString");
+    return nil;
+  }
 
   memset(decodedBuffer, 0, length);
 
