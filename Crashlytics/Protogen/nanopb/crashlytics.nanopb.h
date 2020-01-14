@@ -169,7 +169,8 @@ typedef struct _java_com_google_fabric_crashlytics_proto_FeatureFlag {
 } java_com_google_fabric_crashlytics_proto_FeatureFlag;
 
 typedef struct _java_com_google_fabric_crashlytics_proto_FeatureFlags {
-    pb_callback_t feature_flags;
+    pb_size_t feature_flags_count;
+    struct _java_com_google_fabric_crashlytics_proto_FeatureFlag *feature_flags;
 /* @@protoc_insertion_point(struct:java_com_google_fabric_crashlytics_proto_FeatureFlags) */
 } java_com_google_fabric_crashlytics_proto_FeatureFlags;
 
@@ -188,7 +189,7 @@ typedef struct _java_com_google_fabric_crashlytics_proto_Session_Application_Org
 
 typedef struct _java_com_google_fabric_crashlytics_proto_Session_Event_AnalyticsParam {
     pb_bytes_array_t *name;
-    pb_callback_t value;
+    pb_bytes_array_t *value;
 /* @@protoc_insertion_point(struct:java_com_google_fabric_crashlytics_proto_Session_Event_AnalyticsParam) */
 } java_com_google_fabric_crashlytics_proto_Session_Event_AnalyticsParam;
 
@@ -201,7 +202,8 @@ typedef struct _java_com_google_fabric_crashlytics_proto_Session_User {
     pb_bytes_array_t *identifier;
     pb_bytes_array_t *name;
     pb_bytes_array_t *email;
-    pb_callback_t custom_attributes;
+    pb_size_t custom_attributes_count;
+    struct _java_com_google_fabric_crashlytics_proto_CustomAttribute *custom_attributes;
 /* @@protoc_insertion_point(struct:java_com_google_fabric_crashlytics_proto_Session_User) */
 } java_com_google_fabric_crashlytics_proto_Session_User;
 
@@ -227,8 +229,8 @@ typedef struct _java_com_google_fabric_crashlytics_proto_Session_Application_Pro
 } java_com_google_fabric_crashlytics_proto_Session_Application_Process;
 
 typedef struct _java_com_google_fabric_crashlytics_proto_Session_Device {
-    pb_callback_t identifier;
-    pb_callback_t udid;
+    pb_bytes_array_t *identifier;
+    pb_bytes_array_t *udid;
     java_com_google_fabric_crashlytics_proto_Session_Architecture arch;
     pb_bytes_array_t *model;
     bool has_cores;
@@ -241,7 +243,8 @@ typedef struct _java_com_google_fabric_crashlytics_proto_Session_Device {
     pb_bytes_array_t *language;
     bool has_simulator;
     bool simulator;
-    pb_callback_t identifiers;
+    pb_size_t identifiers_count;
+    struct _java_com_google_fabric_crashlytics_proto_Session_Device_Identifier *identifiers;
     bool has_state;
     uint32_t state;
     pb_bytes_array_t *manufacturer;
@@ -256,8 +259,9 @@ typedef struct _java_com_google_fabric_crashlytics_proto_Session_Device_Identifi
 } java_com_google_fabric_crashlytics_proto_Session_Device_Identifier;
 
 typedef struct _java_com_google_fabric_crashlytics_proto_Session_Event_AnalyticsObject {
-    pb_callback_t param;
-    pb_callback_t name;
+    pb_size_t param_count;
+    struct _java_com_google_fabric_crashlytics_proto_Session_Event_AnalyticsParam *param;
+    pb_bytes_array_t *name;
     bool has_relative_ms;
     uint64_t relative_ms;
 /* @@protoc_insertion_point(struct:java_com_google_fabric_crashlytics_proto_Session_Event_AnalyticsObject) */
@@ -267,7 +271,7 @@ typedef struct _java_com_google_fabric_crashlytics_proto_Session_Event_Applicati
     uint64_t base_address;
     uint64_t size;
     pb_bytes_array_t *name;
-    pb_callback_t uuid;
+    pb_bytes_array_t *uuid;
     bool has_arch;
     java_com_google_fabric_crashlytics_proto_Session_Architecture arch;
     pb_bytes_array_t *cls_id;
@@ -279,8 +283,10 @@ typedef struct _java_com_google_fabric_crashlytics_proto_Session_Event_Applicati
     pb_bytes_array_t *type;
     pb_bytes_array_t *code;
     pb_bytes_array_t *reason;
-    pb_callback_t frames;
-    pb_callback_t custom_attributes;
+    pb_size_t frames_count;
+    struct _java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Thread_Frame *frames;
+    pb_size_t custom_attributes_count;
+    struct _java_com_google_fabric_crashlytics_proto_CustomAttribute *custom_attributes;
     bool has_overflow_count;
     uint32_t overflow_count;
     bool has_importance;
@@ -298,8 +304,10 @@ typedef struct _java_com_google_fabric_crashlytics_proto_Session_Event_Applicati
 typedef struct _java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Thread {
     pb_bytes_array_t *name;
     uint32_t importance;
-    pb_callback_t frames;
-    pb_callback_t registers;
+    pb_size_t frames_count;
+    struct _java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Thread_Frame *frames;
+    pb_size_t registers_count;
+    struct _java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Thread_Register *registers;
     pb_bytes_array_t *alternate_name;
     pb_bytes_array_t *objc_selector_name;
 /* @@protoc_insertion_point(struct:java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Thread) */
@@ -377,17 +385,19 @@ typedef struct _java_com_google_fabric_crashlytics_proto_Session_Application {
 } java_com_google_fabric_crashlytics_proto_Session_Application;
 
 typedef struct _java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution {
-    pb_callback_t threads;
+    pb_size_t threads_count;
+    struct _java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Thread *threads;
     bool has_exception;
     java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Exception exception;
     java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Signal signal;
-    pb_callback_t binaries;
+    pb_size_t binaries_count;
+    struct _java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_BinaryImage *binaries;
 /* @@protoc_insertion_point(struct:java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution) */
 } java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution;
 
 typedef struct _java_com_google_fabric_crashlytics_proto_Session {
     pb_bytes_array_t *generator;
-    pb_callback_t identifier;
+    pb_bytes_array_t *identifier;
     uint64_t started_at;
     bool has_ended_at;
     uint64_t ended_at;
@@ -400,7 +410,8 @@ typedef struct _java_com_google_fabric_crashlytics_proto_Session {
     java_com_google_fabric_crashlytics_proto_Session_OperatingSystem os;
     bool has_device;
     java_com_google_fabric_crashlytics_proto_Session_Device device;
-    pb_callback_t events;
+    pb_size_t events_count;
+    struct _java_com_google_fabric_crashlytics_proto_Session_Event *events;
     bool has_analyzer;
     uint32_t analyzer;
     bool has_generator_type;
@@ -416,12 +427,14 @@ typedef struct _java_com_google_fabric_crashlytics_proto_Session {
 
 typedef struct _java_com_google_fabric_crashlytics_proto_Session_Event_Application {
     java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution execution;
-    pb_callback_t custom_attributes;
+    pb_size_t custom_attributes_count;
+    struct _java_com_google_fabric_crashlytics_proto_CustomAttribute *custom_attributes;
     bool has_background;
     bool background;
     bool has_ui_orientation;
     uint32_t ui_orientation;
-    pb_callback_t feature_flags;
+    pb_size_t feature_flags_count;
+    struct _java_com_google_fabric_crashlytics_proto_FeatureFlag *feature_flags;
 /* @@protoc_insertion_point(struct:java_com_google_fabric_crashlytics_proto_Session_Event_Application) */
 } java_com_google_fabric_crashlytics_proto_Session_Event_Application;
 
@@ -439,67 +452,69 @@ typedef struct _java_com_google_fabric_crashlytics_proto_Session_Event {
     java_com_google_fabric_crashlytics_proto_Session_Event_Device device;
     bool has_log;
     java_com_google_fabric_crashlytics_proto_Session_Event_Log log;
-    pb_callback_t aggregation_id;
-    pb_callback_t matcher_tags;
-    pb_callback_t analytics_object;
+    pb_bytes_array_t *aggregation_id;
+    pb_size_t matcher_tags_count;
+    pb_bytes_array_t **matcher_tags;
+    pb_size_t analytics_object_count;
+    struct _java_com_google_fabric_crashlytics_proto_Session_Event_AnalyticsObject *analytics_object;
 /* @@protoc_insertion_point(struct:java_com_google_fabric_crashlytics_proto_Session_Event) */
 } java_com_google_fabric_crashlytics_proto_Session_Event;
 
 /* Default values for struct fields */
 
 /* Initializer values for message structs */
-#define java_com_google_fabric_crashlytics_proto_Session_init_default {NULL, {{NULL}, NULL}, 0, false, 0, false, 0, false, java_com_google_fabric_crashlytics_proto_Session_User_init_default, java_com_google_fabric_crashlytics_proto_Session_Application_init_default, false, java_com_google_fabric_crashlytics_proto_Session_OperatingSystem_init_default, false, java_com_google_fabric_crashlytics_proto_Session_Device_init_default, {{NULL}, NULL}, false, 0, false, _java_com_google_fabric_crashlytics_proto_Session_GeneratorType_MIN, false, _java_com_google_fabric_crashlytics_proto_Session_FrameDecoder_MIN, false, java_com_google_fabric_crashlytics_proto_InternalData_init_default, false, 0}
-#define java_com_google_fabric_crashlytics_proto_Session_User_init_default {NULL, NULL, NULL, {{NULL}, NULL}}
+#define java_com_google_fabric_crashlytics_proto_Session_init_default {NULL, NULL, 0, false, 0, false, 0, false, java_com_google_fabric_crashlytics_proto_Session_User_init_default, java_com_google_fabric_crashlytics_proto_Session_Application_init_default, false, java_com_google_fabric_crashlytics_proto_Session_OperatingSystem_init_default, false, java_com_google_fabric_crashlytics_proto_Session_Device_init_default, 0, NULL, false, 0, false, _java_com_google_fabric_crashlytics_proto_Session_GeneratorType_MIN, false, _java_com_google_fabric_crashlytics_proto_Session_FrameDecoder_MIN, false, java_com_google_fabric_crashlytics_proto_InternalData_init_default, false, 0}
+#define java_com_google_fabric_crashlytics_proto_Session_User_init_default {NULL, NULL, NULL, 0, NULL}
 #define java_com_google_fabric_crashlytics_proto_Session_Application_init_default {NULL, NULL, NULL, false, java_com_google_fabric_crashlytics_proto_Session_Application_Process_init_default, false, java_com_google_fabric_crashlytics_proto_Session_Application_Organization_init_default, NULL, NULL, NULL, NULL, false, _java_com_google_fabric_crashlytics_proto_Session_Application_DeliveryMechanism_MIN, NULL, NULL}
 #define java_com_google_fabric_crashlytics_proto_Session_Application_Process_init_default {NULL, 0, NULL, NULL, false, 0}
 #define java_com_google_fabric_crashlytics_proto_Session_Application_Organization_init_default {NULL, NULL}
 #define java_com_google_fabric_crashlytics_proto_Session_OperatingSystem_init_default {_java_com_google_fabric_crashlytics_proto_Session_Platform_MIN, NULL, NULL, false, 0}
-#define java_com_google_fabric_crashlytics_proto_Session_Device_init_default {{{NULL}, NULL}, {{NULL}, NULL}, _java_com_google_fabric_crashlytics_proto_Session_Architecture_MIN, NULL, false, 0, false, 0, false, 0, NULL, NULL, false, 0, {{NULL}, NULL}, false, 0, NULL, NULL}
+#define java_com_google_fabric_crashlytics_proto_Session_Device_init_default {NULL, NULL, _java_com_google_fabric_crashlytics_proto_Session_Architecture_MIN, NULL, false, 0, false, 0, false, 0, NULL, NULL, false, 0, 0, NULL, false, 0, NULL, NULL}
 #define java_com_google_fabric_crashlytics_proto_Session_Device_Identifier_init_default {_java_com_google_fabric_crashlytics_proto_Session_DeviceIdentifierType_MIN, NULL}
-#define java_com_google_fabric_crashlytics_proto_Session_Event_init_default {0, NULL, false, java_com_google_fabric_crashlytics_proto_Session_Event_Application_init_default, false, java_com_google_fabric_crashlytics_proto_Session_Event_Device_init_default, false, java_com_google_fabric_crashlytics_proto_Session_Event_Log_init_default, {{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}}
-#define java_com_google_fabric_crashlytics_proto_Session_Event_Application_init_default {java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_init_default, {{NULL}, NULL}, false, 0, false, 0, {{NULL}, NULL}}
-#define java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_init_default {{{NULL}, NULL}, false, java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Exception_init_default, java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Signal_init_default, {{NULL}, NULL}}
-#define java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Thread_init_default {NULL, 0, {{NULL}, NULL}, {{NULL}, NULL}, NULL, NULL}
+#define java_com_google_fabric_crashlytics_proto_Session_Event_init_default {0, NULL, false, java_com_google_fabric_crashlytics_proto_Session_Event_Application_init_default, false, java_com_google_fabric_crashlytics_proto_Session_Event_Device_init_default, false, java_com_google_fabric_crashlytics_proto_Session_Event_Log_init_default, NULL, 0, NULL, 0, NULL}
+#define java_com_google_fabric_crashlytics_proto_Session_Event_Application_init_default {java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_init_default, 0, NULL, false, 0, false, 0, 0, NULL}
+#define java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_init_default {0, NULL, false, java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Exception_init_default, java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Signal_init_default, 0, NULL}
+#define java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Thread_init_default {NULL, 0, 0, NULL, 0, NULL, NULL, NULL}
 #define java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Thread_Frame_init_default {0, NULL, NULL, false, 0, false, 0, NULL, NULL, false, 0, false, 0, false, 0, false, 0}
 #define java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Thread_Register_init_default {NULL, 0}
-#define java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Exception_init_default {NULL, NULL, NULL, {{NULL}, NULL}, {{NULL}, NULL}, false, 0, false, 0}
+#define java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Exception_init_default {NULL, NULL, NULL, 0, NULL, 0, NULL, false, 0, false, 0}
 #define java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Signal_init_default {NULL, NULL, 0}
-#define java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_BinaryImage_init_default {0, 0, NULL, {{NULL}, NULL}, false, _java_com_google_fabric_crashlytics_proto_Session_Architecture_MIN, NULL, NULL}
+#define java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_BinaryImage_init_default {0, 0, NULL, NULL, false, _java_com_google_fabric_crashlytics_proto_Session_Architecture_MIN, NULL, NULL}
 #define java_com_google_fabric_crashlytics_proto_Session_Event_Device_init_default {false, 0, false, 0, false, 0, false, 0, false, 0, false, 0}
 #define java_com_google_fabric_crashlytics_proto_Session_Event_Log_init_default {NULL}
-#define java_com_google_fabric_crashlytics_proto_Session_Event_AnalyticsParam_init_default {NULL, {{NULL}, NULL}}
-#define java_com_google_fabric_crashlytics_proto_Session_Event_AnalyticsObject_init_default {{{NULL}, NULL}, {{NULL}, NULL}, false, 0}
+#define java_com_google_fabric_crashlytics_proto_Session_Event_AnalyticsParam_init_default {NULL, NULL}
+#define java_com_google_fabric_crashlytics_proto_Session_Event_AnalyticsObject_init_default {0, NULL, NULL, false, 0}
 #define java_com_google_fabric_crashlytics_proto_CustomAttribute_init_default {NULL, NULL}
 #define java_com_google_fabric_crashlytics_proto_InternalData_init_default {NULL, NULL, NULL}
 #define java_com_google_fabric_crashlytics_proto_FeatureFlag_init_default {NULL, NULL}
-#define java_com_google_fabric_crashlytics_proto_FeatureFlags_init_default {{{NULL}, NULL}}
+#define java_com_google_fabric_crashlytics_proto_FeatureFlags_init_default {0, NULL}
 #define java_com_google_fabric_crashlytics_proto_Report_init_default {NULL, NULL, NULL, _java_com_google_fabric_crashlytics_proto_Session_Platform_MIN, NULL, NULL, NULL}
 #define java_com_google_fabric_crashlytics_proto_Report_payload_init_default {java_com_google_fabric_crashlytics_proto_Session_init_default}
-#define java_com_google_fabric_crashlytics_proto_Session_init_zero {NULL, {{NULL}, NULL}, 0, false, 0, false, 0, false, java_com_google_fabric_crashlytics_proto_Session_User_init_zero, java_com_google_fabric_crashlytics_proto_Session_Application_init_zero, false, java_com_google_fabric_crashlytics_proto_Session_OperatingSystem_init_zero, false, java_com_google_fabric_crashlytics_proto_Session_Device_init_zero, {{NULL}, NULL}, false, 0, false, _java_com_google_fabric_crashlytics_proto_Session_GeneratorType_MIN, false, _java_com_google_fabric_crashlytics_proto_Session_FrameDecoder_MIN, false, java_com_google_fabric_crashlytics_proto_InternalData_init_zero, false, 0}
-#define java_com_google_fabric_crashlytics_proto_Session_User_init_zero {NULL, NULL, NULL, {{NULL}, NULL}}
+#define java_com_google_fabric_crashlytics_proto_Session_init_zero {NULL, NULL, 0, false, 0, false, 0, false, java_com_google_fabric_crashlytics_proto_Session_User_init_zero, java_com_google_fabric_crashlytics_proto_Session_Application_init_zero, false, java_com_google_fabric_crashlytics_proto_Session_OperatingSystem_init_zero, false, java_com_google_fabric_crashlytics_proto_Session_Device_init_zero, 0, NULL, false, 0, false, _java_com_google_fabric_crashlytics_proto_Session_GeneratorType_MIN, false, _java_com_google_fabric_crashlytics_proto_Session_FrameDecoder_MIN, false, java_com_google_fabric_crashlytics_proto_InternalData_init_zero, false, 0}
+#define java_com_google_fabric_crashlytics_proto_Session_User_init_zero {NULL, NULL, NULL, 0, NULL}
 #define java_com_google_fabric_crashlytics_proto_Session_Application_init_zero {NULL, NULL, NULL, false, java_com_google_fabric_crashlytics_proto_Session_Application_Process_init_zero, false, java_com_google_fabric_crashlytics_proto_Session_Application_Organization_init_zero, NULL, NULL, NULL, NULL, false, _java_com_google_fabric_crashlytics_proto_Session_Application_DeliveryMechanism_MIN, NULL, NULL}
 #define java_com_google_fabric_crashlytics_proto_Session_Application_Process_init_zero {NULL, 0, NULL, NULL, false, 0}
 #define java_com_google_fabric_crashlytics_proto_Session_Application_Organization_init_zero {NULL, NULL}
 #define java_com_google_fabric_crashlytics_proto_Session_OperatingSystem_init_zero {_java_com_google_fabric_crashlytics_proto_Session_Platform_MIN, NULL, NULL, false, 0}
-#define java_com_google_fabric_crashlytics_proto_Session_Device_init_zero {{{NULL}, NULL}, {{NULL}, NULL}, _java_com_google_fabric_crashlytics_proto_Session_Architecture_MIN, NULL, false, 0, false, 0, false, 0, NULL, NULL, false, 0, {{NULL}, NULL}, false, 0, NULL, NULL}
+#define java_com_google_fabric_crashlytics_proto_Session_Device_init_zero {NULL, NULL, _java_com_google_fabric_crashlytics_proto_Session_Architecture_MIN, NULL, false, 0, false, 0, false, 0, NULL, NULL, false, 0, 0, NULL, false, 0, NULL, NULL}
 #define java_com_google_fabric_crashlytics_proto_Session_Device_Identifier_init_zero {_java_com_google_fabric_crashlytics_proto_Session_DeviceIdentifierType_MIN, NULL}
-#define java_com_google_fabric_crashlytics_proto_Session_Event_init_zero {0, NULL, false, java_com_google_fabric_crashlytics_proto_Session_Event_Application_init_zero, false, java_com_google_fabric_crashlytics_proto_Session_Event_Device_init_zero, false, java_com_google_fabric_crashlytics_proto_Session_Event_Log_init_zero, {{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}}
-#define java_com_google_fabric_crashlytics_proto_Session_Event_Application_init_zero {java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_init_zero, {{NULL}, NULL}, false, 0, false, 0, {{NULL}, NULL}}
-#define java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_init_zero {{{NULL}, NULL}, false, java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Exception_init_zero, java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Signal_init_zero, {{NULL}, NULL}}
-#define java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Thread_init_zero {NULL, 0, {{NULL}, NULL}, {{NULL}, NULL}, NULL, NULL}
+#define java_com_google_fabric_crashlytics_proto_Session_Event_init_zero {0, NULL, false, java_com_google_fabric_crashlytics_proto_Session_Event_Application_init_zero, false, java_com_google_fabric_crashlytics_proto_Session_Event_Device_init_zero, false, java_com_google_fabric_crashlytics_proto_Session_Event_Log_init_zero, NULL, 0, NULL, 0, NULL}
+#define java_com_google_fabric_crashlytics_proto_Session_Event_Application_init_zero {java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_init_zero, 0, NULL, false, 0, false, 0, 0, NULL}
+#define java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_init_zero {0, NULL, false, java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Exception_init_zero, java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Signal_init_zero, 0, NULL}
+#define java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Thread_init_zero {NULL, 0, 0, NULL, 0, NULL, NULL, NULL}
 #define java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Thread_Frame_init_zero {0, NULL, NULL, false, 0, false, 0, NULL, NULL, false, 0, false, 0, false, 0, false, 0}
 #define java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Thread_Register_init_zero {NULL, 0}
-#define java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Exception_init_zero {NULL, NULL, NULL, {{NULL}, NULL}, {{NULL}, NULL}, false, 0, false, 0}
+#define java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Exception_init_zero {NULL, NULL, NULL, 0, NULL, 0, NULL, false, 0, false, 0}
 #define java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Signal_init_zero {NULL, NULL, 0}
-#define java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_BinaryImage_init_zero {0, 0, NULL, {{NULL}, NULL}, false, _java_com_google_fabric_crashlytics_proto_Session_Architecture_MIN, NULL, NULL}
+#define java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_BinaryImage_init_zero {0, 0, NULL, NULL, false, _java_com_google_fabric_crashlytics_proto_Session_Architecture_MIN, NULL, NULL}
 #define java_com_google_fabric_crashlytics_proto_Session_Event_Device_init_zero {false, 0, false, 0, false, 0, false, 0, false, 0, false, 0}
 #define java_com_google_fabric_crashlytics_proto_Session_Event_Log_init_zero {NULL}
-#define java_com_google_fabric_crashlytics_proto_Session_Event_AnalyticsParam_init_zero {NULL, {{NULL}, NULL}}
-#define java_com_google_fabric_crashlytics_proto_Session_Event_AnalyticsObject_init_zero {{{NULL}, NULL}, {{NULL}, NULL}, false, 0}
+#define java_com_google_fabric_crashlytics_proto_Session_Event_AnalyticsParam_init_zero {NULL, NULL}
+#define java_com_google_fabric_crashlytics_proto_Session_Event_AnalyticsObject_init_zero {0, NULL, NULL, false, 0}
 #define java_com_google_fabric_crashlytics_proto_CustomAttribute_init_zero {NULL, NULL}
 #define java_com_google_fabric_crashlytics_proto_InternalData_init_zero {NULL, NULL, NULL}
 #define java_com_google_fabric_crashlytics_proto_FeatureFlag_init_zero {NULL, NULL}
-#define java_com_google_fabric_crashlytics_proto_FeatureFlags_init_zero {{{NULL}, NULL}}
+#define java_com_google_fabric_crashlytics_proto_FeatureFlags_init_zero {0, NULL}
 #define java_com_google_fabric_crashlytics_proto_Report_init_zero {NULL, NULL, NULL, _java_com_google_fabric_crashlytics_proto_Session_Platform_MIN, NULL, NULL, NULL}
 #define java_com_google_fabric_crashlytics_proto_Report_payload_init_zero {java_com_google_fabric_crashlytics_proto_Session_init_zero}
 

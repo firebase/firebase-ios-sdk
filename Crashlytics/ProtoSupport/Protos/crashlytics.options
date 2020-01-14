@@ -16,10 +16,13 @@
 # Options for crashlytics.proto
 
 java.com.google.fabric.crashlytics.proto.Session.generator type:FT_POINTER
+java.com.google.fabric.crashlytics.proto.Session.identifier type:FT_POINTER
+java.com.google.fabric.crashlytics.proto.Session.events type:FT_POINTER
 
 java.com.google.fabric.crashlytics.proto.Session.User.identifier type:FT_POINTER
 java.com.google.fabric.crashlytics.proto.Session.User.name type:FT_POINTER
 java.com.google.fabric.crashlytics.proto.Session.User.email type:FT_POINTER
+java.com.google.fabric.crashlytics.proto.Session.User.custom_attributes type:FT_POINTER
 
 java.com.google.fabric.crashlytics.proto.Session.Application.identifier type:FT_POINTER
 java.com.google.fabric.crashlytics.proto.Session.Application.version type:FT_POINTER
@@ -41,17 +44,31 @@ java.com.google.fabric.crashlytics.proto.Session.Application.Organization.cls_id
 java.com.google.fabric.crashlytics.proto.Session.OperatingSystem.version type:FT_POINTER
 java.com.google.fabric.crashlytics.proto.Session.OperatingSystem.build_version type:FT_POINTER
 
+java.com.google.fabric.crashlytics.proto.Session.Device.identifier type:FT_POINTER
+java.com.google.fabric.crashlytics.proto.Session.Device.udid type:FT_POINTER
 java.com.google.fabric.crashlytics.proto.Session.Device.model type:FT_POINTER
 java.com.google.fabric.crashlytics.proto.Session.Device.user_agent type:FT_POINTER
 java.com.google.fabric.crashlytics.proto.Session.Device.language type:FT_POINTER
+java.com.google.fabric.crashlytics.proto.Session.Device.identifiers type:FT_POINTER
 java.com.google.fabric.crashlytics.proto.Session.Device.manufacturer type:FT_POINTER
 java.com.google.fabric.crashlytics.proto.Session.Device.model_class type:FT_POINTER
 
 java.com.google.fabric.crashlytics.proto.Session.Device.Identifier.value type:FT_POINTER
 
 java.com.google.fabric.crashlytics.proto.Session.Event.type type:FT_POINTER
+java.com.google.fabric.crashlytics.proto.Session.Event.aggregation_id type:FT_POINTER
+java.com.google.fabric.crashlytics.proto.Session.Event.matcher_tags type:FT_POINTER
+java.com.google.fabric.crashlytics.proto.Session.Event.analytics_object type:FT_POINTER
+
+java.com.google.fabric.crashlytics.proto.Session.Event.Application.custom_attributes type:FT_POINTER
+java.com.google.fabric.crashlytics.proto.Session.Event.Application.feature_flags type:FT_POINTER
+
+java.com.google.fabric.crashlytics.proto.Session.Event.Application.Execution.threads type:FT_POINTER
+java.com.google.fabric.crashlytics.proto.Session.Event.Application.Execution.binaries type:FT_POINTER
 
 java.com.google.fabric.crashlytics.proto.Session.Event.Application.Execution.Thread.name type:FT_POINTER
+java.com.google.fabric.crashlytics.proto.Session.Event.Application.Execution.Thread.frames type:FT_POINTER
+java.com.google.fabric.crashlytics.proto.Session.Event.Application.Execution.Thread.registers type:FT_POINTER
 java.com.google.fabric.crashlytics.proto.Session.Event.Application.Execution.Thread.alternate_name type:FT_POINTER
 java.com.google.fabric.crashlytics.proto.Session.Event.Application.Execution.Thread.objc_selector_name type:FT_POINTER
 
@@ -65,17 +82,24 @@ java.com.google.fabric.crashlytics.proto.Session.Event.Application.Execution.Thr
 java.com.google.fabric.crashlytics.proto.Session.Event.Application.Execution.Exception.type type:FT_POINTER
 java.com.google.fabric.crashlytics.proto.Session.Event.Application.Execution.Exception.code type:FT_POINTER
 java.com.google.fabric.crashlytics.proto.Session.Event.Application.Execution.Exception.reason type:FT_POINTER
+java.com.google.fabric.crashlytics.proto.Session.Event.Application.Execution.Exception.frames type:FT_POINTER
+java.com.google.fabric.crashlytics.proto.Session.Event.Application.Execution.Exception.custom_attributes type:FT_POINTER
 
 java.com.google.fabric.crashlytics.proto.Session.Event.Application.Execution.Signal.name type:FT_POINTER
 java.com.google.fabric.crashlytics.proto.Session.Event.Application.Execution.Signal.code type:FT_POINTER
 
 java.com.google.fabric.crashlytics.proto.Session.Event.Application.Execution.BinaryImage.name type:FT_POINTER
+java.com.google.fabric.crashlytics.proto.Session.Event.Application.Execution.BinaryImage.uuid type:FT_POINTER
 java.com.google.fabric.crashlytics.proto.Session.Event.Application.Execution.BinaryImage.cls_id type:FT_POINTER
 java.com.google.fabric.crashlytics.proto.Session.Event.Application.Execution.BinaryImage.s3_path type:FT_POINTER
 
 java.com.google.fabric.crashlytics.proto.Session.Event.Log.content type:FT_POINTER
 
 java.com.google.fabric.crashlytics.proto.Session.Event.AnalyticsParam.name type:FT_POINTER
+java.com.google.fabric.crashlytics.proto.Session.Event.AnalyticsParam.value type:FT_POINTER
+
+java.com.google.fabric.crashlytics.proto.Session.Event.AnalyticsObject.param type:FT_POINTER
+java.com.google.fabric.crashlytics.proto.Session.Event.AnalyticsObject.name type:FT_POINTER
 
 java.com.google.fabric.crashlytics.proto.CustomAttribute.key type:FT_POINTER
 java.com.google.fabric.crashlytics.proto.CustomAttribute.value type:FT_POINTER
@@ -86,6 +110,8 @@ java.com.google.fabric.crashlytics.proto.InternalData.project_number type:FT_POI
 
 java.com.google.fabric.crashlytics.proto.FeatureFlag.feature type:FT_POINTER
 java.com.google.fabric.crashlytics.proto.FeatureFlag.state type:FT_POINTER
+
+java.com.google.fabric.crashlytics.proto.FeatureFlags.feature_flags type:FT_POINTER
 
 java.com.google.fabric.crashlytics.proto.Report.sdk_version type:FT_POINTER
 java.com.google.fabric.crashlytics.proto.Report.project_id type:FT_POINTER

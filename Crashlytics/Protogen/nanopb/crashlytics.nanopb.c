@@ -28,7 +28,7 @@
 
 const pb_field_t java_com_google_fabric_crashlytics_proto_Session_fields[16] = {
     PB_FIELD(  1, BYTES   , REQUIRED, POINTER , FIRST, java_com_google_fabric_crashlytics_proto_Session, generator, generator, 0),
-    PB_FIELD(  2, BYTES   , REQUIRED, CALLBACK, OTHER, java_com_google_fabric_crashlytics_proto_Session, identifier, generator, 0),
+    PB_FIELD(  2, BYTES   , REQUIRED, POINTER , OTHER, java_com_google_fabric_crashlytics_proto_Session, identifier, generator, 0),
     PB_FIELD(  3, UINT64  , REQUIRED, STATIC  , OTHER, java_com_google_fabric_crashlytics_proto_Session, started_at, identifier, 0),
     PB_FIELD(  4, UINT64  , OPTIONAL, STATIC  , OTHER, java_com_google_fabric_crashlytics_proto_Session, ended_at, started_at, 0),
     PB_FIELD(  5, BOOL    , OPTIONAL, STATIC  , OTHER, java_com_google_fabric_crashlytics_proto_Session, crashed, ended_at, 0),
@@ -36,7 +36,7 @@ const pb_field_t java_com_google_fabric_crashlytics_proto_Session_fields[16] = {
     PB_FIELD(  7, MESSAGE , REQUIRED, STATIC  , OTHER, java_com_google_fabric_crashlytics_proto_Session, app, user, &java_com_google_fabric_crashlytics_proto_Session_Application_fields),
     PB_FIELD(  8, MESSAGE , OPTIONAL, STATIC  , OTHER, java_com_google_fabric_crashlytics_proto_Session, os, app, &java_com_google_fabric_crashlytics_proto_Session_OperatingSystem_fields),
     PB_FIELD(  9, MESSAGE , OPTIONAL, STATIC  , OTHER, java_com_google_fabric_crashlytics_proto_Session, device, os, &java_com_google_fabric_crashlytics_proto_Session_Device_fields),
-    PB_FIELD( 10, MESSAGE , REPEATED, CALLBACK, OTHER, java_com_google_fabric_crashlytics_proto_Session, events, device, &java_com_google_fabric_crashlytics_proto_Session_Event_fields),
+    PB_FIELD( 10, MESSAGE , REPEATED, POINTER , OTHER, java_com_google_fabric_crashlytics_proto_Session, events, device, &java_com_google_fabric_crashlytics_proto_Session_Event_fields),
     PB_FIELD( 11, UINT32  , OPTIONAL, STATIC  , OTHER, java_com_google_fabric_crashlytics_proto_Session, analyzer, events, 0),
     PB_FIELD( 12, UENUM   , OPTIONAL, STATIC  , OTHER, java_com_google_fabric_crashlytics_proto_Session, generator_type, analyzer, 0),
     PB_FIELD( 13, UENUM   , OPTIONAL, STATIC  , OTHER, java_com_google_fabric_crashlytics_proto_Session, frame_decoder, generator_type, 0),
@@ -49,7 +49,7 @@ const pb_field_t java_com_google_fabric_crashlytics_proto_Session_User_fields[5]
     PB_FIELD(  1, BYTES   , REQUIRED, POINTER , FIRST, java_com_google_fabric_crashlytics_proto_Session_User, identifier, identifier, 0),
     PB_FIELD(  2, BYTES   , OPTIONAL, POINTER , OTHER, java_com_google_fabric_crashlytics_proto_Session_User, name, identifier, 0),
     PB_FIELD(  3, BYTES   , OPTIONAL, POINTER , OTHER, java_com_google_fabric_crashlytics_proto_Session_User, email, name, 0),
-    PB_FIELD(  4, MESSAGE , REPEATED, CALLBACK, OTHER, java_com_google_fabric_crashlytics_proto_Session_User, custom_attributes, email, &java_com_google_fabric_crashlytics_proto_CustomAttribute_fields),
+    PB_FIELD(  4, MESSAGE , REPEATED, POINTER , OTHER, java_com_google_fabric_crashlytics_proto_Session_User, custom_attributes, email, &java_com_google_fabric_crashlytics_proto_CustomAttribute_fields),
     PB_LAST_FIELD
 };
 
@@ -93,8 +93,8 @@ const pb_field_t java_com_google_fabric_crashlytics_proto_Session_OperatingSyste
 };
 
 const pb_field_t java_com_google_fabric_crashlytics_proto_Session_Device_fields[15] = {
-    PB_FIELD(  1, BYTES   , OPTIONAL, CALLBACK, FIRST, java_com_google_fabric_crashlytics_proto_Session_Device, identifier, identifier, 0),
-    PB_FIELD(  2, BYTES   , OPTIONAL, CALLBACK, OTHER, java_com_google_fabric_crashlytics_proto_Session_Device, udid, identifier, 0),
+    PB_FIELD(  1, BYTES   , OPTIONAL, POINTER , FIRST, java_com_google_fabric_crashlytics_proto_Session_Device, identifier, identifier, 0),
+    PB_FIELD(  2, BYTES   , OPTIONAL, POINTER , OTHER, java_com_google_fabric_crashlytics_proto_Session_Device, udid, identifier, 0),
     PB_FIELD(  3, UENUM   , REQUIRED, STATIC  , OTHER, java_com_google_fabric_crashlytics_proto_Session_Device, arch, udid, 0),
     PB_FIELD(  4, BYTES   , OPTIONAL, POINTER , OTHER, java_com_google_fabric_crashlytics_proto_Session_Device, model, arch, 0),
     PB_FIELD(  5, UINT32  , OPTIONAL, STATIC  , OTHER, java_com_google_fabric_crashlytics_proto_Session_Device, cores, model, 0),
@@ -103,7 +103,7 @@ const pb_field_t java_com_google_fabric_crashlytics_proto_Session_Device_fields[
     PB_FIELD(  8, BYTES   , OPTIONAL, POINTER , OTHER, java_com_google_fabric_crashlytics_proto_Session_Device, user_agent, disk_space, 0),
     PB_FIELD(  9, BYTES   , OPTIONAL, POINTER , OTHER, java_com_google_fabric_crashlytics_proto_Session_Device, language, user_agent, 0),
     PB_FIELD( 10, BOOL    , OPTIONAL, STATIC  , OTHER, java_com_google_fabric_crashlytics_proto_Session_Device, simulator, language, 0),
-    PB_FIELD( 11, MESSAGE , REPEATED, CALLBACK, OTHER, java_com_google_fabric_crashlytics_proto_Session_Device, identifiers, simulator, &java_com_google_fabric_crashlytics_proto_Session_Device_Identifier_fields),
+    PB_FIELD( 11, MESSAGE , REPEATED, POINTER , OTHER, java_com_google_fabric_crashlytics_proto_Session_Device, identifiers, simulator, &java_com_google_fabric_crashlytics_proto_Session_Device_Identifier_fields),
     PB_FIELD( 12, UINT32  , OPTIONAL, STATIC  , OTHER, java_com_google_fabric_crashlytics_proto_Session_Device, state, identifiers, 0),
     PB_FIELD( 13, BYTES   , OPTIONAL, POINTER , OTHER, java_com_google_fabric_crashlytics_proto_Session_Device, manufacturer, state, 0),
     PB_FIELD( 14, BYTES   , OPTIONAL, POINTER , OTHER, java_com_google_fabric_crashlytics_proto_Session_Device, model_class, manufacturer, 0),
@@ -122,34 +122,34 @@ const pb_field_t java_com_google_fabric_crashlytics_proto_Session_Event_fields[9
     PB_FIELD(  3, MESSAGE , OPTIONAL, STATIC  , OTHER, java_com_google_fabric_crashlytics_proto_Session_Event, app, type, &java_com_google_fabric_crashlytics_proto_Session_Event_Application_fields),
     PB_FIELD(  5, MESSAGE , OPTIONAL, STATIC  , OTHER, java_com_google_fabric_crashlytics_proto_Session_Event, device, app, &java_com_google_fabric_crashlytics_proto_Session_Event_Device_fields),
     PB_FIELD(  6, MESSAGE , OPTIONAL, STATIC  , OTHER, java_com_google_fabric_crashlytics_proto_Session_Event, log, device, &java_com_google_fabric_crashlytics_proto_Session_Event_Log_fields),
-    PB_FIELD(  7, BYTES   , OPTIONAL, CALLBACK, OTHER, java_com_google_fabric_crashlytics_proto_Session_Event, aggregation_id, log, 0),
-    PB_FIELD(  8, BYTES   , REPEATED, CALLBACK, OTHER, java_com_google_fabric_crashlytics_proto_Session_Event, matcher_tags, aggregation_id, 0),
-    PB_FIELD(  9, MESSAGE , REPEATED, CALLBACK, OTHER, java_com_google_fabric_crashlytics_proto_Session_Event, analytics_object, matcher_tags, &java_com_google_fabric_crashlytics_proto_Session_Event_AnalyticsObject_fields),
+    PB_FIELD(  7, BYTES   , OPTIONAL, POINTER , OTHER, java_com_google_fabric_crashlytics_proto_Session_Event, aggregation_id, log, 0),
+    PB_FIELD(  8, BYTES   , REPEATED, POINTER , OTHER, java_com_google_fabric_crashlytics_proto_Session_Event, matcher_tags, aggregation_id, 0),
+    PB_FIELD(  9, MESSAGE , REPEATED, POINTER , OTHER, java_com_google_fabric_crashlytics_proto_Session_Event, analytics_object, matcher_tags, &java_com_google_fabric_crashlytics_proto_Session_Event_AnalyticsObject_fields),
     PB_LAST_FIELD
 };
 
 const pb_field_t java_com_google_fabric_crashlytics_proto_Session_Event_Application_fields[6] = {
     PB_FIELD(  1, MESSAGE , REQUIRED, STATIC  , FIRST, java_com_google_fabric_crashlytics_proto_Session_Event_Application, execution, execution, &java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_fields),
-    PB_FIELD(  2, MESSAGE , REPEATED, CALLBACK, OTHER, java_com_google_fabric_crashlytics_proto_Session_Event_Application, custom_attributes, execution, &java_com_google_fabric_crashlytics_proto_CustomAttribute_fields),
+    PB_FIELD(  2, MESSAGE , REPEATED, POINTER , OTHER, java_com_google_fabric_crashlytics_proto_Session_Event_Application, custom_attributes, execution, &java_com_google_fabric_crashlytics_proto_CustomAttribute_fields),
     PB_FIELD(  3, BOOL    , OPTIONAL, STATIC  , OTHER, java_com_google_fabric_crashlytics_proto_Session_Event_Application, background, custom_attributes, 0),
     PB_FIELD(  4, UINT32  , OPTIONAL, STATIC  , OTHER, java_com_google_fabric_crashlytics_proto_Session_Event_Application, ui_orientation, background, 0),
-    PB_FIELD(  5, MESSAGE , REPEATED, CALLBACK, OTHER, java_com_google_fabric_crashlytics_proto_Session_Event_Application, feature_flags, ui_orientation, &java_com_google_fabric_crashlytics_proto_FeatureFlag_fields),
+    PB_FIELD(  5, MESSAGE , REPEATED, POINTER , OTHER, java_com_google_fabric_crashlytics_proto_Session_Event_Application, feature_flags, ui_orientation, &java_com_google_fabric_crashlytics_proto_FeatureFlag_fields),
     PB_LAST_FIELD
 };
 
 const pb_field_t java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_fields[5] = {
-    PB_FIELD(  1, MESSAGE , REPEATED, CALLBACK, FIRST, java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution, threads, threads, &java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Thread_fields),
+    PB_FIELD(  1, MESSAGE , REPEATED, POINTER , FIRST, java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution, threads, threads, &java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Thread_fields),
     PB_FIELD(  2, MESSAGE , OPTIONAL, STATIC  , OTHER, java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution, exception, threads, &java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Exception_fields),
     PB_FIELD(  3, MESSAGE , REQUIRED, STATIC  , OTHER, java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution, signal, exception, &java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Signal_fields),
-    PB_FIELD(  4, MESSAGE , REPEATED, CALLBACK, OTHER, java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution, binaries, signal, &java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_BinaryImage_fields),
+    PB_FIELD(  4, MESSAGE , REPEATED, POINTER , OTHER, java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution, binaries, signal, &java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_BinaryImage_fields),
     PB_LAST_FIELD
 };
 
 const pb_field_t java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Thread_fields[7] = {
     PB_FIELD(  1, BYTES   , OPTIONAL, POINTER , FIRST, java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Thread, name, name, 0),
     PB_FIELD(  2, UINT32  , REQUIRED, STATIC  , OTHER, java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Thread, importance, name, 0),
-    PB_FIELD(  3, MESSAGE , REPEATED, CALLBACK, OTHER, java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Thread, frames, importance, &java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Thread_Frame_fields),
-    PB_FIELD(  4, MESSAGE , REPEATED, CALLBACK, OTHER, java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Thread, registers, frames, &java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Thread_Register_fields),
+    PB_FIELD(  3, MESSAGE , REPEATED, POINTER , OTHER, java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Thread, frames, importance, &java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Thread_Frame_fields),
+    PB_FIELD(  4, MESSAGE , REPEATED, POINTER , OTHER, java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Thread, registers, frames, &java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Thread_Register_fields),
     PB_FIELD(  5, BYTES   , OPTIONAL, POINTER , OTHER, java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Thread, alternate_name, registers, 0),
     PB_FIELD(  6, BYTES   , OPTIONAL, POINTER , OTHER, java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Thread, objc_selector_name, alternate_name, 0),
     PB_LAST_FIELD
@@ -180,8 +180,8 @@ const pb_field_t java_com_google_fabric_crashlytics_proto_Session_Event_Applicat
     PB_FIELD(  1, BYTES   , OPTIONAL, POINTER , FIRST, java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Exception, type, type, 0),
     PB_FIELD(  2, BYTES   , OPTIONAL, POINTER , OTHER, java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Exception, code, type, 0),
     PB_FIELD(  3, BYTES   , OPTIONAL, POINTER , OTHER, java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Exception, reason, code, 0),
-    PB_FIELD(  4, MESSAGE , REPEATED, CALLBACK, OTHER, java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Exception, frames, reason, &java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Thread_Frame_fields),
-    PB_FIELD(  5, MESSAGE , REPEATED, CALLBACK, OTHER, java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Exception, custom_attributes, frames, &java_com_google_fabric_crashlytics_proto_CustomAttribute_fields),
+    PB_FIELD(  4, MESSAGE , REPEATED, POINTER , OTHER, java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Exception, frames, reason, &java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Thread_Frame_fields),
+    PB_FIELD(  5, MESSAGE , REPEATED, POINTER , OTHER, java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Exception, custom_attributes, frames, &java_com_google_fabric_crashlytics_proto_CustomAttribute_fields),
     PB_FIELD(  7, UINT32  , OPTIONAL, STATIC  , OTHER, java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Exception, overflow_count, custom_attributes, 0),
     PB_FIELD(  8, UINT32  , OPTIONAL, STATIC  , OTHER, java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_Exception, importance, overflow_count, 0),
     PB_LAST_FIELD
@@ -198,7 +198,7 @@ const pb_field_t java_com_google_fabric_crashlytics_proto_Session_Event_Applicat
     PB_FIELD(  1, UINT64  , REQUIRED, STATIC  , FIRST, java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_BinaryImage, base_address, base_address, 0),
     PB_FIELD(  2, UINT64  , REQUIRED, STATIC  , OTHER, java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_BinaryImage, size, base_address, 0),
     PB_FIELD(  3, BYTES   , REQUIRED, POINTER , OTHER, java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_BinaryImage, name, size, 0),
-    PB_FIELD(  4, BYTES   , OPTIONAL, CALLBACK, OTHER, java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_BinaryImage, uuid, name, 0),
+    PB_FIELD(  4, BYTES   , OPTIONAL, POINTER , OTHER, java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_BinaryImage, uuid, name, 0),
     PB_FIELD(  5, UENUM   , OPTIONAL, STATIC  , OTHER, java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_BinaryImage, arch, uuid, 0),
     PB_FIELD(  6, BYTES   , OPTIONAL, POINTER , OTHER, java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_BinaryImage, cls_id, arch, 0),
     PB_FIELD(  7, BYTES   , OPTIONAL, POINTER , OTHER, java_com_google_fabric_crashlytics_proto_Session_Event_Application_Execution_BinaryImage, s3_path, cls_id, 0),
@@ -222,13 +222,13 @@ const pb_field_t java_com_google_fabric_crashlytics_proto_Session_Event_Log_fiel
 
 const pb_field_t java_com_google_fabric_crashlytics_proto_Session_Event_AnalyticsParam_fields[3] = {
     PB_FIELD(  1, BYTES   , OPTIONAL, POINTER , FIRST, java_com_google_fabric_crashlytics_proto_Session_Event_AnalyticsParam, name, name, 0),
-    PB_FIELD(  2, BYTES   , OPTIONAL, CALLBACK, OTHER, java_com_google_fabric_crashlytics_proto_Session_Event_AnalyticsParam, value, name, 0),
+    PB_FIELD(  2, BYTES   , OPTIONAL, POINTER , OTHER, java_com_google_fabric_crashlytics_proto_Session_Event_AnalyticsParam, value, name, 0),
     PB_LAST_FIELD
 };
 
 const pb_field_t java_com_google_fabric_crashlytics_proto_Session_Event_AnalyticsObject_fields[4] = {
-    PB_FIELD(  1, MESSAGE , REPEATED, CALLBACK, FIRST, java_com_google_fabric_crashlytics_proto_Session_Event_AnalyticsObject, param, param, &java_com_google_fabric_crashlytics_proto_Session_Event_AnalyticsParam_fields),
-    PB_FIELD(  2, BYTES   , OPTIONAL, CALLBACK, OTHER, java_com_google_fabric_crashlytics_proto_Session_Event_AnalyticsObject, name, param, 0),
+    PB_FIELD(  1, MESSAGE , REPEATED, POINTER , FIRST, java_com_google_fabric_crashlytics_proto_Session_Event_AnalyticsObject, param, param, &java_com_google_fabric_crashlytics_proto_Session_Event_AnalyticsParam_fields),
+    PB_FIELD(  2, BYTES   , OPTIONAL, POINTER , OTHER, java_com_google_fabric_crashlytics_proto_Session_Event_AnalyticsObject, name, param, 0),
     PB_FIELD(  3, UINT64  , OPTIONAL, STATIC  , OTHER, java_com_google_fabric_crashlytics_proto_Session_Event_AnalyticsObject, relative_ms, name, 0),
     PB_LAST_FIELD
 };
@@ -253,7 +253,7 @@ const pb_field_t java_com_google_fabric_crashlytics_proto_FeatureFlag_fields[3] 
 };
 
 const pb_field_t java_com_google_fabric_crashlytics_proto_FeatureFlags_fields[2] = {
-    PB_FIELD(  1, MESSAGE , REPEATED, CALLBACK, FIRST, java_com_google_fabric_crashlytics_proto_FeatureFlags, feature_flags, feature_flags, &java_com_google_fabric_crashlytics_proto_FeatureFlag_fields),
+    PB_FIELD(  1, MESSAGE , REPEATED, POINTER , FIRST, java_com_google_fabric_crashlytics_proto_FeatureFlags, feature_flags, feature_flags, &java_com_google_fabric_crashlytics_proto_FeatureFlag_fields),
     PB_LAST_FIELD
 };
 
