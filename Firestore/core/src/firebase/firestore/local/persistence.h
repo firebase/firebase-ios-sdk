@@ -35,9 +35,9 @@ namespace local {
 
 class IndexManager;
 class MutationQueue;
-class TargetCache;
 class ReferenceDelegate;
 class RemoteDocumentCache;
+class TargetCache;
 
 /**
  * Persistence is the lowest-level shared interface to data storage in

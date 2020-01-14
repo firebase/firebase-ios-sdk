@@ -30,8 +30,8 @@ class DocumentKey;
 
 namespace local {
 
-class TargetData;
 class ReferenceSet;
+class TargetData;
 
 /**
  * A ReferenceDelegate instance handles all of the hooks into the

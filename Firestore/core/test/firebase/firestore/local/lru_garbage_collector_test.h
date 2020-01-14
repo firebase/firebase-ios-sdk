@@ -42,8 +42,8 @@ class LruDelegate;
 class LruGarbageCollector;
 class MutationQueue;
 class Persistence;
-class TargetCache;
 class RemoteDocumentCache;
+class TargetCache;
 struct LruParams;
 
 /**

@@ -532,7 +532,6 @@ void SyncEngine::TrackLimboChange(const LimboDocumentChange& limbo_change) {
                            kIrrelevantSequenceNumber,
                            QueryPurpose::LimboResolution);
     limbo_resolutions_by_target_.emplace(limbo_target_id, LimboResolution{key});
-    // TODO(wuandy): move `target_data` into `Listen`.
     remote_store_->Listen(target_data);
     limbo_targets_by_key_[key] = limbo_target_id;
   }

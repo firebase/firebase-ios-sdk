@@ -37,8 +37,8 @@ namespace local {
 struct LruParams;
 class MemoryIndexManager;
 class MemoryMutationQueue;
-class MemoryTargetCache;
 class MemoryRemoteDocumentCache;
+class MemoryTargetCache;
 class MutationQueue;
 class TargetCache;
 class ReferenceDelegate;
