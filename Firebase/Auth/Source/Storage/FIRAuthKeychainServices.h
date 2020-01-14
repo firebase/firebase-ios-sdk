@@ -82,7 +82,8 @@ NS_ASSUME_NONNULL_BEGIN
     @param outError The address to store any error that occurs during the process, if not nil.
     @return Whether the operation succeed.
  */
-- (BOOL)setItem:(NSData *)item withQuery:(NSDictionary *)query
+- (BOOL)setItem:(NSData *)item
+      withQuery:(NSDictionary *)query
           error:(NSError *_Nullable *_Nullable)outError;
 
 /** @fn getItemWithQuery:error:

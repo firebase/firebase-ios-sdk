@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** @extension FIROAuthCredential
     @brief Internal implementation of FIRAuthCredential for generic credentials.
  */
-@interface FIROAuthCredential()
+@interface FIROAuthCredential ()
 
 /** @property OAuthResponseURLString
     @brief A string representation of the response URL corresponding to this OAuthCredential.

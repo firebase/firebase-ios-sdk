@@ -145,7 +145,8 @@ NS_SWIFT_NAME(User)
 
     @remarks See `FIRAuthErrors` for a list of error codes that are common to all FIRUser methods.
  */
-- (void)updateEmail:(NSString *)email completion:(nullable FIRUserProfileChangeCallback)completion
+- (void)updateEmail:(NSString *)email
+         completion:(nullable FIRUserProfileChangeCallback)completion
     NS_SWIFT_NAME(updateEmail(to:completion:));
 
 /** @fn updatePassword:completion:
@@ -266,9 +267,9 @@ NS_SWIFT_NAME(User)
  */
 - (void)reauthenticateAndRetrieveDataWithCredential:(FIRAuthCredential *)credential
                                          completion:(nullable FIRAuthDataResultCallback)completion
-DEPRECATED_MSG_ATTRIBUTE( "Please use reauthenticateWithCredential:completion: for"
-                         " Objective-C or reauthenticate(withCredential:completion:)"
-                         " for Swift instead.");
+    DEPRECATED_MSG_ATTRIBUTE("Please use reauthenticateWithCredential:completion: for"
+                             " Objective-C or reauthenticate(withCredential:completion:)"
+                             " for Swift instead.");
 
 /** @fn reauthenticateWithProvider:UIDelegate:completion:
     @brief Renews the user's authentication using the provided auth provider instance.
@@ -283,8 +284,7 @@ DEPRECATED_MSG_ATTRIBUTE( "Please use reauthenticateWithCredential:completion: f
 - (void)reauthenticateWithProvider:(id<FIRFederatedAuthProvider>)provider
                         UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
                         completion:(nullable FIRAuthDataResultCallback)completion
-                        NS_SWIFT_NAME(reauthenticate(with:uiDelegate:completion:))
-                        API_AVAILABLE(ios(8.0));
+    NS_SWIFT_NAME(reauthenticate(with:uiDelegate:completion:))API_AVAILABLE(ios(8.0));
 
 /** @fn getIDTokenResultWithCompletion:
     @brief Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
@@ -347,8 +347,8 @@ DEPRECATED_MSG_ATTRIBUTE( "Please use reauthenticateWithCredential:completion: f
  */
 - (void)linkAndRetrieveDataWithCredential:(FIRAuthCredential *)credential
                                completion:(nullable FIRAuthDataResultCallback)completion
-DEPRECATED_MSG_ATTRIBUTE("Please use linkWithCredential:completion: for Objective-C "
-                         "or link(withCredential:completion:) for Swift instead.");
+    DEPRECATED_MSG_ATTRIBUTE("Please use linkWithCredential:completion: for Objective-C "
+                             "or link(withCredential:completion:) for Swift instead.");
 
 /** @fn linkWithCredential:completion:
     @brief Associates a user account from a third-party identity provider with this user and
@@ -389,8 +389,7 @@ DEPRECATED_MSG_ATTRIBUTE("Please use linkWithCredential:completion: for Objectiv
 - (void)linkWithProvider:(id<FIRFederatedAuthProvider>)provider
               UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
               completion:(nullable FIRAuthDataResultCallback)completion
-              NS_SWIFT_NAME(link(with:uiDelegate:completion:))
-              API_AVAILABLE(ios(8.0));
+    NS_SWIFT_NAME(link(with:uiDelegate:completion:))API_AVAILABLE(ios(8.0));
 
 /** @fn unlinkFromProvider:completion:
     @brief Disassociates a user account from a third-party identity provider with this user.
@@ -458,8 +457,8 @@ DEPRECATED_MSG_ATTRIBUTE("Please use linkWithCredential:completion: for Objectiv
             continue URI is not valid.
  */
 - (void)sendEmailVerificationWithActionCodeSettings:(FIRActionCodeSettings *)actionCodeSettings
-                                         completion:(nullable FIRSendEmailVerificationCallback)
-                                                    completion;
+                                         completion:
+                                             (nullable FIRSendEmailVerificationCallback)completion;
 
 /** @fn deleteWithCompletion:
     @brief Deletes the user account (also signs out the user, if this was the current user).

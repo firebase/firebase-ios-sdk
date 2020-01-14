@@ -16,11 +16,11 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRAuthErrors.h"
 #import "FIRAuthBackend.h"
+#import "FIRAuthErrors.h"
+#import "FIRFakeBackendRPCIssuer.h"
 #import "FIRSetAccountInfoRequest.h"
 #import "FIRSetAccountInfoResponse.h"
-#import "FIRFakeBackendRPCIssuer.h"
 
 /** @var kTestAPIKey
     @brief Fake API key used for testing.
@@ -36,7 +36,7 @@ static NSString *const kIDTokenKey = @"idToken";
 /** @var kTestAccessToken
     @bried Fake acess token for testing.
  */
- static NSString *const kTestAccessToken = @"accessToken";
+static NSString *const kTestAccessToken = @"accessToken";
 
 /** @var kDisplayNameKey
     @brief The key for the "displayName" value in the request.
@@ -185,10 +185,10 @@ static NSString *const kExpectedAPIURL =
 @interface FIRSetAccountInfoRequestTests : XCTestCase
 @end
 @implementation FIRSetAccountInfoRequestTests {
- /** @var _RPCIssuer
-      @brief This backend RPC issuer is used to fake network responses for each test in the suite.
-          In the @c setUp method we initialize this and set @c FIRAuthBackend's RPC issuer to it.
-  */
+  /** @var _RPCIssuer
+       @brief This backend RPC issuer is used to fake network responses for each test in the suite.
+           In the @c setUp method we initialize this and set @c FIRAuthBackend's RPC issuer to it.
+   */
   FIRFakeBackendRPCIssuer *_RPCIssuer;
 
   /** @var _requestConfiguration
@@ -219,10 +219,10 @@ static NSString *const kExpectedAPIURL =
   FIRSetAccountInfoRequest *request =
       [[FIRSetAccountInfoRequest alloc] initWithRequestConfiguration:_requestConfiguration];
   request.returnSecureToken = NO;
-  [FIRAuthBackend setAccountInfo:request
-                         callback:^(FIRSetAccountInfoResponse *_Nullable response,
-                                    NSError *_Nullable error) {
-  }];
+  [FIRAuthBackend
+      setAccountInfo:request
+            callback:^(FIRSetAccountInfoResponse *_Nullable response, NSError *_Nullable error){
+            }];
 
   XCTAssertNotNil(_RPCIssuer.decodedRequest);
   XCTAssert([_RPCIssuer.decodedRequest isKindOfClass:[NSDictionary class]]);
@@ -265,10 +265,10 @@ static NSString *const kExpectedAPIURL =
   request.deleteAttributes = @[ kTestDeleteAttributes ];
   request.deleteProviders = @[ kTestDeleteProviders ];
 
-  [FIRAuthBackend setAccountInfo:request
-                         callback:^(FIRSetAccountInfoResponse *_Nullable response,
-                                    NSError *_Nullable error) {
-  }];
+  [FIRAuthBackend
+      setAccountInfo:request
+            callback:^(FIRSetAccountInfoResponse *_Nullable response, NSError *_Nullable error){
+            }];
 
   XCTAssertNotNil(_RPCIssuer.decodedRequest);
   XCTAssert([_RPCIssuer.decodedRequest isKindOfClass:[NSDictionary class]]);

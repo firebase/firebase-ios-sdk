@@ -20,14 +20,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIREmailLinkSignInResponse
 
-- (BOOL)setWithDictionary:(NSDictionary *)dictionary
-                    error:(NSError *_Nullable  *_Nullable)error {
+- (BOOL)setWithDictionary:(NSDictionary *)dictionary error:(NSError *_Nullable *_Nullable)error {
   _email = [dictionary[@"email"] copy];
   _IDToken = [dictionary[@"idToken"] copy];
   _isNewUser = [dictionary[@"isNewUser"] boolValue];
   _refreshToken = [dictionary[@"refreshToken"] copy];
-  _approximateExpirationDate = [dictionary[@"expiresIn"] isKindOfClass:[NSString class]] ?
-      [NSDate dateWithTimeIntervalSinceNow:[dictionary[@"expiresIn"] doubleValue]] : nil;
+  _approximateExpirationDate =
+      [dictionary[@"expiresIn"] isKindOfClass:[NSString class]]
+          ? [NSDate dateWithTimeIntervalSinceNow:[dictionary[@"expiresIn"] doubleValue]]
+          : nil;
   return YES;
 }
 

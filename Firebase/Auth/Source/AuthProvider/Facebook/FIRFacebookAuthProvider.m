@@ -16,8 +16,8 @@
 
 #import "FIRFacebookAuthProvider.h"
 
-#import "FIRFacebookAuthCredential.h"
 #import "FIRAuthExceptionUtils.h"
+#import "FIRFacebookAuthCredential.h"
 
 // FIRFacebookAuthProviderID is defined in FIRAuthProvider.m.
 
@@ -26,8 +26,8 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRFacebookAuthProvider
 
 - (instancetype)init {
-  [FIRAuthExceptionUtils raiseMethodNotImplementedExceptionWithReason:
-      @"This class is not meant to be initialized."];
+  [FIRAuthExceptionUtils
+      raiseMethodNotImplementedExceptionWithReason:@"This class is not meant to be initialized."];
   return nil;
 }
 

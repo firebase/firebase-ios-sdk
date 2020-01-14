@@ -75,16 +75,12 @@ static NSString *const kClaimsKey = @"claims";
 }
 
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder {
-  NSString *token =
-      [aDecoder decodeObjectOfClass:[NSDate class] forKey:kTokenKey];
-  NSDate *expirationDate =
-      [aDecoder decodeObjectOfClass:[NSDate class] forKey:kExpirationDateKey];
-  NSDate *authDate =
-      [aDecoder decodeObjectOfClass:[NSDate class] forKey:kAuthDateKey];
-  NSDate *issuedAtDate =
-      [aDecoder decodeObjectOfClass:[NSDate class] forKey:kAuthDateKey];
-  NSString *signInProvider =
-      [aDecoder decodeObjectOfClass:[NSString class] forKey:kSignInProviderKey];
+  NSString *token = [aDecoder decodeObjectOfClass:[NSDate class] forKey:kTokenKey];
+  NSDate *expirationDate = [aDecoder decodeObjectOfClass:[NSDate class] forKey:kExpirationDateKey];
+  NSDate *authDate = [aDecoder decodeObjectOfClass:[NSDate class] forKey:kAuthDateKey];
+  NSDate *issuedAtDate = [aDecoder decodeObjectOfClass:[NSDate class] forKey:kAuthDateKey];
+  NSString *signInProvider = [aDecoder decodeObjectOfClass:[NSString class]
+                                                    forKey:kSignInProviderKey];
   NSDictionary<NSString *, NSString *> *claims =
       [aDecoder decodeObjectOfClass:[NSDictionary<NSString *, NSString *> class] forKey:kClaimsKey];
 

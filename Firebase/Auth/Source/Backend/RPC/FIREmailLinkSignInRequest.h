@@ -59,7 +59,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithEmail:(NSString *)email
                       oobCode:(NSString *)oobCode
          requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
-             NS_DESIGNATED_INITIALIZER;
+    NS_DESIGNATED_INITIALIZER;
 
 @end
 

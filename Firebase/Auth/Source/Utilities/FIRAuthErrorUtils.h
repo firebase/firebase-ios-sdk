@@ -109,8 +109,8 @@ NS_ASSUME_NONNULL_BEGIN
     @remarks This error is used when a network request is apparently successful, but the body data
         couldn't be deserialized as JSON.
  */
-+ (NSError *)unexpectedResponseWithData:(NSData *)data
-                        underlyingError:(NSError *)underlyingError;;
++ (NSError *)unexpectedResponseWithData:(NSData *)data underlyingError:(NSError *)underlyingError;
+;
 
 /** @fn unexpectedResponseWithDeserializedResponse:
     @brief Constructs an @c NSError with the @c FIRAuthInternalErrorCodeUnexpectedResponse
@@ -224,7 +224,8 @@ NS_ASSUME_NONNULL_BEGIN
     @return The NSError instance associated with the given FIRAuthError.
  */
 + (NSError *)accountExistsWithDifferentCredentialErrorWithEmail:(nullable NSString *)email
-    updatedCredential:(nullable FIRAuthCredential *)updatedCredential;
+                                              updatedCredential:
+                                                  (nullable FIRAuthCredential *)updatedCredential;
 
 /** @fn providerAlreadyLinkedErrorWithMessage:
     @brief Constructs an @c NSError with the @c FIRAuthErrorCodeProviderAlreadyLinked code.
@@ -522,7 +523,8 @@ NS_ASSUME_NONNULL_BEGIN
     @param message Error message from the backend, if any.
     @return The nullable NSError instance associated with the given error message, if one is found.
  */
-+ (nullable NSError *)URLResponseErrorWithCode:(NSString *)code message:(nullable NSString *)message;
++ (nullable NSError *)URLResponseErrorWithCode:(NSString *)code
+                                       message:(nullable NSString *)message;
 
 /** @fn nullUserErrorWithMessage:
     @brief Constructs an @c NSError with the code and message provided.

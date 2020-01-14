@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-#include <CommonCrypto/CommonCrypto.h>
 #import "FIROAuthProvider.h"
+#include <CommonCrypto/CommonCrypto.h>
 
 #import <FirebaseCore/FIRApp.h>
 #import <FirebaseCore/FIROptions.h>
 
 #import "FIRAuthBackend.h"
-#import "FIRAuth_Internal.h"
 #import "FIRAuthErrorUtils.h"
 #import "FIRAuthGlobalWorkQueue.h"
 #import "FIRAuthRequestConfiguration.h"
 #import "FIRAuthWebUtils.h"
+#import "FIRAuth_Internal.h"
 #import "FIRFacebookAuthProvider.h"
-#import "FIROAuthCredential_Internal.h"
 #import "FIROAuthCredential.h"
+#import "FIROAuthCredential_Internal.h"
 
 #if TARGET_OS_IOS
 #import "FIRAuthURLPresenter.h"
@@ -42,7 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
     @param error The error that occurred while fetching the headful-lite, if any.
  */
 typedef void (^FIRHeadfulLiteURLCallBack)(NSURL *_Nullable headfulLiteURL,
-               NSError *_Nullable error);
+                                          NSError *_Nullable error);
 
 /** @var kHeadfulLiteURLStringFormat
     @brief The format of the URL used to open the headful lite page during sign-in.
@@ -67,8 +67,8 @@ static NSString *const kAuthTypeSignInWithRedirect = @"signInWithRedirect";
 }
 
 + (FIROAuthCredential *)credentialWithProviderID:(NSString *)providerID
-                                        IDToken:(NSString *)IDToken
-                                    accessToken:(nullable NSString *)accessToken {
+                                         IDToken:(NSString *)IDToken
+                                     accessToken:(nullable NSString *)accessToken {
   return [[FIROAuthCredential alloc] initWithProviderID:providerID
                                                 IDToken:IDToken
                                                rawNonce:nil
@@ -111,7 +111,7 @@ static NSString *const kAuthTypeSignInWithRedirect = @"signInWithRedirect";
 }
 
 + (instancetype)providerWithProviderID:(NSString *)providerID {
-  return [[self alloc]initWithProviderID:providerID auth:[FIRAuth auth]];
+  return [[self alloc] initWithProviderID:providerID auth:[FIRAuth auth]];
 }
 
 + (instancetype)providerWithProviderID:(NSString *)providerID auth:(FIRAuth *)auth {
@@ -130,55 +130,59 @@ static NSString *const kAuthTypeSignInWithRedirect = @"signInWithRedirect";
   __weak FIRAuth *weakAuth = _auth;
   __weak NSString *weakProviderID = _providerID;
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
-    FIRAuthCredentialCallback callbackOnMainThread = ^(FIRAuthCredential *_Nullable credential,
-                                                       NSError *_Nullable error) {
-      if (completion) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-          completion(credential, error);
-        });
-      }
-    };
+    FIRAuthCredentialCallback callbackOnMainThread =
+        ^(FIRAuthCredential *_Nullable credential, NSError *_Nullable error) {
+          if (completion) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+              completion(credential, error);
+            });
+          }
+        };
     NSString *eventID = [FIRAuthWebUtils randomStringWithLength:10];
     NSString *sessionID = [FIRAuthWebUtils randomStringWithLength:10];
     __strong __typeof__(self) strongSelf = weakSelf;
-    [strongSelf getHeadFulLiteURLWithEventID:eventID
-                             sessionID:sessionID
-                            completion:^(NSURL *_Nullable headfulLiteURL,
-                                         NSError *_Nullable error) {
-      if (error) {
-        callbackOnMainThread(nil, error);
-        return;
-      }
-      FIRAuthURLCallbackMatcher callbackMatcher = ^BOOL(NSURL *_Nullable callbackURL) {
-        return [FIRAuthWebUtils isExpectedCallbackURL:callbackURL
-                                              eventID:eventID
-                                             authType:kAuthTypeSignInWithRedirect
-                                       callbackScheme:strongSelf->_callbackScheme];
-      };
-      __strong FIRAuth *strongAuth = weakAuth;
-      [strongAuth.authURLPresenter presentURL:headfulLiteURL
-                                   UIDelegate:UIDelegate
-                              callbackMatcher:callbackMatcher
-                                   completion:^(NSURL *_Nullable callbackURL,
-                                                NSError *_Nullable error) {
-        if (error) {
-          callbackOnMainThread(nil, error);
-          return;
-        }
-        NSString *OAuthResponseURLString =
-            [strongSelf OAuthResponseForURL:callbackURL error:&error];
-        if (error) {
-          callbackOnMainThread(nil, error);
-          return;
-        }
-        __strong NSString *strongProviderID = weakProviderID;
-        FIROAuthCredential *credential =
-            [[FIROAuthCredential alloc] initWithProviderID:strongProviderID
-                                                 sessionID:sessionID
-                                    OAuthResponseURLString:OAuthResponseURLString];
-        callbackOnMainThread(credential, nil);
-      }];
-    }];
+    [strongSelf
+        getHeadFulLiteURLWithEventID:eventID
+                           sessionID:sessionID
+                          completion:^(NSURL *_Nullable headfulLiteURL, NSError *_Nullable error) {
+                            if (error) {
+                              callbackOnMainThread(nil, error);
+                              return;
+                            }
+                            FIRAuthURLCallbackMatcher callbackMatcher =
+                                ^BOOL(NSURL *_Nullable callbackURL) {
+                                  return [FIRAuthWebUtils
+                                      isExpectedCallbackURL:callbackURL
+                                                    eventID:eventID
+                                                   authType:kAuthTypeSignInWithRedirect
+                                             callbackScheme:strongSelf->_callbackScheme];
+                                };
+                            __strong FIRAuth *strongAuth = weakAuth;
+                            [strongAuth.authURLPresenter
+                                     presentURL:headfulLiteURL
+                                     UIDelegate:UIDelegate
+                                callbackMatcher:callbackMatcher
+                                     completion:^(NSURL *_Nullable callbackURL,
+                                                  NSError *_Nullable error) {
+                                       if (error) {
+                                         callbackOnMainThread(nil, error);
+                                         return;
+                                       }
+                                       NSString *OAuthResponseURLString =
+                                           [strongSelf OAuthResponseForURL:callbackURL
+                                                                     error:&error];
+                                       if (error) {
+                                         callbackOnMainThread(nil, error);
+                                         return;
+                                       }
+                                       __strong NSString *strongProviderID = weakProviderID;
+                                       FIROAuthCredential *credential = [[FIROAuthCredential alloc]
+                                               initWithProviderID:strongProviderID
+                                                        sessionID:sessionID
+                                           OAuthResponseURLString:OAuthResponseURLString];
+                                       callbackOnMainThread(credential, nil);
+                                     }];
+                          }];
   });
 }
 #endif  // TARGET_OS_IOS
@@ -193,16 +197,16 @@ static NSString *const kAuthTypeSignInWithRedirect = @"signInWithRedirect";
 - (nullable instancetype)initWithProviderID:(NSString *)providerID auth:(FIRAuth *)auth {
   NSAssert(![providerID isEqual:FIRFacebookAuthProviderID],
            @"Sign in with Facebook is not supported via generic IDP; the Facebook TOS "
-           "dictate that you must use the Facebook iOS SDK for Facebook login.");
+            "dictate that you must use the Facebook iOS SDK for Facebook login.");
   NSAssert(![providerID isEqual:@"apple.com"],
            @"Sign in with Apple is not supported via generic IDP; You must use the Apple iOS SDK"
-           " for Sign in with Apple.");
+            " for Sign in with Apple.");
   self = [super init];
   if (self) {
     _auth = auth;
     _providerID = providerID;
     _callbackScheme = [[[_auth.app.options.clientID componentsSeparatedByString:@"."]
-        reverseObjectEnumerator].allObjects componentsJoinedByString:@"."];
+                           reverseObjectEnumerator].allObjects componentsJoinedByString:@"."];
   }
   return self;
 }
@@ -217,8 +221,7 @@ static NSString *const kAuthTypeSignInWithRedirect = @"signInWithRedirect";
   NSDictionary<NSString *, NSString *> *URLQueryItems =
       [FIRAuthWebUtils dictionaryWithHttpArgumentsString:URL.query];
   NSURL *deepLinkURL = [NSURL URLWithString:URLQueryItems[@"deep_link_id"]];
-  URLQueryItems =
-      [FIRAuthWebUtils dictionaryWithHttpArgumentsString:deepLinkURL.query];
+  URLQueryItems = [FIRAuthWebUtils dictionaryWithHttpArgumentsString:deepLinkURL.query];
   NSString *queryItemLink = URLQueryItems[@"link"];
   if (queryItemLink) {
     return queryItemLink;
@@ -239,8 +242,8 @@ static NSString *const kAuthTypeSignInWithRedirect = @"signInWithRedirect";
                                                message:errorDict[@"message"]];
   if (!*error) {
     NSString *reason;
-    if(errorDict[@"code"] && errorDict[@"message"]) {
-      reason = [NSString stringWithFormat:@"[%@] - %@",errorDict[@"code"], errorDict[@"message"]];
+    if (errorDict[@"code"] && errorDict[@"message"]) {
+      reason = [NSString stringWithFormat:@"[%@] - %@", errorDict[@"code"], errorDict[@"message"]];
     }
     *error = [FIRAuthErrorUtils webSignInUserInteractionFailureWithReason:reason];
   }
@@ -258,55 +261,68 @@ static NSString *const kAuthTypeSignInWithRedirect = @"signInWithRedirect";
 - (void)getHeadFulLiteURLWithEventID:(NSString *)eventID
                            sessionID:(NSString *)sessionID
                           completion:(FIRHeadfulLiteURLCallBack)completion {
-   __weak __typeof__(self) weakSelf = self;
-  [FIRAuthWebUtils fetchAuthDomainWithRequestConfiguration:_auth.requestConfiguration
-                                                completion:^(NSString *_Nullable authDomain,
-                                                             NSError *_Nullable error) {
-    if (error) {
-      if (completion) {
-        completion(nil, error);
-      }
-      return;
-    }
-     __strong __typeof__(self) strongSelf = weakSelf;
-    NSString *bundleID = [NSBundle mainBundle].bundleIdentifier;
-    NSString *clienID = strongSelf->_auth.app.options.clientID;
-    NSString *apiKey = strongSelf->_auth.requestConfiguration.APIKey;
-    NSMutableDictionary *urlArguments = [@{
-      @"apiKey" : apiKey,
-      @"authType" : @"signInWithRedirect",
-      @"ibi" : bundleID ?: @"",
-      @"clientId" : clienID,
-      @"sessionId" : [strongSelf hashforString:sessionID],
-      @"v" : [FIRAuthBackend authUserAgent],
-      @"eventId" : eventID,
-      @"providerId" : strongSelf->_providerID,
-    } mutableCopy];
-    if (strongSelf.scopes.count) {
-      urlArguments[@"scopes"] = [strongSelf.scopes componentsJoinedByString:@","];
-    }
-    if (strongSelf.customParameters.count) {
-      NSString *customParameters = [strongSelf customParametersStringWithError:&error];
-      if (error) {
-        completion(nil, error);
-        return;
-      }
-      if (customParameters) {
-        urlArguments[@"customParameters"] = customParameters;
-      }
-    }
-    if (strongSelf->_auth.requestConfiguration.languageCode) {
-      urlArguments[@"hl"] = strongSelf->_auth.requestConfiguration.languageCode;
-    }
-    NSString *argumentsString = [strongSelf httpArgumentsStringForArgsDictionary:urlArguments];
-    NSString *URLString =
-        [NSString stringWithFormat:kHeadfulLiteURLStringFormat, authDomain, argumentsString];
-    if (completion) {
-      NSCharacterSet *set = [NSCharacterSet URLFragmentAllowedCharacterSet];
-      completion([NSURL URLWithString:
-          [URLString stringByAddingPercentEncodingWithAllowedCharacters:set]], nil);
-    }
-  }];
+  __weak __typeof__(self) weakSelf = self;
+  [FIRAuthWebUtils
+      fetchAuthDomainWithRequestConfiguration:_auth.requestConfiguration
+                                   completion:^(NSString *_Nullable authDomain,
+                                                NSError *_Nullable error) {
+                                     if (error) {
+                                       if (completion) {
+                                         completion(nil, error);
+                                       }
+                                       return;
+                                     }
+                                     __strong __typeof__(self) strongSelf = weakSelf;
+                                     NSString *bundleID = [NSBundle mainBundle].bundleIdentifier;
+                                     NSString *clienID = strongSelf->_auth.app.options.clientID;
+                                     NSString *apiKey =
+                                         strongSelf->_auth.requestConfiguration.APIKey;
+                                     NSMutableDictionary *urlArguments = [@{
+                                       @"apiKey" : apiKey,
+                                       @"authType" : @"signInWithRedirect",
+                                       @"ibi" : bundleID ?: @"",
+                                       @"clientId" : clienID,
+                                       @"sessionId" : [strongSelf hashforString:sessionID],
+                                       @"v" : [FIRAuthBackend authUserAgent],
+                                       @"eventId" : eventID,
+                                       @"providerId" : strongSelf->_providerID,
+                                     } mutableCopy];
+                                     if (strongSelf.scopes.count) {
+                                       urlArguments[@"scopes"] =
+                                           [strongSelf.scopes componentsJoinedByString:@","];
+                                     }
+                                     if (strongSelf.customParameters.count) {
+                                       NSString *customParameters =
+                                           [strongSelf customParametersStringWithError:&error];
+                                       if (error) {
+                                         completion(nil, error);
+                                         return;
+                                       }
+                                       if (customParameters) {
+                                         urlArguments[@"customParameters"] = customParameters;
+                                       }
+                                     }
+                                     if (strongSelf->_auth.requestConfiguration.languageCode) {
+                                       urlArguments[@"hl"] =
+                                           strongSelf->_auth.requestConfiguration.languageCode;
+                                     }
+                                     NSString *argumentsString = [strongSelf
+                                         httpArgumentsStringForArgsDictionary:urlArguments];
+                                     NSString *URLString =
+                                         [NSString stringWithFormat:kHeadfulLiteURLStringFormat,
+                                                                    authDomain, argumentsString];
+                                     if (completion) {
+                                       NSCharacterSet *set =
+                                           [NSCharacterSet URLFragmentAllowedCharacterSet];
+                                       completion(
+                                           [NSURL
+                                               URLWithString:
+                                                   [URLString
+                                                       stringByAddingPercentEncodingWithAllowedCharacters:
+                                                           set]],
+                                           nil);
+                                     }
+                                   }];
 }
 
 /** @fn customParametersString
@@ -324,17 +340,16 @@ static NSString *const kAuthTypeSignInWithRedirect = @"signInWithRedirect";
     return nil;
   }
   NSError *jsonError;
-  NSData *customParametersJSONData =
-      [NSJSONSerialization dataWithJSONObject:_customParameters
-                                      options:0
-                                        error:&jsonError];
+  NSData *customParametersJSONData = [NSJSONSerialization dataWithJSONObject:_customParameters
+                                                                     options:0
+                                                                       error:&jsonError];
   if (jsonError) {
     *error = [FIRAuthErrorUtils JSONSerializationErrorWithUnderlyingError:jsonError];
     return nil;
   }
 
-  NSString *customParamsRawJSON =
-      [[NSString alloc] initWithData:customParametersJSONData encoding:NSUTF8StringEncoding];
+  NSString *customParamsRawJSON = [[NSString alloc] initWithData:customParametersJSONData
+                                                        encoding:NSUTF8StringEncoding];
   return customParamsRawJSON;
 }
 
@@ -346,11 +361,11 @@ static NSString *const kAuthTypeSignInWithRedirect = @"signInWithRedirect";
 - (NSString *)hashforString:(NSString *)string {
   NSData *sessionIDData = [string dataUsingEncoding:NSUTF8StringEncoding];
   NSMutableData *hashOutputData = [NSMutableData dataWithLength:CC_SHA256_DIGEST_LENGTH];
-  if (CC_SHA256(sessionIDData.bytes,
-      (CC_LONG)[sessionIDData length],
-      hashOutputData.mutableBytes)) {
+  if (CC_SHA256(sessionIDData.bytes, (CC_LONG)[sessionIDData length],
+                hashOutputData.mutableBytes)) {
   }
-  return [self hexStringFromData:hashOutputData];;
+  return [self hexStringFromData:hashOutputData];
+  ;
 }
 
 /** @fn hexStringFromData:
@@ -361,20 +376,23 @@ static NSString *const kAuthTypeSignInWithRedirect = @"signInWithRedirect";
 - (NSString *)hexStringFromData:(NSData *)data {
   const unsigned char *dataBuffer = (const unsigned char *)[data bytes];
   NSMutableString *string = [[NSMutableString alloc] init];
-  for (unsigned int i = 0; i < data.length; i++){
+  for (unsigned int i = 0; i < data.length; i++) {
     [string appendFormat:@"%02lx", (unsigned long)dataBuffer[i]];
   }
   return [string copy];
 }
 
 - (NSString *)httpArgumentsStringForArgsDictionary:(NSDictionary *)argsDictionary {
-  NSMutableArray* arguments = [NSMutableArray arrayWithCapacity:argsDictionary.count];
-  NSString* key;
+  NSMutableArray *arguments = [NSMutableArray arrayWithCapacity:argsDictionary.count];
+  NSString *key;
   for (key in argsDictionary) {
     NSString *description = [argsDictionary[key] description];
-    [arguments addObject:[NSString stringWithFormat:@"%@=%@",
-                          [FIRAuthWebUtils stringByUnescapingFromURLArgument:key],
-                          [FIRAuthWebUtils stringByUnescapingFromURLArgument:description]]] ;
+    [arguments
+        addObject:[NSString
+                      stringWithFormat:@"%@=%@",
+                                       [FIRAuthWebUtils stringByUnescapingFromURLArgument:key],
+                                       [FIRAuthWebUtils
+                                           stringByUnescapingFromURLArgument:description]]];
   }
   return [arguments componentsJoinedByString:@"&"];
 }

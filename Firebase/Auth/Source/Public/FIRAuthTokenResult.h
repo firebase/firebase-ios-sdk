@@ -59,8 +59,6 @@ NS_SWIFT_NAME(AuthTokenResult)
  */
 @property(nonatomic, readonly) NSDictionary<NSString *, id> *claims;
 
-
-
 @end
 
 NS_ASSUME_NONNULL_END

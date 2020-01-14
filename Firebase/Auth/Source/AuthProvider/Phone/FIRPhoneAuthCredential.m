@@ -19,9 +19,9 @@
 
 #import "FIRPhoneAuthCredential.h"
 
-#import "FIRPhoneAuthCredential_Internal.h"
 #import "FIRAuthCredential_Internal.h"
 #import "FIRAuthExceptionUtils.h"
+#import "FIRPhoneAuthCredential_Internal.h"
 #import "FIRVerifyAssertionRequest.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -46,8 +46,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (nullable instancetype)initWithProvider:(NSString *)provider {
-  [FIRAuthExceptionUtils raiseMethodNotImplementedExceptionWithReason:
-      @"Please call the designated initializer."];
+  [FIRAuthExceptionUtils
+      raiseMethodNotImplementedExceptionWithReason:@"Please call the designated initializer."];
   return nil;
 }
 
@@ -69,14 +69,21 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder {
-  NSString *verificationID = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"verificationID"];
-  NSString *verificationCode = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"verificationCode"];
-  NSString *temporaryProof = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"temporaryProof"];
+  NSString *verificationID = [aDecoder decodeObjectOfClass:[NSString class]
+                                                    forKey:@"verificationID"];
+  NSString *verificationCode = [aDecoder decodeObjectOfClass:[NSString class]
+                                                      forKey:@"verificationCode"];
+  NSString *temporaryProof = [aDecoder decodeObjectOfClass:[NSString class]
+                                                    forKey:@"temporaryProof"];
   NSString *phoneNumber = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"phoneNumber"];
   if (temporaryProof.length && phoneNumber.length) {
-    self = [self initWithTemporaryProof:temporaryProof phoneNumber:phoneNumber providerID:self.provider];
+    self = [self initWithTemporaryProof:temporaryProof
+                            phoneNumber:phoneNumber
+                             providerID:self.provider];
   } else if (verificationID.length && verificationCode.length) {
-    self = [self initWithProviderID:self.provider verificationID:verificationID verificationCode:verificationCode];
+    self = [self initWithProviderID:self.provider
+                     verificationID:verificationID
+                   verificationCode:verificationCode];
   } else {
     self = nil;
   }

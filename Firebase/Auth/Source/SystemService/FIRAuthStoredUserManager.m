@@ -72,8 +72,6 @@ static NSString *kStoredUserCoderKey = @"firebase_auth_stored_user_coder_key";
 - (FIRUser *)getStoredUserForAccessGroup:(NSString *)accessGroup
                        projectIdentifier:(NSString *)projectIdentifier
                                    error:(NSError *_Nullable *_Nullable)outError {
-
-
   NSMutableDictionary *query = [[NSMutableDictionary alloc] init];
   query[(__bridge id)kSecClass] = (__bridge id)kSecClassGenericPassword;
 
@@ -94,7 +92,8 @@ static NSString *kStoredUserCoderKey = @"firebase_auth_stored_user_coder_key";
                 error:(NSError *_Nullable *_Nullable)outError {
   NSMutableDictionary *query = [[NSMutableDictionary alloc] init];
   query[(__bridge id)kSecClass] = (__bridge id)kSecClassGenericPassword;
-  query[(__bridge id)kSecAttrAccessible] = (__bridge id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly;
+  query[(__bridge id)kSecAttrAccessible] =
+      (__bridge id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly;
 
   query[(__bridge id)kSecAttrAccessGroup] = accessGroup;
   query[(__bridge id)kSecAttrService] = projectIdentifier;
@@ -113,7 +112,8 @@ static NSString *kStoredUserCoderKey = @"firebase_auth_stored_user_coder_key";
                                  error:(NSError *_Nullable *_Nullable)outError {
   NSMutableDictionary *query = [[NSMutableDictionary alloc] init];
   query[(__bridge id)kSecClass] = (__bridge id)kSecClassGenericPassword;
-  query[(__bridge id)kSecAttrAccessible] = (__bridge id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly;
+  query[(__bridge id)kSecAttrAccessible] =
+      (__bridge id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly;
 
   query[(__bridge id)kSecAttrAccessGroup] = accessGroup;
   query[(__bridge id)kSecAttrService] = projectIdentifier;

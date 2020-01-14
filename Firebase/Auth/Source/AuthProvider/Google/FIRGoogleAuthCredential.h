@@ -30,8 +30,8 @@ NS_ASSUME_NONNULL_BEGIN
     @param IDToken The ID Token obtained from Google.
     @param accessToken The Access Token obtained from Google.
  */
-- (nullable instancetype)initWithIDToken:(NSString *)IDToken accessToken:(NSString *)accessToken
-    NS_DESIGNATED_INITIALIZER;
+- (nullable instancetype)initWithIDToken:(NSString *)IDToken
+                             accessToken:(NSString *)accessToken NS_DESIGNATED_INITIALIZER;
 
 @end
 

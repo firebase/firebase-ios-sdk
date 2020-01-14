@@ -29,8 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
     @param error An out field for an error which occurred constructing the request.
     @return Whether the operation was successful or not.
  */
-- (BOOL)setWithDictionary:(NSDictionary *)dictionary
-                    error:(NSError *_Nullable *_Nullable)error;
+- (BOOL)setWithDictionary:(NSDictionary *)dictionary error:(NSError *_Nullable *_Nullable)error;
 
 @optional
 

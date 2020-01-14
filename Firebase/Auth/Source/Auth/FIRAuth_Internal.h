@@ -56,7 +56,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, strong, readonly) FIRAuthNotificationManager *notificationManager;
 
-#endif // TARGET_OS_IOS
+#endif  // TARGET_OS_IOS
 
 /** @property authURLPresenter
     @brief An object that takes care of presenting URLs via the auth instance.

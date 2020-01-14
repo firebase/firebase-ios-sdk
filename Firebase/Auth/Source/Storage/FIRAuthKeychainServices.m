@@ -44,7 +44,6 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (id<FIRAuthStorage>)initWithService:(NSString *)service {
-
   self = [super init];
   if (self) {
     _service = [service copy];
@@ -55,8 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable NSData *)dataForKey:(NSString *)key error:(NSError **_Nullable)error {
   if (!key.length) {
-    [NSException raise:NSInvalidArgumentException
-                format:@"%@", @"The key cannot be nil or empty."];
+    [NSException raise:NSInvalidArgumentException format:@"%@", @"The key cannot be nil or empty."];
     return nil;
   }
   NSData *data = [self itemWithQuery:[self genericPasswordQueryWithKey:key] error:error];
@@ -89,8 +87,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)setData:(NSData *)data forKey:(NSString *)key error:(NSError **_Nullable)error {
   if (!key.length) {
-    [NSException raise:NSInvalidArgumentException
-                format:@"%@", @"The key cannot be nil or empty."];
+    [NSException raise:NSInvalidArgumentException format:@"%@", @"The key cannot be nil or empty."];
     return NO;
   }
   NSDictionary *attributes = @{
@@ -104,8 +101,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)removeDataForKey:(NSString *)key error:(NSError **_Nullable)error {
   if (!key.length) {
-    [NSException raise:NSInvalidArgumentException
-                format:@"%@", @"The key cannot be nil or empty."];
+    [NSException raise:NSInvalidArgumentException format:@"%@", @"The key cannot be nil or empty."];
     return NO;
   }
   if (![self deleteItemWithQuery:[self genericPasswordQueryWithKey:key] error:error]) {
@@ -128,15 +124,14 @@ NS_ASSUME_NONNULL_BEGIN
   returningQuery[(__bridge id)kSecMatchLimit] = @2;
 
   CFArrayRef result = NULL;
-  OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)returningQuery,
-                                        (CFTypeRef *)&result);
+  OSStatus status =
+      SecItemCopyMatching((__bridge CFDictionaryRef)returningQuery, (CFTypeRef *)&result);
 
   if (status == noErr && result != NULL) {
     NSArray *items = (__bridge_transfer NSArray *)result;
     if (items.count != 1) {
       if (error) {
-        *error = [FIRAuthErrorUtils keychainErrorWithFunction:@"SecItemCopyMatching"
-                                                       status:status];
+        *error = [FIRAuthErrorUtils keychainErrorWithFunction:@"SecItemCopyMatching" status:status];
       }
       return nil;
     }
@@ -242,8 +237,8 @@ NS_ASSUME_NONNULL_BEGIN
   mutableQuery[(__bridge id)kSecMatchLimit] = @2;
 
   CFArrayRef result = NULL;
-  OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)mutableQuery,
-                                        (CFTypeRef *)&result);
+  OSStatus status =
+      SecItemCopyMatching((__bridge CFDictionaryRef)mutableQuery, (CFTypeRef *)&result);
 
   if (status == noErr && result != NULL) {
     NSArray *items = (__bridge_transfer NSArray *)result;
@@ -268,7 +263,8 @@ NS_ASSUME_NONNULL_BEGIN
     }
   } else {
     if (outError) {
-      *outError = [FIRAuthErrorUtils keychainErrorWithFunction:@"SecItemCopyMatching" status:status];
+      *outError = [FIRAuthErrorUtils keychainErrorWithFunction:@"SecItemCopyMatching"
+                                                        status:status];
     }
   }
   return nil;
@@ -288,7 +284,7 @@ NS_ASSUME_NONNULL_BEGIN
     [queryWithItem setObject:item forKey:(__bridge id)kSecValueData];
     status = SecItemAdd((__bridge CFDictionaryRef)queryWithItem, NULL);
   } else {
-    NSDictionary *attributes = @{(__bridge id)kSecValueData: item};
+    NSDictionary *attributes = @{(__bridge id)kSecValueData : item};
     status = SecItemUpdate((__bridge CFDictionaryRef)query, (__bridge CFDictionaryRef)attributes);
   }
 

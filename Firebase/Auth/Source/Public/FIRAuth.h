@@ -39,8 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** @typedef FIRUserUpdateCallback
     @brief The type of block invoked when a request to update the current user is completed.
  */
-typedef void (^FIRUserUpdateCallback)(NSError *_Nullable error)
-    NS_SWIFT_NAME(UserUpdateCallback);
+typedef void (^FIRUserUpdateCallback)(NSError *_Nullable error) NS_SWIFT_NAME(UserUpdateCallback);
 
 /** @typedef FIRAuthStateDidChangeListenerHandle
     @brief The type of handle returned by `FIRAuth.addAuthStateDidChangeListener:`.
@@ -54,7 +53,7 @@ typedef id<NSObject> FIRAuthStateDidChangeListenerHandle
     @param auth The FIRAuth object on which state changes occurred.
     @param user Optionally; the current signed in user, if any.
  */
-typedef void(^FIRAuthStateDidChangeListenerBlock)(FIRAuth *auth, FIRUser *_Nullable user)
+typedef void (^FIRAuthStateDidChangeListenerBlock)(FIRAuth *auth, FIRUser *_Nullable user)
     NS_SWIFT_NAME(AuthStateDidChangeListenerBlock);
 
 /** @typedef FIRIDTokenDidChangeListenerHandle
@@ -69,7 +68,7 @@ typedef id<NSObject> FIRIDTokenDidChangeListenerHandle
     @param auth The FIRAuth object on which ID token changes occurred.
     @param user Optionally; the current signed in user, if any.
  */
-typedef void(^FIRIDTokenDidChangeListenerBlock)(FIRAuth *auth, FIRUser *_Nullable user)
+typedef void (^FIRIDTokenDidChangeListenerBlock)(FIRAuth *auth, FIRUser *_Nullable user)
     NS_SWIFT_NAME(IDTokenDidChangeListenerBlock);
 
 /** @typedef FIRAuthDataResultCallback
@@ -89,8 +88,7 @@ typedef void (^FIRAuthDataResultCallback)(FIRAuthDataResult *_Nullable authResul
         changes (for example, a new token has been produced, a user signs in or signs out). The
         object parameter of the notification is the sender `FIRAuth` instance.
  */
-extern const NSNotificationName FIRAuthStateDidChangeNotification
-    NS_SWIFT_NAME(AuthStateDidChange);
+extern const NSNotificationName FIRAuthStateDidChangeNotification NS_SWIFT_NAME(AuthStateDidChange);
 #else
 /**
     @brief The name of the `NSNotificationCenter` notification which is posted when the auth state
@@ -128,8 +126,7 @@ typedef void (^FIRProviderQueryCallback)(NSArray<NSString *> *_Nullable provider
     @brief The type of block invoked when a list of sign-in methods for a given email address is
         requested.
  */
-typedef void (^FIRSignInMethodQueryCallback)(NSArray<NSString *> *_Nullable,
-                                             NSError *_Nullable)
+typedef void (^FIRSignInMethodQueryCallback)(NSArray<NSString *> *_Nullable, NSError *_Nullable)
     NS_SWIFT_NAME(SignInMethodQueryCallback);
 
 /** @typedef FIRSendPasswordResetCallback
@@ -202,21 +199,20 @@ NS_SWIFT_NAME(ActionCodeInfo)
     @brief Operations which can be performed with action codes.
   */
 typedef NS_ENUM(NSInteger, FIRActionCodeOperation) {
-    /** Action code for unknown operation. */
-    FIRActionCodeOperationUnknown = 0,
+  /** Action code for unknown operation. */
+  FIRActionCodeOperationUnknown = 0,
 
-    /** Action code for password reset operation. */
-    FIRActionCodeOperationPasswordReset = 1,
+  /** Action code for password reset operation. */
+  FIRActionCodeOperationPasswordReset = 1,
 
-    /** Action code for verify email operation. */
-    FIRActionCodeOperationVerifyEmail = 2,
+  /** Action code for verify email operation. */
+  FIRActionCodeOperationVerifyEmail = 2,
 
-    /** Action code for recover email operation. */
-    FIRActionCodeOperationRecoverEmail = 3,
+  /** Action code for recover email operation. */
+  FIRActionCodeOperationRecoverEmail = 3,
 
-    /** Action code for email link operation. */
-    FIRActionCodeOperationEmailLink = 4,
-
+  /** Action code for email link operation. */
+  FIRActionCodeOperationEmailLink = 4,
 
 } NS_SWIFT_NAME(ActionCodeOperation);
 
@@ -331,8 +327,8 @@ NS_SWIFT_NAME(Auth)
  */
 - (void)fetchProvidersForEmail:(NSString *)email
                     completion:(nullable FIRProviderQueryCallback)completion
-DEPRECATED_MSG_ATTRIBUTE("Please use fetchSignInMethodsForEmail:completion: for Objective-C or "
-                         "fetchSignInMethods(forEmail:completion:) for Swift instead.");
+    DEPRECATED_MSG_ATTRIBUTE("Please use fetchSignInMethodsForEmail:completion: for Objective-C or "
+                             "fetchSignInMethods(forEmail:completion:) for Swift instead.");
 
 /** @fn fetchSignInMethodsForEmail:completion:
     @brief Fetches the list of all sign-in methods previously used for the provided email address.
@@ -455,8 +451,8 @@ DEPRECATED_MSG_ATTRIBUTE("Please use fetchSignInMethodsForEmail:completion: for 
  */
 - (void)signInAndRetrieveDataWithCredential:(FIRAuthCredential *)credential
                                  completion:(nullable FIRAuthDataResultCallback)completion
-DEPRECATED_MSG_ATTRIBUTE("Please use signInWithCredential:completion: for Objective-C or "
-                         "signIn(with:completion:) for Swift instead.");
+    DEPRECATED_MSG_ATTRIBUTE("Please use signInWithCredential:completion: for Objective-C or "
+                             "signIn(with:completion:) for Swift instead.");
 
 /** @fn signInWithCredential:completion:
     @brief Asynchronously signs in to Firebase with the given 3rd-party credentials (e.g. a Facebook
@@ -613,8 +609,7 @@ DEPRECATED_MSG_ATTRIBUTE("Please use signInWithCredential:completion: for Object
     @remarks This method will not work for out of band codes which require an additional parameter,
         such as password reset code.
  */
-- (void)applyActionCode:(NSString *)code
-             completion:(FIRApplyActionCodeCallback)completion;
+- (void)applyActionCode:(NSString *)code completion:(FIRApplyActionCodeCallback)completion;
 
 /** @fn sendPasswordResetWithEmail:completion:
     @brief Initiates a password reset for the given email address.
@@ -665,9 +660,9 @@ DEPRECATED_MSG_ATTRIBUTE("Please use signInWithCredential:completion: for Object
 
 
  */
- - (void)sendPasswordResetWithEmail:(NSString *)email
-                 actionCodeSettings:(FIRActionCodeSettings *)actionCodeSettings
-                         completion:(nullable FIRSendPasswordResetCallback)completion;
+- (void)sendPasswordResetWithEmail:(NSString *)email
+                actionCodeSettings:(FIRActionCodeSettings *)actionCodeSettings
+                        completion:(nullable FIRSendPasswordResetCallback)completion;
 
 /** @fn sendSignInLinkToEmail:actionCodeSettings:completion:
     @brief Sends a sign in with email link to provided email address.

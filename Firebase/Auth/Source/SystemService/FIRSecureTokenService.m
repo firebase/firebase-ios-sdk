@@ -17,9 +17,9 @@
 #import "FIRSecureTokenService.h"
 
 #import "FIRAuth.h"
-#import "FIRAuthSerialTaskQueue.h"
 #import "FIRAuthBackend.h"
 #import "FIRAuthRequestConfiguration.h"
+#import "FIRAuthSerialTaskQueue.h"
 #import "FIRSecureTokenRequest.h"
 #import "FIRSecureTokenResponse.h"
 
@@ -110,8 +110,7 @@ static const NSTimeInterval kFiveMinutes = 5 * 60;
       complete();
       callback(self->_accessToken, nil, NO);
     } else {
-      [self requestAccessToken:^(NSString *_Nullable token,
-                                 NSError *_Nullable error,
+      [self requestAccessToken:^(NSString *_Nullable token, NSError *_Nullable error,
                                  BOOL tokenUpdated) {
         complete();
         callback(token, error, tokenUpdated);
@@ -133,8 +132,8 @@ static const NSTimeInterval kFiveMinutes = 5 * 60;
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder {
   NSString *refreshToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:kRefreshTokenKey];
   NSString *accessToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:kAccessTokenKey];
-  NSDate *accessTokenExpirationDate =
-      [aDecoder decodeObjectOfClass:[NSDate class] forKey:kAccessTokenExpirationDateKey];
+  NSDate *accessTokenExpirationDate = [aDecoder decodeObjectOfClass:[NSDate class]
+                                                             forKey:kAccessTokenExpirationDateKey];
   if (!refreshToken) {
     return nil;
   }
@@ -180,24 +179,23 @@ static const NSTimeInterval kFiveMinutes = 5 * 60;
     request = [FIRSecureTokenRequest authCodeRequestWithCode:_authorizationCode
                                         requestConfiguration:_requestConfiguration];
   }
-  [FIRAuthBackend secureToken:request
-                     callback:^(FIRSecureTokenResponse *_Nullable response,
-                                NSError *_Nullable error) {
-    BOOL tokenUpdated = NO;
-    NSString *newAccessToken = response.accessToken;
-                       if (newAccessToken.length && ![newAccessToken isEqualToString:self->_accessToken]) {
-                         self->_accessToken = [newAccessToken copy];
-                         self->_accessTokenExpirationDate = response.approximateExpirationDate;
-      tokenUpdated = YES;
-    }
-    NSString *newRefreshToken = response.refreshToken;
-                       if (newRefreshToken.length &&
-                           ![newRefreshToken isEqualToString:self->_refreshToken]) {
-                         self->_refreshToken = [newRefreshToken copy];
-      tokenUpdated = YES;
-    }
-    callback(newAccessToken, error, tokenUpdated);
-  }];
+  [FIRAuthBackend
+      secureToken:request
+         callback:^(FIRSecureTokenResponse *_Nullable response, NSError *_Nullable error) {
+           BOOL tokenUpdated = NO;
+           NSString *newAccessToken = response.accessToken;
+           if (newAccessToken.length && ![newAccessToken isEqualToString:self->_accessToken]) {
+             self->_accessToken = [newAccessToken copy];
+             self->_accessTokenExpirationDate = response.approximateExpirationDate;
+             tokenUpdated = YES;
+           }
+           NSString *newRefreshToken = response.refreshToken;
+           if (newRefreshToken.length && ![newRefreshToken isEqualToString:self->_refreshToken]) {
+             self->_refreshToken = [newRefreshToken copy];
+             tokenUpdated = YES;
+           }
+           callback(newAccessToken, error, tokenUpdated);
+         }];
 }
 
 - (BOOL)hasValidAccessToken {

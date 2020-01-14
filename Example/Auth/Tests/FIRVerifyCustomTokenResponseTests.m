@@ -16,11 +16,11 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRAuthErrors.h"
 #import "FIRAuthBackend.h"
+#import "FIRAuthErrors.h"
+#import "FIRFakeBackendRPCIssuer.h"
 #import "FIRVerifyCustomTokenRequest.h"
 #import "FIRVerifyCustomTokenResponse.h"
-#import "FIRFakeBackendRPCIssuer.h"
 
 /** @var kTestToken
     @brief testing token.
@@ -92,8 +92,7 @@ static NSString *const kInvalidCustomTokenServerErrorMessage =
     @remarks This message deliberately has no content where it should contain
         error details.
  */
-static NSString *const kInvalidCustomTokenEmptyServerErrorMessage =
-    @"INVALID_CUSTOM_TOKEN :";
+static NSString *const kInvalidCustomTokenEmptyServerErrorMessage = @"INVALID_CUSTOM_TOKEN :";
 
 /** @var kInvalidCustomTokenErrorDetails
     @brief This is the test detailed error message that could be returned by the backend.
@@ -155,12 +154,12 @@ static const double kAllowedTimeDifference = 0.1;
   __block FIRVerifyCustomTokenResponse *RPCResponse;
   __block NSError *RPCError;
   [FIRAuthBackend verifyCustomToken:request
-                           callback:^(FIRVerifyCustomTokenResponse*_Nullable response,
-                                  NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+                           callback:^(FIRVerifyCustomTokenResponse *_Nullable response,
+                                      NSError *_Nullable error) {
+                             callbackInvoked = YES;
+                             RPCResponse = response;
+                             RPCError = error;
+                           }];
 
   [_RPCIssuer respondWithServerErrorMessage:kInvalidCustomTokenErrorMessage];
   XCTAssert(callbackInvoked);
@@ -182,12 +181,12 @@ static const double kAllowedTimeDifference = 0.1;
   __block FIRVerifyCustomTokenResponse *RPCResponse;
   __block NSError *RPCError;
   [FIRAuthBackend verifyCustomToken:request
-                           callback:^(FIRVerifyCustomTokenResponse*_Nullable response,
-                                  NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+                           callback:^(FIRVerifyCustomTokenResponse *_Nullable response,
+                                      NSError *_Nullable error) {
+                             callbackInvoked = YES;
+                             RPCResponse = response;
+                             RPCError = error;
+                           }];
 
   [_RPCIssuer respondWithServerErrorMessage:kInvalidCustomTokenServerErrorMessage];
   NSString *errorDescription = [RPCError.userInfo valueForKey:NSLocalizedDescriptionKey];
@@ -213,12 +212,12 @@ static const double kAllowedTimeDifference = 0.1;
   __block FIRVerifyCustomTokenResponse *RPCResponse;
   __block NSError *RPCError;
   [FIRAuthBackend verifyCustomToken:request
-                           callback:^(FIRVerifyCustomTokenResponse*_Nullable response,
-                                  NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+                           callback:^(FIRVerifyCustomTokenResponse *_Nullable response,
+                                      NSError *_Nullable error) {
+                             callbackInvoked = YES;
+                             RPCResponse = response;
+                             RPCError = error;
+                           }];
 
   [_RPCIssuer respondWithServerErrorMessage:kInvalidCustomTokenEmptyServerErrorMessage];
   NSString *errorDescription = [RPCError.userInfo valueForKey:NSLocalizedDescriptionKey];
@@ -242,12 +241,12 @@ static const double kAllowedTimeDifference = 0.1;
   __block FIRVerifyCustomTokenResponse *RPCResponse;
   __block NSError *RPCError;
   [FIRAuthBackend verifyCustomToken:request
-                           callback:^(FIRVerifyCustomTokenResponse*_Nullable response,
+                           callback:^(FIRVerifyCustomTokenResponse *_Nullable response,
                                       NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+                             callbackInvoked = YES;
+                             RPCResponse = response;
+                             RPCError = error;
+                           }];
 
   [_RPCIssuer respondWithServerErrorMessage:kCredentialMismatchErrorMessage];
   XCTAssert(callbackInvoked);
@@ -268,12 +267,12 @@ static const double kAllowedTimeDifference = 0.1;
   __block FIRVerifyCustomTokenResponse *RPCResponse;
   __block NSError *RPCError;
   [FIRAuthBackend verifyCustomToken:request
-                           callback:^(FIRVerifyCustomTokenResponse*_Nullable response,
-                                  NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+                           callback:^(FIRVerifyCustomTokenResponse *_Nullable response,
+                                      NSError *_Nullable error) {
+                             callbackInvoked = YES;
+                             RPCResponse = response;
+                             RPCError = error;
+                           }];
 
   [_RPCIssuer respondWithJSON:@{
     kIDTokenKey : kTestIDToken,
