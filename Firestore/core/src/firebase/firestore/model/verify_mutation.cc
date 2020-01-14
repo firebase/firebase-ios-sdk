@@ -16,12 +16,9 @@
 
 #include "Firestore/core/src/firebase/firestore/model/verify_mutation.h"
 
-#include <cstdlib>
 #include <utility>
 
-#include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
-#include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 

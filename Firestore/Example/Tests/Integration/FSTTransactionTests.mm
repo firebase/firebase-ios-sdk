@@ -459,7 +459,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
           // Once all of the transactions have read, allow the first write. There should be 3
           // initial transaction runs.
           if (nowStarted == total) {
-            XCTAssertEqual((int)(*counter), 3);
+            XCTAssertEqual(static_cast<int>(*counter), 3);
             dispatch_semaphore_signal(writeBarrier);
           }
 
@@ -478,7 +478,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
 
   [self awaitExpectations];
   // There should be a maximum of 3 retries: once for the 2nd update, and twice for the 3rd update.
-  XCTAssertLessThanOrEqual((int)(*counter), 6);
+  XCTAssertLessThanOrEqual(static_cast<int>(*counter), 6);
   // Now all transaction should be completed, so check the result.
   FIRDocumentSnapshot *snapshot = [self readDocumentForRef:doc];
   XCTAssertEqualObjects(snapshot[@"count"], @(5.0 + total));
@@ -524,7 +524,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
       }
       completion:^(id _Nullable result, NSError *_Nullable error) {
         XCTAssertNil(error);
-        XCTAssertEqual((int)(*counter), 2);
+        XCTAssertEqual(static_cast<int>(*counter), 2);
         [expectation fulfill];
       }];
   [self awaitExpectations];
@@ -654,7 +654,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
         [expectation fulfill];
         XCTAssertNotNil(error);
         XCTAssertEqual(error.code, FIRFirestoreErrorCodeInvalidArgument);
-        XCTAssertEqual((int)(*counter), 1);
+        XCTAssertEqual(static_cast<int>(*counter), 1);
       }];
   [self awaitExpectations];
 }
@@ -696,7 +696,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
         [expectation fulfill];
       }];
   [self awaitExpectations];
-  XCTAssertEqual((int)(*counter), 1);
+  XCTAssertEqual(static_cast<int>(*counter), 1);
   FIRDocumentSnapshot *snapshot = [self readDocumentForRef:doc];
   XCTAssertFalse(snapshot.exists);
 }
