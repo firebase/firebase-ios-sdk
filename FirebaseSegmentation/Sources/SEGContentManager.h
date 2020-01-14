@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SEGContentManager : NSObject
 
 /// Shared Singleton Instance
-+ (instancetype)sharedInstanceWithFIROptions:(FIROptions*)options;
++ (instancetype)sharedInstanceWithOptions:(FIROptions*)options;
 
 - (void)associateCustomInstallationIdentiferNamed:(nonnull NSString*)customInstallationID
                                       firebaseApp:(nonnull NSString*)firebaseApp

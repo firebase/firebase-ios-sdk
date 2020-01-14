@@ -32,7 +32,7 @@
 
 @implementation SEGContentManager
 
-+ (instancetype)sharedInstanceWithFIROptions:(FIROptions *)options {
++ (instancetype)sharedInstanceWithOptions:(FIROptions *)options {
   static dispatch_once_t onceToken;
   static SEGContentManager *sharedInstance;
   dispatch_once(&onceToken, ^{

@@ -69,7 +69,7 @@
     _firebaseAppName = appName;
 
     // Initialize the content manager.
-    _contentManager = [SEGContentManager sharedInstanceWithFIROptions:options];
+    _contentManager = [SEGContentManager sharedInstanceWithOptions:options];
   }
   return self;
 }

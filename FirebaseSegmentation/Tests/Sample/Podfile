@@ -11,7 +11,8 @@ target 'SegmentationSampleApp' do
   platform :ios, '8.0'
 
   # Pods for SegmentationSampleApp
-  pod 'FirebaseCore'
+  pod 'FirebaseCore', :path => '../../../'
   pod 'FirebaseSegmentation', :path => '../../../'
 
-end
+end 
+

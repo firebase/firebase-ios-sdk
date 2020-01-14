@@ -30,13 +30,15 @@ NS_SWIFT_NAME(Segmentation)
 
 /// Firebase Remote Config service fetch error.
 typedef NS_ENUM(NSInteger, FIRSegmentationErrorCode) {
-  /// Unknown or no error.
-  FIRSegmentationErrorCodeInternal = 8001,
+  /// No error. The operation was successful.
+  FIRSegmentationErrorCodeNone = 8001,
+  /// An internal error occurred.
+  FIRSegmentationErrorCodeInternal = 8002,
   /// Error indicating that backend reports an existing association for this custom installation
   /// identifier.
-  FIRSegmentationErrorCodeConflict = 8002,
+  FIRSegmentationErrorCodeConflict = 8003,
   /// Error indicating that a network error occurred during association.
-  FIRSegmentationErrorCodeNetwork = 8003,
+  FIRSegmentationErrorCodeNetwork = 8004,
 } NS_SWIFT_NAME(SegmentationErrorCode);
 
 /**
