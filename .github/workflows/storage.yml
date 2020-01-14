@@ -1,0 +1,29 @@
+name: core
+
+on:
+  push
+#  pull_request:
+#    paths:
+#    - 'FirebaseStorage**'
+
+jobs:
+  core:
+    runs-on: macOS-latest
+    steps:
+      - name: Hello world action
+        with: # Set the secret as an input
+          super_secret: ${{ secrets.TestSecret }}
+        # env: # Or as an environment variable
+        #   super_secret: ${{ secrets.SuperSecret }}
+        run: |
+          cp ${{ secrets.TestSecret }} foo
+          cat foo
+
+
+    # - uses: actions/checkout@v1
+    # - name: Set up
+    #   run: |
+    #     bundle install
+    #     bundle exec pod --version
+    # - name: FirebaseCore
+    #   run: ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=ios
