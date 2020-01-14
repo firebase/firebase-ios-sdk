@@ -25,8 +25,8 @@ NS_ASSUME_NONNULL_BEGIN
 /// Shared Singleton Instance
 + (instancetype)sharedInstanceWithOptions:(FIROptions*)options;
 
-- (void)associateCustomInstallationIdentiferNamed:(nonnull NSString*)customInstallationID
-                                      firebaseApp:(nonnull NSString*)firebaseApp
+- (void)associateCustomInstallationIdentiferNamed:(NSString*)customInstallationID
+                                      firebaseApp:(NSString*)appName
                                        completion:(SEGRequestCompletion)completionHandler;
 
 @end

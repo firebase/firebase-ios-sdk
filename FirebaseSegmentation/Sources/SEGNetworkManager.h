@@ -18,7 +18,6 @@
 
 #import "SEGSegmentationConstants.h"
 
-///
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SEGNetworkManager : NSObject
@@ -27,7 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)makeAssociationRequestToBackendWithData:
             (nonnull NSDictionary<NSString *, id> *)associationData
-                                          token:(nonnull NSString *)token
+                                          token:(NSString *)token
                                      completion:(SEGRequestCompletion)completionHandler;
 
 @end

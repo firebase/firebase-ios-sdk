@@ -13,5 +13,3 @@
 // limitations under the License.
 
 #import "SEGSegmentationConstants.h"
-
-NSString* const kFirebaseSegmentationErrorDomain = @"com.firebase.segmentation";

@@ -21,6 +21,8 @@
 #import "SEGNetworkManager.h"
 #import "SEGSegmentationConstants.h"
 
+NSString *const kErrorDescription = @"ErrorDescription";
+
 @interface SEGContentManager () {
   NSMutableDictionary<NSString *, id> *_associationData;
   NSString *_instanceIdentifier;
@@ -52,8 +54,6 @@
     // Initialize the network manager.
     _networkManager = networkManager;
 
-    NSAssert(_databaseManager != nil, @"Segmentation database could not be initialized");
-
     // Load all data from the database.
     [_databaseManager createOrOpenDatabaseWithCompletion:^(BOOL success, NSDictionary *result) {
       self->_associationData = [result mutableCopy];
@@ -73,14 +73,24 @@
                                        completion:(SEGRequestCompletion)completionHandler {
   // Get the latest instance identifier
   if (![self instanceIDForApp:firebaseApp]) {
-    completionHandler(NO, @{@"ErrorDescription" : @"InstanceID SDK not available"});
+    completionHandler(NO, @{kErrorDescription : @"InstanceID SDK not available"});
   }
   __weak SEGContentManager *weakSelf = self;
   [[FIRInstanceID instanceID] instanceIDWithHandler:^(FIRInstanceIDResult *_Nullable result,
                                                       NSError *_Nullable error) {
     SEGContentManager *strongSelf = weakSelf;
     if (!strongSelf) {
-      completionHandler(NO, @{@"ErrorDescription" : @"Internal Error getting instance ID."});
+      completionHandler(NO, @{kErrorDescription : @"Internal Error getting instance ID."});
+      return;
+    }
+
+    if (!result || error) {
+      NSString *errorMessage = @"Error getting instance ID.";
+      if (error) {
+        errorMessage = [errorMessage stringByAppendingString:error.description];
+      }
+      NSDictionary *errorDictionary = @{kErrorDescription : errorMessage};
+      completionHandler(NO, errorDictionary);
       return;
     }
 
@@ -96,6 +106,8 @@
     [strongSelf->_associationData setObject:appAssociationData forKey:firebaseApp];
 
     // Update the database async.
+    // TODO(mandard) The database write and corresponding completion handler needs to be wired up
+    // once we support listening to FID changes.
     [strongSelf->_databaseManager insertMainTableApplicationNamed:firebaseApp
                                          customInstanceIdentifier:customInstallationID
                                        firebaseInstanceIdentifier:strongSelf->_instanceIdentifier

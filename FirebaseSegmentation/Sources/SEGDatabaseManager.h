@@ -16,16 +16,18 @@
 
 #import "SEGSegmentationConstants.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 /// Persist config data in sqlite database on device. Managing data read/write from/to database.
 @interface SEGDatabaseManager : NSObject
 /// Shared Singleton Instance
-+ (_Nonnull instancetype)sharedInstance;
++ (instancetype)sharedInstance;
 
 /// Open the database.
-- (void)createOrOpenDatabaseWithCompletion:(nullable SEGRequestCompletion)completionHandler;
+- (void)createOrOpenDatabaseWithCompletion:(SEGRequestCompletion)completionHandler;
 
 /// Read all contents of main table.
-- (void)loadMainTableWithCompletion:(nullable SEGRequestCompletion)completionHandler;
+- (void)loadMainTableWithCompletion:(SEGRequestCompletion)completionHandler;
 
 /// Insert a record in main table.
 /// @param firebaseApplication The name of the Firebase App that this segmentation instance is
@@ -34,18 +36,19 @@
 /// @param firebaseInstanceIdentifier The firebase instance identifier provided by the IID/FIS SDK.
 /// @param associationStatus The current status of the association - Pending until reported to the
 /// backend.
-- (void)insertMainTableApplicationNamed:(nonnull NSString *)firebaseApplication
-               customInstanceIdentifier:(nonnull NSString *)customInstanceIdentifier
-             firebaseInstanceIdentifier:(nonnull NSString *)firebaseInstanceIdentifier
-                      associationStatus:(nonnull NSString *)associationStatus
+- (void)insertMainTableApplicationNamed:(NSString *)firebaseApplication
+               customInstanceIdentifier:(NSString *)customInstanceIdentifier
+             firebaseInstanceIdentifier:(NSString *)firebaseInstanceIdentifier
+                      associationStatus:(NSString *)associationStatus
                       completionHandler:(nullable SEGRequestCompletion)handler;
 
 /// Clear the record of given namespace and package name
 /// before updating the table.//TODO: Add delete.
-- (void)deleteRecordFromMainTableWithCustomInstanceIdentifier:
-    (nonnull NSString *)customInstanceIdentifier;
+- (void)deleteRecordFromMainTableWithCustomInstanceIdentifier:(NSString *)customInstanceIdentifier;
 
 /// Remove all the records from a config content table.
 - (void)deleteAllRecordsFromTable;
+
+NS_ASSUME_NONNULL_END
 
 @end

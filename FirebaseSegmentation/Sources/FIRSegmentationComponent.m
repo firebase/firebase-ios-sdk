@@ -30,8 +30,6 @@ add -DFIRSegmentation_VERSION=... to the build invocation"
 #define STR(x) STR_EXPAND(x)
 #define STR_EXPAND(x) #x
 
-NSString *const kFirebaseSegmentationErrorDomain = @"com.firebase.segmentation";
-
 @implementation FIRSegmentationComponent
 
 /// Default method for retrieving a Segmentation instance, or creating one if it doesn't exist.

@@ -45,6 +45,7 @@
 - (void)setUp {
   // Setup FIRApp.
   XCTAssertNoThrow([FIRApp configureWithOptions:[self FIRAppOptions]]);
+  // TODO (mandard): Investigate replacing the partial mock with a class mock.
   FIRInstanceID *instanceIDMock = OCMPartialMock([FIRInstanceID instanceIDForTests]);
   FIRInstanceIDResult *result = [[FIRInstanceIDResult alloc] init];
   result.instanceID = @"test-instance-id";

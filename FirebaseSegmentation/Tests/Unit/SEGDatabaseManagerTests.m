@@ -67,7 +67,7 @@
   // Load all data from the database.
   [databaseManager createOrOpenDatabaseWithCompletion:^(BOOL success, NSDictionary *result) {
     XCTAssertTrue(success);
-    XCTAssertTrue(result.count == 0);
+    XCTAssertTrue(result.count == 0, "Result was %@", result);
 
     // Insert data.
     [databaseManager
