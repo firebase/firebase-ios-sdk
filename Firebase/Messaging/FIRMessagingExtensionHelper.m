@@ -46,7 +46,9 @@ static NSString *const kPayloadOptionsImageURLName = @"image";
   if (attachmentURL) {
     [self loadAttachmentForURL:attachmentURL
              completionHandler:^(UNNotificationAttachment *attachment) {
-               self.bestAttemptContent.attachments = @[ attachment ];
+               if (attachment != nil) {
+                 self.bestAttemptContent.attachments = @[ attachment ];
+               }
                [self deliverNotification];
              }];
   } else {
