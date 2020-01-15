@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/test/firebase/firestore/local/query_cache_test.h"
+#include "Firestore/core/test/firebase/firestore/local/target_cache_test.h"
 
 #include <set>
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/local/persistence.h"
-#include "Firestore/core/src/firebase/firestore/local/query_cache.h"
-#include "Firestore/core/src/firebase/firestore/local/query_data.h"
+#include "Firestore/core/src/firebase/firestore/local/target_cache.h"
+#include "Firestore/core/src/firebase/firestore/local/target_data.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 #include "gtest/gtest.h"
@@ -43,76 +43,77 @@ using testutil::Key;
 using testutil::ResumeToken;
 using testutil::Version;
 
-QueryCacheTestBase::QueryCacheTestBase(std::unique_ptr<Persistence> persistence)
+TargetCacheTestBase::TargetCacheTestBase(
+    std::unique_ptr<Persistence> persistence)
     : persistence_(std::move(persistence)),
-      cache_(persistence_->query_cache()),
+      cache_(persistence_->target_cache()),
       query_rooms_(testutil::Query("rooms")),
       previous_sequence_number_(1000),
       previous_target_id_(500),
       previous_snapshot_version_(100) {
 }
 
-QueryCacheTestBase::~QueryCacheTestBase() = default;
+TargetCacheTestBase::~TargetCacheTestBase() = default;
 
 /**
- * Creates a new QueryData object from the given parameters, synthesizing a
+ * Creates a new TargetData object from the given parameters, synthesizing a
  * resume token from the snapshot version.
  */
-QueryData QueryCacheTestBase::MakeQueryData(Query query) {
-  return MakeQueryData(std::move(query), ++previous_target_id_,
-                       ++previous_sequence_number_,
-                       ++previous_snapshot_version_);
+TargetData TargetCacheTestBase::MakeTargetData(Query query) {
+  return MakeTargetData(std::move(query), ++previous_target_id_,
+                        ++previous_sequence_number_,
+                        ++previous_snapshot_version_);
 }
 
-QueryData QueryCacheTestBase::MakeQueryData(
+TargetData TargetCacheTestBase::MakeTargetData(
     Query query,
     TargetId target_id,
     ListenSequenceNumber sequence_number,
     int64_t version) {
   ByteString resume_token = ResumeToken(version);
-  return QueryData(query.ToTarget(), target_id, sequence_number,
-                   QueryPurpose::Listen, Version(version), Version(version),
-                   resume_token);
+  return TargetData(query.ToTarget(), target_id, sequence_number,
+                    QueryPurpose::Listen, Version(version), Version(version),
+                    resume_token);
 }
 
-void QueryCacheTestBase::AddMatchingKey(const DocumentKey& key,
-                                        TargetId target_id) {
+void TargetCacheTestBase::AddMatchingKey(const DocumentKey& key,
+                                         TargetId target_id) {
   DocumentKeySet keys{key};
   cache_->AddMatchingKeys(keys, target_id);
 }
 
-void QueryCacheTestBase::RemoveMatchingKey(const DocumentKey& key,
-                                           TargetId target_id) {
+void TargetCacheTestBase::RemoveMatchingKey(const DocumentKey& key,
+                                            TargetId target_id) {
   DocumentKeySet keys{key};
   cache_->RemoveMatchingKeys(keys, target_id);
 }
 
-QueryCacheTest::QueryCacheTest() : QueryCacheTestBase(GetParam()()) {
+TargetCacheTest::TargetCacheTest() : TargetCacheTestBase(GetParam()()) {
 }
 
 // Out of line definition supports unique_ptr to forward declaration.
-QueryCacheTest::~QueryCacheTest() = default;
+TargetCacheTest::~TargetCacheTest() = default;
 
-TEST_P(QueryCacheTest, ReadQueryNotInCache) {
+TEST_P(TargetCacheTest, ReadQueryNotInCache) {
   persistence_->Run("test_read_query_not_in_cache", [&]() {
     ASSERT_EQ(cache_->GetTarget(query_rooms_.ToTarget()), absl::nullopt);
   });
 }
 
-TEST_P(QueryCacheTest, SetAndReadAQuery) {
+TEST_P(TargetCacheTest, SetAndReadAQuery) {
   persistence_->Run("test_set_and_read_a_query", [&]() {
-    QueryData query_data = MakeQueryData(query_rooms_);
-    cache_->AddTarget(query_data);
+    TargetData target_data = MakeTargetData(query_rooms_);
+    cache_->AddTarget(target_data);
 
     auto result = cache_->GetTarget(query_rooms_.ToTarget());
     ASSERT_NE(result, absl::nullopt);
-    ASSERT_EQ(result->target(), query_data.target());
-    ASSERT_EQ(result->target_id(), query_data.target_id());
-    ASSERT_EQ(result->resume_token(), query_data.resume_token());
+    ASSERT_EQ(result->target(), target_data.target());
+    ASSERT_EQ(result->target_id(), target_data.target_id());
+    ASSERT_EQ(result->resume_token(), target_data.resume_token());
   });
 }
 
-TEST_P(QueryCacheTest, CanonicalIDCollision) {
+TEST_P(TargetCacheTest, CanonicalIDCollision) {
   persistence_->Run("test_canonical_id_collision", [&]() {
     // Type information is currently lost in our canonical_id implementations so
     // this currently an easy way to force colliding canonical_i_ds
@@ -120,15 +121,15 @@ TEST_P(QueryCacheTest, CanonicalIDCollision) {
     Query q2 = testutil::Query("a").AddingFilter(Filter("foo", "==", "1"));
     ASSERT_EQ(q1.CanonicalId(), q2.CanonicalId());
 
-    QueryData data1 = MakeQueryData(q1);
+    TargetData data1 = MakeTargetData(q1);
     cache_->AddTarget(data1);
 
-    // Using the other query should not return the query cache entry despite
+    // Using the other query should not return the target cache entry despite
     // equal canonical_i_ds.
     ASSERT_EQ(cache_->GetTarget(q2.ToTarget()), absl::nullopt);
     ASSERT_EQ(cache_->GetTarget(q1.ToTarget()), data1);
 
-    QueryData data2 = MakeQueryData(q2);
+    TargetData data2 = MakeTargetData(q2);
     cache_->AddTarget(data2);
     ASSERT_EQ(cache_->size(), 2);
 
@@ -147,46 +148,46 @@ TEST_P(QueryCacheTest, CanonicalIDCollision) {
   });
 }
 
-TEST_P(QueryCacheTest, SetQueryToNewValue) {
+TEST_P(TargetCacheTest, SetQueryToNewValue) {
   persistence_->Run("test_set_query_to_new_value", [&]() {
-    QueryData query_data1 = MakeQueryData(query_rooms_, 1, 10, 1);
-    cache_->AddTarget(query_data1);
+    TargetData target_data1 = MakeTargetData(query_rooms_, 1, 10, 1);
+    cache_->AddTarget(target_data1);
 
-    QueryData query_data2 = MakeQueryData(query_rooms_, 1, 10, 2);
-    cache_->AddTarget(query_data2);
+    TargetData target_data2 = MakeTargetData(query_rooms_, 1, 10, 2);
+    cache_->AddTarget(target_data2);
 
     auto result = cache_->GetTarget(query_rooms_.ToTarget());
-    ASSERT_NE(query_data2.resume_token(), query_data1.resume_token());
-    ASSERT_NE(query_data2.snapshot_version(), query_data1.snapshot_version());
-    ASSERT_EQ(result->resume_token(), query_data2.resume_token());
-    ASSERT_EQ(result->snapshot_version(), query_data2.snapshot_version());
+    ASSERT_NE(target_data2.resume_token(), target_data1.resume_token());
+    ASSERT_NE(target_data2.snapshot_version(), target_data1.snapshot_version());
+    ASSERT_EQ(result->resume_token(), target_data2.resume_token());
+    ASSERT_EQ(result->snapshot_version(), target_data2.snapshot_version());
   });
 }
 
-TEST_P(QueryCacheTest, RemoveQuery) {
+TEST_P(TargetCacheTest, RemoveQuery) {
   persistence_->Run("test_remove_query", [&]() {
-    QueryData query_data1 = MakeQueryData(query_rooms_);
-    cache_->AddTarget(query_data1);
+    TargetData target_data1 = MakeTargetData(query_rooms_);
+    cache_->AddTarget(target_data1);
 
-    cache_->RemoveTarget(query_data1);
+    cache_->RemoveTarget(target_data1);
 
     auto result = cache_->GetTarget(query_rooms_.ToTarget());
     ASSERT_EQ(result, absl::nullopt);
   });
 }
 
-TEST_P(QueryCacheTest, RemoveNonExistentQuery) {
+TEST_P(TargetCacheTest, RemoveNonExistentQuery) {
   persistence_->Run("test_remove_non_existent_query", [&]() {
-    QueryData query_data = MakeQueryData(query_rooms_);
+    TargetData target_data = MakeTargetData(query_rooms_);
 
     // no-op, but make sure it doesn't throw.
-    EXPECT_NO_THROW(cache_->RemoveTarget(query_data));
+    EXPECT_NO_THROW(cache_->RemoveTarget(target_data));
   });
 }
 
-TEST_P(QueryCacheTest, RemoveQueryRemovesMatchingKeysToo) {
+TEST_P(TargetCacheTest, RemoveQueryRemovesMatchingKeysToo) {
   persistence_->Run("test_remove_query_removes_matching_keys_too", [&]() {
-    QueryData rooms = MakeQueryData(query_rooms_);
+    TargetData rooms = MakeTargetData(query_rooms_);
     cache_->AddTarget(rooms);
 
     DocumentKey key1 = Key("rooms/foo");
@@ -203,7 +204,7 @@ TEST_P(QueryCacheTest, RemoveQueryRemovesMatchingKeysToo) {
   });
 }
 
-TEST_P(QueryCacheTest, AddOrRemoveMatchingKeys) {
+TEST_P(TargetCacheTest, AddOrRemoveMatchingKeys) {
   persistence_->Run("test_add_or_remove_matching_keys", [&]() {
     DocumentKey key = Key("foo/bar");
 
@@ -223,7 +224,7 @@ TEST_P(QueryCacheTest, AddOrRemoveMatchingKeys) {
   });
 }
 
-TEST_P(QueryCacheTest, MatchingKeysForTargetID) {
+TEST_P(TargetCacheTest, MatchingKeysForTargetID) {
   persistence_->Run("test_matching_keys_for_target_id", [&]() {
     DocumentKey key1 = Key("foo/bar");
     DocumentKey key2 = Key("foo/baz");
@@ -242,13 +243,13 @@ TEST_P(QueryCacheTest, MatchingKeysForTargetID) {
   });
 }
 
-TEST_P(QueryCacheTest, HighestListenSequenceNumber) {
+TEST_P(TargetCacheTest, HighestListenSequenceNumber) {
   persistence_->Run("test_highest_listen_sequence_number", [&]() {
-    QueryData query1(testutil::Query("rooms").ToTarget(), 1, 10,
-                     QueryPurpose::Listen);
+    TargetData query1(testutil::Query("rooms").ToTarget(), 1, 10,
+                      QueryPurpose::Listen);
     cache_->AddTarget(query1);
-    QueryData query2(testutil::Query("halls").ToTarget(), 2, 20,
-                     QueryPurpose::Listen);
+    TargetData query2(testutil::Query("halls").ToTarget(), 2, 20,
+                      QueryPurpose::Listen);
     cache_->AddTarget(query2);
     ASSERT_EQ(cache_->highest_listen_sequence_number(), 20);
 
@@ -256,8 +257,8 @@ TEST_P(QueryCacheTest, HighestListenSequenceNumber) {
     cache_->RemoveTarget(query2);
     ASSERT_EQ(cache_->highest_listen_sequence_number(), 20);
 
-    QueryData query3(testutil::Query("garages").ToTarget(), 42, 100,
-                     QueryPurpose::Listen);
+    TargetData query3(testutil::Query("garages").ToTarget(), 42, 100,
+                      QueryPurpose::Listen);
     cache_->AddTarget(query3);
     ASSERT_EQ(cache_->highest_listen_sequence_number(), 100);
 
@@ -269,20 +270,20 @@ TEST_P(QueryCacheTest, HighestListenSequenceNumber) {
   });
 }
 
-TEST_P(QueryCacheTest, HighestTargetID) {
+TEST_P(TargetCacheTest, HighestTargetID) {
   persistence_->Run("test_highest_target_id", [&]() {
     ASSERT_EQ(cache_->highest_target_id(), 0);
 
-    QueryData query1(testutil::Query("rooms").ToTarget(), 1, 10,
-                     QueryPurpose::Listen);
+    TargetData query1(testutil::Query("rooms").ToTarget(), 1, 10,
+                      QueryPurpose::Listen);
     DocumentKey key1 = Key("rooms/bar");
     DocumentKey key2 = Key("rooms/foo");
     cache_->AddTarget(query1);
     AddMatchingKey(key1, 1);
     AddMatchingKey(key2, 1);
 
-    QueryData query2(testutil::Query("halls").ToTarget(), 2, 20,
-                     QueryPurpose::Listen);
+    TargetData query2(testutil::Query("halls").ToTarget(), 2, 20,
+                      QueryPurpose::Listen);
     DocumentKey key3 = Key("halls/foo");
     cache_->AddTarget(query2);
     AddMatchingKey(key3, 2);
@@ -293,8 +294,8 @@ TEST_P(QueryCacheTest, HighestTargetID) {
     ASSERT_EQ(cache_->highest_target_id(), 2);
 
     // A query with an empty result set still counts.
-    QueryData query3(testutil::Query("garages").ToTarget(), 42, 100,
-                     QueryPurpose::Listen);
+    TargetData query3(testutil::Query("garages").ToTarget(), 42, 100,
+                      QueryPurpose::Listen);
     cache_->AddTarget(query3);
     ASSERT_EQ(cache_->highest_target_id(), 42);
 
@@ -306,7 +307,7 @@ TEST_P(QueryCacheTest, HighestTargetID) {
   });
 }
 
-TEST_P(QueryCacheTest, LastRemoteSnapshotVersion) {
+TEST_P(TargetCacheTest, LastRemoteSnapshotVersion) {
   persistence_->Run("test_last_remote_snapshot_version", [&]() {
     ASSERT_EQ(cache_->GetLastRemoteSnapshotVersion(), SnapshotVersion::None());
 

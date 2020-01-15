@@ -103,7 +103,7 @@ class LocalStoreTest : public ::testing::TestWithParam<FactoryFunc> {
   void RejectMutation();
   model::TargetId AllocateQuery(core::Query query);
   void ReleaseQuery(core::Query query);
-  local::QueryData GetQueryData(const core::Query& query);
+  local::TargetData GetTargetData(const core::Query& query);
   local::QueryResult ExecuteQuery(const core::Query& query);
 
   /**

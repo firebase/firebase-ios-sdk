@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_QUERY_CACHE_H_
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_QUERY_CACHE_H_
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_TARGET_CACHE_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_TARGET_CACHE_H_
 
 #include <functional>
 #include <unordered_map>
 
 #include "Firestore/core/src/firebase/firestore/core/query.h"
-#include "Firestore/core/src/firebase/firestore/local/query_data.h"
+#include "Firestore/core/src/firebase/firestore/local/target_data.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
@@ -34,19 +34,19 @@ namespace local {
 using OrphanedDocumentCallback =
     std::function<void(const model::DocumentKey&, model::ListenSequenceNumber)>;
 
-using TargetCallback = std::function<void(const QueryData&)>;
+using TargetCallback = std::function<void(const TargetData&)>;
 
 /**
  * Represents cached targets received from the remote backend. This contains
  * both a mapping between targets and the documents that matched them according
  * to the server, but also metadata about the targets.
  *
- * The cache is keyed by Target and entries in the cache are QueryData
+ * The cache is keyed by Target and entries in the cache are TargetData
  * instances.
  */
-class QueryCache {
+class TargetCache {
  public:
-  virtual ~QueryCache() {
+  virtual ~TargetCache() {
   }
 
   // Target-related methods
@@ -54,42 +54,42 @@ class QueryCache {
   /**
    * Adds an entry in the cache.
    *
-   * The cache key is extracted from `queryData.target()`. The key must not
+   * The cache key is extracted from `TargetData.target()`. The key must not
    * already exist in the cache.
    *
-   * @param query_data A new QueryData instance to put in the cache.
+   * @param target_data A new TargetData instance to put in the cache.
    */
-  virtual void AddTarget(const QueryData& query_data) = 0;
+  virtual void AddTarget(const TargetData& target_data) = 0;
 
   /**
    * Updates an entry in the cache.
    *
-   * The cache key is extracted from `queryData.target()`. The entry must
+   * The cache key is extracted from `TargetData.target()`. The entry must
    * already exist in the cache, and it will be replaced.
    *
-   * @param query_data A QueryData instance to replace an existing entry in
+   * @param target_data A TargetData instance to replace an existing entry in
    *     the cache
    */
-  virtual void UpdateTarget(const QueryData& query_data) = 0;
+  virtual void UpdateTarget(const TargetData& target_data) = 0;
 
-  /** Removes the cached entry for the given query data. The entry must already
+  /** Removes the cached entry for the given target data. The entry must already
    * exist in the cache. */
-  virtual void RemoveTarget(const QueryData& query_data) = 0;
+  virtual void RemoveTarget(const TargetData& target_data) = 0;
 
   /**
-   * Looks up a QueryData entry in the cache.
+   * Looks up a TargetData entry in the cache.
    *
    * @param target The target corresponding to the entry to look up.
-   * @return The cached QueryData entry, or nullopt if the cache has no entry
+   * @return The cached TargetData entry, or nullopt if the cache has no entry
    * for the target.
    */
-  virtual absl::optional<QueryData> GetTarget(const core::Target& target) = 0;
+  virtual absl::optional<TargetData> GetTarget(const core::Target& target) = 0;
 
   virtual void EnumerateTargets(const TargetCallback& callback) = 0;
 
   virtual int RemoveTargets(
       model::ListenSequenceNumber upper_bound,
-      const std::unordered_map<model::TargetId, QueryData>& live_targets) = 0;
+      const std::unordered_map<model::TargetId, TargetData>& live_targets) = 0;
 
   // Key-related methods
   virtual void AddMatchingKeys(const model::DocumentKeySet& keys,
@@ -147,4 +147,4 @@ class QueryCache {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_QUERY_CACHE_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_TARGET_CACHE_H_

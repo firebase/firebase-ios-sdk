@@ -19,7 +19,7 @@
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/core/query.h"
-#include "Firestore/core/src/firebase/firestore/local/query_data.h"
+#include "Firestore/core/src/firebase/firestore/local/target_data.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
@@ -29,8 +29,8 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-using local::QueryData;
 using local::QueryPurpose;
+using local::TargetData;
 using model::DocumentKey;
 using model::DocumentKeySet;
 using model::ResourcePath;
@@ -45,13 +45,14 @@ FakeTargetMetadataProvider::CreateSingleResultProvider(
   core::Query query(document_key.path());
 
   for (TargetId target_id : listen_targets) {
-    QueryData query_data(query.ToTarget(), target_id, 0, QueryPurpose::Listen);
-    metadata_provider.SetSyncedKeys(DocumentKeySet{document_key}, query_data);
+    TargetData target_data(query.ToTarget(), target_id, 0,
+                           QueryPurpose::Listen);
+    metadata_provider.SetSyncedKeys(DocumentKeySet{document_key}, target_data);
   }
   for (TargetId target_id : limbo_targets) {
-    QueryData query_data(query.ToTarget(), target_id, 0,
-                         QueryPurpose::LimboResolution);
-    metadata_provider.SetSyncedKeys(DocumentKeySet{document_key}, query_data);
+    TargetData target_data(query.ToTarget(), target_id, 0,
+                           QueryPurpose::LimboResolution);
+    metadata_provider.SetSyncedKeys(DocumentKeySet{document_key}, target_data);
   }
 
   return metadata_provider;
@@ -71,17 +72,18 @@ FakeTargetMetadataProvider::CreateEmptyResultProvider(
   core::Query query(path);
 
   for (TargetId target_id : targets) {
-    QueryData query_data(query.ToTarget(), target_id, 0, QueryPurpose::Listen);
-    metadata_provider.SetSyncedKeys(DocumentKeySet{}, query_data);
+    TargetData target_data(query.ToTarget(), target_id, 0,
+                           QueryPurpose::Listen);
+    metadata_provider.SetSyncedKeys(DocumentKeySet{}, target_data);
   }
 
   return metadata_provider;
 }
 
 void FakeTargetMetadataProvider::SetSyncedKeys(DocumentKeySet keys,
-                                               QueryData query_data) {
-  synced_keys_[query_data.target_id()] = keys;
-  query_data_[query_data.target_id()] = std::move(query_data);
+                                               TargetData target_data) {
+  synced_keys_[target_data.target_id()] = keys;
+  target_data_[target_data.target_id()] = std::move(target_data);
 }
 
 DocumentKeySet FakeTargetMetadataProvider::GetRemoteKeysForTarget(
@@ -92,10 +94,10 @@ DocumentKeySet FakeTargetMetadataProvider::GetRemoteKeysForTarget(
   return it->second;
 }
 
-absl::optional<QueryData> FakeTargetMetadataProvider::GetQueryDataForTarget(
+absl::optional<TargetData> FakeTargetMetadataProvider::GetTargetDataForTarget(
     TargetId target_id) const {
-  auto it = query_data_.find(target_id);
-  HARD_ASSERT(it != query_data_.end(), "Cannot process unknown target %s",
+  auto it = target_data_.find(target_id);
+  HARD_ASSERT(it != target_data_.end(), "Cannot process unknown target %s",
               target_id);
   return it->second;
 }

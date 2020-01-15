@@ -35,9 +35,9 @@ namespace local {
 
 class IndexManager;
 class MutationQueue;
-class QueryCache;
 class ReferenceDelegate;
 class RemoteDocumentCache;
+class TargetCache;
 
 /**
  * Persistence is the lowest-level shared interface to data storage in
@@ -94,8 +94,8 @@ class Persistence {
    */
   virtual MutationQueue* GetMutationQueueForUser(const auth::User& user) = 0;
 
-  /** Returns a QueryCache representing the persisted cache of queries. */
-  virtual QueryCache* query_cache() = 0;
+  /** Returns a TargetCache representing the persisted cache of queries. */
+  virtual TargetCache* target_cache() = 0;
 
   /**
    * Returns a RemoteDocumentCache representing the persisted cache of remote

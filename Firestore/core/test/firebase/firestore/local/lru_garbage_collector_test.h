@@ -21,8 +21,8 @@
 #include <unordered_map>
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
-#include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_set.h"
+#include "Firestore/core/src/firebase/firestore/local/target_data.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "gtest/gtest.h"
@@ -42,8 +42,8 @@ class LruDelegate;
 class LruGarbageCollector;
 class MutationQueue;
 class Persistence;
-class QueryCache;
 class RemoteDocumentCache;
+class TargetCache;
 struct LruParams;
 
 /**
@@ -94,7 +94,7 @@ class LruGarbageCollectorTest : public ::testing::TestWithParam<FactoryFunc> {
   /** Invokes `gc_->RemoveTargets` in a transaction. */
   int RemoveTargets(
       model::ListenSequenceNumber sequence_number,
-      const std::unordered_map<model::TargetId, QueryData>& live_queries);
+      const std::unordered_map<model::TargetId, TargetData>& live_queries);
 
   /**
    * Removes documents that are not part of a target or a mutation and have a
@@ -106,24 +106,25 @@ class LruGarbageCollectorTest : public ::testing::TestWithParam<FactoryFunc> {
    * Creates the next test query, bumping target and sequence numbers but does
    * not actually persist the query.
    */
-  QueryData NextTestQuery();
+  TargetData NextTestQuery();
 
   /**
    * Calls `NextTestQuery` and adds the result to the target cache, in a new
    * transaction.
    */
-  QueryData AddNextQuery();
+  TargetData AddNextQuery();
 
   /**
-   * Calls `NextTestQuery` and adds the result to the query cache, within an
+   * Calls `NextTestQuery` and adds the result to the target cache, within an
    * existing transaction.
    */
-  QueryData AddNextQueryInTransaction();
+  TargetData AddNextQueryInTransaction();
 
   /**
-   * Updates the given query in the query cache, within an existing transaction.
+   * Updates the given query in the target cache, within an existing
+   * transaction.
    */
-  void UpdateTargetInTransaction(const QueryData& query_data);
+  void UpdateTargetInTransaction(const TargetData& target_data);
 
   /**
    * Creates and marks a document as eligible for GC, in a new transaction.
@@ -204,7 +205,7 @@ class LruGarbageCollectorTest : public ::testing::TestWithParam<FactoryFunc> {
   model::ObjectValue test_value_;
   model::ObjectValue big_object_value_;
   std::unique_ptr<Persistence> persistence_;
-  QueryCache* query_cache_ = nullptr;
+  TargetCache* target_cache_ = nullptr;
   RemoteDocumentCache* document_cache_ = nullptr;
   MutationQueue* mutation_queue_ = nullptr;
   LruDelegate* lru_delegate_ = nullptr;

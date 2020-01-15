@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/local/query_data.h"
+#include "Firestore/core/src/firebase/firestore/local/target_data.h"
 
 #include <ostream>
 #include <sstream>
@@ -53,15 +53,15 @@ std::ostream& operator<<(std::ostream& os, QueryPurpose purpose) {
   return os << ToString(purpose);
 }
 
-// MARK: - QueryData
+// MARK: - TargetData
 
-QueryData::QueryData(Target target,
-                     TargetId target_id,
-                     ListenSequenceNumber sequence_number,
-                     QueryPurpose purpose,
-                     SnapshotVersion snapshot_version,
-                     SnapshotVersion last_limbo_free_snapshot_version,
-                     ByteString resume_token)
+TargetData::TargetData(Target target,
+                       TargetId target_id,
+                       ListenSequenceNumber sequence_number,
+                       QueryPurpose purpose,
+                       SnapshotVersion snapshot_version,
+                       SnapshotVersion last_limbo_free_snapshot_version,
+                       ByteString resume_token)
     : target_(std::move(target)),
       target_id_(target_id),
       sequence_number_(sequence_number),
@@ -72,48 +72,48 @@ QueryData::QueryData(Target target,
       resume_token_(std::move(resume_token)) {
 }
 
-QueryData::QueryData(Target target,
-                     int target_id,
-                     ListenSequenceNumber sequence_number,
-                     QueryPurpose purpose)
-    : QueryData(std::move(target),
-                target_id,
-                sequence_number,
-                purpose,
-                SnapshotVersion::None(),
-                SnapshotVersion::None(),
-                ByteString()) {
+TargetData::TargetData(Target target,
+                       int target_id,
+                       ListenSequenceNumber sequence_number,
+                       QueryPurpose purpose)
+    : TargetData(std::move(target),
+                 target_id,
+                 sequence_number,
+                 purpose,
+                 SnapshotVersion::None(),
+                 SnapshotVersion::None(),
+                 ByteString()) {
 }
 
-QueryData QueryData::Invalid() {
-  return QueryData({}, /*target_id=*/-1, /*sequence_number=*/-1,
-                   QueryPurpose::Listen,
-                   SnapshotVersion(SnapshotVersion::None()),
-                   SnapshotVersion(SnapshotVersion::None()), {});
+TargetData TargetData::Invalid() {
+  return TargetData({}, /*target_id=*/-1, /*sequence_number=*/-1,
+                    QueryPurpose::Listen,
+                    SnapshotVersion(SnapshotVersion::None()),
+                    SnapshotVersion(SnapshotVersion::None()), {});
 }
 
-QueryData QueryData::WithSequenceNumber(
+TargetData TargetData::WithSequenceNumber(
     ListenSequenceNumber sequence_number) const {
-  return QueryData(target_, target_id_, sequence_number, purpose_,
-                   snapshot_version_, last_limbo_free_snapshot_version_,
-                   resume_token_);
+  return TargetData(target_, target_id_, sequence_number, purpose_,
+                    snapshot_version_, last_limbo_free_snapshot_version_,
+                    resume_token_);
 }
 
-QueryData QueryData::WithResumeToken(ByteString resume_token,
-                                     SnapshotVersion snapshot_version) const {
-  return QueryData(target_, target_id_, sequence_number_, purpose_,
-                   std::move(snapshot_version),
-                   last_limbo_free_snapshot_version_, std::move(resume_token));
+TargetData TargetData::WithResumeToken(ByteString resume_token,
+                                       SnapshotVersion snapshot_version) const {
+  return TargetData(target_, target_id_, sequence_number_, purpose_,
+                    std::move(snapshot_version),
+                    last_limbo_free_snapshot_version_, std::move(resume_token));
 }
 
-QueryData QueryData::WithLastLimboFreeSnapshotVersion(
+TargetData TargetData::WithLastLimboFreeSnapshotVersion(
     SnapshotVersion last_limbo_free_snapshot_version) const {
-  return QueryData(target_, target_id_, sequence_number_, purpose_,
-                   snapshot_version_,
-                   std::move(last_limbo_free_snapshot_version), resume_token_);
+  return TargetData(target_, target_id_, sequence_number_, purpose_,
+                    snapshot_version_,
+                    std::move(last_limbo_free_snapshot_version), resume_token_);
 }
 
-bool operator==(const QueryData& lhs, const QueryData& rhs) {
+bool operator==(const TargetData& lhs, const TargetData& rhs) {
   return lhs.target() == rhs.target() && lhs.target_id() == rhs.target_id() &&
          lhs.sequence_number() == rhs.sequence_number() &&
          lhs.purpose() == rhs.purpose() &&
@@ -121,19 +121,19 @@ bool operator==(const QueryData& lhs, const QueryData& rhs) {
          lhs.resume_token() == rhs.resume_token();
 }
 
-size_t QueryData::Hash() const {
+size_t TargetData::Hash() const {
   return util::Hash(target_, target_id_, sequence_number_, purpose_,
                     snapshot_version_, resume_token_);
 }
 
-std::string QueryData::ToString() const {
+std::string TargetData::ToString() const {
   std::ostringstream ss;
   ss << *this;
   return ss.str();
 }
 
-std::ostream& operator<<(std::ostream& os, const QueryData& value) {
-  return os << "QueryData(target=" << value.target_
+std::ostream& operator<<(std::ostream& os, const TargetData& value) {
+  return os << "TargetData(target=" << value.target_
             << ", target_id=" << value.target_id_
             << ", purpose=" << value.purpose_
             << ", version=" << value.snapshot_version_

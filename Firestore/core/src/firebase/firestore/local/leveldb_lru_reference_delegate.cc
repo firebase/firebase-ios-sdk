@@ -48,7 +48,7 @@ LevelDbLruReferenceDelegate::~LevelDbLruReferenceDelegate() = default;
 
 void LevelDbLruReferenceDelegate::Start() {
   ListenSequenceNumber highest_sequence_number =
-      db_->query_cache()->highest_listen_sequence_number();
+      db_->target_cache()->highest_listen_sequence_number();
   listen_sequence_ = absl::make_unique<ListenSequence>(highest_sequence_number);
 }
 
@@ -71,9 +71,10 @@ void LevelDbLruReferenceDelegate::RemoveMutationReference(
   WriteSentinel(key);
 }
 
-void LevelDbLruReferenceDelegate::RemoveTarget(const QueryData& query_data) {
-  QueryData updated = query_data.WithSequenceNumber(current_sequence_number());
-  db_->query_cache()->UpdateTarget(std::move(updated));
+void LevelDbLruReferenceDelegate::RemoveTarget(const TargetData& target_data) {
+  TargetData updated =
+      target_data.WithSequenceNumber(current_sequence_number());
+  db_->target_cache()->UpdateTarget(std::move(updated));
 }
 
 void LevelDbLruReferenceDelegate::UpdateLimboDocument(const DocumentKey& key) {
@@ -106,7 +107,7 @@ int64_t LevelDbLruReferenceDelegate::CalculateByteSize() {
 }
 
 size_t LevelDbLruReferenceDelegate::GetSequenceNumberCount() {
-  size_t total_count = db_->query_cache()->size();
+  size_t total_count = db_->target_cache()->size();
   EnumerateOrphanedDocuments(
       [&total_count](const DocumentKey&, ListenSequenceNumber) {
         total_count++;
@@ -116,18 +117,18 @@ size_t LevelDbLruReferenceDelegate::GetSequenceNumberCount() {
 
 void LevelDbLruReferenceDelegate::EnumerateTargets(
     const TargetCallback& callback) {
-  db_->query_cache()->EnumerateTargets(callback);
+  db_->target_cache()->EnumerateTargets(callback);
 }
 
 void LevelDbLruReferenceDelegate::EnumerateOrphanedDocuments(
     const OrphanedDocumentCallback& callback) {
-  db_->query_cache()->EnumerateOrphanedDocuments(callback);
+  db_->target_cache()->EnumerateOrphanedDocuments(callback);
 }
 
 int LevelDbLruReferenceDelegate::RemoveOrphanedDocuments(
     ListenSequenceNumber upper_bound) {
   int count = 0;
-  db_->query_cache()->EnumerateOrphanedDocuments(
+  db_->target_cache()->EnumerateOrphanedDocuments(
       [&](const DocumentKey& key, ListenSequenceNumber sequence_number) {
         if (sequence_number <= upper_bound) {
           if (!IsPinned(key)) {
@@ -142,7 +143,7 @@ int LevelDbLruReferenceDelegate::RemoveOrphanedDocuments(
 
 int LevelDbLruReferenceDelegate::RemoveTargets(
     ListenSequenceNumber sequence_number, const LiveQueryMap& live_queries) {
-  return db_->query_cache()->RemoveTargets(sequence_number, live_queries);
+  return db_->target_cache()->RemoveTargets(sequence_number, live_queries);
 }
 
 bool LevelDbLruReferenceDelegate::IsPinned(const DocumentKey& key) {
