@@ -133,7 +133,7 @@ else
       ;;
 
     RemoteConfig-*)
-      check_changes '^(FirebaseCore|FirebaseRemoteConfig|Firebase/InstanceID|FirebaseInstanceID.podspec|'\
+      check_changes '^(FirebaseCore|FirebaseRemoteConfig|FirebaseRemoteConfig.podspec|Firebase/InstanceID|FirebaseInstanceID.podspec|'\
 'FirebaseInstallations|FirebaseInstallations.podspec)'
       ;;
 
