@@ -34,6 +34,7 @@
 #import "FIRInstallationsErrorUtil.h"
 #import "FIRInstallationsIDController.h"
 #import "FIRInstallationsItem.h"
+#import "FIRInstallationsLogger.h"
 #import "FIRInstallationsStoredAuthToken.h"
 #import "FIRInstallationsVersion.h"
 
@@ -137,10 +138,15 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   if (missingFields.count > 0) {
-    [NSException raise:kFirebaseInstallationsErrorDomain
-                format:@"Could not configure Firebase Installations due to invalid FirebaseApp "
-                       @"options. The following parameters are nil or empty: %@",
-                       [missingFields componentsJoinedByString:@", "]];
+    [NSException
+         raise:kFirebaseInstallationsErrorDomain
+        format:@"%@[%@] Could not configure Firebase Installations due to invalid FirebaseApp "
+               @"options. The following parameters are nil or empty: %@. If you use "
+               @"GoogleServices-Info.plist please download the most recent version from Firebase "
+               @"Console. If you configure Firebase in code, please make sure you specify all "
+               @"required parameters.",
+               kFIRLoggerInstallations, kFIRInstallationsMessageCodeInvalidFirebaseAppOptions,
+               [missingFields componentsJoinedByString:@", "]];
   }
 }
 
