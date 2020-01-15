@@ -239,13 +239,13 @@
 
 #pragma mark - Invalid Firebase configuration
 
-- (void)testInitWhenProjectIDMissingThenThrows {
+- (void)testInitWhenProjectIDMissingThenNoThrow {
   FIROptions *options = [self.appOptions copy];
   options.projectID = nil;
-  XCTAssertThrows([self createInstallationsWithAppOptions:options appName:@"missingProjectID"]);
+  XCTAssertNoThrow([self createInstallationsWithAppOptions:options appName:@"missingProjectID"]);
 
   options.projectID = @"";
-  XCTAssertThrows([self createInstallationsWithAppOptions:options appName:@"emptyProjectID"]);
+  XCTAssertNoThrow([self createInstallationsWithAppOptions:options appName:@"emptyProjectID"]);
 }
 
 - (void)testInitWhenAPIKeyMissingThenThrows {
