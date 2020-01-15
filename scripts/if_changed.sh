@@ -55,7 +55,7 @@ else
 'InAppMessagingDisplay|InAppMessaging|Firebase/InAppMessaging|'\
 'FirebaseInAppMessaging.podspec|FirebaseInAppMessagingDisplay.podspec|'\
 'Firebase/InstanceID|FirebaseInstanceID.podspec|'\
-'FirebaseInstallations|FirebaseInstallations.podspec'\
+'FirebaseInstallations'\
 'FirebaseCrashlytics.podspec)'\
       ;;
 
@@ -79,7 +79,7 @@ else
 
     Crashlytics-*)
       check_changes '^(FirebaseCore|GoogleUtilities|Crashlytics|FirebaseCrashlytics.podspec|Firebase/InstanceID|FirebaseInstanceID.podspec|'\
-'FirebaseInstallations|FirebaseInstallations.podspec)'
+'FirebaseInstallations)'
       ;;
 
     Database-*)
@@ -105,12 +105,12 @@ else
     InAppMessaging-*)
       check_changes '^(InAppMessaging|Firebase/InAppMessaging|Firebase/InAppMessagingDisplay|InAppMessagingDisplay|'\
 'FirebaseInAppMessaging.podspec|FirebaseInAppMessagingDisplay.podspec|Firebase/InstanceID|FirebaseInstanceID.podspec|'\
-'FirebaseInstallations|FirebaseInstallations.podspec)'
+'FirebaseInstallations)'
       ;;
 
     InstanceID-*)
       check_changes '^(Firebase/InstanceID|Example/InstanceID|FirebaseCore|GoogleUtilities|'\
-'FirebaseInstanceID.podspec|FirebaseInstallations|FirebaseInstallations.podspec)'
+'FirebaseInstanceID.podspec|FirebaseInstallations)'
       ;;
 
     Firestore-xcodebuild|Firestore-pod-lib-lint)
@@ -129,12 +129,12 @@ else
 
     Messaging-*)
       check_changes '^(FirebaseCore|Firebase/Messaging|Example/Messaging|GoogleUtilities|FirebaseMessaging.podspec|Firebase/InstanceID|'\
-'FirebaseInstanceID.podspec|FirebaseInstallations|FirebaseInstallations.podspec)'
+'FirebaseInstanceID.podspec|FirebaseInstallations)'
       ;;
 
     RemoteConfig-*)
       check_changes '^(FirebaseCore|FirebaseRemoteConfig|FirebaseRemoteConfig.podspec|Firebase/InstanceID|FirebaseInstanceID.podspec|'\
-'FirebaseInstallations|FirebaseInstallations.podspec)'
+'FirebaseInstallations)'
       ;;
 
     Storage-*)
@@ -142,7 +142,7 @@ else
       ;;
 
     Installations-*)
-      check_changes '^(FirebaseCore|GoogleUtilities|FirebaseInstallations|FirebaseInstallations.podspec)'
+      check_changes '^(FirebaseCore|GoogleUtilities|FirebaseInstallations)'
       ;;
 
     *)
