@@ -93,9 +93,16 @@
   NSString *APIKey = @"api-key";
   NSString *projectID = @"project-id";
   OCMExpect([self.mockAPIService alloc]).andReturn(self.mockAPIService);
-  OCMExpect([self.mockAPIService initWithAPIKey:APIKey projectID:projectID]).andReturn(self.mockAPIService);
+  OCMExpect([self.mockAPIService initWithAPIKey:APIKey projectID:projectID])
+      .andReturn(self.mockAPIService);
 
-  FIRInstallationsIDController *controller = [[FIRInstallationsIDController alloc] initWithGoogleAppID:@"app-id" appName:@"app-name" APIKey:APIKey projectID:projectID GCMSenderID:@"sender-id" accessGroup:nil];
+  FIRInstallationsIDController *controller =
+      [[FIRInstallationsIDController alloc] initWithGoogleAppID:@"app-id"
+                                                        appName:@"app-name"
+                                                         APIKey:APIKey
+                                                      projectID:projectID
+                                                    GCMSenderID:@"sender-id"
+                                                    accessGroup:nil];
   XCTAssertNotNil(controller);
 
   OCMVerifyAll(self.mockAPIService);
@@ -105,9 +112,16 @@
   NSString *APIKey = @"api-key";
   NSString *GCMSenderID = @"sender-id";
   OCMExpect([self.mockAPIService alloc]).andReturn(self.mockAPIService);
-  OCMExpect([self.mockAPIService initWithAPIKey:APIKey projectID:GCMSenderID]).andReturn(self.mockAPIService);
+  OCMExpect([self.mockAPIService initWithAPIKey:APIKey projectID:GCMSenderID])
+      .andReturn(self.mockAPIService);
 
-  FIRInstallationsIDController *controller = [[FIRInstallationsIDController alloc] initWithGoogleAppID:@"app-id" appName:@"app-name" APIKey:APIKey projectID:@"" GCMSenderID:GCMSenderID accessGroup:nil];
+  FIRInstallationsIDController *controller =
+      [[FIRInstallationsIDController alloc] initWithGoogleAppID:@"app-id"
+                                                        appName:@"app-name"
+                                                         APIKey:APIKey
+                                                      projectID:@""
+                                                    GCMSenderID:GCMSenderID
+                                                    accessGroup:nil];
   XCTAssertNotNil(controller);
 
   OCMVerifyAll(self.mockAPIService);
