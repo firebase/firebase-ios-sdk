@@ -78,7 +78,8 @@ else
       ;;
 
     Crashlytics-*)
-      check_changes '^(FirebaseCore|Firebase/InstanceID|Firebase/Installations|GoogleUtilities|Crashlytics|FirebaseCrashlytics.podspec)'
+      check_changes '^(FirebaseCore|GoogleUtilities|Crashlytics|FirebaseCrashlytics.podspec|Firebase/InstanceID|FirebaseInstanceID.podspec|'\
+'FirebaseInstallations|FirebaseInstallations.podspec)'
       ;;
 
     Database-*)
@@ -103,7 +104,8 @@ else
 
     InAppMessaging-*)
       check_changes '^(InAppMessaging|Firebase/InAppMessaging|Firebase/InAppMessagingDisplay|InAppMessagingDisplay|'\
-'FirebaseInAppMessaging.podspec|FirebaseInAppMessagingDisplay.podspec)'
+'FirebaseInAppMessaging.podspec|FirebaseInAppMessagingDisplay.podspec|Firebase/InstanceID|FirebaseInstanceID.podspec|'\
+'FirebaseInstallations|FirebaseInstallations.podspec)'
       ;;
 
     InstanceID-*)
@@ -127,11 +129,12 @@ else
 
     Messaging-*)
       check_changes '^(FirebaseCore|Firebase/Messaging|Example/Messaging|GoogleUtilities|FirebaseMessaging.podspec|Firebase/InstanceID|'\
-'FirebaseInstallations|FirebaseInstallations.podspec)'
+'FirebaseInstanceID.podspec|FirebaseInstallations|FirebaseInstallations.podspec)'
       ;;
 
     RemoteConfig-*)
-      check_changes '^(FirebaseCore|FirebaseRemoteConfig)'
+      check_changes '^(FirebaseCore|FirebaseRemoteConfig|Firebase/InstanceID|FirebaseInstanceID.podspec|'\
+'FirebaseInstallations|FirebaseInstallations.podspec)'
       ;;
 
     Storage-*)
