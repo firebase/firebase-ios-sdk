@@ -127,9 +127,6 @@ NS_ASSUME_NONNULL_BEGIN
   if (appOptions.APIKey.length < 1) {
     [missingFields addObject:@"`FirebaseOptions.APIKey`"];
   }
-  if (appOptions.projectID.length < 1) {
-    [missingFields addObject:@"`FirebaseOptions.projectID`"];
-  }
   if (appOptions.googleAppID.length < 1) {
     [missingFields addObject:@"`FirebaseOptions.googleAppID`"];
   }
