@@ -32,7 +32,7 @@
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/core/order_by.h"
 #include "Firestore/core/src/firebase/firestore/core/target.h"
-#include "Firestore/core/src/firebase/firestore/local/query_data.h"
+#include "Firestore/core/src/firebase/firestore/local/target_data.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -195,7 +195,7 @@ class Serializer {
       const model::SnapshotVersion& commit_version) const;
 
   std::vector<google_firestore_v1_ListenRequest_LabelsEntry>
-  EncodeListenRequestLabels(const local::QueryData& query_data) const;
+  EncodeListenRequestLabels(const local::TargetData& target_data) const;
 
   static pb_bytes_array_t* EncodeFieldPath(const model::FieldPath& field_path);
   static model::FieldPath DecodeFieldPath(const pb_bytes_array_t* field_path);
@@ -225,7 +225,7 @@ class Serializer {
       const model::ObjectValue& object_value) const;
 
   google_firestore_v1_Target EncodeTarget(
-      const local::QueryData& query_data) const;
+      const local::TargetData& target_data) const;
   google_firestore_v1_Target_DocumentsTarget EncodeDocumentsTarget(
       const core::Target& target) const;
   core::Target DecodeDocumentsTarget(

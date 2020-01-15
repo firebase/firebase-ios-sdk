@@ -26,8 +26,8 @@
 #include "Firestore/core/src/firebase/firestore/local/local_view_changes.h"
 #include "Firestore/core/src/firebase/firestore/local/local_write_result.h"
 #include "Firestore/core/src/firebase/firestore/local/persistence.h"
-#include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/local/query_result.h"
+#include "Firestore/core/src/firebase/firestore/local/target_data.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/model/mutation_batch_result.h"
@@ -127,11 +127,11 @@ RemoteEvent NoChangeEvent(int target_id,
                           nanopb::ByteString resume_token) {
   remote::FakeTargetMetadataProvider metadata_provider;
 
-  // Register query data for the target. The query itself is not inspected, so
+  // Register target data for the target. The query itself is not inspected, so
   // we can listen to any path.
-  QueryData query_data(Query("foo").ToTarget(), target_id, 0,
-                       QueryPurpose::Listen);
-  metadata_provider.SetSyncedKeys(DocumentKeySet{}, query_data);
+  TargetData target_data(Query("foo").ToTarget(), target_id, 0,
+                         QueryPurpose::Listen);
+  metadata_provider.SetSyncedKeys(DocumentKeySet{}, target_data);
 
   WatchChangeAggregator aggregator{&metadata_provider};
   WatchTargetChange watch_change(remote::WatchTargetChangeState::NoChange,
@@ -263,14 +263,14 @@ void LocalStoreTest::RejectMutation() {
 }
 
 TargetId LocalStoreTest::AllocateQuery(core::Query query) {
-  QueryData query_data = local_store_.AllocateTarget(query.ToTarget());
-  last_target_id_ = query_data.target_id();
-  return query_data.target_id();
+  TargetData target_data = local_store_.AllocateTarget(query.ToTarget());
+  last_target_id_ = target_data.target_id();
+  return target_data.target_id();
 }
 
-QueryData LocalStoreTest::GetQueryData(const core::Query& query) {
-  return persistence_->Run("GetQueryData", [&] {
-    return *local_store_.GetQueryData(query.ToTarget());
+TargetData LocalStoreTest::GetTargetData(const core::Query& query) {
+  return persistence_->Run("GetTargetData", [&] {
+    return *local_store_.GetTargetData(query.ToTarget());
   });
 }
 
@@ -1027,9 +1027,9 @@ TEST_P(LocalStoreTest, PersistsResumeTokens) {
   if (IsGcEager()) return;
 
   core::Query query = Query("foo/bar");
-  QueryData query_data = local_store_.AllocateTarget(query.ToTarget());
-  ListenSequenceNumber initial_sequence_number = query_data.sequence_number();
-  TargetId target_id = query_data.target_id();
+  TargetData target_data = local_store_.AllocateTarget(query.ToTarget());
+  ListenSequenceNumber initial_sequence_number = target_data.sequence_number();
+  TargetId target_id = target_data.target_id();
   ByteString resume_token = testutil::ResumeToken(1000);
 
   WatchTargetChange watch_change{
@@ -1047,12 +1047,12 @@ TEST_P(LocalStoreTest, PersistsResumeTokens) {
   local_store_.ReleaseTarget(target_id);
 
   // Should come back with the same resume token
-  QueryData query_data2 = local_store_.AllocateTarget(query.ToTarget());
-  ASSERT_EQ(query_data2.resume_token(), resume_token);
+  TargetData target_data2 = local_store_.AllocateTarget(query.ToTarget());
+  ASSERT_EQ(target_data2.resume_token(), resume_token);
 
   // The sequence number should have been bumped when we saved the new resume
   // token.
-  ListenSequenceNumber new_sequence_number = query_data2.sequence_number();
+  ListenSequenceNumber new_sequence_number = target_data2.sequence_number();
   ASSERT_GT(new_sequence_number, initial_sequence_number);
 }
 
@@ -1182,7 +1182,7 @@ TEST_P(LocalStoreTest, UsesTargetMappingToExecuteQueries) {
 
 TEST_P(LocalStoreTest, LastLimboFreeSnapshotIsAdvancedDuringViewProcessing) {
   // This test verifies that the `last_limbo_free_snapshot` version for
-  // QueryData is advanced when we compute a limbo-free free view and that the
+  // TargetData is advanced when we compute a limbo-free free view and that the
   // mapping is persisted when we release a query.
 
   core::Query query = Query("foo");
@@ -1192,24 +1192,24 @@ TEST_P(LocalStoreTest, LastLimboFreeSnapshotIsAdvancedDuringViewProcessing) {
   ApplyRemoteEvent(NoChangeEvent(target_id, 10));
 
   // At this point, we have not yet confirmed that the query is limbo free.
-  QueryData cached_query_data = GetQueryData(query);
+  TargetData cached_target_data = GetTargetData(query);
   ASSERT_EQ(SnapshotVersion::None(),
-            cached_query_data.last_limbo_free_snapshot_version());
+            cached_target_data.last_limbo_free_snapshot_version());
 
   // Mark the view synced, which updates the last limbo free snapshot version.
   UpdateViews(target_id, /* from_cache= */ false);
-  cached_query_data = GetQueryData(query);
+  cached_target_data = GetTargetData(query);
   ASSERT_EQ(testutil::Version(10),
-            cached_query_data.last_limbo_free_snapshot_version());
+            cached_target_data.last_limbo_free_snapshot_version());
 
   // The last limbo free snapshot version is persisted even if we release the
   // query.
   local_store_.ReleaseTarget(target_id);
 
   if (!IsGcEager()) {
-    cached_query_data = GetQueryData(query);
+    cached_target_data = GetTargetData(query);
     ASSERT_EQ(testutil::Version(10),
-              cached_query_data.last_limbo_free_snapshot_version());
+              cached_target_data.last_limbo_free_snapshot_version());
   }
 }
 

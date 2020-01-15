@@ -18,7 +18,7 @@
 
 #include <utility>
 
-#include "Firestore/core/src/firebase/firestore/local/query_data.h"
+#include "Firestore/core/src/firebase/firestore/local/target_data.h"
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
 
 namespace firebase {
@@ -27,8 +27,8 @@ namespace remote {
 
 using core::DocumentViewChange;
 using core::Target;
-using local::QueryData;
 using local::QueryPurpose;
+using local::TargetData;
 using model::DocumentKey;
 using model::DocumentKeySet;
 using model::MaybeDocument;
@@ -213,9 +213,9 @@ void WatchChangeAggregator::HandleExistenceFilter(
   TargetId target_id = existence_filter.target_id();
   int expected_count = existence_filter.filter().count();
 
-  absl::optional<QueryData> query_data = QueryDataForActiveTarget(target_id);
-  if (query_data) {
-    const Target& target = query_data->target();
+  absl::optional<TargetData> target_data = TargetDataForActiveTarget(target_id);
+  if (target_data) {
+    const Target& target = target_data->target();
     if (target.IsDocumentQuery()) {
       if (expected_count == 0) {
         // The existence filter told us the document does not exist. We deduce
@@ -254,15 +254,16 @@ RemoteEvent WatchChangeAggregator::CreateRemoteEvent(
     TargetId target_id = entry.first;
     TargetState& target_state = entry.second;
 
-    absl::optional<QueryData> query_data = QueryDataForActiveTarget(target_id);
-    if (query_data) {
-      if (target_state.current() && query_data->target().IsDocumentQuery()) {
+    absl::optional<TargetData> target_data =
+        TargetDataForActiveTarget(target_id);
+    if (target_data) {
+      if (target_state.current() && target_data->target().IsDocumentQuery()) {
         // Document queries for document that don't exist can produce an empty
         // result set. To update our local cache, we synthesize a document
         // delete if we have not previously received the document. This resolves
         // the limbo state of the document, removing it from
         // SyncEngine::limbo_document_refs_.
-        DocumentKey key{query_data->target().path()};
+        DocumentKey key{target_data->target().path()};
         if (pending_document_updates_.find(key) ==
                 pending_document_updates_.end() &&
             !TargetContainsDocument(target_id, key)) {
@@ -283,17 +284,17 @@ RemoteEvent WatchChangeAggregator::CreateRemoteEvent(
   DocumentKeySet resolved_limbo_documents;
 
   // We extract the set of limbo-only document updates as the GC logic
-  // special-cases documents that do not appear in the query cache.
+  // special-cases documents that do not appear in the target cache.
   //
   // TODO(gsoltis): Expand on this comment.
   for (const auto& entry : pending_document_target_mappings_) {
     bool is_only_limbo_target = true;
 
     for (TargetId target_id : entry.second) {
-      absl::optional<QueryData> query_data =
-          QueryDataForActiveTarget(target_id);
-      if (query_data &&
-          query_data->purpose() != QueryPurpose::LimboResolution) {
+      absl::optional<TargetData> target_data =
+          TargetDataForActiveTarget(target_id);
+      if (target_data &&
+          target_data->purpose() != QueryPurpose::LimboResolution) {
         is_only_limbo_target = false;
         break;
       }
@@ -383,16 +384,16 @@ TargetState& WatchChangeAggregator::EnsureTargetState(TargetId target_id) {
 }
 
 bool WatchChangeAggregator::IsActiveTarget(TargetId target_id) const {
-  return QueryDataForActiveTarget(target_id) != absl::nullopt;
+  return TargetDataForActiveTarget(target_id) != absl::nullopt;
 }
 
-absl::optional<QueryData> WatchChangeAggregator::QueryDataForActiveTarget(
+absl::optional<TargetData> WatchChangeAggregator::TargetDataForActiveTarget(
     TargetId target_id) const {
   auto target_state = target_states_.find(target_id);
   return target_state != target_states_.end() &&
                  target_state->second.IsPending()
-             ? absl::optional<QueryData>{}
-             : target_metadata_provider_->GetQueryDataForTarget(target_id);
+             ? absl::optional<TargetData>{}
+             : target_metadata_provider_->GetTargetDataForTarget(target_id);
 }
 
 void WatchChangeAggregator::ResetTarget(TargetId target_id) {

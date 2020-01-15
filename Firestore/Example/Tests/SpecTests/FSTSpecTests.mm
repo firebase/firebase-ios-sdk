@@ -33,7 +33,7 @@
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/local/persistence.h"
-#include "Firestore/core/src/firebase/firestore/local/query_data.h"
+#include "Firestore/core/src/firebase/firestore/local/target_data.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
@@ -67,7 +67,7 @@ using firebase::firestore::auth::User;
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::Query;
 using firebase::firestore::local::Persistence;
-using firebase::firestore::local::QueryData;
+using firebase::firestore::local::TargetData;
 using firebase::firestore::local::QueryPurpose;
 using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentKey;
@@ -665,15 +665,15 @@ ByteString MakeResumeToken(NSString *specString) {
             TargetId targetID = [targetIDString intValue];
             ByteString resumeToken = MakeResumeToken(queryData[@"resumeToken"]);
             NSArray *queriesJson = queryData[@"queries"];
-            std::vector<QueryData> queries;
+            std::vector<TargetData> queries;
             for (id queryJson in queriesJson) {
               Query query = [self parseQuery:queryJson];
               // TODO(mcg): populate the purpose of the target once it's possible to encode that in
               // the spec tests. For now, hard-code that it's a listen despite the fact that it's
               // not always the right value.
-              queries.push_back(QueryData(query.ToTarget(), targetID, 0, QueryPurpose::Listen,
-                                          SnapshotVersion::None(), SnapshotVersion::None(),
-                                          std::move(resumeToken)));
+              queries.push_back(TargetData(query.ToTarget(), targetID, 0, QueryPurpose::Listen,
+                                           SnapshotVersion::None(), SnapshotVersion::None(),
+                                           std::move(resumeToken)));
             }
             expectedActiveTargets[targetID] = std::make_pair(std::move(queries), resumeToken);
           }];
@@ -736,26 +736,26 @@ ByteString MakeResumeToken(NSString *specString) {
   }
 
   // Create a copy so we can modify it below
-  std::unordered_map<TargetId, QueryData> actualTargets = [self.driver activeTargets];
+  std::unordered_map<TargetId, TargetData> actualTargets = [self.driver activeTargets];
 
   for (const auto &kv : [self.driver expectedActiveTargets]) {
     TargetId targetID = kv.first;
-    const std::pair<std::vector<QueryData>, ByteString> &queries = kv.second;
-    const QueryData &queryData = queries.first[0];
+    const std::pair<std::vector<TargetData>, ByteString> &queries = kv.second;
+    const TargetData &targetData = queries.first[0];
 
     auto found = actualTargets.find(targetID);
     XCTAssertNotEqual(found, actualTargets.end(), @"Expected active target not found: %s",
-                      queryData.ToString().c_str());
+                      targetData.ToString().c_str());
 
     // TODO(mcg): validate the purpose of the target once it's possible to encode that in the
     // spec tests. For now, only validate properties that can be validated.
-    // XCTAssertEqualObjects(actualTargets[targetID], queryData);
+    // XCTAssertEqualObjects(actualTargets[targetID], TargetData);
 
-    const QueryData &actual = found->second;
-    XCTAssertEqual(actual.target(), queryData.target());
-    XCTAssertEqual(actual.target_id(), queryData.target_id());
-    XCTAssertEqual(actual.snapshot_version(), queryData.snapshot_version());
-    XCTAssertEqual(actual.resume_token(), queryData.resume_token());
+    const TargetData &actual = found->second;
+    XCTAssertEqual(actual.target(), targetData.target());
+    XCTAssertEqual(actual.target_id(), targetData.target_id());
+    XCTAssertEqual(actual.snapshot_version(), targetData.snapshot_version());
+    XCTAssertEqual(actual.resume_token(), targetData.resume_token());
 
     actualTargets.erase(targetID);
   }

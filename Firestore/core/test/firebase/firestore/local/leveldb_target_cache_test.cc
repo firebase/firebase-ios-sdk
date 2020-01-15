@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/local/leveldb_query_cache.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_target_cache.h"
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
 #include "Firestore/core/src/firebase/firestore/local/persistence.h"
@@ -22,7 +22,7 @@
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/path.h"
 #include "Firestore/core/test/firebase/firestore/local/persistence_testing.h"
-#include "Firestore/core/test/firebase/firestore/local/query_cache_test.h"
+#include "Firestore/core/test/firebase/firestore/local/target_cache_test.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 #include "gtest/gtest.h"
 
@@ -44,44 +44,44 @@ std::unique_ptr<Persistence> PersistenceFactory() {
 
 }  // namespace
 
-INSTANTIATE_TEST_SUITE_P(LevelDbQueryCacheTest,
-                         QueryCacheTest,
+INSTANTIATE_TEST_SUITE_P(LevelDbTargetCacheTest,
+                         TargetCacheTest,
                          testing::Values(PersistenceFactory));
 
-class LevelDbQueryCacheTest : public QueryCacheTestBase {
+class LevelDbTargetCacheTest : public TargetCacheTestBase {
  public:
-  LevelDbQueryCacheTest() : QueryCacheTestBase(PersistenceFactory()) {
+  LevelDbTargetCacheTest() : TargetCacheTestBase(PersistenceFactory()) {
   }
 
-  LevelDbQueryCache* leveldb_cache() {
-    return static_cast<LevelDbQueryCache*>(persistence_->query_cache());
+  LevelDbTargetCache* leveldb_cache() {
+    return static_cast<LevelDbTargetCache*>(persistence_->target_cache());
   }
 };
 
-TEST_F(LevelDbQueryCacheTest, MetadataPersistedAcrossRestarts) {
+TEST_F(LevelDbTargetCacheTest, MetadataPersistedAcrossRestarts) {
   persistence_->Shutdown();
   persistence_.reset();
 
   Path dir = LevelDbDir();
 
   auto db1 = LevelDbPersistenceForTesting(dir);
-  LevelDbQueryCache* query_cache = db1->query_cache();
+  LevelDbTargetCache* target_cache = db1->target_cache();
 
-  ASSERT_EQ(0, query_cache->highest_listen_sequence_number());
-  ASSERT_EQ(0, query_cache->highest_target_id());
+  ASSERT_EQ(0, target_cache->highest_listen_sequence_number());
+  ASSERT_EQ(0, target_cache->highest_target_id());
   SnapshotVersion version_zero;
-  ASSERT_EQ(version_zero, query_cache->GetLastRemoteSnapshotVersion());
+  ASSERT_EQ(version_zero, target_cache->GetLastRemoteSnapshotVersion());
 
   ListenSequenceNumber minimum_sequence_number = 1234;
   TargetId last_target_id = 5;
   SnapshotVersion last_version(Timestamp(1, 2));
 
-  db1->Run("add query data", [&] {
+  db1->Run("add target data", [&] {
     Query query = testutil::Query("some/path");
-    QueryData query_data(query.ToTarget(), last_target_id,
-                         minimum_sequence_number, QueryPurpose::Listen);
-    query_cache->AddTarget(query_data);
-    query_cache->SetLastRemoteSnapshotVersion(last_version);
+    TargetData target_data(query.ToTarget(), last_target_id,
+                           minimum_sequence_number, QueryPurpose::Listen);
+    target_cache->AddTarget(target_data);
+    target_cache->SetLastRemoteSnapshotVersion(last_version);
   });
 
   db1->Shutdown();
@@ -94,21 +94,21 @@ TEST_F(LevelDbQueryCacheTest, MetadataPersistedAcrossRestarts) {
     ASSERT_GT(db2->current_sequence_number(), minimum_sequence_number);
   });
 
-  LevelDbQueryCache* query_cache2 = db2->query_cache();
-  ASSERT_EQ(last_target_id, query_cache2->highest_target_id());
-  ASSERT_EQ(last_version, query_cache2->GetLastRemoteSnapshotVersion());
+  LevelDbTargetCache* target_cache2 = db2->target_cache();
+  ASSERT_EQ(last_target_id, target_cache2->highest_target_id());
+  ASSERT_EQ(last_version, target_cache2->GetLastRemoteSnapshotVersion());
 
   db2->Shutdown();
   db2.reset();
 }
 
-TEST_F(LevelDbQueryCacheTest, RemoveMatchingKeysForTargetID) {
+TEST_F(LevelDbTargetCacheTest, RemoveMatchingKeysForTargetID) {
   persistence_->Run("test_remove_matching_keys_for_target_id", [&]() {
     DocumentKey key1 = testutil::Key("foo/bar");
     DocumentKey key2 = testutil::Key("foo/baz");
     DocumentKey key3 = testutil::Key("foo/blah");
 
-    LevelDbQueryCache* cache = leveldb_cache();
+    LevelDbTargetCache* cache = leveldb_cache();
     AddMatchingKey(key1, 1);
     AddMatchingKey(key2, 1);
     AddMatchingKey(key3, 2);

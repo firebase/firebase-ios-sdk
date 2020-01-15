@@ -24,10 +24,10 @@ namespace core {
 
 TEST(TargetIdGenerator, Constructor) {
   TargetIdGenerator query_cache_generator =
-      TargetIdGenerator::QueryCacheTargetIdGenerator(0);
+      TargetIdGenerator::TargetCacheTargetIdGenerator(0);
   TargetIdGenerator sync_engine_generator =
       TargetIdGenerator::SyncEngineTargetIdGenerator();
-  EXPECT_EQ(TargetIdGeneratorId::QueryCache,
+  EXPECT_EQ(TargetIdGeneratorId::TargetCache,
             query_cache_generator.generator_id());
   EXPECT_EQ(2, query_cache_generator.NextId());
   EXPECT_EQ(TargetIdGeneratorId::SyncEngine,
@@ -36,12 +36,12 @@ TEST(TargetIdGenerator, Constructor) {
 }
 
 TEST(TargetIdGenerator, Increment) {
-  TargetIdGenerator a = TargetIdGenerator::QueryCacheTargetIdGenerator(0);
+  TargetIdGenerator a = TargetIdGenerator::TargetCacheTargetIdGenerator(0);
   EXPECT_EQ(2, a.NextId());
   EXPECT_EQ(4, a.NextId());
   EXPECT_EQ(6, a.NextId());
 
-  TargetIdGenerator b = TargetIdGenerator::QueryCacheTargetIdGenerator(46);
+  TargetIdGenerator b = TargetIdGenerator::TargetCacheTargetIdGenerator(46);
   EXPECT_EQ(48, b.NextId());
   EXPECT_EQ(50, b.NextId());
   EXPECT_EQ(52, b.NextId());

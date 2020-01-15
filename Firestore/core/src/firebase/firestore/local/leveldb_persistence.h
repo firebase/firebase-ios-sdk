@@ -25,8 +25,8 @@
 #include "Firestore/core/src/firebase/firestore/local/leveldb_index_manager.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_lru_reference_delegate.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_mutation_queue.h"
-#include "Firestore/core/src/firebase/firestore/local/leveldb_query_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_remote_document_cache.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_target_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 #include "Firestore/core/src/firebase/firestore/local/local_serializer.h"
 #include "Firestore/core/src/firebase/firestore/local/persistence.h"
@@ -100,7 +100,7 @@ class LevelDbPersistence : public Persistence {
   LevelDbMutationQueue* GetMutationQueueForUser(
       const auth::User& user) override;
 
-  LevelDbQueryCache* query_cache() override;
+  LevelDbTargetCache* target_cache() override;
 
   LevelDbRemoteDocumentCache* remote_document_cache() override;
 
@@ -138,7 +138,7 @@ class LevelDbPersistence : public Persistence {
   bool started_ = false;
 
   std::unique_ptr<LevelDbMutationQueue> current_mutation_queue_;
-  std::unique_ptr<LevelDbQueryCache> query_cache_;
+  std::unique_ptr<LevelDbTargetCache> target_cache_;
   std::unique_ptr<LevelDbRemoteDocumentCache> document_cache_;
   std::unique_ptr<LevelDbIndexManager> index_manager_;
   std::unique_ptr<LevelDbLruReferenceDelegate> reference_delegate_;

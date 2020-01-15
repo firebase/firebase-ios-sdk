@@ -19,8 +19,8 @@
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/core/transaction_runner.h"
-#include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/local/query_result.h"
+#include "Firestore/core/src/firebase/firestore/local/target_data.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
@@ -41,9 +41,9 @@ using firestore::Error;
 using local::LocalStore;
 using local::LocalViewChanges;
 using local::LocalWriteResult;
-using local::QueryData;
 using local::QueryPurpose;
 using local::QueryResult;
+using local::TargetData;
 using model::BatchId;
 using model::DocumentKey;
 using model::DocumentKeySet;
@@ -94,17 +94,17 @@ TargetId SyncEngine::Listen(Query query) {
   HARD_ASSERT(query_views_by_query_.find(query) == query_views_by_query_.end(),
               "We already listen to query: %s", query.ToString());
 
-  QueryData query_data = local_store_->AllocateTarget(query.ToTarget());
+  TargetData target_data = local_store_->AllocateTarget(query.ToTarget());
   ViewSnapshot view_snapshot =
-      InitializeViewAndComputeSnapshot(query, query_data.target_id());
+      InitializeViewAndComputeSnapshot(query, target_data.target_id());
   std::vector<ViewSnapshot> snapshots;
   // Not using the `std::initializer_list` constructor to avoid extra copies.
   snapshots.push_back(std::move(view_snapshot));
   sync_engine_callback_->OnViewSnapshots(std::move(snapshots));
 
-  // TODO(wuandy): move `query_data` into `Listen`.
-  remote_store_->Listen(query_data);
-  return query_data.target_id();
+  // TODO(wuandy): move `target_data` into `Listen`.
+  remote_store_->Listen(target_data);
+  return target_data.target_id();
 }
 
 ViewSnapshot SyncEngine::InitializeViewAndComputeSnapshot(const Query& query,
@@ -528,12 +528,11 @@ void SyncEngine::TrackLimboChange(const LimboDocumentChange& limbo_change) {
 
     TargetId limbo_target_id = target_id_generator_.NextId();
     Query query(key.path());
-    QueryData query_data(query.ToTarget(), limbo_target_id,
-                         kIrrelevantSequenceNumber,
-                         QueryPurpose::LimboResolution);
+    TargetData target_data(query.ToTarget(), limbo_target_id,
+                           kIrrelevantSequenceNumber,
+                           QueryPurpose::LimboResolution);
     limbo_resolutions_by_target_.emplace(limbo_target_id, LimboResolution{key});
-    // TODO(wuandy): move `query_data` into `Listen`.
-    remote_store_->Listen(query_data);
+    remote_store_->Listen(target_data);
     limbo_targets_by_key_[key] = limbo_target_id;
   }
 }

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_LOCAL_QUERY_CACHE_TEST_H_
-#define FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_LOCAL_QUERY_CACHE_TEST_H_
+#ifndef FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_LOCAL_TARGET_CACHE_TEST_H_
+#define FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_LOCAL_TARGET_CACHE_TEST_H_
 
 #include <memory>
 
@@ -40,29 +40,29 @@ class DocumentKey;
 namespace local {
 
 class Persistence;
-class QueryCache;
-class QueryData;
+class TargetCache;
+class TargetData;
 
 using FactoryFunc = std::unique_ptr<Persistence> (*)();
 
 /**
- * A test fixture for implementing tests of QueryCache interface.
+ * A test fixture for implementing tests of TargetCache interface.
  *
- * This is separate from QueryCacheTest below in order to make additional
+ * This is separate from TargetCacheTest below in order to make additional
  * implementation-specific tests.
  */
-class QueryCacheTestBase : public testing::Test {
+class TargetCacheTestBase : public testing::Test {
  protected:
-  explicit QueryCacheTestBase(std::unique_ptr<Persistence> persistence);
+  explicit TargetCacheTestBase(std::unique_ptr<Persistence> persistence);
 
-  ~QueryCacheTestBase();
+  ~TargetCacheTestBase();
 
-  QueryData MakeQueryData(core::Query query);
+  TargetData MakeTargetData(core::Query query);
 
-  QueryData MakeQueryData(core::Query query,
-                          model::TargetId target_id,
-                          model::ListenSequenceNumber sequence_number,
-                          int64_t version);
+  TargetData MakeTargetData(core::Query query,
+                            model::TargetId target_id,
+                            model::ListenSequenceNumber sequence_number,
+                            int64_t version);
 
   void AddMatchingKey(const model::DocumentKey& key, model::TargetId target_id);
 
@@ -70,7 +70,7 @@ class QueryCacheTestBase : public testing::Test {
                          model::TargetId target_id);
 
   std::unique_ptr<Persistence> persistence_;
-  QueryCache* cache_ = nullptr;
+  TargetCache* cache_ = nullptr;
 
   core::Query query_rooms_;
   model::ListenSequenceNumber previous_sequence_number_ = 0;
@@ -79,24 +79,24 @@ class QueryCacheTestBase : public testing::Test {
 };
 
 /**
- * These are tests for any implementation of the QueryCache interface.
+ * These are tests for any implementation of the TargetCache interface.
  *
- * To test a specific implementation of QueryCache:
+ * To test a specific implementation of TargetCache:
  *
  * + Write a persistence factory function
- * + Call INSTANTIATE_TEST_SUITE_P(MyNewQueryCacheTest,
- *                                 QueryCacheTest,
+ * + Call INSTANTIATE_TEST_SUITE_P(MyNewTargetCacheTest,
+ *                                 TargetCacheTest,
  *                                 testing::Values(PersistenceFactory));
  */
-class QueryCacheTest : public QueryCacheTestBase,
-                       public testing::WithParamInterface<FactoryFunc> {
+class TargetCacheTest : public TargetCacheTestBase,
+                        public testing::WithParamInterface<FactoryFunc> {
  public:
-  QueryCacheTest();
-  ~QueryCacheTest();
+  TargetCacheTest();
+  ~TargetCacheTest();
 };
 
 }  // namespace local
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_LOCAL_QUERY_CACHE_TEST_H_
+#endif  // FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_LOCAL_TARGET_CACHE_TEST_H_

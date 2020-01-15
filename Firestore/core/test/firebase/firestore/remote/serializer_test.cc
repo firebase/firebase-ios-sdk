@@ -71,8 +71,8 @@ namespace v1 = google::firestore::v1;
 using core::Bound;
 using core::FilterList;
 using google::protobuf::util::MessageDifferencer;
-using local::QueryData;
 using local::QueryPurpose;
+using local::TargetData;
 using model::ArrayTransform;
 using model::DatabaseId;
 using model::DeleteMutation;
@@ -129,12 +129,12 @@ std::string FromBytes(pb_bytes_array_t*&& ptr) {
   return Serializer::DecodeString(byte_string.get());
 }
 
-QueryData CreateQueryData(core::Query query) {
-  return QueryData(query.ToTarget(), 1, 0, QueryPurpose::Listen);
+TargetData CreateTargetData(core::Query query) {
+  return TargetData(query.ToTarget(), 1, 0, QueryPurpose::Listen);
 }
 
-QueryData CreateQueryData(absl::string_view str) {
-  return CreateQueryData(Query(str));
+TargetData CreateTargetData(absl::string_view str) {
+  return CreateTargetData(Query(str));
 }
 
 // Returns the full key path, including the database name, as a string.
@@ -366,7 +366,7 @@ class SerializerTest : public ::testing::Test {
   void ExpectUnaryOperator(const FieldValue& value,
                            v1::StructuredQuery::UnaryFilter::Operator op) {
     core::Query q = Query("docs").AddingFilter(Filter("prop", "==", value));
-    QueryData model = CreateQueryData(std::move(q));
+    TargetData model = CreateTargetData(std::move(q));
 
     v1::Target proto;
     proto.mutable_query()->set_parent(ResourceName(""));
@@ -484,7 +484,7 @@ class SerializerTest : public ::testing::Test {
     }
   }
 
-  void ExpectSerializationRoundTrip(const QueryData& model,
+  void ExpectSerializationRoundTrip(const TargetData& model,
                                     const v1::Target& proto) {
     ByteString bytes = Encode(google_firestore_v1_Target_fields,
                               serializer.EncodeTarget(model));
@@ -493,7 +493,7 @@ class SerializerTest : public ::testing::Test {
     EXPECT_TRUE(msg_diff.Compare(proto, actual_proto)) << message_differences;
   }
 
-  void ExpectDeserializationRoundTrip(const QueryData& model,
+  void ExpectDeserializationRoundTrip(const TargetData& model,
                                       const v1::Target& proto) {
     core::Target actual_model;
     if (proto.has_documents()) {
@@ -1181,7 +1181,7 @@ TEST_F(SerializerTest, DecodeMaybeDocWithoutFoundOrMissingSetShouldFail) {
 }
 
 TEST_F(SerializerTest, EncodesFirstLevelKeyQueries) {
-  QueryData model = CreateQueryData("docs/1");
+  TargetData model = CreateTargetData("docs/1");
 
   v1::Target proto;
   proto.mutable_documents()->add_documents(ResourceName("docs/1"));
@@ -1192,7 +1192,7 @@ TEST_F(SerializerTest, EncodesFirstLevelKeyQueries) {
 }
 
 TEST_F(SerializerTest, EncodesFirstLevelAncestorQueries) {
-  QueryData model = CreateQueryData("messages");
+  TargetData model = CreateTargetData("messages");
 
   v1::Target proto;
   proto.mutable_query()->set_parent(ResourceName(""));
@@ -1214,7 +1214,7 @@ TEST_F(SerializerTest, EncodesFirstLevelAncestorQueries) {
 }
 
 TEST_F(SerializerTest, EncodesNestedAncestorQueries) {
-  QueryData model = CreateQueryData("rooms/1/messages/10/attachments");
+  TargetData model = CreateTargetData("rooms/1/messages/10/attachments");
 
   v1::Target proto;
   proto.mutable_query()->set_parent(ResourceName("rooms/1/messages/10"));
@@ -1237,7 +1237,7 @@ TEST_F(SerializerTest, EncodesNestedAncestorQueries) {
 
 TEST_F(SerializerTest, EncodesSingleFiltersAtFirstLevelCollections) {
   core::Query q = Query("docs").AddingFilter(Filter("prop", "<", 42));
-  QueryData model = CreateQueryData(std::move(q));
+  TargetData model = CreateTargetData(std::move(q));
 
   v1::Target proto;
   proto.mutable_query()->set_parent(ResourceName(""));
@@ -1278,7 +1278,7 @@ TEST_F(SerializerTest, EncodesMultipleFiltersOnDeeperCollections) {
           .AddingFilter(Filter("prop", ">=", 42))
           .AddingFilter(Filter("author", "==", "dimond"))
           .AddingFilter(Filter("tags", "array_contains", "pending"));
-  QueryData model = CreateQueryData(std::move(q));
+  TargetData model = CreateTargetData(std::move(q));
 
   v1::Target proto;
   proto.mutable_query()->set_parent(ResourceName("rooms/1/messages/10"));
@@ -1347,7 +1347,7 @@ TEST_F(SerializerTest, EncodesNanFilter) {
 
 TEST_F(SerializerTest, EncodesSortOrders) {
   core::Query q = Query("docs").AddingOrderBy(testutil::OrderBy("prop", "asc"));
-  QueryData model = CreateQueryData(std::move(q));
+  TargetData model = CreateTargetData(std::move(q));
 
   v1::Target proto;
   proto.mutable_query()->set_parent(ResourceName(""));
@@ -1380,7 +1380,7 @@ TEST_F(SerializerTest, EncodesBounds) {
           .StartingAt(Bound{{Value("prop"), Value(42)}, /*is_before=*/false})
           .EndingAt(
               Bound{{Value("author"), Value("dimond")}, /*is_before=*/true});
-  QueryData model = CreateQueryData(std::move(q));
+  TargetData model = CreateTargetData(std::move(q));
 
   v1::Target proto;
   proto.mutable_query()->set_parent(ResourceName(""));
@@ -1418,7 +1418,7 @@ TEST_F(SerializerTest, EncodesBounds) {
 TEST_F(SerializerTest, EncodesSortOrdersDescending) {
   core::Query q = Query("rooms/1/messages/10/attachments")
                       .AddingOrderBy(OrderBy("prop", "desc"));
-  QueryData model = CreateQueryData(std::move(q));
+  TargetData model = CreateTargetData(std::move(q));
 
   v1::Target proto;
   proto.mutable_query()->set_parent(ResourceName("rooms/1/messages/10"));
@@ -1446,7 +1446,7 @@ TEST_F(SerializerTest, EncodesSortOrdersDescending) {
 }
 
 TEST_F(SerializerTest, EncodesLimits) {
-  QueryData model = CreateQueryData(Query("docs").WithLimitToFirst(26));
+  TargetData model = CreateTargetData(Query("docs").WithLimitToFirst(26));
 
   v1::Target proto;
   proto.mutable_query()->set_parent(ResourceName(""));
@@ -1472,9 +1472,9 @@ TEST_F(SerializerTest, EncodesLimits) {
 
 TEST_F(SerializerTest, EncodesResumeTokens) {
   core::Query q = Query("docs");
-  QueryData model(q.ToTarget(), 1, 0, QueryPurpose::Listen,
-                  SnapshotVersion::None(), SnapshotVersion::None(),
-                  Bytes(1, 2, 3));
+  TargetData model(q.ToTarget(), 1, 0, QueryPurpose::Listen,
+                   SnapshotVersion::None(), SnapshotVersion::None(),
+                   Bytes(1, 2, 3));
 
   v1::Target proto;
   proto.mutable_query()->set_parent(ResourceName(""));
@@ -1510,7 +1510,7 @@ TEST_F(SerializerTest, EncodesListenRequestLabels) {
       };
 
   for (const auto& p : purpose_to_label) {
-    QueryData model(q.ToTarget(), 1, 0, p.first);
+    TargetData model(q.ToTarget(), 1, 0, p.first);
 
     auto result = serializer.EncodeListenRequestLabels(model);
     std::unordered_map<std::string, std::string> result_in_map;
