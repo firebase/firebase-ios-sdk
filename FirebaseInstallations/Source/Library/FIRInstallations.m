@@ -101,6 +101,7 @@ NS_ASSUME_NONNULL_BEGIN
                  prefetchAuthToken:(BOOL)prefetchAuthToken {
   self = [super init];
   if (self) {
+    [[self class] validateAppOptions:appOptions appName:appName];
     [[self class] assertCompatibleIIDVersion];
 
     _appOptions = [appOptions copy];
@@ -117,12 +118,38 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
++ (void)validateAppOptions:(FIROptions *)appOptions appName:(NSString *)appName {
+  NSMutableArray *missingFields = [NSMutableArray array];
+  if (appName.length < 1) {
+    [missingFields addObject:@"`FirebaseApp.name`"];
+  }
+  if (appOptions.APIKey.length < 1) {
+    [missingFields addObject:@"`FirebaseOptions.APIKey`"];
+  }
+  if (appOptions.projectID.length < 1) {
+    [missingFields addObject:@"`FirebaseOptions.projectID`"];
+  }
+  if (appOptions.googleAppID.length < 1) {
+    [missingFields addObject:@"`FirebaseOptions.googleAppID`"];
+  }
+  if (appOptions.GCMSenderID.length < 1) {
+    [missingFields addObject:@"`FirebaseOptions.googleAppID`"];
+  }
+
+  if (missingFields.count > 0) {
+    [NSException raise:kFirebaseInstallationsErrorDomain
+                format:@"Could not configure Firebase Installations due to invalid FirebaseApp "
+                       @"options. The following parameters are nil or empty: %@",
+                       [missingFields componentsJoinedByString:@", "]];
+  }
+}
+
 #pragma mark - Public
 
 + (FIRInstallations *)installations {
   FIRApp *defaultApp = [FIRApp defaultApp];
   if (!defaultApp) {
-    [NSException raise:NSInternalInconsistencyException
+    [NSException raise:kFirebaseInstallationsErrorDomain
                 format:@"The default FirebaseApp instance must be configured before the default"
                        @"FirebaseApp instance can be initialized. One way to ensure that is to "
                        @"call `[FIRApp configure];` (`FirebaseApp.configure()` in Swift) in the App"
@@ -191,7 +218,7 @@ NS_ASSUME_NONNULL_BEGIN
   return;
 #else
   if (![self isIIDVersionCompatible]) {
-    [NSException raise:NSInternalInconsistencyException
+    [NSException raise:kFirebaseInstallationsErrorDomain
                 format:@"FirebaseInstallations will not work correctly with current version of "
                        @"Firebase Instance ID. Please update your Firebase Instance ID version."];
   }
