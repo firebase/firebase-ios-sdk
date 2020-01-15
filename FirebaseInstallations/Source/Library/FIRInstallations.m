@@ -133,7 +133,7 @@ NS_ASSUME_NONNULL_BEGIN
     [missingFields addObject:@"`FirebaseOptions.googleAppID`"];
   }
   if (appOptions.GCMSenderID.length < 1) {
-    [missingFields addObject:@"`FirebaseOptions.googleAppID`"];
+    [missingFields addObject:@"`FirebaseOptions.GCMSenderID`"];
   }
 
   if (missingFields.count > 0) {
