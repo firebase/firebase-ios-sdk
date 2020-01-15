@@ -76,7 +76,7 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
   FIRInstallationsStore *installationsStore =
       [[FIRInstallationsStore alloc] initWithSecureStorage:secureStorage accessGroup:accessGroup];
 
-  // Use `GCMSenderID` as `projectID` is not available.
+  // Use `GCMSenderID` as project identifier when `projectID` is not available.
   NSString *APIServiceProjectID = (projectID.length > 0) ? projectID : GCMSenderID;
   FIRInstallationsAPIService *apiService =
       [[FIRInstallationsAPIService alloc] initWithAPIKey:APIKey projectID:APIServiceProjectID];

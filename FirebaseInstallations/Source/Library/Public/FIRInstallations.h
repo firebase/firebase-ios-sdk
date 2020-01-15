@@ -59,7 +59,7 @@ NS_SWIFT_NAME(Installations)
 
 /**
  * Returns a default instance of `Installations`.
- * @return Returns an instance of `Installations` for `FirebaseApp.defaultApp().
+ * @returns An instance of `Installations` for `FirebaseApp.defaultApp().
  * @throw Throws an exception if the default app is not configured yet or required  `FirebaseApp`
  * options are missing.
  */
@@ -68,7 +68,7 @@ NS_SWIFT_NAME(Installations)
 /**
  * Returns an instance of `Installations` for an application.
  * @param application A configured `FirebaseApp` instance.
- * @return Returns an instance of `Installations` corresponding to the passed application.
+ * @returns An instance of `Installations` corresponding to the passed application.
  * @throw Throws an exception if required `FirebaseApp` options are missing.
  */
 + (FIRInstallations *)installationsWithApp:(FIRApp *)application NS_SWIFT_NAME(installations(app:));
