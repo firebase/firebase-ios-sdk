@@ -46,6 +46,7 @@ class WriteDefaultTypeInternal {
   ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<Write> _instance;
   const ::google::firestore::v1::Document* update_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr delete__;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr verify_;
   const ::google::firestore::v1::DocumentTransform* transform_;
 } _Write_default_instance_;
 class DocumentTransform_FieldTransformDefaultTypeInternal {
@@ -220,6 +221,7 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_google_2ffirestore_2fv1_2fwrit
   ~0u,  // no _weak_field_map_
   offsetof(::google::firestore::v1::WriteDefaultTypeInternal, update_),
   offsetof(::google::firestore::v1::WriteDefaultTypeInternal, delete__),
+  offsetof(::google::firestore::v1::WriteDefaultTypeInternal, verify_),
   offsetof(::google::firestore::v1::WriteDefaultTypeInternal, transform_),
   PROTOBUF_FIELD_OFFSET(::google::firestore::v1::Write, update_mask_),
   PROTOBUF_FIELD_OFFSET(::google::firestore::v1::Write, current_document_),
@@ -285,13 +287,13 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_google_2ffirestore_2fv1_2fwrit
 };
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, sizeof(::google::firestore::v1::Write)},
-  { 11, -1, sizeof(::google::firestore::v1::DocumentTransform_FieldTransform)},
-  { 24, -1, sizeof(::google::firestore::v1::DocumentTransform)},
-  { 31, -1, sizeof(::google::firestore::v1::WriteResult)},
-  { 38, -1, sizeof(::google::firestore::v1::DocumentChange)},
-  { 46, -1, sizeof(::google::firestore::v1::DocumentDelete)},
-  { 54, -1, sizeof(::google::firestore::v1::DocumentRemove)},
-  { 62, -1, sizeof(::google::firestore::v1::ExistenceFilter)},
+  { 12, -1, sizeof(::google::firestore::v1::DocumentTransform_FieldTransform)},
+  { 25, -1, sizeof(::google::firestore::v1::DocumentTransform)},
+  { 32, -1, sizeof(::google::firestore::v1::WriteResult)},
+  { 39, -1, sizeof(::google::firestore::v1::DocumentChange)},
+  { 47, -1, sizeof(::google::firestore::v1::DocumentDelete)},
+  { 55, -1, sizeof(::google::firestore::v1::DocumentRemove)},
+  { 63, -1, sizeof(::google::firestore::v1::ExistenceFilter)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -310,47 +312,47 @@ const char descriptor_table_protodef_google_2ffirestore_2fv1_2fwrite_2eproto[] P
   "e.firestore.v1\032\034google/api/annotations.p"
   "roto\032 google/firestore/v1/common.proto\032\""
   "google/firestore/v1/document.proto\032\037goog"
-  "le/protobuf/timestamp.proto\"\211\002\n\005Write\022/\n"
+  "le/protobuf/timestamp.proto\"\233\002\n\005Write\022/\n"
   "\006update\030\001 \001(\0132\035.google.firestore.v1.Docu"
-  "mentH\000\022\020\n\006delete\030\002 \001(\tH\000\022;\n\ttransform\030\006 "
-  "\001(\0132&.google.firestore.v1.DocumentTransf"
-  "ormH\000\0226\n\013update_mask\030\003 \001(\0132!.google.fire"
-  "store.v1.DocumentMask\022;\n\020current_documen"
-  "t\030\004 \001(\0132!.google.firestore.v1.Preconditi"
-  "onB\013\n\toperation\"\345\004\n\021DocumentTransform\022\020\n"
-  "\010document\030\001 \001(\t\022O\n\020field_transforms\030\002 \003("
-  "\01325.google.firestore.v1.DocumentTransfor"
-  "m.FieldTransform\032\354\003\n\016FieldTransform\022\022\n\nf"
-  "ield_path\030\001 \001(\t\022`\n\023set_to_server_value\030\002"
-  " \001(\0162A.google.firestore.v1.DocumentTrans"
-  "form.FieldTransform.ServerValueH\000\022/\n\tinc"
-  "rement\030\003 \001(\0132\032.google.firestore.v1.Value"
-  "H\000\022-\n\007maximum\030\004 \001(\0132\032.google.firestore.v"
-  "1.ValueH\000\022-\n\007minimum\030\005 \001(\0132\032.google.fire"
-  "store.v1.ValueH\000\022B\n\027append_missing_eleme"
-  "nts\030\006 \001(\0132\037.google.firestore.v1.ArrayVal"
-  "ueH\000\022@\n\025remove_all_from_array\030\007 \001(\0132\037.go"
-  "ogle.firestore.v1.ArrayValueH\000\"=\n\013Server"
-  "Value\022\034\n\030SERVER_VALUE_UNSPECIFIED\020\000\022\020\n\014R"
-  "EQUEST_TIME\020\001B\020\n\016transform_type\"u\n\013Write"
-  "Result\022/\n\013update_time\030\001 \001(\0132\032.google.pro"
-  "tobuf.Timestamp\0225\n\021transform_results\030\002 \003"
-  "(\0132\032.google.firestore.v1.Value\"q\n\016Docume"
-  "ntChange\022/\n\010document\030\001 \001(\0132\035.google.fire"
-  "store.v1.Document\022\022\n\ntarget_ids\030\005 \003(\005\022\032\n"
-  "\022removed_target_ids\030\006 \003(\005\"m\n\016DocumentDel"
-  "ete\022\020\n\010document\030\001 \001(\t\022\032\n\022removed_target_"
-  "ids\030\006 \003(\005\022-\n\tread_time\030\004 \001(\0132\032.google.pr"
-  "otobuf.Timestamp\"m\n\016DocumentRemove\022\020\n\010do"
-  "cument\030\001 \001(\t\022\032\n\022removed_target_ids\030\002 \003(\005"
-  "\022-\n\tread_time\030\004 \001(\0132\032.google.protobuf.Ti"
-  "mestamp\"3\n\017ExistenceFilter\022\021\n\ttarget_id\030"
-  "\001 \001(\005\022\r\n\005count\030\002 \001(\005B\256\001\n\027com.google.fire"
-  "store.v1B\nWriteProtoP\001Z<google.golang.or"
-  "g/genproto/googleapis/firestore/v1;fires"
-  "tore\242\002\004GCFS\252\002\036Google.Cloud.Firestore.V1B"
-  "eta1\312\002\036Google\\Cloud\\Firestore\\V1beta1b\006p"
-  "roto3"
+  "mentH\000\022\020\n\006delete\030\002 \001(\tH\000\022\020\n\006verify\030\005 \001(\t"
+  "H\000\022;\n\ttransform\030\006 \001(\0132&.google.firestore"
+  ".v1.DocumentTransformH\000\0226\n\013update_mask\030\003"
+  " \001(\0132!.google.firestore.v1.DocumentMask\022"
+  ";\n\020current_document\030\004 \001(\0132!.google.fires"
+  "tore.v1.PreconditionB\013\n\toperation\"\345\004\n\021Do"
+  "cumentTransform\022\020\n\010document\030\001 \001(\t\022O\n\020fie"
+  "ld_transforms\030\002 \003(\01325.google.firestore.v"
+  "1.DocumentTransform.FieldTransform\032\354\003\n\016F"
+  "ieldTransform\022\022\n\nfield_path\030\001 \001(\t\022`\n\023set"
+  "_to_server_value\030\002 \001(\0162A.google.firestor"
+  "e.v1.DocumentTransform.FieldTransform.Se"
+  "rverValueH\000\022/\n\tincrement\030\003 \001(\0132\032.google."
+  "firestore.v1.ValueH\000\022-\n\007maximum\030\004 \001(\0132\032."
+  "google.firestore.v1.ValueH\000\022-\n\007minimum\030\005"
+  " \001(\0132\032.google.firestore.v1.ValueH\000\022B\n\027ap"
+  "pend_missing_elements\030\006 \001(\0132\037.google.fir"
+  "estore.v1.ArrayValueH\000\022@\n\025remove_all_fro"
+  "m_array\030\007 \001(\0132\037.google.firestore.v1.Arra"
+  "yValueH\000\"=\n\013ServerValue\022\034\n\030SERVER_VALUE_"
+  "UNSPECIFIED\020\000\022\020\n\014REQUEST_TIME\020\001B\020\n\016trans"
+  "form_type\"u\n\013WriteResult\022/\n\013update_time\030"
+  "\001 \001(\0132\032.google.protobuf.Timestamp\0225\n\021tra"
+  "nsform_results\030\002 \003(\0132\032.google.firestore."
+  "v1.Value\"q\n\016DocumentChange\022/\n\010document\030\001"
+  " \001(\0132\035.google.firestore.v1.Document\022\022\n\nt"
+  "arget_ids\030\005 \003(\005\022\032\n\022removed_target_ids\030\006 "
+  "\003(\005\"m\n\016DocumentDelete\022\020\n\010document\030\001 \001(\t\022"
+  "\032\n\022removed_target_ids\030\006 \003(\005\022-\n\tread_time"
+  "\030\004 \001(\0132\032.google.protobuf.Timestamp\"m\n\016Do"
+  "cumentRemove\022\020\n\010document\030\001 \001(\t\022\032\n\022remove"
+  "d_target_ids\030\002 \003(\005\022-\n\tread_time\030\004 \001(\0132\032."
+  "google.protobuf.Timestamp\"3\n\017ExistenceFi"
+  "lter\022\021\n\ttarget_id\030\001 \001(\005\022\r\n\005count\030\002 \001(\005B\256"
+  "\001\n\027com.google.firestore.v1B\nWriteProtoP\001"
+  "Z<google.golang.org/genproto/googleapis/"
+  "firestore/v1;firestore\242\002\004GCFS\252\002\036Google.C"
+  "loud.Firestore.V1Beta1\312\002\036Google\\Cloud\\Fi"
+  "restore\\V1beta1b\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto_deps[4] = {
   &::descriptor_table_google_2fapi_2fannotations_2eproto,
@@ -371,7 +373,7 @@ static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_goo
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto_once;
 static bool descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto_initialized = false;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto = {
-  &descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto_initialized, descriptor_table_protodef_google_2ffirestore_2fv1_2fwrite_2eproto, "google/firestore/v1/write.proto", 1765,
+  &descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto_initialized, descriptor_table_protodef_google_2ffirestore_2fv1_2fwrite_2eproto, "google/firestore/v1/write.proto", 1783,
   &descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto_once, descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto_sccs, descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto_deps, 8, 4,
   schemas, file_default_instances, TableStruct_google_2ffirestore_2fv1_2fwrite_2eproto::offsets,
   file_level_metadata_google_2ffirestore_2fv1_2fwrite_2eproto, 8, file_level_enum_descriptors_google_2ffirestore_2fv1_2fwrite_2eproto, file_level_service_descriptors_google_2ffirestore_2fv1_2fwrite_2eproto,
@@ -410,6 +412,8 @@ void Write::InitAsDefaultInstance() {
   ::google::firestore::v1::_Write_default_instance_.update_ = const_cast< ::google::firestore::v1::Document*>(
       ::google::firestore::v1::Document::internal_default_instance());
   ::google::firestore::v1::_Write_default_instance_.delete__.UnsafeSetDefault(
+      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  ::google::firestore::v1::_Write_default_instance_.verify_.UnsafeSetDefault(
       &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   ::google::firestore::v1::_Write_default_instance_.transform_ = const_cast< ::google::firestore::v1::DocumentTransform*>(
       ::google::firestore::v1::DocumentTransform::internal_default_instance());
@@ -517,6 +521,10 @@ Write::Write(const Write& from)
       set_delete_(from.delete_());
       break;
     }
+    case kVerify: {
+      set_verify(from.verify());
+      break;
+    }
     case kTransform: {
       mutable_transform()->::google::firestore::v1::DocumentTransform::MergeFrom(from.transform());
       break;
@@ -567,6 +575,10 @@ void Write::clear_operation() {
     }
     case kDelete: {
       operation_.delete__.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+      break;
+    }
+    case kVerify: {
+      operation_.verify_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
       break;
     }
     case kTransform: {
@@ -632,6 +644,13 @@ const char* Write::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::inte
       case 4:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
           ptr = ctx->ParseMessage(mutable_current_document(), ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // string verify = 5;
+      case 5:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 42)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParserUTF8(mutable_verify(), ptr, ctx, "google.firestore.v1.Write.verify");
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -720,6 +739,21 @@ bool Write::MergePartialFromCodedStream(
         break;
       }
 
+      // string verify = 5;
+      case 5: {
+        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (42 & 0xFF)) {
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadString(
+                input, this->mutable_verify()));
+          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+            this->verify().data(), static_cast<int>(this->verify().length()),
+            ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE,
+            "google.firestore.v1.Write.verify"));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
       // .google.firestore.v1.DocumentTransform transform = 6;
       case 6: {
         if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (50 & 0xFF)) {
@@ -786,6 +820,16 @@ void Write::SerializeWithCachedSizes(
       4, _Internal::current_document(this), output);
   }
 
+  // string verify = 5;
+  if (has_verify()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      this->verify().data(), static_cast<int>(this->verify().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "google.firestore.v1.Write.verify");
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringMaybeAliased(
+      5, this->verify(), output);
+  }
+
   // .google.firestore.v1.DocumentTransform transform = 6;
   if (has_transform()) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
@@ -835,6 +879,17 @@ void Write::SerializeWithCachedSizes(
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessageToArray(
         4, _Internal::current_document(this), target);
+  }
+
+  // string verify = 5;
+  if (has_verify()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      this->verify().data(), static_cast<int>(this->verify().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "google.firestore.v1.Write.verify");
+    target =
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringToArray(
+        5, this->verify(), target);
   }
 
   // .google.firestore.v1.DocumentTransform transform = 6;
@@ -894,6 +949,13 @@ size_t Write::ByteSizeLong() const {
           this->delete_());
       break;
     }
+    // string verify = 5;
+    case kVerify: {
+      total_size += 1 +
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+          this->verify());
+      break;
+    }
     // .google.firestore.v1.DocumentTransform transform = 6;
     case kTransform: {
       total_size += 1 +
@@ -945,6 +1007,10 @@ void Write::MergeFrom(const Write& from) {
     }
     case kDelete: {
       set_delete_(from.delete_());
+      break;
+    }
+    case kVerify: {
+      set_verify(from.verify());
       break;
     }
     case kTransform: {

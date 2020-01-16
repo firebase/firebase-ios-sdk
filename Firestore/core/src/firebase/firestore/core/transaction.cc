@@ -23,6 +23,7 @@
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/core/user_data.h"
 #include "Firestore/core/src/firebase/firestore/model/delete_mutation.h"
+#include "Firestore/core/src/firebase/firestore/model/verify_mutation.h"
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
@@ -36,6 +37,7 @@ using firebase::firestore::model::MaybeDocument;
 using firebase::firestore::model::Mutation;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::SnapshotVersion;
+using firebase::firestore::model::VerifyMutation;
 using firebase::firestore::remote::Datastore;
 using firebase::firestore::util::Status;
 using firebase::firestore::util::StatusOr;
@@ -197,17 +199,13 @@ void Transaction::Commit(util::StatusCallback&& callback) {
     unwritten.erase(mutation.key());
   }
 
-  if (!unwritten.empty()) {
-    // TODO(klimt): This is a temporary restriction, until "verify" is supported
-    // on the backend.
-    callback(
-        Status{Error::InvalidArgument,
-               "Every document read in a transaction must also be written in "
-               "that transaction."});
-  } else {
-    committed_ = true;
-    datastore_->CommitMutations(mutations_, std::move(callback));
+  // For each document that was read but not written to, we want to perform a
+  // `verify` operation.
+  for (const DocumentKey& key : unwritten) {
+    mutations_.push_back(VerifyMutation(key, CreatePrecondition(key)));
   }
+  committed_ = true;
+  datastore_->CommitMutations(mutations_, std::move(callback));
 }
 
 void Transaction::MarkPermanentlyFailed() {

@@ -185,6 +185,7 @@ class Write :
   enum OperationCase {
     kUpdate = 1,
     kDelete = 2,
+    kVerify = 5,
     kTransform = 6,
     OPERATION_NOT_SET = 0,
   };
@@ -270,6 +271,7 @@ class Write :
     kCurrentDocumentFieldNumber = 4,
     kUpdateFieldNumber = 1,
     kDeleteFieldNumber = 2,
+    kVerifyFieldNumber = 5,
     kTransformFieldNumber = 6,
   };
   // .google.firestore.v1.DocumentMask update_mask = 3;
@@ -310,6 +312,20 @@ class Write :
   std::string* release_delete_();
   void set_allocated_delete_(std::string* delete_);
 
+  // string verify = 5;
+  private:
+  bool has_verify() const;
+  public:
+  void clear_verify();
+  const std::string& verify() const;
+  void set_verify(const std::string& value);
+  void set_verify(std::string&& value);
+  void set_verify(const char* value);
+  void set_verify(const char* value, size_t size);
+  std::string* mutable_verify();
+  std::string* release_verify();
+  void set_allocated_verify(std::string* verify);
+
   // .google.firestore.v1.DocumentTransform transform = 6;
   bool has_transform() const;
   void clear_transform();
@@ -325,6 +341,7 @@ class Write :
   class _Internal;
   void set_has_update();
   void set_has_delete_();
+  void set_has_verify();
   void set_has_transform();
 
   inline bool has_operation() const;
@@ -337,6 +354,7 @@ class Write :
     OperationUnion() {}
     ::google::firestore::v1::Document* update_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr delete__;
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr verify_;
     ::google::firestore::v1::DocumentTransform* transform_;
   } operation_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -1652,6 +1670,96 @@ inline void Write::set_allocated_delete_(std::string* delete_) {
     operation_.delete__.UnsafeSetDefault(delete_);
   }
   // @@protoc_insertion_point(field_set_allocated:google.firestore.v1.Write.delete)
+}
+
+// string verify = 5;
+inline bool Write::has_verify() const {
+  return operation_case() == kVerify;
+}
+inline void Write::set_has_verify() {
+  _oneof_case_[0] = kVerify;
+}
+inline void Write::clear_verify() {
+  if (has_verify()) {
+    operation_.verify_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+    clear_has_operation();
+  }
+}
+inline const std::string& Write::verify() const {
+  // @@protoc_insertion_point(field_get:google.firestore.v1.Write.verify)
+  if (has_verify()) {
+    return operation_.verify_.GetNoArena();
+  }
+  return *&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited();
+}
+inline void Write::set_verify(const std::string& value) {
+  // @@protoc_insertion_point(field_set:google.firestore.v1.Write.verify)
+  if (!has_verify()) {
+    clear_operation();
+    set_has_verify();
+    operation_.verify_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  operation_.verify_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:google.firestore.v1.Write.verify)
+}
+inline void Write::set_verify(std::string&& value) {
+  // @@protoc_insertion_point(field_set:google.firestore.v1.Write.verify)
+  if (!has_verify()) {
+    clear_operation();
+    set_has_verify();
+    operation_.verify_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  operation_.verify_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:google.firestore.v1.Write.verify)
+}
+inline void Write::set_verify(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  if (!has_verify()) {
+    clear_operation();
+    set_has_verify();
+    operation_.verify_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  operation_.verify_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:google.firestore.v1.Write.verify)
+}
+inline void Write::set_verify(const char* value, size_t size) {
+  if (!has_verify()) {
+    clear_operation();
+    set_has_verify();
+    operation_.verify_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  operation_.verify_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(
+      reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:google.firestore.v1.Write.verify)
+}
+inline std::string* Write::mutable_verify() {
+  if (!has_verify()) {
+    clear_operation();
+    set_has_verify();
+    operation_.verify_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_mutable:google.firestore.v1.Write.verify)
+  return operation_.verify_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline std::string* Write::release_verify() {
+  // @@protoc_insertion_point(field_release:google.firestore.v1.Write.verify)
+  if (has_verify()) {
+    clear_has_operation();
+    return operation_.verify_.ReleaseNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  } else {
+    return nullptr;
+  }
+}
+inline void Write::set_allocated_verify(std::string* verify) {
+  if (has_operation()) {
+    clear_operation();
+  }
+  if (verify != nullptr) {
+    set_has_verify();
+    operation_.verify_.UnsafeSetDefault(verify);
+  }
+  // @@protoc_insertion_point(field_set_allocated:google.firestore.v1.Write.verify)
 }
 
 // .google.firestore.v1.DocumentTransform transform = 6;
