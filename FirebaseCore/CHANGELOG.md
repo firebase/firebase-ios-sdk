@@ -1,5 +1,6 @@
 # v6.6.0 -- M62
 - [changed] Reorganized directory structure.
+- [changed] Firebase Installations(../../FirebaseInstallations/CHANGELOG.md) throws an exception when there are missing required `FirebaseOptions` parameters (`APIKey`, `googleAppID`, and `projectID` or `GCMSenderID`). Please make sure your `GoogleServices-Info.plist` (or `FirebaseOptions` if you configure Firebase in code) are up to date. The file and settings can be downoaded from the [Firebase Console](https://console.firebase.google.com/). (#4683)
 - [changed] The following SDKs introduce a new transitive dependency on the [Firebase Installations API](https://console.cloud.google.com/apis/library/firebaseinstallations.googleapis.com):
   - Analytics
   - Cloud Messaging
