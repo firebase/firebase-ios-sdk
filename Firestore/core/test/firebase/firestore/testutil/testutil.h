@@ -42,6 +42,7 @@
 #include "Firestore/core/src/firebase/firestore/model/set_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/unknown_document.h"
+#include "Firestore/core/src/firebase/firestore/model/verify_mutation.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/memory/memory.h"
@@ -463,6 +464,12 @@ std::pair<std::string, model::TransformOperation> ArrayUnion(
 
 inline model::DeleteMutation DeleteMutation(absl::string_view path) {
   return model::DeleteMutation(Key(path), model::Precondition::None());
+}
+
+inline model::VerifyMutation VerifyMutation(absl::string_view path,
+                                            int64_t version) {
+  return model::VerifyMutation(
+      Key(path), model::Precondition::UpdateTime(Version(version)));
 }
 
 inline model::MutationResult MutationResult(int64_t version) {

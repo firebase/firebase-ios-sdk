@@ -41,7 +41,7 @@
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/model/set_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/transform_mutation.h"
-#include "Firestore/core/src/firebase/firestore/model/transform_operation.h"
+#include "Firestore/core/src/firebase/firestore/model/verify_mutation.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
@@ -93,6 +93,7 @@ using model::SnapshotVersion;
 using model::TargetId;
 using model::TransformMutation;
 using model::TransformOperation;
+using model::VerifyMutation;
 using nanopb::ByteString;
 using nanopb::CheckedSize;
 using nanopb::MakeArray;
@@ -631,6 +632,12 @@ google_firestore_v1_Write Serializer::EncodeMutation(
       result.delete_ = EncodeKey(mutation.key());
       return result;
     }
+
+    case Mutation::Type::Verify: {
+      result.which_operation = google_firestore_v1_Write_verify_tag;
+      result.verify = EncodeKey(mutation.key());
+      return result;
+    }
   }
 
   UNREACHABLE();
@@ -675,6 +682,11 @@ Mutation Serializer::DecodeMutation(
 
       return TransformMutation(DecodeKey(reader, mutation.transform.document),
                                field_transforms);
+    }
+
+    case google_firestore_v1_Write_verify_tag: {
+      return VerifyMutation(DecodeKey(reader, mutation.verify),
+                            std::move(precondition));
     }
 
     default:

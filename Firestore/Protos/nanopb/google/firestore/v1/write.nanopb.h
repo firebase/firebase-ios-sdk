@@ -120,6 +120,7 @@ typedef struct _google_firestore_v1_Write {
     union {
         google_firestore_v1_Document update;
         pb_bytes_array_t *delete_;
+        pb_bytes_array_t *verify;
         google_firestore_v1_DocumentTransform transform;
     };
     bool has_update_mask;
@@ -184,6 +185,7 @@ typedef struct _google_firestore_v1_WriteResult {
 #define google_firestore_v1_ExistenceFilter_count_tag 2
 #define google_firestore_v1_Write_update_tag     1
 #define google_firestore_v1_Write_delete_tag     2
+#define google_firestore_v1_Write_verify_tag     5
 #define google_firestore_v1_Write_transform_tag  6
 #define google_firestore_v1_Write_update_mask_tag 3
 #define google_firestore_v1_Write_current_document_tag 4
@@ -191,7 +193,7 @@ typedef struct _google_firestore_v1_WriteResult {
 #define google_firestore_v1_WriteResult_transform_results_tag 2
 
 /* Struct field encoding specification for nanopb */
-extern const pb_field_t google_firestore_v1_Write_fields[6];
+extern const pb_field_t google_firestore_v1_Write_fields[7];
 extern const pb_field_t google_firestore_v1_DocumentTransform_fields[3];
 extern const pb_field_t google_firestore_v1_DocumentTransform_FieldTransform_fields[8];
 extern const pb_field_t google_firestore_v1_WriteResult_fields[3];
