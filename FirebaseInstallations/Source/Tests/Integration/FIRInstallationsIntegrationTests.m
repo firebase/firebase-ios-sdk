@@ -205,6 +205,8 @@ static BOOL sFIRInstallationsFirebaseDefaultAppConfigured = NO;
   FIROptions *options =
       [[FIROptions alloc] initWithGoogleAppID:@"1:100000000000:ios:aaaaaaaaaaaaaaaaaaaaaaaa"
                                   GCMSenderID:@"valid_sender_id"];
+  options.APIKey = @"some_api_key";
+  options.projectID = @"project_id";
   [FIRApp configureWithName:name options:options];
 
   return [FIRApp appNamed:name];
