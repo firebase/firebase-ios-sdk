@@ -13,7 +13,6 @@
 		5B4DE0AE22F8D7B300B55A7B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5B4DE0AD22F8D7B300B55A7B /* Assets.xcassets */; };
 		5B4DE0B122F8D7B300B55A7B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5B4DE0AF22F8D7B300B55A7B /* LaunchScreen.storyboard */; };
 		5B4DE0B422F8D7B300B55A7B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 5B4DE0B322F8D7B300B55A7B /* main.m */; };
-		5B4DE0BC22F8DA1300B55A7B /* SecondApp-GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5B4DE0BA22F8DA1200B55A7B /* SecondApp-GoogleService-Info.plist */; };
 		5B4DE0BD22F8DA1300B55A7B /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5B4DE0BB22F8DA1300B55A7B /* GoogleService-Info.plist */; };
 		AC252CE6B594C95D235E64F9 /* Pods_SegmentationSampleApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03FB7E52AF4C6B5EAA580F43 /* Pods_SegmentationSampleApp.framework */; };
 /* End PBXBuildFile section */
@@ -34,7 +33,6 @@
 		5B4DE0B322F8D7B300B55A7B /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		5B4DE0BA22F8DA1200B55A7B /* SecondApp-GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "SecondApp-GoogleService-Info.plist"; sourceTree = "<group>"; };
 		5B4DE0BB22F8DA1300B55A7B /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
-		5B4DE0BE22F8E07200B55A7B /* SecondApp-GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "SecondApp-GoogleService-Info.plist"; path = "../../../../../../configdaily googservice/SecondApp-GoogleService-Info.plist"; sourceTree = "<group>"; };
 		5B4DE0BF22F8E07200B55A7B /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../../../../configdaily googservice/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		5B4DE0C222F8E09900B55A7B /* SecondApp-GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "SecondApp-GoogleService-Info.plist"; sourceTree = "<group>"; };
 		5B4DE0C322F8E09900B55A7B /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
@@ -65,7 +63,6 @@
 			isa = PBXGroup;
 			children = (
 				5B4DE0BF22F8E07200B55A7B /* GoogleService-Info.plist */,
-				5B4DE0BE22F8E07200B55A7B /* SecondApp-GoogleService-Info.plist */,
 				03FB7E52AF4C6B5EAA580F43 /* Pods_SegmentationSampleApp.framework */,
 			);
 			name = Frameworks;
@@ -168,7 +165,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5B4DE0BC22F8DA1300B55A7B /* SecondApp-GoogleService-Info.plist in Resources */,
 				5B4DE0BD22F8DA1300B55A7B /* GoogleService-Info.plist in Resources */,
 				5B4DE0B122F8D7B300B55A7B /* LaunchScreen.storyboard in Resources */,
 				5B4DE0AE22F8D7B300B55A7B /* Assets.xcassets in Resources */,
