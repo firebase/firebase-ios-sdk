@@ -130,8 +130,11 @@ NS_ASSUME_NONNULL_BEGIN
   if (appOptions.googleAppID.length < 1) {
     [missingFields addObject:@"`FirebaseOptions.googleAppID`"];
   }
-  if (appOptions.GCMSenderID.length < 1) {
-    [missingFields addObject:@"`FirebaseOptions.GCMSenderID`"];
+
+  // TODO(#4692): Check for `appOptions.projectID.length < 1` only.
+  // We can use `GCMSenderID` instead of `projectID` temporary.
+  if (appOptions.projectID.length < 1 && appOptions.GCMSenderID.length < 1) {
+    [missingFields addObject:@"`FirebaseOptions.projectID`"];
   }
 
   if (missingFields.count > 0) {

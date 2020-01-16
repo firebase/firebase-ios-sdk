@@ -266,7 +266,18 @@
 - (void)testInitWhenGCMSenderIDMissingThenThrows {
   FIROptions *options = [self.appOptions copy];
   options.GCMSenderID = @"";
-  XCTAssertThrows([self createInstallationsWithAppOptions:options appName:@"emptyGCMSenderID"]);
+  XCTAssertNoThrow([self createInstallationsWithAppOptions:options appName:@"emptyGCMSenderID"]);
+}
+
+- (void)testInitWhenProjectIDAndGCMSenderIDMissingThenNoThrow {
+  FIROptions *options = [self.appOptions copy];
+  options.GCMSenderID = @"";
+
+  options.projectID = nil;
+  XCTAssertThrows([self createInstallationsWithAppOptions:options appName:@"missingProjectID"]);
+
+  options.projectID = @"";
+  XCTAssertThrows([self createInstallationsWithAppOptions:options appName:@"emptyProjectID"]);
 }
 
 - (void)testInitWhenAppNameMissingThenThrows {
