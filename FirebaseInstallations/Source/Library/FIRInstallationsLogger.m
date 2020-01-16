@@ -44,3 +44,6 @@ NSString *const kFIRInstallationsMessageCodeAuthTokenCoderVersionMismatch = @"I-
 // FIRInstallationsStoredIIDCheckin.m
 NSString *const kFIRInstallationsMessageCodeIIDCheckinCoderVersionMismatch = @"I-FIS007000";
 NSString *const kFIRInstallationsMessageCodeIIDCheckinFailedToDecode = @"I-FIS007001";
+
+// FIRInstallations.m
+NSString *const kFIRInstallationsMessageCodeInvalidFirebaseAppOptions = @"I-FIS008000";
