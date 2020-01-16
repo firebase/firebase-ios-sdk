@@ -1,3 +1,7 @@
+# v1.0.1 -- M62
+
+- [changed] Throw an exception when there are missing required `FIROptions` parameters. (#4683)
+
 # v1.0.0 -- M62
 
 - [added] The Firebase Installations Service is an infrastructure service for Firebase services that creates unique identifiers and authentication tokens for Firebase clients (called "Firebase Installations") enabling Firebase Targeting, i.e. interoperation between Firebase services.
