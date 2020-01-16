@@ -708,3 +708,4 @@ jobs:
 branches:
   only:
     - master
+    - release-6.15.0-patch
