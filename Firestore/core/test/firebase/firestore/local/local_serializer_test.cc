@@ -21,7 +21,7 @@
 #include "Firestore/Protos/cpp/firestore/local/target.pb.h"
 #include "Firestore/Protos/cpp/google/firestore/v1/firestore.pb.h"
 #include "Firestore/core/src/firebase/firestore/core/query.h"
-#include "Firestore/core/src/firebase/firestore/local/query_data.h"
+#include "Firestore/core/src/firebase/firestore/local/target_data.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
@@ -139,29 +139,30 @@ class LocalSerializerTest : public ::testing::Test {
     return MakeByteString(serializer->EncodeMaybeDocument(maybe_doc));
   }
 
-  void ExpectSerializationRoundTrip(const QueryData& query_data,
+  void ExpectSerializationRoundTrip(const TargetData& target_data,
                                     const ::firestore::client::Target& proto) {
-    ByteString bytes = EncodeQueryData(&serializer, query_data);
+    ByteString bytes = EncodeTargetData(&serializer, target_data);
     auto actual = ProtobufParse<::firestore::client::Target>(bytes);
     EXPECT_TRUE(msg_diff.Compare(proto, actual)) << message_differences;
   }
 
   void ExpectDeserializationRoundTrip(
-      const QueryData& query_data, const ::firestore::client::Target& proto) {
+      const TargetData& target_data, const ::firestore::client::Target& proto) {
     ByteString bytes = ProtobufSerialize(proto);
     StringReader reader(bytes);
 
     auto message = Message<firestore_client_Target>::TryParse(&reader);
-    QueryData actual_query_data = serializer.DecodeQueryData(&reader, *message);
+    TargetData actual_target_data =
+        serializer.DecodeTargetData(&reader, *message);
 
     EXPECT_OK(reader.status());
-    EXPECT_EQ(query_data, actual_query_data);
+    EXPECT_EQ(target_data, actual_target_data);
   }
 
-  ByteString EncodeQueryData(local::LocalSerializer* serializer,
-                             const QueryData& query_data) {
-    EXPECT_EQ(query_data.purpose(), QueryPurpose::Listen);
-    return MakeByteString(serializer->EncodeQueryData(query_data));
+  ByteString EncodeTargetData(local::LocalSerializer* serializer,
+                              const TargetData& target_data) {
+    EXPECT_EQ(target_data.purpose(), QueryPurpose::Listen);
+    return MakeByteString(serializer->EncodeTargetData(target_data));
   }
 
   void ExpectSerializationRoundTrip(
@@ -311,7 +312,7 @@ TEST_F(LocalSerializerTest, EncodesUnknownDocumentAsMaybeDocument) {
   ExpectRoundTrip(unknown_doc, maybe_doc_proto, unknown_doc.type());
 }
 
-TEST_F(LocalSerializerTest, EncodesQueryData) {
+TEST_F(LocalSerializerTest, EncodesTargetData) {
   core::Query query = Query("room");
   TargetId target_id = 42;
   ListenSequenceNumber sequence_number = 10;
@@ -319,10 +320,10 @@ TEST_F(LocalSerializerTest, EncodesQueryData) {
   SnapshotVersion limbo_free_version = testutil::Version(1000);
   ByteString resume_token = testutil::ResumeToken(1039);
 
-  QueryData query_data(query.ToTarget(), target_id, sequence_number,
-                       QueryPurpose::Listen, SnapshotVersion(version),
-                       SnapshotVersion(limbo_free_version),
-                       ByteString(resume_token));
+  TargetData target_data(query.ToTarget(), target_id, sequence_number,
+                         QueryPurpose::Listen, SnapshotVersion(version),
+                         SnapshotVersion(limbo_free_version),
+                         ByteString(resume_token));
 
   ::firestore::client::Target expected;
   expected.set_target_id(target_id);
@@ -344,10 +345,10 @@ TEST_F(LocalSerializerTest, EncodesQueryData) {
   order.set_direction(v1::StructuredQuery::ASCENDING);
   *query_proto->mutable_structured_query()->add_order_by() = std::move(order);
 
-  ExpectRoundTrip(query_data, expected);
+  ExpectRoundTrip(target_data, expected);
 }
 
-TEST_F(LocalSerializerTest, EncodesQueryDataWithDocumentQuery) {
+TEST_F(LocalSerializerTest, EncodesTargetDataWithDocumentQuery) {
   core::Query query = Query("room/1");
   TargetId target_id = 42;
   ListenSequenceNumber sequence_number = 10;
@@ -355,10 +356,10 @@ TEST_F(LocalSerializerTest, EncodesQueryDataWithDocumentQuery) {
   SnapshotVersion limbo_free_version = testutil::Version(1000);
   ByteString resume_token = testutil::ResumeToken(1039);
 
-  QueryData query_data(query.ToTarget(), target_id, sequence_number,
-                       QueryPurpose::Listen, SnapshotVersion(version),
-                       SnapshotVersion(limbo_free_version),
-                       ByteString(resume_token));
+  TargetData target_data(query.ToTarget(), target_id, sequence_number,
+                         QueryPurpose::Listen, SnapshotVersion(version),
+                         SnapshotVersion(limbo_free_version),
+                         ByteString(resume_token));
 
   ::firestore::client::Target expected;
   expected.set_target_id(target_id);
@@ -369,7 +370,7 @@ TEST_F(LocalSerializerTest, EncodesQueryDataWithDocumentQuery) {
   v1::Target::DocumentsTarget* documents_proto = expected.mutable_documents();
   documents_proto->add_documents("projects/p/databases/d/documents/room/1");
 
-  ExpectRoundTrip(query_data, expected);
+  ExpectRoundTrip(target_data, expected);
 }
 
 }  // namespace local

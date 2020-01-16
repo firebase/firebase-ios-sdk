@@ -31,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
                              APIKey:(NSString *)APIKey
                           projectID:(NSString *)projectID
                         GCMSenderID:(NSString *)GCMSenderID
-                        accessGroup:(NSString *)accessGroup;
+                        accessGroup:(nullable NSString *)accessGroup;
 
 - (FBLPromise<FIRInstallationsItem *> *)getInstallationItem;
 

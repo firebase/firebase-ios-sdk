@@ -16,7 +16,7 @@
 
 #import <objc/runtime.h>
 
-#import "Private/GULSwizzledObject.h"
+#import "GoogleUtilities/ISASwizzler/Private/GULSwizzledObject.h"
 
 @implementation GULObjectSwizzler {
   // The swizzled object.

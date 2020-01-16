@@ -37,7 +37,7 @@ namespace firestore {
 namespace remote {
 
 using core::DatabaseInfo;
-using local::QueryData;
+using local::TargetData;
 using model::DocumentKey;
 using model::MaybeDocument;
 using model::Mutation;
@@ -63,7 +63,7 @@ WatchStreamSerializer::WatchStreamSerializer(Serializer serializer)
 }
 
 Message<google_firestore_v1_ListenRequest>
-WatchStreamSerializer::EncodeWatchRequest(const QueryData& query) const {
+WatchStreamSerializer::EncodeWatchRequest(const TargetData& query) const {
   Message<google_firestore_v1_ListenRequest> result;
 
   result->database = serializer_.EncodeDatabaseName();

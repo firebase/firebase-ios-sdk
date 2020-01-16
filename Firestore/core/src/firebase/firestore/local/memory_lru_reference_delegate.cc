@@ -44,7 +44,7 @@ MemoryLruReferenceDelegate::MemoryLruReferenceDelegate(
       gc_(this, lru_params) {
   // Theoretically this is always 0, since this is all in-memory...
   ListenSequenceNumber highest_sequence_number =
-      persistence_->query_cache()->highest_listen_sequence_number();
+      persistence_->target_cache()->highest_listen_sequence_number();
   listen_sequence_ = absl::make_unique<ListenSequence>(highest_sequence_number);
 }
 
@@ -65,9 +65,9 @@ void MemoryLruReferenceDelegate::AddInMemoryPins(ReferenceSet* set) {
   additional_references_ = set;
 }
 
-void MemoryLruReferenceDelegate::RemoveTarget(const QueryData& query_data) {
-  QueryData updated = query_data.WithSequenceNumber(current_sequence_number_);
-  persistence_->query_cache()->UpdateTarget(updated);
+void MemoryLruReferenceDelegate::RemoveTarget(const TargetData& target_data) {
+  TargetData updated = target_data.WithSequenceNumber(current_sequence_number_);
+  persistence_->target_cache()->UpdateTarget(updated);
 }
 
 void MemoryLruReferenceDelegate::UpdateLimboDocument(
@@ -85,7 +85,7 @@ void MemoryLruReferenceDelegate::OnTransactionCommitted() {
 
 void MemoryLruReferenceDelegate::EnumerateTargets(
     const TargetCallback& callback) {
-  return persistence_->query_cache()->EnumerateTargets(callback);
+  return persistence_->target_cache()->EnumerateTargets(callback);
 }
 
 void MemoryLruReferenceDelegate::EnumerateOrphanedDocuments(
@@ -102,7 +102,7 @@ void MemoryLruReferenceDelegate::EnumerateOrphanedDocuments(
 }
 
 size_t MemoryLruReferenceDelegate::GetSequenceNumberCount() {
-  size_t total_count = persistence_->query_cache()->size();
+  size_t total_count = persistence_->target_cache()->size();
   EnumerateOrphanedDocuments(
       [&total_count](const DocumentKey& key,
                      ListenSequenceNumber sequence_number) { total_count++; });
@@ -112,8 +112,8 @@ size_t MemoryLruReferenceDelegate::GetSequenceNumberCount() {
 int MemoryLruReferenceDelegate::RemoveTargets(
     model::ListenSequenceNumber sequence_number,
     const LiveQueryMap& live_queries) {
-  return persistence_->query_cache()->RemoveTargets(sequence_number,
-                                                    live_queries);
+  return persistence_->target_cache()->RemoveTargets(sequence_number,
+                                                     live_queries);
 }
 
 int MemoryLruReferenceDelegate::RemoveOrphanedDocuments(
@@ -159,7 +159,7 @@ bool MemoryLruReferenceDelegate::IsPinnedAtSequenceNumber(
   if (additional_references_ && additional_references_->ContainsKey(key)) {
     return true;
   }
-  if (persistence_->query_cache()->Contains(key)) {
+  if (persistence_->target_cache()->Contains(key)) {
     return true;
   }
 
@@ -176,7 +176,7 @@ int64_t MemoryLruReferenceDelegate::CalculateByteSize() {
   // serialize it and count bytes) is inefficient and inexact, but won't run in
   // production.
   int64_t count = 0;
-  count += persistence_->query_cache()->CalculateByteSize(*sizer_);
+  count += persistence_->target_cache()->CalculateByteSize(*sizer_);
   count += persistence_->remote_document_cache()->CalculateByteSize(*sizer_);
   const auto& queues = persistence_->mutation_queues();
   for (const auto& entry : queues) {

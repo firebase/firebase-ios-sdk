@@ -27,10 +27,10 @@
 #include "Firestore/core/src/firebase/firestore/local/lru_garbage_collector.h"
 #include "Firestore/core/src/firebase/firestore/local/mutation_queue.h"
 #include "Firestore/core/src/firebase/firestore/local/persistence.h"
-#include "Firestore/core/src/firebase/firestore/local/query_cache.h"
-#include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 #include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
+#include "Firestore/core/src/firebase/firestore/local/target_cache.h"
+#include "Firestore/core/src/firebase/firestore/local/target_data.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
@@ -82,12 +82,12 @@ void LruGarbageCollectorTest::NewTestResources(LruParams lru_params) {
   persistence_ = MakePersistence(lru_params);
   persistence_->reference_delegate()->AddInMemoryPins(&additional_references_);
 
-  query_cache_ = persistence_->query_cache();
+  target_cache_ = persistence_->target_cache();
   document_cache_ = persistence_->remote_document_cache();
   mutation_queue_ = persistence_->GetMutationQueueForUser(user_);
 
   lru_delegate_ = static_cast<LruDelegate*>(persistence_->reference_delegate());
-  initial_sequence_number_ = persistence_->Run("start querycache", [&] {
+  initial_sequence_number_ = persistence_->Run("start TargetCache", [&] {
     mutation_queue_->Start();
     gc_ = lru_delegate_->garbage_collector();
     return persistence_->current_sequence_number();
@@ -122,7 +122,7 @@ int LruGarbageCollectorTest::QueryCountForPercentile(int percentile) {
 
 int LruGarbageCollectorTest::RemoveTargets(
     ListenSequenceNumber sequence_number,
-    const std::unordered_map<TargetId, QueryData>& live_queries) {
+    const std::unordered_map<TargetId, TargetData>& live_queries) {
   return persistence_->Run(
       "gc", [&] { return gc_->RemoveTargets(sequence_number, live_queries); });
 }
@@ -133,31 +133,31 @@ int LruGarbageCollectorTest::RemoveOrphanedDocuments(
       "gc", [&] { return gc_->RemoveOrphanedDocuments(sequence_number); });
 }
 
-QueryData LruGarbageCollectorTest::NextTestQuery() {
+TargetData LruGarbageCollectorTest::NextTestQuery() {
   TargetId target_id = ++previous_target_id_;
   ListenSequenceNumber listen_sequence_number =
       persistence_->current_sequence_number();
   core::Query query = Query(absl::StrCat("path", target_id));
-  return QueryData(query.ToTarget(), target_id, listen_sequence_number,
-                   QueryPurpose::Listen);
+  return TargetData(query.ToTarget(), target_id, listen_sequence_number,
+                    QueryPurpose::Listen);
 }
 
-QueryData LruGarbageCollectorTest::AddNextQuery() {
+TargetData LruGarbageCollectorTest::AddNextQuery() {
   return persistence_->Run("adding query",
                            [&] { return AddNextQueryInTransaction(); });
 }
 
-QueryData LruGarbageCollectorTest::AddNextQueryInTransaction() {
-  QueryData query_data = NextTestQuery();
-  query_cache_->AddTarget(query_data);
-  return query_data;
+TargetData LruGarbageCollectorTest::AddNextQueryInTransaction() {
+  TargetData target_data = NextTestQuery();
+  target_cache_->AddTarget(target_data);
+  return target_data;
 }
 
 void LruGarbageCollectorTest::UpdateTargetInTransaction(
-    const QueryData& query_data) {
-  QueryData updated =
-      query_data.WithSequenceNumber(persistence_->current_sequence_number());
-  query_cache_->UpdateTarget(updated);
+    const TargetData& target_data) {
+  TargetData updated =
+      target_data.WithSequenceNumber(persistence_->current_sequence_number());
+  target_cache_->UpdateTarget(updated);
 }
 
 DocumentKey LruGarbageCollectorTest::CreateDocumentEligibleForGc() {
@@ -186,12 +186,12 @@ void LruGarbageCollectorTest::MarkDocumentEligibleForGcInTransaction(
 
 void LruGarbageCollectorTest::AddDocument(const DocumentKey& doc_key,
                                           TargetId target_id) {
-  query_cache_->AddMatchingKeys(DocumentKeySet{doc_key}, target_id);
+  target_cache_->AddMatchingKeys(DocumentKeySet{doc_key}, target_id);
 }
 
 void LruGarbageCollectorTest::RemoveDocument(const DocumentKey& doc_key,
                                              TargetId target_id) {
-  query_cache_->RemoveMatchingKeys(DocumentKeySet{doc_key}, target_id);
+  target_cache_->RemoveMatchingKeys(DocumentKeySet{doc_key}, target_id);
 }
 
 Document LruGarbageCollectorTest::CacheADocumentInTransaction() {
@@ -232,7 +232,7 @@ TEST_P(LruGarbageCollectorTest, PickSequenceNumberPercentile) {
   Case test_cases[num_test_cases] = {{0, 0}, {10, 1}, {9, 0}, {50, 5}, {49, 4}};
 
   for (int i = 0; i < num_test_cases; i++) {
-    // Fill the query cache.
+    // Fill the target cache.
     int num_queries = test_cases[i].queries;
     int expected_tenth_percentile = test_cases[i].expected;
     NewTestResources();
@@ -341,10 +341,10 @@ TEST_P(LruGarbageCollectorTest, SequenceNumbersWithMutationsInQueries) {
   }
 
   persistence_->Run("query with mutation", [&] {
-    QueryData query_data = AddNextQueryInTransaction();
+    TargetData target_data = AddNextQueryInTransaction();
     // This should keep the document from getting GC'd, since it is no longer
     // orphaned.
-    AddDocument(doc_in_query.key(), query_data.target_id());
+    AddDocument(doc_in_query.key(), target_data.target_id());
   });
 
   // This should catch the remaining 8 documents, plus the first two queries we
@@ -354,12 +354,12 @@ TEST_P(LruGarbageCollectorTest, SequenceNumbersWithMutationsInQueries) {
 
 TEST_P(LruGarbageCollectorTest, RemoveQueriesUpThroughSequenceNumber) {
   NewTestResources();
-  std::unordered_map<TargetId, QueryData> live_queries;
+  std::unordered_map<TargetId, TargetData> live_queries;
   for (int i = 0; i < 100; i++) {
-    QueryData query_data = AddNextQuery();
+    TargetData target_data = AddNextQuery();
     // Mark odd queries as live so we can test filtering out live queries.
-    if (query_data.target_id() % 2 == 1) {
-      live_queries[query_data.target_id()] = query_data;
+    if (target_data.target_id() % 2 == 1) {
+      live_queries[target_data.target_id()] = target_data;
     }
   }
 
@@ -370,9 +370,9 @@ TEST_P(LruGarbageCollectorTest, RemoveQueriesUpThroughSequenceNumber) {
 
   // Make sure we removed the even targets with target_id <= 20.
   persistence_->Run("verify remaining targets are > 20 or odd", [&] {
-    query_cache_->EnumerateTargets([&](const QueryData& query_data) {
-      ASSERT_TRUE(query_data.target_id() > 20 ||
-                  query_data.target_id() % 2 == 1);
+    target_cache_->EnumerateTargets([&](const TargetData& target_data) {
+      ASSERT_TRUE(target_data.target_id() > 20 ||
+                  target_data.target_id() % 2 == 1);
     });
   });
 }
@@ -392,23 +392,23 @@ TEST_P(LruGarbageCollectorTest, RemoveOrphanedDocuments) {
   persistence_->Run("add a target and add two documents to it", [&] {
     // Add two documents to first target, queue a mutation on the second
     // document.
-    QueryData query_data = AddNextQueryInTransaction();
+    TargetData target_data = AddNextQueryInTransaction();
     Document doc1 = CacheADocumentInTransaction();
-    AddDocument(doc1.key(), query_data.target_id());
+    AddDocument(doc1.key(), target_data.target_id());
     expected_retained.insert(doc1.key());
 
     Document doc2 = CacheADocumentInTransaction();
-    AddDocument(doc2.key(), query_data.target_id());
+    AddDocument(doc2.key(), target_data.target_id());
     expected_retained.insert(doc2.key());
     mutations.push_back(MutationForDocument(doc2.key()));
   });
 
   // Add a second query and register a third document on it.
   persistence_->Run("second query", [&] {
-    QueryData query_data = AddNextQueryInTransaction();
+    TargetData target_data = AddNextQueryInTransaction();
     Document doc3 = CacheADocumentInTransaction();
     expected_retained.insert(doc3.key());
-    AddDocument(doc3.key(), query_data.target_id());
+    AddDocument(doc3.key(), target_data.target_id());
   });
 
   // Cache another document and prepare a mutation on it.
@@ -445,7 +445,7 @@ TEST_P(LruGarbageCollectorTest, RemoveOrphanedDocuments) {
   persistence_->Run("verify", [&] {
     for (const DocumentKey& key : to_be_removed) {
       ASSERT_EQ(document_cache_->Get(key), absl::nullopt);
-      ASSERT_FALSE(query_cache_->Contains(key));
+      ASSERT_FALSE(target_cache_->Contains(key));
     }
     for (const DocumentKey& key : expected_retained) {
       ASSERT_NE(document_cache_->Get(key), absl::nullopt)
@@ -489,15 +489,15 @@ TEST_P(LruGarbageCollectorTest, RemoveTargetsThenGC) {
   // Add oldest target, 5 documents, and add those documents to the target.
   // This target will not be removed, so all documents that are part of it will
   // be retained.
-  QueryData oldest_target =
+  TargetData oldest_target =
       persistence_->Run("Add oldest target and docs", [&] {
-        QueryData query_data = AddNextQueryInTransaction();
+        TargetData target_data = AddNextQueryInTransaction();
         for (int i = 0; i < 5; i++) {
           Document doc = CacheADocumentInTransaction();
           expected_retained.insert(doc.key());
-          AddDocument(doc.key(), query_data.target_id());
+          AddDocument(doc.key(), target_data.target_id());
         }
-        return query_data;
+        return target_data;
       });
 
   // Add middle target and docs. Some docs will be removed from this target
@@ -506,9 +506,9 @@ TEST_P(LruGarbageCollectorTest, RemoveTargetsThenGC) {
 
   // This will be the document in this target that gets an update later
   DocumentKey middle_doc_to_update;
-  QueryData middle_target =
+  TargetData middle_target =
       persistence_->Run("Add middle target and docs", [&] {
-        QueryData middle_target = AddNextQueryInTransaction();
+        TargetData middle_target = AddNextQueryInTransaction();
 
         // These docs will be removed from this target later, triggering a bump
         // to their sequence numbers. Since they will not be a part of the
@@ -545,7 +545,7 @@ TEST_P(LruGarbageCollectorTest, RemoveTargetsThenGC) {
   // removed, since this target will be removed.
   DocumentKeySet newest_docs_to_add_to_oldest;
   persistence_->Run("Add newest target and docs", [&] {
-    QueryData newest_target = AddNextQueryInTransaction();
+    TargetData newest_target = AddNextQueryInTransaction();
 
     // These documents are only in this target. They are expected to be removed
     // because this target will also be removed.
@@ -627,7 +627,7 @@ TEST_P(LruGarbageCollectorTest, RemoveTargetsThenGC) {
 
   // Finally, do the garbage collection, up to but not including the removal of
   // middle_target.
-  std::unordered_map<TargetId, QueryData> live_queries{
+  std::unordered_map<TargetId, TargetData> live_queries{
       {oldest_target.target_id(), oldest_target}};
 
   int queries_removed = RemoveTargets(upper_bound, live_queries);
@@ -639,9 +639,9 @@ TEST_P(LruGarbageCollectorTest, RemoveTargetsThenGC) {
       ASSERT_EQ(document_cache_->Get(key), absl::nullopt)
           << "Did not expect to find " << key.ToString().c_str()
           << "in document cache";
-      ASSERT_FALSE(query_cache_->Contains(key))
+      ASSERT_FALSE(target_cache_->Contains(key))
           << "Did not expect to find " << key.ToString().c_str()
-          << " in query_cache";
+          << " in target_cache";
       ExpectSentinelRemoved(key);
     }
     for (const DocumentKey& key : expected_retained) {
@@ -719,10 +719,10 @@ TEST_P(LruGarbageCollectorTest, GCRan) {
     // Use separate transactions so that each target and associated documents
     // get their own sequence number.
     persistence_->Run("Add a target and some documents", [&] {
-      QueryData query_data = AddNextQueryInTransaction();
+      TargetData target_data = AddNextQueryInTransaction();
       for (int j = 0; j < 10; j++) {
         Document doc = CacheADocumentInTransaction();
-        AddDocument(doc.key(), query_data.target_id());
+        AddDocument(doc.key(), target_data.target_id());
       }
     });
   }

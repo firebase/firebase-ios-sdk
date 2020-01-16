@@ -177,7 +177,7 @@ class LocalStore {
    * Allocating an already allocated target will return the existing
    * `TargetData` for that target.
    */
-  local::QueryData AllocateTarget(core::Target target);
+  local::TargetData AllocateTarget(core::Target target);
 
   /**
    * Unpin all the documents associated with a target.
@@ -188,7 +188,7 @@ class LocalStore {
 
   /**
    * Runs the specified query against the local store and returns the results,
-   * potentially taking advantage of query data from previous executions (such
+   * potentially taking advantage of target data from previous executions (such
    * as the set of remote keys).
    *
    * @param use_previous_results Whether results from previous executions can be
@@ -225,31 +225,31 @@ class LocalStore {
       local::LruGarbageCollector* garbage_collector);
 
  private:
-  friend class LocalStoreTest;  // for `GetQueryData()`
+  friend class LocalStoreTest;  // for `GetTargetData()`
 
   void StartMutationQueue();
   void ApplyBatchResult(const model::MutationBatchResult& batch_result);
 
   /**
-   * Returns true if the new_query_data should be persisted during an update of
-   * an active target. QueryData should always be persisted when a target is
+   * Returns true if the new_target_data should be persisted during an update of
+   * an active target. TargetData should always be persisted when a target is
    * being released and should not call this function.
    *
-   * While the target is active, QueryData updates can be omitted when nothing
+   * While the target is active, TargetData updates can be omitted when nothing
    * about the target has changed except metadata like the resume token or
    * snapshot version. Occasionally it's worth the extra write to prevent these
    * values from getting too stale after a crash, but this doesn't have to be
    * too frequent.
    */
-  bool ShouldPersistQueryData(const QueryData& new_query_data,
-                              const local::QueryData& old_query_data,
-                              const remote::TargetChange& change) const;
+  bool ShouldPersistTargetData(const TargetData& new_target_data,
+                               const local::TargetData& old_target_data,
+                               const remote::TargetChange& change) const;
 
   /**
-   * Returns the QueryData as seen by the LocalStore, including updates that may
-   * have not yet been persisted to the QueryCache.
+   * Returns the TargetData as seen by the LocalStore, including updates that
+   * may have not yet been persisted to the TargetCache.
    */
-  absl::optional<QueryData> GetQueryData(const core::Target& query);
+  absl::optional<TargetData> GetTargetData(const core::Target& query);
 
   /** Manages our in-memory or durable persistence. Owned by FirestoreClient. */
   Persistence* persistence_ = nullptr;
@@ -267,7 +267,7 @@ class LocalStore {
   RemoteDocumentCache* remote_document_cache_ = nullptr;
 
   /** Maps a query to the data about that query. */
-  QueryCache* query_cache_ = nullptr;
+  TargetCache* target_cache_ = nullptr;
 
   /**
    * Performs queries over the localDocuments (and potentially maintains
@@ -285,7 +285,7 @@ class LocalStore {
   ReferenceSet local_view_references_;
 
   /** Maps target ids to data about their queries. */
-  std::unordered_map<model::TargetId, QueryData> query_data_by_target_;
+  std::unordered_map<model::TargetId, TargetData> target_data_by_target_;
 
   /** Maps a target to its targetID. */
   std::unordered_map<core::Target, model::TargetId> target_id_by_target_;

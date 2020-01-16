@@ -24,7 +24,7 @@
 #include "Firestore/Protos/nanopb/firestore/local/maybe_document.nanopb.h"
 #include "Firestore/Protos/nanopb/firestore/local/mutation.nanopb.h"
 #include "Firestore/Protos/nanopb/firestore/local/target.nanopb.h"
-#include "Firestore/core/src/firebase/firestore/local/query_data.h"
+#include "Firestore/core/src/firebase/firestore/local/target_data.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
 #include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
@@ -80,18 +80,18 @@ class LocalSerializer {
       const firestore_client_MaybeDocument& proto) const;
 
   /**
-   * @brief Encodes a QueryData to the equivalent nanopb proto, representing a
+   * @brief Encodes a TargetData to the equivalent nanopb proto, representing a
    * ::firestore::proto::Target, for local storage.
    */
-  nanopb::Message<firestore_client_Target> EncodeQueryData(
-      const QueryData& query_data) const;
+  nanopb::Message<firestore_client_Target> EncodeTargetData(
+      const TargetData& target_data) const;
 
   /**
    * @brief Decodes nanopb proto representing a ::firestore::proto::Target proto
-   * to the equivalent QueryData.
+   * to the equivalent TargetData.
    */
-  QueryData DecodeQueryData(nanopb::Reader* reader,
-                            const firestore_client_Target& proto) const;
+  TargetData DecodeTargetData(nanopb::Reader* reader,
+                              const firestore_client_Target& proto) const;
 
   /**
    * @brief Encodes a MutationBatch to the equivalent nanopb proto, representing
