@@ -1,6 +1,6 @@
 # v1.1.0 -- M62.1
 
-- [changed] Throw an exception when there are missing required `FirebaseOptions` parameters (`APIKey`, `googleAppID`, and `projectID` or `GCMSenderID`). Please make sure your `GoogleServices-Info.plist` (or `FirebaseOptions` if you configure Firebase in code) are up to date. The file and settings can be downoaded from the [Firebase Console](https://console.firebase.google.com/).  (#4683)
+- [changed] Throw an exception when there are missing required `FirebaseOptions` parameters (`APIKey`, `googleAppID`, and `projectID`). Please make sure your `GoogleServices-Info.plist` (or `FirebaseOptions` if you configure Firebase in code) are up to date. The file and settings can be downoaded from the [Firebase Console](https://console.firebase.google.com/).  (#4683)
 
 # v1.0.0 -- M62
 
