@@ -17,7 +17,9 @@
 #import <XCTest/XCTest.h>
 
 #import <FirebaseInstanceID/FIRInstanceID.h>
+
 #import <OCMock/OCMock.h>
+
 #import "Firebase/InstanceID/FIRInstanceIDAuthService.h"
 #import "Firebase/InstanceID/FIRInstanceIDCheckinPreferences+Internal.h"
 #import "Firebase/InstanceID/FIRInstanceIDCheckinService.h"
@@ -31,6 +33,7 @@
 #import "Firebase/InstanceID/NSError+FIRInstanceID.h"
 
 #import <FirebaseCore/FIRAppInternal.h>
+#import <FirebaseInstallations/FirebaseInstallations.h>
 #import <GoogleUtilities/GULHeartbeatDateStorage.h>
 
 static NSString *kDeviceID = @"fakeDeviceID";
@@ -45,6 +48,10 @@ static NSString *kRegistrationToken = @"token-12345";
 - (void)performTokenOperation;
 @end
 
+@interface FIRInstallationsAuthTokenResult (Tests)
+- (instancetype)initWithToken:(NSString *)token expirationDate:(NSDate *)expirationDate;
+@end
+
 @interface FIRInstanceIDTokenOperationsTest : XCTestCase
 
 @property(strong, readonly, nonatomic) FIRInstanceIDAuthService *authService;
@@ -53,6 +60,7 @@ static NSString *kRegistrationToken = @"token-12345";
 @property(strong, readonly, nonatomic) id mockStore;
 @property(strong, readonly, nonatomic) FIRInstanceIDCheckinService *checkinService;
 @property(strong, readonly, nonatomic) id mockCheckinService;
+@property(strong, readonly, nonatomic) id mockInstallations;
 
 @property(strong, readonly, nonatomic) NSString *instanceID;
 
@@ -71,10 +79,22 @@ static NSString *kRegistrationToken = @"token-12345";
                                                                     store:_mockStore];
   _instanceID = @"instanceID";
 
+  [self stubInstallations];
+
   NSString *const kHeartbeatStorageFile = @"HEARTBEAT_INFO_STORAGE";
   GULHeartbeatDateStorage *dataStorage =
       [[GULHeartbeatDateStorage alloc] initWithFileName:kHeartbeatStorageFile];
   [[NSFileManager defaultManager] removeItemAtURL:[dataStorage fileURL] error:nil];
+}
+
+- (void)tearDown {
+  [_mockInstallations stopMocking];
+  _mockInstallations = nil;
+  _authService = nil;
+  [_mockCheckinService stopMocking];
+  _mockCheckinService = nil;
+  _checkinService = nil;
+  _mockStore = nil;
 }
 
 - (void)testThatTokenOperationsAuthHeaderStringMatchesCheckin {
@@ -369,6 +389,16 @@ static NSString *kRegistrationToken = @"token-12345";
   // manually initialize the checkin preferences
   self.checkinPreferences = checkinPreferences;
   return checkinPreferences;
+}
+
+- (void)stubInstallations {
+  _mockInstallations = OCMClassMock([FIRInstallations class]);
+  OCMStub([_mockInstallations installations]).andReturn(_mockInstallations);
+  FIRInstallationsAuthTokenResult *authToken =
+      [[FIRInstallationsAuthTokenResult alloc] initWithToken:@"fis-auth-token"
+                                              expirationDate:[NSDate distantFuture]];
+  id authTokenWithCompletionArg = [OCMArg invokeBlockWithArgs:authToken, [NSNull null], nil];
+  OCMStub([_mockInstallations authTokenWithCompletion:authTokenWithCompletionArg]);
 }
 
 @end
