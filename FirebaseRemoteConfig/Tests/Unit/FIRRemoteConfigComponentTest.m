@@ -173,8 +173,11 @@
 #pragma mark - Helpers
 
 - (FIROptions *)fakeOptions {
-  return [[FIROptions alloc] initWithGoogleAppID:@"1:123:ios:123abc"
-                                     GCMSenderID:@"correct_gcm_sender_id"];
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:@"1:123:ios:123abc"
+                                                    GCMSenderID:@"correct_gcm_sender_id"];
+  options.APIKey = @"api-key";
+  options.projectID = @"project-id";
+  return options;
 }
 
 - (NSString *)generatedTestAppName {
