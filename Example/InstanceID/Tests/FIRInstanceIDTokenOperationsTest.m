@@ -79,6 +79,8 @@ static NSString *kRegistrationToken = @"token-12345";
                                                                     store:_mockStore];
   _instanceID = @"instanceID";
 
+  // `FIRInstanceIDTokenOperation` uses `FIRInstallations` under the hood to get FIS auth token.
+  // Stub `FIRInstallations` to avoid using a real object.
   [self stubInstallations];
 
   NSString *const kHeartbeatStorageFile = @"HEARTBEAT_INFO_STORAGE";
