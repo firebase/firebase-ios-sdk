@@ -33,7 +33,7 @@
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/local/persistence.h"
-#include "Firestore/core/src/firebase/firestore/local/query_data.h"
+#include "Firestore/core/src/firebase/firestore/local/target_data.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
@@ -44,7 +44,6 @@
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
-#include "Firestore/core/src/firebase/firestore/objc/objc_compatibility.h"
 #include "Firestore/core/src/firebase/firestore/remote/existence_filter.h"
 #include "Firestore/core/src/firebase/firestore/remote/serializer.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
@@ -56,6 +55,7 @@
 #include "Firestore/core/src/firebase/firestore/util/path.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "Firestore/core/src/firebase/firestore/util/to_string.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 #include "absl/types/optional.h"
 
@@ -67,7 +67,7 @@ using firebase::firestore::auth::User;
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::Query;
 using firebase::firestore::local::Persistence;
-using firebase::firestore::local::QueryData;
+using firebase::firestore::local::TargetData;
 using firebase::firestore::local::QueryPurpose;
 using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentKey;
@@ -86,7 +86,6 @@ using firebase::firestore::nanopb::MakeByteString;
 using firebase::firestore::remote::ExistenceFilter;
 using firebase::firestore::remote::DocumentWatchChange;
 using firebase::firestore::remote::ExistenceFilterWatchChange;
-using firebase::firestore::remote::InvalidQuery;
 using firebase::firestore::remote::WatchTargetChange;
 using firebase::firestore::remote::WatchTargetChangeState;
 using firebase::firestore::util::MakeString;
@@ -189,6 +188,9 @@ ByteString MakeResumeToken(NSString *specString) {
 
 - (void)tearDownForSpec {
   [self.driver shutdown];
+
+  // Help ARC realize that everything here can be collected earlier.
+  _driver = nil;
 }
 
 /**
@@ -211,11 +213,18 @@ ByteString MakeResumeToken(NSString *specString) {
     std::shared_ptr<const std::string> collectionGroup =
         util::MakeStringPtr(queryDict[@"collectionGroup"]);
     Query query(std::move(resource_path), std::move(collectionGroup));
+
     if (queryDict[@"limit"]) {
       NSNumber *limitNumber = queryDict[@"limit"];
       auto limit = static_cast<int32_t>(limitNumber.integerValue);
-      query = query.WithLimit(limit);
+      NSString *limitType = queryDict[@"limitType"];
+      if ([limitType isEqualToString:@"LimitToFirst"]) {
+        query = query.WithLimitToFirst(limit);
+      } else {
+        query = query.WithLimitToLast(limit);
+      }
     }
+
     if (queryDict[@"filters"]) {
       NSArray<NSArray<id> *> *filters = queryDict[@"filters"];
       for (NSArray<id> *filter in filters) {
@@ -225,6 +234,7 @@ ByteString MakeResumeToken(NSString *specString) {
         query = query.AddingFilter(Filter(key, op, value));
       }
     }
+
     if (queryDict[@"orderBys"]) {
       NSArray *orderBys = queryDict[@"orderBys"];
       for (NSArray<NSString *> *orderBy in orderBys) {
@@ -236,7 +246,7 @@ ByteString MakeResumeToken(NSString *specString) {
     return query;
   } else {
     XCTFail(@"Invalid query: %@", querySpec);
-    return InvalidQuery();
+    return Query();
   }
 }
 
@@ -648,21 +658,26 @@ ByteString MakeResumeToken(NSString *specString) {
       [self.driver setExpectedLimboDocuments:std::move(expectedLimboDocuments)];
     }
     if (expectedState[@"activeTargets"]) {
-      __block std::unordered_map<TargetId, QueryData> expectedActiveTargets;
+      __block ActiveTargetMap expectedActiveTargets;
       [expectedState[@"activeTargets"]
           enumerateKeysAndObjectsUsingBlock:^(NSString *targetIDString, NSDictionary *queryData,
                                               BOOL *stop) {
             TargetId targetID = [targetIDString intValue];
-            Query query = [self parseQuery:queryData[@"query"]];
             ByteString resumeToken = MakeResumeToken(queryData[@"resumeToken"]);
-            // TODO(mcg): populate the purpose of the target once it's possible to encode that in
-            // the spec tests. For now, hard-code that it's a listen despite the fact that it's not
-            // always the right value.
-            expectedActiveTargets[targetID] =
-                QueryData(std::move(query), targetID, 0, QueryPurpose::Listen,
-                          SnapshotVersion::None(), std::move(resumeToken));
+            NSArray *queriesJson = queryData[@"queries"];
+            std::vector<TargetData> queries;
+            for (id queryJson in queriesJson) {
+              Query query = [self parseQuery:queryJson];
+              // TODO(mcg): populate the purpose of the target once it's possible to encode that in
+              // the spec tests. For now, hard-code that it's a listen despite the fact that it's
+              // not always the right value.
+              queries.push_back(TargetData(query.ToTarget(), targetID, 0, QueryPurpose::Listen,
+                                           SnapshotVersion::None(), SnapshotVersion::None(),
+                                           std::move(resumeToken)));
+            }
+            expectedActiveTargets[targetID] = std::make_pair(std::move(queries), resumeToken);
           }];
-      [self.driver setExpectedActiveTargets:expectedActiveTargets];
+      [self.driver setExpectedActiveTargets:std::move(expectedActiveTargets)];
     }
   }
 
@@ -721,52 +736,55 @@ ByteString MakeResumeToken(NSString *specString) {
   }
 
   // Create a copy so we can modify it below
-  std::unordered_map<TargetId, QueryData> actualTargets = [self.driver activeTargets];
+  std::unordered_map<TargetId, TargetData> actualTargets = [self.driver activeTargets];
 
-  for (const auto &kv : [self.driver activeTargets]) {
+  for (const auto &kv : [self.driver expectedActiveTargets]) {
     TargetId targetID = kv.first;
-    const QueryData &queryData = kv.second;
+    const std::pair<std::vector<TargetData>, ByteString> &queries = kv.second;
+    const TargetData &targetData = queries.first[0];
 
     auto found = actualTargets.find(targetID);
     XCTAssertNotEqual(found, actualTargets.end(), @"Expected active target not found: %s",
-                      queryData.ToString().c_str());
+                      targetData.ToString().c_str());
 
     // TODO(mcg): validate the purpose of the target once it's possible to encode that in the
     // spec tests. For now, only validate properties that can be validated.
-    // XCTAssertEqualObjects(actualTargets[targetID], queryData);
+    // XCTAssertEqualObjects(actualTargets[targetID], TargetData);
 
-    const QueryData &actual = found->second;
-    XCTAssertEqual(actual.query(), queryData.query());
-    XCTAssertEqual(actual.target_id(), queryData.target_id());
-    XCTAssertEqual(actual.snapshot_version(), queryData.snapshot_version());
-    XCTAssertEqual(actual.resume_token(), queryData.resume_token());
+    const TargetData &actual = found->second;
+    XCTAssertEqual(actual.target(), targetData.target());
+    XCTAssertEqual(actual.target_id(), targetData.target_id());
+    XCTAssertEqual(actual.snapshot_version(), targetData.snapshot_version());
+    XCTAssertEqual(actual.resume_token(), targetData.resume_token());
 
     actualTargets.erase(targetID);
   }
 
-  XCTAssertTrue(actualTargets.empty(), "Unexpected active targets: %@",
-                objc::Description(actualTargets));
+  XCTAssertTrue(actualTargets.empty(), "Unexpected active targets: %s",
+                util::ToString(actualTargets).c_str());
 }
 
 - (void)runSpecTestSteps:(NSArray *)steps config:(NSDictionary *)config {
-  @try {
-    [self setUpForSpecWithConfig:config];
-    for (NSDictionary *step in steps) {
-      LOG_DEBUG("Doing step %s", step);
-      [self doStep:step];
-      [self validateExpectedSnapshotEvents:step[@"expectedSnapshotEvents"]];
-      [self validateExpectedState:step[@"expectedState"]];
-      int expectedSnapshotsInSyncEvents = [step[@"expectedSnapshotsInSyncEvents"] intValue];
-      [self validateSnapshotsInSyncEvents:expectedSnapshotsInSyncEvents];
+  @autoreleasepool {
+    @try {
+      [self setUpForSpecWithConfig:config];
+      for (NSDictionary *step in steps) {
+        LOG_DEBUG("Doing step %s", step);
+        [self doStep:step];
+        [self validateExpectedSnapshotEvents:step[@"expectedSnapshotEvents"]];
+        [self validateExpectedState:step[@"expectedState"]];
+        int expectedSnapshotsInSyncEvents = [step[@"expectedSnapshotsInSyncEvents"] intValue];
+        [self validateSnapshotsInSyncEvents:expectedSnapshotsInSyncEvents];
+      }
+      [self.driver validateUsage];
+    } @finally {
+      // Ensure that the driver is torn down even if the test is failing due to a thrown exception
+      // so that any resources held by the driver are released. This is important when the driver is
+      // backed by LevelDB because LevelDB locks its database. If -tearDownForSpec were not called
+      // after an exception then subsequent attempts to open the LevelDB will fail, making it harder
+      // to zero in on the spec tests as a culprit.
+      [self tearDownForSpec];
     }
-    [self.driver validateUsage];
-  } @finally {
-    // Ensure that the driver is torn down even if the test is failing due to a thrown exception so
-    // that any resources held by the driver are released. This is important when the driver is
-    // backed by LevelDB because LevelDB locks its database. If -tearDownForSpec were not called
-    // after an exception then subsequent attempts to open the LevelDB will fail, making it harder
-    // to zero in on the spec tests as a culprit.
-    [self tearDownForSpec];
   }
 }
 

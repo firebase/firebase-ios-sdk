@@ -285,6 +285,22 @@ struct ZipBuilder {
 
         // Update the README.
         readmeDeps += dependencyString(for: pod.key, in: productDir, frameworks: podFrameworks)
+
+        // Special case for Crashlytics:
+        // Copy additional tools to avoid users from downloading another artifact to upload symbols.
+        let crashlyticsPodName = FirebasePods.crashlytics.rawValue
+        if pod.key == crashlyticsPodName {
+          for file in ["upload-symbols", "run"] {
+            let source = pod.value.installedLocation.appendingPathComponent(file)
+            let target = zipDir.appendingPathComponent(crashlyticsPodName).appendingPathComponent(file)
+
+            do {
+              try FileManager.default.copyItem(at: source, to: target)
+            } catch {
+              fatalError("Error copying Crashlytics tools from \(source) to \(target): \(error)")
+            }
+          }
+        }
       } catch {
         fatalError("Could not copy frameworks from \(pod) into the zip file: \(error)")
       }

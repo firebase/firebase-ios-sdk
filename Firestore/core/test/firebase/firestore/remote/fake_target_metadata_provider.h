@@ -41,7 +41,7 @@ class FakeTargetMetadataProvider : public TargetMetadataProvider {
    *
    * Internally this means that the `GetRemoteKeysForTarget` callback for these
    * targets will return just the `document_key` and that the provided targets
-   * will be returned as active from the `GetQueryDataForTarget` target.
+   * will be returned as active from the `GetTargetDataForTarget` target.
    */
   static FakeTargetMetadataProvider CreateSingleResultProvider(
       model::DocumentKey document_key,
@@ -58,23 +58,24 @@ class FakeTargetMetadataProvider : public TargetMetadataProvider {
    *
    * Internally this means that the `GetRemoteKeysForTarget` callback for these
    * targets will return an empty set of document keys and that the provided
-   * targets will be returned as active from the `GetQueryDataForTarget` target.
+   * targets will be returned as active from the `GetTargetDataForTarget`
+   * target.
    */
   static FakeTargetMetadataProvider CreateEmptyResultProvider(
       const model::ResourcePath& path,
       const std::vector<model::TargetId>& targets);
 
-  /** Sets or replaces the local state for the provided query data. */
-  void SetSyncedKeys(model::DocumentKeySet keys, local::QueryData query_data);
+  /** Sets or replaces the local state for the provided target data. */
+  void SetSyncedKeys(model::DocumentKeySet keys, local::TargetData target_data);
 
   model::DocumentKeySet GetRemoteKeysForTarget(
       model::TargetId target_id) const override;
-  absl::optional<local::QueryData> GetQueryDataForTarget(
+  absl::optional<local::TargetData> GetTargetDataForTarget(
       model::TargetId target_id) const override;
 
  private:
   std::unordered_map<model::TargetId, model::DocumentKeySet> synced_keys_;
-  std::unordered_map<model::TargetId, local::QueryData> query_data_;
+  std::unordered_map<model::TargetId, local::TargetData> target_data_;
 };
 
 }  // namespace remote

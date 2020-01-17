@@ -21,7 +21,7 @@ In order to build the Zip file, you will need:
 
 ### Running the Tool
 
-You can run the tool with `swift run ZipBuilder [ARGS]` or generate an Xcode project with
+You can run the tool with `swift run ReleasePackager [ARGS]` or generate an Xcode project with
 `swift package generate-xcodeproj` and run within Xcode.
 
 ### Launch Arguments

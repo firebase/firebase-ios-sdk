@@ -217,6 +217,7 @@ To install, add a subset of the following to the Podfile:
 ```
 pod 'Firebase/ABTesting'
 pod 'Firebase/Auth'
+pod 'Firebase/Crashlytics'
 pod 'Firebase/Database'
 pod 'Firebase/Firestore'
 pod 'Firebase/Functions'

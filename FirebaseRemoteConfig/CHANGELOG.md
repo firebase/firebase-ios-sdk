@@ -1,6 +1,7 @@
 # v4.4.6
 - [fixed] Fix the return status code when app is offline. (#4100)
 - [changed] Internal code cleanup. (#4297, #4403, #4379)
+- [added] Added a new transitive dependency on the [Firebase Installations SDK](../FirebaseInstallations/CHANGELOG.md). The Firebase Installations SDK introduces the [Firebase Installations API](https://console.cloud.google.com/apis/library/firebaseinstallations.googleapis.com). Developers that use API-restrictions for their API-Keys may experience blocked requests (https://stackoverflow.com/questions/58495985/). A solution is available [here](../FirebaseInstallations/API_KEY_RESTRICTIONS.md).
 
 # v4.4.5
 - [changed] Remote Config no longer re-activates the current config on fetch if it receives no changes from the backend. (#4260)

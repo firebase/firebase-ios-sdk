@@ -15,6 +15,8 @@
 cc_library(
   firebase_firestore_local_testing
   SOURCES
+    counting_query_engine.cc
+    counting_query_engine.h
     persistence_testing.cc
     persistence_testing.h
   DEPENDS
@@ -34,9 +36,9 @@ cc_test(
     leveldb_lru_garbage_collector_test.cc
     leveldb_migrations_test.cc
     leveldb_mutation_queue_test.cc
-    leveldb_persistence_test.cc
-    leveldb_query_cache_test.cc
+    leveldb_opener_test.cc
     leveldb_remote_document_cache_test.cc
+    leveldb_target_cache_test.cc
     leveldb_transaction_test.cc
     leveldb_util_test.cc
     local_serializer_test.cc
@@ -48,16 +50,15 @@ cc_test(
     memory_local_store_test.cc
     memory_lru_garbage_collector_test.cc
     memory_mutation_queue_test.cc
-    memory_query_cache_test.cc
     memory_remote_document_cache_test.cc
+    memory_target_cache_test.cc
     mutation_queue_test.cc
     mutation_queue_test.h
-    query_cache_test.cc
-    query_cache_test.h
     reference_set_test.cc
     remote_document_cache_test.cc
     remote_document_cache_test.h
-
+    target_cache_test.cc
+    target_cache_test.h
   DEPENDS
     GMock::GMock
     firebase_firestore_auth

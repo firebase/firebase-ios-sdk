@@ -37,9 +37,10 @@ using nanopb::PrintTail;
 
 
 
-const pb_field_t google_firestore_v1_Write_fields[6] = {
+const pb_field_t google_firestore_v1_Write_fields[7] = {
     PB_ANONYMOUS_ONEOF_FIELD(operation,   1, MESSAGE , ONEOF, STATIC  , FIRST, google_firestore_v1_Write, update, update, &google_firestore_v1_Document_fields),
     PB_ANONYMOUS_ONEOF_FIELD(operation,   2, BYTES   , ONEOF, POINTER , UNION, google_firestore_v1_Write, delete_, delete_, 0),
+    PB_ANONYMOUS_ONEOF_FIELD(operation,   5, BYTES   , ONEOF, POINTER , UNION, google_firestore_v1_Write, verify, verify, 0),
     PB_ANONYMOUS_ONEOF_FIELD(operation,   6, MESSAGE , ONEOF, STATIC  , UNION, google_firestore_v1_Write, transform, transform, &google_firestore_v1_DocumentTransform_fields),
     PB_FIELD(  3, MESSAGE , OPTIONAL, STATIC  , OTHER, google_firestore_v1_Write, update_mask, transform, &google_firestore_v1_DocumentMask_fields),
     PB_FIELD(  4, MESSAGE , OPTIONAL, STATIC  , OTHER, google_firestore_v1_Write, current_document, update_mask, &google_firestore_v1_Precondition_fields),
@@ -143,6 +144,9 @@ std::string google_firestore_v1_Write::ToString(int indent) const {
         break;
     case google_firestore_v1_Write_delete_tag:
         result += PrintPrimitiveField("delete: ", delete_, indent + 1, true);
+        break;
+    case google_firestore_v1_Write_verify_tag:
+        result += PrintPrimitiveField("verify: ", verify, indent + 1, true);
         break;
     case google_firestore_v1_Write_transform_tag:
         result += PrintMessageField("transform ", transform, indent + 1, true);

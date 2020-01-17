@@ -33,11 +33,11 @@
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/core/event_manager.h"
 #include "Firestore/core/src/firebase/firestore/core/sync_engine.h"
+#include "Firestore/core/src/firebase/firestore/local/index_free_query_engine.h"
 #include "Firestore/core/src/firebase/firestore/local/local_store.h"
 #include "Firestore/core/src/firebase/firestore/local/persistence.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
-#include "Firestore/core/src/firebase/firestore/objc/objc_compatibility.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_store.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/delayed_constructor.h"
@@ -66,9 +66,10 @@ using firebase::firestore::core::Query;
 using firebase::firestore::core::QueryListener;
 using firebase::firestore::core::SyncEngine;
 using firebase::firestore::core::ViewSnapshot;
+using firebase::firestore::local::IndexFreeQueryEngine;
 using firebase::firestore::local::LocalStore;
 using firebase::firestore::local::Persistence;
-using firebase::firestore::local::QueryData;
+using firebase::firestore::local::TargetData;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
@@ -163,7 +164,9 @@ NS_ASSUME_NONNULL_BEGIN
 
   DelayedConstructor<EventManager> _eventManager;
 
-  std::unordered_map<TargetId, QueryData> _expectedActiveTargets;
+  // Set of active targets, keyed by target Id, mapped to corresponding resume token,
+  // and list of `TargetData`.
+  ActiveTargetMap _expectedActiveTargets;
 
   // ivar is declared as mutable.
   std::unordered_map<User, NSMutableArray<FSTOutstandingWrite *> *, HashUser> _outstandingWrites;
@@ -177,6 +180,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   std::vector<std::shared_ptr<EventListener<Empty>>> _snapshotsInSyncListeners;
   std::shared_ptr<MockDatastore> _datastore;
+
+  IndexFreeQueryEngine _queryEngine;
 
   int _snapshotsInSyncEvents;
 }
@@ -203,7 +208,7 @@ NS_ASSUME_NONNULL_BEGIN
     // Set up the sync engine and various stores.
     _workerQueue = testutil::AsyncQueueForTesting();
     _persistence = std::move(persistence);
-    _localStore = absl::make_unique<LocalStore>(_persistence.get(), initialUser);
+    _localStore = absl::make_unique<LocalStore>(_persistence.get(), &_queryEngine, initialUser);
 
     _datastore = std::make_shared<MockDatastore>(_databaseInfo, _workerQueue,
                                                  std::make_shared<EmptyCredentialsProvider>());
@@ -469,16 +474,16 @@ NS_ASSUME_NONNULL_BEGIN
   return _syncEngine->GetCurrentLimboDocuments();
 }
 
-- (const std::unordered_map<TargetId, QueryData> &)activeTargets {
+- (const std::unordered_map<TargetId, TargetData> &)activeTargets {
   return _datastore->ActiveTargets();
 }
 
-- (const std::unordered_map<TargetId, QueryData> &)expectedActiveTargets {
+- (const ActiveTargetMap &)expectedActiveTargets {
   return _expectedActiveTargets;
 }
 
-- (void)setExpectedActiveTargets:(const std::unordered_map<TargetId, QueryData> &)targets {
-  _expectedActiveTargets = targets;
+- (void)setExpectedActiveTargets:(ActiveTargetMap)targets {
+  _expectedActiveTargets = std::move(targets);
 }
 
 #pragma mark - Helper Methods

@@ -513,7 +513,7 @@ TEST(QueryTest, Equality) {
                      .AddingFilter(Filter("bar", ">", 2))
                      .AddingOrderBy(OrderBy("bar", "asc"));
 
-  auto q61 = testutil::Query("foo").WithLimit(10);
+  auto q61 = testutil::Query("foo").WithLimitToFirst(10);
 
   // ASSERT_EQ(q12, q11);  // TODO(klimt): not canonical yet
   ASSERT_NE(q21, q11);
@@ -577,7 +577,7 @@ TEST(QueryTest, UniqueIds) {
                      .AddingFilter(Filter("bar", ">", 2))
                      .AddingOrderBy(OrderBy("bar", "asc"));
 
-  auto q61 = testutil::Query("foo").WithLimit(10);
+  auto q61 = testutil::Query("foo").WithLimitToFirst(10);
 
   // XCTAssertEqual(q11.Hash(), q12.Hash());  // TODO(klimt): not canonical yet
   ASSERT_NE(q21.Hash(), q11.Hash());
@@ -695,8 +695,8 @@ TEST(QueryTest, CanonicalIDs) {
   EXPECT_THAT(order_bys,
               HasCanonicalId("coll|f:|ob:upascdowndesc__name__desc"));
 
-  auto limit = testutil::Query("coll").WithLimit(25);
-  EXPECT_THAT(limit, HasCanonicalId("coll|f:|ob:__name__asc|l:25"));
+  auto limit = testutil::Query("coll").WithLimitToFirst(25);
+  EXPECT_THAT(limit, HasCanonicalId("coll|f:|ob:__name__asc|l:25|lt:f"));
 
   auto bounds =
       testutil::Query("airports")
@@ -721,7 +721,7 @@ TEST(QueryTest, MatchesAllDocuments) {
   query = base_query.AddingFilter(Filter("foo", "==", "bar"));
   EXPECT_FALSE(query.MatchesAllDocuments());
 
-  query = base_query.WithLimit(1);
+  query = base_query.WithLimitToFirst(1);
   EXPECT_FALSE(query.MatchesAllDocuments());
 
   query = base_query.StartingAt(Bound({Value("SFO")}, true));

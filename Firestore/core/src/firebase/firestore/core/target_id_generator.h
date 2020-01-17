@@ -24,7 +24,7 @@ namespace firestore {
 namespace core {
 
 /** The set of all valid generators. */
-enum class TargetIdGeneratorId { QueryCache = 0, SyncEngine = 1 };
+enum class TargetIdGeneratorId { TargetCache = 0, SyncEngine = 1 };
 
 /**
  * Generates monotonically increasing target IDs for sending targets to the
@@ -57,8 +57,8 @@ class TargetIdGenerator {
    * @param after An ID to start at. Every call to NextId returns a larger id.
    * @return An instance of TargetIdGenerator.
    */
-  static TargetIdGenerator QueryCacheTargetIdGenerator(model::TargetId after) {
-    TargetIdGenerator generator(TargetIdGeneratorId::QueryCache, after);
+  static TargetIdGenerator TargetCacheTargetIdGenerator(model::TargetId after) {
+    TargetIdGenerator generator(TargetIdGeneratorId::TargetCache, after);
     // Make sure that the next call to `NextId()` returns the first value after
     // 'after'.
     generator.NextId();

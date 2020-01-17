@@ -23,10 +23,10 @@
 #include <unistd.h>
 
 #include <cerrno>
+#include <cstdio>
 #include <deque>
 #include <string>
 
-#include "Firestore/core/src/firebase/firestore/util/filesystem_detail.h"
 #include "Firestore/core/src/firebase/firestore/util/path.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
@@ -35,42 +35,6 @@
 namespace firebase {
 namespace firestore {
 namespace util {
-
-Status IsDirectory(const Path& path) {
-  struct stat buffer {};
-  if (::stat(path.c_str(), &buffer)) {
-    if (errno == ENOENT) {
-      // Expected common error case.
-      return Status{Error::NotFound, path.ToUtf8String()};
-
-    } else if (errno == ENOTDIR) {
-      // This is a case where POSIX and Windows differ in behavior in a way
-      // that's hard to reconcile from Windows. Under POSIX, ENOTDIR indicates
-      // that not only does the path not exist, but that some parent of the
-      // path also isn't a directory.
-      //
-      // Windows, OTOH, returns ERROR_FILE_NOT_FOUND if the file doesn't exist,
-      // its immediate parent exists, and the parent is a directory. Otherwise
-      // Windows returns ERROR_PATH_NOT_FOUND. To emulate POSIX behavior you
-      // have to find the leaf-most existing parent and figure out if it's not a
-      // directory.
-      //
-      // Since we really don't care about this distinction it's easier to
-      // resolve this by returning NotFound here.
-      return Status{Error::NotFound, path.ToUtf8String()};
-    } else {
-      return Status::FromErrno(errno, path.ToUtf8String());
-    }
-  }
-
-  if (!S_ISDIR(buffer.st_mode)) {
-    return Status{Error::FailedPrecondition,
-                  StringFormat("Path %s exists but is not a directory",
-                               path.ToUtf8String())};
-  }
-
-  return Status::OK();
-}
 
 #if !__APPLE__ && !_WIN32
 // See filesystem_apple.mm and filesystem_win.cc for other implementations.
@@ -114,7 +78,7 @@ StatusOr<Path> XdgDataHomeDir() {
 
 }  // namespace
 
-StatusOr<Path> AppDataDir(absl::string_view app_name) {
+StatusOr<Path> Filesystem::AppDataDir(absl::string_view app_name) {
 #if __linux__ && !__ANDROID__
   // On Linux, use XDG data home, usually $HOME/.local/share/$app_name
   StatusOr<Path> maybe_data_home = XdgDataHomeDir();
@@ -137,7 +101,11 @@ StatusOr<Path> AppDataDir(absl::string_view app_name) {
 #endif  // __linux__ && !__ANDROID__
 }
 
-Path TempDir() {
+StatusOr<Path> Filesystem::LegacyDocumentsDir(absl::string_view) {
+  return Status(Error::Unimplemented, "No legacy storage on this platform.");
+}
+
+Path Filesystem::TempDir() {
   const char* env_tmpdir = getenv("TMPDIR");
   if (env_tmpdir) {
     return Path::FromUtf8(env_tmpdir);
@@ -160,7 +128,43 @@ Path TempDir() {
 }
 #endif  // !__APPLE__ && !_WIN32
 
-StatusOr<int64_t> FileSize(const Path& path) {
+Status Filesystem::IsDirectory(const Path& path) {
+  struct stat buffer {};
+  if (::stat(path.c_str(), &buffer)) {
+    if (errno == ENOENT) {
+      // Expected common error case.
+      return Status{Error::NotFound, path.ToUtf8String()};
+
+    } else if (errno == ENOTDIR) {
+      // This is a case where POSIX and Windows differ in behavior in a way
+      // that's hard to reconcile from Windows. Under POSIX, ENOTDIR indicates
+      // that not only does the path not exist, but that some parent of the
+      // path also isn't a directory.
+      //
+      // Windows, OTOH, returns ERROR_FILE_NOT_FOUND if the file doesn't exist,
+      // its immediate parent exists, and the parent is a directory. Otherwise
+      // Windows returns ERROR_PATH_NOT_FOUND. To emulate POSIX behavior you
+      // have to find the leaf-most existing parent and figure out if it's not a
+      // directory.
+      //
+      // Since we really don't care about this distinction it's easier to
+      // resolve this by returning NotFound here.
+      return Status{Error::NotFound, path.ToUtf8String()};
+    } else {
+      return Status::FromErrno(errno, path.ToUtf8String());
+    }
+  }
+
+  if (!S_ISDIR(buffer.st_mode)) {
+    return Status{Error::FailedPrecondition,
+                  StringFormat("Path %s exists but is not a directory",
+                               path.ToUtf8String())};
+  }
+
+  return Status::OK();
+}
+
+StatusOr<int64_t> Filesystem::FileSize(const Path& path) {
   struct stat st {};
   if (stat(path.c_str(), &st) == 0) {
     return st.st_size;
@@ -170,9 +174,7 @@ StatusOr<int64_t> FileSize(const Path& path) {
   }
 }
 
-namespace detail {
-
-Status CreateDir(const Path& path) {
+Status Filesystem::CreateDir(const Path& path) {
   if (::mkdir(path.c_str(), 0777)) {
     if (errno != EEXIST) {
       return Status::FromErrno(
@@ -184,7 +186,7 @@ Status CreateDir(const Path& path) {
   return Status::OK();
 }
 
-Status DeleteDir(const Path& path) {
+Status Filesystem::RemoveDir(const Path& path) {
   if (::rmdir(path.c_str())) {
     if (errno != ENOENT) {
       return Status::FromErrno(
@@ -195,7 +197,7 @@ Status DeleteDir(const Path& path) {
   return Status::OK();
 }
 
-Status DeleteSingleFile(const Path& path) {
+Status Filesystem::RemoveFile(const Path& path) {
   if (::unlink(path.c_str())) {
     if (errno != ENOENT) {
       return Status::FromErrno(
@@ -205,14 +207,21 @@ Status DeleteSingleFile(const Path& path) {
   return Status::OK();
 }
 
-}  // namespace detail
+Status Filesystem::Rename(const Path& from_path, const Path& to_path) {
+  if (::rename(from_path.ToUtf8String().c_str(),
+               to_path.ToUtf8String().c_str())) {
+    return Status::FromErrno(errno, from_path.ToUtf8String());
+  }
+
+  return Status::OK();
+}
 
 namespace {
 
-class DirectoryIteratorPosix : public DirectoryIterator {
+class PosixDirectoryIterator : public DirectoryIterator {
  public:
-  explicit DirectoryIteratorPosix(const util::Path& path);
-  virtual ~DirectoryIteratorPosix();
+  explicit PosixDirectoryIterator(const util::Path& path);
+  virtual ~PosixDirectoryIterator();
 
   void Next() override;
   bool Valid() const override;
@@ -225,7 +234,7 @@ class DirectoryIteratorPosix : public DirectoryIterator {
   struct dirent* entry_ = nullptr;
 };
 
-DirectoryIteratorPosix::DirectoryIteratorPosix(const util::Path& path)
+PosixDirectoryIterator::PosixDirectoryIterator(const util::Path& path)
     : DirectoryIterator{path} {
   dir_ = ::opendir(parent_.c_str());
   if (!dir_) {
@@ -237,7 +246,7 @@ DirectoryIteratorPosix::DirectoryIteratorPosix(const util::Path& path)
   Advance();
 }
 
-DirectoryIteratorPosix::~DirectoryIteratorPosix() {
+PosixDirectoryIterator::~PosixDirectoryIterator() {
   if (dir_) {
     if (::closedir(dir_) != 0) {
       HARD_FAIL("Could not close directory %s", parent_.ToUtf8String());
@@ -245,7 +254,7 @@ DirectoryIteratorPosix::~DirectoryIteratorPosix() {
   }
 }
 
-void DirectoryIteratorPosix::Advance() {
+void PosixDirectoryIterator::Advance() {
   HARD_ASSERT(status_.ok(), "Advancing an errored iterator");
   errno = 0;
   entry_ = ::readdir(dir_);
@@ -263,16 +272,16 @@ void DirectoryIteratorPosix::Advance() {
   }
 }
 
-void DirectoryIteratorPosix::Next() {
+void PosixDirectoryIterator::Next() {
   HARD_ASSERT(Valid(), "Next() called on invalid iterator");
   Advance();
 }
 
-bool DirectoryIteratorPosix::Valid() const {
+bool PosixDirectoryIterator::Valid() const {
   return status_.ok() && entry_ != nullptr;
 }
 
-Path DirectoryIteratorPosix::file() const {
+Path PosixDirectoryIterator::file() const {
   HARD_ASSERT(Valid(), "file() called on invalid iterator");
   return parent_.AppendUtf8(entry_->d_name, strlen(entry_->d_name));
 }
@@ -281,7 +290,7 @@ Path DirectoryIteratorPosix::file() const {
 
 std::unique_ptr<DirectoryIterator> DirectoryIterator::Create(
     const util::Path& path) {
-  return absl::make_unique<DirectoryIteratorPosix>(path);
+  return absl::make_unique<PosixDirectoryIterator>(path);
 }
 
 }  // namespace util

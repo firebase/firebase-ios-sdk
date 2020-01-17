@@ -38,10 +38,10 @@ services.
       'FIRInstanceID_LIB_VERSION=' + String(s.version)
   }
   s.framework = 'Security'
-  s.dependency 'FirebaseCore', '~> 6.5'
+  s.dependency 'FirebaseCore', '~> 6.6'
   s.dependency 'FirebaseInstallations', '~> 1.0'
-  s.dependency 'GoogleUtilities/UserDefaults', '~> 6.4'
-  s.dependency 'GoogleUtilities/Environment', '~> 6.4'
+  s.dependency 'GoogleUtilities/UserDefaults', '~> 6.5'
+  s.dependency 'GoogleUtilities/Environment', '~> 6.5'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
@@ -55,6 +55,20 @@ services.
       # store:didDeleteFCMScopedTokensForCheckin:
       'OTHER_LDFLAGS' => '-Xlinker -no_objc_category_merging',
       'CLANG_ENABLE_OBJC_WEAK' => 'YES'
-   }
+    }
   end
+
+   s.test_spec 'integration' do |int_tests|
+    int_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
+    int_tests.source_files = 'Example/InstanceID/IntegrationTests/*.[mh]'
+    int_tests.resources = 'Example/InstanceID/Resources/**/*'
+    int_tests.requires_app_host = true
+    if ENV['FIR_IID_INTEGRATION_TESTS_REQUIRED'] && ENV['FIR_IID_INTEGRATION_TESTS_REQUIRED'] == '1' then
+      int_tests.pod_target_xcconfig = {
+      'GCC_PREPROCESSOR_DEFINITIONS' =>
+        'FIR_IID_INTEGRATION_TESTS_REQUIRED=1'
+      }
+    end
+  end
+
 end

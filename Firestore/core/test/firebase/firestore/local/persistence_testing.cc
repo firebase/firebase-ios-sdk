@@ -38,6 +38,7 @@ namespace {
 
 using model::DatabaseId;
 using remote::Serializer;
+using util::Filesystem;
 using util::Path;
 using util::Status;
 
@@ -49,10 +50,11 @@ LocalSerializer MakeLocalSerializer() {
 }  // namespace
 
 Path LevelDbDir() {
-  Path dir = util::TempDir().AppendUtf8("PersistenceTesting");
+  auto* fs = Filesystem::Default();
+  Path dir = fs->TempDir().AppendUtf8("PersistenceTesting");
 
   // Delete the directory first to ensure isolation between runs.
-  Status status = util::RecursivelyDelete(dir);
+  Status status = fs->RecursivelyRemove(dir);
   if (!status.ok()) {
     util::ThrowIllegalState("Failed to clean up leveldb in dir %s: %s",
                             dir.ToUtf8String(), status.ToString());
@@ -63,8 +65,8 @@ Path LevelDbDir() {
 
 std::unique_ptr<LevelDbPersistence> LevelDbPersistenceForTesting(
     Path dir, LruParams lru_params) {
-  auto created = LevelDbPersistence::Create(std::move(dir),
-                                            MakeLocalSerializer(), lru_params);
+  auto created =
+      LevelDbPersistence::Create(dir, MakeLocalSerializer(), lru_params);
   if (!created.ok()) {
     util::ThrowIllegalState("Failed to open leveldb in dir %s: %s",
                             dir.ToUtf8String(), created.status().ToString());

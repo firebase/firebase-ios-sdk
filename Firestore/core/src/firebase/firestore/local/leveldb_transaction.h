@@ -55,7 +55,7 @@ class LevelDbTransaction {
     /**
      * Returns true if this iterator points to an entry
      */
-    bool Valid() {
+    bool Valid() const {
       return is_valid_;
     }
 
@@ -73,12 +73,12 @@ class LevelDbTransaction {
     /**
      * Returns the key of the current entry
      */
-    absl::string_view key();
+    const std::string& key() const;
 
     /**
      * Returns the value of the current entry
      */
-    absl::string_view value();
+    const std::string& value() const;
 
    private:
     /**

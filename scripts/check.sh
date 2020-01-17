@@ -84,6 +84,7 @@ cd "${top_dir}"
 
 ALLOW_DIRTY=false
 COMMIT_METHOD="none"
+CHECK_DIFF=true
 START_REVISION="origin/master"
 TEST_ONLY=false
 VERBOSE=false
@@ -98,12 +99,14 @@ fi
 # is not available and we need to compute the START_REVISION from the common
 # ancestor of $TRAVIS_COMMIT and origin/master.
 if [[ -n "${TRAVIS_COMMIT_RANGE:-}" ]] ; then
+  CHECK_DIFF=true
   START_REVISION="$TRAVIS_COMMIT_RANGE"
 elif [[ -n "${TRAVIS_COMMIT:-}" ]] ; then
   if ! git rev-parse origin/master >& /dev/null; then
     git remote set-branches --add origin master
     git fetch origin
   fi
+  CHECK_DIFF=true
   START_REVISION=$(git merge-base origin/master "${TRAVIS_COMMIT}")
 fi
 
@@ -187,9 +190,24 @@ if [[ "${START_REVISION}" == *..* ]]; then
     git fetch origin
   fi
 
-  NEW_RANGE_START=$(git merge-base origin/master "${RANGE_END}")
-  START_REVISION="${START_REVISION/$RANGE_START/$NEW_RANGE_START}"
-  START_SHA="${START_REVISION}"
+  # Try to come up with a more accurate representation of the merge, so that
+  # checks will operate on just the differences the PR would merge into master.
+  # The start of the revision range that Travis supplies can sometimes be a
+  # seemingly random value.
+  NEW_RANGE_START=$(git merge-base origin/master "${RANGE_END}" || echo "")
+  if [[ -n "$NEW_RANGE_START" ]]; then
+    START_REVISION="${NEW_RANGE_START}..${RANGE_END}"
+    START_SHA="${START_REVISION}"
+  else
+    # In the shallow clone that Travis has created there's no merge base
+    # between the PR and master. In this case just fall back on checking
+    # everything.
+    echo "Unable to detect base commit for change detection."
+    echo "Falling back on just checking everything."
+    CHECK_DIFF=false
+    START_REVISION="origin/master"
+    START_SHA="origin/master"
+  fi
 
 else
   START_SHA=$(git rev-parse "${START_REVISION}")
@@ -236,7 +254,9 @@ style_cmd=("${top_dir}/scripts/style.sh")
 if [[ "${TEST_ONLY}" == true ]]; then
   style_cmd+=(test-only)
 fi
-style_cmd+=("${START_SHA}")
+if [[ "$CHECK_DIFF" == true ]]; then
+  style_cmd+=("${START_SHA}")
+fi
 
 # Restyle and commit any changes
 "${style_cmd[@]}"
@@ -246,14 +266,18 @@ fi
 
 # If there are changes to the Firestore project, ensure they're ordered
 # correctly to minimize conflicts.
-if ! git diff --quiet "${START_SHA}" -- Firestore; then
-  sync_project_cmd=("${top_dir}/scripts/sync_project.rb")
-  if [[ "${TEST_ONLY}" == true ]]; then
-    sync_project_cmd+=(--test-only)
-  fi
-  "${sync_project_cmd[@]}"
-  if ! git diff --quiet; then
-    maybe_commit "sync_project.rb generated changes"
+if [ -z "${GITHUB_WORKFLOW-}" ]; then
+  if [[ "$CHECK_DIFF" == "false" ]] || \
+      ! git diff --quiet "${START_SHA}" -- Firestore; then
+
+    sync_project_cmd=("${top_dir}/scripts/sync_project.rb")
+    if [[ "${TEST_ONLY}" == true ]]; then
+      sync_project_cmd+=(--test-only)
+    fi
+    "${sync_project_cmd[@]}"
+    if ! git diff --quiet; then
+      maybe_commit "sync_project.rb generated changes"
+    fi
   fi
 fi
 
@@ -266,4 +290,8 @@ fi
 "${top_dir}/scripts/check_cmake_files.py"
 
 # Google C++ style
-"${top_dir}/scripts/check_lint.py" "${START_SHA}"
+lint_cmd=("${top_dir}/scripts/check_lint.py")
+if [[ "$CHECK_DIFF" == true ]]; then
+  lint_cmd+=("${START_SHA}")
+fi
+"${lint_cmd[@]}"

@@ -72,7 +72,8 @@
 - (void)testMessageWithFutureStartTime {
 #if TARGET_OS_IOS
   NSString *messageIdentifier = @"fcm-cm-test1";
-  NSString *startTimeString = @"2020-01-12 12:00:00";  // way into the future
+  // way into the future
+  NSString *startTimeString = [self.dateFormatter stringFromDate:[NSDate distantFuture]];
   NSDictionary *message = @{
     kFIRMessagingContextManagerLocalTimeStart: startTimeString,
     kFIRMessagingContextManagerBodyKey : @"Hello world!",
@@ -154,7 +155,8 @@
 #if TARGET_OS_IOS
   NSString *messageIdentifierKey = @"message.id";
   NSString *messageIdentifier = @"fcm-cm-test1";
-  NSString *startTimeString = @"2020-01-12 12:00:00";  // way into the future
+  // way into the future
+  NSString *startTimeString = [self.dateFormatter stringFromDate:[NSDate distantFuture]];
 
   NSString *customDataKey = @"hello";
   NSString *customData = @"world";

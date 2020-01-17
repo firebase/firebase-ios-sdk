@@ -46,3 +46,6 @@ extern NSString *const kFIRInstallationsMessageCodeAuthTokenCoderVersionMismatch
 // FIRInstallationsStoredIIDCheckin.m
 extern NSString *const kFIRInstallationsMessageCodeIIDCheckinCoderVersionMismatch;
 extern NSString *const kFIRInstallationsMessageCodeIIDCheckinFailedToDecode;
+
+// FIRInstallations.m
+extern NSString *const kFIRInstallationsMessageCodeInvalidFirebaseAppOptions;

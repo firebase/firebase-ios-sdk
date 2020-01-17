@@ -24,6 +24,8 @@ class FIRMessagingInstanceTest: XCTestCase {
     // This is an example of a functional test case.
     // Use XCTAssert and related functions to verify your tests produce the correct results.
     let options = FirebaseOptions(googleAppID: "1:123:ios:123abc", gcmSenderID: "valid-sender-id")
+    options.apiKey = "api-key"
+    options.projectID = "project-id"
     FirebaseApp.configure(options: options)
     let original = Messaging.messaging()
 
