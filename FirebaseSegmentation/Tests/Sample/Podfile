@@ -14,5 +14,4 @@ target 'SegmentationSampleApp' do
   pod 'FirebaseCore', :path => '../../../'
   pod 'FirebaseSegmentation', :path => '../../../'
 
-end 
-
+end
