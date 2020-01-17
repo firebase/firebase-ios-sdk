@@ -76,13 +76,13 @@ import GoogleDataTransport
       if !Thread.current.isMainThread {
         DispatchQueue.main.sync {
           if Globals.IsMonkeyTesting {
-            backendSwitch?.selectedSegmentIndex = Int(arc4random_uniform(2))
+            backendSwitch?.selectedSegment = Int(arc4random_uniform(2))
           }
           theTransport = backendSwitch?.selectedSegment == 0 ? cctTransport : fllTransport
         }
       } else {
         if Globals.IsMonkeyTesting {
-          backendSwitch?.selectedSegmentIndex = Int(arc4random_uniform(2))
+          backendSwitch?.selectedSegment = Int(arc4random_uniform(2))
         }
         theTransport = backendSwitch?.selectedSegment == 0 ? cctTransport : fllTransport
       }
