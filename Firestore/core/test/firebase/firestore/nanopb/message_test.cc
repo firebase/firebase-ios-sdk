@@ -23,7 +23,7 @@
 #include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_nanopb.h"
-#include "Firestore/core/test/firebase/firestore/util/status_testing.h"
+#include "Firestore/core/test/firebase/firestore/testutil/status_testing.h"
 #include "grpcpp/impl/codegen/grpc_library.h"
 #include "grpcpp/support/byte_buffer.h"
 #include "gtest/gtest.h"

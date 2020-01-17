@@ -21,16 +21,31 @@
 #import <Foundation/Foundation.h>
 
 #include "Firestore/core/src/firebase/firestore/util/path.h"
-#include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
 
 namespace firebase {
 namespace firestore {
 namespace util {
 
+Status Filesystem::ExcludeFromBackups(const Path& dir) {
+  NSURL* dir_url = [NSURL fileURLWithPath:dir.ToNSString()];
+  NSError* error = nil;
+  if (![dir_url setResourceValue:@YES
+                          forKey:NSURLIsExcludedFromBackupKey
+                           error:&error]) {
+    return Status{
+        Error::Internal,
+        "Failed to mark persistence directory as excluded from backups"}
+        .CausedBy(Status::FromNSError(error));
+  }
+
+  return Status::OK();
+}
+
 StatusOr<Path> Filesystem::AppDataDir(absl::string_view app_name) {
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_OSX
   NSArray<NSString*>* directories = NSSearchPathForDirectoriesInDomains(
-      NSDocumentDirectory, NSUserDomainMask, YES);
+      NSApplicationSupportDirectory, NSUserDomainMask, YES);
   return Path::FromNSString(directories[0]).AppendUtf8(app_name);
 
 #elif TARGET_OS_TV
@@ -38,12 +53,23 @@ StatusOr<Path> Filesystem::AppDataDir(absl::string_view app_name) {
       NSCachesDirectory, NSUserDomainMask, YES);
   return Path::FromNSString(directories[0]).AppendUtf8(app_name);
 
+#else
+#error "Don't know where to store documents on this platform."
+#endif
+}
+
+StatusOr<Path> Filesystem::LegacyDocumentsDir(absl::string_view app_name) {
+#if TARGET_OS_IOS
+  NSArray<NSString*>* directories = NSSearchPathForDirectoriesInDomains(
+      NSDocumentDirectory, NSUserDomainMask, YES);
+  return Path::FromNSString(directories[0]).AppendUtf8(app_name);
+
 #elif TARGET_OS_OSX
   std::string dot_prefixed = absl::StrCat(".", app_name);
   return Path::FromNSString(NSHomeDirectory()).AppendUtf8(dot_prefixed);
 
 #else
-#error "Don't know where to store documents on this platform."
+  return Status(Error::Unimplemented, "No legacy storage on this platform.");
 #endif
 }
 
@@ -59,21 +85,6 @@ Path Filesystem::TempDir() {
   }
 
   return Path::FromUtf8("/tmp");
-}
-
-Status Filesystem::ExcludeFromBackups(const Path& dir) {
-  NSURL* dir_url = [NSURL fileURLWithPath:dir.ToNSString()];
-  NSError* error = nil;
-  if (![dir_url setResourceValue:@YES
-                          forKey:NSURLIsExcludedFromBackupKey
-                           error:&error]) {
-    return Status{
-        Error::Internal,
-        "Failed to mark persistence directory as excluded from backups"}
-        .CausedBy(Status::FromNSError(error));
-  }
-
-  return Status::OK();
 }
 
 }  // namespace util

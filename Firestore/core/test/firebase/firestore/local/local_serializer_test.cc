@@ -38,8 +38,8 @@
 #include "Firestore/core/src/firebase/firestore/remote/serializer.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/test/firebase/firestore/nanopb/nanopb_testing.h"
+#include "Firestore/core/test/firebase/firestore/testutil/status_testing.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
-#include "Firestore/core/test/firebase/firestore/util/status_testing.h"
 #include "google/protobuf/util/message_differencer.h"
 #include "gtest/gtest.h"
 

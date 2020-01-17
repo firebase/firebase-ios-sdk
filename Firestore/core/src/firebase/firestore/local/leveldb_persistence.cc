@@ -23,6 +23,7 @@
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_lru_reference_delegate.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_migrations.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_opener.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_util.h"
 #include "Firestore/core/src/firebase/firestore/local/listen_sequence.h"
 #include "Firestore/core/src/firebase/firestore/local/lru_garbage_collector.h"
@@ -122,33 +123,6 @@ LevelDbPersistence::LevelDbPersistence(std::unique_ptr<leveldb::DB> db,
   started_ = true;
 }
 
-// MARK: - Storage location
-
-StatusOr<Path> LevelDbPersistence::AppDataDirectory() {
-  auto* fs = Filesystem::Default();
-  return fs->AppDataDir(kReservedPathComponent);
-}
-
-util::Path LevelDbPersistence::StorageDirectory(
-    const core::DatabaseInfo& database_info, const util::Path& documents_dir) {
-  // Use two different path formats:
-  //
-  //   * persistence_key / project_id . database_id / name
-  //   * persistence_key / project_id / name
-  //
-  // project_ids are DNS-compatible names and cannot contain dots so there's
-  // no danger of collisions.
-  std::string project_key = database_info.database_id().project_id();
-  if (!database_info.database_id().IsDefaultDatabase()) {
-    absl::StrAppend(&project_key, ".",
-                    database_info.database_id().database_id());
-  }
-
-  // Reserve one additional path component to allow multiple physical databases
-  return Path::JoinUtf8(documents_dir, database_info.persistence_key(),
-                        project_key, "main");
-}
-
 // MARK: - Startup
 
 Status LevelDbPersistence::EnsureDirectory(const Path& dir) {
@@ -188,12 +162,12 @@ LevelDbTransaction* LevelDbPersistence::current_transaction() {
 
 util::Status LevelDbPersistence::ClearPersistence(
     const core::DatabaseInfo& database_info) {
-  const StatusOr<Path>& maybe_data_dir = AppDataDirectory();
-  HARD_ASSERT(maybe_data_dir.ok(),
-              "Failed to find the App data directory for the current user.");
+  LevelDbOpener opener(database_info);
+  StatusOr<Path> maybe_data_dir = opener.LevelDbDataDir();
+  HARD_ASSERT(maybe_data_dir.ok(), "Failed to find local LevelDB files: %s",
+              maybe_data_dir.status().ToString());
+  Path leveldb_dir = std::move(maybe_data_dir).ValueOrDie();
 
-  Path leveldb_dir =
-      StorageDirectory(database_info, maybe_data_dir.ValueOrDie());
   LOG_DEBUG("Clearing persistence for path: %s", leveldb_dir.ToUtf8String());
   auto* fs = Filesystem::Default();
   return fs->RecursivelyRemove(leveldb_dir);
@@ -209,7 +183,7 @@ int64_t LevelDbPersistence::CalculateByteSize() {
     count += file_size;
   }
 
-  HARD_ASSERT(iter->status().ok(), "Failed to iterate leveldb directory: %s",
+  HARD_ASSERT(iter->status().ok(), "Failed to iterate LevelDB directory: %s",
               iter->status().error_message().c_str());
   HARD_ASSERT(count >= 0 && count <= std::numeric_limits<int64_t>::max(),
               "Overflowed counting bytes cached");
@@ -267,8 +241,6 @@ void LevelDbPersistence::RunInternal(absl::string_view label,
   transaction_->Commit();
   transaction_.reset();
 }
-
-constexpr const char* LevelDbPersistence::kReservedPathComponent;
 
 leveldb::ReadOptions StandardReadOptions() {
   // For now this is paranoid, but perhaps disable that in production builds.

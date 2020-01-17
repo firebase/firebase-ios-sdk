@@ -14,15 +14,18 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_UTIL_STATUS_TESTING_H_
-#define FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_UTIL_STATUS_TESTING_H_
+#ifndef FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_TESTUTIL_STATUS_TESTING_H_
+#define FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_TESTUTIL_STATUS_TESTING_H_
 
+#include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
+
+#include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
 namespace firestore {
-namespace util {
+namespace testutil {
 
 /**
  * Checks the status. Don't use directly; use one of the relevant macros
@@ -31,14 +34,8 @@ namespace util {
  *   Status good_status = ...;
  *   ASSERT_OK(good_status);
  */
-inline testing::AssertionResult Equal(Status expected, Status actual) {
-  if (expected != actual) {
-    return testing::AssertionFailure()
-           << "Status should have been " << expected.ToString()
-           << ", but instead contained " << actual.ToString();
-  }
-  return testing::AssertionSuccess();
-}
+testing::AssertionResult Equal(const util::Status& expected,
+                               const util::Status& actual);
 
 /**
  * Checks the status. Don't use directly; use one of the relevant macros
@@ -50,24 +47,51 @@ inline testing::AssertionResult Equal(Status expected, Status actual) {
  *   Status bad_status = ...;
  *   EXPECT_NOT_OK(bad_status);
  */
-inline testing::AssertionResult StatusOk(const Status& status) {
-  return Equal(Status::OK(), status);
-}
+testing::AssertionResult StatusOk(const util::Status& status);
 
 template <typename T>
-testing::AssertionResult StatusOk(const StatusOr<T>& status) {
+testing::AssertionResult StatusOk(const util::StatusOr<T>& status) {
   return StatusOk(status.status());
 }
 
-}  // namespace util
+MATCHER(IsOk, negation ? "not ok" : "ok") {
+  if (arg.ok()) return true;
+
+  *result_listener << "actual status was " << arg;
+  return false;
+}
+
+MATCHER(IsNotFound, negation ? "actually found" : "is not found") {
+  if (arg.code() == Error::NotFound) return true;
+
+  *result_listener << "actual status was " << arg;
+  return false;
+}
+
+MATCHER(IsPermissionDenied,
+        negation ? "not permission denied" : "permission denied") {
+  if (arg.code() == Error::PermissionDenied) return true;
+
+  *result_listener << "actual status was " << arg;
+  return false;
+}
+
+MATCHER(IsUnimplemented, negation ? "actually implemented" : "unimplemented") {
+  if (arg.code() == Error::Unimplemented) return true;
+
+  *result_listener << "actual status was " << arg;
+  return false;
+}
+
+}  // namespace testutil
 }  // namespace firestore
 }  // namespace firebase
 
 // Macros for testing the results of functions that return util::Status.
 #define ASSERT_OK(status) \
-  ASSERT_TRUE(firebase::firestore::util::StatusOk(status))
+  ASSERT_TRUE(firebase::firestore::testutil::StatusOk(status))
 #define EXPECT_OK(status) \
-  EXPECT_TRUE(firebase::firestore::util::StatusOk(status))
+  EXPECT_TRUE(firebase::firestore::testutil::StatusOk(status))
 
 // EXPECT_NOT_OK/ASSERT_NOT_OK have fairly limited utility since they don't
 // provide much value (when they fail, they would just print the OK status
@@ -75,8 +99,8 @@ testing::AssertionResult StatusOk(const StatusOr<T>& status) {
 // If you want to check for particular errors, a better alternative is:
 // EXPECT_EQ(..expected Error..., status.code());
 #define ASSERT_NOT_OK(status) \
-  ASSERT_FALSE(firebase::firestore::util::StatusOk(status))
+  ASSERT_FALSE(firebase::firestore::testutil::StatusOk(status))
 #define EXPECT_NOT_OK(status) \
-  EXPECT_FALSE(firebase::firestore::util::StatusOk(status))
+  EXPECT_FALSE(firebase::firestore::testutil::StatusOk(status))
 
-#endif  // FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_UTIL_STATUS_TESTING_H_
+#endif  // FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_TESTUTIL_STATUS_TESTING_H_
