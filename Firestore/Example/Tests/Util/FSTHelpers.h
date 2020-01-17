@@ -17,50 +17,31 @@
 #import <Foundation/Foundation.h>
 
 #include <string>
-#include <unordered_map>
 #include <vector>
 
-#include "Firestore/core/src/firebase/firestore/core/filter.h"
-#include "Firestore/core/src/firebase/firestore/core/view.h"
-#include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
-#include "Firestore/core/src/firebase/firestore/local/local_view_changes.h"
-#include "Firestore/core/src/firebase/firestore/local/query_data.h"
-#include "Firestore/core/src/firebase/firestore/model/delete_mutation.h"
-#include "Firestore/core/src/firebase/firestore/model/document.h"
-#include "Firestore/core/src/firebase/firestore/model/document_map.h"
-#include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
-#include "Firestore/core/src/firebase/firestore/model/field_value.h"
-#include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
-#include "Firestore/core/src/firebase/firestore/model/mutation.h"
-#include "Firestore/core/src/firebase/firestore/model/no_document.h"
-#include "Firestore/core/src/firebase/firestore/model/patch_mutation.h"
-#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
-#include "Firestore/core/src/firebase/firestore/model/set_mutation.h"
-#include "Firestore/core/src/firebase/firestore/model/transform_mutation.h"
-#include "Firestore/core/src/firebase/firestore/model/types.h"
-#include "Firestore/core/src/firebase/firestore/model/unknown_document.h"
-#include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
 #include "absl/strings/string_view.h"
-#include "absl/types/optional.h"
 
 @class FIRGeoPoint;
-@class FIRTimestamp;
 @class FSTDocumentKeyReference;
 @class FSTUserDataConverter;
 
 namespace firebase {
 namespace firestore {
-namespace remote {
 
-class RemoteEvent;
+namespace model {
+class DeleteMutation;
+class DocumentKey;
+class FieldValue;
+class ObjectValue;
+class PatchMutation;
+class SetMutation;
+class TransformMutation;
+}  // namespace model
 
-}  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
 
-namespace core = firebase::firestore::core;
-namespace local = firebase::firestore::local;
 namespace model = firebase::firestore::model;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -144,7 +125,7 @@ model::FieldValue FSTTestFieldValue(id _Nullable value);
 model::ObjectValue FSTTestObjectValue(NSDictionary<NSString *, id> *data);
 
 /** A convenience method for creating document keys for tests. */
-firebase::firestore::model::DocumentKey FSTTestDocKey(NSString *path);
+model::DocumentKey FSTTestDocKey(NSString *path);
 
 /** Allow tests to just use an int literal for versions. */
 typedef int64_t FSTTestSnapshotVersion;

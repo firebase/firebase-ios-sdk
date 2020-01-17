@@ -18,6 +18,7 @@
 
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/core/target.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
 
 namespace firebase {
@@ -118,9 +119,14 @@ ViewDocumentChanges View::ComputeDocumentChanges(
   // Note that this should never get used in a refill (when previous_changes is
   // set), because there will only be adds -- no deletes or updates.
   absl::optional<Document> last_doc_in_limit;
-  if (query_.limit() != Query::kNoLimit &&
+  if (query_.has_limit_to_first() &&
       old_document_set.size() == static_cast<size_t>(query_.limit())) {
     last_doc_in_limit = old_document_set.GetLastDocument();
+  }
+  absl::optional<Document> first_doc_in_limit;
+  if (query_.has_limit_to_last() &&
+      old_document_set.size() == static_cast<size_t>(query_.limit())) {
+    first_doc_in_limit = old_document_set.GetFirstDocument();
   }
 
   for (const auto& kv : doc_changes) {
@@ -161,8 +167,13 @@ ViewDocumentChanges View::ComputeDocumentChanges(
               DocumentViewChange{*new_doc, DocumentViewChange::Type::Modified});
           change_applied = true;
 
-          if (last_doc_in_limit &&
-              util::Descending(Compare(*new_doc, *last_doc_in_limit))) {
+          bool outside_limit =
+              last_doc_in_limit &&
+              util::Descending(Compare(*new_doc, *last_doc_in_limit));
+          bool outside_limit_to_last =
+              first_doc_in_limit &&
+              util::Ascending(Compare(*new_doc, *first_doc_in_limit));
+          if (outside_limit || outside_limit_to_last) {
             // This doc moved from inside the limit to after the limit. That
             // means there may be some doc in the local cache that's actually
             // less than this one.
@@ -185,7 +196,7 @@ ViewDocumentChanges View::ComputeDocumentChanges(
           DocumentViewChange{*old_doc, DocumentViewChange::Type::Removed});
       change_applied = true;
 
-      if (last_doc_in_limit) {
+      if (last_doc_in_limit || first_doc_in_limit) {
         // A doc was removed from a full limit query. We'll need to re-query
         // from the local cache to see if we know about some other doc that
         // should be in the results.
@@ -208,16 +219,20 @@ ViewDocumentChanges View::ComputeDocumentChanges(
     }
   }
 
-  int32_t limit = query_.limit();
-  if (limit != Query::kNoLimit &&
-      new_document_set.size() > static_cast<size_t>(limit)) {
-    for (size_t i = new_document_set.size() - limit; i > 0; --i) {
-      absl::optional<Document> found = new_document_set.GetLastDocument();
-      const Document& old_doc = *found;
-      new_document_set = new_document_set.erase(old_doc.key());
-      new_mutated_keys = new_mutated_keys.erase(old_doc.key());
-      change_set.AddChange(
-          DocumentViewChange{old_doc, DocumentViewChange::Type::Removed});
+  // Drop documents out to meet limitToFirst/limitToLast requirement.
+  if (query_.limit_type() != LimitType::None) {
+    auto limit = static_cast<size_t>(query_.limit());
+    if (limit < new_document_set.size()) {
+      for (size_t i = new_document_set.size() - limit; i > 0; --i) {
+        absl::optional<Document> found =
+            query_.has_limit_to_first() ? new_document_set.GetLastDocument()
+                                        : new_document_set.GetFirstDocument();
+        const Document& old_doc = *found;
+        new_document_set = new_document_set.erase(old_doc.key());
+        new_mutated_keys = new_mutated_keys.erase(old_doc.key());
+        change_set.AddChange(
+            DocumentViewChange{old_doc, DocumentViewChange::Type::Removed});
+      }
     }
   }
 

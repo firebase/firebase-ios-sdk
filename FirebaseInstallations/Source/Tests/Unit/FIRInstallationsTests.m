@@ -45,6 +45,9 @@
 
   self.appOptions = [[FIROptions alloc] initWithGoogleAppID:@"GoogleAppID"
                                                 GCMSenderID:@"GCMSenderID"];
+  self.appOptions.APIKey = @"APIKey";
+  self.appOptions.projectID = @"ProjectID";
+
   self.mockIDController = OCMClassMock([FIRInstallationsIDController class]);
   self.installations = [[FIRInstallations alloc] initWithAppOptions:self.appOptions
                                                             appName:@"appName"
@@ -232,6 +235,70 @@
   }];
 
   [self waitForExpectations:@[ deleteExpectation ] timeout:0.5];
+}
+
+#pragma mark - Invalid Firebase configuration
+
+- (void)testInitWhenProjectIDMissingThenNoThrow {
+  FIROptions *options = [self.appOptions copy];
+  options.projectID = nil;
+  XCTAssertNoThrow([self createInstallationsWithAppOptions:options appName:@"missingProjectID"]);
+
+  options.projectID = @"";
+  XCTAssertNoThrow([self createInstallationsWithAppOptions:options appName:@"emptyProjectID"]);
+}
+
+- (void)testInitWhenAPIKeyMissingThenThrows {
+  FIROptions *options = [self.appOptions copy];
+  options.APIKey = nil;
+  XCTAssertThrows([self createInstallationsWithAppOptions:options appName:@"missingAPIKey"]);
+
+  options.APIKey = @"";
+  XCTAssertThrows([self createInstallationsWithAppOptions:options appName:@"emptyAPIKey"]);
+}
+
+- (void)testInitWhenGoogleAppIDMissingThenThrows {
+  FIROptions *options = [self.appOptions copy];
+  options.googleAppID = @"";
+  XCTAssertThrows([self createInstallationsWithAppOptions:options appName:@"emptyGoogleAppID"]);
+}
+
+- (void)testInitWhenGCMSenderIDMissingThenThrows {
+  FIROptions *options = [self.appOptions copy];
+  options.GCMSenderID = @"";
+  XCTAssertNoThrow([self createInstallationsWithAppOptions:options appName:@"emptyGCMSenderID"]);
+}
+
+- (void)testInitWhenProjectIDAndGCMSenderIDMissingThenNoThrow {
+  FIROptions *options = [self.appOptions copy];
+  options.GCMSenderID = @"";
+
+  options.projectID = nil;
+  XCTAssertThrows([self createInstallationsWithAppOptions:options appName:@"missingProjectID"]);
+
+  options.projectID = @"";
+  XCTAssertThrows([self createInstallationsWithAppOptions:options appName:@"emptyProjectID"]);
+}
+
+- (void)testInitWhenAppNameMissingThenThrows {
+  FIROptions *options = [self.appOptions copy];
+  XCTAssertThrows([self createInstallationsWithAppOptions:options appName:@""]);
+  XCTAssertThrows([self createInstallationsWithAppOptions:options appName:nil]);
+}
+
+- (void)testInitWhenAppOptionsMissingThenThrows {
+  XCTAssertThrows([self createInstallationsWithAppOptions:nil appName:@"missingOptions"]);
+}
+
+#pragma mark - Helpers
+
+- (FIRInstallations *)createInstallationsWithAppOptions:(FIROptions *)options
+                                                appName:(NSString *)appName {
+  id mockIDController = OCMClassMock([FIRInstallationsIDController class]);
+  return [[FIRInstallations alloc] initWithAppOptions:options
+                                              appName:appName
+                            installationsIDController:mockIDController
+                                    prefetchAuthToken:NO];
 }
 
 @end

@@ -46,12 +46,12 @@ void MemoryEagerReferenceDelegate::AddInMemoryPins(ReferenceSet* set) {
   additional_references_ = set;
 }
 
-void MemoryEagerReferenceDelegate::RemoveTarget(const QueryData& query_data) {
+void MemoryEagerReferenceDelegate::RemoveTarget(const TargetData& target_data) {
   for (const DocumentKey& doc_key :
-       persistence_->query_cache()->GetMatchingKeys(query_data.target_id())) {
+       persistence_->target_cache()->GetMatchingKeys(target_data.target_id())) {
     orphaned_->insert(doc_key);
   }
-  persistence_->query_cache()->RemoveTarget(query_data);
+  persistence_->target_cache()->RemoveTarget(target_data);
 }
 
 void MemoryEagerReferenceDelegate::AddReference(const DocumentKey& key) {
@@ -68,7 +68,7 @@ void MemoryEagerReferenceDelegate::RemoveMutationReference(
 }
 
 bool MemoryEagerReferenceDelegate::IsReferenced(const DocumentKey& key) const {
-  if (persistence_->query_cache()->Contains(key)) {
+  if (persistence_->target_cache()->Contains(key)) {
     return true;
   }
   if (MutationQueuesContainKey(key)) {

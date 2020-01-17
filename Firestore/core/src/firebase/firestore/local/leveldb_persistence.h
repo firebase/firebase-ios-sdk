@@ -25,8 +25,8 @@
 #include "Firestore/core/src/firebase/firestore/local/leveldb_index_manager.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_lru_reference_delegate.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_mutation_queue.h"
-#include "Firestore/core/src/firebase/firestore/local/leveldb_query_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_remote_document_cache.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_target_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 #include "Firestore/core/src/firebase/firestore/local/local_serializer.h"
 #include "Firestore/core/src/firebase/firestore/local/persistence.h"
@@ -56,27 +56,6 @@ class LevelDbPersistence : public Persistence {
   static util::StatusOr<std::unique_ptr<LevelDbPersistence>> Create(
       util::Path dir, LocalSerializer serializer, const LruParams& lru_params);
 
-  /**
-   * Finds a suitable directory to serve as the root of all Firestore local
-   * storage.
-   */
-  static util::StatusOr<util::Path> AppDataDirectory();
-
-  /**
-   * Computes a unique storage directory for the given identifying components of
-   * local storage.
-   *
-   * @param database_info The identifying information for the local storage
-   *     instance.
-   * @param documents_dir The root document directory relative to which
-   *     the storage directory will be created. Usually just
-   *     `LevelDbPersistence::AppDataDirectory()`.
-   * @return A storage directory unique to the instance identified by
-   *     `database_info`.
-   */
-  static util::Path StorageDirectory(const core::DatabaseInfo& database_info,
-                                     const util::Path& documents_dir);
-
   LevelDbTransaction* current_transaction();
 
   leveldb::DB* ptr() {
@@ -100,7 +79,7 @@ class LevelDbPersistence : public Persistence {
   LevelDbMutationQueue* GetMutationQueueForUser(
       const auth::User& user) override;
 
-  LevelDbQueryCache* query_cache() override;
+  LevelDbTargetCache* target_cache() override;
 
   LevelDbRemoteDocumentCache* remote_document_cache() override;
 
@@ -128,8 +107,6 @@ class LevelDbPersistence : public Persistence {
   static util::StatusOr<std::unique_ptr<leveldb::DB>> OpenDb(
       const util::Path& dir);
 
-  static constexpr const char* kReservedPathComponent = "firestore";
-
   std::unique_ptr<leveldb::DB> db_;
 
   util::Path directory_;
@@ -138,7 +115,7 @@ class LevelDbPersistence : public Persistence {
   bool started_ = false;
 
   std::unique_ptr<LevelDbMutationQueue> current_mutation_queue_;
-  std::unique_ptr<LevelDbQueryCache> query_cache_;
+  std::unique_ptr<LevelDbTargetCache> target_cache_;
   std::unique_ptr<LevelDbRemoteDocumentCache> document_cache_;
   std::unique_ptr<LevelDbIndexManager> index_manager_;
   std::unique_ptr<LevelDbLruReferenceDelegate> reference_delegate_;

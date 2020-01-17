@@ -88,6 +88,7 @@ if(APPLE)
     DEPENDS
       GMock::GMock
       absl_optional
+      firebase_firestore_testutil
       firebase_firestore_util_autoid
       firebase_firestore_util_filesystem_apple
   )
@@ -100,7 +101,9 @@ if(NOT APPLE AND NOT WIN32)
       filesystem_test.cc
       path_test.cc
     DEPENDS
+      GMock::GMock
       absl_optional
+      firebase_firestore_testutil
       firebase_firestore_util_autoid
       firebase_firestore_util_filesystem_posix
   )
@@ -113,7 +116,9 @@ if(WIN32)
       filesystem_test.cc
       path_test.cc
     DEPENDS
+      GMock::GMock
       absl_optional
+      firebase_firestore_testutil
       firebase_firestore_util_autoid
       firebase_firestore_util_filesystem_win
   )
@@ -155,11 +160,9 @@ cc_test(
     hashing_test.cc
     hashing_test_apple.mm
     iterator_adaptors_test.cc
-    objc_compatibility_apple_test.mm
     ordered_code_test.cc
     status_apple_test.mm
     status_test.cc
-    status_testing.h
     statusor_test.cc
     strerror_test.cc
     string_format_apple_test.mm
@@ -172,6 +175,7 @@ cc_test(
     absl_base
     absl_strings
     firebase_firestore_model
+    firebase_firestore_testutil
     firebase_firestore_util
     GMock::GMock
 )

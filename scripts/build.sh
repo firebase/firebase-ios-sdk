@@ -203,25 +203,6 @@ if [[ -n "${SANITIZERS:-}" ]]; then
 fi
 
 case "$product-$method-$platform" in
-  Firebase-xcodebuild-*)
-    # Coverage collection often cause retries to fail because of partial
-    # pre-existing data.
-    # TODO(paulb777): Find a less blunt solution to this.
-    rm -rf ~/Library/Developer/Xcode/DerivedData
-
-    RunXcodebuild \
-        -workspace 'Example/Firebase.xcworkspace' \
-        -scheme "AllUnitTests_$platform" \
-        "${xcb_flags[@]}" \
-        build \
-        test
-
-    if [[ $platform == 'iOS' ]]; then
-      # Code Coverage collection is only working on iOS currently.
-      ./scripts/collect_metrics.sh 'Example/Firebase.xcworkspace' "AllUnitTests_$platform"
-    fi
-    ;;
-
   FirebasePod-xcodebuild-*)
     RunXcodebuild \
         -workspace 'CoreOnly/Tests/FirebasePodTest/FirebasePodTest.xcworkspace' \

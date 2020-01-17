@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
+#include "Firestore/core/src/firebase/firestore/local/index_free_query_engine.h"
 #include "Firestore/core/src/firebase/firestore/local/memory_persistence.h"
+#include "Firestore/core/src/firebase/firestore/local/query_engine.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_delegate.h"
+#include "Firestore/core/src/firebase/firestore/local/simple_query_engine.h"
 #include "Firestore/core/test/firebase/firestore/local/local_store_test.h"
 #include "Firestore/core/test/firebase/firestore/local/persistence_testing.h"
 
@@ -26,25 +29,42 @@ namespace {
 
 class TestHelper : public LocalStoreTestHelper {
  public:
+  explicit TestHelper(std::unique_ptr<QueryEngine> query_engine)
+      : query_engine_(std::move(query_engine)) {
+  }
+
   std::unique_ptr<Persistence> MakePersistence() override {
     return MemoryPersistenceWithEagerGcForTesting();
+  }
+
+  QueryEngine* query_engine() override {
+    return query_engine_.get();
   }
 
   /** Returns true if the garbage collector is eager, false if LRU. */
   bool IsGcEager() const override {
     return true;
   }
+
+ private:
+  std::unique_ptr<QueryEngine> query_engine_;
 };
 
-std::unique_ptr<LocalStoreTestHelper> Factory() {
-  return absl::make_unique<TestHelper>();
+std::unique_ptr<LocalStoreTestHelper> SimpleQueryEngineFactory() {
+  return absl::make_unique<TestHelper>(absl::make_unique<SimpleQueryEngine>());
+}
+
+std::unique_ptr<LocalStoreTestHelper> IndexFreeQueryEngineFactory() {
+  return absl::make_unique<TestHelper>(
+      absl::make_unique<IndexFreeQueryEngine>());
 }
 
 }  // namespace
 
 INSTANTIATE_TEST_SUITE_P(MemoryLocalStoreTest,
                          LocalStoreTest,
-                         ::testing::Values(Factory));
+                         ::testing::Values(SimpleQueryEngineFactory,
+                                           IndexFreeQueryEngineFactory));
 
 }  // namespace local
 }  // namespace firestore

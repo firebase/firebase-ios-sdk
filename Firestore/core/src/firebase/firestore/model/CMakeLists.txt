@@ -65,6 +65,8 @@ cc_library(
     types.h
     unknown_document.cc
     unknown_document.h
+    verify_mutation.cc
+    verify_mutation.h
   DEPENDS
     absl_optional
     absl_strings

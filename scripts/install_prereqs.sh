@@ -40,7 +40,7 @@ function install_secrets() {
     cp Secrets/Auth/Sample/Sample.entitlements Example/Auth/Sample/Sample.entitlements
     cp Secrets/Auth/ApiTests/AuthCredentials.h Example/Auth/ApiTests/AuthCredentials.h
 
-    cp Secrets/Storage/App/GoogleService-Info.plist Example/Storage/App/GoogleService-Info.plist
+    cp Secrets/Storage/App/GoogleService-Info.plist FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist
     cp Secrets/Storage/App/GoogleService-Info.plist Example/Database/App/GoogleService-Info.plist
 
     cp Secrets/Metrics/database.config Metrics/database.config
@@ -49,6 +49,11 @@ function install_secrets() {
     fis_resources_dir=FirebaseInstallations/Source/Tests/Resources/
     mkdir -p "$fis_resources_dir"
     cp Secrets/Installations/GoogleService-Info.plist "$fis_resources_dir"
+
+    # FirebaseInstanceID
+    iid_resources_dir=Example/InstanceID/Resources/
+    mkdir -p "$iid_resources_dir"
+    cp Secrets/Installations/GoogleService-Info.plist "$iid_resources_dir"
   fi
 }
 
@@ -58,11 +63,6 @@ if [[ ! -z $QUICKSTART ]]; then
 fi
 
 case "$PROJECT-$PLATFORM-$METHOD" in
-  Firebase-iOS-xcodebuild)
-    gem install xcpretty
-    bundle exec pod install --project-directory=Example --repo-update
-    install_secrets
-    ;;
 
   FirebasePod-iOS-xcodebuild)
     gem install xcpretty
@@ -73,6 +73,9 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     # Install the workspace for integration testing.
     gem install xcpretty
     bundle exec pod install --project-directory=Example/Auth/AuthSample --repo-update
+    ;;
+
+  Crashlytics-*)
     ;;
 
   Database-*)
@@ -87,6 +90,10 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     ;;
 
   Installations-*)
+    install_secrets
+    ;;
+
+  InstanceID*)
     install_secrets
     ;;
 
@@ -119,6 +126,7 @@ case "$PROJECT-$PLATFORM-$METHOD" in
   Firestore-*-cmake)
     brew outdated cmake || brew upgrade cmake
     brew outdated go || brew upgrade go # Somehow the build for Abseil requires this.
+    brew install ccache
 
     # Install python packages required to generate proto sources
     pip install six

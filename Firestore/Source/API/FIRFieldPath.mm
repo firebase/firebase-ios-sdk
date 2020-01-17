@@ -73,16 +73,6 @@ NS_ASSUME_NONNULL_BEGIN
       [[FIRFieldPath alloc] initPrivate:FieldPath::FromDotSeparatedString(util::MakeString(path))];
 }
 
-/** Matches any characters in a field path string that are reserved. */
-+ (NSRegularExpression *)reservedCharactersRegex {
-  static NSRegularExpression *regex = nil;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    regex = [NSRegularExpression regularExpressionWithPattern:@"[~*/\\[\\]]" options:0 error:nil];
-  });
-  return regex;
-}
-
 - (id)copyWithZone:(NSZone *__nullable)zone {
   return [[[self class] alloc] initPrivate:_internalValue];
 }

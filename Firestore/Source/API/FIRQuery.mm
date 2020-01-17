@@ -78,6 +78,7 @@ using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::util::MakeNSError;
+using firebase::firestore::util::MakeString;
 using firebase::firestore::util::StatusOr;
 using firebase::firestore::util::ThrowInvalidArgument;
 
@@ -86,11 +87,21 @@ NS_ASSUME_NONNULL_BEGIN
 namespace {
 
 FieldPath MakeFieldPath(NSString *field) {
-  return FieldPath::FromDotSeparatedString(util::MakeString(field));
+  return FieldPath::FromDotSeparatedString(MakeString(field));
 }
 
 FIRQuery *Wrap(Query &&query) {
   return [[FIRQuery alloc] initWithQuery:std::move(query)];
+}
+
+int32_t SaturatedLimitValue(NSInteger limit) {
+  int32_t internal_limit;
+  if (limit == NSNotFound || limit >= core::Target::kNoLimit) {
+    internal_limit = core::Target::kNoLimit;
+  } else {
+    internal_limit = static_cast<int32_t>(limit);
+  }
+  return internal_limit;
 }
 
 }  // namespace
@@ -356,8 +367,7 @@ FIRQuery *Wrap(Query &&query) {
 }
 
 - (FIRQuery *)queryOrderedByField:(NSString *)field {
-  return [self queryOrderedByFieldPath:[FIRFieldPath pathWithDotSeparatedString:field]
-                            descending:NO];
+  return [self queryOrderedByField:field descending:NO];
 }
 
 - (FIRQuery *)queryOrderedByFieldPath:(FIRFieldPath *)fieldPath {
@@ -365,22 +375,25 @@ FIRQuery *Wrap(Query &&query) {
 }
 
 - (FIRQuery *)queryOrderedByField:(NSString *)field descending:(BOOL)descending {
-  return [self queryOrderedByFieldPath:[FIRFieldPath pathWithDotSeparatedString:field]
-                            descending:descending];
+  return [self queryOrderedByFieldPath:MakeFieldPath(field)
+                             direction:Direction::FromDescending(descending)];
 }
 
 - (FIRQuery *)queryOrderedByFieldPath:(FIRFieldPath *)fieldPath descending:(BOOL)descending {
-  return Wrap(_query.OrderBy(fieldPath.internalValue, Direction::FromDescending(descending)));
+  return [self queryOrderedByFieldPath:fieldPath.internalValue
+                             direction:Direction::FromDescending(descending)];
+}
+
+- (FIRQuery *)queryOrderedByFieldPath:(model::FieldPath)fieldPath direction:(Direction)direction {
+  return Wrap(_query.OrderBy(std::move(fieldPath), direction));
 }
 
 - (FIRQuery *)queryLimitedTo:(NSInteger)limit {
-  int32_t internalLimit;
-  if (limit == NSNotFound || limit >= core::Query::kNoLimit) {
-    internalLimit = core::Query::kNoLimit;
-  } else {
-    internalLimit = static_cast<int32_t>(limit);
-  }
-  return Wrap(_query.Limit(internalLimit));
+  return Wrap(_query.LimitToFirst(SaturatedLimitValue(limit)));
+}
+
+- (FIRQuery *)queryLimitedToLast:(NSInteger)limit {
+  return Wrap(_query.LimitToLast(SaturatedLimitValue(limit)));
 }
 
 - (FIRQuery *)queryStartingAtDocument:(FIRDocumentSnapshot *)snapshot {
@@ -468,7 +481,7 @@ FIRQuery *Wrap(Query &&query) {
                                 value:(id)value {
   FieldValue fieldValue = [self parsedQueryValue:value
                                      allowArrays:filterOperator == Filter::Operator::In];
-  auto describer = [value] { return util::MakeString(NSStringFromClass([value class])); };
+  auto describer = [value] { return MakeString(NSStringFromClass([value class])); };
   return Wrap(_query.Filter(fieldPath, filterOperator, std::move(fieldValue), describer));
 }
 

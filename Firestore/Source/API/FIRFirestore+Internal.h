@@ -59,9 +59,6 @@ NS_ASSUME_NONNULL_BEGIN
 /** Internal FIRFirestore API we don't want exposed in our public header files. */
 @interface FIRFirestore (Internal)
 
-/** Checks to see if logging is is globally enabled for the Firestore client. */
-+ (BOOL)isLoggingEnabled;
-
 + (FIRFirestore *)recoverFromFirestore:(std::shared_ptr<api::Firestore>)firestore;
 
 - (void)terminateInternalWithCompletion:(nullable void (^)(NSError *_Nullable error))completion;

@@ -1,0 +1,20 @@
+name: dynamiclinks
+
+on:
+  pull_request:
+    paths:
+    - 'Firebase/DynamicLinks**'
+    - 'FirebaseDynamicLinks**'
+    - 'Example/DynamicLinks**'
+
+jobs:
+  dynamiclinks:
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up
+      run: |
+        bundle install
+        bundle exec pod --version
+    - name: FirebaseDynamicLinks
+      run: ./scripts/pod_lib_lint.rb FirebaseDynamicLinks.podspec

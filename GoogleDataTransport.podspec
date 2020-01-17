@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'GoogleDataTransport'
-  s.version          = '3.2.0'
+  s.version          = '3.3.0'
   s.summary          = 'Google iOS SDK data transport.'
 
   s.description      = <<-DESC
@@ -46,6 +46,7 @@ Shared library for iOS SDK data transport needs.
   # Test app specs
   if ENV['GDT_DEV'] && ENV['GDT_DEV'] == '1' then
     s.app_spec 'TestApp' do |app_spec|
+      app_spec.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
       app_spec.source_files = 'GoogleDataTransport/GDTTestApp/*.swift'
       app_spec.ios.resources = ['GoogleDataTransport/GDTTestApp/ios/*.storyboard']
       app_spec.macos.resources = ['GoogleDataTransport/GDTTestApp/macos/*.storyboard']

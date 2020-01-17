@@ -25,8 +25,8 @@
 #include "Firestore/core/src/firebase/firestore/local/memory_index_manager.h"
 #include "Firestore/core/src/firebase/firestore/local/memory_persistence.h"
 #include "Firestore/core/src/firebase/firestore/local/persistence.h"
-#include "Firestore/core/src/firebase/firestore/local/query_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
+#include "Firestore/core/src/firebase/firestore/local/target_cache.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/util/string_util.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
@@ -45,9 +45,9 @@ using local::IndexFreeQueryEngine;
 using local::LocalDocumentsView;
 using local::MemoryIndexManager;
 using local::Persistence;
-using local::QueryCache;
 using local::QueryEngine;
 using local::RemoteDocumentCache;
+using local::TargetCache;
 using model::BatchId;
 using model::Document;
 using model::DocumentKey;
@@ -121,7 +121,7 @@ class IndexFreeQueryEngineTest : public ::testing::Test {
   IndexFreeQueryEngineTest()
       : persistence_(MemoryPersistence::WithEagerGarbageCollector()),
         remote_document_cache_(persistence_->remote_document_cache()),
-        query_cache_(persistence_->query_cache()),
+        target_cache_(persistence_->target_cache()),
         index_manager_(absl::make_unique<MemoryIndexManager>()),
         local_documents_view_(
             remote_document_cache_,
@@ -137,7 +137,7 @@ class IndexFreeQueryEngineTest : public ::testing::Test {
       for (const DocumentKey& key : keys) {
         remote_keys = remote_keys.insert(key);
       }
-      query_cache_->AddMatchingKeys(remote_keys, kTestTargetId);
+      target_cache_->AddMatchingKeys(remote_keys, kTestTargetId);
     });
   }
 
@@ -164,7 +164,7 @@ class IndexFreeQueryEngineTest : public ::testing::Test {
   DocumentSet RunQuery(
       const core::Query& query,
       const SnapshotVersion& last_limbo_free_snapshot_version) {
-    DocumentKeySet remote_keys = query_cache_->GetMatchingKeys(kTestTargetId);
+    DocumentKeySet remote_keys = target_cache_->GetMatchingKeys(kTestTargetId);
     DocumentMap docs = query_engine_.GetDocumentsMatchingQuery(
         query, last_limbo_free_snapshot_version, remote_keys);
     View view(query, DocumentKeySet());
@@ -176,7 +176,7 @@ class IndexFreeQueryEngineTest : public ::testing::Test {
  private:
   std::unique_ptr<Persistence> persistence_;
   RemoteDocumentCache* remote_document_cache_ = nullptr;
-  QueryCache* query_cache_ = nullptr;
+  TargetCache* target_cache_ = nullptr;
   std::unique_ptr<MemoryIndexManager> index_manager_;
   IndexFreeQueryEngine query_engine_;
   TestLocalDocumentsView local_documents_view_;
@@ -245,8 +245,29 @@ TEST_F(IndexFreeQueryEngineTest,
 
 TEST_F(IndexFreeQueryEngineTest,
        DoesNotUseInitialResultsForLimitQueryWithDocumentRemoval) {
-  core::Query query =
-      Query("coll").AddingFilter(Filter("matches", "==", true)).WithLimit(1);
+  core::Query query = Query("coll")
+                          .AddingFilter(Filter("matches", "==", true))
+                          .WithLimitToFirst(1);
+
+  // While the backend would never add DocA to the set of remote keys, this
+  // allows us to easily simulate what would happen when a document no longer
+  // matches due to an out-of-band update.
+  AddDocuments({kNonMatchingDocA});
+  PersistQueryMapping({kMatchingDocA.key()});
+
+  AddDocuments({kMatchingDocB});
+
+  DocumentSet docs = ExpectFullCollectionQuery(
+      [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
+  EXPECT_EQ(docs, DocSet(query.Comparator(), {kMatchingDocB}));
+}
+
+TEST_F(IndexFreeQueryEngineTest,
+       DoesNotUseInitialResultsForLimitToLastWithDocumentRemoval) {
+  core::Query query = Query("coll")
+                          .AddingFilter(Filter("matches", "==", true))
+                          .AddingOrderBy(OrderBy("order", "desc"))
+                          .WithLimitToLast(1);
 
   // While the backend would never add DocA to the set of remote keys, this
   // allows us to easily simulate what would happen when a document no longer
@@ -266,7 +287,26 @@ TEST_F(IndexFreeQueryEngineTest,
   core::Query query = Query("coll")
                           .AddingFilter(Filter("matches", "==", true))
                           .AddingOrderBy(OrderBy("order", "desc"))
-                          .WithLimit(1);
+                          .WithLimitToFirst(1);
+
+  // Add a query mapping for a document that matches, but that sorts below
+  // another document due to a pending write.
+  AddDocuments({pPendingMatchingDocA});
+  PersistQueryMapping({pPendingMatchingDocA.key()});
+
+  AddDocuments({kMatchingDocB});
+
+  DocumentSet docs = ExpectFullCollectionQuery(
+      [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
+  EXPECT_EQ(docs, DocSet(query.Comparator(), {kMatchingDocB}));
+}
+
+TEST_F(IndexFreeQueryEngineTest,
+       DoesNotUseInitialResultsForLimitToLastWhenLastDocumentHasPendingWrite) {
+  core::Query query = Query("coll")
+                          .AddingFilter(Filter("matches", "==", true))
+                          .AddingOrderBy(OrderBy("order", "asc"))
+                          .WithLimitToLast(1);
 
   // Add a query mapping for a document that matches, but that sorts below
   // another document due to a pending write.
@@ -285,7 +325,27 @@ TEST_F(IndexFreeQueryEngineTest,
   core::Query query = Query("coll")
                           .AddingFilter(Filter("matches", "==", true))
                           .AddingOrderBy(OrderBy("order", "desc"))
-                          .WithLimit(1);
+                          .WithLimitToFirst(1);
+
+  // Add a query mapping for a document that matches, but that sorts below
+  // another document based due to an update that the SDK received after the
+  // query's snapshot was persisted.
+  AddDocuments({kUpdatedDocA});
+  PersistQueryMapping({kUpdatedDocA.key()});
+
+  AddDocuments({kMatchingDocB});
+
+  DocumentSet docs = ExpectFullCollectionQuery(
+      [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
+  EXPECT_EQ(docs, DocSet(query.Comparator(), {kMatchingDocB}));
+}
+
+TEST_F(IndexFreeQueryEngineTest,
+       DoesNotUseInitialResultsForLimitToLastWhenLastDocumentUpdatedOutOfBand) {
+  core::Query query = Query("coll")
+                          .AddingFilter(Filter("matches", "==", true))
+                          .AddingOrderBy(OrderBy("order", "asc"))
+                          .WithLimitToLast(1);
 
   // Add a query mapping for a document that matches, but that sorts below
   // another document based due to an update that the SDK received after the
@@ -303,7 +363,7 @@ TEST_F(IndexFreeQueryEngineTest,
 TEST_F(IndexFreeQueryEngineTest,
        LimitQueriesUseInitialResultsIfLastDocumentInLimitIsUnchanged) {
   core::Query query =
-      Query("coll").AddingOrderBy(OrderBy("order")).WithLimit(2);
+      Query("coll").AddingOrderBy(OrderBy("order")).WithLimitToFirst(2);
 
   AddDocuments(
       {Doc("coll/a", 1, Map("order", 1)), Doc("coll/b", 1, Map("order", 3))});

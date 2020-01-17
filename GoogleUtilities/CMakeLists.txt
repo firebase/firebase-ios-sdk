@@ -38,6 +38,7 @@ if(APPLE)
     INCLUDES
       Private
       Public
+      ${PROJECT_SOURCE_DIR}
     DEPENDS
       "-framework Foundation"
     EXCLUDE_FROM_ALL

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseInstallations'
-  s.version          = '1.0.0'
+  s.version          = '1.1.0'
   s.summary          = 'Firebase Installations for iOS'
 
   s.description      = <<-DESC
@@ -30,9 +30,9 @@ Pod::Spec.new do |s|
   s.public_header_files = base_dir + 'Library/Public/*.h'
 
   s.framework = 'Security'
-  s.dependency 'FirebaseCore', '~> 6.5'
+  s.dependency 'FirebaseCore', '~> 6.6'
   s.dependency 'PromisesObjC', '~> 1.2'
-  s.dependency 'GoogleUtilities/UserDefaults', '~> 6.4'
+  s.dependency 'GoogleUtilities/UserDefaults', '~> 6.5'
 
   preprocessor_definitions = 'FIRInstallations_LIB_VERSION=' + String(s.version)
   if ENV['FIS_ALLOWS_INCOMPATIBLE_IID_VERSION'] && ENV['FIS_ALLOWS_INCOMPATIBLE_IID_VERSION'] == '1' then
@@ -45,6 +45,7 @@ Pod::Spec.new do |s|
   }
 
   s.test_spec 'unit' do |unit_tests|
+    unit_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
     unit_tests.source_files = base_dir + 'Tests/Unit/**/*.[mh]',
                               base_dir + 'Tests/Utils/**/*.[mh]'
     unit_tests.resources = base_dir + 'Tests/Fixture/**/*'

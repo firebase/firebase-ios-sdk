@@ -31,7 +31,8 @@
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/local/local_store.h"
 #include "Firestore/core/src/firebase/firestore/local/memory_persistence.h"
-#include "Firestore/core/src/firebase/firestore/local/query_data.h"
+#include "Firestore/core/src/firebase/firestore/local/simple_query_engine.h"
+#include "Firestore/core/src/firebase/firestore/local/target_data.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
@@ -56,7 +57,8 @@ using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::local::LocalStore;
 using firebase::firestore::local::MemoryPersistence;
 using firebase::firestore::local::Persistence;
-using firebase::firestore::local::QueryData;
+using firebase::firestore::local::SimpleQueryEngine;
+using firebase::firestore::local::TargetData;
 using firebase::firestore::model::BatchId;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
@@ -213,6 +215,7 @@ class RemoteStoreEventCapture : public RemoteStoreCallback {
   std::unique_ptr<Persistence> _persistence;
 
   DatabaseInfo _databaseInfo;
+  SimpleQueryEngine _queryEngine;
   std::shared_ptr<Datastore> _datastore;
   std::unique_ptr<RemoteStore> _remoteStore;
 }
@@ -236,7 +239,8 @@ class RemoteStoreEventCapture : public RemoteStoreCallback {
                                            std::make_shared<EmptyCredentialsProvider>());
 
   _persistence = MemoryPersistence::WithEagerGarbageCollector();
-  _localStore = absl::make_unique<LocalStore>(_persistence.get(), User::Unauthenticated());
+  _localStore =
+      absl::make_unique<LocalStore>(_persistence.get(), &_queryEngine, User::Unauthenticated());
 
   _remoteStore = absl::make_unique<RemoteStore>(_localStore.get(), _datastore, _testWorkerQueue,
                                                 [](OnlineState) {});

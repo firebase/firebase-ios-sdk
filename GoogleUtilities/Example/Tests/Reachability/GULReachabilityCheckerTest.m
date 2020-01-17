@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "GULReachabilityChecker+Internal.h"
+#import "GoogleUtilities/Reachability/GULReachabilityChecker+Internal.h"
 
 @interface GULReachabilityCheckerTest : XCTestCase <GULReachabilityDelegate> {
  @private

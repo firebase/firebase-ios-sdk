@@ -55,11 +55,12 @@ void GrpcUnaryCall::Start(Callback&& callback) {
   call_->StartCall();
 
   // For lifetime details, see `GrpcCompletion` class comment.
-  finish_completion_ = new GrpcCompletion(
+  finish_completion_ = GrpcCompletion::Create(
       Type::Finish, worker_queue_,
-      [this](bool /*ignored_ok*/, const GrpcCompletion* completion) {
+      [this](bool /*ignored_ok*/,
+             const std::shared_ptr<GrpcCompletion>& completion) {
         // Ignoring ok, status should contain all the relevant information.
-        finish_completion_ = nullptr;
+        finish_completion_.reset();
         Shutdown();
 
         auto callback = std::move(callback_);
@@ -73,7 +74,7 @@ void GrpcUnaryCall::Start(Callback&& callback) {
       });
 
   call_->Finish(finish_completion_->message(), finish_completion_->status(),
-                finish_completion_);
+                finish_completion_.get());
 }
 
 void GrpcUnaryCall::FinishImmediately() {
@@ -99,7 +100,7 @@ void GrpcUnaryCall::Shutdown() {
   finish_completion_->Cancel();
   // This function blocks.
   finish_completion_->WaitUntilOffQueue();
-  finish_completion_ = nullptr;
+  finish_completion_.reset();
 }
 
 void GrpcUnaryCall::MaybeUnregister() {

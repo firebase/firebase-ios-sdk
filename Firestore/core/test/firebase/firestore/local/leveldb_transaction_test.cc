@@ -27,7 +27,7 @@
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/util/path.h"
 #include "Firestore/core/test/firebase/firestore/local/persistence_testing.h"
-#include "Firestore/core/test/firebase/firestore/util/status_testing.h"
+#include "Firestore/core/test/firebase/firestore/testutil/status_testing.h"
 #include "absl/strings/string_view.h"
 #include "gtest/gtest.h"
 #include "leveldb/db.h"

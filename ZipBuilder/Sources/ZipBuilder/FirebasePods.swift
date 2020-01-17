@@ -24,6 +24,7 @@ enum FirebasePods: String, CaseIterable {
   case analytics = "FirebaseAnalytics"
   case auth = "FirebaseAuth"
   case core = "FirebaseCore"
+  case crashlytics = "FirebaseCrashlytics"
   case database = "FirebaseDatabase"
   case dynamicLinks = "FirebaseDynamicLinks"
   case firebase = "Firebase"

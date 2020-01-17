@@ -42,6 +42,11 @@ message Write {
     // `projects/{project_id}/databases/{database_id}/documents/{document_path}`.
     string delete = 2;
 
+    // The name of a document on which to verify the `current_document`
+    // precondition.
+    // This only requires read access to the document.
+    string verify = 5;
+
     // Applies a tranformation to a document.
     // At most one `transform` per document is allowed in a given request.
     // An `update` cannot follow a `transform` on the same document in a given

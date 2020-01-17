@@ -20,10 +20,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class FIRQueryDocumentSnapshot;
 
-/** An enumeration of document change types. */
 #if defined(NS_CLOSED_ENUM)
+/** An enumeration of document change types. */
 typedef NS_CLOSED_ENUM(NSInteger, FIRDocumentChangeType)
 #else
+/** An enumeration of document change types. */
 typedef NS_ENUM(NSInteger, FIRDocumentChangeType)
 #endif
 {

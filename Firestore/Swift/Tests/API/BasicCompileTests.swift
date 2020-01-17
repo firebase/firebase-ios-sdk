@@ -118,6 +118,7 @@ func makeQuery(collection collectionRef: CollectionReference) -> Query {
     .order(by: FieldPath(["age"]))
     .order(by: "name", descending: true)
     .limit(to: 10)
+    .limit(toLast: 10)
 
   query = collectionRef.firestore.collectionGroup("collection")
 
