@@ -48,12 +48,14 @@
                                                       userInfo:nil
                                                        repeats:YES];
   }
+  GDTCORLogDebug("Upload package created %@", self);
   return self;
 }
 
 - (instancetype)copy {
   GDTCORUploadPackage *newPackage = [[GDTCORUploadPackage alloc] initWithTarget:_target];
   newPackage->_events = [_events copy];
+  GDTCORLogDebug("Copying UploadPackage %@ to %@", self, newPackage);
   return newPackage;
 }
 
@@ -87,6 +89,7 @@
     _isHandled = YES;
     [_handler packageDelivered:self successful:YES];
   }
+  GDTCORLogDebug("Upload package delivered: %@", self);
 }
 
 - (void)retryDeliveryInTheFuture {
@@ -96,6 +99,7 @@
     _isHandled = YES;
     [_handler packageDelivered:self successful:NO];
   }
+  GDTCORLogDebug("Upload package will retry in the future: %@", self);
 }
 
 - (void)checkIfPackageIsExpired:(NSTimer *)timer {
@@ -103,6 +107,7 @@
     if (_handler && [_handler respondsToSelector:@selector(packageExpired:)]) {
       _isHandled = YES;
       [_expirationTimer invalidate];
+      GDTCORLogDebug("Upload package expired: %@", self);
       [_handler packageExpired:self];
     }
   }

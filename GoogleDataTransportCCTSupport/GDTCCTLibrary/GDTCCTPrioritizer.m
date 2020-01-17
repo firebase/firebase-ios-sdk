@@ -16,6 +16,7 @@
 
 #import "GDTCCTLibrary/Private/GDTCCTPrioritizer.h"
 
+#import <GoogleDataTransport/GDTCORConsoleLogger.h>
 #import <GoogleDataTransport/GDTCOREvent.h>
 #import <GoogleDataTransport/GDTCORRegistrar.h>
 #import <GoogleDataTransport/GDTCORStoredEvent.h>
@@ -62,15 +63,21 @@ const static int64_t kMillisPerDay = 8.64e+7;
     NSSet<GDTCORStoredEvent *> *logEventsThatWillBeSent;
     // A high priority event effectively flushes all events to be sent.
     if ((conditions & GDTCORUploadConditionHighPriority) == GDTCORUploadConditionHighPriority) {
+      GDTCORLogDebug("%@", @"CCT: A high priority event is flushing all events.");
       package.events = self.events;
+      GDTCORLogDebug("CCT: %lu events are in the upload package",
+                     (unsigned long)package.events.count);
       return;
     }
 
     // If on wifi, upload logs that are ok to send on wifi.
     if ((conditions & GDTCORUploadConditionWifiData) == GDTCORUploadConditionWifiData) {
       logEventsThatWillBeSent = [self logEventsOkToSendOnWifi];
+      GDTCORLogDebug("%@", @"CCT: events ok to send on wifi are being added to the upload package");
     } else {
       logEventsThatWillBeSent = [self logEventsOkToSendOnMobileData];
+      GDTCORLogDebug("%@",
+                     @"CCT: events ok to send on mobile are being added to the upload package");
     }
 
     // If it's been > 24h since the last daily upload, upload logs with the daily QoS.
@@ -80,14 +87,18 @@ const static int64_t kMillisPerDay = 8.64e+7;
       if (millisSinceLastUpload > kMillisPerDay) {
         logEventsThatWillBeSent =
             [logEventsThatWillBeSent setByAddingObjectsFromSet:[self logEventsOkToSendDaily]];
+        GDTCORLogDebug("%@", @"CCT: events ok to send daily are being added to the upload package");
       }
     } else {
       self.timeOfLastDailyUpload = [GDTCORClock snapshot];
       logEventsThatWillBeSent =
           [logEventsThatWillBeSent setByAddingObjectsFromSet:[self logEventsOkToSendDaily]];
+      GDTCORLogDebug("%@", @"CCT: events ok to send daily are being added to the upload package");
     }
     package.events = logEventsThatWillBeSent;
   });
+  GDTCORLogDebug("CCT: created an upload package with %ld events",
+                 (unsigned long)package.events.count);
   return package;
 }
 
