@@ -16,8 +16,8 @@
 
 #import <UIKit/UIKit.h>
 
-#import "FIRIAMBookKeeper.h"
-#import "FIRIAMMsgFetcherUsingRestful.h"
+#import <FirebaseInAppMessaging/FIRIAMBookKeeper.h>
+#import <FirebaseInAppMessaging/FIRIAMMsgFetcherUsingRestful.h>
 
 NS_ASSUME_NONNULL_BEGIN
 @interface AppDelegate : UIResponder <UIApplicationDelegate>

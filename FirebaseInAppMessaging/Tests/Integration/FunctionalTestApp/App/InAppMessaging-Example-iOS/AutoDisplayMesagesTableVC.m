@@ -15,8 +15,8 @@
  */
 
 #import "AutoDisplayMesagesTableVC.h"
-#import "FIRIAMDisplayTriggerDefinition.h"
-#import "FIRIAMMessageContentData.h"
+#import <FirebaseInAppMessaging/FIRIAMDisplayTriggerDefinition.h>
+#import <FirebaseInAppMessaging/FIRIAMMessageContentData.h>
 
 @interface AutoDisplayMesagesTableVC ()
 @end

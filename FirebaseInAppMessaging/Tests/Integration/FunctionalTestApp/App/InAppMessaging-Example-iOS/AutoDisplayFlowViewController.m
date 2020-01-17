@@ -19,18 +19,18 @@
 #import "AutoDisplayFlowViewController.h"
 #import "AutoDisplayMesagesTableVC.h"
 
-#import "FIRIAMDisplayCheckOnAppForegroundFlow.h"
-#import "FIRIAMMessageClientCache.h"
-#import "FIRIAMMessageContentDataWithImageURL.h"
-#import "FIRIAMMessageDefinition.h"
+#import <FirebaseInAppMessaging/FIRIAMDisplayCheckOnAppForegroundFlow.h>
+#import <FirebaseInAppMessaging/FIRIAMMessageClientCache.h>
+#import <FirebaseInAppMessaging/FIRIAMMessageContentDataWithImageURL.h>
+#import <FirebaseInAppMessaging/FIRIAMMessageDefinition.h>
 
-#import "FIRIAMActivityLogger.h"
-#import "FIRIAMDisplayCheckOnAnalyticEventsFlow.h"
-#import "FIRIAMFetchOnAppForegroundFlow.h"
-#import "FIRIAMMessageClientCache.h"
-#import "FIRIAMMsgFetcherUsingRestful.h"
+#import <FirebaseInAppMessaging/FIRIAMActivityLogger.h>
+#import <FirebaseInAppMessaging/FIRIAMDisplayCheckOnAnalyticEventsFlow.h>
+#import <FirebaseInAppMessaging/FIRIAMFetchOnAppForegroundFlow.h>
+#import <FirebaseInAppMessaging/FIRIAMMessageClientCache.h>
+#import <FirebaseInAppMessaging/FIRIAMMsgFetcherUsingRestful.h>
 
-#import "FIRIAMRuntimeManager.h"
+#import <FirebaseInAppMessaging/FIRIAMRuntimeManager.h>
 #import "FIRInAppMessaging.h"
 
 #import <FirebaseAnalytics/FIRAnalytics.h>

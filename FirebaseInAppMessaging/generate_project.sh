@@ -17,7 +17,7 @@
 
 readonly REPO_DIR="$( git rev-parse --show-toplevel )"
 
-"$REPO_DIR/Firebase/InAppMessaging/ProtoSupport/generate_nanopb_protos.sh" || {
+"$REPO_DIR/FirebaseInAppMessaging/ProtoSupport/generate_nanopb_protos.sh" || {
   echo "Something went wrong generating protos."
   exit 1
 }

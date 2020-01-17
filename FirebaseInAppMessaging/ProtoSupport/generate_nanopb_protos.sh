@@ -26,8 +26,8 @@ readonly REPO_DIR="$( git rev-parse --show-toplevel )"
 readonly NANOPB_VERSION="0.3.9.3"
 readonly NANOPB_TEMPDIR="$(mktemp -d)"
 
-readonly PROTO_DIR="${REPO_DIR}/Firebase/InAppMessaging/ProtoSupport/Protos"
-readonly PROTOGEN_DIR="${REPO_DIR}/Firebase/InAppMessaging/Analytics/Protogen"
+readonly PROTO_DIR="${REPO_DIR}/FirebaseInAppMessaging/ProtoSupport/Protos"
+readonly PROTOGEN_DIR="${REPO_DIR}/FirebaseInAppMessaging/Analytics/Protogen"
 
 rm -rf "${NANOPB_TEMPDIR}"
 
@@ -45,7 +45,7 @@ echo "Removing existing generated protos..."
 rm -rf "${PROTOGEN_DIR}/*"
 
 echo "Generating nanopb protos..."
-python "${REPO_DIR}/Firebase/InAppMessaging/ProtoSupport/nanopb_build_protos.py" \
+python "${REPO_DIR}/FirebaseInAppMessaging/ProtoSupport/nanopb_build_protos.py" \
   --nanopb \
   --protos_dir="${PROTO_DIR}" \
   --pythonpath="${NANOPB_TEMPDIR}/${NANOPB_BIN_DIR}/generator" \

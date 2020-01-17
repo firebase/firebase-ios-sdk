@@ -27,6 +27,7 @@ See more product details at https://firebase.google.com/products/in-app-messagin
 	display_dir = base_dir + "Sources/DefaultUI/"
   s.source_files = base_dir + "Sources/**/*.[cmh]"
   s.public_header_files = base_dir + 'Sources/Public/*.h'
+	s.private_header_files = base_dir + 'Sources/Private/**/*.h'
 
   s.resource_bundles = {
     'InAppMessagingDisplayResources' => [ base_dir + 'Resources/*.xib',

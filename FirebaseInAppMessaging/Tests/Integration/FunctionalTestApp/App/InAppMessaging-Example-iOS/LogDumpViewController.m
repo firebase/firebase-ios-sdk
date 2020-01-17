@@ -15,8 +15,8 @@
  */
 
 #import "LogDumpViewController.h"
+#import <FirebaseInAppMessaging/FIRIAMRuntimeManager.h>
 #import "AppDelegate.h"
-#import "FIRIAMRuntimeManager.h"
 
 @interface LogDumpViewController ()
 @property(weak, nonatomic) IBOutlet UITextView *logTextView;

@@ -16,7 +16,7 @@
 
 #import <UIKit/UIKit.h>
 
-#import "FIRIAMMessageClientCache.h"
+#import <FirebaseInAppMessaging/FIRIAMMessageClientCache.h>
 
 @interface AutoDisplayMesagesTableVC : UITableViewController <FIRIAMCacheDataObserver>
 @property(nonatomic) FIRIAMMessageClientCache *messageCache;

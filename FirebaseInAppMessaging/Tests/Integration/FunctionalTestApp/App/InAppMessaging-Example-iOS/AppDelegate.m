@@ -15,10 +15,10 @@
  */
 
 #import "AppDelegate.h"
-#import "FIRIAMClearcutUploader.h"
-#import "FIRIAMRuntimeManager.h"
-#import "FIRInAppMessaging+Bootstrap.h"
-#import "NSString+FIRInterlaceStrings.h"
+#import <FirebaseInAppMessaging/FIRIAMClearcutUploader.h>
+#import <FirebaseInAppMessaging/FIRIAMRuntimeManager.h>
+#import <FirebaseInAppMessaging/FIRInAppMessaging+Bootstrap.h>
+#import <FirebaseInAppMessaging/NSString+FIRInterlaceStrings.h>
 
 #import <FirebaseCore/FirebaseCore.h>
 #import <FirebaseDynamicLinks/FirebaseDynamicLinks.h>
