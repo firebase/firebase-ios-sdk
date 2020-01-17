@@ -56,27 +56,6 @@ class LevelDbPersistence : public Persistence {
   static util::StatusOr<std::unique_ptr<LevelDbPersistence>> Create(
       util::Path dir, LocalSerializer serializer, const LruParams& lru_params);
 
-  /**
-   * Finds a suitable directory to serve as the root of all Firestore local
-   * storage.
-   */
-  static util::StatusOr<util::Path> AppDataDirectory();
-
-  /**
-   * Computes a unique storage directory for the given identifying components of
-   * local storage.
-   *
-   * @param database_info The identifying information for the local storage
-   *     instance.
-   * @param documents_dir The root document directory relative to which
-   *     the storage directory will be created. Usually just
-   *     `LevelDbPersistence::AppDataDirectory()`.
-   * @return A storage directory unique to the instance identified by
-   *     `database_info`.
-   */
-  static util::Path StorageDirectory(const core::DatabaseInfo& database_info,
-                                     const util::Path& documents_dir);
-
   LevelDbTransaction* current_transaction();
 
   leveldb::DB* ptr() {
@@ -127,8 +106,6 @@ class LevelDbPersistence : public Persistence {
   /** Opens the database within the given directory. */
   static util::StatusOr<std::unique_ptr<leveldb::DB>> OpenDb(
       const util::Path& dir);
-
-  static constexpr const char* kReservedPathComponent = "firestore";
 
   std::unique_ptr<leveldb::DB> db_;
 

@@ -35,6 +35,10 @@ cc_library(
     async_testing.cc
     async_testing.h
     equals_tester.h
+    filesystem_testing.cc
+    filesystem_testing.h
+    status_testing.cc
+    status_testing.h
     testutil.cc
     testutil.h
     time_testing.cc
@@ -43,6 +47,7 @@ cc_library(
     view_testing.h
   DEPENDS
     ${TESTUTIL_DEPENDS}
+    GMock::GMock
     GTest::GTest
     absl_time
     firebase_firestore_core

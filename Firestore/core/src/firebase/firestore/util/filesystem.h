@@ -20,13 +20,17 @@
 #include <memory>
 #include <string>
 
-#include "Firestore/core/src/firebase/firestore/util/path.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
-#include "Firestore/core/src/firebase/firestore/util/statusor.h"
+#include "absl/strings/string_view.h"
 
 namespace firebase {
 namespace firestore {
 namespace util {
+
+class Path;
+
+template <typename T>
+class StatusOr;
 
 /**
  * A high-level interface describing filesystem operations.
@@ -46,12 +50,18 @@ class Filesystem {
    * Returns a system-defined best directory in which to create application
    * data. Values vary wildly across platforms. They include:
    *
-   *   * iOS: $container/Documents/$app_name
+   *   * iOS: $container/Library/Application Support/$app_name
    *   * Linux: $HOME/.local/share/$app_name
-   *   * macOS: $HOME/.$app_name
+   *   * macOS: $container/Library/Application Support/$app_name
    *   * Other UNIX: $HOME/.$app_name
-   *   * tvOS: $HOME/Library/Caches/$app_name
+   *   * tvOS: $container/Library/Caches/$app_name
    *   * Windows: %USERPROFILE%/AppData/Local
+   *
+   * On iOS, tvOS, and macOS (when running sandboxed), these locations are
+   * relative to the data container for the current application. On macOS when
+   * the application is not sandboxed, the returned value will be relative to
+   * $HOME instead. See "About the iOS File System" in the Apple "File System
+   * Programming Guide" at https://apple.co/2Nn7Bsb.
    *
    * Note: the returned path is just where the system thinks the application
    * data should be stored, but AppDataDir does not actually guarantee that this
@@ -60,6 +70,28 @@ class Filesystem {
    * @param app_name The name of the application.
    */
   virtual StatusOr<Path> AppDataDir(absl::string_view app_name);
+
+  /**
+   * Returns the Documents directory in which Firestore used to store
+   * application data. Values vary wildly across platforms. They include:
+   *
+   *   * iOS: $container/Documents/$app_name
+   *   * macOS: $HOME/.$app_name
+   *
+   * On iOS, the Documents folder is relative to the data container for the
+   * current application. See "About the iOS File System" in the Apple "File
+   * System Programming Guide" at https://apple.co/2Nn7Bsb.
+   *
+   * Note: the returned path is just where the system thinks the documents
+   * directory should be stored, but LegacyDocumentsDir does not actually
+   * guarantee that this path exists.
+   *
+   * @param app_name The name of the application.
+   *
+   * @returns The documents directory path or a status with Error::Unimplemented
+   * if the current platform does not have a legacy documents directory.
+   */
+  virtual StatusOr<Path> LegacyDocumentsDir(absl::string_view app_name);
 
   /**
    * Returns system-defined best directory in which to create temporary files.
@@ -146,6 +178,8 @@ class Filesystem {
    */
   virtual Status RecursivelyRemoveDir(const Path& path);
 
+  virtual Status Rename(const Path& from_path, const Path& to_path);
+
   /**
    * Marks the given directory as excluded from platform-specific backup schemes
    * like iCloud backup.
@@ -161,6 +195,11 @@ class Filesystem {
  protected:
   Filesystem() = default;
 };
+
+/**
+ * Returns true if the path is an accessible directory and is empty.
+ */
+bool IsEmptyDir(const Path& path);
 
 /**
  * Implements an iterator over the contents of a directory. Initializes to the

@@ -26,7 +26,8 @@
 #include "Firestore/core/src/firebase/firestore/util/path.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "Firestore/core/src/firebase/firestore/util/string_win.h"
-#include "Firestore/core/test/firebase/firestore/util/status_testing.h"
+#include "Firestore/core/test/firebase/firestore/testutil/filesystem_testing.h"
+#include "Firestore/core/test/firebase/firestore/testutil/status_testing.h"
 #include "absl/strings/match.h"
 #include "absl/types/optional.h"
 #include "gtest/gtest.h"
@@ -35,16 +36,9 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-/** Creates an empty file at the given path. */
-static void Touch(const Path& path) {
-  std::ofstream out{path.native_value()};
-  ASSERT_TRUE(out.good());
-}
-
-/** Creates a random filename that doesn't exist. */
-static Path TestFilename() {
-  return Path::FromUtf8("firestore-testing-" + CreateAutoId());
-}
+using testutil::RandomFilename;
+using testutil::TestTempDir;
+using testutil::Touch;
 
 static void WriteStringToFile(const Path& path, const std::string& text) {
   std::ofstream out{path.native_value()};
@@ -81,7 +75,7 @@ class FilesystemTest : public testing::Test {
 TEST_F(FilesystemTest, Exists) {
   EXPECT_OK(fs_->IsDirectory(Path::FromUtf8("/")));
 
-  Path file = Path::JoinUtf8("/", TestFilename());
+  Path file = Path::JoinUtf8("/", RandomFilename());
   EXPECT_NOT_FOUND(fs_->IsDirectory(file));
 }
 
@@ -159,7 +153,7 @@ TEST_F(FilesystemTest, GetTempDirNoTmpdir) {
 }
 
 TEST_F(FilesystemTest, RecursivelyCreateDir) {
-  Path parent = Path::JoinUtf8(fs_->TempDir(), TestFilename());
+  Path parent = Path::JoinUtf8(fs_->TempDir(), RandomFilename());
   Path dir = Path::JoinUtf8(parent, "middle", "leaf");
 
   ASSERT_OK(fs_->RecursivelyCreateDir(dir));
@@ -173,7 +167,7 @@ TEST_F(FilesystemTest, RecursivelyCreateDir) {
 }
 
 TEST_F(FilesystemTest, RecursivelyCreateDirFailure) {
-  Path dir = Path::JoinUtf8(fs_->TempDir(), TestFilename());
+  Path dir = Path::JoinUtf8(fs_->TempDir(), RandomFilename());
   Path subdir = Path::JoinUtf8(dir, "middle", "leaf");
 
   // Create a file that interferes with creating the directory.
@@ -189,14 +183,14 @@ TEST_F(FilesystemTest, RecursivelyRemove) {
   Path tmp_dir = fs_->TempDir();
   ASSERT_OK(fs_->IsDirectory(tmp_dir));
 
-  Path file = Path::JoinUtf8(tmp_dir, TestFilename());
+  Path file = Path::JoinUtf8(tmp_dir, RandomFilename());
   EXPECT_NOT_FOUND(fs_->IsDirectory(file));
 
   // Deleting something that doesn't exist should succeed.
   EXPECT_OK(fs_->RecursivelyRemove(file));
   EXPECT_NOT_FOUND(fs_->IsDirectory(file));
 
-  Path nested_file = Path::JoinUtf8(file, TestFilename());
+  Path nested_file = Path::JoinUtf8(file, RandomFilename());
   EXPECT_OK(fs_->RecursivelyRemove(nested_file));
   EXPECT_NOT_FOUND(fs_->IsDirectory(nested_file));
   EXPECT_NOT_FOUND(fs_->IsDirectory(file));
@@ -217,8 +211,8 @@ TEST_F(FilesystemTest, RecursivelyRemove) {
 }
 
 TEST_F(FilesystemTest, RecursivelyRemoveTree) {
-  Path root_dir = Path::JoinUtf8(fs_->TempDir(), TestFilename());
-  Path middle_dir = Path::JoinUtf8(root_dir, "middle");
+  TestTempDir root_dir;
+  Path middle_dir = root_dir.Child("middle");
   Path leaf1_dir = Path::JoinUtf8(middle_dir, "leaf1");
   Path leaf2_dir = Path::JoinUtf8(middle_dir, "leaf2");
   ASSERT_OK(fs_->RecursivelyCreateDir(leaf1_dir));
@@ -230,32 +224,30 @@ TEST_F(FilesystemTest, RecursivelyRemoveTree) {
   Touch(Path::JoinUtf8(leaf2_dir, "A"));
   Touch(Path::JoinUtf8(leaf2_dir, "B"));
 
-  EXPECT_OK(fs_->RecursivelyRemove(root_dir));
-  EXPECT_NOT_FOUND(fs_->IsDirectory(root_dir));
+  EXPECT_OK(fs_->RecursivelyRemove(root_dir.path()));
+  EXPECT_NOT_FOUND(fs_->IsDirectory(root_dir.path()));
   EXPECT_NOT_FOUND(fs_->IsDirectory(leaf1_dir));
   EXPECT_NOT_FOUND(fs_->IsDirectory(Path::JoinUtf8(leaf2_dir, "A")));
 }
 
 TEST_F(FilesystemTest, RecursivelyRemovePreservesPeers) {
-  Path root_dir = Path::JoinUtf8(fs_->TempDir(), TestFilename());
+  TestTempDir root_dir;
 
   // Ensure that when deleting a directory we don't delete any directory that
   // has a name that's a suffix of that directory. (This matters because on
   // Win32 directories are traversed with a glob which can easily over-match.)
-  Path child = Path::JoinUtf8(root_dir, "child");
-  Path child_suffix = Path::JoinUtf8(root_dir, "child_suffix");
+  Path child = root_dir.Child("child");
+  Path child_suffix = root_dir.Child("child_suffix");
 
   ASSERT_OK(fs_->RecursivelyCreateDir(child));
   ASSERT_OK(fs_->RecursivelyCreateDir(child_suffix));
 
   ASSERT_OK(fs_->RecursivelyRemove(child));
   ASSERT_OK(fs_->IsDirectory(child_suffix));
-
-  EXPECT_OK(fs_->RecursivelyRemove(root_dir));
 }
 
 TEST_F(FilesystemTest, FileSize) {
-  Path file = Path::JoinUtf8(fs_->TempDir(), TestFilename());
+  Path file = Path::JoinUtf8(fs_->TempDir(), RandomFilename());
   ASSERT_NOT_FOUND(fs_->FileSize(file).status());
   Touch(file);
   StatusOr<int64_t> result = fs_->FileSize(file);
@@ -271,7 +263,8 @@ TEST_F(FilesystemTest, FileSize) {
 }
 
 TEST_F(FilesystemTest, ReadFile) {
-  Path file = Path::JoinUtf8(fs_->TempDir(), TestFilename());
+  TestTempDir root_dir;
+  Path file = root_dir.RandomChild();
   StatusOr<std::string> result = fs_->ReadFile(file);
   ASSERT_FALSE(result.ok());
 
@@ -284,6 +277,38 @@ TEST_F(FilesystemTest, ReadFile) {
   result = fs_->ReadFile(file);
   ASSERT_OK(result.status());
   ASSERT_EQ(result.ValueOrDie(), "foobar");
+}
+
+TEST_F(FilesystemTest, IsEmptyDir) {
+  TestTempDir root_dir;
+
+  Path dir = root_dir.Child("empty");
+  ASSERT_FALSE(IsEmptyDir(dir));
+
+  ASSERT_OK(fs_->RecursivelyCreateDir(dir));
+  ASSERT_TRUE(IsEmptyDir(dir));
+
+  Path file = Path::JoinUtf8(dir, RandomFilename());
+  Touch(file);
+  ASSERT_FALSE(IsEmptyDir(dir));
+}
+
+TEST_F(FilesystemTest, Rename) {
+  TestTempDir root_dir;
+
+  Path src_file = root_dir.Child("src");
+  Path dest_file = root_dir.Child("dest");
+
+  EXPECT_NOT_FOUND(fs_->IsDirectory(src_file));
+  EXPECT_NOT_FOUND(fs_->IsDirectory(dest_file));
+
+  ASSERT_OK(fs_->RecursivelyCreateDir(src_file));
+  EXPECT_OK(fs_->IsDirectory(src_file));
+  EXPECT_NOT_FOUND(fs_->IsDirectory(dest_file));
+
+  ASSERT_OK(fs_->Rename(src_file, dest_file));
+  EXPECT_NOT_FOUND(fs_->IsDirectory(src_file));
+  EXPECT_OK(fs_->IsDirectory(dest_file));
 }
 
 }  // namespace util

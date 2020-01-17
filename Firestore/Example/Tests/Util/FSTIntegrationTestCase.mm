@@ -40,7 +40,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
-#include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_opener.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
@@ -50,7 +50,7 @@
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/testutil/app_testing.h"
 #include "Firestore/core/test/firebase/firestore/testutil/async_testing.h"
-#include "Firestore/core/test/firebase/firestore/util/status_testing.h"
+#include "Firestore/core/test/firebase/firestore/testutil/status_testing.h"
 #include "absl/memory/memory.h"
 
 namespace testutil = firebase::firestore::testutil;
@@ -60,7 +60,8 @@ using firebase::firestore::auth::CredentialChangeListener;
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::auth::User;
-using firebase::firestore::local::LevelDbPersistence;
+using firebase::firestore::core::DatabaseInfo;
+using firebase::firestore::local::LevelDbOpener;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::testutil::AppForUnitTesting;
 using firebase::firestore::testutil::AsyncQueueForTesting;
@@ -148,10 +149,12 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
 
   @synchronized([FSTIntegrationTestCase class]) {
     if (clearedPersistence) return;
-    StatusOr<Path> maybe_dir = LevelDbPersistence::AppDataDirectory();
-    ASSERT_OK(maybe_dir);
+    DatabaseInfo dbInfo;
+    LevelDbOpener opener(dbInfo);
+    StatusOr<Path> maybeLevelDBDir = opener.FirestoreAppDataDir();
+    ASSERT_OK(maybeLevelDBDir.status());
+    Path levelDBDir = std::move(maybeLevelDBDir).ValueOrDie();
 
-    Path levelDBDir = maybe_dir.ValueOrDie();
     Status status = fs->RecursivelyRemove(levelDBDir);
     ASSERT_OK(status);
 

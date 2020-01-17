@@ -19,7 +19,7 @@
 #include <cerrno>
 
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
-#include "Firestore/core/test/firebase/firestore/util/status_testing.h"
+#include "Firestore/core/test/firebase/firestore/testutil/status_testing.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 

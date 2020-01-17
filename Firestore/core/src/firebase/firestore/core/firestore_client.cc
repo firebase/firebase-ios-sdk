@@ -26,6 +26,7 @@
 #include "Firestore/core/src/firebase/firestore/core/event_manager.h"
 #include "Firestore/core/src/firebase/firestore/core/view.h"
 #include "Firestore/core/src/firebase/firestore/local/index_free_query_engine.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_opener.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
 #include "Firestore/core/src/firebase/firestore/local/local_serializer.h"
 #include "Firestore/core/src/firebase/firestore/local/memory_persistence.h"
@@ -60,7 +61,7 @@ using auth::CredentialsProvider;
 using auth::User;
 using firestore::Error;
 using local::IndexFreeQueryEngine;
-using local::LevelDbPersistence;
+using local::LevelDbOpener;
 using local::LocalSerializer;
 using local::LocalStore;
 using local::LruParams;
@@ -155,18 +156,10 @@ void FirestoreClient::Initialize(const User& user, const Settings& settings) {
   // more work) since external write/listen operations could get queued to run
   // before that subsequent work completes.
   if (settings.persistence_enabled()) {
-    auto maybe_data_dir = LevelDbPersistence::AppDataDirectory();
-    HARD_ASSERT(maybe_data_dir.ok(),
-                "Failed to find the App data directory for the current user.");
+    LevelDbOpener opener(database_info_);
 
-    Path dir = LevelDbPersistence::StorageDirectory(
-        database_info_, maybe_data_dir.ValueOrDie());
-
-    Serializer remote_serializer{database_info_.database_id()};
-
-    auto created = LevelDbPersistence::Create(
-        std::move(dir), LocalSerializer{std::move(remote_serializer)},
-        LruParams::WithCacheSize(settings.cache_size_bytes()));
+    auto created =
+        opener.Create(LruParams::WithCacheSize(settings.cache_size_bytes()));
     // If leveldb fails to start then just throw up our hands: the error is
     // unrecoverable. There's nothing an end-user can do and nearly all
     // failures indicate the developer is doing something grossly wrong so we
