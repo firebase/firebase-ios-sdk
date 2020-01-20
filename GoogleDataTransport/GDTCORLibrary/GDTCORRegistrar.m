@@ -15,8 +15,9 @@
  */
 
 #import "GDTCORLibrary/Public/GDTCORRegistrar.h"
-
 #import "GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
+
+#import <GoogleDataTransport/GDTCORConsoleLogger.h>
 
 @implementation GDTCORRegistrar {
   /** Backing ivar for targetToUploader property. */
@@ -50,6 +51,7 @@
   dispatch_async(_registrarQueue, ^{
     GDTCORRegistrar *strongSelf = weakSelf;
     if (strongSelf) {
+      GDTCORLogDebug("Registered an uploader: %@ for target:%ld", backend, (long)target);
       strongSelf->_targetToUploader[@(target)] = backend;
     }
   });
@@ -60,6 +62,7 @@
   dispatch_async(_registrarQueue, ^{
     GDTCORRegistrar *strongSelf = weakSelf;
     if (strongSelf) {
+      GDTCORLogDebug("Registered a prioritizer: %@ for target:%ld", prioritizer, (long)target);
       strongSelf->_targetToPrioritizer[@(target)] = prioritizer;
     }
   });

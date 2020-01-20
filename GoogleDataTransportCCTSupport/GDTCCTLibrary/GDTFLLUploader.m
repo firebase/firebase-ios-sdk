@@ -141,6 +141,7 @@ NSNotificationName const GDTFLLUploadCompleteNotification = @"com.GDTFLLUploader
 
     id completionHandler = ^(NSData *_Nullable data, NSURLResponse *_Nullable response,
                              NSError *_Nullable error) {
+      GDTCORLogDebug("%@", @"FLL: request completed");
       if (error) {
         GDTCORLogWarning(GDTCORMCWUploadFailed, @"There was an error uploading events: %@", error);
       }
@@ -148,9 +149,14 @@ NSNotificationName const GDTFLLUploadCompleteNotification = @"com.GDTFLLUploader
       if (data) {
         gdt_cct_LogResponse logResponse = GDTCCTDecodeLogResponse(data, &decodingError);
         if (!decodingError && logResponse.has_next_request_wait_millis) {
+          GDTCORLogDebug(
+              "FLL: The backend responded asking to not upload for %lld millis from now.",
+              logResponse.next_request_wait_millis);
           self->_nextUploadTime =
               [GDTCORClock clockSnapshotInTheFuture:logResponse.next_request_wait_millis];
         } else {
+          GDTCORLogDebug("%@", @"FLL: The CCT backend response failed to parse, so the next "
+                               @"request won't occur until 15 minutes from now");
           // 15 minutes from now.
           self->_nextUploadTime = [GDTCORClock clockSnapshotInTheFuture:15 * 60 * 1000];
         }
@@ -168,6 +174,7 @@ NSNotificationName const GDTFLLUploadCompleteNotification = @"com.GDTFLLUploader
         [[NSNotificationCenter defaultCenter] postNotificationName:GDTFLLUploadCompleteNotification
                                                             object:@(package.events.count)];
 #endif  // #if !NDEBUG
+        GDTCORLogDebug("%@", @"FLL: package delivered");
         [package completeDelivery];
       }
 
@@ -186,9 +193,11 @@ NSNotificationName const GDTFLLUploadCompleteNotification = @"com.GDTFLLUploader
     BOOL usingGzipData = gzippedData != nil && gzippedData.length < requestProtoData.length;
     NSData *dataToSend = usingGzipData ? gzippedData : requestProtoData;
     NSURLRequest *request = [self constructRequestWithURL:serverURL data:dataToSend];
+    GDTCORLogDebug("FLL: request created: %@", request);
     self.currentTask = [self.uploaderSession uploadTaskWithRequest:request
                                                           fromData:gzippedData
                                                  completionHandler:completionHandler];
+    GDTCORLogDebug("%@", @"FLL: The upload task is about to begin.");
     [self.currentTask resume];
   });
 }
@@ -198,19 +207,30 @@ NSNotificationName const GDTFLLUploadCompleteNotification = @"com.GDTFLLUploader
   dispatch_sync(_uploaderQueue, ^{
     if (self->_currentUploadPackage) {
       result = NO;
+      GDTCORLogDebug("%@", @"FLL: can't upload because a package is in flight");
       return;
     }
     if (self->_currentTask) {
       result = NO;
+      GDTCORLogDebug("%@", @"FLL: can't upload because a task is in progress");
       return;
     }
     if ((conditions & GDTCORUploadConditionHighPriority) == GDTCORUploadConditionHighPriority) {
       result = YES;
+      GDTCORLogDebug("%@", @"FLL: a high priority event is allowing an upload");
       return;
     } else if (self->_nextUploadTime) {
       result = [[GDTCORClock snapshot] isAfter:self->_nextUploadTime];
+#if !NDEBUG
+      if (result) {
+        GDTCORLogDebug("%@", @"FLL: can upload because the request wait time has transpired");
+      } else {
+        GDTCORLogDebug("%@", @"FLL: can't upload because the backend asked to wait");
+      }
+#endif  // !NDEBUG
       return;
     }
+    GDTCORLogDebug("%@", @"FLL: can upload because nothing is preventing it");
     result = YES;
   });
   return result;
