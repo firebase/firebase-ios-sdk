@@ -120,9 +120,11 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
                                                      kGDTCORVersion, kGDTCCTSupportSDKVersion];
     [request setValue:userAgent forHTTPHeaderField:@"User-Agent"];
     request.HTTPMethod = @"POST";
+    GDTCORLogDebug("CCT: request created: %@", request);
 
     id completionHandler = ^(NSData *_Nullable data, NSURLResponse *_Nullable response,
                              NSError *_Nullable error) {
+      GDTCORLogDebug("%@", @"CCT: request completed");
       if (error) {
         GDTCORLogWarning(GDTCORMCWUploadFailed, @"There was an error uploading events: %@", error);
       }
@@ -130,9 +132,14 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
       if (data) {
         gdt_cct_LogResponse logResponse = GDTCCTDecodeLogResponse(data, &decodingError);
         if (!decodingError && logResponse.has_next_request_wait_millis) {
+          GDTCORLogDebug(
+              "CCT: The backend responded asking to not upload for %lld millis from now.",
+              logResponse.next_request_wait_millis);
           self->_nextUploadTime =
               [GDTCORClock clockSnapshotInTheFuture:logResponse.next_request_wait_millis];
         } else {
+          GDTCORLogDebug("%@", @"CCT: The CCT backend response failed to parse, so the next "
+                               @"request won't occur until 15 minutes from now");
           // 15 minutes from now.
           self->_nextUploadTime = [GDTCORClock clockSnapshotInTheFuture:15 * 60 * 1000];
         }
@@ -144,6 +151,7 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
       [[NSNotificationCenter defaultCenter] postNotificationName:GDTCCTUploadCompleteNotification
                                                           object:@(package.events.count)];
 #endif  // #if !NDEBUG
+      GDTCORLogDebug("%@", @"CCT: package delivered");
       [package completeDelivery];
 
       // End the background task if there was one.
@@ -160,6 +168,7 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
     self.currentTask = [self.uploaderSession uploadTaskWithRequest:request
                                                           fromData:requestProtoData
                                                  completionHandler:completionHandler];
+    GDTCORLogDebug("%@", @"CCT: The upload task is about to begin.");
     [self.currentTask resume];
   });
 }
@@ -169,19 +178,30 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
   dispatch_sync(_uploaderQueue, ^{
     if (self->_currentUploadPackage) {
       result = NO;
+      GDTCORLogDebug("%@", @"CCT: can't upload because a package is in flight");
       return;
     }
     if (self->_currentTask) {
       result = NO;
+      GDTCORLogDebug("%@", @"CCT: can't upload because a task is in progress");
       return;
     }
     if ((conditions & GDTCORUploadConditionHighPriority) == GDTCORUploadConditionHighPriority) {
       result = YES;
+      GDTCORLogDebug("%@", @"CCT: a high priority event is allowing an upload");
       return;
     } else if (self->_nextUploadTime) {
       result = [[GDTCORClock snapshot] isAfter:self->_nextUploadTime];
+#if !NDEBUG
+      if (result) {
+        GDTCORLogDebug("%@", @"CCT: can upload because the request wait time has transpired");
+      } else {
+        GDTCORLogDebug("%@", @"CCT: can't upload because the backend asked to wait");
+      }
+#endif  // !NDEBUG
       return;
     }
+    GDTCORLogDebug("%@", @"CCT: can upload because nothing is preventing it");
     result = YES;
   });
   return result;
