@@ -200,9 +200,7 @@ very grateful!  We'd like to empower as many developers as we can to be able to 
 participate in the Firebase community.
 
 ### tvOS, macOS, and Catalyst
-Thanks to contributions from the community, FirebaseABTesting, FirebaseAuth, FirebaseCore,
-FirebaseDatabase, FirebaseMessaging, FirebaseFirestore,
-FirebaseFunctions, FirebaseRemoteConfig, and FirebaseStorage now compile, run unit tests, and work on
+Thanks to contributions from the community, many of Firebase SDKs now compile, run unit tests, and work on
 tvOS, macOS, and Catalyst.
 
 For tvOS, checkout the [Sample](Example/tvOSSample).
@@ -211,6 +209,10 @@ Keep in mind that macOS, Catalyst and tvOS are not officially supported by Fireb
 repository is actively developed primarily for iOS. While we can catch basic unit test issues with
 Travis, there may be some changes where the SDK no longer works as expected on macOS or tvOS. If you
 encounter this, please [file an issue](https://github.com/firebase/firebase-ios-sdk/issues).
+
+During app setup in the console, you may get to a step that mentions something like "Checking if the app
+has communicated with our servers". This relies on Analytics and will not work on macOS/tvOS/Catalyst.
+**It's safe to ignore the message and continue**, the rest of the SDKs will work as expected.
 
 To install, add a subset of the following to the Podfile:
 
