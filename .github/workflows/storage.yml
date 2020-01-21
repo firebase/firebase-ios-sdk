@@ -18,10 +18,10 @@ jobs:
       #   super_secret: ${{ secrets.SuperSecret }}
       run: |
         echo "abc"
-        echo ${{ secrets.TestSecret }}
+        echo ${{ secrets.TestSecret2 }}
         echo "xyz"
-        cp ${{ secrets.TestSecret }} foo
-        cat foo
+        #cp ${{ secrets.TestSecret }} foo
+        #cat foo
 
 
     # - uses: actions/checkout@v1
