@@ -185,7 +185,20 @@ struct ZipBuilder {
     // install a subset of pods, like the following line:
     // let inputPods: [String] = ["Firebase", "FirebaseCore", "FirebaseAnalytics", "FirebaseStorage"]
     let inputPods = FirebasePods.allCases.map { $0.rawValue }
-    let podsToInstall = inputPods.map { CocoaPodUtils.VersionedPod(name: $0, version: nil) }
+
+    // Get the expected versions based on the release manifests, if there are any. If there are any
+    // versions with `alpha` or `beta` in it, we'll need to explicitly specify the version here so
+    // CocoaPods installs it properly.
+    let prereleases = expectedVersions().filter { _, version in
+      version.contains("alpha") || version.contains("beta") || version.contains("rc")
+    }
+
+    let podsToInstall: [CocoaPodUtils.VersionedPod] = inputPods.map { name in
+      // If there's a pre-release version, include it here. Otherwise don't pass a version since we
+      // want the latest.
+      let version: String? = prereleases[name]
+      return CocoaPodUtils.VersionedPod(name: name, version: version)
+    }
 
     let (installedPods, frameworks) = buildAndAssembleZip(podsToInstall: podsToInstall)
 
