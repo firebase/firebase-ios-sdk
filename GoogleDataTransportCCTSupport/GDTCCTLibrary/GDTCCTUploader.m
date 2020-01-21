@@ -24,6 +24,7 @@
 #import <nanopb/pb_decode.h>
 #import <nanopb/pb_encode.h>
 
+#import "GDTCCTLibrary/Private/GDTCCTCompressionHelper.h"
 #import "GDTCCTLibrary/Private/GDTCCTNanopbHelpers.h"
 #import "GDTCCTLibrary/Private/GDTCCTPrioritizer.h"
 
@@ -115,12 +116,6 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
       return;
     }
     NSURL *serverURL = self.serverURL ? self.serverURL : [self defaultServerURL];
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:serverURL];
-    NSString *userAgent = [NSString stringWithFormat:@"datatransport/%@ fllsupport/%@ apple/",
-                                                     kGDTCORVersion, kGDTCCTSupportSDKVersion];
-    [request setValue:userAgent forHTTPHeaderField:@"User-Agent"];
-    request.HTTPMethod = @"POST";
-    GDTCORLogDebug("CCT: request created: %@", request);
 
     id completionHandler = ^(NSData *_Nullable data, NSURLResponse *_Nullable response,
                              NSError *_Nullable error) {
@@ -165,8 +160,13 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
     self->_currentUploadPackage = package;
     NSData *requestProtoData =
         [self constructRequestProtoFromPackage:(GDTCORUploadPackage *)package];
+    NSData *gzippedData = [GDTCCTCompressionHelper gzippedData:requestProtoData];
+    BOOL usingGzipData = gzippedData != nil && gzippedData.length < requestProtoData.length;
+    NSData *dataToSend = usingGzipData ? gzippedData : requestProtoData;
+    NSURLRequest *request = [self constructRequestWithURL:serverURL data:dataToSend];
+    GDTCORLogDebug("CCT: request created: %@", request);
     self.currentTask = [self.uploaderSession uploadTaskWithRequest:request
-                                                          fromData:requestProtoData
+                                                          fromData:dataToSend
                                                  completionHandler:completionHandler];
     GDTCORLogDebug("%@", @"CCT: The upload task is about to begin.");
     [self.currentTask resume];
@@ -232,6 +232,28 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
   NSData *data = GDTCCTEncodeBatchedLogRequest(&batchedLogRequest);
   pb_release(gdt_cct_BatchedLogRequest_fields, &batchedLogRequest);
   return data ? data : [[NSData alloc] init];
+}
+
+/** Constructs a request to CCT given a URL and request body data.
+ *
+ * @param URL The URL to send the request to.
+ * @param data The request body data.
+ * @return A new NSURLRequest ready to be sent to CCT.
+ */
+- (NSURLRequest *)constructRequestWithURL:(NSURL *)URL data:(NSData *)data {
+  BOOL isGzipped = [GDTCCTCompressionHelper isGzipped:data];
+  NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
+  [request setValue:@"application/x-protobuf" forHTTPHeaderField:@"Content-Type"];
+  if (isGzipped) {
+    [request setValue:@"gzip" forHTTPHeaderField:@"Content-Encoding"];
+  }
+  [request setValue:@"gzip" forHTTPHeaderField:@"Accept-Encoding"];
+  NSString *userAgent = [NSString stringWithFormat:@"datatransport/%@ cctsupport/%@ apple/",
+                                                   kGDTCORVersion, kGDTCCTSupportSDKVersion];
+  [request setValue:userAgent forHTTPHeaderField:@"User-Agent"];
+  request.HTTPMethod = @"POST";
+  [request setHTTPBody:data];
+  return request;
 }
 
 #pragma mark - GDTCORUploadPackageProtocol

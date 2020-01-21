@@ -16,8 +16,6 @@
 
 #import "GDTCCTLibrary/Private/GDTFLLUploader.h"
 
-#import <zlib.h>
-
 #import <GoogleDataTransport/GDTCORConsoleLogger.h>
 #import <GoogleDataTransport/GDTCORPlatform.h>
 #import <GoogleDataTransport/GDTCORRegistrar.h>
@@ -26,6 +24,7 @@
 #import <nanopb/pb_decode.h>
 #import <nanopb/pb_encode.h>
 
+#import "GDTCCTLibrary/Private/GDTCCTCompressionHelper.h"
 #import "GDTCCTLibrary/Private/GDTCCTNanopbHelpers.h"
 #import "GDTCCTLibrary/Private/GDTFLLPrioritizer.h"
 
@@ -189,13 +188,13 @@ NSNotificationName const GDTFLLUploadCompleteNotification = @"com.GDTFLLUploader
     self->_currentUploadPackage = package;
     NSData *requestProtoData =
         [self constructRequestProtoFromPackage:(GDTCORUploadPackage *)package];
-    NSData *gzippedData = [GDTFLLUploader gzippedData:requestProtoData];
+    NSData *gzippedData = [GDTCCTCompressionHelper gzippedData:requestProtoData];
     BOOL usingGzipData = gzippedData != nil && gzippedData.length < requestProtoData.length;
     NSData *dataToSend = usingGzipData ? gzippedData : requestProtoData;
     NSURLRequest *request = [self constructRequestWithURL:serverURL data:dataToSend];
     GDTCORLogDebug("FLL: request created: %@", request);
     self.currentTask = [self.uploaderSession uploadTaskWithRequest:request
-                                                          fromData:gzippedData
+                                                          fromData:dataToSend
                                                  completionHandler:completionHandler];
     GDTCORLogDebug("%@", @"FLL: The upload task is about to begin.");
     [self.currentTask resume];
@@ -237,79 +236,6 @@ NSNotificationName const GDTFLLUploadCompleteNotification = @"com.GDTFLLUploader
 }
 
 #pragma mark - Private helper methods
-
-/** Compresses the given data and returns a new data object.
- *
- * @note Reduced version from GULNSData+zlib.m of GoogleUtilities.
- * @return Compressed data, or nil if there was an error.
- */
-+ (nullable NSData *)gzippedData:(NSData *)data {
-#if defined(__LP64__) && __LP64__
-  // Don't support > 32bit length for 64 bit, see note in header.
-  if (data.length > UINT_MAX) {
-    return nil;
-  }
-#endif
-
-  const uint kChunkSize = 1024;
-
-  const void *bytes = [data bytes];
-  NSUInteger length = [data length];
-
-  int level = Z_DEFAULT_COMPRESSION;
-  if (!bytes || !length) {
-    return nil;
-  }
-
-  z_stream strm;
-  bzero(&strm, sizeof(z_stream));
-
-  int memLevel = 8;          // Default.
-  int windowBits = 15 + 16;  // Enable gzip header instead of zlib header.
-
-  int retCode;
-  if ((retCode = deflateInit2(&strm, level, Z_DEFLATED, windowBits, memLevel,
-                              Z_DEFAULT_STRATEGY)) != Z_OK) {
-    return nil;
-  }
-
-  // Hint the size at 1/4 the input size.
-  NSMutableData *result = [NSMutableData dataWithCapacity:(length / 4)];
-  unsigned char output[kChunkSize];
-
-  // Setup the input.
-  strm.avail_in = (unsigned int)length;
-  strm.next_in = (unsigned char *)bytes;
-
-  // Collect the data.
-  do {
-    // update what we're passing in
-    strm.avail_out = kChunkSize;
-    strm.next_out = output;
-    retCode = deflate(&strm, Z_FINISH);
-    if ((retCode != Z_OK) && (retCode != Z_STREAM_END)) {
-      deflateEnd(&strm);
-      return nil;
-    }
-    // Collect what we got.
-    unsigned gotBack = kChunkSize - strm.avail_out;
-    if (gotBack > 0) {
-      [result appendBytes:output length:gotBack];
-    }
-
-  } while (retCode == Z_OK);
-
-  // If the loop exits, it used all input and the stream ended.
-  NSAssert(strm.avail_in == 0,
-           @"Should have finished deflating without using all input, %u bytes left", strm.avail_in);
-  NSAssert(retCode == Z_STREAM_END,
-           @"thought we finished deflate w/o getting a result of stream end, code %d", retCode);
-
-  // Clean up.
-  deflateEnd(&strm);
-
-  return result;
-}
 
 /** Constructs data given an upload package.
  *
