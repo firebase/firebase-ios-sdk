@@ -21,7 +21,7 @@ Firebase In-App Messaging SDK.
 
   s.cocoapods_version = '>= 1.4.0'
   s.static_framework = true
-	s.deprecated_in_favor_of = 'FirebaseInAppMessaging'
+  s.deprecated_in_favor_of = 'FirebaseInAppMessaging'
   s.prefix_header_file = false
 
   base_dir = "FirebaseInAppMessagingDisplay/"

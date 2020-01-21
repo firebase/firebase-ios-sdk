@@ -24,10 +24,9 @@ See more product details at https://firebase.google.com/products/in-app-messagin
   s.prefix_header_file = false
 
   base_dir = "FirebaseInAppMessaging/"
-	display_dir = base_dir + "Sources/DefaultUI/"
   s.source_files = base_dir + "Sources/**/*.[cmh]"
   s.public_header_files = base_dir + 'Sources/Public/*.h'
-	s.private_header_files = base_dir + 'Sources/Private/**/*.h'
+  s.private_header_files = base_dir + 'Sources/Private/**/*.h'
 
   s.resource_bundles = {
     'InAppMessagingDisplayResources' => [ base_dir + 'Resources/*.xib',
@@ -46,11 +45,11 @@ See more product details at https://firebase.google.com/products/in-app-messagin
   s.dependency 'FirebaseInstanceID', '~> 4.0'
   s.dependency 'GoogleDataTransportCCTSupport', '~> 1.0'
 	
-	s.test_spec 'unit' do |unit_tests|
+  s.test_spec 'unit' do |unit_tests|
 	    unit_tests.source_files = 'FirebaseInAppMessaging/Tests/Unit/*.[mh]'
-			unit_tests.resources = 'FirebaseInAppMessaging/Tests/Unit/*.txt'
-	    unit_tests.requires_app_host = true
-	    unit_tests.dependency 'OCMock'
-	  end
+      unit_tests.resources = 'FirebaseInAppMessaging/Tests/Unit/*.txt'
+      unit_tests.requires_app_host = true
+      unit_tests.dependency 'OCMock'
+   end
 
 end
