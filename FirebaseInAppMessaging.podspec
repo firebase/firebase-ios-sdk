@@ -17,7 +17,7 @@ See more product details at https://firebase.google.com/products/in-app-messagin
     :tag => 'InAppMessaging-' + s.version.to_s
   }
   s.social_media_url = 'https://twitter.com/Firebase'
-  s.ios.deployment_target = '8.0'
+  s.ios.deployment_target = '9.0'
 
   s.cocoapods_version = '>= 1.4.0'
   s.static_framework = true

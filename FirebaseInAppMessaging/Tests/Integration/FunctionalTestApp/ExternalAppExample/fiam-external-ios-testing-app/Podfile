@@ -13,6 +13,6 @@ target 'fiam-external-ios-testing-app' do
 
   # Pods for fiam-external-ios-testing-app
   pod 'Firebase/Core'
-  pod 'Firebase/InAppMessagingDisplay'
+  pod 'Firebase/InAppMessaging'
   pod 'Firebase/DynamicLinks'
 end
