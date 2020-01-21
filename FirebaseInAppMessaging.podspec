@@ -46,7 +46,7 @@ See more product details at https://firebase.google.com/products/in-app-messagin
   s.dependency 'GoogleDataTransportCCTSupport', '~> 1.0'
 	
   s.test_spec 'unit' do |unit_tests|
-	    unit_tests.source_files = 'FirebaseInAppMessaging/Tests/Unit/*.[mh]'
+      unit_tests.source_files = 'FirebaseInAppMessaging/Tests/Unit/*.[mh]'
       unit_tests.resources = 'FirebaseInAppMessaging/Tests/Unit/*.txt'
       unit_tests.requires_app_host = true
       unit_tests.dependency 'OCMock'
