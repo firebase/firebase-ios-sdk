@@ -8,20 +8,21 @@ on:
 
 jobs:
   core:
-    runs-on: macOS-latest
+    runs-on: macos-latest
     steps:
     - uses: actions/checkout@v1
       env: # Or as an environment variable
-         super_secret: ${{ secrets.SuperSecret }}
+         super_secret: ${{ secrets.SuperSecret2 }}
       # with: # Set the secret as an input
       #   super_secret: ${{ secrets.TestSecret2 }}
     - name: Hello world action
-       env: # Or as an environment variable
+      env:
+         myString: ${{ 'Mona the Octocat' }}
          #foo: {{ 'my value' }}
          GITHUB_CONTEXT: ${{ toJson(github) }}
       run: |
         echo "abc"
-        echo "$foo"
+        echo "$myString"
         echo "$GITHUB_CONTEXT"
         echo "$super_secret"
         echo "xyz"
