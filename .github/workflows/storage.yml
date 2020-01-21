@@ -17,7 +17,7 @@ jobs:
       #   super_secret: ${{ secrets.TestSecret2 }}
     - name: Hello world action
        env: # Or as an environment variable
-         foo: {{ 'my value' }}
+         #foo: {{ 'my value' }}
          GITHUB_CONTEXT: ${{ toJson(github) }}
       run: |
         echo "abc"
