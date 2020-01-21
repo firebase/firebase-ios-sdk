@@ -190,7 +190,7 @@ struct ZipBuilder {
     // versions with `alpha` or `beta` in it, we'll need to explicitly specify the version here so
     // CocoaPods installs it properly.
     let prereleases = expectedVersions().filter { _, version in
-      return version.contains("alpha") || version.contains("beta")
+      version.contains("alpha") || version.contains("beta")
     }
 
     let podsToInstall: [CocoaPodUtils.VersionedPod] = inputPods.map { name in
