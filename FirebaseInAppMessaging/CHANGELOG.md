@@ -1,3 +1,7 @@
+#2020-01-28 -- v0.16.0
+- [changed] Consolidated backend and UI SDKs under `FirebaseInAppMessaging`. Developers should now use `pod Firebase/InAppMessaging` in their Podfile.
+- [changed] `FIRIAMDefaultDisplayImpl` is no longer public.
+
 # 2019-12-17 -- v0.15.6
 - [fixed] Issues with nullability in card message (#4435).
 - [fixed] Unit test failure with OCMock 3.5.0 (#4420).
