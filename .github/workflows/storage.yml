@@ -23,10 +23,8 @@ jobs:
         echo "abc"
         echo "$myString"
         echo $HOME
-        echo "$super_secret" > paul-goo
-        cat paul-goo
-        cat "$secret_file" > paul-foo
-        cp "$secret_file" $HOME/paul-foo
+        cp "$secret_file" paul-foo
+        cat paul-foo
         echo "xyz"
         
         
