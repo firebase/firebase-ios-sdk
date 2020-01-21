@@ -11,8 +11,6 @@ jobs:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v1
-      env: # Or as an environment variable
-         super_secret: ${{ secrets.SuperSecret2 }}
       # with: # Set the secret as an input
       #   super_secret: ${{ secrets.TestSecret2 }}
     - name: Hello world action
@@ -20,6 +18,7 @@ jobs:
          myString: ${{ 'Mona the Octocat' }}
          #foo: {{ 'my value' }}
          GITHUB_CONTEXT: ${{ toJson(github) }}
+         super_secret: ${{ secrets.SuperSecret2 }}
       run: |
         echo "abc"
         echo "$myString"
