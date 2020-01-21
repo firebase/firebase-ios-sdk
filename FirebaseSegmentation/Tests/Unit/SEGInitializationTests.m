@@ -15,18 +15,27 @@
 #import <XCTest/XCTest.h>
 
 #import "FIRApp.h"
+#import "FIROptions.h"
 #import "FirebaseSegmentation/Sources/Public/FIRSegmentation.h"
 
-@interface SEGInitializationTests : XCTestCase
+@interface FIRSegmentation (ForTest)
+- (instancetype)initWithAppName:(NSString *)appName FIROptions:(FIROptions *)options;
+@end
+
+@interface SEGInitializationTests : XCTestCase {
+  FIRSegmentation *_segmentation;
+}
 
 @end
 
 @implementation SEGInitializationTests
 
 - (void)setUp {
-  // Put setup code here. This method is called before the invocation of each test method in the
-  // class.
-  [FIRApp configure];
+  FIROptions *options = [[FIROptions alloc] init];
+  options.APIKey = @"test-api-key";
+  options.projectID = @"test-firebase-project-id";
+  _segmentation = [[FIRSegmentation alloc] initWithAppName:@"test-firebase-app-name"
+                                                FIROptions:options];
 }
 
 - (void)tearDown {
@@ -35,8 +44,10 @@
 }
 
 - (void)testExample {
-  FIRSegmentation *segmentation = [FIRSegmentation segmentation];
-  XCTAssertNotNil(segmentation);
+  [_segmentation setCustomInstallationID:@"test-custom-id"
+                              completion:^(NSError *error){
+
+                              }];
 }
 
 @end
