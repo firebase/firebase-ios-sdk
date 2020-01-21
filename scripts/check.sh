@@ -74,7 +74,7 @@ EXAMPLES:
 
 EOF
 }
-
+set -x #TODO: temporary, remove.
 set -euo pipefail
 unset CDPATH
 

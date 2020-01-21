@@ -28,6 +28,19 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(Segmentation)
 @interface FIRSegmentation : NSObject
 
+/// Firebase Remote Config service fetch error.
+typedef NS_ENUM(NSInteger, FIRSegmentationErrorCode) {
+  /// No error. The operation was successful.
+  FIRSegmentationErrorCodeNone = 8001,
+  /// An internal error occurred.
+  FIRSegmentationErrorCodeInternal = 8002,
+  /// Error indicating that backend reports an existing association for this custom installation
+  /// identifier.
+  FIRSegmentationErrorCodeConflict = 8003,
+  /// Error indicating that a network error occurred during association.
+  FIRSegmentationErrorCodeNetwork = 8004,
+} NS_SWIFT_NAME(SegmentationErrorCode);
+
 /**
  * Singleton instance (scoped to the default FIRApp)
  * Returns the FIRSegmentation instance for the default Firebase application. Please make sure you
@@ -56,8 +69,8 @@ NS_SWIFT_NAME(Segmentation)
 /// installation ID.
 /// @param completionHandler Set custom installation ID completion. Returns nil if initialization
 /// succeeded or an NSError object if initialization failed.
-- (void)setCustomInstallationID:(NSString *)customInstallationID
-                     completion:(void (^)(NSError *))completionHandler;
+- (void)setCustomInstallationID:(nullable NSString *)customInstallationID
+                     completion:(nullable void (^)(NSError *))completionHandler;
 
 @end
 

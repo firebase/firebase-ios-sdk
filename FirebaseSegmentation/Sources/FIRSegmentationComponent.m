@@ -20,6 +20,7 @@
 #import <FirebaseCore/FIRComponentContainer.h>
 #import <FirebaseCore/FIROptionsInternal.h>
 #import "FirebaseSegmentation/Sources/Private/FIRSegmentationInternal.h"
+#import "FirebaseSegmentation/Sources/SEGSegmentationConstants.h"
 
 #ifndef FIRSegmentation_VERSION
 #error "FIRSegmentation_VERSION is not defined: \
@@ -28,8 +29,6 @@ add -DFIRSegmentation_VERSION=... to the build invocation"
 
 #define STR(x) STR_EXPAND(x)
 #define STR_EXPAND(x) #x
-
-NSString *const kFirebaseSegmentationErrorDomain = @"com.firebase.segmentation";
 
 @implementation FIRSegmentationComponent
 
@@ -70,7 +69,10 @@ NSString *const kFirebaseSegmentationErrorDomain = @"com.firebase.segmentation";
   self = [super init];
   if (self) {
     _app = app;
-    _segmentationInstance = nil;
+    if (!_segmentationInstance) {
+      _segmentationInstance = [[FIRSegmentation alloc] initWithAppName:app.name
+                                                            FIROptions:app.options];
+    }
   }
   return self;
 }
