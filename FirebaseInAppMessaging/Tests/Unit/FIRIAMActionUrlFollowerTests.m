@@ -112,9 +112,13 @@
   if ([self.mockApplication respondsToSelector:@selector(openURL:options:completionHandler:)]) {
     // id types is needed for calling invokeBlockWithArgs
     id yesOrNo = returnValue ? @YES : @NO;
-    OCMStub([self.mockApplication openURL:[OCMArg any]
-                                  options:[OCMArg any]
-                        completionHandler:([OCMArg invokeBlockWithArgs:yesOrNo, nil])]);
+    if (@available(iOS 9.0, *)) {
+      if (@available(iOS 10.0, *)) {
+        OCMStub([self.mockApplication openURL:[OCMArg any]
+                                      options:[OCMArg any]
+                            completionHandler:([OCMArg invokeBlockWithArgs:yesOrNo, nil])]);
+      }
+    }
   } else {
     OCMStub([self.mockApplication openURL:[OCMArg any]]).andReturn(returnValue);
   }
@@ -159,14 +163,16 @@
                                                     withApplication:self.mockApplication];
 
   NSURL *customURL = [NSURL URLWithString:@"scheme1://test.com"];
-  OCMExpect([self.mockAppDelegate application:[OCMArg isKindOfClass:[UIApplication class]]
-                                      openURL:[OCMArg checkWithBlock:^BOOL(id urlId) {
-                                        // verifying url received by the app delegate is expected
-                                        NSURL *url = (NSURL *)urlId;
-                                        return [url isEqual:customURL];
-                                      }]
-                                      options:[OCMArg any]])
-      .andReturn(YES);
+  if (@available(iOS 9.0, *)) {
+    OCMExpect([self.mockAppDelegate application:[OCMArg isKindOfClass:[UIApplication class]]
+                                        openURL:[OCMArg checkWithBlock:^BOOL(id urlId) {
+                                          // verifying url received by the app delegate is expected
+                                          NSURL *url = (NSURL *)urlId;
+                                          return [url isEqual:customURL];
+                                        }]
+                                        options:[OCMArg any]])
+        .andReturn(YES);
+  }
 
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"Completion Callback Triggered"];
@@ -188,29 +194,31 @@
       [[FIRIAMActionURLFollower alloc] initWithCustomURLSchemeArray:@[ @"scheme1", @"scheme2" ]
                                                     withApplication:self.mockApplication];
 
-  NSURL *customURL = [NSURL URLWithString:@"scheme1://test.com"];
-  OCMExpect([self.mockAppDelegate application:[OCMArg isKindOfClass:[UIApplication class]]
-                                      openURL:[OCMArg checkWithBlock:^BOOL(id urlId) {
-                                        // verifying url received by the app delegate is expected
-                                        NSURL *url = (NSURL *)urlId;
-                                        return [url isEqual:customURL];
-                                      }]
-                                      options:[OCMArg any]])
-      .andReturn(NO);
+  if (@available(iOS 9.0, *)) {
+    NSURL *customURL = [NSURL URLWithString:@"scheme1://test.com"];
+    OCMExpect([self.mockAppDelegate application:[OCMArg isKindOfClass:[UIApplication class]]
+                                        openURL:[OCMArg checkWithBlock:^BOOL(id urlId) {
+                                          // verifying url received by the app delegate is expected
+                                          NSURL *url = (NSURL *)urlId;
+                                          return [url isEqual:customURL];
+                                        }]
+                                        options:[OCMArg any]])
+        .andReturn(NO);
 
-  // it would fallback to Open URL with iOS System
-  [self setupOpenURLViaIOSForUIApplicationWithReturnValue:NO];
-  XCTestExpectation *expectation =
-      [self expectationWithDescription:@"Completion Callback Triggered"];
-  [follower followActionURL:customURL
-        withCompletionBlock:^(BOOL success) {
-          // since both custom scheme url open and fallback iOS url open returns NO, we expect
-          // to get a NO here
-          XCTAssertFalse(success);
-          [expectation fulfill];
-        }];
-  [self waitForExpectationsWithTimeout:5.0 handler:nil];
-  OCMVerifyAll((id)self.mockAppDelegate);
+    // it would fallback to Open URL with iOS System
+    [self setupOpenURLViaIOSForUIApplicationWithReturnValue:NO];
+    XCTestExpectation *expectation =
+        [self expectationWithDescription:@"Completion Callback Triggered"];
+    [follower followActionURL:customURL
+          withCompletionBlock:^(BOOL success) {
+            // since both custom scheme url open and fallback iOS url open returns NO, we expect
+            // to get a NO here
+            XCTAssertFalse(success);
+            [expectation fulfill];
+          }];
+    [self waitForExpectationsWithTimeout:5.0 handler:nil];
+    OCMVerifyAll((id)self.mockAppDelegate);
+  }
 }
 
 - (void)testCustomSchemeNotMatching {
@@ -222,25 +230,27 @@
       [[FIRIAMActionURLFollower alloc] initWithCustomURLSchemeArray:@[ @"scheme1", @"scheme2" ]
                                                     withApplication:self.mockApplication];
 
-  NSURL *customURL = [NSURL URLWithString:@"unknown-scheme://test.com"];
+  if (@available(iOS 9.0, *)) {
+    NSURL *customURL = [NSURL URLWithString:@"unknown-scheme://test.com"];
 
-  // since custom scheme does not match, we should not expect app delegate's open URL method
-  // being triggered
-  OCMReject([self.mockAppDelegate application:[OCMArg any]
-                                      openURL:[OCMArg any]
-                                      options:[OCMArg any]]);
+    // since custom scheme does not match, we should not expect app delegate's open URL method
+    // being triggered
+    OCMReject([self.mockAppDelegate application:[OCMArg any]
+                                        openURL:[OCMArg any]
+                                        options:[OCMArg any]]);
 
-  XCTestExpectation *expectation =
-      [self expectationWithDescription:@"Completion Callback Triggered"];
-  [self setupOpenURLViaIOSForUIApplicationWithReturnValue:YES];
+    XCTestExpectation *expectation =
+        [self expectationWithDescription:@"Completion Callback Triggered"];
+    [self setupOpenURLViaIOSForUIApplicationWithReturnValue:YES];
 
-  [follower followActionURL:customURL
-        withCompletionBlock:^(BOOL success) {
-          XCTAssertTrue(success);
-          [expectation fulfill];
-        }];
-  [self waitForExpectationsWithTimeout:5.0 handler:nil];
-  OCMVerifyAll((id)self.mockAppDelegate);
+    [follower followActionURL:customURL
+          withCompletionBlock:^(BOOL success) {
+            XCTAssertTrue(success);
+            [expectation fulfill];
+          }];
+    [self waitForExpectationsWithTimeout:5.0 handler:nil];
+    OCMVerifyAll((id)self.mockAppDelegate);
+  }
 }
 
 - (void)testUniversalLinkWithoutContinueUserActivityDefined {
