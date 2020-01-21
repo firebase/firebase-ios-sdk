@@ -11,11 +11,11 @@ jobs:
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v1
+      env: # Or as an environment variable
+         super_secret: ${{ secrets.SuperSecret }}
       # with: # Set the secret as an input
       #   super_secret: ${{ secrets.TestSecret2 }}
     - name: Hello world action
-       env: # Or as an environment variable
-         super_secret: ${{ secrets.SuperSecret }}
       run: |
         echo "abc"
         echo ${{ secrets.TestSecret2 }}
