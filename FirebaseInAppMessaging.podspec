@@ -39,7 +39,6 @@ See more product details at https://firebase.google.com/products/in-app-messagin
       '$(inherited) ' +
       'FIRInAppMessaging_LIB_VERSION=' + String(s.version) + ' ' +
       'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1'
-			
   }
 
   s.dependency 'FirebaseCore', '~> 6.2'
