@@ -11,8 +11,8 @@ jobs:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v1
-      # with: # Set the secret as an input
-      #   super_secret: ${{ secrets.TestSecret2 }}
+      with:
+         secret_file: ${{ secrets.TestSecret }}
     - name: Hello world action
       env:
          myString: ${{ 'Mona the Octocat' }}
@@ -22,8 +22,10 @@ jobs:
       run: |
         echo "abc"
         echo "$myString"
-        echo "$GITHUB_CONTEXT"
         echo "$super_secret"
+        cat "$secret_file"
+        cp "$secret_file" $HOME/paul-foo
+        cat $HOME/paul-foo
         echo "xyz"
         
         
