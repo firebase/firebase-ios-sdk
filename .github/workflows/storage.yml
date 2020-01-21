@@ -17,6 +17,9 @@ jobs:
       # env: # Or as an environment variable
       #   super_secret: ${{ secrets.SuperSecret }}
       run: |
+        echo "abc"
+        echo ${{ secrets.TestSecret }}
+        echo "xyz"
         cp ${{ secrets.TestSecret }} foo
         cat foo
 
