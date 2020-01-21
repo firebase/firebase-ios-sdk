@@ -12,15 +12,18 @@ jobs:
     steps:
     - uses: actions/checkout@v1
       env: # Or as an environment variable
-         foo: {{ 'my value' }}
          super_secret: ${{ secrets.SuperSecret }}
       # with: # Set the secret as an input
       #   super_secret: ${{ secrets.TestSecret2 }}
     - name: Hello world action
+       env: # Or as an environment variable
+         foo: {{ 'my value' }}
+         GITHUB_CONTEXT: ${{ toJson(github) }}
       run: |
         echo "abc"
-        echo "${{ foo }}"
-        echo "${{ super_secret }}"
+        echo "$foo"
+        echo "$GITHUB_CONTEXT"
+        echo "$super_secret"
         echo "xyz"
         #cp ${{ secrets.TestSecret }} foo
         #cat foo
