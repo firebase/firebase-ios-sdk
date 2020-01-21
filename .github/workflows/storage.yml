@@ -19,8 +19,8 @@ jobs:
     - name: Hello world action
       run: |
         echo "abc"
-        echo ${{ foo }}
-        echo ${{ super_secret }}
+        echo "${{ foo }}"
+        echo "${{ super_secret }}"
         echo "xyz"
         #cp ${{ secrets.TestSecret }} foo
         #cat foo
