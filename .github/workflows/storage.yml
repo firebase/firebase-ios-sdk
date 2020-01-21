@@ -12,7 +12,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
       env: # Or as an environment variable
-         foo: {{ "my value" }}
+         foo: {{ 'my value' }}
          super_secret: ${{ secrets.SuperSecret }}
       # with: # Set the secret as an input
       #   super_secret: ${{ secrets.TestSecret2 }}
