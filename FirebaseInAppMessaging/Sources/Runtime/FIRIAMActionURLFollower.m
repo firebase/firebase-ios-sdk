@@ -165,10 +165,13 @@
     FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM240009",
                 @"iOS 9 below version of App Delegate's openURL method detected");
     NSString *appBundleIdentifier = [[NSBundle mainBundle] bundleIdentifier];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     BOOL handled = [self.appDelegate application:self.mainApplication
                                          openURL:url
                                sourceApplication:appBundleIdentifier
                                       annotation:@{}];
+#pragma clang pop
     return handled;
   }
 
