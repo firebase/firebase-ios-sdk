@@ -1,5 +1,5 @@
 # v6.6.1 -- M63
-- [changed] Minimum required Xcode version changed to 10.3 (was 10.1)
+- [changed] Minimum required Xcode version changed to 10.3 (was 10.1).
 
 # v6.6.0 -- M62
 - [changed] Reorganized directory structure.
