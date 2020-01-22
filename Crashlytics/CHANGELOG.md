@@ -1,3 +1,7 @@
+# v4.0.0-beta.2
+
+- [fixed] Fixed VeraCode scanner issues for unchecked error conditions (#4669)
+
 # v4.0.0-beta.1
 
 This Firebase Crashlytics version includes the initial beta release of the Firebase Crashlytics SDK:
