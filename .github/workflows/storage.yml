@@ -11,20 +11,19 @@ jobs:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v1
-      with:
-         secret_file: ${{ secrets.TestSecret }}
     - name: Hello world action
       env:
          myString: ${{ 'Mona the Octocat' }}
          #foo: {{ 'my value' }}
          GITHUB_CONTEXT: ${{ toJson(github) }}
-         super_secret: ${{ secrets.TestSecret2 }}
+         super_secret: ${{ secrets.TestFileSecret }}
       run: |
         echo "abc"
         echo "$myString"
         echo $HOME
-        cp "$secret_file" paul-foo
-        cat paul-foo
+        pwd
+        ./scripts/decrypt_gha_secret.sh myfile.paul.gpg foo "$super_secret"
+        cat foo
         echo "xyz"
         
         
