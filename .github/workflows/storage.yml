@@ -12,13 +12,12 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Testing
+      run: |
+        echo \
+        "abc"
+    - name: Set up
       env:
          plist_secret: ${{ secrets.StoragePlistSecret }}
-      run: |
-        echo "abc"
-        echo \
-           "$myString"
-    - name: Set up
       run: |
         bundle install
         bundle exec pod --version
