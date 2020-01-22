@@ -4,6 +4,9 @@
   improvements. This benefit is reduced if changes accumulate while the query
   is inactive. Queries that use the `limit()` API may not always benefit,
   depending on the accumulated changes.
+- [changed] Firestore previously required that every document read in a
+  transaction must also be written. This requirement has been removed, and
+  you can now read a document in a transaction without writing to it.
 
 # v1.9.0
 - [feature] Added a `limit(toLast:)` query operator, which returns the last
