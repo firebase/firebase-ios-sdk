@@ -13,7 +13,7 @@ pod 'GoogleDataTransportCCTSupport', :path => '../../../..'
 pod 'GoogleUtilities', :path => '../../../..'
 
 target 'InAppMessaging_Example_iOS' do
-  platform :ios, '8.0'
+  platform :ios, '9.0'
 
   pod 'FirebaseInAppMessaging', :path => '../../../..'
   pod 'FirebaseAnalyticsInterop',  :path => '../../../..'
