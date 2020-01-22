@@ -1,6 +1,6 @@
 # v4.0.0-beta.2
 
-- [fixed] Fixed VeraCode scanner issues for unchecked error condition (#4669)
+- [fixed] Fixed VeraCode scanner issues for unchecked error conditions (#4669)
 
 # v4.0.0-beta.1
 
