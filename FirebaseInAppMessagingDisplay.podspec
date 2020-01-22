@@ -21,17 +21,11 @@ Firebase In-App Messaging SDK.
 
   s.cocoapods_version = '>= 1.4.0'
   s.static_framework = true
+  s.deprecated_in_favor_of = 'FirebaseInAppMessaging'
   s.prefix_header_file = false
 
-  base_dir = "Firebase/InAppMessagingDisplay/"
+  base_dir = "FirebaseInAppMessagingDisplay/"
   s.source_files = base_dir + '**/*.[mh]'
-  s.public_header_files = base_dir + 'Public/*.h'
-
-  s.resource_bundles = {
-    'InAppMessagingDisplayResources' => [ base_dir + 'Resources/*.xib',
-                                   base_dir + 'Resources/*.storyboard',
-                                   base_dir + 'Resources/*.png']
-  }
 
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
@@ -40,6 +34,4 @@ Firebase In-App Messaging SDK.
       'FIRInAppMessagingDisplay_LIB_VERSION=' + String(s.version)
   }
 
-  s.dependency 'FirebaseCore', '~> 6.2'
-  s.dependency 'FirebaseInAppMessaging', '>=0.15.0'
 end

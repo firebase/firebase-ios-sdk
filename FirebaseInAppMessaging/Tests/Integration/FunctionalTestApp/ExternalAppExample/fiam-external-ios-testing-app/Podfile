@@ -1,0 +1,18 @@
+# Uncomment the next line to define a global platform for your project
+platform :ios, '9.0'
+
+# uncomment the follow two lines if you are trying to test internal releases
+#source 'sso://cpdc-internal/spec.git'
+#source 'https://github.com/CocoaPods/Specs.git'
+
+use_frameworks!
+
+target 'fiam-external-ios-testing-app' do
+  # Uncomment the next line if you're using Swift or would like to use dynamic frameworks
+  # use_frameworks!
+
+  # Pods for fiam-external-ios-testing-app
+  pod 'Firebase/Core'
+  pod 'Firebase/InAppMessaging'
+  pod 'Firebase/DynamicLinks'
+end
