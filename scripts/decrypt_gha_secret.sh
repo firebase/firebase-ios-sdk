@@ -2,7 +2,7 @@
 
 # $1 is the file to decrypt
 # $2 is the output file
-# $3 is teh passphrase
+# $3 is the passphrase
 
 # Decrypt the file
 # --batch to prevent interactive command --yes to assume "yes" for questions

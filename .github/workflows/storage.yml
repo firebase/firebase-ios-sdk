@@ -7,33 +7,26 @@ on:
 #    - 'FirebaseStorage**'
 
 jobs:
-  core:
+  storage:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v1
-    - name: Hello world action
+    - name: Testing
       env:
-         myString: ${{ 'Mona the Octocat' }}
-         #foo: {{ 'my value' }}
-         GITHUB_CONTEXT: ${{ toJson(github) }}
-         super_secret: ${{ secrets.TestFileSecret }}
+         plist_secret: ${{ secrets.StoragePlistSecret }}
       run: |
         echo "abc"
-        echo "$myString"
-        echo $HOME
-        pwd
-        ./scripts/decrypt_gha_secret.sh myfile.paul.gpg foo "$super_secret"
-        cat foo
-        echo "xyz"
-        
-        
-  # cp ${{ secrets.TestSecret }} foo
-  #cat foo
-
-    # - uses: actions/checkout@v1
-    # - name: Set up
-    #   run: |
-    #     bundle install
-    #     bundle exec pod --version
-    # - name: FirebaseCore
-    #   run: ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=ios
+        echo \
+           "$myString"
+    - name: Set up
+      run: |
+        bundle install
+        bundle exec pod --version
+        ./scripts/decrypt_gha_secret.sh scripts/gha-encrypted/storage-db-plist.gpg FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist "$plist_secret"
+    - name: BuildAndTest # can be replaced with pod lib lint with Xcode 1.10
+      run: ./scripts/build.sh Storage all
+    - name: PodLibLint
+      run: |
+        ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --skip-tests --platforms=ios
+        ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --skip-tests --platforms=macos
+        ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --skip-tests --platforms=tvos
