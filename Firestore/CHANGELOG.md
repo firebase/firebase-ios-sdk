@@ -1,12 +1,14 @@
-# Unreleased (v1.10.0)
+# Unreleased
+
+# v1.10.0
+- [feature] Firestore previously required that every document read in a
+  transaction must also be written. This requirement has been removed, and
+  you can now read a document in a transaction without writing to it.
 - [changed] Improved the performance of repeatedly executed queries when
   persistence is enabled. Recently executed queries should see dramatic
   improvements. This benefit is reduced if changes accumulate while the query
   is inactive. Queries that use the `limit()` API may not always benefit,
   depending on the accumulated changes.
-- [changed] Firestore previously required that every document read in a
-  transaction must also be written. This requirement has been removed, and
-  you can now read a document in a transaction without writing to it.
 - [changed] Changed the location of Firestore's locally stored data from the
   Documents folder to Library/Application Support, hiding it from users of apps
   that share their files with the iOS Files app. **Important**: After a user's
