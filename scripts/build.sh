@@ -33,7 +33,6 @@ product can be one of:
   Firebase
   Firestore
   InAppMessaging
-  InAppMessagingDisplay
   SymbolCollision
 
 platform can be one of:
@@ -225,14 +224,7 @@ case "$product-$method-$platform" in
 
   InAppMessaging-xcodebuild-*)
     RunXcodebuild \
-        -workspace 'InAppMessaging/Example/InAppMessaging-Example-iOS.xcworkspace' \
-        -scheme 'InAppMessaging_Example_iOS' \
-        "${xcb_flags[@]}" \
-        build \
-        test
-
-    RunXcodebuild \
-        -workspace 'InAppMessagingDisplay/Example/InAppMessagingDisplay-Sample.xcworkspace' \
+        -workspace 'FirebaseInAppMessaging/Tests/Integration/DefaultUITestApp/InAppMessagingDisplay-Sample.xcworkspace' \
         -scheme 'FiamDisplaySwiftExample' \
         "${xcb_flags[@]}" \
         build \
