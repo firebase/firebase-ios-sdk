@@ -3,7 +3,7 @@ name: Feature request
 about: Issue template for a feature request.
 labels: 'type: feature request'
 ---
-<!-- DO NOT DELETE 
+<!-- DO NOT DELETE
 validate_template=true
 template_path=.github/ISSUE_TEMPLATE/feature_request.md
 -->

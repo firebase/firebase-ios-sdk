@@ -2,7 +2,7 @@
 name: Bug report
 about: Issue template for a bug report.
 ---
-<!-- DO NOT DELETE 
+<!-- DO NOT DELETE
 validate_template=true
 template_path=.github/ISSUE_TEMPLATE/bug_report.md
 -->
