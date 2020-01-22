@@ -78,6 +78,15 @@ xcode_version=$(xcodebuild -version | head -n 1)
 xcode_version="${xcode_version/Xcode /}"
 xcode_major="${xcode_version/.*/}"
 
+have_secrets=false
+if [[ -n "${TRAVIS_PULL_REQUEST:-}" ]]; then
+  if [[ "$TRAVIS_PULL_REQUEST" == "false" ||
+      "$TRAVIS_PULL_REQUEST_SLUG" == "$TRAVIS_REPO_SLUG" ]]; then
+        have_secrets=true
+  fi
+fi
+
+
 # Runs xcodebuild with the given flags, piping output to xcpretty
 # If xcodebuild fails with known error codes, retries once.
 function RunXcodebuild() {
@@ -211,8 +220,7 @@ case "$product-$method-$platform" in
     ;;
 
   Auth-xcodebuild-*)
-    if [[ "$TRAVIS_PULL_REQUEST" == "false" ||
-          "$TRAVIS_PULL_REQUEST_SLUG" == "$TRAVIS_REPO_SLUG" ]]; then
+    if [[ "$have_secrets" == true ]]; then
       RunXcodebuild \
         -workspace 'Example/Auth/AuthSample/AuthSample.xcworkspace' \
         -scheme "Auth_ApiTests" \
