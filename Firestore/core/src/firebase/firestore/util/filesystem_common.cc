@@ -18,6 +18,7 @@
 #include <sstream>
 
 #include "Firestore/core/src/firebase/firestore/util/filesystem.h"
+#include "Firestore/core/src/firebase/firestore/util/path.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
 
@@ -106,6 +107,12 @@ StatusOr<std::string> Filesystem::ReadFile(const Path& path) {
   std::stringstream buffer;
   buffer << file.rdbuf();
   return buffer.str();
+}
+
+bool IsEmptyDir(const Path& path) {
+  // If the DirectoryIterator is valid there's at least one entry.
+  auto iter = DirectoryIterator::Create(path);
+  return iter->status().ok() && !iter->Valid();
 }
 
 }  // namespace util

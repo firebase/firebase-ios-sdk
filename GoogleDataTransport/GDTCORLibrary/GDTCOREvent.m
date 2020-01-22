@@ -17,6 +17,7 @@
 #import <GoogleDataTransport/GDTCOREvent.h>
 
 #import <GoogleDataTransport/GDTCORAssert.h>
+#import <GoogleDataTransport/GDTCORConsoleLogger.h>
 #import <GoogleDataTransport/GDTCORStoredEvent.h>
 
 #import "GDTCORLibrary/Private/GDTCOREvent_Private.h"
@@ -35,6 +36,8 @@
     _target = target;
     _qosTier = GDTCOREventQosDefault;
   }
+  GDTCORLogDebug("Event %@ created. mappingID: %@ target:%ld qos:%ld", self, _mappingID,
+                 (long)_target, (long)_qosTier);
   return self;
 }
 
@@ -45,6 +48,7 @@
   copy.qosTier = _qosTier;
   copy.clockSnapshot = _clockSnapshot;
   copy.customPrioritizationParams = _customPrioritizationParams;
+  GDTCORLogDebug("Copying event %@ to event %@", self, copy);
   return copy;
 }
 

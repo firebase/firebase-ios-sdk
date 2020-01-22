@@ -41,6 +41,8 @@
     _target = target;
     _transformerInstance = [GDTCORTransformer sharedInstance];
   }
+  GDTCORLogDebug("Transport object created. mappingID:%@ transformers:%@ target:%ld", _mappingID,
+                 _transformers, (long)_target);
   return self;
 }
 
@@ -51,6 +53,7 @@
   copiedEvent.qosTier = GDTCOREventQoSTelemetry;
   copiedEvent.clockSnapshot = [GDTCORClock snapshot];
   [self.transformerInstance transformEvent:copiedEvent withTransformers:_transformers];
+  GDTCORLogDebug("Telemetry event sent: %@", event);
 }
 
 - (void)sendDataEvent:(GDTCOREvent *)event {
@@ -60,6 +63,7 @@
   GDTCOREvent *copiedEvent = [event copy];
   copiedEvent.clockSnapshot = [GDTCORClock snapshot];
   [self.transformerInstance transformEvent:copiedEvent withTransformers:_transformers];
+  GDTCORLogDebug("Data event sent: %@", event);
 }
 
 - (GDTCOREvent *)eventForTransport {

@@ -88,6 +88,7 @@ if(APPLE)
     DEPENDS
       GMock::GMock
       absl_optional
+      firebase_firestore_testutil
       firebase_firestore_util_autoid
       firebase_firestore_util_filesystem_apple
   )
@@ -102,6 +103,7 @@ if(NOT APPLE AND NOT WIN32)
     DEPENDS
       GMock::GMock
       absl_optional
+      firebase_firestore_testutil
       firebase_firestore_util_autoid
       firebase_firestore_util_filesystem_posix
   )
@@ -116,6 +118,7 @@ if(WIN32)
     DEPENDS
       GMock::GMock
       absl_optional
+      firebase_firestore_testutil
       firebase_firestore_util_autoid
       firebase_firestore_util_filesystem_win
   )
@@ -160,7 +163,6 @@ cc_test(
     ordered_code_test.cc
     status_apple_test.mm
     status_test.cc
-    status_testing.h
     statusor_test.cc
     strerror_test.cc
     string_format_apple_test.mm
@@ -173,6 +175,7 @@ cc_test(
     absl_base
     absl_strings
     firebase_firestore_model
+    firebase_firestore_testutil
     firebase_firestore_util
     GMock::GMock
 )

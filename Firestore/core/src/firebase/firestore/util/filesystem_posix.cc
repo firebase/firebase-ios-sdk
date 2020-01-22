@@ -23,6 +23,7 @@
 #include <unistd.h>
 
 #include <cerrno>
+#include <cstdio>
 #include <deque>
 #include <string>
 
@@ -98,6 +99,10 @@ StatusOr<Path> Filesystem::AppDataDir(absl::string_view app_name) {
 #error "Don't know where to store documents on this platform."
 
 #endif  // __linux__ && !__ANDROID__
+}
+
+StatusOr<Path> Filesystem::LegacyDocumentsDir(absl::string_view) {
+  return Status(Error::Unimplemented, "No legacy storage on this platform.");
 }
 
 Path Filesystem::TempDir() {
@@ -199,6 +204,15 @@ Status Filesystem::RemoveFile(const Path& path) {
           errno, StringFormat("Could not delete file %s", path.ToUtf8String()));
     }
   }
+  return Status::OK();
+}
+
+Status Filesystem::Rename(const Path& from_path, const Path& to_path) {
+  if (::rename(from_path.ToUtf8String().c_str(),
+               to_path.ToUtf8String().c_str())) {
+    return Status::FromErrno(errno, from_path.ToUtf8String());
+  }
+
   return Status::OK();
 }
 

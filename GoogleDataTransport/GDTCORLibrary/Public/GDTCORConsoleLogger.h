@@ -16,6 +16,9 @@
 
 #import <Foundation/Foundation.h>
 
+// Set this to 1 to have the library print out as much as possible about what GDT is doing.
+#define GDT_VERBOSE_LOGGING 0
+
 /** A list of message codes to print in the logger that help to correspond printed messages with
  * code locations.
  *
@@ -82,3 +85,10 @@ FOUNDATION_EXPORT NSString *_Nonnull GDTCORMessageCodeEnumToString(GDTCORMessage
 // A define to wrap GULLogError with slightly more convenient usage and a failing assert.
 #define GDTCORLogError(MESSAGE_CODE, MESSAGE_FORMAT, ...) \
   GDTCORLog(MESSAGE_CODE, MESSAGE_FORMAT, __VA_ARGS__);
+
+// A define to wrap NSLog for verbose console logs only useful for local debugging.
+#if GDT_VERBOSE_LOGGING == 1
+#define GDTCORLogDebug(FORMAT, ...) NSLog(@"GDT: " FORMAT, __VA_ARGS__);
+#else
+#define GDTCORLogDebug(...)
+#endif  // GDT_VERBOSE_LOGGING == 1
