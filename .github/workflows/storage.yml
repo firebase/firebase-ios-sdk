@@ -1,10 +1,10 @@
 name: storage
 
 on:
-  push
-#  pull_request:
-#    paths:
-#    - 'FirebaseStorage**'
+ pull_request:
+   paths:
+   - 'FirebaseStorage**'
+   - '.github/workflows/storage.yml'
 
 jobs:
   storage:
@@ -19,7 +19,7 @@ jobs:
         bundle exec pod --version
         ./scripts/decrypt_gha_secret.sh scripts/gha-encrypted/storage-db-plist.gpg \
           FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist "$plist_secret"
-    - name: BuildAndTest # can be replaced with pod lib lint with Xcode 1.10
+    - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh Storage all
     - name: PodLibLint
       run: |
