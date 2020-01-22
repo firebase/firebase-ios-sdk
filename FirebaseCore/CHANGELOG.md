@@ -1,3 +1,6 @@
+# v6.6.1 -- M63
+- [changed] Minimum required Xcode version changed to 10.3 (was 10.1)
+
 # v6.6.0 -- M62
 - [changed] Reorganized directory structure.
 - [changed] The following SDKs introduce a new transitive dependency on the [Firebase Installations API](https://console.cloud.google.com/apis/library/firebaseinstallations.googleapis.com):
