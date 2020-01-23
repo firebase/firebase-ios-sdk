@@ -1,4 +1,9 @@
-# Firebase iOS Open Source Development [![Build Status](https://travis-ci.org/firebase/firebase-ios-sdk.svg?branch=master)](https://travis-ci.org/firebase/firebase-ios-sdk)
+# Firebase iOS Open Source Development
+ [![Actions Status][gh-cron-badge]][gh-actions] 
+ [![Actions Status][gh-core-badge]][gh-actions] 
+ [![Actions Status][gh-dynamiclinks-badge]][gh-actions] 
+ [![Actions Status][gh-storage-badge]][gh-actions] 
+ [![Travis](https://travis-ci.org/firebase/firebase-ios-sdk.svg?branch=master)](https://travis-ci.org/firebase/firebase-ios-sdk)
 
 This repository contains a subset of the Firebase iOS SDK source. It currently
 includes FirebaseCore, FirebaseABTesting, FirebaseAuth, FirebaseDatabase,
@@ -252,3 +257,9 @@ The contents of this repository is licensed under the
 
 Your use of Firebase is governed by the
 [Terms of Service for Firebase Services](https://firebase.google.com/terms/).
+
+[gh-actions]: https://github.com/firebase/firebase-ios-sdk/actions
+[gh-cron-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/CRON/badge.svg
+[gh-core-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/core/badge.svg
+[gh-dynamiclinks-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/dynamiclinks/badge.svg
+[gh-storage-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/storage/badge.svg
