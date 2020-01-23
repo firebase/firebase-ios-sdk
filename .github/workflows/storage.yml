@@ -18,6 +18,7 @@ jobs:
       env:
          plist_secret: ${{ secrets.StoragePlistSecret }}
       run: |
+        bundle update --bundler
         bundle install
         bundle exec pod --version
         ./scripts/decrypt_gha_secret.sh scripts/gha-encrypted/storage-db-plist.gpg \
