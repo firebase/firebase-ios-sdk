@@ -1,3 +1,6 @@
+# unreleased
+- [changed] Stop collecting logging ID as it is not used anymore.(#4732)
+
 # 2020-01 -- 4.3.0
 - [added] Added watchOS support for InstanceID (#4016)
 - [added] Added a new dependency on the [Firebase Installations SDK](../../FirebaseInstallations/CHANGELOG.md). The Firebase Installations SDK introduces the [Firebase Installations API](https://console.cloud.google.com/apis/library/firebaseinstallations.googleapis.com). Developers that use API-restrictions for their API-Keys may experience blocked requests (https://stackoverflow.com/questions/58495985/). A solution is available [here](../../FirebaseInstallations/API_KEY_RESTRICTIONS.md). (#4533)
