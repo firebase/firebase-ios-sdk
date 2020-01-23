@@ -4,15 +4,21 @@ on:
   pull_request:
     paths:
     - 'FirebaseCore**'
+    - '.github/workflows/core.yml'
+  schedule:
+    # Run every day at 1am (PST) - cron uses UTC times
+    - cron:  '0 7 * * *'
 
 jobs:
   core:
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v1
-    - name: Set up
-      run: |
-        bundle install
-        bundle exec pod --version
-    - name: FirebaseCore
+    - name: Setup Bundler
+      run: ./scripts/setup_bundler.sh
+    - name: FirebaseCore iOS
       run: ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=ios
+    - name: FirebaseCore macOS
+      run: ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=macos
+    - name: FirebaseCore tvOS
+      run: ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=tvos
