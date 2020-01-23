@@ -35,15 +35,25 @@ NS_ASSUME_NONNULL_BEGIN
 /// A flag for client-side testing messages
 @property(nonatomic, readonly) BOOL isTestMessage;
 
+/// Additional key-value pairs that can be optionally sent along with the FIAM
+@property(nonatomic, nullable, readonly) NSDictionary *appData;
+
 - (instancetype)init NS_UNAVAILABLE;
 
 /**
  * Create a regular message definition.
  */
 - (instancetype)initWithRenderData:(FIRIAMMessageRenderData *)renderData
-                         startTime:(NSTimeInterval)startTime
-                           endTime:(NSTimeInterval)endTime
-                 triggerDefinition:(NSArray<FIRIAMDisplayTriggerDefinition *> *)renderTriggers;
+        startTime:(NSTimeInterval)startTime
+          endTime:(NSTimeInterval)endTime
+triggerDefinition:(NSArray<FIRIAMDisplayTriggerDefinition *> *)renderTriggers
+          appData:appData
+    isTestMessage:(BOOL)isTestMessage NS_DESIGNATED_INITIALIZER;
+
+- (instancetype)initWithRenderData:(FIRIAMMessageRenderData *)renderData
+        startTime:(NSTimeInterval)startTime
+          endTime:(NSTimeInterval)endTime
+triggerDefinition:(NSArray<FIRIAMDisplayTriggerDefinition *> *)renderTriggers;
 
 /**
  * Create a test message definition.
