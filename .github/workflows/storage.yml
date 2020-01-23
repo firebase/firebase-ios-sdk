@@ -15,7 +15,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Setup Bundler
-      run: .scripts/setup_bundler.sh
+      run: ./scripts/setup_bundler.sh
     - name: Install Secret GoogleService-Info.plist
       env:
          plist_secret: ${{ secrets.StoragePlistSecret }}
