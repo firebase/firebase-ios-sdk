@@ -78,6 +78,23 @@ xcode_version=$(xcodebuild -version | head -n 1)
 xcode_version="${xcode_version/Xcode /}"
 xcode_major="${xcode_version/.*/}"
 
+have_secrets=false
+
+# Travis: Secrets are available if we're not running on a fork.
+if [[ -n "${TRAVIS_PULL_REQUEST:-}" ]]; then
+  if [[ "$TRAVIS_PULL_REQUEST" == "false" ||
+      "$TRAVIS_PULL_REQUEST_SLUG" == "$TRAVIS_REPO_SLUG" ]]; then
+        have_secrets=true
+  fi
+fi
+# GitHub Actions: Secrets are available if we're not running on a fork.
+# See https://help.github.com/en/actions/automating-your-workflow-with-github-actions/using-environment-variables
+if [[ -n "${GITHUB_WORKFLOW:-}" ]]; then
+  if [[ -z "$GITHUB_HEAD_REF" ]]; then
+    have_secrets=true
+  fi
+fi
+
 # Runs xcodebuild with the given flags, piping output to xcpretty
 # If xcodebuild fails with known error codes, retries once.
 function RunXcodebuild() {
@@ -211,8 +228,7 @@ case "$product-$method-$platform" in
     ;;
 
   Auth-xcodebuild-*)
-    if [[ "$TRAVIS_PULL_REQUEST" == "false" ||
-          "$TRAVIS_PULL_REQUEST_SLUG" == "$TRAVIS_REPO_SLUG" ]]; then
+    if [[ "$have_secrets" == true ]]; then
       RunXcodebuild \
         -workspace 'Example/Auth/AuthSample/AuthSample.xcworkspace' \
         -scheme "Auth_ApiTests" \
@@ -288,8 +304,7 @@ case "$product-$method-$platform" in
       build \
       test
 
-    if [[ "$TRAVIS_PULL_REQUEST" == "false" ||
-          "$TRAVIS_PULL_REQUEST_SLUG" == "$TRAVIS_REPO_SLUG" ]]; then
+    if [[ "$have_secrets" == true ]]; then
       # Integration tests are only run on iOS to minimize flake failures.
       RunXcodebuild \
         -workspace 'gen/FirebaseDatabase/FirebaseDatabase.xcworkspace' \
@@ -329,8 +344,7 @@ case "$product-$method-$platform" in
       build \
       test
 
-    if [[ "$TRAVIS_PULL_REQUEST" == "false" ||
-          "$TRAVIS_PULL_REQUEST_SLUG" == "$TRAVIS_REPO_SLUG" ]]; then
+    if [[ "$have_secrets" == true ]]; then
       # Integration tests are only run on iOS to minimize flake failures.
       RunXcodebuild \
         -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
