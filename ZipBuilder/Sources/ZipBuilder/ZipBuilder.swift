@@ -154,38 +154,7 @@ struct ZipBuilder {
     // copied in each product's directory.
     let frameworks = generateFrameworks(fromPods: installedPods, inProjectDir: projectDir)
 
-    ModuleMapBuilder(frameworks: frameworks, customSpecRepos: customSpecRepos, allPods: installedPods).build()
-
-    // HACK HACK HACK move Module to individual frameworks
-    // This should have happened earlier, but don't wanna change the whole script.
-    for (framework, paths) in frameworks {
-        let fullPath = paths.first!
-        let moduleURL = fullPath.appendingPathComponent("Modules")
-
-        // We also need an Info.plist, else Xcode complains
-        let infoPlistURL = LaunchArgs.shared.templateDir.appendingPathComponent("FrameworkInfo.plist")
-        let infoPlistData = try! Data(contentsOf: infoPlistURL)
-        var infoPlistDict = try! PropertyListSerialization.propertyList(from: infoPlistData, options: .mutableContainersAndLeaves, format: nil) as! Dictionary<String, AnyObject>
-        infoPlistDict["CFBundleExecutable"] = framework as AnyObject
-        infoPlistDict["CFBundleName"] = framework as AnyObject
-        infoPlistDict["CFBundleIdentifier"] = "com.google.\(framework)" as AnyObject
-        let infoPlistNewData = try! PropertyListSerialization.data(fromPropertyList: infoPlistDict, format: .binary, options: 0)
-
-        let subfolders = try! FileManager.default.contentsOfDirectory(at: fullPath, includingPropertiesForKeys: nil, options: [])
-        for subfolder in subfolders {
-            if subfolder.lastPathComponent == "Modules" || subfolder.lastPathComponent == "Info.plist" { continue }
-
-            let target = subfolder.appendingPathComponent("\(framework).framework").appendingPathComponent("Modules")
-            try! FileManager.default.createDirectory(at: target, withIntermediateDirectories: true, attributes: nil)
-            let moduleFile = moduleURL.appendingPathComponent("module.modulemap")
-            try! FileManager.default.copyItem(at: moduleFile, to: target.appendingPathComponent("module.modulemap"))
-
-            let infoPlistTargetURL = subfolder.appendingPathComponent("\(framework).framework").appendingPathComponent("Info.plist")
-
-            try! infoPlistNewData.write(to: infoPlistTargetURL)
-        }
-        try! FileManager.default.removeItem(at: moduleURL)
-    }
+    //ModuleMapBuilder(frameworks: frameworks, customSpecRepos: customSpecRepos, allPods: installedPods).build()
 
     for (framework, paths) in frameworks {
       print("Frameworks for pod: \(framework) were compiled at \(paths)")

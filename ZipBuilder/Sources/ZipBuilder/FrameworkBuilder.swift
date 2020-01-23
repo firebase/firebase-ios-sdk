@@ -100,7 +100,8 @@ struct FrameworkBuilder {
     }
 
     // Build the full cached framework path.
-    let cachedFrameworkDir = cachedFrameworkRoot.appendingPathComponent("\(podName).framework")
+    let realFramework = realFraeworkName(podName)
+    let cachedFrameworkDir = cachedFrameworkRoot.appendingPathComponent("\(realFramework).framework")
     let frameworkDir = compileFrameworkAndResources(withName: podName)
     do {
       // Remove the previously cached framework if it exists, otherwise the `moveItem` call will
@@ -237,12 +238,21 @@ struct FrameworkBuilder {
       """)
 
       // Use the Xcode-generated path to return the path to the compiled library.
+      let realFramework = realFraeworkName(framework)
       let libPath = buildDir.appendingPathComponents(["Release-\(platformFolder)",
                                                       framework,
-                                                      "lib\(framework).a"])
+                                                      "\(realFramework).framework"])
+
+      print("buildThin returns \(libPath)")
       return libPath
     }
   }
+
+    // Cries in Google. Why is this not the same?
+    private func realFraeworkName(_ framework: String) -> String {
+        let realFramework = framework == "PromisesObjC" ? "FBLPromises" : framework
+        return realFramework
+    }
 
   /// Compiles the specified framework in a temporary directory and writes the build logs to file.
   /// This will compile all architectures and use the -create-xcframework command to create a modern "fat" framework.
@@ -284,70 +294,13 @@ struct FrameworkBuilder {
       thinArchives.append(thinArchive)
     }
 
-    // Copy the Headers over. Pass in the prefix to remove in order to generate the relative paths
-    // for some frameworks that have nested folders in their public headers.
-
-    var frameworks = [URL]()
-    for arch in LaunchArgs.shared.archs {
-
-        // Track index to map compiled output with temp frameworks
-        let index = LaunchArgs.shared.archs.index(of: arch)!
-        let thinArchive = thinArchives[index]
-
-        // Create the framework directory in the filesystem for the thin archives to go.
-        let frameworkDir = outputDir.appendingPathComponent(arch.rawValue).appendingPathComponent("\(framework).framework")
-        do {
-          try fileManager.createDirectory(at: frameworkDir, withIntermediateDirectories: true)
-        } catch {
-          fatalError("Could not create framework directory while building framework \(framework). " +
-            "\(error)")
-        }
-
-        // Verify Firebase headers include an explicit umbrella header for Firebase.h.
-        let headersDir = podsDir.appendingPathComponents(["Headers", "Public", framework])
-        if framework.hasPrefix("Firebase"), framework != "FirebaseCoreDiagnostics" {
-          let frameworkHeader = headersDir.appendingPathComponent("\(framework).h")
-          guard fileManager.fileExists(atPath: frameworkHeader.path) else {
-            fatalError("Missing explicit umbrella header for \(framework).")
-          }
-        }
-
-        let headersDestination = frameworkDir.appendingPathComponent("Headers")
-        do {
-          try recursivelyCopyHeaders(from: headersDir, to: headersDestination)
-        } catch {
-          fatalError("Could not copy headers from \(headersDir) to Headers directory in " +
-            "\(headersDestination): \(error)")
-        }
-
-        // Copy main binary
-        let fatArchive = frameworkDir.appendingPathComponent(framework)
-        try! fileManager.copyItem(at: thinArchive, to: fatArchive)
-
-        // Move all the Resources into .bundle directories in the destination Resources dir. The
-        // Resources live are contained within the folder structure:
-        // `projectDir/arch/Release-platform/FrameworkName`
-        let arch = Architecture.arm64
-        let contentsDir = projectDir.appendingPathComponents([arch.rawValue,
-                                                              "Release-\(arch.platform.rawValue)",
-                                                              framework])
-        let resourceDir = frameworkDir.appendingPathComponent("Resources")
-        do {
-          try ResourcesManager.moveAllBundles(inDirectory: contentsDir, to: resourceDir)
-        } catch {
-          fatalError("Could not move bundles into Resources directory while building \(framework): " +
-            "\(error)")
-        }
-
-        frameworks.append(frameworkDir)
-    }
-    print("Copied headers")
-
     let frameworkDir = outputDir.appendingPathComponent("\(framework).xcframework")
 
-    let inputArgs = frameworks.flatMap { url -> [String] in
+    let inputArgs = thinArchives.flatMap { url -> [String] in
         return ["-framework", url.path]
     }
+
+    print("About to create xcframework for \(frameworkDir.path) with \(inputArgs)")
 
     // xcframework doesn't support legacy architectures: armv7, i386.
     // It will throw a "Both ios-arm64 and ios-armv7 represent two equivalent library definitions" error.
