@@ -34,7 +34,7 @@
                                      (FIRInAppMessagingImageOnlyDisplay *)imageOnlyMessage
                                 displayDelegate:
                                     (id<FIRInAppMessagingDisplayDelegate>)displayDelegate
-                                    timeFetcher:(id<FIDTimeFetcher>)timeFetcher {
+                                    timeFetcher:(id<FIRIAMTimeFetcher>)timeFetcher {
   UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"FIRInAppMessageDisplayStoryboard"
                                                        bundle:resourceBundle];
 
