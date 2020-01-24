@@ -12,6 +12,7 @@ target 'SymbolCollisionTest' do
     pod 'FirebaseAnalytics'
     pod 'FirebaseAuth', :path => '../'
     pod 'FirebaseCore', :path => '../'
+    pod 'FirebaseCrashlytics', :path => '../'
     pod 'FirebaseDatabase', :path => '../'
     pod 'FirebaseDynamicLinks', :path => '../'
     pod 'FirebaseFirestore', :path => '../'
@@ -19,6 +20,7 @@ target 'SymbolCollisionTest' do
     pod 'FirebaseInAppMessaging', :path => '../'
     pod 'FirebaseInAppMessagingDisplay', :path => '../'
     pod 'FirebaseInstanceID', :path => '../'
+    pod 'FirebaseInstallations', :path => '../'
     pod 'FirebaseMessaging', :path => '../'
     pod 'FirebaseMLCommon'
     pod 'FirebaseMLModelInterpreter'
@@ -69,7 +71,7 @@ target 'SymbolCollisionTest' do
     pod 'nanopb'
 #    pod 'NearbyMessages' # - conflicts with google-cast-sdk
     pod 'Protobuf'
-#    pod 'TensorFlow-experimental' -- confilgts TensorFlowLiteC
+#    pod 'TensorFlow-experimental' -- conflicts with TensorFlowLiteC
 
   # Non-Google Pods
 
