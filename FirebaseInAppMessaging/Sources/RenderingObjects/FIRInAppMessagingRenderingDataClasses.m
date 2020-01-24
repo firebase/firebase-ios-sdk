@@ -32,7 +32,7 @@
                                                          renderAsTestMessage:renderAsTestMessage];
     _type = messageType;
     _triggerType = triggerType;
-    _appData = appData;
+    _appData = [appData copy];
   }
   return self;
 }

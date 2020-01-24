@@ -45,7 +45,7 @@
     _startTime = startTime;
     _endTime = endTime;
     _isTestMessage = isTestMessage;
-    _appData = appData;
+    _appData = [appData copy];
   }
   return self;
 }
