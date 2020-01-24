@@ -447,7 +447,6 @@
       primaryActionButton:primaryActionButton
          primaryActionURL:definition.renderData.contentData.actionURL
                   appData:definition.appData];
-                    
 
   cardMessage.body = body;
   cardMessage.landscapeImageData = landscapeImageData;

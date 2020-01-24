@@ -63,12 +63,12 @@
 }
 
 - (instancetype)initTestMessageWithRenderData:(FIRIAMMessageRenderData *)renderData {
-    return [self initWithRenderData:renderData
-                          startTime:0
-                            endTime:0
-                  triggerDefinition:@[]
-                            appData:nil
-                      isTestMessage:YES];
+  return [self initWithRenderData:renderData
+                        startTime:0
+                          endTime:0
+                triggerDefinition:@[]
+                          appData:nil
+                    isTestMessage:YES];
 }
 
 - (BOOL)messageHasExpired {

@@ -326,7 +326,7 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDelegateInteraction) {
                                                       startTime:activeStartTime
                                                         endTime:activeEndTime
                                               triggerDefinition:@[ appOpentriggerDefinition ]
-                                                        appData:@{@"a":@"b",@"up":@"dog"}
+                                                        appData:@{@"a" : @"b", @"up" : @"dog"}
                                                   isTestMessage:NO];
 }
 

@@ -44,16 +44,16 @@ NS_ASSUME_NONNULL_BEGIN
  * Create a regular message definition.
  */
 - (instancetype)initWithRenderData:(FIRIAMMessageRenderData *)renderData
-        startTime:(NSTimeInterval)startTime
-          endTime:(NSTimeInterval)endTime
-triggerDefinition:(NSArray<FIRIAMDisplayTriggerDefinition *> *)renderTriggers
-          appData:appData
-    isTestMessage:(BOOL)isTestMessage NS_DESIGNATED_INITIALIZER;
+                         startTime:(NSTimeInterval)startTime
+                           endTime:(NSTimeInterval)endTime
+                 triggerDefinition:(NSArray<FIRIAMDisplayTriggerDefinition *> *)renderTriggers
+                           appData:appData
+                     isTestMessage:(BOOL)isTestMessage NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)initWithRenderData:(FIRIAMMessageRenderData *)renderData
-        startTime:(NSTimeInterval)startTime
-          endTime:(NSTimeInterval)endTime
-triggerDefinition:(NSArray<FIRIAMDisplayTriggerDefinition *> *)renderTriggers;
+                         startTime:(NSTimeInterval)startTime
+                           endTime:(NSTimeInterval)endTime
+                 triggerDefinition:(NSArray<FIRIAMDisplayTriggerDefinition *> *)renderTriggers;
 
 /**
  * Create a test message definition.
