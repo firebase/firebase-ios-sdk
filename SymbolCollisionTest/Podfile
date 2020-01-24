@@ -12,7 +12,7 @@ target 'SymbolCollisionTest' do
     pod 'FirebaseAnalytics'
     pod 'FirebaseAuth', :path => '../'
     pod 'FirebaseCore', :path => '../'
-    pod 'FirebaseCrashlytics', :path => '../'
+#    pod 'FirebaseCrashlytics', :path => '../'  #4746
     pod 'FirebaseDatabase', :path => '../'
     pod 'FirebaseDynamicLinks', :path => '../'
     pod 'FirebaseFirestore', :path => '../'
