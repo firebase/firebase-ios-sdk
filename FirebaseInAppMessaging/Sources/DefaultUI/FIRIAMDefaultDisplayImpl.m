@@ -20,7 +20,7 @@
 
 #import <FirebaseInAppMessaging/FIRInAppMessaging.h>
 #import <FirebaseInAppMessaging/FIRInAppMessagingRendering.h>
-#import "FIDTimeFetcher.h"
+#import "FIRIAMTimeFetcher.h"
 #import "FIRCore+InAppMessagingDisplay.h"
 #import "FIRIAMBannerViewController.h"
 #import "FIRIAMCardViewController.h"

@@ -17,13 +17,13 @@
 #import <UIKit/UIKit.h>
 
 #import <FirebaseInAppMessaging/FIRInAppMessagingRendering.h>
-#import "FIDTimeFetcher.h"
+#import "FIRIAMTimeFetcher.h"
 
 @protocol FIRInAppMessagingDisplayDelegate;
 
 NS_ASSUME_NONNULL_BEGIN
 @interface FIRIAMBaseRenderingViewController : UIViewController
-@property(nonatomic, readwrite) id<FIDTimeFetcher> timeFetcher;
+@property(nonatomic, readwrite) id<FIRIAMTimeFetcher> timeFetcher;
 
 @property(nonatomic, readwrite) id<FIRInAppMessagingDisplayDelegate> displayDelegate;
 

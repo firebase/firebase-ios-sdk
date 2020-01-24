@@ -15,7 +15,7 @@
  */
 
 #import "FIRIAMBaseRenderingViewController.h"
-#import "FIDTimeFetcher.h"
+#import "FIRIAMTimeFetcher.h"
 #import "FIRCore+InAppMessagingDisplay.h"
 
 @interface FIRIAMBaseRenderingViewController ()
