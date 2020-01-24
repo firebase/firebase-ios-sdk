@@ -73,7 +73,7 @@ static CGFloat LandScapePaddingBetweenImageAndTextColumn = 24;
                                  displayMessage:(FIRInAppMessagingModalDisplay *)modalMessage
                                 displayDelegate:
                                     (id<FIRInAppMessagingDisplayDelegate>)displayDelegate
-                                    timeFetcher:(id<FIDTimeFetcher>)timeFetcher {
+                                    timeFetcher:(id<FIRIAMTimeFetcher>)timeFetcher {
   UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"FIRInAppMessageDisplayStoryboard"
                                                        bundle:resourceBundle];
 

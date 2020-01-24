@@ -20,7 +20,7 @@
 
 @class FIRInAppMessagingBannerDisplay;
 @class FIRIAMBaseRenderingViewController;
-@protocol FIDTimeFetcher;
+@protocol FIRIAMTimeFetcher;
 @protocol FIRInAppMessagingDisplayDelegate;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -30,6 +30,6 @@ NS_ASSUME_NONNULL_BEGIN
                                  displayMessage:(FIRInAppMessagingBannerDisplay *)bannerMessage
                                 displayDelegate:
                                     (id<FIRInAppMessagingDisplayDelegate>)displayDelegate
-                                    timeFetcher:(id<FIDTimeFetcher>)timeFetcher;
+                                    timeFetcher:(id<FIRIAMTimeFetcher>)timeFetcher;
 @end
 NS_ASSUME_NONNULL_END
