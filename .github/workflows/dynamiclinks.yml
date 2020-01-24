@@ -6,15 +6,17 @@ on:
     - 'Firebase/DynamicLinks**'
     - 'FirebaseDynamicLinks**'
     - 'Example/DynamicLinks**'
+    - '.github/workflows/dynamiclinks.yml'
+  schedule:
+    # Run every day at 11pm (PST) - cron uses UTC times
+    - cron:  '0 7 * * *'
 
 jobs:
   dynamiclinks:
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v1
-    - name: Set up
-      run: |
-        bundle install
-        bundle exec pod --version
+    - name: Setup Bundler
+      run: ./scripts/setup_bundler.sh
     - name: FirebaseDynamicLinks
       run: ./scripts/pod_lib_lint.rb FirebaseDynamicLinks.podspec

@@ -1,28 +1,31 @@
 name: storage
 
 on:
- pull_request:
-   paths:
-   - 'FirebaseStorage**'
-   - '.github/workflows/storage.yml'
+  pull_request:
+    paths:
+    - 'FirebaseStorage**'
+    - '.github/workflows/storage.yml'
+  schedule:
+    # Run every day at 11pm (PST) - cron uses UTC times
+    - cron:  '0 7 * * *'
 
 jobs:
   storage:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v1
-    - name: Set up
+    - name: Setup Bundler
+      run: ./scripts/setup_bundler.sh
+    - name: Install Secret GoogleService-Info.plist
       env:
          plist_secret: ${{ secrets.StoragePlistSecret }}
-      run: |
-        bundle install
-        bundle exec pod --version
-        ./scripts/decrypt_gha_secret.sh scripts/gha-encrypted/storage-db-plist.gpg \
+      run: ./scripts/decrypt_gha_secret.sh scripts/gha-encrypted/storage-db-plist.gpg \
           FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist "$plist_secret"
     - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh Storage all
-    - name: PodLibLint
-      run: |
-        ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --skip-tests --platforms=ios
-        ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --skip-tests --platforms=macos
-        ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --skip-tests --platforms=tvos
+    - name: PodLibLint iOS
+      run: ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --skip-tests --platforms=ios
+    - name: PodLibLint macOS
+      run: ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --skip-tests --platforms=macos
+    - name: PodLibLint tvOS
+      run: ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --skip-tests --platforms=tvos

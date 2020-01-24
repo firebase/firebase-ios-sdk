@@ -1,0 +1,16 @@
+name: zip
+
+on:
+  schedule:
+    # Run every day at midnight(PST) - cron uses UTC times
+    - cron:  '0 8 * * *'
+
+jobs:
+  build:
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup Bundler
+      run: ./scripts/setup_bundler.sh
+    - name: ZipBuildingTest
+      run: ./scripts/build_zip.sh
