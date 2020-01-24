@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
                                  displayMessage:(FIRInAppMessagingCardDisplay *)cardMessage
                                 displayDelegate:
                                     (id<FIRInAppMessagingDisplayDelegate>)displayDelegate
-                                    timeFetcher:(id<FIDTimeFetcher>)timeFetcher;
+                                    timeFetcher:(id<FIRIAMTimeFetcher>)timeFetcher;
 
 @end
 NS_ASSUME_NONNULL_END

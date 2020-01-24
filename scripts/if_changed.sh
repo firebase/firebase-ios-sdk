@@ -103,7 +103,7 @@ else
       ;;
 
     InAppMessaging-*)
-      check_changes '^(InAppMessaging|Firebase/InAppMessaging|Firebase/InAppMessagingDisplay|InAppMessagingDisplay|'\
+      check_changes '^(FirebaseInAppMessaging|FirebaseInAppMessagingDisplay|'\
 'FirebaseInAppMessaging.podspec|FirebaseInAppMessagingDisplay.podspec|Firebase/InstanceID|FirebaseInstanceID.podspec|'\
 'FirebaseInstallations)'
       ;;

@@ -64,7 +64,7 @@ static const CGFloat kSwipeUpThreshold = -10.0f;
                                  displayMessage:(FIRInAppMessagingBannerDisplay *)bannerMessage
                                 displayDelegate:
                                     (id<FIRInAppMessagingDisplayDelegate>)displayDelegate
-                                    timeFetcher:(id<FIDTimeFetcher>)timeFetcher {
+                                    timeFetcher:(id<FIRIAMTimeFetcher>)timeFetcher {
   UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"FIRInAppMessageDisplayStoryboard"
                                                        bundle:resourceBundle];
 
