@@ -395,7 +395,7 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
 
 #ifdef GIN_SCION_LOGGING
       if (dynamicLink.url) {
-        BOOL isFirstOpen = ![_userDefaults boolForKey:kFIRDLReadDeepLinkAfterInstallKey];
+        BOOL isFirstOpen = [_userDefaults boolForKey:kFIRDLReadDeepLinkAfterInstallKey];
         FIRDLLogEvent event = isFirstOpen ? FIRDLLogEventFirstOpen : FIRDLLogEventAppOpen;
         FIRDLLogEventToScion(event, parameters[kFIRDLParameterSource],
                              parameters[kFIRDLParameterMedium], parameters[kFIRDLParameterCampaign],
