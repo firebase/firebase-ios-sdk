@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,10 +29,10 @@ namespace firestore {
 namespace testutil {
 
 /** Creates a set of default Firebase Options for testing. */
-FIROptions* OptionsForUnitTesting(absl::string_view project_id = "project_id");
+FIROptions* OptionsForUnitTesting(absl::string_view project_id = "project-id");
 
 /** Creates a new Firebase App for testing. */
-FIRApp* AppForUnitTesting(absl::string_view project_id = "project_id");
+FIRApp* AppForUnitTesting(absl::string_view project_id = "project-id");
 
 /** Creates a new Firebase App for testing from the given options. */
 FIRApp* AppForUnitTesting(FIROptions* options);
