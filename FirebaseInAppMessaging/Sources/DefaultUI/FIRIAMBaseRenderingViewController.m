@@ -15,8 +15,8 @@
  */
 
 #import "FIRIAMBaseRenderingViewController.h"
-#import "FIRIAMTimeFetcher.h"
 #import "FIRCore+InAppMessagingDisplay.h"
+#import "FIRIAMTimeFetcher.h"
 
 @interface FIRIAMBaseRenderingViewController ()
 // For fiam messages, it's required to be kMinValidImpressionTime to
