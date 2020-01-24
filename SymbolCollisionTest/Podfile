@@ -1,5 +1,5 @@
 # Uncomment the next line to define a global platform for your project
-# platform :ios, '9.0'
+platform :ios, '9.0'
 
 source 'https://cdn.cocoapods.org/'
 
@@ -8,17 +8,18 @@ target 'SymbolCollisionTest' do
   # use_frameworks!
 
   # Firebase Pods
-    pod 'Firebase', '6.15.0'
+    pod 'Firebase', :path => '../'
     pod 'FirebaseAnalytics'
-    pod 'FirebaseAuth'
-    pod 'FirebaseCore'
-    pod 'FirebaseDatabase'
-    pod 'FirebaseDynamicLinks'
-    pod 'FirebaseFirestore'
-    pod 'FirebaseFunctions'
-    pod 'FirebaseInAppMessaging'
-    pod 'FirebaseInstanceID'
-    pod 'FirebaseMessaging'
+    pod 'FirebaseAuth', :path => '../'
+    pod 'FirebaseCore', :path => '../'
+    pod 'FirebaseDatabase', :path => '../'
+    pod 'FirebaseDynamicLinks', :path => '../'
+    pod 'FirebaseFirestore', :path => '../'
+    pod 'FirebaseFunctions', :path => '../'
+    pod 'FirebaseInAppMessaging', :path => '../'
+    pod 'FirebaseInAppMessagingDisplay', :path => '../'
+    pod 'FirebaseInstanceID', :path => '../'
+    pod 'FirebaseMessaging', :path => '../'
     pod 'FirebaseMLCommon'
     pod 'FirebaseMLModelInterpreter'
     pod 'FirebaseMLVision'
@@ -27,8 +28,8 @@ target 'SymbolCollisionTest' do
     pod 'FirebaseMLVisionLabelModel'
     pod 'FirebaseMLVisionTextModel'
     pod 'FirebasePerformance'
-    pod 'FirebaseRemoteConfig'
-    pod 'FirebaseStorage'
+    pod 'FirebaseRemoteConfig', :path => '../'
+    pod 'FirebaseStorage', :path => '../'
 #    pod 'FirebaseUI'. - requires use_frameworks!
 
   # Other Google Pods
@@ -38,7 +39,7 @@ target 'SymbolCollisionTest' do
     pod 'DigitsMigrationHelper'
     pod 'EarlGrey'
 #    pod 'GeoFire' -- requires Firebase/Database 4.0
-    pod 'google-cast-sdk'
+#    pod 'google-cast-sdk' -- abseil
     pod 'Google-Mobile-Ads-SDK'
     pod 'GoogleAnalytics'
     pod 'GoogleAppIndexing'
@@ -62,13 +63,13 @@ target 'SymbolCollisionTest' do
     pod 'GTMAppAuth'
 #    pod 'GTMHTTPFetcher' - conflicts with GTMSessionFetcher
     pod 'GTMSessionFetcher'
-    pod 'GVRSDK'
+#    pod 'GVRSDK' -- absl and protobuf duplicates
     pod 'leveldb-library'
 #    pod 'MDFTextAccessibility' - conflicts with GVRSDK
     pod 'nanopb'
 #    pod 'NearbyMessages' # - conflicts with google-cast-sdk
     pod 'Protobuf'
-    pod 'TensorFlow-experimental'
+#    pod 'TensorFlow-experimental' -- confilgts TensorFlowLiteC
 
   # Non-Google Pods
 
