@@ -100,7 +100,7 @@ struct FrameworkBuilder {
     }
 
     // Build the full cached framework path.
-    let realFramework = realFraeworkName(podName)
+    let realFramework = realFrameworkName(podName)
     let cachedFrameworkDir = cachedFrameworkRoot.appendingPathComponent("\(realFramework).framework")
     let frameworkDir = compileFrameworkAndResources(withName: podName)
     do {
@@ -238,7 +238,7 @@ struct FrameworkBuilder {
       """)
 
       // Use the Xcode-generated path to return the path to the compiled library.
-      let realFramework = realFraeworkName(framework)
+      let realFramework = realFrameworkName(framework)
       let libPath = buildDir.appendingPathComponents(["Release-\(platformFolder)",
                                                       framework,
                                                       "\(realFramework).framework"])
@@ -249,7 +249,7 @@ struct FrameworkBuilder {
   }
 
     // Cries in Google. Why is this not the same?
-    private func realFraeworkName(_ framework: String) -> String {
+    private func realFrameworkName(_ framework: String) -> String {
         let realFramework = framework == "PromisesObjC" ? "FBLPromises" : framework
         return realFramework
     }
