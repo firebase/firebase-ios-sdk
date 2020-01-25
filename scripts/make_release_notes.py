@@ -30,10 +30,10 @@ PRODUCTS = {
     'FirebaseABTesting/CHANGELOG.md': '{{ab_testing}}',
     'Firebase/Auth/CHANGELOG.md': '{{auth}}',
     'FirebaseCore/CHANGELOG.md': NO_HEADING,
-    'FirebaseCrashlytics/CHANGELOG.md': '{{crashlytics}}',
+    'Crashlytics/CHANGELOG.md': '{{crashlytics}}',
     'Firebase/Database/CHANGELOG.md': '{{database}}',
     'Firebase/DynamicLinks/CHANGELOG.md': '{{ddls}}',
-    'Firebase/InAppMessaging/CHANGELOG.md': '{{inapp_messaging}}',
+    'FirebaseInAppMessaging/CHANGELOG.md': '{{inapp_messaging}}',
     'Firebase/InstanceID/CHANGELOG.md': 'InstanceID',
     'Firebase/Messaging/CHANGELOG.md': '{{messaging}}',
     'FirebaseStorage/CHANGELOG.md': '{{storage}}',
@@ -41,7 +41,6 @@ PRODUCTS = {
     'Functions/CHANGELOG.md': '{{cloud_functions}}',
     'FirebaseRemoteConfig/CHANGELOG.md': '{{remote_config}}',
 
-    # 'Firebase/InAppMessagingDisplay/CHANGELOG.md': '?',
     # 'GoogleDataTransport/CHANGELOG.md': '?',
     # 'GoogleDataTransportCCTSupport/CHANGELOG.md': '?',
 }
