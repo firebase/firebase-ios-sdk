@@ -40,16 +40,16 @@ enum Architecture: String, CaseIterable {
   }
 
   case arm64
-  //case armv7
-  //case i386
+  case armv7
+  case i386
   case x86_64
   case x86_64h // x86_64h, Haswell, used for Mac Catalyst
 
   /// The platform associated with the architecture.
   var platform: TargetPlatform {
     switch self {
-    case .arm64: return .device
-    case .x86_64: return .simulator
+    case .armv7, .arm64: return .device
+    case .i386, .x86_64: return .simulator
     case .x86_64h: return .catalyst
     }
   }
@@ -186,9 +186,11 @@ struct FrameworkBuilder {
   ///   - logRoot: Root directory where all logs should be written.
   /// - Returns: A URL to the thin library that was built.
   private func buildThin(framework: String,
-                         arch: Architecture,
+                         archs: [Architecture],
                          buildDir: URL,
                          logRoot: URL) -> URL {
+
+    let arch = archs[0]
     let isMacCatalyst = arch == Architecture.x86_64h
     let isMacCatalystString = isMacCatalyst ? "YES" : "NO"
     let platform = arch.platform
@@ -197,13 +199,16 @@ struct FrameworkBuilder {
     let distributionFlag = carthageBuild ? "-DFIREBASE_BUILD_CARTHAGE" : "-DFIREBASE_BUILD_ZIP_FILE"
     let platformSpecificFlags = platform.otherCFlags().joined(separator: " ")
     let cFlags = "OTHER_CFLAGS=$(value) \(distributionFlag) \(platformSpecificFlags)"
-    let cleanArch = isMacCatalyst ? Architecture.x86_64.rawValue : arch.rawValue
+    let cleanArch = isMacCatalyst ? Architecture.x86_64.rawValue : archs.map{$0.rawValue}.joined(separator: " ")
+
     let args = ["build",
                 "-configuration", "release",
                 "-workspace", workspacePath,
                 "-scheme", framework,
                 "GCC_GENERATE_DEBUGGING_SYMBOLS=No",
                 "ARCHS=\(cleanArch)",
+                "VALID_ARCHS=\(cleanArch)",
+                "ONLY_ACTIVE_ARCH=NO",
                 "BUILD_LIBRARIES_FOR_DISTRIBUTION=YES",
                 "SUPPORTS_MACCATALYST=\(isMacCatalystString)",
                 "BUILD_DIR=\(buildDir.path)",
@@ -250,8 +255,14 @@ struct FrameworkBuilder {
 
     // Cries in Google. Why is this not the same?
     private func realFrameworkName(_ framework: String) -> String {
-        let realFramework = framework == "PromisesObjC" ? "FBLPromises" : framework
-        return realFramework
+        switch framework {
+        case "PromisesObjC":
+            return "FBLPromises"
+        case "Protobuf":
+            return "protobuf"
+        default:
+            return framework
+        }
     }
 
   /// Compiles the specified framework in a temporary directory and writes the build logs to file.
@@ -284,11 +295,28 @@ struct FrameworkBuilder {
     // Build every architecture and save the locations in an array to be assembled.
     // TODO: Pass in supported architectures here, for those open source SDKs that don't support
     // individual architectures.
+    //
+    // xcframework doesn't lipo things together but accepts fat frameworks for one target.
+    // We group architectures here to deal with this fact.
+    var archs = LaunchArgs.shared.archs
+    var groupedArchs: [[Architecture]] = []
+
+    for pair in [[Architecture.armv7, .arm64], [Architecture.i386, .x86_64]] {
+        if archs.contains(pair[0]) && archs.contains(pair[1]) {
+            groupedArchs.append(pair)
+            archs = archs.filter() { !pair.contains($0) }
+        }
+    }
+    // Add remaining ungrouped
+    for arch in archs {
+        groupedArchs.append([arch])
+    }
+
     var thinArchives = [URL]()
-    for arch in LaunchArgs.shared.archs {
-      let buildDir = projectDir.appendingPathComponent(arch.rawValue)
+    for archs in groupedArchs {
+      let buildDir = projectDir.appendingPathComponent(archs[0].rawValue)
       let thinArchive = buildThin(framework: framework,
-                                  arch: arch,
+                                  archs: archs,
                                   buildDir: buildDir,
                                   logRoot: logsDir)
       thinArchives.append(thinArchive)
