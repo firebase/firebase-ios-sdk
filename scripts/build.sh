@@ -74,9 +74,17 @@ fi
 scripts_dir=$(dirname "${BASH_SOURCE[0]}")
 firestore_emulator="${scripts_dir}/run_firestore_emulator.sh"
 
-xcode_version=$(xcodebuild -version | head -n 1)
-xcode_version="${xcode_version/Xcode /}"
-xcode_major="${xcode_version/.*/}"
+system=$(uname -s)
+case "$system" in
+  Darwin)
+    xcode_version=$(xcodebuild -version | head -n 1)
+    xcode_version="${xcode_version/Xcode /}"
+    xcode_major="${xcode_version/.*/}"
+    ;;
+  *)
+    xcode_major="0"
+    ;;
+esac
 
 have_secrets=false
 
@@ -160,6 +168,10 @@ case "$platform" in
     xcb_flags=()
     ;;
 
+  Linux)
+    xcb_flags=()
+    ;;
+
   *)
     echo "Unknown platform '$platform'" 1>&2
     exit 1
@@ -218,6 +230,7 @@ if [[ -n "${SANITIZERS:-}" ]]; then
   done
 fi
 
+
 case "$product-$platform-$method" in
   FirebasePod-*-xcodebuild)
     RunXcodebuild \
@@ -272,18 +285,21 @@ case "$product-$platform-$method" in
     fi
     ;;
 
-  Firestore-macOS-cmake)
+  Firestore-macOS-cmake | Firestore-Linux-cmake)
     "${firestore_emulator}" start
     trap '"${firestore_emulator}" stop' ERR EXIT
 
-    test -d build || mkdir build
-    echo "Preparing cmake build ..."
-    (cd build; cmake "${cmake_options[@]}" ..)
+    (
+      test -d build || mkdir build
+      cd build
 
-    echo "Building cmake build ..."
-    cpus=$(sysctl -n hw.ncpu)
-    (cd build; env make -j $cpus all generate_protos)
-    (cd build; env CTEST_OUTPUT_ON_FAILURE=1 make -j $cpus test)
+      echo "Preparing cmake build ..."
+      cmake -G Ninja "${cmake_options[@]}" ..
+
+      echo "Building cmake build ..."
+      ninja -k 10 all
+      ctest --output-on-failure
+    )
     ;;
 
   SymbolCollision-*-xcodebuild)

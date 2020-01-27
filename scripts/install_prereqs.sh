@@ -177,6 +177,7 @@ case "$project-$platform-$method" in
     brew outdated cmake || brew upgrade cmake
     brew outdated go || brew upgrade go # Somehow the build for Abseil requires this.
     brew install ccache
+    brew install ninja
 
     # Install python packages required to generate proto sources
     pip install six
