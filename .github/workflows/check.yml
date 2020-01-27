@@ -1,6 +1,9 @@
 name: check
 
-on: [pull_request]
+on:
+  pull_request:
+    paths:
+      - '!Firestore/**'
 
 jobs:
   check:
