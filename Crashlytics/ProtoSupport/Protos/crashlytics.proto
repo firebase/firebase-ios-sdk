@@ -1,18 +1,21 @@
+// Copyright 2020 Google
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 syntax = "proto2";
 
-package java.com.google.fabric.crashlytics.proto;
+package com.google.crashlytics.proto;
 
-// This proto is binary-compatible with the original Crashlytics.Session proto
-// https://github.com/crashlytics/protobuf/blob/master/crashlytics.proto
-//
-// Caveats:
-// - Many enums have no default/unknown option. However, there is no way to
-//   now add these in a backwards compatible manner.
-// - Bitfield-type enums can not be modified, as the tag numbers are used
-//   as the bitfield's values.
-
-// A Session is a container for many events, each of which records distinct
-// device and app state at the time of the event.
 message Session {
   // Known processor architecture types
   // No default, due to backwards compat
@@ -36,51 +39,9 @@ message Session {
     MAC_OS_X = 0;
     IPHONE_OS = 1;
     IPHONE_SIMULATOR = 2;
-    ANDROID = 3;
-    WINDOWS = 4;
-    LINUX = 5;
-    BLACKBERRY = 6;
     TVOS = 7;
     WATCHOS = 8;
     OTHER = 1000;
-  }
-
-  // Frame importance bitfield, as assigned by the Crashlytics analyzer.
-  // The relative weight of these have been very carefully tuned. Do not modify.
-  enum FrameImportance {
-    SYMBOLICATED = 1;
-    IN_DEVELOPER_CODE = 2;
-    IN_CRASHED_THREAD = 4;
-    LIKELY_LEAD_TO_CRASH = 8;
-    IN_EXCEPTION = 16;
-    ALGORITHM = 32;
-    USER_DECLARED = 64;
-  }
-
-  // Frame properties bitfield, as assigned by the Crashlytics analyzer
-  // Do not modify
-  enum FrameProperties {
-    FRAME_UNKNOWN = 0;  // Indicates nothing is known about the frame
-
-    FRAME_TYPE_COMPILED = 1;  // The frame is known to be from compiled code.
-                              // Examples include C, C++ and Objective-C
-    FRAME_TYPE_VM = 2;  // Execution is taking place inside a Virtual Machine
-    FRAME_TYPE_INTERPRETED = 4;  // Execution is taking place via an interpreter
-    FRAME_TYPE_JIT = 8;  // Executed code came from a Just-in-Time compilation
-                         // process (JavaScript)
-    FRAME_TYPE_SPECULATIVE =
-        16;  // Frame might not actually be present in stack trace
-    FRAME_TYPE_INLINED = 32;  // Frame has been inlined
-
-    FRAME_CONTEXT_DEVELOPER =
-        67108864;  // This is code from the end application developer
-    FRAME_CONTEXT_VENDOR = 134217728;  // Not a system library, but not written
-                                       // by the developer (eg, Crashlytics)
-    FRAME_CONTEXT_RUNTIME =
-        268435456;  // Running in a runtime library (libobjc, libc++)
-    FRAME_CONTEXT_PLATFORM =
-        536870912;  // Code is from a system/platform library
-    FRAME_CONTEXT_SYSTEM = 1073741824;  // Code is from an OS vendor
   }
 
   // SDK responsible for generating the session
@@ -88,55 +49,14 @@ message Session {
   enum GeneratorType {
     IOS_SDK = 1;
     MACOS_SDK = 2;
-    ANDROID_SDK = 3;
-    JAVASCRIPT_SDK = 4;
     WATCHOS_SDK = 5;
     TVOS_SDK = 6;
-  }
-
-  // Device identifier type. Most of these are no longer used
-  // No default due to backwards compat
-  enum DeviceIdentifierType {
-    WIFI_MAC_ADDRESS = 1;
-    BLUETOOTH_MAC_ADDRESS = 2;
-
-    IOS_UDID = 50;
-    IOS_ADVERTISING_IDENTIFIER = 51;
-    IOS_VENDOR_IDENTIFIER = 52;
-    TESTER_DEVICE_TOKEN = 53;
-
-    ANDROID_ID = 100;
-    ANDROID_DEVICE_ID = 101;
-    ANDROID_SERIAL = 102;
-    ANDROID_ADVERTISING_ID = 103;
-
-    MAC_HARDWARE_UUID = 200;
-    MAC_SERIAL = 201;
-  }
-
-  // Session device state field bitfield
-  // Do not modify
-  enum DeviceState {
-    IS_SIMULATOR = 1;
-    JAILBROKEN = 2;
-    DEBUGGER_ATTACHED = 4;
-    BETA_OS = 8;
-    VENDOR_INTERNAL = 16;
-    COMPROMISED_LIBRARIES = 32;
-  }
-
-  // Component responsible for populating the session frame data
-  enum FrameDecoder {
-    SYMBOLICATION = 1;
-    DEOBFUSCATION = 2;
-    CACHE_HYDRATION = 3;
   }
 
   // SDK version that generated this session
   required string generator = 1;
 
   // GUID-style client-assigned unique session identifier
-  // Used as PK for sessions throughout the pipeline and many other systems
   required bytes identifier = 2;
 
   // Session start time, by device clock, in posix seconds since epoch, UTC
@@ -145,32 +65,15 @@ message Session {
   // Session end time, by device clock, in posix seconds since epoch, UTC
   optional uint64 ended_at = 4;
 
-  // Time session was received by Crashlytics reports endpoint,
-  // by server clock, in posix seconds since epoch, UTC
-  optional uint64 reported_at = 15;
-
   // Indicates that a device session ended unexpectedly
   optional bool crashed = 5;
-
-  // Version of the analyzer that processed this session (eg 2, 3)
-  optional uint32 analyzer = 11;
 
   // SDK responsible for generating the session
   optional GeneratorType generator_type = 12;
 
-  // Component responsible for populating the session frame data
-  optional FrameDecoder frame_decoder = 13;
-
-  // Container for pipeline/processing supplied meta-data
-  optional InternalData internal_data = 14;
-
   // Developer-supplied user-identifiying fields
   message User {
     required string identifier = 1;
-    optional string name = 2;
-    optional string email = 3;
-
-    repeated CustomAttribute custom_attributes = 4;
   }
 
   optional User user = 6;
@@ -189,49 +92,16 @@ message Session {
     // Unique device generated guid for application install
     optional string installation_uuid = 6;
 
-    // Project id from project service
-    optional string cls_id = 7;
-
-    // Platform e.g. "Xamarin" or "RubyMotion"
+    // Platform e.g. "Unity"
     optional string development_platform = 8;
 
     // Dev platform-specific version
     optional string development_platform_version = 9;
 
-    // Distribution channel through which the end user obtained the app
-    enum DeliveryMechanism {
-      DEVELOPER = 1;
-      USER_SIDELOAD = 2;
-      TEST_DISTRIBUTION = 3;
-      APP_STORE = 4;
-    }
-
-    optional DeliveryMechanism delivery_mechanism = 10;
-
-    // Build version id from project service
-    optional string version_cls_id = 11;
-
-    // Build version group from project service
-    optional string version_group = 12;
-
-    // Application process state captured at event time
-    message Process {
-      optional string name = 1;
-      required uint32 pid = 2;
-      optional string path = 3;
-      optional string parent_process_name = 4;
-      optional uint32 parent_process_id = 5;
-    }
-    optional Process process = 4;
-
     // Customer organization record
     message Organization {
       // Crashlytics supplied api key
       optional string api_key = 1;
-
-      // Customer "org_id", a MongoId from www.
-      // Hydrated by the pipeline
-      optional string cls_id = 2;
     }
     optional Organization organization = 5;
   }  // message Application
@@ -240,41 +110,25 @@ message Session {
 
   message OperatingSystem {
     required Platform platform = 1;
+
     required string version = 2;
+
     optional string build_version = 3;
+
     optional bool jailbroken = 4;
   }
   optional OperatingSystem os = 8;
 
   message Device {
-    // Deprecated. Use Device.Identifier
-    optional bytes identifier = 1;
-    optional bytes udid = 2;
-
     required Architecture arch = 3;
+
     optional string model = 4;
-    optional uint32 cores = 5;
+
     optional uint64 ram = 6;
+
     optional uint64 disk_space = 7;
-    optional string user_agent = 8;
+
     optional string language = 9;
-    optional bool simulator = 10;
-
-    // Set of ids that uniquely identify the device
-    message Identifier {
-      required DeviceIdentifierType key = 1;
-      required string value = 2;
-    }
-
-    repeated Identifier identifiers = 11;
-
-    // Bitfield of DeviceState
-    optional uint32 state = 12;
-
-    // Device manufacturer string. Blank for iOS devices.
-    optional string manufacturer = 13;
-
-    optional string model_class = 14;
   }  // message Device
 
   optional Device device = 9;
@@ -285,9 +139,6 @@ message Session {
 
     // Event type, one of "crash", "ndk-crash", "error"
     required string type = 2;
-
-    // Crashlytics issue id, from analyzer
-    optional string aggregation_id = 7;
 
     // Application state captured at event time
     message Application {
@@ -301,24 +152,13 @@ message Session {
           required uint32 importance = 2;
 
           // Contents of each stack frame
-          // Frame data is hydrated and mutated by the processing pipeline
           message Frame {
             required uint64 pc = 1;
-            optional string symbol = 2;
-            optional string file = 3;
-            optional uint64 offset = 4;
+            optional string symbol = 2;                // On macOS
+            optional uint64 offset = 4;                // On macOS
 
             // Bitfield of FrameImportance
             optional uint32 importance = 5;
-            optional string expanded_symbol = 6;
-            optional string expanded_file = 7;
-            optional uint64 expanded_offset = 8;
-
-            // Bitfield of FrameProperties
-            optional uint32 properties = 9;
-
-            optional uint64 line_number = 10;
-            optional uint64 address_offset = 11;
           }
           repeated Frame frames = 3;
 
@@ -328,44 +168,15 @@ message Session {
           }
           repeated Register registers = 4;
 
-          optional string alternate_name = 5;
-          optional string objc_selector_name = 6;
+          optional string alternate_name = 5;          // On macOS
         }  // message Application.Execution.Thread
 
         repeated Thread threads = 1;
 
-        message Exception {
-          // Java exception class
-          optional string type = 1;
-
-          optional string code = 2;
-
-          // Java exception message
-          optional string reason = 3;
-
-          // Exception stack trace
-          repeated Application.Execution.Thread.Frame frames = 4;
-
-          // Developer-supplied key/values. Not used.
-          repeated CustomAttribute custom_attributes = 5;
-
-          // Java nested exception. Only present in Android.
-          // optional Exception caused_by = 6;
-
-          // Number of chained exceptions beneath this exception that are NOT
-          // reported If this number is non-zero, the cause_by field should be
-          // empty
-          optional uint32 overflow_count = 7;
-
-          // Bitfield using values from the FrameImportance enum
-          optional uint32 importance = 8;
-        }
-
-        optional Exception exception = 2;
-
         // Signal caught by SDK signal handler
         message Signal {
           required string name = 1;
+
           required string code = 2;
 
           // Faulting instruction or address
@@ -385,37 +196,22 @@ message Session {
           optional bytes uuid = 4;
 
           optional Architecture arch = 5;
-
-          // Not used
-          optional string cls_id = 6;
-
-          /* The storage location for this binary image in S3 */
-          optional string s3_path = 7;
         }
         repeated BinaryImage binaries = 4;
       }  // message Application.Execution
 
-      required Execution execution = 1;
       repeated CustomAttribute custom_attributes = 2;
 
       optional bool background = 3; /* true if the app was in the background */
       optional uint32 ui_orientation = 4;
-
-      repeated FeatureFlag feature_flags = 5;
     }  // message Event.Application
 
     optional Application app = 3;
-
-    // Removed field os, and message OperatingSystem
-    reserved 4;
 
     // Device physical properties recorded at event time
     message Device {
       // Battery level from 0.0 to 1.0
       optional float battery_level = 1;
-
-      // Battery velocity is not used
-      optional sint32 battery_velocity = 2;
 
       // True when the proximity sensor is activated during the event
       optional bool proximity_on = 3;
@@ -440,101 +236,17 @@ message Session {
     // Only those lines most recently logged prior to the event are captured
     message Log {
       optional string content = 1;
-
-      // Removed last_offset field
-      reserved 2;
     }
 
     optional Log log = 6;
-
-    repeated string matcher_tags = 8;
-
-    message AnalyticsParam {
-      optional string name = 1;
-      optional string value = 2;
-    }
-
-    message AnalyticsObject {
-      repeated AnalyticsParam param = 1;
-      optional string name = 2;
-      optional uint64 relative_ms = 3;
-    }
-
-    repeated AnalyticsObject analytics_object = 9;
-
   }  // message Event
   repeated Event events = 10;
 }
 
 // Map entry for developer-supplied custom attribute/value pairs
 message CustomAttribute {
+
   required string key = 1;
+
   required string value = 2;
-}
-
-// This is a container for holding any information we need to add to the
-// session object from within the crash pipeline. If new information is needed
-// to be passed down the Crash pipeline or stored in the Session, new fields
-// can be added to this message.
-message InternalData {
-  optional string project_id = 1;
-  optional string gmp_app_id = 2;
-  optional string project_number = 3;
-}
-
-
-// Feature
-
-message FeatureFlag {
-  // The name of the feature. Limited to 64 chars.
-  optional string feature = 1;
-  // The state for that feature. Limited to 64 chars.
-  optional string state = 2;
-}
-
-// Container for a set of feature flags
-message FeatureFlags {
-  repeated FeatureFlag feature_flags = 1;
-}
-
-// Report
-
-// Contains basic metadata about a report, along with the session/minidump payload
-message Report {
-  
-  // SDK version that generated this session
-  required string sdk_version = 1;
-
-  // Firebase Project ID
-  required string project_id = 2;
-
-  // GMP App ID
-  required string gmp_app_id = 3;
-
-  // OS Platform
-  required java.com.google.fabric.crashlytics.proto.Session.Platform platform = 4;
-
-  // TODO: replace this with FIID?
-  // Unique device generated guid for application install. Equivalent to 
-  // Session.app.installation_uuid
-  required string installation_uuid = 5;
-
-  // App build version. Equivalent to Session.app.version.
-  required string build_version = 6;
-
-  // Developer-supplied application version. Equivalent to
-  // Session.app.display_version.
-  required string display_version = 7;
-
-  // We store the actual crash information in a separate field for each client
-  // type. This is a temporary measure until we've come up with a generic
-  // cross-platform format.
-  message payload { // was oneof but not needed
-      
-    // Session data for Android Java or iOS
-    required java.com.google.fabric.crashlytics.proto.Session session = 8;
-    
-    // Minidump file bytes, used for NDK reports
-    //bytes minidump = 9;
-  }
 }
