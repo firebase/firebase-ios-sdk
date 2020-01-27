@@ -21,10 +21,10 @@
 
 set -euo pipefail
 
+# Set up secrets for integration tests and metrics collection. This does not work for pull
+# requests from forks. See
+# https://docs.travis-ci.com/user/pull-requests#pull-requests-and-security-restrictions
 function install_secrets() {
-  # Set up secrets for integration tests and metrics collection. This does not work for pull
-  # requests from forks. See
-  # https://docs.travis-ci.com/user/pull-requests#pull-requests-and-security-restrictions
   if [[ ! -z $encrypted_d6a88994a5ab_key && $secrets_installed != true ]]; then
     secrets_installed=true
     openssl aes-256-cbc -K $encrypted_5dda5f491369_key -iv $encrypted_5dda5f491369_iv \
@@ -55,6 +55,15 @@ function install_secrets() {
     mkdir -p "$iid_resources_dir"
     cp Secrets/Installations/GoogleService-Info.plist "$iid_resources_dir"
   fi
+}
+
+# apt_install program package
+#
+# Installs the given package if the given command is missing
+function apt_install() {
+  local program="$1"
+  local package="$2"
+  which "$program" >& /dev/null || sudo apt-get install "$package"
 }
 
 if [[ $# -eq 0 ]]; then
@@ -145,10 +154,20 @@ case "$project-$platform-$method" in
     bundle exec pod install --project-directory=Firestore/Example --repo-update
     ;;
 
-  Firestore-*-cmake)
+  Firestore-iOS-cmake | Firestore-tvOS-cmake | Firestore-macOS-cmake)
     brew outdated cmake || brew upgrade cmake
     brew outdated go || brew upgrade go # Somehow the build for Abseil requires this.
     brew install ccache
+
+    # Install python packages required to generate proto sources
+    pip install six
+    ;;
+
+  Firestore-Linux-cmake)
+    apt_install ccache ccache
+    apt_install cmake cmake
+    apt_install go golang-go
+    apt_install ninja ninja-build
 
     # Install python packages required to generate proto sources
     pip install six
