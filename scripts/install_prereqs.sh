@@ -19,7 +19,7 @@
 #   - PROJECT - Firebase or Firestore
 #   - METHOD - xcodebuild or cmake; default is xcodebuild
 
-bundle install
+set -euo pipefail
 
 function install_secrets() {
   # Set up secrets for integration tests and metrics collection. This does not work for pull
@@ -57,12 +57,36 @@ function install_secrets() {
   fi
 }
 
-if [[ ! -z $QUICKSTART ]]; then
+if [[ $# -eq 0 ]]; then
+  # Take arguments from the environment
+  project=$PROJECT
+  platform=$PLATFORM
+  method=$METHOD
+
+else
+  project="$1"
+
+  platform="iOS"
+  if [[ $# -gt 1 ]]; then
+    platform="$2"
+  fi
+
+  method="xcodebuild"
+  if [[ $# -gt 2 ]]; then
+    method="$3"
+  fi
+fi
+
+echo "Installing prerequisites for $project for $platform using $method"
+
+bundle install
+
+if [[ ! -z "${QUICKSTART:-}" ]]; then
   install_secrets
   ./scripts/setup_quickstart.sh "$QUICKSTART"
 fi
 
-case "$PROJECT-$PLATFORM-$METHOD" in
+case "$project-$platform-$method" in
 
   FirebasePod-iOS-xcodebuild)
     gem install xcpretty
@@ -138,9 +162,9 @@ case "$PROJECT-$PLATFORM-$METHOD" in
 
   *)
     echo "Unknown project-platform-method combo" 1>&2
-    echo "  PROJECT=$PROJECT" 1>&2
-    echo "  PLATFORM=$PLATFORM" 1>&2
-    echo "  METHOD=$METHOD" 1>&2
+    echo "  PROJECT=$project" 1>&2
+    echo "  PLATFORM=$platform" 1>&2
+    echo "  METHOD=$method" 1>&2
     exit 1
     ;;
 esac
