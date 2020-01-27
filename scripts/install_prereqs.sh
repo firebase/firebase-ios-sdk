@@ -143,9 +143,6 @@ case "$project-$platform-$method" in
     bundle exec pod install --project-directory=Firestore/Example --repo-update
     ;;
 
-  *-pod-lib-lint)
-    ;;
-
   Firestore-*-cmake)
     brew outdated cmake || brew upgrade cmake
     brew outdated go || brew upgrade go # Somehow the build for Abseil requires this.
@@ -158,6 +155,9 @@ case "$project-$platform-$method" in
   SymbolCollision-*-xcodebuild)
     gem install xcpretty
     bundle exec pod install --project-directory=SymbolCollisionTest --repo-update
+    ;;
+
+  *-pod-lib-lint)
     ;;
 
   *)
