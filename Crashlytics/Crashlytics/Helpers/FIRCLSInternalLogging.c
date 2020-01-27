@@ -18,24 +18,24 @@
 #include "FIRCLSUtility.h"
 
 void FIRCLSSDKFileLog(FIRCLSInternalLogLevel level, const char* format, ...) {
-  if (!_clsContext.readonly || !_clsContext.writable) {
+  if (!_firclsContext.readonly || !_firclsContext.writable) {
     return;
   }
 
-  const char* path = _clsContext.readonly->logPath;
+  const char* path = _firclsContext.readonly->logPath;
   if (!FIRCLSIsValidPointer(path)) {
     return;
   }
 
-  if (_clsContext.writable->internalLogging.logLevel > level) {
+  if (_firclsContext.writable->internalLogging.logLevel > level) {
     return;
   }
 
-  if (_clsContext.writable->internalLogging.logFd == -1) {
-    _clsContext.writable->internalLogging.logFd = open(path, O_WRONLY | O_CREAT | O_APPEND, 0644);
+  if (_firclsContext.writable->internalLogging.logFd == -1) {
+    _firclsContext.writable->internalLogging.logFd = open(path, O_WRONLY | O_CREAT | O_APPEND, 0644);
   }
 
-  const int fd = _clsContext.writable->internalLogging.logFd;
+  const int fd = _firclsContext.writable->internalLogging.logFd;
   if (fd < 0) {
     return;
   }

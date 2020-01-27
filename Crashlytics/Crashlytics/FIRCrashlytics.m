@@ -52,7 +52,7 @@
 #import <UIKit/UIKit.h>
 #endif
 
-FIRCLSContext _clsContext;
+FIRCLSContext _firclsContext;
 dispatch_queue_t _firclsLoggingQueue;
 dispatch_queue_t _firclsBinaryImageQueue;
 dispatch_queue_t _firclsExceptionQueue;

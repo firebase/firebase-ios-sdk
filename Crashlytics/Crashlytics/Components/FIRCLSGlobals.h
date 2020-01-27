@@ -16,7 +16,7 @@
 
 __BEGIN_DECLS
 
-extern FIRCLSContext _clsContext;
+extern FIRCLSContext _firclsContext;
 extern dispatch_queue_t _firclsLoggingQueue;
 extern dispatch_queue_t _firclsBinaryImageQueue;
 extern dispatch_queue_t _firclsExceptionQueue;

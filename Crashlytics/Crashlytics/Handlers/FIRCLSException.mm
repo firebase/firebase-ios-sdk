@@ -205,7 +205,7 @@ void FIRCLSExceptionRecord(FIRCLSExceptionType type,
   // exceptions can happen on multiple threads at the same time
   if (native) {
     dispatch_sync(_firclsExceptionQueue, ^{
-      const char *path = _clsContext.readonly->exception.path;
+      const char *path = _firclsContext.readonly->exception.path;
       FIRCLSFile file;
 
       if (!FIRCLSFileInitWithPath(&file, path, false)) {
@@ -226,8 +226,8 @@ void FIRCLSExceptionRecord(FIRCLSExceptionType type,
       }
     });
   } else {
-    FIRCLSUserLoggingWriteAndCheckABFiles(&_clsContext.readonly->logging.customExceptionStorage,
-                                          &_clsContext.writable->logging.activeCustomExceptionPath,
+    FIRCLSUserLoggingWriteAndCheckABFiles(&_firclsContext.readonly->logging.customExceptionStorage,
+                                          &_firclsContext.writable->logging.activeCustomExceptionPath,
                                           ^(FIRCLSFile *file) {
                                             FIRCLSExceptionWrite(file, type, name, reason, frames);
                                           });
@@ -303,7 +303,7 @@ static void FIRCLSCatchAndRecordActiveException(std::type_info *typeInfo) {
 static void FIRCLSTerminateHandler(void) {
   FIRCLSSDKLog("C++ terminate handler invoked\n");
 
-  void (*handler)(void) = _clsContext.readonly->exception.originalTerminateHandler;
+  void (*handler)(void) = _firclsContext.readonly->exception.originalTerminateHandler;
   if (handler == FIRCLSTerminateHandler) {
     FIRCLSSDKLog("Error: original handler was set recursively\n");
     handler = NULL;
@@ -354,7 +354,7 @@ void FIRCLSExceptionCheckHandlers(void *delegate) {
   }
 #endif
 
-  if (_clsContext.readonly->debuggerAttached) {
+  if (_firclsContext.readonly->debuggerAttached) {
     return;
   }
 
@@ -400,7 +400,7 @@ static Method FIRCLSGetNSApplicationReportExceptionMethod(void) {
 
 static NSApplicationReportExceptionFunction FIRCLSOriginalNSExceptionReportExceptionFunction(void) {
   return (NSApplicationReportExceptionFunction)
-      _clsContext.readonly->exception.originalNSApplicationReportException;
+      _firclsContext.readonly->exception.originalNSApplicationReportException;
 }
 
 void FIRCLSNSApplicationReportException(id self, SEL cmd, NSException *exception) {

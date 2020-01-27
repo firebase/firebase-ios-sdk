@@ -98,8 +98,8 @@
 - (FIRCLSUserLoggingKVStorage)internalKVStorage {
   FIRCLSUserLoggingKVStorage storage;
 
-  storage.maxCount = _clsContext.readonly->logging.internalKVStorage.maxCount;
-  storage.maxIncrementalCount = _clsContext.readonly->logging.internalKVStorage.maxIncrementalCount;
+  storage.maxCount = _firclsContext.readonly->logging.internalKVStorage.maxCount;
+  storage.maxIncrementalCount = _firclsContext.readonly->logging.internalKVStorage.maxIncrementalCount;
   storage.compactedPath = [_internalCompactedKVFile fileSystemRepresentation];
   storage.incrementalPath = [_internalIncrementalKVFile fileSystemRepresentation];
 
@@ -109,8 +109,8 @@
 - (FIRCLSUserLoggingKVStorage)userKVStorage {
   FIRCLSUserLoggingKVStorage storage;
 
-  storage.maxCount = _clsContext.readonly->logging.userKVStorage.maxCount;
-  storage.maxIncrementalCount = _clsContext.readonly->logging.userKVStorage.maxIncrementalCount;
+  storage.maxCount = _firclsContext.readonly->logging.userKVStorage.maxCount;
+  storage.maxIncrementalCount = _firclsContext.readonly->logging.userKVStorage.maxIncrementalCount;
   storage.compactedPath = [_userCompactedKVFile fileSystemRepresentation];
   storage.incrementalPath = [_userIncrementalKVFile fileSystemRepresentation];
 
