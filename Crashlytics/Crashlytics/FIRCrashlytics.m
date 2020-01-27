@@ -53,9 +53,9 @@
 #endif
 
 FIRCLSContext _clsContext;
-dispatch_queue_t _clsLoggingQueue;
-dispatch_queue_t _clsBinaryImageQueue;
-dispatch_queue_t _clsExceptionQueue;
+dispatch_queue_t _firclsLoggingQueue;
+dispatch_queue_t _firclsBinaryImageQueue;
+dispatch_queue_t _firclsExceptionQueue;
 
 static atomic_bool _hasInitializedInstance;
 

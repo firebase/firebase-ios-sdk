@@ -94,7 +94,7 @@
   [report setUserIdentifier:@"12345-6"];
 
   NSArray *entries = FIRCLSFileReadSections(
-      [[report.internalReport pathForContentFile:CLSReportInternalIncrementalKVFile]
+      [[report.internalReport pathForContentFile:FIRCLSReportInternalIncrementalKVFile]
           fileSystemRepresentation],
       false, nil);
 
@@ -112,7 +112,7 @@
   [report setObjectValue:@"goodbye" forKey:@"anotherkey"];
 
   NSArray *entries = FIRCLSFileReadSections(
-      [[report.internalReport pathForContentFile:CLSReportUserIncrementalKVFile]
+      [[report.internalReport pathForContentFile:FIRCLSReportUserIncrementalKVFile]
           fileSystemRepresentation],
       false, nil);
 

@@ -279,7 +279,7 @@
 
   // create a signal file so it is considering worth reporting
   XCTAssertTrue([self createFileWithContents:@"signal"
-                                      atPath:[report pathForContentFile:CLSReportSignalFile]]);
+                                      atPath:[report pathForContentFile:FIRCLSReportSignalFile]]);
 
   XCTAssertEqual([[self contentsOfActivePath] count], 1);
 
@@ -302,7 +302,7 @@
 
   // create a signal file so it is considering worth reporting
   XCTAssertTrue([self createFileWithContents:@"signal"
-                                      atPath:[report pathForContentFile:CLSReportSignalFile]]);
+                                      atPath:[report pathForContentFile:FIRCLSReportSignalFile]]);
 
   XCTAssertEqual([[self contentsOfActivePath] count], 1);
 
@@ -332,7 +332,7 @@
 
   // create a signal file so it is considering worth reporting
   XCTAssertTrue([self createFileWithContents:@"signal"
-                                      atPath:[report pathForContentFile:CLSReportSignalFile]]);
+                                      atPath:[report pathForContentFile:FIRCLSReportSignalFile]]);
 
   XCTAssertEqual([[self contentsOfActivePath] count], 1);
 
@@ -364,7 +364,7 @@
 
   // create a signal file so it is considering worth reporting
   XCTAssertTrue([self createFileWithContents:@"signal"
-                                      atPath:[report pathForContentFile:CLSReportSignalFile]]);
+                                      atPath:[report pathForContentFile:FIRCLSReportSignalFile]]);
 
   XCTAssertEqual([[self contentsOfActivePath] count], 1);
 
@@ -390,7 +390,7 @@
 
   // create a signal file so it is considering worth reporting
   XCTAssertTrue([self createFileWithContents:@"signal"
-                                      atPath:[report pathForContentFile:CLSReportSignalFile]]);
+                                      atPath:[report pathForContentFile:FIRCLSReportSignalFile]]);
 
   XCTAssertEqual([[self contentsOfActivePath] count], 1);
 
@@ -413,7 +413,7 @@
 
   // create a signal file so it is considering worth reporting
   XCTAssertTrue([self createFileWithContents:@"signal"
-                                      atPath:[report pathForContentFile:CLSReportSignalFile]]);
+                                      atPath:[report pathForContentFile:FIRCLSReportSignalFile]]);
 
   XCTAssertEqual([[self contentsOfActivePath] count], 1);
 

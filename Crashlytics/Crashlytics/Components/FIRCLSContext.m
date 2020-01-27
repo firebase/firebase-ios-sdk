@@ -83,9 +83,9 @@ bool FIRCLSContextInitialize(const FIRCLSContextInitData* initData) {
     _clsContext.readonly->logging.errorStorage.entryCount =
         &_clsContext.writable->logging.errorsCount;
     _clsContext.readonly->logging.errorStorage.aPath =
-        FIRCLSContextAppendToRoot(rootPath, CLSReportErrorAFile);
+        FIRCLSContextAppendToRoot(rootPath, FIRCLSReportErrorAFile);
     _clsContext.readonly->logging.errorStorage.bPath =
-        FIRCLSContextAppendToRoot(rootPath, CLSReportErrorBFile);
+        FIRCLSContextAppendToRoot(rootPath, FIRCLSReportErrorBFile);
 
     _clsContext.readonly->logging.logStorage.maxSize = initData->maxLogSize;
     _clsContext.readonly->logging.logStorage.maxEntries = 0;
@@ -96,9 +96,9 @@ bool FIRCLSContextInitialize(const FIRCLSContextInitData* initData) {
     _clsContext.readonly->logging.logStorage.bPath =
         FIRCLSContextAppendToRoot(rootPath, @"log_b.clsrecord");
     _clsContext.readonly->logging.customExceptionStorage.aPath =
-        FIRCLSContextAppendToRoot(rootPath, CLSReportCustomExceptionAFile);
+        FIRCLSContextAppendToRoot(rootPath, FIRCLSReportCustomExceptionAFile);
     _clsContext.readonly->logging.customExceptionStorage.bPath =
-        FIRCLSContextAppendToRoot(rootPath, CLSReportCustomExceptionBFile);
+        FIRCLSContextAppendToRoot(rootPath, FIRCLSReportCustomExceptionBFile);
     _clsContext.readonly->logging.customExceptionStorage.maxSize = 0;
     _clsContext.readonly->logging.customExceptionStorage.restrictBySize = false;
     _clsContext.readonly->logging.customExceptionStorage.maxEntries = initData->maxCustomExceptions;
@@ -107,22 +107,22 @@ bool FIRCLSContextInitialize(const FIRCLSContextInitData* initData) {
 
     _clsContext.readonly->logging.userKVStorage.maxCount = initData->maxKeyValues;
     _clsContext.readonly->logging.userKVStorage.incrementalPath =
-        FIRCLSContextAppendToRoot(rootPath, CLSReportUserIncrementalKVFile);
+        FIRCLSContextAppendToRoot(rootPath, FIRCLSReportUserIncrementalKVFile);
     _clsContext.readonly->logging.userKVStorage.compactedPath =
-        FIRCLSContextAppendToRoot(rootPath, CLSReportUserCompactedKVFile);
+        FIRCLSContextAppendToRoot(rootPath, FIRCLSReportUserCompactedKVFile);
 
     _clsContext.readonly->logging.internalKVStorage.maxCount = 32;  // Hardcode = bad
     _clsContext.readonly->logging.internalKVStorage.incrementalPath =
-        FIRCLSContextAppendToRoot(rootPath, CLSReportInternalIncrementalKVFile);
+        FIRCLSContextAppendToRoot(rootPath, FIRCLSReportInternalIncrementalKVFile);
     _clsContext.readonly->logging.internalKVStorage.compactedPath =
-        FIRCLSContextAppendToRoot(rootPath, CLSReportInternalCompactedKVFile);
+        FIRCLSContextAppendToRoot(rootPath, FIRCLSReportInternalCompactedKVFile);
 
     FIRCLSUserLoggingInit(&_clsContext.readonly->logging, &_clsContext.writable->logging);
   });
 
   dispatch_group_async(group, queue, ^{
     _clsContext.readonly->binaryimage.path =
-        FIRCLSContextAppendToRoot(rootPath, CLSReportBinaryImageFile);
+        FIRCLSContextAppendToRoot(rootPath, FIRCLSReportBinaryImageFile);
 
     FIRCLSBinaryImageInit(&_clsContext.readonly->binaryimage, &_clsContext.writable->binaryImage);
   });
@@ -136,7 +136,7 @@ bool FIRCLSContextInitialize(const FIRCLSContextInitData* initData) {
 
   if (!_clsContext.readonly->debuggerAttached) {
     dispatch_group_async(group, queue, ^{
-      _clsContext.readonly->signal.path = FIRCLSContextAppendToRoot(rootPath, CLSReportSignalFile);
+      _clsContext.readonly->signal.path = FIRCLSContextAppendToRoot(rootPath, FIRCLSReportSignalFile);
 
       FIRCLSSignalInitialize(&_clsContext.readonly->signal);
     });
@@ -144,7 +144,7 @@ bool FIRCLSContextInitialize(const FIRCLSContextInitData* initData) {
 #if CLS_MACH_EXCEPTION_SUPPORTED
     dispatch_group_async(group, queue, ^{
       _clsContext.readonly->machException.path =
-          FIRCLSContextAppendToRoot(rootPath, CLSReportMachExceptionFile);
+          FIRCLSContextAppendToRoot(rootPath, FIRCLSReportMachExceptionFile);
 
       FIRCLSMachExceptionInit(&_clsContext.readonly->machException, initData->machExceptionMask);
     });
@@ -152,7 +152,7 @@ bool FIRCLSContextInitialize(const FIRCLSContextInitData* initData) {
 
     dispatch_group_async(group, queue, ^{
       _clsContext.readonly->exception.path =
-          FIRCLSContextAppendToRoot(rootPath, CLSReportExceptionFile);
+          FIRCLSContextAppendToRoot(rootPath, FIRCLSReportExceptionFile);
       _clsContext.readonly->exception.maxCustomExceptions =
           initData->customExceptionsEnabled ? initData->maxCustomExceptions : 0;
 
@@ -165,7 +165,7 @@ bool FIRCLSContextInitialize(const FIRCLSContextInitData* initData) {
 
   dispatch_group_async(group, queue, ^{
     const char* metaDataPath =
-        [[rootPath stringByAppendingPathComponent:CLSReportMetadataFile] fileSystemRepresentation];
+        [[rootPath stringByAppendingPathComponent:FIRCLSReportMetadataFile] fileSystemRepresentation];
     if (!FIRCLSContextRecordMetadata(metaDataPath, initData)) {
       FIRCLSSDKLog("Unable to record context metadata\n");
     }
@@ -198,7 +198,7 @@ void FIRCLSContextUpdateMetadata(const FIRCLSContextInitData* initData) {
   NSString* rootPath = [NSString stringWithUTF8String:initData->rootPath];
 
   const char* metaDataPath =
-      [[rootPath stringByAppendingPathComponent:CLSReportMetadataFile] fileSystemRepresentation];
+      [[rootPath stringByAppendingPathComponent:FIRCLSReportMetadataFile] fileSystemRepresentation];
 
   if (!FIRCLSContextRecordMetadata(metaDataPath, initData)) {
     FIRCLSErrorLog(@"Unable to update context metadata");
@@ -212,10 +212,10 @@ void FIRCLSContextBaseInit(void) {
   NSString* binaryImagesQueueName = [sdkBundleID stringByAppendingString:@".binary-images"];
   NSString* exceptionQueueName = [sdkBundleID stringByAppendingString:@".exception"];
 
-  _clsLoggingQueue = dispatch_queue_create([loggingQueueName UTF8String], DISPATCH_QUEUE_SERIAL);
-  _clsBinaryImageQueue =
+  _firclsLoggingQueue = dispatch_queue_create([loggingQueueName UTF8String], DISPATCH_QUEUE_SERIAL);
+  _firclsBinaryImageQueue =
       dispatch_queue_create([binaryImagesQueueName UTF8String], DISPATCH_QUEUE_SERIAL);
-  _clsExceptionQueue =
+  _firclsExceptionQueue =
       dispatch_queue_create([exceptionQueueName UTF8String], DISPATCH_QUEUE_SERIAL);
 
   FIRCLSContextAllocate(&_clsContext);

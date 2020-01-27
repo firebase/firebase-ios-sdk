@@ -43,8 +43,8 @@
   self.compactedKVPath = [tempDir stringByAppendingPathComponent:@"compacted_kv.clsrecord"];
   self.logAPath = [tempDir stringByAppendingPathComponent:@"loga.clsrecord"];
   self.logBPath = [tempDir stringByAppendingPathComponent:@"logb.clsrecord"];
-  self.errorAPath = [tempDir stringByAppendingPathComponent:CLSReportErrorAFile];
-  self.errorBPath = [tempDir stringByAppendingPathComponent:CLSReportErrorBFile];
+  self.errorAPath = [tempDir stringByAppendingPathComponent:FIRCLSReportErrorAFile];
+  self.errorBPath = [tempDir stringByAppendingPathComponent:FIRCLSReportErrorBFile];
 
   _clsContext.readonly->logging.userKVStorage.incrementalPath =
       strdup([self.kvPath fileSystemRepresentation]);

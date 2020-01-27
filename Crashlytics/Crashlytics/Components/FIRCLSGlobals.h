@@ -17,9 +17,9 @@
 __BEGIN_DECLS
 
 extern FIRCLSContext _clsContext;
-extern dispatch_queue_t _clsLoggingQueue;
-extern dispatch_queue_t _clsBinaryImageQueue;
-extern dispatch_queue_t _clsExceptionQueue;
+extern dispatch_queue_t _firclsLoggingQueue;
+extern dispatch_queue_t _firclsBinaryImageQueue;
+extern dispatch_queue_t _firclsExceptionQueue;
 
 #define FIRCLSGetLoggingQueue() (_clsLoggingQueue)
 #define FIRCLSGetBinaryImageQueue() (_clsBinaryImageQueue)

@@ -66,11 +66,11 @@
   _userKVCounter = 0;
 
   _internalCompactedKVFile =
-      [self.internalReport pathForContentFile:CLSReportInternalCompactedKVFile];
+      [self.internalReport pathForContentFile:FIRCLSReportInternalCompactedKVFile];
   _internalIncrementalKVFile =
-      [self.internalReport pathForContentFile:CLSReportInternalIncrementalKVFile];
-  _userCompactedKVFile = [self.internalReport pathForContentFile:CLSReportUserCompactedKVFile];
-  _userIncrementalKVFile = [self.internalReport pathForContentFile:CLSReportUserIncrementalKVFile];
+      [self.internalReport pathForContentFile:FIRCLSReportInternalIncrementalKVFile];
+  _userCompactedKVFile = [self.internalReport pathForContentFile:FIRCLSReportUserCompactedKVFile];
+  _userIncrementalKVFile = [self.internalReport pathForContentFile:FIRCLSReportUserIncrementalKVFile];
 
   _readOnly = shouldPrefetch;
 

@@ -204,7 +204,7 @@ void FIRCLSExceptionRecord(FIRCLSExceptionType type,
 
   // exceptions can happen on multiple threads at the same time
   if (native) {
-    dispatch_sync(_clsExceptionQueue, ^{
+    dispatch_sync(_firclsExceptionQueue, ^{
       const char *path = _clsContext.readonly->exception.path;
       FIRCLSFile file;
 
