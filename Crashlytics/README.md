@@ -24,7 +24,11 @@ testing the FirebaseCrashlytics CocoaPod.
 
 ### Updating crash report proto
 
-If the crash report proto needs to be updated, follow these instructions:
+If the crash report proto needs to be updated, follow these instructions -
+- Prerequisite installations:
+    - gem (update|install) cocoapods cocoapods-generate
+    - brew install protobuf nanopb
+    - easy_install protobuf python
 - Update `ProtoSupport/Protos/crashlytics.proto` with the new changes
 - Depending on the type of fields added/removed, also update `ProtoSupport/Protos/crashlytics.options`.
  `CALLBACK` type fields in crashlytics.nanopb.c needs to be changed to `POINTER`
