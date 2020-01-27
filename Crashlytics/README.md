@@ -27,8 +27,8 @@ testing the FirebaseCrashlytics CocoaPod.
 If the crash report proto needs to be updated, follow these instructions:
 - Update `ProtoSupport/Protos/crashlytics.proto` with the new changes
 - Depending on the type of fields added/removed, also update `ProtoSupport/Protos/crashlytics.options`.
- `CALLBACK` type fields in crashlytics.nanopb.c needs to be changed to `POINTER` 
- (through the options file). Known field types that require an entry in crashlytics.options are 
+ `CALLBACK` type fields in crashlytics.nanopb.c needs to be changed to `POINTER`
+ (through the options file). Known field types that require an entry in crashlytics.options are
  `strings`, `repeated` and `bytes`.
 - Run `generate_project.sh` to update the nanopb .c/.h files.
 
