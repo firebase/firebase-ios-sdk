@@ -1,4 +1,4 @@
-# Copyright 2018 Google
+# Copyright 2018 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -79,11 +79,13 @@ fi
 
 echo "Installing prerequisites for $project for $platform using $method"
 
-bundle install
-
 if [[ ! -z "${QUICKSTART:-}" ]]; then
   install_secrets
-  ./scripts/setup_quickstart.sh "$QUICKSTART"
+  scripts/setup_quickstart.sh "$QUICKSTART"
+fi
+
+if [[ "$method" != "cmake" ]]; then
+  scripts/setup_bundler.sh
 fi
 
 case "$project-$platform-$method" in
