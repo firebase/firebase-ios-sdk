@@ -24,9 +24,9 @@ readonly DIR="$( git rev-parse --show-toplevel )"
 
 # Current release of nanopb being used  to build the CCT protos
 readonly NANOPB_VERSION="0.3.9.3"
-readonly NANOPB_TEMPDIR="${DIR}/GoogleDataTransportCCTSupport/nanopb_temp"
+readonly NANOPB_TEMPDIR="${DIR}/Crashlytics/nanopb_temp"
 
-readonly LIBRARY_DIR="${DIR}/GoogleDataTransportCCTSupport/GDTCCTLibrary/"
+readonly LIBRARY_DIR="${DIR}/Crashlytics/Crashlytics/"
 readonly PROTO_DIR="${DIR}/Crashlytics/ProtoSupport/Protos/"
 readonly PROTOGEN_DIR="${DIR}/Crashlytics/Protogen/"
 
@@ -46,7 +46,7 @@ echo "Removing existing CCT protos..."
 rm -rf "${PROTOGEN_DIR}/*"
 
 echo "Generating CCT protos..."
-python "${DIR}/GoogleDataTransportCCTSupport/ProtoSupport/proto_generator.py" \
+python "${DIR}/Crashlytics/ProtoSupport/proto_generator.py" \
   --nanopb \
   --protos_dir="${PROTO_DIR}" \
   --pythonpath="${NANOPB_TEMPDIR}/${NANOPB_BIN_DIR}/generator" \
