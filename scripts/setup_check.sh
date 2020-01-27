@@ -25,3 +25,10 @@ brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/e3496d9/Fo
 brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/7963c3d/Formula/swiftformat.rb
 
 pip install flake8
+
+# Using actions/checkout@v2 creates a shallow clone that's missing the master
+# branch. If it's not present, add it.
+if ! git rev-parse origin/master >& /dev/null; then
+  git remote set-branches --add origin master
+  git fetch origin
+fi
