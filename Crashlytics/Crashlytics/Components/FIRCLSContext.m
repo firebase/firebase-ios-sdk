@@ -101,7 +101,8 @@ bool FIRCLSContextInitialize(const FIRCLSContextInitData* initData) {
         FIRCLSContextAppendToRoot(rootPath, FIRCLSReportCustomExceptionBFile);
     _firclsContext.readonly->logging.customExceptionStorage.maxSize = 0;
     _firclsContext.readonly->logging.customExceptionStorage.restrictBySize = false;
-    _firclsContext.readonly->logging.customExceptionStorage.maxEntries = initData->maxCustomExceptions;
+    _firclsContext.readonly->logging.customExceptionStorage.maxEntries =
+        initData->maxCustomExceptions;
     _firclsContext.readonly->logging.customExceptionStorage.entryCount =
         &_firclsContext.writable->exception.customExceptionCount;
 
@@ -124,7 +125,8 @@ bool FIRCLSContextInitialize(const FIRCLSContextInitData* initData) {
     _firclsContext.readonly->binaryimage.path =
         FIRCLSContextAppendToRoot(rootPath, FIRCLSReportBinaryImageFile);
 
-    FIRCLSBinaryImageInit(&_firclsContext.readonly->binaryimage, &_firclsContext.writable->binaryImage);
+    FIRCLSBinaryImageInit(&_firclsContext.readonly->binaryimage,
+                          &_firclsContext.writable->binaryImage);
   });
 
   dispatch_group_async(group, queue, ^{
@@ -136,7 +138,8 @@ bool FIRCLSContextInitialize(const FIRCLSContextInitData* initData) {
 
   if (!_firclsContext.readonly->debuggerAttached) {
     dispatch_group_async(group, queue, ^{
-      _firclsContext.readonly->signal.path = FIRCLSContextAppendToRoot(rootPath, FIRCLSReportSignalFile);
+      _firclsContext.readonly->signal.path =
+          FIRCLSContextAppendToRoot(rootPath, FIRCLSReportSignalFile);
 
       FIRCLSSignalInitialize(&_firclsContext.readonly->signal);
     });
@@ -156,16 +159,16 @@ bool FIRCLSContextInitialize(const FIRCLSContextInitData* initData) {
       _firclsContext.readonly->exception.maxCustomExceptions =
           initData->customExceptionsEnabled ? initData->maxCustomExceptions : 0;
 
-      FIRCLSExceptionInitialize(&_firclsContext.readonly->exception, &_firclsContext.writable->exception,
-                                initData->delegate);
+      FIRCLSExceptionInitialize(&_firclsContext.readonly->exception,
+                                &_firclsContext.writable->exception, initData->delegate);
     });
   } else {
     FIRCLSSDKLog("Debugger present - not installing handlers\n");
   }
 
   dispatch_group_async(group, queue, ^{
-    const char* metaDataPath =
-        [[rootPath stringByAppendingPathComponent:FIRCLSReportMetadataFile] fileSystemRepresentation];
+    const char* metaDataPath = [[rootPath stringByAppendingPathComponent:FIRCLSReportMetadataFile]
+        fileSystemRepresentation];
     if (!FIRCLSContextRecordMetadata(metaDataPath, initData)) {
       FIRCLSSDKLog("Unable to record context metadata\n");
     }

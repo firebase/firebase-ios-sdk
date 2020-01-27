@@ -226,11 +226,11 @@ void FIRCLSExceptionRecord(FIRCLSExceptionType type,
       }
     });
   } else {
-    FIRCLSUserLoggingWriteAndCheckABFiles(&_firclsContext.readonly->logging.customExceptionStorage,
-                                          &_firclsContext.writable->logging.activeCustomExceptionPath,
-                                          ^(FIRCLSFile *file) {
-                                            FIRCLSExceptionWrite(file, type, name, reason, frames);
-                                          });
+    FIRCLSUserLoggingWriteAndCheckABFiles(
+        &_firclsContext.readonly->logging.customExceptionStorage,
+        &_firclsContext.writable->logging.activeCustomExceptionPath, ^(FIRCLSFile *file) {
+          FIRCLSExceptionWrite(file, type, name, reason, frames);
+        });
   }
 
   FIRCLSSDKLog("Finished recording an exception structure\n");

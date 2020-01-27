@@ -70,7 +70,8 @@
   _internalIncrementalKVFile =
       [self.internalReport pathForContentFile:FIRCLSReportInternalIncrementalKVFile];
   _userCompactedKVFile = [self.internalReport pathForContentFile:FIRCLSReportUserCompactedKVFile];
-  _userIncrementalKVFile = [self.internalReport pathForContentFile:FIRCLSReportUserIncrementalKVFile];
+  _userIncrementalKVFile =
+      [self.internalReport pathForContentFile:FIRCLSReportUserIncrementalKVFile];
 
   _readOnly = shouldPrefetch;
 
@@ -99,7 +100,8 @@
   FIRCLSUserLoggingKVStorage storage;
 
   storage.maxCount = _firclsContext.readonly->logging.internalKVStorage.maxCount;
-  storage.maxIncrementalCount = _firclsContext.readonly->logging.internalKVStorage.maxIncrementalCount;
+  storage.maxIncrementalCount =
+      _firclsContext.readonly->logging.internalKVStorage.maxIncrementalCount;
   storage.compactedPath = [_internalCompactedKVFile fileSystemRepresentation];
   storage.incrementalPath = [_internalIncrementalKVFile fileSystemRepresentation];
 
