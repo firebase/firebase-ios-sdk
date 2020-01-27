@@ -218,8 +218,8 @@ if [[ -n "${SANITIZERS:-}" ]]; then
   done
 fi
 
-case "$product-$method-$platform" in
-  FirebasePod-xcodebuild-*)
+case "$product-$platform-$method" in
+  FirebasePod-*-xcodebuild)
     RunXcodebuild \
         -workspace 'CoreOnly/Tests/FirebasePodTest/FirebasePodTest.xcworkspace' \
         -scheme "FirebasePodTest" \
@@ -227,7 +227,7 @@ case "$product-$method-$platform" in
         build
     ;;
 
-  Auth-xcodebuild-*)
+  Auth-*-xcodebuild)
     if [[ "$have_secrets" == true ]]; then
       RunXcodebuild \
         -workspace 'Example/Auth/AuthSample/AuthSample.xcworkspace' \
@@ -238,7 +238,7 @@ case "$product-$method-$platform" in
     fi
     ;;
 
-  InAppMessaging-xcodebuild-*)
+  InAppMessaging-*-xcodebuild)
     RunXcodebuild \
         -workspace 'FirebaseInAppMessaging/Tests/Integration/DefaultUITestApp/InAppMessagingDisplay-Sample.xcworkspace' \
         -scheme 'FiamDisplaySwiftExample' \
@@ -247,7 +247,7 @@ case "$product-$method-$platform" in
         test
     ;;
 
-  Firestore-xcodebuild-*)
+  Firestore-*-xcodebuild)
     "${firestore_emulator}" start
     trap '"${firestore_emulator}" stop' ERR EXIT
 
@@ -272,7 +272,7 @@ case "$product-$method-$platform" in
     fi
     ;;
 
-  Firestore-cmake-macOS)
+  Firestore-macOS-cmake)
     "${firestore_emulator}" start
     trap '"${firestore_emulator}" stop' ERR EXIT
 
@@ -286,7 +286,7 @@ case "$product-$method-$platform" in
     (cd build; env CTEST_OUTPUT_ON_FAILURE=1 make -j $cpus test)
     ;;
 
-  SymbolCollision-xcodebuild-*)
+  SymbolCollision-*-xcodebuild)
     RunXcodebuild \
         -workspace 'SymbolCollisionTest/SymbolCollisionTest.xcworkspace' \
         -scheme "SymbolCollisionTest" \
@@ -294,7 +294,7 @@ case "$product-$method-$platform" in
         build
     ;;
 
-  Database-xcodebuild-*)
+  Database-*-xcodebuild)
     pod_gen FirebaseDatabase.podspec --platforms=ios
     RunXcodebuild \
       -workspace 'gen/FirebaseDatabase/FirebaseDatabase.xcworkspace' \
@@ -334,7 +334,7 @@ case "$product-$method-$platform" in
       test
     ;;
 
-  Storage-xcodebuild-*)
+  Storage-*-xcodebuild)
     pod_gen FirebaseStorage.podspec --platforms=ios
     RunXcodebuild \
       -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
