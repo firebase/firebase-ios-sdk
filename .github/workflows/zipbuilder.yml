@@ -20,4 +20,3 @@ jobs:
       run: |
         cd ZipBuilder
         swift build -v
-  
