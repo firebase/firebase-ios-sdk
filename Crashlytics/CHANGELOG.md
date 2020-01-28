@@ -1,3 +1,7 @@
+# v4.0.0-beta.3
+
+- [fixed] Fixed symbol collisions with the `Crashlytics` SDK and added a warning not to include both (#4753, #4755)
+
 # v4.0.0-beta.2
 
 - [fixed] Fixed VeraCode scanner issues for unchecked error conditions (#4669)
