@@ -15,7 +15,7 @@
 #import <Foundation/Foundation.h>
 
 #if __has_include(<Crashlytics/Crashlytics.h>)
-#warn "FirebaseCrashlytics and Crashlytics are not compatible in the same app because including multiple crash reporters can cause problems when registering exception handlers."
+#warning "FirebaseCrashlytics and Crashlytics are not compatible in the same app because including multiple crash reporters can cause problems when registering exception handlers."
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
