@@ -27,9 +27,12 @@
                       triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
                           appData:(NSDictionary *)appData {
   if (self = [super init]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     _campaignInfo = [[FIRInAppMessagingCampaignInfo alloc] initWithMessageID:messageID
                                                                 campaignName:campaignName
                                                          renderAsTestMessage:renderAsTestMessage];
+#pragma clang diagnostic pop
     _type = messageType;
     _triggerType = triggerType;
     _appData = [appData copy];
