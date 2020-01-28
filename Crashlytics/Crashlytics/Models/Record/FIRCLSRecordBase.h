@@ -17,7 +17,10 @@
 #import <Foundation/Foundation.h>
 
 /**
- * This is the base class to represent the data in the persisted crash (.clsrecord) files
+ * This is the base class to represent the data in the persisted crash (.clsrecord) files.
+ * The properties these subclasses are nullable on purpose. If there is an issue reading values
+ * from the crash files, continue as if those fields are optional so a report can still be uploaded.
+ * That way the issue can potentially be monitored through the backend.
  **/
 @interface FIRCLSRecordBase : NSObject
 
