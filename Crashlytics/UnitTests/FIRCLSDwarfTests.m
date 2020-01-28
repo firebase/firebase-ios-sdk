@@ -33,8 +33,8 @@
 - (void)setUp {
   [super setUp];
 
-  _clsContext.readonly = malloc(sizeof(FIRCLSReadOnlyContext));
-  _clsContext.readonly->logPath = "/tmp/test.log";
+  _firclsContext.readonly = malloc(sizeof(FIRCLSReadOnlyContext));
+  _firclsContext.readonly->logPath = "/tmp/test.log";
 }
 
 - (void)tearDown {

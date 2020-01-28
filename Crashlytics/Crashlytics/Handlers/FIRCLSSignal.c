@@ -61,7 +61,7 @@ static void FIRCLSSignalInstallAltStack(FIRCLSSignalReadContext *roContext) {
   stack_t signalStack;
   stack_t originalStack;
 
-  signalStack.ss_sp = _clsContext.readonly->signalStack;
+  signalStack.ss_sp = _firclsContext.readonly->signalStack;
   signalStack.ss_size = CLS_SIGNAL_HANDLER_STACK_SIZE;
   signalStack.ss_flags = 0;
 
@@ -107,7 +107,7 @@ static void FIRCLSSignalInstallHandlers(FIRCLSSignalReadContext *roContext) {
 }
 
 void FIRCLSSignalCheckHandlers(void) {
-  if (_clsContext.readonly->debuggerAttached) {
+  if (_firclsContext.readonly->debuggerAttached) {
     return;
   }
 
@@ -230,7 +230,7 @@ void FIRCLSSignalNameLookup(int number, int code, const char **name, const char 
 }
 
 static void FIRCLSSignalRecordSignal(int savedErrno, siginfo_t *info, void *uapVoid) {
-  if (!_clsContext.readonly) {
+  if (!_firclsContext.readonly) {
     return;
   }
 
@@ -242,7 +242,7 @@ static void FIRCLSSignalRecordSignal(int savedErrno, siginfo_t *info, void *uapV
 
   FIRCLSFile file;
 
-  if (!FIRCLSFileInitWithPath(&file, _clsContext.readonly->signal.path, false)) {
+  if (!FIRCLSFileInitWithPath(&file, _firclsContext.readonly->signal.path, false)) {
     FIRCLSSDKLog("Unable to open signal file\n");
     return;
   }
@@ -309,8 +309,8 @@ static void FIRCLSSignalHandler(int signal, siginfo_t *info, void *uapVoid) {
   FIRCLSSignalRecordSignal(savedErrno, info, uapVoid);
 
   // re-install original handlers
-  if (_clsContext.readonly) {
-    FIRCLSSignalSafeInstallPreexistingHandlers(&_clsContext.readonly->signal);
+  if (_firclsContext.readonly) {
+    FIRCLSSignalSafeInstallPreexistingHandlers(&_firclsContext.readonly->signal);
   }
 
   // restore errno
