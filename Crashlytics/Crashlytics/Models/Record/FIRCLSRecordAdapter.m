@@ -88,7 +88,7 @@
   self.runtime = [[FIRCLSRecordRuntime alloc] initWithDict:dicts[@"runtime"]];
   self.processStats = [[FIRCLSRecordProcessStats alloc] initWithDict:dicts[@"process_stats"]];
   self.storage = [[FIRCLSRecordStorage alloc] initWithDict:dicts[@"storage"]];
-    
+
   // The thread's objc_selector_name is set with the runtime's info
   self.threads = [FIRCLSRecordThread threadsFromDictionaries:dicts[@"threads"]
                                                    withNames:dicts[@"thread_names"]
