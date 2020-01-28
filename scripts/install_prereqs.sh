@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # Copyright 2018 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -97,6 +99,18 @@ if [[ "$method" != "cmake" ]]; then
   scripts/setup_bundler.sh
 fi
 
+system=$(uname -s)
+case "$system" in
+  Darwin)
+    xcode_version=$(xcodebuild -version | head -n 1)
+    xcode_version="${xcode_version/Xcode /}"
+    xcode_major="${xcode_version/.*/}"
+    ;;
+  *)
+    xcode_major="0"
+    ;;
+esac
+
 case "$project-$platform-$method" in
 
   FirebasePod-iOS-xcodebuild)
@@ -138,7 +152,7 @@ case "$project-$platform-$method" in
     ;;
 
   Firestore-*-xcodebuild | Firestore-*-fuzz)
-    if [[ $XCODE_VERSION == "8."* ]]; then
+    if [[ $xcode_major -lt 9 ]]; then
       # Firestore still compiles with Xcode 8 to help verify general
       # conformance with C++11 by using an older compiler that doesn't have as
       # many extensions from later versions of the language. However, Firebase
