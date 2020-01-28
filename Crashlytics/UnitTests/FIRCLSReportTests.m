@@ -22,11 +22,11 @@
 #import "FIRCLSReport.h"
 #import "FIRCLSReport_Private.h"
 
-@interface CLSReportTests : XCTestCase
+@interface FIRCLSReportTests : XCTestCase
 
 @end
 
-@implementation CLSReportTests
+@implementation FIRCLSReportTests
 
 - (void)setUp {
   [super setUp];

@@ -35,8 +35,6 @@ NSString *const FIRCLSDevelopmentPlatformVersionKey =
 
 const uint32_t FIRCLSUserLoggingMaxKVEntries = 64;
 
-static bool clsDisableUninitializedKitMessaging = false;
-
 #pragma mark - Prototypes
 static void FIRCLSUserLoggingWriteKeyValue(NSString *key,
                                            NSString *value,
@@ -60,10 +58,6 @@ void FIRCLSUserLoggingInit(FIRCLSUserLoggingReadOnlyContext *roContext,
 
   roContext->userKVStorage.maxIncrementalCount = FIRCLSUserLoggingMaxKVEntries;
   roContext->internalKVStorage.maxIncrementalCount = roContext->userKVStorage.maxIncrementalCount;
-}
-
-void CLSLogDisableUninitializedKitMessaging(void) {
-  clsDisableUninitializedKitMessaging = true;
 }
 
 #pragma mark - KV Logging
@@ -496,11 +490,9 @@ void FIRCLSLogInternal(NSString *message) {
   }
 
   if (!FIRCLSContextIsInitialized()) {
-    if (!clsDisableUninitializedKitMessaging) {
-      FIRCLSWarningLog(@"WARNING: FIRCLSLog has been used before (or concurrently with) "
-                       @"Crashlytics initialization and cannot be recorded. The message was: \n%@",
-                       message);
-    }
+    FIRCLSWarningLog(@"WARNING: FIRCLSLog has been used before (or concurrently with) "
+                     @"Crashlytics initialization and cannot be recorded. The message was: \n%@",
+                     message);
     return;
   }
   struct timeval te;

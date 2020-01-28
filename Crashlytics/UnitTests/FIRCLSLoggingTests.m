@@ -20,7 +20,7 @@
 #import "FIRCLSInternalReport.h"
 #include "FIRCLSUserLogging.h"
 
-@interface CLSLoggingTests : XCTestCase
+@interface FIRCLSLoggingTests : XCTestCase
 
 @property(nonatomic, strong) NSString* kvPath;
 @property(nonatomic, strong) NSString* compactedKVPath;
@@ -31,7 +31,7 @@
 
 @end
 
-@implementation CLSLoggingTests
+@implementation FIRCLSLoggingTests
 
 - (void)setUp {
   [super setUp];
