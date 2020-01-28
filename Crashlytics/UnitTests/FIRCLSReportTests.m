@@ -34,12 +34,12 @@
   FIRCLSContextBaseInit();
 
   // these values must be set for the internals of logging to work
-  _clsContext.readonly->logging.userKVStorage.maxCount = 16;
-  _clsContext.readonly->logging.userKVStorage.maxIncrementalCount = 16;
-  _clsContext.readonly->logging.internalKVStorage.maxCount = 32;
-  _clsContext.readonly->logging.internalKVStorage.maxIncrementalCount = 16;
+  _firclsContext.readonly->logging.userKVStorage.maxCount = 16;
+  _firclsContext.readonly->logging.userKVStorage.maxIncrementalCount = 16;
+  _firclsContext.readonly->logging.internalKVStorage.maxCount = 32;
+  _firclsContext.readonly->logging.internalKVStorage.maxIncrementalCount = 16;
 
-  _clsContext.readonly->initialized = true;
+  _firclsContext.readonly->initialized = true;
 }
 
 - (void)tearDown {

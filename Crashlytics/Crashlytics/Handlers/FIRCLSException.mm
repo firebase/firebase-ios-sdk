@@ -76,19 +76,6 @@ void FIRCLSExceptionInitialize(FIRCLSExceptionReadOnlyContext *roContext,
   rwContext->customExceptionCount = 0;
 }
 
-#if 0
-// This bit of code might be useful at some point. But, currently it isn't needed.
-static void FIRCLSExceptionUninstallHandlers(void) {
-    std::set_terminate(_clsContext.readonly->exception.originalTerminateHandler);
-
-#if !TARGET_OS_IPHONE
-    Method m = FIRCLSGetNSApplicationReportExceptionMethod();
-
-    method_setImplementation(m, (IMP)FIRCLSOriginalNSExceptionReportExceptionFunction());
-#endif
-}
-#endif
-
 void FIRCLSExceptionRecordNSException(NSException *exception) {
   FIRCLSSDKLog("Recording an NSException\n");
 
