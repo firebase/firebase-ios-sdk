@@ -14,5 +14,9 @@
 set -x
 REPO=`pwd`
 cd ZipBuilder
+
+# The first and only argument to this script should be the name of the
+# output directory.
 swift run ReleasePackager -keepBuildArtifacts true -updatePodRepo true \
-  -templateDir "${REPO}"/ZipBuilder/Template -localPodspecPath "${REPO}"
+  -templateDir "${REPO}"/ZipBuilder/Template -localPodspecPath "${REPO}" \
+  -outputDir "${REPO}/$0"
