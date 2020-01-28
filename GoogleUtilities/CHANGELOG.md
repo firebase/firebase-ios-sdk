@@ -1,4 +1,4 @@
-# Unreleased
+# 6.5.1
 - Standardized import paths. (#4655)
 
 # 6.5.0
