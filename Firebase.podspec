@@ -113,7 +113,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
 
   s.subspec 'Performance' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebasePerformance', '~> 3.1.10'
+    ss.ios.dependency 'FirebasePerformance', '~> 3.1.9'
   end
 
   s.subspec 'RemoteConfig' do |ss|
