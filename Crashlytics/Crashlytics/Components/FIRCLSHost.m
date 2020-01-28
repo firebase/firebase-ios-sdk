@@ -49,13 +49,13 @@ static void FIRCLSHostWriteOSVersionInfo(FIRCLSFile* file);
 
 #pragma mark - API
 void FIRCLSHostInitialize(FIRCLSHostReadOnlyContext* roContext) {
-  _clsContext.readonly->host.pageSize = FIRCLSHostGetPageSize();
-  _clsContext.readonly->host.documentDirectoryPath = NULL;
+  _firclsContext.readonly->host.pageSize = FIRCLSHostGetPageSize();
+  _firclsContext.readonly->host.documentDirectoryPath = NULL;
 
   // determine where the document directory is mounted, so we can get file system statistics later
   NSArray* paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
   if ([paths count]) {
-    _clsContext.readonly->host.documentDirectoryPath =
+    _firclsContext.readonly->host.documentDirectoryPath =
         FIRCLSDupString([[paths objectAtIndex:0] fileSystemRepresentation]);
   }
 }
@@ -150,7 +150,7 @@ void FIRCLSHostWriteDiskUsage(FIRCLSFile* file) {
 
   FIRCLSFileWriteHashStart(file);
 
-  if (statfs(_clsContext.readonly->host.documentDirectoryPath, &tStats) == 0) {
+  if (statfs(_firclsContext.readonly->host.documentDirectoryPath, &tStats) == 0) {
     FIRCLSFileWriteHashEntryUint64(file, "free", tStats.f_bavail * tStats.f_bsize);
     FIRCLSFileWriteHashEntryUint64(file, "total", tStats.f_blocks * tStats.f_bsize);
   }

@@ -22,7 +22,7 @@
 // where strip will not strip debug information without a symbol to strip.
 #define CONCAT_EXPANDED(a, b) a##b
 #define CONCAT(a, b) CONCAT_EXPANDED(a, b)
-#define DUMMY_FUNCTION_NAME(x) CONCAT(strip_this_, x)
+#define DUMMY_FUNCTION_NAME(x) CONCAT(fircls_strip_this_, x)
 #define INJECT_STRIP_SYMBOL(x)        \
   void DUMMY_FUNCTION_NAME(x)(void) { \
   }

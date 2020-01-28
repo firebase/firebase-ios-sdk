@@ -73,8 +73,6 @@ typedef struct {
 void FIRCLSUserLoggingInit(FIRCLSUserLoggingReadOnlyContext* roContext,
                            FIRCLSUserLoggingWritableContext* rwContext);
 
-void CLSLogDisableUninitializedKitMessaging(void);
-
 #ifdef __OBJC__
 void FIRCLSUserLoggingRecordUserKeyValue(NSString* key, id value);
 void FIRCLSUserLoggingRecordInternalKeyValue(NSString* key, id value);

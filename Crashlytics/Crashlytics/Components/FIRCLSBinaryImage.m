@@ -54,11 +54,11 @@ static void FIRCLSBinaryImageRecordSlice(bool added, const FIRCLSBinaryImageDeta
 void FIRCLSBinaryImageInit(FIRCLSBinaryImageReadOnlyContext* roContext,
                            FIRCLSBinaryImageReadWriteContext* rwContext) {
   // initialize our node array to all zeros
-  memset(&_clsContext.writable->binaryImage, 0, sizeof(_clsContext.writable->binaryImage));
-  _clsContext.writable->binaryImage.file.fd = -1;
+  memset(&_firclsContext.writable->binaryImage, 0, sizeof(_firclsContext.writable->binaryImage));
+  _firclsContext.writable->binaryImage.file.fd = -1;
 
   dispatch_async(FIRCLSGetBinaryImageQueue(), ^{
-    if (!FIRCLSUnlinkIfExists(_clsContext.readonly->binaryimage.path)) {
+    if (!FIRCLSUnlinkIfExists(_firclsContext.readonly->binaryimage.path)) {
       FIRCLSSDKLog("Unable to reset the binary image log file %s\n", strerror(errno));
     }
 
@@ -72,16 +72,16 @@ void FIRCLSBinaryImageInit(FIRCLSBinaryImageReadOnlyContext* roContext,
   _dyld_register_func_for_remove_image(FIRCLSBinaryImageRemovedCallback);
 
   dispatch_async(FIRCLSGetBinaryImageQueue(), ^{
-    FIRCLSFileClose(&_clsContext.writable->binaryImage.file);
+    FIRCLSFileClose(&_firclsContext.writable->binaryImage.file);
   });
 }
 
 static bool FIRCLSBinaryImageOpenIfNeeded(bool* needsClosing) {
-  if (!FIRCLSIsValidPointer(_clsContext.writable)) {
+  if (!FIRCLSIsValidPointer(_firclsContext.writable)) {
     return false;
   }
 
-  if (!FIRCLSIsValidPointer(_clsContext.readonly)) {
+  if (!FIRCLSIsValidPointer(_firclsContext.readonly)) {
     return false;
   }
 
@@ -91,12 +91,12 @@ static bool FIRCLSBinaryImageOpenIfNeeded(bool* needsClosing) {
 
   *needsClosing = false;
 
-  if (FIRCLSFileIsOpen(&_clsContext.writable->binaryImage.file)) {
+  if (FIRCLSFileIsOpen(&_firclsContext.writable->binaryImage.file)) {
     return true;
   }
 
-  if (!FIRCLSFileInitWithPath(&_clsContext.writable->binaryImage.file,
-                              _clsContext.readonly->binaryimage.path, false)) {
+  if (!FIRCLSFileInitWithPath(&_firclsContext.writable->binaryImage.file,
+                              _firclsContext.readonly->binaryimage.path, false)) {
     FIRCLSSDKLog("Error: unable to open binary image log file\n");
     return false;
   }
@@ -121,7 +121,7 @@ bool FIRCLSBinaryImageSafeFindImageForAddress(uintptr_t address,
     return false;
   }
 
-  FIRCLSBinaryImageRuntimeNode* nodes = _clsContext.writable->binaryImage.nodes;
+  FIRCLSBinaryImageRuntimeNode* nodes = _firclsContext.writable->binaryImage.nodes;
   if (!nodes) {
     FIRCLSSDKLogError("The node structure is NULL\n");
     return false;
@@ -388,14 +388,14 @@ static void FIRCLSBinaryImageStoreNode(bool added, FIRCLSBinaryImageDetails imag
   //    FIRCLSSDKLog("Storing %s node %p\n", added ? "loaded" : "unloaded",
   //    (void*)imageDetails.node.baseAddress);
 
-  if (!_clsContext.writable) {
+  if (!_firclsContext.writable) {
     FIRCLSSDKLog("Error: Writable context is NULL\n");
     return;
   }
 
   void* searchAddress = NULL;
   bool success = false;
-  FIRCLSBinaryImageRuntimeNode* nodes = _clsContext.writable->binaryImage.nodes;
+  FIRCLSBinaryImageRuntimeNode* nodes = _firclsContext.writable->binaryImage.nodes;
 
   if (!added) {
     // capture the search address first
@@ -517,7 +517,7 @@ static void FIRCLSBinaryImageRecordSlice(bool added, const FIRCLSBinaryImageDeta
     return;
   }
 
-  FIRCLSFile* file = &_clsContext.writable->binaryImage.file;
+  FIRCLSFile* file = &_firclsContext.writable->binaryImage.file;
 
   FIRCLSFileWriteSectionStart(file, added ? "load" : "unload");
 
