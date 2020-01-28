@@ -50,13 +50,16 @@
       strdup([self.kvPath fileSystemRepresentation]);
   _firclsContext.readonly->logging.userKVStorage.compactedPath =
       strdup([self.compactedKVPath fileSystemRepresentation]);
-  _firclsContext.readonly->logging.logStorage.aPath = strdup([self.logAPath fileSystemRepresentation]);
-  _firclsContext.readonly->logging.logStorage.bPath = strdup([self.logBPath fileSystemRepresentation]);
+  _firclsContext.readonly->logging.logStorage.aPath =
+      strdup([self.logAPath fileSystemRepresentation]);
+  _firclsContext.readonly->logging.logStorage.bPath =
+      strdup([self.logBPath fileSystemRepresentation]);
   _firclsContext.readonly->logging.errorStorage.aPath =
       strdup([self.errorAPath fileSystemRepresentation]);
   _firclsContext.readonly->logging.errorStorage.bPath =
       strdup([self.errorBPath fileSystemRepresentation]);
-  _firclsContext.readonly->logging.userKVStorage.maxIncrementalCount = FIRCLSUserLoggingMaxKVEntries;
+  _firclsContext.readonly->logging.userKVStorage.maxIncrementalCount =
+      FIRCLSUserLoggingMaxKVEntries;
 
   _firclsContext.readonly->logging.logStorage.maxSize = 64 * 1024;
   _firclsContext.readonly->logging.logStorage.restrictBySize = true;
@@ -67,7 +70,8 @@
       &_firclsContext.writable->logging.errorsCount;
   _firclsContext.readonly->logging.userKVStorage.maxCount = 64;
 
-  _firclsContext.writable->logging.activeUserLogPath = _firclsContext.readonly->logging.logStorage.aPath;
+  _firclsContext.writable->logging.activeUserLogPath =
+      _firclsContext.readonly->logging.logStorage.aPath;
   _firclsContext.writable->logging.activeErrorLogPath =
       _firclsContext.readonly->logging.errorStorage.aPath;
   _firclsContext.writable->logging.userKVCount = 0;

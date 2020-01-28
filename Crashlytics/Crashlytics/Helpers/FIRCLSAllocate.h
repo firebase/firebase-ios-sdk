@@ -46,4 +46,3 @@ void* FIRCLSAllocatorSafeAllocate(FIRCLSAllocatorRef allocator,
                                   FIRCLSAllocationType type);
 const char* FIRCLSAllocatorSafeStrdup(FIRCLSAllocatorRef allocator, const char* string);
 void FIRCLSAllocatorFree(FIRCLSAllocatorRef allocator, void* ptr);
-
