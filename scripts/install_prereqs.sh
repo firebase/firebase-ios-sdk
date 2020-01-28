@@ -165,6 +165,11 @@ case "$project-$platform-$method" in
     fi
 
     gem install xcpretty
+
+    # The Firestore Podfile is multi-platform by default, but this doesn't work
+    # with command-line builds using xcodebuild. The PLATFORM environment
+    # variable forces the project to be set for just that single platform.
+    export PLATFORM="$platform"
     bundle exec pod install --project-directory=Firestore/Example --repo-update
     ;;
 
