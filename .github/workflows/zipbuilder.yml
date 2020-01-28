@@ -1,0 +1,23 @@
+name: ZipBuilder
+
+on:
+  pull_request:
+    paths:
+    - 'ZipBuilder/**'
+    - '.github/workflows/zipbuilder.yml'
+  schedule:
+    # Run every day at 11:30pm (PST) - cron uses UTC times
+    - cron:  '30 7 * * *'
+
+jobs:
+  build:
+
+    runs-on: macOS-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build
+      run: |
+        cd ZipBuilder
+        swift build -v
+  
