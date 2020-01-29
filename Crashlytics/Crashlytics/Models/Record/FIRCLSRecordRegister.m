@@ -33,7 +33,7 @@
   if (self) {
     if (dict.allKeys.count == 1) {
       _name = dict.allKeys[0];
-      _value = (NSUInteger)dict[_name];
+      _value = [dict[_name] unsignedIntegerValue];
     } else {
       FIRCLSWarningLog(@"The key value dictionary has more than one entry: %@", dict);
     }

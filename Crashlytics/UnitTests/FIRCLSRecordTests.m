@@ -102,26 +102,22 @@
 }
 
 - (void)testRecordBinaryImagesFile {
-    
-    NSUInteger test = (NSUInteger)4305256448;
-    
     FIRCLSRecordAdapter *adapter = [[FIRCLSRecordAdapter alloc] initWithPath:[FIRCLSRecordTests persistedCrashFolder]];
     XCTAssertEqual(adapter.binaryImages.count, 453);
     
     // Verify first binary
-    // {"load":{"path":"/private/var/containers/Bundle/Application/C49F1179-0088-4882-A60D-13ACDA2AF8B3/Crashlytics-iOS-App.app/Crashlytics-iOS-App","uuid":"0341c4166f253830a94a5698cee7fea7","base":4305256448,"size":1392640}}
     FIRCLSRecordBinaryImage *firstImage = adapter.binaryImages[0];
     XCTAssertTrue([firstImage.path isEqualToString:@"/private/var/containers/Bundle/Application/C49F1179-0088-4882-A60D-13ACDA2AF8B3/Crashlytics-iOS-App.app/Crashlytics-iOS-App"]);
     XCTAssertTrue([firstImage.uuid isEqualToString:@"0341c4166f253830a94a5698cee7fea7"]);
-    
-    NSUInteger asdas = firstImage.base;
-    asdas += 1;
-    
-    XCTAssertEqual(firstImage.base, (NSUInteger)4305256448);
-//    XCTAssertEqual(firstImage.size, 1392640);
+    XCTAssertEqual(firstImage.base, 4305256448);
+    XCTAssertEqual(firstImage.size, 1392640);
     
     // Verify last binary
-    // {"load":{"path":"/System/Library/Frameworks/Accelerate.framework/Frameworks/vImage.framework/Libraries/libCGInterfaces.dylib","uuid":"f4421e9313fa386fbd568035eb1d35be","base":7226896384,"size":86016}}
+    FIRCLSRecordBinaryImage *lastImage = adapter.binaryImages[452];
+    XCTAssertTrue([lastImage.path isEqualToString:@"/System/Library/Frameworks/Accelerate.framework/Frameworks/vImage.framework/Libraries/libCGInterfaces.dylib"]);
+    XCTAssertTrue([lastImage.uuid isEqualToString:@"f4421e9313fa386fbd568035eb1d35be"]);
+    XCTAssertEqual(lastImage.base, 7226896384);
+    XCTAssertEqual(lastImage.size, 86016);
 }
 
 + (NSString *)persistedCrashFolder {

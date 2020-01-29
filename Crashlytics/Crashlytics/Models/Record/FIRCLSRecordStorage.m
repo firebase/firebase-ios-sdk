@@ -21,8 +21,8 @@
 - (instancetype)initWithDict:(NSDictionary *)dict {
   self = [super initWithDict:dict];
   if (self) {
-    _free = (NSUInteger)dict[@"free"];
-    _total = (NSUInteger)dict[@"total"];
+    _free = [dict[@"free"] unsignedIntegerValue];
+    _total = [dict[@"total"] unsignedIntegerValue];
   }
   return self;
 }

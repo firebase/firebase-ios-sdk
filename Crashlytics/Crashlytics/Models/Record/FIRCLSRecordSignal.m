@@ -21,7 +21,7 @@
   if (self) {
     _name = dict[@"name"];
     _code = dict[@"code"];
-    _address = (NSUInteger)dict[@"address"];
+    _address = [dict[@"address"] unsignedIntegerValue];
   }
   return self;
 }

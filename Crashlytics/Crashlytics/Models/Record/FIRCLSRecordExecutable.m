@@ -23,8 +23,8 @@
   if (self) {
     _architecture = dict[@"architecture"];
     _uuid = dict[@"uuid"];
-    _base = (NSUInteger)dict[@"base"];
-    _size = (NSUInteger)dict[@"size"];
+    _base = [dict[@"base"] unsignedIntegerValue];
+    _size = [dict[@"size"] unsignedIntegerValue];
   }
   return self;
 }
