@@ -94,13 +94,13 @@ fi
 
 echo "Installing prerequisites for $project for $platform using $method"
 
+if [[ "$method" != "cmake" ]]; then
+  scripts/setup_bundler.sh
+fi
+
 if [[ ! -z "${QUICKSTART:-}" ]]; then
   install_secrets
   scripts/setup_quickstart.sh "$QUICKSTART"
-fi
-
-if [[ "$method" != "cmake" ]]; then
-  scripts/setup_bundler.sh
 fi
 
 system=$(uname -s)
