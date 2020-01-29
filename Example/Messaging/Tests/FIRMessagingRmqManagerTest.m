@@ -328,10 +328,9 @@ static const NSTimeInterval kAsyncTestTimout = 0.5;
   // Expect for at least one assertion.
   assertionFailureExpectation.assertForOverFulfill = NO;
 
-  [self.testAssertionHandler setMethodFailureHandlerForClass:[FIRMessagingRmqManager class] handler:^(id object, NSInteger lineNumber) {
+  [self.testAssertionHandler setMethodFailureHandlerForClass:[FIRMessagingRmqManager class]
+                                                     handler:^(id object, NSInteger lineNumber) {
     [assertionFailureExpectation fulfill];
-
-    [self.testAssertionHandler setMethodFailureHandlerForClass:[FIRMessagingRmqManager class] handler:^(id object, NSInteger lineNumber){}];
   }];
 
   FIRMessagingRmqManager *manager = [[FIRMessagingRmqManager alloc] initWithDatabaseName:databaseName];
