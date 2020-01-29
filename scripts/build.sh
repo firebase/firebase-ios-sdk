@@ -23,6 +23,7 @@ function pod_gen() {
   bundle exec pod gen --local-sources=./ --sources=https://cdn.cocoapods.org/ "$@"
 }
 
+set -x
 set -euo pipefail
 
 if [[ $# -lt 1 ]]; then
