@@ -22,8 +22,8 @@ Firebase Dynamic Links are deep links that enhance user experience and increase 
   s.static_framework = true
   s.prefix_header_file = false
 
-  s.source_files = 'Firebase/DynamicLinks/**/*.[mh]'
-  s.public_header_files = 'Firebase/DynamicLinks/Public/*.h'
+  s.source_files = 'FirebaseDynamicLinks/Sources/**/*.[mh]'
+  s.public_header_files = 'FirebaseDynamicLinks/Sources/Public/*.h'
   s.frameworks = 'AssetsLibrary', 'MessageUI', 'QuartzCore'
   s.weak_framework = 'WebKit'
   s.dependency 'FirebaseCore', '~> 6.2'
@@ -37,11 +37,11 @@ Firebase Dynamic Links are deep links that enhance user experience and increase 
   }
 
   s.test_spec 'unit' do |unit_tests|
-    unit_tests.source_files = 'Example/DynamicLinks/Tests/*.[mh]'
+    unit_tests.source_files = 'FirebaseDynamicLinks/Tests/Unit/*.[mh]'
     unit_tests.requires_app_host = true
-    unit_tests.resources = 'Example/DynamicLinks/App/GoogleService-Info.plist',
+    unit_tests.resources = 'FirebaseDynamicLinks/Tests/Unit/GoogleService-Info.plist',
                            # Supply plist for custom domain testing.
-                           'Example/DynamicLinks/App/DL-Info.plist'
+                           'FirebaseDynamicLinks/Tests/Unit/DL-Info.plist'
     unit_tests.dependency 'OCMock'
     unit_tests.dependency 'GoogleUtilities/MethodSwizzler', '~> 6.2'
     unit_tests.dependency 'GoogleUtilities/SwizzlerTestHelpers', '~> 6.2'
