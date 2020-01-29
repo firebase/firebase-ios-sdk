@@ -28,7 +28,7 @@ set -euo pipefail
 # requests from forks. See
 # https://docs.travis-ci.com/user/pull-requests#pull-requests-and-security-restrictions
 function install_secrets() {
-  if [[ ! -z $encrypted_d6a88994a5ab_key && $secrets_installed != true ]]; then
+  if [[ -n "${encrypted_d6a88994a5ab_key:-}" && $secrets_installed != true ]]; then
     secrets_installed=true
     openssl aes-256-cbc -K $encrypted_5dda5f491369_key -iv $encrypted_5dda5f491369_iv \
     -in scripts/travis-encrypted/Secrets.tar.enc \
@@ -68,6 +68,8 @@ function apt_install() {
   local package="$2"
   which "$program" >& /dev/null || sudo apt-get install "$package"
 }
+
+secrets_installed=false
 
 # Default values, if not supplied on the command line or environment
 platform="iOS"
