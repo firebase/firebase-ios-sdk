@@ -589,7 +589,7 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
 
 - (void)removeDatabase {
   // Ensure database is removed in a sync queue as this sometimes makes test have race conditions.
-  dispatch_sync(_databaseOperationQueue, ^{
+  dispatch_async(_databaseOperationQueue, ^{
     NSString *path = [self pathForDatabase];
     [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
   });
