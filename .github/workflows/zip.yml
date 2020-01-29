@@ -12,7 +12,6 @@ on:
 jobs:
   build:
     runs-on: macOS-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Build
@@ -24,8 +23,7 @@ jobs:
     needs: build
     runs-on: macOS-latest
     # Only run the `package` job for the cron job, not PRs.
-    # TEMPORARILY DISABLED FOR TESTING IN THE PR - DNS
-    # if: github.event_name == 'schedule'
+    if: github.event_name == 'schedule'
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
