@@ -21,7 +21,6 @@
 #   - PROJECT - Firebase or Firestore
 #   - METHOD - xcodebuild or cmake; default is xcodebuild
 
-set -x
 set -euo pipefail
 
 # Set up secrets for integration tests and metrics collection. This does not work for pull
