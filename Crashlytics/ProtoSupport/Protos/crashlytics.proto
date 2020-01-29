@@ -261,7 +261,7 @@ message Report {
   string gmp_app_id = 3;
 
   // General device type which generated the Event
-  google_crashlytics.Session.Platform platform = 4;
+  Session.Platform platform = 4;
 
   // Unique device generated guid for application install. Equivalent to
   // Session.app.installation_uuid
@@ -279,6 +279,6 @@ message Report {
   // cross-platform format.
   message payload {
     // Session data for Android Java or iOS
-    google_crashlytics.Session session = 8;
+    Session session = 8;
   }
 }
