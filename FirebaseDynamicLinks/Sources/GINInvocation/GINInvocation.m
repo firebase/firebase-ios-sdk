@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "DynamicLinks/GINInvocation/GINInvocation.h"
+#import "FirebaseDynamicLinks/Sources/GINInvocation/GINInvocation.h"
 
-#import "DynamicLinks/GINInvocation/GINArgument.h"
+#import "FirebaseDynamicLinks/Sources/GINInvocation/GINArgument.h"
 
 @implementation GINInvocation
 

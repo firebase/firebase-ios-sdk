@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "DynamicLinks/Public/FIRDynamicLinks.h"
+#import "FirebaseDynamicLinks/Sources/Public/FIRDynamicLinks.h"
 
 @interface FIRDynamicLinksImportsTest3P : XCTestCase
 

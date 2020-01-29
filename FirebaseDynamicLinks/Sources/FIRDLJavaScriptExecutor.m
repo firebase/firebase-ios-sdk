@@ -16,7 +16,7 @@
 
 #import <WebKit/WebKit.h>
 
-#import "DynamicLinks/FIRDLJavaScriptExecutor.h"
+#import "FirebaseDynamicLinks/Sources/FIRDLJavaScriptExecutor.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

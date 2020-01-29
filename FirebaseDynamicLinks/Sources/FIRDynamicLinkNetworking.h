@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "DynamicLinks/Public/FIRDynamicLinksCommon.h"
+#import "FirebaseDynamicLinks/Sources/Public/FIRDynamicLinksCommon.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

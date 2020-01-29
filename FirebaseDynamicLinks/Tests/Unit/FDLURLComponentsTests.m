@@ -16,8 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import "DynamicLinks/FDLURLComponents/FDLURLComponents+Private.h"
-#import "DynamicLinks/FDLURLComponents/FIRDynamicLinkComponentsKeyProvider.h"
+#import "FirebaseDynamicLinks/Sources/FDLURLComponents/FDLURLComponents+Private.h"
+#import "FirebaseDynamicLinks/Sources/FDLURLComponents/FIRDynamicLinkComponentsKeyProvider.h"
 
 #import <OCMock/OCMock.h>
 

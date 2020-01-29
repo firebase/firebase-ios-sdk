@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#import "DynamicLinks/FIRDLDefaultRetrievalProcessV2.h"
+#import "FirebaseDynamicLinks/Sources/FIRDLDefaultRetrievalProcessV2.h"
 
 #import <UIKit/UIKit.h>
-#import "DynamicLinks/FIRDLJavaScriptExecutor.h"
-#import "DynamicLinks/FIRDLRetrievalProcessResult+Private.h"
-#import "DynamicLinks/FIRDynamicLink+Private.h"
-#import "DynamicLinks/FIRDynamicLinkNetworking.h"
-#import "DynamicLinks/Utilities/FDLUtilities.h"
+#import "FirebaseDynamicLinks/Sources/FIRDLJavaScriptExecutor.h"
+#import "FirebaseDynamicLinks/Sources/FIRDLRetrievalProcessResult+Private.h"
+#import "FirebaseDynamicLinks/Sources/FIRDynamicLink+Private.h"
+#import "FirebaseDynamicLinks/Sources/FIRDynamicLinkNetworking.h"
+#import "FirebaseDynamicLinks/Sources/Utilities/FDLUtilities.h"
 
 // The maximum number of successful fingerprint api calls.
 const static NSUInteger kMaximumNumberOfSuccessfulFingerprintAPICalls = 2;

@@ -22,13 +22,13 @@
 #import <GoogleUtilities/GULSwizzler+Unswizzle.h>
 #import <GoogleUtilities/GULSwizzler.h>
 #import <OCMock/OCMock.h>
-#import "DynamicLinks/FIRDLRetrievalProcessFactory.h"
-#import "DynamicLinks/FIRDLRetrievalProcessResult+Private.h"
-#import "DynamicLinks/FIRDynamicLink+Private.h"
-#import "DynamicLinks/FIRDynamicLinkNetworking+Private.h"
-#import "DynamicLinks/FIRDynamicLinks+FirstParty.h"
-#import "DynamicLinks/FIRDynamicLinks+Private.h"
-#import "DynamicLinks/Utilities/FDLUtilities.h"
+#import "FirebaseDynamicLinks/Sources/FIRDLRetrievalProcessFactory.h"
+#import "FirebaseDynamicLinks/Sources/FIRDLRetrievalProcessResult+Private.h"
+#import "FirebaseDynamicLinks/Sources/FIRDynamicLink+Private.h"
+#import "FirebaseDynamicLinks/Sources/FIRDynamicLinkNetworking+Private.h"
+#import "FirebaseDynamicLinks/Sources/FIRDynamicLinks+FirstParty.h"
+#import "FirebaseDynamicLinks/Sources/FIRDynamicLinks+Private.h"
+#import "FirebaseDynamicLinks/Sources/Utilities/FDLUtilities.h"
 
 static NSString *const kAPIKey = @"myAPIKey";
 static NSString *const kClientID = @"myClientID.apps.googleusercontent.com";

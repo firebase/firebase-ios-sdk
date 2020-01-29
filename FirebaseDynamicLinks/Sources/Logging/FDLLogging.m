@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "DynamicLinks/Logging/FDLLogging.h"
+#import "FirebaseDynamicLinks/Sources/Logging/FDLLogging.h"
 
 #ifdef GIN_SCION_LOGGING
 #import <FirebaseCore/FIRLogger.h>

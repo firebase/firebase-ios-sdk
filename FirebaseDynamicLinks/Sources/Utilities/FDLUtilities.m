@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "DynamicLinks/Utilities/FDLUtilities.h"
+#import "FirebaseDynamicLinks/Sources/Utilities/FDLUtilities.h"
 
 #import <UIKit/UIDevice.h>
 #include <sys/sysctl.h>

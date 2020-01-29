@@ -16,12 +16,12 @@
 
 #import <Foundation/Foundation.h>
 
-#import "DynamicLinks/FDLURLComponents/FDLURLComponents+Private.h"
-#import "DynamicLinks/FDLURLComponents/FIRDynamicLinkComponentsKeyProvider.h"
-#import "DynamicLinks/Public/FDLURLComponents.h"
+#import "FirebaseDynamicLinks/Sources/FDLURLComponents/FDLURLComponents+Private.h"
+#import "FirebaseDynamicLinks/Sources/FDLURLComponents/FIRDynamicLinkComponentsKeyProvider.h"
+#import "FirebaseDynamicLinks/Sources/Public/FDLURLComponents.h"
 
-#import "DynamicLinks/Logging/FDLLogging.h"
-#import "DynamicLinks/Utilities/FDLUtilities.h"
+#import "FirebaseDynamicLinks/Sources/Logging/FDLLogging.h"
+#import "FirebaseDynamicLinks/Sources/Utilities/FDLUtilities.h"
 
 // Label exceptions from FDL.
 NSString *const kFirebaseDurableDeepLinkErrorDomain = @"com.firebase.durabledeeplink";

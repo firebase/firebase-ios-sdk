@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "DynamicLinks/FIRDLRetrievalProcessResult.h"
+#import "FirebaseDynamicLinks/Sources/FIRDLRetrievalProcessResult.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

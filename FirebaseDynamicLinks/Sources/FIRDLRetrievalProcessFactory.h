@@ -15,7 +15,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "DynamicLinks/FIRDLRetrievalProcessProtocols.h"
+#import "FirebaseDynamicLinks/Sources/FIRDLRetrievalProcessProtocols.h"
 
 @class FIRDynamicLinkNetworking;
 

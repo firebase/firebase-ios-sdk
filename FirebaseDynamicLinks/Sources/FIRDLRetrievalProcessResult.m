@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "DynamicLinks/FIRDLRetrievalProcessResult.h"
-#import "DynamicLinks/FIRDLRetrievalProcessResult+Private.h"
-#import "DynamicLinks/FIRDynamicLink+Private.h"
-#import "DynamicLinks/Utilities/FDLUtilities.h"
+#import "FirebaseDynamicLinks/Sources/FIRDLRetrievalProcessResult.h"
+#import "FirebaseDynamicLinks/Sources/FIRDLRetrievalProcessResult+Private.h"
+#import "FirebaseDynamicLinks/Sources/FIRDynamicLink+Private.h"
+#import "FirebaseDynamicLinks/Sources/Utilities/FDLUtilities.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

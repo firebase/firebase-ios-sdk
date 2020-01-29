@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "DynamicLinks/Public/FIRDynamicLinks.h"
+#import "FirebaseDynamicLinks/Sources/Public/FIRDynamicLinks.h"
 
 #import <UIKit/UIKit.h>
 
@@ -26,21 +26,21 @@
 #import <FirebaseCore/FIRDependency.h>
 #import <FirebaseCore/FIRLibrary.h>
 #import <FirebaseCore/FIROptionsInternal.h>
-#import "DynamicLinks/FIRDLScionLogging.h"
+#import "FirebaseDynamicLinks/Sources/FIRDLScionLogging.h"
 #endif
 
 #ifdef FIRDynamicLinks3P
-#import "DynamicLinks/FDLURLComponents/FDLURLComponents+Private.h"
+#import "FirebaseDynamicLinks/Sources/FDLURLComponents/FDLURLComponents+Private.h"
 #endif
-#import "DynamicLinks/FIRDLRetrievalProcessFactory.h"
-#import "DynamicLinks/FIRDLRetrievalProcessProtocols.h"
-#import "DynamicLinks/FIRDLRetrievalProcessResult.h"
-#import "DynamicLinks/FIRDynamicLink+Private.h"
-#import "DynamicLinks/FIRDynamicLinkNetworking.h"
-#import "DynamicLinks/FIRDynamicLinks+FirstParty.h"
-#import "DynamicLinks/FIRDynamicLinks+Private.h"
-#import "DynamicLinks/Logging/FDLLogging.h"
-#import "DynamicLinks/Utilities/FDLUtilities.h"
+#import "FirebaseDynamicLinks/Sources/FIRDLRetrievalProcessFactory.h"
+#import "FirebaseDynamicLinks/Sources/FIRDLRetrievalProcessProtocols.h"
+#import "FirebaseDynamicLinks/Sources/FIRDLRetrievalProcessResult.h"
+#import "FirebaseDynamicLinks/Sources/FIRDynamicLink+Private.h"
+#import "FirebaseDynamicLinks/Sources/FIRDynamicLinkNetworking.h"
+#import "FirebaseDynamicLinks/Sources/FIRDynamicLinks+FirstParty.h"
+#import "FirebaseDynamicLinks/Sources/FIRDynamicLinks+Private.h"
+#import "FirebaseDynamicLinks/Sources/Logging/FDLLogging.h"
+#import "FirebaseDynamicLinks/Sources/Utilities/FDLUtilities.h"
 
 #ifndef FIRDynamicLinks_VERSION
 #error "FIRDynamicLinks_VERSION is not defined: add -DFIRDynamicLinks_VERSION=... to the build \

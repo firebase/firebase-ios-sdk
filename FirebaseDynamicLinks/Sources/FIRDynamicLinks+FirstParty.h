@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "DynamicLinks/Public/FIRDynamicLinks.h"
+#import "FirebaseDynamicLinks/Sources/Public/FIRDynamicLinks.h"
 
-#import "DynamicLinks/FIRDynamicLink+Private.h"
+#import "FirebaseDynamicLinks/Sources/FIRDynamicLink+Private.h"
 
 @class UIViewController;
 

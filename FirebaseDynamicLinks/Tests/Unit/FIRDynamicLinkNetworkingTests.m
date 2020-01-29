@@ -20,7 +20,7 @@
 
 #import <GoogleUtilities/GULSwizzler+Unswizzle.h>
 #import <GoogleUtilities/GULSwizzler.h>
-#import "DynamicLinks/FIRDynamicLinkNetworking+Private.h"
+#import "FirebaseDynamicLinks/Sources/FIRDynamicLinkNetworking+Private.h"
 
 static NSString *const kAPIKey = @"myfakeapikey";
 static NSString *const kClientID = @"myfakeclientid";

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "DynamicLinks/FIRDynamicLink+Private.h"
+#import "FirebaseDynamicLinks/Sources/FIRDynamicLink+Private.h"
 
-#import "DynamicLinks/Utilities/FDLUtilities.h"
+#import "FirebaseDynamicLinks/Sources/Utilities/FDLUtilities.h"
 
 @implementation FIRDynamicLink
 

@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import "DynamicLinks/FIRDynamicLinkNetworking+Private.h"
+#import "FirebaseDynamicLinks/Sources/FIRDynamicLinkNetworking+Private.h"
 
-#import "DynamicLinks/GINInvocation/GINArgument.h"
-#import "DynamicLinks/GINInvocation/GINInvocation.h"
-#import "DynamicLinks/Utilities/FDLUtilities.h"
+#import "FirebaseDynamicLinks/Sources/GINInvocation/GINArgument.h"
+#import "FirebaseDynamicLinks/Sources/GINInvocation/GINInvocation.h"
+#import "FirebaseDynamicLinks/Sources/Utilities/FDLUtilities.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

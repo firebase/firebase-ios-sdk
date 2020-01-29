@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "DynamicLinks/FDLURLComponents/FIRDynamicLinkComponentsKeyProvider.h"
+#import "FirebaseDynamicLinks/Sources/FDLURLComponents/FIRDynamicLinkComponentsKeyProvider.h"
 
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIROptions.h>

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "DynamicLinks/FIRDLScionLogging.h"
+#import "FirebaseDynamicLinks/Sources/FIRDLScionLogging.h"
 
 #import <FirebaseAnalyticsInterop/FIRInteropParameterNames.h>
 

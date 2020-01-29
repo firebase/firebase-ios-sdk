@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "DynamicLinks/Utilities/FDLUtilities.h"
+#import "FirebaseDynamicLinks/Sources/Utilities/FDLUtilities.h"
 
 static NSString *const kURLScheme = @"gindeeplinkurl";
 

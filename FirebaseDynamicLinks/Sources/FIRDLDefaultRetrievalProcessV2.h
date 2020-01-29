@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "DynamicLinks/FIRDLRetrievalProcessProtocols.h"
+#import "FirebaseDynamicLinks/Sources/FIRDLRetrievalProcessProtocols.h"
 
 #import <Foundation/Foundation.h>
 
