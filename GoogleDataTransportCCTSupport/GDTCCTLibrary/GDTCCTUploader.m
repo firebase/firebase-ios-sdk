@@ -173,7 +173,7 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
   });
 }
 
-- (BOOL)readyToUploadWithConditions:(GDTCORUploadConditions)conditions {
+- (BOOL)readyToUploadTarget:(GDTCORTarget)target conditions:(GDTCORUploadConditions)conditions {
   __block BOOL result = NO;
   dispatch_sync(_uploaderQueue, ^{
     if (self->_currentUploadPackage) {

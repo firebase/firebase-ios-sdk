@@ -101,7 +101,7 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDelegateInteraction) {
 @property FIRInAppMessagingDelegateInteraction delegateInteraction;
 @property(nonatomic, nullable, copy) FIRInAppMessagingAction *action;
 
-// used for interaction verificatio
+// used for interaction verification
 @property FIRInAppMessagingDisplayMessage *message;
 - (instancetype)initWithDelegateInteraction:(FIRInAppMessagingDelegateInteraction)interaction
                                      action:(nullable FIRInAppMessagingAction *)actionURL;
@@ -177,6 +177,14 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDelegateInteraction) {
   self.receivedMessageDismissedCallback = YES;
 }
 
+@end
+
+@interface FIRIAMDisplayExecutor (Testing)
+- (FIRInAppMessagingDisplayMessage *)
+    displayMessageWithMessageDefinition:(FIRIAMMessageDefinition *)definition
+                              imageData:(FIRInAppMessagingImageData *)imageData
+                     landscapeImageData:(nullable FIRInAppMessagingImageData *)landscapeImageData
+                            triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType;
 @end
 
 @interface FIRIAMDisplayExecutorTests : XCTestCase
@@ -317,7 +325,9 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDelegateInteraction) {
   self.m4 = [[FIRIAMMessageDefinition alloc] initWithRenderData:renderData4
                                                       startTime:activeStartTime
                                                         endTime:activeEndTime
-                                              triggerDefinition:@[ appOpentriggerDefinition ]];
+                                              triggerDefinition:@[ appOpentriggerDefinition ]
+                                                        appData:@{@"a" : @"b", @"up" : @"dog"}
+                                                  isTestMessage:NO];
 }
 
 NSTimeInterval DISPLAY_MIN_INTERVALS = 1;
@@ -452,7 +462,7 @@ NSTimeInterval DISPLAY_MIN_INTERVALS = 1;
   OCMStub([self.mockTimeFetcher currentTimestampInSeconds])
       .andReturn(DISPLAY_MIN_INTERVALS * 60 + 100);
 
-  // This display component only detects a valid impression, but does not end the renderig
+  // This display component only detects a valid impression, but does not end the rendering
   FIRIAMMessageDisplayForTesting *display = [[FIRIAMMessageDisplayForTesting alloc]
       initWithDelegateInteraction:FIRInAppMessagingDelegateInteractionImpressionDetected];
   self.displayExecutor.messageDisplayComponent = display;
@@ -910,4 +920,24 @@ NSTimeInterval DISPLAY_MIN_INTERVALS = 1;
   XCTAssertTrue(delegate.receivedMessageDismissedCallback);
 }
 
+- (void)testMessageWithDataBundle {
+  FIRInAppMessagingDisplayMessage *displayMessage = [self.displayExecutor
+      displayMessageWithMessageDefinition:self.m4
+                                imageData:nil
+                       landscapeImageData:nil
+                              triggerType:FIRInAppMessagingDisplayTriggerTypeOnAppForeground];
+
+  XCTAssertEqual(displayMessage.appData.count, 2);
+  XCTAssertEqualObjects(displayMessage.appData[@"a"], @"b");
+  XCTAssertEqualObjects(displayMessage.appData[@"up"], @"dog");
+}
+
+- (void)testMessageWithoutDataBundle {
+  FIRInAppMessagingDisplayMessage *displayMessage = [self.displayExecutor
+      displayMessageWithMessageDefinition:self.m3
+                                imageData:nil
+                       landscapeImageData:nil
+                              triggerType:FIRInAppMessagingDisplayTriggerTypeOnAppForeground];
+  XCTAssertNil(displayMessage.appData);
+}
 @end

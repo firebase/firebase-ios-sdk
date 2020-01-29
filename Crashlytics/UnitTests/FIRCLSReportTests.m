@@ -22,11 +22,11 @@
 #import "FIRCLSReport.h"
 #import "FIRCLSReport_Private.h"
 
-@interface CLSReportTests : XCTestCase
+@interface FIRCLSReportTests : XCTestCase
 
 @end
 
-@implementation CLSReportTests
+@implementation FIRCLSReportTests
 
 - (void)setUp {
   [super setUp];
@@ -34,12 +34,12 @@
   FIRCLSContextBaseInit();
 
   // these values must be set for the internals of logging to work
-  _clsContext.readonly->logging.userKVStorage.maxCount = 16;
-  _clsContext.readonly->logging.userKVStorage.maxIncrementalCount = 16;
-  _clsContext.readonly->logging.internalKVStorage.maxCount = 32;
-  _clsContext.readonly->logging.internalKVStorage.maxIncrementalCount = 16;
+  _firclsContext.readonly->logging.userKVStorage.maxCount = 16;
+  _firclsContext.readonly->logging.userKVStorage.maxIncrementalCount = 16;
+  _firclsContext.readonly->logging.internalKVStorage.maxCount = 32;
+  _firclsContext.readonly->logging.internalKVStorage.maxIncrementalCount = 16;
 
-  _clsContext.readonly->initialized = true;
+  _firclsContext.readonly->initialized = true;
 }
 
 - (void)tearDown {
@@ -94,7 +94,7 @@
   [report setUserIdentifier:@"12345-6"];
 
   NSArray *entries = FIRCLSFileReadSections(
-      [[report.internalReport pathForContentFile:CLSReportInternalIncrementalKVFile]
+      [[report.internalReport pathForContentFile:FIRCLSReportInternalIncrementalKVFile]
           fileSystemRepresentation],
       false, nil);
 
@@ -112,7 +112,7 @@
   [report setObjectValue:@"goodbye" forKey:@"anotherkey"];
 
   NSArray *entries = FIRCLSFileReadSections(
-      [[report.internalReport pathForContentFile:CLSReportUserIncrementalKVFile]
+      [[report.internalReport pathForContentFile:FIRCLSReportUserIncrementalKVFile]
           fileSystemRepresentation],
       false, nil);
 

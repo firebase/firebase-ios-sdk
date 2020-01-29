@@ -24,7 +24,7 @@
 
 // These macros generate a function to force a symbol for the containing .o, to work around an issue
 // where strip will not strip debug information without a symbol to strip.
-#define DUMMY_FUNCTION_NAME(x) CONCAT(strip_this_, x)
+#define DUMMY_FUNCTION_NAME(x) CONCAT(fircls_strip_this_, x)
 #define INJECT_STRIP_SYMBOL(x)        \
   void DUMMY_FUNCTION_NAME(x)(void) { \
   }

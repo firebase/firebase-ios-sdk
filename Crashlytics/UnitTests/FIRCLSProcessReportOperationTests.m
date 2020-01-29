@@ -83,8 +83,8 @@
   NSFileManager *fileManager = [NSFileManager defaultManager];
 
   // put an exception in place
-  XCTAssertTrue([fileManager copyItemAtPath:[self pathForResource:CLSReportExceptionFile]
-                                     toPath:[report pathForContentFile:CLSReportExceptionFile]
+  XCTAssertTrue([fileManager copyItemAtPath:[self pathForResource:FIRCLSReportExceptionFile]
+                                     toPath:[report pathForContentFile:FIRCLSReportExceptionFile]
                                       error:nil],
                 @"");
 

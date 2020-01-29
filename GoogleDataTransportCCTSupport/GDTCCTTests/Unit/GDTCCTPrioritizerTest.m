@@ -30,7 +30,7 @@
 @implementation GDTCCTPrioritizerTest
 
 - (void)setUp {
-  self.generator = [[GDTCCTEventGenerator alloc] initWithTarget:kGDTCORTargetFLL];
+  self.generator = [[GDTCCTEventGenerator alloc] initWithTarget:kGDTCORTargetCCT];
 }
 
 - (void)tearDown {
@@ -80,9 +80,11 @@
     XCTAssertEqual(prioritizer.events.count, 9);
   });
   GDTCORUploadPackage *package =
-      [prioritizer uploadPackageWithConditions:GDTCORUploadConditionWifiData];
+      [prioritizer uploadPackageWithTarget:kGDTCORTargetCCT
+                                conditions:GDTCORUploadConditionWifiData];
   [prioritizer packageDelivered:package successful:YES];
-  package = [prioritizer uploadPackageWithConditions:GDTCORUploadConditionWifiData];
+  package = [prioritizer uploadPackageWithTarget:kGDTCORTargetCCT
+                                      conditions:GDTCORUploadConditionWifiData];
   XCTAssertEqual(package.events.count, 0);
 }
 
@@ -99,7 +101,8 @@
   [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQoSDaily]];
   [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQoSTelemetry]];
   GDTCORUploadPackage *package =
-      [prioritizer uploadPackageWithConditions:GDTCORUploadConditionWifiData];
+      [prioritizer uploadPackageWithTarget:kGDTCORTargetCCT
+                                conditions:GDTCORUploadConditionWifiData];
   for (GDTCORStoredEvent *storedEvent in package.events) {
     XCTAssertTrue(storedEvent.qosTier == GDTCOREventQoSTelemetry ||
                   storedEvent.qosTier == GDTCOREventQoSWifiOnly ||
@@ -107,7 +110,8 @@
                   storedEvent.qosTier == GDTCOREventQoSDaily);
   }
   XCTAssertEqual(package.events.count, 9);
-  package = [prioritizer uploadPackageWithConditions:GDTCORUploadConditionMobileData];
+  package = [prioritizer uploadPackageWithTarget:kGDTCORTargetCCT
+                                      conditions:GDTCORUploadConditionMobileData];
   for (GDTCORStoredEvent *storedEvent in package.events) {
     XCTAssertTrue(storedEvent.qosTier == GDTCOREventQoSTelemetry ||
                   storedEvent.qosTier == GDTCOREventQosDefault);
@@ -124,19 +128,24 @@
   [prioritizer prioritizeEvent:dailyEvent];
   [prioritizer prioritizeEvent:telemetryEvent];
   GDTCORUploadPackage *package =
-      [prioritizer uploadPackageWithConditions:GDTCORUploadConditionWifiData];
+      [prioritizer uploadPackageWithTarget:kGDTCORTargetCCT
+                                conditions:GDTCORUploadConditionWifiData];
   // If no previous daily upload time existed, the daily event will be included.
   XCTAssertTrue([package.events containsObject:dailyEvent]);
 
   // If a previous daily upload time exists, but now is not > 24h from then, it is excluded.
-  package = [prioritizer uploadPackageWithConditions:GDTCORUploadConditionMobileData];
+  package = [prioritizer uploadPackageWithTarget:kGDTCORTargetCCT
+                                      conditions:GDTCORUploadConditionMobileData];
   XCTAssertFalse([package.events containsObject:dailyEvent]);
 
   // If a previous daily upload time exists and it's > 24h ago, daily logs are included.
   prioritizer.timeOfLastDailyUpload = [GDTCORClock snapshot];
   int64_t previousTime = prioritizer.timeOfLastDailyUpload.timeMillis - (24 * 60 * 60 * 1000 + 1);
   [prioritizer.timeOfLastDailyUpload setValue:@(previousTime) forKeyPath:@"timeMillis"];
-  package = [prioritizer uploadPackageWithConditions:GDTCORUploadConditionMobileData];
+  package = [prioritizer uploadPackageWithTarget:kGDTCORTargetCCT
+                                      conditions:GDTCORUploadConditionMobileData];
+  package = [prioritizer uploadPackageWithTarget:kGDTCORTargetCCT
+                                      conditions:GDTCORUploadConditionMobileData];
   XCTAssertTrue([package.events containsObject:dailyEvent]);
   XCTAssertTrue([package.events containsObject:telemetryEvent]);
 }

@@ -21,7 +21,7 @@ const char *FIRCLSCrashedMarkerFileName = "previously-crashed";
 void FIRCLSCreateCrashedMarkerFile() {
   FIRCLSFile file;
 
-  if (!FIRCLSFileInitWithPath(&file, _clsContext.readonly->previouslyCrashedFileFullPath, false)) {
+  if (!FIRCLSFileInitWithPath(&file, _firclsContext.readonly->previouslyCrashedFileFullPath, false)) {
     FIRCLSSDKLog("Unable to create the crashed marker file\n");
     return;
   }
