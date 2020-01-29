@@ -118,4 +118,81 @@
   return array;
 }
 
+- (BOOL)hasCrashed {
+    for (FIRCLSRecordThread *thread in self.threads) {
+        if (thread.crashed) {
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+- (google_crashlytics_Report)nanoPBReportWithGoogleAppID:(NSString *)googleAppID {
+    google_crashlytics_Report report = google_crashlytics_Report_init_default;
+    report.build_version = FIRCLSEncodeString(self.identity.build_version);
+    report.gmp_app_id = FIRCLSEncodeString(googleAppID);
+    report.platform = [self nanoPBPlatformFromString:self.host.platform];
+    report.installation_uuid = FIRCLSEncodeString(self.identity.install_id);
+    report.build_version = FIRCLSEncodeString(self.application.build_version);
+    report.display_version = FIRCLSEncodeString(self.application.display_version);
+    
+    // TODO: Fix missing session payload in report
+    // report.session = ...
+    
+    return report;
+}
+
+- (google_crashlytics_Session)nanoPBSession {
+    google_crashlytics_Session session = google_crashlytics_Session_init_default;
+    session.generator = FIRCLSEncodeString(self.identity.generator);
+    session.identifier = FIRCLSEncodeString(self.identity.session_id);
+    session.started_at = 0; // TODO: Where does this come from?
+    session.ended_at = self.signal.time;
+    session.crashed = [self hasCrashed];
+    
+    return session;
+}
+
+- (google_crashlytics_Session_User)nanoPBUser {
+    google_crashlytics_Session_User user = google_crashlytics_Session_User_init_default;
+//    user = FIRCLSEncodeString(self.)
+    return user;
+}
+
+
+- (google_crashlytics_Session_Platform)nanoPBPlatformFromString:(NSString *)str {
+    if ([str isEqualToString:@"ios"]) {
+        return google_crashlytics_Session_Platform_IPHONE_OS;
+    } else if ([str isEqualToString:@"mac"]) {
+        return google_crashlytics_Session_Platform_MAC_OS_X;
+    } else if ([str isEqualToString:@"tvos"]) {
+        return google_crashlytics_Session_Platform_TVOS;
+    } else {
+        return google_crashlytics_Session_Platform_OTHER;
+    }
+}
+
+/** Mallocs a pb_bytes_array and copies the given NSString's bytes into the bytes array.
+ *
+ * @note Memory needs to be free manually, through pb_free or pb_release.
+ * @param string The string to encode as pb_bytes.
+ */
+pb_bytes_array_t *FIRCLSEncodeString(NSString *string) {
+  NSData *stringBytes = [string dataUsingEncoding:NSUTF8StringEncoding];
+  return FIRCLSEncodeData(stringBytes);
+}
+
+/** Mallocs a pb_bytes_array and copies the given NSData bytes into the bytes array.
+ *
+ * @note Memory needs to be free manually, through pb_free or pb_release.
+ * @param data The data to copy into the new bytes array.
+ */
+pb_bytes_array_t *FIRCLSEncodeData(NSData *data) {
+  pb_bytes_array_t *pbBytes = malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(data.length));
+  memcpy(pbBytes->bytes, [data bytes], data.length);
+  pbBytes->size = (pb_size_t)data.length;
+  return pbBytes;
+}
+
 @end

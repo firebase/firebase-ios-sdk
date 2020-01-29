@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+#include "crashlytics.nanopb.h"
+
 /**
  * The class will be responsible for aggregating the data from the persisted crash files
  * and returning a report object used for FireLog.
