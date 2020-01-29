@@ -20,7 +20,7 @@
 #import "FIRCLSInternalReport.h"
 #include "FIRCLSUserLogging.h"
 
-@interface CLSLoggingTests : XCTestCase
+@interface FIRCLSLoggingTests : XCTestCase
 
 @property(nonatomic, strong) NSString* kvPath;
 @property(nonatomic, strong) NSString* compactedKVPath;
@@ -31,7 +31,7 @@
 
 @end
 
-@implementation CLSLoggingTests
+@implementation FIRCLSLoggingTests
 
 - (void)setUp {
   [super setUp];
@@ -43,38 +43,42 @@
   self.compactedKVPath = [tempDir stringByAppendingPathComponent:@"compacted_kv.clsrecord"];
   self.logAPath = [tempDir stringByAppendingPathComponent:@"loga.clsrecord"];
   self.logBPath = [tempDir stringByAppendingPathComponent:@"logb.clsrecord"];
-  self.errorAPath = [tempDir stringByAppendingPathComponent:CLSReportErrorAFile];
-  self.errorBPath = [tempDir stringByAppendingPathComponent:CLSReportErrorBFile];
+  self.errorAPath = [tempDir stringByAppendingPathComponent:FIRCLSReportErrorAFile];
+  self.errorBPath = [tempDir stringByAppendingPathComponent:FIRCLSReportErrorBFile];
 
-  _clsContext.readonly->logging.userKVStorage.incrementalPath =
+  _firclsContext.readonly->logging.userKVStorage.incrementalPath =
       strdup([self.kvPath fileSystemRepresentation]);
-  _clsContext.readonly->logging.userKVStorage.compactedPath =
+  _firclsContext.readonly->logging.userKVStorage.compactedPath =
       strdup([self.compactedKVPath fileSystemRepresentation]);
-  _clsContext.readonly->logging.logStorage.aPath = strdup([self.logAPath fileSystemRepresentation]);
-  _clsContext.readonly->logging.logStorage.bPath = strdup([self.logBPath fileSystemRepresentation]);
-  _clsContext.readonly->logging.errorStorage.aPath =
+  _firclsContext.readonly->logging.logStorage.aPath =
+      strdup([self.logAPath fileSystemRepresentation]);
+  _firclsContext.readonly->logging.logStorage.bPath =
+      strdup([self.logBPath fileSystemRepresentation]);
+  _firclsContext.readonly->logging.errorStorage.aPath =
       strdup([self.errorAPath fileSystemRepresentation]);
-  _clsContext.readonly->logging.errorStorage.bPath =
+  _firclsContext.readonly->logging.errorStorage.bPath =
       strdup([self.errorBPath fileSystemRepresentation]);
-  _clsContext.readonly->logging.userKVStorage.maxIncrementalCount = FIRCLSUserLoggingMaxKVEntries;
+  _firclsContext.readonly->logging.userKVStorage.maxIncrementalCount =
+      FIRCLSUserLoggingMaxKVEntries;
 
-  _clsContext.readonly->logging.logStorage.maxSize = 64 * 1024;
-  _clsContext.readonly->logging.logStorage.restrictBySize = true;
-  _clsContext.readonly->logging.errorStorage.maxSize = 64 * 1024;
-  _clsContext.readonly->logging.errorStorage.restrictBySize = false;
-  _clsContext.readonly->logging.errorStorage.maxEntries = 8;
-  _clsContext.readonly->logging.errorStorage.entryCount =
-      &_clsContext.writable->logging.errorsCount;
-  _clsContext.readonly->logging.userKVStorage.maxCount = 64;
+  _firclsContext.readonly->logging.logStorage.maxSize = 64 * 1024;
+  _firclsContext.readonly->logging.logStorage.restrictBySize = true;
+  _firclsContext.readonly->logging.errorStorage.maxSize = 64 * 1024;
+  _firclsContext.readonly->logging.errorStorage.restrictBySize = false;
+  _firclsContext.readonly->logging.errorStorage.maxEntries = 8;
+  _firclsContext.readonly->logging.errorStorage.entryCount =
+      &_firclsContext.writable->logging.errorsCount;
+  _firclsContext.readonly->logging.userKVStorage.maxCount = 64;
 
-  _clsContext.writable->logging.activeUserLogPath = _clsContext.readonly->logging.logStorage.aPath;
-  _clsContext.writable->logging.activeErrorLogPath =
-      _clsContext.readonly->logging.errorStorage.aPath;
-  _clsContext.writable->logging.userKVCount = 0;
-  _clsContext.writable->logging.internalKVCount = 0;
-  _clsContext.writable->logging.errorsCount = 0;
+  _firclsContext.writable->logging.activeUserLogPath =
+      _firclsContext.readonly->logging.logStorage.aPath;
+  _firclsContext.writable->logging.activeErrorLogPath =
+      _firclsContext.readonly->logging.errorStorage.aPath;
+  _firclsContext.writable->logging.userKVCount = 0;
+  _firclsContext.writable->logging.internalKVCount = 0;
+  _firclsContext.writable->logging.errorsCount = 0;
 
-  _clsContext.readonly->initialized = true;
+  _firclsContext.readonly->initialized = true;
 
   for (NSString* path in @[
          self.kvPath, self.compactedKVPath, self.logAPath, self.logBPath, self.errorAPath,
@@ -85,12 +89,12 @@
 }
 
 - (void)tearDown {
-  free((void*)_clsContext.readonly->logging.userKVStorage.incrementalPath);
-  free((void*)_clsContext.readonly->logging.userKVStorage.compactedPath);
-  free((void*)_clsContext.readonly->logging.logStorage.aPath);
-  free((void*)_clsContext.readonly->logging.logStorage.bPath);
-  free((void*)_clsContext.readonly->logging.errorStorage.aPath);
-  free((void*)_clsContext.readonly->logging.errorStorage.bPath);
+  free((void*)_firclsContext.readonly->logging.userKVStorage.incrementalPath);
+  free((void*)_firclsContext.readonly->logging.userKVStorage.compactedPath);
+  free((void*)_firclsContext.readonly->logging.logStorage.aPath);
+  free((void*)_firclsContext.readonly->logging.logStorage.bPath);
+  free((void*)_firclsContext.readonly->logging.errorStorage.aPath);
+  free((void*)_firclsContext.readonly->logging.errorStorage.bPath);
 
   FIRCLSContextBaseDeinit();
 
@@ -99,12 +103,12 @@
 
 - (NSArray*)incrementalKeyValues {
   return FIRCLSUserLoggingStoredKeyValues(
-      _clsContext.readonly->logging.userKVStorage.incrementalPath);
+      _firclsContext.readonly->logging.userKVStorage.incrementalPath);
 }
 
 - (NSArray*)compactedKeyValues {
   return FIRCLSUserLoggingStoredKeyValues(
-      _clsContext.readonly->logging.userKVStorage.compactedPath);
+      _firclsContext.readonly->logging.userKVStorage.compactedPath);
 }
 
 - (NSArray*)logAContents {
@@ -186,7 +190,7 @@
 
 - (void)testKeyValueLogMoreThanMaxKeys {
   // we need to end up with max + 1 keys written
-  for (NSUInteger i = 0; i <= _clsContext.readonly->logging.userKVStorage.maxCount + 1; ++i) {
+  for (NSUInteger i = 0; i <= _firclsContext.readonly->logging.userKVStorage.maxCount + 1; ++i) {
     NSString* key = [NSString stringWithFormat:@"key%lu", (unsigned long)i];
     NSString* value = [NSString stringWithFormat:@"some string value: %lu", (unsigned long)i];
 
@@ -197,7 +201,7 @@
   // we don't have any incremental keys. It also accounts for differences between
   // the max and incremental values.
   dispatch_sync(FIRCLSGetLoggingQueue(), ^{
-    FIRCLSUserLoggingCompactKVEntries(&_clsContext.readonly->logging.userKVStorage);
+    FIRCLSUserLoggingCompactKVEntries(&_firclsContext.readonly->logging.userKVStorage);
   });
 
   NSArray* keyValues = [self incrementalKeyValues];
@@ -230,7 +234,7 @@
 
   NSArray* array = [self logAContents];
   NSString* message = array[0][@"log"][@"msg"];
-  XCTAssertEqual(message.length, _clsContext.readonly->logging.logStorage.maxSize * 2,
+  XCTAssertEqual(message.length, _firclsContext.readonly->logging.logStorage.maxSize * 2,
                  "message: \"%@\"", message);
 }
 
@@ -320,7 +324,7 @@
                                        code:-1
                                    userInfo:@{@"key1" : @"value", @"key2" : @"value2"}];
 
-  for (size_t i = 0; i < _clsContext.readonly->logging.errorStorage.maxEntries; ++i) {
+  for (size_t i = 0; i < _firclsContext.readonly->logging.errorStorage.maxEntries; ++i) {
     FIRCLSUserLoggingRecordError(error, nil);
   }
 
@@ -334,7 +338,7 @@
 
   XCTAssertEqual([[self errorAContents] count], 8, @"");
   XCTAssertEqual([[self errorBContents] count], 1, @"");
-  XCTAssertEqual(*_clsContext.readonly->logging.errorStorage.entryCount, 1);
+  XCTAssertEqual(*_firclsContext.readonly->logging.errorStorage.entryCount, 1);
 
   // and our next entry should continue into the B file
 
@@ -342,7 +346,7 @@
 
   XCTAssertEqual([[self errorAContents] count], 8, @"");
   XCTAssertEqual([[self errorBContents] count], 2, @"");
-  XCTAssertEqual(*_clsContext.readonly->logging.errorStorage.entryCount, 2);
+  XCTAssertEqual(*_firclsContext.readonly->logging.errorStorage.entryCount, 2);
 }
 
 - (void)testLoggedErrorWithNullsInAdditionalInfo {

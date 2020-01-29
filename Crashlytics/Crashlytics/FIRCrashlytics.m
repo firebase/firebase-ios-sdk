@@ -52,10 +52,10 @@
 #import <UIKit/UIKit.h>
 #endif
 
-FIRCLSContext _clsContext;
-dispatch_queue_t _clsLoggingQueue;
-dispatch_queue_t _clsBinaryImageQueue;
-dispatch_queue_t _clsExceptionQueue;
+FIRCLSContext _firclsContext;
+dispatch_queue_t _firclsLoggingQueue;
+dispatch_queue_t _firclsBinaryImageQueue;
+dispatch_queue_t _firclsExceptionQueue;
 
 static atomic_bool _hasInitializedInstance;
 

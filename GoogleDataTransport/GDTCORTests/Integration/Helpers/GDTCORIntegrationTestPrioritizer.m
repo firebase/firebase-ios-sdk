@@ -58,9 +58,10 @@
   });
 }
 
-- (GDTCORUploadPackage *)uploadPackageWithConditions:(GDTCORUploadConditions)conditions {
+- (GDTCORUploadPackage *)uploadPackageWithTarget:(GDTCORTarget)target
+                                      conditions:(GDTCORUploadConditions)conditions {
   __block GDTCORIntegrationTestUploadPackage *uploadPackage =
-      [[GDTCORIntegrationTestUploadPackage alloc] initWithTarget:kGDTCORIntegrationTestTarget];
+      [[GDTCORIntegrationTestUploadPackage alloc] initWithTarget:target];
   dispatch_sync(_queue, ^{
     if ((conditions & GDTCORUploadConditionWifiData) == GDTCORUploadConditionWifiData) {
       uploadPackage.events = [self.wifiOnlyEvents setByAddingObjectsFromSet:self.nonWifiEvents];
