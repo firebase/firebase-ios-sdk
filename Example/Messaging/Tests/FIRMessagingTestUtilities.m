@@ -16,6 +16,8 @@
 
 #import <OCMock/OCMock.h>
 
+#import "XCTestCase+FIRMessagingRmqManagerTests.h"
+
 #import "Example/Messaging/Tests/FIRMessagingTestUtilities.h"
 
 #import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
@@ -95,8 +97,9 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
   return self;
 }
 
-- (void)cleanupAfterTest {
+- (void)cleanupAfterTest:(XCTestCase *)testCase {
   [_messaging.rmq2Manager removeDatabase];
+  [testCase waitForDrainDatabaseQueueForRmqManager:_messaging.rmq2Manager];
   [_messaging.messagingUserDefaults removePersistentDomainForName:kFIRMessagingDefaultsTestDomain];
   _messaging.shouldEstablishDirectChannel = NO;
   [_mockPubsub stopMocking];

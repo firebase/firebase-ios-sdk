@@ -16,6 +16,7 @@
 
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
+#import "XCTestCase+FIRMessagingRmqManagerTests.h"
 
 #import <FirebaseMessaging/FIRMessaging.h>
 
@@ -90,6 +91,7 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
 -(void)tearDown {
     if (_dataMessageManager.rmq2Manager) {
         [_dataMessageManager.rmq2Manager removeDatabase];
+        [self waitForDrainDatabaseQueueForRmqManager:_dataMessageManager.rmq2Manager];
     }
     [super tearDown];
 }

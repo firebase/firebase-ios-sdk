@@ -19,6 +19,7 @@
 #import <OCMock/OCMock.h>
 
 #import "FIRTestsAssertionHandler.h"
+#import "XCTestCase+FIRMessagingRmqManagerTests.h"
 
 #import "Firebase/Messaging/FIRMessagingPersistentSyncMessage.h"
 #import "Firebase/Messaging/FIRMessagingRmqManager.h"
@@ -59,7 +60,7 @@ static const NSTimeInterval kAsyncTestTimout = 0.5;
 
 - (void)tearDown {
   [self.rmqManager removeDatabase];
-  [self drainDatabaseQueueForManager:self.rmqManager];
+  [self waitForDrainDatabaseQueueForRmqManager:self.rmqManager];
 
   [self.assertionHandlerMock stopMocking];
   self.assertionHandlerMock = nil;
@@ -336,12 +337,12 @@ static const NSTimeInterval kAsyncTestTimout = 0.5;
   // Create `FIRMessagingRmqManager` instance with a broken database.
   FIRMessagingRmqManager *manager = [[FIRMessagingRmqManager alloc] initWithDatabaseName:databaseName];
   [self addTeardownBlock:^{
-    [self drainDatabaseQueueForManager:manager];
+    [self waitForDrainDatabaseQueueForRmqManager:manager];
   }];
 
   [self waitForExpectations:@[ assertionFailureExpectation ] timeout:0.5];
 
-  [self drainDatabaseQueueForManager:manager];
+  [self waitForDrainDatabaseQueueForRmqManager:manager];
 
   // Check that the file was deleted.
   XCTAssertFalse([[NSFileManager defaultManager] fileExistsAtPath:databasePath]);
@@ -386,12 +387,6 @@ static const NSTimeInterval kAsyncTestTimout = 0.5;
   return databasePath;
 }
 
-- (void)drainDatabaseQueueForManager:(FIRMessagingRmqManager *)manager {
-  XCTestExpectation *drainDatabaseQueueExpectation = [self expectationWithDescription:@"drainDatabaseQueue"];
-  dispatch_async([manager databaseOperationQueue], ^{
-    [drainDatabaseQueueExpectation fulfill];
-  });
-  [self waitForExpectations:@[drainDatabaseQueueExpectation] timeout:1.5];
-}
+
 
 @end
