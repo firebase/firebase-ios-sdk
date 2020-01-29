@@ -33,7 +33,7 @@ Firebase Dynamic Links are deep links that enhance user experience and increase 
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' => 'FIRDynamicLinks_VERSION=' + s.version.to_s +
                                       ' FIRDynamicLinks3P GIN_SCION_LOGGING',
-    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"/Firebase'
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
 
   s.test_spec 'unit' do |unit_tests|
