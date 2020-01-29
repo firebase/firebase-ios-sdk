@@ -74,9 +74,17 @@ fi
 scripts_dir=$(dirname "${BASH_SOURCE[0]}")
 firestore_emulator="${scripts_dir}/run_firestore_emulator.sh"
 
-xcode_version=$(xcodebuild -version | head -n 1)
-xcode_version="${xcode_version/Xcode /}"
-xcode_major="${xcode_version/.*/}"
+system=$(uname -s)
+case "$system" in
+  Darwin)
+    xcode_version=$(xcodebuild -version | head -n 1)
+    xcode_version="${xcode_version/Xcode /}"
+    xcode_major="${xcode_version/.*/}"
+    ;;
+  *)
+    xcode_major="0"
+    ;;
+esac
 
 have_secrets=false
 
@@ -160,6 +168,10 @@ case "$platform" in
     xcb_flags=()
     ;;
 
+  Linux)
+    xcb_flags=()
+    ;;
+
   *)
     echo "Unknown platform '$platform'" 1>&2
     exit 1
@@ -218,8 +230,9 @@ if [[ -n "${SANITIZERS:-}" ]]; then
   done
 fi
 
-case "$product-$method-$platform" in
-  FirebasePod-xcodebuild-*)
+
+case "$product-$platform-$method" in
+  FirebasePod-*-xcodebuild)
     RunXcodebuild \
         -workspace 'CoreOnly/Tests/FirebasePodTest/FirebasePodTest.xcworkspace' \
         -scheme "FirebasePodTest" \
@@ -227,7 +240,7 @@ case "$product-$method-$platform" in
         build
     ;;
 
-  Auth-xcodebuild-*)
+  Auth-*-xcodebuild)
     if [[ "$have_secrets" == true ]]; then
       RunXcodebuild \
         -workspace 'Example/Auth/AuthSample/AuthSample.xcworkspace' \
@@ -238,7 +251,7 @@ case "$product-$method-$platform" in
     fi
     ;;
 
-  InAppMessaging-xcodebuild-*)
+  InAppMessaging-*-xcodebuild)
     RunXcodebuild \
         -workspace 'FirebaseInAppMessaging/Tests/Integration/DefaultUITestApp/InAppMessagingDisplay-Sample.xcworkspace' \
         -scheme 'FiamDisplaySwiftExample' \
@@ -247,7 +260,7 @@ case "$product-$method-$platform" in
         test
     ;;
 
-  Firestore-xcodebuild-*)
+  Firestore-*-xcodebuild)
     "${firestore_emulator}" start
     trap '"${firestore_emulator}" stop' ERR EXIT
 
@@ -272,21 +285,24 @@ case "$product-$method-$platform" in
     fi
     ;;
 
-  Firestore-cmake-macOS)
+  Firestore-macOS-cmake | Firestore-Linux-cmake)
     "${firestore_emulator}" start
     trap '"${firestore_emulator}" stop' ERR EXIT
 
-    test -d build || mkdir build
-    echo "Preparing cmake build ..."
-    (cd build; cmake "${cmake_options[@]}" ..)
+    (
+      test -d build || mkdir build
+      cd build
 
-    echo "Building cmake build ..."
-    cpus=$(sysctl -n hw.ncpu)
-    (cd build; env make -j $cpus all generate_protos)
-    (cd build; env CTEST_OUTPUT_ON_FAILURE=1 make -j $cpus test)
+      echo "Preparing cmake build ..."
+      cmake -G Ninja "${cmake_options[@]}" ..
+
+      echo "Building cmake build ..."
+      ninja -k 10 all
+      ctest --output-on-failure
+    )
     ;;
 
-  SymbolCollision-xcodebuild-*)
+  SymbolCollision-*-xcodebuild)
     RunXcodebuild \
         -workspace 'SymbolCollisionTest/SymbolCollisionTest.xcworkspace' \
         -scheme "SymbolCollisionTest" \
@@ -294,7 +310,7 @@ case "$product-$method-$platform" in
         build
     ;;
 
-  Database-xcodebuild-*)
+  Database-*-xcodebuild)
     pod_gen FirebaseDatabase.podspec --platforms=ios
     RunXcodebuild \
       -workspace 'gen/FirebaseDatabase/FirebaseDatabase.xcworkspace' \
@@ -334,7 +350,7 @@ case "$product-$method-$platform" in
       test
     ;;
 
-  Storage-xcodebuild-*)
+  Storage-*-xcodebuild)
     pod_gen FirebaseStorage.podspec --platforms=ios
     RunXcodebuild \
       -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
