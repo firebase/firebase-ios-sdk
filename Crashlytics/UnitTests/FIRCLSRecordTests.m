@@ -32,6 +32,8 @@
 #import "FIRCLSRecordStorage.h"
 #import "FIRCLSRecordThread.h"
 
+#import "FIRCLSFile.h"
+
 @interface FIRCLSRecordTests : XCTestCase
 
 @end
@@ -75,18 +77,11 @@
   id thread2 __unused = [[FIRCLSRecordThread alloc] initWithDict:emptyDict];
 }
 
-- (void)testHexDecoding {
-  NSString *str = @"Hello world!";
-
-  // Hex encode the string
-  const char *utf8 = [str UTF8String];
-  NSMutableString *hex = [NSMutableString string];
-  while (*utf8) [hex appendFormat:@"%02X", *utf8++ & 0x00FF];
-  NSString *hexEncodedString = [NSString stringWithFormat:@"%@", hex];
-
-  NSString *hexDecodedString = [FIRCLSRecordBase decodedHexStringWithValue:hexEncodedString];
-
-  XCTAssertTrue([str isEqualToString:hexDecodedString]);
+/// It is important that crashes do not occur when reading persisted crash files before uploading
+/// Verify various invalid input cases
+- (void)testCorruptRecordCases {
+  id adapter __unused =
+      [[FIRCLSRecordAdapter alloc] initWithPath:[FIRCLSRecordTests corruptedCrashFolder]];
 }
 
 - (void)testRecordBinaryImagesFile {
@@ -219,9 +214,18 @@
   XCTAssertEqual(adapter.storage.total, 63989469184);
 }
 
+// Helper functions
+
++ (NSString *)resourcePath {
+  return [[NSBundle bundleForClass:[self class]] resourcePath];
+}
+
 + (NSString *)persistedCrashFolder {
-  return [[[NSBundle bundleForClass:[self class]] resourcePath]
-      stringByAppendingPathComponent:@"ios_crash"];
+  return [[FIRCLSRecordTests resourcePath] stringByAppendingPathComponent:@"ios_crash"];
+}
+
++ (NSString *)corruptedCrashFolder {
+  return [[FIRCLSRecordTests resourcePath] stringByAppendingPathComponent:@"ios_crash"];
 }
 
 @end

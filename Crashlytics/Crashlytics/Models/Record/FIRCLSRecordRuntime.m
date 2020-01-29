@@ -15,6 +15,7 @@
  */
 
 #import "FIRCLSRecordRuntime.h"
+#import "FIRCLSFile.h"
 
 @implementation FIRCLSRecordRuntime
 
@@ -25,7 +26,7 @@
 
     NSMutableArray<NSString *> *entries = [[NSMutableArray<NSString *> alloc] init];
     for (NSString *hexString in dict[@"crash_info_entries"]) {
-      [entries addObject:[FIRCLSRecordBase decodedHexStringWithValue:hexString]];
+      [entries addObject:FIRCLSFileHexDecodeString([hexString UTF8String])];
     }
     _crash_info_entries = entries;
   }

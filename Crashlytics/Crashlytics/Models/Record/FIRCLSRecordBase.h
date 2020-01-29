@@ -34,9 +34,4 @@
  **/
 - (instancetype)initWithDict:(NSDictionary *)dict;
 
-/**
- * Decode hex encoded string
- **/
-+ (NSString *)decodedHexStringWithValue:(NSString *)hexEncodedString;
-
 @end
