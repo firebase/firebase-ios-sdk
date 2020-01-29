@@ -21,6 +21,6 @@
 @property(nonatomic, copy) NSString *key;
 @property(nonatomic, copy) NSString *value;
 
-+ (NSArray<FIRCLSRecordKeyValue *> *)keyValuesFromDictionaries:(NSArray<NSDictionary *> *)dicts;
++ (NSDictionary<NSString *, NSString *> *)keyValuesFromDictionaries:(NSArray<NSDictionary *> *)dicts;
 
 @end

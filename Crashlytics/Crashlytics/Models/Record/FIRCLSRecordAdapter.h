@@ -30,6 +30,8 @@
 /// @param folderPath Path where the persisted crash files reside
 - (instancetype)initWithPath:(NSString *)folderPath;
 
-// TODO: Add function to return the nanopb/FireLog report
+/// Get report in nanopb format
+/// @param googleAppID Google app id
+- (google_crashlytics_Report)protoReportWithGoogleAppID:(NSString *)googleAppID;
 
 @end

@@ -146,16 +146,13 @@
 - (void)testRecordKeyValueFile {
   FIRCLSRecordAdapter *adapter =
       [[FIRCLSRecordAdapter alloc] initWithPath:[FIRCLSRecordTests persistedCrashFolder]];
-  XCTAssertEqual(adapter.keyValues.count, 12);
+  XCTAssertEqual(adapter.keyValues.count, 6);
 
   // Verify first
-  XCTAssertTrue([adapter.keyValues[0].key isEqualToString:@"com.crashlytics.in-background"]);
-  XCTAssertTrue([adapter.keyValues[0].value isEqualToString:@"0"]);
+  XCTAssertTrue([adapter.keyValues[@"com.crashlytics.in-background"] isEqualToString:@"0"]);
 
   // Verify last
-  XCTAssertTrue([adapter.keyValues[11].key isEqualToString:@"com.crashlytics.user-id"]);
-  XCTAssertTrue([adapter.keyValues[11].value
-      isEqualToString:@"test-user-28AE6E09-BC30-4CB3-9FA5-FE06828B8F3C"]);
+  XCTAssertTrue([adapter.keyValues[@"com.crashlytics.user-id"] isEqualToString:@"test-user-28AE6E09-BC30-4CB3-9FA5-FE06828B8F3C"]);
 }
 
 - (void)testRecordSignalFile {
@@ -212,6 +209,12 @@
   // Verify storage
   XCTAssertEqual(adapter.storage.free, 9388113920);
   XCTAssertEqual(adapter.storage.total, 63989469184);
+}
+
+- (void)testProtoReport {
+    FIRCLSRecordAdapter *adapter =
+        [[FIRCLSRecordAdapter alloc] initWithPath:[FIRCLSRecordTests persistedCrashFolder]];
+    google_crashlytics_Report report = [adapter protoReportWithGoogleAppID:@"someGoogleAppId"];
 }
 
 // Helper functions

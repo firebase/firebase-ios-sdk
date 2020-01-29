@@ -20,6 +20,8 @@
 #import "FIRCLSInternalReport.h"
 #import "FIRCLSLogger.h"
 
+#import "FIRCLSUserLogging.h"
+
 @implementation FIRCLSRecordAdapter
 
 - (instancetype)initWithPath:(NSString *)folderPath {
@@ -128,11 +130,11 @@
     return false;
 }
 
-- (google_crashlytics_Report)nanoPBReportWithGoogleAppID:(NSString *)googleAppID {
+- (google_crashlytics_Report)protoReportWithGoogleAppID:(NSString *)googleAppID {
     google_crashlytics_Report report = google_crashlytics_Report_init_default;
-    report.build_version = FIRCLSEncodeString(self.identity.build_version);
+    report.sdk_version = FIRCLSEncodeString(self.identity.build_version);
     report.gmp_app_id = FIRCLSEncodeString(googleAppID);
-    report.platform = [self nanoPBPlatformFromString:self.host.platform];
+    report.platform = [self protoPlatformFromString:self.host.platform];
     report.installation_uuid = FIRCLSEncodeString(self.identity.install_id);
     report.build_version = FIRCLSEncodeString(self.application.build_version);
     report.display_version = FIRCLSEncodeString(self.application.display_version);
@@ -143,25 +145,48 @@
     return report;
 }
 
-- (google_crashlytics_Session)nanoPBSession {
+- (google_crashlytics_Session)protoSession {
     google_crashlytics_Session session = google_crashlytics_Session_init_default;
     session.generator = FIRCLSEncodeString(self.identity.generator);
     session.identifier = FIRCLSEncodeString(self.identity.session_id);
-    session.started_at = 0; // TODO: Where does this come from?
+    session.started_at = 0;     // TODO: Where does this come from?
     session.ended_at = self.signal.time;
     session.crashed = [self hasCrashed];
+    
+    NSString *userId = self.keyValues[FIRCLSUserIdentifierKey];
+    if (userId) {
+        session.user = [self protoUserWithId: userId];
+    }
+    
+    session.app = [self protoApp];
     
     return session;
 }
 
-- (google_crashlytics_Session_User)nanoPBUser {
+- (google_crashlytics_Session_User)protoUserWithId:(NSString *)identifier {
     google_crashlytics_Session_User user = google_crashlytics_Session_User_init_default;
-//    user = FIRCLSEncodeString(self.)
+    user.identifier = FIRCLSEncodeString(identifier);
     return user;
 }
 
+- (google_crashlytics_Session_Application)protoApp {
+    google_crashlytics_Session_Application app = google_crashlytics_Session_Application_init_default;
+    app.identifier = FIRCLSEncodeString(self.application.bundle_id);
+    app.version = FIRCLSEncodeString(self.application.build_version);
+    app.display_version = FIRCLSEncodeString(self.application.display_version);
+    return app;
+}
 
-- (google_crashlytics_Session_Platform)nanoPBPlatformFromString:(NSString *)str {
+- (google_crashlytics_Session_OperatingSystem)protoOperatingSystem {
+    google_crashlytics_Session_OperatingSystem os = google_crashlytics_Session_OperatingSystem_init_default;
+//    os.platform = FIRCLSEncodeString(self.application.bundle_id);
+//    os.version = FIRCLSEncodeString(self.application.build_version);
+//    os.build_version = FIRCLSEncodeString(self.application.display_version);
+//    os.jailbroken = false;
+    return os;
+}
+
+- (google_crashlytics_Session_Platform)protoPlatformFromString:(NSString *)str {
     if ([str isEqualToString:@"ios"]) {
         return google_crashlytics_Session_Platform_IPHONE_OS;
     } else if ([str isEqualToString:@"mac"]) {
@@ -174,7 +199,6 @@
 }
 
 /** Mallocs a pb_bytes_array and copies the given NSString's bytes into the bytes array.
- *
  * @note Memory needs to be free manually, through pb_free or pb_release.
  * @param string The string to encode as pb_bytes.
  */
@@ -184,7 +208,6 @@ pb_bytes_array_t *FIRCLSEncodeString(NSString *string) {
 }
 
 /** Mallocs a pb_bytes_array and copies the given NSData bytes into the bytes array.
- *
  * @note Memory needs to be free manually, through pb_free or pb_release.
  * @param data The data to copy into the new bytes array.
  */

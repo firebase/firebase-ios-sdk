@@ -43,6 +43,6 @@
 @property(nonatomic, strong) FIRCLSRecordHost *host;
 @property(nonatomic, strong) FIRCLSRecordApplication *application;
 @property(nonatomic, strong) FIRCLSRecordExecutable *executable;
-@property(nonatomic, strong) NSArray<FIRCLSRecordKeyValue *> *keyValues;
+@property(nonatomic, strong) NSDictionary<NSString *, NSString *> *keyValues;
 
 @end
