@@ -29,8 +29,6 @@ using testutil::Filter;
 using testutil::Resource;
 using testutil::Value;
 
-using Operator = Filter::Operator;
-
 TEST(FilterTest, Equality) {
   auto filter = Filter("f", "==", 1);
   EXPECT_EQ(filter, Filter("f", "==", 1));

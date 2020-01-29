@@ -66,7 +66,7 @@ LevelDbTargetCache::TryReadMetadata(leveldb::DB* db) {
     }
   }
 
-  return result;
+  return std::move(result);
 }
 
 Message<firestore_client_TargetGlobal> LevelDbTargetCache::ReadMetadata(
