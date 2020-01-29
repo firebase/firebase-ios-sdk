@@ -68,21 +68,23 @@ function apt_install() {
   which "$program" >& /dev/null || sudo apt-get install "$package"
 }
 
+# Default values, if not supplied on the command line or environment
+platform="iOS"
+method="xcodebuild"
+
 if [[ $# -eq 0 ]]; then
   # Take arguments from the environment
   project=$PROJECT
-  platform=$PLATFORM
-  method=$METHOD
+  platform=${PLATFORM:-${platform}}
+  method=${METHOD:-${method}}
 
 else
   project="$1"
 
-  platform="iOS"
   if [[ $# -gt 1 ]]; then
     platform="$2"
   fi
 
-  method="xcodebuild"
   if [[ $# -gt 2 ]]; then
     method="$3"
   fi
