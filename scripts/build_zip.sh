@@ -18,6 +18,15 @@ REPO=`pwd`
 # output directory.
 OUTPUT_DIR="$REPO/$1"
 
+# TEMPORARY FOR FASTER CI ITERATION
+# DO NOT SUBMIT
+mkdir -p "$OUTPUT_DIR/6_16_0"
+cd "$OUTPUT_DIR/6_16_0"
+echo "This is a test." > Firebase-latest-manual.txt
+exit 0
+# DO NOT SUBMIT
+# END TEMPORARY TESTING
+
 cd ZipBuilder
 swift run ReleasePackager -keepBuildArtifacts true -updatePodRepo true \
   -templateDir "${REPO}"/ZipBuilder/Template -localPodspecPath "${REPO}" \

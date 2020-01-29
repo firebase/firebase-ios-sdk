@@ -37,5 +37,7 @@ jobs:
 
     - uses: actions/upload-artifact@v1
       with:
-        name: Firebase-actions.zip
-        path: zip_output_dir/Firebase.zip
+        name: Firebase-actions-dir.zip
+        # Zip the entire output directory since the builder adds subdirectories we don't know the
+        # name of.
+        path: zip_output_dir
