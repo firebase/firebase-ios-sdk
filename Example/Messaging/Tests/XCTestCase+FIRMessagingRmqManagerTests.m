@@ -31,7 +31,7 @@
   if (databaseQueue == nil) {
     return;
   }
-  
+
   XCTestExpectation *drainDatabaseQueueExpectation = [self expectationWithDescription:@"drainDatabaseQueue"];
   dispatch_async([manager databaseOperationQueue], ^{
     [drainDatabaseQueueExpectation fulfill];
