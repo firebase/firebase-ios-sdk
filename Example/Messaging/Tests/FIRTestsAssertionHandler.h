@@ -18,11 +18,19 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef void(^FIRTestsAssertionHandlerBlock)(id object, NSInteger lineNumber);
+typedef void(^FIRTestsAssertionHandlerBlock)(id object, NSString *fileName, NSInteger lineNumber);
 
 @interface FIRTestsAssertionHandler : NSAssertionHandler
 
-- (void)setMethodFailureHandlerForClass:(Class)aClass handler:(FIRTestsAssertionHandlerBlock)handler;
+/**
+ * Sets a handler for assertions in objects of the specified class.
+ * @param aClass A class to set an assertion method failure handler.
+ * @param handler A custom handler that will be called each time when
+ * `-[FIRTestsAssertionHandler handleFailureInMethod:object:file:lineNumber:description:]` is called. If `nil` then
+ * `-[super handleFailureInMethod:object:file:lineNumber:description:]` (default implementation) will be called.
+ */
+- (void)setMethodFailureHandlerForClass:(Class)aClass
+                                handler:(nullable FIRTestsAssertionHandlerBlock)handler;
 
 @end
 

@@ -18,7 +18,7 @@
 
 @interface FIRTestsAssertionHandler ()
 
-@property (nonatomic) NSMutableDictionary<NSString *, FIRTestsAssertionHandlerBlock> *methodFailureHandlers;
+@property(nonatomic) NSMutableDictionary<NSString *, FIRTestsAssertionHandlerBlock> *methodFailureHandlers;
 
 @end
 
@@ -33,14 +33,18 @@
   return self;
 }
 
-- (void)handleFailureInMethod:(SEL)selector object:(id<NSObject>)object file:(NSString *)fileName lineNumber:(NSInteger)line description:(NSString *)format, ... {
+- (void)handleFailureInMethod:(SEL)selector
+                       object:(id<NSObject>)object
+                         file:(NSString *)fileName
+                   lineNumber:(NSInteger)line
+                  description:(NSString *)format, ... {
   FIRTestsAssertionHandlerBlock handler;
   @synchronized (self) {
     handler = self.methodFailureHandlers[NSStringFromClass([object class])];
   }
 
   if (handler) {
-    handler(object, line);
+    handler(object, fileName, line);
   } else {
     [super handleFailureInMethod:selector object:object file:fileName lineNumber:line description:@"%@", format];
   }

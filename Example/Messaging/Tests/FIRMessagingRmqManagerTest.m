@@ -324,15 +324,16 @@ static const NSTimeInterval kAsyncTestTimout = 0.5;
   NSString *databasePath = [self createBrokenDatabaseWithName:databaseName];
   XCTAssert([[NSFileManager defaultManager] fileExistsAtPath:databasePath]);
 
-  XCTestExpectation *assertionFailureExpectation = [self expectationWithDescription:@"assertionFailureExpectation"];
   // Expect for at least one assertion.
+  XCTestExpectation *assertionFailureExpectation = [self expectationWithDescription:@"assertionFailureExpectation"];
   assertionFailureExpectation.assertForOverFulfill = NO;
 
   [self.testAssertionHandler setMethodFailureHandlerForClass:[FIRMessagingRmqManager class]
-                                                     handler:^(id object, NSInteger lineNumber) {
+                                                     handler:^(id object, NSString *fileName, NSInteger lineNumber) {
     [assertionFailureExpectation fulfill];
   }];
 
+  // Create `FIRMessagingRmqManager` instance with a broken database.
   FIRMessagingRmqManager *manager = [[FIRMessagingRmqManager alloc] initWithDatabaseName:databaseName];
   [self addTeardownBlock:^{
     [self drainDatabaseQueueForManager:manager];
@@ -342,6 +343,7 @@ static const NSTimeInterval kAsyncTestTimout = 0.5;
 
   [self drainDatabaseQueueForManager:manager];
 
+  // Check that the file was deleted.
   XCTAssertFalse([[NSFileManager defaultManager] fileExistsAtPath:databasePath]);
 }
 
