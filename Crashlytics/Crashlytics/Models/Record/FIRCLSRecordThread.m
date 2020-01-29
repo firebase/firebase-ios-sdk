@@ -21,8 +21,9 @@
 
 @implementation FIRCLSRecordThread
 
-+ (NSArray<FIRCLSRecordThread *> *)threadsFromDictionaries:(NSArray *)threads
-                                                 withNames:(NSArray *)names
++ (NSArray<FIRCLSRecordThread *> *)threadsFromDictionaries:(NSArray<NSDictionary *> *)threads
+                                           withThreadNames:(NSArray<NSString *> *)names
+                                    withDispatchQueueNames:(NSArray<NSString *> *)dispatchNames
                                                withRuntime:(FIRCLSRecordRuntime *)runtime {
   NSMutableArray<FIRCLSRecordThread *> *result =
       [[NSMutableArray<FIRCLSRecordThread *> alloc] init];
@@ -33,8 +34,12 @@
       thread.objc_selector_name = runtime.objc_selector;
     }
 
-    if (i < names.count) {
+    if (i < names.count && names[i].length > 0) {
       thread.name = names[i];
+    }
+
+    if (i < dispatchNames.count && dispatchNames[i].length > 0) {
+      thread.alternate_name = dispatchNames[i];
     }
 
     [result addObject:thread];
@@ -46,7 +51,6 @@
 - (instancetype)initWithDict:(NSDictionary *)dict {
   self = [super initWithDict:dict];
   if (self) {
-    _alternate_name = dict[@"alternate_name"];
     _crashed = [dict[@"crashed"] boolValue];
     _stacktrace = dict[@"stacktrace"];
     _registers = [FIRCLSRecordRegister registersFromDictionary:dict[@"registers"]];

@@ -15,39 +15,10 @@
  */
 
 #import "FIRCLSRecordAdapter.h"
+#import "FIRCLSRecordAdapter_Private.h"
 
 #import "FIRCLSInternalReport.h"
 #import "FIRCLSLogger.h"
-#import "FIRCLSRecordApplication.h"
-#import "FIRCLSRecordBinaryImage.h"
-#import "FIRCLSRecordExecutable.h"
-#import "FIRCLSRecordHost.h"
-#import "FIRCLSRecordIdentity.h"
-#import "FIRCLSRecordKeyValue.h"
-#import "FIRCLSRecordProcessStats.h"
-#import "FIRCLSRecordRegister.h"
-#import "FIRCLSRecordRuntime.h"
-#import "FIRCLSRecordSignal.h"
-#import "FIRCLSRecordStorage.h"
-#import "FIRCLSRecordThread.h"
-
-@interface FIRCLSRecordAdapter ()
-
-@property(nonatomic, strong) NSString *folderPath;
-
-@property(nonatomic, strong) FIRCLSRecordSignal *signal;
-@property(nonatomic, strong) NSArray<FIRCLSRecordThread *> *threads;
-@property(nonatomic, strong) FIRCLSRecordProcessStats *processStats;
-@property(nonatomic, strong) FIRCLSRecordStorage *storage;
-@property(nonatomic, strong) NSArray<FIRCLSRecordBinaryImage *> *binaryImages;
-@property(nonatomic, strong) FIRCLSRecordRuntime *runtime;
-@property(nonatomic, strong) FIRCLSRecordIdentity *identity;
-@property(nonatomic, strong) FIRCLSRecordHost *host;
-@property(nonatomic, strong) FIRCLSRecordApplication *application;
-@property(nonatomic, strong) FIRCLSRecordExecutable *executable;
-@property(nonatomic, strong) NSArray<FIRCLSRecordKeyValue *> *keyValues;
-
-@end
 
 @implementation FIRCLSRecordAdapter
 
@@ -65,13 +36,13 @@
 }
 
 - (void)loadBinaryImagesFile {
-  NSString *path = [self.folderPath stringByAppendingPathComponent:CLSReportBinaryImageFile];
+  NSString *path = [self.folderPath stringByAppendingPathComponent:FIRCLSReportBinaryImageFile];
   self.binaryImages = [FIRCLSRecordBinaryImage
       binaryImagesFromDictionaries:[FIRCLSRecordAdapter dictionariesFromEachLineOfFile:path]];
 }
 
 - (void)loadMetaDataFile {
-  NSString *path = [self.folderPath stringByAppendingPathComponent:CLSReportMetadataFile];
+  NSString *path = [self.folderPath stringByAppendingPathComponent:FIRCLSReportMetadataFile];
   NSDictionary *dict = [FIRCLSRecordAdapter combinedDictionariesFromFilePath:path];
 
   self.identity = [[FIRCLSRecordIdentity alloc] initWithDict:dict[@"identity"]];
@@ -81,7 +52,7 @@
 }
 
 - (void)loadSignalFile {
-  NSString *path = [self.folderPath stringByAppendingPathComponent:CLSReportSignalFile];
+  NSString *path = [self.folderPath stringByAppendingPathComponent:FIRCLSReportSignalFile];
   NSDictionary *dicts = [FIRCLSRecordAdapter combinedDictionariesFromFilePath:path];
 
   self.signal = [[FIRCLSRecordSignal alloc] initWithDict:dicts[@"signal"]];
@@ -91,13 +62,14 @@
 
   // The thread's objc_selector_name is set with the runtime's info
   self.threads = [FIRCLSRecordThread threadsFromDictionaries:dicts[@"threads"]
-                                                   withNames:dicts[@"thread_names"]
+                                             withThreadNames:dicts[@"thread_names"]
+                                      withDispatchQueueNames:dicts[@"dispatch_queue_names"]
                                                  withRuntime:self.runtime];
 }
 
 - (void)loadKeyValuesFile {
   NSString *path =
-      [self.folderPath stringByAppendingPathComponent:CLSReportInternalIncrementalKVFile];
+      [self.folderPath stringByAppendingPathComponent:FIRCLSReportInternalIncrementalKVFile];
   self.keyValues = [FIRCLSRecordKeyValue
       keyValuesFromDictionaries:[FIRCLSRecordAdapter dictionariesFromEachLineOfFile:path]];
 }

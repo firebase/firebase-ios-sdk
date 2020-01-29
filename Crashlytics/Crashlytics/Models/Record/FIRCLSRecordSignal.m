@@ -19,9 +19,13 @@
 - (instancetype)initWithDict:(NSDictionary *)dict {
   self = [super initWithDict:dict];
   if (self) {
+    _number = [dict[@"number"] unsignedIntegerValue];
+    _code = [dict[@"code"] unsignedIntegerValue];
+    _address = [dict[@"address"] unsignedIntegerValue];
     _name = dict[@"name"];
-    _code = dict[@"code"];
-    _address = (NSUInteger)dict[@"address"];
+    _code_name = dict[@"code_name"];
+    _err_no = [dict[@"err_no"] unsignedIntegerValue];
+    _time = [dict[@"time"] unsignedIntegerValue];
   }
   return self;
 }

@@ -21,14 +21,14 @@
 - (instancetype)initWithDict:(NSDictionary *)dict {
   self = [super initWithDict:dict];
   if (self) {
-    _active = (NSUInteger)dict[@"active"];
-    _inactive = (NSUInteger)dict[@"inactive"];
-    _wired = (NSUInteger)dict[@"wired"];
-    _freeMem = (NSUInteger)dict[@"freeMem"];
-    _virtualAddress = (NSUInteger)dict[@"virtual"];
-    _resident = (NSUInteger)dict[@"resident"];
-    _user_time = (NSUInteger)dict[@"user_time"];
-    _sys_time = (NSUInteger)dict[@"user_time"];
+    _active = [dict[@"active"] unsignedIntegerValue];
+    _inactive = [dict[@"inactive"] unsignedIntegerValue];
+    _wired = [dict[@"wired"] unsignedIntegerValue];
+    _freeMem = [dict[@"freeMem"] unsignedIntegerValue];
+    _virtualAddress = [dict[@"virtual"] unsignedIntegerValue];
+    _resident = [dict[@"resident"] unsignedIntegerValue];
+    _user_time = [dict[@"user_time"] unsignedIntegerValue];
+    _sys_time = [dict[@"sys_time"] unsignedIntegerValue];
   }
   return self;
 }

@@ -26,7 +26,7 @@
     _build_version = dict[@"build_version"];
     _session_id = dict[@"session_id"];
     _install_id = dict[@"install_id"];
-    _started_at = (NSUInteger)dict[@"started_at"];
+    _started_at = [dict[@"started_at"] unsignedIntegerValue];
   }
   return self;
 }

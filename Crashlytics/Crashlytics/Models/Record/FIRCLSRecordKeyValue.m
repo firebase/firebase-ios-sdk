@@ -15,6 +15,7 @@
  */
 
 #import "FIRCLSRecordKeyValue.h"
+#import "FIRCLSFile.h"
 
 @implementation FIRCLSRecordKeyValue
 
@@ -30,8 +31,15 @@
 - (instancetype)initWithDict:(NSDictionary *)dict {
   self = [super initWithDict:dict];
   if (self) {
-    _key = [FIRCLSRecordBase decodedHexStringWithValue:dict[@"key"]];
-    _value = [FIRCLSRecordBase decodedHexStringWithValue:dict[@"value"]];
+    NSString *key = dict[@"key"];
+    if (key) {
+      _key = FIRCLSFileHexDecodeString([key UTF8String]);
+    }
+
+    NSString *value = dict[@"value"];
+    if (value) {
+      _value = FIRCLSFileHexDecodeString([value UTF8String]);
+    }
   }
   return self;
 }

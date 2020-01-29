@@ -22,17 +22,4 @@
   return [super init];
 }
 
-+ (NSString *)decodedHexStringWithValue:(NSString *)hexEncodedString {
-  NSMutableString *decodedString = [[NSMutableString alloc] init];
-  int index = 0;
-  while (index < hexEncodedString.length) {
-    NSString *hexChar = [hexEncodedString substringWithRange:NSMakeRange(index, 2)];
-    int value = 0;
-    sscanf([hexChar cStringUsingEncoding:NSASCIIStringEncoding], "%x", &value);
-    [decodedString appendFormat:@"%c", (char)value];
-    index += 2;
-  }
-  return decodedString;
-}
-
 @end

@@ -18,8 +18,12 @@
 
 @interface FIRCLSRecordSignal : FIRCLSRecordBase
 
-@property(nonatomic, copy) NSString *name;
-@property(nonatomic, copy) NSString *code;
+@property(nonatomic) NSUInteger number;
+@property(nonatomic) NSUInteger code;
 @property(nonatomic) NSUInteger address;
+@property(nonatomic, copy) NSString *name;
+@property(nonatomic, copy) NSString *code_name;
+@property(nonatomic) NSUInteger err_no;
+@property(nonatomic) NSUInteger time;
 
 @end

@@ -21,9 +21,9 @@
 - (instancetype)initWithDict:(NSDictionary *)dict {
   self = [super initWithDict:dict];
   if (self) {
-    _pc = (NSUInteger)dict[@"pc"];
+    _pc = [dict[@"pc"] unsignedIntegerValue];
     _symbol = dict[@"symbol"];
-    _offset = (NSUInteger)dict[@"offset"];
+    _offset = [dict[@"offset"] unsignedIntegerValue];
   }
   return self;
 }
