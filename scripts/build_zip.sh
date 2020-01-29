@@ -17,9 +17,13 @@ REPO=`pwd`
 # The first and only argument to this script should be the name of the
 # output directory.
 echo "Repo dir: ${REPO}"
-OUTPUT_DIR='${REPO}/$1'
+OUTPUT_DIR="$REPO/$1"
 echo "Ouptut dir: ${OUTPUT_DIR}"
+OUTPUT_DIR2="${REPO}/$1"
+echo "Ouptut dir2: ${OUTPUT_DIR2}"
 #mkdir -p "${OUTPUT_DIR}"
+
+exit 1
 
 cd ZipBuilder
 swift run ReleasePackager -keepBuildArtifacts true -updatePodRepo true \
