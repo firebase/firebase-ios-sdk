@@ -544,7 +544,11 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
 # pragma mark - Database
 
 - (NSString *)pathForDatabase {
-  NSString *dbNameWithExtension = [NSString stringWithFormat:@"%@.sqlite", _databaseName];
+  return [[self class] pathForDatabaseWithName:_databaseName];
+}
+
++ (NSString *)pathForDatabaseWithName:(NSString *)databaseName {
+  NSString *dbNameWithExtension = [NSString stringWithFormat:@"%@.sqlite", databaseName];
   NSArray *paths = NSSearchPathForDirectoriesInDomains(FIRMessagingSupportedDirectory(),
                                                   NSUserDomainMask,
                                                   YES);
@@ -853,4 +857,9 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
   [self logError];
   sqlite3_finalize(stmt);
 }
+
+- (dispatch_queue_t)databaseOperationQueue {
+  return _databaseOperationQueue;
+}
+
 @end

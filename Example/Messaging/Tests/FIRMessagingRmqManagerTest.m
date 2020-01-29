@@ -16,6 +16,10 @@
 
 #import <XCTest/XCTest.h>
 
+#import <OCMock/OCMock.h>
+
+#import "FIRTestsAssertionHandler.h"
+
 #import "Firebase/Messaging/FIRMessagingPersistentSyncMessage.h"
 #import "Firebase/Messaging/FIRMessagingRmqManager.h"
 #import "Firebase/Messaging/FIRMessagingUtilities.h"
@@ -28,12 +32,15 @@ static const NSTimeInterval kAsyncTestTimout = 0.5;
 @interface FIRMessagingRmqManager (ExposedForTest)
 
 - (void)removeDatabase;
+- (dispatch_queue_t)databaseOperationQueue;
 
 @end
 
 @interface FIRMessagingRmqManagerTest : XCTestCase
 
 @property(nonatomic, readwrite, strong) FIRMessagingRmqManager *rmqManager;
+@property(nonatomic, strong) id assertionHandlerMock;
+@property(nonatomic, strong) FIRTestsAssertionHandler *testAssertionHandler;
 
 @end
 
@@ -41,13 +48,23 @@ static const NSTimeInterval kAsyncTestTimout = 0.5;
 
 - (void)setUp {
   [super setUp];
+
+  self.testAssertionHandler = [[FIRTestsAssertionHandler alloc] init];
+  self.assertionHandlerMock = OCMClassMock([NSAssertionHandler class]);
+  OCMStub([self.assertionHandlerMock currentHandler]).andReturn(self.testAssertionHandler);
+
   // Make sure we start off with a clean state each time
   _rmqManager = [[FIRMessagingRmqManager alloc] initWithDatabaseName:kRmqDatabaseName];
-
 }
 
 - (void)tearDown {
   [self.rmqManager removeDatabase];
+  [self drainDatabaseQueueForManager:self.rmqManager];
+
+  [self.assertionHandlerMock stopMocking];
+  self.assertionHandlerMock = nil;
+  self.testAssertionHandler = nil;
+
   [super tearDown];
 }
 
@@ -302,6 +319,33 @@ static const NSTimeInterval kAsyncTestTimout = 0.5;
   XCTAssertNil([self.rmqManager querySyncMessageWithRmqID:rmqID]);
 }
 
+- (void)testInitWhenDatabaseIsBrokenThenDatabaseIsDeleted {
+  NSString *databaseName = @"invalid-database-file";
+  NSString *databasePath = [self createBrokenDatabaseWithName:databaseName];
+  XCTAssert([[NSFileManager defaultManager] fileExistsAtPath:databasePath]);
+
+  XCTestExpectation *assertionFailureExpectation = [self expectationWithDescription:@"assertionFailureExpectation"];
+  // Expect for at least one assertion.
+  assertionFailureExpectation.assertForOverFulfill = NO;
+
+  [self.testAssertionHandler setMethodFailureHandlerForClass:[FIRMessagingRmqManager class] handler:^(id object, NSInteger lineNumber) {
+    [assertionFailureExpectation fulfill];
+
+    [self.testAssertionHandler setMethodFailureHandlerForClass:[FIRMessagingRmqManager class] handler:^(id object, NSInteger lineNumber){}];
+  }];
+
+  FIRMessagingRmqManager *manager = [[FIRMessagingRmqManager alloc] initWithDatabaseName:databaseName];
+  [self addTeardownBlock:^{
+    [self drainDatabaseQueueForManager:manager];
+  }];
+
+  [self waitForExpectations:@[ assertionFailureExpectation ] timeout:0.5];
+
+  [self drainDatabaseQueueForManager:manager];
+
+  XCTAssertFalse([[NSFileManager defaultManager] fileExistsAtPath:databasePath]);
+}
+
 #pragma mark - Private Helpers
 
 - (GtalkDataMessageStanza *)dataMessageWithMessageID:(NSString *)messageID
@@ -321,6 +365,32 @@ static const NSTimeInterval kAsyncTestTimout = 0.5;
   }
 
   return stanza;
+}
+
+- (NSString *)createBrokenDatabaseWithName:(NSString *)name {
+  NSString *databasePath = [FIRMessagingRmqManager pathForDatabaseWithName:name];
+  NSMutableArray *pathComponents = [[databasePath pathComponents] mutableCopy];
+  [pathComponents removeLastObject];
+  NSString *directoryPath = [NSString pathWithComponents:pathComponents];
+
+  // Create directory if doesn't exist.
+  [[NSFileManager defaultManager] createDirectoryAtPath:directoryPath withIntermediateDirectories:YES attributes:nil error:NULL];
+  // Remove the file if exists.
+  [[NSFileManager defaultManager] removeItemAtPath:databasePath error:NULL];
+
+  NSData *brokenDBFileContent = [@"not a valid DB" dataUsingEncoding:NSUTF8StringEncoding];
+  [brokenDBFileContent writeToFile:databasePath atomically:YES];
+
+  XCTAssertEqualObjects([NSData dataWithContentsOfFile:databasePath], brokenDBFileContent);
+  return databasePath;
+}
+
+- (void)drainDatabaseQueueForManager:(FIRMessagingRmqManager *)manager {
+  XCTestExpectation *drainDatabaseQueueExpectation = [self expectationWithDescription:@"drainDatabaseQueue"];
+  dispatch_async([manager databaseOperationQueue], ^{
+    [drainDatabaseQueueExpectation fulfill];
+  });
+  [self waitForExpectations:@[drainDatabaseQueueExpectation] timeout:1.5];
 }
 
 @end
