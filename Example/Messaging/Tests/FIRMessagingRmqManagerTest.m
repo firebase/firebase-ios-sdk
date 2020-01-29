@@ -336,9 +336,6 @@ static const NSTimeInterval kAsyncTestTimout = 0.5;
 
   // Create `FIRMessagingRmqManager` instance with a broken database.
   FIRMessagingRmqManager *manager = [[FIRMessagingRmqManager alloc] initWithDatabaseName:databaseName];
-  [self addTeardownBlock:^{
-    [self waitForDrainDatabaseQueueForRmqManager:manager];
-  }];
 
   [self waitForExpectations:@[ assertionFailureExpectation ] timeout:0.5];
 
