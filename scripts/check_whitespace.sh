@@ -26,6 +26,7 @@ options=(
 )
 
 git grep "${options[@]}" -- \
+    ':(exclude)Crashlytics/ProtoSupport' \
     ':(exclude)Firebase/CoreDiagnostics/FIRCDLibrary/Protogen/nanopb' \
     ':(exclude)Firebase/CoreDiagnostics/ProtoSupport' \
     ':(exclude)CoreOnly/NOTICES' \

@@ -1,0 +1,284 @@
+// Copyright 2020 Google
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package google_crashlytics;
+
+message Session {
+  // Known processor architecture types
+  // No default, due to backwards compat
+  enum Architecture {
+    X86_32 = 0;
+    X86_64 = 1;
+    ARM_UNKNOWN = 2;
+    ARMV6 = 5;
+    ARMV7 = 6;
+    UNKNOWN = 7;
+    ARMV7S = 8;
+    ARM64 = 9;
+    X86_64H = 10;
+    ARMV7K = 11;
+    ARM64E = 12;
+  }
+
+  enum Platform {
+    MAC_OS_X = 0;
+    IPHONE_OS = 1;
+    IPHONE_SIMULATOR = 2;
+    TVOS = 7;
+    WATCHOS = 8;
+    OTHER = 1000;
+  }
+
+  // SDK responsible for generating the session
+  // No default due to backwards compat
+  enum GeneratorType {
+    UNKNOWN_GENERATOR = 0;
+    IOS_SDK = 1;
+    MACOS_SDK = 2;
+    WATCHOS_SDK = 5;
+    TVOS_SDK = 6;
+  }
+
+  // SDK version that generated this session
+  string generator = 1;
+
+  // GUID-style client-assigned unique session identifier
+  bytes identifier = 2;
+
+  // Session start time, by device clock, in posix seconds since epoch, UTC
+  uint64 started_at = 3;
+
+  // Session end time, by device clock, in posix seconds since epoch, UTC
+  uint64 ended_at = 4;
+
+  // Indicates that a device session ended unexpectedly
+  bool crashed = 5;
+
+  // SDK responsible for generating the session
+  GeneratorType generator_type = 12;
+
+  // Developer-supplied user-identifiying fields
+  message User {
+    string identifier = 1;
+  }
+
+  User user = 6;
+
+  // Constant properties and identifiers for the running application
+  message Application {
+    // An app's bundle id, eg "com.crashlytics.mac"
+    string identifier = 1;
+
+    // Monotonically increasing build version, 1,2,3... as a string
+    string version = 2;
+
+    // Developer-supplied application version string, from XCode project, etc.
+    string display_version = 3;
+
+    // Unique device generated guid for application install
+    string installation_uuid = 6;
+
+    // Platform e.g. "Unity"
+    string development_platform = 8;
+
+    // Dev platform-specific version
+    string development_platform_version = 9;
+
+    // Customer organization record
+    message Organization {
+      // Crashlytics supplied api key
+      string api_key = 1;
+    }
+    Organization organization = 5;
+  }  // message Application
+
+  Application app = 7;
+
+  message OperatingSystem {
+    Platform platform = 1;
+
+    string version = 2;
+
+    string build_version = 3;
+
+    bool jailbroken = 4;
+  }
+  OperatingSystem os = 8;
+
+  message Device {
+    Architecture arch = 3;
+
+    string model = 4;
+
+    uint64 ram = 6;
+
+    uint64 disk_space = 7;
+
+    string language = 9;
+  }  // message Device
+
+  Device device = 9;
+
+  message Event {
+    // Event timestamp, from device clock, as posix seconds UTC
+    uint64 timestamp = 1;
+
+    // Event type, one of "crash", "ndk-crash", "error"
+    string type = 2;
+
+    // Application state captured at event time
+    message Application {
+      message Execution {
+        // Thread state
+        message Thread {
+          // Thread name from OS
+          string name = 1;
+
+          // Bitfield of FrameImportance
+          uint32 importance = 2;
+
+          // Contents of each stack frame
+          message Frame {
+            uint64 pc = 1;
+            string symbol = 2;                // On macOS
+            uint64 offset = 4;                // On macOS
+
+            // Bitfield of FrameImportance
+            uint32 importance = 5;
+          }
+          repeated Frame frames = 3;
+
+          message Register {
+            string name = 1;
+            uint64 value = 2;
+          }
+          repeated Register registers = 4;
+
+          string alternate_name = 5;          // On macOS
+          string objc_selector_name = 6;
+        }  // message Application.Execution.Thread
+
+        repeated Thread threads = 1;
+
+        // Signal caught by SDK signal handler
+        message Signal {
+          string name = 1;
+
+          string code = 2;
+
+          // Faulting instruction or address
+          uint64 address = 3;
+        }
+        Signal signal = 3;
+
+        // Binary images/libraries included in the application package
+        message BinaryImage {
+          uint64 base_address = 1;
+          uint64 size = 2;
+
+          // Full path name to binary image
+          string name = 3;
+
+          // 128-bit object UUID matches Mach-O DWARF dSYM files
+          bytes uuid = 4;
+
+          Architecture arch = 5;
+        }
+        repeated BinaryImage binaries = 4;
+      }  // message Application.Execution
+
+      repeated CustomAttribute custom_attributes = 2;
+
+      // true if the app was in the background
+      bool background = 3;
+
+      uint32 ui_orientation = 4;
+    }  // message Event.Application
+
+    Application app = 3;
+
+    // Device physical properties recorded at event time
+    message Device {
+      // Battery level from 0.0 to 1.0
+      float battery_level = 1;
+
+      // True when the proximity sensor is activated during the event
+      bool proximity_on = 3;
+
+      // Device orientation during event
+      // 1,2 = portrait
+      // 3,4 = landscape
+      // 5 = face up
+      // 6 = face down
+      uint32 orientation = 4;
+
+      // Total RAM used at event time, in bytes
+      uint64 ram_used = 5;
+
+      // Total disk used at event time, in bytes
+      uint64 disk_used = 6;
+    }
+
+    Device device = 5;
+
+    // Developer-supplied log lines
+    // Only those lines most recently logged prior to the event are captured
+    message Log {
+      string content = 1;
+    }
+
+    Log log = 6;
+  }  // message Event
+  repeated Event events = 10;
+}
+
+// Map entry for developer-supplied custom attribute/value pairs
+message CustomAttribute {
+
+  string key = 1;
+
+  string value = 2;
+}
+
+message Report {
+  // SDK version that generated this session
+  string sdk_version = 1;
+
+  // GMP App ID
+  string gmp_app_id = 3;
+
+  // General device type which generated the Event
+  Session.Platform platform = 4;
+
+  // Unique device generated guid for application install. Equivalent to
+  // Session.app.installation_uuid
+  string installation_uuid = 5;
+
+  // App build version. Equivalent to Session.app.version.
+  string build_version = 6;
+
+  // Developer-supplied application version. Equivalent to
+  // Session.app.display_version.
+  string display_version = 7;
+
+  // We store the actual crash information in a separate field for each client
+  // type. This is a temporary measure until we've come up with a generic
+  // cross-platform format.
+  message payload {
+    // Session data for Android Java or iOS
+    Session session = 8;
+  }
+}
