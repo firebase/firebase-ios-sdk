@@ -57,7 +57,7 @@ Pod::Spec.new do |s|
     'GCC_PREPROCESSOR_DEFINITIONS' =>
       'DISPLAY_VERSION=' + s.version.to_s + ' ' +
       'CLS_SDK_NAME="Crashlytics iOS SDK" ' +
-      # For GoogleDataTransport:
+      # For nanopb:
       'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',
     'OTHER_LD_FLAGS' => '$(inherited) -sectcreate __TEXT __info_plist'
   }
@@ -67,7 +67,7 @@ Pod::Spec.new do |s|
     'GCC_PREPROCESSOR_DEFINITIONS' =>
       'DISPLAY_VERSION=' + s.version.to_s + ' ' +
       'CLS_SDK_NAME="Crashlytics Mac SDK" ' +
-      # For GoogleDataTransport:
+      # For nanopb:
       'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',
     'OTHER_LD_FLAGS' => '$(inherited) -sectcreate __TEXT __info_plist'
   }
@@ -77,7 +77,7 @@ Pod::Spec.new do |s|
     'GCC_PREPROCESSOR_DEFINITIONS' =>
       'DISPLAY_VERSION=' + s.version.to_s + ' ' +
       'CLS_SDK_NAME="Crashlytics tvOS SDK" ' +
-      # For GoogleDataTransport:
+      # For nanopb:
       'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',
     'OTHER_LD_FLAGS' => '$(inherited) -sectcreate __TEXT __info_plist'
   }
