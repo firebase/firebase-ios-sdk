@@ -35,7 +35,7 @@
 }
 
 - (NSString*)pathForResource:(NSString*)name {
-  return [[self resourcePath] stringByAppendingPathComponent:name];
+  return [[self resourcePath]  stringByAppendingPathComponent:name];
 }
 
 - (void)testLoadingBinaryImagesWithInvalidFile {

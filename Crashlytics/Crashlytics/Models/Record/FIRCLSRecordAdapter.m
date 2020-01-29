@@ -15,39 +15,10 @@
  */
 
 #import "FIRCLSRecordAdapter.h"
+#import "FIRCLSRecordAdapter_Private.h"
 
 #import "FIRCLSInternalReport.h"
 #import "FIRCLSLogger.h"
-#import "FIRCLSRecordApplication.h"
-#import "FIRCLSRecordBinaryImage.h"
-#import "FIRCLSRecordExecutable.h"
-#import "FIRCLSRecordHost.h"
-#import "FIRCLSRecordIdentity.h"
-#import "FIRCLSRecordKeyValue.h"
-#import "FIRCLSRecordProcessStats.h"
-#import "FIRCLSRecordRegister.h"
-#import "FIRCLSRecordRuntime.h"
-#import "FIRCLSRecordSignal.h"
-#import "FIRCLSRecordStorage.h"
-#import "FIRCLSRecordThread.h"
-
-@interface FIRCLSRecordAdapter ()
-
-@property(nonatomic, strong) NSString *folderPath;
-
-@property(nonatomic, strong) FIRCLSRecordSignal *signal;
-@property(nonatomic, strong) NSArray<FIRCLSRecordThread *> *threads;
-@property(nonatomic, strong) FIRCLSRecordProcessStats *processStats;
-@property(nonatomic, strong) FIRCLSRecordStorage *storage;
-@property(nonatomic, strong) NSArray<FIRCLSRecordBinaryImage *> *binaryImages;
-@property(nonatomic, strong) FIRCLSRecordRuntime *runtime;
-@property(nonatomic, strong) FIRCLSRecordIdentity *identity;
-@property(nonatomic, strong) FIRCLSRecordHost *host;
-@property(nonatomic, strong) FIRCLSRecordApplication *application;
-@property(nonatomic, strong) FIRCLSRecordExecutable *executable;
-@property(nonatomic, strong) NSArray<FIRCLSRecordKeyValue *> *keyValues;
-
-@end
 
 @implementation FIRCLSRecordAdapter
 
