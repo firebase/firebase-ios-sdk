@@ -57,8 +57,9 @@ const static int64_t kMillisPerDay = 8.64e+7;
   });
 }
 
-- (GDTCORUploadPackage *)uploadPackageWithConditions:(GDTCORUploadConditions)conditions {
-  GDTCORUploadPackage *package = [[GDTCORUploadPackage alloc] initWithTarget:kGDTCORTargetCCT];
+- (GDTCORUploadPackage *)uploadPackageWithTarget:(GDTCORTarget)target
+                                      conditions:(GDTCORUploadConditions)conditions {
+  GDTCORUploadPackage *package = [[GDTCORUploadPackage alloc] initWithTarget:target];
   dispatch_sync(_queue, ^{
     NSSet<GDTCORStoredEvent *> *logEventsThatWillBeSent;
     // A high priority event effectively flushes all events to be sent.
