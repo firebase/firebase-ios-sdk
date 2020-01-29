@@ -358,7 +358,7 @@ endfunction()
 function(objc_test target)
   if(APPLE)
     set(flag EXCLUDE_FROM_ALL)
-    set(single HOST VERSION)
+    set(single HOST VERSION WORKING_DIRECTORY)
     set(multi DEPENDS DEFINES HEADERS INCLUDES SOURCES)
     cmake_parse_arguments(ot "${flag}" "${single}" "${multi}" ${ARGN})
 
@@ -383,6 +383,13 @@ function(objc_test target)
       ${target}
       ${target}
     )
+
+    if(ot_WORKING_DIRECTORY)
+      set_property(
+        TEST ${target} PROPERTY
+        WORKING_DIRECTORY ${ot_WORKING_DIRECTORY}
+      )
+    endif()
 
     if(APPLE AND WITH_ASAN)
       set_property(
