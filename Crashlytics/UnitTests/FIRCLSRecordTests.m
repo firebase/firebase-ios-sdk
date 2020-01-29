@@ -32,23 +32,11 @@
 #import "FIRCLSRecordStorage.h"
 #import "FIRCLSRecordThread.h"
 
-//@interface FIRCLSURLBuilder (Testing)
-//- (NSString *)escapeString:(NSString *)string;
-//@end
-
 @interface FIRCLSRecordTests : XCTestCase
 
 @end
 
 @implementation FIRCLSRecordTests
-
-- (void)setUp {
-  [super setUp];
-}
-
-- (void)tearDown {
-  [super tearDown];
-}
 
 /// It is important that crashes do not occur when reading persisted crash files before uploading
 /// Verify various invalid input cases
