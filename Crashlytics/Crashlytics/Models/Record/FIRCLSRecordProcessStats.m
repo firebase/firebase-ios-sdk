@@ -28,7 +28,7 @@
     _virtualAddress = [dict[@"virtual"] unsignedIntegerValue];
     _resident = [dict[@"resident"] unsignedIntegerValue];
     _user_time = [dict[@"user_time"] unsignedIntegerValue];
-    _sys_time = [dict[@"user_time"] unsignedIntegerValue];
+    _sys_time = [dict[@"sys_time"] unsignedIntegerValue];
   }
   return self;
 }

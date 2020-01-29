@@ -36,13 +36,13 @@
 }
 
 - (void)loadBinaryImagesFile {
-  NSString *path = [self.folderPath stringByAppendingPathComponent:CLSReportBinaryImageFile];
+  NSString *path = [self.folderPath stringByAppendingPathComponent:FIRCLSReportBinaryImageFile];
   self.binaryImages = [FIRCLSRecordBinaryImage
       binaryImagesFromDictionaries:[FIRCLSRecordAdapter dictionariesFromEachLineOfFile:path]];
 }
 
 - (void)loadMetaDataFile {
-  NSString *path = [self.folderPath stringByAppendingPathComponent:CLSReportMetadataFile];
+  NSString *path = [self.folderPath stringByAppendingPathComponent:FIRCLSReportMetadataFile];
   NSDictionary *dict = [FIRCLSRecordAdapter combinedDictionariesFromFilePath:path];
 
   self.identity = [[FIRCLSRecordIdentity alloc] initWithDict:dict[@"identity"]];
@@ -52,7 +52,7 @@
 }
 
 - (void)loadSignalFile {
-  NSString *path = [self.folderPath stringByAppendingPathComponent:CLSReportSignalFile];
+  NSString *path = [self.folderPath stringByAppendingPathComponent:FIRCLSReportSignalFile];
   NSDictionary *dicts = [FIRCLSRecordAdapter combinedDictionariesFromFilePath:path];
 
   self.signal = [[FIRCLSRecordSignal alloc] initWithDict:dicts[@"signal"]];
@@ -62,13 +62,14 @@
 
   // The thread's objc_selector_name is set with the runtime's info
   self.threads = [FIRCLSRecordThread threadsFromDictionaries:dicts[@"threads"]
-                                                   withNames:dicts[@"thread_names"]
+                                             withThreadNames:dicts[@"thread_names"]
+                                      withDispatchQueueNames:dicts[@"dispatch_queue_names"]
                                                  withRuntime:self.runtime];
 }
 
 - (void)loadKeyValuesFile {
   NSString *path =
-      [self.folderPath stringByAppendingPathComponent:CLSReportInternalIncrementalKVFile];
+      [self.folderPath stringByAppendingPathComponent:FIRCLSReportInternalIncrementalKVFile];
   self.keyValues = [FIRCLSRecordKeyValue
       keyValuesFromDictionaries:[FIRCLSRecordAdapter dictionariesFromEachLineOfFile:path]];
 }

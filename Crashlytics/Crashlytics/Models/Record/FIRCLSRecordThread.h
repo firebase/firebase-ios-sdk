@@ -31,10 +31,12 @@
 
 /// Aggregate data and returns a collection of populated threads
 /// @param threads Array of thread dictionaries
-/// @param names Array of thread name strings
+/// @param names Array of thread names
+/// @param dispatchNames Array of dispatch queue names
 /// @param runtime Runtime object
-+ (NSArray<FIRCLSRecordThread *> *)threadsFromDictionaries:(NSArray *)threads
-                                                 withNames:(NSArray *)names
++ (NSArray<FIRCLSRecordThread *> *)threadsFromDictionaries:(NSArray<NSDictionary *> *)threads
+                                           withThreadNames:(NSArray<NSString *> *)names
+                                    withDispatchQueueNames:(NSArray<NSString *> *)dispatchNames
                                                withRuntime:(FIRCLSRecordRuntime *)runtime;
 
 @end
