@@ -56,7 +56,7 @@ FOUNDATION_EXPORT GDTCORAssertionBlock _Nullable GDTCORAssertionBlockToRunInstea
         __PRAGMA_PUSH_NO_EXTRA_ARG_WARNINGS                                                      \
         NSString *__assert_file__ = [NSString stringWithUTF8String:__FILE__];                    \
         __assert_file__ = __assert_file__ ? __assert_file__ : @"<Unknown File>";                 \
-        GDTCORLogError(GDTCORMCEGeneralError, @"Assertion failed (%@:%d): %s,", __assert_file__, \
+        GDTCORLogError(GDTCORMCEGeneralError, @"Assertion failed (%@:%d): %@,", __assert_file__, \
                        __LINE__, ##__VA_ARGS__);                                                 \
         __PRAGMA_POP_NO_EXTRA_ARG_WARNINGS                                                       \
       }                                                                                          \
@@ -77,7 +77,7 @@ FOUNDATION_EXPORT GDTCORAssertionBlock _Nullable GDTCORAssertionBlockToRunInstea
       GDTCORLogError(GDTCORMCEFatalAssertion,                                           \
                      @"Fatal assertion encountered, please open an issue at "           \
                       "https://github.com/firebase/firebase-ios-sdk/issues "            \
-                      "(%@:%d): %s,",                                                   \
+                      "(%@:%d): %@,",                                                   \
                      __assert_file__, __LINE__, ##__VA_ARGS__);                         \
       [[NSAssertionHandler currentHandler] handleFailureInMethod:_cmd                   \
                                                           object:self                   \

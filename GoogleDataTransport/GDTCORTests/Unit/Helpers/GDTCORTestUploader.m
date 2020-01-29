@@ -26,7 +26,7 @@
   }
 }
 
-- (BOOL)readyToUploadWithConditions:(GDTCORUploadConditions)conditions {
+- (BOOL)readyToUploadTarget:(GDTCORTarget)target conditions:(GDTCORUploadConditions)conditions {
   return YES;
 }
 
