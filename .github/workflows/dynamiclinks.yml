@@ -3,9 +3,7 @@ name: dynamiclinks
 on:
   pull_request:
     paths:
-    - 'Firebase/DynamicLinks**'
     - 'FirebaseDynamicLinks**'
-    - 'Example/DynamicLinks**'
     - '.github/workflows/dynamiclinks.yml'
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times
