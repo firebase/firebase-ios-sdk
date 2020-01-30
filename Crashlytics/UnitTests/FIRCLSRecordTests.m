@@ -43,7 +43,8 @@
 /// It is important that crashes do not occur when reading persisted crash files before uploading
 /// Verify various invalid input cases
 - (void)testInvalidRecordCases {
-  id adapter __unused = [[FIRCLSRecordAdapter alloc] initWithPath:@"nonExistentPath"];
+  id adapter __unused = [[FIRCLSRecordAdapter alloc] initWithPath:@"nonExistentPath"
+                                                  withGoogleAppId:@"appID"];
 
   id application __unused = [[FIRCLSRecordApplication alloc] initWithDict:nil];
   id base __unused = [[FIRCLSRecordBase alloc] initWithDict:nil];
@@ -81,12 +82,12 @@
 /// Verify various invalid input cases
 - (void)testCorruptRecordCases {
   id adapter __unused =
-      [[FIRCLSRecordAdapter alloc] initWithPath:[FIRCLSRecordTests corruptedCrashFolder]];
+      [[FIRCLSRecordAdapter alloc] initWithPath:[FIRCLSRecordTests corruptedCrashFolder] withGoogleAppId:@"appID"];
 }
 
 - (void)testRecordBinaryImagesFile {
   FIRCLSRecordAdapter *adapter =
-      [[FIRCLSRecordAdapter alloc] initWithPath:[FIRCLSRecordTests persistedCrashFolder]];
+      [[FIRCLSRecordAdapter alloc] initWithPath:[FIRCLSRecordTests persistedCrashFolder] withGoogleAppId:@"appID"];
   XCTAssertEqual(adapter.binaryImages.count, 453);
 
   // Verify first binary
@@ -111,7 +112,7 @@
 
 - (void)testRecordMetadataFile {
   FIRCLSRecordAdapter *adapter =
-      [[FIRCLSRecordAdapter alloc] initWithPath:[FIRCLSRecordTests persistedCrashFolder]];
+      [[FIRCLSRecordAdapter alloc] initWithPath:[FIRCLSRecordTests persistedCrashFolder] withGoogleAppId:@"appID"];
 
   // Verify identity
   XCTAssertTrue([adapter.identity.generator isEqualToString:@"Crashlytics iOS SDK/4.0.0-beta.1"]);
@@ -145,7 +146,7 @@
 
 - (void)testRecordKeyValueFile {
   FIRCLSRecordAdapter *adapter =
-      [[FIRCLSRecordAdapter alloc] initWithPath:[FIRCLSRecordTests persistedCrashFolder]];
+      [[FIRCLSRecordAdapter alloc] initWithPath:[FIRCLSRecordTests persistedCrashFolder]  withGoogleAppId:@"appID"];
   XCTAssertEqual(adapter.keyValues.count, 6);
 
   // Verify first
@@ -158,7 +159,7 @@
 
 - (void)testRecordSignalFile {
   FIRCLSRecordAdapter *adapter =
-      [[FIRCLSRecordAdapter alloc] initWithPath:[FIRCLSRecordTests persistedCrashFolder]];
+      [[FIRCLSRecordAdapter alloc] initWithPath:[FIRCLSRecordTests persistedCrashFolder]  withGoogleAppId:@"appID"];
 
   // Verify signal
   XCTAssertEqual(adapter.signal.number, 6);
@@ -214,14 +215,14 @@
 
 - (void)testProtoReport {
   FIRCLSRecordAdapter *adapter =
-      [[FIRCLSRecordAdapter alloc] initWithPath:[FIRCLSRecordTests persistedCrashFolder]];
-  google_crashlytics_Report report = [adapter protoReportWithGoogleAppID:@"someGoogleAppId"];
+      [[FIRCLSRecordAdapter alloc] initWithPath:[FIRCLSRecordTests persistedCrashFolder] withGoogleAppId:@"appID"];
+  __unused NSData *report = [adapter transportBytes];
 }
 
 - (void)testProtoReportFromCorruptFiles {
   FIRCLSRecordAdapter *adapter =
-      [[FIRCLSRecordAdapter alloc] initWithPath:[FIRCLSRecordTests corruptedCrashFolder]];
-  google_crashlytics_Report report = [adapter protoReportWithGoogleAppID:@"someGoogleAppId"];
+      [[FIRCLSRecordAdapter alloc] initWithPath:[FIRCLSRecordTests corruptedCrashFolder] withGoogleAppId:@"appID"];
+  __unused NSData *report = [adapter transportBytes];
 }
 
 // Helper functions

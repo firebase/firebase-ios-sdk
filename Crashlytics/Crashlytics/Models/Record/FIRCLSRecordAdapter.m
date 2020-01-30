@@ -22,17 +22,25 @@
 
 #import "FIRCLSUserLogging.h"
 
+#import <nanopb/pb.h>
+#import <nanopb/pb_decode.h>
+#import <nanopb/pb_encode.h>
+
+// [TODO]: Rename to FIRCLSReportAdapter
 @implementation FIRCLSRecordAdapter
 
-- (instancetype)initWithPath:(NSString *)folderPath {
+- (instancetype)initWithPath:(NSString *)folderPath withGoogleAppId:googleAppID {
   self = [super init];
   if (self) {
     _folderPath = folderPath;
+    _googleAppID = googleAppID;
 
     [self loadBinaryImagesFile];
     [self loadMetaDataFile];
     [self loadSignalFile];
     [self loadKeyValuesFile];
+      
+    _report = [self protoReport];
   }
   return self;
 }
@@ -125,13 +133,43 @@
 }
 
 //
+// MARK: GDTCOREventDataObject
+//
+
+// Provided and required by the GDTCOREventDataObject protocol.
+- (NSData *)transportBytes {
+  pb_ostream_t sizestream = PB_OSTREAM_SIZING;
+
+  // Encode 1 time to determine the size.
+  if (!pb_encode(&sizestream, google_crashlytics_Report_fields, &_report)) {
+    FIRCLSErrorLog(@"Error in nanopb encoding for size: %s", PB_GET_ERROR(&sizestream));
+  }
+
+  // Encode a 2nd time to actually get the bytes from it.
+  size_t bufferSize = sizestream.bytes_written;
+  CFMutableDataRef dataRef = CFDataCreateMutable(CFAllocatorGetDefault(), bufferSize);
+  pb_ostream_t ostream = pb_ostream_from_buffer((void *)CFDataGetBytePtr(dataRef), bufferSize);
+  if (!pb_encode(&ostream, google_crashlytics_Report_fields, &_report)) {
+    FIRCLSErrorLog(@"Error in nanopb encoding for bytes: %s", PB_GET_ERROR(&ostream));
+  }
+  CFDataSetLength(dataRef, ostream.bytes_written);
+
+  return CFBridgingRelease(dataRef);
+}
+
+- (void)dealloc {
+  // [TODO]: Have to manually traverse this struct to free up memory?
+  pb_release(google_crashlytics_Report_fields, &_report);
+}
+
+//
 // MARK: NanoPB conversions
 //
 
-- (google_crashlytics_Report)protoReportWithGoogleAppID:(NSString *)googleAppID {
+- (google_crashlytics_Report)protoReport {
   google_crashlytics_Report report = google_crashlytics_Report_init_default;
   report.sdk_version = FIRCLSEncodeString(self.identity.build_version);
-  report.gmp_app_id = FIRCLSEncodeString(googleAppID);
+  report.gmp_app_id = FIRCLSEncodeString(self.googleAppID);
   report.platform = [self protoPlatformFromString:self.host.platform];
   report.installation_uuid = FIRCLSEncodeString(self.identity.install_id);
   report.build_version = FIRCLSEncodeString(self.application.build_version);
@@ -148,20 +186,19 @@
   session.started_at = self.identity.started_at;
   session.ended_at = self.signal.time;
   session.crashed = [self hasCrashed];
+  session.app = [self protoSessionApplication];
+  session.os = [self protoOperatingSystem];
+  session.device = [self protoSessionDevice];
+  session.generator_type = [self protoGeneratorTypeFromString:self.host.platform];
 
   NSString *userId = self.keyValues[FIRCLSUserIdentifierKey];
   if (userId) {
     session.user = [self protoUserWithId:userId];
   }
 
-  session.app = [self protoSessionApplication];
-  session.os = [self protoOperatingSystem];
-  session.device = [self protoSessionDevice];
-
+  // [TODO]: Handle permutations for fatals, non-fatals
   session.events = [self protoEvents];
-  session.events_count = 1;  // [TODO]: Handle permutations for fatals, non-fatals
-
-  session.generator_type = [self protoGeneratorTypeFromString:self.host.platform];
+  session.events_count = 1;
 
   return session;
 }
@@ -204,7 +241,7 @@
   google_crashlytics_Session_Event *events = malloc(sizeof(google_crashlytics_Session_Event) * 1);
 
   // TODO:
-  // 1. Verify assumption that only one crash event happends per report
+  // 1. Verify assumption that only one crash event per report
   // 2. Handle reports with 0 crashes
   // 3. Add events for non-fatal errors
   events[0] = [self protoCrashEvent];
@@ -217,9 +254,8 @@
   crash.timestamp = self.signal.time;
   crash.type = FIRCLSEncodeString(@"crashed");
   crash.app = [self protoEventApplication];
+  crash.device = [self protoEventDevice];
 
-    //    crash.device
-    
   // [TODO] Add logic to parse and set user defined logs (crash.log)
 
   return crash;
@@ -262,7 +298,7 @@
     thread.frames_count = (pb_size_t)array[i].stacktrace.count;
 
     thread.registers = [self protoRegistersWithArray:array[i].registers];
-    thread.registers_count = (pb_size_t)array[i].registers;
+    thread.registers_count = (pb_size_t)array[i].registers.count;
 
     threads[i] = thread;
   }
@@ -335,10 +371,11 @@
 }
 
 - (google_crashlytics_Session_Event_Device)protoEventDevice {
-  google_crashlytics_Session_Event_Device device = google_crashlytics_Session_Event_Device_init_default;
-    device.orientation = [self deviceOrientation];
-    device.ram_used = [self ramUsed];
-    device.disk_used = self.storage.total - self.storage.free;
+  google_crashlytics_Session_Event_Device device =
+      google_crashlytics_Session_Event_Device_init_default;
+  device.orientation = [self deviceOrientation];
+  device.ram_used = [self ramUsed];
+  device.disk_used = self.storage.total - self.storage.free;
   return device;
 }
 
@@ -419,7 +456,7 @@ pb_bytes_array_t *FIRCLSEncodeData(NSData *data) {
 }
 
 //
-// MARK: Helper functions
+// MARK: Report helper functions
 //
 
 - (BOOL)wasInBackground {
@@ -445,7 +482,7 @@ pb_bytes_array_t *FIRCLSEncodeData(NSData *data) {
 }
 
 - (NSUInteger)ramUsed {
-    return     self.processStats.active + self.processStats.inactive + self.processStats.wired;
+  return self.processStats.active + self.processStats.inactive + self.processStats.wired;
 }
 
 - (BOOL)isJailbroken {

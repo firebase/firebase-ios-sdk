@@ -18,20 +18,18 @@
 
 #include "crashlytics.nanopb.h"
 
+#import <GoogleDataTransport/GDTCOREventDataObject.h>
+
 /**
  * The class will be responsible for aggregating the data from the persisted crash files
  * and returning a report object used for FireLog.
  **/
-@interface FIRCLSRecordAdapter : NSObject
+@interface FIRCLSRecordAdapter : NSObject <GDTCOREventDataObject>
 
 - (instancetype)init NS_UNAVAILABLE;
 
 /// Initializer
 /// @param folderPath Path where the persisted crash files reside
-- (instancetype)initWithPath:(NSString *)folderPath;
-
-/// Get report in nanopb format
-/// @param googleAppID Google app id
-- (google_crashlytics_Report)protoReportWithGoogleAppID:(NSString *)googleAppID;
+- (instancetype)initWithPath:(NSString *)folderPath withGoogleAppId:googleAppID;
 
 @end

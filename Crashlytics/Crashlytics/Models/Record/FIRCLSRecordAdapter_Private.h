@@ -32,6 +32,7 @@
 @interface FIRCLSRecordAdapter ()
 
 @property(nonatomic, strong) NSString *folderPath;
+@property(nonatomic, strong) NSString *googleAppID;
 
 @property(nonatomic, strong) FIRCLSRecordSignal *signal;
 @property(nonatomic, strong) NSArray<FIRCLSRecordThread *> *threads;
@@ -44,5 +45,7 @@
 @property(nonatomic, strong) FIRCLSRecordApplication *application;
 @property(nonatomic, strong) FIRCLSRecordExecutable *executable;
 @property(nonatomic, strong) NSDictionary<NSString *, NSString *> *keyValues;
+
+@property(nonatomic) google_crashlytics_Report report;
 
 @end
