@@ -49,6 +49,7 @@ jobs:
   datatransport-use-libraries:
     runs-on: macos-latest
     if: github.event_name == 'schedule'
+    needs: [datatransport-ios, datatransport-mac, datatransport-tvos]
     steps:
     - uses: actions/checkout@v1
     - name: Setup Bundler
@@ -69,6 +70,7 @@ jobs:
   datatransport-use-modular-headers:
     runs-on: macos-latest
     if: github.event_name == 'schedule'
+    needs: [datatransport-ios, datatransport-mac, datatransport-tvos]
     steps:
     - uses: actions/checkout@v1
     - name: Setup Bundler
