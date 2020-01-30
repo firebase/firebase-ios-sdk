@@ -22,6 +22,7 @@ enum Architecture: String, CaseIterable {
   enum TargetPlatform: String {
     case device = "iphoneos"
     case simulator = "iphonesimulator"
+    case catalyst = "macosx"
 
     /// Extra C flags that should be included as part of the build process for each target platform.
     func otherCFlags() -> [String] {
@@ -32,21 +33,24 @@ enum Architecture: String, CaseIterable {
       case .simulator:
         // No extra arguments are required for simulator builds.
         return []
+      case .catalyst:
+        return []
       }
     }
   }
 
   case arm64
-  case arm64e
   case armv7
   case i386
   case x86_64
+  case x86_64h // x86_64h, Haswell, used for Mac Catalyst
 
   /// The platform associated with the architecture.
   var platform: TargetPlatform {
     switch self {
-    case .arm64, .arm64e, .armv7: return .device
+    case .armv7, .arm64: return .device
     case .i386, .x86_64: return .simulator
+    case .x86_64h: return .catalyst
     }
   }
 }
@@ -96,7 +100,8 @@ struct FrameworkBuilder {
     }
 
     // Build the full cached framework path.
-    let cachedFrameworkDir = cachedFrameworkRoot.appendingPathComponent("\(podName).framework")
+    let realFramework = realFrameworkName(podName)
+    let cachedFrameworkDir = cachedFrameworkRoot.appendingPathComponent("\(realFramework).framework")
     let frameworkDir = compileFrameworkAndResources(withName: podName)
     do {
       // Remove the previously cached framework if it exists, otherwise the `moveItem` call will
@@ -181,20 +186,31 @@ struct FrameworkBuilder {
   ///   - logRoot: Root directory where all logs should be written.
   /// - Returns: A URL to the thin library that was built.
   private func buildThin(framework: String,
-                         arch: Architecture,
+                         archs: [Architecture],
                          buildDir: URL,
                          logRoot: URL) -> URL {
+
+    let arch = archs[0]
+    let isMacCatalyst = arch == Architecture.x86_64h
+    let isMacCatalystString = isMacCatalyst ? "YES" : "NO"
     let platform = arch.platform
+    let platformFolder = isMacCatalyst ? "maccatalyst" : platform.rawValue
     let workspacePath = projectDir.appendingPathComponent("FrameworkMaker.xcworkspace").path
     let distributionFlag = carthageBuild ? "-DFIREBASE_BUILD_CARTHAGE" : "-DFIREBASE_BUILD_ZIP_FILE"
     let platformSpecificFlags = platform.otherCFlags().joined(separator: " ")
     let cFlags = "OTHER_CFLAGS=$(value) \(distributionFlag) \(platformSpecificFlags)"
+    let cleanArch = isMacCatalyst ? Architecture.x86_64.rawValue : archs.map{$0.rawValue}.joined(separator: " ")
+
     let args = ["build",
                 "-configuration", "release",
                 "-workspace", workspacePath,
                 "-scheme", framework,
                 "GCC_GENERATE_DEBUGGING_SYMBOLS=No",
-                "ARCHS=\(arch.rawValue)",
+                "ARCHS=\(cleanArch)",
+                "VALID_ARCHS=\(cleanArch)",
+                "ONLY_ACTIVE_ARCH=NO",
+                "BUILD_LIBRARIES_FOR_DISTRIBUTION=YES",
+                "SUPPORTS_MACCATALYST=\(isMacCatalystString)",
                 "BUILD_DIR=\(buildDir.path)",
                 "-sdk", platform.rawValue,
                 cFlags]
@@ -227,15 +243,30 @@ struct FrameworkBuilder {
       """)
 
       // Use the Xcode-generated path to return the path to the compiled library.
-      let libPath = buildDir.appendingPathComponents(["Release-\(platform.rawValue)",
+      let realFramework = realFrameworkName(framework)
+      let libPath = buildDir.appendingPathComponents(["Release-\(platformFolder)",
                                                       framework,
-                                                      "lib\(framework).a"])
+                                                      "\(realFramework).framework"])
+
+      print("buildThin returns \(libPath)")
       return libPath
     }
   }
 
+    // Cries in Google. Why is this not the same?
+    private func realFrameworkName(_ framework: String) -> String {
+        switch framework {
+        case "PromisesObjC":
+            return "FBLPromises"
+        case "Protobuf":
+            return "protobuf"
+        default:
+            return framework
+        }
+    }
+
   /// Compiles the specified framework in a temporary directory and writes the build logs to file.
-  /// This will compile all architectures and use the lipo command to create a "fat" archive.
+  /// This will compile all architectures and use the -create-xcframework command to create a modern "fat" framework.
   ///
   /// - Parameter framework: The name of the framework to be built.
   /// - Parameter logsOutputDir: The path to the directory to place build logs.
@@ -264,88 +295,52 @@ struct FrameworkBuilder {
     // Build every architecture and save the locations in an array to be assembled.
     // TODO: Pass in supported architectures here, for those open source SDKs that don't support
     // individual architectures.
+    //
+    // xcframework doesn't lipo things together but accepts fat frameworks for one target.
+    // We group architectures here to deal with this fact.
+    var archs = LaunchArgs.shared.archs
+    var groupedArchs: [[Architecture]] = []
+
+    for pair in [[Architecture.armv7, .arm64], [Architecture.i386, .x86_64]] {
+        if archs.contains(pair[0]) && archs.contains(pair[1]) {
+            groupedArchs.append(pair)
+            archs = archs.filter() { !pair.contains($0) }
+        }
+    }
+    // Add remaining ungrouped
+    for arch in archs {
+        groupedArchs.append([arch])
+    }
+
     var thinArchives = [URL]()
-    for arch in LaunchArgs.shared.archs {
-      let buildDir = projectDir.appendingPathComponent(arch.rawValue)
+    for archs in groupedArchs {
+      let buildDir = projectDir.appendingPathComponent(archs[0].rawValue)
       let thinArchive = buildThin(framework: framework,
-                                  arch: arch,
+                                  archs: archs,
                                   buildDir: buildDir,
                                   logRoot: logsDir)
       thinArchives.append(thinArchive)
     }
 
-    // Create the framework directory in the filesystem for the thin archives to go.
-    let frameworkDir = outputDir.appendingPathComponent("\(framework).framework")
-    do {
-      try fileManager.createDirectory(at: frameworkDir, withIntermediateDirectories: true)
-    } catch {
-      fatalError("Could not create framework directory while building framework \(framework). " +
-        "\(error)")
+    let frameworkDir = outputDir.appendingPathComponent("\(framework).xcframework")
+
+    let inputArgs = thinArchives.flatMap { url -> [String] in
+        return ["-framework", url.path]
     }
 
-    // Build the fat archive using the `lipo` command. We need the full archive path and the list of
-    // thin paths (as Strings, not URLs).
-    let thinPaths = thinArchives.map { $0.path }
-    let fatArchive = frameworkDir.appendingPathComponent(framework)
-    let result = syncExec(command: "/usr/bin/lipo", args: ["-create", "-output", fatArchive.path] + thinPaths)
+    print("About to create xcframework for \(frameworkDir.path) with \(inputArgs)")
+
+    // xcframework doesn't support legacy architectures: armv7, i386.
+    // It will throw a "Both ios-arm64 and ios-armv7 represent two equivalent library definitions" error.
+    let result = syncExec(command: "/usr/bin/xcodebuild", args: ["-create-xcframework", "-output", frameworkDir.path] + inputArgs)
     switch result {
     case let .error(code, output):
       fatalError("""
-      lipo command exited with \(code) when trying to build \(framework). Output:
+      xcodebuild -create-xcframework command exited with \(code) when trying to build \(framework). Output:
       \(output)
       """)
     case .success:
-      print("lipo command for \(framework) succeeded.")
-    }
-
-    // Remove the temporary thin archives.
-    for thinArchive in thinArchives {
-      do {
-        try fileManager.removeItem(at: thinArchive)
-      } catch {
-        // Just log a warning instead of failing, since this doesn't actually affect the build
-        // itself. This should only be shown to help users clean up their disk afterwards.
-        print("""
-        WARNING: Failed to remove temporary thin archive at \(thinArchive.path). This should be
-        removed from your system to save disk space. \(error). You should be able to remove the
-        archive from Terminal with:
-        rm \(thinArchive.path)
-        """)
-      }
-    }
-
-    // Verify Firebase headers include an explicit umbrella header for Firebase.h.
-    let headersDir = podsDir.appendingPathComponents(["Headers", "Public", framework])
-    if framework.hasPrefix("Firebase"), framework != "FirebaseCoreDiagnostics" {
-      let frameworkHeader = headersDir.appendingPathComponent("\(framework).h")
-      guard fileManager.fileExists(atPath: frameworkHeader.path) else {
-        fatalError("Missing explicit umbrella header for \(framework).")
-      }
-    }
-
-    // Copy the Headers over. Pass in the prefix to remove in order to generate the relative paths
-    // for some frameworks that have nested folders in their public headers.
-    let headersDestination = frameworkDir.appendingPathComponent("Headers")
-    do {
-      try recursivelyCopyHeaders(from: headersDir, to: headersDestination)
-    } catch {
-      fatalError("Could not copy headers from \(headersDir) to Headers directory in " +
-        "\(headersDestination): \(error)")
-    }
-
-    // Move all the Resources into .bundle directories in the destination Resources dir. The
-    // Resources live are contained within the folder structure:
-    // `projectDir/arch/Release-platform/FrameworkName`
-    let arch = Architecture.arm64
-    let contentsDir = projectDir.appendingPathComponents([arch.rawValue,
-                                                          "Release-\(arch.platform.rawValue)",
-                                                          framework])
-    let resourceDir = frameworkDir.appendingPathComponent("Resources")
-    do {
-      try ResourcesManager.moveAllBundles(inDirectory: contentsDir, to: resourceDir)
-    } catch {
-      fatalError("Could not move bundles into Resources directory while building \(framework): " +
-        "\(error)")
+      print("xcodebuild -create-xcframework command for \(framework) succeeded.")
     }
 
     return frameworkDir
