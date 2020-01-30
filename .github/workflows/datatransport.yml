@@ -18,18 +18,21 @@ jobs:
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: PodLibLint iOS
-      run: ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=ios --use-libraries
-      run: ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=ios --use-modular-headers
-      run: ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=ios --use-libraries
-      run: ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=ios --use-modular-headers
+      run: |
+        ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=ios --use-libraries
+        ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=ios --use-modular-headers
+        ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=ios --use-libraries
+        ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=ios --use-modular-headers
     - name: PodLibLint macOS
-      run: ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=macos --use-libraries
-      run: ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=macos --use-modular-headers
-      run: ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=macos --use-libraries
-      run: ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=macos --use-modular-headers
+      run: |
+        ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=macos --use-libraries
+        ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=macos --use-modular-headers
+        ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=macos --use-libraries
+        ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=macos --use-modular-headers
     - name: PodLibLint tvOS
-      run: ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=tvOS --use-libraries
-      run: ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=tvOS --use-modular-headers
-      run: ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=tvOS --use-libraries
-      run: ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=tvOS --use-modular-headers
+      run: |
+        ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=tvOS --use-libraries
+        ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=tvOS --use-modular-headers
+        ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=tvOS --use-libraries
+        ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=tvOS --use-modular-headers
 
