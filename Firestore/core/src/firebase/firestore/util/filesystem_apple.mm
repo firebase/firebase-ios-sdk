@@ -16,15 +16,64 @@
 
 #include "Firestore/core/src/firebase/firestore/util/filesystem.h"
 
-#if defined(__APPLE__)
+#if __APPLE__
 
 #import <Foundation/Foundation.h>
+
+#include "Firestore/core/src/firebase/firestore/util/path.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
 
 namespace firebase {
 namespace firestore {
 namespace util {
 
-Path TempDir() {
+Status Filesystem::ExcludeFromBackups(const Path& dir) {
+  NSURL* dir_url = [NSURL fileURLWithPath:dir.ToNSString()];
+  NSError* error = nil;
+  if (![dir_url setResourceValue:@YES
+                          forKey:NSURLIsExcludedFromBackupKey
+                           error:&error]) {
+    return Status{
+        Error::Internal,
+        "Failed to mark persistence directory as excluded from backups"}
+        .CausedBy(Status::FromNSError(error));
+  }
+
+  return Status::OK();
+}
+
+StatusOr<Path> Filesystem::AppDataDir(absl::string_view app_name) {
+#if TARGET_OS_IOS || TARGET_OS_OSX
+  NSArray<NSString*>* directories = NSSearchPathForDirectoriesInDomains(
+      NSApplicationSupportDirectory, NSUserDomainMask, YES);
+  return Path::FromNSString(directories[0]).AppendUtf8(app_name);
+
+#elif TARGET_OS_TV
+  NSArray<NSString*>* directories = NSSearchPathForDirectoriesInDomains(
+      NSCachesDirectory, NSUserDomainMask, YES);
+  return Path::FromNSString(directories[0]).AppendUtf8(app_name);
+
+#else
+#error "Don't know where to store documents on this platform."
+#endif
+}
+
+StatusOr<Path> Filesystem::LegacyDocumentsDir(absl::string_view app_name) {
+#if TARGET_OS_IOS
+  NSArray<NSString*>* directories = NSSearchPathForDirectoriesInDomains(
+      NSDocumentDirectory, NSUserDomainMask, YES);
+  return Path::FromNSString(directories[0]).AppendUtf8(app_name);
+
+#elif TARGET_OS_OSX
+  std::string dot_prefixed = absl::StrCat(".", app_name);
+  return Path::FromNSString(NSHomeDirectory()).AppendUtf8(dot_prefixed);
+
+#else
+  return Status(Error::Unimplemented, "No legacy storage on this platform.");
+#endif
+}
+
+Path Filesystem::TempDir() {
   const char* env_tmpdir = getenv("TMPDIR");
   if (env_tmpdir) {
     return Path::FromUtf8(env_tmpdir);
@@ -42,4 +91,4 @@ Path TempDir() {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // defined(__APPLE__)
+#endif  // __APPLE__

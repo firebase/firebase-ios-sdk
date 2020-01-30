@@ -27,6 +27,7 @@
 #include "Firestore/core/src/firebase/firestore/nanopb/message.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "Firestore/core/src/firebase/firestore/util/string_util.h"
 #include "leveldb/db.h"
 
 namespace firebase {
@@ -42,6 +43,8 @@ using model::DocumentMap;
 using model::MaybeDocument;
 using model::MaybeDocumentMap;
 using model::OptionalMaybeDocumentMap;
+using model::ResourcePath;
+using model::SnapshotVersion;
 using nanopb::ByteString;
 using nanopb::Message;
 using nanopb::StringReader;
@@ -51,10 +54,18 @@ LevelDbRemoteDocumentCache::LevelDbRemoteDocumentCache(
     : db_(db), serializer_(NOT_NULL(serializer)) {
 }
 
-void LevelDbRemoteDocumentCache::Add(const MaybeDocument& document) {
-  std::string ldb_key = LevelDbRemoteDocumentKey::Key(document.key());
-  db_->current_transaction()->Put(ldb_key,
+void LevelDbRemoteDocumentCache::Add(const MaybeDocument& document,
+                                     const SnapshotVersion& read_time) {
+  const DocumentKey& key = document.key();
+  const ResourcePath& path = key.path();
+
+  std::string ldb_document_key = LevelDbRemoteDocumentKey::Key(key);
+  db_->current_transaction()->Put(ldb_document_key,
                                   serializer_->EncodeMaybeDocument(document));
+
+  std::string ldb_read_time_key = LevelDbRemoteDocumentReadTimeKey::Key(
+      path.PopLast(), read_time, path.last_segment());
+  db_->current_transaction()->Put(ldb_read_time_key, "");
 
   db_->index_manager()->AddToCollectionParentIndex(
       document.key().path().PopLast());
@@ -100,44 +111,90 @@ OptionalMaybeDocumentMap LevelDbRemoteDocumentCache::GetAll(
   return results;
 }
 
-DocumentMap LevelDbRemoteDocumentCache::GetMatching(const Query& query) {
-  HARD_ASSERT(
-      !query.IsCollectionGroupQuery(),
-      "CollectionGroup queries should be handled in LocalDocumentsView");
-
+DocumentMap LevelDbRemoteDocumentCache::GetAllExisting(
+    const DocumentKeySet& keys) {
   DocumentMap results;
 
-  // Use the query path as a prefix for testing if a document matches the query.
-  const model::ResourcePath& query_path = query.path();
-  size_t immediate_children_path_length = query_path.size() + 1;
-
-  // Documents are ordered by key, so we can use a prefix scan to narrow down
-  // the documents we need to match the query against.
-  std::string start_key = LevelDbRemoteDocumentKey::KeyPrefix(query_path);
-  auto it = db_->current_transaction()->NewIterator();
-  it->Seek(start_key);
-
-  LevelDbRemoteDocumentKey current_key;
-  for (; it->Valid() && current_key.Decode(it->key()); it->Next()) {
-    // The query is actually returning any path that starts with the query path
-    // prefix which may include documents in subcollections. For example, a
-    // query on 'rooms' will return rooms/abc/messages/xyx but we shouldn't
-    // match it. Fix this by discarding rows with document keys more than one
-    // segment longer than the query path.
-    const DocumentKey& document_key = current_key.document_key();
-    if (document_key.path().size() != immediate_children_path_length) {
-      continue;
-    }
-
-    MaybeDocument maybe_doc = DecodeMaybeDocument(it->value(), document_key);
-    if (!query_path.IsPrefixOf(maybe_doc.key().path())) {
-      break;
-    } else if (maybe_doc.is_document()) {
-      results = results.insert(maybe_doc.key(), Document(maybe_doc));
+  OptionalMaybeDocumentMap docs = LevelDbRemoteDocumentCache::GetAll(keys);
+  for (const auto& kv : docs) {
+    const DocumentKey& key = kv.first;
+    const auto& maybe_doc = kv.second;
+    if (maybe_doc && maybe_doc->is_document()) {
+      results = results.insert(key, Document(*maybe_doc));
     }
   }
 
   return results;
+}
+
+DocumentMap LevelDbRemoteDocumentCache::GetMatching(
+    const Query& query, const SnapshotVersion& since_read_time) {
+  HARD_ASSERT(
+      !query.IsCollectionGroupQuery(),
+      "CollectionGroup queries should be handled in LocalDocumentsView");
+
+  // Use the query path as a prefix for testing if a document matches the query.
+  const ResourcePath& query_path = query.path();
+  size_t immediate_children_path_length = query_path.size() + 1;
+
+  if (since_read_time != SnapshotVersion::None()) {
+    // Execute an index-free query and filter by read time. This is safe since
+    // all document changes to queries that have a
+    // last_limbo_free_snapshot_version (`since_read_time`) have a read time
+    // set.
+    std::string start_key = LevelDbRemoteDocumentReadTimeKey::KeyPrefix(
+        query_path, since_read_time);
+    auto it = db_->current_transaction()->NewIterator();
+    it->Seek(util::ImmediateSuccessor(start_key));
+
+    DocumentKeySet remote_keys;
+
+    LevelDbRemoteDocumentReadTimeKey current_key;
+    for (; it->Valid() && current_key.Decode(it->key()); it->Next()) {
+      const ResourcePath& collection_path = current_key.collection_path();
+      if (collection_path != query_path) {
+        break;
+      }
+
+      const SnapshotVersion& read_time = current_key.read_time();
+      if (read_time > since_read_time) {
+        DocumentKey document_key(query_path.Append(current_key.document_id()));
+        remote_keys = remote_keys.insert(document_key);
+      }
+    }
+
+    return LevelDbRemoteDocumentCache::GetAllExisting(remote_keys);
+  } else {
+    DocumentMap results;
+
+    // Documents are ordered by key, so we can use a prefix scan to narrow down
+    // the documents we need to match the query against.
+    std::string start_key = LevelDbRemoteDocumentKey::KeyPrefix(query_path);
+    auto it = db_->current_transaction()->NewIterator();
+    it->Seek(start_key);
+
+    LevelDbRemoteDocumentKey current_key;
+    for (; it->Valid() && current_key.Decode(it->key()); it->Next()) {
+      // The query is actually returning any path that starts with the query
+      // path prefix which may include documents in subcollections. For example,
+      // a query on 'rooms' will return rooms/abc/messages/xyx but we shouldn't
+      // match it. Fix this by discarding rows with document keys more than one
+      // segment longer than the query path.
+      const DocumentKey& document_key = current_key.document_key();
+      if (document_key.path().size() != immediate_children_path_length) {
+        continue;
+      }
+
+      MaybeDocument maybe_doc = DecodeMaybeDocument(it->value(), document_key);
+      if (!query_path.IsPrefixOf(maybe_doc.key().path())) {
+        break;
+      } else if (maybe_doc.is_document()) {
+        results = results.insert(maybe_doc.key(), Document(maybe_doc));
+      }
+    }
+
+    return results;
+  }
 }
 
 MaybeDocument LevelDbRemoteDocumentCache::DecodeMaybeDocument(

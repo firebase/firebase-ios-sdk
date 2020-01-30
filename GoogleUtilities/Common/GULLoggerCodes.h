@@ -34,6 +34,23 @@ typedef NS_ENUM(NSInteger, GULSwizzlerMessageCode) {
   kGULSwizzlerMessageCodeAppDelegateSwizzling013 = 1013,                 // I-SWZ001013
   kGULSwizzlerMessageCodeAppDelegateSwizzlingInvalidAppDelegate = 1014,  // I-SWZ001014
 
+  // Scene Delegate Swizzling.
+  kGULSwizzlerMessageCodeSceneDelegateSwizzling000 = 1100,                   // I-SWZ001100
+  kGULSwizzlerMessageCodeSceneDelegateSwizzling001 = 1101,                   // I-SWZ001101
+  kGULSwizzlerMessageCodeSceneDelegateSwizzling002 = 1102,                   // I-SWZ001102
+  kGULSwizzlerMessageCodeSceneDelegateSwizzling003 = 1103,                   // I-SWZ001103
+  kGULSwizzlerMessageCodeSceneDelegateSwizzling004 = 1104,                   // I-SWZ001104
+  kGULSwizzlerMessageCodeSceneDelegateSwizzling005 = 1105,                   // I-SWZ001105
+  kGULSwizzlerMessageCodeSceneDelegateSwizzling006 = 1106,                   // I-SWZ001106
+  kGULSwizzlerMessageCodeSceneDelegateSwizzling007 = 1107,                   // I-SWZ001107
+  kGULSwizzlerMessageCodeSceneDelegateSwizzling008 = 1108,                   // I-SWZ001108
+  kGULSwizzlerMessageCodeSceneDelegateSwizzling009 = 1109,                   // I-SWZ001109
+  kGULSwizzlerMessageCodeSceneDelegateSwizzling010 = 1110,                   // I-SWZ001110
+  kGULSwizzlerMessageCodeSceneDelegateSwizzling011 = 1111,                   // I-SWZ001111
+  kGULSwizzlerMessageCodeSceneDelegateSwizzling012 = 1112,                   // I-SWZ001112
+  kGULSwizzlerMessageCodeSceneDelegateSwizzling013 = 1113,                   // I-SWZ001113
+  kGULSwizzlerMessageCodeSceneDelegateSwizzlingInvalidSceneDelegate = 1114,  // I-SWZ001114
+
   // Method Swizzling.
   kGULSwizzlerMessageCodeMethodSwizzling000 = 2000,  // I-SWZ002000
 };

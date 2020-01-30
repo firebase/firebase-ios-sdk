@@ -20,7 +20,7 @@
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
-#include "Firestore/core/src/firebase/firestore/local/query_data.h"
+#include "Firestore/core/src/firebase/firestore/local/target_data.h"
 #include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
@@ -35,8 +35,8 @@ namespace remote {
 
 using core::Transaction;
 using local::LocalStore;
-using local::QueryData;
 using local::QueryPurpose;
+using local::TargetData;
 using model::BatchId;
 using model::DocumentKeySet;
 using model::kBatchIdUnknown;
@@ -130,19 +130,20 @@ void RemoteStore::Shutdown() {
 
 // Watch Stream
 
-void RemoteStore::Listen(const QueryData& query_data) {
-  TargetId targetKey = query_data.target_id();
-  HARD_ASSERT(listen_targets_.find(targetKey) == listen_targets_.end(),
-              "Listen called with duplicate target id: %s", targetKey);
+void RemoteStore::Listen(const TargetData& target_data) {
+  TargetId target_key = target_data.target_id();
+  if (listen_targets_.find(target_key) != listen_targets_.end()) {
+    return;
+  }
 
   // Mark this as something the client is currently listening for.
-  listen_targets_[targetKey] = query_data;
+  listen_targets_[target_key] = target_data;
 
   if (ShouldStartWatchStream()) {
     // The listen will be sent in `OnWatchStreamOpen`
     StartWatchStream();
   } else if (watch_stream_->IsOpen()) {
-    SendWatchRequest(query_data);
+    SendWatchRequest(target_data);
   }
 }
 
@@ -167,11 +168,11 @@ void RemoteStore::StopListening(TargetId target_id) {
   }
 }
 
-void RemoteStore::SendWatchRequest(const QueryData& query_data) {
+void RemoteStore::SendWatchRequest(const TargetData& target_data) {
   // We need to increment the the expected number of pending responses we're due
   // from watch so we wait for the ack to process any messages from this target.
-  watch_change_aggregator_->RecordPendingTargetRequest(query_data.target_id());
-  watch_stream_->WatchQuery(query_data);
+  watch_change_aggregator_->RecordPendingTargetRequest(target_data.target_id());
+  watch_stream_->WatchQuery(target_data);
 }
 
 void RemoteStore::SendUnwatchRequest(TargetId target_id) {
@@ -252,7 +253,7 @@ void RemoteStore::OnWatchStreamChange(const WatchChange& change,
   } else {
     HARD_ASSERT(
         change.type() == WatchChange::Type::ExistenceFilter,
-        "Expected watchChange to be an instance of ExistenceFilterWatchChange");
+        "Expected WatchChange to be an instance of ExistenceFilterWatchChange");
     watch_change_aggregator_->HandleExistenceFilter(
         static_cast<const ExistenceFilterWatchChange&>(change));
   }
@@ -276,20 +277,20 @@ void RemoteStore::RaiseWatchSnapshot(const SnapshotVersion& snapshot_version) {
   // view of these when applying the completed `RemoteEvent`.
   for (const auto& entry : remote_event.target_changes()) {
     const TargetChange& target_change = entry.second;
-    const ByteString& resumeToken = target_change.resume_token();
+    const ByteString& resume_token = target_change.resume_token();
 
-    if (!resumeToken.empty()) {
+    if (!resume_token.empty()) {
       TargetId target_id = entry.first;
       auto found = listen_targets_.find(target_id);
-      absl::optional<QueryData> query_data;
+      absl::optional<TargetData> target_data;
       if (found != listen_targets_.end()) {
-        query_data = found->second;
+        target_data = found->second;
       }
 
       // A watched target might have been removed already.
-      if (query_data) {
+      if (target_data) {
         listen_targets_[target_id] =
-            query_data->WithResumeToken(resumeToken, snapshot_version);
+            target_data->WithResumeToken(resume_token, snapshot_version);
       }
     }
   }
@@ -302,13 +303,14 @@ void RemoteStore::RaiseWatchSnapshot(const SnapshotVersion& snapshot_version) {
       // A watched target might have been removed already.
       continue;
     }
-    QueryData query_data = found->second;
+    TargetData target_data = found->second;
 
     // Clear the resume token for the query, since we're in a known mismatch
     // state.
-    query_data = QueryData(query_data.query(), target_id,
-                           query_data.sequence_number(), query_data.purpose());
-    listen_targets_[target_id] = query_data;
+    target_data =
+        TargetData(target_data.target(), target_id,
+                   target_data.sequence_number(), target_data.purpose());
+    listen_targets_[target_id] = target_data;
 
     // Cause a hard reset by unwatching and rewatching immediately, but
     // deliberately don't send a resume token so that we get a full update.
@@ -318,10 +320,10 @@ void RemoteStore::RaiseWatchSnapshot(const SnapshotVersion& snapshot_version) {
     // mismatch, but don't actually retain that in listen_targets_. This ensures
     // that we flag the first re-listen this way without impacting future
     // listens of this target (that might happen e.g. on reconnect).
-    QueryData request_query_data(query_data.query(), target_id,
-                                 query_data.sequence_number(),
-                                 QueryPurpose::ExistenceFilterMismatch);
-    SendWatchRequest(request_query_data);
+    TargetData request_target_data(target_data.target(), target_id,
+                                   target_data.sequence_number(),
+                                   QueryPurpose::ExistenceFilterMismatch);
+    SendWatchRequest(request_target_data);
   }
 
   // Finally handle remote event
@@ -517,11 +519,11 @@ DocumentKeySet RemoteStore::GetRemoteKeysForTarget(TargetId target_id) const {
   return sync_engine_->GetRemoteKeys(target_id);
 }
 
-absl::optional<QueryData> RemoteStore::GetQueryDataForTarget(
+absl::optional<TargetData> RemoteStore::GetTargetDataForTarget(
     TargetId target_id) const {
   auto found = listen_targets_.find(target_id);
   return found != listen_targets_.end() ? found->second
-                                        : absl::optional<QueryData>{};
+                                        : absl::optional<TargetData>{};
 }
 
 void RemoteStore::HandleCredentialChange() {

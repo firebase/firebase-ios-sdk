@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#include <TargetConditionals.h>
+#if !TARGET_OS_OSX
+
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
@@ -69,3 +72,5 @@ typedef void (^FIRAuthNotificationForwardingCallback)(BOOL isNotificationBeingFo
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif

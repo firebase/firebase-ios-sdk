@@ -34,6 +34,7 @@
 #import "FIRInstallationsErrorUtil.h"
 #import "FIRInstallationsIDController.h"
 #import "FIRInstallationsItem.h"
+#import "FIRInstallationsLogger.h"
 #import "FIRInstallationsStoredAuthToken.h"
 #import "FIRInstallationsVersion.h"
 
@@ -70,7 +71,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   FIRComponent *installationsProvider =
       [FIRComponent componentWithProtocol:@protocol(FIRInstallationsInstanceProvider)
-                      instantiationTiming:FIRInstantiationTimingLazy
+                      instantiationTiming:FIRInstantiationTimingAlwaysEager
                              dependencies:@[]
                             creationBlock:creationBlock];
   return @[ installationsProvider ];
@@ -85,7 +86,9 @@ NS_ASSUME_NONNULL_BEGIN
       [[FIRInstallationsIDController alloc] initWithGoogleAppID:appOptions.googleAppID
                                                         appName:appName
                                                          APIKey:appOptions.APIKey
-                                                      projectID:appOptions.projectID];
+                                                      projectID:appOptions.projectID
+                                                    GCMSenderID:appOptions.GCMSenderID
+                                                    accessGroup:appOptions.appGroupID];
   return [self initWithAppOptions:appOptions
                           appName:appName
         installationsIDController:IDController
@@ -99,6 +102,9 @@ NS_ASSUME_NONNULL_BEGIN
                  prefetchAuthToken:(BOOL)prefetchAuthToken {
   self = [super init];
   if (self) {
+    [[self class] validateAppOptions:appOptions appName:appName];
+    [[self class] assertCompatibleIIDVersion];
+
     _appOptions = [appOptions copy];
     _appName = [appName copy];
     _installationsIDController = installationsIDController;
@@ -113,12 +119,44 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
++ (void)validateAppOptions:(FIROptions *)appOptions appName:(NSString *)appName {
+  NSMutableArray *missingFields = [NSMutableArray array];
+  if (appName.length < 1) {
+    [missingFields addObject:@"`FirebaseApp.name`"];
+  }
+  if (appOptions.APIKey.length < 1) {
+    [missingFields addObject:@"`FirebaseOptions.APIKey`"];
+  }
+  if (appOptions.googleAppID.length < 1) {
+    [missingFields addObject:@"`FirebaseOptions.googleAppID`"];
+  }
+
+  // TODO(#4692): Check for `appOptions.projectID.length < 1` only.
+  // We can use `GCMSenderID` instead of `projectID` temporary.
+  if (appOptions.projectID.length < 1 && appOptions.GCMSenderID.length < 1) {
+    [missingFields addObject:@"`FirebaseOptions.projectID`"];
+  }
+
+  if (missingFields.count > 0) {
+    [NSException
+         raise:kFirebaseInstallationsErrorDomain
+        format:
+            @"%@[%@] Could not configure Firebase Installations due to invalid FirebaseApp "
+            @"options. The following parameters are nil or empty: %@. If you use "
+            @"GoogleServices-Info.plist please download the most recent version from the Firebase "
+            @"Console. If you configure Firebase in code, please make sure you specify all "
+            @"required parameters.",
+            kFIRLoggerInstallations, kFIRInstallationsMessageCodeInvalidFirebaseAppOptions,
+            [missingFields componentsJoinedByString:@", "]];
+  }
+}
+
 #pragma mark - Public
 
 + (FIRInstallations *)installations {
   FIRApp *defaultApp = [FIRApp defaultApp];
   if (!defaultApp) {
-    [NSException raise:NSInternalInconsistencyException
+    [NSException raise:kFirebaseInstallationsErrorDomain
                 format:@"The default FirebaseApp instance must be configured before the default"
                        @"FirebaseApp instance can be initialized. One way to ensure that is to "
                        @"call `[FIRApp configure];` (`FirebaseApp.configure()` in Swift) in the App"
@@ -177,6 +215,32 @@ NS_ASSUME_NONNULL_BEGIN
       .catch(^void(NSError *error) {
         completion([FIRInstallationsErrorUtil publicDomainErrorWithError:error]);
       });
+}
+
+#pragma mark - IID version compatibility
+
++ (void)assertCompatibleIIDVersion {
+  // We use this flag to disable IID compatibility exception for unit tests.
+#ifdef FIR_INSTALLATIONS_ALLOWS_INCOMPATIBLE_IID_VERSION
+  return;
+#else
+  if (![self isIIDVersionCompatible]) {
+    [NSException raise:kFirebaseInstallationsErrorDomain
+                format:@"FirebaseInstallations will not work correctly with current version of "
+                       @"Firebase Instance ID. Please update your Firebase Instance ID version."];
+  }
+#endif
+}
+
++ (BOOL)isIIDVersionCompatible {
+  Class IIDClass = NSClassFromString(@"FIRInstanceID");
+  if (IIDClass == nil) {
+    // It is OK if there is no IID at all.
+    return YES;
+  }
+  // We expect a compatible version having the method `+[FIRInstanceID usesFIS]` defined.
+  BOOL isCompatibleVersion = [IIDClass respondsToSelector:NSSelectorFromString(@"usesFIS")];
+  return isCompatibleVersion;
 }
 
 @end

@@ -41,6 +41,7 @@ namespace remote {
 using auth::Token;
 using core::DatabaseInfo;
 using model::DatabaseId;
+using util::Filesystem;
 using util::Path;
 using util::Status;
 using util::StatusOr;
@@ -200,16 +201,17 @@ std::shared_ptr<grpc::Channel> GrpcConnection::CreateChannel() const {
         host, CreateSslCredentials(root_certificate), args);
   }
 
-  // For the case when `Settings.sslEnabled == false`.
+  // For the case when `Settings.set_ssl_enabled(false)`.
   if (host_config->use_insecure_channel) {
     return grpc::CreateCustomChannel(host, grpc::InsecureChannelCredentials(),
                                      args);
   }
 
   // For tests only
+  auto* fs = Filesystem::Default();
   args.SetSslTargetNameOverride(host_config->target_name);
   Path path = host_config->certificate_path;
-  StatusOr<std::string> test_certificate = ReadFile(path);
+  StatusOr<std::string> test_certificate = fs->ReadFile(path);
   HARD_ASSERT(test_certificate.ok(),
               StringFormat("Unable to open root certificates at file path %s",
                            path.ToUtf8String())

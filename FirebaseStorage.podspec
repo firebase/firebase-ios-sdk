@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseStorage'
-  s.version          = '3.4.1'
+  s.version          = '3.5.0'
   s.summary          = 'Firebase Storage for iOS (plus community support for macOS and tvOS)'
 
   s.description      = <<-DESC
@@ -24,8 +24,8 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
   s.static_framework = true
   s.prefix_header_file = false
 
-  s.source_files = 'Firebase/Storage/**/*.[mh]'
-  s.public_header_files = 'Firebase/Storage/Public/*.h'
+  s.source_files = 'FirebaseStorage/Sources/**/*.[mh]'
+  s.public_header_files = 'FirebaseStorage/Sources/Public/*.h'
   s.ios.framework = 'MobileCoreServices'
   s.osx.framework = 'CoreServices'
 
@@ -35,20 +35,21 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
-      'FIRStorage_VERSION=' + s.version.to_s
+      'FIRStorage_VERSION=' + s.version.to_s,
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
 
   s.test_spec 'unit' do |unit_tests|
-    unit_tests.source_files = 'Example/Storage/Tests/Unit/*.[mh]',
+    unit_tests.source_files = 'FirebaseStorage/Tests/Unit/*.[mh]',
                               'Example/Shared/FIRComponentTestUtilities.*',
                               'Example/Shared/FIRAuthInteropFake.*'
     unit_tests.dependency 'OCMock'
   end
 
   s.test_spec 'integration' do |int_tests|
-    int_tests.source_files = 'Example/Storage/Tests/Integration/*.[mh]'
+    int_tests.source_files = 'FirebaseStorage/Tests/Integration/*.[mh]'
     int_tests.requires_app_host = true
-    int_tests.resources = 'Example/Storage/App/1mb.dat',
-                          'Example/Storage/App/GoogleService-Info.plist'
+    int_tests.resources = 'FirebaseStorage/Tests/Integration/Resources/1mb.dat',
+                          'FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist'
   end
 end

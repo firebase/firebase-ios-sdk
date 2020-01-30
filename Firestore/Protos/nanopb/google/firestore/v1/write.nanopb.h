@@ -29,6 +29,8 @@
 
 #include "google/protobuf/timestamp.nanopb.h"
 
+#include <string>
+
 namespace firebase {
 namespace firestore {
 
@@ -52,6 +54,8 @@ typedef struct _google_firestore_v1_DocumentTransform {
     pb_bytes_array_t *document;
     pb_size_t field_transforms_count;
     struct _google_firestore_v1_DocumentTransform_FieldTransform *field_transforms;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_DocumentTransform) */
 } google_firestore_v1_DocumentTransform;
 
@@ -61,6 +65,8 @@ typedef struct _google_firestore_v1_DocumentChange {
     int32_t *target_ids;
     pb_size_t removed_target_ids_count;
     int32_t *removed_target_ids;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_DocumentChange) */
 } google_firestore_v1_DocumentChange;
 
@@ -70,6 +76,8 @@ typedef struct _google_firestore_v1_DocumentDelete {
     google_protobuf_Timestamp read_time;
     pb_size_t removed_target_ids_count;
     int32_t *removed_target_ids;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_DocumentDelete) */
 } google_firestore_v1_DocumentDelete;
 
@@ -78,6 +86,8 @@ typedef struct _google_firestore_v1_DocumentRemove {
     pb_size_t removed_target_ids_count;
     int32_t *removed_target_ids;
     google_protobuf_Timestamp read_time;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_DocumentRemove) */
 } google_firestore_v1_DocumentRemove;
 
@@ -92,12 +102,16 @@ typedef struct _google_firestore_v1_DocumentTransform_FieldTransform {
         google_firestore_v1_ArrayValue append_missing_elements;
         google_firestore_v1_ArrayValue remove_all_from_array;
     };
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_DocumentTransform_FieldTransform) */
 } google_firestore_v1_DocumentTransform_FieldTransform;
 
 typedef struct _google_firestore_v1_ExistenceFilter {
     int32_t target_id;
     int32_t count;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_ExistenceFilter) */
 } google_firestore_v1_ExistenceFilter;
 
@@ -106,12 +120,15 @@ typedef struct _google_firestore_v1_Write {
     union {
         google_firestore_v1_Document update;
         pb_bytes_array_t *delete_;
+        pb_bytes_array_t *verify;
         google_firestore_v1_DocumentTransform transform;
     };
     bool has_update_mask;
     google_firestore_v1_DocumentMask update_mask;
     bool has_current_document;
     google_firestore_v1_Precondition current_document;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_Write) */
 } google_firestore_v1_Write;
 
@@ -120,6 +137,8 @@ typedef struct _google_firestore_v1_WriteResult {
     google_protobuf_Timestamp update_time;
     pb_size_t transform_results_count;
     struct _google_firestore_v1_Value *transform_results;
+
+    std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_WriteResult) */
 } google_firestore_v1_WriteResult;
 
@@ -166,6 +185,7 @@ typedef struct _google_firestore_v1_WriteResult {
 #define google_firestore_v1_ExistenceFilter_count_tag 2
 #define google_firestore_v1_Write_update_tag     1
 #define google_firestore_v1_Write_delete_tag     2
+#define google_firestore_v1_Write_verify_tag     5
 #define google_firestore_v1_Write_transform_tag  6
 #define google_firestore_v1_Write_update_mask_tag 3
 #define google_firestore_v1_Write_current_document_tag 4
@@ -173,7 +193,7 @@ typedef struct _google_firestore_v1_WriteResult {
 #define google_firestore_v1_WriteResult_transform_results_tag 2
 
 /* Struct field encoding specification for nanopb */
-extern const pb_field_t google_firestore_v1_Write_fields[6];
+extern const pb_field_t google_firestore_v1_Write_fields[7];
 extern const pb_field_t google_firestore_v1_DocumentTransform_fields[3];
 extern const pb_field_t google_firestore_v1_DocumentTransform_FieldTransform_fields[8];
 extern const pb_field_t google_firestore_v1_WriteResult_fields[3];
@@ -200,6 +220,8 @@ extern const pb_field_t google_firestore_v1_ExistenceFilter_fields[3];
 
 #endif
 
+const char* EnumToString(
+    google_firestore_v1_DocumentTransform_FieldTransform_ServerValue value);
 }  // namespace firestore
 }  // namespace firebase
 

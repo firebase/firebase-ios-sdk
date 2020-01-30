@@ -38,6 +38,7 @@ def labelsForModifiedFiles()
   labels.push("api: abtesting") if @has_abtesting_changes
   labels.push("api: auth") if @has_auth_changes
   labels.push("api: core") if @has_core_changes
+  labels.push("api: crashlytics") if @has_crashlytics_changes
   labels.push("api: database") if @has_database_changes
   labels.push("api: dynamiclinks") if @has_dynamiclinks_changes
   labels.push("api: firestore") if @has_firestore_changes
@@ -71,23 +72,20 @@ has_license_changes = didModify(["LICENSE"])
 @has_abtesting_changes = hasChangesIn("FirebaseABTesting/")
 @has_auth_changes = hasChangesIn("Firebase/Auth")
 @has_core_changes = hasChangesIn([
-  "Firebase/Core/",
+  "FirebaseCore/",
   "Firebase/CoreDiagnostics/",
   "CoreOnly/"])
+@has_crashlytics_changes = hasChangesIn("Crashlytics/")
 @has_database_changes = hasChangesIn("Firebase/Database/")
 @has_dynamiclinks_changes = hasChangesIn("Firebase/DynamicLinks/")
 @has_firestore_changes = hasChangesIn("Firestore/")
 @has_functions_changes = hasChangesIn("Functions/")
-@has_inappmessaging_changes = hasChangesIn([
-  "Firebase/InAppMessaging/",
-  "Firebase/InAppMessagingDisplay/",
-  "InAppMessaging/Example/",
-  "InAppMessagingDisplay/"])
+@has_inappmessaging_changes = hasChangesIn(["FirebaseInAppMessaging/"])
 @has_installations_changes = hasChangesIn("FirebaseInstallations/Source/")
 @has_instanceid_changes = hasChangesIn("Firebase/InstanceID/")
 @has_messaging_changes = hasChangesIn("Firebase/Messaging/")
 @has_remoteconfig_changes = hasChangesIn("FirebaseRemoteConfig/")
-@has_storage_changes = hasChangesIn("Firebase/Storage/")
+@has_storage_changes = hasChangesIn("FirebaseStorage/")
 
 @has_gdt_changes = hasChangesIn("GoogleDataTransport/") ||
   hasChangesIn("GoogleDataTransportCCTSupport")

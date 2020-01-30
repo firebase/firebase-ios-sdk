@@ -19,33 +19,25 @@ import Foundation
 import ManifestReader
 
 /// Misc. constants used in the build tool.
-public struct Constants {
+struct Constants {
   /// Constants related to the Xcode project template.
-  public struct ProjectPath {
+  struct ProjectPath {
     // Required for building.
-    public static let infoPlist = "Info.plist"
-    public static let projectFile = "FrameworkMaker.xcodeproj"
+    static let infoPlist = "Info.plist"
+    static let projectFile = "FrameworkMaker.xcodeproj"
 
     /// All required files for building the Zip file.
-    public static let requiredFilesForBuilding: [String] = [projectFile, infoPlist]
+    static let requiredFilesForBuilding: [String] = [projectFile, infoPlist]
 
     // Required for distribution.
-    public static let readmeName = "README.md"
-    public static let notices = "NOTICES"
-
-    /// All required files for distribution. Note: the readmeTemplate is also needed for
-    /// distribution but is copied separately since it's modified.
-    public static let requiredFilesForDistribution: [String] = [notices]
+    static let readmeName = "README.md"
 
     // Required from the Firebase pod.
-    public static let firebaseHeader = "Firebase.h"
-    public static let modulemap = "module.modulemap"
-
-    /// All required files needed from the Firebase pod.
-    public static let requiredFilesFromFirebasePod: [String] = [firebaseHeader, modulemap]
+    static let firebaseHeader = "Firebase.h"
+    static let modulemap = "module.modulemap"
 
     /// The dummy Firebase library for Carthage distribution.
-    public static let dummyFirebaseLib = "dummy_Firebase_lib"
+    static let dummyFirebaseLib = "dummy_Firebase_lib"
 
     // Make the struct un-initializable.
     @available(*, unavailable)
@@ -54,14 +46,14 @@ public struct Constants {
 
   /// The text added to the README for a product if it contains Resources. The empty line at the end
   /// is intentional.
-  public static let resourcesRequiredText = """
+  static let resourcesRequiredText = """
   You'll also need to add the resources in the Resources
   directory into your target's main bundle.
 
   """
 
   /// The name of the Core Diagnostics pod.
-  public static let coreDiagnosticsName: String = "FirebaseCoreDiagnostics"
+  static let coreDiagnosticsName: String = "FirebaseCoreDiagnostics"
 
   // Make the struct un-initializable.
   @available(*, unavailable)
@@ -128,64 +120,17 @@ struct ZipBuilder {
     self.customSpecRepos = customSpecRepos
   }
 
-  // TODO: This function contains a lot of "copy these paths to this directory, fail if there are
-  //   errors" code. It could probably be broken out into a cleaner interface or broken out into
-  //   separate functions.
-  /// Try to build and package the contents of the Zip file. This will throw an error as soon as it
-  /// encounters an error, or will quit due to a fatal error with the appropriate log.
+  /// Builds and assembles the contents for the zip build.
   ///
-  /// - Returns: Information related to the built artifacts.
-  /// - Throws: One of many errors that could have happened during the build phase.
-  func buildAndAssembleRelease(inProjectDir projectDir: URL) throws -> ReleaseArtifacts {
-    // If it exists, remove it before we re-create it. This is simpler than removing all objects.
-    if FileManager.default.directoryExists(at: projectDir) {
-      try FileManager.default.removeItem(at: projectDir)
-    }
-
-    do {
-      // Create the directory and all intermediate directories.
-      try FileManager.default.createDirectory(at: projectDir, withIntermediateDirectories: true)
-    } catch {
-      // Use `do/catch` instead of `guard let tempDir = try?` so we can print the error thrown.
-      fatalError("Cannot create temporary directory at beginning of script: \(error)")
-    }
-
-    // Copy the Xcode project needed in order to be able to install Pods there.
-    let templateFiles = Constants.ProjectPath.requiredFilesForBuilding.map {
-      paths.templateDir.appendingPathComponent($0)
-    }
-    for file in templateFiles {
-      // Each file should be copied to the temporary project directory with the same name.
-      let destination = projectDir.appendingPathComponent(file.lastPathComponent)
-      do {
-        if !FileManager.default.fileExists(atPath: destination.path) {
-          print("Copying template file \(file) to \(destination)...")
-          try FileManager.default.copyItem(at: file, to: destination)
-        }
-      } catch {
-        fatalError("Could not copy template project to temporary directory in order to install " +
-          "pods. Failed while attempting to copy \(file) to \(destination). \(error)")
-      }
-    }
-
-    // Get the README template ready (before attempting to build everything in case this fails,
-    // otherwise debugging it will take a long time).
-    let readmePath = paths.templateDir.appendingPathComponent(Constants.ProjectPath.readmeName)
-    let readmeTemplate: String
-    do {
-      readmeTemplate = try String(contentsOf: readmePath)
-    } catch {
-      fatalError("Could not get contents of the README template: \(error)")
-    }
-
-    // Break the `podsToInstall` into a variable since it's helpful when debugging builds to just
-    // install a subset of pods, like the following line:
-//    let podsToInstall: [CocoaPod] = [.core, .analytics, .storage]
-    let podsToInstall = CocoaPod.allCases
-
+  /// - Parameter podsToInstall: All pods to install.
+  /// - Returns: Arrays of pod install info and the frameworks installed.
+  func buildAndAssembleZip(podsToInstall: [CocoaPodUtils.VersionedPod]) ->
+    ([String: CocoaPodUtils.PodInfo], [String: [URL]]) {
     // Remove CocoaPods cache so the build gets updates after a version is rebuilt during the
     // release process.
-    CocoaPodUtils.cleanPodCache()
+    if LaunchArgs.shared.updatePodRepo {
+      CocoaPodUtils.cleanPodCache()
+    }
 
     // We need to install all the pods in order to get every single framework that we'll need
     // for the zip file. We can't install each one individually since some pods depend on different
@@ -197,32 +142,84 @@ struct ZipBuilder {
                               inDir: projectDir,
                               customSpecRepos: customSpecRepos)
 
-    // If any expected versions were passed in, we should verify that those were actually installed
-    // and get the list of actual versions we'll be using to build the Zip file. This method will
-    // throw a fatalError if any versions are mismatched.
-    validateExpectedVersions(inProjectDir: projectDir)
-
     // Find out what pods were installed with the above commands.
     let installedPods = CocoaPodUtils.installedPodsInfo(inProjectDir: projectDir)
 
-    // We need the Firebase pod to get the version for Carthage and to copy the `Firebase.h` and
-    // `module.modulemap` file from it.
-    guard let firebasePod = installedPods.first(where: { $0.name == "Firebase" }) else {
-      fatalError("Could not get the Firebase pod from list of installed pods. All pods " +
-        "installed: \(installedPods)")
-    }
+    // If any expected versions were passed in, we should verify that those were actually installed
+    // and get the list of actual versions we'll be using to build the Zip file. This method will
+    // throw a fatalError if any versions are mismatched.
+    validateExpectedVersions(installedPods: installedPods)
 
     // Generate the frameworks. Each key is the pod name and the URLs are all frameworks to be
     // copied in each product's directory.
     let frameworks = generateFrameworks(fromPods: installedPods, inProjectDir: projectDir)
 
+    ModuleMapBuilder(frameworks: frameworks, customSpecRepos: customSpecRepos, allPods: installedPods).build()
+
     for (framework, paths) in frameworks {
       print("Frameworks for pod: \(framework) were compiled at \(paths)")
     }
+    return (installedPods, frameworks)
+  }
+
+  // TODO: This function contains a lot of "copy these paths to this directory, fail if there are
+  //   errors" code. It could probably be broken out into a cleaner interface or broken out into
+  //   separate functions.
+  /// Try to build and package the contents of the Zip file. This will throw an error as soon as it
+  /// encounters an error, or will quit due to a fatal error with the appropriate log.
+  ///
+  /// - Returns: Information related to the built artifacts.
+  /// - Throws: One of many errors that could have happened during the build phase.
+  func buildAndAssembleFirebaseRelease(inProjectDir projectDir: URL) throws -> ReleaseArtifacts {
+    // Get the README template ready (before attempting to build everything in case this fails,
+    // otherwise debugging it will take a long time).
+    let readmePath = paths.templateDir.appendingPathComponent(Constants.ProjectPath.readmeName)
+    let readmeTemplate: String
+    do {
+      readmeTemplate = try String(contentsOf: readmePath)
+    } catch {
+      fatalError("Could not get contents of the README template: \(error)")
+    }
+
+    // Break the `inputPods` into a variable since it's helpful when debugging builds to just
+    // install a subset of pods, like the following line:
+    // let inputPods: [String] = ["Firebase", "FirebaseCore", "FirebaseAnalytics", "FirebaseStorage"]
+    let inputPods = FirebasePods.allCases.map { $0.rawValue }
+
+    // Get the expected versions based on the release manifests, if there are any. If there are any
+    // versions with `alpha` or `beta` in it, we'll need to explicitly specify the version here so
+    // CocoaPods installs it properly.
+    let prereleases = expectedVersions().filter { _, version in
+      version.contains("alpha") || version.contains("beta") || version.contains("rc")
+    }
+
+    let podsToInstall: [CocoaPodUtils.VersionedPod] = inputPods.map { name in
+      // If there's a pre-release version, include it here. Otherwise don't pass a version since we
+      // want the latest.
+      let version: String? = prereleases[name]
+      return CocoaPodUtils.VersionedPod(name: name, version: version)
+    }
+
+    let (installedPods, frameworks) = buildAndAssembleZip(podsToInstall: podsToInstall)
 
     // Create the CoreDiagnostics framework for Carthage, since it needs to be recompiled.
     let carthageCoreDiagnostics: URL = createCarthageCoreDiagnostics(fromPods: installedPods,
                                                                      inProjectDir: projectDir)
+
+    // Copy the CoreDiagnostics zip module map to the Carthage build.
+    guard let coreDiagnosticsFramework = frameworks["FirebaseCoreDiagnostics"] else {
+      fatalError("Failed to find FirebaseCoreDiagnostics framework for Carthage copy.")
+    }
+    guard let coreDiagnosticModuleMapLocation = coreDiagnosticsFramework.first else {
+      fatalError("Failed to find FirebaseCoreDiagnostics module map location for Carthage copy.")
+    }
+    let coreDiagnosticModuleMap = coreDiagnosticModuleMapLocation.appendingPathComponent("Modules")
+    do {
+      try FileManager.default.copyItem(at: coreDiagnosticModuleMap,
+                                       to: carthageCoreDiagnostics.appendingPathComponent("Modules"))
+    } catch {
+      fatalError("Failed to copy module map to \(carthageCoreDiagnostics)")
+    }
 
     // Time to assemble the folder structure of the Zip file. In order to get the frameworks
     // required, we will `pod install` only those subspecs and then fetch the information for all
@@ -248,21 +245,25 @@ struct ZipBuilder {
                                               attributes: nil)
     }
 
+    // We need the Firebase pod to get the version for Carthage and to copy the `Firebase.h` and
+    // `module.modulemap` file from it.
+    guard let firebasePod = installedPods["Firebase"] else {
+      fatalError("Could not get the Firebase pod from list of installed pods. All pods " +
+        "installed: \(installedPods)")
+    }
     // Copy all required files from the Firebase pod. This will cause a fatalError if anything
     // fails.
     copyFirebasePodFiles(fromDir: firebasePod.installedLocation, to: zipDir)
-
-    // Copy all the other required files to the Zip directory.
-    copyRequiredFilesForDistribution(to: zipDir)
 
     // Start with installing Analytics, since we'll need to exclude those frameworks from the rest
     // of the folders.
     let analyticsFrameworks: [String]
     let analyticsDir: URL
     do {
-      // This returns the Analytics directory and a list of framework names that Analytics reqires.
+      // This returns the Analytics directory and a list of framework names that Analytics requires.
       /// Example: ["FirebaseInstanceID", "GoogleAppMeasurement", "nanopb", <...>]
-      let (dir, frameworks) = try installAndCopyFrameworks(forPod: .analytics,
+      let (dir, frameworks) = try installAndCopyFrameworks(forPod: "FirebaseAnalytics",
+                                                           withInstalledPods: installedPods,
                                                            projectDir: projectDir,
                                                            rootZipDir: zipDir,
                                                            builtFrameworks: frameworks)
@@ -273,26 +274,48 @@ struct ZipBuilder {
     }
 
     // Start the README dependencies string with the frameworks built in Analytics.
-    var readmeDeps = dependencyString(for: .analytics,
+    var readmeDeps = dependencyString(for: "FirebaseAnalytics",
                                       in: analyticsDir,
                                       frameworks: analyticsFrameworks)
 
     // Loop through all the other subspecs that aren't Core and Analytics and write them to their
     // final destination, including resources.
-    let remainingPods = podsToInstall.filter { $0 != .analytics && $0 != .core }
+    let remainingPods = installedPods.filter {
+      $0.key != "FirebaseAnalytics" &&
+        $0.key != "FirebaseCore" &&
+        $0.key != "Firebase" &&
+        podsToInstall.map { $0.name }.contains($0.key)
+    }.sorted { $0.key < $1.key }
     for pod in remainingPods {
       do {
         let (productDir, podFrameworks) =
-          try installAndCopyFrameworks(forPod: pod,
+          try installAndCopyFrameworks(forPod: pod.key,
+                                       withInstalledPods: installedPods,
                                        projectDir: projectDir,
                                        rootZipDir: zipDir,
                                        builtFrameworks: frameworks,
                                        podsToIgnore: analyticsFrameworks)
 
         // Update the README.
-        readmeDeps += dependencyString(for: pod, in: productDir, frameworks: podFrameworks)
+        readmeDeps += dependencyString(for: pod.key, in: productDir, frameworks: podFrameworks)
+
+        // Special case for Crashlytics:
+        // Copy additional tools to avoid users from downloading another artifact to upload symbols.
+        let crashlyticsPodName = FirebasePods.crashlytics.rawValue
+        if pod.key == crashlyticsPodName {
+          for file in ["upload-symbols", "run"] {
+            let source = pod.value.installedLocation.appendingPathComponent(file)
+            let target = zipDir.appendingPathComponent(crashlyticsPodName).appendingPathComponent(file)
+
+            do {
+              try FileManager.default.copyItem(at: source, to: target)
+            } catch {
+              fatalError("Error copying Crashlytics tools from \(source) to \(target): \(error)")
+            }
+          }
+        }
       } catch {
-        fatalError("Could not copy frameworks from \(pod.rawValue) into the zip file: \(error)")
+        fatalError("Could not copy frameworks from \(pod) into the zip file: \(error)")
       }
     }
 
@@ -317,17 +340,16 @@ struct ZipBuilder {
 
   // MARK: - Private
 
-  private func createCarthageCoreDiagnostics(fromPods pods: [CocoaPodUtils.PodInfo],
+  private func createCarthageCoreDiagnostics(fromPods pods: [String: CocoaPodUtils.PodInfo],
                                              inProjectDir projectDir: URL) -> URL {
     // FirebaseCoreDiagnostics needs to be re-compiled for Carthage. It should be included in all
     // builds, so ensure it's there.
-    guard let coreDiag = pods.first(where: { $0.name == Constants.coreDiagnosticsName }) else {
-      fatalError("Could not get FirebaseCoreDiagnostics pod to re-compile for Carthage. Pods " +
-        "installed: \(pods.map { $0.name })")
+    guard let coreDiag = pods[Constants.coreDiagnosticsName] else {
+      fatalError("Could not get FirebaseCoreDiagnostics pod to re-compile for Carthage.")
     }
 
     // Compile the CoreDiagnostics pod for Carthage.
-    let carthageFrameworks = generateFrameworks(fromPods: [coreDiag],
+    let carthageFrameworks = generateFrameworks(fromPods: [Constants.coreDiagnosticsName: coreDiag],
                                                 inProjectDir: projectDir,
                                                 carthageBuild: true)
     guard let coreDiagnosticsFrameworks = carthageFrameworks[Constants.coreDiagnosticsName] else {
@@ -348,20 +370,21 @@ struct ZipBuilder {
   /// them to the destination directory.
   ///
   /// - Parameters:
-  ///   - installedPods: All the Pods installed for a given set of pods, which will be used as a
-  ///               list to find out what frameworks to copy to the destination.
+  ///   - installedPods: Names of all the pods installed, which will be used as a
+  ///                    list to find out what frameworks to copy to the destination.
   ///   - dir: Destination directory for all the frameworks.
   ///   - frameworkLocations: A dictionary containing the pod name as the key and a location to
   ///                         the compiled frameworks.
   ///   - ignoreFrameworks: A list of Pod
   /// - Returns: The filenames of the frameworks that were copied.
   /// - Throws: Various FileManager errors in case the copying fails, or an error if the framework
-  //            doesn't exist in `frameworkLocations`.
-  private func copyFrameworks(fromPods installedPods: [CocoaPodUtils.PodInfo],
-                              toDirectory dir: URL,
-                              frameworkLocations: [String: [URL]],
-                              podsToIgnore: [String],
-                              foldersToIgnore: [String]) throws -> [String] {
+  ///           doesn't exist in `frameworkLocations`.
+  @discardableResult
+  func copyFrameworks(fromPods installedPods: [String],
+                      toDirectory dir: URL,
+                      frameworkLocations: [String: [URL]],
+                      podsToIgnore: [String] = [],
+                      foldersToIgnore: [String] = []) throws -> [String] {
     let fileManager = FileManager.default
     if !fileManager.directoryExists(at: dir) {
       try fileManager.createDirectory(at: dir, withIntermediateDirectories: false, attributes: nil)
@@ -372,16 +395,17 @@ struct ZipBuilder {
 
     // Loop through each InstalledPod item and get the name so we can fetch the framework and copy
     // it to the destination directory.
-    for pod in installedPods {
+    for podName in installedPods {
       // Skip the Firebase pod, any Interop pods, and specifically ignored frameworks.
-      guard pod.name != "Firebase",
-        !pod.name.contains("Interop"),
-        !podsToIgnore.contains(pod.name) else {
+      guard podName != "Firebase",
+        !podName.contains("Interop"),
+        !podsToIgnore.contains(podName),
+        podName != "FirebaseInAppMessagingDisplay" else {
         continue
       }
 
-      guard let frameworks = frameworkLocations[pod.name] else {
-        let reason = "Unable to find frameworks for \(pod.name) in cache of frameworks built to " +
+      guard let frameworks = frameworkLocations[podName] else {
+        let reason = "Unable to find frameworks for \(podName) in cache of frameworks built to " +
           "include in the Zip file for that framework's folder."
         let error = NSError(domain: "com.firebase.zipbuilder",
                             code: 1,
@@ -405,41 +429,19 @@ struct ZipBuilder {
     return copiedFrameworkNames
   }
 
-  /// Copies required files from the Firebase pod (i.e. `Firebase.h`, `module.modulemap`, etc) into
+  /// Copies required files from the Firebase pod (`Firebase.h`, `module.modulemap`, and `NOTICES`) into
   /// the given `zipDir`. Will cause a fatalError if anything fails since the zip file can't exist
   /// without these files.
   private func copyFirebasePodFiles(fromDir firebasePodDir: URL, to zipDir: URL) {
-    // The `Firebase.h` and `module.modulemap` file are in the "CoreOnly/Sources" directory. We are
-    // hardcoding this instead of trying a recurisve search in the `firebasePodDir` directory
-    // because if the location changes we'll want to know.
-    let firebaseFiles = firebasePodDir.appendingPathComponent("CoreOnly/Sources")
-    let firebaseFilesToCopy = Constants.ProjectPath.requiredFilesFromFirebasePod.map {
+    let firebasePodFiles = ["NOTICES", "Sources/" + Constants.ProjectPath.firebaseHeader,
+                            "Sources/" + Constants.ProjectPath.modulemap]
+    let firebaseFiles = firebasePodDir.appendingPathComponent("CoreOnly")
+    let firebaseFilesToCopy = firebasePodFiles.map {
       firebaseFiles.appendingPathComponent($0)
     }
 
     // Copy each Firebase file.
     for file in firebaseFilesToCopy {
-      // Each file should be copied to the destination project directory with the same name.
-      let destination = zipDir.appendingPathComponent(file.lastPathComponent)
-      do {
-        if !FileManager.default.fileExists(atPath: destination.path) {
-          print("Copying final distribution file \(file) to \(destination)...")
-          try FileManager.default.copyItem(at: file, to: destination)
-        }
-      } catch {
-        fatalError("Could not copy final distribution files to temporary directory before " +
-          "building. Failed while attempting to copy \(file) to \(destination). \(error)")
-      }
-    }
-  }
-
-  /// Copies required files based on the project
-  private func copyRequiredFilesForDistribution(to zipDir: URL) {
-    let distributionFiles = Constants.ProjectPath.requiredFilesForDistribution.map {
-      paths.templateDir.appendingPathComponent($0)
-    }
-
-    for file in distributionFiles {
       // Each file should be copied to the destination project directory with the same name.
       let destination = zipDir.appendingPathComponent(file.lastPathComponent)
       do {
@@ -465,13 +467,13 @@ struct ZipBuilder {
   /// - Returns: A string with a header for the subspec name, and a list of frameworks required to
   ///            integrate for the product to work. Formatted and ready for insertion into the
   ///            README.
-  private func dependencyString(for pod: CocoaPod, in dir: URL, frameworks: [String]) -> String {
-    var result = pod.readmeHeader()
+  private func dependencyString(for podName: String, in dir: URL, frameworks: [String]) -> String {
+    var result = FirebasePods.readmeHeader(podName: podName)
     for framework in frameworks.sorted() {
       result += "- \(framework).framework\n"
     }
 
-    result += "\n"
+    result += "\n" // Necessary for Resource message to print properly in markdown.
 
     // Check if there is a Resources directory, and if so, add the disclaimer to the dependency
     // string.
@@ -481,10 +483,11 @@ struct ZipBuilder {
                                                            in: dir)
       if !resourceDirs.isEmpty {
         result += Constants.resourcesRequiredText
+        result += "\n" // Separate from next pod in listing for text version.
       }
     } catch {
       fatalError("""
-      Tried to find Resources directory for \(pod) in order to build the README, but an error
+      Tried to find Resources directory for \(podName) in order to build the README, but an error
       occurred: \(error).
       """)
     }
@@ -542,20 +545,21 @@ struct ZipBuilder {
   ///            that were copied for this subspec.
   @discardableResult
   func installAndCopyFrameworks(
-    forPod pod: CocoaPod,
+    forPod podName: String,
+    withInstalledPods installedPods: [String: CocoaPodUtils.PodInfo],
     projectDir: URL,
     rootZipDir: URL,
     builtFrameworks: [String: [URL]],
     podsToIgnore: [String] = []
   ) throws -> (productDir: URL, frameworks: [String]) {
-    let installedPods = CocoaPodUtils.installPods([pod], inDir: projectDir, customSpecRepos: customSpecRepos)
+    let podsToCopy = [podName] + CocoaPodUtils.transitivePodDependencies(for: podName, in: installedPods)
     // Copy the frameworks into the proper product directory.
-    let productDir = rootZipDir.appendingPathComponent(pod.rawValue)
-    let namedFrameworks = try copyFrameworks(fromPods: installedPods,
+    let productDir = rootZipDir.appendingPathComponent(podName)
+    let namedFrameworks = try copyFrameworks(fromPods: podsToCopy,
                                              toDirectory: productDir,
                                              frameworkLocations: builtFrameworks,
                                              podsToIgnore: podsToIgnore,
-                                             foldersToIgnore: pod.duplicateFrameworksToRemove())
+                                             foldersToIgnore: FirebasePods.duplicateFrameworksToRemove(pod: podName))
 
     let copiedFrameworks = namedFrameworks.filter {
       // Only return the frameworks that aren't contained in the "podsToIgnore" array, aren't an
@@ -570,42 +574,32 @@ struct ZipBuilder {
   /// one) match the expected versions installed and listed in the Podfile.lock in a project
   /// directory.
   ///
-  /// - Parameter projectDir: The directory containing the Podfile.lock file of installed pods.
-  private func validateExpectedVersions(inProjectDir projectDir: URL) {
+  /// - Parameter projectDir: The dictionary that summarizes the pod info parsed from the Podfile.lock.
+  private func validateExpectedVersions(installedPods: [String: CocoaPodUtils.PodInfo]) {
     // Get the expected versions based on the release manifests, if there are any. We'll use this to
     // validate the versions pulled from CocoaPods. Expected versions could be empty, in which case
     // validation succeeds.
-    let expected = expectedVersions()
+    let expected = expectedVersions().filter { $0.key != "FirebaseInAppMessagingDisplay" }
     if !expected.isEmpty {
-      // There are some expected versions, read from the CocoaPods Podfile.lock and grab the
-      // installed versions.
-      let podfileLock: String
-      do {
-        podfileLock = try String(contentsOf: projectDir.appendingPathComponent("Podfile.lock"))
-      } catch {
-        fatalError("Could not read contents of `Podfile.lock` to validate versions in " +
-          "\(projectDir): \(error)")
-      }
-
-      // Get the versions in the format of [PodName: VersionString].
-      let actual = CocoaPodUtils.loadVersionsFromPodfileLock(contents: podfileLock)
-
       // Loop through the expected versions and verify the actual versions match.
-      for podName in expected.keys where !podName.contains("SmartReply") {
-        guard let actualVersion = actual[podName],
-          let expectedVersion = expected[podName],
-          actualVersion == expectedVersion else {
+      for podName in expected.keys {
+        // If there are some expected versions,verify them.
+        guard let installedPod = installedPods[podName] else {
+          fatalError("Did not find expected pod \(podName) installed")
+        }
+        let actualVersion = installedPod.version
+        guard let expectedVersion = expected[podName],
+          installedPod.version == expectedVersion else {
           fatalError("""
           Version mismatch from expected versions and version installed in CocoaPods:
           Pod Name: \(podName)
           Expected Version: \(String(describing: expected[podName]))
-          Actual Version: \(String(describing: actual[podName]))
+          Actual Version: \(actualVersion)
           Please verify that the expected version is correct, and the Podspec dependencies are
           appropriately versioned.
           """)
         }
-
-        print("Successfully verified version of \(podName) is \(actualVersion)")
+        print("Successfully verified version of \(podName) is \(expectedVersion)")
       }
     }
   }
@@ -614,17 +608,17 @@ struct ZipBuilder {
   ///
   /// - Parameter pods: All pods that were installed, with their versions.
   /// - Returns: A String to be added to the README.
-  private func versionsString(for pods: [CocoaPodUtils.PodInfo]) -> String {
+  private func versionsString(for pods: [String: CocoaPodUtils.PodInfo]) -> String {
     // Get the longest name in order to generate padding with spaces so it looks nicer.
     let maxLength: Int = {
-      guard let pod = pods.max(by: { $0.name.count < $1.name.count }) else {
+      guard let pod = pods.keys.max(by: { $0.count < $1.count }) else {
         // The longest pod as of this writing is 29 characters, if for whatever reason this fails
         // just assume 30 characters long.
         return 30
       }
 
       // Return room for a space afterwards.
-      return pod.name.count + 1
+      return pod.count + 1
     }()
 
     let header: String = {
@@ -651,17 +645,17 @@ struct ZipBuilder {
     }()
 
     // Sort the pods by name for a cleaner display.
-    let sortedPods = pods.sorted { $0.name < $1.name }
+    let sortedPods = pods.sorted { $0.key < $1.key }
 
     // Get the name and version of each pod, padding it along the way.
     var podVersions: String = ""
     for pod in sortedPods {
       // Insert the name and enough spaces to reach the end of the column.
-      let podName = pod.name
+      let podName = pod.key
       podVersions += podName + String(repeating: " ", count: maxLength - podName.count)
 
       // Add a pipe and the version.
-      podVersions += "| " + pod.version + "\n"
+      podVersions += "| " + pod.value.version + "\n"
     }
 
     return header + podVersions
@@ -674,7 +668,7 @@ struct ZipBuilder {
   /// CocoaPods. Returns a dictionary with the framework name for the key and all information for
   /// frameworks to install EXCLUDING resources, as they are handled later (if not included in the
   /// .framework file already).
-  private func generateFrameworks(fromPods pods: [CocoaPodUtils.PodInfo],
+  private func generateFrameworks(fromPods pods: [String: CocoaPodUtils.PodInfo],
                                   inProjectDir projectDir: URL,
                                   carthageBuild: Bool = false) -> [String: [URL]] {
     // Verify the Pods folder exists and we can get the contents of it.
@@ -699,29 +693,34 @@ struct ZipBuilder {
     // Loop through each pod folder and check if the frameworks already exist, or they need to be
     // compiled. If they exist, add them to the frameworks dictionary.
     var toInstall: [String: [URL]] = [:]
-    for pod in pods {
+    for (podName, podInfo) in pods {
       var frameworks: [URL] = []
-      // Ignore any Interop pods or the Firebase umbrella pod.
-      guard !pod.name.contains("Interop"), pod.name != "Firebase" else {
+      // Ignore any Interop pods or the Firebase umbrella pod. Also ignore the InAppMessagingDisplay
+      // pod since it doesn't have any source files to compile, only an empty header.
+      guard !podName.contains("Interop"),
+        podName != "Firebase",
+        podName != "FirebaseInAppMessagingDisplay" else {
         continue
       }
 
       // Get all the frameworks contained in this directory.
-      var foundFrameworks: [URL]
-      do {
-        foundFrameworks = try fileManager.recursivelySearch(for: .frameworks,
-                                                            in: pod.installedLocation)
-      } catch {
-        fatalError("Cannot search for .framework files in Pods directory " +
-          "\(pod.installedLocation): \(error)")
+      var foundFrameworks: [URL] = []
+      if podInfo.installedLocation != LaunchArgs.shared.localPodspecPath {
+        do {
+          foundFrameworks = try fileManager.recursivelySearch(for: .frameworks,
+                                                              in: podInfo.installedLocation)
+        } catch {
+          fatalError("Cannot search for .framework files in Pods directory " +
+            "\(podInfo.installedLocation): \(error)")
+        }
       }
 
       // If there are no frameworks, it's an open source pod and we need to compile the source to
       // get a framework.
       if foundFrameworks.isEmpty {
         let builder = FrameworkBuilder(projectDir: projectDir, carthageBuild: carthageBuild)
-        let framework = builder.buildFramework(withName: pod.name,
-                                               version: pod.version,
+        let framework = builder.buildFramework(withName: podName,
+                                               version: podInfo.version,
                                                logsOutputDir: paths.logsOutputDir)
 
         frameworks = [framework]
@@ -729,9 +728,9 @@ struct ZipBuilder {
         // Package all resources into the frameworks since that's how Carthage needs it packaged.
         do {
           // TODO: Figure out if we need to exclude bundles here or not.
-          try ResourcesManager.packageAllResources(containedIn: pod.installedLocation)
+          try ResourcesManager.packageAllResources(containedIn: podInfo.installedLocation)
         } catch {
-          fatalError("Tried to package resources for \(pod.name) but it failed: \(error)")
+          fatalError("Tried to package resources for \(podName) but it failed: \(error)")
         }
 
         // Copy each of the frameworks to a known temporary directory and store the location.
@@ -740,7 +739,7 @@ struct ZipBuilder {
           let copiedLocation = tempDir.appendingPathComponent(framework.lastPathComponent)
 
           // Remove the framework if it exists since it could be out of date.
-          fileManager.removeDirectoryIfExists(at: copiedLocation)
+          fileManager.removeIfExists(at: copiedLocation)
           do {
             try fileManager.copyItem(at: framework, to: copiedLocation)
           } catch {
@@ -752,7 +751,7 @@ struct ZipBuilder {
         }
       }
 
-      toInstall[pod.name] = frameworks
+      toInstall[podName] = frameworks
     }
 
     return toInstall

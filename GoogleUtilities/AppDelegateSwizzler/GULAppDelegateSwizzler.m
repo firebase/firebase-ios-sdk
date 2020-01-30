@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "TargetConditionals.h"
+#import <TargetConditionals.h>
 
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <GoogleUtilities/GULLogger.h>
 #import <GoogleUtilities/GULMutableDictionary.h>
-#import "../Common/GULLoggerCodes.h"
-#import "Internal/GULAppDelegateSwizzler_Private.h"
+#import "GoogleUtilities/AppDelegateSwizzler/Internal/GULAppDelegateSwizzler_Private.h"
+#import "GoogleUtilities/Common/GULLoggerCodes.h"
 
 #import <objc/runtime.h>
 
@@ -53,14 +53,14 @@ typedef void (*GULRealDidFailToRegisterForRemoteNotificationsIMP)(id,
 
 typedef void (*GULRealDidReceiveRemoteNotificationIMP)(id, SEL, GULApplication *, NSDictionary *);
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000
-// This is needed to for the library to be warning free on iOS versions < 7.
+// TODO: Since we don't support iOS 7 anymore, see if we can remove the check below.
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000 && !TARGET_OS_WATCH
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunguarded-availability"
 typedef void (*GULRealDidReceiveRemoteNotificationWithCompletionIMP)(
     id, SEL, GULApplication *, NSDictionary *, void (^)(UIBackgroundFetchResult));
 #pragma clang diagnostic pop
-#endif  // __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000
+#endif  // __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000 && !TARGET_OS_WATCH
 
 typedef void (^GULAppDelegateInterceptorCallback)(id<GULApplicationDelegate>);
 
@@ -75,11 +75,12 @@ static GULLoggerService kGULLoggerSwizzler = @"[GoogleUtilities/AppDelegateSwizz
 // Since Firebase SDKs also use this for app delegate proxying, in order to not be a breaking change
 // we disable App Delegate proxying when either of these two flags are set to NO.
 
-/** Plist key that allows Firebase developers to disable App Delegate Proxying. */
+/** Plist key that allows Firebase developers to disable App and Scene Delegate Proxying. */
 static NSString *const kGULFirebaseAppDelegateProxyEnabledPlistKey =
     @"FirebaseAppDelegateProxyEnabled";
 
-/** Plist key that allows developers not using Firebase to disable App Delegate Proxying. */
+/** Plist key that allows developers not using Firebase to disable App and Scene Delegate Proxying.
+ */
 static NSString *const kGULGoogleUtilitiesAppDelegateProxyEnabledPlistKey =
     @"GoogleUtilitiesAppDelegateProxyEnabled";
 
@@ -518,7 +519,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
        storeDestinationImplementationTo:realImplementationsBySelector];
 
   // For application:didReceiveRemoteNotification:fetchCompletionHandler:
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000 && !TARGET_OS_WATCH
   if ([GULAppEnvironmentUtil isIOS7OrHigher]) {
     SEL didReceiveRemoteNotificationWithCompletionSEL =
         NSSelectorFromString(kGULDidReceiveRemoteNotificationWithCompletionSEL);
@@ -539,7 +540,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
            storeDestinationImplementationTo:realImplementationsBySelector];
     }
   }
-#endif  // __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000
+#endif  // __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000 && !TARGET_OS_WATCH
 }
 
 /// We have to do this to invalidate the cache that caches the original respondsToSelector of
@@ -548,11 +549,13 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
 /// Register KVO only once. Otherwise, the observing method will be called as many times as
 /// being registered.
 + (void)reassignAppDelegate {
+#if !TARGET_OS_WATCH
   id<GULApplicationDelegate> delegate = [self sharedApplication].delegate;
   [self sharedApplication].delegate = nil;
   [self sharedApplication].delegate = delegate;
   gOriginalAppDelegate = delegate;
   [[GULAppDelegateObserver sharedInstance] observeUIApplication];
+#endif
 }
 
 #pragma mark - Helper methods
@@ -809,6 +812,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
       continueUserActivityIMPPointer.pointerValue;
 
   __block BOOL returnedValue = NO;
+#if !TARGET_OS_WATCH
   [GULAppDelegateSwizzler
       notifyInterceptorsWithMethodSelector:methodSelector
                                   callback:^(id<GULApplicationDelegate> interceptor) {
@@ -816,6 +820,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
                                                          continueUserActivity:userActivity
                                                            restorationHandler:restorationHandler];
                                   }];
+#endif
   // Call the real implementation if the real App Delegate has any.
   if (continueUserActivityIMP) {
     returnedValue |= continueUserActivityIMP(self, methodSelector, application, userActivity,
@@ -880,8 +885,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
   }
 }
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000
-// This is needed to for the library to be warning free on iOS versions < 7.
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000 && !TARGET_OS_WATCH
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunguarded-availability"
 - (void)application:(GULApplication *)application
@@ -914,7 +918,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
   }
 }
 #pragma clang diagnostic pop
-#endif  // __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000
+#endif  // __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000 && !TARGET_OS_WATCH
 
 - (void)application:(GULApplication *)application
     donor_didReceiveRemoteNotification:(NSDictionary *)userInfo {

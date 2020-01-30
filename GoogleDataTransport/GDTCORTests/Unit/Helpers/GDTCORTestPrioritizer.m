@@ -20,12 +20,12 @@
 
 @implementation GDTCORTestPrioritizer
 
-- (GDTCORUploadPackage *)uploadPackageWithConditions:(GDTCORUploadConditions)conditions {
+- (GDTCORUploadPackage *)uploadPackageWithTarget:(GDTCORTarget)target
+                                      conditions:(GDTCORUploadConditions)conditions {
   if (_uploadPackageWithConditionsBlock) {
     _uploadPackageWithConditionsBlock();
   }
-  GDTCORUploadPackage *uploadPackage =
-      [[GDTCORUploadPackage alloc] initWithTarget:kGDTCORTargetTest];
+  GDTCORUploadPackage *uploadPackage = [[GDTCORUploadPackage alloc] initWithTarget:target];
   uploadPackage.events = _events;
   return uploadPackage;
 }

@@ -43,12 +43,11 @@ class PlatformError;
 class ABSL_MUST_USE_RESULT Status {
  public:
   /// Create a success status.
-  Status() {
-  }
+  Status() = default;
 
   /// \brief Create a status with the specified error code and msg as a
   /// human-readable string containing more detailed information.
-  Status(Error code, absl::string_view msg);
+  Status(Error code, std::string msg);
 
   /// Copy the specified status.
   Status(const Status& s);

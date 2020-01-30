@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Firestore/core/src/firebase/firestore/local/local_documents_view.h"
+#include "Firestore/core/src/firebase/firestore/local/local_documents_view.h"
 
 #include <string>
 #include <utility>
@@ -46,7 +46,6 @@ using model::NoDocument;
 using model::OptionalMaybeDocumentMap;
 using model::ResourcePath;
 using model::SnapshotVersion;
-using util::MakeString;
 
 absl::optional<MaybeDocument> LocalDocumentsView::GetDocument(
     const DocumentKey& key) {
@@ -86,10 +85,6 @@ MaybeDocumentMap LocalDocumentsView::GetDocuments(const DocumentKeySet& keys) {
   return GetLocalViewOfDocuments(docs);
 }
 
-/**
- * Similar to `documentsForKeys`, but creates the local view from the given
- * `baseDocs` without retrieving documents from the local store.
- */
 MaybeDocumentMap LocalDocumentsView::GetLocalViewOfDocuments(
     const OptionalMaybeDocumentMap& base_docs) {
   DocumentKeySet all_keys;
@@ -118,13 +113,14 @@ MaybeDocumentMap LocalDocumentsView::GetLocalViewOfDocuments(
   return results;
 }
 
-DocumentMap LocalDocumentsView::GetDocumentsMatchingQuery(const Query& query) {
+DocumentMap LocalDocumentsView::GetDocumentsMatchingQuery(
+    const Query& query, const model::SnapshotVersion& since_read_time) {
   if (query.IsDocumentQuery()) {
     return GetDocumentsMatchingDocumentQuery(query.path());
   } else if (query.IsCollectionGroupQuery()) {
-    return GetDocumentsMatchingCollectionGroupQuery(query);
+    return GetDocumentsMatchingCollectionGroupQuery(query, since_read_time);
   } else {
-    return GetDocumentsMatchingCollectionQuery(query);
+    return GetDocumentsMatchingCollectionQuery(query, since_read_time);
   }
 }
 
@@ -140,7 +136,7 @@ DocumentMap LocalDocumentsView::GetDocumentsMatchingDocumentQuery(
 }
 
 model::DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionGroupQuery(
-    const Query& query) {
+    const Query& query, const SnapshotVersion& since_read_time) {
   HARD_ASSERT(
       query.path().empty(),
       "Currently we only support collection group queries at the root.");
@@ -156,7 +152,7 @@ model::DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionGroupQuery(
     Query collection_query =
         query.AsCollectionQueryAtPath(parent.Append(collection_id));
     DocumentMap collection_results =
-        GetDocumentsMatchingCollectionQuery(collection_query);
+        GetDocumentsMatchingCollectionQuery(collection_query, since_read_time);
     for (const auto& kv : collection_results.underlying_map()) {
       const DocumentKey& key = kv.first;
       results = results.insert(key, Document(kv.second));
@@ -166,8 +162,9 @@ model::DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionGroupQuery(
 }
 
 DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionQuery(
-    const Query& query) {
-  DocumentMap results = remote_document_cache_->GetMatching(query);
+    const Query& query, const SnapshotVersion& since_read_time) {
+  DocumentMap results =
+      remote_document_cache_->GetMatching(query, since_read_time);
   // Get locally persisted mutation batches.
   std::vector<MutationBatch> matching_batches =
       mutation_queue_->AllMutationBatchesAffectingQuery(query);

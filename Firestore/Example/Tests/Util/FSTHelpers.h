@@ -17,58 +17,34 @@
 #import <Foundation/Foundation.h>
 
 #include <string>
-#include <unordered_map>
 #include <vector>
 
-#include "Firestore/core/src/firebase/firestore/core/filter.h"
-#include "Firestore/core/src/firebase/firestore/core/view.h"
-#include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
-#include "Firestore/core/src/firebase/firestore/local/local_view_changes.h"
-#include "Firestore/core/src/firebase/firestore/local/query_data.h"
-#include "Firestore/core/src/firebase/firestore/model/delete_mutation.h"
-#include "Firestore/core/src/firebase/firestore/model/document.h"
-#include "Firestore/core/src/firebase/firestore/model/document_map.h"
-#include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
-#include "Firestore/core/src/firebase/firestore/model/field_value.h"
-#include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
-#include "Firestore/core/src/firebase/firestore/model/mutation.h"
-#include "Firestore/core/src/firebase/firestore/model/no_document.h"
-#include "Firestore/core/src/firebase/firestore/model/patch_mutation.h"
-#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
-#include "Firestore/core/src/firebase/firestore/model/set_mutation.h"
-#include "Firestore/core/src/firebase/firestore/model/transform_mutation.h"
-#include "Firestore/core/src/firebase/firestore/model/types.h"
-#include "Firestore/core/src/firebase/firestore/model/unknown_document.h"
-#include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
 #include "absl/strings/string_view.h"
-#include "absl/types/optional.h"
 
 @class FIRGeoPoint;
-@class FIRTimestamp;
 @class FSTDocumentKeyReference;
 @class FSTUserDataConverter;
 
 namespace firebase {
 namespace firestore {
-namespace remote {
 
-class RemoteEvent;
+namespace model {
+class DeleteMutation;
+class DocumentKey;
+class FieldValue;
+class ObjectValue;
+class PatchMutation;
+class SetMutation;
+class TransformMutation;
+}  // namespace model
 
-}  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
 
-namespace core = firebase::firestore::core;
-namespace local = firebase::firestore::local;
 namespace model = firebase::firestore::model;
 
 NS_ASSUME_NONNULL_BEGIN
-
-#define FSTAssertIsKindOfClass(value, classType)             \
-  do {                                                       \
-    XCTAssertEqualObjects([value class], [classType class]); \
-  } while (0);
 
 /**
  * Takes an array of "equality group" arrays and asserts that the compare: selector returns the
@@ -92,31 +68,6 @@ NS_ASSUME_NONNULL_BEGIN
         }                                                                                          \
       }                                                                                            \
     }                                                                                              \
-  } while (0)
-
-/**
- * Takes an array of "equality group" arrays and asserts that the isEqual: selector returns TRUE
- * if-and-only-if items are in the same group.
- *
- * Additionally checks that the hash: selector returns the same value for items in the same group.
- */
-#define FSTAssertEqualityGroups(values)                                                          \
-  do {                                                                                           \
-    for (NSUInteger i = 0; i < [values count]; i++) {                                            \
-      for (id left in values[i]) {                                                               \
-        for (NSUInteger j = 0; j < [values count]; j++) {                                        \
-          for (id right in values[j]) {                                                          \
-            if (i == j) {                                                                        \
-              XCTAssertEqualObjects(left, right);                                                \
-              XCTAssertEqual([left hash], [right hash], @"comparing hash of %@ with hash of %@", \
-                             left, right);                                                       \
-            } else {                                                                             \
-              XCTAssertNotEqualObjects(left, right);                                             \
-            }                                                                                    \
-          }                                                                                      \
-        }                                                                                        \
-      }                                                                                          \
-    }                                                                                            \
   } while (0)
 
 static NSString *kExceptionPrefix = @"FIRESTORE INTERNAL ASSERTION FAILED: ";
@@ -143,18 +94,6 @@ inline NSString *FSTRemoveExceptionPrefix(NSString *exception) {
     }                                                                   \
     XCTAssertTrue(didThrow, ##__VA_ARGS__);                             \
   } while (0)
-
-// Helper to compare vectors containing Objective-C objects.
-#define FSTAssertEqualVectors(v1, v2)                                \
-  do {                                                               \
-    XCTAssertEqual(v1.size(), v2.size(), @"Vector length mismatch"); \
-    for (size_t i = 0; i < v1.size(); i++) {                         \
-      XCTAssertEqualObjects(v1[i], v2[i]);                           \
-    }                                                                \
-  } while (0)
-
-/** Creates a new FIRTimestamp from components. Note that year, month, and day are all one-based. */
-FIRTimestamp *FSTTestTimestamp(int year, int month, int day, int hour, int minute, int second);
 
 /** Creates a new NSDate from components. Note that year, month, and day are all one-based. */
 NSDate *FSTTestDate(int year, int month, int day, int hour, int minute, int second);
@@ -186,7 +125,7 @@ model::FieldValue FSTTestFieldValue(id _Nullable value);
 model::ObjectValue FSTTestObjectValue(NSDictionary<NSString *, id> *data);
 
 /** A convenience method for creating document keys for tests. */
-firebase::firestore::model::DocumentKey FSTTestDocKey(NSString *path);
+model::DocumentKey FSTTestDocKey(NSString *path);
 
 /** Allow tests to just use an int literal for versions. */
 typedef int64_t FSTTestSnapshotVersion;
@@ -195,12 +134,6 @@ typedef int64_t FSTTestSnapshotVersion;
  * A convenience method for creating a document reference from a path string.
  */
 FSTDocumentKeyReference *FSTTestRef(std::string projectID, std::string databaseID, NSString *path);
-
-/** Computes changes to the view with the docs and then applies them and returns the snapshot. */
-absl::optional<core::ViewSnapshot> FSTTestApplyChanges(
-    core::View *view,
-    const std::vector<model::MaybeDocument> &docs,
-    const absl::optional<firebase::firestore::remote::TargetChange> &targetChange);
 
 /** Creates a set mutation for the document key at the given path. */
 model::SetMutation FSTTestSetMutation(NSString *path, NSDictionary<NSString *, id> *values);
@@ -221,47 +154,5 @@ model::TransformMutation FSTTestTransformMutation(NSString *path,
 
 /** Creates a delete mutation for the document key at the given path. */
 model::DeleteMutation FSTTestDeleteMutation(NSString *path);
-
-/** Converts a list of documents to a sorted map. */
-firebase::firestore::model::MaybeDocumentMap FSTTestDocUpdates(
-    const std::vector<model::MaybeDocument> &docs);
-
-/** Creates a remote event that inserts a new document. */
-firebase::firestore::remote::RemoteEvent FSTTestAddedRemoteEvent(
-    const model::MaybeDocument &doc,
-    const std::vector<firebase::firestore::model::TargetId> &addedToTargets);
-
-/** Creates a remote event that inserts a list of documents. */
-firebase::firestore::remote::RemoteEvent FSTTestAddedRemoteEvent(
-    const std::vector<model::MaybeDocument> &doc,
-    const std::vector<firebase::firestore::model::TargetId> &addedToTargets);
-
-/** Creates a remote event with changes to a document. */
-firebase::firestore::remote::RemoteEvent FSTTestUpdateRemoteEvent(
-    const model::MaybeDocument &doc,
-    const std::vector<firebase::firestore::model::TargetId> &updatedInTargets,
-    const std::vector<firebase::firestore::model::TargetId> &removedFromTargets);
-
-/** Creates a remote event with changes to a document. Allows for identifying limbo targets */
-firebase::firestore::remote::RemoteEvent FSTTestUpdateRemoteEventWithLimboTargets(
-    const model::MaybeDocument &doc,
-    const std::vector<firebase::firestore::model::TargetId> &updatedInTargets,
-    const std::vector<firebase::firestore::model::TargetId> &removedFromTargets,
-    const std::vector<firebase::firestore::model::TargetId> &limboTargets);
-
-/** Creates a test view changes. */
-local::LocalViewChanges TestViewChanges(firebase::firestore::model::TargetId targetID,
-                                        NSArray<NSString *> *addedKeys,
-                                        NSArray<NSString *> *removedKeys);
-
-/** Creates a test target change that acks all 'docs' and  marks the target as CURRENT  */
-firebase::firestore::remote::TargetChange FSTTestTargetChangeAckDocuments(
-    firebase::firestore::model::DocumentKeySet docs);
-
-/** Creates a test target change that marks the target as CURRENT  */
-firebase::firestore::remote::TargetChange FSTTestTargetChangeMarkCurrent();
-
-/** Creates a resume token to match the given snapshot version. */
-NSData *_Nullable FSTTestResumeTokenFromSnapshotVersion(FSTTestSnapshotVersion watchSnapshot);
 
 NS_ASSUME_NONNULL_END

@@ -1,4 +1,4 @@
-# Copyright 2018 Google
+# Copyright 2018 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,3 +11,16 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+if(APPLE)
+  cc_binary(
+    firebase_firestore_remote_document_cache_benchmark
+    SOURCES
+      remote_document_cache_benchmark.mm
+    DEPENDS
+      benchmark
+      benchmark_main
+      firebase_firestore_testutil
+      FirebaseFirestore
+  )
+endif()

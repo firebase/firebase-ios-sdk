@@ -120,7 +120,6 @@ cc_library(
     filesystem.h
     filesystem_apple.mm
     filesystem_common.cc
-    filesystem_detail.h
     filesystem_posix.cc
     path.cc
     path.h
@@ -135,7 +134,6 @@ cc_library(
   SOURCES
     filesystem.h
     filesystem_common.cc
-    filesystem_detail.h
     filesystem_posix.cc
     path.cc
     path.h
@@ -150,7 +148,6 @@ cc_library(
   SOURCES
     filesystem.h
     filesystem_common.cc
-    filesystem_detail.h
     filesystem_win.cc
     path.cc
     path.h
@@ -208,6 +205,8 @@ cc_select(
 cc_library(
   firebase_firestore_util_status
   SOURCES
+    error_apple.h
+    error_apple.mm
     status.cc
     status.h
     status_apple.mm
@@ -253,8 +252,6 @@ cc_library(
     config.h
     delayed_constructor.h
     empty.h
-    error_apple.h
-    error_apple.mm
     equality.h
     hashing.h
     iterator_adaptors.h

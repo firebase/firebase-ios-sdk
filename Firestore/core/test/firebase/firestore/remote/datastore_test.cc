@@ -21,6 +21,7 @@
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/Protos/nanopb/google/firestore/v1/firestore.nanopb.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/message.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_nanopb.h"
 #include "Firestore/core/src/firebase/firestore/remote/serializer.h"
@@ -35,6 +36,7 @@
 #include "Firestore/core/test/firebase/firestore/util/grpc_stream_tester.h"
 #include "absl/memory/memory.h"
 #include "absl/strings/str_cat.h"
+#include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
@@ -48,18 +50,20 @@ using core::DatabaseInfo;
 using model::DatabaseId;
 using model::Document;
 using model::MaybeDocument;
+using nanopb::MakeArray;
 using nanopb::Message;
+using testing::Not;
 using testutil::Value;
 using util::AsyncQueue;
 using util::CompletionEndState;
+using util::CompletionResult;
 using util::Executor;
 using util::FakeCredentialsProvider;
 using util::FakeGrpcQueue;
 using util::GrpcStreamTester;
 using util::Status;
 using util::StatusOr;
-using util::CompletionResult::Error;
-using util::CompletionResult::Ok;
+
 using Type = GrpcCompletion::Type;
 
 grpc::ByteBuffer MakeFakeDocument(const std::string& doc_name) {
@@ -123,6 +127,8 @@ class DatastoreTest : public testing::Test {
     if (!is_shut_down) {
       Shutdown();
     }
+    // Ensure that nothing remains on the AsyncQueue before destroying it.
+    worker_queue->EnqueueBlocking([] {});
   }
 
   void Shutdown() {
@@ -213,9 +219,10 @@ TEST_F(DatastoreTest, LookupDocumentsOneSuccessfulRead) {
   // Make sure Auth has a chance to run.
   worker_queue->EnqueueBlocking([] {});
 
-  ForceFinishAnyTypeOrder({{Type::Read, MakeFakeDocument("foo/1")},
-                           {Type::Write, Ok},
-                           /*Read after last*/ {Type::Read, Error}});
+  ForceFinishAnyTypeOrder(
+      {{Type::Read, MakeFakeDocument("foo/1")},
+       {Type::Write, CompletionResult::Ok},
+       /*Read after last*/ {Type::Read, CompletionResult::Error}});
   ForceFinish({{Type::Finish, grpc::Status::OK}});
 
   EXPECT_TRUE(done);
@@ -239,10 +246,11 @@ TEST_F(DatastoreTest, LookupDocumentsTwoSuccessfulReads) {
   // Make sure Auth has a chance to run.
   worker_queue->EnqueueBlocking([] {});
 
-  ForceFinishAnyTypeOrder({{Type::Write, Ok},
-                           {Type::Read, MakeFakeDocument("foo/1")},
-                           {Type::Read, MakeFakeDocument("foo/2")},
-                           /*Read after last*/ {Type::Read, Error}});
+  ForceFinishAnyTypeOrder(
+      {{Type::Write, CompletionResult::Ok},
+       {Type::Read, MakeFakeDocument("foo/1")},
+       {Type::Read, MakeFakeDocument("foo/2")},
+       /*Read after last*/ {Type::Read, CompletionResult::Error}});
   ForceFinish({{Type::Finish, grpc::Status::OK}});
 
   EXPECT_TRUE(done);
@@ -282,7 +290,8 @@ TEST_F(DatastoreTest, LookupDocumentsErrorBeforeFirstRead) {
   // Make sure Auth has a chance to run.
   worker_queue->EnqueueBlocking([] {});
 
-  ForceFinishAnyTypeOrder({{Type::Read, Error}, {Type::Write, Error}});
+  ForceFinishAnyTypeOrder({{Type::Read, CompletionResult::Error},
+                           {Type::Write, CompletionResult::Error}});
   ForceFinish({{Type::Finish, grpc::Status{grpc::UNAVAILABLE, ""}}});
 
   EXPECT_TRUE(done);
@@ -302,9 +311,9 @@ TEST_F(DatastoreTest, LookupDocumentsErrorAfterFirstRead) {
   // Make sure Auth has a chance to run.
   worker_queue->EnqueueBlocking([] {});
 
-  ForceFinishAnyTypeOrder({{Type::Write, Ok},
+  ForceFinishAnyTypeOrder({{Type::Write, CompletionResult::Ok},
                            {Type::Read, MakeFakeDocument("foo/1")},
-                           {Type::Read, Error}});
+                           {Type::Read, CompletionResult::Error}});
   ForceFinish({{Type::Finish, grpc::Status{grpc::UNAVAILABLE, ""}}});
 
   EXPECT_TRUE(done);
@@ -366,26 +375,34 @@ TEST_F(DatastoreTest, AuthOutlivesDatastore) {
 
 // Error classification
 
+MATCHER(IsPermanentError,
+        negation ? "not permanent error" : "permanent error") {
+  return Datastore::IsPermanentError(Status{arg, ""});
+}
+
 TEST_F(DatastoreTest, IsPermanentError) {
-  EXPECT_FALSE(Datastore::IsPermanentError(Status{Error::Cancelled, ""}));
-  EXPECT_FALSE(
-      Datastore::IsPermanentError(Status{Error::ResourceExhausted, ""}));
-  EXPECT_FALSE(Datastore::IsPermanentError(Status{Error::Unavailable, ""}));
+  EXPECT_THAT(Error::Cancelled, Not(IsPermanentError()));
+  EXPECT_THAT(Error::ResourceExhausted, Not(IsPermanentError()));
+  EXPECT_THAT(Error::Unavailable, Not(IsPermanentError()));
   // User info doesn't matter:
   EXPECT_FALSE(Datastore::IsPermanentError(
       Status{Error::Unavailable, "Connectivity lost"}));
   // "unauthenticated" is considered a recoverable error due to expired token.
-  EXPECT_FALSE(Datastore::IsPermanentError(Status{Error::Unauthenticated, ""}));
+  EXPECT_THAT(Error::Unauthenticated, Not(IsPermanentError()));
 
-  EXPECT_TRUE(Datastore::IsPermanentError(Status{Error::DataLoss, ""}));
-  EXPECT_TRUE(Datastore::IsPermanentError(Status{Error::Aborted, ""}));
+  EXPECT_THAT(Error::DataLoss, IsPermanentError());
+  EXPECT_THAT(Error::Aborted, IsPermanentError());
+}
+
+MATCHER(IsPermanentWriteError,
+        negation ? "not permanent error" : "permanent error") {
+  return Datastore::IsPermanentWriteError(Status{arg, ""});
 }
 
 TEST_F(DatastoreTest, IsPermanentWriteError) {
-  EXPECT_FALSE(
-      Datastore::IsPermanentWriteError(Status{Error::Unauthenticated, ""}));
-  EXPECT_TRUE(Datastore::IsPermanentWriteError(Status{Error::DataLoss, ""}));
-  EXPECT_FALSE(Datastore::IsPermanentWriteError(Status{Error::Aborted, ""}));
+  EXPECT_THAT(Error::Unauthenticated, Not(IsPermanentWriteError()));
+  EXPECT_THAT(Error::DataLoss, IsPermanentWriteError());
+  EXPECT_THAT(Error::Aborted, Not(IsPermanentWriteError()));
 }
 
 }  // namespace remote

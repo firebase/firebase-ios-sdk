@@ -21,6 +21,7 @@
 #import "Firestore/Source/API/FIRQuery+Internal.h"
 
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
+#import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
 @interface FIRQueryTests : FSTIntegrationTestCase
@@ -54,6 +55,84 @@
 
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot),
                         (@[ @{@"k" : @"d", @"sort" : @2}, @{@"k" : @"c", @"sort" : @1} ]));
+}
+
+- (void)testLimitToLastMustAlsoHaveExplicitOrderBy {
+  FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{}];
+  FIRQuery *query = [collRef queryLimitedToLast:2];
+  FSTAssertThrows(
+      [query getDocumentsWithCompletion:^(FIRQuerySnapshot *documentSet, NSError *error){
+      }],
+      @"limit(toLast:) queries require specifying at least one OrderBy() clause.");
+}
+
+// Two queries that mapped to the same target ID are referred to as
+// "mirror queries". An example for a mirror query is a limitToLast()
+// query and a limit() query that share the same backend Target ID.
+// Since limitToLast() queries are sent to the backend with a modified
+// orderBy() clause, they can map to the same target representation as
+// limit() query, even if both queries appear separate to the user.
+- (void)testListenUnlistenRelistenSequenceOfMirrorQueries {
+  FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
+    @"a" : @{@"k" : @"a", @"sort" : @0},
+    @"b" : @{@"k" : @"b", @"sort" : @1},
+    @"c" : @{@"k" : @"c", @"sort" : @1},
+    @"d" : @{@"k" : @"d", @"sort" : @2},
+  }];
+
+  // Setup a `limit` query.
+  FIRQuery *limit = [[collRef queryOrderedByField:@"sort" descending:NO] queryLimitedTo:2];
+  FSTEventAccumulator *limitAccumulator = [FSTEventAccumulator accumulatorForTest:self];
+  id<FIRListenerRegistration> limitRegistration =
+      [limit addSnapshotListener:limitAccumulator.valueEventHandler];
+
+  // Setup a mirroring `limitToLast` query.
+  FIRQuery *limitToLast = [[collRef queryOrderedByField:@"sort"
+                                             descending:YES] queryLimitedToLast:2];
+  FSTEventAccumulator *limitToLastAccumulator = [FSTEventAccumulator accumulatorForTest:self];
+  id<FIRListenerRegistration> limitToLastRegistration =
+      [limitToLast addSnapshotListener:limitToLastAccumulator.valueEventHandler];
+
+  // Verify both queries get expected result.
+  FIRQuerySnapshot *snapshot = [limitAccumulator awaitEventWithName:@"Snapshot"];
+  NSArray *expected = @[ @{@"k" : @"a", @"sort" : @0}, @{@"k" : @"b", @"sort" : @1} ];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), expected);
+  snapshot = [limitToLastAccumulator awaitEventWithName:@"Snapshot"];
+  expected = @[ @{@"k" : @"b", @"sort" : @1}, @{@"k" : @"a", @"sort" : @0} ];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), expected);
+
+  // Unlisten then re-listen limit query.
+  [limitRegistration remove];
+  [limit addSnapshotListener:[limitAccumulator valueEventHandler]];
+
+  // Verify limit query still works.
+  snapshot = [limitAccumulator awaitEventWithName:@"Snapshot"];
+  expected = @[ @{@"k" : @"a", @"sort" : @0}, @{@"k" : @"b", @"sort" : @1} ];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), expected);
+
+  // Add a document that would change the result set.
+  [self addDocumentRef:collRef data:@{@"k" : @"e", @"sort" : @-1}];
+
+  // Verify both queries get expected result.
+  snapshot = [limitAccumulator awaitEventWithName:@"Snapshot"];
+  expected = @[ @{@"k" : @"e", @"sort" : @-1}, @{@"k" : @"a", @"sort" : @0} ];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), expected);
+  snapshot = [limitToLastAccumulator awaitEventWithName:@"Snapshot"];
+  expected = @[ @{@"k" : @"a", @"sort" : @0}, @{@"k" : @"e", @"sort" : @-1} ];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), expected);
+
+  // Unlisten to limitToLast, update a doc, then relisten to limitToLast
+  [limitToLastRegistration remove];
+  [self updateDocumentRef:[collRef documentWithPath:@"a"] data:@{@"k" : @"a", @"sort" : @-2}];
+  [limitToLast addSnapshotListener:[limitToLastAccumulator valueEventHandler]];
+
+  // Verify both queries get expected result.
+  snapshot = [limitAccumulator awaitEventWithName:@"Snapshot"];
+  expected = @[ @{@"k" : @"a", @"sort" : @-2}, @{@"k" : @"e", @"sort" : @-1} ];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), expected);
+  snapshot = [limitToLastAccumulator awaitEventWithName:@"Snapshot"];
+  expected = @[ @{@"k" : @"e", @"sort" : @-1}, @{@"k" : @"a", @"sort" : @-2} ];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), expected);
 }
 
 - (void)testKeyOrderIsDescendingForDescendingInequality {
@@ -264,20 +343,20 @@
       [collection addSnapshotListener:self.eventAccumulator.valueEventHandler];
 
   FIRQuerySnapshot *querySnap = [self.eventAccumulator awaitEventWithName:@"initial event"];
-  XCTAssertEqual(querySnap.documentChanges.count, 1);
+  XCTAssertEqual(querySnap.documentChanges.count, 1ul);
 
   FIRDocumentChange *change = querySnap.documentChanges[0];
   XCTAssertEqual(change.oldIndex, NSNotFound);
-  XCTAssertEqual(change.newIndex, 0);
+  XCTAssertEqual(change.newIndex, 0ul);
 
   FIRDocumentReference *doc = change.document.reference;
   [self deleteDocumentRef:doc];
 
   querySnap = [self.eventAccumulator awaitEventWithName:@"delete"];
-  XCTAssertEqual(querySnap.documentChanges.count, 1);
+  XCTAssertEqual(querySnap.documentChanges.count, 1ul);
 
   change = querySnap.documentChanges[0];
-  XCTAssertEqual(change.oldIndex, 0);
+  XCTAssertEqual(change.oldIndex, 0ul);
   XCTAssertEqual(change.newIndex, NSNotFound);
 
   [registration remove];
@@ -330,14 +409,17 @@
     @"c" : @{@"zip" : @98103},
     @"d" : @{@"zip" : @[ @98101 ]},
     @"e" : @{@"zip" : @[ @"98101", @{@"zip" : @98101} ]},
-    @"f" : @{@"zip" : @{@"code" : @500}}
+    @"f" : @{@"zip" : @{@"code" : @500}},
+    @"g" : @{@"zip" : @[ @98101, @98102 ]}
   };
   FIRCollectionReference *collection = [self collectionRefWithDocuments:testDocs];
 
-  // Search for zips matching [98101, 98103].
-  FIRQuerySnapshot *snapshot =
-      [self readDocumentSetForRef:[collection queryWhereField:@"zip" in:@[ @98101, @98103 ]]];
-  XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[ testDocs[@"a"], testDocs[@"c"] ]));
+  // Search for zips matching 98101, 98103, and [98101, 98102].
+  FIRQuerySnapshot *snapshot = [self
+      readDocumentSetForRef:[collection queryWhereField:@"zip"
+                                                     in:@[ @98101, @98103, @[ @98101, @98102 ] ]]];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot),
+                        (@[ testDocs[@"a"], testDocs[@"c"], testDocs[@"g"] ]));
 
   // With objects
   snapshot = [self readDocumentSetForRef:[collection queryWhereField:@"zip"

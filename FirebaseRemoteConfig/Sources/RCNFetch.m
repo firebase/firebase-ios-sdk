@@ -129,8 +129,8 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
 
 #pragma mark - Fetch Config API
 
-- (void)fetchAllConfigsWithExpirationDuration:(NSTimeInterval)expirationDuration
-                            completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler {
+- (void)fetchConfigWithExpirationDuration:(NSTimeInterval)expirationDuration
+                        completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler {
   // Note: We expect the googleAppID to always be available.
   BOOL hasDeviceContextChanged =
       FIRRemoteConfigHasDeviceContextChanged(_settings.deviceContext, _options.googleAppID);
@@ -139,6 +139,7 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
   RCNConfigFetch *fetchWithExpirationSelf = weakSelf;
   dispatch_async(fetchWithExpirationSelf->_lockQueue, ^{
     RCNConfigFetch *strongSelf = fetchWithExpirationSelf;
+
     // Check whether we are outside of the minimum fetch interval.
     if (![strongSelf->_settings hasMinimumFetchIntervalElapsed:expirationDuration] &&
         !hasDeviceContextChanged) {
@@ -147,7 +148,10 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
                                         withStatus:FIRRemoteConfigFetchStatusSuccess
                                          withError:nil];
     }
+
+    // Check if a fetch is already in progress.
     if (strongSelf->_settings.isFetchInProgress) {
+      // Check if we have some fetched data.
       if (strongSelf->_settings.lastFetchTimeInterval > 0) {
         FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000052",
                     @"A fetch is already in progress. Using previous fetch results.");
@@ -354,7 +358,7 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
       NSInteger statusCode = [((NSHTTPURLResponse *)response) statusCode];
 
       if (error || (statusCode != kRCNFetchResponseHTTPStatusCodeOK)) {
-        // Update failure fetch time and database.
+        // Update metadata about fetch failure.
         [strongSelf->_settings updateMetadataWithFetchSuccessStatus:NO];
         if (error) {
           if (strongSelf->_settings.lastFetchStatus == FIRRemoteConfigFetchStatusSuccess) {
@@ -389,27 +393,25 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
               return [strongSelf reportCompletionOnHandler:completionHandler
                                                 withStatus:strongSelf->_settings.lastFetchStatus
                                                  withError:error];
-            } else {
-              // Return back the received error.
-              // Must set lastFetchStatus before setting Fetch Error.
-              strongSelf->_settings.lastFetchStatus = FIRRemoteConfigFetchStatusFailure;
-              strongSelf->_settings.lastFetchError = FIRRemoteConfigErrorInternalError;
-              NSDictionary<NSErrorUserInfoKey, id> *userInfo = @{
-                NSLocalizedDescriptionKey :
-                    (error ? [error localizedDescription]
-                           : [NSString stringWithFormat:@"Internal Error. Status code: %ld",
-                                                        (long)statusCode])
-              };
-              return [strongSelf
-                  reportCompletionOnHandler:completionHandler
-                                 withStatus:FIRRemoteConfigFetchStatusFailure
-                                  withError:[NSError
-                                                errorWithDomain:FIRRemoteConfigErrorDomain
-                                                           code:FIRRemoteConfigErrorInternalError
-                                                       userInfo:userInfo]];
             }
-          }
-        }
+          }  // Response error code 429, 500, 503
+        }    // StatusCode != kRCNFetchResponseHTTPStatusCodeOK
+        // Return back the received error.
+        // Must set lastFetchStatus before setting Fetch Error.
+        strongSelf->_settings.lastFetchStatus = FIRRemoteConfigFetchStatusFailure;
+        strongSelf->_settings.lastFetchError = FIRRemoteConfigErrorInternalError;
+        NSDictionary<NSErrorUserInfoKey, id> *userInfo = @{
+          NSLocalizedDescriptionKey :
+              (error ? [error localizedDescription]
+                     : [NSString
+                           stringWithFormat:@"Internal Error. Status code: %ld", (long)statusCode])
+        };
+        return [strongSelf
+            reportCompletionOnHandler:completionHandler
+                           withStatus:FIRRemoteConfigFetchStatusFailure
+                            withError:[NSError errorWithDomain:FIRRemoteConfigErrorDomain
+                                                          code:FIRRemoteConfigErrorInternalError
+                                                      userInfo:userInfo]];
       }
 
       // Fetch was successful. Check if we have data.
@@ -476,8 +478,11 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
                     @"Empty response with no fetched config.");
       }
 
-      // We had a successful fetch. Update the current eTag in settings.
-      self->_settings.lastETag = ((NSHTTPURLResponse *)response).allHeaderFields[kETagHeaderName];
+      // We had a successful fetch. Update the current eTag in settings if different.
+      NSString *latestETag = ((NSHTTPURLResponse *)response).allHeaderFields[kETagHeaderName];
+      if (!self->_settings.lastETag || !([self->_settings.lastETag isEqualToString:latestETag])) {
+        self->_settings.lastETag = latestETag;
+      }
 
       [self->_settings updateMetadataWithFetchSuccessStatus:YES];
       return [strongSelf reportCompletionOnHandler:completionHandler

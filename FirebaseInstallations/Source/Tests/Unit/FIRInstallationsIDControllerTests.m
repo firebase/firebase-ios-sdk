@@ -21,6 +21,7 @@
 #import <FirebaseCore/FIRAppInternal.h>
 
 #import "FBLPromise+Testing.h"
+#import "FBLPromise+Then.h"
 #import "FIRInstallationsErrorUtil+Tests.h"
 #import "FIRInstallationsItem+Tests.h"
 
@@ -29,10 +30,9 @@
 #import "FIRInstallationsErrorUtil.h"
 #import "FIRInstallationsHTTPError.h"
 #import "FIRInstallationsIDController.h"
-#import "FIRInstallationsIIDCheckinStore.h"
 #import "FIRInstallationsIIDStore.h"
+#import "FIRInstallationsIIDTokenStore.h"
 #import "FIRInstallationsStore.h"
-#import "FIRInstallationsStoredIIDCheckin.h"
 
 #import "FIRInstallationsStoredAuthToken.h"
 
@@ -42,7 +42,7 @@
                  installationsStore:(FIRInstallationsStore *)installationsStore
                          APIService:(FIRInstallationsAPIService *)APIService
                            IIDStore:(FIRInstallationsIIDStore *)IIDStore
-                   IIDCheckingStore:(FIRInstallationsIIDCheckinStore *)IIDCheckingStore;
+                      IIDTokenStore:(FIRInstallationsIIDTokenStore *)IIDTokenStore;
 @end
 
 @interface FIRInstallationsIDControllerTests : XCTestCase
@@ -50,7 +50,7 @@
 @property(nonatomic) id mockInstallationsStore;
 @property(nonatomic) id mockAPIService;
 @property(nonatomic) id mockIIDStore;
-@property(nonatomic) id mockIIDCheckinStore;
+@property(nonatomic) id mockIIDTokenStore;
 @property(nonatomic) NSString *appID;
 @property(nonatomic) NSString *appName;
 @end
@@ -67,7 +67,7 @@
   self.mockInstallationsStore = OCMStrictClassMock([FIRInstallationsStore class]);
   self.mockAPIService = OCMStrictClassMock([FIRInstallationsAPIService class]);
   self.mockIIDStore = OCMStrictClassMock([FIRInstallationsIIDStore class]);
-  self.mockIIDCheckinStore = OCMStrictClassMock([FIRInstallationsIIDCheckinStore class]);
+  self.mockIIDTokenStore = OCMStrictClassMock([FIRInstallationsIIDTokenStore class]);
 
   self.controller =
       [[FIRInstallationsIDController alloc] initWithGoogleAppID:self.appID
@@ -75,7 +75,7 @@
                                              installationsStore:self.mockInstallationsStore
                                                      APIService:self.mockAPIService
                                                        IIDStore:self.mockIIDStore
-                                               IIDCheckingStore:self.mockIIDCheckinStore];
+                                                  IIDTokenStore:self.mockIIDTokenStore];
 }
 
 - (void)tearDown {
@@ -85,6 +85,46 @@
   self.mockInstallationsStore = nil;
   self.appID = nil;
   self.appName = nil;
+}
+
+#pragma mark - Initialization
+
+- (void)testInitWhenProjectIDSetThenItIsPassedToAPIService {
+  NSString *APIKey = @"api-key";
+  NSString *projectID = @"project-id";
+  OCMExpect([self.mockAPIService alloc]).andReturn(self.mockAPIService);
+  OCMExpect([self.mockAPIService initWithAPIKey:APIKey projectID:projectID])
+      .andReturn(self.mockAPIService);
+
+  FIRInstallationsIDController *controller =
+      [[FIRInstallationsIDController alloc] initWithGoogleAppID:@"app-id"
+                                                        appName:@"app-name"
+                                                         APIKey:APIKey
+                                                      projectID:projectID
+                                                    GCMSenderID:@"sender-id"
+                                                    accessGroup:nil];
+  XCTAssertNotNil(controller);
+
+  OCMVerifyAll(self.mockAPIService);
+}
+
+- (void)testInitWhenProjectIDIsNilThenGCMSenderIDIsPassedToAPIServiceAsProjectID {
+  NSString *APIKey = @"api-key";
+  NSString *GCMSenderID = @"sender-id";
+  OCMExpect([self.mockAPIService alloc]).andReturn(self.mockAPIService);
+  OCMExpect([self.mockAPIService initWithAPIKey:APIKey projectID:GCMSenderID])
+      .andReturn(self.mockAPIService);
+
+  FIRInstallationsIDController *controller =
+      [[FIRInstallationsIDController alloc] initWithGoogleAppID:@"app-id"
+                                                        appName:@"app-name"
+                                                         APIKey:APIKey
+                                                      projectID:@""
+                                                    GCMSenderID:GCMSenderID
+                                                    accessGroup:nil];
+  XCTAssertNotNil(controller);
+
+  OCMVerifyAll(self.mockAPIService);
 }
 
 #pragma mark - Get Installation
@@ -262,11 +302,9 @@
   OCMExpect([self.mockIIDStore existingIID]).andReturn([FBLPromise resolvedWith:existingIID]);
 
   // 3. Expect IID checkin store to be requested for checkin data.
-  FIRInstallationsStoredIIDCheckin *existingCheckin =
-      [[FIRInstallationsStoredIIDCheckin alloc] initWithDeviceID:@"IIDDeviceID"
-                                                     secretToken:@"IIDSecretToken"];
-  OCMExpect([self.mockIIDCheckinStore existingCheckin])
-      .andReturn([FBLPromise resolvedWith:existingCheckin]);
+  NSString *existingIIDDefaultToken = @"existing-iid-token";
+  OCMExpect([self.mockIIDTokenStore existingIIDDefaultToken])
+      .andReturn([FBLPromise resolvedWith:existingIIDDefaultToken]);
 
   // 3. Stub store save installation.
   __block FIRInstallationsItem *createdInstallation;
@@ -275,8 +313,7 @@
                 saveInstallation:[OCMArg checkWithBlock:^BOOL(FIRInstallationsItem *obj) {
                   [self assertValidCreatedInstallation:obj];
                   XCTAssertEqualObjects(existingIID, obj.firebaseInstallationID);
-                  XCTAssertEqualObjects(obj.IIDCheckin.deviceID, existingCheckin.deviceID);
-                  XCTAssertEqualObjects(obj.IIDCheckin.secretToken, existingCheckin.secretToken);
+                  XCTAssertEqualObjects(obj.IIDDefaultToken, existingIIDDefaultToken);
                   createdInstallation = obj;
                   return YES;
                 }]])
@@ -331,10 +368,56 @@
   // 5.5. Verify registered installation was saved.
   OCMVerifyAll(self.mockInstallationsStore);
   OCMVerifyAll(self.mockIIDStore);
-  OCMVerifyAll(self.mockIIDCheckinStore);
+  OCMVerifyAll(self.mockIIDTokenStore);
 }
 
-- (void)testGetInstallationItem_WhenCalledSeveralTimes_OnlyOneOperationIsPerformed {
+- (void)testGetInstallationItem_WhenCalledWhileRegistering_DoesNotWaitForAPIResponse {
+  // 1. Expect the installation to be requested from the store only once.
+  FIRInstallationsItem *storedInstallation1 =
+      [FIRInstallationsItem createUnregisteredInstallationItem];
+  OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
+      .andReturn([FBLPromise resolvedWith:storedInstallation1]);
+
+  // 2. Expect registration API request to be sent.
+  FBLPromise<FIRInstallationsItem *> *pendingAPIPromise = [FBLPromise pendingPromise];
+  OCMExpect([self.mockAPIService registerInstallation:storedInstallation1])
+      .andReturn(pendingAPIPromise);
+
+  // 3. Request and wait for 1st FID.
+  FBLPromise<FIRInstallationsItem *> *getInstallationPromise1 =
+      [self.controller getInstallationItem];
+  XCTestExpectation *getInstallationsExpectation1 =
+      [self expectationWithDescription:@"getInstallationsExpectation1"];
+  getInstallationPromise1.then(^id(FIRInstallationsItem *installation) {
+    [getInstallationsExpectation1 fulfill];
+    return nil;
+  });
+  [self waitForExpectations:@[ getInstallationsExpectation1 ] timeout:0.5];
+
+  // 4. Request FID 2nd time.
+  OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
+      .andReturn([FBLPromise resolvedWith:storedInstallation1]);
+
+  FBLPromise<FIRInstallationsItem *> *getInstallationPromise2 =
+      [self.controller getInstallationItem];
+  XCTestExpectation *getInstallationsExpectation2 =
+      [self expectationWithDescription:@"getInstallationsExpectation2"];
+  getInstallationPromise2.then(^id(FIRInstallationsItem *installation) {
+    [getInstallationsExpectation2 fulfill];
+    return nil;
+  });
+  [self waitForExpectations:@[ getInstallationsExpectation2 ] timeout:0.5];
+
+  // 5. Resolve API promise.
+  [pendingAPIPromise reject:[FIRInstallationsErrorUtil APIErrorWithHTTPCode:400]];
+
+  // 6. Check
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
+  OCMVerifyAll(self.mockInstallationsStore);
+  OCMVerifyAll(self.mockAPIService);
+}
+
+- (void)testGetInstallationItem_WhenCalledSeveralTimesWaitingForStore_OnlyOneOperationIsPerformed {
   // 1. Expect the installation to be requested from the store only once.
   FIRInstallationsItem *storedInstallation1 =
       [FIRInstallationsItem createRegisteredInstallationItem];
@@ -342,17 +425,17 @@
   OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
       .andReturn(pendingStorePromise);
 
-  // 3. Request installation n times
+  // 2. Request installation n times
   NSInteger requestCount = 10;
   NSMutableArray *installationPromises = [NSMutableArray arrayWithCapacity:requestCount];
   for (NSInteger i = 0; i < requestCount; i++) {
     [installationPromises addObject:[self.controller getInstallationItem]];
   }
 
-  // 4. Resolve store promise.
+  // 3. Resolve store promise.
   [pendingStorePromise fulfill:storedInstallation1];
 
-  // 5. Wait for operation to be completed and check.
+  // 4. Wait for operation to be completed and check.
   XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   for (FBLPromise<FIRInstallationsItem *> *installationPromise in installationPromises) {
@@ -363,7 +446,7 @@
   OCMVerifyAll(self.mockInstallationsStore);
   OCMVerifyAll(self.mockAPIService);
 
-  // 6. Check that a new request is performed once previous finished.
+  // 5. Check that a new request is performed once previous finished.
   FIRInstallationsItem *storedInstallation2 =
       [FIRInstallationsItem createRegisteredInstallationItem];
   OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
@@ -375,6 +458,46 @@
   XCTAssertNil(installationPromise.error);
   XCTAssertEqual(installationPromise.value, storedInstallation2);
 
+  OCMVerifyAll(self.mockInstallationsStore);
+  OCMVerifyAll(self.mockAPIService);
+}
+
+- (void)testGetInstallationItem_WhenCalledSeveralTimesWaitingForAPI_OnlyOneAPIRequestIsSent {
+  // 1. Expect a single API request.
+  FBLPromise<FIRInstallationsItem *> *registerAPIPromise = [FBLPromise pendingPromise];
+  OCMExpect([self.mockAPIService registerInstallation:[OCMArg any]]).andReturn(registerAPIPromise);
+
+  // 2. Request FID multiple times.
+  NSInteger requestCount = 10;
+  for (NSInteger i = 0; i < requestCount; i++) {
+    XCTestExpectation *getFIDExpectation = [self
+        expectationWithDescription:[NSString stringWithFormat:@"getFIDExpectation%ld", (long)i]];
+
+    // 2.1. Expect stored FID to be requested.
+    FIRInstallationsItem *storedInstallation =
+        [FIRInstallationsItem createUnregisteredInstallationItem];
+    OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
+        .andReturn([FBLPromise resolvedWith:storedInstallation]);
+
+    // 2.2. Expect the FID to be returned.
+    FBLPromise<FIRInstallationsItem *> *getFIDPromise = [self.controller getInstallationItem];
+
+    [getFIDPromise then:^id _Nullable(FIRInstallationsItem *_Nullable value) {
+      XCTAssertNotNil(value);
+      XCTAssertEqualObjects(value.firebaseInstallationID,
+                            storedInstallation.firebaseInstallationID);
+      [getFIDExpectation fulfill];
+      return nil;
+    }];
+
+    [self waitForExpectations:@[ getFIDExpectation ] timeout:0.5];
+  }
+
+  // 3. Finish API request.
+  [registerAPIPromise reject:[FIRInstallationsErrorUtil APIErrorWithHTTPCode:400]];
+
+  // 4. Verify mocks
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
   OCMVerifyAll(self.mockInstallationsStore);
   OCMVerifyAll(self.mockAPIService);
 }
@@ -1004,7 +1127,7 @@
   FBLPromise *rejectedPromise = [FBLPromise pendingPromise];
   [rejectedPromise reject:[FIRInstallationsErrorUtil keychainErrorWithFunction:@"" status:-1]];
   OCMExpect([self.mockIIDStore existingIID]).andReturn(rejectedPromise);
-  OCMExpect([self.mockIIDCheckinStore existingCheckin]).andReturn(rejectedPromise);
+  OCMExpect([self.mockIIDTokenStore existingIIDDefaultToken]).andReturn(rejectedPromise);
 }
 
 - (void)assertValidCreatedInstallation:(FIRInstallationsItem *)installation {
@@ -1049,6 +1172,10 @@
       .andReturn([FBLPromise resolvedWith:[NSNull null]]);
 
   return responseInstallation;
+}
+
+- (void)expectAPIServiceInitWithAPIKey:(NSString *)APIKey projectID:(NSString *)projectID {
+  OCMExpect([self.mockAPIService initWithAPIKey:APIKey projectID:projectID]);
 }
 
 @end

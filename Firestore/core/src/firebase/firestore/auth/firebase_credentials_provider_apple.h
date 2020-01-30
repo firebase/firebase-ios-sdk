@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-// Right now, FirebaseCredentialsProvider only support APPLE build.
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_AUTH_FIREBASE_CREDENTIALS_PROVIDER_APPLE_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_AUTH_FIREBASE_CREDENTIALS_PROVIDER_APPLE_H_
+
 #if !defined(__OBJC__)
 #error "This header only supports Objective-C++."
 #endif  // !defined(__OBJC__)
-
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_AUTH_FIREBASE_CREDENTIALS_PROVIDER_APPLE_H_
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_AUTH_FIREBASE_CREDENTIALS_PROVIDER_APPLE_H_
 
 #import <Foundation/Foundation.h>
 
@@ -71,7 +70,7 @@ class FirebaseCredentialsProvider : public CredentialsProvider {
   void GetToken(TokenListener completion) override;
 
   void SetCredentialChangeListener(
-      CredentialChangeListener changeListener) override;
+      CredentialChangeListener change_listener) override;
 
   void InvalidateToken() override;
 
@@ -108,7 +107,7 @@ class FirebaseCredentialsProvider : public CredentialsProvider {
   };
 
   /**
-   * Handle used to stop receiving auth changes once userChangeListener is
+   * Handle used to stop receiving auth changes once CredentialChangeListener is
    * removed.
    */
   id<NSObject> auth_listener_handle_;

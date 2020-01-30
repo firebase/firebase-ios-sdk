@@ -24,7 +24,7 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
-#include "Firestore/core/src/firebase/firestore/local/query_data.h"
+#include "Firestore/core/src/firebase/firestore/local/target_data.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
@@ -54,10 +54,10 @@ class TargetMetadataProvider {
       model::TargetId target_id) const = 0;
 
   /**
-   * Returns the QueryData for an active target ID or `nullopt` if this query
+   * Returns the TargetData for an active target ID or `nullopt` if this query
    * has become inactive.
    */
-  virtual absl::optional<local::QueryData> GetQueryDataForTarget(
+  virtual absl::optional<local::TargetData> GetTargetDataForTarget(
       model::TargetId target_id) const = 0;
 };
 
@@ -72,6 +72,10 @@ class TargetMetadataProvider {
  */
 class TargetChange {
  public:
+  static TargetChange CreateSynthesizedTargetChange(bool current) {
+    return TargetChange(current);
+  }
+
   TargetChange() = default;
 
   TargetChange(nanopb::ByteString resume_token,
@@ -87,10 +91,10 @@ class TargetChange {
   }
 
   /**
-   * An opaque, server-assigned token that allows watching a query to be resumed
-   * after disconnecting without retransmitting all the data that matches the
-   * query. The resume token essentially identifies a point in time from which
-   * the server should resume sending results.
+   * An opaque, server-assigned token that allows watching a target to be
+   * resumed after disconnecting without retransmitting all the data that
+   * matches the target. The resume token essentially identifies a point in time
+   * from which the server should resume sending results.
    */
   const nanopb::ByteString& resume_token() const {
     return resume_token_;
@@ -130,6 +134,9 @@ class TargetChange {
   }
 
  private:
+  explicit TargetChange(bool current) : current_{current} {
+  }
+
   nanopb::ByteString resume_token_;
   bool current_ = false;
   model::DocumentKeySet added_documents_;
@@ -230,12 +237,16 @@ class TargetState {
  */
 class RemoteEvent {
  public:
+  using TargetChangeMap = std::unordered_map<model::TargetId, TargetChange>;
+  using TargetSet = std::unordered_set<model::TargetId>;
+  using DocumentUpdateMap = std::unordered_map<model::DocumentKey,
+                                               model::MaybeDocument,
+                                               model::DocumentKeyHash>;
+
   RemoteEvent(model::SnapshotVersion snapshot_version,
-              std::unordered_map<model::TargetId, TargetChange> target_changes,
-              std::unordered_set<model::TargetId> target_mismatches,
-              std::unordered_map<model::DocumentKey,
-                                 model::MaybeDocument,
-                                 model::DocumentKeyHash> document_updates,
+              TargetChangeMap target_changes,
+              TargetSet target_mismatches,
+              DocumentUpdateMap document_updates,
               model::DocumentKeySet limbo_document_changes)
       : snapshot_version_{snapshot_version},
         target_changes_{std::move(target_changes)},
@@ -250,8 +261,7 @@ class RemoteEvent {
   }
 
   /** A map from target to changes to the target. See `TargetChange`. */
-  const std::unordered_map<model::TargetId, TargetChange>& target_changes()
-      const {
+  const TargetChangeMap& target_changes() const {
     return target_changes_;
   }
 
@@ -259,7 +269,7 @@ class RemoteEvent {
    * A set of targets that is known to be inconsistent. Listens for these
    * targets should be re-established without resume tokens.
    */
-  const std::unordered_set<model::TargetId>& target_mismatches() const {
+  const TargetSet& target_mismatches() const {
     return target_mismatches_;
   }
 
@@ -267,10 +277,7 @@ class RemoteEvent {
    * A set of which documents have changed or been deleted, along with the doc's
    * new values (if not deleted).
    */
-  const std::unordered_map<model::DocumentKey,
-                           model::MaybeDocument,
-                           model::DocumentKeyHash>&
-  document_updates() const {
+  const DocumentUpdateMap& document_updates() const {
     return document_updates_;
   }
 
@@ -283,12 +290,9 @@ class RemoteEvent {
 
  private:
   model::SnapshotVersion snapshot_version_;
-  std::unordered_map<model::TargetId, TargetChange> target_changes_;
-  std::unordered_set<model::TargetId> target_mismatches_;
-  std::unordered_map<model::DocumentKey,
-                     model::MaybeDocument,
-                     model::DocumentKeyHash>
-      document_updates_;
+  TargetChangeMap target_changes_;
+  TargetSet target_mismatches_;
+  DocumentUpdateMap document_updates_;
   model::DocumentKeySet limbo_document_changes_;
 };
 
@@ -337,8 +341,8 @@ class WatchChangeAggregator {
 
  private:
   /**
-   * Returns all `targetId`s that the watch change applies to: either the
-   * `targetId`s explicitly listed in the change or the `targetId`s of all
+   * Returns all `TargetId`s that the watch change applies to: either the
+   * `TargetId`s explicitly listed in the change or the `TargetId`s of all
    * currently active targets.
    */
   std::vector<model::TargetId> GetTargetIds(
@@ -386,10 +390,10 @@ class WatchChangeAggregator {
   bool IsActiveTarget(model::TargetId target_id) const;
 
   /**
-   * Returns the `QueryData` for an active target (i.e., a target that the user
+   * Returns the `TargetData` for an active target (i.e., a target that the user
    * is still interested in that has no outstanding target change requests).
    */
-  absl::optional<local::QueryData> QueryDataForActiveTarget(
+  absl::optional<local::TargetData> TargetDataForActiveTarget(
       model::TargetId target_id) const;
 
   /**
@@ -408,10 +412,7 @@ class WatchChangeAggregator {
   std::unordered_map<model::TargetId, TargetState> target_states_;
 
   /** Keeps track of the documents to update since the last raised snapshot. */
-  std::unordered_map<model::DocumentKey,
-                     model::MaybeDocument,
-                     model::DocumentKeyHash>
-      pending_document_updates_;
+  RemoteEvent::DocumentUpdateMap pending_document_updates_;
 
   /** A mapping of document keys to their set of target IDs. */
   std::unordered_map<model::DocumentKey,
@@ -424,7 +425,7 @@ class WatchChangeAggregator {
    * to be inconsistent and their listens needs to be re-established by
    * `RemoteStore`.
    */
-  std::unordered_set<model::TargetId> pending_target_resets_;
+  RemoteEvent::TargetSet pending_target_resets_;
 
   TargetMetadataProvider* target_metadata_provider_ = nullptr;
 };

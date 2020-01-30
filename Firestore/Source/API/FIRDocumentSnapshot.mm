@@ -53,11 +53,13 @@ using firebase::firestore::api::SnapshotMetadata;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::FieldValueOptions;
 using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::ServerTimestampBehavior;
 using firebase::firestore::nanopb::MakeNSData;
+using firebase::firestore::util::MakeString;
 using firebase::firestore::util::ThrowInvalidArgument;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -99,7 +101,14 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
                       documentKey:(DocumentKey)documentKey
                          document:(const absl::optional<Document> &)document
                          metadata:(SnapshotMetadata)metadata {
-  DocumentSnapshot wrapped{firestore, std::move(documentKey), document, std::move(metadata)};
+  DocumentSnapshot wrapped;
+  if (document.has_value()) {
+    wrapped =
+        DocumentSnapshot::FromDocument(std::move(firestore), document.value(), std::move(metadata));
+  } else {
+    wrapped = DocumentSnapshot::FromNoDocument(std::move(firestore), std::move(documentKey),
+                                               std::move(metadata));
+  }
   return [self initWithSnapshot:std::move(wrapped)];
 }
 
@@ -173,16 +182,16 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
 
 - (nullable id)valueForField:(id)field
      serverTimestampBehavior:(FIRServerTimestampBehavior)serverTimestampBehavior {
-  FIRFieldPath *fieldPath;
+  FieldPath fieldPath;
   if ([field isKindOfClass:[NSString class]]) {
-    fieldPath = [FIRFieldPath pathWithDotSeparatedString:field];
+    fieldPath = FieldPath::FromDotSeparatedString(MakeString(field));
   } else if ([field isKindOfClass:[FIRFieldPath class]]) {
-    fieldPath = field;
+    fieldPath = ((FIRFieldPath *)field).internalValue;
   } else {
     ThrowInvalidArgument("Subscript key must be an NSString or FIRFieldPath.");
   }
 
-  absl::optional<FieldValue> fieldValue = _snapshot.GetValue(fieldPath.internalValue);
+  absl::optional<FieldValue> fieldValue = _snapshot.GetValue(fieldPath);
   FieldValueOptions options = [self optionsForServerTimestampBehavior:serverTimestampBehavior];
   return !fieldValue ? nil : [self convertedValue:*fieldValue options:options];
 }

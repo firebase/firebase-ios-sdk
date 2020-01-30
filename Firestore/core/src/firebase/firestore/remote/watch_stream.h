@@ -20,7 +20,7 @@
 #include <memory>
 #include <string>
 
-#include "Firestore/core/src/firebase/firestore/local/query_data.h"
+#include "Firestore/core/src/firebase/firestore/local/target_data.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
@@ -43,8 +43,12 @@ class Serializer;
  */
 class WatchStreamCallback {
  public:
-  /** Called by the `WatchStream` when it is ready to accept outbound request
-   * messages. */
+  virtual ~WatchStreamCallback() = default;
+
+  /**
+   * Called by the `WatchStream` when it is ready to accept outbound request
+   * messages.
+   */
   virtual void OnWatchStreamOpen() = 0;
 
   /**
@@ -89,7 +93,7 @@ class WatchStream : public Stream {
    * target ID included in `query`.
    */
   virtual /*virtual for tests only*/ void WatchQuery(
-      const local::QueryData& query);
+      const local::TargetData& query);
 
   /**
    * Unregisters interest in the results of the query associated with the given

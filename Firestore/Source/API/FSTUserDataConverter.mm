@@ -200,7 +200,7 @@ NS_ASSUME_NONNULL_BEGIN
     FieldPath path;
 
     if ([key isKindOfClass:[NSString class]]) {
-      path = [FIRFieldPath pathWithDotSeparatedString:key].internalValue;
+      path = FieldPath::FromDotSeparatedString(util::MakeString(key));
     } else if ([key isKindOfClass:[FIRFieldPath class]]) {
       path = ((FIRFieldPath *)key).internalValue;
     } else {
@@ -225,7 +225,12 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FieldValue)parsedQueryValue:(id)input {
-  ParseAccumulator accumulator{UserDataSource::Argument};
+  return [self parsedQueryValue:input allowArrays:false];
+}
+
+- (FieldValue)parsedQueryValue:(id)input allowArrays:(bool)allowArrays {
+  ParseAccumulator accumulator{allowArrays ? UserDataSource::ArrayArgument
+                                           : UserDataSource::Argument};
 
   absl::optional<FieldValue> parsed = [self parseData:input context:accumulator.RootContext()];
   HARD_ASSERT(parsed, "Parsed data should not be nil.");
@@ -266,7 +271,10 @@ NS_ASSUME_NONNULL_BEGIN
 
     if ([input isKindOfClass:[NSArray class]]) {
       // TODO(b/34871131): Include the path containing the array in the error message.
-      if (context.array_element()) {
+      // In the case of IN queries, the parsed data is an array (representing the set of values to
+      // be included for the IN query) that may directly contain additional arrays (each
+      // representing an individual field value), so we disable this validation.
+      if (context.array_element() && context.data_source() != UserDataSource::ArrayArgument) {
         ThrowInvalidArgument("Nested arrays are not supported");
       }
       return [self parseArray:(NSArray *)input context:std::move(context)];

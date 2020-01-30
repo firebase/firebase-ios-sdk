@@ -26,8 +26,8 @@
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/local/memory_index_manager.h"
 #include "Firestore/core/src/firebase/firestore/local/memory_mutation_queue.h"
-#include "Firestore/core/src/firebase/firestore/local/memory_query_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/memory_remote_document_cache.h"
+#include "Firestore/core/src/firebase/firestore/local/memory_target_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/persistence.h"
 
 namespace firebase {
@@ -37,10 +37,10 @@ namespace local {
 struct LruParams;
 class MemoryIndexManager;
 class MemoryMutationQueue;
-class MemoryQueryCache;
 class MemoryRemoteDocumentCache;
+class MemoryTargetCache;
 class MutationQueue;
-class QueryCache;
+class TargetCache;
 class ReferenceDelegate;
 class RemoteDocumentCache;
 class Sizer;
@@ -75,7 +75,7 @@ class MemoryPersistence : public Persistence {
 
   MemoryMutationQueue* GetMutationQueueForUser(const auth::User& user) override;
 
-  MemoryQueryCache* query_cache() override;
+  MemoryTargetCache* target_cache() override;
 
   MemoryRemoteDocumentCache* remote_document_cache() override;
 
@@ -95,7 +95,7 @@ class MemoryPersistence : public Persistence {
   MutationQueues mutation_queues_;
 
   /**
-   * The QueryCache representing the persisted cache of queries.
+   * The TargetCache representing the persisted cache of queries.
    *
    * Note that this is retained here to make it easier to write tests affecting
    * both the in-memory and LevelDB-backed persistence layers. Tests can create
@@ -103,7 +103,7 @@ class MemoryPersistence : public Persistence {
    * the in-memory persistence layer behave as if it were actually persisting
    * values.
    */
-  MemoryQueryCache query_cache_;
+  MemoryTargetCache target_cache_;
 
   /**
    * The RemoteDocumentCache representing the persisted cache of remote

@@ -26,13 +26,13 @@ class TestDataObject: NSObject, GDTCOREventDataObject {
 class TestPrioritizer: NSObject, GDTCORPrioritizer {
   func prioritizeEvent(_ event: GDTCORStoredEvent) {}
 
-  func uploadPackage(with conditions: GDTCORUploadConditions) -> GDTCORUploadPackage {
+  func uploadPackage(with target: GDTCORTarget, conditions: GDTCORUploadConditions) -> GDTCORUploadPackage {
     return GDTCORUploadPackage(target: GDTCORTarget.test)
   }
 }
 
 class TestUploader: NSObject, GDTCORUploader {
-  func readyToUpload(with conditions: GDTCORUploadConditions) -> Bool {
+  func ready(toUploadTarget target: GDTCORTarget, conditions: GDTCORUploadConditions) -> Bool {
     return false
   }
 

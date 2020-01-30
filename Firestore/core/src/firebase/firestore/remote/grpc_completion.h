@@ -48,14 +48,16 @@ namespace remote {
  * operation). The buffer and/or the status may be unused by the corresponding
  * gRPC operation.
  *
- * `GrpcCompletion` is "self-owned"; `GrpcCompletion` deletes itself in its
- * `Complete` method.
+ * `GrpcCompletion` has shared ownership. While it has been submitted as a tag
+ * to a gRPC operation, gRPC owns it. Callers also potentially own the
+ * `GrpcCompletion` if they retain it. Once all interested parties have released
+ * their shared_ptrs, the `GrpcCompletion` is deleted.
  *
  * `GrpcCompletion` expects all gRPC objects pertaining to the current stream to
  * remain valid until the `GrpcCompletion` comes back from the gRPC completion
  * queue.
  */
-class GrpcCompletion {
+class GrpcCompletion : public std::enable_shared_from_this<GrpcCompletion> {
  public:
   /**
    * This is only to aid debugging and testing; type allows easily
@@ -69,11 +71,13 @@ class GrpcCompletion {
    *
    * The `GrpcCompletion` pointer will always point to `this`.
    */
-  using Callback = std::function<void(bool, const GrpcCompletion*)>;
+  using Callback =
+      std::function<void(bool, const std::shared_ptr<GrpcCompletion>&)>;
 
-  GrpcCompletion(Type type,
-                 const std::shared_ptr<util::AsyncQueue>& worker_queue,
-                 Callback&& callback);
+  static std::shared_ptr<GrpcCompletion> Create(
+      Type type,
+      const std::shared_ptr<util::AsyncQueue>& worker_queue,
+      Callback&& callback);
 
   /**
    * Marks the `GrpcCompletion` as having come back from the gRPC completion
@@ -115,10 +119,30 @@ class GrpcCompletion {
   }
 
  private:
+  GrpcCompletion(Type type,
+                 const std::shared_ptr<util::AsyncQueue>& worker_queue,
+                 Callback&& callback);
+
+  void EnsureValidFuture();
+
   std::shared_ptr<util::AsyncQueue> worker_queue_;
   Callback callback_;
 
-  void EnsureValidFuture();
+  // Ownership of the GrpcCompletion is shared between the Firestore gRPC
+  // wrapper object that initiated the operation (e.g., a `GrpcStream`) and gRPC
+  // itself, for as long as the completion is on the gRPC completion queue.
+  // While most of the time a completion gets removed from the gRPC completion
+  // queue first and then destroyed by the wrapper, during shutdown the gRPC
+  // wrapper can be destroyed first so in that case the completion needs to
+  // delete itself.
+  //
+  // To handle these two cases, `GrpcCompletion` is held by shared_ptr, and one
+  // shared_ptr is held here, within the `GrpcCompletion` itself to model gRPC's
+  // ownership. This works around a limitation in the gRPC API where it only
+  // accepts raw pointers for tag objects. Once this completion is completed,
+  // the grpc_ownership_ shared_ptr is reset, which models gRPC releasing its
+  // interest in the completion.
+  std::shared_ptr<GrpcCompletion> grpc_ownership_;
 
   // Note that even though `grpc::GenericClientAsyncReaderWriter::Write` takes
   // the byte buffer by const reference, it expects the buffer's lifetime to

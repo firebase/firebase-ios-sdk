@@ -10,8 +10,10 @@ target 'FirebasePodTest' do
   pod 'FirebaseAnalyticsInterop', :path => '../../../'
   pod 'FirebaseAuth', :path => '../../../'
   pod 'FirebaseAuthInterop', :path => '../../../'
+  pod 'FirebaseCore', :path => '../../../'
   pod 'FirebaseCoreDiagnostics', :path => '../../../'
   pod 'FirebaseCoreDiagnosticsInterop', :path => '../../../'
+  pod 'FirebaseCrashlytics', :path => '../../../'
   pod 'FirebaseDatabase', :path => '../../../'
   pod 'FirebaseDynamicLinks', :path => '../../../'
   pod 'FirebaseFirestore', :path => '../../../'
@@ -23,6 +25,13 @@ target 'FirebasePodTest' do
   pod 'FirebaseMessaging', :path => '../../../'
   pod 'FirebaseRemoteConfig', :path => '../../../'
   pod 'FirebaseStorage', :path => '../../../'
+
+  # Get dependent pods from the repo also
+  pod 'FirebaseCoreDiagnostics', :path => '../../../'
+  pod 'FirebaseCoreDiagnosticsInterop', :path => '../../../'
+  pod 'GoogleDataTransport', :path => '../../../'
+  pod 'GoogleDataTransportCCTSupport', :path => '../../../'
+  pod 'GoogleUtilities', :path => '../../../'
 
   pod 'FirebaseAnalytics' # Analytics is not open source
   pod 'FirebasePerformance' # Performance is not open source

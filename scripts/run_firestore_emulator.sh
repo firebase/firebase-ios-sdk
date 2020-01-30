@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright 2019 Google
+# Copyright 2019 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
 
 set -euo pipefail
 
-VERSION='1.8.0'
+VERSION='1.10.2'
 FILENAME="cloud-firestore-emulator-v${VERSION}.jar"
 URL="https://storage.googleapis.com/firebase-preview-drop/emulator/${FILENAME}"
 
@@ -85,10 +85,12 @@ function stop() {
 }
 
 command="${1:-run}"
+shift
+
 case "${command}" in
   run)
     ensure_exists
-    run
+    run "$@"
     ;;
 
   start)

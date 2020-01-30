@@ -46,6 +46,7 @@
 #include "Firestore/core/src/firebase/firestore/model/set_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/transform_mutation.h"
+#include "Firestore/core/src/firebase/firestore/model/verify_mutation.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/message.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
@@ -53,8 +54,8 @@
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "Firestore/core/test/firebase/firestore/nanopb/nanopb_testing.h"
+#include "Firestore/core/test/firebase/firestore/testutil/status_testing.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
-#include "Firestore/core/test/firebase/firestore/util/status_testing.h"
 #include "absl/strings/string_view.h"
 #include "absl/types/optional.h"
 #include "google/protobuf/stubs/common.h"
@@ -71,8 +72,8 @@ namespace v1 = google::firestore::v1;
 using core::Bound;
 using core::FilterList;
 using google::protobuf::util::MessageDifferencer;
-using local::QueryData;
 using local::QueryPurpose;
+using local::TargetData;
 using model::ArrayTransform;
 using model::DatabaseId;
 using model::DeleteMutation;
@@ -92,6 +93,7 @@ using model::SetMutation;
 using model::SnapshotVersion;
 using model::TransformMutation;
 using model::TransformOperation;
+using model::VerifyMutation;
 using nanopb::ByteString;
 using nanopb::ByteStringWriter;
 using nanopb::FreeNanopbMessage;
@@ -121,7 +123,7 @@ const char* const kDatabaseId = "d";
 
 // These helper functions are just shorter aliases to reduce verbosity.
 ByteString ToBytes(const std::string& str) {
-  return ByteString{Serializer::EncodeString(str)};
+  return ByteString::Take(Serializer::EncodeString(str));
 }
 
 std::string FromBytes(pb_bytes_array_t*&& ptr) {
@@ -129,12 +131,12 @@ std::string FromBytes(pb_bytes_array_t*&& ptr) {
   return Serializer::DecodeString(byte_string.get());
 }
 
-QueryData CreateQueryData(core::Query query) {
-  return QueryData(std::move(query), 1, 0, QueryPurpose::Listen);
+TargetData CreateTargetData(core::Query query) {
+  return TargetData(query.ToTarget(), 1, 0, QueryPurpose::Listen);
 }
 
-QueryData CreateQueryData(absl::string_view str) {
-  return CreateQueryData(Query(str));
+TargetData CreateTargetData(absl::string_view str) {
+  return CreateTargetData(Query(str));
 }
 
 // Returns the full key path, including the database name, as a string.
@@ -366,7 +368,7 @@ class SerializerTest : public ::testing::Test {
   void ExpectUnaryOperator(const FieldValue& value,
                            v1::StructuredQuery::UnaryFilter::Operator op) {
     core::Query q = Query("docs").AddingFilter(Filter("prop", "==", value));
-    QueryData model = CreateQueryData(std::move(q));
+    TargetData model = CreateTargetData(std::move(q));
 
     v1::Target proto;
     proto.mutable_query()->set_parent(ResourceName(""));
@@ -484,7 +486,7 @@ class SerializerTest : public ::testing::Test {
     }
   }
 
-  void ExpectSerializationRoundTrip(const QueryData& model,
+  void ExpectSerializationRoundTrip(const TargetData& model,
                                     const v1::Target& proto) {
     ByteString bytes = Encode(google_firestore_v1_Target_fields,
                               serializer.EncodeTarget(model));
@@ -493,9 +495,9 @@ class SerializerTest : public ::testing::Test {
     EXPECT_TRUE(msg_diff.Compare(proto, actual_proto)) << message_differences;
   }
 
-  void ExpectDeserializationRoundTrip(const QueryData& model,
+  void ExpectDeserializationRoundTrip(const TargetData& model,
                                       const v1::Target& proto) {
-    core::Query actual_model;
+    core::Target actual_model;
     if (proto.has_documents()) {
       actual_model = Decode<google_firestore_v1_Target_DocumentsTarget>(
           google_firestore_v1_Target_DocumentsTarget_fields,
@@ -507,7 +509,7 @@ class SerializerTest : public ::testing::Test {
           std::mem_fn(&Serializer::DecodeQueryTarget), proto.query());
     }
 
-    EXPECT_EQ(model.query(), actual_model);
+    EXPECT_EQ(model.target(), actual_model);
   }
 
   void ExpectSerializationRoundTrip(const Mutation& model,
@@ -1181,7 +1183,7 @@ TEST_F(SerializerTest, DecodeMaybeDocWithoutFoundOrMissingSetShouldFail) {
 }
 
 TEST_F(SerializerTest, EncodesFirstLevelKeyQueries) {
-  QueryData model = CreateQueryData("docs/1");
+  TargetData model = CreateTargetData("docs/1");
 
   v1::Target proto;
   proto.mutable_documents()->add_documents(ResourceName("docs/1"));
@@ -1192,7 +1194,7 @@ TEST_F(SerializerTest, EncodesFirstLevelKeyQueries) {
 }
 
 TEST_F(SerializerTest, EncodesFirstLevelAncestorQueries) {
-  QueryData model = CreateQueryData("messages");
+  TargetData model = CreateTargetData("messages");
 
   v1::Target proto;
   proto.mutable_query()->set_parent(ResourceName(""));
@@ -1214,7 +1216,7 @@ TEST_F(SerializerTest, EncodesFirstLevelAncestorQueries) {
 }
 
 TEST_F(SerializerTest, EncodesNestedAncestorQueries) {
-  QueryData model = CreateQueryData("rooms/1/messages/10/attachments");
+  TargetData model = CreateTargetData("rooms/1/messages/10/attachments");
 
   v1::Target proto;
   proto.mutable_query()->set_parent(ResourceName("rooms/1/messages/10"));
@@ -1237,7 +1239,7 @@ TEST_F(SerializerTest, EncodesNestedAncestorQueries) {
 
 TEST_F(SerializerTest, EncodesSingleFiltersAtFirstLevelCollections) {
   core::Query q = Query("docs").AddingFilter(Filter("prop", "<", 42));
-  QueryData model = CreateQueryData(std::move(q));
+  TargetData model = CreateTargetData(std::move(q));
 
   v1::Target proto;
   proto.mutable_query()->set_parent(ResourceName(""));
@@ -1278,7 +1280,7 @@ TEST_F(SerializerTest, EncodesMultipleFiltersOnDeeperCollections) {
           .AddingFilter(Filter("prop", ">=", 42))
           .AddingFilter(Filter("author", "==", "dimond"))
           .AddingFilter(Filter("tags", "array_contains", "pending"));
-  QueryData model = CreateQueryData(std::move(q));
+  TargetData model = CreateTargetData(std::move(q));
 
   v1::Target proto;
   proto.mutable_query()->set_parent(ResourceName("rooms/1/messages/10"));
@@ -1347,7 +1349,7 @@ TEST_F(SerializerTest, EncodesNanFilter) {
 
 TEST_F(SerializerTest, EncodesSortOrders) {
   core::Query q = Query("docs").AddingOrderBy(testutil::OrderBy("prop", "asc"));
-  QueryData model = CreateQueryData(std::move(q));
+  TargetData model = CreateTargetData(std::move(q));
 
   v1::Target proto;
   proto.mutable_query()->set_parent(ResourceName(""));
@@ -1380,7 +1382,7 @@ TEST_F(SerializerTest, EncodesBounds) {
           .StartingAt(Bound{{Value("prop"), Value(42)}, /*is_before=*/false})
           .EndingAt(
               Bound{{Value("author"), Value("dimond")}, /*is_before=*/true});
-  QueryData model = CreateQueryData(std::move(q));
+  TargetData model = CreateTargetData(std::move(q));
 
   v1::Target proto;
   proto.mutable_query()->set_parent(ResourceName(""));
@@ -1418,7 +1420,7 @@ TEST_F(SerializerTest, EncodesBounds) {
 TEST_F(SerializerTest, EncodesSortOrdersDescending) {
   core::Query q = Query("rooms/1/messages/10/attachments")
                       .AddingOrderBy(OrderBy("prop", "desc"));
-  QueryData model = CreateQueryData(std::move(q));
+  TargetData model = CreateTargetData(std::move(q));
 
   v1::Target proto;
   proto.mutable_query()->set_parent(ResourceName("rooms/1/messages/10"));
@@ -1446,7 +1448,7 @@ TEST_F(SerializerTest, EncodesSortOrdersDescending) {
 }
 
 TEST_F(SerializerTest, EncodesLimits) {
-  QueryData model = CreateQueryData(Query("docs").WithLimit(26));
+  TargetData model = CreateTargetData(Query("docs").WithLimitToFirst(26));
 
   v1::Target proto;
   proto.mutable_query()->set_parent(ResourceName(""));
@@ -1472,8 +1474,9 @@ TEST_F(SerializerTest, EncodesLimits) {
 
 TEST_F(SerializerTest, EncodesResumeTokens) {
   core::Query q = Query("docs");
-  QueryData model(std::move(q), 1, 0, QueryPurpose::Listen,
-                  SnapshotVersion::None(), Bytes(1, 2, 3));
+  TargetData model(q.ToTarget(), 1, 0, QueryPurpose::Listen,
+                   SnapshotVersion::None(), SnapshotVersion::None(),
+                   Bytes(1, 2, 3));
 
   v1::Target proto;
   proto.mutable_query()->set_parent(ResourceName(""));
@@ -1509,13 +1512,15 @@ TEST_F(SerializerTest, EncodesListenRequestLabels) {
       };
 
   for (const auto& p : purpose_to_label) {
-    QueryData model(q, 1, 0, p.first);
+    TargetData model(q.ToTarget(), 1, 0, p.first);
 
     auto result = serializer.EncodeListenRequestLabels(model);
     std::unordered_map<std::string, std::string> result_in_map;
     for (auto& label_entry : result) {
       result_in_map[serializer.DecodeString(label_entry.key)] =
           serializer.DecodeString(label_entry.value);
+      pb_release(google_firestore_v1_ListenRequest_LabelsEntry_fields,
+                 &label_entry);
     }
 
     EXPECT_EQ(result_in_map, p.second);
@@ -1760,6 +1765,19 @@ TEST_F(SerializerTest, EncodesDeleteMutation) {
   ExpectRoundTrip(model, proto);
 }
 
+TEST_F(SerializerTest, EncodesVerifyMutation) {
+  VerifyMutation model = testutil::VerifyMutation("docs/1", 4);
+
+  v1::Write proto;
+  proto.set_verify(ResourceName("docs/1"));
+
+  google::protobuf::Timestamp timestamp;
+  timestamp.set_nanos(4000);
+  *proto.mutable_current_document()->mutable_update_time() = timestamp;
+
+  ExpectRoundTrip(model, proto);
+}
+
 TEST_F(SerializerTest, EncodesServerTimestampTransformMutation) {
   TransformMutation model = testutil::TransformMutation(
       "docs/1", {{"a", ServerTimestampTransform()},
@@ -1905,7 +1923,7 @@ TEST_F(SerializerTest, EncodesInFilter) {
   v1::StructuredQuery::Filter proto;
   v1::StructuredQuery::FieldFilter& field = *proto.mutable_field_filter();
   field.mutable_field()->set_field_path("item.tags");
-  field.set_op(v1::StructuredQuery::FieldFilter::IN);
+  field.set_op(v1::StructuredQuery::FieldFilter::IN_);
   *field.mutable_value() = ValueProto(std::vector<FieldValue>{Value("food")});
 
   ExpectRoundTrip(model, proto);

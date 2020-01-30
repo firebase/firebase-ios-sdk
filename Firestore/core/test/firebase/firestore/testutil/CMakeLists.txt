@@ -17,7 +17,6 @@ cc_library(
   SOURCES
     app_testing.h
     app_testing.mm
-    xcgmock.h
   DEPENDS
     FirebaseCore
     absl_strings
@@ -36,6 +35,10 @@ cc_library(
     async_testing.cc
     async_testing.h
     equals_tester.h
+    filesystem_testing.cc
+    filesystem_testing.h
+    status_testing.cc
+    status_testing.h
     testutil.cc
     testutil.h
     time_testing.cc
@@ -43,24 +46,12 @@ cc_library(
     view_testing.cc
     view_testing.h
   DEPENDS
-    # TODO(b/111328563) Force nanopb first to work around ODR violations
-    firebase_firestore_nanopb
-
     ${TESTUTIL_DEPENDS}
+    GMock::GMock
     GTest::GTest
     absl_time
     firebase_firestore_core
     firebase_firestore_model
+    firebase_firestore_nanopb
     firebase_firestore_util
 )
-
-if(APPLE AND XCTest_FOUND)
-  cc_test(
-    firebase_firestore_testutil_test
-    SOURCES
-      xcgmock_test.mm
-    DEPENDS
-      firebase_firestore_objc_api
-      firebase_firestore_testutil
-  )
-endif()

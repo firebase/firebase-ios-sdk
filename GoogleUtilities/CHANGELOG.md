@@ -1,3 +1,14 @@
+# 6.5.1
+- Standardized import paths. (#4655)
+
+# 6.5.0
+- Swizzler changes.
+
+# 6.4.0
+- Add function to gul secure encoding to encode multiple classes. (#4282)
+- Add heartbeat feature. (#4098)
+- Support UISceneDelegate changes in Auth. (#4380)
+
 # 6.3.1
 - Fix GULMutableDictionary keyed subscript methods. (#3882)
 - Update Networking to receive data for POST requests. (#3940)

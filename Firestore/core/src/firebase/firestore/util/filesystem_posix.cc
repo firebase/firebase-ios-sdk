@@ -17,15 +17,16 @@
 #include "Firestore/core/src/firebase/firestore/util/filesystem.h"
 
 #include <dirent.h>
+#include <pwd.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
 
 #include <cerrno>
+#include <cstdio>
 #include <deque>
 #include <string>
 
-#include "Firestore/core/src/firebase/firestore/util/filesystem_detail.h"
 #include "Firestore/core/src/firebase/firestore/util/path.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
@@ -35,7 +36,99 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-Status IsDirectory(const Path& path) {
+#if !__APPLE__ && !_WIN32
+// See filesystem_apple.mm and filesystem_win.cc for other implementations.
+
+namespace {
+
+StatusOr<Path> HomeDir() {
+  const char* home_dir = getenv("HOME");
+  if (home_dir) return Path::FromUtf8(home_dir);
+
+  passwd pwd;
+  passwd* result;
+  auto buffer_size = static_cast<size_t>(sysconf(_SC_GETPW_R_SIZE_MAX));
+  std::string buffer(buffer_size, '\0');
+  uid_t uid = getuid();
+  int rc;
+  do {
+    rc = getpwuid_r(uid, &pwd, &buffer[0], buffer_size, &result);
+  } while (rc == EINTR);
+
+  if (rc != 0) {
+    return Status::FromErrno(
+        rc, "Failed to find the home directory for the current user");
+  }
+
+  return Path::FromUtf8(pwd.pw_dir);
+}
+
+#if __linux__ && !__ANDROID__
+StatusOr<Path> XdgDataHomeDir() {
+  const char* data_home = getenv("XDG_DATA_HOME");
+  if (data_home) return Path::FromUtf8(data_home);
+
+  StatusOr<Path> maybe_home_dir = HomeDir();
+  if (!maybe_home_dir.ok()) return maybe_home_dir;
+
+  const Path& home_dir = maybe_home_dir.ValueOrDie();
+  return home_dir.AppendUtf8(".local/share");
+}
+#endif  // __linux__ && !__ANDROID__
+
+}  // namespace
+
+StatusOr<Path> Filesystem::AppDataDir(absl::string_view app_name) {
+#if __linux__ && !__ANDROID__
+  // On Linux, use XDG data home, usually $HOME/.local/share/$app_name
+  StatusOr<Path> maybe_data_home = XdgDataHomeDir();
+  if (!maybe_data_home.ok()) return maybe_data_home;
+
+  return maybe_data_home.ValueOrDie().AppendUtf8(app_name);
+
+#elif !__ANDROID__
+  // On any other UNIX, use an old school dotted directory in $HOME.
+  StatusOr<Path> maybe_home = HomeDir();
+  if (!maybe_home.ok()) return maybe_home;
+
+  std::string dot_prefixed = absl::StrCat(".", app_name);
+  return maybe_home.ValueOrDie().AppendUtf8(dot_prefixed);
+
+#else
+  // TODO(wilhuff): On Android, use internal storage
+#error "Don't know where to store documents on this platform."
+
+#endif  // __linux__ && !__ANDROID__
+}
+
+StatusOr<Path> Filesystem::LegacyDocumentsDir(absl::string_view) {
+  return Status(Error::Unimplemented, "No legacy storage on this platform.");
+}
+
+Path Filesystem::TempDir() {
+  const char* env_tmpdir = getenv("TMPDIR");
+  if (env_tmpdir) {
+    return Path::FromUtf8(env_tmpdir);
+  }
+
+#if __ANDROID__
+  // The /tmp directory doesn't exist as a fallback; each application is
+  // supposed to keep its own temporary files. Previously /data/local/tmp may
+  // have been reasonable, but current lore points to this being unreliable for
+  // writing at higher API levels or certain phone models because default
+  // permissions on this directory no longer permit writing.
+  //
+  // TODO(wilhuff): Validate on recent Android.
+#error "Not yet sure about temporary file locations on Android."
+  return Path::FromUtf8("/data/local/tmp");
+
+#else
+  return Path::FromUtf8("/tmp");
+#endif  // __ANDROID__
+}
+#endif  // !__APPLE__ && !_WIN32
+
+Status Filesystem::IsDirectory(const Path& path) {
   struct stat buffer {};
   if (::stat(path.c_str(), &buffer)) {
     if (errno == ENOENT) {
@@ -71,32 +164,7 @@ Status IsDirectory(const Path& path) {
   return Status::OK();
 }
 
-#if !defined(__APPLE__)
-// See filesystem_apple.mm for an alternative implementation.
-Path TempDir() {
-  const char* env_tmpdir = getenv("TMPDIR");
-  if (env_tmpdir) {
-    return Path::FromUtf8(env_tmpdir);
-  }
-
-#if defined(__ANDROID__)
-  // The /tmp directory doesn't exist as a fallback; each application is
-  // supposed to keep its own temporary files. Previously /data/local/tmp may
-  // have been reasonable, but current lore points to this being unreliable for
-  // writing at higher API levels or certain phone models because default
-  // permissions on this directory no longer permit writing.
-  //
-  // TODO(wilhuff): Validate on recent Android.
-#error "Not yet sure about temporary file locations on Android."
-  return Path::FromUtf8("/data/local/tmp");
-
-#else
-  return Path::FromUtf8("/tmp");
-#endif  // defined(__ANDROID__)
-}
-#endif  // !defined(__APPLE__)
-
-StatusOr<int64_t> FileSize(const Path& path) {
+StatusOr<int64_t> Filesystem::FileSize(const Path& path) {
   struct stat st {};
   if (stat(path.c_str(), &st) == 0) {
     return st.st_size;
@@ -106,9 +174,7 @@ StatusOr<int64_t> FileSize(const Path& path) {
   }
 }
 
-namespace detail {
-
-Status CreateDir(const Path& path) {
+Status Filesystem::CreateDir(const Path& path) {
   if (::mkdir(path.c_str(), 0777)) {
     if (errno != EEXIST) {
       return Status::FromErrno(
@@ -120,7 +186,7 @@ Status CreateDir(const Path& path) {
   return Status::OK();
 }
 
-Status DeleteDir(const Path& path) {
+Status Filesystem::RemoveDir(const Path& path) {
   if (::rmdir(path.c_str())) {
     if (errno != ENOENT) {
       return Status::FromErrno(
@@ -131,7 +197,7 @@ Status DeleteDir(const Path& path) {
   return Status::OK();
 }
 
-Status DeleteFile(const Path& path) {
+Status Filesystem::RemoveFile(const Path& path) {
   if (::unlink(path.c_str())) {
     if (errno != ENOENT) {
       return Status::FromErrno(
@@ -141,14 +207,21 @@ Status DeleteFile(const Path& path) {
   return Status::OK();
 }
 
-}  // namespace detail
+Status Filesystem::Rename(const Path& from_path, const Path& to_path) {
+  if (::rename(from_path.ToUtf8String().c_str(),
+               to_path.ToUtf8String().c_str())) {
+    return Status::FromErrno(errno, from_path.ToUtf8String());
+  }
+
+  return Status::OK();
+}
 
 namespace {
 
-class DirectoryIteratorPosix : public DirectoryIterator {
+class PosixDirectoryIterator : public DirectoryIterator {
  public:
-  explicit DirectoryIteratorPosix(const util::Path& path);
-  virtual ~DirectoryIteratorPosix();
+  explicit PosixDirectoryIterator(const util::Path& path);
+  virtual ~PosixDirectoryIterator();
 
   void Next() override;
   bool Valid() const override;
@@ -161,7 +234,7 @@ class DirectoryIteratorPosix : public DirectoryIterator {
   struct dirent* entry_ = nullptr;
 };
 
-DirectoryIteratorPosix::DirectoryIteratorPosix(const util::Path& path)
+PosixDirectoryIterator::PosixDirectoryIterator(const util::Path& path)
     : DirectoryIterator{path} {
   dir_ = ::opendir(parent_.c_str());
   if (!dir_) {
@@ -173,7 +246,7 @@ DirectoryIteratorPosix::DirectoryIteratorPosix(const util::Path& path)
   Advance();
 }
 
-DirectoryIteratorPosix::~DirectoryIteratorPosix() {
+PosixDirectoryIterator::~PosixDirectoryIterator() {
   if (dir_) {
     if (::closedir(dir_) != 0) {
       HARD_FAIL("Could not close directory %s", parent_.ToUtf8String());
@@ -181,7 +254,7 @@ DirectoryIteratorPosix::~DirectoryIteratorPosix() {
   }
 }
 
-void DirectoryIteratorPosix::Advance() {
+void PosixDirectoryIterator::Advance() {
   HARD_ASSERT(status_.ok(), "Advancing an errored iterator");
   errno = 0;
   entry_ = ::readdir(dir_);
@@ -199,16 +272,16 @@ void DirectoryIteratorPosix::Advance() {
   }
 }
 
-void DirectoryIteratorPosix::Next() {
+void PosixDirectoryIterator::Next() {
   HARD_ASSERT(Valid(), "Next() called on invalid iterator");
   Advance();
 }
 
-bool DirectoryIteratorPosix::Valid() const {
+bool PosixDirectoryIterator::Valid() const {
   return status_.ok() && entry_ != nullptr;
 }
 
-Path DirectoryIteratorPosix::file() const {
+Path PosixDirectoryIterator::file() const {
   HARD_ASSERT(Valid(), "file() called on invalid iterator");
   return parent_.AppendUtf8(entry_->d_name, strlen(entry_->d_name));
 }
@@ -217,7 +290,7 @@ Path DirectoryIteratorPosix::file() const {
 
 std::unique_ptr<DirectoryIterator> DirectoryIterator::Create(
     const util::Path& path) {
-  return absl::make_unique<DirectoryIteratorPosix>(path);
+  return absl::make_unique<PosixDirectoryIterator>(path);
 }
 
 }  // namespace util

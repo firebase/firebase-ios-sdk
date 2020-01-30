@@ -1,3 +1,13 @@
+# 2020-01 -- v 4.2.0
+- [added] Added watchOS support for Firebase Messaging. This enables FCM push notification function on watch only app or independent watch app. (#4016)
+- [added] Added a new transitive dependency on the [Firebase Installations SDK](../../FirebaseInstallations/CHANGELOG.md). The Firebase Installations SDK introduces the [Firebase Installations API](https://console.cloud.google.com/apis/library/firebaseinstallations.googleapis.com). Developers that use API-restrictions for their API-Keys may experience blocked requests (https://stackoverflow.com/questions/58495985/). A solution is available [here](../../FirebaseInstallations/API_KEY_RESTRICTIONS.md).
+
+# 2019-12 -- v4.1.10
+- [fixed] Fix component startup time. (#4137)
+
+# 2019-11-19 -- v4.1.9
+- [changed] Moved message queue delete operation to a serial queue to avoid race conditions in unit tests. (#4236)
+
 # 2019-11-05 -- v4.1.8
 - [changed] Moved reliable message queue database operation off main thread. (#4053)
 

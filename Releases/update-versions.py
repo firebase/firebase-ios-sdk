@@ -82,6 +82,15 @@ def LogOrRun(command):
   else:
     os.system(command)
 
+def LogAndRun(command):
+  """Log and run a command depending on test_mode value.
+
+  Args:
+    command: command to log and run.
+  """
+  print 'Log only: {}'.format(command)
+  os.system(command)
+
 
 def GetVersionData(git_root, version):
   """Update version specifier in FIROptions.m.
@@ -222,6 +231,9 @@ def GetCpdcInternal():
   return output_var
 
 
+# TODO update PushPodspecs to push dependent pods first, like when FirebaseCore
+# depends on the most recent version of GoogleUtilities.
+
 def PushPodspecs(version_data):
   """Push podspecs to cpdc-firebase.
 
@@ -240,11 +252,12 @@ def PushPodspecs(version_data):
       warnings_ok = ''
 
     podspec = '{}.podspec'.format(pod)
-    LogOrRun('pod repo push --skip-tests --use-json {} {}{}'
+    LogAndRun('pod repo push --skip-tests --use-json {} {}{}'
              .format(GetCpdcInternal(), podspec, warnings_ok))
-  LogOrRun('pod repo push --skip-tests --use-json --skip-import-validation ' +
+  # This command will need to be rerun if any pods need to be pushed from Rapid.
+  LogAndRun('pod repo push --skip-tests --use-json --skip-import-validation ' +
            '--sources=sso://cpdc-internal/firebase.git,https://cdn.cocoapods.org' +
-           ' {} {}{}'.format(GetCpdcInternal(), podspec, warnings_ok))
+           ' {} Firebase.podspec {}'.format(GetCpdcInternal(), warnings_ok))
 
 
 def UpdateVersions():

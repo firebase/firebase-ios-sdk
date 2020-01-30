@@ -32,7 +32,11 @@ class SimpleQueryEngine : public QueryEngine {
   model::DocumentMap GetDocumentsMatchingQuery(
       const core::Query& query,
       const model::SnapshotVersion& last_limbo_free_snapshot_version,
-      const model::DocumentKeySet& remote_keys) const override;
+      const model::DocumentKeySet& remote_keys) override;
+
+  Type type() const override {
+    return Type::Simple;
+  }
 
  private:
   LocalDocumentsView* local_documents_view_;

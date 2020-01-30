@@ -1,3 +1,20 @@
+# v1.3.1
+- Adds compression to requests to CCT.
+- Requests going to the FLL backend will only use compressed data when smaller.
+- Added extensive debug logging that can be turned on by changing
+GDT_VERBOSE_LOGGING to 1 in GDTCORConsoleLogger.h.
+
+# v1.3.0
+- Implemented initial support for watchOS.
+
+# v1.2.3
+- Fixed issues discovered by tsan in tests.
+- Add the request time to the outgoing proto.
+
+# v1.2.2
+- Added redirect response handling to FLL.
+- Only use gzipped data when it's smaller than the original and successful.
+
 # v1.2.1
 - Fixes sanitizer issues and runtime errors. (#4039, #4027)
 - Fixes a threading issue with ivar access in GDTCORUploadCoordinator. (#4019)

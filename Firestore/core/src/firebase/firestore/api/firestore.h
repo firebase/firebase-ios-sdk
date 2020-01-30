@@ -29,7 +29,6 @@
 #include "Firestore/core/src/firebase/firestore/core/event_listener.h"
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
-#include "Firestore/core/src/firebase/firestore/objc/objc_class.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/empty.h"
 #include "Firestore/core/src/firebase/firestore/util/nullability.h"
@@ -82,8 +81,8 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
 
   void set_user_executor(std::unique_ptr<util::Executor> user_executor);
 
-  CollectionReference GetCollection(absl::string_view collection_path);
-  DocumentReference GetDocument(absl::string_view document_path);
+  CollectionReference GetCollection(const std::string& collection_path);
+  DocumentReference GetDocument(const std::string& document_path);
   WriteBatch GetBatch();
   core::Query GetCollectionGroup(std::string collection_id);
 

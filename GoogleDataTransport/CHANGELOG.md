@@ -1,3 +1,16 @@
+# v3.3.1
+- Added extensive debug logging that can be turned on by changing
+GDT_VERBOSE_LOGGING to 1 in GDTCORConsoleLogger.h.
+
+# v3.3.0
+- Implemented initial support for watchOS.
+
+# v3.2.0
+- Expose the library version with a #define to a const string var.
+
+# v3.1.0
+- Fixes additional sanitizer issues and runtime errors.
+
 # v3.0.1
 - Fixes sanitizer issues and runtime errors. (#4039, #4027)
 

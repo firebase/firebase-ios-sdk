@@ -1,5 +1,11 @@
 # Unreleased
 
+# v6.1.4
+- [changed] Addressed a performance regression introduced in 6.1.3.
+
+# v6.1.3
+- [changed] Internal changes.
+
 # v6.1.2
 - [fixed] Addressed an issue with `NSDecimalNumber` case that prevented decimals with
   high precision to be stored correctly in our persistence layer. (#4108)

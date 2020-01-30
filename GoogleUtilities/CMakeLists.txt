@@ -16,11 +16,13 @@ if(APPLE)
   # Environment and Logger subspecs
   file(
     GLOB sources
+    Environment/*.m
     Environment/third_party/*.m
     Logger/*.m
   )
   file(
     GLOB headers
+    Environment/Public/*.h
     Environment/third_party/*.h
     Logger/Private/*.h
     Logger/Public/*.h
@@ -36,8 +38,15 @@ if(APPLE)
     INCLUDES
       Private
       Public
+      ${PROJECT_SOURCE_DIR}
     DEPENDS
       "-framework Foundation"
     EXCLUDE_FROM_ALL
+  )
+
+  target_compile_options(
+    GoogleUtilities
+    PRIVATE
+      -Wno-deprecated-declarations
   )
 endif()

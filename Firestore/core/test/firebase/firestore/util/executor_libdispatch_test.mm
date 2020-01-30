@@ -30,18 +30,19 @@ namespace {
 
 using testutil::Expectation;
 
-std::unique_ptr<Executor> ExecutorFactory() {
+std::unique_ptr<Executor> ExecutorFactory(int threads = 1) {
+  auto attr = threads == 1 ? DISPATCH_QUEUE_SERIAL : DISPATCH_QUEUE_CONCURRENT;
   return absl::make_unique<ExecutorLibdispatch>(
-      dispatch_queue_create("ExecutorLibdispatchTests", DISPATCH_QUEUE_SERIAL));
+      dispatch_queue_create("ExecutorLibdispatchTests", attr));
 }
 
 namespace chr = std::chrono;
 
 }  // namespace
 
-INSTANTIATE_TEST_CASE_P(ExecutorTestLibdispatch,
-                        ExecutorTest,
-                        ::testing::Values(ExecutorFactory));
+INSTANTIATE_TEST_SUITE_P(ExecutorTestLibdispatch,
+                         ExecutorTest,
+                         ::testing::Values(ExecutorFactory));
 
 namespace internal {
 class ExecutorLibdispatchOnlyTests : public ::testing::Test,

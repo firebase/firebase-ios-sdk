@@ -51,7 +51,7 @@
 #import <unistd.h>
 
 #define GTMHTTPSERVER_DEFINE_GLOBALS
-#import "GTMHTTPServer.h"
+#import "GoogleUtilities/Example/Tests/Network/third_party/GTMHTTPServer.h"
 
 // avoid some of GTM's promiscuous dependencies
 #ifndef _GTMDevLog

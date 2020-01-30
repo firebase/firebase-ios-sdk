@@ -84,12 +84,11 @@ static NSString *const kFIRInstallationsIIDCreationTimePlistKey = @"|S|cre";
 }
 
 - (NSData *)sha1WithData:(NSData *)data {
-  unsigned int outputLength = CC_SHA1_DIGEST_LENGTH;
-  unsigned char output[outputLength];
+  unsigned char output[CC_SHA1_DIGEST_LENGTH];
   unsigned int length = (unsigned int)[data length];
 
   CC_SHA1(data.bytes, length, output);
-  return [NSData dataWithBytes:output length:outputLength];
+  return [NSData dataWithBytes:output length:CC_SHA1_DIGEST_LENGTH];
 }
 
 - (NSString *)base64URLEncodedStringWithData:(NSData *)data {

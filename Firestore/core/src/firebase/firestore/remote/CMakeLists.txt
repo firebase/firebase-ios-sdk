@@ -43,34 +43,48 @@ cc_select(
   DEFAULT firebase_firestore_remote_connectivity_monitor_noop
 )
 
+# Source files should be generated in place so that the XCode build can pick
+# them up.
+set(OUTPUT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+
+set(
+  GRPC_ROOT_CERTIFICATE_SOURCES
+  ${OUTPUT_DIR}/grpc_root_certificates_generated.h  # NOLINT(generated)
+  ${OUTPUT_DIR}/grpc_root_certificates_generated.cc # NOLINT(generated)
+)
+
 # `roots.pem` is a file containing root certificates that is distributed
 # alongside gRPC and is necessary to establish SSL connections. Embed this file
 # into the binary by converting it to a char array.
 add_custom_command(
+  COMMENT "Generating root certificates for embedding"
   OUTPUT
-    grpc_root_certificates_generated.h  # NOLINT(generated)
-    grpc_root_certificates_generated.cc # NOLINT(generated)
+    ${GRPC_ROOT_CERTIFICATE_SOURCES}
   COMMAND python ${FIREBASE_SOURCE_DIR}/scripts/binary_to_array.py
-      --output_header=grpc_root_certificates_generated.h
-      --output_source=grpc_root_certificates_generated.cc
+      --output_header=${OUTPUT_DIR}/grpc_root_certificates_generated.h
+      --output_source=${OUTPUT_DIR}/grpc_root_certificates_generated.cc
       --cpp_namespace=firebase::firestore::remote
       --array=grpc_root_certificates_generated_data
       --array_size=grpc_root_certificates_generated_size
       ${FIREBASE_EXTERNAL_SOURCE_DIR}/grpc/etc/roots.pem
+  VERBATIM
   DEPENDS
+    grpc
+    ${FIREBASE_SOURCE_DIR}/scripts/binary_to_array.py
     ${FIREBASE_EXTERNAL_SOURCE_DIR}/grpc/etc/roots.pem
 )
 
-# TODO(wilhuff): Build grpc_root_certificate_finder_apple.mm NOLINT(not built)
+# gRPC certificates have to be regenerated manually on each new gRPC release
+# (which typically has updated certificates).
+add_custom_target(
+  generate_grpc_root_certificates
+  DEPENDS
+    ${GRPC_ROOT_CERTIFICATE_SOURCES}
+)
 
 cc_library(
-  firebase_firestore_remote
+  firebase_firestore_remote_grpc
   SOURCES
-    datastore.cc
-    datastore.h
-    existence_filter.h
-    exponential_backoff.cc
-    exponential_backoff.h
     grpc_call.h
     grpc_completion.cc
     grpc_completion.h
@@ -92,16 +106,22 @@ cc_library(
     grpc_util.cc
     grpc_util.cc
     grpc_util.h
-    online_state_tracker.cc
-    online_state_tracker.h
-    remote_event.cc
-    remote_event.h
+  DEPENDS
+    absl_optional
+    firebase_firestore_nanopb
+    firebase_firestore_protos_nanopb
+    firebase_firestore_version
+    grpc++
+    protobuf-nanopb-static
+)
+
+cc_library(
+  firebase_firestore_remote_datastore
+  SOURCES
+    datastore.cc
+    datastore.h
+    remote_objc_bridge.cc
     remote_objc_bridge.h
-    remote_objc_bridge.mm
-    remote_store.cc
-    remote_store.h
-    serializer.cc
-    serializer.h
     stream.cc
     stream.h
     watch_change.cc
@@ -110,18 +130,47 @@ cc_library(
     watch_stream.h
     write_stream.cc
     write_stream.h
-
   DEPENDS
-    # TODO(b/111328563) Force nanopb first to work around ODR violations
-    protobuf-nanopb-static
-
-    firebase_firestore_core
-    firebase_firestore_model
+    absl_strings
     firebase_firestore_nanopb
     firebase_firestore_protos_nanopb
     firebase_firestore_remote_connectivity_monitor
+    firebase_firestore_remote_grpc
+    firebase_firestore_remote_serializer
+)
+
+cc_library(
+  firebase_firestore_remote_serializer
+  SOURCES
+    serializer.cc
+    serializer.h
+  DEPENDS
+    firebase_firestore_core_query
+    firebase_firestore_model
+    protobuf-nanopb-static
+)
+
+cc_library(
+  firebase_firestore_remote
+  SOURCES
+    existence_filter.h
+    exponential_backoff.cc
+    exponential_backoff.h
+    online_state_tracker.cc
+    online_state_tracker.h
+    remote_event.cc
+    remote_event.h
+    remote_store.cc
+    remote_store.h
+
+  DEPENDS
+    firebase_firestore_core_transaction
+    firebase_firestore_local
+    firebase_firestore_model
+    firebase_firestore_remote_connectivity_monitor
+    firebase_firestore_remote_datastore
+    firebase_firestore_remote_serializer
     firebase_firestore_util
     firebase_firestore_version
-
-    grpc++
+    protobuf-nanopb-static
 )

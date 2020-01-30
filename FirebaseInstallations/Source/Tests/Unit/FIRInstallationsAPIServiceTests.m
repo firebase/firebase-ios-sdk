@@ -24,8 +24,10 @@
 #import "FIRInstallationsErrorUtil.h"
 #import "FIRInstallationsHTTPError.h"
 #import "FIRInstallationsStoredAuthToken.h"
-#import "FIRInstallationsStoredIIDCheckin.h"
 #import "FIRInstallationsVersion.h"
+
+#import <FirebaseCore/FIRAppInternal.h>
+#import <FirebaseCore/FIRHeartbeatInfo.h>
 
 typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
 
@@ -40,6 +42,7 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
 @property(nonatomic) id mockURLSession;
 @property(nonatomic) NSString *APIKey;
 @property(nonatomic) NSString *projectID;
+@property(nonatomic) id heartbeatMock;
 @end
 
 @implementation FIRInstallationsAPIServiceTests
@@ -51,6 +54,9 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
   self.service = [[FIRInstallationsAPIService alloc] initWithURLSession:self.mockURLSession
                                                                  APIKey:self.APIKey
                                                               projectID:self.projectID];
+  self.heartbeatMock = OCMClassMock([FIRHeartbeatInfo class]);
+  OCMStub([self.heartbeatMock heartbeatCodeForTag:@"fire-installations"])
+      .andReturn(FIRHeartbeatInfoCodeCombined);
 }
 
 - (void)tearDown {
@@ -58,18 +64,17 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
   self.mockURLSession = nil;
   self.projectID = nil;
   self.APIKey = nil;
+  self.heartbeatMock = nil;
 
-  //  // Wait for any pending promises to complete.
-  //  XCTAssert(FBLWaitForPromisesWithTimeout(2));
+  // Wait for any pending promises to complete.
+  XCTAssert(FBLWaitForPromisesWithTimeout(2));
 }
 
 - (void)testRegisterInstallationSuccess {
   FIRInstallationsItem *installation = [[FIRInstallationsItem alloc] initWithAppID:@"app-id"
                                                                    firebaseAppName:@"name"];
   installation.firebaseInstallationID = [FIRInstallationsItem generateFID];
-  installation.IIDCheckin =
-      [[FIRInstallationsStoredIIDCheckin alloc] initWithDeviceID:@"IIDDeviceID"
-                                                     secretToken:@"IIDSecretToken"];
+  installation.IIDDefaultToken = @"iid-auth-token";
 
   // 1. Stub URL session:
 
@@ -83,8 +88,11 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
     XCTAssertEqualObjects([request valueForHTTPHeaderField:@"X-Goog-Api-Key"], self.APIKey);
     XCTAssertEqualObjects([request valueForHTTPHeaderField:@"X-Ios-Bundle-Identifier"],
                           [[NSBundle mainBundle] bundleIdentifier]);
+    XCTAssertEqualObjects([request valueForHTTPHeaderField:kFIRInstallationsUserAgentKey],
+                          [FIRApp firebaseUserAgent]);
+    XCTAssertEqualObjects([request valueForHTTPHeaderField:kFIRInstallationsHeartbeatKey], @"3");
 
-    NSString *expectedIIDMigrationHeader = @"IIDDeviceID:IIDSecretToken";
+    NSString *expectedIIDMigrationHeader = installation.IIDDefaultToken;
     XCTAssertEqualObjects([request valueForHTTPHeaderField:@"x-goog-fis-ios-iid-migration-auth"],
                           expectedIIDMigrationHeader);
 
@@ -627,6 +635,9 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
                           @"%@", self.name);
     XCTAssertEqualObjects([request valueForHTTPHeaderField:@"X-Goog-Api-Key"], self.APIKey, @"%@",
                           self.name);
+    XCTAssertEqualObjects([request valueForHTTPHeaderField:kFIRInstallationsUserAgentKey],
+                          [FIRApp firebaseUserAgent]);
+    XCTAssertEqualObjects([request valueForHTTPHeaderField:kFIRInstallationsHeartbeatKey], @"3");
     NSString *expectedAuthHeader =
         [NSString stringWithFormat:@"FIS_v2 %@", installation.refreshToken];
     XCTAssertEqualObjects(request.allHTTPHeaderFields[@"Authorization"], expectedAuthHeader, @"%@",

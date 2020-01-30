@@ -19,8 +19,16 @@
 
 #include "target.nanopb.h"
 
+#include "Firestore/core/src/firebase/firestore/nanopb/pretty_printing.h"
+
 namespace firebase {
 namespace firestore {
+
+using nanopb::PrintEnumField;
+using nanopb::PrintHeader;
+using nanopb::PrintMessageField;
+using nanopb::PrintPrimitiveField;
+using nanopb::PrintTail;
 
 /* @@protoc_insertion_point(includes) */
 #if PB_PROTO_HEADER_VERSION != 30
@@ -29,13 +37,14 @@ namespace firestore {
 
 
 
-const pb_field_t firestore_client_Target_fields[7] = {
+const pb_field_t firestore_client_Target_fields[8] = {
     PB_FIELD(  1, INT32   , SINGULAR, STATIC  , FIRST, firestore_client_Target, target_id, target_id, 0),
     PB_FIELD(  2, MESSAGE , SINGULAR, STATIC  , OTHER, firestore_client_Target, snapshot_version, target_id, &google_protobuf_Timestamp_fields),
     PB_FIELD(  3, BYTES   , SINGULAR, POINTER , OTHER, firestore_client_Target, resume_token, snapshot_version, 0),
     PB_FIELD(  4, INT64   , SINGULAR, STATIC  , OTHER, firestore_client_Target, last_listen_sequence_number, resume_token, 0),
     PB_ANONYMOUS_ONEOF_FIELD(target_type,   5, MESSAGE , ONEOF, STATIC  , OTHER, firestore_client_Target, query, last_listen_sequence_number, &google_firestore_v1_Target_QueryTarget_fields),
     PB_ANONYMOUS_ONEOF_FIELD(target_type,   6, MESSAGE , ONEOF, STATIC  , UNION, firestore_client_Target, documents, last_listen_sequence_number, &google_firestore_v1_Target_DocumentsTarget_fields),
+    PB_FIELD(  7, MESSAGE , SINGULAR, STATIC  , OTHER, firestore_client_Target, last_limbo_free_snapshot_version, documents, &google_protobuf_Timestamp_fields),
     PB_LAST_FIELD
 };
 
@@ -57,7 +66,7 @@ const pb_field_t firestore_client_TargetGlobal_fields[5] = {
  * numbers or field sizes that are larger than what can fit in 8 or 16 bit
  * field descriptors.
  */
-PB_STATIC_ASSERT((pb_membersize(firestore_client_Target, query) < 65536 && pb_membersize(firestore_client_Target, documents) < 65536 && pb_membersize(firestore_client_Target, snapshot_version) < 65536 && pb_membersize(firestore_client_TargetGlobal, last_remote_snapshot_version) < 65536), YOU_MUST_DEFINE_PB_FIELD_32BIT_FOR_MESSAGES_firestore_client_Target_firestore_client_TargetGlobal)
+PB_STATIC_ASSERT((pb_membersize(firestore_client_Target, query) < 65536 && pb_membersize(firestore_client_Target, documents) < 65536 && pb_membersize(firestore_client_Target, snapshot_version) < 65536 && pb_membersize(firestore_client_Target, last_limbo_free_snapshot_version) < 65536 && pb_membersize(firestore_client_TargetGlobal, last_remote_snapshot_version) < 65536), YOU_MUST_DEFINE_PB_FIELD_32BIT_FOR_MESSAGES_firestore_client_Target_firestore_client_TargetGlobal)
 #endif
 
 #if !defined(PB_FIELD_16BIT) && !defined(PB_FIELD_32BIT)
@@ -68,9 +77,52 @@ PB_STATIC_ASSERT((pb_membersize(firestore_client_Target, query) < 65536 && pb_me
  * numbers or field sizes that are larger than what can fit in the default
  * 8 bit descriptors.
  */
-PB_STATIC_ASSERT((pb_membersize(firestore_client_Target, query) < 256 && pb_membersize(firestore_client_Target, documents) < 256 && pb_membersize(firestore_client_Target, snapshot_version) < 256 && pb_membersize(firestore_client_TargetGlobal, last_remote_snapshot_version) < 256), YOU_MUST_DEFINE_PB_FIELD_16BIT_FOR_MESSAGES_firestore_client_Target_firestore_client_TargetGlobal)
+PB_STATIC_ASSERT((pb_membersize(firestore_client_Target, query) < 256 && pb_membersize(firestore_client_Target, documents) < 256 && pb_membersize(firestore_client_Target, snapshot_version) < 256 && pb_membersize(firestore_client_Target, last_limbo_free_snapshot_version) < 256 && pb_membersize(firestore_client_TargetGlobal, last_remote_snapshot_version) < 256), YOU_MUST_DEFINE_PB_FIELD_16BIT_FOR_MESSAGES_firestore_client_Target_firestore_client_TargetGlobal)
 #endif
 
+
+std::string firestore_client_Target::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "Target", this);
+    std::string result;
+
+    result += PrintPrimitiveField("target_id: ", target_id, indent + 1, false);
+    result += PrintMessageField("snapshot_version ",
+        snapshot_version, indent + 1, false);
+    result += PrintPrimitiveField("resume_token: ",
+        resume_token, indent + 1, false);
+    result += PrintPrimitiveField("last_listen_sequence_number: ",
+        last_listen_sequence_number, indent + 1, false);
+    switch (which_target_type) {
+    case firestore_client_Target_query_tag:
+        result += PrintMessageField("query ", query, indent + 1, true);
+        break;
+    case firestore_client_Target_documents_tag:
+        result += PrintMessageField("documents ", documents, indent + 1, true);
+        break;
+    }
+    result += PrintMessageField("last_limbo_free_snapshot_version ",
+        last_limbo_free_snapshot_version, indent + 1, false);
+
+    std::string tail = PrintTail(indent);
+    return header + result + tail;
+}
+
+std::string firestore_client_TargetGlobal::ToString(int indent) const {
+    std::string header = PrintHeader(indent, "TargetGlobal", this);
+    std::string result;
+
+    result += PrintPrimitiveField("highest_target_id: ",
+        highest_target_id, indent + 1, false);
+    result += PrintPrimitiveField("highest_listen_sequence_number: ",
+        highest_listen_sequence_number, indent + 1, false);
+    result += PrintMessageField("last_remote_snapshot_version ",
+        last_remote_snapshot_version, indent + 1, false);
+    result += PrintPrimitiveField("target_count: ",
+        target_count, indent + 1, false);
+
+    std::string tail = PrintTail(indent);
+    return header + result + tail;
+}
 
 }  // namespace firestore
 }  // namespace firebase

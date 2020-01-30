@@ -18,9 +18,11 @@ cc_test(
     byte_string_test.cc
     message_test.cc
     nanopb_testing.h
+    pretty_printing_test.cc
     writer_test.cc
   DEPENDS
     GMock::GMock
     firebase_firestore_nanopb
     firebase_firestore_remote
+    firebase_firestore_testutil
 )

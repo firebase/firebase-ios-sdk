@@ -1,5 +1,45 @@
 # Unreleased
 
+# v1.10.0
+- [feature] Firestore previously required that every document read in a
+  transaction must also be written. This requirement has been removed, and
+  you can now read a document in a transaction without writing to it.
+- [changed] Improved the performance of repeatedly executed queries when
+  persistence is enabled. Recently executed queries should see dramatic
+  improvements. This benefit is reduced if changes accumulate while the query
+  is inactive. Queries that use the `limit()` API may not always benefit,
+  depending on the accumulated changes.
+- [changed] Changed the location of Firestore's locally stored data from the
+  Documents folder to Library/Application Support, hiding it from users of apps
+  that share their files with the iOS Files app. **Important**: After a user's
+  data is migrated, downgrading to an older version of the SDK will cause the
+  user to appear to lose data, since older versions of the SDK can't read data
+  from the new location (#843).
+
+# v1.9.0
+- [feature] Added a `limit(toLast:)` query operator, which returns the last
+  matching documents up to the given limit.
+
+# v1.8.3
+- [changed] Internal improvements.
+
+# v1.8.2
+- [changed] Internal improvements.
+
+# v1.8.1
+- [fixed] Firestore no longer loads its TLS certificates from a bundle, which
+  fixes crashes at startup when the bundle can't be loaded. This fixes a
+  specific case where the bundle couldn't be loaded due to international
+  characters in the application name. If you're manually tracking dependencies,
+  you can now remove `gRPCCertificates-Cpp.bundle` from your build. (#3951).
+
+# v1.8.0
+- [changed] Removed Firestore's dependency on the `Protobuf` CocoaPod. If
+  you're manually tracking dependencies, you may be able to remove it from your
+  build (note, however, that other Firebase components may still require it).
+- [changed] Added a dependency on the `abseil` CocoaPod. If you're manually
+  tracking dependencies, you need to add it to your build.
+
 # v1.7.0
 - [feature] Added `whereField(_:in:)` and `whereField(_:arrayContainsAny:)` query
   operators. `whereField(_:in:)` finds documents where a specified field’s value
@@ -14,7 +54,7 @@
   experience.
 
 # v1.6.1
-- [fixed] Fix a race condition that could cause a segmentation fault during
+- [fixed] Fixed a race condition that could cause a segmentation fault during
   client initialization.
 
 # v1.6.0
