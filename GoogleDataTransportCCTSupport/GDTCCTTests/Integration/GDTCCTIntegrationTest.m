@@ -80,7 +80,7 @@ typedef void (^GDTCCTIntegrationTestBlock)(NSURLSessionUploadTask *_Nullable);
         (flags & kSCNetworkReachabilityFlagsReachable) == kSCNetworkReachabilityFlagsReachable;
     self.transport = [[GDTCORTransport alloc] initWithMappingID:@"1018"
                                                    transformers:nil
-                                                         target:kGDTCORTargetCCT];
+                                                         target:kGDTCORTargetCSH];
   }
 }
 

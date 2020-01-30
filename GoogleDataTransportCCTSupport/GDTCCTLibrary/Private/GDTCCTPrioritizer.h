@@ -27,11 +27,20 @@ NS_ASSUME_NONNULL_BEGIN
 /** The queue on which this prioritizer operates. */
 @property(nonatomic) dispatch_queue_t queue;
 
-/** All log events that have been processed by this prioritizer. */
-@property(nonatomic) NSMutableSet<GDTCORStoredEvent *> *events;
+/** All CCT events that have been processed by this prioritizer. */
+@property(nonatomic) NSMutableSet<GDTCORStoredEvent *> *CCTEvents;
 
-/** The most recent attempted upload of daily uploaded logs. */
-@property(nonatomic) GDTCORClock *timeOfLastDailyUpload;
+/** All FLL events that have been processed by this prioritizer. */
+@property(nonatomic) NSMutableSet<GDTCORStoredEvent *> *FLLEvents;
+
+/** All CSH events that have been processed by this prioritizer. */
+@property(nonatomic) NSMutableSet<GDTCORStoredEvent *> *CSHEvents;
+
+/** The most recent attempted upload of CCT daily uploaded logs. */
+@property(nonatomic) GDTCORClock *CCTTimeOfLastDailyUpload;
+
+/** The most recent attempted upload of FLL daily uploaded logs*/
+@property(nonatomic) GDTCORClock *FLLOfLastDailyUpload;
 
 /** Creates and/or returns the singleton instance of this class.
  *
