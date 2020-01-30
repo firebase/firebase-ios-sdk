@@ -1,7 +1,7 @@
 name: datatransport
 
 on:
-  check_run:
+  pull_request:
     paths:
     - 'GoogleDataTransport**'
     - 'GoogleDataTransportCCTSupport**'
