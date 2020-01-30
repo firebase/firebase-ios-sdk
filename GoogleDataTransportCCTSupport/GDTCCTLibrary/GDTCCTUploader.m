@@ -42,7 +42,7 @@ static NSString *const kGDTCCTSupportSDKVersion = @"UNKNOWN";
 NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader.UploadComplete";
 #endif  // #if !NDEBUG
 
-@interface GDTCCTUploader ()
+@interface GDTCCTUploader () <NSURLSessionDelegate>
 
 // Redeclared as readwrite.
 @property(nullable, nonatomic, readwrite) NSURLSessionUploadTask *currentTask;
@@ -54,6 +54,8 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
 + (void)load {
   GDTCCTUploader *uploader = [GDTCCTUploader sharedInstance];
   [[GDTCORRegistrar sharedInstance] registerUploader:uploader target:kGDTCORTargetCCT];
+  [[GDTCORRegistrar sharedInstance] registerUploader:uploader target:kGDTCORTargetFLL];
+  [[GDTCORRegistrar sharedInstance] registerUploader:uploader target:kGDTCORTargetCSH];
 }
 
 + (instancetype)sharedInstance {
@@ -70,28 +72,105 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
   if (self) {
     _uploaderQueue = dispatch_queue_create("com.google.GDTCCTUploader", DISPATCH_QUEUE_SERIAL);
     NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
-    _uploaderSession = [NSURLSession sessionWithConfiguration:config];
+    _uploaderSession = [NSURLSession sessionWithConfiguration:config
+                                                     delegate:self
+                                                delegateQueue:nil];
   }
   return self;
 }
 
-- (NSURL *)defaultServerURL {
-  static NSURL *defaultServerURL;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    // These strings should be interleaved to construct the real URL. This is just to (hopefully)
-    // fool github URL scanning bots.
+/**
+ *
+ */
+- (nullable NSURL *)serverURLForTarget:(GDTCORTarget)target {
+  // These strings should be interleaved to construct the real URL. This is just to (hopefully)
+  // fool github URL scanning bots.
+  static NSURL *CCTServerURL;
+  static dispatch_once_t CCTOnceToken;
+  dispatch_once(&CCTOnceToken, ^{
     const char *p1 = "hts/frbslgiggolai.o/0clgbth";
     const char *p2 = "tp:/ieaeogn.ogepscmvc/o/ac";
-    const char defaultURL[54] = {
-        p1[0],  p2[0],  p1[1],  p2[1],  p1[2],  p2[2],  p1[3],  p2[3],  p1[4],  p2[4],  p1[5],
-        p2[5],  p1[6],  p2[6],  p1[7],  p2[7],  p1[8],  p2[8],  p1[9],  p2[9],  p1[10], p2[10],
-        p1[11], p2[11], p1[12], p2[12], p1[13], p2[13], p1[14], p2[14], p1[15], p2[15], p1[16],
-        p2[16], p1[17], p2[17], p1[18], p2[18], p1[19], p2[19], p1[20], p2[20], p1[21], p2[21],
-        p1[22], p2[22], p1[23], p2[23], p1[24], p2[24], p1[25], p2[25], p1[26], '\0'};
-    defaultServerURL = [NSURL URLWithString:[NSString stringWithUTF8String:defaultURL]];
+    const char URL[54] = {p1[0],  p2[0],  p1[1],  p2[1],  p1[2],  p2[2],  p1[3],  p2[3],  p1[4],
+                          p2[4],  p1[5],  p2[5],  p1[6],  p2[6],  p1[7],  p2[7],  p1[8],  p2[8],
+                          p1[9],  p2[9],  p1[10], p2[10], p1[11], p2[11], p1[12], p2[12], p1[13],
+                          p2[13], p1[14], p2[14], p1[15], p2[15], p1[16], p2[16], p1[17], p2[17],
+                          p1[18], p2[18], p1[19], p2[19], p1[20], p2[20], p1[21], p2[21], p1[22],
+                          p2[22], p1[23], p2[23], p1[24], p2[24], p1[25], p2[25], p1[26], '\0'};
+    CCTServerURL = [NSURL URLWithString:[NSString stringWithUTF8String:URL]];
   });
-  return defaultServerURL;
+
+  static NSURL *FLLServerURL;
+  static dispatch_once_t FLLOnceToken;
+  dispatch_once(&FLLOnceToken, ^{
+    const char *p1 = "hts/frbslgigp.ogepscmv/ieo/eaybtho";
+    const char *p2 = "tp:/ieaeogn-agolai.o/1frlglgc/aclg";
+    const char URL[69] = {p1[0],  p2[0],  p1[1],  p2[1],  p1[2],  p2[2],  p1[3],  p2[3],  p1[4],
+                          p2[4],  p1[5],  p2[5],  p1[6],  p2[6],  p1[7],  p2[7],  p1[8],  p2[8],
+                          p1[9],  p2[9],  p1[10], p2[10], p1[11], p2[11], p1[12], p2[12], p1[13],
+                          p2[13], p1[14], p2[14], p1[15], p2[15], p1[16], p2[16], p1[17], p2[17],
+                          p1[18], p2[18], p1[19], p2[19], p1[20], p2[20], p1[21], p2[21], p1[22],
+                          p2[22], p1[23], p2[23], p1[24], p2[24], p1[25], p2[25], p1[26], p2[26],
+                          p1[27], p2[27], p1[28], p2[28], p1[29], p2[29], p1[30], p2[30], p1[31],
+                          p2[31], p1[32], p2[32], p1[33], p2[33], '\0'};
+    FLLServerURL = [NSURL URLWithString:[NSString stringWithUTF8String:URL]];
+  });
+
+  static NSURL *CSHServerURL;
+  static dispatch_once_t CSHOnceToken;
+  dispatch_once(&CSHOnceToken, ^{
+    // These strings should be interleaved to construct the real URL. This is just to (hopefully)
+    // fool github URL scanning bots.
+    const char *p1 = "hts/cahyiseot-agolai.o/1frlglgc/aclg";
+    const char *p2 = "tp:/rsltcrprsp.ogepscmv/ieo/eaybtho";
+    const char URL[72] = {p1[0],  p2[0],  p1[1],  p2[1],  p1[2],  p2[2],  p1[3],  p2[3],  p1[4],
+                          p2[4],  p1[5],  p2[5],  p1[6],  p2[6],  p1[7],  p2[7],  p1[8],  p2[8],
+                          p1[9],  p2[9],  p1[10], p2[10], p1[11], p2[11], p1[12], p2[12], p1[13],
+                          p2[13], p1[14], p2[14], p1[15], p2[15], p1[16], p2[16], p1[17], p2[17],
+                          p1[18], p2[18], p1[19], p2[19], p1[20], p2[20], p1[21], p2[21], p1[22],
+                          p2[22], p1[23], p2[23], p1[24], p2[24], p1[25], p2[25], p1[26], p2[26],
+                          p1[27], p2[27], p1[28], p2[28], p1[29], p2[29], p1[30], p2[30], p1[31],
+                          p2[31], p1[32], p2[32], p1[33], p2[33], p1[34], p2[34], p1[35], '\0'};
+    CSHServerURL = [NSURL URLWithString:[NSString stringWithUTF8String:URL]];
+  });
+
+#if !NDEBUG
+  if (_testServerURL) {
+    return _testServerURL;
+  }
+#endif  // !NDEBUG
+
+  switch (target) {
+    case kGDTCORTargetCCT:
+      return CCTServerURL;
+
+    case kGDTCORTargetFLL:
+      return FLLServerURL;
+
+    case kGDTCORTargetCSH:
+      return CSHServerURL;
+
+    default:
+      GDTCORLogDebug("GDTCCTUploader doesn't support target %ld", (long)target);
+      return nil;
+      break;
+  }
+}
+
+- (NSString *)FLLAndCSHAPIKey {
+  static NSString *defaultServerKey;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    // These strings should be interleaved to construct the real key.
+    const char *p1 = "AzSBG0honD6A-PxV5nBc";
+    const char *p2 = "Iay44Iwtu2vV0AOrz1C";
+    const char defaultKey[40] = {p1[0],  p2[0],  p1[1],  p2[1],  p1[2],  p2[2],  p1[3],  p2[3],
+                                 p1[4],  p2[4],  p1[5],  p2[5],  p1[6],  p2[6],  p1[7],  p2[7],
+                                 p1[8],  p2[8],  p1[9],  p2[9],  p1[10], p2[10], p1[11], p2[11],
+                                 p1[12], p2[12], p1[13], p2[13], p1[14], p2[14], p1[15], p2[15],
+                                 p1[16], p2[16], p1[17], p2[17], p1[18], p2[18], p1[19], '\0'};
+    defaultServerKey = [NSString stringWithUTF8String:defaultKey];
+  });
+  return defaultServerKey;
 }
 
 - (void)uploadPackage:(GDTCORUploadPackage *)package {
@@ -100,11 +179,11 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
       beginBackgroundTaskWithName:@"GDTCCTUploader-upload"
                 expirationHandler:^{
                   if (bgID != GDTCORBackgroundIdentifierInvalid) {
-                    // Cancel the current upload and complete delivery.
+                    // Cancel the upload and complete delivery.
                     [self.currentTask cancel];
                     [self.currentUploadPackage completeDelivery];
 
-                    // End the task.
+                    // End the background task.
                     [[GDTCORApplication sharedApplication] endBackgroundTask:bgID];
                   }
                 }];
@@ -115,8 +194,7 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
                        @"An upload shouldn't be initiated with another in progress.");
       return;
     }
-    NSURL *serverURL = self.serverURL ? self.serverURL : [self defaultServerURL];
-
+    GDTCORTarget target = package.target;
     id completionHandler = ^(NSData *_Nullable data, NSURLResponse *_Nullable response,
                              NSError *_Nullable error) {
       GDTCORLogDebug("%@", @"CCT: request completed");
@@ -130,24 +208,57 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
           GDTCORLogDebug(
               "CCT: The backend responded asking to not upload for %lld millis from now.",
               logResponse.next_request_wait_millis);
-          self->_nextUploadTime =
+          GDTCORClock *futureUploadTime =
               [GDTCORClock clockSnapshotInTheFuture:logResponse.next_request_wait_millis];
+          switch (target) {
+            case kGDTCORTargetCCT:
+              self->_CCTNextUploadTime = futureUploadTime;
+              break;
+
+            case kGDTCORTargetFLL:
+              // Falls through.
+            case kGDTCORTargetCSH:
+              self->_FLLNextUploadTime = futureUploadTime;
+            default:
+              break;
+          }
         } else {
-          GDTCORLogDebug("%@", @"CCT: The CCT backend response failed to parse, so the next "
-                               @"request won't occur until 15 minutes from now");
+          GDTCORLogDebug("%@", @"CCT: The backend response failed to parse, so the next request "
+                               @"won't occur until 15 minutes from now");
           // 15 minutes from now.
-          self->_nextUploadTime = [GDTCORClock clockSnapshotInTheFuture:15 * 60 * 1000];
+          GDTCORClock *futureUploadTime = [GDTCORClock clockSnapshotInTheFuture:15 * 60 * 1000];
+          switch (target) {
+            case kGDTCORTargetCCT:
+              self->_CCTNextUploadTime = futureUploadTime;
+              break;
+
+            case kGDTCORTargetFLL:
+              // Falls through.
+            case kGDTCORTargetCSH:
+              self->_FLLNextUploadTime = futureUploadTime;
+              break;
+
+            default:
+              break;
+          }
         }
         pb_release(gdt_cct_LogResponse_fields, &logResponse);
       }
+
+      // Only retry if one of these codes is returned.
+      if (((NSHTTPURLResponse *)response).statusCode == 429 ||
+          ((NSHTTPURLResponse *)response).statusCode == 503) {
+        [package retryDeliveryInTheFuture];
+      } else {
 #if !NDEBUG
-      // Post a notification when in DEBUG mode to state how many packages were uploaded. Useful
-      // for validation during tests.
-      [[NSNotificationCenter defaultCenter] postNotificationName:GDTCCTUploadCompleteNotification
-                                                          object:@(package.events.count)];
+        // Post a notification when in DEBUG mode to state how many packages were uploaded. Useful
+        // for validation during tests.
+        [[NSNotificationCenter defaultCenter] postNotificationName:GDTCCTUploadCompleteNotification
+                                                            object:@(package.events.count)];
 #endif  // #if !NDEBUG
-      GDTCORLogDebug("%@", @"CCT: package delivered");
-      [package completeDelivery];
+        GDTCORLogDebug("%@", @"CCT: package delivered");
+        [package completeDelivery];
+      }
 
       // End the background task if there was one.
       if (bgID != GDTCORBackgroundIdentifierInvalid) {
@@ -163,8 +274,8 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
     NSData *gzippedData = [GDTCCTCompressionHelper gzippedData:requestProtoData];
     BOOL usingGzipData = gzippedData != nil && gzippedData.length < requestProtoData.length;
     NSData *dataToSend = usingGzipData ? gzippedData : requestProtoData;
-    NSURLRequest *request = [self constructRequestWithURL:serverURL data:dataToSend];
-    GDTCORLogDebug("CCT: request created: %@", request);
+    NSURLRequest *request = [self constructRequestForTarget:target data:dataToSend];
+    GDTCORLogDebug("CTT: request created: %@", request);
     self.currentTask = [self.uploaderSession uploadTaskWithRequest:request
                                                           fromData:dataToSend
                                                  completionHandler:completionHandler];
@@ -176,6 +287,10 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
 - (BOOL)readyToUploadTarget:(GDTCORTarget)target conditions:(GDTCORUploadConditions)conditions {
   __block BOOL result = NO;
   dispatch_sync(_uploaderQueue, ^{
+    if (target == kGDTCORTargetCSH && [GDTCCTPrioritizer sharedInstance].CSHEvents.count > 0) {
+      result = YES;
+      return;
+    }
     if (self->_currentUploadPackage) {
       result = NO;
       GDTCORLogDebug("%@", @"CCT: can't upload because a package is in flight");
@@ -190,19 +305,33 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
       result = YES;
       GDTCORLogDebug("%@", @"CCT: a high priority event is allowing an upload");
       return;
-    } else if (self->_nextUploadTime) {
-      result = [[GDTCORClock snapshot] isAfter:self->_nextUploadTime];
-#if !NDEBUG
-      if (result) {
-        GDTCORLogDebug("%@", @"CCT: can upload because the request wait time has transpired");
-      } else {
-        GDTCORLogDebug("%@", @"CCT: can't upload because the backend asked to wait");
-      }
-#endif  // !NDEBUG
-      return;
     }
-    GDTCORLogDebug("%@", @"CCT: can upload because nothing is preventing it");
+    switch (target) {
+      case kGDTCORTargetCCT:
+        if (self->_CCTNextUploadTime) {
+          result = [[GDTCORClock snapshot] isAfter:self->_CCTNextUploadTime];
+        }
+        break;
+
+      case kGDTCORTargetFLL:
+        if (self->_FLLNextUploadTime) {
+          result = [[GDTCORClock snapshot] isAfter:self->_FLLNextUploadTime];
+        }
+        break;
+
+      default:
+        // The CSH backend should be handled above.
+        break;
+    }
+    if (result) {
+      GDTCORLogDebug("CCT: can upload to target %ld because the request wait time has transpired",
+                     (long)target);
+    } else {
+      GDTCORLogDebug("CCT: can't upload to target %ld because the backend asked to wait",
+                     (long)target);
+    }
     result = YES;
+    GDTCORLogDebug("CCT: can upload to target %ld because nothing is preventing it", (long)target);
   });
   return result;
 }
@@ -234,22 +363,44 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
   return data ? data : [[NSData alloc] init];
 }
 
-/** Constructs a request to CCT given a URL and request body data.
+/** Constructs a request to FLL given a URL and request body data.
  *
- * @param URL The URL to send the request to.
+ * @param target The target backend to send the request to.
  * @param data The request body data.
- * @return A new NSURLRequest ready to be sent to CCT.
+ * @return A new NSURLRequest ready to be sent to FLL.
  */
-- (NSURLRequest *)constructRequestWithURL:(NSURL *)URL data:(NSData *)data {
-  BOOL isGzipped = [GDTCCTCompressionHelper isGzipped:data];
+- (NSURLRequest *)constructRequestForTarget:(GDTCORTarget)target data:(NSData *)data {
+  NSURL *URL = [self serverURLForTarget:target];
   NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
-  [request setValue:@"application/x-protobuf" forHTTPHeaderField:@"Content-Type"];
-  if (isGzipped) {
+  NSString *targetString;
+  switch (target) {
+    case kGDTCORTargetCCT:
+      targetString = @"cct";
+      break;
+
+    case kGDTCORTargetFLL:
+      targetString = @"fll";
+      break;
+
+    case kGDTCORTargetCSH:
+      targetString = @"csh";
+      break;
+
+    default:
+      targetString = @"unknown";
+      break;
+  }
+  NSString *userAgent =
+      [NSString stringWithFormat:@"datatransport/%@ %@support/%@ apple/", kGDTCORVersion,
+                                 targetString, kGDTCCTSupportSDKVersion];
+  if (target == kGDTCORTargetFLL || target == kGDTCORTargetCSH) {
+    [request setValue:[self FLLAndCSHAPIKey] forHTTPHeaderField:@"X-Goog-Api-Key"];
+  }
+  if ([GDTCCTCompressionHelper isGzipped:data]) {
     [request setValue:@"gzip" forHTTPHeaderField:@"Content-Encoding"];
   }
+  [request setValue:@"application/x-protobuf" forHTTPHeaderField:@"Content-Type"];
   [request setValue:@"gzip" forHTTPHeaderField:@"Accept-Encoding"];
-  NSString *userAgent = [NSString stringWithFormat:@"datatransport/%@ cctsupport/%@ apple/",
-                                                   kGDTCORVersion, kGDTCCTSupportSDKVersion];
   [request setValue:userAgent forHTTPHeaderField:@"User-Agent"];
   request.HTTPMethod = @"POST";
   [request setHTTPBody:data];
@@ -273,6 +424,27 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
     [self.currentTask cancel];
     [self.currentUploadPackage completeDelivery];
   });
+}
+
+#pragma mark - NSURLSessionDelegate
+
+- (void)URLSession:(NSURLSession *)session
+                          task:(NSURLSessionTask *)task
+    willPerformHTTPRedirection:(NSHTTPURLResponse *)response
+                    newRequest:(NSURLRequest *)request
+             completionHandler:(void (^)(NSURLRequest *_Nullable))completionHandler {
+  if (!completionHandler) {
+    return;
+  }
+  if (response.statusCode == 302 || response.statusCode == 301) {
+    if ([request.URL isEqual:[self serverURLForTarget:kGDTCORTargetFLL]]) {
+      NSURLRequest *newRequest = [self constructRequestForTarget:kGDTCORTargetCCT
+                                                            data:task.originalRequest.HTTPBody];
+      completionHandler(newRequest);
+    }
+  } else {
+    completionHandler(request);
+  }
 }
 
 @end
