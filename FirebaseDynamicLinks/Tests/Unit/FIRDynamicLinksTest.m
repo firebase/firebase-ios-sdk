@@ -22,6 +22,7 @@
 #import <GoogleUtilities/GULSwizzler+Unswizzle.h>
 #import <GoogleUtilities/GULSwizzler.h>
 #import <OCMock/OCMock.h>
+#import "FirebaseCore/Sources/Private/FIRAppInternal.h"
 #import "FirebaseDynamicLinks/Sources/FIRDLRetrievalProcessFactory.h"
 #import "FirebaseDynamicLinks/Sources/FIRDLRetrievalProcessResult+Private.h"
 #import "FirebaseDynamicLinks/Sources/FIRDynamicLink+Private.h"
@@ -146,7 +147,9 @@ static void UnswizzleDynamicLinkNetworking() {
               isClassSelector:NO];
 }
 
-@interface FIRDynamicLinksTest : XCTestCase
+@interface FIRDynamicLinksTest : XCTestCase {
+  id _bundleMock;
+}
 
 // An instance of |GINDurableDeepLinkService| used for testing.
 @property(nonatomic, strong) FIRDynamicLinks *service;
@@ -173,14 +176,13 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
   // Mock the mainBundle infoDictionary with version from DL-Info.plist for custom domain testing.
   NSBundle *bundle = [NSBundle bundleForClass:[self class]];
   NSString *filePath = [bundle pathForResource:@"DL-Info" ofType:@"plist"];
-  id bundleMock = OCMPartialMock([NSBundle mainBundle]);
-  OCMStub([bundleMock infoDictionary])
+  _bundleMock = OCMPartialMock([NSBundle mainBundle]);
+  OCMStub([_bundleMock infoDictionary])
       .andReturn([NSDictionary dictionaryWithContentsOfFile:filePath]);
 
-  if (!(FIRApp.defaultApp)) {
-    [FIRApp configure];
+  if (![FIRApp isDefaultAppConfigured]) {
+    XCTAssertNoThrow([FIRApp configureWithOptions:[self appOptions]]);
   }
-  [bundleMock stopMocking];
 
   self.service = [[FIRDynamicLinks alloc] init];
   self.userDefaults = [[NSUserDefaults alloc] init];
@@ -193,7 +195,19 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
   self.userDefaults = nil;
   [self.analytics stopMocking];
   self.analytics = nil;
+  [_bundleMock stopMocking];
+  _bundleMock = nil;
   [super tearDown];
+}
+
+- (FIROptions *)appOptions {
+  // TODO: Evaluate if we want to hardcode things here instead.
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:@"1:123:ios:123abc"
+                                                    GCMSenderID:@"correct_gcm_sender_id"];
+  options.APIKey = @"correct_api_key";
+  options.projectID = @"abc-xyz-123";
+  options.clientID = @"test-clientid";
+  return options;
 }
 
 #pragma mark - Set Up.
