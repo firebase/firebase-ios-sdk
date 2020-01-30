@@ -22,7 +22,7 @@ jobs:
         ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=ios
         ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=ios
 
-  datatransport-macosos:
+  datatransport-macos:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v1
