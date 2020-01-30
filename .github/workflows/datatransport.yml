@@ -19,16 +19,16 @@ jobs:
       run: ./scripts/setup_bundler.sh
     - name: PodLibLint iOS
       run: |
-        ./scripts/retry.sh 3 ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=ios
-        ./scripts/retry.sh 3 ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=ios
+        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=ios
+        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=ios
     - name: PodLibLint macOS
       run: |
-        ./scripts/retry.sh 3 ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=macos
-        ./scripts/retry.sh 3 ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=macos
+        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=macos
+        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=macos
     - name: PodLibLint tvOS
       run: |
-        ./scripts/retry.sh 3 ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=tvos
-        ./scripts/retry.sh 3 ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=tvos
+        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=tvos
+        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=tvos
 
   datatransport-use-libraries:
     runs-on: macos-latest
@@ -39,16 +39,16 @@ jobs:
       run: ./scripts/setup_bundler.sh
     - name: PodLibLint iOS
       run: |
-        ./scripts/retry.sh 3 ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=ios --use-libraries
-        ./scripts/retry.sh 3 ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=ios --use-libraries
+        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=ios --use-libraries
+        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=ios --use-libraries
     - name: PodLibLint macOS
       run: |
-        ./scripts/retry.sh 3 ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=macos --use-libraries
-        ./scripts/retry.sh 3 ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=macos --use-libraries
+        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=macos --use-libraries
+        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=macos --use-libraries
     - name: PodLibLint tvOS
       run: |
-        ./scripts/retry.sh 3 ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=tvos --use-libraries
-        ./scripts/retry.sh 3 ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=tvos --use-libraries
+        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=tvos --use-libraries
+        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=tvos --use-libraries
 
   datatransport-use-modular-headers:
     runs-on: macos-latest
@@ -59,16 +59,16 @@ jobs:
       run: ./scripts/setup_bundler.sh
     - name: PodLibLint iOS
       run: |
-        ./scripts/retry.sh 3 ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=ios --use-modular-headers
-        ./scripts/retry.sh 3 ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=ios --use-modular-headers
+        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=ios --use-modular-headers
+        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=ios --use-modular-headers
     - name: PodLibLint macOS
       run: |
-        ./scripts/retry.sh 3 ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=macos --use-modular-headers
-        ./scripts/retry.sh 3 ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=macos --use-modular-headers
+        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=macos --use-modular-headers
+        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=macos --use-modular-headers
     - name: PodLibLint tvOS
       run: |
-        ./scripts/retry.sh 3 ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=tvos --use-modular-headers
-        ./scripts/retry.sh 3 ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=tvos --use-modular-headers
+        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=tvos --use-modular-headers
+        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=tvos --use-modular-headers
 
 
 
