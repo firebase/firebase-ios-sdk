@@ -213,9 +213,12 @@ void FirestoreClient::Initialize(const User& user, const Settings& settings) {
 void FirestoreClient::ScheduleLruGarbageCollection() {
   std::chrono::milliseconds delay =
       gc_has_run_ ? regular_gc_delay_ : initial_gc_delay_;
-  auto shared_this = shared_from_this();
+  auto weak_this = weak_from_this();
   lru_callback_ = worker_queue()->EnqueueAfterDelay(
-      delay, TimerId::GarbageCollectionDelay, [shared_this] {
+      delay, TimerId::GarbageCollectionDelay, [weak_this] {
+        auto shared_this = weak_this.lock();
+        if (!shared_this) return;
+
         shared_this->local_store_->CollectGarbage(
             shared_this->lru_delegate_->garbage_collector());
         shared_this->gc_has_run_ = true;
