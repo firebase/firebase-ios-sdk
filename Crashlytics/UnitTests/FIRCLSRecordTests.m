@@ -230,7 +230,7 @@
   // Used to prototyping:
   GDTCORTransport *transport = [[GDTCORTransport alloc] initWithMappingID:@"1206"
                                                              transformers:nil
-                                                                   target:kGDTCORTargetFLL];
+                                                                   target:kGDTCORTargetCSH];
   GDTCOREvent *event = [transport eventForTransport];
   event.dataObject = adapter;
   event.qosTier = GDTCOREventQoSFast;  // Bypass batching and have the event get sent out ASAP
