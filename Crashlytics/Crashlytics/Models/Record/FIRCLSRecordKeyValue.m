@@ -19,14 +19,16 @@
 
 @implementation FIRCLSRecordKeyValue
 
-+ (NSDictionary<NSString *, NSString *> *)keyValuesFromDictionaries:(NSArray<NSDictionary *> *)dicts {
-  NSMutableDictionary<NSString *, NSString *> *keyValues = [[NSMutableDictionary<NSString *, NSString *> alloc] init];
-    
++ (NSDictionary<NSString *, NSString *> *)keyValuesFromDictionaries:
+    (NSArray<NSDictionary *> *)dicts {
+  NSMutableDictionary<NSString *, NSString *> *keyValues =
+      [[NSMutableDictionary<NSString *, NSString *> alloc] init];
+
   for (NSDictionary *dict in dicts) {
     FIRCLSRecordKeyValue *kv = [[FIRCLSRecordKeyValue alloc] initWithDict:dict[@"kv"]];
     keyValues[kv.key] = kv.value;
   }
-    
+
   return keyValues;
 }
 

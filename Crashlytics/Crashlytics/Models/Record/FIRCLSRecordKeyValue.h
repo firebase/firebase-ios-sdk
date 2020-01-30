@@ -21,6 +21,7 @@
 @property(nonatomic, copy) NSString *key;
 @property(nonatomic, copy) NSString *value;
 
-+ (NSDictionary<NSString *, NSString *> *)keyValuesFromDictionaries:(NSArray<NSDictionary *> *)dicts;
++ (NSDictionary<NSString *, NSString *> *)keyValuesFromDictionaries:
+    (NSArray<NSDictionary *> *)dicts;
 
 @end

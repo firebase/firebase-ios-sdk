@@ -37,6 +37,10 @@
   return self;
 }
 
+//
+// MARK: Load from persisted crash files
+//
+
 - (void)loadBinaryImagesFile {
   NSString *path = [self.folderPath stringByAppendingPathComponent:FIRCLSReportBinaryImageFile];
   self.binaryImages = [FIRCLSRecordBinaryImage
@@ -120,82 +124,278 @@
   return array;
 }
 
-- (BOOL)hasCrashed {
-    for (FIRCLSRecordThread *thread in self.threads) {
-        if (thread.crashed) {
-            return true;
-        }
-    }
-    
-    return false;
-}
+//
+// MARK: NanoPB conversions
+//
 
 - (google_crashlytics_Report)protoReportWithGoogleAppID:(NSString *)googleAppID {
-    google_crashlytics_Report report = google_crashlytics_Report_init_default;
-    report.sdk_version = FIRCLSEncodeString(self.identity.build_version);
-    report.gmp_app_id = FIRCLSEncodeString(googleAppID);
-    report.platform = [self protoPlatformFromString:self.host.platform];
-    report.installation_uuid = FIRCLSEncodeString(self.identity.install_id);
-    report.build_version = FIRCLSEncodeString(self.application.build_version);
-    report.display_version = FIRCLSEncodeString(self.application.display_version);
-    
-    // TODO: Fix missing session payload in report
-    // report.session = ...
-    
-    return report;
+  google_crashlytics_Report report = google_crashlytics_Report_init_default;
+  report.sdk_version = FIRCLSEncodeString(self.identity.build_version);
+  report.gmp_app_id = FIRCLSEncodeString(googleAppID);
+  report.platform = [self protoPlatformFromString:self.host.platform];
+  report.installation_uuid = FIRCLSEncodeString(self.identity.install_id);
+  report.build_version = FIRCLSEncodeString(self.application.build_version);
+  report.display_version = FIRCLSEncodeString(self.application.display_version);
+  report.session = [self protoSession];
+
+  return report;
 }
 
 - (google_crashlytics_Session)protoSession {
-    google_crashlytics_Session session = google_crashlytics_Session_init_default;
-    session.generator = FIRCLSEncodeString(self.identity.generator);
-    session.identifier = FIRCLSEncodeString(self.identity.session_id);
-    session.started_at = 0;     // TODO: Where does this come from?
-    session.ended_at = self.signal.time;
-    session.crashed = [self hasCrashed];
-    
-    NSString *userId = self.keyValues[FIRCLSUserIdentifierKey];
-    if (userId) {
-        session.user = [self protoUserWithId: userId];
-    }
-    
-    session.app = [self protoApp];
-    
-    return session;
+  google_crashlytics_Session session = google_crashlytics_Session_init_default;
+  session.generator = FIRCLSEncodeString(self.identity.generator);
+  session.identifier = FIRCLSEncodeString(self.identity.session_id);
+  session.started_at = self.identity.started_at;
+  session.ended_at = self.signal.time;
+  session.crashed = [self hasCrashed];
+
+  NSString *userId = self.keyValues[FIRCLSUserIdentifierKey];
+  if (userId) {
+    session.user = [self protoUserWithId:userId];
+  }
+
+  session.app = [self protoSessionApplication];
+  session.os = [self protoOperatingSystem];
+  session.device = [self protoSessionDevice];
+
+  session.events = [self protoEvents];
+  session.events_count = 1;  // [TODO]: Handle permutations for fatals, non-fatals
+
+  session.generator_type = [self protoGeneratorTypeFromString:self.host.platform];
+
+  return session;
 }
 
 - (google_crashlytics_Session_User)protoUserWithId:(NSString *)identifier {
-    google_crashlytics_Session_User user = google_crashlytics_Session_User_init_default;
-    user.identifier = FIRCLSEncodeString(identifier);
-    return user;
+  google_crashlytics_Session_User user = google_crashlytics_Session_User_init_default;
+  user.identifier = FIRCLSEncodeString(identifier);
+  return user;
 }
 
-- (google_crashlytics_Session_Application)protoApp {
-    google_crashlytics_Session_Application app = google_crashlytics_Session_Application_init_default;
-    app.identifier = FIRCLSEncodeString(self.application.bundle_id);
-    app.version = FIRCLSEncodeString(self.application.build_version);
-    app.display_version = FIRCLSEncodeString(self.application.display_version);
-    return app;
+- (google_crashlytics_Session_Application)protoSessionApplication {
+  google_crashlytics_Session_Application app = google_crashlytics_Session_Application_init_default;
+  app.identifier = FIRCLSEncodeString(self.application.bundle_id);
+  app.version = FIRCLSEncodeString(self.application.build_version);
+  app.display_version = FIRCLSEncodeString(self.application.display_version);
+  return app;
 }
 
 - (google_crashlytics_Session_OperatingSystem)protoOperatingSystem {
-    google_crashlytics_Session_OperatingSystem os = google_crashlytics_Session_OperatingSystem_init_default;
-//    os.platform = FIRCLSEncodeString(self.application.bundle_id);
-//    os.version = FIRCLSEncodeString(self.application.build_version);
-//    os.build_version = FIRCLSEncodeString(self.application.display_version);
-//    os.jailbroken = false;
-    return os;
+  google_crashlytics_Session_OperatingSystem os =
+      google_crashlytics_Session_OperatingSystem_init_default;
+  os.platform = [self protoPlatformFromString:self.host.platform];
+  os.version = FIRCLSEncodeString(self.host.os_display_version);
+  os.build_version = FIRCLSEncodeString(self.host.os_build_version);
+  os.jailbroken = [self isJailbroken];
+  return os;
+}
+
+- (google_crashlytics_Session_Device)protoSessionDevice {
+  google_crashlytics_Session_Device device = google_crashlytics_Session_Device_init_default;
+  device.arch = [self protoArchitectureFromString:self.executable.architecture];
+  device.model = FIRCLSEncodeString(self.host.model);
+  device.ram = [self ramUsed];
+  device.disk_space = self.storage.total;
+  device.language = FIRCLSEncodeString(self.host.locale);
+  return device;
+}
+
+- (google_crashlytics_Session_Event *)protoEvents {
+  google_crashlytics_Session_Event *events = malloc(sizeof(google_crashlytics_Session_Event) * 1);
+
+  // TODO:
+  // 1. Verify assumption that only one crash event happends per report
+  // 2. Handle reports with 0 crashes
+  // 3. Add events for non-fatal errors
+  events[0] = [self protoCrashEvent];
+
+  return events;
+}
+
+- (google_crashlytics_Session_Event)protoCrashEvent {
+  google_crashlytics_Session_Event crash = google_crashlytics_Session_Event_init_default;
+  crash.timestamp = self.signal.time;
+  crash.type = FIRCLSEncodeString(@"crashed");
+  crash.app = [self protoEventApplication];
+
+    //    crash.device
+    
+  // [TODO] Add logic to parse and set user defined logs (crash.log)
+
+  return crash;
+}
+
+- (google_crashlytics_Session_Event_Application)protoEventApplication {
+  google_crashlytics_Session_Event_Application app =
+      google_crashlytics_Session_Event_Application_init_default;
+
+  app.execution.binaries = [self protoBinaryImages];
+  app.execution.binaries_count = (pb_size_t)self.binaryImages.count;
+  app.execution.signal = [self protoSignal];
+  app.execution.threads = [self protoThreadsWithArray:self.threads];
+  app.execution.threads_count = (pb_size_t)self.threads.count;
+
+  app.background = [self wasInBackground];
+  app.ui_orientation = [self uiOrientation];
+
+  // [TODO]: Where do these come from?
+  //    app.custom_attributes
+  //    app.custom_attributes_count
+
+  return app;
+}
+
+- (google_crashlytics_Session_Event_Application_Execution_Thread *)protoThreadsWithArray:
+    (NSArray<FIRCLSRecordThread *> *)array {
+  google_crashlytics_Session_Event_Application_Execution_Thread *threads =
+      malloc(sizeof(google_crashlytics_Session_Event_Application_Execution_Thread) * array.count);
+
+  for (NSUInteger i = 0; i < array.count; i++) {
+    google_crashlytics_Session_Event_Application_Execution_Thread thread =
+        google_crashlytics_Session_Event_Application_Execution_Thread_init_default;
+    thread.name = FIRCLSEncodeString(array[i].name);
+    thread.importance = 0;  // TODO: Is there any logic here?
+    thread.alternate_name = FIRCLSEncodeString(array[i].alternate_name);
+    thread.objc_selector_name = FIRCLSEncodeString(array[i].objc_selector_name);
+
+    thread.frames = [self protoFramesWithStacktrace:array[i].stacktrace];
+    thread.frames_count = (pb_size_t)array[i].stacktrace.count;
+
+    thread.registers = [self protoRegistersWithArray:array[i].registers];
+    thread.registers_count = (pb_size_t)array[i].registers;
+
+    threads[i] = thread;
+  }
+
+  return threads;
+}
+
+- (google_crashlytics_Session_Event_Application_Execution_Thread_Frame *)protoFramesWithStacktrace:
+    (NSArray<NSNumber *> *)stacktrace {
+  google_crashlytics_Session_Event_Application_Execution_Thread_Frame *frames =
+      malloc(sizeof(google_crashlytics_Session_Event_Application_Execution_Thread_Frame) *
+             stacktrace.count);
+
+  for (NSUInteger i = 0; i < stacktrace.count; i++) {
+    google_crashlytics_Session_Event_Application_Execution_Thread_Frame frame =
+        google_crashlytics_Session_Event_Application_Execution_Thread_Frame_init_default;
+    frame.pc = stacktrace[i].unsignedIntegerValue;
+
+    frames[i] = frame;
+  }
+
+  return frames;
+}
+
+- (google_crashlytics_Session_Event_Application_Execution_Thread_Register *)protoRegistersWithArray:
+    (NSArray<FIRCLSRecordRegister *> *)array {
+  google_crashlytics_Session_Event_Application_Execution_Thread_Register *registers = malloc(
+      sizeof(google_crashlytics_Session_Event_Application_Execution_Thread_Register) * array.count);
+
+  for (NSUInteger i = 0; i < array.count; i++) {
+    google_crashlytics_Session_Event_Application_Execution_Thread_Register reg =
+        google_crashlytics_Session_Event_Application_Execution_Thread_Register_init_default;
+    reg.name = FIRCLSEncodeString(array[i].name);
+    reg.value = array[i].value;
+
+    registers[i] = reg;
+  }
+
+  return registers;
+}
+
+- (google_crashlytics_Session_Event_Application_Execution_Signal)protoSignal {
+  google_crashlytics_Session_Event_Application_Execution_Signal signal =
+      google_crashlytics_Session_Event_Application_Execution_Signal_init_default;
+
+  signal.address = self.signal.address;
+  signal.code = FIRCLSEncodeString(self.signal.code_name);
+  signal.name = FIRCLSEncodeString(self.signal.name);
+
+  return signal;
+}
+
+- (google_crashlytics_Session_Event_Application_Execution_BinaryImage *)protoBinaryImages {
+  google_crashlytics_Session_Event_Application_Execution_BinaryImage *images =
+      malloc(sizeof(google_crashlytics_Session_Event_Application_Execution_BinaryImage) *
+             self.binaryImages.count);
+
+  for (NSUInteger i = 0; i < self.binaryImages.count; i++) {
+    google_crashlytics_Session_Event_Application_Execution_BinaryImage image =
+        google_crashlytics_Session_Event_Application_Execution_BinaryImage_init_default;
+    image.name = FIRCLSEncodeString(self.binaryImages[i].path);
+    image.uuid = FIRCLSEncodeString(self.binaryImages[i].uuid);
+    image.base_address = self.binaryImages[i].base;
+    image.size = self.binaryImages[i].size;
+
+    images[i] = image;
+  }
+
+  return images;
+}
+
+- (google_crashlytics_Session_Event_Device)protoEventDevice {
+  google_crashlytics_Session_Event_Device device = google_crashlytics_Session_Event_Device_init_default;
+    device.orientation = [self deviceOrientation];
+    device.ram_used = [self ramUsed];
+    device.disk_used = self.storage.total - self.storage.free;
+  return device;
 }
 
 - (google_crashlytics_Session_Platform)protoPlatformFromString:(NSString *)str {
-    if ([str isEqualToString:@"ios"]) {
-        return google_crashlytics_Session_Platform_IPHONE_OS;
-    } else if ([str isEqualToString:@"mac"]) {
-        return google_crashlytics_Session_Platform_MAC_OS_X;
-    } else if ([str isEqualToString:@"tvos"]) {
-        return google_crashlytics_Session_Platform_TVOS;
-    } else {
-        return google_crashlytics_Session_Platform_OTHER;
-    }
+  NSString *platform = str.lowercaseString;
+
+  if ([platform isEqualToString:@"ios"]) {
+    return google_crashlytics_Session_Platform_IPHONE_OS;
+  } else if ([platform isEqualToString:@"mac"]) {
+    return google_crashlytics_Session_Platform_MAC_OS_X;
+  } else if ([platform isEqualToString:@"tvos"]) {
+    return google_crashlytics_Session_Platform_TVOS;
+  } else {
+    return google_crashlytics_Session_Platform_OTHER;
+  }
+}
+
+- (google_crashlytics_Session_GeneratorType)protoGeneratorTypeFromString:(NSString *)str {
+  NSString *platform = str.lowercaseString;
+
+  if ([platform isEqualToString:@"ios"]) {
+    return google_crashlytics_Session_GeneratorType_IOS_SDK;
+  } else if ([platform isEqualToString:@"mac"]) {
+    return google_crashlytics_Session_GeneratorType_MACOS_SDK;
+  } else if ([platform isEqualToString:@"tvos"]) {
+    return google_crashlytics_Session_GeneratorType_TVOS_SDK;
+  } else {
+    return google_crashlytics_Session_GeneratorType_UNKNOWN_GENERATOR;
+  }
+}
+
+- (google_crashlytics_Session_Architecture)protoArchitectureFromString:(NSString *)str {
+  NSString *arch = str.uppercaseString;
+
+  if ([arch isEqualToString:@"X86_32"]) {
+    return google_crashlytics_Session_Architecture_X86_32;
+  } else if ([arch isEqualToString:@"X86_64"]) {
+    return google_crashlytics_Session_Architecture_X86_64;
+  } else if ([arch isEqualToString:@"ARM_UNKNOWN"]) {
+    return google_crashlytics_Session_Architecture_ARM_UNKNOWN;
+  } else if ([arch isEqualToString:@"ARMV6"]) {
+    return google_crashlytics_Session_Architecture_ARMV6;
+  } else if ([arch isEqualToString:@"ARMV7"]) {
+    return google_crashlytics_Session_Architecture_ARMV7;
+  } else if ([arch isEqualToString:@"ARM7S"]) {
+    return google_crashlytics_Session_Architecture_ARMV7S;
+  } else if ([arch isEqualToString:@"ARM64"]) {
+    return google_crashlytics_Session_Architecture_ARM64;
+  } else if ([arch isEqualToString:@"X86_64H"]) {
+    return google_crashlytics_Session_Architecture_X86_64H;
+  } else if ([arch isEqualToString:@"ARMV7K"]) {
+    return google_crashlytics_Session_Architecture_ARMV7K;
+  } else if ([arch isEqualToString:@"ARM64E"]) {
+    return google_crashlytics_Session_Architecture_ARM64E;
+  } else {
+    return google_crashlytics_Session_Architecture_UNKNOWN;
+  }
 }
 
 /** Mallocs a pb_bytes_array and copies the given NSString's bytes into the bytes array.
@@ -216,6 +416,54 @@ pb_bytes_array_t *FIRCLSEncodeData(NSData *data) {
   memcpy(pbBytes->bytes, [data bytes], data.length);
   pbBytes->size = (pb_size_t)data.length;
   return pbBytes;
+}
+
+//
+// MARK: Helper functions
+//
+
+- (BOOL)wasInBackground {
+  return [self.keyValues[FIRCLSInBackgroundKey] boolValue];
+}
+
+- (int)deviceOrientation {
+  return [self.keyValues[FIRCLSDeviceOrientationKey] intValue];
+}
+
+- (int)uiOrientation {
+  return [self.keyValues[FIRCLSUIOrientationKey] intValue];
+}
+
+- (BOOL)hasCrashed {
+  for (FIRCLSRecordThread *thread in self.threads) {
+    if (thread.crashed) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+- (NSUInteger)ramUsed {
+    return     self.processStats.active + self.processStats.inactive + self.processStats.wired;
+}
+
+- (BOOL)isJailbroken {
+  __block NSArray<NSString *> *knownJailbrokenLibraries;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    knownJailbrokenLibraries = @[ @"mobilesubstrate", @"libsubstrate", @"cydia" ];
+  });
+
+  for (FIRCLSRecordBinaryImage *image in self.binaryImages) {
+    for (NSString *knownLib in knownJailbrokenLibraries) {
+      if ([image.path.lowercaseString isEqualToString:knownLib]) {
+        return true;
+      }
+    }
+  }
+
+  return false;
 }
 
 @end

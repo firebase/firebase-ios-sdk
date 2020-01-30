@@ -152,7 +152,8 @@
   XCTAssertTrue([adapter.keyValues[@"com.crashlytics.in-background"] isEqualToString:@"0"]);
 
   // Verify last
-  XCTAssertTrue([adapter.keyValues[@"com.crashlytics.user-id"] isEqualToString:@"test-user-28AE6E09-BC30-4CB3-9FA5-FE06828B8F3C"]);
+  XCTAssertTrue([adapter.keyValues[@"com.crashlytics.user-id"]
+      isEqualToString:@"test-user-28AE6E09-BC30-4CB3-9FA5-FE06828B8F3C"]);
 }
 
 - (void)testRecordSignalFile {
@@ -212,9 +213,15 @@
 }
 
 - (void)testProtoReport {
-    FIRCLSRecordAdapter *adapter =
-        [[FIRCLSRecordAdapter alloc] initWithPath:[FIRCLSRecordTests persistedCrashFolder]];
-    google_crashlytics_Report report = [adapter protoReportWithGoogleAppID:@"someGoogleAppId"];
+  FIRCLSRecordAdapter *adapter =
+      [[FIRCLSRecordAdapter alloc] initWithPath:[FIRCLSRecordTests persistedCrashFolder]];
+  google_crashlytics_Report report = [adapter protoReportWithGoogleAppID:@"someGoogleAppId"];
+}
+
+- (void)testProtoReportFromCorruptFiles {
+  FIRCLSRecordAdapter *adapter =
+      [[FIRCLSRecordAdapter alloc] initWithPath:[FIRCLSRecordTests corruptedCrashFolder]];
+  google_crashlytics_Report report = [adapter protoReportWithGoogleAppID:@"someGoogleAppId"];
 }
 
 // Helper functions

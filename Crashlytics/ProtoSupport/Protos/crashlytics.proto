@@ -200,6 +200,7 @@ message Session {
         repeated BinaryImage binaries = 4;
       }  // message Application.Execution
 
+      Execution execution = 1;
       repeated CustomAttribute custom_attributes = 2;
 
       // true if the app was in the background
@@ -212,12 +213,6 @@ message Session {
 
     // Device physical properties recorded at event time
     message Device {
-      // Battery level from 0.0 to 1.0
-      float battery_level = 1;
-
-      // True when the proximity sensor is activated during the event
-      bool proximity_on = 3;
-
       // Device orientation during event
       // 1,2 = portrait
       // 3,4 = landscape
@@ -274,11 +269,5 @@ message Report {
   // Session.app.display_version.
   string display_version = 7;
 
-  // We store the actual crash information in a separate field for each client
-  // type. This is a temporary measure until we've come up with a generic
-  // cross-platform format.
-  message payload {
-    // Session data for Android Java or iOS
-    Session session = 8;
-  }
+  Session session = 8;
 }
