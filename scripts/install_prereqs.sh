@@ -1,4 +1,6 @@
-# Copyright 2018 Google
+#!/usr/bin/env bash
+
+# Copyright 2018 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,13 +21,13 @@
 #   - PROJECT - Firebase or Firestore
 #   - METHOD - xcodebuild or cmake; default is xcodebuild
 
-bundle install
+set -euo pipefail
 
+# Set up secrets for integration tests and metrics collection. This does not work for pull
+# requests from forks. See
+# https://docs.travis-ci.com/user/pull-requests#pull-requests-and-security-restrictions
 function install_secrets() {
-  # Set up secrets for integration tests and metrics collection. This does not work for pull
-  # requests from forks. See
-  # https://docs.travis-ci.com/user/pull-requests#pull-requests-and-security-restrictions
-  if [[ ! -z $encrypted_d6a88994a5ab_key && $secrets_installed != true ]]; then
+  if [[ -n "${encrypted_d6a88994a5ab_key:-}" && $secrets_installed != true ]]; then
     secrets_installed=true
     openssl aes-256-cbc -K $encrypted_5dda5f491369_key -iv $encrypted_5dda5f491369_iv \
     -in scripts/travis-encrypted/Secrets.tar.enc \
@@ -57,12 +59,63 @@ function install_secrets() {
   fi
 }
 
-if [[ ! -z $QUICKSTART ]]; then
-  install_secrets
-  ./scripts/setup_quickstart.sh "$QUICKSTART"
+# apt_install program package
+#
+# Installs the given package if the given command is missing
+function apt_install() {
+  local program="$1"
+  local package="$2"
+  which "$program" >& /dev/null || sudo apt-get install "$package"
+}
+
+secrets_installed=false
+
+# Default values, if not supplied on the command line or environment
+platform="iOS"
+method="xcodebuild"
+
+if [[ $# -eq 0 ]]; then
+  # Take arguments from the environment
+  project=$PROJECT
+  platform=${PLATFORM:-${platform}}
+  method=${METHOD:-${method}}
+
+else
+  project="$1"
+
+  if [[ $# -gt 1 ]]; then
+    platform="$2"
+  fi
+
+  if [[ $# -gt 2 ]]; then
+    method="$3"
+  fi
 fi
 
-case "$PROJECT-$PLATFORM-$METHOD" in
+echo "Installing prerequisites for $project for $platform using $method"
+
+if [[ "$method" != "cmake" ]]; then
+  scripts/setup_bundler.sh
+fi
+
+if [[ ! -z "${QUICKSTART:-}" ]]; then
+  install_secrets
+  scripts/setup_quickstart.sh "$QUICKSTART"
+fi
+
+system=$(uname -s)
+case "$system" in
+  Darwin)
+    xcode_version=$(xcodebuild -version | head -n 1)
+    xcode_version="${xcode_version/Xcode /}"
+    xcode_major="${xcode_version/.*/}"
+    ;;
+  *)
+    xcode_major="0"
+    ;;
+esac
+
+case "$project-$platform-$method" in
 
   FirebasePod-iOS-xcodebuild)
     gem install xcpretty
@@ -103,7 +156,7 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     ;;
 
   Firestore-*-xcodebuild | Firestore-*-fuzz)
-    if [[ $XCODE_VERSION == "8."* ]]; then
+    if [[ $xcode_major -lt 9 ]]; then
       # Firestore still compiles with Xcode 8 to help verify general
       # conformance with C++11 by using an older compiler that doesn't have as
       # many extensions from later versions of the language. However, Firebase
@@ -116,16 +169,29 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     fi
 
     gem install xcpretty
+
+    # The Firestore Podfile is multi-platform by default, but this doesn't work
+    # with command-line builds using xcodebuild. The PLATFORM environment
+    # variable forces the project to be set for just that single platform.
+    export PLATFORM="$platform"
     bundle exec pod install --project-directory=Firestore/Example --repo-update
     ;;
 
-  *-pod-lib-lint)
-    ;;
-
-  Firestore-*-cmake)
+  Firestore-iOS-cmake | Firestore-tvOS-cmake | Firestore-macOS-cmake)
     brew outdated cmake || brew upgrade cmake
     brew outdated go || brew upgrade go # Somehow the build for Abseil requires this.
     brew install ccache
+    brew install ninja
+
+    # Install python packages required to generate proto sources
+    pip install six
+    ;;
+
+  Firestore-Linux-cmake)
+    apt_install ccache ccache
+    apt_install cmake cmake
+    apt_install go golang-go
+    apt_install ninja ninja-build
 
     # Install python packages required to generate proto sources
     pip install six
@@ -136,11 +202,14 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     bundle exec pod install --project-directory=SymbolCollisionTest --repo-update
     ;;
 
+  *-pod-lib-lint)
+    ;;
+
   *)
     echo "Unknown project-platform-method combo" 1>&2
-    echo "  PROJECT=$PROJECT" 1>&2
-    echo "  PLATFORM=$PLATFORM" 1>&2
-    echo "  METHOD=$METHOD" 1>&2
+    echo "  PROJECT=$project" 1>&2
+    echo "  PLATFORM=$platform" 1>&2
+    echo "  METHOD=$method" 1>&2
     exit 1
     ;;
 esac

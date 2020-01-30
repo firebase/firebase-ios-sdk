@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2018 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,20 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import <XCTest/XCTest.h>
 
-/** The list of targets supported by the shared transport infrastructure. If adding a new target,
- * please use the previous value +1.
- */
-typedef NS_ENUM(NSInteger, GDTCORTarget) {
+#import "FirebaseDynamicLinks/Sources/Public/FIRDynamicLinks.h"
 
-  /** A target only used in testing. */
-  kGDTCORTargetTest = 999,
+@interface FIRDynamicLinksImportsTest3P : XCTestCase
 
-  /** The CCT target. */
-  kGDTCORTargetCCT = 1000,
+@end
 
-  /** The FLL target. */
-  kGDTCORTargetFLL = 1001,
+@implementation FIRDynamicLinksImportsTest3P
 
-  /** The CSH target. The CSH target is a special-purpose backend. Please do not use it without
-   * permission.
-   */
-  kGDTCORTargetCSH = 1002
-};
+- (void)testPlaceholder {
+  // This is empty test case.
+  // The test file designed to test successful build if source file, that includes
+  // FIRDynamicLinks.h, does not includes any other headers, like UIKit.
+}
+
+@end
