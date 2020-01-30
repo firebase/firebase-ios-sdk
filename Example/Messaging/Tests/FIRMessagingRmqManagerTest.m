@@ -329,10 +329,16 @@ static const NSTimeInterval kAsyncTestTimout = 0.5;
   XCTestExpectation *assertionFailureExpectation = [self expectationWithDescription:@"assertionFailureExpectation"];
   assertionFailureExpectation.assertForOverFulfill = NO;
 
+#ifndef FIR_MESSAGING_ASSERTIONS_BLOCKED
   [self.testAssertionHandler setMethodFailureHandlerForClass:[FIRMessagingRmqManager class]
                                                      handler:^(id object, NSString *fileName, NSInteger lineNumber) {
     [assertionFailureExpectation fulfill];
   }];
+#else
+  // If FIR_MESSAGING_ASSERTIONS_BLOCKED is defined, then no assertion handlers will be called,
+  // so don't wait for it.
+  [assertionFailureExpectation fulfill];
+#endif // FIR_MESSAGING_ASSERTIONS_BLOCKED
 
   // Create `FIRMessagingRmqManager` instance with a broken database.
   FIRMessagingRmqManager *manager = [[FIRMessagingRmqManager alloc] initWithDatabaseName:databaseName];
