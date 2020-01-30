@@ -34,6 +34,10 @@
 
 #import "FIRCLSFile.h"
 
+#import <GoogleDataTransport/GDTCOREvent.h>
+#import <GoogleDataTransport/GDTCORTargets.h>
+#import <GoogleDataTransport/GDTCORTransport.h>
+
 @interface FIRCLSRecordTests : XCTestCase
 
 @end
@@ -82,12 +86,14 @@
 /// Verify various invalid input cases
 - (void)testCorruptRecordCases {
   id adapter __unused =
-      [[FIRCLSRecordAdapter alloc] initWithPath:[FIRCLSRecordTests corruptedCrashFolder] withGoogleAppId:@"appID"];
+      [[FIRCLSRecordAdapter alloc] initWithPath:[FIRCLSRecordTests corruptedCrashFolder]
+                                withGoogleAppId:@"appID"];
 }
 
 - (void)testRecordBinaryImagesFile {
   FIRCLSRecordAdapter *adapter =
-      [[FIRCLSRecordAdapter alloc] initWithPath:[FIRCLSRecordTests persistedCrashFolder] withGoogleAppId:@"appID"];
+      [[FIRCLSRecordAdapter alloc] initWithPath:[FIRCLSRecordTests persistedCrashFolder]
+                                withGoogleAppId:@"appID"];
   XCTAssertEqual(adapter.binaryImages.count, 453);
 
   // Verify first binary
@@ -112,7 +118,8 @@
 
 - (void)testRecordMetadataFile {
   FIRCLSRecordAdapter *adapter =
-      [[FIRCLSRecordAdapter alloc] initWithPath:[FIRCLSRecordTests persistedCrashFolder] withGoogleAppId:@"appID"];
+      [[FIRCLSRecordAdapter alloc] initWithPath:[FIRCLSRecordTests persistedCrashFolder]
+                                withGoogleAppId:@"appID"];
 
   // Verify identity
   XCTAssertTrue([adapter.identity.generator isEqualToString:@"Crashlytics iOS SDK/4.0.0-beta.1"]);
@@ -146,7 +153,8 @@
 
 - (void)testRecordKeyValueFile {
   FIRCLSRecordAdapter *adapter =
-      [[FIRCLSRecordAdapter alloc] initWithPath:[FIRCLSRecordTests persistedCrashFolder]  withGoogleAppId:@"appID"];
+      [[FIRCLSRecordAdapter alloc] initWithPath:[FIRCLSRecordTests persistedCrashFolder]
+                                withGoogleAppId:@"appID"];
   XCTAssertEqual(adapter.keyValues.count, 6);
 
   // Verify first
@@ -159,7 +167,8 @@
 
 - (void)testRecordSignalFile {
   FIRCLSRecordAdapter *adapter =
-      [[FIRCLSRecordAdapter alloc] initWithPath:[FIRCLSRecordTests persistedCrashFolder]  withGoogleAppId:@"appID"];
+      [[FIRCLSRecordAdapter alloc] initWithPath:[FIRCLSRecordTests persistedCrashFolder]
+                                withGoogleAppId:@"appID"];
 
   // Verify signal
   XCTAssertEqual(adapter.signal.number, 6);
@@ -215,13 +224,23 @@
 
 - (void)testProtoReport {
   FIRCLSRecordAdapter *adapter =
-      [[FIRCLSRecordAdapter alloc] initWithPath:[FIRCLSRecordTests persistedCrashFolder] withGoogleAppId:@"appID"];
-  __unused NSData *report = [adapter transportBytes];
+      [[FIRCLSRecordAdapter alloc] initWithPath:[FIRCLSRecordTests persistedCrashFolder]
+                                withGoogleAppId:@"1:17586535263:ios:83778f4dc7e8a26ef794ea"];
+
+  // Used to prototyping:
+  GDTCORTransport *transport = [[GDTCORTransport alloc] initWithMappingID:@"1206"
+                                                             transformers:nil
+                                                                   target:kGDTCORTargetFLL];
+  GDTCOREvent *event = [transport eventForTransport];
+  event.dataObject = adapter;
+  event.qosTier = GDTCOREventQoSFast;  // Bypass batching and have the event get sent out ASAP
+  [transport sendDataEvent:event];
 }
 
 - (void)testProtoReportFromCorruptFiles {
   FIRCLSRecordAdapter *adapter =
-      [[FIRCLSRecordAdapter alloc] initWithPath:[FIRCLSRecordTests corruptedCrashFolder] withGoogleAppId:@"appID"];
+      [[FIRCLSRecordAdapter alloc] initWithPath:[FIRCLSRecordTests corruptedCrashFolder]
+                                withGoogleAppId:@"appID"];
   __unused NSData *report = [adapter transportBytes];
 }
 

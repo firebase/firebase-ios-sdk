@@ -39,7 +39,7 @@
     [self loadMetaDataFile];
     [self loadSignalFile];
     [self loadKeyValuesFile];
-      
+
     _report = [self protoReport];
   }
   return self;
@@ -116,8 +116,15 @@
 
   NSMutableArray<NSDictionary *> *array = [[NSMutableArray<NSDictionary *> alloc] init];
 
-  int lineNum = 1;
+  int lineNum = 0;
   for (NSString *line in lines) {
+    lineNum++;
+
+    if (line.length == 0) {
+      // Likely newline at the end of the file
+      continue;
+    }
+
     NSError *error;
     NSDictionary *dict =
         [NSJSONSerialization JSONObjectWithData:[line dataUsingEncoding:NSUTF8StringEncoding]
@@ -130,8 +137,6 @@
     } else {
       [array addObject:dict];
     }
-
-    lineNum++;
   }
 
   return array;
