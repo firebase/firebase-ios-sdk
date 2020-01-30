@@ -1,7 +1,7 @@
 name: datatransport
 
 on:
-  pull_request:
+  check_run:
     paths:
     - 'GoogleDataTransport**'
     - 'GoogleDataTransportCCTSupport**'
@@ -11,7 +11,7 @@ on:
     - cron:  '0 7 * * *'
 
 jobs:
-  datatransport:
+  datatransport-ios:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v1
@@ -21,18 +21,34 @@ jobs:
       run: |
         ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=ios
         ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=ios
+
+  datatransport-macos:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup Bundler
+      run: ./scripts/setup_bundler.sh
     - name: PodLibLint macOS
       run: |
         ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=macos
         ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=macos
+
+  datatransport-tvos:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup Bundler
+      run: ./scripts/setup_bundler.sh
     - name: PodLibLint tvOS
       run: |
         ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=tvos
         ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=tvos
 
+# Scheduled jobs
+
   datatransport-use-libraries:
     runs-on: macos-latest
-    needs: datatransport
+    if: github.event_name == 'schedule'
     steps:
     - uses: actions/checkout@v1
     - name: Setup Bundler
@@ -52,7 +68,7 @@ jobs:
 
   datatransport-use-modular-headers:
     runs-on: macos-latest
-    needs: datatransport
+    if: github.event_name == 'schedule'
     steps:
     - uses: actions/checkout@v1
     - name: Setup Bundler
@@ -69,6 +85,3 @@ jobs:
       run: |
         ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=tvos --use-modular-headers
         ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=tvos --use-modular-headers
-
-
-
