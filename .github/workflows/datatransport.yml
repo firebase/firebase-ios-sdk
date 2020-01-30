@@ -52,6 +52,7 @@ jobs:
 
   datatransport-use-modular-headers:
     runs-on: macos-latest
+    needs: datatransport
     steps:
     - uses: actions/checkout@v1
     - name: Setup Bundler
