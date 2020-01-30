@@ -45,6 +45,11 @@
   return self;
 }
 
+- (void)dealloc {
+  // [TODO]: Have to manually traverse this struct to free up memory?
+  pb_release(google_crashlytics_Report_fields, &_report);
+}
+
 //
 // MARK: Load from persisted crash files
 //
@@ -155,11 +160,6 @@
   CFDataSetLength(dataRef, ostream.bytes_written);
 
   return CFBridgingRelease(dataRef);
-}
-
-- (void)dealloc {
-  // [TODO]: Have to manually traverse this struct to free up memory?
-  pb_release(google_crashlytics_Report_fields, &_report);
 }
 
 //
