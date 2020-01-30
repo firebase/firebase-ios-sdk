@@ -130,8 +130,8 @@ NSNumber *GDTCCTQosTierFromGDTCOREventQosTier(GDTCOREventQoS qosTier) {
   }
 }
 
-/** Constructs a set of events for upload to CCT or FLL backends. These backends are request-proto
- * and batching compatible, so they construct event batches the same way.
+/** Constructs a set of events for upload to CCT, FLL, or CSH backends. These backends are
+ * request-proto and batching compatible, so they construct event batches the same way.
  *
  * @param conditions The set of conditions the upload package should be made under.
  * @param target The target backend.
