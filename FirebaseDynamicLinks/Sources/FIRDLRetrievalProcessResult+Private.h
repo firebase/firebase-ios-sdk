@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2018 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,17 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import "FirebaseDynamicLinks/Sources/FIRDLRetrievalProcessResult.h"
 
-/** The list of targets supported by the shared transport infrastructure. If adding a new target,
- * please use the previous value +1.
- */
-typedef NS_ENUM(NSInteger, GDTCORTarget) {
+NS_ASSUME_NONNULL_BEGIN
 
-  /** A target only used in testing. */
-  kGDTCORTargetTest = 999,
+@interface FIRDLRetrievalProcessResult ()
 
-  /** The CCT target. */
-  kGDTCORTargetCCT = 1000,
+- (instancetype)initWithDynamicLink:(nullable FIRDynamicLink *)dynamicLink
+                              error:(nullable NSError *)error
+                            message:(nullable NSString *)message
+                        matchSource:(nullable NSString *)matchSource NS_DESIGNATED_INITIALIZER;
 
-  /** The FLL target. */
-  kGDTCORTargetFLL = 1001,
+@end
 
-  /** The CSH target. The CSH target is a special-purpose backend. Please do not use it without
-   * permission.
-   */
-  kGDTCORTargetCSH = 1002
-};
+NS_ASSUME_NONNULL_END
