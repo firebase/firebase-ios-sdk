@@ -31,8 +31,8 @@ jobs:
         ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=macos --use-modular-headers
     - name: PodLibLint tvOS
       run: |
-        ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=tvOS --use-libraries
-        ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=tvOS --use-modular-headers
-        ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=tvOS --use-libraries
-        ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=tvOS --use-modular-headers
+        ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=tvos --use-libraries
+        ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=tvos --use-modular-headers
+        ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=tvos --use-libraries
+        ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=tvos --use-modular-headers
 
