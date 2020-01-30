@@ -189,7 +189,6 @@ struct FrameworkBuilder {
                          archs: [Architecture],
                          buildDir: URL,
                          logRoot: URL) -> URL {
-
     let arch = archs[0]
     let isMacCatalyst = arch == Architecture.x86_64h
     let isMacCatalystString = isMacCatalyst ? "YES" : "NO"
@@ -199,7 +198,7 @@ struct FrameworkBuilder {
     let distributionFlag = carthageBuild ? "-DFIREBASE_BUILD_CARTHAGE" : "-DFIREBASE_BUILD_ZIP_FILE"
     let platformSpecificFlags = platform.otherCFlags().joined(separator: " ")
     let cFlags = "OTHER_CFLAGS=$(value) \(distributionFlag) \(platformSpecificFlags)"
-    let cleanArch = isMacCatalyst ? Architecture.x86_64.rawValue : archs.map{$0.rawValue}.joined(separator: " ")
+    let cleanArch = isMacCatalyst ? Architecture.x86_64.rawValue : archs.map { $0.rawValue }.joined(separator: " ")
 
     let args = ["build",
                 "-configuration", "release",
@@ -253,17 +252,17 @@ struct FrameworkBuilder {
     }
   }
 
-    // Cries in Google. Why is this not the same?
-    private func realFrameworkName(_ framework: String) -> String {
-        switch framework {
-        case "PromisesObjC":
-            return "FBLPromises"
-        case "Protobuf":
-            return "protobuf"
-        default:
-            return framework
-        }
+  // Cries in Google. Why is this not the same?
+  private func realFrameworkName(_ framework: String) -> String {
+    switch framework {
+    case "PromisesObjC":
+      return "FBLPromises"
+    case "Protobuf":
+      return "protobuf"
+    default:
+      return framework
     }
+  }
 
   /// Compiles the specified framework in a temporary directory and writes the build logs to file.
   /// This will compile all architectures and use the -create-xcframework command to create a modern "fat" framework.
@@ -302,14 +301,14 @@ struct FrameworkBuilder {
     var groupedArchs: [[Architecture]] = []
 
     for pair in [[Architecture.armv7, .arm64], [Architecture.i386, .x86_64]] {
-        if archs.contains(pair[0]) && archs.contains(pair[1]) {
-            groupedArchs.append(pair)
-            archs = archs.filter() { !pair.contains($0) }
-        }
+      if archs.contains(pair[0]), archs.contains(pair[1]) {
+        groupedArchs.append(pair)
+        archs = archs.filter { !pair.contains($0) }
+      }
     }
     // Add remaining ungrouped
     for arch in archs {
-        groupedArchs.append([arch])
+      groupedArchs.append([arch])
     }
 
     var thinArchives = [URL]()
@@ -325,7 +324,7 @@ struct FrameworkBuilder {
     let frameworkDir = outputDir.appendingPathComponent("\(framework).xcframework")
 
     let inputArgs = thinArchives.flatMap { url -> [String] in
-        return ["-framework", url.path]
+      ["-framework", url.path]
     }
 
     print("About to create xcframework for \(frameworkDir.path) with \(inputArgs)")
