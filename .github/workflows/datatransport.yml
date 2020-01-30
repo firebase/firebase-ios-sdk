@@ -1,0 +1,35 @@
+name: datatransport
+
+on:
+  pull_request:
+    paths:
+    - 'GoogleDataTransport**'
+    - 'GoogleDataTransportCCTSupport**'
+    - '.github/workflows/datatransport.yml'
+  schedule:
+    # Run every day at 11pm (PST) - cron uses UTC times
+    - cron:  '0 7 * * *'
+
+jobs:
+  datatransport:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup Bundler
+      run: ./scripts/setup_bundler.sh
+    - name: PodLibLint iOS
+      run: ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=ios --use-libraries
+      run: ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=ios --use-modular-headers
+      run: ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=ios --use-libraries
+      run: ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=ios --use-modular-headers
+    - name: PodLibLint macOS
+      run: ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=macos --use-libraries
+      run: ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=macos --use-modular-headers
+      run: ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=macos --use-libraries
+      run: ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=macos --use-modular-headers
+    - name: PodLibLint tvOS
+      run: ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=tvOS --use-libraries
+      run: ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=tvOS --use-modular-headers
+      run: ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=tvOS --use-libraries
+      run: ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=tvOS --use-modular-headers
+
