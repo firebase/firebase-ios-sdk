@@ -154,7 +154,7 @@ struct ZipBuilder {
     // copied in each product's directory.
     let frameworks = generateFrameworks(fromPods: installedPods, inProjectDir: projectDir)
 
-    //ModuleMapBuilder(frameworks: frameworks, customSpecRepos: customSpecRepos, allPods: installedPods).build()
+    // ModuleMapBuilder(frameworks: frameworks, customSpecRepos: customSpecRepos, allPods: installedPods).build()
 
     for (framework, paths) in frameworks {
       print("Frameworks for pod: \(framework) were compiled at \(paths)")
