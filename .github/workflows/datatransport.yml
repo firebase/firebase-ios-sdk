@@ -22,7 +22,7 @@ jobs:
         ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=ios
         ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=ios
 
-  datatransport-macos:
+  datatransport-macosos:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v1
@@ -49,7 +49,7 @@ jobs:
   datatransport-use-libraries:
     runs-on: macos-latest
     if: github.event_name == 'schedule'
-    needs: [datatransport-ios, datatransport-mac, datatransport-tvos]
+    needs: [datatransport-ios, datatransport-macos, datatransport-tvos]
     steps:
     - uses: actions/checkout@v1
     - name: Setup Bundler
@@ -70,7 +70,7 @@ jobs:
   datatransport-use-modular-headers:
     runs-on: macos-latest
     if: github.event_name == 'schedule'
-    needs: [datatransport-ios, datatransport-mac, datatransport-tvos]
+    needs: [datatransport-ios, datatransport-macos, datatransport-tvos]
     steps:
     - uses: actions/checkout@v1
     - name: Setup Bundler
