@@ -316,6 +316,7 @@ enum CocoaPodUtils {
 
     // Include the minimum iOS version.
     podfile += """
+    use_frameworks!
     platform :ios, '\(LaunchArgs.shared.minimumIOSVersion)'
     target 'FrameworkMaker' do\n
     """

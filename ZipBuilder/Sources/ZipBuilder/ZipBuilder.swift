@@ -154,7 +154,7 @@ struct ZipBuilder {
     // copied in each product's directory.
     let frameworks = generateFrameworks(fromPods: installedPods, inProjectDir: projectDir)
 
-    ModuleMapBuilder(frameworks: frameworks, customSpecRepos: customSpecRepos, allPods: installedPods).build()
+    //ModuleMapBuilder(frameworks: frameworks, customSpecRepos: customSpecRepos, allPods: installedPods).build()
 
     for (framework, paths) in frameworks {
       print("Frameworks for pod: \(framework) were compiled at \(paths)")
@@ -305,8 +305,8 @@ struct ZipBuilder {
         if pod.key == crashlyticsPodName {
           for file in ["upload-symbols", "run"] {
             let source = pod.value.installedLocation.appendingPathComponent(file)
-            let target = zipDir.appendingPathComponent(crashlyticsPodName).appendingPathComponent(file)
 
+            let target = zipDir.appendingPathComponent(crashlyticsPodName).appendingPathComponent(file)
             do {
               try FileManager.default.copyItem(at: source, to: target)
             } catch {
@@ -419,7 +419,8 @@ struct ZipBuilder {
           continue
         }
 
-        let destination = dir.appendingPathComponent(frameworkName)
+        let xcFrameworkName = frameworkName.replacingOccurrences(of: ".framework", with: ".xcframework")
+        let destination = dir.appendingPathComponent(xcFrameworkName)
         try fileManager.copyItem(at: framework, to: destination)
         copiedFrameworkNames.append(frameworkName.replacingOccurrences(of: ".framework", with: ""))
       }
