@@ -16,5 +16,7 @@ jobs:
     - uses: actions/checkout@v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
+    - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh DynamicLinks all
     - name: FirebaseDynamicLinks
       run: ./scripts/pod_lib_lint.rb FirebaseDynamicLinks.podspec
