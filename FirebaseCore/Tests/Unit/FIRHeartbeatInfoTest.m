@@ -33,8 +33,8 @@
   componentsToAdd.day = -1;
 
   NSDate *dayAgo = [[NSCalendar currentCalendar] dateByAddingComponents:componentsToAdd
-                                                                   toDate:[NSDate date]
-                                                                  options:0];
+                                                                 toDate:[NSDate date]
+                                                                options:0];
 
   [self.dataStorage setHearbeatDate:dayAgo forTag:@"fire-iid"];
   [self.dataStorage setHearbeatDate:dayAgo forTag:@"GLOBAL"];
