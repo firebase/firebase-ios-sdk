@@ -93,6 +93,8 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   NSUserDefaults *_userDefaults;
   NSString *_userDefaultsSuiteName;
   NSString *_DBPath;
+  id _DBManagerMock;
+  id _userDefaultsClassMock;
 }
 @end
 
@@ -109,23 +111,23 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
 
   // Always remove the database at the start of testing.
   _DBPath = [RCNTestUtilities remoteConfigPathForTestDatabase];
-  id classMock = OCMClassMock([RCNConfigDBManager class]);
-  OCMStub([classMock remoteConfigPathForDatabase]).andReturn(_DBPath);
+  _DBManagerMock = OCMClassMock([RCNConfigDBManager class]);
+  OCMStub([_DBManagerMock remoteConfigPathForDatabase]).andReturn(_DBPath);
   _DBManager = [[RCNConfigDBManager alloc] init];
 
   _userDefaultsSuiteName = [RCNTestUtilities userDefaultsSuiteNameForTestSuite];
   _userDefaults = [[NSUserDefaults alloc] initWithSuiteName:_userDefaultsSuiteName];
-  id userDefaultsClassMock = OCMClassMock([RCNUserDefaultsManager class]);
-  OCMStub([userDefaultsClassMock sharedUserDefaultsForBundleIdentifier:[OCMArg any]])
+  _userDefaultsClassMock = OCMClassMock([RCNUserDefaultsManager class]);
+  OCMStub([_userDefaultsClassMock sharedUserDefaultsForBundleIdentifier:[OCMArg any]])
       .andReturn(_userDefaults);
 
   RCNConfigContent *configContent = [[RCNConfigContent alloc] initWithDBManager:_DBManager];
-  _configInstances = [[NSMutableArray alloc] initWithCapacity:3];
-  _entries = [[NSMutableArray alloc] initWithCapacity:3];
-  _response = [[NSMutableArray alloc] initWithCapacity:3];
-  _responseData = [[NSMutableArray alloc] initWithCapacity:3];
-  _URLResponse = [[NSMutableArray alloc] initWithCapacity:3];
-  _configFetch = [[NSMutableArray alloc] initWithCapacity:3];
+  _configInstances = [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
+  _entries = [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
+  _response = [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
+  _responseData = [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
+  _URLResponse = [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
+  _configFetch = [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
 
   // Populate the default, second app, second namespace instances.
   for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
@@ -213,6 +215,14 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
 - (void)tearDown {
   [_DBManager removeDatabaseOnDatabaseQueueAtPath:_DBPath];
   [[NSUserDefaults standardUserDefaults] removePersistentDomainForName:_userDefaultsSuiteName];
+  [_DBManagerMock stopMocking];
+  _DBManagerMock = nil;
+  [_userDefaultsClassMock stopMocking];
+  _userDefaultsClassMock = nil;
+  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
+    [(id)_configInstances[i] stopMocking];
+    [(id)_configFetch[i] stopMocking];
+  }
   [super tearDown];
 }
 
@@ -238,6 +248,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
     FIRRemoteConfigFetchCompletion fetchCompletion =
         ^void(FIRRemoteConfigFetchStatus status, NSError *error) {
           XCTAssertNotNil(error);
+          XCTAssertEqual(FIRRemoteConfigFetchStatusFailure, status);
           [expectations[i] fulfill];
         };
     [_configInstances[i] fetchWithExpirationDuration:43200 completionHandler:fetchCompletion];
