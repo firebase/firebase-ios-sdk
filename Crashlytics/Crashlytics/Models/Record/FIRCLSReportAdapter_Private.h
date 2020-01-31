@@ -44,7 +44,8 @@
 @property(nonatomic, strong) FIRCLSRecordHost *host;
 @property(nonatomic, strong) FIRCLSRecordApplication *application;
 @property(nonatomic, strong) FIRCLSRecordExecutable *executable;
-@property(nonatomic, strong) NSDictionary<NSString *, NSString *> *keyValues;
+@property(nonatomic, strong) NSDictionary<NSString *, NSString *> *internalKeyValues;
+@property(nonatomic, strong) NSDictionary<NSString *, NSString *> *userKeyValues;
 
 @property(nonatomic) google_crashlytics_Report report;
 

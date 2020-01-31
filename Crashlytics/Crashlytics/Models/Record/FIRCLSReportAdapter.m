@@ -37,7 +37,8 @@
     [self loadBinaryImagesFile];
     [self loadMetaDataFile];
     [self loadSignalFile];
-    [self loadKeyValuesFile];
+    [self loadInternalKeyValuesFile];
+    [self loadUserKeyValuesFile];
 
     _report = [self protoReport];
   }
@@ -88,10 +89,18 @@
 }
 
 /// Reads from internal_incremental_kv.clsrecord
-- (void)loadKeyValuesFile {
+- (void)loadInternalKeyValuesFile {
   NSString *path =
       [self.folderPath stringByAppendingPathComponent:FIRCLSReportInternalIncrementalKVFile];
-  self.keyValues = [FIRCLSRecordKeyValue
+  self.internalKeyValues = [FIRCLSRecordKeyValue
+      keyValuesFromDictionaries:[FIRCLSReportAdapter dictionariesFromEachLineOfFile:path]];
+}
+
+/// Reads from internal_incremental_kv.clsrecord
+- (void)loadUserKeyValuesFile {
+  NSString *path =
+      [self.folderPath stringByAppendingPathComponent:FIRCLSReportUserIncrementalKVFile];
+  self.userKeyValues = [FIRCLSRecordKeyValue
       keyValuesFromDictionaries:[FIRCLSReportAdapter dictionariesFromEachLineOfFile:path]];
 }
 
@@ -175,17 +184,17 @@
 
 /// Returns if the app was last in the background
 - (BOOL)wasInBackground {
-  return [self.keyValues[FIRCLSInBackgroundKey] boolValue];
+  return [self.internalKeyValues[FIRCLSInBackgroundKey] boolValue];
 }
 
 /// Return the last device orientation
 - (int)deviceOrientation {
-  return [self.keyValues[FIRCLSDeviceOrientationKey] intValue];
+  return [self.internalKeyValues[FIRCLSDeviceOrientationKey] intValue];
 }
 
 /// Return the last UI orientation
 - (int)uiOrientation {
-  return [self.keyValues[FIRCLSUIOrientationKey] intValue];
+  return [self.internalKeyValues[FIRCLSUIOrientationKey] intValue];
 }
 
 /// Return if the app crashed
@@ -245,7 +254,7 @@
   session.device = [self protoSessionDevice];
   session.generator_type = [self protoGeneratorTypeFromString:self.host.platform];
 
-  NSString *userId = self.keyValues[FIRCLSUserIdentifierKey];
+  NSString *userId = self.internalKeyValues[FIRCLSUserIdentifierKey];
   if (userId) {
     session.user = [self protoUserWithId:userId];
   }
