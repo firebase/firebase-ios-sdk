@@ -2,6 +2,7 @@
 
 - [fixed] Fixed symbol collisions with the legacy Fabric Crashlytics SDK and added a warning not to include both (#4753, #4755)
 - [fixed] Fixed an import declaration when installing using CocoaPods with the `generate_multiple_pod_projects` flag set to true (#4786)
+- [fixed] Added preventative crash prevention checks (#4661)
 
 # v4.0.0-beta.2
 
