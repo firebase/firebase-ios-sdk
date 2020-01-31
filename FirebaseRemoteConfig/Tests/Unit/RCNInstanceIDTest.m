@@ -42,25 +42,6 @@
                             app:firebaseApp;
 @end
 
-@interface FIRRemoteConfig (ForTest)
-- (void)updateWithNewInstancesForConfigFetch:(RCNConfigFetch *)configFetch
-                               configContent:(RCNConfigContent *)configContent
-                              configSettings:(RCNConfigSettings *)configSettings
-                            configExperiment:(RCNConfigExperiment *)configExperiment;
-@end
-
-@implementation FIRRemoteConfig (ForTest)
-- (void)updateWithNewInstancesForConfigFetch:(RCNConfigFetch *)configFetch
-                               configContent:(RCNConfigContent *)configContent
-                              configSettings:(RCNConfigSettings *)configSettings
-                            configExperiment:(RCNConfigExperiment *)configExperiment {
-  [self setValue:configFetch forKey:@"_configFetch"];
-  [self setValue:configContent forKey:@"_configContent"];
-  [self setValue:configSettings forKey:@"_settings"];
-  [self setValue:configExperiment forKey:@"_configExperiment"];
-}
-@end
-
 @interface RCNConfigDBManager (Test)
 - (void)removeDatabaseOnDatabaseQueueAtPath:(NSString *)path;
 @end
@@ -93,8 +74,6 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   NSUserDefaults *_userDefaults;
   NSString *_userDefaultsSuiteName;
   NSString *_DBPath;
-  id _DBManagerMock;
-  id _userDefaultsClassMock;
 }
 @end
 
@@ -103,31 +82,30 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
 - (void)setUp {
   [super setUp];
   FIRSetLoggerLevel(FIRLoggerLevelMax);
-  if (![FIRApp isDefaultAppConfigured]) {
-    [FIRApp configureWithOptions:[self firstAppOptions]];
-  }
+  //@@if (![FIRApp isDefaultAppConfigured]) {
+  [FIRApp configureWithOptions:[self firstAppOptions]];
   _expectationTimeout = 5;
   _checkCompletionTimeout = 1.0;
 
   // Always remove the database at the start of testing.
   _DBPath = [RCNTestUtilities remoteConfigPathForTestDatabase];
-  _DBManagerMock = OCMClassMock([RCNConfigDBManager class]);
-  OCMStub([_DBManagerMock remoteConfigPathForDatabase]).andReturn(_DBPath);
+  id classMock = OCMClassMock([RCNConfigDBManager class]);
+  OCMStub([classMock remoteConfigPathForDatabase]).andReturn(_DBPath);
   _DBManager = [[RCNConfigDBManager alloc] init];
 
   _userDefaultsSuiteName = [RCNTestUtilities userDefaultsSuiteNameForTestSuite];
   _userDefaults = [[NSUserDefaults alloc] initWithSuiteName:_userDefaultsSuiteName];
-  _userDefaultsClassMock = OCMClassMock([RCNUserDefaultsManager class]);
-  OCMStub([_userDefaultsClassMock sharedUserDefaultsForBundleIdentifier:[OCMArg any]])
+  id userDefaultsClassMock = OCMClassMock([RCNUserDefaultsManager class]);
+  OCMStub([userDefaultsClassMock sharedUserDefaultsForBundleIdentifier:[OCMArg any]])
       .andReturn(_userDefaults);
 
   RCNConfigContent *configContent = [[RCNConfigContent alloc] initWithDBManager:_DBManager];
-  _configInstances = [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
-  _entries = [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
-  _response = [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
-  _responseData = [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
-  _URLResponse = [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
-  _configFetch = [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
+  _configInstances = [[NSMutableArray alloc] initWithCapacity:3];
+  _entries = [[NSMutableArray alloc] initWithCapacity:3];
+  _response = [[NSMutableArray alloc] initWithCapacity:3];
+  _responseData = [[NSMutableArray alloc] initWithCapacity:3];
+  _URLResponse = [[NSMutableArray alloc] initWithCapacity:3];
+  _configFetch = [[NSMutableArray alloc] initWithCapacity:3];
 
   // Populate the default, second app, second namespace instances.
   for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
@@ -215,14 +193,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
 - (void)tearDown {
   [_DBManager removeDatabaseOnDatabaseQueueAtPath:_DBPath];
   [[NSUserDefaults standardUserDefaults] removePersistentDomainForName:_userDefaultsSuiteName];
-  [_DBManagerMock stopMocking];
-  _DBManagerMock = nil;
-  [_userDefaultsClassMock stopMocking];
-  _userDefaultsClassMock = nil;
-  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
-    [(id)_configInstances[i] stopMocking];
-    [(id)_configFetch[i] stopMocking];
-  }
+  [FIRApp resetApps];
   [super tearDown];
 }
 
@@ -231,16 +202,15 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   NSMutableArray<XCTestExpectation *> *expectations =
       [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
 
+  // Set the token as nil.
+  [self mockInstanceIDMethodForTokenAndIdentity:nil
+                                     tokenError:[NSError errorWithDomain:@"com.google.instanceid"
+                                                                    code:FIRInstanceIDErrorUnknown
+                                                                userInfo:nil]
+                                       identity:nil
+                                  identityError:nil];
   // Test for each RC FIRApp, namespace instance.
   for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
-    // Set the token as nil.
-    [self mockInstanceIDMethodForTokenAndIdentity:nil
-                                       tokenError:[NSError errorWithDomain:@"com.google.instanceid"
-                                                                      code:FIRInstanceIDErrorUnknown
-                                                                  userInfo:nil]
-                                         identity:nil
-                                    identityError:nil];
-
     expectations[i] =
         [self expectationWithDescription:
                   [NSString stringWithFormat:@"Test fetch configs successfully - instance %d", i]];
@@ -248,7 +218,6 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
     FIRRemoteConfigFetchCompletion fetchCompletion =
         ^void(FIRRemoteConfigFetchStatus status, NSError *error) {
           XCTAssertNotNil(error);
-          XCTAssertEqual(FIRRemoteConfigFetchStatusFailure, status);
           [expectations[i] fulfill];
         };
     [_configInstances[i] fetchWithExpirationDuration:43200 completionHandler:fetchCompletion];
