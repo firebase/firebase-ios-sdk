@@ -16,6 +16,8 @@
 
 #import "SceneDelegate.h"
 
+#import <FirebaseDynamicLinks/FIRDynamicLinks.h>
+
 @interface SceneDelegate ()
 
 @end
@@ -59,6 +61,35 @@
   // Called as the scene transitions from the foreground to the background.
   // Use this method to save data, release shared resources, and store enough scene-specific state
   // information to restore the scene back to its current state.
+}
+
+- (void)scene:(UIScene *)scene continueUserActivity:(NSUserActivity *)userActivity {
+  BOOL handled = [[FIRDynamicLinks dynamicLinks]
+      handleUniversalLink:userActivity.webpageURL
+               completion:^(FIRDynamicLink *_Nullable dynamicLink, NSError *_Nullable error) {
+                 [self _showDynamicLinkInfo:dynamicLink];
+               }];
+
+  if (!handled) {
+    // Show the deep link URL from userActivity.
+    NSLog(@"Unhandled link %@", userActivity.webpageURL);
+  }
+}
+
+- (void)_showDynamicLinkInfo:(FIRDynamicLink *)dynamicLink {
+  NSLog(@"Got dynamic link %@", dynamicLink);
+
+  UIAlertController *alertVC = [UIAlertController
+      alertControllerWithTitle:@"Got Dynamic Link!"
+                       message:[NSString stringWithFormat:
+                                             @"URL [%@], matchType [%ld], minimumAppVersion [%@]",
+                                             dynamicLink.url, (unsigned long)dynamicLink.matchType,
+                                             dynamicLink.minimumAppVersion]
+                preferredStyle:UIAlertControllerStyleAlert];
+  [alertVC addAction:[UIAlertAction actionWithTitle:@"Dismiss"
+                                              style:UIAlertActionStyleCancel
+                                            handler:NULL]];
+  [self.window.rootViewController presentViewController:alertVC animated:YES completion:NULL];
 }
 
 @end
