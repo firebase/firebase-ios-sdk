@@ -329,6 +329,7 @@ static const NSTimeInterval kAsyncTestTimout = 0.5;
   XCTestExpectation *assertionFailureExpectation = [self expectationWithDescription:@"assertionFailureExpectation"];
   assertionFailureExpectation.assertForOverFulfill = NO;
 
+// The flag FIR_MESSAGING_ASSERTIONS_BLOCKED can be set by blaze when running tests from google3.
 #ifndef FIR_MESSAGING_ASSERTIONS_BLOCKED
   [self.testAssertionHandler setMethodFailureHandlerForClass:[FIRMessagingRmqManager class]
                                                      handler:^(id object, NSString *fileName, NSInteger lineNumber) {
@@ -337,7 +338,9 @@ static const NSTimeInterval kAsyncTestTimout = 0.5;
 #else
   // If FIR_MESSAGING_ASSERTIONS_BLOCKED is defined, then no assertion handlers will be called,
   // so don't wait for it.
-  [assertionFailureExpectation fulfill];
+  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+    [assertionFailureExpectation fulfill];
+  });
 #endif // FIR_MESSAGING_ASSERTIONS_BLOCKED
 
   // Create `FIRMessagingRmqManager` instance with a broken database.
