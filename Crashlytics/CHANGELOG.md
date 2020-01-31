@@ -1,3 +1,7 @@
+# v4.0.0-beta.3
+
+- [fixed] Fixed an import declaration for installing Crashlytics. Previously, the declaration caused a compile error when you installed using CocoaPods with the `generate_multiple_pods_project` flag set to true (#4786)
+
 # v4.0.0-beta.2
 
 - [fixed] Fixed VeraCode scanner issues for unchecked error conditions (#4669)
