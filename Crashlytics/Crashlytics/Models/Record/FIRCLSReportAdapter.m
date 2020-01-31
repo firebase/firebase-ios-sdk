@@ -39,6 +39,10 @@
     [self loadSignalFile];
     [self loadInternalKeyValuesFile];
     [self loadUserKeyValuesFile];
+    [self loaduserLogFiles];
+      
+    // TODO: Add support for mach_exception.clsrecord
+    // TODO: When implemented, add support for custom exceptions: custom_exception_a.clsrecord
 
     _report = [self protoReport];
   }
@@ -102,6 +106,27 @@
       [self.folderPath stringByAppendingPathComponent:FIRCLSReportUserIncrementalKVFile];
   self.userKeyValues = [FIRCLSRecordKeyValue
       keyValuesFromDictionaries:[FIRCLSReportAdapter dictionariesFromEachLineOfFile:path]];
+}
+
+/// If too many logs are written, then a file (log_a.clsrecord) rollover occurs.
+/// Then a secondary log file (log_b.clsrecord) is created.
+- (void)loaduserLogFiles {
+  NSString *logA =
+      [self.folderPath stringByAppendingPathComponent:FIRCLSReportLogAFile];
+    NSString *logB =
+    [self.folderPath stringByAppendingPathComponent:FIRCLSReportLogBFile];
+    
+    NSMutableArray<FIRCLSRecordLog *> *logs = [[NSMutableArray<FIRCLSRecordLog *> alloc] init];
+    
+    if ([[NSFileManager defaultManager] fileExistsAtPath:logA]) {
+        [logs addObjectsFromArray:[FIRCLSRecordLog logsFromDictionaries:[FIRCLSReportAdapter dictionariesFromEachLineOfFile:logA]]];
+    }
+    
+    if ([[NSFileManager defaultManager] fileExistsAtPath:logB]) {
+        [logs addObjectsFromArray:[FIRCLSRecordLog logsFromDictionaries:[FIRCLSReportAdapter dictionariesFromEachLineOfFile:logB]]];
+    }
+    
+    self.userLogs = logs;
 }
 
 /// Return the persisted crash file as a combined dictionary that way lookups can occur with a key
@@ -363,7 +388,6 @@
     thread.registers = [self protoRegistersWithArray:array[i].registers];
     thread.registers_count = (pb_size_t)array[i].registers.count;
 
-    // TODO: Fix analysis issue: "Use of zero-allocated memory"
     threads[i] = thread;
   }
 

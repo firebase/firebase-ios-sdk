@@ -22,6 +22,7 @@
 #import "FIRCLSRecordHost.h"
 #import "FIRCLSRecordIdentity.h"
 #import "FIRCLSRecordKeyValue.h"
+#import "FIRCLSRecordLog.h"
 #import "FIRCLSRecordProcessStats.h"
 #import "FIRCLSRecordRegister.h"
 #import "FIRCLSRecordRuntime.h"
@@ -46,6 +47,7 @@
 @property(nonatomic, strong) FIRCLSRecordExecutable *executable;
 @property(nonatomic, strong) NSDictionary<NSString *, NSString *> *internalKeyValues;
 @property(nonatomic, strong) NSDictionary<NSString *, NSString *> *userKeyValues;
+@property(nonatomic, strong) NSArray<FIRCLSRecordLog *> *userLogs;
 
 @property(nonatomic) google_crashlytics_Report report;
 

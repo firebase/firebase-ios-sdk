@@ -168,6 +168,19 @@
   XCTAssertTrue([adapter.userKeyValues[@"some_key_3"] isEqualToString:@"some_value_3"]);
 }
 
+- (void)testRecordUserLogFiles {
+  FIRCLSReportAdapter *adapter = [FIRCLSReportAdapterTests adapterForValidFiles];
+  XCTAssertEqual(adapter.userLogs.count, 6);
+
+  // Verify first
+  XCTAssertTrue([adapter.userLogs[0].msg isEqualToString:@"custom_log_msg_1"]);
+  XCTAssertEqual(adapter.userLogs[0].time, 1579796958175);
+
+  // Verify last
+  XCTAssertTrue([adapter.userLogs[5].msg  isEqualToString:@"custom_log_msg_6"]);
+  XCTAssertEqual(adapter.userLogs[5].time, 1579796959935);
+}
+
 - (void)testRecordSignalFile {
   FIRCLSReportAdapter *adapter = [FIRCLSReportAdapterTests adapterForValidFiles];
 
