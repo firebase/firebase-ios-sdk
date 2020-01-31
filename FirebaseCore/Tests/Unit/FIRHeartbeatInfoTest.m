@@ -29,9 +29,15 @@
 - (void)setUp {
   NSString *const kHeartbeatStorageFile = @"HEARTBEAT_INFO_STORAGE";
   self.dataStorage = [[GULHeartbeatDateStorage alloc] initWithFileName:kHeartbeatStorageFile];
-  NSDate *pastTime = [NSDate dateWithTimeIntervalSinceNow:-996400];
-  [self.dataStorage setHearbeatDate:pastTime forTag:@"fire-iid"];
-  [self.dataStorage setHearbeatDate:pastTime forTag:@"GLOBAL"];
+  NSDateComponents *componentsToAdd = [[NSDateComponents alloc] init];
+  componentsToAdd.day = -1;
+
+  NSDate *dayAgo = [[NSCalendar currentCalendar] dateByAddingComponents:componentsToAdd
+                                                                 toDate:[NSDate date]
+                                                                options:0];
+
+  [self.dataStorage setHearbeatDate:dayAgo forTag:@"fire-iid"];
+  [self.dataStorage setHearbeatDate:dayAgo forTag:@"GLOBAL"];
 }
 
 - (void)testCombinedHeartbeat {
