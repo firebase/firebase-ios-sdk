@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRCLSRecordAdapter.h"
+#import "FIRCLSReportAdapter.h"
 
 #import "FIRCLSRecordApplication.h"
 #import "FIRCLSRecordBinaryImage.h"
@@ -29,7 +29,7 @@
 #import "FIRCLSRecordStorage.h"
 #import "FIRCLSRecordThread.h"
 
-@interface FIRCLSRecordAdapter ()
+@interface FIRCLSReportAdapter ()
 
 @property(nonatomic, strong) NSString *folderPath;
 @property(nonatomic, strong) NSString *googleAppID;

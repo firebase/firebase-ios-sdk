@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FIRCLSRecordAdapter.h"
-#import "FIRCLSRecordAdapter_Private.h"
+#import "FIRCLSReportAdapter.h"
+#import "FIRCLSReportAdapter_Private.h"
 
 #import "FIRCLSInternalReport.h"
 #import "FIRCLSLogger.h"
@@ -26,10 +26,9 @@
 #import <nanopb/pb_decode.h>
 #import <nanopb/pb_encode.h>
 
-// [TODO]: Rename to FIRCLSReportAdapter
-@implementation FIRCLSRecordAdapter
+@implementation FIRCLSReportAdapter
 
-- (instancetype)initWithPath:(NSString *)folderPath withGoogleAppId:googleAppID {
+- (instancetype)initWithPath:(NSString *)folderPath googleAppId:googleAppID {
   self = [super init];
   if (self) {
     _folderPath = folderPath;
@@ -46,7 +45,6 @@
 }
 
 - (void)dealloc {
-  // [TODO]: Have to manually traverse this struct to free up memory?
   pb_release(google_crashlytics_Report_fields, &_report);
 }
 
@@ -54,15 +52,17 @@
 // MARK: Load from persisted crash files
 //
 
+/// Reads from binary_images.clsrecord
 - (void)loadBinaryImagesFile {
   NSString *path = [self.folderPath stringByAppendingPathComponent:FIRCLSReportBinaryImageFile];
   self.binaryImages = [FIRCLSRecordBinaryImage
-      binaryImagesFromDictionaries:[FIRCLSRecordAdapter dictionariesFromEachLineOfFile:path]];
+      binaryImagesFromDictionaries:[FIRCLSReportAdapter dictionariesFromEachLineOfFile:path]];
 }
 
+/// Reads from metadata.clsrecord
 - (void)loadMetaDataFile {
   NSString *path = [self.folderPath stringByAppendingPathComponent:FIRCLSReportMetadataFile];
-  NSDictionary *dict = [FIRCLSRecordAdapter combinedDictionariesFromFilePath:path];
+  NSDictionary *dict = [FIRCLSReportAdapter combinedDictionariesFromFilePath:path];
 
   self.identity = [[FIRCLSRecordIdentity alloc] initWithDict:dict[@"identity"]];
   self.host = [[FIRCLSRecordHost alloc] initWithDict:dict[@"host"]];
@@ -70,9 +70,10 @@
   self.executable = [[FIRCLSRecordExecutable alloc] initWithDict:dict[@"executable"]];
 }
 
+/// Reads from signal.clsrecord (does not always exist, written when there is a crash)
 - (void)loadSignalFile {
   NSString *path = [self.folderPath stringByAppendingPathComponent:FIRCLSReportSignalFile];
-  NSDictionary *dicts = [FIRCLSRecordAdapter combinedDictionariesFromFilePath:path];
+  NSDictionary *dicts = [FIRCLSReportAdapter combinedDictionariesFromFilePath:path];
 
   self.signal = [[FIRCLSRecordSignal alloc] initWithDict:dicts[@"signal"]];
   self.runtime = [[FIRCLSRecordRuntime alloc] initWithDict:dicts[@"runtime"]];
@@ -81,16 +82,17 @@
 
   // The thread's objc_selector_name is set with the runtime's info
   self.threads = [FIRCLSRecordThread threadsFromDictionaries:dicts[@"threads"]
-                                             withThreadNames:dicts[@"thread_names"]
+                                                 threadNames:dicts[@"thread_names"]
                                       withDispatchQueueNames:dicts[@"dispatch_queue_names"]
                                                  withRuntime:self.runtime];
 }
 
+/// Reads from internal_incremental_kv.clsrecord
 - (void)loadKeyValuesFile {
   NSString *path =
       [self.folderPath stringByAppendingPathComponent:FIRCLSReportInternalIncrementalKVFile];
   self.keyValues = [FIRCLSRecordKeyValue
-      keyValuesFromDictionaries:[FIRCLSRecordAdapter dictionariesFromEachLineOfFile:path]];
+      keyValuesFromDictionaries:[FIRCLSReportAdapter dictionariesFromEachLineOfFile:path]];
 }
 
 /// Return the persisted crash file as a combined dictionary that way lookups can occur with a key
@@ -168,6 +170,53 @@
 }
 
 //
+// MARK: Report helper functions
+//
+
+/// Returns if the app was last in the background
+- (BOOL)wasInBackground {
+  return [self.keyValues[FIRCLSInBackgroundKey] boolValue];
+}
+
+/// Return the last device orientation
+- (int)deviceOrientation {
+  return [self.keyValues[FIRCLSDeviceOrientationKey] intValue];
+}
+
+/// Return the last UI orientation
+- (int)uiOrientation {
+  return [self.keyValues[FIRCLSUIOrientationKey] intValue];
+}
+
+/// Return if the app crashed
+- (BOOL)hasCrashed {
+  NSString *signalFile = [self.folderPath stringByAppendingPathComponent:FIRCLSReportSignalFile];
+  return [[NSFileManager defaultManager] fileExistsAtPath:signalFile];
+}
+
+- (NSUInteger)ramUsed {
+  return self.processStats.active + self.processStats.inactive + self.processStats.wired;
+}
+
+- (BOOL)isJailbroken {
+  __block NSArray<NSString *> *knownJailbrokenLibraries;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    knownJailbrokenLibraries = @[ @"mobilesubstrate", @"libsubstrate", @"cydia" ];
+  });
+
+  for (FIRCLSRecordBinaryImage *image in self.binaryImages) {
+    for (NSString *knownLib in knownJailbrokenLibraries) {
+      if ([image.path.lowercaseString isEqualToString:knownLib]) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+//
 // MARK: NanoPB conversions
 //
 
@@ -201,7 +250,7 @@
     session.user = [self protoUserWithId:userId];
   }
 
-  // [TODO]: Handle permutations for fatals, non-fatals
+  // TODO: Handle permutations for fatals, non-fatals
   session.events = [self protoEvents];
   session.events_count = 1;
 
@@ -261,7 +310,7 @@
   crash.app = [self protoEventApplication];
   crash.device = [self protoEventDevice];
 
-  // [TODO] Add logic to parse and set user defined logs (crash.log)
+  // TODO Add logic to parse and set user defined logs (crash.log)
 
   return crash;
 }
@@ -279,7 +328,7 @@
   app.background = [self wasInBackground];
   app.ui_orientation = [self uiOrientation];
 
-  // [TODO]: Where do these come from?
+  // TODO: Where do these come from?
   //    app.custom_attributes
   //    app.custom_attributes_count
 
@@ -305,6 +354,7 @@
     thread.registers = [self protoRegistersWithArray:array[i].registers];
     thread.registers_count = (pb_size_t)array[i].registers.count;
 
+    // TODO: Fix analysis issue: "Use of zero-allocated memory"
     threads[i] = thread;
   }
 
@@ -369,6 +419,7 @@
     image.base_address = self.binaryImages[i].base;
     image.size = self.binaryImages[i].size;
 
+    // TODO: Fix analysis issue: "Use of zero-allocated memory"
     images[i] = image;
   }
 
@@ -458,54 +509,6 @@ pb_bytes_array_t *FIRCLSEncodeData(NSData *data) {
   memcpy(pbBytes->bytes, [data bytes], data.length);
   pbBytes->size = (pb_size_t)data.length;
   return pbBytes;
-}
-
-//
-// MARK: Report helper functions
-//
-
-- (BOOL)wasInBackground {
-  return [self.keyValues[FIRCLSInBackgroundKey] boolValue];
-}
-
-- (int)deviceOrientation {
-  return [self.keyValues[FIRCLSDeviceOrientationKey] intValue];
-}
-
-- (int)uiOrientation {
-  return [self.keyValues[FIRCLSUIOrientationKey] intValue];
-}
-
-- (BOOL)hasCrashed {
-  for (FIRCLSRecordThread *thread in self.threads) {
-    if (thread.crashed) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
-- (NSUInteger)ramUsed {
-  return self.processStats.active + self.processStats.inactive + self.processStats.wired;
-}
-
-- (BOOL)isJailbroken {
-  __block NSArray<NSString *> *knownJailbrokenLibraries;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    knownJailbrokenLibraries = @[ @"mobilesubstrate", @"libsubstrate", @"cydia" ];
-  });
-
-  for (FIRCLSRecordBinaryImage *image in self.binaryImages) {
-    for (NSString *knownLib in knownJailbrokenLibraries) {
-      if ([image.path.lowercaseString isEqualToString:knownLib]) {
-        return true;
-      }
-    }
-  }
-
-  return false;
 }
 
 @end

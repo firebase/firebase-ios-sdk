@@ -35,7 +35,7 @@
 /// @param dispatchNames Array of dispatch queue names
 /// @param runtime Runtime object
 + (NSArray<FIRCLSRecordThread *> *)threadsFromDictionaries:(NSArray<NSDictionary *> *)threads
-                                           withThreadNames:(NSArray<NSString *> *)names
+                                               threadNames:(NSArray<NSString *> *)names
                                     withDispatchQueueNames:(NSArray<NSString *> *)dispatchNames
                                                withRuntime:(FIRCLSRecordRuntime *)runtime;
 
