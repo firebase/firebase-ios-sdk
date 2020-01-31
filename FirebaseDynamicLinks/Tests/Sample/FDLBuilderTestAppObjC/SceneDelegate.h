@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2020 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,9 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "AppDelegate.h"
 
-int main(int argc, char* argv[]) {
-  NSString* appDelegateClassName;
-  @autoreleasepool {
-    // Setup code that might create autoreleased objects goes here.
-    appDelegateClassName = NSStringFromClass([AppDelegate class]);
-  }
-  return UIApplicationMain(argc, argv, nil, appDelegateClassName);
-}
+@interface SceneDelegate : UIResponder <UIWindowSceneDelegate>
+
+@property(strong, nonatomic) UIWindow* window;
+
+@end
