@@ -88,8 +88,9 @@ const pb_field_t google_crashlytics_Session_Event_fields[6] = {
     PB_LAST_FIELD
 };
 
-const pb_field_t google_crashlytics_Session_Event_Application_fields[4] = {
-    PB_FIELD(  2, MESSAGE , REPEATED, POINTER , FIRST, google_crashlytics_Session_Event_Application, custom_attributes, custom_attributes, &google_crashlytics_CustomAttribute_fields),
+const pb_field_t google_crashlytics_Session_Event_Application_fields[5] = {
+    PB_FIELD(  1, MESSAGE , SINGULAR, STATIC  , FIRST, google_crashlytics_Session_Event_Application, execution, execution, &google_crashlytics_Session_Event_Application_Execution_fields),
+    PB_FIELD(  2, MESSAGE , REPEATED, POINTER , OTHER, google_crashlytics_Session_Event_Application, custom_attributes, execution, &google_crashlytics_CustomAttribute_fields),
     PB_FIELD(  3, BOOL    , SINGULAR, STATIC  , OTHER, google_crashlytics_Session_Event_Application, background, custom_attributes, 0),
     PB_FIELD(  4, UINT32  , SINGULAR, STATIC  , OTHER, google_crashlytics_Session_Event_Application, ui_orientation, background, 0),
     PB_LAST_FIELD
@@ -142,10 +143,8 @@ const pb_field_t google_crashlytics_Session_Event_Application_Execution_BinaryIm
     PB_LAST_FIELD
 };
 
-const pb_field_t google_crashlytics_Session_Event_Device_fields[6] = {
-    PB_FIELD(  1, FLOAT   , SINGULAR, STATIC  , FIRST, google_crashlytics_Session_Event_Device, battery_level, battery_level, 0),
-    PB_FIELD(  3, BOOL    , SINGULAR, STATIC  , OTHER, google_crashlytics_Session_Event_Device, proximity_on, battery_level, 0),
-    PB_FIELD(  4, UINT32  , SINGULAR, STATIC  , OTHER, google_crashlytics_Session_Event_Device, orientation, proximity_on, 0),
+const pb_field_t google_crashlytics_Session_Event_Device_fields[4] = {
+    PB_FIELD(  4, UINT32  , SINGULAR, STATIC  , FIRST, google_crashlytics_Session_Event_Device, orientation, orientation, 0),
     PB_FIELD(  5, UINT64  , SINGULAR, STATIC  , OTHER, google_crashlytics_Session_Event_Device, ram_used, orientation, 0),
     PB_FIELD(  6, UINT64  , SINGULAR, STATIC  , OTHER, google_crashlytics_Session_Event_Device, disk_used, ram_used, 0),
     PB_LAST_FIELD
@@ -162,18 +161,14 @@ const pb_field_t google_crashlytics_CustomAttribute_fields[3] = {
     PB_LAST_FIELD
 };
 
-const pb_field_t google_crashlytics_Report_fields[7] = {
+const pb_field_t google_crashlytics_Report_fields[8] = {
     PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, google_crashlytics_Report, sdk_version, sdk_version, 0),
     PB_FIELD(  3, BYTES   , SINGULAR, POINTER , OTHER, google_crashlytics_Report, gmp_app_id, sdk_version, 0),
     PB_FIELD(  4, UENUM   , SINGULAR, STATIC  , OTHER, google_crashlytics_Report, platform, gmp_app_id, 0),
     PB_FIELD(  5, BYTES   , SINGULAR, POINTER , OTHER, google_crashlytics_Report, installation_uuid, platform, 0),
     PB_FIELD(  6, BYTES   , SINGULAR, POINTER , OTHER, google_crashlytics_Report, build_version, installation_uuid, 0),
     PB_FIELD(  7, BYTES   , SINGULAR, POINTER , OTHER, google_crashlytics_Report, display_version, build_version, 0),
-    PB_LAST_FIELD
-};
-
-const pb_field_t google_crashlytics_Report_payload_fields[2] = {
-    PB_FIELD(  8, MESSAGE , SINGULAR, STATIC  , FIRST, google_crashlytics_Report_payload, session, session, &google_crashlytics_Session_fields),
+    PB_FIELD(  8, MESSAGE , SINGULAR, STATIC  , OTHER, google_crashlytics_Report, session, display_version, &google_crashlytics_Session_fields),
     PB_LAST_FIELD
 };
 
@@ -189,7 +184,7 @@ const pb_field_t google_crashlytics_Report_payload_fields[2] = {
  * numbers or field sizes that are larger than what can fit in 8 or 16 bit
  * field descriptors.
  */
-PB_STATIC_ASSERT((pb_membersize(google_crashlytics_Session, user) < 65536 && pb_membersize(google_crashlytics_Session, app) < 65536 && pb_membersize(google_crashlytics_Session, os) < 65536 && pb_membersize(google_crashlytics_Session, device) < 65536 && pb_membersize(google_crashlytics_Session_Application, organization) < 65536 && pb_membersize(google_crashlytics_Session_Event, app) < 65536 && pb_membersize(google_crashlytics_Session_Event, device) < 65536 && pb_membersize(google_crashlytics_Session_Event, log) < 65536 && pb_membersize(google_crashlytics_Session_Event_Application_Execution, signal) < 65536 && pb_membersize(google_crashlytics_Report_payload, session) < 65536), YOU_MUST_DEFINE_PB_FIELD_32BIT_FOR_MESSAGES_google_crashlytics_Session_google_crashlytics_Session_User_google_crashlytics_Session_Application_google_crashlytics_Session_Application_Organization_google_crashlytics_Session_OperatingSystem_google_crashlytics_Session_Device_google_crashlytics_Session_Event_google_crashlytics_Session_Event_Application_google_crashlytics_Session_Event_Application_Execution_google_crashlytics_Session_Event_Application_Execution_Thread_google_crashlytics_Session_Event_Application_Execution_Thread_Frame_google_crashlytics_Session_Event_Application_Execution_Thread_Register_google_crashlytics_Session_Event_Application_Execution_Signal_google_crashlytics_Session_Event_Application_Execution_BinaryImage_google_crashlytics_Session_Event_Device_google_crashlytics_Session_Event_Log_google_crashlytics_CustomAttribute_google_crashlytics_Report_google_crashlytics_Report_payload)
+PB_STATIC_ASSERT((pb_membersize(google_crashlytics_Session, user) < 65536 && pb_membersize(google_crashlytics_Session, app) < 65536 && pb_membersize(google_crashlytics_Session, os) < 65536 && pb_membersize(google_crashlytics_Session, device) < 65536 && pb_membersize(google_crashlytics_Session_Application, organization) < 65536 && pb_membersize(google_crashlytics_Session_Event, app) < 65536 && pb_membersize(google_crashlytics_Session_Event, device) < 65536 && pb_membersize(google_crashlytics_Session_Event, log) < 65536 && pb_membersize(google_crashlytics_Session_Event_Application, execution) < 65536 && pb_membersize(google_crashlytics_Session_Event_Application_Execution, signal) < 65536 && pb_membersize(google_crashlytics_Report, session) < 65536), YOU_MUST_DEFINE_PB_FIELD_32BIT_FOR_MESSAGES_google_crashlytics_Session_google_crashlytics_Session_User_google_crashlytics_Session_Application_google_crashlytics_Session_Application_Organization_google_crashlytics_Session_OperatingSystem_google_crashlytics_Session_Device_google_crashlytics_Session_Event_google_crashlytics_Session_Event_Application_google_crashlytics_Session_Event_Application_Execution_google_crashlytics_Session_Event_Application_Execution_Thread_google_crashlytics_Session_Event_Application_Execution_Thread_Frame_google_crashlytics_Session_Event_Application_Execution_Thread_Register_google_crashlytics_Session_Event_Application_Execution_Signal_google_crashlytics_Session_Event_Application_Execution_BinaryImage_google_crashlytics_Session_Event_Device_google_crashlytics_Session_Event_Log_google_crashlytics_CustomAttribute_google_crashlytics_Report)
 #endif
 
 #if !defined(PB_FIELD_16BIT) && !defined(PB_FIELD_32BIT)
@@ -199,7 +194,7 @@ PB_STATIC_ASSERT((pb_membersize(google_crashlytics_Session, user) < 65536 && pb_
  * numbers or field sizes that are larger than what can fit in the default
  * 8 bit descriptors.
  */
-PB_STATIC_ASSERT((pb_membersize(google_crashlytics_Session, user) < 256 && pb_membersize(google_crashlytics_Session, app) < 256 && pb_membersize(google_crashlytics_Session, os) < 256 && pb_membersize(google_crashlytics_Session, device) < 256 && pb_membersize(google_crashlytics_Session_Application, organization) < 256 && pb_membersize(google_crashlytics_Session_Event, app) < 256 && pb_membersize(google_crashlytics_Session_Event, device) < 256 && pb_membersize(google_crashlytics_Session_Event, log) < 256 && pb_membersize(google_crashlytics_Session_Event_Application_Execution, signal) < 256 && pb_membersize(google_crashlytics_Report_payload, session) < 256), YOU_MUST_DEFINE_PB_FIELD_16BIT_FOR_MESSAGES_google_crashlytics_Session_google_crashlytics_Session_User_google_crashlytics_Session_Application_google_crashlytics_Session_Application_Organization_google_crashlytics_Session_OperatingSystem_google_crashlytics_Session_Device_google_crashlytics_Session_Event_google_crashlytics_Session_Event_Application_google_crashlytics_Session_Event_Application_Execution_google_crashlytics_Session_Event_Application_Execution_Thread_google_crashlytics_Session_Event_Application_Execution_Thread_Frame_google_crashlytics_Session_Event_Application_Execution_Thread_Register_google_crashlytics_Session_Event_Application_Execution_Signal_google_crashlytics_Session_Event_Application_Execution_BinaryImage_google_crashlytics_Session_Event_Device_google_crashlytics_Session_Event_Log_google_crashlytics_CustomAttribute_google_crashlytics_Report_google_crashlytics_Report_payload)
+PB_STATIC_ASSERT((pb_membersize(google_crashlytics_Session, user) < 256 && pb_membersize(google_crashlytics_Session, app) < 256 && pb_membersize(google_crashlytics_Session, os) < 256 && pb_membersize(google_crashlytics_Session, device) < 256 && pb_membersize(google_crashlytics_Session_Application, organization) < 256 && pb_membersize(google_crashlytics_Session_Event, app) < 256 && pb_membersize(google_crashlytics_Session_Event, device) < 256 && pb_membersize(google_crashlytics_Session_Event, log) < 256 && pb_membersize(google_crashlytics_Session_Event_Application, execution) < 256 && pb_membersize(google_crashlytics_Session_Event_Application_Execution, signal) < 256 && pb_membersize(google_crashlytics_Report, session) < 256), YOU_MUST_DEFINE_PB_FIELD_16BIT_FOR_MESSAGES_google_crashlytics_Session_google_crashlytics_Session_User_google_crashlytics_Session_Application_google_crashlytics_Session_Application_Organization_google_crashlytics_Session_OperatingSystem_google_crashlytics_Session_Device_google_crashlytics_Session_Event_google_crashlytics_Session_Event_Application_google_crashlytics_Session_Event_Application_Execution_google_crashlytics_Session_Event_Application_Execution_Thread_google_crashlytics_Session_Event_Application_Execution_Thread_Frame_google_crashlytics_Session_Event_Application_Execution_Thread_Register_google_crashlytics_Session_Event_Application_Execution_Signal_google_crashlytics_Session_Event_Application_Execution_BinaryImage_google_crashlytics_Session_Event_Device_google_crashlytics_Session_Event_Log_google_crashlytics_CustomAttribute_google_crashlytics_Report)
 #endif
 
 
