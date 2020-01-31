@@ -14,30 +14,32 @@
  * limitations under the License.
  */
 
-#import "FIRCLSRecordLog.h"
+#import "FIRCLSRecordError.h"
 #import "FIRCLSFile.h"
 
-@implementation FIRCLSRecordLog
+@implementation FIRCLSRecordError
 
-+ (NSArray<FIRCLSRecordLog *> *)logsFromDictionaries:(NSArray<NSDictionary *> *)dicts {
-  NSMutableArray<FIRCLSRecordLog *> *logs = [[NSMutableArray<FIRCLSRecordLog *> alloc] init];
++ (NSArray<FIRCLSRecordError *> *)errorsFromDictionaries:(NSArray<NSDictionary *> *)dicts {
+  NSMutableArray<FIRCLSRecordError *> *errors = [[NSMutableArray<FIRCLSRecordError *> alloc] init];
 
   for (NSDictionary *dict in dicts) {
-    [logs addObject:[[FIRCLSRecordLog alloc] initWithDict:dict[@"log"]]];
+    [errors addObject:[[FIRCLSRecordError alloc] initWithDict:dict[@"error"]]];
   }
 
-  return logs;
+  return errors;
 }
 
 - (instancetype)initWithDict:(NSDictionary *)dict {
   self = [super initWithDict:dict];
   if (self) {
-    NSString *msg = dict[@"msg"];
-    if (msg) {
-      _msg = FIRCLSFileHexDecodeString([msg UTF8String]);
+    NSString *domain = dict[@"domain"];
+    if (domain) {
+      _domain = FIRCLSFileHexDecodeString([domain UTF8String]);
     }
 
+    _code = [dict[@"code"] unsignedIntegerValue];
     _time = [dict[@"time"] unsignedIntegerValue];
+    _stacktrace = dict[@"stacktrace"];
   }
   return self;
 }

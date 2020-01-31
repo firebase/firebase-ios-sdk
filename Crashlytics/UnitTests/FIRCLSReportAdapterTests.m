@@ -177,8 +177,31 @@
   XCTAssertEqual(adapter.userLogs[0].time, 1579796958175);
 
   // Verify last
-  XCTAssertTrue([adapter.userLogs[5].msg  isEqualToString:@"custom_log_msg_6"]);
+  XCTAssertTrue([adapter.userLogs[5].msg isEqualToString:@"custom_log_msg_6"]);
   XCTAssertEqual(adapter.userLogs[5].time, 1579796959935);
+}
+
+- (void)testRecordUserErrorFiles {
+  FIRCLSReportAdapter *adapter = [FIRCLSReportAdapterTests adapterForValidFiles];
+  XCTAssertEqual(adapter.errors.count, 4);
+
+  // Verify first
+  XCTAssertTrue([adapter.errors[0].domain isEqualToString:@"Crashlytics_App.CustomSwiftError1"]);
+  XCTAssertEqual(adapter.errors[0].code, 0);
+  XCTAssertEqual(adapter.errors[0].time, 1579796960);
+
+  XCTAssertEqual(adapter.errors[0].stacktrace.count, 29);
+  XCTAssertEqual(adapter.errors[0].stacktrace[0].unsignedIntegerValue, 4305958120);
+  XCTAssertEqual(adapter.errors[0].stacktrace[28].unsignedIntegerValue, 7020727832);
+
+  // Verify last
+  XCTAssertTrue([adapter.errors[3].domain isEqualToString:@"Crashlytics_App.CustomSwiftError4"]);
+  XCTAssertEqual(adapter.errors[3].code, 4);
+  XCTAssertEqual(adapter.errors[3].time, 1579796966);
+
+  XCTAssertEqual(adapter.errors[3].stacktrace.count, 29);
+  XCTAssertEqual(adapter.errors[3].stacktrace[0].unsignedIntegerValue, 4305958121);
+  XCTAssertEqual(adapter.errors[3].stacktrace[28].unsignedIntegerValue, 7020727833);
 }
 
 - (void)testRecordSignalFile {

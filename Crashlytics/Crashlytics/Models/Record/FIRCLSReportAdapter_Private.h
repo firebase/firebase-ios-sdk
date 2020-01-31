@@ -18,6 +18,7 @@
 
 #import "FIRCLSRecordApplication.h"
 #import "FIRCLSRecordBinaryImage.h"
+#import "FIRCLSRecordError.h"
 #import "FIRCLSRecordExecutable.h"
 #import "FIRCLSRecordHost.h"
 #import "FIRCLSRecordIdentity.h"
@@ -48,6 +49,7 @@
 @property(nonatomic, strong) NSDictionary<NSString *, NSString *> *internalKeyValues;
 @property(nonatomic, strong) NSDictionary<NSString *, NSString *> *userKeyValues;
 @property(nonatomic, strong) NSArray<FIRCLSRecordLog *> *userLogs;
+@property(nonatomic, strong) NSArray<FIRCLSRecordError *> *errors;
 
 @property(nonatomic) google_crashlytics_Report report;
 

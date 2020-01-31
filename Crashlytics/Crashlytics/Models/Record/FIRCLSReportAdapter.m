@@ -39,8 +39,9 @@
     [self loadSignalFile];
     [self loadInternalKeyValuesFile];
     [self loadUserKeyValuesFile];
-    [self loaduserLogFiles];
-      
+    [self loadUserLogFiles];
+    [self loadErrorFiles];
+
     // TODO: Add support for mach_exception.clsrecord
     // TODO: When implemented, add support for custom exceptions: custom_exception_a.clsrecord
 
@@ -110,23 +111,49 @@
 
 /// If too many logs are written, then a file (log_a.clsrecord) rollover occurs.
 /// Then a secondary log file (log_b.clsrecord) is created.
-- (void)loaduserLogFiles {
-  NSString *logA =
-      [self.folderPath stringByAppendingPathComponent:FIRCLSReportLogAFile];
-    NSString *logB =
-    [self.folderPath stringByAppendingPathComponent:FIRCLSReportLogBFile];
-    
-    NSMutableArray<FIRCLSRecordLog *> *logs = [[NSMutableArray<FIRCLSRecordLog *> alloc] init];
-    
-    if ([[NSFileManager defaultManager] fileExistsAtPath:logA]) {
-        [logs addObjectsFromArray:[FIRCLSRecordLog logsFromDictionaries:[FIRCLSReportAdapter dictionariesFromEachLineOfFile:logA]]];
-    }
-    
-    if ([[NSFileManager defaultManager] fileExistsAtPath:logB]) {
-        [logs addObjectsFromArray:[FIRCLSRecordLog logsFromDictionaries:[FIRCLSReportAdapter dictionariesFromEachLineOfFile:logB]]];
-    }
-    
-    self.userLogs = logs;
+- (void)loadUserLogFiles {
+  NSString *logA = [self.folderPath stringByAppendingPathComponent:FIRCLSReportLogAFile];
+  NSString *logB = [self.folderPath stringByAppendingPathComponent:FIRCLSReportLogBFile];
+
+  NSMutableArray<FIRCLSRecordLog *> *logs = [[NSMutableArray<FIRCLSRecordLog *> alloc] init];
+
+  if ([[NSFileManager defaultManager] fileExistsAtPath:logA]) {
+    [logs addObjectsFromArray:[FIRCLSRecordLog
+                                  logsFromDictionaries:[FIRCLSReportAdapter
+                                                           dictionariesFromEachLineOfFile:logA]]];
+  }
+
+  if ([[NSFileManager defaultManager] fileExistsAtPath:logB]) {
+    [logs addObjectsFromArray:[FIRCLSRecordLog
+                                  logsFromDictionaries:[FIRCLSReportAdapter
+                                                           dictionariesFromEachLineOfFile:logB]]];
+  }
+
+  self.userLogs = logs;
+}
+
+/// Load errors.
+- (void)loadErrorFiles {
+  NSString *errorA = [self.folderPath stringByAppendingPathComponent:FIRCLSReportErrorAFile];
+  NSString *errorB = [self.folderPath stringByAppendingPathComponent:FIRCLSReportErrorBFile];
+
+  NSMutableArray<FIRCLSRecordError *> *errors = [[NSMutableArray<FIRCLSRecordError *> alloc] init];
+
+  if ([[NSFileManager defaultManager] fileExistsAtPath:errorA]) {
+    [errors
+        addObjectsFromArray:[FIRCLSRecordError
+                                errorsFromDictionaries:[FIRCLSReportAdapter
+                                                           dictionariesFromEachLineOfFile:errorA]]];
+  }
+
+  if ([[NSFileManager defaultManager] fileExistsAtPath:errorB]) {
+    [errors
+        addObjectsFromArray:[FIRCLSRecordError
+                                errorsFromDictionaries:[FIRCLSReportAdapter
+                                                           dictionariesFromEachLineOfFile:errorB]]];
+  }
+
+  self.errors = errors;
 }
 
 /// Return the persisted crash file as a combined dictionary that way lookups can occur with a key
@@ -182,7 +209,6 @@
 // MARK: GDTCOREventDataObject
 //
 
-// Provided and required by the GDTCOREventDataObject protocol.
 - (NSData *)transportBytes {
   pb_ostream_t sizestream = PB_OSTREAM_SIZING;
 
