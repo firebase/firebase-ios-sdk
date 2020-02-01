@@ -248,28 +248,55 @@ void FirestoreClient::EnableNetwork(StatusCallback callback) {
   });
 }
 
-void FirestoreClient::Terminate(StatusCallback callback) {
+void FirestoreClient::TerminateAsync(StatusCallback callback) {
   auto shared_this = shared_from_this();
   worker_queue()->EnqueueAndInitiateShutdown([shared_this, callback] {
-    shared_this->credentials_provider_->SetCredentialChangeListener(nullptr);
+    shared_this->TerminateInternal();
 
-    // If we've scheduled LRU garbage collection, cancel it.
-    if (shared_this->lru_callback_) {
-      shared_this->lru_callback_.Cancel();
-    }
-    shared_this->remote_store_->Shutdown();
-    shared_this->persistence_->Shutdown();
-  });
-
-  // This separate enqueue ensures if `terminate` is called multiple times
-  // every time the callback is triggered. If it is in the above
-  // enqueue, it might not get executed because after first `terminate`
-  // all operations are not executed.
-  worker_queue()->EnqueueEvenAfterShutdown([shared_this, callback] {
     if (callback) {
       shared_this->user_executor()->Execute([=] { callback(Status::OK()); });
     }
   });
+}
+
+void FirestoreClient::Terminate() {
+  std::mutex mutex;
+  bool terminated = false;
+  std::condition_variable terminated_condition;
+
+  std::unique_lock<std::mutex> outer_lock{mutex};
+
+  LOG_DEBUG("Terminate: starting");
+  worker_queue()->EnqueueAndInitiateShutdown([&, this] {
+    LOG_DEBUG("Terminate: the worker queue");
+    TerminateInternal();
+
+    std::lock_guard<std::mutex> lock{mutex};
+    LOG_DEBUG("Terminate: notifying");
+    terminated = true;
+    terminated_condition.notify_one();
+  });
+
+  LOG_DEBUG("Terminate: waiting");
+  terminated_condition.wait(outer_lock, [&] { return terminated; });
+
+  LOG_DEBUG("Terminate: complete");
+}
+
+void FirestoreClient::TerminateInternal() {
+  if (remote_store_) {
+    credentials_provider_->SetCredentialChangeListener(nullptr);
+
+    // If we've scheduled LRU garbage collection, cancel it.
+    if (lru_callback_) {
+      lru_callback_.Cancel();
+    }
+    remote_store_->Shutdown();
+    persistence_->Shutdown();
+
+    // Clear the remote store to indicate terminate is complete.
+    remote_store_.reset();
+  }
 }
 
 void FirestoreClient::WaitForPendingWrites(StatusCallback callback) {
