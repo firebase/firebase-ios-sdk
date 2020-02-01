@@ -50,12 +50,16 @@ jobs:
   cmake:
     needs: check
 
-    runs-on: macos-latest
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest]
+
+    runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v2
 
     - name: Setup build
-      run:  scripts/install_prereqs.sh Firestore macOS cmake
+      run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
 
     - name: Build and test
-      run:  scripts/third_party/travis/retry.sh scripts/build.sh Firestore macOS cmake
+      run:  scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
