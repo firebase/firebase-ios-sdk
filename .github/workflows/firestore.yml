@@ -58,6 +58,14 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Prepare ccache
+      uses: actions/cache@v1
+      with:
+        path: ~/.ccache
+        key: firestore-ccache-${{ runner.os }}-${{ github.sha }}
+        restore-keys: |
+          firestore-ccache-${{ runner.os }}-
+
     - name: Setup build
       run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
 
