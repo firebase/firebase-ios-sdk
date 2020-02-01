@@ -1,15 +1,18 @@
 name: check
 
-on: [pull_request]
+on:
+  pull_request:
+    paths:
+      - '!Firestore/**'
 
 jobs:
   check:
-    runs-on: macOS-latest
+    runs-on: macos-latest
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
+
+    - name: Setup check
+      run:  scripts/setup_check.sh
+
     - name: Check
-      run: |
-        brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/e3496d9/Formula/clang-format.rb
-        brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/7963c3d/Formula/swiftformat.rb
-        pip install flake8
-        ./scripts/check.sh --test-only
+      run:  scripts/check.sh --test-only
