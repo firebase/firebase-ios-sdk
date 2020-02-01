@@ -71,3 +71,50 @@ jobs:
 
     - name: Build and test
       run:  scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
+
+
+  sanitizers:
+    runs-on: macos-latest
+    needs: check
+
+    strategy:
+      matrix:
+        sanitizer: [asan, tsan]
+
+    env:
+      SANITIZERS: ${{ matrix.sanitizer }}
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Prepare ccache
+      uses: actions/cache@v1
+      with:
+        path: ~/.ccache
+        key: firestore-ccache-${{ runner.os }}-${{ matrix.sanitizer }}-${{ github.sha }}
+        restore-keys: |
+          firestore-ccache-${{ runner.os }}-${{ matrix.sanitizer }}-
+
+    - name: Setup build
+      run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
+
+    - name: Build and test
+      run:  scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
+
+
+  xcodebuild:
+    runs-on: macos-latest
+    needs: check
+
+    strategy:
+      matrix:
+        target: [iOS, tvOS, macOS]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup build
+      run:  scripts/install_prereqs.sh Firestore ${{ matrix.target }} xcodebuild
+
+    - name: Build and test
+      run:  scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ matrix.target }} xcodebuild
