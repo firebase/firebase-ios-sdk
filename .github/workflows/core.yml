@@ -10,15 +10,15 @@ on:
     - cron:  '0 7 * * *'
 
 jobs:
-  core:
+  pod_lib_lint:
     runs-on: macOS-latest
+
+    strategy:
+      matrix:
+        target: [ios, tvos, macos]
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
-    - name: FirebaseCore iOS
-      run: ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=ios
-    - name: FirebaseCore macOS
-      run: ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=macos
-    - name: FirebaseCore tvOS
-      run: ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=tvos
+    - name: Build and test
+      run: ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=${{ matrix.target }}
