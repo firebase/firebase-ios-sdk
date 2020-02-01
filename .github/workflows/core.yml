@@ -20,5 +20,5 @@ jobs:
     - uses: actions/checkout@v2
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
-    - name: FirebaseCore iOS
+    - name: Build and test
       run: ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=${{ matrix.target }}
