@@ -140,7 +140,7 @@ ByteString MakeResumeToken(NSString *specString) {
 }  // namespace
 
 @interface FSTSpecTests ()
-@property(nonatomic, strong) FSTSyncEngineTestDriver *driver;
+@property(nonatomic, strong, nullable) FSTSyncEngineTestDriver *driver;
 
 @end
 

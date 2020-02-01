@@ -163,8 +163,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 class RemoteStoreEventCapture : public RemoteStoreCallback {
  public:
-  explicit RemoteStoreEventCapture(XCTestCase *test_case) {
-    underlying_capture_ = [[FSTRemoteStoreEventCapture alloc] initWithTestCase:test_case];
+  explicit RemoteStoreEventCapture(XCTestCase *test_case)
+      : underlying_capture_([[FSTRemoteStoreEventCapture alloc] initWithTestCase:test_case]) {
   }
 
   void ExpectWriteEvent(NSString *description) {
@@ -271,7 +271,7 @@ class RemoteStoreEventCapture : public RemoteStoreCallback {
 }
 
 - (void)testStreamingWrite {
-  RemoteStoreEventCapture capture = RemoteStoreEventCapture(self);
+  RemoteStoreEventCapture capture(self);
   capture.ExpectWriteEvent(@"write mutations");
 
   _remoteStore->set_sync_engine(&capture);
