@@ -53,12 +53,6 @@ class ModuleMapBuilder {
     self.customSpecRepos = customSpecRepos
     allPods = selectedPods
 
-//    var cacheDir: URL
-//    do {
-//      cacheDir = try FileManager.default.sourcePodCacheDirectory(withSubdir: "")
-//    } catch {
-//      fatalError("Could not find framework cache directory: \(error)")
-//    }
     var installedPods: [String: FrameworkInfo] = [:]
     for pod in selectedPods {
       let frameworkName = pod.key
