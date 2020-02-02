@@ -150,11 +150,15 @@ struct ZipBuilder {
     // throw a fatalError if any versions are mismatched.
     validateExpectedVersions(installedPods: installedPods)
 
+    // If module maps are needed for static frameworks, build them here to be available to copy
+    // into the generated frameworks.
+    if !LaunchArgs.shared.dynamic {
+      ModuleMapBuilder(customSpecRepos: customSpecRepos, selectedPods: installedPods).build()
+    }
+
     // Generate the frameworks. Each key is the pod name and the URLs are all frameworks to be
     // copied in each product's directory.
     let frameworks = generateFrameworks(fromPods: installedPods, inProjectDir: projectDir)
-
-    // ModuleMapBuilder(frameworks: frameworks, customSpecRepos: customSpecRepos, allPods: installedPods).build()
 
     for (framework, paths) in frameworks {
       print("Frameworks for pod: \(framework) were compiled at \(paths)")
@@ -404,7 +408,7 @@ struct ZipBuilder {
         continue
       }
 
-      guard let frameworks = frameworkLocations[podName] else {
+      guard let xcframeworks = frameworkLocations[podName] else {
         let reason = "Unable to find frameworks for \(podName) in cache of frameworks built to " +
           "include in the Zip file for that framework's folder."
         let error = NSError(domain: "com.firebase.zipbuilder",
@@ -414,16 +418,15 @@ struct ZipBuilder {
       }
 
       // Copy each of the frameworks over, unless it's explicitly ignored.
-      for framework in frameworks {
-        let frameworkName = framework.lastPathComponent
-        if foldersToIgnore.contains(frameworkName) {
+      for xcframework in xcframeworks {
+        let xcframeworkName = xcframework.lastPathComponent
+        if foldersToIgnore.contains(xcframeworkName) {
           continue
         }
 
-        let xcFrameworkName = frameworkName.replacingOccurrences(of: ".framework", with: ".xcframework")
-        let destination = dir.appendingPathComponent(xcFrameworkName)
-        try fileManager.copyItem(at: framework, to: destination)
-        copiedFrameworkNames.append(frameworkName.replacingOccurrences(of: ".framework", with: ""))
+        let destination = dir.appendingPathComponent(xcframeworkName)
+        try fileManager.copyItem(at: xcframework, to: destination)
+        copiedFrameworkNames.append(xcframeworkName.replacingOccurrences(of: ".xcframework", with: ""))
       }
     }
 
@@ -722,7 +725,8 @@ struct ZipBuilder {
         let builder = FrameworkBuilder(projectDir: projectDir, carthageBuild: carthageBuild)
         let framework = builder.buildFramework(withName: podName,
                                                version: podInfo.version,
-                                               logsOutputDir: paths.logsOutputDir)
+                                               logsOutputDir: paths.logsOutputDir,
+                                               moduleMapContents: pods[podName]!.moduleMapContents)
 
         frameworks = [framework]
       } else {

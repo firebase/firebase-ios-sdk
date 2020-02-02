@@ -40,7 +40,7 @@ enum CocoaPodUtils {
   }
 
   /// Information associated with an installed pod.
-  struct PodInfo {
+  class PodInfo {
     /// The version of the generated pod.
     let version: String
 
@@ -49,6 +49,16 @@ enum CocoaPodUtils {
 
     /// The location of the pod on disk.
     let installedLocation: URL
+
+    /// The contents of the module map for all frameworks associated with the pod.
+    var moduleMapContents: String
+
+    init(version: String, dependencies: [String], installedLocation: URL) {
+      self.version = version
+      self.dependencies = dependencies
+      self.installedLocation = installedLocation
+      moduleMapContents = ""
+    }
   }
 
   /// Executes the `pod cache clean --all` command to remove any cached CocoaPods.
@@ -314,9 +324,11 @@ enum CocoaPodUtils {
       """ // Explicit newline above to ensure it's included in the String.
     }
 
+    if LaunchArgs.shared.dynamic {
+      podfile += "  use_frameworks!\n"
+    }
     // Include the minimum iOS version.
     podfile += """
-    use_frameworks!
     platform :ios, '\(LaunchArgs.shared.minimumIOSVersion)'
     target 'FrameworkMaker' do\n
     """
