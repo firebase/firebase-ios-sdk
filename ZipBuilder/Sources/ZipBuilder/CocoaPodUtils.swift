@@ -40,6 +40,7 @@ enum CocoaPodUtils {
   }
 
   /// Information associated with an installed pod.
+  /// This is a class so that moduleMapContents can be updated via reference.
   class PodInfo {
     /// The version of the generated pod.
     let version: String

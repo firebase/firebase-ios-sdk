@@ -44,9 +44,7 @@ enum Architecture: String, CaseIterable {
         return ["SKIP_INSTALL=NO",
                 "BUILD_LIBRARIES_FOR_DISTRIBUTION=YES",
                 "SUPPORTS_UIKITFORMAC=YES"]
-      case .simulator:
-        return base
-      case .device:
+      case .simulator, .device:
         // No extra arguments are required for simulator or device builds.
         return base
       }
@@ -96,6 +94,7 @@ struct FrameworkBuilder {
   ///   - framework: The name of the Framework being built.
   ///   - version: String representation of the version.
   /// - Parameter logsOutputDir: The path to the directory to place build logs.
+  /// - Parameter moduleMapContents: Module map contents for all frameworks in this pod.
   /// - Returns: A URL to the framework that was built (or pulled from the cache).
   func buildFramework(withName podName: String,
                       version: String,
@@ -266,9 +265,9 @@ struct FrameworkBuilder {
     }
   }
 
+  // TODO: Automatically get the right name.
   /// The dynamic framework name is different from the pod name when the module_name
   /// specifier is used in the podspec.
-  // TODO: Automatically get the right name.
   ///
   /// - Parameter framework: The name of the framework to be built.
   /// - Returns: The corresponding dynamic framework name.
@@ -291,6 +290,7 @@ struct FrameworkBuilder {
   ///
   /// - Parameter framework: The name of the framework to be built.
   /// - Parameter logsOutputDir: The path to the directory to place build logs.
+  /// - Parameter moduleMapContents: Module map contents for all frameworks in this pod.
   /// - Returns: A path to the newly compiled framework (with any included Resources embedded).
   private func compileFrameworkAndResources(withName framework: String,
                                             logsOutputDir: URL? = nil,
@@ -376,6 +376,7 @@ struct FrameworkBuilder {
   ///
   /// - Parameter framework: The name of the framework to be built.
   /// - Parameter logsDir: The path to the directory to place build logs.
+  /// - Parameter moduleMapContents: Module map contents for all frameworks in this pod.
   /// - Returns: A path to the newly compiled framework (with any included Resources embedded).
   private func buildStaticXCFramework(withName framework: String,
                                       logsDir: URL,
@@ -401,7 +402,7 @@ struct FrameworkBuilder {
       fatalError("Could not create framework directory while building framework \(framework). " +
         "\(error)")
     }
-    // Verify Firebase headers include an explicit umbrella header for Firebase.h.
+    // Verify Firebase frameworks include an explicit umbrella header for Firebase.h.
     let headersDir = podsDir.appendingPathComponents(["Headers", "Public", framework])
     if framework.hasPrefix("Firebase"), framework != "FirebaseCoreDiagnostics" {
       let frameworkHeader = headersDir.appendingPathComponent("\(framework).h")
@@ -524,8 +525,10 @@ struct FrameworkBuilder {
 
   /// Packages an XCFramework based on an almost complete framework folder (missing the binary but includes everything else needed)
   /// and thin archives for each architecture slice.
+  /// - Parameter withName: The framework name.
   /// - Parameter fromFolder: The almost complete framework folder. Includes everything but the binary.
   /// - Parameter thinArchives: All the thin archives.
+  /// - Parameter moduleMapContents: Module map contents for all frameworks in this pod.
   private func packageXCFramework(withName framework: String,
                                   fromFolder: URL,
                                   thinArchives: [Architecture: URL],

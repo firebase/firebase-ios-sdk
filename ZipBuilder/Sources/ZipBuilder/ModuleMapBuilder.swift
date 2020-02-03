@@ -18,7 +18,7 @@ import Foundation
 
 /// A struct to build a .modulemap in a given framework directory.
 ///
-class ModuleMapBuilder {
+struct ModuleMapBuilder {
   /// Information associated with a framework
   private class FrameworkInfo {
     let isSourcePod: Bool
