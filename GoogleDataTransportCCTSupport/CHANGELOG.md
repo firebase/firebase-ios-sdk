@@ -1,3 +1,6 @@
+# v1.4.0
+- Added the CSH backend and consolidated the CCT, FLL, and CSH backends.
+
 # v1.3.1
 - Adds compression to requests to CCT.
 - Requests going to the FLL backend will only use compressed data when smaller.
