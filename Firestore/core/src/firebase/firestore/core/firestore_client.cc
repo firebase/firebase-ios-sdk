@@ -213,7 +213,7 @@ void FirestoreClient::Initialize(const User& user, const Settings& settings) {
 void FirestoreClient::ScheduleLruGarbageCollection() {
   std::chrono::milliseconds delay =
       gc_has_run_ ? regular_gc_delay_ : initial_gc_delay_;
-  auto weak_this = weak_from_this();
+  std::weak_ptr<FirestoreClient> weak_this = shared_from_this();
   lru_callback_ = worker_queue()->EnqueueAfterDelay(
       delay, TimerId::GarbageCollectionDelay, [weak_this] {
         auto shared_this = weak_this.lock();

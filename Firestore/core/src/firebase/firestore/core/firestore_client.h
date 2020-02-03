@@ -173,13 +173,6 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
   }
   bool is_terminated() const;
 
-#if __cplusplus < 201402L
-  // C++14 adds this to the base class.
-  std::weak_ptr<FirestoreClient> weak_from_this() {
-    return std::weak_ptr<FirestoreClient>(shared_from_this());
-  }
-#endif
-
  private:
   FirestoreClient(
       const DatabaseInfo& database_info,
