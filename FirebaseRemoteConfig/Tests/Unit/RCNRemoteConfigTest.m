@@ -1396,7 +1396,9 @@ static NSString *UTCToLocal(NSString *utcTime) {
 - (void)testConfigureConfigWithValidInput {
   // Configure the default app with our options and ensure the Remote Config instance is set up
   // properly.
-  XCTAssertNoThrow([FIRApp configureWithOptions:[self firstAppOptions]]);
+  if (![FIRApp isDefaultAppConfigured]) {
+    XCTAssertNoThrow([FIRApp configureWithOptions:[self firstAppOptions]]);
+  }
   XCTAssertNoThrow([FIRRemoteConfig remoteConfig]);
   FIRRemoteConfig *config = [FIRRemoteConfig remoteConfig];
   XCTAssertNotNil(config);
