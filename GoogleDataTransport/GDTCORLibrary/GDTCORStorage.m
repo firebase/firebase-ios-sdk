@@ -74,11 +74,16 @@ static NSString *GDTCORStoragePath() {
   return self;
 }
 
-- (void)storeEvent:(GDTCOREvent *)event {
+- (void)storeEvent:(GDTCOREvent *)event
+        onComplete:(void (^)(BOOL wasWritten, NSError *error))completion {
   GDTCORLogDebug("Saving event: %@", event);
   if (event == nil) {
     GDTCORLogDebug("%@", @"The event was nil, so it was not saved.");
     return;
+  }
+  if (!completion) {
+    completion = ^(BOOL wasWritten, NSError *error) {
+    };
   }
 
   [self createEventDirectoryIfNotExists];
@@ -104,11 +109,14 @@ static NSString *GDTCORStoragePath() {
 
     // Write the transport bytes to disk, get a filename.
     GDTCORAssert(event.dataObjectTransportBytes, @"The event should have been serialized to bytes");
+    NSError *error = nil;
     NSURL *eventFile = [self saveEventBytesToDisk:event.dataObjectTransportBytes
-                                        eventHash:event.hash];
+                                        eventHash:event.hash
+                                            error:&error];
     GDTCORLogDebug("Event saved to disk: %@", eventFile);
     GDTCORDataFuture *dataFuture = [[GDTCORDataFuture alloc] initWithFileURL:eventFile];
     GDTCORStoredEvent *storedEvent = [event storedEventWithDataFuture:dataFuture];
+    completion(eventFile != nil, error);
 
     // Add event to tracking collections.
     [self addEventToTrackingCollections:storedEvent];
@@ -188,7 +196,9 @@ static NSString *GDTCORStoragePath() {
  * @param eventHash The hash value of the event.
  * @return The filename
  */
-- (NSURL *)saveEventBytesToDisk:(NSData *)transportBytes eventHash:(NSUInteger)eventHash {
+- (NSURL *)saveEventBytesToDisk:(NSData *)transportBytes
+                      eventHash:(NSUInteger)eventHash
+                          error:(NSError **)error {
   NSString *storagePath = GDTCORStoragePath();
   NSString *event = [NSString stringWithFormat:@"event-%lu", (unsigned long)eventHash];
   NSURL *eventFilePath = [NSURL fileURLWithPath:[storagePath stringByAppendingPathComponent:event]];
@@ -196,7 +206,9 @@ static NSString *GDTCORStoragePath() {
   GDTCORAssert(![[NSFileManager defaultManager] fileExistsAtPath:eventFilePath.path],
                @"An event shouldn't already exist at this path: %@", eventFilePath.path);
 
-  BOOL writingSuccess = [transportBytes writeToURL:eventFilePath atomically:YES];
+  BOOL writingSuccess = [transportBytes writeToURL:eventFilePath
+                                           options:NSDataWritingAtomic
+                                             error:error];
   if (!writingSuccess) {
     GDTCORLogError(GDTCORMCEFileWriteError, @"An event file could not be written: %@",
                    eventFilePath);
