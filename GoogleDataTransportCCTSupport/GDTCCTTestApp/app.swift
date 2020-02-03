@@ -44,45 +44,37 @@ import GoogleDataTransport
           if Globals.IsMonkeyTesting {
             backendSwitch?.selectedSegmentIndex = Int(arc4random_uniform(3))
           }
-            switch(backendSwitch?.selectedSegmentIndex) {
-            case 0:
-                theTransport = cctTransport;
-                break;
-                
-            case 1:
-                theTransport = fllTransport;
-                break;
-                
-            case 2:
-                theTransport = cshTransport;
-                break;
-                
-            default:
-                theTransport = cctTransport;
-                break;
-            }
+          switch backendSwitch?.selectedSegmentIndex {
+          case 0:
+            theTransport = cctTransport
+
+          case 1:
+            theTransport = fllTransport
+
+          case 2:
+            theTransport = cshTransport
+
+          default:
+            theTransport = cctTransport
+          }
         }
       } else {
         if Globals.IsMonkeyTesting {
           backendSwitch?.selectedSegmentIndex = Int(arc4random_uniform(3))
         }
-        
-        switch(backendSwitch?.selectedSegmentIndex) {
+
+        switch backendSwitch?.selectedSegmentIndex {
         case 0:
-            theTransport = cctTransport;
-            break;
-            
+          theTransport = cctTransport
+
         case 1:
-            theTransport = fllTransport;
-            break;
-            
+          theTransport = fllTransport
+
         case 2:
-            theTransport = cshTransport;
-            break;
-            
+          theTransport = cshTransport
+
         default:
-            theTransport = cctTransport;
-            break;
+          theTransport = cctTransport
         }
       }
       return theTransport
@@ -113,44 +105,36 @@ import GoogleDataTransport
           if Globals.IsMonkeyTesting {
             backendSwitch?.selectedSegment = Int(arc4random_uniform(3))
           }
-          switch(backendSwitch?.selectedSegment) {
+          switch backendSwitch?.selectedSegment {
           case 0:
-              theTransport = cctTransport;
-              break;
-              
+            theTransport = cctTransport
+
           case 1:
-              theTransport = fllTransport;
-              break;
-              
+            theTransport = fllTransport
+
           case 2:
-              theTransport = cshTransport;
-              break;
-              
+            theTransport = cshTransport
+
           default:
-              theTransport = cctTransport;
-              break;
+            theTransport = cctTransport
           }
         }
       } else {
         if Globals.IsMonkeyTesting {
           backendSwitch?.selectedSegment = Int(arc4random_uniform(3))
         }
-        switch(backendSwitch?.selectedSegment) {
+        switch backendSwitch?.selectedSegment {
         case 0:
-            theTransport = cctTransport;
-            break;
-            
+          theTransport = cctTransport
+
         case 1:
-            theTransport = fllTransport;
-            break;
-            
+          theTransport = fllTransport
+
         case 2:
-            theTransport = cshTransport;
-            break;
-            
+          theTransport = cshTransport
+
         default:
-            theTransport = cctTransport;
-            break;
+          theTransport = cctTransport
         }
       }
       return theTransport
