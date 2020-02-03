@@ -204,7 +204,8 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
   FIRInstanceID *instanceID = [FIRInstanceID instanceID];
   if (!_options.GCMSenderID) {
     NSString *errorDescription = @"Failed to get GCMSenderID";
-    FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000074", @"%@", errorDescription);
+    FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000074", @"%@",
+                [NSString stringWithFormat:@"%@", errorDescription]);
     return [self
         reportCompletionOnHandler:completionHandler
                        withStatus:FIRRemoteConfigFetchStatusFailure
@@ -218,7 +219,8 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
     if (!token || error) {
       NSString *errorDescription =
           [NSString stringWithFormat:@"Failed to get InstanceID token. Error : %@.", error];
-      FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000073", @"%@", errorDescription);
+      FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000073", @"%@",
+                  [NSString stringWithFormat:@"%@", errorDescription]);
       return [self
           reportCompletionOnHandler:completionHandler
                          withStatus:FIRRemoteConfigFetchStatusFailure
