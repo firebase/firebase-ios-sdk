@@ -118,3 +118,20 @@ jobs:
 
     - name: Build and test
       run:  scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ matrix.target }} xcodebuild
+
+
+  pod-lib-lint:
+    runs-on: macos-latest
+    needs: check
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup Bundler
+      run: ./scripts/setup_bundler.sh
+
+    - name: Pod lib lint
+      run: |
+        scripts/pod_lib_lint.rb FirebaseFirestore.podspec \
+            --platforms=ios \
+            --allow-warnings

@@ -43,12 +43,14 @@ TEST(FieldPath, Constructors) {
   EXPECT_EQ(3u, path_from_segments.size());
   EXPECT_TRUE(path_from_segments.begin() + 3 == path_from_segments.end());
 
+#if !__clang_analyzer__
   FieldPath copied = path_from_list;
   EXPECT_EQ(path_from_list, copied);
   const FieldPath moved = std::move(copied);
   EXPECT_EQ(path_from_list, moved);
   EXPECT_NE(copied, moved);  // NOLINT: use after move intended
   EXPECT_EQ(empty_path, copied);
+#endif  // !__clang_analyzer__
 }
 
 TEST(FieldPath, Indexing) {
