@@ -1,5 +1,25 @@
 # Unreleased
 
+# v1.10.0
+- [feature] Firestore previously required that every document read in a
+  transaction must also be written. This requirement has been removed, and
+  you can now read a document in a transaction without writing to it.
+- [changed] Improved the performance of repeatedly executed queries when
+  persistence is enabled. Recently executed queries should see dramatic
+  improvements. This benefit is reduced if changes accumulate while the query
+  is inactive. Queries that use the `limit()` API may not always benefit,
+  depending on the accumulated changes.
+- [changed] Changed the location of Firestore's locally stored data from the
+  Documents folder to Library/Application Support, hiding it from users of apps
+  that share their files with the iOS Files app. **Important**: After a user's
+  data is migrated, downgrading to an older version of the SDK will cause the
+  user to appear to lose data, since older versions of the SDK can't read data
+  from the new location (#843).
+
+# v1.9.0
+- [feature] Added a `limit(toLast:)` query operator, which returns the last
+  matching documents up to the given limit.
+
 # v1.8.3
 - [changed] Internal improvements.
 
@@ -34,7 +54,7 @@
   experience.
 
 # v1.6.1
-- [fixed] Fix a race condition that could cause a segmentation fault during
+- [fixed] Fixed a race condition that could cause a segmentation fault during
   client initialization.
 
 # v1.6.0

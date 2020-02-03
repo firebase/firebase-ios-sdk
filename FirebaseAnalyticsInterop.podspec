@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAnalyticsInterop'
-  s.version          = '1.4.0'
+  s.version          = '1.5.0'
   s.summary          = 'Interfaces that allow other Firebase SDKs to use Analytics functionality.'
 
   s.description      = <<-DESC
@@ -24,6 +24,8 @@ Pod::Spec.new do |s|
   s.ios.deployment_target = '8.0'
   s.osx.deployment_target = '10.11'
   s.tvos.deployment_target = '10.0'
+  s.watchos.deployment_target = '6.0'
+
   s.source_files = 'Interop/Analytics/**/*.h'
   s.public_header_files = 'Interop/Analytics/Public/*.h'
 end

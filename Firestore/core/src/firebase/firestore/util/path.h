@@ -82,6 +82,10 @@ class Path {
     return pathname_.c_str();
   }
 
+  bool empty() const {
+    return pathname_.empty();
+  }
+
   size_t size() const {
     return pathname_.size();
   }

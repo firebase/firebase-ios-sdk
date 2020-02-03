@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseInAppMessaging'
-  s.version          = '0.15.6'
+  s.version          = '0.17.0'
   s.summary          = 'Firebase In-App Messaging for iOS'
 
   s.description      = <<-DESC
@@ -17,15 +17,22 @@ See more product details at https://firebase.google.com/products/in-app-messagin
     :tag => 'InAppMessaging-' + s.version.to_s
   }
   s.social_media_url = 'https://twitter.com/Firebase'
-  s.ios.deployment_target = '8.0'
+  s.ios.deployment_target = '9.0'
 
   s.cocoapods_version = '>= 1.4.0'
   s.static_framework = true
   s.prefix_header_file = false
 
-  base_dir = "Firebase/InAppMessaging/"
-  s.source_files = base_dir + '**/*.[cmh]'
-  s.public_header_files = base_dir + 'Public/*.h'
+  base_dir = "FirebaseInAppMessaging/"
+  s.source_files = base_dir + "Sources/**/*.[cmh]"
+  s.public_header_files = base_dir + 'Sources/Public/*.h'
+  s.private_header_files = base_dir + 'Sources/Private/**/*.h'
+
+  s.resource_bundles = {
+    'InAppMessagingDisplayResources' => [ base_dir + 'Resources/*.xib',
+                                   base_dir + 'Resources/*.storyboard',
+                                   base_dir + 'Resources/*.png']
+  }
 
   s.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' =>
       '$(inherited) ' +
@@ -37,5 +44,12 @@ See more product details at https://firebase.google.com/products/in-app-messagin
   s.ios.dependency 'FirebaseAnalyticsInterop', '~> 1.3'
   s.dependency 'FirebaseInstanceID', '~> 4.0'
   s.dependency 'GoogleDataTransportCCTSupport', '~> 1.0'
+	
+  s.test_spec 'unit' do |unit_tests|
+      unit_tests.source_files = 'FirebaseInAppMessaging/Tests/Unit/*.[mh]'
+      unit_tests.resources = 'FirebaseInAppMessaging/Tests/Unit/*.txt'
+      unit_tests.requires_app_host = true
+      unit_tests.dependency 'OCMock'
+   end
 
 end

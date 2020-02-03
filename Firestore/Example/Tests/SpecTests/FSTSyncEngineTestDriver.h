@@ -19,18 +19,21 @@
 #include <map>
 #include <memory>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/event_listener.h"
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
-#include "Firestore/core/src/firebase/firestore/local/query_data.h"
+#include "Firestore/core/src/firebase/firestore/local/target_data.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/empty.h"
@@ -48,6 +51,14 @@ class Persistence;
 namespace core = firebase::firestore::core;
 namespace local = firebase::firestore::local;
 namespace model = firebase::firestore::model;
+namespace nanopb = firebase::firestore::nanopb;
+
+// A map holds expected information about currently active targets. The keys are
+// target ID, and the values are a vector of `TargetData`s mapped to the target and
+// the target's resume token.
+using ActiveTargetMap =
+    std::unordered_map<model::TargetId,
+                       std::pair<std::vector<local::TargetData>, nanopb::ByteString>>;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -334,14 +345,13 @@ typedef std::unordered_map<firebase::firestore::auth::User,
 - (void)removeSnapshotsInSyncListener;
 
 /** The set of active targets as observed on the watch stream. */
-- (const std::unordered_map<firebase::firestore::model::TargetId, local::QueryData> &)activeTargets;
+- (const std::unordered_map<firebase::firestore::model::TargetId, local::TargetData> &)
+    activeTargets;
 
 /** The expected set of active targets, keyed by target ID. */
-- (const std::unordered_map<firebase::firestore::model::TargetId, local::QueryData> &)
-    expectedActiveTargets;
+- (const ActiveTargetMap &)expectedActiveTargets;
 
-- (void)setExpectedActiveTargets:
-    (const std::unordered_map<firebase::firestore::model::TargetId, local::QueryData> &)targets;
+- (void)setExpectedActiveTargets:(ActiveTargetMap)targets;
 
 @end
 

@@ -43,6 +43,7 @@ endif()
 # Enable the ccache compilation cache, if available.
 find_program(CCACHE_PROGRAM ccache)
 if(CCACHE_PROGRAM)
+  message(STATUS "Found ccache: ${CCACHE_PROGRAM}")
   set(CMAKE_C_COMPILER_LAUNCHER   "${CCACHE_PROGRAM}")
   set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
 endif()
@@ -239,13 +240,15 @@ target_include_directories(
 
 
 # XCTest
-find_package(XCTest)
+if(APPLE)
+  find_package(XCTest)
+endif()
 
 
 enable_testing()
 include(compiler_setup)
 
-add_subdirectory(Firebase/Core)
+add_subdirectory(FirebaseCore)
 add_subdirectory(Firestore)
 add_subdirectory(GoogleUtilities)
 add_subdirectory(Interop/Auth)

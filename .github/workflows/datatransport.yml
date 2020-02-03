@@ -1,0 +1,60 @@
+name: datatransport
+
+on:
+  pull_request:
+    paths:
+    - 'GoogleDataTransport**'
+    - 'GoogleDataTransportCCTSupport**'
+    - '.github/workflows/datatransport.yml'
+  schedule:
+    # Run every day at 11pm (PST) - cron uses UTC times
+    - cron:  '0 7 * * *'
+
+jobs:
+  pod_lib_lint:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        target: [ios, tvos, macos]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: ./scripts/setup_bundler.sh
+    - name: PodLibLint DataTransport
+      run: |
+        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=${{ matrix.target }}
+        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=${{ matrix.target }}
+
+# Scheduled jobs
+
+  datatransport-use-libraries:
+    runs-on: macos-latest
+    if: github.event_name == 'schedule'
+    strategy:
+      matrix:
+        target: [ios, tvos, macos]
+    needs: pod_lib_lint
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: ./scripts/setup_bundler.sh
+    - name: PodLibLint DataTransport Using Libraries
+      run: |
+        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=${{ matrix.target }} --use-libraries
+        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=${{ matrix.target }} --use-libraries
+
+  datatransport-use-modular-headers:
+    runs-on: macos-latest
+    if: github.event_name == 'schedule'
+    strategy:
+      matrix:
+        target: [ios, tvos, macos]
+    needs: pod_lib_lint
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: ./scripts/setup_bundler.sh
+    - name: PodLibLint DataTransport Using Modular Headers
+      run: |
+        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=${{ matrix.target }} --use-modular-headers
+        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=${{ matrix.target }} --use-modular-headers

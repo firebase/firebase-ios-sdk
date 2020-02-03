@@ -24,16 +24,10 @@ class FIRMessagingInstanceTest: XCTestCase {
     // This is an example of a functional test case.
     // Use XCTAssert and related functions to verify your tests produce the correct results.
     let options = FirebaseOptions(googleAppID: "1:123:ios:123abc", gcmSenderID: "valid-sender-id")
+    options.apiKey = "api-key"
+    options.projectID = "project-id"
     FirebaseApp.configure(options: options)
     let original = Messaging.messaging()
-
-    // Ensure the client is set up as expected.
-    guard let isOrigClientSetup = original.value(forKey: "isClientSetup") as? Bool else {
-      XCTFail("Could not get internal Messaging variable `isClientSetup`.")
-      return
-    }
-
-    XCTAssertTrue(isOrigClientSetup, "Property `isClientSetup` should be true after creation.")
 
     // Get and delete the default app.
     guard let defaultApp = FirebaseApp.app() else {
@@ -54,13 +48,5 @@ class FIRMessagingInstanceTest: XCTestCase {
     // Get another instance of Messaging, make sure it's not the same instance.
     let postDelete = Messaging.messaging()
     XCTAssertNotEqual(original, postDelete)
-
-    // Ensure the new client is set up as expected.
-    guard let isClientSetup = postDelete.value(forKey: "isClientSetup") as? Bool else {
-      XCTFail("Could not get internal Messaging variable `isClientSetup`.")
-      return
-    }
-
-    XCTAssertTrue(isClientSetup, "Property `isClientSetup` should be true after creation.")
   }
 }

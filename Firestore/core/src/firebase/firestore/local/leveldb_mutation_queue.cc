@@ -421,6 +421,8 @@ ByteString LevelDbMutationQueue::GetLastStreamToken() {
 }
 
 void LevelDbMutationQueue::SetLastStreamToken(ByteString stream_token) {
+  std::free(metadata_->last_stream_token);
+
   metadata_->last_stream_token = stream_token.release();
   db_->current_transaction()->Put(mutation_queue_key(), metadata_);
 }

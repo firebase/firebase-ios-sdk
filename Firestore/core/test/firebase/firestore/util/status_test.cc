@@ -18,7 +18,7 @@
 
 #include <cerrno>
 
-#include "Firestore/core/test/firebase/firestore/util/status_testing.h"
+#include "Firestore/core/test/firebase/firestore/testutil/status_testing.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
@@ -65,8 +65,11 @@ TEST(Status, Move) {
   Status ok = Status::OK();
   Status new_ok = std::move(ok);
   ASSERT_TRUE(new_ok.ok());
+
+#if !__clang_analyzer__
   // Moved OK is not OK anymore.
   ASSERT_FALSE(ok.ok());
+#endif
 }
 
 TEST(Status, Assign) {
@@ -87,6 +90,7 @@ TEST(Status, MoveAssign) {
   ASSERT_EQ(reassigned, Status(Error::InvalidArgument, "Foo"));
 }
 
+#if !__clang_analyzer__
 TEST(Status, CanAccessMovedFrom) {
   Status ok = Status::OK();
   Status assigned = std::move(ok);
@@ -95,7 +99,9 @@ TEST(Status, CanAccessMovedFrom) {
   ASSERT_EQ(ok.error_message(), "Status accessed after move.");
   ASSERT_EQ(ok.code(), Error::Internal);
 }
+#endif  // !__clang_analyzer__
 
+#if !__clang_analyzer__
 TEST(Status, CanAssignToMovedFromStatus) {
   Status a(Error::InvalidArgument, "Invalid");
   Status b = std::move(a);
@@ -103,6 +109,7 @@ TEST(Status, CanAssignToMovedFromStatus) {
   EXPECT_NO_THROW({ a = Status(Error::Internal, "Internal"); });
   ASSERT_EQ(a.ToString(), "Internal: Internal");
 }
+#endif  // !__clang_analyzer__
 
 TEST(Status, Update) {
   Status s;
@@ -119,6 +126,7 @@ TEST(Status, Update) {
   ASSERT_FALSE(s.ok());
 }
 
+#if !__clang_analyzer__
 TEST(Status, CanUpdateMovedFrom) {
   Status a(Error::InvalidArgument, "Invalid");
   Status b = std::move(a);
@@ -126,6 +134,7 @@ TEST(Status, CanUpdateMovedFrom) {
   a.Update(b);
   ASSERT_EQ(a.ToString(), "Internal: Status accessed after move.");
 }
+#endif  // !__clang_analyzer__
 
 TEST(Status, EqualsOK) {
   ASSERT_EQ(Status::OK(), Status());
@@ -155,6 +164,7 @@ TEST(Status, EqualsDifferentMessage) {
   ASSERT_NE(a, b);
 }
 
+#if !__clang_analyzer__
 TEST(Status, EqualsApplyToMovedFrom) {
   Status a(Error::InvalidArgument, "message");
   Status unused = std::move(a);
@@ -165,6 +175,7 @@ TEST(Status, EqualsApplyToMovedFrom) {
   unused = std::move(b);
   ASSERT_EQ(a, b);
 }
+#endif  // !__clang_analyzer__
 
 TEST(Status, FromErrno) {
   Status a = Status::FromErrno(EEXIST, "Cannot write file");
@@ -220,6 +231,7 @@ TEST(Status, CauseBy_Self) {
   EXPECT_EQ(not_found, result);
 }
 
+#if !__clang_analyzer__
 TEST(Status, CauseBy_OnMovedFrom) {
   Status not_ready(Error::FailedPrecondition, "DB not ready");
   Status not_found(Error::NotFound, "file not found");
@@ -228,6 +240,7 @@ TEST(Status, CauseBy_OnMovedFrom) {
   Status result = not_ready.CausedBy(not_found);
   EXPECT_EQ(not_found, result);
 }
+#endif  // !__clang_analyzer__
 
 }  // namespace util
 }  // namespace firestore

@@ -82,180 +82,204 @@ unset CDPATH
 top_dir=$(git rev-parse --show-toplevel)
 cd "${top_dir}"
 
-# ALLOW_DIRTY=false
-# COMMIT_METHOD="none"
-# START_REVISION="origin/master"
-# TEST_ONLY=false
-# VERBOSE=false
+ALLOW_DIRTY=false
+COMMIT_METHOD="none"
+CHECK_DIFF=true
+START_REVISION="origin/master"
+TEST_ONLY=false
+VERBOSE=false
 
-# # Default to verbose operation if this isn't an interactive build.
-# if [[ ! -t 1 ]]; then
-#   VERBOSE=true
-# fi
+# Default to verbose operation if this isn't an interactive build.
+if [[ ! -t 1 ]]; then
+  VERBOSE=true
+fi
 
-# # When travis clones a repo for building, it uses a shallow clone. After the
-# # first commit on a non-master branch, TRAVIS_COMMIT_RANGE is not set, master
-# # is not available and we need to compute the START_REVISION from the common
-# # ancestor of $TRAVIS_COMMIT and origin/master.
-# if [[ -n "${TRAVIS_COMMIT_RANGE:-}" ]] ; then
-#   START_REVISION="$TRAVIS_COMMIT_RANGE"
-# elif [[ -n "${TRAVIS_COMMIT:-}" ]] ; then
-#   if ! git rev-parse origin/master >& /dev/null; then
-#     git remote set-branches --add origin master
-#     git fetch origin
-#   fi
-#   START_REVISION=$(git merge-base origin/master "${TRAVIS_COMMIT}")
-# fi
+# When travis clones a repo for building, it uses a shallow clone. After the
+# first commit on a non-master branch, TRAVIS_COMMIT_RANGE is not set, master
+# is not available and we need to compute the START_REVISION from the common
+# ancestor of $TRAVIS_COMMIT and origin/master.
+if [[ -n "${TRAVIS_COMMIT_RANGE:-}" ]] ; then
+  CHECK_DIFF=true
+  START_REVISION="$TRAVIS_COMMIT_RANGE"
+elif [[ -n "${TRAVIS_COMMIT:-}" ]] ; then
+  if ! git rev-parse origin/master >& /dev/null; then
+    git remote set-branches --add origin master
+    git fetch origin
+  fi
+  CHECK_DIFF=true
+  START_REVISION=$(git merge-base origin/master "${TRAVIS_COMMIT}")
+fi
 
-# while [[ $# -gt 0 ]]; do
-#   case "$1" in
-#     --)
-#       # Do nothing: explicitly allow this, but ignore it
-#       ;;
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --)
+      # Do nothing: explicitly allow this, but ignore it
+      ;;
 
-#     -h | --help)
-#       usage
-#       exit 1
-#       ;;
+    -h | --help)
+      usage
+      exit 1
+      ;;
 
-#     --allow-dirty)
-#       ALLOW_DIRTY=true
-#       ;;
+    --allow-dirty)
+      ALLOW_DIRTY=true
+      ;;
 
-#     --amend)
-#       COMMIT_METHOD=amend
-#       ;;
+    --amend)
+      COMMIT_METHOD=amend
+      ;;
 
-#     --fixup)
-#       COMMIT_METHOD=fixup
-#       ;;
+    --fixup)
+      COMMIT_METHOD=fixup
+      ;;
 
-#     --commit)
-#       COMMIT_METHOD=message
-#       ;;
+    --commit)
+      COMMIT_METHOD=message
+      ;;
 
-#     --verbose)
-#       VERBOSE=true
-#       ;;
+    --verbose)
+      VERBOSE=true
+      ;;
 
-#     --test-only)
-#       # In test-only mode, no changes are made, so there's no reason to
-#       # require a clean source tree.
-#       ALLOW_DIRTY=true
-#       TEST_ONLY=true
-#       ;;
+    --test-only)
+      # In test-only mode, no changes are made, so there's no reason to
+      # require a clean source tree.
+      ALLOW_DIRTY=true
+      TEST_ONLY=true
+      ;;
 
-#     *)
-#       START_REVISION="$1"
-#       shift
-#       break
-#       ;;
-#   esac
-#   shift
-# done
+    *)
+      START_REVISION="$1"
+      shift
+      break
+      ;;
+  esac
+  shift
+done
 
-# if [[ "${TEST_ONLY}" == true && "${COMMIT_METHOD}" != "none" ]]; then
-#   echo "--test-only cannot be combined with --amend, --fixup, or --commit"
-#   exit 1
-# fi
+if [[ "${TEST_ONLY}" == true && "${COMMIT_METHOD}" != "none" ]]; then
+  echo "--test-only cannot be combined with --amend, --fixup, or --commit"
+  exit 1
+fi
 
-# if [[ "${ALLOW_DIRTY}" == true && "${COMMIT_METHOD}" == "message" ]]; then
-#   echo "--allow-dirty and --commit are mutually exclusive"
-#   exit 1
-# fi
+if [[ "${ALLOW_DIRTY}" == true && "${COMMIT_METHOD}" == "message" ]]; then
+  echo "--allow-dirty and --commit are mutually exclusive"
+  exit 1
+fi
 
-# if ! git diff-index --quiet HEAD --; then
-#   if [[ "${ALLOW_DIRTY}" != true ]]; then
-#     echo "You have local changes that could be overwritten by this script."
-#     echo "Please commit your changes first or pass --allow-dirty."
-#     exit 2
-#   fi
-# fi
+if ! git diff-index --quiet HEAD --; then
+  if [[ "${ALLOW_DIRTY}" != true ]]; then
+    echo "You have local changes that could be overwritten by this script."
+    echo "Please commit your changes first or pass --allow-dirty."
+    exit 2
+  fi
+fi
 
-# # Show Travis-related environment variables, to help with debuging failures.
-# if [[ "${VERBOSE}" == true ]]; then
-#   env | egrep '^TRAVIS_(BRANCH|COMMIT|PULL|REPO)' | sort || true
-# fi
+# Show Travis-related environment variables, to help with debuging failures.
+if [[ "${VERBOSE}" == true ]]; then
+  env | egrep '^TRAVIS_(BRANCH|COMMIT|PULL|REPO)' | sort || true
+fi
 
-# if [[ "${START_REVISION}" == *..* ]]; then
-#   RANGE_START="${START_REVISION/..*/}"
-#   RANGE_END="${START_REVISION/*../}"
+if [[ "${START_REVISION}" == *..* ]]; then
+  RANGE_START="${START_REVISION/..*/}"
+  RANGE_END="${START_REVISION/*../}"
 
-#   # Figure out if we have access to master. If not add it to the repo.
-#   if ! git rev-parse origin/master >& /dev/null; then
-#     git remote set-branches --add origin master
-#     git fetch origin
-#   fi
+  # Figure out if we have access to master. If not add it to the repo.
+  if ! git rev-parse origin/master >& /dev/null; then
+    git remote set-branches --add origin master
+    git fetch origin
+  fi
 
-#   NEW_RANGE_START=$(git merge-base origin/master "${RANGE_END}")
-#   START_REVISION="${START_REVISION/$RANGE_START/$NEW_RANGE_START}"
-#   START_SHA="${START_REVISION}"
+  # Try to come up with a more accurate representation of the merge, so that
+  # checks will operate on just the differences the PR would merge into master.
+  # The start of the revision range that Travis supplies can sometimes be a
+  # seemingly random value.
+  NEW_RANGE_START=$(git merge-base origin/master "${RANGE_END}" || echo "")
+  if [[ -n "$NEW_RANGE_START" ]]; then
+    START_REVISION="${NEW_RANGE_START}..${RANGE_END}"
+    START_SHA="${START_REVISION}"
+  else
+    # In the shallow clone that Travis has created there's no merge base
+    # between the PR and master. In this case just fall back on checking
+    # everything.
+    echo "Unable to detect base commit for change detection."
+    echo "Falling back on just checking everything."
+    CHECK_DIFF=false
+    START_REVISION="origin/master"
+    START_SHA="origin/master"
+  fi
 
-# else
-#   START_SHA=$(git rev-parse "${START_REVISION}")
-# fi
+else
+  START_SHA=$(git rev-parse "${START_REVISION}")
+fi
 
-# if [[ "${VERBOSE}" == true ]]; then
-#   echo "START_REVISION=$START_REVISION"
-#   echo "START_SHA=$START_SHA"
-# fi
+if [[ "${VERBOSE}" == true ]]; then
+  echo "START_REVISION=$START_REVISION"
+  echo "START_SHA=$START_SHA"
+fi
 
-# # If committing --fixup, avoid messages with fixup! fixup! that might come from
-# # multiple fixup commits.
-# HEAD_SHA=$(git rev-parse HEAD)
+# If committing --fixup, avoid messages with fixup! fixup! that might come from
+# multiple fixup commits.
+HEAD_SHA=$(git rev-parse HEAD)
 
-# function maybe_commit() {
-#   local message="$1"
+function maybe_commit() {
+  local message="$1"
 
-#   if [[ "${COMMIT_METHOD}" == "none" ]]; then
-#     return
-#   fi
+  if [[ "${COMMIT_METHOD}" == "none" ]]; then
+    return
+  fi
 
-#   echo "${message}"
-#   case "${COMMIT_METHOD}" in
-#     amend)
-#       git commit -a --amend -C "${HEAD_SHA}"
-#       ;;
+  echo "${message}"
+  case "${COMMIT_METHOD}" in
+    amend)
+      git commit -a --amend -C "${HEAD_SHA}"
+      ;;
 
-#     fixup)
-#       git commit -a --fixup="${HEAD_SHA}"
-#       ;;
+    fixup)
+      git commit -a --fixup="${HEAD_SHA}"
+      ;;
 
-#     message)
-#       git commit -a -m "${message}"
-#       ;;
+    message)
+      git commit -a -m "${message}"
+      ;;
 
-#     *)
-#       echo "Unknown commit method ${COMMIT_METHOD}" 1>&2
-#       exit 2
-#       ;;
-#   esac
-# }
+    *)
+      echo "Unknown commit method ${COMMIT_METHOD}" 1>&2
+      exit 2
+      ;;
+  esac
+}
 
-# style_cmd=("${top_dir}/scripts/style.sh")
-# if [[ "${TEST_ONLY}" == true ]]; then
-#   style_cmd+=(test-only)
-# fi
-# style_cmd+=("${START_SHA}")
+style_cmd=("${top_dir}/scripts/style.sh")
+if [[ "${TEST_ONLY}" == true ]]; then
+  style_cmd+=(test-only)
+fi
+if [[ "$CHECK_DIFF" == true ]]; then
+  style_cmd+=("${START_SHA}")
+fi
 
-# # Restyle and commit any changes
-# "${style_cmd[@]}"
-# if ! git diff --quiet; then
-#   maybe_commit "style.sh generated changes"
-# fi
+# Restyle and commit any changes
+"${style_cmd[@]}"
+if ! git diff --quiet; then
+  maybe_commit "style.sh generated changes"
+fi
 
-# # If there are changes to the Firestore project, ensure they're ordered
-# # correctly to minimize conflicts.
-# if ! git diff --quiet "${START_SHA}" -- Firestore; then
-#   sync_project_cmd=("${top_dir}/scripts/sync_project.rb")
-#   if [[ "${TEST_ONLY}" == true ]]; then
-#     sync_project_cmd+=(--test-only)
-#   fi
-#   "${sync_project_cmd[@]}"
-#   if ! git diff --quiet; then
-#     maybe_commit "sync_project.rb generated changes"
-#   fi
-# fi
+# If there are changes to the Firestore project, ensure they're ordered
+# correctly to minimize conflicts.
+if [ -z "${GITHUB_WORKFLOW-}" ]; then
+  if [[ "$CHECK_DIFF" == "false" ]] || \
+      ! git diff --quiet "${START_SHA}" -- Firestore; then
+
+    sync_project_cmd=("${top_dir}/scripts/sync_project.rb")
+    if [[ "${TEST_ONLY}" == true ]]; then
+      sync_project_cmd+=(--test-only)
+    fi
+    "${sync_project_cmd[@]}"
+    if ! git diff --quiet; then
+      maybe_commit "sync_project.rb generated changes"
+    fi
+  fi
+fi
 
 # Check lint errors.
 "${top_dir}/scripts/check_whitespace.sh"
@@ -266,4 +290,8 @@ cd "${top_dir}"
 "${top_dir}/scripts/check_cmake_files.py"
 
 # Google C++ style
-# "${top_dir}/scripts/check_lint.py" "${START_SHA}"
+lint_cmd=("${top_dir}/scripts/check_lint.py")
+if [[ "$CHECK_DIFF" == true ]]; then
+  lint_cmd+=("${START_SHA}")
+fi
+"${lint_cmd[@]}"

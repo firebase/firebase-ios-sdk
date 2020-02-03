@@ -19,7 +19,7 @@
 #include <utility>
 #include <vector>
 
-#include "Firestore/core/src/firebase/firestore/local/query_data.h"
+#include "Firestore/core/src/firebase/firestore/local/target_data.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/remote/existence_filter.h"
@@ -34,8 +34,8 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-using local::QueryData;
 using local::QueryPurpose;
+using local::TargetData;
 using model::Document;
 using model::DocumentKey;
 using model::DocumentKeySet;
@@ -95,14 +95,14 @@ class RemoteEventTest : public testing::Test {
   }
 
   WatchChangeAggregator CreateAggregator(
-      const std::unordered_map<TargetId, QueryData>& target_map,
+      const std::unordered_map<TargetId, TargetData>& target_map,
       const std::unordered_map<TargetId, int>& outstanding_responses,
       DocumentKeySet existing_keys,
       const std::vector<std::unique_ptr<WatchChange>>& watch_changes);
 
   RemoteEvent CreateRemoteEvent(
       int64_t snapshot_version,
-      std::unordered_map<TargetId, QueryData> target_map,
+      std::unordered_map<TargetId, TargetData> target_map,
       const std::unordered_map<TargetId, int>& outstanding_responses,
       DocumentKeySet existing_keys,
       const std::vector<std::unique_ptr<WatchChange>>& watch_changes);
@@ -113,31 +113,31 @@ class RemoteEventTest : public testing::Test {
 };
 
 /**
- * Returns a map of fake query data for the provided target IDs. All targets
+ * Returns a map of fake target data for the provided target IDs. All targets
  * are considered active and query a collection named "coll".
  */
-std::unordered_map<TargetId, QueryData> ActiveQueries(
+std::unordered_map<TargetId, TargetData> ActiveQueries(
     std::initializer_list<TargetId> target_ids) {
-  std::unordered_map<TargetId, QueryData> targets;
+  std::unordered_map<TargetId, TargetData> targets;
   for (TargetId target_id : target_ids) {
     core::Query query = Query("coll");
     targets[target_id] =
-        QueryData(std::move(query), target_id, 0, QueryPurpose::Listen);
+        TargetData(query.ToTarget(), target_id, 0, QueryPurpose::Listen);
   }
   return targets;
 }
 
 /**
- * Returns a map of fake query data for the provided target IDs. All targets
+ * Returns a map of fake target data for the provided target IDs. All targets
  * are marked as limbo queries for the document at "coll/limbo".
  */
-std::unordered_map<TargetId, QueryData> ActiveLimboQueries(
+std::unordered_map<TargetId, TargetData> ActiveLimboQueries(
     std::initializer_list<TargetId> target_ids) {
-  std::unordered_map<TargetId, QueryData> targets;
+  std::unordered_map<TargetId, TargetData> targets;
   for (TargetId target_id : target_ids) {
     core::Query query = Query("coll/limbo");
-    targets[target_id] = QueryData(std::move(query), target_id, 0,
-                                   QueryPurpose::LimboResolution);
+    targets[target_id] = TargetData(query.ToTarget(), target_id, 0,
+                                    QueryPurpose::LimboResolution);
   }
   return targets;
 }
@@ -147,7 +147,7 @@ std::unordered_map<TargetId, QueryData> ActiveLimboQueries(
  * Tests can add further changes via `HandleDocumentChange`,
  * `HandleTargetChange` and `HandleExistenceFilterChange`.
  *
- * @param target_map A map of query data for all active targets. The map must
+ * @param target_map A map of target data for all active targets. The map must
  *     include an entry for every target referenced by any of the watch
  *     changes.
  * @param outstanding_responses The number of outstanding ACKs a target has to
@@ -161,7 +161,7 @@ std::unordered_map<TargetId, QueryData> ActiveLimboQueries(
  *     `WatchTargetChange`.
  */
 WatchChangeAggregator RemoteEventTest::CreateAggregator(
-    const std::unordered_map<TargetId, QueryData>& target_map,
+    const std::unordered_map<TargetId, TargetData>& target_map,
     const std::unordered_map<TargetId, int>& outstanding_responses,
     DocumentKeySet existing_keys,
     const std::vector<std::unique_ptr<WatchChange>>& watch_changes) {
@@ -170,10 +170,10 @@ WatchChangeAggregator RemoteEventTest::CreateAggregator(
   std::vector<TargetId> target_ids;
   for (const auto& kv : target_map) {
     TargetId target_id = kv.first;
-    const QueryData& query_data = kv.second;
+    const TargetData& target_data = kv.second;
 
     target_ids.push_back(target_id);
-    target_metadata_provider_.SetSyncedKeys(existing_keys, query_data);
+    target_metadata_provider_.SetSyncedKeys(existing_keys, target_data);
   }
 
   for (const auto& kv : outstanding_responses) {
@@ -214,7 +214,7 @@ WatchChangeAggregator RemoteEventTest::CreateAggregator(
  * @param snapshot_version The version at which to create the remote event.
  *     This corresponds to the snapshot version provided by the NO_CHANGE
  *     event.
- * @param target_map A map of query data for all active targets. The map must
+ * @param target_map A map of target data for all active targets. The map must
  *     include an entry for every target referenced by any of the watch
  *     changes.
  * @param outstanding_responses The number of outstanding ACKs a target has to
@@ -228,7 +228,7 @@ WatchChangeAggregator RemoteEventTest::CreateAggregator(
  */
 RemoteEvent RemoteEventTest::CreateRemoteEvent(
     int64_t snapshot_version,
-    std::unordered_map<TargetId, QueryData> target_map,
+    std::unordered_map<TargetId, TargetData> target_map,
     const std::unordered_map<TargetId, int>& outstanding_responses,
     DocumentKeySet existing_keys,
     const std::vector<std::unique_ptr<WatchChange>>& watch_changes) {
@@ -241,7 +241,7 @@ TEST_F(RemoteEventTest, WillAccumulateDocumentAddedAndRemovedEvents) {
   // The target map that contains an entry for every target in this test. If a
   // target ID is omitted, the target is considered inactive and
   // `TestTargetMetadataProvider` will fail on access.
-  std::unordered_map<TargetId, QueryData> target_map =
+  std::unordered_map<TargetId, TargetData> target_map =
       ActiveQueries({1, 2, 3, 4, 5, 6});
 
   Document existing_doc = Doc("docs/1", 1, Map("value", 1));
@@ -299,7 +299,7 @@ TEST_F(RemoteEventTest, WillAccumulateDocumentAddedAndRemovedEvents) {
 }
 
 TEST_F(RemoteEventTest, WillIgnoreEventsForPendingTargets) {
-  std::unordered_map<TargetId, QueryData> target_map = ActiveQueries({1});
+  std::unordered_map<TargetId, TargetData> target_map = ActiveQueries({1});
 
   Document doc1 = Doc("docs/1", 1, Map("value", 1));
   auto change1 = MakeDocChange({1}, {}, doc1.key(), doc1);
@@ -325,7 +325,7 @@ TEST_F(RemoteEventTest, WillIgnoreEventsForPendingTargets) {
 }
 
 TEST_F(RemoteEventTest, WillIgnoreEventsForRemovedTargets) {
-  std::unordered_map<TargetId, QueryData> target_map = ActiveQueries({});
+  std::unordered_map<TargetId, TargetData> target_map = ActiveQueries({});
 
   Document doc1 = Doc("docs/1", 1, Map("value", 1));
   auto change1 = MakeDocChange({1}, {}, doc1.key(), doc1);
@@ -346,7 +346,7 @@ TEST_F(RemoteEventTest, WillIgnoreEventsForRemovedTargets) {
 }
 
 TEST_F(RemoteEventTest, WillKeepResetMappingEvenWithUpdates) {
-  std::unordered_map<TargetId, QueryData> target_map = ActiveQueries({1});
+  std::unordered_map<TargetId, TargetData> target_map = ActiveQueries({1});
 
   Document doc1 = Doc("docs/1", 1, Map("value", 1));
   auto change1 = MakeDocChange({1}, {}, doc1.key(), doc1);
@@ -384,7 +384,7 @@ TEST_F(RemoteEventTest, WillKeepResetMappingEvenWithUpdates) {
 }
 
 TEST_F(RemoteEventTest, WillHandleSingleReset) {
-  std::unordered_map<TargetId, QueryData> target_map = ActiveQueries({1});
+  std::unordered_map<TargetId, TargetData> target_map = ActiveQueries({1});
 
   // Reset target
   WatchTargetChange change{WatchTargetChangeState::Reset, {1}};
@@ -406,7 +406,7 @@ TEST_F(RemoteEventTest, WillHandleSingleReset) {
 }
 
 TEST_F(RemoteEventTest, WillHandleTargetAddAndRemovalInSameBatch) {
-  std::unordered_map<TargetId, QueryData> target_map = ActiveQueries({1, 2});
+  std::unordered_map<TargetId, TargetData> target_map = ActiveQueries({1, 2});
 
   Document doc1a = Doc("docs/1", 1, Map("value", 1));
   auto change1 = MakeDocChange({1}, {2}, doc1a.key(), doc1a);
@@ -433,7 +433,7 @@ TEST_F(RemoteEventTest, WillHandleTargetAddAndRemovalInSameBatch) {
 }
 
 TEST_F(RemoteEventTest, TargetCurrentChangeWillMarkTheTargetCurrent) {
-  std::unordered_map<TargetId, QueryData> target_map = ActiveQueries({1});
+  std::unordered_map<TargetId, TargetData> target_map = ActiveQueries({1});
 
   auto change =
       MakeTargetChange(WatchTargetChangeState::Current, {1}, resume_token1_);
@@ -452,7 +452,7 @@ TEST_F(RemoteEventTest, TargetCurrentChangeWillMarkTheTargetCurrent) {
 }
 
 TEST_F(RemoteEventTest, TargetAddedChangeWillResetPreviousState) {
-  std::unordered_map<TargetId, QueryData> target_map = ActiveQueries({1, 3});
+  std::unordered_map<TargetId, TargetData> target_map = ActiveQueries({1, 3});
 
   Document doc1 = Doc("docs/1", 1, Map("value", 1));
   auto change1 = MakeDocChange({1, 3}, {2}, doc1.key(), doc1);
@@ -494,7 +494,7 @@ TEST_F(RemoteEventTest, TargetAddedChangeWillResetPreviousState) {
 }
 
 TEST_F(RemoteEventTest, NoChangeWillStillMarkTheAffectedTargets) {
-  std::unordered_map<TargetId, QueryData> target_map = ActiveQueries({1});
+  std::unordered_map<TargetId, TargetData> target_map = ActiveQueries({1});
 
   WatchChangeAggregator aggregator = CreateAggregator(
       target_map, no_outstanding_responses_, DocumentKeySet{}, {});
@@ -515,7 +515,7 @@ TEST_F(RemoteEventTest, NoChangeWillStillMarkTheAffectedTargets) {
 }
 
 TEST_F(RemoteEventTest, ExistenceFilterMismatchClearsTarget) {
-  std::unordered_map<TargetId, QueryData> target_map = ActiveQueries({1, 2});
+  std::unordered_map<TargetId, TargetData> target_map = ActiveQueries({1, 2});
 
   Document doc1 = Doc("docs/1", 1, Map("value", 1));
   auto change1 = MakeDocChange({1}, {}, doc1.key(), doc1);
@@ -565,7 +565,7 @@ TEST_F(RemoteEventTest, ExistenceFilterMismatchClearsTarget) {
 }
 
 TEST_F(RemoteEventTest, ExistenceFilterMismatchRemovesCurrentChanges) {
-  std::unordered_map<TargetId, QueryData> target_map = ActiveQueries({1});
+  std::unordered_map<TargetId, TargetData> target_map = ActiveQueries({1});
 
   WatchChangeAggregator aggregator = CreateAggregator(
       target_map, no_outstanding_responses_, DocumentKeySet{}, {});
@@ -598,7 +598,7 @@ TEST_F(RemoteEventTest, ExistenceFilterMismatchRemovesCurrentChanges) {
 }
 
 TEST_F(RemoteEventTest, DocumentUpdate) {
-  std::unordered_map<TargetId, QueryData> target_map = ActiveQueries({1});
+  std::unordered_map<TargetId, TargetData> target_map = ActiveQueries({1});
 
   Document doc1 = Doc("docs/1", 1, Map("value", 1));
   auto change1 = MakeDocChange({1}, {}, doc1.key(), doc1);
@@ -652,7 +652,7 @@ TEST_F(RemoteEventTest, DocumentUpdate) {
 }
 
 TEST_F(RemoteEventTest, ResumeTokensHandledPerTarget) {
-  std::unordered_map<TargetId, QueryData> target_map = ActiveQueries({1, 2});
+  std::unordered_map<TargetId, TargetData> target_map = ActiveQueries({1, 2});
 
   WatchChangeAggregator aggregator = CreateAggregator(
       target_map, no_outstanding_responses_, DocumentKeySet{}, {});
@@ -679,7 +679,7 @@ TEST_F(RemoteEventTest, ResumeTokensHandledPerTarget) {
 }
 
 TEST_F(RemoteEventTest, LastResumeTokenWins) {
-  std::unordered_map<TargetId, QueryData> target_map = ActiveQueries({1, 2});
+  std::unordered_map<TargetId, TargetData> target_map = ActiveQueries({1, 2});
 
   WatchChangeAggregator aggregator = CreateAggregator(
       target_map, no_outstanding_responses_, DocumentKeySet{}, {});
@@ -711,7 +711,7 @@ TEST_F(RemoteEventTest, LastResumeTokenWins) {
 }
 
 TEST_F(RemoteEventTest, SynthesizeDeletes) {
-  std::unordered_map<TargetId, QueryData> target_map = ActiveLimboQueries({1});
+  std::unordered_map<TargetId, TargetData> target_map = ActiveLimboQueries({1});
   DocumentKey limbo_key = testutil::Key("coll/limbo");
 
   auto resolve_limbo_target =
@@ -727,7 +727,7 @@ TEST_F(RemoteEventTest, SynthesizeDeletes) {
 }
 
 TEST_F(RemoteEventTest, DoesntSynthesizeDeletesForWrongState) {
-  std::unordered_map<TargetId, QueryData> target_map = ActiveQueries({1});
+  std::unordered_map<TargetId, TargetData> target_map = ActiveQueries({1});
 
   auto wrong_state = MakeTargetChange(WatchTargetChangeState::NoChange, {1});
 
@@ -740,7 +740,7 @@ TEST_F(RemoteEventTest, DoesntSynthesizeDeletesForWrongState) {
 }
 
 TEST_F(RemoteEventTest, DoesntSynthesizeDeletesForExistingDoc) {
-  std::unordered_map<TargetId, QueryData> target_map = ActiveQueries({3});
+  std::unordered_map<TargetId, TargetData> target_map = ActiveQueries({3});
 
   auto has_document = MakeTargetChange(WatchTargetChangeState::Current, {3});
 
@@ -753,7 +753,7 @@ TEST_F(RemoteEventTest, DoesntSynthesizeDeletesForExistingDoc) {
 }
 
 TEST_F(RemoteEventTest, SeparatesDocumentUpdates) {
-  std::unordered_map<TargetId, QueryData> target_map = ActiveLimboQueries({1});
+  std::unordered_map<TargetId, TargetData> target_map = ActiveLimboQueries({1});
 
   Document new_doc = Doc("docs/new", 1, Map("key", "value"));
   auto new_doc_change = MakeDocChange({1}, {}, new_doc.key(), new_doc);
@@ -784,7 +784,7 @@ TEST_F(RemoteEventTest, SeparatesDocumentUpdates) {
 }
 
 TEST_F(RemoteEventTest, TracksLimboDocuments) {
-  std::unordered_map<TargetId, QueryData> target_map = ActiveQueries({1});
+  std::unordered_map<TargetId, TargetData> target_map = ActiveQueries({1});
   auto additional_targets = ActiveLimboQueries({2});
   target_map.insert(additional_targets.begin(), additional_targets.end());
 

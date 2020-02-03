@@ -1,0 +1,224 @@
+{
+  "messages": [
+    {
+      "vanillaPayload": {
+        "campaignId": "13313766398414028800",
+        "campaignStartTimeMillis": "1523986039000",
+        "campaignEndTimeMillis": "1526986039000",
+        "campaignName": "first campaign"
+      },
+      "content": {
+        "modal": {
+          "title": {
+            "text": "I heard you like In-App Messages",
+            "hexColor": "#000000"
+          },
+          "body": {
+            "text": "This is message body",
+            "hexColor": "#000000"
+          },
+          "imageUrl": "https://image.com/5GCaq8sWMgk",
+          "actionButton": {
+            "text": {
+              "text": "Learn More",
+              "hexColor": "#ffffff"
+            },
+            "buttonHexColor": "#000000"
+          },
+          "action": {
+            "actionUrl": "https://www.google.com"
+          },
+          "backgroundHexColor": "#fffff8"
+        }
+      },
+      "priority": {
+        "value": 1
+      },
+      "triggeringConditions": [
+        {
+          "fiamTrigger": "ON_FOREGROUND"
+        },
+        {
+          "event": {
+            "name": "jackpot"
+          }
+        }
+      ],
+      "dataBundle": {
+        "a":"b",
+        "c":"d"
+      }
+    },
+    {
+      "vanillaPayload": {
+        "campaignId": "9350598726327992320",
+        "campaignStartTimeMillis": "1523985333000",
+        "campaignEndTimeMillis": "9223372036854775807",
+        "campaignName": "Inception1"
+      },
+      "content": {
+        "modal": {
+          "title": {
+            "text": "Test 2",
+            "hexColor": "#000000"
+          },
+          "body": {
+            "hexColor": "#000000"
+          },
+          "imageUrl": "https://image.com/5GCaq8sWMgk.jpg",
+          "actionButton": {
+            "text": {
+              "text": "Learn More",
+              "hexColor": "#ffffff"
+            },
+            "buttonHexColor": "#000000"
+          },
+          "action": {
+            "actionUrl": "https://www.google.com"
+          },
+          "backgroundHexColor": "#ffffff"
+        }
+      },
+      "priority": {
+        "value": 1
+      },
+      "triggeringConditions": [
+        {
+          "fiamTrigger": "ON_FOREGROUND"
+        },
+        {
+          "event": {
+            "name": "jackpot"
+          }
+        }
+      ]
+    },
+    {
+      "vanillaPayload": {
+        "campaignId": "14819094573862617088",
+        "campaignStartTimeMillis": "1519934825000",
+        "campaignEndTimeMillis": "9223372036854775807",
+        "campaignName": "Top banner"
+      },
+      "content": {
+        "banner": {
+          "title": {
+            "text": "Hey everybody!",
+            "hexColor": "#000000"
+          },
+          "body": {
+            "text": "This is an in-app message!  Now go to Screen 2!",
+            "hexColor": "#000000"
+          },
+          "imageUrl": "https://image.com/5YYCaq8sWMgk.png",
+          "action": {
+            "actionUrl": "https://test-app.firebaseapp.com/Calculator/screen2"
+          },
+          "backgroundHexColor": "#ffffff"
+        }
+      },
+      "priority": {
+        "value": 1
+      },
+      "triggeringConditions": [
+        {
+          "event": {
+            "name": "jackpot"
+          }
+        }
+      ]
+    },
+    {
+      "vanillaPayload": {
+        "campaignId": "5595722537007841280",
+        "campaignStartTimeMillis": "1519934650000",
+        "campaignEndTimeMillis": "9223372036854775807",
+        "campaignName": "Ducks on foreground"
+      },
+      "content": {
+        "modal": {
+          "title": {
+            "text": "Look, it's a duck!",
+            "hexColor": "#000000"
+          },
+          "body": {
+            "text": "It's a very nice duck.",
+            "hexColor": "#000000"
+          },
+          "imageUrl": "https://image.com/5YYCaq8sWMgkff.png",
+          "actionButton": {
+            "text": {
+              "text": "Go to Google.com",
+              "hexColor": "#ffffff"
+            },
+            "buttonHexColor": "#000000"
+          },
+          "action": {
+            "actionUrl": "https://www.google.com"
+          },
+          "backgroundHexColor": "#ffffff"
+        }
+      },
+      "priority": {
+        "value": 1
+      },
+      "triggeringConditions": [
+        {
+          "fiamTrigger": "ON_FOREGROUND"
+        }
+      ]
+    },
+    {
+      "vanillaPayload": {
+        "campaignId": "5432869654332221",
+        "campaignStartTimeMillis": "1519934650000",
+        "campaignEndTimeMillis": "9223372036854775807",
+        "campaignName": "Super Bowl LIV"
+      },
+      "content": {
+        "card": {
+          "title": {
+            "text": "Eagles are going to win",
+            "hexColor": "#004953"
+          },
+          "body": {
+            "text": "Start of a dynasty.",
+            "hexColor": "#004953"
+          },
+          "portraitImageUrl": "https://image.com/birds.png",
+          "landscapeImageUrl": "https://image.com/ls_birds.png",
+          "primaryActionButton": {
+            "text": {
+              "text": "Win Super Bowl LIV",
+              "hexColor": "#000000"
+            },
+            "buttonHexColor": "#ffffff"
+          },
+          "secondaryActionButton": {
+            "text": {
+              "text": "Win Super Bowl LV",
+              "hexColor": "#000000"
+            },
+            "buttonHexColor": "#ffffff"
+          },
+          "primaryAction": {
+            "actionUrl": "https://www.google.com"
+          },
+          "secondaryAction": {
+            "actionUrl": "https://www.google.com"
+          },
+          "backgroundHexColor": "#ffffff"
+        }
+      },
+      "priority": {
+        "value": 1
+      },
+      "triggeringConditions": [
+        {
+          "fiamTrigger": "ON_FOREGROUND"
+        }
+      ]
+    }
+  ],
+  "expirationEpochTimestampMillis": "1537896430193"
+}

@@ -25,12 +25,12 @@ NSString *GDTCORMessageCodeEnumToString(GDTCORMessageCode code) {
 
 void GDTCORLog(GDTCORMessageCode code, NSString *format, ...) {
 // Don't log anything in not debug builds.
-#ifndef NDEBUG
+#if !NDEBUG
   NSString *logFormat = [NSString stringWithFormat:@"%@[%@] %@", kGDTCORConsoleLogger,
                                                    GDTCORMessageCodeEnumToString(code), format];
   va_list args;
   va_start(args, format);
   NSLogv(logFormat, args);
   va_end(args);
-#endif  // NDEBUG
+#endif  // !NDEBUG
 }

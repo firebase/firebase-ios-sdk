@@ -26,6 +26,7 @@
 
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/path.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
 #include "absl/memory/memory.h"
 
@@ -33,20 +34,7 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-Status IsDirectory(const Path& path) {
-  DWORD attrs = ::GetFileAttributesW(path.c_str());
-  if (attrs == INVALID_FILE_ATTRIBUTES) {
-    DWORD error = ::GetLastError();
-    return Status::FromLastError(error, path.ToUtf8String());
-  }
-  if (attrs & FILE_ATTRIBUTE_DIRECTORY) {
-    return Status::OK();
-  }
-
-  return Status{Error::FailedPrecondition, path.ToUtf8String()};
-}
-
-StatusOr<Path> AppDataDir(absl::string_view app_name) {
+StatusOr<Path> Filesystem::AppDataDir(absl::string_view app_name) {
   wchar_t* path = nullptr;
   HRESULT hr = SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, nullptr, &path);
   if (FAILED(hr)) {
@@ -61,7 +49,11 @@ StatusOr<Path> AppDataDir(absl::string_view app_name) {
   return std::move(result);
 }
 
-Path TempDir() {
+StatusOr<Path> Filesystem::LegacyDocumentsDir(absl::string_view) {
+  return Status(Error::Unimplemented, "No legacy storage on this platform.");
+}
+
+Path Filesystem::TempDir() {
   // Returns a null-terminated string with a trailing backslash.
   wchar_t buffer[MAX_PATH + 1];
   DWORD count = ::GetTempPathW(MAX_PATH, buffer);
@@ -72,7 +64,20 @@ Path TempDir() {
   return Path::FromUtf16(buffer, count);
 }
 
-StatusOr<int64_t> FileSize(const Path& path) {
+Status Filesystem::IsDirectory(const Path& path) {
+  DWORD attrs = ::GetFileAttributesW(path.c_str());
+  if (attrs == INVALID_FILE_ATTRIBUTES) {
+    DWORD error = ::GetLastError();
+    return Status::FromLastError(error, path.ToUtf8String());
+  }
+  if (attrs & FILE_ATTRIBUTE_DIRECTORY) {
+    return Status::OK();
+  }
+
+  return Status{Error::FailedPrecondition, path.ToUtf8String()};
+}
+
+StatusOr<int64_t> Filesystem::FileSize(const Path& path) {
   WIN32_FILE_ATTRIBUTE_DATA attrs;
   if (!::GetFileAttributesExW(path.c_str(), GetFileExInfoStandard, &attrs)) {
     DWORD error = ::GetLastError();
@@ -85,9 +90,7 @@ StatusOr<int64_t> FileSize(const Path& path) {
   return result.QuadPart;
 }
 
-namespace detail {
-
-Status CreateDir(const Path& path) {
+Status Filesystem::CreateDir(const Path& path) {
   if (::CreateDirectoryW(path.c_str(), nullptr)) {
     return Status::OK();
   }
@@ -117,7 +120,7 @@ Status CreateDir(const Path& path) {
       StringFormat("Could not create directory %s", path.ToUtf8String()));
 }
 
-Status DeleteDir(const Path& path) {
+Status Filesystem::RemoveDir(const Path& path) {
   if (::RemoveDirectoryW(path.c_str())) {
     return Status::OK();
   }
@@ -132,7 +135,7 @@ Status DeleteDir(const Path& path) {
       StringFormat("Could not delete directory %s", path.ToUtf8String()));
 }
 
-Status DeleteSingleFile(const Path& path) {
+Status Filesystem::RemoveFile(const Path& path) {
   if (::DeleteFileW(path.c_str())) {
     return Status::OK();
   }
@@ -146,14 +149,23 @@ Status DeleteSingleFile(const Path& path) {
       error, StringFormat("Could not delete file %s", path.ToUtf8String()));
 }
 
-}  // namespace detail
+Status Filesystem::Rename(const Path& from_path, const Path& to_path) {
+  if (::MoveFileW(from_path.c_str(), to_path.c_str())) {
+    return Status::OK();
+  }
+
+  DWORD error = ::GetLastError();
+  return Status::FromLastError(
+      error, StringFormat("Could not rename file %s to %s",
+                          from_path.ToUtf8String(), to_path.ToUtf8String()));
+}
 
 namespace {
 
-class DirectoryIteratorWindows : public DirectoryIterator {
+class WindowsDirectoryIterator : public DirectoryIterator {
  public:
-  explicit DirectoryIteratorWindows(const util::Path& path);
-  virtual ~DirectoryIteratorWindows();
+  explicit WindowsDirectoryIterator(const util::Path& path);
+  virtual ~WindowsDirectoryIterator();
 
   void Next() override;
   bool Valid() const override;
@@ -173,7 +185,7 @@ class DirectoryIteratorWindows : public DirectoryIterator {
   WIN32_FIND_DATAW find_data_{};
 };
 
-DirectoryIteratorWindows::DirectoryIteratorWindows(const util::Path& path)
+WindowsDirectoryIterator::WindowsDirectoryIterator(const util::Path& path)
     : DirectoryIterator{path} {
   Path pattern = parent_.AppendUtf16(L"*", 1);
 
@@ -192,11 +204,11 @@ DirectoryIteratorWindows::DirectoryIteratorWindows(const util::Path& path)
   Examine();
 }
 
-DirectoryIteratorWindows::~DirectoryIteratorWindows() {
+WindowsDirectoryIterator::~WindowsDirectoryIterator() {
   Close();
 }
 
-void DirectoryIteratorWindows::Close() {
+void WindowsDirectoryIterator::Close() {
   if (find_handle_ != INVALID_HANDLE_VALUE) {
     if (!::FindClose(find_handle_)) {
       status_ = Status::FromLastError(
@@ -208,7 +220,7 @@ void DirectoryIteratorWindows::Close() {
   }
 }
 
-void DirectoryIteratorWindows::Examine() {
+void WindowsDirectoryIterator::Examine() {
   HARD_ASSERT(status_.ok(), "Examining an errored iterator");
 
   wchar_t* name = find_data_.cFileName;
@@ -217,7 +229,7 @@ void DirectoryIteratorWindows::Examine() {
   }
 }
 
-void DirectoryIteratorWindows::Advance() {
+void WindowsDirectoryIterator::Advance() {
   HARD_ASSERT(status_.ok(), "Advancing an errored iterator");
 
   BOOL found = ::FindNextFileW(find_handle_, &find_data_);
@@ -234,16 +246,16 @@ void DirectoryIteratorWindows::Advance() {
   Examine();
 }
 
-void DirectoryIteratorWindows::Next() {
+void WindowsDirectoryIterator::Next() {
   HARD_ASSERT(Valid(), "Next() called on an invalid iterator");
   Advance();
 }
 
-bool DirectoryIteratorWindows::Valid() const {
+bool WindowsDirectoryIterator::Valid() const {
   return status_.ok() && find_handle_ != INVALID_HANDLE_VALUE;
 }
 
-Path DirectoryIteratorWindows::file() const {
+Path WindowsDirectoryIterator::file() const {
   HARD_ASSERT(Valid(), "file() called on invalid iterator");
   const wchar_t* name = find_data_.cFileName;
   return parent_.AppendUtf16(name, wcslen(name));
@@ -253,7 +265,7 @@ Path DirectoryIteratorWindows::file() const {
 
 std::unique_ptr<DirectoryIterator> DirectoryIterator::Create(
     const util::Path& path) {
-  return absl::make_unique<DirectoryIteratorWindows>(path);
+  return absl::make_unique<WindowsDirectoryIterator>(path);
 }
 
 }  // namespace util

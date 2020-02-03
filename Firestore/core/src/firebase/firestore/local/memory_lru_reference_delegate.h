@@ -53,7 +53,7 @@ class MemoryLruReferenceDelegate : public LruDelegate {
   void AddReference(const model::DocumentKey& key) override;
   void RemoveReference(const model::DocumentKey& key) override;
   void RemoveMutationReference(const model::DocumentKey& key) override;
-  void RemoveTarget(const QueryData& query_data) override;
+  void RemoveTarget(const TargetData& target_data) override;
 
   void UpdateLimboDocument(const model::DocumentKey& key) override;
 
@@ -96,7 +96,7 @@ class MemoryLruReferenceDelegate : public LruDelegate {
   ReferenceSet* additional_references_ = nullptr;
 
   // This needs to be a pointer because initialization is delayed until after
-  // we read from the query cache.
+  // we read from the target cache.
   std::unique_ptr<ListenSequence> listen_sequence_;
 
   // The current sequence number for the currently active transaction. If no

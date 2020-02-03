@@ -19,6 +19,7 @@
 
 #include "Firestore/core/src/firebase/firestore/local/query_engine.h"
 
+#include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
 
@@ -35,7 +36,7 @@ namespace local {
 
 /**
  * A query engine that takes advantage of the target document mapping in the
- * QueryCache. The IndexFreeQueryEngine optimizes query execution by only
+ * TargetCache. The IndexFreeQueryEngine optimizes query execution by only
  * reading the documents that previously matched a query plus any documents that
  * were edited after the query was last listened to.
  *
@@ -60,6 +61,10 @@ class IndexFreeQueryEngine : public QueryEngine {
       const model::SnapshotVersion& last_limbo_free_snapshot_version,
       const model::DocumentKeySet& remote_keys) override;
 
+  Type type() const override {
+    return Type::IndexFree;
+  }
+
  private:
   /** Applies the query filter and sorting to the provided documents. */
   model::DocumentSet ApplyQuery(const core::Query& query,
@@ -69,6 +74,7 @@ class IndexFreeQueryEngine : public QueryEngine {
    * Determines if a limit query needs to be refilled from cache, making it
    * ineligible for index-free execution.
    *
+   * @param limit_type The type of limit query for refill calculation.
    * @param sorted_previous_results The documents that matched the query when it
    *     was last synchronized, sorted by the query's comparator.
    * @param remote_keys The document keys that matched the query at the last
@@ -77,6 +83,7 @@ class IndexFreeQueryEngine : public QueryEngine {
    *     query was last synchronized.
    */
   bool NeedsRefill(
+      core::LimitType limit_type,
       const model::DocumentSet& sorted_previous_results,
       const model::DocumentKeySet& remote_keys,
       const model::SnapshotVersion& limbo_free_snapshot_version) const;

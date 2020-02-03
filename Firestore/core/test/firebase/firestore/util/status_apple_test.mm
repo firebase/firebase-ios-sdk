@@ -19,7 +19,7 @@
 #include <cerrno>
 
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
-#include "Firestore/core/test/firebase/firestore/util/status_testing.h"
+#include "Firestore/core/test/firebase/firestore/testutil/status_testing.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
@@ -86,6 +86,7 @@ TEST(Status, CausedBy_Chain_NSError) {
   EXPECT_TRUE([not_found_nserror isEqual:cause]);
 }
 
+#if !__clang_analyzer__
 TEST(Status, MovedFromToNSError) {
   Status not_found(Error::NotFound, "Some file not found");
   Status unused = std::move(not_found);
@@ -93,6 +94,7 @@ TEST(Status, MovedFromToNSError) {
   EXPECT_EQ(not_found.ToNSError().domain, FIRFirestoreErrorDomain);
   EXPECT_EQ(not_found.ToNSError().code, Internal);
 }
+#endif  // !__clang_analyzer__
 
 }  // namespace util
 }  // namespace firestore

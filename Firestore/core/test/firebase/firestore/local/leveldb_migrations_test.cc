@@ -22,7 +22,7 @@
 #include "Firestore/Protos/nanopb/firestore/local/mutation.nanopb.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_migrations.h"
-#include "Firestore/core/src/firebase/firestore/local/leveldb_query_cache.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_target_cache.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/message.h"
 #include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
 #include "Firestore/core/src/firebase/firestore/util/path.h"
@@ -88,12 +88,12 @@ void LevelDbMigrationsTest::SetUp() {
 }
 
 TEST_F(LevelDbMigrationsTest, AddsTargetGlobal) {
-  auto metadata = LevelDbQueryCache::TryReadMetadata(db_.get());
+  auto metadata = LevelDbTargetCache::TryReadMetadata(db_.get());
   ASSERT_TRUE(!metadata)
       << "Not expecting metadata yet, we should have an empty db";
   LevelDbMigrations::RunMigrations(db_.get());
 
-  metadata = LevelDbQueryCache::TryReadMetadata(db_.get());
+  metadata = LevelDbTargetCache::TryReadMetadata(db_.get());
   ASSERT_TRUE(metadata) << "Migrations should have added the metadata";
 }
 
@@ -120,7 +120,7 @@ MATCHER_P(IsNotFound, transaction, "") {
   return status.IsNotFound();
 }
 
-TEST_F(LevelDbMigrationsTest, DropsTheQueryCache) {
+TEST_F(LevelDbMigrationsTest, DropsTheTargetCache) {
   std::string user_id{"user"};
   BatchId batch_id = 1;
   TargetId target_id = 2;
@@ -137,7 +137,7 @@ TEST_F(LevelDbMigrationsTest, DropsTheQueryCache) {
       LevelDbQueryTargetKey::Key("foo.bar.baz", target_id),
   };
 
-  // Keys that should not be modified by the dropping the query cache
+  // Keys that should not be modified by the dropping the target cache
   std::string preserved_keys[] = {
       DummyKey("target_a"),
       LevelDbMutationQueueKey::Key(user_id),
@@ -148,7 +148,7 @@ TEST_F(LevelDbMigrationsTest, DropsTheQueryCache) {
   {
     // Setup some targets to be counted in the migration.
     LevelDbTransaction transaction(db_.get(),
-                                   "test_drops_the_query_cache setup");
+                                   "test_drops_the_target_cache setup");
     for (const std::string& key : target_keys) {
       transaction.Put(key, "target");
     }
@@ -160,7 +160,7 @@ TEST_F(LevelDbMigrationsTest, DropsTheQueryCache) {
 
   LevelDbMigrations::RunMigrations(db_.get(), 3);
   {
-    LevelDbTransaction transaction(db_.get(), "test_drops_the_query_cache");
+    LevelDbTransaction transaction(db_.get(), "test_drops_the_target_cache");
     for (const std::string& key : target_keys) {
       ASSERT_THAT(key, IsNotFound(&transaction));
     }
@@ -168,19 +168,19 @@ TEST_F(LevelDbMigrationsTest, DropsTheQueryCache) {
       ASSERT_THAT(key, IsFound(&transaction));
     }
 
-    auto metadata = LevelDbQueryCache::TryReadMetadata(db_.get());
+    auto metadata = LevelDbTargetCache::TryReadMetadata(db_.get());
     ASSERT_TRUE(metadata) << "Metadata should have been added";
     ASSERT_EQ(metadata.value()->target_count, 0);
   }
 }
 
-TEST_F(LevelDbMigrationsTest, DropsTheQueryCacheWithThousandsOfEntries) {
+TEST_F(LevelDbMigrationsTest, DropsTheTargetCacheWithThousandsOfEntries) {
   LevelDbMigrations::RunMigrations(db_.get(), 2);
   {
     // Setup some targets to be destroyed.
     LevelDbTransaction transaction(
         db_.get(),
-        "test_drops_the_query_cache_with_thousands_of_entries setup");
+        "test_drops_the_target_cache_with_thousands_of_entries setup");
     for (int i = 0; i < 10000; ++i) {
       transaction.Put(LevelDbTargetKey::Key(i), "");
     }
@@ -214,7 +214,7 @@ TEST_F(LevelDbMigrationsTest, AddsSentinelRows) {
     LevelDbTransaction transaction(db_.get(), "Setup");
 
     // Set up target global
-    auto metadata = LevelDbQueryCache::ReadMetadata(db_.get());
+    auto metadata = LevelDbTargetCache::ReadMetadata(db_.get());
     // Expect that documents missing a row will get the new number
     metadata->highest_listen_sequence_number = new_sequence_number;
     transaction.Put(LevelDbTargetGlobalKey::Key(), metadata);

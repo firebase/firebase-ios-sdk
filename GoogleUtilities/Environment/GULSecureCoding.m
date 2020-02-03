@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Public/GULSecureCoding.h"
+#import "GoogleUtilities/Environment/Public/GULSecureCoding.h"
 
 NSString *const kGULSecureCodingError = @"GULSecureCodingError";
 
@@ -29,7 +29,10 @@ NSString *const kGULSecureCodingError = @"GULSecureCodingError";
 #endif  // __has_builtin(__builtin_available)
   {
     @try {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
       NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
+#pragma clang diagnostic pop
       unarchiver.requiresSecureCoding = YES;
 
       object = [unarchiver decodeObjectOfClasses:classes forKey:NSKeyedArchiveRootObjectKey];
@@ -68,7 +71,10 @@ NSString *const kGULSecureCodingError = @"GULSecureCodingError";
   {
     @try {
       NSMutableData *data = [NSMutableData data];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
       NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData:data];
+#pragma clang diagnostic pop
       archiver.requiresSecureCoding = YES;
 
       [archiver encodeObject:object forKey:NSKeyedArchiveRootObjectKey];

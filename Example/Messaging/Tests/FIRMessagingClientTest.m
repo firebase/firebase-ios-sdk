@@ -19,6 +19,7 @@
 
 #import <FirebaseInstanceID/FIRInstanceID_Private.h>
 #import <GoogleUtilities/GULReachabilityChecker.h>
+#import <FirebaseInstallations/FIRInstallations.h>
 
 #import "Example/Messaging/Tests/FIRMessagingFakeConnection.h"
 #import "Firebase/Messaging/FIRMessagingClient.h"
@@ -78,6 +79,7 @@ static NSString *const kSecretToken = @"56789";
 @property(nonatomic, readwrite, strong) id mockClientDelegate;
 @property(nonatomic, readwrite, strong) id mockDataMessageManager;
 @property(nonatomic, readwrite, strong) id mockInstanceID;
+@property(nonatomic, readwrite, strong) id mockInstallations;
 
 
 // argument callback blocks
@@ -90,13 +92,12 @@ static NSString *const kSecretToken = @"56789";
 
 - (void)setUp {
   [super setUp];
-  _mockClientDelegate =
-      OCMStrictProtocolMock(@protocol(FIRMessagingClientDelegate));
+  _mockClientDelegate = OCMStrictProtocolMock(@protocol(FIRMessagingClientDelegate));
   _mockReachability = OCMClassMock([GULReachabilityChecker class]);
   _mockRmqManager = OCMClassMock([FIRMessagingRmqManager class]);
   _client = [[FIRMessagingClient alloc] initWithDelegate:_mockClientDelegate
-                                   reachability:_mockReachability
-                                    rmq2Manager:_mockRmqManager];
+                                            reachability:_mockReachability
+                                             rmq2Manager:_mockRmqManager];
   _mockClient = OCMPartialMock(_client);
   _mockDataMessageManager = OCMClassMock([FIRMessagingDataMessageManager class]);
   [_mockClient setDataMessageManager:_mockDataMessageManager];
@@ -117,7 +118,8 @@ static NSString *const kSecretToken = @"56789";
 - (void)tearDownMocksAndHandlers {
   self.connectCompletion = nil;
   self.subscribeCompletion = nil;
-    [self.mockInstanceID stopMocking];
+  self.mockInstanceID = nil;
+  self.mockInstallations = nil;
 }
 
 - (void)setupConnectionWithFakeLoginResult:(BOOL)loginResult
@@ -283,10 +285,15 @@ static NSString *const kSecretToken = @"56789";
 }
 
 - (void)addFIRMessagingPreferenceKeysToUserDefaults {
-    self.mockInstanceID = OCMPartialMock([FIRInstanceID instanceIDForTests]);
-    OCMStub([self.mockInstanceID tryToLoadValidCheckinInfo]).andReturn(YES);
-    OCMStub([self.mockInstanceID deviceAuthID]).andReturn(kDeviceAuthId);
-    OCMStub([self.mockInstanceID secretToken]).andReturn(kSecretToken);
+  // `+[FIRInstallations installations]` supposed to be used on `-[FIRInstanceID start]` to get
+  // `FIRInstallations` default instance. Need to stub it before.
+  self.mockInstallations = OCMClassMock([FIRInstallations class]);
+  OCMStub([self.mockInstallations installations]).andReturn(self.mockInstallations);
+
+  self.mockInstanceID = OCMPartialMock([FIRInstanceID instanceIDForTests]);
+  OCMStub([self.mockInstanceID tryToLoadValidCheckinInfo]).andReturn(YES);
+  OCMStub([self.mockInstanceID deviceAuthID]).andReturn(kDeviceAuthId);
+  OCMStub([self.mockInstanceID secretToken]).andReturn(kSecretToken);
 }
 
 @end

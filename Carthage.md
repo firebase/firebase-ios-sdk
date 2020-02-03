@@ -33,6 +33,7 @@ binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseABTestingBinary.j
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseAdMobBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseAnalyticsBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseAuthBinary.json"
+binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseCrashlyticsBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseDatabaseBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseDynamicLinksBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseFirestoreBinary.json"
@@ -62,7 +63,8 @@ binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseStorageBinary.jso
 - Copy the contents into the top level of your Xcode project and make sure
     they're added to the right build target(s).
 - Add `$(OTHER_LDFLAGS) -ObjC` flag to "Other Linker Flags" in "Build Settings".
-- Make sure that the build target(s) includes your project's `GoogleService-Info.plist` ([how to download config file](https://support.google.com/firebase/answer/7015592))
+- Make sure that the build target(s) includes your project's `GoogleService-Info.plist`
+ ([how to download config file](https://support.google.com/firebase/answer/7015592))
 - [Delete Firebase.framework from the Link Binary With Libraries Build Phase](https://github.com/firebase/firebase-ios-sdk/issues/911#issuecomment-372455235).
 - If you're including a Firebase component that has resources, copy its bundles
     into the Xcode project and make sure they're added to the
@@ -74,10 +76,19 @@ binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseStorageBinary.jso
     - For FirebaseMLVisionTextModel:
         - ./Carthage/Build/iOS/TextDetector.framework/GoogleMVTextDetectorResources.bundle
 
-- Please note that you shouldn't add any of the Firebase frameworks to the Carthage build phase (`copy-frameworks`).
-The frameworks contain static libraries that are linked at build time.
+- Please note that you shouldn't add any of the Firebase frameworks to the Carthage build phase
+ (`copy-frameworks`). The frameworks contain static libraries that are linked at build time.
 
-- Some additional libraries/frameworks may be needed depending on which Firebase frameworks you use, for example: libc++.tbd, sqlite3.tbd, StoreKit.framework, etc. For more information, [go here](https://github.com/firebase/firebase-ios-sdk/issues/9#issuecomment-387947163).
+- Some additional libraries/frameworks may be needed depending on which Firebase frameworks you
+ use, for example: libc++.tbd, sqlite3.tbd, StoreKit.framework, etc. For more information,
+ [go here](https://github.com/firebase/firebase-ios-sdk/issues/9#issuecomment-387947163).
+
+- For Crashlytics:
+    - To automatically upload your app's symbols so your app's crashes are symbolicated, download
+     [upload-symbols](https://github.com/firebase/firebase-ios-sdk/raw/master/Crashlytics/upload-symbols)
+     and [run](https://github.com/firebase/firebase-ios-sdk/raw/master/Crashlytics/run).
+     Then follow the [Crashlytics documentation](https://firebase.google.com/docs/crashlytics/get-started-new-sdk?platform=ios)
+     to add a new run script phase in your Xcode project.
 
 ## Versioning
 

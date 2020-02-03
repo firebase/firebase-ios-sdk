@@ -29,8 +29,6 @@
 #include <utility>
 #include <vector>
 
-#include "Firestore/core/src/firebase/firestore/objc/objc_type_traits.h"
-#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "absl/meta/type_traits.h"
 #include "absl/strings/string_view.h"
 
@@ -162,17 +160,6 @@ struct Comparator<std::string> {
                            const std::string& right) const;
 };
 
-#if __OBJC__
-template <>
-struct Comparator<NSString*> {
-  ComparisonResult Compare(NSString* left, NSString* right) const {
-    // Delegate to the string_view implementation so these are consistent.
-    Comparator<absl::string_view> delegate;
-    return delegate.Compare(MakeString(left), MakeString(right));
-  }
-};
-#endif  // __OBJC__
-
 /** Compares two bools: false < true. */
 template <>
 struct Comparator<bool> : public DefaultComparator<bool> {};
@@ -241,15 +228,6 @@ struct CompareChoice : CompareChoice<I + 1> {};
 
 template <>
 struct CompareChoice<2> {};
-
-#if __OBJC__
-// For Objective-C pointer types, use the Objective-C -compare: method.
-template <typename T,
-          typename = absl::enable_if_t<objc::is_objc_pointer<T>::value>>
-ComparisonResult CompareImpl(T* lhs, T* rhs, CompareChoice<0>) {
-  return MakeComparisonResult([lhs compare:rhs]);
-}
-#endif  // __OBJC__
 
 // Use a `CompareTo` member, if available
 template <typename T, typename = absl::enable_if_t<has_compare_to<T>::value>>

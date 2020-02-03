@@ -40,7 +40,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
-#include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_opener.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
@@ -50,7 +50,7 @@
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/testutil/app_testing.h"
 #include "Firestore/core/test/firebase/firestore/testutil/async_testing.h"
-#include "Firestore/core/test/firebase/firestore/util/status_testing.h"
+#include "Firestore/core/test/firebase/firestore/testutil/status_testing.h"
 #include "absl/memory/memory.h"
 
 namespace testutil = firebase::firestore::testutil;
@@ -60,13 +60,15 @@ using firebase::firestore::auth::CredentialChangeListener;
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::auth::User;
-using firebase::firestore::local::LevelDbPersistence;
+using firebase::firestore::core::DatabaseInfo;
+using firebase::firestore::local::LevelDbOpener;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::testutil::AppForUnitTesting;
 using firebase::firestore::testutil::AsyncQueueForTesting;
 using firebase::firestore::remote::GrpcConnection;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::CreateAutoId;
+using firebase::firestore::util::Filesystem;
 using firebase::firestore::util::Path;
 using firebase::firestore::util::Status;
 using firebase::firestore::util::StatusOr;
@@ -142,15 +144,18 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
  * with each other.
  */
 - (void)clearPersistenceOnce {
+  auto *fs = Filesystem::Default();
   static bool clearedPersistence = false;
 
   @synchronized([FSTIntegrationTestCase class]) {
     if (clearedPersistence) return;
-    StatusOr<Path> maybe_dir = LevelDbPersistence::AppDataDirectory();
-    ASSERT_OK(maybe_dir);
+    DatabaseInfo dbInfo;
+    LevelDbOpener opener(dbInfo);
+    StatusOr<Path> maybeLevelDBDir = opener.FirestoreAppDataDir();
+    ASSERT_OK(maybeLevelDBDir.status());
+    Path levelDBDir = std::move(maybeLevelDBDir).ValueOrDie();
 
-    Path levelDBDir = maybe_dir.ValueOrDie();
-    Status status = util::RecursivelyDelete(levelDBDir);
+    Status status = fs->RecursivelyRemove(levelDBDir);
     ASSERT_OK(status);
 
     clearedPersistence = true;
@@ -469,6 +474,15 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
 - (void)deleteDocumentRef:(FIRDocumentReference *)ref {
   [ref deleteDocumentWithCompletion:[self completionForExpectationWithName:@"deleteDocument"]];
   [self awaitExpectations];
+}
+
+- (FIRDocumentReference *)addDocumentRef:(FIRCollectionReference *)ref
+                                    data:(NSDictionary<NSString *, id> *)data {
+  FIRDocumentReference *doc =
+      [ref addDocumentWithData:data
+                    completion:[self completionForExpectationWithName:@"addDocument"]];
+  [self awaitExpectations];
+  return doc;
 }
 
 - (void)mergeDocumentRef:(FIRDocumentReference *)ref data:(NSDictionary<NSString *, id> *)data {

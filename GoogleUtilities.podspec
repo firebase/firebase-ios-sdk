@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'GoogleUtilities'
-  s.version          = '6.4.0'
+  s.version          = '6.5.1'
   s.summary          = 'Google Utilities for iOS (plus community support for macOS and tvOS)'
 
   s.description      = <<-DESC
@@ -9,7 +9,7 @@ other Google CocoaPods. They're not intended for direct public usage.
                        DESC
 
   s.homepage         = 'https://github.com/firebase/firebase-ios-sdk/tree/master/GoogleUtilities'
-  s.license          = { :type => 'Apache', :file => 'LICENSE' }
+  s.license          = { :type => 'Apache', :file => 'GoogleUtilities/LICENSE' }
   s.authors          = 'Google, Inc.'
 
   s.source           = {
@@ -20,9 +20,15 @@ other Google CocoaPods. They're not intended for direct public usage.
   s.ios.deployment_target = '8.0'
   s.osx.deployment_target = '10.11'
   s.tvos.deployment_target = '10.0'
+  s.watchos.deployment_target = '6.0'
 
   s.cocoapods_version = '>= 1.4.0'
   s.prefix_header_file = false
+
+  s.pod_target_xcconfig = {
+    'GCC_C_LANGUAGE_STANDARD' => 'c99',
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
+  }
 
   s.subspec 'Environment' do |es|
     es.source_files = 'GoogleUtilities/Environment/**/*.[mh]'
@@ -62,16 +68,22 @@ other Google CocoaPods. They're not intended for direct public usage.
     rs.source_files = 'GoogleUtilities/Reachability/**/*.[mh]'
     rs.public_header_files = 'GoogleUtilities/Reachability/Private/*.h'
     rs.private_header_files = 'GoogleUtilities/Reachability/Private/*.h'
-    rs.frameworks = [
+    rs.ios.frameworks = [
+      'SystemConfiguration'
+    ]
+    rs.osx.frameworks = [
+      'SystemConfiguration'
+    ]
+    rs.tvos.frameworks = [
       'SystemConfiguration'
     ]
     rs.dependency 'GoogleUtilities/Logger'
   end
 
   s.subspec 'AppDelegateSwizzler' do |adss|
-    adss.source_files = 'GoogleUtilities/AppDelegateSwizzler/**/*.[mh]', 'GoogleUtilities/Common/*.h'
-    adss.public_header_files = 'GoogleUtilities/AppDelegateSwizzler/Private/*.h'
-    adss.private_header_files = 'GoogleUtilities/AppDelegateSwizzler/Private/*.h'
+    adss.source_files = 'GoogleUtilities/AppDelegateSwizzler/**/*.[mh]', 'GoogleUtilities/SceneDelegateSwizzler/**/*.[mh]', 'GoogleUtilities/Common/*.h'
+    adss.public_header_files = 'GoogleUtilities/AppDelegateSwizzler/Private/*.h', 'GoogleUtilities/SceneDelegateSwizzler/Private/*.h'
+    adss.private_header_files = 'GoogleUtilities/AppDelegateSwizzler/Private/*.h', 'GoogleUtilities/SceneDelegateSwizzler/Private/*.h'
     adss.dependency 'GoogleUtilities/Logger'
     adss.dependency 'GoogleUtilities/Network'
     adss.dependency 'GoogleUtilities/Environment'
@@ -107,6 +119,7 @@ other Google CocoaPods. They're not intended for direct public usage.
 
   s.test_spec 'unit' do |unit_tests|
     # All tests require arc except Tests/Network/third_party/GTMHTTPServer.m
+    unit_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
     unit_tests.source_files = 'GoogleUtilities/Example/Tests/**/*.[mh]'
     unit_tests.requires_arc = 'GoogleUtilities/Example/Tests/*/*.[mh]'
     unit_tests.requires_app_host = true

@@ -64,14 +64,6 @@ TEST_F(StringAppleTest, MakeStringFromNSString) {
   }
 }
 
-TEST_F(StringAppleTest, MakeStringFromNSStringNoCopy) {
-  for (const std::string& string_value : StringTestCases()) {
-    NSString* ns_string = MakeNSStringNoCopy(string_value);
-    std::string actual = MakeString(ns_string);
-    EXPECT_EQ(string_value, actual);
-  }
-}
-
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase

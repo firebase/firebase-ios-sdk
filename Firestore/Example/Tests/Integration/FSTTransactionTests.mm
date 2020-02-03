@@ -233,8 +233,8 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
       completion:^(id _Nullable result, NSError *_Nullable error) {
         [expectation fulfill];
         NSString *message =
-            [NSString stringWithFormat:@"Expected the sequence %@, to succeed, but got %ld.",
-                                       [self stageNames], [error code]];
+            [NSString stringWithFormat:@"Expected the sequence %@, to succeed, but got %d.",
+                                       [self stageNames], (int)[error code]];
         [self->_testCase assertNilError:error message:message];
       }];
 
@@ -365,29 +365,6 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
   [[[tt withNonexistentDoc] runWithStages:@[ set1, set2 ]] expectDoc:@{@"foo" : @"bar2"}];
 }
 
-- (void)testGetDocuments {
-  FIRFirestore *firestore = [self firestore];
-  FIRDocumentReference *doc = [[firestore collectionWithPath:@"spaces"] documentWithAutoID];
-  [self writeDocumentRef:doc data:@{@"foo" : @1, @"desc" : @"Stuff", @"owner" : @"Jonny"}];
-
-  XCTestExpectation *expectation = [self expectationWithDescription:@"transaction"];
-  [firestore
-      runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **error) {
-        [transaction getDocument:doc error:error];
-        XCTAssertNil(*error);
-        return @YES;
-      }
-      completion:^(id _Nullable result, NSError *_Nullable error) {
-        XCTAssertNil(result);
-        // We currently require every document read to also be written.
-        // TODO(b/34879758): Fix this check once we drop that requirement.
-        XCTAssertNotNil(error);
-        XCTAssertEqual(error.code, FIRFirestoreErrorCodeInvalidArgument);
-        [expectation fulfill];
-      }];
-  [self awaitExpectations];
-}
-
 - (void)testSetDocumentWithMerge {
   FIRFirestore *firestore = [self firestore];
   FIRDocumentReference *doc = [[firestore collectionWithPath:@"towns"] documentWithAutoID];
@@ -400,7 +377,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
         return @YES;
       }
       completion:^(id _Nullable result, NSError *_Nullable error) {
-        XCTAssertEqualObjects(@YES, result);
+        XCTAssertEqualObjects(result, @YES);
         XCTAssertNil(error);
         [expectation fulfill];
       }];
@@ -414,8 +391,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
 - (void)testIncrementTransactionally {
   // A barrier to make sure every transaction reaches the same spot.
   dispatch_semaphore_t writeBarrier = dispatch_semaphore_create(0);
-  auto counter_unique = absl::make_unique<std::atomic_int32_t>(0);
-  auto counter = counter_unique.get();
+  auto counter = std::make_shared<std::atomic_int>(0);
 
   FIRFirestore *firestore = [self firestore];
   FIRDocumentReference *doc = [[firestore collectionWithPath:@"counters"] documentWithAutoID];
@@ -454,14 +430,13 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
   [self awaitExpectations];
   // Now all transaction should be completed, so check the result.
   FIRDocumentSnapshot *snapshot = [self readDocumentForRef:doc];
-  XCTAssertEqualObjects(@(5.0 + total), snapshot[@"count"]);
+  XCTAssertEqualObjects(snapshot[@"count"], @(5.0 + total));
 }
 
 - (void)testUpdateTransactionally {
   // A barrier to make sure every transaction reaches the same spot.
   dispatch_semaphore_t writeBarrier = dispatch_semaphore_create(0);
-  auto counter_unique = absl::make_unique<std::atomic_int32_t>(0);
-  auto counter = counter_unique.get();
+  auto counter = std::make_shared<std::atomic_int>(0);
 
   FIRFirestore *firestore = [self firestore];
   FIRDocumentReference *doc = [[firestore collectionWithPath:@"counters"] documentWithAutoID];
@@ -482,7 +457,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
           // Once all of the transactions have read, allow the first write. There should be 3
           // initial transaction runs.
           if (nowStarted == total) {
-            XCTAssertEqual(3, (int)(*counter));
+            XCTAssertEqual(counter->load(), 3);
             dispatch_semaphore_signal(writeBarrier);
           }
 
@@ -501,17 +476,18 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
 
   [self awaitExpectations];
   // There should be a maximum of 3 retries: once for the 2nd update, and twice for the 3rd update.
-  XCTAssertLessThanOrEqual((int)(*counter), 6);
+  XCTAssertLessThanOrEqual(counter->load(), 6);
   // Now all transaction should be completed, so check the result.
   FIRDocumentSnapshot *snapshot = [self readDocumentForRef:doc];
-  XCTAssertEqualObjects(@(5.0 + total), snapshot[@"count"]);
+  XCTAssertEqualObjects(snapshot[@"count"], @(5.0 + total));
   XCTAssertEqualObjects(@"yes", snapshot[@"other"]);
 }
 
-- (void)testHandleReadingOneDocAndWritingAnother {
+- (void)testRetriesWhenDocumentThatWasReadWithoutBeingWrittenChanges {
   FIRFirestore *firestore = [self firestore];
   FIRDocumentReference *doc1 = [[firestore collectionWithPath:@"counters"] documentWithAutoID];
   FIRDocumentReference *doc2 = [[firestore collectionWithPath:@"counters"] documentWithAutoID];
+  auto counter = std::make_shared<std::atomic_int>(0);
 
   [self writeDocumentRef:doc1 data:@{@"count" : @(15.0)}];
 
@@ -521,6 +497,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
   XCTestExpectation *expectation = [self expectationWithDescription:@"transaction"];
   [firestore
       runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **error) {
+        ++(*counter);
         // Get the first doc.
         [transaction getDocument:doc1 error:error];
         XCTAssertNil(*error);
@@ -543,28 +520,19 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
         return nil;
       }
       completion:^(id _Nullable result, NSError *_Nullable error) {
-        // We currently require every document read to also be written.
-        // TODO(b/34879758): Add this check back once we drop that.
-        // NSError *error = nil;
-        // FIRDocument *snapshot = [transaction getDocument:doc1 error:&error];
-        // XCTAssertNil(error);
-        // XCTAssertEquals(0, tries);
-        // XCTAssertEqualObjects(@(1234), snapshot[@"count"]);
-        // snapshot = [transaction getDocument:doc2 error:&error];
-        // XCTAssertNil(error);
-        // XCTAssertEqualObjects(@(16), snapshot[@"count"]);
-        XCTAssertNotNil(error);
-        XCTAssertEqual(error.code, FIRFirestoreErrorCodeInvalidArgument);
+        XCTAssertNil(error);
+        XCTAssertEqual(counter->load(), 2);
         [expectation fulfill];
       }];
   [self awaitExpectations];
+  FIRDocumentSnapshot *snapshot = [self readDocumentForRef:doc1];
+  XCTAssertEqualObjects(snapshot[@"count"], @(1234));
 }
 
 - (void)testReadingADocTwiceWithDifferentVersions {
   FIRFirestore *firestore = [self firestore];
   FIRDocumentReference *doc = [[firestore collectionWithPath:@"counters"] documentWithAutoID];
-  auto counter_unique = absl::make_unique<std::atomic_int32_t>(0);
-  auto counter = counter_unique.get();
+  auto counter = std::make_shared<std::atomic_int>(0);
 
   [self writeDocumentRef:doc data:@{@"count" : @(15.0)}];
 
@@ -640,32 +608,32 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
   [self awaitExpectations];
 }
 
-- (void)testCannotHaveAGetWithoutMutations {
+- (void)testCanHaveGetsWithoutMutations {
   FIRFirestore *firestore = [self firestore];
   FIRDocumentReference *doc = [[firestore collectionWithPath:@"foo"] documentWithAutoID];
+  FIRDocumentReference *doc2 = [[firestore collectionWithPath:@"foo"] documentWithAutoID];
+
   [self writeDocumentRef:doc data:@{@"foo" : @"bar"}];
   XCTestExpectation *expectation = [self expectationWithDescription:@"transaction"];
   [firestore
       runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **error) {
-        FIRDocumentSnapshot *snapshot = [transaction getDocument:doc error:error];
-        XCTAssertTrue(snapshot.exists);
-        XCTAssertNil(*error);
+        [transaction getDocument:doc2 error:error];
+        [transaction getDocument:doc error:error];
         return nil;
       }
       completion:^(id _Nullable result, NSError *_Nullable error) {
-        // We currently require every document read to also be written.
-        // TODO(b/34879758): Fix this check once we drop that requirement.
-        XCTAssertNotNil(error);
-        XCTAssertEqual(error.code, FIRFirestoreErrorCodeInvalidArgument);
+        XCTAssertNil(error);
         [expectation fulfill];
       }];
   [self awaitExpectations];
+  FIRDocumentSnapshot *snapshot = [self readDocumentForRef:doc];
+  XCTAssertEqualObjects(snapshot[@"foo"], @"bar");
 }
 
 - (void)testDoesNotRetryOnPermanentError {
   FIRFirestore *firestore = [self firestore];
-  auto counter_unique = absl::make_unique<std::atomic_int32_t>(0);
-  auto counter = counter_unique.get();
+  auto counter = std::make_shared<std::atomic_int>(0);
+
   // Make a transaction that should fail with a permanent error
   XCTestExpectation *expectation = [self expectationWithDescription:@"transaction"];
   [firestore
@@ -682,7 +650,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
         [expectation fulfill];
         XCTAssertNotNil(error);
         XCTAssertEqual(error.code, FIRFirestoreErrorCodeInvalidArgument);
-        XCTAssertEqual(1, (int)(*counter));
+        XCTAssertEqual(counter->load(), 1);
       }];
   [self awaitExpectations];
 }
@@ -695,7 +663,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
         return @"yes";
       }
       completion:^(id _Nullable result, NSError *_Nullable error) {
-        XCTAssertEqualObjects(@"yes", result);
+        XCTAssertEqualObjects(result, @"yes");
         XCTAssertNil(error);
         [expectation fulfill];
       }];
@@ -705,8 +673,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
 - (void)testCancellationOnError {
   FIRFirestore *firestore = [self firestore];
   FIRDocumentReference *doc = [[firestore collectionWithPath:@"towns"] documentWithAutoID];
-  auto counter_unique = absl::make_unique<std::atomic_int32_t>(0);
-  auto counter = counter_unique.get();
+  auto counter = std::make_shared<std::atomic_int>(0);
   XCTestExpectation *expectation = [self expectationWithDescription:@"transaction"];
   [firestore
       runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **error) {
@@ -720,11 +687,11 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
       completion:^(id _Nullable result, NSError *_Nullable error) {
         XCTAssertNil(result);
         XCTAssertNotNil(error);
-        XCTAssertEqual(35, error.code);
+        XCTAssertEqual(error.code, 35);
         [expectation fulfill];
       }];
   [self awaitExpectations];
-  XCTAssertEqual(1, (int)(*counter));
+  XCTAssertEqual(counter->load(), 1);
   FIRDocumentSnapshot *snapshot = [self readDocumentForRef:doc];
   XCTAssertFalse(snapshot.exists);
 }

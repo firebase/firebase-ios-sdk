@@ -21,12 +21,22 @@ import Foundation
 enum CocoaPodUtils {
   // MARK: - Public API
 
-  struct VersionedPod: Decodable {
+  struct VersionedPod: Decodable, CustomDebugStringConvertible {
     /// Public name of the pod.
     let name: String
 
     /// The version of the requested pod.
     let version: String?
+
+    /// The debug description as required by `CustomDebugStringConvertible`.
+    var debugDescription: String {
+      var desc = name
+      if let version = version {
+        desc.append(" v\(version)")
+      }
+
+      return desc
+    }
   }
 
   /// Information associated with an installed pod.
@@ -134,8 +144,6 @@ enum CocoaPodUtils {
 
     // Force unwrap the regular expression since we know it will work, it's a constant being passed
     // in. If any changes are made, be sure to run this script to ensure it works.
-    let podRegex = try! NSRegularExpression(pattern: " - (.+) \\((\\d+\\.\\d+\\.?\\d*)\\)",
-                                            options: [])
     let depRegex: NSRegularExpression = try! NSRegularExpression(pattern: " - (.+).*",
                                                                  options: [])
     let quotes = CharacterSet(charactersIn: "\"")
@@ -146,7 +154,7 @@ enum CocoaPodUtils {
       if line.starts(with: "DEPENDENCIES:") {
         break
       }
-      if let (pod, version) = detectVersion(fromLine: line, matching: podRegex) {
+      if let (pod, version) = detectVersion(fromLine: line) {
         let corePod = pod.components(separatedBy: "/")[0]
         currentPod = corePod.trimmingCharacters(in: quotes)
         pods[currentPod!] = version
@@ -262,24 +270,28 @@ enum CocoaPodUtils {
   ///
   /// - Parameters:
   ///   - input: A line entry from Podfile.lock.
-  ///   - regex: The regex to match compared to the input.
   /// - Returns: A tuple of the framework and version, if it can be parsed.
-  private static func detectVersion(fromLine input: String,
-                                    matching regex: NSRegularExpression) -> (framework: String, version: String)? {
-    let matches = regex.matches(in: input, range: NSRange(location: 0, length: input.utf8.count))
-    let nsString = input as NSString
+  private static func detectVersion(fromLine input: String) -> (framework: String, version: String)? {
+    // Get the components of the line to parse them individually. Ignore any whitespace only Strings.
+    let components = input.components(separatedBy: " ").filter { !$0.isEmpty }
 
-    guard let match = matches.first else {
-      return nil
-    }
+    // Expect three components: the `-`, the pod name, and the version in parens. This will filter out
+    // dependencies that have version requirements like `(~> 3.2.1)` in it.
+    guard components.count == 3 else { return nil }
 
-    guard match.numberOfRanges == 3 else {
-      print("Version number regex matches: expected 3, but found \(match.numberOfRanges).")
-      return nil
-    }
+    // The first component is simple, just the `-`.
+    guard components.first == "-" else { return nil }
 
-    let framework = nsString.substring(with: match.range(at: 1)) as String
-    let version = nsString.substring(with: match.range(at: 2)) as String
+    // The second component is a pod/framework name, which we want to return eventually. Remove any
+    // extraneous quotes.
+    let framework = components[1].trimmingCharacters(in: CharacterSet(charactersIn: "\""))
+
+    // The third component is the version in parentheses, potentially with a `:` at the end. Let's
+    // just strip the unused characters (including quotes) and return the version. We don't
+    // necesarily have to match against semver since it's a non trivial regex and we don't actually
+    // care, `Podfile.lock` has a standard format that we know will be valid. Also strip out any
+    // extra quotes.
+    let version = components[2].trimmingCharacters(in: CharacterSet(charactersIn: "():\""))
 
     return (framework, version)
   }
@@ -328,13 +340,16 @@ enum CocoaPodUtils {
       podfile += "\n"
     }
 
-    // If we're using local pods, explicitly add Google* podspecs if they exist and there are no
+    // If we're using local pods, explicitly add FirebaseInstanceID, FirebaseInstallations,
+    // and any Google* podspecs if they exist and there are no
     // explicit versions in the Podfile. Note there are versions for local podspecs if we're doing
     // the secondary install for module map building.
     if !versionsSpecified, let localURL = LaunchArgs.shared.localPodspecPath {
       let podspecs = try! FileManager.default.contentsOfDirectory(atPath: localURL.path)
       for podspec in podspecs {
-        if podspec.starts(with: "Google"), podspec.hasSuffix(".podspec") {
+        if (podspec == "FirebaseInstanceID.podspec" ||
+          podspec == "FirebaseInstallations.podspec") ||
+          podspec.starts(with: "Google"), podspec.hasSuffix(".podspec") {
           let podName = podspec.replacingOccurrences(of: ".podspec", with: "")
           podfile += "  pod '\(podName)', :path => '\(localURL.path)/\(podspec)'\n"
         }

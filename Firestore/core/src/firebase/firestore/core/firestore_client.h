@@ -45,8 +45,9 @@ namespace firebase {
 namespace firestore {
 namespace local {
 
-class Persistence;
 class LruDelegate;
+class QueryEngine;
+class Persistence;
 
 }  // namespace local
 
@@ -198,6 +199,7 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
 
   std::unique_ptr<local::Persistence> persistence_;
   std::unique_ptr<local::LocalStore> local_store_;
+  std::unique_ptr<local::QueryEngine> query_engine_;
   std::unique_ptr<remote::RemoteStore> remote_store_;
   std::unique_ptr<SyncEngine> sync_engine_;
   std::unique_ptr<EventManager> event_manager_;
