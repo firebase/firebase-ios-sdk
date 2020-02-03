@@ -89,6 +89,11 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
    * resources.
    */
   void TerminateAsync(util::StatusCallback callback);
+
+  /**
+   * Synchronously terminates this client, cancels all writes / listeners, and
+   * releases all resources.
+   */
   void Terminate();
 
   /**

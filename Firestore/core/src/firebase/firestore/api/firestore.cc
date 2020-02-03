@@ -63,9 +63,10 @@ Firestore::Firestore(model::DatabaseId database_id,
 }
 
 Firestore::~Firestore() {
+  std::lock_guard<std::mutex> lock{mutex_};
+
   // If the client hasn't been configured yet we don't need to create it just
   // to tear it down.
-  std::lock_guard<std::mutex> lock{mutex_};
   if (!client_) return;
 
   client_->Terminate();

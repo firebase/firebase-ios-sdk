@@ -260,37 +260,28 @@ void FirestoreClient::TerminateAsync(StatusCallback callback) {
 }
 
 void FirestoreClient::Terminate() {
-  std::mutex mutex;
-  bool terminated = false;
-  std::condition_variable terminated_condition;
-
-  std::unique_lock<std::mutex> outer_lock{mutex};
-
+  std::promise<void> signal_terminated;
   worker_queue()->EnqueueAndInitiateShutdown([&, this] {
     TerminateInternal();
-
-    std::lock_guard<std::mutex> lock{mutex};
-    terminated = true;
-    terminated_condition.notify_one();
+    signal_terminated.set_value();
   });
-
-  terminated_condition.wait(outer_lock, [&] { return terminated; });
+  signal_terminated.get_future().wait();
 }
 
 void FirestoreClient::TerminateInternal() {
-  if (remote_store_) {
-    credentials_provider_->SetCredentialChangeListener(nullptr);
+  if (!remote_store_) return;
 
-    // If we've scheduled LRU garbage collection, cancel it.
-    if (lru_callback_) {
-      lru_callback_.Cancel();
-    }
-    remote_store_->Shutdown();
-    persistence_->Shutdown();
+  credentials_provider_->SetCredentialChangeListener(nullptr);
 
-    // Clear the remote store to indicate terminate is complete.
-    remote_store_.reset();
+  // If we've scheduled LRU garbage collection, cancel it.
+  if (lru_callback_) {
+    lru_callback_.Cancel();
   }
+  remote_store_->Shutdown();
+  persistence_->Shutdown();
+
+  // Clear the remote store to indicate terminate is complete.
+  remote_store_.reset();
 }
 
 void FirestoreClient::WaitForPendingWrites(StatusCallback callback) {
