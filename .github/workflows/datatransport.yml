@@ -11,79 +11,50 @@ on:
     - cron:  '0 7 * * *'
 
 jobs:
-  datatransport-ios:
+  pod_lib_lint:
     runs-on: macos-latest
+    strategy:
+      matrix:
+        target: [ios, tvos, macos]
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
-    - name: PodLibLint iOS
+    - name: PodLibLint DataTransport
       run: |
-        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=ios
-        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=ios
-
-  datatransport-macos:
-    runs-on: macos-latest
-    steps:
-    - uses: actions/checkout@v1
-    - name: Setup Bundler
-      run: ./scripts/setup_bundler.sh
-    - name: PodLibLint macOS
-      run: |
-        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=macos
-        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=macos
-
-  datatransport-tvos:
-    runs-on: macos-latest
-    steps:
-    - uses: actions/checkout@v1
-    - name: Setup Bundler
-      run: ./scripts/setup_bundler.sh
-    - name: PodLibLint tvOS
-      run: |
-        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=tvos
-        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=tvos
+        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=${{ matrix.target }}
+        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=${{ matrix.target }}
 
 # Scheduled jobs
 
   datatransport-use-libraries:
     runs-on: macos-latest
     if: github.event_name == 'schedule'
-    needs: [datatransport-ios, datatransport-macos, datatransport-tvos]
+    strategy:
+      matrix:
+        target: [ios, tvos, macos]
+    needs: pod_lib_lint
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
-    - name: PodLibLint iOS
+    - name: PodLibLint DataTransport Using Libraries
       run: |
-        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=ios --use-libraries
-        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=ios --use-libraries
-    - name: PodLibLint macOS
-      run: |
-        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=macos --use-libraries
-        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=macos --use-libraries
-    - name: PodLibLint tvOS
-      run: |
-        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=tvos --use-libraries
-        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=tvos --use-libraries
+        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=${{ matrix.target }} --use-libraries
+        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=${{ matrix.target }} --use-libraries
 
   datatransport-use-modular-headers:
     runs-on: macos-latest
     if: github.event_name == 'schedule'
-    needs: [datatransport-ios, datatransport-macos, datatransport-tvos]
+    strategy:
+      matrix:
+        target: [ios, tvos, macos]
+    needs: pod_lib_lint
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
-    - name: PodLibLint iOS
+    - name: PodLibLint DataTransport Using Modular Headers
       run: |
-        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=ios --use-modular-headers
-        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=ios --use-modular-headers
-    - name: PodLibLint macOS
-      run: |
-        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=macos --use-modular-headers
-        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=macos --use-modular-headers
-    - name: PodLibLint tvOS
-      run: |
-        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=tvos --use-modular-headers
-        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=tvos --use-modular-headers
+        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=${{ matrix.target }} --use-modular-headers
+        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=${{ matrix.target }} --use-modular-headers
