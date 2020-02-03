@@ -5,6 +5,7 @@ target 'CocoapodsIntegrationTest' do
   pod 'FirebaseCore', :path => '../'
   pod 'FirebaseCoreDiagnostics', :path => '../'
   pod 'FirebaseCoreDiagnosticsInterop', :path => '../'
+  pod 'FirebaseCrashlytics', :path => '../'
   pod 'FirebaseAuth', :path => '../'
   pod 'FirebaseDatabase', :path => '../'
   pod 'FirebaseDynamicLinks', :path => '../'

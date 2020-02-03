@@ -67,6 +67,7 @@ class MessageTest : public testing::Test {
   grpc::GrpcLibraryCodegen grpc_initializer_;
 };
 
+#if !__clang_analyzer__
 TEST_F(MessageTest, Move) {
   ByteBufferReader reader{GoodProto()};
   auto message1 = TestMessage::TryParse(&reader);
@@ -77,6 +78,7 @@ TEST_F(MessageTest, Move) {
   // This shouldn't result in a leak or double deletion; Address Sanitizer
   // should be able to verify that.
 }
+#endif  // !__clang_analyzer__
 
 TEST_F(MessageTest, ParseFailure) {
   ByteBufferReader reader{BadProto()};

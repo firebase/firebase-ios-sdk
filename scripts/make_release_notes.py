@@ -32,7 +32,7 @@ PRODUCTS = {
     'FirebaseCore/CHANGELOG.md': NO_HEADING,
     'Crashlytics/CHANGELOG.md': '{{crashlytics}}',
     'Firebase/Database/CHANGELOG.md': '{{database}}',
-    'Firebase/DynamicLinks/CHANGELOG.md': '{{ddls}}',
+    'FirebaseDynamicLinks/CHANGELOG.md': '{{ddls}}',
     'FirebaseInAppMessaging/CHANGELOG.md': '{{inapp_messaging}}',
     'Firebase/InstanceID/CHANGELOG.md': 'InstanceID',
     'Firebase/Messaging/CHANGELOG.md': '{{messaging}}',

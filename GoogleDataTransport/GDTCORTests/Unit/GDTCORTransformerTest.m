@@ -87,7 +87,11 @@
   GDTCORTransformer *transformer = [GDTCORTransformer sharedInstance];
   GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"1" target:1];
   event.dataObject = [[GDTCORDataObjectTesterSimple alloc] init];
-  XCTAssertNoThrow([transformer transformEvent:event withTransformers:nil]);
+  XCTAssertNoThrow([transformer transformEvent:event
+                              withTransformers:nil
+                                    onComplete:^(BOOL wasWritten, NSError *error) {
+                                      XCTAssertTrue(wasWritten);
+                                    }]);
 }
 
 /** Tests writing a event with a transformer that nils out the event. */
@@ -97,7 +101,11 @@
   event.dataObject = [[GDTCORDataObjectTesterSimple alloc] init];
   NSArray<id<GDTCOREventTransformer>> *transformers =
       @[ [[GDTCORTransformerTestNilingTransformer alloc] init] ];
-  XCTAssertNoThrow([transformer transformEvent:event withTransformers:transformers]);
+  XCTAssertNoThrow([transformer transformEvent:event
+                              withTransformers:transformers
+                                    onComplete:^(BOOL wasWritten, NSError *error) {
+                                      XCTAssertFalse(wasWritten);
+                                    }]);
 }
 
 /** Tests writing a event with a transformer that creates a new event. */
@@ -107,7 +115,12 @@
   event.dataObject = [[GDTCORDataObjectTesterSimple alloc] init];
   NSArray<id<GDTCOREventTransformer>> *transformers =
       @[ [[GDTCORTransformerTestNewEventTransformer alloc] init] ];
-  XCTAssertNoThrow([transformer transformEvent:event withTransformers:transformers]);
+  XCTAssertNoThrow([transformer transformEvent:event
+                              withTransformers:transformers
+                                    onComplete:^(BOOL wasWritten, NSError *error) {
+                                      XCTAssertTrue(wasWritten);
+                                      XCTAssertNil(error);
+                                    }]);
 }
 
 @end
