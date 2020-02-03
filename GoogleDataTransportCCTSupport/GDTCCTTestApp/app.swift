@@ -44,7 +44,7 @@ import GoogleDataTransport
           if Globals.IsMonkeyTesting {
             backendSwitch?.selectedSegmentIndex = Int(arc4random_uniform(3))
           }
-            switch(backendSwitch?.selectedSegmentIndex){
+            switch(backendSwitch?.selectedSegmentIndex) {
             case 0:
                 theTransport = cctTransport;
                 break;
@@ -59,6 +59,7 @@ import GoogleDataTransport
                 
             default:
                 theTransport = cctTransport;
+                break;
             }
         }
       } else {
@@ -66,7 +67,7 @@ import GoogleDataTransport
           backendSwitch?.selectedSegmentIndex = Int(arc4random_uniform(3))
         }
         
-        switch(backendSwitch?.selectedSegmentIndex){
+        switch(backendSwitch?.selectedSegmentIndex) {
         case 0:
             theTransport = cctTransport;
             break;
@@ -81,6 +82,7 @@ import GoogleDataTransport
             
         default:
             theTransport = cctTransport;
+            break;
         }
       }
       return theTransport
@@ -111,7 +113,7 @@ import GoogleDataTransport
           if Globals.IsMonkeyTesting {
             backendSwitch?.selectedSegment = Int(arc4random_uniform(3))
           }
-          switch(backendSwitch?.selectedSegment){
+          switch(backendSwitch?.selectedSegment) {
           case 0:
               theTransport = cctTransport;
               break;
@@ -126,13 +128,14 @@ import GoogleDataTransport
               
           default:
               theTransport = cctTransport;
+              break;
           }
         }
       } else {
         if Globals.IsMonkeyTesting {
           backendSwitch?.selectedSegment = Int(arc4random_uniform(3))
         }
-        switch(backendSwitch?.selectedSegment){
+        switch(backendSwitch?.selectedSegment) {
         case 0:
             theTransport = cctTransport;
             break;
@@ -147,6 +150,7 @@ import GoogleDataTransport
             
         default:
             theTransport = cctTransport;
+            break;
         }
       }
       return theTransport
