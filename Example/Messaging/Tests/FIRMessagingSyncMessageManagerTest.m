@@ -16,6 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
+#import "XCTestCase+FIRMessagingRmqManagerTests.h"
+
 #import "Firebase/Messaging/FIRMessagingPersistentSyncMessage.h"
 #import "Firebase/Messaging/FIRMessagingRmqManager.h"
 #import "Firebase/Messaging/FIRMessagingSyncMessageManager.h"
@@ -48,6 +50,7 @@ static NSString *const kRmqSqliteFilename = @"rmq-sync-manager-test";
 
 - (void)tearDown {
   [_rmqManager removeDatabase];
+  [self waitForDrainDatabaseQueueForRmqManager:_rmqManager];
   [super tearDown];
 }
 

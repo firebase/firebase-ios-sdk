@@ -41,7 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithUserDefaults:(NSUserDefaults *)userDefaults withRMQManager:(BOOL)withRMQManager;
 
-- (void)cleanupAfterTest;
+- (void)cleanupAfterTest:(XCTestCase *)testCase;
 
 @end
 
