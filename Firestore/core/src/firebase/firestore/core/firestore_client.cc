@@ -266,21 +266,15 @@ void FirestoreClient::Terminate() {
 
   std::unique_lock<std::mutex> outer_lock{mutex};
 
-  LOG_DEBUG("Terminate: starting");
   worker_queue()->EnqueueAndInitiateShutdown([&, this] {
-    LOG_DEBUG("Terminate: the worker queue");
     TerminateInternal();
 
     std::lock_guard<std::mutex> lock{mutex};
-    LOG_DEBUG("Terminate: notifying");
     terminated = true;
     terminated_condition.notify_one();
   });
 
-  LOG_DEBUG("Terminate: waiting");
   terminated_condition.wait(outer_lock, [&] { return terminated; });
-
-  LOG_DEBUG("Terminate: complete");
 }
 
 void FirestoreClient::TerminateInternal() {
