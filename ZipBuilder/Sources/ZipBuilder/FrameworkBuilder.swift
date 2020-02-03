@@ -192,7 +192,7 @@ struct FrameworkBuilder {
     return .success(output: fullOutput)
   }
 
-  /// Uses `xcodebuild` to build a dynamic framework for a specific architecture slice.
+  /// Uses `xcodebuild` to build a framework for a specific architecture slice.
   ///
   /// - Parameters:
   ///   - framework: Name of the framework being built.
