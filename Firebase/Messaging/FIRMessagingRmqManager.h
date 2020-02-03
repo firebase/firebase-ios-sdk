@@ -154,4 +154,11 @@ typedef void(^FIRMessagingRmqMessageHandler)(NSDictionary<NSString *, GPBMessage
  */
 - (void)updateSyncMessageViaMCSWithRmqID:(NSString *)rmqID;
 
+/**
+ * Returns path for database with specified name.
+ * @param databaseName The database name without extension: "<databaseName>.sqlite".
+ * @returns Path to the database with the specified name.
+ */
++ (NSString *)pathForDatabaseWithName:(NSString *)databaseName;
+
 @end

@@ -54,7 +54,7 @@
 }
 
 - (void)tearDown {
-  [_testUtil cleanupAfterTest];
+  [_testUtil cleanupAfterTest:self];
   _instanceID = nil;
   _messaging = nil;
   [_mockFirebaseApp stopMocking];
