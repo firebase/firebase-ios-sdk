@@ -26,6 +26,8 @@ extern NSString *const FIRCLSReportMachExceptionFile;
 #endif
 extern NSString *const FIRCLSReportErrorAFile;
 extern NSString *const FIRCLSReportErrorBFile;
+extern NSString *const FIRCLSReportLogAFile;
+extern NSString *const FIRCLSReportLogBFile;
 extern NSString *const FIRCLSReportMetadataFile;
 extern NSString *const FIRCLSReportInternalIncrementalKVFile;
 extern NSString *const FIRCLSReportInternalCompactedKVFile;

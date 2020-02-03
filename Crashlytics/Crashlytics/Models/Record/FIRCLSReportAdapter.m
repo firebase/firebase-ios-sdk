@@ -37,7 +37,13 @@
     [self loadBinaryImagesFile];
     [self loadMetaDataFile];
     [self loadSignalFile];
-    [self loadKeyValuesFile];
+    [self loadInternalKeyValuesFile];
+    [self loadUserKeyValuesFile];
+    [self loadUserLogFiles];
+    [self loadErrorFiles];
+
+    // TODO: Add support for mach_exception.clsrecord
+    // TODO: When implemented, add support for custom exceptions: custom_exception_a.clsrecord
 
     _report = [self protoReport];
   }
@@ -88,11 +94,66 @@
 }
 
 /// Reads from internal_incremental_kv.clsrecord
-- (void)loadKeyValuesFile {
+- (void)loadInternalKeyValuesFile {
   NSString *path =
       [self.folderPath stringByAppendingPathComponent:FIRCLSReportInternalIncrementalKVFile];
-  self.keyValues = [FIRCLSRecordKeyValue
+  self.internalKeyValues = [FIRCLSRecordKeyValue
       keyValuesFromDictionaries:[FIRCLSReportAdapter dictionariesFromEachLineOfFile:path]];
+}
+
+/// Reads from internal_incremental_kv.clsrecord
+- (void)loadUserKeyValuesFile {
+  NSString *path =
+      [self.folderPath stringByAppendingPathComponent:FIRCLSReportUserIncrementalKVFile];
+  self.userKeyValues = [FIRCLSRecordKeyValue
+      keyValuesFromDictionaries:[FIRCLSReportAdapter dictionariesFromEachLineOfFile:path]];
+}
+
+/// If too many logs are written, then a file (log_a.clsrecord) rollover occurs.
+/// Then a secondary log file (log_b.clsrecord) is created.
+- (void)loadUserLogFiles {
+  NSString *logA = [self.folderPath stringByAppendingPathComponent:FIRCLSReportLogAFile];
+  NSString *logB = [self.folderPath stringByAppendingPathComponent:FIRCLSReportLogBFile];
+
+  NSMutableArray<FIRCLSRecordLog *> *logs = [[NSMutableArray<FIRCLSRecordLog *> alloc] init];
+
+  if ([[NSFileManager defaultManager] fileExistsAtPath:logA]) {
+    [logs addObjectsFromArray:[FIRCLSRecordLog
+                                  logsFromDictionaries:[FIRCLSReportAdapter
+                                                           dictionariesFromEachLineOfFile:logA]]];
+  }
+
+  if ([[NSFileManager defaultManager] fileExistsAtPath:logB]) {
+    [logs addObjectsFromArray:[FIRCLSRecordLog
+                                  logsFromDictionaries:[FIRCLSReportAdapter
+                                                           dictionariesFromEachLineOfFile:logB]]];
+  }
+
+  self.userLogs = logs;
+}
+
+/// Load errors.
+- (void)loadErrorFiles {
+  NSString *errorA = [self.folderPath stringByAppendingPathComponent:FIRCLSReportErrorAFile];
+  NSString *errorB = [self.folderPath stringByAppendingPathComponent:FIRCLSReportErrorBFile];
+
+  NSMutableArray<FIRCLSRecordError *> *errors = [[NSMutableArray<FIRCLSRecordError *> alloc] init];
+
+  if ([[NSFileManager defaultManager] fileExistsAtPath:errorA]) {
+    [errors
+        addObjectsFromArray:[FIRCLSRecordError
+                                errorsFromDictionaries:[FIRCLSReportAdapter
+                                                           dictionariesFromEachLineOfFile:errorA]]];
+  }
+
+  if ([[NSFileManager defaultManager] fileExistsAtPath:errorB]) {
+    [errors
+        addObjectsFromArray:[FIRCLSRecordError
+                                errorsFromDictionaries:[FIRCLSReportAdapter
+                                                           dictionariesFromEachLineOfFile:errorB]]];
+  }
+
+  self.errors = errors;
 }
 
 /// Return the persisted crash file as a combined dictionary that way lookups can occur with a key
@@ -148,7 +209,6 @@
 // MARK: GDTCOREventDataObject
 //
 
-// Provided and required by the GDTCOREventDataObject protocol.
 - (NSData *)transportBytes {
   pb_ostream_t sizestream = PB_OSTREAM_SIZING;
 
@@ -175,17 +235,17 @@
 
 /// Returns if the app was last in the background
 - (BOOL)wasInBackground {
-  return [self.keyValues[FIRCLSInBackgroundKey] boolValue];
+  return [self.internalKeyValues[FIRCLSInBackgroundKey] boolValue];
 }
 
 /// Return the last device orientation
 - (int)deviceOrientation {
-  return [self.keyValues[FIRCLSDeviceOrientationKey] intValue];
+  return [self.internalKeyValues[FIRCLSDeviceOrientationKey] intValue];
 }
 
 /// Return the last UI orientation
 - (int)uiOrientation {
-  return [self.keyValues[FIRCLSUIOrientationKey] intValue];
+  return [self.internalKeyValues[FIRCLSUIOrientationKey] intValue];
 }
 
 /// Return if the app crashed
@@ -245,7 +305,7 @@
   session.device = [self protoSessionDevice];
   session.generator_type = [self protoGeneratorTypeFromString:self.host.platform];
 
-  NSString *userId = self.keyValues[FIRCLSUserIdentifierKey];
+  NSString *userId = self.internalKeyValues[FIRCLSUserIdentifierKey];
   if (userId) {
     session.user = [self protoUserWithId:userId];
   }
@@ -354,7 +414,6 @@
     thread.registers = [self protoRegistersWithArray:array[i].registers];
     thread.registers_count = (pb_size_t)array[i].registers.count;
 
-    // TODO: Fix analysis issue: "Use of zero-allocated memory"
     threads[i] = thread;
   }
 

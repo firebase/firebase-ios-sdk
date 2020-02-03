@@ -85,15 +85,11 @@
 /// It is important that crashes do not occur when reading persisted crash files before uploading
 /// Verify various invalid input cases
 - (void)testCorruptRecordCases {
-  id adapter __unused =
-      [[FIRCLSReportAdapter alloc] initWithPath:[FIRCLSReportAdapterTests corruptedCrashFolder]
-                                    googleAppId:@"appID"];
+  id adapter __unused = [FIRCLSReportAdapterTests adapterForCorruptFiles];
 }
 
 - (void)testRecordBinaryImagesFile {
-  FIRCLSReportAdapter *adapter =
-      [[FIRCLSReportAdapter alloc] initWithPath:[FIRCLSReportAdapterTests persistedCrashFolder]
-                                    googleAppId:@"appID"];
+  FIRCLSReportAdapter *adapter = [FIRCLSReportAdapterTests adapterForValidFiles];
   XCTAssertEqual(adapter.binaryImages.count, 453);
 
   // Verify first binary
@@ -117,9 +113,7 @@
 }
 
 - (void)testRecordMetadataFile {
-  FIRCLSReportAdapter *adapter =
-      [[FIRCLSReportAdapter alloc] initWithPath:[FIRCLSReportAdapterTests persistedCrashFolder]
-                                    googleAppId:@"appID"];
+  FIRCLSReportAdapter *adapter = [FIRCLSReportAdapterTests adapterForValidFiles];
 
   // Verify identity
   XCTAssertTrue([adapter.identity.generator isEqualToString:@"Crashlytics iOS SDK/4.0.0-beta.1"]);
@@ -151,24 +145,67 @@
   XCTAssertEqual(adapter.executable.size, 1392640);
 }
 
-- (void)testRecordKeyValueFile {
-  FIRCLSReportAdapter *adapter =
-      [[FIRCLSReportAdapter alloc] initWithPath:[FIRCLSReportAdapterTests persistedCrashFolder]
-                                    googleAppId:@"appID"];
-  XCTAssertEqual(adapter.keyValues.count, 6);
+- (void)testRecordInternalKeyValueFile {
+  FIRCLSReportAdapter *adapter = [FIRCLSReportAdapterTests adapterForValidFiles];
+  XCTAssertEqual(adapter.internalKeyValues.count, 6);
 
   // Verify first
-  XCTAssertTrue([adapter.keyValues[@"com.crashlytics.in-background"] isEqualToString:@"0"]);
+  XCTAssertTrue([adapter.internalKeyValues[@"com.crashlytics.in-background"] isEqualToString:@"0"]);
 
   // Verify last
-  XCTAssertTrue([adapter.keyValues[@"com.crashlytics.user-id"]
+  XCTAssertTrue([adapter.internalKeyValues[@"com.crashlytics.user-id"]
       isEqualToString:@"test-user-28AE6E09-BC30-4CB3-9FA5-FE06828B8F3C"]);
 }
 
+- (void)testRecordUserKeyValueFile {
+  FIRCLSReportAdapter *adapter = [FIRCLSReportAdapterTests adapterForValidFiles];
+  XCTAssertEqual(adapter.userKeyValues.count, 3);
+
+  // Verify first
+  XCTAssertTrue([adapter.userKeyValues[@"some_key_1"] isEqualToString:@"some_value_1"]);
+
+  // Verify last
+  XCTAssertTrue([adapter.userKeyValues[@"some_key_3"] isEqualToString:@"some_value_3"]);
+}
+
+- (void)testRecordUserLogFiles {
+  FIRCLSReportAdapter *adapter = [FIRCLSReportAdapterTests adapterForValidFiles];
+  XCTAssertEqual(adapter.userLogs.count, 6);
+
+  // Verify first
+  XCTAssertTrue([adapter.userLogs[0].msg isEqualToString:@"custom_log_msg_1"]);
+  XCTAssertEqual(adapter.userLogs[0].time, 1579796958175);
+
+  // Verify last
+  XCTAssertTrue([adapter.userLogs[5].msg isEqualToString:@"custom_log_msg_6"]);
+  XCTAssertEqual(adapter.userLogs[5].time, 1579796959935);
+}
+
+- (void)testRecordUserErrorFiles {
+  FIRCLSReportAdapter *adapter = [FIRCLSReportAdapterTests adapterForValidFiles];
+  XCTAssertEqual(adapter.errors.count, 4);
+
+  // Verify first
+  XCTAssertTrue([adapter.errors[0].domain isEqualToString:@"Crashlytics_App.CustomSwiftError1"]);
+  XCTAssertEqual(adapter.errors[0].code, 0);
+  XCTAssertEqual(adapter.errors[0].time, 1579796960);
+
+  XCTAssertEqual(adapter.errors[0].stacktrace.count, 29);
+  XCTAssertEqual(adapter.errors[0].stacktrace[0].unsignedIntegerValue, 4305958120);
+  XCTAssertEqual(adapter.errors[0].stacktrace[28].unsignedIntegerValue, 7020727832);
+
+  // Verify last
+  XCTAssertTrue([adapter.errors[3].domain isEqualToString:@"Crashlytics_App.CustomSwiftError4"]);
+  XCTAssertEqual(adapter.errors[3].code, 4);
+  XCTAssertEqual(adapter.errors[3].time, 1579796966);
+
+  XCTAssertEqual(adapter.errors[3].stacktrace.count, 29);
+  XCTAssertEqual(adapter.errors[3].stacktrace[0].unsignedIntegerValue, 4305958121);
+  XCTAssertEqual(adapter.errors[3].stacktrace[28].unsignedIntegerValue, 7020727833);
+}
+
 - (void)testRecordSignalFile {
-  FIRCLSReportAdapter *adapter =
-      [[FIRCLSReportAdapter alloc] initWithPath:[FIRCLSReportAdapterTests persistedCrashFolder]
-                                    googleAppId:@"appID"];
+  FIRCLSReportAdapter *adapter = [FIRCLSReportAdapterTests adapterForValidFiles];
 
   // Verify signal
   XCTAssertEqual(adapter.signal.number, 6);
@@ -223,9 +260,7 @@
 }
 
 - (void)testProtoReport {
-  FIRCLSReportAdapter *adapter =
-      [[FIRCLSReportAdapter alloc] initWithPath:[FIRCLSReportAdapterTests persistedCrashFolder]
-                                    googleAppId:@"appID"];
+  FIRCLSReportAdapter *adapter = [FIRCLSReportAdapterTests adapterForValidFiles];
   __unused NSData *report = [adapter transportBytes];
 
   // TODO - Consider: take a dependency on protobuf in tests and compare the nanopb generated bytes
@@ -233,13 +268,21 @@
 }
 
 - (void)testProtoReportFromCorruptFiles {
-  FIRCLSReportAdapter *adapter =
-      [[FIRCLSReportAdapter alloc] initWithPath:[FIRCLSReportAdapterTests corruptedCrashFolder]
-                                    googleAppId:@"appID"];
+  FIRCLSReportAdapter *adapter = [FIRCLSReportAdapterTests adapterForCorruptFiles];
   __unused NSData *report = [adapter transportBytes];
 }
 
 // Helper functions
+
++ (FIRCLSReportAdapter *)adapterForValidFiles {
+  return [[FIRCLSReportAdapter alloc] initWithPath:[FIRCLSReportAdapterTests persistedCrashFolder]
+                                       googleAppId:@"appID"];
+}
+
++ (FIRCLSReportAdapter *)adapterForCorruptFiles {
+  return [[FIRCLSReportAdapter alloc] initWithPath:[FIRCLSReportAdapterTests corruptedCrashFolder]
+                                       googleAppId:@"appID"];
+}
 
 + (NSString *)resourcePath {
   return [[NSBundle bundleForClass:[self class]] resourcePath];

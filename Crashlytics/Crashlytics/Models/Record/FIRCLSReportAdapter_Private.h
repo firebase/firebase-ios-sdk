@@ -18,10 +18,12 @@
 
 #import "FIRCLSRecordApplication.h"
 #import "FIRCLSRecordBinaryImage.h"
+#import "FIRCLSRecordError.h"
 #import "FIRCLSRecordExecutable.h"
 #import "FIRCLSRecordHost.h"
 #import "FIRCLSRecordIdentity.h"
 #import "FIRCLSRecordKeyValue.h"
+#import "FIRCLSRecordLog.h"
 #import "FIRCLSRecordProcessStats.h"
 #import "FIRCLSRecordRegister.h"
 #import "FIRCLSRecordRuntime.h"
@@ -44,7 +46,10 @@
 @property(nonatomic, strong) FIRCLSRecordHost *host;
 @property(nonatomic, strong) FIRCLSRecordApplication *application;
 @property(nonatomic, strong) FIRCLSRecordExecutable *executable;
-@property(nonatomic, strong) NSDictionary<NSString *, NSString *> *keyValues;
+@property(nonatomic, strong) NSDictionary<NSString *, NSString *> *internalKeyValues;
+@property(nonatomic, strong) NSDictionary<NSString *, NSString *> *userKeyValues;
+@property(nonatomic, strong) NSArray<FIRCLSRecordLog *> *userLogs;
+@property(nonatomic, strong) NSArray<FIRCLSRecordError *> *errors;
 
 @property(nonatomic) google_crashlytics_Report report;
 
