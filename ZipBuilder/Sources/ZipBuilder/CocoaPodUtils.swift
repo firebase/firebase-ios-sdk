@@ -51,6 +51,12 @@ enum CocoaPodUtils {
     /// The location of the pod on disk.
     let installedLocation: URL
 
+    /// Source pod flag.
+    let isSourcePod: Bool
+
+    /// Binary frameworks in this pod.
+    let binaryFrameworks: [URL]
+
     /// The contents of the module map for all frameworks associated with the pod.
     var moduleMapContents: String
 
@@ -58,7 +64,21 @@ enum CocoaPodUtils {
       self.version = version
       self.dependencies = dependencies
       self.installedLocation = installedLocation
-      moduleMapContents = ""
+      self.moduleMapContents = ""
+
+      // Get all the frameworks contained in this directory.
+      var binaryFrameworks: [URL] = []
+      if installedLocation != LaunchArgs.shared.localPodspecPath {
+        do {
+          binaryFrameworks = try FileManager.default.recursivelySearch(for: .frameworks,
+                                                                        in: installedLocation)
+        } catch {
+          fatalError("Cannot search for .framework files in Pods directory " +
+            "\(installedLocation): \(error)")
+        }
+      }
+      self.binaryFrameworks = binaryFrameworks
+      self.isSourcePod = binaryFrameworks == []
     }
   }
 

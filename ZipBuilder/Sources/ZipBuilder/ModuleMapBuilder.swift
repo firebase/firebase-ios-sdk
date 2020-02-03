@@ -56,8 +56,7 @@ struct ModuleMapBuilder {
     var installedPods: [String: FrameworkInfo] = [:]
     for pod in selectedPods {
       let frameworkName = pod.key
-      // The cacheDir is only used for source pods.
-      let isSourcePod = true // TODO: - delete this field test with Analytics
+      let isSourcePod = pod.value.isSourcePod
       let version = pod.value.version
       let versionedPod = CocoaPodUtils.VersionedPod(name: frameworkName, version: version)
       installedPods[frameworkName] = FrameworkInfo(isSourcePod: isSourcePod, versionedPod: versionedPod)

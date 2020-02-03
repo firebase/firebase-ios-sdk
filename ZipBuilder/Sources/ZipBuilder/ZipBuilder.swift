@@ -707,21 +707,8 @@ struct ZipBuilder {
         continue
       }
 
-      // Get all the frameworks contained in this directory.
-      var foundFrameworks: [URL] = []
-      if podInfo.installedLocation != LaunchArgs.shared.localPodspecPath {
-        do {
-          foundFrameworks = try fileManager.recursivelySearch(for: .frameworks,
-                                                              in: podInfo.installedLocation)
-        } catch {
-          fatalError("Cannot search for .framework files in Pods directory " +
-            "\(podInfo.installedLocation): \(error)")
-        }
-      }
-
-      // If there are no frameworks, it's an open source pod and we need to compile the source to
-      // get a framework.
-      if foundFrameworks.isEmpty {
+      // If it's an open source pod and we need to compile the source to get a framework.
+      if podInfo.isSourcePod {
         let builder = FrameworkBuilder(projectDir: projectDir, carthageBuild: carthageBuild)
         let framework = builder.buildFramework(withName: podName,
                                                version: podInfo.version,
@@ -739,7 +726,7 @@ struct ZipBuilder {
         }
 
         // Copy each of the frameworks to a known temporary directory and store the location.
-        for framework in foundFrameworks {
+        for framework in podInfo.binaryFrameworks {
           // Copy it to the temporary directory and save it to our list of frameworks.
           let copiedLocation = tempDir.appendingPathComponent(framework.lastPathComponent)
 
