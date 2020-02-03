@@ -247,7 +247,8 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
         if (!identity || error) {
           NSString *errorDescription =
               [NSString stringWithFormat:@"Error getting iid : %@.", error];
-          FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000055", errorDescription);
+          FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000055", @"%@",
+                      [NSString stringWithFormat:@"%@", errorDescription]);
           return [self
               reportCompletionOnHandler:completionHandler
                              withStatus:FIRRemoteConfigFetchStatusFailure
