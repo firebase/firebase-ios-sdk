@@ -26,6 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class FIRCLSInternalReport;
 @class FIRCLSSettings;
 @class FIRInstanceID;
+@class GDTCORTransport;
 @protocol FIRAnalyticsInterop;
 
 @interface FIRCLSReportManager : NSObject
@@ -35,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
                           analytics:(nullable id<FIRAnalyticsInterop>)analytics
                         googleAppID:(NSString *)googleAppID
                         dataArbiter:(FIRCLSDataCollectionArbiter *)dataArbiter
-    NS_DESIGNATED_INITIALIZER;
+                    googleTransport:(GDTCORTransport *)googleTransport NS_DESIGNATED_INITIALIZER;
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
 

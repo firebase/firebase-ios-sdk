@@ -27,14 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
                           analytics:(nullable id<FIRAnalyticsInterop>)analytics
                         googleAppID:(NSString *)googleAppID
                         dataArbiter:(FIRCLSDataCollectionArbiter *)dataArbiter
-                         appIDModel:(FIRCLSApplicationIdentifierModel *)appIDModel
-    NS_DESIGNATED_INITIALIZER;
-
-- (instancetype)initWithFileManager:(FIRCLSFileManager *)fileManager
-                         instanceID:(FIRInstanceID *)instanceID
-                          analytics:(nullable id<FIRAnalyticsInterop>)analytics
-                        googleAppID:(NSString *)googleAppID
-                        dataArbiter:(FIRCLSDataCollectionArbiter *)dataArbiter NS_UNAVAILABLE;
+                    googleTransport:(GDTCORTransport *)googleTransport NS_DESIGNATED_INITIALIZER;
 
 @property(nonatomic, copy) NSString *bundleIdentifier;
 

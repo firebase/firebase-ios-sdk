@@ -156,6 +156,8 @@ typedef NSNumber FIRCLSWrappedBool;
 // Runs the operations that fetch settings and call onboarding endpoints
 @property(nonatomic, strong) FIRCLSSettingsOnboardingManager *settingsAndOnboardingManager;
 
+@property(nonatomic, strong) GDTCORTransport *googleTransport;
+
 @end
 
 @implementation FIRCLSReportManager
@@ -167,7 +169,8 @@ static void (^reportSentCallback)(void);
                          instanceID:(FIRInstanceID *)instanceID
                           analytics:(id<FIRAnalyticsInterop>)analytics
                         googleAppID:(NSString *)googleAppID
-                        dataArbiter:(FIRCLSDataCollectionArbiter *)dataArbiter {
+                        dataArbiter:(FIRCLSDataCollectionArbiter *)dataArbiter
+                    googleTransport:(GDTCORTransport *)googleTransport {
   self = [super init];
   if (!self) {
     return nil;
@@ -177,6 +180,8 @@ static void (^reportSentCallback)(void);
   _analytics = analytics;
   _googleAppID = [googleAppID copy];
   _dataArbiter = dataArbiter;
+
+  _googleTransport = googleTransport;
 
   NSString *sdkBundleID = FIRCLSApplicationGetSDKBundleID();
 
