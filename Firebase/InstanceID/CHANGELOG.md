@@ -1,5 +1,5 @@
-# unreleased
-- [changed] Stop collecting logging ID as it is not used anymore.(#4732)
+# 2020-02 -- 4.3.1
+- [changed] Stop collecting logging ID as it is not used anymore.(#4444)
 
 # 2020-01 -- 4.3.0
 - [added] Added watchOS support for InstanceID (#4016)
