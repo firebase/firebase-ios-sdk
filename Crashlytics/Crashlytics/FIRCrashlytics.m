@@ -62,6 +62,8 @@ dispatch_queue_t _firclsExceptionQueue;
 
 static atomic_bool _hasInitializedInstance;
 
+NSString *const FIRCLSGoogleTransportMappingID = @"1206";
+
 /// Empty protocol to register with FirebaseCore's component system.
 @protocol FIRCrashlyticsInstanceProvider <NSObject>
 @end
@@ -101,7 +103,7 @@ static atomic_bool _hasInitializedInstance;
     FIRCLSDeveloperLog("Crashlytics", @"Running on %@, %@ (%@)", FIRCLSHostModelInfo(),
                        FIRCLSHostOSDisplayVersion(), FIRCLSHostOSBuildVersion());
 
-    _googleTransport = [[GDTCORTransport alloc] initWithMappingID:@"1206"
+    _googleTransport = [[GDTCORTransport alloc] initWithMappingID:FIRCLSGoogleTransportMappingID
                                                      transformers:nil
                                                            target:kGDTCORTargetCSH];
 
