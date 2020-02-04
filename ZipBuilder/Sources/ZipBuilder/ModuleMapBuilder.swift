@@ -22,14 +22,12 @@ struct ModuleMapBuilder {
   /// Information associated with a framework
   private class FrameworkInfo {
     let isSourcePod: Bool
-    let installedLocation: URL
     let versionedPod: CocoaPodUtils.VersionedPod
     var transitiveFrameworks: Set<String>?
     var transitiveLibraries: Set<String>?
 
-    init(isSourcePod: Bool, installedLocation: URL, versionedPod: CocoaPodUtils.VersionedPod) {
+    init(isSourcePod: Bool, versionedPod: CocoaPodUtils.VersionedPod) {
       self.isSourcePod = isSourcePod
-      self.installedLocation = installedLocation
       self.versionedPod = versionedPod
     }
   }
@@ -41,40 +39,27 @@ struct ModuleMapBuilder {
   /// master repo.
   private let customSpecRepos: [URL]?
 
-  /// Dictionary of all installed pods.
-  private let allPods: [String: CocoaPodUtils.PodInfo]
+  /// Dictionary of all installed pods. Update moduleMapContents here.
+  private var allPods: [String: CocoaPodUtils.PodInfo]
 
   /// Dictionary of installed pods required for this module.
   private var installedPods: [String: FrameworkInfo]
 
   /// Default initializer.
-  init(frameworks: [String: [URL]], customSpecRepos: [URL]?, allPods: [String: CocoaPodUtils.PodInfo]) {
+  init(customSpecRepos: [URL]?, selectedPods: [String: CocoaPodUtils.PodInfo]) {
     projectDir = FileManager.default.temporaryDirectory(withName: "module")
     CocoaPodUtils.podInstallPrepare(inProjectDir: projectDir)
 
     self.customSpecRepos = customSpecRepos
-    self.allPods = allPods
+    allPods = selectedPods
 
-    var cacheDir: URL
-    do {
-      cacheDir = try FileManager.default.sourcePodCacheDirectory(withSubdir: "")
-    } catch {
-      fatalError("Could not find framework cache directory: \(error)")
-    }
     var installedPods: [String: FrameworkInfo] = [:]
-    for framework in frameworks {
-      for url in framework.value {
-        let frameworkFullName = url.lastPathComponent
-        let frameworkName = frameworkFullName.replacingOccurrences(of: ".framework", with: "")
-        // The cacheDir is only used for source pods.
-        let isSourcePod = url.absoluteString.contains(cacheDir.absoluteString)
-        let version = isSourcePod ? url.deletingLastPathComponent().lastPathComponent : nil
-        let installedLocation = url
-        let versionedPod = CocoaPodUtils.VersionedPod(name: frameworkName, version: version)
-        installedPods[frameworkName] = FrameworkInfo(isSourcePod: isSourcePod,
-                                                     installedLocation: installedLocation,
-                                                     versionedPod: versionedPod)
-      }
+    for pod in selectedPods {
+      let frameworkName = pod.key
+      let isSourcePod = pod.value.isSourcePod
+      let version = pod.value.version
+      let versionedPod = CocoaPodUtils.VersionedPod(name: frameworkName, version: version)
+      installedPods[frameworkName] = FrameworkInfo(isSourcePod: isSourcePod, versionedPod: versionedPod)
     }
     self.installedPods = installedPods
   }
@@ -106,7 +91,7 @@ struct ModuleMapBuilder {
     let xcconfigFile = projectDir.appendingPathComponents(["Pods", "Target Support Files",
                                                            "Pods-FrameworkMaker",
                                                            "Pods-FrameworkMaker.release.xcconfig"])
-    makeModuleMap(forFramework: framework, withXcconfigFile: xcconfigFile)
+    allPods[podName]?.moduleMapContents = makeModuleMap(forFramework: framework, withXcconfigFile: xcconfigFile)
   }
 
   // Extract the framework and library dependencies for a framework from
@@ -144,7 +129,7 @@ struct ModuleMapBuilder {
   }
 
   private func makeModuleMap(forFramework framework: FrameworkInfo,
-                             withXcconfigFile xcconfigFile: URL) {
+                             withXcconfigFile xcconfigFile: URL) -> String {
     let name = framework.versionedPod.name
     let dependencies = getModuleDependencies(withXcconfigFile: xcconfigFile)
     let frameworkDeps = Set(dependencies.frameworks)
@@ -182,14 +167,6 @@ struct ModuleMapBuilder {
     installedPods[name]?.transitiveFrameworks = transitiveFrameworkDeps
     installedPods[name]?.transitiveLibraries = transitiveLibraryDeps
 
-    let moduleDir = framework.installedLocation.appendingPathComponent("Modules")
-    do {
-      try FileManager.default.createDirectory(at: moduleDir, withIntermediateDirectories: true)
-    } catch {
-      fatalError("Could not create Modules directory for framework: \(name). \(error)")
-    }
-
-    let modulemap = moduleDir.appendingPathComponent("module.modulemap")
     // The base of the module map. The empty line at the end is intentional, do not remove it.
     var content = """
     framework module \(name) {
@@ -205,11 +182,6 @@ struct ModuleMapBuilder {
       content += "  link " + library + "\n"
     }
     content += "}\n"
-
-    do {
-      try content.write(to: modulemap, atomically: true, encoding: .utf8)
-    } catch {
-      fatalError("Could not write modulemap to disk for \(name): \(error)")
-    }
+    return content
   }
 }
