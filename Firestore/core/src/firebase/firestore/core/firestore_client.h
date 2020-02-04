@@ -88,7 +88,13 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
    * Terminates this client, cancels all writes / listeners, and releases all
    * resources.
    */
-  void Terminate(util::StatusCallback callback);
+  void TerminateAsync(util::StatusCallback callback);
+
+  /**
+   * Synchronously terminates this client, cancels all writes / listeners, and
+   * releases all resources.
+   */
+  void Terminate();
 
   /**
    * Passes a callback that is triggered when all the pending writes at the
@@ -182,6 +188,8 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
   void Initialize(const auth::User& user, const api::Settings& settings);
 
   void VerifyNotTerminated();
+
+  void TerminateInternal();
 
   void ScheduleLruGarbageCollection();
 
