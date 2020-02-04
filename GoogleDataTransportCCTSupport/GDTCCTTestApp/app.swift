@@ -32,6 +32,7 @@ import GoogleDataTransport
   public class ViewController: UIViewController {
     let cctTransport: GDTCORTransport = GDTCORTransport(mappingID: "1018", transformers: nil, target: GDTCORTarget.CCT.rawValue)!
     let fllTransport: GDTCORTransport = GDTCORTransport(mappingID: "1018", transformers: nil, target: GDTCORTarget.FLL.rawValue)!
+    let cshTransport: GDTCORTransport = GDTCORTransport(mappingID: "1018", transformers: nil, target: GDTCORTarget.CSH.rawValue)!
 
     @IBOutlet var backendSwitch: UISegmentedControl?
 
@@ -41,15 +42,40 @@ import GoogleDataTransport
       if !Thread.current.isMainThread {
         DispatchQueue.main.sync {
           if Globals.IsMonkeyTesting {
-            backendSwitch?.selectedSegmentIndex = Int(arc4random_uniform(2))
+            backendSwitch?.selectedSegmentIndex = Int(arc4random_uniform(3))
           }
-          theTransport = backendSwitch?.selectedSegmentIndex == 0 ? cctTransport : fllTransport
+          switch backendSwitch?.selectedSegmentIndex {
+          case 0:
+            theTransport = cctTransport
+
+          case 1:
+            theTransport = fllTransport
+
+          case 2:
+            theTransport = cshTransport
+
+          default:
+            theTransport = cctTransport
+          }
         }
       } else {
         if Globals.IsMonkeyTesting {
-          backendSwitch?.selectedSegmentIndex = Int(arc4random_uniform(2))
+          backendSwitch?.selectedSegmentIndex = Int(arc4random_uniform(3))
         }
-        theTransport = backendSwitch?.selectedSegmentIndex == 0 ? cctTransport : fllTransport
+
+        switch backendSwitch?.selectedSegmentIndex {
+        case 0:
+          theTransport = cctTransport
+
+        case 1:
+          theTransport = fllTransport
+
+        case 2:
+          theTransport = cshTransport
+
+        default:
+          theTransport = cctTransport
+        }
       }
       return theTransport
     }
@@ -68,6 +94,7 @@ import GoogleDataTransport
   public class ViewController: NSViewController {
     let cctTransport: GDTCORTransport = GDTCORTransport(mappingID: "1018", transformers: nil, target: GDTCORTarget.CCT.rawValue)!
     let fllTransport: GDTCORTransport = GDTCORTransport(mappingID: "1018", transformers: nil, target: GDTCORTarget.FLL.rawValue)!
+    let cshTransport: GDTCORTransport = GDTCORTransport(mappingID: "1018", transformers: nil, target: GDTCORTarget.CSH.rawValue)!
 
     @IBOutlet var backendSwitch: NSSegmentedControl?
 
@@ -76,15 +103,39 @@ import GoogleDataTransport
       if !Thread.current.isMainThread {
         DispatchQueue.main.sync {
           if Globals.IsMonkeyTesting {
-            backendSwitch?.selectedSegment = Int(arc4random_uniform(2))
+            backendSwitch?.selectedSegment = Int(arc4random_uniform(3))
           }
-          theTransport = backendSwitch?.selectedSegment == 0 ? cctTransport : fllTransport
+          switch backendSwitch?.selectedSegment {
+          case 0:
+            theTransport = cctTransport
+
+          case 1:
+            theTransport = fllTransport
+
+          case 2:
+            theTransport = cshTransport
+
+          default:
+            theTransport = cctTransport
+          }
         }
       } else {
         if Globals.IsMonkeyTesting {
-          backendSwitch?.selectedSegment = Int(arc4random_uniform(2))
+          backendSwitch?.selectedSegment = Int(arc4random_uniform(3))
         }
-        theTransport = backendSwitch?.selectedSegment == 0 ? cctTransport : fllTransport
+        switch backendSwitch?.selectedSegment {
+        case 0:
+          theTransport = cctTransport
+
+        case 1:
+          theTransport = fllTransport
+
+        case 2:
+          theTransport = cshTransport
+
+        default:
+          theTransport = cctTransport
+        }
       }
       return theTransport
     }
