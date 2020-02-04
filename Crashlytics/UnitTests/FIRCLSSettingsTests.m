@@ -95,6 +95,8 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertEqual(self.settings.logBufferSize, 64 * 1000);
   XCTAssertEqual(self.settings.maxCustomExceptions, 8);
   XCTAssertEqual(self.settings.maxCustomKeys, 64);
+
+  XCTAssertFalse(self.settings.shouldUseNewReportEndpoint);
 }
 
 - (BOOL)writeSettings:(const NSString *)settings error:(NSError **)error {
@@ -382,6 +384,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertEqualObjects(self.settings.fetchedBundleID, nil);
   XCTAssertFalse(self.settings.appNeedsOnboarding);
   XCTAssertEqual(self.settings.errorLogBufferSize, 64 * 1000);
+  XCTAssertFalse(self.settings.shouldUseNewReportEndpoint);
 }
 
 - (void)testCorruptCacheKey {
@@ -449,7 +452,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
 
 - (void)testLegacyReportEndpointSettingsWithNonExistentKey {
   NSString *settingsJSON = @"{\"settings_version\":3,\"cache_duration\":60,\"app\":{\"status\":"
-                              @"\"activated\",\"update_required\":false}}";
+                           @"\"activated\",\"update_required\":false}}";
 
   NSError *error = nil;
   [self writeSettings:settingsJSON error:&error];
