@@ -164,11 +164,6 @@ NS_SWIFT_NAME(InAppMessagingDisplayMessage)
  */
 @property(nonatomic, readonly) FIRInAppMessagingDisplayTriggerType triggerType;
 
-/**
- * Extra key-value dictionary data that can be sent along with the message
- */
-@property(nonatomic, nullable, readonly) NSDictionary *appData;
-
 /// Unavailable.
 - (instancetype)init NS_UNAVAILABLE;
 
