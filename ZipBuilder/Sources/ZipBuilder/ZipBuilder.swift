@@ -150,11 +150,15 @@ struct ZipBuilder {
     // throw a fatalError if any versions are mismatched.
     validateExpectedVersions(installedPods: installedPods)
 
+    // If module maps are needed for static frameworks, build them here to be available to copy
+    // into the generated frameworks.
+    if !LaunchArgs.shared.dynamic {
+      ModuleMapBuilder(customSpecRepos: customSpecRepos, selectedPods: installedPods).build()
+    }
+
     // Generate the frameworks. Each key is the pod name and the URLs are all frameworks to be
     // copied in each product's directory.
     let frameworks = generateFrameworks(fromPods: installedPods, inProjectDir: projectDir)
-
-    // ModuleMapBuilder(frameworks: frameworks, customSpecRepos: customSpecRepos, allPods: installedPods).build()
 
     for (framework, paths) in frameworks {
       print("Frameworks for pod: \(framework) were compiled at \(paths)")
@@ -403,7 +407,7 @@ struct ZipBuilder {
         continue
       }
 
-      guard let frameworks = frameworkLocations[podName] else {
+      guard let xcframeworks = frameworkLocations[podName] else {
         let reason = "Unable to find frameworks for \(podName) in cache of frameworks built to " +
           "include in the Zip file for that framework's folder."
         let error = NSError(domain: "com.firebase.zipbuilder",
@@ -413,16 +417,15 @@ struct ZipBuilder {
       }
 
       // Copy each of the frameworks over, unless it's explicitly ignored.
-      for framework in frameworks {
-        let frameworkName = framework.lastPathComponent
-        if foldersToIgnore.contains(frameworkName) {
+      for xcframework in xcframeworks {
+        let xcframeworkName = xcframework.lastPathComponent
+        if foldersToIgnore.contains(xcframeworkName) {
           continue
         }
 
-        let xcFrameworkName = frameworkName.replacingOccurrences(of: ".framework", with: ".xcframework")
-        let destination = dir.appendingPathComponent(xcFrameworkName)
-        try fileManager.copyItem(at: framework, to: destination)
-        copiedFrameworkNames.append(frameworkName.replacingOccurrences(of: ".framework", with: ""))
+        let destination = dir.appendingPathComponent(xcframeworkName)
+        try fileManager.copyItem(at: xcframework, to: destination)
+        copiedFrameworkNames.append(xcframeworkName.replacingOccurrences(of: ".xcframework", with: ""))
       }
     }
 
@@ -701,25 +704,13 @@ struct ZipBuilder {
         continue
       }
 
-      // Get all the frameworks contained in this directory.
-      var foundFrameworks: [URL] = []
-      if podInfo.installedLocation != LaunchArgs.shared.localPodspecPath {
-        do {
-          foundFrameworks = try fileManager.recursivelySearch(for: .frameworks,
-                                                              in: podInfo.installedLocation)
-        } catch {
-          fatalError("Cannot search for .framework files in Pods directory " +
-            "\(podInfo.installedLocation): \(error)")
-        }
-      }
-
-      // If there are no frameworks, it's an open source pod and we need to compile the source to
-      // get a framework.
-      if foundFrameworks.isEmpty {
+      // If it's an open source pod and we need to compile the source to get a framework.
+      if podInfo.isSourcePod {
         let builder = FrameworkBuilder(projectDir: projectDir, carthageBuild: carthageBuild)
         let framework = builder.buildFramework(withName: podName,
                                                version: podInfo.version,
-                                               logsOutputDir: paths.logsOutputDir)
+                                               logsOutputDir: paths.logsOutputDir,
+                                               moduleMapContents: pods[podName]!.moduleMapContents)
 
         frameworks = [framework]
       } else {
@@ -732,7 +723,7 @@ struct ZipBuilder {
         }
 
         // Copy each of the frameworks to a known temporary directory and store the location.
-        for framework in foundFrameworks {
+        for framework in podInfo.binaryFrameworks {
           // Copy it to the temporary directory and save it to our list of frameworks.
           let copiedLocation = tempDir.appendingPathComponent(framework.lastPathComponent)
 

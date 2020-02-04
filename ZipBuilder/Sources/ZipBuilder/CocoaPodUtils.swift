@@ -40,7 +40,8 @@ enum CocoaPodUtils {
   }
 
   /// Information associated with an installed pod.
-  struct PodInfo {
+  /// This is a class so that moduleMapContents can be updated via reference.
+  class PodInfo {
     /// The version of the generated pod.
     let version: String
 
@@ -49,6 +50,36 @@ enum CocoaPodUtils {
 
     /// The location of the pod on disk.
     let installedLocation: URL
+
+    /// Source pod flag.
+    let isSourcePod: Bool
+
+    /// Binary frameworks in this pod.
+    let binaryFrameworks: [URL]
+
+    /// The contents of the module map for all frameworks associated with the pod.
+    var moduleMapContents: String
+
+    init(version: String, dependencies: [String], installedLocation: URL) {
+      self.version = version
+      self.dependencies = dependencies
+      self.installedLocation = installedLocation
+      moduleMapContents = ""
+
+      // Get all the frameworks contained in this directory.
+      var binaryFrameworks: [URL] = []
+      if installedLocation != LaunchArgs.shared.localPodspecPath {
+        do {
+          binaryFrameworks = try FileManager.default.recursivelySearch(for: .frameworks,
+                                                                       in: installedLocation)
+        } catch {
+          fatalError("Cannot search for .framework files in Pods directory " +
+            "\(installedLocation): \(error)")
+        }
+      }
+      self.binaryFrameworks = binaryFrameworks
+      isSourcePod = binaryFrameworks == []
+    }
   }
 
   /// Executes the `pod cache clean --all` command to remove any cached CocoaPods.
@@ -315,9 +346,11 @@ enum CocoaPodUtils {
       """ // Explicit newline above to ensure it's included in the String.
     }
 
+    if LaunchArgs.shared.dynamic {
+      podfile += "  use_frameworks!\n"
+    }
     // Include the minimum iOS version.
     podfile += """
-    use_frameworks!
     platform :ios, '\(LaunchArgs.shared.minimumIOSVersion)'
     target 'FrameworkMaker' do\n
     """
