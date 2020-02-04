@@ -1,3 +1,5 @@
+< TEST EDIT TO NOT MERGE>
+
 V2 will add an option to generate a zip distribution of binary frameworks from an arbitrary list
 of source and binary CocoaPods.
 
