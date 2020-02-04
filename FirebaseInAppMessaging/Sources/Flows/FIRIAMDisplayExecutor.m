@@ -445,8 +445,7 @@
         portraitImageData:portraitImageData
           backgroundColor:renderData.renderingEffectSettings.displayBGColor
       primaryActionButton:primaryActionButton
-         primaryActionURL:definition.renderData.contentData.actionURL
-                  appData:definition.appData];
+         primaryActionURL:definition.renderData.contentData.actionURL];
 
   cardMessage.body = body;
   cardMessage.landscapeImageData = landscapeImageData;
@@ -475,8 +474,7 @@
                 textColor:definition.renderData.renderingEffectSettings.textColor
           backgroundColor:definition.renderData.renderingEffectSettings.displayBGColor
                 imageData:imageData
-                actionURL:definition.renderData.contentData.actionURL
-                  appData:definition.appData];
+                actionURL:definition.renderData.contentData.actionURL];
 #pragma clang diagnostic pop
 
   return bannerMessage;
@@ -494,8 +492,7 @@
       renderAsTestMessage:definition.isTestMessage
               triggerType:triggerType
                 imageData:imageData
-                actionURL:definition.renderData.contentData.actionURL
-                  appData:definition.appData];
+                actionURL:definition.renderData.contentData.actionURL];
 #pragma clang diagnostic pop
 
   return imageOnlyMessage;
@@ -536,8 +533,7 @@
           backgroundColor:renderData.renderingEffectSettings.displayBGColor
                 imageData:imageData
              actionButton:actionButton
-                actionURL:definition.renderData.contentData.actionURL
-                  appData:definition.appData];
+                actionURL:definition.renderData.contentData.actionURL];
 #pragma clang diagnostic pop
 
   return modalViewMessage;
