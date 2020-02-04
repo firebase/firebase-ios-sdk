@@ -335,20 +335,14 @@
                                                messageName:messageName
                                                contentData:msgData
                                            renderingEffect:renderEffect];
-    NSDictionary *dataBundle = nil;
-    id dataBundleNode = messageNode[@"dataBundle"];
-    if ([dataBundleNode isKindOfClass:[NSDictionary class]]) {
-      dataBundle = dataBundleNode;
-    }
+
     if (isTestMessage) {
       return [[FIRIAMMessageDefinition alloc] initTestMessageWithRenderData:renderData];
     } else {
       return [[FIRIAMMessageDefinition alloc] initWithRenderData:renderData
                                                        startTime:startTimeInSeconds
                                                          endTime:endTimeInSeconds
-                                               triggerDefinition:triggersDefinition
-                                                         appData:dataBundle
-                                                   isTestMessage:NO];
+                                               triggerDefinition:triggersDefinition];
     }
   } @catch (NSException *e) {
     FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM900006",
