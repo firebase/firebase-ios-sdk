@@ -1,6 +1,6 @@
 # 2020-02 -- v 4.2.1
 - [added] Firebase Pod support for watchOS: `pod 'Firebase/Messaging'` in addition to `pod 'FirebaseMessaging'`. (#4807)
-- [fixed] Fix FIRMessagingExtensionHelper crash when `attachment == nil` in tests. (#4689)
+- [fixed] Fix FIRMessagingExtensionHelper crash in unit tests when `attachment == nil`. (#4689)
 - [fixed] Fix FIRMessagingRmqManager crash when database is removed. This only happens when device has a corrupted database file. (#4771)
 
 # 2020-01 -- v 4.2.0
