@@ -43,6 +43,7 @@ struct LaunchArgs {
     case buildRoot
     case carthageDir
     case customSpecRepos
+    case dynamic
     case existingVersions
     case keepBuildArtifacts
     case localPodspecPath
@@ -68,6 +69,8 @@ struct LaunchArgs {
           "the Carthage build."
       case .customSpecRepos:
         return "A comma separated list of custom CocoaPod Spec repos."
+      case .dynamic:
+        return "A flag specifying to build dynamic library frameworks."
       case .existingVersions:
         return "The file path to a textproto file containing the existing released SDK versions, " +
           "of type `ZipBuilder_FirebaseSDKs`."
@@ -117,6 +120,9 @@ struct LaunchArgs {
   /// Custom CocoaPods spec repos to be used. If not provided, the tool will only use the CocoaPods
   /// master repo.
   let customSpecRepos: [URL]?
+
+  /// A flag that indicates to build dynamic library frameworks. The default is false and static linkage.
+  let dynamic: Bool
 
   /// A flag to keep the build artifacts after this script completes.
   let keepBuildArtifacts: Bool
@@ -324,6 +330,7 @@ struct LaunchArgs {
       minimumIOSVersion = "9.0"
     }
 
+    dynamic = defaults.bool(forKey: Key.dynamic.rawValue)
     updatePodRepo = defaults.bool(forKey: Key.updatePodRepo.rawValue)
     keepBuildArtifacts = defaults.bool(forKey: Key.keepBuildArtifacts.rawValue)
 
