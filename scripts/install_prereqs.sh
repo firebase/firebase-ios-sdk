@@ -27,9 +27,9 @@ set -euo pipefail
 # requests from forks. See
 # https://docs.travis-ci.com/user/pull-requests#pull-requests-and-security-restrictions
 function install_secrets() {
-  if [[ -n "${encrypted_d6a88994a5ab_key:-}" && $secrets_installed != true ]]; then
+  if [[ -n "${encrypted_de2056405dcb_key:-}" && $secrets_installed != true ]]; then
     secrets_installed=true
-    openssl aes-256-cbc -K $encrypted_5dda5f491369_key -iv $encrypted_5dda5f491369_iv \
+    openssl aes-256-cbc -K $encrypted_de2056405dcb_key -iv $encrypted_de2056405dcb_iv \
     -in scripts/travis-encrypted/Secrets.tar.enc \
     -out scripts/travis-encrypted/Secrets.tar -d
 
