@@ -27,6 +27,7 @@
                             </label>
                             <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="9fC-1b-Rvu">
                                 <rect key="frame" x="20" y="37" width="140" height="32"/>
+                                <color key="backgroundColor" systemColor="opaqueSeparatorColor" red="0.77647058820000003" green="0.77647058820000003" blue="0.7843137255" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <segments>
                                     <segment title="CCT"/>
                                     <segment title="FLL"/>
@@ -100,7 +101,7 @@
                                 </connections>
                             </button>
                         </subviews>
-                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="674-uo-mtw" firstAttribute="leading" secondItem="FD9-Mn-in7" secondAttribute="leading" id="2MG-RM-cIL"/>
                             <constraint firstItem="yTs-B1-Yoh" firstAttribute="leading" secondItem="QpN-cI-JZa" secondAttribute="leading" id="3AV-qq-ttG"/>
