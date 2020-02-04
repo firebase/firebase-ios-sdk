@@ -84,12 +84,12 @@ enum class TimerId {
 //
 // A significant portion of `AsyncQueue` interface only exists for test purposes
 // and must *not* be used in regular code.
-class AsyncQueue {
+class AsyncQueue : public std::enable_shared_from_this<AsyncQueue> {
  public:
   using Operation = Executor::Operation;
   using Milliseconds = Executor::Milliseconds;
 
-  explicit AsyncQueue(std::unique_ptr<Executor> executor);
+  static std::shared_ptr<AsyncQueue> Create(std::unique_ptr<Executor> executor);
 
   // Asserts for the caller that it is being invoked as part of an operation on
   // the `AsyncQueue`.
@@ -186,6 +186,8 @@ class AsyncQueue {
   void SkipDelaysForTimerId(TimerId timer_id);
 
  private:
+  explicit AsyncQueue(std::unique_ptr<Executor> executor);
+
   Operation Wrap(const Operation& operation);
 
   // Asserts that the current invocation happens asynchronously on the queue.
