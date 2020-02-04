@@ -388,12 +388,48 @@
   app.background = [self wasInBackground];
   app.ui_orientation = [self uiOrientation];
 
-  // TODO: Where do these come from?
-  //    app.custom_attributes
-  //    app.custom_attributes_count
+  app.custom_attributes = [self protoCustomAttributesWithError:nil];
+  app.custom_attributes_count = (pb_size_t)self.userKeyValues.count;
 
   return app;
 }
+
+/// Generate an array of CustomAttributes from the user defined key values.
+/// For recorded errors, the error's nserror-domain and nserror-code are also added.
+/// @param error Error from recordError API
+- (google_crashlytics_CustomAttribute *)protoCustomAttributesWithError:(NSError *)error {
+  NSUInteger size = self.userKeyValues.count;
+    
+  if (error) {
+      size += 2;
+  }
+    
+  google_crashlytics_CustomAttribute *attributes =
+      malloc(sizeof(google_crashlytics_CustomAttribute) * size);
+
+  for (NSUInteger i = 0; i < self.userKeyValues.count; i++) {
+    google_crashlytics_CustomAttribute attribute = google_crashlytics_CustomAttribute_init_default;
+    NSString *key = self.userKeyValues.allKeys[i];
+    attribute.key = FIRCLSEncodeString(key);
+    attribute.value = FIRCLSEncodeString(self.userKeyValues[key]);
+    attributes[i] = attribute;
+  }
+    
+  if (error) {
+      google_crashlytics_CustomAttribute errorDomainAttribute = google_crashlytics_CustomAttribute_init_default;
+      errorDomainAttribute.key = FIRCLSEncodeString(@"nserror-domain");
+      errorDomainAttribute.value = FIRCLSEncodeString(error.domain);
+      attributes[size-2] = errorDomainAttribute;
+      
+      google_crashlytics_CustomAttribute errorCodeAttribute = google_crashlytics_CustomAttribute_init_default;
+      errorCodeAttribute.key = FIRCLSEncodeString(@"nserror-domain");
+      errorCodeAttribute.value = FIRCLSEncodeString(error.domain);
+      attributes[size-1] = errorCodeAttribute;
+  }
+
+  return attributes;
+}
+
 
 - (google_crashlytics_Session_Event_Application_Execution_Thread *)protoThreadsWithArray:
     (NSArray<FIRCLSRecordThread *> *)array {
