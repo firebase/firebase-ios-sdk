@@ -62,6 +62,16 @@ Firestore::Firestore(model::DatabaseId database_id,
       extension_{extension} {
 }
 
+Firestore::~Firestore() {
+  std::lock_guard<std::mutex> lock{mutex_};
+
+  // If the client hasn't been configured yet we don't need to create it just
+  // to tear it down.
+  if (!client_) return;
+
+  client_->Terminate();
+}
+
 const std::shared_ptr<FirestoreClient>& Firestore::client() {
   HARD_ASSERT(client_, "Client is not yet configured.");
   return client_;
@@ -133,7 +143,7 @@ void Firestore::Terminate(util::StatusCallback callback) {
   // The client must be initialized to ensure that all subsequent API usage
   // throws an exception.
   EnsureClientConfigured();
-  client_->Terminate(std::move(callback));
+  client_->TerminateAsync(std::move(callback));
 }
 
 void Firestore::WaitForPendingWrites(util::StatusCallback callback) {

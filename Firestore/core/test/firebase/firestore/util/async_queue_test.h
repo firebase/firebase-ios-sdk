@@ -34,10 +34,10 @@ class AsyncQueueTest : public ::testing::TestWithParam<FactoryFunc>,
                        public testutil::AsyncTest {
  public:
   // `GetParam()` must return a factory function.
-  AsyncQueueTest() : queue{GetParam()()} {
+  AsyncQueueTest() : queue{AsyncQueue::Create(GetParam()())} {
   }
 
-  AsyncQueue queue;
+  std::shared_ptr<AsyncQueue> queue;
 };
 
 }  // namespace util

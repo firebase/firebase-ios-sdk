@@ -53,11 +53,11 @@ class AsyncQueueTestLibdispatchOnly : public ::testing::Test,
  public:
   AsyncQueueTestLibdispatchOnly()
       : underlying_queue{CreateDispatchQueue()},
-        queue{CreateExecutorFromQueue(underlying_queue)} {
+        queue{AsyncQueue::Create(CreateExecutorFromQueue(underlying_queue))} {
   }
 
   dispatch_queue_t underlying_queue;
-  AsyncQueue queue;
+  std::shared_ptr<AsyncQueue> queue;
 };
 
 // Additional tests to see how libdispatch-based version of `AsyncQueue`
@@ -66,21 +66,21 @@ class AsyncQueueTestLibdispatchOnly : public ::testing::Test,
 TEST_F(AsyncQueueTestLibdispatchOnly, SameQueueIsAllowedForUnownedActions) {
   Expectation ran;
   internal::DispatchAsync(underlying_queue,
-                          [&] { queue.Enqueue(ran.AsCallback()); });
+                          [&] { queue->Enqueue(ran.AsCallback()); });
   Await(ran);
 }
 
 TEST_F(AsyncQueueTestLibdispatchOnly,
        VerifyIsCurrentQueueRequiresOperationInProgress) {
   internal::DispatchSync(underlying_queue, [this] {
-    EXPECT_ANY_THROW(queue.VerifyIsCurrentQueue());
+    EXPECT_ANY_THROW(queue->VerifyIsCurrentQueue());
   });
 }
 
 TEST_F(AsyncQueueTestLibdispatchOnly,
        VerifyIsCurrentQueueRequiresBeingCalledOnTheQueue) {
   ASSERT_NE(underlying_queue, dispatch_get_main_queue());
-  EXPECT_ANY_THROW(queue.VerifyIsCurrentQueue());
+  EXPECT_ANY_THROW(queue->VerifyIsCurrentQueue());
 }
 
 }  // namespace util

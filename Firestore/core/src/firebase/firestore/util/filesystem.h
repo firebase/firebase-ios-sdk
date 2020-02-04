@@ -37,6 +37,8 @@ class StatusOr;
  */
 class Filesystem {
  public:
+  virtual ~Filesystem() = default;
+
   Filesystem(const Filesystem&) = delete;
   Filesystem& operator=(const Filesystem&) = delete;
 
