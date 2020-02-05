@@ -48,7 +48,11 @@ NSString *const kPendingTopicsTimestampEncodingKey = @"ts";
   return self;
 }
 
-#pragma mark NSCoding
+#pragma mark NSSecureCoding
+
++ (BOOL)supportsSecureCoding {
+  return YES;
+}
 
 - (void)encodeWithCoder:(NSCoder *)aCoder {
   [aCoder encodeInteger:self.action forKey:kPendingTopicBatchActionKey];
@@ -56,7 +60,6 @@ NSString *const kPendingTopicsTimestampEncodingKey = @"ts";
 }
 
 - (instancetype)initWithCoder:(NSCoder *)aDecoder {
-
   // Ensure that our integer -> enum casting is safe
   NSInteger actionRawValue = [aDecoder decodeIntegerForKey:kPendingTopicBatchActionKey];
   FIRMessagingTopicAction action = FIRMessagingTopicActionSubscribe;
@@ -65,10 +68,7 @@ NSString *const kPendingTopicsTimestampEncodingKey = @"ts";
   }
 
   if (self = [self initWithAction:action]) {
-    NSSet *topics = [aDecoder decodeObjectForKey:kPendingTopicBatchTopicsKey];
-    if ([topics isKindOfClass:[NSSet class]]) {
-      _topics = [topics mutableCopy];
-    }
+    _topics = [aDecoder decodeObjectOfClass:[NSSet class] forKey:kPendingTopicBatchTopicsKey];
     _topicHandlers = [NSMutableDictionary dictionary];
   }
   return self;
@@ -109,7 +109,11 @@ NSString *const kPendingTopicsTimestampEncodingKey = @"ts";
   }
 }
 
-#pragma mark NSCoding
+#pragma mark NSSecureCoding
+
++ (BOOL)supportsSecureCoding {
+  return YES;
+}
 
 - (void)encodeWithCoder:(NSCoder *)aCoder {
   [aCoder encodeObject:[NSDate date] forKey:kPendingTopicsTimestampEncodingKey];
@@ -117,12 +121,10 @@ NSString *const kPendingTopicsTimestampEncodingKey = @"ts";
 }
 
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder {
-
   if (self = [self init]) {
-    _archiveDate = [aDecoder decodeObjectForKey:kPendingTopicsTimestampEncodingKey];
-    NSArray *archivedBatches = [aDecoder decodeObjectForKey:kPendingBatchesEncodingKey];
-    if (archivedBatches) {
-      _topicBatches = [archivedBatches mutableCopy];
+    _archiveDate = [aDecoder decodeObjectOfClass:[NSDate class] forKey:kPendingTopicsTimestampEncodingKey];
+    _topicBatches = [aDecoder decodeObjectOfClass:[NSMutableArray<FIRMessagingTopicBatch *> class] forKey:kPendingBatchesEncodingKey];
+    if (_topicBatches) {
       [FIRMessagingPendingTopicsList pruneTopicBatches:_topicBatches];
     }
     _topicsInFlight = [NSMutableSet set];
