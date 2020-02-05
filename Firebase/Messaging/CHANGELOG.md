@@ -2,6 +2,7 @@
 - [added] Firebase Pod support for watchOS: `pod 'Firebase/Messaging'` in addition to `pod 'FirebaseMessaging'`. (#4807)
 - [fixed] Fix FIRMessagingExtensionHelper crash in unit tests when `attachment == nil`. (#4689)
 - [fixed] Fix FIRMessagingRmqManager crash when database is removed. This only happens when device has a corrupted database file. (#4771)
+- [fixed] Use secure encoding for messaging's pending topics objects. (#3686)
 
 # 2020-01 -- v 4.2.0
 - [added] Added watchOS support for Firebase Messaging. This enables FCM push notification function on watch only app or independent watch app. (#4016)
