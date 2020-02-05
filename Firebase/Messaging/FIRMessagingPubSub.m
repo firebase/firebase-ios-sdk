@@ -183,14 +183,10 @@ static NSString *const kPendingSubscriptionsListKey =
 
 - (void)archivePendingTopicsList:(FIRMessagingPendingTopicsList *)topicsList {
   GULUserDefaults *defaults = [GULUserDefaults standardUserDefaults];
-
-  NSData *pendingData;
-  if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, watchOS 4.0, *)) {
-    NSError *error;
-    pendingData = [NSKeyedArchiver archivedDataWithRootObject:topicsList requiringSecureCoding:YES error:&error];
-  } else {
-    pendingData = [NSKeyedArchiver archivedDataWithRootObject:topicsList];
-  }
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+  NSData *pendingData = [NSKeyedArchiver archivedDataWithRootObject:topicsList];
+#pragma clang diagnostic pop
   [defaults setObject:pendingData forKey:kPendingSubscriptionsListKey];
   [defaults synchronize];
 }
@@ -199,17 +195,16 @@ static NSString *const kPendingSubscriptionsListKey =
   GULUserDefaults *defaults = [GULUserDefaults standardUserDefaults];
   NSData *pendingData = [defaults objectForKey:kPendingSubscriptionsListKey];
   FIRMessagingPendingTopicsList *subscriptions;
-  if (pendingData) {
-    if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, watchOS 4.0, *)) {
-      NSError *error;
-      subscriptions = [NSKeyedUnarchiver unarchivedObjectOfClass:[NSData class] fromData:pendingData error:&error];
-    } else {
-      @try {
-        subscriptions = [NSKeyedUnarchiver unarchiveObjectWithData:pendingData];
-      } @catch (NSException *exception) {
-        // Nothing we can do, just continue as if we don't have pending subscriptions
-      }
+  @try {
+    if (pendingData) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+      subscriptions = [NSKeyedUnarchiver unarchiveObjectWithData:pendingData];
+#pragma clang diagnostic pop
     }
+  } @catch (NSException *exception) {
+    // Nothing we can do, just continue as if we don't have pending subscriptions
+  } @finally {
     if (subscriptions) {
       self.pendingTopicUpdates = subscriptions;
     } else {

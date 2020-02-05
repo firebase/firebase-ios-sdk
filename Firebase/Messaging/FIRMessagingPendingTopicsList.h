@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
  *  topics is unique, as it doesn't make sense to apply the same action to the same topic
  *  repeatedly; the result would be the same as the first time.
  */
-@interface FIRMessagingTopicBatch : NSObject <NSSecureCoding>
+@interface FIRMessagingTopicBatch : NSObject <NSCoding>
 
 @property(nonatomic, readonly, assign) FIRMessagingTopicAction action;
 @property(nonatomic, readonly, copy) NSMutableSet <NSString *> *topics;
@@ -101,7 +101,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  *  @see FIRMessagingPendingTopicsListDelegate
  */
-@interface FIRMessagingPendingTopicsList : NSObject <NSSecureCoding>
+@interface FIRMessagingPendingTopicsList : NSObject <NSCoding>
 
 @property(nonatomic, weak) NSObject <FIRMessagingPendingTopicsListDelegate> *delegate;
 
