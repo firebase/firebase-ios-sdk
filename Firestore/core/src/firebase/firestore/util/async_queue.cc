@@ -26,6 +26,13 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
+std::shared_ptr<AsyncQueue> AsyncQueue::Create(
+    std::unique_ptr<Executor> executor) {
+  // Use new because make_shared cannot access a private constructor.
+  auto queue = new AsyncQueue(std::move(executor));
+  return std::shared_ptr<AsyncQueue>(queue);
+}
+
 AsyncQueue::AsyncQueue(std::unique_ptr<Executor> executor)
     : executor_{std::move(executor)} {
   is_operation_in_progress_ = false;
@@ -72,9 +79,7 @@ void AsyncQueue::Enqueue(const Operation& operation) {
 void AsyncQueue::EnqueueAndInitiateShutdown(const Operation& operation) {
   std::lock_guard<std::mutex> lock{shut_down_mutex_};
   VerifySequentialOrder();
-  if (is_shutting_down_) {
-    return;
-  }
+
   is_shutting_down_ = true;
   executor_->Execute(Wrap(operation));
 }
@@ -109,7 +114,7 @@ DelayedOperation AsyncQueue::EnqueueAfterDelay(Milliseconds delay,
     return DelayedOperation();
   }
 
-  // Skip delays for timer_ids that have been overriden
+  // Skip delays for timer_ids that have been overridden
   if (absl::c_linear_search(timer_ids_to_skip_, timer_id)) {
     delay = Milliseconds(0);
   }
@@ -123,7 +128,8 @@ AsyncQueue::Operation AsyncQueue::Wrap(const Operation& operation) {
   // ensure that it doesn't spawn any nested operations.
 
   // Note: can't move `operation` into lambda until C++14.
-  return [this, operation] { ExecuteBlocking(operation); };
+  auto shared_this = shared_from_this();
+  return [shared_this, operation] { shared_this->ExecuteBlocking(operation); };
 }
 
 void AsyncQueue::VerifySequentialOrder() const {
