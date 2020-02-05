@@ -24,6 +24,24 @@
 
 #include <cstdint>
 
+#if _MSC_VER
+// The Microsoft implementation of iso646.h defines alternative operator names
+// as macros and this interferes with the inline assembly, below, which uses the
+// `and` and `xor` instructions. Defining these as macros is conforming behavior
+// for C but not C++, where these are keywords.
+//
+// Unfortunately, fixing this by undefining the macros can't be enabled
+// everywhere because other compilers (e.g. Clang) specifically prevent the use
+// of these keywords as macro names.
+#ifdef and
+#undef and
+#endif
+
+#ifdef xor
+#undef xor
+#endif
+#endif  // _MSC_VER
+
 namespace firebase {
 namespace firestore {
 namespace util {
