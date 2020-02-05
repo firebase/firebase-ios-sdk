@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-
+#import "FIRAuthProtoMfaEnrollment.h"
 #import "FIRAuthRPCResponse.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -205,6 +204,10 @@ NS_ASSUME_NONNULL_BEGIN
     @brief The pending ID Token string.
  */
 @property(nonatomic, copy, nullable) NSString *pendingToken;
+
+@property(nonatomic, strong, readonly, nullable) NSString *mfaPendingCredential;
+
+@property(nonatomic, strong, readonly, nullable) NSArray<FIRAuthProtoMfaEnrollment *> *mfaInfo;
 
 @end
 

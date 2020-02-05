@@ -18,6 +18,7 @@
 
 #import "FIRAuth.h"
 #import "FIRAuthDataResult.h"
+#import "FIRMultiFactor.h"
 #import "FIRUserInfo.h"
 
 @class FIRAuthTokenResult;
@@ -109,6 +110,8 @@ NS_SWIFT_NAME(User)
     @brief Metadata associated with the Firebase user in question.
  */
 @property(nonatomic, readonly, nonnull) FIRUserMetadata *metadata;
+
+@property(nonatomic, readonly, nonnull) FIRMultiFactor *multiFactor;
 
 /** @fn init
     @brief This class should not be instantiated.
@@ -478,6 +481,27 @@ DEPRECATED_MSG_ATTRIBUTE("Please use linkWithCredential:completion: for Objectiv
 
  */
 - (void)deleteWithCompletion:(nullable FIRUserProfileChangeCallback)completion;
+
+/** @fn sendEmailVerificationBeforeUpdatingEmail:completion:
+    @brief Send an email to verify the ownership of the account then update to the new email.
+    @param email The email to be updated to.
+    @param completion Optionally; the block invoked when the request to send the verification
+        email is complete, or fails.
+*/
+- (void)sendEmailVerificationBeforeUpdatingEmail:(nonnull NSString *)email
+                                      completion:(nullable FIRAuthVoidErrorCallback)completion;
+
+/** @fn sendEmailVerificationBeforeUpdatingEmail:completion:
+    @brief Send an email to verify the ownership of the account then update to the new email.
+    @param email The email to be updated to.
+    @param actionCodeSettings An `FIRActionCodeSettings` object containing settings related to
+        handling action codes.
+    @param completion Optionally; the block invoked when the request to send the verification
+        email is complete, or fails.
+*/
+- (void)sendEmailVerificationBeforeUpdatingEmail:(nonnull NSString *)email
+                              actionCodeSettings:(nonnull FIRActionCodeSettings *)actionCodeSettings
+                                      completion:(nullable FIRAuthVoidErrorCallback)completion;
 
 @end
 

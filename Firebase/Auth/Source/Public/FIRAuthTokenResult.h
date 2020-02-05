@@ -53,13 +53,16 @@ NS_SWIFT_NAME(AuthTokenResult)
  */
 @property(nonatomic, readonly) NSString *signInProvider;
 
+/** @property signInSecondFactor
+    @brief Stores sign-in second factor through which the token was obtained.
+ */
+@property(nonatomic, readonly) NSString *signInSecondFactor;
+
 /** @property claims
     @brief Stores the entire payload of claims found on the ID token. This includes the standard
         reserved claims as well as custom claims set by the developer via the Admin SDK.
  */
 @property(nonatomic, readonly) NSDictionary<NSString *, id> *claims;
-
-
 
 @end
 

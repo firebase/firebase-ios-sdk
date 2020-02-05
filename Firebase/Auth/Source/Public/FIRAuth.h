@@ -29,6 +29,7 @@
 @class FIRAuthCredential;
 @class FIRAuthDataResult;
 @class FIRAuthSettings;
+@class FIRMultiFactorInfo;
 @class FIRUser;
 @protocol FIRAuthStateListener;
 @protocol FIRAuthUIDelegate;
@@ -177,20 +178,20 @@ typedef void (^FIRVerifyPasswordResetCodeCallback)(NSString *_Nullable email,
 typedef void (^FIRApplyActionCodeCallback)(NSError *_Nullable error)
     NS_SWIFT_NAME(ApplyActionCodeCallback);
 
+typedef void (^FIRAuthVoidErrorCallback)(NSError *_Nullable);
+
 /**
-    @brief Keys used to retrieve operation data from a `FIRActionCodeInfo` object by the
-        `dataForKey` method.
+    @brief Deprecated. Please directly use email or previousEmail properties instead.
   */
 typedef NS_ENUM(NSInteger, FIRActionDataKey) {
-  /**
-   * The email address to which the code was sent.
-   * For FIRActionCodeOperationRecoverEmail, the new email address for the account.
-   */
+  /** Deprecated. Please directly use email property instead.  */
   FIRActionCodeEmailKey = 0,
 
-  /** For FIRActionCodeOperationRecoverEmail, the current email address for the account. */
-  FIRActionCodeFromEmailKey = 1
-} NS_SWIFT_NAME(ActionDataKey);
+  /** Deprecated. Please directly use previousEmail property instead. */
+  FIRActionCodeFromEmailKey = 1,
+
+} NS_SWIFT_NAME(ActionDataKey)
+DEPRECATED_MSG_ATTRIBUTE("Please directly use email or previousEmail properties instead.");
 
 /** @class FIRActionCodeInfo
     @brief Manages information regarding action codes.
@@ -217,6 +218,11 @@ typedef NS_ENUM(NSInteger, FIRActionCodeOperation) {
     /** Action code for email link operation. */
     FIRActionCodeOperationEmailLink = 4,
 
+    /** Action code for verifing and changing email*/
+    FIRActionCodeOperationVerifyAndChangeEmail = 5,
+
+    /** Action code for reverting second factor addition*/
+    FIRActionCodeOperationRevertSecondFactorAddition = 6,
 
 } NS_SWIFT_NAME(ActionCodeOperation);
 
@@ -226,13 +232,27 @@ typedef NS_ENUM(NSInteger, FIRActionCodeOperation) {
 @property(nonatomic, readonly) FIRActionCodeOperation operation;
 
 /** @fn dataForKey:
-    @brief The operation being performed.
-
-    @param key The FIRActionDataKey value used to retrieve the operation data.
-
-    @return The operation data pertaining to the provided action code key.
+    @brief Deprecated. Please directly use email or previousEmail properties instead.
  */
-- (NSString *)dataForKey:(FIRActionDataKey)key;
+- (NSString *)dataForKey:(FIRActionDataKey)key
+DEPRECATED_MSG_ATTRIBUTE("Please directly use email or previousEmail properties instead.");
+
+/** @property email
+    @brief The email address to which the code was sent. The new email address in the case of
+        FIRActionCodeOperationRecoverEmail.
+ */
+@property(nonatomic, nullable, readonly, copy) NSString *email;
+
+/** @property previousEmail
+    @brief The current email address in the case of FIRActionCodeOperationRecoverEmail.
+ */
+@property(nonatomic, nullable, readonly, copy) NSString *previousEmail;
+
+/** @property multiFactorInfo
+    @brief The MultiFactorInfo object of the second factor to be reverted in case of
+        FIRActionCodeMultiFactorInfoKey.
+ */
+@property(nonatomic, nullable, readonly) FIRMultiFactorInfo *multiFactorInfo;
 
 /** @fn init
     @brief please use initWithOperation: instead.

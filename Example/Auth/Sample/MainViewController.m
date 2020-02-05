@@ -37,19 +37,44 @@
 #import "AppManager.h"
 #import "AuthCredentials.h"
 #import "FIRAdditionalUserInfo.h"
+#import "FIRAuthAPNSToken.h"
+#import "FIRAuthAPNSTokenManager.h"
+#import "FIRAuthAppCredential.h"
+#import "FIRAuthAppCredentialManager.h"
+#import "FIRAuthBackend.h"
+#import "FIRAuthTokenResult.h"
+#import "FIRAuth_Internal.h"
+#import "FIRMultiFactorResolver+Internal.h"
+#import "FIRMultiFactorSession+Internal.h"
 #import "FIROAuthProvider.h"
 #import "FIRPhoneAuthCredential.h"
 #import "FIRPhoneAuthProvider.h"
-#import "FIRAuthTokenResult.h"
-#import "FirebaseAuth.h"
+#import "FIRPhoneMultiFactorInfo.h"
+#import "FIRSendVerificationCodeRequest.h"
+#import "FIRVerifyClientRequest.h"
+#import "FIRVerifyClientResponse.h"
 #import "FacebookAuthProvider.h"
+#import "FirebaseAuth.h"
 #import "GoogleAuthProvider.h"
+#import "MainViewController+App.h"
+#import "MainViewController+Auth.h"
+#import "MainViewController+AutoTests.h"
+#import "MainViewController+Custom.h"
+#import "MainViewController+Email.h"
+#import "MainViewController+Facebook.h"
+#import "MainViewController+GameCenter.h"
+#import "MainViewController+Google.h"
+#import "MainViewController+Internal.h"
+#import "MainViewController+MultiFactor.h"
+#import "MainViewController+OAuth.h"
+#import "MainViewController+OOB.h"
+#import "MainViewController+Phone.h"
+#import "MainViewController+User.h"
 #import "SettingsViewController.h"
 #import "StaticContentTableViewManager.h"
 #import "UIViewController+Alerts.h"
 #import "UserInfoViewController.h"
 #import "UserTableViewCell.h"
-#import "FIRAuth_Internal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -60,6 +85,8 @@ static NSString *const kSectionTitleUserDetails = @"User Defaults";
 static NSString *const kSwitchToInMemoryUserTitle = @"Switch to in memory user";
 
 static NSString *const kNewOrExistingUserToggleTitle = @"New or Existing User Toggle";
+
+extern NSString *const FIRAuthErrorUserInfoMultiFactorResolverKey;
 
 typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable error);
 
@@ -236,6 +263,10 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
         ]],
       // Auth
       [weakSelf authSection],
+      // User
+      [weakSelf userSection],
+      // Multi Factor
+      [weakSelf multiFactorSection],
       // Email Auth
       [weakSelf emailAuthSection],
       // Phone Auth
@@ -250,8 +281,6 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
       [weakSelf customAuthSection],
       // Game Center Auth
       [weakSelf gameCenterAuthSection],
-      // User
-      [weakSelf userSection],
       // App
       [weakSelf appSection],
       // OOB
@@ -323,14 +352,55 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
       FIRAuthDataResultCallback completion = ^(FIRAuthDataResult *_Nullable authResult,
                                                NSError *_Nullable error) {
         if (error) {
-          [self logFailure:@"reauthenticate operation failed" error:error];
+          if (error.code == FIRAuthErrorCodeSecondFactorRequired) {
+            FIRMultiFactorResolver *resolver = error.userInfo[FIRAuthErrorUserInfoMultiFactorResolverKey];
+            NSMutableString *displayNameString = [NSMutableString string];
+            for (FIRMultiFactorInfo *tmpFactorInfo in resolver.hints) {
+              [displayNameString appendString:tmpFactorInfo.displayName];
+              [displayNameString appendString:@" "];
+            }
+            [self showTextInputPromptWithMessage:[NSString stringWithFormat:@"Select factor to reauthenticate\n%@", displayNameString]
+                                 completionBlock:^(BOOL userPressedOK, NSString *_Nullable displayName) {
+                                   FIRPhoneMultiFactorInfo* selectedHint;
+                                   for (FIRMultiFactorInfo *tmpFactorInfo in resolver.hints) {
+                                     if ([displayName isEqualToString:tmpFactorInfo.displayName]) {
+                                       selectedHint = (FIRPhoneMultiFactorInfo *)tmpFactorInfo;
+                                     }
+                                   }
+                                   [FIRPhoneAuthProvider.provider
+                                    verifyPhoneNumberWithMultiFactorInfo:selectedHint
+                                    UIDelegate:nil
+                                    multiFactorSession:resolver.session
+                                    completion:^(NSString * _Nullable verificationID, NSError * _Nullable error) {
+                                                    if (error) {
+                                                      [self logFailure:@"Multi factor start sign in failed." error:error];
+                                                    } else {
+                                                      [self showTextInputPromptWithMessage:[NSString stringWithFormat:@"Verification code for %@", selectedHint.displayName]
+                                                                           completionBlock:^(BOOL userPressedOK, NSString *_Nullable verificationCode) {
+                                                                             FIRPhoneAuthCredential *credential =
+                                                                             [[FIRPhoneAuthProvider provider] credentialWithVerificationID:verificationID
+                                                                                                                          verificationCode:verificationCode];
+                                                                             FIRMultiFactorAssertion *assertion = [FIRPhoneMultiFactorGenerator assertionWithCredential:credential];
+                                                                             [resolver resolveSignInWithAssertion:assertion completion:^(FIRAuthDataResult * _Nullable authResult, NSError * _Nullable error) {
+                                                                               if (error) {
+                                                                                 [self logFailure:@"Multi factor finanlize sign in failed." error:error];
+                                                                               } else {
+                                                                                 [self logSuccess:@"Multi factor finanlize sign in succeeded."];
+                                                                               }
+                                                                             }];
+                                                                           }];
+                                                    }
+                                                  }];
+                                 }];
+          } else {
+            [self logFailure:@"reauthenticate operation failed." error:error];
+          }
         } else {
           [self logSuccess:@"reauthenticate operation succeeded."];
         }
         if (authResult.additionalUserInfo) {
           [self logSuccess:[self stringWithAdditionalUserInfo:authResult.additionalUserInfo]];
         }
-        [self showTypicalUIForUserUpdateResultsWithTitle:@"Reauthenticate" error:error];
       };
       [user reauthenticateWithCredential:credential completion:completion];
     }
@@ -383,17 +453,54 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
       FIRAuthDataResultCallback completion = ^(FIRAuthDataResult *_Nullable authResult,
                                                NSError *_Nullable error) {
         if (error) {
-          [self logFailure:@"link auth provider failed" error:error];
+          if (error.code == FIRAuthErrorCodeSecondFactorRequired) {
+            FIRMultiFactorResolver *resolver = error.userInfo[FIRAuthErrorUserInfoMultiFactorResolverKey];
+            NSMutableString *displayNameString = [NSMutableString string];
+            for (FIRMultiFactorInfo *tmpFactorInfo in resolver.hints) {
+              [displayNameString appendString:tmpFactorInfo.displayName];
+              [displayNameString appendString:@" "];
+            }
+            [self showTextInputPromptWithMessage:[NSString stringWithFormat:@"Select factor to link\n%@", displayNameString]
+                                 completionBlock:^(BOOL userPressedOK, NSString *_Nullable displayName) {
+                                   FIRPhoneMultiFactorInfo* selectedHint;
+                                   for (FIRMultiFactorInfo *tmpFactorInfo in resolver.hints) {
+                                     if ([displayName isEqualToString:tmpFactorInfo.displayName]) {
+                                       selectedHint = (FIRPhoneMultiFactorInfo *)tmpFactorInfo;
+                                     }
+                                   }
+                                   [FIRPhoneAuthProvider.provider
+                                    verifyPhoneNumberWithMultiFactorInfo:selectedHint
+                                    UIDelegate:nil
+                                    multiFactorSession:resolver.session
+                                    completion:^(NSString * _Nullable verificationID, NSError * _Nullable error) {
+              if (error) {
+                [self logFailure:@"Multi factor start sign in failed." error:error];
+              } else {
+                [self showTextInputPromptWithMessage:[NSString stringWithFormat:@"Verification code for %@", selectedHint.displayName]
+                                     completionBlock:^(BOOL userPressedOK, NSString *_Nullable verificationCode) {
+                 FIRPhoneAuthCredential *credential =
+                 [[FIRPhoneAuthProvider provider] credentialWithVerificationID:verificationID
+                                                              verificationCode:verificationCode];
+                 FIRMultiFactorAssertion *assertion = [FIRPhoneMultiFactorGenerator assertionWithCredential:credential];
+                 [resolver resolveSignInWithAssertion:assertion completion:^(FIRAuthDataResult * _Nullable authResult, NSError * _Nullable error) {
+                   if (error) {
+                     [self logFailure:@"Multi factor finanlize sign in failed." error:error];
+                   } else {
+                     [self logSuccess:@"Multi factor finanlize sign in succeeded."];
+                   }
+                 }];
+               }];
+              }
+            }];
+           }];
+          } else {
+            [self logFailure:@"link auth provider failed" error:error];
+          }
         } else {
           [self logSuccess:@"link auth provider succeeded."];
         }
         if (authResult.additionalUserInfo) {
           [self logSuccess:[self stringWithAdditionalUserInfo:authResult.additionalUserInfo]];
-        }
-        if (retrieveData) {
-          [self showUIForAuthDataResultWithResult:authResult error:error];
-        } else {
-          [self showTypicalUIForUserUpdateResultsWithTitle:@"Link Account" error:error];
         }
       };
       [user linkWithCredential:credential completion:completion];

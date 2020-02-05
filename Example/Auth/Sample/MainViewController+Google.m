@@ -16,12 +16,17 @@
 
 #import "MainViewController+Google.h"
 
-#import "AuthProviders.h"
 #import "AppManager.h"
+#import "AuthProviders.h"
+#import "FIRMultiFactorResolver+Internal.h"
+#import "FIRMultiFactorSession+Internal.h"
 #import "FIROAuthProvider.h"
+#import "FIRPhoneMultiFactorInfo.h"
 #import "MainViewController+Internal.h"
 
 NS_ASSUME_NONNULL_BEGIN
+
+extern NSString *const FIRAuthErrorUserInfoMultiFactorResolverKey;
 
 @implementation MainViewController (Google)
 
@@ -51,7 +56,49 @@ NS_ASSUME_NONNULL_BEGIN
      FIRAuthDataResultCallback completion = ^(FIRAuthDataResult *_Nullable authResult,
                                               NSError *_Nullable error) {
        if (error) {
-         [self logFailure:@"sign-in with provider failed" error:error];
+         if (error.code == FIRAuthErrorCodeSecondFactorRequired) {
+           FIRMultiFactorResolver *resolver = error.userInfo[FIRAuthErrorUserInfoMultiFactorResolverKey];
+           NSMutableString *displayNameString = [NSMutableString string];
+           for (FIRMultiFactorInfo *tmpFactorInfo in resolver.hints) {
+             [displayNameString appendString:tmpFactorInfo.displayName];
+             [displayNameString appendString:@" "];
+           }
+           [self showTextInputPromptWithMessage:[NSString stringWithFormat:@"Select factor to sign in\n%@", displayNameString]
+                                completionBlock:^(BOOL userPressedOK, NSString *_Nullable displayName) {
+                                  FIRPhoneMultiFactorInfo* selectedHint;
+                                  for (FIRMultiFactorInfo *tmpFactorInfo in resolver.hints) {
+                                    if ([displayName isEqualToString:tmpFactorInfo.displayName]) {
+                                      selectedHint = (FIRPhoneMultiFactorInfo *)tmpFactorInfo;
+                                    }
+                                  }
+                                  [FIRPhoneAuthProvider.provider
+                                   verifyPhoneNumberWithMultiFactorInfo:selectedHint
+                                   UIDelegate:nil
+                                   multiFactorSession:resolver.session
+                                   completion:^(NSString * _Nullable verificationID, NSError * _Nullable error) {
+                                                   if (error) {
+                                                     [self logFailure:@"Multi factor start sign in failed." error:error];
+                                                   } else {
+                                                     [self showTextInputPromptWithMessage:[NSString stringWithFormat:@"Verification code for %@", selectedHint.displayName]
+                                                                          completionBlock:^(BOOL userPressedOK, NSString *_Nullable verificationCode) {
+                                                                            FIRPhoneAuthCredential *credential =
+                                                                            [[FIRPhoneAuthProvider provider] credentialWithVerificationID:verificationID
+                                                                                                                         verificationCode:verificationCode];
+                                                                            FIRMultiFactorAssertion *assertion = [FIRPhoneMultiFactorGenerator assertionWithCredential:credential];
+                                                                            [resolver resolveSignInWithAssertion:assertion completion:^(FIRAuthDataResult * _Nullable authResult, NSError * _Nullable error) {
+                                                                              if (error) {
+                                                                                [self logFailure:@"Multi factor finanlize sign in failed." error:error];
+                                                                              } else {
+                                                                                [self logSuccess:@"Multi factor finanlize sign in succeeded."];
+                                                                              }
+                                                                            }];
+                                                                          }];
+                                                   }
+                                                 }];
+                                }];
+         } else {
+           [self logFailure:@"sign-in with provider failed" error:error];
+         }
        } else {
          [self logSuccess:@"sign-in with provider succeeded."];
        }
@@ -66,9 +113,8 @@ NS_ASSUME_NONNULL_BEGIN
                                  completion:nil];
          }
        }
-       [self showTypicalUIForUserUpdateResultsWithTitle:@"Sign-In" error:error];
      };
-       [auth signInWithCredential:credential completion:completion];
+     [auth signInWithCredential:credential completion:completion];
    }
  }];
 }

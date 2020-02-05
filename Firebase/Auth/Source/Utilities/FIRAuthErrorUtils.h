@@ -16,6 +16,9 @@
 
 #import <Foundation/Foundation.h>
 
+#import "FIRMultiFactorInfo.h"
+#import "FIRAuthInternalErrors.h"
+
 @class FIRAuthCredential;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -24,6 +27,9 @@ NS_ASSUME_NONNULL_BEGIN
     @brief Utility class used to construct @c NSError instances.
  */
 @interface FIRAuthErrorUtils : NSObject
+
++ (NSError *)errorWithCode:(FIRAuthInternalErrorCode)code
+                   message:(nullable NSString *)message;
 
 /** @fn RPCRequestEncodingErrorWithUnderlyingError
     @brief Constructs an @c NSError with the @c FIRAuthInternalErrorCodeRPCRequestEncodingError
@@ -465,6 +471,13 @@ NS_ASSUME_NONNULL_BEGIN
     @return The NSError instance associated with the given FIRAuthError.
  */
 + (NSError *)notificationNotForwardedError;
+
+/** @fn secondFactorRequiredError
+    @brief Constructs an @c NSError with the @c FIRAuthErrorCodeSecondFactorRequired code.
+    @return The NSError instance associated with the given FIRAuthError.
+ */
++ (NSError *)secondFactorRequiredErrorWithPendingCredential:(NSString *)mfaPendingCredential
+                                                      hints:(NSArray<FIRMultiFactorInfo *> *)multiFactorInfo;
 
 /** @fn appNotVerifiedErrorWithMessage:
     @brief Constructs an @c NSError with the @c FIRAuthErrorCodeAppNotVerified code.

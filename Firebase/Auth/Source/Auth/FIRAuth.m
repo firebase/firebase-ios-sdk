@@ -152,6 +152,18 @@ static NSString *const kRecoverEmailRequestType = @"RECOVER_EMAIL";
 */
 static NSString *const kEmailLinkSignInRequestType = @"EMAIL_SIGNIN";
 
+/** @var kVerifyAndChangeEmailRequestType
+    @brief The action code type value for verifing and changing email in the check action code
+           response.
+ */
+static NSString *const kVerifyAndChangeEmailRequestType = @"VERIFY_AND_CHANGE_EMAIL";
+
+/** @var kRevertSecondFactorAdditionRequestType
+    @brief The action code type value for reverting second factor addition in the check action code
+           response.
+ */
+static NSString *const kRevertSecondFactorAdditionRequestType = @"REVERT_SECOND_FACTOR_ADDITION";
+
 /** @var kMissingPasswordReason
     @brief The reason why the @c FIRAuthErrorCodeWeakPassword error is thrown.
     @remarks This error message will be localized in the future.
@@ -168,40 +180,53 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 
 #pragma mark - FIRActionCodeInfo
 
-@implementation FIRActionCodeInfo {
-  /** @var _email
-      @brief The email address to which the code was sent. The new email address in the case of
-          FIRActionCodeOperationRecoverEmail.
-   */
-  NSString *_email;
+@interface FIRActionCodeInfo ()
 
-  /** @var _fromEmail
-      @brief The current email address in the case of FIRActionCodeOperationRecoverEmail.
-   */
-  NSString *_fromEmail;
-}
+/**
+    @brief The operation being performed.
+ */
+@property(nonatomic, readwrite) FIRActionCodeOperation operation;
 
-- (NSString *)dataForKey:(FIRActionDataKey)key{
+/** @property email
+    @brief The email address to which the code was sent. The new email address in the case of
+        FIRActionCodeOperationRecoverEmail.
+ */
+@property(nonatomic, nullable, readwrite, copy) NSString *email;
+
+/** @property previousEmail
+    @brief The current email address in the case of FIRActionCodeOperationRecoverEmail.
+ */
+@property(nonatomic, nullable, readwrite, copy) NSString *previousEmail;
+
+/** @property multiFactorInfo
+    @brief The MultiFactorInfo object of the second factor to be reverted in case of
+        FIRActionCodeMultiFactorInfoKey.
+ */
+@property(nonatomic, nullable, readwrite) FIRMultiFactorInfo *multiFactorInfo;
+
+@end
+
+@implementation FIRActionCodeInfo
+
+- (NSString *)dataForKey:(FIRActionDataKey)key {
   switch (key) {
     case FIRActionCodeEmailKey:
-      return _email;
+      return self.email;
     case FIRActionCodeFromEmailKey:
-      return _fromEmail;
+      return self.previousEmail;
   }
 }
 
 - (instancetype)initWithOperation:(FIRActionCodeOperation)operation
                             email:(NSString *)email
-                         newEmail:(nullable NSString *)newEmail {
+                         newEmail:(nullable NSString *)newEmail
+                  multiFactorInfo:(nullable FIRMultiFactorInfo *)multiFactorInfo {
   self = [super init];
   if (self) {
     _operation = operation;
-    if (newEmail) {
-      _email = [newEmail copy];
-      _fromEmail = [email copy];
-    } else {
-      _email = [email copy];
-    }
+    _email = [newEmail copy];
+    _previousEmail = [email copy];
+    _multiFactorInfo = multiFactorInfo;
   }
   return self;
 }
@@ -223,6 +248,12 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   }
   if ([requestType isEqualToString:kEmailLinkSignInRequestType]) {
     return FIRActionCodeOperationEmailLink;
+  }
+  if ([requestType isEqualToString:kVerifyAndChangeEmailRequestType]) {
+    return FIRActionCodeOperationVerifyAndChangeEmail;
+  }
+  if ([requestType isEqualToString:kRevertSecondFactorAdditionRequestType]) {
+    return FIRActionCodeOperationRevertSecondFactorAddition;
   }
   return FIRActionCodeOperationUnknown;
 }
@@ -1042,10 +1073,13 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
         }
         FIRActionCodeOperation operation =
             [FIRActionCodeInfo actionCodeOperationForRequestType:response.requestType];
+        // TODO(wangyue): populate the multiFactorInfo from response once available.
+        FIRMultiFactorInfo *multiFactorInfo;
         FIRActionCodeInfo *actionCodeInfo =
             [[FIRActionCodeInfo alloc] initWithOperation:operation
                                                    email:response.email
-                                                newEmail:response.verifiedEmail];
+                                                newEmail:response.verifiedEmail
+                                         multiFactorInfo:multiFactorInfo];
         dispatch_async(dispatch_get_main_queue(), ^{
           completion(actionCodeInfo, nil);
         });
@@ -1063,7 +1097,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
         completion(nil, error);
         return;
       }
-      completion([info dataForKey:FIRActionCodeEmailKey], nil);
+      NSString *email = info.email;
+      completion(email, nil);
     }
   }];
 }

@@ -61,7 +61,7 @@ static NSString *const kLocalIDKey = @"localId";
   NSMutableDictionary *postBody = [NSMutableDictionary dictionary];
   postBody[kIDTokenKey] = _accessToken;
   postBody[kLocalIDKey] = _localID;
-  return postBody;
+  return [postBody copy];
 }
 
 @end
