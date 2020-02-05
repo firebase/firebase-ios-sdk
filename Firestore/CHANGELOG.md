@@ -1,5 +1,8 @@
 # Unreleased
 
+# v1.10.2
+- [changed] Internal improvements.
+
 # v1.10.1
 - [changed] Internal improvements.
 
