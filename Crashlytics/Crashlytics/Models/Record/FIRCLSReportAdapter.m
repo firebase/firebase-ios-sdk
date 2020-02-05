@@ -276,6 +276,39 @@
   return false;
 }
 
+- (NSDictionary<NSString *, NSString *> *)KeyValuesWithRecordedError:(NSError *)error {
+  if (!error) {
+    return self.userKeyValues;
+  }
+
+  NSMutableDictionary<NSString *, NSString *> *kvs = [self.userKeyValues mutableCopy];
+  kvs[@"nserror-domain"] = error.domain;
+  kvs[@"nserror-domain"] = error.domain;
+
+  return kvs;
+}
+
+- (NSString *)logsContent {
+  // Example of how the result should look like:
+  // "4175 $ custom_log_msg_1\n5830 $ custom_log_msg_2\n5835 $ custom_log_msg_3"
+  // The number is elapsed time from the start of the app
+  static NSString *logMessageFormat = @"%tu $ %@\n";
+
+  if (self.userLogs.count == 0) {
+    return @"";
+  }
+
+  NSMutableString *content = [NSMutableString string];
+  for (FIRCLSRecordLog *log in self.userLogs) {
+    NSUInteger elapsedTimeFromStartTime =
+        log.time - (self.identity.started_at * 1000);  // started_at needs to be in milliseconds
+    [content appendFormat:logMessageFormat, elapsedTimeFromStartTime, log.msg];
+  }
+
+  // Remove the last newline character
+  return [content substringToIndex:[content length] - 1];
+}
+
 //
 // MARK: NanoPB conversions
 //
@@ -369,8 +402,7 @@
   crash.type = FIRCLSEncodeString(@"crashed");
   crash.app = [self protoEventApplication];
   crash.device = [self protoEventDevice];
-
-  // TODO Add logic to parse and set user defined logs (crash.log)
+  crash.log.content = FIRCLSEncodeString([self logsContent]);
 
   return crash;
 }
@@ -398,38 +430,22 @@
 /// For recorded errors, the error's nserror-domain and nserror-code are also added.
 /// @param error Error from recordError API
 - (google_crashlytics_CustomAttribute *)protoCustomAttributesWithError:(NSError *)error {
-  NSUInteger size = self.userKeyValues.count;
-    
-  if (error) {
-      size += 2;
-  }
-    
+  NSDictionary<NSString *, NSString *> *kvs = [self KeyValuesWithRecordedError:error];
+  NSUInteger size = kvs.count;
+
   google_crashlytics_CustomAttribute *attributes =
       malloc(sizeof(google_crashlytics_CustomAttribute) * size);
 
-  for (NSUInteger i = 0; i < self.userKeyValues.count; i++) {
+  for (NSUInteger i = 0; i < kvs.count; i++) {
     google_crashlytics_CustomAttribute attribute = google_crashlytics_CustomAttribute_init_default;
-    NSString *key = self.userKeyValues.allKeys[i];
+    NSString *key = kvs.allKeys[i];
     attribute.key = FIRCLSEncodeString(key);
-    attribute.value = FIRCLSEncodeString(self.userKeyValues[key]);
+    attribute.value = FIRCLSEncodeString(kvs[key]);
     attributes[i] = attribute;
-  }
-    
-  if (error) {
-      google_crashlytics_CustomAttribute errorDomainAttribute = google_crashlytics_CustomAttribute_init_default;
-      errorDomainAttribute.key = FIRCLSEncodeString(@"nserror-domain");
-      errorDomainAttribute.value = FIRCLSEncodeString(error.domain);
-      attributes[size-2] = errorDomainAttribute;
-      
-      google_crashlytics_CustomAttribute errorCodeAttribute = google_crashlytics_CustomAttribute_init_default;
-      errorCodeAttribute.key = FIRCLSEncodeString(@"nserror-domain");
-      errorCodeAttribute.value = FIRCLSEncodeString(error.domain);
-      attributes[size-1] = errorCodeAttribute;
   }
 
   return attributes;
 }
-
 
 - (google_crashlytics_Session_Event_Application_Execution_Thread *)protoThreadsWithArray:
     (NSArray<FIRCLSRecordThread *> *)array {
