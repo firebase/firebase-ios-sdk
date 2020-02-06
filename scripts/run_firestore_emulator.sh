@@ -84,8 +84,11 @@ function stop() {
   fi
 }
 
-command="${1:-run}"
-shift
+command=run
+if [[ $# -gt 0 ]]; then
+  command="$1"
+  shift
+fi
 
 case "${command}" in
   run)
