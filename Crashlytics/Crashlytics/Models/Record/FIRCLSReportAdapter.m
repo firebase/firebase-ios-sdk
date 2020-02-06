@@ -288,7 +288,6 @@
   NSMutableDictionary<NSString *, NSString *> *kvs = [self.userKeyValues mutableCopy];
   kvs[@"nserror-domain"] = error.domain;
   kvs[@"nserror-code"] = [NSString stringWithFormat:@"%li", (long)error.code];
-  ;
 
   return kvs;
 }
@@ -407,7 +406,7 @@
   }
 
   // Add crash event
-  if (numberOfEvents > 0) {
+  if ([self hasCrashed]) {
     events[numberOfEvents - 1] = [self protoEventForCrash];
   }
 
