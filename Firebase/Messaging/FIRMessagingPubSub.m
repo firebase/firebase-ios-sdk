@@ -190,6 +190,7 @@ static NSString *const kPendingSubscriptionsListKey =
     FIRMessagingLoggerError(kFIRMessagingMessageCodePubSubArchiveError,
                             @"Failed to archive topic list data %@",
                             error);
+    return;
   }
   [defaults setObject:pendingData forKey:kPendingSubscriptionsListKey];
   [defaults synchronize];
@@ -202,13 +203,13 @@ static NSString *const kPendingSubscriptionsListKey =
   if (pendingData) {
     NSError *error;
     subscriptions = [GULSecureCoding unarchivedObjectOfClasses:
-     [NSSet setWithObjects:[FIRMessagingPendingTopicsList class], nil]
+     [NSSet setWithObjects:FIRMessagingPendingTopicsList.class, nil]
                                                       fromData:pendingData
                                                          error:&error];
     if (error) {
       FIRMessagingLoggerError(kFIRMessagingMessageCodePubSubUnarchiveError,
                               @"Failed to unarchive topic list data %@",
-                            error);
+                              error);
   
     }
   }
