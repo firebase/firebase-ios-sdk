@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#include <TargetConditionals.h>
+#if !TARGET_OS_OSX && !TARGET_OS_TV
+
 #import <Foundation/Foundation.h>
 
 #import "FIRMultiFactorAssertion.h"
@@ -26,3 +29,5 @@ NS_SWIFT_NAME(PhoneMultiFactorAssertion)
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif

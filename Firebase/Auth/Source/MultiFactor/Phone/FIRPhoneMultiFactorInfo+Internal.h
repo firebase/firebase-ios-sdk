@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#include <TargetConditionals.h>
+#if !TARGET_OS_OSX && !TARGET_OS_TV
+
 #import "FIRPhoneMultiFactorInfo.h"
 
 @class FIRAuthProtoMfaEnrollment;
@@ -23,3 +26,5 @@
 - (instancetype)initWithProto:(FIRAuthProtoMfaEnrollment *)proto;
 
 @end
+
+#endif

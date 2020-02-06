@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#include <TargetConditionals.h>
+#if !TARGET_OS_OSX && !TARGET_OS_TV
+
 #import "FIRPhoneMultiFactorAssertion.h"
 #import "FIRPhoneMultiFactorAssertion+Internal.h"
 
@@ -36,3 +39,5 @@ extern NSString *const _Nonnull FIRPhoneMultiFactorID;
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif
