@@ -165,7 +165,8 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
             [NSError errorWithDomain:FIRRemoteConfigErrorDomain
                                 code:FIRErrorCodeConfigFailed
                             userInfo:@{
-                              @"FetchError" : @"Duplicate request while the previous one is pending"
+                              NSLocalizedDescriptionKey :
+                                  @"FetchError: Duplicate request while the previous one is pending"
                             }];
         return [strongSelf reportCompletionOnHandler:completionHandler
                                           withStatus:FIRRemoteConfigFetchStatusFailure
@@ -206,6 +207,7 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
     NSString *errorDescription = @"Failed to get GCMSenderID";
     FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000074", @"%@",
                 [NSString stringWithFormat:@"%@", errorDescription]);
+    self->_settings.isFetchInProgress = NO;
     return [self
         reportCompletionOnHandler:completionHandler
                        withStatus:FIRRemoteConfigFetchStatusFailure
@@ -221,6 +223,7 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
           [NSString stringWithFormat:@"Failed to get InstanceID token. Error : %@.", error];
       FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000073", @"%@",
                   [NSString stringWithFormat:@"%@", errorDescription]);
+      self->_settings.isFetchInProgress = NO;
       return [self
           reportCompletionOnHandler:completionHandler
                          withStatus:FIRRemoteConfigFetchStatusFailure
@@ -249,7 +252,8 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
               [NSString stringWithFormat:@"Error getting iid : %@.", error];
           FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000055", @"%@",
                       [NSString stringWithFormat:@"%@", errorDescription]);
-          return [self
+          strongSelfQueue->_settings.isFetchInProgress = NO;
+          return [strongSelfQueue
               reportCompletionOnHandler:completionHandler
                              withStatus:FIRRemoteConfigFetchStatusFailure
                               withError:[NSError
@@ -345,6 +349,7 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
     NSString *errString = [NSString stringWithFormat:@"Failed to compress the config request."];
     FIRLogWarning(kFIRLoggerRemoteConfig, @"I-RCN000033", @"%@", errString);
 
+    self->_settings.isFetchInProgress = NO;
     return [self
         reportCompletionOnHandler:completionHandler
                        withStatus:FIRRemoteConfigFetchStatusFailure
@@ -361,6 +366,10 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
     FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000050",
                 @"config fetch completed. Error: %@ StatusCode: %ld", (error ? error : @"nil"),
                 (long)[((NSHTTPURLResponse *)response) statusCode]);
+
+    // The fetch has completed.
+    self->_settings.isFetchInProgress = NO;
+
     RCNConfigFetch *fetcherCompletionSelf = weakSelf;
     if (!fetcherCompletionSelf) {
       return;
@@ -372,7 +381,6 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
         return;
       }
 
-      strongSelf->_settings.isFetchInProgress = NO;
       NSInteger statusCode = [((NSHTTPURLResponse *)response) statusCode];
 
       if (error || (statusCode != kRCNFetchResponseHTTPStatusCodeOK)) {
