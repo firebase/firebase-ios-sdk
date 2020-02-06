@@ -42,8 +42,8 @@
     [self loadUserLogFiles];
     [self loadErrorFiles];
 
-    // TODO: Add support for mach_exception.clsrecord
-    // TODO: When implemented, add support for custom exceptions: custom_exception_a.clsrecord
+    // TODO: Add support for mach_exception.clsrecord (check Protobuf.scala:524)
+    // TODO: When implemented, add support for custom exceptions: custom_exception_a/b.clsrecord
 
     _report = [self protoReport];
   }
@@ -61,6 +61,7 @@
 /// Reads from binary_images.clsrecord
 - (void)loadBinaryImagesFile {
   NSString *path = [self.folderPath stringByAppendingPathComponent:FIRCLSReportBinaryImageFile];
+  // TODO: Should sort? If so, sort inside FIRCLSRecordBinaryImage. Protobuf:253
   self.binaryImages = [FIRCLSRecordBinaryImage
       binaryImagesFromDictionaries:[FIRCLSReportAdapter dictionariesFromEachLineOfFile:path]];
 }
@@ -233,6 +234,9 @@
 // MARK: Report helper functions
 //
 
+// TODO: Add add logic for "development-platform-name", "development-platform-version" -
+// Protobuf.scala:583
+
 /// Returns if the app was last in the background
 - (BOOL)wasInBackground {
   return [self.internalKeyValues[FIRCLSInBackgroundKey] boolValue];
@@ -276,6 +280,39 @@
   return false;
 }
 
+- (NSDictionary<NSString *, NSString *> *)keyValuesWithError:(FIRCLSRecordError *)error {
+  if (!error) {
+    return self.userKeyValues;
+  }
+
+  NSMutableDictionary<NSString *, NSString *> *kvs = [self.userKeyValues mutableCopy];
+  kvs[@"nserror-domain"] = error.domain;
+  kvs[@"nserror-code"] = [NSString stringWithFormat:@"%li", (long)error.code];
+
+  return kvs;
+}
+
+- (NSString *)logsContent {
+  // Example of how the result should look like:
+  // "4175 $ custom_log_msg_1\n5830 $ custom_log_msg_2\n5835 $ custom_log_msg_3"
+  // The number is elapsed time from the start of the app
+  static NSString *logMessageFormat = @"%tu $ %@\n";
+
+  if (self.userLogs.count == 0) {
+    return @"";
+  }
+
+  NSMutableString *content = [NSMutableString string];
+  for (FIRCLSRecordLog *log in self.userLogs) {
+    NSUInteger elapsedTimeFromStartTime =
+        log.time - (self.identity.started_at * 1000);  // started_at needs to be in milliseconds
+    [content appendFormat:logMessageFormat, elapsedTimeFromStartTime, log.msg];
+  }
+
+  // Remove the last newline character
+  return [content substringToIndex:[content length] - 1];
+}
+
 //
 // MARK: NanoPB conversions
 //
@@ -310,9 +347,8 @@
     session.user = [self protoUserWithId:userId];
   }
 
-  // TODO: Handle permutations for fatals, non-fatals
   session.events = [self protoEvents];
-  session.events_count = 1;
+  session.events_count = (pb_size_t)[self numberOfEvents];
 
   return session;
 }
@@ -351,31 +387,55 @@
   return device;
 }
 
-- (google_crashlytics_Session_Event *)protoEvents {
-  google_crashlytics_Session_Event *events = malloc(sizeof(google_crashlytics_Session_Event) * 1);
+- (NSUInteger)numberOfEvents {
+  NSUInteger sum = [self hasCrashed] ? 1 : 0;
+  sum += self.errors.count;
+  return sum;
+}
 
-  // TODO:
-  // 1. Verify assumption that only one crash event per report
-  // 2. Handle reports with 0 crashes
-  // 3. Add events for non-fatal errors
-  events[0] = [self protoCrashEvent];
+- (google_crashlytics_Session_Event *)protoEvents {
+  // TODO: Add custom exceptions (when supported)
+  NSUInteger numberOfEvents = [self numberOfEvents];
+
+  // Add recorded error events
+  google_crashlytics_Session_Event *events =
+      malloc(sizeof(google_crashlytics_Session_Event) * numberOfEvents);
+
+  for (NSUInteger i = 0; i < self.errors.count; i++) {
+    events[i] = [self protoEventForError:self.errors[i]];
+  }
+
+  // Add crash event
+  if ([self hasCrashed]) {
+    events[numberOfEvents - 1] = [self protoEventForCrash];
+  }
 
   return events;
 }
 
-- (google_crashlytics_Session_Event)protoCrashEvent {
+- (google_crashlytics_Session_Event)protoEventForCrash {
   google_crashlytics_Session_Event crash = google_crashlytics_Session_Event_init_default;
   crash.timestamp = self.signal.time;
   crash.type = FIRCLSEncodeString(@"crashed");
-  crash.app = [self protoEventApplication];
+  crash.app = [self protoEventApplicationForCrash];
   crash.device = [self protoEventDevice];
-
-  // TODO Add logic to parse and set user defined logs (crash.log)
+  crash.log.content = FIRCLSEncodeString([self logsContent]);
 
   return crash;
 }
 
-- (google_crashlytics_Session_Event_Application)protoEventApplication {
+- (google_crashlytics_Session_Event)protoEventForError:(FIRCLSRecordError *)recordedError {
+  google_crashlytics_Session_Event error = google_crashlytics_Session_Event_init_default;
+  error.timestamp = recordedError.time;
+  error.type = FIRCLSEncodeString(@"error");
+  error.app = [self protoEventApplicationForError:recordedError];
+  error.device = [self protoEventDevice];
+  error.log.content = FIRCLSEncodeString([self logsContent]);
+
+  return error;
+}
+
+- (google_crashlytics_Session_Event_Application)protoEventApplicationForCrash {
   google_crashlytics_Session_Event_Application app =
       google_crashlytics_Session_Event_Application_init_default;
 
@@ -388,11 +448,64 @@
   app.background = [self wasInBackground];
   app.ui_orientation = [self uiOrientation];
 
-  // TODO: Where do these come from?
-  //    app.custom_attributes
-  //    app.custom_attributes_count
+  // TODO: Add crash_info_entry values for Swift, Protobuf.scala:444
+  app.custom_attributes = [self protoCustomAttributesWithKeyValues:self.userKeyValues];
+  app.custom_attributes_count = (pb_size_t)self.userKeyValues.count;
 
   return app;
+}
+
+- (google_crashlytics_Session_Event_Application)protoEventApplicationForError:
+    (FIRCLSRecordError *)error {
+  google_crashlytics_Session_Event_Application app =
+      google_crashlytics_Session_Event_Application_init_default;
+
+  // TODO: Filter by binaries by stacktrace, Protobuf.scala:93
+  app.execution.binaries = [self protoBinaryImages];
+  app.execution.binaries_count = (pb_size_t)self.binaryImages.count;
+
+  google_crashlytics_Session_Event_Application_Execution_Signal emptySignal =
+      google_crashlytics_Session_Event_Application_Execution_Signal_init_default;
+  app.execution.signal = emptySignal;
+
+  // Create single thread from stacktrace
+  google_crashlytics_Session_Event_Application_Execution_Thread *threads =
+      malloc(sizeof(google_crashlytics_Session_Event_Application_Execution_Thread) * 1);
+  google_crashlytics_Session_Event_Application_Execution_Thread thread =
+      google_crashlytics_Session_Event_Application_Execution_Thread_init_default;
+  thread.frames = [self protoFramesWithStacktrace:error.stacktrace];
+  thread.frames_count = (pb_size_t)error.stacktrace.count;
+  threads[0] = thread;
+  app.execution.threads = threads;
+  app.execution.threads_count = 1;
+
+  app.background = [self wasInBackground];
+  app.ui_orientation = [self uiOrientation];
+
+  NSDictionary<NSString *, NSString *> *keyValues = [self keyValuesWithError:error];
+  app.custom_attributes = [self protoCustomAttributesWithKeyValues:keyValues];
+  app.custom_attributes_count = (pb_size_t)keyValues.count;
+
+  return app;
+}
+
+/// Generate an array of CustomAttributes from the user defined key values.
+/// For recorded errors, the error's nserror-domain and nserror-code are also added.
+/// @param keyValues Dictionary of custom attributes
+- (google_crashlytics_CustomAttribute *)protoCustomAttributesWithKeyValues:
+    (NSDictionary<NSString *, NSString *> *)keyValues {
+  google_crashlytics_CustomAttribute *attributes =
+      malloc(sizeof(google_crashlytics_CustomAttribute) * keyValues.allKeys.count);
+
+  for (NSUInteger i = 0; i < keyValues.allKeys.count; i++) {
+    google_crashlytics_CustomAttribute attribute = google_crashlytics_CustomAttribute_init_default;
+    NSString *key = keyValues.allKeys[i];
+    attribute.key = FIRCLSEncodeString(key);
+    attribute.value = FIRCLSEncodeString(keyValues[key]);
+    attributes[i] = attribute;
+  }
+
+  return attributes;
 }
 
 - (google_crashlytics_Session_Event_Application_Execution_Thread *)protoThreadsWithArray:
@@ -404,7 +517,7 @@
     google_crashlytics_Session_Event_Application_Execution_Thread thread =
         google_crashlytics_Session_Event_Application_Execution_Thread_init_default;
     thread.name = FIRCLSEncodeString(array[i].name);
-    thread.importance = 0;  // TODO: Is there any logic here?
+    thread.importance = 0;  // TODO: Is there any logic here? Protobuf.scala:384
     thread.alternate_name = FIRCLSEncodeString(array[i].alternate_name);
     thread.objc_selector_name = FIRCLSEncodeString(array[i].objc_selector_name);
 
