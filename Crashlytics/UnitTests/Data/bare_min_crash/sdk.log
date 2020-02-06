@@ -1,0 +1,344 @@
+WARN  [FIRCLSMachExceptionRegister:310] original 0x0 0x104e 0x0 0x0
+WARN  [FIRCLSTerminateHandler:291] C++ terminate handler invoked
+WARN  [FIRCLSTerminateHandler:302] restoring pre-existing handler
+WARN  [FIRCLSTerminateHandler:319] no active exception
+WARN  [FIRCLSTerminateHandler:324] invoking pre-existing handler
+WARN  [FIRCLSSignalHandler:288] Signal: 6
+INFO  [FIRCLSProcessRecordAllThreads:486] recording thread 0 data
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a2772efb at 0x1a274d000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 96)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+INFO  [FIRCLSCompactUnwindLookupSecondLevelCompressed:285] Entry has has no unwind info
+INFO  [FIRCLSCompactUnwindLookup:335] Second-level PC lookup failed
+INFO  [FIRCLSCompactUnwindLookupAndCompute:361] Unable to lookup compact unwind for pc 0x1a2772efb
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a26928b7 at 0x1a2690000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 80)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a2622a73 at 0x1a25ac000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 644)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a273a3c7 at 0x1a2739000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 444)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a273a4bf at 0x1a2739000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 444)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a26a12c3 at 0x1a269b000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 688)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1047dc4cb at 0x104764000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 6628)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a2747633 at 0x1a2739000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 444)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a27475cf at 0x1a2739000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 444)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+INFO  [FIRCLSCompactUnwindDwarfFrame:384] Trying to read dwarf data with offset %lx
+WARN  [FIRCLSDwarfInstructionsEnumerate:597] Running instructions from 0x1a274cf6d to 0x1a274cf70
+WARN  [FIRCLSDwarfParseAndExecute_def_cfa:341] DW_CFA_def_cfa %llu, %lld
+WARN  [FIRCLSDwarfInstructionsEnumerate:597] Running instructions from 0x1a274cf91 to 0x1a274cf9c
+WARN  [FIRCLSDwarfParseAndExecute_advance_loc:507] DW_CFA_advance_loc 8
+WARN  [FIRCLSDwarfParseAndExecute_def_cfa_offset:370] DW_CFA_def_cfa_offset %lld
+WARN  [FIRCLSDwarfParseAndExecute_offset:490] DW_CFA_offset 30, %lld
+WARN  [FIRCLSDwarfParseAndExecute_offset:490] DW_CFA_offset 29, %lld
+WARN  [FIRCLSDwarfParseAndExecute_offset:490] DW_CFA_offset 19, %lld
+WARN  [FIRCLSDwarfParseAndExecute_offset:490] DW_CFA_offset 20, %lld
+WARN  [FIRCLSDwarfGetSavedRegister:817] Getting register 1
+WARN  [FIRCLSDwarfGetSavedRegister:817] Getting register 1
+WARN  [FIRCLSDwarfGetSavedRegister:817] Getting register 1
+WARN  [FIRCLSDwarfGetSavedRegister:817] Getting register 1
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a27471ef at 0x1a2739000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 444)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x10476bd47 at 0x104764000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 1052)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a269cc63 at 0x1a269b000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 688)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x10476a3d3 at 0x104764000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 1052)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x10476cebf at 0x104764000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 1052)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a6c4b287 at 0x1a6033000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 168252)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a6c4adbf at 0x1a6033000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 168252)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a6c4b4a7 at 0x1a6033000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 168252)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a6a804ab at 0x1a6033000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 147772)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a6a6facf at 0x1a6033000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 147772)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a6aa0d1f at 0x1a6033000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 147772)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a2903523 at 0x1a2856000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 8932)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a28fe1c3 at 0x1a2856000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 8932)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a28fe773 at 0x1a2856000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 8932)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a28fdf3f at 0x1a2856000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 8932)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1acb7b533 at 0x1acb78000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 96)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a6a76a5f at 0x1a6033000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 147772)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1047b41bf at 0x104764000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 2532)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a277ce17 at 0x1a277c000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 72)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+INFO  [FIRCLSCompactUnwindLookupSecondLevelCompressed:285] Entry has has no unwind info
+INFO  [FIRCLSCompactUnwindLookup:335] Second-level PC lookup failed
+INFO  [FIRCLSCompactUnwindLookupAndCompute:361] Unable to lookup compact unwind for pc 0x1a277ce17
+INFO  [FIRCLSProcessRecordAllThreads:486] recording thread 1 data
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a2773ab3 at 0x1a274d000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 96)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+INFO  [FIRCLSCompactUnwindLookupSecondLevelCompressed:285] Entry has has no unwind info
+INFO  [FIRCLSCompactUnwindLookup:335] Second-level PC lookup failed
+INFO  [FIRCLSCompactUnwindLookupAndCompute:361] Unable to lookup compact unwind for pc 0x1a2773ab3
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a269371b at 0x1a2690000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 80)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a26999e7 at 0x1a2690000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 80)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+INFO  [FIRCLSCompactUnwindLookupSecondLevelCompressed:285] Entry has has no unwind info
+INFO  [FIRCLSCompactUnwindLookup:335] Second-level PC lookup failed
+INFO  [FIRCLSCompactUnwindLookupAndCompute:361] Unable to lookup compact unwind for pc 0x1a26999e7
+WARN  [FIRCLSUnwindNextFrameUsingAllStrategies:204] FP is zero, aborting unwind
+INFO  [FIRCLSProcessRecordAllThreads:486] recording thread 2 data
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a2773ab3 at 0x1a274d000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 96)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+INFO  [FIRCLSCompactUnwindLookupSecondLevelCompressed:285] Entry has has no unwind info
+INFO  [FIRCLSCompactUnwindLookup:335] Second-level PC lookup failed
+INFO  [FIRCLSCompactUnwindLookupAndCompute:361] Unable to lookup compact unwind for pc 0x1a2773ab3
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a269371b at 0x1a2690000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 80)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a26999e7 at 0x1a2690000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 80)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+INFO  [FIRCLSCompactUnwindLookupSecondLevelCompressed:285] Entry has has no unwind info
+INFO  [FIRCLSCompactUnwindLookup:335] Second-level PC lookup failed
+INFO  [FIRCLSCompactUnwindLookupAndCompute:361] Unable to lookup compact unwind for pc 0x1a26999e7
+WARN  [FIRCLSUnwindNextFrameUsingAllStrategies:204] FP is zero, aborting unwind
+INFO  [FIRCLSProcessRecordAllThreads:486] recording thread 3 data
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a2773ab3 at 0x1a274d000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 96)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+INFO  [FIRCLSCompactUnwindLookupSecondLevelCompressed:285] Entry has has no unwind info
+INFO  [FIRCLSCompactUnwindLookup:335] Second-level PC lookup failed
+INFO  [FIRCLSCompactUnwindLookupAndCompute:361] Unable to lookup compact unwind for pc 0x1a2773ab3
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a269371b at 0x1a2690000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 80)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a26999e7 at 0x1a2690000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 80)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+INFO  [FIRCLSCompactUnwindLookupSecondLevelCompressed:285] Entry has has no unwind info
+INFO  [FIRCLSCompactUnwindLookup:335] Second-level PC lookup failed
+INFO  [FIRCLSCompactUnwindLookupAndCompute:361] Unable to lookup compact unwind for pc 0x1a26999e7
+WARN  [FIRCLSUnwindNextFrameUsingAllStrategies:204] FP is zero, aborting unwind
+INFO  [FIRCLSProcessRecordAllThreads:486] recording thread 4 data
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a2750c03 at 0x1a274d000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 96)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+INFO  [FIRCLSCompactUnwindLookupSecondLevelCompressed:285] Entry has has no unwind info
+INFO  [FIRCLSCompactUnwindLookup:335] Second-level PC lookup failed
+INFO  [FIRCLSCompactUnwindLookupAndCompute:361] Unable to lookup compact unwind for pc 0x1a2750c03
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a275001f at 0x1a274d000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 96)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a2903963 at 0x1a2856000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 8932)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a28fe7fb at 0x1a2856000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 8932)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a28fdf3f at 0x1a2856000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 8932)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a2c433af at 0x1a2c3b000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 3612)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a2c43287 at 0x1a2c3b000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 3612)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a6b1223b at 0x1a6033000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 155964)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a2c42013 at 0x1a2c3b000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 3612)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a2d7da7b at 0x1a2c3b000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 18856)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a269183f at 0x1a2690000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 80)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a26999f3 at 0x1a2690000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 80)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+INFO  [FIRCLSCompactUnwindLookupSecondLevelCompressed:285] Entry has has no unwind info
+INFO  [FIRCLSCompactUnwindLookup:335] Second-level PC lookup failed
+INFO  [FIRCLSCompactUnwindLookupAndCompute:361] Unable to lookup compact unwind for pc 0x1a26999f3
+WARN  [FIRCLSUnwindNextFrameUsingAllStrategies:204] FP is zero, aborting unwind
+INFO  [FIRCLSProcessRecordAllThreads:486] recording thread 5 data
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a2773ab3 at 0x1a274d000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 96)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+INFO  [FIRCLSCompactUnwindLookupSecondLevelCompressed:285] Entry has has no unwind info
+INFO  [FIRCLSCompactUnwindLookup:335] Second-level PC lookup failed
+INFO  [FIRCLSCompactUnwindLookupAndCompute:361] Unable to lookup compact unwind for pc 0x1a2773ab3
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a269371b at 0x1a2690000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 80)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a26999e7 at 0x1a2690000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 80)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+INFO  [FIRCLSCompactUnwindLookupSecondLevelCompressed:285] Entry has has no unwind info
+INFO  [FIRCLSCompactUnwindLookup:335] Second-level PC lookup failed
+INFO  [FIRCLSCompactUnwindLookupAndCompute:361] Unable to lookup compact unwind for pc 0x1a26999e7
+WARN  [FIRCLSUnwindNextFrameUsingAllStrategies:204] FP is zero, aborting unwind
+INFO  [FIRCLSProcessRecordAllThreads:486] recording thread 6 data
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a2773ab3 at 0x1a274d000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 96)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+INFO  [FIRCLSCompactUnwindLookupSecondLevelCompressed:285] Entry has has no unwind info
+INFO  [FIRCLSCompactUnwindLookup:335] Second-level PC lookup failed
+INFO  [FIRCLSCompactUnwindLookupAndCompute:361] Unable to lookup compact unwind for pc 0x1a2773ab3
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a269371b at 0x1a2690000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 80)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a26999e7 at 0x1a2690000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 80)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+INFO  [FIRCLSCompactUnwindLookupSecondLevelCompressed:285] Entry has has no unwind info
+INFO  [FIRCLSCompactUnwindLookup:335] Second-level PC lookup failed
+INFO  [FIRCLSCompactUnwindLookupAndCompute:361] Unable to lookup compact unwind for pc 0x1a26999e7
+WARN  [FIRCLSUnwindNextFrameUsingAllStrategies:204] FP is zero, aborting unwind
+INFO  [FIRCLSProcessRecordAllThreads:486] recording thread 7 data
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a2750c03 at 0x1a274d000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 96)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+INFO  [FIRCLSCompactUnwindLookupSecondLevelCompressed:285] Entry has has no unwind info
+INFO  [FIRCLSCompactUnwindLookup:335] Second-level PC lookup failed
+INFO  [FIRCLSCompactUnwindLookupAndCompute:361] Unable to lookup compact unwind for pc 0x1a2750c03
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a275001f at 0x1a274d000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 96)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1047e909b at 0x104764000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 6628)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1047e8fcb at 0x104764000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 6628)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a269183f at 0x1a2690000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 80)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a26999f3 at 0x1a2690000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 80)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+INFO  [FIRCLSCompactUnwindLookupSecondLevelCompressed:285] Entry has has no unwind info
+INFO  [FIRCLSCompactUnwindLookup:335] Second-level PC lookup failed
+INFO  [FIRCLSCompactUnwindLookupAndCompute:361] Unable to lookup compact unwind for pc 0x1a26999f3
+WARN  [FIRCLSUnwindNextFrameUsingAllStrategies:204] FP is zero, aborting unwind
+INFO  [FIRCLSProcessRecordAllThreads:486] recording thread 8 data
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a2750c03 at 0x1a274d000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 96)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+INFO  [FIRCLSCompactUnwindLookupSecondLevelCompressed:285] Entry has has no unwind info
+INFO  [FIRCLSCompactUnwindLookup:335] Second-level PC lookup failed
+INFO  [FIRCLSCompactUnwindLookupAndCompute:361] Unable to lookup compact unwind for pc 0x1a2750c03
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a275001f at 0x1a274d000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 96)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a2903963 at 0x1a2856000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 8932)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a28fe7fb at 0x1a2856000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 8932)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a28fdf3f at 0x1a2856000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 8932)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a5bf0567 at 0x1a5bef000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 13812)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a2c42013 at 0x1a2c3b000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 3612)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a2d7da7b at 0x1a2c3b000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 18856)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a269183f at 0x1a2690000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 80)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x1a26999f3 at 0x1a2690000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 80)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+INFO  [FIRCLSCompactUnwindLookupSecondLevelCompressed:285] Entry has has no unwind info
+INFO  [FIRCLSCompactUnwindLookup:335] Second-level PC lookup failed
+INFO  [FIRCLSCompactUnwindLookupAndCompute:361] Unable to lookup compact unwind for pc 0x1a26999f3
+WARN  [FIRCLSUnwindNextFrameUsingAllStrategies:204] FP is zero, aborting unwind
+INFO  [FIRCLSProcessRecordAllThreads:496] completed recording all thread data
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:789] attempting to read crash info string
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+WARN  [FIRCLSCreateCrashedMarkerFile:30] Created the crashed marker file

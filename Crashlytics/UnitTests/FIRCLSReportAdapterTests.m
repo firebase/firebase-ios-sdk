@@ -44,6 +44,27 @@
 
 @implementation FIRCLSReportAdapterTests
 
+- (void)testProtoOutput {
+    NSString *minCrash = [[FIRCLSReportAdapterTests resourcePath] stringByAppendingPathComponent:@"bare_min_crash"];
+    FIRCLSReportAdapter *adapter = [[FIRCLSReportAdapter alloc] initWithPath:minCrash
+                                                                 googleAppId:@"1:17586535263:ios:83778f4dc7e8a26ef794ea"];
+
+    NSData *data = adapter.transportBytes;
+    
+    NSError *error = nil;
+    NSString *outputPath = [[FIRCLSReportAdapterTests resourcePath] stringByAppendingPathComponent:@"output.proto"];
+    
+    [data writeToFile:outputPath options:NSDataWritingAtomic error:&error];
+    NSLog(@"Output path: %@", outputPath);
+    
+    if (error) {
+        NSLog(@"Write returned error: %@", [error localizedDescription]);
+    }
+    
+    // Add break point here to manually copy out the data file
+}
+
+
 /// It is important that crashes do not occur when reading persisted crash files before uploading
 /// Verify various invalid input cases
 - (void)testInvalidRecordCases {

@@ -380,7 +380,12 @@
 - (google_crashlytics_Session_Device)protoSessionDevice {
   google_crashlytics_Session_Device device = google_crashlytics_Session_Device_init_default;
   device.arch = [self protoArchitectureFromString:self.executable.architecture];
-  device.model = FIRCLSEncodeString(self.host.model);
+
+  NSString *model = [NSString stringWithFormat:@"%@", self.host.model] ;
+  // To test adding an extra byte in another field when we are at the known max size:
+  //  NSString *model = [NSString stringWithFormat:@"%@a", self.host.model];
+    
+  device.model = FIRCLSEncodeString(model);
   device.ram = [self ramUsed];
   device.disk_space = self.storage.total;
   device.language = FIRCLSEncodeString(self.host.locale);
@@ -440,7 +445,7 @@
       google_crashlytics_Session_Event_Application_init_default;
 
   app.execution.binaries = [self protoBinaryImages];
-  app.execution.binaries_count = (pb_size_t)self.binaryImages.count;
+    app.execution.binaries_count = 1;//(pb_size_t)self.binaryImages.count;
   app.execution.signal = [self protoSignal];
   app.execution.threads = [self protoThreadsWithArray:self.threads];
   app.execution.threads_count = (pb_size_t)self.threads.count;
@@ -462,7 +467,7 @@
 
   // TODO: Filter by binaries by stacktrace, Protobuf.scala:93
   app.execution.binaries = [self protoBinaryImages];
-  app.execution.binaries_count = (pb_size_t)self.binaryImages.count;
+  app.execution.binaries_count = 1;//(pb_size_t)self.binaryImages.count;
 
   google_crashlytics_Session_Event_Application_Execution_Signal emptySignal =
       google_crashlytics_Session_Event_Application_Execution_Signal_init_default;
@@ -579,17 +584,32 @@
 }
 
 - (google_crashlytics_Session_Event_Application_Execution_BinaryImage *)protoBinaryImages {
+    
+    NSUInteger size = 1;
+    
   google_crashlytics_Session_Event_Application_Execution_BinaryImage *images =
       malloc(sizeof(google_crashlytics_Session_Event_Application_Execution_BinaryImage) *
-             self.binaryImages.count);
+             size);
 
-  for (NSUInteger i = 0; i < self.binaryImages.count; i++) {
+  for (NSUInteger i = 0; i < size; i++) {
     google_crashlytics_Session_Event_Application_Execution_BinaryImage image =
         google_crashlytics_Session_Event_Application_Execution_BinaryImage_init_default;
-    image.name = FIRCLSEncodeString(self.binaryImages[i].path);
-    image.uuid = FIRCLSEncodeString(self.binaryImages[i].uuid);
-    image.base_address = self.binaryImages[i].base;
-    image.size = self.binaryImages[i].size;
+      
+//    image.name = FIRCLSEncodeString(self.binaryImages[i].path);
+//    image.uuid = FIRCLSEncodeString(self.binaryImages[i].uuid);
+//    image.base_address = self.binaryImages[i].base;
+//    image.size = self.binaryImages[i].size;
+      
+    NSMutableString *str = [[NSMutableString alloc] init];
+      
+    // 12090 is the MAX characters with the bare_min_crash crash files with 1 binary image
+    // before the pb format becomes invalid!
+    for (NSUInteger i = 0; i < 12090; i++) {
+      [str appendString:@"a"];
+    }
+    
+    image.name = FIRCLSEncodeString(str);
+      
 
     // TODO: Fix analysis issue: "Use of zero-allocated memory"
     images[i] = image;
