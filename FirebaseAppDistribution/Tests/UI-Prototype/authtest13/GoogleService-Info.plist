@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>180603320033-pgfvha1qd50pqg8nd4t66f3e04fsofp2.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.180603320033-pgfvha1qd50pqg8nd4t66f3e04fsofp2</string>
+	<key>API_KEY</key>
+	<string>AIzaSyDdDM_JIvcuFlbE7WULJVCWj8jN45lXDJU</string>
+	<key>GCM_SENDER_ID</key>
+	<string>180603320033</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>dev.firebase.appdistribution.test.authtest13</string>
+	<key>PROJECT_ID</key>
+	<string>new-build-alerts-test</string>
+	<key>STORAGE_BUCKET</key>
+	<string>new-build-alerts-test.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:180603320033:ios:5d2240f61627d7b58f29a0</string>
+	<key>DATABASE_URL</key>
+	<string>https://new-build-alerts-test.firebaseio.com</string>
+</dict>
+</plist>
