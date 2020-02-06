@@ -38,10 +38,6 @@ NSString *const kPendingTopicsTimestampEncodingKey = @"ts";
 
 @implementation FIRMessagingTopicBatch
 
-+ (BOOL)supportsSecureCoding {
-  return YES;
-}
-
 - (instancetype)initWithAction:(FIRMessagingTopicAction)action {
   if (self = [super init]) {
     _action = action;
@@ -51,7 +47,11 @@ NSString *const kPendingTopicsTimestampEncodingKey = @"ts";
   return self;
 }
 
-#pragma mark NSCoding
+#pragma mark NSSecureCoding
+
++ (BOOL)supportsSecureCoding {
+  return YES;
+}
 
 - (void)encodeWithCoder:(NSCoder *)aCoder {
   [aCoder encodeInteger:self.action forKey:kPendingTopicBatchActionKey];
@@ -92,10 +92,6 @@ NSString *const kPendingTopicsTimestampEncodingKey = @"ts";
 
 @implementation FIRMessagingPendingTopicsList
 
-+ (BOOL)supportsSecureCoding {
-  return YES;
-}
-
 - (instancetype)init {
   if (self = [super init]) {
     _topicBatches = [NSMutableArray array];
@@ -115,7 +111,11 @@ NSString *const kPendingTopicsTimestampEncodingKey = @"ts";
   }
 }
 
-#pragma mark NSCoding
+#pragma mark NSSecureCoding
+
++ (BOOL)supportsSecureCoding {
+  return YES;
+}
 
 - (void)encodeWithCoder:(NSCoder *)aCoder {
   [aCoder encodeObject:[NSDate date] forKey:kPendingTopicsTimestampEncodingKey];
