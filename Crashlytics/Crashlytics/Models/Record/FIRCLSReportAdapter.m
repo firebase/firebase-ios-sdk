@@ -280,7 +280,7 @@
   return false;
 }
 
-- (NSDictionary<NSString *, NSString *> *)KeyValuesWithError:(FIRCLSRecordError *)error {
+- (NSDictionary<NSString *, NSString *> *)keyValuesWithError:(FIRCLSRecordError *)error {
   if (!error) {
     return self.userKeyValues;
   }
@@ -448,7 +448,8 @@
   app.background = [self wasInBackground];
   app.ui_orientation = [self uiOrientation];
 
-  app.custom_attributes = [self protoCustomAttributesWithError:nil];
+  // TODO: Add crash_info_entry values for Swift, Protobuf.scala:444
+  app.custom_attributes = [self protoCustomAttributesWithKeyValues:self.userKeyValues];
   app.custom_attributes_count = (pb_size_t)self.userKeyValues.count;
 
   return app;
@@ -481,27 +482,26 @@
   app.background = [self wasInBackground];
   app.ui_orientation = [self uiOrientation];
 
-  app.custom_attributes = [self protoCustomAttributesWithError:error];
-  app.custom_attributes_count = (pb_size_t)self.userKeyValues.count + 2;
+  NSDictionary<NSString *, NSString *> *keyValues = [self keyValuesWithError:error];
+  app.custom_attributes = [self protoCustomAttributesWithKeyValues:keyValues];
+  app.custom_attributes_count = (pb_size_t)keyValues.count;
 
   return app;
 }
 
 /// Generate an array of CustomAttributes from the user defined key values.
 /// For recorded errors, the error's nserror-domain and nserror-code are also added.
-/// @param error Error from recordError API
-- (google_crashlytics_CustomAttribute *)protoCustomAttributesWithError:(FIRCLSRecordError *)error {
-  NSDictionary<NSString *, NSString *> *kvs = [self KeyValuesWithError:error];
-  NSUInteger size = kvs.count;
-
+/// @param keyValues Dictionary of custom attributes
+- (google_crashlytics_CustomAttribute *)protoCustomAttributesWithKeyValues:
+    (NSDictionary<NSString *, NSString *> *)keyValues {
   google_crashlytics_CustomAttribute *attributes =
-      malloc(sizeof(google_crashlytics_CustomAttribute) * size);
+      malloc(sizeof(google_crashlytics_CustomAttribute) * keyValues.allKeys.count);
 
-  for (NSUInteger i = 0; i < kvs.count; i++) {
+  for (NSUInteger i = 0; i < keyValues.allKeys.count; i++) {
     google_crashlytics_CustomAttribute attribute = google_crashlytics_CustomAttribute_init_default;
-    NSString *key = kvs.allKeys[i];
+    NSString *key = keyValues.allKeys[i];
     attribute.key = FIRCLSEncodeString(key);
-    attribute.value = FIRCLSEncodeString(kvs[key]);
+    attribute.value = FIRCLSEncodeString(keyValues[key]);
     attributes[i] = attribute;
   }
 
