@@ -61,7 +61,8 @@ app update.
 #        'FirebaseRemoteConfig/Tests/Unit/RCNThrottlingTests.m',
         'FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.m',
         'FirebaseRemoteConfig/Tests/Unit/RCNUserDefaultsManagerTests.m',
-        'FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h'
+        'FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h',
+        'FirebaseRemoteConfig/Tests/Unit/RCNInstanceIDTest.m'
     # Supply plist custom plist testing.
     unit_tests.resources =
         'FirebaseRemoteConfig/Tests/Unit/Defaults-testInfo.plist',

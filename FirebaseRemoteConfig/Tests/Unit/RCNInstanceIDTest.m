@@ -229,6 +229,50 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                }];
 }
 
+// Test IID error. Subsequent request also fails with same error (b/148975341).
+- (void)testMultipleFetchCallsFailing {
+  NSMutableArray<XCTestExpectation *> *expectations =
+      [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
+
+  // Set the token as nil.
+  [self mockInstanceIDMethodForTokenAndIdentity:nil
+                                     tokenError:[NSError errorWithDomain:@"com.google.instanceid"
+                                                                    code:FIRInstanceIDErrorUnknown
+                                                                userInfo:nil]
+                                       identity:nil
+                                  identityError:nil];
+  // Test for each RC FIRApp, namespace instance.
+  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
+    expectations[i] =
+        [self expectationWithDescription:
+                  [NSString stringWithFormat:@"Test fetch configs successfully - instance %d", i]];
+    XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusNoFetchYet);
+    FIRRemoteConfigFetchCompletion fetchCompletion =
+        ^void(FIRRemoteConfigFetchStatus status, NSError *error) {
+          XCTAssertNotNil(error);
+          XCTAssertFalse([[error.userInfo objectForKey:@"NSLocalizedDescription"]
+                             rangeOfString:@"Failed to get InstanceID token"]
+                             .location == NSNotFound);
+          // Make a second fetch call.
+          [_configInstances[i]
+              fetchWithExpirationDuration:43200
+                        completionHandler:^void(FIRRemoteConfigFetchStatus status, NSError *error) {
+                          XCTAssertNotNil(error);
+                          XCTAssertFalse([[error.userInfo objectForKey:@"NSLocalizedDescription"]
+                                             rangeOfString:@"Failed to get InstanceID token"]
+                                             .location == NSNotFound);
+                          [expectations[i] fulfill];
+                        }];
+        };
+    [_configInstances[i] fetchWithExpirationDuration:43200 completionHandler:fetchCompletion];
+  }
+
+  [self waitForExpectationsWithTimeout:_expectationTimeout
+                               handler:^(NSError *error) {
+                                 XCTAssertNil(error);
+                               }];
+}
+
 // Instance ID token is not nil. Error is not nil. Verify fetch fails.
 - (void)testValidInstanceIDTokenAndValidError {
   NSMutableArray<XCTestExpectation *> *expectations =
