@@ -119,6 +119,9 @@ typedef NS_ENUM(NSInteger, FIRMessagingMessageCode) {
   kFIRMessagingMessageCodePubSub001 = 9001,  // I-FCM009001
   kFIRMessagingMessageCodePubSub002 = 9002,  // I-FCM009002
   kFIRMessagingMessageCodePubSub003 = 9003,  // I-FCM009003
+  kFIRMessagingMessageCodePubSubArchiveError = 9004,
+  kFIRMessagingMessageCodePubSubUnarchiveError = 9005,
+
   // FIRMessagingReceiver.m
   kFIRMessagingMessageCodeReceiver000 = 10000,  // I-FCM010000
   kFIRMessagingMessageCodeReceiver001 = 10001,  // I-FCM010001

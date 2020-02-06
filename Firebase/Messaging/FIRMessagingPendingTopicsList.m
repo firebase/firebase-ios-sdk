@@ -17,10 +17,9 @@
 #import "Firebase/Messaging/FIRMessagingPendingTopicsList.h"
 
 #import "Firebase/Messaging/FIRMessaging_Private.h"
+#import "Firebase/Messaging/FIRMessagingDefines.h"
 #import "Firebase/Messaging/FIRMessagingLogger.h"
 #import "Firebase/Messaging/FIRMessagingPubSub.h"
-
-#import "Firebase/Messaging/FIRMessagingDefines.h"
 
 NSString *const kPendingTopicBatchActionKey = @"action";
 NSString *const kPendingTopicBatchTopicsKey = @"topics";
@@ -38,6 +37,10 @@ NSString *const kPendingTopicsTimestampEncodingKey = @"ts";
 @end
 
 @implementation FIRMessagingTopicBatch
+
++ (BOOL)supportsSecureCoding {
+  return YES;
+}
 
 - (instancetype)initWithAction:(FIRMessagingTopicAction)action {
   if (self = [super init]) {
@@ -89,6 +92,10 @@ NSString *const kPendingTopicsTimestampEncodingKey = @"ts";
 @end
 
 @implementation FIRMessagingPendingTopicsList
+
++ (BOOL)supportsSecureCoding {
+  return YES;
+}
 
 - (instancetype)init {
   if (self = [super init]) {
