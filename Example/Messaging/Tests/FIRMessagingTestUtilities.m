@@ -65,6 +65,29 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 
 @end
 
+@implementation MockPendingTopicsListDelegate
+
+- (BOOL)pendingTopicsListCanRequestTopicUpdates:(FIRMessagingPendingTopicsList *)list {
+  return self.isReady;
+}
+
+- (void)pendingTopicsList:(FIRMessagingPendingTopicsList *)list
+  requestedUpdateForTopic:(NSString *)topic
+                   action:(FIRMessagingTopicAction)action
+               completion:(FIRMessagingTopicOperationCompletion)completion {
+  if (self.subscriptionHandler) {
+    self.subscriptionHandler(topic, action, completion);
+  }
+}
+
+- (void)pendingTopicsListDidUpdate:(FIRMessagingPendingTopicsList *)list {
+  if (self.updateHandler) {
+    self.updateHandler();
+  }
+}
+
+@end
+
 @implementation FIRMessagingTestUtilities
 
 - (instancetype)initWithUserDefaults:(GULUserDefaults *)userDefaults withRMQManager:(BOOL)withRMQManager {
