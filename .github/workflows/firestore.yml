@@ -27,6 +27,19 @@ on:
     - 'CMakeLists.txt'
     - 'cmake/**'
 
+    # Build scripts
+    # Note that this doesn't include check scripts because changing those will
+    # already trigger the check workflow.
+    - 'scripts/binary_to_array.py'
+    - 'scripts/build.sh'
+    - 'scripts/install_prereqs.sh'
+    - 'scripts/localize_podfile.swift'
+    - 'scripts/pod_lib_lint.rb'
+    - 'scripts/run_firestore_emulator.sh'
+    - 'scripts/setup_*'
+    - 'scripts/sync_project.rb'
+    - 'scripts/test_quickstart.sh'
+
     # This workflow
     - '.github/workflows/firestore.yml'
 
