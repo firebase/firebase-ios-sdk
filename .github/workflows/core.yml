@@ -30,9 +30,9 @@ jobs:
       matrix:
         target: [ios, tvos, macos]
         flags: [
-          '--use_modular_headers',
+          '--use-modular-headers',
           # Tests are skipped since the Swift tests need modules.
-          '--skip-tests --use_libraries'
+          '--skip-tests --use-libraries'
         ]
     needs: pod_lib_lint
     steps:
