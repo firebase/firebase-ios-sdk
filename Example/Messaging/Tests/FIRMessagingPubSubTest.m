@@ -28,10 +28,14 @@
 @interface FIRMessagingPubSub (ExposedForTest)
 
 @property(nonatomic, readwrite, strong) FIRMessagingPendingTopicsList *pendingTopicUpdates;
-
 - (void)archivePendingTopicsList:(FIRMessagingPendingTopicsList *)topicsList;
-
 - (void)restorePendingTopicsList;
+
+@end
+
+@interface FIRMessagingPendingTopicsList (ExposedForTest)
+
+@property(nonatomic, strong) NSMutableArray <FIRMessagingTopicBatch *> *topicBatches;
 
 @end
 
@@ -125,9 +129,12 @@ static NSString *const kTopicName = @"topic-Name";
                                 rmq2Manager:mockRmqManager];
   FIRMessagingPubSub *pubSub = [[FIRMessagingPubSub alloc] initWithClient:client];
   [pubSub archivePendingTopicsList:topicList];
- 
   [pubSub restorePendingTopicsList];
   XCTAssertEqual(pubSub.pendingTopicUpdates.numberOfBatches, 3);
+  NSMutableArray <FIRMessagingTopicBatch *> *topicBatches = pubSub.pendingTopicUpdates.topicBatches;
+  XCTAssertTrue([topicBatches[0].topics containsObject:@"/topics/0"]);
+  XCTAssertTrue([topicBatches[1].topics containsObject:@"/topics/1"]);
+  XCTAssertTrue([topicBatches[2].topics containsObject:@"/topics/2"]);
 }
 
 @end

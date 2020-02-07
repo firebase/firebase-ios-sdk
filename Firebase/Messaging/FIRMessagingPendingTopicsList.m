@@ -69,7 +69,7 @@ NSString *const kPendingTopicsTimestampEncodingKey = @"ts";
 
   if (self = [self initWithAction:action]) {
     _topics = [aDecoder decodeObjectOfClasses:
-                     [NSSet setWithObjects:NSSet.class, NSMutableString.class, nil]
+                     [NSSet setWithObjects:NSMutableSet.class, NSString.class, nil]
                                              forKey:kPendingTopicBatchTopicsKey];
     _topicHandlers = [NSMutableDictionary dictionary];
   }
