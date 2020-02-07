@@ -210,7 +210,7 @@ static NSString *const kPendingSubscriptionsListKey =
       FIRMessagingLoggerError(kFIRMessagingMessageCodePubSubUnarchiveError,
                               @"Failed to unarchive topic list data %@",
                               error);
-  
+ 
     }
   }
   if (subscriptions) {

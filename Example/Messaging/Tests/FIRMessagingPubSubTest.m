@@ -125,7 +125,7 @@ static NSString *const kTopicName = @"topic-Name";
                                 rmq2Manager:mockRmqManager];
   FIRMessagingPubSub *pubSub = [[FIRMessagingPubSub alloc] initWithClient:client];
   [pubSub archivePendingTopicsList:topicList];
-  
+ 
   [pubSub restorePendingTopicsList];
   XCTAssertEqual(pubSub.pendingTopicUpdates.numberOfBatches, 3);
 }
