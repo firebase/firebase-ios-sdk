@@ -19,6 +19,7 @@
 #import "FIRCLSRecordApplication.h"
 #import "FIRCLSRecordBinaryImage.h"
 #import "FIRCLSRecordError.h"
+#import "FIRCLSRecordException.h"
 #import "FIRCLSRecordExecutable.h"
 #import "FIRCLSRecordHost.h"
 #import "FIRCLSRecordIdentity.h"
@@ -37,6 +38,7 @@
 @property(nonatomic, strong) NSString *googleAppID;
 
 @property(nonatomic, strong) FIRCLSRecordSignal *signal;
+@property(nonatomic, strong) FIRCLSRecordException *exception;
 @property(nonatomic, strong) NSArray<FIRCLSRecordThread *> *threads;
 @property(nonatomic, strong) FIRCLSRecordProcessStats *processStats;
 @property(nonatomic, strong) FIRCLSRecordStorage *storage;

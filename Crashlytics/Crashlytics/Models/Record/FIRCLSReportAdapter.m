@@ -36,11 +36,12 @@
 
     [self loadBinaryImagesFile];
     [self loadMetaDataFile];
-    [self loadSignalFile];
     [self loadInternalKeyValuesFile];
     [self loadUserKeyValuesFile];
     [self loadUserLogFiles];
     [self loadErrorFiles];
+
+    [self loadAllCrashFiles];
 
     // TODO: Add support for mach_exception.clsrecord (check Protobuf.scala:524)
     // TODO: When implemented, add support for custom exceptions: custom_exception_a/b.clsrecord
@@ -77,21 +78,49 @@
   self.executable = [[FIRCLSRecordExecutable alloc] initWithDict:dict[@"executable"]];
 }
 
-/// Reads from signal.clsrecord (does not always exist, written when there is a crash)
-- (void)loadSignalFile {
-  NSString *path = [self.folderPath stringByAppendingPathComponent:FIRCLSReportSignalFile];
-  NSDictionary *dicts = [FIRCLSReportAdapter combinedDictionariesFromFilePath:path];
+/// Reads from all the possible crash files, and fills in the data whenever they exist. Crash files only exist for certain types of crashes.
+/// (eg. exception.clsrecord is only written when an uncaught exception crashed the app).
+- (void)loadAllCrashFiles {
+  // TODO FIRCLSReportMachExceptionFile
+  // TODO FIRCLSReportMachExceptionFile
+  // TODO FIRCLSReportMachExceptionFile
+  // TODO FIRCLSReportMachExceptionFile
+  // TODO FIRCLSReportMachExceptionFile
+  // TODO FIRCLSReportMachExceptionFile
+  // TODO FIRCLSReportMachExceptionFile
+  // TODO FIRCLSReportMachExceptionFile
+  for (NSString *crashFilePath in @[FIRCLSReportSignalFile, FIRCLSReportExceptionFile]) {
+    NSString *path = [self.folderPath stringByAppendingPathComponent:crashFilePath];
 
-  self.signal = [[FIRCLSRecordSignal alloc] initWithDict:dicts[@"signal"]];
-  self.runtime = [[FIRCLSRecordRuntime alloc] initWithDict:dicts[@"runtime"]];
-  self.processStats = [[FIRCLSRecordProcessStats alloc] initWithDict:dicts[@"process_stats"]];
-  self.storage = [[FIRCLSRecordStorage alloc] initWithDict:dicts[@"storage"]];
+    // Skip if the certain crash file doesn't exist
+    if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {
+      continue;
+    }
 
-  // The thread's objc_selector_name is set with the runtime's info
-  self.threads = [FIRCLSRecordThread threadsFromDictionaries:dicts[@"threads"]
-                                                 threadNames:dicts[@"thread_names"]
-                                      withDispatchQueueNames:dicts[@"dispatch_queue_names"]
-                                                 withRuntime:self.runtime];
+    NSDictionary *dicts = [FIRCLSReportAdapter combinedDictionariesFromFilePath:path];
+
+    NSDictionary *signalDict = dicts[@"signal"];
+    NSDictionary *exceptionDict = dicts[@"exception"];
+
+    // These fields are specific to the type of crash file
+    if (signalDict) {
+      self.signal = [[FIRCLSRecordSignal alloc] initWithDict:signalDict];
+
+    } else if (exceptionDict) {
+      self.exception = [[FIRCLSRecordException alloc] initWithDict:exceptionDict];
+    }
+
+    // These fields are common across all crash files
+    self.runtime = [[FIRCLSRecordRuntime alloc] initWithDict:dicts[@"runtime"]];
+    self.processStats = [[FIRCLSRecordProcessStats alloc] initWithDict:dicts[@"process_stats"]];
+    self.storage = [[FIRCLSRecordStorage alloc] initWithDict:dicts[@"storage"]];
+
+    // The thread's objc_selector_name is set with the runtime's info
+    self.threads = [FIRCLSRecordThread threadsFromDictionaries:dicts[@"threads"]
+                                                   threadNames:dicts[@"thread_names"]
+                                        withDispatchQueueNames:dicts[@"dispatch_queue_names"]
+                                                   withRuntime:self.runtime];
+  }
 }
 
 /// Reads from internal_incremental_kv.clsrecord
