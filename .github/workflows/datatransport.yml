@@ -27,34 +27,22 @@ jobs:
 
 # Scheduled jobs
 
-  datatransport-use-libraries:
+  datatransport-cron-only:
     runs-on: macos-latest
     if: github.event_name == 'schedule'
     strategy:
       matrix:
         target: [ios, tvos, macos]
+        flags: [
+          '--use_modular_headers',
+          '--use_libraries'
+        ]
     needs: pod_lib_lint
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
-    - name: PodLibLint DataTransport Using Libraries
+    - name: PodLibLint DataTransport Cron
       run: |
-        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=${{ matrix.target }} --use-libraries
-        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=${{ matrix.target }} --use-libraries
-
-  datatransport-use-modular-headers:
-    runs-on: macos-latest
-    if: github.event_name == 'schedule'
-    strategy:
-      matrix:
-        target: [ios, tvos, macos]
-    needs: pod_lib_lint
-    steps:
-    - uses: actions/checkout@v2
-    - name: Setup Bundler
-      run: ./scripts/setup_bundler.sh
-    - name: PodLibLint DataTransport Using Modular Headers
-      run: |
-        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=${{ matrix.target }} --use-modular-headers
-        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=${{ matrix.target }} --use-modular-headers
+        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
+        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
