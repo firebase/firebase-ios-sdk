@@ -157,8 +157,7 @@ void BM_QueryMatching(benchmark::State& state) {
   WriteDocs(collection, total_docs - matching_docs, /* match= */ false);
 
   for (auto _ : state) {
-    auto docs = GetDocumentsFromCache(
-        [collection queryWhereField:@"match" isEqualTo:@YES]);
+    auto docs = GetDocumentsFromCache([collection queryWhereField:@"match" isEqualTo:@YES]);
     (void)docs;
   }
 
