@@ -63,7 +63,6 @@ NSData *_Nullable GDTCCTEncodeBatchedLogRequest(gdt_cct_BatchedLogRequest *batch
     GDTCORLogError(GDTCORMCEGeneralError, @"Error in nanopb encoding for bytes: %s",
                    PB_GET_ERROR(&ostream));
   }
-  CFDataSetLength(dataRef, ostream.bytes_written);
 
   return CFBridgingRelease(dataRef);
 }
