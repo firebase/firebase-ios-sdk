@@ -33,7 +33,7 @@ import GoogleDataTransport
     let transport: GDTCORTransport = GDTCORTransport(mappingID: "1234", transformers: nil, target: GDTCORTarget.test.rawValue)!
   }
 
-  // macOS specifics.
+// macOS specifics.
 #elseif os(macOS)
   import Cocoa
 
