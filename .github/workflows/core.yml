@@ -23,31 +23,21 @@ jobs:
     - name: Build and test
       run: scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=${{ matrix.target }}
 
-  core-use-libraries:
+  core-cron-only:
     runs-on: macos-latest
     if: github.event_name == 'schedule'
     strategy:
       matrix:
         target: [ios, tvos, macos]
+        flags: [
+          '--use_modular_headers',
+          # Tests are skipped since the Swift tests need modules.
+          '--skip-tests --use_libraries'
+        ]
     needs: pod_lib_lint
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
-    - name: PodLibLint Core Using Libraries
-      # Tests are skipped since the Swift tests need modules.
-      run: scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=${{ matrix.target }} --skip-tests --use-libraries
-
-  datatransport-use-modular-headers:
-    runs-on: macos-latest
-    if: github.event_name == 'schedule'
-    strategy:
-      matrix:
-        target: [ios, tvos, macos]
-    needs: pod_lib_lint
-    steps:
-    - uses: actions/checkout@v2
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: PodLibLint Core Using Modular Headers
-      run: scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=${{ matrix.target }} --use-modular-headers
+    - name: PodLibLint Core Cron
+      run: scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
