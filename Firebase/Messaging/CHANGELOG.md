@@ -1,3 +1,6 @@
+# unreleased
+- [fixed] Use secure coding for Messaging's pending topics. (#3686)
+
 # 2020-02 -- v 4.2.1
 - [added] Firebase Pod support for watchOS: `pod 'Firebase/Messaging'` in addition to `pod 'FirebaseMessaging'`. (#4807)
 - [fixed] Fix FIRMessagingExtensionHelper crash in unit tests when `attachment == nil`. (#4689)

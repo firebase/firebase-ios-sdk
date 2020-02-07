@@ -19,9 +19,30 @@
 #import <FirebaseMessaging/FIRMessaging.h>
 #import <FirebaseInstanceID/FIRInstanceID.h>
 
+#import "Firebase/Messaging/FIRMessagingTopicsCommon.h"
+#import "Firebase/Messaging/FIRMessagingPendingTopicsList.h"
+
 @class GULUserDefaults;
 
 NS_ASSUME_NONNULL_BEGIN
+
+typedef void (^MockDelegateSubscriptionHandler)(NSString *topic,
+                                                FIRMessagingTopicAction action,
+                                                FIRMessagingTopicOperationCompletion completion);
+
+/**
+ * This object lets us provide a stub delegate where we can customize the behavior by providing
+ * blocks. We need to use this instead of stubbing a OCMockProtocol because our delegate methods
+ * take primitive values (e.g. action), which is not easy to use from OCMock
+ * @see http://stackoverflow.com/a/6332023
+ */
+@interface MockPendingTopicsListDelegate: NSObject <FIRMessagingPendingTopicsListDelegate>
+
+@property(nonatomic, assign) BOOL isReady;
+@property(nonatomic, copy) MockDelegateSubscriptionHandler subscriptionHandler;
+@property(nonatomic, copy) void(^updateHandler)(void);
+
+@end
 
 @interface FIRMessaging (TestUtilities)
 // Surface the user defaults instance to clean up after tests.
@@ -44,5 +65,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)cleanupAfterTest:(XCTestCase *)testCase;
 
 @end
+
+
 
 NS_ASSUME_NONNULL_END
