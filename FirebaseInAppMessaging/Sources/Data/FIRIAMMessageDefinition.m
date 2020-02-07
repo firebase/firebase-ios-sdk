@@ -36,39 +36,23 @@
 - (instancetype)initWithRenderData:(FIRIAMMessageRenderData *)renderData
                          startTime:(NSTimeInterval)startTime
                            endTime:(NSTimeInterval)endTime
-                 triggerDefinition:(NSArray<FIRIAMDisplayTriggerDefinition *> *)renderTriggers
-                           appData:(nullable NSDictionary *)appData
-                     isTestMessage:(BOOL)isTestMessage {
+                 triggerDefinition:(NSArray<FIRIAMDisplayTriggerDefinition *> *)renderTriggers {
   if (self = [super init]) {
     _renderData = renderData;
     _renderTriggers = renderTriggers;
     _startTime = startTime;
     _endTime = endTime;
-    _isTestMessage = isTestMessage;
-    _appData = [appData copy];
+    _isTestMessage = NO;
   }
   return self;
 }
 
-- (instancetype)initWithRenderData:(FIRIAMMessageRenderData *)renderData
-                         startTime:(NSTimeInterval)startTime
-                           endTime:(NSTimeInterval)endTime
-                 triggerDefinition:(NSArray<FIRIAMDisplayTriggerDefinition *> *)renderTriggers {
-  return [self initWithRenderData:renderData
-                        startTime:startTime
-                          endTime:endTime
-                triggerDefinition:renderTriggers
-                          appData:nil
-                    isTestMessage:NO];
-}
-
 - (instancetype)initTestMessageWithRenderData:(FIRIAMMessageRenderData *)renderData {
-  return [self initWithRenderData:renderData
-                        startTime:0
-                          endTime:0
-                triggerDefinition:@[]
-                          appData:nil
-                    isTestMessage:YES];
+  if (self = [super init]) {
+    _renderData = renderData;
+    _isTestMessage = YES;
+  }
+  return self;
 }
 
 - (BOOL)messageHasExpired {

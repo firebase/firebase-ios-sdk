@@ -43,11 +43,7 @@
             "name": "jackpot"
           }
         }
-      ],
-      "dataBundle": {
-        "a":"b",
-        "c":"d"
-      }
+      ]
     },
     {
       "vanillaPayload": {

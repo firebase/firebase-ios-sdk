@@ -57,12 +57,12 @@ NSData *_Nullable GDTCCTEncodeBatchedLogRequest(gdt_cct_BatchedLogRequest *batch
   // Encode a 2nd time to actually get the bytes from it.
   size_t bufferSize = sizestream.bytes_written;
   CFMutableDataRef dataRef = CFDataCreateMutable(CFAllocatorGetDefault(), bufferSize);
+  CFDataSetLength(dataRef, bufferSize);
   pb_ostream_t ostream = pb_ostream_from_buffer((void *)CFDataGetBytePtr(dataRef), bufferSize);
   if (!pb_encode(&ostream, gdt_cct_BatchedLogRequest_fields, batchedLogRequest)) {
     GDTCORLogError(GDTCORMCEGeneralError, @"Error in nanopb encoding for bytes: %s",
                    PB_GET_ERROR(&ostream));
   }
-  CFDataSetLength(dataRef, ostream.bytes_written);
 
   return CFBridgingRelease(dataRef);
 }

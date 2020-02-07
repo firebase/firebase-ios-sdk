@@ -115,11 +115,12 @@ else
 
     Firestore-xcodebuild|Firestore-pod-lib-lint)
       check_changes '^(Firestore|FirebaseFirestore.podspec|FirebaseFirestoreSwift.podspec|'\
-'GoogleUtilities)'
+'GoogleUtilities|scripts/run_firestore_emulator.sh)'
       ;;
 
     Firestore-cmake)
-      check_changes '^(Firestore/(core|third_party)|cmake|FirebaseCore|GoogleUtilities)'
+      check_changes '^(Firestore/(core|third_party)|cmake|FirebaseCore|GoogleUtilities|)'\
+'scripts/run_firestore_emulator.sh)'
       ;;
 
     GoogleDataTransport-*)

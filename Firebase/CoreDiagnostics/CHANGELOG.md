@@ -1,3 +1,9 @@
+# v1.2.1
+- Fixed a bug that would manifest if a proto ended up being > 16,320 bytes.
+
+# v1.2.0
+- Added basic watchOS support.
+
 # v1.1.2
 - Switch the backend for diagnostics to FLL from CCT.
 

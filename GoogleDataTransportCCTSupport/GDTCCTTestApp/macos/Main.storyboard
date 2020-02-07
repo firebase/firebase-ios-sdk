@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="14868" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="15702" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14868"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="15702"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -770,8 +770,8 @@
                                     <action selector="generateDailyEventWithSender:" target="XfG-lQ-9wD" id="nLB-7y-yWa"/>
                                 </connections>
                             </button>
-                            <segmentedControl verticalHuggingPriority="750" misplaced="YES" springLoaded="YES" translatesAutoresizingMaskIntoConstraints="NO" id="k6I-AV-bFw">
-                                <rect key="frame" x="358" y="177" width="104" height="24"/>
+                            <segmentedControl verticalHuggingPriority="750" springLoaded="YES" translatesAutoresizingMaskIntoConstraints="NO" id="k6I-AV-bFw">
+                                <rect key="frame" x="317" y="177" width="145" height="24"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="21" id="Rhk-Q2-W55"/>
                                 </constraints>
@@ -780,19 +780,20 @@
                                     <segments>
                                         <segment label="CCT" selected="YES"/>
                                         <segment label="FLL" tag="1"/>
+                                        <segment label="CSH"/>
                                     </segments>
                                 </segmentedCell>
                             </segmentedControl>
                         </subviews>
                         <constraints>
-                            <constraint firstItem="aiw-VS-cNk" firstAttribute="top" secondItem="k6I-AV-bFw" secondAttribute="bottom" constant="5" id="4bB-Fp-all"/>
+                            <constraint firstItem="aiw-VS-cNk" firstAttribute="top" secondItem="k6I-AV-bFw" secondAttribute="bottom" constant="4" id="4bB-Fp-all"/>
                             <constraint firstItem="2ft-D0-CMq" firstAttribute="top" secondItem="aiw-VS-cNk" secondAttribute="bottom" constant="12" symbolic="YES" id="5of-K7-QY4"/>
                             <constraint firstItem="CDv-jq-Itb" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="20" symbolic="YES" id="IzD-5w-Bq1"/>
                             <constraint firstItem="2ft-D0-CMq" firstAttribute="trailing" secondItem="IlF-o2-Jac" secondAttribute="trailing" id="MZ4-Vp-Bk3"/>
                             <constraint firstItem="2ft-D0-CMq" firstAttribute="trailing" secondItem="Uh8-3g-UwR" secondAttribute="trailing" id="N94-GB-w24"/>
                             <constraint firstItem="CDv-jq-Itb" firstAttribute="leading" secondItem="aiw-VS-cNk" secondAttribute="leading" id="OBj-sJ-eFn"/>
                             <constraint firstItem="IlF-o2-Jac" firstAttribute="top" secondItem="aSo-QZ-e6X" secondAttribute="bottom" constant="12" symbolic="YES" id="PK3-yK-9bq"/>
-                            <constraint firstItem="k6I-AV-bFw" firstAttribute="centerY" secondItem="CDv-jq-Itb" secondAttribute="centerY" id="VcQ-7S-yQB"/>
+                            <constraint firstItem="k6I-AV-bFw" firstAttribute="centerY" secondItem="CDv-jq-Itb" secondAttribute="centerY" constant="1" id="VcQ-7S-yQB"/>
                             <constraint firstItem="CDv-jq-Itb" firstAttribute="leading" secondItem="2ft-D0-CMq" secondAttribute="leading" id="WS1-Ar-msV"/>
                             <constraint firstAttribute="trailing" secondItem="2ft-D0-CMq" secondAttribute="trailing" constant="20" symbolic="YES" id="X3u-Lt-dG9"/>
                             <constraint firstItem="2ft-D0-CMq" firstAttribute="trailing" secondItem="aiw-VS-cNk" secondAttribute="trailing" id="bWR-0E-3HY"/>

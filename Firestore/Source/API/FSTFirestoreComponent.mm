@@ -99,7 +99,7 @@ NS_ASSUME_NONNULL_BEGIN
       }
 
       auto executor = Executor::CreateSerial(queue_name.c_str());
-      auto workerQueue = absl::make_unique<AsyncQueue>(std::move(executor));
+      auto workerQueue = AsyncQueue::Create(std::move(executor));
 
       id<FIRAuthInterop> auth = FIR_COMPONENT(FIRAuthInterop, self.app.container);
       auto credentialsProvider = std::make_shared<FirebaseCredentialsProvider>(self.app, auth);

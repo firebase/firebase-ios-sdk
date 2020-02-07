@@ -32,8 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
                 portraitImageData:(FIRInAppMessagingImageData *)portraitImageData
                   backgroundColor:(UIColor *)backgroundColor
               primaryActionButton:(FIRInAppMessagingActionButton *)primaryActionButton
-                 primaryActionURL:(nullable NSURL *)primaryActionURL
-                          appData:(NSDictionary *)appData;
+                 primaryActionURL:(nullable NSURL *)primaryActionURL;
 
 @end
 
@@ -71,8 +70,7 @@ NS_ASSUME_NONNULL_BEGIN
                      campaignName:(NSString *)campaignName
               renderAsTestMessage:(BOOL)renderAsTestMessage
                       messageType:(FIRInAppMessagingDisplayMessageType)messageType
-                      triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
-                          appData:(NSDictionary *)appData;
+                      triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType;
 
 @end
 
@@ -88,8 +86,7 @@ NS_ASSUME_NONNULL_BEGIN
                   backgroundColor:(UIColor *)backgroundColor
                         imageData:(nullable FIRInAppMessagingImageData *)imageData
                      actionButton:(nullable FIRInAppMessagingActionButton *)actionButton
-                        actionURL:(nullable NSURL *)actionURL
-                          appData:(NSDictionary *)appData;
+                        actionURL:(nullable NSURL *)actionURL;
 
 @end
 
@@ -104,8 +101,7 @@ NS_ASSUME_NONNULL_BEGIN
                         textColor:(UIColor *)textColor
                   backgroundColor:(UIColor *)backgroundColor
                         imageData:(nullable FIRInAppMessagingImageData *)imageData
-                        actionURL:(nullable NSURL *)actionURL
-                          appData:(NSDictionary *)appData;
+                        actionURL:(nullable NSURL *)actionURL;
 
 @end
 
@@ -116,8 +112,7 @@ NS_ASSUME_NONNULL_BEGIN
               renderAsTestMessage:(BOOL)renderAsTestMessage
                       triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
                         imageData:(nullable FIRInAppMessagingImageData *)imageData
-                        actionURL:(nullable NSURL *)actionURL
-                          appData:(NSDictionary *)appData;
+                        actionURL:(nullable NSURL *)actionURL;
 
 @end
 

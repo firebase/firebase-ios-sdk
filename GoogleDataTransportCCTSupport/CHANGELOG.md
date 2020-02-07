@@ -1,3 +1,9 @@
+# v1.4.1
+- Fixed a bug that would manifest if a proto ended up being > 16,320 bytes.
+
+# v1.4.0
+- Added the CSH backend and consolidated the CCT, FLL, and CSH backends.
+
 # v1.3.1
 - Adds compression to requests to CCT.
 - Requests going to the FLL backend will only use compressed data when smaller.

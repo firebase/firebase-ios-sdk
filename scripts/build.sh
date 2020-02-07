@@ -264,25 +264,12 @@ case "$product-$platform-$method" in
     "${firestore_emulator}" start
     trap '"${firestore_emulator}" stop' ERR EXIT
 
-    if [[ "$xcode_major" -lt 9 ]]; then
-      # When building and testing for Xcode 8, only test unit tests.
-      RunXcodebuild \
-          -workspace 'Firestore/Example/Firestore.xcworkspace' \
-          -scheme "Firestore_Tests_$platform" \
-          "${xcb_flags[@]}" \
-          build \
-          test
-
-    else
-      # IntegrationTests run all the tests, including Swift tests, which
-      # require Swift 4.0 and Xcode 9+.
-      RunXcodebuild \
-          -workspace 'Firestore/Example/Firestore.xcworkspace' \
-          -scheme "Firestore_IntegrationTests_$platform" \
-          "${xcb_flags[@]}" \
-          build \
-          test
-    fi
+    RunXcodebuild \
+        -workspace 'Firestore/Example/Firestore.xcworkspace' \
+        -scheme "Firestore_IntegrationTests_$platform" \
+        "${xcb_flags[@]}" \
+        build \
+        test
     ;;
 
   Firestore-macOS-cmake | Firestore-Linux-cmake)

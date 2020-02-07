@@ -544,7 +544,11 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
 # pragma mark - Database
 
 - (NSString *)pathForDatabase {
-  NSString *dbNameWithExtension = [NSString stringWithFormat:@"%@.sqlite", _databaseName];
+  return [[self class] pathForDatabaseWithName:_databaseName];
+}
+
++ (NSString *)pathForDatabaseWithName:(NSString *)databaseName {
+  NSString *dbNameWithExtension = [NSString stringWithFormat:@"%@.sqlite", databaseName];
   NSArray *paths = NSSearchPathForDirectoriesInDomains(FIRMessagingSupportedDirectory(),
                                                   NSUserDomainMask,
                                                   YES);
@@ -585,7 +589,7 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
 
 - (void)removeDatabase {
   // Ensure database is removed in a sync queue as this sometimes makes test have race conditions.
-  dispatch_sync(_databaseOperationQueue, ^{
+  dispatch_async(_databaseOperationQueue, ^{
     NSString *path = [self pathForDatabase];
     [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
   });
@@ -853,4 +857,9 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
   [self logError];
   sqlite3_finalize(stmt);
 }
+
+- (dispatch_queue_t)databaseOperationQueue {
+  return _databaseOperationQueue;
+}
+
 @end

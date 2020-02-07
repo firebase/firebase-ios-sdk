@@ -130,4 +130,45 @@
   pb_release(gdt_cct_BatchedLogRequest_fields, &decodedBatch);
 }
 
+/** Tests that creating a message above the apparent threshold of 16320 bytes works. */
+- (void)testEncodingProtoAboveDefaultOSThreshold {
+  NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
+  NSArray *testData = @[
+    @"message-32347456.dat", @"message-35458880.dat", @"message-39882816.dat",
+    @"message-40043840.dat", @"message-40657984.dat"
+  ];
+  NSMutableSet *storedEvents = [[NSMutableSet alloc] init];
+  // 250 messages results in a total size of 16337 which is > 16320, the apparent OS limit. Changing
+  // to 249 would've caused test to pass previously.
+  for (int i = 0; i < 250; i++) {
+    NSString *dataFile = testData[arc4random_uniform((uint32_t)testData.count)];
+    NSData *messageData = [NSData dataWithContentsOfURL:[testBundle URLForResource:dataFile
+                                                                     withExtension:nil]];
+    XCTAssertNotNil(messageData);
+    NSString *cachePath = NSTemporaryDirectory();
+    NSString *filePath = [cachePath
+        stringByAppendingPathComponent:[NSString stringWithFormat:@"test-%lf.txt",
+                                                                  CFAbsoluteTimeGetCurrent()]];
+    [messageData writeToFile:filePath atomically:YES];
+    NSURL *fileURL = [NSURL fileURLWithPath:filePath];
+    XCTAssertNotNil(fileURL);
+    XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:filePath]);
+    [storedEvents addObject:[_generator generateStoredEvent:GDTCOREventQosDefault fileURL:fileURL]];
+  }
+  gdt_cct_BatchedLogRequest batch = gdt_cct_BatchedLogRequest_init_default;
+  XCTAssertNoThrow((batch = GDTCCTConstructBatchedLogRequest(@{@"1018" : storedEvents})));
+  NSData *data = GDTCCTEncodeBatchedLogRequest(&batch);
+  XCTAssertNotNil(data);
+  const char *bytes = (const char *)[data bytes];
+  BOOL allZeroes = YES;
+  for (int i = 0; i < data.length; i++) {
+    char aByte = bytes[i];
+    if (aByte != '\0') {
+      allZeroes = NO;
+    }
+  }
+  XCTAssertFalse(allZeroes);
+  pb_release(gdt_cct_BatchedLogRequest_fields, &batch);
+}
+
 @end
