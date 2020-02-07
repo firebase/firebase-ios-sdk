@@ -34,8 +34,8 @@ jobs:
       matrix:
         target: [ios, tvos, macos]
         flags: [
-          '--use_modular_headers',
-          '--use_libraries'
+          '--use-modular-headers',
+          '--use-libraries'
         ]
     needs: pod_lib_lint
     steps:
