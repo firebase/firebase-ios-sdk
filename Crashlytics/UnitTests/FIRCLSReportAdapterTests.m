@@ -272,7 +272,20 @@
   // The other types of crashes should be nil for a signal crash
   XCTAssertNil(adapter.signal);
 
-  XCTAssertNotNil(adapter.exception);
+  XCTAssertTrue([adapter.exception.name isEqualToString:@"46696c654e6f74466f756e64457863657074696f6e"]);
+  XCTAssertTrue([adapter.exception.reason isEqualToString:@"46696c65204e6f7420466f756e64206f6e2053797374656d"]);
+  XCTAssertTrue([adapter.exception.type isEqualToString:@"objective-c"]);
+  XCTAssertEqual(adapter.exception.time, 1580850620);
+
+  XCTAssertEqual(adapter.exception.frames.count, 14);
+
+//  XCTAssertEqual(adapter.exception.frames[0].line, 405);
+  XCTAssertEqual(adapter.exception.frames[0].offset, 101);
+  XCTAssertEqual(adapter.exception.frames[0].pc, 140733792821726);
+
+//  XCTAssertEqual(adapter.exception.frames[13].line, 2003);
+  XCTAssertEqual(adapter.exception.frames[13].offset, 1203);
+  XCTAssertEqual(adapter.exception.frames[13].pc, 140734559604009);
 }
 
 - (void)testProtoReport {
