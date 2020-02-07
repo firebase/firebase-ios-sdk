@@ -56,7 +56,7 @@ end
 # required.
 def configure_local_pods()
   # Firestore is always local; that's what's under development here.
-  pod 'FirebaseFirestore', :path => '../../'
+  pod 'FirebaseFirestore', :path => '../..'
   pod 'GoogleUtilities', :path => '../..'
 
   # FirebaseCore must always be a local pod so that CI builds that make changes
@@ -114,11 +114,6 @@ end
 if is_platform(:ios)
   target 'Firestore_Example_iOS' do
     platform :ios, '8.0'
-
-    # The next line is the forcing function for the Firebase pod. The Firebase
-    # version's subspecs should depend on the component versions in their
-    # corresponding podspecs.
-    pod 'Firebase/CoreOnly', '6.16.0'
 
     configure_local_pods()
 
