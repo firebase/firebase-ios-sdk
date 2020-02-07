@@ -138,8 +138,9 @@
     @"message-40043840.dat", @"message-40657984.dat"
   ];
   NSMutableSet *storedEvents = [[NSMutableSet alloc] init];
-  // 250 messages results in a total size of 16337 which is > 16320, the apparent OS limit.
-  for (int i = 0; i < 250; i++) {  // Changing to 249 would've caused test to pass previously.
+  // 250 messages results in a total size of 16337 which is > 16320, the apparent OS limit. Changing
+  // to 249 would've caused test to pass previously.
+  for (int i = 0; i < 250; i++) {
     NSString *dataFile = testData[arc4random_uniform((uint32_t)testData.count)];
     NSData *messageData = [NSData dataWithContentsOfURL:[testBundle URLForResource:dataFile
                                                                      withExtension:nil]];
