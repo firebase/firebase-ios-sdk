@@ -42,10 +42,8 @@ static int downstreamMessageID = 0;
 - (void)willSendDataMessageWithID:(NSString *)messageID error:(NSError *)error {
   NSNotification *notification;
   if (error) {
-    NSDictionary *userInfo = @{
-      kUpstreamMessageIDUserInfoKey : [messageID copy],
-      kUpstreamErrorUserInfoKey : error
-    };
+    NSDictionary *userInfo =
+        @{kUpstreamMessageIDUserInfoKey : [messageID copy], kUpstreamErrorUserInfoKey : error};
     notification = [NSNotification notificationWithName:FIRMessagingSendErrorNotification
                                                  object:nil
                                                userInfo:userInfo];
@@ -62,10 +60,10 @@ static int downstreamMessageID = 0;
   // invoke the callbacks asynchronously
   FIRMessagingLoggerDebug(kFIRMessagingMessageCodeReceiver002, @"Did send upstream message: %@",
                           messageID);
-  NSNotification * notification =
+  NSNotification *notification =
       [NSNotification notificationWithName:FIRMessagingSendSuccessNotification
                                     object:nil
-                                  userInfo:@{ kUpstreamMessageIDUserInfoKey : [messageID copy] }];
+                                  userInfo:@{kUpstreamMessageIDUserInfoKey : [messageID copy]}];
 
   [[NSNotificationQueue defaultQueue] enqueueNotification:notification postingStyle:NSPostASAP];
 }
@@ -73,9 +71,8 @@ static int downstreamMessageID = 0;
 - (void)didDeleteMessagesOnServer {
   FIRMessagingLoggerDebug(kFIRMessagingMessageCodeReceiver003,
                           @"Will send deleted messages notification");
-  NSNotification * notification =
-      [NSNotification notificationWithName:FIRMessagingMessagesDeletedNotification
-                                    object:nil];
+  NSNotification *notification =
+      [NSNotification notificationWithName:FIRMessagingMessagesDeletedNotification object:nil];
 
   [[NSNotificationQueue defaultQueue] enqueueNotification:notification postingStyle:NSPostASAP];
 }
@@ -89,7 +86,7 @@ static int downstreamMessageID = 0;
 }
 
 + (NSString *)nextMessageID {
-  @synchronized (self) {
+  @synchronized(self) {
     ++downstreamMessageID;
     return [NSString stringWithFormat:@"gcm-%d", downstreamMessageID];
   }

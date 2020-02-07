@@ -41,9 +41,7 @@ static FIRMessagingProtoTag currentProtoSendTag;
 
 @interface FIRMessagingSecureSocket (test_FIRMessagingConnection)
 
-- (void)_successconnectToHost:(NSString *)host
-                         port:(NSUInteger)port
-                    onRunLoop:(NSRunLoop *)runLoop;
+- (void)_successconnectToHost:(NSString *)host port:(NSUInteger)port onRunLoop:(NSRunLoop *)runLoop;
 - (void)_fakeSuccessfulSocketConnect;
 
 @end
@@ -86,7 +84,6 @@ static FIRMessagingProtoTag currentProtoSendTag;
 
 @end
 
-
 @interface FIRMessagingConnectionTest : XCTestCase
 
 @property(nonatomic, readwrite, assign) BOOL didSuccessfullySendData;
@@ -108,13 +105,14 @@ static FIRMessagingProtoTag currentProtoSendTag;
   _mockRmq = OCMClassMock([FIRMessagingRmqManager class]);
   _mockDataMessageManager = OCMClassMock([FIRMessagingDataMessageManager class]);
   // fake connection is only used to simulate the socket behavior
-  _fakeConnection = [[FIRMessagingFakeConnection alloc] initWithAuthID:kDeviceAuthId
-                                                        token:kSecretToken
-                                                         host:[FIRMessagingFakeConnection fakeHost]
-                                                         port:[FIRMessagingFakeConnection fakePort]
-                                                      runLoop:[NSRunLoop currentRunLoop]
-                                                  rmq2Manager:_mockRmq
-                                                   fcmManager:_mockDataMessageManager];
+  _fakeConnection =
+      [[FIRMessagingFakeConnection alloc] initWithAuthID:kDeviceAuthId
+                                                   token:kSecretToken
+                                                    host:[FIRMessagingFakeConnection fakeHost]
+                                                    port:[FIRMessagingFakeConnection fakePort]
+                                                 runLoop:[NSRunLoop currentRunLoop]
+                                             rmq2Manager:_mockRmq
+                                              fcmManager:_mockDataMessageManager];
 
   _mockClient = OCMClassMock([FIRMessagingClient class]);
   _fakeConnection.delegate = _mockClient;
@@ -192,13 +190,11 @@ static FIRMessagingProtoTag currentProtoSendTag;
   id socketMock = OCMPartialMock(self.fakeConnection.socket);
   self.fakeConnection.socket = socketMock;
 
-  [[[socketMock stub]
-      andDo:^(NSInvocation *invocation) {
-        [socketMock _fakeSuccessfulSocketConnect];
-      }]
-      connectToHost:[FIRMessagingFakeConnection fakeHost]
-               port:[FIRMessagingFakeConnection fakePort]
-          onRunLoop:[OCMArg any]];
+  [[[socketMock stub] andDo:^(NSInvocation *invocation) {
+    [socketMock _fakeSuccessfulSocketConnect];
+  }] connectToHost:[FIRMessagingFakeConnection fakeHost]
+              port:[FIRMessagingFakeConnection fakePort]
+         onRunLoop:[OCMArg any]];
 
   [[[socketMock stub] andCall:@selector(_sendData:withTag:rmqId:) onObject:self]
       // do nothing
@@ -207,8 +203,7 @@ static FIRMessagingProtoTag currentProtoSendTag;
          rmqId:[OCMArg isNil]];
 
   // swizzle disconnect socket
-  [[[socketMock stub] andCall:@selector(_disconnectSocket)
-                     onObject:self] disconnect];
+  [[[socketMock stub] andCall:@selector(_disconnectSocket) onObject:self] disconnect];
 
   currentProtoSendTag = kFIRMessagingProtoTagLoginRequest;
   // send login request
@@ -245,13 +240,11 @@ static FIRMessagingProtoTag currentProtoSendTag;
   id socketMock = OCMPartialMock(self.fakeConnection.socket);
   self.fakeConnection.socket = socketMock;
 
-  [[[socketMock stub]
-      andDo:^(NSInvocation *invocation) {
-        [socketMock _fakeSuccessfulSocketConnect];
-      }]
-      connectToHost:[FIRMessagingFakeConnection fakeHost]
-               port:[FIRMessagingFakeConnection fakePort]
-          onRunLoop:[OCMArg any]];
+  [[[socketMock stub] andDo:^(NSInvocation *invocation) {
+    [socketMock _fakeSuccessfulSocketConnect];
+  }] connectToHost:[FIRMessagingFakeConnection fakeHost]
+              port:[FIRMessagingFakeConnection fakePort]
+         onRunLoop:[OCMArg any]];
 
   [self.fakeConnection connectToSocket:socketMock];
   XCTAssertEqual(self.fakeConnection.state, kFIRMessagingConnectionConnected);
@@ -262,14 +255,12 @@ static FIRMessagingProtoTag currentProtoSendTag;
   // connection timeout has been scheduled
   // should disconnect since we wait for more time
   XCTestExpectation *disconnectExpectation =
-      [self expectationWithDescription:
-          @"FCM connection should timeout without receiving "
-          @"any data for a timeout interval"];
-  [[[socketMock stub]
-      andDo:^(NSInvocation *invocation) {
-        [self _disconnectSocket];
-        [disconnectExpectation fulfill];
-      }] disconnect];
+      [self expectationWithDescription:@"FCM connection should timeout without receiving "
+                                       @"any data for a timeout interval"];
+  [[[socketMock stub] andDo:^(NSInvocation *invocation) {
+    [self _disconnectSocket];
+    [disconnectExpectation fulfill];
+  }] disconnect];
 
   // simulate connection receiving login response
   [self.fakeConnection secureSocket:socketMock
@@ -295,9 +286,10 @@ static FIRMessagingProtoTag currentProtoSendTag;
                             withTag:kFIRMessagingProtoTagDataMessageStanza];
 
   OCMVerify([self.mockClient connectionDidRecieveMessage:[OCMArg checkWithBlock:^BOOL(id obj) {
-      GtalkDataMessageStanza *message = (GtalkDataMessageStanza *)obj;
-      return [[message category] isEqual:@"special"] && [[message from] isEqual:@"xyz"];
-  }]]);
+                               GtalkDataMessageStanza *message = (GtalkDataMessageStanza *)obj;
+                               return [[message category] isEqual:@"special"] &&
+                                      [[message from] isEqual:@"xyz"];
+                             }]]);
   // did send data while login
   XCTAssertTrue(self.didSuccessfullySendData);
 }
@@ -334,7 +326,7 @@ static FIRMessagingProtoTag currentProtoSendTag;
 }
 
 - (void)testHeartbeatSend {
-  [self setupSuccessfulLoginRequestWithConnection:self.fakeConnection]; // outstreamId should be 2
+  [self setupSuccessfulLoginRequestWithConnection:self.fakeConnection];  // outstreamId should be 2
   XCTAssertEqual(self.fakeConnection.outStreamId, 2);
   [self.fakeConnection sendHeartbeatPing];
   id mockSocket = self.fakeConnection.socket;
@@ -389,8 +381,7 @@ static FIRMessagingProtoTag currentProtoSendTag;
  * The `_disconectSocket` has the gist of the actual socket disconnect without any assertions.
  */
 - (void)stubSocketDisconnect:(id)mockSocket {
-  [[[mockSocket stub] andCall:@selector(_disconnectSocket)
-                     onObject:self] disconnect];
+  [[[mockSocket stub] andCall:@selector(_disconnectSocket) onObject:self] disconnect];
 
   [mockSocket verify];
 }
@@ -402,13 +393,11 @@ static FIRMessagingProtoTag currentProtoSendTag;
   id socketMock = OCMPartialMock(self.fakeConnection.socket);
   self.fakeConnection.socket = socketMock;
 
-  [[[socketMock stub]
-      andDo:^(NSInvocation *invocation) {
-        [socketMock _fakeSuccessfulSocketConnect];
-      }]
-      connectToHost:[FIRMessagingFakeConnection fakeHost]
-               port:[FIRMessagingFakeConnection fakePort]
-          onRunLoop:[OCMArg any]];
+  [[[socketMock stub] andDo:^(NSInvocation *invocation) {
+    [socketMock _fakeSuccessfulSocketConnect];
+  }] connectToHost:[FIRMessagingFakeConnection fakeHost]
+              port:[FIRMessagingFakeConnection fakePort]
+         onRunLoop:[OCMArg any]];
 
   [[[socketMock stub] andCall:@selector(_sendData:withTag:rmqId:) onObject:self]
       // do nothing
@@ -444,23 +433,20 @@ static FIRMessagingProtoTag currentProtoSendTag;
   id socketMock = OCMPartialMock(fakeConnection.socket);
   fakeConnection.socket = socketMock;
 
-  [[[socketMock stub]
-      andDo:^(NSInvocation *invocation) {
-        [socketMock _fakeSuccessfulSocketConnect];
-      }]
-      connectToHost:[FIRMessagingFakeConnection fakeHost]
-               port:[FIRMessagingFakeConnection fakePort]
-          onRunLoop:[OCMArg any]];
+  [[[socketMock stub] andDo:^(NSInvocation *invocation) {
+    [socketMock _fakeSuccessfulSocketConnect];
+  }] connectToHost:[FIRMessagingFakeConnection fakeHost]
+              port:[FIRMessagingFakeConnection fakePort]
+         onRunLoop:[OCMArg any]];
 
   [[[socketMock stub] andCall:@selector(_sendData:withTag:rmqId:) onObject:self]
-       // do nothing
-       sendData:[OCMArg any]
-        withTag:kFIRMessagingProtoTagLoginRequest
-          rmqId:[OCMArg isNil]];
+      // do nothing
+      sendData:[OCMArg any]
+       withTag:kFIRMessagingProtoTagLoginRequest
+         rmqId:[OCMArg isNil]];
 
   // swizzle disconnect socket
-  [[[socketMock stub] andCall:@selector(_disconnectSocket)
-                     onObject:self] disconnect];
+  [[[socketMock stub] andCall:@selector(_disconnectSocket) onObject:self] disconnect];
 
   // send login request
   currentProtoSendTag = kFIRMessagingProtoTagLoginRequest;

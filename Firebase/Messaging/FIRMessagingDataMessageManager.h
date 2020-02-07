@@ -60,8 +60,8 @@
 #pragma mark - Server Callbacks
 
 /**
- *  Notify the app that FIRMessaging server deleted some messages which exceeded storage limits. This
- *  indicates the "deleted_messages" message type we received from the server.
+ *  Notify the app that FIRMessaging server deleted some messages which exceeded storage limits.
+ * This indicates the "deleted_messages" message type we received from the server.
  */
 - (void)didDeleteMessagesOnServer;
 

@@ -16,9 +16,9 @@
 
 #import "Firebase/Messaging/FIRMessagingPubSub.h"
 
+#import <FirebaseMessaging/FIRMessaging.h>
 #import <GoogleUtilities/GULSecureCoding.h>
 #import <GoogleUtilities/GULUserDefaults.h>
-#import <FirebaseMessaging/FIRMessaging.h>
 
 #import "Firebase/Messaging/FIRMessagingClient.h"
 #import "Firebase/Messaging/FIRMessagingDefines.h"
@@ -159,10 +159,9 @@ static NSString *const kPendingSubscriptionsListKey =
 #pragma mark - FIRMessagingPendingTopicsListDelegate
 
 - (void)pendingTopicsList:(FIRMessagingPendingTopicsList *)list
-  requestedUpdateForTopic:(NSString *)topic
-                   action:(FIRMessagingTopicAction)action
-               completion:(FIRMessagingTopicOperationCompletion)completion {
-
+    requestedUpdateForTopic:(NSString *)topic
+                     action:(FIRMessagingTopicAction)action
+                 completion:(FIRMessagingTopicOperationCompletion)completion {
   NSString *fcmToken = [[FIRMessaging messaging] defaultFcmToken];
   if (action == FIRMessagingTopicActionSubscribe) {
     [self subscribeWithToken:fcmToken topic:topic options:nil handler:completion];
@@ -188,8 +187,7 @@ static NSString *const kPendingSubscriptionsListKey =
   NSData *pendingData = [GULSecureCoding archivedDataWithRootObject:topicsList error:&error];
   if (error) {
     FIRMessagingLoggerError(kFIRMessagingMessageCodePubSubArchiveError,
-                            @"Failed to archive topic list data %@",
-                            error);
+                            @"Failed to archive topic list data %@", error);
     return;
   }
   [defaults setObject:pendingData forKey:kPendingSubscriptionsListKey];
@@ -202,14 +200,13 @@ static NSString *const kPendingSubscriptionsListKey =
   FIRMessagingPendingTopicsList *subscriptions;
   if (pendingData) {
     NSError *error;
-    subscriptions = [GULSecureCoding unarchivedObjectOfClasses:
-     [NSSet setWithObjects:FIRMessagingPendingTopicsList.class, nil]
-                                                      fromData:pendingData
-                                                         error:&error];
+    subscriptions = [GULSecureCoding
+        unarchivedObjectOfClasses:[NSSet setWithObjects:FIRMessagingPendingTopicsList.class, nil]
+                         fromData:pendingData
+                            error:&error];
     if (error) {
       FIRMessagingLoggerError(kFIRMessagingMessageCodePubSubUnarchiveError,
-                              @"Failed to unarchive topic list data %@",
-                              error);
+                              @"Failed to unarchive topic list data %@", error);
     }
   }
   if (subscriptions) {
