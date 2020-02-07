@@ -35,9 +35,9 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
-      run: third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseStorage.podspec --skip-tests --platforms=${{ matrix.target }}
+      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseStorage.podspec --skip-tests --platforms=${{ matrix.target }}
 
-  core-cron-only:
+  storage-cron-only:
     runs-on: macos-latest
     if: github.event_name == 'schedule'
     strategy:

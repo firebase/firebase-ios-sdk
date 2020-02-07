@@ -17,7 +17,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: FirebaseDynamicLinks
-      run: third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseDynamicLinks.podspec
+      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseDynamicLinks.podspec
 
   dynamiclinks-cron-only:
     runs-on: macos-latest
