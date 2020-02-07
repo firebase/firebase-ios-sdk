@@ -454,15 +454,6 @@ jobs:
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseInAppMessaging.podspec --use-modular-headers
 
     - stage: test
-      if: type = cron
-      env:
-        - PROJECT=Firestore METHOD=pod-lib-lint
-      script:
-        # TBD - non-portable path warnings
-        # The travis_wait is necessary because the command takes more than 10 minutes.
-        - travis_wait 45 ./scripts/pod_lib_lint.rb FirebaseFirestore.podspec --use-libraries --allow-warnings --no-subspecs --no-analyze
-
-    - stage: test
       osx_image: xcode10.3
       env:
         - PROJECT=GoogleDataTransport METHOD=pod-lib-lint
@@ -584,9 +575,6 @@ jobs:
       script:
         # The travis_wait is necessary because fuzzing runs for 40 minutes.
         - travis_wait 45 ./scripts/fuzzing_ci.sh
-
-    - env:
-      - PROJECT=GoogleDataTransportIntegrationTest PLATFORM=iOS METHOD=xcodebuild
 
 branches:
   only:
