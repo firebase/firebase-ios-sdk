@@ -10,7 +10,7 @@ on:
     - cron:  '0 7 * * *'
 
 jobs:
-  dynamiclinks:
+  pod_lib_lint:
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v1
