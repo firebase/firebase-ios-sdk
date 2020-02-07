@@ -103,18 +103,6 @@ if [[ ! -z "${QUICKSTART:-}" ]]; then
   scripts/setup_quickstart.sh "$QUICKSTART"
 fi
 
-system=$(uname -s)
-case "$system" in
-  Darwin)
-    xcode_version=$(xcodebuild -version | head -n 1)
-    xcode_version="${xcode_version/Xcode /}"
-    xcode_major="${xcode_version/.*/}"
-    ;;
-  *)
-    xcode_major="0"
-    ;;
-esac
-
 case "$project-$platform-$method" in
 
   FirebasePod-iOS-xcodebuild)
@@ -156,18 +144,6 @@ case "$project-$platform-$method" in
     ;;
 
   Firestore-*-xcodebuild | Firestore-*-fuzz)
-    if [[ $xcode_major -lt 9 ]]; then
-      # Firestore still compiles with Xcode 8 to help verify general
-      # conformance with C++11 by using an older compiler that doesn't have as
-      # many extensions from later versions of the language. However, Firebase
-      # as a whole does not support this environment and @available checks in
-      # GoogleDataTransport would otherwise break this build.
-      #
-      # This drops the dependency that adds GoogleDataTransport into
-      # Firestore's dependencies.
-      sed -i.bak "/s.dependency 'FirebaseCoreDiagnostics'/d" FirebaseCore.podspec
-    fi
-
     gem install xcpretty
 
     # The Firestore Podfile is multi-platform by default, but this doesn't work
