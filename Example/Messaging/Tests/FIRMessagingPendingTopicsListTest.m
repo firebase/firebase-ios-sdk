@@ -20,47 +20,7 @@
 #import "Firebase/Messaging/FIRMessagingDefines.h"
 #import "Firebase/Messaging/FIRMessagingPendingTopicsList.h"
 #import "Firebase/Messaging/FIRMessagingTopicsCommon.h"
-
-typedef void (^MockDelegateSubscriptionHandler)(NSString *topic,
-                                                FIRMessagingTopicAction action,
-                                                FIRMessagingTopicOperationCompletion completion);
-
-/**
- * This object lets us provide a stub delegate where we can customize the behavior by providing
- * blocks. We need to use this instead of stubbing a OCMockProtocol because our delegate methods
- * take primitive values (e.g. action), which is not easy to use from OCMock
- * @see http://stackoverflow.com/a/6332023
- */
-@interface MockPendingTopicsListDelegate: NSObject <FIRMessagingPendingTopicsListDelegate>
-
-@property(nonatomic, assign) BOOL isReady;
-@property(nonatomic, copy) MockDelegateSubscriptionHandler subscriptionHandler;
-@property(nonatomic, copy) void(^updateHandler)(void);
-
-@end
-
-@implementation MockPendingTopicsListDelegate
-
-- (BOOL)pendingTopicsListCanRequestTopicUpdates:(FIRMessagingPendingTopicsList *)list {
-  return self.isReady;
-}
-
-- (void)pendingTopicsList:(FIRMessagingPendingTopicsList *)list
-  requestedUpdateForTopic:(NSString *)topic
-                   action:(FIRMessagingTopicAction)action
-               completion:(FIRMessagingTopicOperationCompletion)completion {
-  if (self.subscriptionHandler) {
-    self.subscriptionHandler(topic, action, completion);
-  }
-}
-
-- (void)pendingTopicsListDidUpdate:(FIRMessagingPendingTopicsList *)list {
-  if (self.updateHandler) {
-    self.updateHandler();
-  }
-}
-
-@end
+#import "Example/Messaging/Tests/FIRMessagingTestUtilities.h"
 
 @interface FIRMessagingPendingTopicsListTest : XCTestCase
 
@@ -220,7 +180,6 @@ typedef void (^MockDelegateSubscriptionHandler)(NSString *topic,
 }
 
 - (void)testAddingTopicToCurrentBatchWhileCurrentBatchTopicsInFlight {
-
   FIRMessagingPendingTopicsList *pendingTopics = [[FIRMessagingPendingTopicsList alloc] init];
   pendingTopics.delegate = self.alwaysReadyDelegate;
 
