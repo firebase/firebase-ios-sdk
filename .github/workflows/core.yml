@@ -25,7 +25,7 @@ jobs:
 
   core-cron-only:
     runs-on: macos-latest
-    if: github.event_name == 'schedule'
+#    if: github.event_name == 'schedule'
     strategy:
       matrix:
         target: [ios, tvos, macos]
