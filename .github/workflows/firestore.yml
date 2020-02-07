@@ -145,6 +145,6 @@ jobs:
 
     - name: Pod lib lint
       run: |
-        scripts/pod_lib_lint.rb FirebaseFirestore.podspec \
+        third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseFirestore.podspec \
             --platforms=ios \
             --allow-warnings

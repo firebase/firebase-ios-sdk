@@ -15,6 +15,24 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Setup Bundler
-      run: ./scripts/setup_bundler.sh
+      run: scripts/setup_bundler.sh
     - name: FirebaseDynamicLinks
-      run: ./scripts/pod_lib_lint.rb FirebaseDynamicLinks.podspec
+      run: third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseDynamicLinks.podspec
+
+  dynamiclinks-cron-only:
+    runs-on: macos-latest
+    if: github.event_name == 'schedule'
+    strategy:
+      matrix:
+        target: [ios, tvos, macos]
+        flags: [
+          '--use-modular-headers',
+          '--use-libraries'
+        ]
+    needs: pod_lib_lint
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: PodLibLint Storage Cron
+      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseDynamicLinks.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}

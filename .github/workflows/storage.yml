@@ -15,17 +15,42 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Setup Bundler
-      run: ./scripts/setup_bundler.sh
+      run: scripts/setup_bundler.sh
     - name: Install Secret GoogleService-Info.plist
       env:
          plist_secret: ${{ secrets.StoragePlistSecret }}
       run: ./scripts/decrypt_gha_secret.sh scripts/gha-encrypted/storage-db-plist.gpg \
           FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist "$plist_secret"
     - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh Storage all
-    - name: PodLibLint iOS
-      run: ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --skip-tests --platforms=ios
-    - name: PodLibLint macOS
-      run: ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --skip-tests --platforms=macos
-    - name: PodLibLint tvOS
-      run: ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --skip-tests --platforms=tvos
+      run: scripts/third_party/travis/retry.sh scripts/build.sh Storage all
+
+  pod_lib_lint:
+    runs-on: macOS-latest
+
+    strategy:
+      matrix:
+        target: [ios, tvos, macos]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Build and test
+      run: third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseStorage.podspec --skip-tests --platforms=${{ matrix.target }}
+
+  core-cron-only:
+    runs-on: macos-latest
+    if: github.event_name == 'schedule'
+    strategy:
+      matrix:
+        target: [ios, tvos, macos]
+        flags: [
+          '--skip-tests --use-modular-headers',
+          '--skip-tests --use-libraries'
+        ]
+    needs: pod_lib_lint
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: PodLibLint Storage Cron
+      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseStorage.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
