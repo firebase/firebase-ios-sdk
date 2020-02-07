@@ -125,6 +125,7 @@ NSString *const kFIRCoreDiagnosticsHeartbeatDateFileName = @"FIREBASE_DIAGNOSTIC
   // Encode a 2nd time to actually get the bytes from it.
   size_t bufferSize = sizestream.bytes_written;
   CFMutableDataRef dataRef = CFDataCreateMutable(CFAllocatorGetDefault(), bufferSize);
+  CFDataSetLength(dataRef, bufferSize);
   pb_ostream_t ostream = pb_ostream_from_buffer((void *)CFDataGetBytePtr(dataRef), bufferSize);
   if (!pb_encode(&ostream, logs_proto_mobilesdk_ios_ICoreConfiguration_fields, &_config)) {
     GDTCORLogError(GDTCORMCETransportBytesError, @"Error in nanopb encoding for bytes: %s",
