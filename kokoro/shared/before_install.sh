@@ -13,6 +13,7 @@
 
 brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/e3496d9/Formula/clang-format.rb
 brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/7963c3d/Formula/swiftformat.rb
+brew install jazzy
 pip install flake8
 
 ./scripts/check.sh --test-only

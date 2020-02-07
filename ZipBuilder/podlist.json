@@ -1,0 +1,11 @@
+[
+    {
+      "name": "FirebaseCore"
+    },
+    {
+      "name": "FirebaseFirestore"
+    },
+    {
+      "name": "FirebaseAuth"
+    }
+  ]
