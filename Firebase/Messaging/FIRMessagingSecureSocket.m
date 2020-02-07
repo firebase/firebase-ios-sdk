@@ -16,8 +16,8 @@
 
 #import "Firebase/Messaging/FIRMessagingSecureSocket.h"
 
-#import <Protobuf/GPBMessage.h>
 #import <Protobuf/GPBCodedOutputStream.h>
+#import <Protobuf/GPBMessage.h>
 #import <Protobuf/GPBUtilities.h>
 
 #import "Firebase/Messaging/FIRMessagingCodedInputStream.h"
@@ -25,7 +25,7 @@
 #import "Firebase/Messaging/FIRMessagingLogger.h"
 #import "Firebase/Messaging/FIRMessagingPacketQueue.h"
 
-static const NSUInteger kMaxBufferLength = 1024 * 1024;  // 1M
+static const NSUInteger kMaxBufferLength = 1024 * 1024;      // 1M
 static const NSUInteger kBufferLengthIncrement = 16 * 1024;  // 16k
 static const uint8_t kVersion = 40;
 static const uint8_t kInvalidTag = -1;
@@ -54,7 +54,7 @@ static NSUInteger SerializedSize(int32_t value) {
   }
 }
 
-@interface FIRMessagingSecureSocket() <NSStreamDelegate>
+@interface FIRMessagingSecureSocket () <NSStreamDelegate>
 
 @property(nonatomic, readwrite, assign) FIRMessagingSecureSocketState state;
 @property(nonatomic, readwrite, strong) NSInputStream *inStream;
@@ -94,9 +94,7 @@ static NSUInteger SerializedSize(int32_t value) {
   [self disconnect];
 }
 
-- (void)connectToHost:(NSString *)host
-                 port:(NSUInteger)port
-            onRunLoop:(NSRunLoop *)runLoop {
+- (void)connectToHost:(NSString *)host port:(NSUInteger)port onRunLoop:(NSRunLoop *)runLoop {
   if (!host || self.state != kFIRMessagingSecureSocketNotOpen) {
     return;
   }
@@ -107,10 +105,7 @@ static NSUInteger SerializedSize(int32_t value) {
   self.runLoop = runLoop;
   CFReadStreamRef inputStreamRef;
   CFWriteStreamRef outputStreamRef;
-  CFStreamCreatePairWithSocketToHost(NULL,
-                                     (__bridge CFStringRef)host,
-                                     (int)port,
-                                     &inputStreamRef,
+  CFStreamCreatePairWithSocketToHost(NULL, (__bridge CFStringRef)host, (int)port, &inputStreamRef,
                                      &outputStreamRef);
   self.inStream = CFBridgingRelease(inputStreamRef);
   self.outStream = CFBridgingRelease(outputStreamRef);
@@ -230,8 +225,7 @@ static NSUInteger SerializedSize(int32_t value) {
     [stream setProperty:NSStreamSocketSecurityLevelNegotiatedSSL
                  forKey:NSStreamSocketSecurityLevelKey];
     if (isVOIPStream) {
-      [stream setProperty:NSStreamNetworkServiceTypeVoIP
-                   forKey:NSStreamNetworkServiceType];
+      [stream setProperty:NSStreamNetworkServiceTypeVoIP forKey:NSStreamNetworkServiceType];
     }
     stream.delegate = self;
     [stream scheduleInRunLoop:self.runLoop forMode:NSDefaultRunLoopMode];
@@ -336,10 +330,11 @@ static NSUInteger SerializedSize(int32_t value) {
 }
 
 - (FIRMessagingSecureSocketReadResult)processCurrentInputBuffer:(NSData *)readData
-                                             outOffset:(size_t *)outOffset {
+                                                      outOffset:(size_t *)outOffset {
   *outOffset = 0;
 
-  FIRMessagingCodedInputStream *input = [[FIRMessagingCodedInputStream alloc] initWithData:readData];
+  FIRMessagingCodedInputStream *input =
+      [[FIRMessagingCodedInputStream alloc] initWithData:readData];
   int8_t rawTag;
   if (![input readTag:&rawTag]) {
     return kFIRMessagingSecureSocketReadResultIncomplete;
@@ -378,8 +373,8 @@ static NSUInteger SerializedSize(int32_t value) {
       FIRMessagingPacket *packet = [self.packetQueue pop];
       self.currentRmqIdBeingSent = packet.rmqId;
       self.currentProtoTypeBeingSent = packet.tag;
-      NSUInteger length = SerializedSize(packet.tag) +
-          SerializedSize((int)packet.data.length) + packet.data.length;
+      NSUInteger length =
+          SerializedSize(packet.tag) + SerializedSize((int)packet.data.length) + packet.data.length;
       self.outputBuffer = [NSMutableData dataWithLength:length];
       GPBCodedOutputStream *output = [GPBCodedOutputStream streamWithData:self.outputBuffer];
       [output writeRawVarint32:packet.tag];

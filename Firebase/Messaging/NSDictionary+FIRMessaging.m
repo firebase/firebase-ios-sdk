@@ -45,8 +45,7 @@
 }
 
 - (NSDictionary *)fcm_trimNonStringValues {
-  NSMutableDictionary *trimDictionary =
-      [NSMutableDictionary dictionaryWithCapacity:self.count];
+  NSMutableDictionary *trimDictionary = [NSMutableDictionary dictionaryWithCapacity:self.count];
   for (id key in self) {
     id value = self[key];
     if ([key isKindOfClass:[NSString class]] && [value isKindOfClass:[NSString class]]) {

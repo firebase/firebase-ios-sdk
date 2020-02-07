@@ -154,7 +154,7 @@ s%^./%%
 \%^/?vendor/bundle/% d
 
 # Sources within the tree that are not subject to formatting
-\%^(Example|Firebase)/(Auth|AuthSamples|Messaging)/% d
+\%^(Example|Firebase)/(Auth|AuthSamples)/% d
 
 # Keep Firebase.h indenting
 \%^CoreOnly/Sources/Firebase.h% d

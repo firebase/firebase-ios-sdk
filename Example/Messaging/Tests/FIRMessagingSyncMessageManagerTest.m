@@ -18,11 +18,11 @@
 
 #import "XCTestCase+FIRMessagingRmqManagerTests.h"
 
+#import "Firebase/Messaging/FIRMessagingConstants.h"
 #import "Firebase/Messaging/FIRMessagingPersistentSyncMessage.h"
 #import "Firebase/Messaging/FIRMessagingRmqManager.h"
 #import "Firebase/Messaging/FIRMessagingSyncMessageManager.h"
 #import "Firebase/Messaging/FIRMessagingUtilities.h"
-#import "Firebase/Messaging/FIRMessagingConstants.h"
 
 static NSString *const kRmqSqliteFilename = @"rmq-sync-manager-test";
 
@@ -45,7 +45,8 @@ static NSString *const kRmqSqliteFilename = @"rmq-sync-manager-test";
   [super setUp];
   // Make sure the db state is clean before we begin.
   _rmqManager = [[FIRMessagingRmqManager alloc] initWithDatabaseName:kRmqSqliteFilename];
-  self.syncMessageManager = [[FIRMessagingSyncMessageManager alloc] initWithRmqManager:self.rmqManager];
+  self.syncMessageManager =
+      [[FIRMessagingSyncMessageManager alloc] initWithRmqManager:self.rmqManager];
 }
 
 - (void)tearDown {
@@ -184,7 +185,7 @@ static NSString *const kRmqSqliteFilename = @"rmq-sync-manager-test";
   };
   XCTAssertFalse([self.syncMessageManager didReceiveAPNSSyncMessage:expiredMessage]);
 
-  NSString *noTTLMessageID = @"no-ttl-rmqID"; // no TTL specified should be 4 weeks
+  NSString *noTTLMessageID = @"no-ttl-rmqID";  // no TTL specified should be 4 weeks
   NSDictionary *noTTLMessage = @{
     kFIRMessagingMessageIDKey : noTTLMessageID,
     @"hello" : @"world",
@@ -208,11 +209,11 @@ static NSString *const kRmqSqliteFilename = @"rmq-sync-manager-test";
   };
   XCTAssertFalse([self.syncMessageManager didReceiveAPNSSyncMessage:unexpiredMessage]);
 
-  NSString *noTTLMessageID = @"no-ttl-rmqID"; // no TTL specified should be 4 weeks
+  NSString *noTTLMessageID = @"no-ttl-rmqID";  // no TTL specified should be 4 weeks
   NSDictionary *noTTLMessage = @{
-                                 kFIRMessagingMessageIDKey : noTTLMessageID,
-                                 @"hello" : @"world",
-                                 };
+    kFIRMessagingMessageIDKey : noTTLMessageID,
+    @"hello" : @"world",
+  };
   XCTAssertFalse([self.syncMessageManager didReceiveAPNSSyncMessage:noTTLMessage]);
 
   // Mark the no-TTL message as received via MCS too
@@ -243,7 +244,7 @@ static NSString *const kRmqSqliteFilename = @"rmq-sync-manager-test";
   };
   XCTAssertFalse([self.syncMessageManager didReceiveAPNSSyncMessage:expiredMessage]);
 
-  NSString *noTTLMessageID = @"no-ttl-rmqID"; // no TTL specified should be 4 weeks
+  NSString *noTTLMessageID = @"no-ttl-rmqID";  // no TTL specified should be 4 weeks
   NSDictionary *noTTLMessage = @{
     kFIRMessagingMessageIDKey : noTTLMessageID,
     @"hello" : @"world",

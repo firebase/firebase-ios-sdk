@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-#import <XCTest/XCTest.h>
 #import <OCMock/OCMock.h>
+#import <XCTest/XCTest.h>
 
 #import <GoogleUtilities/GULReachabilityChecker.h>
 
-#import "Firebase/Messaging/FIRMessagingClient.h"
-#import "Firebase/Messaging/FIRMessagingPubSub.h"
-#import "Firebase/Messaging/FIRMessagingPendingTopicsList.h"
-#import "Firebase/Messaging/FIRMessagingRmqManager.h"
 #import "Example/Messaging/Tests/FIRMessagingTestUtilities.h"
+#import "Firebase/Messaging/FIRMessagingClient.h"
+#import "Firebase/Messaging/FIRMessagingPendingTopicsList.h"
+#import "Firebase/Messaging/FIRMessagingPubSub.h"
+#import "Firebase/Messaging/FIRMessagingRmqManager.h"
 
 @interface FIRMessagingPubSub (ExposedForTest)
 
@@ -35,7 +35,7 @@
 
 @interface FIRMessagingPendingTopicsList (ExposedForTest)
 
-@property(nonatomic, strong) NSMutableArray <FIRMessagingTopicBatch *> *topicBatches;
+@property(nonatomic, strong) NSMutableArray<FIRMessagingTopicBatch *> *topicBatches;
 
 @end
 
@@ -108,30 +108,35 @@ static NSString *const kTopicName = @"topic-Name";
   XCTAssertEqualObjects(topic, kTopicName);
 }
 
--(void)testTopicListArchive {
+- (void)testTopicListArchive {
   MockPendingTopicsListDelegate *notReadyDelegate = [[MockPendingTopicsListDelegate alloc] init];
   notReadyDelegate.isReady = NO;
   FIRMessagingPendingTopicsList *topicList = [[FIRMessagingPendingTopicsList alloc] init];
   topicList.delegate = notReadyDelegate;
 
   // There should be 3 batches as actions are different than the last ones.
-  [topicList addOperationForTopic:@"/topics/0" withAction:FIRMessagingTopicActionSubscribe completion:nil];
-  [topicList addOperationForTopic:@"/topics/1" withAction:FIRMessagingTopicActionUnsubscribe completion:nil];
-  [topicList addOperationForTopic:@"/topics/2" withAction:FIRMessagingTopicActionSubscribe completion:nil];
+  [topicList addOperationForTopic:@"/topics/0"
+                       withAction:FIRMessagingTopicActionSubscribe
+                       completion:nil];
+  [topicList addOperationForTopic:@"/topics/1"
+                       withAction:FIRMessagingTopicActionUnsubscribe
+                       completion:nil];
+  [topicList addOperationForTopic:@"/topics/2"
+                       withAction:FIRMessagingTopicActionSubscribe
+                       completion:nil];
   XCTAssertEqual(topicList.numberOfBatches, 3);
 
   id mockClientDelegate = OCMStrictProtocolMock(@protocol(FIRMessagingClientDelegate));
   id mockReachability = OCMClassMock([GULReachabilityChecker class]);
   id mockRmqManager = OCMClassMock([FIRMessagingRmqManager class]);
-  FIRMessagingClient *client = [[FIRMessagingClient alloc]
-                                initWithDelegate:mockClientDelegate
-                                reachability:mockReachability
-                                rmq2Manager:mockRmqManager];
+  FIRMessagingClient *client = [[FIRMessagingClient alloc] initWithDelegate:mockClientDelegate
+                                                               reachability:mockReachability
+                                                                rmq2Manager:mockRmqManager];
   FIRMessagingPubSub *pubSub = [[FIRMessagingPubSub alloc] initWithClient:client];
   [pubSub archivePendingTopicsList:topicList];
   [pubSub restorePendingTopicsList];
   XCTAssertEqual(pubSub.pendingTopicUpdates.numberOfBatches, 3);
-  NSMutableArray <FIRMessagingTopicBatch *> *topicBatches = pubSub.pendingTopicUpdates.topicBatches;
+  NSMutableArray<FIRMessagingTopicBatch *> *topicBatches = pubSub.pendingTopicUpdates.topicBatches;
   XCTAssertTrue([topicBatches[0].topics containsObject:@"/topics/0"]);
   XCTAssertTrue([topicBatches[1].topics containsObject:@"/topics/1"]);
   XCTAssertTrue([topicBatches[2].topics containsObject:@"/topics/2"]);

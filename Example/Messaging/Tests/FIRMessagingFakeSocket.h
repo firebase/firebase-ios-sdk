@@ -23,10 +23,9 @@
  *
  *  @param bufferSize  The buffer size used to connect the input and the output stream. Note
  *                     when we write data to the output stream it's read in terms of this buffer
- *                     size. So for tests using `FIRMessagingFakeSocket` you should use an appropriate
- *                     buffer size in terms of what you are writing to the buffer and what should
- *                     be read. Since there is no "flush" operation in NSStream we would have to
- *                     live with this.
+ *                     size. So for tests using `FIRMessagingFakeSocket` you should use an
+ * appropriate buffer size in terms of what you are writing to the buffer and what should be read.
+ * Since there is no "flush" operation in NSStream we would have to live with this.
  *
  *  @see {FIRMessagingSecureSocketTest} for example usage.
  *  @return A fake secure socket.

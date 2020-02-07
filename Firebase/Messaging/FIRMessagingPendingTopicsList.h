@@ -33,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FIRMessagingTopicBatch : NSObject <NSSecureCoding>
 
 @property(nonatomic, readonly, assign) FIRMessagingTopicAction action;
-@property(nonatomic, readonly, copy) NSMutableSet <NSString *> *topics;
+@property(nonatomic, readonly, copy) NSMutableSet<NSString *> *topics;
 
 - (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithAction:(FIRMessagingTopicAction)action NS_DESIGNATED_INITIALIZER;
@@ -54,9 +54,9 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol FIRMessagingPendingTopicsListDelegate <NSObject>
 
 - (void)pendingTopicsList:(FIRMessagingPendingTopicsList *)list
-  requestedUpdateForTopic:(NSString *)topic
-                   action:(FIRMessagingTopicAction)action
-               completion:(FIRMessagingTopicOperationCompletion)completion;
+    requestedUpdateForTopic:(NSString *)topic
+                     action:(FIRMessagingTopicAction)action
+                 completion:(FIRMessagingTopicOperationCompletion)completion;
 - (void)pendingTopicsListDidUpdate:(FIRMessagingPendingTopicsList *)list;
 - (BOOL)pendingTopicsListCanRequestTopicUpdates:(FIRMessagingPendingTopicsList *)list;
 
@@ -103,11 +103,10 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FIRMessagingPendingTopicsList : NSObject <NSSecureCoding>
 
-@property(nonatomic, weak) NSObject <FIRMessagingPendingTopicsListDelegate> *delegate;
+@property(nonatomic, weak) NSObject<FIRMessagingPendingTopicsListDelegate> *delegate;
 
 @property(nonatomic, readonly, strong, nullable) NSDate *archiveDate;
 @property(nonatomic, readonly) NSUInteger numberOfBatches;
-
 
 - (instancetype)init NS_DESIGNATED_INITIALIZER;
 - (void)addOperationForTopic:(NSString *)topic

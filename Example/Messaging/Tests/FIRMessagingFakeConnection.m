@@ -49,7 +49,6 @@ static const int kPort = 6234;
 @implementation FIRMessagingFakeConnection
 
 - (void)signIn {
-
   // use this if you don't really want to mock/stub the login behaviour. In case
   // you want to stub the login behavoiur you should do these things manually in
   // your test and add custom logic in between as required for your testing.
@@ -57,17 +56,13 @@ static const int kPort = 6234;
 
   id socketMock = OCMPartialMock(self.socket);
   self.socket = socketMock;
-  [[[socketMock stub]
-      andDo:^(NSInvocation *invocation) {
-        if (self.shouldFakeSuccessLogin) {
-          [self willFakeSuccessfulLoginToFCM];
-        }
-        self.socket.state = kFIRMessagingSecureSocketOpen;
-        [self.socket.delegate secureSocketDidConnect:self.socket];
-      }]
-      connectToHost:kHost
-               port:kPort
-          onRunLoop:[OCMArg any]];
+  [[[socketMock stub] andDo:^(NSInvocation *invocation) {
+    if (self.shouldFakeSuccessLogin) {
+      [self willFakeSuccessfulLoginToFCM];
+    }
+    self.socket.state = kFIRMessagingSecureSocketOpen;
+    [self.socket.delegate secureSocketDidConnect:self.socket];
+  }] connectToHost:kHost port:kPort onRunLoop:[OCMArg any]];
 
   [self connectToSocket:socketMock];
 }
@@ -102,19 +97,15 @@ static const int kPort = 6234;
 
 - (void)willFakeSuccessfulLoginToFCM {
   id mockSocket = self.socket;
-  [[[mockSocket stub]
-      andDo:^(NSInvocation *invocation) {
-        // mock successful login
+  [[[mockSocket stub] andDo:^(NSInvocation *invocation) {
+    // mock successful login
 
-        GtalkLoginResponse *response = [[GtalkLoginResponse alloc] init];
-        [response setId_p:@""];
-        [self secureSocket:self.socket
-            didReceiveData:[response data]
-                   withTag:kFIRMessagingProtoTagLoginResponse];
-      }]
-      sendData:[OCMArg any]
-       withTag:kFIRMessagingProtoTagLoginRequest
-         rmqId:[OCMArg isNil]];
+    GtalkLoginResponse *response = [[GtalkLoginResponse alloc] init];
+    [response setId_p:@""];
+    [self secureSocket:self.socket
+        didReceiveData:[response data]
+               withTag:kFIRMessagingProtoTagLoginResponse];
+  }] sendData:[OCMArg any] withTag:kFIRMessagingProtoTagLoginRequest rmqId:[OCMArg isNil]];
 }
 
 @end
@@ -126,23 +117,19 @@ static const int kPort = 6234;
   [self setupConnectionSocket];
   id mockSocket = OCMPartialMock(self.socket);
   self.socket = mockSocket;
-  [[[mockSocket stub]
-      andDo:^(NSInvocation *invocation) {
-        [self mockSocketDisconnect];
-        if (self.signInRequests <= self.failCount) {
-          // do nothing -- should timeout
-        } else {
-          // since we will always fail once we would disconnect the socket before
-          // we ever try again thus mock the disconnect to change the state and
-          // prevent any assertions
-          [self willFakeSuccessfulLoginToFCM];
-          self.socket.state = kFIRMessagingSecureSocketOpen;
-          [self.socket.delegate secureSocketDidConnect:self.socket];
-        }
-      }]
-      connectToHost:kHost
-               port:kPort
-          onRunLoop:[OCMArg any]];
+  [[[mockSocket stub] andDo:^(NSInvocation *invocation) {
+    [self mockSocketDisconnect];
+    if (self.signInRequests <= self.failCount) {
+      // do nothing -- should timeout
+    } else {
+      // since we will always fail once we would disconnect the socket before
+      // we ever try again thus mock the disconnect to change the state and
+      // prevent any assertions
+      [self willFakeSuccessfulLoginToFCM];
+      self.socket.state = kFIRMessagingSecureSocketOpen;
+      [self.socket.delegate secureSocketDidConnect:self.socket];
+    }
+  }] connectToHost:kHost port:kPort onRunLoop:[OCMArg any]];
 
   [self connectToSocket:mockSocket];
 }

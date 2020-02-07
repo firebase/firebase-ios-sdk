@@ -48,10 +48,10 @@ FOUNDATION_EXPORT NSString *const kFIRMessagingPlistUseMessagingDelegate;
 // Create a sample message to be sent over the wire using FIRMessaging. Look at
 // FIRMessagingService.h to see what each param signifies.
 + (NSMutableDictionary *)createFIRMessagingMessageWithMessage:(NSDictionary *)message
-                                                  to:(NSString *)to
-                                              withID:(NSString *)msgID
-                                          timeToLive:(int64_t)ttl
-                                               delay:(int)delay;
+                                                           to:(NSString *)to
+                                                       withID:(NSString *)msgID
+                                                   timeToLive:(int64_t)ttl
+                                                        delay:(int)delay;
 
 - (BOOL)isNetworkAvailable;
 - (FIRMessagingNetworkStatus)networkType;

@@ -35,7 +35,8 @@ void FIRMessagingParseCurrentLibraryVersion(void) {
   static NSArray *allVersions;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
-    NSMutableString *daylightVersion = [NSMutableString stringWithUTF8String:STR(FIRMessaging_LIB_VERSION)];
+    NSMutableString *daylightVersion =
+        [NSMutableString stringWithUTF8String:STR(FIRMessaging_LIB_VERSION)];
     // Parse versions
     // major, minor, patch[-beta#]
     allVersions = [daylightVersion componentsSeparatedByString:kSemanticVersioningSeparator];

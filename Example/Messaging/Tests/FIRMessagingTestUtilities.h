@@ -16,11 +16,11 @@
 
 #import <Foundation/Foundation.h>
 
-#import <FirebaseMessaging/FIRMessaging.h>
 #import <FirebaseInstanceID/FIRInstanceID.h>
+#import <FirebaseMessaging/FIRMessaging.h>
 
-#import "Firebase/Messaging/FIRMessagingTopicsCommon.h"
 #import "Firebase/Messaging/FIRMessagingPendingTopicsList.h"
+#import "Firebase/Messaging/FIRMessagingTopicsCommon.h"
 
 @class GULUserDefaults;
 
@@ -36,11 +36,11 @@ typedef void (^MockDelegateSubscriptionHandler)(NSString *topic,
  * take primitive values (e.g. action), which is not easy to use from OCMock
  * @see http://stackoverflow.com/a/6332023
  */
-@interface MockPendingTopicsListDelegate: NSObject <FIRMessagingPendingTopicsListDelegate>
+@interface MockPendingTopicsListDelegate : NSObject <FIRMessagingPendingTopicsListDelegate>
 
 @property(nonatomic, assign) BOOL isReady;
 @property(nonatomic, copy) MockDelegateSubscriptionHandler subscriptionHandler;
-@property(nonatomic, copy) void(^updateHandler)(void);
+@property(nonatomic, copy) void (^updateHandler)(void);
 
 @end
 
@@ -59,13 +59,11 @@ typedef void (^MockDelegateSubscriptionHandler)(NSString *topic,
 @property(nonatomic, readonly, strong) FIRMessaging *messaging;
 @property(nonatomic, readonly, strong) FIRInstanceID *instanceID;
 
-
-- (instancetype)initWithUserDefaults:(NSUserDefaults *)userDefaults withRMQManager:(BOOL)withRMQManager;
+- (instancetype)initWithUserDefaults:(NSUserDefaults *)userDefaults
+                      withRMQManager:(BOOL)withRMQManager;
 
 - (void)cleanupAfterTest:(XCTestCase *)testCase;
 
 @end
-
-
 
 NS_ASSUME_NONNULL_END
