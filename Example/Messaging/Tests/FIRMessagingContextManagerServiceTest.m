@@ -56,7 +56,7 @@
  */
 - (void)testValidContextManagerMessage {
   NSDictionary *message = @{
-    kFIRMessagingContextManagerLocalTimeStart: @"2015-12-12 00:00:00",
+    kFIRMessagingContextManagerLocalTimeStart : @"2015-12-12 00:00:00",
     @"hello" : @"world",
   };
   XCTAssertTrue([FIRMessagingContextManagerService isContextManagerMessage:message]);
@@ -75,9 +75,9 @@
   // way into the future
   NSString *startTimeString = [self.dateFormatter stringFromDate:[NSDate distantFuture]];
   NSDictionary *message = @{
-    kFIRMessagingContextManagerLocalTimeStart: startTimeString,
+    kFIRMessagingContextManagerLocalTimeStart : startTimeString,
     kFIRMessagingContextManagerBodyKey : @"Hello world!",
-    @"id": messageIdentifier,
+    @"id" : messageIdentifier,
     @"hello" : @"world"
   };
 
@@ -100,12 +100,12 @@
 #if TARGET_OS_IOS
   NSString *messageIdentifier = @"fcm-cm-test1";
   NSString *startTimeString = @"2010-01-12 12:00:00";  // way into the past
-  NSString *endTimeString = @"2011-01-12 12:00:00";  // way into the past
+  NSString *endTimeString = @"2011-01-12 12:00:00";    // way into the past
   NSDictionary *message = @{
-    kFIRMessagingContextManagerLocalTimeStart: startTimeString,
+    kFIRMessagingContextManagerLocalTimeStart : startTimeString,
     kFIRMessagingContextManagerLocalTimeEnd : endTimeString,
     kFIRMessagingContextManagerBodyKey : @"Hello world!",
-    @"id": messageIdentifier,
+    @"id" : messageIdentifier,
     @"hello" : @"world"
   };
 
@@ -122,7 +122,7 @@
 #if TARGET_OS_IOS
   NSString *messageIdentifier = @"fcm-cm-test1";
   NSDate *startDate = [NSDate dateWithTimeIntervalSinceNow:-1000];  // past
-  NSDate *endDate = [NSDate dateWithTimeIntervalSinceNow:1000];  // future
+  NSDate *endDate = [NSDate dateWithTimeIntervalSinceNow:1000];     // future
   NSString *startTimeString = [self.dateFormatter stringFromDate:startDate];
   NSString *endTimeString = [self.dateFormatter stringFromDate:endDate];
 
@@ -130,7 +130,7 @@
     kFIRMessagingContextManagerLocalTimeStart : startTimeString,
     kFIRMessagingContextManagerLocalTimeEnd : endTimeString,
     kFIRMessagingContextManagerBodyKey : @"Hello world!",
-    @"id": messageIdentifier,
+    @"id" : messageIdentifier,
     @"hello" : @"world"
   };
 
@@ -177,7 +177,6 @@
   XCTAssertEqualObjects(notification.userInfo[messageIdentifierKey], messageIdentifier);
   XCTAssertEqualObjects(notification.userInfo[customDataKey], customData);
 #endif
-
 }
 
 #pragma mark - Private Helpers
@@ -188,19 +187,18 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
   __block UILocalNotification *notificationToSchedule;
-  [[[mockApplication stub]
-      andDo:^(NSInvocation *invocation) {
-        // Mock scheduling a notification
-        if (notificationToSchedule) {
-          [self.scheduledLocalNotifications addObject:notificationToSchedule];
-        }
-      }] scheduleLocalNotification:[OCMArg checkWithBlock:^BOOL(id obj) {
-        if ([obj isKindOfClass:[UILocalNotification class]]) {
-          notificationToSchedule = obj;
-          return YES;
-        }
-        return NO;
-      }]];
+  [[[mockApplication stub] andDo:^(NSInvocation *invocation) {
+    // Mock scheduling a notification
+    if (notificationToSchedule) {
+      [self.scheduledLocalNotifications addObject:notificationToSchedule];
+    }
+  }] scheduleLocalNotification:[OCMArg checkWithBlock:^BOOL(id obj) {
+       if ([obj isKindOfClass:[UILocalNotification class]]) {
+         notificationToSchedule = obj;
+         return YES;
+       }
+       return NO;
+     }]];
 #pragma clang diagnostic pop
 #endif
 }

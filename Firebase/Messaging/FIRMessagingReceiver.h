@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol FIRMessagingReceiverDelegate <NSObject>
 
 - (void)receiver:(FIRMessagingReceiver *)receiver
-      receivedRemoteMessage:(FIRMessagingRemoteMessage *)remoteMessage;
+    receivedRemoteMessage:(FIRMessagingRemoteMessage *)remoteMessage;
 
 @end
 

@@ -649,9 +649,9 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
                                                            error:&error];
     XCTAssertNotNil(body, @"Error: %@, test: %@", error, self.name);
 
-    XCTAssertEqualObjects(
-        body,
-        @{@"installation" : @{@"sdkVersion" : [self SDKVersion]}}, @"%@", self.name);
+    XCTAssertEqualObjects(body,
+                          @{@"installation" : @{@"sdkVersion" : [self SDKVersion]}}, @"%@",
+                          self.name);
 
     return YES;
   }];

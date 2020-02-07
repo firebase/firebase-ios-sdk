@@ -26,14 +26,14 @@
 #import "Firebase/Messaging/FIRMessagingLogger.h"
 #import "Firebase/Messaging/FIRMessagingReceiver.h"
 #import "Firebase/Messaging/FIRMessagingRmqManager.h"
-#import "Firebase/Messaging/FIRMessaging_Private.h"
 #import "Firebase/Messaging/FIRMessagingSyncMessageManager.h"
 #import "Firebase/Messaging/FIRMessagingUtilities.h"
+#import "Firebase/Messaging/FIRMessaging_Private.h"
 #import "Firebase/Messaging/NSError+FIRMessaging.h"
 
-static const int kMaxAppDataSizeDefault = 4 * 1024; // 4k
-static const int kMinDelaySeconds = 1; // 1 second
-static const int kMaxDelaySeconds = 60 * 60; // 1 hour
+static const int kMaxAppDataSizeDefault = 4 * 1024;  // 4k
+static const int kMinDelaySeconds = 1;               // 1 second
+static const int kMaxDelaySeconds = 60 * 60;         // 1 hour
 
 static NSString *const kFromForFIRMessagingMessages = @"mcs.android.com";
 static NSString *const kGSFMessageCategory = @"com.google.android.gsf.gtalkservice";
@@ -48,7 +48,6 @@ static NSString *const kFCMMessageTypeDeletedMessages = @"deleted_messages";
 
 static NSString *const kMCSNotificationPrefix = @"gcm.notification.";
 static NSString *const kDataMessageNotificationKey = @"notification";
-
 
 typedef NS_ENUM(int8_t, UpstreamForceReconnect) {
   // Never force reconnect on upstream messages
@@ -97,7 +96,9 @@ typedef NS_ENUM(int8_t, UpstreamForceReconnect) {
 
 - (void)setDeviceAuthID:(NSString *)deviceAuthID secretToken:(NSString *)secretToken {
   if (deviceAuthID.length == 0 || secretToken.length == 0) {
-      FIRMessagingLoggerWarn(kFIRMessagingMessageCodeDataMessageManager013, @"Invalid credentials: deviceAuthID: %@, secrectToken: %@", deviceAuthID, secretToken);
+    FIRMessagingLoggerWarn(kFIRMessagingMessageCodeDataMessageManager013,
+                           @"Invalid credentials: deviceAuthID: %@, secrectToken: %@", deviceAuthID,
+                           secretToken);
   }
   self.deviceAuthID = deviceAuthID;
   self.secretToken = secretToken;
@@ -107,10 +108,10 @@ typedef NS_ENUM(int8_t, UpstreamForceReconnect) {
   FIRMessaging_WEAKIFY(self);
   self.delayedMessagesQueue =
       [[FIRMessagingDelayedMessageQueue alloc] initWithRmqScanner:self.rmq2Manager
-                              sendDelayedMessagesHandler:^(NSArray *messages) {
-                                FIRMessaging_STRONGIFY(self);
-                                [self sendDelayedMessages:messages];
-                              }];
+                                       sendDelayedMessagesHandler:^(NSArray *messages) {
+                                         FIRMessaging_STRONGIFY(self);
+                                         [self sendDelayedMessages:messages];
+                                       }];
 }
 
 - (nullable NSDictionary *)processPacket:(GtalkDataMessageStanza *)dataMessage {
@@ -159,7 +160,6 @@ typedef NS_ENUM(int8_t, UpstreamForceReconnect) {
 
   // third-party data
   for (GtalkAppData *item in dataMessage.appDataArray) {
-
     // do not process the "from" key -- is not useful
     if ([kFIRMessagingFromKey isEqualToString:item.key]) {
       continue;
@@ -294,13 +294,16 @@ typedef NS_ENUM(int8_t, UpstreamForceReconnect) {
 
   BOOL useRmq = (ttl != 0) && (msgId != nil);
   if (useRmq) {
-    [self.rmq2Manager saveRmqMessage:stanza withCompletionHandler:^(BOOL success) {
-      if (!success) {
-        [self willSendDataMessageFail:stanza withMessageId:msgId error:kFIRMessagingErrorSave];
-        return;
-      }
-      [self willSendDataMessageSuccess:stanza withMessageId:msgId];
-    }];
+    [self.rmq2Manager saveRmqMessage:stanza
+               withCompletionHandler:^(BOOL success) {
+                 if (!success) {
+                   [self willSendDataMessageFail:stanza
+                                   withMessageId:msgId
+                                           error:kFIRMessagingErrorSave];
+                   return;
+                 }
+                 [self willSendDataMessageSuccess:stanza withMessageId:msgId];
+               }];
   }
 
   // if delay > 0 we don't really care about sending the message right now
@@ -319,9 +322,7 @@ typedef NS_ENUM(int8_t, UpstreamForceReconnect) {
       NSString *event __unused = [NSString stringWithFormat:@"Queued message: %@", [stanza id_p]];
       FIRMessagingLoggerDebug(kFIRMessagingMessageCodeDataMessageManager007, @"%@", event);
     } else {
-      [self willSendDataMessageFail:stanza
-                      withMessageId:msgId
-                              error:kFIRMessagingErrorCodeNetwork];
+      [self willSendDataMessageFail:stanza withMessageId:msgId error:kFIRMessagingErrorCodeNetwork];
       return;
     }
   }
@@ -424,7 +425,7 @@ typedef NS_ENUM(int8_t, UpstreamForceReconnect) {
     for (NSString *rmqID in messages) {
       GPBMessage *proto = messages[rmqID];
       if ([proto isKindOfClass:GtalkDataMessageStanza.class]) {
-      GtalkDataMessageStanza *stanza = (GtalkDataMessageStanza *)proto;
+        GtalkDataMessageStanza *stanza = (GtalkDataMessageStanza *)proto;
         if (![self handleExpirationForDataMessage:stanza]) {
           // time expired let's delete from RMQ
           [toRemoveRmqIds addObject:stanza.persistentId];
@@ -436,7 +437,7 @@ typedef NS_ENUM(int8_t, UpstreamForceReconnect) {
     }
     if ([rmqIdsResent length]) {
       FIRMessagingLoggerDebug(kFIRMessagingMessageCodeDataMessageManager012, @"Resent: %@",
-                             rmqIdsResent);
+                              rmqIdsResent);
     }
     if ([toRemoveRmqIds count]) {
       [self.rmq2Manager removeRmqMessagesWithRmqIds:[toRemoveRmqIds copy]];
@@ -467,7 +468,7 @@ typedef NS_ENUM(int8_t, UpstreamForceReconnect) {
 #pragma mark - Private
 
 - (int)delayForMessage:(NSMutableDictionary *)message {
-  int delay = 0; // default
+  int delay = 0;  // default
   if (message[kFIRMessagingSendDelay]) {
     delay = [message[kFIRMessagingSendDelay] intValue];
     [message removeObjectForKey:kFIRMessagingSendDelay];

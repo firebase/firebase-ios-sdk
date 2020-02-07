@@ -51,7 +51,6 @@
                           options:(NSDictionary *)options
                      shouldDelete:(BOOL)shouldDelete
                           handler:(FIRMessagingTopicOperationCompletion)handler {
-
   FIRMessagingTopicAction action = FIRMessagingTopicActionSubscribe;
   if (shouldDelete) {
     action = FIRMessagingTopicActionUnsubscribe;
@@ -63,7 +62,6 @@
                                                 options:options
                                              completion:handler];
   [self.topicOperations addOperation:operation];
-
 }
 
 @end

@@ -19,7 +19,7 @@
 #import "Firebase/Messaging/FIRMessagingConstants.h"
 #import "Firebase/Messaging/FIRMessagingDefines.h"
 
-@interface FIRMessagingSecureSocket() <NSStreamDelegate>
+@interface FIRMessagingSecureSocket () <NSStreamDelegate>
 
 @property(nonatomic, readwrite, assign) FIRMessagingSecureSocketState state;
 @property(nonatomic, readwrite, strong) NSInputStream *inStream;
@@ -48,19 +48,14 @@
   return self;
 }
 
-- (void)connectToHost:(NSString *)host
-                 port:(NSUInteger)port
-            onRunLoop:(NSRunLoop *)runLoop {
+- (void)connectToHost:(NSString *)host port:(NSUInteger)port onRunLoop:(NSRunLoop *)runLoop {
   self.state = kFIRMessagingSecureSocketOpening;
   self.runLoop = runLoop;
 
   CFReadStreamRef inputStreamRef = nil;
   CFWriteStreamRef outputStreamRef = nil;
 
-  CFStreamCreateBoundPair(NULL,
-                          &inputStreamRef,
-                          &outputStreamRef,
-                          self.bufferSize);
+  CFStreamCreateBoundPair(NULL, &inputStreamRef, &outputStreamRef, self.bufferSize);
 
   self.inStream = CFBridgingRelease(inputStreamRef);
   self.outStream = CFBridgingRelease(outputStreamRef);

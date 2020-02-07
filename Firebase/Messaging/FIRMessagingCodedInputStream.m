@@ -103,14 +103,15 @@ static BOOL ReadRawVarInt32(BufferState *state, int32_t *output) {
   return YES;
 }
 
-@interface FIRMessagingCodedInputStream()
+@interface FIRMessagingCodedInputStream ()
 
 @property(nonatomic, readwrite, strong) NSData *buffer;
 @property(nonatomic, readwrite, assign) BufferState state;
 
 @end
 
-@implementation FIRMessagingCodedInputStream;
+@implementation FIRMessagingCodedInputStream
+;
 
 - (instancetype)initWithData:(NSData *)data {
   self = [super init];

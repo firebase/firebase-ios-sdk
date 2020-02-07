@@ -81,7 +81,7 @@ import GoogleDataTransport
     }
   }
 
-// macOS specifics.
+  // macOS specifics.
 #elseif os(macOS)
   import Cocoa
 
