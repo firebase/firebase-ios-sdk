@@ -1,3 +1,7 @@
+# v4.4.7
+- [fixed] Fixed a crash that could occur when attempting a remote config fetch before a valid Instance ID was available. (#4622)
+- [fixed] Fixed an issue where config fetch would sometimes fail with a duplicate fetch error when no other fetches were in progress. (#3802)
+
 # v4.4.6
 - [fixed] Fix the return status code when app is offline. (#4100)
 - [changed] Internal code cleanup. (#4297, #4403, #4379)
