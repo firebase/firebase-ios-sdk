@@ -177,8 +177,7 @@ class ABSL_MUST_USE_RESULT Status {
 
 class PlatformError {
  public:
-  virtual ~PlatformError() {
-  }
+  virtual ~PlatformError() = default;
 
   virtual std::unique_ptr<PlatformError> Copy() = 0;
 

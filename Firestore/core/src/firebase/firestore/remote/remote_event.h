@@ -43,8 +43,7 @@ namespace remote {
  */
 class TargetMetadataProvider {
  public:
-  virtual ~TargetMetadataProvider() {
-  }
+  virtual ~TargetMetadataProvider() = default;
 
   /**
    * Returns the set of remote document keys for the given target ID as of the

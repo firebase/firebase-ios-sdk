@@ -46,8 +46,7 @@ using TargetCallback = std::function<void(const TargetData&)>;
  */
 class TargetCache {
  public:
-  virtual ~TargetCache() {
-  }
+  virtual ~TargetCache() = default;
 
   // Target-related methods
 

@@ -34,8 +34,7 @@ namespace local {
  */
 class IndexManager {
  public:
-  virtual ~IndexManager() {
-  }
+  virtual ~IndexManager() = default;
 
   /**
    * Creates an index entry mapping the collection_id (last segment of the path)

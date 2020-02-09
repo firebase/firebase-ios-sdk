@@ -47,8 +47,7 @@ class WatchChange {
     TargetChange,
   };
 
-  virtual ~WatchChange() {
-  }
+  virtual ~WatchChange() = default;
 
   virtual Type type() const = 0;
 };

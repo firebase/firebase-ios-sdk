@@ -67,8 +67,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
             const std::shared_ptr<util::AsyncQueue>& worker_queue,
             std::shared_ptr<auth::CredentialsProvider> credentials);
 
-  virtual ~Datastore() {
-  }
+  virtual ~Datastore() = default;
 
   /** Starts polling the gRPC completion queue. */
   void Start();

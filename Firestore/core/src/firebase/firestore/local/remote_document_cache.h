@@ -37,8 +37,7 @@ namespace local {
  */
 class RemoteDocumentCache {
  public:
-  virtual ~RemoteDocumentCache() {
-  }
+  virtual ~RemoteDocumentCache() = default;
 
   /**
    * Adds or replaces an entry in the cache.
