@@ -20,10 +20,13 @@
 #include <string>
 #include <vector>
 
-#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
-
 namespace firebase {
 namespace firestore {
+
+namespace model {
+class ResourcePath;
+}  // namespace model
+
 namespace local {
 
 /**

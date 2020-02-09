@@ -23,16 +23,13 @@
 #include <vector>
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
-#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
-#include "Firestore/core/src/firebase/firestore/model/document_map.h"
+#include "Firestore/core/src/firebase/firestore/model/model_fwd.h"
 #include "Firestore/core/src/firebase/firestore/model/mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 
 namespace firebase {
 namespace firestore {
 namespace model {
-
-class MutationBatchResult;
 
 /**
  * A BatchID that was searched for and not found or a batch ID value known to

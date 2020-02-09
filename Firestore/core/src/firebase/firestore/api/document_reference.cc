@@ -20,10 +20,12 @@
 #include <memory>
 
 #include "Firestore/core/src/firebase/firestore/api/collection_reference.h"
+#include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/api/firestore.h"
 #include "Firestore/core/src/firebase/firestore/api/query_listener_registration.h"
 #include "Firestore/core/src/firebase/firestore/api/source.h"
 #include "Firestore/core/src/firebase/firestore/core/firestore_client.h"
+#include "Firestore/core/src/firebase/firestore/core/listen_options.h"
 #include "Firestore/core/src/firebase/firestore/core/user_data.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/delete_mutation.h"

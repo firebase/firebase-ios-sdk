@@ -27,21 +27,24 @@
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
 #include "Firestore/core/src/firebase/firestore/core/view.h"
-#include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
-#include "Firestore/core/src/firebase/firestore/local/local_store.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_set.h"
-#include "Firestore/core/src/firebase/firestore/local/target_data.h"
-#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
-#include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
+#include "Firestore/core/src/firebase/firestore/model/model_fwd.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_store.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "absl/strings/string_view.h"
 
 namespace firebase {
 namespace firestore {
+
+namespace local {
+class LocalStore;
+class TargetData;
+}  // namespace local
+
 namespace core {
 
 class SyncEngineCallback;
+class ViewSnapshot;
 
 /**
  * Interface implemented by `SyncEngine` to receive requests from

@@ -22,11 +22,8 @@
 #include <vector>
 
 #include "Firestore/Protos/nanopb/firestore/local/mutation.nanopb.h"
-#include "Firestore/core/include/firebase/firestore/timestamp.h"
-#include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/local/mutation_queue.h"
-#include "Firestore/core/src/firebase/firestore/model/document_key.h"
-#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
+#include "Firestore/core/src/firebase/firestore/model/model_fwd.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/message.h"
 #include "absl/strings/string_view.h"
@@ -34,9 +31,15 @@
 #include "leveldb/db.h"
 
 namespace firebase {
-namespace firestore {
-namespace local {
+class Timestamp;
 
+namespace firestore {
+
+namespace auth {
+class User;
+}  // namespace auth
+
+namespace local {
 class LevelDbPersistence;
 class LocalSerializer;
 

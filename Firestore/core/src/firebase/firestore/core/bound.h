@@ -22,9 +22,9 @@
 #include <utility>
 #include <vector>
 
-#include "Firestore/core/src/firebase/firestore/core/order_by.h"
-#include "Firestore/core/src/firebase/firestore/model/document.h"
+#include "Firestore/core/src/firebase/firestore/core/core_fwd.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
+#include "Firestore/core/src/firebase/firestore/model/model_fwd.h"
 
 namespace firebase {
 namespace firestore {

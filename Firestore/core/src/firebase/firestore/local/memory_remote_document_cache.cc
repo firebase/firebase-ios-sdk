@@ -16,9 +16,11 @@
 
 #include "Firestore/core/src/firebase/firestore/local/memory_remote_document_cache.h"
 
+#include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/local/memory_lru_reference_delegate.h"
 #include "Firestore/core/src/firebase/firestore/local/memory_persistence.h"
 #include "Firestore/core/src/firebase/firestore/local/sizer.h"
+#include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 namespace firebase {

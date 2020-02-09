@@ -21,27 +21,42 @@
 #include <unordered_map>
 #include <vector>
 
-#include "Firestore/core/src/firebase/firestore/auth/user.h"
-#include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
-#include "Firestore/core/src/firebase/firestore/local/local_documents_view.h"
-#include "Firestore/core/src/firebase/firestore/local/local_view_changes.h"
-#include "Firestore/core/src/firebase/firestore/local/local_write_result.h"
-#include "Firestore/core/src/firebase/firestore/local/lru_garbage_collector.h"
-#include "Firestore/core/src/firebase/firestore/local/persistence.h"
-#include "Firestore/core/src/firebase/firestore/local/query_engine.h"
-#include "Firestore/core/src/firebase/firestore/local/query_result.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_set.h"
-#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
-#include "Firestore/core/src/firebase/firestore/model/document_map.h"
-#include "Firestore/core/src/firebase/firestore/model/mutation.h"
-#include "Firestore/core/src/firebase/firestore/model/mutation_batch_result.h"
-#include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
+#include "Firestore/core/src/firebase/firestore/local/target_data.h"
+#include "Firestore/core/src/firebase/firestore/model/model_fwd.h"
 #include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
+
+namespace auth {
+class User;
+}  // namespace auth
+
+namespace core {
+class Query;
+}  // namespace core
+
+namespace remote {
+class RemoteEvent;
+class TargetChange;
+}  // namespace remote
+
 namespace local {
+
+class LocalDocumentsView;
+class LocalViewChanges;
+class LocalWriteResult;
+class LruGarbageCollector;
+class MutationQueue;
+class Persistence;
+class QueryEngine;
+class QueryResult;
+class RemoteDocumentCache;
+class TargetCache;
+
+struct LruResults;
 
 /**
  * Local storage in the Firestore client. Coordinates persistence components
@@ -88,6 +103,8 @@ class LocalStore {
   LocalStore(Persistence* persistence,
              QueryEngine* query_engine,
              const auth::User& initial_user);
+
+  ~LocalStore();
 
   /** Performs any initial startup actions required by the local store. */
   void Start();

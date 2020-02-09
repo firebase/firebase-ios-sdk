@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
 
+#include <memory>
 #include <string>
 #include <utility>
 

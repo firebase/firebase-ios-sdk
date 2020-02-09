@@ -23,7 +23,6 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/local/index_manager.h"
-#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 
 namespace firebase {
 namespace firestore {

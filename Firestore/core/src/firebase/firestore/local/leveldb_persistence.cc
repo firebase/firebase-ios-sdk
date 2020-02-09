@@ -124,6 +124,9 @@ LevelDbPersistence::LevelDbPersistence(std::unique_ptr<leveldb::DB> db,
   started_ = true;
 }
 
+// Handle unique_ptrs to forward declarations
+LevelDbPersistence::~LevelDbPersistence() = default;
+
 // MARK: - Startup
 
 Status LevelDbPersistence::EnsureDirectory(const Path& dir) {

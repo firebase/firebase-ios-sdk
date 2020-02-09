@@ -17,6 +17,9 @@
 #include "Firestore/core/test/firebase/firestore/local/counting_query_engine.h"
 
 #include "Firestore/core/src/firebase/firestore/local/local_documents_view.h"
+#include "Firestore/core/src/firebase/firestore/model/document_map.h"
+#include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
 
 namespace firebase {
 namespace firestore {
@@ -28,6 +31,12 @@ using model::DocumentMap;
 using model::SnapshotVersion;
 
 // MARK: - CountingQueryEngine
+
+CountingQueryEngine::CountingQueryEngine(QueryEngine* query_engine)
+    : query_engine_(query_engine) {
+}
+
+CountingQueryEngine::~CountingQueryEngine() = default;
 
 void CountingQueryEngine::SetLocalDocumentsView(
     LocalDocumentsView* local_documents) {

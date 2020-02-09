@@ -18,8 +18,8 @@
 
 #include <memory>
 
-#include "Firestore/core/src/firebase/firestore/api/query_core.h"
-#include "Firestore/core/src/firebase/firestore/core/query.h"
+#include "Firestore/core/src/firebase/firestore/api/api_fwd.h"
+#include "Firestore/core/src/firebase/firestore/core/core_fwd.h"
 
 namespace api = firebase::firestore::api;
 namespace core = firebase::firestore::core;

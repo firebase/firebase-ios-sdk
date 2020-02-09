@@ -29,11 +29,13 @@
 #import "Firestore/Source/API/FIRTimestamp+Internal.h"
 #import "Firestore/Source/API/converters.h"
 
+#include "Firestore/core/src/firebase/firestore/api/document_reference.h"
 #include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/api/firestore.h"
 #include "Firestore/core/src/firebase/firestore/api/settings.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value_options.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"

@@ -21,6 +21,7 @@
 #include <unordered_map>
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/core/target.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 #include "Firestore/core/src/firebase/firestore/local/target_cache.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"

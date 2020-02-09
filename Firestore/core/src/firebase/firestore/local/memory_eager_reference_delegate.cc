@@ -21,6 +21,7 @@
 #include "Firestore/core/src/firebase/firestore/local/memory_persistence.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 #include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
+#include "Firestore/core/src/firebase/firestore/local/target_data.h"
 
 namespace firebase {
 namespace firestore {

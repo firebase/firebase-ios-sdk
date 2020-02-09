@@ -25,6 +25,9 @@
 #include <cmath>
 #include <vector>
 
+#include "Firestore/core/src/firebase/firestore/model/field_mask.h"
+#include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
 #include "Firestore/core/test/firebase/firestore/testutil/equals_tester.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 #include "Firestore/core/test/firebase/firestore/testutil/time_testing.h"

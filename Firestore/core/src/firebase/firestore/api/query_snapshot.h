@@ -21,19 +21,15 @@
 #include <memory>
 #include <utility>
 
-#include "Firestore/core/src/firebase/firestore/api/document_change.h"
-#include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
+#include "Firestore/core/src/firebase/firestore/api/api_fwd.h"
 #include "Firestore/core/src/firebase/firestore/api/snapshot_metadata.h"
 #include "Firestore/core/src/firebase/firestore/core/event_listener.h"
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
-#include "Firestore/core/src/firebase/firestore/model/document_set.h"
 
 namespace firebase {
 namespace firestore {
 namespace api {
-
-class Query;
 
 /**
  * A `QuerySnapshot` contains zero or more `DocumentSnapshot` objects.

@@ -22,11 +22,8 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
-#include "Firestore/core/src/firebase/firestore/local/local_store.h"
-#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
+#include "Firestore/core/src/firebase/firestore/model/model_fwd.h"
 #include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
-#include "Firestore/core/src/firebase/firestore/model/mutation_batch_result.h"
-#include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 #include "Firestore/core/src/firebase/firestore/remote/online_state_tracker.h"
@@ -39,6 +36,11 @@
 
 namespace firebase {
 namespace firestore {
+
+namespace local {
+class LocalStore;
+}  // namespace local
+
 namespace remote {
 
 /**
