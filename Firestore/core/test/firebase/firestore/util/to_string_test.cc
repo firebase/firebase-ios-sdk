@@ -54,7 +54,7 @@ TEST(ToStringTest, SimpleTypes) {
 }
 
 TEST(ToStringTest, CustomToString) {
-  DocumentKey key({"rooms", "firestore"});
+  auto key = DocumentKey::FromSegments({"rooms", "firestore"});
   EXPECT_EQ(ToString(key), "rooms/firestore");
 }
 
@@ -68,16 +68,16 @@ TEST(ToStringTest, Optional) {
 
 TEST(ToStringTest, Container) {
   std::vector<DocumentKey> keys{
-      DocumentKey({"foo", "bar"}),
-      DocumentKey({"foo", "baz"}),
+      DocumentKey::FromSegments({"foo", "bar"}),
+      DocumentKey::FromSegments({"foo", "baz"}),
   };
   EXPECT_EQ(ToString(keys), "[foo/bar, foo/baz]");
 }
 
 TEST(ToStringTest, StdMap) {
   std::map<int, DocumentKey> key_map{
-      {1, DocumentKey({"foo", "bar"})},
-      {2, DocumentKey({"foo", "baz"})},
+      {1, DocumentKey::FromSegments({"foo", "bar"})},
+      {2, DocumentKey::FromSegments({"foo", "baz"})},
   };
   EXPECT_EQ(ToString(key_map), "{1: foo/bar, 2: foo/baz}");
 }
