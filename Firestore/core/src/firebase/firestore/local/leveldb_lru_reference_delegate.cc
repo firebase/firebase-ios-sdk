@@ -20,6 +20,7 @@
 #include <string>
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
 #include "Firestore/core/src/firebase/firestore/local/listen_sequence.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_set.h"
