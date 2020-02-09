@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
+#include "Firestore/core/src/firebase/firestore/core/event_manager.h"
+
 #include <memory>
 #include <utility>
 #include <vector>
 
-#include "Firestore/core/src/firebase/firestore/core/event_manager.h"
+#include "Firestore/core/src/firebase/firestore/core/query_listener.h"
 #include "Firestore/core/src/firebase/firestore/core/sync_engine.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"

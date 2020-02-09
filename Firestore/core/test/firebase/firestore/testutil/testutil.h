@@ -17,63 +17,34 @@
 #ifndef FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_TESTUTIL_TESTUTIL_H_
 #define FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_TESTUTIL_TESTUTIL_H_
 
-#include <algorithm>
-#include <chrono>  // NOLINT(build/c++11)
-#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <string>
 #include <utility>
 #include <vector>
 
-#include "Firestore/core/include/firebase/firestore/timestamp.h"
-#include "Firestore/core/src/firebase/firestore/core/field_filter.h"
-#include "Firestore/core/src/firebase/firestore/core/order_by.h"
-#include "Firestore/core/src/firebase/firestore/core/query.h"
-#include "Firestore/core/src/firebase/firestore/model/delete_mutation.h"
-#include "Firestore/core/src/firebase/firestore/model/document.h"
-#include "Firestore/core/src/firebase/firestore/model/document_key.h"
-#include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/core/core_fwd.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
-#include "Firestore/core/src/firebase/firestore/model/mutation.h"
-#include "Firestore/core/src/firebase/firestore/model/no_document.h"
-#include "Firestore/core/src/firebase/firestore/model/patch_mutation.h"
-#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
-#include "Firestore/core/src/firebase/firestore/model/set_mutation.h"
-#include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
-#include "Firestore/core/src/firebase/firestore/model/unknown_document.h"
-#include "Firestore/core/src/firebase/firestore/model/verify_mutation.h"
-#include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
-#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
-#include "absl/memory/memory.h"
+#include "Firestore/core/src/firebase/firestore/model/model_fwd.h"
 #include "absl/strings/string_view.h"
 
 namespace firebase {
-namespace firestore {
+class Timestamp;
 
-namespace model {
-class TransformMutation;
-class TransformOperation;
-}  // namespace model
+namespace firestore {
+class GeoPoint;
+
+namespace nanopb {
+class ByteString;
+}  // namespace nanopb
 
 namespace testutil {
 
-/**
- * A string sentinel that can be used with PatchMutation() to mark a field for
- * deletion.
- */
-constexpr const char* kDeleteSentinel = "<DELETE>";
-
 // Convenience methods for creating instances for tests.
 
-template <typename... Ints>
-nanopb::ByteString Bytes(Ints... octets) {
-  return nanopb::ByteString{static_cast<uint8_t>(octets)...};
-}
+nanopb::ByteString Bytes(std::initializer_list<uint8_t>);
 
-inline model::FieldValue Value(std::nullptr_t) {
-  return model::FieldValue::Null();
-}
+model::FieldValue Value(std::nullptr_t);
 
 /**
  * A type definition that evaluates to type V only if T is exactly type `bool`.
@@ -100,7 +71,10 @@ using EnableForInts = typename std::enable_if<std::is_integral<T>::value &&
  */
 template <typename T>
 EnableForExactlyBool<T, model::FieldValue> Value(T bool_value) {
-  return model::FieldValue::FromBoolean(bool_value);
+  // Private for just this implementation.
+  model::FieldValue BooleanValue(bool);
+
+  return BooleanValue(bool_value);
 }
 
 /**
@@ -116,52 +90,35 @@ EnableForExactlyBool<T, model::FieldValue> Value(T bool_value) {
  */
 template <typename T>
 EnableForInts<T, model::FieldValue> Value(T value) {
-  return model::FieldValue::FromInteger(value);
+  model::FieldValue IntegerValue(int64_t);
+
+  return IntegerValue(value);
 }
 
-inline model::FieldValue Value(double value) {
-  return model::FieldValue::FromDouble(value);
-}
+model::FieldValue Value(double value);
 
-inline model::FieldValue Value(Timestamp value) {
-  return model::FieldValue::FromTimestamp(value);
-}
+model::FieldValue Value(Timestamp value);
 
-inline model::FieldValue Value(const char* value) {
-  return model::FieldValue::FromString(value);
-}
+model::FieldValue Value(const char* value);
 
-inline model::FieldValue Value(const std::string& value) {
-  return model::FieldValue::FromString(value);
-}
+model::FieldValue Value(const std::string& value);
 
-inline model::FieldValue Value(const GeoPoint& value) {
-  return model::FieldValue::FromGeoPoint(value);
-}
+model::FieldValue Value(const GeoPoint& value);
 
 template <typename... Ints>
 model::FieldValue BlobValue(Ints... octets) {
-  nanopb::ByteString contents{static_cast<uint8_t>(octets)...};
-  return model::FieldValue::FromBlob(std::move(contents));
+  model::FieldValue BlobValue(std::initializer_list<uint8_t>);
+
+  return BlobValue({static_cast<uint8_t>(octets)...});
 }
 
 // This overload allows Object() to appear as a value (along with any explicitly
 // constructed FieldValues).
-inline model::FieldValue Value(const model::FieldValue& value) {
-  return value;
-}
+model::FieldValue Value(const model::FieldValue& value);
 
-inline model::FieldValue Value(const model::ObjectValue& value) {
-  return value.AsFieldValue();
-}
+model::FieldValue Value(const model::ObjectValue& value);
 
-inline model::FieldValue Value(const model::FieldValue::Map& value) {
-  return Value(model::ObjectValue::FromMap(value));
-}
-
-inline model::FieldValue ArrayValue(std::vector<model::FieldValue>&& value) {
-  return model::FieldValue::FromArray(std::move(value));
-}
+model::FieldValue Value(const model::FieldValue::Map& value);
 
 namespace details {
 
@@ -204,20 +161,16 @@ model::FieldValue::Map MakeMap(Args... key_value_pairs) {
 
 }  // namespace details
 
-inline model::FieldValue Array(const model::FieldValue::Array& value) {
-  return model::FieldValue::FromArray(value);
-}
-
 template <typename... Args>
-inline model::FieldValue Array(Args... values) {
-  model::FieldValue::Array contents{Value(values)...};
-  return model::FieldValue::FromArray(std::move(contents));
+model::FieldValue Array(Args... values) {
+  model::FieldValue ArrayValue(std::vector<model::FieldValue> &&);
+
+  std::vector<model::FieldValue> contents{Value(values)...};
+  return ArrayValue(std::move(contents));
 }
 
 /** Wraps an immutable sorted map into an ObjectValue. */
-inline model::ObjectValue WrapObject(const model::FieldValue::Map& value) {
-  return model::ObjectValue::FromMap(value);
-}
+model::ObjectValue WrapObject(const model::FieldValue::Map& value);
 
 /**
  * Creates an ObjectValue from the given key/value pairs.
@@ -241,83 +194,54 @@ model::FieldValue::Map Map(Args... key_value_pairs) {
   return details::MakeMap(key_value_pairs...);
 }
 
-inline model::DocumentKey Key(absl::string_view path) {
-  return model::DocumentKey::FromPathString(std::string(path));
-}
+model::DocumentKey Key(absl::string_view path);
 
-inline model::FieldPath Field(absl::string_view field) {
-  return model::FieldPath::FromServerFormat(std::string(field));
-}
+model::FieldPath Field(absl::string_view field);
 
-inline model::DatabaseId DbId(std::string project = "project/(default)") {
-  size_t slash = project.find('/');
-  if (slash == std::string::npos) {
-    return model::DatabaseId(std::move(project), model::DatabaseId::kDefault);
-  } else {
-    std::string database_id = project.substr(slash + 1);
-    project = project.substr(0, slash);
-    return model::DatabaseId(std::move(project), std::move(database_id));
-  }
-}
+model::DatabaseId DbId(std::string project = "project/(default)");
 
-inline model::FieldValue Ref(std::string project, absl::string_view path) {
-  return model::FieldValue::FromReference(DbId(std::move(project)), Key(path));
-}
+model::FieldValue Ref(std::string project, absl::string_view path);
 
-inline model::ResourcePath Resource(absl::string_view field) {
-  return model::ResourcePath::FromString(std::string(field));
-}
+model::ResourcePath Resource(absl::string_view field);
 
 /**
  * Creates a snapshot version from the given version timestamp.
  *
  * @param version a timestamp in microseconds since the epoch.
  */
-inline model::SnapshotVersion Version(int64_t version) {
-  namespace chr = std::chrono;
-  auto timepoint =
-      chr::time_point<chr::system_clock>(chr::microseconds(version));
-  return model::SnapshotVersion{Timestamp::FromTimePoint(timepoint)};
-}
+model::SnapshotVersion Version(int64_t version);
 
-inline model::Document Doc(
+model::Document Doc(
     absl::string_view key,
     int64_t version = 0,
-    const model::FieldValue::Map& data = model::FieldValue::Map(),
-    model::DocumentState document_state = model::DocumentState::kSynced) {
-  return model::Document(model::ObjectValue::FromMap(data), Key(key),
-                         Version(version), document_state);
-}
+    const model::FieldValue::Map& data = model::FieldValue::Map());
 
-inline model::Document Doc(
-    absl::string_view key,
-    int64_t version,
-    const model::FieldValue& data,
-    model::DocumentState document_state = model::DocumentState::kSynced) {
-  return model::Document(model::ObjectValue(data), Key(key), Version(version),
-                         document_state);
-}
+model::Document Doc(absl::string_view key,
+                    int64_t version,
+                    const model::FieldValue::Map& data,
+                    model::DocumentState document_state);
 
-/** A convenience method for creating deleted docs for tests. */
-inline model::NoDocument DeletedDoc(absl::string_view key,
-                                    int64_t version = 0,
-                                    bool has_committed_mutations = false) {
-  return model::NoDocument(Key(key), Version(version), has_committed_mutations);
-}
+model::Document Doc(absl::string_view key,
+                    int64_t version,
+                    const model::FieldValue& data);
+
+model::Document Doc(absl::string_view key,
+                    int64_t version,
+                    const model::FieldValue& data,
+                    model::DocumentState document_state);
 
 /** A convenience method for creating deleted docs for tests. */
-inline model::NoDocument DeletedDoc(model::DocumentKey key,
-                                    int64_t version = 0,
-                                    bool has_committed_mutations = false) {
-  return model::NoDocument(std::move(key), Version(version),
-                           has_committed_mutations);
-}
+model::NoDocument DeletedDoc(absl::string_view key,
+                             int64_t version = 0,
+                             bool has_committed_mutations = false);
+
+/** A convenience method for creating deleted docs for tests. */
+model::NoDocument DeletedDoc(model::DocumentKey key,
+                             int64_t version = 0,
+                             bool has_committed_mutations = false);
 
 /** A convenience method for creating unknown docs for tests. */
-inline model::UnknownDocument UnknownDoc(absl::string_view key,
-                                         int64_t version) {
-  return model::UnknownDocument(Key(key), Version(version));
-}
+model::UnknownDocument UnknownDoc(absl::string_view key, int64_t version);
 
 /**
  * Creates a DocumentComparator that will compare Documents by the given
@@ -332,110 +256,51 @@ model::DocumentComparator DocComparator(absl::string_view field_path);
 model::DocumentSet DocSet(model::DocumentComparator comp,
                           std::vector<model::Document> docs);
 
-inline core::Filter::Operator OperatorFromString(absl::string_view s) {
-  if (s == "<") {
-    return core::Filter::Operator::LessThan;
-  } else if (s == "<=") {
-    return core::Filter::Operator::LessThanOrEqual;
-  } else if (s == "==") {
-    return core::Filter::Operator::Equal;
-  } else if (s == ">") {
-    return core::Filter::Operator::GreaterThan;
-  } else if (s == ">=") {
-    return core::Filter::Operator::GreaterThanOrEqual;
-    // Both are accepted for compatibility with spec tests and existing
-    // canonical ids.
-  } else if (s == "array_contains" || s == "array-contains") {
-    return core::Filter::Operator::ArrayContains;
-  } else if (s == "in") {
-    return core::Filter::Operator::In;
-  } else if (s == "array-contains-any") {
-    return core::Filter::Operator::ArrayContainsAny;
-  } else {
-    HARD_FAIL("Unknown operator: %s", s);
-  }
+core::FieldFilter Filter(absl::string_view key,
+                         absl::string_view op,
+                         model::FieldValue value);
+
+core::FieldFilter Filter(absl::string_view key,
+                         absl::string_view op,
+                         model::FieldValue::Map value);
+
+core::FieldFilter Filter(absl::string_view key,
+                         absl::string_view op,
+                         std::nullptr_t);
+
+core::FieldFilter Filter(absl::string_view key,
+                         absl::string_view op,
+                         const char* value);
+
+template <typename T>
+EnableForExactlyBool<T, core::FieldFilter> Filter(absl::string_view key,
+                                                  absl::string_view op,
+                                                  T value) {
+  return Filter(key, op, Value(value));
 }
 
-inline core::FieldFilter Filter(absl::string_view key,
-                                absl::string_view op,
-                                model::FieldValue value) {
-  return core::FieldFilter::Create(Field(key), OperatorFromString(op),
-                                   std::move(value));
-}
+core::FieldFilter Filter(absl::string_view key,
+                         absl::string_view op,
+                         int value);
 
-inline core::FieldFilter Filter(absl::string_view key,
-                                absl::string_view op,
-                                model::FieldValue::Map value) {
-  return Filter(key, op, model::FieldValue::FromMap(std::move(value)));
-}
+core::FieldFilter Filter(absl::string_view key,
+                         absl::string_view op,
+                         double value);
 
-inline core::FieldFilter Filter(absl::string_view key,
-                                absl::string_view op,
-                                std::nullptr_t) {
-  return Filter(key, op, model::FieldValue::Null());
-}
+core::Direction Direction(absl::string_view direction);
 
-inline core::FieldFilter Filter(absl::string_view key,
-                                absl::string_view op,
-                                const char* value) {
-  return Filter(key, op, model::FieldValue::FromString(value));
-}
+core::OrderBy OrderBy(absl::string_view key,
+                      absl::string_view direction = "asc");
 
-template <typename T,
-          typename = typename std::enable_if<std::is_same<bool, T>{}>::type>
-inline core::FieldFilter Filter(absl::string_view key,
-                                absl::string_view op,
-                                T value) {
-  return Filter(key, op, model::FieldValue::FromBoolean(value));
-}
+core::OrderBy OrderBy(model::FieldPath field_path, core::Direction direction);
 
-inline core::FieldFilter Filter(absl::string_view key,
-                                absl::string_view op,
-                                int value) {
-  return Filter(key, op, model::FieldValue::FromInteger(value));
-}
+core::Query Query(absl::string_view path);
 
-inline core::FieldFilter Filter(absl::string_view key,
-                                absl::string_view op,
-                                double value) {
-  return Filter(key, op, model::FieldValue::FromDouble(value));
-}
+core::Query CollectionGroupQuery(absl::string_view collection_id);
 
-inline core::Direction Direction(absl::string_view direction) {
-  if (direction == "asc") {
-    return core::Direction::Ascending;
-  } else if (direction == "desc") {
-    return core::Direction::Descending;
-  } else {
-    HARD_FAIL("Unknown direction: %s (use \"asc\" or \"desc\")", direction);
-  }
-}
-
-inline core::OrderBy OrderBy(absl::string_view key,
-                             absl::string_view direction = "asc") {
-  return core::OrderBy(Field(key), Direction(direction));
-}
-
-inline core::OrderBy OrderBy(model::FieldPath field_path,
-                             core::Direction direction) {
-  return core::OrderBy(std::move(field_path), direction);
-}
-
-inline core::Query Query(absl::string_view path) {
-  return core::Query(Resource(path));
-}
-
-inline core::Query CollectionGroupQuery(absl::string_view collection_id) {
-  return core::Query(model::ResourcePath::Empty(),
-                     std::make_shared<const std::string>(collection_id));
-}
-
-inline model::SetMutation SetMutation(
+model::SetMutation SetMutation(
     absl::string_view path,
-    const model::FieldValue::Map& values = model::FieldValue::Map()) {
-  return model::SetMutation(Key(path), model::ObjectValue::FromMap(values),
-                            model::Precondition::None());
-}
+    const model::FieldValue::Map& values = model::FieldValue::Map());
 
 model::PatchMutation PatchMutation(
     absl::string_view path,
@@ -462,33 +327,13 @@ std::pair<std::string, model::TransformOperation> Increment(
 std::pair<std::string, model::TransformOperation> ArrayUnion(
     std::string field, std::vector<model::FieldValue> operands);
 
-inline model::DeleteMutation DeleteMutation(absl::string_view path) {
-  return model::DeleteMutation(Key(path), model::Precondition::None());
-}
+model::DeleteMutation DeleteMutation(absl::string_view path);
 
-inline model::VerifyMutation VerifyMutation(absl::string_view path,
-                                            int64_t version) {
-  return model::VerifyMutation(
-      Key(path), model::Precondition::UpdateTime(Version(version)));
-}
+model::VerifyMutation VerifyMutation(absl::string_view path, int64_t version);
 
-inline model::MutationResult MutationResult(int64_t version) {
-  return model::MutationResult(Version(version), absl::nullopt);
-}
+model::MutationResult MutationResult(int64_t version);
 
-inline nanopb::ByteString ResumeToken(int64_t snapshot_version) {
-  if (snapshot_version == 0) {
-    // TODO(rsgowman): The other platforms return null here, though I'm not sure
-    // if they ever rely on that. I suspect it'd be sufficient to return '{}'.
-    // But for now, we'll just abort() until we hit a test case that actually
-    // makes use of this.
-    abort();
-  }
-
-  std::string snapshot_string =
-      std::string("snapshot-") + std::to_string(snapshot_version);
-  return nanopb::ByteString(snapshot_string);
-}
+nanopb::ByteString ResumeToken(int64_t snapshot_version);
 
 template <typename T, typename... Ts>
 std::vector<T> Vector(T&& arg1, Ts&&... args) {

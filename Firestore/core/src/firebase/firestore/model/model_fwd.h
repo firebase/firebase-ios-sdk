@@ -76,6 +76,7 @@ class SnapshotVersion;
 class TransformMutation;
 class TransformOperation;
 class UnknownDocument;
+class VerifyMutation;
 
 enum class DocumentState;
 enum class OnlineState;
