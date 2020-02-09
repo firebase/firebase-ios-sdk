@@ -48,10 +48,13 @@ class Persistence;
 }  // namespace firestore
 }  // namespace firebase
 
+namespace auth = firebase::firestore::auth;
 namespace core = firebase::firestore::core;
 namespace local = firebase::firestore::local;
 namespace model = firebase::firestore::model;
 namespace nanopb = firebase::firestore::nanopb;
+namespace remote = firebase::firestore::remote;
+namespace util = firebase::firestore::util;
 
 // A map holds expected information about currently active targets. The keys are
 // target ID, and the values are a vector of `TargetData`s mapped to the target and
@@ -70,8 +73,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, assign) core::Query query;
 @property(nonatomic, strong, nullable) NSError *error;
 
-- (const absl::optional<firebase::firestore::core::ViewSnapshot> &)viewSnapshot;
-- (void)setViewSnapshot:(absl::optional<firebase::firestore::core::ViewSnapshot>)snapshot;
+- (const absl::optional<core::ViewSnapshot> &)viewSnapshot;
+- (void)setViewSnapshot:(absl::optional<core::ViewSnapshot>)snapshot;
 
 @end
 
@@ -91,9 +94,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 /** Mapping of user => array of FSTMutations for that user. */
-typedef std::unordered_map<firebase::firestore::auth::User,
-                           NSMutableArray<FSTOutstandingWrite *> *,
-                           firebase::firestore::auth::HashUser>
+typedef std::unordered_map<auth::User, NSMutableArray<FSTOutstandingWrite *> *, auth::HashUser>
     FSTOutstandingWriteQueues;
 
 /**
@@ -131,7 +132,7 @@ typedef std::unordered_map<firebase::firestore::auth::User,
  * mutation queues).
  */
 - (instancetype)initWithPersistence:(std::unique_ptr<local::Persistence>)persistence
-                        initialUser:(const firebase::firestore::auth::User &)initialUser
+                        initialUser:(const auth::User &)initialUser
                   outstandingWrites:(const FSTOutstandingWriteQueues &)outstandingWrites
     NS_DESIGNATED_INITIALIZER;
 
@@ -155,7 +156,7 @@ typedef std::unordered_map<firebase::firestore::auth::User,
  * @param query A valid query to execute against the backend.
  * @return The target ID assigned by the system to track the query.
  */
-- (firebase::firestore::model::TargetId)addUserListenerWithQuery:(core::Query)query;
+- (model::TargetId)addUserListenerWithQuery:(core::Query)query;
 
 /**
  * Removes a listener from the FSTSyncEngine as if the user had removed a listener corresponding
@@ -178,8 +179,8 @@ typedef std::unordered_map<firebase::firestore::auth::User,
  * @param snapshot A snapshot version to attach, if applicable. This should be sent when
  *      simulating the server having sent a complete snapshot.
  */
-- (void)receiveWatchChange:(const firebase::firestore::remote::WatchChange &)change
-           snapshotVersion:(const firebase::firestore::model::SnapshotVersion &)snapshot;
+- (void)receiveWatchChange:(const remote::WatchChange &)change
+           snapshotVersion:(const model::SnapshotVersion &)snapshot;
 
 /**
  * Delivers a watch stream error as if the Streaming Watch backend has generated some kind of error.
@@ -226,9 +227,9 @@ typedef std::unordered_map<firebase::firestore::auth::User,
  *     the mutation. Snapshot versions must be monotonically increasing.
  * @param mutationResults The mutation results for the write that is being acked.
  */
-- (FSTOutstandingWrite *)
-    receiveWriteAckWithVersion:(const firebase::firestore::model::SnapshotVersion &)commitVersion
-               mutationResults:(std::vector<model::MutationResult>)mutationResults;
+- (FSTOutstandingWrite *)receiveWriteAckWithVersion:(const model::SnapshotVersion &)commitVersion
+                                    mutationResults:
+                                        (std::vector<model::MutationResult>)mutationResults;
 
 /**
  * A count of the mutations written to the write stream by the FSTSyncEngine, but not yet
@@ -261,14 +262,14 @@ typedef std::unordered_map<firebase::firestore::auth::User,
 /**
  * Runs a pending timer callback on the worker queue.
  */
-- (void)runTimer:(firebase::firestore::util::TimerId)timerID;
+- (void)runTimer:(util::TimerId)timerID;
 
 /**
  * Switches the FSTSyncEngine to a new user. The test driver tracks the outstanding mutations for
  * each user, so future receiveWriteAck/Error operations will validate the write sent to the mock
  * datastore matches the next outstanding write for that user.
  */
-- (void)changeUser:(const firebase::firestore::auth::User &)user;
+- (void)changeUser:(const auth::User &)user;
 
 /**
  * Drains the client's dispatch queue.
@@ -294,14 +295,13 @@ typedef std::unordered_map<firebase::firestore::auth::User,
 - (NSArray<NSString *> *)capturedRejectedWritesSinceLastCall;
 
 /** The current set of documents in limbo. */
-- (std::map<firebase::firestore::model::DocumentKey, firebase::firestore::model::TargetId>)
-    currentLimboDocuments;
+- (std::map<model::DocumentKey, model::TargetId>)currentLimboDocuments;
 
 /** The expected set of documents in limbo. */
-- (const firebase::firestore::model::DocumentKeySet &)expectedLimboDocuments;
+- (const model::DocumentKeySet &)expectedLimboDocuments;
 
 /** Sets the expected set of documents in limbo. */
-- (void)setExpectedLimboDocuments:(firebase::firestore::model::DocumentKeySet)docs;
+- (void)setExpectedLimboDocuments:(model::DocumentKeySet)docs;
 
 /**
  * The writes that have been sent to the FSTSyncEngine via writeUserMutation: but not yet
@@ -322,7 +322,7 @@ typedef std::unordered_map<firebase::firestore::auth::User,
 @property(nonatomic, assign, readonly) const FSTOutstandingWriteQueues &outstandingWrites;
 
 /** The current user for the FSTSyncEngine; determines which mutation queue is active. */
-@property(nonatomic, assign, readonly) const firebase::firestore::auth::User &currentUser;
+@property(nonatomic, assign, readonly) const auth::User &currentUser;
 
 /**
  * The number of snapshots-in-sync events that have been received.
@@ -345,8 +345,7 @@ typedef std::unordered_map<firebase::firestore::auth::User,
 - (void)removeSnapshotsInSyncListener;
 
 /** The set of active targets as observed on the watch stream. */
-- (const std::unordered_map<firebase::firestore::model::TargetId, local::TargetData> &)
-    activeTargets;
+- (const std::unordered_map<model::TargetId, local::TargetData> &)activeTargets;
 
 /** The expected set of active targets, keyed by target ID. */
 - (const ActiveTargetMap &)expectedActiveTargets;

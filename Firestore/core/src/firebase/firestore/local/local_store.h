@@ -101,8 +101,7 @@ class LocalStore {
   model::MaybeDocumentMap HandleUserChange(const auth::User& user);
 
   /** Accepts locally generated Mutations and commits them to storage. */
-  local::LocalWriteResult WriteLocally(
-      std::vector<model::Mutation>&& mutations);
+  LocalWriteResult WriteLocally(std::vector<model::Mutation>&& mutations);
 
   /**
    * Returns the current value of a document with a given key, or `nullopt` if
@@ -177,7 +176,7 @@ class LocalStore {
    * Allocating an already allocated target will return the existing
    * `TargetData` for that target.
    */
-  local::TargetData AllocateTarget(core::Target target);
+  TargetData AllocateTarget(core::Target target);
 
   /**
    * Unpin all the documents associated with a target.
@@ -194,15 +193,14 @@ class LocalStore {
    * @param use_previous_results Whether results from previous executions can be
    *     used to optimize this query execution.
    */
-  local::QueryResult ExecuteQuery(const core::Query& query,
-                                  bool use_previous_results);
+  QueryResult ExecuteQuery(const core::Query& query, bool use_previous_results);
 
   /**
    * Notify the local store of the changed views to locally pin / unpin
    * documents.
    */
   void NotifyLocalViewChanges(
-      const std::vector<local::LocalViewChanges>& view_changes);
+      const std::vector<LocalViewChanges>& view_changes);
 
   /**
    * Gets the mutation batch after the passed in batch_id in the mutation queue
@@ -221,8 +219,7 @@ class LocalStore {
    */
   model::BatchId GetHighestUnacknowledgedBatchId();
 
-  local::LruResults CollectGarbage(
-      local::LruGarbageCollector* garbage_collector);
+  LruResults CollectGarbage(LruGarbageCollector* garbage_collector);
 
  private:
   friend class LocalStoreTest;  // for `GetTargetData()`
@@ -242,7 +239,7 @@ class LocalStore {
    * too frequent.
    */
   bool ShouldPersistTargetData(const TargetData& new_target_data,
-                               const local::TargetData& old_target_data,
+                               const TargetData& old_target_data,
                                const remote::TargetChange& change) const;
 
   /**
