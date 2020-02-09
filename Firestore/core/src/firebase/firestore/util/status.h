@@ -17,7 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STATUS_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STATUS_H_
 
-#if defined(_WIN32)
+#if _WIN32
 #include <windows.h>
 #endif
 
@@ -28,10 +28,13 @@
 #include <utility>
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
-#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
 #include "absl/base/attributes.h"
 #include "absl/strings/string_view.h"
+
+#if __OBJC__
+@class NSError;
+#endif
 
 namespace firebase {
 namespace firestore {

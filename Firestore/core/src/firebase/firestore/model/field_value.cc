@@ -816,6 +816,10 @@ ComparisonResult FieldValue::BaseValue::CompareTypes(
 ObjectValue::ObjectValue() : fv_(FieldValue::EmptyObject()) {
 }
 
+ObjectValue::ObjectValue(FieldValue fv) : fv_(std::move(fv)) {
+  HARD_ASSERT(fv_.type() == FieldValue::Type::Object);
+}
+
 ObjectValue ObjectValue::FromMap(const FieldValue::Map& value) {
   return ObjectValue(FieldValue::FromMap(value));
 }

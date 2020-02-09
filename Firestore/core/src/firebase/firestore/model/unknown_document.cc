@@ -19,6 +19,8 @@
 #include <string>
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+
 namespace firebase {
 namespace firestore {
 namespace model {

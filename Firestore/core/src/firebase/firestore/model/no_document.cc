@@ -19,6 +19,7 @@
 #include <string>
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
 #include "absl/strings/str_cat.h"
 
