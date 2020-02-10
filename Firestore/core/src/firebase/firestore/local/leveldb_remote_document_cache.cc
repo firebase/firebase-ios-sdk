@@ -247,7 +247,7 @@ DocumentMap LevelDbRemoteDocumentCache::GetMatching(
       }
 
       const std::string& contents = it->value();
-      tasks.Execute([this, &results, &document_key, contents] {
+      tasks.Execute([this, &results, document_key, contents] {
         MaybeDocument maybe_doc = DecodeMaybeDocument(contents, document_key);
         if (maybe_doc.is_document()) {
           results.Insert(Document(maybe_doc));
