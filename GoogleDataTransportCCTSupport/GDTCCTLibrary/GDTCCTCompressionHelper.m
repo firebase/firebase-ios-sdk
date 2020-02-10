@@ -45,8 +45,7 @@
   int windowBits = 15 + 16;  // Enable gzip header instead of zlib header.
 
   int retCode;
-  if ((retCode = deflateInit2(&strm, level, Z_DEFLATED, windowBits, memLevel,
-                              Z_DEFAULT_STRATEGY)) != Z_OK) {
+  if (deflateInit2(&strm, level, Z_DEFLATED, windowBits, memLevel, Z_DEFAULT_STRATEGY) != Z_OK) {
     return nil;
   }
 

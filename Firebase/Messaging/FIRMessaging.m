@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#if  !__has_feature(objc_arc)
+#if !__has_feature(objc_arc)
 #error FIRMessagingLib should be compiled with ARC.
 #endif
 
@@ -24,13 +24,13 @@
 #import <FirebaseCore/FIRComponentContainer.h>
 #import <FirebaseCore/FIRDependency.h>
 #import <FirebaseCore/FIRLibrary.h>
-#import <FirebaseInstanceID/FirebaseInstanceID.h>
 #import <FirebaseInstanceID/FIRInstanceID_Private.h>
+#import <FirebaseInstanceID/FirebaseInstanceID.h>
 #import <FirebaseMessaging/FIRMessaging.h>
 #import <FirebaseMessaging/FIRMessagingExtensionHelper.h>
+#import <GoogleUtilities/GULAppDelegateSwizzler.h>
 #import <GoogleUtilities/GULReachabilityChecker.h>
 #import <GoogleUtilities/GULUserDefaults.h>
-#import <GoogleUtilities/GULAppDelegateSwizzler.h>
 
 #import "Firebase/Messaging/FIRMessagingAnalytics.h"
 #import "Firebase/Messaging/FIRMessagingClient.h"
@@ -66,22 +66,21 @@ const NSNotificationName FIRMessagingConnectionStateChangedNotification =
 const NSNotificationName FIRMessagingRegistrationTokenRefreshedNotification =
     @"com.firebase.messaging.notif.fcm-token-refreshed";
 #else
-NSString *const FIRMessagingSendSuccessNotification =
-    @"com.firebase.messaging.notif.send-success";
-NSString *const FIRMessagingSendErrorNotification =
-    @"com.firebase.messaging.notif.send-error";
-NSString * const FIRMessagingMessagesDeletedNotification =
+NSString *const FIRMessagingSendSuccessNotification = @"com.firebase.messaging.notif.send-success";
+NSString *const FIRMessagingSendErrorNotification = @"com.firebase.messaging.notif.send-error";
+NSString *const FIRMessagingMessagesDeletedNotification =
     @"com.firebase.messaging.notif.messages-deleted";
-NSString * const FIRMessagingConnectionStateChangedNotification =
+NSString *const FIRMessagingConnectionStateChangedNotification =
     @"com.firebase.messaging.notif.connection-state-changed";
-NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
+NSString *const FIRMessagingRegistrationTokenRefreshedNotification =
     @"com.firebase.messaging.notif.fcm-token-refreshed";
 #endif  // defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 
 NSString *const kFIRMessagingUserDefaultsKeyAutoInitEnabled =
     @"com.firebase.messaging.auto-init.enabled";  // Auto Init Enabled key stored in NSUserDefaults
 
-NSString *const kFIRMessagingAPNSTokenType = @"APNSTokenType"; // APNS Token type key stored in user info.
+NSString *const kFIRMessagingAPNSTokenType =
+    @"APNSTokenType";  // APNS Token type key stored in user info.
 
 NSString *const kFIRMessagingPlistAutoInitEnabled =
     @"FirebaseMessagingAutoInitEnabled";  // Auto Init Enabled key stored in Info.plist
@@ -96,7 +95,7 @@ const BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
   return NO;
 }
 
- BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
+BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   return [FIRMessagingContextManagerService isContextManagerMessage:message];
 }
 
@@ -136,8 +135,9 @@ const BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
 
 @end
 
-@interface FIRMessaging ()<FIRMessagingClientDelegate, FIRMessagingReceiverDelegate,
-                           GULReachabilityDelegate>
+@interface FIRMessaging () <FIRMessagingClientDelegate,
+                            FIRMessagingReceiverDelegate,
+                            GULReachabilityDelegate>
 
 // FIRApp properties
 @property(nonatomic, readwrite, strong) NSData *apnsTokenData;
@@ -183,12 +183,12 @@ const BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
 }
 
 + (FIRMessagingExtensionHelper *)extensionHelper {
-    static dispatch_once_t once;
-    static FIRMessagingExtensionHelper *extensionHelper;
-    dispatch_once(&once, ^{
-        extensionHelper = [[FIRMessagingExtensionHelper alloc] init];
-    });
-    return extensionHelper;
+  static dispatch_once_t once;
+  static FIRMessagingExtensionHelper *extensionHelper;
+  dispatch_once(&once, ^{
+    extensionHelper = [[FIRMessagingExtensionHelper alloc] init];
+  });
+  return extensionHelper;
 }
 
 - (instancetype)initWithAnalytics:(nullable id<FIRAnalyticsInterop>)analytics
@@ -214,13 +214,13 @@ const BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
 
 + (void)load {
   [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self
-                 withName:@"fire-fcm"
-              withVersion:FIRMessagingCurrentLibraryVersion()];
+                         withName:@"fire-fcm"
+                      withVersion:FIRMessagingCurrentLibraryVersion()];
 }
 
 + (nonnull NSArray<FIRComponent *> *)componentsToRegister {
-  FIRDependency *analyticsDep =
-      [FIRDependency dependencyWithProtocol:@protocol(FIRAnalyticsInterop) isRequired:NO];
+  FIRDependency *analyticsDep = [FIRDependency dependencyWithProtocol:@protocol(FIRAnalyticsInterop)
+                                                           isRequired:NO];
   FIRComponentCreationBlock creationBlock =
       ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
     if (!container.app.isDefaultApp) {
@@ -245,7 +245,7 @@ const BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
       [FIRComponent componentWithProtocol:@protocol(FIRMessagingInstanceProvider)
                       instantiationTiming:FIRInstantiationTimingEagerInDefaultApp
                              dependencies:@[ analyticsDep ]
-                           creationBlock:creationBlock];
+                            creationBlock:creationBlock];
 
   return @[ messagingProvider ];
 }
@@ -275,8 +275,7 @@ const BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
   // Print the library version for logging.
   NSString *currentLibraryVersion = FIRMessagingCurrentLibraryVersion();
   FIRMessagingLoggerInfo(kFIRMessagingMessageCodeMessagingPrintLibraryVersion,
-                         @"FIRMessaging library version %@",
-                         currentLibraryVersion);
+                         @"FIRMessaging library version %@", currentLibraryVersion);
 
   [self setupReceiver];
 
@@ -314,7 +313,7 @@ const BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
              selector:@selector(defaultInstanceIDTokenWasRefreshed:)
                  name:kFIRMessagingRegistrationTokenRefreshNotification
                object:nil];
-#if TARGET_OS_IOS ||TARGET_OS_TV
+#if TARGET_OS_IOS || TARGET_OS_TV
   [center addObserver:self
              selector:@selector(applicationStateChanged)
                  name:UIApplicationDidBecomeActiveNotification
@@ -355,7 +354,8 @@ const BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
 
 - (void)setupTopics {
   if (!self.client) {
-     FIRMessagingLoggerWarn(kFIRMessagingMessageCodeInvalidClient, @"Invalid nil client before init pubsub.");
+    FIRMessagingLoggerWarn(kFIRMessagingMessageCodeInvalidClient,
+                           @"Invalid nil client before init pubsub.");
   }
   self.pubsub = [[FIRMessagingPubSub alloc] initWithClient:self.client];
 }
@@ -401,7 +401,7 @@ const BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
     // We need to rule out the contextual message because it shares the same message ID
     // as the local notification it will schedule. And because it is also a APNSSync message
     // its duplication is already checked previously.
-   if (!isOldMessage && !FIRMessagingIsContextManagerMessage(message)) {
+    if (!isOldMessage && !FIRMessagingIsContextManagerMessage(message)) {
       isOldMessage = [self.loggedMessageIDs containsObject:messageID];
       if (!isOldMessage) {
         [self.loggedMessageIDs addObject:messageID];
@@ -433,7 +433,6 @@ const BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
   if (![NSThread isMainThread]) {
     dispatch_async(dispatch_get_main_queue(), ^{
       [self handleIncomingLinkIfNeededFromMessage:message];
-
     });
     return;
   }
@@ -442,12 +441,12 @@ const BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
     return;
   }
   id<UIApplicationDelegate> appDelegate = application.delegate;
-  SEL continueUserActivitySelector =
-      @selector(application:continueUserActivity:restorationHandler:);
+  SEL continueUserActivitySelector = @selector(application:
+                                      continueUserActivity:restorationHandler:);
 
   SEL openURLWithOptionsSelector = @selector(application:openURL:options:);
-  SEL openURLWithSourceApplicationSelector =
-      @selector(application:openURL:sourceApplication:annotation:);
+  SEL openURLWithSourceApplicationSelector = @selector(application:
+                                                           openURL:sourceApplication:annotation:);
 #if TARGET_OS_IOS
   SEL handleOpenURLSelector = @selector(application:handleOpenURL:);
 #endif
@@ -462,17 +461,17 @@ const BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
     userActivity.webpageURL = url;
     [appDelegate application:application
         continueUserActivity:userActivity
-          restorationHandler:^(NSArray * _Nullable restorableObjects) {
-      // Do nothing, as we don't support the app calling this block
-    }];
+          restorationHandler:^(NSArray *_Nullable restorableObjects){
+              // Do nothing, as we don't support the app calling this block
+          }];
 
   } else if ([appDelegate respondsToSelector:openURLWithOptionsSelector]) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunguarded-availability"
     [appDelegate application:application openURL:url options:@{}];
 #pragma clang diagnostic pop
-  // Similarly, |application:openURL:sourceApplication:annotation:| will also always be called, due
-  // to the default swizzling done by FIRAAppDelegateProxy in Firebase Analytics
+    // Similarly, |application:openURL:sourceApplication:annotation:| will also always be called,
+    // due to the default swizzling done by FIRAAppDelegateProxy in Firebase Analytics
   } else if ([appDelegate respondsToSelector:openURLWithSourceApplicationSelector]) {
 #if TARGET_OS_IOS
 #pragma clang diagnostic push
@@ -488,7 +487,6 @@ const BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
     [appDelegate application:application handleOpenURL:url];
 #pragma clang diagnostic pop
 #endif
-
   }
 #endif
 }
@@ -602,7 +600,8 @@ const BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
                            @"APNS device token not set before retrieving FCM Token for Sender ID "
                            @"'%@'. Notifications to this FCM Token will not be delivered over APNS."
                            @"Be sure to re-retrieve the FCM token once the APNS device token is "
-                           @"set.", senderID);
+                           @"set.",
+                           senderID);
   }
   [self.instanceID tokenWithAuthorizedEntity:senderID
                                        scope:kFIRMessagingDefaultTokenScope
@@ -640,13 +639,14 @@ const BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
 // NOTE: Once |didReceiveRegistrationToken:| can be made a required method, this
 // check can be removed.
 - (void)validateDelegateConformsToTokenAvailabilityMethods {
-  if (self.delegate &&
-      ![self.delegate respondsToSelector:@selector(messaging:didReceiveRegistrationToken:)]) {
+  if (self.delegate && ![self.delegate respondsToSelector:@selector(messaging:
+                                                              didReceiveRegistrationToken:)]) {
     FIRMessagingLoggerWarn(kFIRMessagingMessageCodeTokenDelegateMethodsNotImplemented,
                            @"The object %@ does not respond to "
                            @"-messaging:didReceiveRegistrationToken:. Please implement "
                            @"-messaging:didReceiveRegistrationToken: to be provided with an FCM "
-                           @"token.", self.delegate.description);
+                           @"token.",
+                           self.delegate.description);
   }
 }
 
@@ -687,7 +687,7 @@ const BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
 
 - (BOOL)shouldBeConnectedAutomatically {
 #if TARGET_OS_OSX || TARGET_OS_WATCH
-    return NO;
+  return NO;
 #else
   // We require a token from Instance ID
   NSString *token = self.defaultFcmToken;
@@ -697,8 +697,7 @@ const BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
     return NO;
   }
   UIApplicationState applicationState = application.applicationState;
-  BOOL shouldBeConnected = _shouldEstablishDirectChannel &&
-                           (token.length > 0) &&
+  BOOL shouldBeConnected = _shouldEstablishDirectChannel && (token.length > 0) &&
                            applicationState == UIApplicationStateActive;
   return shouldBeConnected;
 #endif
@@ -780,7 +779,7 @@ const BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
       return;
     }
     FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging009,
-                          @"Cannot parse topic name %@. Will not subscribe.", topic);
+                            @"Cannot parse topic name %@. Will not subscribe.", topic);
     if (completion) {
       completion([NSError fcm_errorWithCode:FIRMessagingErrorInvalidTopicName userInfo:nil]);
     }
@@ -818,7 +817,7 @@ const BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
       return;
     }
     FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging011,
-			  @"Cannot parse topic name %@. Will not unsubscribe.", topic);
+                            @"Cannot parse topic name %@. Will not unsubscribe.", topic);
     if (completion) {
       completion([NSError fcm_errorWithCode:FIRMessagingErrorInvalidTopicName userInfo:nil]);
     }
@@ -832,20 +831,20 @@ const BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
       withMessageID:(NSString *)messageID
          timeToLive:(int64_t)ttl {
   NSMutableDictionary *fcmMessage = [[self class] createFIRMessagingMessageWithMessage:message
-                                                                           to:to
-                                                                       withID:messageID
-                                                                   timeToLive:ttl
-                                                                        delay:0];
-  FIRMessagingLoggerInfo(kFIRMessagingMessageCodeMessaging013, @"Sending message: %@ with id: %@ to %@.",
-                         message, messageID, to);
+                                                                                    to:to
+                                                                                withID:messageID
+                                                                            timeToLive:ttl
+                                                                                 delay:0];
+  FIRMessagingLoggerInfo(kFIRMessagingMessageCodeMessaging013,
+                         @"Sending message: %@ with id: %@ to %@.", message, messageID, to);
   [self.dataMessageManager sendDataMessageStanza:fcmMessage];
 }
 
 + (NSMutableDictionary *)createFIRMessagingMessageWithMessage:(NSDictionary *)message
-                                                  to:(NSString *)to
-                                              withID:(NSString *)msgID
-                                          timeToLive:(int64_t)ttl
-                                               delay:(int)delay {
+                                                           to:(NSString *)to
+                                                       withID:(NSString *)msgID
+                                                   timeToLive:(int64_t)ttl
+                                                        delay:(int)delay {
   NSMutableDictionary *fcmMessage = [NSMutableDictionary dictionary];
   fcmMessage[kFIRMessagingSendTo] = [to copy];
   fcmMessage[kFIRMessagingSendMessageID] = msgID ? [msgID copy] : @"";
@@ -869,7 +868,7 @@ const BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
 #pragma mark - FIRMessagingReceiverDelegate
 
 - (void)receiver:(FIRMessagingReceiver *)receiver
-      receivedRemoteMessage:(FIRMessagingRemoteMessage *)remoteMessage {
+    receivedRemoteMessage:(FIRMessagingRemoteMessage *)remoteMessage {
   if ([self.delegate respondsToSelector:@selector(messaging:didReceiveMessage:)]) {
     [self appDidReceiveMessage:remoteMessage.appData];
 #pragma clang diagnostic push
@@ -972,10 +971,10 @@ const BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
 }
 
 + (NSString *)pathForSubDirectory:(NSString *)subDirectoryName {
-  NSArray *directoryPaths = NSSearchPathForDirectoriesInDomains(FIRMessagingSupportedDirectory(),
-                                                                NSUserDomainMask, YES);
+  NSArray *directoryPaths =
+      NSSearchPathForDirectoriesInDomains(FIRMessagingSupportedDirectory(), NSUserDomainMask, YES);
   NSString *dirPath = directoryPaths.lastObject;
-  NSArray *components = @[dirPath, subDirectoryName];
+  NSArray *components = @[ dirPath, subDirectoryName ];
   return [NSString pathWithComponents:components];
 }
 
@@ -1010,8 +1009,8 @@ const BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
 + (NSString *)currentLocale {
   NSArray *locales = [self firebaseLocales];
   NSArray *preferredLocalizations =
-    [NSBundle preferredLocalizationsFromArray:locales
-                               forPreferences:[NSLocale preferredLanguages]];
+      [NSBundle preferredLocalizationsFromArray:locales
+                                 forPreferences:[NSLocale preferredLanguages]];
   NSString *legalDocsLanguage = [preferredLocalizations firstObject];
   // Use en as the default language
   return legalDocsLanguage ? legalDocsLanguage : @"en";
@@ -1092,27 +1091,9 @@ const BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
     // language).
     // Arabic
     @"ar" : @[
-      @"ar",
-      @"ar_DZ",
-      @"ar_BH",
-      @"ar_EG",
-      @"ar_IQ",
-      @"ar_JO",
-      @"ar_KW",
-      @"ar_LB",
-      @"ar_LY",
-      @"ar_MA",
-      @"ar_OM",
-      @"ar_QA",
-      @"ar_SA",
-      @"ar_SD",
-      @"ar_SY",
-      @"ar_TN",
-      @"ar_AE",
-      @"ar_YE",
-      @"ar_GB",
-      @"ar-IQ",
-      @"ar_US"
+      @"ar",    @"ar_DZ", @"ar_BH", @"ar_EG", @"ar_IQ", @"ar_JO", @"ar_KW",
+      @"ar_LB", @"ar_LY", @"ar_MA", @"ar_OM", @"ar_QA", @"ar_SA", @"ar_SD",
+      @"ar_SY", @"ar_TN", @"ar_AE", @"ar_YE", @"ar_GB", @"ar-IQ", @"ar_US"
     ],
     // Simplified Chinese
     @"zh_Hans" : @[ @"zh_CN", @"zh_SG", @"zh-Hans" ],
@@ -1122,50 +1103,15 @@ const BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
     @"nl" : @[ @"nl", @"nl_BE", @"nl_NL", @"nl-NL" ],
     // English
     @"en" : @[
-      @"en",
-      @"en_AU",
-      @"en_CA",
-      @"en_IN",
-      @"en_IE",
-      @"en_MT",
-      @"en_NZ",
-      @"en_PH",
-      @"en_SG",
-      @"en_ZA",
-      @"en_GB",
-      @"en_US",
-      @"en_AE",
-      @"en-AE",
-      @"en_AS",
-      @"en-AU",
-      @"en_BD",
-      @"en-CA",
-      @"en_EG",
-      @"en_ES",
-      @"en_GB",
-      @"en-GB",
-      @"en_HK",
-      @"en_ID",
-      @"en-IN",
-      @"en_NG",
-      @"en-PH",
-      @"en_PK",
-      @"en-SG",
-      @"en-US"
+      @"en",    @"en_AU", @"en_CA", @"en_IN", @"en_IE", @"en_MT", @"en_NZ", @"en_PH",
+      @"en_SG", @"en_ZA", @"en_GB", @"en_US", @"en_AE", @"en-AE", @"en_AS", @"en-AU",
+      @"en_BD", @"en-CA", @"en_EG", @"en_ES", @"en_GB", @"en-GB", @"en_HK", @"en_ID",
+      @"en-IN", @"en_NG", @"en-PH", @"en_PK", @"en-SG", @"en-US"
     ],
     // French
 
-    @"fr" : @[
-      @"fr",
-      @"fr_BE",
-      @"fr_CA",
-      @"fr_FR",
-      @"fr_LU",
-      @"fr_CH",
-      @"fr-CA",
-      @"fr-FR",
-      @"fr_MA"
-    ],
+    @"fr" :
+        @[ @"fr", @"fr_BE", @"fr_CA", @"fr_FR", @"fr_LU", @"fr_CH", @"fr-CA", @"fr-FR", @"fr_MA" ],
     // German
     @"de" : @[ @"de", @"de_AT", @"de_DE", @"de_LU", @"de_CH", @"de-DE" ],
     // Greek
@@ -1181,40 +1127,16 @@ const BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
     // European Portuguese
     @"pt_PT" : @[ @"pt", @"pt_PT", @"pt-PT" ],
     // Serbian
-    @"sr" : @[
-      @"sr_BA",
-      @"sr_ME",
-      @"sr_RS",
-      @"sr_Latn_BA",
-      @"sr_Latn_ME",
-      @"sr_Latn_RS"
-    ],
+    @"sr" : @[ @"sr_BA", @"sr_ME", @"sr_RS", @"sr_Latn_BA", @"sr_Latn_ME", @"sr_Latn_RS" ],
     // European Spanish
     @"es_ES" : @[ @"es", @"es_ES", @"es-ES" ],
     // Mexican Spanish
     @"es_MX" : @[ @"es-MX", @"es_MX", @"es_US", @"es-US" ],
     // Latin American Spanish
     @"es_419" : @[
-      @"es_AR",
-      @"es_BO",
-      @"es_CL",
-      @"es_CO",
-      @"es_CR",
-      @"es_DO",
-      @"es_EC",
-      @"es_SV",
-      @"es_GT",
-      @"es_HN",
-      @"es_NI",
-      @"es_PA",
-      @"es_PY",
-      @"es_PE",
-      @"es_PR",
-      @"es_UY",
-      @"es_VE",
-      @"es-AR",
-      @"es-CL",
-      @"es-CO"
+      @"es_AR", @"es_BO", @"es_CL", @"es_CO", @"es_CR", @"es_DO", @"es_EC",
+      @"es_SV", @"es_GT", @"es_HN", @"es_NI", @"es_PA", @"es_PY", @"es_PE",
+      @"es_PR", @"es_UY", @"es_VE", @"es-AR", @"es-CL", @"es-CO"
     ],
     // Thai
     @"th" : @[ @"th", @"th_TH", @"th_TH_TH" ],

@@ -48,11 +48,11 @@
 
 - (NSString *)description {
   if ([self.rmqId length]) {
-    return [NSString stringWithFormat:@"<Packet: Tag - %d, Length - %lu>, RmqId - %@",
-            self.tag, _FIRMessaging_UL(self.data.length), self.rmqId];
+    return [NSString stringWithFormat:@"<Packet: Tag - %d, Length - %lu>, RmqId - %@", self.tag,
+                                      _FIRMessaging_UL(self.data.length), self.rmqId];
   } else {
-    return [NSString stringWithFormat:@"<Packet: Tag - %d, Length - %lu>",
-            self.tag, _FIRMessaging_UL(self.data.length)];
+    return [NSString stringWithFormat:@"<Packet: Tag - %d, Length - %lu>", self.tag,
+                                      _FIRMessaging_UL(self.data.length)];
   }
 }
 
@@ -64,8 +64,8 @@
 
 @end
 
-
-@implementation FIRMessagingPacketQueue;
+@implementation FIRMessagingPacketQueue
+;
 
 - (id)init {
   self = [super init];

@@ -18,17 +18,17 @@
 
 #import <OCMock/OCMock.h>
 
+#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseInstanceID/FirebaseInstanceID.h>
-#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 #import <FirebaseMessaging/FIRMessaging.h>
 #import <GoogleUtilities/GULUserDefaults.h>
 
 #import "Example/Messaging/Tests/FIRMessagingTestUtilities.h"
-#import "Firebase/Messaging/FIRMessaging_Private.h"
 #import "Firebase/Messaging/FIRMessagingAnalytics.h"
 #import "Firebase/Messaging/FIRMessagingRmqManager.h"
 #import "Firebase/Messaging/FIRMessagingSyncMessageManager.h"
+#import "Firebase/Messaging/FIRMessaging_Private.h"
 
 extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 
@@ -69,7 +69,7 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
       [[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingDefaultsTestDomain];
   _testUtil = [[FIRMessagingTestUtilities alloc] initWithUserDefaults:defaults withRMQManager:YES];
   _mockFirebaseApp = OCMClassMock([FIRApp class]);
-   OCMStub([_mockFirebaseApp defaultApp]).andReturn(_mockFirebaseApp);
+  OCMStub([_mockFirebaseApp defaultApp]).andReturn(_mockFirebaseApp);
   [[NSUserDefaults standardUserDefaults]
       removePersistentDomainForName:[NSBundle mainBundle].bundleIdentifier];
   _mockMessagingAnalytics = OCMClassMock([FIRMessagingAnalytics class]);
@@ -82,116 +82,26 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
   [super tearDown];
 }
 
--(void)testEmptyNotification {
-  XCTAssertEqualObjects(@(FIRMessagingMessageStatusUnknown), @([_testUtil.mockMessaging appDidReceiveMessage:@{}].status));
+- (void)testEmptyNotification {
+  XCTAssertEqualObjects(@(FIRMessagingMessageStatusUnknown),
+                        @([_testUtil.mockMessaging appDidReceiveMessage:@{}].status));
 }
 
--(void)testAPNSDisplayNotification {
+- (void)testAPNSDisplayNotification {
   NSDictionary *notificationPayload = @{
-                                        @"aps": @{
-                                                @"alert" : @{
-                                                        @"body" : @"body of notification",
-                                                        @"title" : @"title of notification",
-                                                        }
-                                                },
-                                        @"gcm.message_id" : @"1566515013484879",
-                                        @"gcm.n.e" : @1,
-                                        @"google.c.a.c_id" : @"7379928225816991517",
-                                        @"google.c.a.e" : @1,
-                                        @"google.c.a.ts" : @1566515009,
-                                        @"google.c.a.udt" : @0
-                                        };
-  OCMExpect([_testUtil.mockMessaging handleContextManagerMessage:notificationPayload]);
-  OCMExpect([_testUtil.mockMessaging handleIncomingLinkIfNeededFromMessage:notificationPayload]);
-  OCMExpect([_mockMessagingAnalytics logMessage:notificationPayload toAnalytics:[OCMArg any]]);
-  XCTAssertEqualObjects(@(FIRMessagingMessageStatusNew),
-                        @([_testUtil.messaging appDidReceiveMessage:notificationPayload].status));
-  OCMVerifyAll(_testUtil.mockMessaging);
-
-  OCMReject([_testUtil.mockMessaging handleContextManagerMessage:notificationPayload]);
-  OCMReject([_testUtil.mockMessaging handleIncomingLinkIfNeededFromMessage:notificationPayload]);
-  OCMReject([_mockMessagingAnalytics logMessage:notificationPayload toAnalytics:[OCMArg any]]);
-
-  XCTAssertEqualObjects(@(FIRMessagingMessageStatusNew),
-                          @([_testUtil.messaging appDidReceiveMessage:notificationPayload].status));
-  OCMVerifyAll(_testUtil.mockMessaging);
-
-}
-
--(void)testAPNSContentAvailableNotification {
-  NSDictionary *notificationPayload = @{
-                                        @"aps": @{
-                                            @"content-available" : @1
-                                            },
-                                        @"gcm.message_id" : @"1566513591299872",
-                                        @"image" : @"bunny.png",
-                                        @"google.c.a.e" : @1
-                                        };
-  OCMExpect([_testUtil.mockMessaging handleContextManagerMessage:notificationPayload]);
-  OCMExpect([_testUtil.mockMessaging handleIncomingLinkIfNeededFromMessage:notificationPayload]);
-  OCMExpect([_mockMessagingAnalytics logMessage:notificationPayload toAnalytics:[OCMArg any]]);
-  XCTAssertEqualObjects(@(FIRMessagingMessageStatusNew),
-                        @([_testUtil.messaging appDidReceiveMessage:notificationPayload].status));
-  OCMVerifyAll(_testUtil.mockMessaging);
-
-  OCMReject([_testUtil.mockMessaging handleContextManagerMessage:notificationPayload]);
-  OCMReject([_testUtil.mockMessaging handleIncomingLinkIfNeededFromMessage:notificationPayload]);
-  OCMReject([_mockMessagingAnalytics logMessage:notificationPayload toAnalytics:[OCMArg any]]);
-
-  XCTAssertEqualObjects(@(FIRMessagingMessageStatusNew),
-                        @([_testUtil.messaging appDidReceiveMessage:notificationPayload].status));
-  OCMVerifyAll(_testUtil.mockMessaging);
-
-}
-
--(void)testAPNSContentAvailableContextualNotification {
-
-  NSDictionary *notificationPayload = @{
-                                        @"aps" : @{
-                                            @"content-available": @1
-                                        },
-                                        @"gcm.message_id": @"1566515531287827",
-                                        @"gcm.n.e" : @1,
-                                        @"gcm.notification.body" : @"Local time zone message!",
-                                        @"gcm.notification.title" : @"Hello",
-                                        @"gcms" : @"gcm.gmsproc.cm",
-                                        @"google.c.a.c_id" : @"5941428497527920876",
-                                        @"google.c.a.e" : @1,
-                                        @"google.c.a.ts" : @1566565920,
-                                        @"google.c.a.udt" : @1,
-                                        @"google.c.cm.cat" : @"com.google.firebase.messaging.testapp.dev",
-                                        @"google.c.cm.lt_end" : @"2019-09-20 13:12:00",
-                                        @"google.c.cm.lt_start" : @"2019-08-23 13:12:00",
-                                        };
-  OCMExpect([_testUtil.mockMessaging handleContextManagerMessage:notificationPayload]);
-  OCMExpect([_testUtil.mockMessaging handleIncomingLinkIfNeededFromMessage:notificationPayload]);
-  OCMExpect([_mockMessagingAnalytics logMessage:notificationPayload toAnalytics:[OCMArg any]]);
-  XCTAssertEqualObjects(@(FIRMessagingMessageStatusNew),
-                        @([_testUtil.messaging appDidReceiveMessage:notificationPayload].status));
-  OCMVerifyAll(_testUtil.mockMessaging);
-
-  OCMReject([_testUtil.mockMessaging handleContextManagerMessage:notificationPayload]);
-  OCMReject([_testUtil.mockMessaging handleIncomingLinkIfNeededFromMessage:notificationPayload]);
-  OCMReject([_mockMessagingAnalytics logMessage:notificationPayload toAnalytics:[OCMArg any]]);
-
-  XCTAssertEqualObjects(@(FIRMessagingMessageStatusNew),
-                        @([_testUtil.messaging appDidReceiveMessage:notificationPayload].status));
-  OCMVerifyAll(_testUtil.mockMessaging);
-
-}
-
--(void)testContextualLocalNotification {
-  NSDictionary *notificationPayload = @{
-                                        @"gcm.message_id": @"1566515531281975",
-                                        @"gcm.n.e" : @1,
-                                        @"gcm.notification.body" : @"Local time zone message!",
-                                        @"gcm.notification.title" : @"Hello",
-                                        @"gcms" : @"gcm.gmsproc.cm",
-                                        @"google.c.a.c_id" : @"5941428497527920876",
-                                        @"google.c.a.e" : @1,
-                                        @"google.c.a.ts" : @1566565920,
-                                        @"google.c.a.udt" : @1,
-                                        };
+    @"aps" : @{
+      @"alert" : @{
+        @"body" : @"body of notification",
+        @"title" : @"title of notification",
+      }
+    },
+    @"gcm.message_id" : @"1566515013484879",
+    @"gcm.n.e" : @1,
+    @"google.c.a.c_id" : @"7379928225816991517",
+    @"google.c.a.e" : @1,
+    @"google.c.a.ts" : @1566515009,
+    @"google.c.a.udt" : @0
+  };
   OCMExpect([_testUtil.mockMessaging handleContextManagerMessage:notificationPayload]);
   OCMExpect([_testUtil.mockMessaging handleIncomingLinkIfNeededFromMessage:notificationPayload]);
   OCMExpect([_mockMessagingAnalytics logMessage:notificationPayload toAnalytics:[OCMArg any]]);
@@ -208,11 +118,91 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
   OCMVerifyAll(_testUtil.mockMessaging);
 }
 
--(void)testMCSNotification {
+- (void)testAPNSContentAvailableNotification {
   NSDictionary *notificationPayload = @{
-                                        @"from" : @"35006771263",
-                                        @"image" : @"bunny.png"
-                                        };
+    @"aps" : @{@"content-available" : @1},
+    @"gcm.message_id" : @"1566513591299872",
+    @"image" : @"bunny.png",
+    @"google.c.a.e" : @1
+  };
+  OCMExpect([_testUtil.mockMessaging handleContextManagerMessage:notificationPayload]);
+  OCMExpect([_testUtil.mockMessaging handleIncomingLinkIfNeededFromMessage:notificationPayload]);
+  OCMExpect([_mockMessagingAnalytics logMessage:notificationPayload toAnalytics:[OCMArg any]]);
+  XCTAssertEqualObjects(@(FIRMessagingMessageStatusNew),
+                        @([_testUtil.messaging appDidReceiveMessage:notificationPayload].status));
+  OCMVerifyAll(_testUtil.mockMessaging);
+
+  OCMReject([_testUtil.mockMessaging handleContextManagerMessage:notificationPayload]);
+  OCMReject([_testUtil.mockMessaging handleIncomingLinkIfNeededFromMessage:notificationPayload]);
+  OCMReject([_mockMessagingAnalytics logMessage:notificationPayload toAnalytics:[OCMArg any]]);
+
+  XCTAssertEqualObjects(@(FIRMessagingMessageStatusNew),
+                        @([_testUtil.messaging appDidReceiveMessage:notificationPayload].status));
+  OCMVerifyAll(_testUtil.mockMessaging);
+}
+
+- (void)testAPNSContentAvailableContextualNotification {
+  NSDictionary *notificationPayload = @{
+    @"aps" : @{@"content-available" : @1},
+    @"gcm.message_id" : @"1566515531287827",
+    @"gcm.n.e" : @1,
+    @"gcm.notification.body" : @"Local time zone message!",
+    @"gcm.notification.title" : @"Hello",
+    @"gcms" : @"gcm.gmsproc.cm",
+    @"google.c.a.c_id" : @"5941428497527920876",
+    @"google.c.a.e" : @1,
+    @"google.c.a.ts" : @1566565920,
+    @"google.c.a.udt" : @1,
+    @"google.c.cm.cat" : @"com.google.firebase.messaging.testapp.dev",
+    @"google.c.cm.lt_end" : @"2019-09-20 13:12:00",
+    @"google.c.cm.lt_start" : @"2019-08-23 13:12:00",
+  };
+  OCMExpect([_testUtil.mockMessaging handleContextManagerMessage:notificationPayload]);
+  OCMExpect([_testUtil.mockMessaging handleIncomingLinkIfNeededFromMessage:notificationPayload]);
+  OCMExpect([_mockMessagingAnalytics logMessage:notificationPayload toAnalytics:[OCMArg any]]);
+  XCTAssertEqualObjects(@(FIRMessagingMessageStatusNew),
+                        @([_testUtil.messaging appDidReceiveMessage:notificationPayload].status));
+  OCMVerifyAll(_testUtil.mockMessaging);
+
+  OCMReject([_testUtil.mockMessaging handleContextManagerMessage:notificationPayload]);
+  OCMReject([_testUtil.mockMessaging handleIncomingLinkIfNeededFromMessage:notificationPayload]);
+  OCMReject([_mockMessagingAnalytics logMessage:notificationPayload toAnalytics:[OCMArg any]]);
+
+  XCTAssertEqualObjects(@(FIRMessagingMessageStatusNew),
+                        @([_testUtil.messaging appDidReceiveMessage:notificationPayload].status));
+  OCMVerifyAll(_testUtil.mockMessaging);
+}
+
+- (void)testContextualLocalNotification {
+  NSDictionary *notificationPayload = @{
+    @"gcm.message_id" : @"1566515531281975",
+    @"gcm.n.e" : @1,
+    @"gcm.notification.body" : @"Local time zone message!",
+    @"gcm.notification.title" : @"Hello",
+    @"gcms" : @"gcm.gmsproc.cm",
+    @"google.c.a.c_id" : @"5941428497527920876",
+    @"google.c.a.e" : @1,
+    @"google.c.a.ts" : @1566565920,
+    @"google.c.a.udt" : @1,
+  };
+  OCMExpect([_testUtil.mockMessaging handleContextManagerMessage:notificationPayload]);
+  OCMExpect([_testUtil.mockMessaging handleIncomingLinkIfNeededFromMessage:notificationPayload]);
+  OCMExpect([_mockMessagingAnalytics logMessage:notificationPayload toAnalytics:[OCMArg any]]);
+  XCTAssertEqualObjects(@(FIRMessagingMessageStatusNew),
+                        @([_testUtil.messaging appDidReceiveMessage:notificationPayload].status));
+  OCMVerifyAll(_testUtil.mockMessaging);
+
+  OCMReject([_testUtil.mockMessaging handleContextManagerMessage:notificationPayload]);
+  OCMReject([_testUtil.mockMessaging handleIncomingLinkIfNeededFromMessage:notificationPayload]);
+  OCMReject([_mockMessagingAnalytics logMessage:notificationPayload toAnalytics:[OCMArg any]]);
+
+  XCTAssertEqualObjects(@(FIRMessagingMessageStatusNew),
+                        @([_testUtil.messaging appDidReceiveMessage:notificationPayload].status));
+  OCMVerifyAll(_testUtil.mockMessaging);
+}
+
+- (void)testMCSNotification {
+  NSDictionary *notificationPayload = @{@"from" : @"35006771263", @"image" : @"bunny.png"};
   OCMExpect([_testUtil.mockMessaging handleContextManagerMessage:notificationPayload]);
   OCMExpect([_testUtil.mockMessaging handleIncomingLinkIfNeededFromMessage:notificationPayload]);
   OCMExpect([_mockMessagingAnalytics logMessage:notificationPayload toAnalytics:[OCMArg any]]);
