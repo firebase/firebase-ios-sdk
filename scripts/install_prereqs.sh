@@ -68,6 +68,13 @@ function apt_install() {
   which "$program" >& /dev/null || sudo apt-get install "$package"
 }
 
+function install_xcpretty() {
+  gem install xcpretty
+  if [[ -n "${TRAVIS:-}" ]]; then
+    gem install xcpretty-travis-formatter
+  fi
+}
+
 secrets_installed=false
 
 # Default values, if not supplied on the command line or environment
@@ -106,13 +113,13 @@ fi
 case "$project-$platform-$method" in
 
   FirebasePod-iOS-xcodebuild)
-    gem install xcpretty
+    install_xcpretty
     bundle exec pod install --project-directory=CoreOnly/Tests/FirebasePodTest --repo-update
     ;;
 
   Auth-*)
     # Install the workspace for integration testing.
-    gem install xcpretty
+    install_xcpretty
     bundle exec pod install --project-directory=Example/Auth/AuthSample --repo-update
     ;;
 
@@ -139,12 +146,12 @@ case "$project-$platform-$method" in
     ;;
 
   InAppMessaging-*-xcodebuild)
-    gem install xcpretty
+    install_xcpretty
     bundle exec pod install --project-directory=FirebaseInAppMessaging/Tests/Integration/DefaultUITestApp --no-repo-update
     ;;
 
   Firestore-*-xcodebuild | Firestore-*-fuzz)
-    gem install xcpretty
+    install_xcpretty
 
     # The Firestore Podfile is multi-platform by default, but this doesn't work
     # with command-line builds using xcodebuild. The PLATFORM environment
@@ -174,7 +181,7 @@ case "$project-$platform-$method" in
     ;;
 
   SymbolCollision-*-xcodebuild)
-    gem install xcpretty
+    install_xcpretty
     bundle exec pod install --project-directory=SymbolCollisionTest --repo-update
     ;;
 
