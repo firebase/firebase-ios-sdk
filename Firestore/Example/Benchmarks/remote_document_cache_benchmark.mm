@@ -119,8 +119,8 @@ void BM_QueryIndexFree(benchmark::State& state) {
 
   FIRFirestore* db = OpenFirestore();
   auto collection = [db collectionWithPath:MakeNSString("docs-" + CreateAutoId())];
-  WriteDocs(collection, matching_docs, /* match= */ true);
-  WriteDocs(collection, total_docs - matching_docs, /* match= */ false);
+  WriteDocs(collection, matching_docs, /*match=*/ true);
+  WriteDocs(collection, total_docs - matching_docs, /*match=*/ false);
 
   FIRQuery* query = [collection queryWhereField:@"match" isEqualTo:@YES];
 
@@ -153,8 +153,8 @@ void BM_QueryMatching(benchmark::State& state) {
 
   FIRFirestore* db = OpenFirestore();
   auto collection = [db collectionWithPath:MakeNSString("docs-" + CreateAutoId())];
-  WriteDocs(collection, matching_docs, /* match= */ true);
-  WriteDocs(collection, total_docs - matching_docs, /* match= */ false);
+  WriteDocs(collection, matching_docs, /*match=*/ true);
+  WriteDocs(collection, total_docs - matching_docs, /*match=*/ false);
 
   for (auto _ : state) {
     auto docs = GetDocumentsFromCache([collection queryWhereField:@"match" isEqualTo:@YES]);
@@ -181,7 +181,7 @@ void BM_QueryAll(benchmark::State& state) {
 
   FIRFirestore* db = OpenFirestore();
   auto collection = [db collectionWithPath:MakeNSString("docs-" + CreateAutoId())];
-  WriteDocs(collection, total_docs, /* match= */ true);
+  WriteDocs(collection, total_docs, /*match=*/ true);
 
   for (auto _ : state) {
     auto docs = GetDocumentsFromCache(collection);

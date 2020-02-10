@@ -36,6 +36,7 @@
 namespace firebase {
 namespace firestore {
 namespace local {
+namespace {
 
 using core::Query;
 using leveldb::Status;
@@ -81,6 +82,8 @@ class AsyncResults {
   std::vector<T> values_;
   std::mutex mutex_;
 };
+
+}  // namespace
 
 LevelDbRemoteDocumentCache::LevelDbRemoteDocumentCache(
     LevelDbPersistence* db, LocalSerializer* serializer)
@@ -149,7 +152,7 @@ OptionalMaybeDocumentMap LevelDbRemoteDocumentCache::GetAll(
       results.Insert(std::make_pair(key, absl::nullopt));
     } else {
       const std::string& contents = it->value();
-      tasks.Execute([this, &results, key, contents] {
+      tasks.Execute([this, &results, &key, contents] {
         results.Insert(std::make_pair(key, DecodeMaybeDocument(contents, key)));
       });
     }
@@ -244,7 +247,7 @@ DocumentMap LevelDbRemoteDocumentCache::GetMatching(
       }
 
       const std::string& contents = it->value();
-      tasks.Execute([this, &results, document_key, contents] {
+      tasks.Execute([this, &results, &document_key, contents] {
         MaybeDocument maybe_doc = DecodeMaybeDocument(contents, document_key);
         if (maybe_doc.is_document()) {
           results.Insert(Document(maybe_doc));
@@ -256,7 +259,7 @@ DocumentMap LevelDbRemoteDocumentCache::GetMatching(
 
     DocumentMap map;
     for (const Document& doc : results.Result()) {
-      map = map.insert(doc.key(), std::move(doc));
+      map = map.insert(doc.key(), doc);
     }
     return map;
   }
