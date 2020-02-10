@@ -29,7 +29,6 @@
 #import "Example/Messaging/Tests/FIRMessagingTestUtilities.h"
 #import "Firebase/Messaging/FIRMessaging_Private.h"
 
-
 extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 
 /// The NSUserDefaults domain for testing.
@@ -70,12 +69,12 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
   // Create the messaging instance with all the necessary dependencies.
   NSUserDefaults *defaults =
       [[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingDefaultsTestDomain];
-  _testUtil = [[FIRMessagingTestUtilities alloc] initWithUserDefaults:defaults  withRMQManager:NO];
+  _testUtil = [[FIRMessagingTestUtilities alloc] initWithUserDefaults:defaults withRMQManager:NO];
   _mockMessaging = _testUtil.mockMessaging;
   _messaging = _testUtil.messaging;
 
   _mockFirebaseApp = OCMClassMock([FIRApp class]);
-   OCMStub([_mockFirebaseApp defaultApp]).andReturn(_mockFirebaseApp);
+  OCMStub([_mockFirebaseApp defaultApp]).andReturn(_mockFirebaseApp);
   _mockInstanceID = _testUtil.mockInstanceID;
   [[NSUserDefaults standardUserDefaults]
       removePersistentDomainForName:[NSBundle mainBundle].bundleIdentifier];

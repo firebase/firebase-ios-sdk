@@ -108,14 +108,23 @@ fi
 function RunXcodebuild() {
   echo xcodebuild "$@"
 
-  xcodebuild "$@" | xcpretty; result=$?
+  xcpretty_cmd=(xcpretty)
+  if [[ -n "${TRAVIS:-}" ]]; then
+    # The formatter argument takes a file location of a formatter.
+    # The xcpretty-travis-formatter binary prints its location on stdout.
+    xcpretty_cmd+=(-f $(xcpretty-travis-formatter))
+  fi
+
+  xcodebuild "$@" | tee xcodebuild.log | "${xcpretty_cmd[@]}"; result=$?
   if [[ $result == 65 ]]; then
     echo "xcodebuild exited with 65, retrying" 1>&2
     sleep 5
 
-    xcodebuild "$@" | xcpretty; result=$?
+    xcodebuild "$@" | tee xcodebuild.log | "${xcpretty_cmd[@]}"; result=$?
   fi
   if [[ $result != 0 ]]; then
+    echo "xcodebuild exited with $result; raw log follows" 1>&2
+    cat xcodebuild.log
     exit $result
   fi
 }

@@ -43,8 +43,9 @@
 - (NSString *)description {
   NSString *classDescription = NSStringFromClass([self class]);
   NSDate *date = [NSDate dateWithTimeIntervalSince1970:self.expirationTime];
-  return [NSString stringWithFormat:@"%@: (rmqID: %@, apns: %d, mcs: %d, expiry: %@",
-          classDescription, self.rmqID, self.mcsReceived, self.apnsReceived, date];
+  return
+      [NSString stringWithFormat:@"%@: (rmqID: %@, apns: %d, mcs: %d, expiry: %@", classDescription,
+                                 self.rmqID, self.mcsReceived, self.apnsReceived, date];
 }
 
 - (NSString *)debugDescription {

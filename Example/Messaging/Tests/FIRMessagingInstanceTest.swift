@@ -19,7 +19,6 @@ import FirebaseMessaging
 import XCTest
 
 class FIRMessagingInstanceTest: XCTestCase {
-
   func testSingleton_worksAfterDelete() {
     // This is an example of a functional test case.
     // Use XCTAssert and related functions to verify your tests produce the correct results.
@@ -36,7 +35,7 @@ class FIRMessagingInstanceTest: XCTestCase {
     }
 
     // The delete API is synchronous, so the default app will be deleted afterwards.
-    defaultApp.delete { (success) in
+    defaultApp.delete { success in
       XCTAssertTrue(success, "FirebaseApp deletion should be successful")
     }
 

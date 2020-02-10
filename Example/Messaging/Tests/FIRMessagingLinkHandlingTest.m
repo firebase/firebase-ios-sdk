@@ -37,8 +37,7 @@ NSString *const kFIRMessagingTestsLinkHandlingSuiteName = @"com.messaging.test_l
 @interface FIRMessagingLinkHandlingTest : XCTestCase
 
 @property(nonatomic, readonly, strong) FIRMessaging *messaging;
-@property(nonatomic, strong) FIRMessagingTestUtilities * testUtil;
-
+@property(nonatomic, strong) FIRMessagingTestUtilities *testUtil;
 
 @end
 
@@ -47,7 +46,8 @@ NSString *const kFIRMessagingTestsLinkHandlingSuiteName = @"com.messaging.test_l
 - (void)setUp {
   [super setUp];
 
-  NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingTestsLinkHandlingSuiteName];
+  NSUserDefaults *defaults =
+      [[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingTestsLinkHandlingSuiteName];
   _testUtil = [[FIRMessagingTestUtilities alloc] initWithUserDefaults:defaults withRMQManager:NO];
   _messaging = _testUtil.messaging;
 }
@@ -55,7 +55,8 @@ NSString *const kFIRMessagingTestsLinkHandlingSuiteName = @"com.messaging.test_l
 - (void)tearDown {
   [_testUtil cleanupAfterTest:self];
   _messaging = nil;
-  [[[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingTestsLinkHandlingSuiteName] removePersistentDomainForName:kFIRMessagingTestsLinkHandlingSuiteName];
+  [[[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingTestsLinkHandlingSuiteName]
+      removePersistentDomainForName:kFIRMessagingTestsLinkHandlingSuiteName];
   [super tearDown];
 }
 

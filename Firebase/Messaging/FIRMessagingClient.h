@@ -28,7 +28,7 @@
  *
  *  @param error The error object if any while trying to connect with MCS else nil.
  */
-typedef void(^FIRMessagingConnectCompletionHandler)(NSError *error);
+typedef void (^FIRMessagingConnectCompletionHandler)(NSError *error);
 
 @protocol FIRMessagingClientDelegate <NSObject>
 

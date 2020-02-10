@@ -17,50 +17,10 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
+#import "Example/Messaging/Tests/FIRMessagingTestUtilities.h"
 #import "Firebase/Messaging/FIRMessagingDefines.h"
 #import "Firebase/Messaging/FIRMessagingPendingTopicsList.h"
 #import "Firebase/Messaging/FIRMessagingTopicsCommon.h"
-
-typedef void (^MockDelegateSubscriptionHandler)(NSString *topic,
-                                                FIRMessagingTopicAction action,
-                                                FIRMessagingTopicOperationCompletion completion);
-
-/**
- * This object lets us provide a stub delegate where we can customize the behavior by providing
- * blocks. We need to use this instead of stubbing a OCMockProtocol because our delegate methods
- * take primitive values (e.g. action), which is not easy to use from OCMock
- * @see http://stackoverflow.com/a/6332023
- */
-@interface MockPendingTopicsListDelegate: NSObject <FIRMessagingPendingTopicsListDelegate>
-
-@property(nonatomic, assign) BOOL isReady;
-@property(nonatomic, copy) MockDelegateSubscriptionHandler subscriptionHandler;
-@property(nonatomic, copy) void(^updateHandler)(void);
-
-@end
-
-@implementation MockPendingTopicsListDelegate
-
-- (BOOL)pendingTopicsListCanRequestTopicUpdates:(FIRMessagingPendingTopicsList *)list {
-  return self.isReady;
-}
-
-- (void)pendingTopicsList:(FIRMessagingPendingTopicsList *)list
-  requestedUpdateForTopic:(NSString *)topic
-                   action:(FIRMessagingTopicAction)action
-               completion:(FIRMessagingTopicOperationCompletion)completion {
-  if (self.subscriptionHandler) {
-    self.subscriptionHandler(topic, action, completion);
-  }
-}
-
-- (void)pendingTopicsListDidUpdate:(FIRMessagingPendingTopicsList *)list {
-  if (self.updateHandler) {
-    self.updateHandler();
-  }
-}
-
-@end
 
 @interface FIRMessagingPendingTopicsListTest : XCTestCase
 
@@ -152,21 +112,18 @@ typedef void (^MockDelegateSubscriptionHandler)(NSString *topic,
   XCTestExpectation *batchSizeReductionExpectation =
       [self expectationWithDescription:@"Batch size was reduced after topic suscription"];
 
-  FIRMessaging_WEAKIFY(self)
-  self.alwaysReadyDelegate.subscriptionHandler =
-      ^(NSString *topic,
-        FIRMessagingTopicAction action,
+  FIRMessaging_WEAKIFY(self) self.alwaysReadyDelegate.subscriptionHandler =
+      ^(NSString *topic, FIRMessagingTopicAction action,
         FIRMessagingTopicOperationCompletion completion) {
-    // Simulate that the handler is generally called asynchronously
-    dispatch_async(dispatch_get_main_queue(), ^{
-      FIRMessaging_STRONGIFY(self)
-      if (action == FIRMessagingTopicActionUnsubscribe) {
-        XCTAssertEqual(pendingTopics.numberOfBatches, 1);
-        [batchSizeReductionExpectation fulfill];
-      }
-      completion(nil);
-    });
-  };
+        // Simulate that the handler is generally called asynchronously
+        dispatch_async(dispatch_get_main_queue(), ^{
+          FIRMessaging_STRONGIFY(self) if (action == FIRMessagingTopicActionUnsubscribe) {
+            XCTAssertEqual(pendingTopics.numberOfBatches, 1);
+            [batchSizeReductionExpectation fulfill];
+          }
+          completion(nil);
+        });
+      };
 
   [pendingTopics addOperationForTopic:@"/topics/0"
                            withAction:FIRMessagingTopicActionSubscribe
@@ -192,13 +149,12 @@ typedef void (^MockDelegateSubscriptionHandler)(NSString *topic,
       [self expectationWithDescription:@"All queued operations succeeded"];
 
   self.alwaysReadyDelegate.subscriptionHandler =
-      ^(NSString *topic,
-        FIRMessagingTopicAction action,
+      ^(NSString *topic, FIRMessagingTopicAction action,
         FIRMessagingTopicOperationCompletion completion) {
-    // Typically, our callbacks happen asynchronously, but to ensure resilience,
-    // call back the operation on the same thread it was called in.
-    completion(nil);
-  };
+        // Typically, our callbacks happen asynchronously, but to ensure resilience,
+        // call back the operation on the same thread it was called in.
+        completion(nil);
+      };
 
   self.alwaysReadyDelegate.updateHandler = ^{
     if (pendingTopics.numberOfBatches == 0) {
@@ -220,28 +176,26 @@ typedef void (^MockDelegateSubscriptionHandler)(NSString *topic,
 }
 
 - (void)testAddingTopicToCurrentBatchWhileCurrentBatchTopicsInFlight {
-
   FIRMessagingPendingTopicsList *pendingTopics = [[FIRMessagingPendingTopicsList alloc] init];
   pendingTopics.delegate = self.alwaysReadyDelegate;
 
   NSString *stragglerTopic = @"/topics/straggler";
   XCTestExpectation *stragglerTopicWasAddedToInFlightOperations =
-  [self expectationWithDescription:@"The topic was added to in-flight operations"];
+      [self expectationWithDescription:@"The topic was added to in-flight operations"];
 
   self.alwaysReadyDelegate.subscriptionHandler =
-      ^(NSString *topic,
-        FIRMessagingTopicAction action,
+      ^(NSString *topic, FIRMessagingTopicAction action,
         FIRMessagingTopicOperationCompletion completion) {
-    if ([topic isEqualToString:stragglerTopic]) {
-      [stragglerTopicWasAddedToInFlightOperations fulfill];
-    }
-    // Add a 0.5 second delay to the completion, to give time to add a straggler before the batch
-    // is completed
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)),
-                   dispatch_get_main_queue(), ^{
-                     completion(nil);
-                   });
-  };
+        if ([topic isEqualToString:stragglerTopic]) {
+          [stragglerTopicWasAddedToInFlightOperations fulfill];
+        }
+        // Add a 0.5 second delay to the completion, to give time to add a straggler before the
+        // batch is completed
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)),
+                       dispatch_get_main_queue(), ^{
+                         completion(nil);
+                       });
+      };
 
   // This is a normal topic, which should start fairly soon, but take a while to complete
   [pendingTopics addOperationForTopic:@"/topics/0"
@@ -249,12 +203,11 @@ typedef void (^MockDelegateSubscriptionHandler)(NSString *topic,
                            completion:nil];
   // While waiting for the first topic to complete, we add another topic after a slight delay
   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)),
-                 dispatch_get_main_queue(),
-                 ^{
-    [pendingTopics addOperationForTopic:stragglerTopic
-                             withAction:FIRMessagingTopicActionSubscribe
-                             completion:nil];
-  });
+                 dispatch_get_main_queue(), ^{
+                   [pendingTopics addOperationForTopic:stragglerTopic
+                                            withAction:FIRMessagingTopicActionSubscribe
+                                            completion:nil];
+                 });
 
   [self waitForExpectationsWithTimeout:5.0 handler:nil];
 }

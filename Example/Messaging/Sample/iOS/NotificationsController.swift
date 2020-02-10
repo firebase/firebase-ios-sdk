@@ -28,12 +28,11 @@ enum NotificationsControllerAllowedNotificationType: String {
 }
 
 let APNSTokenReceivedNotification: Notification.Name
-    = Notification.Name(rawValue: "APNSTokenReceivedNotification")
+  = Notification.Name(rawValue: "APNSTokenReceivedNotification")
 let UserNotificationsChangedNotification: Notification.Name
-    = Notification.Name(rawValue: "UserNotificationsChangedNotification")
+  = Notification.Name(rawValue: "UserNotificationsChangedNotification")
 
 class NotificationsController: NSObject {
-
   static let shared: NotificationsController = {
     let instance = NotificationsController()
     return instance
@@ -52,8 +51,8 @@ class NotificationsController: NSObject {
     if #available(iOS 10.0, *) {
       UNUserNotificationCenter.current()
         .requestAuthorization(options: [.alert, .badge, .sound],
-                              completionHandler: { (granted, error) in
-          NotificationCenter.default.post(name: UserNotificationsChangedNotification, object: nil)
+                              completionHandler: { granted, error in
+                                NotificationCenter.default.post(name: UserNotificationsChangedNotification, object: nil)
         })
     } else if #available(iOS 8.0, *) {
       let userNotificationSettings = UIUserNotificationSettings(types: [.alert, .badge, .sound],
@@ -66,8 +65,7 @@ class NotificationsController: NSObject {
   }
 
   func getAllowedNotificationTypes(_ completion:
-      @escaping (_ allowedTypes: [NotificationsControllerAllowedNotificationType]) -> Void) {
-
+    @escaping (_ allowedTypes: [NotificationsControllerAllowedNotificationType]) -> Void) {
     guard Messaging.messaging().apnsToken != nil else {
       completion([.none])
       return
@@ -75,7 +73,7 @@ class NotificationsController: NSObject {
 
     var types: [NotificationsControllerAllowedNotificationType] = [.silent]
     if #available(iOS 10.0, *) {
-      UNUserNotificationCenter.current().getNotificationSettings(completionHandler: { (settings) in
+      UNUserNotificationCenter.current().getNotificationSettings(completionHandler: { settings in
         if settings.alertSetting == .enabled {
           types.append(.alert)
         }
@@ -119,12 +117,13 @@ class NotificationsController: NSObject {
 }
 
 // MARK: - UNUserNotificationCenterDelegate
+
 @available(iOS 10.0, *)
 extension NotificationsController: UNUserNotificationCenterDelegate {
   func userNotificationCenter(_ center: UNUserNotificationCenter,
                               willPresent notification: UNNotification,
                               withCompletionHandler completionHandler:
-    @escaping (UNNotificationPresentationOptions) -> Void) {
+                              @escaping (UNNotificationPresentationOptions) -> Void) {
     // Always show the incoming notification, even if the app is in foreground
     print("Received notification in foreground:")
     let jsonString = notification.request.content.userInfo.jsonString ?? "{}"

@@ -29,7 +29,7 @@
 
 @end
 
-@interface FIRMessagingSecureSocket() <NSStreamDelegate>
+@interface FIRMessagingSecureSocket () <NSStreamDelegate>
 
 @property(nonatomic, readwrite, assign) FIRMessagingSecureSocketState state;
 @property(nonatomic, readwrite, strong) NSInputStream *inStream;
@@ -46,8 +46,8 @@
 
 @end
 
-typedef void(^FIRMessagingTestSocketDisconnectHandler)(void);
-typedef void(^FIRMessagingTestSocketConnectHandler)(void);
+typedef void (^FIRMessagingTestSocketDisconnectHandler)(void);
+typedef void (^FIRMessagingTestSocketConnectHandler)(void);
 
 @interface FIRMessagingSecureSocketTest : XCTestCase <FIRMessagingSecureSocketDelegate>
 
@@ -91,21 +91,19 @@ static BOOL isSafeToDisconnectSocket = NO;
   [self.socket.outStream write:&versionByte maxLength:1];
 
   [[[self.mockSocket stub] andDo:^(NSInvocation *invocation) {
-      XCTAssertTrue(isSafeToDisconnectSocket,
-                    @"Should not disconnect socket now");
+    XCTAssertTrue(isSafeToDisconnectSocket, @"Should not disconnect socket now");
   }] disconnect];
   XCTestExpectation *shouldAcceptVersionExpectation =
       [self expectationWithDescription:@"Socket should accept version"];
-  dispatch_time_t delay =
-      dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC));
+  dispatch_time_t delay = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC));
   dispatch_after(delay, dispatch_get_main_queue(), ^{
-      XCTAssertTrue(self.socket.isVersionReceived);
-      [shouldAcceptVersionExpectation fulfill];
+    XCTAssertTrue(self.socket.isVersionReceived);
+    [shouldAcceptVersionExpectation fulfill];
   });
 
   [self waitForExpectationsWithTimeout:3.0
                                handler:^(NSError *error) {
-                                   XCTAssertNil(error);
+                                 XCTAssertNil(error);
                                }];
 }
 
@@ -118,24 +116,24 @@ static BOOL isSafeToDisconnectSocket = NO;
   FIRMessagingSetLastStreamId(message, 2);
   FIRMessagingSetRmq2Id(message, @"socket-test-rmq");
 
-  XCTestExpectation *dataExpectation = [self
-      expectationWithDescription:@"FIRMessaging socket should receive data message"];
+  XCTestExpectation *dataExpectation =
+      [self expectationWithDescription:@"FIRMessaging socket should receive data message"];
   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)),
                  dispatch_get_main_queue(), ^{
-      [self.socket sendData:[message data]
-                    withTag:kFIRMessagingProtoTagDataMessageStanza
-                      rmqId:FIRMessagingGetRmq2Id(message)];
-  });
+                   [self.socket sendData:[message data]
+                                 withTag:kFIRMessagingProtoTagDataMessageStanza
+                                   rmqId:FIRMessagingGetRmq2Id(message)];
+                 });
 
   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(4 * NSEC_PER_SEC)),
                  dispatch_get_main_queue(), ^{
-      XCTAssertEqual(self.protoTagReceived, kFIRMessagingProtoTagDataMessageStanza);
-      [dataExpectation fulfill];
-  });
+                   XCTAssertEqual(self.protoTagReceived, kFIRMessagingProtoTagDataMessageStanza);
+                   [dataExpectation fulfill];
+                 });
 
   [self waitForExpectationsWithTimeout:5.0
                                handler:^(NSError *error) {
-                                   XCTAssertNil(error);
+                                 XCTAssertNil(error);
                                }];
 }
 
@@ -147,28 +145,27 @@ static BOOL isSafeToDisconnectSocket = NO;
   XCTestExpectation *loginExpectation =
       [self expectationWithDescription:@"Socket send valid login proto"];
   [self writeVersionToOutStream];
-  GtalkLoginRequest *loginRequest =
-      [FIRMessagingConnection loginRequestWithToken:@"gcmtoken" authID:@"gcmauthid"];
+  GtalkLoginRequest *loginRequest = [FIRMessagingConnection loginRequestWithToken:@"gcmtoken"
+                                                                           authID:@"gcmauthid"];
   FIRMessagingSetLastStreamId(loginRequest, 1);
 
   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)),
                  dispatch_get_main_queue(), ^{
-      [self.socket sendData:[loginRequest data]
-                    withTag:FIRMessagingGetTagForProto(loginRequest)
-                      rmqId:FIRMessagingGetRmq2Id(loginRequest)];
-  });
+                   [self.socket sendData:[loginRequest data]
+                                 withTag:FIRMessagingGetTagForProto(loginRequest)
+                                   rmqId:FIRMessagingGetRmq2Id(loginRequest)];
+                 });
 
-  dispatch_time_t delay =
-      dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5 * NSEC_PER_SEC));
+  dispatch_time_t delay = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5 * NSEC_PER_SEC));
   dispatch_after(delay, dispatch_get_main_queue(), ^{
-      XCTAssertTrue(self.socket.isVersionReceived);
-      XCTAssertEqual(self.protoTagReceived, kFIRMessagingProtoTagLoginRequest);
-      [loginExpectation fulfill];
+    XCTAssertTrue(self.socket.isVersionReceived);
+    XCTAssertEqual(self.protoTagReceived, kFIRMessagingProtoTagLoginRequest);
+    [loginExpectation fulfill];
   });
 
   [self waitForExpectationsWithTimeout:6.0
                                handler:^(NSError *error) {
-                                   XCTAssertNil(error);
+                                 XCTAssertNil(error);
                                }];
 }
 
@@ -200,7 +197,7 @@ static BOOL isSafeToDisconnectSocket = NO;
 - (void)testSendingDataWithImproperTag {
   [self createAndConnectSocketWithBufferSize:124];
   [self writeVersionToOutStream];
-  const char dataString[] = { 0x02, 0x02, 0x11, 0x11, 0x11, 0x11 }; // tag 10, random data
+  const char dataString[] = {0x02, 0x02, 0x11, 0x11, 0x11, 0x11};  // tag 10, random data
   NSData *randomData = [NSData dataWithBytes:dataString length:6];
 
   // Create an expectation for a method which should not be invoked during this test.
@@ -218,13 +215,12 @@ static BOOL isSafeToDisconnectSocket = NO;
     // While waiting to verify this call, an exception should be thrown
     // trying to parse the random data in our delegate.
     // Wait slightly longer than the sendDelay, to allow for the parsing
-    OCMVerifyAllWithDelay(self.mockSocket, sendDelay+0.25);
+    OCMVerifyAllWithDelay(self.mockSocket, sendDelay + 0.25);
     XCTFail(@"Invalid data being read should have thrown an exception.");
-  }
-  @catch (NSException *exception) {
+  } @catch (NSException *exception) {
     XCTAssertNotNil(exception);
+  } @finally {
   }
-  @finally { }
 }
 
 - (void)testDisconnect {
@@ -234,14 +230,14 @@ static BOOL isSafeToDisconnectSocket = NO;
   XCTestExpectation *disconnectExpectation =
       [self expectationWithDescription:@"socket should disconnect properly"];
   self.disconnectHandler = ^{
-      [disconnectExpectation fulfill];
+    [disconnectExpectation fulfill];
   };
 
   [self.socket disconnect];
 
   [self waitForExpectationsWithTimeout:5.0
                                handler:^(NSError *error) {
-                                   XCTAssertNil(error);
+                                 XCTAssertNil(error);
                                }];
 
   XCTAssertNil(self.socket.inStream);
@@ -253,14 +249,14 @@ static BOOL isSafeToDisconnectSocket = NO;
   XCTestExpectation *openSocketExpectation =
       [self expectationWithDescription:@"Socket should open properly"];
   self.connectHandler = ^{
-      [openSocketExpectation fulfill];
+    [openSocketExpectation fulfill];
   };
   [self createAndConnectSocketWithBufferSize:1];
   [self writeVersionToOutStream];
 
   [self waitForExpectationsWithTimeout:10.0
                                handler:^(NSError *error) {
-                                   XCTAssertNil(error);
+                                 XCTAssertNil(error);
                                }];
 
   XCTAssertTrue(self.socket.isInStreamOpen);
@@ -273,17 +269,16 @@ static BOOL isSafeToDisconnectSocket = NO;
       didReceiveData:(NSData *)data
              withTag:(int8_t)tag {
   NSError *error;
-  GPBMessage *proto =
-      [FIRMessagingGetClassForTag((FIRMessagingProtoTag)tag) parseFromData:data
-                                                                     error:&error];
+  GPBMessage *proto = [FIRMessagingGetClassForTag((FIRMessagingProtoTag)tag) parseFromData:data
+                                                                                     error:&error];
   self.protoParseError = error;
   self.protoReceived = proto;
   self.protoTagReceived = tag;
 }
 
 - (void)secureSocket:(FIRMessagingSecureSocket *)socket
- didSendProtoWithTag:(int8_t)tag
-               rmqId:(NSString *)rmqId {
+    didSendProtoWithTag:(int8_t)tag
+                  rmqId:(NSString *)rmqId {
   // do nothing
 }
 
@@ -306,9 +301,7 @@ static BOOL isSafeToDisconnectSocket = NO;
   self.mockSocket = OCMPartialMock(self.socket);
   self.socket.delegate = self;
 
-  [self.socket connectToHost:@"localhost"
-                        port:6234
-                   onRunLoop:[NSRunLoop mainRunLoop]];
+  [self.socket connectToHost:@"localhost" port:6234 onRunLoop:[NSRunLoop mainRunLoop]];
 }
 
 - (void)writeVersionToOutStream {

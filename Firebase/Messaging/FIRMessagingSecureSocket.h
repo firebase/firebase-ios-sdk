@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-typedef NS_ENUM(NSUInteger, FIRMessagingSecureSocketState){
+typedef NS_ENUM(NSUInteger, FIRMessagingSecureSocketState) {
   kFIRMessagingSecureSocketNotOpen = 0,
   kFIRMessagingSecureSocketOpening,
   kFIRMessagingSecureSocketOpen,
@@ -27,14 +27,14 @@ typedef NS_ENUM(NSUInteger, FIRMessagingSecureSocketState){
 
 @class FIRMessagingSecureSocket;
 
-@protocol FIRMessagingSecureSocketDelegate<NSObject>
+@protocol FIRMessagingSecureSocketDelegate <NSObject>
 
 - (void)secureSocket:(FIRMessagingSecureSocket *)socket
       didReceiveData:(NSData *)data
              withTag:(int8_t)tag;
 - (void)secureSocket:(FIRMessagingSecureSocket *)socket
- didSendProtoWithTag:(int8_t)tag
-               rmqId:(NSString *)rmqId;
+    didSendProtoWithTag:(int8_t)tag
+                  rmqId:(NSString *)rmqId;
 - (void)secureSocketDidConnect:(FIRMessagingSecureSocket *)socket;
 - (void)didDisconnectWithSecureSocket:(FIRMessagingSecureSocket *)socket;
 

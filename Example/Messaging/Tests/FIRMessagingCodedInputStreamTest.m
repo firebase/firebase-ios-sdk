@@ -80,12 +80,12 @@
   // tag = 2,
   // length = 4,
   // data = integer 255
-  const char data[] = { 0x02, 0x04, 0x80, 0x00, 0x00, 0xff };
+  const char data[] = {0x02, 0x04, 0x80, 0x00, 0x00, 0xff};
   return [NSData dataWithBytes:data length:6];
 }
 
 + (NSData *)packetDataForSampleData1 {
-  const char data[] = { 0x80, 0x00, 0x00, 0xff };
+  const char data[] = {0x80, 0x00, 0x00, 0xff};
   return [NSData dataWithBytes:data length:4];
 }
 
@@ -94,14 +94,14 @@
   // tag = 5,
   // length = 257,
   // data = length 257
-  const char tagAndLength[] = { 0x05, 0x81, 0x02 };
+  const char tagAndLength[] = {0x05, 0x81, 0x02};
   NSMutableData *data = [NSMutableData dataWithBytes:tagAndLength length:3];
   [data appendData:[self packetDataForSampleData2]];
   return data;
 }
 
 + (NSData *)packetDataForSampleData2 {
-  char packetData[257] = { 0xff, 0xff, 0xff };
+  char packetData[257] = {0xff, 0xff, 0xff};
   return [NSData dataWithBytes:packetData length:257];
 }
 
@@ -109,7 +109,7 @@
   // tag = 7,
   // length = 2,
   // data = (length 1)
-  const char data[] = { 0x07, 0x02, 0xff };
+  const char data[] = {0x07, 0x02, 0xff};
   return [NSData dataWithBytes:data length:3];
 }
 

@@ -50,9 +50,10 @@ FOUNDATION_EXPORT NSString *const kFIRMessagingSubDirectoryName;
 FOUNDATION_EXPORT NSString *const kFIRMessagingCheckinFetchedNotification;
 FOUNDATION_EXPORT NSString *const kFIRMessagingAPNSTokenNotification;
 FOUNDATION_EXPORT NSString *const kFIRMessagingFCMTokenNotification;
-FOUNDATION_EXPORT NSString *const kFIRMessagingInstanceIDTokenRefreshNotification __deprecated_msg("Use kFIRMessagingRegistrationTokenRefreshNotification instead");
+FOUNDATION_EXPORT NSString *const kFIRMessagingInstanceIDTokenRefreshNotification
+    __deprecated_msg("Use kFIRMessagingRegistrationTokenRefreshNotification instead");
 FOUNDATION_EXPORT NSString *const kFIRMessagingRegistrationTokenRefreshNotification;
 
-FOUNDATION_EXPORT const int kFIRMessagingSendTtlDefault; // 24 hours
+FOUNDATION_EXPORT const int kFIRMessagingSendTtlDefault;  // 24 hours
 
 #endif
