@@ -22,20 +22,6 @@
     return self;
   }
 
-  NSLog(@"%@", dict[@"frames"]);
-
-  //
-  //
-  //
-  // TODO: FIRCLSRecordFrame doesn't have a line, but it has a symbol.
-  // See if it needs to be augmented or a new type
-  // See the test too
-  //
-  //
-  //
-  //
-
-
   _frames = [[NSMutableArray alloc] init];
   for (NSDictionary *frameDict in dict[@"frames"]) {
     FIRCLSRecordFrame *frame = [[FIRCLSRecordFrame alloc] initWithDict:frameDict];

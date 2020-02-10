@@ -55,6 +55,10 @@
   pb_release(google_crashlytics_Report_fields, &_report);
 }
 
+- (NSArray<NSString *> *)crashFiles {
+  return @[FIRCLSReportSignalFile, FIRCLSReportExceptionFile];
+}
+
 //
 // MARK: Load from persisted crash files
 //
@@ -89,7 +93,7 @@
   // TODO FIRCLSReportMachExceptionFile
   // TODO FIRCLSReportMachExceptionFile
   // TODO FIRCLSReportMachExceptionFile
-  for (NSString *crashFilePath in @[FIRCLSReportSignalFile, FIRCLSReportExceptionFile]) {
+  for (NSString *crashFilePath in [self crashFiles]) {
     NSString *path = [self.folderPath stringByAppendingPathComponent:crashFilePath];
 
     // Skip if the certain crash file doesn't exist
@@ -283,8 +287,7 @@
 
 /// Return if the app crashed
 - (BOOL)hasCrashed {
-  NSString *signalFile = [self.folderPath stringByAppendingPathComponent:FIRCLSReportSignalFile];
-  return [[NSFileManager defaultManager] fileExistsAtPath:signalFile];
+  return self.signal || self.exception;
 }
 
 - (NSUInteger)ramUsed {

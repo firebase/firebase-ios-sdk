@@ -16,16 +16,43 @@
 
 #import "FIRCLSRecordFrame.h"
 
+@interface FIRCLSRecordFrame()
+
+// Internal representation of optional numerical values in Frames
+// These are NSNumber pointers so we can tell when the value doesn't exist
+@property(nonatomic) NSNumber * lineNumber;
+@property(nonatomic) NSNumber * offsetNumber;
+
+@end
+
 @implementation FIRCLSRecordFrame
 
 - (instancetype)initWithDict:(NSDictionary *)dict {
   self = [super initWithDict:dict];
   if (self) {
     _pc = [dict[@"pc"] unsignedIntegerValue];
+
     _symbol = dict[@"symbol"];
-    _offset = [dict[@"offset"] unsignedIntegerValue];
+    _lineNumber = dict[@"line"];
+    _offsetNumber = dict[@"offset"];
   }
   return self;
+}
+
+- (BOOL)hasLine {
+  return self.lineNumber != nil;
+}
+
+- (NSUInteger)line {
+  return [self.lineNumber unsignedIntValue];
+}
+
+- (BOOL)hasOffset {
+  return self.offsetNumber != nil;
+}
+
+- (NSUInteger)offset {
+  return [self.offsetNumber unsignedIntValue];
 }
 
 @end

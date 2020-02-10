@@ -34,6 +34,8 @@
 
 @interface FIRCLSReportAdapter ()
 
+@property(nonatomic, readonly) BOOL hasCrashed;
+
 @property(nonatomic, strong) NSString *folderPath;
 @property(nonatomic, strong) NSString *googleAppID;
 
