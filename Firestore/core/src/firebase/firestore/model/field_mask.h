@@ -48,14 +48,16 @@ class FieldMask {
 
   FieldMask(std::initializer_list<FieldPath> list) : fields_{list} {
   }
+
   template <class InputIt>
   FieldMask(InputIt first, InputIt last) : fields_{first, last} {
   }
+
   explicit FieldMask(std::set<FieldPath> fields) : fields_{std::move(fields)} {
   }
 
-  FieldMask(const FieldMask& f) : fields_{f.begin(), f.end()} {
-  }
+  FieldMask(const FieldMask& f) = default;
+  FieldMask& operator=(const FieldMask& f) = default;
 
   const_iterator begin() const {
     return fields_.begin();
