@@ -21,7 +21,8 @@
 #import <GoogleDataTransport/GDTCORConsoleLogger.h>
 #import <GoogleDataTransport/GDTCORLifecycle.h>
 #import <GoogleDataTransport/GDTCORPrioritizer.h>
-#import <GoogleDataTransport/GDTCORStoredEvent.h>
+#import <GoogleDataTransport/GDTCORDataFuture.h>
+#import <GoogleDataTransport/GDTCORDataFuture.h>
 
 #import "GDTCORLibrary/Private/GDTCOREvent_Private.h"
 #import "GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
@@ -115,14 +116,17 @@ static NSString *GDTCORStoragePath() {
                                             error:&error];
     GDTCORLogDebug("Event saved to disk: %@", eventFile);
     GDTCORDataFuture *dataFuture = [[GDTCORDataFuture alloc] initWithFileURL:eventFile];
-    GDTCORStoredEvent *storedEvent = [event storedEventWithDataFuture:dataFuture];
+    [event setDataFuture: dataFuture];
     completion(eventFile != nil, error);
+      
+    //set dataObject to nil in current event
+    [event clearDataObjectTransportBytes];
 
     // Add event to tracking collections.
-    [self addEventToTrackingCollections:storedEvent];
+    [self addEventToTrackingCollections:event];
 
     // Have the prioritizer prioritize the event.
-    [prioritizer prioritizeEvent:storedEvent];
+    [prioritizer prioritizeEvent:event];
 
     // Check the QoS, if it's high priority, notify the target that it has a high priority event.
     if (event.qosTier == GDTCOREventQoSFast) {
@@ -153,10 +157,10 @@ static NSString *GDTCORStoragePath() {
   });
 }
 
-- (void)removeEvents:(NSSet<GDTCORStoredEvent *> *)events {
-  NSSet<GDTCORStoredEvent *> *eventsToRemove = [events copy];
+- (void)removeEvents:(NSSet<GDTCOREvent *> *)events {
+  NSSet<GDTCOREvent *> *eventsToRemove = [events copy];
   dispatch_async(_storageQueue, ^{
-    for (GDTCORStoredEvent *event in eventsToRemove) {
+    for (GDTCOREvent *event in eventsToRemove) {
       // Remove from disk, first and foremost.
       NSError *error;
       if (event.dataFuture.fileURL) {
@@ -168,7 +172,7 @@ static NSString *GDTCORStoragePath() {
 
       // Remove from the tracking collections.
       [self.storedEvents removeObject:event];
-      [self.targetToEventSet[event.target] removeObject:event];
+      [self.targetToEventSet[@(event.target)] removeObject:event];
     }
   });
 }
@@ -224,12 +228,12 @@ static NSString *GDTCORStoragePath() {
  *
  * @param event The event to track.
  */
-- (void)addEventToTrackingCollections:(GDTCORStoredEvent *)event {
+- (void)addEventToTrackingCollections:(GDTCOREvent *)event {
   [_storedEvents addObject:event];
-  NSMutableSet<GDTCORStoredEvent *> *events = self.targetToEventSet[event.target];
+  NSMutableSet<GDTCOREvent *> *events = self.targetToEventSet[@(event.target)];
   events = events ? events : [[NSMutableSet alloc] init];
   [events addObject:event];
-  _targetToEventSet[event.target] = events;
+  _targetToEventSet[@(event.target)] = events;
 }
 
 #pragma mark - GDTCORLifecycleProtocol
@@ -311,11 +315,11 @@ static NSString *const kGDTCORStorageUploadCoordinatorKey = @"GDTCORStorageUploa
   GDTCORStorage *sharedInstance = [self.class sharedInstance];
   dispatch_sync(sharedInstance.storageQueue, ^{
     NSSet *classes =
-        [NSSet setWithObjects:[NSMutableOrderedSet class], [GDTCORStoredEvent class], nil];
+        [NSSet setWithObjects:[NSMutableOrderedSet class], [GDTCOREvent class], nil];
     sharedInstance->_storedEvents = [aDecoder decodeObjectOfClasses:classes
                                                              forKey:kGDTCORStorageStoredEventsKey];
     classes = [NSSet setWithObjects:[NSMutableDictionary class], [NSMutableSet class],
-                                    [GDTCORStoredEvent class], nil];
+                                    [GDTCOREvent class], nil];
     sharedInstance->_targetToEventSet =
         [aDecoder decodeObjectOfClasses:classes forKey:kGDTCORStorageTargetToEventSetKey];
     sharedInstance->_uploadCoordinator =
@@ -327,11 +331,11 @@ static NSString *const kGDTCORStorageUploadCoordinatorKey = @"GDTCORStorageUploa
 
 - (void)encodeWithCoder:(NSCoder *)aCoder {
   GDTCORStorage *sharedInstance = [self.class sharedInstance];
-  NSMutableOrderedSet<GDTCORStoredEvent *> *storedEvents = sharedInstance->_storedEvents;
+  NSMutableOrderedSet<GDTCOREvent *> *storedEvents = sharedInstance->_storedEvents;
   if (storedEvents) {
     [aCoder encodeObject:storedEvents forKey:kGDTCORStorageStoredEventsKey];
   }
-  NSMutableDictionary<NSNumber *, NSMutableSet<GDTCORStoredEvent *> *> *targetToEventSet =
+  NSMutableDictionary<NSNumber *, NSMutableSet<GDTCOREvent *> *> *targetToEventSet =
       sharedInstance->_targetToEventSet;
   if (targetToEventSet) {
     [aCoder encodeObject:targetToEventSet forKey:kGDTCORStorageTargetToEventSetKey];

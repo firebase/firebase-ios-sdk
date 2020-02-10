@@ -17,9 +17,10 @@
 #import <Foundation/Foundation.h>
 
 #import <GoogleDataTransport/GDTCORTargets.h>
+#import <GoogleDataTransport/GDTCOREvent.h>
 
 @class GDTCORClock;
-@class GDTCORStoredEvent;
+@class GDTCOREvent;
 @class GDTCORUploadPackage;
 
 /** A protocol that allows a handler to respond to package lifecycle events. */
@@ -47,7 +48,7 @@
 @interface GDTCORUploadPackage : NSObject <NSSecureCoding>
 
 /** The set of stored events in this upload package. */
-@property(nonatomic) NSSet<GDTCORStoredEvent *> *events;
+@property(nonatomic) NSSet<GDTCOREvent *> *events;
 
 /** The expiration time. If [[GDTCORClock snapshot] isAfter:deliverByTime] this package has expired.
  *

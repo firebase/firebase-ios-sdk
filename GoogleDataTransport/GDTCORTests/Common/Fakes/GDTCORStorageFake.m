@@ -21,7 +21,7 @@
 - (void)storeEvent:(GDTCOREvent *)event {
 }
 
-- (void)removeEvents:(NSSet<GDTCORStoredEvent *> *)events {
+- (void)removeEvents:(NSSet<GDTCOREvent *> *)events {
 }
 
 @end

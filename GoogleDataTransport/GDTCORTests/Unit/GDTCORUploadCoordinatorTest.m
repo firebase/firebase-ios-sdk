@@ -75,7 +75,7 @@
 
 /** Tests that forcing a event upload works. */
 - (void)testForceUploadEvents {
-  self.prioritizer.events = [GDTCOREventGenerator generate3StoredEvents];
+  self.prioritizer.events = [GDTCOREventGenerator generate3Events];
   XCTestExpectation *expectation = [self expectationWithDescription:@"uploader will upload"];
   self.uploader.uploadPackageBlock = ^(GDTCORUploadPackage *_Nonnull package) {
     [expectation fulfill];
@@ -111,7 +111,7 @@
 /** Tests uploading events via the coordinator timer. */
 - (void)testUploadingEventsViaTimer {
   __block int uploadAttempts = 0;
-  self.prioritizer.events = [GDTCOREventGenerator generate3StoredEvents];
+  self.prioritizer.events = [GDTCOREventGenerator generate3Events];
   self.uploader.uploadPackageBlock = ^(GDTCORUploadPackage *_Nonnull package) {
     [package completeDelivery];
     uploadAttempts++;
@@ -131,7 +131,7 @@
 /** Tests the situation in which the uploader failed to upload the events for some reason. */
 - (void)testThatAFailedUploadResultsInAnEventualRetry {
   __block int uploadAttempts = 0;
-  self.prioritizer.events = [GDTCOREventGenerator generate3StoredEvents];
+  self.prioritizer.events = [GDTCOREventGenerator generate3Events];
   self.uploader.uploadPackageBlock = ^(GDTCORUploadPackage *_Nonnull package) {
     [package retryDeliveryInTheFuture];
     uploadAttempts++;

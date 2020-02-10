@@ -345,10 +345,10 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
  */
 - (nonnull NSData *)constructRequestProtoFromPackage:(GDTCORUploadPackage *)package {
   // Segment the log events by log type.
-  NSMutableDictionary<NSString *, NSMutableSet<GDTCORStoredEvent *> *> *logMappingIDToLogSet =
+  NSMutableDictionary<NSString *, NSMutableSet<GDTCOREvent *> *> *logMappingIDToLogSet =
       [[NSMutableDictionary alloc] init];
   [package.events
-      enumerateObjectsUsingBlock:^(GDTCORStoredEvent *_Nonnull event, BOOL *_Nonnull stop) {
+      enumerateObjectsUsingBlock:^(GDTCOREvent *_Nonnull event, BOOL *_Nonnull stop) {
         NSMutableSet *logSet = logMappingIDToLogSet[event.mappingID];
         logSet = logSet ? logSet : [[NSMutableSet alloc] init];
         [logSet addObject:event];

@@ -23,7 +23,6 @@
 #import "GDTCORLifecycle.h"
 #import "GDTCORPrioritizer.h"
 #import "GDTCORRegistrar.h"
-#import "GDTCORStoredEvent.h"
 #import "GDTCORTargets.h"
 #import "GDTCORTransport.h"
 #import "GDTCORUploadPackage.h"

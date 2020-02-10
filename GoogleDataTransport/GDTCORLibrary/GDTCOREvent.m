@@ -18,7 +18,7 @@
 
 #import <GoogleDataTransport/GDTCORAssert.h>
 #import <GoogleDataTransport/GDTCORConsoleLogger.h>
-#import <GoogleDataTransport/GDTCORStoredEvent.h>
+#import <GoogleDataTransport/GDTCORDataFuture.h>
 
 #import "GDTCORLibrary/Private/GDTCOREvent_Private.h"
 
@@ -57,7 +57,9 @@
   NSUInteger mappingIDHash = [_mappingID hash];
   NSUInteger timeHash = [_clockSnapshot hash];
   NSUInteger dataObjectTransportBytesHash = [_dataObjectTransportBytes hash];
-  return mappingIDHash ^ _target ^ dataObjectTransportBytesHash ^ _qosTier ^ timeHash;
+  NSUInteger dataFutureHash = [_dataFuture hash];
+
+  return mappingIDHash ^ _target ^ dataObjectTransportBytesHash ^ _qosTier ^ timeHash ^ dataFutureHash;
 }
 
 - (BOOL)isEqual:(id)object {
@@ -74,8 +76,16 @@
   }
 }
 
-- (GDTCORStoredEvent *)storedEventWithDataFuture:(GDTCORDataFuture *)dataFuture {
-  return [[GDTCORStoredEvent alloc] initWithEvent:self dataFuture:dataFuture];
+- (void)setDataFuture:(GDTCORDataFuture *)dataFuture {
+    if (dataFuture != _dataFuture){
+        _dataFuture = dataFuture;
+    }
+}
+
+- (void)clearDataObjectTransportBytes {
+    if (_dataObjectTransportBytes != nil){
+        _dataObjectTransportBytes = nil;
+    }
 }
 
 #pragma mark - NSSecureCoding and NSCoding Protocols
@@ -94,6 +104,9 @@ static NSString *qosTierKey = @"_qosTier";
 
 /** NSCoding key for clockSnapshot property. */
 static NSString *clockSnapshotKey = @"_clockSnapshot";
+
+/** NSCoding key for dataFuture property. */
+static NSString *dataFuture = @"_dataFuture";
 
 + (BOOL)supportsSecureCoding {
   return YES;

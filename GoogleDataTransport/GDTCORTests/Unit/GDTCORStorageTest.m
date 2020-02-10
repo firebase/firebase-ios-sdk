@@ -16,14 +16,14 @@
 
 #import "GDTCORTests/Unit/GDTCORTestCase.h"
 
-#import <GoogleDataTransport/GDTCOREvent.h>
-#import <GoogleDataTransport/GDTCORStoredEvent.h>
 
 #import "GDTCORLibrary/Private/GDTCOREvent_Private.h"
 #import "GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
 #import "GDTCORLibrary/Private/GDTCORStorage.h"
 #import "GDTCORLibrary/Private/GDTCORStorage_Private.h"
 #import "GDTCORLibrary/Public/GDTCORRegistrar.h"
+#import "GDTCORLibrary/Public/GDTCOREvent.h"
+#import "GDTCORLibrary/Public/GDTCORDataFuture.h"
 
 #import "GDTCORTests/Unit/Helpers/GDTCORAssertHelper.h"
 #import "GDTCORTests/Unit/Helpers/GDTCORTestPrioritizer.h"
@@ -139,7 +139,7 @@ static NSInteger target = kGDTCORTargetCCT;
 /** Tests removing a set of events. */
 - (void)testRemoveEvents {
   GDTCORStorage *storage = [GDTCORStorage sharedInstance];
-  __block GDTCORStoredEvent *storedEvent1, *storedEvent2, *storedEvent3;
+  __block GDTCOREvent *storedEvent1, *storedEvent2, *storedEvent3;
 
   // events are autoreleased, and the pool needs to drain.
   @autoreleasepool {
@@ -185,7 +185,7 @@ static NSInteger target = kGDTCORTargetCCT;
       storedEvent3 = [storage.storedEvents lastObject];
     });
   }
-  NSSet<GDTCORStoredEvent *> *eventSet =
+  NSSet<GDTCOREvent *> *eventSet =
       [NSSet setWithObjects:storedEvent1, storedEvent2, storedEvent3, nil];
   [storage removeEvents:eventSet];
   dispatch_sync(storage.storageQueue, ^{
@@ -193,7 +193,7 @@ static NSInteger target = kGDTCORTargetCCT;
     XCTAssertFalse([storage.storedEvents containsObject:storedEvent2]);
     XCTAssertFalse([storage.storedEvents containsObject:storedEvent3]);
     XCTAssertEqual(storage.targetToEventSet[@(target)].count, 0);
-    for (GDTCORStoredEvent *event in eventSet) {
+    for (GDTCOREvent *event in eventSet) {
       XCTAssertFalse(
           [[NSFileManager defaultManager] fileExistsAtPath:event.dataFuture.fileURL.path]);
     }
@@ -202,7 +202,7 @@ static NSInteger target = kGDTCORTargetCCT;
 
 /** Tests storing a few different events. */
 - (void)testStoreMultipleEvents {
-  __block GDTCORStoredEvent *storedEvent1, *storedEvent2, *storedEvent3;
+  __block GDTCOREvent *storedEvent1, *storedEvent2, *storedEvent3;
 
   // events are autoreleased, and the pool needs to drain.
   @autoreleasepool {
@@ -275,31 +275,26 @@ static NSInteger target = kGDTCORTargetCCT;
   });
 }
 
-/** Tests enforcing that a prioritizer does not retain an event in memory. */
+/** Tests enforcing that a prioritizer does not retain the DataObjectTransportBytes of an event in memory.*/
 - (void)testEventDeallocationIsEnforced {
-  __weak GDTCOREvent *weakEvent;
-  GDTCORStoredEvent *storedEvent;
-  @autoreleasepool {
-    GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"404" target:target];
-    weakEvent = event;
-    event.dataObjectTransportBytes = [@"testString" dataUsingEncoding:NSUTF8StringEncoding];
-    event.clockSnapshot = [GDTCORClock snapshot];
-    // Store the event and wait for the expectation.
-    XCTestExpectation *writtenExpectation = [self expectationWithDescription:@"event written"];
-    XCTAssertNoThrow([[GDTCORStorage sharedInstance] storeEvent:event
+  __weak NSData *weakDataObjectTransportBytes;
+  GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"404" target:target];
+  weakDataObjectTransportBytes = event.dataObjectTransportBytes;
+  event.dataObjectTransportBytes = [@"testString" dataUsingEncoding:NSUTF8StringEncoding];
+  event.clockSnapshot = [GDTCORClock snapshot];
+  // Store the event and wait for the expectation.
+  XCTestExpectation *writtenExpectation = [self expectationWithDescription:@"event written"];
+  XCTAssertNoThrow([[GDTCORStorage sharedInstance] storeEvent:event
                                                      onComplete:^(BOOL wasWritten, NSError *error) {
                                                        XCTAssertTrue(wasWritten);
                                                        XCTAssertNil(error);
                                                        [writtenExpectation fulfill];
                                                      }]);
-    [self waitForExpectations:@[ writtenExpectation ] timeout:10.0];
-    GDTCORDataFuture *dataFuture =
-        [[GDTCORDataFuture alloc] initWithFileURL:[NSURL fileURLWithPath:@"/test"]];
-    storedEvent = [event storedEventWithDataFuture:dataFuture];
-  }
+  [self waitForExpectations:@[ writtenExpectation ] timeout:10.0];
+
   dispatch_sync([GDTCORStorage sharedInstance].storageQueue, ^{
-    XCTAssertNil(weakEvent);
-    XCTAssertNotNil(storedEvent);
+    XCTAssertNil(weakDataObjectTransportBytes);
+    XCTAssertNotNil(event);
   });
 
   NSURL *eventFile;
@@ -318,6 +313,7 @@ static NSInteger target = kGDTCORTargetCCT;
     XCTAssertEqual([GDTCORStorage sharedInstance].targetToEventSet[@(target)].count, 0);
   });
 }
+
 
 /** Tests encoding and decoding the storage singleton correctly. */
 - (void)testNSSecureCoding {

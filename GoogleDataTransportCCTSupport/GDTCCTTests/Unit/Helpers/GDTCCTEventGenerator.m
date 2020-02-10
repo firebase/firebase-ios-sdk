@@ -18,6 +18,7 @@
 
 #import <GoogleDataTransport/GDTCORAssert.h>
 #import <GoogleDataTransport/GDTCORTargets.h>
+#import <GoogleDataTransport/GDTCORDataFuture.h>
 
 @implementation GDTCCTEventGenerator
 
@@ -31,14 +32,14 @@
 }
 
 - (void)deleteGeneratedFilesFromDisk {
-  for (GDTCORStoredEvent *storedEvent in self.allGeneratedEvents) {
+  for (GDTCOREvent *event in self.allGeneratedEvents) {
     NSError *error;
-    [[NSFileManager defaultManager] removeItemAtURL:storedEvent.dataFuture.fileURL error:&error];
+    [[NSFileManager defaultManager] removeItemAtURL:event.dataFuture.fileURL error:&error];
     GDTCORAssert(error == nil, @"There was an error deleting a temporary event file.");
   }
 }
 
-- (GDTCORStoredEvent *)generateStoredEvent:(GDTCOREventQoS)qosTier {
+- (GDTCOREvent *)generateEvent:(GDTCOREventQoS)qosTier {
   NSString *cachePath = NSTemporaryDirectory();
   NSString *filePath = [cachePath
       stringByAppendingPathComponent:[NSString stringWithFormat:@"test-%lf.txt",
@@ -49,20 +50,20 @@
   [[NSFileManager defaultManager] createFileAtPath:filePath contents:[NSData data] attributes:nil];
   GDTCORDataFuture *future =
       [[GDTCORDataFuture alloc] initWithFileURL:[NSURL fileURLWithPath:filePath]];
-  GDTCORStoredEvent *storedEvent = [event storedEventWithDataFuture:future];
-  [self.allGeneratedEvents addObject:storedEvent];
-  return storedEvent;
+  [event setDataFuture:future];
+  [self.allGeneratedEvents addObject:event];
+  return event;
 }
 
-- (GDTCORStoredEvent *)generateStoredEvent:(GDTCOREventQoS)qosTier fileURL:(NSURL *)fileURL {
+- (GDTCOREvent *)generateEvent:(GDTCOREventQoS)qosTier fileURL:(NSURL *)fileURL {
   GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"1018" target:_target];
   event.clockSnapshot = [GDTCORClock snapshot];
   event.qosTier = qosTier;
   GDTCORDataFuture *future =
       [[GDTCORDataFuture alloc] initWithFileURL:[NSURL fileURLWithPath:fileURL.path]];
-  GDTCORStoredEvent *storedEvent = [event storedEventWithDataFuture:future];
-  [self.allGeneratedEvents addObject:storedEvent];
-  return storedEvent;
+  [event setDataFuture:future];
+  [self.allGeneratedEvents addObject:event];
+  return event;
 }
 
 /** Generates a file URL that has the message resource data copied into it.
@@ -84,8 +85,8 @@
   return [NSURL fileURLWithPath:filePath];
 }
 
-- (NSArray<GDTCORStoredEvent *> *)generateTheFiveConsistentStoredEvents {
-  NSMutableArray<GDTCORStoredEvent *> *storedEvents = [[NSMutableArray alloc] init];
+- (NSArray<GDTCOREvent *> *)generateTheFiveConsistentEvents {
+  NSMutableArray<GDTCOREvent *> *events = [[NSMutableArray alloc] init];
   {
     GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"1018" target:_target];
     event.clockSnapshot = [GDTCORClock snapshot];
@@ -97,8 +98,8 @@
     event.customPrioritizationParams = @{@"customParam" : @1337};
     NSURL *messageDataURL = [self writeConsistentMessageToDisk:@"message-32347456.dat"];
     GDTCORDataFuture *future = [[GDTCORDataFuture alloc] initWithFileURL:messageDataURL];
-    GDTCORStoredEvent *storedEvent = [event storedEventWithDataFuture:future];
-    [storedEvents addObject:storedEvent];
+    [event setDataFuture:future];
+    [events addObject:event];
   }
 
   {
@@ -111,8 +112,8 @@
     event.qosTier = GDTCOREventQoSWifiOnly;
     NSURL *messageDataURL = [self writeConsistentMessageToDisk:@"message-35458880.dat"];
     GDTCORDataFuture *future = [[GDTCORDataFuture alloc] initWithFileURL:messageDataURL];
-    GDTCORStoredEvent *storedEvent = [event storedEventWithDataFuture:future];
-    [storedEvents addObject:storedEvent];
+    [event setDataFuture:future];
+    [events addObject:event];
   }
 
   {
@@ -125,8 +126,8 @@
     event.qosTier = GDTCOREventQosDefault;
     NSURL *messageDataURL = [self writeConsistentMessageToDisk:@"message-39882816.dat"];
     GDTCORDataFuture *future = [[GDTCORDataFuture alloc] initWithFileURL:messageDataURL];
-    GDTCORStoredEvent *storedEvent = [event storedEventWithDataFuture:future];
-    [storedEvents addObject:storedEvent];
+    [event setDataFuture:future];
+    [events addObject:event];
   }
 
   {
@@ -140,8 +141,8 @@
     event.customPrioritizationParams = @{@"customParam1" : @"aValue1"};
     NSURL *messageDataURL = [self writeConsistentMessageToDisk:@"message-40043840.dat"];
     GDTCORDataFuture *future = [[GDTCORDataFuture alloc] initWithFileURL:messageDataURL];
-    GDTCORStoredEvent *storedEvent = [event storedEventWithDataFuture:future];
-    [storedEvents addObject:storedEvent];
+    [event setDataFuture:future];
+    [events addObject:event];
   }
 
   {
@@ -155,10 +156,10 @@
     event.customPrioritizationParams = @{@"customParam2" : @(34)};
     NSURL *messageDataURL = [self writeConsistentMessageToDisk:@"message-40657984.dat"];
     GDTCORDataFuture *future = [[GDTCORDataFuture alloc] initWithFileURL:messageDataURL];
-    GDTCORStoredEvent *storedEvent = [event storedEventWithDataFuture:future];
-    [storedEvents addObject:storedEvent];
+    [event setDataFuture:future];
+    [events addObject:event];
   }
-  return storedEvents;
+  return events;
 }
 
 @end

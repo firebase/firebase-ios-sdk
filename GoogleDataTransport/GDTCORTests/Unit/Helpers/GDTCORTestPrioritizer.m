@@ -15,7 +15,7 @@
  */
 
 #import "GDTCORTests/Unit/Helpers/GDTCORTestPrioritizer.h"
-
+#import <GoogleDataTransport/GDTCOREvent.h>
 #import "GDTCORTests/Unit/Helpers/GDTCORTestUploadPackage.h"
 
 @implementation GDTCORTestPrioritizer
@@ -30,7 +30,7 @@
   return uploadPackage;
 }
 
-- (void)prioritizeEvent:(GDTCORStoredEvent *)event {
+- (void)prioritizeEvent:(GDTCOREvent *)event {
   if (_prioritizeEventBlock) {
     _prioritizeEventBlock(event);
   }

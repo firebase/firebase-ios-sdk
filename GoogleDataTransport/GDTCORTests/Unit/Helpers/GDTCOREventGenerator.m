@@ -18,20 +18,19 @@
 
 #import <GoogleDataTransport/GDTCORClock.h>
 #import <GoogleDataTransport/GDTCOREvent.h>
-#import <GoogleDataTransport/GDTCORStoredEvent.h>
-
+#import <GoogleDataTransport/GDTCORDataFuture.h>
 #import "GDTCORLibrary/Private/GDTCOREvent_Private.h"
 
 @implementation GDTCOREventGenerator
 
-+ (NSMutableSet<GDTCORStoredEvent *> *)generate3StoredEvents {
++ (NSMutableSet<GDTCOREvent *> *)generate3Events {
   static NSUInteger counter = 0;
   NSString *cachePath = NSTemporaryDirectory();
   NSString *filePath =
       [cachePath stringByAppendingPathComponent:[NSString stringWithFormat:@"test-%ld.txt",
                                                                            (unsigned long)counter]];
   int howManyToGenerate = 3;
-  NSMutableSet<GDTCORStoredEvent *> *set =
+  NSMutableSet<GDTCOREvent *> *set =
       [[NSMutableSet alloc] initWithCapacity:howManyToGenerate];
   for (int i = 0; i < howManyToGenerate; i++) {
     GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"1337" target:50];
@@ -43,7 +42,8 @@
                                           attributes:nil];
     GDTCORDataFuture *dataFuture =
         [[GDTCORDataFuture alloc] initWithFileURL:[NSURL fileURLWithPath:filePath]];
-    [set addObject:[event storedEventWithDataFuture:dataFuture]];
+    [event setDataFuture:dataFuture];
+    [set addObject: event];
     counter++;
   }
   return set;

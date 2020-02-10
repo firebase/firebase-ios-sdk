@@ -17,17 +17,17 @@
 #import "GDTCORTests/Integration/Helpers/GDTCORIntegrationTestPrioritizer.h"
 
 #import <GoogleDataTransport/GDTCORRegistrar.h>
-#import <GoogleDataTransport/GDTCORStoredEvent.h>
+#import <GoogleDataTransport/GDTCOREvent.h>
 
 #import "GDTCORTests/Integration/Helpers/GDTCORIntegrationTestUploadPackage.h"
 
 @interface GDTCORIntegrationTestPrioritizer ()
 
 /** Events that are only supposed to be uploaded whilst on wifi. */
-@property(nonatomic) NSMutableSet<GDTCORStoredEvent *> *wifiOnlyEvents;
+@property(nonatomic) NSMutableSet<GDTCOREvent *> *wifiOnlyEvents;
 
 /** Events that can be uploaded on any type of connection. */
-@property(nonatomic) NSMutableSet<GDTCORStoredEvent *> *nonWifiEvents;
+@property(nonatomic) NSMutableSet<GDTCOREvent *> *nonWifiEvents;
 
 /** The queue on which this prioritizer operates. */
 @property(nonatomic) dispatch_queue_t queue;
@@ -48,7 +48,7 @@
   return self;
 }
 
-- (void)prioritizeEvent:(GDTCORStoredEvent *)event {
+- (void)prioritizeEvent:(GDTCOREvent *)event {
   dispatch_async(_queue, ^{
     if (event.qosTier == GDTCOREventQoSWifiOnly) {
       [self.wifiOnlyEvents addObject:event];
@@ -74,7 +74,7 @@
 
 - (void)packageDelivered:(GDTCORUploadPackage *)package successful:(BOOL)successful {
   dispatch_async(_queue, ^{
-    for (GDTCORStoredEvent *event in package.events) {
+    for (GDTCOREvent *event in package.events) {
       [self.wifiOnlyEvents removeObject:event];
       [self.nonWifiEvents removeObject:event];
     }
