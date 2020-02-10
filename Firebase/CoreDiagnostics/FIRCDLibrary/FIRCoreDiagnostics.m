@@ -513,7 +513,7 @@ void FIRPopulateProtoWithInstalledServices(logs_proto_mobilesdk_ios_ICoreConfigu
       malloc(sizeof(logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType) *
              sdkServiceInstalledArray.count);
   if (servicesInstalled == NULL) {
-    return servicesInstalled;
+    return;
   }
   for (NSUInteger i = 0; i < sdkServiceInstalledArray.count; i++) {
     NSNumber *typeEnum = sdkServiceInstalledArray[i];
