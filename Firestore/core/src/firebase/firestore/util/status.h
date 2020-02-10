@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, 2018 Google
+ * Copyright 2015, 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -232,12 +232,6 @@ inline bool Status::operator!=(const Status& x) const {
 }
 
 typedef std::function<void(Status)> StatusCallback;
-
-extern std::string StatusCheckOpHelperOutOfLine(const Status& v,
-                                                const char* msg);
-
-#define STATUS_CHECK_OK(val) \
-  HARD_ASSERT(val.ok(), "%s", StatusCheckOpHelperOutOfLine(val, #val))
 
 }  // namespace util
 }  // namespace firestore
