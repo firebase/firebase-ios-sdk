@@ -24,7 +24,6 @@ jobs:
     if: github.event_name == 'schedule'
     strategy:
       matrix:
-        target: [ios, tvos, macos]
         flags: [
           '--use-modular-headers',
           '--use-libraries'
@@ -35,4 +34,4 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: PodLibLint Storage Cron
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseDynamicLinks.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
+      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseDynamicLinks.podspec --platforms=ios ${{ matrix.flags }}
