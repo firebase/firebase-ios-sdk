@@ -317,6 +317,10 @@
 // MARK: NanoPB conversions
 //
 
+// NOTE: With nanopb using proto2, for optional primitives fields, setting the value is not enough to
+//       have the field be included in the proto. You will have to set .has_{field_name} = true.
+//       Ex: session.ended_at = true; (assume ended_at is a optional uint64)
+
 - (google_crashlytics_Report)protoReport {
   google_crashlytics_Report report = google_crashlytics_Report_init_default;
   report.sdk_version = FIRCLSEncodeString(self.identity.build_version);
@@ -326,7 +330,6 @@
   report.build_version = FIRCLSEncodeString(self.application.build_version);
   report.display_version = FIRCLSEncodeString(self.application.display_version);
   report.session = [self protoSession];
-
   return report;
 }
 
@@ -335,20 +338,32 @@
   session.generator = FIRCLSEncodeString(self.identity.generator);
   session.identifier = FIRCLSEncodeString(self.identity.session_id);
   session.started_at = self.identity.started_at;
+
   session.ended_at = self.signal.time;
-//  session.crashed = [self hasCrashed];
-//  session.app = [self protoSessionApplication];
-//  session.os = [self protoOperatingSystem];
-//  session.device = [self protoSessionDevice];
-//  session.generator_type = [self protoGeneratorTypeFromString:self.host.platform];
+  session.has_ended_at = true;
 
-//  NSString *userId = self.internalKeyValues[FIRCLSUserIdentifierKey];
-//  if (userId) {
-//    session.user = [self protoUserWithId:userId];
-//  }
+  session.crashed = [self hasCrashed];
+  session.has_crashed = true;
 
-//  session.events = [self protoEvents];
-//  session.events_count = (pb_size_t)[self numberOfEvents];
+  session.app = [self protoSessionApplication];
+
+  session.os = [self protoOperatingSystem];
+  session.has_os = true;
+
+  session.device = [self protoSessionDevice];
+  session.has_device = true;
+
+  session.generator_type = [self protoGeneratorTypeFromString:self.host.platform];
+  session.has_generator_type = true;
+
+  NSString *userId = self.internalKeyValues[FIRCLSUserIdentifierKey];
+  if (userId) {
+    session.user = [self protoUserWithId:userId];
+  }
+  session.has_user = true;
+
+  session.events = [self protoEvents];
+  session.events_count = (pb_size_t)[self numberOfEvents];
 
   return session;
 }
@@ -374,6 +389,7 @@
   os.version = FIRCLSEncodeString(self.host.os_display_version);
   os.build_version = FIRCLSEncodeString(self.host.os_build_version);
   os.jailbroken = [self isJailbroken];
+  os.has_jailbroken = true;
   return os;
 }
 
@@ -382,7 +398,9 @@
   device.arch = [self protoArchitectureFromString:self.executable.architecture];
   device.model = FIRCLSEncodeString(self.host.model);
   device.ram = [self ramUsed];
+  device.has_ram = true;
   device.disk_space = self.storage.total;
+  device.has_disk_space = true;
   device.language = FIRCLSEncodeString(self.host.locale);
   return device;
 }
@@ -417,9 +435,15 @@
   google_crashlytics_Session_Event crash = google_crashlytics_Session_Event_init_default;
   crash.timestamp = self.signal.time;
   crash.type = FIRCLSEncodeString(@"crashed");
+
   crash.app = [self protoEventApplicationForCrash];
+  crash.has_app = true;
+
   crash.device = [self protoEventDevice];
+  crash.has_device = true;
+
   crash.log.content = FIRCLSEncodeString([self logsContent]);
+  crash.has_log = true;
 
   return crash;
 }
@@ -429,9 +453,11 @@
   error.timestamp = recordedError.time;
   error.type = FIRCLSEncodeString(@"error");
   error.app = [self protoEventApplicationForError:recordedError];
+  error.has_app = true;
   error.device = [self protoEventDevice];
+  error.has_device = true;
   error.log.content = FIRCLSEncodeString([self logsContent]);
-
+  error.has_log = true;
   return error;
 }
 
@@ -446,7 +472,10 @@
   app.execution.threads_count = (pb_size_t)self.threads.count;
 
   app.background = [self wasInBackground];
+  app.has_background = true;
+
   app.ui_orientation = [self uiOrientation];
+  app.ui_orientation = true;
 
   // TODO: Add crash_info_entry values for Swift, Protobuf.scala:444
   app.custom_attributes = [self protoCustomAttributesWithKeyValues:self.userKeyValues];
@@ -480,7 +509,10 @@
   app.execution.threads_count = 1;
 
   app.background = [self wasInBackground];
+  app.has_background = true;
+
   app.ui_orientation = [self uiOrientation];
+  app.has_ui_orientation = true;
 
   NSDictionary<NSString *, NSString *> *keyValues = [self keyValuesWithError:error];
   app.custom_attributes = [self protoCustomAttributesWithKeyValues:keyValues];
@@ -543,7 +575,6 @@
     google_crashlytics_Session_Event_Application_Execution_Thread_Frame frame =
         google_crashlytics_Session_Event_Application_Execution_Thread_Frame_init_default;
     frame.pc = stacktrace[i].unsignedIntegerValue;
-
     frames[i] = frame;
   }
 
@@ -602,8 +633,11 @@
   google_crashlytics_Session_Event_Device device =
       google_crashlytics_Session_Event_Device_init_default;
   device.orientation = [self deviceOrientation];
+  device.has_orientation = true;
   device.ram_used = [self ramUsed];
+  device.has_ram_used = true;
   device.disk_used = self.storage.total - self.storage.free;
+  device.has_disk_used = true;
   return device;
 }
 

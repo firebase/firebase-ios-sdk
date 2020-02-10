@@ -44,42 +44,48 @@
 
 @implementation FIRCLSReportAdapterTests
 
+/// Attempt sending a proto report to the reporting endpoint
 - (void)testSendProtoReport {
-    NSString *minCrash = [[FIRCLSReportAdapterTests resourcePath] stringByAppendingPathComponent:@"bare_min_crash"];
-//    NSString *minCrash = [FIRCLSReportAdapterTests persistedCrashFolder];
-    
-    FIRCLSReportAdapter *adapter = [[FIRCLSReportAdapter alloc] initWithPath:minCrash
-                                                                 googleAppId:@"1:17586535263:ios:83778f4dc7e8a26ef794ea"];
+  NSString *minCrash =
+      [[FIRCLSReportAdapterTests resourcePath] stringByAppendingPathComponent:@"bare_min_crash"];
 
-    GDTCORTransport *transport = [[GDTCORTransport alloc] initWithMappingID:@"1206"
-                                                               transformers:nil
-                                                                     target:kGDTCORTargetCSH];
-    GDTCOREvent *event = [transport eventForTransport];
-    event.dataObject = adapter;
-    event.qosTier = GDTCOREventQoSFast;  // Bypass batching and have the event get sent out ASAP
-    [transport sendDataEvent:event];
+  FIRCLSReportAdapter *adapter =
+      [[FIRCLSReportAdapter alloc] initWithPath:minCrash
+                                    googleAppId:@"1:17586535263:ios:83778f4dc7e8a26ef794ea"];
+
+  GDTCORTransport *transport = [[GDTCORTransport alloc] initWithMappingID:@"1206"
+                                                             transformers:nil
+                                                                   target:kGDTCORTargetCSH];
+  GDTCOREvent *event = [transport eventForTransport];
+  event.dataObject = adapter;
+  event.qosTier = GDTCOREventQoSFast;  // Bypass batching and have the event get sent out ASAP
+  [transport sendDataEvent:event];
 }
 
+/// This test is useful for testing the binary output of the proto message
 - (void)testProtoOutput {
-    NSString *minCrash = [[FIRCLSReportAdapterTests resourcePath] stringByAppendingPathComponent:@"bare_min_crash"];
-    
-    FIRCLSReportAdapter *adapter = [[FIRCLSReportAdapter alloc] initWithPath:minCrash
-                                                                 googleAppId:@"1:17586535263:ios:83778f4dc7e8a26ef794ea"];
+  NSString *minCrash =
+      [[FIRCLSReportAdapterTests resourcePath] stringByAppendingPathComponent:@"bare_min_crash"];
 
+  FIRCLSReportAdapter *adapter =
+      [[FIRCLSReportAdapter alloc] initWithPath:minCrash
+                                    googleAppId:@"appID"];
+
+  NSData *data = adapter.transportBytes;
+
+  NSError *error = nil;
+  NSString *outputPath =
+      [[FIRCLSReportAdapterTests resourcePath] stringByAppendingPathComponent:@"output.proto"];
+
+  [data writeToFile:outputPath options:NSDataWritingAtomic error:&error];
+  NSLog(@"Output path: %@", outputPath);
+
+  if (error) {
+    NSLog(@"Write returned error: %@", [error localizedDescription]);
+  }
     
-    NSData *data = adapter.transportBytes;
-    
-    NSError *error = nil;
-    NSString *outputPath = [[FIRCLSReportAdapterTests resourcePath] stringByAppendingPathComponent:@"output.proto"];
-    
-    [data writeToFile:outputPath options:NSDataWritingAtomic error:&error];
-    NSLog(@"Output path: %@", outputPath);
-    
-    if (error) {
-        NSLog(@"Write returned error: %@", [error localizedDescription]);
-    }
+  // But a breakpoint here to copy the file from the output path.
 }
-
 
 /// It is important that crashes do not occur when reading persisted crash files before uploading
 /// Verify various invalid input cases
