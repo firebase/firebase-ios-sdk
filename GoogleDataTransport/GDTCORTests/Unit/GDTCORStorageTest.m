@@ -442,7 +442,10 @@ static NSInteger target = kGDTCORTargetCCT;
   });
 }
 
-/** Tests storing events at the same time an appWillTerminate notif is being sent. */
+/** Fuzz tests the storing of events at the same time as a terminate lifecycle notification. This
+ * test can fail if there's simultaneous access to ivars of GDTCORStorage with one access being
+ * off the storage's queue.
+ */
 - (void)testStoringEventsDuringTerminate {
   int numberOfIterations = 1000;
   for (int i = 0; i < numberOfIterations; i++) {
@@ -460,8 +463,9 @@ static NSInteger target = kGDTCORTargetCCT;
     if (i % 5 == 0) {
       [[GDTCORStorage sharedInstance] removeEvents:[GDTCORStorage sharedInstance].storedEvents.set];
     }
-    [NSNotificationCenter.defaultCenter postNotificationName:UIApplicationWillTerminateNotification
-                                                      object:nil];
+    [NSNotificationCenter.defaultCenter
+        postNotificationName:kGDTCORApplicationWillTerminateNotification
+                      object:nil];
   }
 }
 
