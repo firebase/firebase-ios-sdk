@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -113,7 +113,7 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
   std::shared_ptr<QueryListener> ListenToQuery(
       Query query,
       ListenOptions options,
-      ViewSnapshot::SharedListener&& listener);
+      ViewSnapshotSharedListener&& listener);
 
   /** Stops listening to a query previously listened to. */
   void RemoveListener(const std::shared_ptr<core::QueryListener>& listener);
@@ -123,14 +123,14 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
    * doesn't exist, an error will be sent to the callback.
    */
   void GetDocumentFromLocalCache(const api::DocumentReference& doc,
-                                 api::DocumentSnapshot::Listener&& callback);
+                                 api::DocumentSnapshotListener&& callback);
 
   /**
    * Retrieves a (possibly empty) set of documents from the cache via the
    * indicated callback.
    */
   void GetDocumentsFromLocalCache(const api::Query& query,
-                                  api::QuerySnapshot::Listener&& callback);
+                                  api::QuerySnapshotListener&& callback);
 
   /**
    * Write mutations. callback will be notified when it's written to the

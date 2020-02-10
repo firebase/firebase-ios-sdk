@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2017 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,6 +45,7 @@ namespace util = firebase::firestore::util;
 using firebase::firestore::api::CollectionReference;
 using firebase::firestore::api::DocumentReference;
 using firebase::firestore::api::DocumentSnapshot;
+using firebase::firestore::api::DocumentSnapshotListener;
 using firebase::firestore::api::Firestore;
 using firebase::firestore::api::ListenerRegistration;
 using firebase::firestore::api::Source;
@@ -213,7 +214,7 @@ NS_ASSUME_NONNULL_BEGIN
   return [[FSTListenerRegistration alloc] initWithRegistration:std::move(result)];
 }
 
-- (DocumentSnapshot::Listener)wrapDocumentSnapshotBlock:(FIRDocumentSnapshotBlock)block {
+- (DocumentSnapshotListener)wrapDocumentSnapshotBlock:(FIRDocumentSnapshotBlock)block {
   class Converter : public EventListener<DocumentSnapshot> {
    public:
     explicit Converter(FIRDocumentSnapshotBlock block) : block_(block) {
