@@ -336,19 +336,19 @@
   session.identifier = FIRCLSEncodeString(self.identity.session_id);
   session.started_at = self.identity.started_at;
   session.ended_at = self.signal.time;
-  session.crashed = [self hasCrashed];
-  session.app = [self protoSessionApplication];
-  session.os = [self protoOperatingSystem];
-  session.device = [self protoSessionDevice];
-  session.generator_type = [self protoGeneratorTypeFromString:self.host.platform];
+//  session.crashed = [self hasCrashed];
+//  session.app = [self protoSessionApplication];
+//  session.os = [self protoOperatingSystem];
+//  session.device = [self protoSessionDevice];
+//  session.generator_type = [self protoGeneratorTypeFromString:self.host.platform];
 
-  NSString *userId = self.internalKeyValues[FIRCLSUserIdentifierKey];
-  if (userId) {
-    session.user = [self protoUserWithId:userId];
-  }
+//  NSString *userId = self.internalKeyValues[FIRCLSUserIdentifierKey];
+//  if (userId) {
+//    session.user = [self protoUserWithId:userId];
+//  }
 
-  session.events = [self protoEvents];
-  session.events_count = (pb_size_t)[self numberOfEvents];
+//  session.events = [self protoEvents];
+//  session.events_count = (pb_size_t)[self numberOfEvents];
 
   return session;
 }
@@ -668,7 +668,8 @@
  * @param string The string to encode as pb_bytes.
  */
 pb_bytes_array_t *FIRCLSEncodeString(NSString *string) {
-  NSData *stringBytes = [string dataUsingEncoding:NSUTF8StringEncoding];
+  NSString *stringToEncode = string ? string : @"";
+  NSData *stringBytes = [stringToEncode dataUsingEncoding:NSUTF8StringEncoding];
   return FIRCLSEncodeData(stringBytes);
 }
 
