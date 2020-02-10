@@ -224,8 +224,12 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   self = [super init];
   if (self) {
     _operation = operation;
-    _email = [newEmail copy];
-    _previousEmail = [email copy];
+    if (newEmail) {
+      _email = [newEmail copy];
+      _previousEmail = [email copy];
+    } else {
+      _email = [email copy];
+    }
     _multiFactorInfo = multiFactorInfo;
   }
   return self;
