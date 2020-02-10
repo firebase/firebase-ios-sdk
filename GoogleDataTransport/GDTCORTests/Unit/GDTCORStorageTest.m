@@ -442,4 +442,27 @@ static NSInteger target = kGDTCORTargetCCT;
   });
 }
 
+/** Tests storing events at the same time an appWillTerminate notif is being sent. */
+- (void)testStoringEventsDuringTerminate {
+  int numberOfIterations = 1000;
+  for (int i = 0; i < numberOfIterations; i++) {
+    NSString *testString = [NSString stringWithFormat:@"testString %d", i];
+    GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"404" target:target];
+    event.dataObjectTransportBytes = [testString dataUsingEncoding:NSUTF8StringEncoding];
+    event.clockSnapshot = [GDTCORClock snapshot];
+    XCTestExpectation *writtenExpectation = [self expectationWithDescription:@"event written"];
+    XCTAssertNoThrow([[GDTCORStorage sharedInstance] storeEvent:event
+                                                     onComplete:^(BOOL wasWritten, NSError *error) {
+                                                       XCTAssertTrue(wasWritten);
+                                                       [writtenExpectation fulfill];
+                                                     }]);
+    [self waitForExpectationsWithTimeout:10 handler:nil];
+    if (i % 5 == 0) {
+      [[GDTCORStorage sharedInstance] removeEvents:[GDTCORStorage sharedInstance].storedEvents.set];
+    }
+    [NSNotificationCenter.defaultCenter postNotificationName:UIApplicationWillTerminateNotification
+                                                      object:nil];
+  }
+}
+
 @end
