@@ -109,19 +109,21 @@ fi
 function RunXcodebuild() {
   echo xcodebuild "$@"
 
-  xcodebuild "$@" | xcpretty; result=$?
+  result=0
+  xcodebuild "$@" | xcpretty || result=$?
   if [[ $result == 65 ]]; then
     ExportLogs "$@"
 
     echo "xcodebuild exited with 65, retrying" 1>&2
     sleep 5
 
-    xcodebuild "$@" | xcpretty; result=$?
+    result=0
+    xcodebuild "$@" | xcpretty || result=$?
   fi
   if [[ $result != 0 ]]; then
     ExportLogs "$@"
 
-    exit $result
+    return $result
   fi
 }
 
