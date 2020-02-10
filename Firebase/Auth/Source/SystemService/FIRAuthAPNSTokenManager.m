@@ -40,18 +40,18 @@ static const NSTimeInterval kRegistrationTimeout = 5;
 static const NSTimeInterval kLegacyRegistrationTimeout = 30;
 
 @implementation FIRAuthAPNSTokenManager {
-  #if !TARGET_OS_WATCH
-
-  /** @var _application
-      @brief The @c UIApplication to request the token from.
-   */
-  UIApplication *_application;
-  #else
+  #if TARGET_OS_WATCH
 
   /** @var _application
       @brief The @c WKExtension to request the token from.
   */
   WKExtension *_application;
+  #else
+
+  /** @var _application
+      @brief The @c UIApplication to request the token from.
+   */
+  UIApplication *_application;
   #endif
 
   /** @var _pendingCallbacks
@@ -60,10 +60,10 @@ static const NSTimeInterval kLegacyRegistrationTimeout = 30;
   NSMutableArray<FIRAuthAPNSTokenCallback> *_pendingCallbacks;
 }
 
-#if !TARGET_OS_WATCH
-- (instancetype)initWithApplication:(UIApplication *)application {
-#else
+#if TARGET_OS_WATCH
 - (instancetype)initWithApplication:(WKExtension *)application {
+#else
+- (instancetype)initWithApplication:(UIApplication *)application {
 #endif
   self = [super init];
   if (self) {

@@ -1200,6 +1200,10 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
   }];
 }
 
++ (NSError *)gameCenterNotSupportedError; {
+    return [self errorWithCode:FIRAuthInternalErrorCodeGameKitNotAvailable message:@"Game center not supported on watchOS"];
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

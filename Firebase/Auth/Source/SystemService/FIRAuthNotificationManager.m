@@ -52,18 +52,17 @@ static NSString *const kNotificationProberKey = @"warning";
 static const NSTimeInterval kProbingTimeout = 1;
 
 @implementation FIRAuthNotificationManager {
-
-  #if !TARGET_OS_WATCH
-  /** @var _application
-      @brief The application.
-   */
-  UIApplication *_application;
-  #else
+#if TARGET_OS_WATCH
   /** @var _application
       @brief The extension.
    */
   WKExtension *_application;
-  #endif
+#else
+  /** @var _application
+      @brief The application.
+   */
+  UIApplication *_application;
+#endif
 
   /** @var _appCredentialManager
       @brief The object to handle app credentials delivered via notification.
@@ -85,13 +84,13 @@ static const NSTimeInterval kProbingTimeout = 1;
    */
   NSMutableArray<FIRAuthNotificationForwardingCallback> *_pendingCallbacks;
 }
-#if !TARGET_OS_WATCH
-- (instancetype)initWithApplication:(UIApplication *)application
-               appCredentialManager:(FIRAuthAppCredentialManager *)appCredentialManager {
-#else
+
+#if TARGET_OS_WATCH
 - (instancetype)initWithApplication:(WKExtension *)application
-appCredentialManager:(FIRAuthAppCredentialManager *)appCredentialManager {
+#else
+- (instancetype)initWithApplication:(UIApplication *)application
 #endif
+               appCredentialManager:(FIRAuthAppCredentialManager *)appCredentialManager {
   self = [super init];
   if (self) {
     _application = application;
@@ -125,18 +124,19 @@ appCredentialManager:(FIRAuthAppCredentialManager *)appCredentialManager {
       [self->_application.delegate application:self->_application
             didReceiveRemoteNotification:proberNotification
                   fetchCompletionHandler:^(UIBackgroundFetchResult result) {}];
-#else
-    if ([self->_application.delegate respondsToSelector:
-          @selector(didReceiveRemoteNotification:fetchCompletionHandler:)]) {
-    [self->_application.delegate
-          didReceiveRemoteNotification:proberNotification
-                fetchCompletionHandler:^(WKBackgroundFetchResult result) {}];
 #endif
 #if !TARGET_OS_TV && !TARGET_OS_WATCH
     } else if ([self->_application.delegate respondsToSelector:
                    @selector(application:didReceiveRemoteNotification:)]) {
       [self->_application.delegate application:self->_application
             didReceiveRemoteNotification:proberNotification];
+#endif
+#if TARGET_OS_WATCH
+    if ([self->_application.delegate respondsToSelector:
+            @selector(didReceiveRemoteNotification:fetchCompletionHandler:)]) {
+      [self->_application.delegate
+            didReceiveRemoteNotification:proberNotification
+                  fetchCompletionHandler:^(WKBackgroundFetchResult result) {}];
 #endif
     } else {
       FIRLogWarning(kFIRLoggerAuth, @"I-AUT000015",

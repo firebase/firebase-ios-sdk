@@ -18,11 +18,10 @@
 #if !TARGET_OS_OSX
 
 #import <Foundation/Foundation.h>
-
-#if !TARGET_OS_WATCH
-#import <UIKit/UIKit.h>
-#else
+#if TARGET_OS_WATCH
 #import <WatchKit/WatchKit.h>
+#else
+#import <UIKit/UIKit.h>
 #endif
 
 @class FIRAuthAppCredentialManager;
@@ -45,17 +44,7 @@ typedef void (^FIRAuthNotificationForwardingCallback)(BOOL isNotificationBeingFo
  */
 @property(nonatomic, assign) NSTimeInterval timeout;
 
-#if !TARGET_OS_WATCH
-/** @fn initWithApplication:appCredentialManager:
-    @brief Initializes the instance.
-    @param application The application.
-    @param appCredentialManager The object to handle app credentials delivered via notification.
-    @return The initialized instance.
- */
-- (instancetype)initWithApplication:(UIApplication *)application
-               appCredentialManager:(FIRAuthAppCredentialManager *)appCredentialManager
-    NS_DESIGNATED_INITIALIZER;
-#else
+#if TARGET_OS_WATCH
 /** @fn initWithApplication:appCredentialManager:
     @brief Initializes the instance.
     @param application The extension.
@@ -65,7 +54,18 @@ typedef void (^FIRAuthNotificationForwardingCallback)(BOOL isNotificationBeingFo
 - (instancetype)initWithApplication:(WKExtension *)application
                appCredentialManager:(FIRAuthAppCredentialManager *)appCredentialManager
     NS_DESIGNATED_INITIALIZER;
+#else
+/** @fn initWithApplication:appCredentialManager:
+    @brief Initializes the instance.
+    @param application The application.
+    @param appCredentialManager The object to handle app credentials delivered via notification.
+    @return The initialized instance.
+ */
+- (instancetype)initWithApplication:(UIApplication *)application
+               appCredentialManager:(FIRAuthAppCredentialManager *)appCredentialManager
+    NS_DESIGNATED_INITIALIZER;
 #endif
+
 /** @fn init
     @brief please use initWithAppCredentialManager: instead.
  */

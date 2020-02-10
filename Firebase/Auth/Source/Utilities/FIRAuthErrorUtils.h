@@ -563,6 +563,11 @@ NS_ASSUME_NONNULL_BEGIN
 */
 + (NSError *)missingOrInvalidNonceErrorWithMessage:(nullable NSString *)message;
 
+/** @fn gameCenterNotSupportedError
+    @brief Constructs an @c NSError with the @c FIRAuthErrorCodeInternalError code.
+    @return The NSError instance associated with the FIRAuthErrorCodeInternalError
+ */
++ (NSError *)gameCenterNotSupportedError;
 @end
 
 NS_ASSUME_NONNULL_END

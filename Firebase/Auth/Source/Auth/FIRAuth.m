@@ -1136,7 +1136,12 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
           kMissingEmailInvalidParameterExceptionReason];
     }
 
-#if !TARGET_OS_WATCH
+#if TARGET_OS_WATCH
+    /*
+     The sign in can't happen fully in-app, i.e. watchOS does not support universal links but watchOS has a mail client that will open this link appropriately
+     in a browser. From the browser you trigger a cloud function which sends a push notification to complete the sign-in.
+     */
+#else
     if (!actionCodeSettings.handleCodeInApp) {
       [FIRAuthExceptionUtils raiseInvalidParameterExceptionWithReason:
           kHandleCodeInAppFalseExceptionReason];
@@ -1822,11 +1827,11 @@ didReceiveRemoteNotification:(NSDictionary *)userInfo {
       success = [_keychainServices removeDataForKey:userKey error:outError];
     } else {
       // Encode the user object.
-#if !TARGET_OS_WATCH
+#if TARGET_OS_WATCH
+      NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initRequiringSecureCoding:false];
+#else
       NSMutableData *archiveData = [NSMutableData data];
       NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData:archiveData];
-#else
-      NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initRequiringSecureCoding:false];
 #endif
       [archiver encodeObject:user forKey:userKey];
       [archiver finishEncoding];
@@ -1876,13 +1881,13 @@ didReceiveRemoteNotification:(NSDictionary *)userInfo {
       *outUser = nil;
       return YES;
     }
-#if !TARGET_OS_WATCH
-    NSKeyedUnarchiver *unarchiver =
-        [[NSKeyedUnarchiver alloc] initForReadingWithData:encodedUserData];
-#else
+#if TARGET_OS_WATCH
     NSError *error;
     NSKeyedUnarchiver *unarchiver =
-      [[NSKeyedUnarchiver alloc] initForReadingFromData:encodedUserData error:&error];
+        [[NSKeyedUnarchiver alloc] initForReadingFromData:encodedUserData error:&error];
+#else
+    NSKeyedUnarchiver *unarchiver =
+        [[NSKeyedUnarchiver alloc] initForReadingWithData:encodedUserData];
 #endif
     FIRUser *user = [unarchiver decodeObjectOfClass:[FIRUser class] forKey:userKey];
     user.auth = self;
@@ -2041,13 +2046,13 @@ didReceiveRemoteNotification:(NSDictionary *)userInfo {
       return nil;
     }
 
-#if !TARGET_OS_WATCH
-    NSKeyedUnarchiver *unarchiver =
-        [[NSKeyedUnarchiver alloc] initForReadingWithData:encodedUserData];
-#else
+#if TARGET_OS_WATCH
     NSError *error;
     NSKeyedUnarchiver *unarchiver =
-      [[NSKeyedUnarchiver alloc] initForReadingFromData:encodedUserData error:&error];
+        [[NSKeyedUnarchiver alloc] initForReadingFromData:encodedUserData error:&error];
+#else
+    NSKeyedUnarchiver *unarchiver =
+        [[NSKeyedUnarchiver alloc] initForReadingWithData:encodedUserData];
 #endif
     user = [unarchiver decodeObjectOfClass:[FIRUser class] forKey:userKey];
   } else {

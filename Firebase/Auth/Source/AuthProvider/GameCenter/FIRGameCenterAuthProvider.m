@@ -69,7 +69,9 @@ NS_ASSUME_NONNULL_BEGIN
           `localPlayer.displayname`. For more information, check
           https://developer.apple.com/documentation/gamekit/gkplayer
           **/
-#if !TARGET_OS_WATCH
+#if TARGET_OS_WATCH
+         completion(nil, [FIRAuthErrorUtils gameCenterNotSupportedError]);
+#else
          NSString *displayName = localPlayer.alias;
          FIRGameCenterAuthCredential *credential =
              [[FIRGameCenterAuthCredential alloc] initWithPlayerID:localPlayer.playerID
@@ -79,8 +81,6 @@ NS_ASSUME_NONNULL_BEGIN
                                                          timestamp:timestamp
                                                        displayName:displayName];
          completion(credential, nil);
-#else
-           completion(nil, nil);
 #endif
        }
      }
