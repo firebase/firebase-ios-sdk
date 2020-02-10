@@ -16,7 +16,6 @@
 
 #import "FIRCLSRecordBase.h"
 
-@class FIRCLSRecordFrame;
 @class FIRCLSRecordRegister;
 @class FIRCLSRecordRuntime;
 

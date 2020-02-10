@@ -55,10 +55,6 @@
   pb_release(google_crashlytics_Report_fields, &_report);
 }
 
-- (NSArray<NSString *> *)crashFiles {
-  return @[FIRCLSReportSignalFile, FIRCLSReportExceptionFile];
-}
-
 //
 // MARK: Load from persisted crash files
 //
@@ -93,7 +89,7 @@
   // TODO FIRCLSReportMachExceptionFile
   // TODO FIRCLSReportMachExceptionFile
   // TODO FIRCLSReportMachExceptionFile
-  for (NSString *crashFilePath in [self crashFiles]) {
+  for (NSString *crashFilePath in [FIRCLSInternalReport crashFileNames]) {
     NSString *path = [self.folderPath stringByAppendingPathComponent:crashFilePath];
 
     // Skip if the certain crash file doesn't exist

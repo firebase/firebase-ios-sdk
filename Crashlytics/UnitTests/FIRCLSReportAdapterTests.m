@@ -294,6 +294,47 @@
   XCTAssertTrue(adapter.exception.frames[13].hasOffset);
   XCTAssertEqual(adapter.exception.frames[13].pc, 140734559604009);
   XCTAssertNil(adapter.exception.frames[13].symbol);
+
+  // Verify threads
+  XCTAssertEqual(adapter.threads.count, 12);
+
+  FIRCLSRecordThread *firstThread = adapter.threads[0];
+  XCTAssertEqual(firstThread.crashed, true);
+  XCTAssertNil(firstThread.name);
+  XCTAssertNil(firstThread.objc_selector_name);
+  XCTAssertTrue(
+      [firstThread.alternate_name isEqualToString:@"com.google.firebase.crashlytics.ios.exception"]);
+  XCTAssertTrue([firstThread.registers[0].name isEqualToString:@"r13"]);
+  XCTAssertEqual(firstThread.registers[0].value, 101);
+  XCTAssertTrue([firstThread.registers[20].name isEqualToString:@"rdi"]);
+  XCTAssertEqual(firstThread.registers[20].value, 0);
+
+  FIRCLSRecordThread *lastThread = adapter.threads[11];
+  XCTAssertEqual(lastThread.crashed, false);
+  XCTAssertTrue(
+      [lastThread.name isEqualToString:@"com.apple.NSURLConnectionLoader"]);
+  XCTAssertNil(lastThread.objc_selector_name);
+  XCTAssertNil(lastThread.alternate_name);
+  XCTAssertEqual(lastThread.registers.count, 21);
+
+  XCTAssertTrue([lastThread.registers[0].name isEqualToString:@"r13"]);
+  XCTAssertEqual(lastThread.registers[0].value, 3072);
+  XCTAssertTrue([lastThread.registers[20].name isEqualToString:@"rdi"]);
+  XCTAssertEqual(lastThread.registers[20].value, 123145416097712);
+
+  // Verify process stats
+  XCTAssertEqual(adapter.processStats.active, 11547275264);
+  XCTAssertEqual(adapter.processStats.inactive, 11312398336);
+  XCTAssertEqual(adapter.processStats.wired, 7626276864);
+  XCTAssertEqual(adapter.processStats.freeMem, 268677120);
+  XCTAssertEqual(adapter.processStats.virtualAddress, 6019653632);
+  XCTAssertEqual(adapter.processStats.resident, 11547275264);
+  XCTAssertEqual(adapter.processStats.user_time, 0);
+  XCTAssertEqual(adapter.processStats.sys_time, 100);
+
+  // Verify storage
+  XCTAssertEqual(adapter.storage.free, 163940671488);
+  XCTAssertEqual(adapter.storage.total, 499963174912);
 }
 
 - (void)testProtoReport {

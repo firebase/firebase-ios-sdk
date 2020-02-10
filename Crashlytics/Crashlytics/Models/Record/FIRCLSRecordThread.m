@@ -15,7 +15,6 @@
  */
 
 #import "FIRCLSRecordThread.h"
-#import "FIRCLSRecordFrame.h"
 #import "FIRCLSRecordRegister.h"
 #import "FIRCLSRecordRuntime.h"
 
