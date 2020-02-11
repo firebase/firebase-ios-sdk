@@ -103,9 +103,178 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
     FIRCLSDeveloperLog("Crashlytics", @"Running on %@, %@ (%@)", FIRCLSHostModelInfo(),
                        FIRCLSHostOSDisplayVersion(), FIRCLSHostOSBuildVersion());
 
-    _googleTransport = [[GDTCORTransport alloc] initWithMappingID:FIRCLSGoogleTransportMappingID
-                                                     transformers:nil
-                                                           target:kGDTCORTargetCSH];
+    _googleTransport = [[GDTCORTransport alloc]
+        initWithMappingID:FIRCLSGoogleTransportMappingID
+             transformers:nil
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD                        // TODO REVERT - NEEDED
+                   // TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TOD                        // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO R                        // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+
+                   // TODO REVERT - NEEDED TO BUILD
+                   // TODO REVERT - NEEDED TO BUILD
+                   target:kGDTCORTargetCCT];
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD                        // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
+    // TODO REVERT - NEEDED TO BUILD
 
     _fileManager = [[FIRCLSFileManager alloc] init];
     _googleAppID = app.options.googleAppID;

@@ -78,8 +78,9 @@
   self.executable = [[FIRCLSRecordExecutable alloc] initWithDict:dict[@"executable"]];
 }
 
-/// Reads from all the possible crash files, and fills in the data whenever they exist. Crash files only exist for certain types of crashes.
-/// (eg. exception.clsrecord is only written when an uncaught exception crashed the app).
+/// Reads from all the possible crash files, and fills in the data whenever they exist. Crash files
+/// only exist for certain types of crashes. (eg. exception.clsrecord is only written when an
+/// uncaught exception crashed the app).
 - (void)loadAllCrashFiles {
   BOOL hasInitializedCommonComponents = false;
 
@@ -562,13 +563,14 @@
   return attributes;
 }
 
-
 // When an exception.clsrecord file for a fatal crash is created, build the threads in
 // the crash Event with the added info from the exception
 // Replicates Protobuf.scala#L426 (addCrashInfo)
-- (google_crashlytics_Session_Event_Application_Execution_Thread *)protoThreadsWithException:(FIRCLSRecordException *)exception {
+- (google_crashlytics_Session_Event_Application_Execution_Thread *)protoThreadsWithException:
+    (FIRCLSRecordException *)exception {
   google_crashlytics_Session_Event_Application_Execution_Thread *threads =
-      malloc(sizeof(google_crashlytics_Session_Event_Application_Execution_Thread) * exception.frames.count);
+      malloc(sizeof(google_crashlytics_Session_Event_Application_Execution_Thread) *
+             exception.frames.count);
   return threads;
 }
 

@@ -18,7 +18,7 @@
 
 - (instancetype)initWithDict:(NSDictionary *)dict {
   self = [super initWithDict:dict];
-  if ( ! self) {
+  if (!self) {
     return self;
   }
 

@@ -280,8 +280,10 @@
   XCTAssertNil(adapter.signal);
   XCTAssertTrue(adapter.hasCrashed);
 
-  XCTAssertTrue([adapter.exception.name isEqualToString:@"46696c654e6f74466f756e64457863657074696f6e"]);
-  XCTAssertTrue([adapter.exception.reason isEqualToString:@"46696c65204e6f7420466f756e64206f6e2053797374656d"]);
+  XCTAssertTrue(
+      [adapter.exception.name isEqualToString:@"46696c654e6f74466f756e64457863657074696f6e"]);
+  XCTAssertTrue([adapter.exception.reason
+      isEqualToString:@"46696c65204e6f7420466f756e64206f6e2053797374656d"]);
   XCTAssertTrue([adapter.exception.type isEqualToString:@"objective-c"]);
   XCTAssertEqual(adapter.exception.time, 1580850620);
 
@@ -308,8 +310,8 @@
   XCTAssertEqual(firstThread.crashed, true);
   XCTAssertNil(firstThread.name);
   XCTAssertNil(firstThread.objc_selector_name);
-  XCTAssertTrue(
-      [firstThread.alternate_name isEqualToString:@"com.google.firebase.crashlytics.ios.exception"]);
+  XCTAssertTrue([firstThread.alternate_name
+      isEqualToString:@"com.google.firebase.crashlytics.ios.exception"]);
   XCTAssertTrue([firstThread.registers[0].name isEqualToString:@"r13"]);
   XCTAssertEqual(firstThread.registers[0].value, 101);
   XCTAssertTrue([firstThread.registers[20].name isEqualToString:@"rdi"]);
@@ -317,8 +319,7 @@
 
   FIRCLSRecordThread *lastThread = adapter.threads[11];
   XCTAssertEqual(lastThread.crashed, false);
-  XCTAssertTrue(
-      [lastThread.name isEqualToString:@"com.apple.NSURLConnectionLoader"]);
+  XCTAssertTrue([lastThread.name isEqualToString:@"com.apple.NSURLConnectionLoader"]);
   XCTAssertNil(lastThread.objc_selector_name);
   XCTAssertNil(lastThread.alternate_name);
   XCTAssertEqual(lastThread.registers.count, 21);
@@ -368,8 +369,7 @@
   XCTAssertEqual(firstThread.crashed, true);
   XCTAssertNil(firstThread.name);
   XCTAssertNil(firstThread.objc_selector_name);
-  XCTAssertTrue(
-      [firstThread.alternate_name isEqualToString:@"com.apple.main-thread"]);
+  XCTAssertTrue([firstThread.alternate_name isEqualToString:@"com.apple.main-thread"]);
   XCTAssertTrue([firstThread.registers[0].name isEqualToString:@"r13"]);
   XCTAssertEqual(firstThread.registers[0].value, 105553125228976);
   XCTAssertTrue([firstThread.registers[20].name isEqualToString:@"rdi"]);
@@ -377,8 +377,7 @@
 
   FIRCLSRecordThread *lastThread = adapter.threads[6];
   XCTAssertEqual(lastThread.crashed, false);
-  XCTAssertTrue(
-      [lastThread.name isEqualToString:@"com.apple.NSURLConnectionLoader"]);
+  XCTAssertTrue([lastThread.name isEqualToString:@"com.apple.NSURLConnectionLoader"]);
   XCTAssertNil(lastThread.objc_selector_name);
   XCTAssertNil(lastThread.alternate_name);
   XCTAssertEqual(lastThread.registers.count, 21);
@@ -408,7 +407,8 @@
   google_crashlytics_Report reportProto = [adapter report];
   google_crashlytics_Session_Event lastEventProto = [self getLastEventProto:reportProto];
 
-  google_crashlytics_Session_Event_Application_Execution_Signal signalProto = lastEventProto.app.execution.signal;
+  google_crashlytics_Session_Event_Application_Execution_Signal signalProto =
+      lastEventProto.app.execution.signal;
 
   XCTAssertTrue(reportProto.session.crashed);
 
@@ -424,7 +424,8 @@
   google_crashlytics_Report reportProto = [adapter report];
   google_crashlytics_Session_Event lastEventProto = [self getLastEventProto:reportProto];
 
-  google_crashlytics_Session_Event_Application_Execution_Signal signalProto = lastEventProto.app.execution.signal;
+  google_crashlytics_Session_Event_Application_Execution_Signal signalProto =
+      lastEventProto.app.execution.signal;
 
   XCTAssertTrue(reportProto.session.crashed);
 
@@ -528,28 +529,33 @@
 #pragma mark - Helper Functions
 
 + (FIRCLSReportAdapter *)adapterForExceptionCrash {
-  return [[FIRCLSReportAdapter alloc] initWithPath:[FIRCLSReportAdapterTests persistedExceptionCrashFolder]
-                                       googleAppId:@"appID"];
+  return [[FIRCLSReportAdapter alloc]
+      initWithPath:[FIRCLSReportAdapterTests persistedExceptionCrashFolder]
+       googleAppId:@"appID"];
 }
 
 + (FIRCLSReportAdapter *)adapterForMachExceptionCrash {
-  return [[FIRCLSReportAdapter alloc] initWithPath:[FIRCLSReportAdapterTests persistedMachExceptionCrashFolder]
-                                       googleAppId:@"appID"];
+  return [[FIRCLSReportAdapter alloc]
+      initWithPath:[FIRCLSReportAdapterTests persistedMachExceptionCrashFolder]
+       googleAppId:@"appID"];
 }
 
 + (FIRCLSReportAdapter *)adapterForSignalCrash {
-  return [[FIRCLSReportAdapter alloc] initWithPath:[FIRCLSReportAdapterTests persistedSignalCrashFolder]
-                                       googleAppId:@"appID"];
+  return [[FIRCLSReportAdapter alloc]
+      initWithPath:[FIRCLSReportAdapterTests persistedSignalCrashFolder]
+       googleAppId:@"appID"];
 }
 
 + (FIRCLSReportAdapter *)adapterForAllCrashes {
-  return [[FIRCLSReportAdapter alloc] initWithPath:[FIRCLSReportAdapterTests persistedAllCrashesFolder]
-                                       googleAppId:@"appID"];
+  return
+      [[FIRCLSReportAdapter alloc] initWithPath:[FIRCLSReportAdapterTests persistedAllCrashesFolder]
+                                    googleAppId:@"appID"];
 }
 
 + (FIRCLSReportAdapter *)adapterForOnlyErrors {
-  return [[FIRCLSReportAdapter alloc] initWithPath:[FIRCLSReportAdapterTests persistedOnlyErrorsFolder]
-                                       googleAppId:@"appID"];
+  return
+      [[FIRCLSReportAdapter alloc] initWithPath:[FIRCLSReportAdapterTests persistedOnlyErrorsFolder]
+                                    googleAppId:@"appID"];
 }
 
 + (FIRCLSReportAdapter *)adapterForCorruptFiles {
@@ -562,23 +568,28 @@
 }
 
 + (NSString *)persistedExceptionCrashFolder {
-  return [[FIRCLSReportAdapterTests resourcePath] stringByAppendingPathComponent:@"ios_exception_crash"];
+  return [[FIRCLSReportAdapterTests resourcePath]
+      stringByAppendingPathComponent:@"ios_exception_crash"];
 }
 
 + (NSString *)persistedMachExceptionCrashFolder {
-  return [[FIRCLSReportAdapterTests resourcePath] stringByAppendingPathComponent:@"ios_mach_exception_crash"];
+  return [[FIRCLSReportAdapterTests resourcePath]
+      stringByAppendingPathComponent:@"ios_mach_exception_crash"];
 }
 
 + (NSString *)persistedSignalCrashFolder {
-  return [[FIRCLSReportAdapterTests resourcePath] stringByAppendingPathComponent:@"ios_signal_crash"];
+  return
+      [[FIRCLSReportAdapterTests resourcePath] stringByAppendingPathComponent:@"ios_signal_crash"];
 }
 
 + (NSString *)persistedAllCrashesFolder {
-  return [[FIRCLSReportAdapterTests resourcePath] stringByAppendingPathComponent:@"ios_all_files_crash"];
+  return [[FIRCLSReportAdapterTests resourcePath]
+      stringByAppendingPathComponent:@"ios_all_files_crash"];
 }
 
 + (NSString *)persistedOnlyErrorsFolder {
-  return [[FIRCLSReportAdapterTests resourcePath] stringByAppendingPathComponent:@"ios_only_errors"];
+  return
+      [[FIRCLSReportAdapterTests resourcePath] stringByAppendingPathComponent:@"ios_only_errors"];
 }
 
 + (NSString *)corruptedCrashFolder {

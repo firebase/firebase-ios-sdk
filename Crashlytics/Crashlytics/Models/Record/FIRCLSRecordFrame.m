@@ -16,12 +16,12 @@
 
 #import "FIRCLSRecordFrame.h"
 
-@interface FIRCLSRecordFrame()
+@interface FIRCLSRecordFrame ()
 
 // Internal representation of optional numerical values in Frames
 // These are NSNumber pointers so we can tell when the value doesn't exist
-@property(nonatomic) NSNumber * lineNumber;
-@property(nonatomic) NSNumber * offsetNumber;
+@property(nonatomic) NSNumber *lineNumber;
+@property(nonatomic) NSNumber *offsetNumber;
 
 @end
 
