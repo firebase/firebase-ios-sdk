@@ -1,3 +1,6 @@
+$ v4.4.8
+- [changed] Update OCMock version dependency to v3.5 in Remote Config podspec.
+
 # v4.4.7
 - [fixed] Fixed a crash that could occur when attempting a remote config fetch before a valid Instance ID was available. (#4622)
 - [fixed] Fixed an issue where config fetch would sometimes fail with a duplicate fetch error when no other fetches were in progress. (#3802)
