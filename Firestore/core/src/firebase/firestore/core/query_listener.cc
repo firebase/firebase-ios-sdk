@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,9 +32,37 @@ using model::OnlineState;
 using model::TargetId;
 using util::Status;
 
+std::shared_ptr<QueryListener> QueryListener::Create(
+    Query query, ListenOptions options, ViewSnapshotSharedListener&& listener) {
+  return std::make_shared<QueryListener>(std::move(query), std::move(options),
+                                         std::move(listener));
+}
+
+std::shared_ptr<QueryListener> QueryListener::Create(
+    Query query, ViewSnapshotSharedListener&& listener) {
+  return Create(std::move(query), ListenOptions::DefaultOptions(),
+                std::move(listener));
+}
+
+std::shared_ptr<QueryListener> QueryListener::Create(
+    Query query,
+    ListenOptions options,
+    util::StatusOrCallback<ViewSnapshot>&& listener) {
+  auto event_listener =
+      EventListener<ViewSnapshot>::Create(std::move(listener));
+  return Create(std::move(query), std::move(options),
+                std::move(event_listener));
+}
+
+std::shared_ptr<QueryListener> QueryListener::Create(
+    Query query, util::StatusOrCallback<ViewSnapshot>&& listener) {
+  return Create(std::move(query), ListenOptions::DefaultOptions(),
+                std::move(listener));
+}
+
 QueryListener::QueryListener(Query query,
                              ListenOptions options,
-                             ViewSnapshot::SharedListener&& listener)
+                             ViewSnapshotSharedListener&& listener)
     : query_(std::move(query)),
       options_(std::move(options)),
       listener_(std::move(listener)) {

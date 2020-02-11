@@ -278,17 +278,19 @@ static NSString *GDTCORStoragePath() {
 }
 
 - (void)appWillTerminate:(GDTCORApplication *)application {
-  if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-    NSError *error;
-    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:self
-                                         requiringSecureCoding:YES
-                                                         error:&error];
-    [data writeToFile:[GDTCORStorage archivePath] atomically:YES];
-  } else {
+  dispatch_sync(_storageQueue, ^{
+    if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
+      NSError *error;
+      NSData *data = [NSKeyedArchiver archivedDataWithRootObject:self
+                                           requiringSecureCoding:YES
+                                                           error:&error];
+      [data writeToFile:[GDTCORStorage archivePath] atomically:YES];
+    } else {
 #if !TARGET_OS_MACCATALYST && !TARGET_OS_WATCH
-    [NSKeyedArchiver archiveRootObject:self toFile:[GDTCORStorage archivePath]];
+      [NSKeyedArchiver archiveRootObject:self toFile:[GDTCORStorage archivePath]];
 #endif
-  }
+    }
+  });
 }
 
 #pragma mark - NSSecureCoding
