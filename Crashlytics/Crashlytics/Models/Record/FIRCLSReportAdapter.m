@@ -563,17 +563,6 @@
   return attributes;
 }
 
-// When an exception.clsrecord file for a fatal crash is created, build the threads in
-// the crash Event with the added info from the exception
-// Replicates Protobuf.scala#L426 (addCrashInfo)
-- (google_crashlytics_Session_Event_Application_Execution_Thread *)protoThreadsWithException:
-    (FIRCLSRecordException *)exception {
-  google_crashlytics_Session_Event_Application_Execution_Thread *threads =
-      malloc(sizeof(google_crashlytics_Session_Event_Application_Execution_Thread) *
-             exception.frames.count);
-  return threads;
-}
-
 - (google_crashlytics_Session_Event_Application_Execution_Thread *)protoThreadsWithArray:
     (NSArray<FIRCLSRecordThread *> *)array {
   google_crashlytics_Session_Event_Application_Execution_Thread *threads =
