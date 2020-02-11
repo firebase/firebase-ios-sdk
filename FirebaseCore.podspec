@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCore'
-  s.version          = '6.6.1'
+  s.version          = '6.6.2'
   s.summary          = 'Firebase Core for iOS (plus community support for macOS and tvOS)'
 
   s.description      = <<-DESC
@@ -40,7 +40,7 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
-      'FIRCore_VERSION=' + s.version.to_s + ' Firebase_VERSION=6.16.0',
+      'FIRCore_VERSION=' + s.version.to_s + ' Firebase_VERSION=6.17.0',
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
     'OTHER_CFLAGS' => '-fno-autolink'
   }
