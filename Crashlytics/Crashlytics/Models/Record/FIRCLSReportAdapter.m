@@ -28,11 +28,14 @@
 
 @implementation FIRCLSReportAdapter
 
-- (instancetype)initWithPath:(NSString *)folderPath googleAppId:googleAppID {
+- (instancetype)initWithPath:(NSString *)folderPath
+                 googleAppId:(NSString *)googleAppID
+                       orgId:(NSString *)orgID {
   self = [super init];
   if (self) {
     _folderPath = folderPath;
     _googleAppID = googleAppID;
+    _orgID = orgID;
 
     [self loadBinaryImagesFile];
     [self loadMetaDataFile];
@@ -317,9 +320,9 @@
 // MARK: NanoPB conversions
 //
 
-// NOTE: With nanopb using proto2, for optional primitives fields, setting the value is not enough to
-//       have the field be included in the proto. You will have to set .has_{field_name} = true.
-//       Ex: session.ended_at = true; (assume ended_at is a optional uint64)
+// NOTE: With nanopb using proto2, for optional primitives fields, setting the value is not enough
+// to have the field be included in the proto. You will have to set .has_{field_name} = true.
+// Ex: session.ended_at = true; (assume ended_at is a optional uint64)
 
 - (google_crashlytics_Report)protoReport {
   google_crashlytics_Report report = google_crashlytics_Report_init_default;
@@ -379,7 +382,16 @@
   app.identifier = FIRCLSEncodeString(self.application.bundle_id);
   app.version = FIRCLSEncodeString(self.application.build_version);
   app.display_version = FIRCLSEncodeString(self.application.display_version);
+  app.organization = [self protoOrganization];
+  app.has_organization = true;
   return app;
+}
+
+- (google_crashlytics_Session_Application_Organization)protoOrganization {
+  google_crashlytics_Session_Application_Organization org =
+      google_crashlytics_Session_Application_Organization_init_default;
+  org.cls_id = FIRCLSEncodeString(self.orgID);
+  return org;
 }
 
 - (google_crashlytics_Session_OperatingSystem)protoOperatingSystem {

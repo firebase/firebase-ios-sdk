@@ -51,7 +51,8 @@
 
   FIRCLSReportAdapter *adapter =
       [[FIRCLSReportAdapter alloc] initWithPath:minCrash
-                                    googleAppId:@"1:17586535263:ios:83778f4dc7e8a26ef794ea"];
+                                    googleAppId:@"1:17586535263:ios:83778f4dc7e8a26ef794ea"
+                                          orgId:@"5bec84f69ea6961d03000dc5"];
 
   GDTCORTransport *transport = [[GDTCORTransport alloc] initWithMappingID:@"1206"
                                                              transformers:nil
@@ -67,9 +68,9 @@
   NSString *minCrash =
       [[FIRCLSReportAdapterTests resourcePath] stringByAppendingPathComponent:@"bare_min_crash"];
 
-  FIRCLSReportAdapter *adapter =
-      [[FIRCLSReportAdapter alloc] initWithPath:minCrash
-                                    googleAppId:@"appID"];
+  FIRCLSReportAdapter *adapter = [[FIRCLSReportAdapter alloc] initWithPath:minCrash
+                                                               googleAppId:@"appID"
+                                                                     orgId:@"orgID"];
 
   NSData *data = adapter.transportBytes;
 
@@ -83,7 +84,7 @@
   if (error) {
     NSLog(@"Write returned error: %@", [error localizedDescription]);
   }
-    
+
   // But a breakpoint here to copy the file from the output path.
 }
 
@@ -91,7 +92,8 @@
 /// Verify various invalid input cases
 - (void)testInvalidRecordCases {
   id adapter __unused = [[FIRCLSReportAdapter alloc] initWithPath:@"nonExistentPath"
-                                                      googleAppId:@"appID"];
+                                                      googleAppId:@"appID"
+                                                            orgId:@"orgID"];
 
   id application __unused = [[FIRCLSRecordApplication alloc] initWithDict:nil];
   id base __unused = [[FIRCLSRecordBase alloc] initWithDict:nil];
@@ -319,12 +321,14 @@
 
 + (FIRCLSReportAdapter *)adapterForValidFiles {
   return [[FIRCLSReportAdapter alloc] initWithPath:[FIRCLSReportAdapterTests persistedCrashFolder]
-                                       googleAppId:@"appID"];
+                                       googleAppId:@"appID"
+                                             orgId:@"orgID"];
 }
 
 + (FIRCLSReportAdapter *)adapterForCorruptFiles {
   return [[FIRCLSReportAdapter alloc] initWithPath:[FIRCLSReportAdapterTests corruptedCrashFolder]
-                                       googleAppId:@"appID"];
+                                       googleAppId:@"appID"
+                                             orgId:@"orgID"];
 }
 
 + (NSString *)resourcePath {

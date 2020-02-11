@@ -28,7 +28,7 @@ google_crashlytics.Session.Application.installation_uuid type:FT_POINTER
 google_crashlytics.Session.Application.development_platform type:FT_POINTER
 google_crashlytics.Session.Application.development_platform_version type:FT_POINTER
 
-google_crashlytics.Session.Application.Organization.api_key type:FT_POINTER
+google_crashlytics.Session.Application.Organization.cls_id type:FT_POINTER
 
 google_crashlytics.Session.OperatingSystem.version type:FT_POINTER
 google_crashlytics.Session.OperatingSystem.build_version type:FT_POINTER

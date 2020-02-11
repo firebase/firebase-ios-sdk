@@ -76,7 +76,7 @@ typedef struct _google_crashlytics_CustomAttribute {
 } google_crashlytics_CustomAttribute;
 
 typedef struct _google_crashlytics_Session_Application_Organization {
-    pb_bytes_array_t *api_key;
+    pb_bytes_array_t *cls_id;
 /* @@protoc_insertion_point(struct:google_crashlytics_Session_Application_Organization) */
 } google_crashlytics_Session_Application_Organization;
 
@@ -285,7 +285,7 @@ typedef struct _google_crashlytics_Session_Event {
 /* Field tags (for use in manual encoding/decoding) */
 #define google_crashlytics_CustomAttribute_key_tag 1
 #define google_crashlytics_CustomAttribute_value_tag 2
-#define google_crashlytics_Session_Application_Organization_api_key_tag 1
+#define google_crashlytics_Session_Application_Organization_cls_id_tag 2
 #define google_crashlytics_Session_Event_Log_content_tag 1
 #define google_crashlytics_Session_User_identifier_tag 1
 #define google_crashlytics_Session_Application_identifier_tag 1

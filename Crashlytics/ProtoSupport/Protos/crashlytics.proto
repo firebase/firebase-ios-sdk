@@ -98,10 +98,8 @@ message Session {
     // Dev platform-specific version
     optional string development_platform_version = 9;
 
-    // Customer organization record
     message Organization {
-      // Crashlytics supplied api key
-      optional string api_key = 1;
+      optional string cls_id = 2;
     }
     optional Organization organization = 5;
   }  // message Application

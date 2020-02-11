@@ -58,7 +58,7 @@ const pb_field_t google_crashlytics_Session_Application_fields[8] = {
 };
 
 const pb_field_t google_crashlytics_Session_Application_Organization_fields[2] = {
-    PB_FIELD(  1, BYTES   , OPTIONAL, POINTER , FIRST, google_crashlytics_Session_Application_Organization, api_key, api_key, 0),
+    PB_FIELD(  2, BYTES   , OPTIONAL, POINTER , FIRST, google_crashlytics_Session_Application_Organization, cls_id, cls_id, 0),
     PB_LAST_FIELD
 };
 

@@ -28,6 +28,8 @@
 
 /// Initializer
 /// @param folderPath Path where the persisted crash files reside
-- (instancetype)initWithPath:(NSString *)folderPath googleAppId:googleAppID;
+- (instancetype)initWithPath:(NSString *)folderPath
+                 googleAppId:(NSString *)googleAppID
+                       orgId:(NSString *)orgID;
 
 @end

@@ -35,6 +35,7 @@
 
 @property(nonatomic, strong) NSString *folderPath;
 @property(nonatomic, strong) NSString *googleAppID;
+@property(nonatomic, strong) NSString *orgID;
 
 @property(nonatomic, strong) FIRCLSRecordSignal *signal;
 @property(nonatomic, strong) NSArray<FIRCLSRecordThread *> *threads;
