@@ -73,9 +73,10 @@ class AsyncResults {
     values_.push_back(value);
   }
 
-  const std::vector<T>& Result() {
+  std::vector<T> Result() {
     std::lock_guard<std::mutex> lock(mutex_);
-    return values_;
+    std::vector<T> result = std::move(values_);
+    return result;
   }
 
  private:
