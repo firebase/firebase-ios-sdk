@@ -23,8 +23,6 @@
 #import "Firebase/Messaging/FIRMessagingUtilities.h"
 #import "Firebase/Messaging/NSError+FIRMessaging.h"
 
-#define DEBUG_LOG_SUBSCRIPTION_OPERATION_DURATIONS 0
-
 static NSString *const kFIRMessagingSubscribeServerHost =
     @"https://iid.googleapis.com/iid/register";
 
@@ -194,10 +192,6 @@ NSString *FIRMessagingSubscriptionsServer() {
   request.HTTPBody = [content dataUsingEncoding:NSUTF8StringEncoding];
   [request setHTTPMethod:@"POST"];
 
-#if DEBUG_LOG_SUBSCRIPTION_OPERATION_DURATIONS
-  NSDate *start = [NSDate date];
-#endif
-
   FIRMessaging_WEAKIFY(self) void (^requestHandler)(NSData *, NSURLResponse *, NSError *) =
       ^(NSData *data, NSURLResponse *URLResponse, NSError *error) {
         FIRMessaging_STRONGIFY(self) if (error) {
@@ -228,10 +222,6 @@ NSString *FIRMessagingSubscriptionsServer() {
           [self finishWithError:[NSError errorWithFCMErrorCode:kFIRMessagingErrorCodeUnknown]];
           return;
         }
-#if DEBUG_LOG_SUBSCRIPTION_OPERATION_DURATIONS
-        NSTimeInterval duration = -[start timeIntervalSinceNow];
-        FIRMessagingLoggerDebug(@"%@ change took %.2fs", self.topic, duration);
-#endif
         [self finishWithError:nil];
       };
 
