@@ -68,6 +68,6 @@ app update.
         'FirebaseRemoteConfig/Tests/Unit/Defaults-testInfo.plist',
         'FirebaseRemoteConfig/Tests/Unit/SecondApp-GoogleService-Info.plist'
     unit_tests.requires_app_host = true
-    unit_tests.dependency 'OCMock', '~> 3.4.0'
+    unit_tests.dependency 'OCMock', '~> 3.5.0'
   end
 end
