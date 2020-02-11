@@ -18,8 +18,8 @@
 
 #import <FirebaseCore/FIRLogger.h>
 #import <FirebaseCore/FIROptions.h>
-#import <FirebaseInstanceID/FIRInstanceID+Private.h>
-#import <FirebaseInstanceID/FIRInstanceIDCheckinPreferences.h>
+#import <FirebaseInstallations/FirebaseInstallations.h>
+//@@#import <FirebaseInstanceID/FIRInstanceIDCheckinPreferences.h>
 #import <GoogleUtilities/GULNSData+zlib.h>
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
@@ -202,7 +202,8 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
 /// requests to work.(b/14751422).
 - (void)refreshInstanceIDTokenAndFetchCheckInInfoWithCompletionHandler:
     (FIRRemoteConfigFetchCompletion)completionHandler {
-  FIRInstanceID *instanceID = [FIRInstanceID instanceID];
+  FIRInstallations *installations = [FIRInstallations installations];
+  // FIRInstanceID *instanceID = [FIRInstanceID instanceID];
   if (!_options.GCMSenderID) {
     NSString *errorDescription = @"Failed to get GCMSenderID";
     FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000074", @"%@",
@@ -217,43 +218,15 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
                                                     NSLocalizedDescriptionKey : errorDescription
                                                   }]];
   }
-  FIRInstanceIDTokenHandler instanceIDHandler = ^(NSString *token, NSError *error) {
-    if (!token || error) {
-      NSString *errorDescription =
-          [NSString stringWithFormat:@"Failed to get InstanceID token. Error : %@.", error];
-      FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000073", @"%@",
-                  [NSString stringWithFormat:@"%@", errorDescription]);
-      self->_settings.isFetchInProgress = NO;
-      return [self
-          reportCompletionOnHandler:completionHandler
-                         withStatus:FIRRemoteConfigFetchStatusFailure
-                          withError:[NSError errorWithDomain:FIRRemoteConfigErrorDomain
-                                                        code:FIRRemoteConfigErrorInternalError
-                                                    userInfo:@{
-                                                      NSLocalizedDescriptionKey : errorDescription
-                                                    }]];
-    }
-
-    // If the token is available, try to get the instanceID.
-    __weak RCNConfigFetch *weakSelf = self;
-    [instanceID getIDWithHandler:^(NSString *_Nullable identity, NSError *_Nullable error) {
-      RCNConfigFetch *strongSelf = weakSelf;
-
-      // Dispatch to the RC serial queue to update settings on the queue.
-      dispatch_async(strongSelf->_lockQueue, ^{
-        RCNConfigFetch *strongSelfQueue = weakSelf;
-
-        // Update config settings with the IID and token.
-        strongSelfQueue->_settings.configInstanceIDToken = [token copy];
-        strongSelfQueue->_settings.configInstanceID = identity;
-
-        if (!identity || error) {
+  FIRInstallationsTokenHandler installationsTokenHandler =
+      ^(FIRInstallationsAuthTokenResult *__nullable tokenResult, NSError *__nullable error) {
+        if (error) {
           NSString *errorDescription =
-              [NSString stringWithFormat:@"Error getting iid : %@.", error];
-          FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000055", @"%@",
+              [NSString stringWithFormat:@"Failed to get installation token. Error : %@.", error];
+          FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000073", @"%@",
                       [NSString stringWithFormat:@"%@", errorDescription]);
-          strongSelfQueue->_settings.isFetchInProgress = NO;
-          return [strongSelfQueue
+          self->_settings.isFetchInProgress = NO;
+          return [self
               reportCompletionOnHandler:completionHandler
                              withStatus:FIRRemoteConfigFetchStatusFailure
                               withError:[NSError
@@ -264,20 +237,81 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
                                                    }]];
         }
 
-        FIRLogInfo(kFIRLoggerRemoteConfig, @"I-RCN000022", @"Success to get iid : %@.",
-                   strongSelfQueue->_settings.configInstanceID);
+        // We have a valid FIS token. We do not need to send a FID upstream anymore.
+        __weak RCNConfigFetch *weakSelf = self;
+        // Dispatch to the RC serial queue to update settings on the queue.
+        dispatch_async(self->_lockQueue, ^{
+          RCNConfigFetch *strongSelfQueue = weakSelf;
 
-        // Continue the fetch regardless of whether fetch of instance ID succeeded.
-        [strongSelfQueue fetchCheckinInfoWithCompletionHandler:completionHandler];
-      });
-    }];
-  };
-  FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000039", @"Starting requesting token.");
-  // Note: We expect the GCMSenderID to always be available by the time this request is made.
-  [instanceID tokenWithAuthorizedEntity:_options.GCMSenderID
-                                  scope:kInstanceIDScopeConfig
-                                options:nil
-                                handler:instanceIDHandler];
+          // Update config settings with the IID and token.
+          strongSelfQueue->_settings.configInstanceIDToken = tokenResult.authToken;
+
+          FIRLogInfo(kFIRLoggerRemoteConfig, @"I-RCN000022", @"Success to get installation token");
+
+          // Continue with checkin.
+          [strongSelfQueue fetchCheckinInfoWithCompletionHandler:completionHandler];
+        });
+      }
+      //  FIRInstanceIDTokenHandler instanceIDHandler = ^(NSString *token, NSError *error) {
+      //    if (!token || error) {
+      //      NSString *errorDescription =
+      //          [NSString stringWithFormat:@"Failed to get InstanceID token. Error : %@.", error];
+      //      FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000073", @"%@",
+      //                  [NSString stringWithFormat:@"%@", errorDescription]);
+      //      self->_settings.isFetchInProgress = NO;
+      //      return [self
+      //          reportCompletionOnHandler:completionHandler
+      //                         withStatus:FIRRemoteConfigFetchStatusFailure
+      //                          withError:[NSError errorWithDomain:FIRRemoteConfigErrorDomain
+      //                                                        code:FIRRemoteConfigErrorInternalError
+      //                                                    userInfo:@{
+      //                                                      NSLocalizedDescriptionKey :
+      //                                                      errorDescription
+      //                                                    }]];
+      //    }
+
+      // If the token is available, try to get the instanceID.
+      __weak RCNConfigFetch *weakSelf = self;
+  [instanceID getIDWithHandler:^(NSString *_Nullable identity, NSError *_Nullable error) {
+    RCNConfigFetch *strongSelf = weakSelf;
+
+    // Dispatch to the RC serial queue to update settings on the queue.
+    dispatch_async(strongSelf->_lockQueue, ^{
+      RCNConfigFetch *strongSelfQueue = weakSelf;
+
+      // Update config settings with the IID and token.
+      strongSelfQueue->_settings.configInstanceIDToken = [token copy];
+      strongSelfQueue->_settings.configInstanceID = identity;
+
+      if (!identity || error) {
+        NSString *errorDescription = [NSString stringWithFormat:@"Error getting iid : %@.", error];
+        FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000055", @"%@",
+                    [NSString stringWithFormat:@"%@", errorDescription]);
+        strongSelfQueue->_settings.isFetchInProgress = NO;
+        return [strongSelfQueue
+            reportCompletionOnHandler:completionHandler
+                           withStatus:FIRRemoteConfigFetchStatusFailure
+                            withError:[NSError errorWithDomain:FIRRemoteConfigErrorDomain
+                                                          code:FIRRemoteConfigErrorInternalError
+                                                      userInfo:@{
+                                                        NSLocalizedDescriptionKey : errorDescription
+                                                      }]];
+      }
+
+      FIRLogInfo(kFIRLoggerRemoteConfig, @"I-RCN000022", @"Success to get iid : %@.",
+                 strongSelfQueue->_settings.configInstanceID);
+
+      // Continue the fetch regardless of whether fetch of instance ID succeeded.
+      [strongSelfQueue fetchCheckinInfoWithCompletionHandler:completionHandler];
+    });
+  }];
+};
+FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000039", @"Starting requesting token.");
+// Note: We expect the GCMSenderID to always be available by the time this request is made.
+[instanceID tokenWithAuthorizedEntity:_options.GCMSenderID
+                                scope:kInstanceIDScopeConfig
+                              options:nil
+                              handler:instanceIDHandler];
 }
 
 /// Fetch checkin info before fetching config. Checkin info including device authentication ID,
