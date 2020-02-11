@@ -28,6 +28,7 @@
 @property(nonatomic, assign) BOOL crashed;
 @property(nonatomic, strong) NSArray<FIRCLSRecordRegister *> *registers;
 @property(nonatomic, strong) NSArray<NSNumber *> *stacktrace;
+@property(nonatomic, assign) uint32_t importance;
 
 /// Aggregate data and returns a collection of populated threads
 /// @param threads Array of thread dictionaries

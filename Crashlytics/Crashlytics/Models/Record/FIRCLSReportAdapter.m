@@ -64,7 +64,6 @@
 /// Reads from binary_images.clsrecord
 - (void)loadBinaryImagesFile {
   NSString *path = [self.folderPath stringByAppendingPathComponent:FIRCLSReportBinaryImageFile];
-  // TODO: Should sort? If so, sort inside FIRCLSRecordBinaryImage. Protobuf:253
   self.binaryImages = [FIRCLSRecordBinaryImage
       binaryImagesFromDictionaries:[FIRCLSReportAdapter dictionariesFromEachLineOfFile:path]];
 }
@@ -514,7 +513,8 @@
       malloc(sizeof(google_crashlytics_Session_Event_Application_Execution_Thread) * 1);
   google_crashlytics_Session_Event_Application_Execution_Thread thread =
       google_crashlytics_Session_Event_Application_Execution_Thread_init_default;
-  thread.frames = [self protoFramesWithStacktrace:error.stacktrace];
+  thread.frames = [self protoFramesWithStacktrace:error.stacktrace
+                                 threadImportance:thread.importance];
   thread.frames_count = (pb_size_t)error.stacktrace.count;
   threads[0] = thread;
   app.execution.threads = threads;
@@ -560,12 +560,14 @@
   for (NSUInteger i = 0; i < array.count; i++) {
     google_crashlytics_Session_Event_Application_Execution_Thread thread =
         google_crashlytics_Session_Event_Application_Execution_Thread_init_default;
+
     thread.name = FIRCLSEncodeString(array[i].name);
-    thread.importance = 0;  // TODO: Is there any logic here? Protobuf.scala:384
+    thread.importance = array[i].importance;  // TODO: Update frame importance for exceptions. Protobuf.scala:384
     thread.alternate_name = FIRCLSEncodeString(array[i].alternate_name);
     thread.objc_selector_name = FIRCLSEncodeString(array[i].objc_selector_name);
 
-    thread.frames = [self protoFramesWithStacktrace:array[i].stacktrace];
+    thread.frames = [self protoFramesWithStacktrace:array[i].stacktrace
+                                   threadImportance:thread.importance];
     thread.frames_count = (pb_size_t)array[i].stacktrace.count;
 
     thread.registers = [self protoRegistersWithArray:array[i].registers];
@@ -577,8 +579,9 @@
   return threads;
 }
 
-- (google_crashlytics_Session_Event_Application_Execution_Thread_Frame *)protoFramesWithStacktrace:
-    (NSArray<NSNumber *> *)stacktrace {
+- (google_crashlytics_Session_Event_Application_Execution_Thread_Frame *)
+    protoFramesWithStacktrace:(NSArray<NSNumber *> *)stacktrace
+             threadImportance:(NSUInteger)importance {
   google_crashlytics_Session_Event_Application_Execution_Thread_Frame *frames =
       malloc(sizeof(google_crashlytics_Session_Event_Application_Execution_Thread_Frame) *
              stacktrace.count);
@@ -587,6 +590,8 @@
     google_crashlytics_Session_Event_Application_Execution_Thread_Frame frame =
         google_crashlytics_Session_Event_Application_Execution_Thread_Frame_init_default;
     frame.pc = stacktrace[i].unsignedIntegerValue;
+    frame.importance = importance;
+    frame.has_importance = true;
     frames[i] = frame;
   }
 
