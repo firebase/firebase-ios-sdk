@@ -231,8 +231,8 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   [_userDefaultsMock stopMocking];
   _userDefaultsMock = nil;
   for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
-    [_configInstances[i] stopMocking];
-    [_configFetch[i] stopMocking];
+    [(id)_configInstances[i] stopMocking];
+    [(id)_configFetch[i] stopMocking];
   }
   [_configInstances removeAllObjects];
   [_configFetch removeAllObjects];
