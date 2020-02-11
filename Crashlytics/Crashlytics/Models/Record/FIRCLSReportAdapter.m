@@ -381,7 +381,7 @@
 - (google_crashlytics_Session)protoSession {
   google_crashlytics_Session session = google_crashlytics_Session_init_default;
 
-  // Should be set by backend
+  // TODO: should this be set by the backend?
   session.ended_at = 0;
 
   session.generator = FIRCLSEncodeString(self.identity.generator);
