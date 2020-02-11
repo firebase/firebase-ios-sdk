@@ -114,13 +114,13 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
 
   // Always remove the database at the start of testing.
   _DBPath = [RCNTestUtilities remoteConfigPathForTestDatabase];
-  id _DBManagerMock = OCMClassMock([RCNConfigDBManager class]);
+  _DBManagerMock = OCMClassMock([RCNConfigDBManager class]);
   OCMStub([_DBManagerMock remoteConfigPathForDatabase]).andReturn(_DBPath);
   _DBManager = [[RCNConfigDBManager alloc] init];
 
   _userDefaultsSuiteName = [RCNTestUtilities userDefaultsSuiteNameForTestSuite];
   _userDefaults = [[NSUserDefaults alloc] initWithSuiteName:_userDefaultsSuiteName];
-  id _userDefaultsMock = OCMClassMock([RCNUserDefaultsManager class]);
+  _userDefaultsMock = OCMClassMock([RCNUserDefaultsManager class]);
   OCMStub([_userDefaultsMock sharedUserDefaultsForBundleIdentifier:[OCMArg any]])
       .andReturn(_userDefaults);
 
