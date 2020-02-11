@@ -81,9 +81,9 @@
 
 typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   RCNTestRCInstanceDefault,
+  RCNTestRCNumTotalInstances,  // TODO(mandard): Remove once OCMock issue is resolved (#4877).
   RCNTestRCInstanceSecondNamespace,
   RCNTestRCInstanceSecondApp,
-  RCNTestRCNumTotalInstances
 };
 
 @interface RCNRemoteConfigTest : XCTestCase {
@@ -99,6 +99,8 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   NSUserDefaults *_userDefaults;
   NSString *_userDefaultsSuiteName;
   NSString *_DBPath;
+  id _DBManagerMock;
+  id _userDefaultsMock;
 }
 @end
 
@@ -112,14 +114,14 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
 
   // Always remove the database at the start of testing.
   _DBPath = [RCNTestUtilities remoteConfigPathForTestDatabase];
-  id classMock = OCMClassMock([RCNConfigDBManager class]);
-  OCMStub([classMock remoteConfigPathForDatabase]).andReturn(_DBPath);
+  id _DBManagerMock = OCMClassMock([RCNConfigDBManager class]);
+  OCMStub([_DBManagerMock remoteConfigPathForDatabase]).andReturn(_DBPath);
   _DBManager = [[RCNConfigDBManager alloc] init];
 
   _userDefaultsSuiteName = [RCNTestUtilities userDefaultsSuiteNameForTestSuite];
   _userDefaults = [[NSUserDefaults alloc] initWithSuiteName:_userDefaultsSuiteName];
-  id userDefaultsClassMock = OCMClassMock([RCNUserDefaultsManager class]);
-  OCMStub([userDefaultsClassMock sharedUserDefaultsForBundleIdentifier:[OCMArg any]])
+  id _userDefaultsMock = OCMClassMock([RCNUserDefaultsManager class]);
+  OCMStub([_userDefaultsMock sharedUserDefaultsForBundleIdentifier:[OCMArg any]])
       .andReturn(_userDefaults);
 
   RCNConfigContent *configContent = [[RCNConfigContent alloc] initWithDBManager:_DBManager];
@@ -193,7 +195,6 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
     OCMStub([_configFetch[i] fetchConfigWithExpirationDuration:43200 completionHandler:OCMOCK_ANY])
         .andDo(^(NSInvocation *invocation) {
           void (^handler)(FIRRemoteConfigFetchStatus status, NSError *_Nullable error) = nil;
-          // void (^handler)(FIRRemoteConfigFetchCompletion);
           [invocation getArgument:&handler atIndex:3];
           [_configFetch[i] fetchWithUserProperties:[[NSDictionary alloc] init]
                                  completionHandler:handler];
@@ -225,6 +226,18 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
 - (void)tearDown {
   [_DBManager removeDatabaseOnDatabaseQueueAtPath:_DBPath];
   [[NSUserDefaults standardUserDefaults] removePersistentDomainForName:_userDefaultsSuiteName];
+  [_DBManagerMock stopMocking];
+  _DBManagerMock = nil;
+  [_userDefaultsMock stopMocking];
+  _userDefaultsMock = nil;
+  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
+    [_configInstances[i] stopMocking];
+    [_configFetch[i] stopMocking];
+  }
+  [_configInstances removeAllObjects];
+  [_configFetch removeAllObjects];
+  _configInstances = nil;
+  _configFetch = nil;
   [super tearDown];
 }
 
