@@ -82,8 +82,8 @@
 }
 
 - (void)clearDataObjectTransportBytes {
-  if (_dataObjectTransportBytes != nil) {
-    _dataObjectTransportBytes = nil;
+  if (_dataObjectTransportBytes) {
+    _dataObjectTransportBytes = Nil;
   }
 }
 

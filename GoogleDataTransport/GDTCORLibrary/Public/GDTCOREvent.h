@@ -64,7 +64,7 @@ typedef NS_ENUM(NSInteger, GDTCOREventQoS) {
 
 /** The fileURL of clearDataObjectTransportBytes in disk. set when store the transport bytes to
  * disk,*/
-@property(nonatomic) NSURL *fileURL;
+@property(nullable, nonatomic) NSURL *fileURL;
 
 /** A dictionary provided to aid prioritizers by allowing the passing of arbitrary data. It will be
  * retained by a copy in -copy, but not used for -hash.
