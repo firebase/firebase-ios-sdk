@@ -51,8 +51,7 @@
 }
 
 - (void)testCCTUploadGivenConditions {
-  NSArray<GDTCOREvent *> *storedEventsA =
-      [self.generator generateTheFiveConsistentEvents];
+  NSArray<GDTCOREvent *> *storedEventsA = [self.generator generateTheFiveConsistentEvents];
   NSSet<GDTCOREvent *> *storedEvents = [NSSet setWithArray:storedEventsA];
 
   GDTCORUploadPackage *package = [[GDTCORUploadPackage alloc] initWithTarget:kGDTCORTargetCCT];

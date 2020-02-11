@@ -16,14 +16,13 @@
 
 #import "GDTCORTests/Unit/GDTCORTestCase.h"
 
-
 #import "GDTCORLibrary/Private/GDTCOREvent_Private.h"
 #import "GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
 #import "GDTCORLibrary/Private/GDTCORStorage.h"
 #import "GDTCORLibrary/Private/GDTCORStorage_Private.h"
-#import "GDTCORLibrary/Public/GDTCORRegistrar.h"
-#import "GDTCORLibrary/Public/GDTCOREvent.h"
 #import "GDTCORLibrary/Public/GDTCORDataFuture.h"
+#import "GDTCORLibrary/Public/GDTCOREvent.h"
+#import "GDTCORLibrary/Public/GDTCORRegistrar.h"
 
 #import "GDTCORTests/Unit/Helpers/GDTCORAssertHelper.h"
 #import "GDTCORTests/Unit/Helpers/GDTCORTestPrioritizer.h"
@@ -275,7 +274,8 @@ static NSInteger target = kGDTCORTargetCCT;
   });
 }
 
-/** Tests enforcing that a prioritizer does not retain the DataObjectTransportBytes of an event in memory.*/
+/** Tests enforcing that a prioritizer does not retain the DataObjectTransportBytes of an event in
+ * memory.*/
 - (void)testEventDeallocationIsEnforced {
   __weak NSData *weakDataObjectTransportBytes;
   GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"404" target:target];
@@ -285,11 +285,11 @@ static NSInteger target = kGDTCORTargetCCT;
   // Store the event and wait for the expectation.
   XCTestExpectation *writtenExpectation = [self expectationWithDescription:@"event written"];
   XCTAssertNoThrow([[GDTCORStorage sharedInstance] storeEvent:event
-                                                     onComplete:^(BOOL wasWritten, NSError *error) {
-                                                       XCTAssertTrue(wasWritten);
-                                                       XCTAssertNil(error);
-                                                       [writtenExpectation fulfill];
-                                                     }]);
+                                                   onComplete:^(BOOL wasWritten, NSError *error) {
+                                                     XCTAssertTrue(wasWritten);
+                                                     XCTAssertNil(error);
+                                                     [writtenExpectation fulfill];
+                                                   }]);
   [self waitForExpectations:@[ writtenExpectation ] timeout:10.0];
 
   dispatch_sync([GDTCORStorage sharedInstance].storageQueue, ^{
@@ -313,7 +313,6 @@ static NSInteger target = kGDTCORTargetCCT;
     XCTAssertEqual([GDTCORStorage sharedInstance].targetToEventSet[@(target)].count, 0);
   });
 }
-
 
 /** Tests encoding and decoding the storage singleton correctly. */
 - (void)testNSSecureCoding {

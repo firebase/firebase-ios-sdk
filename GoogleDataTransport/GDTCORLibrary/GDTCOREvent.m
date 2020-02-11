@@ -59,7 +59,8 @@
   NSUInteger dataObjectTransportBytesHash = [_dataObjectTransportBytes hash];
   NSUInteger dataFutureHash = [_dataFuture hash];
 
-  return mappingIDHash ^ _target ^ dataObjectTransportBytesHash ^ _qosTier ^ timeHash ^ dataFutureHash;
+  return mappingIDHash ^ _target ^ dataObjectTransportBytesHash ^ _qosTier ^ timeHash ^
+         dataFutureHash;
 }
 
 - (BOOL)isEqual:(id)object {
@@ -77,15 +78,15 @@
 }
 
 - (void)setDataFuture:(GDTCORDataFuture *)dataFuture {
-    if (dataFuture != _dataFuture){
-        _dataFuture = dataFuture;
-    }
+  if (dataFuture != _dataFuture) {
+    _dataFuture = dataFuture;
+  }
 }
 
 - (void)clearDataObjectTransportBytes {
-    if (_dataObjectTransportBytes != nil){
-        _dataObjectTransportBytes = nil;
-    }
+  if (_dataObjectTransportBytes != nil) {
+    _dataObjectTransportBytes = nil;
+  }
 }
 
 #pragma mark - NSSecureCoding and NSCoding Protocols

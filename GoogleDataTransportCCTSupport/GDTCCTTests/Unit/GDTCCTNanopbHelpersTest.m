@@ -16,8 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import <nanopb/pb_decode.h>
 #import <GoogleDataTransport/GDTCORDataFuture.h>
+#import <nanopb/pb_decode.h>
 
 #import "GDTCCTTests/Unit/Helpers/GDTCCTEventGenerator.h"
 
@@ -114,8 +114,7 @@
 
 /** Tests that the bytes generated are decodable. */
 - (void)testBytesAreDecodable {
-  NSArray<GDTCOREvent *> *storedEventsA =
-      [self.generator generateTheFiveConsistentEvents];
+  NSArray<GDTCOREvent *> *storedEventsA = [self.generator generateTheFiveConsistentEvents];
   NSSet<GDTCOREvent *> *storedEvents = [NSSet setWithArray:storedEventsA];
   gdt_cct_BatchedLogRequest batch = GDTCCTConstructBatchedLogRequest(@{@"1018" : storedEvents});
   NSData *encodedBatchLogRequest = GDTCCTEncodeBatchedLogRequest(&batch);

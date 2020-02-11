@@ -19,10 +19,9 @@
 
 #import <GoogleDataTransport/GDTCORAssert.h>
 #import <GoogleDataTransport/GDTCORConsoleLogger.h>
+#import <GoogleDataTransport/GDTCORDataFuture.h>
 #import <GoogleDataTransport/GDTCORLifecycle.h>
 #import <GoogleDataTransport/GDTCORPrioritizer.h>
-#import <GoogleDataTransport/GDTCORDataFuture.h>
-#import <GoogleDataTransport/GDTCORDataFuture.h>
 
 #import "GDTCORLibrary/Private/GDTCOREvent_Private.h"
 #import "GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
@@ -116,10 +115,10 @@ static NSString *GDTCORStoragePath() {
                                             error:&error];
     GDTCORLogDebug("Event saved to disk: %@", eventFile);
     GDTCORDataFuture *dataFuture = [[GDTCORDataFuture alloc] initWithFileURL:eventFile];
-    [event setDataFuture: dataFuture];
+    [event setDataFuture:dataFuture];
     completion(eventFile != nil, error);
-      
-    //set dataObject to nil in current event
+
+    // set dataObject to nil in current event
     [event clearDataObjectTransportBytes];
 
     // Add event to tracking collections.
@@ -314,12 +313,11 @@ static NSString *const kGDTCORStorageUploadCoordinatorKey = @"GDTCORStorageUploa
   // Create the singleton and populate its ivars.
   GDTCORStorage *sharedInstance = [self.class sharedInstance];
   dispatch_sync(sharedInstance.storageQueue, ^{
-    NSSet *classes =
-        [NSSet setWithObjects:[NSMutableOrderedSet class], [GDTCOREvent class], nil];
+    NSSet *classes = [NSSet setWithObjects:[NSMutableOrderedSet class], [GDTCOREvent class], nil];
     sharedInstance->_storedEvents = [aDecoder decodeObjectOfClasses:classes
                                                              forKey:kGDTCORStorageStoredEventsKey];
-    classes = [NSSet setWithObjects:[NSMutableDictionary class], [NSMutableSet class],
-                                    [GDTCOREvent class], nil];
+    classes = [NSSet
+        setWithObjects:[NSMutableDictionary class], [NSMutableSet class], [GDTCOREvent class], nil];
     sharedInstance->_targetToEventSet =
         [aDecoder decodeObjectOfClasses:classes forKey:kGDTCORStorageTargetToEventSetKey];
     sharedInstance->_uploadCoordinator =

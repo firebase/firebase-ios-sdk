@@ -18,7 +18,6 @@
 
 #import <GoogleDataTransport/GDTCOREventDataObject.h>
 
-
 @class GDTCORClock;
 @class GDTCORDataFuture;
 @class GDTCOREvent;

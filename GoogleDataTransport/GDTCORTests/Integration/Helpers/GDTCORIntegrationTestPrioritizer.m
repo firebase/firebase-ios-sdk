@@ -16,8 +16,8 @@
 
 #import "GDTCORTests/Integration/Helpers/GDTCORIntegrationTestPrioritizer.h"
 
-#import <GoogleDataTransport/GDTCORRegistrar.h>
 #import <GoogleDataTransport/GDTCOREvent.h>
+#import <GoogleDataTransport/GDTCORRegistrar.h>
 
 #import "GDTCORTests/Integration/Helpers/GDTCORIntegrationTestUploadPackage.h"
 

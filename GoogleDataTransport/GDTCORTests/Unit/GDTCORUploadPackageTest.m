@@ -17,9 +17,9 @@
 #import "GDTCORTests/Unit/GDTCORTestCase.h"
 
 #import <GoogleDataTransport/GDTCORClock.h>
+#import <GoogleDataTransport/GDTCOREvent.h>
 #import <GoogleDataTransport/GDTCORRegistrar.h>
 #import <GoogleDataTransport/GDTCORUploadPackage.h>
-#import <GoogleDataTransport/GDTCOREvent.h>
 
 #import "GDTCORLibrary/Private/GDTCORUploadPackage_Private.h"
 

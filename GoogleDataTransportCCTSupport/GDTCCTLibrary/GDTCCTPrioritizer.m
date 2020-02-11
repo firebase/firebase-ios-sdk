@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import <GoogleDataTransport/GDTCOREvent.h>
 #import <GDTCCTLibrary/Private/GDTCCTPrioritizer.h>
 #import <GoogleDataTransport/GDTCORConsoleLogger.h>
+#import <GoogleDataTransport/GDTCOREvent.h>
 #import <GoogleDataTransport/GDTCORRegistrar.h>
 #import <GoogleDataTransport/GDTCORTargets.h>
 
@@ -80,7 +80,7 @@ const static int64_t kMillisPerDay = 8.64e+7;
   GDTCORUploadPackage *package = [[GDTCORUploadPackage alloc] initWithTarget:target];
   dispatch_sync(_queue, ^{
     NSSet<GDTCOREvent *> *eventsThatWillBeSent = [self eventsForTarget:target
-                                                                  conditions:conditions];
+                                                            conditions:conditions];
     package.events = eventsThatWillBeSent;
   });
   GDTCORLogDebug("CCT: %lu events are in the upload package", (unsigned long)package.events.count);
@@ -136,7 +136,7 @@ NSNumber *GDTCCTQosTierFromGDTCOREventQosTier(GDTCOREventQoS qosTier) {
  * @return A set of events for the target.
  */
 - (NSSet<GDTCOREvent *> *)eventsForTarget:(GDTCORTarget)target
-                                     conditions:(GDTCORUploadConditions)conditions {
+                               conditions:(GDTCORUploadConditions)conditions {
   GDTCORClock __strong **timeOfLastDailyUpload = NULL;
   NSSet<GDTCOREvent *> *eventsToFilter;
   switch (target) {

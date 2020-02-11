@@ -17,8 +17,8 @@
 #import <Foundation/Foundation.h>
 
 #import <GoogleDataTransport/GDTCORClock.h>
-#import <GoogleDataTransport/GDTCORPrioritizer.h>
 #import <GoogleDataTransport/GDTCOREvent.h>
+#import <GoogleDataTransport/GDTCORPrioritizer.h>
 #import <GoogleDataTransport/GDTCORTargets.h>
 
 NS_ASSUME_NONNULL_BEGIN

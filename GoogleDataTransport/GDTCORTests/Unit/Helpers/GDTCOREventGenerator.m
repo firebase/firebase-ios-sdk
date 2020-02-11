@@ -17,8 +17,8 @@
 #import "GDTCORTests/Unit/Helpers/GDTCOREventGenerator.h"
 
 #import <GoogleDataTransport/GDTCORClock.h>
-#import <GoogleDataTransport/GDTCOREvent.h>
 #import <GoogleDataTransport/GDTCORDataFuture.h>
+#import <GoogleDataTransport/GDTCOREvent.h>
 #import "GDTCORLibrary/Private/GDTCOREvent_Private.h"
 
 @implementation GDTCOREventGenerator
@@ -30,8 +30,7 @@
       [cachePath stringByAppendingPathComponent:[NSString stringWithFormat:@"test-%ld.txt",
                                                                            (unsigned long)counter]];
   int howManyToGenerate = 3;
-  NSMutableSet<GDTCOREvent *> *set =
-      [[NSMutableSet alloc] initWithCapacity:howManyToGenerate];
+  NSMutableSet<GDTCOREvent *> *set = [[NSMutableSet alloc] initWithCapacity:howManyToGenerate];
   for (int i = 0; i < howManyToGenerate; i++) {
     GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"1337" target:50];
     event.clockSnapshot = [GDTCORClock snapshot];
@@ -43,7 +42,7 @@
     GDTCORDataFuture *dataFuture =
         [[GDTCORDataFuture alloc] initWithFileURL:[NSURL fileURLWithPath:filePath]];
     [event setDataFuture:dataFuture];
-    [set addObject: event];
+    [set addObject:event];
     counter++;
   }
   return set;

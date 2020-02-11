@@ -17,8 +17,8 @@
 #import "GDTCCTTests/Unit/Helpers/GDTCCTEventGenerator.h"
 
 #import <GoogleDataTransport/GDTCORAssert.h>
-#import <GoogleDataTransport/GDTCORTargets.h>
 #import <GoogleDataTransport/GDTCORDataFuture.h>
+#import <GoogleDataTransport/GDTCORTargets.h>
 
 @implementation GDTCCTEventGenerator
 

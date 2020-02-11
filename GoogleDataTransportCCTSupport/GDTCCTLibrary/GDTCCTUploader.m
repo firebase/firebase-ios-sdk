@@ -347,13 +347,12 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
   // Segment the log events by log type.
   NSMutableDictionary<NSString *, NSMutableSet<GDTCOREvent *> *> *logMappingIDToLogSet =
       [[NSMutableDictionary alloc] init];
-  [package.events
-      enumerateObjectsUsingBlock:^(GDTCOREvent *_Nonnull event, BOOL *_Nonnull stop) {
-        NSMutableSet *logSet = logMappingIDToLogSet[event.mappingID];
-        logSet = logSet ? logSet : [[NSMutableSet alloc] init];
-        [logSet addObject:event];
-        logMappingIDToLogSet[event.mappingID] = logSet;
-      }];
+  [package.events enumerateObjectsUsingBlock:^(GDTCOREvent *_Nonnull event, BOOL *_Nonnull stop) {
+    NSMutableSet *logSet = logMappingIDToLogSet[event.mappingID];
+    logSet = logSet ? logSet : [[NSMutableSet alloc] init];
+    [logSet addObject:event];
+    logMappingIDToLogSet[event.mappingID] = logSet;
+  }];
 
   gdt_cct_BatchedLogRequest batchedLogRequest =
       GDTCCTConstructBatchedLogRequest(logMappingIDToLogSet);

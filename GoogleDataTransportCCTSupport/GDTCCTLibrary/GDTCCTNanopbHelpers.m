@@ -23,8 +23,8 @@
 #endif  // TARGET_OS_IOS || TARGET_OS_TV
 
 #import <GoogleDataTransport/GDTCORConsoleLogger.h>
-#import <GoogleDataTransport/GDTCOREvent.h>
 #import <GoogleDataTransport/GDTCORDataFuture.h>
+#import <GoogleDataTransport/GDTCOREvent.h>
 #import <nanopb/pb.h>
 #import <nanopb/pb_decode.h>
 #import <nanopb/pb_encode.h>
@@ -75,9 +75,9 @@ gdt_cct_BatchedLogRequest GDTCCTConstructBatchedLogRequest(
   gdt_cct_LogRequest *logRequests = malloc(sizeof(gdt_cct_LogRequest) * numberOfLogRequests);
 
   __block int i = 0;
-  [logMappingIDToLogSet enumerateKeysAndObjectsUsingBlock:^(
-                            NSString *_Nonnull logMappingID,
-                            NSSet<GDTCOREvent *> *_Nonnull logSet, BOOL *_Nonnull stop) {
+  [logMappingIDToLogSet enumerateKeysAndObjectsUsingBlock:^(NSString *_Nonnull logMappingID,
+                                                            NSSet<GDTCOREvent *> *_Nonnull logSet,
+                                                            BOOL *_Nonnull stop) {
     int32_t logSource = [logMappingID intValue];
     gdt_cct_LogRequest logRequest = GDTCCTConstructLogRequest(logSource, logSet);
     logRequests[i] = logRequest;
