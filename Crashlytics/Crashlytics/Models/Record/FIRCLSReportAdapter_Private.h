@@ -20,6 +20,7 @@
 #import "FIRCLSRecordBinaryImage.h"
 #import "FIRCLSRecordError.h"
 #import "FIRCLSRecordException.h"
+#import "FIRCLSRecordMachException.h"
 #import "FIRCLSRecordExecutable.h"
 #import "FIRCLSRecordHost.h"
 #import "FIRCLSRecordIdentity.h"
@@ -32,6 +33,8 @@
 #import "FIRCLSRecordStorage.h"
 #import "FIRCLSRecordThread.h"
 
+pb_bytes_array_t *FIRCLSEncodeString(NSString *string);
+
 @interface FIRCLSReportAdapter ()
 
 @property(nonatomic, readonly) BOOL hasCrashed;
@@ -39,8 +42,11 @@
 @property(nonatomic, strong) NSString *folderPath;
 @property(nonatomic, strong) NSString *googleAppID;
 
-@property(nonatomic, strong) FIRCLSRecordSignal *signal;
+// The 3 types of crash files, in order of priority
 @property(nonatomic, strong) FIRCLSRecordException *exception;
+@property(nonatomic, strong) FIRCLSRecordMachException *mach_exception;
+@property(nonatomic, strong) FIRCLSRecordSignal *signal;
+
 @property(nonatomic, strong) NSArray<FIRCLSRecordThread *> *threads;
 @property(nonatomic, strong) FIRCLSRecordProcessStats *processStats;
 @property(nonatomic, strong) FIRCLSRecordStorage *storage;

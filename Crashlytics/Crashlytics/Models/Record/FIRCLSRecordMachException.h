@@ -12,22 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSRecordSignal.h"
+#import <Foundation/Foundation.h>
 
-@implementation FIRCLSRecordSignal
+#import "FIRCLSRecordCrashBase.h"
+#import "FIRCLSRecordFrame.h"
 
-- (instancetype)initWithDict:(NSDictionary *)dict {
-  self = [super initWithDict:dict];
-  if (self) {
-    _number = [dict[@"number"] unsignedIntegerValue];
-    _code = [dict[@"code"] unsignedIntegerValue];
-    _address = [dict[@"address"] unsignedIntegerValue];
-    _name = dict[@"name"];
-    _code_name = dict[@"code_name"];
-    _err_no = [dict[@"err_no"] unsignedIntegerValue];
-    self.time = [dict[@"time"] unsignedIntegerValue];
-  }
-  return self;
-}
+NS_ASSUME_NONNULL_BEGIN
+
+// One way to trigger Mach exceptions is by accessing un-malloc'd memory
+@interface FIRCLSRecordMachException : FIRCLSRecordCrashBase
+
+@property(nonatomic, copy) NSMutableArray<NSNumber *> *codes;
+@property(nonatomic, copy) NSString *code_name;
+@property(nonatomic, copy) NSString *name;
+@property(nonatomic) NSUInteger exception;
+@property(nonatomic) NSUInteger original_ports;
 
 @end
+
+NS_ASSUME_NONNULL_END

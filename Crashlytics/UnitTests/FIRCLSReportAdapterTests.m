@@ -44,6 +44,8 @@
 
 @implementation FIRCLSReportAdapterTests
 
+#pragma mark - Adapter Values
+
 /// It is important that crashes do not occur when reading persisted crash files before uploading
 /// Verify various invalid input cases
 - (void)testInvalidRecordCases {
@@ -66,6 +68,7 @@
   id thread __unused = [[FIRCLSRecordThread alloc] initWithDict:nil];
   id error __unused = [[FIRCLSRecordError alloc] initWithDict:nil];
   id exception __unused = [[FIRCLSRecordException alloc] initWithDict:nil];
+  id mach_exception __unused = [[FIRCLSRecordMachException alloc] initWithDict:nil];
 
   NSDictionary *emptyDict = [[NSDictionary alloc] init];
   id application2 __unused = [[FIRCLSRecordApplication alloc] initWithDict:emptyDict];
@@ -84,6 +87,7 @@
   id thread2 __unused = [[FIRCLSRecordThread alloc] initWithDict:emptyDict];
   id error2 __unused = [[FIRCLSRecordError alloc] initWithDict:emptyDict];
   id exception2 __unused = [[FIRCLSRecordException alloc] initWithDict:emptyDict];
+  id mach_exception2 __unused = [[FIRCLSRecordMachException alloc] initWithDict:emptyDict];
 }
 
 /// It is important that crashes do not occur when reading persisted crash files before uploading
@@ -213,6 +217,7 @@
 
   // The other types of crashes should be nil for a signal crash
   XCTAssertNil(adapter.exception);
+  XCTAssertNil(adapter.mach_exception);
   XCTAssertTrue(adapter.hasCrashed);
 
   // Verify signal
@@ -271,6 +276,7 @@
   FIRCLSReportAdapter *adapter = [FIRCLSReportAdapterTests adapterForExceptionCrash];
 
   // The other types of crashes should be nil for a signal crash
+  XCTAssertNil(adapter.mach_exception);
   XCTAssertNil(adapter.signal);
   XCTAssertTrue(adapter.hasCrashed);
 
@@ -337,7 +343,157 @@
   XCTAssertEqual(adapter.storage.total, 499963174912);
 }
 
-- (void)testProtoReport {
+- (void)testRecordMachExceptionFile {
+  FIRCLSReportAdapter *adapter = [FIRCLSReportAdapterTests adapterForMachExceptionCrash];
+
+  // The other types of crashes should be nil for a signal crash
+  XCTAssertNil(adapter.exception);
+  XCTAssertNil(adapter.signal);
+  XCTAssertTrue(adapter.hasCrashed);
+
+  XCTAssertTrue([adapter.mach_exception.name isEqualToString:@"EXC_BAD_ACCESS"]);
+  XCTAssertTrue([adapter.mach_exception.code_name isEqualToString:@"KERN_INVALID_ADDRESS"]);
+  XCTAssertEqual(adapter.mach_exception.exception, 1);
+  XCTAssertEqual(adapter.mach_exception.original_ports, 2);
+  XCTAssertEqual(adapter.mach_exception.codes.count, 2);
+  XCTAssertEqual([adapter.mach_exception.codes[0] unsignedIntValue], 1);
+  XCTAssertEqual([adapter.mach_exception.codes[1] unsignedIntValue], 32);
+
+  XCTAssertEqual(adapter.mach_exception.time, 1581375422);
+
+  // Verify threads in a very basic way (since other tests cover this)
+  XCTAssertEqual(adapter.threads.count, 7);
+
+  FIRCLSRecordThread *firstThread = adapter.threads[0];
+  XCTAssertEqual(firstThread.crashed, true);
+  XCTAssertNil(firstThread.name);
+  XCTAssertNil(firstThread.objc_selector_name);
+  XCTAssertTrue(
+      [firstThread.alternate_name isEqualToString:@"com.apple.main-thread"]);
+  XCTAssertTrue([firstThread.registers[0].name isEqualToString:@"r13"]);
+  XCTAssertEqual(firstThread.registers[0].value, 105553125228976);
+  XCTAssertTrue([firstThread.registers[20].name isEqualToString:@"rdi"]);
+  XCTAssertEqual(firstThread.registers[20].value, 105553116266546);
+
+  FIRCLSRecordThread *lastThread = adapter.threads[6];
+  XCTAssertEqual(lastThread.crashed, false);
+  XCTAssertTrue(
+      [lastThread.name isEqualToString:@"com.apple.NSURLConnectionLoader"]);
+  XCTAssertNil(lastThread.objc_selector_name);
+  XCTAssertNil(lastThread.alternate_name);
+  XCTAssertEqual(lastThread.registers.count, 21);
+
+  XCTAssertTrue([lastThread.registers[0].name isEqualToString:@"r13"]);
+  XCTAssertEqual(lastThread.registers[0].value, 3072);
+  XCTAssertTrue([lastThread.registers[20].name isEqualToString:@"rdi"]);
+  XCTAssertEqual(lastThread.registers[20].value, 123145560817584);
+
+  // Verify process stats in a very basic way (since other tests cover this)
+  XCTAssertEqual(adapter.processStats.active, 11934932992);
+  XCTAssertEqual(adapter.processStats.virtualAddress, 6428303360);
+  XCTAssertEqual(adapter.processStats.user_time, 91691);
+  XCTAssertEqual(adapter.processStats.sys_time, 133815);
+
+  // Verify storage
+  XCTAssertEqual(adapter.storage.free, 155774451712);
+  XCTAssertEqual(adapter.storage.total, 499963174912);
+}
+
+#pragma mark - Proto Report Values
+
+// If there's just a signal file, use it to determine the fields in the crash event's
+// signal field
+- (void)testSignalOnlyProtoReportSignalFields {
+  FIRCLSReportAdapter *adapter = [FIRCLSReportAdapterTests adapterForSignalCrash];
+  google_crashlytics_Report reportProto = [adapter report];
+  google_crashlytics_Session_Event lastEventProto = [self getLastEventProto:reportProto];
+
+  google_crashlytics_Session_Event_Application_Execution_Signal signalProto = lastEventProto.app.execution.signal;
+
+  XCTAssertTrue(reportProto.session.crashed);
+
+  XCTAssertEqual(signalProto.address, 7020687100);
+  [self assertPBData:signalProto.code isEqualToString:@"ABORT"];
+  [self assertPBData:signalProto.name isEqualToString:@"SIGABRT"];
+}
+
+// If there's both a Mach Exception and Signal file, the Mach Exception file takes precedence
+// to set the signal fields in the crash event
+- (void)testAllCrashesProtoReportSignalFields {
+  FIRCLSReportAdapter *adapter = [FIRCLSReportAdapterTests adapterForAllCrashes];
+  google_crashlytics_Report reportProto = [adapter report];
+  google_crashlytics_Session_Event lastEventProto = [self getLastEventProto:reportProto];
+
+  google_crashlytics_Session_Event_Application_Execution_Signal signalProto = lastEventProto.app.execution.signal;
+
+  XCTAssertTrue(reportProto.session.crashed);
+
+  XCTAssertEqual(signalProto.address, 32);
+  [self assertPBData:signalProto.code isEqualToString:@"KERN_INVALID_ADDRESS"];
+  [self assertPBData:signalProto.name isEqualToString:@"EXC_BAD_ACCESS"];
+}
+
+// The order of precedence is Exception > Mach Exception > Signal. This test
+// ensures that common attributes of each of those files is applied with the right
+// precedence
+- (void)testAllCrashesProtoReportPrecedence {
+  FIRCLSReportAdapter *adapter = [FIRCLSReportAdapterTests adapterForAllCrashes];
+  google_crashlytics_Report reportProto = [adapter report];
+  google_crashlytics_Session_Event lastEventProto = [self getLastEventProto:reportProto];
+
+  // Process stats, disk space, and threads should be from the Exception file
+  XCTAssertEqual(reportProto.session.device.ram, 11547275264 + 11312398336 + 7626276864);
+
+  XCTAssertEqual(reportProto.session.device.disk_space, 499963174912);
+  XCTAssertEqual(lastEventProto.device.disk_used, 499963174912 - 163940671488);
+
+  XCTAssertEqual(lastEventProto.app.execution.threads_count, 12);
+}
+
+// If there's just errors, make sure things line up
+- (void)testErrorsOnlyProtoReport {
+  FIRCLSReportAdapter *adapter = [FIRCLSReportAdapterTests adapterForOnlyErrors];
+  google_crashlytics_Report reportProto = [adapter report];
+
+  XCTAssertFalse(reportProto.session.crashed);
+
+  XCTAssertEqual(reportProto.session.events_count, 4);
+
+  // Sanity check some fields
+  for (int i = 0; i < reportProto.session.events_count; i++) {
+    google_crashlytics_Session_Event event = reportProto.session.events[i];
+    XCTAssert(event.timestamp > 0);
+    XCTAssertEqual(event.app.execution.threads_count, 1);
+    XCTAssert(event.app.execution.threads[0].frames[0].pc != 0);
+  }
+
+  XCTAssertEqual(reportProto.session.events[0].timestamp, 1579796960);
+  XCTAssertEqual(reportProto.session.events[0].app.execution.threads[0].frames[0].pc, 4305958120);
+
+  XCTAssertEqual(reportProto.session.events[3].timestamp, 1579796966);
+  XCTAssertEqual(reportProto.session.events[3].app.execution.threads[0].frames[3].pc, 4305600396);
+  XCTAssertEqual(reportProto.session.events[3].app.execution.threads[0].frames[28].pc, 7020727833);
+}
+
+#pragma mark - Proto Report Bytes
+
+- (void)testExceptionProtoReportBytes {
+  FIRCLSReportAdapter *adapter = [FIRCLSReportAdapterTests adapterForExceptionCrash];
+  __unused NSData *report = [adapter transportBytes];
+
+  // TODO - Consider: take a dependency on protobuf in tests and compare the nanopb generated bytes
+  //                  vs. canonical protobuf bytes
+}
+
+- (void)testMachExceptionProtoReportBytes {
+  FIRCLSReportAdapter *adapter = [FIRCLSReportAdapterTests adapterForMachExceptionCrash];
+  __unused NSData *report = [adapter transportBytes];
+
+  // TODO - Consider: take a dependency on protobuf in tests and compare the nanopb generated bytes
+  //                  vs. canonical protobuf bytes
+}
+
+- (void)testSignalProtoReportBytes {
   FIRCLSReportAdapter *adapter = [FIRCLSReportAdapterTests adapterForSignalCrash];
   __unused NSData *report = [adapter transportBytes];
 
@@ -345,20 +501,54 @@
   //                  vs. canonical protobuf bytes
 }
 
-- (void)testProtoReportFromCorruptFiles {
+- (void)testProtoReportFromCorruptFilesBytes {
   FIRCLSReportAdapter *adapter = [FIRCLSReportAdapterTests adapterForCorruptFiles];
   __unused NSData *report = [adapter transportBytes];
 }
 
+#pragma mark - Assertion Helpers for NanoPB Types
+
+- (void)assertPBData:(pb_bytes_array_t *)pbString isEqualToString:(NSString *)expected {
+  pb_bytes_array_t *expectedProtoBytes = FIRCLSEncodeString(expected);
+  XCTAssertEqual(pbString->size, expectedProtoBytes->size);
+
+  for (int i = 0; i < pbString->size; i++) {
+    XCTAssertEqual(expectedProtoBytes->bytes[0], pbString->bytes[0]);
+  }
+}
+
+#pragma mark - Getting Portions of the Proto
+
+- (google_crashlytics_Session_Event)getLastEventProto:(google_crashlytics_Report)reportProto {
+  XCTAssert(reportProto.session.events_count > 0);
+  return reportProto.session.events[reportProto.session.events_count - 1];
+}
+
 // Helper functions
+#pragma mark - Helper Functions
+
++ (FIRCLSReportAdapter *)adapterForExceptionCrash {
+  return [[FIRCLSReportAdapter alloc] initWithPath:[FIRCLSReportAdapterTests persistedExceptionCrashFolder]
+                                       googleAppId:@"appID"];
+}
+
++ (FIRCLSReportAdapter *)adapterForMachExceptionCrash {
+  return [[FIRCLSReportAdapter alloc] initWithPath:[FIRCLSReportAdapterTests persistedMachExceptionCrashFolder]
+                                       googleAppId:@"appID"];
+}
 
 + (FIRCLSReportAdapter *)adapterForSignalCrash {
   return [[FIRCLSReportAdapter alloc] initWithPath:[FIRCLSReportAdapterTests persistedSignalCrashFolder]
                                        googleAppId:@"appID"];
 }
 
-+ (FIRCLSReportAdapter *)adapterForExceptionCrash {
-  return [[FIRCLSReportAdapter alloc] initWithPath:[FIRCLSReportAdapterTests persistedExceptionCrashFolder]
++ (FIRCLSReportAdapter *)adapterForAllCrashes {
+  return [[FIRCLSReportAdapter alloc] initWithPath:[FIRCLSReportAdapterTests persistedAllCrashesFolder]
+                                       googleAppId:@"appID"];
+}
+
++ (FIRCLSReportAdapter *)adapterForOnlyErrors {
+  return [[FIRCLSReportAdapter alloc] initWithPath:[FIRCLSReportAdapterTests persistedOnlyErrorsFolder]
                                        googleAppId:@"appID"];
 }
 
@@ -371,12 +561,24 @@
   return [[NSBundle bundleForClass:[self class]] resourcePath];
 }
 
++ (NSString *)persistedExceptionCrashFolder {
+  return [[FIRCLSReportAdapterTests resourcePath] stringByAppendingPathComponent:@"ios_exception_crash"];
+}
+
++ (NSString *)persistedMachExceptionCrashFolder {
+  return [[FIRCLSReportAdapterTests resourcePath] stringByAppendingPathComponent:@"ios_mach_exception_crash"];
+}
+
 + (NSString *)persistedSignalCrashFolder {
   return [[FIRCLSReportAdapterTests resourcePath] stringByAppendingPathComponent:@"ios_signal_crash"];
 }
 
-+ (NSString *)persistedExceptionCrashFolder {
-  return [[FIRCLSReportAdapterTests resourcePath] stringByAppendingPathComponent:@"ios_exception_crash"];
++ (NSString *)persistedAllCrashesFolder {
+  return [[FIRCLSReportAdapterTests resourcePath] stringByAppendingPathComponent:@"ios_all_files_crash"];
+}
+
++ (NSString *)persistedOnlyErrorsFolder {
+  return [[FIRCLSReportAdapterTests resourcePath] stringByAppendingPathComponent:@"ios_only_errors"];
 }
 
 + (NSString *)corruptedCrashFolder {

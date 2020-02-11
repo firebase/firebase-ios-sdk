@@ -32,7 +32,7 @@
   _reason = dict[@"reason"];
   _type = dict[@"type"];
 
-  _time = [dict[@"time"] unsignedIntegerValue];
+  self.time = [dict[@"time"] unsignedIntegerValue];
 
   return self;
 }

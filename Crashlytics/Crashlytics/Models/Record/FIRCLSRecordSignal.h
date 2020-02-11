@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FIRCLSRecordBase.h"
+#import "FIRCLSRecordCrashBase.h"
 
-@interface FIRCLSRecordSignal : FIRCLSRecordBase
+@interface FIRCLSRecordSignal : FIRCLSRecordCrashBase
 
 @property(nonatomic) NSUInteger number;
 @property(nonatomic) NSUInteger code;
@@ -24,6 +24,5 @@
 @property(nonatomic, copy) NSString *name;
 @property(nonatomic, copy) NSString *code_name;
 @property(nonatomic) NSUInteger err_no;
-@property(nonatomic) NSUInteger time;
 
 @end

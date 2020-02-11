@@ -81,14 +81,8 @@
 /// Reads from all the possible crash files, and fills in the data whenever they exist. Crash files only exist for certain types of crashes.
 /// (eg. exception.clsrecord is only written when an uncaught exception crashed the app).
 - (void)loadAllCrashFiles {
-  // TODO FIRCLSReportMachExceptionFile
-  // TODO FIRCLSReportMachExceptionFile
-  // TODO FIRCLSReportMachExceptionFile
-  // TODO FIRCLSReportMachExceptionFile
-  // TODO FIRCLSReportMachExceptionFile
-  // TODO FIRCLSReportMachExceptionFile
-  // TODO FIRCLSReportMachExceptionFile
-  // TODO FIRCLSReportMachExceptionFile
+  BOOL hasInitializedCommonComponents = false;
+
   for (NSString *crashFilePath in [FIRCLSInternalReport crashFileNames]) {
     NSString *path = [self.folderPath stringByAppendingPathComponent:crashFilePath];
 
@@ -99,18 +93,30 @@
 
     NSDictionary *dicts = [FIRCLSReportAdapter combinedDictionariesFromFilePath:path];
 
-    NSDictionary *signalDict = dicts[@"signal"];
     NSDictionary *exceptionDict = dicts[@"exception"];
+    NSDictionary *machExceptionDict = dicts[@"mach_exception"];
+    NSDictionary *signalDict = dicts[@"signal"];
 
     // These fields are specific to the type of crash file
-    if (signalDict) {
-      self.signal = [[FIRCLSRecordSignal alloc] initWithDict:signalDict];
-
-    } else if (exceptionDict) {
+    if (exceptionDict) {
       self.exception = [[FIRCLSRecordException alloc] initWithDict:exceptionDict];
+
+    } else if (machExceptionDict) {
+      self.mach_exception = [[FIRCLSRecordMachException alloc] initWithDict:machExceptionDict];
+
+    } else if (signalDict) {
+      self.signal = [[FIRCLSRecordSignal alloc] initWithDict:signalDict];
     }
 
-    // These fields are common across all crash files
+    // These fields are common across all crash files. The order of precedence is
+    // Exception > Mach Exception > Signal. Since we are iterating in that order,
+    // once any of these fields have been, do not overwrite them.
+    if (hasInitializedCommonComponents) {
+      continue;
+    }
+
+    hasInitializedCommonComponents = true;
+
     self.runtime = [[FIRCLSRecordRuntime alloc] initWithDict:dicts[@"runtime"]];
     self.processStats = [[FIRCLSRecordProcessStats alloc] initWithDict:dicts[@"process_stats"]];
     self.storage = [[FIRCLSRecordStorage alloc] initWithDict:dicts[@"storage"]];
@@ -120,6 +126,19 @@
                                                    threadNames:dicts[@"thread_names"]
                                         withDispatchQueueNames:dicts[@"dispatch_queue_names"]
                                                    withRuntime:self.runtime];
+  }
+}
+
+// Reimplements Protobuf.scala#L102 (getCrash)
+- (FIRCLSRecordCrashBase *)getCrash {
+  if (self.exception) {
+    return self.exception;
+  } else if (self.mach_exception) {
+    return self.mach_exception;
+  } else if (self.signal) {
+    return self.signal;
+  } else {
+    return nil;
   }
 }
 
@@ -283,7 +302,7 @@
 
 /// Return if the app crashed
 - (BOOL)hasCrashed {
-  return self.signal || self.exception;
+  return [self getCrash] != nil;
 }
 
 - (NSUInteger)ramUsed {
@@ -360,10 +379,13 @@
 
 - (google_crashlytics_Session)protoSession {
   google_crashlytics_Session session = google_crashlytics_Session_init_default;
+
+  // Should be set by backend
+  session.ended_at = 0;
+
   session.generator = FIRCLSEncodeString(self.identity.generator);
   session.identifier = FIRCLSEncodeString(self.identity.session_id);
   session.started_at = self.identity.started_at;
-  session.ended_at = self.signal.time;
   session.crashed = [self hasCrashed];
   session.app = [self protoSessionApplication];
   session.os = [self protoOperatingSystem];
@@ -434,22 +456,24 @@
   }
 
   // Add crash event
-  if ([self hasCrashed]) {
-    events[numberOfEvents - 1] = [self protoEventForCrash];
+  FIRCLSRecordCrashBase *crash = [self getCrash];
+  if (crash) {
+    events[numberOfEvents - 1] = [self protoEventForCrash:crash];
   }
 
   return events;
 }
 
-- (google_crashlytics_Session_Event)protoEventForCrash {
-  google_crashlytics_Session_Event crash = google_crashlytics_Session_Event_init_default;
-  crash.timestamp = self.signal.time;
-  crash.type = FIRCLSEncodeString(@"crashed");
-  crash.app = [self protoEventApplicationForCrash];
-  crash.device = [self protoEventDevice];
-  crash.log.content = FIRCLSEncodeString([self logsContent]);
+- (google_crashlytics_Session_Event)protoEventForCrash:(FIRCLSRecordCrashBase *)crash {
+  google_crashlytics_Session_Event crashProto = google_crashlytics_Session_Event_init_default;
 
-  return crash;
+  crashProto.timestamp = crash.time;
+  crashProto.type = FIRCLSEncodeString(@"crashed");
+  crashProto.app = [self protoEventApplicationForCrash];
+  crashProto.device = [self protoEventDevice];
+  crashProto.log.content = FIRCLSEncodeString([self logsContent]);
+
+  return crashProto;
 }
 
 - (google_crashlytics_Session_Event)protoEventForError:(FIRCLSRecordError *)recordedError {
@@ -472,6 +496,8 @@
   app.execution.signal = [self protoSignal];
   app.execution.threads = [self protoThreadsWithArray:self.threads];
   app.execution.threads_count = (pb_size_t)self.threads.count;
+
+  // TODO: Fill in Exception object
 
   app.background = [self wasInBackground];
   app.ui_orientation = [self uiOrientation];
@@ -536,6 +562,16 @@
   return attributes;
 }
 
+
+// When an exception.clsrecord file for a fatal crash is created, build the threads in
+// the crash Event with the added info from the exception
+// Replicates Protobuf.scala#L426 (addCrashInfo)
+- (google_crashlytics_Session_Event_Application_Execution_Thread *)protoThreadsWithException:(FIRCLSRecordException *)exception {
+  google_crashlytics_Session_Event_Application_Execution_Thread *threads =
+      malloc(sizeof(google_crashlytics_Session_Event_Application_Execution_Thread) * exception.frames.count);
+  return threads;
+}
+
 - (google_crashlytics_Session_Event_Application_Execution_Thread *)protoThreadsWithArray:
     (NSArray<FIRCLSRecordThread *> *)array {
   google_crashlytics_Session_Event_Application_Execution_Thread *threads =
@@ -595,15 +631,27 @@
   return registers;
 }
 
+// Reimplements Protobuf.scala#L503
 - (google_crashlytics_Session_Event_Application_Execution_Signal)protoSignal {
-  google_crashlytics_Session_Event_Application_Execution_Signal signal =
+  google_crashlytics_Session_Event_Application_Execution_Signal signalProto =
       google_crashlytics_Session_Event_Application_Execution_Signal_init_default;
 
-  signal.address = self.signal.address;
-  signal.code = FIRCLSEncodeString(self.signal.code_name);
-  signal.name = FIRCLSEncodeString(self.signal.name);
+  if (self.signal) {
+    signalProto.address = self.signal.address;
+    signalProto.code = FIRCLSEncodeString(self.signal.code_name);
+    signalProto.name = FIRCLSEncodeString(self.signal.name);
+  }
 
-  return signal;
+  // The address is the second code, if we have 2 codes, from Protobuf.scala#L525
+  if (self.mach_exception) {
+    if (self.mach_exception.codes.count > 1) {
+      signalProto.address = [self.mach_exception.codes[1] unsignedIntValue];
+    }
+    signalProto.code = FIRCLSEncodeString(self.mach_exception.code_name);
+    signalProto.name = FIRCLSEncodeString(self.mach_exception.name);
+  }
+
+  return signalProto;
 }
 
 - (google_crashlytics_Session_Event_Application_Execution_BinaryImage *)protoBinaryImages {

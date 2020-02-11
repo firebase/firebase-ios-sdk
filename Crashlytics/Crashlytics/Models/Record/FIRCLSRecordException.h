@@ -14,18 +14,17 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRCLSRecordBase.h"
+#import "FIRCLSRecordCrashBase.h"
 #import "FIRCLSRecordFrame.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRCLSRecordException : FIRCLSRecordBase
+@interface FIRCLSRecordException : FIRCLSRecordCrashBase
 
 @property(nonatomic, copy) NSMutableArray<FIRCLSRecordFrame *> *frames;
 @property(nonatomic, copy) NSString *name;
 @property(nonatomic, copy) NSString *reason;
 @property(nonatomic, copy) NSString *type;
-@property(nonatomic) NSUInteger time;
 
 @end
 
