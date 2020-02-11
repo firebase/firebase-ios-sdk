@@ -20,7 +20,6 @@
 #import "GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
 #import "GDTCORLibrary/Private/GDTCORStorage.h"
 #import "GDTCORLibrary/Private/GDTCORStorage_Private.h"
-#import "GDTCORLibrary/Public/GDTCORDataFuture.h"
 #import "GDTCORLibrary/Public/GDTCOREvent.h"
 #import "GDTCORLibrary/Public/GDTCORRegistrar.h"
 
@@ -97,7 +96,7 @@ static NSInteger target = kGDTCORTargetCCT;
   dispatch_sync([GDTCORStorage sharedInstance].storageQueue, ^{
     XCTAssertEqual([GDTCORStorage sharedInstance].storedEvents.count, 1);
     XCTAssertEqual([GDTCORStorage sharedInstance].targetToEventSet[@(target)].count, 1);
-    NSURL *eventFile = [[GDTCORStorage sharedInstance].storedEvents lastObject].dataFuture.fileURL;
+    NSURL *eventFile = [[GDTCORStorage sharedInstance].storedEvents lastObject].fileURL;
     XCTAssertNotNil(eventFile);
     XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:eventFile.path]);
     NSError *error;
@@ -124,7 +123,7 @@ static NSInteger target = kGDTCORTargetCCT;
   }
   __block NSURL *eventFile;
   dispatch_sync([GDTCORStorage sharedInstance].storageQueue, ^{
-    eventFile = [[GDTCORStorage sharedInstance].storedEvents lastObject].dataFuture.fileURL;
+    eventFile = [[GDTCORStorage sharedInstance].storedEvents lastObject].fileURL;
     XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:eventFile.path]);
   });
   [[GDTCORStorage sharedInstance] removeEvents:[GDTCORStorage sharedInstance].storedEvents.set];
@@ -193,8 +192,7 @@ static NSInteger target = kGDTCORTargetCCT;
     XCTAssertFalse([storage.storedEvents containsObject:storedEvent3]);
     XCTAssertEqual(storage.targetToEventSet[@(target)].count, 0);
     for (GDTCOREvent *event in eventSet) {
-      XCTAssertFalse(
-          [[NSFileManager defaultManager] fileExistsAtPath:event.dataFuture.fileURL.path]);
+      XCTAssertFalse([[NSFileManager defaultManager] fileExistsAtPath:event.fileURL.path]);
     }
   });
 }
@@ -251,21 +249,21 @@ static NSInteger target = kGDTCORTargetCCT;
     XCTAssertEqual([GDTCORStorage sharedInstance].storedEvents.count, 3);
     XCTAssertEqual([GDTCORStorage sharedInstance].targetToEventSet[@(target)].count, 3);
 
-    NSURL *event1File = storedEvent1.dataFuture.fileURL;
+    NSURL *event1File = storedEvent1.fileURL;
     XCTAssertNotNil(event1File);
     XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:event1File.path]);
     NSError *error;
     XCTAssertTrue([[NSFileManager defaultManager] removeItemAtURL:event1File error:&error]);
     XCTAssertNil(error, @"There was an error deleting the eventFile: %@", error);
 
-    NSURL *event2File = storedEvent2.dataFuture.fileURL;
+    NSURL *event2File = storedEvent2.fileURL;
     XCTAssertNotNil(event2File);
     XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:event2File.path]);
     error = nil;
     XCTAssertTrue([[NSFileManager defaultManager] removeItemAtURL:event2File error:&error]);
     XCTAssertNil(error, @"There was an error deleting the eventFile: %@", error);
 
-    NSURL *event3File = storedEvent3.dataFuture.fileURL;
+    NSURL *event3File = storedEvent3.fileURL;
     XCTAssertNotNil(event3File);
     XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:event3File.path]);
     error = nil;
@@ -298,7 +296,7 @@ static NSInteger target = kGDTCORTargetCCT;
   });
 
   NSURL *eventFile;
-  eventFile = [[GDTCORStorage sharedInstance].storedEvents lastObject].dataFuture.fileURL;
+  eventFile = [[GDTCORStorage sharedInstance].storedEvents lastObject].fileURL;
 
   // This isn't strictly necessary because of the -waitForExpectations above.
   dispatch_sync([GDTCORStorage sharedInstance].storageQueue, ^{
@@ -428,7 +426,7 @@ static NSInteger target = kGDTCORTargetCCT;
     XCTAssertTrue(self.uploaderFake.forceUploadCalled);
     XCTAssertEqual([GDTCORStorage sharedInstance].storedEvents.count, 1);
     XCTAssertEqual([GDTCORStorage sharedInstance].targetToEventSet[@(target)].count, 1);
-    NSURL *eventFile = [[GDTCORStorage sharedInstance].storedEvents lastObject].dataFuture.fileURL;
+    NSURL *eventFile = [[GDTCORStorage sharedInstance].storedEvents lastObject].fileURL;
     XCTAssertNotNil(eventFile);
     XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:eventFile.path]);
     NSError *error;

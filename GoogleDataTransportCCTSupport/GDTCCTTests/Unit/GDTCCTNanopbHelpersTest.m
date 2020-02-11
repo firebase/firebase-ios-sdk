@@ -16,7 +16,6 @@
 
 #import <XCTest/XCTest.h>
 
-#import <GoogleDataTransport/GDTCORDataFuture.h>
 #import <nanopb/pb_decode.h>
 
 #import "GDTCCTTests/Unit/Helpers/GDTCCTEventGenerator.h"
@@ -50,8 +49,8 @@
   for (int i = 0; i < events1.count; i++) {
     GDTCOREvent *storedEvent1 = events1[i];
     GDTCOREvent *storedEvent2 = events2[i];
-    NSData *storedEvent1Data = [NSData dataWithContentsOfURL:storedEvent1.dataFuture.fileURL];
-    NSData *storedEvent2Data = [NSData dataWithContentsOfURL:storedEvent2.dataFuture.fileURL];
+    NSData *storedEvent1Data = [NSData dataWithContentsOfURL:storedEvent1.fileURL];
+    NSData *storedEvent2Data = [NSData dataWithContentsOfURL:storedEvent2.fileURL];
     XCTAssertEqualObjects(storedEvent1Data, storedEvent2Data);
   }
 }

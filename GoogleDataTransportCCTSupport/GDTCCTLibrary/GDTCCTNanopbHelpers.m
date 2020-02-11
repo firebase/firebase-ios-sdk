@@ -23,7 +23,6 @@
 #endif  // TARGET_OS_IOS || TARGET_OS_TV
 
 #import <GoogleDataTransport/GDTCORConsoleLogger.h>
-#import <GoogleDataTransport/GDTCORDataFuture.h>
 #import <GoogleDataTransport/GDTCOREvent.h>
 #import <nanopb/pb.h>
 #import <nanopb/pb_decode.h>
@@ -131,9 +130,7 @@ gdt_cct_LogEvent GDTCCTConstructLogEvent(GDTCOREvent *event) {
   // TODO: Read network_connection_info from the custom params dict.
 
   NSError *error;
-  NSData *extensionBytes = [NSData dataWithContentsOfURL:event.dataFuture.fileURL
-                                                 options:0
-                                                   error:&error];
+  NSData *extensionBytes = [NSData dataWithContentsOfURL:event.fileURL options:0 error:&error];
   if (error) {
     GDTCORLogError(GDTCORMCEGeneralError,
                    @"There was an error reading extension bytes from disk: %@", error);

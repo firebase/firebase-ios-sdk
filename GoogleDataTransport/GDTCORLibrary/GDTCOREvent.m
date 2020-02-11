@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-#import <GoogleDataTransport/GDTCOREvent.h>
+#import "GDTCORLibrary/Public/GDTCOREvent.h"
+#import "GDTCORLibrary/Private/GDTCOREvent_Private.h"
 
 #import <GoogleDataTransport/GDTCORAssert.h>
 #import <GoogleDataTransport/GDTCORConsoleLogger.h>
-#import <GoogleDataTransport/GDTCORDataFuture.h>
-
-#import "GDTCORLibrary/Private/GDTCOREvent_Private.h"
 
 @implementation GDTCOREvent
 
@@ -48,6 +46,7 @@
   copy.qosTier = _qosTier;
   copy.clockSnapshot = _clockSnapshot;
   copy.customPrioritizationParams = _customPrioritizationParams;
+  copy.fileURL = _fileURL;
   GDTCORLogDebug("Copying event %@ to event %@", self, copy);
   return copy;
 }
@@ -57,10 +56,9 @@
   NSUInteger mappingIDHash = [_mappingID hash];
   NSUInteger timeHash = [_clockSnapshot hash];
   NSUInteger dataObjectTransportBytesHash = [_dataObjectTransportBytes hash];
-  NSUInteger dataFutureHash = [_dataFuture hash];
+  NSUInteger fileURL = [_fileURL hash];
 
-  return mappingIDHash ^ _target ^ dataObjectTransportBytesHash ^ _qosTier ^ timeHash ^
-         dataFutureHash;
+  return mappingIDHash ^ _target ^ dataObjectTransportBytesHash ^ _qosTier ^ timeHash ^ fileURL;
 }
 
 - (BOOL)isEqual:(id)object {
@@ -77,9 +75,9 @@
   }
 }
 
-- (void)setDataFuture:(GDTCORDataFuture *)dataFuture {
-  if (dataFuture != _dataFuture) {
-    _dataFuture = dataFuture;
+- (void)setFileURL:(NSURL *)fileURL {
+  if (fileURL != _fileURL) {
+    _fileURL = fileURL;
   }
 }
 
@@ -106,8 +104,8 @@ static NSString *qosTierKey = @"_qosTier";
 /** NSCoding key for clockSnapshot property. */
 static NSString *clockSnapshotKey = @"_clockSnapshot";
 
-/** NSCoding key for dataFuture property. */
-static NSString *dataFuture = @"_dataFuture";
+/** NSCoding key for fileURL property. */
+static NSString *fileURLKey = @"_fileURL";
 
 + (BOOL)supportsSecureCoding {
   return YES;
@@ -122,6 +120,7 @@ static NSString *dataFuture = @"_dataFuture";
                                                        forKey:dataObjectTransportBytesKey];
     _qosTier = [aDecoder decodeIntegerForKey:qosTierKey];
     _clockSnapshot = [aDecoder decodeObjectOfClass:[GDTCORClock class] forKey:clockSnapshotKey];
+    _fileURL = [aDecoder decodeObjectOfClass:[NSURL class] forKey:fileURLKey];
   }
   return self;
 }
@@ -132,6 +131,7 @@ static NSString *dataFuture = @"_dataFuture";
   [aCoder encodeObject:_dataObjectTransportBytes forKey:dataObjectTransportBytesKey];
   [aCoder encodeInteger:_qosTier forKey:qosTierKey];
   [aCoder encodeObject:_clockSnapshot forKey:clockSnapshotKey];
+  [aCoder encodeObject:_fileURL forKey:fileURLKey];
 }
 
 @end

@@ -17,7 +17,6 @@
 #import "GDTCCTTests/Unit/Helpers/GDTCCTEventGenerator.h"
 
 #import <GoogleDataTransport/GDTCORAssert.h>
-#import <GoogleDataTransport/GDTCORDataFuture.h>
 #import <GoogleDataTransport/GDTCORTargets.h>
 
 @implementation GDTCCTEventGenerator
@@ -34,7 +33,7 @@
 - (void)deleteGeneratedFilesFromDisk {
   for (GDTCOREvent *event in self.allGeneratedEvents) {
     NSError *error;
-    [[NSFileManager defaultManager] removeItemAtURL:event.dataFuture.fileURL error:&error];
+    [[NSFileManager defaultManager] removeItemAtURL:event.fileURL error:&error];
     GDTCORAssert(error == nil, @"There was an error deleting a temporary event file.");
   }
 }
@@ -48,9 +47,7 @@
   event.clockSnapshot = [GDTCORClock snapshot];
   event.qosTier = qosTier;
   [[NSFileManager defaultManager] createFileAtPath:filePath contents:[NSData data] attributes:nil];
-  GDTCORDataFuture *future =
-      [[GDTCORDataFuture alloc] initWithFileURL:[NSURL fileURLWithPath:filePath]];
-  [event setDataFuture:future];
+  [event setFileURL:[NSURL fileURLWithPath:filePath]];
   [self.allGeneratedEvents addObject:event];
   return event;
 }
@@ -59,9 +56,7 @@
   GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"1018" target:_target];
   event.clockSnapshot = [GDTCORClock snapshot];
   event.qosTier = qosTier;
-  GDTCORDataFuture *future =
-      [[GDTCORDataFuture alloc] initWithFileURL:[NSURL fileURLWithPath:fileURL.path]];
-  [event setDataFuture:future];
+  [event setFileURL:fileURL];
   [self.allGeneratedEvents addObject:event];
   return event;
 }
@@ -97,8 +92,7 @@
     event.qosTier = GDTCOREventQosDefault;
     event.customPrioritizationParams = @{@"customParam" : @1337};
     NSURL *messageDataURL = [self writeConsistentMessageToDisk:@"message-32347456.dat"];
-    GDTCORDataFuture *future = [[GDTCORDataFuture alloc] initWithFileURL:messageDataURL];
-    [event setDataFuture:future];
+    [event setFileURL:messageDataURL];
     [events addObject:event];
   }
 
@@ -111,8 +105,7 @@
     [event.clockSnapshot setValue:@(1236567890) forKeyPath:@"uptime"];
     event.qosTier = GDTCOREventQoSWifiOnly;
     NSURL *messageDataURL = [self writeConsistentMessageToDisk:@"message-35458880.dat"];
-    GDTCORDataFuture *future = [[GDTCORDataFuture alloc] initWithFileURL:messageDataURL];
-    [event setDataFuture:future];
+    [event setFileURL:messageDataURL];
     [events addObject:event];
   }
 
@@ -125,8 +118,7 @@
     [event.clockSnapshot setValue:@(1237567890) forKeyPath:@"uptime"];
     event.qosTier = GDTCOREventQosDefault;
     NSURL *messageDataURL = [self writeConsistentMessageToDisk:@"message-39882816.dat"];
-    GDTCORDataFuture *future = [[GDTCORDataFuture alloc] initWithFileURL:messageDataURL];
-    [event setDataFuture:future];
+    [event setFileURL:messageDataURL];
     [events addObject:event];
   }
 
@@ -140,8 +132,7 @@
     event.qosTier = GDTCOREventQosDefault;
     event.customPrioritizationParams = @{@"customParam1" : @"aValue1"};
     NSURL *messageDataURL = [self writeConsistentMessageToDisk:@"message-40043840.dat"];
-    GDTCORDataFuture *future = [[GDTCORDataFuture alloc] initWithFileURL:messageDataURL];
-    [event setDataFuture:future];
+    [event setFileURL:messageDataURL];
     [events addObject:event];
   }
 
@@ -155,8 +146,7 @@
     event.qosTier = GDTCOREventQoSTelemetry;
     event.customPrioritizationParams = @{@"customParam2" : @(34)};
     NSURL *messageDataURL = [self writeConsistentMessageToDisk:@"message-40657984.dat"];
-    GDTCORDataFuture *future = [[GDTCORDataFuture alloc] initWithFileURL:messageDataURL];
-    [event setDataFuture:future];
+    [event setFileURL:messageDataURL];
     [events addObject:event];
   }
   return events;

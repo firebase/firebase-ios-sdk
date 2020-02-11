@@ -17,7 +17,6 @@
 #import "GDTCORTests/Unit/Helpers/GDTCOREventGenerator.h"
 
 #import <GoogleDataTransport/GDTCORClock.h>
-#import <GoogleDataTransport/GDTCORDataFuture.h>
 #import <GoogleDataTransport/GDTCOREvent.h>
 #import "GDTCORLibrary/Private/GDTCOREvent_Private.h"
 
@@ -39,9 +38,7 @@
     [[NSFileManager defaultManager] createFileAtPath:filePath
                                             contents:[NSData data]
                                           attributes:nil];
-    GDTCORDataFuture *dataFuture =
-        [[GDTCORDataFuture alloc] initWithFileURL:[NSURL fileURLWithPath:filePath]];
-    [event setDataFuture:dataFuture];
+    [event setFileURL:[NSURL fileURLWithPath:filePath]];
     [set addObject:event];
     counter++;
   }

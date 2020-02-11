@@ -19,7 +19,6 @@
 #import <GoogleDataTransport/GDTCOREventDataObject.h>
 
 @class GDTCORClock;
-@class GDTCORDataFuture;
 @class GDTCOREvent;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -63,9 +62,9 @@ typedef NS_ENUM(NSInteger, GDTCOREventQoS) {
 /** The clock snapshot at the time of the event. */
 @property(nonatomic) GDTCORClock *clockSnapshot;
 
-/** The DataFuture of the event. set when write the transport bytes to disk,
- *representing the original event's transport bytes.*/
-@property(nonatomic) GDTCORDataFuture *dataFuture;
+/** The fileURL of clearDataObjectTransportBytes in disk. set when store the transport bytes to
+ * disk,*/
+@property(nonatomic) NSURL *fileURL;
 
 /** A dictionary provided to aid prioritizers by allowing the passing of arbitrary data. It will be
  * retained by a copy in -copy, but not used for -hash.
@@ -85,6 +84,12 @@ typedef NS_ENUM(NSInteger, GDTCOREventQoS) {
  */
 - (nullable instancetype)initWithMappingID:(NSString *)mappingID
                                     target:(NSInteger)target NS_DESIGNATED_INITIALIZER;
+
+/** Set _fileURL of the event
+ *
+ *@param fileURL The URL of dataObjectTransportBytes stored in the disk
+ */
+- (void)setFileURL:(NSURL *)fileURL;
 
 /** Clear the dataObject in event after stored to disk.*/
 - (void)clearDataObjectTransportBytes;

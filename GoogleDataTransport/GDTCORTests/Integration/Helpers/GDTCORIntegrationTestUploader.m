@@ -17,7 +17,6 @@
 #import "GDTCORTests/Integration/Helpers/GDTCORIntegrationTestUploader.h"
 
 #import <GoogleDataTransport/GDTCORAssert.h>
-#import <GoogleDataTransport/GDTCORDataFuture.h>
 #import <GoogleDataTransport/GDTCOREvent.h>
 #import <GoogleDataTransport/GDTCORRegistrar.h>
 
@@ -56,7 +55,7 @@
 
   // In real usage, you'd create an instance of whatever request proto your server needs.
   for (GDTCOREvent *event in package.events) {
-    NSData *fileData = [NSData dataWithContentsOfURL:event.dataFuture.fileURL];
+    NSData *fileData = [NSData dataWithContentsOfURL:event.fileURL];
     GDTCORFatalAssert(fileData, @"An event file shouldn't be empty");
     [uploadData appendData:fileData];
   }

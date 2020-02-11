@@ -16,7 +16,6 @@
 
 #import "GDTCORTests/Unit/GDTCORTestCase.h"
 
-#import <GoogleDataTransport/GDTCORDataFuture.h>
 #import <GoogleDataTransport/GDTCOREvent.h>
 
 #import "GDTCORLibrary/Private/GDTCOREvent_Private.h"
@@ -81,16 +80,14 @@
   GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"testing" target:1];
   event.clockSnapshot = [GDTCORClock snapshot];
   event.qosTier = GDTCOREventQoSTelemetry;
-  GDTCORDataFuture *dataFuture =
-      [[GDTCORDataFuture alloc] initWithFileURL:[NSURL URLWithString:@"1"]];
-  [event setDataFuture:dataFuture];
+  [event setFileURL:[NSURL URLWithString:@"1"]];
   XCTAssertNotNil(event);
   XCTAssertNotNil(event.mappingID);
   XCTAssertNotNil(@(event.target));
   XCTAssertEqual(event.qosTier, GDTCOREventQoSTelemetry);
   XCTAssertNotNil(event.clockSnapshot);
   XCTAssertNil(event.customPrioritizationParams);
-  XCTAssertNotNil(event.dataFuture.fileURL);
+  XCTAssertNotNil(event.fileURL);
 }
 
 /** Tests equality between GDTCOREvents. */
@@ -103,9 +100,7 @@
   [event1.clockSnapshot setValue:@(961141365197) forKeyPath:@"uptime"];
   event1.qosTier = GDTCOREventQosDefault;
   event1.customPrioritizationParams = @{@"customParam1" : @"aValue1"};
-  GDTCORDataFuture *dataFuture1 =
-      [[GDTCORDataFuture alloc] initWithFileURL:[NSURL fileURLWithPath:@"/tmp/fake.txt"]];
-  [event1 setDataFuture:dataFuture1];
+  [event1 setFileURL:[NSURL fileURLWithPath:@"/tmp/fake.txt"]];
 
   GDTCOREvent *event2 = [[GDTCOREvent alloc] initWithMappingID:@"1018" target:1];
   event2.clockSnapshot = [GDTCORClock snapshot];
@@ -115,9 +110,7 @@
   [event2.clockSnapshot setValue:@(961141365197) forKeyPath:@"uptime"];
   event2.qosTier = GDTCOREventQosDefault;
   event2.customPrioritizationParams = @{@"customParam1" : @"aValue1"};
-  GDTCORDataFuture *dataFuture2 =
-      [[GDTCORDataFuture alloc] initWithFileURL:[NSURL fileURLWithPath:@"/tmp/fake.txt"]];
-  [event2 setDataFuture:dataFuture2];
+  [event2 setFileURL:[NSURL fileURLWithPath:@"/tmp/fake.txt"]];
 
   XCTAssertEqual([event1 hash], [event2 hash]);
   XCTAssertEqualObjects(event1, event2);

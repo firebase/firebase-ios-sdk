@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <GDTCCTLibrary/Private/GDTCCTPrioritizer.h>
+#import "GDTCCTLibrary/Private/GDTCCTPrioritizer.h"
 #import <GoogleDataTransport/GDTCORConsoleLogger.h>
 #import <GoogleDataTransport/GDTCOREvent.h>
 #import <GoogleDataTransport/GDTCORRegistrar.h>

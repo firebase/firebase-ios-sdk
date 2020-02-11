@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <GoogleDataTransport/GDTCORUploadPackage.h>
+#import "GDTCORLibrary/Public/GDTCORUploadPackage.h"
 
 #import <GoogleDataTransport/GDTCORClock.h>
 #import <GoogleDataTransport/GDTCORConsoleLogger.h>

@@ -19,7 +19,7 @@
 
 #import <GoogleDataTransport/GDTCORAssert.h>
 #import <GoogleDataTransport/GDTCORConsoleLogger.h>
-#import <GoogleDataTransport/GDTCORDataFuture.h>
+#import <GoogleDataTransport/GDTCOREvent.h>
 #import <GoogleDataTransport/GDTCORLifecycle.h>
 #import <GoogleDataTransport/GDTCORPrioritizer.h>
 
@@ -114,8 +114,7 @@ static NSString *GDTCORStoragePath() {
                                         eventHash:event.hash
                                             error:&error];
     GDTCORLogDebug("Event saved to disk: %@", eventFile);
-    GDTCORDataFuture *dataFuture = [[GDTCORDataFuture alloc] initWithFileURL:eventFile];
-    [event setDataFuture:dataFuture];
+    [event setFileURL:eventFile];
     completion(eventFile != nil, error);
 
     // set dataObject to nil in current event
@@ -162,8 +161,8 @@ static NSString *GDTCORStoragePath() {
     for (GDTCOREvent *event in eventsToRemove) {
       // Remove from disk, first and foremost.
       NSError *error;
-      if (event.dataFuture.fileURL) {
-        NSURL *fileURL = event.dataFuture.fileURL;
+      if (event.fileURL) {
+        NSURL *fileURL = event.fileURL;
         [[NSFileManager defaultManager] removeItemAtURL:fileURL error:&error];
         GDTCORAssert(error == nil, @"There was an error removing an event file: %@", error);
         GDTCORLogDebug("Removed event from disk: %@", fileURL);
