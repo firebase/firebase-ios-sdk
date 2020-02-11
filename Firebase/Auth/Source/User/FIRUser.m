@@ -950,14 +950,6 @@ static void callInMainThreadWithAuthDataResultAndError(
     return nil;
   }
 
-  // These are dates since 00:00:00 January 1 1970, as described by the Terminology section in
-  // the JWT spec. https://tools.ietf.org/html/rfc7519
-  NSDate *expDate =
-      [NSDate dateWithTimeIntervalSince1970:[tokenPayloadDictionary[@"exp"] doubleValue]];
-  NSDate *authDate =
-      [NSDate dateWithTimeIntervalSince1970:[tokenPayloadDictionary[@"auth_time"] doubleValue]];
-  NSDate *issuedDate =
-      [NSDate dateWithTimeIntervalSince1970:[tokenPayloadDictionary[@"iat"] doubleValue]];
   FIRAuthTokenResult *result = [FIRAuthTokenResult tokenResultWithToken:token];
   return result;
 }
