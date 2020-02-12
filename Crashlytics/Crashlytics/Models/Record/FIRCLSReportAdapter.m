@@ -130,7 +130,8 @@
   }
 }
 
-// Reimplements Protobuf.scala#L102 (getCrash)
+// Reimplements Protobuilder logic. This is in order of precedence,
+// so do not change the order.
 - (FIRCLSRecordCrashBase *)getCrash {
   if (self.exception) {
     return self.exception;
@@ -622,7 +623,8 @@
   return registers;
 }
 
-// Reimplements Protobuf.scala#L503
+// Reimplements logic from Protobuilder to pull from Mach Exception or Signal crashes,
+// with Mach Exception taking precedence
 - (google_crashlytics_Session_Event_Application_Execution_Signal)protoSignal {
   google_crashlytics_Session_Event_Application_Execution_Signal signalProto =
       google_crashlytics_Session_Event_Application_Execution_Signal_init_default;
@@ -633,7 +635,8 @@
     signalProto.name = FIRCLSEncodeString(self.signal.name);
   }
 
-  // The address is the second code, if we have 2 codes, from Protobuf.scala#L525
+  // The address is the second code, if we have 2 codes
+  // This is commented in Protobuilder
   if (self.mach_exception) {
     if (self.mach_exception.codes.count > 1) {
       signalProto.address = [self.mach_exception.codes[1] unsignedIntValue];
