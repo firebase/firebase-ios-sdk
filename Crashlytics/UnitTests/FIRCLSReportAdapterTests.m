@@ -44,13 +44,58 @@
 
 @implementation FIRCLSReportAdapterTests
 
+/// Attempt sending a proto report to the reporting endpoint
+- (void)testSendProtoReport {
+  NSString *minCrash =
+      [[FIRCLSReportAdapterTests resourcePath] stringByAppendingPathComponent:@"bare_min_crash"];
+
+  FIRCLSReportAdapter *adapter =
+      [[FIRCLSReportAdapter alloc] initWithPath:minCrash
+                                    googleAppId:@"1:17586535263:ios:83778f4dc7e8a26ef794ea"
+                                          orgId:@"5bec84f69ea6961d03000dc5"];
+
+  GDTCORTransport *transport = [[GDTCORTransport alloc] initWithMappingID:@"1206"
+                                                             transformers:nil
+                                                                   target:kGDTCORTargetCSH];
+  GDTCOREvent *event = [transport eventForTransport];
+  event.dataObject = adapter;
+  event.qosTier = GDTCOREventQoSFast;  // Bypass batching and have the event get sent out ASAP
+  [transport sendDataEvent:event];
+}
+
+/// This test is useful for testing the binary output of the proto message
+- (void)testProtoOutput {
+  NSString *minCrash =
+      [[FIRCLSReportAdapterTests resourcePath] stringByAppendingPathComponent:@"bare_min_crash"];
+
+  FIRCLSReportAdapter *adapter = [[FIRCLSReportAdapter alloc] initWithPath:minCrash
+                                                               googleAppId:@"appID"
+                                                                     orgId:@"orgID"];
+
+  NSData *data = adapter.transportBytes;
+
+  NSError *error = nil;
+  NSString *outputPath =
+      [[FIRCLSReportAdapterTests resourcePath] stringByAppendingPathComponent:@"output.proto"];
+
+  [data writeToFile:outputPath options:NSDataWritingAtomic error:&error];
+  NSLog(@"Output path: %@", outputPath);
+
+  if (error) {
+    NSLog(@"Write returned error: %@", [error localizedDescription]);
+  }
+
+  // But a breakpoint here to copy the file from the output path.
+}
+
 #pragma mark - Adapter Values
 
 /// It is important that crashes do not occur when reading persisted crash files before uploading
 /// Verify various invalid input cases
 - (void)testInvalidRecordCases {
   id adapter __unused = [[FIRCLSReportAdapter alloc] initWithPath:@"nonExistentPath"
-                                                      googleAppId:@"appID"];
+                                                      googleAppId:@"appID"
+                                                            orgId:@"orgID"];
 
   id application __unused = [[FIRCLSRecordApplication alloc] initWithDict:nil];
   id base __unused = [[FIRCLSRecordBase alloc] initWithDict:nil];
@@ -531,36 +576,42 @@
 + (FIRCLSReportAdapter *)adapterForExceptionCrash {
   return [[FIRCLSReportAdapter alloc]
       initWithPath:[FIRCLSReportAdapterTests persistedExceptionCrashFolder]
-       googleAppId:@"appID"];
+       googleAppId:@"appID"
+             orgId:@"orgID"];
 }
 
 + (FIRCLSReportAdapter *)adapterForMachExceptionCrash {
   return [[FIRCLSReportAdapter alloc]
       initWithPath:[FIRCLSReportAdapterTests persistedMachExceptionCrashFolder]
-       googleAppId:@"appID"];
+       googleAppId:@"appID"
+             orgId:@"orgID"];
 }
 
 + (FIRCLSReportAdapter *)adapterForSignalCrash {
   return [[FIRCLSReportAdapter alloc]
       initWithPath:[FIRCLSReportAdapterTests persistedSignalCrashFolder]
-       googleAppId:@"appID"];
+       googleAppId:@"appID"
+             orgId:@"orgID"];
 }
 
 + (FIRCLSReportAdapter *)adapterForAllCrashes {
   return
       [[FIRCLSReportAdapter alloc] initWithPath:[FIRCLSReportAdapterTests persistedAllCrashesFolder]
-                                    googleAppId:@"appID"];
+                                    googleAppId:@"appID"
+                                          orgId:@"orgID"];
 }
 
 + (FIRCLSReportAdapter *)adapterForOnlyErrors {
   return
       [[FIRCLSReportAdapter alloc] initWithPath:[FIRCLSReportAdapterTests persistedOnlyErrorsFolder]
-                                    googleAppId:@"appID"];
+                                    googleAppId:@"appID"
+                                          orgId:@"orgID"];
 }
 
 + (FIRCLSReportAdapter *)adapterForCorruptFiles {
   return [[FIRCLSReportAdapter alloc] initWithPath:[FIRCLSReportAdapterTests corruptedCrashFolder]
-                                       googleAppId:@"appID"];
+                                       googleAppId:@"appID"
+                                             orgId:@"orgID"];
 }
 
 + (NSString *)resourcePath {

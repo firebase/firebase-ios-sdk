@@ -76,7 +76,7 @@ typedef struct _google_crashlytics_CustomAttribute {
 } google_crashlytics_CustomAttribute;
 
 typedef struct _google_crashlytics_Session_Application_Organization {
-    pb_bytes_array_t *api_key;
+    pb_bytes_array_t *cls_id;
 /* @@protoc_insertion_point(struct:google_crashlytics_Session_Application_Organization) */
 } google_crashlytics_Session_Application_Organization;
 
@@ -94,6 +94,7 @@ typedef struct _google_crashlytics_Session_Application {
     pb_bytes_array_t *identifier;
     pb_bytes_array_t *version;
     pb_bytes_array_t *display_version;
+    bool has_organization;
     google_crashlytics_Session_Application_Organization organization;
     pb_bytes_array_t *installation_uuid;
     pb_bytes_array_t *development_platform;
@@ -104,7 +105,9 @@ typedef struct _google_crashlytics_Session_Application {
 typedef struct _google_crashlytics_Session_Device {
     google_crashlytics_Session_Architecture arch;
     pb_bytes_array_t *model;
+    bool has_ram;
     uint64_t ram;
+    bool has_disk_space;
     uint64_t disk_space;
     pb_bytes_array_t *language;
 /* @@protoc_insertion_point(struct:google_crashlytics_Session_Device) */
@@ -115,6 +118,7 @@ typedef struct _google_crashlytics_Session_Event_Application_Execution_BinaryIma
     uint64_t size;
     pb_bytes_array_t *name;
     pb_bytes_array_t *uuid;
+    bool has_arch;
     google_crashlytics_Session_Architecture arch;
 /* @@protoc_insertion_point(struct:google_crashlytics_Session_Event_Application_Execution_BinaryImage) */
 } google_crashlytics_Session_Event_Application_Execution_BinaryImage;
@@ -125,6 +129,7 @@ typedef struct _google_crashlytics_Session_Event_Application_Execution_Exception
     pb_bytes_array_t *reason;
     pb_size_t frames_count;
     struct _google_crashlytics_Session_Event_Application_Execution_Thread_Frame *frames;
+    bool has_importance;
     uint32_t importance;
 /* @@protoc_insertion_point(struct:google_crashlytics_Session_Event_Application_Execution_Exception) */
 } google_crashlytics_Session_Event_Application_Execution_Exception;
@@ -151,7 +156,9 @@ typedef struct _google_crashlytics_Session_Event_Application_Execution_Thread {
 typedef struct _google_crashlytics_Session_Event_Application_Execution_Thread_Frame {
     uint64_t pc;
     pb_bytes_array_t *symbol;
+    bool has_offset;
     uint64_t offset;
+    bool has_importance;
     uint32_t importance;
 /* @@protoc_insertion_point(struct:google_crashlytics_Session_Event_Application_Execution_Thread_Frame) */
 } google_crashlytics_Session_Event_Application_Execution_Thread_Frame;
@@ -163,8 +170,11 @@ typedef struct _google_crashlytics_Session_Event_Application_Execution_Thread_Re
 } google_crashlytics_Session_Event_Application_Execution_Thread_Register;
 
 typedef struct _google_crashlytics_Session_Event_Device {
+    bool has_orientation;
     uint32_t orientation;
+    bool has_ram_used;
     uint64_t ram_used;
+    bool has_disk_used;
     uint64_t disk_used;
 /* @@protoc_insertion_point(struct:google_crashlytics_Session_Event_Device) */
 } google_crashlytics_Session_Event_Device;
@@ -173,6 +183,7 @@ typedef struct _google_crashlytics_Session_OperatingSystem {
     google_crashlytics_Session_Platform platform;
     pb_bytes_array_t *version;
     pb_bytes_array_t *build_version;
+    bool has_jailbroken;
     bool jailbroken;
 /* @@protoc_insertion_point(struct:google_crashlytics_Session_OperatingSystem) */
 } google_crashlytics_Session_OperatingSystem;
@@ -181,14 +192,20 @@ typedef struct _google_crashlytics_Session {
     pb_bytes_array_t *generator;
     pb_bytes_array_t *identifier;
     uint64_t started_at;
+    bool has_ended_at;
     uint64_t ended_at;
+    bool has_crashed;
     bool crashed;
+    bool has_user;
     google_crashlytics_Session_User user;
     google_crashlytics_Session_Application app;
+    bool has_os;
     google_crashlytics_Session_OperatingSystem os;
+    bool has_device;
     google_crashlytics_Session_Device device;
     pb_size_t events_count;
     struct _google_crashlytics_Session_Event *events;
+    bool has_generator_type;
     google_crashlytics_Session_GeneratorType generator_type;
 /* @@protoc_insertion_point(struct:google_crashlytics_Session) */
 } google_crashlytics_Session;
@@ -196,6 +213,7 @@ typedef struct _google_crashlytics_Session {
 typedef struct _google_crashlytics_Session_Event_Application_Execution {
     pb_size_t threads_count;
     struct _google_crashlytics_Session_Event_Application_Execution_Thread *threads;
+    bool has_exception;
     google_crashlytics_Session_Event_Application_Execution_Exception exception;
     google_crashlytics_Session_Event_Application_Execution_Signal signal;
     pb_size_t binaries_count;
@@ -218,7 +236,9 @@ typedef struct _google_crashlytics_Session_Event_Application {
     google_crashlytics_Session_Event_Application_Execution execution;
     pb_size_t custom_attributes_count;
     struct _google_crashlytics_CustomAttribute *custom_attributes;
+    bool has_background;
     bool background;
+    bool has_ui_orientation;
     uint32_t ui_orientation;
 /* @@protoc_insertion_point(struct:google_crashlytics_Session_Event_Application) */
 } google_crashlytics_Session_Event_Application;
@@ -226,8 +246,11 @@ typedef struct _google_crashlytics_Session_Event_Application {
 typedef struct _google_crashlytics_Session_Event {
     uint64_t timestamp;
     pb_bytes_array_t *type;
+    bool has_app;
     google_crashlytics_Session_Event_Application app;
+    bool has_device;
     google_crashlytics_Session_Event_Device device;
+    bool has_log;
     google_crashlytics_Session_Event_Log log;
 /* @@protoc_insertion_point(struct:google_crashlytics_Session_Event) */
 } google_crashlytics_Session_Event;
@@ -235,41 +258,41 @@ typedef struct _google_crashlytics_Session_Event {
 /* Default values for struct fields */
 
 /* Initializer values for message structs */
-#define google_crashlytics_Session_init_default  {NULL, NULL, 0, 0, 0, google_crashlytics_Session_User_init_default, google_crashlytics_Session_Application_init_default, google_crashlytics_Session_OperatingSystem_init_default, google_crashlytics_Session_Device_init_default, 0, NULL, _google_crashlytics_Session_GeneratorType_MIN}
+#define google_crashlytics_Session_init_default  {NULL, NULL, 0, false, 0, false, 0, false, google_crashlytics_Session_User_init_default, google_crashlytics_Session_Application_init_default, false, google_crashlytics_Session_OperatingSystem_init_default, false, google_crashlytics_Session_Device_init_default, 0, NULL, false, _google_crashlytics_Session_GeneratorType_MIN}
 #define google_crashlytics_Session_User_init_default {NULL}
-#define google_crashlytics_Session_Application_init_default {NULL, NULL, NULL, google_crashlytics_Session_Application_Organization_init_default, NULL, NULL, NULL}
+#define google_crashlytics_Session_Application_init_default {NULL, NULL, NULL, false, google_crashlytics_Session_Application_Organization_init_default, NULL, NULL, NULL}
 #define google_crashlytics_Session_Application_Organization_init_default {NULL}
-#define google_crashlytics_Session_OperatingSystem_init_default {_google_crashlytics_Session_Platform_MIN, NULL, NULL, 0}
-#define google_crashlytics_Session_Device_init_default {_google_crashlytics_Session_Architecture_MIN, NULL, 0, 0, NULL}
-#define google_crashlytics_Session_Event_init_default {0, NULL, google_crashlytics_Session_Event_Application_init_default, google_crashlytics_Session_Event_Device_init_default, google_crashlytics_Session_Event_Log_init_default}
-#define google_crashlytics_Session_Event_Application_init_default {google_crashlytics_Session_Event_Application_Execution_init_default, 0, NULL, 0, 0}
-#define google_crashlytics_Session_Event_Application_Execution_init_default {0, NULL, google_crashlytics_Session_Event_Application_Execution_Exception_init_default, google_crashlytics_Session_Event_Application_Execution_Signal_init_default, 0, NULL}
+#define google_crashlytics_Session_OperatingSystem_init_default {_google_crashlytics_Session_Platform_MIN, NULL, NULL, false, 0}
+#define google_crashlytics_Session_Device_init_default {_google_crashlytics_Session_Architecture_MIN, NULL, false, 0, false, 0, NULL}
+#define google_crashlytics_Session_Event_init_default {0, NULL, false, google_crashlytics_Session_Event_Application_init_default, false, google_crashlytics_Session_Event_Device_init_default, false, google_crashlytics_Session_Event_Log_init_default}
+#define google_crashlytics_Session_Event_Application_init_default {google_crashlytics_Session_Event_Application_Execution_init_default, 0, NULL, false, 0, false, 0}
+#define google_crashlytics_Session_Event_Application_Execution_init_default {0, NULL, false, google_crashlytics_Session_Event_Application_Execution_Exception_init_default, google_crashlytics_Session_Event_Application_Execution_Signal_init_default, 0, NULL}
 #define google_crashlytics_Session_Event_Application_Execution_Thread_init_default {NULL, 0, 0, NULL, 0, NULL, NULL, NULL}
-#define google_crashlytics_Session_Event_Application_Execution_Thread_Frame_init_default {0, NULL, 0, 0}
+#define google_crashlytics_Session_Event_Application_Execution_Thread_Frame_init_default {0, NULL, false, 0, false, 0}
 #define google_crashlytics_Session_Event_Application_Execution_Thread_Register_init_default {NULL, 0}
-#define google_crashlytics_Session_Event_Application_Execution_Exception_init_default {NULL, NULL, NULL, 0, NULL, 0}
+#define google_crashlytics_Session_Event_Application_Execution_Exception_init_default {NULL, NULL, NULL, 0, NULL, false, 0}
 #define google_crashlytics_Session_Event_Application_Execution_Signal_init_default {NULL, NULL, 0}
-#define google_crashlytics_Session_Event_Application_Execution_BinaryImage_init_default {0, 0, NULL, NULL, _google_crashlytics_Session_Architecture_MIN}
-#define google_crashlytics_Session_Event_Device_init_default {0, 0, 0}
+#define google_crashlytics_Session_Event_Application_Execution_BinaryImage_init_default {0, 0, NULL, NULL, false, _google_crashlytics_Session_Architecture_MIN}
+#define google_crashlytics_Session_Event_Device_init_default {false, 0, false, 0, false, 0}
 #define google_crashlytics_Session_Event_Log_init_default {NULL}
 #define google_crashlytics_CustomAttribute_init_default {NULL, NULL}
 #define google_crashlytics_Report_init_default   {NULL, NULL, _google_crashlytics_Session_Platform_MIN, NULL, NULL, NULL, google_crashlytics_Session_init_default}
-#define google_crashlytics_Session_init_zero     {NULL, NULL, 0, 0, 0, google_crashlytics_Session_User_init_zero, google_crashlytics_Session_Application_init_zero, google_crashlytics_Session_OperatingSystem_init_zero, google_crashlytics_Session_Device_init_zero, 0, NULL, _google_crashlytics_Session_GeneratorType_MIN}
+#define google_crashlytics_Session_init_zero     {NULL, NULL, 0, false, 0, false, 0, false, google_crashlytics_Session_User_init_zero, google_crashlytics_Session_Application_init_zero, false, google_crashlytics_Session_OperatingSystem_init_zero, false, google_crashlytics_Session_Device_init_zero, 0, NULL, false, _google_crashlytics_Session_GeneratorType_MIN}
 #define google_crashlytics_Session_User_init_zero {NULL}
-#define google_crashlytics_Session_Application_init_zero {NULL, NULL, NULL, google_crashlytics_Session_Application_Organization_init_zero, NULL, NULL, NULL}
+#define google_crashlytics_Session_Application_init_zero {NULL, NULL, NULL, false, google_crashlytics_Session_Application_Organization_init_zero, NULL, NULL, NULL}
 #define google_crashlytics_Session_Application_Organization_init_zero {NULL}
-#define google_crashlytics_Session_OperatingSystem_init_zero {_google_crashlytics_Session_Platform_MIN, NULL, NULL, 0}
-#define google_crashlytics_Session_Device_init_zero {_google_crashlytics_Session_Architecture_MIN, NULL, 0, 0, NULL}
-#define google_crashlytics_Session_Event_init_zero {0, NULL, google_crashlytics_Session_Event_Application_init_zero, google_crashlytics_Session_Event_Device_init_zero, google_crashlytics_Session_Event_Log_init_zero}
-#define google_crashlytics_Session_Event_Application_init_zero {google_crashlytics_Session_Event_Application_Execution_init_zero, 0, NULL, 0, 0}
-#define google_crashlytics_Session_Event_Application_Execution_init_zero {0, NULL, google_crashlytics_Session_Event_Application_Execution_Exception_init_zero, google_crashlytics_Session_Event_Application_Execution_Signal_init_zero, 0, NULL}
+#define google_crashlytics_Session_OperatingSystem_init_zero {_google_crashlytics_Session_Platform_MIN, NULL, NULL, false, 0}
+#define google_crashlytics_Session_Device_init_zero {_google_crashlytics_Session_Architecture_MIN, NULL, false, 0, false, 0, NULL}
+#define google_crashlytics_Session_Event_init_zero {0, NULL, false, google_crashlytics_Session_Event_Application_init_zero, false, google_crashlytics_Session_Event_Device_init_zero, false, google_crashlytics_Session_Event_Log_init_zero}
+#define google_crashlytics_Session_Event_Application_init_zero {google_crashlytics_Session_Event_Application_Execution_init_zero, 0, NULL, false, 0, false, 0}
+#define google_crashlytics_Session_Event_Application_Execution_init_zero {0, NULL, false, google_crashlytics_Session_Event_Application_Execution_Exception_init_zero, google_crashlytics_Session_Event_Application_Execution_Signal_init_zero, 0, NULL}
 #define google_crashlytics_Session_Event_Application_Execution_Thread_init_zero {NULL, 0, 0, NULL, 0, NULL, NULL, NULL}
-#define google_crashlytics_Session_Event_Application_Execution_Thread_Frame_init_zero {0, NULL, 0, 0}
+#define google_crashlytics_Session_Event_Application_Execution_Thread_Frame_init_zero {0, NULL, false, 0, false, 0}
 #define google_crashlytics_Session_Event_Application_Execution_Thread_Register_init_zero {NULL, 0}
-#define google_crashlytics_Session_Event_Application_Execution_Exception_init_zero {NULL, NULL, NULL, 0, NULL, 0}
+#define google_crashlytics_Session_Event_Application_Execution_Exception_init_zero {NULL, NULL, NULL, 0, NULL, false, 0}
 #define google_crashlytics_Session_Event_Application_Execution_Signal_init_zero {NULL, NULL, 0}
-#define google_crashlytics_Session_Event_Application_Execution_BinaryImage_init_zero {0, 0, NULL, NULL, _google_crashlytics_Session_Architecture_MIN}
-#define google_crashlytics_Session_Event_Device_init_zero {0, 0, 0}
+#define google_crashlytics_Session_Event_Application_Execution_BinaryImage_init_zero {0, 0, NULL, NULL, false, _google_crashlytics_Session_Architecture_MIN}
+#define google_crashlytics_Session_Event_Device_init_zero {false, 0, false, 0, false, 0}
 #define google_crashlytics_Session_Event_Log_init_zero {NULL}
 #define google_crashlytics_CustomAttribute_init_zero {NULL, NULL}
 #define google_crashlytics_Report_init_zero      {NULL, NULL, _google_crashlytics_Session_Platform_MIN, NULL, NULL, NULL, google_crashlytics_Session_init_zero}
@@ -277,7 +300,7 @@ typedef struct _google_crashlytics_Session_Event {
 /* Field tags (for use in manual encoding/decoding) */
 #define google_crashlytics_CustomAttribute_key_tag 1
 #define google_crashlytics_CustomAttribute_value_tag 2
-#define google_crashlytics_Session_Application_Organization_api_key_tag 1
+#define google_crashlytics_Session_Application_Organization_cls_id_tag 2
 #define google_crashlytics_Session_Event_Log_content_tag 1
 #define google_crashlytics_Session_User_identifier_tag 1
 #define google_crashlytics_Session_Application_identifier_tag 1

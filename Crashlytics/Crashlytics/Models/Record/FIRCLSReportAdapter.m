@@ -28,11 +28,14 @@
 
 @implementation FIRCLSReportAdapter
 
-- (instancetype)initWithPath:(NSString *)folderPath googleAppId:googleAppID {
+- (instancetype)initWithPath:(NSString *)folderPath
+                 googleAppId:(NSString *)googleAppID
+                       orgId:(NSString *)orgID {
   self = [super init];
   if (self) {
     _folderPath = folderPath;
     _googleAppID = googleAppID;
+    _orgID = orgID;
 
     [self loadBinaryImagesFile];
     [self loadMetaDataFile];
@@ -43,7 +46,6 @@
 
     [self loadAllCrashFiles];
 
-    // TODO: Add support for mach_exception.clsrecord (check Protobuf.scala:524)
     // TODO: When implemented, add support for custom exceptions: custom_exception_a/b.clsrecord
 
     _report = [self protoReport];
@@ -62,7 +64,6 @@
 /// Reads from binary_images.clsrecord
 - (void)loadBinaryImagesFile {
   NSString *path = [self.folderPath stringByAppendingPathComponent:FIRCLSReportBinaryImageFile];
-  // TODO: Should sort? If so, sort inside FIRCLSRecordBinaryImage. Protobuf:253
   self.binaryImages = [FIRCLSRecordBinaryImage
       binaryImagesFromDictionaries:[FIRCLSReportAdapter dictionariesFromEachLineOfFile:path]];
 }
@@ -366,6 +367,10 @@
 // MARK: NanoPB conversions
 //
 
+// NOTE: With nanopb using proto2, for optional primitives fields, setting the value is not enough
+// to have the field be included in the proto. You will have to set .has_{field_name} = true.
+// Ex: session.ended_at = true; (assume ended_at is a optional uint64)
+
 - (google_crashlytics_Report)protoReport {
   google_crashlytics_Report report = google_crashlytics_Report_init_default;
   report.sdk_version = FIRCLSEncodeString(self.identity.build_version);
@@ -375,7 +380,6 @@
   report.build_version = FIRCLSEncodeString(self.application.build_version);
   report.display_version = FIRCLSEncodeString(self.application.display_version);
   report.session = [self protoSession];
-
   return report;
 }
 
@@ -388,16 +392,26 @@
   session.generator = FIRCLSEncodeString(self.identity.generator);
   session.identifier = FIRCLSEncodeString(self.identity.session_id);
   session.started_at = self.identity.started_at;
+
   session.crashed = [self hasCrashed];
+  session.has_crashed = true;
+
   session.app = [self protoSessionApplication];
+
   session.os = [self protoOperatingSystem];
+  session.has_os = true;
+
   session.device = [self protoSessionDevice];
+  session.has_device = true;
+
   session.generator_type = [self protoGeneratorTypeFromString:self.host.platform];
+  session.has_generator_type = true;
 
   NSString *userId = self.internalKeyValues[FIRCLSUserIdentifierKey];
   if (userId) {
     session.user = [self protoUserWithId:userId];
   }
+  session.has_user = true;
 
   session.events = [self protoEvents];
   session.events_count = (pb_size_t)[self numberOfEvents];
@@ -416,7 +430,16 @@
   app.identifier = FIRCLSEncodeString(self.application.bundle_id);
   app.version = FIRCLSEncodeString(self.application.build_version);
   app.display_version = FIRCLSEncodeString(self.application.display_version);
+  app.organization = [self protoOrganization];
+  app.has_organization = true;
   return app;
+}
+
+- (google_crashlytics_Session_Application_Organization)protoOrganization {
+  google_crashlytics_Session_Application_Organization org =
+      google_crashlytics_Session_Application_Organization_init_default;
+  org.cls_id = FIRCLSEncodeString(self.orgID);
+  return org;
 }
 
 - (google_crashlytics_Session_OperatingSystem)protoOperatingSystem {
@@ -426,6 +449,7 @@
   os.version = FIRCLSEncodeString(self.host.os_display_version);
   os.build_version = FIRCLSEncodeString(self.host.os_build_version);
   os.jailbroken = [self isJailbroken];
+  os.has_jailbroken = true;
   return os;
 }
 
@@ -434,7 +458,9 @@
   device.arch = [self protoArchitectureFromString:self.executable.architecture];
   device.model = FIRCLSEncodeString(self.host.model);
   device.ram = [self ramUsed];
+  device.has_ram = true;
   device.disk_space = self.storage.total;
+  device.has_disk_space = true;
   device.language = FIRCLSEncodeString(self.host.locale);
   return device;
 }
@@ -472,8 +498,11 @@
   crashProto.timestamp = crash.time;
   crashProto.type = FIRCLSEncodeString(@"crash");
   crashProto.app = [self protoEventApplicationForCrash];
+  crashProto.has_app = true;
   crashProto.device = [self protoEventDevice];
+  crashProto.has_device = true;
   crashProto.log.content = FIRCLSEncodeString([self logsContent]);
+  crashProto.has_log = true;
 
   return crashProto;
 }
@@ -483,9 +512,11 @@
   error.timestamp = recordedError.time;
   error.type = FIRCLSEncodeString(@"error");
   error.app = [self protoEventApplicationForError:recordedError];
+  error.has_app = true;
   error.device = [self protoEventDevice];
+  error.has_device = true;
   error.log.content = FIRCLSEncodeString([self logsContent]);
-
+  error.has_log = true;
   return error;
 }
 
@@ -502,7 +533,10 @@
   // TODO: Fill in Exception object
 
   app.background = [self wasInBackground];
+  app.has_background = true;
+
   app.ui_orientation = [self uiOrientation];
+  app.ui_orientation = true;
 
   // TODO: Add crash_info_entry values for Swift, Protobuf.scala:444
   app.custom_attributes = [self protoCustomAttributesWithKeyValues:self.userKeyValues];
@@ -529,14 +563,18 @@
       malloc(sizeof(google_crashlytics_Session_Event_Application_Execution_Thread) * 1);
   google_crashlytics_Session_Event_Application_Execution_Thread thread =
       google_crashlytics_Session_Event_Application_Execution_Thread_init_default;
-  thread.frames = [self protoFramesWithStacktrace:error.stacktrace];
+  thread.frames = [self protoFramesWithStacktrace:error.stacktrace
+                                 threadImportance:thread.importance];
   thread.frames_count = (pb_size_t)error.stacktrace.count;
   threads[0] = thread;
   app.execution.threads = threads;
   app.execution.threads_count = 1;
 
   app.background = [self wasInBackground];
+  app.has_background = true;
+
   app.ui_orientation = [self uiOrientation];
+  app.has_ui_orientation = true;
 
   NSDictionary<NSString *, NSString *> *keyValues = [self keyValuesWithError:error];
   app.custom_attributes = [self protoCustomAttributesWithKeyValues:keyValues];
@@ -572,12 +610,15 @@
   for (NSUInteger i = 0; i < array.count; i++) {
     google_crashlytics_Session_Event_Application_Execution_Thread thread =
         google_crashlytics_Session_Event_Application_Execution_Thread_init_default;
+
     thread.name = FIRCLSEncodeString(array[i].name);
-    thread.importance = 0;  // TODO: Is there any logic here? Protobuf.scala:384
+    thread.importance =
+        array[i].importance;  // TODO: Update frame importance for exceptions. Protobuf.scala:384
     thread.alternate_name = FIRCLSEncodeString(array[i].alternate_name);
     thread.objc_selector_name = FIRCLSEncodeString(array[i].objc_selector_name);
 
-    thread.frames = [self protoFramesWithStacktrace:array[i].stacktrace];
+    thread.frames = [self protoFramesWithStacktrace:array[i].stacktrace
+                                   threadImportance:thread.importance];
     thread.frames_count = (pb_size_t)array[i].stacktrace.count;
 
     thread.registers = [self protoRegistersWithArray:array[i].registers];
@@ -589,8 +630,9 @@
   return threads;
 }
 
-- (google_crashlytics_Session_Event_Application_Execution_Thread_Frame *)protoFramesWithStacktrace:
-    (NSArray<NSNumber *> *)stacktrace {
+- (google_crashlytics_Session_Event_Application_Execution_Thread_Frame *)
+    protoFramesWithStacktrace:(NSArray<NSNumber *> *)stacktrace
+             threadImportance:(uint32_t)importance {
   google_crashlytics_Session_Event_Application_Execution_Thread_Frame *frames =
       malloc(sizeof(google_crashlytics_Session_Event_Application_Execution_Thread_Frame) *
              stacktrace.count);
@@ -599,7 +641,8 @@
     google_crashlytics_Session_Event_Application_Execution_Thread_Frame frame =
         google_crashlytics_Session_Event_Application_Execution_Thread_Frame_init_default;
     frame.pc = stacktrace[i].unsignedIntegerValue;
-
+    frame.importance = importance;
+    frame.has_importance = true;
     frames[i] = frame;
   }
 
@@ -660,8 +703,6 @@
     image.uuid = FIRCLSEncodeString(self.binaryImages[i].uuid);
     image.base_address = self.binaryImages[i].base;
     image.size = self.binaryImages[i].size;
-
-    // TODO: Fix analysis issue: "Use of zero-allocated memory"
     images[i] = image;
   }
 
@@ -672,8 +713,11 @@
   google_crashlytics_Session_Event_Device device =
       google_crashlytics_Session_Event_Device_init_default;
   device.orientation = [self deviceOrientation];
+  device.has_orientation = true;
   device.ram_used = [self ramUsed];
+  device.has_ram_used = true;
   device.disk_used = self.storage.total - self.storage.free;
+  device.has_disk_used = true;
   return device;
 }
 
@@ -738,7 +782,8 @@
  * @param string The string to encode as pb_bytes.
  */
 pb_bytes_array_t *FIRCLSEncodeString(NSString *string) {
-  NSData *stringBytes = [string dataUsingEncoding:NSUTF8StringEncoding];
+  NSString *stringToEncode = string ? string : @"";
+  NSData *stringBytes = [stringToEncode dataUsingEncoding:NSUTF8StringEncoding];
   return FIRCLSEncodeData(stringBytes);
 }
 

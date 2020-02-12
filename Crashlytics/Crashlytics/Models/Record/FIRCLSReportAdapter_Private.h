@@ -41,6 +41,7 @@ pb_bytes_array_t *FIRCLSEncodeString(NSString *string);
 
 @property(nonatomic, strong) NSString *folderPath;
 @property(nonatomic, strong) NSString *googleAppID;
+@property(nonatomic, strong) NSString *orgID;
 
 // The 3 types of crash files, in order of priority
 @property(nonatomic, strong) FIRCLSRecordException *exception;

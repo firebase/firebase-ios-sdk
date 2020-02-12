@@ -27,158 +27,158 @@
 
 
 const pb_field_t google_crashlytics_Session_fields[12] = {
-    PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, google_crashlytics_Session, generator, generator, 0),
-    PB_FIELD(  2, BYTES   , SINGULAR, POINTER , OTHER, google_crashlytics_Session, identifier, generator, 0),
-    PB_FIELD(  3, UINT64  , SINGULAR, STATIC  , OTHER, google_crashlytics_Session, started_at, identifier, 0),
-    PB_FIELD(  4, UINT64  , SINGULAR, STATIC  , OTHER, google_crashlytics_Session, ended_at, started_at, 0),
-    PB_FIELD(  5, BOOL    , SINGULAR, STATIC  , OTHER, google_crashlytics_Session, crashed, ended_at, 0),
-    PB_FIELD(  6, MESSAGE , SINGULAR, STATIC  , OTHER, google_crashlytics_Session, user, crashed, &google_crashlytics_Session_User_fields),
-    PB_FIELD(  7, MESSAGE , SINGULAR, STATIC  , OTHER, google_crashlytics_Session, app, user, &google_crashlytics_Session_Application_fields),
-    PB_FIELD(  8, MESSAGE , SINGULAR, STATIC  , OTHER, google_crashlytics_Session, os, app, &google_crashlytics_Session_OperatingSystem_fields),
-    PB_FIELD(  9, MESSAGE , SINGULAR, STATIC  , OTHER, google_crashlytics_Session, device, os, &google_crashlytics_Session_Device_fields),
+    PB_FIELD(  1, BYTES   , REQUIRED, POINTER , FIRST, google_crashlytics_Session, generator, generator, 0),
+    PB_FIELD(  2, BYTES   , REQUIRED, POINTER , OTHER, google_crashlytics_Session, identifier, generator, 0),
+    PB_FIELD(  3, UINT64  , REQUIRED, STATIC  , OTHER, google_crashlytics_Session, started_at, identifier, 0),
+    PB_FIELD(  4, UINT64  , OPTIONAL, STATIC  , OTHER, google_crashlytics_Session, ended_at, started_at, 0),
+    PB_FIELD(  5, BOOL    , OPTIONAL, STATIC  , OTHER, google_crashlytics_Session, crashed, ended_at, 0),
+    PB_FIELD(  6, MESSAGE , OPTIONAL, STATIC  , OTHER, google_crashlytics_Session, user, crashed, &google_crashlytics_Session_User_fields),
+    PB_FIELD(  7, MESSAGE , REQUIRED, STATIC  , OTHER, google_crashlytics_Session, app, user, &google_crashlytics_Session_Application_fields),
+    PB_FIELD(  8, MESSAGE , OPTIONAL, STATIC  , OTHER, google_crashlytics_Session, os, app, &google_crashlytics_Session_OperatingSystem_fields),
+    PB_FIELD(  9, MESSAGE , OPTIONAL, STATIC  , OTHER, google_crashlytics_Session, device, os, &google_crashlytics_Session_Device_fields),
     PB_FIELD( 10, MESSAGE , REPEATED, POINTER , OTHER, google_crashlytics_Session, events, device, &google_crashlytics_Session_Event_fields),
-    PB_FIELD( 12, UENUM   , SINGULAR, STATIC  , OTHER, google_crashlytics_Session, generator_type, events, 0),
+    PB_FIELD( 12, UENUM   , OPTIONAL, STATIC  , OTHER, google_crashlytics_Session, generator_type, events, 0),
     PB_LAST_FIELD
 };
 
 const pb_field_t google_crashlytics_Session_User_fields[2] = {
-    PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, google_crashlytics_Session_User, identifier, identifier, 0),
+    PB_FIELD(  1, BYTES   , REQUIRED, POINTER , FIRST, google_crashlytics_Session_User, identifier, identifier, 0),
     PB_LAST_FIELD
 };
 
 const pb_field_t google_crashlytics_Session_Application_fields[8] = {
-    PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, google_crashlytics_Session_Application, identifier, identifier, 0),
-    PB_FIELD(  2, BYTES   , SINGULAR, POINTER , OTHER, google_crashlytics_Session_Application, version, identifier, 0),
-    PB_FIELD(  3, BYTES   , SINGULAR, POINTER , OTHER, google_crashlytics_Session_Application, display_version, version, 0),
-    PB_FIELD(  5, MESSAGE , SINGULAR, STATIC  , OTHER, google_crashlytics_Session_Application, organization, display_version, &google_crashlytics_Session_Application_Organization_fields),
-    PB_FIELD(  6, BYTES   , SINGULAR, POINTER , OTHER, google_crashlytics_Session_Application, installation_uuid, organization, 0),
-    PB_FIELD(  8, BYTES   , SINGULAR, POINTER , OTHER, google_crashlytics_Session_Application, development_platform, installation_uuid, 0),
-    PB_FIELD(  9, BYTES   , SINGULAR, POINTER , OTHER, google_crashlytics_Session_Application, development_platform_version, development_platform, 0),
+    PB_FIELD(  1, BYTES   , REQUIRED, POINTER , FIRST, google_crashlytics_Session_Application, identifier, identifier, 0),
+    PB_FIELD(  2, BYTES   , REQUIRED, POINTER , OTHER, google_crashlytics_Session_Application, version, identifier, 0),
+    PB_FIELD(  3, BYTES   , OPTIONAL, POINTER , OTHER, google_crashlytics_Session_Application, display_version, version, 0),
+    PB_FIELD(  5, MESSAGE , OPTIONAL, STATIC  , OTHER, google_crashlytics_Session_Application, organization, display_version, &google_crashlytics_Session_Application_Organization_fields),
+    PB_FIELD(  6, BYTES   , OPTIONAL, POINTER , OTHER, google_crashlytics_Session_Application, installation_uuid, organization, 0),
+    PB_FIELD(  8, BYTES   , OPTIONAL, POINTER , OTHER, google_crashlytics_Session_Application, development_platform, installation_uuid, 0),
+    PB_FIELD(  9, BYTES   , OPTIONAL, POINTER , OTHER, google_crashlytics_Session_Application, development_platform_version, development_platform, 0),
     PB_LAST_FIELD
 };
 
 const pb_field_t google_crashlytics_Session_Application_Organization_fields[2] = {
-    PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, google_crashlytics_Session_Application_Organization, api_key, api_key, 0),
+    PB_FIELD(  2, BYTES   , OPTIONAL, POINTER , FIRST, google_crashlytics_Session_Application_Organization, cls_id, cls_id, 0),
     PB_LAST_FIELD
 };
 
 const pb_field_t google_crashlytics_Session_OperatingSystem_fields[5] = {
-    PB_FIELD(  1, UENUM   , SINGULAR, STATIC  , FIRST, google_crashlytics_Session_OperatingSystem, platform, platform, 0),
-    PB_FIELD(  2, BYTES   , SINGULAR, POINTER , OTHER, google_crashlytics_Session_OperatingSystem, version, platform, 0),
-    PB_FIELD(  3, BYTES   , SINGULAR, POINTER , OTHER, google_crashlytics_Session_OperatingSystem, build_version, version, 0),
-    PB_FIELD(  4, BOOL    , SINGULAR, STATIC  , OTHER, google_crashlytics_Session_OperatingSystem, jailbroken, build_version, 0),
+    PB_FIELD(  1, UENUM   , REQUIRED, STATIC  , FIRST, google_crashlytics_Session_OperatingSystem, platform, platform, 0),
+    PB_FIELD(  2, BYTES   , REQUIRED, POINTER , OTHER, google_crashlytics_Session_OperatingSystem, version, platform, 0),
+    PB_FIELD(  3, BYTES   , OPTIONAL, POINTER , OTHER, google_crashlytics_Session_OperatingSystem, build_version, version, 0),
+    PB_FIELD(  4, BOOL    , OPTIONAL, STATIC  , OTHER, google_crashlytics_Session_OperatingSystem, jailbroken, build_version, 0),
     PB_LAST_FIELD
 };
 
 const pb_field_t google_crashlytics_Session_Device_fields[6] = {
-    PB_FIELD(  3, UENUM   , SINGULAR, STATIC  , FIRST, google_crashlytics_Session_Device, arch, arch, 0),
-    PB_FIELD(  4, BYTES   , SINGULAR, POINTER , OTHER, google_crashlytics_Session_Device, model, arch, 0),
-    PB_FIELD(  6, UINT64  , SINGULAR, STATIC  , OTHER, google_crashlytics_Session_Device, ram, model, 0),
-    PB_FIELD(  7, UINT64  , SINGULAR, STATIC  , OTHER, google_crashlytics_Session_Device, disk_space, ram, 0),
-    PB_FIELD(  9, BYTES   , SINGULAR, POINTER , OTHER, google_crashlytics_Session_Device, language, disk_space, 0),
+    PB_FIELD(  3, UENUM   , REQUIRED, STATIC  , FIRST, google_crashlytics_Session_Device, arch, arch, 0),
+    PB_FIELD(  4, BYTES   , OPTIONAL, POINTER , OTHER, google_crashlytics_Session_Device, model, arch, 0),
+    PB_FIELD(  6, UINT64  , OPTIONAL, STATIC  , OTHER, google_crashlytics_Session_Device, ram, model, 0),
+    PB_FIELD(  7, UINT64  , OPTIONAL, STATIC  , OTHER, google_crashlytics_Session_Device, disk_space, ram, 0),
+    PB_FIELD(  9, BYTES   , OPTIONAL, POINTER , OTHER, google_crashlytics_Session_Device, language, disk_space, 0),
     PB_LAST_FIELD
 };
 
 const pb_field_t google_crashlytics_Session_Event_fields[6] = {
-    PB_FIELD(  1, UINT64  , SINGULAR, STATIC  , FIRST, google_crashlytics_Session_Event, timestamp, timestamp, 0),
-    PB_FIELD(  2, BYTES   , SINGULAR, POINTER , OTHER, google_crashlytics_Session_Event, type, timestamp, 0),
-    PB_FIELD(  3, MESSAGE , SINGULAR, STATIC  , OTHER, google_crashlytics_Session_Event, app, type, &google_crashlytics_Session_Event_Application_fields),
-    PB_FIELD(  5, MESSAGE , SINGULAR, STATIC  , OTHER, google_crashlytics_Session_Event, device, app, &google_crashlytics_Session_Event_Device_fields),
-    PB_FIELD(  6, MESSAGE , SINGULAR, STATIC  , OTHER, google_crashlytics_Session_Event, log, device, &google_crashlytics_Session_Event_Log_fields),
+    PB_FIELD(  1, UINT64  , REQUIRED, STATIC  , FIRST, google_crashlytics_Session_Event, timestamp, timestamp, 0),
+    PB_FIELD(  2, BYTES   , REQUIRED, POINTER , OTHER, google_crashlytics_Session_Event, type, timestamp, 0),
+    PB_FIELD(  3, MESSAGE , OPTIONAL, STATIC  , OTHER, google_crashlytics_Session_Event, app, type, &google_crashlytics_Session_Event_Application_fields),
+    PB_FIELD(  5, MESSAGE , OPTIONAL, STATIC  , OTHER, google_crashlytics_Session_Event, device, app, &google_crashlytics_Session_Event_Device_fields),
+    PB_FIELD(  6, MESSAGE , OPTIONAL, STATIC  , OTHER, google_crashlytics_Session_Event, log, device, &google_crashlytics_Session_Event_Log_fields),
     PB_LAST_FIELD
 };
 
 const pb_field_t google_crashlytics_Session_Event_Application_fields[5] = {
-    PB_FIELD(  1, MESSAGE , SINGULAR, STATIC  , FIRST, google_crashlytics_Session_Event_Application, execution, execution, &google_crashlytics_Session_Event_Application_Execution_fields),
+    PB_FIELD(  1, MESSAGE , REQUIRED, STATIC  , FIRST, google_crashlytics_Session_Event_Application, execution, execution, &google_crashlytics_Session_Event_Application_Execution_fields),
     PB_FIELD(  2, MESSAGE , REPEATED, POINTER , OTHER, google_crashlytics_Session_Event_Application, custom_attributes, execution, &google_crashlytics_CustomAttribute_fields),
-    PB_FIELD(  3, BOOL    , SINGULAR, STATIC  , OTHER, google_crashlytics_Session_Event_Application, background, custom_attributes, 0),
-    PB_FIELD(  4, UINT32  , SINGULAR, STATIC  , OTHER, google_crashlytics_Session_Event_Application, ui_orientation, background, 0),
+    PB_FIELD(  3, BOOL    , OPTIONAL, STATIC  , OTHER, google_crashlytics_Session_Event_Application, background, custom_attributes, 0),
+    PB_FIELD(  4, UINT32  , OPTIONAL, STATIC  , OTHER, google_crashlytics_Session_Event_Application, ui_orientation, background, 0),
     PB_LAST_FIELD
 };
 
 const pb_field_t google_crashlytics_Session_Event_Application_Execution_fields[5] = {
     PB_FIELD(  1, MESSAGE , REPEATED, POINTER , FIRST, google_crashlytics_Session_Event_Application_Execution, threads, threads, &google_crashlytics_Session_Event_Application_Execution_Thread_fields),
-    PB_FIELD(  2, MESSAGE , SINGULAR, STATIC  , OTHER, google_crashlytics_Session_Event_Application_Execution, exception, threads, &google_crashlytics_Session_Event_Application_Execution_Exception_fields),
-    PB_FIELD(  3, MESSAGE , SINGULAR, STATIC  , OTHER, google_crashlytics_Session_Event_Application_Execution, signal, exception, &google_crashlytics_Session_Event_Application_Execution_Signal_fields),
+    PB_FIELD(  2, MESSAGE , OPTIONAL, STATIC  , OTHER, google_crashlytics_Session_Event_Application_Execution, exception, threads, &google_crashlytics_Session_Event_Application_Execution_Exception_fields),
+    PB_FIELD(  3, MESSAGE , REQUIRED, STATIC  , OTHER, google_crashlytics_Session_Event_Application_Execution, signal, exception, &google_crashlytics_Session_Event_Application_Execution_Signal_fields),
     PB_FIELD(  4, MESSAGE , REPEATED, POINTER , OTHER, google_crashlytics_Session_Event_Application_Execution, binaries, signal, &google_crashlytics_Session_Event_Application_Execution_BinaryImage_fields),
     PB_LAST_FIELD
 };
 
 const pb_field_t google_crashlytics_Session_Event_Application_Execution_Thread_fields[7] = {
-    PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, google_crashlytics_Session_Event_Application_Execution_Thread, name, name, 0),
-    PB_FIELD(  2, UINT32  , SINGULAR, STATIC  , OTHER, google_crashlytics_Session_Event_Application_Execution_Thread, importance, name, 0),
+    PB_FIELD(  1, BYTES   , OPTIONAL, POINTER , FIRST, google_crashlytics_Session_Event_Application_Execution_Thread, name, name, 0),
+    PB_FIELD(  2, UINT32  , REQUIRED, STATIC  , OTHER, google_crashlytics_Session_Event_Application_Execution_Thread, importance, name, 0),
     PB_FIELD(  3, MESSAGE , REPEATED, POINTER , OTHER, google_crashlytics_Session_Event_Application_Execution_Thread, frames, importance, &google_crashlytics_Session_Event_Application_Execution_Thread_Frame_fields),
     PB_FIELD(  4, MESSAGE , REPEATED, POINTER , OTHER, google_crashlytics_Session_Event_Application_Execution_Thread, registers, frames, &google_crashlytics_Session_Event_Application_Execution_Thread_Register_fields),
-    PB_FIELD(  5, BYTES   , SINGULAR, POINTER , OTHER, google_crashlytics_Session_Event_Application_Execution_Thread, alternate_name, registers, 0),
-    PB_FIELD(  6, BYTES   , SINGULAR, POINTER , OTHER, google_crashlytics_Session_Event_Application_Execution_Thread, objc_selector_name, alternate_name, 0),
+    PB_FIELD(  5, BYTES   , OPTIONAL, POINTER , OTHER, google_crashlytics_Session_Event_Application_Execution_Thread, alternate_name, registers, 0),
+    PB_FIELD(  6, BYTES   , OPTIONAL, POINTER , OTHER, google_crashlytics_Session_Event_Application_Execution_Thread, objc_selector_name, alternate_name, 0),
     PB_LAST_FIELD
 };
 
 const pb_field_t google_crashlytics_Session_Event_Application_Execution_Thread_Frame_fields[5] = {
-    PB_FIELD(  1, UINT64  , SINGULAR, STATIC  , FIRST, google_crashlytics_Session_Event_Application_Execution_Thread_Frame, pc, pc, 0),
-    PB_FIELD(  2, BYTES   , SINGULAR, POINTER , OTHER, google_crashlytics_Session_Event_Application_Execution_Thread_Frame, symbol, pc, 0),
-    PB_FIELD(  4, UINT64  , SINGULAR, STATIC  , OTHER, google_crashlytics_Session_Event_Application_Execution_Thread_Frame, offset, symbol, 0),
-    PB_FIELD(  5, UINT32  , SINGULAR, STATIC  , OTHER, google_crashlytics_Session_Event_Application_Execution_Thread_Frame, importance, offset, 0),
+    PB_FIELD(  1, UINT64  , REQUIRED, STATIC  , FIRST, google_crashlytics_Session_Event_Application_Execution_Thread_Frame, pc, pc, 0),
+    PB_FIELD(  2, BYTES   , OPTIONAL, POINTER , OTHER, google_crashlytics_Session_Event_Application_Execution_Thread_Frame, symbol, pc, 0),
+    PB_FIELD(  4, UINT64  , OPTIONAL, STATIC  , OTHER, google_crashlytics_Session_Event_Application_Execution_Thread_Frame, offset, symbol, 0),
+    PB_FIELD(  5, UINT32  , OPTIONAL, STATIC  , OTHER, google_crashlytics_Session_Event_Application_Execution_Thread_Frame, importance, offset, 0),
     PB_LAST_FIELD
 };
 
 const pb_field_t google_crashlytics_Session_Event_Application_Execution_Thread_Register_fields[3] = {
-    PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, google_crashlytics_Session_Event_Application_Execution_Thread_Register, name, name, 0),
-    PB_FIELD(  2, UINT64  , SINGULAR, STATIC  , OTHER, google_crashlytics_Session_Event_Application_Execution_Thread_Register, value, name, 0),
+    PB_FIELD(  1, BYTES   , REQUIRED, POINTER , FIRST, google_crashlytics_Session_Event_Application_Execution_Thread_Register, name, name, 0),
+    PB_FIELD(  2, UINT64  , REQUIRED, STATIC  , OTHER, google_crashlytics_Session_Event_Application_Execution_Thread_Register, value, name, 0),
     PB_LAST_FIELD
 };
 
 const pb_field_t google_crashlytics_Session_Event_Application_Execution_Exception_fields[6] = {
-    PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, google_crashlytics_Session_Event_Application_Execution_Exception, type, type, 0),
-    PB_FIELD(  2, BYTES   , SINGULAR, POINTER , OTHER, google_crashlytics_Session_Event_Application_Execution_Exception, code, type, 0),
-    PB_FIELD(  3, BYTES   , SINGULAR, POINTER , OTHER, google_crashlytics_Session_Event_Application_Execution_Exception, reason, code, 0),
+    PB_FIELD(  1, BYTES   , OPTIONAL, POINTER , FIRST, google_crashlytics_Session_Event_Application_Execution_Exception, type, type, 0),
+    PB_FIELD(  2, BYTES   , OPTIONAL, POINTER , OTHER, google_crashlytics_Session_Event_Application_Execution_Exception, code, type, 0),
+    PB_FIELD(  3, BYTES   , OPTIONAL, POINTER , OTHER, google_crashlytics_Session_Event_Application_Execution_Exception, reason, code, 0),
     PB_FIELD(  4, MESSAGE , REPEATED, POINTER , OTHER, google_crashlytics_Session_Event_Application_Execution_Exception, frames, reason, &google_crashlytics_Session_Event_Application_Execution_Thread_Frame_fields),
-    PB_FIELD(  8, UINT32  , SINGULAR, STATIC  , OTHER, google_crashlytics_Session_Event_Application_Execution_Exception, importance, frames, 0),
+    PB_FIELD(  8, UINT32  , OPTIONAL, STATIC  , OTHER, google_crashlytics_Session_Event_Application_Execution_Exception, importance, frames, 0),
     PB_LAST_FIELD
 };
 
 const pb_field_t google_crashlytics_Session_Event_Application_Execution_Signal_fields[4] = {
-    PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, google_crashlytics_Session_Event_Application_Execution_Signal, name, name, 0),
-    PB_FIELD(  2, BYTES   , SINGULAR, POINTER , OTHER, google_crashlytics_Session_Event_Application_Execution_Signal, code, name, 0),
-    PB_FIELD(  3, UINT64  , SINGULAR, STATIC  , OTHER, google_crashlytics_Session_Event_Application_Execution_Signal, address, code, 0),
+    PB_FIELD(  1, BYTES   , REQUIRED, POINTER , FIRST, google_crashlytics_Session_Event_Application_Execution_Signal, name, name, 0),
+    PB_FIELD(  2, BYTES   , REQUIRED, POINTER , OTHER, google_crashlytics_Session_Event_Application_Execution_Signal, code, name, 0),
+    PB_FIELD(  3, UINT64  , REQUIRED, STATIC  , OTHER, google_crashlytics_Session_Event_Application_Execution_Signal, address, code, 0),
     PB_LAST_FIELD
 };
 
 const pb_field_t google_crashlytics_Session_Event_Application_Execution_BinaryImage_fields[6] = {
-    PB_FIELD(  1, UINT64  , SINGULAR, STATIC  , FIRST, google_crashlytics_Session_Event_Application_Execution_BinaryImage, base_address, base_address, 0),
-    PB_FIELD(  2, UINT64  , SINGULAR, STATIC  , OTHER, google_crashlytics_Session_Event_Application_Execution_BinaryImage, size, base_address, 0),
-    PB_FIELD(  3, BYTES   , SINGULAR, POINTER , OTHER, google_crashlytics_Session_Event_Application_Execution_BinaryImage, name, size, 0),
-    PB_FIELD(  4, BYTES   , SINGULAR, POINTER , OTHER, google_crashlytics_Session_Event_Application_Execution_BinaryImage, uuid, name, 0),
-    PB_FIELD(  5, UENUM   , SINGULAR, STATIC  , OTHER, google_crashlytics_Session_Event_Application_Execution_BinaryImage, arch, uuid, 0),
+    PB_FIELD(  1, UINT64  , REQUIRED, STATIC  , FIRST, google_crashlytics_Session_Event_Application_Execution_BinaryImage, base_address, base_address, 0),
+    PB_FIELD(  2, UINT64  , REQUIRED, STATIC  , OTHER, google_crashlytics_Session_Event_Application_Execution_BinaryImage, size, base_address, 0),
+    PB_FIELD(  3, BYTES   , REQUIRED, POINTER , OTHER, google_crashlytics_Session_Event_Application_Execution_BinaryImage, name, size, 0),
+    PB_FIELD(  4, BYTES   , OPTIONAL, POINTER , OTHER, google_crashlytics_Session_Event_Application_Execution_BinaryImage, uuid, name, 0),
+    PB_FIELD(  5, UENUM   , OPTIONAL, STATIC  , OTHER, google_crashlytics_Session_Event_Application_Execution_BinaryImage, arch, uuid, 0),
     PB_LAST_FIELD
 };
 
 const pb_field_t google_crashlytics_Session_Event_Device_fields[4] = {
-    PB_FIELD(  4, UINT32  , SINGULAR, STATIC  , FIRST, google_crashlytics_Session_Event_Device, orientation, orientation, 0),
-    PB_FIELD(  5, UINT64  , SINGULAR, STATIC  , OTHER, google_crashlytics_Session_Event_Device, ram_used, orientation, 0),
-    PB_FIELD(  6, UINT64  , SINGULAR, STATIC  , OTHER, google_crashlytics_Session_Event_Device, disk_used, ram_used, 0),
+    PB_FIELD(  4, UINT32  , OPTIONAL, STATIC  , FIRST, google_crashlytics_Session_Event_Device, orientation, orientation, 0),
+    PB_FIELD(  5, UINT64  , OPTIONAL, STATIC  , OTHER, google_crashlytics_Session_Event_Device, ram_used, orientation, 0),
+    PB_FIELD(  6, UINT64  , OPTIONAL, STATIC  , OTHER, google_crashlytics_Session_Event_Device, disk_used, ram_used, 0),
     PB_LAST_FIELD
 };
 
 const pb_field_t google_crashlytics_Session_Event_Log_fields[2] = {
-    PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, google_crashlytics_Session_Event_Log, content, content, 0),
+    PB_FIELD(  1, BYTES   , OPTIONAL, POINTER , FIRST, google_crashlytics_Session_Event_Log, content, content, 0),
     PB_LAST_FIELD
 };
 
 const pb_field_t google_crashlytics_CustomAttribute_fields[3] = {
-    PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, google_crashlytics_CustomAttribute, key, key, 0),
-    PB_FIELD(  2, BYTES   , SINGULAR, POINTER , OTHER, google_crashlytics_CustomAttribute, value, key, 0),
+    PB_FIELD(  1, BYTES   , REQUIRED, POINTER , FIRST, google_crashlytics_CustomAttribute, key, key, 0),
+    PB_FIELD(  2, BYTES   , REQUIRED, POINTER , OTHER, google_crashlytics_CustomAttribute, value, key, 0),
     PB_LAST_FIELD
 };
 
 const pb_field_t google_crashlytics_Report_fields[8] = {
-    PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, google_crashlytics_Report, sdk_version, sdk_version, 0),
-    PB_FIELD(  3, BYTES   , SINGULAR, POINTER , OTHER, google_crashlytics_Report, gmp_app_id, sdk_version, 0),
-    PB_FIELD(  4, UENUM   , SINGULAR, STATIC  , OTHER, google_crashlytics_Report, platform, gmp_app_id, 0),
-    PB_FIELD(  5, BYTES   , SINGULAR, POINTER , OTHER, google_crashlytics_Report, installation_uuid, platform, 0),
-    PB_FIELD(  6, BYTES   , SINGULAR, POINTER , OTHER, google_crashlytics_Report, build_version, installation_uuid, 0),
-    PB_FIELD(  7, BYTES   , SINGULAR, POINTER , OTHER, google_crashlytics_Report, display_version, build_version, 0),
-    PB_FIELD(  8, MESSAGE , SINGULAR, STATIC  , OTHER, google_crashlytics_Report, session, display_version, &google_crashlytics_Session_fields),
+    PB_FIELD(  1, BYTES   , REQUIRED, POINTER , FIRST, google_crashlytics_Report, sdk_version, sdk_version, 0),
+    PB_FIELD(  3, BYTES   , REQUIRED, POINTER , OTHER, google_crashlytics_Report, gmp_app_id, sdk_version, 0),
+    PB_FIELD(  4, UENUM   , REQUIRED, STATIC  , OTHER, google_crashlytics_Report, platform, gmp_app_id, 0),
+    PB_FIELD(  5, BYTES   , REQUIRED, POINTER , OTHER, google_crashlytics_Report, installation_uuid, platform, 0),
+    PB_FIELD(  6, BYTES   , REQUIRED, POINTER , OTHER, google_crashlytics_Report, build_version, installation_uuid, 0),
+    PB_FIELD(  7, BYTES   , REQUIRED, POINTER , OTHER, google_crashlytics_Report, display_version, build_version, 0),
+    PB_FIELD(  8, MESSAGE , REQUIRED, STATIC  , OTHER, google_crashlytics_Report, session, display_version, &google_crashlytics_Session_fields),
     PB_LAST_FIELD
 };
 

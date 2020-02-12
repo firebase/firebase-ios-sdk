@@ -18,6 +18,8 @@
 #import "FIRCLSRecordRegister.h"
 #import "FIRCLSRecordRuntime.h"
 
+const NSUInteger IMPORTANCE_IN_CRASHED_THREAD = 4;
+
 @implementation FIRCLSRecordThread
 
 + (NSArray<FIRCLSRecordThread *> *)threadsFromDictionaries:(NSArray<NSDictionary *> *)threads
@@ -53,6 +55,10 @@
     _crashed = [dict[@"crashed"] boolValue];
     _stacktrace = dict[@"stacktrace"];
     _registers = [FIRCLSRecordRegister registersFromDictionary:dict[@"registers"]];
+
+    if (_crashed) {
+      _importance = IMPORTANCE_IN_CRASHED_THREAD;
+    }
   }
   return self;
 }
