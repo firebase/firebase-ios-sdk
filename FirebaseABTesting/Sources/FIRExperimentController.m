@@ -181,7 +181,8 @@ NSArray *ABTExperimentsToClearFromPayloads(
                                     policy:(ABTExperimentPayload_ExperimentOverflowPolicy)policy
                              lastStartTime:(NSTimeInterval)lastStartTime
                                   payloads:(NSArray<NSData *> *)payloads
-                         completionHandler:(nullable void (^)(void))completionHandler {
+                         completionHandler:
+                             (nullable void (^)(NSError *_Nullable error))completionHandler {
   FIRExperimentController *__weak weakSelf = self;
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
     FIRExperimentController *strongSelf = weakSelf;
@@ -202,7 +203,9 @@ NSArray *ABTExperimentsToClearFromPayloads(
                                                          policy
                                           lastStartTime:(NSTimeInterval)lastStartTime
                                                payloads:(NSArray<NSData *> *)payloads
-                                      completionHandler:(nullable void (^)(void))completionHandler {
+                                      completionHandler:
+                                          (nullable void (^)(NSError *_Nullable error))
+                                              completionHandler {
   ABTConditionalUserPropertyController *controller =
       [ABTConditionalUserPropertyController sharedInstanceWithAnalytics:_analytics];
 
@@ -213,7 +216,10 @@ NSArray *ABTExperimentsToClearFromPayloads(
                @"Failed to get conditional user properties from Firebase Analytics.");
 
     if (completionHandler) {
-      completionHandler();
+      completionHandler([NSError
+          errorWithDomain:kABTErrorDomain
+                     code:kABTInternalErrorFailedToFetchConditionalUserProperties
+                 userInfo:nil]);
     }
 
     return;
@@ -252,7 +258,7 @@ NSArray *ABTExperimentsToClearFromPayloads(
   }
 
   if (completionHandler) {
-    completionHandler();
+    completionHandler(nil);
   }
 }
 

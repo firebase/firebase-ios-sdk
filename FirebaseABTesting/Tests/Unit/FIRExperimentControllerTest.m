@@ -45,7 +45,9 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
                                                          policy
                                           lastStartTime:(NSTimeInterval)lastStartTime
                                                payloads:(NSArray<NSData *> *)payloads
-                                      completionHandler:(nullable void (^)(void))completionHandler;
+                                      completionHandler:
+                                          (nullable void (^)(NSError *_Nullable error))
+                                              completionHandler;
 
 /// Surface internal initializer to avoid singleton usage during tests.
 - (instancetype)initWithAnalytics:(nullable id<FIRAnalyticsInterop>)analytics;
@@ -190,7 +192,7 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
                                                        ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest  // NOLINT
                                             lastStartTime:now
                                                  payloads:payloads
-                                        completionHandler:^{
+                                        completionHandler:^(NSError *_Nullable error) {
                                           completionHandlerCalled = YES;
                                         }];
 
@@ -334,7 +336,7 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
   OCMStub([_mockCUPController experimentsWithOrigin:gABTTestOrigin]).andReturn(nil);
   NSMutableArray<NSData *> *payloads = [[NSMutableArray alloc] init];
 
-  __block BOOL completionHandlerCalled = NO;
+  __block BOOL completionHandlerWithErrorCalled = NO;
 
   FIRLifecycleEvents *events = [[FIRLifecycleEvents alloc] init];
   [_experimentController
@@ -344,11 +346,15 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
                                                        ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest  // NOLINT
                                             lastStartTime:-1
                                                  payloads:payloads
-                                        completionHandler:^{
-                                          completionHandlerCalled = YES;
+                                        completionHandler:^(NSError *_Nullable error) {
+                                          if (error &&
+                                              error.code ==
+                                                  kABTInternalErrorFailedToFetchConditionalUserProperties) {
+                                            completionHandlerWithErrorCalled = YES;
+                                          }
                                         }];
 
   // Verify completion handler is still called.
-  XCTAssertTrue(completionHandlerCalled);
+  XCTAssertTrue(completionHandlerWithErrorCalled);
 }
 @end
