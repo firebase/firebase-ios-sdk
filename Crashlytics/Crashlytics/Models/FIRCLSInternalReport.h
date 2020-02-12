@@ -45,6 +45,8 @@ extern NSString *const FIRCLSReportUserCompactedKVFile;
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
 
++ (NSArray *)crashFileNames;
+
 @property(nonatomic, copy, readonly) NSString *directoryName;
 @property(nonatomic, copy) NSString *path;
 @property(nonatomic, assign, readonly) BOOL needsToBeSubmitted;

@@ -14,15 +14,18 @@
  * limitations under the License.
  */
 
-#import "FIRCLSRecordCrashBase.h"
+#import <Foundation/Foundation.h>
 
-@interface FIRCLSRecordSignal : FIRCLSRecordCrashBase
+#import "FIRCLSRecordBase.h"
 
-@property(nonatomic) NSUInteger number;
-@property(nonatomic) NSUInteger code;
-@property(nonatomic) NSUInteger address;
-@property(nonatomic, copy) NSString *name;
-@property(nonatomic, copy) NSString *code_name;
-@property(nonatomic) NSUInteger err_no;
+NS_ASSUME_NONNULL_BEGIN
+
+// An interface-only superclass to the 3 types of crashes
+@interface FIRCLSRecordCrashBase : FIRCLSRecordBase
+
+// This is set in each of the subclasses constructors
+@property(nonatomic) NSUInteger time;
 
 @end
+
+NS_ASSUME_NONNULL_END

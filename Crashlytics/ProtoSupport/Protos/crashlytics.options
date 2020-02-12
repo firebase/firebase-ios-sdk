@@ -53,6 +53,11 @@ google_crashlytics.Session.Event.Application.Execution.Thread.Frame.symbol type:
 
 google_crashlytics.Session.Event.Application.Execution.Thread.Register.name type:FT_POINTER
 
+google_crashlytics.Session.Event.Application.Execution.Exception.type type:FT_POINTER
+google_crashlytics.Session.Event.Application.Execution.Exception.code type:FT_POINTER
+google_crashlytics.Session.Event.Application.Execution.Exception.reason type:FT_POINTER
+google_crashlytics.Session.Event.Application.Execution.Exception.frames type:FT_POINTER
+
 google_crashlytics.Session.Event.Application.Execution.Signal.name type:FT_POINTER
 google_crashlytics.Session.Event.Application.Execution.Signal.code type:FT_POINTER
 

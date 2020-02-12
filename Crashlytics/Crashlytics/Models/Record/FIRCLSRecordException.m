@@ -12,21 +12,34 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSRecordSignal.h"
+#import "FIRCLSRecordException.h"
 
-@implementation FIRCLSRecordSignal
+@interface FIRCLSRecordException ()
+
+@property(nonatomic, readwrite) NSMutableArray<FIRCLSRecordFrame *> *frames;
+
+@end
+
+@implementation FIRCLSRecordException
 
 - (instancetype)initWithDict:(NSDictionary *)dict {
   self = [super initWithDict:dict];
-  if (self) {
-    _number = [dict[@"number"] unsignedIntegerValue];
-    _code = [dict[@"code"] unsignedIntegerValue];
-    _address = [dict[@"address"] unsignedIntegerValue];
-    _name = dict[@"name"];
-    _code_name = dict[@"code_name"];
-    _err_no = [dict[@"err_no"] unsignedIntegerValue];
-    self.time = [dict[@"time"] unsignedIntegerValue];
+  if (!self) {
+    return self;
   }
+
+  _frames = [[NSMutableArray alloc] init];
+  for (NSDictionary *frameDict in dict[@"frames"]) {
+    FIRCLSRecordFrame *frame = [[FIRCLSRecordFrame alloc] initWithDict:frameDict];
+    [_frames addObject:frame];
+  }
+
+  _name = dict[@"name"];
+  _reason = dict[@"reason"];
+  _type = dict[@"type"];
+
+  self.time = [dict[@"time"] unsignedIntegerValue];
+
   return self;
 }
 
