@@ -180,7 +180,8 @@ NSArray *ABTExperimentsToClearFromPayloads(
                                     events:(FIRLifecycleEvents *)events
                                     policy:(ABTExperimentPayload_ExperimentOverflowPolicy)policy
                              lastStartTime:(NSTimeInterval)lastStartTime
-                                  payloads:(NSArray<NSData *> *)payloads {
+                                  payloads:(NSArray<NSData *> *)payloads
+                         completionHandler:(nullable void (^)(void))completionHandler {
   FIRExperimentController *__weak weakSelf = self;
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
     FIRExperimentController *strongSelf = weakSelf;
@@ -188,7 +189,8 @@ NSArray *ABTExperimentsToClearFromPayloads(
                                                              events:events
                                                              policy:policy
                                                       lastStartTime:lastStartTime
-                                                           payloads:payloads];
+                                                           payloads:payloads
+                                                  completionHandler:completionHandler];
   });
 }
 
@@ -199,7 +201,8 @@ NSArray *ABTExperimentsToClearFromPayloads(
                                                      (ABTExperimentPayload_ExperimentOverflowPolicy)
                                                          policy
                                           lastStartTime:(NSTimeInterval)lastStartTime
-                                               payloads:(NSArray<NSData *> *)payloads {
+                                               payloads:(NSArray<NSData *> *)payloads
+                                      completionHandler:(nullable void (^)(void))completionHandler {
   ABTConditionalUserPropertyController *controller =
       [ABTConditionalUserPropertyController sharedInstanceWithAnalytics:_analytics];
 
@@ -241,6 +244,10 @@ NSArray *ABTExperimentsToClearFromPayloads(
                  experimentPayload.experimentId, experimentPayload.variantId,
                  (long)lastStartTime * ABT_MSEC_PER_SEC);
     }
+  }
+
+  if (completionHandler) {
+    completionHandler();
   }
 }
 

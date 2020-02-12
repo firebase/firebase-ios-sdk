@@ -33,9 +33,10 @@ NS_SWIFT_NAME(ExperimentController)
 /// Returns the FIRExperimentController singleton.
 + (FIRExperimentController *)sharedInstance;
 
-/// Updates the list of experiments. Experiments already existing in payloads are not affected,
-/// whose state and payload is preserved. This method compares whether the experiments have changed
-/// or not by their variant ID. This runs in a background queue.
+/// Updates the list of experiments with an optional completion handler. Experiments already
+/// existing in payloads are not affected, whose state and payload is preserved. This method
+/// compares whether the experiments have changed or not by their variant ID. This runs in a
+/// background queue and calls the completion handler when finished executing.
 /// @param origin         The originating service affected by the experiment, it is defined at
 ///                       Firebase Analytics FIREventOrigins.h.
 /// @param events         A list of event names to be used for logging experiment lifecycle events,
@@ -45,11 +46,14 @@ NS_SWIFT_NAME(ExperimentController)
 ///                       (Timestamps are specified by the number of seconds from 00:00:00 UTC on 1
 ///                       January 1970.).
 /// @param payloads       List of experiment metadata.
+/// @param completionHandler Code to be executed after experiments are updated in the background
+/// thread.
 - (void)updateExperimentsWithServiceOrigin:(NSString *)origin
                                     events:(FIRLifecycleEvents *)events
                                     policy:(ABTExperimentPayload_ExperimentOverflowPolicy)policy
                              lastStartTime:(NSTimeInterval)lastStartTime
-                                  payloads:(NSArray<NSData *> *)payloads;
+                                  payloads:(NSArray<NSData *> *)payloads
+                         completionHandler:(nullable void (^)(void))completionHandler;
 
 /// Returns the latest experiment start timestamp given a current latest timestamp and a list of
 /// experiment payloads. Timestamps are specified by the number of seconds from 00:00:00 UTC on 1
