@@ -1,6 +1,6 @@
 use_frameworks!
 
-target 'SampleWatchApp WatchKit Extension' do
+target 'SampleWatchAppWatchKitExtension' do
   platform :watchos, '6.0'
 
   pod 'FirebaseAnalyticsInterop', :path => '../../../../../'
