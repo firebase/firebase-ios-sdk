@@ -577,35 +577,35 @@
   return [[FIRCLSReportAdapter alloc]
       initWithPath:[FIRCLSReportAdapterTests persistedExceptionCrashFolder]
        googleAppId:@"appID"
-            orgId:@"orgID"];
+             orgId:@"orgID"];
 }
 
 + (FIRCLSReportAdapter *)adapterForMachExceptionCrash {
   return [[FIRCLSReportAdapter alloc]
       initWithPath:[FIRCLSReportAdapterTests persistedMachExceptionCrashFolder]
        googleAppId:@"appID"
-            orgId:@"orgID"];
+             orgId:@"orgID"];
 }
 
 + (FIRCLSReportAdapter *)adapterForSignalCrash {
   return [[FIRCLSReportAdapter alloc]
       initWithPath:[FIRCLSReportAdapterTests persistedSignalCrashFolder]
        googleAppId:@"appID"
-            orgId:@"orgID"];
+             orgId:@"orgID"];
 }
 
 + (FIRCLSReportAdapter *)adapterForAllCrashes {
   return
       [[FIRCLSReportAdapter alloc] initWithPath:[FIRCLSReportAdapterTests persistedAllCrashesFolder]
                                     googleAppId:@"appID"
-                                         orgId:@"orgID"];
+                                          orgId:@"orgID"];
 }
 
 + (FIRCLSReportAdapter *)adapterForOnlyErrors {
   return
       [[FIRCLSReportAdapter alloc] initWithPath:[FIRCLSReportAdapterTests persistedOnlyErrorsFolder]
                                     googleAppId:@"appID"
-                                         orgId:@"orgID"];
+                                          orgId:@"orgID"];
 }
 
 + (FIRCLSReportAdapter *)adapterForCorruptFiles {
