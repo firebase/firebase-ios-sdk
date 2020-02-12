@@ -22,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 // One way to trigger Mach exceptions is by accessing un-malloc'd memory
 @interface FIRCLSRecordMachException : FIRCLSRecordCrashBase
 
-@property(nonatomic, copy) NSMutableArray<NSNumber *> *codes;
+@property(nonatomic, readonly) NSArray<NSNumber *> *codes;
 @property(nonatomic, copy) NSString *code_name;
 @property(nonatomic, copy) NSString *name;
 @property(nonatomic) NSUInteger exception;

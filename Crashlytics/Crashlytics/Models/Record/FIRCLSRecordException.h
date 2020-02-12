@@ -21,7 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRCLSRecordException : FIRCLSRecordCrashBase
 
-@property(nonatomic, copy) NSMutableArray<FIRCLSRecordFrame *> *frames;
+@property(nonatomic, readonly) NSArray<FIRCLSRecordFrame *> *frames;
 @property(nonatomic, copy) NSString *name;
 @property(nonatomic, copy) NSString *reason;
 @property(nonatomic, copy) NSString *type;

@@ -514,7 +514,7 @@
   XCTAssertEqual(pbString->size, expectedProtoBytes->size);
 
   for (int i = 0; i < pbString->size; i++) {
-    XCTAssertEqual(expectedProtoBytes->bytes[0], pbString->bytes[0]);
+    XCTAssertEqual(expectedProtoBytes->bytes[i], pbString->bytes[i]);
   }
 }
 

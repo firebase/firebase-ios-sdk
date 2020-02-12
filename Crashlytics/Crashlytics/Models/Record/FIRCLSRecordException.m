@@ -14,6 +14,12 @@
 
 #import "FIRCLSRecordException.h"
 
+@interface FIRCLSRecordException()
+
+@property(nonatomic, readwrite) NSMutableArray<FIRCLSRecordFrame *> *frames;
+
+@end
+
 @implementation FIRCLSRecordException
 
 - (instancetype)initWithDict:(NSDictionary *)dict {

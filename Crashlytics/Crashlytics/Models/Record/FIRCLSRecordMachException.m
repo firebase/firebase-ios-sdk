@@ -14,6 +14,12 @@
 
 #import "FIRCLSRecordMachException.h"
 
+@interface FIRCLSRecordMachException()
+
+@property(nonatomic, readwrite) NSMutableArray<NSNumber *> *codes;
+
+@end
+
 @implementation FIRCLSRecordMachException
 
 - (instancetype)initWithDict:(NSDictionary *)dict {
