@@ -156,10 +156,13 @@ typedef struct _google_crashlytics_Session_Event_Application_Execution_Thread {
 typedef struct _google_crashlytics_Session_Event_Application_Execution_Thread_Frame {
     uint64_t pc;
     pb_bytes_array_t *symbol;
+    pb_callback_t file;
     bool has_offset;
     uint64_t offset;
     bool has_importance;
     uint32_t importance;
+    bool has_line_number;
+    uint64_t line_number;
 /* @@protoc_insertion_point(struct:google_crashlytics_Session_Event_Application_Execution_Thread_Frame) */
 } google_crashlytics_Session_Event_Application_Execution_Thread_Frame;
 
@@ -268,7 +271,7 @@ typedef struct _google_crashlytics_Session_Event {
 #define google_crashlytics_Session_Event_Application_init_default {google_crashlytics_Session_Event_Application_Execution_init_default, 0, NULL, false, 0, false, 0}
 #define google_crashlytics_Session_Event_Application_Execution_init_default {0, NULL, false, google_crashlytics_Session_Event_Application_Execution_Exception_init_default, google_crashlytics_Session_Event_Application_Execution_Signal_init_default, 0, NULL}
 #define google_crashlytics_Session_Event_Application_Execution_Thread_init_default {NULL, 0, 0, NULL, 0, NULL, NULL, NULL}
-#define google_crashlytics_Session_Event_Application_Execution_Thread_Frame_init_default {0, NULL, false, 0, false, 0}
+#define google_crashlytics_Session_Event_Application_Execution_Thread_Frame_init_default {0, NULL, {{NULL}, NULL}, false, 0, false, 0, false, 0}
 #define google_crashlytics_Session_Event_Application_Execution_Thread_Register_init_default {NULL, 0}
 #define google_crashlytics_Session_Event_Application_Execution_Exception_init_default {NULL, NULL, NULL, 0, NULL, false, 0}
 #define google_crashlytics_Session_Event_Application_Execution_Signal_init_default {NULL, NULL, 0}
@@ -287,7 +290,7 @@ typedef struct _google_crashlytics_Session_Event {
 #define google_crashlytics_Session_Event_Application_init_zero {google_crashlytics_Session_Event_Application_Execution_init_zero, 0, NULL, false, 0, false, 0}
 #define google_crashlytics_Session_Event_Application_Execution_init_zero {0, NULL, false, google_crashlytics_Session_Event_Application_Execution_Exception_init_zero, google_crashlytics_Session_Event_Application_Execution_Signal_init_zero, 0, NULL}
 #define google_crashlytics_Session_Event_Application_Execution_Thread_init_zero {NULL, 0, 0, NULL, 0, NULL, NULL, NULL}
-#define google_crashlytics_Session_Event_Application_Execution_Thread_Frame_init_zero {0, NULL, false, 0, false, 0}
+#define google_crashlytics_Session_Event_Application_Execution_Thread_Frame_init_zero {0, NULL, {{NULL}, NULL}, false, 0, false, 0, false, 0}
 #define google_crashlytics_Session_Event_Application_Execution_Thread_Register_init_zero {NULL, 0}
 #define google_crashlytics_Session_Event_Application_Execution_Exception_init_zero {NULL, NULL, NULL, 0, NULL, false, 0}
 #define google_crashlytics_Session_Event_Application_Execution_Signal_init_zero {NULL, NULL, 0}
@@ -336,8 +339,10 @@ typedef struct _google_crashlytics_Session_Event {
 #define google_crashlytics_Session_Event_Application_Execution_Thread_objc_selector_name_tag 6
 #define google_crashlytics_Session_Event_Application_Execution_Thread_Frame_pc_tag 1
 #define google_crashlytics_Session_Event_Application_Execution_Thread_Frame_symbol_tag 2
+#define google_crashlytics_Session_Event_Application_Execution_Thread_Frame_file_tag 3
 #define google_crashlytics_Session_Event_Application_Execution_Thread_Frame_offset_tag 4
 #define google_crashlytics_Session_Event_Application_Execution_Thread_Frame_importance_tag 5
+#define google_crashlytics_Session_Event_Application_Execution_Thread_Frame_line_number_tag 10
 #define google_crashlytics_Session_Event_Application_Execution_Thread_Register_name_tag 1
 #define google_crashlytics_Session_Event_Application_Execution_Thread_Register_value_tag 2
 #define google_crashlytics_Session_Event_Device_orientation_tag 4
@@ -390,7 +395,7 @@ extern const pb_field_t google_crashlytics_Session_Event_fields[6];
 extern const pb_field_t google_crashlytics_Session_Event_Application_fields[5];
 extern const pb_field_t google_crashlytics_Session_Event_Application_Execution_fields[5];
 extern const pb_field_t google_crashlytics_Session_Event_Application_Execution_Thread_fields[7];
-extern const pb_field_t google_crashlytics_Session_Event_Application_Execution_Thread_Frame_fields[5];
+extern const pb_field_t google_crashlytics_Session_Event_Application_Execution_Thread_Frame_fields[7];
 extern const pb_field_t google_crashlytics_Session_Event_Application_Execution_Thread_Register_fields[3];
 extern const pb_field_t google_crashlytics_Session_Event_Application_Execution_Exception_fields[6];
 extern const pb_field_t google_crashlytics_Session_Event_Application_Execution_Signal_fields[4];

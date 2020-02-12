@@ -153,10 +153,12 @@ message Session {
           message Frame {
             required uint64 pc = 1;
             optional string symbol = 2;                // On macOS
+            optional string file = 3;
             optional uint64 offset = 4;                // On macOS
 
             // Bitfield of FrameImportance
             optional uint32 importance = 5;
+            optional uint64 line_number = 10;
           }
           repeated Frame frames = 3;
 
