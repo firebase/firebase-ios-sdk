@@ -16,13 +16,6 @@
 
 #import "FIRCLSRecordCrashBase.h"
 
-@interface FIRCLSRecordSignal : FIRCLSRecordCrashBase
-
-@property(nonatomic) NSUInteger number;
-@property(nonatomic) NSUInteger code;
-@property(nonatomic) NSUInteger address;
-@property(nonatomic, copy) NSString *name;
-@property(nonatomic, copy) NSString *code_name;
-@property(nonatomic) NSUInteger err_no;
+@implementation FIRCLSRecordCrashBase
 
 @end

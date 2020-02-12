@@ -114,7 +114,13 @@ NSString *const FIRCLSReportUserCompactedKVFile = @"user_compacted_kv.clsrecord"
   return [self checkExistenceOfAtLeastOnceFileInArray:reportFiles];
 }
 
-- (NSArray *)crashFilenames {
+// These are purposefully in order of precedence. If duplicate data exists
+// in any crash file, the exception file's contents take precedence over the
+// rest, for example
+//
+// Do not change the order of this.
+//
++ (NSArray *)crashFileNames {
   static NSArray *files;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
@@ -130,7 +136,7 @@ NSString *const FIRCLSReportUserCompactedKVFile = @"user_compacted_kv.clsrecord"
 }
 
 - (BOOL)isCrash {
-  NSArray *crashFiles = [self crashFilenames];
+  NSArray *crashFiles = [FIRCLSInternalReport crashFileNames];
   return [self checkExistenceOfAtLeastOnceFileInArray:crashFiles];
 }
 
@@ -149,7 +155,7 @@ NSString *const FIRCLSReportUserCompactedKVFile = @"user_compacted_kv.clsrecord"
 }
 
 - (void)enumerateSymbolicatableFilesInContent:(void (^)(NSString *path))block {
-  for (NSString *fileName in [self crashFilenames]) {
+  for (NSString *fileName in [FIRCLSInternalReport crashFileNames]) {
     NSString *path = [self pathForContentFile:fileName];
 
     block(path);

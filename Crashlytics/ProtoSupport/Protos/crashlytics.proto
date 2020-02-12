@@ -172,6 +172,21 @@ message Session {
 
         repeated Thread threads = 1;
 
+        message Exception {
+          optional string type = 1;
+
+          optional string code = 2;
+
+          optional string reason = 3;
+
+          repeated Application.Execution.Thread.Frame frames = 4;
+
+          // Bitfield using values from the FrameImportance enum
+          optional uint32 importance = 8;
+        }
+
+        optional Exception exception = 2;
+
         // Signal caught by SDK signal handler
         message Signal {
           required string name = 1;

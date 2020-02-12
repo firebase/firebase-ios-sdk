@@ -18,11 +18,23 @@
 
 @interface FIRCLSRecordFrame : FIRCLSRecordBase
 
+#pragma mark - required attributes
+
 @property(nonatomic) NSUInteger pc;
 
-// The fields below are only set on macOS where device symbolication occurs
+#pragma mark - optional attributes
 
+// Method / function call
 @property(nonatomic, copy) NSString *symbol;
-@property(nonatomic) NSUInteger offset;
+
+// Line number.
+// Call hasLine before reading from line
+@property(nonatomic, readonly) BOOL hasLine;
+@property(nonatomic, readonly) NSUInteger line;
+
+// Offset from the start of the program. Used for symbolication.
+// Call hasOffset before reading from line
+@property(nonatomic, readonly) BOOL hasOffset;
+@property(nonatomic, readonly) NSUInteger offset;
 
 @end
