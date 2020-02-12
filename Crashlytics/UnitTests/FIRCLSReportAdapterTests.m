@@ -526,30 +526,36 @@
   google_crashlytics_Report reportProto = [adapter report];
   google_crashlytics_Session_Event lastEventProto = [self getLastEventProto:reportProto];
 
-  XCTAssertTrue([self isPBData:lastEventProto.app.execution.exception.type equalToString:@"46696c654e6f74466f756e64457863657074696f6e"]);
-  XCTAssertTrue([self isPBData:lastEventProto.app.execution.exception.reason equalToString:@"46696c65204e6f7420466f756e64206f6e2053797374656d"]);
+  XCTAssertTrue([self isPBData:lastEventProto.app.execution.exception.type
+                 equalToString:@"46696c654e6f74466f756e64457863657074696f6e"]);
+  XCTAssertTrue([self isPBData:lastEventProto.app.execution.exception.reason
+                 equalToString:@"46696c65204e6f7420466f756e64206f6e2053797374656d"]);
 
   XCTAssertEqual(lastEventProto.app.execution.exception.frames_count, 14);
 
   XCTAssertEqual(lastEventProto.app.execution.exception.frames[0].pc, 140733792821726);
   XCTAssertEqual(lastEventProto.app.execution.exception.frames[0].importance, 0);
   XCTAssertEqual(lastEventProto.app.execution.exception.frames[0].has_importance, true);
-  XCTAssertTrue([self isPBData:lastEventProto.app.execution.exception.frames[0].symbol equalToString:@""]);
+  XCTAssertTrue([self isPBData:lastEventProto.app.execution.exception.frames[0].symbol
+                 equalToString:@""]);
   XCTAssertEqual(lastEventProto.app.execution.exception.frames[0].offset, 101);
   XCTAssertEqual(lastEventProto.app.execution.exception.frames[0].has_offset, true);
   XCTAssertEqual(lastEventProto.app.execution.exception.frames[0].line_number, 405);
   XCTAssertEqual(lastEventProto.app.execution.exception.frames[0].has_line_number, true);
-  XCTAssertTrue([self isPBData:lastEventProto.app.execution.exception.frames[0].file equalToString:@""]);
+  XCTAssertTrue([self isPBData:lastEventProto.app.execution.exception.frames[0].file
+                 equalToString:@""]);
 
   XCTAssertEqual(lastEventProto.app.execution.exception.frames[13].pc, 140734559604009);
   XCTAssertEqual(lastEventProto.app.execution.exception.frames[13].importance, 0);
   XCTAssertEqual(lastEventProto.app.execution.exception.frames[13].has_importance, true);
-  XCTAssertTrue([self isPBData:lastEventProto.app.execution.exception.frames[13].symbol equalToString:@""]);
+  XCTAssertTrue([self isPBData:lastEventProto.app.execution.exception.frames[13].symbol
+                 equalToString:@""]);
   XCTAssertEqual(lastEventProto.app.execution.exception.frames[13].offset, 1203);
   XCTAssertEqual(lastEventProto.app.execution.exception.frames[13].has_offset, true);
   XCTAssertEqual(lastEventProto.app.execution.exception.frames[13].line_number, 2003);
   XCTAssertEqual(lastEventProto.app.execution.exception.frames[13].has_line_number, true);
-  XCTAssertTrue([self isPBData:lastEventProto.app.execution.exception.frames[13].file equalToString:@""]);
+  XCTAssertTrue([self isPBData:lastEventProto.app.execution.exception.frames[13].file
+                 equalToString:@""]);
 }
 
 // The session ends at the last event's timestamp, regardless if it's an error or crash

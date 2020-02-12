@@ -672,9 +672,8 @@ const NSUInteger IMPORTANCE_FOR_EXCEPTION = 0;
 
 - (google_crashlytics_Session_Event_Application_Execution_Thread_Frame *)protoFramesWithFrames:
     (NSArray<FIRCLSRecordFrame *> *)frames {
-  google_crashlytics_Session_Event_Application_Execution_Thread_Frame *framesProto =
-      malloc(sizeof(google_crashlytics_Session_Event_Application_Execution_Thread_Frame) *
-             frames.count);
+  google_crashlytics_Session_Event_Application_Execution_Thread_Frame *framesProto = malloc(
+      sizeof(google_crashlytics_Session_Event_Application_Execution_Thread_Frame) * frames.count);
 
   for (NSUInteger i = 0; i < frames.count; i++) {
     google_crashlytics_Session_Event_Application_Execution_Thread_Frame frameProto =
