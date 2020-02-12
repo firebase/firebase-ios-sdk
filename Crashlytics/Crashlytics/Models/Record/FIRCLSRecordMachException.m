@@ -14,7 +14,7 @@
 
 #import "FIRCLSRecordMachException.h"
 
-@interface FIRCLSRecordMachException()
+@interface FIRCLSRecordMachException ()
 
 @property(nonatomic, readwrite) NSMutableArray<NSNumber *> *codes;
 

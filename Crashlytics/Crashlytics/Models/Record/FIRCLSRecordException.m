@@ -14,7 +14,7 @@
 
 #import "FIRCLSRecordException.h"
 
-@interface FIRCLSRecordException()
+@interface FIRCLSRecordException ()
 
 @property(nonatomic, readwrite) NSMutableArray<FIRCLSRecordFrame *> *frames;
 
