@@ -437,4 +437,31 @@ static NSInteger target = kGDTCORTargetCCT;
   });
 }
 
+/** Fuzz tests the storing of events at the same time as a terminate lifecycle notification. This
+ * test can fail if there's simultaneous access to ivars of GDTCORStorage with one access being
+ * off the storage's queue. The terminate lifecycle event should operate on and flush the queue.
+ */
+- (void)testStoringEventsDuringTerminate {
+  int numberOfIterations = 1000;
+  for (int i = 0; i < numberOfIterations; i++) {
+    NSString *testString = [NSString stringWithFormat:@"testString %d", i];
+    GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"404" target:target];
+    event.dataObjectTransportBytes = [testString dataUsingEncoding:NSUTF8StringEncoding];
+    event.clockSnapshot = [GDTCORClock snapshot];
+    XCTestExpectation *writtenExpectation = [self expectationWithDescription:@"event written"];
+    XCTAssertNoThrow([[GDTCORStorage sharedInstance] storeEvent:event
+                                                     onComplete:^(BOOL wasWritten, NSError *error) {
+                                                       XCTAssertTrue(wasWritten);
+                                                       [writtenExpectation fulfill];
+                                                     }]);
+    [self waitForExpectationsWithTimeout:10 handler:nil];
+    if (i % 5 == 0) {
+      [[GDTCORStorage sharedInstance] removeEvents:[GDTCORStorage sharedInstance].storedEvents.set];
+    }
+    [NSNotificationCenter.defaultCenter
+        postNotificationName:kGDTCORApplicationWillTerminateNotification
+                      object:nil];
+  }
+}
+
 @end

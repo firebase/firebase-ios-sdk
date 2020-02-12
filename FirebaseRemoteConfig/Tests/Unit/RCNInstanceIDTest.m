@@ -52,9 +52,9 @@
 
 typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   RCNTestRCInstanceDefault,
+  RCNTestRCNumTotalInstances,  // TODO(mandard): Remove once OCMock issue is resolved (#4877).
   RCNTestRCInstanceSecondNamespace,
   RCNTestRCInstanceSecondApp,
-  RCNTestRCNumTotalInstances
 };
 
 @interface FIRInstanceID (Tests)

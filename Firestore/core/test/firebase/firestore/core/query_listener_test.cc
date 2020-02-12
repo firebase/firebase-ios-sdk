@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2017 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,7 +77,7 @@ ViewSnapshot ExcludingMetadataChanges(const ViewSnapshot& snapshot) {
   };
 }
 
-ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot>* values) {
+ViewSnapshotListener Accumulating(std::vector<ViewSnapshot>* values) {
   return EventListener<ViewSnapshot>::Create(
       [values](const StatusOr<ViewSnapshot>& maybe_snapshot) {
         values->push_back(maybe_snapshot.ValueOrDie());

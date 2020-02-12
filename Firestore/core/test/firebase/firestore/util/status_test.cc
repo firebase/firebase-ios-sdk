@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, 2018 Google
+ * Copyright 2015, 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,15 +31,9 @@ TEST(Status, OK) {
   EXPECT_EQ(Status::OK().error_message(), "");
   EXPECT_OK(Status::OK());
   ASSERT_OK(Status::OK());
-  STATUS_CHECK_OK(Status::OK());
   EXPECT_EQ(Status::OK(), Status());
   Status s;
   EXPECT_TRUE(s.ok());
-}
-
-TEST(Status, DeathCheckOK) {
-  Status status(Error::InvalidArgument, "Invalid");
-  ASSERT_ANY_THROW(STATUS_CHECK_OK(status));
 }
 
 TEST(Status, Set) {
