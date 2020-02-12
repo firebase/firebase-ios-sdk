@@ -42,10 +42,8 @@ static int downstreamMessageID = 0;
 - (void)willSendDataMessageWithID:(NSString *)messageID error:(NSError *)error {
   NSNotification *notification;
   if (error) {
-    NSDictionary *userInfo = @{
-      kUpstreamMessageIDUserInfoKey : [messageID copy],
-      kUpstreamErrorUserInfoKey : error
-    };
+    NSDictionary *userInfo =
+        @{kUpstreamMessageIDUserInfoKey : [messageID copy], kUpstreamErrorUserInfoKey : error};
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     notification = [NSNotification notificationWithName:FIRMessagingSendErrorNotification
@@ -67,10 +65,10 @@ static int downstreamMessageID = 0;
                           messageID);
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  NSNotification * notification =
+  NSNotification *notification =
       [NSNotification notificationWithName:FIRMessagingSendSuccessNotification
                                     object:nil
-                                  userInfo:@{ kUpstreamMessageIDUserInfoKey : [messageID copy] }];
+                                  userInfo:@{kUpstreamMessageIDUserInfoKey : [messageID copy]}];
 #pragma clang diagnostic pop
   [[NSNotificationQueue defaultQueue] enqueueNotification:notification postingStyle:NSPostASAP];
 }

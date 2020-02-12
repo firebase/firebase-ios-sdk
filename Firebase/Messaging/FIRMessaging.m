@@ -675,7 +675,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     [self updateAutomaticClientConnection];
   }
 #pragma clang diagnostic pop
-
 }
 
 #pragma mark - Direct Channel

@@ -217,10 +217,10 @@ NS_SWIFT_NAME(MessagingMessageInfo)
  */
 NS_SWIFT_NAME(MessagingRemoteMessage)
 __deprecated_msg("Downstream message in direct channel is deprecated, please use APNS channel.")
-@interface FIRMessagingRemoteMessage : NSObject
+    @interface FIRMessagingRemoteMessage : NSObject
 
 /// The message ID of downstream message.
-@property(nonatomic, readonly, copy) NSString *messageID  DEPRECATED_ATTRIBUTE;
+@property(nonatomic, readonly, copy) NSString *messageID DEPRECATED_ATTRIBUTE;
 /// The downstream message received by the application.
 @property(nonatomic, readonly, strong) NSDictionary *appData DEPRECATED_ATTRIBUTE;
 
@@ -251,8 +251,8 @@ NS_SWIFT_NAME(MessagingDelegate)
 /// Handle data messages received via FCM direct channel (not via APNS).
 - (void)messaging:(FIRMessaging *)messaging
     didReceiveMessage:(FIRMessagingRemoteMessage *)remoteMessage
-    NS_SWIFT_NAME(messaging(_:didReceive:))
-    __deprecated_msg("Downstream message in direct channel is deprecated, please use APNS channel.");
+    NS_SWIFT_NAME(messaging(_:didReceive:))__deprecated_msg(
+        "Downstream message in direct channel is deprecated, please use APNS channel.");
 @end
 
 /**
@@ -279,13 +279,14 @@ NS_SWIFT_NAME(Messaging)
  *  receiving non-APNS, data-only messages in foregrounded apps.
  *  Default is `NO`.
  */
-@property(nonatomic) BOOL shouldEstablishDirectChannel DEPRECATED_MSG_ATTRIBUTE("Direct channel is deprecated, please use APNS channel to send messages.");
-
+@property(nonatomic) BOOL shouldEstablishDirectChannel DEPRECATED_MSG_ATTRIBUTE(
+    "Direct channel is deprecated, please use APNS channel to send messages.");
 
 /**
  *  Returns `YES` if the direct channel to the FCM server is active, and `NO` otherwise.
  */
-@property(nonatomic, readonly) BOOL isDirectChannelEstablished DEPRECATED_MSG_ATTRIBUTE("Direct channel is deprecated, please use APNS channel to send messages.");
+@property(nonatomic, readonly) BOOL isDirectChannelEstablished DEPRECATED_MSG_ATTRIBUTE(
+    "Direct channel is deprecated, please use APNS channel to send messages.");
 
 /**
  *  FIRMessaging
@@ -483,7 +484,7 @@ NS_SWIFT_NAME(Messaging)
                  to:(NSString *)receiver
       withMessageID:(NSString *)messageID
          timeToLive:(int64_t)ttl
-__deprecated_msg("Upstream message in direct channel is deprecated, please use APNS channel");
+    __deprecated_msg("Upstream message in direct channel is deprecated, please use APNS channel");
 
 #pragma mark - Analytics
 
