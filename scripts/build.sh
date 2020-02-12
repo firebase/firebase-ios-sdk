@@ -133,9 +133,7 @@ function RunXcodebuild() {
     cat xcodebuild.log
     CloseFold
 
-
     ExportLogs "$@"
-
     return $result
   fi
 }
@@ -175,6 +173,7 @@ function OpenFold() {
   fi
 }
 
+# Closes the current fold opened by `OpenFold`.
 function CloseFold() {
   if [[ -n "${GITHUB_ACTIONS:-}" ]]; then
     echo "::endgroup::"
