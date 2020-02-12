@@ -44,7 +44,8 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
                                                      (ABTExperimentPayload_ExperimentOverflowPolicy)
                                                          policy
                                           lastStartTime:(NSTimeInterval)lastStartTime
-                                               payloads:(NSArray<NSData *> *)payloads;
+                                               payloads:(NSArray<NSData *> *)payloads
+                                      completionHandler:(nullable void (^)(void))completionHandler;
 
 /// Surface internal initializer to avoid singleton usage during tests.
 - (instancetype)initWithAnalytics:(nullable id<FIRAnalyticsInterop>)analytics;
@@ -178,6 +179,8 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
   ongoingExperiment.experimentId = @"exp_2";
   [payload4.ongoingExperimentsArray addObject:ongoingExperiment];
 
+  __block BOOL completionHandlerCalled = NO;
+
   FIRLifecycleEvents *events = [[FIRLifecycleEvents alloc] init];
   NSArray *payloads = @[ [payload2 data], [payload3 data], [payload4 data] ];
   [_experimentController
@@ -186,9 +189,13 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
                                                    policy:
                                                        ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest  // NOLINT
                                             lastStartTime:now
-                                                 payloads:payloads];
+                                                 payloads:payloads
+                                        completionHandler:^{
+                                          completionHandlerCalled = YES;
+                                        }];
 
   XCTAssertEqual([_mockCUPController experimentsWithOrigin:gABTTestOrigin].count, 2);
+  XCTAssertTrue(completionHandlerCalled);
 
   // Second time update exp_1 no longer exist, should be cleared from experiments.
   payloads = @[ [payload3 data], [payload4 data] ];
@@ -198,7 +205,8 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
                                                    policy:
                                                        ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest  // NOLINT
                                             lastStartTime:now
-                                                 payloads:payloads];
+                                                 payloads:payloads
+                                        completionHandler:nil];
 
   XCTAssertEqual([_mockCUPController experimentsWithOrigin:gABTTestOrigin].count, 1);
 }
@@ -326,6 +334,8 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
   OCMStub([_mockCUPController experimentsWithOrigin:gABTTestOrigin]).andReturn(nil);
   NSMutableArray<NSData *> *payloads = [[NSMutableArray alloc] init];
 
+  __block BOOL completionHandlerCalled = NO;
+
   FIRLifecycleEvents *events = [[FIRLifecycleEvents alloc] init];
   [_experimentController
       updateExperimentsInBackgroundQueueWithServiceOrigin:gABTTestOrigin
@@ -333,6 +343,12 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
                                                    policy:
                                                        ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest  // NOLINT
                                             lastStartTime:-1
-                                                 payloads:payloads];
+                                                 payloads:payloads
+                                        completionHandler:^{
+                                          completionHandlerCalled = YES;
+                                        }];
+
+  // Verify completion handler is still called.
+  XCTAssertTrue(completionHandlerCalled);
 }
 @end

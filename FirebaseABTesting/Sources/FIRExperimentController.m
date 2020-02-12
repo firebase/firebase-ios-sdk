@@ -211,6 +211,11 @@ NSArray *ABTExperimentsToClearFromPayloads(
   if (!experiments) {
     FIRLogInfo(kFIRLoggerABTesting, @"I-ABT000003",
                @"Failed to get conditional user properties from Firebase Analytics.");
+
+    if (completionHandler) {
+      completionHandler();
+    }
+
     return;
   }
   NSArray<ABTExperimentPayload *> *experimentsToSet =
