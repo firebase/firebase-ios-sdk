@@ -48,6 +48,8 @@ NS_ASSUME_NONNULL_BEGIN
     __attribute__((unavailable("Use `initWithAppName:bundleID:namespace:` instead.")));
 // NOLINTEND
 
+/// Delete all saved userdefaults for this instance.
+- (void)resetUserDefaults;
 @end
 
 NS_ASSUME_NONNULL_END
