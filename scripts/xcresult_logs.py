@@ -42,7 +42,7 @@ def main():
 
   logging.basicConfig(format='%(message)s', level=logging.DEBUG)
 
-  flags, args = parse_xcodebuild_flags(args)
+  flags = parse_xcodebuild_flags(args)
 
   # If the result bundle path is specified in the xcodebuild flags, use that
   # otherwise, deduce
@@ -57,6 +57,15 @@ def main():
   sys.stdout.write(log)
 
 
+# Most flags on the xcodebuild command-line are uninteresting, so only pull
+# flags with known behavior with names in this set.
+INTERESTING_FLAGS = {
+    '-resultBundlePath',
+    '-scheme',
+    '-workspace',
+}
+
+
 def parse_xcodebuild_flags(args):
   """Parses the xcodebuild command-line.
 
@@ -65,17 +74,15 @@ def parse_xcodebuild_flags(args):
   """
   result = {}
   key = None
-  rest = []
   for arg in args:
     if arg.startswith('-'):
-      key = arg
+      if arg in INTERESTING_FLAGS:
+        key = arg
     elif key is not None:
       result[key] = arg
       key = None
-    else:
-      rest.append(arg)
 
-  return result, rest
+  return result
 
 
 def project_from_workspace_path(path):
