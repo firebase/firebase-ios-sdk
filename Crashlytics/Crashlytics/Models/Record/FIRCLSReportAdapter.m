@@ -145,6 +145,21 @@
   }
 }
 
+// If there is a crash, the session ends at the crash
+// If there are only errors, the session ends at the last error
+// If there are no events, the session ends at 0
+- (NSUInteger)sessionEndedAt {
+  if ([self hasCrashed]) {
+    return [self getCrash].time;
+  }
+
+  if (self.errors.count > 0) {
+    return self.errors.lastObject.time;
+  }
+
+  return 0;
+}
+
 /// Reads from internal_incremental_kv.clsrecord
 - (void)loadInternalKeyValuesFile {
   NSString *path =
@@ -386,8 +401,7 @@
 - (google_crashlytics_Session)protoSession {
   google_crashlytics_Session session = google_crashlytics_Session_init_default;
 
-  // TODO: should this be set by the backend?
-  session.ended_at = 0;
+  session.ended_at = [self sessionEndedAt];
 
   session.generator = FIRCLSEncodeString(self.identity.generator);
   session.identifier = FIRCLSEncodeString(self.identity.session_id);

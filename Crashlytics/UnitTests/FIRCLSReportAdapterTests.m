@@ -521,6 +521,28 @@
   XCTAssertEqual(reportProto.session.events[3].app.execution.threads[0].frames[28].pc, 7020727833);
 }
 
+// The session ends at the last event's timestamp, regardless if it's an error or crash
+// Signal crash has errors and a signal crash file. Session should end at the signal crash
+- (void)testEndedAtErrorsAndCrash {
+  FIRCLSReportAdapter *adapter = [FIRCLSReportAdapterTests adapterForSignalCrash];
+  google_crashlytics_Report reportProto = [adapter report];
+  XCTAssertEqual(reportProto.session.ended_at, 1579796965);
+}
+
+// Session should end at the last error
+- (void)testEndedAtErrorsOnly {
+  FIRCLSReportAdapter *adapter = [FIRCLSReportAdapterTests adapterForOnlyErrors];
+  google_crashlytics_Report reportProto = [adapter report];
+  XCTAssertEqual(reportProto.session.ended_at, 1579796966);
+}
+
+// We're setting corrupt ended_at to 0 for now
+- (void)testEndedAtNoEvents {
+  FIRCLSReportAdapter *adapter = [FIRCLSReportAdapterTests adapterForCorruptFiles];
+  google_crashlytics_Report reportProto = [adapter report];
+  XCTAssertEqual(reportProto.session.ended_at, 0);
+}
+
 #pragma mark - Proto Report Bytes
 
 - (void)testExceptionProtoReportBytes {
