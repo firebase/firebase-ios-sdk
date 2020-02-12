@@ -15,8 +15,6 @@
  */
 
 #import <Foundation/Foundation.h>
-
-#import <GoogleDataTransport/GDTCOREvent.h>
 #import <GoogleDataTransport/GDTCORTargets.h>
 
 @class GDTCORClock;

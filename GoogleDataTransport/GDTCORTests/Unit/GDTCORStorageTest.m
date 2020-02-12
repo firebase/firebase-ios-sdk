@@ -20,6 +20,7 @@
 #import "GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
 #import "GDTCORLibrary/Private/GDTCORStorage.h"
 #import "GDTCORLibrary/Private/GDTCORStorage_Private.h"
+
 #import "GDTCORLibrary/Public/GDTCOREvent.h"
 #import "GDTCORLibrary/Public/GDTCORRegistrar.h"
 
@@ -273,7 +274,8 @@ static NSInteger target = kGDTCORTargetCCT;
 }
 
 /** Tests enforcing that a prioritizer does not retain the DataObjectTransportBytes of an event in
- * memory.*/
+ * memory.
+ */
 - (void)testEventDeallocationIsEnforced {
   __weak NSData *weakDataObjectTransportBytes;
   GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"404" target:target];

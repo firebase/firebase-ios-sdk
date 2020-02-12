@@ -17,6 +17,7 @@
 #import "GDTCCTTests/Unit/Helpers/GDTCCTEventGenerator.h"
 
 #import <GoogleDataTransport/GDTCORAssert.h>
+#import <GoogleDataTransport/GDTCOREventDataObject.h>
 #import <GoogleDataTransport/GDTCORTargets.h>
 
 @implementation GDTCCTEventGenerator
@@ -47,7 +48,8 @@
   event.clockSnapshot = [GDTCORClock snapshot];
   event.qosTier = qosTier;
   [[NSFileManager defaultManager] createFileAtPath:filePath contents:[NSData data] attributes:nil];
-  [event setFileURL:[NSURL fileURLWithPath:filePath]];
+  NSURL *fileURL = [NSURL fileURLWithPath:filePath];
+  [event setValue:fileURL forKeyPath:@"fileURL"];
   [self.allGeneratedEvents addObject:event];
   return event;
 }
@@ -56,7 +58,7 @@
   GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"1018" target:_target];
   event.clockSnapshot = [GDTCORClock snapshot];
   event.qosTier = qosTier;
-  [event setFileURL:fileURL];
+  [event setValue:fileURL forKeyPath:@"fileURL"];
   [self.allGeneratedEvents addObject:event];
   return event;
 }
@@ -92,7 +94,7 @@
     event.qosTier = GDTCOREventQosDefault;
     event.customPrioritizationParams = @{@"customParam" : @1337};
     NSURL *messageDataURL = [self writeConsistentMessageToDisk:@"message-32347456.dat"];
-    [event setFileURL:messageDataURL];
+    [event setValue:messageDataURL forKeyPath:@"fileURL"];
     [events addObject:event];
   }
 
@@ -105,7 +107,7 @@
     [event.clockSnapshot setValue:@(1236567890) forKeyPath:@"uptime"];
     event.qosTier = GDTCOREventQoSWifiOnly;
     NSURL *messageDataURL = [self writeConsistentMessageToDisk:@"message-35458880.dat"];
-    [event setFileURL:messageDataURL];
+    [event setValue:messageDataURL forKeyPath:@"fileURL"];
     [events addObject:event];
   }
 
@@ -118,7 +120,7 @@
     [event.clockSnapshot setValue:@(1237567890) forKeyPath:@"uptime"];
     event.qosTier = GDTCOREventQosDefault;
     NSURL *messageDataURL = [self writeConsistentMessageToDisk:@"message-39882816.dat"];
-    [event setFileURL:messageDataURL];
+    [event setValue:messageDataURL forKeyPath:@"fileURL"];
     [events addObject:event];
   }
 
@@ -132,7 +134,7 @@
     event.qosTier = GDTCOREventQosDefault;
     event.customPrioritizationParams = @{@"customParam1" : @"aValue1"};
     NSURL *messageDataURL = [self writeConsistentMessageToDisk:@"message-40043840.dat"];
-    [event setFileURL:messageDataURL];
+    [event setValue:messageDataURL forKeyPath:@"fileURL"];
     [events addObject:event];
   }
 
@@ -146,7 +148,7 @@
     event.qosTier = GDTCOREventQoSTelemetry;
     event.customPrioritizationParams = @{@"customParam2" : @(34)};
     NSURL *messageDataURL = [self writeConsistentMessageToDisk:@"message-40657984.dat"];
-    [event setFileURL:messageDataURL];
+    [event setValue:messageDataURL forKeyPath:@"fileURL"];
     [events addObject:event];
   }
   return events;

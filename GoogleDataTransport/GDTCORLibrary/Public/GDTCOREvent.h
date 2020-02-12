@@ -64,7 +64,7 @@ typedef NS_ENUM(NSInteger, GDTCOREventQoS) {
 
 /** The fileURL of clearDataObjectTransportBytes in disk. set when store the transport bytes to
  * disk,*/
-@property(nullable, nonatomic) NSURL *fileURL;
+@property(readonly, nonatomic) NSURL *fileURL;
 
 /** A dictionary provided to aid prioritizers by allowing the passing of arbitrary data. It will be
  * retained by a copy in -copy, but not used for -hash.
@@ -85,14 +85,13 @@ typedef NS_ENUM(NSInteger, GDTCOREventQoS) {
 - (nullable instancetype)initWithMappingID:(NSString *)mappingID
                                     target:(NSInteger)target NS_DESIGNATED_INITIALIZER;
 
-/** Set _fileURL of the event
+/** Write the dataObjectTransportBytes to given URL, assign given URL to self->fileURL,
+ * and set dataObjectTransportBytes to nil.
  *
- *@param fileURL The URL of dataObjectTransportBytes stored in the disk
+ *  @param fileURL The fileURL that dataObjectTranspotBytes would be writen to.
+ *  @param error The error may be catched during writting to disk.
  */
-- (void)setFileURL:(NSURL *)fileURL;
-
-/** Clear the dataObject in event after stored to disk.*/
-- (void)clearDataObjectTransportBytes;
+- (void)writeToURL:(NSURL *)fileURL error:(NSError **)error;
 
 @end
 

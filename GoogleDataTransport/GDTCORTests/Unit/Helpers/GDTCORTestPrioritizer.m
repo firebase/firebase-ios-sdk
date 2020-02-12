@@ -15,8 +15,9 @@
  */
 
 #import "GDTCORTests/Unit/Helpers/GDTCORTestPrioritizer.h"
-#import <GoogleDataTransport/GDTCOREvent.h>
 #import "GDTCORTests/Unit/Helpers/GDTCORTestUploadPackage.h"
+
+#import <GoogleDataTransport/GDTCOREvent.h>
 
 @implementation GDTCORTestPrioritizer
 

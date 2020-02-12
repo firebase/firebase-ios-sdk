@@ -38,7 +38,8 @@
     [[NSFileManager defaultManager] createFileAtPath:filePath
                                             contents:[NSData data]
                                           attributes:nil];
-    [event setFileURL:[NSURL fileURLWithPath:filePath]];
+    NSError *error = nil;
+    [event writeToURL:[NSURL fileURLWithPath:filePath] error:&error];
     [set addObject:event];
     counter++;
   }

@@ -43,14 +43,14 @@
  */
 - (instancetype)initWithTarget:(GDTCORTarget)target NS_DESIGNATED_INITIALIZER;
 
-/** Generates a GDTCOReEvent, complete with a file specified in the eventFileURL property.
+/** Generates a GDTCOREvent, complete with a file specified in the eventFileURL property.
  *
  * @param qosTier The QoS tier the event should have.
  * @return A newly allocated fake stored event.
  */
 - (GDTCOREvent *)generateEvent:(GDTCOREventQoS)qosTier;
 
-/** Generates a GDTCOReEvent, complete with a file specified in the eventFileURL property.
+/** Generates a GDTCOREvent, complete with a file specified in the eventFileURL property.
  *
  * @param qosTier The QoS tier the event should have.
  * @param fileURL The file URL containing bytes of some event.
@@ -60,7 +60,7 @@
 
 /** Generates five consistent stored events.
  *
- * @return An array of five newly allocated but consistent GDTCOReEvents.
+ * @return An array of five newly allocated but consistent GDTCOREvents.
  */
 - (NSArray<GDTCOREvent *> *)generateTheFiveConsistentEvents;
 

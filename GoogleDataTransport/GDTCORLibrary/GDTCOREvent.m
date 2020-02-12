@@ -46,7 +46,7 @@
   copy.qosTier = _qosTier;
   copy.clockSnapshot = _clockSnapshot;
   copy.customPrioritizationParams = _customPrioritizationParams;
-  copy.fileURL = _fileURL;
+  copy->_fileURL = _fileURL;
   GDTCORLogDebug("Copying event %@ to event %@", self, copy);
   return copy;
 }
@@ -75,15 +75,17 @@
   }
 }
 
-- (void)setFileURL:(NSURL *)fileURL {
-  if (fileURL != _fileURL) {
-    _fileURL = fileURL;
-  }
-}
-
-- (void)clearDataObjectTransportBytes {
+- (void)writeToURL:(NSURL *)fileURL error:(NSError **)error {
   if (_dataObjectTransportBytes) {
-    _dataObjectTransportBytes = Nil;
+    BOOL writingSuccess = [_dataObjectTransportBytes writeToURL:fileURL
+                                                        options:NSDataWritingAtomic
+                                                          error:error];
+    if (!writingSuccess) {
+      GDTCORLogError(GDTCORMCEFileWriteError, @"An event file could not be written: %@", fileURL);
+    } else {
+      _fileURL = fileURL;
+      _dataObjectTransportBytes = nil;
+    }
   }
 }
 

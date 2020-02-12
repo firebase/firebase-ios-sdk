@@ -75,19 +75,17 @@
 }
 
 /** Tests encoding and decoding. */
-- (void)testNSSecureCoding {
+- (void)testSettingVariables {
   XCTAssertTrue([GDTCOREvent supportsSecureCoding]);
   GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"testing" target:1];
   event.clockSnapshot = [GDTCORClock snapshot];
   event.qosTier = GDTCOREventQoSTelemetry;
-  [event setFileURL:[NSURL URLWithString:@"1"]];
   XCTAssertNotNil(event);
   XCTAssertNotNil(event.mappingID);
   XCTAssertNotNil(@(event.target));
   XCTAssertEqual(event.qosTier, GDTCOREventQoSTelemetry);
   XCTAssertNotNil(event.clockSnapshot);
   XCTAssertNil(event.customPrioritizationParams);
-  XCTAssertNotNil(event.fileURL);
 }
 
 /** Tests equality between GDTCOREvents. */
@@ -100,7 +98,8 @@
   [event1.clockSnapshot setValue:@(961141365197) forKeyPath:@"uptime"];
   event1.qosTier = GDTCOREventQosDefault;
   event1.customPrioritizationParams = @{@"customParam1" : @"aValue1"};
-  [event1 setFileURL:[NSURL fileURLWithPath:@"/tmp/fake.txt"]];
+  NSError *error1 = nil;
+  [event1 writeToURL:[NSURL fileURLWithPath:@"/tmp/fake.txt"] error:&error1];
 
   GDTCOREvent *event2 = [[GDTCOREvent alloc] initWithMappingID:@"1018" target:1];
   event2.clockSnapshot = [GDTCORClock snapshot];
@@ -110,7 +109,8 @@
   [event2.clockSnapshot setValue:@(961141365197) forKeyPath:@"uptime"];
   event2.qosTier = GDTCOREventQosDefault;
   event2.customPrioritizationParams = @{@"customParam1" : @"aValue1"};
-  [event2 setFileURL:[NSURL fileURLWithPath:@"/tmp/fake.txt"]];
+  NSError *error2 = nil;
+  [event2 writeToURL:[NSURL fileURLWithPath:@"/tmp/fake.txt"] error:&error2];
 
   XCTAssertEqual([event1 hash], [event2 hash]);
   XCTAssertEqualObjects(event1, event2);

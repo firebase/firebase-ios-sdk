@@ -20,8 +20,6 @@
 #import <GoogleDataTransport/GDTCORLifecycle.h>
 #import <GoogleDataTransport/GDTCORUploadPackage.h>
 
-@class GDTCOREvent;
-
 NS_ASSUME_NONNULL_BEGIN
 
 /** Options that define a set of upload conditions. This is used to help minimize end user data
