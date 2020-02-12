@@ -445,7 +445,7 @@
 - (google_crashlytics_Session_Event)protoEventForCrash {
   google_crashlytics_Session_Event crash = google_crashlytics_Session_Event_init_default;
   crash.timestamp = self.signal.time;
-  crash.type = FIRCLSEncodeString(@"crashed");
+  crash.type = FIRCLSEncodeString(@"crash");
 
   crash.app = [self protoEventApplicationForCrash];
   crash.has_app = true;
