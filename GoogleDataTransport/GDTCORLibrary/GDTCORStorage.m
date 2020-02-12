@@ -23,7 +23,6 @@
 #import <GoogleDataTransport/GDTCORLifecycle.h>
 #import <GoogleDataTransport/GDTCORPrioritizer.h>
 
-#import "GDTCORLibrary/Private/GDTCOREvent_Private.h"
 #import "GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
 #import "GDTCORLibrary/Private/GDTCORUploadCoordinator.h"
 
@@ -108,7 +107,8 @@ static NSString *GDTCORStoragePath() {
                               @"sure you've added the support library for the backend you need?");
 
     // Write the transport bytes to disk, get a filename.
-    GDTCORAssert(event.dataObjectTransportBytes, @"The event should have been serialized to bytes");
+    GDTCORAssert([event.dataObject transportBytes],
+                 @"The event should have been serialized to bytes");
     NSError *error = nil;
     NSURL *eventFile = [self saveEventBytesToDisk:event eventHash:event.hash error:&error];
     GDTCORLogDebug("Event saved to disk: %@", eventFile);
@@ -183,7 +183,7 @@ static NSString *GDTCORStoragePath() {
   }
 }
 
-/** Saves the event's dataObjectTransportBytes to a file using NSData mechanisms.
+/** Saves the event's dataObject to a file using NSData mechanisms.
  *
  * @note This method should only be called from a method within a block on _storageQueue to maintain
  * thread safety.

@@ -15,10 +15,10 @@
  */
 
 #import "GDTCORTests/Unit/Helpers/GDTCOREventGenerator.h"
+#import "GDTCORTests/Unit/Helpers/GDTCORDataObjectTesterClasses.h"
 
 #import <GoogleDataTransport/GDTCORClock.h>
 #import <GoogleDataTransport/GDTCOREvent.h>
-#import "GDTCORLibrary/Private/GDTCOREvent_Private.h"
 
 @implementation GDTCOREventGenerator
 
@@ -34,7 +34,7 @@
     GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"1337" target:50];
     event.clockSnapshot = [GDTCORClock snapshot];
     event.qosTier = GDTCOREventQosDefault;
-    event.dataObjectTransportBytes = [@"testing!" dataUsingEncoding:NSUTF8StringEncoding];
+    event.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:@"testing!"];
     [[NSFileManager defaultManager] createFileAtPath:filePath
                                             contents:[NSData data]
                                           attributes:nil];

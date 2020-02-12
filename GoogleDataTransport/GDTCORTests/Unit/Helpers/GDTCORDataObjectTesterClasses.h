@@ -26,6 +26,13 @@ NS_ASSUME_NONNULL_BEGIN
 /** A string that will be turned into bytes. */
 @property(nonatomic) NSString *aString;
 
+/** Initializes an instance using the given String.
+ *
+ * @param aString The give String.
+ * @return An instance of this class.
+ */
+- (instancetype)initWithString:(NSString *)aString;
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import "GDTCORTests/Unit/GDTCORTestCase.h"
-
+#import <GoogleDataTransport/GDTCORClock.h>
 #import <GoogleDataTransport/GDTCOREvent.h>
 
-#import "GDTCORLibrary/Private/GDTCOREvent_Private.h"
+#import "GDTCORTests/Unit/GDTCORTestCase.h"
+#import "GDTCORTests/Unit/Helpers/GDTCORDataObjectTesterClasses.h"
 
 @interface GDTCOREventTest : GDTCORTestCase
 
@@ -39,7 +39,7 @@
   int64_t timeMillis = clockSnapshot.timeMillis;
   int64_t timezoneOffsetSeconds = clockSnapshot.timezoneOffsetSeconds;
   GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"testID" target:42];
-  event.dataObjectTransportBytes = [@"someData" dataUsingEncoding:NSUTF8StringEncoding];
+  event.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:@"someData"];
   event.qosTier = GDTCOREventQoSTelemetry;
   event.clockSnapshot = clockSnapshot;
 
@@ -67,14 +67,13 @@
   }
   XCTAssertEqualObjects(decodedEvent.mappingID, @"testID");
   XCTAssertEqual(decodedEvent.target, 42);
-  XCTAssertEqualObjects(decodedEvent.dataObjectTransportBytes,
-                        [@"someData" dataUsingEncoding:NSUTF8StringEncoding]);
+  event.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:@"someData"];
   XCTAssertEqual(decodedEvent.qosTier, GDTCOREventQoSTelemetry);
   XCTAssertEqual(decodedEvent.clockSnapshot.timeMillis, timeMillis);
   XCTAssertEqual(decodedEvent.clockSnapshot.timezoneOffsetSeconds, timezoneOffsetSeconds);
 }
 
-/** Tests encoding and decoding. */
+/** Tests testSettingVariables. */
 - (void)testSettingVariables {
   XCTAssertTrue([GDTCOREvent supportsSecureCoding]);
   GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"testing" target:1];
@@ -100,6 +99,7 @@
   event1.customPrioritizationParams = @{@"customParam1" : @"aValue1"};
   NSError *error1 = nil;
   [event1 writeToURL:[NSURL fileURLWithPath:@"/tmp/fake.txt"] error:&error1];
+  XCTAssertNil(error1);
 
   GDTCOREvent *event2 = [[GDTCOREvent alloc] initWithMappingID:@"1018" target:1];
   event2.clockSnapshot = [GDTCORClock snapshot];
@@ -111,6 +111,7 @@
   event2.customPrioritizationParams = @{@"customParam1" : @"aValue1"};
   NSError *error2 = nil;
   [event2 writeToURL:[NSURL fileURLWithPath:@"/tmp/fake.txt"] error:&error2];
+  XCTAssertNil(error2);
 
   XCTAssertEqual([event1 hash], [event2 hash]);
   XCTAssertEqualObjects(event1, event2);

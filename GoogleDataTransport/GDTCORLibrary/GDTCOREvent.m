@@ -15,9 +15,9 @@
  */
 
 #import "GDTCORLibrary/Public/GDTCOREvent.h"
-#import "GDTCORLibrary/Private/GDTCOREvent_Private.h"
 
 #import <GoogleDataTransport/GDTCORAssert.h>
+#import <GoogleDataTransport/GDTCORClock.h>
 #import <GoogleDataTransport/GDTCORConsoleLogger.h>
 
 @implementation GDTCOREvent
@@ -42,7 +42,6 @@
 - (instancetype)copy {
   GDTCOREvent *copy = [[GDTCOREvent alloc] initWithMappingID:_mappingID target:_target];
   copy.dataObject = _dataObject;
-  copy.dataObjectTransportBytes = _dataObjectTransportBytes;
   copy.qosTier = _qosTier;
   copy.clockSnapshot = _clockSnapshot;
   copy.customPrioritizationParams = _customPrioritizationParams;
@@ -55,10 +54,10 @@
   // This loses some precision, but it's probably fine.
   NSUInteger mappingIDHash = [_mappingID hash];
   NSUInteger timeHash = [_clockSnapshot hash];
-  NSUInteger dataObjectTransportBytesHash = [_dataObjectTransportBytes hash];
+  NSInteger dataObjectHash = [_dataObject hash];
   NSUInteger fileURL = [_fileURL hash];
 
-  return mappingIDHash ^ _target ^ dataObjectTransportBytesHash ^ _qosTier ^ timeHash ^ fileURL;
+  return mappingIDHash ^ _target ^ _qosTier ^ timeHash ^ dataObjectHash ^ fileURL;
 }
 
 - (BOOL)isEqual:(id)object {
@@ -71,21 +70,26 @@
   // dispatch_(barrier_ if concurrent)async here, and implement the getter with a dispatch_sync.
   if (dataObject != _dataObject) {
     _dataObject = dataObject;
-    _dataObjectTransportBytes = [dataObject transportBytes];
   }
 }
 
-- (void)writeToURL:(NSURL *)fileURL error:(NSError **)error {
-  if (_dataObjectTransportBytes) {
-    BOOL writingSuccess = [_dataObjectTransportBytes writeToURL:fileURL
-                                                        options:NSDataWritingAtomic
-                                                          error:error];
+- (bool)writeToURL:(NSURL *)fileURL error:(NSError **)error {
+  NSData *dataTransportBytes = [_dataObject transportBytes];
+  if (dataTransportBytes) {
+    BOOL writingSuccess = [dataTransportBytes writeToURL:fileURL
+                                                 options:NSDataWritingAtomic
+                                                   error:error];
     if (!writingSuccess) {
       GDTCORLogError(GDTCORMCEFileWriteError, @"An event file could not be written: %@", fileURL);
+      _fileURL = nil;
+      return NO;
     } else {
       _fileURL = fileURL;
-      _dataObjectTransportBytes = nil;
+      _dataObject = nil;
+      return YES;
     }
+  } else {
+    return NO;
   }
 }
 
@@ -96,9 +100,6 @@ static NSString *mappingIDKey = @"_mappingID";
 
 /** NSCoding key for target property. */
 static NSString *targetKey = @"_target";
-
-/** NSCoding key for dataObjectTransportBytes property. */
-static NSString *dataObjectTransportBytesKey = @"_dataObjectTransportBytesKey";
 
 /** NSCoding key for qosTier property. */
 static NSString *qosTierKey = @"_qosTier";
@@ -118,8 +119,6 @@ static NSString *fileURLKey = @"_fileURL";
   NSInteger target = [aDecoder decodeIntegerForKey:targetKey];
   self = [self initWithMappingID:mappingID target:target];
   if (self) {
-    _dataObjectTransportBytes = [aDecoder decodeObjectOfClass:[NSData class]
-                                                       forKey:dataObjectTransportBytesKey];
     _qosTier = [aDecoder decodeIntegerForKey:qosTierKey];
     _clockSnapshot = [aDecoder decodeObjectOfClass:[GDTCORClock class] forKey:clockSnapshotKey];
     _fileURL = [aDecoder decodeObjectOfClass:[NSURL class] forKey:fileURLKey];
@@ -130,7 +129,6 @@ static NSString *fileURLKey = @"_fileURL";
 - (void)encodeWithCoder:(NSCoder *)aCoder {
   [aCoder encodeObject:_mappingID forKey:mappingIDKey];
   [aCoder encodeInteger:_target forKey:targetKey];
-  [aCoder encodeObject:_dataObjectTransportBytes forKey:dataObjectTransportBytesKey];
   [aCoder encodeInteger:_qosTier forKey:qosTierKey];
   [aCoder encodeObject:_clockSnapshot forKey:clockSnapshotKey];
   [aCoder encodeObject:_fileURL forKey:fileURLKey];
