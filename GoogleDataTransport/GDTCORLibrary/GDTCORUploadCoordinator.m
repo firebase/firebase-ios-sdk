@@ -117,9 +117,10 @@
       }
       // Ask the uploader if they can upload and do so, if it can.
       id<GDTCORUploader> uploader = self.registrar.targetToUploader[target];
-      if ([uploader readyToUploadWithConditions:conditions]) {
+      if ([uploader readyToUploadTarget:target.intValue conditions:conditions]) {
         id<GDTCORPrioritizer> prioritizer = self.registrar.targetToPrioritizer[target];
-        GDTCORUploadPackage *package = [prioritizer uploadPackageWithConditions:conditions];
+        GDTCORUploadPackage *package = [prioritizer uploadPackageWithTarget:target.intValue
+                                                                 conditions:conditions];
         if (package.events.count) {
           self->_targetToInFlightPackages[target] = package;
           GDTCORLogDebug("Package of %ld events is being handed over to an uploader",

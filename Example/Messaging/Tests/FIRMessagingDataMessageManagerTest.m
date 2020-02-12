@@ -16,19 +16,20 @@
 
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
+#import "XCTestCase+FIRMessagingRmqManagerTests.h"
 
 #import <FirebaseMessaging/FIRMessaging.h>
 
 #import "Firebase/Messaging/FIRMessagingClient.h"
 #import "Firebase/Messaging/FIRMessagingConnection.h"
+#import "Firebase/Messaging/FIRMessagingConstants.h"
 #import "Firebase/Messaging/FIRMessagingDataMessageManager.h"
+#import "Firebase/Messaging/FIRMessagingDefines.h"
 #import "Firebase/Messaging/FIRMessagingReceiver.h"
 #import "Firebase/Messaging/FIRMessagingRmqManager.h"
 #import "Firebase/Messaging/FIRMessagingSyncMessageManager.h"
 #import "Firebase/Messaging/FIRMessagingUtilities.h"
 #import "Firebase/Messaging/FIRMessaging_Private.h"
-#import "Firebase/Messaging/FIRMessagingConstants.h"
-#import "Firebase/Messaging/FIRMessagingDefines.h"
 #import "Firebase/Messaging/NSError+FIRMessaging.h"
 #import "Firebase/Messaging/Protos/GtalkCore.pbobjc.h"
 
@@ -42,7 +43,7 @@ static NSString *const kAppDataItemInvalidKey = @"google.hello";
 
 static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
 
-@interface FIRMessagingDataMessageManager()
+@interface FIRMessagingDataMessageManager ()
 
 @property(nonatomic, readwrite, weak) FIRMessagingRmqManager *rmq2Manager;
 
@@ -78,20 +79,21 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
   [newRmqManager loadRmqId];
   _mockRmqManager = OCMPartialMock(newRmqManager);
   _mockSyncMessageManager = OCMClassMock([FIRMessagingSyncMessageManager class]);
-  _dataMessageManager = [[FIRMessagingDataMessageManager alloc]
-        initWithDelegate:_mockReceiver
-                  client:_mockClient
-             rmq2Manager:_mockRmqManager
-      syncMessageManager:_mockSyncMessageManager];
+  _dataMessageManager =
+      [[FIRMessagingDataMessageManager alloc] initWithDelegate:_mockReceiver
+                                                        client:_mockClient
+                                                   rmq2Manager:_mockRmqManager
+                                            syncMessageManager:_mockSyncMessageManager];
   [_dataMessageManager refreshDelayedMessages];
   _mockDataMessageManager = OCMPartialMock(_dataMessageManager);
 }
 
--(void)tearDown {
-    if (_dataMessageManager.rmq2Manager) {
-        [_dataMessageManager.rmq2Manager removeDatabase];
-    }
-    [super tearDown];
+- (void)tearDown {
+  if (_dataMessageManager.rmq2Manager) {
+    [_dataMessageManager.rmq2Manager removeDatabase];
+    [self waitForDrainDatabaseQueueForRmqManager:_dataMessageManager.rmq2Manager];
+  }
+  [super tearDown];
 }
 
 - (void)testSendValidMessage_withNoConnection {
@@ -99,12 +101,11 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
   NSString *messageID = @"1";
   BOOL mockConnectionActive = NO;
   [[[self.mockClient stub] andDo:^(NSInvocation *invocation) {
-    NSValue *returnValue = [NSValue valueWithBytes:&mockConnectionActive
-                                          objCType:@encode(BOOL)];
+    NSValue *returnValue = [NSValue valueWithBytes:&mockConnectionActive objCType:@encode(BOOL)];
     [invocation setReturnValue:&returnValue];
   }] isConnectionActive];
 
-  BOOL(^isValidStanza)(id obj) = ^BOOL(id obj) {
+  BOOL (^isValidStanza)(id obj) = ^BOOL(id obj) {
     if ([obj isKindOfClass:[GtalkDataMessageStanza class]]) {
       GtalkDataMessageStanza *message = (GtalkDataMessageStanza *)obj;
       return ([message.id_p isEqualToString:messageID] && [message.to isEqualToString:kMessageTo]);
@@ -130,15 +131,15 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
   NSString *messageID = @"1";
   NSMutableDictionary *message = [self standardFIRMessagingMessageWithMessageID:messageID];
 
-  OCMExpect([self.mockReceiver
-      willSendDataMessageWithID:[OCMArg isEqual:messageID]
-                          error:[OCMArg checkWithBlock:^BOOL(id obj) {
-                            if ([obj isKindOfClass:[NSError class]]) {
-                              NSError *error = (NSError *)obj;
-                              return error.code == kFIRMessagingErrorCodeMissingDeviceID;
-                            }
-                            return NO;
-                          }]]);
+  OCMExpect([self.mockReceiver willSendDataMessageWithID:[OCMArg isEqual:messageID]
+                                                   error:[OCMArg checkWithBlock:^BOOL(id obj) {
+                                                     if ([obj isKindOfClass:[NSError class]]) {
+                                                       NSError *error = (NSError *)obj;
+                                                       return error.code ==
+                                                              kFIRMessagingErrorCodeMissingDeviceID;
+                                                     }
+                                                     return NO;
+                                                   }]]);
 
   // do not log into checkin service
   [self.dataMessageManager sendDataMessageStanza:message];
@@ -149,21 +150,21 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
 - (void)testSendInvalidMessage_withNoTo {
   NSString *messageID = @"1";
   NSMutableDictionary *message =
-      [FIRMessaging createFIRMessagingMessageWithMessage:@{ kAppDataItemKey : kAppDataItemValue}
+      [FIRMessaging createFIRMessagingMessageWithMessage:@{kAppDataItemKey : kAppDataItemValue}
                                                       to:@""
                                                   withID:messageID
                                               timeToLive:-1
                                                    delay:0];
 
-  OCMExpect([self.mockReceiver
-      willSendDataMessageWithID:[OCMArg isEqual:messageID]
-                          error:[OCMArg checkWithBlock:^BOOL(id obj) {
-                            if ([obj isKindOfClass:[NSError class]]) {
-                              NSError *error = (NSError *)obj;
-                              return error.code == kFIRMessagingErrorMissingTo;
-                            }
-                            return NO;
-                          }]]);
+  OCMExpect([self.mockReceiver willSendDataMessageWithID:[OCMArg isEqual:messageID]
+                                                   error:[OCMArg checkWithBlock:^BOOL(id obj) {
+                                                     if ([obj isKindOfClass:[NSError class]]) {
+                                                       NSError *error = (NSError *)obj;
+                                                       return error.code ==
+                                                              kFIRMessagingErrorMissingTo;
+                                                     }
+                                                     return NO;
+                                                   }]]);
 
   // should be logged into the service
   [self.dataMessageManager setDeviceAuthID:@"auth-id" secretToken:@"secret-token"];
@@ -174,25 +175,25 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
 
 - (void)testSendInvalidMessage_withSizeExceeded {
   NSString *messageID = @"1";
-  NSString *veryLargeString = [@"a" stringByPaddingToLength:4 * 1024 // 4kB
+  NSString *veryLargeString = [@"a" stringByPaddingToLength:4 * 1024  // 4kB
                                                  withString:@"b"
                                             startingAtIndex:0];
   NSMutableDictionary *message =
-      [FIRMessaging createFIRMessagingMessageWithMessage:@{ kAppDataItemKey : veryLargeString }
+      [FIRMessaging createFIRMessagingMessageWithMessage:@{kAppDataItemKey : veryLargeString}
                                                       to:kMessageTo
                                                   withID:messageID
                                               timeToLive:-1
                                                    delay:0];
 
-  OCMExpect([self.mockReceiver
-      willSendDataMessageWithID:[OCMArg isEqual:messageID]
-                          error:[OCMArg checkWithBlock:^BOOL(id obj) {
-                            if ([obj isKindOfClass:[NSError class]]) {
-                              NSError *error = (NSError *)obj;
-                              return error.code == kFIRMessagingErrorSizeExceeded;
-                            }
-                            return NO;
-                          }]]);
+  OCMExpect([self.mockReceiver willSendDataMessageWithID:[OCMArg isEqual:messageID]
+                                                   error:[OCMArg checkWithBlock:^BOOL(id obj) {
+                                                     if ([obj isKindOfClass:[NSError class]]) {
+                                                       NSError *error = (NSError *)obj;
+                                                       return error.code ==
+                                                              kFIRMessagingErrorSizeExceeded;
+                                                     }
+                                                     return NO;
+                                                   }]]);
 
   // should be logged into the service
   [self.dataMessageManager setDeviceAuthID:@"auth-id" secretToken:@"secret-token"];
@@ -209,15 +210,14 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
   [[self.mockRmqManager stub] saveRmqMessage:[OCMArg any]
                        withCompletionHandler:[OCMArg invokeBlockWithArgs:@(NO), nil]];
 
-  OCMExpect([self.mockReceiver
-      willSendDataMessageWithID:[OCMArg isEqual:messageID]
-                          error:[OCMArg checkWithBlock:^BOOL(id obj) {
-                            if ([obj isKindOfClass:[NSError class]]) {
-                              NSError *error = (NSError *)obj;
-                              return error.code == kFIRMessagingErrorSave;
-                            }
-                            return NO;
-                          }]]);
+  OCMExpect([self.mockReceiver willSendDataMessageWithID:[OCMArg isEqual:messageID]
+                                                   error:[OCMArg checkWithBlock:^BOOL(id obj) {
+                                                     if ([obj isKindOfClass:[NSError class]]) {
+                                                       NSError *error = (NSError *)obj;
+                                                       return error.code == kFIRMessagingErrorSave;
+                                                     }
+                                                     return NO;
+                                                   }]]);
 
   // should be logged into the service
   [self.dataMessageManager setDeviceAuthID:@"auth-id" secretToken:@"secret-token"];
@@ -232,11 +232,10 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
   NSString *messageID = @"1";
   NSMutableDictionary *message = [self upstreamMessageWithID:messageID ttl:0 delay:0];
 
-  BOOL(^isValidStanza)(id obj) = ^BOOL(id obj) {
+  BOOL (^isValidStanza)(id obj) = ^BOOL(id obj) {
     if ([obj isKindOfClass:[GtalkDataMessageStanza class]]) {
       GtalkDataMessageStanza *stanza = (GtalkDataMessageStanza *)obj;
-      return ([stanza.id_p isEqualToString:messageID] &&
-              [stanza.to isEqualToString:kMessageTo] &&
+      return ([stanza.id_p isEqualToString:messageID] && [stanza.to isEqualToString:kMessageTo] &&
               stanza.ttl == 0);
     }
     return NO;
@@ -263,11 +262,10 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
   NSString *messageID = @"1";
   NSMutableDictionary *message = [self upstreamMessageWithID:messageID ttl:0 delay:0];
 
-  BOOL(^isValidStanza)(id obj) = ^BOOL(id obj) {
+  BOOL (^isValidStanza)(id obj) = ^BOOL(id obj) {
     if ([obj isKindOfClass:[GtalkDataMessageStanza class]]) {
       GtalkDataMessageStanza *stanza = (GtalkDataMessageStanza *)obj;
-      return ([stanza.id_p isEqualToString:messageID] &&
-              [stanza.to isEqualToString:kMessageTo] &&
+      return ([stanza.id_p isEqualToString:messageID] && [stanza.to isEqualToString:kMessageTo] &&
               stanza.ttl == 0);
     }
     return NO;
@@ -291,16 +289,16 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
   NSString *messageID = @"1";
   NSMutableDictionary *message = [self upstreamMessageWithID:messageID ttl:0 delay:0];
 
-
   // should drop the message since there is no network
   OCMExpect([self.mockReceiver willSendDataMessageWithID:[OCMArg isEqual:messageID]
                                                    error:[OCMArg checkWithBlock:^BOOL(id obj) {
-    if ([obj isKindOfClass:[NSError class]]) {
-      NSError *error = (NSError *)obj;
-      return error.code == kFIRMessagingErrorCodeNetwork;
-    }
-    return NO;
-  }]]);
+                                                     if ([obj isKindOfClass:[NSError class]]) {
+                                                       NSError *error = (NSError *)obj;
+                                                       return error.code ==
+                                                              kFIRMessagingErrorCodeNetwork;
+                                                     }
+                                                     return NO;
+                                                   }]]);
 
   [self.dataMessageManager setDeviceAuthID:@"auth-id" secretToken:@"secret-token"];
   [self.dataMessageManager sendDataMessageStanza:message];
@@ -330,8 +328,10 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
   [self.dataMessageManager setDeviceAuthID:@"auth-id" secretToken:@"secret-token"];
   [self.dataMessageManager sendDataMessageStanza:message];
 
-  [[self.mockRmqManager stub] scanWithRmqMessageHandler:
-   [OCMArg invokeBlockWithArgs:@{FIRMessagingGetRmq2Id(firstMessageStanza): firstMessageStanza}, nil]];
+  [[self.mockRmqManager stub] scanWithRmqMessageHandler:[OCMArg invokeBlockWithArgs:@{
+                                FIRMessagingGetRmq2Id(firstMessageStanza) : firstMessageStanza
+                              },
+                                                                                    nil]];
 
   // expect both 1 and 2 messages to be sent once we regain connection
   __block BOOL firstMessageSent = NO;
@@ -339,21 +339,21 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
   XCTestExpectation *didSendAllMessages =
       [self expectationWithDescription:@"Did send all messages"];
   OCMExpect([self.mockClient sendMessage:[OCMArg checkWithBlock:^BOOL(id obj) {
-    // [didSendAllMessages fulfill];
-    if ([obj isKindOfClass:[GtalkDataMessageStanza class]]) {
-      GtalkDataMessageStanza *message = (GtalkDataMessageStanza *)obj;
-      if ([@"1" isEqualToString:message.id_p]) {
-        firstMessageSent = YES;
-      } else if ([@"2" isEqualToString:message.id_p]) {
-        secondMessageSent = YES;
-      }
-      if (firstMessageSent && secondMessageSent) {
-        [didSendAllMessages fulfill];
-      }
-      return firstMessageSent || secondMessageSent;
-    }
-    return NO;
-  }]]);
+                               // [didSendAllMessages fulfill];
+                               if ([obj isKindOfClass:[GtalkDataMessageStanza class]]) {
+                                 GtalkDataMessageStanza *message = (GtalkDataMessageStanza *)obj;
+                                 if ([@"1" isEqualToString:message.id_p]) {
+                                   firstMessageSent = YES;
+                                 } else if ([@"2" isEqualToString:message.id_p]) {
+                                   secondMessageSent = YES;
+                                 }
+                                 if (firstMessageSent && secondMessageSent) {
+                                   [didSendAllMessages fulfill];
+                                 }
+                                 return firstMessageSent || secondMessageSent;
+                               }
+                               return NO;
+                             }]]);
 
   // send the second message after some delay
   [NSThread sleepForTimeInterval:2.0];
@@ -361,24 +361,22 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
   isConnectionActive = YES;
   // simulate active connection
   NSString *newMessageID = @"2";
-  NSMutableDictionary *newMessage = [self upstreamMessageWithID:newMessageID
-                                                            ttl:0
-                                                          delay:0];
+  NSMutableDictionary *newMessage = [self upstreamMessageWithID:newMessageID ttl:0 delay:0];
   // send another message to resend not sent messages
   [self.dataMessageManager sendDataMessageStanza:newMessage];
 
-  [self waitForExpectationsWithTimeout:5.0 handler:^(NSError *error) {
-    XCTAssertNil(error);
-    OCMVerifyAll(self.mockClient);
-    OCMVerifyAll(self.mockReceiver);
-  }];
+  [self waitForExpectationsWithTimeout:5.0
+                               handler:^(NSError *error) {
+                                 XCTAssertNil(error);
+                                 OCMVerifyAll(self.mockClient);
+                                 OCMVerifyAll(self.mockReceiver);
+                               }];
 }
 
 - (void)testSendDelayedMessage_shouldNotSend {
   // should not send a delayed message even with an active connection
   // simulate active connection
-  [[[self.mockClient stub] andReturnValue:[NSNumber numberWithBool:YES]]
-    isConnectionActive];
+  [[[self.mockClient stub] andReturnValue:[NSNumber numberWithBool:YES]] isConnectionActive];
   [[self.mockClient reject] sendMessage:[OCMArg any]];
 
   [[self.mockReceiver reject] didSendDataMessageWithID:[OCMArg any]];
@@ -434,8 +432,9 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
 }
 
 - (void)testReceivingParsedMessage {
-  NSDictionary *message = @{ @"hello" : @"world" };
-  OCMStub([self.mockReceiver didReceiveMessage:[OCMArg isEqual:message] withIdentifier:[OCMArg any]]);
+  NSDictionary *message = @{@"hello" : @"world"};
+  OCMStub([self.mockReceiver didReceiveMessage:[OCMArg isEqual:message]
+                                withIdentifier:[OCMArg any]]);
   [self.dataMessageManager didReceiveParsedMessage:message];
   OCMVerify([self.mockReceiver didReceiveMessage:message withIdentifier:[OCMArg any]]);
 }
@@ -448,7 +447,8 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
   NSDictionary *parsedMessage = [self.dataMessageManager processPacket:message];
   [[[self.mockSyncMessageManager stub] andReturnValue:@(NO)]
       didReceiveMCSSyncMessage:parsedMessage];
-  OCMStub([self.mockReceiver didReceiveMessage:[OCMArg isEqual:message] withIdentifier:[OCMArg any]]);
+  OCMStub([self.mockReceiver didReceiveMessage:[OCMArg isEqual:message]
+                                withIdentifier:[OCMArg any]]);
   [self.dataMessageManager didReceiveParsedMessage:parsedMessage];
   OCMVerify([self.mockReceiver didReceiveMessage:[OCMArg any] withIdentifier:[OCMArg any]]);
 }
@@ -480,10 +480,12 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
   [self.dataMessageManager setDeviceAuthID:@"auth-id" secretToken:@"secret-token"];
 
   // send a couple of message with no connection should be saved to RMQ
-  [self.dataMessageManager sendDataMessageStanza:
-      [self upstreamMessageWithID:@"1" ttl:20000 delay:0]];
-  [self.dataMessageManager sendDataMessageStanza:
-      [self upstreamMessageWithID:@"2" ttl:20000 delay:0]];
+  [self.dataMessageManager sendDataMessageStanza:[self upstreamMessageWithID:@"1"
+                                                                         ttl:20000
+                                                                       delay:0]];
+  [self.dataMessageManager sendDataMessageStanza:[self upstreamMessageWithID:@"2"
+                                                                         ttl:20000
+                                                                       delay:0]];
 
   [NSThread sleepForTimeInterval:1.0];
   isClientConnected = YES;
@@ -498,9 +500,9 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
       GtalkDataMessageStanza *message = (GtalkDataMessageStanza *)obj;
       NSLog(@"hello resending %@, %d", message.id_p, didRecieveMessages);
       if ([@"1" isEqualToString:message.id_p]) {
-        didRecieveMessages |= 1; // right most bit for 1st message
+        didRecieveMessages |= 1;  // right most bit for 1st message
       } else if ([@"2" isEqualToString:message.id_p]) {
-        didRecieveMessages |= (1<<1); // second from RMB for 2nd message
+        didRecieveMessages |= (1 << 1);  // second from RMB for 2nd message
       } else {
         return NO;
       }
@@ -532,8 +534,7 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
 
   [self.dataMessageManager setDeviceAuthID:@"auth-id" secretToken:@"secret-token"];
   // send a message that expires in 1 sec
-  [self.dataMessageManager sendDataMessageStanza:
-      [self upstreamMessageWithID:@"1" ttl:1 delay:0]];
+  [self.dataMessageManager sendDataMessageStanza:[self upstreamMessageWithID:@"1" ttl:1 delay:0]];
 
   // wait for 2 seconds (let the above message expire)
   [NSThread sleepForTimeInterval:2.0];
@@ -542,8 +543,8 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
   id mockConnection = OCMClassMock([FIRMessagingConnection class]);
   [[mockConnection reject] sendProto:[OCMArg any]];
   [[self.mockRmqManager stub] scanWithRmqMessageHandler:[OCMArg checkWithBlock:^BOOL(id obj) {
-        return YES;
-    }]];
+                                return YES;
+                              }]];
 
   [self.dataMessageManager resendMessagesWithConnection:mockConnection];
   OCMVerifyAll(self.mockRmqManager);
@@ -606,7 +607,7 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
 #pragma mark - Create Message
 
 - (NSMutableDictionary *)standardFIRMessagingMessageWithMessageID:(NSString *)messageID {
-  NSDictionary *message = @{ kAppDataItemKey : kAppDataItemValue };
+  NSDictionary *message = @{kAppDataItemKey : kAppDataItemValue};
   return [FIRMessaging createFIRMessagingMessageWithMessage:message
                                                          to:kMessageTo
                                                      withID:messageID
@@ -617,7 +618,7 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
 - (NSMutableDictionary *)upstreamMessageWithID:(NSString *)messageID
                                            ttl:(int64_t)ttl
                                          delay:(int)delay {
-  NSDictionary *message = @{ kAppDataItemInvalidKey : kAppDataItemValue };
+  NSDictionary *message = @{kAppDataItemInvalidKey : kAppDataItemValue};
   return [FIRMessaging createFIRMessagingMessageWithMessage:message
                                                          to:kMessageTo
                                                      withID:messageID

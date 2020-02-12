@@ -77,14 +77,10 @@ has_license_changes = didModify(["LICENSE"])
   "CoreOnly/"])
 @has_crashlytics_changes = hasChangesIn("Crashlytics/")
 @has_database_changes = hasChangesIn("Firebase/Database/")
-@has_dynamiclinks_changes = hasChangesIn("Firebase/DynamicLinks/")
+@has_dynamiclinks_changes = hasChangesIn("FirebaseDynamicLinks/")
 @has_firestore_changes = hasChangesIn("Firestore/")
 @has_functions_changes = hasChangesIn("Functions/")
-@has_inappmessaging_changes = hasChangesIn([
-  "Firebase/InAppMessaging/",
-  "Firebase/InAppMessagingDisplay/",
-  "InAppMessaging/Example/",
-  "InAppMessagingDisplay/"])
+@has_inappmessaging_changes = hasChangesIn(["FirebaseInAppMessaging/"])
 @has_installations_changes = hasChangesIn("FirebaseInstallations/Source/")
 @has_instanceid_changes = hasChangesIn("Firebase/InstanceID/")
 @has_messaging_changes = hasChangesIn("Firebase/Messaging/")

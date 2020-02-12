@@ -140,8 +140,9 @@ NSString *const FIRCLSCacheVersion = @"v4";
 
     extension = [path pathExtension];
     fullPath = [directory stringByAppendingPathComponent:path];
-
-    block(fullPath, extension);
+    if (block) {
+      block(fullPath, extension);
+    }
   }
 }
 
@@ -176,7 +177,7 @@ NSString *const FIRCLSCacheVersion = @"v4";
                          [array addObject:filePath];
                        }];
 
-  return array;
+  return [array copy];
 }
 
 #pragma - Properties
@@ -271,8 +272,9 @@ NSString *const FIRCLSCacheVersion = @"v4";
                        usingBlock:^(NSString *filePath, NSString *extension) {
                          FIRCLSInternalReport *report =
                              [FIRCLSInternalReport reportWithPath:filePath];
-
-                         block(report, filePath);
+                         if (block) {
+                           block(report, filePath);
+                         }
                        }];
 }
 
@@ -303,28 +305,14 @@ NSString *const FIRCLSCacheVersion = @"v4";
 }
 
 - (BOOL)removeContentsOfAllPaths {
-  BOOL success = YES;
-
-  // We want to call all of these methods, even if some fail, and return
-  // NO if any fail. This turned out to be slightly tricky to do in more
-  // compact forms, so I did it the simple but verbose way.
-
-  if (![self removeContentsOfProcessingPath]) {
-    success = NO;
-  }
-
-  if (![self removeContentsOfPendingPath]) {
-    success = NO;
-  }
-
-  if (![self removeContentsOfDirectoryAtPath:self.preparedPath]) {
-    success = NO;
-  }
-
-  if (![self removeContentsOfDirectoryAtPath:self.activePath]) {
-    success = NO;
-  }
-
+  BOOL contentsOfProcessingPathRemoved = [self removeContentsOfProcessingPath];
+  BOOL contentsOfPendingPathRemoved = [self removeContentsOfPendingPath];
+  BOOL contentsOfDirectoryAtPreparedPathRemoved =
+      [self removeContentsOfDirectoryAtPath:self.preparedPath];
+  BOOL contentsOfDirectoryAtActivePathRemoved =
+      [self removeContentsOfDirectoryAtPath:self.activePath];
+  BOOL success = contentsOfProcessingPathRemoved && contentsOfPendingPathRemoved &&
+                 contentsOfDirectoryAtPreparedPathRemoved && contentsOfDirectoryAtActivePathRemoved;
   return success;
 }
 

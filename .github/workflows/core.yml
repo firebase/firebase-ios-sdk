@@ -4,15 +4,40 @@ on:
   pull_request:
     paths:
     - 'FirebaseCore**'
+    - '.github/workflows/core.yml'
+  schedule:
+    # Run every day at 11pm (PST) - cron uses UTC times
+    - cron:  '0 7 * * *'
 
 jobs:
-  core:
+  pod_lib_lint:
     runs-on: macOS-latest
+
+    strategy:
+      matrix:
+        target: [ios, tvos, macos]
     steps:
-    - uses: actions/checkout@v1
-    - name: Set up
-      run: |
-        bundle install
-        bundle exec pod --version
-    - name: FirebaseCore
-      run: ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=ios
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Build and test
+      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=${{ matrix.target }}
+
+  core-cron-only:
+    runs-on: macos-latest
+    if: github.event_name == 'schedule'
+    strategy:
+      matrix:
+        target: [ios, tvos, macos]
+        flags: [
+          '--use-modular-headers',
+          # Tests are skipped since the Swift tests need modules.
+          '--skip-tests --use-libraries'
+        ]
+    needs: pod_lib_lint
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: PodLibLint Core Cron
+      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}

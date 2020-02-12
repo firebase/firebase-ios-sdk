@@ -60,6 +60,8 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
             std::shared_ptr<util::AsyncQueue> worker_queue,
             void* extension);
 
+  ~Firestore();
+
   const model::DatabaseId& database_id() const {
     return database_id_;
   }

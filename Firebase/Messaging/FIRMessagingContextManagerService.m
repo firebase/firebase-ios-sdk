@@ -32,16 +32,22 @@ static NSString *const kLocalTimeFormatString = @"yyyy-MM-dd HH:mm:ss";
 static NSString *const kContextManagerPrefixKey = kFIRMessagingContextManagerPrefixKey;
 
 // Local timed messages (format yyyy-mm-dd HH:mm:ss)
-NSString *const kFIRMessagingContextManagerLocalTimeStart = kFIRMessagingContextManagerPrefixKey @"lt_start";
-NSString *const kFIRMessagingContextManagerLocalTimeEnd = kFIRMessagingContextManagerPrefixKey @"lt_end";
+NSString *const kFIRMessagingContextManagerLocalTimeStart =
+    kFIRMessagingContextManagerPrefixKey @"lt_start";
+NSString *const kFIRMessagingContextManagerLocalTimeEnd =
+    kFIRMessagingContextManagerPrefixKey @"lt_end";
 
 // Local Notification Params
-NSString *const kFIRMessagingContextManagerBodyKey = kFIRMessagingContextManagerNotificationKeyPrefix @"body";
-NSString *const kFIRMessagingContextManagerTitleKey = kFIRMessagingContextManagerNotificationKeyPrefix @"title";
-NSString *const kFIRMessagingContextManagerBadgeKey = kFIRMessagingContextManagerNotificationKeyPrefix @"badge";
+NSString *const kFIRMessagingContextManagerBodyKey =
+    kFIRMessagingContextManagerNotificationKeyPrefix @"body";
+NSString *const kFIRMessagingContextManagerTitleKey =
+    kFIRMessagingContextManagerNotificationKeyPrefix @"title";
+NSString *const kFIRMessagingContextManagerBadgeKey =
+    kFIRMessagingContextManagerNotificationKeyPrefix @"badge";
 NSString *const kFIRMessagingContextManagerCategoryKey =
     kFIRMessagingContextManagerNotificationKeyPrefix @"click_action";
-NSString *const kFIRMessagingContextManagerSoundKey = kFIRMessagingContextManagerNotificationKeyPrefix @"sound";
+NSString *const kFIRMessagingContextManagerSoundKey =
+    kFIRMessagingContextManagerNotificationKeyPrefix @"sound";
 NSString *const kFIRMessagingContextManagerContentAvailableKey =
     kFIRMessagingContextManagerNotificationKeyPrefix @"content-available";
 static NSString *const kFIRMessagingAPNSPayloadKey = @"aps";
@@ -80,8 +86,8 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
   NSString *startTimeString = message[kFIRMessagingContextManagerLocalTimeStart];
   if (!startTimeString) {
     FIRMessagingLoggerError(kFIRMessagingMessageCodeContextManagerService002,
-                              @"Invalid local start date format %@. Message dropped",
-                              startTimeString);
+                            @"Invalid local start date format %@. Message dropped",
+                            startTimeString);
     return NO;
   }
   NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
@@ -91,8 +97,7 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
   NSDate *currentDate = [NSDate date];
 
   if ([currentDate compare:startDate] == NSOrderedAscending) {
-    [self scheduleLocalNotificationForMessage:message
-                                       atDate:startDate];
+    [self scheduleLocalNotificationForMessage:message atDate:startDate];
   } else {
     // check end time has not passed
     NSString *endTimeString = message[kFIRMessagingContextManagerLocalTimeEnd];
@@ -124,8 +129,7 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
   return YES;
 }
 
-+ (void)scheduleLocalNotificationForMessage:(NSDictionary *)message
-                                     atDate:(NSDate *)date {
++ (void)scheduleLocalNotificationForMessage:(NSDictionary *)message atDate:(NSDate *)date {
 #if TARGET_OS_IOS
   NSDictionary *apsDictionary = message;
 #pragma clang diagnostic push
@@ -145,7 +149,7 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
   }
   if ([apsDictionary[kFIRMessagingContextManagerTitleKey] length]) {
     // |alertTitle| is iOS 8.2+, so check if we can set it
-      if ([notification respondsToSelector:@selector(setAlertTitle:)]) {
+    if ([notification respondsToSelector:@selector(setAlertTitle:)]) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunguarded-availability"
       notification.alertTitle = apsDictionary[kFIRMessagingContextManagerTitleKey];

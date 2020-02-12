@@ -55,6 +55,7 @@ TEST(DocumentKey, Constructor_FromPath) {
   EXPECT_EQ(key_from_path_copy.path(), key_from_moved_path.path());
 }
 
+#if !__clang_analyzer__
 TEST(DocumentKey, CopyAndMove) {
   DocumentKey key({"rooms", "firestore", "messages", "1"});
   const std::string path_string = "rooms/firestore/messages/1";
@@ -82,6 +83,7 @@ TEST(DocumentKey, CopyAndMove) {
   EXPECT_TRUE(copied.path().empty());
   EXPECT_EQ(path_string, key.path().CanonicalString());
 }
+#endif  // !__clang_analyzer__
 
 TEST(DocumentKey, Constructor_StaticFactory) {
   const auto key_from_segments =

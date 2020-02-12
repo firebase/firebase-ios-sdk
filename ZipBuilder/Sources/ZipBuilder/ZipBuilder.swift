@@ -185,7 +185,20 @@ struct ZipBuilder {
     // install a subset of pods, like the following line:
     // let inputPods: [String] = ["Firebase", "FirebaseCore", "FirebaseAnalytics", "FirebaseStorage"]
     let inputPods = FirebasePods.allCases.map { $0.rawValue }
-    let podsToInstall = inputPods.map { CocoaPodUtils.VersionedPod(name: $0, version: nil) }
+
+    // Get the expected versions based on the release manifests, if there are any. If there are any
+    // versions with `alpha` or `beta` in it, we'll need to explicitly specify the version here so
+    // CocoaPods installs it properly.
+    let prereleases = expectedVersions().filter { _, version in
+      version.contains("alpha") || version.contains("beta") || version.contains("rc")
+    }
+
+    let podsToInstall: [CocoaPodUtils.VersionedPod] = inputPods.map { name in
+      // If there's a pre-release version, include it here. Otherwise don't pass a version since we
+      // want the latest.
+      let version: String? = prereleases[name]
+      return CocoaPodUtils.VersionedPod(name: name, version: version)
+    }
 
     let (installedPods, frameworks) = buildAndAssembleZip(podsToInstall: podsToInstall)
 
@@ -386,7 +399,8 @@ struct ZipBuilder {
       // Skip the Firebase pod, any Interop pods, and specifically ignored frameworks.
       guard podName != "Firebase",
         !podName.contains("Interop"),
-        !podsToIgnore.contains(podName) else {
+        !podsToIgnore.contains(podName),
+        podName != "FirebaseInAppMessagingDisplay" else {
         continue
       }
 
@@ -565,10 +579,10 @@ struct ZipBuilder {
     // Get the expected versions based on the release manifests, if there are any. We'll use this to
     // validate the versions pulled from CocoaPods. Expected versions could be empty, in which case
     // validation succeeds.
-    let expected = expectedVersions()
+    let expected = expectedVersions().filter { $0.key != "FirebaseInAppMessagingDisplay" }
     if !expected.isEmpty {
       // Loop through the expected versions and verify the actual versions match.
-      for podName in expected.keys where !podName.contains("SmartReply") {
+      for podName in expected.keys {
         // If there are some expected versions,verify them.
         guard let installedPod = installedPods[podName] else {
           fatalError("Did not find expected pod \(podName) installed")
@@ -681,8 +695,11 @@ struct ZipBuilder {
     var toInstall: [String: [URL]] = [:]
     for (podName, podInfo) in pods {
       var frameworks: [URL] = []
-      // Ignore any Interop pods or the Firebase umbrella pod.
-      guard !podName.contains("Interop"), podName != "Firebase" else {
+      // Ignore any Interop pods or the Firebase umbrella pod. Also ignore the InAppMessagingDisplay
+      // pod since it doesn't have any source files to compile, only an empty header.
+      guard !podName.contains("Interop"),
+        podName != "Firebase",
+        podName != "FirebaseInAppMessagingDisplay" else {
         continue
       }
 

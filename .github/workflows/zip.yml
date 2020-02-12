@@ -1,0 +1,43 @@
+name: zip
+
+on:
+  pull_request:
+    paths:
+    - 'ZipBuilder/**'
+    - '.github/workflows/zip.yml'
+    # Don't run based on any markdown only changes.
+    - '!ZipBuilder/*.md'
+  schedule:
+    # Run every day at midnight(PST) - cron uses UTC times
+    - cron:  '0 8 * * *'
+
+jobs:
+  build:
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build
+      run: |
+        cd ZipBuilder
+        swift build -v
+
+  package:
+    needs: build
+    runs-on: macOS-latest
+    # Only run the `package` job for the cron job, not PRs.
+    if: github.event_name == 'schedule'
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: ./scripts/setup_bundler.sh
+    - name: ZipBuildingTest
+      run: |
+         mkdir -p zip_output_dir
+         sh -x scripts/build_zip.sh zip_output_dir
+
+    - uses: actions/upload-artifact@v1
+      with:
+        name: Firebase-actions-dir
+        # Zip the entire output directory since the builder adds subdirectories we don't know the
+        # name of.
+        path: zip_output_dir

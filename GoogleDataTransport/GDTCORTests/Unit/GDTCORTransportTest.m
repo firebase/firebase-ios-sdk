@@ -44,7 +44,14 @@
   transport.transformerInstance = [[GDTCORTransformerFake alloc] init];
   GDTCOREvent *event = [transport eventForTransport];
   event.dataObject = [[GDTCORDataObjectTesterSimple alloc] init];
-  XCTAssertNoThrow([transport sendTelemetryEvent:event]);
+  XCTestExpectation *writtenExpectation = [self expectationWithDescription:@"event written"];
+  XCTAssertNoThrow([transport sendTelemetryEvent:event
+                                      onComplete:^(BOOL wasWritten, NSError *error) {
+                                        XCTAssertTrue(wasWritten);
+                                        XCTAssertNil(error);
+                                        [writtenExpectation fulfill];
+                                      }]);
+  [self waitForExpectations:@[ writtenExpectation ] timeout:10.0];
 }
 
 /** Tests sending a data event. */
@@ -55,7 +62,14 @@
   transport.transformerInstance = [[GDTCORTransformerFake alloc] init];
   GDTCOREvent *event = [transport eventForTransport];
   event.dataObject = [[GDTCORDataObjectTesterSimple alloc] init];
-  XCTAssertNoThrow([transport sendDataEvent:event]);
+  XCTestExpectation *writtenExpectation = [self expectationWithDescription:@"event written"];
+  XCTAssertNoThrow([transport sendDataEvent:event
+                                 onComplete:^(BOOL wasWritten, NSError *error) {
+                                   XCTAssertTrue(wasWritten);
+                                   XCTAssertNil(error);
+                                   [writtenExpectation fulfill];
+                                 }]);
+  [self waitForExpectations:@[ writtenExpectation ] timeout:10.0];
 }
 
 @end

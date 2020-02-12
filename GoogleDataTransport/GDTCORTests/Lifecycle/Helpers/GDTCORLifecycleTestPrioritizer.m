@@ -47,9 +47,9 @@
   });
 }
 
-- (GDTCORUploadPackage *)uploadPackageWithConditions:(GDTCORUploadConditions)conditions {
-  __block GDTCORUploadPackage *uploadPackage =
-      [[GDTCORUploadPackage alloc] initWithTarget:kGDTCORTargetTest];
+- (GDTCORUploadPackage *)uploadPackageWithTarget:(GDTCORTarget)target
+                                      conditions:(GDTCORUploadConditions)conditions {
+  __block GDTCORUploadPackage *uploadPackage = [[GDTCORUploadPackage alloc] initWithTarget:target];
   dispatch_sync(_queue, ^{
     uploadPackage.events = self.events;
   });

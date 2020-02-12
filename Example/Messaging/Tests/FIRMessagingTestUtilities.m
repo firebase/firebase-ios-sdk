@@ -16,16 +16,17 @@
 
 #import <OCMock/OCMock.h>
 
+#import "XCTestCase+FIRMessagingRmqManagerTests.h"
+
 #import "Example/Messaging/Tests/FIRMessagingTestUtilities.h"
 
 #import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
+#import <FirebaseInstallations/FIRInstallations.h>
 #import <FirebaseInstanceID/FirebaseInstanceID.h>
 #import <GoogleUtilities/GULUserDefaults.h>
-#import <FirebaseInstallations/FIRInstallations.h>
 
 #import "Firebase/Messaging/FIRMessagingPubSub.h"
 #import "Firebase/Messaging/FIRMessagingRmqManager.h"
-
 
 NS_ASSUME_NONNULL_BEGIN
 static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
@@ -63,9 +64,33 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 
 @end
 
+@implementation MockPendingTopicsListDelegate
+
+- (BOOL)pendingTopicsListCanRequestTopicUpdates:(FIRMessagingPendingTopicsList *)list {
+  return self.isReady;
+}
+
+- (void)pendingTopicsList:(FIRMessagingPendingTopicsList *)list
+    requestedUpdateForTopic:(NSString *)topic
+                     action:(FIRMessagingTopicAction)action
+                 completion:(FIRMessagingTopicOperationCompletion)completion {
+  if (self.subscriptionHandler) {
+    self.subscriptionHandler(topic, action, completion);
+  }
+}
+
+- (void)pendingTopicsListDidUpdate:(FIRMessagingPendingTopicsList *)list {
+  if (self.updateHandler) {
+    self.updateHandler();
+  }
+}
+
+@end
+
 @implementation FIRMessagingTestUtilities
 
-- (instancetype)initWithUserDefaults:(GULUserDefaults *)userDefaults withRMQManager:(BOOL)withRMQManager {
+- (instancetype)initWithUserDefaults:(GULUserDefaults *)userDefaults
+                      withRMQManager:(BOOL)withRMQManager {
   self = [super init];
   if (self) {
     // `+[FIRInstallations installations]` supposed to be used on `-[FIRInstanceID start]` to get
@@ -78,8 +103,8 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 
     // Create the messaging instance and call `start`.
     _messaging = [[FIRMessaging alloc] initWithAnalytics:nil
-                                                       withInstanceID:_instanceID
-                                                     withUserDefaults:userDefaults];
+                                          withInstanceID:_instanceID
+                                        withUserDefaults:userDefaults];
     if (withRMQManager) {
       [_messaging start];
     }
@@ -87,7 +112,6 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
     if (!withRMQManager) {
       OCMStub([_mockMessaging setupRmqManager]).andDo(nil);
       [(FIRMessaging *)_mockMessaging start];
-
     }
     _mockInstanceID = OCMPartialMock(_instanceID);
     _mockPubsub = OCMPartialMock(_messaging.pubsub);
@@ -95,8 +119,9 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
   return self;
 }
 
-- (void)cleanupAfterTest {
+- (void)cleanupAfterTest:(XCTestCase *)testCase {
   [_messaging.rmq2Manager removeDatabase];
+  [testCase waitForDrainDatabaseQueueForRmqManager:_messaging.rmq2Manager];
   [_messaging.messagingUserDefaults removePersistentDomainForName:kFIRMessagingDefaultsTestDomain];
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"

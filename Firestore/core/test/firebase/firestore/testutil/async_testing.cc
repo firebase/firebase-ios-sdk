@@ -37,7 +37,7 @@ std::unique_ptr<util::Executor> ExecutorForTesting(const char* name) {
 }
 
 std::shared_ptr<util::AsyncQueue> AsyncQueueForTesting() {
-  return std::make_shared<AsyncQueue>(ExecutorForTesting("worker"));
+  return AsyncQueue::Create(ExecutorForTesting("worker"));
 }
 
 // MARK: - Expectation

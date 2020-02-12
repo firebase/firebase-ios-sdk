@@ -33,7 +33,6 @@ product can be one of:
   Firebase
   Firestore
   InAppMessaging
-  InAppMessagingDisplay
   SymbolCollision
 
 platform can be one of:
@@ -75,23 +74,57 @@ fi
 scripts_dir=$(dirname "${BASH_SOURCE[0]}")
 firestore_emulator="${scripts_dir}/run_firestore_emulator.sh"
 
-xcode_version=$(xcodebuild -version | head -n 1)
-xcode_version="${xcode_version/Xcode /}"
-xcode_major="${xcode_version/.*/}"
+system=$(uname -s)
+case "$system" in
+  Darwin)
+    xcode_version=$(xcodebuild -version | head -n 1)
+    xcode_version="${xcode_version/Xcode /}"
+    xcode_major="${xcode_version/.*/}"
+    ;;
+  *)
+    xcode_major="0"
+    ;;
+esac
+
+have_secrets=false
+
+# Travis: Secrets are available if we're not running on a fork.
+if [[ -n "${TRAVIS_PULL_REQUEST:-}" ]]; then
+  if [[ "$TRAVIS_PULL_REQUEST" == "false" ||
+      "$TRAVIS_PULL_REQUEST_SLUG" == "$TRAVIS_REPO_SLUG" ]]; then
+        have_secrets=true
+  fi
+fi
+# GitHub Actions: Secrets are available if we're not running on a fork.
+# See https://help.github.com/en/actions/automating-your-workflow-with-github-actions/using-environment-variables
+if [[ -n "${GITHUB_WORKFLOW:-}" ]]; then
+  if [[ -z "$GITHUB_HEAD_REF" ]]; then
+    have_secrets=true
+  fi
+fi
 
 # Runs xcodebuild with the given flags, piping output to xcpretty
 # If xcodebuild fails with known error codes, retries once.
 function RunXcodebuild() {
   echo xcodebuild "$@"
 
-  xcodebuild "$@" | xcpretty; result=$?
+  xcpretty_cmd=(xcpretty)
+  if [[ -n "${TRAVIS:-}" ]]; then
+    # The formatter argument takes a file location of a formatter.
+    # The xcpretty-travis-formatter binary prints its location on stdout.
+    xcpretty_cmd+=(-f $(xcpretty-travis-formatter))
+  fi
+
+  xcodebuild "$@" | tee xcodebuild.log | "${xcpretty_cmd[@]}"; result=$?
   if [[ $result == 65 ]]; then
     echo "xcodebuild exited with 65, retrying" 1>&2
     sleep 5
 
-    xcodebuild "$@" | xcpretty; result=$?
+    xcodebuild "$@" | tee xcodebuild.log | "${xcpretty_cmd[@]}"; result=$?
   fi
   if [[ $result != 0 ]]; then
+    echo "xcodebuild exited with $result; raw log follows" 1>&2
+    cat xcodebuild.log
     exit $result
   fi
 }
@@ -141,6 +174,10 @@ case "$platform" in
     ;;
 
   all)
+    xcb_flags=()
+    ;;
+
+  Linux)
     xcb_flags=()
     ;;
 
@@ -202,8 +239,9 @@ if [[ -n "${SANITIZERS:-}" ]]; then
   done
 fi
 
-case "$product-$method-$platform" in
-  FirebasePod-xcodebuild-*)
+
+case "$product-$platform-$method" in
+  FirebasePod-*-xcodebuild)
     RunXcodebuild \
         -workspace 'CoreOnly/Tests/FirebasePodTest/FirebasePodTest.xcworkspace' \
         -scheme "FirebasePodTest" \
@@ -211,9 +249,8 @@ case "$product-$method-$platform" in
         build
     ;;
 
-  Auth-xcodebuild-*)
-    if [[ "$TRAVIS_PULL_REQUEST" == "false" ||
-          "$TRAVIS_PULL_REQUEST_SLUG" == "$TRAVIS_REPO_SLUG" ]]; then
+  Auth-*-xcodebuild)
+    if [[ "$have_secrets" == true ]]; then
       RunXcodebuild \
         -workspace 'Example/Auth/AuthSample/AuthSample.xcworkspace' \
         -scheme "Auth_ApiTests" \
@@ -223,62 +260,45 @@ case "$product-$method-$platform" in
     fi
     ;;
 
-  InAppMessaging-xcodebuild-*)
+  InAppMessaging-*-xcodebuild)
     RunXcodebuild \
-        -workspace 'InAppMessaging/Example/InAppMessaging-Example-iOS.xcworkspace' \
-        -scheme 'InAppMessaging_Example_iOS' \
-        "${xcb_flags[@]}" \
-        build \
-        test
-
-    RunXcodebuild \
-        -workspace 'InAppMessagingDisplay/Example/InAppMessagingDisplay-Sample.xcworkspace' \
+        -workspace 'FirebaseInAppMessaging/Tests/Integration/DefaultUITestApp/InAppMessagingDisplay-Sample.xcworkspace' \
         -scheme 'FiamDisplaySwiftExample' \
         "${xcb_flags[@]}" \
         build \
         test
     ;;
 
-  Firestore-xcodebuild-*)
+  Firestore-*-xcodebuild)
     "${firestore_emulator}" start
     trap '"${firestore_emulator}" stop' ERR EXIT
 
-    if [[ "$xcode_major" -lt 9 ]]; then
-      # When building and testing for Xcode 8, only test unit tests.
-      RunXcodebuild \
-          -workspace 'Firestore/Example/Firestore.xcworkspace' \
-          -scheme "Firestore_Tests_$platform" \
-          "${xcb_flags[@]}" \
-          build \
-          test
-
-    else
-      # IntegrationTests run all the tests, including Swift tests, which
-      # require Swift 4.0 and Xcode 9+.
-      RunXcodebuild \
-          -workspace 'Firestore/Example/Firestore.xcworkspace' \
-          -scheme "Firestore_IntegrationTests_$platform" \
-          "${xcb_flags[@]}" \
-          build \
-          test
-    fi
+    RunXcodebuild \
+        -workspace 'Firestore/Example/Firestore.xcworkspace' \
+        -scheme "Firestore_IntegrationTests_$platform" \
+        "${xcb_flags[@]}" \
+        build \
+        test
     ;;
 
-  Firestore-cmake-macOS)
+  Firestore-macOS-cmake | Firestore-Linux-cmake)
     "${firestore_emulator}" start
     trap '"${firestore_emulator}" stop' ERR EXIT
 
-    test -d build || mkdir build
-    echo "Preparing cmake build ..."
-    (cd build; cmake "${cmake_options[@]}" ..)
+    (
+      test -d build || mkdir build
+      cd build
 
-    echo "Building cmake build ..."
-    cpus=$(sysctl -n hw.ncpu)
-    (cd build; env make -j $cpus all generate_protos)
-    (cd build; env CTEST_OUTPUT_ON_FAILURE=1 make -j $cpus test)
+      echo "Preparing cmake build ..."
+      cmake -G Ninja "${cmake_options[@]}" ..
+
+      echo "Building cmake build ..."
+      ninja -k 10 all
+      ctest --output-on-failure
+    )
     ;;
 
-  SymbolCollision-xcodebuild-*)
+  SymbolCollision-*-xcodebuild)
     RunXcodebuild \
         -workspace 'SymbolCollisionTest/SymbolCollisionTest.xcworkspace' \
         -scheme "SymbolCollisionTest" \
@@ -286,7 +306,7 @@ case "$product-$method-$platform" in
         build
     ;;
 
-  Database-xcodebuild-*)
+  Database-*-xcodebuild)
     pod_gen FirebaseDatabase.podspec --platforms=ios
     RunXcodebuild \
       -workspace 'gen/FirebaseDatabase/FirebaseDatabase.xcworkspace' \
@@ -296,8 +316,7 @@ case "$product-$method-$platform" in
       build \
       test
 
-    if [[ "$TRAVIS_PULL_REQUEST" == "false" ||
-          "$TRAVIS_PULL_REQUEST_SLUG" == "$TRAVIS_REPO_SLUG" ]]; then
+    if [[ "$have_secrets" == true ]]; then
       # Integration tests are only run on iOS to minimize flake failures.
       RunXcodebuild \
         -workspace 'gen/FirebaseDatabase/FirebaseDatabase.xcworkspace' \
@@ -327,7 +346,7 @@ case "$product-$method-$platform" in
       test
     ;;
 
-  Storage-xcodebuild-*)
+  Storage-*-xcodebuild)
     pod_gen FirebaseStorage.podspec --platforms=ios
     RunXcodebuild \
       -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
@@ -337,8 +356,7 @@ case "$product-$method-$platform" in
       build \
       test
 
-    if [[ "$TRAVIS_PULL_REQUEST" == "false" ||
-          "$TRAVIS_PULL_REQUEST_SLUG" == "$TRAVIS_REPO_SLUG" ]]; then
+    if [[ "$have_secrets" == true ]]; then
       # Integration tests are only run on iOS to minimize flake failures.
       RunXcodebuild \
         -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \

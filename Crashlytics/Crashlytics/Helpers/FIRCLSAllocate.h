@@ -46,9 +46,3 @@ void* FIRCLSAllocatorSafeAllocate(FIRCLSAllocatorRef allocator,
                                   FIRCLSAllocationType type);
 const char* FIRCLSAllocatorSafeStrdup(FIRCLSAllocatorRef allocator, const char* string);
 void FIRCLSAllocatorFree(FIRCLSAllocatorRef allocator, void* ptr);
-
-#if CLS_MEMORY_PROTECTION_ENABLED
-#define FIRCLSFree(x) FIRCLSAllocatorFree(_clsContext.allocator, (void*)(x));
-#else
-#define FIRCLSFree(x) free((void*)(x))
-#endif

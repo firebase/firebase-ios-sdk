@@ -62,11 +62,13 @@ typedef NS_OPTIONS(NSInteger, GDTCORUploadConditions) {
 
 /** Returns a set of events to upload given a set of conditions.
  *
+ * @param target The target to create an upload package for.
  * @param conditions A bit mask specifying the current upload conditions.
  * @return An object to be used by the uploader to determine file URLs to upload with respect to the
  * current conditions.
  */
-- (GDTCORUploadPackage *)uploadPackageWithConditions:(GDTCORUploadConditions)conditions;
+- (GDTCORUploadPackage *)uploadPackageWithTarget:(GDTCORTarget)target
+                                      conditions:(GDTCORUploadConditions)conditions;
 
 @end
 

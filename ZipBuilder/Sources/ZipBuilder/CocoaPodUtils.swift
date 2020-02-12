@@ -21,12 +21,22 @@ import Foundation
 enum CocoaPodUtils {
   // MARK: - Public API
 
-  struct VersionedPod: Decodable {
+  struct VersionedPod: Decodable, CustomDebugStringConvertible {
     /// Public name of the pod.
     let name: String
 
     /// The version of the requested pod.
     let version: String?
+
+    /// The debug description as required by `CustomDebugStringConvertible`.
+    var debugDescription: String {
+      var desc = name
+      if let version = version {
+        desc.append(" v\(version)")
+      }
+
+      return desc
+    }
   }
 
   /// Information associated with an installed pod.

@@ -240,7 +240,9 @@ target_include_directories(
 
 
 # XCTest
-find_package(XCTest)
+if(APPLE)
+  find_package(XCTest)
+endif()
 
 
 enable_testing()

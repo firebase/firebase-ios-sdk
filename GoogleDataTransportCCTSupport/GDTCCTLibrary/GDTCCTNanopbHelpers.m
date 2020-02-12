@@ -39,8 +39,10 @@ pb_bytes_array_t *GDTCCTEncodeString(NSString *string) {
 
 pb_bytes_array_t *GDTCCTEncodeData(NSData *data) {
   pb_bytes_array_t *pbBytes = malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(data.length));
-  memcpy(pbBytes->bytes, [data bytes], data.length);
-  pbBytes->size = (pb_size_t)data.length;
+  if (pbBytes != NULL) {
+    memcpy(pbBytes->bytes, [data bytes], data.length);
+    pbBytes->size = (pb_size_t)data.length;
+  }
   return pbBytes;
 }
 
@@ -57,12 +59,12 @@ NSData *_Nullable GDTCCTEncodeBatchedLogRequest(gdt_cct_BatchedLogRequest *batch
   // Encode a 2nd time to actually get the bytes from it.
   size_t bufferSize = sizestream.bytes_written;
   CFMutableDataRef dataRef = CFDataCreateMutable(CFAllocatorGetDefault(), bufferSize);
+  CFDataSetLength(dataRef, bufferSize);
   pb_ostream_t ostream = pb_ostream_from_buffer((void *)CFDataGetBytePtr(dataRef), bufferSize);
   if (!pb_encode(&ostream, gdt_cct_BatchedLogRequest_fields, batchedLogRequest)) {
     GDTCORLogError(GDTCORMCEGeneralError, @"Error in nanopb encoding for bytes: %s",
                    PB_GET_ERROR(&ostream));
   }
-  CFDataSetLength(dataRef, ostream.bytes_written);
 
   return CFBridgingRelease(dataRef);
 }
@@ -72,6 +74,9 @@ gdt_cct_BatchedLogRequest GDTCCTConstructBatchedLogRequest(
   gdt_cct_BatchedLogRequest batchedLogRequest = gdt_cct_BatchedLogRequest_init_default;
   NSUInteger numberOfLogRequests = logMappingIDToLogSet.count;
   gdt_cct_LogRequest *logRequests = malloc(sizeof(gdt_cct_LogRequest) * numberOfLogRequests);
+  if (logRequests == NULL) {
+    return batchedLogRequest;
+  }
 
   __block int i = 0;
   [logMappingIDToLogSet enumerateKeysAndObjectsUsingBlock:^(
@@ -102,6 +107,9 @@ gdt_cct_LogRequest GDTCCTConstructLogRequest(int32_t logSource,
   logRequest.client_info = GDTCCTConstructClientInfo();
   logRequest.has_client_info = 1;
   logRequest.log_event = malloc(sizeof(gdt_cct_LogEvent) * logSet.count);
+  if (logRequest.log_event == NULL) {
+    return logRequest;
+  }
   int i = 0;
   for (GDTCORStoredEvent *log in logSet) {
     gdt_cct_LogEvent logEvent = GDTCCTConstructLogEvent(log);

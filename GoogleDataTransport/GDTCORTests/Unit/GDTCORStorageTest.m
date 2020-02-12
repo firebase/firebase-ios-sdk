@@ -86,7 +86,14 @@ static NSInteger target = kGDTCORTargetCCT;
     GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"404" target:target];
     event.dataObjectTransportBytes = [@"testString" dataUsingEncoding:NSUTF8StringEncoding];
     event.clockSnapshot = [GDTCORClock snapshot];
-    XCTAssertNoThrow([[GDTCORStorage sharedInstance] storeEvent:event]);
+    XCTestExpectation *writtenExpectation = [self expectationWithDescription:@"event written"];
+    XCTAssertNoThrow([[GDTCORStorage sharedInstance] storeEvent:event
+                                                     onComplete:^(BOOL wasWritten, NSError *error) {
+                                                       XCTAssertTrue(wasWritten);
+                                                       XCTAssertNil(error);
+                                                       [writtenExpectation fulfill];
+                                                     }]);
+    [self waitForExpectations:@[ writtenExpectation ] timeout:10.0];
   }
   dispatch_sync([GDTCORStorage sharedInstance].storageQueue, ^{
     XCTAssertEqual([GDTCORStorage sharedInstance].storedEvents.count, 1);
@@ -107,7 +114,14 @@ static NSInteger target = kGDTCORTargetCCT;
     GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"404" target:target];
     event.dataObjectTransportBytes = [@"testString" dataUsingEncoding:NSUTF8StringEncoding];
     event.clockSnapshot = [GDTCORClock snapshot];
-    XCTAssertNoThrow([[GDTCORStorage sharedInstance] storeEvent:event]);
+    XCTestExpectation *writtenExpectation = [self expectationWithDescription:@"event written"];
+    XCTAssertNoThrow([[GDTCORStorage sharedInstance] storeEvent:event
+                                                     onComplete:^(BOOL wasWritten, NSError *error) {
+                                                       XCTAssertTrue(wasWritten);
+                                                       XCTAssertNil(error);
+                                                       [writtenExpectation fulfill];
+                                                     }]);
+    [self waitForExpectations:@[ writtenExpectation ] timeout:10.0];
   }
   __block NSURL *eventFile;
   dispatch_sync([GDTCORStorage sharedInstance].storageQueue, ^{
@@ -131,21 +145,42 @@ static NSInteger target = kGDTCORTargetCCT;
   @autoreleasepool {
     GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"404" target:target];
     event.dataObjectTransportBytes = [@"testString1" dataUsingEncoding:NSUTF8StringEncoding];
-    XCTAssertNoThrow([storage storeEvent:event]);
+    XCTestExpectation *writtenExpectation = [self expectationWithDescription:@"event written"];
+    XCTAssertNoThrow([[GDTCORStorage sharedInstance] storeEvent:event
+                                                     onComplete:^(BOOL wasWritten, NSError *error) {
+                                                       XCTAssertTrue(wasWritten);
+                                                       XCTAssertNil(error);
+                                                       [writtenExpectation fulfill];
+                                                     }]);
+    [self waitForExpectations:@[ writtenExpectation ] timeout:10.0];
     dispatch_sync([GDTCORStorage sharedInstance].storageQueue, ^{
       storedEvent1 = [storage.storedEvents lastObject];
     });
 
     event = [[GDTCOREvent alloc] initWithMappingID:@"100" target:target];
     event.dataObjectTransportBytes = [@"testString2" dataUsingEncoding:NSUTF8StringEncoding];
-    XCTAssertNoThrow([storage storeEvent:event]);
+    writtenExpectation = [self expectationWithDescription:@"event written"];
+    XCTAssertNoThrow([[GDTCORStorage sharedInstance] storeEvent:event
+                                                     onComplete:^(BOOL wasWritten, NSError *error) {
+                                                       XCTAssertTrue(wasWritten);
+                                                       XCTAssertNil(error);
+                                                       [writtenExpectation fulfill];
+                                                     }]);
+    [self waitForExpectations:@[ writtenExpectation ] timeout:10.0];
     dispatch_sync([GDTCORStorage sharedInstance].storageQueue, ^{
       storedEvent2 = [storage.storedEvents lastObject];
     });
 
     event = [[GDTCOREvent alloc] initWithMappingID:@"404" target:target];
     event.dataObjectTransportBytes = [@"testString3" dataUsingEncoding:NSUTF8StringEncoding];
-    XCTAssertNoThrow([storage storeEvent:event]);
+    writtenExpectation = [self expectationWithDescription:@"event written"];
+    XCTAssertNoThrow([[GDTCORStorage sharedInstance] storeEvent:event
+                                                     onComplete:^(BOOL wasWritten, NSError *error) {
+                                                       XCTAssertTrue(wasWritten);
+                                                       XCTAssertNil(error);
+                                                       [writtenExpectation fulfill];
+                                                     }]);
+    [self waitForExpectations:@[ writtenExpectation ] timeout:10.0];
     dispatch_sync([GDTCORStorage sharedInstance].storageQueue, ^{
       storedEvent3 = [storage.storedEvents lastObject];
     });
@@ -173,21 +208,42 @@ static NSInteger target = kGDTCORTargetCCT;
   @autoreleasepool {
     GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"404" target:target];
     event.dataObjectTransportBytes = [@"testString1" dataUsingEncoding:NSUTF8StringEncoding];
-    XCTAssertNoThrow([[GDTCORStorage sharedInstance] storeEvent:event]);
+    XCTestExpectation *writtenExpectation = [self expectationWithDescription:@"event written"];
+    XCTAssertNoThrow([[GDTCORStorage sharedInstance] storeEvent:event
+                                                     onComplete:^(BOOL wasWritten, NSError *error) {
+                                                       XCTAssertTrue(wasWritten);
+                                                       XCTAssertNil(error);
+                                                       [writtenExpectation fulfill];
+                                                     }]);
+    [self waitForExpectations:@[ writtenExpectation ] timeout:10.0];
     dispatch_sync([GDTCORStorage sharedInstance].storageQueue, ^{
       storedEvent1 = [[GDTCORStorage sharedInstance].storedEvents lastObject];
     });
 
     event = [[GDTCOREvent alloc] initWithMappingID:@"100" target:target];
     event.dataObjectTransportBytes = [@"testString2" dataUsingEncoding:NSUTF8StringEncoding];
-    XCTAssertNoThrow([[GDTCORStorage sharedInstance] storeEvent:event]);
+    writtenExpectation = [self expectationWithDescription:@"event written"];
+    XCTAssertNoThrow([[GDTCORStorage sharedInstance] storeEvent:event
+                                                     onComplete:^(BOOL wasWritten, NSError *error) {
+                                                       XCTAssertTrue(wasWritten);
+                                                       XCTAssertNil(error);
+                                                       [writtenExpectation fulfill];
+                                                     }]);
+    [self waitForExpectations:@[ writtenExpectation ] timeout:10.0];
     dispatch_sync([GDTCORStorage sharedInstance].storageQueue, ^{
       storedEvent2 = [[GDTCORStorage sharedInstance].storedEvents lastObject];
     });
 
     event = [[GDTCOREvent alloc] initWithMappingID:@"404" target:target];
     event.dataObjectTransportBytes = [@"testString3" dataUsingEncoding:NSUTF8StringEncoding];
-    XCTAssertNoThrow([[GDTCORStorage sharedInstance] storeEvent:event]);
+    writtenExpectation = [self expectationWithDescription:@"event written"];
+    XCTAssertNoThrow([[GDTCORStorage sharedInstance] storeEvent:event
+                                                     onComplete:^(BOOL wasWritten, NSError *error) {
+                                                       XCTAssertTrue(wasWritten);
+                                                       XCTAssertNil(error);
+                                                       [writtenExpectation fulfill];
+                                                     }]);
+    [self waitForExpectations:@[ writtenExpectation ] timeout:10.0];
     dispatch_sync([GDTCORStorage sharedInstance].storageQueue, ^{
       storedEvent3 = [[GDTCORStorage sharedInstance].storedEvents lastObject];
     });
@@ -229,7 +285,14 @@ static NSInteger target = kGDTCORTargetCCT;
     event.dataObjectTransportBytes = [@"testString" dataUsingEncoding:NSUTF8StringEncoding];
     event.clockSnapshot = [GDTCORClock snapshot];
     // Store the event and wait for the expectation.
-    [[GDTCORStorage sharedInstance] storeEvent:event];
+    XCTestExpectation *writtenExpectation = [self expectationWithDescription:@"event written"];
+    XCTAssertNoThrow([[GDTCORStorage sharedInstance] storeEvent:event
+                                                     onComplete:^(BOOL wasWritten, NSError *error) {
+                                                       XCTAssertTrue(wasWritten);
+                                                       XCTAssertNil(error);
+                                                       [writtenExpectation fulfill];
+                                                     }]);
+    [self waitForExpectations:@[ writtenExpectation ] timeout:10.0];
     GDTCORDataFuture *dataFuture =
         [[GDTCORDataFuture alloc] initWithFileURL:[NSURL fileURLWithPath:@"/test"]];
     storedEvent = [event storedEventWithDataFuture:dataFuture];
@@ -262,7 +325,13 @@ static NSInteger target = kGDTCORTargetCCT;
   GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"404" target:target];
   event.clockSnapshot = [GDTCORClock snapshot];
   event.dataObjectTransportBytes = [@"testString" dataUsingEncoding:NSUTF8StringEncoding];
-  XCTAssertNoThrow([[GDTCORStorage sharedInstance] storeEvent:event]);
+  XCTestExpectation *writtenExpectation = [self expectationWithDescription:@"event written"];
+  XCTAssertNoThrow([[GDTCORStorage sharedInstance] storeEvent:event
+                                                   onComplete:^(BOOL wasWritten, NSError *error) {
+                                                     XCTAssertTrue(wasWritten);
+                                                     [writtenExpectation fulfill];
+                                                   }]);
+  [self waitForExpectations:@[ writtenExpectation ] timeout:10.0];
   event = nil;
   __block NSData *storageData;
   dispatch_sync([GDTCORStorage sharedInstance].storageQueue, ^{
@@ -302,7 +371,13 @@ static NSInteger target = kGDTCORTargetCCT;
   GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"404" target:target];
   event.dataObjectTransportBytes = [@"testString" dataUsingEncoding:NSUTF8StringEncoding];
   event.clockSnapshot = [GDTCORClock snapshot];
-  XCTAssertNoThrow([[GDTCORStorage sharedInstance] storeEvent:event]);
+  XCTestExpectation *writtenExpectation = [self expectationWithDescription:@"event written"];
+  XCTAssertNoThrow([[GDTCORStorage sharedInstance] storeEvent:event
+                                                   onComplete:^(BOOL wasWritten, NSError *error) {
+                                                     XCTAssertTrue(wasWritten);
+                                                     [writtenExpectation fulfill];
+                                                   }]);
+  [self waitForExpectations:@[ writtenExpectation ] timeout:10.0];
   event = nil;
   __block NSData *storageData;
   dispatch_sync([GDTCORStorage sharedInstance].storageQueue, ^{
@@ -345,7 +420,14 @@ static NSInteger target = kGDTCORTargetCCT;
     event.qosTier = GDTCOREventQoSFast;
     event.clockSnapshot = [GDTCORClock snapshot];
     XCTAssertFalse(self.uploaderFake.forceUploadCalled);
-    XCTAssertNoThrow([[GDTCORStorage sharedInstance] storeEvent:event]);
+    XCTestExpectation *writtenExpectation = [self expectationWithDescription:@"event written"];
+    XCTAssertNoThrow([[GDTCORStorage sharedInstance] storeEvent:event
+                                                     onComplete:^(BOOL wasWritten, NSError *error) {
+                                                       XCTAssertTrue(wasWritten);
+                                                       XCTAssertNil(error);
+                                                       [writtenExpectation fulfill];
+                                                     }]);
+    [self waitForExpectations:@[ writtenExpectation ] timeout:10.0];
   }
   dispatch_sync([GDTCORStorage sharedInstance].storageQueue, ^{
     XCTAssertTrue(self.uploaderFake.forceUploadCalled);
@@ -358,6 +440,33 @@ static NSInteger target = kGDTCORTargetCCT;
     XCTAssertTrue([[NSFileManager defaultManager] removeItemAtURL:eventFile error:&error]);
     XCTAssertNil(error, @"There was an error deleting the eventFile: %@", error);
   });
+}
+
+/** Fuzz tests the storing of events at the same time as a terminate lifecycle notification. This
+ * test can fail if there's simultaneous access to ivars of GDTCORStorage with one access being
+ * off the storage's queue. The terminate lifecycle event should operate on and flush the queue.
+ */
+- (void)testStoringEventsDuringTerminate {
+  int numberOfIterations = 1000;
+  for (int i = 0; i < numberOfIterations; i++) {
+    NSString *testString = [NSString stringWithFormat:@"testString %d", i];
+    GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"404" target:target];
+    event.dataObjectTransportBytes = [testString dataUsingEncoding:NSUTF8StringEncoding];
+    event.clockSnapshot = [GDTCORClock snapshot];
+    XCTestExpectation *writtenExpectation = [self expectationWithDescription:@"event written"];
+    XCTAssertNoThrow([[GDTCORStorage sharedInstance] storeEvent:event
+                                                     onComplete:^(BOOL wasWritten, NSError *error) {
+                                                       XCTAssertTrue(wasWritten);
+                                                       [writtenExpectation fulfill];
+                                                     }]);
+    [self waitForExpectationsWithTimeout:10 handler:nil];
+    if (i % 5 == 0) {
+      [[GDTCORStorage sharedInstance] removeEvents:[GDTCORStorage sharedInstance].storedEvents.set];
+    }
+    [NSNotificationCenter.defaultCenter
+        postNotificationName:kGDTCORApplicationWillTerminateNotification
+                      object:nil];
+  }
 }
 
 @end

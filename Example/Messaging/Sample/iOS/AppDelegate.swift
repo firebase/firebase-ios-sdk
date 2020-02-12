@@ -21,7 +21,6 @@ import UserNotifications
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
-
   var window: UIWindow?
 
   static let isWithinUnitTest: Bool = {
@@ -53,7 +52,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     Messaging.messaging().delegate = self
     Messaging.messaging().shouldEstablishDirectChannel = true
     // Just for logging to the console when we establish/tear down our socket connection.
-    listenForDirectChannelStateChanges();
+    listenForDirectChannelStateChanges()
 
     NotificationsController.configure()
 
@@ -74,8 +73,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                    didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
     print("APNS Token: \(deviceToken.hexByteString)")
     NotificationCenter.default.post(name: APNSTokenReceivedNotification, object: nil)
-    if #available(iOS 8.0, *) {
-    } else {
+    if #available(iOS 8.0, *) {} else {
       // On iOS 7, receiving a device token also means our user notifications were granted, so fire
       // the notification to update our user notifications UI
       NotificationCenter.default.post(name: UserNotificationsChangedNotification, object: nil)
@@ -87,7 +85,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     NotificationCenter.default.post(name: UserNotificationsChangedNotification, object: nil)
   }
 
-  func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+  func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
     print("application:didReceiveRemoteNotification:fetchCompletionHandler: called, with notification:")
     print("\(userInfo.jsonString ?? "{}")")
     completionHandler(.newData)
@@ -96,8 +94,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   func applicationDidBecomeActive(_ application: UIApplication) {
     // If the app didn't start property due to an invalid GoogleService-Info.plist file, show an
     // alert to the developer.
-    if !SampleAppUtilities.appContainsRealServiceInfoPlist() &&
-       !AppDelegate.hasPresentedInvalidServiceInfoPlistAlert {
+    if !SampleAppUtilities.appContainsRealServiceInfoPlist(),
+      !AppDelegate.hasPresentedInvalidServiceInfoPlistAlert {
       if let vc = window?.rootViewController {
         SampleAppUtilities.presentAlertForInvalidServiceInfoPlistFrom(vc)
         AppDelegate.hasPresentedInvalidServiceInfoPlistAlert = true
@@ -132,20 +130,20 @@ extension AppDelegate: MessagingDelegate {
 }
 
 extension AppDelegate {
-    func listenForDirectChannelStateChanges() {
-        NotificationCenter.default.addObserver(self, selector: #selector(onMessagingDirectChannelStateChanged(_:)), name: .MessagingConnectionStateChanged, object: nil)
-    }
+  func listenForDirectChannelStateChanges() {
+    NotificationCenter.default.addObserver(self, selector: #selector(onMessagingDirectChannelStateChanged(_:)), name: .MessagingConnectionStateChanged, object: nil)
+  }
 
-    func onMessagingDirectChannelStateChanged(_ notification: Notification) {
-        print("FCM Direct Channel Established: \(Messaging.messaging().isDirectChannelEstablished)")
-    }
+  func onMessagingDirectChannelStateChanged(_ notification: Notification) {
+    print("FCM Direct Channel Established: \(Messaging.messaging().isDirectChannelEstablished)")
+  }
 }
 
 extension Dictionary {
   /// Utility method for printing Dictionaries as pretty-printed JSON.
   var jsonString: String? {
     if let jsonData = try? JSONSerialization.data(withJSONObject: self, options: [.prettyPrinted]),
-       let jsonString = String(data: jsonData, encoding: .utf8) {
+      let jsonString = String(data: jsonData, encoding: .utf8) {
       return jsonString
     }
     return nil

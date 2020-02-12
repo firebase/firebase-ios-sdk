@@ -1,3 +1,17 @@
+
+# v4.0.0-beta.4
+
+- [fixed] Fixed symbol collisions with the legacy Fabric Crashlytics SDK and added a warning not to include both (#4753, #4755)
+- [fixed] Added crash prevention checks (#4661)
+
+# v4.0.0-beta.3
+
+- [fixed] Fixed an import declaration for installing Crashlytics. Previously, the declaration caused a compile error when you installed using CocoaPods with the `generate_multiple_pods_project` flag set to true (#4786)
+
+# v4.0.0-beta.2
+
+- [fixed] Fixed VeraCode scanner issues for unchecked error conditions (#4669)
+
 # v4.0.0-beta.1
 
 This Firebase Crashlytics version includes the initial beta release of the Firebase Crashlytics SDK:

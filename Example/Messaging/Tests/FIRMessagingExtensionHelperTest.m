@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import <XCTest/XCTest.h>
 #import <OCMock/OCMock.h>
+#import <XCTest/XCTest.h>
 
 #import <FirebaseMessaging/FIRMessaging.h>
 #import <FirebaseMessaging/FIRMessagingExtensionHelper.h>
@@ -62,9 +62,10 @@ static NSString *const kValidImageURL =
 - (void)testModifyNotificationWithValidPayloadData {
   if (@available(macOS 10.14, iOS 10.0, *)) {
     XCTestExpectation *validPayloadExpectation =
-    [self expectationWithDescription:@"Test payload is valid."];
+        [self expectationWithDescription:@"Test payload is valid."];
     UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
-    content.userInfo = @{kFCMPayloadOptionsName : @{kFCMPayloadOptionsImageURLName : kValidImageURL}};
+    content.userInfo =
+        @{kFCMPayloadOptionsName : @{kFCMPayloadOptionsImageURLName : kValidImageURL}};
     FIRMessagingContentHandler handler = ^(UNNotificationContent *content) {
       [validPayloadExpectation fulfill];
     };
@@ -79,7 +80,7 @@ static NSString *const kValidImageURL =
 - (void)testModifyNotificationWithInvalidPayloadData {
   if (@available(macOS 10.14, iOS 10.0, *)) {
     XCTestExpectation *validPayloadExpectation =
-    [self expectationWithDescription:@"Test payload is valid."];
+        [self expectationWithDescription:@"Test payload is valid."];
     UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
     content.userInfo =
         @{kFCMPayloadOptionsName : @{kFCMPayloadOptionsImageURLName : @"a invalid URL"}};
@@ -97,10 +98,10 @@ static NSString *const kValidImageURL =
 - (void)testModifyNotificationWithEmptyPayloadData {
   if (@available(macOS 10.14, iOS 10.0, *)) {
     XCTestExpectation *validPayloadExpectation =
-    [self expectationWithDescription:@"Test payload is valid."];
+        [self expectationWithDescription:@"Test payload is valid."];
     UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
     content.userInfo =
-    @{kFCMPayloadOptionsName : @{kFCMPayloadOptionsImageURLName : @"a invalid URL"}};
+        @{kFCMPayloadOptionsName : @{kFCMPayloadOptionsImageURLName : @"a invalid URL"}};
     FIRMessagingContentHandler handler = ^(UNNotificationContent *content) {
       [validPayloadExpectation fulfill];
     };
@@ -113,4 +114,3 @@ static NSString *const kValidImageURL =
 
 @end
 #endif
-

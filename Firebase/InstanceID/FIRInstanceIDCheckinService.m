@@ -210,10 +210,6 @@ static FIRInstanceIDURLRequestTestBlock testBlock;
   NSInteger userNumber = 0;        // Multi Profile may change this.
   NSInteger userSerialNumber = 0;  // Multi Profile may change this
 
-  // This ID is generated for logging purpose and it is only logged for performance
-  // information for backend, not secure information.
-  // TODO(chliang): Talk to backend team to see if this ID is still needed.
-  uint32_t loggingID = arc4random();
   NSString *timeZone = [NSTimeZone localTimeZone].name;
   int64_t lastCheckingTimestampMillis = checkinPreferences.lastCheckinTimestampMillis;
 
@@ -225,7 +221,6 @@ static FIRInstanceIDURLRequestTestBlock testBlock;
       @"last_checkin_msec" : @(lastCheckingTimestampMillis),
     },
     @"fragment" : @(kFragment),
-    @"logging_id" : @(loggingID),
     @"locale" : locale,
     @"version" : @(kCheckinVersion),
     @"digest" : checkinPreferences.digest ?: @"",

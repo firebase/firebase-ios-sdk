@@ -109,7 +109,7 @@ const char* FIRCLSDupString(const char* string) {
   }
 
   length = strlen(string);
-  buffer = FIRCLSAllocatorSafeAllocate(_clsContext.allocator, length + 1, CLS_READONLY);
+  buffer = FIRCLSAllocatorSafeAllocate(_firclsContext.allocator, length + 1, CLS_READONLY);
 
   memcpy(buffer, string, length);
 

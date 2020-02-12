@@ -80,11 +80,8 @@ static int downstreamMessageID = 0;
                           @"Will send deleted messages notification");
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  NSNotification * notification =
-      [NSNotification notificationWithName:FIRMessagingMessagesDeletedNotification
-                                    object:nil];
-#pragma clang diagnostic pop
-
+  NSNotification *notification =
+      [NSNotification notificationWithName:FIRMessagingMessagesDeletedNotification object:nil];
   [[NSNotificationQueue defaultQueue] enqueueNotification:notification postingStyle:NSPostASAP];
 }
 
@@ -100,7 +97,7 @@ static int downstreamMessageID = 0;
 }
 
 + (NSString *)nextMessageID {
-  @synchronized (self) {
+  @synchronized(self) {
     ++downstreamMessageID;
     return [NSString stringWithFormat:@"gcm-%d", downstreamMessageID];
   }

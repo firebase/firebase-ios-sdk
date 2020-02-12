@@ -29,8 +29,8 @@ NS_ASSUME_NONNULL_BEGIN
  *  @param error     The error describing why a token request failed. The error code
  *                   will match a value from the FIRMessagingError enumeration.
  */
-typedef void(^FIRMessagingFCMTokenFetchCompletion)(NSString * _Nullable FCMToken,
-    NSError * _Nullable error)
+typedef void (^FIRMessagingFCMTokenFetchCompletion)(NSString *_Nullable FCMToken,
+                                                    NSError *_Nullable error)
     NS_SWIFT_NAME(MessagingFCMTokenFetchCompletion);
 
 /**
@@ -43,7 +43,7 @@ typedef void(^FIRMessagingFCMTokenFetchCompletion)(NSString * _Nullable FCMToken
  *  @param error The error describing why a token deletion failed. The error code
  *               will match a value from the FIRMessagingError enumeration.
  */
-typedef void(^FIRMessagingDeleteFCMTokenCompletion)(NSError * _Nullable error)
+typedef void (^FIRMessagingDeleteFCMTokenCompletion)(NSError *_Nullable error)
     NS_SWIFT_NAME(MessagingDeleteFCMTokenCompletion);
 
 /**
@@ -98,8 +98,7 @@ FOUNDATION_EXPORT const NSNotificationName FIRMessagingConnectionStateChangedNot
  *  FIRMessaging delegate method `messaging:didReceiveRegistrationToken:` to receive current and
  *  updated tokens.
  */
-FOUNDATION_EXPORT const NSNotificationName
-    FIRMessagingRegistrationTokenRefreshedNotification
+FOUNDATION_EXPORT const NSNotificationName FIRMessagingRegistrationTokenRefreshedNotification
     NS_SWIFT_NAME(MessagingRegistrationTokenRefreshed);
 #else
 /**
@@ -252,9 +251,8 @@ NS_SWIFT_NAME(MessagingDelegate)
 /// Handle data messages received via FCM direct channel (not via APNS).
 - (void)messaging:(FIRMessaging *)messaging
     didReceiveMessage:(FIRMessagingRemoteMessage *)remoteMessage
-NS_SWIFT_NAME(messaging(_:didReceive:))
-__deprecated_msg("Downstream message in direct channel is deprecated, please use APNS channel.");
-
+    NS_SWIFT_NAME(messaging(_:didReceive:))
+    __deprecated_msg("Downstream message in direct channel is deprecated, please use APNS channel.");
 @end
 
 /**
@@ -379,7 +377,6 @@ NS_SWIFT_NAME(Messaging)
  */
 @property(nonatomic, readonly, nullable) NSString *FCMToken NS_SWIFT_NAME(fcmToken);
 
-
 /**
  *  Retrieves an FCM registration token for a particular Sender ID. This can be used to allow
  *  multiple senders to send notifications to the same device. By providing a different Sender
@@ -399,7 +396,6 @@ NS_SWIFT_NAME(Messaging)
 - (void)retrieveFCMTokenForSenderID:(NSString *)senderID
                          completion:(FIRMessagingFCMTokenFetchCompletion)completion
     NS_SWIFT_NAME(retrieveFCMToken(forSenderID:completion:));
-
 
 /**
  *  Invalidates an FCM token for a particular Sender ID. That Sender ID cannot no longer send

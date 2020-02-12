@@ -44,8 +44,8 @@
 
   FIRCLSInternalReport *report = [[FIRCLSInternalReport alloc] initWithPath:tempPath];
 
-  NSString *customAPath = [report pathForContentFile:CLSReportCustomExceptionAFile];
-  NSString *customBPath = [report pathForContentFile:CLSReportCustomExceptionBFile];
+  NSString *customAPath = [report pathForContentFile:FIRCLSReportCustomExceptionAFile];
+  NSString *customBPath = [report pathForContentFile:FIRCLSReportCustomExceptionBFile];
 
   XCTAssertFalse(report.needsToBeSubmitted, @"metadata only should not need to be submitted");
 

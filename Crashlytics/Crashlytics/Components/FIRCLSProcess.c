@@ -418,7 +418,7 @@ static bool FIRCLSProcessRecordThread(FIRCLSProcess *process, thread_t thread, F
 
   uint32_t repeatedPCCount = 0;
   uint64_t repeatedPC = 0;
-  const FIRCLSInternalLogLevel level = _clsContext.writable->internalLogging.logLevel;
+  const FIRCLSInternalLogLevel level = _firclsContext.writable->internalLogging.logLevel;
 
   while (FIRCLSUnwindNextFrame(&unwindContext)) {
     const uintptr_t pc = FIRCLSUnwindGetPC(&unwindContext);
@@ -433,14 +433,14 @@ static bool FIRCLSProcessRecordThread(FIRCLSProcess *process, thread_t thread, F
     if (frameCount >= FIRCLSUnwindInfiniteRecursionCountThreshold && repeatedPC == 0) {
       repeatedPC = pc;
       FIRCLSSDKLogWarn("Possible infinite recursion - suppressing logging\n");
-      _clsContext.writable->internalLogging.logLevel = FIRCLSInternalLogLevelWarn;
+      _firclsContext.writable->internalLogging.logLevel = FIRCLSInternalLogLevelWarn;
       continue;
     }
 
     if (repeatedPC != 0) {
       // at this point, we've recorded a repeated PC, but it is now no longer
       // repeating, so we can restore the logging
-      _clsContext.writable->internalLogging.logLevel = level;
+      _firclsContext.writable->internalLogging.logLevel = level;
     }
 
     FIRCLSFileWriteArrayEntryUint64(file, pc);
@@ -460,7 +460,7 @@ static bool FIRCLSProcessRecordThread(FIRCLSProcess *process, thread_t thread, F
 
   // Just for extra safety, restore the logging level again. The logic
   // above is fairly tricky, this is cheap, and no logging is a real pain.
-  _clsContext.writable->internalLogging.logLevel = level;
+  _firclsContext.writable->internalLogging.logLevel = level;
 
   // end thread info
   FIRCLSFileWriteHashEnd(file);
@@ -562,7 +562,7 @@ bool FIRCLSProcessGetMemoryUsage(uint64_t *active,
 
   hostSize = sizeof(vm_statistics_data_t) / sizeof(integer_t);
 
-  pageSize = _clsContext.readonly->host.pageSize;
+  pageSize = _firclsContext.readonly->host.pageSize;
 
   if (host_statistics(hostPort, HOST_VM_INFO, (host_info_t)&vmStat, &hostSize) != KERN_SUCCESS) {
     FIRCLSSDKLog("Failed to get vm statistics\n");
@@ -750,7 +750,7 @@ typedef struct {
 
 static void FIRCLSProcessRecordCrashInfo(FIRCLSFile *file) {
   // TODO: this should be abstracted into binary images, if possible
-  FIRCLSBinaryImageRuntimeNode *nodes = _clsContext.writable->binaryImage.nodes;
+  FIRCLSBinaryImageRuntimeNode *nodes = _firclsContext.writable->binaryImage.nodes;
   if (!nodes) {
     FIRCLSSDKLogError("The node structure is NULL\n");
     return;

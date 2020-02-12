@@ -32,7 +32,6 @@ enum FirebasePods: String, CaseIterable {
   case functions = "FirebaseFunctions"
   case googleSignIn = "GoogleSignIn"
   case inAppMessaging = "FirebaseInAppMessaging"
-  case inAppMessagingDisplay = "FirebaseInAppMessagingDisplay"
   case messaging = "FirebaseMessaging"
   case mlModelInterpreter = "FirebaseMLModelInterpreter"
   case mlNaturalLanguage = "FirebaseMLNaturalLanguage"

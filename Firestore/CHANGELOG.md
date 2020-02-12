@@ -1,4 +1,15 @@
-# Unreleased (v1.10.0)
+# Unreleased
+
+# v1.10.2
+- [changed] Internal improvements.
+
+# v1.10.1
+- [changed] Internal improvements.
+
+# v1.10.0
+- [feature] Firestore previously required that every document read in a
+  transaction must also be written. This requirement has been removed, and
+  you can now read a document in a transaction without writing to it.
 - [changed] Improved the performance of repeatedly executed queries when
   persistence is enabled. Recently executed queries should see dramatic
   improvements. This benefit is reduced if changes accumulate while the query
