@@ -117,7 +117,7 @@ const pb_field_t google_crashlytics_Session_Event_Application_Execution_Thread_f
 const pb_field_t google_crashlytics_Session_Event_Application_Execution_Thread_Frame_fields[7] = {
     PB_FIELD(  1, UINT64  , REQUIRED, STATIC  , FIRST, google_crashlytics_Session_Event_Application_Execution_Thread_Frame, pc, pc, 0),
     PB_FIELD(  2, BYTES   , OPTIONAL, POINTER , OTHER, google_crashlytics_Session_Event_Application_Execution_Thread_Frame, symbol, pc, 0),
-    PB_FIELD(  3, BYTES   , OPTIONAL, CALLBACK, OTHER, google_crashlytics_Session_Event_Application_Execution_Thread_Frame, file, symbol, 0),
+    PB_FIELD(  3, BYTES   , OPTIONAL, POINTER , OTHER, google_crashlytics_Session_Event_Application_Execution_Thread_Frame, file, symbol, 0),
     PB_FIELD(  4, UINT64  , OPTIONAL, STATIC  , OTHER, google_crashlytics_Session_Event_Application_Execution_Thread_Frame, offset, file, 0),
     PB_FIELD(  5, UINT32  , OPTIONAL, STATIC  , OTHER, google_crashlytics_Session_Event_Application_Execution_Thread_Frame, importance, offset, 0),
     PB_FIELD( 10, UINT64  , OPTIONAL, STATIC  , OTHER, google_crashlytics_Session_Event_Application_Execution_Thread_Frame, line_number, importance, 0),

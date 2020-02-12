@@ -683,18 +683,19 @@ const NSUInteger IMPORTANCE_FOR_EXCEPTION = 0;
 
     frameProto.pc = frame.pc;
     frameProto.importance = IMPORTANCE_FOR_EXCEPTION;
+    frameProto.has_importance = true;
     frameProto.symbol = FIRCLSEncodeString(frame.symbol);
 
     if (frame.hasOffset) {
       frameProto.offset = frame.offset;
+      frameProto.has_offset = true;
     }
-#warning Need line and file back in the proto
-//    if (frame.hasLine) {
-//      frameProto.line = frame.line;
-//    }
-//     Needs File
+    if (frame.hasLine) {
+      frameProto.line_number = frame.line;
+      frameProto.has_line_number = true;
+    }
 
-    // TODO for symbolicated frames, set the importance Protobuf.scala#L383
+    // TODO for symbolicated frames, set the importance and file Protobuf.scala#L383
 
     framesProto[i] = frameProto;
   }

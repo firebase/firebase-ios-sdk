@@ -521,6 +521,25 @@
   XCTAssertEqual(reportProto.session.events[3].app.execution.threads[0].frames[28].pc, 7020727833);
 }
 
+- (void)testExceptionProtoReport {
+  FIRCLSReportAdapter *adapter = [FIRCLSReportAdapterTests adapterForExceptionCrash];
+  google_crashlytics_Report reportProto = [adapter report];
+  google_crashlytics_Session_Event lastEventProto = [self getLastEventProto:reportProto];
+
+//  [self assertPBData:lastEventProto.app.execution.exception.type isEqualToString:@"a"];
+//  [self assertPBData:lastEventProto.app.execution.exception.reason isEqualToString:@"a"];
+  XCTAssertEqual(lastEventProto.app.execution.exception.frames_count, 14);
+  XCTAssertEqual(lastEventProto.app.execution.exception.frames[0].pc, 140733792821726);
+  XCTAssertEqual(lastEventProto.app.execution.exception.frames[0].importance, 0);
+  XCTAssertEqual(lastEventProto.app.execution.exception.frames[0].has_importance, true);
+  [self assertPBData:lastEventProto.app.execution.exception.frames[0].symbol isEqualToString:@""];
+  XCTAssertEqual(lastEventProto.app.execution.exception.frames[0].offset, 101);
+  XCTAssertEqual(lastEventProto.app.execution.exception.frames[0].has_offset, true);
+  XCTAssertEqual(lastEventProto.app.execution.exception.frames[0].line_number, 405);
+  XCTAssertEqual(lastEventProto.app.execution.exception.frames[0].has_line_number, true);
+//  [self assertPBData:lastEventProto.app.execution.exception.frames[0].file isEqualToString:@""];
+}
+
 // The session ends at the last event's timestamp, regardless if it's an error or crash
 // Signal crash has errors and a signal crash file. Session should end at the signal crash
 - (void)testEndedAtErrorsAndCrash {

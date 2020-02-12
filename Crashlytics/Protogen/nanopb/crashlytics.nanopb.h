@@ -156,7 +156,7 @@ typedef struct _google_crashlytics_Session_Event_Application_Execution_Thread {
 typedef struct _google_crashlytics_Session_Event_Application_Execution_Thread_Frame {
     uint64_t pc;
     pb_bytes_array_t *symbol;
-    pb_callback_t file;
+    pb_bytes_array_t *file;
     bool has_offset;
     uint64_t offset;
     bool has_importance;
@@ -271,7 +271,7 @@ typedef struct _google_crashlytics_Session_Event {
 #define google_crashlytics_Session_Event_Application_init_default {google_crashlytics_Session_Event_Application_Execution_init_default, 0, NULL, false, 0, false, 0}
 #define google_crashlytics_Session_Event_Application_Execution_init_default {0, NULL, false, google_crashlytics_Session_Event_Application_Execution_Exception_init_default, google_crashlytics_Session_Event_Application_Execution_Signal_init_default, 0, NULL}
 #define google_crashlytics_Session_Event_Application_Execution_Thread_init_default {NULL, 0, 0, NULL, 0, NULL, NULL, NULL}
-#define google_crashlytics_Session_Event_Application_Execution_Thread_Frame_init_default {0, NULL, {{NULL}, NULL}, false, 0, false, 0, false, 0}
+#define google_crashlytics_Session_Event_Application_Execution_Thread_Frame_init_default {0, NULL, NULL, false, 0, false, 0, false, 0}
 #define google_crashlytics_Session_Event_Application_Execution_Thread_Register_init_default {NULL, 0}
 #define google_crashlytics_Session_Event_Application_Execution_Exception_init_default {NULL, NULL, NULL, 0, NULL, false, 0}
 #define google_crashlytics_Session_Event_Application_Execution_Signal_init_default {NULL, NULL, 0}
@@ -290,7 +290,7 @@ typedef struct _google_crashlytics_Session_Event {
 #define google_crashlytics_Session_Event_Application_init_zero {google_crashlytics_Session_Event_Application_Execution_init_zero, 0, NULL, false, 0, false, 0}
 #define google_crashlytics_Session_Event_Application_Execution_init_zero {0, NULL, false, google_crashlytics_Session_Event_Application_Execution_Exception_init_zero, google_crashlytics_Session_Event_Application_Execution_Signal_init_zero, 0, NULL}
 #define google_crashlytics_Session_Event_Application_Execution_Thread_init_zero {NULL, 0, 0, NULL, 0, NULL, NULL, NULL}
-#define google_crashlytics_Session_Event_Application_Execution_Thread_Frame_init_zero {0, NULL, {{NULL}, NULL}, false, 0, false, 0, false, 0}
+#define google_crashlytics_Session_Event_Application_Execution_Thread_Frame_init_zero {0, NULL, NULL, false, 0, false, 0, false, 0}
 #define google_crashlytics_Session_Event_Application_Execution_Thread_Register_init_zero {NULL, 0}
 #define google_crashlytics_Session_Event_Application_Execution_Exception_init_zero {NULL, NULL, NULL, 0, NULL, false, 0}
 #define google_crashlytics_Session_Event_Application_Execution_Signal_init_zero {NULL, NULL, 0}
