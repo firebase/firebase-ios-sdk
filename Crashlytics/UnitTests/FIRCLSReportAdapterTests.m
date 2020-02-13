@@ -559,7 +559,8 @@
 }
 
 - (void)testMacOSExceptionSymbolicatedProtoReport {
-  FIRCLSReportAdapter *adapter = [FIRCLSReportAdapterTests adapterForMacOSExceptionSymbolicatedCrash];
+  FIRCLSReportAdapter *adapter =
+      [FIRCLSReportAdapterTests adapterForMacOSExceptionSymbolicatedCrash];
   google_crashlytics_Report reportProto = [adapter report];
   google_crashlytics_Session_Event lastEventProto = [self getLastEventProto:reportProto];
 

@@ -1,0 +1,4 @@
+{"identity":{"generator":"Crashlytics Mac SDK/4.0.0-beta.3","display_version":"4.0.0-beta.3","build_version":"4.0.0-beta.3","started_at":1581612368,"session_id":"df3bbc6bfbbb45c58ed08ec6b6b0dd71","install_id":"C764EF9D-8629-435D-BAD3-94BCC7A78D69","beta_token":null,"absolute_log_timestamps":true}}
+{"host":{"model":"MacBookPro15,3","machine":"x86_64","cpu":"Intel(R) Core(TM) i9-9880H CPU @ 2.30GHz","os_build_version":"19C57","os_display_version":"10.15.2","platform":"mac","locale":"en_US"}}
+{"application":{"bundle_id":"com.crashlytics.macostest2","custom_bundle_id":null,"build_version":"1","display_version":"1.0","extension_id":null}}
+{"executable":{"architecture":"x86_64","uuid":"b249c7e90aba350abb9b8ec44ca78661","base":4534542336,"size":860160,"encrypted":false,"minimum_sdk_version":"0.0.0","built_sdk_version":"0.0.0"}}
