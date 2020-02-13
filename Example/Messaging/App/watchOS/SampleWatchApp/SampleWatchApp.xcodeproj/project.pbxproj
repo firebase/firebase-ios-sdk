@@ -141,7 +141,6 @@
 				5156948B23F4965100E7C350 /* SampleWatchAppWatchKitExtension */,
 				515694AD23F4A3D200E7C350 /* ServiceExtension */,
 				5156947523F4965000E7C350 /* Products */,
-				615F863E861A5072EB82F3E1 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -189,13 +188,6 @@
 				515694B023F4A3D200E7C350 /* Info.plist */,
 			);
 			path = ServiceExtension;
-			sourceTree = "<group>";
-		};
-		615F863E861A5072EB82F3E1 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Pods;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
