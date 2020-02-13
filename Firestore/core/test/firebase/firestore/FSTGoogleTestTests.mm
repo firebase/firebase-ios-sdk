@@ -52,6 +52,8 @@ NSDictionary<NSString*, NSValue*>* testInfosByKey;
 // run.
 bool forceAllTests = false;
 
+void RunGoogleTestTests();
+
 /**
  * Loads this XCTest runner's configuration file and figures out which tests to
  * run based on the contents of that configuration file.
@@ -186,6 +188,8 @@ NSString* TestInfoKey(Class testClass, SEL testSelector) {
  * this way here allows XCTAssert and friends to work.
  */
 void ReportTestResult(XCTestCase* self, SEL _cmd) {
+  RunGoogleTestTests();
+
   NSString* testInfoKey = TestInfoKey([self class], _cmd);
   NSValue* holder = testInfosByKey[testInfoKey];
   auto testInfo = static_cast<const testing::TestInfo*>(holder.pointerValue);
@@ -222,7 +226,7 @@ void ReportTestResult(XCTestCase* self, SEL _cmd) {
 
 /**
  * Generates a new subclass of XCTestCase for the given GoogleTest TestCase.
- * Each TestInfo (which represents an indivudal test method execution) is
+ * Each TestInfo (which represents an individual test method execution) is
  * translated into a method on the test case.
  *
  * @param testCase The testing::TestCase of interest to translate.
@@ -294,7 +298,7 @@ XCTestSuite* CreateAllTestsTestSuite() {
  * Finds and runs googletest-based tests based on the XCTestConfiguration of the
  * current test invocation.
  */
-void RunGoogleTestTests() {
+void CreateGoogleTestTests() {
   NSString* masterTestCaseName = NSStringFromClass([GoogleTests class]);
 
   // Initialize GoogleTest but don't run the tests yet.
@@ -333,6 +337,10 @@ void RunGoogleTestTests() {
     CreateXCTestCaseClass(testCase, infoMap);
   }
   testInfosByKey = infoMap;
+}
+
+void RunGoogleTestTests() {
+  static bool firstRun = true;
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-result"
@@ -341,7 +349,10 @@ void RunGoogleTestTests() {
   // again by XCTest). Test failures are reported via
   // -recordFailureWithDescription:inFile:atLine:expected: which then causes
   // XCTest itself to fail the run.
-  RUN_ALL_TESTS();
+  if (firstRun) {
+    firstRun = false;
+    RUN_ALL_TESTS();
+  }
 #pragma clang diagnostic pop
 }
 
@@ -383,7 +394,7 @@ void RunGoogleTestTests() {
 
 - (instancetype)init {
   self = [super init];
-  RunGoogleTestTests();
+  CreateGoogleTestTests();
   return self;
 }
 
