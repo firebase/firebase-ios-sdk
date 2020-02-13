@@ -78,7 +78,7 @@ DocumentMap IndexFreeQueryEngine::GetDocumentsMatchingQuery(
       local_documents_view_->GetDocumentsMatchingQuery(
           query, last_limbo_free_snapshot_version);
 
-  // We merge `previous_results` into `update_results`, since `update_results`
+  // We merge `previous_results` into `updated_results`, since `updated_results`
   // is already a DocumentMap. If a document is contained in both lists, then
   // its contents are the same.
   for (const Document& result : previous_results) {
