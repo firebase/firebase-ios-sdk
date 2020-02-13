@@ -17,12 +17,9 @@ import SwiftUI
 import WatchKit
 
 public struct RootView: View {
-
   public var body: some View {
-
-      VStack(alignment: .leading) {
-        Text("Hello World!")
-      }
+    VStack(alignment: .leading) {
+      Text("Hello World!")
+    }
   }
 }
-

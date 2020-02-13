@@ -17,24 +17,22 @@ import Foundation
 import SwiftUI
 
 class InterfaceController: WKHostingController<RootView> {
+  override func awake(withContext context: Any?) {
+    super.awake(withContext: context)
+  }
 
-    override func awake(withContext context: Any?) {
-        super.awake(withContext: context)
-    }
-  
-    override var body: RootView {
-        // Return the view structure that the hosting controller displays.
-        return RootView()
-    }
-    
-    override func willActivate() {
-        // This method is called when watch view controller is about to be visible to user
-        super.willActivate()
-    }
-    
-    override func didDeactivate() {
-        // This method is called when watch view controller is no longer visible
-        super.didDeactivate()
-    }
+  override var body: RootView {
+    // Return the view structure that the hosting controller displays.
+    return RootView()
+  }
 
+  override func willActivate() {
+    // This method is called when watch view controller is about to be visible to user
+    super.willActivate()
+  }
+
+  override func didDeactivate() {
+    // This method is called when watch view controller is no longer visible
+    super.didDeactivate()
+  }
 }
