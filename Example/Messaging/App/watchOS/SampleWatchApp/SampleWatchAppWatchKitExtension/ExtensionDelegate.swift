@@ -19,7 +19,6 @@ import FirebaseMessaging
 
 /// Entry point of the watch app.
 class ExtensionDelegate: NSObject, WKExtensionDelegate, MessagingDelegate {
-  
   /// Initialize Firebase service here.
   func applicationDidFinishLaunching() {
     FirebaseApp.configure()
@@ -31,7 +30,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate, MessagingDelegate {
     }
     Messaging.messaging().delegate = self
   }
-  
+
   /// MessagingDelegate
   func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String) {
     print("token:\n" + fcmToken)
