@@ -74,6 +74,22 @@ class SortedSet : public SortedContainer {
     return SortedSet{map_.insert(key, {})};
   }
 
+  ABSL_MUST_USE_RESULT SortedSet union_with(const SortedSet<K>& other) const {
+    const auto result_ptr = this;
+    const auto other_ptr = &other;
+
+    if(result_ptr->size() < other_ptr->size()) {
+      result_ptr = other_ptr;
+      other_ptr = this;
+    }
+
+    auto result = *result_ptr;
+    for(const auto& k : *other_ptr) {
+      result = result.insert(k);
+    }
+    return result;
+  }
+
   ABSL_MUST_USE_RESULT SortedSet erase(const K& key) const {
     return SortedSet{map_.erase(key)};
   }
