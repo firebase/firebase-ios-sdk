@@ -17,16 +17,10 @@ import WatchKit
 import FirebaseCore
 import FirebaseMessaging
 
+/// Entry point of the watch app.
 class ExtensionDelegate: NSObject, WKExtensionDelegate, MessagingDelegate {
-  func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String) {
-    print("token:\n" + fcmToken)
-  }
-
-  // Swizzling should be disabled in Messaging for watchOS, set APNS token manually.
-  func didRegisterForRemoteNotifications(withDeviceToken deviceToken: Data) {
-    Messaging.messaging().apnsToken = deviceToken
-  }
-
+  
+  /// Initialize Firebase service here.
   func applicationDidFinishLaunching() {
     FirebaseApp.configure()
     let center = UNUserNotificationCenter.current()
@@ -36,6 +30,17 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate, MessagingDelegate {
       }
     }
     Messaging.messaging().delegate = self
+  }
+  
+  /// MessagingDelegate
+  func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String) {
+    print("token:\n" + fcmToken)
+  }
+
+  /// WKExtensionDelegate
+  func didRegisterForRemoteNotifications(withDeviceToken deviceToken: Data) {
+    /// Swizzling should be disabled in Messaging for watchOS, set APNS token manually.
+    Messaging.messaging().apnsToken = deviceToken
   }
 
   func applicationDidBecomeActive() {
