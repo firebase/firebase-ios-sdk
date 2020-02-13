@@ -20,6 +20,8 @@
 #import "GDTCORTests/Unit/GDTCORTestCase.h"
 #import "GDTCORTests/Unit/Helpers/GDTCORDataObjectTesterClasses.h"
 
+#import "GDTCORLibrary/Private/GDTCOREvent_Private.h"
+
 @interface GDTCOREventTest : GDTCORTestCase
 
 @end
@@ -73,7 +75,7 @@
   XCTAssertEqual(decodedEvent.clockSnapshot.timezoneOffsetSeconds, timezoneOffsetSeconds);
 }
 
-/** Tests testSettingVariables. */
+/** Tests variables seting to GDTCOREvent object. */
 - (void)testSettingVariables {
   XCTAssertTrue([GDTCOREvent supportsSecureCoding]);
   GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"testing" target:1];

@@ -14,24 +14,22 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import <GoogleDataTransport/GDTCOREvent.h>
 
-#import <GoogleDataTransport/GDTCOREventDataObject.h>
+#import <GoogleDataTransport/GDTCORClock.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** A class to represent a simple data object proto. */
-@interface GDTCORDataObjectTesterSimple : NSObject <GDTCOREventDataObject>
+@interface GDTCOREvent ()
 
-/** A string that will be turned into bytes. */
-@property(nonatomic) NSString *aString;
-
-/** Initializes an instance using the given string.
+/** Writes [dataObject transportBytes] to the given URL, populates fileURL with the filename, then
+ * nils the dataObject property. This method should not be called twice on the same event,
  *
- * @param aString A string whose UTF8 encoded bytes will be used for -transportBytes..
- * @return An instance of this class.
+ * @param fileURL The fileURL that dataObject would be writen to.
+ * @param error The error may be catched during writing to disk.
+ * @return YES if writing dataObject to disk was successful, NO otherwise.
  */
-- (instancetype)initWithString:(NSString *)aString;
+- (BOOL)writeToURL:(NSURL *)fileURL error:(NSError **)error;
 
 @end
 

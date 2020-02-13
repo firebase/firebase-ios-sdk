@@ -19,7 +19,6 @@
 #import <GoogleDataTransport/GDTCOREventDataObject.h>
 
 @class GDTCORClock;
-@class GDTCOREvent;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -62,8 +61,7 @@ typedef NS_ENUM(NSInteger, GDTCOREventQoS) {
 /** The clock snapshot at the time of the event. */
 @property(nonatomic) GDTCORClock *clockSnapshot;
 
-/** The fileURL of dataObject in disk. set when store the transport bytes to
- * disk,*/
+/** The fileURL of dataObject in disk. set when store the transport bytes to disk.*/
 @property(nullable, readonly, nonatomic) NSURL *fileURL;
 
 /** A dictionary provided to aid prioritizers by allowing the passing of arbitrary data. It will be
@@ -84,15 +82,6 @@ typedef NS_ENUM(NSInteger, GDTCOREventQoS) {
  */
 - (nullable instancetype)initWithMappingID:(NSString *)mappingID
                                     target:(NSInteger)target NS_DESIGNATED_INITIALIZER;
-
-/** Write the dataObject to given URL, assign given URL to self->fileURL,
- * and set dataObject to nil.
- *
- * @param fileURL The fileURL that dataObject would be writen to.
- * @param error The error may be catched during writting to disk.
- * @return YES if writing dataObject to disk is succeed, NO if not.
- */
-- (bool)writeToURL:(NSURL *)fileURL error:(NSError **)error;
 
 @end
 

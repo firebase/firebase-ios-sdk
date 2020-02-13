@@ -20,6 +20,8 @@
 #import <GoogleDataTransport/GDTCORClock.h>
 #import <GoogleDataTransport/GDTCORConsoleLogger.h>
 
+#import "GDTCORLibrary/Private/GDTCOREvent_Private.h"
+
 @implementation GDTCOREvent
 
 - (nullable instancetype)initWithMappingID:(NSString *)mappingID target:(NSInteger)target {
@@ -73,24 +75,24 @@
   }
 }
 
-- (bool)writeToURL:(NSURL *)fileURL error:(NSError **)error {
+- (BOOL)writeToURL:(NSURL *)fileURL error:(NSError **)error {
   NSData *dataTransportBytes = [_dataObject transportBytes];
-  if (dataTransportBytes) {
-    BOOL writingSuccess = [dataTransportBytes writeToURL:fileURL
-                                                 options:NSDataWritingAtomic
-                                                   error:error];
-    if (!writingSuccess) {
-      GDTCORLogError(GDTCORMCEFileWriteError, @"An event file could not be written: %@", fileURL);
-      _fileURL = nil;
-      return NO;
-    } else {
-      _fileURL = fileURL;
-      _dataObject = nil;
-      return YES;
-    }
-  } else {
+  if (dataTransportBytes == nil) {
+    _fileURL = nil;
+    _dataObject = nil;
     return NO;
   }
+  BOOL writingSuccess = [dataTransportBytes writeToURL:fileURL
+                                               options:NSDataWritingAtomic
+                                                 error:error];
+  if (!writingSuccess) {
+    GDTCORLogError(GDTCORMCEFileWriteError, @"An event file could not be written: %@", fileURL);
+    _fileURL = nil;
+    return NO;
+  }
+  _fileURL = fileURL;
+  _dataObject = nil;
+  return YES;
 }
 
 #pragma mark - NSSecureCoding and NSCoding Protocols

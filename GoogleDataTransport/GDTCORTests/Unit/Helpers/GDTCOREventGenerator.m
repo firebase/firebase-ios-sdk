@@ -20,6 +20,8 @@
 #import <GoogleDataTransport/GDTCORClock.h>
 #import <GoogleDataTransport/GDTCOREvent.h>
 
+#import "GDTCORLibrary/Private/GDTCOREvent_Private.h"
+
 @implementation GDTCOREventGenerator
 
 + (NSMutableSet<GDTCOREvent *> *)generate3Events {
