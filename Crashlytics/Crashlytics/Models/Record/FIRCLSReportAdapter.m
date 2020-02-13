@@ -75,14 +75,7 @@
 
 
 
-
-
-
-
-
-
-
-                                                                                 _report = [self protoReport];
+                                         _report = [self protoReport];
   }
   return self;
 }

@@ -47,7 +47,7 @@
 /// Attempt sending a proto report to the reporting endpoint
 - (void)testSendProtoReport {
   NSString *minCrash =
-      [[FIRCLSReportAdapterTests resourcePath] stringByAppendingPathComponent:@"bare_min_crash"];
+                                                                                            [[FIRCLSReportAdapterTests resourcePath] stringByAppendingPathComponent:@"bare_min_crash"];
 
   FIRCLSReportAdapter *adapter =
       [[FIRCLSReportAdapter alloc] initWithPath:minCrash
