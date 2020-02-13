@@ -28,14 +28,16 @@ namespace firestore {
 namespace util {
 namespace internal {
 
-void FailAssertion(const char* file,
+void FailAssertion(ExceptionType exception_type,
+                   const char* file,
                    const char* func,
                    const int line,
                    const std::string& message) {
-  Throw(ExceptionType::AssertionFailure, file, func, line, message);
+  Throw(exception_type, file, func, line, message);
 }
 
-void FailAssertion(const char* file,
+void FailAssertion(ExceptionType exception_type,
+                   const char* file,
                    const char* func,
                    const int line,
                    const std::string& message,
@@ -46,7 +48,7 @@ void FailAssertion(const char* file,
   } else {
     failure = StringFormat("%s (expected %s)", message, condition);
   }
-  FailAssertion(file, func, line, failure);
+  Throw(exception_type, file, func, line, failure);
 }
 
 }  // namespace internal

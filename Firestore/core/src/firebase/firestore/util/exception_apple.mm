@@ -33,6 +33,7 @@ namespace {
 NSString* ExceptionName(ExceptionType exception) {
   switch (exception) {
     case ExceptionType::AssertionFailure:
+    case ExceptionType::AssertionFailureNoThrow:
       return @"FIRESTORE INTERNAL ASSERTION FAILED";
     case ExceptionType::IllegalState:
       return @"FIRIllegalStateException";
@@ -55,7 +56,8 @@ ABSL_ATTRIBUTE_NORETURN void ObjcThrowHandler(ExceptionType type,
                                               const char* func,
                                               int line,
                                               const std::string& message) {
-  if (type == ExceptionType::AssertionFailure) {
+  if (type == ExceptionType::AssertionFailure ||
+      type == ExceptionType::AssertionFailureNoThrow) {
     [[NSAssertionHandler currentHandler]
         handleFailureInFunction:MakeNSString(func)
                            file:MakeNSString(file)

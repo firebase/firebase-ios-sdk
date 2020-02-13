@@ -58,8 +58,26 @@ class FirestoreInternalError : public std::logic_error {
  * interaction with the Firestore API.
  */
 enum class ExceptionType {
+  /** An assertion failure. */
   AssertionFailure,
+
+  /**
+   * An assertion failure in a code location that cannot throw a C++ exception,
+   * typically in a destructor.
+   */
+  AssertionFailureNoThrow,
+
+  /**
+   * A user visible illegal state exception, indicating that the user has
+   * invoked the API in a way that is invalid (e.g. two methods consecutively
+   * that aren't allowed in combination).
+   */
   IllegalState,
+
+  /**
+   * A user visible invalid argument exception, indicating that the user has
+   * passed something invalid to a public API.
+   */
   InvalidArgument,
 };
 
@@ -68,6 +86,17 @@ using ThrowHandler = void (*)(ExceptionType type,
                               const char* func,
                               int line,
                               const std::string& message);
+
+/**
+ * The default throw handler implementation, suitable for C++. If exceptions are
+ * enabled, throws a C++ exception, except for AssertionFailureNoThrow, which
+ * unconditionally aborts.
+ */
+ABSL_ATTRIBUTE_NORETURN void DefaultThrowHandler(ExceptionType type,
+                                                 const char* file,
+                                                 const char* func,
+                                                 int line,
+                                                 const std::string& message);
 
 /**
  * Overrides the default exception throw handler.

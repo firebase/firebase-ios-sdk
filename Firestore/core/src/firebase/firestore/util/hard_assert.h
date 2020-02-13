@@ -37,8 +37,14 @@
  * @param message The failure message.
  * @param condition The string form of the expression that failed (optional)
  */
-#define INVOKE_INTERNAL_FAIL(...)                     \
-  firebase::firestore::util::internal::FailAssertion( \
+#define INVOKE_INTERNAL_FAIL(...)                                           \
+  firebase::firestore::util::internal::FailAssertion(                       \
+      firebase::firestore::util::ExceptionType::AssertionFailure, __FILE__, \
+      FIRESTORE_FUNCTION_NAME, __LINE__, __VA_ARGS__)
+
+#define INVOKE_INTERNAL_FAIL_NOTHROW(...)                                \
+  firebase::firestore::util::internal::FailAssertion(                    \
+      firebase::firestore::util::ExceptionType::AssertionFailureNoThrow, \
       __FILE__, FIRESTORE_FUNCTION_NAME, __LINE__, __VA_ARGS__)
 
 /**
@@ -56,6 +62,15 @@
       std::string _message =                                    \
           firebase::firestore::util::StringFormat(__VA_ARGS__); \
       INVOKE_INTERNAL_FAIL(_message, #condition);               \
+    }                                                           \
+  } while (0)
+
+#define HARD_ASSERT_NOTHROW(condition, ...)                     \
+  do {                                                          \
+    if (!ABSL_PREDICT_TRUE(condition)) {                        \
+      std::string _message =                                    \
+          firebase::firestore::util::StringFormat(__VA_ARGS__); \
+      INVOKE_INTERNAL_FAIL_NOTHROW(_message, #condition);       \
     }                                                           \
   } while (0)
 
@@ -105,12 +120,14 @@ namespace util {
 namespace internal {
 
 // A no-return helper function. To raise an assertion, use Macro instead.
-ABSL_ATTRIBUTE_NORETURN void FailAssertion(const char* file,
+ABSL_ATTRIBUTE_NORETURN void FailAssertion(ExceptionType exception_type,
+                                           const char* file,
                                            const char* func,
                                            int line,
                                            const std::string& message);
 
-ABSL_ATTRIBUTE_NORETURN void FailAssertion(const char* file,
+ABSL_ATTRIBUTE_NORETURN void FailAssertion(ExceptionType exception_type,
+                                           const char* file,
                                            const char* func,
                                            int line,
                                            const std::string& message,

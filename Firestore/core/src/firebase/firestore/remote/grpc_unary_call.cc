@@ -45,8 +45,9 @@ GrpcUnaryCall::GrpcUnaryCall(
 }
 
 GrpcUnaryCall::~GrpcUnaryCall() {
-  HARD_ASSERT(!finish_completion_,
-              "GrpcUnaryCall is being destroyed without proper shutdown");
+  HARD_ASSERT_NOTHROW(
+      !finish_completion_,
+      "GrpcUnaryCall is being destroyed without proper shutdown");
   MaybeUnregister();
 }
 

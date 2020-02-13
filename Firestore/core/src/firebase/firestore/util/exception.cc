@@ -31,6 +31,7 @@ namespace {
 const char* ExceptionName(ExceptionType exception) {
   switch (exception) {
     case ExceptionType::AssertionFailure:
+    case ExceptionType::AssertionFailureNoThrow:
       return "FIRESTORE INTERNAL ASSERTION FAILED";
     case ExceptionType::IllegalState:
       return "Illegal state";
@@ -39,6 +40,8 @@ const char* ExceptionName(ExceptionType exception) {
   }
   UNREACHABLE();
 }
+
+}  // namespace
 
 ABSL_ATTRIBUTE_NORETURN void DefaultThrowHandler(ExceptionType type,
                                                  const char* file,
@@ -55,6 +58,10 @@ ABSL_ATTRIBUTE_NORETURN void DefaultThrowHandler(ExceptionType type,
   switch (type) {
     case ExceptionType::AssertionFailure:
       throw FirestoreInternalError(what);
+    case ExceptionType::AssertionFailureNoThrow:
+      LOG_ERROR("%s", what);
+      std::terminate();
+      break;
     case ExceptionType::IllegalState:
       throw std::logic_error(what);
     case ExceptionType::InvalidArgument:
@@ -67,6 +74,8 @@ ABSL_ATTRIBUTE_NORETURN void DefaultThrowHandler(ExceptionType type,
 
   UNREACHABLE();
 }
+
+namespace {
 
 ThrowHandler throw_handler = DefaultThrowHandler;
 
