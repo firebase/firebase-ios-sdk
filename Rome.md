@@ -83,8 +83,8 @@ Then do the following steps:
     `Copy Bundle Resources` Build Phase :
     - For Firestore:
         - ./Rome/GRPCClient.framework/gRPCCertificates.bundle
-    - For InAppMessagingDisplay:
-        - ./Rome/FirebaseInAppMessagingDisplay.framework/InAppMessagingDisplayResources.bundle
+    - For InAppMessaging:
+        - ./Rome/FirebaseInAppMessaging.framework/InAppMessagingDisplayResources.bundle
     - For FirebaseMLVisionFaceModel:
         - ./Pods/GoogleMobileVision/FaceDetector/Resources/GoogleMVFaceDetectorResources
     - For FirebaseMLVisionTextModel:
