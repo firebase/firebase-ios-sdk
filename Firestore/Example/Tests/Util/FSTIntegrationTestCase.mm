@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2017 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,8 +63,8 @@ using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::local::LevelDbOpener;
 using firebase::firestore::model::DatabaseId;
-using firebase::firestore::testutil::AppForUnitTesting;
 using firebase::firestore::testutil::AsyncQueueForTesting;
+using firebase::firestore::testutil::OptionsForUnitTesting;
 using firebase::firestore::remote::GrpcConnection;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::CreateAutoId;
@@ -108,6 +108,8 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
 };
 
 @implementation FSTIntegrationTestCase {
+  // A map of project ID to FIRApp.
+  NSMutableDictionary<NSString *, FIRApp *> *_apps;
   NSMutableArray<FIRFirestore *> *_firestores;
   std::shared_ptr<FakeCredentialsProvider> _fakeCredentialsProvider;
 }
@@ -122,7 +124,8 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
   [self clearPersistenceOnce];
   [self primeBackend];
 
-  _firestores = [NSMutableArray array];
+  _apps = [[NSMutableDictionary alloc] init];
+  _firestores = [[NSMutableArray alloc] init];
   self.db = [self firestore];
   self.eventAccumulator = [FSTEventAccumulator accumulatorForTest:self];
 }
@@ -132,6 +135,9 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
     for (FIRFirestore *firestore in _firestores) {
       [self terminateFirestore:firestore];
     }
+    [_apps enumerateKeysAndObjectsUsingBlock:^(NSString *projectID, FIRApp *app, BOOL *stop) {
+      [self deleteApp:app];
+    }];
   } @finally {
     _firestores = nil;
     [super tearDown];
@@ -261,8 +267,23 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
   return defaultSettings;
 }
 
+- (FIRApp *)appWithProjectID:(NSString *)projectID {
+  FIRApp *app = _apps[projectID];
+  if (!app) {
+    // Use the same appName across integration tests to ensure that terminating
+    // Firestore is is actually completing before the next test starts.
+    NSString *appName = [NSString stringWithFormat:@"firestore-integration-tests-%@", projectID];
+    FIROptions *options = OptionsForUnitTesting(util::MakeString(projectID));
+
+    [FIRApp configureWithName:appName options:options];
+    app = [FIRApp appNamed:appName];
+    _apps[projectID] = app;
+  }
+  return app;
+}
+
 - (FIRFirestore *)firestoreWithProjectID:(NSString *)projectID {
-  FIRApp *app = AppForUnitTesting(util::MakeString(projectID));
+  FIRApp *app = [self appWithProjectID:projectID];
   return [self firestoreWithApp:app];
 }
 
