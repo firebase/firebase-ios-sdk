@@ -50,6 +50,7 @@ google_crashlytics.Session.Event.Application.Execution.Thread.alternate_name typ
 google_crashlytics.Session.Event.Application.Execution.Thread.objc_selector_name type:FT_POINTER
 
 google_crashlytics.Session.Event.Application.Execution.Thread.Frame.symbol type:FT_POINTER
+google_crashlytics.Session.Event.Application.Execution.Thread.Frame.file type:FT_POINTER
 
 google_crashlytics.Session.Event.Application.Execution.Thread.Register.name type:FT_POINTER
 

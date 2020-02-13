@@ -544,8 +544,6 @@
   app.execution.threads = [self protoThreadsWithArray:self.threads];
   app.execution.threads_count = (pb_size_t)self.threads.count;
 
-  // TODO: Fill in Exception object
-
   app.background = [self wasInBackground];
   app.has_background = true;
 
@@ -555,6 +553,13 @@
   // TODO: Add crash_info_entry values for Swift, Protobuf.scala:444
   app.custom_attributes = [self protoCustomAttributesWithKeyValues:self.userKeyValues];
   app.custom_attributes_count = (pb_size_t)self.userKeyValues.count;
+
+  if (self.exception) {
+    app.execution.exception.type = FIRCLSEncodeString(self.exception.name);
+    app.execution.exception.reason = FIRCLSEncodeString(self.exception.reason);
+    app.execution.exception.frames = [self protoFramesWithFrames:self.exception.frames];
+    app.execution.exception.frames_count = (pb_size_t)self.exception.frames.count;
+  }
 
   return app;
 }
@@ -663,6 +668,38 @@
   return frames;
 }
 
+- (google_crashlytics_Session_Event_Application_Execution_Thread_Frame *)protoFramesWithFrames:
+    (NSArray<FIRCLSRecordFrame *> *)frames {
+  google_crashlytics_Session_Event_Application_Execution_Thread_Frame *framesProto = malloc(
+      sizeof(google_crashlytics_Session_Event_Application_Execution_Thread_Frame) * frames.count);
+
+  for (NSUInteger i = 0; i < frames.count; i++) {
+    google_crashlytics_Session_Event_Application_Execution_Thread_Frame frameProto =
+        google_crashlytics_Session_Event_Application_Execution_Thread_Frame_init_default;
+    FIRCLSRecordFrame *frame = frames[i];
+
+    frameProto.pc = frame.pc;
+    frameProto.importance = frame.importance;
+    frameProto.has_importance = true;
+    frameProto.symbol = FIRCLSEncodeString(frame.symbol);
+
+    if (frame.hasOffset) {
+      frameProto.offset = frame.offset;
+      frameProto.has_offset = true;
+    }
+    if (frame.hasLine) {
+      frameProto.line_number = frame.line;
+      frameProto.has_line_number = true;
+    }
+
+    // TODO for symbolicated frames, set the importance and file Protobuf.scala#L383
+
+    framesProto[i] = frameProto;
+  }
+
+  return framesProto;
+}
+
 - (google_crashlytics_Session_Event_Application_Execution_Thread_Register *)protoRegistersWithArray:
     (NSArray<FIRCLSRecordRegister *> *)array {
   google_crashlytics_Session_Event_Application_Execution_Thread_Register *registers = malloc(
@@ -686,20 +723,19 @@
   google_crashlytics_Session_Event_Application_Execution_Signal signalProto =
       google_crashlytics_Session_Event_Application_Execution_Signal_init_default;
 
-  if (self.signal) {
-    signalProto.address = self.signal.address;
-    signalProto.code = FIRCLSEncodeString(self.signal.code_name);
-    signalProto.name = FIRCLSEncodeString(self.signal.name);
-  }
-
-  // The address is the second code, if we have 2 codes
-  // This is commented in Protobuilder
   if (self.mach_exception) {
+    // The address is the second code, if we have 2 codes
+    // This is commented in Protobuilder
     if (self.mach_exception.codes.count > 1) {
       signalProto.address = [self.mach_exception.codes[1] unsignedIntValue];
     }
     signalProto.code = FIRCLSEncodeString(self.mach_exception.code_name);
     signalProto.name = FIRCLSEncodeString(self.mach_exception.name);
+
+  } else if (self.signal) {
+    signalProto.address = self.signal.address;
+    signalProto.code = FIRCLSEncodeString(self.signal.code_name);
+    signalProto.name = FIRCLSEncodeString(self.signal.name);
   }
 
   return signalProto;

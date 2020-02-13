@@ -458,8 +458,8 @@
   XCTAssertTrue(reportProto.session.crashed);
 
   XCTAssertEqual(signalProto.address, 7020687100);
-  [self assertPBData:signalProto.code isEqualToString:@"ABORT"];
-  [self assertPBData:signalProto.name isEqualToString:@"SIGABRT"];
+  XCTAssertTrue([self isPBData:signalProto.code equalToString:@"ABORT"]);
+  XCTAssertTrue([self isPBData:signalProto.name equalToString:@"SIGABRT"]);
 }
 
 // If there's both a Mach Exception and Signal file, the Mach Exception file takes precedence
@@ -475,8 +475,8 @@
   XCTAssertTrue(reportProto.session.crashed);
 
   XCTAssertEqual(signalProto.address, 32);
-  [self assertPBData:signalProto.code isEqualToString:@"KERN_INVALID_ADDRESS"];
-  [self assertPBData:signalProto.name isEqualToString:@"EXC_BAD_ACCESS"];
+  XCTAssertTrue([self isPBData:signalProto.code equalToString:@"KERN_INVALID_ADDRESS"]);
+  XCTAssertTrue([self isPBData:signalProto.name equalToString:@"EXC_BAD_ACCESS"]);
 }
 
 // The order of precedence is Exception > Mach Exception > Signal. This test
@@ -519,6 +519,43 @@
   XCTAssertEqual(reportProto.session.events[3].timestamp, 1579796966);
   XCTAssertEqual(reportProto.session.events[3].app.execution.threads[0].frames[3].pc, 4305600396);
   XCTAssertEqual(reportProto.session.events[3].app.execution.threads[0].frames[28].pc, 7020727833);
+}
+
+- (void)testExceptionProtoReport {
+  FIRCLSReportAdapter *adapter = [FIRCLSReportAdapterTests adapterForExceptionCrash];
+  google_crashlytics_Report reportProto = [adapter report];
+  google_crashlytics_Session_Event lastEventProto = [self getLastEventProto:reportProto];
+
+  XCTAssertTrue([self isPBData:lastEventProto.app.execution.exception.type
+                 equalToString:@"46696c654e6f74466f756e64457863657074696f6e"]);
+  XCTAssertTrue([self isPBData:lastEventProto.app.execution.exception.reason
+                 equalToString:@"46696c65204e6f7420466f756e64206f6e2053797374656d"]);
+
+  XCTAssertEqual(lastEventProto.app.execution.exception.frames_count, 14);
+
+  XCTAssertEqual(lastEventProto.app.execution.exception.frames[0].pc, 140733792821726);
+  XCTAssertEqual(lastEventProto.app.execution.exception.frames[0].importance, 0);
+  XCTAssertEqual(lastEventProto.app.execution.exception.frames[0].has_importance, true);
+  XCTAssertTrue([self isPBData:lastEventProto.app.execution.exception.frames[0].symbol
+                 equalToString:@""]);
+  XCTAssertEqual(lastEventProto.app.execution.exception.frames[0].offset, 101);
+  XCTAssertEqual(lastEventProto.app.execution.exception.frames[0].has_offset, true);
+  XCTAssertEqual(lastEventProto.app.execution.exception.frames[0].line_number, 405);
+  XCTAssertEqual(lastEventProto.app.execution.exception.frames[0].has_line_number, true);
+  XCTAssertTrue([self isPBData:lastEventProto.app.execution.exception.frames[0].file
+                 equalToString:@""]);
+
+  XCTAssertEqual(lastEventProto.app.execution.exception.frames[13].pc, 140734559604009);
+  XCTAssertEqual(lastEventProto.app.execution.exception.frames[13].importance, 0);
+  XCTAssertEqual(lastEventProto.app.execution.exception.frames[13].has_importance, true);
+  XCTAssertTrue([self isPBData:lastEventProto.app.execution.exception.frames[13].symbol
+                 equalToString:@""]);
+  XCTAssertEqual(lastEventProto.app.execution.exception.frames[13].offset, 1203);
+  XCTAssertEqual(lastEventProto.app.execution.exception.frames[13].has_offset, true);
+  XCTAssertEqual(lastEventProto.app.execution.exception.frames[13].line_number, 2003);
+  XCTAssertEqual(lastEventProto.app.execution.exception.frames[13].has_line_number, true);
+  XCTAssertTrue([self isPBData:lastEventProto.app.execution.exception.frames[13].file
+                 equalToString:@""]);
 }
 
 // The session ends at the last event's timestamp, regardless if it's an error or crash
@@ -576,13 +613,25 @@
 
 #pragma mark - Assertion Helpers for NanoPB Types
 
-- (void)assertPBData:(pb_bytes_array_t *)pbString isEqualToString:(NSString *)expected {
+- (BOOL)isPBData:(pb_bytes_array_t *)pbString equalToString:(NSString *)expected {
   pb_bytes_array_t *expectedProtoBytes = FIRCLSEncodeString(expected);
-  XCTAssertEqual(pbString->size, expectedProtoBytes->size);
+
+  // We're treating the empty string as the same as a missing field
+  if ((!pbString) && expectedProtoBytes->size == 0) {
+    return true;
+  }
+
+  if (pbString->size != expectedProtoBytes->size) {
+    return false;
+  }
 
   for (int i = 0; i < pbString->size; i++) {
-    XCTAssertEqual(expectedProtoBytes->bytes[i], pbString->bytes[i]);
+    if (expectedProtoBytes->bytes[i] != pbString->bytes[i]) {
+      return false;
+    }
   }
+
+  return true;
 }
 
 #pragma mark - Getting Portions of the Proto
