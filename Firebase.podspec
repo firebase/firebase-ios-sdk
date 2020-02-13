@@ -105,6 +105,12 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
     ss.ios.deployment_target = '9.0'
   end
 
+  s.subspec 'InAppMessagingDisplay' do |ss|
+    ss.dependency 'Firebase/CoreOnly'
+    ss.ios.dependency 'FirebaseInAppMessagingDisplay', '~> 0.17.0'
+    ss.ios.deployment_target = '9.0'
+  end
+
   s.subspec 'Messaging' do |ss|
     ss.dependency 'Firebase/CoreOnly'
     ss.dependency 'FirebaseMessaging', '~> 4.2.1'
