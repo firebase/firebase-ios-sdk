@@ -75,8 +75,8 @@ class SortedSet : public SortedContainer {
   }
 
   ABSL_MUST_USE_RESULT SortedSet union_with(const SortedSet& other) const {
-    SortedSet* result_ptr = this;
-    SortedSet* other_ptr = &other;
+    auto result_ptr = static_cast<SortedSet*>(this);
+    auto other_ptr = static_cast<SortedSet*>(&other);
 
     if (result_ptr->size() < other_ptr->size()) {
       result_ptr = other_ptr;
