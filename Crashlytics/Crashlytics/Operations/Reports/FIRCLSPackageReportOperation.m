@@ -97,7 +97,7 @@
 }
 
 - (NSString *)destinationDirectory {
-  return [self.fileManager preparedPath];
+  return [self.fileManager legacyPreparedPath];
 }
 
 - (NSString *)packagedPathWithName:(NSString *)name {
