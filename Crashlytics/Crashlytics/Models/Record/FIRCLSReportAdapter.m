@@ -48,34 +48,7 @@
 
     // TODO: When implemented, add support for custom exceptions: custom_exception_a/b.clsrecord
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                                         _report = [self protoReport];
+    _report = [self protoReport];
   }
   return self;
 }
