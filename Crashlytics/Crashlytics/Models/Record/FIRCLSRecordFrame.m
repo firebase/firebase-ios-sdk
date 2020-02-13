@@ -16,6 +16,10 @@
 
 #import "FIRCLSRecordFrame.h"
 
+// Default importance for the Application.Execution.Exception frames when
+// there is no on-device symbolication
+const NSUInteger DEFAULT_IMPORTANCE_FOR_EXCEPTION = 0;
+
 @interface FIRCLSRecordFrame ()
 
 // Internal representation of optional numerical values in Frames
@@ -31,6 +35,8 @@
   self = [super initWithDict:dict];
   if (self) {
     _pc = [dict[@"pc"] unsignedIntegerValue];
+
+    _importance = DEFAULT_IMPORTANCE_FOR_EXCEPTION;
 
     _symbol = dict[@"symbol"];
     _lineNumber = dict[@"line"];

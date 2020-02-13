@@ -22,6 +22,11 @@
 
 @property(nonatomic) NSUInteger pc;
 
+// This isn't required in the proto, but it is required for processing,
+// so marking as required here so we remember to fill it in.
+// This is also 32 bit, instead of 64 like a lot of the other fields
+@property(nonatomic) uint32_t importance;
+
 #pragma mark - optional attributes
 
 // Method / function call

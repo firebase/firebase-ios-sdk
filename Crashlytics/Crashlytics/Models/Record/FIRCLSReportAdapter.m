@@ -26,8 +26,6 @@
 #import <nanopb/pb_decode.h>
 #import <nanopb/pb_encode.h>
 
-const NSUInteger IMPORTANCE_FOR_EXCEPTION = 0;
-
 @implementation FIRCLSReportAdapter
 
 - (instancetype)initWithPath:(NSString *)folderPath
@@ -681,7 +679,7 @@ const NSUInteger IMPORTANCE_FOR_EXCEPTION = 0;
     FIRCLSRecordFrame *frame = frames[i];
 
     frameProto.pc = frame.pc;
-    frameProto.importance = IMPORTANCE_FOR_EXCEPTION;
+    frameProto.importance = frame.importance;
     frameProto.has_importance = true;
     frameProto.symbol = FIRCLSEncodeString(frame.symbol);
 
