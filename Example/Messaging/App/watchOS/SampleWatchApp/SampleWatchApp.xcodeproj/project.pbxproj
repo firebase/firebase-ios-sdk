@@ -575,7 +575,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
-				IBSC_MODULE = SampleWatchApp_WatchKit_Extension;
+				IBSC_MODULE = SampleWatchAppWatchKitExtension;
 				INFOPLIST_FILE = SampleWatchAppWatchKitApp/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.extensions.dev.WatchKitApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -596,7 +596,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
-				IBSC_MODULE = SampleWatchApp_WatchKit_Extension;
+				IBSC_MODULE = SampleWatchAppWatchKitExtension;
 				INFOPLIST_FILE = SampleWatchAppWatchKitApp/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.extensions.dev.WatchKitApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";

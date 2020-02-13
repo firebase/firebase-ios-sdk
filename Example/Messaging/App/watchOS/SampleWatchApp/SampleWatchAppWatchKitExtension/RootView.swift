@@ -12,9 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
 import SwiftUI
-import WatchKit
 
 public struct RootView: View {
   public var body: some View {
