@@ -37,6 +37,8 @@ class AsyncQueueTest : public ::testing::TestWithParam<FactoryFunc>,
   AsyncQueueTest() : queue{AsyncQueue::Create(GetParam()())} {
   }
 
+  ~AsyncQueueTest();
+
   std::shared_ptr<AsyncQueue> queue;
 };
 

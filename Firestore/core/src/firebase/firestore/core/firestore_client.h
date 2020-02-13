@@ -86,15 +86,16 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
 
   /**
    * Terminates this client, cancels all writes / listeners, and releases all
-   * resources.
+   * resources. The client enters a restricted mode where only a few methods
+   * like ClearPersistence are allowed.
    */
   void TerminateAsync(util::StatusCallback callback);
 
   /**
-   * Synchronously terminates this client, cancels all writes / listeners, and
-   * releases all resources.
+   * Synchronously terminates this client, cancels all writes / listeners,
+   * releases all resources, and prepares for destruction.
    */
-  void Terminate();
+  void Stop();
 
   /**
    * Passes a callback that is triggered when all the pending writes at the

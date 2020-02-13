@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,7 +69,7 @@ Firestore::~Firestore() {
   // to tear it down.
   if (!client_) return;
 
-  client_->Terminate();
+  client_->Stop();
 }
 
 const std::shared_ptr<FirestoreClient>& Firestore::client() {
@@ -152,7 +152,7 @@ void Firestore::WaitForPendingWrites(util::StatusCallback callback) {
 }
 
 void Firestore::ClearPersistence(util::StatusCallback callback) {
-  worker_queue()->EnqueueEvenAfterShutdown([this, callback] {
+  worker_queue()->EnqueueEvenWhileRestricted([this, callback] {
     auto Yield = [=](Status status) {
       if (callback) {
         this->user_executor_->Execute([=] { callback(status); });

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 
+#include <future>  // NOLINT(build/c++11)
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
@@ -38,7 +39,11 @@ AsyncQueue::AsyncQueue(std::unique_ptr<Executor> executor)
   is_operation_in_progress_ = false;
 }
 
-// TODO(varconst): assert in destructor that the queue is empty.
+AsyncQueue::~AsyncQueue() {
+  HARD_ASSERT_NOTHROW(!is_operation_in_progress_,
+                      "AsyncQueue destroyed while operation was in progress.");
+  Stop();
+}
 
 void AsyncQueue::VerifyIsCurrentExecutor() const {
   HARD_ASSERT(
@@ -76,29 +81,43 @@ void AsyncQueue::Enqueue(const Operation& operation) {
   EnqueueRelaxed(operation);
 }
 
-void AsyncQueue::EnqueueAndInitiateShutdown(const Operation& operation) {
+void AsyncQueue::EnterRestrictedMode() {
   std::lock_guard<std::mutex> lock{shut_down_mutex_};
   VerifySequentialOrder();
 
-  is_shutting_down_ = true;
-  executor_->Execute(Wrap(operation));
+  mode_ = Mode::Restricted;
 }
 
-void AsyncQueue::EnqueueEvenAfterShutdown(const Operation& operation) {
+void AsyncQueue::Stop() {
+  {
+    std::lock_guard<std::mutex> lock{shut_down_mutex_};
+    VerifySequentialOrder();
+
+    mode_ = Mode::Stopped;
+  }
+
+  // Enqueue a blocking final task to ensure that everything is off the queue.
+  executor_->ExecuteBlocking([] {});
+}
+
+void AsyncQueue::EnqueueEvenWhileRestricted(const Operation& operation) {
   // Still guarding the lock to ensure sequential scheduling.
   std::lock_guard<std::mutex> lock{shut_down_mutex_};
   VerifySequentialOrder();
+  if (mode_ == Mode::Stopped) {
+    return;
+  }
   executor_->Execute(Wrap(operation));
 }
 
-bool AsyncQueue::is_shutting_down() const {
+bool AsyncQueue::is_restricted() const {
   std::lock_guard<std::mutex> lock{shut_down_mutex_};
-  return is_shutting_down_;
+  return mode_ != Mode::Running;
 }
 
 void AsyncQueue::EnqueueRelaxed(const Operation& operation) {
   std::lock_guard<std::mutex> lock{shut_down_mutex_};
-  if (is_shutting_down_) {
+  if (mode_ != Mode::Running) {
     return;
   }
   executor_->Execute(Wrap(operation));
@@ -110,7 +129,7 @@ DelayedOperation AsyncQueue::EnqueueAfterDelay(Milliseconds delay,
   std::lock_guard<std::mutex> lock{shut_down_mutex_};
   VerifyIsCurrentExecutor();
 
-  if (is_shutting_down_) {
+  if (mode_ != Mode::Running) {
     return DelayedOperation();
   }
 
@@ -127,9 +146,16 @@ AsyncQueue::Operation AsyncQueue::Wrap(const Operation& operation) {
   // Decorator pattern: wrap `operation` into a call to `ExecuteBlocking` to
   // ensure that it doesn't spawn any nested operations.
 
-  // Note: can't move `operation` into lambda until C++14.
-  auto shared_this = shared_from_this();
-  return [shared_this, operation] { shared_this->ExecuteBlocking(operation); };
+  // Capture by weak_ptr in order to avoid implicitly keeping the AsyncQueue
+  // alive even though the owning FirestoreClient may have been destroyed
+  // already.
+  std::weak_ptr<AsyncQueue> weak_this = shared_from_this();
+  return [weak_this, operation] {
+    std::shared_ptr<AsyncQueue> shared_this = weak_this.lock();
+    if (!shared_this) return;
+
+    shared_this->ExecuteBlocking(operation);
+  };
 }
 
 void AsyncQueue::VerifySequentialOrder() const {

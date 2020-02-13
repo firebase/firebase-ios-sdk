@@ -89,7 +89,29 @@ class AsyncQueue : public std::enable_shared_from_this<AsyncQueue> {
   using Operation = Executor::Operation;
   using Milliseconds = Executor::Milliseconds;
 
+  enum class Mode {
+    /**
+     * The default mode of an AsyncQueue after creation. All tasks are allowed.
+     */
+    Running,
+
+    /**
+     * The AsyncQueue enters Mode::Restricted after the a user terminates an
+     * instance of Firestore. In this mode, most tasks are not allowed: only a
+     * special limited set of operations are still allowed to run.
+     */
+    Restricted,
+
+    /**
+     * Finally, once the Firestore instance is in the process of being destroyed
+     * the AsyncQueue stops accepting all tasks.
+     */
+    Stopped,
+  };
+
   static std::shared_ptr<AsyncQueue> Create(std::unique_ptr<Executor> executor);
+
+  ~AsyncQueue();
 
   // Asserts for the caller that it is being invoked as part of an operation on
   // the `AsyncQueue`.
@@ -109,22 +131,28 @@ class AsyncQueue : public std::enable_shared_from_this<AsyncQueue> {
   // calling `Enqueue` is a no-op.
   void Enqueue(const Operation& operation);
 
-  // Like `Enqueue`, but also starts the shutdown process. Once the shutdown
-  // process has started, calling any Enqueue* methods becomes a no-op
+  // Puts the `AsyncQueue` into restricted mode, where calling any Enqueue*
+  // methods becomes a no-op.
   //
-  // The exception is `EnqueueEvenAfterShutdown`, operations requsted via
-  // this will still be scheduled.
-  void EnqueueAndInitiateShutdown(const Operation& operation);
+  // The exception is `EnqueueEvenWhileRestricted`, where operations are still
+  // scheduled even while in restricted mode.
+  void EnterRestrictedMode();
+
+  // Puts the `AsyncQueue` into the stopped mode, where calling any Enqueue*
+  // methods becomes a no-op without exception.
+  //
+  // This also synchronously waits for the last pending operation to complete.
+  void Stop();
 
   // Like `Enqueue`, but it will proceed scheduling the requested operation
   // regardless of whether the queue is shut down or not.
-  void EnqueueEvenAfterShutdown(const Operation& operation);
+  void EnqueueEvenWhileRestricted(const Operation& operation);
 
   // Like `Enqueue`, but without applying any prerequisite checks.
   void EnqueueRelaxed(const Operation& operation);
 
-  // Whether the queue has initiated its shutdown process.
-  bool is_shutting_down() const;
+  // Whether the queue has entered restricted mode.
+  bool is_restricted() const;
 
   // Puts the `operation` on the queue to be executed `delay` milliseconds from
   // now, and returns a handle that allows to cancel the operation (provided it
@@ -197,7 +225,7 @@ class AsyncQueue : public std::enable_shared_from_this<AsyncQueue> {
   std::atomic<bool> is_operation_in_progress_;
   std::unique_ptr<Executor> executor_;
 
-  bool is_shutting_down_ = false;
+  Mode mode_ = Mode::Running;
   mutable std::mutex shut_down_mutex_;
 
   std::vector<TimerId> timer_ids_to_skip_;

@@ -16,7 +16,6 @@
 
 #include "Firestore/core/src/firebase/firestore/core/firestore_client.h"
 
-#include <future>  // NOLINT(build/c++11)
 #include <memory>
 #include <utility>
 
@@ -255,7 +254,8 @@ void FirestoreClient::EnableNetwork(StatusCallback callback) {
 
 void FirestoreClient::TerminateAsync(StatusCallback callback) {
   auto shared_this = shared_from_this();
-  worker_queue()->EnqueueAndInitiateShutdown([shared_this, callback] {
+  worker_queue_->EnterRestrictedMode();
+  worker_queue_->EnqueueEvenWhileRestricted([shared_this, callback] {
     shared_this->TerminateInternal();
 
     if (callback) {
@@ -264,13 +264,10 @@ void FirestoreClient::TerminateAsync(StatusCallback callback) {
   });
 }
 
-void FirestoreClient::Terminate() {
-  std::promise<void> signal_terminated;
-  worker_queue()->EnqueueAndInitiateShutdown([&, this] {
-    TerminateInternal();
-    signal_terminated.set_value();
-  });
-  signal_terminated.get_future().wait();
+void FirestoreClient::Stop() {
+  worker_queue_->EnterRestrictedMode();
+  worker_queue_->EnqueueEvenWhileRestricted([&, this] { TerminateInternal(); });
+  worker_queue_->Stop();
 }
 
 void FirestoreClient::TerminateInternal() {
@@ -317,7 +314,7 @@ bool FirestoreClient::is_terminated() const {
   // Technically, the worker queue is still running, but only accepting tasks
   // related to termination or supposed to be run after termination. It is
   // effectively terminated to the eyes of users.
-  return worker_queue()->is_shutting_down();
+  return worker_queue()->is_restricted();
 }
 
 std::shared_ptr<QueryListener> FirestoreClient::ListenToQuery(

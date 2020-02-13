@@ -110,9 +110,11 @@ class Executor {
   // Schedules the `operation` to be asynchronously executed as soon as
   // possible, in FIFO order.
   virtual void Execute(Operation&& operation) = 0;
+
   // Like `Execute`, but blocks until the `operation` finishes, consequently
   // draining immediate operations from the executor.
   virtual void ExecuteBlocking(Operation&& operation) = 0;
+
   // Scheduled the given `operation` to be executed after `delay` milliseconds
   // from now, and returns a handle that allows to cancel the operation
   // (provided it hasn't been run already). The operation is tagged to allow
@@ -125,10 +127,12 @@ class Executor {
 
   // Checks for the caller whether it is being invoked by this executor.
   virtual bool IsCurrentExecutor() const = 0;
+
   // Returns some sort of an identifier for the current execution context. The
   // only guarantee is that it will return different values depending on whether
   // this function is invoked by this executor or not.
   virtual std::string CurrentExecutorName() const = 0;
+
   // Like `CurrentExecutorName`, but returns an identifier for this executor,
   // whether the caller code currently runs on this executor or not.
   virtual std::string Name() const = 0;
@@ -136,6 +140,7 @@ class Executor {
   // Checks whether an operation tagged with the given `tag` is currently
   // scheduled for future execution.
   virtual bool IsScheduled(Tag tag) const = 0;
+
   // Removes the nearest due scheduled operation from the schedule and returns
   // it to the caller. This function may be used to reschedule operations.
   // Immediate operations don't count; only operations scheduled for delayed

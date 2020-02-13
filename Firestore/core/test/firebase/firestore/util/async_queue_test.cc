@@ -38,6 +38,12 @@ const TimerId kTimerId3 = TimerId::WriteStreamConnectionBackoff;
 
 }  // namespace
 
+AsyncQueueTest::~AsyncQueueTest() {
+  if (queue) {
+    queue->EnqueueBlocking([] {});
+  }
+}
+
 TEST_P(AsyncQueueTest, Enqueue) {
   Expectation ran;
   queue->Enqueue(ran.AsCallback());
@@ -101,7 +107,7 @@ TEST_P(AsyncQueueTest, CanScheduleOperationsInTheFuture) {
 
   queue->Enqueue([&steps] { steps += '1'; });
   queue->Enqueue([&] {
-    queue->EnqueueAfterDelay(AsyncQueue::Milliseconds(20), kTimerId1, [&] {
+    queue->EnqueueAfterDelay(AsyncQueue::Milliseconds(40), kTimerId1, [&] {
       steps += '4';
       ran.Fulfill();
     });
@@ -197,15 +203,20 @@ TEST_P(AsyncQueueTest, CanManuallyDrainSpecificDelayedOperationsForTesting) {
   EXPECT_EQ(steps, "1234");
 }
 
-TEST_P(AsyncQueueTest, CanScheduleOprationsWithRespectsToShutdownState) {
+TEST_P(AsyncQueueTest, CanScheduleOprationsRespectingRestrictedMode) {
   Expectation ran;
   std::string steps;
 
   queue->Enqueue([&] { steps += '1'; });
-  queue->EnqueueAndInitiateShutdown([&] { steps += '2'; });
+  queue->EnterRestrictedMode();
+  queue->EnqueueEvenWhileRestricted([&] { steps += '2'; });
   queue->Enqueue([&] { steps += '3'; });
-  queue->EnqueueEvenAfterShutdown([&] { steps += '4'; });
-  queue->EnqueueEvenAfterShutdown(ran.AsCallback());
+  queue->EnqueueEvenWhileRestricted([&] { steps += '4'; });
+  queue->EnqueueEvenWhileRestricted(ran.AsCallback());
+
+  queue->Stop();
+  queue->Enqueue([&] { steps += '5'; });
+  queue->EnqueueEvenWhileRestricted([&] { steps += '6'; });
 
   Await(ran);
   EXPECT_EQ(steps, "124");
