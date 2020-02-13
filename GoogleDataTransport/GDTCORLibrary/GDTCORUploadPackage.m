@@ -115,7 +115,7 @@
 #pragma mark - NSSecureCoding
 
 /** The keyed archiver key for the events property. */
-static NSString *const kEventsKey = @"GDTCORUploadPackageEventsKey";
+static NSString *const kEventsKey = @"GDTCORUploadPackageEventsKey_v2";
 
 /** The keyed archiver key for the _isHandled property. */
 static NSString *const kDeliverByTimeKey = @"GDTCORUploadPackageDeliveryByTimeKey";
