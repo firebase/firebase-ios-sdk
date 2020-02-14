@@ -36,7 +36,7 @@ static NSString *const kABTEventDictionaryTimestampKey = @"timestamp";
 
 #pragma mark - Errors
 
-static NSString *const kABTErrorDomain = @"com.google.abt";
+static NSString *const kABTErrorDomain = @"com.google.abtesting";
 
 typedef NS_ENUM(NSUInteger, ABTInternalErrorCode) {
   kABTInternalErrorFailedToFetchConditionalUserProperties = 1

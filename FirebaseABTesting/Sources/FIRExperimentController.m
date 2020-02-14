@@ -186,26 +186,26 @@ NSArray *ABTExperimentsToClearFromPayloads(
   FIRExperimentController *__weak weakSelf = self;
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
     FIRExperimentController *strongSelf = weakSelf;
-    [strongSelf updateExperimentsInBackgroundQueueWithServiceOrigin:origin
-                                                             events:events
-                                                             policy:policy
-                                                      lastStartTime:lastStartTime
-                                                           payloads:payloads
-                                                  completionHandler:completionHandler];
+    [strongSelf updateExperimentConditionalUserPropertiesWithServiceOrigin:origin
+                                                                    events:events
+                                                                    policy:policy
+                                                             lastStartTime:lastStartTime
+                                                                  payloads:payloads
+                                                         completionHandler:completionHandler];
   });
 }
 
 - (void)
-    updateExperimentsInBackgroundQueueWithServiceOrigin:(NSString *)origin
-                                                 events:(FIRLifecycleEvents *)events
-                                                 policy:
-                                                     (ABTExperimentPayload_ExperimentOverflowPolicy)
-                                                         policy
-                                          lastStartTime:(NSTimeInterval)lastStartTime
-                                               payloads:(NSArray<NSData *> *)payloads
-                                      completionHandler:
-                                          (nullable void (^)(NSError *_Nullable error))
-                                              completionHandler {
+    updateExperimentConditionalUserPropertiesWithServiceOrigin:(NSString *)origin
+                                                        events:(FIRLifecycleEvents *)events
+                                                        policy:
+                                                            (ABTExperimentPayload_ExperimentOverflowPolicy)
+                                                                policy
+                                                 lastStartTime:(NSTimeInterval)lastStartTime
+                                                      payloads:(NSArray<NSData *> *)payloads
+                                             completionHandler:
+                                                 (nullable void (^)(NSError *_Nullable error))
+                                                     completionHandler {
   ABTConditionalUserPropertyController *controller =
       [ABTConditionalUserPropertyController sharedInstanceWithAnalytics:_analytics];
 
