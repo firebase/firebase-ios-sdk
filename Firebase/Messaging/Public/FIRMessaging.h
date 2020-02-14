@@ -217,7 +217,7 @@ NS_SWIFT_NAME(MessagingMessageInfo)
  */
 NS_SWIFT_NAME(MessagingRemoteMessage)
 __deprecated_msg(
-    "FCM direct channel is deprecated, please use APNs for downstream message delivery.")
+    "FCM direct channel is deprecated, please use APNs for downstream message handling.")
     @interface FIRMessagingRemoteMessage : NSObject
 
 /// The message ID of downstream message.
@@ -253,7 +253,7 @@ NS_SWIFT_NAME(MessagingDelegate)
 - (void)messaging:(FIRMessaging *)messaging
     didReceiveMessage:(FIRMessagingRemoteMessage *)remoteMessage
     NS_SWIFT_NAME(messaging(_:didReceive:))__deprecated_msg(
-        "FCM direct channel is deprecated, please use APNs for downstream message delivery.");
+        "FCM direct channel is deprecated, please use APNs for downstream message handling.");
 @end
 
 /**
@@ -281,13 +281,13 @@ NS_SWIFT_NAME(Messaging)
  *  Default is `NO`.
  */
 @property(nonatomic) BOOL shouldEstablishDirectChannel DEPRECATED_MSG_ATTRIBUTE(
-    "FCM direct channel is deprecated, please use APNs for downstream message delivery.");
+    "FCM direct channel is deprecated, please use APNs channel for downstream message delivery.");
 
 /**
  *  Returns `YES` if the direct channel to the FCM server is active, and `NO` otherwise.
  */
 @property(nonatomic, readonly) BOOL isDirectChannelEstablished DEPRECATED_MSG_ATTRIBUTE(
-    "FCM direct channel is deprecated, please use APNs for downstream message delivery.");
+    "FCM direct channel is deprecated, please use APNs channel for downstream message delivery.");
 
 /**
  *  FIRMessaging
