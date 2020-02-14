@@ -25,8 +25,9 @@
 // 2. processing - .clsrecords with attempted symbolication
 // 3. prepared - .clsrecords moved from processing with no changes
 //
-// The code was designed so the report processing workflows are not dramatically different from one another.
-// The design will help avoid having a lot of conditional code blocks throughout the codebase.
+// The code was designed so the report processing workflows are not dramatically different from one
+// another. The design will help avoid having a lot of conditional code blocks throughout the
+// codebase.
 //
 
 #include <stdatomic.h>
