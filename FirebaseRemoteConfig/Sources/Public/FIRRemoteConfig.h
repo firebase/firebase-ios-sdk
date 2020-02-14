@@ -271,16 +271,18 @@ NS_SWIFT_NAME(RemoteConfig)
 /// Gets the config value of a given namespace and a given source.
 /// @param key              Config key.
 /// @param source           Config value source.
-- (nonnull FIRRemoteConfigValue *)configValueForKey:(nullable NSString *)key
-                                             source:(FIRRemoteConfigSource)source;
+/// @return                 Config value if the key exists in given source. Otherwise `nil`.
+- (nullable FIRRemoteConfigValue *)configValueForKey:(nullable NSString *)key
+                                              source:(FIRRemoteConfigSource)source;
 
 /// Gets the config value of a given namespace and a given source.
 /// @param key              Config key.
 /// @param aNamespace       Config results under a given namespace.
 /// @param source           Config value source.
-- (nonnull FIRRemoteConfigValue *)configValueForKey:(nullable NSString *)key
-                                          namespace:(nullable NSString *)aNamespace
-                                             source:(FIRRemoteConfigSource)source
+/// @return                 Config value if the key exists in given source. Otherwise `nil`.
+- (nullable FIRRemoteConfigValue *)configValueForKey:(nullable NSString *)key
+                                           namespace:(nullable NSString *)aNamespace
+                                              source:(FIRRemoteConfigSource)source
     DEPRECATED_MSG_ATTRIBUTE("Use -[FIRRemoteConfig configValueForKey:source:] "
                              "instead.");
 
