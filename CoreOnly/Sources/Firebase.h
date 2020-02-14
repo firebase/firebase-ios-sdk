@@ -64,6 +64,10 @@ Firebase In App Messaging works as intended."
     #endif
   #endif
 
+  #if __has_include(<FirebaseInstallations/FirebaseInstallations.h>)
+    #import <FirebaseInstallations/FirebaseInstallations.h>
+  #endif
+
   #if __has_include(<FirebaseInstanceID/FirebaseInstanceID.h>)
     #import <FirebaseInstanceID/FirebaseInstanceID.h>
   #endif
