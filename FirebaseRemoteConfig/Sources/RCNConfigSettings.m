@@ -102,6 +102,14 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
     _userDefaultsManager = [[RCNUserDefaultsManager alloc] initWithAppName:appName
                                                                   bundleID:_bundleIdentifier
                                                                  namespace:_FIRNamespace];
+
+    // Check if the config database is new. If so, clear the configs saved in userDefaults.
+    if ([_DBManager isNewDatabase]) {
+      FIRLogNotice(kFIRLoggerRemoteConfig, @"I-RCN000072",
+                   @"New config database created. Resetting user defaults.");
+      [_userDefaultsManager resetUserDefaults];
+    }
+
     _isFetchInProgress = NO;
   }
   return self;

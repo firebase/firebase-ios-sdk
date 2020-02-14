@@ -174,6 +174,11 @@ static NSString *const kRCNUserDefaultsKeyNamecurrentThrottlingRetryInterval =
                               forKey:kRCNUserDefaultsKeyNamecurrentThrottlingRetryInterval];
 }
 
+#pragma mark Public methods.
+- (void)resetUserDefaults {
+  [self resetInstanceUserDefaults];
+}
+
 #pragma mark Private methods.
 
 // There is a nested hierarchy for the userdefaults as follows:
@@ -205,6 +210,19 @@ static NSString *const kRCNUserDefaultsKeyNamecurrentThrottlingRetryInterval =
     NSMutableDictionary *appUserDefaults = [[self appUserDefaults] mutableCopy];
     NSMutableDictionary *appNamespaceUserDefaults = [[self instanceUserDefaults] mutableCopy];
     [appNamespaceUserDefaults setObject:value forKey:key];
+    [appUserDefaults setObject:appNamespaceUserDefaults forKey:_firebaseNamespace];
+    [_userDefaults setObject:appUserDefaults forKey:_firebaseAppName];
+    // We need to synchronize to have this value updated for the extension.
+    [_userDefaults synchronize];
+  }
+}
+
+// Delete any existing userdefaults for this instance.
+- (void)resetInstanceUserDefaults {
+  @synchronized(_userDefaults) {
+    NSMutableDictionary *appUserDefaults = [[self appUserDefaults] mutableCopy];
+    NSMutableDictionary *appNamespaceUserDefaults = [[self instanceUserDefaults] mutableCopy];
+    [appNamespaceUserDefaults removeAllObjects];
     [appUserDefaults setObject:appNamespaceUserDefaults forKey:_firebaseNamespace];
     [_userDefaults setObject:appUserDefaults forKey:_firebaseAppName];
     // We need to synchronize to have this value updated for the extension.
