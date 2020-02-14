@@ -15,12 +15,12 @@
  */
 
 #import "GDTCORTests/Unit/Helpers/GDTCOREventGenerator.h"
-#import "GDTCORTests/Unit/Helpers/GDTCORDataObjectTesterClasses.h"
 
 #import <GoogleDataTransport/GDTCORClock.h>
 #import <GoogleDataTransport/GDTCOREvent.h>
 
 #import "GDTCORLibrary/Private/GDTCOREvent_Private.h"
+#import "GDTCORTests/Unit/Helpers/GDTCORDataObjectTesterClasses.h"
 
 @implementation GDTCOREventGenerator
 

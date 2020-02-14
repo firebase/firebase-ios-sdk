@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Initializes an instance using the given string.
  *
- * @param aString A string whose UTF8 encoded bytes will be used for -transportBytes..
+ * @param aString A string whose UTF8 encoded bytes will be used for -transportBytes.
  * @return An instance of this class.
  */
 - (instancetype)initWithString:(NSString *)aString;

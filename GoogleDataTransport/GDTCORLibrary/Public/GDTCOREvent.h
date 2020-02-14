@@ -61,7 +61,7 @@ typedef NS_ENUM(NSInteger, GDTCOREventQoS) {
 /** The clock snapshot at the time of the event. */
 @property(nonatomic) GDTCORClock *clockSnapshot;
 
-/** The fileURL of dataObject in disk. set when store the transport bytes to disk.*/
+/** The resulting file URL when [dataObject -transportBytes] has been saved to disk.*/
 @property(nullable, readonly, nonatomic) NSURL *fileURL;
 
 /** A dictionary provided to aid prioritizers by allowing the passing of arbitrary data. It will be

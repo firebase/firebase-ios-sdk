@@ -75,7 +75,7 @@
   XCTAssertEqual(decodedEvent.clockSnapshot.timezoneOffsetSeconds, timezoneOffsetSeconds);
 }
 
-/** Tests variables seting to GDTCOREvent object. */
+/** Tests setting variables on a GDTCOREvent instance.*/
 - (void)testSettingVariables {
   XCTAssertTrue([GDTCOREvent supportsSecureCoding]);
   GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"testing" target:1];
@@ -99,7 +99,7 @@
   [event1.clockSnapshot setValue:@(961141365197) forKeyPath:@"uptime"];
   event1.qosTier = GDTCOREventQosDefault;
   event1.customPrioritizationParams = @{@"customParam1" : @"aValue1"};
-  NSError *error1 = nil;
+  NSError *error1;
   [event1 writeToURL:[NSURL fileURLWithPath:@"/tmp/fake.txt"] error:&error1];
   XCTAssertNil(error1);
 
@@ -111,7 +111,7 @@
   [event2.clockSnapshot setValue:@(961141365197) forKeyPath:@"uptime"];
   event2.qosTier = GDTCOREventQosDefault;
   event2.customPrioritizationParams = @{@"customParam1" : @"aValue1"};
-  NSError *error2 = nil;
+  NSError *error2;
   [event2 writeToURL:[NSURL fileURLWithPath:@"/tmp/fake.txt"] error:&error2];
   XCTAssertNil(error2);
 

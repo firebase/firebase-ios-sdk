@@ -23,10 +23,10 @@ NS_ASSUME_NONNULL_BEGIN
 @interface GDTCOREvent ()
 
 /** Writes [dataObject transportBytes] to the given URL, populates fileURL with the filename, then
- * nils the dataObject property. This method should not be called twice on the same event,
+ * nils the dataObject property. This method should not be called twice on the same event.
  *
- * @param fileURL The fileURL that dataObject would be writen to.
- * @param error The error may be catched during writing to disk.
+ * @param fileURL The fileURL that dataObject will be written to.
+ * @param error If populated, the error encountered during writing to disk.
  * @return YES if writing dataObject to disk was successful, NO otherwise.
  */
 - (BOOL)writeToURL:(NSURL *)fileURL error:(NSError **)error;
