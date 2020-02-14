@@ -199,7 +199,8 @@
   FIRCLSDeveloperLog("Crashlytics:Crash:Reports", @"Submitting report%@",
                      urgent ? @" as urgent" : @"");
 
-  BOOL isNewPreparedPath = [path containsString:self.fileManager.preparedPath];
+  // Check with the legacy path as the new path will always be contained in the legacy path
+  BOOL isNewPreparedPath = ![path containsString:self.fileManager.legacyPreparedPath];
 
   if (isNewPreparedPath && self.dataSource.settings.shouldUseNewReportEndpoint) {
     FIRCLSReportAdapter *adapter =
@@ -219,22 +220,23 @@
     [self.dataSource.googleTransport
         sendDataEvent:event
            onComplete:^(BOOL wasWritten, NSError *error) {
-        
              if (!wasWritten) {
-               FIRCLSDeveloperLog("Crashlytics:Crash:Reports", @"Failed to send crash report due to gdt write failure.");
+               FIRCLSDeveloperLog("Crashlytics:Crash:Reports",
+                                  @"Failed to send crash report due to gdt write failure.");
                success = NO;
                return;
              }
 
              if (error) {
-               FIRCLSDeveloperLog("Crashlytics:Crash:Reports", @"Failed to send crash report due to gdt error: %@",
+               FIRCLSDeveloperLog("Crashlytics:Crash:Reports",
+                                  @"Failed to send crash report due to gdt error: %@",
                                   error.localizedDescription);
                success = NO;
                return;
              }
 
-             FIRCLSDeveloperLog("Crashlytics:Crash:Reports", @"Completed report submission with id: %@",
-                                path.lastPathComponent);
+             FIRCLSDeveloperLog("Crashlytics:Crash:Reports",
+                                @"Completed report submission with id: %@", path.lastPathComponent);
 
              if (urgent) {
                dispatch_semaphore_signal(semaphore);

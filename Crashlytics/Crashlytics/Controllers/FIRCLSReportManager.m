@@ -225,8 +225,14 @@ static void (^reportSentCallback)(void);
  */
 - (int)unsentReportsCountWithPreexisting:(NSArray<NSString *> *)paths {
   int count = [self countSubmittableAndDeleteUnsubmittableReportPaths:paths];
+
   count += _fileManager.processingPathContents.count;
-  count += _fileManager.preparedPathContents.count;
+
+  if (self.settings.shouldUseNewReportEndpoint) {
+    count += _fileManager.preparedPathContents.count;
+  } else {
+    count += _fileManager.legacyPreparedPathContents.count;
+  }
   return count;
 }
 
@@ -654,7 +660,11 @@ static void (^reportSentCallback)(void);
 
 - (void)removeContentsInOtherReportingDirectories {
   [self removeExistingReportPaths:self.fileManager.processingPathContents];
-  [self removeExistingReportPaths:self.fileManager.preparedPathContents];
+  if (self.settings.shouldUseNewReportEndpoint) {
+    [self removeExistingReportPaths:self.fileManager.preparedPathContents];
+  } else {
+    [self removeExistingReportPaths:self.fileManager.legacyPreparedPathContents];
+  }
 }
 
 - (void)handleContentsInOtherReportingDirectoriesWithToken:(FIRCLSDataCollectionToken *)token {
@@ -678,7 +688,9 @@ static void (^reportSentCallback)(void);
 }
 
 - (void)handleExistingFilesInPreparedWithToken:(FIRCLSDataCollectionToken *)token {
-  NSArray *preparedPaths = _fileManager.preparedPathContents;
+  NSArray *preparedPaths = self.settings.shouldUseNewReportEndpoint
+                               ? _fileManager.preparedPathContents
+                               : _fileManager.legacyPreparedPathContents;
 
   // Give our network client a chance to reconnect here, if needed. This attempts to avoid
   // trying to re-submit a prepared file that is already in flight.
