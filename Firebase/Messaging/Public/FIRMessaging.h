@@ -216,7 +216,8 @@ NS_SWIFT_NAME(MessagingMessageInfo)
  * the local and remote notifications handlers defined in UIApplicationDelegate protocol.
  */
 NS_SWIFT_NAME(MessagingRemoteMessage)
-__deprecated_msg("Downstream message in direct channel is deprecated, please use APNS channel.")
+__deprecated_msg(
+    "FCM direct channel is deprecated, please use APNs for downstream message delivery.")
     @interface FIRMessagingRemoteMessage : NSObject
 
 /// The message ID of downstream message.
@@ -252,7 +253,7 @@ NS_SWIFT_NAME(MessagingDelegate)
 - (void)messaging:(FIRMessaging *)messaging
     didReceiveMessage:(FIRMessagingRemoteMessage *)remoteMessage
     NS_SWIFT_NAME(messaging(_:didReceive:))__deprecated_msg(
-        "Downstream message in direct channel is deprecated, please use APNS channel.");
+        "FCM direct channel is deprecated, please use APNs for downstream message delivery.");
 @end
 
 /**
@@ -280,13 +281,13 @@ NS_SWIFT_NAME(Messaging)
  *  Default is `NO`.
  */
 @property(nonatomic) BOOL shouldEstablishDirectChannel DEPRECATED_MSG_ATTRIBUTE(
-    "Direct channel is deprecated, please use APNS channel to send messages.");
+    "FCM direct channel is deprecated, please use APNs for downstream message delivery.");
 
 /**
  *  Returns `YES` if the direct channel to the FCM server is active, and `NO` otherwise.
  */
 @property(nonatomic, readonly) BOOL isDirectChannelEstablished DEPRECATED_MSG_ATTRIBUTE(
-    "Direct channel is deprecated, please use APNS channel to send messages.");
+    "FCM direct channel is deprecated, please use APNs for downstream message delivery.");
 
 /**
  *  FIRMessaging
@@ -484,7 +485,8 @@ NS_SWIFT_NAME(Messaging)
                  to:(NSString *)receiver
       withMessageID:(NSString *)messageID
          timeToLive:(int64_t)ttl
-    __deprecated_msg("Upstream message in direct channel is deprecated, please use APNS channel");
+    __deprecated_msg("Upstream messaging through direct channel is deprecated. For realtime "
+                     "updates, use Cloud Firestore, Realtime Database, or other services. ");
 
 #pragma mark - Analytics
 
