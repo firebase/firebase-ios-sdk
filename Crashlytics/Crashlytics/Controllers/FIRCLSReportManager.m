@@ -12,6 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//
+// The report manager has the ability to send to two different endpoints.
+//
+// The old legacy flow for a report goes through the following states/folders:
+// 1. active - .clsrecords optimized for crash time persistance
+// 2. processing - .clsrecords with attempted symbolication
+// 3. prepared-legacy - .multipartmime of compressed .clsrecords
+//
+// The new legacy flow for a report goes through the following states/folders:
+// 1. active - .clsrecords optimized for crash time persistance
+// 2. processing - .clsrecords with attempted symbolication
+// 3. prepared - .clsrecords moved from processing with no changes
+//
+// The code was designed so the report processing workflows are not dramatically different from one another.
+// The design will help avoid having a lot of conditional code blocks throughout the codebase.
+//
+
 #include <stdatomic.h>
 
 #if __has_include(<FBLPromises/FBLPromises.h>)
