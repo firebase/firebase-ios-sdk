@@ -22,27 +22,32 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-// When running against the log_apple.mm implementation (backed by FIRLogger)
-// this test can fail if debug_mode gets persisted in the user defaults. Check
-// for defaults getting in your way with
-//
-//   defaults read firebase_firestore_util_log_apple_test
-//
-// You can fix it with:
-//
-//   defaults write firebase_firestore_util_log_apple_test
-//       /google/firebase/debug_mode NO
-TEST(Log, SetAndGet) {
-  EXPECT_FALSE(LogIsDebugEnabled());
+TEST(LogTest, SetAndGet) {
+  LogLevel previous_level = kLogLevelError;
+  if (LogIsLoggable(kLogLevelWarning)) previous_level = kLogLevelWarning;
+  if (LogIsLoggable(kLogLevelNotice)) previous_level = kLogLevelNotice;
+  if (LogIsLoggable(kLogLevelDebug)) previous_level = kLogLevelDebug;
 
   LogSetLevel(kLogLevelDebug);
   EXPECT_TRUE(LogIsDebugEnabled());
 
+  EXPECT_TRUE(LogIsLoggable(kLogLevelDebug));
+  EXPECT_TRUE(LogIsLoggable(kLogLevelNotice));
+  EXPECT_TRUE(LogIsLoggable(kLogLevelWarning));
+  EXPECT_TRUE(LogIsLoggable(kLogLevelError));
+
   LogSetLevel(kLogLevelWarning);
   EXPECT_FALSE(LogIsDebugEnabled());
+
+  EXPECT_FALSE(LogIsLoggable(kLogLevelDebug));
+  EXPECT_FALSE(LogIsLoggable(kLogLevelNotice));
+  EXPECT_TRUE(LogIsLoggable(kLogLevelWarning));
+  EXPECT_TRUE(LogIsLoggable(kLogLevelError));
+
+  LogSetLevel(previous_level);
 }
 
-TEST(Log, LogAllKinds) {
+TEST(LogTest, LogAllKinds) {
   LOG_DEBUG("test debug logging %s", 1);
   LOG_WARN("test warning logging %s", 3);
   LOG_DEBUG("test va-args %s %s %s", "abc", std::string{"def"}, 123);

@@ -35,8 +35,6 @@ class BitsTest : public testing::Test {
 };
 
 TEST_F(BitsTest, Log2EdgeCases) {
-  std::cout << "TestLog2EdgeCases" << std::endl;
-
   EXPECT_EQ(-1, Bits::Log2Floor(0));
   EXPECT_EQ(-1, Bits::Log2Floor64(0));
 
@@ -66,8 +64,6 @@ TEST_F(BitsTest, Log2EdgeCases) {
 }
 
 TEST_F(BitsTest, Log2Random) {
-  std::cout << "TestLog2Random" << std::endl;
-
   for (int i = 0; i < kNumIterations; i++) {
     int max_bit = -1;
     uint32_t n = 0;
@@ -84,8 +80,6 @@ TEST_F(BitsTest, Log2Random) {
 }
 
 TEST_F(BitsTest, Log2Random64) {
-  std::cout << "TestLog2Random64" << std::endl;
-
   for (int i = 0; i < kNumIterations; i++) {
     int max_bit = -1;
     uint64_t n = 0;

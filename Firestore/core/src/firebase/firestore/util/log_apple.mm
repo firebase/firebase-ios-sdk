@@ -69,6 +69,16 @@ void LogSetLevel(LogLevel level) {
   FIRSetLoggerLevel(ToFIRLoggerLevel(level));
 }
 
+// Note that FIRLogger's default level can be changed by persisting a debug_mode
+// setting in user defaults. Check for defaults getting in your way with:
+//
+//   defaults read firebase_firestore_util_log_apple_test
+//
+// You can change it with:
+//
+//   defaults write firebase_firestore_util_log_apple_test
+//       /google/firebase/debug_mode NO
+
 bool LogIsLoggable(LogLevel level) {
   return FIRIsLoggableLevel(ToFIRLoggerLevel(level), false);
 }
