@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2017 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,6 +68,16 @@ void LogMessageV(LogLevel level, NSString* format, ...) {
 void LogSetLevel(LogLevel level) {
   FIRSetLoggerLevel(ToFIRLoggerLevel(level));
 }
+
+// Note that FIRLogger's default level can be changed by persisting a
+// debug_mode setting in user defaults. Check for defaults getting in your way
+// with:
+//
+//   defaults read firestore_util_test
+//
+// You can change it with:
+//
+//   defaults write firestore_util_test /google/firebase/debug_mode NO
 
 bool LogIsLoggable(LogLevel level) {
   return FIRIsLoggableLevel(ToFIRLoggerLevel(level), false);
