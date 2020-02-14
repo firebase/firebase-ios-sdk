@@ -154,7 +154,7 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Public
 
 + (nullable FIRInstallations *)installations {
-  FIRApp *defaultApp = [FIRApp defaultApp]; // Missing configure will be logged here.
+  FIRApp *defaultApp = [FIRApp defaultApp];  // Missing configure will be logged here.
   if (!defaultApp) {
     return nil;
   }
@@ -164,7 +164,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (nullable FIRInstallations *)installationsWithApp:(FIRApp *)app {
   if (!app) {
-    // TODO: Add a log message
     return nil;
   }
 
