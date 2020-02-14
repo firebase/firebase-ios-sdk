@@ -153,21 +153,21 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - Public
 
-+ (FIRInstallations *)installations {
-  FIRApp *defaultApp = [FIRApp defaultApp];
++ (nullable FIRInstallations *)installations {
+  FIRApp *defaultApp = [FIRApp defaultApp]; // Missing configure will be logged here.
   if (!defaultApp) {
-    [NSException raise:kFirebaseInstallationsErrorDomain
-                format:@"The default FirebaseApp instance must be configured before the default"
-                       @"FirebaseApp instance can be initialized. One way to ensure that is to "
-                       @"call `[FIRApp configure];` (`FirebaseApp.configure()` in Swift) in the App"
-                       @" Delegate's `application:didFinishLaunchingWithOptions:` "
-                       @"(`application(_:didFinishLaunchingWithOptions:)` in Swift)."];
+    return nil;
   }
 
   return [self installationsWithApp:defaultApp];
 }
 
-+ (FIRInstallations *)installationsWithApp:(FIRApp *)app {
++ (nullable FIRInstallations *)installationsWithApp:(FIRApp *)app {
+  if (!app) {
+    // TODO: Add a log message
+    return nil;
+  }
+
   id<FIRInstallationsInstanceProvider> installations =
       FIR_COMPONENT(FIRInstallationsInstanceProvider, app.container);
   return (FIRInstallations *)installations;

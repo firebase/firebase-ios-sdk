@@ -63,7 +63,7 @@ NS_SWIFT_NAME(Installations)
  * @throw Throws an exception if the default app is not configured yet or required  `FirebaseApp`
  * options are missing.
  */
-+ (FIRInstallations *)installations NS_SWIFT_NAME(installations());
++ (nullable FIRInstallations *)installations NS_SWIFT_NAME(installations());
 
 /**
  * Returns an instance of `Installations` for an application.
@@ -71,7 +71,7 @@ NS_SWIFT_NAME(Installations)
  * @returns An instance of `Installations` corresponding to the passed application.
  * @throw Throws an exception if required `FirebaseApp` options are missing.
  */
-+ (FIRInstallations *)installationsWithApp:(FIRApp *)application NS_SWIFT_NAME(installations(app:));
++ (nullable FIRInstallations *)installationsWithApp:(FIRApp *)application NS_SWIFT_NAME(installations(app:));
 
 /**
  * The method creates or retrieves an installation ID. The installation ID is a stable identifier
