@@ -227,7 +227,7 @@ NSArray *ABTExperimentsToClearFromPayloads(
   if (!experiments) {
     NSString *errorDescription =
         @"Failed to get conditional user properties from Firebase Analytics.";
-    FIRLogInfo(kFIRLoggerABTesting, @"I-ABT000003", errorDescription);
+    FIRLogInfo(kFIRLoggerABTesting, @"I-ABT000003", @"%@", errorDescription);
 
     if (completionHandler) {
       completionHandler([NSError
