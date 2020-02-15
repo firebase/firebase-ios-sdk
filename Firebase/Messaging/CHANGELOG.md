@@ -1,5 +1,5 @@
 # 2020-02 -- v4.3.0
-- [changed] Deprecated FCM direct channel messaging via `shouldEstablishDirectChannel`. Instead, use APNs for downstream message delivery. The deprecated API will be removed in Firebase 7. (#4710)
+- [changed] Deprecated FCM direct channel messaging via `shouldEstablishDirectChannel`. Instead, use APNs for downstream message delivery. Add `content_available` key to your payload if you want to continue use legacy APIs, but we strongly recommend HTTP v1 API as it provides full APNs support. The deprecated API will be removed in Firebase 7. (#4710)
 - [changed] Deprecated upstream messaging API. For realtime updates, use Cloud Firestore, Realtime Database, or other services. The deprecated API will be removed in Firebase 7. (#4710)
 - [fixed] Use secure coding for Messaging's pending topics. (#3686)
 
