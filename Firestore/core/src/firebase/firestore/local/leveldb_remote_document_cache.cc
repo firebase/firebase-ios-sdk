@@ -73,10 +73,13 @@ class AsyncResults {
     values_.push_back(value);
   }
 
+  /**
+   * Returns the accumulated result, moving it out of AsyncResults. The
+   * AsyncResults object should not be reused.
+   */
   std::vector<T> Result() {
     std::lock_guard<std::mutex> lock(mutex_);
-    std::vector<T> result = std::move(values_);
-    return result;
+    return std::move(values_);
   }
 
  private:
