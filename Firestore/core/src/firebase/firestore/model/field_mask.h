@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,9 +55,6 @@ class FieldMask {
 
   explicit FieldMask(std::set<FieldPath> fields) : fields_{std::move(fields)} {
   }
-
-  FieldMask(const FieldMask& f) = default;
-  FieldMask& operator=(const FieldMask& f) = default;
 
   const_iterator begin() const {
     return fields_.begin();

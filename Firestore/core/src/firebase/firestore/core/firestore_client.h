@@ -28,6 +28,7 @@
 #include "Firestore/core/src/firebase/firestore/util/delayed_constructor.h"
 #include "Firestore/core/src/firebase/firestore/util/empty.h"
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
+#include "Firestore/core/src/firebase/firestore/util/nullability.h"
 #include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
 
 namespace firebase {
