@@ -1,4 +1,5 @@
 # Unreleased
+- [changed] Improved performance of queries with large result sets.
 
 # v1.10.2
 - [changed] Internal improvements.

@@ -23,14 +23,9 @@ namespace firebase {
 namespace firestore {
 namespace core {
 
-TargetIdGenerator::TargetIdGenerator(const TargetIdGenerator& value)
-    : generator_id_(value.generator_id_), next_id_(value.next_id_) {
-}
-
 TargetIdGenerator::TargetIdGenerator(TargetIdGeneratorId generator_id,
                                      TargetId seed)
     : generator_id_(generator_id) {
-  generator_id_ = generator_id;
   seek(seed);
 }
 

@@ -76,7 +76,7 @@ std::unique_ptr<Persistence> PersistenceFactory() {
   // This row is just after any possible remote document key
   WriteDummyRow(persistence.get(), "remote_documents_a", {"row", "after"});
 
-  return std::move(persistence);
+  return persistence;
 }
 
 }  // namespace

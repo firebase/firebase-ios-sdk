@@ -37,7 +37,7 @@ class TestHelper : public LruGarbageCollectorTestHelper {
   std::unique_ptr<Persistence> MakePersistence(LruParams lru_params) override {
     auto persistence = LevelDbPersistenceForTesting(lru_params);
     leveldb_persistence_ = persistence.get();
-    return std::move(persistence);
+    return persistence;
   }
 
   bool SentinelExists(const DocumentKey& key) override {
