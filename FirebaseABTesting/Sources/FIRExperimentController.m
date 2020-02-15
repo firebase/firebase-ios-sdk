@@ -195,6 +195,19 @@ NSArray *ABTExperimentsToClearFromPayloads(
   });
 }
 
+- (void)updateExperimentsWithServiceOrigin:(NSString *)origin
+                                    events:(FIRLifecycleEvents *)events
+                                    policy:(ABTExperimentPayload_ExperimentOverflowPolicy)policy
+                             lastStartTime:(NSTimeInterval)lastStartTime
+                                  payloads:(NSArray<NSData *> *)payloads {
+  [self updateExperimentsWithServiceOrigin:origin
+                                    events:events
+                                    policy:policy
+                             lastStartTime:lastStartTime
+                                  payloads:payloads
+                         completionHandler:nil];
+}
+
 - (void)
     updateExperimentConditionalUserPropertiesWithServiceOrigin:(NSString *)origin
                                                         events:(FIRLifecycleEvents *)events

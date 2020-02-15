@@ -357,4 +357,32 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
   // Verify completion handler is still called.
   XCTAssertTrue(completionHandlerWithErrorCalled);
 }
+
+- (void)testUpdateExperimentsWithNoCompletion {
+  id experimentControllerMock = OCMPartialMock(_experimentController);
+
+  NSString *mockOrigin = @"mockOrigin";
+  FIRLifecycleEvents *mockLifecycleEvents = [[FIRLifecycleEvents alloc] init];
+  ABTExperimentPayload_ExperimentOverflowPolicy mockOverflowPolicy =
+      ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest;
+  NSTimeInterval mockLastStartTime = 100;
+  NSArray *mockPayloads = @[];
+
+  [[experimentControllerMock expect] updateExperimentsWithServiceOrigin:mockOrigin
+                                                                 events:mockLifecycleEvents
+                                                                 policy:mockOverflowPolicy
+                                                          lastStartTime:mockLastStartTime
+                                                               payloads:mockPayloads
+                                                      completionHandler:nil];
+
+  // Expect that updateExperimentsWithServiceOrigin:events:policy:lastStartTime:payloads: calls the
+  // full method with completion handler as nil.
+  [experimentControllerMock updateExperimentsWithServiceOrigin:mockOrigin
+                                                        events:mockLifecycleEvents
+                                                        policy:mockOverflowPolicy
+                                                 lastStartTime:mockLastStartTime
+                                                      payloads:mockPayloads];
+
+  [experimentControllerMock verify];
+}
 @end
