@@ -287,10 +287,10 @@ static NSString *GDTCORStoragePath() {
 #pragma mark - NSSecureCoding
 
 /** The NSKeyedCoder key for the storedEvents property. */
-static NSString *const kGDTCORStorageStoredEventsKey = @"GDTCORStorageStoredEventsKey_v2";
+static NSString *const kGDTCORStorageStoredEventsKey = @"GDTCORStorageStoredEventsKey";
 
 /** The NSKeyedCoder key for the targetToEventSet property. */
-static NSString *const kGDTCORStorageTargetToEventSetKey = @"GDTCORStorageTargetToEventSetKey_v2";
+static NSString *const kGDTCORStorageTargetToEventSetKey = @"GDTCORStorageTargetToEventSetKey";
 
 /** The NSKeyedCoder key for the uploadCoordinator property. */
 static NSString *const kGDTCORStorageUploadCoordinatorKey = @"GDTCORStorageUploadCoordinatorKey";
@@ -300,6 +300,7 @@ static NSString *const kGDTCORStorageUploadCoordinatorKey = @"GDTCORStorageUploa
 }
 
 - (instancetype)initWithCoder:(NSCoder *)aDecoder {
+  [NSKeyedUnarchiver setClass:[GDTCOREvent class] forClassName:@"GDTCORStoredEvent"];
   // Create the singleton and populate its ivars.
   GDTCORStorage *sharedInstance = [self.class sharedInstance];
   dispatch_sync(sharedInstance.storageQueue, ^{

@@ -112,6 +112,13 @@ static NSString *clockSnapshotKey = @"_clockSnapshot";
 /** NSCoding key for fileURL property. */
 static NSString *fileURLKey = @"_fileURL";
 
+/**NSCoding key for storedEvent*/
+static NSString *kMappingIDKey = @"GDTCORStoredEventMappingIDKey";
+static NSString *kTargetKey = @"GDTCORStoredEventTargetKey";
+static NSString *kQosTierKey = @"GDTCORStoredEventQosTierKey";
+static NSString *kClockSnapshotKey = @"GDTCORStoredEventClockSnapshotKey";
+static NSString *kDataFutureKey = @"GDTCORStoredEventDataFutureKey";
+
 + (BOOL)supportsSecureCoding {
   return YES;
 }
@@ -119,6 +126,9 @@ static NSString *fileURLKey = @"_fileURL";
 - (id)initWithCoder:(NSCoder *)aDecoder {
   NSString *mappingID = [aDecoder decodeObjectOfClass:[NSObject class] forKey:mappingIDKey];
   NSInteger target = [aDecoder decodeIntegerForKey:targetKey];
+  if(mappingID == nil && target == 0) {
+      return [self initWithCoderForStoredEventBackwardCompatibility:aDecoder];
+  }
   self = [self initWithMappingID:mappingID target:target];
   if (self) {
     _qosTier = [aDecoder decodeIntegerForKey:qosTierKey];
@@ -126,6 +136,17 @@ static NSString *fileURLKey = @"_fileURL";
     _fileURL = [aDecoder decodeObjectOfClass:[NSURL class] forKey:fileURLKey];
   }
   return self;
+}
+
+-(id)initWithCoderForStoredEventBackwardCompatibility:(NSCoder *)aDecoder {
+    NSString *mappingID = [aDecoder decodeObjectOfClass:[NSString class] forKey:kMappingIDKey];
+    NSInteger target = [[aDecoder decodeObjectOfClass:[NSNumber class] forKey:kTargetKey] integerValue];
+    self = [self initWithMappingID:mappingID target:target];
+    if(self) {
+        _qosTier = [[aDecoder decodeObjectOfClass:[NSNumber class] forKey:kQosTierKey] integerValue];
+        _clockSnapshot = [aDecoder decodeObjectOfClass:[GDTCORClock class] forKey:kClockSnapshotKey];
+    }
+    return self;
 }
 
 - (void)encodeWithCoder:(NSCoder *)aCoder {
