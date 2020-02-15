@@ -32,8 +32,6 @@ class GeoPoint;
 
 namespace util {
 
-struct Empty;
-
 template <typename T>
 struct Comparator;
 
