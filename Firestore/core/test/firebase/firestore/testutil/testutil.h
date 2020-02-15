@@ -39,6 +39,11 @@ class ByteString;
 }  // namespace nanopb
 
 namespace testutil {
+namespace details {
+
+model::FieldValue BlobValue(std::initializer_list<uint8_t>);
+
+}  // namespace details
 
 // Convenience methods for creating instances for tests.
 
@@ -71,10 +76,7 @@ using EnableForInts = typename std::enable_if<std::is_integral<T>::value &&
  */
 template <typename T>
 EnableForExactlyBool<T, model::FieldValue> Value(T bool_value) {
-  // Private for just this implementation.
-  model::FieldValue BooleanValue(bool);
-
-  return BooleanValue(bool_value);
+  return model::FieldValue::FromBoolean(bool_value);
 }
 
 /**
@@ -90,9 +92,7 @@ EnableForExactlyBool<T, model::FieldValue> Value(T bool_value) {
  */
 template <typename T>
 EnableForInts<T, model::FieldValue> Value(T value) {
-  model::FieldValue IntegerValue(int64_t);
-
-  return IntegerValue(value);
+  return model::FieldValue::FromInteger(value);
 }
 
 model::FieldValue Value(double value);
@@ -107,9 +107,7 @@ model::FieldValue Value(const GeoPoint& value);
 
 template <typename... Ints>
 model::FieldValue BlobValue(Ints... octets) {
-  model::FieldValue BlobValue(std::initializer_list<uint8_t>);
-
-  return BlobValue({static_cast<uint8_t>(octets)...});
+  return details::BlobValue({static_cast<uint8_t>(octets)...});
 }
 
 // This overload allows Object() to appear as a value (along with any explicitly
@@ -163,10 +161,8 @@ model::FieldValue::Map MakeMap(Args... key_value_pairs) {
 
 template <typename... Args>
 model::FieldValue Array(Args... values) {
-  model::FieldValue ArrayValue(std::vector<model::FieldValue> &&);
-
   std::vector<model::FieldValue> contents{Value(values)...};
-  return ArrayValue(std::move(contents));
+  return model::FieldValue::FromArray(std::move(contents));
 }
 
 /** Wraps an immutable sorted map into an ObjectValue. */

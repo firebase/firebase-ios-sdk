@@ -68,20 +68,21 @@ using nanopb::ByteString;
  */
 constexpr const char* kDeleteSentinel = "<DELETE>";
 
+namespace details {
+
+FieldValue BlobValue(std::initializer_list<uint8_t> octets) {
+  nanopb::ByteString contents{octets};
+  return FieldValue::FromBlob(std::move(contents));
+}
+
+}  // namespace details
+
 ByteString Bytes(std::initializer_list<uint8_t> octets) {
   return ByteString(octets);
 }
 
 FieldValue Value(std::nullptr_t) {
   return FieldValue::Null();
-}
-
-FieldValue BooleanValue(bool value) {
-  return FieldValue::FromBoolean(value);
-}
-
-FieldValue IntegerValue(int64_t value) {
-  return FieldValue::FromInteger(value);
 }
 
 FieldValue Value(double value) {
@@ -104,11 +105,6 @@ FieldValue Value(const GeoPoint& value) {
   return FieldValue::FromGeoPoint(value);
 }
 
-FieldValue BlobValue(std::initializer_list<uint8_t> octets) {
-  nanopb::ByteString contents{octets};
-  return FieldValue::FromBlob(std::move(contents));
-}
-
 FieldValue Value(const FieldValue& value) {
   return value;
 }
@@ -119,10 +115,6 @@ FieldValue Value(const model::ObjectValue& value) {
 
 FieldValue Value(const FieldValue::Map& value) {
   return Value(model::ObjectValue::FromMap(value));
-}
-
-FieldValue ArrayValue(std::vector<FieldValue>&& value) {
-  return FieldValue::FromArray(std::move(value));
 }
 
 model::ObjectValue WrapObject(const model::FieldValue::Map& value) {
