@@ -20,18 +20,23 @@
 #include <memory>
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/api/document_reference.h"
+#include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/api/query_core.h"
 #include "Firestore/core/src/firebase/firestore/api/query_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/api/settings.h"
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/core/event_manager.h"
+#include "Firestore/core/src/firebase/firestore/core/query_listener.h"
 #include "Firestore/core/src/firebase/firestore/core/sync_engine.h"
 #include "Firestore/core/src/firebase/firestore/core/view.h"
 #include "Firestore/core/src/firebase/firestore/local/index_free_query_engine.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_opener.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
+#include "Firestore/core/src/firebase/firestore/local/local_documents_view.h"
 #include "Firestore/core/src/firebase/firestore/local/local_serializer.h"
+#include "Firestore/core/src/firebase/firestore/local/local_store.h"
 #include "Firestore/core/src/firebase/firestore/local/memory_persistence.h"
 #include "Firestore/core/src/firebase/firestore/local/query_result.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"

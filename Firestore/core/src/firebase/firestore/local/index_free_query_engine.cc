@@ -22,6 +22,7 @@
 #include "Firestore/core/src/firebase/firestore/core/target.h"
 #include "Firestore/core/src/firebase/firestore/local/local_documents_view.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
+#include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"

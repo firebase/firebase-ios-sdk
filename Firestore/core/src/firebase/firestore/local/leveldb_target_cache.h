@@ -21,10 +21,8 @@
 
 #include "Firestore/Protos/nanopb/firestore/local/target.nanopb.h"
 #include "Firestore/core/src/firebase/firestore/local/target_cache.h"
-#include "Firestore/core/src/firebase/firestore/local/target_data.h"
-#include "Firestore/core/src/firebase/firestore/model/document_key.h"
-#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
-#include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/model/model_fwd.h"
+#include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/message.h"
 #include "absl/strings/string_view.h"
 #include "absl/types/optional.h"
@@ -36,6 +34,7 @@ namespace local {
 
 class LevelDbPersistence;
 class LocalSerializer;
+class TargetData;
 
 /** Cached Queries backed by LevelDB. */
 class LevelDbTargetCache : public TargetCache {

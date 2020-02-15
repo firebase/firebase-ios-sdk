@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,11 +46,7 @@ enum class TargetIdGeneratorId { TargetCache = 0, SyncEngine = 1 };
 // directly in SyncEngine and LocalStore.
 class TargetIdGenerator {
  public:
-  // Makes Objective-C++ code happy to provide a default ctor.
   TargetIdGenerator() = default;
-
-  TargetIdGenerator(const TargetIdGenerator& value) = default;
-  TargetIdGenerator& operator=(const TargetIdGenerator& value) = default;
 
   /**
    * Creates and returns the TargetIdGenerator for the local store.

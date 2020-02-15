@@ -20,8 +20,10 @@
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
+#include "Firestore/core/src/firebase/firestore/local/local_store.h"
 #include "Firestore/core/src/firebase/firestore/local/target_data.h"
 #include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
+#include "Firestore/core/src/firebase/firestore/model/mutation_batch_result.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"

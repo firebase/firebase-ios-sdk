@@ -87,6 +87,7 @@ cc_library(
 cc_library(
   firebase_firestore_core
   SOURCES
+    core_fwd.h
     event_listener.h
     event_manager.cc
     event_manager.h

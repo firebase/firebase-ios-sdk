@@ -19,7 +19,10 @@
 #include <ostream>
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/util/comparison.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/hashing.h"
 
 namespace firebase {
 namespace firestore {
@@ -34,6 +37,9 @@ void AssertValidPath(const ResourcePath& path) {
 
 }  // namespace
 
+DocumentKey::DocumentKey() : path_{std::make_shared<ResourcePath>()} {
+}
+
 DocumentKey::DocumentKey(const ResourcePath& path)
     : path_{std::make_shared<ResourcePath>(path)} {
   AssertValidPath(*path_);
@@ -44,13 +50,40 @@ DocumentKey::DocumentKey(ResourcePath&& path)
   AssertValidPath(*path_);
 }
 
+DocumentKey DocumentKey::FromPathString(const std::string& path) {
+  return DocumentKey{ResourcePath::FromStringView(path)};
+}
+
+DocumentKey DocumentKey::FromSegments(std::initializer_list<std::string> list) {
+  return DocumentKey{ResourcePath{list}};
+}
+
 const DocumentKey& DocumentKey::Empty() {
   static const DocumentKey empty;
   return empty;
 }
 
+bool DocumentKey::IsDocumentKey(const ResourcePath& path) {
+  return path.size() % 2 == 0;
+}
+
 util::ComparisonResult DocumentKey::CompareTo(const DocumentKey& other) const {
   return path().CompareTo(other.path());
+}
+
+bool operator==(const DocumentKey& lhs, const DocumentKey& rhs) {
+  return lhs.path() == rhs.path();
+}
+
+bool operator<(const DocumentKey& lhs, const DocumentKey& rhs) {
+  return util::Ascending(lhs.CompareTo(rhs));
+}
+bool operator>(const DocumentKey& lhs, const DocumentKey& rhs) {
+  return util::Descending(lhs.CompareTo(rhs));
+}
+
+size_t DocumentKey::Hash() const {
+  return util::Hash(ToString());
 }
 
 std::string DocumentKey::ToString() const {
@@ -59,6 +92,20 @@ std::string DocumentKey::ToString() const {
 
 std::ostream& operator<<(std::ostream& os, const DocumentKey& key) {
   return os << key.ToString();
+}
+
+const ResourcePath& DocumentKey::path() const {
+  return path_ ? *path_ : Empty().path();
+}
+
+/** Returns true if the document is in the specified collection_id. */
+bool DocumentKey::HasCollectionId(const std::string& collection_id) const {
+  size_t size = path().size();
+  return size >= 2 && path()[size - 2] == collection_id;
+}
+
+size_t DocumentKeyHash::operator()(const DocumentKey& key) const {
+  return util::Hash(key.path());
 }
 
 }  // namespace model

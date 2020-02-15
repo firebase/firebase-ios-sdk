@@ -18,10 +18,8 @@
 
 #include <memory>
 
-#include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
-#include "Firestore/core/src/firebase/firestore/api/snapshot_metadata.h"
-#include "Firestore/core/src/firebase/firestore/model/document.h"
-#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/api/api_fwd.h"
+#include "Firestore/core/src/firebase/firestore/model/model_fwd.h"
 
 namespace api = firebase::firestore::api;
 namespace model = firebase::firestore::model;

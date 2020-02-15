@@ -19,6 +19,7 @@
 #include <ostream>
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
 #include "absl/memory/memory.h"
 

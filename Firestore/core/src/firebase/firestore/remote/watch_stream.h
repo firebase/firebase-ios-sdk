@@ -20,9 +20,7 @@
 #include <memory>
 #include <string>
 
-#include "Firestore/core/src/firebase/firestore/local/target_data.h"
-#include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
-#include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/model/model_fwd.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_objc_bridge.h"
 #include "Firestore/core/src/firebase/firestore/remote/stream.h"
@@ -34,6 +32,11 @@
 
 namespace firebase {
 namespace firestore {
+
+namespace local {
+class TargetData;
+}  // namespace local
+
 namespace remote {
 
 class Serializer;

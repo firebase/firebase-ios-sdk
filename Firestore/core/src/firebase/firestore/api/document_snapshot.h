@@ -25,8 +25,7 @@
 #include "Firestore/core/src/firebase/firestore/core/event_listener.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
-#include "Firestore/core/src/firebase/firestore/model/field_path.h"
-#include "Firestore/core/src/firebase/firestore/model/field_value.h"
+#include "Firestore/core/src/firebase/firestore/model/model_fwd.h"
 #include "absl/types/optional.h"
 
 namespace firebase {

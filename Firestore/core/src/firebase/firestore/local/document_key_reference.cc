@@ -22,6 +22,7 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
+#include "Firestore/core/src/firebase/firestore/util/string_format.h"
 
 namespace firebase {
 namespace firestore {

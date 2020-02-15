@@ -26,6 +26,7 @@
 #include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
 #include "Firestore/core/src/firebase/firestore/remote/existence_filter.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
@@ -46,8 +47,7 @@ class WatchChange {
     TargetChange,
   };
 
-  virtual ~WatchChange() {
-  }
+  virtual ~WatchChange() = default;
 
   virtual Type type() const = 0;
 };
