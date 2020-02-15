@@ -33,7 +33,7 @@ class TestHelper : public LruGarbageCollectorTestHelper {
   std::unique_ptr<Persistence> MakePersistence(LruParams lru_params) override {
     auto persistence = MemoryPersistenceWithLruGcForTesting(lru_params);
     memory_persistence_ = persistence.get();
-    return std::move(persistence);
+    return persistence;
   }
 
   bool SentinelExists(const DocumentKey& key) override {

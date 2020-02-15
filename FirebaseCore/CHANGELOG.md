@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Fix Zip Builder module map generation that could cause linker missing
+  symbol errors in the 6.14.0 through 6.16.0 binary release distributions. (#4819)
+
 # v6.6.1 -- M63
 - [changed] Minimum required Xcode version changed to 10.3 (was 10.1).
 

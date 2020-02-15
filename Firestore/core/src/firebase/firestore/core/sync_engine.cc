@@ -407,10 +407,8 @@ DocumentKeySet SyncEngine::GetRemoteKeys(TargetId target_id) const {
     }
 
     for (const auto& query : queries_by_target_.at(target_id)) {
-      for (const auto& key :
-           query_views_by_query_.at(query)->view().synced_documents()) {
-        keys = keys.insert(key);
-      }
+      keys = keys.union_with(
+          query_views_by_query_.at(query)->view().synced_documents());
     }
     return keys;
   }
