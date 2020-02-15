@@ -49,7 +49,8 @@ class TargetIdGenerator {
   // Makes Objective-C++ code happy to provide a default ctor.
   TargetIdGenerator() = default;
 
-  TargetIdGenerator(const TargetIdGenerator& value);
+  TargetIdGenerator(const TargetIdGenerator& value) = default;
+  TargetIdGenerator& operator=(const TargetIdGenerator& value) = default;
 
   /**
    * Creates and returns the TargetIdGenerator for the local store.
@@ -84,8 +85,9 @@ class TargetIdGenerator {
  private:
   TargetIdGenerator(TargetIdGeneratorId generator_id, model::TargetId seed);
   void seek(model::TargetId target_id);
-  TargetIdGeneratorId generator_id_;
-  model::TargetId next_id_;
+
+  TargetIdGeneratorId generator_id_ = TargetIdGeneratorId::TargetCache;
+  model::TargetId next_id_ = 0;
 
   static const int kReservedBits = 1;
 };

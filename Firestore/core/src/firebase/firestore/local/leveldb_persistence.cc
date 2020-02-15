@@ -98,7 +98,7 @@ util::StatusOr<std::unique_ptr<LevelDbPersistence>> LevelDbPersistence::Create(
   std::unique_ptr<LevelDbPersistence> result(
       new LevelDbPersistence(std::move(db), std::move(dir), std::move(users),
                              std::move(serializer), lru_params));
-  return std::move(result);
+  return {std::move(result)};
 }
 
 LevelDbPersistence::LevelDbPersistence(std::unique_ptr<leveldb::DB> db,

@@ -70,7 +70,7 @@ absl::optional<BufferedWrite> BufferedWriter::TryStartWrite() {
   has_active_write_ = true;
   BufferedWrite message = std::move(queue_.front());
   queue_.pop();
-  return std::move(message);
+  return {std::move(message)};
 }
 
 absl::optional<BufferedWrite> BufferedWriter::DequeueNextWrite() {
