@@ -20,6 +20,12 @@
 #include <sstream>
 #include <utility>
 
+#include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
+#include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/model/field_value.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/message.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 namespace firebase {

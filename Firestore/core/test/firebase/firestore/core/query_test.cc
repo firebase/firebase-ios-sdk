@@ -18,7 +18,10 @@
 
 #include <cmath>
 
+#include "Firestore/core/src/firebase/firestore/core/bound.h"
+#include "Firestore/core/src/firebase/firestore/core/field_filter.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
+#include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"

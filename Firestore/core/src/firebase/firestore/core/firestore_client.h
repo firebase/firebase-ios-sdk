@@ -20,47 +20,41 @@
 #include <memory>
 #include <vector>
 
-#include "Firestore/core/src/firebase/firestore/api/document_reference.h"
-#include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
-#include "Firestore/core/src/firebase/firestore/api/listener_registration.h"
-#include "Firestore/core/src/firebase/firestore/api/query_core.h"
-#include "Firestore/core/src/firebase/firestore/api/settings.h"
-#include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
+#include "Firestore/core/src/firebase/firestore/api/api_fwd.h"
+#include "Firestore/core/src/firebase/firestore/core/core_fwd.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
-#include "Firestore/core/src/firebase/firestore/core/listen_options.h"
-#include "Firestore/core/src/firebase/firestore/core/query.h"
-#include "Firestore/core/src/firebase/firestore/core/query_listener.h"
-#include "Firestore/core/src/firebase/firestore/core/transaction.h"
-#include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
-#include "Firestore/core/src/firebase/firestore/local/local_store.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
-#include "Firestore/core/src/firebase/firestore/model/mutation.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/delayed_constructor.h"
 #include "Firestore/core/src/firebase/firestore/util/empty.h"
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
+#include "Firestore/core/src/firebase/firestore/util/nullability.h"
 #include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
 
 namespace firebase {
 namespace firestore {
+
+namespace auth {
+class CredentialsProvider;
+class User;
+}  // namespace auth
+
 namespace local {
-
+class LocalStore;
 class LruDelegate;
-class QueryEngine;
 class Persistence;
-
+class QueryEngine;
 }  // namespace local
 
+namespace model {
+class Mutation;
+}  // namespace model
+
 namespace remote {
-
 class RemoteStore;
-
 }  // namespace remote
 
 namespace core {
-
-class EventManager;
-class SyncEngine;
 
 /**
  * FirestoreClient is a top-level class that constructs and owns all of the

@@ -23,6 +23,7 @@
 
 #include "Firestore/core/src/firebase/firestore/local/lru_garbage_collector.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_delegate.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
 namespace firebase {
 namespace firestore {

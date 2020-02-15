@@ -27,6 +27,8 @@
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
+#include "Firestore/core/src/firebase/firestore/core/user_data.h"
+#include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/exception.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"

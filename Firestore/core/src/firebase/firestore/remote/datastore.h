@@ -24,7 +24,7 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/auth/token.h"
-#include "Firestore/core/src/firebase/firestore/core/database_info.h"
+#include "Firestore/core/src/firebase/firestore/core/core_fwd.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_call.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
@@ -67,8 +67,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
             const std::shared_ptr<util::AsyncQueue>& worker_queue,
             std::shared_ptr<auth::CredentialsProvider> credentials);
 
-  virtual ~Datastore() {
-  }
+  virtual ~Datastore() = default;
 
   /** Starts polling the gRPC completion queue. */
   void Start();

@@ -18,12 +18,19 @@
 
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+
 namespace firebase {
 namespace firestore {
 namespace auth {
 
 Token::Token(std::string token, User user)
     : token_{std::move(token)}, user_{std::move(user)} {
+}
+
+const std::string& Token::token() const {
+  HARD_ASSERT(user_.is_authenticated());
+  return token_;
 }
 
 const Token& Token::Unauthenticated() {

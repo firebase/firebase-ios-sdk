@@ -28,10 +28,13 @@
 #import "Firestore/Source/API/FIRListenerRegistration+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 
+#include "Firestore/core/src/firebase/firestore/api/collection_reference.h"
 #include "Firestore/core/src/firebase/firestore/api/document_reference.h"
 #include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/api/source.h"
 #include "Firestore/core/src/firebase/firestore/core/event_listener.h"
+#include "Firestore/core/src/firebase/firestore/core/listen_options.h"
+#include "Firestore/core/src/firebase/firestore/core/user_data.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"

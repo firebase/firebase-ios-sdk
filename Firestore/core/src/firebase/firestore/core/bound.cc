@@ -18,6 +18,9 @@
 
 #include <ostream>
 
+#include "Firestore/core/src/firebase/firestore/core/order_by.h"
+#include "Firestore/core/src/firebase/firestore/immutable/append_only_list.h"
+#include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
 #include "Firestore/core/src/firebase/firestore/util/to_string.h"
 

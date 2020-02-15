@@ -23,14 +23,11 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/core/query.h"
-#include "Firestore/core/src/firebase/firestore/core/query_listener.h"
 #include "Firestore/core/src/firebase/firestore/core/sync_engine_callback.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
-#include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/model/model_fwd.h"
 #include "Firestore/core/src/firebase/firestore/util/empty.h"
-#include "Firestore/core/src/firebase/firestore/util/nullability.h"
 #include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
-#include "absl/algorithm/container.h"
 #include "absl/types/optional.h"
 
 namespace firebase {
@@ -38,6 +35,7 @@ namespace firestore {
 namespace core {
 
 class QueryEventSource;
+class QueryListener;
 
 /**
  * EventManager is responsible for mapping queries to query event listeners.
@@ -89,14 +87,7 @@ class EventManager : public SyncEngineCallback {
     model::TargetId target_id;
     std::vector<std::shared_ptr<QueryListener>> listeners;
 
-    bool Erase(const std::shared_ptr<QueryListener>& listener) {
-      auto found_iter = absl::c_find(listeners, listener);
-      auto found = found_iter != listeners.end();
-      if (found) {
-        listeners.erase(found_iter);
-      }
-      return found;
-    }
+    bool Erase(const std::shared_ptr<QueryListener>& listener);
 
     const absl::optional<ViewSnapshot>& view_snapshot() const {
       return snapshot_;

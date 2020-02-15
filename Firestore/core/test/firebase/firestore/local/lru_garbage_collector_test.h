@@ -44,6 +44,7 @@ class MutationQueue;
 class Persistence;
 class RemoteDocumentCache;
 class TargetCache;
+class TargetData;
 struct LruParams;
 
 /**

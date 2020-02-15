@@ -25,7 +25,6 @@
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/mutation.h"
-#include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
@@ -34,10 +33,13 @@
 
 namespace firebase {
 namespace firestore {
+
+namespace model {
+class Precondition;
+}  // namespace model
+
 namespace remote {
-
 class Datastore;
-
 }  // namespace remote
 
 namespace core {

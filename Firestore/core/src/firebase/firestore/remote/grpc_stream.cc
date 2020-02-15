@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_util.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 

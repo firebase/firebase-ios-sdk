@@ -23,11 +23,16 @@
 
 #include "Firestore/core/src/firebase/firestore/api/firestore.h"
 #include "Firestore/core/src/firebase/firestore/api/query_listener_registration.h"
+#include "Firestore/core/src/firebase/firestore/api/query_snapshot.h"
+#include "Firestore/core/src/firebase/firestore/api/source.h"
+#include "Firestore/core/src/firebase/firestore/core/bound.h"
 #include "Firestore/core/src/firebase/firestore/core/field_filter.h"
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/core/firestore_client.h"
+#include "Firestore/core/src/firebase/firestore/core/listen_options.h"
 #include "Firestore/core/src/firebase/firestore/core/operator.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
+#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/exception.h"
 #include "absl/algorithm/container.h"
 

@@ -48,6 +48,19 @@ bool operator==(const MutationResult& lhs, const MutationResult& rhs) {
          lhs.transform_results() == rhs.transform_results();
 }
 
+MaybeDocument Mutation::ApplyToRemoteDocument(
+    const absl::optional<MaybeDocument>& maybe_doc,
+    const MutationResult& mutation_result) const {
+  return rep().ApplyToRemoteDocument(maybe_doc, mutation_result);
+}
+
+absl::optional<MaybeDocument> Mutation::ApplyToLocalView(
+    const absl::optional<MaybeDocument>& maybe_doc,
+    const absl::optional<MaybeDocument>& base_doc,
+    const Timestamp& local_write_time) const {
+  return rep().ApplyToLocalView(maybe_doc, base_doc, local_write_time);
+}
+
 Mutation::Rep::Rep(DocumentKey&& key, Precondition&& precondition)
     : key_(std::move(key)), precondition_(std::move(precondition)) {
 }

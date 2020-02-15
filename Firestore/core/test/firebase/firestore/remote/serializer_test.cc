@@ -39,13 +39,19 @@
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/core/bound.h"
+#include "Firestore/core/src/firebase/firestore/core/field_filter.h"
+#include "Firestore/core/src/firebase/firestore/core/query.h"
+#include "Firestore/core/src/firebase/firestore/local/target_data.h"
 #include "Firestore/core/src/firebase/firestore/model/delete_mutation.h"
+#include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
+#include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/src/firebase/firestore/model/patch_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/set_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/transform_mutation.h"
+#include "Firestore/core/src/firebase/firestore/model/unknown_document.h"
 #include "Firestore/core/src/firebase/firestore/model/verify_mutation.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/message.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
@@ -1476,7 +1482,7 @@ TEST_F(SerializerTest, EncodesResumeTokens) {
   core::Query q = Query("docs");
   TargetData model(q.ToTarget(), 1, 0, QueryPurpose::Listen,
                    SnapshotVersion::None(), SnapshotVersion::None(),
-                   Bytes(1, 2, 3));
+                   Bytes({1, 2, 3}));
 
   v1::Target proto;
   proto.mutable_query()->set_parent(ResourceName(""));
