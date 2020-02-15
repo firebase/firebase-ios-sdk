@@ -225,14 +225,15 @@ NSArray *ABTExperimentsToClearFromPayloads(
   // Get the list of expriments from Firebase Analytics.
   NSArray *experiments = [controller experimentsWithOrigin:origin];
   if (!experiments) {
-    FIRLogInfo(kFIRLoggerABTesting, @"I-ABT000003",
-               @"Failed to get conditional user properties from Firebase Analytics.");
+    NSString *errorDescription =
+        @"Failed to get conditional user properties from Firebase Analytics.";
+    FIRLogInfo(kFIRLoggerABTesting, @"I-ABT000003", errorDescription);
 
     if (completionHandler) {
       completionHandler([NSError
           errorWithDomain:kABTErrorDomain
                      code:kABTInternalErrorFailedToFetchConditionalUserProperties
-                 userInfo:nil]);
+                 userInfo:@{NSLocalizedDescriptionKey : errorDescription}]);
     }
 
     return;
