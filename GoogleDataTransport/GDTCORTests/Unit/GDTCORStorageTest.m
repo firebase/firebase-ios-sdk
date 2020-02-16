@@ -619,6 +619,9 @@ static NSInteger target = kGDTCORTargetCCT;
   XCTAssertEqual(archiveStorage.targetToEventSet[@(1000)].count, 6);
   XCTAssertEqual(archiveStorage.targetToEventSet[@(1001)].count, 12);
   XCTAssertEqual(archiveStorage.storedEvents.count, 18);
+  for(GDTCOREvent *event in archiveStorage.storedEvents) {
+    XCTAssertNotNil(event.fileURL);
+  }
   XCTAssertNotNil(archiveStorage.uploadCoordinator);
 }
 
