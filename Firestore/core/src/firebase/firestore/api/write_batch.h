@@ -21,22 +21,14 @@
 #include <utility>
 #include <vector>
 
-#include "Firestore/core/src/firebase/firestore/api/document_reference.h"
+#include "Firestore/core/src/firebase/firestore/api/api_fwd.h"
+#include "Firestore/core/src/firebase/firestore/core/core_fwd.h"
 #include "Firestore/core/src/firebase/firestore/model/mutation.h"
 #include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
 
 namespace firebase {
 namespace firestore {
-namespace core {
-
-class ParsedSetData;
-class ParsedUpdateData;
-
-}  // namespace core
-
 namespace api {
-
-class Firestore;
 
 class WriteBatch {
  public:

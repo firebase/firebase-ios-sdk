@@ -28,22 +28,19 @@ using std::string;
 
 class Base1 {
  public:
-  virtual ~Base1() {
-  }
+  virtual ~Base1() = default;
   int pad_;
 };
 
 class Base2 {
  public:
-  virtual ~Base2() {
-  }
+  virtual ~Base2() = default;
   int yetotherpad_;
 };
 
 class Derived : public Base1, public Base2 {
  public:
-  ~Derived() override {
-  }
+  ~Derived() override = default;
   int evenmorepad_;
 };
 

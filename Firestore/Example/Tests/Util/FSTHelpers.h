@@ -19,28 +19,12 @@
 #include <string>
 #include <vector>
 
-#include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/model/model_fwd.h"
 #include "absl/strings/string_view.h"
 
 @class FIRGeoPoint;
 @class FSTDocumentKeyReference;
 @class FSTUserDataConverter;
-
-namespace firebase {
-namespace firestore {
-
-namespace model {
-class DeleteMutation;
-class DocumentKey;
-class FieldValue;
-class ObjectValue;
-class PatchMutation;
-class SetMutation;
-class TransformMutation;
-}  // namespace model
-
-}  // namespace firestore
-}  // namespace firebase
 
 namespace model = firebase::firestore::model;
 

@@ -21,12 +21,16 @@
 #include <string>
 
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
-#include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 
 namespace firebase {
 namespace firestore {
+
+namespace model {
+class Document;
+}  // namespace model
+
 namespace core {
 
 /**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,7 +76,7 @@ std::unique_ptr<Persistence> PersistenceFactory() {
   // This row is just after any possible remote document key
   WriteDummyRow(persistence.get(), "remote_documents_a", {"row", "after"});
 
-  return std::move(persistence);
+  return persistence;
 }
 
 }  // namespace

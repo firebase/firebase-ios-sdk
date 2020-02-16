@@ -27,6 +27,7 @@
 #include "Firestore/core/src/firebase/firestore/local/memory_target_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_delegate.h"
 #include "Firestore/core/src/firebase/firestore/local/sizer.h"
+#include "Firestore/core/src/firebase/firestore/local/target_data.h"
 #include "absl/memory/memory.h"
 
 namespace firebase {

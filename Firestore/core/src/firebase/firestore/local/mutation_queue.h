@@ -19,17 +19,23 @@
 
 #include <vector>
 
-#include "Firestore/core/include/firebase/firestore/timestamp.h"
-#include "Firestore/core/src/firebase/firestore/core/query.h"
-#include "Firestore/core/src/firebase/firestore/model/document_key.h"
-#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
-#include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
+#include "Firestore/core/src/firebase/firestore/model/model_fwd.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
-#include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
 #include "absl/types/optional.h"
 
 namespace firebase {
+class Timestamp;
+
 namespace firestore {
+
+namespace core {
+class Query;
+}  // namespace core
+
+namespace nanopb {
+class ByteString;
+}  // namespace nanopb
+
 namespace local {
 
 /** A queue of mutations to apply to the remote store. */

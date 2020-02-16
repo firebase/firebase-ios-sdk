@@ -20,12 +20,17 @@
 #include "Firestore/core/src/firebase/firestore/core/sync_engine_callback.h"
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/core/transaction_runner.h"
+#include "Firestore/core/src/firebase/firestore/local/local_documents_view.h"
+#include "Firestore/core/src/firebase/firestore/local/local_store.h"
+#include "Firestore/core/src/firebase/firestore/local/local_view_changes.h"
+#include "Firestore/core/src/firebase/firestore/local/local_write_result.h"
 #include "Firestore/core/src/firebase/firestore/local/query_result.h"
 #include "Firestore/core/src/firebase/firestore/local/target_data.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
+#include "Firestore/core/src/firebase/firestore/model/mutation_batch_result.h"
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
@@ -402,10 +407,8 @@ DocumentKeySet SyncEngine::GetRemoteKeys(TargetId target_id) const {
     }
 
     for (const auto& query : queries_by_target_.at(target_id)) {
-      for (const auto& key :
-           query_views_by_query_.at(query)->view().synced_documents()) {
-        keys = keys.insert(key);
-      }
+      keys = keys.union_with(
+          query_views_by_query_.at(query)->view().synced_documents());
     }
     return keys;
   }
