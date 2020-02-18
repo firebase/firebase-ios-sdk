@@ -116,22 +116,22 @@ static NSString *fileURLKey = @"_fileURL";
 /** NSCoding key for customPrioritizationParams property. */
 static NSString *customPrioritizationParams = @"_customPrioritizationParams";
 
-/**NSCoding key for backwards compatibility of GDTCORStoredEvent mappingID property.*/
+/** NSCoding key for backwards compatibility of GDTCORStoredEvent mappingID property.*/
 static NSString *kStoredEventMappingIDKey = @"GDTCORStoredEventMappingIDKey";
 
-/**NSCoding key for backwards compatibility of GDTCORStoredEvent target property.*/
+/** NSCoding key for backwards compatibility of GDTCORStoredEvent target property.*/
 static NSString *kStoredEventTargetKey = @"GDTCORStoredEventTargetKey";
 
-/**NSCoding key for backwards compatibility of GDTCORStoredEvent qosTier property.*/
+/** NSCoding key for backwards compatibility of GDTCORStoredEvent qosTier property.*/
 static NSString *kStoredEventQosTierKey = @"GDTCORStoredEventQosTierKey";
 
-/**NSCoding key for backwards compatibility of GDTCORStoredEvent clockSnapshot property.*/
+/** NSCoding key for backwards compatibility of GDTCORStoredEvent clockSnapshot property.*/
 static NSString *kStoredEventClockSnapshotKey = @"GDTCORStoredEventClockSnapshotKey";
 
-/**NSCoding key for backwards compatibility of GDTCORStoredEvent dataFuture property.*/
+/** NSCoding key for backwards compatibility of GDTCORStoredEvent dataFuture property.*/
 static NSString *kStoredEventDataFutureKey = @"GDTCORStoredEventDataFutureKey";
 
-/**NSCoding key for backwards compatibility of GDTCORStoredEvent customPrioritizationParams
+/** NSCoding key for backwards compatibility of GDTCORStoredEvent customPrioritizationParams
  * property.*/
 static NSString *kStoredEventCustomPrioritizationParamsKey =
     @"GDTCORStoredEventcustomPrioritizationParamsKey";
