@@ -300,7 +300,11 @@ static NSString *const kGDTCORStorageUploadCoordinatorKey = @"GDTCORStorageUploa
 }
 
 - (instancetype)initWithCoder:(NSCoder *)aDecoder {
+  /**Sets a global translation mapping to decode GDTCORStoredEvent objects encoded as instances of
+   * GDTCOREvent instead.
+   */
   [NSKeyedUnarchiver setClass:[GDTCOREvent class] forClassName:@"GDTCORStoredEvent"];
+
   // Create the singleton and populate its ivars.
   GDTCORStorage *sharedInstance = [self.class sharedInstance];
   dispatch_sync(sharedInstance.storageQueue, ^{

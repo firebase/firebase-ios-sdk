@@ -20,8 +20,8 @@
 #import <GoogleDataTransport/GDTCORClock.h>
 #import <GoogleDataTransport/GDTCORConsoleLogger.h>
 
-#import "GDTCORLibrary/Private/GDTCOREvent_Private.h"
 #import "GDTCORLibrary/Private/GDTCORDataFuture.h"
+#import "GDTCORLibrary/Private/GDTCOREvent_Private.h"
 
 @implementation GDTCOREvent
 
@@ -61,7 +61,8 @@
   NSUInteger fileURL = [_fileURL hash];
   NSInteger customPrioritizationParams = [_customPrioritizationParams hash];
 
-  return mappingIDHash ^ _target ^ _qosTier ^ timeHash ^ dataObjectHash ^ fileURL ^ customPrioritizationParams;
+  return mappingIDHash ^ _target ^ _qosTier ^ timeHash ^ dataObjectHash ^ fileURL ^
+         customPrioritizationParams;
 }
 
 - (BOOL)isEqual:(id)object {
@@ -117,12 +118,22 @@ static NSString *fileURLKey = @"_fileURL";
 /** NSCoding key for customPrioritizationParams property. */
 static NSString *customPrioritizationParams = @"_customPrioritizationParams";
 
-/**NSCoding key for Backward Compatibility of storedEvent*/
+/**NSCoding key for BackwardCompatibility of storedEvent mappingID property.*/
 static NSString *kMappingIDKey = @"GDTCORStoredEventMappingIDKey";
+
+/**NSCoding key for BackwardCompatibility of storedEvent target property.*/
 static NSString *kTargetKey = @"GDTCORStoredEventTargetKey";
+
+/**NSCoding key for BackwardCompatibility of storedEvent qosTier property.*/
 static NSString *kQosTierKey = @"GDTCORStoredEventQosTierKey";
+
+/**NSCoding key for BackwardCompatibility of storedEvent clockSnapshot property.*/
 static NSString *kClockSnapshotKey = @"GDTCORStoredEventClockSnapshotKey";
+
+/**NSCoding key for BackwardCompatibility of storedEvent dataFuture property.*/
 static NSString *kDataFutureKey = @"GDTCORStoredEventDataFutureKey";
+
+/**NSCoding key for BackwardCompatibility of storedEvent customPrioritizationParams property.*/
 static NSString *kCustomPrioritizationParamsKey = @"GDTCORStoredEventcustomPrioritizationParamsKey";
 
 + (BOOL)supportsSecureCoding {
@@ -131,8 +142,8 @@ static NSString *kCustomPrioritizationParamsKey = @"GDTCORStoredEventcustomPrior
 
 - (id)initWithCoder:(NSCoder *)aDecoder {
   NSString *mappingID = [aDecoder decodeObjectOfClass:[NSObject class] forKey:mappingIDKey];
-  if(mappingID == nil) {
-      return [self initWithCoderForStoredEventBackwardCompatibility:aDecoder];
+  if (mappingID == nil) {
+    return [self initWithCoderForStoredEventBackwardCompatibility:aDecoder];
   }
   NSInteger target = [aDecoder decodeIntegerForKey:targetKey];
   self = [self initWithMappingID:mappingID target:target];
@@ -140,24 +151,27 @@ static NSString *kCustomPrioritizationParamsKey = @"GDTCORStoredEventcustomPrior
     _qosTier = [aDecoder decodeIntegerForKey:qosTierKey];
     _clockSnapshot = [aDecoder decodeObjectOfClass:[GDTCORClock class] forKey:clockSnapshotKey];
     _fileURL = [aDecoder decodeObjectOfClass:[NSURL class] forKey:fileURLKey];
-    _customPrioritizationParams = [aDecoder decodeObjectOfClass:[NSDictionary class] forKey:customPrioritizationParams];
+    _customPrioritizationParams = [aDecoder decodeObjectOfClass:[NSDictionary class]
+                                                         forKey:customPrioritizationParams];
   }
   return self;
 }
 
--(id)initWithCoderForStoredEventBackwardCompatibility:(NSCoder *)aDecoder {
-    NSString *mappingID = [aDecoder decodeObjectOfClass:[NSString class] forKey:kMappingIDKey];
-    NSInteger target = [[aDecoder decodeObjectOfClass:[NSNumber class] forKey:kTargetKey] integerValue];
-    self = [self initWithMappingID:mappingID target:target];
-    if(self) {
-        _qosTier = [[aDecoder decodeObjectOfClass:[NSNumber class] forKey:kQosTierKey] integerValue];
-        _clockSnapshot = [aDecoder decodeObjectOfClass:[GDTCORClock class] forKey:kClockSnapshotKey];
-        GDTCORDataFuture *dataFuture = [aDecoder decodeObjectOfClass:[GDTCORDataFuture class] forKey:kDataFutureKey];
-        _fileURL = dataFuture.fileURL;
-        _customPrioritizationParams = [aDecoder decodeObjectOfClass:[NSDictionary class]
-        forKey:kCustomPrioritizationParamsKey];
-    }
-    return self;
+- (id)initWithCoderForStoredEventBackwardCompatibility:(NSCoder *)aDecoder {
+  NSString *mappingID = [aDecoder decodeObjectOfClass:[NSString class] forKey:kMappingIDKey];
+  NSInteger target = [[aDecoder decodeObjectOfClass:[NSNumber class]
+                                             forKey:kTargetKey] integerValue];
+  self = [self initWithMappingID:mappingID target:target];
+  if (self) {
+    _qosTier = [[aDecoder decodeObjectOfClass:[NSNumber class] forKey:kQosTierKey] integerValue];
+    _clockSnapshot = [aDecoder decodeObjectOfClass:[GDTCORClock class] forKey:kClockSnapshotKey];
+    GDTCORDataFuture *dataFuture = [aDecoder decodeObjectOfClass:[GDTCORDataFuture class]
+                                                          forKey:kDataFutureKey];
+    _fileURL = dataFuture.fileURL;
+    _customPrioritizationParams = [aDecoder decodeObjectOfClass:[NSDictionary class]
+                                                         forKey:kCustomPrioritizationParamsKey];
+  }
+  return self;
 }
 
 - (void)encodeWithCoder:(NSCoder *)aCoder {

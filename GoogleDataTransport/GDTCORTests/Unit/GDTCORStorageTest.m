@@ -610,7 +610,7 @@ static NSInteger target = kGDTCORTargetCCT;
       @"cdGR0bHR0dHx0hHSMdMB0yHTQdNh1DHUUdRx1JHjAeRR5HHlAeWR5iHngefx6VHqIerx63HsIexx7JHsse0B7SHtQe1"
       @"h7fHuwe7h7wHvIe9B72Hvge+h8DHxAfFx8kHyofMx9MH04fUB9SH1QfVh9YH1ofXB9eH2AfYh9kH2Yfbx+FH4wfoh+v"
       @"H7Qfth+/H9kf3h/4IAEgDyAUAAAAAAAAAgIAAAAAAAACGQAAAAAAAAAAAAAAAAAAICI=";
- 
+
   NSData *v1ArchiveData = [[NSData alloc] initWithBase64EncodedString:base64EncodedArchive
                                                               options:0];
   XCTAssertNotNil(v1ArchiveData);
@@ -619,7 +619,7 @@ static NSInteger target = kGDTCORTargetCCT;
   XCTAssertEqual(archiveStorage.targetToEventSet[@(1000)].count, 6);
   XCTAssertEqual(archiveStorage.targetToEventSet[@(1001)].count, 12);
   XCTAssertEqual(archiveStorage.storedEvents.count, 18);
-  for(GDTCOREvent *event in archiveStorage.storedEvents) {
+  for (GDTCOREvent *event in archiveStorage.storedEvents) {
     XCTAssertNotNil(event.fileURL);
   }
   XCTAssertNotNil(archiveStorage.uploadCoordinator);
