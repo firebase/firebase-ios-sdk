@@ -217,10 +217,11 @@ static NSString *GDTCORStoragePath() {
  */
 - (void)addEventToTrackingCollections:(GDTCOREvent *)event {
   [_storedEvents addObject:event];
-  NSMutableSet<GDTCOREvent *> *events = self.targetToEventSet[@(event.target)];
+  NSNumber *target = @(event.target);
+  NSMutableSet<GDTCOREvent *> *events = self.targetToEventSet[target];
   events = events ? events : [[NSMutableSet alloc] init];
   [events addObject:event];
-  _targetToEventSet[@(event.target)] = events;
+  _targetToEventSet[target] = events;
 }
 
 #pragma mark - GDTCORLifecycleProtocol
@@ -300,9 +301,8 @@ static NSString *const kGDTCORStorageUploadCoordinatorKey = @"GDTCORStorageUploa
 }
 
 - (instancetype)initWithCoder:(NSCoder *)aDecoder {
-  /**Sets a global translation mapping to decode GDTCORStoredEvent objects encoded as instances of
-   * GDTCOREvent instead.
-   */
+  // Sets a global translation mapping to decode GDTCORStoredEvent objects encoded as instances of
+  // GDTCOREvent instead.
   [NSKeyedUnarchiver setClass:[GDTCOREvent class] forClassName:@"GDTCORStoredEvent"];
 
   // Create the singleton and populate its ivars.

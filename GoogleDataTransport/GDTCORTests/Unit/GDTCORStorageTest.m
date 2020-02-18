@@ -284,20 +284,22 @@ static NSInteger target = kGDTCORTargetCCT;
  */
 - (void)testEventDeallocationIsEnforced {
   __weak NSData *weakDataObjectTransportBytes;
-  GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"404" target:target];
-  weakDataObjectTransportBytes = [event.dataObject transportBytes];
-  event.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:@"testString"];
-  event.clockSnapshot = [GDTCORClock snapshot];
-  // Store the event and wait for the expectation.
-  XCTestExpectation *writtenExpectation = [self expectationWithDescription:@"event written"];
-  XCTAssertNoThrow([[GDTCORStorage sharedInstance] storeEvent:event
-                                                   onComplete:^(BOOL wasWritten, NSError *error) {
-                                                     XCTAssertTrue(wasWritten);
-                                                     XCTAssertNil(error);
-                                                     [writtenExpectation fulfill];
-                                                   }]);
-  [self waitForExpectations:@[ writtenExpectation ] timeout:10.0];
-
+  GDTCOREvent *event;
+  @autoreleasepool {
+    event = [[GDTCOREvent alloc] initWithMappingID:@"404" target:target];
+    weakDataObjectTransportBytes = [event.dataObject transportBytes];
+    event.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:@"testString"];
+    event.clockSnapshot = [GDTCORClock snapshot];
+    // Store the event and wait for the expectation.
+    XCTestExpectation *writtenExpectation = [self expectationWithDescription:@"event written"];
+    XCTAssertNoThrow([[GDTCORStorage sharedInstance] storeEvent:event
+                                                     onComplete:^(BOOL wasWritten, NSError *error) {
+                                                       XCTAssertTrue(wasWritten);
+                                                       XCTAssertNil(error);
+                                                       [writtenExpectation fulfill];
+                                                     }]);
+    [self waitForExpectations:@[ writtenExpectation ] timeout:10.0];
+  }
   dispatch_sync([GDTCORStorage sharedInstance].storageQueue, ^{
     XCTAssertNil(weakDataObjectTransportBytes);
     XCTAssertNotNil(event);
@@ -616,8 +618,8 @@ static NSInteger target = kGDTCORTargetCCT;
   XCTAssertNotNil(v1ArchiveData);
   GDTCORStorage *archiveStorage;
   XCTAssertNoThrow(archiveStorage = [NSKeyedUnarchiver unarchiveObjectWithData:v1ArchiveData]);
-  XCTAssertEqual(archiveStorage.targetToEventSet[@(1000)].count, 6);
-  XCTAssertEqual(archiveStorage.targetToEventSet[@(1001)].count, 12);
+  XCTAssertEqual(archiveStorage.targetToEventSet[@(kGDTCORTargetCCT)].count, 6);
+  XCTAssertEqual(archiveStorage.targetToEventSet[@(kGDTCORTargetFLL)].count, 12);
   XCTAssertEqual(archiveStorage.storedEvents.count, 18);
   for (GDTCOREvent *event in archiveStorage.storedEvents) {
     XCTAssertNotNil(event.fileURL);
