@@ -1,12 +1,14 @@
-# unreleased
+# 2020-02 -- v4.3.0
+- [changed] Deprecated FCM direct channel messaging via `shouldEstablishDirectChannel`. Instead, use APNs for downstream message delivery. Add `content_available` key to your payload if you want to continue use legacy APIs, but we strongly recommend HTTP v1 API as it provides full APNs support. The deprecated API will be removed in Firebase 7. (#4710)
+- [changed] Deprecated upstream messaging API. For realtime updates, use Cloud Firestore, Realtime Database, or other services. The deprecated API will be removed in Firebase 7. (#4710)
 - [fixed] Use secure coding for Messaging's pending topics. (#3686)
 
-# 2020-02 -- v 4.2.1
+# 2020-02 -- v4.2.1
 - [added] Firebase Pod support for watchOS: `pod 'Firebase/Messaging'` in addition to `pod 'FirebaseMessaging'`. (#4807)
 - [fixed] Fix FIRMessagingExtensionHelper crash in unit tests when `attachment == nil`. (#4689)
 - [fixed] Fix FIRMessagingRmqManager crash when database is removed. This only happens when device has a corrupted database file. (#4771)
 
-# 2020-01 -- v 4.2.0
+# 2020-01 -- v4.2.0
 - [added] Added watchOS support for Firebase Messaging. This enables FCM push notification function on watch only app or independent watch app. (#4016)
 - [added] Added a new transitive dependency on the [Firebase Installations SDK](../../FirebaseInstallations/CHANGELOG.md). The Firebase Installations SDK introduces the [Firebase Installations API](https://console.cloud.google.com/apis/library/firebaseinstallations.googleapis.com). Developers that use API-restrictions for their API-Keys may experience blocked requests (https://stackoverflow.com/questions/58495985/). A solution is available [here](../../FirebaseInstallations/API_KEY_RESTRICTIONS.md).
 

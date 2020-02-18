@@ -123,7 +123,10 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
   [_messaging.rmq2Manager removeDatabase];
   [testCase waitForDrainDatabaseQueueForRmqManager:_messaging.rmq2Manager];
   [_messaging.messagingUserDefaults removePersistentDomainForName:kFIRMessagingDefaultsTestDomain];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   _messaging.shouldEstablishDirectChannel = NO;
+#pragma clang diagnostic pop
   [_mockPubsub stopMocking];
   [_mockMessaging stopMocking];
   [_mockInstanceID stopMocking];
