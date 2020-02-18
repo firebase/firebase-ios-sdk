@@ -111,6 +111,7 @@ extension FileManager {
       return UUID().uuidString
     }
   }
+
   static let unique: String = timeStamp()
 
   /// Returns a deterministic path of a temporary directory for the given name. Note: This does
