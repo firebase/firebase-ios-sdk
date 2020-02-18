@@ -29,6 +29,7 @@
 #import <FirebaseCore/FIRLogger.h>
 #import <FirebaseCore/FIROptions.h>
 #import <GoogleUtilities/GULNSData+zlib.h>
+#import <OCMock/OCMStubRecorder.h>
 #import <OCMock/OCMock.h>
 
 @interface RCNConfigFetch (ForTest)
@@ -192,14 +193,15 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                                                    namespace:fullyQualifiedNamespace
                                                                      options:currentOptions]);
 
-    OCMStub([_configFetch[i] fetchConfigWithExpirationDuration:0 completionHandler:OCMOCK_ANY])
-        .ignoringNonObjectArgs()
-        .andDo(^(NSInvocation *invocation) {
-          void (^handler)(FIRRemoteConfigFetchStatus status, NSError *_Nullable error) = nil;
-          [invocation getArgument:&handler atIndex:3];
-          [_configFetch[i] fetchWithUserProperties:[[NSDictionary alloc] init]
-                                 completionHandler:handler];
-        });
+    OCMStubRecorder *mock = OCMStub([_configFetch[i] fetchConfigWithExpirationDuration:0
+                                                                     completionHandler:OCMOCK_ANY]);
+    mock = [mock ignoringNonObjectArgs];
+    mock.andDo(^(NSInvocation *invocation) {
+      void (^handler)(FIRRemoteConfigFetchStatus status, NSError *_Nullable error) = nil;
+      [invocation getArgument:&handler atIndex:3];
+      [_configFetch[i] fetchWithUserProperties:[[NSDictionary alloc] init]
+                             completionHandler:handler];
+    });
 
     _response[i] = @{@"state" : @"UPDATE", @"entries" : _entries[i]};
 
