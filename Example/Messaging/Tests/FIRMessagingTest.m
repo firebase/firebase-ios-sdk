@@ -168,7 +168,10 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
       // Doing nothing on purpose, when -updateAutomaticClientConnection is called
   }] updateAutomaticClientConnection];
   // Set direct channel to be established after disabling connection attempt
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   self.messaging.shouldEstablishDirectChannel = YES;
+#pragma clang diagnostic pop
   // Set a "valid" token (i.e. not nil or empty)
   self.messaging.defaultFcmToken = @"1234567";
   // Swizzle application state to return UIApplicationStateActive
@@ -186,7 +189,10 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
       // Doing nothing on purpose, when -updateAutomaticClientConnection is called
   }] updateAutomaticClientConnection];
   // Set direct channel to be established after disabling connection attempt
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   self.messaging.shouldEstablishDirectChannel = YES;
+#pragma clang diagnostic pop
   // By default, there should be no fcmToken
   // Swizzle application state to return UIApplicationStateActive
   UIApplication *app = [UIApplication sharedApplication];
@@ -203,7 +209,10 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
       // Doing nothing on purpose, when -updateAutomaticClientConnection is called
   }] updateAutomaticClientConnection];
   // Set direct channel to be established after disabling connection attempt
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   self.messaging.shouldEstablishDirectChannel = YES;
+#pragma clang diagnostic pop
   // Set a "valid" token (i.e. not nil or empty)
   self.messaging.defaultFcmToken = @"abcd1234";
   // Swizzle application state to return UIApplicationStateActive

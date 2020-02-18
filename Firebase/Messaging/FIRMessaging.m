@@ -122,7 +122,10 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 @end
 
 #pragma mark - for iOS 10 compatibility
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
 @implementation FIRMessagingRemoteMessage
+#pragma clang diagnostic pop
 
 - (instancetype)init {
   self = [super init];
@@ -666,9 +669,12 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 #pragma mark - Application State Changes
 
 - (void)applicationStateChanged {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   if (self.shouldEstablishDirectChannel) {
     [self updateAutomaticClientConnection];
   }
+#pragma clang diagnostic pop
 }
 
 #pragma mark - Direct Channel
@@ -730,7 +736,10 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 
 - (void)notifyOfDirectChannelConnectionChange {
   NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   [center postNotificationName:FIRMessagingConnectionStateChangedNotification object:self];
+#pragma clang diagnostic pop
 }
 
 #pragma mark - Topics
@@ -867,11 +876,12 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 
 #pragma mark - FIRMessagingReceiverDelegate
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (void)receiver:(FIRMessagingReceiver *)receiver
     receivedRemoteMessage:(FIRMessagingRemoteMessage *)remoteMessage {
   if ([self.delegate respondsToSelector:@selector(messaging:didReceiveMessage:)]) {
     [self appDidReceiveMessage:remoteMessage.appData];
-#pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunguarded-availability"
     [self.delegate messaging:self didReceiveMessage:remoteMessage];
 #pragma clang diagnostic pop
@@ -934,9 +944,12 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     [self notifyDelegateOfFCMTokenAvailability];
   }
   [self.pubsub scheduleSync:YES];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   if (self.shouldEstablishDirectChannel) {
     [self updateAutomaticClientConnection];
   }
+#pragma clang diagnostic pop
 }
 
 - (void)defaultInstanceIDTokenWasRefreshed:(NSNotification *)notification {
