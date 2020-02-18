@@ -142,6 +142,10 @@ static NSString *const kTargetKey = @"GDTCORUploadPackageTargetKey";
 }
 
 - (nullable instancetype)initWithCoder:(nonnull NSCoder *)aDecoder {
+  // Sets a global translation mapping to decode GDTCORStoredEvent objects encoded as instances of
+  // GDTCOREvent instead.
+  [NSKeyedUnarchiver setClass:[GDTCOREvent class] forClassName:@"GDTCORStoredEvent"];
+
   GDTCORTarget target = [aDecoder decodeIntegerForKey:kTargetKey];
   self = [self initWithTarget:target];
   if (self) {
