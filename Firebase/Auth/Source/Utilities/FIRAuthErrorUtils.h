@@ -565,7 +565,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** @fn gameCenterNotSupportedError
     @brief Constructs an @c NSError with the @c FIRAuthErrorCodeInternalError code.
-    @return The NSError instance associated with the FIRAuthErrorCodeInternalError
+    @return The NSError instance associated with the FIRAuthErrorCodeInternalError.
  */
 + (NSError *)gameCenterNotSupportedError;
 @end

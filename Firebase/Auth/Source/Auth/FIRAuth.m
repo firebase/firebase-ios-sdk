@@ -1136,12 +1136,11 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
           kMissingEmailInvalidParameterExceptionReason];
     }
 
-#if TARGET_OS_WATCH
     /*
      The sign in can't happen fully in-app, i.e. watchOS does not support universal links but watchOS has a mail client that will open this link appropriately
      in a browser. From the browser you trigger a cloud function which sends a push notification to complete the sign-in.
      */
-#else
+#if !TARGET_OS_WATCH
     if (!actionCodeSettings.handleCodeInApp) {
       [FIRAuthExceptionUtils raiseInvalidParameterExceptionWithReason:
           kHandleCodeInAppFalseExceptionReason];
