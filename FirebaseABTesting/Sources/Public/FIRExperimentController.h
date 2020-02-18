@@ -75,8 +75,8 @@ NS_SWIFT_NAME(ExperimentController)
                                     policy:(ABTExperimentPayload_ExperimentOverflowPolicy)policy
                              lastStartTime:(NSTimeInterval)lastStartTime
                                   payloads:(NSArray<NSData *> *)payloads
-DEPRECATED_MSG_ATTRIBUTE("Please use updateExperimentsWithServiceOrigin:events:policy:"
-                         "lastStartTime:payloads:completionHandler: instead.");
+    DEPRECATED_MSG_ATTRIBUTE("Please use updateExperimentsWithServiceOrigin:events:policy:"
+                             "lastStartTime:payloads:completionHandler: instead.");
 
 /// Returns the latest experiment start timestamp given a current latest timestamp and a list of
 /// experiment payloads. Timestamps are specified by the number of seconds from 00:00:00 UTC on 1

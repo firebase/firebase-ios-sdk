@@ -377,7 +377,7 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
 
   // Expect that updateExperimentsWithServiceOrigin:events:policy:lastStartTime:payloads: calls the
   // full method with completion handler as nil.
-  
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
   [experimentControllerMock updateExperimentsWithServiceOrigin:mockOrigin
