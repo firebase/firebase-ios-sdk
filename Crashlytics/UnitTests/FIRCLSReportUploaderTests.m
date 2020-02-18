@@ -23,6 +23,7 @@
 #include "FIRCLSFileManager.h"
 #include "FIRCLSMockSettings.h"
 #include "FIRCLSSettings.h"
+#include "FIRMockGDTCoreTransport.h"
 
 NSString *const TestEndpoint = @"https://reports.crashlytics.com";
 
@@ -89,6 +90,10 @@ NSString *const TestEndpoint = @"https://reports.crashlytics.com";
                                                                       appIDModel:appIDModel];
   settings.fetchedBundleID = self.bundleIdentifier;
   return settings;
+}
+
+- (GDTCORTransport *)googleTransport {
+  return [[FIRMockGDTCORTransport alloc] initWithMappingID:@"mappingID" transformers:nil target:0];
 }
 
 - (void)didCompleteAllSubmissions {

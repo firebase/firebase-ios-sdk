@@ -19,7 +19,7 @@
 #import "FIRCLSLogger.h"
 
 NSString *const FIRCLSCacheDirectoryName = @"com.crashlytics.data";
-NSString *const FIRCLSCacheVersion = @"v4";
+NSString *const FIRCLSCacheVersion = @"v5";
 
 @interface FIRCLSFileManager () {
   NSString *_rootPath;
@@ -223,12 +223,21 @@ NSString *const FIRCLSCacheVersion = @"v4";
   return [[self structurePath] stringByAppendingPathComponent:@"processing"];
 }
 
+// TODO: v4 -> v5
+- (NSString *)legacyPreparedPath {
+  return [[self structurePath] stringByAppendingPathComponent:@"prepared-legacy"];
+}
+
 - (NSString *)preparedPath {
   return [[self structurePath] stringByAppendingPathComponent:@"prepared"];
 }
 
 - (NSArray *)activePathContents {
   return [self contentsOfDirectory:[self activePath]];
+}
+
+- (NSArray *)legacyPreparedPathContents {
+  return [self contentsOfDirectory:[self legacyPreparedPath]];
 }
 
 - (NSArray *)preparedPathContents {
@@ -246,6 +255,10 @@ NSString *const FIRCLSCacheVersion = @"v4";
   }
 
   if (![self createDirectoryAtPath:[self processingPath]]) {
+    return NO;
+  }
+
+  if (![self createDirectoryAtPath:[self legacyPreparedPath]]) {
     return NO;
   }
 
@@ -285,11 +298,7 @@ NSString *const FIRCLSCacheVersion = @"v4";
 
 - (void)enumerateFilesInPreparedDirectoryUsingBlock:(void (^)(NSString *path,
                                                               NSString *extension))block {
-  [self enumerateFilesInDirectory:[self preparedPath] usingBlock:block];
-}
-
-- (BOOL)moveProcessingContentsToPrepared {
-  return [self moveItemsFromDirectory:[self processingPath] toDirectory:[self preparedPath]];
+  [self enumerateFilesInDirectory:[self legacyPreparedPath] usingBlock:block];
 }
 
 - (BOOL)movePendingToProcessing {
@@ -309,11 +318,19 @@ NSString *const FIRCLSCacheVersion = @"v4";
   BOOL contentsOfPendingPathRemoved = [self removeContentsOfPendingPath];
   BOOL contentsOfDirectoryAtPreparedPathRemoved =
       [self removeContentsOfDirectoryAtPath:self.preparedPath];
+  BOOL contentsOfDirectoryAtLegacyPreparedPathRemoved =
+      [self removeContentsOfDirectoryAtPath:self.legacyPreparedPath];
   BOOL contentsOfDirectoryAtActivePathRemoved =
       [self removeContentsOfDirectoryAtPath:self.activePath];
   BOOL success = contentsOfProcessingPathRemoved && contentsOfPendingPathRemoved &&
-                 contentsOfDirectoryAtPreparedPathRemoved && contentsOfDirectoryAtActivePathRemoved;
+                 contentsOfDirectoryAtPreparedPathRemoved &&
+                 contentsOfDirectoryAtActivePathRemoved &&
+                 contentsOfDirectoryAtLegacyPreparedPathRemoved;
   return success;
+}
+
+- (BOOL)moveItemAtPath:(NSString *)srcPath toPath:(NSString *)dstPath error:(NSError **)error {
+  return [self.underlyingFileManager moveItemAtPath:srcPath toPath:dstPath error:error];
 }
 
 @end
