@@ -88,6 +88,9 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 }
 
 - (void)testConfigure {
+  [self
+      registerLibrariesWithClasses:@ [[FIRTestClassCached class], [FIRTestClassEagerCached class]]];
+
   NSDictionary *expectedUserInfo = [self expectedUserInfoWithAppName:kFIRDefaultAppName
                                                         isDefaultApp:YES];
   [self expectNotificationForObserver:self.observerMock
@@ -102,6 +105,11 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   XCTAssertEqualObjects(app.name, kFIRDefaultAppName);
   XCTAssertEqualObjects(app.options.clientID, kClientID);
   XCTAssertTrue([FIRApp allApps].count == 1);
+
+  // Check the registered libraries instances available.
+  XCTAssertNotNil(FIR_COMPONENT(FIRTestProtocolCached, app.container));
+  XCTAssertNotNil(FIR_COMPONENT(FIRTestProtocolEagerCached, app.container));
+  XCTAssertNil(FIR_COMPONENT(FIRTestProtocol, app.container));
 }
 
 - (void)testConfigureWithNoDefaultOptions {
@@ -321,6 +329,9 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 }
 
 - (void)testDeleteApp {
+  [self
+      registerLibrariesWithClasses:@ [[FIRTestClassCached class], [FIRTestClassEagerCached class]]];
+
   NSString *name = NSStringFromSelector(_cmd);
   FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
                                                     GCMSenderID:kGCMSenderID];
@@ -328,6 +339,12 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   FIRApp *app = [FIRApp appNamed:name];
   XCTAssertNotNil(app);
   XCTAssertTrue([FIRApp allApps].count == 1);
+
+  // Check the registered libraries instances available.
+  XCTAssertNotNil(FIR_COMPONENT(FIRTestProtocolCached, app.container));
+  XCTAssertNotNil(FIR_COMPONENT(FIRTestProtocolEagerCached, app.container));
+  XCTAssertNil(FIR_COMPONENT(FIRTestProtocol, app.container));
+
   [self expectNotificationForObserver:self.observerMock
                      notificationName:kFIRAppDeleteNotification
                                object:[FIRApp class]
@@ -342,6 +359,10 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   [self waitForExpectations:@[ expectation ] timeout:1];
   OCMVerifyAll(self.observerMock);
   XCTAssertTrue([FIRApp allApps].count == 0);
+
+  // Check no new library instances created after the app delete.
+  XCTAssertNil(FIR_COMPONENT(FIRTestProtocolCached, app.container));
+  XCTAssertNil(FIR_COMPONENT(FIRTestProtocolEagerCached, app.container));
 }
 
 - (void)testErrorForSubspecConfigurationFailure {
@@ -887,6 +908,12 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 
 - (FIROptions *)appOptions {
   return [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
+}
+
+- (void)registerLibrariesWithClasses:(NSArray<Class> *)classes {
+  for (Class klass in classes) {
+    [FIRApp registerInternalLibrary:klass withName:NSStringFromClass(klass) withVersion:@"1.0"];
+  }
 }
 
 @end
