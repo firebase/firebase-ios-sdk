@@ -287,6 +287,8 @@ static dispatch_once_t sFirebaseUserAgentOnceToken;
     if (sAllApps && sAllApps[self.name]) {
       FIRLogDebug(kFIRLoggerCore, @"I-COR000006", @"Deleting app named %@", self.name);
 
+      // Remove all registered libraries from the container to avoid creating new instances.
+      [self.container removeAllComponents];
       // Remove all cached instances from the container before deleting the app.
       [self.container removeAllCachedInstances];
 
