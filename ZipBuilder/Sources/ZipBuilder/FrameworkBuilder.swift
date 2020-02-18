@@ -218,13 +218,17 @@ struct FrameworkBuilder {
                 "-configuration", "release",
                 "-workspace", workspacePath,
                 "-scheme", framework,
-                "GCC_GENERATE_DEBUGGING_SYMBOLS=No",
+                "GCC_GENERATE_DEBUGGING_SYMBOLS=NO",
                 "ARCHS=\(cleanArch)",
                 "VALID_ARCHS=\(cleanArch)",
                 "ONLY_ACTIVE_ARCH=NO",
                 "BUILD_LIBRARIES_FOR_DISTRIBUTION=YES",
                 "SUPPORTS_MACCATALYST=\(isMacCatalystString)",
                 "BUILD_DIR=\(buildDir.path)",
+                // Code signing isn't needed for libraries. Disabling signing is required for
+                // Catalyst libs with resources. See
+                // https://github.com/CocoaPods/CocoaPods/issues/8891#issuecomment-573301570
+                "CODE_SIGN_IDENTITY=-",
                 "-sdk", platform.rawValue,
                 cFlags]
     print("""
