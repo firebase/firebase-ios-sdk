@@ -1,5 +1,5 @@
 # 2020-02-18 -- v0.17.0
-- [added] Added support for data bundles for in-app messages - additional key-value pairs that can be sent along with an in-app message (#4922).
+- [added] Added support for data bundles for in-app messages. Data bundles are additional key-value pairs that can be sent along with an in-app message (#4922).
 
 # 2020-01-28 -- v0.16.0
 - [changed] Consolidated backend and UI SDKs under `FirebaseInAppMessaging`. Developers should now use `pod Firebase/InAppMessaging` in their Podfile.
