@@ -65,7 +65,7 @@
 
   XCTAssertTrue([self doesFileExist:path], @"");
 
-  path = [path stringByAppendingPathComponent:@"v4/reports"];
+  path = [path stringByAppendingPathComponent:@"v5/reports"];
   XCTAssertTrue([self doesFileExist:path], @"");
 
   for (NSString* subpath in @[ @"active", @"prepared", @"processing" ]) {
