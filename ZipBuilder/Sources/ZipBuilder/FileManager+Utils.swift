@@ -101,8 +101,17 @@ extension FileManager {
     }
   }
 
-  // Enable a single unique temporary workspace per execution.
-  static let unique: String = UUID().uuidString
+  /// Enable a single unique temporary workspace per execution.
+  private static func timeStamp() -> String {
+    if #available(OSX 10.12, *) {
+      let formatter = ISO8601DateFormatter()
+      formatter.formatOptions.insert(.withInternetDateTime)
+      return formatter.string(from: Date())
+    } else {
+      return UUID().uuidString
+    }
+  }
+  static let unique: String = timeStamp()
 
   /// Returns a deterministic path of a temporary directory for the given name. Note: This does
   /// *not* create the directory if it doesn't exist, merely generates the name for creation.
