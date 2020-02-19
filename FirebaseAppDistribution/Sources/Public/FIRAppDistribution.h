@@ -17,8 +17,42 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * The Firebase App Distribution API provides methods to annotate and manage
- * fatal and non-fatal reports captured and reported to Firebase App Distribution.
+* The release information returned by the update check when a new version is available.
+*/
+NS_SWIFT_NAME(AppDistributionRelease)
+@interface FIRAppDistributionRelease : NSObject
+
+// The bundle version of this build (example: 123)
+@property(nonatomic, copy) NSString *bundleVersion;
+// The short bundle version of this build (example 1.0.0)
+@property(nonatomic, copy) NSString *bundleShortVersion;
+// The release notes for this build
+@property(nonatomic, copy) NSString *releaseNotes;
+// The URL for the build
+@property(nonatomic, strong) NSURL *downloadUrl;
+
+/** :nodoc: */
+- (instancetype)init NS_UNAVAILABLE;
+
+@end
+
+/**
+ *  @related FIRAppDistribution
+ *
+ *  The completion handler invoked when the new build request returns.
+ *  If the call fails we return the appropriate `error code`, described by
+ *  `FIRAppDistributionError`.
+ *
+ *  @param release  The new release that is available to be installed.
+ *  @param error     The error describing why the new build request failed.
+ */
+typedef void (^FIRAppDistributionUpdateCheckCompletion)(FIRAppDistributionRelease *_Nullable release,
+                                                    NSError *_Nullable error)
+    NS_SWIFT_NAME(AppDistributionNewBuildCheckCompletion);
+
+/**
+ * The Firebase App Distribution API provides methods to check for update to
+ * the app and returns information that enables updating the app.
  *
  * By default, Firebase App Distribution is initialized with `[FIRApp configure]`.
  *
@@ -32,13 +66,27 @@ NS_SWIFT_NAME(AppDistribution)
 - (instancetype)init NS_UNAVAILABLE;
 
 /**
+ * Check to see whether a new distribution is available
+ */
+- (void)checkForUpdateWithCompletion:(FIRAppDistributionUpdateCheckCompletion)completion
+    NS_SWIFT_NAME(checkForUpdate(completion:));
+
+/**
  * Accesses the singleton App Distribution instance.
  *
  * @return The singleton App Distribution instance.
  */
-+ (instancetype)appDistribution NS_SWIFT_NAME(AppDistribution());
-
++ (instancetype)appDistribution NS_SWIFT_NAME(appDistribution());
 
 @end
+
+/**
+ *  @enum FIRAppDistributionError
+ */
+typedef NS_ENUM(NSUInteger, FIRAppDistributionError) {
+  /// Unknown error.
+  FIRAppDistributionErrorUnknown = 0,
+
+} NS_SWIFT_NAME(AppDistributionError);
 
 NS_ASSUME_NONNULL_END

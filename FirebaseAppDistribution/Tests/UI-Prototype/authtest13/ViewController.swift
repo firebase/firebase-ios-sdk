@@ -20,7 +20,29 @@ class ViewController: UIViewController {
 //        let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
         
         appDelegate.mainViewController = self
+        AppDistribution.appDistribution().checkForUpdate(completion: { release, error in
+            guard let release = release else {
+                return
+            }
 
+            let uialert = UIAlertController(title: "New Version Available", message: "Version \(release.bundleShortVersion) (\(release.bundleVersion)) is available.", preferredStyle: .alert)
+            
+            uialert.addAction(UIAlertAction(title: "Update", style: UIAlertAction.Style.default) {
+                UIAlertAction in
+            })
+            uialert.addAction(UIAlertAction(title: "Cancel", style: UIAlertAction.Style.cancel) {
+                UIAlertAction in
+            })
+            self.present(uialert, animated: true, completion: nil)
+        })
+    }
+    
+    func updateHandler(action: UIAlertAction) {
+        
+    }
+    
+    func cancelHandler(action: UIAlertAction) {
+        
     }
     
     @IBAction func touch(_ sender: Any) {
@@ -37,6 +59,5 @@ class ViewController: UIViewController {
 //        guard let url = URL(string: "https://tinyurl.com/ua8tka3") else { return}
 //        UIApplication.shared.open(url, options: [:], completionHandler: nil)
     }
-
 }
 

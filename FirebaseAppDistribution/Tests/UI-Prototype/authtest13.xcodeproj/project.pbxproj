@@ -15,6 +15,7 @@
 		A56F777723D15C2900ACF08D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A56F777523D15C2900ACF08D /* Main.storyboard */; };
 		A56F777923D15C2A00ACF08D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A56F777823D15C2A00ACF08D /* Assets.xcassets */; };
 		A56F777C23D15C2A00ACF08D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A56F777A23D15C2A00ACF08D /* LaunchScreen.storyboard */; };
+		A8F7294B23FDD26700AC5974 /* ViewControllerObjC.m in Sources */ = {isa = PBXBuildFile; fileRef = A8F7294A23FDD26700AC5974 /* ViewControllerObjC.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,6 +30,8 @@
 		A56F777B23D15C2A00ACF08D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		A56F777D23D15C2A00ACF08D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A6B91791ECB838A6F0D91224 /* libPods-authtest13.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-authtest13.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A8F7294923FDD23900AC5974 /* ViewControllerObjC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewControllerObjC.h; sourceTree = "<group>"; };
+		A8F7294A23FDD26700AC5974 /* ViewControllerObjC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewControllerObjC.m; sourceTree = "<group>"; };
 		BF152CB77E5E26D5395732C2 /* Pods-authtest13.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-authtest13.release.xcconfig"; path = "Target Support Files/Pods-authtest13/Pods-authtest13.release.xcconfig"; sourceTree = "<group>"; };
 		F998ADF8D08388FEC1F7FF00 /* Pods-authtest13.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-authtest13.debug.xcconfig"; path = "Target Support Files/Pods-authtest13/Pods-authtest13.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -92,6 +95,8 @@
 				A56F777A23D15C2A00ACF08D /* LaunchScreen.storyboard */,
 				A56F777D23D15C2A00ACF08D /* Info.plist */,
 				A50276D223ECA81600F2ABF2 /* Bridging-Header.h */,
+				A8F7294923FDD23900AC5974 /* ViewControllerObjC.h */,
+				A8F7294A23FDD26700AC5974 /* ViewControllerObjC.m */,
 			);
 			path = authtest13;
 			sourceTree = "<group>";
@@ -194,6 +199,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A8F7294B23FDD26700AC5974 /* ViewControllerObjC.m in Sources */,
 				A56F777423D15C2900ACF08D /* ViewController.swift in Sources */,
 				A56F777023D15C2900ACF08D /* AppDelegate.swift in Sources */,
 				A56F777223D15C2900ACF08D /* SceneDelegate.swift in Sources */,
