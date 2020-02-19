@@ -38,16 +38,13 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
 
 @interface FIRExperimentController (ExposedForTest)
 - (void)
-    updateExperimentConditionalUserPropertiesWithServiceOrigin:(NSString *)origin
-                                                        events:(FIRLifecycleEvents *)events
-                                                        policy:
-                                                            (ABTExperimentPayload_ExperimentOverflowPolicy)
-                                                                policy
-                                                 lastStartTime:(NSTimeInterval)lastStartTime
-                                                      payloads:(NSArray<NSData *> *)payloads
-                                             completionHandler:
-                                                 (nullable void (^)(NSError *_Nullable error))
-                                                     completionHandler;
+    updateExperimentsInBackgroundQueueWithServiceOrigin:(NSString *)origin
+                                                 events:(FIRLifecycleEvents *)events
+                                                 policy:
+                                                     (ABTExperimentPayload_ExperimentOverflowPolicy)
+                                                         policy
+                                          lastStartTime:(NSTimeInterval)lastStartTime
+                                               payloads:(NSArray<NSData *> *)payloads;
 
 /// Surface internal initializer to avoid singleton usage during tests.
 - (instancetype)initWithAnalytics:(nullable id<FIRAnalyticsInterop>)analytics;
@@ -181,34 +178,27 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
   ongoingExperiment.experimentId = @"exp_2";
   [payload4.ongoingExperimentsArray addObject:ongoingExperiment];
 
-  __block BOOL completionHandlerCalled = NO;
-
   FIRLifecycleEvents *events = [[FIRLifecycleEvents alloc] init];
   NSArray *payloads = @[ [payload2 data], [payload3 data], [payload4 data] ];
   [_experimentController
-      updateExperimentConditionalUserPropertiesWithServiceOrigin:gABTTestOrigin
-                                                          events:events
-                                                          policy:
-                                                              ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest  // NOLINT
-                                                   lastStartTime:now
-                                                        payloads:payloads
-                                               completionHandler:^(NSError *_Nullable error) {
-                                                 completionHandlerCalled = YES;
-                                               }];
+      updateExperimentsInBackgroundQueueWithServiceOrigin:gABTTestOrigin
+                                                   events:events
+                                                   policy:
+                                                       ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest  // NOLINT
+                                            lastStartTime:now
+                                                 payloads:payloads];
 
   XCTAssertEqual([_mockCUPController experimentsWithOrigin:gABTTestOrigin].count, 2);
-  XCTAssertTrue(completionHandlerCalled);
 
   // Second time update exp_1 no longer exist, should be cleared from experiments.
   payloads = @[ [payload3 data], [payload4 data] ];
   [_experimentController
-      updateExperimentConditionalUserPropertiesWithServiceOrigin:gABTTestOrigin
-                                                          events:events
-                                                          policy:
-                                                              ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest  // NOLINT
-                                                   lastStartTime:now
-                                                        payloads:payloads
-                                               completionHandler:nil];
+      updateExperimentsInBackgroundQueueWithServiceOrigin:gABTTestOrigin
+                                                   events:events
+                                                   policy:
+                                                       ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest  // NOLINT
+                                            lastStartTime:now
+                                                 payloads:payloads];
 
   XCTAssertEqual([_mockCUPController experimentsWithOrigin:gABTTestOrigin].count, 1);
 }
@@ -336,57 +326,13 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
   OCMStub([_mockCUPController experimentsWithOrigin:gABTTestOrigin]).andReturn(nil);
   NSMutableArray<NSData *> *payloads = [[NSMutableArray alloc] init];
 
-  __block BOOL completionHandlerWithErrorCalled = NO;
-
   FIRLifecycleEvents *events = [[FIRLifecycleEvents alloc] init];
   [_experimentController
-      updateExperimentConditionalUserPropertiesWithServiceOrigin:gABTTestOrigin
-                                                          events:events
-                                                          policy:
-                                                              ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest  // NOLINT
-                                                   lastStartTime:-1
-                                                        payloads:payloads
-                                               completionHandler:^(NSError *_Nullable error) {
-                                                 if (error &&
-                                                     error.code ==
-                                                         kABTInternalErrorFailedToFetchConditionalUserProperties) {
-                                                   completionHandlerWithErrorCalled = YES;
-                                                 }
-                                               }];
-
-  // Verify completion handler is still called.
-  XCTAssertTrue(completionHandlerWithErrorCalled);
-}
-
-- (void)testUpdateExperimentsWithNoCompletion {
-  id experimentControllerMock = OCMPartialMock(_experimentController);
-
-  NSString *mockOrigin = @"mockOrigin";
-  FIRLifecycleEvents *mockLifecycleEvents = [[FIRLifecycleEvents alloc] init];
-  ABTExperimentPayload_ExperimentOverflowPolicy mockOverflowPolicy =
-      ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest;
-  NSTimeInterval mockLastStartTime = 100;
-  NSArray *mockPayloads = @[];
-
-  [[experimentControllerMock expect] updateExperimentsWithServiceOrigin:mockOrigin
-                                                                 events:mockLifecycleEvents
-                                                                 policy:mockOverflowPolicy
-                                                          lastStartTime:mockLastStartTime
-                                                               payloads:mockPayloads
-                                                      completionHandler:nil];
-
-  // Expect that updateExperimentsWithServiceOrigin:events:policy:lastStartTime:payloads: calls the
-  // full method with completion handler as nil.
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  [experimentControllerMock updateExperimentsWithServiceOrigin:mockOrigin
-                                                        events:mockLifecycleEvents
-                                                        policy:mockOverflowPolicy
-                                                 lastStartTime:mockLastStartTime
-                                                      payloads:mockPayloads];
-#pragma clang diagnostic pop
-
-  [experimentControllerMock verify];
+      updateExperimentsInBackgroundQueueWithServiceOrigin:gABTTestOrigin
+                                                   events:events
+                                                   policy:
+                                                       ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest  // NOLINT
+                                            lastStartTime:-1
+                                                 payloads:payloads];
 }
 @end
