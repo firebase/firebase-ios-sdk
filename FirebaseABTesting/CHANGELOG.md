@@ -1,4 +1,4 @@
-#v3.2.1
+#v3.2.0
 - [added] Added completion handler for FIRExperimentController's updateExperimentsWithServiceOrigin method.
 - [deprecated] Deprecated FIRExperimentController.updateExperiments(serviceOrigin:events:policy:lastStartTime:payloads:).
 
