@@ -613,6 +613,8 @@ static dispatch_once_t sFirebaseUserAgentOnceToken;
 + (NSString *)applePlatform {
   NSString *applePlatform = @"unknown";
 
+  // When a Catalyst app is run on macOS then both `TARGET_OS_MACCATALYST` and `TARGET_OS_IOS` are
+  // `true`, which means the condition list is order-sensitive.
 #if TARGET_OS_MACCATALYST
   applePlatform = @"maccatalyst";
 #elif TARGET_OS_IOS
