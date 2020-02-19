@@ -23,6 +23,7 @@
 #endif  // TARGET_OS_IOS || TARGET_OS_TV
 
 #import <GoogleDataTransport/GDTCORConsoleLogger.h>
+#import <GoogleDataTransport/GDTCOREvent.h>
 
 #import <nanopb/pb.h>
 #import <nanopb/pb_decode.h>
@@ -70,7 +71,7 @@ NSData *_Nullable GDTCCTEncodeBatchedLogRequest(gdt_cct_BatchedLogRequest *batch
 }
 
 gdt_cct_BatchedLogRequest GDTCCTConstructBatchedLogRequest(
-    NSDictionary<NSString *, NSSet<GDTCORStoredEvent *> *> *logMappingIDToLogSet) {
+    NSDictionary<NSString *, NSSet<GDTCOREvent *> *> *logMappingIDToLogSet) {
   gdt_cct_BatchedLogRequest batchedLogRequest = gdt_cct_BatchedLogRequest_init_default;
   NSUInteger numberOfLogRequests = logMappingIDToLogSet.count;
   gdt_cct_LogRequest *logRequests = malloc(sizeof(gdt_cct_LogRequest) * numberOfLogRequests);
@@ -79,9 +80,9 @@ gdt_cct_BatchedLogRequest GDTCCTConstructBatchedLogRequest(
   }
 
   __block int i = 0;
-  [logMappingIDToLogSet enumerateKeysAndObjectsUsingBlock:^(
-                            NSString *_Nonnull logMappingID,
-                            NSSet<GDTCORStoredEvent *> *_Nonnull logSet, BOOL *_Nonnull stop) {
+  [logMappingIDToLogSet enumerateKeysAndObjectsUsingBlock:^(NSString *_Nonnull logMappingID,
+                                                            NSSet<GDTCOREvent *> *_Nonnull logSet,
+                                                            BOOL *_Nonnull stop) {
     int32_t logSource = [logMappingID intValue];
     gdt_cct_LogRequest logRequest = GDTCCTConstructLogRequest(logSource, logSet);
     logRequests[i] = logRequest;
@@ -94,7 +95,7 @@ gdt_cct_BatchedLogRequest GDTCCTConstructBatchedLogRequest(
 }
 
 gdt_cct_LogRequest GDTCCTConstructLogRequest(int32_t logSource,
-                                             NSSet<GDTCORStoredEvent *> *_Nonnull logSet) {
+                                             NSSet<GDTCOREvent *> *_Nonnull logSet) {
   if (logSet.count == 0) {
     GDTCORLogError(GDTCORMCEGeneralError, @"%@",
                    @"An empty event set can't be serialized to proto.");
@@ -111,7 +112,7 @@ gdt_cct_LogRequest GDTCCTConstructLogRequest(int32_t logSource,
     return logRequest;
   }
   int i = 0;
-  for (GDTCORStoredEvent *log in logSet) {
+  for (GDTCOREvent *log in logSet) {
     gdt_cct_LogEvent logEvent = GDTCCTConstructLogEvent(log);
     logRequest.log_event[i] = logEvent;
     i++;
@@ -127,7 +128,7 @@ gdt_cct_LogRequest GDTCCTConstructLogRequest(int32_t logSource,
   return logRequest;
 }
 
-gdt_cct_LogEvent GDTCCTConstructLogEvent(GDTCORStoredEvent *event) {
+gdt_cct_LogEvent GDTCCTConstructLogEvent(GDTCOREvent *event) {
   gdt_cct_LogEvent logEvent = gdt_cct_LogEvent_init_default;
   logEvent.event_time_ms = event.clockSnapshot.timeMillis;
   logEvent.has_event_time_ms = 1;
@@ -138,9 +139,7 @@ gdt_cct_LogEvent GDTCCTConstructLogEvent(GDTCORStoredEvent *event) {
   // TODO: Read network_connection_info from the custom params dict.
 
   NSError *error;
-  NSData *extensionBytes = [NSData dataWithContentsOfURL:event.dataFuture.fileURL
-                                                 options:0
-                                                   error:&error];
+  NSData *extensionBytes = [NSData dataWithContentsOfURL:event.fileURL options:0 error:&error];
   if (error) {
     GDTCORLogError(GDTCORMCEGeneralError,
                    @"There was an error reading extension bytes from disk: %@", error);

@@ -51,9 +51,9 @@
 /** Tests prioritizing events. */
 - (void)testPrioritizeEvent {
   GDTCCTPrioritizer *prioritizer = [[GDTCCTPrioritizer alloc] init];
-  [prioritizer prioritizeEvent:[_CCTGenerator generateStoredEvent:GDTCOREventQosDefault]];
-  [prioritizer prioritizeEvent:[_FLLGenerator generateStoredEvent:GDTCOREventQosDefault]];
-  [prioritizer prioritizeEvent:[_CSHGenerator generateStoredEvent:GDTCOREventQosDefault]];
+  [prioritizer prioritizeEvent:[_CCTGenerator generateEvent:GDTCOREventQosDefault]];
+  [prioritizer prioritizeEvent:[_FLLGenerator generateEvent:GDTCOREventQosDefault]];
+  [prioritizer prioritizeEvent:[_CSHGenerator generateEvent:GDTCOREventQosDefault]];
   dispatch_sync(prioritizer.queue, ^{
     XCTAssertEqual(prioritizer.CCTEvents.count, 1);
     XCTAssertEqual(prioritizer.FLLEvents.count, 1);
@@ -64,15 +64,15 @@
 /** Tests prioritizing multiple events. */
 - (void)testPrioritizeMultipleEvents {
   GDTCCTPrioritizer *prioritizer = [[GDTCCTPrioritizer alloc] init];
-  [prioritizer prioritizeEvent:[_CCTGenerator generateStoredEvent:GDTCOREventQosDefault]];
-  [prioritizer prioritizeEvent:[_FLLGenerator generateStoredEvent:GDTCOREventQosDefault]];
-  [prioritizer prioritizeEvent:[_CCTGenerator generateStoredEvent:GDTCOREventQosDefault]];
-  [prioritizer prioritizeEvent:[_CSHGenerator generateStoredEvent:GDTCOREventQosDefault]];
-  [prioritizer prioritizeEvent:[_CCTGenerator generateStoredEvent:GDTCOREventQosDefault]];
-  [prioritizer prioritizeEvent:[_FLLGenerator generateStoredEvent:GDTCOREventQosDefault]];
-  [prioritizer prioritizeEvent:[_CCTGenerator generateStoredEvent:GDTCOREventQosDefault]];
-  [prioritizer prioritizeEvent:[_CSHGenerator generateStoredEvent:GDTCOREventQosDefault]];
-  [prioritizer prioritizeEvent:[_CCTGenerator generateStoredEvent:GDTCOREventQosDefault]];
+  [prioritizer prioritizeEvent:[_CCTGenerator generateEvent:GDTCOREventQosDefault]];
+  [prioritizer prioritizeEvent:[_FLLGenerator generateEvent:GDTCOREventQosDefault]];
+  [prioritizer prioritizeEvent:[_CCTGenerator generateEvent:GDTCOREventQosDefault]];
+  [prioritizer prioritizeEvent:[_CSHGenerator generateEvent:GDTCOREventQosDefault]];
+  [prioritizer prioritizeEvent:[_CCTGenerator generateEvent:GDTCOREventQosDefault]];
+  [prioritizer prioritizeEvent:[_FLLGenerator generateEvent:GDTCOREventQosDefault]];
+  [prioritizer prioritizeEvent:[_CCTGenerator generateEvent:GDTCOREventQosDefault]];
+  [prioritizer prioritizeEvent:[_CSHGenerator generateEvent:GDTCOREventQosDefault]];
+  [prioritizer prioritizeEvent:[_CCTGenerator generateEvent:GDTCOREventQosDefault]];
   dispatch_sync(prioritizer.queue, ^{
     XCTAssertEqual(prioritizer.CCTEvents.count, 5);
     XCTAssertEqual(prioritizer.FLLEvents.count, 2);
@@ -83,15 +83,15 @@
 /** Tests unprioritizing events. */
 - (void)testPackageDelivered {
   GDTCCTPrioritizer *prioritizer = [[GDTCCTPrioritizer alloc] init];
-  [prioritizer prioritizeEvent:[_CCTGenerator generateStoredEvent:GDTCOREventQosDefault]];
-  [prioritizer prioritizeEvent:[_FLLGenerator generateStoredEvent:GDTCOREventQosDefault]];
-  [prioritizer prioritizeEvent:[_CCTGenerator generateStoredEvent:GDTCOREventQosDefault]];
-  [prioritizer prioritizeEvent:[_CSHGenerator generateStoredEvent:GDTCOREventQosDefault]];
-  [prioritizer prioritizeEvent:[_CCTGenerator generateStoredEvent:GDTCOREventQosDefault]];
-  [prioritizer prioritizeEvent:[_FLLGenerator generateStoredEvent:GDTCOREventQosDefault]];
-  [prioritizer prioritizeEvent:[_CCTGenerator generateStoredEvent:GDTCOREventQosDefault]];
-  [prioritizer prioritizeEvent:[_CSHGenerator generateStoredEvent:GDTCOREventQosDefault]];
-  [prioritizer prioritizeEvent:[_CCTGenerator generateStoredEvent:GDTCOREventQosDefault]];
+  [prioritizer prioritizeEvent:[_CCTGenerator generateEvent:GDTCOREventQosDefault]];
+  [prioritizer prioritizeEvent:[_FLLGenerator generateEvent:GDTCOREventQosDefault]];
+  [prioritizer prioritizeEvent:[_CCTGenerator generateEvent:GDTCOREventQosDefault]];
+  [prioritizer prioritizeEvent:[_CSHGenerator generateEvent:GDTCOREventQosDefault]];
+  [prioritizer prioritizeEvent:[_CCTGenerator generateEvent:GDTCOREventQosDefault]];
+  [prioritizer prioritizeEvent:[_FLLGenerator generateEvent:GDTCOREventQosDefault]];
+  [prioritizer prioritizeEvent:[_CCTGenerator generateEvent:GDTCOREventQosDefault]];
+  [prioritizer prioritizeEvent:[_CSHGenerator generateEvent:GDTCOREventQosDefault]];
+  [prioritizer prioritizeEvent:[_CCTGenerator generateEvent:GDTCOREventQosDefault]];
   dispatch_sync(prioritizer.queue, ^{
     XCTAssertEqual(prioritizer.CCTEvents.count, 5);
     XCTAssertEqual(prioritizer.FLLEvents.count, 2);
@@ -109,19 +109,19 @@
 /** Tests providing events for upload. */
 - (void)testEventsForUpload {
   GDTCCTPrioritizer *prioritizer = [[GDTCCTPrioritizer alloc] init];
-  [prioritizer prioritizeEvent:[_CCTGenerator generateStoredEvent:GDTCOREventQoSWifiOnly]];
-  [prioritizer prioritizeEvent:[_CCTGenerator generateStoredEvent:GDTCOREventQoSTelemetry]];
-  [prioritizer prioritizeEvent:[_CCTGenerator generateStoredEvent:GDTCOREventQosDefault]];
-  [prioritizer prioritizeEvent:[_CCTGenerator generateStoredEvent:GDTCOREventQosDefault]];
-  [prioritizer prioritizeEvent:[_CCTGenerator generateStoredEvent:GDTCOREventQoSWifiOnly]];
-  [prioritizer prioritizeEvent:[_CCTGenerator generateStoredEvent:GDTCOREventQosDefault]];
-  [prioritizer prioritizeEvent:[_CCTGenerator generateStoredEvent:GDTCOREventQosDefault]];
-  [prioritizer prioritizeEvent:[_CCTGenerator generateStoredEvent:GDTCOREventQoSDaily]];
-  [prioritizer prioritizeEvent:[_CCTGenerator generateStoredEvent:GDTCOREventQoSTelemetry]];
+  [prioritizer prioritizeEvent:[_CCTGenerator generateEvent:GDTCOREventQoSWifiOnly]];
+  [prioritizer prioritizeEvent:[_CCTGenerator generateEvent:GDTCOREventQoSTelemetry]];
+  [prioritizer prioritizeEvent:[_CCTGenerator generateEvent:GDTCOREventQosDefault]];
+  [prioritizer prioritizeEvent:[_CCTGenerator generateEvent:GDTCOREventQosDefault]];
+  [prioritizer prioritizeEvent:[_CCTGenerator generateEvent:GDTCOREventQoSWifiOnly]];
+  [prioritizer prioritizeEvent:[_CCTGenerator generateEvent:GDTCOREventQosDefault]];
+  [prioritizer prioritizeEvent:[_CCTGenerator generateEvent:GDTCOREventQosDefault]];
+  [prioritizer prioritizeEvent:[_CCTGenerator generateEvent:GDTCOREventQoSDaily]];
+  [prioritizer prioritizeEvent:[_CCTGenerator generateEvent:GDTCOREventQoSTelemetry]];
   GDTCORUploadPackage *package =
       [prioritizer uploadPackageWithTarget:kGDTCORTargetCCT
                                 conditions:GDTCORUploadConditionWifiData];
-  for (GDTCORStoredEvent *storedEvent in package.events) {
+  for (GDTCOREvent *storedEvent in package.events) {
     XCTAssertTrue(storedEvent.qosTier == GDTCOREventQoSTelemetry ||
                   storedEvent.qosTier == GDTCOREventQoSWifiOnly ||
                   storedEvent.qosTier == GDTCOREventQosDefault ||
@@ -130,9 +130,9 @@
   XCTAssertEqual(package.events.count, 9);
   package = [prioritizer uploadPackageWithTarget:kGDTCORTargetCCT
                                       conditions:GDTCORUploadConditionMobileData];
-  for (GDTCORStoredEvent *storedEvent in package.events) {
-    XCTAssertTrue(storedEvent.qosTier == GDTCOREventQoSTelemetry ||
-                  storedEvent.qosTier == GDTCOREventQosDefault);
+  for (GDTCOREvent *event in package.events) {
+    XCTAssertTrue(event.qosTier == GDTCOREventQoSTelemetry ||
+                  event.qosTier == GDTCOREventQosDefault);
   }
   XCTAssertEqual(package.events.count, 4);
 }
@@ -140,9 +140,9 @@
 /** Tests providing daily uploaded events. */
 - (void)testDailyUpload {
   GDTCCTPrioritizer *prioritizer = [[GDTCCTPrioritizer alloc] init];
-  GDTCORStoredEvent *dailyEvent = [_CCTGenerator generateStoredEvent:GDTCOREventQoSDaily];
-  [prioritizer prioritizeEvent:[_CCTGenerator generateStoredEvent:GDTCOREventQoSWifiOnly]];
-  GDTCORStoredEvent *telemetryEvent = [_CCTGenerator generateStoredEvent:GDTCOREventQoSTelemetry];
+  GDTCOREvent *dailyEvent = [_CCTGenerator generateEvent:GDTCOREventQoSDaily];
+  [prioritizer prioritizeEvent:[_CCTGenerator generateEvent:GDTCOREventQoSWifiOnly]];
+  GDTCOREvent *telemetryEvent = [_CCTGenerator generateEvent:GDTCOREventQoSTelemetry];
   [prioritizer prioritizeEvent:dailyEvent];
   [prioritizer prioritizeEvent:telemetryEvent];
   GDTCORUploadPackage *package =
