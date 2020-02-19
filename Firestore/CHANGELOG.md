@@ -1,5 +1,14 @@
 # Unreleased
 
+# v1.11.0
+- [changed] Improved performance of queries with large result sets.
+
+# v1.10.2
+- [changed] Internal improvements.
+
+# v1.10.1
+- [changed] Internal improvements.
+
 # v1.10.0
 - [feature] Firestore previously required that every document read in a
   transaction must also be written. This requirement has been removed, and

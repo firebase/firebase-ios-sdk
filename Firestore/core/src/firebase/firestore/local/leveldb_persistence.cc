@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_lru_reference_delegate.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_migrations.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_opener.h"
@@ -98,7 +99,7 @@ util::StatusOr<std::unique_ptr<LevelDbPersistence>> LevelDbPersistence::Create(
   std::unique_ptr<LevelDbPersistence> result(
       new LevelDbPersistence(std::move(db), std::move(dir), std::move(users),
                              std::move(serializer), lru_params));
-  return std::move(result);
+  return {std::move(result)};
 }
 
 LevelDbPersistence::LevelDbPersistence(std::unique_ptr<leveldb::DB> db,
@@ -122,6 +123,9 @@ LevelDbPersistence::LevelDbPersistence(std::unique_ptr<leveldb::DB> db,
   reference_delegate_->Start();
   started_ = true;
 }
+
+// Handle unique_ptrs to forward declarations
+LevelDbPersistence::~LevelDbPersistence() = default;
 
 // MARK: - Startup
 

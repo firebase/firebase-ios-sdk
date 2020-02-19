@@ -17,6 +17,7 @@
 #import "GDTCCTTests/Unit/Helpers/GDTCCTEventGenerator.h"
 
 #import <GoogleDataTransport/GDTCORAssert.h>
+#import <GoogleDataTransport/GDTCOREventDataObject.h>
 #import <GoogleDataTransport/GDTCORTargets.h>
 
 @implementation GDTCCTEventGenerator
@@ -31,14 +32,14 @@
 }
 
 - (void)deleteGeneratedFilesFromDisk {
-  for (GDTCORStoredEvent *storedEvent in self.allGeneratedEvents) {
+  for (GDTCOREvent *event in self.allGeneratedEvents) {
     NSError *error;
-    [[NSFileManager defaultManager] removeItemAtURL:storedEvent.dataFuture.fileURL error:&error];
+    [[NSFileManager defaultManager] removeItemAtURL:event.fileURL error:&error];
     GDTCORAssert(error == nil, @"There was an error deleting a temporary event file.");
   }
 }
 
-- (GDTCORStoredEvent *)generateStoredEvent:(GDTCOREventQoS)qosTier {
+- (GDTCOREvent *)generateEvent:(GDTCOREventQoS)qosTier {
   NSString *cachePath = NSTemporaryDirectory();
   NSString *filePath = [cachePath
       stringByAppendingPathComponent:[NSString stringWithFormat:@"test-%lf.txt",
@@ -47,22 +48,19 @@
   event.clockSnapshot = [GDTCORClock snapshot];
   event.qosTier = qosTier;
   [[NSFileManager defaultManager] createFileAtPath:filePath contents:[NSData data] attributes:nil];
-  GDTCORDataFuture *future =
-      [[GDTCORDataFuture alloc] initWithFileURL:[NSURL fileURLWithPath:filePath]];
-  GDTCORStoredEvent *storedEvent = [event storedEventWithDataFuture:future];
-  [self.allGeneratedEvents addObject:storedEvent];
-  return storedEvent;
+  NSURL *fileURL = [NSURL fileURLWithPath:filePath];
+  [event setValue:fileURL forKeyPath:@"fileURL"];
+  [self.allGeneratedEvents addObject:event];
+  return event;
 }
 
-- (GDTCORStoredEvent *)generateStoredEvent:(GDTCOREventQoS)qosTier fileURL:(NSURL *)fileURL {
+- (GDTCOREvent *)generateEvent:(GDTCOREventQoS)qosTier fileURL:(NSURL *)fileURL {
   GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"1018" target:_target];
   event.clockSnapshot = [GDTCORClock snapshot];
   event.qosTier = qosTier;
-  GDTCORDataFuture *future =
-      [[GDTCORDataFuture alloc] initWithFileURL:[NSURL fileURLWithPath:fileURL.path]];
-  GDTCORStoredEvent *storedEvent = [event storedEventWithDataFuture:future];
-  [self.allGeneratedEvents addObject:storedEvent];
-  return storedEvent;
+  [event setValue:fileURL forKeyPath:@"fileURL"];
+  [self.allGeneratedEvents addObject:event];
+  return event;
 }
 
 /** Generates a file URL that has the message resource data copied into it.
@@ -84,8 +82,8 @@
   return [NSURL fileURLWithPath:filePath];
 }
 
-- (NSArray<GDTCORStoredEvent *> *)generateTheFiveConsistentStoredEvents {
-  NSMutableArray<GDTCORStoredEvent *> *storedEvents = [[NSMutableArray alloc] init];
+- (NSArray<GDTCOREvent *> *)generateTheFiveConsistentEvents {
+  NSMutableArray<GDTCOREvent *> *events = [[NSMutableArray alloc] init];
   {
     GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"1018" target:_target];
     event.clockSnapshot = [GDTCORClock snapshot];
@@ -102,9 +100,8 @@
                                                           error:&error];
     GDTCORAssert(error == nil, @"There shouldn't be an issue turning into JSON");
     NSURL *messageDataURL = [self writeConsistentMessageToDisk:@"message-32347456.dat"];
-    GDTCORDataFuture *future = [[GDTCORDataFuture alloc] initWithFileURL:messageDataURL];
-    GDTCORStoredEvent *storedEvent = [event storedEventWithDataFuture:future];
-    [storedEvents addObject:storedEvent];
+    [event setValue:messageDataURL forKeyPath:@"fileURL"];
+    [events addObject:event];
   }
 
   {
@@ -116,9 +113,8 @@
     [event.clockSnapshot setValue:@(1236567890) forKeyPath:@"uptime"];
     event.qosTier = GDTCOREventQoSWifiOnly;
     NSURL *messageDataURL = [self writeConsistentMessageToDisk:@"message-35458880.dat"];
-    GDTCORDataFuture *future = [[GDTCORDataFuture alloc] initWithFileURL:messageDataURL];
-    GDTCORStoredEvent *storedEvent = [event storedEventWithDataFuture:future];
-    [storedEvents addObject:storedEvent];
+    [event setValue:messageDataURL forKeyPath:@"fileURL"];
+    [events addObject:event];
   }
 
   {
@@ -130,9 +126,8 @@
     [event.clockSnapshot setValue:@(1237567890) forKeyPath:@"uptime"];
     event.qosTier = GDTCOREventQosDefault;
     NSURL *messageDataURL = [self writeConsistentMessageToDisk:@"message-39882816.dat"];
-    GDTCORDataFuture *future = [[GDTCORDataFuture alloc] initWithFileURL:messageDataURL];
-    GDTCORStoredEvent *storedEvent = [event storedEventWithDataFuture:future];
-    [storedEvents addObject:storedEvent];
+    [event setValue:messageDataURL forKeyPath:@"fileURL"];
+    [events addObject:event];
   }
 
   {
@@ -149,9 +144,8 @@
                                                           error:&error];
     GDTCORAssert(error == nil, @"There shouldn't be an issue turning into JSON");
     NSURL *messageDataURL = [self writeConsistentMessageToDisk:@"message-40043840.dat"];
-    GDTCORDataFuture *future = [[GDTCORDataFuture alloc] initWithFileURL:messageDataURL];
-    GDTCORStoredEvent *storedEvent = [event storedEventWithDataFuture:future];
-    [storedEvents addObject:storedEvent];
+    [event setValue:messageDataURL forKeyPath:@"fileURL"];
+    [events addObject:event];
   }
 
   {
@@ -170,11 +164,10 @@
                                                           error:&error];
     GDTCORAssert(error == nil, @"There shouldn't be an issue turning into JSON");
     NSURL *messageDataURL = [self writeConsistentMessageToDisk:@"message-40657984.dat"];
-    GDTCORDataFuture *future = [[GDTCORDataFuture alloc] initWithFileURL:messageDataURL];
-    GDTCORStoredEvent *storedEvent = [event storedEventWithDataFuture:future];
-    [storedEvents addObject:storedEvent];
+    [event setValue:messageDataURL forKeyPath:@"fileURL"];
+    [events addObject:event];
   }
-  return storedEvents;
+  return events;
 }
 
 @end

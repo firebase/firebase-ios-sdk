@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,35 +27,24 @@
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
 #include "Firestore/core/src/firebase/firestore/core/view.h"
-#include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
-#include "Firestore/core/src/firebase/firestore/local/local_store.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_set.h"
-#include "Firestore/core/src/firebase/firestore/local/target_data.h"
-#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
-#include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
+#include "Firestore/core/src/firebase/firestore/model/model_fwd.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_store.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "absl/strings/string_view.h"
 
 namespace firebase {
 namespace firestore {
+
+namespace local {
+class LocalStore;
+class TargetData;
+}  // namespace local
+
 namespace core {
 
-/**
- * Interface implemented by `EventManager` to handle notifications from
- * `SyncEngine`.
- */
-class SyncEngineCallback {
- public:
-  virtual ~SyncEngineCallback() = default;
-
-  /** Handles a change in online state. */
-  virtual void HandleOnlineStateChange(model::OnlineState online_state) = 0;
-  /** Handles new view snapshots. */
-  virtual void OnViewSnapshots(std::vector<core::ViewSnapshot>&& snapshots) = 0;
-  /** Handles the failure of a query. */
-  virtual void OnError(const core::Query& query, const util::Status& error) = 0;
-};
+class SyncEngineCallback;
+class ViewSnapshot;
 
 /**
  * Interface implemented by `SyncEngine` to receive requests from

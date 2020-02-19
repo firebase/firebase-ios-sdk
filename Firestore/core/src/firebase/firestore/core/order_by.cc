@@ -18,6 +18,7 @@
 
 #include <ostream>
 
+#include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
 #include "absl/strings/str_cat.h"

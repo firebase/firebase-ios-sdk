@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,29 +21,19 @@
 #include <string>
 #include <utility>
 
-#include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
-#include "Firestore/core/src/firebase/firestore/api/listener_registration.h"
-#include "Firestore/core/src/firebase/firestore/core/listen_options.h"
+#include "Firestore/core/src/firebase/firestore/api/api_fwd.h"
+#include "Firestore/core/src/firebase/firestore/core/core_fwd.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
-#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
-#include "Firestore/core/src/firebase/firestore/util/nullability.h"
-#include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
 
 namespace firebase {
 namespace firestore {
-namespace core {
 
-class ParsedSetData;
-class ParsedUpdateData;
-
-}  // namespace core
+namespace model {
+class ResourcePath;
+}  // namespace model
 
 namespace api {
-
-class CollectionReference;
-class Firestore;
-enum class Source;
 
 class DocumentReference {
  public:
@@ -80,10 +70,10 @@ class DocumentReference {
 
   void DeleteDocument(util::StatusCallback callback);
 
-  void GetDocument(Source source, DocumentSnapshot::Listener&& callback);
+  void GetDocument(Source source, DocumentSnapshotListener&& callback);
 
   std::unique_ptr<ListenerRegistration> AddSnapshotListener(
-      core::ListenOptions options, DocumentSnapshot::Listener&& listener);
+      core::ListenOptions options, DocumentSnapshotListener&& listener);
 
  private:
   std::shared_ptr<Firestore> firestore_;

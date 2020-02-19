@@ -172,11 +172,9 @@ struct ModuleMapBuilder {
           podLibraryDeps = dependencyPod.transitiveLibraries
         }
         if let fdeps = podFrameworkDeps {
-          myFrameworkDeps.subtract(fdeps)
           transitiveFrameworkDeps.formUnion(fdeps)
         }
         if let ldeps = podLibraryDeps {
-          myLibraryDeps.subtract(ldeps)
           transitiveLibraryDeps.formUnion(ldeps)
         }
       }

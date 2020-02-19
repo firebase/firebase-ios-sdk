@@ -21,25 +21,32 @@
 #include <utility>
 #include <vector>
 
-#include "Firestore/Protos/nanopb/firestore/local/maybe_document.nanopb.h"
-#include "Firestore/Protos/nanopb/firestore/local/mutation.nanopb.h"
-#include "Firestore/Protos/nanopb/firestore/local/target.nanopb.h"
-#include "Firestore/core/src/firebase/firestore/local/target_data.h"
-#include "Firestore/core/src/firebase/firestore/model/document.h"
-#include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
-#include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
-#include "Firestore/core/src/firebase/firestore/model/no_document.h"
+#include "Firestore/core/src/firebase/firestore/model/model_fwd.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
-#include "Firestore/core/src/firebase/firestore/model/unknown_document.h"
-#include "Firestore/core/src/firebase/firestore/nanopb/message.h"
-#include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
-#include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 #include "Firestore/core/src/firebase/firestore/remote/serializer.h"
 #include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
 
 namespace firebase {
 namespace firestore {
+
+typedef struct _firestore_client_MaybeDocument firestore_client_MaybeDocument;
+typedef struct _firestore_client_NoDocument firestore_client_NoDocument;
+typedef struct _firestore_client_Target firestore_client_Target;
+typedef struct _firestore_client_UnknownDocument
+    firestore_client_UnknownDocument;
+typedef struct _firestore_client_WriteBatch firestore_client_WriteBatch;
+
+namespace nanopb {
+template <typename T>
+class Message;
+
+class Reader;
+class Writer;
+}  // namespace nanopb
+
 namespace local {
+
+class TargetData;
 
 /**
  * @brief Serializer for values stored in the LocalStore.

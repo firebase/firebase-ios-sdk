@@ -27,6 +27,21 @@ on:
     - 'CMakeLists.txt'
     - 'cmake/**'
 
+    # Build scripts to which Firestore is sensitive
+    #
+    # Note that this doesn't include check scripts because changing those will
+    # already trigger the check workflow.
+    - 'scripts/binary_to_array.py'
+    - 'scripts/build.sh'
+    - 'scripts/install_prereqs.sh'
+    - 'scripts/localize_podfile.swift'
+    - 'scripts/pod_lib_lint.rb'
+    - 'scripts/run_firestore_emulator.sh'
+    - 'scripts/setup_*'
+    - 'scripts/sync_project.rb'
+    - 'scripts/test_quickstart.sh'
+    - 'scripts/xcresult_logs.py'
+
     # This workflow
     - '.github/workflows/firestore.yml'
 
@@ -132,6 +147,6 @@ jobs:
 
     - name: Pod lib lint
       run: |
-        scripts/pod_lib_lint.rb FirebaseFirestore.podspec \
+        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseFirestore.podspec \
             --platforms=ios \
             --allow-warnings

@@ -24,7 +24,7 @@
 /**
  * Called on each raw message.
  */
-typedef void(^FIRMessagingRmqMessageHandler)(NSDictionary<NSString *, GPBMessage *> *messages);
+typedef void (^FIRMessagingRmqMessageHandler)(NSDictionary<NSString *, GPBMessage *> *messages);
 
 /**
  *  Used to scan through the rmq and perform actions on messages as required.
@@ -65,7 +65,7 @@ typedef void(^FIRMessagingRmqMessageHandler)(NSDictionary<NSString *, GPBMessage
  *  @param handler   The handler to invoke when the database operation completes with response.
  *
  */
-- (void)saveRmqMessage:(GPBMessage *)message withCompletionHandler:(void(^)(BOOL success))handler;
+- (void)saveRmqMessage:(GPBMessage *)message withCompletionHandler:(void (^)(BOOL success))handler;
 
 /**
  *  Save Server to device message with the given RMQ-ID.
@@ -153,5 +153,12 @@ typedef void(^FIRMessagingRmqMessageHandler)(NSDictionary<NSString *, GPBMessage
  *
  */
 - (void)updateSyncMessageViaMCSWithRmqID:(NSString *)rmqID;
+
+/**
+ * Returns path for database with specified name.
+ * @param databaseName The database name without extension: "<databaseName>.sqlite".
+ * @returns Path to the database with the specified name.
+ */
++ (NSString *)pathForDatabaseWithName:(NSString *)databaseName;
 
 @end

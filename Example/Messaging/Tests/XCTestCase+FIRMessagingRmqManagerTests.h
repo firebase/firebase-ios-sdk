@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2020 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,16 @@
  * limitations under the License.
  */
 
-#import "GDTCORTests/Unit/GDTCORTestCase.h"
+#import <XCTest/XCTest.h>
 
-#import "GDTCORLibrary/Public/GDTCORDataFuture.h"
+@class FIRMessagingRmqManager;
 
-@interface GDTCORDataFutureTest : GDTCORTestCase
+NS_ASSUME_NONNULL_BEGIN
 
-@end
+@interface XCTestCase (FIRMessagingRmqManagerTests)
 
-@implementation GDTCORDataFutureTest
-
-/** Tests the default initializer. */
-- (void)testInit {
-  XCTAssertNotNil([[GDTCORDataFuture alloc] init]);
-}
-
-- (void)testSecureCodingSupport {
-  XCTAssertTrue([GDTCORDataFuture supportsSecureCoding]);
-}
+- (void)waitForDrainDatabaseQueueForRmqManager:(FIRMessagingRmqManager *)manager;
 
 @end
+
+NS_ASSUME_NONNULL_END

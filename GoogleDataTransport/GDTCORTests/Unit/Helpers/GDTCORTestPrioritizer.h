@@ -26,10 +26,10 @@ NS_ASSUME_NONNULL_BEGIN
 @interface GDTCORTestPrioritizer : NSObject <GDTCORPrioritizer>
 
 /** The events in the package given by -uploadPackageWithConditions. */
-@property(nullable, nonatomic) NSSet<GDTCORStoredEvent *> *events;
+@property(nullable, nonatomic) NSSet<GDTCOREvent *> *events;
 
 /** Allows the running of a block of code during -prioritizeEvent. */
-@property(nullable, nonatomic) void (^prioritizeEventBlock)(GDTCORStoredEvent *event);
+@property(nullable, nonatomic) void (^prioritizeEventBlock)(GDTCOREvent *event);
 
 /** A block that can run before -uploadPackageWithConditions completes. */
 @property(nullable, nonatomic) void (^uploadPackageWithConditionsBlock)(void);

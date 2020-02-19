@@ -26,6 +26,14 @@
   return self;
 }
 
+- (instancetype)initWithString:(NSString *)aString {
+  self = [super init];
+  if (self) {
+    _aString = aString;
+  }
+  return self;
+}
+
 - (NSData *)transportBytes {
   return [_aString dataUsingEncoding:NSUTF8StringEncoding];
 }

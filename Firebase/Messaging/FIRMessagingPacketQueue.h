@@ -27,7 +27,6 @@
 
 @end
 
-
 /**
  * A queue of the packets(protos) that need to be send over the wire.
  */

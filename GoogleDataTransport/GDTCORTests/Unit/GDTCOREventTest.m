@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-#import "GDTCORTests/Unit/GDTCORTestCase.h"
-
+#import <GoogleDataTransport/GDTCORClock.h>
 #import <GoogleDataTransport/GDTCOREvent.h>
+
+#import "GDTCORTests/Unit/GDTCORTestCase.h"
+#import "GDTCORTests/Unit/Helpers/GDTCORDataObjectTesterClasses.h"
 
 #import "GDTCORLibrary/Private/GDTCOREvent_Private.h"
 
@@ -39,7 +41,7 @@
   int64_t timeMillis = clockSnapshot.timeMillis;
   int64_t timezoneOffsetSeconds = clockSnapshot.timezoneOffsetSeconds;
   GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"testID" target:42];
-  event.dataObjectTransportBytes = [@"someData" dataUsingEncoding:NSUTF8StringEncoding];
+  event.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:@"someData"];
   event.qosTier = GDTCOREventQoSTelemetry;
   event.clockSnapshot = clockSnapshot;
 
@@ -67,11 +69,66 @@
   }
   XCTAssertEqualObjects(decodedEvent.mappingID, @"testID");
   XCTAssertEqual(decodedEvent.target, 42);
-  XCTAssertEqualObjects(decodedEvent.dataObjectTransportBytes,
-                        [@"someData" dataUsingEncoding:NSUTF8StringEncoding]);
+  event.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:@"someData"];
   XCTAssertEqual(decodedEvent.qosTier, GDTCOREventQoSTelemetry);
   XCTAssertEqual(decodedEvent.clockSnapshot.timeMillis, timeMillis);
   XCTAssertEqual(decodedEvent.clockSnapshot.timezoneOffsetSeconds, timezoneOffsetSeconds);
+}
+
+/** Tests setting variables on a GDTCOREvent instance.*/
+- (void)testSettingVariables {
+  XCTAssertTrue([GDTCOREvent supportsSecureCoding]);
+  GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"testing" target:1];
+  event.clockSnapshot = [GDTCORClock snapshot];
+  event.qosTier = GDTCOREventQoSTelemetry;
+  XCTAssertNotNil(event);
+  XCTAssertNotNil(event.mappingID);
+  XCTAssertNotNil(@(event.target));
+  XCTAssertEqual(event.qosTier, GDTCOREventQoSTelemetry);
+  XCTAssertNotNil(event.clockSnapshot);
+  XCTAssertNil(event.customBytes);
+}
+
+/** Tests equality between GDTCOREvents. */
+- (void)testIsEqualAndHash {
+  GDTCOREvent *event1 = [[GDTCOREvent alloc] initWithMappingID:@"1018" target:1];
+  event1.clockSnapshot = [GDTCORClock snapshot];
+  [event1.clockSnapshot setValue:@(1553534573010) forKeyPath:@"timeMillis"];
+  [event1.clockSnapshot setValue:@(-25200) forKeyPath:@"timezoneOffsetSeconds"];
+  [event1.clockSnapshot setValue:@(1552576634359451) forKeyPath:@"kernelBootTime"];
+  [event1.clockSnapshot setValue:@(961141365197) forKeyPath:@"uptime"];
+  event1.qosTier = GDTCOREventQosDefault;
+  NSError *error1;
+  event1.customBytes = [NSJSONSerialization dataWithJSONObject:@{@"customParam1" : @"aValue1"}
+                                                       options:0
+                                                         error:&error1];
+  XCTAssertNil(error1);
+  [event1 writeToURL:[NSURL fileURLWithPath:@"/tmp/fake.txt"] error:&error1];
+  XCTAssertNil(error1);
+
+  GDTCOREvent *event2 = [[GDTCOREvent alloc] initWithMappingID:@"1018" target:1];
+  event2.clockSnapshot = [GDTCORClock snapshot];
+  [event2.clockSnapshot setValue:@(1553534573010) forKeyPath:@"timeMillis"];
+  [event2.clockSnapshot setValue:@(-25200) forKeyPath:@"timezoneOffsetSeconds"];
+  [event2.clockSnapshot setValue:@(1552576634359451) forKeyPath:@"kernelBootTime"];
+  [event2.clockSnapshot setValue:@(961141365197) forKeyPath:@"uptime"];
+  event2.qosTier = GDTCOREventQosDefault;
+  NSError *error2;
+  event2.customBytes = [NSJSONSerialization dataWithJSONObject:@{@"customParam1" : @"aValue1"}
+                                                       options:0
+                                                         error:&error2];
+  XCTAssertNil(error2);
+  [event2 writeToURL:[NSURL fileURLWithPath:@"/tmp/fake.txt"] error:&error2];
+  XCTAssertNil(error2);
+
+  XCTAssertEqual([event1 hash], [event2 hash]);
+  XCTAssertEqualObjects(event1, event2);
+
+  // This only really tests that changing the timezoneOffsetSeconds value causes a change in hash.
+  [event2.clockSnapshot setValue:@(-25201) forKeyPath:@"timezoneOffsetSeconds"];
+
+  XCTAssertNotEqual([event1 hash], [event2 hash]);
+  XCTAssertNotEqualObjects(event1, event2);
 }
 
 @end

@@ -35,15 +35,6 @@ def use_local_sources()
   return ENV.has_key?('USE_LOCAL_SOURCES') || ENV['TRAVIS_PULL_REQUEST'] == 'false'
 end
 
-def xcode_major_version()
-  version = `xcodebuild -version`
-  if version =~ /^Xcode\s*(\d+)\./
-    return $1.to_i
-  else
-    raise "Could not find Xcode version in '$version'"
-  end
-end
-
 # Adds a `pod name, :path => ../..` declaration to use local sources if the
 # Podfile has been configured to operate that way.
 def maybe_local_pod(name)
@@ -56,7 +47,7 @@ end
 # required.
 def configure_local_pods()
   # Firestore is always local; that's what's under development here.
-  pod 'FirebaseFirestore', :path => '../../'
+  pod 'FirebaseFirestore', :path => '../..'
   pod 'GoogleUtilities', :path => '../..'
 
   # FirebaseCore must always be a local pod so that CI builds that make changes
@@ -68,26 +59,10 @@ def configure_local_pods()
   maybe_local_pod 'FirebaseAuth'
   maybe_local_pod 'FirebaseAuthInterop'
 
-  if xcode_major_version() >= 9
-    # Firestore still compiles with Xcode 8 to help verify general conformance
-    # with C++11 by using an older compiler that doesn't have as many
-    # extensions from later versions of the language. However, Firebase as a
-    # whole does not support this environment and @available checks in
-    # GoogleDataTransport would otherwise break this build.
-    #
-    # Firestore doesn't depend on GoogleDataTransport directly--it comes in as
-    # a dependency of FirebaseCoreDiagnostics. Luckily, FirebaseCore does not
-    # strongly depend on this, so we can edit the dependency out in the podspec
-    # and then avoid adding those dependencies here to prevent CocoaPods from
-    # importing it.
-    #
-    # This list should include the transitive closure of all dependencies of
-    # FirebaseCoreDiagnostics, except GoogleUtilities which we otherwise need.
-    maybe_local_pod 'FirebaseCoreDiagnostics'
-    maybe_local_pod 'FirebaseCoreDiagnosticsInterop'
-    maybe_local_pod 'GoogleDataTransport'
-    maybe_local_pod 'GoogleDataTransportCCTSupport'
-  end
+  maybe_local_pod 'FirebaseCoreDiagnostics'
+  maybe_local_pod 'FirebaseCoreDiagnosticsInterop'
+  maybe_local_pod 'GoogleDataTransport'
+  maybe_local_pod 'GoogleDataTransportCCTSupport'
 end
 
 # Reads the value of the PLATFORM environment variable, converts it to the
@@ -114,11 +89,6 @@ end
 if is_platform(:ios)
   target 'Firestore_Example_iOS' do
     platform :ios, '8.0'
-
-    # The next line is the forcing function for the Firebase pod. The Firebase
-    # version's subspecs should depend on the component versions in their
-    # corresponding podspecs.
-    pod 'Firebase/CoreOnly', '6.16.0'
 
     configure_local_pods()
 

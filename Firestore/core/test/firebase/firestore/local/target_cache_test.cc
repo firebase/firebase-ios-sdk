@@ -19,6 +19,8 @@
 #include <set>
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/core/field_filter.h"
+#include "Firestore/core/src/firebase/firestore/immutable/sorted_set.h"
 #include "Firestore/core/src/firebase/firestore/local/persistence.h"
 #include "Firestore/core/src/firebase/firestore/local/target_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/target_data.h"

@@ -23,8 +23,6 @@
 #import "Firebase/Messaging/FIRMessagingUtilities.h"
 #import "Firebase/Messaging/NSError+FIRMessaging.h"
 
-#define DEBUG_LOG_SUBSCRIPTION_OPERATION_DURATIONS 0
-
 static NSString *const kFIRMessagingSubscribeServerHost =
     @"https://iid.googleapis.com/iid/register";
 
@@ -155,7 +153,6 @@ NSString *FIRMessagingSubscriptionsServer() {
 }
 
 - (void)performSubscriptionChange {
-
   NSURL *url = [NSURL URLWithString:FIRMessagingSubscriptionsServer()];
   NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
   NSString *appIdentifier = FIRMessagingAppIdentifier();
@@ -179,15 +176,11 @@ NSString *FIRMessagingSubscriptionsServer() {
     encodedTopic = self.topic;
   }
 
-  NSMutableString *content = [NSMutableString stringWithFormat:
-                              @"sender=%@&app=%@&device=%@&"
-                              @"app_ver=%@&X-gcm.topic=%@&X-scope=%@",
-                              self.token,
-                              appIdentifier,
-                              deviceAuthID,
-                              FIRMessagingCurrentAppVersion(),
-                              encodedTopic,
-                              encodedTopic];
+  NSMutableString *content = [NSMutableString
+      stringWithFormat:@"sender=%@&app=%@&device=%@&"
+                       @"app_ver=%@&X-gcm.topic=%@&X-scope=%@",
+                       self.token, appIdentifier, deviceAuthID, FIRMessagingCurrentAppVersion(),
+                       encodedTopic, encodedTopic];
 
   if (self.action == FIRMessagingTopicActionUnsubscribe) {
     [content appendString:@"&delete=true"];
@@ -199,49 +192,38 @@ NSString *FIRMessagingSubscriptionsServer() {
   request.HTTPBody = [content dataUsingEncoding:NSUTF8StringEncoding];
   [request setHTTPMethod:@"POST"];
 
-#if DEBUG_LOG_SUBSCRIPTION_OPERATION_DURATIONS
-  NSDate *start = [NSDate date];
-#endif
-
-  FIRMessaging_WEAKIFY(self)
-  void(^requestHandler)(NSData *, NSURLResponse *, NSError *) =
+  FIRMessaging_WEAKIFY(self) void (^requestHandler)(NSData *, NSURLResponse *, NSError *) =
       ^(NSData *data, NSURLResponse *URLResponse, NSError *error) {
-        FIRMessaging_STRONGIFY(self)
-    if (error) {
-      // Our operation could have been cancelled, which would result in our data task's error being
-      // NSURLErrorCancelled
-      if (error.code == NSURLErrorCancelled) {
-        // We would only have been cancelled in the -cancel method, which will call finish for us
-        // so just return and do nothing.
-        return;
-      }
-      FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTopicOption001,
-                              @"Device registration HTTP fetch error. Error Code: %ld",
-                              (long)error.code);
-      [self finishWithError:error];
-      return;
-    }
-    NSString *response = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    if (response.length == 0) {
-      FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTopicOperationEmptyResponse,
-                              @"Invalid registration response - zero length.");
-      [self finishWithError:[NSError errorWithFCMErrorCode:kFIRMessagingErrorCodeUnknown]];
-      return;
-    }
-    NSArray *parts = [response componentsSeparatedByString:@"="];
-    if (![parts[0] isEqualToString:@"token"] || parts.count <= 1) {
-      FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTopicOption002,
-                              @"Invalid registration response %@", response);
-      [self finishWithError:[NSError errorWithFCMErrorCode:kFIRMessagingErrorCodeUnknown]];
-      return;
-    }
-#if DEBUG_LOG_SUBSCRIPTION_OPERATION_DURATIONS
-    NSTimeInterval duration = -[start timeIntervalSinceNow];
-    FIRMessagingLoggerDebug(@"%@ change took %.2fs", self.topic, duration);
-#endif
-    [self finishWithError:nil];
-
-  };
+        FIRMessaging_STRONGIFY(self) if (error) {
+          // Our operation could have been cancelled, which would result in our data task's error
+          // being NSURLErrorCancelled
+          if (error.code == NSURLErrorCancelled) {
+            // We would only have been cancelled in the -cancel method, which will call finish for
+            // us so just return and do nothing.
+            return;
+          }
+          FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTopicOption001,
+                                  @"Device registration HTTP fetch error. Error Code: %ld",
+                                  (long)error.code);
+          [self finishWithError:error];
+          return;
+        }
+        NSString *response = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        if (response.length == 0) {
+          FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTopicOperationEmptyResponse,
+                                  @"Invalid registration response - zero length.");
+          [self finishWithError:[NSError errorWithFCMErrorCode:kFIRMessagingErrorCodeUnknown]];
+          return;
+        }
+        NSArray *parts = [response componentsSeparatedByString:@"="];
+        if (![parts[0] isEqualToString:@"token"] || parts.count <= 1) {
+          FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTopicOption002,
+                                  @"Invalid registration response %@", response);
+          [self finishWithError:[NSError errorWithFCMErrorCode:kFIRMessagingErrorCodeUnknown]];
+          return;
+        }
+        [self finishWithError:nil];
+      };
 
   NSURLSession *urlSession = [FIRMessagingTopicOperation sharedSession];
 

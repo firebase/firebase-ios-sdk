@@ -33,9 +33,7 @@ static const NSTimeInterval kAsyncTestTimout = 0.5;
 typedef void (^FakeAnalyticsLogEventHandler)(NSString *origin,
                                              NSString *name,
                                              NSDictionary *parameters);
-typedef void (^FakeAnalyticsUserPropertyHandler)(NSString *origin,
-                                                 NSString *name,
-                                                 id value);
+typedef void (^FakeAnalyticsUserPropertyHandler)(NSString *origin, NSString *name, id value);
 
 @interface FakeAnalytics : NSObject <FIRAnalyticsInterop>
 
@@ -104,15 +102,20 @@ static FakeAnalyticsLogEventHandler _userPropertyHandler;
 - (void)unregisterAnalyticsListenerWithOrigin:(nonnull NSString *)origin {
 }
 
-- (void)clearConditionalUserProperty:(nonnull NSString *)userPropertyName forOrigin:(nonnull NSString *)origin clearEventName:(nonnull NSString *)clearEventName clearEventParameters:(nonnull NSDictionary<NSString *,NSString *> *)clearEventParameters {
+- (void)clearConditionalUserProperty:(nonnull NSString *)userPropertyName
+                           forOrigin:(nonnull NSString *)origin
+                      clearEventName:(nonnull NSString *)clearEventName
+                clearEventParameters:
+                    (nonnull NSDictionary<NSString *, NSString *> *)clearEventParameters {
 }
 
-- (nonnull NSArray<NSDictionary<NSString *,NSString *> *> *)conditionalUserProperties:(nonnull NSString *)origin propertyNamePrefix:(nonnull NSString *)propertyNamePrefix {
+- (nonnull NSArray<NSDictionary<NSString *, NSString *> *> *)
+    conditionalUserProperties:(nonnull NSString *)origin
+           propertyNamePrefix:(nonnull NSString *)propertyNamePrefix {
   return nil;
 }
 
-
-- (void)setConditionalUserProperty:(nonnull NSDictionary<NSString *,id> *)conditionalUserProperty {
+- (void)setConditionalUserProperty:(nonnull NSDictionary<NSString *, id> *)conditionalUserProperty {
 }
 
 - (void)getUserPropertiesWithCallback:(nonnull FIRAInteropUserPropertiesCallback)callback {
@@ -134,8 +137,9 @@ static FakeAnalyticsLogEventHandler _userPropertyHandler;
 + (void)logForegroundNotification:(NSDictionary *)notification
                       toAnalytics:(id<FIRAnalyticsInterop> _Nullable)analytics;
 + (void)logEvent:(NSString *)event
-withNotification:(NSDictionary *)notification
-     toAnalytics:(id<FIRAnalyticsInterop> _Nullable)analytics ;;
+    withNotification:(NSDictionary *)notification
+         toAnalytics:(id<FIRAnalyticsInterop> _Nullable)analytics;
+;
 
 @end
 
@@ -173,23 +177,23 @@ withNotification:(NSDictionary *)notification
   XCTAssertFalse([FIRMessagingAnalytics canLogNotification:notification]);
 
   notification = @{
-                   @"aps" : @{@"alert" : @"to check the reporting format"},
-                   @"gcm.message_id" : @"0:1522880049414338%944841cd944841cd",
-                   @"gcm.n.e" : @"1",
-                   @"google.c.a.c_id" : @"575315420755741863",
-                   @"google.c.a.e" : @"1",
-                   @"google.c.a.ts" : @"1522880044",
-                   @"google.c.a.udt" : @"0"
-                   };
+    @"aps" : @{@"alert" : @"to check the reporting format"},
+    @"gcm.message_id" : @"0:1522880049414338%944841cd944841cd",
+    @"gcm.n.e" : @"1",
+    @"google.c.a.c_id" : @"575315420755741863",
+    @"google.c.a.e" : @"1",
+    @"google.c.a.ts" : @"1522880044",
+    @"google.c.a.udt" : @"0"
+  };
   XCTAssertTrue([FIRMessagingAnalytics canLogNotification:notification]);
 
   notification = @{
-                   @"aps" : @{@"content-available" : @"1"},
-                   @"gcm.message_id" : @"0:1522880049414338%944841cd944841cd",
-                   @"google.c.a.e" : @"1",
-                   @"google.c.a.ts" : @"1522880044",
-                   @"google.c.a.udt" : @"0"
-                   };
+    @"aps" : @{@"content-available" : @"1"},
+    @"gcm.message_id" : @"0:1522880049414338%944841cd944841cd",
+    @"google.c.a.e" : @"1",
+    @"google.c.a.ts" : @"1522880044",
+    @"google.c.a.udt" : @"0"
+  };
   XCTAssertTrue([FIRMessagingAnalytics canLogNotification:notification]);
 }
 
@@ -200,22 +204,23 @@ withNotification:(NSDictionary *)notification
 
 - (void)testNoParamsIfAnalyticsIsNotEnabled {
   NSDictionary *notification = @{
-                                 @"aps" : @{@"alert" : @"to check the reporting format"},
-                                 @"gcm.message_id" : @"0:1522880049414338%944841cd944841cd",
-                                 @"gcm.n.e" : @"1",
-                                 @"google.c.a.c_id" : @"575315420755741863",
-                                 @"google.c.a.ts" : @"1522880044",
-                                 @"google.c.a.udt" : @"0"
-                                 };
+    @"aps" : @{@"alert" : @"to check the reporting format"},
+    @"gcm.message_id" : @"0:1522880049414338%944841cd944841cd",
+    @"gcm.n.e" : @"1",
+    @"google.c.a.c_id" : @"575315420755741863",
+    @"google.c.a.ts" : @"1522880044",
+    @"google.c.a.udt" : @"0"
+  };
 
-  NSMutableDictionary *params = [FIRMessagingAnalytics paramsForEvent:@"" withNotification:notification];
+  NSMutableDictionary *params = [FIRMessagingAnalytics paramsForEvent:@""
+                                                     withNotification:notification];
   XCTAssertNil(params);
 }
 
 - (void)testNoParamsIfEmpty {
   NSDictionary *notification = @{
-                                 @"google.c.a.e" : @"1",
-                                 };
+    @"google.c.a.e" : @"1",
+  };
   NSMutableDictionary *params = [FIRMessagingAnalytics paramsForEvent:@""
                                                      withNotification:notification];
   XCTAssertNotNil(params);
@@ -235,20 +240,20 @@ withNotification:(NSDictionary *)notification
 }
 - (void)testParamForEventAndNotification {
   NSDictionary *notification = @{
-                                 @"aps" : @{@"alert" : @"to check the reporting format"},
-                                 @"gcm.message_id" : @"0:1522880049414338%944841cd944841cd",
-                                 @"gcm.n.e" : @"1",
-                                 @"google.c.a.c_l" : @"Hello World",
-                                 @"google.c.a.c_id" : @"575315420755741863",
-                                 @"google.c.a.e" : @"1",
-                                 @"google.c.a.ts" : @"1522880044",
-                                 @"google.c.a.udt" : @"0",
-                                 @"google.c.a.m_l" : @"developer's customized label",
-                                 @"from" : @"/topics/news",
-                                 };
+    @"aps" : @{@"alert" : @"to check the reporting format"},
+    @"gcm.message_id" : @"0:1522880049414338%944841cd944841cd",
+    @"gcm.n.e" : @"1",
+    @"google.c.a.c_l" : @"Hello World",
+    @"google.c.a.c_id" : @"575315420755741863",
+    @"google.c.a.e" : @"1",
+    @"google.c.a.ts" : @"1522880044",
+    @"google.c.a.udt" : @"0",
+    @"google.c.a.m_l" : @"developer's customized label",
+    @"from" : @"/topics/news",
+  };
 
-  NSMutableDictionary *params =
-  [FIRMessagingAnalytics paramsForEvent:kFIRIEventNotificationOpen withNotification:notification];
+  NSMutableDictionary *params = [FIRMessagingAnalytics paramsForEvent:kFIRIEventNotificationOpen
+                                                     withNotification:notification];
   XCTAssertNotNil(params);
   XCTAssertEqualObjects(params[kFIRIParameterMessageIdentifier], @"575315420755741863");
   XCTAssertEqualObjects(params[kFIRIParameterMessageName], @"Hello World");
@@ -261,56 +266,59 @@ withNotification:(NSDictionary *)notification
 - (void)testInvalidDataInParamsForLogging {
   NSString *composerIdentifier = @"Hellow World";
   NSDictionary *notification = @{
-                                 @"google.c.a.e" : @(YES),
-                                 @"google.c.a.c_l" : composerIdentifier,
-                                 @"google.c.a.c_id" : @"575315420755741863",
-                                 @"google.c.a.m_l" : @"developer's customized label",
-                                 @"google.c.a.ts" : @"1522880044",
-                                 @"from" : @"/topics/news",
-                                 @"google.c.a.udt" : @"0",
-                                 };
-  NSMutableDictionary *params =
-  [FIRMessagingAnalytics paramsForEvent:kFIRIEventNotificationOpen withNotification:notification];
+    @"google.c.a.e" : @(YES),
+    @"google.c.a.c_l" : composerIdentifier,
+    @"google.c.a.c_id" : @"575315420755741863",
+    @"google.c.a.m_l" : @"developer's customized label",
+    @"google.c.a.ts" : @"1522880044",
+    @"from" : @"/topics/news",
+    @"google.c.a.udt" : @"0",
+  };
+  NSMutableDictionary *params = [FIRMessagingAnalytics paramsForEvent:kFIRIEventNotificationOpen
+                                                     withNotification:notification];
   XCTAssertNil(params);
 
   notification = @{
-                   @"google.c.a.e" : @"1",
-                   @"google.c.a.c_l" : [composerIdentifier dataUsingEncoding:NSUTF8StringEncoding],
-                   @"google.c.a.c_id" : @"575315420755741863",
-                   @"google.c.a.m_l" : @"developer's customized label",
-                   @"google.c.a.ts" : @"1522880044",
-                   @"from" : @"/topics/news",
-                   @"google.c.a.udt" : @"0",
-                   };
-  params = [FIRMessagingAnalytics paramsForEvent:kFIRIEventNotificationOpen withNotification:notification];
+    @"google.c.a.e" : @"1",
+    @"google.c.a.c_l" : [composerIdentifier dataUsingEncoding:NSUTF8StringEncoding],
+    @"google.c.a.c_id" : @"575315420755741863",
+    @"google.c.a.m_l" : @"developer's customized label",
+    @"google.c.a.ts" : @"1522880044",
+    @"from" : @"/topics/news",
+    @"google.c.a.udt" : @"0",
+  };
+  params = [FIRMessagingAnalytics paramsForEvent:kFIRIEventNotificationOpen
+                                withNotification:notification];
   XCTAssertNil(params[kFIRIParameterMessageName]);
   XCTAssertEqualObjects(params[kFIRIParameterMessageIdentifier], @"575315420755741863");
   XCTAssertEqualObjects(params[kFIRIParameterTopic], @"/topics/news");
 
   notification = @{
-                   @"google.c.a.e" : @"1",
-                   @"google.c.a.c_l" : composerIdentifier,
-                   @"google.c.a.c_id" : @(575315420755741863),
-                   @"google.c.a.m_l" : @"developer's customized label",
-                   @"google.c.a.ts" : @"1522880044",
-                   @"from" : @"/topics/news",
-                   @"google.c.a.udt" : @"0",
-                   };
-  params = [FIRMessagingAnalytics paramsForEvent:kFIRIEventNotificationOpen withNotification:notification];
+    @"google.c.a.e" : @"1",
+    @"google.c.a.c_l" : composerIdentifier,
+    @"google.c.a.c_id" : @(575315420755741863),
+    @"google.c.a.m_l" : @"developer's customized label",
+    @"google.c.a.ts" : @"1522880044",
+    @"from" : @"/topics/news",
+    @"google.c.a.udt" : @"0",
+  };
+  params = [FIRMessagingAnalytics paramsForEvent:kFIRIEventNotificationOpen
+                                withNotification:notification];
   XCTAssertEqualObjects(params[kFIRIParameterMessageName], composerIdentifier);
   XCTAssertNil(params[kFIRIParameterMessageIdentifier]);
   XCTAssertEqualObjects(params[kFIRIParameterTopic], @"/topics/news");
 
   notification = @{
-                   @"google.c.a.e" : @"1",
-                   @"google.c.a.c_l" : composerIdentifier,
-                   @"google.c.a.c_id" : @"575315420755741863",
-                   @"google.c.a.m_l" : @"developer's customized label",
-                   @"google.c.a.ts" : @"0",
-                   @"from" : @"/topics/news",
-                   @"google.c.a.udt" : @"12345678",
-                   };
-  params = [FIRMessagingAnalytics paramsForEvent:kFIRIEventNotificationOpen withNotification:notification];
+    @"google.c.a.e" : @"1",
+    @"google.c.a.c_l" : composerIdentifier,
+    @"google.c.a.c_id" : @"575315420755741863",
+    @"google.c.a.m_l" : @"developer's customized label",
+    @"google.c.a.ts" : @"0",
+    @"from" : @"/topics/news",
+    @"google.c.a.udt" : @"12345678",
+  };
+  params = [FIRMessagingAnalytics paramsForEvent:kFIRIEventNotificationOpen
+                                withNotification:notification];
   XCTAssertEqualObjects(params[kFIRIParameterMessageName], composerIdentifier);
   XCTAssertEqualObjects(params[kFIRIParameterMessageIdentifier], @"575315420755741863");
   XCTAssertEqualObjects(params[kFIRParameterLabel], @"developer's customized label");
@@ -319,15 +327,16 @@ withNotification:(NSDictionary *)notification
   XCTAssertEqualObjects(params[kFIRIParameterMessageDeviceTime], @"12345678");
 
   notification = @{
-                   @"google.c.a.e" : @"1",
-                   @"google.c.a.c_l" : composerIdentifier,
-                   @"google.c.a.c_id" : @"575315420755741863",
-                   @"google.c.a.m_l" : @"developer's customized label",
-                   @"google.c.a.ts" : @(0),
-                   @"from" : @"/topics/news",
-                   @"google.c.a.udt" : @"12345678",
-                   };
-  params = [FIRMessagingAnalytics paramsForEvent:kFIRIEventNotificationOpen withNotification:notification];
+    @"google.c.a.e" : @"1",
+    @"google.c.a.c_l" : composerIdentifier,
+    @"google.c.a.c_id" : @"575315420755741863",
+    @"google.c.a.m_l" : @"developer's customized label",
+    @"google.c.a.ts" : @(0),
+    @"from" : @"/topics/news",
+    @"google.c.a.udt" : @"12345678",
+  };
+  params = [FIRMessagingAnalytics paramsForEvent:kFIRIEventNotificationOpen
+                                withNotification:notification];
   XCTAssertEqualObjects(params[kFIRIParameterMessageName], composerIdentifier);
   XCTAssertNil(params[kFIRIParameterMessageTime]);
   XCTAssertEqualObjects(params[kFIRIParameterMessageDeviceTime], @"12345678");
@@ -336,32 +345,32 @@ withNotification:(NSDictionary *)notification
 - (void)testConversionTracking {
   // Notification contains "google.c.a.tc" key.
   NSDictionary *notification = @{
-                                 @"aps" : @{@"alert" : @"to check the reporting format"},
-                                 @"gcm.message_id" : @"0:1522880049414338%944841cd944841cd",
-                                 @"gcm.n.e" : @"1",
-                                 @"google.c.a.c_l" : @"Hello World",
-                                 @"google.c.a.c_id" : @"575315420755741863",
-                                 @"google.c.a.e" : @"1",
-                                 @"google.c.a.ts" : @"1522880044",
-                                 @"google.c.a.udt" : @"0",
-                                 @"google.c.a.m_l" : @"developer's customized label",
-                                 @"google.c.a.tc" : @"1",
-                                 @"from" : @"/topics/news",
-                                 };
+    @"aps" : @{@"alert" : @"to check the reporting format"},
+    @"gcm.message_id" : @"0:1522880049414338%944841cd944841cd",
+    @"gcm.n.e" : @"1",
+    @"google.c.a.c_l" : @"Hello World",
+    @"google.c.a.c_id" : @"575315420755741863",
+    @"google.c.a.e" : @"1",
+    @"google.c.a.ts" : @"1522880044",
+    @"google.c.a.udt" : @"0",
+    @"google.c.a.m_l" : @"developer's customized label",
+    @"google.c.a.tc" : @"1",
+    @"from" : @"/topics/news",
+  };
   NSDictionary *params = @{
-                           kFIRIParameterSource : kReengagementSource,
-                           kFIRIParameterMedium : kReengagementMedium,
-                           kFIRIParameterCampaign : @"575315420755741863"
-                           };
+    kFIRIParameterSource : kReengagementSource,
+    kFIRIParameterMedium : kReengagementMedium,
+    kFIRIParameterCampaign : @"575315420755741863"
+  };
   __block XCTestExpectation *expectation = [self expectationWithDescription:@"completion"];
   FakeAnalytics *analytics = [[FakeAnalytics alloc]
-                              initWithEventHandler:^(NSString *origin, NSString *name, NSDictionary *parameters) {
-                                XCTAssertEqualObjects(origin, kFIREventOriginFCM);
-                                XCTAssertEqualObjects(name, @"_cmp");
-                                XCTAssertEqualObjects(parameters, params);
-                                [expectation fulfill];
-                                expectation = nil;
-                              }];
+      initWithEventHandler:^(NSString *origin, NSString *name, NSDictionary *parameters) {
+        XCTAssertEqualObjects(origin, kFIREventOriginFCM);
+        XCTAssertEqualObjects(name, @"_cmp");
+        XCTAssertEqualObjects(parameters, params);
+        [expectation fulfill];
+        expectation = nil;
+      }];
   [FIRMessagingAnalytics logUserPropertyForConversionTracking:notification toAnalytics:analytics];
   [self waitForExpectationsWithTimeout:kAsyncTestTimout handler:nil];
 }
@@ -369,27 +378,27 @@ withNotification:(NSDictionary *)notification
 - (void)testConversionTrackingUserProperty {
   // Notification contains "google.c.a.tc" key.
   NSDictionary *notification = @{
-                                 @"aps" : @{@"alert" : @"to check the reporting format"},
-                                 @"gcm.message_id" : @"0:1522880049414338%944841cd944841cd",
-                                 @"gcm.n.e" : @"1",
-                                 @"google.c.a.c_l" : @"Hello World",
-                                 @"google.c.a.c_id" : @"575315420755741863",
-                                 @"google.c.a.e" : @"1",
-                                 @"google.c.a.ts" : @"1522880044",
-                                 @"google.c.a.udt" : @"0",
-                                 @"google.c.a.m_l" : @"developer's customized label",
-                                 @"google.c.a.tc" : @"1",
-                                 @"from" : @"/topics/news",
-                                 };
+    @"aps" : @{@"alert" : @"to check the reporting format"},
+    @"gcm.message_id" : @"0:1522880049414338%944841cd944841cd",
+    @"gcm.n.e" : @"1",
+    @"google.c.a.c_l" : @"Hello World",
+    @"google.c.a.c_id" : @"575315420755741863",
+    @"google.c.a.e" : @"1",
+    @"google.c.a.ts" : @"1522880044",
+    @"google.c.a.udt" : @"0",
+    @"google.c.a.m_l" : @"developer's customized label",
+    @"google.c.a.tc" : @"1",
+    @"from" : @"/topics/news",
+  };
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"completion"];
   FakeAnalytics *analytics = [[FakeAnalytics alloc]
-                              initWithUserPropertyHandler:^(NSString *origin, NSString *name, id value) {
-                                XCTAssertEqualObjects(origin, kFIREventOriginFCM);
-                                XCTAssertEqualObjects(name, @"_ln");
-                                XCTAssertEqualObjects(value, @"575315420755741863");
-                                [expectation fulfill];
-                              }];
+      initWithUserPropertyHandler:^(NSString *origin, NSString *name, id value) {
+        XCTAssertEqualObjects(origin, kFIREventOriginFCM);
+        XCTAssertEqualObjects(name, @"_ln");
+        XCTAssertEqualObjects(value, @"575315420755741863");
+        [expectation fulfill];
+      }];
   [FIRMessagingAnalytics logUserPropertyForConversionTracking:notification toAnalytics:analytics];
   [self waitForExpectationsWithTimeout:kAsyncTestTimout handler:nil];
 }
@@ -397,38 +406,36 @@ withNotification:(NSDictionary *)notification
 - (void)testNoConversionTracking {
   // Notification contains "google.c.a.tc" key.
   NSDictionary *notification = @{
-                                 @"aps" : @{@"alert" : @"to check the reporting format"},
-                                 @"gcm.message_id" : @"0:1522880049414338%944841cd944841cd",
-                                 @"gcm.n.e" : @"1",
-                                 @"google.c.a.c_l" : @"Hello World",
-                                 @"google.c.a.c_id" : @"575315420755741863",
-                                 @"google.c.a.e" : @"1",
-                                 @"google.c.a.ts" : @"1522880044",
-                                 @"google.c.a.udt" : @"0",
-                                 @"google.c.a.m_l" : @"developer's customized label",
-                                 @"from" : @"/topics/news",
-                                 };
+    @"aps" : @{@"alert" : @"to check the reporting format"},
+    @"gcm.message_id" : @"0:1522880049414338%944841cd944841cd",
+    @"gcm.n.e" : @"1",
+    @"google.c.a.c_l" : @"Hello World",
+    @"google.c.a.c_id" : @"575315420755741863",
+    @"google.c.a.e" : @"1",
+    @"google.c.a.ts" : @"1522880044",
+    @"google.c.a.udt" : @"0",
+    @"google.c.a.m_l" : @"developer's customized label",
+    @"from" : @"/topics/news",
+  };
   FakeAnalytics *analytics = [[FakeAnalytics alloc]
-                              initWithEventHandler:^(NSString *origin, NSString *name, NSDictionary *parameters) {
-                                XCTAssertTrue(NO);
-                              }];
+      initWithEventHandler:^(NSString *origin, NSString *name, NSDictionary *parameters) {
+        XCTAssertTrue(NO);
+      }];
   [FIRMessagingAnalytics logUserPropertyForConversionTracking:notification toAnalytics:analytics];
 }
 
-
 - (void)testLogMessage {
   NSDictionary *notification = @{
-                                 @"google.c.a.e" : @"1",
-                                 };
+    @"google.c.a.e" : @"1",
+  };
   [FIRMessagingAnalytics logMessage:notification toAnalytics:nil];
   OCMVerify([self.logClassMock logEvent:OCMOCK_ANY withNotification:notification toAnalytics:nil]);
 }
 
-
 - (void)testLogOpenNotification {
   NSDictionary *notification = @{
-                                 @"google.c.a.e" : @"1",
-                                 };
+    @"google.c.a.e" : @"1",
+  };
   [FIRMessagingAnalytics logOpenNotification:notification toAnalytics:nil];
 
   OCMVerify([self.logClassMock logUserPropertyForConversionTracking:notification toAnalytics:nil]);

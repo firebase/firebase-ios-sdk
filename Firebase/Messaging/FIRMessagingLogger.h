@@ -21,16 +21,16 @@
 
 // Convenience macros that log to the shared FIRMessagingLogger instance. These macros
 // are how users should typically log to FIRMessagingLogger.
-#define FIRMessagingLoggerDebug(code, ...)  \
-    [FIRMessagingSharedLogger() logFuncDebug:__func__ messageCode:code msg:__VA_ARGS__]
-#define FIRMessagingLoggerInfo(code, ...)   \
-    [FIRMessagingSharedLogger() logFuncInfo:__func__ messageCode:code msg:__VA_ARGS__]
-#define FIRMessagingLoggerNotice(code, ...)   \
-    [FIRMessagingSharedLogger() logFuncNotice:__func__ messageCode:code msg:__VA_ARGS__]
-#define FIRMessagingLoggerWarn(code, ...)   \
-    [FIRMessagingSharedLogger() logFuncWarning:__func__ messageCode:code msg:__VA_ARGS__]
-#define FIRMessagingLoggerError(code, ...)  \
-    [FIRMessagingSharedLogger() logFuncError:__func__ messageCode:code msg:__VA_ARGS__]
+#define FIRMessagingLoggerDebug(code, ...) \
+  [FIRMessagingSharedLogger() logFuncDebug:__func__ messageCode:code msg:__VA_ARGS__]
+#define FIRMessagingLoggerInfo(code, ...) \
+  [FIRMessagingSharedLogger() logFuncInfo:__func__ messageCode:code msg:__VA_ARGS__]
+#define FIRMessagingLoggerNotice(code, ...) \
+  [FIRMessagingSharedLogger() logFuncNotice:__func__ messageCode:code msg:__VA_ARGS__]
+#define FIRMessagingLoggerWarn(code, ...) \
+  [FIRMessagingSharedLogger() logFuncWarning:__func__ messageCode:code msg:__VA_ARGS__]
+#define FIRMessagingLoggerError(code, ...) \
+  [FIRMessagingSharedLogger() logFuncError:__func__ messageCode:code msg:__VA_ARGS__]
 
 #endif  // !defined(FIRMessagingLoggerInfo)
 

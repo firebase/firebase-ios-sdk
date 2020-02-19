@@ -2,8 +2,8 @@ name: check
 
 on:
   pull_request:
-    paths:
-      - '!Firestore/**'
+    paths-ignore:
+      - 'Firestore/**'
 
 jobs:
   check:

@@ -19,8 +19,6 @@
 #import <GoogleDataTransport/GDTCOREventDataObject.h>
 
 @class GDTCORClock;
-@class GDTCORDataFuture;
-@class GDTCORStoredEvent;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -63,9 +61,11 @@ typedef NS_ENUM(NSInteger, GDTCOREventQoS) {
 /** The clock snapshot at the time of the event. */
 @property(nonatomic) GDTCORClock *clockSnapshot;
 
+/** The resulting file URL when [dataObject -transportBytes] has been saved to disk.*/
+@property(nullable, readonly, nonatomic) NSURL *fileURL;
+
 /** Bytes that can be used by a prioritizer or uploader later on. It's the prioritizer or uploader's
  * responsibility to serialize and deserialize these bytes.
- *
  */
 @property(nullable, nonatomic) NSData *customBytes;
 
@@ -80,13 +80,6 @@ typedef NS_ENUM(NSInteger, GDTCOREventQoS) {
  */
 - (nullable instancetype)initWithMappingID:(NSString *)mappingID
                                     target:(NSInteger)target NS_DESIGNATED_INITIALIZER;
-
-/** Returns the GDTCORStoredEvent equivalent of self.
- *
- * @param dataFuture The data future representing the transport bytes of the original event.
- * @return An equivalent GDTCORStoredEvent.
- */
-- (GDTCORStoredEvent *)storedEventWithDataFuture:(GDTCORDataFuture *)dataFuture;
 
 @end
 

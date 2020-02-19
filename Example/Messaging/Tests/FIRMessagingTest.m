@@ -29,7 +29,6 @@
 #import "Example/Messaging/Tests/FIRMessagingTestUtilities.h"
 #import "Firebase/Messaging/FIRMessaging_Private.h"
 
-
 extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 
 /// The NSUserDefaults domain for testing.
@@ -70,19 +69,19 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
   // Create the messaging instance with all the necessary dependencies.
   NSUserDefaults *defaults =
       [[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingDefaultsTestDomain];
-  _testUtil = [[FIRMessagingTestUtilities alloc] initWithUserDefaults:defaults  withRMQManager:NO];
+  _testUtil = [[FIRMessagingTestUtilities alloc] initWithUserDefaults:defaults withRMQManager:NO];
   _mockMessaging = _testUtil.mockMessaging;
   _messaging = _testUtil.messaging;
 
   _mockFirebaseApp = OCMClassMock([FIRApp class]);
-   OCMStub([_mockFirebaseApp defaultApp]).andReturn(_mockFirebaseApp);
+  OCMStub([_mockFirebaseApp defaultApp]).andReturn(_mockFirebaseApp);
   _mockInstanceID = _testUtil.mockInstanceID;
   [[NSUserDefaults standardUserDefaults]
       removePersistentDomainForName:[NSBundle mainBundle].bundleIdentifier];
 }
 
 - (void)tearDown {
-  [_testUtil cleanupAfterTest];
+  [_testUtil cleanupAfterTest:self];
   [_mockFirebaseApp stopMocking];
   _messaging = nil;
   [[[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingDefaultsTestDomain]
@@ -169,7 +168,10 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
       // Doing nothing on purpose, when -updateAutomaticClientConnection is called
   }] updateAutomaticClientConnection];
   // Set direct channel to be established after disabling connection attempt
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   self.messaging.shouldEstablishDirectChannel = YES;
+#pragma clang diagnostic pop
   // Set a "valid" token (i.e. not nil or empty)
   self.messaging.defaultFcmToken = @"1234567";
   // Swizzle application state to return UIApplicationStateActive
@@ -187,7 +189,10 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
       // Doing nothing on purpose, when -updateAutomaticClientConnection is called
   }] updateAutomaticClientConnection];
   // Set direct channel to be established after disabling connection attempt
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   self.messaging.shouldEstablishDirectChannel = YES;
+#pragma clang diagnostic pop
   // By default, there should be no fcmToken
   // Swizzle application state to return UIApplicationStateActive
   UIApplication *app = [UIApplication sharedApplication];
@@ -204,7 +209,10 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
       // Doing nothing on purpose, when -updateAutomaticClientConnection is called
   }] updateAutomaticClientConnection];
   // Set direct channel to be established after disabling connection attempt
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   self.messaging.shouldEstablishDirectChannel = YES;
+#pragma clang diagnostic pop
   // Set a "valid" token (i.e. not nil or empty)
   self.messaging.defaultFcmToken = @"abcd1234";
   // Swizzle application state to return UIApplicationStateActive

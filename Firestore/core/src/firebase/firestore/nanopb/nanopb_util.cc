@@ -18,9 +18,17 @@
 
 #include <cstdlib>
 
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+
 namespace firebase {
 namespace firestore {
 namespace nanopb {
+
+pb_size_t CheckedSize(size_t size) {
+  HARD_ASSERT(size <= PB_SIZE_MAX,
+              "Size exceeds nanopb limits. Too many entries.");
+  return static_cast<pb_size_t>(size);
+}
 
 pb_bytes_array_t* _Nullable CopyBytesArray(
     const pb_bytes_array_t* _Nullable buffer) {

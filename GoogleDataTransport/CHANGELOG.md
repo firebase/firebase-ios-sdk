@@ -1,3 +1,6 @@
+# v4.0.1
+- Fixes missing a dispatch_sync and on-queue work in appWillTerminate of storage. (#4546)
+
 # v4.0.0
 - Internal restructuring to support a single class implementing several backends.
 

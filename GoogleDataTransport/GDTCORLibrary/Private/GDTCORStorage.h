@@ -19,7 +19,6 @@
 #import <GoogleDataTransport/GDTCORLifecycle.h>
 
 @class GDTCOREvent;
-@class GDTCORStoredEvent;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -32,8 +31,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (instancetype)sharedInstance;
 
-/** Stores event.dataObjectTransportBytes into a shared on-device folder and tracks the event via
- * a GDTCORStoredEvent instance.
+/** Stores event.dataObject into a shared on-device folder and tracks the event via
+ * a GDTCOREvent instance.
  *
  * @param event The event to store.
  * @param completion A block to run when an event was written to disk or dropped.
@@ -45,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param events The set of stored events to remove.
  */
-- (void)removeEvents:(NSSet<GDTCORStoredEvent *> *)events;
+- (void)removeEvents:(NSSet<GDTCOREvent *> *)events;
 
 @end
 

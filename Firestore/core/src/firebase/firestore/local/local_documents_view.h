@@ -19,16 +19,18 @@
 
 #include <vector>
 
-#include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/local/index_manager.h"
 #include "Firestore/core/src/firebase/firestore/local/mutation_queue.h"
 #include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
-#include "Firestore/core/src/firebase/firestore/model/document_key.h"
-#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
-#include "Firestore/core/src/firebase/firestore/model/document_map.h"
+#include "Firestore/core/src/firebase/firestore/model/model_fwd.h"
 
 namespace firebase {
 namespace firestore {
+
+namespace core {
+class Query;
+}  // namespace core
+
 namespace local {
 
 /**
@@ -136,6 +138,7 @@ class LocalDocumentsView {
     return index_manager_;
   }
 
+ private:
   RemoteDocumentCache* remote_document_cache_;
   MutationQueue* mutation_queue_;
   IndexManager* index_manager_;

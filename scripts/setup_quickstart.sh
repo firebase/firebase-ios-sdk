@@ -37,5 +37,6 @@ if [[ "$TRAVIS_PULL_REQUEST" == "false" ||
   # Secrets are repo specific, so we need to override with the firebase-ios-sdk
   # version.
   cp ../../Secrets/quickstart-ios/"$SAMPLE"/GoogleService-Info.plist ./
+  cp ../../Secrets/quickstart-ios/TestUtils/FIREGSignInInfo.h ../TestUtils/
   cd -
 fi

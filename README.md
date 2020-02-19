@@ -6,11 +6,8 @@
  [![Actions Status][gh-zip-badge]][gh-actions]
  [![Travis](https://travis-ci.org/firebase/firebase-ios-sdk.svg?branch=master)](https://travis-ci.org/firebase/firebase-ios-sdk)
 
-This repository contains a subset of the Firebase iOS SDK source. It currently
-includes FirebaseCore, FirebaseABTesting, FirebaseAuth, FirebaseDatabase,
-FirebaseFirestore, FirebaseFunctions, FirebaseInstanceID, FirebaseInAppMessaging,
-FirebaseInAppMessagingDisplay, FirebaseMessaging, FirebaseRemoteConfig, and
-FirebaseStorage.
+This repository contains all Firebase iOS SDK source except FirebaseAnalytics,
+FirebasePerformance, and FirebaseML.
 
 The repository also includes GoogleUtilities source. The
 [GoogleUtilities](GoogleUtilities/README.md) pod is

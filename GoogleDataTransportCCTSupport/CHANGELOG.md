@@ -1,3 +1,8 @@
+# v1.4.1
+- Fixed a bug that would manifest if a proto ended up being > 16,320 bytes.
+- Fix an Xcode 11.4 analyze error. (#4863)
+- Now checks the result of malloc. (#4871)
+
 # v1.4.0
 - Added the CSH backend and consolidated the CCT, FLL, and CSH backends.
 

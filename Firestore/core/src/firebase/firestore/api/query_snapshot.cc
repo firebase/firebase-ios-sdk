@@ -18,6 +18,8 @@
 
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/api/document_change.h"
+#include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/api/query_core.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"

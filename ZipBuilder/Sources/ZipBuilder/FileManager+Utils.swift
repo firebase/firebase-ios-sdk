@@ -120,7 +120,7 @@ extension FileManager {
 
     // Organize all temporary directories into a "ZipRelease" directory.
     let unique = FileManager.unique
-    let zipDir = tempDir.appendingPathComponent("ZipRelease" + unique, isDirectory: true)
+    let zipDir = tempDir.appendingPathComponent("ZipRelease/" + unique, isDirectory: true)
     return zipDir.appendingPathComponent(name, isDirectory: true)
   }
 
