@@ -17,21 +17,8 @@
 #import "FIRCLSReportAdapter.h"
 
 #import "FIRCLSRecordApplication.h"
-#import "FIRCLSRecordBinaryImage.h"
-#import "FIRCLSRecordError.h"
-#import "FIRCLSRecordException.h"
-#import "FIRCLSRecordExecutable.h"
 #import "FIRCLSRecordHost.h"
 #import "FIRCLSRecordIdentity.h"
-#import "FIRCLSRecordKeyValue.h"
-#import "FIRCLSRecordLog.h"
-#import "FIRCLSRecordMachException.h"
-#import "FIRCLSRecordProcessStats.h"
-#import "FIRCLSRecordRegister.h"
-#import "FIRCLSRecordRuntime.h"
-#import "FIRCLSRecordSignal.h"
-#import "FIRCLSRecordStorage.h"
-#import "FIRCLSRecordThread.h"
 
 pb_bytes_array_t *FIRCLSEncodeString(NSString *string);
 

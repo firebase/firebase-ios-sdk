@@ -18,11 +18,7 @@
 
 @interface FIRCLSRecordIdentity : FIRCLSRecordBase
 
-@property(nonatomic, copy) NSString *generator;
-@property(nonatomic, copy) NSString *display_version;
 @property(nonatomic, copy) NSString *build_version;
-@property(nonatomic, copy) NSString *session_id;
 @property(nonatomic, copy) NSString *install_id;
-@property(nonatomic, assign) NSUInteger started_at;
 
 @end

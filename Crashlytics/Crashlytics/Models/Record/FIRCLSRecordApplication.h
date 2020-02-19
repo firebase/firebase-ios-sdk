@@ -18,7 +18,6 @@
 
 @interface FIRCLSRecordApplication : FIRCLSRecordBase
 
-@property(nonatomic, copy) NSString *bundle_id;
 @property(nonatomic, copy) NSString *build_version;
 @property(nonatomic, copy) NSString *display_version;
 
