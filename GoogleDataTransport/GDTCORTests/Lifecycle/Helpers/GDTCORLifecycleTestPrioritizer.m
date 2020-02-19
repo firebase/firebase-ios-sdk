@@ -21,7 +21,7 @@
 @interface GDTCORLifecycleTestPrioritizer ()
 
 /** Events that are only supposed to be uploaded whilst on wifi. */
-@property(nonatomic) NSMutableSet<GDTCORStoredEvent *> *events;
+@property(nonatomic) NSMutableSet<GDTCOREvent *> *events;
 
 /** The queue on which this prioritizer operates. */
 @property(nonatomic) dispatch_queue_t queue;
@@ -41,7 +41,7 @@
   return self;
 }
 
-- (void)prioritizeEvent:(GDTCORStoredEvent *)event {
+- (void)prioritizeEvent:(GDTCOREvent *)event {
   dispatch_async(_queue, ^{
     [self.events addObject:event];
   });
@@ -58,7 +58,7 @@
 
 - (void)packageDelivered:(GDTCORUploadPackage *)package successful:(BOOL)successful {
   dispatch_async(_queue, ^{
-    for (GDTCORStoredEvent *event in package.events) {
+    for (GDTCOREvent *event in package.events) {
       [self.events removeObject:event];
     }
   });

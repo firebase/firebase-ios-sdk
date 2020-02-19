@@ -27,10 +27,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** A map of targets to a set of stored events. */
 @property(nonatomic)
-    NSMutableDictionary<NSNumber *, NSMutableSet<GDTCORStoredEvent *> *> *targetToEventSet;
+    NSMutableDictionary<NSNumber *, NSMutableSet<GDTCOREvent *> *> *targetToEventSet;
 
 /** All the events that have been stored. */
-@property(readonly, nonatomic) NSMutableOrderedSet<GDTCORStoredEvent *> *storedEvents;
+@property(readonly, nonatomic) NSMutableOrderedSet<GDTCOREvent *> *storedEvents;
 
 /** The upload coordinator instance used by this storage instance. */
 @property(nonatomic) GDTCORUploadCoordinator *uploadCoordinator;

@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-#import <GoogleDataTransport/GDTCORUploadPackage.h>
+#import "GDTCORLibrary/Public/GDTCORUploadPackage.h"
 
 #import <GoogleDataTransport/GDTCORClock.h>
 #import <GoogleDataTransport/GDTCORConsoleLogger.h>
-#import <GoogleDataTransport/GDTCORStoredEvent.h>
 
 #import "GDTCORLibrary/Private/GDTCORStorage_Private.h"
 #import "GDTCORLibrary/Private/GDTCORUploadCoordinator.h"
@@ -143,10 +142,14 @@ static NSString *const kTargetKey = @"GDTCORUploadPackageTargetKey";
 }
 
 - (nullable instancetype)initWithCoder:(nonnull NSCoder *)aDecoder {
+  // Sets a global translation mapping to decode GDTCORStoredEvent objects encoded as instances of
+  // GDTCOREvent instead.
+  [NSKeyedUnarchiver setClass:[GDTCOREvent class] forClassName:@"GDTCORStoredEvent"];
+
   GDTCORTarget target = [aDecoder decodeIntegerForKey:kTargetKey];
   self = [self initWithTarget:target];
   if (self) {
-    NSSet *classes = [NSSet setWithObjects:[NSSet class], [GDTCORStoredEvent class], nil];
+    NSSet *classes = [NSSet setWithObjects:[NSSet class], [GDTCOREvent class], nil];
     _events = [aDecoder decodeObjectOfClasses:classes forKey:kEventsKey];
     _deliverByTime = [aDecoder decodeObjectOfClass:[GDTCORClock class] forKey:kDeliverByTimeKey];
     _isHandled = [aDecoder decodeBoolForKey:kIsHandledKey];
