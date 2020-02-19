@@ -216,6 +216,8 @@
 
   NSTimeInterval lastStartTime =
       [experiment.experimentMetadata[@"last_experiment_start_time"] doubleValue];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   OCMStub(
       [mockExperimentController
           updateExperimentsWithServiceOrigin:[OCMArg any]
@@ -225,6 +227,7 @@
                                lastStartTime:lastStartTime
                                     payloads:[OCMArg any]])
       .andDo(nil);
+#pragma clang diagnostic pop
 
   ABTExperimentPayload *payload = [[ABTExperimentPayload alloc] init];
   payload.experimentStartTimeMillis = 12345678000;
