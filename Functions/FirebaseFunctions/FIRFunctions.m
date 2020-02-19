@@ -15,11 +15,19 @@
 #import "FIRFunctions.h"
 #import "FIRFunctions+Internal.h"
 
+#ifdef SWIFT_PACKAGE
+#import "Firebase/Core/Private/FIRComponent.h"
+#import "Firebase/Core/Private/FIRComponentContainer.h"
+#import "Firebase/Core/Private/FIRDependency.h"
+#import "Firebase/Core/Private/FIRLibrary.h"
+#import "Interop/Auth/Public/FIRAuthInterop.h"
+#else
 #import <FirebaseAuthInterop/FIRAuthInterop.h>
 #import <FirebaseCore/FIRComponent.h>
 #import <FirebaseCore/FIRComponentContainer.h>
 #import <FirebaseCore/FIRDependency.h>
 #import <FirebaseCore/FIRLibrary.h>
+#endif
 
 #import "FIRError.h"
 #import "FIRHTTPSCallable+Internal.h"
@@ -29,10 +37,17 @@
 #import "FUNSerializer.h"
 #import "FUNUsageValidation.h"
 
+#ifdef SWIFT_PACKAGE
+#import "Firebase/Core/Private/FIRAppInternal.h"
+#import "Firebase/Core/Public/FIRApp.h"
+#import "Firebase/Core/Public/FIROptions.h"
+#import "GTMSessionFetcherService.h"
+#else
 #import <FirebaseCore/FIRApp.h>
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIROptions.h>
 #import <GTMSessionFetcher/GTMSessionFetcherService.h>
+#endif
 
 // The following two macros supply the incantation so that the C
 // preprocessor does not try to parse the version as a floating

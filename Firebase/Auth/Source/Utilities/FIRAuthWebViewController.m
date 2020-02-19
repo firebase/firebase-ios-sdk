@@ -21,6 +21,8 @@
 
 #import "FIRAuthWebView.h"
 
+#if TARGET_OS_IOS
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRAuthWebViewController () <WKNavigationDelegate>
@@ -115,5 +117,6 @@ didFailNavigation:(null_unspecified WKNavigation *)navigation
 @end
 
 NS_ASSUME_NONNULL_END
+#endif
 
 #endif

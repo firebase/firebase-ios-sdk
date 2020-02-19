@@ -16,7 +16,11 @@
 
 #import "FIRUser_Internal.h"
 
+#if SWIFT_PACKAGE
+#import "FIRLogger.h"
+#else
 #import <FirebaseCore/FIRLogger.h>
+#endif
 
 #import "FIRAdditionalUserInfo_Internal.h"
 #import "FIRAuth.h"

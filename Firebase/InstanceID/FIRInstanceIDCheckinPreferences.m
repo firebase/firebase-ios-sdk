@@ -16,7 +16,11 @@
 
 #import "FIRInstanceIDCheckinPreferences.h"
 
+#if SWIFT_PACKAGE
+#import "GULUserDefaults.h"
+#else
 #import <GoogleUtilities/GULUserDefaults.h>
+#endif
 #import "FIRInstanceIDCheckinService.h"
 #import "FIRInstanceIDUtilities.h"
 

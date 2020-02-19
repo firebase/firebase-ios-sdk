@@ -23,6 +23,8 @@
 #import "FIRAuthGlobalWorkQueue.h"
 #import "FIRAuthKeychainServices.h"
 
+#if TARGET_OS_IOS || TARGET_OS_TV
+
 NS_ASSUME_NONNULL_BEGIN
 
 /** @var kKeychainDataKey
@@ -165,5 +167,6 @@ static const NSUInteger kMaximumNumberOfPendingReceipts = 32;
 @end
 
 NS_ASSUME_NONNULL_END
+#endif
 
 #endif

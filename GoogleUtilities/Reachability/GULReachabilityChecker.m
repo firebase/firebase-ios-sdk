@@ -18,8 +18,13 @@
 #import "GoogleUtilities/Reachability/Private/GULReachabilityChecker.h"
 #import "GoogleUtilities/Reachability/Private/GULReachabilityMessageCode.h"
 
+#if SWIFT_PACKAGE
+#import "GULLogger.h"
+#import "GULReachabilityChecker.h"
+#else
 #import <GoogleUtilities/GULLogger.h>
 #import <GoogleUtilities/GULReachabilityChecker.h>
+#endif
 
 static GULLoggerService kGULLoggerReachability = @"[GULReachability]";
 #if !TARGET_OS_WATCH

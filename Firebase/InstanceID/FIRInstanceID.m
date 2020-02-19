@@ -16,12 +16,20 @@
 
 #import "FIRInstanceID.h"
 
-#import <FirebaseInstallations/FIRInstallations.h>
-
+#ifdef SWIFT_PACKAGE
+#import "Firebase/Core/Private/FIRAppInternal.h"
+#import "Firebase/Core/Private/FIRComponent.h"
+#import "Firebase/Core/Private/FIRComponentContainer.h"
+#import "Firebase/Core/Private/FIRLibrary.h"
+#import "GULAppEnvironmentUtil.h"
+#else
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
 #import <FirebaseCore/FIRComponentContainer.h>
 #import <FirebaseCore/FIRLibrary.h>
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
+#endif
+#import <FirebaseCore/FIRApp.h>
 #import <FirebaseCore/FIROptions.h>
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <GoogleUtilities/GULUserDefaults.h>

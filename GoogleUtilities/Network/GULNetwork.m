@@ -15,9 +15,15 @@
 #import "GoogleUtilities/Network/Private/GULNetwork.h"
 #import "GoogleUtilities/Network/Private/GULNetworkMessageCode.h"
 
+#if SWIFT_PACKAGE
+#import "GULLogger.h"
+#import "GULNSData+zlib.h"
+#import "GULReachabilityChecker.h"
+#else
 #import <GoogleUtilities/GULLogger.h>
 #import <GoogleUtilities/GULNSData+zlib.h>
 #import <GoogleUtilities/GULReachabilityChecker.h>
+#endif
 #import "GoogleUtilities/Network/Private/GULMutableDictionary.h"
 #import "GoogleUtilities/Network/Private/GULNetworkConstants.h"
 

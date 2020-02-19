@@ -19,9 +19,18 @@
 
 #import "FIRPhoneAuthProvider.h"
 
-#import <FirebaseCore/FIRLogger.h>
-#import "FIRPhoneAuthCredential_Internal.h"
+#if SWIFT_PACKAGE
+#import "FIRApp.h"
+#import "FIRLogger.h"
+#import "FIROptions.h"
+#else
 #import <FirebaseCore/FIRApp.h>
+#import <FirebaseCore/FIRLogger.h>
+#import <FirebaseCore/FIROptions.h>
+#endif
+
+
+#import "FIRPhoneAuthCredential_Internal.h"
 #import "FIRAuthAPNSToken.h"
 #import "FIRAuthAPNSTokenManager.h"
 #import "FIRAuthAppCredential.h"
@@ -35,13 +44,14 @@
 #import "FIRAuthSettings.h"
 #import "FIRAuthWebUtils.h"
 #import "FirebaseAuthVersion.h"
-#import <FirebaseCore/FIROptions.h>
 #import "FIRGetProjectConfigRequest.h"
 #import "FIRGetProjectConfigResponse.h"
 #import "FIRSendVerificationCodeRequest.h"
 #import "FIRSendVerificationCodeResponse.h"
 #import "FIRVerifyClientRequest.h"
 #import "FIRVerifyClientResponse.h"
+
+#if TARGET_OS_IOS
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -446,5 +456,6 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?";
 @end
 
 NS_ASSUME_NONNULL_END
+#endif
 
 #endif

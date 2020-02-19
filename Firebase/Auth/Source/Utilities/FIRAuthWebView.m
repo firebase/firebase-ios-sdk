@@ -19,6 +19,8 @@
 
 #import "FIRAuthWebView.h"
 
+#if TARGET_OS_IOS
+
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRAuthWebView
@@ -96,5 +98,6 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
+#endif
 
 #endif

@@ -19,10 +19,17 @@
 
 #import "FIRAuthNotificationManager.h"
 
+#if SWIFT_PACKAGE
+#import "FIRLogger.h"
+#else
 #import <FirebaseCore/FIRLogger.h>
+#endif
+
 #import "FIRAuthAppCredential.h"
 #import "FIRAuthAppCredentialManager.h"
 #import "FIRAuthGlobalWorkQueue.h"
+
+#if TARGET_OS_IOS || TARGET_OS_TV
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -178,5 +185,6 @@ static const NSTimeInterval kProbingTimeout = 1;
 
 @end
 NS_ASSUME_NONNULL_END
+#endif
 
 #endif

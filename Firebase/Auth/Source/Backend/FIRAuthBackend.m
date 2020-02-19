@@ -16,8 +16,14 @@
 
 #import "FIRAuthBackend.h"
 
+#if SWIFT_PACKAGE
+#import "GTMSessionFetcher.h"
+#import "GTMSessionFetcherService.h"
+#else
 #import <GTMSessionFetcher/GTMSessionFetcher.h>
 #import <GTMSessionFetcher/GTMSessionFetcherService.h>
+#endif
+
 
 #import "FIRAuthErrorUtils.h"
 #import "FIRAuthGlobalWorkQueue.h"
