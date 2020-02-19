@@ -12,278 +12,47 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Cannot use proto3, fields with the default value (ex: 0 for uint64) will be omitted
-syntax = "proto2";
+syntax = "proto3";
 
 package google_crashlytics;
 
-message Session {
-  // Known processor architecture types
-  // No default, due to backwards compat
-  enum Architecture {
-    X86_32 = 0;
-    X86_64 = 1;
-    ARM_UNKNOWN = 2;
-    ARMV6 = 5;
-    ARMV7 = 6;
-    UNKNOWN = 7;
-    ARMV7S = 8;
-    ARM64 = 9;
-    X86_64H = 10;
-    ARMV7K = 11;
-    ARM64E = 12;
-  }
-
-  enum Platform {
-    MAC_OS_X = 0;
-    IPHONE_OS = 1;
-    IPHONE_SIMULATOR = 2;
-    TVOS = 7;
-    WATCHOS = 8;
-    OTHER = 1000;
-  }
-
-  // SDK responsible for generating the session
-  // No default due to backwards compat
-  enum GeneratorType {
-    UNKNOWN_GENERATOR = 0;
-    IOS_SDK = 1;
-    MACOS_SDK = 2;
-    WATCHOS_SDK = 5;
-    TVOS_SDK = 6;
-  }
-
-  // SDK version that generated this session
-  required string generator = 1;
-
-  // GUID-style client-assigned unique session identifier
-  required bytes identifier = 2;
-
-  // Session start time, by device clock, in posix seconds since epoch, UTC
-  required uint64 started_at = 3;
-
-  // Session end time, by device clock, in posix seconds since epoch, UTC
-  optional uint64 ended_at = 4;
-
-  // Indicates that a device session ended unexpectedly
-  optional bool crashed = 5;
-
-  // SDK responsible for generating the session
-  optional GeneratorType generator_type = 12;
-
-  // Developer-supplied user-identifiying fields
-  message User {
-    required string identifier = 1;
-  }
-
-  optional User user = 6;
-
-  // Constant properties and identifiers for the running application
-  message Application {
-    // An app's bundle id, eg "com.crashlytics.mac"
-    required string identifier = 1;
-
-    // Monotonically increasing build version, 1,2,3... as a string
-    required string version = 2;
-
-    // Developer-supplied application version string, from XCode project, etc.
-    optional string display_version = 3;
-
-    // Unique device generated guid for application install
-    optional string installation_uuid = 6;
-
-    // Platform e.g. "Unity"
-    optional string development_platform = 8;
-
-    // Dev platform-specific version
-    optional string development_platform_version = 9;
-
-    message Organization {
-      optional string cls_id = 2;
-    }
-    optional Organization organization = 5;
-  }  // message Application
-
-  required Application app = 7;
-
-  message OperatingSystem {
-    required Platform platform = 1;
-
-    required string version = 2;
-
-    optional string build_version = 3;
-
-    optional bool jailbroken = 4;
-  }
-  optional OperatingSystem os = 8;
-
-  message Device {
-    required Architecture arch = 3;
-
-    optional string model = 4;
-
-    optional uint64 ram = 6;
-
-    optional uint64 disk_space = 7;
-
-    optional string language = 9;
-  }  // message Device
-
-  optional Device device = 9;
-
-  message Event {
-    // Event timestamp, from device clock, as posix seconds UTC
-    required uint64 timestamp = 1;
-
-    // Event type, one of "crash", "error"
-    required string type = 2;
-
-    // Application state captured at event time
-    message Application {
-      message Execution {
-        // Thread state
-        message Thread {
-          // Thread name from OS
-          optional string name = 1;
-
-          // Bitfield of FrameImportance
-          required uint32 importance = 2;
-
-          // Contents of each stack frame
-          message Frame {
-            required uint64 pc = 1;
-            optional string symbol = 2;                // On macOS
-            optional string file = 3;
-            optional uint64 offset = 4;                // On macOS
-
-            // Bitfield of FrameImportance
-            optional uint32 importance = 5;
-            optional uint64 line_number = 10;
-          }
-          repeated Frame frames = 3;
-
-          message Register {
-            required string name = 1;
-            required uint64 value = 2;
-          }
-          repeated Register registers = 4;
-
-          optional string alternate_name = 5;          // On macOS
-          optional string objc_selector_name = 6;
-        }  // message Application.Execution.Thread
-
-        repeated Thread threads = 1;
-
-        message Exception {
-          optional string type = 1;
-
-          optional string code = 2;
-
-          optional string reason = 3;
-
-          repeated Application.Execution.Thread.Frame frames = 4;
-
-          // Bitfield using values from the FrameImportance enum
-          optional uint32 importance = 8;
-        }
-
-        optional Exception exception = 2;
-
-        // Signal caught by SDK signal handler
-        message Signal {
-          required string name = 1;
-
-          required string code = 2;
-
-          // Faulting instruction or address
-          required uint64 address = 3;
-        }
-        required Signal signal = 3;
-
-        // Binary images/libraries included in the application package
-        message BinaryImage {
-          required uint64 base_address = 1;
-          required uint64 size = 2;
-
-          // Full path name to binary image
-          required string name = 3;
-
-          // 128-bit object UUID matches Mach-O DWARF dSYM files
-          optional bytes uuid = 4;
-
-          optional Architecture arch = 5;
-        }
-        repeated BinaryImage binaries = 4;
-      }  // message Application.Execution
-
-      required Execution execution = 1;
-      repeated CustomAttribute custom_attributes = 2;
-
-      // true if the app was in the background
-      optional bool background = 3;
-
-      optional uint32 ui_orientation = 4;
-    }  // message Event.Application
-
-    optional Application app = 3;
-
-    // Device physical properties recorded at event time
-    message Device {
-      // Device orientation during event
-      // 1,2 = portrait
-      // 3,4 = landscape
-      // 5 = face up
-      // 6 = face down
-      optional uint32 orientation = 4;
-
-      // Total RAM used at event time, in bytes
-      optional uint64 ram_used = 5;
-
-      // Total disk used at event time, in bytes
-      optional uint64 disk_used = 6;
-    }
-
-   optional Device device = 5;
-
-    // Developer-supplied log lines
-    // Only those lines most recently logged prior to the event are captured
-    message Log {
-      optional string content = 1;
-    }
-
-    optional Log log = 6;
-  }  // message Event
-  repeated Event events = 10;
-}
-
-// Map entry for developer-supplied custom attribute/value pairs
-message CustomAttribute {
-
-  required string key = 1;
-
-  required string value = 2;
+enum Platform {
+  MAC_OS_X = 0;
+  IPHONE_OS = 1;
+  IPHONE_SIMULATOR = 2;
+  TVOS = 7;
+  WATCHOS = 8;
+  OTHER = 1000;
 }
 
 message Report {
   // SDK version that generated this session
-  required string sdk_version = 1;
+  string sdk_version = 1;
 
   // GMP App ID
-  required string gmp_app_id = 3;
+  string gmp_app_id = 3;
 
   // General device type which generated the Event
-  required Session.Platform platform = 4;
+  Platform platform = 4;
 
-  // Unique device generated guid for application install. Equivalent to
-  // Session.app.installation_uuid
-  required string installation_uuid = 5;
+  // Unique device generated guid for application install.
+  string installation_uuid = 5;
 
-  // App build version. Equivalent to Session.app.version.
-  required string build_version = 6;
+  // App build version.
+  string build_version = 6;
 
-  // Developer-supplied application version. Equivalent to
-  // Session.app.display_version.
-  required string display_version = 7;
+  // Developer-supplied application version.
+  string display_version = 7;
 
-  required Session session = 8;
+  FilesPayload apple_payload = 10;
+}
+
+// Session data represented as a set of log and metadata files.
+message FilesPayload {
+  message File {
+    string filename = 1;
+    bytes contents = 2;
+  }
+
+  repeated File files = 1;
 }

@@ -43,24 +43,10 @@ pb_bytes_array_t *FIRCLSEncodeString(NSString *string);
 @property(nonatomic, strong) NSString *googleAppID;
 @property(nonatomic, strong) NSString *orgID;
 
-// The 3 types of crash files, in order of priority
-@property(nonatomic, strong) FIRCLSRecordException *exception;
-@property(nonatomic, strong) FIRCLSRecordMachException *mach_exception;
-@property(nonatomic, strong) FIRCLSRecordSignal *signal;
-
-@property(nonatomic, strong) NSArray<FIRCLSRecordThread *> *threads;
-@property(nonatomic, strong) FIRCLSRecordProcessStats *processStats;
-@property(nonatomic, strong) FIRCLSRecordStorage *storage;
-@property(nonatomic, strong) NSArray<FIRCLSRecordBinaryImage *> *binaryImages;
-@property(nonatomic, strong) FIRCLSRecordRuntime *runtime;
+// From metadata.clsrecord
 @property(nonatomic, strong) FIRCLSRecordIdentity *identity;
 @property(nonatomic, strong) FIRCLSRecordHost *host;
 @property(nonatomic, strong) FIRCLSRecordApplication *application;
-@property(nonatomic, strong) FIRCLSRecordExecutable *executable;
-@property(nonatomic, strong) NSDictionary<NSString *, NSString *> *internalKeyValues;
-@property(nonatomic, strong) NSDictionary<NSString *, NSString *> *userKeyValues;
-@property(nonatomic, strong) NSArray<FIRCLSRecordLog *> *userLogs;
-@property(nonatomic, strong) NSArray<FIRCLSRecordError *> *errors;
 
 @property(nonatomic) google_crashlytics_Report report;
 
