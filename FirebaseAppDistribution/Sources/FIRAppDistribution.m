@@ -87,4 +87,7 @@
   return (FIRAppDistribution *)instance;
 }
 
+- (void)checkForUpdateWithCompletion:(FIRAppDistributionUpdateCheckCompletion)completion {
+    completion(nil, nil);
+}
 @end

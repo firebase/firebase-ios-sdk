@@ -25,6 +25,7 @@ iOS SDK for App Distribution for Firebase.
   s.public_header_files = 'FirebaseAppDistribution/Sources/Public/*.h'
 
   s.dependency 'FirebaseCore', '~> 6.0'
+  s.dependency 'AppAuth'
 
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
