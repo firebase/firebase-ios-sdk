@@ -156,7 +156,7 @@
     }
     
     FIRIAMExperimentalPayload *experimentalPayload = nil;
-    NSDictionary *experimentPayloadDictionary = payloadNode[@"experimentalPayload"];
+    NSDictionary *experimentPayloadDictionary = payloadNode[@"experimentPayload"];
     if (experimentPayloadDictionary) {
         experimentalPayload =
           [[FIRIAMExperimentalPayload alloc] initWithDictionary:experimentPayloadDictionary];

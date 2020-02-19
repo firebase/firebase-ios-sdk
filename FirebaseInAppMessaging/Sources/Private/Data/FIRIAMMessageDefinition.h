@@ -22,7 +22,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRIAMExperimentalPayload : NSObject
+@interface FIRIAMExperimentalPayload : NSObject <NSCopying>
 
 @property(nonatomic, copy) NSString *experimentID;
 @property(nonatomic) NSTimeInterval experimentStartTime;

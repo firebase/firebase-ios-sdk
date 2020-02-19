@@ -30,6 +30,17 @@
   return self;
 }
 
+- (id)copyWithZone:(NSZone *)zone {
+  FIRIAMExperimentalPayload *newPayload = [[FIRIAMExperimentalPayload alloc] init];
+  newPayload->_experimentID = [_experimentID copyWithZone:zone];
+  newPayload->_experimentStartTime = _experimentStartTime;
+  newPayload->_overflowPolicy = [_overflowPolicy copyWithZone:zone];
+  newPayload->_timeToLive = _timeToLive;
+  newPayload->_triggerTimeoutMillis = _triggerTimeoutMillis;
+  newPayload->_variantID = _variantID;
+  return newPayload;
+}
+
 @end
 
 @implementation FIRIAMMessageRenderData
