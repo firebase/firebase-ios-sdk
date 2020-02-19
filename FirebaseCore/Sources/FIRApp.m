@@ -613,25 +613,17 @@ static dispatch_once_t sFirebaseUserAgentOnceToken;
 + (NSString *)applePlatform {
   NSString *applePlatform = @"unknown";
 
-#if TARGET_OS_IOS
-  applePlatform = @"ios";
-#endif  // TARGET_OS_IOS
-
-#if TARGET_OS_TV
-  applePlatform = @"tvos";
-#endif  // TARGET_OS_TV
-
-#if TARGET_OS_OSX
-  applePlatform = @"macos";
-#endif  // TARGET_OS_OSX
-
-#if TARGET_OS_WATCH
-  applePlatform = @"watchos";
-#endif  // TARGET_OS_WATCH
-
 #if TARGET_OS_MACCATALYST
   applePlatform = @"maccatalyst";
-#endif  // TARGET_OS_MACCATALYST
+#elif TARGET_OS_IOS
+  applePlatform = @"ios";
+#elif TARGET_OS_TV
+  applePlatform = @"tvos";
+#elif TARGET_OS_OSX
+  applePlatform = @"macos";
+#elif TARGET_OS_WATCH
+  applePlatform = @"watchos";
+#endif
 
   return applePlatform;
 }

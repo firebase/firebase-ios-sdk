@@ -839,13 +839,21 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 }
 
 - (void)testApplePlatformFlag {
-#if TARGET_OS_IOS
+  // When a Catalyst app is run on macOS then both `TARGET_OS_MACCATALYST` and `TARGET_OS_IOS` are
+  // `true`.
+#if TARGET_OS_MACCATALYST
+  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/ios"]);
+  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/tvos"]);
+  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/macos"]);
+  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/watchos"]);
+  XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"apple-platform/maccatalyst"]);
+#elif TARGET_OS_IOS
   XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"apple-platform/ios"]);
   XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/tvos"]);
   XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/macos"]);
   XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/watchos"]);
   XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/maccatalyst"]);
-#endif  // TARGET_OS_IOS
+#endif  // TARGET_OS_MACCATALYST
 
 #if TARGET_OS_TV
   XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/ios"]);
@@ -870,14 +878,6 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"apple-platform/watchos"]);
   XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/maccatalyst"]);
 #endif  // TARGET_OS_WATCH
-
-#if TARGET_OS_MACCATALYST
-  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/ios"]);
-  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/tvos"]);
-  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/macos"]);
-  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/watchos"]);
-  XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"apple-platform/maccatalyst"]);
-#endif  // TARGET_OS_MACCATALYST
 }
 
 #pragma mark - Core Diagnostics
