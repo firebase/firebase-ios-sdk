@@ -53,6 +53,7 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   end
 
   s.test_spec 'swift-unit' do |swift_unit_tests|
+    swift_unit_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
     swift_unit_tests.source_files = 'FirebaseCore/Tests/Unit/Swift/**/*.swift',
                                     'FirebaseCore/Tests/Unit/Swift/**/*.h'
     swift_unit_tests.pod_target_xcconfig = {
