@@ -16,6 +16,22 @@
 
 #import "FIRIAMMessageDefinition.h"
 
+@implementation FIRIAMExperimentalPayload
+
+- (instancetype)initWithDictionary:(NSDictionary *)dictionary {
+  if (self = [super init]) {
+    _experimentID = [dictionary[@"experimentId"] stringValue];
+    _experimentStartTime = [dictionary[@"experimentStartTimeMillis"] integerValue];
+    _overflowPolicy = [dictionary[@"overflowPolicy"] stringValue];
+    _timeToLive = [dictionary[@"timeToLiveMillis"] integerValue];
+    _triggerTimeoutMillis = [dictionary[@"triggerTimeoutMillis"] integerValue];
+    _variantID = [dictionary[@"variantId"] integerValue];
+  }
+  return self;
+}
+
+@end
+
 @implementation FIRIAMMessageRenderData
 
 - (instancetype)initWithMessageID:(NSString *)messageID
@@ -38,6 +54,7 @@
                            endTime:(NSTimeInterval)endTime
                  triggerDefinition:(NSArray<FIRIAMDisplayTriggerDefinition *> *)renderTriggers
                            appData:(nullable NSDictionary *)appData
+               experimentalPayload:(nullable FIRIAMExperimentalPayload *)experimentalPayload
                      isTestMessage:(BOOL)isTestMessage {
   if (self = [super init]) {
     _renderData = renderData;
@@ -46,6 +63,7 @@
     _endTime = endTime;
     _isTestMessage = isTestMessage;
     _appData = [appData copy];
+    _experimentalPayload = [experimentalPayload copy];
   }
   return self;
 }
@@ -59,6 +77,7 @@
                           endTime:endTime
                 triggerDefinition:renderTriggers
                           appData:nil
+              experimentalPayload:nil
                     isTestMessage:NO];
 }
 
@@ -68,6 +87,7 @@
                           endTime:0
                 triggerDefinition:@[]
                           appData:nil
+              experimentalPayload:nil
                     isTestMessage:YES];
 }
 

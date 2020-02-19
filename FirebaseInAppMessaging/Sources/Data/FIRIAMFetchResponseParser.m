@@ -130,28 +130,36 @@
     if ([isTestCampaignNode isKindOfClass:[NSNumber class]]) {
       isTestMessage = [isTestCampaignNode boolValue];
     }
+    
+    id payloadNode = messageNode[@"experimentalPayload"] ?: messageNode[@"vanillaPayload"];
 
-    id vanillaPayloadNode = messageNode[@"vanillaPayload"];
-    if (![vanillaPayloadNode isKindOfClass:[NSDictionary class]]) {
+    if (![payloadNode isKindOfClass:[NSDictionary class]]) {
       FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM900012",
-                    @"vanillaPayload does not exist or does not represent a dictionary in "
+                    @"Message payload does not exist or does not represent a dictionary in "
                      "message node %@",
                     messageNode);
       return nil;
     }
 
-    NSString *messageID = vanillaPayloadNode[@"campaignId"];
+    NSString *messageID = payloadNode[@"campaignId"];
     if (!messageID) {
       FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM900010",
                     @"messsage id is missing in message node %@", messageNode);
       return nil;
     }
 
-    NSString *messageName = vanillaPayloadNode[@"campaignName"];
+    NSString *messageName = payloadNode[@"campaignName"];
     if (!messageName && !isTestMessage) {
       FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM900011",
                     @"campaign name is missing in non-test message node %@", messageNode);
       return nil;
+    }
+    
+    FIRIAMExperimentalPayload *experimentalPayload = nil;
+    NSDictionary *experimentPayloadDictionary = payloadNode[@"experimentalPayload"];
+    if (experimentPayloadDictionary) {
+        experimentalPayload =
+          [[FIRIAMExperimentalPayload alloc] initWithDictionary:experimentPayloadDictionary];
     }
 
     NSTimeInterval startTimeInSeconds = 0;
@@ -159,12 +167,12 @@
     if (!isTestMessage) {
       // Parsing start/end times out of non-test messages. They are strings in the
       // json response.
-      id startTimeNode = vanillaPayloadNode[@"campaignStartTimeMillis"];
+      id startTimeNode = payloadNode[@"campaignStartTimeMillis"];
       if ([startTimeNode isKindOfClass:[NSString class]]) {
         startTimeInSeconds = [startTimeNode doubleValue] / 1000.0;
       }
 
-      id endTimeNode = vanillaPayloadNode[@"campaignEndTimeMillis"];
+      id endTimeNode = payloadNode[@"campaignEndTimeMillis"];
       if ([endTimeNode isKindOfClass:[NSString class]]) {
         endTimeInSeconds = [endTimeNode doubleValue] / 1000.0;
       }
@@ -348,6 +356,7 @@
                                                          endTime:endTimeInSeconds
                                                triggerDefinition:triggersDefinition
                                                          appData:dataBundle
+                                             experimentalPayload:experimentalPayload
                                                    isTestMessage:NO];
     }
   } @catch (NSException *e) {

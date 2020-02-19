@@ -21,6 +21,20 @@
 @class FIRIAMDisplayTriggerDefinition;
 
 NS_ASSUME_NONNULL_BEGIN
+
+@interface FIRIAMExperimentalPayload : NSObject
+
+@property(nonatomic, copy) NSString *experimentID;
+@property(nonatomic) NSTimeInterval experimentStartTime;
+@property(nonatomic, copy) NSString *overflowPolicy;
+@property(nonatomic) NSTimeInterval timeToLive;
+@property(nonatomic) NSTimeInterval triggerTimeoutMillis;
+@property(nonatomic) NSInteger variantID;
+
+- (instancetype)initWithDictionary:(NSDictionary *)dictionary;
+
+@end
+
 @interface FIRIAMMessageDefinition : NSObject
 @property(nonatomic, nonnull, readonly) FIRIAMMessageRenderData *renderData;
 
@@ -38,6 +52,8 @@ NS_ASSUME_NONNULL_BEGIN
 /// Additional key-value pairs that can be optionally sent along with the FIAM
 @property(nonatomic, nullable, readonly) NSDictionary *appData;
 
+@property(nonatomic, nullable, copy) NSDictionary *experimentalPayload;
+
 - (instancetype)init NS_UNAVAILABLE;
 
 /**
@@ -48,6 +64,7 @@ NS_ASSUME_NONNULL_BEGIN
                            endTime:(NSTimeInterval)endTime
                  triggerDefinition:(NSArray<FIRIAMDisplayTriggerDefinition *> *)renderTriggers
                            appData:appData
+               experimentalPayload:(nullable FIRIAMExperimentalPayload *)experimentalPayload
                      isTestMessage:(BOOL)isTestMessage NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)initWithRenderData:(FIRIAMMessageRenderData *)renderData
