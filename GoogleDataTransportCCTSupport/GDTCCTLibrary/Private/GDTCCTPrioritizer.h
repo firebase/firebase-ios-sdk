@@ -19,6 +19,8 @@
 #import <GoogleDataTransport/GDTCORClock.h>
 #import <GoogleDataTransport/GDTCORPrioritizer.h>
 
+@class GDTCORStoredEvent;
+
 NS_ASSUME_NONNULL_BEGIN
 
 /** Manages the prioritization of events from GoogleDataTransport. */
