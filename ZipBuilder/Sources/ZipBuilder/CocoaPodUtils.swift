@@ -200,10 +200,7 @@ enum CocoaPodUtils {
           // Split spaces and subspecs.
           let dep = depLine.components(separatedBy: [" "])[2].trimmingCharacters(in: quotes)
           if dep != currentPod {
-            if deps[currentPod] == nil {
-              deps[currentPod] = Set()
-            }
-            deps[currentPod]?.insert(dep)
+            deps[currentPod, default: Set()].insert(dep)
           }
         }
       }
@@ -225,14 +222,8 @@ enum CocoaPodUtils {
         } else {
           let basePodName = subspecArray[0]
           versions[basePodName] = version
-          if subspecs[basePodName] == nil {
-            subspecs[basePodName] = Set()
-          }
-          subspecs[basePodName]?.insert(subspecArray[1])
-          if deps[basePodName] == nil {
-            deps[basePodName] = Set()
-          }
-          deps[basePodName] = deps[basePodName]!.union(deps[podName] ?? Set())
+          subspecs[basePodName, default: Set()].insert(subspecArray[1])
+          deps[basePodName] = deps[basePodName, default: Set()].union(deps[podName] ?? Set())
         }
       }
     }
@@ -251,7 +242,8 @@ enum CocoaPodUtils {
         podDir = repoDir
       }
       let dependencies = [String](deps[podName] ?? [])
-      let podInfo = PodInfo(version: version, dependencies: dependencies, installedLocation: podDir, subspecs: subspecs[podName] ?? Set())
+      let podInfo = PodInfo(version: version, dependencies: dependencies, installedLocation: podDir,
+                            subspecs: subspecs[podName] ?? Set())
       installedPods[podName] = podInfo
     }
     return installedPods
