@@ -21,6 +21,8 @@
 #import <GoogleDataTransport/GDTCORRegistrar.h>
 #import <GoogleDataTransport/GDTCORTargets.h>
 
+#import "GDTCCTLibrary/Private/GDTCCTNanopbHelpers.h"
+
 const static int64_t kMillisPerDay = 8.64e+7;
 
 @implementation GDTCCTPrioritizer
@@ -55,6 +57,11 @@ const static int64_t kMillisPerDay = 8.64e+7;
 #pragma mark - GDTCORPrioritizer Protocol
 
 - (void)prioritizeEvent:(GDTCOREvent *)event {
+  if (event.customPrioritizationParams[@"needs_network_connection_info"]) {
+    gdt_cct_NetworkConnectionInfo networkInfo = GDTCCTConstructNetWorkConnectionInfo();
+    NSData *networkInfoData = [NSData dataWithBytes:&networkInfo length:sizeof(networkInfo)];
+    event.customPrioritizationParams = @{@"network_connection_info" : networkInfoData};
+  }
   dispatch_async(_queue, ^{
     switch (event.target) {
       case kGDTCORTargetCCT:

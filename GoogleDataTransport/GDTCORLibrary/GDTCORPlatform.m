@@ -49,6 +49,38 @@ BOOL GDTCORReachabilityFlagsContainWWAN(SCNetworkReachabilityFlags flags) {
 }
 #endif  // !TARGET_OS_WATCH
 
+BOOL GDTCORPlatformIsIOS() {
+#if TARGET_OS_IOS
+  return YES;
+#else
+  return NO;
+#endif
+}
+
+BOOL GDTCORPlatformIsMacOS() {
+#if TARGET_OS_OSX
+  return YES;
+#else
+  return NO;
+#endif
+}
+
+BOOL GDTCORPlatformIsTvOS() {
+#if TARGET_OS_TV
+  return YES;
+#else
+  return NO;
+#endif
+}
+
+BOOL GDTCORPlatformIsWatchOS() {
+#if TARGET_OS_WATCH
+  return YES;
+#else
+  return NO;
+#endif
+}
+
 @interface GDTCORApplication ()
 /**
  Private flag to match the existing `readonly` public flag. This will be accurate for all platforms,

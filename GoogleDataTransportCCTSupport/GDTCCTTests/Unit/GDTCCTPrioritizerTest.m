@@ -18,6 +18,7 @@
 
 #import "GDTCCTTests/Unit/Helpers/GDTCCTEventGenerator.h"
 
+#import "GDTCCTLibrary/Private/GDTCCTNanopbHelpers.h"
 #import "GDTCCTLibrary/Private/GDTCCTPrioritizer.h"
 
 @interface GDTCCTPrioritizerTest : XCTestCase
@@ -165,6 +166,19 @@
                                       conditions:GDTCORUploadConditionMobileData];
   XCTAssertTrue([package.events containsObject:dailyEvent]);
   XCTAssertTrue([package.events containsObject:telemetryEvent]);
+}
+
+/** Tests updating events generated network_connection_info. */
+- (void)testNetworkConnectionInfo {
+  GDTCCTPrioritizer *prioritizer = [[GDTCCTPrioritizer alloc] init];
+  GDTCOREvent *event = [_CCTGenerator generateEvent:GDTCOREventQosDefault];
+  event.customPrioritizationParams = @{@"needs_network_connection_info" : @YES};
+  [prioritizer prioritizeEvent:event];
+  XCTAssertNotNil(event.customPrioritizationParams[@"network_connection_info"]);
+  NSData *networkConnectionInfoData = event.customPrioritizationParams[@"network_connection_info"];
+  gdt_cct_NetworkConnectionInfo info;
+  [networkConnectionInfoData getBytes:&info length:sizeof(info)];
+  XCTAssertNotEqual(info.network_type, gdt_cct_NetworkConnectionInfo_NetworkType_NONE);
 }
 
 @end

@@ -48,6 +48,30 @@ FOUNDATION_EXPORT NSString *const kGDTCORApplicationWillTerminateNotification;
 BOOL GDTCORReachabilityFlagsContainWWAN(SCNetworkReachabilityFlags flags);
 #endif
 
+/** Return whether current platform is iOS.
+ *
+ * @return YES if the Platform is iOS, NO otherwise.
+ */
+BOOL GDTCORPlatformIsIOS(void);
+
+/** Return whether current platform is macOS.
+ *
+ * @return YES if the Platform is macOS, NO otherwise.
+ */
+BOOL GDTCORPlatformIsMacOS(void);
+
+/** Return whether current platform is tvOS.
+ *
+ * @return YES if the Platform is tvOS, NO otherwise.
+ */
+BOOL GDTCORPlatformIsTvOS(void);
+
+/** Return whether current platform is watchOS.
+ *
+ * @return YES if the Platform is watchOS, NO otherwise.
+ */
+BOOL GDTCORPlatformIsWatchOS(void);
+
 /** A typedef identify background identifiers. */
 typedef volatile NSUInteger GDTCORBackgroundIdentifier;
 

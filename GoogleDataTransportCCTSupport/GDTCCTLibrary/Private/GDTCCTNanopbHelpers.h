@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+#import <CoreTelephony/CTTelephonyNetworkInfo.h>
+
 #import <GoogleDataTransport/GDTCOREvent.h>
 
 #import "GDTCCTLibrary/Protogen/nanopb/cct.nanopb.h"
@@ -95,6 +97,35 @@ gdt_cct_ClientInfo GDTCCTConstructClientInfo(void);
  */
 FOUNDATION_EXPORT
 gdt_cct_IosClientInfo GDTCCTConstructiOSClientInfo(void);
+
+/** Constructs a gdt_cct_NetworkConnectionInfo representing the client nework connection
+ * information.
+ *
+ * @return The new gdt_cct_NetworkConnectionInfo object.
+ */
+FOUNDATION_EXPORT
+gdt_cct_NetworkConnectionInfo GDTCCTConstructNetWorkConnectionInfo(void);
+
+/** Return a gdt_cct_NetworkConnectionInfo_NetworkType representing the cilent network type.
+ *
+ * @return The gdt_cct_NetworkConnectionInfo_NetworkType.
+ */
+FOUNDATION_EXPORT
+gdt_cct_NetworkConnectionInfo_NetworkType GDTCCTNetworkConnectonInfoNetworkType(void);
+
+/** Return a gdt_cct_NetworkConnectionInfo_MobileSubtype representing the client
+ *
+ * @return The gdt_cct_NetworkConnectionInfo_MobileSubtype.
+ */
+FOUNDATION_EXPORT
+gdt_cct_NetworkConnectionInfo_MobileSubtype GDTCCTNetworkConnectionInfoNetworkMobileSubtype(void);
+
+/** Constructs a CTTelephonyNetworkInfo object representing the client mobile nework information.
+ *
+ * @return The CTTelephonyNetworkInfo object.
+ */
+FOUNDATION_EXPORT
+CTTelephonyNetworkInfo *_Nullable GDTCCTNetworkInfo(void);
 
 #pragma mark - CCT object decoders
 
