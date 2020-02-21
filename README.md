@@ -207,11 +207,12 @@ Thanks to contributions from the community, many of Firebase SDKs now compile, r
 tvOS, macOS, watchOS and Catalyst.
 
 For tvOS, checkout the [Sample](Example/tvOSSample).
-For watchOS, checkout the [Independent Watch App Sample](Example/Messaging/App/watchOS/SampleWatchApp).
+For watchOS, currently only Messaging and Storage (and their dependencies) have limited support. Checkout the
+[Independent Watch App Sample](Example/Messaging/App/watchOS/SampleWatchApp).
 
 Keep in mind that macOS, tvOS, watchOS and Catalyst are not officially supported by Firebase, and this
 repository is actively developed primarily for iOS. While we can catch basic unit test issues with
-Travis, there may be some changes where the SDK no longer works as expected on macOS or tvOS. If you
+Travis, there may be some changes where the SDK no longer works as expected on macOS, tvOS or watchOS. If you
 encounter this, please [file an issue](https://github.com/firebase/firebase-ios-sdk/issues).
 
 During app setup in the console, you may get to a step that mentions something like "Checking if the app
