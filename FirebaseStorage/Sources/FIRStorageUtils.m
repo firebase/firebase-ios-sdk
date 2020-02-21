@@ -16,7 +16,7 @@
 
 #if TARGET_OS_IOS || TARGET_OS_TV
 #import <MobileCoreServices/MobileCoreServices.h>
-#elif TARGET_OS_OSX
+#elif TARGET_OS_OSX || TARGET_OS_WATCH
 #import <CoreServices/CoreServices.h>
 #endif
 
@@ -46,9 +46,6 @@ NSString *const kGCSObjectAllowedCharacterSet =
     return nil;
   }
 
-#if TARGET_OS_WATCH
-  return nil;
-#else
   CFStringRef pathExtension = (__bridge_retained CFStringRef)extension;
   CFStringRef type =
       UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, pathExtension, NULL);
@@ -60,7 +57,6 @@ NSString *const kGCSObjectAllowedCharacterSet =
   }
 
   return mimeType;
-#endif
 }
 
 + (NSString *)queryStringForDictionary:(nullable NSDictionary *)dictionary {
