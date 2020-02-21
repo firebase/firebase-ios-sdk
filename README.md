@@ -209,13 +209,13 @@ tvOS, macOS, watchOS and Catalyst.
 For tvOS, checkout the [Sample](Example/tvOSSample).
 For watchOS, checkout the [Independent Watch App Sample](Example/Messaging/App/watchOS/SampleWatchApp).
 
-Keep in mind that macOS, Catalyst and tvOS are not officially supported by Firebase, and this
+Keep in mind that macOS, tvOS, watchOS and Catalyst are not officially supported by Firebase, and this
 repository is actively developed primarily for iOS. While we can catch basic unit test issues with
 Travis, there may be some changes where the SDK no longer works as expected on macOS or tvOS. If you
 encounter this, please [file an issue](https://github.com/firebase/firebase-ios-sdk/issues).
 
 During app setup in the console, you may get to a step that mentions something like "Checking if the app
-has communicated with our servers". This relies on Analytics and will not work on macOS/tvOS/Catalyst.
+has communicated with our servers". This relies on Analytics and will not work on macOS/tvOS/watchOS/Catalyst.
 **It's safe to ignore the message and continue**, the rest of the SDKs will work as expected.
 
 To install, add a subset of the following to the Podfile:
