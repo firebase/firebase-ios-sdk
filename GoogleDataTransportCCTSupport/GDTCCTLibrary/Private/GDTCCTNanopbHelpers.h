@@ -16,9 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import <CoreTelephony/CTTelephonyNetworkInfo.h>
-
 #import <GoogleDataTransport/GDTCOREvent.h>
+#import <GoogleDataTransport/GDTCORReachability.h>
 
 #import "GDTCCTLibrary/Protogen/nanopb/cct.nanopb.h"
 
@@ -104,14 +103,15 @@ gdt_cct_IosClientInfo GDTCCTConstructiOSClientInfo(void);
  * @return The new gdt_cct_NetworkConnectionInfo object.
  */
 FOUNDATION_EXPORT
-gdt_cct_NetworkConnectionInfo GDTCCTConstructNetWorkConnectionInfo(void);
+NSData *GDTCCTConstructNetworkConnectionInfoData(void);
 
 /** Return a gdt_cct_NetworkConnectionInfo_NetworkType representing the cilent network type.
  *
  * @return The gdt_cct_NetworkConnectionInfo_NetworkType.
  */
 FOUNDATION_EXPORT
-gdt_cct_NetworkConnectionInfo_NetworkType GDTCCTNetworkConnectonInfoNetworkType(void);
+gdt_cct_NetworkConnectionInfo_NetworkType GDTCCTNetworkConnectonInfoNetworkType(
+    SCNetworkReachabilityFlags flags);
 
 /** Return a gdt_cct_NetworkConnectionInfo_MobileSubtype representing the client
  *
@@ -119,13 +119,6 @@ gdt_cct_NetworkConnectionInfo_NetworkType GDTCCTNetworkConnectonInfoNetworkType(
  */
 FOUNDATION_EXPORT
 gdt_cct_NetworkConnectionInfo_MobileSubtype GDTCCTNetworkConnectionInfoNetworkMobileSubtype(void);
-
-/** Constructs a CTTelephonyNetworkInfo object representing the client mobile nework information.
- *
- * @return The CTTelephonyNetworkInfo object.
- */
-FOUNDATION_EXPORT
-CTTelephonyNetworkInfo *_Nullable GDTCCTNetworkInfo(void);
 
 #pragma mark - CCT object decoders
 

@@ -25,7 +25,6 @@
 #import <GoogleDataTransport/GDTCORConsoleLogger.h>
 #import <GoogleDataTransport/GDTCOREvent.h>
 #import <GoogleDataTransport/GDTCORPlatform.h>
-#import <GoogleDataTransport/GDTCORReachability.h>
 
 #import <nanopb/pb.h>
 #import <nanopb/pb_decode.h>
@@ -142,7 +141,7 @@ gdt_cct_LogEvent GDTCCTConstructLogEvent(GDTCOREvent *event) {
     NSData *networkConnectionInfoData =
         event.customPrioritizationParams[@"network_connection_info"];
     [networkConnectionInfoData getBytes:&logEvent.network_connection_info
-                                 length:sizeof(logEvent.network_connection_info)];
+                                 length:networkConnectionInfoData.length];
     logEvent.has_network_connection_info = 1;
   }
   NSError *error;
@@ -195,10 +194,12 @@ gdt_cct_IosClientInfo GDTCCTConstructiOSClientInfo() {
   return iOSClientInfo;
 }
 
-gdt_cct_NetworkConnectionInfo GDTCCTConstructNetWorkConnectionInfo() {
+NSData *GDTCCTConstructNetworkConnectionInfoData() {
   gdt_cct_NetworkConnectionInfo networkConnectionInfo = gdt_cct_NetworkConnectionInfo_init_default;
-  if (GDTCORPlatformIsIOS()) {
-    networkConnectionInfo.network_type = GDTCCTNetworkConnectonInfoNetworkType();
+  SCNetworkReachabilityFlags reachabilityFlags = [GDTCORReachability currentFlags];
+  if ((reachabilityFlags & kSCNetworkReachabilityFlagsReachable) ==
+      kSCNetworkReachabilityFlagsReachable) {
+    networkConnectionInfo.network_type = GDTCCTNetworkConnectonInfoNetworkType(reachabilityFlags);
     if (networkConnectionInfo.network_type != gdt_cct_NetworkConnectionInfo_NetworkType_NONE) {
       networkConnectionInfo.has_network_type = 1;
       if (networkConnectionInfo.network_type == gdt_cct_NetworkConnectionInfo_NetworkType_MOBILE) {
@@ -209,60 +210,54 @@ gdt_cct_NetworkConnectionInfo GDTCCTConstructNetWorkConnectionInfo() {
         }
       }
     }
-  } else if (GDTCORPlatformIsMacOS() || GDTCORPlatformIsTvOS() || GDTCORPlatformIsWatchOS()) {
-    SCNetworkReachabilityFlags reachabilityFlags = [GDTCORReachability currentFlags];
-    // Currently set all non-iOS platform network type to WIFI if network is reachable.
-    if (reachabilityFlags & kSCNetworkReachabilityFlagsReachable) {
-      networkConnectionInfo.has_network_type = 1;
-      networkConnectionInfo.network_type = gdt_cct_NetworkConnectionInfo_NetworkType_WIFI;
-    }
   }
-  return networkConnectionInfo;
+  NSData *networkConnectionInfoData = [NSData dataWithBytes:&networkConnectionInfo
+                                                     length:sizeof(networkConnectionInfo)];
+  return networkConnectionInfoData;
 }
 
-gdt_cct_NetworkConnectionInfo_NetworkType GDTCCTNetworkConnectonInfoNetworkType() {
+gdt_cct_NetworkConnectionInfo_NetworkType GDTCCTNetworkConnectonInfoNetworkType(
+    SCNetworkReachabilityFlags flags) {
   gdt_cct_NetworkConnectionInfo_NetworkType networkType =
       gdt_cct_NetworkConnectionInfo_NetworkType_NONE;
-  SCNetworkReachabilityFlags reachabilityFlags = [GDTCORReachability currentFlags];
-  if (reachabilityFlags & kSCNetworkReachabilityFlagsIsWWAN) {
+  if (GDTCORReachabilityFlagsContainWWAN(flags)) {
     networkType = gdt_cct_NetworkConnectionInfo_NetworkType_MOBILE;
+    GDTCORLogDebug(@"%@", @"Event captured that it occurred whilst using mobile data.");
   } else {
     networkType = gdt_cct_NetworkConnectionInfo_NetworkType_WIFI;
+    GDTCORLogDebug(@"%@", @"Event captured that it occurred whilst using wifi data.");
   }
   return networkType;
 }
 
 gdt_cct_NetworkConnectionInfo_MobileSubtype GDTCCTNetworkConnectionInfoNetworkMobileSubtype() {
-  static NSDictionary<NSString *, NSNumber *> *ctRadioAccessTechnologyToNetworkSubType;
-  static dispatch_once_t onceToken = 0;
-  dispatch_once(&onceToken, ^{
-    ctRadioAccessTechnologyToNetworkSubType = @{
-      CTRadioAccessTechnologyGPRS : @(gdt_cct_NetworkConnectionInfo_MobileSubtype_GPRS),
-      CTRadioAccessTechnologyEdge : @(gdt_cct_NetworkConnectionInfo_MobileSubtype_EDGE),
-      CTRadioAccessTechnologyWCDMA :
-          @(gdt_cct_NetworkConnectionInfo_MobileSubtype_UNKNOWN_MOBILE_SUBTYPE),
-      CTRadioAccessTechnologyHSDPA : @(gdt_cct_NetworkConnectionInfo_MobileSubtype_HSDPA),
-      CTRadioAccessTechnologyHSUPA : @(gdt_cct_NetworkConnectionInfo_MobileSubtype_HSUPA),
-      CTRadioAccessTechnologyCDMA1x : @(gdt_cct_NetworkConnectionInfo_MobileSubtype_CDMA),
-      CTRadioAccessTechnologyCDMAEVDORev0 : @(gdt_cct_NetworkConnectionInfo_MobileSubtype_EVDO_0),
-      CTRadioAccessTechnologyCDMAEVDORevA : @(gdt_cct_NetworkConnectionInfo_MobileSubtype_EVDO_A),
-      CTRadioAccessTechnologyCDMAEVDORevB : @(gdt_cct_NetworkConnectionInfo_MobileSubtype_EVDO_B),
-      CTRadioAccessTechnologyeHRPD : @(gdt_cct_NetworkConnectionInfo_MobileSubtype_EHRPD),
-      CTRadioAccessTechnologyLTE : @(gdt_cct_NetworkConnectionInfo_MobileSubtype_LTE),
-    };
-  });
-  NSString *networkInfoString = GDTCCTNetworkInfo().currentRadioAccessTechnology;
-  NSNumber *networkMobileSubtype = ctRadioAccessTechnologyToNetworkSubType[networkInfoString];
-  return networkMobileSubtype.intValue;
-}
-
-CTTelephonyNetworkInfo *GDTCCTNetworkInfo() {
-  static CTTelephonyNetworkInfo *networkInfo;
+  NSNumber *networkMobileSubtypeMessage = @(GDTCORNetworkMobileSubTypeMessage());
+  if (!networkMobileSubtypeMessage.intValue) {
+    return gdt_cct_NetworkConnectionInfo_MobileSubtype_UNKNOWN_MOBILE_SUBTYPE;
+  }
+  static NSDictionary<NSNumber *, NSNumber *> *MessageToNetworkSubTypeMessage;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
-    networkInfo = [[CTTelephonyNetworkInfo alloc] init];
+    MessageToNetworkSubTypeMessage = @{
+      @(GDTCORNetworkMobileSubtype_GPRS) : @(gdt_cct_NetworkConnectionInfo_MobileSubtype_GPRS),
+      @(GDTCORNetworkMobileSubtype_Edge) : @(gdt_cct_NetworkConnectionInfo_MobileSubtype_EDGE),
+      @(GDTCORNetworkMobileSubtype_WCDMA) :
+          @(gdt_cct_NetworkConnectionInfo_MobileSubtype_UNKNOWN_MOBILE_SUBTYPE),
+      @(GDTCORNetworkMobileSubtype_HSDPA) : @(gdt_cct_NetworkConnectionInfo_MobileSubtype_HSDPA),
+      @(GDTCORNetworkMobileSubtype_HSUPA) : @(gdt_cct_NetworkConnectionInfo_MobileSubtype_HSUPA),
+      @(GDTCORNetworkMobileSubtype_CDMA1x) : @(gdt_cct_NetworkConnectionInfo_MobileSubtype_CDMA),
+      @(GDTCORNetworkMobileSubtype_CDMAEVDORev0) :
+          @(gdt_cct_NetworkConnectionInfo_MobileSubtype_EVDO_0),
+      @(GDTCORNetworkMobileSubtype_CDMAEVDORevA) :
+          @(gdt_cct_NetworkConnectionInfo_MobileSubtype_EVDO_A),
+      @(GDTCORNetworkMobileSubtype_CDMAEVDORevB) :
+          @(gdt_cct_NetworkConnectionInfo_MobileSubtype_EVDO_B),
+      @(GDTCORNetworkMobileSubtype_HRPD) : @(gdt_cct_NetworkConnectionInfo_MobileSubtype_EHRPD),
+      @(GDTCORNetworkMobileSubtype_LTE) : @(gdt_cct_NetworkConnectionInfo_MobileSubtype_LTE),
+    };
   });
-  return networkInfo;
+  NSNumber *networkMobileSubtype = MessageToNetworkSubTypeMessage[networkMobileSubtypeMessage];
+  return networkMobileSubtype.intValue;
 }
 
 #pragma mark - CCT Object decoders

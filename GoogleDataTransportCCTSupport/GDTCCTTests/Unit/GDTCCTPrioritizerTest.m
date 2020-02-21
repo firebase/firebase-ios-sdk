@@ -177,7 +177,7 @@
   XCTAssertNotNil(event.customPrioritizationParams[@"network_connection_info"]);
   NSData *networkConnectionInfoData = event.customPrioritizationParams[@"network_connection_info"];
   gdt_cct_NetworkConnectionInfo info;
-  [networkConnectionInfoData getBytes:&info length:sizeof(info)];
+  [networkConnectionInfoData getBytes:&info length:networkConnectionInfoData.length];
   XCTAssertNotEqual(info.network_type, gdt_cct_NetworkConnectionInfo_NetworkType_NONE);
 }
 

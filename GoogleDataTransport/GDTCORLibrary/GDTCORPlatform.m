@@ -18,6 +18,7 @@
 
 #import <GoogleDataTransport/GDTCORAssert.h>
 #import <GoogleDataTransport/GDTCORConsoleLogger.h>
+#import <GoogleDataTransport/GDTCORReachability.h>
 
 #import "GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
 
@@ -49,35 +50,33 @@ BOOL GDTCORReachabilityFlagsContainWWAN(SCNetworkReachabilityFlags flags) {
 }
 #endif  // !TARGET_OS_WATCH
 
-BOOL GDTCORPlatformIsIOS() {
+GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
 #if TARGET_OS_IOS
-  return YES;
-#else
-  return NO;
-#endif
-}
+  static NSDictionary<NSString *, NSNumber *> *ctRadioAccessTechnologyToNetworkSubTypeMessage;
+  static CTTelephonyNetworkInfo *networkInfo;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    ctRadioAccessTechnologyToNetworkSubTypeMessage = @{
+      CTRadioAccessTechnologyGPRS : @(GDTCORNetworkMobileSubtype_GPRS),
+      CTRadioAccessTechnologyEdge : @(GDTCORNetworkMobileSubtype_Edge),
+      CTRadioAccessTechnologyWCDMA : @(GDTCORNetworkMobileSubtype_WCDMA),
+      CTRadioAccessTechnologyHSDPA : @(GDTCORNetworkMobileSubtype_HSDPA),
+      CTRadioAccessTechnologyHSUPA : @(GDTCORNetworkMobileSubtype_HSUPA),
+      CTRadioAccessTechnologyCDMA1x : @(GDTCORNetworkMobileSubtype_CDMA1x),
+      CTRadioAccessTechnologyCDMAEVDORev0 : @(GDTCORNetworkMobileSubtype_CDMAEVDORev0),
+      CTRadioAccessTechnologyCDMAEVDORevA : @(GDTCORNetworkMobileSubtype_CDMAEVDORevA),
+      CTRadioAccessTechnologyCDMAEVDORevB : @(GDTCORNetworkMobileSubtype_CDMAEVDORevB),
+      CTRadioAccessTechnologyeHRPD : @(GDTCORNetworkMobileSubtype_HRPD),
+      CTRadioAccessTechnologyLTE : @(GDTCORNetworkMobileSubtype_LTE),
+    };
+    networkInfo = [[CTTelephonyNetworkInfo alloc] init];
+  });
+  NSNumber *networkMobileSubtype =
+      ctRadioAccessTechnologyToNetworkSubTypeMessage[networkInfo.currentRadioAccessTechnology];
 
-BOOL GDTCORPlatformIsMacOS() {
-#if TARGET_OS_OSX
-  return YES;
+  return networkMobileSubtype.intValue;
 #else
-  return NO;
-#endif
-}
-
-BOOL GDTCORPlatformIsTvOS() {
-#if TARGET_OS_TV
-  return YES;
-#else
-  return NO;
-#endif
-}
-
-BOOL GDTCORPlatformIsWatchOS() {
-#if TARGET_OS_WATCH
-  return YES;
-#else
-  return NO;
+  return GDTCORNetworkMobileSubtype_UNKNOWN;
 #endif
 }
 

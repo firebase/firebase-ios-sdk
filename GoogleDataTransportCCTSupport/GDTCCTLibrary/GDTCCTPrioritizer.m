@@ -58,8 +58,7 @@ const static int64_t kMillisPerDay = 8.64e+7;
 
 - (void)prioritizeEvent:(GDTCOREvent *)event {
   if (event.customPrioritizationParams[@"needs_network_connection_info"]) {
-    gdt_cct_NetworkConnectionInfo networkInfo = GDTCCTConstructNetWorkConnectionInfo();
-    NSData *networkInfoData = [NSData dataWithBytes:&networkInfo length:sizeof(networkInfo)];
+    NSData *networkInfoData = GDTCCTConstructNetworkConnectionInfoData();
     event.customPrioritizationParams = @{@"network_connection_info" : networkInfoData};
   }
   dispatch_async(_queue, ^{
@@ -77,7 +76,7 @@ const static int64_t kMillisPerDay = 8.64e+7;
         break;
 
       default:
-        GDTCORLogDebug("GDTCCTPrioritizer doesn't support target %d", event.target);
+        GDTCORLogDebug("GDTCCTPrioritizer doesn't support target %ld", (long)event.target);
         break;
     }
   });

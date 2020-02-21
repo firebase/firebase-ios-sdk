@@ -25,6 +25,10 @@
 #import <AppKit/AppKit.h>
 #endif  // TARGET_OS_IOS || TARGET_OS_TV
 
+#if TARGET_OS_IOS
+#import <CoreTelephony/CTTelephonyNetworkInfo.h>
+#endif
+
 NS_ASSUME_NONNULL_BEGIN
 
 /** The GoogleDataTransport library version. */
@@ -39,6 +43,22 @@ FOUNDATION_EXPORT NSString *const kGDTCORApplicationWillEnterForegroundNotificat
 /** A notification sent out if the app is terminating. */
 FOUNDATION_EXPORT NSString *const kGDTCORApplicationWillTerminateNotification;
 
+/** The different possible network connection mobile subtype. */
+typedef NS_ENUM(NSInteger, GDTCORNetworkMobileSubtype) {
+  GDTCORNetworkMobileSubtype_UNKNOWN = 0,
+  GDTCORNetworkMobileSubtype_GPRS = 1,
+  GDTCORNetworkMobileSubtype_Edge = 2,
+  GDTCORNetworkMobileSubtype_WCDMA = 3,
+  GDTCORNetworkMobileSubtype_HSDPA = 4,
+  GDTCORNetworkMobileSubtype_HSUPA = 5,
+  GDTCORNetworkMobileSubtype_CDMA1x = 6,
+  GDTCORNetworkMobileSubtype_CDMAEVDORev0 = 7,
+  GDTCORNetworkMobileSubtype_CDMAEVDORevA = 8,
+  GDTCORNetworkMobileSubtype_CDMAEVDORevB = 9,
+  GDTCORNetworkMobileSubtype_HRPD = 10,
+  GDTCORNetworkMobileSubtype_LTE = 11,
+};
+
 #if !TARGET_OS_WATCH
 /** Compares flags with the WWAN reachability flag, if available, and returns YES if present.
  *
@@ -48,29 +68,12 @@ FOUNDATION_EXPORT NSString *const kGDTCORApplicationWillTerminateNotification;
 BOOL GDTCORReachabilityFlagsContainWWAN(SCNetworkReachabilityFlags flags);
 #endif
 
-/** Return whether current platform is iOS.
+/** Generates a enum message GDTCORNetworkMobileSubtype representing Network connection mobile
+ * subtype.
  *
- * @return YES if the Platform is iOS, NO otherwise.
+ * @return a GDTCORNetworkMobileSubtype representing Network connection mobile subtype.
  */
-BOOL GDTCORPlatformIsIOS(void);
-
-/** Return whether current platform is macOS.
- *
- * @return YES if the Platform is macOS, NO otherwise.
- */
-BOOL GDTCORPlatformIsMacOS(void);
-
-/** Return whether current platform is tvOS.
- *
- * @return YES if the Platform is tvOS, NO otherwise.
- */
-BOOL GDTCORPlatformIsTvOS(void);
-
-/** Return whether current platform is watchOS.
- *
- * @return YES if the Platform is watchOS, NO otherwise.
- */
-BOOL GDTCORPlatformIsWatchOS(void);
+GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage(void);
 
 /** A typedef identify background identifiers. */
 typedef volatile NSUInteger GDTCORBackgroundIdentifier;
