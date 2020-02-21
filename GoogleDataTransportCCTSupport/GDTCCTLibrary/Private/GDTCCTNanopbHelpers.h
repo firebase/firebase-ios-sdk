@@ -17,10 +17,21 @@
 #import <Foundation/Foundation.h>
 
 #import <GoogleDataTransport/GDTCOREvent.h>
+#import <GoogleDataTransport/GDTCORReachability.h>
 
 #import "GDTCCTLibrary/Protogen/nanopb/cct.nanopb.h"
 
 NS_ASSUME_NONNULL_BEGIN
+
+/** A string sets in customPrioritizationParams as a key paired to @YES if current event needs to
+ * populate network connection info data, @NO otherwise.
+ */
+FOUNDATION_EXPORT NSString *const GDTCCTNeedsNetworkConnectionInfo;
+
+/** A string sets in customPrioritizationParams as a key paired to the network connection info data
+ * of current event.
+ */
+FOUNDATION_EXPORT NSString *const GDTCCTNetworkConnectionInfo;
 
 #pragma mark - General purpose encoders
 
@@ -95,6 +106,29 @@ gdt_cct_ClientInfo GDTCCTConstructClientInfo(void);
  */
 FOUNDATION_EXPORT
 gdt_cct_IosClientInfo GDTCCTConstructiOSClientInfo(void);
+
+/** Constructs the data of a gdt_cct_NetworkConnectionInfo representing the client nework connection
+ * information.
+ *
+ * @return The data of a gdt_cct_NetworkConnectionInfo object.
+ */
+FOUNDATION_EXPORT
+NSData *GDTCCTConstructNetworkConnectionInfoData(void);
+
+/** Return a gdt_cct_NetworkConnectionInfo_NetworkType representing the cilent network type.
+ *
+ * @return The gdt_cct_NetworkConnectionInfo_NetworkType.
+ */
+FOUNDATION_EXPORT
+gdt_cct_NetworkConnectionInfo_NetworkType GDTCCTNetworkConnectonInfoNetworkType(
+    SCNetworkReachabilityFlags flags);
+
+/** Return a gdt_cct_NetworkConnectionInfo_MobileSubtype representing the client
+ *
+ * @return The gdt_cct_NetworkConnectionInfo_MobileSubtype.
+ */
+FOUNDATION_EXPORT
+gdt_cct_NetworkConnectionInfo_MobileSubtype GDTCCTNetworkConnectionInfoNetworkMobileSubtype(void);
 
 #pragma mark - CCT object decoders
 
