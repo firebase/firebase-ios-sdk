@@ -24,11 +24,13 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** A string sets in customPrioritizationParams as a key paired to @YES if current event needs to
- * populate network connection info data, @NO otherwise. */
+ * populate network connection info data, @NO otherwise.
+ */
 FOUNDATION_EXPORT NSString *const GDTCCTNeedsNetworkConnectionInfo;
 
 /** A string sets in customPrioritizationParams as a key paired to the network connection info data
- * of current event. */
+ * of current event.
+ */
 FOUNDATION_EXPORT NSString *const GDTCCTNetworkConnectionInfo;
 
 #pragma mark - General purpose encoders

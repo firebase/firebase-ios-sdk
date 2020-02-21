@@ -71,10 +71,10 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
     };
     networkInfo = [[CTTelephonyNetworkInfo alloc] init];
   });
-  NSString *networkCurrentRadioAccessTechonlogy = networkInfo.currentRadioAccessTechnology;
-  if (networkCurrentRadioAccessTechonlogy) {
+  NSString *networkCurrentRadioAccessTechnology = networkInfo.currentRadioAccessTechnology;
+  if (networkCurrentRadioAccessTechnology) {
     NSNumber *networkMobileSubtype =
-        CTRadioAccessTechnologyToNetworkSubTypeMessage[networkCurrentRadioAccessTechonlogy];
+        CTRadioAccessTechnologyToNetworkSubTypeMessage[networkCurrentRadioAccessTechnology];
     return networkMobileSubtype.intValue;
   } else {
     return GDTCORNetworkMobileSubtypeUNKNOWN;
