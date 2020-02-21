@@ -52,31 +52,35 @@ BOOL GDTCORReachabilityFlagsContainWWAN(SCNetworkReachabilityFlags flags) {
 
 GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
 #if TARGET_OS_IOS
-  static NSDictionary<NSString *, NSNumber *> *ctRadioAccessTechnologyToNetworkSubTypeMessage;
+  static NSDictionary<NSString *, NSNumber *> *CTRadioAccessTechnologyToNetworkSubTypeMessage;
   static CTTelephonyNetworkInfo *networkInfo;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
-    ctRadioAccessTechnologyToNetworkSubTypeMessage = @{
-      CTRadioAccessTechnologyGPRS : @(GDTCORNetworkMobileSubtype_GPRS),
-      CTRadioAccessTechnologyEdge : @(GDTCORNetworkMobileSubtype_Edge),
-      CTRadioAccessTechnologyWCDMA : @(GDTCORNetworkMobileSubtype_WCDMA),
-      CTRadioAccessTechnologyHSDPA : @(GDTCORNetworkMobileSubtype_HSDPA),
-      CTRadioAccessTechnologyHSUPA : @(GDTCORNetworkMobileSubtype_HSUPA),
-      CTRadioAccessTechnologyCDMA1x : @(GDTCORNetworkMobileSubtype_CDMA1x),
-      CTRadioAccessTechnologyCDMAEVDORev0 : @(GDTCORNetworkMobileSubtype_CDMAEVDORev0),
-      CTRadioAccessTechnologyCDMAEVDORevA : @(GDTCORNetworkMobileSubtype_CDMAEVDORevA),
-      CTRadioAccessTechnologyCDMAEVDORevB : @(GDTCORNetworkMobileSubtype_CDMAEVDORevB),
-      CTRadioAccessTechnologyeHRPD : @(GDTCORNetworkMobileSubtype_HRPD),
-      CTRadioAccessTechnologyLTE : @(GDTCORNetworkMobileSubtype_LTE),
+    CTRadioAccessTechnologyToNetworkSubTypeMessage = @{
+      CTRadioAccessTechnologyGPRS : @(GDTCORNetworkMobileSubtypeGPRS),
+      CTRadioAccessTechnologyEdge : @(GDTCORNetworkMobileSubtypeEdge),
+      CTRadioAccessTechnologyWCDMA : @(GDTCORNetworkMobileSubtypeWCDMA),
+      CTRadioAccessTechnologyHSDPA : @(GDTCORNetworkMobileSubtypeHSDPA),
+      CTRadioAccessTechnologyHSUPA : @(GDTCORNetworkMobileSubtypeHSUPA),
+      CTRadioAccessTechnologyCDMA1x : @(GDTCORNetworkMobileSubtypeCDMA1x),
+      CTRadioAccessTechnologyCDMAEVDORev0 : @(GDTCORNetworkMobileSubtypeCDMAEVDORev0),
+      CTRadioAccessTechnologyCDMAEVDORevA : @(GDTCORNetworkMobileSubtypeCDMAEVDORevA),
+      CTRadioAccessTechnologyCDMAEVDORevB : @(GDTCORNetworkMobileSubtypeCDMAEVDORevB),
+      CTRadioAccessTechnologyeHRPD : @(GDTCORNetworkMobileSubtypeHRPD),
+      CTRadioAccessTechnologyLTE : @(GDTCORNetworkMobileSubtypeLTE),
     };
     networkInfo = [[CTTelephonyNetworkInfo alloc] init];
   });
-  NSNumber *networkMobileSubtype =
-      ctRadioAccessTechnologyToNetworkSubTypeMessage[networkInfo.currentRadioAccessTechnology];
-
-  return networkMobileSubtype.intValue;
+  NSString *networkCurrentRadioAccessTechonlogy = networkInfo.currentRadioAccessTechnology;
+  if (networkCurrentRadioAccessTechonlogy) {
+    NSNumber *networkMobileSubtype =
+        CTRadioAccessTechnologyToNetworkSubTypeMessage[networkCurrentRadioAccessTechonlogy];
+    return networkMobileSubtype.intValue;
+  } else {
+    return GDTCORNetworkMobileSubtypeUNKNOWN;
+  }
 #else
-  return GDTCORNetworkMobileSubtype_UNKNOWN;
+  return GDTCORNetworkMobileSubtypeUNKNOWN;
 #endif
 }
 

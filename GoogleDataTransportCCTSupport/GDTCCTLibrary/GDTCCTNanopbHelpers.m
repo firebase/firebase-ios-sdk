@@ -32,6 +32,10 @@
 
 #import "GDTCCTLibrary/Private/GDTCCTPrioritizer.h"
 
+NSString *const GDTCCTNeedsNetworkConnectionInfo = @"needs_network_connection_info";
+
+NSString *const GDTCCTNetworkConnectionInfo = @"network_connection_info";
+
 #pragma mark - General purpose encoders
 
 pb_bytes_array_t *GDTCCTEncodeString(NSString *string) {
@@ -137,9 +141,9 @@ gdt_cct_LogEvent GDTCCTConstructLogEvent(GDTCOREvent *event) {
   logEvent.has_event_uptime_ms = 1;
   logEvent.timezone_offset_seconds = event.clockSnapshot.timezoneOffsetSeconds;
   logEvent.has_timezone_offset_seconds = 1;
-  if (event.customPrioritizationParams[@"network_connection_info"]) {
+  if (event.customPrioritizationParams[GDTCCTNetworkConnectionInfo]) {
     NSData *networkConnectionInfoData =
-        event.customPrioritizationParams[@"network_connection_info"];
+        event.customPrioritizationParams[GDTCCTNetworkConnectionInfo];
     [networkConnectionInfoData getBytes:&logEvent.network_connection_info
                                  length:networkConnectionInfoData.length];
     logEvent.has_network_connection_info = 1;
@@ -239,21 +243,21 @@ gdt_cct_NetworkConnectionInfo_MobileSubtype GDTCCTNetworkConnectionInfoNetworkMo
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
     MessageToNetworkSubTypeMessage = @{
-      @(GDTCORNetworkMobileSubtype_GPRS) : @(gdt_cct_NetworkConnectionInfo_MobileSubtype_GPRS),
-      @(GDTCORNetworkMobileSubtype_Edge) : @(gdt_cct_NetworkConnectionInfo_MobileSubtype_EDGE),
-      @(GDTCORNetworkMobileSubtype_WCDMA) :
+      @(GDTCORNetworkMobileSubtypeGPRS) : @(gdt_cct_NetworkConnectionInfo_MobileSubtype_GPRS),
+      @(GDTCORNetworkMobileSubtypeEdge) : @(gdt_cct_NetworkConnectionInfo_MobileSubtype_EDGE),
+      @(GDTCORNetworkMobileSubtypeWCDMA) :
           @(gdt_cct_NetworkConnectionInfo_MobileSubtype_UNKNOWN_MOBILE_SUBTYPE),
-      @(GDTCORNetworkMobileSubtype_HSDPA) : @(gdt_cct_NetworkConnectionInfo_MobileSubtype_HSDPA),
-      @(GDTCORNetworkMobileSubtype_HSUPA) : @(gdt_cct_NetworkConnectionInfo_MobileSubtype_HSUPA),
-      @(GDTCORNetworkMobileSubtype_CDMA1x) : @(gdt_cct_NetworkConnectionInfo_MobileSubtype_CDMA),
-      @(GDTCORNetworkMobileSubtype_CDMAEVDORev0) :
+      @(GDTCORNetworkMobileSubtypeHSDPA) : @(gdt_cct_NetworkConnectionInfo_MobileSubtype_HSDPA),
+      @(GDTCORNetworkMobileSubtypeHSUPA) : @(gdt_cct_NetworkConnectionInfo_MobileSubtype_HSUPA),
+      @(GDTCORNetworkMobileSubtypeCDMA1x) : @(gdt_cct_NetworkConnectionInfo_MobileSubtype_CDMA),
+      @(GDTCORNetworkMobileSubtypeCDMAEVDORev0) :
           @(gdt_cct_NetworkConnectionInfo_MobileSubtype_EVDO_0),
-      @(GDTCORNetworkMobileSubtype_CDMAEVDORevA) :
+      @(GDTCORNetworkMobileSubtypeCDMAEVDORevA) :
           @(gdt_cct_NetworkConnectionInfo_MobileSubtype_EVDO_A),
-      @(GDTCORNetworkMobileSubtype_CDMAEVDORevB) :
+      @(GDTCORNetworkMobileSubtypeCDMAEVDORevB) :
           @(gdt_cct_NetworkConnectionInfo_MobileSubtype_EVDO_B),
-      @(GDTCORNetworkMobileSubtype_HRPD) : @(gdt_cct_NetworkConnectionInfo_MobileSubtype_EHRPD),
-      @(GDTCORNetworkMobileSubtype_LTE) : @(gdt_cct_NetworkConnectionInfo_MobileSubtype_LTE),
+      @(GDTCORNetworkMobileSubtypeHRPD) : @(gdt_cct_NetworkConnectionInfo_MobileSubtype_EHRPD),
+      @(GDTCORNetworkMobileSubtypeLTE) : @(gdt_cct_NetworkConnectionInfo_MobileSubtype_LTE),
     };
   });
   NSNumber *networkMobileSubtype = MessageToNetworkSubTypeMessage[networkMobileSubtypeMessage];

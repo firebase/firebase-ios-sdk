@@ -172,10 +172,10 @@
 - (void)testNetworkConnectionInfo {
   GDTCCTPrioritizer *prioritizer = [[GDTCCTPrioritizer alloc] init];
   GDTCOREvent *event = [_CCTGenerator generateEvent:GDTCOREventQosDefault];
-  event.customPrioritizationParams = @{@"needs_network_connection_info" : @YES};
+  event.customPrioritizationParams = @{GDTCCTNeedsNetworkConnectionInfo : @YES};
   [prioritizer prioritizeEvent:event];
-  XCTAssertNotNil(event.customPrioritizationParams[@"network_connection_info"]);
-  NSData *networkConnectionInfoData = event.customPrioritizationParams[@"network_connection_info"];
+  XCTAssertNotNil(event.customPrioritizationParams[GDTCCTNetworkConnectionInfo]);
+  NSData *networkConnectionInfoData = event.customPrioritizationParams[GDTCCTNetworkConnectionInfo];
   gdt_cct_NetworkConnectionInfo info;
   [networkConnectionInfoData getBytes:&info length:networkConnectionInfoData.length];
   XCTAssertNotEqual(info.network_type, gdt_cct_NetworkConnectionInfo_NetworkType_NONE);

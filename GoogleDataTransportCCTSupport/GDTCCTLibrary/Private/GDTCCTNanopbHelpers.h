@@ -23,6 +23,14 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/** A string sets in customPrioritizationParams as a key paired to @YES if current event needs to
+ * populate network connection info data, @NO otherwise. */
+FOUNDATION_EXPORT NSString *const GDTCCTNeedsNetworkConnectionInfo;
+
+/** A string sets in customPrioritizationParams as a key paired to the network connection info data
+ * of current event. */
+FOUNDATION_EXPORT NSString *const GDTCCTNetworkConnectionInfo;
+
 #pragma mark - General purpose encoders
 
 /** Converts an NSString* to a pb_bytes_array_t*.
@@ -97,10 +105,10 @@ gdt_cct_ClientInfo GDTCCTConstructClientInfo(void);
 FOUNDATION_EXPORT
 gdt_cct_IosClientInfo GDTCCTConstructiOSClientInfo(void);
 
-/** Constructs a gdt_cct_NetworkConnectionInfo representing the client nework connection
+/** Constructs the data of a gdt_cct_NetworkConnectionInfo representing the client nework connection
  * information.
  *
- * @return The new gdt_cct_NetworkConnectionInfo object.
+ * @return The data of a gdt_cct_NetworkConnectionInfo object.
  */
 FOUNDATION_EXPORT
 NSData *GDTCCTConstructNetworkConnectionInfoData(void);

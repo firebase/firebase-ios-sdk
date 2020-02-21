@@ -45,18 +45,18 @@ FOUNDATION_EXPORT NSString *const kGDTCORApplicationWillTerminateNotification;
 
 /** The different possible network connection mobile subtype. */
 typedef NS_ENUM(NSInteger, GDTCORNetworkMobileSubtype) {
-  GDTCORNetworkMobileSubtype_UNKNOWN = 0,
-  GDTCORNetworkMobileSubtype_GPRS = 1,
-  GDTCORNetworkMobileSubtype_Edge = 2,
-  GDTCORNetworkMobileSubtype_WCDMA = 3,
-  GDTCORNetworkMobileSubtype_HSDPA = 4,
-  GDTCORNetworkMobileSubtype_HSUPA = 5,
-  GDTCORNetworkMobileSubtype_CDMA1x = 6,
-  GDTCORNetworkMobileSubtype_CDMAEVDORev0 = 7,
-  GDTCORNetworkMobileSubtype_CDMAEVDORevA = 8,
-  GDTCORNetworkMobileSubtype_CDMAEVDORevB = 9,
-  GDTCORNetworkMobileSubtype_HRPD = 10,
-  GDTCORNetworkMobileSubtype_LTE = 11,
+  GDTCORNetworkMobileSubtypeUNKNOWN = 0,
+  GDTCORNetworkMobileSubtypeGPRS = 1,
+  GDTCORNetworkMobileSubtypeEdge = 2,
+  GDTCORNetworkMobileSubtypeWCDMA = 3,
+  GDTCORNetworkMobileSubtypeHSDPA = 4,
+  GDTCORNetworkMobileSubtypeHSUPA = 5,
+  GDTCORNetworkMobileSubtypeCDMA1x = 6,
+  GDTCORNetworkMobileSubtypeCDMAEVDORev0 = 7,
+  GDTCORNetworkMobileSubtypeCDMAEVDORevA = 8,
+  GDTCORNetworkMobileSubtypeCDMAEVDORevB = 9,
+  GDTCORNetworkMobileSubtypeHRPD = 10,
+  GDTCORNetworkMobileSubtypeLTE = 11,
 };
 
 #if !TARGET_OS_WATCH
@@ -68,10 +68,10 @@ typedef NS_ENUM(NSInteger, GDTCORNetworkMobileSubtype) {
 BOOL GDTCORReachabilityFlagsContainWWAN(SCNetworkReachabilityFlags flags);
 #endif
 
-/** Generates a enum message GDTCORNetworkMobileSubtype representing Network connection mobile
+/** Generates an enum message GDTCORNetworkMobileSubtype representing Network connection mobile
  * subtype.
  *
- * @return a GDTCORNetworkMobileSubtype representing Network connection mobile subtype.
+ * @return A GDTCORNetworkMobileSubtype representing network connection mobile subtype.
  */
 GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage(void);
 

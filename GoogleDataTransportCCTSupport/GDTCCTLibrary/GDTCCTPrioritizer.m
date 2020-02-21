@@ -57,9 +57,11 @@ const static int64_t kMillisPerDay = 8.64e+7;
 #pragma mark - GDTCORPrioritizer Protocol
 
 - (void)prioritizeEvent:(GDTCOREvent *)event {
-  if (event.customPrioritizationParams[@"needs_network_connection_info"]) {
+  if (event.customPrioritizationParams[GDTCCTNeedsNetworkConnectionInfo]) {
     NSData *networkInfoData = GDTCCTConstructNetworkConnectionInfoData();
-    event.customPrioritizationParams = @{@"network_connection_info" : networkInfoData};
+    if (networkInfoData) {
+      event.customPrioritizationParams = @{GDTCCTNetworkConnectionInfo : networkInfoData};
+    }
   }
   dispatch_async(_queue, ^{
     switch (event.target) {
