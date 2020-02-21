@@ -57,13 +57,17 @@ enum CocoaPodUtils {
     /// Binary frameworks in this pod.
     let binaryFrameworks: [URL]
 
+    /// Subspecs installed for this pod.
+    let subspecs: Set<String>
+
     /// The contents of the module map for all frameworks associated with the pod.
     var moduleMapContents: String
 
-    init(version: String, dependencies: [String], installedLocation: URL) {
+    init(version: String, dependencies: [String], installedLocation: URL, subspecs: Set<String>) {
       self.version = version
       self.dependencies = dependencies
       self.installedLocation = installedLocation
+      self.subspecs = subspecs
       moduleMapContents = ""
 
       // Get all the frameworks contained in this directory.
@@ -187,8 +191,7 @@ enum CocoaPodUtils {
         break
       }
       if let (pod, version) = detectVersion(fromLine: line) {
-        let corePod = pod.components(separatedBy: "/")[0]
-        currentPod = corePod.trimmingCharacters(in: quotes)
+        currentPod = pod.trimmingCharacters(in: quotes)
         pods[currentPod!] = version
       } else if let currentPod = currentPod {
         let matches = depRegex.matches(in: line, range: NSRange(location: 0, length: line.utf8.count))
@@ -196,13 +199,32 @@ enum CocoaPodUtils {
         if let match = matches.first {
           let depLine = (line as NSString).substring(with: match.range(at: 0)) as String
           // Split spaces and subspecs.
-          let dep = depLine.components(separatedBy: [" ", "/"])[2].trimmingCharacters(in: quotes)
+          let dep = depLine.components(separatedBy: [" "])[2].trimmingCharacters(in: quotes)
           if dep != currentPod {
-            if deps[currentPod] == nil {
-              deps[currentPod] = Set()
-            }
-            deps[currentPod]?.insert(dep)
+            deps[currentPod, default: Set()].insert(dep)
           }
+        }
+      }
+    }
+    // Organize the subspecs
+    var versions: [String: String] = [:]
+    var subspecs: [String: Set<String>] = [:]
+
+    for (podName, version) in pods {
+      let subspecArray = podName.components(separatedBy: "/")
+      if subspecArray.count > 2 {
+        fatalError("Multi-layered subspecs are not supported - \(podName)")
+      } else if subspecArray.count == 1 {
+        versions[podName] = version
+      } else {
+        if let previousVersion = versions[podName], version != previousVersion {
+          fatalError("Different installed versions for \(podName)." +
+            "\(version) versus \(previousVersion)")
+        } else {
+          let basePodName = subspecArray[0]
+          versions[basePodName] = version
+          subspecs[basePodName, default: Set()].insert(subspecArray[1])
+          deps[basePodName] = deps[basePodName, default: Set()].union(deps[podName] ?? Set())
         }
       }
     }
@@ -210,7 +232,7 @@ enum CocoaPodUtils {
     // Generate an InstalledPod for each Pod found.
     let podsDir = projectDir.appendingPathComponent("Pods")
     var installedPods: [String: PodInfo] = [:]
-    for (podName, version) in pods {
+    for (podName, version) in versions {
       var podDir = podsDir.appendingPathComponent(podName)
       // Make sure that pod got installed if it's not coming from a local podspec.
       if !FileManager.default.directoryExists(at: podDir) {
@@ -221,7 +243,8 @@ enum CocoaPodUtils {
         podDir = repoDir
       }
       let dependencies = [String](deps[podName] ?? [])
-      let podInfo = PodInfo(version: version, dependencies: dependencies, installedLocation: podDir)
+      let podInfo = PodInfo(version: version, dependencies: dependencies, installedLocation: podDir,
+                            subspecs: subspecs[podName] ?? Set())
       installedPods[podName] = podInfo
     }
     return installedPods
