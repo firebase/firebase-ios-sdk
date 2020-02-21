@@ -22,6 +22,7 @@
 #import <AppKit/AppKit.h>
 #endif  // TARGET_OS_IOS || TARGET_OS_TV
 
+#import <GoogleDataTransport/GDTCORClock.h>
 #import <GoogleDataTransport/GDTCORConsoleLogger.h>
 #import <GoogleDataTransport/GDTCOREvent.h>
 #import <GoogleDataTransport/GDTCORPlatform.h>
@@ -29,8 +30,6 @@
 #import <nanopb/pb.h>
 #import <nanopb/pb_decode.h>
 #import <nanopb/pb_encode.h>
-
-#import "GDTCCTLibrary/Private/GDTCCTPrioritizer.h"
 
 NSString *const GDTCCTNeedsNetworkConnectionInfo = @"needs_network_connection_info";
 
