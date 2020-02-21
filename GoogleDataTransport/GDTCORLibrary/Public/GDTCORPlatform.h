@@ -25,6 +25,10 @@
 #import <AppKit/AppKit.h>
 #endif  // TARGET_OS_IOS || TARGET_OS_TV
 
+#if TARGET_OS_IOS
+#import <CoreTelephony/CTTelephonyNetworkInfo.h>
+#endif
+
 NS_ASSUME_NONNULL_BEGIN
 
 /** The GoogleDataTransport library version. */
@@ -39,6 +43,22 @@ FOUNDATION_EXPORT NSString *const kGDTCORApplicationWillEnterForegroundNotificat
 /** A notification sent out if the app is terminating. */
 FOUNDATION_EXPORT NSString *const kGDTCORApplicationWillTerminateNotification;
 
+/** The different possible network connection mobile subtype. */
+typedef NS_ENUM(NSInteger, GDTCORNetworkMobileSubtype) {
+  GDTCORNetworkMobileSubtypeUNKNOWN = 0,
+  GDTCORNetworkMobileSubtypeGPRS = 1,
+  GDTCORNetworkMobileSubtypeEdge = 2,
+  GDTCORNetworkMobileSubtypeWCDMA = 3,
+  GDTCORNetworkMobileSubtypeHSDPA = 4,
+  GDTCORNetworkMobileSubtypeHSUPA = 5,
+  GDTCORNetworkMobileSubtypeCDMA1x = 6,
+  GDTCORNetworkMobileSubtypeCDMAEVDORev0 = 7,
+  GDTCORNetworkMobileSubtypeCDMAEVDORevA = 8,
+  GDTCORNetworkMobileSubtypeCDMAEVDORevB = 9,
+  GDTCORNetworkMobileSubtypeHRPD = 10,
+  GDTCORNetworkMobileSubtypeLTE = 11,
+};
+
 #if !TARGET_OS_WATCH
 /** Compares flags with the WWAN reachability flag, if available, and returns YES if present.
  *
@@ -47,6 +67,13 @@ FOUNDATION_EXPORT NSString *const kGDTCORApplicationWillTerminateNotification;
  */
 BOOL GDTCORReachabilityFlagsContainWWAN(SCNetworkReachabilityFlags flags);
 #endif
+
+/** Generates an enum message GDTCORNetworkMobileSubtype representing Network connection mobile
+ * subtype.
+ *
+ * @return A GDTCORNetworkMobileSubtype representing network connection mobile subtype.
+ */
+GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage(void);
 
 /** A typedef identify background identifiers. */
 typedef volatile NSUInteger GDTCORBackgroundIdentifier;

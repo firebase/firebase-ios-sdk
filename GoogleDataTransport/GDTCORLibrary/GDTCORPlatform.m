@@ -18,6 +18,7 @@
 
 #import <GoogleDataTransport/GDTCORAssert.h>
 #import <GoogleDataTransport/GDTCORConsoleLogger.h>
+#import <GoogleDataTransport/GDTCORReachability.h>
 
 #import "GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
 
@@ -48,6 +49,40 @@ BOOL GDTCORReachabilityFlagsContainWWAN(SCNetworkReachabilityFlags flags) {
 #endif  // TARGET_OS_IOS
 }
 #endif  // !TARGET_OS_WATCH
+
+GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
+#if TARGET_OS_IOS
+  static NSDictionary<NSString *, NSNumber *> *CTRadioAccessTechnologyToNetworkSubTypeMessage;
+  static CTTelephonyNetworkInfo *networkInfo;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    CTRadioAccessTechnologyToNetworkSubTypeMessage = @{
+      CTRadioAccessTechnologyGPRS : @(GDTCORNetworkMobileSubtypeGPRS),
+      CTRadioAccessTechnologyEdge : @(GDTCORNetworkMobileSubtypeEdge),
+      CTRadioAccessTechnologyWCDMA : @(GDTCORNetworkMobileSubtypeWCDMA),
+      CTRadioAccessTechnologyHSDPA : @(GDTCORNetworkMobileSubtypeHSDPA),
+      CTRadioAccessTechnologyHSUPA : @(GDTCORNetworkMobileSubtypeHSUPA),
+      CTRadioAccessTechnologyCDMA1x : @(GDTCORNetworkMobileSubtypeCDMA1x),
+      CTRadioAccessTechnologyCDMAEVDORev0 : @(GDTCORNetworkMobileSubtypeCDMAEVDORev0),
+      CTRadioAccessTechnologyCDMAEVDORevA : @(GDTCORNetworkMobileSubtypeCDMAEVDORevA),
+      CTRadioAccessTechnologyCDMAEVDORevB : @(GDTCORNetworkMobileSubtypeCDMAEVDORevB),
+      CTRadioAccessTechnologyeHRPD : @(GDTCORNetworkMobileSubtypeHRPD),
+      CTRadioAccessTechnologyLTE : @(GDTCORNetworkMobileSubtypeLTE),
+    };
+    networkInfo = [[CTTelephonyNetworkInfo alloc] init];
+  });
+  NSString *networkCurrentRadioAccessTechnology = networkInfo.currentRadioAccessTechnology;
+  if (networkCurrentRadioAccessTechnology) {
+    NSNumber *networkMobileSubtype =
+        CTRadioAccessTechnologyToNetworkSubTypeMessage[networkCurrentRadioAccessTechnology];
+    return networkMobileSubtype.intValue;
+  } else {
+    return GDTCORNetworkMobileSubtypeUNKNOWN;
+  }
+#else
+  return GDTCORNetworkMobileSubtypeUNKNOWN;
+#endif
+}
 
 @interface GDTCORApplication ()
 /**

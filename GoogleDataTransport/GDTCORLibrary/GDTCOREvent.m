@@ -186,6 +186,7 @@ static NSString *kStoredEventCustomPrioritizationParamsKey =
   [aCoder encodeInteger:_qosTier forKey:qosTierKey];
   [aCoder encodeObject:_clockSnapshot forKey:clockSnapshotKey];
   [aCoder encodeObject:_fileURL forKey:fileURLKey];
+  [aCoder encodeObject:_customPrioritizationParams forKey:customPrioritizationParams];
 }
 
 @end
