@@ -17,7 +17,7 @@
 #import <XCTest/XCTest.h>
 
 #import "FIRCLSUserDefaults.h"
-#import "FIRMockInstanceID.h"
+#import "FIRMockInstallations.h"
 
 static NSString *const FABInstallationUUIDKey = @"com.crashlytics.iuuid";
 static NSString *const FABInstallationADIDKey = @"com.crashlytics.install.adid";
@@ -66,10 +66,10 @@ static NSString *const FIRCLSTestHashOfTestInstanceID =
 }
 
 - (void)testCreateUUID {
-  FIRMockInstanceID *iid = [[FIRMockInstanceID alloc] initWithIID:@"test_instance_id"];
+  FIRMockInstallations *iid = [[FIRMockInstallations alloc] initWithFID:@"test_instance_id"];
 
   FIRCLSInstallIdentifierModel *model =
-      [[FIRCLSInstallIdentifierModel alloc] initWithInstanceID:iid];
+      [[FIRCLSInstallIdentifierModel alloc] initWithInstallations:iid];
   XCTAssertNotNil(model.installID);
 
   XCTAssertEqualObjects([_defaults objectForKey:FABInstallationUUIDKey], model.installID);
@@ -77,10 +77,10 @@ static NSString *const FIRCLSTestHashOfTestInstanceID =
 }
 
 - (void)testCreateUUIDAndRotate {
-  FIRMockInstanceID *iid = [[FIRMockInstanceID alloc] initWithIID:@"test_instance_id"];
+  FIRMockInstallations *iid = [[FIRMockInstallations alloc] initWithFID:@"test_instance_id"];
 
   FIRCLSInstallIdentifierModel *model =
-      [[FIRCLSInstallIdentifierModel alloc] initWithInstanceID:iid];
+      [[FIRCLSInstallIdentifierModel alloc] initWithInstallations:iid];
   XCTAssertNotNil(model.installID);
 
   BOOL didRotate = [self blockOnRegeneration:model];
@@ -94,10 +94,10 @@ static NSString *const FIRCLSTestHashOfTestInstanceID =
 
 - (void)testCreateUUIDAndErrorGettingInstanceID {
   NSError *fakeError = [NSError errorWithDomain:NSCocoaErrorDomain code:-1 userInfo:@{}];
-  FIRMockInstanceID *iid = [[FIRMockInstanceID alloc] initWithError:fakeError];
+  FIRMockInstallations *iid = [[FIRMockInstallations alloc] initWithError:fakeError];
 
   FIRCLSInstallIdentifierModel *model =
-      [[FIRCLSInstallIdentifierModel alloc] initWithInstanceID:iid];
+      [[FIRCLSInstallIdentifierModel alloc] initWithInstallations:iid];
   XCTAssertNotNil(model.installID);
 
   BOOL didRotate = [self blockOnRegeneration:model];
@@ -109,10 +109,10 @@ static NSString *const FIRCLSTestHashOfTestInstanceID =
 }
 
 - (void)testCreateUUIDNoIID {
-  FIRMockInstanceID *iid = [[FIRMockInstanceID alloc] initWithIID:nil];
+  FIRMockInstallations *iid = [[FIRMockInstallations alloc] initWithFID:nil];
 
   FIRCLSInstallIdentifierModel *model =
-      [[FIRCLSInstallIdentifierModel alloc] initWithInstanceID:iid];
+      [[FIRCLSInstallIdentifierModel alloc] initWithInstallations:iid];
   XCTAssertNotNil(model.installID);
 
   XCTAssertEqualObjects([_defaults objectForKey:FABInstallationUUIDKey], model.installID);
@@ -126,9 +126,9 @@ static NSString *const FIRCLSTestHashOfTestInstanceID =
   [_defaults setObject:@"old_instance_id" forKey:FIRCLSInstallationIIDHashKey];
 
   // Initialize the model with the a nil IID.
-  FIRMockInstanceID *iid = [[FIRMockInstanceID alloc] initWithIID:nil];
+  FIRMockInstallations *iid = [[FIRMockInstallations alloc] initWithFID:nil];
   FIRCLSInstallIdentifierModel *model =
-      [[FIRCLSInstallIdentifierModel alloc] initWithInstanceID:iid];
+      [[FIRCLSInstallIdentifierModel alloc] initWithInstallations:iid];
   XCTAssertNotNil(model.installID);
 
   // Test that the UUID did not change. The FIID can be nil if
@@ -144,9 +144,9 @@ static NSString *const FIRCLSTestHashOfTestInstanceID =
   [_defaults setObject:@"old_instance_id" forKey:FIRCLSInstallationIIDHashKey];
 
   // Initialize the model with the a new IID.
-  FIRMockInstanceID *iid = [[FIRMockInstanceID alloc] initWithIID:@"new_instance_id"];
+  FIRMockInstallations *iid = [[FIRMockInstallations alloc] initWithFID:@"new_instance_id"];
   FIRCLSInstallIdentifierModel *model =
-      [[FIRCLSInstallIdentifierModel alloc] initWithInstanceID:iid];
+      [[FIRCLSInstallIdentifierModel alloc] initWithInstallations:iid];
   XCTAssertNotNil(model.installID);
 
   BOOL didRotate = [self blockOnRegeneration:model];
@@ -166,9 +166,9 @@ static NSString *const FIRCLSTestHashOfTestInstanceID =
   [_defaults setObject:FIRCLSTestHashOfTestInstanceID forKey:FIRCLSInstallationIIDHashKey];
 
   // Initialize the model with the a new IID.
-  FIRMockInstanceID *iid = [[FIRMockInstanceID alloc] initWithIID:@"test_instance_id"];
+  FIRMockInstallations *iid = [[FIRMockInstallations alloc] initWithFID:@"test_instance_id"];
   FIRCLSInstallIdentifierModel *model =
-      [[FIRCLSInstallIdentifierModel alloc] initWithInstanceID:iid];
+      [[FIRCLSInstallIdentifierModel alloc] initWithInstallations:iid];
   XCTAssertNotNil(model.installID);
 
   BOOL didRotate = [self blockOnRegeneration:model];
@@ -187,9 +187,9 @@ static NSString *const FIRCLSTestHashOfTestInstanceID =
   [_defaults setObject:@"old_uuid" forKey:FABInstallationUUIDKey];
 
   // Initialize the model with the a nil IID.
-  FIRMockInstanceID *iid = [[FIRMockInstanceID alloc] initWithIID:nil];
+  FIRMockInstallations *iid = [[FIRMockInstallations alloc] initWithFID:nil];
   FIRCLSInstallIdentifierModel *model =
-      [[FIRCLSInstallIdentifierModel alloc] initWithInstanceID:iid];
+      [[FIRCLSInstallIdentifierModel alloc] initWithInstallations:iid];
   XCTAssertNotNil(model.installID);
 
   BOOL didRotate = [self blockOnRegeneration:model];
@@ -208,9 +208,9 @@ static NSString *const FIRCLSTestHashOfTestInstanceID =
   [_defaults setObject:@"old_uuid" forKey:FABInstallationUUIDKey];
 
   // Initialize the model with the a nil IID.
-  FIRMockInstanceID *iid = [[FIRMockInstanceID alloc] initWithIID:@"test_instance_id"];
+  FIRMockInstallations *iid = [[FIRMockInstallations alloc] initWithFID:@"test_instance_id"];
   FIRCLSInstallIdentifierModel *model =
-      [[FIRCLSInstallIdentifierModel alloc] initWithInstanceID:iid];
+      [[FIRCLSInstallIdentifierModel alloc] initWithInstallations:iid];
   XCTAssertNotNil(model.installID);
 
   BOOL didRotate = [self blockOnRegeneration:model];
@@ -231,9 +231,9 @@ static NSString *const FIRCLSTestHashOfTestInstanceID =
   [_defaults setObject:@"test_adid" forKey:FABInstallationADIDKey];
 
   // Initialize the model with the a new IID.
-  FIRMockInstanceID *iid = [[FIRMockInstanceID alloc] initWithIID:nil];
+  FIRMockInstallations *iid = [[FIRMockInstallations alloc] initWithFID:nil];
   FIRCLSInstallIdentifierModel *model =
-      [[FIRCLSInstallIdentifierModel alloc] initWithInstanceID:iid];
+      [[FIRCLSInstallIdentifierModel alloc] initWithInstallations:iid];
   XCTAssertNotNil(model.installID);
 
   BOOL didRotate = [self blockOnRegeneration:model];
@@ -252,9 +252,9 @@ static NSString *const FIRCLSTestHashOfTestInstanceID =
   [_defaults setObject:@"test_adid" forKey:FABInstallationADIDKey];
 
   // Initialize the model with the a new IID.
-  FIRMockInstanceID *iid = [[FIRMockInstanceID alloc] initWithIID:@"test_instance_id"];
+  FIRMockInstallations *iid = [[FIRMockInstallations alloc] initWithFID:@"test_instance_id"];
   FIRCLSInstallIdentifierModel *model =
-      [[FIRCLSInstallIdentifierModel alloc] initWithInstanceID:iid];
+      [[FIRCLSInstallIdentifierModel alloc] initWithInstallations:iid];
   XCTAssertNotNil(model.installID);
 
   BOOL didRotate = [self blockOnRegeneration:model];
@@ -275,9 +275,9 @@ static NSString *const FIRCLSTestHashOfTestInstanceID =
   [_defaults setObject:FIRCLSTestHashOfTestInstanceID forKey:FIRCLSInstallationIIDHashKey];
 
   // Initialize the model with the a new IID.
-  FIRMockInstanceID *iid = [[FIRMockInstanceID alloc] initWithIID:@"test_instance_id"];
+  FIRMockInstallations *iid = [[FIRMockInstallations alloc] initWithFID:@"test_instance_id"];
   FIRCLSInstallIdentifierModel *model =
-      [[FIRCLSInstallIdentifierModel alloc] initWithInstanceID:iid];
+      [[FIRCLSInstallIdentifierModel alloc] initWithInstallations:iid];
   XCTAssertNotNil(model.installID);
 
   BOOL didRotate = [self blockOnRegeneration:model];
@@ -298,9 +298,9 @@ static NSString *const FIRCLSTestHashOfTestInstanceID =
   [_defaults setObject:FIRCLSTestHashOfTestInstanceID forKey:FIRCLSInstallationIIDHashKey];
 
   // Initialize the model with the a new IID.
-  FIRMockInstanceID *iid = [[FIRMockInstanceID alloc] initWithIID:@"test_changed_instance_id"];
+  FIRMockInstallations *iid = [[FIRMockInstallations alloc] initWithFID:@"test_changed_instance_id"];
   FIRCLSInstallIdentifierModel *model =
-      [[FIRCLSInstallIdentifierModel alloc] initWithInstanceID:iid];
+      [[FIRCLSInstallIdentifierModel alloc] initWithInstallations:iid];
   XCTAssertNotNil(model.installID);
 
   BOOL didRotate = [self blockOnRegeneration:model];

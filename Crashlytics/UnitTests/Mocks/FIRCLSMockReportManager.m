@@ -34,13 +34,13 @@
 @synthesize bundleIdentifier;
 
 - (instancetype)initWithFileManager:(FIRCLSFileManager *)fileManager
-                         instanceID:(FIRInstanceID *)instanceID
+                         installations:(FIRInstallations *)installations
                           analytics:(id<FIRAnalyticsInterop>)analytics
                         googleAppID:(nonnull NSString *)googleAppID
                         dataArbiter:(FIRCLSDataCollectionArbiter *)dataArbiter
                          appIDModel:(FIRCLSApplicationIdentifierModel *)appIDModel {
   self = [super initWithFileManager:fileManager
-                         instanceID:instanceID
+                      installations:installations
                           analytics:analytics
                         googleAppID:googleAppID
                         dataArbiter:dataArbiter];

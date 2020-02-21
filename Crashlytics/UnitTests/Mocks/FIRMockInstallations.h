@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <FirebaseInstanceID/FirebaseInstanceID.h>
+#import <FirebaseInstallations/FirebaseInstallations.h>
 
-@interface FIRMockInstanceID : FIRInstanceID
+@interface FIRMockInstallations : FIRInstallations
 
-- (instancetype)initWithIID:(NSString *)token;
+- (instancetype)initWithFID:(NSString *)installationID;
 - (instancetype)initWithError:(NSError *)error;
 
 @end
