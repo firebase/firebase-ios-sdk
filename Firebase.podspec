@@ -134,6 +134,11 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.subspec 'Storage' do |ss|
     ss.dependency 'Firebase/CoreOnly'
     ss.dependency 'FirebaseStorage', '~> 3.5.0'
+    # Standard platforms PLUS watchOS.
+    ss.ios.deployment_target = '8.0'
+    ss.osx.deployment_target = '10.11'
+    ss.tvos.deployment_target = '10.0'
+    ss.watchos.deployment_target = '6.0'
   end
 
   s.subspec 'MLCommon' do |ss|

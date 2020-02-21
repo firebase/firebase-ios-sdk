@@ -222,14 +222,14 @@ has communicated with our servers". This relies on Analytics and will not work o
 To install, add a subset of the following to the Podfile:
 
 ```
-pod 'Firebase/ABTesting'
-pod 'Firebase/Auth'
-pod 'Firebase/Crashlytics'
-pod 'Firebase/Database'
-pod 'Firebase/Firestore'
-pod 'Firebase/Functions'
+pod 'Firebase/ABTesting'     # No watchOS support yet
+pod 'Firebase/Auth'          # No watchOS support yet
+pod 'Firebase/Crashlytics'   # No watchOS support yet
+pod 'Firebase/Database'      # No watchOS support yet
+pod 'Firebase/Firestore'     # No watchOS support yet
+pod 'Firebase/Functions'     # No watchOS support yet
 pod 'Firebase/Messaging'
-pod 'Firebase/RemoteConfig'
+pod 'Firebase/RemoteConfig'  # No watchOS support yet
 pod 'Firebase/Storage'
 ```
 
