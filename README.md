@@ -204,9 +204,10 @@ participate in the Firebase community.
 
 ### tvOS, macOS, and Catalyst
 Thanks to contributions from the community, many of Firebase SDKs now compile, run unit tests, and work on
-tvOS, macOS, and Catalyst.
+tvOS, macOS, watchOS and Catalyst.
 
 For tvOS, checkout the [Sample](Example/tvOSSample).
+For watchOS, checkout the [Independent Watch App Sample](Example/Messaging/App/watchOS/SampleWatchApp).
 
 Keep in mind that macOS, Catalyst and tvOS are not officially supported by Firebase, and this
 repository is actively developed primarily for iOS. While we can catch basic unit test issues with
