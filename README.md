@@ -202,7 +202,7 @@ We've seen an amazing amount of interest and contributions to improve the Fireba
 very grateful!  We'd like to empower as many developers as we can to be able to use Firebase and
 participate in the Firebase community.
 
-### tvOS, macOS, and Catalyst
+### tvOS, macOS, watchOS and Catalyst
 Thanks to contributions from the community, many of Firebase SDKs now compile, run unit tests, and work on
 tvOS, macOS, watchOS and Catalyst.
 
