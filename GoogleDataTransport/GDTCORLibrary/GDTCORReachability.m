@@ -60,7 +60,8 @@ static void GDTCORReachabilityCallback(SCNetworkReachabilityRef reachability,
   __block SCNetworkReachabilityFlags currentFlags;
   dispatch_sync([GDTCORReachability sharedInstance] -> _reachabilityQueue, ^{
     GDTCORReachability *reachability = [GDTCORReachability sharedInstance];
-    currentFlags = reachability->_callbackFlags ? reachability->_callbackFlags : reachability->_flags;
+    currentFlags =
+        reachability->_callbackFlags ? reachability->_callbackFlags : reachability->_flags;
     GDTCORLogDebug("Initial reachability flags determined: %d", currentFlags);
   });
   return currentFlags;
