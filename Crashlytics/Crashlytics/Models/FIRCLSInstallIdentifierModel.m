@@ -104,12 +104,12 @@ static NSString *const FIRCLSInstallationADIDKey = @"com.crashlytics.install.adi
 - (void)regenerateInstallIDIfNeededWithBlock:(void (^)(BOOL didRotate))callback {
   // This callback is on the main thread
   [self.installations
-  installationIDWithCompletion:^(NSString *_Nullable currentIID, NSError *_Nullable error) {
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-      BOOL didRotate = [self rotateCrashlyticsInstallUUIDWithIID:currentIID error:error];
-      callback(didRotate);
-    });
-  }];
+      installationIDWithCompletion:^(NSString *_Nullable currentIID, NSError *_Nullable error) {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+          BOOL didRotate = [self rotateCrashlyticsInstallUUIDWithIID:currentIID error:error];
+          callback(didRotate);
+        });
+      }];
 }
 
 - (BOOL)rotateCrashlyticsInstallUUIDWithIID:(NSString *_Nullable)currentIID

@@ -77,7 +77,7 @@
   appIDModel.bundleID = TEST_BUNDLE_ID;
 
   self.reportManager = [[FIRCLSMockReportManager alloc] initWithFileManager:self.fileManager
-                                                                 installations:iid
+                                                              installations:iid
                                                                   analytics:nil
                                                                 googleAppID:TEST_GOOGLE_APP_ID
                                                                 dataArbiter:self.dataArbiter

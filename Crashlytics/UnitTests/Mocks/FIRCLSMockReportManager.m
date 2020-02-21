@@ -34,7 +34,7 @@
 @synthesize bundleIdentifier;
 
 - (instancetype)initWithFileManager:(FIRCLSFileManager *)fileManager
-                         installations:(FIRInstallations *)installations
+                      installations:(FIRInstallations *)installations
                           analytics:(id<FIRAnalyticsInterop>)analytics
                         googleAppID:(nonnull NSString *)googleAppID
                         dataArbiter:(FIRCLSDataCollectionArbiter *)dataArbiter

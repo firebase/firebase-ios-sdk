@@ -18,7 +18,7 @@
 
 //#import <FirebaseInstanceID/FIRInstanceID_Private.h>
 
-@interface FIRMockInstallationsImpl: NSObject
+@interface FIRMockInstallationsImpl : NSObject
 
 @property(nonatomic, copy) NSString *installationID;
 @property(nonatomic, strong) NSError *error;

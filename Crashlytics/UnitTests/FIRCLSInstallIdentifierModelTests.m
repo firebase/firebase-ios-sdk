@@ -298,7 +298,8 @@ static NSString *const FIRCLSTestHashOfTestInstanceID =
   [_defaults setObject:FIRCLSTestHashOfTestInstanceID forKey:FIRCLSInstallationIIDHashKey];
 
   // Initialize the model with the a new IID.
-  FIRMockInstallations *iid = [[FIRMockInstallations alloc] initWithFID:@"test_changed_instance_id"];
+  FIRMockInstallations *iid =
+      [[FIRMockInstallations alloc] initWithFID:@"test_changed_instance_id"];
   FIRCLSInstallIdentifierModel *model =
       [[FIRCLSInstallIdentifierModel alloc] initWithInstallations:iid];
   XCTAssertNotNil(model.installID);

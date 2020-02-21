@@ -157,7 +157,7 @@ static atomic_bool _hasInitializedInstance;
 
     return [[FIRCrashlytics alloc] initWithApp:container.app
                                        appInfo:NSBundle.mainBundle.infoDictionary
-                                    installations:installations
+                                 installations:installations
                                      analytics:analytics];
   };
 
