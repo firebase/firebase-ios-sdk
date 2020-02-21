@@ -21,16 +21,18 @@
 #include <utility>
 #include <vector>
 
-#include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/local/mutation_queue.h"
 #include "Firestore/core/src/firebase/firestore/local/query_engine.h"
 #include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
-#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
-#include "Firestore/core/src/firebase/firestore/model/document_map.h"
-#include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/model/model_fwd.h"
 
 namespace firebase {
 namespace firestore {
+
+namespace core {
+class Query;
+}  // namespace core
+
 namespace local {
 
 class LocalDocumentsView;
@@ -43,9 +45,9 @@ class WrappedRemoteDocumentCache;
  */
 class CountingQueryEngine : public QueryEngine {
  public:
-  explicit CountingQueryEngine(QueryEngine* query_engine)
-      : query_engine_(query_engine) {
-  }
+  explicit CountingQueryEngine(QueryEngine* query_engine);
+
+  ~CountingQueryEngine();
 
   void ResetCounts();
 
@@ -64,7 +66,7 @@ class CountingQueryEngine : public QueryEngine {
    * Returns the number of documents returned by the RemoteDocumentCache's
    * `GetMatching()` API (since the last call to `ResetCounts()`)
    */
-  int documents_read_by_query() {
+  int documents_read_by_query() const {
     return documents_read_by_query_;
   }
 
@@ -72,7 +74,7 @@ class CountingQueryEngine : public QueryEngine {
    * Returns the number of documents returned by the RemoteDocumentCache's
    * `Get()` and `GetAll()` APIs (since the last call to `ResetCounts()`)
    */
-  int documents_read_by_key() {
+  int documents_read_by_key() const {
     return documents_read_by_key_;
   }
 
@@ -81,7 +83,7 @@ class CountingQueryEngine : public QueryEngine {
    * `getAllMutationBatchesAffectingQuery()` API (since the last call to
    * `ResetCounts()`)
    */
-  int mutations_read_by_query() {
+  int mutations_read_by_query() const {
     return mutations_read_by_query_;
   }
 
@@ -91,7 +93,7 @@ class CountingQueryEngine : public QueryEngine {
    * `AllMutationBatchesAffectingDocumentKeys()` APIs (since the last call to
    * `ResetCounts()`)
    */
-  int mutations_read_by_key() {
+  int mutations_read_by_key() const {
     return mutations_read_by_key_;
   }
 

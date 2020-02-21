@@ -16,11 +16,15 @@
 
 #include "Firestore/core/src/firebase/firestore/api/firestore.h"
 
+#include <utility>
+
 #include "Firestore/core/src/firebase/firestore/api/collection_reference.h"
 #include "Firestore/core/src/firebase/firestore/api/document_reference.h"
+#include "Firestore/core/src/firebase/firestore/api/listener_registration.h"
 #include "Firestore/core/src/firebase/firestore/api/settings.h"
 #include "Firestore/core/src/firebase/firestore/api/snapshots_in_sync_listener_registration.h"
 #include "Firestore/core/src/firebase/firestore/api/write_batch.h"
+#include "Firestore/core/src/firebase/firestore/core/event_listener.h"
 #include "Firestore/core/src/firebase/firestore/core/firestore_client.h"
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
@@ -60,6 +64,16 @@ Firestore::Firestore(model::DatabaseId database_id,
       persistence_key_{std::move(persistence_key)},
       worker_queue_{std::move(worker_queue)},
       extension_{extension} {
+}
+
+Firestore::~Firestore() {
+  std::lock_guard<std::mutex> lock{mutex_};
+
+  // If the client hasn't been configured yet we don't need to create it just
+  // to tear it down.
+  if (!client_) return;
+
+  client_->Terminate();
 }
 
 const std::shared_ptr<FirestoreClient>& Firestore::client() {
@@ -133,7 +147,7 @@ void Firestore::Terminate(util::StatusCallback callback) {
   // The client must be initialized to ensure that all subsequent API usage
   // throws an exception.
   EnsureClientConfigured();
-  client_->Terminate(std::move(callback));
+  client_->TerminateAsync(std::move(callback));
 }
 
 void Firestore::WaitForPendingWrites(util::StatusCallback callback) {

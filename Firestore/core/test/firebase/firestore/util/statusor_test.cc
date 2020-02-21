@@ -28,22 +28,19 @@ using std::string;
 
 class Base1 {
  public:
-  virtual ~Base1() {
-  }
+  virtual ~Base1() = default;
   int pad_;
 };
 
 class Base2 {
  public:
-  virtual ~Base2() {
-  }
+  virtual ~Base2() = default;
   int yetotherpad_;
 };
 
 class Derived : public Base1, public Base2 {
  public:
-  ~Derived() override {
-  }
+  ~Derived() override = default;
   int evenmorepad_;
 };
 
@@ -96,9 +93,12 @@ TEST(StatusOr, TestMoveOnlyInitialization) {
   int* previous = thing.ValueOrDie().get();
 
   thing = ReturnUniquePtr();
-  EXPECT_TRUE(thing.ok());
+  ASSERT_TRUE(thing.ok());
   EXPECT_EQ(0, *thing.ValueOrDie());
-  EXPECT_NE(previous, thing.ValueOrDie().get());
+
+  // Avoid EXPECT_NE here because that would print the pointers and what they
+  // point to, but reassigning thing above deleted the memory.
+  EXPECT_FALSE(previous == thing.ValueOrDie().get());
 }
 
 TEST(StatusOr, TestMoveOnlyStatusCtr) {
@@ -127,7 +127,10 @@ TEST(StatusOr, TestMoveOnlyConversion) {
   const_thing = ReturnUniquePtr();
   EXPECT_TRUE(const_thing.ok());
   EXPECT_EQ(0, *const_thing.ValueOrDie());
-  EXPECT_NE(const_previous, const_thing.ValueOrDie().get());
+
+  // Avoid EXPECT_NE here because that would print the pointers and what they
+  // point to, but reassigning const_thing above deleted the memory.
+  EXPECT_FALSE(const_previous == const_thing.ValueOrDie().get());
 }
 
 TEST(StatusOr, TestMoveOnlyVector) {

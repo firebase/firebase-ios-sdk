@@ -20,16 +20,19 @@
 #include <functional>
 #include <unordered_map>
 
-#include "Firestore/core/src/firebase/firestore/core/query.h"
-#include "Firestore/core/src/firebase/firestore/local/target_data.h"
-#include "Firestore/core/src/firebase/firestore/model/document_key.h"
-#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
-#include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/model/model_fwd.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 
 namespace firebase {
 namespace firestore {
+
+namespace core {
+class Query;
+class Target;
+}  // namespace core
+
 namespace local {
+class TargetData;
 
 using OrphanedDocumentCallback =
     std::function<void(const model::DocumentKey&, model::ListenSequenceNumber)>;
@@ -46,8 +49,7 @@ using TargetCallback = std::function<void(const TargetData&)>;
  */
 class TargetCache {
  public:
-  virtual ~TargetCache() {
-  }
+  virtual ~TargetCache() = default;
 
   // Target-related methods
 

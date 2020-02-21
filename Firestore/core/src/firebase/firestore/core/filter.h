@@ -21,13 +21,16 @@
 #include <memory>
 #include <string>
 
-#include "Firestore/core/src/firebase/firestore/immutable/append_only_list.h"
-#include "Firestore/core/src/firebase/firestore/model/document.h"
-#include "Firestore/core/src/firebase/firestore/model/field_path.h"
-#include "Firestore/core/src/firebase/firestore/model/field_value.h"
+#include "Firestore/core/src/firebase/firestore/model/model_fwd.h"
 
 namespace firebase {
 namespace firestore {
+
+namespace immutable {
+template <typename T>
+class AppendOnlyList;
+}  // namespace immutable
+
 namespace core {
 
 /** Interface used for all query filters. All filters are immutable. */

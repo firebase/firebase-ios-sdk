@@ -20,33 +20,15 @@
 #include <initializer_list>
 #include <vector>
 
-#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
-#include "Firestore/core/src/firebase/firestore/model/document_map.h"
-
+#include "Firestore/core/src/firebase/firestore/core/core_fwd.h"
+#include "Firestore/core/src/firebase/firestore/model/model_fwd.h"
 #include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
-namespace core {
-
-class View;
-class ViewSnapshot;
-
-}  // namespace core
-
-namespace model {
-
-class Document;
-class MaybeDocument;
-class TransformMutation;
-class TransformOperation;
-
-}  // namespace model
 
 namespace remote {
-
 class TargetChange;
-
 }  // namespace remote
 
 namespace testutil {

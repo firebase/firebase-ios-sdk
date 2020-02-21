@@ -21,19 +21,36 @@
 #include <memory>
 #include <string>
 
-#include "Firestore/core/src/firebase/firestore/model/field_path.h"
-#include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
 #include "absl/types/any.h"
 #include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
+
+typedef struct _google_firestore_v1_Document google_firestore_v1_Document;
+typedef struct _google_firestore_v1_Value google_firestore_v1_Value;
+
+namespace local {
+class LocalSerializer;
+}  // namespace local
+
+namespace nanopb {
+class Reader;
+
+template <typename T>
+class Message;
+}  // namespace nanopb
+
 namespace remote {
 class Serializer;
 }  // namespace remote
 
 namespace model {
+
+class FieldPath;
+class FieldValue;
+class ObjectValue;
 
 /** Describes the `has_pending_writes` state of a document. */
 enum class DocumentState {

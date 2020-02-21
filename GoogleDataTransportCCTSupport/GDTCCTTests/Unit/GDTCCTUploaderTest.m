@@ -51,14 +51,13 @@
 }
 
 - (void)testCCTUploadGivenConditions {
-  NSArray<GDTCORStoredEvent *> *storedEventsA =
-      [self.generator generateTheFiveConsistentStoredEvents];
-  NSSet<GDTCORStoredEvent *> *storedEvents = [NSSet setWithArray:storedEventsA];
+  NSArray<GDTCOREvent *> *storedEventsA = [self.generator generateTheFiveConsistentEvents];
+  NSSet<GDTCOREvent *> *storedEvents = [NSSet setWithArray:storedEventsA];
 
   GDTCORUploadPackage *package = [[GDTCORUploadPackage alloc] initWithTarget:kGDTCORTargetCCT];
   package.events = storedEvents;
   GDTCCTUploader *uploader = [[GDTCCTUploader alloc] init];
-  uploader.serverURL = [self.testServer.serverURL URLByAppendingPathComponent:@"logBatch"];
+  uploader.testServerURL = [self.testServer.serverURL URLByAppendingPathComponent:@"logBatch"];
   __weak id weakSelf = self;
   XCTestExpectation *responseSentExpectation = [self expectationWithDescription:@"response sent"];
   self.testServer.responseCompletedBlock =

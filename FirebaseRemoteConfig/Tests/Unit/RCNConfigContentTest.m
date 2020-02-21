@@ -55,7 +55,6 @@
 /// Passing in a nil bundleID should not crash the app
 - (void)testCrashShouldNotHappenWithoutMainBundleID {
   id mockBundle = OCMPartialMock([NSBundle mainBundle]);
-  OCMStub([NSBundle mainBundle]).andReturn(mockBundle);
   OCMStub([mockBundle bundleIdentifier]).andReturn(nil);
   _configContent = [[RCNConfigContent alloc] initWithDBManager:nil];
   [mockBundle stopMocking];

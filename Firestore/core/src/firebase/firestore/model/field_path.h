@@ -26,9 +26,10 @@
 
 namespace firebase {
 namespace firestore {
+
 namespace remote {
 class Serializer;
-}
+}  // namespace remote
 
 namespace model {
 

@@ -183,13 +183,15 @@ static NSString *const kMethodNameLatestStartTime =
 
   // Update the last experiment start time with the latest payload.
   [self updateExperimentStartTime];
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   [self.experimentController
       updateExperimentsWithServiceOrigin:kServiceOrigin
                                   events:lifecycleEvent
                                   policy:ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest
                            lastStartTime:lastStartTime
                                 payloads:_experimentPayloads];
+#pragma clang diagnostic pop
 }
 
 - (void)updateExperimentStartTime {

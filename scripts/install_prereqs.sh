@@ -27,9 +27,9 @@ set -euo pipefail
 # requests from forks. See
 # https://docs.travis-ci.com/user/pull-requests#pull-requests-and-security-restrictions
 function install_secrets() {
-  if [[ -n "${encrypted_d6a88994a5ab_key:-}" && $secrets_installed != true ]]; then
+  if [[ -n "${encrypted_de2056405dcb_key:-}" && $secrets_installed != true ]]; then
     secrets_installed=true
-    openssl aes-256-cbc -K $encrypted_5dda5f491369_key -iv $encrypted_5dda5f491369_iv \
+    openssl aes-256-cbc -K $encrypted_de2056405dcb_key -iv $encrypted_de2056405dcb_iv \
     -in scripts/travis-encrypted/Secrets.tar.enc \
     -out scripts/travis-encrypted/Secrets.tar -d
 
@@ -68,6 +68,13 @@ function apt_install() {
   which "$program" >& /dev/null || sudo apt-get install "$package"
 }
 
+function install_xcpretty() {
+  gem install xcpretty
+  if [[ -n "${TRAVIS:-}" ]]; then
+    gem install xcpretty-travis-formatter
+  fi
+}
+
 secrets_installed=false
 
 # Default values, if not supplied on the command line or environment
@@ -103,28 +110,16 @@ if [[ ! -z "${QUICKSTART:-}" ]]; then
   scripts/setup_quickstart.sh "$QUICKSTART"
 fi
 
-system=$(uname -s)
-case "$system" in
-  Darwin)
-    xcode_version=$(xcodebuild -version | head -n 1)
-    xcode_version="${xcode_version/Xcode /}"
-    xcode_major="${xcode_version/.*/}"
-    ;;
-  *)
-    xcode_major="0"
-    ;;
-esac
-
 case "$project-$platform-$method" in
 
   FirebasePod-iOS-xcodebuild)
-    gem install xcpretty
+    install_xcpretty
     bundle exec pod install --project-directory=CoreOnly/Tests/FirebasePodTest --repo-update
     ;;
 
   Auth-*)
     # Install the workspace for integration testing.
-    gem install xcpretty
+    install_xcpretty
     bundle exec pod install --project-directory=Example/Auth/AuthSample --repo-update
     ;;
 
@@ -151,24 +146,12 @@ case "$project-$platform-$method" in
     ;;
 
   InAppMessaging-*-xcodebuild)
-    gem install xcpretty
+    install_xcpretty
     bundle exec pod install --project-directory=FirebaseInAppMessaging/Tests/Integration/DefaultUITestApp --no-repo-update
     ;;
 
   Firestore-*-xcodebuild | Firestore-*-fuzz)
-    if [[ $xcode_major -lt 9 ]]; then
-      # Firestore still compiles with Xcode 8 to help verify general
-      # conformance with C++11 by using an older compiler that doesn't have as
-      # many extensions from later versions of the language. However, Firebase
-      # as a whole does not support this environment and @available checks in
-      # GoogleDataTransport would otherwise break this build.
-      #
-      # This drops the dependency that adds GoogleDataTransport into
-      # Firestore's dependencies.
-      sed -i.bak "/s.dependency 'FirebaseCoreDiagnostics'/d" FirebaseCore.podspec
-    fi
-
-    gem install xcpretty
+    install_xcpretty
 
     # The Firestore Podfile is multi-platform by default, but this doesn't work
     # with command-line builds using xcodebuild. The PLATFORM environment
@@ -198,7 +181,7 @@ case "$project-$platform-$method" in
     ;;
 
   SymbolCollision-*-xcodebuild)
-    gem install xcpretty
+    install_xcpretty
     bundle exec pod install --project-directory=SymbolCollisionTest --repo-update
     ;;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,7 @@
 #include "Firestore/core/src/firebase/firestore/core/event_listener.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
-#include "Firestore/core/src/firebase/firestore/model/field_path.h"
-#include "Firestore/core/src/firebase/firestore/model/field_value.h"
+#include "Firestore/core/src/firebase/firestore/model/model_fwd.h"
 #include "absl/types/optional.h"
 
 namespace firebase {
@@ -38,8 +37,6 @@ class Firestore;
 
 class DocumentSnapshot {
  public:
-  using Listener = std::unique_ptr<core::EventListener<DocumentSnapshot>>;
-
   DocumentSnapshot() = default;
 
   static DocumentSnapshot FromDocument(std::shared_ptr<Firestore> firestore,
@@ -89,6 +86,9 @@ class DocumentSnapshot {
   absl::optional<model::Document> internal_document_;
   SnapshotMetadata metadata_;
 };
+
+using DocumentSnapshotListener =
+    std::unique_ptr<core::EventListener<DocumentSnapshot>>;
 
 inline bool operator!=(const DocumentSnapshot& lhs,
                        const DocumentSnapshot& rhs) {

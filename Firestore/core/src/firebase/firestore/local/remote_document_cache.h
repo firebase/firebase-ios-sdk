@@ -17,14 +17,15 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_REMOTE_DOCUMENT_CACHE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_REMOTE_DOCUMENT_CACHE_H_
 
-#include "Firestore/core/src/firebase/firestore/core/query.h"
-#include "Firestore/core/src/firebase/firestore/model/document_key.h"
-#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
-#include "Firestore/core/src/firebase/firestore/model/document_map.h"
-#include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/model/model_fwd.h"
 
 namespace firebase {
 namespace firestore {
+
+namespace core {
+class Query;
+}  // namespace core
+
 namespace local {
 
 /**
@@ -37,8 +38,7 @@ namespace local {
  */
 class RemoteDocumentCache {
  public:
-  virtual ~RemoteDocumentCache() {
-  }
+  virtual ~RemoteDocumentCache() = default;
 
   /**
    * Adds or replaces an entry in the cache.

@@ -1,3 +1,9 @@
+# v4.0.1
+- Fixes missing a dispatch_sync and on-queue work in appWillTerminate of storage. (#4546)
+
+# v4.0.0
+- Internal restructuring to support a single class implementing several backends.
+
 # v3.3.1
 - Added extensive debug logging that can be turned on by changing
 GDT_VERBOSE_LOGGING to 1 in GDTCORConsoleLogger.h.

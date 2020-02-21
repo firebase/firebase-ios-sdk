@@ -19,6 +19,7 @@
 #include <memory>
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "absl/algorithm/container.h"
 
 namespace firebase {

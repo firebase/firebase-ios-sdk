@@ -19,16 +19,14 @@
 
 // WEAKIFY & STRONGIFY
 // Helper macro.
-#define _FIRMessaging_WEAKNAME(VAR) VAR ## _weak_
+#define _FIRMessaging_WEAKNAME(VAR) VAR##_weak_
 
 #define FIRMessaging_WEAKIFY(VAR) __weak __typeof__(VAR) _FIRMessaging_WEAKNAME(VAR) = (VAR);
 
-#define FIRMessaging_STRONGIFY(VAR) \
-_Pragma("clang diagnostic push") \
-_Pragma("clang diagnostic ignored \"-Wshadow\"") \
-__strong __typeof__(VAR) VAR = _FIRMessaging_WEAKNAME(VAR); \
-_Pragma("clang diagnostic pop")
-
+#define FIRMessaging_STRONGIFY(VAR)                                                 \
+  _Pragma("clang diagnostic push") _Pragma("clang diagnostic ignored \"-Wshadow\"") \
+      __strong __typeof__(VAR) VAR = _FIRMessaging_WEAKNAME(VAR);                   \
+  _Pragma("clang diagnostic pop")
 
 #ifndef _FIRMessaging_UL
 #define _FIRMessaging_UL(v) (unsigned long)(v)
@@ -38,10 +36,10 @@ _Pragma("clang diagnostic pop")
 
 // Invalidates the initializer from which it's called.
 #ifndef FIRMessagingInvalidateInitializer
-#define FIRMessagingInvalidateInitializer() \
-  do { \
+#define FIRMessagingInvalidateInitializer()                    \
+  do {                                                         \
     [self class]; /* Avoid warning of dead store to |self|. */ \
-    NSAssert(NO, @"Invalid initializer."); \
-    return nil; \
+    NSAssert(NO, @"Invalid initializer.");                     \
+    return nil;                                                \
   } while (0)
 #endif

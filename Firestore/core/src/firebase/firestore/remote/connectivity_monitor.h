@@ -57,8 +57,7 @@ class ConnectivityMonitor {
       : worker_queue_{worker_queue} {
   }
 
-  virtual ~ConnectivityMonitor() {
-  }
+  virtual ~ConnectivityMonitor() = default;
 
   void AddCallback(Callback&& callback) {
     callbacks_.push_back(std::move(callback));

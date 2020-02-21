@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ class TestHelper : public LruGarbageCollectorTestHelper {
   std::unique_ptr<Persistence> MakePersistence(LruParams lru_params) override {
     auto persistence = LevelDbPersistenceForTesting(lru_params);
     leveldb_persistence_ = persistence.get();
-    return std::move(persistence);
+    return persistence;
   }
 
   bool SentinelExists(const DocumentKey& key) override {

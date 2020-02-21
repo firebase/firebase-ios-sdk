@@ -19,6 +19,8 @@
 #include <ostream>
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/util/hashing.h"
+
 namespace firebase {
 namespace firestore {
 namespace model {

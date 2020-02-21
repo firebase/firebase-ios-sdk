@@ -29,13 +29,16 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
+#include "Firestore/core/src/firebase/firestore/local/local_documents_view.h"
 #include "Firestore/core/src/firebase/firestore/local/local_store.h"
 #include "Firestore/core/src/firebase/firestore/local/memory_persistence.h"
 #include "Firestore/core/src/firebase/firestore/local/simple_query_engine.h"
 #include "Firestore/core/src/firebase/firestore/local/target_data.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/mutation_batch_result.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
+#include "Firestore/core/src/firebase/firestore/model/set_mutation.h"
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_store.h"
@@ -163,8 +166,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 class RemoteStoreEventCapture : public RemoteStoreCallback {
  public:
-  explicit RemoteStoreEventCapture(XCTestCase *test_case) {
-    underlying_capture_ = [[FSTRemoteStoreEventCapture alloc] initWithTestCase:test_case];
+  explicit RemoteStoreEventCapture(XCTestCase *test_case)
+      : underlying_capture_([[FSTRemoteStoreEventCapture alloc] initWithTestCase:test_case]) {
   }
 
   void ExpectWriteEvent(NSString *description) {
@@ -271,7 +274,7 @@ class RemoteStoreEventCapture : public RemoteStoreCallback {
 }
 
 - (void)testStreamingWrite {
-  RemoteStoreEventCapture capture = RemoteStoreEventCapture(self);
+  RemoteStoreEventCapture capture(self);
   capture.ExpectWriteEvent(@"write mutations");
 
   _remoteStore->set_sync_engine(&capture);

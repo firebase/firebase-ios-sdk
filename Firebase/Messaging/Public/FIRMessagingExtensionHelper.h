@@ -25,8 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// specified in the notification body via the `image` parameter. Images and other
 /// rich content can be populated manually without the use of this class. See the
 /// `UNNotificationServiceExtension` type for more details.
-__IOS_AVAILABLE(10.0) __OSX_AVAILABLE(10.14)
-@interface FIRMessagingExtensionHelper : NSObject
+__IOS_AVAILABLE(10.0) __OSX_AVAILABLE(10.14) @interface FIRMessagingExtensionHelper : NSObject
 
 /// Call this API to complete your notification content modification. If you like to
 /// overwrite some properties of the content instead of using the default payload,

@@ -20,35 +20,28 @@
 #include <memory>
 #include <mutex>  // NOLINT(build/c++11)
 #include <string>
-#include <utility>
 
-#include "Firestore/core/src/firebase/firestore/api/listener_registration.h"
+#include "Firestore/core/src/firebase/firestore/api/api_fwd.h"
 #include "Firestore/core/src/firebase/firestore/api/settings.h"
-#include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
-#include "Firestore/core/src/firebase/firestore/core/database_info.h"
-#include "Firestore/core/src/firebase/firestore/core/event_listener.h"
-#include "Firestore/core/src/firebase/firestore/core/transaction.h"
+#include "Firestore/core/src/firebase/firestore/core/core_fwd.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
-#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
-#include "Firestore/core/src/firebase/firestore/util/empty.h"
-#include "Firestore/core/src/firebase/firestore/util/nullability.h"
 #include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
-#include "absl/types/any.h"
 
 namespace firebase {
 namespace firestore {
-namespace core {
 
-class FirestoreClient;
-class Query;
+namespace auth {
+class CredentialsProvider;
+}  // namespace auth
 
-}  // namespace core
+namespace util {
+class AsyncQueue;
+class Executor;
+
+struct Empty;
+}  // namespace util
 
 namespace api {
-
-class CollectionReference;
-class DocumentReference;
-class WriteBatch;
 
 class Firestore : public std::enable_shared_from_this<Firestore> {
  public:
@@ -59,6 +52,8 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
             std::shared_ptr<auth::CredentialsProvider> credentials_provider,
             std::shared_ptr<util::AsyncQueue> worker_queue,
             void* extension);
+
+  ~Firestore();
 
   const model::DatabaseId& database_id() const {
     return database_id_;

@@ -52,6 +52,7 @@ def labelsForModifiedFiles()
   labels.push("GoogleDataTransport") if @has_gdt_changes
   labels.push("GoogleUtilities") if @has_googleutilities_changes
   labels.push("zip-builder") if @has_zipbuilder_changes
+  labels.push("public-api-change") if @has_api_changes
   return labels
 end
 
@@ -70,27 +71,58 @@ has_license_changes = didModify(["LICENSE"])
 
 ## Product directories
 @has_abtesting_changes = hasChangesIn("FirebaseABTesting/")
+@has_abtesting_api_changes = hasChangesIn("FirebaseABTesting/Sources/Public/")
 @has_auth_changes = hasChangesIn("Firebase/Auth")
+@has_auth_api_changes = hasChangesIn("Firebase/Auth/Source/Public/")
 @has_core_changes = hasChangesIn([
   "FirebaseCore/",
   "Firebase/CoreDiagnostics/",
   "CoreOnly/"])
+@has_core_api_changes = hasChangesIn("FirebaseCore/Sources/Public/")
 @has_crashlytics_changes = hasChangesIn("Crashlytics/")
+@has_crashlytics_api_changes = hasChangesIn("Crashlytics/Crashlytics/Public/")
 @has_database_changes = hasChangesIn("Firebase/Database/")
-@has_dynamiclinks_changes = hasChangesIn("Firebase/DynamicLinks/")
+@has_database_api_changes = hasChangesIn("Firebase/Database/Public/")
+@has_dynamiclinks_changes = hasChangesIn("FirebaseDynamicLinks/")
+@has_dynamiclinks_api_changes = hasChangesIn("FirebaseDynamicLinks/Sources/Public/")
 @has_firestore_changes = hasChangesIn("Firestore/")
+@has_firestore_api_changes = hasChangesIn("Firestore/Source/Public/")
 @has_functions_changes = hasChangesIn("Functions/")
+@has_functions_api_changes = hasChangesIn("Functions/FirebaseFunctions/Public/")
 @has_inappmessaging_changes = hasChangesIn(["FirebaseInAppMessaging/"])
+@has_inappmessaging_api_changes = hasChangesIn(["FirebaseInAppMessaging/Sources/Public/"])
 @has_installations_changes = hasChangesIn("FirebaseInstallations/Source/")
+@has_installations_api_changes = hasChangesIn("FirebaseInstallations/Source/Library/Public/")
 @has_instanceid_changes = hasChangesIn("Firebase/InstanceID/")
+@has_instanceid_api_changes = hasChangesIn("Firebase/InstanceID/Public/")
 @has_messaging_changes = hasChangesIn("Firebase/Messaging/")
+@has_messaging_api_changes = hasChangesIn("Firebase/Messaging/Public/")
 @has_remoteconfig_changes = hasChangesIn("FirebaseRemoteConfig/")
+@has_remoteconfig_api_changes = hasChangesIn("FirebaseRemoteConfig/Sources/Public/")
 @has_storage_changes = hasChangesIn("FirebaseStorage/")
+@has_storage_api_changes = hasChangesIn("FirebaseStorage/Sources/Public/")
 
-@has_gdt_changes = hasChangesIn("GoogleDataTransport/") ||
-  hasChangesIn("GoogleDataTransportCCTSupport")
+@has_gdt_changes = hasChangesIn(["GoogleDataTransport/", "GoogleDataTransportCCTSupport/"])
+@has_gdt_api_changes = hasChangesIn("GoogleDataTransport/GDTCORLibrary/Public")
 @has_googleutilities_changes = hasChangesIn("GoogleUtilities/")
 @has_zipbuilder_changes = hasChangesIn("ZipBuilder/")
+
+# Convenient flag for all API changes.
+@has_api_changes = @has_abtesting_api_changes ||
+                     @has_auth_api_changes ||
+                     @has_core_api_changes ||
+                     @has_crashlytics_api_changes ||
+                     @has_database_api_changes ||
+                     @has_dynamiclinks_api_changes ||
+                     @has_firestore_api_changes ||
+                     @has_functions_api_changes ||
+                     @has_inappmessaging_api_changes ||
+                     @has_installations_api_changes ||
+                     @has_instanceid_api_changes ||
+                     @has_messaging_api_changes ||
+                     @has_remoteconfig_api_changes ||
+                     @has_storage_api_changes ||
+                     @has_gdt_api_changes
 
 # A FileList containing ObjC, ObjC++ or C++ changes.
 sdk_changes = (git.modified_files +

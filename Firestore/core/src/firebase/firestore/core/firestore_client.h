@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,47 +20,41 @@
 #include <memory>
 #include <vector>
 
-#include "Firestore/core/src/firebase/firestore/api/document_reference.h"
-#include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
-#include "Firestore/core/src/firebase/firestore/api/listener_registration.h"
-#include "Firestore/core/src/firebase/firestore/api/query_core.h"
-#include "Firestore/core/src/firebase/firestore/api/settings.h"
-#include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
+#include "Firestore/core/src/firebase/firestore/api/api_fwd.h"
+#include "Firestore/core/src/firebase/firestore/core/core_fwd.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
-#include "Firestore/core/src/firebase/firestore/core/listen_options.h"
-#include "Firestore/core/src/firebase/firestore/core/query.h"
-#include "Firestore/core/src/firebase/firestore/core/query_listener.h"
-#include "Firestore/core/src/firebase/firestore/core/transaction.h"
-#include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
-#include "Firestore/core/src/firebase/firestore/local/local_store.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
-#include "Firestore/core/src/firebase/firestore/model/mutation.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/delayed_constructor.h"
 #include "Firestore/core/src/firebase/firestore/util/empty.h"
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
+#include "Firestore/core/src/firebase/firestore/util/nullability.h"
 #include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
 
 namespace firebase {
 namespace firestore {
+
+namespace auth {
+class CredentialsProvider;
+class User;
+}  // namespace auth
+
 namespace local {
-
+class LocalStore;
 class LruDelegate;
-class QueryEngine;
 class Persistence;
-
+class QueryEngine;
 }  // namespace local
 
+namespace model {
+class Mutation;
+}  // namespace model
+
 namespace remote {
-
 class RemoteStore;
-
 }  // namespace remote
 
 namespace core {
-
-class EventManager;
-class SyncEngine;
 
 /**
  * FirestoreClient is a top-level class that constructs and owns all of the
@@ -88,7 +82,13 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
    * Terminates this client, cancels all writes / listeners, and releases all
    * resources.
    */
-  void Terminate(util::StatusCallback callback);
+  void TerminateAsync(util::StatusCallback callback);
+
+  /**
+   * Synchronously terminates this client, cancels all writes / listeners, and
+   * releases all resources.
+   */
+  void Terminate();
 
   /**
    * Passes a callback that is triggered when all the pending writes at the
@@ -107,7 +107,7 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
   std::shared_ptr<QueryListener> ListenToQuery(
       Query query,
       ListenOptions options,
-      ViewSnapshot::SharedListener&& listener);
+      ViewSnapshotSharedListener&& listener);
 
   /** Stops listening to a query previously listened to. */
   void RemoveListener(const std::shared_ptr<core::QueryListener>& listener);
@@ -117,14 +117,14 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
    * doesn't exist, an error will be sent to the callback.
    */
   void GetDocumentFromLocalCache(const api::DocumentReference& doc,
-                                 api::DocumentSnapshot::Listener&& callback);
+                                 api::DocumentSnapshotListener&& callback);
 
   /**
    * Retrieves a (possibly empty) set of documents from the cache via the
    * indicated callback.
    */
   void GetDocumentsFromLocalCache(const api::Query& query,
-                                  api::QuerySnapshot::Listener&& callback);
+                                  api::QuerySnapshotListener&& callback);
 
   /**
    * Write mutations. callback will be notified when it's written to the
@@ -182,6 +182,8 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
   void Initialize(const auth::User& user, const api::Settings& settings);
 
   void VerifyNotTerminated();
+
+  void TerminateInternal();
 
   void ScheduleLruGarbageCollection();
 

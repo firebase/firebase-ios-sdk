@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,7 +66,7 @@ LevelDbTargetCache::TryReadMetadata(leveldb::DB* db) {
     }
   }
 
-  return std::move(result);
+  return {std::move(result)};
 }
 
 Message<firestore_client_TargetGlobal> LevelDbTargetCache::ReadMetadata(

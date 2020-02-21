@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'Firebase'
-  s.version          = '6.16.0'
+  s.version          = '6.17.0'
   s.summary          = 'Firebase for iOS (plus community support for macOS and tvOS)'
 
   s.description      = <<-DESC
@@ -36,7 +36,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   end
 
   s.subspec 'CoreOnly' do |ss|
-    ss.dependency 'FirebaseCore', '6.6.1'
+    ss.dependency 'FirebaseCore', '6.6.2'
     ss.source_files = 'CoreOnly/Sources/Firebase.h'
     ss.preserve_paths = 'CoreOnly/Sources/module.modulemap'
     if ENV['FIREBASE_POD_REPO_FOR_DEV_POD'] then
@@ -48,6 +48,11 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
         'HEADER_SEARCH_PATHS' => "$(inherited) ${PODS_ROOT}/Firebase/CoreOnly/Sources"
       }
     end
+    # Standard platforms PLUS watchOS.
+    ss.ios.deployment_target = '8.0'
+    ss.osx.deployment_target = '10.11'
+    ss.tvos.deployment_target = '10.0'
+    ss.watchos.deployment_target = '6.0'
   end
 
   s.subspec 'Analytics' do |ss|
@@ -71,7 +76,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
 
   s.subspec 'Crashlytics' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseCrashlytics', '~> 4.0.0-beta.2'
+    ss.dependency 'FirebaseCrashlytics', '~> 4.0.0-beta.4'
   end
 
   s.subspec 'Database' do |ss|
@@ -81,12 +86,12 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
 
   s.subspec 'DynamicLinks' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseDynamicLinks', '~> 4.0.6'
+    ss.ios.dependency 'FirebaseDynamicLinks', '~> 4.0.7'
   end
 
   s.subspec 'Firestore' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseFirestore', '~> 1.10.0'
+    ss.dependency 'FirebaseFirestore', '~> 1.10.2'
   end
 
   s.subspec 'Functions' do |ss|
@@ -108,17 +113,22 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
 
   s.subspec 'Messaging' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseMessaging', '~> 4.2.0'
+    ss.dependency 'FirebaseMessaging', '~> 4.2.1'
+    # Standard platforms PLUS watchOS.
+    ss.ios.deployment_target = '8.0'
+    ss.osx.deployment_target = '10.11'
+    ss.tvos.deployment_target = '10.0'
+    ss.watchos.deployment_target = '6.0'
   end
 
   s.subspec 'Performance' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebasePerformance', '~> 3.1.9'
+    ss.ios.dependency 'FirebasePerformance', '~> 3.1.10'
   end
 
   s.subspec 'RemoteConfig' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseRemoteConfig', '~> 4.4.6'
+    ss.dependency 'FirebaseRemoteConfig', '~> 4.4.7'
   end
 
   s.subspec 'Storage' do |ss|

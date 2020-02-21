@@ -79,13 +79,15 @@ void ByteStringWriter::Reserve(size_t min_capacity) {
   // If capacity * 2 overflows, min_capacity will be larger.
   size_t desired = std::max(capacity_ * 2, min_capacity);
 
-  buffer_ = static_cast<pb_bytes_array_t*>(
-      std::realloc(buffer_, PB_BYTES_ARRAY_T_ALLOCSIZE(desired)));
-
-  if (capacity_ == 0) {
+  if (buffer_) {
+    buffer_ = static_cast<pb_bytes_array_t*>(
+        std::realloc(buffer_, PB_BYTES_ARRAY_T_ALLOCSIZE(desired)));
+  } else {
     // initialize on the first allocation.
-    buffer_->size = 0;
+    buffer_ = static_cast<pb_bytes_array_t*>(
+        std::calloc(1, PB_BYTES_ARRAY_T_ALLOCSIZE(desired)));
   }
+
   capacity_ = desired;
 }
 

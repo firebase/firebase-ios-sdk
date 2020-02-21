@@ -15,9 +15,8 @@
  */
 
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
-
+#include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
 #include "Firestore/core/src/firebase/firestore/util/string_util.h"
-
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 #include "absl/strings/match.h"
 #include "gtest/gtest.h"
