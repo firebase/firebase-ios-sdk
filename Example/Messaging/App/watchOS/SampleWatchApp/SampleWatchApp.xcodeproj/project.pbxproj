@@ -18,7 +18,6 @@
 		5156949523F4965200E7C350 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5156949423F4965200E7C350 /* Assets.xcassets */; };
 		515694AF23F4A3D200E7C350 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 515694AE23F4A3D200E7C350 /* NotificationService.swift */; };
 		515694B323F4A3D200E7C350 /* ServiceExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 515694AC23F4A3D200E7C350 /* ServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		515694B923F4A6E100E7C350 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 515694B823F4A6E100E7C350 /* RootView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -99,7 +98,6 @@
 		515694AC23F4A3D200E7C350 /* ServiceExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ServiceExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		515694AE23F4A3D200E7C350 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		515694B023F4A3D200E7C350 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		515694B823F4A6E100E7C350 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -176,7 +174,6 @@
 				5156949423F4965200E7C350 /* Assets.xcassets */,
 				5156949623F4965200E7C350 /* Info.plist */,
 				5156949723F4965200E7C350 /* PushNotificationPayload.apns */,
-				515694B823F4A6E100E7C350 /* RootView.swift */,
 			);
 			path = SampleWatchAppWatchKitExtension;
 			sourceTree = "<group>";
@@ -353,7 +350,6 @@
 				5156949323F4965100E7C350 /* ComplicationController.swift in Sources */,
 				5156948F23F4965100E7C350 /* ExtensionDelegate.swift in Sources */,
 				5156948D23F4965100E7C350 /* InterfaceController.swift in Sources */,
-				515694B923F4A6E100E7C350 /* RootView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

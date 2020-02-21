@@ -45,7 +45,10 @@ NSString *const kGCSObjectAllowedCharacterSet =
   if (extension == nil) {
     return nil;
   }
-
+  
+#if TARGET_OS_WATCH
+  return nil;
+#else
   CFStringRef pathExtension = (__bridge_retained CFStringRef)extension;
   CFStringRef type =
       UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, pathExtension, NULL);
@@ -57,6 +60,7 @@ NSString *const kGCSObjectAllowedCharacterSet =
   }
 
   return mimeType;
+#endif
 }
 
 + (NSString *)queryStringForDictionary:(nullable NSDictionary *)dictionary {

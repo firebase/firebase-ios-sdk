@@ -24,6 +24,8 @@ Pod::Spec.new do |s|
   s.ios.deployment_target = '8.0'
   s.osx.deployment_target = '10.11'
   s.tvos.deployment_target = '10.0'
+  s.watchos.deployment_target = '6.0'
+
   s.source_files = 'Interop/Auth/**/*.h'
   s.public_header_files = 'Interop/Auth/Public/*.h'
 end

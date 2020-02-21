@@ -13,10 +13,17 @@
 // limitations under the License.
 
 import SwiftUI
+import FirebaseStorage
 
-class InterfaceController: WKHostingController<RootView> {
-  override var body: RootView {
-    // Return the view structure that the hosting controller displays.
-    RootView()
+class InterfaceController: WKInterfaceController {
+  @IBOutlet var imageView: WKInterfaceImage!
+  
+  override func willActivate() {
+    let storage = Storage.storage()
+    let storageRef = storage.reference().child("sparky.png")
+    storageRef.getData(maxSize: 20 * 1024 * 1024) { (data: Data? , error:Error?) in
+      self.imageView.setImageData(data)
+    }
   }
+  
 }
