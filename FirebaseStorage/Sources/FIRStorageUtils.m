@@ -45,7 +45,7 @@ NSString *const kGCSObjectAllowedCharacterSet =
   if (extension == nil) {
     return nil;
   }
-  
+
 #if TARGET_OS_WATCH
   return nil;
 #else

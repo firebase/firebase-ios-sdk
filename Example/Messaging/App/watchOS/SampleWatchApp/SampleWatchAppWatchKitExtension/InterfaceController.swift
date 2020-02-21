@@ -17,13 +17,12 @@ import FirebaseStorage
 
 class InterfaceController: WKInterfaceController {
   @IBOutlet var imageView: WKInterfaceImage!
-  
+
   override func willActivate() {
     let storage = Storage.storage()
     let storageRef = storage.reference().child("sparky.png")
-    storageRef.getData(maxSize: 20 * 1024 * 1024) { (data: Data? , error:Error?) in
+    storageRef.getData(maxSize: 20 * 1024 * 1024) { (data: Data?, error: Error?) in
       self.imageView.setImageData(data)
     }
   }
-  
 }
