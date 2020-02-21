@@ -565,11 +565,8 @@
   google_crashlytics_Session_Event lastEventProto = [self getLastEventProto:reportProto];
 
   // Mach Exceptions don't fill in the exception
-  XCTAssertTrue([self isPBData:lastEventProto.app.execution.exception.type
-                 equalToString:@""]);
-  XCTAssertTrue([self isPBData:lastEventProto.app.execution.exception.reason
-                 equalToString:@""]);
-
+  XCTAssertTrue([self isPBData:lastEventProto.app.execution.exception.type equalToString:@""]);
+  XCTAssertTrue([self isPBData:lastEventProto.app.execution.exception.reason equalToString:@""]);
 
   XCTAssertTrue([adapter.threads[0].library isEqualToString:@"libsystem_malloc.dylib"]);
 }

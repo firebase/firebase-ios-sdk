@@ -96,7 +96,8 @@
     NSDictionary *dicts = [FIRCLSReportAdapter combinedDictionariesFromFilePath:path];
 
     NSString *symbolicatedPath = [path stringByAppendingString:@".symbolicated"];
-    NSDictionary *symbolicatedDict = [FIRCLSReportAdapter combinedDictionariesFromFilePath:symbolicatedPath];
+    NSDictionary *symbolicatedDict =
+        [FIRCLSReportAdapter combinedDictionariesFromFilePath:symbolicatedPath];
 
     NSDictionary *exceptionDict = dicts[@"exception"];
     NSDictionary *machExceptionDict = dicts[@"mach_exception"];
