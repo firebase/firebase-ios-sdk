@@ -25,7 +25,8 @@ const NSUInteger IMPORTANCE_IN_CRASHED_THREAD = 4;
 + (NSArray<FIRCLSRecordThread *> *)threadsFromDictionaries:(NSArray<NSDictionary *> *)threads
                                                threadNames:(NSArray<NSString *> *)names
                                     withDispatchQueueNames:(NSArray<NSString *> *)dispatchNames
-                                               withRuntime:(FIRCLSRecordRuntime *)runtime {
+                                               withRuntime:(FIRCLSRecordRuntime *)runtime
+                                   withSymbolicatedThreads:(NSDictionary *)symbolicatedThreads {
   NSMutableArray<FIRCLSRecordThread *> *result =
       [[NSMutableArray<FIRCLSRecordThread *> alloc] init];
   for (int i = 0; i < threads.count; i++) {

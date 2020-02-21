@@ -95,6 +95,9 @@
 
     NSDictionary *dicts = [FIRCLSReportAdapter combinedDictionariesFromFilePath:path];
 
+    NSString *symbolicatedPath = [path stringByAppendingString:@".symbolicated"];
+    NSDictionary *symbolicatedDict = [FIRCLSReportAdapter combinedDictionariesFromFilePath:symbolicatedPath];
+
     NSDictionary *exceptionDict = dicts[@"exception"];
     NSDictionary *machExceptionDict = dicts[@"mach_exception"];
     NSDictionary *signalDict = dicts[@"signal"];
@@ -127,7 +130,8 @@
     self.threads = [FIRCLSRecordThread threadsFromDictionaries:dicts[@"threads"]
                                                    threadNames:dicts[@"thread_names"]
                                         withDispatchQueueNames:dicts[@"dispatch_queue_names"]
-                                                   withRuntime:self.runtime];
+                                                   withRuntime:self.runtime
+                                       withSymbolicatedThreads:symbolicatedDict[@"threads"]];
   }
 }
 

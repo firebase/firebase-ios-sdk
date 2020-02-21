@@ -37,6 +37,10 @@
 + (NSArray<FIRCLSRecordThread *> *)threadsFromDictionaries:(NSArray<NSDictionary *> *)threads
                                                threadNames:(NSArray<NSString *> *)names
                                     withDispatchQueueNames:(NSArray<NSString *> *)dispatchNames
-                                               withRuntime:(FIRCLSRecordRuntime *)runtime;
-
+                                               withRuntime:(FIRCLSRecordRuntime *)runtime
+                                   withSymbolicatedThreads:(NSDictionary *)symbolicatedThreads;
+//+ (NSArray<FIRCLSRecordThread *> *)threadsFromDictionaries:(NSArray<NSDictionary *> *)threads
+//           threadNames:(NSArray<NSString *> *)names
+//withDispatchQueueNames:(NSArray<NSString *> *)dispatchNames
+//                                               withRuntime:(FIRCLSRecordRuntime *)runtime;
 @end

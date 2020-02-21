@@ -45,7 +45,7 @@ Pod::Spec.new do |s|
   s.dependency 'FirebaseInstanceID', '~> 4.3'
   s.dependency 'FirebaseAnalyticsInterop', '~> 1.2'
   s.dependency 'PromisesObjC', '~> 1.2'
-  s.dependency 'GoogleDataTransport', '~> 3.2'
+  s.dependency 'GoogleDataTransport', '~> 4.0.0'
   s.dependency 'GoogleDataTransportCCTSupport', '~> 1.3'
   s.dependency 'nanopb', '~> 0.3.901'
 
