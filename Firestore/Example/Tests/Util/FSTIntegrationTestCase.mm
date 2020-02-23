@@ -270,8 +270,8 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
 - (FIRApp *)appWithProjectID:(NSString *)projectID {
   FIRApp *app = _apps[projectID];
   if (!app) {
-    // Use the same appName across integration tests to ensure that terminating
-    // Firestore is is actually completing before the next test starts.
+    // Use the same appName across integration tests to ensure that Firestore termination is
+    // actually complete before the next test starts.
     NSString *appName = [NSString stringWithFormat:@"firestore-integration-tests-%@", projectID];
     FIROptions *options = OptionsForUnitTesting(util::MakeString(projectID));
 

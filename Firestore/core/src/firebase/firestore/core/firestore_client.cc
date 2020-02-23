@@ -311,9 +311,8 @@ void FirestoreClient::VerifyNotTerminated() {
 }
 
 bool FirestoreClient::is_terminated() const {
-  // Technically, the worker queue is still running, but only accepting tasks
-  // related to termination or supposed to be run after termination. It is
-  // effectively terminated to the eyes of users.
+  // When the user calls Terminate, this puts the AsyncQueue into restricted
+  // mode. There's no need to track termination separately.
   return worker_queue()->is_restricted();
 }
 

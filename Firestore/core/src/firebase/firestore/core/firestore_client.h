@@ -94,6 +94,8 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
   /**
    * Synchronously terminates this client, cancels all writes / listeners,
    * releases all resources, and prepares for destruction.
+   *
+   * This also synchronously waits for the last pending operation to complete.
    */
   void Stop();
 
