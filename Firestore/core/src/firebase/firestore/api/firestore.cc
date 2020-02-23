@@ -69,7 +69,7 @@ Firestore::~Firestore() {
   // to tear it down.
   if (!client_) return;
 
-  client_->Stop();
+  client_->Dispose();
 }
 
 const std::shared_ptr<FirestoreClient>& Firestore::client() {

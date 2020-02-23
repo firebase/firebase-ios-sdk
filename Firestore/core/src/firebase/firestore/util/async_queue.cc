@@ -42,7 +42,7 @@ AsyncQueue::AsyncQueue(std::unique_ptr<Executor> executor)
 AsyncQueue::~AsyncQueue() {
   HARD_ASSERT_NOTHROW(!is_operation_in_progress_,
                       "AsyncQueue destroyed while operation was in progress.");
-  Stop();
+  Dispose();
 }
 
 void AsyncQueue::VerifyIsCurrentExecutor() const {
@@ -82,19 +82,19 @@ void AsyncQueue::Enqueue(const Operation& operation) {
 }
 
 void AsyncQueue::EnterRestrictedMode() {
-  std::lock_guard<std::mutex> lock{shut_down_mutex_};
+  std::lock_guard<std::mutex> lock{mutex_};
   VerifySequentialOrder();
-  if (mode_ == Mode::Stopped) return;
+  if (mode_ == Mode::Disposed) return;
 
   mode_ = Mode::Restricted;
 }
 
-void AsyncQueue::Stop() {
+void AsyncQueue::Dispose() {
   {
-    std::lock_guard<std::mutex> lock{shut_down_mutex_};
+    std::lock_guard<std::mutex> lock{mutex_};
     VerifySequentialOrder();
 
-    mode_ = Mode::Stopped;
+    mode_ = Mode::Disposed;
   }
 
   // Enqueue a blocking final task to ensure that everything is off the queue.
@@ -103,20 +103,25 @@ void AsyncQueue::Stop() {
 
 void AsyncQueue::EnqueueEvenWhileRestricted(const Operation& operation) {
   // Still guarding the lock to ensure sequential scheduling.
-  std::lock_guard<std::mutex> lock{shut_down_mutex_};
+  std::lock_guard<std::mutex> lock{mutex_};
   VerifySequentialOrder();
-  if (mode_ == Mode::Stopped) return;
+  if (mode_ == Mode::Disposed) return;
 
   executor_->Execute(Wrap(operation));
 }
 
 bool AsyncQueue::is_restricted() const {
-  std::lock_guard<std::mutex> lock{shut_down_mutex_};
+  std::lock_guard<std::mutex> lock{mutex_};
   return mode_ != Mode::Running;
 }
 
+bool AsyncQueue::is_disposed() const {
+  std::lock_guard<std::mutex> lock{mutex_};
+  return mode_ == Mode::Disposed;
+}
+
 void AsyncQueue::EnqueueRelaxed(const Operation& operation) {
-  std::lock_guard<std::mutex> lock{shut_down_mutex_};
+  std::lock_guard<std::mutex> lock{mutex_};
   if (mode_ != Mode::Running) return;
 
   executor_->Execute(Wrap(operation));
@@ -125,7 +130,7 @@ void AsyncQueue::EnqueueRelaxed(const Operation& operation) {
 DelayedOperation AsyncQueue::EnqueueAfterDelay(Milliseconds delay,
                                                const TimerId timer_id,
                                                const Operation& operation) {
-  std::lock_guard<std::mutex> lock{shut_down_mutex_};
+  std::lock_guard<std::mutex> lock{mutex_};
   VerifyIsCurrentExecutor();
 
   if (mode_ != Mode::Running) {
@@ -198,6 +203,7 @@ void AsyncQueue::RunScheduledOperationsUntil(const TimerId last_timer_id) {
 }
 
 void AsyncQueue::SkipDelaysForTimerId(TimerId timer_id) {
+  std::lock_guard<std::mutex> lock{mutex_};
   timer_ids_to_skip_.push_back(timer_id);
 }
 

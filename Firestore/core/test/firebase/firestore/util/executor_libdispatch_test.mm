@@ -65,11 +65,11 @@ TEST_F(ExecutorLibdispatchOnlyTests, NameReturnsLabelOfTheQueue) {
 }
 
 TEST_F(ExecutorLibdispatchOnlyTests,
-       ExecuteBlockingOnTheCurrentQueueIsNotAllowed) {
+       ExecuteBlockingOnTheCurrentQueueIsAllowed) {
   Expectation ran;
   EXPECT_NO_THROW(executor->ExecuteBlocking([] {}));
   executor->Execute([&] {
-    EXPECT_ANY_THROW(executor->ExecuteBlocking([] {}));
+    EXPECT_NO_THROW(executor->ExecuteBlocking([] {}));
     ran.Fulfill();
   });
   Await(ran);

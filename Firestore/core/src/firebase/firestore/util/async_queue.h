@@ -107,7 +107,7 @@ class AsyncQueue : public std::enable_shared_from_this<AsyncQueue> {
      * Finally, once the Firestore instance is in the process of being destroyed
      * the `AsyncQueue` stops accepting all tasks.
      */
-    Stopped,
+    Disposed,
   };
 
   static std::shared_ptr<AsyncQueue> Create(std::unique_ptr<Executor> executor);
@@ -139,11 +139,11 @@ class AsyncQueue : public std::enable_shared_from_this<AsyncQueue> {
   // operations even while in restricted mode.
   void EnterRestrictedMode();
 
-  // Puts the `AsyncQueue` into stopped mode, where calling any Enqueue* methods
-  // becomes a no-op without exception.
+  // Puts the `AsyncQueue` into disposed mode, where calling any Enqueue*
+  // methods becomes a no-op without exception.
   //
   // This also synchronously waits for the last pending operation to complete.
-  void Stop();
+  void Dispose();
 
   // Like `Enqueue`, but it will proceed scheduling the requested operation
   // regardless of whether the queue is in restricted mode or not.
@@ -154,6 +154,9 @@ class AsyncQueue : public std::enable_shared_from_this<AsyncQueue> {
 
   // Whether the queue has entered restricted mode.
   bool is_restricted() const;
+
+  // Whether the queue has been disposed.
+  bool is_disposed() const;
 
   // Puts the `operation` on the queue to be executed `delay` milliseconds from
   // now, and returns a handle that allows to cancel the operation (provided it
@@ -226,8 +229,8 @@ class AsyncQueue : public std::enable_shared_from_this<AsyncQueue> {
   std::atomic<bool> is_operation_in_progress_;
   std::unique_ptr<Executor> executor_;
 
+  mutable std::mutex mutex_;
   Mode mode_ = Mode::Running;
-  mutable std::mutex shut_down_mutex_;
 
   std::vector<TimerId> timer_ids_to_skip_;
 };

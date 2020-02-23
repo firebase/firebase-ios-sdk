@@ -84,6 +84,8 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
       std::shared_ptr<util::Executor> user_executor,
       std::shared_ptr<util::AsyncQueue> worker_queue);
 
+  ~FirestoreClient();
+
   /**
    * Terminates this client, cancels all writes / listeners, and releases all
    * resources. The client enters a restricted mode where only a few methods
@@ -93,11 +95,15 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
 
   /**
    * Synchronously terminates this client, cancels all writes / listeners,
-   * releases all resources, and prepares for destruction.
+   * releases all resources, synchronously waits for the last pending operation
+   * to complete, and all but destroys this instance.
    *
-   * This also synchronously waits for the last pending operation to complete.
+   * Note: Dispose exists separately from the destructor because shared_ptrs to
+   * FirestoreClient are captured frequently in ways that are hard to audit.
+   * This in turn makes it difficult to rely on the last shared owner to
+   * destroy the instance in a timely manner. All asynchronous operations
    */
-  void Stop();
+  void Dispose();
 
   /**
    * Passes a callback that is triggered when all the pending writes at the

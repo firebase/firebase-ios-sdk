@@ -208,13 +208,13 @@ TEST_P(AsyncQueueTest, CanScheduleOprationsRespectingRestrictedMode) {
   queue->EnqueueEvenWhileRestricted([&] { steps += '4'; });
   queue->EnqueueEvenWhileRestricted(ran.AsCallback());
 
-  queue->Stop();
+  queue->Dispose();
   queue->Enqueue([&] { steps += '5'; });
   queue->EnqueueEvenWhileRestricted([&] { steps += '6'; });
 
-  // If any action were enqueued after Stop (above) this will force it to
+  // If any action were enqueued after Dispose (above) this will force it to
   // complete.
-  queue->Stop();
+  queue->Dispose();
 
   Await(ran);
   EXPECT_EQ(steps, "124");

@@ -151,6 +151,10 @@ FirestoreClient::FirestoreClient(
       user_executor_(std::move(user_executor)) {
 }
 
+FirestoreClient::~FirestoreClient() {
+  HARD_ASSERT_NOTHROW(worker_queue_->is_disposed());
+}
+
 void FirestoreClient::Initialize(const User& user, const Settings& settings) {
   // Do all of our initialization on our own dispatch queue.
   worker_queue()->VerifyIsCurrentQueue();
@@ -264,10 +268,18 @@ void FirestoreClient::TerminateAsync(StatusCallback callback) {
   });
 }
 
-void FirestoreClient::Stop() {
+void FirestoreClient::Dispose() {
+  // Prevent new API invocations from enqueueing further work.
   worker_queue_->EnterRestrictedMode();
+
+  // Clean up internal resources. It's possible that this can race with a call
+  // to Firestore::ClearPersistence, but that's OK because that operation
+  // does not rely on any state in this FirestoreClient.
   worker_queue_->EnqueueEvenWhileRestricted([&, this] { TerminateInternal(); });
-  worker_queue_->Stop();
+
+  // Atomically stop accepting any new tasks and wait for all pending tasks to
+  // complete.
+  worker_queue_->Dispose();
 }
 
 void FirestoreClient::TerminateInternal() {
@@ -312,7 +324,10 @@ void FirestoreClient::VerifyNotTerminated() {
 
 bool FirestoreClient::is_terminated() const {
   // When the user calls Terminate, this puts the AsyncQueue into restricted
-  // mode. There's no need to track termination separately.
+  // mode.
+  //
+  // Note that `remote_store_ == nullptr` is not a good test for this because
+  // `remote_store_` is reset asynchronously after TerminateInternal completes.
   return worker_queue()->is_restricted();
 }
 

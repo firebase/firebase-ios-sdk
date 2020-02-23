@@ -60,16 +60,19 @@ void DispatchAsync(const dispatch_queue_t queue, std::function<void()>&& work) {
 }
 
 void DispatchSync(const dispatch_queue_t queue, std::function<void()> work) {
-  HARD_ASSERT(
-      GetCurrentQueueLabel() != GetQueueLabel(queue),
-      "Calling DispatchSync on the current queue will lead to a deadlock.");
+  if (GetCurrentQueueLabel() == GetQueueLabel(queue)) {
+    // dispatch_sync_f will deadlock if you try to dispatch an operation to a
+    // queue from which you're currently running.
+    work();
 
-  // Unlike dispatch_async_f, dispatch_sync_f blocks until the work passed to it
-  // is done, so passing a reference to a local variable is okay.
-  dispatch_sync_f(queue, &work, [](void* const raw_work) {
-    const auto unwrap = static_cast<std::function<void()>*>(raw_work);
-    (*unwrap)();
-  });
+  } else {
+    // Unlike dispatch_async_f, dispatch_sync_f blocks until the work passed to
+    // it is done, so passing a reference to a local variable is okay.
+    dispatch_sync_f(queue, &work, [](void* const raw_work) {
+      const auto unwrap = static_cast<std::function<void()>*>(raw_work);
+      (*unwrap)();
+    });
+  }
 }
 
 }  // namespace internal
