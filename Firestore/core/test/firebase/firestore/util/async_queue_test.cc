@@ -212,6 +212,10 @@ TEST_P(AsyncQueueTest, CanScheduleOprationsRespectingRestrictedMode) {
   queue->Enqueue([&] { steps += '5'; });
   queue->EnqueueEvenWhileRestricted([&] { steps += '6'; });
 
+  // If any action were enqueued after Stop (above) this will force it to
+  // complete.
+  queue->Stop();
+
   Await(ran);
   EXPECT_EQ(steps, "124");
 }
