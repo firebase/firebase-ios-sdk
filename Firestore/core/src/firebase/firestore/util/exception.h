@@ -90,7 +90,7 @@ using ThrowHandler = void (*)(ExceptionType type,
 /**
  * The default throw handler implementation, suitable for C++. If exceptions are
  * enabled, throws a C++ exception, except for AssertionFailureNoThrow, which
- * unconditionally aborts.
+ * unconditionally terminates.
  */
 ABSL_ATTRIBUTE_NORETURN void DefaultThrowHandler(ExceptionType type,
                                                  const char* file,

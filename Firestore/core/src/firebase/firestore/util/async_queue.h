@@ -91,12 +91,13 @@ class AsyncQueue : public std::enable_shared_from_this<AsyncQueue> {
 
   enum class Mode {
     /**
-     * The default mode of an AsyncQueue after creation. All tasks are allowed.
+     * The default mode of an `AsyncQueue` after creation. All tasks are
+     * allowed.
      */
     Running,
 
     /**
-     * The AsyncQueue enters Mode::Restricted after the a user terminates an
+     * The `AsyncQueue` enters `Mode::Restricted` after the a user terminates an
      * instance of Firestore. In this mode, most tasks are not allowed: only a
      * special limited set of operations are still allowed to run.
      */
@@ -104,7 +105,7 @@ class AsyncQueue : public std::enable_shared_from_this<AsyncQueue> {
 
     /**
      * Finally, once the Firestore instance is in the process of being destroyed
-     * the AsyncQueue stops accepting all tasks.
+     * the `AsyncQueue` stops accepting all tasks.
      */
     Stopped,
   };
@@ -134,18 +135,18 @@ class AsyncQueue : public std::enable_shared_from_this<AsyncQueue> {
   // Puts the `AsyncQueue` into restricted mode, where calling any Enqueue*
   // methods becomes a no-op.
   //
-  // The exception is `EnqueueEvenWhileRestricted`, where operations are still
-  // scheduled even while in restricted mode.
+  // The exception is `EnqueueEvenWhileRestricted`, which would still enqueue
+  // operations even while in restricted mode.
   void EnterRestrictedMode();
 
-  // Puts the `AsyncQueue` into the stopped mode, where calling any Enqueue*
-  // methods becomes a no-op without exception.
+  // Puts the `AsyncQueue` into stopped mode, where calling any Enqueue* methods
+  // becomes a no-op without exception.
   //
   // This also synchronously waits for the last pending operation to complete.
   void Stop();
 
   // Like `Enqueue`, but it will proceed scheduling the requested operation
-  // regardless of whether the queue is shut down or not.
+  // regardless of whether the queue is in restricted mode or not.
   void EnqueueEvenWhileRestricted(const Operation& operation);
 
   // Like `Enqueue`, but without applying any prerequisite checks.
