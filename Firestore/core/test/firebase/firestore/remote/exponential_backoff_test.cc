@@ -42,12 +42,6 @@ class ExponentialBackoffTest : public testing::Test,
         backoff{queue, timer_id, 1.5, chr::seconds{5}, chr::seconds{30}} {
   }
 
-  void TearDown() override {
-    queue->Stop();
-
-    testing::Test::TearDown();
-  }
-
   TimerId timer_id = TimerId::ListenStreamConnectionBackoff;
   std::shared_ptr<AsyncQueue> queue;
   ExponentialBackoff backoff;

@@ -38,12 +38,6 @@ const TimerId kTimerId3 = TimerId::WriteStreamConnectionBackoff;
 
 }  // namespace
 
-AsyncQueueTest::~AsyncQueueTest() {
-  if (queue) {
-    queue->EnqueueBlocking([] {});
-  }
-}
-
 TEST_P(AsyncQueueTest, Enqueue) {
   Expectation ran;
   queue->Enqueue(ran.AsCallback());
