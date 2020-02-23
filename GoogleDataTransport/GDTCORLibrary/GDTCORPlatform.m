@@ -71,7 +71,15 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
     };
     networkInfo = [[CTTelephonyNetworkInfo alloc] init];
   });
-  NSString *networkCurrentRadioAccessTechnology = networkInfo.currentRadioAccessTechnology;
+  NSString *networkCurrentRadioAccessTechnology;
+  if(@available(iOS 13, *)) {
+    NSDictionary<NSString *, NSString *> *networkCurrentRadioAccessTechnologyDict = networkInfo.serviceCurrentRadioAccessTechnology;
+    if(networkCurrentRadioAccessTechnologyDict){
+      networkCurrentRadioAccessTechnology = networkCurrentRadioAccessTechnologyDict.allValues[0];
+    }
+  } else {
+    networkCurrentRadioAccessTechnology = networkInfo.currentRadioAccessTechnology;
+  }
   if (networkCurrentRadioAccessTechnology) {
     NSNumber *networkMobileSubtype =
         CTRadioAccessTechnologyToNetworkSubTypeMessage[networkCurrentRadioAccessTechnology];
