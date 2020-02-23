@@ -84,6 +84,7 @@ void AsyncQueue::Enqueue(const Operation& operation) {
 void AsyncQueue::EnterRestrictedMode() {
   std::lock_guard<std::mutex> lock{shut_down_mutex_};
   VerifySequentialOrder();
+  if (mode_ == Mode::Stopped) return;
 
   mode_ = Mode::Restricted;
 }
@@ -104,9 +105,8 @@ void AsyncQueue::EnqueueEvenWhileRestricted(const Operation& operation) {
   // Still guarding the lock to ensure sequential scheduling.
   std::lock_guard<std::mutex> lock{shut_down_mutex_};
   VerifySequentialOrder();
-  if (mode_ == Mode::Stopped) {
-    return;
-  }
+  if (mode_ == Mode::Stopped) return;
+
   executor_->Execute(Wrap(operation));
 }
 
@@ -117,9 +117,8 @@ bool AsyncQueue::is_restricted() const {
 
 void AsyncQueue::EnqueueRelaxed(const Operation& operation) {
   std::lock_guard<std::mutex> lock{shut_down_mutex_};
-  if (mode_ != Mode::Running) {
-    return;
-  }
+  if (mode_ != Mode::Running) return;
+
   executor_->Execute(Wrap(operation));
 }
 
@@ -151,7 +150,7 @@ AsyncQueue::Operation AsyncQueue::Wrap(const Operation& operation) {
   // already.
   std::weak_ptr<AsyncQueue> weak_this = shared_from_this();
   return [weak_this, operation] {
-    std::shared_ptr<AsyncQueue> shared_this = weak_this.lock();
+    auto shared_this = weak_this.lock();
     if (!shared_this) return;
 
     shared_this->ExecuteBlocking(operation);
