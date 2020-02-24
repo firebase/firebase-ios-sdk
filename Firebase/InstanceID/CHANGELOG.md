@@ -1,3 +1,6 @@
+# 2020-02 -- 4.3.2
+- [changed] Removed unused files (#4881).
+
 # 2020-02 -- 4.3.1
 - [changed] Stop collecting logging ID as it is not used anymore.(#4444)
 
