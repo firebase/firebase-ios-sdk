@@ -1,0 +1,35 @@
+[
+    {
+        "name": "FirebaseCore"
+    },
+    {
+        "name": "FirebaseAuth"
+    },
+    {
+        "name": "FirebaseDatabase"
+    },
+    {
+        "name": "FirebaseDynamicLinks"
+    },
+    {
+        "name": "FirebaseFirestore"
+    },
+    {
+        "name": "FirebaseFunctions"
+    },
+    {
+        "name": "FirebaseInAppMessaging"
+    },
+    {
+        "name": "FirebaseInstanceID"
+    },
+    {
+        "name": "FirebaseMessaging"
+    },
+    {
+        "name": "FirebaseRemoteConfig"
+    },
+    {
+        "name": "FirebaseStorage"
+    }
+]
