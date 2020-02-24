@@ -75,7 +75,9 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
   if (@available(iOS 12, *)) {
     NSDictionary<NSString *, NSString *> *networkCurrentRadioAccessTechnologyDict =
         networkInfo.serviceCurrentRadioAccessTechnology;
-    if (networkCurrentRadioAccessTechnologyDict) {
+    if (networkCurrentRadioAccessTechnologyDict.count) {
+      // In iOS 12, multiple radio technologies can be captured. We prefer not particular radio
+      // tech to another, so we'll just return the first value in the dictionary.
       networkCurrentRadioAccessTechnology = networkCurrentRadioAccessTechnologyDict.allValues[0];
     }
   } else {
