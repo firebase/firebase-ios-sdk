@@ -41,7 +41,7 @@ Pod::Spec.new do |s|
   PREPARE_COMMAND_END
 
   s.dependency 'FirebaseCore', '~> 6.6'
-  s.dependency 'FirebaseInstanceID', '~> 4.3'
+  s.dependency 'FirebaseInstallations', '~> 1.1'
   s.dependency 'FirebaseAnalyticsInterop', '~> 1.2'
   s.dependency 'PromisesObjC', '~> 1.2'
 

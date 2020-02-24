@@ -25,13 +25,13 @@ NS_ASSUME_NONNULL_BEGIN
 @class FIRCLSFileManager;
 @class FIRCLSInternalReport;
 @class FIRCLSSettings;
-@class FIRInstanceID;
+@class FIRInstallations;
 @protocol FIRAnalyticsInterop;
 
 @interface FIRCLSReportManager : NSObject
 
 - (instancetype)initWithFileManager:(FIRCLSFileManager *)fileManager
-                         instanceID:(FIRInstanceID *)instanceID
+                      installations:(FIRInstallations *)installations
                           analytics:(nullable id<FIRAnalyticsInterop>)analytics
                         googleAppID:(NSString *)googleAppID
                         dataArbiter:(FIRCLSDataCollectionArbiter *)dataArbiter

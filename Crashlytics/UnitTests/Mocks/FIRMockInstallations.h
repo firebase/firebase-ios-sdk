@@ -1,4 +1,4 @@
-// Copyright 2019 Google
+// Copyright 2020 Google
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <FirebaseInstanceID/FirebaseInstanceID.h>
+#import <FirebaseInstallations/FirebaseInstallations.h>
 
-@interface FIRMockInstanceID : FIRInstanceID
+@interface FIRMockInstallations : FIRInstallations
 
-- (instancetype)initWithIID:(NSString *)token;
+- (instancetype)initWithFID:(NSString *)installationID;
 - (instancetype)initWithError:(NSError *)error;
 
 @end
