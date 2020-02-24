@@ -110,7 +110,7 @@ static const char *FIREBASE_SEMVER = (const char *)STR(FIRDatabase_VERSION);
 }
 
 + (void)setLoggingEnabled:(BOOL)enabled {
-    [FUtilities setLoggingEnabled:enabled];
+    FIRSetLoggerLevel(FIRLoggerLevelDebug);
     FFLog(@"I-RDB024001", @"BUILD Version: %@", [FIRDatabase buildVersion]);
 }
 

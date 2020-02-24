@@ -172,7 +172,9 @@ NS_SWIFT_NAME(Database)
  *
  * @param enabled YES to enable logging, NO to disable.
  */
-+ (void)setLoggingEnabled:(BOOL)enabled;
++ (void)setLoggingEnabled:(BOOL)enabled
+    __deprecated_msg(
+        "Please use FIRSetLoggerLevel() function of FIRLogger instead.");
 
 /** Retrieve the Firebase Database SDK version. */
 + (NSString *)sdkVersion;

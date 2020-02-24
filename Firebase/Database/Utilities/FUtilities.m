@@ -28,10 +28,7 @@
 #pragma mark C functions
 
 FIRLoggerService kFIRLoggerDatabase = @"[Firebase/Database]";
-static FLogLevel logLevel = FLogLevelInfo; // Default log level is info
 static NSMutableDictionary *options = nil;
-
-BOOL FFIsLoggingEnabled(FLogLevel level) { return level >= logLevel; }
 
 void firebaseJobsTroll(void) {
     FFLog(@"I-RDB095001",
@@ -61,15 +58,6 @@ void firebaseJobsTroll(void) {
         self.localUid = [[FAtomicNumber alloc] init];
     }
     return self;
-}
-
-// TODO: We really want to be able to set the log level
-+ (void)setLoggingEnabled:(BOOL)enabled {
-    logLevel = enabled ? FLogLevelDebug : FLogLevelInfo;
-}
-
-+ (BOOL)getLoggingEnabled {
-    return logLevel == FLogLevelDebug;
 }
 
 + (FUtilities *)singleton {
