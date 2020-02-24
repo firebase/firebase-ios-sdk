@@ -1,4 +1,4 @@
-# Copyright 2018 Google
+# Copyright 2018 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,14 +25,16 @@ if(ZLIB_FOUND)
   return()
 endif()
 
+set(version 1.2.11)
+
 ExternalProject_Add(
   zlib
   DEPENDS
     grpc-download
 
   DOWNLOAD_DIR ${FIREBASE_DOWNLOAD_DIR}
-  DOWNLOAD_NAME zlib-v1.2.11.tar.gz
-  URL https://github.com/madler/zlib/archive/v1.2.11.tar.gz
+  DOWNLOAD_NAME zlib-v${version}.tar.gz
+  URL https://github.com/madler/zlib/archive/v${version}.tar.gz
   URL_HASH SHA256=629380c90a77b964d896ed37163f5c3a34f6e6d897311f1df2a7016355c45eff
 
   PREFIX ${PROJECT_BINARY_DIR}
