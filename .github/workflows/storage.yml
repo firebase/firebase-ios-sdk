@@ -29,7 +29,7 @@ jobs:
 
     strategy:
       matrix:
-        target: [ios, tvos, macos, watchos]
+        target: [ios, tvos, macos]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -42,7 +42,7 @@ jobs:
     if: github.event_name == 'schedule'
     strategy:
       matrix:
-        target: [ios, tvos, macos, watchos]
+        target: [ios, tvos, macos]
         flags: [
           '--skip-tests --use-modular-headers',
           '--skip-tests --use-libraries'
