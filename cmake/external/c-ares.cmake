@@ -1,4 +1,4 @@
-# Copyright 2018 Google
+# Copyright 2018 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,6 +23,10 @@ endif()
 # the SOURCE_DIR when unpacking so this must come after the grpc
 # ExternalProject.
 
+# Based on https://github.com/grpc/grpc/blob/v1.27.0/bazel/grpc_deps.bzl
+# v1.15.0, master@{2018-10-23}
+set(commit e982924acee7f7313b4baa4ee5ec000c5e373c30)
+
 ExternalProject_Add(
   c-ares
 
@@ -30,8 +34,9 @@ ExternalProject_Add(
     grpc-download
 
   DOWNLOAD_DIR ${FIREBASE_DOWNLOAD_DIR}
-  URL https://github.com/c-ares/c-ares/archive/cares-1_14_0.tar.gz
-  URL_HASH SHA256=62dd12f0557918f89ad6f5b759f0bf4727174ae9979499f5452c02be38d9d3e8
+  DOWNLOAD_NAME c-ares-${commit}.tar.gz
+  URL https://github.com/c-ares/c-ares/archive/${commit}.tar.gz
+  URL_HASH SHA256=e8c2751ddc70fed9dc6f999acd92e232d5846f009ee1674f8aee81f19b2b915a
 
   PREFIX ${PROJECT_BINARY_DIR}
   SOURCE_DIR ${PROJECT_BINARY_DIR}/src/grpc/third_party/cares/cares
