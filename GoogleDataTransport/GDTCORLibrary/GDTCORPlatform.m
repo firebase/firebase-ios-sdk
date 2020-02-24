@@ -72,7 +72,7 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
     networkInfo = [[CTTelephonyNetworkInfo alloc] init];
   });
   NSString *networkCurrentRadioAccessTechnology;
-  if(@available(iOS 13, *)) {
+  if(@available(iOS 12, *)) {
     NSDictionary<NSString *, NSString *> *networkCurrentRadioAccessTechnologyDict = networkInfo.serviceCurrentRadioAccessTechnology;
     if(networkCurrentRadioAccessTechnologyDict){
       networkCurrentRadioAccessTechnology = networkCurrentRadioAccessTechnologyDict.allValues[0];
