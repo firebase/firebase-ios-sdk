@@ -199,38 +199,22 @@ gdt_cct_IosClientInfo GDTCCTConstructiOSClientInfo() {
 
 NSData *GDTCCTConstructNetworkConnectionInfoData() {
   gdt_cct_NetworkConnectionInfo networkConnectionInfo = gdt_cct_NetworkConnectionInfo_init_default;
-  SCNetworkReachabilityFlags reachabilityFlags = [GDTCORReachability currentFlags];
-  if ((reachabilityFlags & kSCNetworkReachabilityFlagsReachable) ==
-      kSCNetworkReachabilityFlagsReachable) {
-    networkConnectionInfo.network_type = GDTCCTNetworkConnectonInfoNetworkType(reachabilityFlags);
-    if (networkConnectionInfo.network_type != gdt_cct_NetworkConnectionInfo_NetworkType_NONE) {
-      networkConnectionInfo.has_network_type = 1;
-      if (networkConnectionInfo.network_type == gdt_cct_NetworkConnectionInfo_NetworkType_MOBILE) {
-        networkConnectionInfo.mobile_subtype = GDTCCTNetworkConnectionInfoNetworkMobileSubtype();
-        if (networkConnectionInfo.mobile_subtype !=
-            gdt_cct_NetworkConnectionInfo_MobileSubtype_UNKNOWN_MOBILE_SUBTYPE) {
-          networkConnectionInfo.has_mobile_subtype = 1;
-        }
+  NSInteger currentNetworkType = GDTCORNetworkTypeMessage();
+  if (currentNetworkType) {
+    networkConnectionInfo.has_network_type = 1;
+    if(currentNetworkType == GDTCORNetworkTypeMobile) {
+      networkConnectionInfo.network_type = gdt_cct_NetworkConnectionInfo_NetworkType_MOBILE;
+      networkConnectionInfo.mobile_subtype = GDTCCTNetworkConnectionInfoNetworkMobileSubtype();
+      if(networkConnectionInfo.mobile_subtype != gdt_cct_NetworkConnectionInfo_MobileSubtype_UNKNOWN_MOBILE_SUBTYPE) {
+        networkConnectionInfo.has_mobile_subtype = 1;
       }
+    } else {
+      networkConnectionInfo.network_type = gdt_cct_NetworkConnectionInfo_NetworkType_WIFI;
     }
   }
   NSData *networkConnectionInfoData = [NSData dataWithBytes:&networkConnectionInfo
                                                      length:sizeof(networkConnectionInfo)];
   return networkConnectionInfoData;
-}
-
-gdt_cct_NetworkConnectionInfo_NetworkType GDTCCTNetworkConnectonInfoNetworkType(
-    SCNetworkReachabilityFlags flags) {
-  gdt_cct_NetworkConnectionInfo_NetworkType networkType =
-      gdt_cct_NetworkConnectionInfo_NetworkType_NONE;
-  if (GDTCORReachabilityFlagsContainWWAN(flags)) {
-    networkType = gdt_cct_NetworkConnectionInfo_NetworkType_MOBILE;
-    GDTCORLogDebug(@"%@", @"Event captured that it occurred whilst using mobile data.");
-  } else {
-    networkType = gdt_cct_NetworkConnectionInfo_NetworkType_WIFI;
-    GDTCORLogDebug(@"%@", @"Event captured that it occurred whilst using wifi data.");
-  }
-  return networkType;
 }
 
 gdt_cct_NetworkConnectionInfo_MobileSubtype GDTCCTNetworkConnectionInfoNetworkMobileSubtype() {

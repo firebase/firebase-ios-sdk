@@ -43,6 +43,13 @@ FOUNDATION_EXPORT NSString *const kGDTCORApplicationWillEnterForegroundNotificat
 /** A notification sent out if the app is terminating. */
 FOUNDATION_EXPORT NSString *const kGDTCORApplicationWillTerminateNotification;
 
+/** The different possible network connection type. */
+typedef NS_ENUM(NSInteger, GDTCORNetworkType) {
+  GDTCORNetworkTypeUNKNOWN = 0,
+  GDTCORNetworkTypeWIFI = 1,
+  GDTCORNetworkTypeMobile = 2,
+};
+
 /** The different possible network connection mobile subtype. */
 typedef NS_ENUM(NSInteger, GDTCORNetworkMobileSubtype) {
   GDTCORNetworkMobileSubtypeUNKNOWN = 0,
@@ -67,6 +74,12 @@ typedef NS_ENUM(NSInteger, GDTCORNetworkMobileSubtype) {
  */
 BOOL GDTCORReachabilityFlagsContainWWAN(SCNetworkReachabilityFlags flags);
 #endif
+
+/** Generates an enum message GDTCORNetworkType representing Network connection type.
+ *
+ * @return A GDTCORNetworkType representing network connection type.
+ */
+GDTCORNetworkType GDTCORNetworkTypeMessage(void);
 
 /** Generates an enum message GDTCORNetworkMobileSubtype representing Network connection mobile
  * subtype.
