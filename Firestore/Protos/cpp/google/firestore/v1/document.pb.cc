@@ -21,7 +21,6 @@
 
 #include <algorithm>
 
-#include <google/protobuf/stubs/common.h>
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/extension_set.h>
 #include <google/protobuf/wire_format_lite.h>
@@ -105,7 +104,7 @@ static void InitDefaultsscc_info_ArrayValue_google_2ffirestore_2fv1_2fdocument_2
 }
 
 ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_ArrayValue_google_2ffirestore_2fv1_2fdocument_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 2, InitDefaultsscc_info_ArrayValue_google_2ffirestore_2fv1_2fdocument_2eproto}, {
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 2, 0, InitDefaultsscc_info_ArrayValue_google_2ffirestore_2fv1_2fdocument_2eproto}, {
       &scc_info_Timestamp_google_2fprotobuf_2ftimestamp_2eproto.base,
       &scc_info_LatLng_google_2ftype_2flatlng_2eproto.base,}};
 
@@ -121,7 +120,7 @@ static void InitDefaultsscc_info_Document_google_2ffirestore_2fv1_2fdocument_2ep
 }
 
 ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_Document_google_2ffirestore_2fv1_2fdocument_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 2, InitDefaultsscc_info_Document_google_2ffirestore_2fv1_2fdocument_2eproto}, {
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 2, 0, InitDefaultsscc_info_Document_google_2ffirestore_2fv1_2fdocument_2eproto}, {
       &scc_info_Document_FieldsEntry_DoNotUse_google_2ffirestore_2fv1_2fdocument_2eproto.base,
       &scc_info_Timestamp_google_2fprotobuf_2ftimestamp_2eproto.base,}};
 
@@ -136,7 +135,7 @@ static void InitDefaultsscc_info_Document_FieldsEntry_DoNotUse_google_2ffirestor
 }
 
 ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_Document_FieldsEntry_DoNotUse_google_2ffirestore_2fv1_2fdocument_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, InitDefaultsscc_info_Document_FieldsEntry_DoNotUse_google_2ffirestore_2fv1_2fdocument_2eproto}, {
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_Document_FieldsEntry_DoNotUse_google_2ffirestore_2fv1_2fdocument_2eproto}, {
       &scc_info_ArrayValue_google_2ffirestore_2fv1_2fdocument_2eproto.base,}};
 
 static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_google_2ffirestore_2fv1_2fdocument_2eproto[6];
@@ -341,15 +340,15 @@ Document::Document(const Document& from)
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   fields_.MergeFrom(from.fields_);
   name_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  if (!from.name().empty()) {
+  if (!from._internal_name().empty()) {
     name_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.name_);
   }
-  if (from.has_create_time()) {
+  if (from._internal_has_create_time()) {
     create_time_ = new PROTOBUF_NAMESPACE_ID::Timestamp(*from.create_time_);
   } else {
     create_time_ = nullptr;
   }
-  if (from.has_update_time()) {
+  if (from._internal_has_update_time()) {
     update_time_ = new PROTOBUF_NAMESPACE_ID::Timestamp(*from.update_time_);
   } else {
     update_time_ = nullptr;
@@ -404,7 +403,6 @@ void Document::Clear() {
   _internal_metadata_.Clear();
 }
 
-#if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 const char* Document::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   while (!ctx->Done(&ptr)) {
@@ -415,7 +413,9 @@ const char* Document::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::i
       // string name = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParserUTF8(mutable_name(), ptr, ctx, "google.firestore.v1.Document.name");
+          auto str = _internal_mutable_name();
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "google.firestore.v1.Document.name"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -428,20 +428,20 @@ const char* Document::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::i
             ptr = ctx->ParseMessage(&fields_, ptr);
             CHK_(ptr);
             if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<::PROTOBUF_NAMESPACE_ID::uint8>(ptr) == 18);
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<18>(ptr));
         } else goto handle_unusual;
         continue;
       // .google.protobuf.Timestamp create_time = 3;
       case 3:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
-          ptr = ctx->ParseMessage(mutable_create_time(), ptr);
+          ptr = ctx->ParseMessage(_internal_mutable_create_time(), ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
       // .google.protobuf.Timestamp update_time = 4;
       case 4:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
-          ptr = ctx->ParseMessage(mutable_update_time(), ptr);
+          ptr = ctx->ParseMessage(_internal_mutable_update_time(), ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -464,175 +464,9 @@ failure:
   goto success;
 #undef CHK_
 }
-#else  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
-bool Document::MergePartialFromCodedStream(
-    ::PROTOBUF_NAMESPACE_ID::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!PROTOBUF_PREDICT_TRUE(EXPRESSION)) goto failure
-  ::PROTOBUF_NAMESPACE_ID::uint32 tag;
-  // @@protoc_insertion_point(parse_start:google.firestore.v1.Document)
-  for (;;) {
-    ::std::pair<::PROTOBUF_NAMESPACE_ID::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // string name = 1;
-      case 1: {
-        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (10 & 0xFF)) {
-          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadString(
-                input, this->mutable_name()));
-          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-            this->name().data(), static_cast<int>(this->name().length()),
-            ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE,
-            "google.firestore.v1.Document.name"));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
 
-      // map<string, .google.firestore.v1.Value> fields = 2;
-      case 2: {
-        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (18 & 0xFF)) {
-          Document_FieldsEntry_DoNotUse::Parser< ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-              Document_FieldsEntry_DoNotUse,
-              std::string, ::google::firestore::v1::Value,
-              ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
-              ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE,
-              0 >,
-            ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::google::firestore::v1::Value > > parser(&fields_);
-          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessageNoVirtual(
-              input, &parser));
-          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-            parser.key().data(), static_cast<int>(parser.key().length()),
-            ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE,
-            "google.firestore.v1.Document.FieldsEntry.key"));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      // .google.protobuf.Timestamp create_time = 3;
-      case 3: {
-        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (26 & 0xFF)) {
-          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
-               input, mutable_create_time()));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      // .google.protobuf.Timestamp update_time = 4;
-      case 4: {
-        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (34 & 0xFF)) {
-          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
-               input, mutable_update_time()));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0) {
-          goto success;
-        }
-        DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SkipField(
-              input, tag, _internal_metadata_.mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:google.firestore.v1.Document)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:google.firestore.v1.Document)
-  return false;
-#undef DO_
-}
-#endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
-
-void Document::SerializeWithCachedSizes(
-    ::PROTOBUF_NAMESPACE_ID::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:google.firestore.v1.Document)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  // string name = 1;
-  if (this->name().size() > 0) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->name().data(), static_cast<int>(this->name().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "google.firestore.v1.Document.name");
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringMaybeAliased(
-      1, this->name(), output);
-  }
-
-  // map<string, .google.firestore.v1.Value> fields = 2;
-  if (!this->fields().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::google::firestore::v1::Value >::const_pointer
-        ConstPtr;
-    typedef ConstPtr SortItem;
-    typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByDerefFirst<SortItem> Less;
-    struct Utf8Check {
-      static void Check(ConstPtr p) {
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-          p->first.data(), static_cast<int>(p->first.length()),
-          ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-          "google.firestore.v1.Document.FieldsEntry.key");
-      }
-    };
-
-    if (output->IsSerializationDeterministic() &&
-        this->fields().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->fields().size()]);
-      typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::google::firestore::v1::Value >::size_type size_type;
-      size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::google::firestore::v1::Value >::const_iterator
-          it = this->fields().begin();
-          it != this->fields().end(); ++it, ++n) {
-        items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
-      }
-      ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
-        Document_FieldsEntry_DoNotUse::Funcs::SerializeToCodedStream(2, items[static_cast<ptrdiff_t>(i)]->first, items[static_cast<ptrdiff_t>(i)]->second, output);
-        Utf8Check::Check(&(*items[static_cast<ptrdiff_t>(i)]));
-      }
-    } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::google::firestore::v1::Value >::const_iterator
-          it = this->fields().begin();
-          it != this->fields().end(); ++it) {
-        Document_FieldsEntry_DoNotUse::Funcs::SerializeToCodedStream(2, it->first, it->second, output);
-        Utf8Check::Check(&(*it));
-      }
-    }
-  }
-
-  // .google.protobuf.Timestamp create_time = 3;
-  if (this->has_create_time()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
-      3, _Internal::create_time(this), output);
-  }
-
-  // .google.protobuf.Timestamp update_time = 4;
-  if (this->has_update_time()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
-      4, _Internal::update_time(this), output);
-  }
-
-  if (_internal_metadata_.have_unknown_fields()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFields(
-        _internal_metadata_.unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:google.firestore.v1.Document)
-}
-
-::PROTOBUF_NAMESPACE_ID::uint8* Document::InternalSerializeWithCachedSizesToArray(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target) const {
+::PROTOBUF_NAMESPACE_ID::uint8* Document::_InternalSerialize(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
   // @@protoc_insertion_point(serialize_to_array_start:google.firestore.v1.Document)
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
@@ -640,16 +474,15 @@ void Document::SerializeWithCachedSizes(
   // string name = 1;
   if (this->name().size() > 0) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->name().data(), static_cast<int>(this->name().length()),
+      this->_internal_name().data(), static_cast<int>(this->_internal_name().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.Document.name");
-    target =
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringToArray(
-        1, this->name(), target);
+    target = stream->WriteStringMaybeAliased(
+        1, this->_internal_name(), target);
   }
 
   // map<string, .google.firestore.v1.Value> fields = 2;
-  if (!this->fields().empty()) {
+  if (!this->_internal_fields().empty()) {
     typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::google::firestore::v1::Value >::const_pointer
         ConstPtr;
     typedef ConstPtr SortItem;
@@ -663,27 +496,27 @@ void Document::SerializeWithCachedSizes(
       }
     };
 
-    if (false &&
-        this->fields().size() > 1) {
+    if (stream->IsSerializationDeterministic() &&
+        this->_internal_fields().size() > 1) {
       ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->fields().size()]);
+          new SortItem[this->_internal_fields().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::google::firestore::v1::Value >::size_type size_type;
       size_type n = 0;
       for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::google::firestore::v1::Value >::const_iterator
-          it = this->fields().begin();
-          it != this->fields().end(); ++it, ++n) {
+          it = this->_internal_fields().begin();
+          it != this->_internal_fields().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
       for (size_type i = 0; i < n; i++) {
-        target = Document_FieldsEntry_DoNotUse::Funcs::SerializeToArray(2, items[static_cast<ptrdiff_t>(i)]->first, items[static_cast<ptrdiff_t>(i)]->second, target);
+        target = Document_FieldsEntry_DoNotUse::Funcs::InternalSerialize(2, items[static_cast<ptrdiff_t>(i)]->first, items[static_cast<ptrdiff_t>(i)]->second, target, stream);
         Utf8Check::Check(&(*items[static_cast<ptrdiff_t>(i)]));
       }
     } else {
       for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::google::firestore::v1::Value >::const_iterator
-          it = this->fields().begin();
-          it != this->fields().end(); ++it) {
-        target = Document_FieldsEntry_DoNotUse::Funcs::SerializeToArray(2, it->first, it->second, target);
+          it = this->_internal_fields().begin();
+          it != this->_internal_fields().end(); ++it) {
+        target = Document_FieldsEntry_DoNotUse::Funcs::InternalSerialize(2, it->first, it->second, target, stream);
         Utf8Check::Check(&(*it));
       }
     }
@@ -691,21 +524,23 @@ void Document::SerializeWithCachedSizes(
 
   // .google.protobuf.Timestamp create_time = 3;
   if (this->has_create_time()) {
+    target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessageToArray(
-        3, _Internal::create_time(this), target);
+      InternalWriteMessage(
+        3, _Internal::create_time(this), target, stream);
   }
 
   // .google.protobuf.Timestamp update_time = 4;
   if (this->has_update_time()) {
+    target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessageToArray(
-        4, _Internal::update_time(this), target);
+      InternalWriteMessage(
+        4, _Internal::update_time(this), target, stream);
   }
 
-  if (_internal_metadata_.have_unknown_fields()) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields(), target);
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.Document)
   return target;
@@ -715,21 +550,16 @@ size_t Document::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:google.firestore.v1.Document)
   size_t total_size = 0;
 
-  if (_internal_metadata_.have_unknown_fields()) {
-    total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::ComputeUnknownFieldsSize(
-        _internal_metadata_.unknown_fields());
-  }
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
   // map<string, .google.firestore.v1.Value> fields = 2;
   total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->fields_size());
+      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_fields_size());
   for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::google::firestore::v1::Value >::const_iterator
-      it = this->fields().begin();
-      it != this->fields().end(); ++it) {
+      it = this->_internal_fields().begin();
+      it != this->_internal_fields().end(); ++it) {
     total_size += Document_FieldsEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
@@ -737,7 +567,7 @@ size_t Document::ByteSizeLong() const {
   if (this->name().size() > 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->name());
+        this->_internal_name());
   }
 
   // .google.protobuf.Timestamp create_time = 3;
@@ -754,6 +584,10 @@ size_t Document::ByteSizeLong() const {
         *update_time_);
   }
 
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
+  }
   int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
@@ -787,10 +621,10 @@ void Document::MergeFrom(const Document& from) {
     name_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.name_);
   }
   if (from.has_create_time()) {
-    mutable_create_time()->PROTOBUF_NAMESPACE_ID::Timestamp::MergeFrom(from.create_time());
+    _internal_mutable_create_time()->PROTOBUF_NAMESPACE_ID::Timestamp::MergeFrom(from._internal_create_time());
   }
   if (from.has_update_time()) {
-    mutable_update_time()->PROTOBUF_NAMESPACE_ID::Timestamp::MergeFrom(from.update_time());
+    _internal_mutable_update_time()->PROTOBUF_NAMESPACE_ID::Timestamp::MergeFrom(from._internal_update_time());
   }
 }
 
@@ -889,7 +723,7 @@ void Value::set_allocated_timestamp_value(PROTOBUF_NAMESPACE_ID::Timestamp* time
   // @@protoc_insertion_point(field_set_allocated:google.firestore.v1.Value.timestamp_value)
 }
 void Value::clear_timestamp_value() {
-  if (has_timestamp_value()) {
+  if (_internal_has_timestamp_value()) {
     delete value_type_.timestamp_value_;
     clear_has_value_type();
   }
@@ -909,7 +743,7 @@ void Value::set_allocated_geo_point_value(::google::type::LatLng* geo_point_valu
   // @@protoc_insertion_point(field_set_allocated:google.firestore.v1.Value.geo_point_value)
 }
 void Value::clear_geo_point_value() {
-  if (has_geo_point_value()) {
+  if (_internal_has_geo_point_value()) {
     delete value_type_.geo_point_value_;
     clear_has_value_type();
   }
@@ -954,47 +788,47 @@ Value::Value(const Value& from)
   clear_has_value_type();
   switch (from.value_type_case()) {
     case kNullValue: {
-      set_null_value(from.null_value());
+      _internal_set_null_value(from._internal_null_value());
       break;
     }
     case kBooleanValue: {
-      set_boolean_value(from.boolean_value());
+      _internal_set_boolean_value(from._internal_boolean_value());
       break;
     }
     case kIntegerValue: {
-      set_integer_value(from.integer_value());
+      _internal_set_integer_value(from._internal_integer_value());
       break;
     }
     case kDoubleValue: {
-      set_double_value(from.double_value());
+      _internal_set_double_value(from._internal_double_value());
       break;
     }
     case kTimestampValue: {
-      mutable_timestamp_value()->PROTOBUF_NAMESPACE_ID::Timestamp::MergeFrom(from.timestamp_value());
+      _internal_mutable_timestamp_value()->PROTOBUF_NAMESPACE_ID::Timestamp::MergeFrom(from._internal_timestamp_value());
       break;
     }
     case kStringValue: {
-      set_string_value(from.string_value());
+      _internal_set_string_value(from._internal_string_value());
       break;
     }
     case kBytesValue: {
-      set_bytes_value(from.bytes_value());
+      _internal_set_bytes_value(from._internal_bytes_value());
       break;
     }
     case kReferenceValue: {
-      set_reference_value(from.reference_value());
+      _internal_set_reference_value(from._internal_reference_value());
       break;
     }
     case kGeoPointValue: {
-      mutable_geo_point_value()->::google::type::LatLng::MergeFrom(from.geo_point_value());
+      _internal_mutable_geo_point_value()->::google::type::LatLng::MergeFrom(from._internal_geo_point_value());
       break;
     }
     case kArrayValue: {
-      mutable_array_value()->::google::firestore::v1::ArrayValue::MergeFrom(from.array_value());
+      _internal_mutable_array_value()->::google::firestore::v1::ArrayValue::MergeFrom(from._internal_array_value());
       break;
     }
     case kMapValue: {
-      mutable_map_value()->::google::firestore::v1::MapValue::MergeFrom(from.map_value());
+      _internal_mutable_map_value()->::google::firestore::v1::MapValue::MergeFrom(from._internal_map_value());
       break;
     }
     case VALUE_TYPE_NOT_SET: {
@@ -1094,7 +928,6 @@ void Value::Clear() {
   _internal_metadata_.Clear();
 }
 
-#if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 const char* Value::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   while (!ctx->Done(&ptr)) {
@@ -1105,56 +938,58 @@ const char* Value::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::inte
       // bool boolean_value = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
-          set_boolean_value(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr));
+          _internal_set_boolean_value(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
       // int64 integer_value = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
-          set_integer_value(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr));
+          _internal_set_integer_value(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
       // double double_value = 3;
       case 3:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 25)) {
-          set_double_value(::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<double>(ptr));
+          _internal_set_double_value(::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<double>(ptr));
           ptr += sizeof(double);
         } else goto handle_unusual;
         continue;
       // string reference_value = 5;
       case 5:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 42)) {
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParserUTF8(mutable_reference_value(), ptr, ctx, "google.firestore.v1.Value.reference_value");
+          auto str = _internal_mutable_reference_value();
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "google.firestore.v1.Value.reference_value"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
       // .google.firestore.v1.MapValue map_value = 6;
       case 6:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 50)) {
-          ptr = ctx->ParseMessage(mutable_map_value(), ptr);
+          ptr = ctx->ParseMessage(_internal_mutable_map_value(), ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
       // .google.type.LatLng geo_point_value = 8;
       case 8:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 66)) {
-          ptr = ctx->ParseMessage(mutable_geo_point_value(), ptr);
+          ptr = ctx->ParseMessage(_internal_mutable_geo_point_value(), ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
       // .google.firestore.v1.ArrayValue array_value = 9;
       case 9:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 74)) {
-          ptr = ctx->ParseMessage(mutable_array_value(), ptr);
+          ptr = ctx->ParseMessage(_internal_mutable_array_value(), ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
       // .google.protobuf.Timestamp timestamp_value = 10;
       case 10:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 82)) {
-          ptr = ctx->ParseMessage(mutable_timestamp_value(), ptr);
+          ptr = ctx->ParseMessage(_internal_mutable_timestamp_value(), ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -1163,20 +998,23 @@ const char* Value::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::inte
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 88)) {
           ::PROTOBUF_NAMESPACE_ID::uint64 val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
           CHK_(ptr);
-          set_null_value(static_cast<PROTOBUF_NAMESPACE_ID::NullValue>(val));
+          _internal_set_null_value(static_cast<PROTOBUF_NAMESPACE_ID::NullValue>(val));
         } else goto handle_unusual;
         continue;
       // string string_value = 17;
       case 17:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 138)) {
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParserUTF8(mutable_string_value(), ptr, ctx, "google.firestore.v1.Value.string_value");
+          auto str = _internal_mutable_string_value();
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "google.firestore.v1.Value.string_value"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
       // bytes bytes_value = 18;
       case 18:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 146)) {
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(mutable_bytes_value(), ptr, ctx);
+          auto str = _internal_mutable_bytes_value();
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -1199,350 +1037,99 @@ failure:
   goto success;
 #undef CHK_
 }
-#else  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
-bool Value::MergePartialFromCodedStream(
-    ::PROTOBUF_NAMESPACE_ID::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!PROTOBUF_PREDICT_TRUE(EXPRESSION)) goto failure
-  ::PROTOBUF_NAMESPACE_ID::uint32 tag;
-  // @@protoc_insertion_point(parse_start:google.firestore.v1.Value)
-  for (;;) {
-    ::std::pair<::PROTOBUF_NAMESPACE_ID::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(16383u);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // bool boolean_value = 1;
-      case 1: {
-        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (8 & 0xFF)) {
-          clear_value_type();
-          DO_((::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadPrimitive<
-                   bool, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL>(
-                 input, &value_type_.boolean_value_)));
-          set_has_boolean_value();
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
 
-      // int64 integer_value = 2;
-      case 2: {
-        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (16 & 0xFF)) {
-          clear_value_type();
-          DO_((::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadPrimitive<
-                   ::PROTOBUF_NAMESPACE_ID::int64, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT64>(
-                 input, &value_type_.integer_value_)));
-          set_has_integer_value();
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      // double double_value = 3;
-      case 3: {
-        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (25 & 0xFF)) {
-          clear_value_type();
-          DO_((::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadPrimitive<
-                   double, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_DOUBLE>(
-                 input, &value_type_.double_value_)));
-          set_has_double_value();
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      // string reference_value = 5;
-      case 5: {
-        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (42 & 0xFF)) {
-          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadString(
-                input, this->mutable_reference_value()));
-          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-            this->reference_value().data(), static_cast<int>(this->reference_value().length()),
-            ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE,
-            "google.firestore.v1.Value.reference_value"));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      // .google.firestore.v1.MapValue map_value = 6;
-      case 6: {
-        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (50 & 0xFF)) {
-          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
-               input, mutable_map_value()));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      // .google.type.LatLng geo_point_value = 8;
-      case 8: {
-        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (66 & 0xFF)) {
-          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
-               input, mutable_geo_point_value()));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      // .google.firestore.v1.ArrayValue array_value = 9;
-      case 9: {
-        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (74 & 0xFF)) {
-          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
-               input, mutable_array_value()));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      // .google.protobuf.Timestamp timestamp_value = 10;
-      case 10: {
-        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (82 & 0xFF)) {
-          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
-               input, mutable_timestamp_value()));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      // .google.protobuf.NullValue null_value = 11;
-      case 11: {
-        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (88 & 0xFF)) {
-          int value = 0;
-          DO_((::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadPrimitive<
-                   int, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_ENUM>(
-                 input, &value)));
-          set_null_value(static_cast< PROTOBUF_NAMESPACE_ID::NullValue >(value));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      // string string_value = 17;
-      case 17: {
-        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (138 & 0xFF)) {
-          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadString(
-                input, this->mutable_string_value()));
-          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-            this->string_value().data(), static_cast<int>(this->string_value().length()),
-            ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE,
-            "google.firestore.v1.Value.string_value"));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      // bytes bytes_value = 18;
-      case 18: {
-        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (146 & 0xFF)) {
-          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadBytes(
-                input, this->mutable_bytes_value()));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0) {
-          goto success;
-        }
-        DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SkipField(
-              input, tag, _internal_metadata_.mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:google.firestore.v1.Value)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:google.firestore.v1.Value)
-  return false;
-#undef DO_
-}
-#endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
-
-void Value::SerializeWithCachedSizes(
-    ::PROTOBUF_NAMESPACE_ID::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:google.firestore.v1.Value)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  // bool boolean_value = 1;
-  if (has_boolean_value()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBool(1, this->boolean_value(), output);
-  }
-
-  // int64 integer_value = 2;
-  if (has_integer_value()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt64(2, this->integer_value(), output);
-  }
-
-  // double double_value = 3;
-  if (has_double_value()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteDouble(3, this->double_value(), output);
-  }
-
-  // string reference_value = 5;
-  if (has_reference_value()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->reference_value().data(), static_cast<int>(this->reference_value().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "google.firestore.v1.Value.reference_value");
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringMaybeAliased(
-      5, this->reference_value(), output);
-  }
-
-  // .google.firestore.v1.MapValue map_value = 6;
-  if (has_map_value()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
-      6, _Internal::map_value(this), output);
-  }
-
-  // .google.type.LatLng geo_point_value = 8;
-  if (has_geo_point_value()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
-      8, _Internal::geo_point_value(this), output);
-  }
-
-  // .google.firestore.v1.ArrayValue array_value = 9;
-  if (has_array_value()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
-      9, _Internal::array_value(this), output);
-  }
-
-  // .google.protobuf.Timestamp timestamp_value = 10;
-  if (has_timestamp_value()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
-      10, _Internal::timestamp_value(this), output);
-  }
-
-  // .google.protobuf.NullValue null_value = 11;
-  if (has_null_value()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnum(
-      11, this->null_value(), output);
-  }
-
-  // string string_value = 17;
-  if (has_string_value()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->string_value().data(), static_cast<int>(this->string_value().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "google.firestore.v1.Value.string_value");
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringMaybeAliased(
-      17, this->string_value(), output);
-  }
-
-  // bytes bytes_value = 18;
-  if (has_bytes_value()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBytesMaybeAliased(
-      18, this->bytes_value(), output);
-  }
-
-  if (_internal_metadata_.have_unknown_fields()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFields(
-        _internal_metadata_.unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:google.firestore.v1.Value)
-}
-
-::PROTOBUF_NAMESPACE_ID::uint8* Value::InternalSerializeWithCachedSizesToArray(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target) const {
+::PROTOBUF_NAMESPACE_ID::uint8* Value::_InternalSerialize(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
   // @@protoc_insertion_point(serialize_to_array_start:google.firestore.v1.Value)
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // bool boolean_value = 1;
-  if (has_boolean_value()) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBoolToArray(1, this->boolean_value(), target);
+  if (_internal_has_boolean_value()) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBoolToArray(1, this->_internal_boolean_value(), target);
   }
 
   // int64 integer_value = 2;
-  if (has_integer_value()) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt64ToArray(2, this->integer_value(), target);
+  if (_internal_has_integer_value()) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt64ToArray(2, this->_internal_integer_value(), target);
   }
 
   // double double_value = 3;
-  if (has_double_value()) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteDoubleToArray(3, this->double_value(), target);
+  if (_internal_has_double_value()) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteDoubleToArray(3, this->_internal_double_value(), target);
   }
 
   // string reference_value = 5;
-  if (has_reference_value()) {
+  if (_internal_has_reference_value()) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->reference_value().data(), static_cast<int>(this->reference_value().length()),
+      this->_internal_reference_value().data(), static_cast<int>(this->_internal_reference_value().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.Value.reference_value");
-    target =
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringToArray(
-        5, this->reference_value(), target);
+    target = stream->WriteStringMaybeAliased(
+        5, this->_internal_reference_value(), target);
   }
 
   // .google.firestore.v1.MapValue map_value = 6;
-  if (has_map_value()) {
+  if (_internal_has_map_value()) {
+    target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessageToArray(
-        6, _Internal::map_value(this), target);
+      InternalWriteMessage(
+        6, _Internal::map_value(this), target, stream);
   }
 
   // .google.type.LatLng geo_point_value = 8;
-  if (has_geo_point_value()) {
+  if (_internal_has_geo_point_value()) {
+    target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessageToArray(
-        8, _Internal::geo_point_value(this), target);
+      InternalWriteMessage(
+        8, _Internal::geo_point_value(this), target, stream);
   }
 
   // .google.firestore.v1.ArrayValue array_value = 9;
-  if (has_array_value()) {
+  if (_internal_has_array_value()) {
+    target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessageToArray(
-        9, _Internal::array_value(this), target);
+      InternalWriteMessage(
+        9, _Internal::array_value(this), target, stream);
   }
 
   // .google.protobuf.Timestamp timestamp_value = 10;
-  if (has_timestamp_value()) {
+  if (_internal_has_timestamp_value()) {
+    target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessageToArray(
-        10, _Internal::timestamp_value(this), target);
+      InternalWriteMessage(
+        10, _Internal::timestamp_value(this), target, stream);
   }
 
   // .google.protobuf.NullValue null_value = 11;
-  if (has_null_value()) {
+  if (_internal_has_null_value()) {
+    target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(
-      11, this->null_value(), target);
+      11, this->_internal_null_value(), target);
   }
 
   // string string_value = 17;
-  if (has_string_value()) {
+  if (_internal_has_string_value()) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->string_value().data(), static_cast<int>(this->string_value().length()),
+      this->_internal_string_value().data(), static_cast<int>(this->_internal_string_value().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.Value.string_value");
-    target =
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringToArray(
-        17, this->string_value(), target);
+    target = stream->WriteStringMaybeAliased(
+        17, this->_internal_string_value(), target);
   }
 
   // bytes bytes_value = 18;
-  if (has_bytes_value()) {
-    target =
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBytesToArray(
-        18, this->bytes_value(), target);
+  if (_internal_has_bytes_value()) {
+    target = stream->WriteBytesMaybeAliased(
+        18, this->_internal_bytes_value(), target);
   }
 
-  if (_internal_metadata_.have_unknown_fields()) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields(), target);
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.Value)
   return target;
@@ -1552,11 +1139,6 @@ size_t Value::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:google.firestore.v1.Value)
   size_t total_size = 0;
 
-  if (_internal_metadata_.have_unknown_fields()) {
-    total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::ComputeUnknownFieldsSize(
-        _internal_metadata_.unknown_fields());
-  }
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -1565,7 +1147,7 @@ size_t Value::ByteSizeLong() const {
     // .google.protobuf.NullValue null_value = 11;
     case kNullValue: {
       total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->null_value());
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_null_value());
       break;
     }
     // bool boolean_value = 1;
@@ -1577,7 +1159,7 @@ size_t Value::ByteSizeLong() const {
     case kIntegerValue: {
       total_size += 1 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int64Size(
-          this->integer_value());
+          this->_internal_integer_value());
       break;
     }
     // double double_value = 3;
@@ -1596,21 +1178,21 @@ size_t Value::ByteSizeLong() const {
     case kStringValue: {
       total_size += 2 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-          this->string_value());
+          this->_internal_string_value());
       break;
     }
     // bytes bytes_value = 18;
     case kBytesValue: {
       total_size += 2 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
-          this->bytes_value());
+          this->_internal_bytes_value());
       break;
     }
     // string reference_value = 5;
     case kReferenceValue: {
       total_size += 1 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-          this->reference_value());
+          this->_internal_reference_value());
       break;
     }
     // .google.type.LatLng geo_point_value = 8;
@@ -1637,6 +1219,10 @@ size_t Value::ByteSizeLong() const {
     case VALUE_TYPE_NOT_SET: {
       break;
     }
+  }
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
   }
   int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
   SetCachedSize(cached_size);
@@ -1667,47 +1253,47 @@ void Value::MergeFrom(const Value& from) {
 
   switch (from.value_type_case()) {
     case kNullValue: {
-      set_null_value(from.null_value());
+      _internal_set_null_value(from._internal_null_value());
       break;
     }
     case kBooleanValue: {
-      set_boolean_value(from.boolean_value());
+      _internal_set_boolean_value(from._internal_boolean_value());
       break;
     }
     case kIntegerValue: {
-      set_integer_value(from.integer_value());
+      _internal_set_integer_value(from._internal_integer_value());
       break;
     }
     case kDoubleValue: {
-      set_double_value(from.double_value());
+      _internal_set_double_value(from._internal_double_value());
       break;
     }
     case kTimestampValue: {
-      mutable_timestamp_value()->PROTOBUF_NAMESPACE_ID::Timestamp::MergeFrom(from.timestamp_value());
+      _internal_mutable_timestamp_value()->PROTOBUF_NAMESPACE_ID::Timestamp::MergeFrom(from._internal_timestamp_value());
       break;
     }
     case kStringValue: {
-      set_string_value(from.string_value());
+      _internal_set_string_value(from._internal_string_value());
       break;
     }
     case kBytesValue: {
-      set_bytes_value(from.bytes_value());
+      _internal_set_bytes_value(from._internal_bytes_value());
       break;
     }
     case kReferenceValue: {
-      set_reference_value(from.reference_value());
+      _internal_set_reference_value(from._internal_reference_value());
       break;
     }
     case kGeoPointValue: {
-      mutable_geo_point_value()->::google::type::LatLng::MergeFrom(from.geo_point_value());
+      _internal_mutable_geo_point_value()->::google::type::LatLng::MergeFrom(from._internal_geo_point_value());
       break;
     }
     case kArrayValue: {
-      mutable_array_value()->::google::firestore::v1::ArrayValue::MergeFrom(from.array_value());
+      _internal_mutable_array_value()->::google::firestore::v1::ArrayValue::MergeFrom(from._internal_array_value());
       break;
     }
     case kMapValue: {
-      mutable_map_value()->::google::firestore::v1::MapValue::MergeFrom(from.map_value());
+      _internal_mutable_map_value()->::google::firestore::v1::MapValue::MergeFrom(from._internal_map_value());
       break;
     }
     case VALUE_TYPE_NOT_SET: {
@@ -1798,7 +1384,6 @@ void ArrayValue::Clear() {
   _internal_metadata_.Clear();
 }
 
-#if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 const char* ArrayValue::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   while (!ctx->Done(&ptr)) {
@@ -1812,10 +1397,10 @@ const char* ArrayValue::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID:
           ptr -= 1;
           do {
             ptr += 1;
-            ptr = ctx->ParseMessage(add_values(), ptr);
+            ptr = ctx->ParseMessage(_internal_add_values(), ptr);
             CHK_(ptr);
             if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<::PROTOBUF_NAMESPACE_ID::uint8>(ptr) == 10);
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<10>(ptr));
         } else goto handle_unusual;
         continue;
       default: {
@@ -1837,88 +1422,24 @@ failure:
   goto success;
 #undef CHK_
 }
-#else  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
-bool ArrayValue::MergePartialFromCodedStream(
-    ::PROTOBUF_NAMESPACE_ID::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!PROTOBUF_PREDICT_TRUE(EXPRESSION)) goto failure
-  ::PROTOBUF_NAMESPACE_ID::uint32 tag;
-  // @@protoc_insertion_point(parse_start:google.firestore.v1.ArrayValue)
-  for (;;) {
-    ::std::pair<::PROTOBUF_NAMESPACE_ID::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // repeated .google.firestore.v1.Value values = 1;
-      case 1: {
-        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (10 & 0xFF)) {
-          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
-                input, add_values()));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
 
-      default: {
-      handle_unusual:
-        if (tag == 0) {
-          goto success;
-        }
-        DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SkipField(
-              input, tag, _internal_metadata_.mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:google.firestore.v1.ArrayValue)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:google.firestore.v1.ArrayValue)
-  return false;
-#undef DO_
-}
-#endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
-
-void ArrayValue::SerializeWithCachedSizes(
-    ::PROTOBUF_NAMESPACE_ID::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:google.firestore.v1.ArrayValue)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  // repeated .google.firestore.v1.Value values = 1;
-  for (unsigned int i = 0,
-      n = static_cast<unsigned int>(this->values_size()); i < n; i++) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1,
-      this->values(static_cast<int>(i)),
-      output);
-  }
-
-  if (_internal_metadata_.have_unknown_fields()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFields(
-        _internal_metadata_.unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:google.firestore.v1.ArrayValue)
-}
-
-::PROTOBUF_NAMESPACE_ID::uint8* ArrayValue::InternalSerializeWithCachedSizesToArray(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target) const {
+::PROTOBUF_NAMESPACE_ID::uint8* ArrayValue::_InternalSerialize(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
   // @@protoc_insertion_point(serialize_to_array_start:google.firestore.v1.ArrayValue)
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // repeated .google.firestore.v1.Value values = 1;
   for (unsigned int i = 0,
-      n = static_cast<unsigned int>(this->values_size()); i < n; i++) {
+      n = static_cast<unsigned int>(this->_internal_values_size()); i < n; i++) {
+    target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessageToArray(
-        1, this->values(static_cast<int>(i)), target);
+      InternalWriteMessage(1, this->_internal_values(i), target, stream);
   }
 
-  if (_internal_metadata_.have_unknown_fields()) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields(), target);
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.ArrayValue)
   return target;
@@ -1928,26 +1449,21 @@ size_t ArrayValue::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:google.firestore.v1.ArrayValue)
   size_t total_size = 0;
 
-  if (_internal_metadata_.have_unknown_fields()) {
-    total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::ComputeUnknownFieldsSize(
-        _internal_metadata_.unknown_fields());
-  }
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
   // repeated .google.firestore.v1.Value values = 1;
-  {
-    unsigned int count = static_cast<unsigned int>(this->values_size());
-    total_size += 1UL * count;
-    for (unsigned int i = 0; i < count; i++) {
-      total_size +=
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          this->values(static_cast<int>(i)));
-    }
+  total_size += 1UL * this->_internal_values_size();
+  for (const auto& msg : this->values_) {
+    total_size +=
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
+  }
   int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
@@ -1999,7 +1515,7 @@ bool ArrayValue::IsInitialized() const {
 void ArrayValue::InternalSwap(ArrayValue* other) {
   using std::swap;
   _internal_metadata_.Swap(&other->_internal_metadata_);
-  CastToBase(&values_)->InternalSwap(CastToBase(&other->values_));
+  values_.InternalSwap(&other->values_);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata ArrayValue::GetMetadata() const {
@@ -2076,7 +1592,6 @@ void MapValue::Clear() {
   _internal_metadata_.Clear();
 }
 
-#if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 const char* MapValue::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   while (!ctx->Done(&ptr)) {
@@ -2093,7 +1608,7 @@ const char* MapValue::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::i
             ptr = ctx->ParseMessage(&fields_, ptr);
             CHK_(ptr);
             if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<::PROTOBUF_NAMESPACE_ID::uint8>(ptr) == 10);
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<10>(ptr));
         } else goto handle_unusual;
         continue;
       default: {
@@ -2115,122 +1630,15 @@ failure:
   goto success;
 #undef CHK_
 }
-#else  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
-bool MapValue::MergePartialFromCodedStream(
-    ::PROTOBUF_NAMESPACE_ID::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!PROTOBUF_PREDICT_TRUE(EXPRESSION)) goto failure
-  ::PROTOBUF_NAMESPACE_ID::uint32 tag;
-  // @@protoc_insertion_point(parse_start:google.firestore.v1.MapValue)
-  for (;;) {
-    ::std::pair<::PROTOBUF_NAMESPACE_ID::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // map<string, .google.firestore.v1.Value> fields = 1;
-      case 1: {
-        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (10 & 0xFF)) {
-          MapValue_FieldsEntry_DoNotUse::Parser< ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-              MapValue_FieldsEntry_DoNotUse,
-              std::string, ::google::firestore::v1::Value,
-              ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
-              ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE,
-              0 >,
-            ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::google::firestore::v1::Value > > parser(&fields_);
-          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessageNoVirtual(
-              input, &parser));
-          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-            parser.key().data(), static_cast<int>(parser.key().length()),
-            ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE,
-            "google.firestore.v1.MapValue.FieldsEntry.key"));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
 
-      default: {
-      handle_unusual:
-        if (tag == 0) {
-          goto success;
-        }
-        DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SkipField(
-              input, tag, _internal_metadata_.mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:google.firestore.v1.MapValue)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:google.firestore.v1.MapValue)
-  return false;
-#undef DO_
-}
-#endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
-
-void MapValue::SerializeWithCachedSizes(
-    ::PROTOBUF_NAMESPACE_ID::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:google.firestore.v1.MapValue)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  // map<string, .google.firestore.v1.Value> fields = 1;
-  if (!this->fields().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::google::firestore::v1::Value >::const_pointer
-        ConstPtr;
-    typedef ConstPtr SortItem;
-    typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByDerefFirst<SortItem> Less;
-    struct Utf8Check {
-      static void Check(ConstPtr p) {
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-          p->first.data(), static_cast<int>(p->first.length()),
-          ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-          "google.firestore.v1.MapValue.FieldsEntry.key");
-      }
-    };
-
-    if (output->IsSerializationDeterministic() &&
-        this->fields().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->fields().size()]);
-      typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::google::firestore::v1::Value >::size_type size_type;
-      size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::google::firestore::v1::Value >::const_iterator
-          it = this->fields().begin();
-          it != this->fields().end(); ++it, ++n) {
-        items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
-      }
-      ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
-        MapValue_FieldsEntry_DoNotUse::Funcs::SerializeToCodedStream(1, items[static_cast<ptrdiff_t>(i)]->first, items[static_cast<ptrdiff_t>(i)]->second, output);
-        Utf8Check::Check(&(*items[static_cast<ptrdiff_t>(i)]));
-      }
-    } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::google::firestore::v1::Value >::const_iterator
-          it = this->fields().begin();
-          it != this->fields().end(); ++it) {
-        MapValue_FieldsEntry_DoNotUse::Funcs::SerializeToCodedStream(1, it->first, it->second, output);
-        Utf8Check::Check(&(*it));
-      }
-    }
-  }
-
-  if (_internal_metadata_.have_unknown_fields()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFields(
-        _internal_metadata_.unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:google.firestore.v1.MapValue)
-}
-
-::PROTOBUF_NAMESPACE_ID::uint8* MapValue::InternalSerializeWithCachedSizesToArray(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target) const {
+::PROTOBUF_NAMESPACE_ID::uint8* MapValue::_InternalSerialize(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
   // @@protoc_insertion_point(serialize_to_array_start:google.firestore.v1.MapValue)
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // map<string, .google.firestore.v1.Value> fields = 1;
-  if (!this->fields().empty()) {
+  if (!this->_internal_fields().empty()) {
     typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::google::firestore::v1::Value >::const_pointer
         ConstPtr;
     typedef ConstPtr SortItem;
@@ -2244,35 +1652,35 @@ void MapValue::SerializeWithCachedSizes(
       }
     };
 
-    if (false &&
-        this->fields().size() > 1) {
+    if (stream->IsSerializationDeterministic() &&
+        this->_internal_fields().size() > 1) {
       ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->fields().size()]);
+          new SortItem[this->_internal_fields().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::google::firestore::v1::Value >::size_type size_type;
       size_type n = 0;
       for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::google::firestore::v1::Value >::const_iterator
-          it = this->fields().begin();
-          it != this->fields().end(); ++it, ++n) {
+          it = this->_internal_fields().begin();
+          it != this->_internal_fields().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
       for (size_type i = 0; i < n; i++) {
-        target = MapValue_FieldsEntry_DoNotUse::Funcs::SerializeToArray(1, items[static_cast<ptrdiff_t>(i)]->first, items[static_cast<ptrdiff_t>(i)]->second, target);
+        target = MapValue_FieldsEntry_DoNotUse::Funcs::InternalSerialize(1, items[static_cast<ptrdiff_t>(i)]->first, items[static_cast<ptrdiff_t>(i)]->second, target, stream);
         Utf8Check::Check(&(*items[static_cast<ptrdiff_t>(i)]));
       }
     } else {
       for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::google::firestore::v1::Value >::const_iterator
-          it = this->fields().begin();
-          it != this->fields().end(); ++it) {
-        target = MapValue_FieldsEntry_DoNotUse::Funcs::SerializeToArray(1, it->first, it->second, target);
+          it = this->_internal_fields().begin();
+          it != this->_internal_fields().end(); ++it) {
+        target = MapValue_FieldsEntry_DoNotUse::Funcs::InternalSerialize(1, it->first, it->second, target, stream);
         Utf8Check::Check(&(*it));
       }
     }
   }
 
-  if (_internal_metadata_.have_unknown_fields()) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields(), target);
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.MapValue)
   return target;
@@ -2282,24 +1690,23 @@ size_t MapValue::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:google.firestore.v1.MapValue)
   size_t total_size = 0;
 
-  if (_internal_metadata_.have_unknown_fields()) {
-    total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::ComputeUnknownFieldsSize(
-        _internal_metadata_.unknown_fields());
-  }
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
   // map<string, .google.firestore.v1.Value> fields = 1;
   total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->fields_size());
+      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_fields_size());
   for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::google::firestore::v1::Value >::const_iterator
-      it = this->fields().begin();
-      it != this->fields().end(); ++it) {
+      it = this->_internal_fields().begin();
+      it != this->_internal_fields().end(); ++it) {
     total_size += MapValue_FieldsEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
+  }
   int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
