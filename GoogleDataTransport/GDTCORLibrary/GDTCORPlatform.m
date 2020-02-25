@@ -50,6 +50,21 @@ BOOL GDTCORReachabilityFlagsContainWWAN(SCNetworkReachabilityFlags flags) {
 }
 #endif  // !TARGET_OS_WATCH
 
+GDTCORNetworkType GDTCORNetworkTypeMessage() {
+#if !TARGET_OS_WATCH
+  SCNetworkReachabilityFlags reachabilityFlags = [GDTCORReachability currentFlags];
+  if ((reachabilityFlags & kSCNetworkReachabilityFlagsReachable) ==
+      kSCNetworkReachabilityFlagsReachable) {
+    if (GDTCORReachabilityFlagsContainWWAN(reachabilityFlags)) {
+      return GDTCORNetworkTypeMobile;
+    } else {
+      return GDTCORNetworkTypeWIFI;
+    }
+  }
+#endif
+  return GDTCORNetworkTypeUNKNOWN;
+}
+
 GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
 #if TARGET_OS_IOS
   static NSDictionary<NSString *, NSNumber *> *CTRadioAccessTechnologyToNetworkSubTypeMessage;
@@ -72,7 +87,14 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
     networkInfo = [[CTTelephonyNetworkInfo alloc] init];
   });
   NSString *networkCurrentRadioAccessTechnology;
-  if (@available(iOS 12, *)) {
+#if TARGET_OS_MACCATALYST
+  NSDictionary<NSString *, NSString *> *networkCurrentRadioAccessTechnologyDict =
+      networkInfo.serviceCurrentRadioAccessTechnology;
+  if (networkCurrentRadioAccessTechnologyDict.count) {
+    networkCurrentRadioAccessTechnology = networkCurrentRadioAccessTechnologyDict.allValues[0];
+  }
+#else
+  if (@available(iOS 12.0, *)) {
     NSDictionary<NSString *, NSString *> *networkCurrentRadioAccessTechnologyDict =
         networkInfo.serviceCurrentRadioAccessTechnology;
     if (networkCurrentRadioAccessTechnologyDict.count) {
@@ -83,6 +105,7 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
   } else {
     networkCurrentRadioAccessTechnology = networkInfo.currentRadioAccessTechnology;
   }
+#endif
   if (networkCurrentRadioAccessTechnology) {
     NSNumber *networkMobileSubtype =
         CTRadioAccessTechnologyToNetworkSubTypeMessage[networkCurrentRadioAccessTechnology];
