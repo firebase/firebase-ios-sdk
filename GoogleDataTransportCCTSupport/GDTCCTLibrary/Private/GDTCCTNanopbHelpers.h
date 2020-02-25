@@ -115,14 +115,6 @@ gdt_cct_IosClientInfo GDTCCTConstructiOSClientInfo(void);
 FOUNDATION_EXPORT
 NSData *GDTCCTConstructNetworkConnectionInfoData(void);
 
-/** Return a gdt_cct_NetworkConnectionInfo_NetworkType representing the cilent network type.
- *
- * @return The gdt_cct_NetworkConnectionInfo_NetworkType.
- */
-FOUNDATION_EXPORT
-gdt_cct_NetworkConnectionInfo_NetworkType GDTCCTNetworkConnectonInfoNetworkType(
-    SCNetworkReachabilityFlags flags);
-
 /** Return a gdt_cct_NetworkConnectionInfo_MobileSubtype representing the client
  *
  * @return The gdt_cct_NetworkConnectionInfo_MobileSubtype.
