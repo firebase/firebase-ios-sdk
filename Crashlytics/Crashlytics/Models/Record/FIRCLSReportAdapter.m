@@ -174,6 +174,7 @@
   }
 
   apple_payload.files = files;
+  apple_payload.org_id = FIRCLSEncodeString(self.orgID);
 
   return apple_payload;
 }
