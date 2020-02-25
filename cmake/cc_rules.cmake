@@ -45,6 +45,7 @@ function(cc_library name)
     ${FIREBASE_SOURCE_DIR}
   )
 
+  target_compile_options(${name} PRIVATE ${FIREBASE_CXX_FLAGS})
   target_link_libraries(${name} PUBLIC ${ccl_DEPENDS})
 
   if(ccl_EXCLUDE_FROM_ALL)
@@ -184,6 +185,8 @@ function(cc_fuzz_test name)
     DEPENDS ${ccf_DEPENDS}
   )
 
+  target_compile_options(${name} PRIVATE ${FIREBASE_CXX_FLAGS})
+
   # Copy the dictionary file and corpus directory, if they are defined.
   if(DEFINED ccf_DICTIONARY)
     add_custom_command(
@@ -314,6 +317,7 @@ function(objc_framework target)
       INTERFACE
         -F${CMAKE_CURRENT_BINARY_DIR}
       PRIVATE
+        ${FIREBASE_CXX_FLAGS}
         ${OBJC_FLAGS}
         -fno-autolink
         -Wno-unused-parameter
@@ -373,11 +377,8 @@ function(objc_test target)
       ${ot_SOURCES}
     )
 
-    target_link_libraries(
-      ${target}
-      PRIVATE
-        ${ot_DEPENDS}
-    )
+    target_compile_options(${target} PRIVATE ${FIREBASE_CXX_FLAGS})
+    target_link_libraries(${target} PRIVATE ${ot_DEPENDS})
 
     xctest_add_test(
       ${target}
