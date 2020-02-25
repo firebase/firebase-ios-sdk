@@ -35,4 +35,7 @@
 // Overriding the method for testing Settings
 - (BOOL)removeItemAtPath:(NSString *)path;
 
+// Overrides fileSizeAtPath if not nil
+@property(nonatomic, copy) NSNumber *overridenFileSizeAtPath;
+
 @end

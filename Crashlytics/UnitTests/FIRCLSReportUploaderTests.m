@@ -19,8 +19,11 @@
 #import "FABMockApplicationIdentifierModel.h"
 #import "FIRCLSApplication.h"
 #include "FIRCLSConstants.h"
+#include "FIRCLSDataCollectionToken.h"
 #include "FIRCLSDefines.h"
 #include "FIRCLSFileManager.h"
+#include "FIRCLSMockFileManager.h"
+#include "FIRCLSMockNetworkClient.h"
 #include "FIRCLSMockSettings.h"
 #include "FIRCLSSettings.h"
 #include "FIRMockGDTCoreTransport.h"
@@ -31,9 +34,11 @@ NSString *const TestEndpoint = @"https://reports.crashlytics.com";
     : XCTestCase <FIRCLSReportUploaderDelegate, FIRCLSReportUploaderDataSource>
 
 @property(nonatomic, strong) FIRCLSReportUploader *uploader;
-@property(nonatomic, strong) FIRCLSFileManager *fileManager;
+@property(nonatomic, strong) FIRCLSMockFileManager *fileManager;
+@property(nonatomic, strong) FIRMockGDTCORTransport *dataTransport;
 @property(nonatomic, strong) NSOperationQueue *queue;
-@property(nonatomic, strong) NSURL *url;
+@property(nonatomic, strong) FIRCLSMockSettings *settings;
+@property(nonatomic, strong) FIRCLSMockNetworkClient *networkClient;
 
 @end
 
@@ -42,21 +47,28 @@ NSString *const TestEndpoint = @"https://reports.crashlytics.com";
 - (void)setUp {
   [super setUp];
 
+  FABMockApplicationIdentifierModel *appIDModel = [[FABMockApplicationIdentifierModel alloc] init];
+  self.settings = [[FIRCLSMockSettings alloc] initWithFileManager:self.fileManager
+                                                       appIDModel:appIDModel];
+  self.settings.fetchedBundleID = self.bundleIdentifier;
+
   self.queue = [NSOperationQueue new];
 
-  self.fileManager = [[FIRCLSFileManager alloc] init];
+  self.networkClient = [[FIRCLSMockNetworkClient alloc] initWithQueue:self.queue
+                                                          fileManager:self.fileManager
+                                                             delegate:nil];
+
+  self.fileManager = [[FIRCLSMockFileManager alloc] init];
   self.uploader = [[FIRCLSReportUploader alloc] initWithQueue:self.queue
                                                      delegate:self
                                                    dataSource:self
-                                                       client:nil
-                                                  fileManager:nil
+                                                       client:self.networkClient
+                                                  fileManager:self.fileManager
                                                     analytics:nil];
 
-  // glue together a string that will work for both platforms
-  NSString *urlString =
-      [NSString stringWithFormat:@"%@/sdk-api/v1/platforms/%@/apps/%@/reports", TestEndpoint,
-                                 FIRCLSApplicationGetPlatform(), self.bundleIdentifier];
-  self.url = [NSURL URLWithString:urlString];
+  self.dataTransport = [[FIRMockGDTCORTransport alloc] initWithMappingID:@"mappingID"
+                                                            transformers:nil
+                                                                  target:1206];
 }
 
 - (void)tearDown {
@@ -66,8 +78,59 @@ NSString *const TestEndpoint = @"https://reports.crashlytics.com";
 }
 
 - (void)testURLGeneration {
-  XCTAssertEqualObjects([self.uploader reportURL], _url);
+  NSString *urlString =
+      [NSString stringWithFormat:@"%@/sdk-api/v1/platforms/%@/apps/%@/reports", TestEndpoint,
+                                 FIRCLSApplicationGetPlatform(), self.bundleIdentifier];
+  NSURL *url = [NSURL URLWithString:urlString];
+
+  XCTAssertEqualObjects([self.uploader reportURL], url);
 }
+
+- (void)testUploadPackagedReportWithPath {
+  NSString *packagePath =
+      [self.fileManager.preparedPath stringByAppendingPathComponent:@"pkg_uuid"];
+  self.settings.shouldUseNewReportEndpoint = YES;
+  self.dataTransport.sendDataEvent_wasWritten = YES;
+
+  BOOL success = [self.uploader uploadPackagedReportAtPath:packagePath
+                                       dataCollectionToken:FIRCLSDataCollectionToken.validToken
+                                                  asUrgent:NO];
+  XCTAssertTrue(success);
+  XCTAssertNotNil(self.dataTransport.sendDataEvent_event);
+  XCTAssertNil(self.networkClient.startUploadRequest);
+}
+
+- (void)testUploadPackagedReportWithLegacyPath {
+  NSString *packagePath =
+      [self.fileManager.legacyPreparedPath stringByAppendingPathComponent:@"pkg_uuid"];
+  self.settings.shouldUseNewReportEndpoint = NO;
+  self.dataTransport.sendDataEvent_wasWritten = YES;
+  self.fileManager.overridenFileSizeAtPath = [NSNumber numberWithInt:1];
+
+  BOOL success = [self.uploader uploadPackagedReportAtPath:packagePath
+                                       dataCollectionToken:FIRCLSDataCollectionToken.validToken
+                                                  asUrgent:NO];
+  XCTAssertTrue(success);
+  XCTAssertNil(self.dataTransport.sendDataEvent_event);
+  XCTAssertNotNil(self.networkClient.startUploadRequest);
+}
+
+- (void)testUploadPackagedReportWithMismatchPathAndSettings {
+  NSString *packagePath = @"/some/unknown/path/pkg_uuid";
+  self.settings.shouldUseNewReportEndpoint = NO;
+  self.dataTransport.sendDataEvent_wasWritten = YES;
+  self.fileManager.overridenFileSizeAtPath = [NSNumber numberWithInt:1];
+
+  BOOL success = [self.uploader uploadPackagedReportAtPath:packagePath
+                                       dataCollectionToken:FIRCLSDataCollectionToken.validToken
+                                                  asUrgent:NO];
+  XCTAssertFalse(success);
+  XCTAssertNil(self.dataTransport.sendDataEvent_event);
+  XCTAssertNil(self.networkClient.startUploadRequest);
+}
+
+// Add sync vs async
+// Check data collection
 
 #pragma mark - FIRCLSReportUploaderDelegate
 
@@ -76,24 +139,14 @@ NSString *const TestEndpoint = @"https://reports.crashlytics.com";
                                error:(NSError *)error {
 }
 
+#pragma mark - FIRCLSReportUploaderDataSource
+
 - (NSString *)bundleIdentifier {
   return @"com.test.TestApp";
 }
 
 - (NSString *)googleAppID {
   return @"someGoogleAppId";
-}
-
-- (FIRCLSSettings *)settings {
-  FABMockApplicationIdentifierModel *appIDModel = [[FABMockApplicationIdentifierModel alloc] init];
-  FIRCLSMockSettings *settings = [[FIRCLSMockSettings alloc] initWithFileManager:self.fileManager
-                                                                      appIDModel:appIDModel];
-  settings.fetchedBundleID = self.bundleIdentifier;
-  return settings;
-}
-
-- (GDTCORTransport *)googleTransport {
-  return [[FIRMockGDTCORTransport alloc] initWithMappingID:@"mappingID" transformers:nil target:0];
 }
 
 - (void)didCompleteAllSubmissions {

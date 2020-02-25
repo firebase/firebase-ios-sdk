@@ -20,5 +20,6 @@
 // and bypass the normal functionality
 @synthesize orgID;
 @synthesize fetchedBundleID;
+@synthesize shouldUseNewReportEndpoint;
 
 @end

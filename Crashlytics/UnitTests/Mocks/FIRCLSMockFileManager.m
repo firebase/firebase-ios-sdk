@@ -44,4 +44,12 @@
   return YES;
 }
 
+- (NSNumber *)fileSizeAtPath:(NSString *)path {
+  if (!self.overridenFileSizeAtPath) {
+    return [self fileSizeAtPath:path];
+  }
+
+  return self.overridenFileSizeAtPath;
+}
+
 @end

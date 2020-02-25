@@ -203,6 +203,11 @@
   BOOL isNewPreparedPath = ![path containsString:self.fileManager.legacyPreparedPath];
 
   if (isNewPreparedPath && self.dataSource.settings.shouldUseNewReportEndpoint) {
+    if (![dataCollectionToken isValid]) {
+      FIRCLSErrorLog(@"A report upload was requested with an invalid data collection token.");
+      return NO;
+    }
+
     FIRCLSReportAdapter *adapter =
         [[FIRCLSReportAdapter alloc] initWithPath:path
                                       googleAppId:self.dataSource.googleAppID
