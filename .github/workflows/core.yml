@@ -10,7 +10,7 @@ on:
     - cron:  '0 7 * * *'
 
 jobs:
-  pod_lib_lint:
+  pod-lib-lint:
     runs-on: macOS-latest
 
     strategy:
