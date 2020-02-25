@@ -1,0 +1,71 @@
+name: messaging 
+
+on:
+  pull_request:
+    paths:
+    - 'Firebase/Messaging/**'
+
+    #Podspec
+    - 'FirebaseMessaging.podspec'
+
+    - '.github/workflows/messaging.yml'
+  schedule:
+    # Run every day at 11pm (PST) - cron uses UTC times
+    - cron:  '0 7 * * *'
+
+jobs:
+  messaging:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Install Secret GoogleService-Info.plist
+      env:
+         plist_secret: ${{ secrets.StoragePlistSecret }}
+      run: ./scripts/decrypt_gha_secret.sh scripts/gha-encrypted/storage-db-plist.gpg \
+          FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist "$plist_secret"
+    - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
+      run: scripts/third_party/travis/retry.sh scripts/build.sh Storage all
+
+  pod_lib_lint:
+    runs-on: macOS-latest
+
+    strategy:
+      matrix:
+        target: [ios, tvos, macos]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Build and test
+      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=${{ matrix.target }}
+
+  pod_lib_lint(watchOS only):
+    runs-on: macOS-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Build and test
+      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseMessaging.podspec --skip-tests --platforms=watchos
+
+
+  messaging-cron-only:
+    runs-on: macos-latest
+    if: github.event_name == 'schedule'
+    strategy:
+      matrix:
+        target: [ios, tvos, macos, watchos]
+        flags: [
+          '--use-modular-headers',
+          '--skip-tests --use-libraries'
+        ]
+    needs: pod_lib_lint
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: PodLibLint Messaging Cron
+      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
