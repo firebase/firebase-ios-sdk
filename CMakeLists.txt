@@ -140,6 +140,12 @@ endif()
 
 
 # gRPC
+
+# libcurl and c-ares conflict in their usage of this variable. Prevent
+# libcurl's setting of this variable from affecting the c-ares build that's
+# pulled in indirectly via gRPC.
+unset(RANDOM_FILE CACHE)
+
 find_package(OpenSSL QUIET)
 if(OPENSSL_FOUND)
   set(gRPC_SSL_PROVIDER package CACHE STRING "Use external OpenSSL")
