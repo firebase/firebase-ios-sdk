@@ -5,7 +5,9 @@ telemetry from Google SDKs.
 
 ## Prereqs
 
-- Install [cocoapod-generate](https://github.com/square/cocoapods-generate)
+- `gem install --user cocoapods cocoapods-generate`
+- `brew install protobuf nanopb-generator`
+- `easy_install protobuf python`
 
 ## To develop
 
