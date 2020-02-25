@@ -20,13 +20,9 @@ jobs:
     - uses: actions/checkout@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
-    - name: Install Secret GoogleService-Info.plist
-      env:
-         plist_secret: ${{ secrets.StoragePlistSecret }}
-      run: ./scripts/decrypt_gha_secret.sh scripts/gha-encrypted/storage-db-plist.gpg \
-          FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist "$plist_secret"
+
     - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
-      run: scripts/third_party/travis/retry.sh scripts/build.sh Storage all
+      run: scripts/third_party/travis/retry.sh scripts/build.sh Messaging all
 
   pod_lib_lint:
     runs-on: macOS-latest
@@ -59,7 +55,7 @@ jobs:
       matrix:
         target: [ios, tvos, macos, watchos]
         flags: [
-          '--use-modular-headers',
+          '--skip-tests --use-modular-headers',
           '--skip-tests --use-libraries'
         ]
     needs: pod_lib_lint
