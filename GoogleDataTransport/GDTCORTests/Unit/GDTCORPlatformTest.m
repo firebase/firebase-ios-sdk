@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2020 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,9 @@
 
 /** Tests the reachability of mobile network connection in current platform. */
 - (void)testMobileConnectionReachability {
-  SCNetworkReachabilityFlags reachabilityFlags = [GDTCORReachability currentFlags];
+  SCNetworkReachabilityFlags reachabilityFlags;
+  XCTAssertNoThrow(reachabilityFlags = [GDTCORReachability currentFlags]);
+  XCTAssertNotEqual(reachabilityFlags, 0);
   // The mobile network connection should be always false in simulator logic test.
   XCTAssertFalse(GDTCORReachabilityFlagsContainWWAN(reachabilityFlags));
 }
@@ -44,7 +46,7 @@
 - (void)testGetNetworkMobileSubtype {
   NSInteger networkMobileSubtype;
   XCTAssertNoThrow(networkMobileSubtype = GDTCORNetworkMobileSubTypeMessage());
-  // The network connection type should be always UNKNOWN in simulator logic test.
+  // The network connection moblie subtype should be always UNKNOWN in simulator logic test.
   XCTAssertEqual(networkMobileSubtype, GDTCORNetworkMobileSubtypeUNKNOWN);
 }
 
@@ -68,9 +70,9 @@
   GDTCORApplication *application;
   application = [[GDTCORApplication alloc] init];
   __block GDTCORBackgroundIdentifier bgID;
+  XCTAssertNoThrow([application endBackgroundTask:bgID]);
   XCTAssertNoThrow(bgID = [application beginBackgroundTaskWithName:@"GDTCORPlatformTest"
                                                  expirationHandler:^{
-                                                   [application endBackgroundTask:bgID];
                                                    bgID = GDTCORBackgroundIdentifierInvalid;
                                                  }]);
 }
