@@ -136,6 +136,10 @@ endfunction()
 # Defines a new test executable target with the given target name, sources, and
 # dependencies.  Implicitly adds DEPENDS on GTest::GTest and GTest::Main.
 function(cc_test name)
+  if(NOT FIREBASE_IOS_BUILD_TESTS)
+    return()
+  endif()
+
   set(multi DEPENDS SOURCES)
   cmake_parse_arguments(cct "" "" "${multi}" ${ARGN})
 
@@ -360,53 +364,55 @@ function(objc_framework target)
 endfunction()
 
 function(objc_test target)
-  if(APPLE)
-    set(flag EXCLUDE_FROM_ALL)
-    set(single HOST VERSION WORKING_DIRECTORY)
-    set(multi DEPENDS DEFINES HEADERS INCLUDES SOURCES)
-    cmake_parse_arguments(ot "${flag}" "${single}" "${multi}" ${ARGN})
+  if(NOT APPLE OR NOT FIREBASE_IOS_BUILD_TESTS)
+    return()
+  endif()
 
-    xctest_add_bundle(
-      ${target}
-      ${ot_HOST}
-      ${ot_SOURCES}
+  set(flag EXCLUDE_FROM_ALL)
+  set(single HOST VERSION WORKING_DIRECTORY)
+  set(multi DEPENDS DEFINES HEADERS INCLUDES SOURCES)
+  cmake_parse_arguments(ot "${flag}" "${single}" "${multi}" ${ARGN})
+
+  xctest_add_bundle(
+    ${target}
+    ${ot_HOST}
+    ${ot_SOURCES}
+  )
+
+  add_objc_flags(
+    ${target}
+    ${ot_SOURCES}
+  )
+
+  target_compile_options(${target} PRIVATE ${FIREBASE_CXX_FLAGS})
+  target_link_libraries(${target} PRIVATE ${ot_DEPENDS})
+
+  xctest_add_test(
+    ${target}
+    ${target}
+  )
+
+  if(ot_WORKING_DIRECTORY)
+    set_property(
+      TEST ${target} PROPERTY
+      WORKING_DIRECTORY ${ot_WORKING_DIRECTORY}
     )
+  endif()
 
-    add_objc_flags(
-      ${target}
-      ${ot_SOURCES}
+  if(WITH_ASAN)
+    set_property(
+      TEST ${target} APPEND PROPERTY
+      ENVIRONMENT
+      DYLD_INSERT_LIBRARIES=${CLANG_ASAN_DYLIB}
     )
+  endif()
 
-    target_compile_options(${target} PRIVATE ${FIREBASE_CXX_FLAGS})
-    target_link_libraries(${target} PRIVATE ${ot_DEPENDS})
-
-    xctest_add_test(
-      ${target}
-      ${target}
+  if(WITH_TSAN)
+    set_property(
+      TEST ${target} APPEND PROPERTY
+      ENVIRONMENT
+      DYLD_INSERT_LIBRARIES=${CLANG_TSAN_DYLIB}
     )
-
-    if(ot_WORKING_DIRECTORY)
-      set_property(
-        TEST ${target} PROPERTY
-        WORKING_DIRECTORY ${ot_WORKING_DIRECTORY}
-      )
-    endif()
-
-    if(APPLE AND WITH_ASAN)
-      set_property(
-        TEST ${target} APPEND PROPERTY
-        ENVIRONMENT
-        DYLD_INSERT_LIBRARIES=${CLANG_ASAN_DYLIB}
-      )
-    endif()
-
-    if(APPLE AND WITH_TSAN)
-      set_property(
-        TEST ${target} APPEND PROPERTY
-        ENVIRONMENT
-        DYLD_INSERT_LIBRARIES=${CLANG_TSAN_DYLIB}
-      )
-    endif()
   endif()
 endfunction()
 

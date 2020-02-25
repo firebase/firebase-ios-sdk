@@ -60,6 +60,12 @@ endif()
 enable_language(C)
 enable_language(CXX)
 
+option(
+  FIREBASE_IOS_BUILD_TESTS
+  "Enable building of C++ and Objective-C tests for this project"
+  ON
+)
+
 
 list(INSERT CMAKE_MODULE_PATH 0 ${PROJECT_SOURCE_DIR}/cmake)
 include(compiler_id)
@@ -251,7 +257,9 @@ if(APPLE)
 endif()
 
 
-enable_testing()
+if(FIREBASE_IOS_BUILD_TESTS)
+  enable_testing()
+endif()
 include(compiler_setup)
 
 add_subdirectory(FirebaseCore)
