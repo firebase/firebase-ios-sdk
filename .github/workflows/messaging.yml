@@ -29,16 +29,23 @@ jobs:
 
     strategy:
       matrix:
-        target: [ios, tvos, macos, watchos]
+        target: [ios, tvos, macos]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
-      if: matrix.target == 'watchos'
-        run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseMessaging.podspec --skip-tests --platforms=${{ matrix.target }}
-      if: matrix.target != 'watchos'
-        run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=${{ matrix.target }}
+      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=${{ matrix.target }}
+
+   pod-lib-lint-watchos:
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Build and test
+      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseMessaging.podspec --skip-tests --platforms=watchos
+
 
   messaging-cron-only:
     runs-on: macos-latest
@@ -50,7 +57,7 @@ jobs:
           '--use-modular-headers',
           '--skip-tests --use-libraries'
         ]
-    needs: pod_lib_lint
+    needs: pod-lib-lint
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -67,7 +74,7 @@ jobs:
           '--skip-tests --use-modular-headers',
           '--skip-tests --use-libraries'
         ]
-    needs: pod_lib_lint
+    needs: pod-lib-lint-watchos
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
