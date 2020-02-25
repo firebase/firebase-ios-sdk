@@ -15,8 +15,7 @@
  */
 
 #import <GoogleDataTransport/GDTCORPlatform.h>
-
-#import "GDTCORLibrary/Private/GDTCORReachability.h"
+#import <GoogleDataTransport/GDTCORReachability.h>
 
 #import "GDTCORTests/Unit/GDTCORTestCase.h"
 
