@@ -26,7 +26,6 @@ jobs:
 
   pod-lib-lint:
     runs-on: macOS-latest
-
     strategy:
       matrix:
         target: [ios, tvos, macos]
