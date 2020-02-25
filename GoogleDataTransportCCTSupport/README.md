@@ -7,7 +7,7 @@ telemetry from Google SDKs.
 
 - `gem install --user cocoapods cocoapods-generate`
 - `brew install protobuf nanopb-generator`
-- `easy_install protobuf python`
+- `easy_install --user protobuf`
 
 ## To develop
 
