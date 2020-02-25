@@ -13,8 +13,9 @@
 @implementation ViewControllerObjC
 
 - (void)viewDidLoad:(BOOL)animated{
+    NSLog(@"here!");
     [super viewDidLoad];
-    [[FIRAppDistribution appDistribution] checkForUpdateWithCompletion:^(FIRAppDistributionRelease * _Nullable release, NSError * _Nullable error) {
+    [[FIRAppDistribution appDistribution] checkForUpdateWithView:self completion:^(FIRAppDistributionRelease * _Nullable release, NSError * _Nullable error) {
         NSLog(@"%@", release);
         if (release) {
             UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"New Version Available"

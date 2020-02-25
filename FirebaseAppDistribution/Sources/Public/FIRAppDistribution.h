@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -32,7 +33,7 @@ NS_SWIFT_NAME(AppDistributionRelease)
 @property(nonatomic, strong) NSURL *downloadUrl;
 
 /** :nodoc: */
-- (instancetype)init NS_UNAVAILABLE;
+//- (instancetype)init NS_UNAVAILABLE;
 
 @end
 
@@ -62,14 +63,16 @@ typedef void (^FIRAppDistributionUpdateCheckCompletion)(FIRAppDistributionReleas
 NS_SWIFT_NAME(AppDistribution)
 @interface FIRAppDistribution : NSObject
 
+@property (nonatomic, readonly	) BOOL signedIn;
+
 /** :nodoc: */
 - (instancetype)init NS_UNAVAILABLE;
-
 /**
  * Check to see whether a new distribution is available
  */
-- (void)checkForUpdateWithCompletion:(FIRAppDistributionUpdateCheckCompletion)completion
-    NS_SWIFT_NAME(checkForUpdate(completion:));
+- (void)checkForUpdateWithView:(UIViewController *)view
+                                completion:(FIRAppDistributionUpdateCheckCompletion)completion
+    NS_SWIFT_NAME(checkForUpdate(view:completion:));
 
 /**
  * Accesses the singleton App Distribution instance.
