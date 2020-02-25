@@ -26,11 +26,10 @@
 @implementation GDTCORPlatformTest
 
 /** Tests the reachability of mobile network connection in current platform. */
--(void)testMobileConnectionReachability {
+- (void)testMobileConnectionReachability {
   SCNetworkReachabilityFlags reachabilityFlags = [GDTCORReachability currentFlags];
   // The mobile network connection should be always false in simulator logic test.
   XCTAssertFalse(GDTCORReachabilityFlagsContainWWAN(reachabilityFlags));
-  
 }
 
 /** Tests network connection type message generating in current platform. */
@@ -70,10 +69,10 @@
   application = [[GDTCORApplication alloc] init];
   __block GDTCORBackgroundIdentifier bgID;
   XCTAssertNoThrow(bgID = [application beginBackgroundTaskWithName:@"GDTCORPlatformTest"
-                 expirationHandler:^{
-                   [application endBackgroundTask:bgID];
-                   bgID = GDTCORBackgroundIdentifierInvalid;
-                 }]);
+                                                 expirationHandler:^{
+                                                   [application endBackgroundTask:bgID];
+                                                   bgID = GDTCORBackgroundIdentifierInvalid;
+                                                 }]);
 }
 
 @end
