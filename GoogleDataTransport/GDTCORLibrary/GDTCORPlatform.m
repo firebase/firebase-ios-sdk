@@ -18,8 +18,8 @@
 
 #import <GoogleDataTransport/GDTCORAssert.h>
 #import <GoogleDataTransport/GDTCORConsoleLogger.h>
+#import <GoogleDataTransport/GDTCORReachability.h>
 
-#import "GDTCORLibrary/Private/GDTCORReachability.h"
 #import "GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
 
 #ifdef GDTCOR_VERSION
