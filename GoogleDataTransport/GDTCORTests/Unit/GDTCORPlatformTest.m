@@ -64,7 +64,7 @@
   XCTAssertNotNil(application);
 }
 
-/** Tests background tash creating of GDTCORApplication. */
+/** Tests background task creating of GDTCORApplication. */
 - (void)testGDTCORApplicationBeginBackgroundTask {
   GDTCORApplication *application;
   application = [[GDTCORApplication alloc] init];
