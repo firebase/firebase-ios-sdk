@@ -29,24 +29,16 @@ jobs:
 
     strategy:
       matrix:
-        target: [ios, tvos, macos]
+        target: [ios, tvos, macos, watchos]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=${{ matrix.target }}
-
-  pod-lib-lint-watchos:
-    runs-on: macOS-latest
-
-    steps:
-    - uses: actions/checkout@v2
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: Build and test
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseMessaging.podspec --skip-tests --platforms=watchos
-
+      if: matrix.target == 'watchos'
+        run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseMessaging.podspec --skip-tests --platforms=${{ matrix.target }}
+      if: matrix.target != 'watchos'
+        run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=${{ matrix.target }}
 
   messaging-cron-only:
     runs-on: macos-latest
