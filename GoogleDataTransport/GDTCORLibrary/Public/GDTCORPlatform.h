@@ -75,13 +75,13 @@ typedef NS_ENUM(NSInteger, GDTCORNetworkMobileSubtype) {
 BOOL GDTCORReachabilityFlagsContainWWAN(SCNetworkReachabilityFlags flags);
 #endif
 
-/** Generates an enum message GDTCORNetworkType representing Network connection type.
+/** Generates an enum message GDTCORNetworkType representing network connection type.
  *
  * @return A GDTCORNetworkType representing network connection type.
  */
 GDTCORNetworkType GDTCORNetworkTypeMessage(void);
 
-/** Generates an enum message GDTCORNetworkMobileSubtype representing Network connection mobile
+/** Generates an enum message GDTCORNetworkMobileSubtype representing network connection mobile
  * subtype.
  *
  * @return A GDTCORNetworkMobileSubtype representing network connection mobile subtype.
