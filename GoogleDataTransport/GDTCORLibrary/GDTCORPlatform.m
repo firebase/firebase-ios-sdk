@@ -65,8 +65,6 @@ GDTCORNetworkType GDTCORNetworkTypeMessage() {
   return GDTCORNetworkTypeUNKNOWN;
 }
 
-
-
 GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
 #if TARGET_OS_IOS
   static NSDictionary<NSString *, NSNumber *> *CTRadioAccessTechnologyToNetworkSubTypeMessage;
@@ -90,7 +88,8 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
   });
   NSString *networkCurrentRadioAccessTechnology;
 #if TARGET_OS_MACCATALYST
-  NSDictionary<NSString *, NSString *> *networkCurrentRadioAccessTechnologyDict = networkInfo.serviceCurrentRadioAccessTechnology;
+  NSDictionary<NSString *, NSString *> *networkCurrentRadioAccessTechnologyDict =
+      networkInfo.serviceCurrentRadioAccessTechnology;
   if (networkCurrentRadioAccessTechnologyDict.count) {
     networkCurrentRadioAccessTechnology = networkCurrentRadioAccessTechnologyDict.allValues[0];
   }

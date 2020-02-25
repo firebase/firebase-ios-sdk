@@ -202,10 +202,11 @@ NSData *GDTCCTConstructNetworkConnectionInfoData() {
   NSInteger currentNetworkType = GDTCORNetworkTypeMessage();
   if (currentNetworkType) {
     networkConnectionInfo.has_network_type = 1;
-    if(currentNetworkType == GDTCORNetworkTypeMobile) {
+    if (currentNetworkType == GDTCORNetworkTypeMobile) {
       networkConnectionInfo.network_type = gdt_cct_NetworkConnectionInfo_NetworkType_MOBILE;
       networkConnectionInfo.mobile_subtype = GDTCCTNetworkConnectionInfoNetworkMobileSubtype();
-      if(networkConnectionInfo.mobile_subtype != gdt_cct_NetworkConnectionInfo_MobileSubtype_UNKNOWN_MOBILE_SUBTYPE) {
+      if (networkConnectionInfo.mobile_subtype !=
+          gdt_cct_NetworkConnectionInfo_MobileSubtype_UNKNOWN_MOBILE_SUBTYPE) {
         networkConnectionInfo.has_mobile_subtype = 1;
       }
     } else {
