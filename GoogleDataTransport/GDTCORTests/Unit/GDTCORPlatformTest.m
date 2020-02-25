@@ -70,11 +70,12 @@
   GDTCORApplication *application;
   application = [[GDTCORApplication alloc] init];
   __block GDTCORBackgroundIdentifier bgID;
-  XCTAssertNoThrow([application endBackgroundTask:bgID]);
   XCTAssertNoThrow(bgID = [application beginBackgroundTaskWithName:@"GDTCORPlatformTest"
                                                  expirationHandler:^{
+                                                   [application endBackgroundTask:bgID];
                                                    bgID = GDTCORBackgroundIdentifierInvalid;
                                                  }]);
+  XCTAssertNoThrow([application endBackgroundTask:bgID]);
 }
 
 @end
