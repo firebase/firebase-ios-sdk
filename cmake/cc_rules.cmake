@@ -423,14 +423,14 @@ endfunction()
 #
 # Appends the generated source file name to the list named by sources_list.
 macro(generate_dummy_source name sources_list)
-  set(__empty_header_only_file "${CMAKE_CURRENT_BINARY_DIR}/${name}_header_only_empty.c")
+  set(__empty_header_only_file "${CMAKE_CURRENT_BINARY_DIR}/${name}_header_only_empty.cc")
 
   if(NOT EXISTS ${__empty_header_only_file})
     file(WRITE ${__empty_header_only_file}
       "// Generated file that keeps header-only CMake libraries happy.
 
       // single meaningless symbol
-      void ${name}_header_only_fakesym(void) {}
+      void ${name}_header_only_fakesym() {}
       "
     )
   endif()
