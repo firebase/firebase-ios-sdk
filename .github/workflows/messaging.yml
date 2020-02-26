@@ -14,15 +14,6 @@ on:
     - cron:  '0 7 * * *'
 
 jobs:
-  messaging:
-    runs-on: macos-latest
-    steps:
-    - uses: actions/checkout@v2
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
-      run: scripts/third_party/travis/retry.sh scripts/build.sh Messaging all
-
   pod-lib-lint:
     runs-on: macOS-latest
 
