@@ -199,7 +199,6 @@ else()
   )
 endif()
 
-add_alias(protobuf::libprotobuf libprotobuf)
 if(CXX_CLANG OR CXX_GNU)
   target_compile_options(
     libprotobuf
