@@ -14,6 +14,7 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#import <AppAuth/AppAuth.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -52,6 +53,19 @@ typedef void (^FIRAppDistributionUpdateCheckCompletion)(FIRAppDistributionReleas
     NS_SWIFT_NAME(AppDistributionNewBuildCheckCompletion);
 
 /**
+ *  @related FIRAppDistribution
+ *
+ *  The completion handler invoked  when App Disitribution sign in is complete
+ *  If the call fails we return the appropriate `error code`, described by
+ *  `FIRAppDistributionError`.
+ *
+ *  @param error     The error describing why sign in failed
+ */
+typedef void (^FIRAppDistributionSignInCompletion)(NSError *_Nullable error)
+    NS_SWIFT_NAME(FIRAppDistributionSignInCompletion);
+
+
+/**
  * The Firebase App Distribution API provides methods to check for update to
  * the app and returns information that enables updating the app.
  *
@@ -63,17 +77,39 @@ typedef void (^FIRAppDistributionUpdateCheckCompletion)(FIRAppDistributionReleas
 NS_SWIFT_NAME(AppDistribution)
 @interface FIRAppDistribution : NSObject
 
-@property (nonatomic, readonly	) BOOL signedIn;
+
+/**
+ * Current view controller presenting the `SFSafariViewController` if any.
+ */
+@property(nullable, nonatomic) UIViewController *safariHostingViewController;
+
+@property(nullable, nonatomic) OIDAuthState *authState;
+
+@property(nullable, nonatomic) NSError *authError;
 
 /** :nodoc: */
 - (instancetype)init NS_UNAVAILABLE;
+
+/**
+ * Sign-in the App DIsitribution tester
+*/
+- (void)signInWithCompletion:(FIRAppDistributionSignInCompletion)completion
+    NS_SWIFT_NAME(signIn(completion:));
+/**
+ * Checks to see whether app distribution tester is signed in
+*/
+- (BOOL)signedIn;
+
 /**
  * Check to see whether a new distribution is available
  */
-- (void)checkForUpdateWithView:(UIViewController *)view
-                                completion:(FIRAppDistributionUpdateCheckCompletion)completion
-    NS_SWIFT_NAME(checkForUpdate(view:completion:));
+- (void)checkForUpdateWithCompletion:(FIRAppDistributionUpdateCheckCompletion)completion
+    NS_SWIFT_NAME(checkForUpdate(completion:));
 
+/**
+ * Sign out App Disitrubition tester
+*/
+- (void)signOut;
 /**
  * Accesses the singleton App Distribution instance.
  *
