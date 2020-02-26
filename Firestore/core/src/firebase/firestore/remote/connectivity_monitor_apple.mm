@@ -18,6 +18,10 @@
 
 #if defined(__APPLE__)
 
+#if TARGET_OS_IOS || TARGET_OS_TV
+#import <UIKit/UIKit.h>
+#endif
+
 #include <SystemConfiguration/SystemConfiguration.h>
 #include <dispatch/dispatch.h>
 #include <netinet/in.h>
@@ -107,9 +111,26 @@ class ConnectivityMonitorApple : public ConnectivityMonitor {
       LOG_DEBUG("Couldn't set reachability queue");
       return;
     }
+
+#if TARGET_OS_IOS || TARGET_OS_TV
+    this->observer = [[NSNotificationCenter defaultCenter]
+        addObserverForName:UIApplicationWillEnterForegroundNotification
+                    object:nil
+                     queue:[NSOperationQueue mainQueue]
+                usingBlock:^(NSNotification* note) {
+                  SCNetworkReachabilityFlags flags;
+                  if (SCNetworkReachabilityGetFlags(reachability_, &flags)) {
+                    this->MaybeInvokeCallbacks(ToNetworkStatus(flags));
+                  }
+                }];
+#endif
   }
 
   ~ConnectivityMonitorApple() {
+#if TARGET_OS_IOS || TARGET_OS_TV
+      [[NSNotificationCenter defaultCenter] removeObserver:this->observer];
+#endif
+
     if (reachability_) {
       bool success =
           SCNetworkReachabilitySetDispatchQueue(reachability_, nullptr);
@@ -128,6 +149,9 @@ class ConnectivityMonitorApple : public ConnectivityMonitor {
 
  private:
   SCNetworkReachabilityRef reachability_ = nil;
+#if TARGET_OS_IOS || TARGET_OS_TV
+  id<NSObject> observer = nil;
+#endif
 };
 
 namespace {
