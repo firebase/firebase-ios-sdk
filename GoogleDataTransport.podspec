@@ -29,6 +29,11 @@ Shared library for iOS SDK data transport needs.
   s.source_files = 'GoogleDataTransport/GDTCORLibrary/**/*'
   s.public_header_files = 'GoogleDataTransport/GDTCORLibrary/Public/*.h'
   s.private_header_files = 'GoogleDataTransport/GDTCORLibrary/Private/*.h'
+  s.frameworks = 'Foundation', 'SystemConfiguration', 'CoreTelephony'
+  s.ios.framework  = 'UIKit'
+  s.osx.framework  = 'AppKit'
+  s.tvos.framework = 'UIKit'
+  s.watchos.framework = 'WatchKit'
 
   header_search_paths = {
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}/GoogleDataTransport/"'

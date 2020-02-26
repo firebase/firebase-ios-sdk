@@ -30,7 +30,12 @@ Support library to provide event prioritization and uploading for the GoogleData
 
   s.source_files = 'GoogleDataTransportCCTSupport/GDTCCTLibrary/**/*'
   s.private_header_files = 'GoogleDataTransportCCTSupport/GDTCCTLibrary/Private/*.h'
-
+  s.frameworks = 'Foundation', 'SystemConfiguration', 'CoreTelephony'
+  s.ios.framework  = 'UIKit'
+  s.osx.framework  = 'AppKit'
+  s.tvos.framework = 'UIKit'
+  s.watchos.framework = 'WatchKit'
+ 
   s.libraries = ['z']
 
   s.dependency 'GoogleDataTransport', '~> 4.0'
