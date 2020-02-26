@@ -21,6 +21,7 @@
                            target:(NSInteger)target {
   _mappingID = mappingID;
   _target = target;
+  _sendDataEvent_wasWritten = YES;
 
   return [super initWithMappingID:mappingID transformers:transformers target:target];
 }

@@ -26,16 +26,18 @@
 // Incremented when a remove happens with removeItemAtPath
 @property(nonatomic) NSInteger removeCount;
 
+// Overrides fileSizeAtPath if not nil
+@property(nonatomic, copy) NSNumber *overridenFileSizeAtPath;
+
 // Will be fulfilled when the expected number of removes have happened
 // using removeItemAtPath
 //
 // Users should initialize this in their test.
 @property(nonatomic, strong) XCTestExpectation *removeExpectation;
 
+@property(nonatomic, copy) NSString *removedItemAtPath_path;
+
 // Overriding the method for testing Settings
 - (BOOL)removeItemAtPath:(NSString *)path;
-
-// Overrides fileSizeAtPath if not nil
-@property(nonatomic, copy) NSNumber *overridenFileSizeAtPath;
 
 @end

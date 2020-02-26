@@ -31,6 +31,8 @@
 }
 
 - (BOOL)removeItemAtPath:(NSString *)path {
+  self.removedItemAtPath_path = path;
+
   [super removeItemAtPath:path];
 
   self.removeCount += 1;

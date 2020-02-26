@@ -35,10 +35,12 @@ NSString *const TestEndpoint = @"https://reports.crashlytics.com";
 
 @property(nonatomic, strong) FIRCLSReportUploader *uploader;
 @property(nonatomic, strong) FIRCLSMockFileManager *fileManager;
-@property(nonatomic, strong) FIRMockGDTCORTransport *dataTransport;
 @property(nonatomic, strong) NSOperationQueue *queue;
-@property(nonatomic, strong) FIRCLSMockSettings *settings;
 @property(nonatomic, strong) FIRCLSMockNetworkClient *networkClient;
+
+// Add mock prefix to names as there are naming conflicts with FIRCLSReportUploaderDelegate
+@property(nonatomic, strong) FIRMockGDTCORTransport *mockDataTransport;
+@property(nonatomic, strong) FIRCLSMockSettings *mockSettings;
 
 @end
 
@@ -48,16 +50,13 @@ NSString *const TestEndpoint = @"https://reports.crashlytics.com";
   [super setUp];
 
   FABMockApplicationIdentifierModel *appIDModel = [[FABMockApplicationIdentifierModel alloc] init];
-  self.settings = [[FIRCLSMockSettings alloc] initWithFileManager:self.fileManager
-                                                       appIDModel:appIDModel];
-  self.settings.fetchedBundleID = self.bundleIdentifier;
-
   self.queue = [NSOperationQueue new];
-
+  self.mockSettings = [[FIRCLSMockSettings alloc] initWithFileManager:self.fileManager
+                                                           appIDModel:appIDModel];
+  self.mockSettings.fetchedBundleID = self.bundleIdentifier;
   self.networkClient = [[FIRCLSMockNetworkClient alloc] initWithQueue:self.queue
                                                           fileManager:self.fileManager
                                                              delegate:nil];
-
   self.fileManager = [[FIRCLSMockFileManager alloc] init];
   self.uploader = [[FIRCLSReportUploader alloc] initWithQueue:self.queue
                                                      delegate:self
@@ -65,10 +64,9 @@ NSString *const TestEndpoint = @"https://reports.crashlytics.com";
                                                        client:self.networkClient
                                                   fileManager:self.fileManager
                                                     analytics:nil];
-
-  self.dataTransport = [[FIRMockGDTCORTransport alloc] initWithMappingID:@"mappingID"
-                                                            transformers:nil
-                                                                  target:1206];
+  self.mockDataTransport = [[FIRMockGDTCORTransport alloc] initWithMappingID:@"mappingID"
+                                                                transformers:nil
+                                                                      target:1206];
 }
 
 - (void)tearDown {
@@ -76,6 +74,8 @@ NSString *const TestEndpoint = @"https://reports.crashlytics.com";
 
   [super tearDown];
 }
+
+#pragma mark - Tests
 
 - (void)testURLGeneration {
   NSString *urlString =
@@ -87,50 +87,107 @@ NSString *const TestEndpoint = @"https://reports.crashlytics.com";
 }
 
 - (void)testUploadPackagedReportWithPath {
-  NSString *packagePath =
-      [self.fileManager.preparedPath stringByAppendingPathComponent:@"pkg_uuid"];
-  self.settings.shouldUseNewReportEndpoint = YES;
-  self.dataTransport.sendDataEvent_wasWritten = YES;
-
-  BOOL success = [self.uploader uploadPackagedReportAtPath:packagePath
-                                       dataCollectionToken:FIRCLSDataCollectionToken.validToken
-                                                  asUrgent:NO];
-  XCTAssertTrue(success);
-  XCTAssertNotNil(self.dataTransport.sendDataEvent_event);
-  XCTAssertNil(self.networkClient.startUploadRequest);
+  [self runUploadPackagedReportWithUrgency:NO];
 }
 
 - (void)testUploadPackagedReportWithLegacyPath {
-  NSString *packagePath =
-      [self.fileManager.legacyPreparedPath stringByAppendingPathComponent:@"pkg_uuid"];
-  self.settings.shouldUseNewReportEndpoint = NO;
-  self.dataTransport.sendDataEvent_wasWritten = YES;
-  self.fileManager.overridenFileSizeAtPath = [NSNumber numberWithInt:1];
+  [self runUploadPackagedReportLegacyWithUrgency:NO];
+}
 
-  BOOL success = [self.uploader uploadPackagedReportAtPath:packagePath
-                                       dataCollectionToken:FIRCLSDataCollectionToken.validToken
-                                                  asUrgent:NO];
-  XCTAssertTrue(success);
-  XCTAssertNil(self.dataTransport.sendDataEvent_event);
-  XCTAssertNotNil(self.networkClient.startUploadRequest);
+- (void)testUrgentUploadPackagedReportWithPath {
+  [self runUploadPackagedReportWithUrgency:YES];
+}
+
+- (void)testUrgentUploadPackagedReportWithLegacyPath {
+  [self runUploadPackagedReportLegacyWithUrgency:YES];
 }
 
 - (void)testUploadPackagedReportWithMismatchPathAndSettings {
-  NSString *packagePath = @"/some/unknown/path/pkg_uuid";
-  self.settings.shouldUseNewReportEndpoint = NO;
-  self.dataTransport.sendDataEvent_wasWritten = YES;
-  self.fileManager.overridenFileSizeAtPath = [NSNumber numberWithInt:1];
+  [self setUpForLegacyUpload];
 
-  BOOL success = [self.uploader uploadPackagedReportAtPath:packagePath
+  BOOL success = [self.uploader uploadPackagedReportAtPath:[self packagePath]
                                        dataCollectionToken:FIRCLSDataCollectionToken.validToken
                                                   asUrgent:NO];
   XCTAssertFalse(success);
-  XCTAssertNil(self.dataTransport.sendDataEvent_event);
+  XCTAssertNil(self.mockDataTransport.sendDataEvent_event);
   XCTAssertNil(self.networkClient.startUploadRequest);
 }
 
-// Add sync vs async
-// Check data collection
+- (void)testUploadPackagedReportWithoutDataCollectionToken {
+  [self setUpForUpload];
+
+  BOOL success = [self.uploader uploadPackagedReportAtPath:[self packagePath]
+                                       dataCollectionToken:nil
+                                                  asUrgent:NO];
+  XCTAssertFalse(success);
+  XCTAssertNil(self.mockDataTransport.sendDataEvent_event);
+  XCTAssertNil(self.networkClient.startUploadRequest);
+}
+
+- (void)testUploadPackagedReportNotGDTWritten {
+  [self setUpForUpload];
+  self.mockDataTransport.sendDataEvent_wasWritten = NO;
+
+  [self.uploader uploadPackagedReportAtPath:[self packagePath] dataCollectionToken:nil asUrgent:NO];
+
+  // Did not delete report
+  XCTAssertNil(self.fileManager.removedItemAtPath_path);
+}
+
+- (void)testUploadPackagedReportGDTError {
+  [self setUpForUpload];
+  self.mockDataTransport.sendDataEvent_error = [[NSError alloc] initWithDomain:@"domain"
+                                                                          code:1
+                                                                      userInfo:nil];
+
+  [self.uploader uploadPackagedReportAtPath:[self packagePath] dataCollectionToken:nil asUrgent:NO];
+
+  // Did not delete report
+  XCTAssertNil(self.fileManager.removedItemAtPath_path);
+}
+
+#pragma mark - Helper functions
+
+- (NSString *)packagePath {
+  return [self.fileManager.preparedPath stringByAppendingPathComponent:@"pkg_uuid"];
+}
+
+- (void)runUploadPackagedReportWithUrgency:(BOOL)urgent {
+  [self setUpForUpload];
+
+  BOOL success = [self.uploader uploadPackagedReportAtPath:[self packagePath]
+                                       dataCollectionToken:FIRCLSDataCollectionToken.validToken
+                                                  asUrgent:urgent];
+  XCTAssertTrue(success);
+  XCTAssertNotNil(self.mockDataTransport.sendDataEvent_event);
+  XCTAssertNil(self.networkClient.startUploadRequest);
+  XCTAssertEqualObjects(self.fileManager.removedItemAtPath_path, [self packagePath]);
+}
+
+- (void)runUploadPackagedReportLegacyWithUrgency:(BOOL)urgent {
+  NSString *packagePath =
+      [self.fileManager.legacyPreparedPath stringByAppendingPathComponent:@"pkg_uuid"];
+
+  [self setUpForLegacyUpload];
+
+  BOOL success = [self.uploader uploadPackagedReportAtPath:packagePath
+                                       dataCollectionToken:FIRCLSDataCollectionToken.validToken
+                                                  asUrgent:urgent];
+  XCTAssertTrue(success);
+  XCTAssertNil(self.mockDataTransport.sendDataEvent_event);
+  XCTAssertNotNil(self.networkClient.startUploadRequest);
+}
+
+- (void)setUpForUpload {
+  self.mockSettings.shouldUseNewReportEndpoint = YES;
+  self.mockDataTransport.sendDataEvent_wasWritten = YES;
+}
+
+- (void)setUpForLegacyUpload {
+  self.mockSettings.shouldUseNewReportEndpoint = NO;
+  self.mockDataTransport.sendDataEvent_wasWritten = YES;
+  self.fileManager.overridenFileSizeAtPath = [NSNumber numberWithInt:1];
+}
 
 #pragma mark - FIRCLSReportUploaderDelegate
 
@@ -147,6 +204,14 @@ NSString *const TestEndpoint = @"https://reports.crashlytics.com";
 
 - (NSString *)googleAppID {
   return @"someGoogleAppId";
+}
+
+- (GDTCORTransport *)googleTransport {
+  return self.mockDataTransport;
+}
+
+- (FIRCLSSettings *)settings {
+  return self.mockSettings;
 }
 
 - (void)didCompleteAllSubmissions {
