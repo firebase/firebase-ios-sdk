@@ -26,8 +26,8 @@
 // Incremented when a remove happens with removeItemAtPath
 @property(nonatomic) NSInteger removeCount;
 
-// Overrides fileSizeAtPath if not nil
-@property(nonatomic, copy) NSNumber *overridenFileSizeAtPath;
+// Overrides fileSizeAtPath if set
+@property(nonatomic, copy) NSNumber *fileSizeAtPathResult;
 
 // Will be fulfilled when the expected number of removes have happened
 // using removeItemAtPath
@@ -39,5 +39,12 @@
 
 // Overriding the method for testing Settings
 - (BOOL)removeItemAtPath:(NSString *)path;
+
+// Overrides moveItemAtPath if set
+@property(nonatomic) NSNumber *moveItemAtPathResult;
+@property(nonatomic, copy) NSString *moveItemAtPath_path;
+@property(nonatomic, copy) NSString *moveItemAtPath_destDir;
+
+- (BOOL)moveItemAtPath:(NSString *)path toDirectory:(NSString *)destDir;
 
 @end

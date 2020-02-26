@@ -27,6 +27,7 @@
 #include "FIRCLSMockSettings.h"
 #include "FIRCLSSettings.h"
 #include "FIRMockGDTCoreTransport.h"
+#include "FIRCLSInternalReport.h"
 
 NSString *const TestEndpoint = @"https://reports.crashlytics.com";
 
@@ -84,6 +85,33 @@ NSString *const TestEndpoint = @"https://reports.crashlytics.com";
   NSURL *url = [NSURL URLWithString:urlString];
 
   XCTAssertEqualObjects([self.uploader reportURL], url);
+}
+
+- (void)testPrepareReport {
+    NSString *path = [self.fileManager.activePath stringByAppendingPathComponent:@"pkg_uuid"];
+    FIRCLSInternalReport *report = [[FIRCLSInternalReport alloc] initWithPath:path];
+    self.mockSettings.orgID = @"orgID";
+    self.mockSettings.shouldUseNewReportEndpoint = YES;
+    self.fileManager.moveItemAtPathResult = [NSNumber numberWithInt:1];
+    
+    [self.uploader prepareAndSubmitReport:report dataCollectionToken:FIRCLSDataCollectionToken.validToken asUrgent:YES withProcessing:YES];
+    
+    // Verify with the last move operation is from processing -> prepared
+    XCTAssertTrue([self.fileManager.moveItemAtPath_destDir containsString:self.fileManager.preparedPath]);
+}
+
+- (void)testPrepareLegacyReport {
+    NSString *path = [self.fileManager.activePath stringByAppendingPathComponent:@"pkg_uuid"];
+    FIRCLSInternalReport *report = [[FIRCLSInternalReport alloc] initWithPath:path];
+    self.mockSettings.orgID = @"orgID";
+    self.mockSettings.shouldUseNewReportEndpoint = NO;
+    self.fileManager.moveItemAtPathResult = [NSNumber numberWithInt:1];
+    
+    [self.uploader prepareAndSubmitReport:report dataCollectionToken:FIRCLSDataCollectionToken.validToken asUrgent:YES withProcessing:YES];
+    
+    // Verify with the last move operation is from active -> processing for the legacy workflow
+    // FIRCLSPackageReportOperation will then move the report from processing -> prepared-legacy
+    XCTAssertTrue([self.fileManager.moveItemAtPath_destDir containsString:self.fileManager.processingPath]);
 }
 
 - (void)testUploadPackagedReportWithPath {
@@ -186,7 +214,7 @@ NSString *const TestEndpoint = @"https://reports.crashlytics.com";
 - (void)setUpForLegacyUpload {
   self.mockSettings.shouldUseNewReportEndpoint = NO;
   self.mockDataTransport.sendDataEvent_wasWritten = YES;
-  self.fileManager.overridenFileSizeAtPath = [NSNumber numberWithInt:1];
+  self.fileManager.fileSizeAtPathResult = [NSNumber numberWithInt:1];
 }
 
 #pragma mark - FIRCLSReportUploaderDelegate

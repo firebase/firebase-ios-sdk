@@ -113,13 +113,9 @@
                        self.dataSource.settings.shouldUseNewReportEndpoint);
 
         if (self.dataSource.settings.shouldUseNewReportEndpoint) {
-          // For the new endpoint, just move the .clsrecords from "processing" -> "prepared"
-          packagedPath =
-              [self.fileManager.preparedPath stringByAppendingPathComponent:report.directoryName];
-          NSError *moveError = nil;
-          [self.fileManager moveItemAtPath:report.path toPath:packagedPath error:&moveError];
-          if (moveError) {
+          if (![self.fileManager moveItemAtPath:report.path toDirectory:self.fileManager.preparedPath]) {
             FIRCLSErrorLog(@"Unable to move report to prepared");
+            return;
           }
         } else {
           // For the legacy endpoint, continue generate the multipartmime file in "prepared-legacy"
