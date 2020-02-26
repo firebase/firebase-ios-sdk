@@ -40,7 +40,7 @@ jobs:
 
   messaging-cron-only:
     runs-on: macos-latest
-    #if: github.event_name == 'schedule'
+    if: github.event_name == 'schedule'
     strategy:
       matrix:
         target: [ios, tvos, macos]
@@ -58,7 +58,7 @@ jobs:
 
   messaging-watchos-cron-only:
     runs-on: macos-latest
-    #if: github.event_name == 'schedule'
+    if: github.event_name == 'schedule'
     strategy:
       matrix:
         flags: [
