@@ -113,7 +113,9 @@
                        self.dataSource.settings.shouldUseNewReportEndpoint);
 
         if (self.dataSource.settings.shouldUseNewReportEndpoint) {
-          if (![self.fileManager moveItemAtPath:report.path toDirectory:self.fileManager.preparedPath]) {
+          // For the new endpoint, just move the .clsrecords from "processing" -> "prepared"
+          if (![self.fileManager moveItemAtPath:report.path
+                                    toDirectory:self.fileManager.preparedPath]) {
             FIRCLSErrorLog(@"Unable to move report to prepared");
             return;
           }

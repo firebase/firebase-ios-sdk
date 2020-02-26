@@ -50,20 +50,19 @@
   if (self.fileSizeAtPathResult) {
     return self.fileSizeAtPathResult;
   }
-    
-    return [super fileSizeAtPath:path];
+
+  return [super fileSizeAtPath:path];
 }
 
 - (BOOL)moveItemAtPath:(NSString *)path toDirectory:(NSString *)destDir {
-    self.moveItemAtPath_path = path;
-    self.moveItemAtPath_destDir = destDir;
-    
-    if (self.moveItemAtPathResult) {
-        return self.moveItemAtPathResult.intValue > 0;
-    }
-    
-    return [super moveItemAtPath:path toDirectory:destDir];
-    
+  self.moveItemAtPath_path = path;
+  self.moveItemAtPath_destDir = destDir;
+
+  if (self.moveItemAtPathResult) {
+    return self.moveItemAtPathResult.intValue > 0;
+  }
+
+  return [super moveItemAtPath:path toDirectory:destDir];
 }
 
 @end
