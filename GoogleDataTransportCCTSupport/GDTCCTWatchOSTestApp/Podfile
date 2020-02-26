@@ -1,0 +1,16 @@
+use_frameworks!
+
+target 'GDTCCTWatchOSTestApp WatchKit App' do
+  platform :watchos, '6.0'
+
+end
+
+target 'GDTCCTWatchOSTestApp WatchKit Extension' do
+  platform :watchos, '6.0'
+
+  # Pods for GDTCCTWatchOSTestApp WatchKit Extension
+  pod 'SwiftProtobuf', '~> 1.0'
+  pod 'GoogleDataTransport', :path => '../../'
+  pod 'GoogleDataTransportCCTSupport', :path => '../../'
+
+end
