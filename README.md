@@ -208,7 +208,7 @@ tvOS, macOS, watchOS and Catalyst.
 
 For tvOS, checkout the [Sample](Example/tvOSSample).
 For watchOS, currently only Messaging and Storage (and their dependencies) have limited support. Checkout the
-[Independent Watch App Sample](Example/Messaging/App/watchOS/SampleWatchApp).
+[Independent Watch App Sample](Example/watchOSSample).
 
 Keep in mind that macOS, tvOS, watchOS and Catalyst are not officially supported by Firebase, and this
 repository is actively developed primarily for iOS. While we can catch basic unit test issues with
