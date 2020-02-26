@@ -24,17 +24,18 @@ jobs:
     - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
       run: scripts/third_party/travis/retry.sh scripts/build.sh Messaging all
 
-  pod-lib-lint:
-    runs-on: macOS-latest
-    strategy:
-      matrix:
-        target: [ios, tvos, macos]
-    steps:
-    - uses: actions/checkout@v2
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: Build and test
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=${{ matrix.target }}
+#  pod-lib-lint:
+#    runs-on: macOS-latest
+#    strategy:
+#      matrix:
+#        target: [ios, tvos, macos]
+#    steps:
+#    - uses: actions/checkout@v2
+#    - name: Setup Bundler
+#      run: scripts/setup_bundler.sh
+#    - name: Build and test
+#      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=${{ matrix.target }}
+
    pod-lib-lint-watchos:
     runs-on: macOS-latest
     steps:
@@ -46,7 +47,7 @@ jobs:
 
   messaging-cron-only:
     runs-on: macos-latest
-    if: github.event_name == 'schedule'
+#    if: github.event_name == 'schedule'
     strategy:
       matrix:
         target: [ios, tvos, macos]
