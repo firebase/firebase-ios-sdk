@@ -35,7 +35,7 @@ jobs:
 #      run: scripts/setup_bundler.sh
 #    - name: Build and test
 #      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=${{ matrix.target }}
-
+#
    pod-lib-lint-watchos:
     runs-on: macOS-latest
     steps:
@@ -55,7 +55,7 @@ jobs:
           '--use-modular-headers',
           '--skip-tests --use-libraries'
         ]
-    needs: pod-lib-lint
+    needs: pod-lib-lint-watchos
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
