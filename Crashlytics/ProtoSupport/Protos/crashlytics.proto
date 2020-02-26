@@ -16,13 +16,11 @@ syntax = "proto3";
 
 package google_crashlytics;
 
-enum Platform {
-  MAC_OS_X = 0;
-  IPHONE_OS = 1;
-  IPHONE_SIMULATOR = 2;
-  TVOS = 7;
-  WATCHOS = 8;
-  OTHER = 1000;
+enum Platforms {
+  UNKNOWN_PLATFORM = 0;
+  IOS = 1;
+  TVOS = 2;
+  MAC_OS_X = 5;
 }
 
 message Report {
@@ -33,7 +31,7 @@ message Report {
   string gmp_app_id = 3;
 
   // General device type which generated the Event
-  Platform platform = 4;
+  Platforms platform = 4;
 
   // Unique device generated guid for application install.
   string installation_uuid = 5;

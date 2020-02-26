@@ -202,17 +202,17 @@
   return clsRecords;
 }
 
-- (google_crashlytics_Platform)protoPlatformFromString:(NSString *)str {
+- (google_crashlytics_Platforms)protoPlatformFromString:(NSString *)str {
   NSString *platform = str.lowercaseString;
 
   if ([platform isEqualToString:@"ios"]) {
-    return google_crashlytics_Platform_IPHONE_OS;
+    return google_crashlytics_Platforms_IOS;
   } else if ([platform isEqualToString:@"mac"]) {
-    return google_crashlytics_Platform_MAC_OS_X;
+    return google_crashlytics_Platforms_MAC_OS_X;
   } else if ([platform isEqualToString:@"tvos"]) {
-    return google_crashlytics_Platform_TVOS;
+    return google_crashlytics_Platforms_TVOS;
   } else {
-    return google_crashlytics_Platform_OTHER;
+    return google_crashlytics_Platforms_UNKNOWN_PLATFORM;
   }
 }
 

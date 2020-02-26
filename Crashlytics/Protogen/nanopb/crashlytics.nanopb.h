@@ -28,17 +28,15 @@
 
 
 /* Enum definitions */
-typedef enum _google_crashlytics_Platform {
-    google_crashlytics_Platform_MAC_OS_X = 0,
-    google_crashlytics_Platform_IPHONE_OS = 1,
-    google_crashlytics_Platform_IPHONE_SIMULATOR = 2,
-    google_crashlytics_Platform_TVOS = 7,
-    google_crashlytics_Platform_WATCHOS = 8,
-    google_crashlytics_Platform_OTHER = 1000
-} google_crashlytics_Platform;
-#define _google_crashlytics_Platform_MIN google_crashlytics_Platform_MAC_OS_X
-#define _google_crashlytics_Platform_MAX google_crashlytics_Platform_OTHER
-#define _google_crashlytics_Platform_ARRAYSIZE ((google_crashlytics_Platform)(google_crashlytics_Platform_OTHER+1))
+typedef enum _google_crashlytics_Platforms {
+    google_crashlytics_Platforms_UNKNOWN_PLATFORM = 0,
+    google_crashlytics_Platforms_IOS = 1,
+    google_crashlytics_Platforms_TVOS = 2,
+    google_crashlytics_Platforms_MAC_OS_X = 5
+} google_crashlytics_Platforms;
+#define _google_crashlytics_Platforms_MIN google_crashlytics_Platforms_UNKNOWN_PLATFORM
+#define _google_crashlytics_Platforms_MAX google_crashlytics_Platforms_MAC_OS_X
+#define _google_crashlytics_Platforms_ARRAYSIZE ((google_crashlytics_Platforms)(google_crashlytics_Platforms_MAC_OS_X+1))
 
 /* Struct definitions */
 typedef struct _google_crashlytics_FilesPayload {
@@ -57,7 +55,7 @@ typedef struct _google_crashlytics_FilesPayload_File {
 typedef struct _google_crashlytics_Report {
     pb_bytes_array_t *sdk_version;
     pb_bytes_array_t *gmp_app_id;
-    google_crashlytics_Platform platform;
+    google_crashlytics_Platforms platform;
     pb_bytes_array_t *installation_uuid;
     pb_bytes_array_t *build_version;
     pb_bytes_array_t *display_version;
@@ -68,10 +66,10 @@ typedef struct _google_crashlytics_Report {
 /* Default values for struct fields */
 
 /* Initializer values for message structs */
-#define google_crashlytics_Report_init_default   {NULL, NULL, _google_crashlytics_Platform_MIN, NULL, NULL, NULL, google_crashlytics_FilesPayload_init_default}
+#define google_crashlytics_Report_init_default   {NULL, NULL, _google_crashlytics_Platforms_MIN, NULL, NULL, NULL, google_crashlytics_FilesPayload_init_default}
 #define google_crashlytics_FilesPayload_init_default {0, NULL, NULL}
 #define google_crashlytics_FilesPayload_File_init_default {NULL, NULL}
-#define google_crashlytics_Report_init_zero      {NULL, NULL, _google_crashlytics_Platform_MIN, NULL, NULL, NULL, google_crashlytics_FilesPayload_init_zero}
+#define google_crashlytics_Report_init_zero      {NULL, NULL, _google_crashlytics_Platforms_MIN, NULL, NULL, NULL, google_crashlytics_FilesPayload_init_zero}
 #define google_crashlytics_FilesPayload_init_zero {0, NULL, NULL}
 #define google_crashlytics_FilesPayload_File_init_zero {NULL, NULL}
 
