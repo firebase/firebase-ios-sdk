@@ -48,6 +48,8 @@
     self = [super init];
     
     if (self) {
+        self.safariHostingViewController = [[UIViewController alloc] init];
+        
         // Save any properties here
         NSLog(@"APP DISTRIBUTION STARTED UP!");
         
@@ -106,7 +108,8 @@
     return (FIRAppDistribution *)instance;
 }
 
-- (void)checkForUpdateWithView:(UIViewController *)view completion:(FIRAppDistributionUpdateCheckCompletion)completion {
+- (void) signInWithCompletion:(FIRAppDistributionSignInCompletion)completion {
+    
     NSURL *issuer = [NSURL URLWithString:@"https://accounts.google.com"];
     
     [OIDAuthorizationService discoverServiceConfigurationForIssuer:issuer
@@ -119,37 +122,77 @@
             return;
         }
         
-        NSString *redirectUrl = [[[NSBundle mainBundle] bundleIdentifier] stringByAppendingString:@":/launch"];
+        NSString *redirectUrl = [@"dev.firebase.appdistribution." stringByAppendingString:[[[NSBundle mainBundle] bundleIdentifier] stringByAppendingString:@":/launch"]];
+        NSLog(@"%@", redirectUrl);
         
         // builds authentication request
         OIDAuthorizationRequest *request =
         [[OIDAuthorizationRequest alloc] initWithConfiguration:configuration
-                                                      clientId:@""
+                                                      clientId:@"319754533822-osu3v3hcci24umq6diathdm0dipds1fb.apps.googleusercontent.com"
                                                         scopes:@[OIDScopeOpenID,
                                                                  OIDScopeProfile]
                                                    redirectURL:[NSURL URLWithString:redirectUrl]
                                                   responseType:OIDResponseTypeCode
                                           additionalParameters:nil];
         
+        // Create an empty window + viewController to host the Safari UI.
+        UIWindow *window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+        window.rootViewController = self.safariHostingViewController;
+        
+        // Place it at the highest level within the stack.
+        window.windowLevel = +CGFLOAT_MAX;
+        
+        // Run it.
+        [window makeKeyAndVisible];
+        
+        NSLog(@"Presenting view controller: %@", self.safariHostingViewController);
+        
         // performs authentication request
         [FIRAppDistributionAppDelegatorInterceptor sharedInstance].currentAuthorizationFlow =
         [OIDAuthState authStateByPresentingAuthorizationRequest:request
-                                       presentingViewController:view
+                                       presentingViewController:self.safariHostingViewController
                                                        callback:^(OIDAuthState *_Nullable authState,
                                                                   NSError *_Nullable error) {
-            if (authState) {
-                NSLog(@"Got authorization tokens. Access token: %@",
-                      authState.lastTokenResponse.accessToken);
-                FIRAppDistributionRelease *release = [[FIRAppDistributionRelease alloc]init];
-                release.bundleShortVersion = @"1.0";
-                release.bundleVersion = @"123";
-                release.downloadUrl = [NSURL URLWithString:@"itms-services://?action=download-manifest&url=https://dl.dropboxusercontent.com/s/qgknrfngaxazm38/app.plist"];
-                completion(release, nil);
-            } else {
-                NSLog(@"Authorization error: %@", [error localizedDescription]);
-                completion(nil, nil);
-            }
+            
+            NSLog(@"Completed the sign in process");
+            
+            self.authState = authState;
+            self.authError = error;
+            
+            completion(error);
         }];
     }];
+    
+}
+
+-(void) signOut {
+    self.authState = nil;
+}
+
+-(BOOL) signedIn {
+    return self.authState? YES: NO;
+}
+
+- (void)checkForUpdateWithCompletion:(FIRAppDistributionUpdateCheckCompletion)completion {
+    
+    if(self.signedIn) {
+        NSLog(@"Got authorization tokens. Access token: %@",
+              self.authState.lastTokenResponse.accessToken);
+        FIRAppDistributionRelease *release = [[FIRAppDistributionRelease alloc]init];
+        release.bundleShortVersion = @"1.0";
+        release.bundleVersion = @"123";
+        release.downloadUrl = [NSURL URLWithString:@""];
+        completion(release, nil);
+    } else {
+        [self signInWithCompletion:^(NSError * _Nullable error) {
+            NSLog(@"Got authorization tokens. Access token: %@",
+                  self.authState.lastTokenResponse.accessToken);
+            FIRAppDistributionRelease *release = [[FIRAppDistributionRelease alloc]init];
+            release.bundleShortVersion = @"1.0";
+            release.bundleVersion = @"123";
+            release.downloadUrl = [NSURL URLWithString:@""];
+            completion(release, nil);
+        }];
+    }
 }
 @end
