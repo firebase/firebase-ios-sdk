@@ -58,8 +58,8 @@
       [[FIRCLSReportAdapterTests resourcePath] stringByAppendingPathComponent:@"bare_min_crash"];
 
   FIRCLSReportAdapter *adapter = [[FIRCLSReportAdapter alloc] initWithPath:minCrash
-                                                               googleAppId:@"appID"
-                                                                     orgId:@"orgID"];
+                                                               googleAppId:@"1:17586535263:ios:83778f4dc7e8a26ef794ea"
+                                                                     orgId:@"5bec84f69ea6961d03000dc5"];
 
   NSData *data = adapter.transportBytes;
 
@@ -69,7 +69,6 @@
 
   [data writeToFile:outputPath options:NSDataWritingAtomic error:&error];
   NSLog(@"Output path: %@", outputPath);
-
   if (error) {
     NSLog(@"Write returned error: %@", [error localizedDescription]);
   }
