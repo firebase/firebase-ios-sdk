@@ -21,6 +21,7 @@
 #import "FIRCLSRecordIdentity.h"
 
 pb_bytes_array_t *FIRCLSEncodeString(NSString *string);
+pb_bytes_array_t *FIRCLSEncodeData(NSData *data);
 
 @interface FIRCLSReportAdapter ()
 
@@ -36,5 +37,8 @@ pb_bytes_array_t *FIRCLSEncodeString(NSString *string);
 @property(nonatomic, strong) FIRCLSRecordApplication *application;
 
 @property(nonatomic) google_crashlytics_Report report;
+
+- (google_crashlytics_Report)protoReport;
+- (NSArray<NSString *> *)clsRecordFilePaths;
 
 @end

@@ -114,6 +114,29 @@
   XCTAssertTrue([adapter.application.display_version isEqualToString:@"1.0"]);
 }
 
+- (void)testReportProto {
+  FIRCLSReportAdapter *adapter = [FIRCLSReportAdapterTests adapterForAllCrashes];
+  google_crashlytics_Report report = [adapter protoReport];
+  XCTAssertTrue([self isPBData:report.sdk_version equalToString:adapter.identity.build_version]);
+  XCTAssertTrue([self isPBData:report.gmp_app_id equalToString:@"appID"]);
+  XCTAssertEqual(report.platform, google_crashlytics_Platforms_IOS);
+  XCTAssertTrue([self isPBData:report.installation_uuid equalToString:adapter.identity.install_id]);
+  XCTAssertTrue([self isPBData:report.display_version
+                 equalToString:adapter.application.display_version]);
+
+  // Files payload
+  XCTAssertTrue([self isPBData:report.apple_payload.org_id equalToString:@"orgID"]);
+  XCTAssertEqual(report.apple_payload.files_count, 10);
+
+  NSArray<NSString *> *clsRecords = adapter.clsRecordFilePaths;
+  for (NSUInteger i = 0; i < clsRecords.count; i++) {
+    XCTAssertTrue([self isPBData:report.apple_payload.files[i].filename
+                   equalToString:clsRecords[i].lastPathComponent]);
+    NSData *data = [NSData dataWithContentsOfFile:clsRecords[i] options:0 error:nil];
+    XCTAssertTrue([self isPBData:report.apple_payload.files[i].contents equalToData:data]);
+  }
+}
+
 // Helper functions
 #pragma mark - Helper Functions
 
@@ -143,6 +166,37 @@
 
 + (NSString *)resourcePath {
   return [[NSBundle bundleForClass:[self class]] resourcePath];
+}
+
+#pragma mark - Assertion Helpers for NanoPB Types
+
+- (BOOL)isPBData:(pb_bytes_array_t *)pbString equalToString:(NSString *)str {
+  pb_bytes_array_t *expected = FIRCLSEncodeString(str);
+  return [self isPBArray:pbString equalToArray:expected];
+}
+
+- (BOOL)isPBData:(pb_bytes_array_t *)pbString equalToData:(NSData *)data {
+  pb_bytes_array_t *expected = FIRCLSEncodeData(data);
+  return [self isPBArray:pbString equalToArray:expected];
+}
+
+- (BOOL)isPBArray:(pb_bytes_array_t *)array equalToArray:(pb_bytes_array_t *)expected {
+  // Treat the empty string as the same as a missing field
+  if ((!array) && expected->size == 0) {
+    return true;
+  }
+
+  if (array->size != expected->size) {
+    return false;
+  }
+
+  for (int i = 0; i < array->size; i++) {
+    if (expected->bytes[i] != array->bytes[i]) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 @end

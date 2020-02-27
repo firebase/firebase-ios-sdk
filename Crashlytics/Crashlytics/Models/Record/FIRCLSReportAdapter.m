@@ -199,7 +199,7 @@
     }
   }];
 
-  return clsRecords;
+  return [clsRecords sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
 }
 
 - (google_crashlytics_Platforms)protoPlatformFromString:(NSString *)str {
