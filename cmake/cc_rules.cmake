@@ -45,6 +45,7 @@ function(cc_library name)
     ${FIREBASE_SOURCE_DIR}
   )
 
+  target_compile_options(${name} PRIVATE ${FIREBASE_CXX_FLAGS})
   target_link_libraries(${name} PUBLIC ${ccl_DEPENDS})
 
   if(ccl_EXCLUDE_FROM_ALL)
@@ -135,6 +136,10 @@ endfunction()
 # Defines a new test executable target with the given target name, sources, and
 # dependencies.  Implicitly adds DEPENDS on GTest::GTest and GTest::Main.
 function(cc_test name)
+  if(NOT FIREBASE_IOS_BUILD_TESTS)
+    return()
+  endif()
+
   set(multi DEPENDS SOURCES)
   cmake_parse_arguments(cct "" "" "${multi}" ${ARGN})
 
@@ -183,6 +188,8 @@ function(cc_fuzz_test name)
     SOURCES ${ccf_SOURCES}
     DEPENDS ${ccf_DEPENDS}
   )
+
+  target_compile_options(${name} PRIVATE ${FIREBASE_CXX_FLAGS})
 
   # Copy the dictionary file and corpus directory, if they are defined.
   if(DEFINED ccf_DICTIONARY)
@@ -314,6 +321,7 @@ function(objc_framework target)
       INTERFACE
         -F${CMAKE_CURRENT_BINARY_DIR}
       PRIVATE
+        ${FIREBASE_CXX_FLAGS}
         ${OBJC_FLAGS}
         -fno-autolink
         -Wno-unused-parameter
@@ -356,56 +364,55 @@ function(objc_framework target)
 endfunction()
 
 function(objc_test target)
-  if(APPLE)
-    set(flag EXCLUDE_FROM_ALL)
-    set(single HOST VERSION WORKING_DIRECTORY)
-    set(multi DEPENDS DEFINES HEADERS INCLUDES SOURCES)
-    cmake_parse_arguments(ot "${flag}" "${single}" "${multi}" ${ARGN})
+  if(NOT APPLE OR NOT FIREBASE_IOS_BUILD_TESTS)
+    return()
+  endif()
 
-    xctest_add_bundle(
-      ${target}
-      ${ot_HOST}
-      ${ot_SOURCES}
+  set(flag EXCLUDE_FROM_ALL)
+  set(single HOST VERSION WORKING_DIRECTORY)
+  set(multi DEPENDS DEFINES HEADERS INCLUDES SOURCES)
+  cmake_parse_arguments(ot "${flag}" "${single}" "${multi}" ${ARGN})
+
+  xctest_add_bundle(
+    ${target}
+    ${ot_HOST}
+    ${ot_SOURCES}
+  )
+
+  add_objc_flags(
+    ${target}
+    ${ot_SOURCES}
+  )
+
+  target_compile_options(${target} PRIVATE ${FIREBASE_CXX_FLAGS})
+  target_link_libraries(${target} PRIVATE ${ot_DEPENDS})
+
+  xctest_add_test(
+    ${target}
+    ${target}
+  )
+
+  if(ot_WORKING_DIRECTORY)
+    set_property(
+      TEST ${target} PROPERTY
+      WORKING_DIRECTORY ${ot_WORKING_DIRECTORY}
     )
+  endif()
 
-    add_objc_flags(
-      ${target}
-      ${ot_SOURCES}
+  if(WITH_ASAN)
+    set_property(
+      TEST ${target} APPEND PROPERTY
+      ENVIRONMENT
+      DYLD_INSERT_LIBRARIES=${CLANG_ASAN_DYLIB}
     )
+  endif()
 
-    target_link_libraries(
-      ${target}
-      PRIVATE
-        ${ot_DEPENDS}
+  if(WITH_TSAN)
+    set_property(
+      TEST ${target} APPEND PROPERTY
+      ENVIRONMENT
+      DYLD_INSERT_LIBRARIES=${CLANG_TSAN_DYLIB}
     )
-
-    xctest_add_test(
-      ${target}
-      ${target}
-    )
-
-    if(ot_WORKING_DIRECTORY)
-      set_property(
-        TEST ${target} PROPERTY
-        WORKING_DIRECTORY ${ot_WORKING_DIRECTORY}
-      )
-    endif()
-
-    if(APPLE AND WITH_ASAN)
-      set_property(
-        TEST ${target} APPEND PROPERTY
-        ENVIRONMENT
-        DYLD_INSERT_LIBRARIES=${CLANG_ASAN_DYLIB}
-      )
-    endif()
-
-    if(APPLE AND WITH_TSAN)
-      set_property(
-        TEST ${target} APPEND PROPERTY
-        ENVIRONMENT
-        DYLD_INSERT_LIBRARIES=${CLANG_TSAN_DYLIB}
-      )
-    endif()
   endif()
 endfunction()
 
@@ -416,14 +423,14 @@ endfunction()
 #
 # Appends the generated source file name to the list named by sources_list.
 macro(generate_dummy_source name sources_list)
-  set(__empty_header_only_file "${CMAKE_CURRENT_BINARY_DIR}/${name}_header_only_empty.c")
+  set(__empty_header_only_file "${CMAKE_CURRENT_BINARY_DIR}/${name}_header_only_empty.cc")
 
   if(NOT EXISTS ${__empty_header_only_file})
     file(WRITE ${__empty_header_only_file}
       "// Generated file that keeps header-only CMake libraries happy.
 
       // single meaningless symbol
-      void ${name}_header_only_fakesym(void) {}
+      void ${name}_header_only_fakesym() {}
       "
     )
   endif()
