@@ -74,7 +74,7 @@
     NSLog(@"Write returned error: %@", [error localizedDescription]);
   }
 
-  // But a breakpoint here to copy the file from the output path.
+  // Put a breakpoint here to copy the file from the output path.
 }
 
 /// It is important that a crash does not occur when reading persisted crash files
