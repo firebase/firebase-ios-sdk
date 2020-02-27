@@ -17,8 +17,8 @@
 #import <Foundation/Foundation.h>
 
 /**
- *  Parsing utility for FIRMessaging Library versions. FIRMessaging Library follows semantic versioning.
- *  This provides utilities to parse the library versions to enable features and do
+ *  Parsing utility for FIRMessaging Library versions. FIRMessaging Library follows semantic
+ * versioning. This provides utilities to parse the library versions to enable features and do
  *  updates based on appropriate library versions.
  *
  *  Some example semantic versions are 1.0.1, 2.1.0, 2.1.1, 2.2.0-alpha1, 2.2.1-beta1

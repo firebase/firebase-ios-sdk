@@ -26,6 +26,7 @@
 #include "Firestore/core/src/firebase/firestore/core/bound.h"
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/core/order_by.h"
+#include "Firestore/core/src/firebase/firestore/immutable/append_only_list.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 
 namespace firebase {

@@ -24,7 +24,7 @@
   NSMutableDictionary *notification = [NSMutableDictionary dictionary];
   // Always generate a unique message id
   notification[kFIRMessagingMessageIDKey] =
-  [NSString stringWithFormat:@"%@", @([NSDate date].timeIntervalSince1970)];
+      [NSString stringWithFormat:@"%@", @([NSDate date].timeIntervalSince1970)];
   return notification;
 }
 

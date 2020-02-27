@@ -24,12 +24,12 @@ jobs:
     - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
       run: scripts/third_party/travis/retry.sh scripts/build.sh Storage all
 
-  pod_lib_lint:
+  pod-lib-lint:
     runs-on: macOS-latest
 
     strategy:
       matrix:
-        target: [ios, tvos, macos]
+        target: [ios, tvos, macos, watchos]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -42,12 +42,12 @@ jobs:
     if: github.event_name == 'schedule'
     strategy:
       matrix:
-        target: [ios, tvos, macos]
+        target: [ios, tvos, macos, watchos]
         flags: [
           '--skip-tests --use-modular-headers',
           '--skip-tests --use-libraries'
         ]
-    needs: pod_lib_lint
+    needs: pod-lib-lint
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler

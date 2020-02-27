@@ -32,6 +32,8 @@
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/core/event_manager.h"
+#include "Firestore/core/src/firebase/firestore/core/listen_options.h"
+#include "Firestore/core/src/firebase/firestore/core/query_listener.h"
 #include "Firestore/core/src/firebase/firestore/core/sync_engine.h"
 #include "Firestore/core/src/firebase/firestore/local/index_free_query_engine.h"
 #include "Firestore/core/src/firebase/firestore/local/local_store.h"

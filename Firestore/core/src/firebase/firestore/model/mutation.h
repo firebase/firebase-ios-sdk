@@ -24,17 +24,16 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
-#include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
-#include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
-#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
 namespace model {
+
+class MaybeDocument;
 
 /**
  * The result of applying a mutation to the server. This is a model of the
@@ -196,9 +195,7 @@ class Mutation {
    */
   MaybeDocument ApplyToRemoteDocument(
       const absl::optional<MaybeDocument>& maybe_doc,
-      const MutationResult& mutation_result) const {
-    return rep().ApplyToRemoteDocument(maybe_doc, mutation_result);
-  }
+      const MutationResult& mutation_result) const;
 
   /**
    * Estimates the latency compensated view of this mutation applied to the
@@ -238,9 +235,7 @@ class Mutation {
   absl::optional<MaybeDocument> ApplyToLocalView(
       const absl::optional<MaybeDocument>& maybe_doc,
       const absl::optional<MaybeDocument>& base_doc,
-      const Timestamp& local_write_time) const {
-    return rep().ApplyToLocalView(maybe_doc, base_doc, local_write_time);
-  }
+      const Timestamp& local_write_time) const;
 
   /**
    * If this mutation is not idempotent, returns the base value to persist with

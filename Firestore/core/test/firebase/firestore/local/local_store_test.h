@@ -20,6 +20,7 @@
 #include <memory>
 #include <vector>
 
+#include "Firestore/core/src/firebase/firestore/core/core_fwd.h"
 #include "Firestore/core/src/firebase/firestore/local/local_store.h"
 #include "Firestore/core/src/firebase/firestore/local/query_engine.h"
 #include "Firestore/core/src/firebase/firestore/local/query_result.h"
@@ -31,13 +32,9 @@
 namespace firebase {
 namespace firestore {
 
-namespace core {
-class Query;
-}
-
 namespace remote {
 class RemoteEvent;
-}
+}  // namespace remote
 
 namespace local {
 

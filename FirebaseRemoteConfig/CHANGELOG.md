@@ -1,3 +1,10 @@
+# v4.4.8
+- [fixed] Fixed a bug (#4677, #4734) where Remote Config does not work after a restore of a previous backup of the device. (#4896).
+# v4.4.7
+- [fixed] Fixed a crash that could occur when attempting a remote config fetch before a valid Instance ID was available. (#4622)
+- [fixed] Fixed an issue where config fetch would sometimes fail with a duplicate fetch error when no other fetches were in progress. (#3802)
+- [changed] Fetch calls will now fail if a valid instance ID is not obtained by the Remote Config SDK.
+
 # v4.4.6
 - [fixed] Fix the return status code when app is offline. (#4100)
 - [changed] Internal code cleanup. (#4297, #4403, #4379)

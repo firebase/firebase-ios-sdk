@@ -25,7 +25,6 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
-#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/nullability.h"
 #include "absl/base/casts.h"
 #include "absl/memory/memory.h"
@@ -38,11 +37,7 @@ namespace nanopb {
  * Static casts the given size_t value down to a nanopb compatible size, after
  * asserting that the value isn't out of range.
  */
-inline pb_size_t CheckedSize(size_t size) {
-  HARD_ASSERT(size <= PB_SIZE_MAX,
-              "Size exceeds nanopb limits. Too many entries.");
-  return static_cast<pb_size_t>(size);
-}
+pb_size_t CheckedSize(size_t size);
 
 /**
  * Creates a new, null-terminated byte array that's a copy of the bytes in the

@@ -18,6 +18,7 @@
 
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/local/document_key_reference.h"
 #include "Firestore/core/src/firebase/firestore/local/index_manager.h"
 #include "Firestore/core/src/firebase/firestore/local/memory_persistence.h"

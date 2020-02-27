@@ -18,6 +18,8 @@
 #import "FIRCLSMockNetworkClient.h"
 #import "FIRCLSMockReportUploader.h"
 
+#import "FIRInstallations.h"
+
 @interface FIRCLSMockReportManager () {
   FIRCLSMockReportUploader *_uploader;
 }
@@ -30,13 +32,13 @@
 @synthesize bundleIdentifier;
 
 - (instancetype)initWithFileManager:(FIRCLSFileManager *)fileManager
-                         instanceID:(FIRInstanceID *)instanceID
-                          analytics:(nullable id<FIRAnalyticsInterop>)analytics
-                        googleAppID:(NSString *)googleAppID
+                      installations:(FIRInstallations *)installations
+                          analytics:(id<FIRAnalyticsInterop>)analytics
+                        googleAppID:(nonnull NSString *)googleAppID
                         dataArbiter:(FIRCLSDataCollectionArbiter *)dataArbiter
                     googleTransport:(GDTCORTransport *)googleTransport {
   self = [super initWithFileManager:fileManager
-                         instanceID:instanceID
+                      installations:installations
                           analytics:analytics
                         googleAppID:googleAppID
                         dataArbiter:dataArbiter

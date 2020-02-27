@@ -35,10 +35,9 @@
 
 namespace firebase {
 namespace firestore {
+
 namespace core {
-
 class DatabaseInfo;
-
 }  // namespace core
 
 namespace local {
@@ -55,6 +54,8 @@ class LevelDbPersistence : public Persistence {
    */
   static util::StatusOr<std::unique_ptr<LevelDbPersistence>> Create(
       util::Path dir, LocalSerializer serializer, const LruParams& lru_params);
+
+  ~LevelDbPersistence();
 
   LevelDbTransaction* current_transaction();
 

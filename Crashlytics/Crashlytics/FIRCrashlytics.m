@@ -46,7 +46,7 @@
 #import <FirebaseCore/FIRDependency.h>
 #import <FirebaseCore/FIRLibrary.h>
 #import <FirebaseCore/FIROptionsInternal.h>
-#import <FirebaseInstanceID/FirebaseInstanceID.h>
+#import <FirebaseInstallations/FirebaseInstallations.h>
 
 #import <GoogleDataTransport/GDTCORTargets.h>
 #import <GoogleDataTransport/GDTCORTransport.h>
@@ -85,7 +85,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 
 - (instancetype)initWithApp:(FIRApp *)app
                     appInfo:(NSDictionary *)appInfo
-                 instanceID:(FIRInstanceID *)instanceID
+              installations:(FIRInstallations *)installations
                   analytics:(id<FIRAnalyticsInterop>)analytics {
   self = [super init];
 
@@ -111,7 +111,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
     _googleAppID = app.options.googleAppID;
     _dataArbiter = [[FIRCLSDataCollectionArbiter alloc] initWithApp:app withAppInfo:appInfo];
     _reportManager = [[FIRCLSReportManager alloc] initWithFileManager:_fileManager
-                                                           instanceID:instanceID
+                                                        installations:installations
                                                             analytics:analytics
                                                           googleAppID:_googleAppID
                                                           dataArbiter:_dataArbiter
@@ -162,13 +162,13 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 
     id<FIRAnalyticsInterop> analytics = FIR_COMPONENT(FIRAnalyticsInterop, container);
 
-    FIRInstanceID *instanceID = FIRInstanceID.instanceID;
+    FIRInstallations *installations = [FIRInstallations installationsWithApp:container.app];
 
     *isCacheable = YES;
 
     return [[FIRCrashlytics alloc] initWithApp:container.app
                                        appInfo:NSBundle.mainBundle.infoDictionary
-                                    instanceID:instanceID
+                                 installations:installations
                                      analytics:analytics];
   };
 

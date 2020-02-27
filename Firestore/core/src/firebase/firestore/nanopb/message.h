@@ -24,7 +24,6 @@
 #include "Firestore/core/src/firebase/firestore/nanopb/fields_array.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
-#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "grpcpp/support/byte_buffer.h"
 
 namespace firebase {

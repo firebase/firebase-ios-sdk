@@ -25,16 +25,9 @@
 
 namespace firebase {
 namespace firestore {
-namespace core {
-
-class Query;
-
-}  // namespace core
 
 namespace model {
-
 class DocumentKey;
-
 }  // namespace model
 
 namespace local {

@@ -23,8 +23,8 @@
 
 #import <FirebaseMessaging/FIRMessaging.h>
 
-#import "Firebase/Messaging/FIRMessaging_Private.h"
 #import "Example/Messaging/Tests/FIRMessagingTestUtilities.h"
+#import "Firebase/Messaging/FIRMessaging_Private.h"
 
 @interface FIRInstanceID (ExposedForTest)
 - (BOOL)isFCMAutoInitEnabled;
@@ -37,7 +37,6 @@
 @property(nonatomic, readwrite, strong) id mockFirebaseApp;
 @property(nonatomic, readwrite, strong) FIRMessagingTestUtilities *testUtil;
 @property(nonatomic, strong) FIRMessaging *messaging;
-
 
 @end
 

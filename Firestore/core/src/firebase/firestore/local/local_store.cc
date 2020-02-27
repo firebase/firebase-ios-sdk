@@ -18,7 +18,19 @@
 
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/local/local_documents_view.h"
+#include "Firestore/core/src/firebase/firestore/local/local_view_changes.h"
+#include "Firestore/core/src/firebase/firestore/local/local_write_result.h"
+#include "Firestore/core/src/firebase/firestore/local/lru_garbage_collector.h"
+#include "Firestore/core/src/firebase/firestore/local/persistence.h"
+#include "Firestore/core/src/firebase/firestore/local/query_engine.h"
+#include "Firestore/core/src/firebase/firestore/local/query_result.h"
+#include "Firestore/core/src/firebase/firestore/local/reference_delegate.h"
+#include "Firestore/core/src/firebase/firestore/local/target_cache.h"
+#include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
+#include "Firestore/core/src/firebase/firestore/model/mutation_batch_result.h"
 #include "Firestore/core/src/firebase/firestore/model/patch_mutation.h"
+#include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/to_string.h"
 
@@ -78,6 +90,8 @@ LocalStore::LocalStore(Persistence* persistence,
   target_id_generator_ = TargetIdGenerator::TargetCacheTargetIdGenerator(0);
   query_engine_->SetLocalDocumentsView(local_documents_.get());
 }
+
+LocalStore::~LocalStore() = default;
 
 void LocalStore::Start() {
   StartMutationQueue();

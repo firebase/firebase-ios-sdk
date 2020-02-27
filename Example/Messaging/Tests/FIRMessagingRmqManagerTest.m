@@ -91,7 +91,7 @@ static const NSTimeInterval kAsyncTestTimout = 0.5;
  *  messages should be fetched successfully.
  */
 - (void)testDeletingS2dMessages {
-  NSArray *addMessages = @[ @"message1", @"message2", @"message3", @"message4"];
+  NSArray *addMessages = @[ @"message1", @"message2", @"message3", @"message4" ];
   for (NSString *messageID in addMessages) {
     [self.rmqManager saveS2dMessageWithRmqId:messageID];
   }
@@ -111,45 +111,43 @@ static const NSTimeInterval kAsyncTestTimout = 0.5;
   NSString *validMessageID = @"validMessage123";
   [self.rmqManager saveS2dMessageWithRmqId:validMessageID];
   NSString *invalidMessageID = @"invalidMessage123";
-  [self.rmqManager removeS2dIds:@[invalidMessageID]];
+  [self.rmqManager removeS2dIds:@[ invalidMessageID ]];
   NSArray *remainingMessages = [self.rmqManager unackedS2dRmqIds];
   XCTAssertEqual(1, remainingMessages.count);
   XCTAssertEqualObjects(validMessageID, remainingMessages[0]);
 }
 
-
 /**
  *  Test that outgoing RMQ messages are correctly saved
  */
 - (void)testOutgoingRmqWithValidMessages {
-  XCTestExpectation *expectation = [self expectationWithDescription:@"Scan outgoing messages is complete"];
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"Scan outgoing messages is complete"];
 
   NSString *from = @"rmq-test";
   [self.rmqManager loadRmqId];
-  GtalkDataMessageStanza *message1 = [self dataMessageWithMessageID:@"message1"
-                                                               from:from
-                                                               data:nil];
+  GtalkDataMessageStanza *message1 = [self dataMessageWithMessageID:@"message1" from:from data:nil];
   // should successfully save the message to RMQ
-  [self.rmqManager saveRmqMessage:message1 withCompletionHandler:^(BOOL success) {
-    XCTAssertTrue(success);
-    GtalkDataMessageStanza *message2 = [self dataMessageWithMessageID:@"message2"
-                                                                 from:from
-                                                                 data:nil];
+  [self.rmqManager saveRmqMessage:message1
+            withCompletionHandler:^(BOOL success) {
+              XCTAssertTrue(success);
+              GtalkDataMessageStanza *message2 = [self dataMessageWithMessageID:@"message2"
+                                                                           from:from
+                                                                           data:nil];
 
-    // should successfully save the second message to RMQ
-    [self.rmqManager saveRmqMessage:message2 withCompletionHandler:^(BOOL success) {
-      XCTAssertTrue(success);
-      // message1 should have RMQ-ID = 2, message2 = 3
-      [self.rmqManager scanWithRmqMessageHandler:^(NSDictionary *messages) {
-        XCTAssertTrue([[messages allKeys] containsObject:@(2)]);
-        XCTAssertTrue([[messages allKeys] containsObject:@(3)]);
-        [expectation fulfill];
-      }];
-
-    }];
-  }];
+              // should successfully save the second message to RMQ
+              [self.rmqManager saveRmqMessage:message2
+                        withCompletionHandler:^(BOOL success) {
+                          XCTAssertTrue(success);
+                          // message1 should have RMQ-ID = 2, message2 = 3
+                          [self.rmqManager scanWithRmqMessageHandler:^(NSDictionary *messages) {
+                            XCTAssertTrue([[messages allKeys] containsObject:@(2)]);
+                            XCTAssertTrue([[messages allKeys] containsObject:@(3)]);
+                            [expectation fulfill];
+                          }];
+                        }];
+            }];
   [self waitForExpectationsWithTimeout:kAsyncTestTimout handler:nil];
-
 }
 
 /**
@@ -169,33 +167,32 @@ static const NSTimeInterval kAsyncTestTimout = 0.5;
   };
 
   [self.rmqManager loadRmqId];
-  GtalkDataMessageStanza *message = [self dataMessageWithMessageID:messageID
-                                                               from:from
-                                                               data:data];
+  GtalkDataMessageStanza *message = [self dataMessageWithMessageID:messageID from:from data:data];
   [message setTo:to];
   [message setTtl:ttl];
   [message setRegId:registrationToken];
 
   // should successfully save the message to RMQ
-  [self.rmqManager saveRmqMessage:message withCompletionHandler:^(BOOL success) {
-    XCTAssertTrue(success);
-    [self.rmqManager scanWithRmqMessageHandler:^(NSDictionary *messages) {
-      for (NSString *rmqID in messages) {
-        GtalkDataMessageStanza *stanza = (GtalkDataMessageStanza *)messages[rmqID];
-        XCTAssertEqualObjects(from, stanza.from);
-        XCTAssertEqualObjects(messageID, stanza.id_p);
-        XCTAssertEqualObjects(to, stanza.to);
-        XCTAssertEqualObjects(registrationToken, stanza.regId);
-        XCTAssertEqual(ttl, stanza.ttl);
-        NSMutableDictionary *d = [NSMutableDictionary dictionary];
-        for (GtalkAppData *appData in stanza.appDataArray) {
-          d[appData.key] = appData.value;
-        }
-        XCTAssertTrue([data isEqualToDictionary:d]);
-      }
-      [expectation fulfill];
-    }];
-  }];
+  [self.rmqManager saveRmqMessage:message
+            withCompletionHandler:^(BOOL success) {
+              XCTAssertTrue(success);
+              [self.rmqManager scanWithRmqMessageHandler:^(NSDictionary *messages) {
+                for (NSString *rmqID in messages) {
+                  GtalkDataMessageStanza *stanza = (GtalkDataMessageStanza *)messages[rmqID];
+                  XCTAssertEqualObjects(from, stanza.from);
+                  XCTAssertEqualObjects(messageID, stanza.id_p);
+                  XCTAssertEqualObjects(to, stanza.to);
+                  XCTAssertEqualObjects(registrationToken, stanza.regId);
+                  XCTAssertEqual(ttl, stanza.ttl);
+                  NSMutableDictionary *d = [NSMutableDictionary dictionary];
+                  for (GtalkAppData *appData in stanza.appDataArray) {
+                    d[appData.key] = appData.value;
+                  }
+                  XCTAssertTrue([data isEqualToDictionary:d]);
+                }
+                [expectation fulfill];
+              }];
+            }];
   [self waitForExpectationsWithTimeout:kAsyncTestTimout handler:nil];
 }
 
@@ -208,43 +205,44 @@ static const NSTimeInterval kAsyncTestTimout = 0.5;
   NSString *ackedMessage = @"message234";
   NSString *from = @"from-rmq-test";
   GtalkDataMessageStanza *stanza1 = [self dataMessageWithMessageID:message1 from:from data:nil];
-  GtalkDataMessageStanza *stanza2 = [self dataMessageWithMessageID:ackedMessage
-                                                              from:from
-                                                              data:nil];
-  [self.rmqManager saveRmqMessage:stanza1 withCompletionHandler:^(BOOL success) {
-    XCTAssertTrue(success);
-    [self.rmqManager saveRmqMessage:stanza2 withCompletionHandler:^(BOOL success) {
-      XCTAssertTrue(success);
-      __block int64_t ackedMessageRmqID = -1;
-       [self.rmqManager scanWithRmqMessageHandler:^(NSDictionary *messages) {
-         for (NSString *rmqID in messages) {
-           GtalkDataMessageStanza *stanza = (GtalkDataMessageStanza *)messages[rmqID];
-                                 if ([stanza.id_p isEqualToString:ackedMessage]) {
-                                   ackedMessageRmqID = rmqID.intValue;
-                                   // should be a valid RMQ ID
-                                   XCTAssertTrue(ackedMessageRmqID > 0);
+  GtalkDataMessageStanza *stanza2 = [self dataMessageWithMessageID:ackedMessage from:from data:nil];
+  [self.rmqManager
+             saveRmqMessage:stanza1
+      withCompletionHandler:^(BOOL success) {
+        XCTAssertTrue(success);
+        [self.rmqManager
+                   saveRmqMessage:stanza2
+            withCompletionHandler:^(BOOL success) {
+              XCTAssertTrue(success);
+              __block int64_t ackedMessageRmqID = -1;
+              [self.rmqManager scanWithRmqMessageHandler:^(NSDictionary *messages) {
+                for (NSString *rmqID in messages) {
+                  GtalkDataMessageStanza *stanza = (GtalkDataMessageStanza *)messages[rmqID];
+                  if ([stanza.id_p isEqualToString:ackedMessage]) {
+                    ackedMessageRmqID = rmqID.intValue;
+                    // should be a valid RMQ ID
+                    XCTAssertTrue(ackedMessageRmqID > 0);
 
-                                   // delete the acked message
-                                   NSString *rmqIDString = [NSString stringWithFormat:@"%lld", ackedMessageRmqID];
-                                   [self.rmqManager removeRmqMessagesWithRmqIds:@[rmqIDString]];
+                    // delete the acked message
+                    NSString *rmqIDString = [NSString stringWithFormat:@"%lld", ackedMessageRmqID];
+                    [self.rmqManager removeRmqMessagesWithRmqIds:@[ rmqIDString ]];
 
-                                   // should only have one message in the d2s RMQ
-                                   [self.rmqManager scanWithRmqMessageHandler:^(NSDictionary *messages) {
-                                     for (NSString *rmqID in messages) {
-                                       GtalkDataMessageStanza *stanza2 = (GtalkDataMessageStanza *)messages[rmqID];
-                                       // the acked message was queued later so should have
-                                       // rmqID = ackedMessageRMQID - 1
-                                       XCTAssertEqual(ackedMessageRmqID - 1, rmqID.intValue);
-                                       XCTAssertEqual(message1, stanza2.id_p);
-                                     }
-                                     [expectation fulfill];
-                                   }];
-                                 }
-         }
-       }];
-
-    }];
-  }];
+                    // should only have one message in the d2s RMQ
+                    [self.rmqManager scanWithRmqMessageHandler:^(NSDictionary *messages) {
+                      for (NSString *rmqID in messages) {
+                        GtalkDataMessageStanza *stanza2 = (GtalkDataMessageStanza *)messages[rmqID];
+                        // the acked message was queued later so should have
+                        // rmqID = ackedMessageRMQID - 1
+                        XCTAssertEqual(ackedMessageRmqID - 1, rmqID.intValue);
+                        XCTAssertEqual(message1, stanza2.id_p);
+                      }
+                      [expectation fulfill];
+                    }];
+                  }
+                }
+              }];
+            }];
+      }];
   [self waitForExpectationsWithTimeout:kAsyncTestTimout handler:nil];
 }
 
@@ -259,7 +257,8 @@ static const NSTimeInterval kAsyncTestTimout = 0.5;
                                apnsReceived:YES
                                 mcsReceived:NO];
 
-  FIRMessagingPersistentSyncMessage *persistentMessage = [self.rmqManager querySyncMessageWithRmqID:rmqID];
+  FIRMessagingPersistentSyncMessage *persistentMessage =
+      [self.rmqManager querySyncMessageWithRmqID:rmqID];
   XCTAssertEqual(persistentMessage.expirationTime, expirationTime);
   XCTAssertTrue(persistentMessage.apnsReceived);
   XCTAssertFalse(persistentMessage.mcsReceived);
@@ -279,7 +278,8 @@ static const NSTimeInterval kAsyncTestTimout = 0.5;
   // Message was now received via APNS
   [self.rmqManager updateSyncMessageViaAPNSWithRmqID:rmqID];
 
-  FIRMessagingPersistentSyncMessage *persistentMessage = [self.rmqManager querySyncMessageWithRmqID:rmqID];
+  FIRMessagingPersistentSyncMessage *persistentMessage =
+      [self.rmqManager querySyncMessageWithRmqID:rmqID];
   XCTAssertTrue(persistentMessage.apnsReceived);
   XCTAssertTrue(persistentMessage.mcsReceived);
 }
@@ -298,7 +298,8 @@ static const NSTimeInterval kAsyncTestTimout = 0.5;
   // Message was now received via APNS
   [self.rmqManager updateSyncMessageViaMCSWithRmqID:rmqID];
 
-  FIRMessagingPersistentSyncMessage *persistentMessage = [self.rmqManager querySyncMessageWithRmqID:rmqID];
+  FIRMessagingPersistentSyncMessage *persistentMessage =
+      [self.rmqManager querySyncMessageWithRmqID:rmqID];
   XCTAssertTrue(persistentMessage.apnsReceived);
   XCTAssertTrue(persistentMessage.mcsReceived);
 }
@@ -326,25 +327,29 @@ static const NSTimeInterval kAsyncTestTimout = 0.5;
   XCTAssert([[NSFileManager defaultManager] fileExistsAtPath:databasePath]);
 
   // Expect for at least one assertion.
-  XCTestExpectation *assertionFailureExpectation = [self expectationWithDescription:@"assertionFailureExpectation"];
+  XCTestExpectation *assertionFailureExpectation =
+      [self expectationWithDescription:@"assertionFailureExpectation"];
   assertionFailureExpectation.assertForOverFulfill = NO;
 
 // The flag FIR_MESSAGING_ASSERTIONS_BLOCKED can be set by blaze when running tests from google3.
 #ifndef FIR_MESSAGING_ASSERTIONS_BLOCKED
-  [self.testAssertionHandler setMethodFailureHandlerForClass:[FIRMessagingRmqManager class]
-                                                     handler:^(id object, NSString *fileName, NSInteger lineNumber) {
-    [assertionFailureExpectation fulfill];
-  }];
+  [self.testAssertionHandler
+      setMethodFailureHandlerForClass:[FIRMessagingRmqManager class]
+                              handler:^(id object, NSString *fileName, NSInteger lineNumber) {
+                                [assertionFailureExpectation fulfill];
+                              }];
 #else
   // If FIR_MESSAGING_ASSERTIONS_BLOCKED is defined, then no assertion handlers will be called,
   // so don't wait for it.
-  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-    [assertionFailureExpectation fulfill];
-  });
-#endif // FIR_MESSAGING_ASSERTIONS_BLOCKED
+  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)),
+                 dispatch_get_main_queue(), ^{
+                   [assertionFailureExpectation fulfill];
+                 });
+#endif  // FIR_MESSAGING_ASSERTIONS_BLOCKED
 
   // Create `FIRMessagingRmqManager` instance with a broken database.
-  FIRMessagingRmqManager *manager = [[FIRMessagingRmqManager alloc] initWithDatabaseName:databaseName];
+  FIRMessagingRmqManager *manager =
+      [[FIRMessagingRmqManager alloc] initWithDatabaseName:databaseName];
 
   [self waitForExpectations:@[ assertionFailureExpectation ] timeout:0.5];
 
@@ -382,7 +387,10 @@ static const NSTimeInterval kAsyncTestTimout = 0.5;
   NSString *directoryPath = [NSString pathWithComponents:pathComponents];
 
   // Create directory if doesn't exist.
-  [[NSFileManager defaultManager] createDirectoryAtPath:directoryPath withIntermediateDirectories:YES attributes:nil error:NULL];
+  [[NSFileManager defaultManager] createDirectoryAtPath:directoryPath
+                            withIntermediateDirectories:YES
+                                             attributes:nil
+                                                  error:NULL];
   // Remove the file if exists.
   [[NSFileManager defaultManager] removeItemAtPath:databasePath error:NULL];
 
@@ -392,7 +400,5 @@ static const NSTimeInterval kAsyncTestTimout = 0.5;
   XCTAssertEqualObjects([NSData dataWithContentsOfFile:databasePath], brokenDBFileContent);
   return databasePath;
 }
-
-
 
 @end

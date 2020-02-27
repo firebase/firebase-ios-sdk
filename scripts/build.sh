@@ -108,15 +108,81 @@ fi
 function RunXcodebuild() {
   echo xcodebuild "$@"
 
-  xcodebuild "$@" | xcpretty; result=$?
+  xcpretty_cmd=(xcpretty)
+  if [[ -n "${TRAVIS:-}" ]]; then
+    # The formatter argument takes a file location of a formatter.
+    # The xcpretty-travis-formatter binary prints its location on stdout.
+    xcpretty_cmd+=(-f $(xcpretty-travis-formatter))
+  fi
+
+  result=0
+  xcodebuild "$@" | tee xcodebuild.log | "${xcpretty_cmd[@]}" || result=$?
   if [[ $result == 65 ]]; then
+    ExportLogs "$@"
+
     echo "xcodebuild exited with 65, retrying" 1>&2
     sleep 5
 
-    xcodebuild "$@" | xcpretty; result=$?
+    result=0
+    xcodebuild "$@" | tee xcodebuild.log | "${xcpretty_cmd[@]}" || result=$?
   fi
   if [[ $result != 0 ]]; then
-    exit $result
+
+    echo "xcodebuild exited with $result; raw log follows" 1>&2
+    OpenFold Raw log
+    cat xcodebuild.log
+    CloseFold
+
+    ExportLogs "$@"
+    return $result
+  fi
+}
+
+# Exports any logs output captured in the xcresult
+function ExportLogs() {
+  OpenFold XCResult
+
+  exporter="${scripts_dir}/xcresult_logs.py"
+  python "$exporter" "$@"
+
+  CloseFold
+}
+
+current_group=none
+current_fold=0
+
+# Prints a command for CI environments to group log output in the logs
+# presentation UI.
+function OpenFold() {
+  description="$*"
+  current_group="$(echo "$description" | tr '[A-Z] ' '[a-z]_')"
+
+  if [[ -n "${GITHUB_ACTIONS:-}" ]]; then
+    echo "::group::description"
+
+  elif [[ -n "${TRAVIS:-}" ]]; then
+    # Travis wants groups to be numbered.
+    current_group="${current_group}.${current_fold}"
+    let current_fold++
+
+    # Show description in yellow.
+    echo "travis_fold:start:${current_group}\033[33;1m${description}\033[0m"
+
+  else
+    echo "===== $description Start ====="
+  fi
+}
+
+# Closes the current fold opened by `OpenFold`.
+function CloseFold() {
+  if [[ -n "${GITHUB_ACTIONS:-}" ]]; then
+    echo "::endgroup::"
+
+  elif [[ -n "${TRAVIS:-}" ]]; then
+    echo "travis_fold:end:${current_group}"
+
+  else
+    echo "===== $description End ====="
   fi
 }
 

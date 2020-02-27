@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,12 @@
 #include <memory>
 
 #include "Firestore/core/src/firebase/firestore/api/collection_reference.h"
+#include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/api/firestore.h"
 #include "Firestore/core/src/firebase/firestore/api/query_listener_registration.h"
 #include "Firestore/core/src/firebase/firestore/api/source.h"
 #include "Firestore/core/src/firebase/firestore/core/firestore_client.h"
+#include "Firestore/core/src/firebase/firestore/core/listen_options.h"
 #include "Firestore/core/src/firebase/firestore/core/user_data.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/delete_mutation.h"
@@ -110,7 +112,7 @@ void DocumentReference::DeleteDocument(util::StatusCallback callback) {
 }
 
 void DocumentReference::GetDocument(Source source,
-                                    DocumentSnapshot::Listener&& callback) {
+                                    DocumentSnapshotListener&& callback) {
   if (source == Source::Cache) {
     firestore_->client()->GetDocumentFromLocalCache(*this, std::move(callback));
     return;
@@ -123,7 +125,7 @@ void DocumentReference::GetDocument(Source source,
 
   class ListenOnce : public EventListener<DocumentSnapshot> {
    public:
-    ListenOnce(Source source, DocumentSnapshot::Listener&& listener)
+    ListenOnce(Source source, DocumentSnapshotListener&& listener)
         : source_(source), listener_(std::move(listener)) {
     }
 
@@ -173,7 +175,7 @@ void DocumentReference::GetDocument(Source source,
 
    private:
     Source source_;
-    DocumentSnapshot::Listener listener_;
+    DocumentSnapshotListener listener_;
 
     std::promise<std::unique_ptr<ListenerRegistration>> registration_promise_;
   };
@@ -187,12 +189,12 @@ void DocumentReference::GetDocument(Source source,
 }
 
 std::unique_ptr<ListenerRegistration> DocumentReference::AddSnapshotListener(
-    ListenOptions options, DocumentSnapshot::Listener&& user_listener) {
+    ListenOptions options, DocumentSnapshotListener&& user_listener) {
   // Convert from ViewSnapshots to DocumentSnapshots.
   class Converter : public EventListener<ViewSnapshot> {
    public:
     Converter(DocumentReference* parent,
-              DocumentSnapshot::Listener&& user_listener)
+              DocumentSnapshotListener&& user_listener)
         : firestore_(parent->firestore_),
           key_(parent->key_),
           user_listener_(std::move(user_listener)) {
@@ -224,7 +226,7 @@ std::unique_ptr<ListenerRegistration> DocumentReference::AddSnapshotListener(
    private:
     std::shared_ptr<Firestore> firestore_;
     DocumentKey key_;
-    DocumentSnapshot::Listener user_listener_;
+    DocumentSnapshotListener user_listener_;
   };
   auto view_listener =
       absl::make_unique<Converter>(this, std::move(user_listener));

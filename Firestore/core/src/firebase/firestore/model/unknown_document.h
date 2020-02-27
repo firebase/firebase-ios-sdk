@@ -17,8 +17,6 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_UNKNOWN_DOCUMENT_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_UNKNOWN_DOCUMENT_H_
 
-#include <memory>
-
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
 
 namespace firebase {

@@ -15,6 +15,7 @@
 cc_library(
   firebase_firestore_api
   SOURCES
+    api_fwd.h
     collection_reference.cc
     collection_reference.h
     document_change.cc

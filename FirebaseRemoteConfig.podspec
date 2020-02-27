@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseRemoteConfig'
-  s.version          = '4.4.6'
+  s.version          = '4.4.8'
   s.summary          = 'Firebase RemoteConfig for iOS'
 
   s.description      = <<-DESC
@@ -68,6 +68,6 @@ app update.
         'FirebaseRemoteConfig/Tests/Unit/Defaults-testInfo.plist',
         'FirebaseRemoteConfig/Tests/Unit/SecondApp-GoogleService-Info.plist'
     unit_tests.requires_app_host = true
-    unit_tests.dependency 'OCMock', '~> 3.4.0'
+    unit_tests.dependency 'OCMock'
   end
 end

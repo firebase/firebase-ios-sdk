@@ -22,4 +22,4 @@ readonly REPO_DIR="$( git rev-parse --show-toplevel )"
   exit 1
 }
 
-pod gen "${REPO_DIR}/FirebaseCoreDiagnostics.podspec" --auto-open --gen-directory="${REPO_DIR}/gen" --local-sources="${REPO_DIR}/" --clean
+pod gen "${REPO_DIR}/FirebaseCoreDiagnostics.podspec" --auto-open --gen-directory="${REPO_DIR}/gen" --local-sources="${REPO_DIR}/" --platforms=ios,macos,tvos --clean

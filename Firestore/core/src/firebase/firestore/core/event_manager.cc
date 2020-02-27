@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,10 @@
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/core/event_manager.h"
+#include "Firestore/core/src/firebase/firestore/core/query_listener.h"
+#include "Firestore/core/src/firebase/firestore/core/sync_engine.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "absl/algorithm/container.h"
 
 namespace firebase {
 namespace firestore {
@@ -147,6 +150,16 @@ void EventManager::OnError(const core::Query& query,
   // Remove all listeners. NOTE: We don't need to call
   // `SyncEngine::StopListening()` after an error.
   queries_.erase(found_iter);
+}
+
+bool EventManager::QueryListenersInfo::Erase(
+    const std::shared_ptr<QueryListener>& listener) {
+  auto found_iter = absl::c_find(listeners, listener);
+  auto found = found_iter != listeners.end();
+  if (found) {
+    listeners.erase(found_iter);
+  }
+  return found;
 }
 
 }  // namespace core

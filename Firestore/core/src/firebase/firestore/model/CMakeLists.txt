@@ -22,6 +22,7 @@ cc_library(
     delete_mutation.h
     document.cc
     document.h
+    model_fwd.h
     document_key.cc
     document_key.h
     document_key_set.h

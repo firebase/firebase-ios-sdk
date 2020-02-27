@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,18 +17,22 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LEVELDB_REMOTE_DOCUMENT_CACHE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LEVELDB_REMOTE_DOCUMENT_CACHE_H_
 
+#include <memory>
+#include <thread>  // NOLINT(build/c++11)
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
-#include "Firestore/core/src/firebase/firestore/model/document_key.h"
-#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
-#include "Firestore/core/src/firebase/firestore/model/document_map.h"
-#include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
+#include "Firestore/core/src/firebase/firestore/model/model_fwd.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "absl/strings/string_view.h"
 
 namespace firebase {
 namespace firestore {
+
+namespace util {
+class Executor;
+}  // namespace util
+
 namespace local {
 
 class LevelDbPersistence;
@@ -39,6 +43,7 @@ class LevelDbRemoteDocumentCache : public RemoteDocumentCache {
  public:
   LevelDbRemoteDocumentCache(LevelDbPersistence* db,
                              LocalSerializer* serializer);
+  ~LevelDbRemoteDocumentCache();
 
   void Add(const model::MaybeDocument& document,
            const model::SnapshotVersion& read_time) override;
@@ -66,6 +71,8 @@ class LevelDbRemoteDocumentCache : public RemoteDocumentCache {
   LevelDbPersistence* db_;
   // Owned by LevelDbPersistence.
   LocalSerializer* serializer_ = nullptr;
+
+  std::unique_ptr<util::Executor> executor_;
 };
 
 }  // namespace local
