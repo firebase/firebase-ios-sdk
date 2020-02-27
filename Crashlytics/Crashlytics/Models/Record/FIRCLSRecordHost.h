@@ -18,12 +18,6 @@
 
 @interface FIRCLSRecordHost : FIRCLSRecordBase
 
-@property(nonatomic, copy) NSString *model;
-@property(nonatomic, copy) NSString *machine;
-@property(nonatomic, copy) NSString *cpu;
-@property(nonatomic, copy) NSString *os_build_version;
-@property(nonatomic, copy) NSString *os_display_version;
 @property(nonatomic, copy) NSString *platform;
-@property(nonatomic, copy) NSString *locale;
 
 @end

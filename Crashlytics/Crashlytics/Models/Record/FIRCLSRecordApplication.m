@@ -21,7 +21,6 @@
 - (instancetype)initWithDict:(NSDictionary *)dict {
   self = [super initWithDict:dict];
   if (self) {
-    _bundle_id = dict[@"bundle_id"];
     _display_version = dict[@"display_version"];
     _build_version = dict[@"build_version"];
   }

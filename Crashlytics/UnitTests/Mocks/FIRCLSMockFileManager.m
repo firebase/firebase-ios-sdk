@@ -47,7 +47,7 @@
 }
 
 - (NSNumber *)fileSizeAtPath:(NSString *)path {
-  if (self.fileSizeAtPathResult) {
+  if (self.fileSizeAtPathResult != nil) {
     return self.fileSizeAtPathResult;
   }
 
@@ -58,7 +58,7 @@
   self.moveItemAtPath_path = path;
   self.moveItemAtPath_destDir = destDir;
 
-  if (self.moveItemAtPathResult) {
+  if (self.moveItemAtPathResult != nil) {
     return self.moveItemAtPathResult.intValue > 0;
   }
 
