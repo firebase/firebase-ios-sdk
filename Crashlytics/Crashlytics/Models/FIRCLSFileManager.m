@@ -223,7 +223,6 @@ NSString *const FIRCLSCacheVersion = @"v5";
   return [[self structurePath] stringByAppendingPathComponent:@"processing"];
 }
 
-// TODO: v4 -> v5
 - (NSString *)legacyPreparedPath {
   return [[self structurePath] stringByAppendingPathComponent:@"prepared-legacy"];
 }

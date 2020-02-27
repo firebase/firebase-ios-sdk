@@ -217,7 +217,6 @@
 
     dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
 
-    // If async, then always return success. TODO: Is this an ok assumption?
     __block BOOL success = YES;
 
     [self.dataSource.googleTransport
