@@ -82,15 +82,6 @@ namespace {
 using internal::DispatchAsync;
 using internal::DispatchSync;
 
-template <typename Work>
-void RunSynchronized(const ExecutorLibdispatch* const executor, Work&& work) {
-  if (executor->IsCurrentExecutor()) {
-    work();
-  } else {
-    DispatchSync(executor->dispatch_queue(), std::forward<Work>(work));
-  }
-}
-
 }  // namespace
 
 // MARK: - TimeSlot
@@ -229,7 +220,7 @@ ExecutorLibdispatch::~ExecutorLibdispatch() {
   // work, the pending operations that might have been in progress would have
   // already finished.
   // Note: this is thread-safe, because the underlying variable `done_` is
-  // atomic. `RunSynchronized` may result in a deadlock.
+  // atomic. `DispatchSync` may result in a deadlock.
   for (const auto& entry : schedule_) {
     entry.second->MarkDone();
   }
@@ -265,7 +256,7 @@ DelayedOperation ExecutorLibdispatch::Schedule(const Milliseconds delay,
   // stores an observer pointer to the operation.
   TimeSlot* time_slot = nullptr;
   TimeSlotId time_slot_id = 0;
-  RunSynchronized(this, [this, delay, &operation, &time_slot, &time_slot_id] {
+  DispatchSync(dispatch_queue_, [this, delay, &operation, &time_slot, &time_slot_id] {
     time_slot_id = NextId();
     time_slot = new TimeSlot{this, delay, std::move(operation), time_slot_id};
     schedule_[time_slot_id] = time_slot;
@@ -284,7 +275,7 @@ DelayedOperation ExecutorLibdispatch::Schedule(const Milliseconds delay,
 }
 
 void ExecutorLibdispatch::RemoveFromSchedule(TimeSlotId to_remove) {
-  RunSynchronized(this, [this, to_remove] {
+  DispatchSync(dispatch_queue_, [this, to_remove] {
     const auto found = schedule_.find(to_remove);
 
     // It's possible for the operation to be missing if libdispatch gets to run
@@ -300,7 +291,7 @@ void ExecutorLibdispatch::RemoveFromSchedule(TimeSlotId to_remove) {
 
 bool ExecutorLibdispatch::IsScheduled(const Tag tag) const {
   bool result = false;
-  RunSynchronized(this, [this, tag, &result] {
+  DispatchSync(dispatch_queue_, [this, tag, &result] {
     result = std::any_of(schedule_.begin(), schedule_.end(),
                          [&tag](const ScheduleEntry& operation) {
                            return *operation.second == tag;
@@ -313,7 +304,7 @@ absl::optional<Executor::TaggedOperation>
 ExecutorLibdispatch::PopFromSchedule() {
   absl::optional<Executor::TaggedOperation> result;
 
-  RunSynchronized(this, [this, &result]() -> void {
+  DispatchSync(dispatch_queue_, [this, &result]() -> void {
     if (schedule_.empty()) {
       return;
     }

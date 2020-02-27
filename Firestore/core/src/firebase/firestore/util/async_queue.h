@@ -104,8 +104,8 @@ class AsyncQueue : public std::enable_shared_from_this<AsyncQueue> {
     Restricted,
 
     /**
-     * Finally, once the Firestore instance is in the process of being destroyed
-     * the `AsyncQueue` stops accepting all tasks.
+     * Finally, once the Firestore instance is in the process of being
+     * destroyed, the `AsyncQueue` stops accepting all tasks.
      */
     Disposed,
   };

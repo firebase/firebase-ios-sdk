@@ -101,7 +101,7 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
    * Note: Dispose exists separately from the destructor because shared_ptrs to
    * FirestoreClient are captured frequently in ways that are hard to audit.
    * This in turn makes it difficult to rely on the last shared owner to
-   * destroy the instance in a timely manner. All asynchronous operations
+   * destroy the instance in a timely manner.
    */
   void Dispose();
 
