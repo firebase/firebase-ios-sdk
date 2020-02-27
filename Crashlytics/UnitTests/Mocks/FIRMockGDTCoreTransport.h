@@ -16,9 +16,18 @@
 
 @interface FIRMockGDTCORTransport : GDTCORTransport
 
-- (nullable instancetype)initWithMappingID:(NSString *_Nonnull)mappingID
-                              transformers:
-                                  (nullable NSArray<id<GDTCOREventTransformer>> *)transformers
-                                    target:(NSInteger)target NS_DESIGNATED_INITIALIZER;
+@property(nonatomic, copy) NSString *mappingID;
+@property(nonatomic) NSInteger target;
+
+@property(nonatomic, strong) GDTCOREvent *sendDataEvent_event;
+@property(nonatomic, strong) NSError *sendDataEvent_error;
+@property(nonatomic) BOOL sendDataEvent_wasWritten;
+
+- (instancetype)initWithMappingID:(NSString *)mappingID
+                     transformers:(NSArray<id<GDTCOREventTransformer>> *)transformers
+                           target:(NSInteger)target NS_DESIGNATED_INITIALIZER;
+
+- (void)sendDataEvent:(GDTCOREvent *)event
+           onComplete:(void (^)(BOOL wasWritten, NSError *error))completion;
 
 @end

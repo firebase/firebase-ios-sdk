@@ -14,28 +14,22 @@
 
 #import "FIRMockGDTCoreTransport.h"
 
-@interface FIRMockGDTCORTransport ()
-
-@property(nonatomic, copy) NSString *mappingID;
-@property(nonatomic) NSInteger target;
-@property(nonatomic, strong) GDTCOREvent *dataEvent;
-
-@end
-
 @implementation FIRMockGDTCORTransport
 
-- (nullable instancetype)initWithMappingID:(NSString *)mappingID
-                              transformers:
-                                  (nullable NSArray<id<GDTCOREventTransformer>> *)transformers
-                                    target:(NSInteger)target {
+- (instancetype)initWithMappingID:(NSString *)mappingID
+                     transformers:(NSArray<id<GDTCOREventTransformer>> *)transformers
+                           target:(NSInteger)target {
   _mappingID = mappingID;
   _target = target;
+  _sendDataEvent_wasWritten = YES;
 
   return [super initWithMappingID:mappingID transformers:transformers target:target];
 }
 
-- (void)sendDataEvent:(GDTCOREvent *)event {
-  self.dataEvent = event;
+- (void)sendDataEvent:(GDTCOREvent *)event
+           onComplete:(void (^)(BOOL wasWritten, NSError *error))completion {
+  self.sendDataEvent_event = event;
+  completion(self.sendDataEvent_wasWritten, self.sendDataEvent_error);
 }
 
 @end
