@@ -17,7 +17,7 @@
 #import <Foundation/Foundation.h>
 
 // Set this to 1 to have the library print out as much as possible about what GDT is doing.
-#define GDT_VERBOSE_LOGGING 1
+#define GDT_VERBOSE_LOGGING 0
 
 /** A list of message codes to print in the logger that help to correspond printed messages with
  * code locations.

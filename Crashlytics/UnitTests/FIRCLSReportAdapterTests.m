@@ -57,9 +57,10 @@
   NSString *minCrash =
       [[FIRCLSReportAdapterTests resourcePath] stringByAppendingPathComponent:@"bare_min_crash"];
 
-  FIRCLSReportAdapter *adapter = [[FIRCLSReportAdapter alloc] initWithPath:minCrash
-                                                               googleAppId:@"1:17586535263:ios:83778f4dc7e8a26ef794ea"
-                                                                     orgId:@"5bec84f69ea6961d03000dc5"];
+  FIRCLSReportAdapter *adapter =
+      [[FIRCLSReportAdapter alloc] initWithPath:minCrash
+                                    googleAppId:@"1:17586535263:ios:83778f4dc7e8a26ef794ea"
+                                          orgId:@"5bec84f69ea6961d03000dc5"];
 
   NSData *data = adapter.transportBytes;
 
@@ -76,8 +77,8 @@
   // But a breakpoint here to copy the file from the output path.
 }
 
-/// It is important that crashes do not occur when reading persisted crash files
-/// (metadata.clsrecord) before uploading Verify various invalid input cases
+/// It is important that a crash does not occur when reading persisted crash files
+/// Verify various invalid input cases.
 - (void)testInvalidRecordCases {
   id adapter __unused = [[FIRCLSReportAdapter alloc] initWithPath:@"nonExistentPath"
                                                       googleAppId:@"appID"
@@ -93,8 +94,6 @@
   id identity2 __unused = [[FIRCLSRecordIdentity alloc] initWithDict:emptyDict];
 }
 
-/// It is important that crashes do not occur when reading persisted crash files before uploading
-/// Verify various invalid input cases
 - (void)testCorruptMetadataCLSRecordFile {
   id adapter __unused = [FIRCLSReportAdapterTests adapterForCorruptMetadata];
 }
