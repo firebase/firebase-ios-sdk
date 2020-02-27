@@ -128,7 +128,7 @@ class ConnectivityMonitorApple : public ConnectivityMonitor {
 
   ~ConnectivityMonitorApple() {
 #if TARGET_OS_IOS || TARGET_OS_TV
-      [[NSNotificationCenter defaultCenter] removeObserver:this->observer];
+    [[NSNotificationCenter defaultCenter] removeObserver:this->observer];
 #endif
 
     if (reachability_) {
