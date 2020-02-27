@@ -21,13 +21,7 @@
 - (instancetype)initWithDict:(NSDictionary *)dict {
   self = [super initWithDict:dict];
   if (self) {
-    _model = dict[@"model"];
-    _machine = dict[@"machine"];
-    _cpu = dict[@"cpu"];
-    _os_build_version = dict[@"os_build_version"];
-    _os_display_version = dict[@"os_display_version"];
     _platform = dict[@"platform"];
-    _locale = dict[@"locale"];
   }
   return self;
 }

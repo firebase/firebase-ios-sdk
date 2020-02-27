@@ -21,12 +21,8 @@
 - (instancetype)initWithDict:(NSDictionary *)dict {
   self = [super initWithDict:dict];
   if (self) {
-    _generator = dict[@"generator"];
-    _display_version = dict[@"display_version"];
     _build_version = dict[@"build_version"];
-    _session_id = dict[@"session_id"];
     _install_id = dict[@"install_id"];
-    _started_at = [dict[@"started_at"] unsignedIntegerValue];
   }
   return self;
 }
