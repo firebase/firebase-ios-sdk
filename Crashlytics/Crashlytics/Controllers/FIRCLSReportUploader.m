@@ -114,12 +114,10 @@
 
         if (self.dataSource.settings.shouldUseNewReportEndpoint) {
           // For the new endpoint, just move the .clsrecords from "processing" -> "prepared"
-          packagedPath =
-              [self.fileManager.preparedPath stringByAppendingPathComponent:report.directoryName];
-          NSError *moveError = nil;
-          [self.fileManager moveItemAtPath:report.path toPath:packagedPath error:&moveError];
-          if (moveError) {
+          if (![self.fileManager moveItemAtPath:report.path
+                                    toDirectory:self.fileManager.preparedPath]) {
             FIRCLSErrorLog(@"Unable to move report to prepared");
+            return;
           }
         } else {
           // For the legacy endpoint, continue generate the multipartmime file in "prepared-legacy"
@@ -203,6 +201,11 @@
   BOOL isNewPreparedPath = ![path containsString:self.fileManager.legacyPreparedPath];
 
   if (isNewPreparedPath && self.dataSource.settings.shouldUseNewReportEndpoint) {
+    if (![dataCollectionToken isValid]) {
+      FIRCLSErrorLog(@"A report upload was requested with an invalid data collection token.");
+      return NO;
+    }
+
     FIRCLSReportAdapter *adapter =
         [[FIRCLSReportAdapter alloc] initWithPath:path
                                       googleAppId:self.dataSource.googleAppID
