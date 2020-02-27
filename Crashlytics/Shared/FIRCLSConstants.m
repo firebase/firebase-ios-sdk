@@ -30,7 +30,7 @@ NSString* const FIRCLSException = @"FIRCLSException";
 
 // Endpoints
 NSString* const FIRCLSSettingsEndpoint = @"https://firebase-settings.crashlytics.com";
-NSString* const FIRCLSConfigureEndpoint = @"https://api.crashlytics.com";
+NSString* const FIRCLSConfigureEndpoint = @"https://update.crashlytics.com";
 NSString* const FIRCLSReportsEndpoint = @"https://reports.crashlytics.com";
 
 // Network requests
