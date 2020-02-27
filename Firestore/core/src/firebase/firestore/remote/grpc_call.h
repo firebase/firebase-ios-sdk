@@ -37,8 +37,7 @@ class GrpcCall {
  public:
   using Metadata = std::multimap<grpc::string_ref, grpc::string_ref>;
 
-  virtual ~GrpcCall() {
-  }
+  virtual ~GrpcCall() = default;
 
   /**
    * Returns the metadata received from the server.

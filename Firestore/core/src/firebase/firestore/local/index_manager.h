@@ -20,10 +20,13 @@
 #include <string>
 #include <vector>
 
-#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
-
 namespace firebase {
 namespace firestore {
+
+namespace model {
+class ResourcePath;
+}  // namespace model
+
 namespace local {
 
 /**
@@ -34,8 +37,7 @@ namespace local {
  */
 class IndexManager {
  public:
-  virtual ~IndexManager() {
-  }
+  virtual ~IndexManager() = default;
 
   /**
    * Creates an index entry mapping the collection_id (last segment of the path)

@@ -21,12 +21,13 @@
 
 @protocol FIRMessagingRmqScanner;
 
-typedef void(^FIRMessagingSendDelayedMessagesHandler)(NSArray *messages);
+typedef void (^FIRMessagingSendDelayedMessagesHandler)(NSArray *messages);
 
 @interface FIRMessagingDelayedMessageQueue : NSObject
 
 - (instancetype)initWithRmqScanner:(id<FIRMessagingRmqScanner>)rmqScanner
-        sendDelayedMessagesHandler:(FIRMessagingSendDelayedMessagesHandler)sendDelayedMessagesHandler;
+        sendDelayedMessagesHandler:
+            (FIRMessagingSendDelayedMessagesHandler)sendDelayedMessagesHandler;
 
 - (BOOL)queueMessage:(GtalkDataMessageStanza *)message;
 

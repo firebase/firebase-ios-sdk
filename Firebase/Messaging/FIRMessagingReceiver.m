@@ -42,13 +42,14 @@ static int downstreamMessageID = 0;
 - (void)willSendDataMessageWithID:(NSString *)messageID error:(NSError *)error {
   NSNotification *notification;
   if (error) {
-    NSDictionary *userInfo = @{
-      kUpstreamMessageIDUserInfoKey : [messageID copy],
-      kUpstreamErrorUserInfoKey : error
-    };
+    NSDictionary *userInfo =
+        @{kUpstreamMessageIDUserInfoKey : [messageID copy], kUpstreamErrorUserInfoKey : error};
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     notification = [NSNotification notificationWithName:FIRMessagingSendErrorNotification
                                                  object:nil
                                                userInfo:userInfo];
+#pragma clang diagnostic pop
     [[NSNotificationQueue defaultQueue] enqueueNotification:notification postingStyle:NSPostASAP];
     FIRMessagingLoggerDebug(kFIRMessagingMessageCodeReceiver000,
                             @"Fail to send upstream message: %@ error: %@", messageID, error);
@@ -62,34 +63,39 @@ static int downstreamMessageID = 0;
   // invoke the callbacks asynchronously
   FIRMessagingLoggerDebug(kFIRMessagingMessageCodeReceiver002, @"Did send upstream message: %@",
                           messageID);
-  NSNotification * notification =
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+  NSNotification *notification =
       [NSNotification notificationWithName:FIRMessagingSendSuccessNotification
                                     object:nil
-                                  userInfo:@{ kUpstreamMessageIDUserInfoKey : [messageID copy] }];
-
+                                  userInfo:@{kUpstreamMessageIDUserInfoKey : [messageID copy]}];
+#pragma clang diagnostic pop
   [[NSNotificationQueue defaultQueue] enqueueNotification:notification postingStyle:NSPostASAP];
 }
 
 - (void)didDeleteMessagesOnServer {
   FIRMessagingLoggerDebug(kFIRMessagingMessageCodeReceiver003,
                           @"Will send deleted messages notification");
-  NSNotification * notification =
-      [NSNotification notificationWithName:FIRMessagingMessagesDeletedNotification
-                                    object:nil];
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+  NSNotification *notification =
+      [NSNotification notificationWithName:FIRMessagingMessagesDeletedNotification object:nil];
   [[NSNotificationQueue defaultQueue] enqueueNotification:notification postingStyle:NSPostASAP];
 }
 
 #pragma mark - Private Helpers
 - (void)handleDirectChannelMessage:(NSDictionary *)message withIdentifier:(NSString *)messageID {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   FIRMessagingRemoteMessage *wrappedMessage = [[FIRMessagingRemoteMessage alloc] init];
   wrappedMessage.appData = [message copy];
   wrappedMessage.messageID = messageID;
   [self.delegate receiver:self receivedRemoteMessage:wrappedMessage];
+#pragma clang diagnostic pop
 }
 
 + (NSString *)nextMessageID {
-  @synchronized (self) {
+  @synchronized(self) {
     ++downstreamMessageID;
     return [NSString stringWithFormat:@"gcm-%d", downstreamMessageID];
   }

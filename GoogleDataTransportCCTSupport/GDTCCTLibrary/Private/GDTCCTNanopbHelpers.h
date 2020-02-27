@@ -16,11 +16,22 @@
 
 #import <Foundation/Foundation.h>
 
-#import <GoogleDataTransport/GDTCORStoredEvent.h>
+#import <GoogleDataTransport/GDTCOREvent.h>
+#import <GoogleDataTransport/GDTCORReachability.h>
 
 #import "GDTCCTLibrary/Protogen/nanopb/cct.nanopb.h"
 
 NS_ASSUME_NONNULL_BEGIN
+
+/** A string sets in customPrioritizationParams as a key paired to @YES if current event needs to
+ * populate network connection info data, @NO otherwise.
+ */
+FOUNDATION_EXPORT NSString *const GDTCCTNeedsNetworkConnectionInfo;
+
+/** A string sets in customPrioritizationParams as a key paired to the network connection info data
+ * of current event.
+ */
+FOUNDATION_EXPORT NSString *const GDTCCTNetworkConnectionInfo;
 
 #pragma mark - General purpose encoders
 
@@ -63,7 +74,7 @@ NSData *GDTCCTEncodeBatchedLogRequest(gdt_cct_BatchedLogRequest *batchedLogReque
  */
 FOUNDATION_EXPORT
 gdt_cct_BatchedLogRequest GDTCCTConstructBatchedLogRequest(
-    NSDictionary<NSString *, NSSet<GDTCORStoredEvent *> *> *logMappingIDToLogSet);
+    NSDictionary<NSString *, NSSet<GDTCOREvent *> *> *logMappingIDToLogSet);
 
 /** Constructs a log request given a log source and a set of events.
  *
@@ -72,15 +83,15 @@ gdt_cct_BatchedLogRequest GDTCCTConstructBatchedLogRequest(
  * @param logSet The set of events to send in this log request.
  */
 FOUNDATION_EXPORT
-gdt_cct_LogRequest GDTCCTConstructLogRequest(int32_t logSource, NSSet<GDTCORStoredEvent *> *logSet);
+gdt_cct_LogRequest GDTCCTConstructLogRequest(int32_t logSource, NSSet<GDTCOREvent *> *logSet);
 
-/** Constructs a gdt_cct_LogEvent given a GDTCORStoredEvent*.
+/** Constructs a gdt_cct_LogEvent given a GDTCOREvent*.
  *
- * @param event The GDTCORStoredEvent to convert.
+ * @param event The GDTCOREvent to convert.
  * @return The new gdt_cct_LogEvent object.
  */
 FOUNDATION_EXPORT
-gdt_cct_LogEvent GDTCCTConstructLogEvent(GDTCORStoredEvent *event);
+gdt_cct_LogEvent GDTCCTConstructLogEvent(GDTCOREvent *event);
 
 /** Constructs a gdt_cct_ClientInfo representing the client device.
  *
@@ -95,6 +106,21 @@ gdt_cct_ClientInfo GDTCCTConstructClientInfo(void);
  */
 FOUNDATION_EXPORT
 gdt_cct_IosClientInfo GDTCCTConstructiOSClientInfo(void);
+
+/** Constructs the data of a gdt_cct_NetworkConnectionInfo representing the client nework connection
+ * information.
+ *
+ * @return The data of a gdt_cct_NetworkConnectionInfo object.
+ */
+FOUNDATION_EXPORT
+NSData *GDTCCTConstructNetworkConnectionInfoData(void);
+
+/** Return a gdt_cct_NetworkConnectionInfo_MobileSubtype representing the client
+ *
+ * @return The gdt_cct_NetworkConnectionInfo_MobileSubtype.
+ */
+FOUNDATION_EXPORT
+gdt_cct_NetworkConnectionInfo_MobileSubtype GDTCCTNetworkConnectionInfoNetworkMobileSubtype(void);
 
 #pragma mark - CCT object decoders
 

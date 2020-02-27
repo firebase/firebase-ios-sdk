@@ -36,7 +36,7 @@
 #import "FIRCLSMockReportManager.h"
 #import "FIRCLSMockReportUploader.h"
 #import "FIRMockGDTCoreTransport.h"
-#import "FIRMockInstanceID.h"
+#import "FIRMockInstallations.h"
 
 #define TEST_API_KEY (@"DB5C8FA65C0D43419120FB96CFDBDE0C")
 #define TEST_GOOGLE_APP_ID (@"1:632950151350:ios:d5b0d08d4f00f4b1")
@@ -72,14 +72,14 @@
   // Delete cached settings
   [self.fileManager removeItemAtPath:_fileManager.settingsFilePath];
 
-  FIRMockInstanceID *iid = [[FIRMockInstanceID alloc] initWithIID:@"test_token"];
+  FIRMockInstallations *iid = [[FIRMockInstallations alloc] initWithFID:@"test_token"];
 
   FIRMockGDTCORTransport *transport = [[FIRMockGDTCORTransport alloc] initWithMappingID:@"id"
                                                                            transformers:nil
                                                                                  target:0];
 
   self.reportManager = [[FIRCLSMockReportManager alloc] initWithFileManager:self.fileManager
-                                                                 instanceID:iid
+                                                              installations:iid
                                                                   analytics:nil
                                                                 googleAppID:TEST_GOOGLE_APP_ID
                                                                 dataArbiter:self.dataArbiter

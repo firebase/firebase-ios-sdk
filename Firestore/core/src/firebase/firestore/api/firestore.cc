@@ -16,11 +16,15 @@
 
 #include "Firestore/core/src/firebase/firestore/api/firestore.h"
 
+#include <utility>
+
 #include "Firestore/core/src/firebase/firestore/api/collection_reference.h"
 #include "Firestore/core/src/firebase/firestore/api/document_reference.h"
+#include "Firestore/core/src/firebase/firestore/api/listener_registration.h"
 #include "Firestore/core/src/firebase/firestore/api/settings.h"
 #include "Firestore/core/src/firebase/firestore/api/snapshots_in_sync_listener_registration.h"
 #include "Firestore/core/src/firebase/firestore/api/write_batch.h"
+#include "Firestore/core/src/firebase/firestore/core/event_listener.h"
 #include "Firestore/core/src/firebase/firestore/core/firestore_client.h"
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"

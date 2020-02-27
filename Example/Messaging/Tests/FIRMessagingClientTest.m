@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#import <XCTest/XCTest.h>
 #import <OCMock/OCMock.h>
+#import <XCTest/XCTest.h>
 
+#import <FirebaseInstallations/FIRInstallations.h>
 #import <FirebaseInstanceID/FIRInstanceID_Private.h>
 #import <GoogleUtilities/GULReachabilityChecker.h>
-#import <FirebaseInstallations/FIRInstallations.h>
 
 #import "Example/Messaging/Tests/FIRMessagingFakeConnection.h"
 #import "Firebase/Messaging/FIRMessagingClient.h"
@@ -81,7 +81,6 @@ static NSString *const kSecretToken = @"56789";
 @property(nonatomic, readwrite, strong) id mockInstanceID;
 @property(nonatomic, readwrite, strong) id mockInstallations;
 
-
 // argument callback blocks
 @property(nonatomic, readwrite, copy) FIRMessagingConnectCompletionHandler connectCompletion;
 @property(nonatomic, readwrite, copy) FIRMessagingTopicOperationCompletion subscribeCompletion;
@@ -108,7 +107,7 @@ static NSString *const kSecretToken = @"56789";
   [self tearDownMocksAndHandlers];
   // Mock all sockets to disconnect in a nice way
   [[[(id)self.client.connection.socket stub] andDo:^(NSInvocation *invocation) {
-      self.client.connection.socket.state = kFIRMessagingSecureSocketClosed;
+    self.client.connection.socket.state = kFIRMessagingSecureSocketClosed;
   }] disconnect];
 
   [self.client teardown];
@@ -126,9 +125,9 @@ static NSString *const kSecretToken = @"56789";
                           heartbeatTimeout:(NSTimeInterval)heartbeatTimeout {
   [self setupFakeConnectionWithClass:[FIRMessagingFakeConnection class]
           withSetupCompletionHandler:^(FIRMessagingConnection *connection) {
-              FIRMessagingFakeConnection *fakeConnection = (FIRMessagingFakeConnection *)connection;
-              fakeConnection.shouldFakeSuccessLogin = loginResult;
-              fakeConnection.fakeConnectionTimeout = heartbeatTimeout;
+            FIRMessagingFakeConnection *fakeConnection = (FIRMessagingFakeConnection *)connection;
+            fakeConnection.shouldFakeSuccessLogin = loginResult;
+            fakeConnection.fakeConnectionTimeout = heartbeatTimeout;
           }];
 }
 
@@ -145,17 +144,18 @@ static NSString *const kSecretToken = @"56789";
   // login request should be successful
   [self setupConnectionWithFakeLoginResult:YES heartbeatTimeout:1.0];
 
-  XCTestExpectation *setupConnection = [self
-      expectationWithDescription:@"Fcm should successfully setup a connection"];
+  XCTestExpectation *setupConnection =
+      [self expectationWithDescription:@"Fcm should successfully setup a connection"];
 
   [self.client connectWithHandler:^(NSError *error) {
-      XCTAssertNil(error);
-      [setupConnection fulfill];
+    XCTAssertNil(error);
+    [setupConnection fulfill];
   }];
 
-  [self waitForExpectationsWithTimeout:1.0 handler:^(NSError *error) {
-      XCTAssertNil(error);
-  }];
+  [self waitForExpectationsWithTimeout:1.0
+                               handler:^(NSError *error) {
+                                 XCTAssertNil(error);
+                               }];
 }
 
 - (void)testsConnectWithNoNetworkError_withCachedFcmDefaults {
@@ -165,23 +165,24 @@ static NSString *const kSecretToken = @"56789";
 
   [self setupFakeConnectionWithClass:[FIRMessagingFakeFailConnection class]
           withSetupCompletionHandler:^(FIRMessagingConnection *connection) {
-              FIRMessagingFakeFailConnection *fakeConnection = (FIRMessagingFakeFailConnection *)connection;
-              fakeConnection.shouldFakeSuccessLogin = NO;
-              // should fail only once
-              fakeConnection.failCount = 1;
+            FIRMessagingFakeFailConnection *fakeConnection =
+                (FIRMessagingFakeFailConnection *)connection;
+            fakeConnection.shouldFakeSuccessLogin = NO;
+            // should fail only once
+            fakeConnection.failCount = 1;
           }];
 
-  XCTestExpectation *connectExpectation = [self
-      expectationWithDescription:@"Should retry connection if once failed"];
+  XCTestExpectation *connectExpectation =
+      [self expectationWithDescription:@"Should retry connection if once failed"];
   [self.client connectWithHandler:^(NSError *error) {
-      XCTAssertNotNil(error);
-      XCTAssertEqual(kFIRMessagingErrorCodeNetwork, error.code);
-      [connectExpectation fulfill];
+    XCTAssertNotNil(error);
+    XCTAssertEqual(kFIRMessagingErrorCodeNetwork, error.code);
+    [connectExpectation fulfill];
   }];
 
   [self waitForExpectationsWithTimeout:10.0
                                handler:^(NSError *error) {
-                                   XCTAssertNil(error);
+                                 XCTAssertNil(error);
                                }];
 }
 
@@ -191,29 +192,28 @@ static NSString *const kSecretToken = @"56789";
   [self addFIRMessagingPreferenceKeysToUserDefaults];
 
   // the network is available
-  [[[self.mockReachability stub]
-      andReturnValue:@(kGULReachabilityViaWifi)] reachabilityStatus];
+  [[[self.mockReachability stub] andReturnValue:@(kGULReachabilityViaWifi)] reachabilityStatus];
 
   [self setupFakeConnectionWithClass:[FIRMessagingFakeFailConnection class]
           withSetupCompletionHandler:^(FIRMessagingConnection *connection) {
-              FIRMessagingFakeFailConnection *fakeConnection = (FIRMessagingFakeFailConnection *)connection;
-              fakeConnection.shouldFakeSuccessLogin = NO;
-              // should fail only once
-              fakeConnection.failCount = 1;
+            FIRMessagingFakeFailConnection *fakeConnection =
+                (FIRMessagingFakeFailConnection *)connection;
+            fakeConnection.shouldFakeSuccessLogin = NO;
+            // should fail only once
+            fakeConnection.failCount = 1;
           }];
 
-  XCTestExpectation *connectExpectation = [self
-      expectationWithDescription:@"Should retry connection if once failed"];
+  XCTestExpectation *connectExpectation =
+      [self expectationWithDescription:@"Should retry connection if once failed"];
   [self.client connectWithHandler:^(NSError *error) {
-      XCTAssertNil(error);
-      [connectExpectation fulfill];
+    XCTAssertNil(error);
+    [connectExpectation fulfill];
   }];
 
   [self waitForExpectationsWithTimeout:10.0
                                handler:^(NSError *error) {
-                                   XCTAssertNil(error);
-                                   XCTAssertTrue(
-                                       [self.client isConnectionActive]);
+                                 XCTAssertNil(error);
+                                 XCTAssertTrue([self.client isConnectionActive]);
                                }];
 }
 
@@ -229,29 +229,29 @@ static NSString *const kSecretToken = @"56789";
   [[[self.mockClient stub] andReturnValue:@(1)] connectionTimeoutInterval];
 
   // the network is available
-  [[[self.mockReachability stub]
-      andReturnValue:@(kGULReachabilityViaWifi)] reachabilityStatus];
+  [[[self.mockReachability stub] andReturnValue:@(kGULReachabilityViaWifi)] reachabilityStatus];
 
   XCTestExpectation *setupConnection =
       [self expectationWithDescription:@"Fcm should successfully setup a connection"];
 
   __block int timesConnected = 0;
   FIRMessagingConnectCompletionHandler handler = ^(NSError *error) {
-      XCTAssertNil(error);
-      timesConnected++;
-      if (timesConnected == 1) {
-        [setupConnection fulfill];
-        // disconnect the connection after some time
-        FIRMessagingFakeConnection *fakeConnection = (FIRMessagingFakeConnection *)[self.mockClient connection];
-        dispatch_time_t time = dispatch_time(DISPATCH_TIME_NOW, (0.2 * NSEC_PER_SEC));
-        dispatch_after(time, dispatch_get_main_queue(), ^{
-          // disconnect now
-          [(FIRMessagingFakeConnection *)fakeConnection mockSocketDisconnect];
-          [(FIRMessagingFakeConnection *)fakeConnection disconnectNow];
-        });
-      } else {
-        XCTFail(@"Fcm should only connect at max 2 times");
-      }
+    XCTAssertNil(error);
+    timesConnected++;
+    if (timesConnected == 1) {
+      [setupConnection fulfill];
+      // disconnect the connection after some time
+      FIRMessagingFakeConnection *fakeConnection =
+          (FIRMessagingFakeConnection *)[self.mockClient connection];
+      dispatch_time_t time = dispatch_time(DISPATCH_TIME_NOW, (0.2 * NSEC_PER_SEC));
+      dispatch_after(time, dispatch_get_main_queue(), ^{
+        // disconnect now
+        [(FIRMessagingFakeConnection *)fakeConnection mockSocketDisconnect];
+        [(FIRMessagingFakeConnection *)fakeConnection disconnectNow];
+      });
+    } else {
+      XCTFail(@"Fcm should only connect at max 2 times");
+    }
   };
   [self.mockClient connectWithHandler:handler];
 
@@ -260,9 +260,9 @@ static NSString *const kSecretToken = @"56789";
 
   [self waitForExpectationsWithTimeout:10.0
                                handler:^(NSError *error) {
-                                   XCTAssertNil(error);
-                                   XCTAssertNotEqual(self.client.lastDisconnectedTimestamp, 0);
-                                   XCTAssertTrue(self.client.isConnectionActive);
+                                 XCTAssertNil(error);
+                                 XCTAssertNotEqual(self.client.lastDisconnectedTimestamp, 0);
+                                 XCTAssertTrue(self.client.isConnectionActive);
                                }];
 }
 
@@ -271,16 +271,16 @@ static NSString *const kSecretToken = @"56789";
 - (void)setupFakeConnectionWithClass:(Class)connectionClass
           withSetupCompletionHandler:(void (^)(FIRMessagingConnection *))handler {
   [[[self.mockClient stub] andDo:^(NSInvocation *invocation) {
-      self.client.connection =
-          [[connectionClass alloc] initWithAuthID:kDeviceAuthId
-                                            token:kSecretToken
-                                             host:[FIRMessagingFakeConnection fakeHost]
-                                             port:[FIRMessagingFakeConnection fakePort]
-                                          runLoop:[NSRunLoop mainRunLoop]
-                                      rmq2Manager:self.mockRmqManager
-                                       fcmManager:self.mockDataMessageManager];
-      self.client.connection.delegate = self.client;
-      handler(self.client.connection);
+    self.client.connection =
+        [[connectionClass alloc] initWithAuthID:kDeviceAuthId
+                                          token:kSecretToken
+                                           host:[FIRMessagingFakeConnection fakeHost]
+                                           port:[FIRMessagingFakeConnection fakePort]
+                                        runLoop:[NSRunLoop mainRunLoop]
+                                    rmq2Manager:self.mockRmqManager
+                                     fcmManager:self.mockDataMessageManager];
+    self.client.connection.delegate = self.client;
+    handler(self.client.connection);
   }] setupConnection];
 }
 
@@ -297,4 +297,3 @@ static NSString *const kSecretToken = @"56789";
 }
 
 @end
-

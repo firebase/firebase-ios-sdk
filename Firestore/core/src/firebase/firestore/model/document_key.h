@@ -23,23 +23,24 @@
 #include <memory>
 #include <string>
 
-#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
-#include "Firestore/core/src/firebase/firestore/util/comparison.h"
-#include "Firestore/core/src/firebase/firestore/util/hashing.h"
-#include "absl/strings/string_view.h"
-
 namespace firebase {
 namespace firestore {
+
+namespace util {
+enum class ComparisonResult;
+}  // namespace util
+
 namespace model {
+
+class ResourcePath;
 
 /**
  * DocumentKey represents the location of a document in the Firestore database.
  */
-class DocumentKey : public util::InequalityComparable<DocumentKey> {
+class DocumentKey {
  public:
   /** Creates a "blank" document key not associated with any document. */
-  DocumentKey() : path_{std::make_shared<ResourcePath>()} {
-  }
+  DocumentKey();
 
   /** Creates a new document key containing a copy of the given path. */
   explicit DocumentKey(const ResourcePath& path);
@@ -51,47 +52,32 @@ class DocumentKey : public util::InequalityComparable<DocumentKey> {
    * Creates and returns a new document key using '/' to split the string into
    * segments.
    */
-  static DocumentKey FromPathString(const std::string& path) {
-    return DocumentKey{ResourcePath::FromStringView(path)};
-  }
+  static DocumentKey FromPathString(const std::string& path);
 
   /** Creates and returns a new document key with the given segments. */
-  static DocumentKey FromSegments(std::initializer_list<std::string> list) {
-    return DocumentKey{ResourcePath{list}};
-  }
+  static DocumentKey FromSegments(std::initializer_list<std::string> list);
 
   /** Returns a shared instance of an empty document key. */
   static const DocumentKey& Empty();
 
   /** Returns true iff the given path is a path to a document. */
-  static bool IsDocumentKey(const ResourcePath& path) {
-    return path.size() % 2 == 0;
-  }
+  static bool IsDocumentKey(const ResourcePath& path);
 
   util::ComparisonResult CompareTo(const DocumentKey& other) const;
 
-  friend bool operator==(const DocumentKey& lhs, const DocumentKey& rhs) {
-    return lhs.path() == rhs.path();
-  }
+  friend bool operator==(const DocumentKey& lhs, const DocumentKey& rhs);
 
-  size_t Hash() const {
-    return util::Hash(ToString());
-  }
+  size_t Hash() const;
 
   std::string ToString() const;
 
   friend std::ostream& operator<<(std::ostream& os, const DocumentKey& key);
 
   /** The path to the document. */
-  const ResourcePath& path() const {
-    return path_ ? *path_ : Empty().path();
-  }
+  const ResourcePath& path() const;
 
   /** Returns true if the document is in the specified collection_id. */
-  bool HasCollectionId(const std::string& collection_id) const {
-    size_t size = path().size();
-    return size >= 2 && path()[size - 2] == collection_id;
-  }
+  bool HasCollectionId(const std::string& collection_id) const;
 
  private:
   // This is an optimization to make passing DocumentKey around cheaper (it's
@@ -99,10 +85,23 @@ class DocumentKey : public util::InequalityComparable<DocumentKey> {
   std::shared_ptr<const ResourcePath> path_;
 };
 
+inline bool operator!=(const DocumentKey& lhs, const DocumentKey& rhs) {
+  return !(lhs == rhs);
+}
+
+bool operator<(const DocumentKey& lhs, const DocumentKey& rhs);
+bool operator>(const DocumentKey& lhs, const DocumentKey& rhs);
+
+inline bool operator<=(const DocumentKey& lhs, const DocumentKey& rhs) {
+  return !(rhs < lhs);
+}
+
+inline bool operator>=(const DocumentKey& lhs, const DocumentKey& rhs) {
+  return !(lhs < rhs);
+}
+
 struct DocumentKeyHash {
-  size_t operator()(const DocumentKey& key) const {
-    return util::Hash(key.path());
-  }
+  size_t operator()(const DocumentKey& key) const;
 };
 
 }  // namespace model

@@ -23,6 +23,7 @@
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 
+#include "Firestore/core/src/firebase/firestore/api/query_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/core/firestore_client.h"
 #include "Firestore/core/test/firebase/firestore/testutil/app_testing.h"
 

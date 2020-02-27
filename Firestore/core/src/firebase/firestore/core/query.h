@@ -24,18 +24,18 @@
 #include <utility>
 #include <vector>
 
-#include "Firestore/core/src/firebase/firestore/core/bound.h"
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/core/order_by.h"
 #include "Firestore/core/src/firebase/firestore/core/target.h"
 #include "Firestore/core/src/firebase/firestore/immutable/append_only_list.h"
-#include "Firestore/core/src/firebase/firestore/model/document.h"
-#include "Firestore/core/src/firebase/firestore/model/document_set.h"
+#include "Firestore/core/src/firebase/firestore/model/model_fwd.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 
 namespace firebase {
 namespace firestore {
 namespace core {
+
+class Bound;
 
 using CollectionGroupId = std::shared_ptr<const std::string>;
 

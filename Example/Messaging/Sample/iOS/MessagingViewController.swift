@@ -19,10 +19,10 @@ import UIKit
 import FirebaseMessaging
 
 enum Row: String {
-  case apnsToken = "apnsToken"
-  case apnsStatus = "apnsStatus"
-  case requestAPNSPermissions = "requestAPNSPermissions"
-  case fcmToken = "fcmToken"
+  case apnsToken
+  case apnsStatus
+  case requestAPNSPermissions
+  case fcmToken
 }
 
 enum PermissionsButtonTitle: String {
@@ -33,7 +33,6 @@ enum PermissionsButtonTitle: String {
 }
 
 class MessagingViewController: UIViewController {
-
   let tableView: UITableView
 
   var sections = [[Row]]()
@@ -58,7 +57,7 @@ class MessagingViewController: UIViewController {
   override func loadView() {
     super.loadView()
     view = UIView(frame: CGRect.zero)
-    view.addSubview(self.tableView)
+    view.addSubview(tableView)
     // Ensure that the tableView always is the size of the view
     tableView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
   }
@@ -67,7 +66,7 @@ class MessagingViewController: UIViewController {
     super.viewDidLoad()
     let center = NotificationCenter.default
     center.addObserver(self,
-                       selector: #selector(onAPNSTokenReceived) ,
+                       selector: #selector(onAPNSTokenReceived),
                        name: APNSTokenReceivedNotification,
                        object: nil)
     center.addObserver(self,
@@ -88,8 +87,8 @@ class MessagingViewController: UIViewController {
     // Reload the appropriate cells
     updateAllowedNotificationTypes {
       if let tokenPath = self.indexPathFor(.apnsToken),
-         let statusPath = self.indexPathFor(.apnsStatus),
-         let requestPath = self.indexPathFor(.requestAPNSPermissions) {
+        let statusPath = self.indexPathFor(.apnsStatus),
+        let requestPath = self.indexPathFor(.requestAPNSPermissions) {
         self.updateIndexPaths(indexPaths: [tokenPath, statusPath, requestPath])
       }
     }
@@ -104,7 +103,7 @@ class MessagingViewController: UIViewController {
   func onUserNotificationSettingsChanged() {
     updateAllowedNotificationTypes {
       if let statusPath = self.indexPathFor(.apnsStatus),
-         let requestPath = self.indexPathFor(.requestAPNSPermissions) {
+        let requestPath = self.indexPathFor(.requestAPNSPermissions) {
         self.updateIndexPaths(indexPaths: [statusPath, requestPath])
       }
     }
@@ -117,7 +116,7 @@ class MessagingViewController: UIViewController {
   }
 
   fileprivate func updateAllowedNotificationTypes(_ completion: (() -> Void)?) {
-    NotificationsController.shared.getAllowedNotificationTypes { (types) in
+    NotificationsController.shared.getAllowedNotificationTypes { types in
       self.allowedNotificationTypes = types
       self.updateRequestAPNSButton()
       completion?()
@@ -137,14 +136,15 @@ class MessagingViewController: UIViewController {
     }
 
     requestPermissionsButton.isEnabled =
-        (allowedTypes.count == 1 && allowedTypes.first! == .silent)
+      (allowedTypes.count == 1 && allowedTypes.first! == .silent)
 
     let title: PermissionsButtonTitle =
-        (requestPermissionsButton.isEnabled ? .requestPermissions : .alreadyRequested)
+      (requestPermissionsButton.isEnabled ? .requestPermissions : .alreadyRequested)
     requestPermissionsButton.setTitle(title.rawValue, for: .normal)
   }
 
   // MARK: UI (Cells and Buttons) Defined as lazy properties
+
   lazy var apnsTableCell: UITableViewCell = {
     let cell = UITableViewCell(style: .subtitle, reuseIdentifier: Row.apnsToken.rawValue)
     cell.textLabel?.numberOfLines = 0
@@ -191,6 +191,7 @@ class MessagingViewController: UIViewController {
 }
 
 // MARK: - Configuring the table view and cells with information
+
 extension MessagingViewController {
   func resetTableContents() {
     sections.removeAll()
@@ -205,7 +206,6 @@ extension MessagingViewController {
     let fcmSection: [Row] = [.fcmToken]
     sections.append(fcmSection)
     sectionHeaderTitles.append("FCM Token")
-
   }
 
   func indexPathFor(_ rowId: Row) -> IndexPath? {
@@ -240,7 +240,7 @@ extension MessagingViewController {
 
   func configureCellWithAPNSStatus(_ cell: UITableViewCell) {
     if let allowedNotificationTypes = allowedNotificationTypes {
-      let displayableTypes: [String] = allowedNotificationTypes.map { return $0.rawValue }
+      let displayableTypes: [String] = allowedNotificationTypes.map { $0.rawValue }
       cell.detailTextLabel?.text = displayableTypes.joined(separator: ", ")
     } else {
       cell.detailTextLabel?.text = "Retrieving..."
@@ -259,6 +259,7 @@ extension MessagingViewController {
 }
 
 // MARK: - UITableViewDataSource
+
 extension MessagingViewController: UITableViewDataSource {
   func numberOfSections(in tableView: UITableView) -> Int {
     return sections.count
@@ -295,6 +296,7 @@ extension MessagingViewController: UITableViewDataSource {
 }
 
 // MARK: - UITableViewDelegate
+
 extension MessagingViewController: UITableViewDelegate {
   func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
     tableView.deselectRow(at: indexPath, animated: true)
@@ -315,6 +317,7 @@ extension MessagingViewController: UITableViewDelegate {
 }
 
 // MARK: - UI Controls
+
 extension MessagingViewController {
   func onRequestUserNotificationsButtonTapped(sender: UIButton) {
     NotificationsController.shared.registerForUserFacingNotificationsFor(UIApplication.shared)
@@ -322,6 +325,7 @@ extension MessagingViewController {
 }
 
 // MARK: - Activity View Controller
+
 extension MessagingViewController {
   func showActivityViewControllerFor(sharedItem: Any) {
     let activityViewController = UIActivityViewController(activityItems: [sharedItem],
@@ -329,4 +333,3 @@ extension MessagingViewController {
     present(activityViewController, animated: true, completion: nil)
   }
 }
-

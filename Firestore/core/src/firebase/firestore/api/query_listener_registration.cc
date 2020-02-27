@@ -15,7 +15,13 @@
  */
 
 #include "Firestore/core/src/firebase/firestore/api/query_listener_registration.h"
+
+#include <utility>
+
+#include "Firestore/core/src/firebase/firestore/core/event_listener.h"
 #include "Firestore/core/src/firebase/firestore/core/firestore_client.h"
+#include "Firestore/core/src/firebase/firestore/core/query_listener.h"
+#include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 
 namespace firebase {
 namespace firestore {

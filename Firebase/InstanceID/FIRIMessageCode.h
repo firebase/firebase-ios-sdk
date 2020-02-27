@@ -143,8 +143,5 @@ typedef NS_ENUM(NSInteger, FIRInstanceIDMessageCode) {
   kFIRInstanceIDKeychainCreateKeyPairError = 23003,
   kFIRInstanceIDKeychainUpdateItemError = 23004,
 
-  // FIRInstanceIDStringEncoding.m
-  kFIRInstanceIDStringEncodingBufferUnderflow = 24000,
-  kFIRInstanceIDStringEncodingBufferOverflow = 24001,
-
+  // DO NOT USE 24000, 24001
 };

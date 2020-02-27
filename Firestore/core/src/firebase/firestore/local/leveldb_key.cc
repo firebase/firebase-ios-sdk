@@ -20,6 +20,7 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/local/leveldb_util.h"
+#include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
 #include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
 #include "absl/base/attributes.h"
 #include "absl/strings/escaping.h"

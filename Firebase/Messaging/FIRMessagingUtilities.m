@@ -149,8 +149,7 @@ NSString *FIRMessagingCurrentAppVersion(void) {
   return version;
 }
 
-
-NSString * FIRMessagingBundleIDByRemovingLastPartFrom(NSString *bundleID) {
+NSString *FIRMessagingBundleIDByRemovingLastPartFrom(NSString *bundleID) {
   NSString *bundleIDComponentsSeparator = @".";
 
   NSMutableArray<NSString *> *bundleIDComponents =
@@ -195,8 +194,8 @@ uint64_t FIRMessagingGetFreeDiskSpaceInMB(void) {
 
 NSSearchPathDirectory FIRMessagingSupportedDirectory(void) {
 #if TARGET_OS_TV
-    return NSCachesDirectory;
+  return NSCachesDirectory;
 #else
-    return NSApplicationSupportDirectory;
+  return NSApplicationSupportDirectory;
 #endif
 }

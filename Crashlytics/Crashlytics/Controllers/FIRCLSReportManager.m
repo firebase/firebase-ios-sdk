@@ -184,7 +184,7 @@ typedef NSNumber FIRCLSWrappedBool;
 static void (^reportSentCallback)(void);
 
 - (instancetype)initWithFileManager:(FIRCLSFileManager *)fileManager
-                         instanceID:(FIRInstanceID *)instanceID
+                      installations:(FIRInstallations *)installations
                           analytics:(id<FIRAnalyticsInterop>)analytics
                         googleAppID:(NSString *)googleAppID
                         dataArbiter:(FIRCLSDataCollectionArbiter *)dataArbiter
@@ -219,7 +219,7 @@ static void (^reportSentCallback)(void);
   _checkForUnsentReportsCalled = NO;
 
   _appIDModel = [[FIRCLSApplicationIdentifierModel alloc] init];
-  _installIDModel = [[FIRCLSInstallIdentifierModel alloc] initWithInstanceID:instanceID];
+  _installIDModel = [[FIRCLSInstallIdentifierModel alloc] initWithInstallations:installations];
   _executionIDModel = [[FIRCLSExecutionIdentifierModel alloc] init];
 
   _settings = [[FIRCLSSettings alloc] initWithFileManager:_fileManager appIDModel:_appIDModel];

@@ -16,8 +16,12 @@
 
 #include "Firestore/core/src/firebase/firestore/model/unknown_document.h"
 
+#include <memory>
 #include <string>
 #include <utility>
+
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "absl/strings/str_cat.h"
 
 namespace firebase {
 namespace firestore {

@@ -23,13 +23,24 @@
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/core/direction.h"
-#include "Firestore/core/src/firebase/firestore/immutable/append_only_list.h"
-#include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
-#include "Firestore/core/src/firebase/firestore/util/comparison.h"
 
 namespace firebase {
 namespace firestore {
+
+namespace immutable {
+template <typename T>
+class AppendOnlyList;
+}  // namespace immutable
+
+namespace model {
+class Document;
+}  // namespace model
+
+namespace util {
+enum class ComparisonResult;
+}  // namespace util
+
 namespace core {
 
 /** OrderBy is a field and direction by which to order query results. */

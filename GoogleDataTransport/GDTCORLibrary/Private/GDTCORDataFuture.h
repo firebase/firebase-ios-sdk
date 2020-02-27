@@ -21,14 +21,8 @@ NS_ASSUME_NONNULL_BEGIN
 /** This class represents a future data object, determined at instantiation time. */
 @interface GDTCORDataFuture : NSObject <NSSecureCoding>
 
-/** The data, computed on-demand, depending on the initializer. */
-@property(nullable, readonly, nonatomic) NSData *data;
-
 /** If not nil, this data future was instantiated with this file URL. */
 @property(nullable, readonly, nonatomic) NSURL *fileURL;
-
-/** If not nil, this data future was instantiated with this NSData instance. */
-@property(nullable, readonly, nonatomic) NSData *originalData;
 
 /** Initializes an instance with the given the fileURL.
  *

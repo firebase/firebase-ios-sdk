@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "GDTCORLibrary/Private/GDTCORReachability.h"
+#import "GDTCORLibrary/Public/GDTCORReachability.h"
 #import "GDTCORLibrary/Private/GDTCORReachability_Private.h"
 #if !TARGET_OS_WATCH
 
@@ -60,7 +60,8 @@ static void GDTCORReachabilityCallback(SCNetworkReachabilityRef reachability,
   __block SCNetworkReachabilityFlags currentFlags;
   dispatch_sync([GDTCORReachability sharedInstance] -> _reachabilityQueue, ^{
     GDTCORReachability *reachability = [GDTCORReachability sharedInstance];
-    currentFlags = reachability->_flags ? reachability->_flags : reachability->_callbackFlags;
+    currentFlags =
+        reachability->_callbackFlags ? reachability->_callbackFlags : reachability->_flags;
     GDTCORLogDebug("Initial reachability flags determined: %d", currentFlags);
   });
   return currentFlags;
