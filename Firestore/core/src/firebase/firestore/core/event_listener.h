@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_EVENT_LISTENER_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_EVENT_LISTENER_H_
 
-#include <atomic>
 #include <memory>
+#include <mutex>  // NOLINT(build/c++11)
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
@@ -64,9 +64,6 @@ class AsyncEventListener
   AsyncEventListener(const std::shared_ptr<util::Executor>& executor,
                      DelegateListener&& delegate)
       : executor_(executor), delegate_(std::move(delegate)) {
-    // std::atomic's constructor is not atomic, so assign after contruction
-    // (since assignment is atomic).
-    muted_ = false;
   }
 
   static std::shared_ptr<AsyncEventListener<T>> Create(
@@ -87,9 +84,32 @@ class AsyncEventListener
   void Mute();
 
  private:
-  std::atomic<bool> muted_;
   std::shared_ptr<util::Executor> executor_;
   DelegateListener delegate_;
+
+  // A mutex that protects both muting the AsyncEventListener and also calling
+  // out to the delegate.
+  //
+  // Mute calls must be synchronized because users expect that when they call
+  // `ListenerRegistration::Remove` that they don't get notifications pretty
+  // much immediately upon return of that method. That is, we can't afford to
+  // wait for the `Remove` to be submitted through the `AsyncQueue`.
+  //
+  // The call to delegate_->OnEvent must also be protected in order to ensure
+  // that The `Firestore` instance isn't destroyed while we're calling out to
+  // user code. `Firestore::Dispose` (eventually) calls `Mute` on each listener
+  // and forcing `Mute` and `OnEvent` to be mutually exclusive avoids a race.
+  //
+  // This must be a recursive mutex because the `DelegateListener` may be user
+  // code, and that we must allow that user code to invoke
+  // `ListenerRegistration::Remove` (which calls `Mute` on this class). If this
+  // were a non-recursive mutex such a call would deadlock.
+  //
+  // PORTING NOTE: On Android there's only a `volatile bool muted` because
+  // there's no race with destruction; the only thing that needs protection is
+  // that the listener immediately stops emitting events.
+  std::recursive_mutex mutex_;
+  bool muted_ = false;
 };
 
 template <typename T>
@@ -120,6 +140,7 @@ std::shared_ptr<AsyncEventListener<T>> AsyncEventListener<T>::Create(
 
 template <typename T>
 void AsyncEventListener<T>::Mute() {
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
   muted_ = true;
 }
 
@@ -132,6 +153,9 @@ void AsyncEventListener<T>::OnEvent(util::StatusOr<T> maybe_value) {
   std::shared_ptr<AsyncEventListener<T>> shared_this = this->shared_from_this();
 
   executor_->Execute([shared_this, maybe_value]() {
+    // Hold the lock while calling the delegate in order to prevent concurrent
+    // destruction of the Firestore instance.
+    std::lock_guard<std::recursive_mutex> lock(shared_this->mutex_);
     if (!shared_this->muted_) {
       shared_this->delegate_->OnEvent(std::move(maybe_value));
     }

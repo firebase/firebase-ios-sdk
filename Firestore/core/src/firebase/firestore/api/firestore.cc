@@ -63,13 +63,7 @@ Firestore::Firestore(model::DatabaseId database_id,
 }
 
 Firestore::~Firestore() {
-  std::lock_guard<std::mutex> lock{mutex_};
-
-  // If the client hasn't been configured yet we don't need to create it just
-  // to tear it down.
-  if (!client_) return;
-
-  client_->Dispose();
+  Dispose();
 }
 
 const std::shared_ptr<FirestoreClient>& Firestore::client() {
@@ -144,6 +138,17 @@ void Firestore::Terminate(util::StatusCallback callback) {
   // throws an exception.
   EnsureClientConfigured();
   client_->TerminateAsync(std::move(callback));
+}
+
+void Firestore::Dispose() {
+  std::lock_guard<std::mutex> lock{mutex_};
+
+  // If the client hasn't been configured yet we don't need to create it just
+  // to dispose of it.
+  if (!client_) return;
+
+  client_->Dispose();
+  client_.reset();
 }
 
 void Firestore::WaitForPendingWrites(util::StatusCallback callback) {

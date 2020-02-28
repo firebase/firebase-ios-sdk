@@ -256,7 +256,8 @@ DelayedOperation ExecutorLibdispatch::Schedule(const Milliseconds delay,
   // stores an observer pointer to the operation.
   TimeSlot* time_slot = nullptr;
   TimeSlotId time_slot_id = 0;
-  DispatchSync(dispatch_queue_, [this, delay, &operation, &time_slot, &time_slot_id] {
+  DispatchSync(dispatch_queue_, [this, delay, &operation, &time_slot,
+                                 &time_slot_id] {
     time_slot_id = NextId();
     time_slot = new TimeSlot{this, delay, std::move(operation), time_slot_id};
     schedule_[time_slot_id] = time_slot;

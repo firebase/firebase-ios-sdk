@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -92,6 +92,16 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
                       core::TransactionResultCallback result_callback);
 
   void Terminate(util::StatusCallback callback);
+
+  /**
+   * Synchronously terminates this Firestore instance including its
+   * `FirestoreClient`. Waits for all outstanding operations to complete.
+   *
+   * See `FirestoreClient::Dispose` for more details on exactly what is
+   * disposed.
+   */
+  void Dispose();
+
   void ClearPersistence(util::StatusCallback callback);
   void WaitForPendingWrites(util::StatusCallback callback);
   std::unique_ptr<ListenerRegistration> AddSnapshotsInSyncListener(
