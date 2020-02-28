@@ -20,7 +20,6 @@ import ArgumentParser
 import ManifestReader
 
 struct FirebasePodUpdater: ParsableCommand {
-
   /// The root of the Firebase git repo.
   @Option(help: "The root of the firebase-ios-sdk checked out git repo.",
           transform: URL.init(fileURLWithPath:))
@@ -66,7 +65,7 @@ struct FirebasePodUpdater: ParsableCommand {
     var releasingVersions: [String: String] = [:]
 
     // Override any of the expected versions with the current release manifest, if it exists.
-    let loadedRelease = ManifestReader.loadCurrentRelease(fromTextproto: self.currentRelease)
+    let loadedRelease = ManifestReader.loadCurrentRelease(fromTextproto: currentRelease)
     print("Overriding the following Pod versions, taken from the current release manifest:")
     for pod in loadedRelease.sdk {
       releasingVersions[pod.sdkName] = pod.sdkVersion
