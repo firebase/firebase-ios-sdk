@@ -145,15 +145,17 @@
   NSURL *url = [NSURL URLWithString:@"https://google.com"];
   NSURLSession *currentURLSession = [NSURLSession sharedSession];
   BOOL __block reachablity = NO;
-  NSURLSessionTask *networkTask = [currentURLSession dataTaskWithURL:url completionHandler:^(NSData *data, NSURLResponse *response, NSError* error) {
-    if(!error && response) {
-      reachablity = YES;
-    }
-    dispatch_semaphore_signal(semaphore);
-  }];
+  NSURLSessionTask *networkTask =
+      [currentURLSession dataTaskWithURL:url
+                       completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+                         if (!error && response) {
+                           reachablity = YES;
+                         }
+                         dispatch_semaphore_signal(semaphore);
+                       }];
   [networkTask resume];
   dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
-  if(reachablity) {
+  if (reachablity) {
     return GDTCORUploadConditionWifiData;
   } else {
     return GDTCORUploadConditionNoNetwork;
