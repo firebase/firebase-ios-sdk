@@ -43,7 +43,7 @@ class InterfaceController: WKInterfaceController {
     let transportToUse = transport
     let event: GDTCOREvent = transportToUse.eventForTransport()
     let testMessage = FirelogTestMessageHolder()
-    testMessage.root.identifier = "ios_test_app_data_event"
+    testMessage.root.identifier = "watchos_test_app_data_event"
     testMessage.root.repeatedID = ["id1", "id2", "id3"]
     testMessage.root.warriorChampionships = 1_111_110
     testMessage.root.subMessage.starTrekData = "technoBabble".data(using: String.Encoding.utf8)!
@@ -62,7 +62,7 @@ class InterfaceController: WKInterfaceController {
     let transportToUse = transport
     let event: GDTCOREvent = transportToUse.eventForTransport()
     let testMessage = FirelogTestMessageHolder()
-    testMessage.root.identifier = "ios_test_app_telemetry_event"
+    testMessage.root.identifier = "watchos_test_app_telemetry_event"
     testMessage.root.warriorChampionships = 1000
     testMessage.root.subMessage.repeatedSubMessage = [
       SubMessageTwo(),
@@ -77,7 +77,7 @@ class InterfaceController: WKInterfaceController {
     let transportToUse = transport
     let event: GDTCOREvent = transportToUse.eventForTransport()
     let testMessage = FirelogTestMessageHolder()
-    testMessage.root.identifier = "ios_test_app_high_priority_event"
+    testMessage.root.identifier = "watchos_test_app_high_priority_event"
     testMessage.root.repeatedID = ["id1", "id2", "id3"]
     testMessage.root.warriorChampionships = 1337
     event.qosTier = GDTCOREventQoS.qoSFast
@@ -91,7 +91,7 @@ class InterfaceController: WKInterfaceController {
     let transportToUse = transport
     let event: GDTCOREvent = transportToUse.eventForTransport()
     let testMessage = FirelogTestMessageHolder()
-    testMessage.root.identifier = "ios_test_app_wifi_only_event"
+    testMessage.root.identifier = "watchos_test_app_wifi_only_event"
     event.qosTier = GDTCOREventQoS.qoSWifiOnly
     event.dataObject = testMessage
     event.customPrioritizationParams = ["needs_network_connection_info": true]
@@ -103,7 +103,7 @@ class InterfaceController: WKInterfaceController {
     let transportToUse = transport
     let event: GDTCOREvent = transportToUse.eventForTransport()
     let testMessage = FirelogTestMessageHolder()
-    testMessage.root.identifier = "ios_test_app_daily_event"
+    testMessage.root.identifier = "watchos_test_app_daily_event"
     testMessage.root.repeatedID = ["id1", "id2", "id3"]
     testMessage.root.warriorChampionships = 9001
     testMessage.root.subMessage.starTrekData = "engage!".data(using: String.Encoding.utf8)!
