@@ -27,7 +27,8 @@ struct FirebasePodUpdater: ParsableCommand {
 
   /// A file URL to a textproto with the contents of a `FirebasePod_Release` object. Used to verify
   /// expected version numbers.
-  @Option(help: "The file path to a textproto file containing all the releasing Pods, of type `FirebasePod_Release`.",
+  @Option(name: .customLong("releasing-pods"),
+          help: "The file path to a textproto file containing all the releasing Pods, of type `FirebasePod_Release`.",
           transform: URL.init(fileURLWithPath:))
   var currentRelease: URL
 
