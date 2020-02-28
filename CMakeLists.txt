@@ -60,6 +60,12 @@ endif()
 enable_language(C)
 enable_language(CXX)
 
+option(
+  FIREBASE_IOS_BUILD_TESTS
+  "Enable building of C++ and Objective-C tests for this project"
+  ON
+)
+
 
 list(INSERT CMAKE_MODULE_PATH 0 ${PROJECT_SOURCE_DIR}/cmake)
 include(compiler_id)
@@ -140,6 +146,12 @@ endif()
 
 
 # gRPC
+
+# libcurl and c-ares conflict in their usage of this variable. Prevent
+# libcurl's setting of this variable from affecting the c-ares build that's
+# pulled in indirectly via gRPC.
+unset(RANDOM_FILE CACHE)
+
 find_package(OpenSSL QUIET)
 if(OPENSSL_FOUND)
   set(gRPC_SSL_PROVIDER package CACHE STRING "Use external OpenSSL")
@@ -187,7 +199,6 @@ else()
   )
 endif()
 
-add_alias(protobuf::libprotobuf libprotobuf)
 if(CXX_CLANG OR CXX_GNU)
   target_compile_options(
     libprotobuf
@@ -245,7 +256,9 @@ if(APPLE)
 endif()
 
 
-enable_testing()
+if(FIREBASE_IOS_BUILD_TESTS)
+  enable_testing()
+endif()
 include(compiler_setup)
 
 add_subdirectory(FirebaseCore)
