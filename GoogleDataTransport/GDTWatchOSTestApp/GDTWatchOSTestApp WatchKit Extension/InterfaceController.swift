@@ -21,12 +21,12 @@ import Dispatch
 import GoogleDataTransport
 
 class InterfaceController: WKInterfaceController {
-  
+
   let transport: GDTCORTransport = GDTCORTransport(mappingID: "1234", transformers: nil, target: GDTCORTarget.test.rawValue)!
 
     override func awake(withContext context: Any?) {
-        super.awake(withContext: context)
-        // Configure interface objects here.
+      super.awake(withContext: context)
+      // Configure interface objects here.
     }
     
     override func willActivate() {
@@ -34,19 +34,19 @@ class InterfaceController: WKInterfaceController {
       GDTCORRegistrar.sharedInstance().register(TestPrioritizer(), target: GDTCORTarget.test)
       super.willActivate()
     }
-    
+
     override func didDeactivate() {
-        // This method is called when watch view controller is no longer visible
-        super.didDeactivate()
+      // This method is called when watch view controller is no longer visible
+      super.didDeactivate()
     }
-  
+
   @IBAction func generateDataEvent(sender: AnyObject?) {
     print("Generating data event")
     let event: GDTCOREvent = transport.eventForTransport()
     event.dataObject = TestDataObject()
     transport.sendDataEvent(event)
   }
-  
+
   @IBAction func generateTelemetryEvent(sender: AnyObject?) {
     print("Generating telemetry event")
     let event: GDTCOREvent = transport.eventForTransport()
