@@ -121,7 +121,7 @@ class ConnectivityMonitorApple : public ConnectivityMonitor {
                   SCNetworkReachabilityFlags flags{};
                   if (SCNetworkReachabilityGetFlags(reachability_, &flags)) {
                     auto status = ToNetworkStatus(flags);
-                    if (status != ConnectivityStatus::Unavailable) {
+                    if (status != NetworkStatus::Unavailable) {
                       this->InvokeCallbacks(status);
                     } else {
                       this->MaybeInvokeCallbacks(status);
