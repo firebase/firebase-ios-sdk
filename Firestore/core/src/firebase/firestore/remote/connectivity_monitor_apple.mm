@@ -87,7 +87,7 @@ class ConnectivityMonitorApple : public ConnectivityMonitor {
       return;
     }
 
-    SCNetworkReachabilityFlags flags;
+    SCNetworkReachabilityFlags flags{};
     if (SCNetworkReachabilityGetFlags(reachability_, &flags)) {
       SetInitialStatus(ToNetworkStatus(flags));
     }
@@ -113,14 +113,19 @@ class ConnectivityMonitorApple : public ConnectivityMonitor {
     }
 
 #if TARGET_OS_IOS || TARGET_OS_TV
-    this->observer = [[NSNotificationCenter defaultCenter]
+    this->observer_ = [[NSNotificationCenter defaultCenter]
         addObserverForName:UIApplicationWillEnterForegroundNotification
                     object:nil
                      queue:[NSOperationQueue mainQueue]
                 usingBlock:^(NSNotification* note) {
-                  SCNetworkReachabilityFlags flags;
+                  SCNetworkReachabilityFlags flags{};
                   if (SCNetworkReachabilityGetFlags(reachability_, &flags)) {
-                    this->MaybeInvokeCallbacks(ToNetworkStatus(flags));
+                    auto status = ToNetworkStatus(flags);
+                    if (status != ConnectivityStatus::Unavailable) {
+                      this->InvokeCallbacks(status);
+                    } else {
+                      this->MaybeInvokeCallbacks(status);
+                    }
                   }
                 }];
 #endif
@@ -128,7 +133,7 @@ class ConnectivityMonitorApple : public ConnectivityMonitor {
 
   ~ConnectivityMonitorApple() {
 #if TARGET_OS_IOS || TARGET_OS_TV
-    [[NSNotificationCenter defaultCenter] removeObserver:this->observer];
+    [[NSNotificationCenter defaultCenter] removeObserver:this->observer_];
 #endif
 
     if (reachability_) {
@@ -150,7 +155,7 @@ class ConnectivityMonitorApple : public ConnectivityMonitor {
  private:
   SCNetworkReachabilityRef reachability_ = nil;
 #if TARGET_OS_IOS || TARGET_OS_TV
-  id<NSObject> observer = nil;
+  id<NSObject> observer_ = nil;
 #endif
 };
 
