@@ -25,6 +25,8 @@
 #import "FIRIAMTimeFetcher.h"
 #import "UIColor+FIRIAMHexString.h"
 
+// #import <FirebaseABTesting/ExperimentPayload.pbobjc.h>
+
 @interface FIRIAMFetchResponseParser ()
 @property(nonatomic) id<FIRIAMTimeFetcher> timeFetcher;
 @end
@@ -155,11 +157,18 @@
       return nil;
     }
     
-    FIRIAMExperimentalPayload *experimentalPayload = nil;
+    ABTExperimentPayload *experimentPayload = nil;
     NSDictionary *experimentPayloadDictionary = payloadNode[@"experimentPayload"];
+
     if (experimentPayloadDictionary) {
-        experimentalPayload =
-          [[FIRIAMExperimentalPayload alloc] initWithDictionary:experimentPayloadDictionary];
+      experimentPayload = [ABTExperimentPayload message];
+      experimentPayload.experimentId = experimentPayloadDictionary[@"experimentId"];
+      experimentPayload.experimentStartTimeMillis = [experimentPayloadDictionary[@"experimentStartTimeMillis"] integerValue];
+      // TODO Map this to an actual value
+      experimentPayload.overflowPolicy = ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest;
+      experimentPayload.timeToLiveMillis = [experimentPayloadDictionary[@"timeToLiveMillis"] integerValue];
+      experimentPayload.triggerTimeoutMillis = [experimentPayloadDictionary[@"triggerTimeoutMillis"] integerValue];
+      experimentPayload.variantId = [experimentPayloadDictionary[@"variantId"] stringValue];
     }
 
     NSTimeInterval startTimeInSeconds = 0;
@@ -356,7 +365,7 @@
                                                          endTime:endTimeInSeconds
                                                triggerDefinition:triggersDefinition
                                                          appData:dataBundle
-                                             experimentalPayload:experimentalPayload
+                                               experimentPayload:experimentPayload
                                                    isTestMessage:NO];
     }
   } @catch (NSException *e) {

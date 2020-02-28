@@ -291,4 +291,34 @@ NSArray *ABTExperimentsToClearFromPayloads(
   }
   return timestamp;
 }
+
+- (void)validateRunningExperimentsForServiceOrigin:(NSString *)origin
+                                          payloads:(NSArray<ABTExperimentPayload *> *)payloads {
+  ABTConditionalUserPropertyController *controller =
+      [ABTConditionalUserPropertyController sharedInstanceWithAnalytics:_analytics];
+  
+  FIRLifecycleEvents *lifecycleEvents = [[FIRLifecycleEvents alloc] init];
+
+  // Get the list of experiments from Firebase Analytics.
+  NSArray<NSDictionary <NSString *, NSString *> *> *activeExperiments =
+      [controller experimentsWithOrigin:origin];
+  
+  NSMutableSet *runningExperimentIDs = [NSMutableSet setWithCapacity:payloads.count];
+  for (ABTExperimentPayload *payload in payloads) {
+    [runningExperimentIDs addObject:payload.experimentId];
+  }
+
+  for (NSDictionary <NSString *, NSString *> *activeExperimentDictionary in activeExperiments) {
+    NSString *experimentID = activeExperimentDictionary[@"experimentId"];
+    if (![runningExperimentIDs containsObject:experimentID]) {
+      NSString *variantID = activeExperimentDictionary[@"variantId"];
+      
+      [controller clearExperiment:experimentID
+                        variantID:variantID
+                       withOrigin:origin
+                          payload:nil events:lifecycleEvents];
+    }
+  }
+}
+
 @end

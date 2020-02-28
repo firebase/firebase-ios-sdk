@@ -16,33 +16,6 @@
 
 #import "FIRIAMMessageDefinition.h"
 
-@implementation FIRIAMExperimentalPayload
-
-- (instancetype)initWithDictionary:(NSDictionary *)dictionary {
-  if (self = [super init]) {
-    _experimentID = [dictionary[@"experimentId"] stringValue];
-    _experimentStartTime = [dictionary[@"experimentStartTimeMillis"] integerValue];
-    _overflowPolicy = [dictionary[@"overflowPolicy"] stringValue];
-    _timeToLive = [dictionary[@"timeToLiveMillis"] integerValue];
-    _triggerTimeoutMillis = [dictionary[@"triggerTimeoutMillis"] integerValue];
-    _variantID = [dictionary[@"variantId"] integerValue];
-  }
-  return self;
-}
-
-- (id)copyWithZone:(NSZone *)zone {
-  FIRIAMExperimentalPayload *newPayload = [[FIRIAMExperimentalPayload alloc] init];
-  newPayload->_experimentID = [_experimentID copyWithZone:zone];
-  newPayload->_experimentStartTime = _experimentStartTime;
-  newPayload->_overflowPolicy = [_overflowPolicy copyWithZone:zone];
-  newPayload->_timeToLive = _timeToLive;
-  newPayload->_triggerTimeoutMillis = _triggerTimeoutMillis;
-  newPayload->_variantID = _variantID;
-  return newPayload;
-}
-
-@end
-
 @implementation FIRIAMMessageRenderData
 
 - (instancetype)initWithMessageID:(NSString *)messageID
@@ -60,12 +33,13 @@
 @end
 
 @implementation FIRIAMMessageDefinition
+
 - (instancetype)initWithRenderData:(FIRIAMMessageRenderData *)renderData
                          startTime:(NSTimeInterval)startTime
                            endTime:(NSTimeInterval)endTime
                  triggerDefinition:(NSArray<FIRIAMDisplayTriggerDefinition *> *)renderTriggers
                            appData:(nullable NSDictionary *)appData
-               experimentalPayload:(nullable FIRIAMExperimentalPayload *)experimentalPayload
+                 experimentPayload:(nullable ABTExperimentPayload *)experimentPayload
                      isTestMessage:(BOOL)isTestMessage {
   if (self = [super init]) {
     _renderData = renderData;
@@ -74,7 +48,7 @@
     _endTime = endTime;
     _isTestMessage = isTestMessage;
     _appData = [appData copy];
-    _experimentalPayload = [experimentalPayload copy];
+    _experimentPayload = experimentPayload;
   }
   return self;
 }
@@ -88,7 +62,7 @@
                           endTime:endTime
                 triggerDefinition:renderTriggers
                           appData:nil
-              experimentalPayload:nil
+                experimentPayload:nil
                     isTestMessage:NO];
 }
 
@@ -98,7 +72,7 @@
                           endTime:0
                 triggerDefinition:@[]
                           appData:nil
-              experimentalPayload:nil
+                experimentPayload:nil
                     isTestMessage:YES];
 }
 

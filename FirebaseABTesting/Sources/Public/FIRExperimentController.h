@@ -14,6 +14,8 @@
 
 #import <Foundation/Foundation.h>
 
+@class ABTExperimentPayload;
+
 // Forward declaration to avoid importing into the module header
 typedef NS_ENUM(int32_t, ABTExperimentPayload_ExperimentOverflowPolicy);
 
@@ -86,6 +88,11 @@ NS_SWIFT_NAME(ExperimentController)
 /// @param payloads   List of experiment metadata.
 - (NSTimeInterval)latestExperimentStartTimestampBetweenTimestamp:(NSTimeInterval)timestamp
                                                      andPayloads:(NSArray<NSData *> *)payloads;
+
+- (void)validateRunningExperimentsForServiceOrigin:(NSString *)origin
+                                          payloads:(NSArray<ABTExperimentPayload *> *)payloads;
+
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -20,20 +20,9 @@
 
 @class FIRIAMDisplayTriggerDefinition;
 
+#import <FirebaseABTesting/ExperimentPayload.pbobjc.h>
+
 NS_ASSUME_NONNULL_BEGIN
-
-@interface FIRIAMExperimentalPayload : NSObject <NSCopying>
-
-@property(nonatomic, copy) NSString *experimentID;
-@property(nonatomic) NSTimeInterval experimentStartTime;
-@property(nonatomic, copy) NSString *overflowPolicy;
-@property(nonatomic) NSTimeInterval timeToLive;
-@property(nonatomic) NSTimeInterval triggerTimeoutMillis;
-@property(nonatomic) NSInteger variantID;
-
-- (instancetype)initWithDictionary:(NSDictionary *)dictionary;
-
-@end
 
 @interface FIRIAMMessageDefinition : NSObject
 @property(nonatomic, nonnull, readonly) FIRIAMMessageRenderData *renderData;
@@ -52,7 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// Additional key-value pairs that can be optionally sent along with the FIAM
 @property(nonatomic, nullable, readonly) NSDictionary *appData;
 
-@property(nonatomic, nullable, copy) NSDictionary *experimentalPayload;
+@property(nonatomic, nullable, readonly) ABTExperimentPayload *experimentPayload;
 
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -63,8 +52,8 @@ NS_ASSUME_NONNULL_BEGIN
                          startTime:(NSTimeInterval)startTime
                            endTime:(NSTimeInterval)endTime
                  triggerDefinition:(NSArray<FIRIAMDisplayTriggerDefinition *> *)renderTriggers
-                           appData:appData
-               experimentalPayload:(nullable FIRIAMExperimentalPayload *)experimentalPayload
+                           appData:(nullable NSDictionary *)appData
+                 experimentPayload:(nullable ABTExperimentPayload *)experimentPayload
                      isTestMessage:(BOOL)isTestMessage NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)initWithRenderData:(FIRIAMMessageRenderData *)renderData

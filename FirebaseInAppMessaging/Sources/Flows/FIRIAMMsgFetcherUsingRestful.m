@@ -25,6 +25,8 @@
 #import "FIRIAMMsgFetcherUsingRestful.h"
 #import "FIRIAMSDKSettings.h"
 
+#import <FirebaseABTesting/FIRExperimentController.h>
+
 static NSInteger const SuccessHTTPStatusCode = 200;
 
 @interface FIRIAMMsgFetcherUsingRestful ()
@@ -184,6 +186,21 @@ static NSInteger const SuccessHTTPStatusCode = 200;
                     FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM130012",
                                 @"API request for fetching messages and parsing the response was "
                                  "successful.");
+                    
+                    // Validate running experiments with ABT.
+                    NSMutableArray *runningExperiments = [[NSArray array] mutableCopy];
+                    for (FIRIAMMessageDefinition *messageDefinition in messages) {
+                      if (messageDefinition.experimentPayload) {
+                        [runningExperiments addObject:messageDefinition.experimentPayload];
+                      }
+                    }
+                    
+                    if (runningExperiments.count) {
+                      [[FIRExperimentController sharedInstance]
+                          validateRunningExperimentsForServiceOrigin:@"fiam"
+                                                            payloads:[runningExperiments copy]];
+                    }
+                    
                     [self.fetchStorage
                         saveResponseDictionary:responseDict
                                 withCompletion:^(BOOL success) {
