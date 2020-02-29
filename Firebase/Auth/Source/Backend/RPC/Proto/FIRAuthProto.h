@@ -23,7 +23,6 @@ NS_ASSUME_NONNULL_BEGIN
 @optional
 - (instancetype)initWithDictionary:(NSDictionary *)dictionary;
 
-@optional
 - (NSDictionary *)dictionary;
 
 @end

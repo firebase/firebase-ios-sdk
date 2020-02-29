@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <TargetConditionals.h>
+#if !TARGET_OS_OSX && !TARGET_OS_TV
 
 #import "FIRMultiFactor.h"
 #import "FIRMultiFactor+Internal.h"
@@ -53,8 +55,7 @@ static NSString *kUserCodingKey = @"user";
   FIRPhoneMultiFactorAssertion *phoneAssertion = (FIRPhoneMultiFactorAssertion *)assertion;
   FIRAuthProtoFinalizeMfaPhoneRequestInfo *finalizeMfaPhoneRequestInfo =
       [[FIRAuthProtoFinalizeMfaPhoneRequestInfo alloc] initWithSessionInfo:phoneAssertion.authCredential.verificationID
-                                                          verificationCode:phoneAssertion.authCredential.verificationCode
-                                                               phoneNumber:@""];
+                                                          verificationCode:phoneAssertion.authCredential.verificationCode];
   FIRFinalizeMfaEnrollmentRequest *request =
   [[FIRFinalizeMfaEnrollmentRequest alloc] initWithIDToken:self.user.rawAccessToken
                                                mfaProvider:phoneAssertion.factorID
@@ -171,3 +172,5 @@ static NSString *kUserCodingKey = @"user";
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif

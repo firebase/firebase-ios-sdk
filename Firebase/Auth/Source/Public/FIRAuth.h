@@ -248,12 +248,6 @@ DEPRECATED_MSG_ATTRIBUTE("Please directly use email or previousEmail properties 
  */
 @property(nonatomic, nullable, readonly, copy) NSString *previousEmail;
 
-/** @property multiFactorInfo
-    @brief The MultiFactorInfo object of the second factor to be reverted in case of
-        FIRActionCodeMultiFactorInfoKey.
- */
-@property(nonatomic, nullable, readonly) FIRMultiFactorInfo *multiFactorInfo;
-
 /** @fn init
     @brief please use initWithOperation: instead.
  */

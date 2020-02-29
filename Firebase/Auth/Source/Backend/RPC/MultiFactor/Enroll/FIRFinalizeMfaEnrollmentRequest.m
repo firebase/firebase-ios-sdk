@@ -20,7 +20,7 @@ static NSString *const kFinalizeMfaEnrollmentEndPoint = @"accounts/mfaEnrollment
 
 @implementation FIRFinalizeMfaEnrollmentRequest
 
-- (nullable instancetype)initWithIDToken:(NSString *)idToken
+- (nullable instancetype)initWithIDToken:(NSString *)IDToken
                              mfaProvider:(NSString *)mfaProvider
                              displayName:(NSString *)displayName
                         verificationInfo:(FIRAuthProtoFinalizeMfaPhoneRequestInfo *)verificationInfo
@@ -30,7 +30,7 @@ static NSString *const kFinalizeMfaEnrollmentEndPoint = @"accounts/mfaEnrollment
              useIdentityPlatform:YES
                       useStaging:NO];
   if (self) {
-    _idToken = idToken;
+    _IDToken = IDToken;
     _mfaProvider = mfaProvider;
     _displayName = displayName;
     _verificationInfo = verificationInfo;
@@ -40,8 +40,8 @@ static NSString *const kFinalizeMfaEnrollmentEndPoint = @"accounts/mfaEnrollment
 
 - (nullable id)unencodedHTTPRequestBodyWithError:(NSError *__autoreleasing  _Nullable *)error {
   NSMutableDictionary *postBody = [NSMutableDictionary dictionary];
-  if (_idToken) {
-    postBody[@"idToken"] = _idToken;
+  if (_IDToken) {
+    postBody[@"idToken"] = _IDToken;
   }
   if (_mfaProvider) {
     postBody[@"mfaProvider"] = _mfaProvider;

@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#include <TargetConditionals.h>
+#if !TARGET_OS_OSX && !TARGET_OS_TV
+
 #import "FIRAuthBackend+MultiFactor.h"
 
 @implementation FIRAuthBackend (MultiFactor)
@@ -79,3 +82,5 @@
 }
 
 @end
+
+#endif

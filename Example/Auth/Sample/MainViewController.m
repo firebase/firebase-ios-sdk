@@ -14,21 +14,6 @@
  * limitations under the License.
  */
 
-#import "MainViewController.h"
-#import "MainViewController+App.h"
-#import "MainViewController+Auth.h"
-#import "MainViewController+AutoTests.h"
-#import "MainViewController+Custom.h"
-#import "MainViewController+Email.h"
-#import "MainViewController+Facebook.h"
-#import "MainViewController+GameCenter.h"
-#import "MainViewController+Google.h"
-#import "MainViewController+Internal.h"
-#import "MainViewController+OAuth.h"
-#import "MainViewController+OOB.h"
-#import "MainViewController+Phone.h"
-#import "MainViewController+User.h"
-
 #import <objc/runtime.h>
 
 #import <FirebaseCore/FIRApp.h>
@@ -36,23 +21,6 @@
 
 #import "AppManager.h"
 #import "AuthCredentials.h"
-#import "FIRAdditionalUserInfo.h"
-#import "FIRAuthAPNSToken.h"
-#import "FIRAuthAPNSTokenManager.h"
-#import "FIRAuthAppCredential.h"
-#import "FIRAuthAppCredentialManager.h"
-#import "FIRAuthBackend.h"
-#import "FIRAuthTokenResult.h"
-#import "FIRAuth_Internal.h"
-#import "FIRMultiFactorResolver+Internal.h"
-#import "FIRMultiFactorSession+Internal.h"
-#import "FIROAuthProvider.h"
-#import "FIRPhoneAuthCredential.h"
-#import "FIRPhoneAuthProvider.h"
-#import "FIRPhoneMultiFactorInfo.h"
-#import "FIRSendVerificationCodeRequest.h"
-#import "FIRVerifyClientRequest.h"
-#import "FIRVerifyClientResponse.h"
 #import "FacebookAuthProvider.h"
 #import "FirebaseAuth.h"
 #import "GoogleAuthProvider.h"
@@ -383,9 +351,9 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
                                                                              FIRMultiFactorAssertion *assertion = [FIRPhoneMultiFactorGenerator assertionWithCredential:credential];
                                                                              [resolver resolveSignInWithAssertion:assertion completion:^(FIRAuthDataResult * _Nullable authResult, NSError * _Nullable error) {
                                                                                if (error) {
-                                                                                 [self logFailure:@"Multi factor finanlize sign in failed." error:error];
+                                                                                 [self logFailure:@"Multi factor finalize sign in failed." error:error];
                                                                                } else {
-                                                                                 [self logSuccess:@"Multi factor finanlize sign in succeeded."];
+                                                                                 [self logSuccess:@"Multi factor finalize sign in succeeded."];
                                                                                }
                                                                              }];
                                                                            }];
@@ -484,9 +452,9 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
                  FIRMultiFactorAssertion *assertion = [FIRPhoneMultiFactorGenerator assertionWithCredential:credential];
                  [resolver resolveSignInWithAssertion:assertion completion:^(FIRAuthDataResult * _Nullable authResult, NSError * _Nullable error) {
                    if (error) {
-                     [self logFailure:@"Multi factor finanlize sign in failed." error:error];
+                     [self logFailure:@"Multi factor finalize sign in failed." error:error];
                    } else {
-                     [self logSuccess:@"Multi factor finanlize sign in succeeded."];
+                     [self logSuccess:@"Multi factor finalize sign in succeeded."];
                    }
                  }];
                }];

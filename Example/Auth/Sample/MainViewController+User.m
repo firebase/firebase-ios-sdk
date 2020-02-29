@@ -64,9 +64,8 @@ NS_ASSUME_NONNULL_BEGIN
          } else {
            [FIRAuth.auth.currentUser getIDTokenResultWithCompletion:^(FIRAuthTokenResult *_Nullable tokenResult,
                                                                       NSError *_Nullable error) {
-             ;
+             [self logSuccess:@"set display name succeeded."];
            }];
-           [self logSuccess:@"set display name succeeded."];
          }
          [self showTypicalUIForUserUpdateResultsWithTitle:@"Set Display Name" error:error];
        }];

@@ -390,62 +390,52 @@ static NSString *const kMissingClientIdentifier = @"MISSING_CLIENT_IDENTIFIER";
 static NSString *const kCaptchaCheckFailedErrorMessage = @"CAPTCHA_CHECK_FAILED";
 
 /** @var kMissingMfaPendingCredentialErrorMessage
- @brief This is the error message the server will respond with if the reCAPTCHA token provided is
- invalid.
+ @brief This is the error message the server will respond with if the MFA pending credential is missing.
  */
 static NSString *const kMissingMfaPendingCredentialErrorMessage = @"MISSING_MFA_PENDING_CREDENTIAL";
 
 /** @var kMissingMfaEnrollmentIDErrorMessage
- @brief This is the error message the server will respond with if the reCAPTCHA token provided is
- invalid.
+ @brief This is the error message the server will respond with if the MFA enrollment ID is missing.
  */
 static NSString *const kMissingMfaEnrollmentIDErrorMessage = @"MISSING_MFA_ENROLLMENT_ID";
 
 /** @var kInvalidMfaPendingCredentialErrorMessage
- @brief This is the error message the server will respond with if the reCAPTCHA token provided is
- invalid.
+ @brief This is the error message the server will respond with if the MFA pending credential is invalid.
  */
 static NSString *const kInvalidMfaPendingCredentialErrorMessage = @"INVALID_MFA_PENDING_CREDENTIAL";
 
 /** @var kMfaEnrollmentNotFoundErrorMessage
- @brief This is the error message the server will respond with if the reCAPTCHA token provided is
- invalid.
+ @brief This is the error message the server will respond with if the MFA enrollment info is not found.
  */
 static NSString *const kMfaEnrollmentNotFoundErrorMessage = @"MFA_ENROLLMENT_NOT_FOUND";
 
 /** @var kAdminOnlyOperationErrorMessage
- @brief This is the error message the server will respond with if the reCAPTCHA token provided is
- invalid.
+ @brief This is the error message the server will respond with if the operation is admin only.
  */
 static NSString *const kAdminOnlyOperationErrorMessage = @"ADMIN_ONLY_OPERATION";
 
 /** @var kUnverifiedEmailErrorMessage
- @brief This is the error message the server will respond with if the reCAPTCHA token provided is
- invalid.
+ @brief This is the error message the server will respond with if the email is unverified.
  */
 static NSString *const kUnverifiedEmailErrorMessage = @"UNVERIFIED_EMAIL";
 
 /** @var kSecondFactorExistsErrorMessage
- @brief This is the error message the server will respond with if the reCAPTCHA token provided is
- invalid.
+ @brief This is the error message the server will respond with if the second factor already exsists.
  */
 static NSString *const kSecondFactorExistsErrorMessage = @"SECOND_FACTOR_EXISTS";
 
 /** @var kSecondFactorLimitExceededErrorMessage
- @brief This is the error message the server will respond with if the reCAPTCHA token provided is
- invalid.
+ @brief This is the error message the server will respond with if the number of second factor reaches the limit.
  */
 static NSString *const kSecondFactorLimitExceededErrorMessage = @"SECOND_FACTOR_LIMIT_EXCEEDED";
 
 /** @var kUnsupportedFirstFactorErrorMessage
- @brief This is the error message the server will respond with if the reCAPTCHA token provided is
- invalid.
+ @brief This is the error message the server will respond with if the first factor doesn't support MFA.
  */
 static NSString *const kUnsupportedFirstFactorErrorMessage = @"UNSUPPORTED_FIRST_FACTOR";
 
 /** @var kEmailChangeNeedsVerificationErrorMessage
- @brief This is the error message the server will respond with if the reCAPTCHA token provided is
- invalid.
+ @brief This is the error message the server will respond with if changing an unverified email.
  */
 static NSString *const kEmailChangeNeedsVerificationErrorMessage = @"EMAIL_CHANGE_NEEDS_VERIFICATION";
 

@@ -32,16 +32,14 @@ class PhoneMultiFactorTests: FIRAuthApiTestsBase {
     let enrollExpectation = self.expectation(description: "Enroll phone multi factor finished.")
     let unenrollExpectation = self.expectation(description: "Unenroll phone multi factor finished.")
     Auth.auth().signIn(withEmail: kNoSecondFactorUserEmail, password: kNoSecondFactorUserPassword) { (result, error) in
-      if (error != nil) {
-        XCTFail(String(format: "User normal sign in failed. Error: %@", error!.localizedDescription))
-      }
+      XCTAssertNil(String(format: "User normal sign in failed. Error: %@", error!.localizedDescription))
 
       // Enroll
-      var user = result?.user
-      user?.multiFactor.getSessionWithCompletion({ (session, error) in
-        if (error != nil) {
-          XCTFail(String(format: "Get multi factor session failed. Error: %@", error!.localizedDescription))
-        }
+      guard let user = result?.user else {
+        XCTFail("No valid user after attempted sign-in.")
+      }
+      user.multiFactor.getSessionWithCompletion({ (session, error) in
+        XCTAssertNil(String(format: "Get multi factor session failed. Error: %@", error!.localizedDescription))
         PhoneAuthProvider.provider().verifyPhoneNumber(
           kPhoneSecondFactorPhoneNumber,
           uiDelegate: nil,
@@ -63,9 +61,7 @@ class PhoneMultiFactorTests: FIRAuthApiTestsBase {
               // Unenroll
               user = Auth.auth().currentUser
               user?.multiFactor.unenroll(with: (user?.multiFactor.enrolledFactors.first)!, completion: { (error) in
-                if (error != nil) {
-                  XCTFail(String(format: "Phone multi factor unenroll failed. Error: %@", error!.localizedDescription))
-                }
+                XCTAssertNil(String(format: "Phone multi factor unenroll failed. Error: %@", error!.localizedDescription))
                 XCTAssertEqual(Auth.auth().currentUser?.multiFactor.enrolledFactors.count, 0)
                 unenrollExpectation.fulfill()
               })
@@ -81,34 +77,32 @@ class PhoneMultiFactorTests: FIRAuthApiTestsBase {
     }
   }
 
-  func testSignIn() {
+  func testSignInWithSecondFactor() {
     let signInExpectation = self.expectation(description: "Sign in with phone multi factor finished.")
     Auth.auth().signIn(withEmail: kOneSecondFactorUserEmail, password: kOneSecondFactorUserPassword) { (result, error) in
       // SignIn
-      let authError = error as NSError?
-      if (authError == nil || authError!.code != AuthErrorCode.secondFactorRequired.rawValue) {
+      guard let error = error, error.code == AuthErrorCode.secondFactorRequired.rawValue else {
         XCTFail(String(format: "User sign in returns wrong error. Error: %@", error!.localizedDescription))
-      } else {
-        let resolver = authError!.userInfo["FIRAuthErrorUserInfoMultiFactorResolverKey"] as! MultiFactorResolver
-        let hint = resolver.hints.first as! PhoneMultiFactorInfo
-        PhoneAuthProvider.provider().verifyPhoneNumber(
-          with: hint,
-          uiDelegate: nil,
-          multiFactorSession: resolver.session) { (verificationId, error) in
+      }
+      let resolver = authError!.userInfo["FIRAuthErrorUserInfoMultiFactorResolverKey"] as! MultiFactorResolver
+      let hint = resolver.hints.first as! PhoneMultiFactorInfo
+      PhoneAuthProvider.provider().verifyPhoneNumber(
+        with: hint,
+        uiDelegate: nil,
+        multiFactorSession: resolver.session) { (verificationId, error) in
+          if error != nil {
+            XCTFail(String(format: "Failed to verify phone number. Error: %@", error!.localizedDescription))
+          }
+          let credential = PhoneAuthProvider.provider().credential(
+            withVerificationID: verificationId!,
+            verificationCode: kPhoneSecondFactorVerificationCode)
+          let assertion = PhoneMultiFactorGenerator.assertion(with: credential);
+          resolver.resolveSignIn(with: assertion) { (authResult, error) in
             if error != nil {
-              XCTFail(String(format: "Failed to verify phone number. Error: %@", error!.localizedDescription))
+              XCTFail(String(format: "Failed to sign in with phone multi factor. Error: %@", error!.localizedDescription))
             }
-            let credential = PhoneAuthProvider.provider().credential(
-              withVerificationID: verificationId!,
-              verificationCode: kPhoneSecondFactorVerificationCode)
-            let assertion = PhoneMultiFactorGenerator.assertion(with: credential);
-            resolver.resolveSignIn(with: assertion) { (authResult, error) in
-              if error != nil {
-                XCTFail(String(format: "Failed to sign in with phone multi factor. Error: %@", error!.localizedDescription))
-              }
-              signInExpectation.fulfill()
-            }
-        }
+            signInExpectation.fulfill()
+          }
       }
     }
 

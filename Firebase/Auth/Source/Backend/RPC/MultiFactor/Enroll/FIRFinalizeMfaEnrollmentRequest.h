@@ -22,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRFinalizeMfaEnrollmentRequest : FIRIdentityToolkitRequest <FIRAuthRPCRequest>
 
-@property(nonatomic, copy, readonly, nullable) NSString *idToken;
+@property(nonatomic, copy, readonly, nullable) NSString *IDToken;
 
 @property(nonatomic, copy, readonly, nullable) NSString *mfaProvider;
 

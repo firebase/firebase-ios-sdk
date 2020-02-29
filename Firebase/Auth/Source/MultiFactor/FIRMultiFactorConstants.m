@@ -14,8 +14,13 @@
  * limitations under the License.
  */
 
+#include <TargetConditionals.h>
+#if !TARGET_OS_OSX && !TARGET_OS_TV
+
 #import <Foundation/Foundation.h>
 
 #pragma mark - Multi Factor ID constants
 
 NSString *const FIRPhoneMultiFactorID = @"1";
+
+#endif

@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <TargetConditionals.h>
+#if !TARGET_OS_OSX && !TARGET_OS_TV
+
 
 #import "FIRMultiFactorResolver.h"
 
@@ -55,8 +58,7 @@ NS_ASSUME_NONNULL_BEGIN
   FIRAuthProtoFinalizeMfaPhoneRequestInfo *finalizeMfaPhoneRequestInfo =
       [[FIRAuthProtoFinalizeMfaPhoneRequestInfo alloc]
        initWithSessionInfo:phoneAssertion.authCredential.verificationID
-       verificationCode:phoneAssertion.authCredential.verificationCode
-       phoneNumber:@""];
+       verificationCode:phoneAssertion.authCredential.verificationCode];
   FIRFinalizeMfaSignInRequest *request =
   [[FIRFinalizeMfaSignInRequest alloc] initWithMfaProvider:phoneAssertion.factorID
                                       mfaPendingCredential:self.mfaPendingCredential
@@ -89,3 +91,5 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif

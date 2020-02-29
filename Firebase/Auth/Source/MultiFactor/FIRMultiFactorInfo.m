@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#include <TargetConditionals.h>
+#if !TARGET_OS_OSX && !TARGET_OS_TV
+
 #import "FIRMultiFactorInfo.h"
 
 #import "FIRAuthProtoMfaEnrollment.h"
@@ -67,3 +70,5 @@ static NSString *kFactorIDCodingKey = @"factorID";
 }
 
 @end
+
+#endif

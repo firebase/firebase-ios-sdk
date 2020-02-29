@@ -157,9 +157,9 @@ typedef void (^ShowEmailDialogCompletion)(FIRAuthCredential *credential);
                          FIRMultiFactorAssertion *assertion = [FIRPhoneMultiFactorGenerator assertionWithCredential:credential];
                          [resolver resolveSignInWithAssertion:assertion completion:^(FIRAuthDataResult * _Nullable authResult, NSError * _Nullable error) {
                            if (error) {
-                             [self logFailure:@"Multi factor finanlize sign in failed." error:error];
+                             [self logFailure:@"Multi factor finalize sign in failed." error:error];
                            } else {
-                             [self logSuccess:@"Multi factor finanlize sign in succeeded."];
+                             [self logSuccess:@"Multi factor finalize sign in succeeded."];
                            }
                          }];
                        }];

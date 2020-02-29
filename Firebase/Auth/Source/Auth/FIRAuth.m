@@ -219,8 +219,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 
 - (instancetype)initWithOperation:(FIRActionCodeOperation)operation
                             email:(NSString *)email
-                         newEmail:(nullable NSString *)newEmail
-                  multiFactorInfo:(nullable FIRMultiFactorInfo *)multiFactorInfo {
+                         newEmail:(nullable NSString *)newEmail {
   self = [super init];
   if (self) {
     _operation = operation;
@@ -230,7 +229,6 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     } else {
       _email = [email copy];
     }
-    _multiFactorInfo = multiFactorInfo;
   }
   return self;
 }
@@ -1077,13 +1075,10 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
         }
         FIRActionCodeOperation operation =
             [FIRActionCodeInfo actionCodeOperationForRequestType:response.requestType];
-        // TODO(wangyue): populate the multiFactorInfo from response once available.
-        FIRMultiFactorInfo *multiFactorInfo;
         FIRActionCodeInfo *actionCodeInfo =
             [[FIRActionCodeInfo alloc] initWithOperation:operation
                                                    email:response.email
-                                                newEmail:response.verifiedEmail
-                                         multiFactorInfo:multiFactorInfo];
+                                                newEmail:response.verifiedEmail];
         dispatch_async(dispatch_get_main_queue(), ^{
           completion(actionCodeInfo, nil);
         });
@@ -1101,8 +1096,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
         completion(nil, error);
         return;
       }
-      NSString *email = info.email;
-      completion(email, nil);
+      completion(info.email, nil);
     }
   }];
 }

@@ -24,11 +24,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic, strong, readonly, nullable) NSString *code;
 
-@property(nonatomic, strong, readonly, nullable) NSString *phoneNumber;
-
 - (instancetype)initWithSessionInfo:(NSString *)sessionInfo
-                   verificationCode:(NSString *)verificationCode
-                        phoneNumber:(NSString *)phoneNumber;
+                   verificationCode:(NSString *)verificationCode;
 @end
 
 NS_ASSUME_NONNULL_END

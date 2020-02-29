@@ -21,13 +21,11 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRAuthProtoFinalizeMfaPhoneRequestInfo
 
 - (instancetype)initWithSessionInfo:(NSString *)sessionInfo
-                   verificationCode:(NSString *)verificationCode
-                        phoneNumber:(NSString *)phoneNumber {
+                   verificationCode:(NSString *)verificationCode {
   self = [super init];
   if (self) {
     _sessionInfo = sessionInfo;
     _code = verificationCode;
-    _phoneNumber = phoneNumber;
   }
   return self;
 }
@@ -39,9 +37,6 @@ NS_ASSUME_NONNULL_BEGIN
   }
   if (_code) {
     dict[@"code"] = _code;
-  }
-  if (_phoneNumber) {
-    dict[@"phoneNumber"] = _phoneNumber;
   }
   return [dict copy];
 }
