@@ -47,10 +47,7 @@ typedef NS_ENUM(NSUInteger, FIRMessagingInternalErrorCode) {
   kFIRMessagingErrorSizeExceeded = 1005,
   // Future Send Errors
 
-  // MCS errors
-  // Already connected with MCS
-  kFIRMessagingErrorCodeAlreadyConnected = 2001,
-
+  // DO NOT USE 2001
   // PubSub errors
   kFIRMessagingErrorCodePubSubAlreadySubscribed = 3001,
   kFIRMessagingErrorCodePubSubAlreadyUnsubscribed = 3002,

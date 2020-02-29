@@ -44,7 +44,6 @@
 #import "Firebase/Messaging/FIRMessaging_Private.h"
 #import "Firebase/Messaging/NSError+FIRMessaging.h"
 
-static NSString *const kFIRMessagingMessageViaAPNSRootKey = @"aps";
 static NSString *const kFIRMessagingDefaultTokenScope = @"*";
 static NSString *const kFIRMessagingFCMTokenFetchAPNSOption = @"apns_token";
 
@@ -78,16 +77,6 @@ NSString *const kFIRMessagingAPNSTokenType =
 
 NSString *const kFIRMessagingPlistAutoInitEnabled =
     @"FirebaseMessagingAutoInitEnabled";  // Auto Init Enabled key stored in Info.plist
-
-const BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
-  if ([message[kFIRMessagingMessageViaAPNSRootKey] isKindOfClass:[NSDictionary class]]) {
-    NSDictionary *aps = message[kFIRMessagingMessageViaAPNSRootKey];
-    if (aps && [aps isKindOfClass:[NSDictionary class]]) {
-      return [aps[kFIRMessagingMessageAPNSContentAvailableKey] boolValue];
-    }
-  }
-  return NO;
-}
 
 BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   return [FIRMessagingContextManagerService isContextManagerMessage:message];
@@ -279,8 +268,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 }
 
 - (void)setupClient {
-  self.client = [[FIRMessagingClient alloc] initWithDelegate:self
-                                                 rmq2Manager:self.rmq2Manager];
+  self.client = [[FIRMessagingClient alloc] initWithDelegate:self];
 }
 
 - (void)setupTopics {
@@ -294,8 +282,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 - (void)teardown {
   [self.client teardown];
   self.pubsub = nil;
-  self.syncMessageManager = nil;
-  self.rmq2Manager = nil;
   self.client = nil;
   FIRMessagingLoggerDebug(kFIRMessagingMessageCodeMessaging001, @"Did successfully teardown");
 }
@@ -307,25 +293,15 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     return [[FIRMessagingMessageInfo alloc] initWithStatus:FIRMessagingMessageStatusUnknown];
   }
 
-  // For downstream messages that go via MCS we should strip out this key before sending
-  // the message to the device.
   BOOL isOldMessage = NO;
   NSString *messageID = message[kFIRMessagingMessageIDKey];
   if (messageID.length) {
-    [self.rmq2Manager saveS2dMessageWithRmqId:messageID];
-
-    BOOL isSyncMessage = FIRMessagingIsAPNSSyncMessage(message);
-    if (isSyncMessage) {
-      isOldMessage = [self.syncMessageManager didReceiveAPNSSyncMessage:message];
-    }
-
     // Prevent duplicates by keeping a cache of all the logged messages during each session.
     // The duplicates only happen when the 3P app calls `appDidReceiveMessage:` along with
     // us swizzling their implementation to call the same method implicitly.
     // We need to rule out the contextual message because it shares the same message ID
-    // as the local notification it will schedule. And because it is also a APNSSync message
-    // its duplication is already checked previously.
-    if (!isOldMessage && !FIRMessagingIsContextManagerMessage(message)) {
+    // as the local notification it will schedule.
+    if (!FIRMessagingIsContextManagerMessage(message)) {
       isOldMessage = [self.loggedMessageIDs containsObject:messageID];
       if (!isOldMessage) {
         [self.loggedMessageIDs addObject:messageID];
