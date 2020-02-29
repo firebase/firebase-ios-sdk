@@ -57,41 +57,6 @@ typedef void (^FIRMessagingDeleteFCMTokenCompletion)(NSError *_Nullable error)
 typedef void (^FIRMessagingTopicOperationCompletion)(NSError *_Nullable error);
 
 #if defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
-/**
- *  Notification sent when the upstream message has been delivered
- *  successfully to the server. The notification object will be the messageID
- *  of the successfully delivered message.
- */
-FOUNDATION_EXPORT const NSNotificationName FIRMessagingSendSuccessNotification
-    NS_SWIFT_NAME(MessagingSendSuccess) DEPRECATED_ATTRIBUTE;
-
-/**
- *  Notification sent when the upstream message was failed to be sent to the
- *  server.  The notification object will be the messageID of the failed
- *  message. The userInfo dictionary will contain the relevant error
- *  information for the failure.
- */
-FOUNDATION_EXPORT const NSNotificationName FIRMessagingSendErrorNotification
-    NS_SWIFT_NAME(MessagingSendError) DEPRECATED_ATTRIBUTE;
-
-/**
- *  Notification sent when the Firebase messaging server deletes pending
- *  messages due to exceeded storage limits. This may occur, for example, when
- *  the device cannot be reached for an extended period of time.
- *
- *  It is recommended to retrieve any missing messages directly from the
- *  server.
- */
-FOUNDATION_EXPORT const NSNotificationName FIRMessagingMessagesDeletedNotification
-    NS_SWIFT_NAME(MessagingMessagesDeleted) DEPRECATED_ATTRIBUTE;
-
-/**
- *  Notification sent when Firebase Messaging establishes or disconnects from
- *  an FCM socket connection. You can query the connection state in this
- *  notification by checking the `isDirectChannelEstablished` property of FIRMessaging.
- */
-FOUNDATION_EXPORT const NSNotificationName FIRMessagingConnectionStateChangedNotification
-    NS_SWIFT_NAME(MessagingConnectionStateChanged) DEPRECATED_ATTRIBUTE;
 
 /**
  *  Notification sent when the FCM registration token has been refreshed. Please use the
@@ -101,41 +66,6 @@ FOUNDATION_EXPORT const NSNotificationName FIRMessagingConnectionStateChangedNot
 FOUNDATION_EXPORT const NSNotificationName FIRMessagingRegistrationTokenRefreshedNotification
     NS_SWIFT_NAME(MessagingRegistrationTokenRefreshed);
 #else
-/**
- *  Notification sent when the upstream message has been delivered
- *  successfully to the server. The notification object will be the messageID
- *  of the successfully delivered message.
- */
-FOUNDATION_EXPORT NSString *const FIRMessagingSendSuccessNotification
-    NS_SWIFT_NAME(MessagingSendSuccessNotification) DEPRECATED_ATTRIBUTE;
-
-/**
- *  Notification sent when the upstream message was failed to be sent to the
- *  server.  The notification object will be the messageID of the failed
- *  message. The userInfo dictionary will contain the relevant error
- *  information for the failure.
- */
-FOUNDATION_EXPORT NSString *const FIRMessagingSendErrorNotification
-    NS_SWIFT_NAME(MessagingSendErrorNotification) DEPRECATED_ATTRIBUTE;
-
-/**
- *  Notification sent when the Firebase messaging server deletes pending
- *  messages due to exceeded storage limits. This may occur, for example, when
- *  the device cannot be reached for an extended period of time.
- *
- *  It is recommended to retrieve any missing messages directly from the
- *  server.
- */
-FOUNDATION_EXPORT NSString *const FIRMessagingMessagesDeletedNotification
-    NS_SWIFT_NAME(MessagingMessagesDeletedNotification) DEPRECATED_ATTRIBUTE;
-
-/**
- *  Notification sent when Firebase Messaging establishes or disconnects from
- *  an FCM socket connection. You can query the connection state in this
- *  notification by checking the `isDirectChannelEstablished` property of FIRMessaging.
- */
-FOUNDATION_EXPORT NSString *const FIRMessagingConnectionStateChangedNotification
-    NS_SWIFT_NAME(MessagingConnectionStateChangedNotification) DEPRECATED_ATTRIBUTE;
 
 /**
  *  Notification sent when the FCM registration token has been refreshed. Please use the
@@ -209,24 +139,6 @@ NS_SWIFT_NAME(MessagingMessageInfo)
 
 @end
 
-/**
- * A remote data message received by the app via FCM (not just the APNs interface).
- *
- * This is only for devices running iOS 10 or above. To support devices running iOS 9 or below, use
- * the local and remote notifications handlers defined in UIApplicationDelegate protocol.
- */
-NS_SWIFT_NAME(MessagingRemoteMessage)
-__deprecated_msg(
-    "FCM direct channel is deprecated, please use APNs for downstream message handling.")
-    @interface FIRMessagingRemoteMessage : NSObject
-
-/// The message ID of downstream message.
-@property(nonatomic, readonly, copy) NSString *messageID DEPRECATED_ATTRIBUTE;
-/// The downstream message received by the application.
-@property(nonatomic, readonly, strong) NSDictionary *appData DEPRECATED_ATTRIBUTE;
-
-@end
-
 @class FIRMessaging;
 @class FIRMessagingExtensionHelper;
 
@@ -248,12 +160,6 @@ NS_SWIFT_NAME(MessagingDelegate)
 - (void)messaging:(FIRMessaging *)messaging
     didReceiveRegistrationToken:(NSString *)fcmToken
     NS_SWIFT_NAME(messaging(_:didReceiveRegistrationToken:));
-
-/// Handle data messages received via FCM direct channel (not via APNS).
-- (void)messaging:(FIRMessaging *)messaging
-    didReceiveMessage:(FIRMessagingRemoteMessage *)remoteMessage
-    NS_SWIFT_NAME(messaging(_:didReceive:))__deprecated_msg(
-        "FCM direct channel is deprecated, please use APNs for downstream message handling.");
 @end
 
 /**
@@ -273,21 +179,6 @@ NS_SWIFT_NAME(Messaging)
  * Delegate to handle FCM token refreshes, and remote data messages received via FCM direct channel.
  */
 @property(nonatomic, weak, nullable) id<FIRMessagingDelegate> delegate;
-
-/**
- *  When set to `YES`, Firebase Messaging will automatically establish a socket-based, direct
- *  channel to the FCM server. Enable this only if you are sending upstream messages or
- *  receiving non-APNS, data-only messages in foregrounded apps.
- *  Default is `NO`.
- */
-@property(nonatomic) BOOL shouldEstablishDirectChannel DEPRECATED_MSG_ATTRIBUTE(
-    "FCM direct channel is deprecated, please use APNs channel for downstream message delivery.");
-
-/**
- *  Returns `YES` if the direct channel to the FCM server is active, and `NO` otherwise.
- */
-@property(nonatomic, readonly) BOOL isDirectChannelEstablished DEPRECATED_MSG_ATTRIBUTE(
-    "FCM direct channel is deprecated, please use APNs channel for downstream message delivery.");
 
 /**
  *  FIRMessaging
@@ -455,38 +346,6 @@ NS_SWIFT_NAME(Messaging)
  */
 - (void)unsubscribeFromTopic:(nonnull NSString *)topic
                   completion:(nullable FIRMessagingTopicOperationCompletion)completion;
-
-#pragma mark - Upstream
-
-/**
- *  Sends an upstream ("device to cloud") message.
- *
- *  The message is queued if we don't have an active connection.
- *  You can only use the upstream feature if your FCM implementation
- *  uses the XMPP server protocol.
- *
- *  @param message      Key/Value pairs to be sent. Values must be String, any
- *                      other type will be ignored.
- *  @param receiver     A string identifying the receiver of the message. For FCM
- *                      project IDs the value is `SENDER_ID@gcm.googleapis.com`.
- *  @param messageID    The ID of the message. This is generated by the application. It
- *                      must be unique for each message generated by this application.
- *                      It allows error callbacks and debugging, to uniquely identify
- *                      each message.
- *  @param ttl          The time to live for the message. In case we aren't able to
- *                      send the message before the TTL expires we will send you a
- *                      callback. If 0, we'll attempt to send immediately and return
- *                      an error if we're not connected.  Otherwise, the message will
- *                      be queued.  As for server-side messages, we don't return an error
- *                      if the message has been dropped because of TTL; this can happen
- *                      on the server side, and it would require extra communication.
- */
-- (void)sendMessage:(NSDictionary *)message
-                 to:(NSString *)receiver
-      withMessageID:(NSString *)messageID
-         timeToLive:(int64_t)ttl
-    __deprecated_msg("Upstream messaging through direct channel is deprecated. For realtime "
-                     "updates, use Cloud Firestore, Realtime Database, or other services. ");
 
 #pragma mark - Analytics
 

@@ -8,7 +8,7 @@
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
+ * distributed under the License is distributed oyoun an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
@@ -19,23 +19,10 @@
 @class FIRMessagingClient;
 @class FIRMessagingPubSub;
 
-typedef NS_ENUM(int8_t, FIRMessagingNetworkStatus) {
-  kFIRMessagingReachabilityNotReachable = 0,
-  kFIRMessagingReachabilityReachableViaWiFi,
-  kFIRMessagingReachabilityReachableViaWWAN,
-};
-
 FOUNDATION_EXPORT NSString *const kFIRMessagingPlistAutoInitEnabled;
 FOUNDATION_EXPORT NSString *const kFIRMessagingUserDefaultsKeyAutoInitEnabled;
 FOUNDATION_EXPORT NSString *const kFIRMessagingUserDefaultsKeyUseMessagingDelegate;
 FOUNDATION_EXPORT NSString *const kFIRMessagingPlistUseMessagingDelegate;
-
-@interface FIRMessagingRemoteMessage ()
-
-@property(nonatomic, copy) NSString *messageID;
-@property(nonatomic, strong) NSDictionary *appData;
-
-@end
 
 @interface FIRMessaging ()
 
@@ -45,15 +32,5 @@ FOUNDATION_EXPORT NSString *const kFIRMessagingPlistUseMessagingDelegate;
 - (FIRMessagingClient *)client;
 - (FIRMessagingPubSub *)pubsub;
 
-// Create a sample message to be sent over the wire using FIRMessaging. Look at
-// FIRMessagingService.h to see what each param signifies.
-+ (NSMutableDictionary *)createFIRMessagingMessageWithMessage:(NSDictionary *)message
-                                                           to:(NSString *)to
-                                                       withID:(NSString *)msgID
-                                                   timeToLive:(int64_t)ttl
-                                                        delay:(int)delay;
-
-- (BOOL)isNetworkAvailable;
-- (FIRMessagingNetworkStatus)networkType;
 
 @end

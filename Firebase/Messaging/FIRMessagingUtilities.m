@@ -16,8 +16,6 @@
 
 #import "Firebase/Messaging/FIRMessagingUtilities.h"
 
-#import "Firebase/Messaging/Protos/GtalkCore.pbobjc.h"
-
 #import "Firebase/Messaging/FIRMessagingLogger.h"
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
@@ -27,105 +25,6 @@
 #define STR(x) STR_EXPAND(x)
 
 static const uint64_t kBytesToMegabytesDivisor = 1024 * 1024LL;
-
-#pragma mark - Protocol Buffers
-
-FIRMessagingProtoTag FIRMessagingGetTagForProto(GPBMessage *proto) {
-  if ([proto isKindOfClass:[GtalkHeartbeatPing class]]) {
-    return kFIRMessagingProtoTagHeartbeatPing;
-  } else if ([proto isKindOfClass:[GtalkHeartbeatAck class]]) {
-    return kFIRMessagingProtoTagHeartbeatAck;
-  } else if ([proto isKindOfClass:[GtalkLoginRequest class]]) {
-    return kFIRMessagingProtoTagLoginRequest;
-  } else if ([proto isKindOfClass:[GtalkLoginResponse class]]) {
-    return kFIRMessagingProtoTagLoginResponse;
-  } else if ([proto isKindOfClass:[GtalkClose class]]) {
-    return kFIRMessagingProtoTagClose;
-  } else if ([proto isKindOfClass:[GtalkIqStanza class]]) {
-    return kFIRMessagingProtoTagIqStanza;
-  } else if ([proto isKindOfClass:[GtalkDataMessageStanza class]]) {
-    return kFIRMessagingProtoTagDataMessageStanza;
-  }
-  return kFIRMessagingProtoTagInvalid;
-}
-
-Class FIRMessagingGetClassForTag(FIRMessagingProtoTag tag) {
-  switch (tag) {
-    case kFIRMessagingProtoTagHeartbeatPing:
-      return GtalkHeartbeatPing.class;
-    case kFIRMessagingProtoTagHeartbeatAck:
-      return GtalkHeartbeatAck.class;
-    case kFIRMessagingProtoTagLoginRequest:
-      return GtalkLoginRequest.class;
-    case kFIRMessagingProtoTagLoginResponse:
-      return GtalkLoginResponse.class;
-    case kFIRMessagingProtoTagClose:
-      return GtalkClose.class;
-    case kFIRMessagingProtoTagIqStanza:
-      return GtalkIqStanza.class;
-    case kFIRMessagingProtoTagDataMessageStanza:
-      return GtalkDataMessageStanza.class;
-    case kFIRMessagingProtoTagInvalid:
-      return NSNull.class;
-  }
-  return NSNull.class;
-}
-
-#pragma mark - MCS
-
-NSString *FIRMessagingGetRmq2Id(GPBMessage *proto) {
-  if ([proto isKindOfClass:[GtalkIqStanza class]]) {
-    if (((GtalkIqStanza *)proto).hasPersistentId) {
-      return ((GtalkIqStanza *)proto).persistentId;
-    }
-  } else if ([proto isKindOfClass:[GtalkDataMessageStanza class]]) {
-    if (((GtalkDataMessageStanza *)proto).hasPersistentId) {
-      return ((GtalkDataMessageStanza *)proto).persistentId;
-    }
-  }
-  return nil;
-}
-
-void FIRMessagingSetRmq2Id(GPBMessage *proto, NSString *pID) {
-  if ([proto isKindOfClass:[GtalkIqStanza class]]) {
-    ((GtalkIqStanza *)proto).persistentId = pID;
-  } else if ([proto isKindOfClass:[GtalkDataMessageStanza class]]) {
-    ((GtalkDataMessageStanza *)proto).persistentId = pID;
-  }
-}
-
-int FIRMessagingGetLastStreamId(GPBMessage *proto) {
-  if ([proto isKindOfClass:[GtalkIqStanza class]]) {
-    if (((GtalkIqStanza *)proto).hasLastStreamIdReceived) {
-      return ((GtalkIqStanza *)proto).lastStreamIdReceived;
-    }
-  } else if ([proto isKindOfClass:[GtalkDataMessageStanza class]]) {
-    if (((GtalkDataMessageStanza *)proto).hasLastStreamIdReceived) {
-      return ((GtalkDataMessageStanza *)proto).lastStreamIdReceived;
-    }
-  } else if ([proto isKindOfClass:[GtalkHeartbeatPing class]]) {
-    if (((GtalkHeartbeatPing *)proto).hasLastStreamIdReceived) {
-      return ((GtalkHeartbeatPing *)proto).lastStreamIdReceived;
-    }
-  } else if ([proto isKindOfClass:[GtalkHeartbeatAck class]]) {
-    if (((GtalkHeartbeatAck *)proto).hasLastStreamIdReceived) {
-      return ((GtalkHeartbeatAck *)proto).lastStreamIdReceived;
-    }
-  }
-  return -1;
-}
-
-void FIRMessagingSetLastStreamId(GPBMessage *proto, int sid) {
-  if ([proto isKindOfClass:[GtalkIqStanza class]]) {
-    ((GtalkIqStanza *)proto).lastStreamIdReceived = sid;
-  } else if ([proto isKindOfClass:[GtalkDataMessageStanza class]]) {
-    ((GtalkDataMessageStanza *)proto).lastStreamIdReceived = sid;
-  } else if ([proto isKindOfClass:[GtalkHeartbeatPing class]]) {
-    ((GtalkHeartbeatPing *)proto).lastStreamIdReceived = sid;
-  } else if ([proto isKindOfClass:[GtalkHeartbeatAck class]]) {
-    ((GtalkHeartbeatAck *)proto).lastStreamIdReceived = sid;
-  }
-}
 
 #pragma mark - Time
 

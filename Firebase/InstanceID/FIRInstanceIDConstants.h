@@ -27,7 +27,6 @@ FOUNDATION_EXPORT NSString *const kFIRInstanceID_CMD_RST;
 #pragma mark - Notifications
 
 /// Notification used to deliver GCM messages for InstanceID.
-FOUNDATION_EXPORT NSString *const kFIRInstanceIDCheckinFetchedNotification;
 FOUNDATION_EXPORT NSString *const kFIRInstanceIDAPNSTokenNotification;
 FOUNDATION_EXPORT NSString *const kFIRInstanceIDDefaultGCMTokenNotification;
 FOUNDATION_EXPORT NSString *const kFIRInstanceIDDefaultGCMTokenFailNotification;

@@ -97,7 +97,7 @@ typedef NS_ENUM(NSInteger, FIRMessagingMessageCode) {
   kFIRMessagingMessageCodeContextManagerService004 = 6004,  // I-FCM006004
   kFIRMessagingMessageCodeContextManagerService005 = 6005,  // I-FCM006005
   // FIRMessagingDataMessageManager.m
-  // DO NOT USE 7005
+  // DO NOT USE 7000 - 7013
   kFIRMessagingMessageCodeDataMessageManager000 = 7000,  // I-FCM007000
   kFIRMessagingMessageCodeDataMessageManager001 = 7001,  // I-FCM007001
   kFIRMessagingMessageCodeDataMessageManager002 = 7002,  // I-FCM007002
@@ -122,13 +122,8 @@ typedef NS_ENUM(NSInteger, FIRMessagingMessageCode) {
   kFIRMessagingMessageCodePubSubArchiveError = 9004,
   kFIRMessagingMessageCodePubSubUnarchiveError = 9005,
 
-  // FIRMessagingReceiver.m
-  kFIRMessagingMessageCodeReceiver000 = 10000,  // I-FCM010000
-  kFIRMessagingMessageCodeReceiver001 = 10001,  // I-FCM010001
-  kFIRMessagingMessageCodeReceiver002 = 10002,  // I-FCM010002
-  kFIRMessagingMessageCodeReceiver003 = 10003,  // I-FCM010003
-  kFIRMessagingMessageCodeReceiver004 = 10004,  // I-FCM010004 - no longer used
-  kFIRMessagingMessageCodeReceiver005 = 10005,  // I-FCM010005
+  // DO NOT USE 100000 - 100005
+
   // FIRMessagingRegistrar.m
   kFIRMessagingMessageCodeRegistrar000 = 11000,  // I-FCM011000
   // FIRMessagingRemoteNotificationsProxy.m
@@ -148,33 +143,8 @@ typedef NS_ENUM(NSInteger, FIRMessagingMessageCode) {
   kFIRMessagingMessageCodeRmq2PersistentStoreErrorCreatingTable = 13010,     // I-FCM013010
   // FIRMessagingRmqManager.m
   kFIRMessagingMessageCodeRmqManager000 = 14000,  // I-FCM014000
-  // FIRMessagingSecureSocket.m
-  kFIRMessagingMessageCodeSecureSocket000 = 15000,  // I-FCM015000
-  kFIRMessagingMessageCodeSecureSocket001 = 15001,  // I-FCM015001
-  kFIRMessagingMessageCodeSecureSocket002 = 15002,  // I-FCM015002
-  kFIRMessagingMessageCodeSecureSocket003 = 15003,  // I-FCM015003
-  kFIRMessagingMessageCodeSecureSocket004 = 15004,  // I-FCM015004
-  kFIRMessagingMessageCodeSecureSocket005 = 15005,  // I-FCM015005
-  kFIRMessagingMessageCodeSecureSocket006 = 15006,  // I-FCM015006
-  kFIRMessagingMessageCodeSecureSocket007 = 15007,  // I-FCM015007
-  kFIRMessagingMessageCodeSecureSocket008 = 15008,  // I-FCM015008
-  kFIRMessagingMessageCodeSecureSocket009 = 15009,  // I-FCM015009
-  kFIRMessagingMessageCodeSecureSocket010 = 15010,  // I-FCM015010
-  kFIRMessagingMessageCodeSecureSocket011 = 15011,  // I-FCM015011
-  kFIRMessagingMessageCodeSecureSocket012 = 15012,  // I-FCM015012
-  kFIRMessagingMessageCodeSecureSocket013 = 15013,  // I-FCM015013
-  kFIRMessagingMessageCodeSecureSocket014 = 15014,  // I-FCM015014
-  kFIRMessagingMessageCodeSecureSocket015 = 15015,  // I-FCM015015
-  kFIRMessagingMessageCodeSecureSocket016 = 15016,  // I-FCM015016
-  // FIRMessagingSyncMessageManager.m
-  // DO NOT USE 16000, 16003
-  kFIRMessagingMessageCodeSyncMessageManager001 = 16001,  // I-FCM016001
-  kFIRMessagingMessageCodeSyncMessageManager002 = 16002,  // I-FCM016002
-  kFIRMessagingMessageCodeSyncMessageManager004 = 16004,  // I-FCM016004
-  kFIRMessagingMessageCodeSyncMessageManager005 = 16005,  // I-FCM016005
-  kFIRMessagingMessageCodeSyncMessageManager006 = 16006,  // I-FCM016006
-  kFIRMessagingMessageCodeSyncMessageManager007 = 16007,  // I-FCM016007
-  kFIRMessagingMessageCodeSyncMessageManager008 = 16008,  // I-FCM016008
+  // DO NOT USE 15000 - 15016
+  // DO NOT USE 16000 - 16008
   // FIRMessagingTopicOperation.m
   kFIRMessagingMessageCodeTopicOption000 = 17000,                  // I-FCM017000
   kFIRMessagingMessageCodeTopicOption001 = 17001,                  // I-FCM017001

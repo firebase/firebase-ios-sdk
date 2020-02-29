@@ -236,18 +236,6 @@ static const int64_t kMaxCheckinRetryIntervalInSeconds = 1 << 5;
                                                [self notifyCheckinHandlersWithCheckin:
                                                          checkinPreferences
                                                                                 error:nil];
-                                               if (!hasSameCachedPreferences) {
-                                                 // Checkin is new.
-                                                 // Notify any listeners that might be waiting for
-                                                 // checkin to be fetched, such as Firebase
-                                                 // Messaging (for its MCS connection).
-                                                 dispatch_async(dispatch_get_main_queue(), ^{
-                                                   [[NSNotificationCenter defaultCenter]
-                                                       postNotificationName:
-                                                           kFIRInstanceIDCheckinFetchedNotification
-                                                                     object:nil];
-                                                 });
-                                               }
                                              }
                                            }];
                       }];
