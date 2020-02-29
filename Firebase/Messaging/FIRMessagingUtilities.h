@@ -29,5 +29,4 @@ FOUNDATION_EXPORT NSString *FIRMessagingAppIdentifier(void);
 
 #pragma mark - Others
 
-FOUNDATION_EXPORT uint64_t FIRMessagingGetFreeDiskSpaceInMB(void);
 FOUNDATION_EXPORT NSSearchPathDirectory FIRMessagingSupportedDirectory(void);

@@ -19,15 +19,6 @@
 @interface NSDictionary (FIRMessaging)
 
 /**
- *  Returns a string representation for the given dictionary. Assumes that all
- *  keys and values are strings.
- *
- *  @return A string representation of all keys and values in the dictionary.
- *          The returned string is not pretty-printed.
- */
-- (NSString *)fcm_string;
-
-/**
  *  Check if the dictionary has any non-string keys or values.
  *
  *  @return YES if the dictionary has any non-string keys or values else NO.

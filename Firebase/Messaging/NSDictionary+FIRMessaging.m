@@ -18,22 +18,6 @@
 
 @implementation NSDictionary (FIRMessaging)
 
-- (NSString *)fcm_string {
-  NSMutableString *dictAsString = [NSMutableString string];
-  NSString *separator = @"|";
-  for (id key in self) {
-    id value = self[key];
-    if ([key isKindOfClass:[NSString class]] && [value isKindOfClass:[NSString class]]) {
-      [dictAsString appendFormat:@"%@:%@%@", key, value, separator];
-    }
-  }
-  // remove the last separator
-  if ([dictAsString length]) {
-    [dictAsString deleteCharactersInRange:NSMakeRange(dictAsString.length - 1, 1)];
-  }
-  return [dictAsString copy];
-}
-
 - (BOOL)fcm_hasNonStringKeysOrValues {
   for (id key in self) {
     id value = self[key];
