@@ -1,14 +1,14 @@
 use_frameworks!
 
-target 'GDTWatchOSTestApp WatchKit App' do
+target 'GDTWatchOSTestAppWatchKitApp' do
   platform :watchos, '6.0'
 
 end
 
-target 'GDTWatchOSTestApp WatchKit Extension' do
+target 'GDTWatchOSTestAppWatchKitExtension' do
   platform :watchos, '6.0'
 
-  # Pods for GDTWatchOSTestApp WatchKit Extension
+  # Pods for GDTWatchOSTestAppWatchKitExtension
   pod 'GoogleDataTransport', :path => '../../'
 
 end

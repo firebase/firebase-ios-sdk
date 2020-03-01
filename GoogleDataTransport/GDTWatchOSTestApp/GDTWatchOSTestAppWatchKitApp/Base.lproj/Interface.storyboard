@@ -9,32 +9,32 @@
         <!--Interface Controller-->
         <scene sceneID="aou-V4-d1y">
             <objects>
-                <controller id="AgC-eL-Hgc" customClass="InterfaceController" customModule="GDTCCTWatchOSTestApp_WatchKit_App" customModuleProvider="target">
+                <controller id="AgC-eL-Hgc" customClass="InterfaceController" customModule="GDTWatchOSTestAppWatchKitExtension">
                     <items>
-                        <label alignment="left" text="GDTCCT Test App" textAlignment="right" id="E4H-Lv-ipa"/>
-                        <button width="1" alignment="left" title="Generate data event" id="SDN-zp-3kg">
+                        <label alignment="left" text="GDTWatchOS TestApp" id="EYB-lO-0MJ"/>
+                        <button width="1" alignment="left" title="Generate data event" id="4Oh-eO-JpG">
                             <connections>
-                                <action selector="generateDataEventWithSender:" destination="AgC-eL-Hgc" id="JUE-vH-PMu"/>
+                                <action selector="generateDataEventWithSender:" destination="AgC-eL-Hgc" id="NUq-4p-3Xi"/>
                             </connections>
                         </button>
-                        <button width="1" alignment="left" title="Generate telemetry event" id="bRh-1z-40x">
+                        <button width="1" alignment="left" title="Generate telemetry event" id="GI0-zS-hCd">
                             <connections>
-                                <action selector="generateTelemetryEventWithSender:" destination="AgC-eL-Hgc" id="HsT-yu-kQ3"/>
+                                <action selector="generateTelemetryEventWithSender:" destination="AgC-eL-Hgc" id="daF-pb-Tpq"/>
                             </connections>
                         </button>
-                        <button width="1" alignment="left" title="Generate high priority event (force uploads)" id="bzu-1O-6S2">
+                        <button width="1" alignment="left" title="Generate high priority event (force uploads)" id="K1Q-Qs-F4h">
                             <connections>
-                                <action selector="generateHighPriorityEventWithSender:" destination="AgC-eL-Hgc" id="IAi-r4-KCA"/>
+                                <action selector="generateHighPriorityEventWithSender:" destination="AgC-eL-Hgc" id="vlS-Z8-MhS"/>
                             </connections>
                         </button>
-                        <button width="1" alignment="left" title="Generate wifi only event" id="da7-Zz-zze">
+                        <button width="1" alignment="left" title="Generate wifi only event" id="sbd-DF-6GA">
                             <connections>
-                                <action selector="generateWifiOnlyEventWithSender:" destination="AgC-eL-Hgc" id="Bc5-M4-qez"/>
+                                <action selector="generateWifiOnlyEventWithSender:" destination="AgC-eL-Hgc" id="OiG-43-X22"/>
                             </connections>
                         </button>
-                        <button width="1" alignment="left" title="Generate daily event" id="3Nn-BQ-WRt">
+                        <button width="1" alignment="left" title="Generate daily event" id="i19-Ww-EpK">
                             <connections>
-                                <action selector="generateDailyEventWithSender:" destination="AgC-eL-Hgc" id="vw3-Pe-uuB"/>
+                                <action selector="generateDailyEventWithSender:" destination="AgC-eL-Hgc" id="Izd-6h-qWV"/>
                             </connections>
                         </button>
                     </items>
@@ -62,14 +62,14 @@
         <!--Notification Controller-->
         <scene sceneID="ZPc-GJ-vnh">
             <objects>
-                <controller id="4sK-HA-Art" customClass="NotificationController" customModule="GDTCCTWatchOSTestApp_WatchKit_App" customModuleProvider="target"/>
+                <controller id="4sK-HA-Art" customClass="NotificationController" customModule="GDTWatchOSTestAppWatchKitApp" customModuleProvider="target"/>
             </objects>
             <point key="canvasLocation" x="468" y="643"/>
         </scene>
         <!--Notification Controller-->
         <scene sceneID="Niz-AI-uX2">
             <objects>
-                <controller id="eXb-UN-Cd0" customClass="NotificationController" customModule="GDTCCTWatchOSTestApp_WatchKit_App" customModuleProvider="target"/>
+                <controller id="eXb-UN-Cd0" customClass="NotificationController" customModule="GDTWatchOSTestAppWatchKitApp" customModuleProvider="target"/>
             </objects>
             <point key="canvasLocation" x="468" y="345"/>
         </scene>
