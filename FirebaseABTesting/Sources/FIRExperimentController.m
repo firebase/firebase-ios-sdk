@@ -293,7 +293,7 @@ NSArray *ABTExperimentsToClearFromPayloads(
 }
 
 - (void)validateRunningExperimentsForServiceOrigin:(NSString *)origin
-                                          payloads:(NSArray<ABTExperimentPayload *> *)payloads {
+                         runningExperimentPayloads:(NSArray<ABTExperimentPayload *> *)payloads {
   ABTConditionalUserPropertyController *controller =
       [ABTConditionalUserPropertyController sharedInstanceWithAnalytics:_analytics];
 
@@ -309,9 +309,9 @@ NSArray *ABTExperimentsToClearFromPayloads(
   }
 
   for (NSDictionary<NSString *, NSString *> *activeExperimentDictionary in activeExperiments) {
-    NSString *experimentID = activeExperimentDictionary[@"experimentId"];
+    NSString *experimentID = activeExperimentDictionary[@"name"];
     if (![runningExperimentIDs containsObject:experimentID]) {
-      NSString *variantID = activeExperimentDictionary[@"variantId"];
+      NSString *variantID = activeExperimentDictionary[@"value"];
 
       [controller clearExperiment:experimentID
                         variantID:variantID

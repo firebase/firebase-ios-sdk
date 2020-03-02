@@ -89,13 +89,12 @@ NS_SWIFT_NAME(ExperimentController)
 - (NSTimeInterval)latestExperimentStartTimestampBetweenTimestamp:(NSTimeInterval)timestamp
                                                      andPayloads:(NSArray<NSData *> *)payloads;
 
-/// Replaces the list of running experiments for a given service origin with a list of payloads that
-/// represent the experiments that should be running.
+/// Expires experiments that aren't in the list of running experiment payloads.
 /// @param origin         The originating service affected by the experiment, it is defined at
 ///                       Firebase Analytics FIREventOrigins.h.
 /// @param payloads     The list of valid, running experiments.
 - (void)validateRunningExperimentsForServiceOrigin:(NSString *)origin
-                                          payloads:(NSArray<ABTExperimentPayload *> *)payloads;
+                         runningExperimentPayloads:(NSArray<ABTExperimentPayload *> *)payloads;
 
 /// Directly sets a given experiment to be active.
 /// @param experimentPayload The payload for the experiment that should be activated.
