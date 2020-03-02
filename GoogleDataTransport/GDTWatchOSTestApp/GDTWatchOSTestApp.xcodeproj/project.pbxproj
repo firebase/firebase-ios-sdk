@@ -515,7 +515,9 @@
 			baseConfigurationReference = 12A683F830B22F5108F84577 /* Pods-GDTWatchOSTestAppWatchKitExtension.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = EQHXZ8M8AV;
 				INFOPLIST_FILE = GDTWatchOSTestAppWatchKitExtension/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -524,6 +526,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = GoogleDataTransport.GDTWatchOSTestApp.watchkitapp.watchkitextension;
 				PRODUCT_NAME = "${TARGET_NAME}";
+				PROVISIONING_PROFILE_SPECIFIER = "Google Development";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
@@ -537,7 +540,9 @@
 			baseConfigurationReference = 76BF54E5D0E3FED1F82C56FF /* Pods-GDTWatchOSTestAppWatchKitExtension.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = EQHXZ8M8AV;
 				INFOPLIST_FILE = GDTWatchOSTestAppWatchKitExtension/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -546,6 +551,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = GoogleDataTransport.GDTWatchOSTestApp.watchkitapp.watchkitextension;
 				PRODUCT_NAME = "${TARGET_NAME}";
+				PROVISIONING_PROFILE_SPECIFIER = "Google Development";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;

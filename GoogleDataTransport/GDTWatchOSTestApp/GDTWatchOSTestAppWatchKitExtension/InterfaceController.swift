@@ -1,4 +1,4 @@
-  /*
+/*
  * Copyright 2020 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,24 +21,23 @@ import Dispatch
 import GoogleDataTransport
 
 class InterfaceController: WKInterfaceController {
-
   let transport: GDTCORTransport = GDTCORTransport(mappingID: "1234", transformers: nil, target: GDTCORTarget.test.rawValue)!
 
-    override func awake(withContext context: Any?) {
-      super.awake(withContext: context)
-      // Configure interface objects here.
-    }
-    
-    override func willActivate() {
-      GDTCORRegistrar.sharedInstance().register(TestUploader(), target: GDTCORTarget.test)
-      GDTCORRegistrar.sharedInstance().register(TestPrioritizer(), target: GDTCORTarget.test)
-      super.willActivate()
-    }
+  override func awake(withContext context: Any?) {
+    super.awake(withContext: context)
+    // Configure interface objects here.
+  }
 
-    override func didDeactivate() {
-      // This method is called when watch view controller is no longer visible
-      super.didDeactivate()
-    }
+  override func willActivate() {
+    GDTCORRegistrar.sharedInstance().register(TestUploader(), target: GDTCORTarget.test)
+    GDTCORRegistrar.sharedInstance().register(TestPrioritizer(), target: GDTCORTarget.test)
+    super.willActivate()
+  }
+
+  override func didDeactivate() {
+    // This method is called when watch view controller is no longer visible
+    super.didDeactivate()
+  }
 
   @IBAction func generateDataEvent(sender: AnyObject?) {
     print("Generating data event")
@@ -77,5 +76,4 @@ class InterfaceController: WKInterfaceController {
     event.qosTier = GDTCOREventQoS.qoSDaily
     transport.sendDataEvent(event)
   }
-
 }
