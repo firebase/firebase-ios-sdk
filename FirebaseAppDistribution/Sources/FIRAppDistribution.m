@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #import "FIRAppDistribution.h"
+#import "FIRAppDistribution+Private.h"
 
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
@@ -20,7 +21,6 @@
 
 #import <UIKit/UIKit.h>
 #import <AppAuth/AppAuth.h>
-#import <FIRAppDistribution.h>
 #import <FIRAppDistributionAppDelegateInterceptor.h>
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
 
@@ -128,7 +128,7 @@
         // builds authentication request
         OIDAuthorizationRequest *request =
         [[OIDAuthorizationRequest alloc] initWithConfiguration:configuration
-                                                      clientId:@"319754533822-osu3v3hcci24umq6diathdm0dipds1fb.apps.googleusercontent.com"
+                                                    clientId:@"319754533822-osu3v3hcci24umq6diathdm0dipds1fb.apps.googleusercontent.com"
                                                         scopes:@[OIDScopeOpenID,
                                                                  OIDScopeProfile]
                                                    redirectURL:[NSURL URLWithString:redirectUrl]
@@ -154,11 +154,9 @@
                                                        callback:^(OIDAuthState *_Nullable authState,
                                                                   NSError *_Nullable error) {
             
-            NSLog(@"Completed the sign in process");
+            NSLog(@"Completed the sign in process: %@", authState);
             
             self.authState = authState;
-            self.authError = error;
-            
             completion(error);
         }];
     }];
@@ -184,15 +182,65 @@
         release.downloadUrl = [NSURL URLWithString:@""];
         completion(release, nil);
     } else {
-        [self signInWithCompletion:^(NSError * _Nullable error) {
-            NSLog(@"Got authorization tokens. Access token: %@",
-                  self.authState.lastTokenResponse.accessToken);
-            FIRAppDistributionRelease *release = [[FIRAppDistributionRelease alloc]init];
-            release.bundleShortVersion = @"1.0";
-            release.bundleVersion = @"123";
-            release.downloadUrl = [NSURL URLWithString:@""];
-            completion(release, nil);
+        
+        UIAlertController * alert = [UIAlertController
+                                     alertControllerWithTitle:@"Enable in-app alerts"
+                                     message:@"Sign in with your Firebase App Distribution Google account to turn on in-app alerts for new test releases."
+                                     preferredStyle:UIAlertControllerStyleAlert];
+        
+        //Add Buttons
+        
+        UIAlertAction* yesButton = [UIAlertAction
+                                    actionWithTitle:@"Turn on"
+                                    style:UIAlertActionStyleDefault
+                                    handler:^(UIAlertAction * action) {
+            //Handle your yes please button action here
+            [self signInWithCompletion:^(NSError * _Nullable error) {
+                self.window.hidden = YES;
+                self.window = nil;
+                if(error) {
+                    completion(nil, error);
+                    return;
+                }
+                NSLog(@"Got authorization tokens. Access token: %@",
+                      self.authState.lastTokenResponse.accessToken);
+                FIRAppDistributionRelease *release = [[FIRAppDistributionRelease alloc]init];
+                release.bundleShortVersion = @"1.0";
+                release.bundleVersion = @"123";
+                release.downloadUrl = [NSURL URLWithString:@""];
+                completion(release, nil);
+            }];
         }];
+        
+        UIAlertAction* noButton = [UIAlertAction
+                                   actionWithTitle:@"Not now"
+                                   style:UIAlertActionStyleDefault
+                                   handler:^(UIAlertAction * action) {
+            
+            //Handle no, thanks button
+            // precaution to ensure window gets destroyed
+            self.window.hidden = YES;
+            self.window = nil;
+            completion(nil, nil);
+        }];
+        
+        //Add your buttons to alert controller
+        
+        [alert addAction:noButton];
+        [alert addAction:yesButton];
+        
+        
+        // Create an empty window + viewController to host the Safari UI.
+        self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+        self.window.rootViewController = [[UIViewController alloc] init];
+
+//        // Place it at the highest level within the stack.
+        self.window.windowLevel = +CGFLOAT_MAX;
+        
+        // Run it.
+        [self.window makeKeyAndVisible];
+        [self.window.rootViewController presentViewController:alert animated:YES completion:nil];
+
     }
 }
 @end
