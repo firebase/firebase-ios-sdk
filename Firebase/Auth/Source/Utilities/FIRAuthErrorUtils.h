@@ -472,12 +472,14 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (NSError *)notificationNotForwardedError;
 
+#if TARGET_OS_IOS
 /** @fn secondFactorRequiredError
     @brief Constructs an @c NSError with the @c FIRAuthErrorCodeSecondFactorRequired code.
     @return The NSError instance associated with the given FIRAuthError.
  */
 + (NSError *)secondFactorRequiredErrorWithPendingCredential:(NSString *)mfaPendingCredential
                                                       hints:(NSArray<FIRMultiFactorInfo *> *)multiFactorInfo;
+#endif
 
 /** @fn appNotVerifiedErrorWithMessage:
     @brief Constructs an @c NSError with the @c FIRAuthErrorCodeAppNotVerified code.

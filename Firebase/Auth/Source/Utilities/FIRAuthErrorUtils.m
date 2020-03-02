@@ -1230,6 +1230,7 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
   return [self errorWithCode:FIRAuthInternalErrorCodeGameKitNotLinked];
 }
 
+#if TARGET_OS_IOS
 + (NSError *)secondFactorRequiredErrorWithPendingCredential:(NSString *)mfaPendingCredential
                                                       hints:(NSArray<FIRMultiFactorInfo *> *)hints {
   NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
@@ -1240,6 +1241,7 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
   }
   return [self errorWithCode:FIRAuthInternalErrorCodeSecondFactorRequired userInfo:userInfo];
 }
+#endif
 
 + (NSError *)notificationNotForwardedError {
   return [self errorWithCode:FIRAuthInternalErrorCodeNotificationNotForwarded];

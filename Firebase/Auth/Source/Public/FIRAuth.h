@@ -29,7 +29,9 @@
 @class FIRAuthCredential;
 @class FIRAuthDataResult;
 @class FIRAuthSettings;
+#if TARGET_OS_IOS
 @class FIRMultiFactorInfo;
+#endif
 @class FIRUser;
 @protocol FIRAuthStateListener;
 @protocol FIRAuthUIDelegate;

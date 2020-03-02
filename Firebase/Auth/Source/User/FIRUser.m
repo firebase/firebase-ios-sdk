@@ -337,8 +337,10 @@ static void callInMainThreadWithAuthDataResultAndError(
       [aDecoder decodeObjectOfClass:[FIRUserMetadata class] forKey:kMetadataCodingKey];
   NSString *APIKey =
       [aDecoder decodeObjectOfClass:[NSString class] forKey:kAPIKeyCodingKey];
+#if TARGET_OS_IOS
   FIRMultiFactor *multiFactor =
       [aDecoder decodeObjectOfClass:[FIRMultiFactor class] forKey:kMultiFactorCodingKey];
+#endif
   if (!userID || !tokenService) {
     return nil;
   }
@@ -358,7 +360,9 @@ static void callInMainThreadWithAuthDataResultAndError(
     _phoneNumber = phoneNumber;
     _metadata = metadata ?: [[FIRUserMetadata alloc] initWithCreationDate:nil lastSignInDate:nil];
     _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:APIKey];
+    #if TARGET_OS_IOS
     _multiFactor = multiFactor ?: [[FIRMultiFactor alloc] init];
+    #endif
   }
   return self;
 }
@@ -376,7 +380,9 @@ static void callInMainThreadWithAuthDataResultAndError(
   [aCoder encodeObject:_metadata forKey:kMetadataCodingKey];
   [aCoder encodeObject:_auth.requestConfiguration.APIKey forKey:kAPIKeyCodingKey];
   [aCoder encodeObject:_tokenService forKey:kTokenServiceCodingKey];
+  #if TARGET_OS_IOS
   [aCoder encodeObject:_multiFactor forKey:kMultiFactorCodingKey];
+  #endif
 }
 
 #pragma mark -
@@ -449,8 +455,10 @@ static void callInMainThreadWithAuthDataResultAndError(
     }
   }
   _providerData = [providerData copy];
+  #if TARGET_OS_IOS
   _multiFactor = [[FIRMultiFactor alloc] initWithMfaEnrollments:user.mfaEnrollments];
   _multiFactor.user = self;
+  #endif
 }
 
 /** @fn executeUserUpdateWithChanges:callback:

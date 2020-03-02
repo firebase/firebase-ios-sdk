@@ -111,7 +111,12 @@ NS_SWIFT_NAME(User)
  */
 @property(nonatomic, readonly, nonnull) FIRUserMetadata *metadata;
 
+#if TARGET_OS_IOS
+/** @property multiFactor
+    @brief Multi factor object associated with the user.
+*/
 @property(nonatomic, readonly, nonnull) FIRMultiFactor *multiFactor;
+#endif
 
 /** @fn init
     @brief This class should not be instantiated.
