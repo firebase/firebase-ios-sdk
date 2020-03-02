@@ -118,15 +118,7 @@ class ConnectivityMonitorApple : public ConnectivityMonitor {
                     object:nil
                      queue:[NSOperationQueue mainQueue]
                 usingBlock:^(NSNotification* note) {
-                  SCNetworkReachabilityFlags flags{};
-                  if (SCNetworkReachabilityGetFlags(reachability_, &flags)) {
-                    auto status = ToNetworkStatus(flags);
-                    if (status != NetworkStatus::Unavailable) {
-                      this->InvokeCallbacks(status);
-                    } else {
-                      this->MaybeInvokeCallbacks(status);
-                    }
-                  }
+                  this->OnEnteredForeground();
                 }];
 #endif
   }
@@ -146,6 +138,27 @@ class ConnectivityMonitorApple : public ConnectivityMonitor {
       CFRelease(reachability_);
     }
   }
+
+#if TARGET_OS_IOS || TARGET_OS_TV
+  void OnEnteredForeground() {
+    SCNetworkReachabilityFlags flags{};
+    if (!SCNetworkReachabilityGetFlags(reachability_, &flags)) return;
+
+    queue()->Enqueue([this, flags] {
+      auto status = ToNetworkStatus(flags);
+      if (status != NetworkStatus::Unavailable) {
+        // There may have been network changes while Firestore was in the
+        // background for which we did not get OnReachabilityChangedCallback
+        // notifications. If entering the foreground and we have a connection,
+        // reset the connection to ensure that RPCs don't have to wait for TCP
+        // timeouts.
+        this->InvokeCallbacks(status);
+      } else {
+        this->MaybeInvokeCallbacks(status);
+      }
+    });
+  }
+#endif
 
   void OnReachabilityChanged(SCNetworkReachabilityFlags flags) {
     queue()->Enqueue(

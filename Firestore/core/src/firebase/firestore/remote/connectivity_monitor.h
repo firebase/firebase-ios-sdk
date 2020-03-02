@@ -71,7 +71,7 @@ class ConnectivityMonitor {
   // Invokes callbacks only if the status changed.
   void MaybeInvokeCallbacks(NetworkStatus new_status);
 
-  // Invokes callbacks and set net status to `new_status`.
+  // Invokes callbacks and sets net status to `new_status`.
   void InvokeCallbacks(NetworkStatus new_status);
 
   const std::shared_ptr<util::AsyncQueue>& queue() {
