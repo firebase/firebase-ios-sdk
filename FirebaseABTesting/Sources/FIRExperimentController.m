@@ -296,29 +296,47 @@ NSArray *ABTExperimentsToClearFromPayloads(
                                           payloads:(NSArray<ABTExperimentPayload *> *)payloads {
   ABTConditionalUserPropertyController *controller =
       [ABTConditionalUserPropertyController sharedInstanceWithAnalytics:_analytics];
-  
+
   FIRLifecycleEvents *lifecycleEvents = [[FIRLifecycleEvents alloc] init];
 
   // Get the list of experiments from Firebase Analytics.
-  NSArray<NSDictionary <NSString *, NSString *> *> *activeExperiments =
+  NSArray<NSDictionary<NSString *, NSString *> *> *activeExperiments =
       [controller experimentsWithOrigin:origin];
-  
+
   NSMutableSet *runningExperimentIDs = [NSMutableSet setWithCapacity:payloads.count];
   for (ABTExperimentPayload *payload in payloads) {
     [runningExperimentIDs addObject:payload.experimentId];
   }
 
-  for (NSDictionary <NSString *, NSString *> *activeExperimentDictionary in activeExperiments) {
+  for (NSDictionary<NSString *, NSString *> *activeExperimentDictionary in activeExperiments) {
     NSString *experimentID = activeExperimentDictionary[@"experimentId"];
     if (![runningExperimentIDs containsObject:experimentID]) {
       NSString *variantID = activeExperimentDictionary[@"variantId"];
-      
+
       [controller clearExperiment:experimentID
                         variantID:variantID
                        withOrigin:origin
-                          payload:nil events:lifecycleEvents];
+                          payload:nil
+                           events:lifecycleEvents];
     }
   }
+}
+
+- (void)activateExperiment:(ABTExperimentPayload *)experimentPayload
+          forServiceOrigin:(NSString *)origin
+            overflowPolicy:(ABTExperimentPayload_ExperimentOverflowPolicy)overflowPolicy {
+  ABTConditionalUserPropertyController *controller =
+      [ABTConditionalUserPropertyController sharedInstanceWithAnalytics:_analytics];
+
+  FIRLifecycleEvents *lifecycleEvents = [[FIRLifecycleEvents alloc] init];
+
+  // Ensure that trigger event is nil, which will immediately set the experiment to active.
+  experimentPayload.triggerEvent = nil;
+
+  [controller setExperimentWithOrigin:origin
+                              payload:experimentPayload
+                               events:lifecycleEvents
+                               policy:overflowPolicy];
 }
 
 @end
