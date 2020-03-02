@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		6FE469F639AA076DA0AB7C46 /* Pods_GDTWatchOSTestAppWatchKitExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7817B4D6E73C1E00429F8F65 /* Pods_GDTWatchOSTestAppWatchKitExtension.framework */; };
 		9505C3262405B30E00534CF2 /* GDTWatchOSTestAppWatchKitApp.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 9505C3252405B30E00534CF2 /* GDTWatchOSTestAppWatchKitApp.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		9505C32C2405B30E00534CF2 /* Interface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9505C32A2405B30E00534CF2 /* Interface.storyboard */; };
 		9505C32E2405B30F00534CF2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9505C32D2405B30F00534CF2 /* Assets.xcassets */; };
@@ -17,7 +16,6 @@
 		9505C33E2405B30F00534CF2 /* NotificationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9505C33D2405B30F00534CF2 /* NotificationController.swift */; };
 		9505C3402405B31000534CF2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9505C33F2405B31000534CF2 /* Assets.xcassets */; };
 		9505C3512405F0C500534CF2 /* gdthelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9505C3502405F0C500534CF2 /* gdthelper.swift */; };
-		BA91CC6245B2B5DAA79D5F52 /* Pods_GDTWatchOSTestAppWatchKitApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 398CC1DDCF216D1E3868D054 /* Pods_GDTWatchOSTestAppWatchKitApp.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -63,13 +61,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		12A683F830B22F5108F84577 /* Pods-GDTWatchOSTestAppWatchKitExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GDTWatchOSTestAppWatchKitExtension.debug.xcconfig"; path = "Target Support Files/Pods-GDTWatchOSTestAppWatchKitExtension/Pods-GDTWatchOSTestAppWatchKitExtension.debug.xcconfig"; sourceTree = "<group>"; };
-		1E5A76BF499C15D1B1B2F6A5 /* Pods-GDTWatchOSTestApp WatchKit App.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GDTWatchOSTestApp WatchKit App.debug.xcconfig"; path = "Target Support Files/Pods-GDTWatchOSTestApp WatchKit App/Pods-GDTWatchOSTestApp WatchKit App.debug.xcconfig"; sourceTree = "<group>"; };
-		398CC1DDCF216D1E3868D054 /* Pods_GDTWatchOSTestAppWatchKitApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_GDTWatchOSTestAppWatchKitApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		5F2F38F73E3DBAE11591FC24 /* Pods-GDTWatchOSTestAppWatchKitApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GDTWatchOSTestAppWatchKitApp.debug.xcconfig"; path = "Target Support Files/Pods-GDTWatchOSTestAppWatchKitApp/Pods-GDTWatchOSTestAppWatchKitApp.debug.xcconfig"; sourceTree = "<group>"; };
-		76BF54E5D0E3FED1F82C56FF /* Pods-GDTWatchOSTestAppWatchKitExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GDTWatchOSTestAppWatchKitExtension.release.xcconfig"; path = "Target Support Files/Pods-GDTWatchOSTestAppWatchKitExtension/Pods-GDTWatchOSTestAppWatchKitExtension.release.xcconfig"; sourceTree = "<group>"; };
-		7817B4D6E73C1E00429F8F65 /* Pods_GDTWatchOSTestAppWatchKitExtension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_GDTWatchOSTestAppWatchKitExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		86AE0015B8C97378FEC03A95 /* Pods-GDTWatchOSTestAppWatchKitApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GDTWatchOSTestAppWatchKitApp.release.xcconfig"; path = "Target Support Files/Pods-GDTWatchOSTestAppWatchKitApp/Pods-GDTWatchOSTestAppWatchKitApp.release.xcconfig"; sourceTree = "<group>"; };
 		9505C3212405B30D00534CF2 /* GDTWatchOSTestApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GDTWatchOSTestApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9505C3252405B30E00534CF2 /* GDTWatchOSTestAppWatchKitApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GDTWatchOSTestAppWatchKitApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9505C32B2405B30E00534CF2 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Interface.storyboard; sourceTree = "<group>"; };
@@ -83,9 +74,6 @@
 		9505C3412405B31000534CF2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9505C3422405B31000534CF2 /* PushNotificationPayload.apns */ = {isa = PBXFileReference; lastKnownFileType = text; path = PushNotificationPayload.apns; sourceTree = "<group>"; };
 		9505C3502405F0C500534CF2 /* gdthelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = gdthelper.swift; sourceTree = "<group>"; };
-		A2CCE237246B06086D6C9821 /* Pods-GDTWatchOSTestApp WatchKit Extension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GDTWatchOSTestApp WatchKit Extension.release.xcconfig"; path = "Target Support Files/Pods-GDTWatchOSTestApp WatchKit Extension/Pods-GDTWatchOSTestApp WatchKit Extension.release.xcconfig"; sourceTree = "<group>"; };
-		A4ABB741FDC2481F16FE1466 /* Pods-GDTWatchOSTestApp WatchKit Extension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GDTWatchOSTestApp WatchKit Extension.debug.xcconfig"; path = "Target Support Files/Pods-GDTWatchOSTestApp WatchKit Extension/Pods-GDTWatchOSTestApp WatchKit Extension.debug.xcconfig"; sourceTree = "<group>"; };
-		B260E6A8106CAD5808D09B24 /* Pods-GDTWatchOSTestApp WatchKit App.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GDTWatchOSTestApp WatchKit App.release.xcconfig"; path = "Target Support Files/Pods-GDTWatchOSTestApp WatchKit App/Pods-GDTWatchOSTestApp WatchKit App.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -100,7 +88,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6FE469F639AA076DA0AB7C46 /* Pods_GDTWatchOSTestAppWatchKitExtension.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -108,7 +95,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BA91CC6245B2B5DAA79D5F52 /* Pods_GDTWatchOSTestAppWatchKitApp.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -122,7 +108,6 @@
 				9505C3382405B30F00534CF2 /* GDTWatchOSTestAppWatchKitExtension */,
 				9505C3222405B30D00534CF2 /* Products */,
 				EE8C04E1AD00D4C161BE3F8D /* Pods */,
-				CFD771DCCEC4B1629A49D2A5 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -160,26 +145,9 @@
 			path = GDTWatchOSTestAppWatchKitExtension;
 			sourceTree = "<group>";
 		};
-		CFD771DCCEC4B1629A49D2A5 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				398CC1DDCF216D1E3868D054 /* Pods_GDTWatchOSTestAppWatchKitApp.framework */,
-				7817B4D6E73C1E00429F8F65 /* Pods_GDTWatchOSTestAppWatchKitExtension.framework */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
 		EE8C04E1AD00D4C161BE3F8D /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				1E5A76BF499C15D1B1B2F6A5 /* Pods-GDTWatchOSTestApp WatchKit App.debug.xcconfig */,
-				B260E6A8106CAD5808D09B24 /* Pods-GDTWatchOSTestApp WatchKit App.release.xcconfig */,
-				A4ABB741FDC2481F16FE1466 /* Pods-GDTWatchOSTestApp WatchKit Extension.debug.xcconfig */,
-				A2CCE237246B06086D6C9821 /* Pods-GDTWatchOSTestApp WatchKit Extension.release.xcconfig */,
-				5F2F38F73E3DBAE11591FC24 /* Pods-GDTWatchOSTestAppWatchKitApp.debug.xcconfig */,
-				86AE0015B8C97378FEC03A95 /* Pods-GDTWatchOSTestAppWatchKitApp.release.xcconfig */,
-				12A683F830B22F5108F84577 /* Pods-GDTWatchOSTestAppWatchKitExtension.debug.xcconfig */,
-				76BF54E5D0E3FED1F82C56FF /* Pods-GDTWatchOSTestAppWatchKitExtension.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -209,7 +177,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 9505C3492405B31000534CF2 /* Build configuration list for PBXNativeTarget "GDTWatchOSTestAppWatchKitApp" */;
 			buildPhases = (
-				4ECA0B4D046D3FA27DB74577 /* [CP] Check Pods Manifest.lock */,
 				9505C3232405B30E00534CF2 /* Resources */,
 				9505C3482405B31000534CF2 /* Embed App Extensions */,
 				D6279338F5A1535666236914 /* Frameworks */,
@@ -228,7 +195,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 9505C3452405B31000534CF2 /* Build configuration list for PBXNativeTarget "GDTWatchOSTestAppWatchKitExtension" */;
 			buildPhases = (
-				F1042D9383CE4B6F9F153595 /* [CP] Check Pods Manifest.lock */,
 				9505C3302405B30F00534CF2 /* Sources */,
 				9505C3312405B30F00534CF2 /* Frameworks */,
 				9505C3322405B30F00534CF2 /* Resources */,
@@ -311,53 +277,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		4ECA0B4D046D3FA27DB74577 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-GDTWatchOSTestAppWatchKitApp-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		F1042D9383CE4B6F9F153595 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-GDTWatchOSTestAppWatchKitExtension-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		9505C3302405B30F00534CF2 /* Sources */ = {
@@ -512,7 +431,6 @@
 		};
 		9505C3462405B31000534CF2 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 12A683F830B22F5108F84577 /* Pods-GDTWatchOSTestAppWatchKitExtension.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
 				CODE_SIGN_IDENTITY = "Apple Development";
@@ -537,7 +455,6 @@
 		};
 		9505C3472405B31000534CF2 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 76BF54E5D0E3FED1F82C56FF /* Pods-GDTWatchOSTestAppWatchKitExtension.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
 				CODE_SIGN_IDENTITY = "Apple Development";
@@ -562,7 +479,6 @@
 		};
 		9505C34A2405B31000534CF2 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 5F2F38F73E3DBAE11591FC24 /* Pods-GDTWatchOSTestAppWatchKitApp.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -591,7 +507,6 @@
 		};
 		9505C34B2405B31000534CF2 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 86AE0015B8C97378FEC03A95 /* Pods-GDTWatchOSTestAppWatchKitApp.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
