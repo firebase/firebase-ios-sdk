@@ -215,8 +215,7 @@
   if (inAppMessage.campaignInfo.experimentPayload) {
     [[FIRExperimentController sharedInstance]
         activateExperiment:inAppMessage.campaignInfo.experimentPayload
-          forServiceOrigin:@"fiam"
-            overflowPolicy:ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest];
+          forServiceOrigin:@"fiam"];
   }
 
   if (!_currentMsgBeingDisplayed.isTestMessage) {
@@ -447,7 +446,6 @@
 
   FIRInAppMessagingCardDisplay *cardMessage = [[FIRInAppMessagingCardDisplay alloc]
         initWithMessageID:renderData.messageID
-
              campaignName:renderData.name
         experimentPayload:definition.experimentPayload
       renderAsTestMessage:definition.isTestMessage

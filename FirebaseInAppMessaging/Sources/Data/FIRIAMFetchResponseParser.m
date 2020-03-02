@@ -25,7 +25,7 @@
 #import "FIRIAMTimeFetcher.h"
 #import "UIColor+FIRIAMHexString.h"
 
-// #import <FirebaseABTesting/ExperimentPayload.pbobjc.h>
+#import <FirebaseABTesting/ExperimentPayload.pbobjc.h>
 
 @interface FIRIAMFetchResponseParser ()
 @property(nonatomic) id<FIRIAMTimeFetcher> timeFetcher;
@@ -132,7 +132,7 @@
     if ([isTestCampaignNode isKindOfClass:[NSNumber class]]) {
       isTestMessage = [isTestCampaignNode boolValue];
     }
-    
+
     id payloadNode = messageNode[@"experimentalPayload"] ?: messageNode[@"vanillaPayload"];
 
     if (![payloadNode isKindOfClass:[NSDictionary class]]) {
@@ -156,18 +156,22 @@
                     @"campaign name is missing in non-test message node %@", messageNode);
       return nil;
     }
-    
+
     ABTExperimentPayload *experimentPayload = nil;
     NSDictionary *experimentPayloadDictionary = payloadNode[@"experimentPayload"];
 
     if (experimentPayloadDictionary) {
       experimentPayload = [ABTExperimentPayload message];
       experimentPayload.experimentId = experimentPayloadDictionary[@"experimentId"];
-      experimentPayload.experimentStartTimeMillis = [experimentPayloadDictionary[@"experimentStartTimeMillis"] integerValue];
-      // TODO Map this to an actual value
-      experimentPayload.overflowPolicy = ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest;
-      experimentPayload.timeToLiveMillis = [experimentPayloadDictionary[@"timeToLiveMillis"] integerValue];
-      experimentPayload.triggerTimeoutMillis = [experimentPayloadDictionary[@"triggerTimeoutMillis"] integerValue];
+      experimentPayload.experimentStartTimeMillis =
+          [experimentPayloadDictionary[@"experimentStartTimeMillis"] integerValue];
+      // FIAM experiments always use the "discard oldest" overflow policy.
+      experimentPayload.overflowPolicy =
+          ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest;
+      experimentPayload.timeToLiveMillis =
+          [experimentPayloadDictionary[@"timeToLiveMillis"] integerValue];
+      experimentPayload.triggerTimeoutMillis =
+          [experimentPayloadDictionary[@"triggerTimeoutMillis"] integerValue];
       experimentPayload.variantId = [experimentPayloadDictionary[@"variantId"] stringValue];
     }
 

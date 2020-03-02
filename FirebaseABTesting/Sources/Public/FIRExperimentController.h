@@ -102,8 +102,7 @@ NS_SWIFT_NAME(ExperimentController)
 /// @param origin         The originating service affected by the experiment, it is defined at
 ///                       Firebase Analytics FIREventOrigins.h.
 - (void)activateExperiment:(ABTExperimentPayload *)experimentPayload
-          forServiceOrigin:(NSString *)origin
-            overflowPolicy:(ABTExperimentPayload_ExperimentOverflowPolicy)overflowPolicy;
+          forServiceOrigin:(NSString *)origin;
 
 @end
 

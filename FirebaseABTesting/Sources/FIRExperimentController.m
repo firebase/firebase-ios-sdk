@@ -323,8 +323,7 @@ NSArray *ABTExperimentsToClearFromPayloads(
 }
 
 - (void)activateExperiment:(ABTExperimentPayload *)experimentPayload
-          forServiceOrigin:(NSString *)origin
-            overflowPolicy:(ABTExperimentPayload_ExperimentOverflowPolicy)overflowPolicy {
+          forServiceOrigin:(NSString *)origin {
   ABTConditionalUserPropertyController *controller =
       [ABTConditionalUserPropertyController sharedInstanceWithAnalytics:_analytics];
 
@@ -336,7 +335,7 @@ NSArray *ABTExperimentsToClearFromPayloads(
   [controller setExperimentWithOrigin:origin
                               payload:experimentPayload
                                events:lifecycleEvents
-                               policy:overflowPolicy];
+                               policy:experimentPayload.overflowPolicy];
 }
 
 @end

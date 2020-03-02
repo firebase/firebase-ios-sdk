@@ -225,9 +225,6 @@
                                         discardedMsgCount:&discardCount
                                    fetchWaitTimeInSeconds:&fetchWaitTime];
       [self setMessageData:messagesFromStorage];
-      
-      
-      
       completion(YES);
     } else {
       completion(NO);
