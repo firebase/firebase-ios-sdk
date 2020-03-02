@@ -699,17 +699,17 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
       callback(nil, error);
     } else {
       if (!response.IDToken && response.mfaInfo) {
-        NSMutableArray<FIRMultiFactorInfo *> *multiFactorInfo = [NSMutableArray array];
 #if TARGET_OS_IOS
+        NSMutableArray<FIRMultiFactorInfo *> *multiFactorInfo = [NSMutableArray array];
         for (FIRAuthProtoMfaEnrollment *mfaEnrollment in response.mfaInfo) {
           FIRPhoneMultiFactorInfo *info = [[FIRPhoneMultiFactorInfo alloc] initWithProto:mfaEnrollment];
           [multiFactorInfo addObject:info];
         }
-#endif
         NSError *multiFactorRequiredError =
         [FIRAuthErrorUtils secondFactorRequiredErrorWithPendingCredential:response.mfaPendingCredential
                                                                     hints:multiFactorInfo];
         callback(nil, multiFactorRequiredError);
+        #endif
       } else {
         callback(response, nil);
       }
@@ -737,17 +737,17 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
       callback(nil, error);
     } else {
       if (!response.IDToken && response.mfaInfo) {
+        #if TARGET_OS_IOS
         NSMutableArray<FIRMultiFactorInfo *> *multiFactorInfo = [NSMutableArray array];
-#if TARGET_OS_IOS
         for (FIRAuthProtoMfaEnrollment *mfaEnrollment in response.mfaInfo) {
           FIRPhoneMultiFactorInfo *info = [[FIRPhoneMultiFactorInfo alloc] initWithProto:mfaEnrollment];
           [multiFactorInfo addObject:info];
         }
-#endif
         NSError *multiFactorRequiredError =
             [FIRAuthErrorUtils secondFactorRequiredErrorWithPendingCredential:response.mfaPendingCredential
                                                                         hints:multiFactorInfo];
         callback(nil, multiFactorRequiredError);
+        #endif
       } else {
         callback(response, nil);
       }
