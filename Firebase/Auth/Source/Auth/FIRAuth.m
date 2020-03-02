@@ -198,11 +198,13 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
  */
 @property(nonatomic, nullable, readwrite, copy) NSString *previousEmail;
 
+#if TARGET_OS_IOS
 /** @property multiFactorInfo
     @brief The MultiFactorInfo object of the second factor to be reverted in case of
         FIRActionCodeMultiFactorInfoKey.
  */
 @property(nonatomic, nullable, readwrite) FIRMultiFactorInfo *multiFactorInfo;
+#endif
 
 @end
 
