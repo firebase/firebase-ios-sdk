@@ -22,8 +22,8 @@ import PackageDescription
 let package = Package(
   name: "ZipBuilder",
   products: [
+    .executable(name: "firebase-pod-updater", targets: ["firebase-pod-updater"]),
     .executable(name: "ReleasePackager", targets: ["ZipBuilder"]),
-    .executable(name: "UpdateFirebasePod", targets: ["UpdateFirebasePod"]),
   ],
   dependencies: [
     .package(url: "https://github.com/apple/swift-argument-parser", .exact("0.0.1")),
@@ -33,7 +33,7 @@ let package = Package(
   ],
   targets: [
     .target(
-      name: "UpdateFirebasePod",
+      name: "firebase-pod-updater",
       dependencies: ["ArgumentParser", "ManifestReader"]
     ),
     .target(
