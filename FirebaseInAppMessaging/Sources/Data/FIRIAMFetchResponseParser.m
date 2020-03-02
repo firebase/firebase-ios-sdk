@@ -362,7 +362,8 @@
       dataBundle = dataBundleNode;
     }
     if (isTestMessage) {
-      return [[FIRIAMMessageDefinition alloc] initTestMessageWithRenderData:renderData];
+      return [[FIRIAMMessageDefinition alloc] initTestMessageWithRenderData:renderData
+                                                          experimentPayload:experimentPayload];
     } else {
       return [[FIRIAMMessageDefinition alloc] initWithRenderData:renderData
                                                        startTime:startTimeInSeconds

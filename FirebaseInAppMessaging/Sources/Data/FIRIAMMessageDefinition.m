@@ -56,23 +56,25 @@
 - (instancetype)initWithRenderData:(FIRIAMMessageRenderData *)renderData
                          startTime:(NSTimeInterval)startTime
                            endTime:(NSTimeInterval)endTime
+                 experimentPayload:(nullable ABTExperimentPayload *)experimentPayload
                  triggerDefinition:(NSArray<FIRIAMDisplayTriggerDefinition *> *)renderTriggers {
   return [self initWithRenderData:renderData
                         startTime:startTime
                           endTime:endTime
                 triggerDefinition:renderTriggers
                           appData:nil
-                experimentPayload:nil
+                experimentPayload:experimentPayload
                     isTestMessage:NO];
 }
 
-- (instancetype)initTestMessageWithRenderData:(FIRIAMMessageRenderData *)renderData {
+- (instancetype)initTestMessageWithRenderData:(FIRIAMMessageRenderData *)renderData
+                            experimentPayload:(nullable ABTExperimentPayload *)experimentPayload {
   return [self initWithRenderData:renderData
                         startTime:0
                           endTime:0
                 triggerDefinition:@[]
                           appData:nil
-                experimentPayload:nil
+                experimentPayload:experimentPayload
                     isTestMessage:YES];
 }
 
