@@ -1,7 +1,7 @@
 
 # v4.0.0-beta.5
 
-- [changed] Updates two endpoints in the SDK with no expected end-user impact (#4953, #4988)
+- [changed] Changed two endpoints in the Firebase Crashlytics SDK with no expected end-user impact (#4953, #4988).
 
 # v4.0.0-beta.4
 
