@@ -21,8 +21,10 @@ iOS SDK for App Distribution for Firebase.
   s.static_framework = true
   s.prefix_header_file = false
 
-  s.source_files = 'FirebaseAppDistribution/Sources/**/*.{c,h,m,mm}'
-  s.public_header_files = 'FirebaseAppDistribution/Sources/Public/*.h'
+  base_dir = "FirebaseAppDistribution/Sources/"
+  s.source_files = base_dir + '**/*.{c,h,m,mm}'
+  s.public_header_files = base_dir + 'Public/*.h'
+  s.private_header_files = base_dir + 'Private/*.h'
 
   s.dependency 'FirebaseCore', '~> 6.0'
   s.dependency 'AppAuth', '~> 1.2.0'
