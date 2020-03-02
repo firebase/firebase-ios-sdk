@@ -77,16 +77,6 @@ typedef void (^FIRAppDistributionSignInCompletion)(NSError *_Nullable error)
 NS_SWIFT_NAME(AppDistribution)
 @interface FIRAppDistribution : NSObject
 
-
-/**
- * Current view controller presenting the `SFSafariViewController` if any.
- */
-@property(nullable, nonatomic) UIViewController *safariHostingViewController;
-
-@property(nullable, nonatomic) OIDAuthState *authState;
-
-@property(nullable, nonatomic) NSError *authError;
-
 /** :nodoc: */
 - (instancetype)init NS_UNAVAILABLE;
 
