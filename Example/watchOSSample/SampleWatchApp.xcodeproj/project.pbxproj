@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 51;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -16,6 +16,8 @@
 		5156949123F4965100E7C350 /* NotificationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5156949023F4965100E7C350 /* NotificationController.swift */; };
 		5156949323F4965100E7C350 /* ComplicationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5156949223F4965100E7C350 /* ComplicationController.swift */; };
 		5156949523F4965200E7C350 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5156949423F4965200E7C350 /* Assets.xcassets */; };
+		515694AF23F4A3D200E7C350 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 515694AE23F4A3D200E7C350 /* NotificationService.swift */; };
+		515694B323F4A3D200E7C350 /* ServiceExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 515694AC23F4A3D200E7C350 /* ServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -32,6 +34,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 5156948623F4965100E7C350;
 			remoteInfo = "SampleWatchApp WatchKit Extension";
+		};
+		515694B123F4A3D200E7C350 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5156946E23F4965000E7C350 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 515694AB23F4A3D200E7C350;
+			remoteInfo = ServiceExtension;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -64,6 +73,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
+				515694B323F4A3D200E7C350 /* ServiceExtension.appex in Embed App Extensions */,
 			);
 			name = "Embed App Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -85,6 +95,7 @@
 		5156949623F4965200E7C350 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		5156949723F4965200E7C350 /* PushNotificationPayload.apns */ = {isa = PBXFileReference; lastKnownFileType = text; path = PushNotificationPayload.apns; sourceTree = "<group>"; };
 		515694A523F497E700E7C350 /* SampleWatchAppWatchKitExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SampleWatchAppWatchKitExtension.entitlements; sourceTree = "<group>"; };
+		515694AC23F4A3D200E7C350 /* ServiceExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ServiceExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		515694AE23F4A3D200E7C350 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		515694B023F4A3D200E7C350 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -98,6 +109,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		5156948423F4965100E7C350 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		515694A923F4A3D200E7C350 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -130,6 +148,7 @@
 				5156947423F4965000E7C350 /* SampleWatchApp.app */,
 				5156947823F4965000E7C350 /* SampleWatchAppWatchKitApp.app */,
 				5156948723F4965100E7C350 /* SampleWatchAppWatchKitExtension.appex */,
+				515694AC23F4A3D200E7C350 /* ServiceExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -219,11 +238,29 @@
 			buildRules = (
 			);
 			dependencies = (
+				515694B223F4A3D200E7C350 /* PBXTargetDependency */,
 			);
 			name = SampleWatchAppWatchKitExtension;
 			productName = "SampleWatchApp WatchKit Extension";
 			productReference = 5156948723F4965100E7C350 /* SampleWatchAppWatchKitExtension.appex */;
 			productType = "com.apple.product-type.watchkit2-extension";
+		};
+		515694AB23F4A3D200E7C350 /* ServiceExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 515694B423F4A3D200E7C350 /* Build configuration list for PBXNativeTarget "ServiceExtension" */;
+			buildPhases = (
+				515694A823F4A3D200E7C350 /* Sources */,
+				515694A923F4A3D200E7C350 /* Frameworks */,
+				515694AA23F4A3D200E7C350 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ServiceExtension;
+			productName = ServiceExtension;
+			productReference = 515694AC23F4A3D200E7C350 /* ServiceExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -244,6 +281,9 @@
 					5156948623F4965100E7C350 = {
 						CreatedOnToolsVersion = 11.2.1;
 					};
+					515694AB23F4A3D200E7C350 = {
+						CreatedOnToolsVersion = 11.2.1;
+					};
 				};
 			};
 			buildConfigurationList = 5156947123F4965000E7C350 /* Build configuration list for PBXProject "SampleWatchApp" */;
@@ -262,6 +302,7 @@
 				5156947323F4965000E7C350 /* SampleWatchApp */,
 				5156947723F4965000E7C350 /* SampleWatchAppWatchKitApp */,
 				5156948623F4965100E7C350 /* SampleWatchAppWatchKitExtension */,
+				515694AB23F4A3D200E7C350 /* ServiceExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -291,6 +332,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		515694AA23F4A3D200E7C350 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -302,6 +350,14 @@
 				5156949323F4965100E7C350 /* ComplicationController.swift in Sources */,
 				5156948F23F4965100E7C350 /* ExtensionDelegate.swift in Sources */,
 				5156948D23F4965100E7C350 /* InterfaceController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		515694A823F4A3D200E7C350 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				515694AF23F4A3D200E7C350 /* NotificationService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -317,6 +373,11 @@
 			isa = PBXTargetDependency;
 			target = 5156948623F4965100E7C350 /* SampleWatchAppWatchKitExtension */;
 			targetProxy = 5156948923F4965100E7C350 /* PBXContainerItemProxy */;
+		};
+		515694B223F4A3D200E7C350 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 515694AB23F4A3D200E7C350 /* ServiceExtension */;
+			targetProxy = 515694B123F4A3D200E7C350 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -449,9 +510,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
 				CODE_SIGN_ENTITLEMENTS = SampleWatchAppWatchKitExtension/SampleWatchAppWatchKitExtension.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = EQHXZ8M8AV;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = SampleWatchAppWatchKitExtension/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -460,7 +521,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.extensions.dev.WatchKitApp.WatchKitExtension;
 				PRODUCT_NAME = "${TARGET_NAME}";
-				PROVISIONING_PROFILE_SPECIFIER = "Firebase iOS App Extensions WatchKit Extension Dev";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
@@ -474,9 +535,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
 				CODE_SIGN_ENTITLEMENTS = SampleWatchAppWatchKitExtension/SampleWatchAppWatchKitExtension.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = EQHXZ8M8AV;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = SampleWatchAppWatchKitExtension/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -485,7 +546,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.extensions.dev.WatchKitApp.WatchKitExtension;
 				PRODUCT_NAME = "${TARGET_NAME}";
-				PROVISIONING_PROFILE_SPECIFIER = "Firebase iOS App Extensions WatchKit Extension Dev";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
@@ -499,14 +560,14 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = EQHXZ8M8AV;
+				DEVELOPMENT_TEAM = "";
 				IBSC_MODULE = SampleWatchAppWatchKitExtension;
 				INFOPLIST_FILE = SampleWatchAppWatchKitApp/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.extensions.dev.WatchKitApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "Firebase iOS App Extensions WatchKit App Dev";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
@@ -520,14 +581,14 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = EQHXZ8M8AV;
+				DEVELOPMENT_TEAM = "";
 				IBSC_MODULE = SampleWatchAppWatchKitExtension;
 				INFOPLIST_FILE = SampleWatchAppWatchKitApp/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.extensions.dev.WatchKitApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "Firebase iOS App Extensions WatchKit App Dev";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
@@ -539,14 +600,14 @@
 		515694A323F4965200E7C350 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = EQHXZ8M8AV;
+				DEVELOPMENT_TEAM = "";
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.extensions.dev;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "Firebase iOS App Extensions Dev";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
@@ -554,15 +615,63 @@
 		515694A423F4965200E7C350 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = EQHXZ8M8AV;
+				DEVELOPMENT_TEAM = "";
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.extensions.dev;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "Firebase iOS App Extensions Dev";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		515694B523F4A3D200E7C350 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
+				INFOPLIST_FILE = ServiceExtension/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.extensions.dev.WatchKitApp.WatchKitExtension.ServiceExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 6.1;
+			};
+			name = Debug;
+		};
+		515694B623F4A3D200E7C350 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
+				INFOPLIST_FILE = ServiceExtension/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.extensions.dev.WatchKitApp.WatchKitExtension.ServiceExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 6.1;
 			};
 			name = Release;
 		};
@@ -601,6 +710,15 @@
 			buildConfigurations = (
 				515694A323F4965200E7C350 /* Debug */,
 				515694A423F4965200E7C350 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		515694B423F4A3D200E7C350 /* Build configuration list for PBXNativeTarget "ServiceExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				515694B523F4A3D200E7C350 /* Debug */,
+				515694B623F4A3D200E7C350 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
