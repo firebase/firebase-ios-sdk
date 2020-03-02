@@ -16,99 +16,120 @@
 
 import Foundation
 
+import ArgumentParser
 import ManifestReader
 
-// Get the launch arguments, parsed by user defaults.
-let args = LaunchArgs.shared
+struct FirebasePodUpdater: ParsableCommand {
+  /// The root of the Firebase git repo.
+  @Option(help: "The root of the firebase-ios-sdk checked out git repo.",
+          transform: URL.init(fileURLWithPath:))
+  var gitRoot: URL
 
-// Keep timing for how long it takes to change the Firebase pod versions.
-let buildStart = Date()
-var cocoaPodsUpdateMessage: String = ""
+  /// A file URL to a textproto with the contents of a `FirebasePod_Release` object. Used to verify
+  /// expected version numbers.
+  @Option(name: .customLong("releasing-pods"),
+          help: "The file path to a textproto file containing all the releasing Pods, of type `FirebasePod_Release`.",
+          transform: URL.init(fileURLWithPath:))
+  var currentRelease: URL
 
-var paths = FirebasePod.FilesystemPaths(currentReleasePath: args.currentReleasePath,
-                                        gitRootPath: args.gitRootPath)
+  mutating func validate() throws {
+    guard FileManager.default.fileExists(atPath: gitRoot.path) else {
+      throw ValidationError("git-root does not exist: \(gitRoot.path)")
+    }
 
-/// Assembles the expected versions based on the release manifest passed in.
-/// Returns an array with the pod name as the key and version as the value,
-private func getExpectedVersions() -> [String: String] {
-  // Merge the versions from the current release and the known public versions.
-  var releasingVersions: [String: String] = [:]
-
-  // Override any of the expected versions with the current release manifest, if it exists.
-  let currentRelease = ManifestReader.loadCurrentRelease(fromTextproto: paths.currentReleasePath)
-  print("Overriding the following Pod versions, taken from the current release manifest:")
-  for pod in currentRelease.sdk {
-    releasingVersions[pod.sdkName] = pod.sdkVersion
-    print("\(pod.sdkName): \(pod.sdkVersion)")
-  }
-
-  if !releasingVersions.isEmpty {
-    print("Updating Firebase Pod in git installation at \(paths.gitRootPath)) " +
-      "with the following versions: \(releasingVersions)")
-  }
-
-  return releasingVersions
-}
-
-private func updateFirebasePod(newVersions: [String: String]) {
-  let podspecFile = paths.gitRootPath + "/Firebase.podspec"
-  var contents = ""
-  do {
-    contents = try String(contentsOfFile: podspecFile, encoding: .utf8)
-  } catch {
-    fatalError("Could not read Firebase podspec. \(error)")
-  }
-  for (pod, version) in newVersions {
-    if pod == "Firebase" {
-      // Replace version in string like s.version = '6.9.0'
-      guard let range = contents.range(of: "s.version") else {
-        fatalError("Could not find version of Firebase pod in podspec at \(podspecFile)")
-      }
-      var versionStartIndex = contents.index(range.upperBound, offsetBy: 1)
-      while contents[versionStartIndex] != "'" {
-        versionStartIndex = contents.index(versionStartIndex, offsetBy: 1)
-      }
-      var versionEndIndex = contents.index(versionStartIndex, offsetBy: 1)
-      while contents[versionEndIndex] != "'" {
-        versionEndIndex = contents.index(versionEndIndex, offsetBy: 1)
-      }
-      contents.removeSubrange(versionStartIndex ... versionEndIndex)
-      contents.insert(contentsOf: "'" + version + "'", at: versionStartIndex)
-    } else {
-      // Replace version in string like ss.dependency 'FirebaseCore', '6.3.0'
-      guard let range = contents.range(of: pod) else {
-        // This pod is not a top-level Firebase pod dependency.
-        continue
-      }
-      var versionStartIndex = contents.index(range.upperBound, offsetBy: 2)
-      while !contents[versionStartIndex].isWholeNumber {
-        versionStartIndex = contents.index(versionStartIndex, offsetBy: 1)
-      }
-      var versionEndIndex = contents.index(versionStartIndex, offsetBy: 1)
-      while contents[versionEndIndex] != "'" {
-        versionEndIndex = contents.index(versionEndIndex, offsetBy: 1)
-      }
-      contents.removeSubrange(versionStartIndex ... versionEndIndex)
-      contents.insert(contentsOf: version + "'", at: versionStartIndex)
+    guard FileManager.default.fileExists(atPath: currentRelease.path) else {
+      throw ValidationError("current-release does not exist: \(currentRelease.path). Do you need " +
+        "to run `prodaccess`?")
     }
   }
-  do {
-    try contents.write(toFile: podspecFile, atomically: false, encoding: String.Encoding.utf8)
-  } catch {
-    fatalError("Failed to write \(podspecFile). \(error)")
+
+  func run() throws {
+    // Keep timing for how long it takes to change the Firebase pod versions.
+    let buildStart = Date()
+
+    let newVersions = getExpectedVersions()
+    updateFirebasePod(newVersions: newVersions)
+    print("Updating Firebase pod for version \(String(describing: newVersions["Firebase"]!))")
+
+    // Get the time since the tool start.
+    let secondsSinceStart = -Int(buildStart.timeIntervalSinceNow)
+    print("""
+    Time profile:
+      It took \(secondsSinceStart) seconds (~\(secondsSinceStart / 60)m) to update the Firebase pod.
+    """)
+  }
+
+  /// Assembles the expected versions based on the release manifest passed in.
+  /// Returns an array with the pod name as the key and version as the value,
+  private func getExpectedVersions() -> [String: String] {
+    // Merge the versions from the current release and the known public versions.
+    var releasingVersions: [String: String] = [:]
+
+    // Override any of the expected versions with the current release manifest, if it exists.
+    let loadedRelease = ManifestReader.loadCurrentRelease(fromTextproto: currentRelease)
+    print("Overriding the following Pod versions, taken from the current release manifest:")
+    for pod in loadedRelease.sdk {
+      releasingVersions[pod.sdkName] = pod.sdkVersion
+      print("\(pod.sdkName): \(pod.sdkVersion)")
+    }
+
+    if !releasingVersions.isEmpty {
+      print("Updating Firebase Pod in git installation at \(gitRoot.path)) " +
+        "with the following versions: \(releasingVersions)")
+    }
+
+    return releasingVersions
+  }
+
+  private func updateFirebasePod(newVersions: [String: String]) {
+    let podspecFile = gitRoot.appendingPathComponent("Firebase.podspec")
+    var contents = ""
+    do {
+      contents = try String(contentsOfFile: podspecFile.path, encoding: .utf8)
+    } catch {
+      fatalError("Could not read Firebase podspec. \(error)")
+    }
+    for (pod, version) in newVersions {
+      if pod == "Firebase" {
+        // Replace version in string like s.version = '6.9.0'
+        guard let range = contents.range(of: "s.version") else {
+          fatalError("Could not find version of Firebase pod in podspec at \(podspecFile)")
+        }
+        var versionStartIndex = contents.index(range.upperBound, offsetBy: 1)
+        while contents[versionStartIndex] != "'" {
+          versionStartIndex = contents.index(versionStartIndex, offsetBy: 1)
+        }
+        var versionEndIndex = contents.index(versionStartIndex, offsetBy: 1)
+        while contents[versionEndIndex] != "'" {
+          versionEndIndex = contents.index(versionEndIndex, offsetBy: 1)
+        }
+        contents.removeSubrange(versionStartIndex ... versionEndIndex)
+        contents.insert(contentsOf: "'" + version + "'", at: versionStartIndex)
+      } else {
+        // Replace version in string like ss.dependency 'FirebaseCore', '6.3.0'
+        guard let range = contents.range(of: pod) else {
+          // This pod is not a top-level Firebase pod dependency.
+          continue
+        }
+        var versionStartIndex = contents.index(range.upperBound, offsetBy: 2)
+        while !contents[versionStartIndex].isWholeNumber {
+          versionStartIndex = contents.index(versionStartIndex, offsetBy: 1)
+        }
+        var versionEndIndex = contents.index(versionStartIndex, offsetBy: 1)
+        while contents[versionEndIndex] != "'" {
+          versionEndIndex = contents.index(versionEndIndex, offsetBy: 1)
+        }
+        contents.removeSubrange(versionStartIndex ... versionEndIndex)
+        contents.insert(contentsOf: version + "'", at: versionStartIndex)
+      }
+    }
+    do {
+      try contents.write(to: podspecFile, atomically: false, encoding: .utf8)
+    } catch {
+      fatalError("Failed to write \(podspecFile.path). \(error)")
+    }
   }
 }
 
-do {
-  let newVersions = getExpectedVersions()
-  updateFirebasePod(newVersions: newVersions)
-  print("Updating Firebase pod for version \(String(describing: newVersions["Firebase"]!))")
-
-  // Get the time since the tool start.
-  let secondsSinceStart = -Int(buildStart.timeIntervalSinceNow)
-  print("""
-  Time profile:
-    It took \(secondsSinceStart) seconds (~\(secondsSinceStart / 60)m) to update the Firebase pod.
-    \(cocoaPodsUpdateMessage)
-  """)
-}
+// Start the parsing and run the tool.
+FirebasePodUpdater.main()
