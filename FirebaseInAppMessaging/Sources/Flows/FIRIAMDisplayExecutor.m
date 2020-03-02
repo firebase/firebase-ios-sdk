@@ -437,7 +437,9 @@
 
   FIRInAppMessagingCardDisplay *cardMessage = [[FIRInAppMessagingCardDisplay alloc]
         initWithMessageID:renderData.messageID
+
              campaignName:renderData.name
+        experimentPayload:definition.experimentPayload
       renderAsTestMessage:definition.isTestMessage
               triggerType:triggerType
                 titleText:title
@@ -468,6 +470,7 @@
   FIRInAppMessagingBannerDisplay *bannerMessage = [[FIRInAppMessagingBannerDisplay alloc]
         initWithMessageID:definition.renderData.messageID
              campaignName:definition.renderData.name
+        experimentPayload:definition.experimentPayload
       renderAsTestMessage:definition.isTestMessage
               triggerType:triggerType
                 titleText:title
@@ -491,6 +494,7 @@
   FIRInAppMessagingImageOnlyDisplay *imageOnlyMessage = [[FIRInAppMessagingImageOnlyDisplay alloc]
         initWithMessageID:definition.renderData.messageID
              campaignName:definition.renderData.name
+        experimentPayload:definition.experimentPayload
       renderAsTestMessage:definition.isTestMessage
               triggerType:triggerType
                 imageData:imageData
@@ -528,6 +532,7 @@
   FIRInAppMessagingModalDisplay *modalViewMessage = [[FIRInAppMessagingModalDisplay alloc]
         initWithMessageID:definition.renderData.messageID
              campaignName:definition.renderData.name
+        experimentPayload:definition.experimentPayload
       renderAsTestMessage:definition.isTestMessage
               triggerType:triggerType
                 titleText:title
