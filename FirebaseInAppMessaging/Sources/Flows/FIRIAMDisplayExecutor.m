@@ -26,6 +26,8 @@
 #import "FIRInAppMessaging.h"
 #import "FIRInAppMessagingRenderingPrivate.h"
 
+#import <FirebaseABTesting/FIRExperimentController.h>
+
 @implementation FIRIAMDisplaySetting
 @end
 
@@ -207,6 +209,14 @@
                   @"impressionDetected called but "
                    "there is no current message ID.");
     return;
+  }
+
+  // If this is an experimental FIAM, activate the experiment.
+  if (inAppMessage.campaignInfo.experimentPayload) {
+    [[FIRExperimentController sharedInstance]
+        activateExperiment:inAppMessage.campaignInfo.experimentPayload
+          forServiceOrigin:@"fiam"
+            overflowPolicy:ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest];
   }
 
   if (!_currentMsgBeingDisplayed.isTestMessage) {
