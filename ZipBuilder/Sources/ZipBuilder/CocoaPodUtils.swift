@@ -212,10 +212,11 @@ enum CocoaPodUtils {
 
     for (podName, version) in pods {
       let subspecArray = podName.components(separatedBy: "/")
-      if subspecArray.count > 2 {
+      if subspecArray.count == 1 || subspecArray[0] == "abseil" {
+        // Special case for abseil since it has two layers and no external deps.
+        versions[subspecArray[0]] = version
+      } else if subspecArray.count > 2 {
         fatalError("Multi-layered subspecs are not supported - \(podName)")
-      } else if subspecArray.count == 1 {
-        versions[podName] = version
       } else {
         if let previousVersion = versions[podName], version != previousVersion {
           fatalError("Different installed versions for \(podName)." +
