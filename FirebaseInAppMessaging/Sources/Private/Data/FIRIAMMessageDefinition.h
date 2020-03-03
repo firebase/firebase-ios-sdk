@@ -59,7 +59,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithRenderData:(FIRIAMMessageRenderData *)renderData
                          startTime:(NSTimeInterval)startTime
                            endTime:(NSTimeInterval)endTime
-                 experimentPayload:(nullable ABTExperimentPayload *)experimentPayload
                  triggerDefinition:(NSArray<FIRIAMDisplayTriggerDefinition *> *)renderTriggers;
 
 /**

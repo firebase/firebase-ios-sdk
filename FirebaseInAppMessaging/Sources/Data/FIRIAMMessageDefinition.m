@@ -56,14 +56,13 @@
 - (instancetype)initWithRenderData:(FIRIAMMessageRenderData *)renderData
                          startTime:(NSTimeInterval)startTime
                            endTime:(NSTimeInterval)endTime
-                 experimentPayload:(nullable ABTExperimentPayload *)experimentPayload
                  triggerDefinition:(NSArray<FIRIAMDisplayTriggerDefinition *> *)renderTriggers {
   return [self initWithRenderData:renderData
                         startTime:startTime
                           endTime:endTime
                 triggerDefinition:renderTriggers
                           appData:nil
-                experimentPayload:experimentPayload
+                experimentPayload:nil
                     isTestMessage:NO];
 }
 

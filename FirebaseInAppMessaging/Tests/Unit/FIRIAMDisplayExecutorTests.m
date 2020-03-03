@@ -327,6 +327,7 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDelegateInteraction) {
                                                         endTime:activeEndTime
                                               triggerDefinition:@[ appOpentriggerDefinition ]
                                                         appData:@{@"a" : @"b", @"up" : @"dog"}
+                                              experimentPayload:nil
                                                   isTestMessage:NO];
 }
 
@@ -411,7 +412,8 @@ NSTimeInterval DISPLAY_MIN_INTERVALS = 1;
       .andReturn(DISPLAY_MIN_INTERVALS * 60 + 100);
 
   FIRIAMMessageDefinition *testMessage =
-      [[FIRIAMMessageDefinition alloc] initTestMessageWithRenderData:self.m1.renderData];
+      [[FIRIAMMessageDefinition alloc] initTestMessageWithRenderData:self.m1.renderData
+                                                   experimentPayload:nil];
 
   FIRInAppMessagingAction *testAction = [[FIRInAppMessagingAction alloc]
       initWithActionText:@"test"
@@ -439,7 +441,8 @@ NSTimeInterval DISPLAY_MIN_INTERVALS = 1;
   // minimal display time interval yet.
   OCMStub([self.mockTimeFetcher currentTimestampInSeconds]).andReturn(10);
   FIRIAMMessageDefinition *testMessage =
-      [[FIRIAMMessageDefinition alloc] initTestMessageWithRenderData:self.m1.renderData];
+      [[FIRIAMMessageDefinition alloc] initTestMessageWithRenderData:self.m1.renderData
+                                                   experimentPayload:nil];
 
   [self.clientMessageCache setMessageData:@[ self.m2, testMessage, self.m4 ]];
 
@@ -617,7 +620,8 @@ NSTimeInterval DISPLAY_MIN_INTERVALS = 1;
                     completion:[OCMArg any]]);
 
   FIRIAMMessageDefinition *testMessage =
-      [[FIRIAMMessageDefinition alloc] initTestMessageWithRenderData:self.m2.renderData];
+      [[FIRIAMMessageDefinition alloc] initTestMessageWithRenderData:self.m2.renderData
+                                                   experimentPayload:nil];
 
   [self.clientMessageCache setMessageData:@[ testMessage ]];
 
@@ -650,7 +654,8 @@ NSTimeInterval DISPLAY_MIN_INTERVALS = 1;
                     completion:[OCMArg any]]);
 
   FIRIAMMessageDefinition *testMessage =
-      [[FIRIAMMessageDefinition alloc] initTestMessageWithRenderData:self.m2.renderData];
+      [[FIRIAMMessageDefinition alloc] initTestMessageWithRenderData:self.m2.renderData
+                                                   experimentPayload:nil];
 
   [self.clientMessageCache setMessageData:@[ testMessage ]];
 
@@ -691,7 +696,8 @@ NSTimeInterval DISPLAY_MIN_INTERVALS = 1;
       .andReturn(DISPLAY_MIN_INTERVALS * 60 + 100);
 
   FIRIAMMessageDefinition *testMessage =
-      [[FIRIAMMessageDefinition alloc] initTestMessageWithRenderData:self.m1.renderData];
+      [[FIRIAMMessageDefinition alloc] initTestMessageWithRenderData:self.m1.renderData
+                                                   experimentPayload:nil];
 
   // not expecting triggering analytics recording
   OCMReject([self.mockAnalyticsEventLogger

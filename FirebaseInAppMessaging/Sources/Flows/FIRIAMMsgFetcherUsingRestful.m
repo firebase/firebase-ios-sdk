@@ -186,7 +186,7 @@ static NSInteger const SuccessHTTPStatusCode = 200;
                     FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM130012",
                                 @"API request for fetching messages and parsing the response was "
                                  "successful.");
-                    
+
                     // Validate running experiments with ABT.
                     NSMutableArray *runningExperiments = [[NSArray array] mutableCopy];
                     for (FIRIAMMessageDefinition *messageDefinition in messages) {
@@ -194,13 +194,11 @@ static NSInteger const SuccessHTTPStatusCode = 200;
                         [runningExperiments addObject:messageDefinition.experimentPayload];
                       }
                     }
-                    
-                    if (runningExperiments.count) {
-                      [[FIRExperimentController sharedInstance]
-                          validateRunningExperimentsForServiceOrigin:@"fiam"
-                                                            payloads:[runningExperiments copy]];
-                    }
-                    
+
+                    [[FIRExperimentController sharedInstance]
+                        validateRunningExperimentsForServiceOrigin:@"fiam"
+                                         runningExperimentPayloads:[runningExperiments copy]];
+
                     [self.fetchStorage
                         saveResponseDictionary:responseDict
                                 withCompletion:^(BOOL success) {

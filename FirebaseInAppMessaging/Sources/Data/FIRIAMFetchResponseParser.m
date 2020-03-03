@@ -172,7 +172,7 @@
           [experimentPayloadDictionary[@"timeToLiveMillis"] integerValue];
       experimentPayload.triggerTimeoutMillis =
           [experimentPayloadDictionary[@"triggerTimeoutMillis"] integerValue];
-      experimentPayload.variantId = [experimentPayloadDictionary[@"variantId"] stringValue];
+      experimentPayload.variantId = experimentPayloadDictionary[@"variantId"];
     }
 
     NSTimeInterval startTimeInSeconds = 0;
