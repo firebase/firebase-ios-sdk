@@ -21,6 +21,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/** @class FIRMultiFactorSession
+    @brief Opaque object that identifies the current session to enroll a second factor or to
+        complete sign in when previously enrolled.
+ */
 NS_SWIFT_NAME(MultiFactorSession)
 @interface FIRMultiFactorSession : NSObject
 

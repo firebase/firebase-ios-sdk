@@ -21,6 +21,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/** @class FIRMultiFactorInfo
+    @brief Safe public structure used to represent a second factor entity from a client perspective.
+*/
 NS_SWIFT_NAME(MultiFactorInfo)
 @interface FIRMultiFactorInfo : NSObject
 

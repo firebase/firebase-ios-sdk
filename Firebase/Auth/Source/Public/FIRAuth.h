@@ -29,9 +29,6 @@
 @class FIRAuthCredential;
 @class FIRAuthDataResult;
 @class FIRAuthSettings;
-#if TARGET_OS_IOS
-@class FIRMultiFactorInfo;
-#endif
 @class FIRUser;
 @protocol FIRAuthStateListener;
 @protocol FIRAuthUIDelegate;
@@ -180,7 +177,8 @@ typedef void (^FIRVerifyPasswordResetCodeCallback)(NSString *_Nullable email,
 typedef void (^FIRApplyActionCodeCallback)(NSError *_Nullable error)
     NS_SWIFT_NAME(ApplyActionCodeCallback);
 
-typedef void (^FIRAuthVoidErrorCallback)(NSError *_Nullable);
+typedef void (^FIRAuthVoidErrorCallback)(NSError *_Nullable)
+    NS_SWIFT_NAME(AuthVoidErrorCallback);
 
 /**
     @brief Deprecated. Please directly use email or previousEmail properties instead.
@@ -220,10 +218,10 @@ typedef NS_ENUM(NSInteger, FIRActionCodeOperation) {
     /** Action code for email link operation. */
     FIRActionCodeOperationEmailLink = 4,
 
-    /** Action code for verifing and changing email*/
+    /** Action code for verifing and changing email */
     FIRActionCodeOperationVerifyAndChangeEmail = 5,
 
-    /** Action code for reverting second factor addition*/
+    /** Action code for reverting second factor addition */
     FIRActionCodeOperationRevertSecondFactorAddition = 6,
 
 } NS_SWIFT_NAME(ActionCodeOperation);

@@ -87,6 +87,7 @@ NS_SWIFT_NAME(PhoneAuthProvider)
 
 /** @fn verifyPhoneNumber:UIDelegate:multiFactorSession:completion:
     @brief Verify ownership of the second factor phone number by the current user.
+    @param phoneNumber The phone number to be verified.
     @param UIDelegate An object used to present the SFSafariViewController. The object is retained
         by this method until the completion block is executed.
     @param session A session to identify the MFA flow. For enrollment, this identifies the user
@@ -101,6 +102,7 @@ NS_SWIFT_NAME(PhoneAuthProvider)
 
 /** @fn verifyPhoneNumberWithMultiFactorInfo:UIDelegate:multiFactorSession:completion:
     @brief Verify ownership of the second factor phone number by the current user.
+    @param phoneMultiFactorInfo The phone multi factor whose number need to be verified.
     @param UIDelegate An object used to present the SFSafariViewController. The object is retained
         by this method until the completion block is executed.
     @param session A session to identify the MFA flow. For enrollment, this identifies the user

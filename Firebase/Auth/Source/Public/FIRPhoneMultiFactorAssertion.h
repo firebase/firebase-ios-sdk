@@ -23,6 +23,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/** @class FIRPhoneMultiFactorAssertion
+    @brief The subclass of base class FIRMultiFactorAssertion, used to assert ownership of a phone
+        second factor.
+*/
 NS_SWIFT_NAME(PhoneMultiFactorAssertion)
 @interface FIRPhoneMultiFactorAssertion : FIRMultiFactorAssertion
 

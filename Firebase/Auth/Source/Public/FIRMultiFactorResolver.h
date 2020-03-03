@@ -21,6 +21,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/** @class FIRMultiFactorResolver
+    @brief The data structure used to help developers resolve 2nd factor requirements on users that
+        have opted in to 2 factor authentication.
+*/
 NS_SWIFT_NAME(MultiFactorResolver)
 @interface FIRMultiFactorResolver : NSObject
 

@@ -398,52 +398,52 @@ typedef NS_ENUM(NSInteger, FIRAuthInternalErrorCode) {
   FIRAuthInternalErrorCodeSecondFactorRequired =
       FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeSecondFactorRequired,
 
-  /** Indicates that the second factor is required for sign in.
+  /** Indicates that the multi factor session is missing.
    */
   FIRAuthInternalErrorCodeMissingMultiFactorSession =
       FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeMissingMultiFactorSession,
 
-  /** Indicates that the second factor is required for sign in.
+  /** Indicates that the multi factor info is missing.
    */
   FIRAuthInternalErrorCodeMissingMultiFactorInfo =
       FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeMissingMultiFactorInfo,
 
-  /** Indicates that the second factor is required for sign in.
+  /** Indicates that the the multi factor session is invalid.
    */
   FIRAuthInternalErrorCodeInvalidMultiFactorSession =
       FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeInvalidMultiFactorSession,
 
-  /** Indicates that the second factor is required for sign in.
+  /** Indicates that the multi factor infor is not found.
    */
   FIRAuthInternalErrorCodeMultiFactorInfoNotFound =
       FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeMultiFactorInfoNotFound,
 
-  /** Indicates that the second factor is required for sign in.
+  /** Indicates that the the operation is admin only.
    */
   FIRAuthInternalErrorCodeAdminRestrictedOperation =
       FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeAdminRestrictedOperation,
 
-  /** Indicates that the second factor is required for sign in.
+  /** Indicates that the email is unverified.
    */
   FIRAuthInternalErrorCodeUnverifiedEmail =
       FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeUnverifiedEmail,
 
-  /** Indicates that the second factor is required for sign in.
+  /** Indicates that the the second factor is aready enrolled.
    */
   FIRAuthInternalErrorCodeSecondFactorAlreadyEnrolled =
       FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeSecondFactorAlreadyEnrolled,
 
-  /** Indicates that the second factor is required for sign in.
+  /** Indicates that the number of multi factor reaches the limit.
    */
   FIRAuthInternalErrorCodeMaximumSecondFactorCountExceeded =
       FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeMaximumSecondFactorCountExceeded,
 
-  /** Indicates that the second factor is required for sign in.
+  /** Indicates that the first factor is not supportted.
    */
   FIRAuthInternalErrorCodeUnsupportedFirstFactor =
       FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeUnsupportedFirstFactor,
 
-  /** Indicates that the second factor is required for sign in.
+  /** Indicates that the email need to be verified before changed.
    */
   FIRAuthInternalErrorCodeEmailChangeNeedsVerification =
       FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeEmailChangeNeedsVerification,

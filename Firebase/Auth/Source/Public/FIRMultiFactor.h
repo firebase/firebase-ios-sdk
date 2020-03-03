@@ -26,10 +26,22 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef void (^FIRMultiFactorSessionCallback)(FIRMultiFactorSession *_Nullable, NSError *_Nullable);
+/** @typedef FIRMultiFactorSessionCallback
+    @brief The callback that triggered when a developer calls `getSessionWithCompletion`.
+    @param session The multi factor session returned, if any.
+    @param error The error which occurred, if any.
+*/
+typedef void (^FIRMultiFactorSessionCallback)(FIRMultiFactorSession *_Nullable session, NSError *_Nullable error)
+  NS_SWIFT_NAME(MultiFactorSessionCallback);
 
+/**
+   @brief The string identifier for second factors. e.g. “phone”.
+*/
 extern NSString *const _Nonnull FIRPhoneMultiFactorID NS_SWIFT_NAME(PhoneMultiFactorID);
 
+/** @class FIRMultiFactor
+    @brief The interface defining the multi factor related properties and operations pertaining to a user.
+*/
 NS_SWIFT_NAME(MultiFactor)
 @interface FIRMultiFactor : NSObject
 
