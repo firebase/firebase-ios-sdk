@@ -43,6 +43,20 @@
   return self;
 }
 
+- (instancetype)initWithMessageID:(NSString *)messageID
+                     campaignName:(NSString *)campaignName
+              renderAsTestMessage:(BOOL)renderAsTestMessage
+                      messageType:(FIRInAppMessagingDisplayMessageType)messageType
+                      triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType {
+  return [self initWithMessageID:messageID
+                    campaignName:campaignName
+               experimentPayload:nil
+             renderAsTestMessage:renderAsTestMessage
+                     messageType:messageType
+                     triggerType:triggerType
+                         appData:nil];
+}
+
 @end
 
 @implementation FIRInAppMessagingCardDisplay
@@ -95,6 +109,30 @@
   return self;
 }
 
+- (instancetype)initWithMessageID:(NSString *)messageID
+                     campaignName:(NSString *)campaignName
+              renderAsTestMessage:(BOOL)renderAsTestMessage
+                      triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
+                        titleText:(NSString *)title
+                        textColor:(UIColor *)textColor
+                portraitImageData:(FIRInAppMessagingImageData *)portraitImageData
+                  backgroundColor:(UIColor *)backgroundColor
+              primaryActionButton:(FIRInAppMessagingActionButton *)primaryActionButton
+                 primaryActionURL:(NSURL *)primaryActionURL {
+  return [self initWithMessageID:messageID
+                    campaignName:campaignName
+               experimentPayload:nil
+             renderAsTestMessage:renderAsTestMessage
+                     triggerType:triggerType
+                       titleText:title
+                       textColor:textColor
+               portraitImageData:portraitImageData
+                 backgroundColor:backgroundColor
+             primaryActionButton:primaryActionButton
+                primaryActionURL:primaryActionURL
+                         appData:nil];
+}
+
 @end
 
 @implementation FIRInAppMessagingBannerDisplay
@@ -125,6 +163,30 @@
     _actionURL = actionURL;
   }
   return self;
+}
+
+- (instancetype)initWithMessageID:(NSString *)messageID
+                     campaignName:(NSString *)campaignName
+              renderAsTestMessage:(BOOL)renderAsTestMessage
+                      triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
+                        titleText:(NSString *)title
+                         bodyText:(NSString *)bodyText
+                        textColor:(UIColor *)textColor
+                  backgroundColor:(UIColor *)backgroundColor
+                        imageData:(nullable FIRInAppMessagingImageData *)imageData
+                        actionURL:(nullable NSURL *)actionURL {
+  return [self initWithMessageID:messageID
+                    campaignName:campaignName
+               experimentPayload:nil
+             renderAsTestMessage:renderAsTestMessage
+                     triggerType:triggerType
+                       titleText:title
+                        bodyText:bodyText
+                       textColor:textColor
+                 backgroundColor:backgroundColor
+                       imageData:imageData
+                       actionURL:actionURL
+                         appData:nil];
 }
 
 @end
@@ -162,6 +224,32 @@
   return self;
 }
 
+- (instancetype)initWithMessageID:(NSString *)messageID
+                     campaignName:(NSString *)campaignName
+              renderAsTestMessage:(BOOL)renderAsTestMessage
+                      triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
+                        titleText:(NSString *)title
+                         bodyText:(NSString *)bodyText
+                        textColor:(UIColor *)textColor
+                  backgroundColor:(UIColor *)backgroundColor
+                        imageData:(nullable FIRInAppMessagingImageData *)imageData
+                     actionButton:(nullable FIRInAppMessagingActionButton *)actionButton
+                        actionURL:(nullable NSURL *)actionURL {
+  return [self initWithMessageID:messageID
+                    campaignName:campaignName
+               experimentPayload:nil
+             renderAsTestMessage:renderAsTestMessage
+                     triggerType:triggerType
+                       titleText:title
+                        bodyText:bodyText
+                       textColor:textColor
+                 backgroundColor:backgroundColor
+                       imageData:imageData
+                    actionButton:actionButton
+                       actionURL:actionURL
+                         appData:nil];
+}
+
 @end
 
 @implementation FIRInAppMessagingImageOnlyDisplay
@@ -185,6 +273,22 @@
     _actionURL = actionURL;
   }
   return self;
+}
+
+- (instancetype)initWithMessageID:(NSString *)messageID
+                     campaignName:(NSString *)campaignName
+              renderAsTestMessage:(BOOL)renderAsTestMessage
+                      triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
+                        imageData:(nullable FIRInAppMessagingImageData *)imageData
+                        actionURL:(nullable NSURL *)actionURL {
+  return [self initWithMessageID:messageID
+                    campaignName:campaignName
+               experimentPayload:nil
+             renderAsTestMessage:renderAsTestMessage
+                     triggerType:triggerType
+                       imageData:imageData
+                       actionURL:actionURL
+                         appData:nil];
 }
 
 @end
@@ -234,6 +338,15 @@
     _renderAsTestMessage = renderAsTestMessage;
   }
   return self;
+}
+
+- (instancetype)initWithMessageID:(NSString *)messageID
+                     campaignName:(NSString *)campaignName
+              renderAsTestMessage:(BOOL)renderAsTestMessage {
+  return [self initWithMessageID:messageID
+                    campaignName:campaignName
+               experimentPayload:nil
+             renderAsTestMessage:renderAsTestMessage];
 }
 @end
 
