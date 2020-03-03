@@ -104,7 +104,7 @@ jobs:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseAuth.podspec --platforms=ios
-        # - travis_retry ./scripts/if_changed.sh ./scripts/test_quickstart.sh Authentication
+        - travis_retry ./scripts/if_changed.sh ./scripts/test_quickstart.sh Authentication
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseAuth.podspec --platforms=tvos
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseAuth.podspec --platforms=macos
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
