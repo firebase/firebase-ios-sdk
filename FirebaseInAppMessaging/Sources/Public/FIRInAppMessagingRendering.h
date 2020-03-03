@@ -107,11 +107,6 @@ NS_SWIFT_NAME(InAppMessagingCampaignInfo)
 @property(nonatomic, nonnull, copy, readonly) NSString *campaignName;
 
 /**
- * Optional experiment metadata for this message.
- */
-@property(nonatomic, nullable, copy, readonly) ABTExperimentPayload *experimentPayload;
-
-/**
  * Whether or not this message is being rendered in Test On Device mode.
  */
 @property(nonatomic, readonly) BOOL renderAsTestMessage;

@@ -326,6 +326,15 @@
 
 @end
 
+@interface FIRInAppMessagingCampaignInfo()
+
+/**
+ * Optional experiment metadata for this message.
+ */
+@property(nonatomic, nullable, copy, readonly) ABTExperimentPayload *experimentPayload;
+
+@end
+
 @implementation FIRInAppMessagingCampaignInfo
 - (instancetype)initWithMessageID:(NSString *)messageID
                      campaignName:(NSString *)campaignName

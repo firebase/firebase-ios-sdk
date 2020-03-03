@@ -22,6 +22,7 @@
 #import "FIRIAMDisplayTriggerDefinition.h"
 #import "FIRIAMMessageContentData.h"
 #import "FIRInAppMessaging.h"
+#import "FIRInAppMessagingRenderingPrivate.h"
 
 // A class implementing protocol FIRIAMMessageContentData to be used for unit testing
 @interface FIRIAMMessageContentDataForTesting : NSObject <FIRIAMMessageContentData>

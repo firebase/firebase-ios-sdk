@@ -54,6 +54,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRInAppMessagingCampaignInfo (Private)
 
+- (nullable ABTExperimentPayload *)experimentPayload;
+
 - (instancetype)initWithMessageID:(NSString *)messageID
                      campaignName:(NSString *)campaignName
                 experimentPayload:(nullable ABTExperimentPayload *)experimentPayload
