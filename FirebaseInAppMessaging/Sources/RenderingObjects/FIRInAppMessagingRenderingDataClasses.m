@@ -326,7 +326,7 @@
 
 @end
 
-@interface FIRInAppMessagingCampaignInfo()
+@interface FIRInAppMessagingCampaignInfo ()
 
 /**
  * Optional experiment metadata for this message.
