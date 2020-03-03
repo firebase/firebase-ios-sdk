@@ -194,6 +194,18 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
                            selector:@selector(macOSApplicationWillTerminate:)
                                name:NSApplicationWillTerminateNotification
                              object:nil];
+    
+#elif TARGET_OS_WATCH
+    NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
+    [notificationCenter addObserver:self
+                           selector:@selector(iOSApplicationDidEnterBackground:)
+                               name:NSExtensionHostDidEnterBackgroundNotification
+                             object:nil];
+    [notificationCenter addObserver:self
+                           selector:@selector(iOSApplicationWillEnterForeground:)
+                               name:NSExtensionHostWillEnterForegroundNotification
+                             object:nil];
+
 #endif  // TARGET_OS_IOS || TARGET_OS_TV
   }
   return self;
@@ -201,6 +213,7 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
 
 - (GDTCORBackgroundIdentifier)beginBackgroundTaskWithName:(NSString *)name
                                         expirationHandler:(void (^)(void))handler {
+#if !TARGET_OS_WATCH
   GDTCORBackgroundIdentifier bgID =
       [[self sharedApplicationForBackgroundTask] beginBackgroundTaskWithName:name
                                                            expirationHandler:handler];
@@ -210,14 +223,19 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
   }
 #endif  // !NDEBUG
   return bgID;
+#endif  // !TARGET_OS_WATCH
+  // TODO: WKExtension backgound tasks handling.
+  return GDTCORBackgroundIdentifierInvalid;
 }
 
 - (void)endBackgroundTask:(GDTCORBackgroundIdentifier)bgID {
+#if !TARGET_OS_WATCH
   if (bgID != GDTCORBackgroundIdentifierInvalid) {
     GDTCORLogDebug("Ending background task with ID:%ld was successful", (long)bgID);
     [[self sharedApplicationForBackgroundTask] endBackgroundTask:bgID];
     return;
   }
+#endif
 }
 
 #pragma mark - App environment helpers
@@ -231,12 +249,14 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
 #endif
 }
 
-/** Returns a UIApplication instance if on the appropriate platform.
+/** Returns a UIApplication or WKExtension instance if on the appropriate platform.
  *
- * @return The shared UIApplication if on the appropriate platform.
+ * @return The shared UIApplication or WKExtension if on the appropriate platform.
  */
 #if TARGET_OS_IOS || TARGET_OS_TV
 - (nullable UIApplication *)sharedApplicationForBackgroundTask {
+#elif TARGET_OS_WATCH
+- (nullable WKExtension *)sharedApplicationForBackgroundTask {
 #else
 - (nullable id)sharedApplicationForBackgroundTask {
 #endif
@@ -244,17 +264,24 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
     return nil;
   }
   id sharedApplication = nil;
+#if TARGET_OS_IOS || TARGET_OS_TV
   Class uiApplicationClass = NSClassFromString(@"UIApplication");
   if (uiApplicationClass &&
       [uiApplicationClass respondsToSelector:(NSSelectorFromString(@"sharedApplication"))]) {
     sharedApplication = [uiApplicationClass sharedApplication];
   }
+#elif TARGET_OS_WATCH
+  Class wkExtensionClass = NSClassFromString(@"WKExtension");
+  if(wkExtensionClass && [wkExtensionClass respondsToSelector:(NSSelectorFromString(@"sharedExtension"))]) {
+    sharedApplication = [wkExtensionClass sharedExtension];
+  }
+#endif
   return sharedApplication;
 }
 
 #pragma mark - UIApplicationDelegate
 
-#if TARGET_OS_IOS || TARGET_OS_TV
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_WATCH
 - (void)iOSApplicationDidEnterBackground:(NSNotification *)notif {
   _isRunningInBackground = YES;
 
@@ -270,7 +297,8 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
   GDTCORLogDebug("%@", @"GDTCORPlatform is sending a notif that the app is foregrounding.");
   [notifCenter postNotificationName:kGDTCORApplicationWillEnterForegroundNotification object:nil];
 }
-
+  
+#elif TARGET_OS_IOS || TARGET_OS_TV
 - (void)iOSApplicationWillTerminate:(NSNotification *)notif {
   NSNotificationCenter *notifCenter = [NSNotificationCenter defaultCenter];
   GDTCORLogDebug("%@", @"GDTCORPlatform is sending a notif that the app is terminating.");

@@ -19,10 +19,13 @@
 #if !TARGET_OS_WATCH
 #import <SystemConfiguration/SystemConfiguration.h>
 #endif
+
 #if TARGET_OS_IOS || TARGET_OS_TV
 #import <UIKit/UIKit.h>
 #elif TARGET_OS_OSX
 #import <AppKit/AppKit.h>
+#elif TARGET_OS_WATCH
+#import <WatchKit/WatchKit.h>
 #endif  // TARGET_OS_IOS || TARGET_OS_TV
 
 #if TARGET_OS_IOS
@@ -99,6 +102,8 @@ FOUNDATION_EXPORT const GDTCORBackgroundIdentifier GDTCORBackgroundIdentifierInv
 @protocol GDTCORApplicationDelegate <UIApplicationDelegate>
 #elif TARGET_OS_OSX
 @protocol GDTCORApplicationDelegate <NSApplicationDelegate>
+#elif TARGET_OS_WATCH
+@protocol GDTCORApplicationDelegate <WKExtensionDelegate>
 #else
 @protocol GDTCORApplicationDelegate <NSObject>
 #endif  // TARGET_OS_IOS || TARGET_OS_TV
