@@ -142,13 +142,7 @@
   XCTAssertEqualObjects(@"Eagles are going to win", sixth.renderData.contentData.titleText);
   XCTAssertNil(sixth.renderData.contentData.bodyText);
   XCTAssertNil(sixth.appData);
-  XCTAssertEqualObjects(sixth.experimentPayload.experimentId, @"_exp_1");
-  XCTAssertEqual(sixth.experimentPayload.experimentStartTimeMillis, 1582143484729);
-  XCTAssertEqual(sixth.experimentPayload.timeToLiveMillis, 15552000000);
-  XCTAssertEqual(sixth.experimentPayload.triggerTimeoutMillis, 15552000000);
-  XCTAssertEqualObjects(sixth.experimentPayload.variantId, @"1");
-  XCTAssertEqual(sixth.experimentPayload.overflowPolicy,
-                 ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest);
+  XCTAssertNotNil(sixth.experimentPayload);
   XCTAssertEqual(FIRIAMRenderAsModalView, sixth.renderData.renderingEffectSettings.viewMode);
   XCTAssertEqual(1, sixth.renderTriggers.count);
 }
