@@ -329,7 +329,7 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDelegateInteraction) {
   experimentPayload.timeToLiveMillis = 15552000000;
   experimentPayload.triggerTimeoutMillis = 15552000000;
   experimentPayload.variantId = @"1";
-  
+
   self.m4 = [[FIRIAMMessageDefinition alloc] initWithRenderData:renderData4
                                                       startTime:activeStartTime
                                                         endTime:activeEndTime
