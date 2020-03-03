@@ -188,7 +188,7 @@ static NSInteger const SuccessHTTPStatusCode = 200;
                                  "successful.");
 
                     // Validate running experiments with ABT.
-                    NSMutableArray *runningExperiments = [[NSArray array] mutableCopy];
+                    NSMutableArray *runningExperiments = [[NSMutableArray alloc] init];
                     for (FIRIAMMessageDefinition *messageDefinition in messages) {
                       if (messageDefinition.experimentPayload) {
                         [runningExperiments addObject:messageDefinition.experimentPayload];
