@@ -164,7 +164,7 @@ typedef NS_ENUM(NSInteger, FIRCLSOnboardingError) {
 }
 
 - (NSURL *)appCreateURL {
-  // https://api.crashlytics.com/spi/v1/platforms/mac/apps/com.crashlytics.mac
+  // https://update.crashlytics.com/spi/v1/platforms/mac/apps/com.crashlytics.mac
 
   FIRCLSURLBuilder *url = [FIRCLSURLBuilder URLWithBase:self.appEndpoint];
 
@@ -176,7 +176,7 @@ typedef NS_ENUM(NSInteger, FIRCLSOnboardingError) {
 }
 
 - (NSURL *)appUpdateURL {
-  // https://api.crashlytics.com/spi/v1/platforms/mac/apps/com.crashlytics.mac
+  // https://update.crashlytics.com/spi/v1/platforms/mac/apps/com.crashlytics.mac
 
   FIRCLSURLBuilder *url = [FIRCLSURLBuilder URLWithBase:[self appEndpoint]];
 
