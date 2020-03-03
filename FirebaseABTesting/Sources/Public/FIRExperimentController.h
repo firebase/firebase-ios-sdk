@@ -39,8 +39,7 @@ NS_SWIFT_NAME(ExperimentController)
 /// existing in payloads are not affected, whose state and payload is preserved. This method
 /// compares whether the experiments have changed or not by their variant ID. This runs in a
 /// background queue and calls the completion handler when finished executing.
-/// @param origin         The originating service affected by the experiment, it is defined at
-///                       Firebase Analytics FIREventOrigins.h.
+/// @param origin         The originating service affected by the experiment.
 /// @param events         A list of event names to be used for logging experiment lifecycle events,
 ///                       if they are not defined in the payload.
 /// @param policy         The policy to handle new experiments when slots are full.
@@ -62,8 +61,7 @@ NS_SWIFT_NAME(ExperimentController)
 /// existing in payloads are not affected, whose state and payload is preserved. This method
 /// compares whether the experiments have changed or not by their variant ID. This runs in a
 /// background queue..
-/// @param origin         The originating service affected by the experiment, it is defined at
-///                       Firebase Analytics FIREventOrigins.h.
+/// @param origin         The originating service affected by the experiment.
 /// @param events         A list of event names to be used for logging experiment lifecycle events,
 ///                       if they are not defined in the payload.
 /// @param policy         The policy to handle new experiments when slots are full.
@@ -90,16 +88,14 @@ NS_SWIFT_NAME(ExperimentController)
                                                      andPayloads:(NSArray<NSData *> *)payloads;
 
 /// Expires experiments that aren't in the list of running experiment payloads.
-/// @param origin         The originating service affected by the experiment, it is defined at
-///                       Firebase Analytics FIREventOrigins.h.
+/// @param origin         The originating service affected by the experiment.
 /// @param payloads     The list of valid, running experiments.
 - (void)validateRunningExperimentsForServiceOrigin:(NSString *)origin
                          runningExperimentPayloads:(NSArray<ABTExperimentPayload *> *)payloads;
 
 /// Directly sets a given experiment to be active.
 /// @param experimentPayload The payload for the experiment that should be activated.
-/// @param origin         The originating service affected by the experiment, it is defined at
-///                       Firebase Analytics FIREventOrigins.h.
+/// @param origin         The originating service affected by the experiment.
 - (void)activateExperiment:(ABTExperimentPayload *)experimentPayload
           forServiceOrigin:(NSString *)origin;
 
