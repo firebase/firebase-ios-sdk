@@ -89,7 +89,7 @@
   FIRCLSApplicationActivity(
       FIRCLSApplicationActivityDefault, @"Crashlytics Crash Report Processing", ^{
         if (shouldProcess) {
-          if (![self.fileManager moveItemAtPath:[report path]
+          if (![self.fileManager moveItemAtPath:report.path
                                     toDirectory:self.fileManager.processingPath]) {
             FIRCLSErrorLog(@"Unable to move report for processing");
             return;
@@ -119,6 +119,9 @@
             FIRCLSErrorLog(@"Unable to move report to prepared");
             return;
           }
+
+          packagedPath = [self.fileManager.preparedPath
+              stringByAppendingPathComponent:report.path.lastPathComponent];
         } else {
           // For the legacy endpoint, continue generate the multipartmime file in "prepared-legacy"
           FIRCLSPackageReportOperation *packageOperation =
@@ -127,15 +130,15 @@
                                                           settings:self.dataSource.settings];
 
           [packageOperation start];
-          packagedPath = [packageOperation finalPath];
+          packagedPath = packageOperation.finalPath;
           if (!packagedPath) {
             FIRCLSErrorLog(@"Unable to package report");
             return;
           }
-        }
 
-        if (![[self fileManager] removeItemAtPath:[report path]]) {
-          FIRCLSErrorLog(@"Unable to remove a processing item");
+          if (![self.fileManager removeItemAtPath:report.path]) {
+            FIRCLSErrorLog(@"Unable to remove a processing item");
+          }
         }
 
         NSLog(@"[Firebase/Crashlytics] Packaged report with id '%@' for submission",
