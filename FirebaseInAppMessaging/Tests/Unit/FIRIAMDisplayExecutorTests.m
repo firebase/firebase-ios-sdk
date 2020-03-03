@@ -204,7 +204,7 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDelegateInteraction) {
 
 @property id<FIRInAppMessagingDisplay> mockMessageDisplayComponent;
 
-// three pre-defined messages
+// four pre-defined messages
 @property FIRIAMMessageDefinition *m1, *m2, *m3, *m4;
 @end
 
@@ -322,12 +322,20 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDelegateInteraction) {
                                              contentData:m4ContentData
                                          renderingEffect:renderSetting4];
 
+  ABTExperimentPayload *experimentPayload = [ABTExperimentPayload message];
+  experimentPayload.experimentId = @"_exp_1";
+  experimentPayload.experimentStartTimeMillis = 1582143484729;
+  experimentPayload.overflowPolicy = ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest;
+  experimentPayload.timeToLiveMillis = 15552000000;
+  experimentPayload.triggerTimeoutMillis = 15552000000;
+  experimentPayload.variantId = @"1";
+  
   self.m4 = [[FIRIAMMessageDefinition alloc] initWithRenderData:renderData4
                                                       startTime:activeStartTime
                                                         endTime:activeEndTime
                                               triggerDefinition:@[ appOpentriggerDefinition ]
                                                         appData:@{@"a" : @"b", @"up" : @"dog"}
-                                              experimentPayload:nil
+                                              experimentPayload:experimentPayload
                                                   isTestMessage:NO];
 }
 
@@ -945,5 +953,14 @@ NSTimeInterval DISPLAY_MIN_INTERVALS = 1;
                        landscapeImageData:nil
                               triggerType:FIRInAppMessagingDisplayTriggerTypeOnAppForeground];
   XCTAssertNil(displayMessage.appData);
+}
+
+- (void)testMessageWithExperimentPayload {
+  FIRInAppMessagingDisplayMessage *displayMessage = [self.displayExecutor
+      displayMessageWithMessageDefinition:self.m4
+                                imageData:nil
+                       landscapeImageData:nil
+                              triggerType:FIRInAppMessagingDisplayTriggerTypeOnAppForeground];
+  XCTAssertNotNil(displayMessage.campaignInfo.experimentPayload);
 }
 @end
