@@ -223,9 +223,10 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
   }
 #endif  // !NDEBUG
   return bgID;
-#endif  // !TARGET_OS_WATCH
-  // TODO: WKExtension backgound tasks handling.
+#else
+  // Return default value for watchOS compilation temporally
   return GDTCORBackgroundIdentifierInvalid;
+#endif
 }
 
 - (void)endBackgroundTask:(GDTCORBackgroundIdentifier)bgID {
@@ -237,6 +238,19 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
   }
 #endif
 }
+
+#if TARGET_OS_WATCH
+// TODO: Try using those two APIs to munipulate background tasks for watchOS
+- (void)performExpiringActivityWithReason:(NSString *)name
+                               usingBlock:(nonnull void (^)(BOOL))block {
+  [[self sharedApplicationForBackgroundTask] performExpiringActivityWithReason:name
+                                                                    usingBlock:block];
+}
+
+- (void)endActivity:(id<NSObject>)activity {
+  [[self sharedApplicationForBackgroundTask] endActivity:activity];
+}
+#endif
 
 #pragma mark - App environment helpers
 
@@ -256,7 +270,7 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
 #if TARGET_OS_IOS || TARGET_OS_TV
 - (nullable UIApplication *)sharedApplicationForBackgroundTask {
 #elif TARGET_OS_WATCH
-- (nullable WKExtension *)sharedApplicationForBackgroundTask {
+- (nullable NSProcessInfo *)sharedApplicationForBackgroundTask {
 #else
 - (nullable id)sharedApplicationForBackgroundTask {
 #endif
@@ -271,10 +285,11 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
     sharedApplication = [uiApplicationClass sharedApplication];
   }
 #elif TARGET_OS_WATCH
-  Class wkExtensionClass = NSClassFromString(@"WKExtension");
-  if (wkExtensionClass &&
-      [wkExtensionClass respondsToSelector:(NSSelectorFromString(@"sharedExtension"))]) {
-    sharedApplication = [wkExtensionClass sharedExtension];
+  // The processInfo class method returns the shared agent for the current process.
+  Class nsProcessInfoClass = NSClassFromString(@"NSProcessInfo");
+  if (nsProcessInfoClass &&
+      [nsProcessInfoClass respondsToSelector:(NSSelectorFromString(@"processInfo"))]) {
+    sharedApplication = [nsProcessInfoClass processInfo];
   }
 #endif
   return sharedApplication;
