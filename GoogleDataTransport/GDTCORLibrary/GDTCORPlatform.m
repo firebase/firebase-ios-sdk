@@ -280,9 +280,9 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
   return sharedApplication;
 }
 
-#pragma mark - UIApplicationDelegate
+#pragma mark - UIApplicationDelegate and WKExtensionDelegate
 
-#if TARGET_OS_IOS || TARGET_OS_TV
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_WATCH
 - (void)iOSApplicationDidEnterBackground:(NSNotification *)notif {
   _isRunningInBackground = YES;
 
@@ -298,32 +298,17 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
   GDTCORLogDebug("%@", @"GDTCORPlatform is sending a notif that the app is foregrounding.");
   [notifCenter postNotificationName:kGDTCORApplicationWillEnterForegroundNotification object:nil];
 }
+#endif  // TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_WATCH
 
+#pragma mark - UIApplicationDelegate
+
+#if TARGET_OS_IOS || TARGET_OS_TV
 - (void)iOSApplicationWillTerminate:(NSNotification *)notif {
   NSNotificationCenter *notifCenter = [NSNotificationCenter defaultCenter];
   GDTCORLogDebug("%@", @"GDTCORPlatform is sending a notif that the app is terminating.");
   [notifCenter postNotificationName:kGDTCORApplicationWillTerminateNotification object:nil];
 }
 #endif  // TARGET_OS_IOS || TARGET_OS_TV
-
-#pragma mark - WKExtensionDelegate
-#if TARGET_OS_WATCH
-- (void)iOSApplicationDidEnterBackground:(NSNotification *)notif {
-  _isRunningInBackground = YES;
-
-  NSNotificationCenter *notifCenter = [NSNotificationCenter defaultCenter];
-  GDTCORLogDebug("%@", @"GDTCORPlatform is sending a notif that the app is backgrounding.");
-  [notifCenter postNotificationName:kGDTCORApplicationDidEnterBackgroundNotification object:nil];
-}
-
-- (void)iOSApplicationWillEnterForeground:(NSNotification *)notif {
-  _isRunningInBackground = NO;
-
-  NSNotificationCenter *notifCenter = [NSNotificationCenter defaultCenter];
-  GDTCORLogDebug("%@", @"GDTCORPlatform is sending a notif that the app is foregrounding.");
-  [notifCenter postNotificationName:kGDTCORApplicationWillEnterForegroundNotification object:nil];
-}
-#endif  // TARGET_OS_WATCH
 
 #pragma mark - NSApplicationDelegate
 
