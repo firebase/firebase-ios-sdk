@@ -88,14 +88,14 @@ NS_SWIFT_NAME(ExperimentController)
                                                      andPayloads:(NSArray<NSData *> *)payloads;
 
 /// Expires experiments that aren't in the list of running experiment payloads.
-/// @param origin         The originating service affected by the experiment.
-/// @param payloads     The list of valid, running experiments.
+/// @param origin The originating service affected by the experiment.
+/// @param payloads The list of valid, running experiments.
 - (void)validateRunningExperimentsForServiceOrigin:(NSString *)origin
                          runningExperimentPayloads:(NSArray<ABTExperimentPayload *> *)payloads;
 
 /// Directly sets a given experiment to be active.
 /// @param experimentPayload The payload for the experiment that should be activated.
-/// @param origin         The originating service affected by the experiment.
+/// @param origin The originating service affected by the experiment.
 - (void)activateExperiment:(ABTExperimentPayload *)experimentPayload
           forServiceOrigin:(NSString *)origin;
 
