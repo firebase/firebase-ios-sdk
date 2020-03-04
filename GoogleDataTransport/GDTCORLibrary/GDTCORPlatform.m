@@ -224,7 +224,7 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
 #endif  // !NDEBUG
   return bgID;
 #endif  // !TARGET_OS_WATCH
-  // TODO: WKExtension backgound tasks handling.
+  // TODO: WKExtension background tasks handling.
   return GDTCORBackgroundIdentifierInvalid;
 }
 
