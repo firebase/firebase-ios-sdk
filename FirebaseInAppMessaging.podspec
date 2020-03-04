@@ -44,9 +44,9 @@ See more product details at https://firebase.google.com/products/in-app-messagin
   s.dependency 'FirebaseCore', '~> 6.2'
   s.ios.dependency 'FirebaseAnalyticsInterop', '~> 1.3'
   s.dependency 'FirebaseInstanceID', '~> 4.0'
-  s.dependency 'GoogleDataTransportCCTSupport', '~> 1.0'
+  s.dependency 'GoogleDataTransportCCTSupport', '~> 2.0'
   s.dependency 'FirebaseABTesting', '~> 3.2'
-	
+
   s.test_spec 'unit' do |unit_tests|
       unit_tests.source_files = 'FirebaseInAppMessaging/Tests/Unit/*.[mh]'
       unit_tests.resources = 'FirebaseInAppMessaging/Tests/Unit/*.txt'
