@@ -16,8 +16,6 @@
 
 #import <UIKit/UIKit.h>
 
-@class ABTExperimentPayload;
-
 NS_ASSUME_NONNULL_BEGIN
 
 /// The type and UI style of an in-app message.

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@class ABTExperimentPayload;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRInAppMessagingCardDisplay (Private)
