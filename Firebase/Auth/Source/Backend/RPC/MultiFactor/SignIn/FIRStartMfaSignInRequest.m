@@ -22,7 +22,7 @@ static NSString *const kStartMfaSignInEndPoint = @"accounts/mfaSignIn:start";
 
 - (nullable instancetype)initWithMfaProvider:(NSString *)mfaProvider
                         mfaPendingCredential:(NSString *)mfaPendingCredential
-                             mfaEnrollmentId:(NSString *)mfaEnrollmentId
+                             mfaEnrollmentID:(NSString *)mfaEnrollmentID
                                   signInInfo:(FIRAuthProtoStartMfaPhoneRequestInfo *)signInInfo
                         requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
   self = [super initWithEndpoint:kStartMfaSignInEndPoint
@@ -32,7 +32,7 @@ static NSString *const kStartMfaSignInEndPoint = @"accounts/mfaSignIn:start";
   if (self) {
     _mfaProvider = mfaProvider;
     _mfaPendingCredential = mfaPendingCredential;
-    _mfaEnrollmentId = mfaEnrollmentId;
+    _mfaEnrollmentID = mfaEnrollmentID;
     _signInInfo = signInInfo;
   }
   return self;
@@ -46,8 +46,8 @@ static NSString *const kStartMfaSignInEndPoint = @"accounts/mfaSignIn:start";
   if (_mfaPendingCredential) {
     postBody[@"mfaPendingCredential"] = _mfaPendingCredential;
   }
-  if (_mfaEnrollmentId) {
-    postBody[@"mfaEnrollmentId"] = _mfaEnrollmentId;
+  if (_mfaEnrollmentID) {
+    postBody[@"mfaEnrollmentId"] = _mfaEnrollmentID;
   }
   if (_signInInfo) {
     if ([_signInInfo isKindOfClass:[FIRAuthProtoStartMfaPhoneRequestInfo class]]) {
