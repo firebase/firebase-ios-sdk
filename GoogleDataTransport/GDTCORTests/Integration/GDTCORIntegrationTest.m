@@ -27,8 +27,8 @@
 #import "GDTCORTests/Integration/Helpers/GDTCORIntegrationTestUploader.h"
 #import "GDTCORTests/Integration/TestServer/GDTCORTestServer.h"
 
+#import "GDTCORLibrary/Private/GDTCORFlatFileStorage.h"
 #import "GDTCORLibrary/Private/GDTCORReachability_Private.h"
-#import "GDTCORLibrary/Private/GDTCORStorage_Private.h"
 #import "GDTCORLibrary/Private/GDTCORTransformer_Private.h"
 
 /** A test-only event data object used in this integration test. */
@@ -90,6 +90,10 @@
   XCTestExpectation *expectation = [self expectationWithDescription:@"server got the request"];
   expectation.assertForOverFulfill = NO;
 
+  // Register storage to handle the test target.
+  [[GDTCORRegistrar sharedInstance] registerStorage:[GDTCORStorage sharedInstance]
+                                             target:kGDTCORTargetTest];
+
   // Manually set the reachability flag.
   [GDTCORReachability sharedInstance].flags = kSCNetworkReachabilityFlagsReachable;
 
@@ -102,15 +106,15 @@
   [testServer registerTestPaths];
   [testServer start];
 
-  // Create eventgers.
+  // Create transporters.
   self.transport1 = [[GDTCORTransport alloc] initWithMappingID:@"eventMap1"
                                                   transformers:nil
-                                                        target:kGDTCORIntegrationTestTarget];
+                                                        target:kGDTCORTargetTest];
 
   self.transport2 = [[GDTCORTransport alloc]
       initWithMappingID:@"eventMap2"
            transformers:@[ [[GDTCORIntegrationTestTransformer alloc] init] ]
-                 target:kGDTCORIntegrationTestTarget];
+                 target:kGDTCORTargetTest];
 
   // Create a prioritizer and uploader.
   self.prioritizer = [[GDTCORIntegrationTestPrioritizer alloc] init];

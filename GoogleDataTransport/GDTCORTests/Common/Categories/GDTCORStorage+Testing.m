@@ -16,7 +16,8 @@
 
 #import "GDTCORTests/Common/Categories/GDTCORStorage+Testing.h"
 
-#import "GDTCORLibrary/Private/GDTCORStorage_Private.h"
+#import <GoogleDataTransport/GDTCORClock.h>
+#import <GoogleDataTransport/GDTCOREvent.h>
 
 @implementation GDTCORStorage (Testing)
 

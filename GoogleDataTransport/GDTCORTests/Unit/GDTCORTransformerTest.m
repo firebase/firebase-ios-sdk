@@ -19,12 +19,15 @@
 #import <GoogleDataTransport/GDTCOREvent.h>
 #import <GoogleDataTransport/GDTCOREventTransformer.h>
 
-#import "GDTCORLibrary/Private/GDTCORStorage.h"
+#import "GDTCORLibrary/Private/GDTCORFlatFileStorage.h"
+#import "GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
 #import "GDTCORLibrary/Private/GDTCORTransformer.h"
 #import "GDTCORLibrary/Private/GDTCORTransformer_Private.h"
 
 #import "GDTCORTests/Unit/Helpers/GDTCORAssertHelper.h"
 #import "GDTCORTests/Unit/Helpers/GDTCORDataObjectTesterClasses.h"
+
+#import "GDTCORTests/Common/Categories/GDTCORRegistrar+Testing.h"
 
 #import "GDTCORTests/Common/Fakes/GDTCORStorageFake.h"
 
@@ -47,7 +50,7 @@
 @implementation GDTCORTransformerTestNewEventTransformer
 
 - (GDTCOREvent *)transform:(GDTCOREvent *)eventEvent {
-  return [[GDTCOREvent alloc] initWithMappingID:@"new" target:1];
+  return [[GDTCOREvent alloc] initWithMappingID:@"new" target:kGDTCORTargetTest];
 }
 
 @end
@@ -61,14 +64,15 @@
 - (void)setUp {
   [super setUp];
   dispatch_sync([GDTCORTransformer sharedInstance].eventWritingQueue, ^{
-    [GDTCORTransformer sharedInstance].storageInstance = [[GDTCORStorageFake alloc] init];
+    [[GDTCORRegistrar sharedInstance] registerStorage:[[GDTCORStorageFake alloc] init]
+                                               target:kGDTCORTargetTest];
   });
 }
 
 - (void)tearDown {
   [super tearDown];
   dispatch_sync([GDTCORTransformer sharedInstance].eventWritingQueue, ^{
-    [GDTCORTransformer sharedInstance].storageInstance = [GDTCORStorage sharedInstance];
+    [[GDTCORRegistrar sharedInstance] reset];
   });
 }
 
@@ -85,7 +89,7 @@
 /** Tests writing a event without a transformer. */
 - (void)testWriteEventWithoutTransformers {
   GDTCORTransformer *transformer = [GDTCORTransformer sharedInstance];
-  GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"1" target:1];
+  GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"1" target:kGDTCORTargetTest];
   event.dataObject = [[GDTCORDataObjectTesterSimple alloc] init];
   XCTAssertNoThrow([transformer transformEvent:event
                               withTransformers:nil
@@ -97,7 +101,7 @@
 /** Tests writing a event with a transformer that nils out the event. */
 - (void)testWriteEventWithTransformersThatNilTheEvent {
   GDTCORTransformer *transformer = [GDTCORTransformer sharedInstance];
-  GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"2" target:1];
+  GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"2" target:kGDTCORTargetTest];
   event.dataObject = [[GDTCORDataObjectTesterSimple alloc] init];
   NSArray<id<GDTCOREventTransformer>> *transformers =
       @[ [[GDTCORTransformerTestNilingTransformer alloc] init] ];
@@ -111,7 +115,7 @@
 /** Tests writing a event with a transformer that creates a new event. */
 - (void)testWriteEventWithTransformersThatCreateANewEvent {
   GDTCORTransformer *transformer = [GDTCORTransformer sharedInstance];
-  GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"2" target:1];
+  GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"2" target:kGDTCORTargetTest];
   event.dataObject = [[GDTCORDataObjectTesterSimple alloc] init];
   NSArray<id<GDTCOREventTransformer>> *transformers =
       @[ [[GDTCORTransformerTestNewEventTransformer alloc] init] ];

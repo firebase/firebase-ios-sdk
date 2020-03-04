@@ -23,6 +23,7 @@
 - (void)reset {
   [self.targetToPrioritizer removeAllObjects];
   [self.targetToUploader removeAllObjects];
+  [self.targetToStorage removeAllObjects];
   dispatch_sync(self.registrarQueue, ^{
                 });
 }

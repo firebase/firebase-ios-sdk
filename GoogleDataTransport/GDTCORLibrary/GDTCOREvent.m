@@ -25,6 +25,37 @@
 
 @implementation GDTCOREvent
 
++ (NSNumber *)nextEventID {
+  static NSInteger sessionSequenceNumber = 1;
+  static unsigned long long nextEventID = 0;
+  static dispatch_queue_t eventIDQueue;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    static NSString *kGDTCORSessionKey = @"GDTCORSession";
+    eventIDQueue = dispatch_queue_create("com.google.GDTCOREventIDQueue", DISPATCH_QUEUE_SERIAL);
+    sessionSequenceNumber = [[NSUserDefaults standardUserDefaults] integerForKey:kGDTCORSessionKey];
+    sessionSequenceNumber++;
+    [[NSUserDefaults standardUserDefaults] setInteger:sessionSequenceNumber
+                                               forKey:kGDTCORSessionKey];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+  });
+
+  __block NSNumber *result;
+  dispatch_sync(eventIDQueue, ^{
+    // Concatenate the session number with the event number.
+    uint64_t tensPlace = 10;
+    while (nextEventID >= tensPlace) {
+      tensPlace *= 10;
+    }
+    uint64_t eventID = sessionSequenceNumber * tensPlace + nextEventID;
+    nextEventID++;
+    // This isn't actually concatenating numbers because the first digits aren't the
+    // sessionSequenceNumber
+    result = @(eventID);
+  });
+  return result;
+}
+
 - (nullable instancetype)initWithMappingID:(NSString *)mappingID target:(NSInteger)target {
   GDTCORAssert(mappingID.length > 0, @"Please give a valid mapping ID");
   GDTCORAssert(target > 0, @"A target cannot be negative or 0");
@@ -33,6 +64,7 @@
   }
   self = [super init];
   if (self) {
+    _eventID = [GDTCOREvent nextEventID];
     _mappingID = mappingID;
     _target = target;
     _qosTier = GDTCOREventQosDefault;
@@ -44,6 +76,7 @@
 
 - (instancetype)copy {
   GDTCOREvent *copy = [[GDTCOREvent alloc] initWithMappingID:_mappingID target:_target];
+  copy->_eventID = _eventID;
   copy.dataObject = _dataObject;
   copy.qosTier = _qosTier;
   copy.clockSnapshot = _clockSnapshot;
@@ -55,12 +88,13 @@
 
 - (NSUInteger)hash {
   // This loses some precision, but it's probably fine.
+  NSUInteger eventIDHash = [_eventID hash];
   NSUInteger mappingIDHash = [_mappingID hash];
   NSUInteger timeHash = [_clockSnapshot hash];
   NSInteger dataObjectHash = [_dataObject hash];
   NSUInteger fileURL = [_fileURL hash];
 
-  return mappingIDHash ^ _target ^ _qosTier ^ timeHash ^ dataObjectHash ^ fileURL;
+  return eventIDHash ^ mappingIDHash ^ _target ^ _qosTier ^ timeHash ^ dataObjectHash ^ fileURL;
 }
 
 - (BOOL)isEqual:(id)object {
@@ -97,6 +131,9 @@
 }
 
 #pragma mark - NSSecureCoding and NSCoding Protocols
+
+/** NSCoding key for eventID property. */
+static NSString *eventIDKey = @"_eventID";
 
 /** NSCoding key for mappingID property. */
 static NSString *mappingIDKey = @"_mappingID";
@@ -146,6 +183,7 @@ static NSString *kCustomDataKey = @"GDTCOREventCustomDataKey";
   NSInteger target = [aDecoder decodeIntegerForKey:targetKey];
   self = [self initWithMappingID:mappingID target:target];
   if (self) {
+    _eventID = [aDecoder decodeObjectOfClass:[NSNumber class] forKey:eventIDKey];
     _qosTier = [aDecoder decodeIntegerForKey:qosTierKey];
     _clockSnapshot = [aDecoder decodeObjectOfClass:[GDTCORClock class] forKey:clockSnapshotKey];
     _fileURL = [aDecoder decodeObjectOfClass:[NSURL class] forKey:fileURLKey];
@@ -162,6 +200,10 @@ static NSString *kCustomDataKey = @"GDTCOREventCustomDataKey";
                                              forKey:kStoredEventTargetKey] integerValue];
   self = [self initWithMappingID:mappingID target:target];
   if (self) {
+    _eventID = [aDecoder decodeObjectOfClass:[NSNumber class] forKey:eventIDKey];
+    if (_eventID == nil) {
+      _eventID = [GDTCOREvent nextEventID];
+    }
     _qosTier = [[aDecoder decodeObjectOfClass:[NSNumber class]
                                        forKey:kStoredEventQosTierKey] integerValue];
     _clockSnapshot = [aDecoder decodeObjectOfClass:[GDTCORClock class]
@@ -173,6 +215,7 @@ static NSString *kCustomDataKey = @"GDTCOREventCustomDataKey";
 }
 
 - (void)encodeWithCoder:(NSCoder *)aCoder {
+  [aCoder encodeObject:_eventID forKey:eventIDKey];
   [aCoder encodeObject:_mappingID forKey:mappingIDKey];
   [aCoder encodeInteger:_target forKey:targetKey];
   [aCoder encodeInteger:_qosTier forKey:qosTierKey];

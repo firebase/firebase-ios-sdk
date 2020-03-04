@@ -20,9 +20,9 @@
 #import <GoogleDataTransport/GDTCORClock.h>
 #import <GoogleDataTransport/GDTCORConsoleLogger.h>
 
+#import "GDTCORLibrary/Private/GDTCORFlatFileStorage.h"
 #import "GDTCORLibrary/Private/GDTCORReachability.h"
 #import "GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
-#import "GDTCORLibrary/Private/GDTCORStorage.h"
 
 @implementation GDTCORUploadCoordinator
 
@@ -56,17 +56,6 @@
     conditions |= GDTCORUploadConditionHighPriority;
     [self uploadTargets:@[ @(target) ] conditions:conditions];
   });
-}
-
-#pragma mark - Property overrides
-
-// GDTCORStorage and GDTCORUploadCoordinator +sharedInstance methods call each other, so this breaks
-// the loop.
-- (GDTCORStorage *)storage {
-  if (!_storage) {
-    _storage = [GDTCORStorage sharedInstance];
-  }
-  return _storage;
 }
 
 #pragma mark - Private helper methods
@@ -133,6 +122,15 @@
       GDTCORLogDebug("Target %@ is not ready to upload", target);
     }
   });
+}
+
+/**
+ *
+ */
+- (id<GDTCORStorageProtocol>)storageForTarget:(NSNumber *)target {
+  id<GDTCORStorageProtocol> storage = [GDTCORRegistrar sharedInstance].targetToStorage[target];
+  GDTCORAssert(storage, @"A storage must be registered for target %@", target);
+  return storage;
 }
 
 /** Returns the current upload conditions after making determinations about the network connection.
@@ -241,7 +239,11 @@ static NSString *const ktargetToInFlightPackagesKey =
       }
     }
     if (package.events != nil) {
-      [self.storage removeEvents:package.events];
+      NSMutableSet *eventIDs = [[NSMutableSet alloc] init];
+      for (GDTCOREvent *event in package.events) {
+        [eventIDs addObject:[event.eventID copy]];
+      }
+      [[self storageForTarget:@(package.target)] removeEvents:eventIDs];
     }
   });
 }

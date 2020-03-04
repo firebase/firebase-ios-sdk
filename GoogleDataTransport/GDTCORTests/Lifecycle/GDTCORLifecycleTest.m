@@ -20,13 +20,13 @@
 #import <GoogleDataTransport/GDTCOREventDataObject.h>
 #import <GoogleDataTransport/GDTCORTransport.h>
 
-#import "GDTCORLibrary/Private/GDTCORStorage_Private.h"
 #import "GDTCORLibrary/Private/GDTCORTransformer_Private.h"
 #import "GDTCORLibrary/Private/GDTCORUploadCoordinator.h"
 
 #import "GDTCORTests/Lifecycle/Helpers/GDTCORLifecycleTestPrioritizer.h"
 #import "GDTCORTests/Lifecycle/Helpers/GDTCORLifecycleTestUploader.h"
 
+#import "GDTCORTests/Common/Categories/GDTCORRegistrar+Testing.h"
 #import "GDTCORTests/Common/Categories/GDTCORStorage+Testing.h"
 #import "GDTCORTests/Common/Categories/GDTCORUploadCoordinator+Testing.h"
 
@@ -78,6 +78,9 @@
 
 - (void)setUp {
   [super setUp];
+  [[GDTCORRegistrar sharedInstance] registerStorage:[GDTCORStorage sharedInstance]
+                                             target:kGDTCORTargetTest];
+
   // Don't check the error, because it'll be populated in cases where the file doesn't exist.
   NSError *error;
   [[NSFileManager defaultManager] removeItemAtPath:[GDTCORStorage archivePath] error:&error];

@@ -45,6 +45,9 @@ typedef NS_ENUM(NSInteger, GDTCOREventQoS) {
 
 @interface GDTCOREvent : NSObject <NSSecureCoding>
 
+/** The unique ID of the event. */
+@property(nonatomic, readonly) NSNumber *eventID;
+
 /** The mapping identifier, to allow backends to map the transport bytes to a proto. */
 @property(readonly, nonatomic) NSString *mappingID;
 
