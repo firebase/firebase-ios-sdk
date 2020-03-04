@@ -263,9 +263,9 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
 #endif
 }
 
-/** Returns a UIApplication or WKExtension instance if on the appropriate platform.
+/** Returns a UIApplication or NSProcessInfo instance if on the appropriate platform.
  *
- * @return The shared UIApplication or WKExtension if on the appropriate platform.
+ * @return The shared UIApplication or NSProcessInfo if on the appropriate platform.
  */
 #if TARGET_OS_IOS || TARGET_OS_TV
 - (nullable UIApplication *)sharedApplicationForBackgroundTask {
