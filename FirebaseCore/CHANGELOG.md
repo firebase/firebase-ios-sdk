@@ -1,6 +1,9 @@
-# Unreleased
+# v6.6.4 -- M66
 - [fixed] Fix Zip Builder module map generation that could cause linker missing
   symbol errors in the 6.14.0 through 6.16.0 binary release distributions. (#4819)
+- [changed] Added an Apple platform flag (ios/macos/watchos/etc.) to `firebaseUserAgent`.
+  The information will be used to support product decisions related to Apple platforms,
+  e.g. prioritizing watchOS support, etc. (#4939)
 
 # v6.6.1 -- M63
 - [changed] Minimum required Xcode version changed to 10.3 (was 10.1).
