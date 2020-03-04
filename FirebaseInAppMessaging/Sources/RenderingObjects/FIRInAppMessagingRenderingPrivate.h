@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@class ABTExperimentPayload;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRInAppMessagingCardDisplay (Private)
@@ -25,6 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithMessageID:(NSString *)messageID
                      campaignName:(NSString *)campaignName
+                experimentPayload:(nullable ABTExperimentPayload *)experimentPayload
               renderAsTestMessage:(BOOL)renderAsTestMessage
                       triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
                         titleText:(NSString *)title
@@ -33,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
                   backgroundColor:(UIColor *)backgroundColor
               primaryActionButton:(FIRInAppMessagingActionButton *)primaryActionButton
                  primaryActionURL:(nullable NSURL *)primaryActionURL
-                          appData:(NSDictionary *)appData;
+                          appData:(nullable NSDictionary *)appData;
 
 @end
 
@@ -53,8 +56,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRInAppMessagingCampaignInfo (Private)
 
+- (nullable ABTExperimentPayload *)experimentPayload;
+
 - (instancetype)initWithMessageID:(NSString *)messageID
                      campaignName:(NSString *)campaignName
+                experimentPayload:(nullable ABTExperimentPayload *)experimentPayload
               renderAsTestMessage:(BOOL)renderAsTestMessage;
 
 @end
@@ -69,10 +75,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithMessageID:(NSString *)messageID
                      campaignName:(NSString *)campaignName
+                experimentPayload:(nullable ABTExperimentPayload *)experimentPayload
               renderAsTestMessage:(BOOL)renderAsTestMessage
                       messageType:(FIRInAppMessagingDisplayMessageType)messageType
                       triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
-                          appData:(NSDictionary *)appData;
+                          appData:(nullable NSDictionary *)appData;
 
 @end
 
@@ -80,6 +87,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithMessageID:(NSString *)messageID
                      campaignName:(NSString *)campaignName
+                experimentPayload:(nullable ABTExperimentPayload *)experimentPayload
               renderAsTestMessage:(BOOL)renderAsTestMessage
                       triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
                         titleText:(NSString *)title
@@ -89,7 +97,7 @@ NS_ASSUME_NONNULL_BEGIN
                         imageData:(nullable FIRInAppMessagingImageData *)imageData
                      actionButton:(nullable FIRInAppMessagingActionButton *)actionButton
                         actionURL:(nullable NSURL *)actionURL
-                          appData:(NSDictionary *)appData;
+                          appData:(nullable NSDictionary *)appData;
 
 @end
 
@@ -97,6 +105,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithMessageID:(NSString *)messageID
                      campaignName:(NSString *)campaignName
+                experimentPayload:(nullable ABTExperimentPayload *)experimentPayload
               renderAsTestMessage:(BOOL)renderAsTestMessage
                       triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
                         titleText:(NSString *)title
@@ -105,7 +114,7 @@ NS_ASSUME_NONNULL_BEGIN
                   backgroundColor:(UIColor *)backgroundColor
                         imageData:(nullable FIRInAppMessagingImageData *)imageData
                         actionURL:(nullable NSURL *)actionURL
-                          appData:(NSDictionary *)appData;
+                          appData:(nullable NSDictionary *)appData;
 
 @end
 
@@ -113,11 +122,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithMessageID:(NSString *)messageID
                      campaignName:(NSString *)campaignName
+                experimentPayload:(nullable ABTExperimentPayload *)experimentPayload
               renderAsTestMessage:(BOOL)renderAsTestMessage
                       triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
                         imageData:(nullable FIRInAppMessagingImageData *)imageData
                         actionURL:(nullable NSURL *)actionURL
-                          appData:(NSDictionary *)appData;
+                          appData:(nullable NSDictionary *)appData;
 
 @end
 
