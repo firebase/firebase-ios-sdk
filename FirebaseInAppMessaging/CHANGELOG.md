@@ -1,4 +1,4 @@
-#2020-03-10 -- v0.19.0
+# 2020-03-10 -- v0.19.0
 - [added] Added SDK support for A/B testing in-app messages.
 
 # 2020-02-18 -- v0.17.0
