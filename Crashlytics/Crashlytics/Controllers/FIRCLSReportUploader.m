@@ -112,6 +112,10 @@
         FIRCLSDebugLog(@"Preparing the report for the new endpoint: %d",
                        self.dataSource.settings.shouldUseNewReportEndpoint);
 
+        // With the new report endpoint, the report is deleted once it is written to GDT
+        // Check if the report has a crash file before the report is moved or deleted
+        BOOL isCrash = report.isCrash;
+
         if (self.dataSource.settings.shouldUseNewReportEndpoint) {
           // For the new endpoint, just move the .clsrecords from "processing" -> "prepared"
           if (![self.fileManager moveItemAtPath:report.path
@@ -150,7 +154,7 @@
 
         // If the upload was successful and the report contained a crash forward it to Google
         // Analytics.
-        if (success && report.isCrash) {
+        if (success && isCrash) {
           [FIRCLSFCRAnalytics logCrashWithTimeStamp:report.crashedOnDate.timeIntervalSince1970
                                         toAnalytics:self->_analytics];
         }
