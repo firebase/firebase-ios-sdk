@@ -124,10 +124,12 @@
   });
 }
 
-/**
+/** Returns the registered storage for the given NSNumber wrapped GDTCORTarget.
  *
+ * @param target The NSNumber wrapping of a GDTCORTarget to find the storage instance of.
+ * @return The storage instance for the given target.
  */
-- (id<GDTCORStorageProtocol>)storageForTarget:(NSNumber *)target {
+- (nullable id<GDTCORStorageProtocol>)storageForTarget:(NSNumber *)target {
   id<GDTCORStorageProtocol> storage = [GDTCORRegistrar sharedInstance].targetToStorage[target];
   GDTCORAssert(storage, @"A storage must be registered for target %@", target);
   return storage;

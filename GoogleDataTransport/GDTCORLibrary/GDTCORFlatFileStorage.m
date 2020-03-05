@@ -115,8 +115,6 @@ static NSString *GDTCORStoragePath() {
     GDTCORAssert([event.dataObject transportBytes],
                  @"The event should have been serialized to bytes");
     NSError *error = nil;
-
-    // The below debug log isn't generally compiled in, so disable the unused variable warning.
     NSURL *eventFile = [self saveEventBytesToDisk:event eventHash:event.hash error:&error];
     if (!eventFile || error) {
       GDTCORLogDebug("Event failed to save to disk: %@", error);

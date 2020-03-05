@@ -87,7 +87,7 @@
 - (NSMutableDictionary<NSNumber *, id<GDTCORUploader>> *)targetToUploader {
   __block NSMutableDictionary<NSNumber *, id<GDTCORUploader>> *targetToUploader;
   __weak GDTCORRegistrar *weakSelf = self;
-  dispatch_sync(self.registrarQueue, ^{
+  dispatch_sync(_registrarQueue, ^{
     GDTCORRegistrar *strongSelf = weakSelf;
     if (strongSelf) {
       targetToUploader = strongSelf->_targetToUploader;
@@ -99,7 +99,7 @@
 - (NSMutableDictionary<NSNumber *, id<GDTCORPrioritizer>> *)targetToPrioritizer {
   __block NSMutableDictionary<NSNumber *, id<GDTCORPrioritizer>> *targetToPrioritizer;
   __weak GDTCORRegistrar *weakSelf = self;
-  dispatch_sync(self.registrarQueue, ^{
+  dispatch_sync(_registrarQueue, ^{
     GDTCORRegistrar *strongSelf = weakSelf;
     if (strongSelf) {
       targetToPrioritizer = strongSelf->_targetToPrioritizer;
@@ -111,7 +111,7 @@
 - (NSMutableDictionary<NSNumber *, id<GDTCORStorageProtocol>> *)targetToStorage {
   __block NSMutableDictionary<NSNumber *, id<GDTCORStorageProtocol>> *targetToStorage;
   __weak GDTCORRegistrar *weakSelf = self;
-  dispatch_sync(self.registrarQueue, ^{
+  dispatch_sync(_registrarQueue, ^{
     GDTCORRegistrar *strongSelf = weakSelf;
     if (strongSelf) {
       targetToStorage = strongSelf->_targetToStorage;
@@ -123,7 +123,7 @@
 #pragma mark - GDTCORLifecycleProtocol
 
 - (void)appWillBackground:(nonnull GDTCORApplication *)app {
-  dispatch_async(self.registrarQueue, ^{
+  dispatch_async(_registrarQueue, ^{
     for (id<GDTCORUploader> uploader in [self->_targetToUploader allValues]) {
       if ([uploader respondsToSelector:@selector(appWillBackground:)]) {
         [uploader appWillBackground:app];
@@ -143,7 +143,7 @@
 }
 
 - (void)appWillForeground:(nonnull GDTCORApplication *)app {
-  dispatch_async(self.registrarQueue, ^{
+  dispatch_async(_registrarQueue, ^{
     for (id<GDTCORUploader> uploader in [self->_targetToUploader allValues]) {
       if ([uploader respondsToSelector:@selector(appWillForeground:)]) {
         [uploader appWillForeground:app];
@@ -163,7 +163,7 @@
 }
 
 - (void)appWillTerminate:(nonnull GDTCORApplication *)app {
-  dispatch_sync(self.registrarQueue, ^{
+  dispatch_sync(_registrarQueue, ^{
     for (id<GDTCORUploader> uploader in [self->_targetToUploader allValues]) {
       if ([uploader respondsToSelector:@selector(appWillTerminate:)]) {
         [uploader appWillTerminate:app];

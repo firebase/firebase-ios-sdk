@@ -36,7 +36,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Generates incrementing event IDs based on a persistent session counter stored in user defaults.
  *
- * @return An event ID that is the concatenation of a session
+ * @return An event ID that is the concatenation of a session counter and event counter. For
+ * example, if this is the 104th session and the 1234th event, the returned ID will be 1041234.
  */
 + (NSNumber *)nextEventID;
 
