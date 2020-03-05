@@ -117,11 +117,12 @@ static NSString *GDTCORStoragePath() {
     NSError *error = nil;
 
     // The below debug log isn't generally compiled in, so disable the unused variable warning.
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-variable"
     NSURL *eventFile = [self saveEventBytesToDisk:event eventHash:event.hash error:&error];
-    GDTCORLogDebug("Event saved to disk: %@", eventFile);
-#pragma clang diagnostics pop
+    if (!eventFile || error) {
+      GDTCORLogDebug("Event failed to save to disk: %@", error);
+    } else {
+      GDTCORLogDebug("Event saved to disk: %@", eventFile);
+    }
 
     // Add event to tracking collections.
     [self addEventToTrackingCollections:event];
