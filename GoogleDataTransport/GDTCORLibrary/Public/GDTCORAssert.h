@@ -47,22 +47,22 @@ FOUNDATION_EXPORT GDTCORAssertionBlock _Nullable GDTCORAssertionBlockToRunInstea
 /** Asserts using a console log, unless a block was specified to be run instead.
  *
  * @param condition The condition you'd expect to be YES.
- * @param format The string to log if the assertion fails.
  */
-#define GDTCORAssert(condition, format, ...)                                     \
-  do {                                                                           \
-    __PRAGMA_PUSH_NO_EXTRA_ARG_WARNINGS                                          \
-    if (__builtin_expect(!(condition), 0)) {                                     \
-      GDTCORAssertionBlock assertionBlock = GDTCORAssertionBlockToRunInstead();  \
-      if (assertionBlock) {                                                      \
-        assertionBlock();                                                        \
-      } else {                                                                   \
-        NSString *__assert_file__ = [NSString stringWithUTF8String:__FILE__];    \
-        __assert_file__ = __assert_file__ ? __assert_file__ : @"<Unknown File>"; \
-        GDTCORLogAssert(NO, __assert_file__, __LINE__, format, ##__VA_ARGS__);   \
-        __PRAGMA_POP_NO_EXTRA_ARG_WARNINGS                                       \
-      }                                                                          \
-    }                                                                            \
+#define GDTCORAssert(condition, ...)                                                             \
+  do {                                                                                           \
+    if (__builtin_expect(!(condition), 0)) {                                                     \
+      GDTCORAssertionBlock assertionBlock = GDTCORAssertionBlockToRunInstead();                  \
+      if (assertionBlock) {                                                                      \
+        assertionBlock();                                                                        \
+      } else {                                                                                   \
+        __PRAGMA_PUSH_NO_EXTRA_ARG_WARNINGS                                                      \
+        NSString *__assert_file__ = [NSString stringWithUTF8String:__FILE__];                    \
+        __assert_file__ = __assert_file__ ? __assert_file__ : @"<Unknown File>";                 \
+        GDTCORLogError(GDTCORMCEGeneralError, @"Assertion failed (%@:%d): %@,", __assert_file__, \
+                       __LINE__, ##__VA_ARGS__);                                                 \
+        __PRAGMA_POP_NO_EXTRA_ARG_WARNINGS                                                       \
+      }                                                                                          \
+    }                                                                                            \
   } while (0);
 
 /** Asserts by logging to the console and throwing an exception if NS_BLOCK_ASSERTIONS is not
