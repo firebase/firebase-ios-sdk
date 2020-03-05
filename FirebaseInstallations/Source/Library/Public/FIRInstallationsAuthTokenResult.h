@@ -22,6 +22,9 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(InstallationsAuthTokenResult)
 @interface FIRInstallationsAuthTokenResult : NSObject
 
+/** The Firebase Installation ID associated with the token. */
+@property(nonatomic, readonly) NSString *installationID;
+
 /** The authorization token string. */
 @property(nonatomic, readonly) NSString *authToken;
 
