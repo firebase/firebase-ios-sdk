@@ -325,7 +325,7 @@ static NSDictionary<NSString *, NSString *> *FIRAuthParseURL(NSString *urlString
                            languageCode:(NSString *)languageCode
                                    mode:(NSString *)mode
                                tenantID:(NSString *)tenantID {
-  
+
   self = [super init];
   if (self) {
     _APIKey = APIKey;
