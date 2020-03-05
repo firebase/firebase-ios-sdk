@@ -122,6 +122,7 @@ FOUNDATION_EXPORT const GDTCORBackgroundIdentifier GDTCORBackgroundIdentifierInv
  */
 + (nullable GDTCORApplication *)sharedApplication;
 
+#if !TARGET_OS_WATCH
 /** Creates a background task with the returned identifier if on a suitable platform.
  *
  * @name name The name of the task, useful for debugging which background tasks are running.
@@ -138,6 +139,12 @@ FOUNDATION_EXPORT const GDTCORBackgroundIdentifier GDTCORBackgroundIdentifierInv
  */
 - (void)endBackgroundTask:(GDTCORBackgroundIdentifier)bgID;
 
+#elif TARGET_OS_WATCH
+- (id<NSObject>)beginActivityWithOptions:(NSActivityOptions)options reason:(NSString *)reason;
+
+- (void)endActivity:(id<NSObject>)activity;
+
+#endif
 @end
 
 NS_ASSUME_NONNULL_END

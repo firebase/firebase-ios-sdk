@@ -174,6 +174,7 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
 }
 
 - (void)uploadPackage:(GDTCORUploadPackage *)package {
+#if !TARGET_OS_WATCH
   __block GDTCORBackgroundIdentifier bgID = GDTCORBackgroundIdentifierInvalid;
   bgID = [[GDTCORApplication sharedApplication]
       beginBackgroundTaskWithName:@"GDTCCTUploader-upload"
@@ -187,6 +188,12 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
                     [[GDTCORApplication sharedApplication] endBackgroundTask:bgID];
                   }
                 }];
+#elif TARGET_OS_WATCH
+  __block BOOL hasUploaded = YES;
+  id<NSObject> activity = [[GDTCORApplication sharedApplication]
+      beginActivityWithOptions:NSActivityAutomaticTerminationDisabled | NSActivityBackground
+                        reason:@"GDTCCTUploader-upload"];
+#endif
 
   dispatch_async(_uploaderQueue, ^{
     if (self->_currentTask || self->_currentUploadPackage) {
@@ -260,11 +267,16 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
         [package completeDelivery];
       }
 
+#if !TARGET_OS_WATCH
       // End the background task if there was one.
       if (bgID != GDTCORBackgroundIdentifierInvalid) {
         [[GDTCORApplication sharedApplication] endBackgroundTask:bgID];
         bgID = GDTCORBackgroundIdentifierInvalid;
       }
+#elif TARGET_OS_WATCH
+      hasUploaded = NO;
+      [[GDTCORApplication sharedApplication] endActivity:activity];
+#endif
       self.currentTask = nil;
       self.currentUploadPackage = nil;
     };
@@ -281,6 +293,12 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
                                                  completionHandler:completionHandler];
     GDTCORLogDebug("%@", @"CCT: The upload task is about to begin.");
     [self.currentTask resume];
+
+#if TARGET_OS_WATCH
+    if (hasUploaded) {
+      [[GDTCORApplication sharedApplication] endActivity:activity];
+    }
+#endif
   });
 }
 

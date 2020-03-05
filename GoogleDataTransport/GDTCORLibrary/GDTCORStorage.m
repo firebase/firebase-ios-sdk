@@ -88,6 +88,7 @@ static NSString *GDTCORStoragePath() {
 
   [self createEventDirectoryIfNotExists];
 
+#if !TARGET_OS_WATCH
   __block GDTCORBackgroundIdentifier bgID = GDTCORBackgroundIdentifierInvalid;
   bgID = [[GDTCORApplication sharedApplication]
       beginBackgroundTaskWithName:@"GDTStorage"
@@ -96,6 +97,11 @@ static NSString *GDTCORStoragePath() {
                   [[GDTCORApplication sharedApplication] endBackgroundTask:bgID];
                   bgID = GDTCORBackgroundIdentifierInvalid;
                 }];
+#elif TARGET_OS_WATCH
+  id<NSObject> activity = [[GDTCORApplication sharedApplication]
+      beginActivityWithOptions:NSActivityAutomaticTerminationDisabled | NSActivityBackground
+                        reason:@"GDTStorage"];
+#endif
 
   dispatch_async(_storageQueue, ^{
     // Check that a backend implementation is available for this target.
@@ -142,11 +148,15 @@ static NSString *GDTCORStoragePath() {
       }
     }
 
+#if !TARGET_OS_WATCH
     // Cancel or end the associated background task if it's still valid.
     [[GDTCORApplication sharedApplication] endBackgroundTask:bgID];
     bgID = GDTCORBackgroundIdentifierInvalid;
     GDTCORLogDebug("Event %@ is stored. There are %ld events stored on disk", event,
                    (unsigned long)self->_storedEvents.count);
+#elif TARGET_OS_WATCH
+      [[GDTCORApplication sharedApplication] endActivity:activity];
+#endif
   });
 }
 
@@ -242,15 +252,18 @@ static NSString *GDTCORStoragePath() {
 
 - (void)appWillBackground:(GDTCORApplication *)app {
   dispatch_async(_storageQueue, ^{
-    // Immediately request a background task to run until the end of the current queue of work, and
-    // cancel it once the work is done.
+  // Immediately request a background task to run until the end of the current queue of work, and
+  // cancel it once the work is done.
+#if !TARGET_OS_WATCH
     __block GDTCORBackgroundIdentifier bgID =
         [app beginBackgroundTaskWithName:@"GDTStorage"
                        expirationHandler:^{
                          [app endBackgroundTask:bgID];
                          bgID = GDTCORBackgroundIdentifierInvalid;
                        }];
-
+#elif TARGET_OS_WATCH
+    id<NSObject> activity = [[GDTCORApplication sharedApplication] beginActivityWithOptions:NSActivityAutomaticTerminationDisabled | NSActivityBackground reason:@"GDTStorage"];
+#endif
     if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
       NSError *error;
       NSData *data = [NSKeyedArchiver archivedDataWithRootObject:self
@@ -263,9 +276,13 @@ static NSString *GDTCORStoragePath() {
 #endif
     }
 
+#if !TARGET_OS_WATCH
     // End the background task if it's still valid.
     [app endBackgroundTask:bgID];
     bgID = GDTCORBackgroundIdentifierInvalid;
+#elif TARGET_OS_WATCH
+    [[GDTCORApplication sharedApplication] endActivity:activity];
+#endif
   });
 }
 

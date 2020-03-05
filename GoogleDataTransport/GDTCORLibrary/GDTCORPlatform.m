@@ -211,9 +211,9 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
   return self;
 }
 
+#if !TARGET_OS_WATCH
 - (GDTCORBackgroundIdentifier)beginBackgroundTaskWithName:(NSString *)name
                                         expirationHandler:(void (^)(void))handler {
-#if !TARGET_OS_WATCH
   GDTCORBackgroundIdentifier bgID =
       [[self sharedApplicationForBackgroundTask] beginBackgroundTaskWithName:name
                                                            expirationHandler:handler];
@@ -223,32 +223,31 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
   }
 #endif  // !NDEBUG
   return bgID;
-#else
-  // Return default value for watchOS compilation temporally
-  return GDTCORBackgroundIdentifierInvalid;
-#endif
 }
 
 - (void)endBackgroundTask:(GDTCORBackgroundIdentifier)bgID {
-#if !TARGET_OS_WATCH
   if (bgID != GDTCORBackgroundIdentifierInvalid) {
     GDTCORLogDebug("Ending background task with ID:%ld was successful", (long)bgID);
     [[self sharedApplicationForBackgroundTask] endBackgroundTask:bgID];
     return;
   }
-#endif
 }
 
-#if TARGET_OS_WATCH
-// TODO: Try using those two APIs to munipulate background tasks for watchOS
+#elif TARGET_OS_WATCH
+// TODO: Try using those APIs to munipulate background tasks for watchOS
 - (void)performExpiringActivityWithReason:(NSString *)name
                                usingBlock:(nonnull void (^)(BOOL))block {
-  [[self sharedApplicationForBackgroundTask] performExpiringActivityWithReason:name
-                                                                    usingBlock:block];
+  [[self sharedNSProcessInfoForBackgroundTask] performExpiringActivityWithReason:name
+                                                                      usingBlock:block];
+}
+
+- (id<NSObject>)beginActivityWithOptions:(NSActivityOptions)options reason:(NSString *)reason {
+  return [[self sharedNSProcessInfoForBackgroundTask] beginActivityWithOptions:options
+                                                                        reason:reason];
 }
 
 - (void)endActivity:(id<NSObject>)activity {
-  [[self sharedApplicationForBackgroundTask] endActivity:activity];
+  [[self sharedNSProcessInfoForBackgroundTask] endActivity:activity];
 }
 #endif
 
@@ -270,29 +269,29 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
 #if TARGET_OS_IOS || TARGET_OS_TV
 - (nullable UIApplication *)sharedApplicationForBackgroundTask {
 #elif TARGET_OS_WATCH
-- (nullable NSProcessInfo *)sharedApplicationForBackgroundTask {
+- (nullable NSProcessInfo *)sharedNSProcessInfoForBackgroundTask {
 #else
 - (nullable id)sharedApplicationForBackgroundTask {
 #endif
   if ([self isAppExtension]) {
     return nil;
   }
-  id sharedApplication = nil;
+  id sharedInstance = nil;
 #if TARGET_OS_IOS || TARGET_OS_TV
   Class uiApplicationClass = NSClassFromString(@"UIApplication");
   if (uiApplicationClass &&
       [uiApplicationClass respondsToSelector:(NSSelectorFromString(@"sharedApplication"))]) {
-    sharedApplication = [uiApplicationClass sharedApplication];
+    sharedInstance = [uiApplicationClass sharedApplication];
   }
 #elif TARGET_OS_WATCH
   // The processInfo class method returns the shared agent for the current process.
   Class nsProcessInfoClass = NSClassFromString(@"NSProcessInfo");
   if (nsProcessInfoClass &&
       [nsProcessInfoClass respondsToSelector:(NSSelectorFromString(@"processInfo"))]) {
-    sharedApplication = [nsProcessInfoClass processInfo];
+    sharedInstance = [nsProcessInfoClass processInfo];
   }
 #endif
-  return sharedApplication;
+  return sharedInstance;
 }
 
 #pragma mark - UIApplicationDelegate and WKExtensionDelegate

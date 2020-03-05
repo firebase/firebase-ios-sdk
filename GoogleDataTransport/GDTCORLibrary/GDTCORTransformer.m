@@ -55,6 +55,7 @@
     };
   }
 
+#if !TARGET_OS_WATCH
   __block GDTCORBackgroundIdentifier bgID = GDTCORBackgroundIdentifierInvalid;
   bgID = [[GDTCORApplication sharedApplication]
       beginBackgroundTaskWithName:@"GDTTransformer"
@@ -62,6 +63,12 @@
                   [[GDTCORApplication sharedApplication] endBackgroundTask:bgID];
                   bgID = GDTCORBackgroundIdentifierInvalid;
                 }];
+#elif TARGET_OS_WATCH
+  id<NSObject> activity = [[GDTCORApplication sharedApplication]
+      beginActivityWithOptions:NSActivityAutomaticTerminationDisabled | NSActivityBackground
+                        reason:@"GDTTransformer"];
+#endif
+
   dispatch_async(_eventWritingQueue, ^{
     GDTCOREvent *transformedEvent = event;
     for (id<GDTCOREventTransformer> transformer in transformers) {
@@ -81,9 +88,13 @@
     }
     [self.storageInstance storeEvent:transformedEvent onComplete:completion];
 
+#if !TARGET_OS_WATCH
     // The work is done, cancel the background task if it's valid.
     [[GDTCORApplication sharedApplication] endBackgroundTask:bgID];
     bgID = GDTCORBackgroundIdentifierInvalid;
+#elif TARGET_OS_WATCH
+    [[GDTCORApplication sharedApplication] endActivity:activity];
+#endif
   });
 }
 
