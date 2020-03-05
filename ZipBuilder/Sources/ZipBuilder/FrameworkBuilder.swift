@@ -214,7 +214,7 @@ struct FrameworkBuilder {
     let cFlags = "OTHER_CFLAGS=$(value) \(distributionFlag) \(platformSpecificFlags)"
     let cleanArch = isMacCatalyst ? Architecture.x86_64.rawValue : archs.map { $0.rawValue }.joined(separator: " ")
 
-    let args = ["build",
+    var args = ["build",
                 "-configuration", "release",
                 "-workspace", workspacePath,
                 "-scheme", framework,
@@ -225,12 +225,14 @@ struct FrameworkBuilder {
                 "BUILD_LIBRARIES_FOR_DISTRIBUTION=YES",
                 "SUPPORTS_MACCATALYST=\(isMacCatalystString)",
                 "BUILD_DIR=\(buildDir.path)",
-                // Code signing isn't needed for libraries. Disabling signing is required for
-                // Catalyst libs with resources. See
-                // https://github.com/CocoaPods/CocoaPods/issues/8891#issuecomment-573301570
-                "CODE_SIGN_IDENTITY=-",
                 "-sdk", platform.rawValue,
                 cFlags]
+    // Code signing isn't needed for libraries. Disabling signing is required for
+    // Catalyst libs with resources. See
+    // https://github.com/CocoaPods/CocoaPods/issues/8891#issuecomment-573301570
+    if isMacCatalyst {
+      args.append("CODE_SIGN_IDENTITY=-")
+    }
     print("""
     Compiling \(framework) for \(arch.rawValue) with command:
     /usr/bin/xcodebuild \(args.joined(separator: " "))
@@ -260,10 +262,20 @@ struct FrameworkBuilder {
       """)
 
       // Use the Xcode-generated path to return the path to the compiled library.
-      let buildName = frameworkBuildName(framework)
-      let fileName = LaunchArgs.shared.dynamic ? "\(buildName).framework" : "lib\(buildName).a"
-      let libPath = buildDir.appendingPathComponents(["Release-\(platformFolder)", framework,
-                                                      fileName])
+      let frameworkPath = buildDir.appendingPathComponents(["Release-\(platformFolder)", framework])
+      var actualFramework: String
+      do {
+        let files = try FileManager.default.contentsOfDirectory(at: frameworkPath,
+                                                                includingPropertiesForKeys: nil).compactMap { $0.absoluteString }
+        let frameworkDir = files.filter { $0.contains(".framework") }
+        actualFramework = URL(fileURLWithPath: frameworkDir[0]).lastPathComponent
+      } catch {
+        fatalError("Error while enumerating files \(frameworkPath): \(error.localizedDescription)")
+      }
+      var libPath = frameworkPath.appendingPathComponent(actualFramework)
+      if !LaunchArgs.shared.dynamic {
+        libPath = libPath.appendingPathComponent(actualFramework.replacingOccurrences(of: ".framework", with: ""))
+      }
       print("buildThin returns \(libPath)")
       return libPath
     }
@@ -406,32 +418,68 @@ struct FrameworkBuilder {
       fatalError("Could not create framework directory while building framework \(framework). " +
         "\(error)")
     }
-    // Verify Firebase frameworks include an explicit umbrella header for Firebase.h.
-    let headersDir = podsDir.appendingPathComponents(["Headers", "Public", framework])
-    if framework.hasPrefix("Firebase"),
-      framework != "FirebaseCoreDiagnostics",
-      framework != "FirebaseUI" {
-      let frameworkHeader = headersDir.appendingPathComponent("\(framework).h")
-      guard fileManager.fileExists(atPath: frameworkHeader.path) else {
-        fatalError("Missing explicit umbrella header for \(framework).")
+
+    // Find the location of the public headers.
+    let anyArch = LaunchArgs.shared.archs[0] // any arch is ok, but need to make sure we're building it
+    let archivePath = thinArchives[anyArch]!
+    let headersDir = archivePath.deletingLastPathComponent().appendingPathComponent("Headers")
+
+    // Find CocoaPods generated umbrella header.
+    var umbrellaHeader = ""
+    if framework == "gRPC-Core" {
+      // TODO: Proper handling of podspec-specified module.modulemap files with customized umbrella
+      // headers. This is good enough for Firebase since it doesn't need these modules.
+      umbrellaHeader = "\(framework)-umbrella.h"
+    } else {
+      var umbrellaHeaderURL: URL
+      do {
+        let files = try fileManager.contentsOfDirectory(at: headersDir,
+                                                        includingPropertiesForKeys: nil).compactMap { $0.absoluteString }
+        let umbrellas = files.filter { $0.contains("umbrella.h") }
+        if umbrellas.count != 1 {
+          fatalError("Did not find exactly one umbrella header in \(headersDir).")
+        }
+        umbrellaHeaderURL = URL(string: umbrellas[0])!
+      } catch {
+        fatalError("Error while enumerating files \(headersDir): \(error.localizedDescription)")
+      }
+      // Verify Firebase frameworks include an explicit umbrella header for Firebase.h.
+      if framework.hasPrefix("Firebase"),
+        framework != "FirebaseCoreDiagnostics",
+        framework != "FirebaseUI",
+        !framework.hasSuffix("Swift") {
+        // Delete CocoaPods generated umbrella and use pre-generated one.
+        do {
+          try fileManager.removeItem(at: umbrellaHeaderURL)
+        } catch let error as NSError {
+          print("Failed to delete: \(umbrellaHeaderURL). Error: \(error.domain)")
+        }
+        umbrellaHeader = "\(framework).h"
+        let frameworkHeader = headersDir.appendingPathComponent(umbrellaHeader)
+        guard fileManager.fileExists(atPath: frameworkHeader.path) else {
+          fatalError("Missing explicit umbrella header for \(framework).")
+        }
+      } else {
+        umbrellaHeader = umbrellaHeaderURL.lastPathComponent
       }
     }
-    // Copy the Headers over. Pass in the prefix to remove in order to generate the relative paths
-    // for some frameworks that have nested folders in their public headers.
+    // Copy the Headers over.
     let headersDestination = frameworkDir.appendingPathComponent("Headers")
     do {
-      try recursivelyCopyHeaders(from: headersDir, to: headersDestination)
+      try fileManager.copyItem(at: headersDir, to: headersDestination)
     } catch {
       fatalError("Could not copy headers from \(headersDir) to Headers directory in " +
         "\(headersDestination): \(error)")
     }
 
+    // TODO: copy PrivateHeaders directory as well if it exists. SDWebImage is an example pod.
+
     // Move all the Resources into .bundle directories in the destination Resources dir. The
     // Resources live are contained within the folder structure:
     // `projectDir/arch/Release-platform/FrameworkName`
-    let arch = Architecture.arm64
-    let contentsDir = projectDir.appendingPathComponents([arch.rawValue,
-                                                          "Release-\(arch.platform.rawValue)",
+
+    let contentsDir = projectDir.appendingPathComponents([anyArch.rawValue,
+                                                          "Release-\(anyArch.platform.rawValue)",
                                                           framework])
     let resourceDir = frameworkDir.appendingPathComponent("Resources")
     do {
@@ -444,7 +492,9 @@ struct FrameworkBuilder {
     let xcframework = packageXCFramework(withName: framework,
                                          fromFolder: frameworkDir,
                                          thinArchives: thinArchives,
-                                         moduleMapContents: moduleMapContents)
+                                         moduleMapContents: moduleMapContents.replacingOccurrences(
+                                           of: "INSERT_UMBRELLA_HEADER_HERE", with: umbrellaHeader
+                                         ))
 
     // Remove the temporary thin archives.
     for thinArchive in thinArchives.values {
@@ -562,6 +612,9 @@ struct FrameworkBuilder {
     for platform in Architecture.TargetPlatform.allCases {
       // Get all the slices that belong to the specific platform in order to lipo them together.
       let slices = thinArchives.filter { $0.key.platform == platform }
+      if slices.count == 0 {
+        continue
+      }
       let platformDir = platformFrameworksDir.appendingPathComponent(platform.rawValue)
       do {
         try fileManager.createDirectory(at: platformDir, withIntermediateDirectories: true)
@@ -617,72 +670,5 @@ struct FrameworkBuilder {
     }
 
     return xcframework
-  }
-
-  /// Recursively copies headers from the given directory to the destination directory. This does a
-  /// deep copy and resolves and symlinks (which CocoaPods uses in the Public headers folder).
-  /// Throws FileManager errors if something goes wrong during the operations.
-  /// Note: This is only needed now because the `cp` command has a flag that did this for us, but
-  /// FileManager does not.
-  private func recursivelyCopyHeaders(from headersDir: URL,
-                                      to destinationDir: URL,
-                                      fileManager: FileManager = FileManager.default) throws {
-    // Copy the public headers into the new framework. Unfortunately we can't just copy the
-    // `Headers` directory since it uses aliases, so we'll recursively search the public Headers
-    // directory from CocoaPods and resolve all the aliases manually.
-    let fileManager = FileManager.default
-
-    // Create the Headers directory if it doesn't exist.
-    try fileManager.createDirectory(at: destinationDir, withIntermediateDirectories: true)
-
-    // Get all the header aliases from the CocoaPods directory and get their real path as well as
-    // their relative path to the Headers directory they are in. This is needed to preserve proper
-    // imports for nested folders.
-    let aliasedHeaders = try fileManager.recursivelySearch(for: .headers, in: headersDir)
-    let mappedHeaders: [(relativePath: String, resolvedLocation: URL)] = aliasedHeaders.map {
-      // The `headersDir` and `aliasedHeader` prefixes may be different, but they both should have
-      // `Pods/Headers/` in the path. Ignore everything up until that, then strip the remainder of
-      // the `headersDir` from the `aliasedHeader` in order to get path relative to the headers
-      // directory.
-      let trimmedHeader = removeHeaderPathPrefix(from: $0)
-      let trimmedDir = removeHeaderPathPrefix(from: headersDir)
-      var relativePath = trimmedHeader.replacingOccurrences(of: trimmedDir, with: "")
-
-      // Remove any leading `/` for the relative path.
-      if relativePath.starts(with: "/") {
-        _ = relativePath.removeFirst()
-      }
-
-      // Standardize the URL because the aliasedHeaders could be at `/private/var` or `/var` which
-      // are symlinked to each other on macOS.
-      let resolvedLocation = $0.standardizedFileURL.resolvingSymlinksInPath()
-      return (relativePath, resolvedLocation)
-    }
-
-    // Copy all the headers into the Headers directory created above.
-    for (relativePath, location) in mappedHeaders {
-      // Append the proper filename to our Headers directory, then try copying it over.
-      let finalPath = destinationDir.appendingPathComponent(relativePath)
-
-      // Create the destination folder if it doesn't exist.
-      let parentDir = finalPath.deletingLastPathComponent()
-      if !fileManager.directoryExists(at: parentDir) {
-        try fileManager.createDirectory(at: parentDir, withIntermediateDirectories: true)
-      }
-
-      try fileManager.copyItem(at: location, to: finalPath)
-    }
-  }
-
-  private func removeHeaderPathPrefix(from url: URL) -> String {
-    let fullPath = url.standardizedFileURL.path
-    guard let foundRange = fullPath.range(of: "Pods/Headers/") else {
-      fatalError("Could not copy headers for framework: full path do not contain `Pods/Headers`:" +
-        fullPath)
-    }
-
-    // Replace everything from the start of the string until the end of the `Pods/Headers/`.
-    let toRemove = fullPath.startIndex ..< foundRange.upperBound
-    return fullPath.replacingCharacters(in: toRemove, with: "")
   }
 }

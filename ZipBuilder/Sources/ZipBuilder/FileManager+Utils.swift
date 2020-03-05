@@ -106,7 +106,8 @@ extension FileManager {
     if #available(OSX 10.12, *) {
       let formatter = ISO8601DateFormatter()
       formatter.formatOptions.insert(.withInternetDateTime)
-      return formatter.string(from: Date())
+      // Replace ":" with "-" so that bash file completion still works.
+      return formatter.string(from: Date()).replacingOccurrences(of: ":", with: "-")
     } else {
       return UUID().uuidString
     }

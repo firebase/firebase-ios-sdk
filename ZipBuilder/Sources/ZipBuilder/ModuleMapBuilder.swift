@@ -86,7 +86,8 @@ struct ModuleMapBuilder {
     let deps = CocoaPodUtils.transitiveVersionedPodDependencies(for: podName, in: allPods)
     _ = CocoaPodUtils.installPods(allSubspecList(framework: framework) + deps,
                                   inDir: projectDir,
-                                  customSpecRepos: customSpecRepos)
+                                  customSpecRepos: customSpecRepos,
+                                  forceStaticLibs: true)
     let xcconfigFile = projectDir.appendingPathComponents(["Pods", "Target Support Files",
                                                            "Pods-FrameworkMaker",
                                                            "Pods-FrameworkMaker.release.xcconfig"])
@@ -184,7 +185,7 @@ struct ModuleMapBuilder {
     // The base of the module map. The empty line at the end is intentional, do not remove it.
     var content = """
     framework module \(name) {
-    umbrella header "\(name).h"
+    umbrella header "INSERT_UMBRELLA_HEADER_HERE"
     export *
     module * { export * }
 
