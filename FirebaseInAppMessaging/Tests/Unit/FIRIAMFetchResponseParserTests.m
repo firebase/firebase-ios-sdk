@@ -72,7 +72,7 @@
   XCTAssertEqualWithAccuracy([fetchWaitTime doubleValue],
                              nextFetchEpochTimeInResponse / 1000 - currentMoment, 0.1);
 
-  XCTAssertEqual(5, [results count]);
+  XCTAssertEqual(6, [results count]);
   XCTAssertEqual(0, discardCount);
 
   FIRIAMMessageDefinition *first = results[0];
@@ -92,12 +92,16 @@
   XCTAssertEqualObjects(first.renderData.contentData.actionURL.absoluteString,
                         @"https://www.google.com");
   XCTAssertEqual(FIRIAMRenderTriggerOnAppForeground, first.renderTriggers[0].triggerType);
+  XCTAssertEqual(first.appData.count, 2);
+  XCTAssertEqualObjects(first.appData[@"a"], @"b");
+  XCTAssertEqualObjects(first.appData[@"c"], @"d");
 
   FIRIAMMessageDefinition *second = results[1];
   XCTAssertEqualObjects(@"9350598726327992320", second.renderData.messageID);
   XCTAssertEqualObjects(@"Inception1", second.renderData.name);
   XCTAssertEqualObjects(@"Test 2", second.renderData.contentData.titleText);
   XCTAssertNil(second.renderData.contentData.bodyText);
+  XCTAssertNil(second.appData);
   XCTAssertEqual(FIRIAMRenderAsModalView, second.renderData.renderingEffectSettings.viewMode);
   XCTAssertEqual(2, second.renderTriggers.count);
 
@@ -131,6 +135,16 @@
                         fifth.renderData.contentData.secondaryActionURL.absoluteString);
   XCTAssertEqualObjects(@"Win Super Bowl LV",
                         fifth.renderData.contentData.secondaryActionButtonText);
+
+  FIRIAMMessageDefinition *sixth = results[5];
+  XCTAssertEqualObjects(@"687787988989", sixth.renderData.messageID);
+  XCTAssertEqualObjects(@"Super Bowl LV", sixth.renderData.name);
+  XCTAssertEqualObjects(@"Eagles are going to win", sixth.renderData.contentData.titleText);
+  XCTAssertNil(sixth.renderData.contentData.bodyText);
+  XCTAssertNil(sixth.appData);
+  XCTAssertNotNil(sixth.experimentPayload);
+  XCTAssertEqual(FIRIAMRenderAsModalView, sixth.renderData.renderingEffectSettings.viewMode);
+  XCTAssertEqual(1, sixth.renderTriggers.count);
 }
 
 - (void)testParsingTestMessage {

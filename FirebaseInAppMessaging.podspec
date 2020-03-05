@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseInAppMessaging'
-  s.version          = '0.17.0'
+  s.version          = '0.18.0'
   s.summary          = 'Firebase In-App Messaging for iOS'
 
   s.description      = <<-DESC
@@ -35,6 +35,7 @@ See more product details at https://firebase.google.com/products/in-app-messagin
   }
 
   s.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' =>
+			'GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1 ' +
       '$(inherited) ' +
       'FIRInAppMessaging_LIB_VERSION=' + String(s.version) + ' ' +
       'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1'
@@ -44,6 +45,7 @@ See more product details at https://firebase.google.com/products/in-app-messagin
   s.ios.dependency 'FirebaseAnalyticsInterop', '~> 1.3'
   s.dependency 'FirebaseInstanceID', '~> 4.0'
   s.dependency 'GoogleDataTransportCCTSupport', '~> 1.0'
+  s.dependency 'FirebaseABTesting', '~> 3.2'
 	
   s.test_spec 'unit' do |unit_tests|
       unit_tests.source_files = 'FirebaseInAppMessaging/Tests/Unit/*.[mh]'

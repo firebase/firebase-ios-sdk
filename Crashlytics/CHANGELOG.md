@@ -1,4 +1,8 @@
 
+# v4.0.0-beta.5
+
+- [changed] Changed two endpoints in the Firebase Crashlytics SDK with no expected end-user impact (#4953, #4988).
+
 # v4.0.0-beta.4
 
 - [fixed] Fixed symbol collisions with the legacy Fabric Crashlytics SDK and added a warning not to include both (#4753, #4755)

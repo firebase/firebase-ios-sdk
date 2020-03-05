@@ -290,6 +290,15 @@ NSString *const BuildInstanceID = @"build_instance_id";
   return YES;
 }
 
+- (BOOL)shouldUseNewReportEndpoint {
+  NSNumber *value = [self appSettings][@"report_upload_variant"];
+
+  // 0 - Unknown
+  // 1 - Legacy
+  // 2 - New
+  return value.intValue == 2;
+}
+
 #pragma mark - Optional Limit Overrides
 
 - (uint32_t)errorLogBufferSize {

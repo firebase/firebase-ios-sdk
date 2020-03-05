@@ -20,7 +20,10 @@
 
 @class FIRIAMDisplayTriggerDefinition;
 
+#import <FirebaseABTesting/ExperimentPayload.pbobjc.h>
+
 NS_ASSUME_NONNULL_BEGIN
+
 @interface FIRIAMMessageDefinition : NSObject
 @property(nonatomic, nonnull, readonly) FIRIAMMessageRenderData *renderData;
 
@@ -35,6 +38,11 @@ NS_ASSUME_NONNULL_BEGIN
 /// A flag for client-side testing messages
 @property(nonatomic, readonly) BOOL isTestMessage;
 
+/// Additional key-value pairs that can be optionally sent along with the FIAM
+@property(nonatomic, nullable, readonly) NSDictionary *appData;
+
+@property(nonatomic, nullable, readonly) ABTExperimentPayload *experimentPayload;
+
 - (instancetype)init NS_UNAVAILABLE;
 
 /**
@@ -43,12 +51,21 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithRenderData:(FIRIAMMessageRenderData *)renderData
                          startTime:(NSTimeInterval)startTime
                            endTime:(NSTimeInterval)endTime
+                 triggerDefinition:(NSArray<FIRIAMDisplayTriggerDefinition *> *)renderTriggers
+                           appData:(nullable NSDictionary *)appData
+                 experimentPayload:(nullable ABTExperimentPayload *)experimentPayload
+                     isTestMessage:(BOOL)isTestMessage NS_DESIGNATED_INITIALIZER;
+
+- (instancetype)initWithRenderData:(FIRIAMMessageRenderData *)renderData
+                         startTime:(NSTimeInterval)startTime
+                           endTime:(NSTimeInterval)endTime
                  triggerDefinition:(NSArray<FIRIAMDisplayTriggerDefinition *> *)renderTriggers;
 
 /**
  * Create a test message definition.
  */
-- (instancetype)initTestMessageWithRenderData:(FIRIAMMessageRenderData *)renderData;
+- (instancetype)initTestMessageWithRenderData:(FIRIAMMessageRenderData *)renderData
+                            experimentPayload:(nullable ABTExperimentPayload *)experimentPayload;
 
 - (BOOL)messageHasExpired;
 - (BOOL)messageHasStarted;

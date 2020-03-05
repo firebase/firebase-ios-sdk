@@ -9,9 +9,14 @@ target 'SymbolCollisionTest' do
 
   # Firebase Pods
     pod 'Firebase', :path => '../'
+    pod 'FirebaseABTesting', :path => '../'
     pod 'FirebaseAnalytics'
+    pod 'FirebaseAnalyticsInterop', :path => '../'
     pod 'FirebaseAuth', :path => '../'
+    pod 'FirebaseAuthInterop', :path => '../'
     pod 'FirebaseCore', :path => '../'
+    pod 'FirebaseCoreDiagnostics', :path => '../'
+    pod 'FirebaseCoreDiagnosticsInterop', :path => '../'
     pod 'FirebaseCrashlytics', :path => '../'
     pod 'FirebaseDatabase', :path => '../'
     pod 'FirebaseDynamicLinks', :path => '../'

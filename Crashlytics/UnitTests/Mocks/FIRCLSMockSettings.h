@@ -18,5 +18,6 @@
 
 @property(nonatomic, copy) NSString* orgID;
 @property(nonatomic, copy) NSString* fetchedBundleID;
+@property(nonatomic) BOOL shouldUseNewReportEndpoint;
 
 @end

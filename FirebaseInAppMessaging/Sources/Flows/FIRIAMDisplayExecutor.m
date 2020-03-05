@@ -26,6 +26,8 @@
 #import "FIRInAppMessaging.h"
 #import "FIRInAppMessagingRenderingPrivate.h"
 
+#import <FirebaseABTesting/FIRExperimentController.h>
+
 @implementation FIRIAMDisplaySetting
 @end
 
@@ -207,6 +209,13 @@
                   @"impressionDetected called but "
                    "there is no current message ID.");
     return;
+  }
+
+  // If this is an experimental FIAM, activate the experiment.
+  if (inAppMessage.campaignInfo.experimentPayload) {
+    [[FIRExperimentController sharedInstance]
+        activateExperiment:inAppMessage.campaignInfo.experimentPayload
+          forServiceOrigin:@"fiam"];
   }
 
   if (!_currentMsgBeingDisplayed.isTestMessage) {
@@ -438,6 +447,7 @@
   FIRInAppMessagingCardDisplay *cardMessage = [[FIRInAppMessagingCardDisplay alloc]
         initWithMessageID:renderData.messageID
              campaignName:renderData.name
+        experimentPayload:definition.experimentPayload
       renderAsTestMessage:definition.isTestMessage
               triggerType:triggerType
                 titleText:title
@@ -445,7 +455,8 @@
         portraitImageData:portraitImageData
           backgroundColor:renderData.renderingEffectSettings.displayBGColor
       primaryActionButton:primaryActionButton
-         primaryActionURL:definition.renderData.contentData.actionURL];
+         primaryActionURL:definition.renderData.contentData.actionURL
+                  appData:definition.appData];
 
   cardMessage.body = body;
   cardMessage.landscapeImageData = landscapeImageData;
@@ -467,6 +478,7 @@
   FIRInAppMessagingBannerDisplay *bannerMessage = [[FIRInAppMessagingBannerDisplay alloc]
         initWithMessageID:definition.renderData.messageID
              campaignName:definition.renderData.name
+        experimentPayload:definition.experimentPayload
       renderAsTestMessage:definition.isTestMessage
               triggerType:triggerType
                 titleText:title
@@ -474,7 +486,8 @@
                 textColor:definition.renderData.renderingEffectSettings.textColor
           backgroundColor:definition.renderData.renderingEffectSettings.displayBGColor
                 imageData:imageData
-                actionURL:definition.renderData.contentData.actionURL];
+                actionURL:definition.renderData.contentData.actionURL
+                  appData:definition.appData];
 #pragma clang diagnostic pop
 
   return bannerMessage;
@@ -489,10 +502,12 @@
   FIRInAppMessagingImageOnlyDisplay *imageOnlyMessage = [[FIRInAppMessagingImageOnlyDisplay alloc]
         initWithMessageID:definition.renderData.messageID
              campaignName:definition.renderData.name
+        experimentPayload:definition.experimentPayload
       renderAsTestMessage:definition.isTestMessage
               triggerType:triggerType
                 imageData:imageData
-                actionURL:definition.renderData.contentData.actionURL];
+                actionURL:definition.renderData.contentData.actionURL
+                  appData:definition.appData];
 #pragma clang diagnostic pop
 
   return imageOnlyMessage;
@@ -525,6 +540,7 @@
   FIRInAppMessagingModalDisplay *modalViewMessage = [[FIRInAppMessagingModalDisplay alloc]
         initWithMessageID:definition.renderData.messageID
              campaignName:definition.renderData.name
+        experimentPayload:definition.experimentPayload
       renderAsTestMessage:definition.isTestMessage
               triggerType:triggerType
                 titleText:title
@@ -533,7 +549,8 @@
           backgroundColor:renderData.renderingEffectSettings.displayBGColor
                 imageData:imageData
              actionButton:actionButton
-                actionURL:definition.renderData.contentData.actionURL];
+                actionURL:definition.renderData.contentData.actionURL
+                  appData:definition.appData];
 #pragma clang diagnostic pop
 
   return modalViewMessage;

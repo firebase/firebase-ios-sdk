@@ -180,34 +180,62 @@ NSArray *ABTExperimentsToClearFromPayloads(
                                     events:(FIRLifecycleEvents *)events
                                     policy:(ABTExperimentPayload_ExperimentOverflowPolicy)policy
                              lastStartTime:(NSTimeInterval)lastStartTime
-                                  payloads:(NSArray<NSData *> *)payloads {
+                                  payloads:(NSArray<NSData *> *)payloads
+                         completionHandler:
+                             (nullable void (^)(NSError *_Nullable error))completionHandler {
   FIRExperimentController *__weak weakSelf = self;
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
     FIRExperimentController *strongSelf = weakSelf;
-    [strongSelf updateExperimentsInBackgroundQueueWithServiceOrigin:origin
-                                                             events:events
-                                                             policy:policy
-                                                      lastStartTime:lastStartTime
-                                                           payloads:payloads];
+    [strongSelf updateExperimentConditionalUserPropertiesWithServiceOrigin:origin
+                                                                    events:events
+                                                                    policy:policy
+                                                             lastStartTime:lastStartTime
+                                                                  payloads:payloads
+                                                         completionHandler:completionHandler];
   });
 }
 
+- (void)updateExperimentsWithServiceOrigin:(NSString *)origin
+                                    events:(FIRLifecycleEvents *)events
+                                    policy:(ABTExperimentPayload_ExperimentOverflowPolicy)policy
+                             lastStartTime:(NSTimeInterval)lastStartTime
+                                  payloads:(NSArray<NSData *> *)payloads {
+  [self updateExperimentsWithServiceOrigin:origin
+                                    events:events
+                                    policy:policy
+                             lastStartTime:lastStartTime
+                                  payloads:payloads
+                         completionHandler:nil];
+}
+
 - (void)
-    updateExperimentsInBackgroundQueueWithServiceOrigin:(NSString *)origin
-                                                 events:(FIRLifecycleEvents *)events
-                                                 policy:
-                                                     (ABTExperimentPayload_ExperimentOverflowPolicy)
-                                                         policy
-                                          lastStartTime:(NSTimeInterval)lastStartTime
-                                               payloads:(NSArray<NSData *> *)payloads {
+    updateExperimentConditionalUserPropertiesWithServiceOrigin:(NSString *)origin
+                                                        events:(FIRLifecycleEvents *)events
+                                                        policy:
+                                                            (ABTExperimentPayload_ExperimentOverflowPolicy)
+                                                                policy
+                                                 lastStartTime:(NSTimeInterval)lastStartTime
+                                                      payloads:(NSArray<NSData *> *)payloads
+                                             completionHandler:
+                                                 (nullable void (^)(NSError *_Nullable error))
+                                                     completionHandler {
   ABTConditionalUserPropertyController *controller =
       [ABTConditionalUserPropertyController sharedInstanceWithAnalytics:_analytics];
 
   // Get the list of expriments from Firebase Analytics.
   NSArray *experiments = [controller experimentsWithOrigin:origin];
   if (!experiments) {
-    FIRLogInfo(kFIRLoggerABTesting, @"I-ABT000003",
-               @"Failed to get conditional user properties from Firebase Analytics.");
+    NSString *errorDescription =
+        @"Failed to get conditional user properties from Firebase Analytics.";
+    FIRLogInfo(kFIRLoggerABTesting, @"I-ABT000003", @"%@", errorDescription);
+
+    if (completionHandler) {
+      completionHandler([NSError
+          errorWithDomain:kABTErrorDomain
+                     code:kABTInternalErrorFailedToFetchConditionalUserProperties
+                 userInfo:@{NSLocalizedDescriptionKey : errorDescription}]);
+    }
+
     return;
   }
   NSArray<ABTExperimentPayload *> *experimentsToSet =
@@ -242,6 +270,10 @@ NSArray *ABTExperimentsToClearFromPayloads(
                  (long)lastStartTime * ABT_MSEC_PER_SEC);
     }
   }
+
+  if (completionHandler) {
+    completionHandler(nil);
+  }
 }
 
 - (NSTimeInterval)latestExperimentStartTimestampBetweenTimestamp:(NSTimeInterval)timestamp
@@ -259,4 +291,51 @@ NSArray *ABTExperimentsToClearFromPayloads(
   }
   return timestamp;
 }
+
+- (void)validateRunningExperimentsForServiceOrigin:(NSString *)origin
+                         runningExperimentPayloads:(NSArray<ABTExperimentPayload *> *)payloads {
+  ABTConditionalUserPropertyController *controller =
+      [ABTConditionalUserPropertyController sharedInstanceWithAnalytics:_analytics];
+
+  FIRLifecycleEvents *lifecycleEvents = [[FIRLifecycleEvents alloc] init];
+
+  // Get the list of experiments from Firebase Analytics.
+  NSArray<NSDictionary<NSString *, NSString *> *> *activeExperiments =
+      [controller experimentsWithOrigin:origin];
+
+  NSMutableSet *runningExperimentIDs = [NSMutableSet setWithCapacity:payloads.count];
+  for (ABTExperimentPayload *payload in payloads) {
+    [runningExperimentIDs addObject:payload.experimentId];
+  }
+
+  for (NSDictionary<NSString *, NSString *> *activeExperimentDictionary in activeExperiments) {
+    NSString *experimentID = activeExperimentDictionary[@"name"];
+    if (![runningExperimentIDs containsObject:experimentID]) {
+      NSString *variantID = activeExperimentDictionary[@"value"];
+
+      [controller clearExperiment:experimentID
+                        variantID:variantID
+                       withOrigin:origin
+                          payload:nil
+                           events:lifecycleEvents];
+    }
+  }
+}
+
+- (void)activateExperiment:(ABTExperimentPayload *)experimentPayload
+          forServiceOrigin:(NSString *)origin {
+  ABTConditionalUserPropertyController *controller =
+      [ABTConditionalUserPropertyController sharedInstanceWithAnalytics:_analytics];
+
+  FIRLifecycleEvents *lifecycleEvents = [[FIRLifecycleEvents alloc] init];
+
+  // Ensure that trigger event is nil, which will immediately set the experiment to active.
+  experimentPayload.triggerEvent = nil;
+
+  [controller setExperimentWithOrigin:origin
+                              payload:experimentPayload
+                               events:lifecycleEvents
+                               policy:experimentPayload.overflowPolicy];
+}
+
 @end

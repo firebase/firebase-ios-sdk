@@ -18,6 +18,7 @@
 
 #import <GoogleDataTransport/GDTCORAssert.h>
 #import <GoogleDataTransport/GDTCORConsoleLogger.h>
+#import <GoogleDataTransport/GDTCORReachability.h>
 
 #import "GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
 
@@ -48,6 +49,74 @@ BOOL GDTCORReachabilityFlagsContainWWAN(SCNetworkReachabilityFlags flags) {
 #endif  // TARGET_OS_IOS
 }
 #endif  // !TARGET_OS_WATCH
+
+GDTCORNetworkType GDTCORNetworkTypeMessage() {
+#if !TARGET_OS_WATCH
+  SCNetworkReachabilityFlags reachabilityFlags = [GDTCORReachability currentFlags];
+  if ((reachabilityFlags & kSCNetworkReachabilityFlagsReachable) ==
+      kSCNetworkReachabilityFlagsReachable) {
+    if (GDTCORReachabilityFlagsContainWWAN(reachabilityFlags)) {
+      return GDTCORNetworkTypeMobile;
+    } else {
+      return GDTCORNetworkTypeWIFI;
+    }
+  }
+#endif
+  return GDTCORNetworkTypeUNKNOWN;
+}
+
+GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
+#if TARGET_OS_IOS
+  static NSDictionary<NSString *, NSNumber *> *CTRadioAccessTechnologyToNetworkSubTypeMessage;
+  static CTTelephonyNetworkInfo *networkInfo;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    CTRadioAccessTechnologyToNetworkSubTypeMessage = @{
+      CTRadioAccessTechnologyGPRS : @(GDTCORNetworkMobileSubtypeGPRS),
+      CTRadioAccessTechnologyEdge : @(GDTCORNetworkMobileSubtypeEdge),
+      CTRadioAccessTechnologyWCDMA : @(GDTCORNetworkMobileSubtypeWCDMA),
+      CTRadioAccessTechnologyHSDPA : @(GDTCORNetworkMobileSubtypeHSDPA),
+      CTRadioAccessTechnologyHSUPA : @(GDTCORNetworkMobileSubtypeHSUPA),
+      CTRadioAccessTechnologyCDMA1x : @(GDTCORNetworkMobileSubtypeCDMA1x),
+      CTRadioAccessTechnologyCDMAEVDORev0 : @(GDTCORNetworkMobileSubtypeCDMAEVDORev0),
+      CTRadioAccessTechnologyCDMAEVDORevA : @(GDTCORNetworkMobileSubtypeCDMAEVDORevA),
+      CTRadioAccessTechnologyCDMAEVDORevB : @(GDTCORNetworkMobileSubtypeCDMAEVDORevB),
+      CTRadioAccessTechnologyeHRPD : @(GDTCORNetworkMobileSubtypeHRPD),
+      CTRadioAccessTechnologyLTE : @(GDTCORNetworkMobileSubtypeLTE),
+    };
+    networkInfo = [[CTTelephonyNetworkInfo alloc] init];
+  });
+  NSString *networkCurrentRadioAccessTechnology;
+#if TARGET_OS_MACCATALYST
+  NSDictionary<NSString *, NSString *> *networkCurrentRadioAccessTechnologyDict =
+      networkInfo.serviceCurrentRadioAccessTechnology;
+  if (networkCurrentRadioAccessTechnologyDict.count) {
+    networkCurrentRadioAccessTechnology = networkCurrentRadioAccessTechnologyDict.allValues[0];
+  }
+#else
+  if (@available(iOS 12.0, *)) {
+    NSDictionary<NSString *, NSString *> *networkCurrentRadioAccessTechnologyDict =
+        networkInfo.serviceCurrentRadioAccessTechnology;
+    if (networkCurrentRadioAccessTechnologyDict.count) {
+      // In iOS 12, multiple radio technologies can be captured. We prefer not particular radio
+      // tech to another, so we'll just return the first value in the dictionary.
+      networkCurrentRadioAccessTechnology = networkCurrentRadioAccessTechnologyDict.allValues[0];
+    }
+  } else {
+    networkCurrentRadioAccessTechnology = networkInfo.currentRadioAccessTechnology;
+  }
+#endif
+  if (networkCurrentRadioAccessTechnology) {
+    NSNumber *networkMobileSubtype =
+        CTRadioAccessTechnologyToNetworkSubTypeMessage[networkCurrentRadioAccessTechnology];
+    return networkMobileSubtype.intValue;
+  } else {
+    return GDTCORNetworkMobileSubtypeUNKNOWN;
+  }
+#else
+  return GDTCORNetworkMobileSubtypeUNKNOWN;
+#endif
+}
 
 @interface GDTCORApplication ()
 /**

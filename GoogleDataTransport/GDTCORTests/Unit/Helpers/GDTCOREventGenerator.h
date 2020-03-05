@@ -15,7 +15,7 @@
  */
 #import <Foundation/Foundation.h>
 
-@class GDTCORStoredEvent;
+@class GDTCOREvent;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @return A set of 3 generated stored events.
  */
-+ (NSMutableSet<GDTCORStoredEvent *> *)generate3StoredEvents;
++ (NSMutableSet<GDTCOREvent *> *)generate3Events;
 
 @end
 

@@ -313,7 +313,8 @@ CGFloat FETCH_MIN_INTERVALS = 1;
   OCMStub([self.mockSDKModeManager currentMode]).andReturn(FIRIAMSDKModeNewlyInstalled);
 
   FIRIAMMessageDefinition *testMessage =
-      [[FIRIAMMessageDefinition alloc] initTestMessageWithRenderData:self.m2.renderData];
+      [[FIRIAMMessageDefinition alloc] initTestMessageWithRenderData:self.m2.renderData
+                                                   experimentPayload:nil];
 
   OCMStub([self.mockMessageFetcher
       fetchMessagesWithImpressionList:[OCMArg any]
@@ -335,7 +336,8 @@ CGFloat FETCH_MIN_INTERVALS = 1;
   OCMStub([self.mockSDKModeManager currentMode]).andReturn(FIRIAMSDKModeTesting);
 
   FIRIAMMessageDefinition *testMessage =
-      [[FIRIAMMessageDefinition alloc] initTestMessageWithRenderData:self.m2.renderData];
+      [[FIRIAMMessageDefinition alloc] initTestMessageWithRenderData:self.m2.renderData
+                                                   experimentPayload:nil];
 
   OCMStub([self.mockMessageFetcher
       fetchMessagesWithImpressionList:[OCMArg any]

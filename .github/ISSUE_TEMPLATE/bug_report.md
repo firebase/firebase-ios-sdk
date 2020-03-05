@@ -1,6 +1,6 @@
 ---
-name: Bug report
-about: Issue template for a bug report.
+name: 🐞 Bug report
+about: Found a bug in the iOS SDK? Is the Firebase SDK crashing your app? File it here.
 ---
 <!-- DO NOT DELETE
 validate_template=true

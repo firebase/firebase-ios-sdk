@@ -1,3 +1,6 @@
+# 3.6.0
+- [added] Added watchOS support for Firebase Storage. (#4955)
+
 # 3.5.0
 - [changed] Reorganized directory structure (#4573).
 

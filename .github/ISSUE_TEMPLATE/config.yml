@@ -1,5 +1,5 @@
 blank_issues_enabled: false
 contact_links:
-  - name: Firebase Support
+  - name: 🚒 Firebase Support
     url: https://firebase.google.com/support
-    about: Please file non-SDK issues at the official Firebase Support channel.
+    about: Please file non-SDK issues like Firebase service downtime issues and account- or project-specific issues at the official Firebase Support channel.

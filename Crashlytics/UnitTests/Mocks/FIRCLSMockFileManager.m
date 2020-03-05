@@ -31,6 +31,8 @@
 }
 
 - (BOOL)removeItemAtPath:(NSString *)path {
+  self.removedItemAtPath_path = path;
+
   [super removeItemAtPath:path];
 
   self.removeCount += 1;
@@ -42,6 +44,25 @@
   }
 
   return YES;
+}
+
+- (NSNumber *)fileSizeAtPath:(NSString *)path {
+  if (self.fileSizeAtPathResult != nil) {
+    return self.fileSizeAtPathResult;
+  }
+
+  return [super fileSizeAtPath:path];
+}
+
+- (BOOL)moveItemAtPath:(NSString *)path toDirectory:(NSString *)destDir {
+  self.moveItemAtPath_path = path;
+  self.moveItemAtPath_destDir = destDir;
+
+  if (self.moveItemAtPathResult != nil) {
+    return self.moveItemAtPathResult.intValue > 0;
+  }
+
+  return [super moveItemAtPath:path toDirectory:destDir];
 }
 
 @end

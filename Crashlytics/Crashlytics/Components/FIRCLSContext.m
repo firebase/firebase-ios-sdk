@@ -92,9 +92,9 @@ bool FIRCLSContextInitialize(const FIRCLSContextInitData* initData) {
     _firclsContext.readonly->logging.logStorage.restrictBySize = true;
     _firclsContext.readonly->logging.logStorage.entryCount = NULL;
     _firclsContext.readonly->logging.logStorage.aPath =
-        FIRCLSContextAppendToRoot(rootPath, @"log_a.clsrecord");
+        FIRCLSContextAppendToRoot(rootPath, FIRCLSReportLogAFile);
     _firclsContext.readonly->logging.logStorage.bPath =
-        FIRCLSContextAppendToRoot(rootPath, @"log_b.clsrecord");
+        FIRCLSContextAppendToRoot(rootPath, FIRCLSReportLogBFile);
     _firclsContext.readonly->logging.customExceptionStorage.aPath =
         FIRCLSContextAppendToRoot(rootPath, FIRCLSReportCustomExceptionAFile);
     _firclsContext.readonly->logging.customExceptionStorage.bPath =

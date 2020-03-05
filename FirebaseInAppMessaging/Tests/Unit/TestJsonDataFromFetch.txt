@@ -43,7 +43,11 @@
             "name": "jackpot"
           }
         }
-      ]
+      ],
+      "dataBundle": {
+        "a":"b",
+        "c":"d"
+      }
     },
     {
       "vanillaPayload": {
@@ -208,6 +212,36 @@
       },
       "priority": {
         "value": 1
+      },
+      "triggeringConditions": [
+        {
+          "fiamTrigger": "ON_FOREGROUND"
+        }
+      ]
+    },
+    {
+      "experimentalPayload": {
+        "campaignId": "687787988989",
+        "campaignStartTimeMillis": "1519934650000",
+        "campaignEndTimeMillis": "9223372036854775807",
+        "campaignName": "Super Bowl LV",
+        "experimentPayload" : {
+          "experimentId": "_exp_1",
+          "experimentStartTimeMillis": "1582143484729",
+          "overflowPolicy": "DISCARD_OLDEST",
+          "timeToLiveMillis": "15552000000",
+          "triggerTimeoutMillis": "15552000000",
+          "variantId": "1"
+        }
+      },
+      "content": {
+        "modal": {
+          "title": {
+            "text": "Eagles are going to win",
+            "hexColor": "#004953"
+          },
+          "backgroundHexColor": "#ffffff"
+        }
       },
       "triggeringConditions": [
         {

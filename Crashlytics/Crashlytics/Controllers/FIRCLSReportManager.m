@@ -12,6 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//
+// The report manager has the ability to send to two different endpoints.
+//
+// The old legacy flow for a report goes through the following states/folders:
+// 1. active - .clsrecords optimized for crash time persistence
+// 2. processing - .clsrecords with attempted symbolication
+// 3. prepared-legacy - .multipartmime of compressed .clsrecords
+//
+// The new flow for a report goes through the following states/folders:
+// 1. active - .clsrecords optimized for crash time persistence
+// 2. processing - .clsrecords with attempted symbolication
+// 3. prepared - .clsrecords moved from processing with no changes
+//
+// The code was designed so the report processing workflows are not dramatically different from one
+// another. The design will help avoid having a lot of conditional code blocks throughout the
+// codebase.
+//
+
 #include <stdatomic.h>
 
 #if __has_include(<FBLPromises/FBLPromises.h>)
@@ -156,6 +174,8 @@ typedef NSNumber FIRCLSWrappedBool;
 // Runs the operations that fetch settings and call onboarding endpoints
 @property(nonatomic, strong) FIRCLSSettingsOnboardingManager *settingsAndOnboardingManager;
 
+@property(nonatomic, strong) GDTCORTransport *googleTransport;
+
 @end
 
 @implementation FIRCLSReportManager
@@ -164,10 +184,11 @@ typedef NSNumber FIRCLSWrappedBool;
 static void (^reportSentCallback)(void);
 
 - (instancetype)initWithFileManager:(FIRCLSFileManager *)fileManager
-                         instanceID:(FIRInstanceID *)instanceID
+                      installations:(FIRInstallations *)installations
                           analytics:(id<FIRAnalyticsInterop>)analytics
                         googleAppID:(NSString *)googleAppID
-                        dataArbiter:(FIRCLSDataCollectionArbiter *)dataArbiter {
+                        dataArbiter:(FIRCLSDataCollectionArbiter *)dataArbiter
+                    googleTransport:(GDTCORTransport *)googleTransport {
   self = [super init];
   if (!self) {
     return nil;
@@ -177,6 +198,8 @@ static void (^reportSentCallback)(void);
   _analytics = analytics;
   _googleAppID = [googleAppID copy];
   _dataArbiter = dataArbiter;
+
+  _googleTransport = googleTransport;
 
   NSString *sdkBundleID = FIRCLSApplicationGetSDKBundleID();
 
@@ -196,7 +219,7 @@ static void (^reportSentCallback)(void);
   _checkForUnsentReportsCalled = NO;
 
   _appIDModel = [[FIRCLSApplicationIdentifierModel alloc] init];
-  _installIDModel = [[FIRCLSInstallIdentifierModel alloc] initWithInstanceID:instanceID];
+  _installIDModel = [[FIRCLSInstallIdentifierModel alloc] initWithInstallations:installations];
   _executionIDModel = [[FIRCLSExecutionIdentifierModel alloc] init];
 
   _settings = [[FIRCLSSettings alloc] initWithFileManager:_fileManager appIDModel:_appIDModel];
@@ -220,8 +243,14 @@ static void (^reportSentCallback)(void);
  */
 - (int)unsentReportsCountWithPreexisting:(NSArray<NSString *> *)paths {
   int count = [self countSubmittableAndDeleteUnsubmittableReportPaths:paths];
+
   count += _fileManager.processingPathContents.count;
-  count += _fileManager.preparedPathContents.count;
+
+  if (self.settings.shouldUseNewReportEndpoint) {
+    count += _fileManager.preparedPathContents.count;
+  } else {
+    count += _fileManager.legacyPreparedPathContents.count;
+  }
   return count;
 }
 
@@ -649,7 +678,11 @@ static void (^reportSentCallback)(void);
 
 - (void)removeContentsInOtherReportingDirectories {
   [self removeExistingReportPaths:self.fileManager.processingPathContents];
-  [self removeExistingReportPaths:self.fileManager.preparedPathContents];
+  if (self.settings.shouldUseNewReportEndpoint) {
+    [self removeExistingReportPaths:self.fileManager.preparedPathContents];
+  } else {
+    [self removeExistingReportPaths:self.fileManager.legacyPreparedPathContents];
+  }
 }
 
 - (void)handleContentsInOtherReportingDirectoriesWithToken:(FIRCLSDataCollectionToken *)token {
@@ -673,7 +706,9 @@ static void (^reportSentCallback)(void);
 }
 
 - (void)handleExistingFilesInPreparedWithToken:(FIRCLSDataCollectionToken *)token {
-  NSArray *preparedPaths = _fileManager.preparedPathContents;
+  NSArray *preparedPaths = self.settings.shouldUseNewReportEndpoint
+                               ? _fileManager.preparedPathContents
+                               : _fileManager.legacyPreparedPathContents;
 
   // Give our network client a chance to reconnect here, if needed. This attempts to avoid
   // trying to re-submit a prepared file that is already in flight.

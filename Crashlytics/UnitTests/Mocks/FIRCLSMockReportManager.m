@@ -14,17 +14,15 @@
 
 #import "FIRCLSMockReportManager.h"
 
-#import "FIRCLSApplicationIdentifierModel.h"
 #import "FIRCLSContext.h"
 #import "FIRCLSMockNetworkClient.h"
 #import "FIRCLSMockReportUploader.h"
 
+#import "FIRInstallations.h"
+
 @interface FIRCLSMockReportManager () {
   FIRCLSMockReportUploader *_uploader;
 }
-
-// Made this a property so we can override this with mocked values
-@property(nonatomic, strong) FIRCLSApplicationIdentifierModel *appIDModel;
 
 @end
 
@@ -34,21 +32,20 @@
 @synthesize bundleIdentifier;
 
 - (instancetype)initWithFileManager:(FIRCLSFileManager *)fileManager
-                         instanceID:(FIRInstanceID *)instanceID
+                      installations:(FIRInstallations *)installations
                           analytics:(id<FIRAnalyticsInterop>)analytics
                         googleAppID:(nonnull NSString *)googleAppID
                         dataArbiter:(FIRCLSDataCollectionArbiter *)dataArbiter
-                         appIDModel:(FIRCLSApplicationIdentifierModel *)appIDModel {
+                    googleTransport:(GDTCORTransport *)googleTransport {
   self = [super initWithFileManager:fileManager
-                         instanceID:instanceID
+                      installations:installations
                           analytics:analytics
                         googleAppID:googleAppID
-                        dataArbiter:dataArbiter];
+                        dataArbiter:dataArbiter
+                    googleTransport:(GDTCORTransport *)googleTransport];
   if (!self) {
     return nil;
   }
-
-  _appIDModel = appIDModel;
 
   _uploader = [[FIRCLSMockReportUploader alloc] initWithQueue:self.operationQueue
                                                      delegate:self
