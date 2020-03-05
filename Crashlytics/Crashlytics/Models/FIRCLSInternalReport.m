@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// TODO: This class should be removed the uploading of reports via GoogleDataTransport is no longer
+// an experiment
+
 #import "FIRCLSInternalReport.h"
 
 #import "FIRCLSFile.h"
