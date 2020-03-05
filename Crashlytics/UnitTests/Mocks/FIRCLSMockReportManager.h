@@ -25,10 +25,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithFileManager:(FIRCLSFileManager *)fileManager
                       installations:(FIRInstallations *)installations
                           analytics:(nullable id<FIRAnalyticsInterop>)analytics
-                        googleAppID:(NSString *)googleAppID
+                        googleAppID:(nonnull NSString *)googleAppID
                         dataArbiter:(FIRCLSDataCollectionArbiter *)dataArbiter
-                         appIDModel:(FIRCLSApplicationIdentifierModel *)appIDModel
-    NS_DESIGNATED_INITIALIZER;
+                    googleTransport:(GDTCORTransport *)googleTransport NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)initWithFileManager:(FIRCLSFileManager *)fileManager
                       installations:(FIRInstallations *)instanceID
