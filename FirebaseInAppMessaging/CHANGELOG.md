@@ -1,3 +1,6 @@
+#2020-03-10 -- v0.19.0
+- [added] Added SDK support for A/B testing in-app messages.
+
 # 2020-01-28 -- v0.16.0
 - [changed] Consolidated backend and UI SDKs under `FirebaseInAppMessaging`. Developers should now use `pod Firebase/InAppMessaging` in their Podfile.
 - [changed] `FIRIAMDefaultDisplayImpl` is no longer public.
