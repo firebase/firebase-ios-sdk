@@ -178,6 +178,34 @@ static NSString *const kMissingPasswordReason = @"Missing Password";
  */
 static NSMutableDictionary *gKeychainServiceNameForAppName;
 
+/** @fn FIRAuthParseURL:NSString
+    @brief Parses an incoming URL into all available query items.
+    @param urlString The url to be parsed.
+    @return A dictionary of available query items in the target URL.
+ */
+static NSDictionary<NSString *, NSString *> *FIRAuthParseURL(NSString *urlString) {
+  NSString *linkURL = [NSURLComponents componentsWithString:urlString].query;
+  if (!linkURL) {
+    return @{};
+  }
+  NSArray<NSString *> *URLComponents = [linkURL componentsSeparatedByString:@"&"];
+  NSMutableDictionary<NSString *, NSString *> *queryItems =
+      [[NSMutableDictionary alloc] initWithCapacity:URLComponents.count];
+  for (NSString *component in URLComponents) {
+    NSRange equalRange = [component rangeOfString:@"="];
+    if (equalRange.location != NSNotFound) {
+      NSString *queryItemKey =
+          [[component substringToIndex:equalRange.location] stringByRemovingPercentEncoding];
+      NSString *queryItemValue =
+          [[component substringFromIndex:equalRange.location + 1] stringByRemovingPercentEncoding];
+      if (queryItemKey && queryItemValue) {
+        queryItems[queryItemKey] = queryItemValue;
+      }
+    }
+  }
+  return queryItems;
+}
+
 #pragma mark - FIRActionCodeInfo
 
 @interface FIRActionCodeInfo ()
@@ -260,6 +288,53 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     return FIRActionCodeOperationRevertSecondFactorAddition;
   }
   return FIRActionCodeOperationUnknown;
+}
+
+@end
+
+#pragma mark - FIRActionCodeURL
+
+@implementation FIRActionCodeURL
+
++ (nullable instancetype)actionCodeURLWithLink:(NSString *)link {
+  NSDictionary<NSString *, NSString *> *queryItems = FIRAuthParseURL(link);
+  if (!queryItems.count) {
+    NSURLComponents *urlComponents = [NSURLComponents componentsWithString:link];
+    queryItems = FIRAuthParseURL(urlComponents.query);
+  }
+  if (!queryItems.count) {
+    return nil;
+  }
+  NSString *APIKey = queryItems[@"apiKey"];
+  NSString *actionCode = queryItems[@"oobCode"];
+  NSString *continueURLString = queryItems[@"continueUrl"];
+  NSString *languageCode = queryItems[@"languageCode"];
+  NSString *mode = queryItems[@"mode"];
+  NSString *tenantID = queryItems[@"tenantID"];
+  return [[FIRActionCodeURL alloc] initWithAPIKey:APIKey
+                                       actionCode:actionCode
+                                continueURLString:continueURLString
+                                     languageCode:languageCode
+                                             mode:mode
+                                         tenantID:tenantID];
+}
+
+- (nullable instancetype)initWithAPIKey:(NSString *)APIKey
+                             actionCode:(NSString *)actionCode
+                      continueURLString:(NSString *)continueURLString
+                           languageCode:(NSString *)languageCode
+                                   mode:(NSString *)mode
+                               tenantID:(NSString *)tenantID {
+  
+  self = [super init];
+  if (self) {
+    _APIKey = APIKey;
+    _operation = [FIRActionCodeInfo actionCodeOperationForRequestType:mode];
+    _code = actionCode;
+    _continueURL = [NSURL URLWithString:continueURLString];
+    _languageCode = languageCode;
+  }
+  return self;
 }
 
 @end

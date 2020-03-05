@@ -255,6 +255,52 @@ DEPRECATED_MSG_ATTRIBUTE("Please directly use email or previousEmail properties 
 
 @end
 
+/** @class FIRActionCodeURL
+    @brief This class will allow developers to easily extract information about out of band links.
+ */
+NS_SWIFT_NAME(FIRActionCodeURL)
+@interface FIRActionCodeURL : NSObject
+
+/** @property APIKey
+    @brief Returns the API key from the link. nil, if not provided.
+ */
+@property(nonatomic, nullable, copy, readonly) NSString *APIKey;
+
+/** @property operation
+    @brief Returns the mode of oob action. The property will be of FIRActionCodeOperation type.
+        It will return FIRActionCodeOperationUnknown if no oob action is provided.
+ */
+@property(nonatomic, readonly) FIRActionCodeOperation operation;
+
+/** @property code
+    @brief Returns the email action code from the link. nil, if not provided.
+ */
+@property(nonatomic, nullable, copy, readonly) NSString *code;
+
+/** @property continueURL
+    @brief Returns the continue URL from the link. nil, if not provided.
+ */
+@property(nonatomic, nullable, copy, readonly) NSURL *continueURL;
+
+/** @property languageCode
+    @brief Returns the language code from the link. nil, if not provided.
+ */
+@property(nonatomic, nullable, copy, readonly) NSString *languageCode;
+
+/** @fn actionCodeURLWithLink:
+    @brief Construct an FIRActionCodeURL from an oob link.
+    @param link The oob link string used to construct the action code URL.
+    @return The FIRActionCodeURL object constructed based on the oob link provided.
+ */
++ (nullable instancetype)actionCodeURLWithLink:(NSString *)link;
+
+/** @fn init
+    @brief please use +[FIRActionCodeURL actionCodeURLWithLink:] instead.
+ */
+- (instancetype)init NS_UNAVAILABLE;
+
+@end
+
 /** @typedef FIRCheckActionCodeCallBack
     @brief The type of block invoked when performing a check action code operation.
 
