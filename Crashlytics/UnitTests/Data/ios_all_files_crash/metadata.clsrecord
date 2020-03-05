@@ -1,0 +1,4 @@
+{"identity":{"generator":"Crashlytics iOS SDK/4.0.0-beta.4","display_version":"4.0.0-beta.4","build_version":"4.0.0-beta.4","started_at":1581375414,"session_id":"af86acaaad2f41f8b660b3c17a41c6e8","install_id":"CB880F1A-3D91-4794-8C5C-50245CBDD5DE","beta_token":null,"absolute_log_timestamps":true}}
+{"host":{"model":"iOS Simulator (iPhone)","machine":"x86_64","cpu":"Intel(R) Core(TM) i9-9880H CPU @ 2.30GHz","os_build_version":"19C57","os_display_version":"13.3.0","platform":"ios","locale":"en_US"}}
+{"application":{"bundle_id":"com.crashlytics.release-test-4-0-0-beta-1","custom_bundle_id":null,"build_version":"3","display_version":"1.4","extension_id":null}}
+{"executable":{"architecture":"x86_64","uuid":"d5e7ada9003c32b1aaf11e8a3362c29f","base":4517593088,"size":1470464,"encrypted":false,"minimum_sdk_version":"0.0.0","built_sdk_version":"0.0.0"}}

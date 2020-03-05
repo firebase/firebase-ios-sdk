@@ -1,0 +1,343 @@
+WARN  [FIRCLSMachExceptionRegister:312] original 0x0 0x4e 0x0 0x0
+WARN  [FIRCLSMachExceptionRegister:312] original 0x6303 0x1000 0x80000003 0x7
+WARN  [FIRCLSMachExceptionReadMessage:203] Accepted mach exception message
+WARN  [FIRCLSMachExceptionDispatchMessage:212] Mach exception: 0x1, count: 2, code: 0x%llx 0x%llx
+WARN  [FIRCLSMachExceptionDispatchMessage:221] Unregistering handler
+WARN  [FIRCLSMachExceptionDispatchMessage:227] Restoring original signal handlers
+WARN  [FIRCLSMachExceptionDispatchMessage:233] Recording mach exception
+INFO  [FIRCLSProcessRecordAllThreads:486] recording thread 0 data
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x7fff5141100a at 0x7fff513f6000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 708)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSCompactUnwindComputeRegisters:43] Computing registers for encoding 40019d8
+INFO  [FIRCLSCompactUnwindDwarfFrame:384] Trying to read dwarf data with offset %lx
+WARN  [FIRCLSDwarfInstructionsEnumerate:597] Running instructions from 0x7fff5141fc51 to 0x7fff5141fc58
+WARN  [FIRCLSDwarfParseAndExecute_def_cfa:341] DW_CFA_def_cfa %llu, %lld
+WARN  [FIRCLSDwarfParseAndExecute_offset:490] DW_CFA_offset 16, %lld
+WARN  [FIRCLSDwarfInstructionsEnumerate:609] DW_CFA_nop
+WARN  [FIRCLSDwarfInstructionsEnumerate:609] DW_CFA_nop
+WARN  [FIRCLSDwarfInstructionsEnumerate:597] Running instructions from 0x7fff51421631 to 0x7fff51421638
+WARN  [FIRCLSDwarfInstructionsEnumerate:609] DW_CFA_nop
+WARN  [FIRCLSDwarfInstructionsEnumerate:609] DW_CFA_nop
+WARN  [FIRCLSDwarfInstructionsEnumerate:609] DW_CFA_nop
+WARN  [FIRCLSDwarfInstructionsEnumerate:609] DW_CFA_nop
+WARN  [FIRCLSDwarfInstructionsEnumerate:609] DW_CFA_nop
+WARN  [FIRCLSDwarfInstructionsEnumerate:609] DW_CFA_nop
+WARN  [FIRCLSDwarfInstructionsEnumerate:609] DW_CFA_nop
+WARN  [FIRCLSDwarfGetSavedRegister:817] Getting register 1
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x7fff23baa37e at 0x7fff23b34000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 11644)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSCompactUnwindComputeRegisters:43] Computing registers for encoding 1010001
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x7fff514110d5 at 0x7fff513f6000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 708)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSCompactUnwindComputeRegisters:43] Computing registers for encoding 10558d1
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x7fff47a6c4c7 at 0x7fff475db000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 59344)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSCompactUnwindComputeRegisters:43] Computing registers for encoding 10558d1
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x7fff47a6b2b6 at 0x7fff475db000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 59344)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSCompactUnwindComputeRegisters:43] Computing registers for encoding 10558d1
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x7fff480cebbe at 0x7fff475db000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 133072)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSCompactUnwindComputeRegisters:43] Computing registers for encoding 10558d1
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x7fff480d04c5 at 0x7fff475db000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 133072)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSCompactUnwindComputeRegisters:43] Computing registers for encoding 10558d1
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x7fff480ab53a at 0x7fff475db000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 133072)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSCompactUnwindComputeRegisters:43] Computing registers for encoding 10558d1
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x7fff4812c719 at 0x7fff475db000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 137168)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSCompactUnwindComputeRegisters:43] Computing registers for encoding 510558d1
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x7fff4812f1df at 0x7fff475db000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 137168)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSCompactUnwindComputeRegisters:43] Computing registers for encoding 510558d1
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x7fff23bd4470 at 0x7fff23b34000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 11644)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSCompactUnwindComputeRegisters:43] Computing registers for encoding 1000000
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x7fff23bd439b at 0x7fff23b34000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 11644)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSCompactUnwindComputeRegisters:43] Computing registers for encoding 1030161
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x7fff23bd3b73 at 0x7fff23b34000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 11644)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSCompactUnwindComputeRegisters:43] Computing registers for encoding 10558d1
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x7fff23bce87e at 0x7fff23b34000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 11644)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSCompactUnwindComputeRegisters:43] Computing registers for encoding 610558d1
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x7fff23bce065 at 0x7fff23b34000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 11644)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSCompactUnwindComputeRegisters:43] Computing registers for encoding 610558d1
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x7fff384c0baf at 0x7fff384bd000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 88)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSCompactUnwindComputeRegisters:43] Computing registers for encoding 1020021
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x7fff48092d4c at 0x7fff475db000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 133072)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSCompactUnwindComputeRegisters:43] Computing registers for encoding 10558d1
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x10d452d73 at 0x10d450000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 1164)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSCompactUnwindComputeRegisters:43] Computing registers for encoding 1000000
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x7fff5227ec24 at 0x7fff5227e000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 80)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+WARN  [FIRCLSCompactUnwindGetTargetAddress:91] Error: PC is invalid
+INFO  [FIRCLSCompactUnwindLookupSecondLevelCompressed:240] Unable to find PC in second level
+INFO  [FIRCLSCompactUnwindLookup:335] Second-level PC lookup failed
+INFO  [FIRCLSCompactUnwindLookupAndCompute:361] Unable to lookup compact unwind for pc 0x7fff5227ec24
+INFO  [FIRCLSProcessRecordAllThreads:486] recording thread 1 data
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x7fff523b6259 at 0x7fff523b5000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 96)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+INFO  [FIRCLSCompactUnwindLookupSecondLevelCompressed:285] Entry has has no unwind info
+INFO  [FIRCLSCompactUnwindLookup:335] Second-level PC lookup failed
+INFO  [FIRCLSCompactUnwindLookupAndCompute:361] Unable to lookup compact unwind for pc 0x7fff523b6259
+INFO  [FIRCLSUnwindWithFramePointer:128] Attempting stack scan
+DEBUG [FIRCLSUnwindFirstExecutableAddress:297] Checking address 0x70000f26de38 => 0x7fff523b65d0
+DEBUG [FIRCLSUnwindFirstExecutableAddress:306] Checking for executable 0x7fff523b65d0
+INFO  [FIRCLSUnwindWithFramePointer:130] Stack scan successful
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x7fff523b65cf at 0x7fff523b5000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 96)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSCompactUnwindComputeRegisters:43] Computing registers for encoding 10558d1
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x7fff23bd3cf4 at 0x7fff23b34000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 11644)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSCompactUnwindComputeRegisters:43] Computing registers for encoding 10558d1
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x7fff23bcea16 at 0x7fff23b34000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 11644)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSCompactUnwindComputeRegisters:43] Computing registers for encoding 610558d1
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x7fff23bce065 at 0x7fff23b34000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 11644)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSCompactUnwindComputeRegisters:43] Computing registers for encoding 610558d1
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x7fff2576b86e at 0x7fff256b8000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 13996)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSCompactUnwindComputeRegisters:43] Computing registers for encoding 10558d1
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x7fff2576bae1 at 0x7fff256b8000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 13996)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSCompactUnwindComputeRegisters:43] Computing registers for encoding 10558d1
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x7fff48135027 at 0x7fff475db000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 137168)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSCompactUnwindComputeRegisters:43] Computing registers for encoding 10558d1
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x7fff257817a6 at 0x7fff256b8000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 13996)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSCompactUnwindComputeRegisters:43] Computing registers for encoding 510558d1
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x7fff52466e64 at 0x7fff52461000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 84)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSCompactUnwindComputeRegisters:43] Computing registers for encoding 1010001
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x7fff5246283a at 0x7fff52461000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 84)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+INFO  [FIRCLSCompactUnwindLookupSecondLevelCompressed:285] Entry has has no unwind info
+INFO  [FIRCLSCompactUnwindLookup:335] Second-level PC lookup failed
+INFO  [FIRCLSCompactUnwindLookupAndCompute:361] Unable to lookup compact unwind for pc 0x7fff5246283a
+INFO  [FIRCLSProcessRecordAllThreads:486] recording thread 2 data
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x7fff523b792d at 0x7fff523b5000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 96)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+INFO  [FIRCLSCompactUnwindLookupSecondLevelCompressed:285] Entry has has no unwind info
+INFO  [FIRCLSCompactUnwindLookup:335] Second-level PC lookup failed
+INFO  [FIRCLSCompactUnwindLookupAndCompute:361] Unable to lookup compact unwind for pc 0x7fff523b792d
+INFO  [FIRCLSUnwindWithFramePointer:128] Attempting stack scan
+DEBUG [FIRCLSUnwindFirstExecutableAddress:297] Checking address 0x70000f2f1fa8 => 0x7fff52463760
+DEBUG [FIRCLSUnwindFirstExecutableAddress:306] Checking for executable 0x7fff52463760
+INFO  [FIRCLSUnwindWithFramePointer:130] Stack scan successful
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x7fff5246375f at 0x7fff52461000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 84)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSCompactUnwindComputeRegisters:43] Computing registers for encoding 1040b11
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x7fff52462826 at 0x7fff52461000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 84)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+INFO  [FIRCLSCompactUnwindLookupSecondLevelCompressed:285] Entry has has no unwind info
+INFO  [FIRCLSCompactUnwindLookup:335] Second-level PC lookup failed
+INFO  [FIRCLSCompactUnwindLookupAndCompute:361] Unable to lookup compact unwind for pc 0x7fff52462826
+INFO  [FIRCLSProcessRecordAllThreads:486] recording thread 3 data
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x7fff523b792d at 0x7fff523b5000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 96)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+INFO  [FIRCLSCompactUnwindLookupSecondLevelCompressed:285] Entry has has no unwind info
+INFO  [FIRCLSCompactUnwindLookup:335] Second-level PC lookup failed
+INFO  [FIRCLSCompactUnwindLookupAndCompute:361] Unable to lookup compact unwind for pc 0x7fff523b792d
+INFO  [FIRCLSUnwindWithFramePointer:128] Attempting stack scan
+DEBUG [FIRCLSUnwindFirstExecutableAddress:297] Checking address 0x70000f3f7b18 => 0x7fff52463760
+DEBUG [FIRCLSUnwindFirstExecutableAddress:306] Checking for executable 0x7fff52463760
+INFO  [FIRCLSUnwindWithFramePointer:130] Stack scan successful
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x7fff5246375f at 0x7fff52461000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 84)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSCompactUnwindComputeRegisters:43] Computing registers for encoding 1040b11
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x7fff52462826 at 0x7fff52461000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 84)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+INFO  [FIRCLSCompactUnwindLookupSecondLevelCompressed:285] Entry has has no unwind info
+INFO  [FIRCLSCompactUnwindLookup:335] Second-level PC lookup failed
+INFO  [FIRCLSCompactUnwindLookupAndCompute:361] Unable to lookup compact unwind for pc 0x7fff52462826
+INFO  [FIRCLSProcessRecordAllThreads:486] recording thread 4 data
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x7fff523b792d at 0x7fff523b5000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 96)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+INFO  [FIRCLSCompactUnwindLookupSecondLevelCompressed:285] Entry has has no unwind info
+INFO  [FIRCLSCompactUnwindLookup:335] Second-level PC lookup failed
+INFO  [FIRCLSCompactUnwindLookupAndCompute:361] Unable to lookup compact unwind for pc 0x7fff523b792d
+INFO  [FIRCLSUnwindWithFramePointer:128] Attempting stack scan
+DEBUG [FIRCLSUnwindFirstExecutableAddress:297] Checking address 0x70000f603b18 => 0x7fff52463760
+DEBUG [FIRCLSUnwindFirstExecutableAddress:306] Checking for executable 0x7fff52463760
+INFO  [FIRCLSUnwindWithFramePointer:130] Stack scan successful
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x7fff5246375f at 0x7fff52461000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 84)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSCompactUnwindComputeRegisters:43] Computing registers for encoding 1040b11
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x7fff52462826 at 0x7fff52461000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 84)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+INFO  [FIRCLSCompactUnwindLookupSecondLevelCompressed:285] Entry has has no unwind info
+INFO  [FIRCLSCompactUnwindLookup:335] Second-level PC lookup failed
+INFO  [FIRCLSCompactUnwindLookupAndCompute:361] Unable to lookup compact unwind for pc 0x7fff52462826
+INFO  [FIRCLSProcessRecordAllThreads:486] recording thread 5 data
+WARN  [FIRCLSProcessGetThreadState:185] Faking current thread
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x10d4919b0 at 0x10d450000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 1164)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSCompactUnwindComputeRegisters:43] Computing registers for encoding 1000000
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x10d490e4f at 0x10d450000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 1164)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSCompactUnwindComputeRegisters:43] Computing registers for encoding 1000000
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x10d490c29 at 0x10d450000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 1164)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSCompactUnwindComputeRegisters:43] Computing registers for encoding 1000000
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x10d47fe0e at 0x10d450000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 1164)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSCompactUnwindComputeRegisters:43] Computing registers for encoding 1000000
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x10d4847cb at 0x10d450000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 1164)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSCompactUnwindComputeRegisters:43] Computing registers for encoding 1000000
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x10d484443 at 0x10d450000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 1164)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSCompactUnwindComputeRegisters:43] Computing registers for encoding 1000000
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x10d48411d at 0x10d450000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 1164)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSCompactUnwindComputeRegisters:43] Computing registers for encoding 1000000
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x7fff52466e64 at 0x7fff52461000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 84)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSCompactUnwindComputeRegisters:43] Computing registers for encoding 1010001
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x7fff5246283a at 0x7fff52461000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 84)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+INFO  [FIRCLSCompactUnwindLookupSecondLevelCompressed:285] Entry has has no unwind info
+INFO  [FIRCLSCompactUnwindLookup:335] Second-level PC lookup failed
+INFO  [FIRCLSCompactUnwindLookupAndCompute:361] Unable to lookup compact unwind for pc 0x7fff5246283a
+INFO  [FIRCLSProcessRecordAllThreads:486] recording thread 6 data
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x7fff523b6259 at 0x7fff523b5000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 96)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+INFO  [FIRCLSCompactUnwindLookupSecondLevelCompressed:285] Entry has has no unwind info
+INFO  [FIRCLSCompactUnwindLookup:335] Second-level PC lookup failed
+INFO  [FIRCLSCompactUnwindLookupAndCompute:361] Unable to lookup compact unwind for pc 0x7fff523b6259
+INFO  [FIRCLSUnwindWithFramePointer:128] Attempting stack scan
+DEBUG [FIRCLSUnwindFirstExecutableAddress:297] Checking address 0x70000f687e18 => 0x7fff523b65d0
+DEBUG [FIRCLSUnwindFirstExecutableAddress:306] Checking for executable 0x7fff523b65d0
+INFO  [FIRCLSUnwindWithFramePointer:130] Stack scan successful
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x7fff523b65cf at 0x7fff523b5000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 96)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSCompactUnwindComputeRegisters:43] Computing registers for encoding 10558d1
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x7fff23bd3cf4 at 0x7fff23b34000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 11644)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSCompactUnwindComputeRegisters:43] Computing registers for encoding 10558d1
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x7fff23bcea16 at 0x7fff23b34000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 11644)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSCompactUnwindComputeRegisters:43] Computing registers for encoding 610558d1
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x7fff23bce065 at 0x7fff23b34000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 11644)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSCompactUnwindComputeRegisters:43] Computing registers for encoding 610558d1
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x7fff22f985da at 0x7fff22d91000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 41900)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSCompactUnwindComputeRegisters:43] Computing registers for encoding 610558d1
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x7fff257817a6 at 0x7fff256b8000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 13996)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSCompactUnwindComputeRegisters:43] Computing registers for encoding 510558d1
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x7fff52466e64 at 0x7fff52461000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 84)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+DEBUG [FIRCLSCompactUnwindComputeRegisters:43] Computing registers for encoding 1010001
+DEBUG [FIRCLSUnwindWithCompactUnwindInfo:239] Binary image for 0x7fff5246283a at 0x7fff52461000
+DEBUG [FIRCLSCompactUnwindLookup:330] Found first level (second => 84)
+INFO  [FIRCLSCompactUnwindLookupSecondLevel:303] Found a second level compressed header
+INFO  [FIRCLSCompactUnwindLookupSecondLevelCompressed:285] Entry has has no unwind info
+INFO  [FIRCLSCompactUnwindLookup:335] Second-level PC lookup failed
+INFO  [FIRCLSCompactUnwindLookupAndCompute:361] Unable to lookup compact unwind for pc 0x7fff5246283a
+INFO  [FIRCLSProcessRecordAllThreads:496] completed recording all thread data
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:789] attempting to read crash info string
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+DEBUG [FIRCLSProcessRecordCrashInfo:772] Found crash info with version 5
+WARN  [FIRCLSCreateCrashedMarkerFile:30] Created the crashed marker file
+WARN  [FIRCLSMachExceptionReply:259] Sending exception reply
+WARN  [FIRCLSMachExceptionReply:269] 
