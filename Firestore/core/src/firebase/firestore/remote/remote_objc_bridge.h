@@ -53,8 +53,7 @@ class WatchChange;
 //
 // The original purpose of this file was to cleanly encapsulate the remaining
 // Objective-C dependencies of `remote/` folder. These dependencies no longer
-// exist (modulo pretty-printing), and this file makes C++ diverge from other
-// platforms.
+// exist, and this file makes C++ diverge from other platforms.
 //
 // On the other hand, stream classes are large, and having one easily
 // separatable aspect of their implementation (serialization) refactored out is
