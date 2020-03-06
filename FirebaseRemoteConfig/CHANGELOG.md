@@ -1,3 +1,5 @@
+# v4.4.9
+- [changed] Internal code changes. (#4934)
 # v4.4.8
 - [fixed] Fixed a bug (#4677, #4734) where Remote Config does not work after a restore of a previous backup of the device. (#4896).
 # v4.4.7
