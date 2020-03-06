@@ -1,3 +1,8 @@
+# v2.0.0
+- Adds a sentinel value to GDTCOREvent's custom params to signal collection
+of current network info to be associated with some event. This is required
+for Firebase Performance Monitoring in the future.
+
 # v1.4.1
 - Fixed a bug that would manifest if a proto ended up being > 16,320 bytes.
 - Fix an Xcode 11.4 analyze error. (#4863)
