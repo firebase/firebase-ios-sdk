@@ -61,14 +61,13 @@ enum CocoaPodUtils {
     let subspecs: Set<String>
 
     /// The contents of the module map for all frameworks associated with the pod.
-    var moduleMapContents: String
+    var moduleMapContents: ModuleMapBuilder.ModuleMapContents?
 
     init(version: String, dependencies: [String], installedLocation: URL, subspecs: Set<String>) {
       self.version = version
       self.dependencies = dependencies
       self.installedLocation = installedLocation
       self.subspecs = subspecs
-      moduleMapContents = ""
 
       // Get all the frameworks contained in this directory.
       var binaryFrameworks: [URL] = []
@@ -121,11 +120,14 @@ enum CocoaPodUtils {
   ///   - pods: List of VersionedPods to install
   ///   - directory: Destination directory for the pods.
   ///   - customSpecRepos: Additional spec repos to check for installation.
+  ///   - forceStaticLibs: Force a static library pod install. For the module map construction, we want pod names not module
+  ///                      names in the generated OTHER_LD_FLAGS options.
   /// - Returns: A dictionary of PodInfo's keyed by the pod name.
   @discardableResult
   static func installPods(_ pods: [VersionedPod],
                           inDir directory: URL,
-                          customSpecRepos: [URL]? = nil) -> [String: PodInfo] {
+                          customSpecRepos: [URL]?,
+                          forceStaticLibs: Bool = false) -> [String: PodInfo] {
     let fileManager = FileManager.default
     // Ensure the directory exists, otherwise we can't install all subspecs.
     guard fileManager.directoryExists(at: directory) else {
@@ -140,7 +142,10 @@ enum CocoaPodUtils {
 
     // Attempt to write the Podfile to disk.
     do {
-      try writePodfile(for: pods, toDirectory: directory, customSpecRepos: customSpecRepos)
+      try writePodfile(for: pods,
+                       toDirectory: directory,
+                       customSpecRepos: customSpecRepos,
+                       forceStaticLibs: forceStaticLibs)
     } catch let FileManager.FileError.directoryNotFound(path) {
       fatalError("Failed to write Podfile with pods \(pods) at path \(path)")
     } catch let FileManager.FileError.writeToFileFailed(path, error) {
@@ -150,7 +155,8 @@ enum CocoaPodUtils {
     }
 
     // Run pod install on the directory that contains the Podfile and blank Xcode project.
-    let result = Shell.executeCommandFromScript("pod _1.8.4_ install", workingDir: directory)
+    // At least 1.9.0 is required for `use_frameworks! :linkage => :static`
+    let result = Shell.executeCommandFromScript("pod _1.9.0_ install", workingDir: directory)
     switch result {
     case let .error(code, output):
       fatalError("""
@@ -354,7 +360,8 @@ enum CocoaPodUtils {
   /// Create the contents of a Podfile for an array of subspecs. This assumes the array of subspecs
   /// is not empty.
   private static func generatePodfile(for pods: [VersionedPod],
-                                      customSpecsRepos: [URL]? = nil) -> String {
+                                      customSpecsRepos: [URL]?,
+                                      forceStaticLibs: Bool) -> String {
     // Start assembling the Podfile.
     var podfile: String = ""
 
@@ -369,8 +376,12 @@ enum CocoaPodUtils {
       """ // Explicit newline above to ensure it's included in the String.
     }
 
-    if LaunchArgs.shared.dynamic {
+    if forceStaticLibs {
+      podfile += "  use_modular_headers!\n"
+    } else if LaunchArgs.shared.dynamic {
       podfile += "  use_frameworks!\n"
+    } else {
+      podfile += "  use_frameworks! :linkage => :static\n"
     }
     // Include the minimum iOS version.
     podfile += """
@@ -424,7 +435,8 @@ enum CocoaPodUtils {
   /// "Podfile".
   private static func writePodfile(for pods: [VersionedPod],
                                    toDirectory directory: URL,
-                                   customSpecRepos: [URL]?) throws {
+                                   customSpecRepos: [URL]?,
+                                   forceStaticLibs: Bool) throws {
     guard FileManager.default.directoryExists(at: directory) else {
       // Throw an error so the caller can provide a better error message.
       throw FileManager.FileError.directoryNotFound(path: directory.path)
@@ -432,7 +444,7 @@ enum CocoaPodUtils {
 
     // Generate the full path of the Podfile and attempt to write it to disk.
     let path = directory.appendingPathComponent("Podfile")
-    let podfile = generatePodfile(for: pods, customSpecsRepos: customSpecRepos)
+    let podfile = generatePodfile(for: pods, customSpecsRepos: customSpecRepos, forceStaticLibs: forceStaticLibs)
     do {
       try podfile.write(toFile: path.path, atomically: true, encoding: .utf8)
     } catch {
