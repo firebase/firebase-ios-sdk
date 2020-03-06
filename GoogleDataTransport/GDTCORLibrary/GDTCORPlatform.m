@@ -302,6 +302,18 @@ id<NSSecureCoding> _Nullable GDTCORDecodeArchive(Class archiveClass,
                            selector:@selector(macOSApplicationWillTerminate:)
                                name:NSApplicationWillTerminateNotification
                              object:nil];
+
+#elif TARGET_OS_WATCH
+    NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
+    [notificationCenter addObserver:self
+                           selector:@selector(iOSApplicationDidEnterBackground:)
+                               name:NSExtensionHostDidEnterBackgroundNotification
+                             object:nil];
+    [notificationCenter addObserver:self
+                           selector:@selector(iOSApplicationWillEnterForeground:)
+                               name:NSExtensionHostWillEnterForegroundNotification
+                             object:nil];
+
 #endif  // TARGET_OS_IOS || TARGET_OS_TV
   }
   return self;
@@ -309,6 +321,7 @@ id<NSSecureCoding> _Nullable GDTCORDecodeArchive(Class archiveClass,
 
 - (GDTCORBackgroundIdentifier)beginBackgroundTaskWithName:(NSString *)name
                                         expirationHandler:(void (^)(void))handler {
+#if !TARGET_OS_WATCH
   GDTCORBackgroundIdentifier bgID =
       [[self sharedApplicationForBackgroundTask] beginBackgroundTaskWithName:name
                                                            expirationHandler:handler];
@@ -318,14 +331,19 @@ id<NSSecureCoding> _Nullable GDTCORDecodeArchive(Class archiveClass,
   }
 #endif  // !NDEBUG
   return bgID;
+#endif  // !TARGET_OS_WATCH
+  // TODO: WKExtension background tasks handling.
+  return GDTCORBackgroundIdentifierInvalid;
 }
 
 - (void)endBackgroundTask:(GDTCORBackgroundIdentifier)bgID {
+#if !TARGET_OS_WATCH
   if (bgID != GDTCORBackgroundIdentifierInvalid) {
     GDTCORLogDebug("Ending background task with ID:%ld was successful", (long)bgID);
     [[self sharedApplicationForBackgroundTask] endBackgroundTask:bgID];
     return;
   }
+#endif  // !TARGET_OS_WATCH
 }
 
 #pragma mark - App environment helpers
@@ -339,12 +357,14 @@ id<NSSecureCoding> _Nullable GDTCORDecodeArchive(Class archiveClass,
 #endif
 }
 
-/** Returns a UIApplication instance if on the appropriate platform.
+/** Returns a UIApplication or WKExtension instance if on the appropriate platform.
  *
- * @return The shared UIApplication if on the appropriate platform.
+ * @return The shared UIApplication or WKExtension if on the appropriate platform.
  */
 #if TARGET_OS_IOS || TARGET_OS_TV
 - (nullable UIApplication *)sharedApplicationForBackgroundTask {
+#elif TARGET_OS_WATCH
+- (nullable WKExtension *)sharedApplicationForBackgroundTask {
 #else
 - (nullable id)sharedApplicationForBackgroundTask {
 #endif
@@ -352,17 +372,25 @@ id<NSSecureCoding> _Nullable GDTCORDecodeArchive(Class archiveClass,
     return nil;
   }
   id sharedApplication = nil;
+#if TARGET_OS_IOS || TARGET_OS_TV
   Class uiApplicationClass = NSClassFromString(@"UIApplication");
   if (uiApplicationClass &&
       [uiApplicationClass respondsToSelector:(NSSelectorFromString(@"sharedApplication"))]) {
     sharedApplication = [uiApplicationClass sharedApplication];
   }
+#elif TARGET_OS_WATCH
+  Class wkExtensionClass = NSClassFromString(@"WKExtension");
+  if (wkExtensionClass &&
+      [wkExtensionClass respondsToSelector:(NSSelectorFromString(@"sharedExtension"))]) {
+    sharedApplication = [wkExtensionClass sharedExtension];
+  }
+#endif
   return sharedApplication;
 }
 
-#pragma mark - UIApplicationDelegate
+#pragma mark - UIApplicationDelegate and WKExtensionDelegate
 
-#if TARGET_OS_IOS || TARGET_OS_TV
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_WATCH
 - (void)iOSApplicationDidEnterBackground:(NSNotification *)notif {
   _isRunningInBackground = YES;
 
@@ -378,7 +406,11 @@ id<NSSecureCoding> _Nullable GDTCORDecodeArchive(Class archiveClass,
   GDTCORLogDebug("%@", @"GDTCORPlatform is sending a notif that the app is foregrounding.");
   [notifCenter postNotificationName:kGDTCORApplicationWillEnterForegroundNotification object:nil];
 }
+#endif  // TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_WATCH
 
+#pragma mark - UIApplicationDelegate
+
+#if TARGET_OS_IOS || TARGET_OS_TV
 - (void)iOSApplicationWillTerminate:(NSNotification *)notif {
   NSNotificationCenter *notifCenter = [NSNotificationCenter defaultCenter];
   GDTCORLogDebug("%@", @"GDTCORPlatform is sending a notif that the app is terminating.");
