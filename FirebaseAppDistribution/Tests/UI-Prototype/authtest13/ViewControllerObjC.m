@@ -15,29 +15,42 @@
 - (void)viewDidLoad:(BOOL)animated{
     NSLog(@"here!");
     [super viewDidLoad];
-    [[FIRAppDistribution appDistribution] signInTesterWithCompletion:^(NSError * _Nullable error) {
-        // handle error
-    }];
-    [[FIRAppDistribution appDistribution] signOutTester];
+
     [[FIRAppDistribution appDistribution] checkForUpdateWithCompletion:^(FIRAppDistributionRelease * _Nullable release, NSError * _Nullable error) {
         NSLog(@"%@", release);
         if (release) {
             UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"New Version Available"
                                                                              message:[NSString stringWithFormat:@"Version %@ (%@) is available.",
-                                                                                      release.bundleShortVersion, release.bundleVersion]
+                                                                                      release.displayVersion, release.buildVersion]
                                                                       preferredStyle:UIAlertControllerStyleAlert];
-            
+
             UIAlertAction *updateAction = [UIAlertAction actionWithTitle:@"Update" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action){
             }];
             UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action){
             }];
-            
+
             [alert addAction:updateAction];
             [alert addAction:cancelAction];
-            
+
             [self presentViewController:alert animated:YES completion:nil];
         }
     }];
+
+    [[FIRAppDistribution appDistribution] signInTesterWithCompletion:^(NSError * _Nullable error) {
+
+        if(!error) {
+            // App Distribution sign in is successful.
+            // Change the UI appropriately
+        }
+    }];
+
+     if([[FIRAppDistribution appDistribution] TesterSignedIn]) {
+         // User is signed into App Distribution.
+         // Do something with the UI
+     }
+
+    // Sign out App Distribution Tester
+    [[FIRAppDistribution appDistribution] signOutTester];
 }
 
 @end
