@@ -262,10 +262,6 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
 #endif
 }
 
-/** Returns a UIApplication or NSProcessInfo instance if on the appropriate platform.
- *
- * @return The shared UIApplication or NSProcessInfo if on the appropriate platform.
- */
 #if TARGET_OS_IOS || TARGET_OS_TV
 - (nullable UIApplication *)sharedApplicationForBackgroundTask {
 #elif TARGET_OS_WATCH
