@@ -140,8 +140,18 @@ FOUNDATION_EXPORT const GDTCORBackgroundIdentifier GDTCORBackgroundIdentifierInv
 - (void)endBackgroundTask:(GDTCORBackgroundIdentifier)bgID;
 
 #elif TARGET_OS_WATCH
+/** Begin an activity using the given options and reason.
+ *
+ * @param options NSActivityOptions for activity.
+ * @param reason A string used in debugging to indicate the reason the activity began.
+ * @return An object token representing the activity.
+ */
 - (id<NSObject>)beginActivityWithOptions:(NSActivityOptions)options reason:(NSString *)reason;
 
+/** Ends the given activity.
+ *
+ * @param activity The activity to end.
+ */
 - (void)endActivity:(id<NSObject>)activity;
 
 #endif

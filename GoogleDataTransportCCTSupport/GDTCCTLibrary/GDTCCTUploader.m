@@ -296,6 +296,8 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
 
 #if TARGET_OS_WATCH
     if (hasUploaded) {
+      [self.currentTask cancel];
+      [self.currentUploadPackage completeDelivery];
       [[GDTCORApplication sharedApplication] endActivity:activity];
     }
 #endif
