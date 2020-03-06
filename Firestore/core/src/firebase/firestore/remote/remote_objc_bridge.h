@@ -96,9 +96,7 @@ class WriteStreamSerializer {
       const std::vector<model::Mutation>& mutations,
       const nanopb::ByteString& last_stream_token) const;
   nanopb::Message<google_firestore_v1_WriteRequest> EncodeEmptyMutationsList(
-      const nanopb::ByteString& last_stream_token) const {
-    return EncodeWriteMutationsRequest({}, last_stream_token);
-  }
+      const nanopb::ByteString& last_stream_token) const;
 
   nanopb::Message<google_firestore_v1_WriteResponse> ParseResponse(
       nanopb::Reader* reader) const;
