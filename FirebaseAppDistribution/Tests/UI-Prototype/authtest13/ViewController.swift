@@ -7,30 +7,26 @@
 //
 
 import UIKit
-import SafariServices
 
 class ViewController: UIViewController {
-    
-    var safariViewController: SFSafariViewController?
-    
-    override func viewDidLoad() {
-        print("Loaded!")
-        super.viewDidLoad()
-        // Do any additional setup after loading the view.
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        //        let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
-        
-        appDelegate.mainViewController = self
-        
+
+    @IBOutlet weak var appDistroSignIn: UIButton!
+    @IBOutlet weak var appDistroSignOut: UIButton!
+
+    func checkForAppDistroUpdates() {
         AppDistribution.appDistribution().checkForUpdate(completion: { release, error in
             guard let release = release else {
                 return
             }
-            
-            let uialert = UIAlertController(title: "New Version Available", message: "Version \(release.bundleShortVersion) (\(release.bundleVersion)) is available.", preferredStyle: .alert)
-            
+
+            self.appDistroSignIn?.setTitle("Already signed in. Check for update?", for: .normal)
+            self.appDistroSignOut!.isHidden = false
+            let uialert = UIAlertController(title: "New Version Available", message: "Version \(release.displayVersion) (\(release.buildVersion)) is available.", preferredStyle: .alert)
+
             uialert.addAction(UIAlertAction(title: "Update", style: UIAlertAction.Style.default) {
-                alert in UIApplication.shared.open(release.downloadUrl)
+                alert in
+                print(release.downloadUrl)
+                UIApplication.shared.open(release.downloadUrl)
             })
             uialert.addAction(UIAlertAction(title: "Cancel", style: UIAlertAction.Style.cancel) {
                 alert in
@@ -38,28 +34,38 @@ class ViewController: UIViewController {
             self.present(uialert, animated: true, completion: nil)
         })
     }
-    
-    func updateHandler(action: UIAlertAction) {
-        
+
+    override func viewDidLoad() {
+        print("Loaded!")
+        super.viewDidLoad()
+
+        if(!AppDistribution.appDistribution().testerSignedIn()) {
+            print("Hiding sign out")
+            self.appDistroSignOut.isHidden = true
+        }
+        print("Checking for app distro update everytime view loads for the first time")
+        self.checkForAppDistroUpdates()
     }
-    
-    func cancelHandler(action: UIAlertAction) {
-        
+
+    @IBAction func signoutClick(_ sender: Any) {
+        AppDistribution.appDistribution().signOutTester()
+        self.appDistroSignIn?.setTitle("Sign in to App DIstribution!", for: .normal)
+        self.appDistroSignOut!.isHidden = true
     }
-    
-    @IBAction func touch(_ sender: Any) {
-        //        print("this works!!!")
-        //        if let url = URL(string: "https://appdistribution.firebase.dev/app_distro/projects/5e20b15eccbee769cb4582ee") {
-        //            let config = SFSafariViewController.Configuration()
-        //            config.entersReaderIfAvailable = true
-        //
-        //            let vc = SFSafariViewController(url: url, configuration: config)
-        //            safariViewController = vc
-        //            present(vc, animated: true)
-        //        }
-        ////
-        //        guard let url = URL(string: "https://tinyurl.com/ua8tka3") else { return}
-        //        UIApplication.shared.open(url, options: [:], completionHandler: nil)
+
+    @IBAction func SignInClick(_ sender: Any) {
+
+        if(!AppDistribution.appDistribution().testerSignedIn()) {
+
+            AppDistribution.appDistribution().signInTester(completion: { error in
+                if(error == nil) {
+                    self.appDistroSignIn?.setTitle("Already signed in. Check for update?", for: .normal)
+                    self.appDistroSignOut!.isHidden = false
+                }
+            })
+        } else {
+            self.checkForAppDistroUpdates()
+        }
     }
 }
 
