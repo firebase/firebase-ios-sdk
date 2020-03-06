@@ -88,7 +88,7 @@ NS_SWIFT_NAME(signInTester(completion:));
 /**
  * Checks to see whether app distribution tester is signed in
  */
-- (BOOL)TesterSignedIn;
+- (BOOL)testerSignedIn;
 
 /**
  * Check to see whether a new distribution is available
