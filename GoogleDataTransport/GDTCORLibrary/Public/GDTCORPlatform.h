@@ -19,10 +19,13 @@
 #if !TARGET_OS_WATCH
 #import <SystemConfiguration/SystemConfiguration.h>
 #endif
+
 #if TARGET_OS_IOS || TARGET_OS_TV
 #import <UIKit/UIKit.h>
 #elif TARGET_OS_OSX
 #import <AppKit/AppKit.h>
+#elif TARGET_OS_WATCH
+#import <WatchKit/WatchKit.h>
 #endif  // TARGET_OS_IOS || TARGET_OS_TV
 
 #if TARGET_OS_IOS
@@ -95,10 +98,14 @@ typedef volatile NSUInteger GDTCORBackgroundIdentifier;
 FOUNDATION_EXPORT const GDTCORBackgroundIdentifier GDTCORBackgroundIdentifierInvalid;
 
 #if TARGET_OS_IOS || TARGET_OS_TV
-/** A protocol that wraps UIApplicationDelegate or NSObject protocol, depending on the platform. */
+/** A protocol that wraps UIApplicationDelegate, WKExtensionDelegate or NSObject protocol, depending
+ * on the platform.
+ */
 @protocol GDTCORApplicationDelegate <UIApplicationDelegate>
 #elif TARGET_OS_OSX
 @protocol GDTCORApplicationDelegate <NSApplicationDelegate>
+#elif TARGET_OS_WATCH
+@protocol GDTCORApplicationDelegate <WKExtensionDelegate>
 #else
 @protocol GDTCORApplicationDelegate <NSObject>
 #endif  // TARGET_OS_IOS || TARGET_OS_TV
