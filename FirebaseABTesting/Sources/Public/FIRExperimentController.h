@@ -48,7 +48,7 @@ NS_SWIFT_NAME(ExperimentController)
 ///                       January 1970.).
 /// @param payloads       List of experiment metadata.
 /// @param completionHandler Code to be executed after experiments are updated in the background
-/// thread.
+///                       thread.
 - (void)updateExperimentsWithServiceOrigin:(NSString *)origin
                                     events:(FIRLifecycleEvents *)events
                                     policy:(ABTExperimentPayload_ExperimentOverflowPolicy)policy
@@ -69,7 +69,6 @@ NS_SWIFT_NAME(ExperimentController)
 ///                       (Timestamps are specified by the number of seconds from 00:00:00 UTC on 1
 ///                       January 1970.).
 /// @param payloads       List of experiment metadata.
-/// thread.
 - (void)updateExperimentsWithServiceOrigin:(NSString *)origin
                                     events:(FIRLifecycleEvents *)events
                                     policy:(ABTExperimentPayload_ExperimentOverflowPolicy)policy
