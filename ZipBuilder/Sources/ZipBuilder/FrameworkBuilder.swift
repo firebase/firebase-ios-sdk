@@ -440,7 +440,11 @@ struct FrameworkBuilder {
         if umbrellas.count != 1 {
           fatalError("Did not find exactly one umbrella header in \(headersDir).")
         }
-        umbrellaHeaderURL = URL(string: umbrellas[0])!
+        guard let firstUmbrella = umbrellas.first,
+          let foundHeader = URL(string: firstUmbrella) else { /* error */
+          fatalError("Failed to get umbrella header in \(headersDir).")
+        }
+        umbrellaHeaderURL = foundHeader
       } catch {
         fatalError("Error while enumerating files \(headersDir): \(error.localizedDescription)")
       }
@@ -490,11 +494,14 @@ struct FrameworkBuilder {
         "\(error)")
     }
 
+    guard let moduleMapContents = podInfo.moduleMapContents else {
+      fatalError("Module map contents missing for framework \(framework)")
+    }
     let xcframework = packageXCFramework(withName: framework,
                                          fromFolder: frameworkDir,
                                          thinArchives: thinArchives,
                                          moduleMapContents:
-                                         podInfo.moduleMapContents!.get(umbrellaHeader: umbrellaHeader))
+                                         moduleMapContents.get(umbrellaHeader: umbrellaHeader))
 
     // Remove the temporary thin archives.
     for thinArchive in thinArchives.values {
