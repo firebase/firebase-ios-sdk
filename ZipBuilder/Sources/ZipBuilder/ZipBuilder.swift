@@ -708,9 +708,8 @@ struct ZipBuilder {
       if podInfo.isSourcePod {
         let builder = FrameworkBuilder(projectDir: projectDir, carthageBuild: carthageBuild)
         let framework = builder.buildFramework(withName: podName,
-                                               version: podInfo.version,
-                                               logsOutputDir: paths.logsOutputDir,
-                                               moduleMapContents: pods[podName]!.moduleMapContents)
+                                               podInfo: podInfo,
+                                               logsOutputDir: paths.logsOutputDir)
 
         frameworks = [framework]
       } else {

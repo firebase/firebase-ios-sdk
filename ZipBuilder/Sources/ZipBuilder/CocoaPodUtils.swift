@@ -61,14 +61,13 @@ enum CocoaPodUtils {
     let subspecs: Set<String>
 
     /// The contents of the module map for all frameworks associated with the pod.
-    var moduleMapContents: String
+    var moduleMapContents: ModuleMapBuilder.ModuleMapContents?
 
     init(version: String, dependencies: [String], installedLocation: URL, subspecs: Set<String>) {
       self.version = version
       self.dependencies = dependencies
       self.installedLocation = installedLocation
       self.subspecs = subspecs
-      moduleMapContents = ""
 
       // Get all the frameworks contained in this directory.
       var binaryFrameworks: [URL] = []

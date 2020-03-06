@@ -97,9 +97,8 @@ struct FrameworkBuilder {
   /// - Parameter moduleMapContents: Module map contents for all frameworks in this pod.
   /// - Returns: A URL to the framework that was built (or pulled from the cache).
   func buildFramework(withName podName: String,
-                      version: String,
-                      logsOutputDir: URL? = nil,
-                      moduleMapContents: String) -> URL {
+                      podInfo: CocoaPodUtils.PodInfo,
+                      logsOutputDir: URL? = nil) -> URL {
     print("Building \(podName)")
 
     // Get (or create) the cache directory for storing built frameworks.
@@ -108,7 +107,7 @@ struct FrameworkBuilder {
     do {
       let subDir = carthageBuild ? "carthage" : ""
       let cacheDir = try fileManager.sourcePodCacheDirectory(withSubdir: subDir)
-      cachedFrameworkRoot = cacheDir.appendingPathComponents([podName, version])
+      cachedFrameworkRoot = cacheDir.appendingPathComponents([podName, podInfo.version])
     } catch {
       fatalError("Could not create caches directory for building frameworks: \(error)")
     }
@@ -116,7 +115,7 @@ struct FrameworkBuilder {
     // Build the full cached framework path.
     let realFramework = frameworkBuildName(podName)
     let cachedFrameworkDir = cachedFrameworkRoot.appendingPathComponent("\(realFramework).xcframework")
-    let frameworkDir = compileFrameworkAndResources(withName: podName, moduleMapContents: moduleMapContents)
+    let frameworkDir = compileFrameworkAndResources(withName: podName, podInfo: podInfo)
     do {
       // Remove the previously cached framework if it exists, otherwise the `moveItem` call will
       // fail.
@@ -262,6 +261,8 @@ struct FrameworkBuilder {
       """)
 
       // Use the Xcode-generated path to return the path to the compiled library.
+      // The framework name may be different from the pod name if the module is reset in the
+      // podspec - like Release-iphonesimulator/BoringSSL-GRPC/openssl_grpc.framework.
       let frameworkPath = buildDir.appendingPathComponents(["Release-\(platformFolder)", framework])
       var actualFramework: String
       do {
@@ -310,7 +311,7 @@ struct FrameworkBuilder {
   /// - Returns: A path to the newly compiled framework (with any included Resources embedded).
   private func compileFrameworkAndResources(withName framework: String,
                                             logsOutputDir: URL? = nil,
-                                            moduleMapContents: String) -> URL {
+                                            podInfo: CocoaPodUtils.PodInfo) -> URL {
     let fileManager = FileManager.default
     let outputDir = fileManager.temporaryDirectory(withName: "frameworks_being_built")
     let logsDir = logsOutputDir ?? fileManager.temporaryDirectory(withName: "build_logs")
@@ -334,7 +335,7 @@ struct FrameworkBuilder {
       return buildDynamicXCFramework(withName: framework, logsDir: logsDir, outputDir: outputDir)
     } else {
       return buildStaticXCFramework(withName: framework, logsDir: logsDir, outputDir: outputDir,
-                                    moduleMapContents: moduleMapContents)
+                                    podInfo: podInfo)
     }
   }
 
@@ -397,7 +398,7 @@ struct FrameworkBuilder {
   private func buildStaticXCFramework(withName framework: String,
                                       logsDir: URL,
                                       outputDir: URL,
-                                      moduleMapContents: String) -> URL {
+                                      podInfo: CocoaPodUtils.PodInfo) -> URL {
     // Build every architecture and save the locations in an array to be assembled.
     var thinArchives = [Architecture: URL]()
     for arch in LaunchArgs.shared.archs {
@@ -492,9 +493,8 @@ struct FrameworkBuilder {
     let xcframework = packageXCFramework(withName: framework,
                                          fromFolder: frameworkDir,
                                          thinArchives: thinArchives,
-                                         moduleMapContents: moduleMapContents.replacingOccurrences(
-                                           of: "INSERT_UMBRELLA_HEADER_HERE", with: umbrellaHeader
-                                         ))
+                                         moduleMapContents:
+                                         podInfo.moduleMapContents!.get(umbrellaHeader: umbrellaHeader))
 
     // Remove the temporary thin archives.
     for thinArchive in thinArchives.values {
