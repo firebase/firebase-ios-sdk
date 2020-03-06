@@ -140,7 +140,8 @@
  */
 - (GDTCORUploadConditions)uploadConditions {
 #if TARGET_OS_WATCH
-  return GDTCORUploadConditionNoNetwork;
+  // Assume connected on watchOS.
+  return GDTCORUploadConditionUnclearConnection;
 #else
   SCNetworkReachabilityFlags currentFlags = [GDTCORReachability currentFlags];
   BOOL reachable =
