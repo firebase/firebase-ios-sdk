@@ -235,7 +235,7 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
     [[self sharedApplicationForBackgroundTask] endBackgroundTask:bgID];
     return;
   }
-#endif
+#endif  // !TARGET_OS_WATCH
 }
 
 #pragma mark - App environment helpers
