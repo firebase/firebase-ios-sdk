@@ -1,3 +1,6 @@
+# v5.0.0
+- Refactors some APIs to fix passing of data from event generation to storage.
+
 # v4.0.1
 - Fixes missing a dispatch_sync and on-queue work in appWillTerminate of storage. (#4546)
 
