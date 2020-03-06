@@ -234,13 +234,6 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
 }
 
 #elif TARGET_OS_WATCH
-// TODO: Try using those APIs to munipulate background tasks for watchOS
-- (void)performExpiringActivityWithReason:(NSString *)name
-                               usingBlock:(nonnull void (^)(BOOL))block {
-  [[self sharedNSProcessInfoForBackgroundTask] performExpiringActivityWithReason:name
-                                                                      usingBlock:block];
-}
-
 - (id<NSObject>)beginActivityWithOptions:(NSActivityOptions)options reason:(NSString *)reason {
   return [[self sharedNSProcessInfoForBackgroundTask] beginActivityWithOptions:options
                                                                         reason:reason];
