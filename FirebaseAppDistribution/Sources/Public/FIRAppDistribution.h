@@ -19,15 +19,15 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
-* The release information returned by the update check when a new version is available.
-*/
+ * The release information returned by the update check when a new version is available.
+ */
 NS_SWIFT_NAME(AppDistributionRelease)
 @interface FIRAppDistributionRelease : NSObject
 
-// The bundle version of this build (example: 123)
-@property(nonatomic, copy) NSString *bundleVersion;
 // The short bundle version of this build (example 1.0.0)
-@property(nonatomic, copy) NSString *bundleShortVersion;
+@property(nonatomic, copy) NSString *displayVersion;
+// The build number of this build (example: 123)
+@property(nonatomic, copy) NSString *buildVersion;
 // The release notes for this build
 @property(nonatomic, copy) NSString *releaseNotes;
 // The URL for the build
@@ -49,20 +49,20 @@ NS_SWIFT_NAME(AppDistributionRelease)
  *  @param error     The error describing why the new build request failed.
  */
 typedef void (^FIRAppDistributionUpdateCheckCompletion)(FIRAppDistributionRelease *_Nullable release,
-                                                    NSError *_Nullable error)
-    NS_SWIFT_NAME(AppDistributionNewBuildCheckCompletion);
+                                                        NSError *_Nullable error)
+NS_SWIFT_NAME(AppDistributionNewBuildCheckCompletion);
 
 /**
  *  @related FIRAppDistribution
  *
- *  The completion handler invoked  when App Disitribution sign in is complete
+ *  The completion handler invoked  when App Distribution sign in is complete
  *  If the call fails we return the appropriate `error code`, described by
  *  `FIRAppDistributionError`.
  *
  *  @param error     The error describing why sign in failed
  */
-typedef void (^FIRAppDistributionSignInCompletion)(NSError *_Nullable error)
-    NS_SWIFT_NAME(FIRAppDistributionSignInCompletion);
+typedef void (^FIRAppDistributionSignInTesterCompletion)(NSError *_Nullable error)
+NS_SWIFT_NAME(FIRAppDistributionSignInTesterCompletion);
 
 
 /**
@@ -81,25 +81,25 @@ NS_SWIFT_NAME(AppDistribution)
 - (instancetype)init NS_UNAVAILABLE;
 
 /**
- * Sign-in the App DIsitribution tester
-*/
-- (void)signInWithCompletion:(FIRAppDistributionSignInCompletion)completion
-    NS_SWIFT_NAME(signIn(completion:));
+ * Sign-in the App Distribution tester
+ */
+- (void)signInTesterWithCompletion:(FIRAppDistributionSignInTesterCompletion)completion
+NS_SWIFT_NAME(signInTester(completion:));
 /**
  * Checks to see whether app distribution tester is signed in
-*/
-- (BOOL)signedIn;
+ */
+- (BOOL)TesterSignedIn;
 
 /**
  * Check to see whether a new distribution is available
  */
 - (void)checkForUpdateWithCompletion:(FIRAppDistributionUpdateCheckCompletion)completion
-    NS_SWIFT_NAME(checkForUpdate(completion:));
+NS_SWIFT_NAME(checkForUpdate(completion:));
 
 /**
- * Sign out App Disitrubition tester
-*/
-- (void)signOut;
+ * Sign out App Distribution tester
+ */
+- (void)signOutTester;
 /**
  * Accesses the singleton App Distribution instance.
  *
@@ -113,9 +113,21 @@ NS_SWIFT_NAME(AppDistribution)
  *  @enum FIRAppDistributionError
  */
 typedef NS_ENUM(NSUInteger, FIRAppDistributionError) {
-  /// Unknown error.
-  FIRAppDistributionErrorUnknown = 0,
-
+    /// Unknown error.
+    FIRAppDistributionErrorUnknown = 0,
+    
+    // Authentication failed
+    FIRAppDistributionErrorAuthentication = 1,
+    
+    // Authentication canceled
+    FIRAppDistributionAuthenticationCancelled = 2,
+    
+    // Request to App Distribution backend timed out
+    FIRAppDistributionErrorTimeout = 3,
+    
+    // No Network unavailable to make requests
+    FIRAppDistributionErrorNetwork = 4,
+    
 } NS_SWIFT_NAME(AppDistributionError);
 
 NS_ASSUME_NONNULL_END
