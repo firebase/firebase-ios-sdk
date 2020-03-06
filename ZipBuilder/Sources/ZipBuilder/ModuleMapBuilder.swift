@@ -34,6 +34,35 @@ struct ModuleMapBuilder {
     }
   }
 
+  struct ModuleMapContents {
+    /// Placeholder to fill in umbrella header.
+    static let umbrellaPlaceholder = "UMBRELLA_PLACEHOLDER"
+    let contents: String
+    init(module: String, frameworks: Set<String>, libraries: Set<String>) {
+      var content = """
+      framework module \(module) {
+      umbrella header "\(ModuleMapBuilder.ModuleMapContents.umbrellaPlaceholder)"
+      export *
+      module * { export * }
+
+      """
+      for framework in frameworks.sorted() {
+        content += "  link framework " + framework + "\n"
+      }
+      for library in libraries.sorted() {
+        content += "  link " + library + "\n"
+      }
+      // The empty line at the end is intentional, do not remove it.
+      content += "}\n"
+      contents = content
+    }
+
+    func get(umbrellaHeader: String) -> String {
+      return contents.replacingOccurrences(of:
+        ModuleMapBuilder.ModuleMapContents.umbrellaPlaceholder, with: umbrellaHeader)
+    }
+  }
+
   /// The directory containing the Xcode project and Pods folder.
   private let projectDir: URL
 
@@ -86,7 +115,8 @@ struct ModuleMapBuilder {
     let deps = CocoaPodUtils.transitiveVersionedPodDependencies(for: podName, in: allPods)
     _ = CocoaPodUtils.installPods(allSubspecList(framework: framework) + deps,
                                   inDir: projectDir,
-                                  customSpecRepos: customSpecRepos)
+                                  customSpecRepos: customSpecRepos,
+                                  forceStaticLibs: true)
     let xcconfigFile = projectDir.appendingPathComponents(["Pods", "Target Support Files",
                                                            "Pods-FrameworkMaker",
                                                            "Pods-FrameworkMaker.release.xcconfig"])
@@ -143,7 +173,7 @@ struct ModuleMapBuilder {
   }
 
   private func makeModuleMap(forFramework framework: FrameworkInfo,
-                             withXcconfigFile xcconfigFile: URL) -> String {
+                             withXcconfigFile xcconfigFile: URL) -> ModuleMapContents {
     let name = framework.versionedPod.name
     let dependencies = getModuleDependencies(withXcconfigFile: xcconfigFile)
     let frameworkDeps = Set(dependencies.frameworks)
@@ -181,21 +211,6 @@ struct ModuleMapBuilder {
     installedPods[name]?.transitiveFrameworks = transitiveFrameworkDeps
     installedPods[name]?.transitiveLibraries = transitiveLibraryDeps
 
-    // The base of the module map. The empty line at the end is intentional, do not remove it.
-    var content = """
-    framework module \(name) {
-    umbrella header "\(name).h"
-    export *
-    module * { export * }
-
-    """
-    for framework in myFrameworkDeps.sorted() {
-      content += "  link framework " + framework + "\n"
-    }
-    for library in myLibraryDeps.sorted() {
-      content += "  link " + library + "\n"
-    }
-    content += "}\n"
-    return content
+    return ModuleMapContents(module: name, frameworks: myFrameworkDeps, libraries: myLibraryDeps)
   }
 }

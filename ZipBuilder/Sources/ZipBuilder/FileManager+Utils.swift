@@ -101,15 +101,11 @@ extension FileManager {
     }
   }
 
-  /// Enable a single unique temporary workspace per execution.
+  /// Enable a single unique temporary workspace per execution with a sortable and readable timestamp.
   private static func timeStamp() -> String {
-    if #available(OSX 10.12, *) {
-      let formatter = ISO8601DateFormatter()
-      formatter.formatOptions.insert(.withInternetDateTime)
-      return formatter.string(from: Date())
-    } else {
-      return UUID().uuidString
-    }
+    let formatter = DateFormatter()
+    formatter.dateFormat = "YYYY-MM-dd'T'HH-mm-ss"
+    return formatter.string(from: Date())
   }
 
   static let unique: String = timeStamp()
