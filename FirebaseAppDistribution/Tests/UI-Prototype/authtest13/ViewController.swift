@@ -22,7 +22,7 @@ class ViewController: UIViewController {
         
         appDelegate.mainViewController = self
         
-        AppDistribution.appDistribution().checkForUpdate(view: self, completion: { release, error in
+        AppDistribution.appDistribution().checkForUpdate(completion: { release, error in
             guard let release = release else {
                 return
             }

@@ -108,7 +108,7 @@
     return (FIRAppDistribution *)instance;
 }
 
-- (void) signInWithCompletion:(FIRAppDistributionSignInCompletion)completion {
+- (void) signInTesterWithCompletion:(FIRAppDistributionSignInTesterCompletion)completion {
     
     NSURL *issuer = [NSURL URLWithString:@"https://accounts.google.com"];
     
@@ -163,22 +163,22 @@
     
 }
 
--(void) signOut {
+-(void) signOutTester {
     self.authState = nil;
 }
 
--(BOOL) signedIn {
+-(BOOL) testerSignedIn {
     return self.authState? YES: NO;
 }
 
 - (void)checkForUpdateWithCompletion:(FIRAppDistributionUpdateCheckCompletion)completion {
     
-    if(self.signedIn) {
+    if(self.testerSignedIn) {
         NSLog(@"Got authorization tokens. Access token: %@",
               self.authState.lastTokenResponse.accessToken);
         FIRAppDistributionRelease *release = [[FIRAppDistributionRelease alloc]init];
-        release.bundleShortVersion = @"1.0";
-        release.bundleVersion = @"123";
+        release.displayVersion = @"1.0";
+        release.buildVersion = @"123";
         release.downloadUrl = [NSURL URLWithString:@""];
         completion(release, nil);
     } else {
@@ -195,7 +195,7 @@
                                     style:UIAlertActionStyleDefault
                                     handler:^(UIAlertAction * action) {
             //Handle your yes please button action here
-            [self signInWithCompletion:^(NSError * _Nullable error) {
+            [self signInTesterWithCompletion:^(NSError * _Nullable error) {
                 self.window.hidden = YES;
                 self.window = nil;
                 if(error) {
@@ -205,8 +205,8 @@
                 NSLog(@"Got authorization tokens. Access token: %@",
                       self.authState.lastTokenResponse.accessToken);
                 FIRAppDistributionRelease *release = [[FIRAppDistributionRelease alloc]init];
-                release.bundleShortVersion = @"1.0";
-                release.bundleVersion = @"123";
+                release.displayVersion = @"1.0";
+                release.buildVersion = @"123";
                 release.downloadUrl = [NSURL URLWithString:@""];
                 completion(release, nil);
             }];
