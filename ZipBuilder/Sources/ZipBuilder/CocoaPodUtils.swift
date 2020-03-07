@@ -385,7 +385,7 @@ enum CocoaPodUtils {
 
   private static var checkedCocoaPodsVersion = false
 
-  /// At least 1.9.0 is required for `use_frameworks! :linkage => :static
+  /// At least 1.9.0 is required for `use_frameworks! :linkage => :static`
   /// - Parameters:
   ///   - directory: Destination directory for the pods.
   private static func checkCocoaPodsVersion(directory: URL) {
