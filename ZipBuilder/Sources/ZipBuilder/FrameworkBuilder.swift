@@ -446,7 +446,7 @@ struct FrameworkBuilder {
           fatalError("Did not find exactly one umbrella header in \(headersDir).")
         }
         guard let firstUmbrella = umbrellas.first,
-          let foundHeader = URL(string: firstUmbrella) else { /* error */
+          let foundHeader = URL(string: firstUmbrella) else {
           fatalError("Failed to get umbrella header in \(headersDir).")
         }
         umbrellaHeaderURL = foundHeader
@@ -608,7 +608,10 @@ struct FrameworkBuilder {
         if swiftModules.isEmpty {
           return false
         }
-        let swiftModule = URL(fileURLWithPath: swiftModules[0])
+        guard let first = swiftModules.first,
+          let swiftModule = URL(string: first) else {
+          fatalError("Failed to get swiftmodule in \(moduleDir).")
+        }
         let destModuleDir = destination.appendingPathComponent("Modules")
         if !fileManager.directoryExists(at: destModuleDir) {
           do {
