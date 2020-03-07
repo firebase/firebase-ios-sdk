@@ -221,7 +221,7 @@ struct FrameworkBuilder {
                 "ARCHS=\(cleanArch)",
                 "VALID_ARCHS=\(cleanArch)",
                 "ONLY_ACTIVE_ARCH=NO",
-                // BUILD_LIBRARY_FOR_DISTRIBUTION=YES is Necessary for Swift libraries.
+                // BUILD_LIBRARY_FOR_DISTRIBUTION=YES is necessary for Swift libraries.
                 // See https://forums.developer.apple.com/thread/125646.
                 // Unlike the comment there, the option here is sufficient to cause .swiftinterface
                 // files to be generated in the .swiftmodule directory. The .swiftinterface files
@@ -619,17 +619,21 @@ struct FrameworkBuilder {
         } else {
           // If the Modules directory is already there, only copy in the architecture specific files
           // from the *.swiftmodule subdirectory.
-          let files = try fileManager.contentsOfDirectory(at: swiftModule,
-                                                          includingPropertiesForKeys: nil).compactMap { $0.absoluteString }
-          let destSwiftModuleDir = destModuleDir.appendingPathComponent(swiftModule.lastPathComponent)
-          for file in files {
-            let fileURL = URL(fileURLWithPath: file)
-            do {
-              try fileManager.copyItem(at: fileURL, to:
-                destSwiftModuleDir.appendingPathComponent(fileURL.lastPathComponent))
-            } catch {
-              fatalError("Could not copy Swift module file from \(fileURL) to " + "\(destSwiftModuleDir): \(error)")
+          do {
+            let files = try fileManager.contentsOfDirectory(at: swiftModule,
+                                                            includingPropertiesForKeys: nil).compactMap { $0.absoluteString }
+            let destSwiftModuleDir = destModuleDir.appendingPathComponent(swiftModule.lastPathComponent)
+            for file in files {
+              let fileURL = URL(fileURLWithPath: file)
+              do {
+                try fileManager.copyItem(at: fileURL, to:
+                  destSwiftModuleDir.appendingPathComponent(fileURL.lastPathComponent))
+              } catch {
+                fatalError("Could not copy Swift module file from \(fileURL) to " + "\(destSwiftModuleDir): \(error)")
+              }
             }
+          } catch {
+            fatalError("Failed to get Modules directory contents - \(moduleDir): \(error.localizedDescription)")
           }
         }
       } catch {
