@@ -272,7 +272,7 @@ struct FrameworkBuilder {
       var actualFramework: String
       do {
         let files = try FileManager.default.contentsOfDirectory(at: frameworkPath,
-                                                                includingPropertiesForKeys: nil).compactMap { $0.absoluteString }
+                                                                includingPropertiesForKeys: nil).compactMap { $0.path }
         let frameworkDir = files.filter { $0.contains(".framework") }
         actualFramework = URL(fileURLWithPath: frameworkDir[0]).lastPathComponent
       } catch {
@@ -440,7 +440,7 @@ struct FrameworkBuilder {
       var umbrellaHeaderURL: URL
       do {
         let files = try fileManager.contentsOfDirectory(at: headersDir,
-                                                        includingPropertiesForKeys: nil).compactMap { $0.absoluteString }
+                                                        includingPropertiesForKeys: nil).compactMap { $0.path }
         let umbrellas = files.filter { $0.hasSuffix("umbrella.h") }
         if umbrellas.count != 1 {
           fatalError("Did not find exactly one umbrella header in \(headersDir).")
@@ -603,8 +603,8 @@ struct FrameworkBuilder {
       let moduleDir = frameworkDir.appendingPathComponent("Modules").resolvingSymlinksInPath()
       do {
         let files = try fileManager.contentsOfDirectory(at: moduleDir,
-                                                        includingPropertiesForKeys: nil).compactMap { $0.absoluteString }
-        let swiftModules = files.filter { $0.hasSuffix(".swiftmodule/") }
+                                                        includingPropertiesForKeys: nil).compactMap { $0.path }
+        let swiftModules = files.filter { $0.hasSuffix(".swiftmodule") }
         if swiftModules.isEmpty {
           return false
         }
@@ -624,7 +624,7 @@ struct FrameworkBuilder {
           // from the *.swiftmodule subdirectory.
           do {
             let files = try fileManager.contentsOfDirectory(at: swiftModule,
-                                                            includingPropertiesForKeys: nil).compactMap { $0.absoluteString }
+                                                            includingPropertiesForKeys: nil).compactMap { $0.path }
             let destSwiftModuleDir = destModuleDir.appendingPathComponent(swiftModule.lastPathComponent)
             for file in files {
               let fileURL = URL(fileURLWithPath: file)
