@@ -610,8 +610,7 @@ struct FrameworkBuilder {
         }
         let swiftModule = URL(fileURLWithPath: swiftModules[0])
         let destModuleDir = destination.appendingPathComponent("Modules")
-
-        if !fileManager.fileExists(atPath: destModuleDir.absoluteString) {
+        if !fileManager.directoryExists(at: destModuleDir) {
           do {
             try fileManager.copyItem(at: moduleDir, to: destModuleDir)
           } catch {
@@ -620,10 +619,8 @@ struct FrameworkBuilder {
         } else {
           // If the Modules directory is already there, only copy in the architecture specific files
           // from the *.swiftmodule subdirectory.
-
           let files = try fileManager.contentsOfDirectory(at: swiftModule,
                                                           includingPropertiesForKeys: nil).compactMap { $0.absoluteString }
-
           let destSwiftModuleDir = destModuleDir.appendingPathComponent(swiftModule.lastPathComponent)
           for file in files {
             let fileURL = URL(fileURLWithPath: file)
