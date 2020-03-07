@@ -115,7 +115,7 @@ enum CocoaPodUtils {
     }
 
     // Run pod install on the directory that contains the Podfile and blank Xcode project.
-    let result = Shell.executeCommandFromScript("pod _1.8.4_ install", workingDir: directory)
+    let result = Shell.executeCommandFromScript("pod install", workingDir: directory)
     switch result {
     case let .error(code, output):
       fatalError("""
