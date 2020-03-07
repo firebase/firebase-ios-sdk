@@ -407,7 +407,7 @@ enum CocoaPodUtils {
       guard let minor = Int(version[1]) else {
         fatalError("Failed to parse minor version from \(version)")
       }
-      if major == 1 && minor < 9 {
+      if major == 1, minor < 9 {
         fatalError("CocoaPods version must be at least 1.9.0. Using \(output)")
       }
     }
