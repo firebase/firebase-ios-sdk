@@ -221,7 +221,12 @@ struct FrameworkBuilder {
                 "ARCHS=\(cleanArch)",
                 "VALID_ARCHS=\(cleanArch)",
                 "ONLY_ACTIVE_ARCH=NO",
-                "BUILD_LIBRARIES_FOR_DISTRIBUTION=YES",
+                // BUILD_LIBRARY_FOR_DISTRIBUTION=YES is Necessary for Swift libraries.
+                // See https://forums.developer.apple.com/thread/125646.
+                // Unlike the comment there, the option here is sufficient to cause .swiftinterface
+                // files to be generated in the .swiftmodule directory. The .swiftinterface files
+                // are required for xcodebuild to successfully generate an xcframework.
+                "BUILD_LIBRARY_FOR_DISTRIBUTION=YES",
                 "SUPPORTS_MACCATALYST=\(isMacCatalystString)",
                 "BUILD_DIR=\(buildDir.path)",
                 "-sdk", platform.rawValue,
@@ -436,7 +441,7 @@ struct FrameworkBuilder {
       do {
         let files = try fileManager.contentsOfDirectory(at: headersDir,
                                                         includingPropertiesForKeys: nil).compactMap { $0.absoluteString }
-        let umbrellas = files.filter { $0.contains("umbrella.h") }
+        let umbrellas = files.filter { $0.hasSuffix("umbrella.h") }
         if umbrellas.count != 1 {
           fatalError("Did not find exactly one umbrella header in \(headersDir).")
         }
@@ -527,10 +532,6 @@ struct FrameworkBuilder {
                                 thinArchives: [Architecture: URL],
                                 destination: URL,
                                 moduleMapContents: String) {
-    // Build the fat archive using the `lipo` command. We need the full archive path and the list of
-    // thin paths (as Strings, not URLs).
-    let thinPaths = thinArchives.map { $0.value.path }
-
     // Store all fat archives in a temporary directory that includes all architectures included as
     // the parent folder.
     let fatArchivesDir: URL = {
@@ -552,8 +553,10 @@ struct FrameworkBuilder {
       fatalError("Could not create directories needed to build \(framework): \(error)")
     }
 
+    // Build the fat archive using the `lipo` command. We need the full archive path.
     let fatArchive = fatArchivesDir.appendingPathComponent(framework)
-    let result = syncExec(command: "/usr/bin/lipo", args: ["-create", "-output", fatArchive.path] + thinPaths)
+    let result = syncExec(command: "/usr/bin/lipo", args: ["-create", "-output", fatArchive.path] +
+      thinArchives.map { $0.value.path })
     switch result {
     case let .error(code, output):
       fatalError("""
@@ -571,19 +574,72 @@ struct FrameworkBuilder {
     } catch {
       fatalError("Could not copy \(framework) to destination: \(error)")
     }
-    // Copy the module map to the destination.
-    let moduleDir = destination.appendingPathComponent("Modules")
-    do {
-      try FileManager.default.createDirectory(at: moduleDir, withIntermediateDirectories: true)
-    } catch {
-      fatalError("Could not create Modules directory for framework: \(framework). \(error)")
+
+    // For Swift modules, we use the modulemap from the xcodebuild. For Objective C modules,
+    // We use the constructed module map that includes required framework and library
+    // dependencies.
+    if !makeSwiftModuleMap(thinArchives: thinArchives, destination: destination) {
+      // Copy the module map to the destination.
+      let moduleDir = destination.appendingPathComponent("Modules")
+      do {
+        try FileManager.default.createDirectory(at: moduleDir, withIntermediateDirectories: true)
+      } catch {
+        fatalError("Could not create Modules directory for framework: \(framework). \(error)")
+      }
+      let modulemap = moduleDir.appendingPathComponent("module.modulemap")
+      do {
+        try moduleMapContents.write(to: modulemap, atomically: true, encoding: .utf8)
+      } catch {
+        fatalError("Could not write modulemap to disk for \(framework): \(error)")
+      }
     }
-    let modulemap = moduleDir.appendingPathComponent("module.modulemap")
-    do {
-      try moduleMapContents.write(to: modulemap, atomically: true, encoding: .utf8)
-    } catch {
-      fatalError("Could not write modulemap to disk for \(framework): \(error)")
+  }
+
+  private func makeSwiftModuleMap(thinArchives: [Architecture: URL], destination: URL) -> Bool {
+    let fileManager = FileManager.default
+    for archive in thinArchives {
+      let frameworkDir = archive.value.deletingLastPathComponent()
+      // Get the Modules directory. The Catalyst one is a symbolic link.
+      let moduleDir = frameworkDir.appendingPathComponent("Modules").resolvingSymlinksInPath()
+      do {
+        let files = try fileManager.contentsOfDirectory(at: moduleDir,
+                                                        includingPropertiesForKeys: nil).compactMap { $0.absoluteString }
+        let swiftModules = files.filter { $0.hasSuffix(".swiftmodule/") }
+        if swiftModules.isEmpty {
+          return false
+        }
+        let swiftModule = URL(fileURLWithPath: swiftModules[0])
+        let destModuleDir = destination.appendingPathComponent("Modules")
+
+        if !fileManager.fileExists(atPath: destModuleDir.absoluteString) {
+          do {
+            try fileManager.copyItem(at: moduleDir, to: destModuleDir)
+          } catch {
+            fatalError("Could not copy Modules from \(moduleDir) to " + "\(destModuleDir): \(error)")
+          }
+        } else {
+          // If the Modules directory is already there, only copy in the architecture specific files
+          // from the *.swiftmodule subdirectory.
+
+          let files = try fileManager.contentsOfDirectory(at: swiftModule,
+                                                          includingPropertiesForKeys: nil).compactMap { $0.absoluteString }
+
+          let destSwiftModuleDir = destModuleDir.appendingPathComponent(swiftModule.lastPathComponent)
+          for file in files {
+            let fileURL = URL(fileURLWithPath: file)
+            do {
+              try fileManager.copyItem(at: fileURL, to:
+                destSwiftModuleDir.appendingPathComponent(fileURL.lastPathComponent))
+            } catch {
+              fatalError("Could not copy Swift module file from \(fileURL) to " + "\(destSwiftModuleDir): \(error)")
+            }
+          }
+        }
+      } catch {
+        fatalError("Error while enumerating files \(moduleDir): \(error.localizedDescription)")
+      }
     }
+    return true
   }
 
   /// Packages an XCFramework based on an almost complete framework folder (missing the binary but includes everything else needed)
@@ -619,7 +675,7 @@ struct FrameworkBuilder {
     for platform in Architecture.TargetPlatform.allCases {
       // Get all the slices that belong to the specific platform in order to lipo them together.
       let slices = thinArchives.filter { $0.key.platform == platform }
-      if slices.count == 0 {
+      if slices.isEmpty {
         continue
       }
       let platformDir = platformFrameworksDir.appendingPathComponent(platform.rawValue)
