@@ -1,4 +1,4 @@
-# Copyright 2018 Google
+# Copyright 2018 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,12 +14,16 @@
 
 function(download_external_sources)
   file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/external)
+
+  set(DOWNLOAD_BENCHMARK ${FIREBASE_IOS_BUILD_BENCHMARKS})
+
   execute_process(
     COMMAND
       ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}"
       -DFIREBASE_DOWNLOAD_DIR=${FIREBASE_DOWNLOAD_DIR}
       -DCMAKE_INSTALL_PREFIX=${FIREBASE_INSTALL_DIR}
       -DFUZZING=${FUZZING}
+      -DDOWNLOAD_BENCHMARK=${DOWNLOAD_BENCHMARK}
       ${PROJECT_SOURCE_DIR}/cmake/external
     WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/external
   )

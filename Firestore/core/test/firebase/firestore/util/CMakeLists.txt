@@ -204,17 +204,19 @@ firebase_ios_cc_library(
 
 # Benchmarks
 
-firebase_ios_cc_binary(
-  firebase_firestore_util_ordered_code_benchmark
-  SOURCES
-    ordered_code_benchmark.cc
-  DEPENDS
-    benchmark
-    benchmark_main
-    firebase_firestore_util
-)
+if(FIREBASE_IOS_BUILD_BENCHMARKS)
+  firebase_ios_cc_binary(
+    firebase_firestore_util_ordered_code_benchmark
+    SOURCES
+      ordered_code_benchmark.cc
+    DEPENDS
+      benchmark
+      benchmark_main
+      firebase_firestore_util
+  )
+endif()
 
-if(APPLE)
+if(FIREBASE_IOS_BUILD_BENCHMARKS AND APPLE)
   firebase_ios_cc_binary(
     firebase_firestore_util_string_apple_benchmark
     SOURCES

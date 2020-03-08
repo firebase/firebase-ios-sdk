@@ -61,6 +61,12 @@ enable_language(C)
 enable_language(CXX)
 
 option(
+  FIREBASE_IOS_BUILD_BENCHMARKS
+  "Enable building of C++ and Objective-C benchmarks for this project"
+  OFF
+)
+
+option(
   FIREBASE_IOS_BUILD_TESTS
   "Enable building of C++ and Objective-C tests for this project"
   ON
@@ -106,11 +112,14 @@ firebase_ios_add_alias(GMock::GMock gmock)
 
 
 # Benchmark
-set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "Firestore disabled")
-set(BENCHMARK_ENABLE_EXCEPTIONS OFF CACHE BOOL "Firestore disabled")
-set(BENCHMARK_ENABLE_INSTALL OFF CACHE BOOL "Firestore disabled")
-set(BENCHMARK_ENABLE_GTEST_TESTS OFF CACHE BOOL "Firestore disabled")
-add_external_subdirectory(benchmark)
+if(FIREBASE_IOS_BUILD_BENCHMARKS)
+  set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "Firestore disabled")
+  set(BENCHMARK_ENABLE_EXCEPTIONS OFF CACHE BOOL "Firestore disabled")
+  set(BENCHMARK_ENABLE_INSTALL OFF CACHE BOOL "Firestore disabled")
+  set(BENCHMARK_ENABLE_GTEST_TESTS OFF CACHE BOOL "Firestore disabled")
+
+  add_external_subdirectory(benchmark)
+endif()
 
 
 # Abseil-cpp
