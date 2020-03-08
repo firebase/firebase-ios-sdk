@@ -19,25 +19,23 @@ endif()
 file(GLOB sources Sources/*.m)
 file(GLOB headers Sources/Private/*.h Sources/Public/*.h)
 
-podspec_version(core_version ${PROJECT_SOURCE_DIR}/FirebaseCore.podspec)
-firebase_version(fb_version ${PROJECT_SOURCE_DIR}/FirebaseCore.podspec)
+podspec_version(version ${PROJECT_SOURCE_DIR}/FirebaseCore.podspec)
+firebase_version(firebase_ios_version ${PROJECT_SOURCE_DIR}/FirebaseCore.podspec)
 
 objc_framework(
   FirebaseCore
   SOURCES ${sources}
   HEADERS ${headers}
-  VERSION ${core_version}
+  VERSION ${version}
   DEFINES
-    FIRCore_VERSION=${core_version}
-    Firebase_VERSION=${fb_version}
+    FIRCore_VERSION=${version}
+    Firebase_VERSION=${firebase_ios_version}
   INCLUDES
-    Sources/Private
-    Sources/Public
     ${PROJECT_SOURCE_DIR}
   DEPENDS
-    GoogleUtilities
     FirebaseCoreDiagnosticsInterop
-    "-framework Foundation"
+    GoogleUtilities
     "-framework AppKit"
+    "-framework Foundation"
   EXCLUDE_FROM_ALL
 )
