@@ -16,35 +16,27 @@ if(NOT APPLE)
   return()
 endif()
 
-set(
-  sources
-  macOS/main.m
-  macOS/AppDelegate.m
-  macOS/AppDelegate.h
-)
-
-set(
-  resources
-  GoogleService-Info.plist
-)
-
 add_executable(
   firestore_example_app_macos MACOSX_BUNDLE
-  ${sources}
+  macOS/AppDelegate.h
+  macOS/AppDelegate.m
+  macOS/main.m
 )
 
-add_objc_flags(
+target_compile_options(
   firestore_example_app_macos
-  ${sources}
+  PRIVATE ${OBJC_FLAGS}
 )
 
 target_link_libraries(
   firestore_example_app_macos
-  PRIVATE "-framework AppKit"
+  PRIVATE
+  "-framework AppKit"
+  "-framework Foundation"
 )
 
 set_target_properties(
   firestore_example_app_macos PROPERTIES
   MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/macOS/Info.plist
-  RESOURCE "${resources}"
+  RESOURCE GoogleService-Info.plist
 )
