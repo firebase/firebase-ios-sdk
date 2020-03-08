@@ -68,8 +68,7 @@ option(
 
 
 list(INSERT CMAKE_MODULE_PATH 0 ${PROJECT_SOURCE_DIR}/cmake)
-include(compiler_id)
-include(archive_options)
+include(compiler_setup)
 include(sanitizer_options)
 include(fuzzing_options)
 
@@ -254,7 +253,6 @@ endif()
 if(FIREBASE_IOS_BUILD_TESTS)
   enable_testing()
 endif()
-include(compiler_setup)
 
 add_subdirectory(FirebaseCore)
 add_subdirectory(Firestore)

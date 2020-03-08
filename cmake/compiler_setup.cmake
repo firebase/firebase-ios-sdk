@@ -14,12 +14,18 @@
 
 # C++ Compiler setup
 
-include(compiler_id)
-
 # We use C++11
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  set(CXX_CLANG ON)
+endif()
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  set(CXX_GNU ON)
+endif()
 
 if(CMAKE_GENERATOR STREQUAL "Ninja")
   set(NINJA ON)
@@ -123,3 +129,18 @@ endforeach()
 foreach(flag ${common_flags} ${cxx_flags})
   list(APPEND FIREBASE_IOS_CXX_FLAGS ${flag})
 endforeach()
+
+if(APPLE)
+  # When building on Apple platforms, ranlib complains about "file has no
+  # symbols". Unfortunately, most of our dependencies implement their
+  # cross-platform build with preprocessor symbols so translation units that
+  # don't target the current platform end up empty (and trigger this warning).
+  #
+  # Note this can't be set in compiler_setup.cmake because that is included
+  # late so as not to affect our dependencies. These variables have to be set
+  # early so that they do affect our dependencies.
+  set(CMAKE_C_ARCHIVE_CREATE   "<CMAKE_AR> Scr <TARGET> <LINK_FLAGS> <OBJECTS>")
+  set(CMAKE_CXX_ARCHIVE_CREATE "<CMAKE_AR> Scr <TARGET> <LINK_FLAGS> <OBJECTS>")
+  set(CMAKE_C_ARCHIVE_FINISH   "<CMAKE_RANLIB> -no_warning_for_no_symbols -c <TARGET>")
+  set(CMAKE_CXX_ARCHIVE_FINISH "<CMAKE_RANLIB> -no_warning_for_no_symbols -c <TARGET>")
+endif()
