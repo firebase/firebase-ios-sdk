@@ -33,7 +33,7 @@ file(
 
 podspec_version(version ${PROJECT_SOURCE_DIR}/GoogleUtilities.podspec)
 
-objc_framework(
+firebase_ios_objc_framework(
   GoogleUtilities
   SOURCES ${sources}
   HEADERS ${headers}

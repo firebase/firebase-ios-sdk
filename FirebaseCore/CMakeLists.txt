@@ -22,7 +22,7 @@ file(GLOB headers Sources/Private/*.h Sources/Public/*.h)
 podspec_version(version ${PROJECT_SOURCE_DIR}/FirebaseCore.podspec)
 firebase_version(firebase_ios_version ${PROJECT_SOURCE_DIR}/FirebaseCore.podspec)
 
-objc_framework(
+firebase_ios_objc_framework(
   FirebaseCore
   SOURCES ${sources}
   HEADERS ${headers}

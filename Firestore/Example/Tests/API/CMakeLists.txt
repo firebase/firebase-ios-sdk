@@ -13,7 +13,7 @@
 # limitations under the License.
 
 if(APPLE)
-  objc_test(
+  firebase_ios_objc_test(
     firebase_firestore_objc_api_test
     HOST firebase_firestore_example_app
     SOURCES

@@ -1,4 +1,4 @@
-# Copyright 2018 Google
+# Copyright 2018 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cc_library(
+firebase_ios_cc_library(
   firebase_firestore_remote_testing
   SOURCES
     fake_target_metadata_provider.cc
@@ -21,7 +21,7 @@ cc_library(
     firebase_firestore_remote
 )
 
-cc_test(
+firebase_ios_cc_test(
   firebase_firestore_remote_test
   SOURCES
     datastore_test.cc

@@ -1,4 +1,4 @@
-# Copyright 2018 Google
+# Copyright 2018 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -77,7 +77,7 @@ if(APPLE)
   # enabling modules and other clang extensions would apply even to regular C++
   # sources which is nonportable. Keep these flags separate to avoid misuse.
   set(
-    OBJC_FLAGS
+    FIREBASE_IOS_OBJC_FLAGS
     -Werror=deprecated-objc-isa-usage
     -Werror=non-modular-include-in-framework-module
     -Werror=objc-root-class
@@ -117,9 +117,9 @@ if(MSVC)
 endif()
 
 foreach(flag ${common_flags} ${c_flags})
-  list(APPEND FIREBASE_C_FLAGS ${flag})
+  list(APPEND FIREBASE_IOS_C_FLAGS ${flag})
 endforeach()
 
 foreach(flag ${common_flags} ${cxx_flags})
-  list(APPEND FIREBASE_CXX_FLAGS ${flag})
+  list(APPEND FIREBASE_IOS_CXX_FLAGS ${flag})
 endforeach()

@@ -1,4 +1,4 @@
-# Copyright 2017 Google
+# Copyright 2017 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ endif()
 
 # Generate Ninja phony rules for unknown dependencies in the build tree and
 # don't complain about doing so. Our dependencies aren't good about declaring
-# BYPRODUCTS and we mix them all into a single uber build so we can't enable
+# BYPRODUCTS and we mix them all into a single superbuild so we can't enable
 # this policy until all dependencies are capable of doing so.
 if(POLICY CMP0058)
   cmake_policy(SET CMP0058 OLD)
@@ -101,9 +101,9 @@ download_external_sources()
 # Googletest
 set(gtest_force_shared_crt ON CACHE BOOL "Use shared run-time")
 add_external_subdirectory(googletest)
-add_alias(GTest::GTest gtest)
-add_alias(GTest::Main gtest_main)
-add_alias(GMock::GMock gmock)
+firebase_ios_add_alias(GTest::GTest gtest)
+firebase_ios_add_alias(GTest::Main gtest_main)
+firebase_ios_add_alias(GMock::GMock gmock)
 
 
 # Benchmark
@@ -179,14 +179,14 @@ if(OPENSSL_FOUND)
 
 else()
   # Not using outboard OpenSSL so set up BoringSSL to look like it.
-  add_alias(OpenSSL::Crypto crypto)
+  firebase_ios_add_alias(OpenSSL::Crypto crypto)
   target_include_directories(
     crypto
     INTERFACE
       $<BUILD_INTERFACE:${FIREBASE_EXTERNAL_SOURCE_DIR}/grpc/third_party/boringssl/include>
   )
 
-  add_alias(OpenSSL::SSL ssl)
+  firebase_ios_add_alias(OpenSSL::SSL ssl)
   target_include_directories(
     ssl
     INTERFACE
@@ -223,7 +223,7 @@ set(LEVELDB_BUILD_TESTS OFF CACHE BOOL "Firestore disabled")
 set(LEVELDB_BUILD_BENCHMARKS OFF CACHE BOOL "Firestore disabled")
 set(LEVELDB_INSTALL OFF CACHE BOOL "Firestore disabled")
 add_external_subdirectory(leveldb)
-add_alias(LevelDB::LevelDB leveldb)
+firebase_ios_add_alias(LevelDB::LevelDB leveldb)
 
 
 # nanopb

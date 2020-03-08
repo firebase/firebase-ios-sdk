@@ -20,7 +20,7 @@ file(GLOB headers Public/*.h)
 
 podspec_version(version ${PROJECT_SOURCE_DIR}/FirebaseAuthInterop.podspec)
 
-objc_framework(
+firebase_ios_objc_framework(
   FirebaseAuthInterop
   HEADERS ${headers}
   VERSION ${version}

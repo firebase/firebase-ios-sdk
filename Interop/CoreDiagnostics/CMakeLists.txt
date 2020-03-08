@@ -23,7 +23,7 @@ podspec_version(
   ${PROJECT_SOURCE_DIR}/FirebaseCoreDiagnosticsInterop.podspec
 )
 
-objc_framework(
+firebase_ios_objc_framework(
   FirebaseCoreDiagnosticsInterop
   HEADERS ${headers}
   VERSION ${version}

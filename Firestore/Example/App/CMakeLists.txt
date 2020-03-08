@@ -25,7 +25,7 @@ add_executable(
 
 target_compile_options(
   firebase_firestore_example_app
-  PRIVATE ${OBJC_FLAGS}
+  PRIVATE ${FIREBASE_IOS_OBJC_FLAGS}
 )
 
 target_link_libraries(
