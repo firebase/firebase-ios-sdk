@@ -1,4 +1,4 @@
-# Copyright 2019 Google
+# Copyright 2019 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 if(APPLE)
   objc_test(
     firebase_firestore_objc_api_test
-    HOST firestore_example_app_macos
+    HOST firebase_firestore_example_app
     SOURCES
       FIRCollectionReferenceTests.mm
       FIRDocumentReferenceTests.mm

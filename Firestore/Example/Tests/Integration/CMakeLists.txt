@@ -18,7 +18,7 @@ endif()
 
 objc_test(
   firebase_firestore_objc_integration_test
-  HOST firestore_example_app_macos
+  HOST firebase_firestore_example_app
   SOURCES
     FSTSmokeTests.mm
     FSTDatastoreTests.mm
