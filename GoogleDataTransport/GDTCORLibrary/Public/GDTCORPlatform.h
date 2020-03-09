@@ -157,6 +157,15 @@ FOUNDATION_EXPORT const GDTCORBackgroundIdentifier GDTCORBackgroundIdentifierInv
 - (void)endActivity:(id<NSObject>)activity;
 
 #endif
+
+/** Creates and executes a background task on a suitable platform.
+ *
+ * @name name The name of the task, useful for debugging which background tasks are running.
+ * @param object The NSObject that calls this Api, such as GDTCORTransformer, GDTCORStorage.
+ * @param block The block that should be execute.
+ */
+- (void)beginBackgroundTaskWithNameBlock:(NSString *)name initiator:(id<NSObject> _Nonnull) object usingblock:(void (^)(void))block;
+
 @end
 
 NS_ASSUME_NONNULL_END

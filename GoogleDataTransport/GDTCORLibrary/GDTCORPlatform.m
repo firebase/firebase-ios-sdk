@@ -19,6 +19,7 @@
 #import <GoogleDataTransport/GDTCORAssert.h>
 #import <GoogleDataTransport/GDTCORConsoleLogger.h>
 #import <GoogleDataTransport/GDTCORReachability.h>
+#import <GoogleDataTransport/GDTCORLifecycle.h>
 
 #import "GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
 
@@ -209,6 +210,40 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
 #endif  // TARGET_OS_IOS || TARGET_OS_TV
   }
   return self;
+}
+
+
+- (void)beginBackgroundTaskWithNameBlock:(NSString *)name initiator:(id<NSObject> _Nonnull) object
+                                               usingblock:(void (^)(void))block {
+#if !TARGET_OS_WATCH
+  __block GDTCORBackgroundIdentifier bgID = GDTCORBackgroundIdentifierInvalid;
+  bgID = [self
+      beginBackgroundTaskWithName:name
+                expirationHandler:^{
+                  [[GDTCORApplication sharedApplication] endBackgroundTask:bgID];
+                  bgID = GDTCORBackgroundIdentifierInvalid;
+                }];
+  block();
+  [self endBackgroundTask:bgID];
+  bgID = GDTCORBackgroundIdentifierInvalid;
+  return;
+#elif TARGET_OS_WATCH
+  if(_isRunningInBackground) {
+    // App is running in background.
+    [[self sharedNSProcessInfoForBackgroundTask] performExpiringActivityWithReason:name usingBlock:^(BOOL expired) {
+      if(!expired) {
+        block();
+      } else {
+        if([object respondsToSelector:@selector(appWillTerminate:)]) {
+          //[object appWillTerminate:self];
+        }
+      }
+    }];
+  } else {
+    // App is running in foreground, executes the block.
+    block();
+  }
+#endif
 }
 
 #if !TARGET_OS_WATCH
