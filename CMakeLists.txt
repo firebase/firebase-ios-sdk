@@ -104,11 +104,13 @@ download_external_sources()
 
 
 # Googletest
-set(gtest_force_shared_crt ON CACHE BOOL "Use shared run-time")
-add_external_subdirectory(googletest)
-firebase_ios_add_alias(GTest::GTest gtest)
-firebase_ios_add_alias(GTest::Main gtest_main)
-firebase_ios_add_alias(GMock::GMock gmock)
+if(FIREBASE_IOS_BUILD_TESTS)
+  set(gtest_force_shared_crt ON CACHE BOOL "Use shared run-time")
+  add_external_subdirectory(googletest)
+  firebase_ios_add_alias(GTest::GTest gtest)
+  firebase_ios_add_alias(GTest::Main gtest_main)
+  firebase_ios_add_alias(GMock::GMock gmock)
+endif()
 
 
 # Benchmark
