@@ -116,7 +116,7 @@ enum CocoaPodUtils {
 
     // Run pod install on the directory that contains the Podfile and blank Xcode project.
     checkCocoaPodsVersion(directory: directory)
-    let result = Shell.executeCommandFromScript("pod install", workingDir: directory)
+    let result = Shell.executeCommandFromScript("bundle exec pod install", workingDir: directory)
     switch result {
     case let .error(code, output):
       fatalError("""
@@ -393,7 +393,8 @@ enum CocoaPodUtils {
       return
     }
     checkedCocoaPodsVersion = true
-    let podVersion = Shell.executeCommandFromScript("pod --version", workingDir: directory)
+    let podVersion =
+      Shell.executeCommandFromScript("bundle exec pod --version", workingDir: directory)
     switch podVersion {
     case let .error(code, output):
       fatalError("""
