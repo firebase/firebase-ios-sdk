@@ -117,7 +117,7 @@ static NSString *GDTCORStoragePath() {
     NSError *error = nil;
     NSURL *eventFile = [self saveEventBytesToDisk:event eventHash:event.hash error:&error];
     if (!eventFile || error) {
-      GDTCORLogDebug("Event failed to save to disk: %@", error);
+      GDTCORLogError(GDTCORMCEFileWriteError, @"Event failed to save to disk: %@", error);
     } else {
       GDTCORLogDebug("Event saved to disk: %@", eventFile);
     }

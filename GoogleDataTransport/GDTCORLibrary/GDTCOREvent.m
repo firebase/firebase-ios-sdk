@@ -26,32 +26,36 @@
 @implementation GDTCOREvent
 
 + (NSNumber *)nextEventID {
-  static NSInteger sessionSequenceNumber = 1;
   static unsigned long long nextEventID = 0;
+  static NSString *counterPath;
   static dispatch_queue_t eventIDQueue;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
-    static NSString *kGDTCORSessionKey = @"GDTCORSession";
     eventIDQueue = dispatch_queue_create("com.google.GDTCOREventIDQueue", DISPATCH_QUEUE_SERIAL);
-    sessionSequenceNumber = [[NSUserDefaults standardUserDefaults] integerForKey:kGDTCORSessionKey];
-    sessionSequenceNumber++;
-    [[NSUserDefaults standardUserDefaults] setInteger:sessionSequenceNumber
-                                               forKey:kGDTCORSessionKey];
-    [[NSUserDefaults standardUserDefaults] synchronize];
+    counterPath = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)[0];
+    counterPath = [NSString stringWithFormat:@"%@/google-sdks-events/count", counterPath];
+    NSError *error;
+    NSString *countText = [NSString stringWithContentsOfFile:counterPath
+                                                    encoding:NSUTF8StringEncoding
+                                                       error:&error];
+    const char *countChars = [countText UTF8String];
+    unsigned long long count = -1;
+    if (countChars) {
+      count = strtoull([countText UTF8String], NULL, 10);
+    }
+    nextEventID = error || count < 0 ? 0 : count;
   });
 
   __block NSNumber *result;
   dispatch_sync(eventIDQueue, ^{
-    // Concatenate the session number with the event number.
-    uint64_t tensPlace = 10;
-    while (nextEventID >= tensPlace) {
-      tensPlace *= 10;
-    }
-    uint64_t eventID = sessionSequenceNumber * tensPlace + nextEventID;
+    result = @(nextEventID);
     nextEventID++;
-    // This isn't actually concatenating numbers because the first digits aren't the
-    // sessionSequenceNumber
-    result = @(eventID);
+    NSError *error;
+    [[result stringValue] writeToFile:counterPath
+                           atomically:YES
+                             encoding:NSUTF8StringEncoding
+                                error:&error];
+    GDTCORAssert(error == nil, @"There was an error saving the new counter value to disk.");
   });
   return result;
 }

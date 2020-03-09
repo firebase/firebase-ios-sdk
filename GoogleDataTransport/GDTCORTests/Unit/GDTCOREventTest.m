@@ -139,23 +139,17 @@
 
 /** Tests generating event IDs. */
 - (void)testGenerateEventIDs {
-  NSString *firstValue;
+  NSNumber *initialValue;
   NSMutableSet *generatedValues = [[NSMutableSet alloc] init];
   for (int i = 0; i < 100000; i++) {
     NSNumber *eventID;
     XCTAssertNoThrow(eventID = [GDTCOREvent nextEventID]);
     XCTAssertFalse([generatedValues containsObject:eventID]);
-    if (i == 0) {
-      firstValue = [eventID stringValue];
-      // This could be flaky if the storage isn't reset before running this test and the initial
-      // event value isn't a single digit.
-      firstValue = [firstValue substringToIndex:firstValue.length - 1];
-    }
-    // Test that the concatentation works by using strings to do it equally, but much more slowly.
-    NSString *currentValueString = [firstValue stringByAppendingString:[@(i) stringValue]];
-    NSString *eventIDString = [eventID stringValue];
-    XCTAssertEqualObjects(eventIDString, currentValueString);
     [generatedValues addObject:eventID];
+    if (i == 0) {
+      initialValue = eventID;
+    }
+    XCTAssertEqual(eventID.integerValue, initialValue.integerValue + i);
   }
 }
 
