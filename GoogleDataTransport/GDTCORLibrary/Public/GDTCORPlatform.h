@@ -164,7 +164,9 @@ FOUNDATION_EXPORT const GDTCORBackgroundIdentifier GDTCORBackgroundIdentifierInv
  * @param object The NSObject that calls this Api, such as GDTCORTransformer, GDTCORStorage.
  * @param block The block that should be execute.
  */
-- (void)beginBackgroundTaskWithNameBlock:(NSString *)name initiator:(id<NSObject> _Nonnull) object usingblock:(void (^)(void))block;
+- (void)beginBackgroundTaskWithNameBlock:(NSString *)name
+                               initiator:(id<NSObject> _Nonnull)object
+                              usingblock:(void (^)(void))block;
 
 @end
 
