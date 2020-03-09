@@ -32,14 +32,14 @@ class PhoneMultiFactorTests: FIRAuthApiTestsBase {
     let enrollExpectation = self.expectation(description: "Enroll phone multi factor finished.")
     let unenrollExpectation = self.expectation(description: "Unenroll phone multi factor finished.")
     Auth.auth().signIn(withEmail: kNoSecondFactorUserEmail, password: kNoSecondFactorUserPassword) { (result, error) in
-      XCTAssertNil(String(format: "User normal sign in failed. Error: %@", error!.localizedDescription))
+      XCTAssertNil(error, "User normal sign in failed. Error: \(error!.localizedDescription)")
 
       // Enroll
       guard let user = result?.user else {
         XCTFail("No valid user after attempted sign-in.")
       }
       user.multiFactor.getSessionWithCompletion({ (session, error) in
-        XCTAssertNil("Get multi factor session failed. Error: \(error!.localizedDescription)")
+        XCTAssertNil(error, "Get multi factor session failed. Error: \(error!.localizedDescription)")
         PhoneAuthProvider.provider().verifyPhoneNumber(
           kPhoneSecondFactorPhoneNumber,
           uiDelegate: nil,
@@ -57,7 +57,7 @@ class PhoneMultiFactorTests: FIRAuthApiTestsBase {
               // Unenroll
               user = Auth.auth().currentUser
               user?.multiFactor.unenroll(with: (user?.multiFactor.enrolledFactors.first)!, completion: { (error) in
-                XCTAssertNil("Phone multi factor unenroll failed. Error: \(error!.localizedDescription)")
+                XCTAssertNil(error, "Phone multi factor unenroll failed. Error: \(error!.localizedDescription)")
                 XCTAssertEqual(Auth.auth().currentUser?.multiFactor.enrolledFactors.count, 0)
                 unenrollExpectation.fulfill()
               })

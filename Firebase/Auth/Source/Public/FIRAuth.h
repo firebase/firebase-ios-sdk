@@ -258,7 +258,7 @@ DEPRECATED_MSG_ATTRIBUTE("Please directly use email or previousEmail properties 
 /** @class FIRActionCodeURL
     @brief This class will allow developers to easily extract information about out of band links.
  */
-NS_SWIFT_NAME(FIRActionCodeURL)
+NS_SWIFT_NAME(ActionCodeURL)
 @interface FIRActionCodeURL : NSObject
 
 /** @property APIKey
@@ -288,14 +288,15 @@ NS_SWIFT_NAME(FIRActionCodeURL)
 @property(nonatomic, nullable, copy, readonly) NSString *languageCode;
 
 /** @fn actionCodeURLWithLink:
-    @brief Construct an FIRActionCodeURL from an oob link.
+    @brief Construct an FIRActionCodeURL from an out of band link (e.g. email link).
     @param link The oob link string used to construct the action code URL.
     @return The FIRActionCodeURL object constructed based on the oob link provided.
  */
-+ (nullable instancetype)actionCodeURLWithLink:(NSString *)link;
++ (nullable instancetype)actionCodeURLWithLink:(NSString *)link
+    NS_SWIFT_NAME(actionCodeURL(link:));
 
 /** @fn init
-    @brief please use +[FIRActionCodeURL actionCodeURLWithLink:] instead.
+    @brief Please use actionCodeURLWithLink: for Objective-C or actionCodeURLWithLink(link:) for Swift instead.
  */
 - (instancetype)init NS_UNAVAILABLE;
 

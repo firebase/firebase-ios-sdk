@@ -178,34 +178,6 @@ static NSString *const kMissingPasswordReason = @"Missing Password";
  */
 static NSMutableDictionary *gKeychainServiceNameForAppName;
 
-/** @fn FIRAuthParseURL:NSString
-    @brief Parses an incoming URL into all available query items.
-    @param urlString The url to be parsed.
-    @return A dictionary of available query items in the target URL.
- */
-static NSDictionary<NSString *, NSString *> *FIRAuthParseURL(NSString *urlString) {
-  NSString *linkURL = [NSURLComponents componentsWithString:urlString].query;
-  if (!linkURL) {
-    return @{};
-  }
-  NSArray<NSString *> *URLComponents = [linkURL componentsSeparatedByString:@"&"];
-  NSMutableDictionary<NSString *, NSString *> *queryItems =
-      [[NSMutableDictionary alloc] initWithCapacity:URLComponents.count];
-  for (NSString *component in URLComponents) {
-    NSRange equalRange = [component rangeOfString:@"="];
-    if (equalRange.location != NSNotFound) {
-      NSString *queryItemKey =
-          [[component substringToIndex:equalRange.location] stringByRemovingPercentEncoding];
-      NSString *queryItemValue =
-          [[component substringFromIndex:equalRange.location + 1] stringByRemovingPercentEncoding];
-      if (queryItemKey && queryItemValue) {
-        queryItems[queryItemKey] = queryItemValue;
-      }
-    }
-  }
-  return queryItems;
-}
-
 #pragma mark - FIRActionCodeInfo
 
 @interface FIRActionCodeInfo ()
@@ -296,11 +268,39 @@ static NSDictionary<NSString *, NSString *> *FIRAuthParseURL(NSString *urlString
 
 @implementation FIRActionCodeURL
 
+/** @fn FIRAuthParseURL:NSString
+    @brief Parses an incoming URL into all available query items.
+    @param urlString The url to be parsed.
+    @return A dictionary of available query items in the target URL.
+ */
++ (NSDictionary<NSString *, NSString *> *)parseURL:(NSString *)urlString {
+  NSString *linkURL = [NSURLComponents componentsWithString:urlString].query;
+  if (!linkURL) {
+    return @{};
+  }
+  NSArray<NSString *> *URLComponents = [linkURL componentsSeparatedByString:@"&"];
+  NSMutableDictionary<NSString *, NSString *> *queryItems =
+      [[NSMutableDictionary alloc] initWithCapacity:URLComponents.count];
+  for (NSString *component in URLComponents) {
+    NSRange equalRange = [component rangeOfString:@"="];
+    if (equalRange.location != NSNotFound) {
+      NSString *queryItemKey =
+          [[component substringToIndex:equalRange.location] stringByRemovingPercentEncoding];
+      NSString *queryItemValue =
+          [[component substringFromIndex:equalRange.location + 1] stringByRemovingPercentEncoding];
+      if (queryItemKey && queryItemValue) {
+        queryItems[queryItemKey] = queryItemValue;
+      }
+    }
+  }
+  return queryItems;
+}
+
 + (nullable instancetype)actionCodeURLWithLink:(NSString *)link {
-  NSDictionary<NSString *, NSString *> *queryItems = FIRAuthParseURL(link);
+  NSDictionary<NSString *, NSString *> *queryItems = [FIRActionCodeURL parseURL:link];
   if (!queryItems.count) {
     NSURLComponents *urlComponents = [NSURLComponents componentsWithString:link];
-    queryItems = FIRAuthParseURL(urlComponents.query);
+    queryItems = [FIRActionCodeURL parseURL:urlComponents.query];
   }
   if (!queryItems.count) {
     return nil;

@@ -408,17 +408,17 @@ typedef NS_ENUM(NSInteger, FIRAuthInternalErrorCode) {
   FIRAuthInternalErrorCodeMissingMultiFactorInfo =
       FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeMissingMultiFactorInfo,
 
-  /** Indicates that the the multi factor session is invalid.
+  /** Indicates that the multi factor session is invalid.
    */
   FIRAuthInternalErrorCodeInvalidMultiFactorSession =
       FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeInvalidMultiFactorSession,
 
-  /** Indicates that the multi factor infor is not found.
+  /** Indicates that the multi factor info is not found.
    */
   FIRAuthInternalErrorCodeMultiFactorInfoNotFound =
       FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeMultiFactorInfoNotFound,
 
-  /** Indicates that the the operation is admin only.
+  /** Indicates that the operation is admin only.
    */
   FIRAuthInternalErrorCodeAdminRestrictedOperation =
       FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeAdminRestrictedOperation,
@@ -428,12 +428,12 @@ typedef NS_ENUM(NSInteger, FIRAuthInternalErrorCode) {
   FIRAuthInternalErrorCodeUnverifiedEmail =
       FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeUnverifiedEmail,
 
-  /** Indicates that the the second factor is aready enrolled.
+  /** Indicates that the second factor is already enrolled.
    */
   FIRAuthInternalErrorCodeSecondFactorAlreadyEnrolled =
       FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeSecondFactorAlreadyEnrolled,
 
-  /** Indicates that the number of multi factor reaches the limit.
+  /** Indicates that the number of multi factors reached the limit.
    */
   FIRAuthInternalErrorCodeMaximumSecondFactorCountExceeded =
       FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeMaximumSecondFactorCountExceeded,
@@ -443,7 +443,7 @@ typedef NS_ENUM(NSInteger, FIRAuthInternalErrorCode) {
   FIRAuthInternalErrorCodeUnsupportedFirstFactor =
       FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeUnsupportedFirstFactor,
 
-  /** Indicates that the email need to be verified before changed.
+  /** Indicates that the email needs to be verified before changed.
    */
   FIRAuthInternalErrorCodeEmailChangeNeedsVerification =
       FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeEmailChangeNeedsVerification,
