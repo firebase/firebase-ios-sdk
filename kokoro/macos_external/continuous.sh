@@ -36,6 +36,7 @@ export LC_CTYPE=en_US.UTF-8
 
 pushd ZipBuilder
 
+bundle install
 pod repo update
 swift run ReleasePackager -zipPods "../kokoro/shared/jazzy_build.json" \
   -templateDir $(pwd)/Template \
