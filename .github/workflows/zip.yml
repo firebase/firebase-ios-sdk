@@ -29,13 +29,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
-      run: |
-        pod --version
-        scripts/setup_bundler.sh
-        bundle exec pod --version
+      run: ./scripts/setup_bundler.sh
     - name: ZipBuildingTest
       run: |
-         bundle exec pod --version
          mkdir -p zip_output_dir
          sh -x scripts/build_zip.sh zip_output_dir
 
