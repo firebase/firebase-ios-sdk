@@ -25,6 +25,8 @@
 #import "FIRIAMTimeFetcher.h"
 #import "UIColor+FIRIAMHexString.h"
 
+#import <FirebaseABTesting/ExperimentPayload.pbobjc.h>
+
 @interface FIRIAMFetchResponseParser ()
 @property(nonatomic) id<FIRIAMTimeFetcher> timeFetcher;
 @end
@@ -131,27 +133,46 @@
       isTestMessage = [isTestCampaignNode boolValue];
     }
 
-    id vanillaPayloadNode = messageNode[@"vanillaPayload"];
-    if (![vanillaPayloadNode isKindOfClass:[NSDictionary class]]) {
+    id payloadNode = messageNode[@"experimentalPayload"] ?: messageNode[@"vanillaPayload"];
+
+    if (![payloadNode isKindOfClass:[NSDictionary class]]) {
       FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM900012",
-                    @"vanillaPayload does not exist or does not represent a dictionary in "
+                    @"Message payload does not exist or does not represent a dictionary in "
                      "message node %@",
                     messageNode);
       return nil;
     }
 
-    NSString *messageID = vanillaPayloadNode[@"campaignId"];
+    NSString *messageID = payloadNode[@"campaignId"];
     if (!messageID) {
       FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM900010",
                     @"messsage id is missing in message node %@", messageNode);
       return nil;
     }
 
-    NSString *messageName = vanillaPayloadNode[@"campaignName"];
+    NSString *messageName = payloadNode[@"campaignName"];
     if (!messageName && !isTestMessage) {
       FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM900011",
                     @"campaign name is missing in non-test message node %@", messageNode);
       return nil;
+    }
+
+    ABTExperimentPayload *experimentPayload = nil;
+    NSDictionary *experimentPayloadDictionary = payloadNode[@"experimentPayload"];
+
+    if (experimentPayloadDictionary) {
+      experimentPayload = [ABTExperimentPayload message];
+      experimentPayload.experimentId = experimentPayloadDictionary[@"experimentId"];
+      experimentPayload.experimentStartTimeMillis =
+          [experimentPayloadDictionary[@"experimentStartTimeMillis"] integerValue];
+      // FIAM experiments always use the "discard oldest" overflow policy.
+      experimentPayload.overflowPolicy =
+          ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest;
+      experimentPayload.timeToLiveMillis =
+          [experimentPayloadDictionary[@"timeToLiveMillis"] integerValue];
+      experimentPayload.triggerTimeoutMillis =
+          [experimentPayloadDictionary[@"triggerTimeoutMillis"] integerValue];
+      experimentPayload.variantId = experimentPayloadDictionary[@"variantId"];
     }
 
     NSTimeInterval startTimeInSeconds = 0;
@@ -159,12 +180,12 @@
     if (!isTestMessage) {
       // Parsing start/end times out of non-test messages. They are strings in the
       // json response.
-      id startTimeNode = vanillaPayloadNode[@"campaignStartTimeMillis"];
+      id startTimeNode = payloadNode[@"campaignStartTimeMillis"];
       if ([startTimeNode isKindOfClass:[NSString class]]) {
         startTimeInSeconds = [startTimeNode doubleValue] / 1000.0;
       }
 
-      id endTimeNode = vanillaPayloadNode[@"campaignEndTimeMillis"];
+      id endTimeNode = payloadNode[@"campaignEndTimeMillis"];
       if ([endTimeNode isKindOfClass:[NSString class]]) {
         endTimeInSeconds = [endTimeNode doubleValue] / 1000.0;
       }
@@ -341,13 +362,15 @@
       dataBundle = dataBundleNode;
     }
     if (isTestMessage) {
-      return [[FIRIAMMessageDefinition alloc] initTestMessageWithRenderData:renderData];
+      return [[FIRIAMMessageDefinition alloc] initTestMessageWithRenderData:renderData
+                                                          experimentPayload:experimentPayload];
     } else {
       return [[FIRIAMMessageDefinition alloc] initWithRenderData:renderData
                                                        startTime:startTimeInSeconds
                                                          endTime:endTimeInSeconds
                                                triggerDefinition:triggersDefinition
                                                          appData:dataBundle
+                                               experimentPayload:experimentPayload
                                                    isTestMessage:NO];
     }
   } @catch (NSException *e) {

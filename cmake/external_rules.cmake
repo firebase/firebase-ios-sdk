@@ -36,9 +36,22 @@ function(download_external_sources)
 endfunction()
 
 function(add_external_subdirectory NAME)
-  add_subdirectory(
-    ${FIREBASE_BINARY_DIR}/external/src/${NAME}
-    ${FIREBASE_BINARY_DIR}/external/src/${NAME}-build
-    EXCLUDE_FROM_ALL
-  )
+  string(TOUPPER ${NAME} UPPER_NAME)
+  if (NOT EXISTS ${${UPPER_NAME}_SOURCE_DIR})
+    set(${UPPER_NAME}_SOURCE_DIR "${FIREBASE_BINARY_DIR}/external/src/${NAME}")
+    set(${UPPER_NAME}_SOURCE_DIR "${${UPPER_NAME}_SOURCE_DIR}" PARENT_SCOPE)
+  endif()
+
+  if (NOT EXISTS ${${UPPER_NAME}_BINARY_DIR})
+    set(${UPPER_NAME}_BINARY_DIR "${${UPPER_NAME}_SOURCE_DIR}-build")
+    set(${UPPER_NAME}_BINARY_DIR "${${UPPER_NAME}_BINARY_DIR}" PARENT_SCOPE)
+  endif()
+
+  if (EXISTS "${${UPPER_NAME}_SOURCE_DIR}/CMakeLists.txt")
+    add_subdirectory(
+      ${${UPPER_NAME}_SOURCE_DIR}
+      ${${UPPER_NAME}_BINARY_DIR}
+      EXCLUDE_FROM_ALL
+    )
+  endif()
 endfunction()

@@ -178,6 +178,7 @@ NS_SWIFT_NAME(InAppMessagingDisplayMessage)
               renderAsTestMessage:(BOOL)renderAsTestMessage
                       messageType:(FIRInAppMessagingDisplayMessageType)messageType
                       triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType __deprecated;
+
 @end
 
 NS_SWIFT_NAME(InAppMessagingCardDisplay)
@@ -371,6 +372,7 @@ NS_SWIFT_NAME(InAppMessagingImageOnlyDisplay)
                       triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
                         imageData:(nullable FIRInAppMessagingImageData *)imageData
                         actionURL:(nullable NSURL *)actionURL __deprecated;
+
 @end
 
 /// The way that an in-app message was dismissed.

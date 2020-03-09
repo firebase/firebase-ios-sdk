@@ -18,7 +18,9 @@
 
 - (void)startUploadRequest:(NSURLRequest *)request
                   filePath:(NSString *)path
+       dataCollectionToken:(FIRCLSDataCollectionToken *)dataCollectionToken
                immediately:(BOOL)immediate {
+  self.startUploadRequest = request;
   NSLog(@"intercepted request");
 }
 

@@ -1,3 +1,6 @@
+# 2020-03-10 -- v0.19.0
+- [added] Added SDK support for A/B testing in-app messages.
+
 # 2020-02-18 -- v0.17.0
 - [added] Added support for data bundles for in-app messages. Data bundles are additional key-value pairs that can be sent along with an in-app message (#4922).
 

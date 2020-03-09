@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 
-# Copyright 2018 Google
+# Copyright 2018 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -47,8 +47,6 @@ from re import sub
 import argparse
 import logging
 import os
-
-from lib import git
 
 arg_parser = argparse.ArgumentParser()
 
@@ -223,26 +221,16 @@ def source(namespaces, array_name, array_size_name, fileid, filename,
   return data
 
 
-def _get_repo_root(filename):
-  """Returns the root of the repository containing the given file.
-
-  Args:
-    filename: A source file or directory in the repository.
+def _get_repo_root():
+  """Returns the root of the source repository.
   """
 
-  # CMake builds can be run out of source tree, so use the directory containing
-  # a source file as the starting point for the calculation.
-  if os.path.isdir(filename):
-    dir_in_repo = filename
-  else:
-    dir_in_repo = os.path.dirname(filename)
+  scripts_dir = os.path.abspath(os.path.dirname(__file__))
+  assert os.path.basename(scripts_dir) == 'scripts'
 
-  starting_dir = os.getcwd()
+  root_dir = os.path.dirname(scripts_dir)
+  assert os.path.isdir(os.path.join(root_dir, '.github'))
 
-  os.chdir(dir_in_repo)
-  root_dir = git.get_repo_root()
-
-  os.chdir(starting_dir)
   return root_dir
 
 
@@ -265,8 +253,8 @@ def main():
     output_header = input_file_base + ".h"
     logging.debug("Using default --output_header='%s'", output_header)
 
+  root_dir = _get_repo_root()
   absolute_dir = path.dirname(output_header)
-  root_dir = _get_repo_root(absolute_dir)
 
   relative_dir = path.relpath(absolute_dir, root_dir)
   relative_header_path = path.join(relative_dir, path.basename(output_header))

@@ -46,7 +46,10 @@
 #import <FirebaseCore/FIRDependency.h>
 #import <FirebaseCore/FIRLibrary.h>
 #import <FirebaseCore/FIROptionsInternal.h>
-#import <FirebaseInstanceID/FirebaseInstanceID.h>
+#import <FirebaseInstallations/FirebaseInstallations.h>
+
+#import <GoogleDataTransport/GDTCORTargets.h>
+#import <GoogleDataTransport/GDTCORTransport.h>
 
 #if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>
@@ -59,6 +62,8 @@ dispatch_queue_t _firclsExceptionQueue;
 
 static atomic_bool _hasInitializedInstance;
 
+NSString *const FIRCLSGoogleTransportMappingID = @"1206";
+
 /// Empty protocol to register with FirebaseCore's component system.
 @protocol FIRCrashlyticsInstanceProvider <NSObject>
 @end
@@ -70,6 +75,7 @@ static atomic_bool _hasInitializedInstance;
 @property(nonatomic) FIRCLSDataCollectionArbiter *dataArbiter;
 @property(nonatomic) FIRCLSFileManager *fileManager;
 @property(nonatomic) FIRCLSReportManager *reportManager;
+@property(nonatomic) GDTCORTransport *googleTransport;
 
 @end
 
@@ -79,7 +85,7 @@ static atomic_bool _hasInitializedInstance;
 
 - (instancetype)initWithApp:(FIRApp *)app
                     appInfo:(NSDictionary *)appInfo
-                 instanceID:(FIRInstanceID *)instanceID
+              installations:(FIRInstallations *)installations
                   analytics:(id<FIRAnalyticsInterop>)analytics {
   self = [super init];
 
@@ -97,14 +103,19 @@ static atomic_bool _hasInitializedInstance;
     FIRCLSDeveloperLog("Crashlytics", @"Running on %@, %@ (%@)", FIRCLSHostModelInfo(),
                        FIRCLSHostOSDisplayVersion(), FIRCLSHostOSBuildVersion());
 
+    _googleTransport = [[GDTCORTransport alloc] initWithMappingID:FIRCLSGoogleTransportMappingID
+                                                     transformers:nil
+                                                           target:kGDTCORTargetCSH];
+
     _fileManager = [[FIRCLSFileManager alloc] init];
     _googleAppID = app.options.googleAppID;
     _dataArbiter = [[FIRCLSDataCollectionArbiter alloc] initWithApp:app withAppInfo:appInfo];
     _reportManager = [[FIRCLSReportManager alloc] initWithFileManager:_fileManager
-                                                           instanceID:instanceID
+                                                        installations:installations
                                                             analytics:analytics
                                                           googleAppID:_googleAppID
-                                                          dataArbiter:_dataArbiter];
+                                                          dataArbiter:_dataArbiter
+                                                      googleTransport:_googleTransport];
 
     // Process did crash during previous execution
     NSString *crashedMarkerFileName = [NSString stringWithUTF8String:FIRCLSCrashedMarkerFileName];
@@ -151,13 +162,13 @@ static atomic_bool _hasInitializedInstance;
 
     id<FIRAnalyticsInterop> analytics = FIR_COMPONENT(FIRAnalyticsInterop, container);
 
-    FIRInstanceID *instanceID = FIRInstanceID.instanceID;
+    FIRInstallations *installations = [FIRInstallations installationsWithApp:container.app];
 
     *isCacheable = YES;
 
     return [[FIRCrashlytics alloc] initWithApp:container.app
                                        appInfo:NSBundle.mainBundle.infoDictionary
-                                    instanceID:instanceID
+                                 installations:installations
                                      analytics:analytics];
   };
 

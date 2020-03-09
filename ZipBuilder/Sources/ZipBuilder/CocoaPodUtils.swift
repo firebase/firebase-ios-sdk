@@ -115,7 +115,8 @@ enum CocoaPodUtils {
     }
 
     // Run pod install on the directory that contains the Podfile and blank Xcode project.
-    let result = Shell.executeCommandFromScript("pod _1.8.4_ install", workingDir: directory)
+    checkCocoaPodsVersion(directory: directory)
+    let result = Shell.executeCommandFromScript("pod install", workingDir: directory)
     switch result {
     case let .error(code, output):
       fatalError("""
@@ -341,14 +342,17 @@ enum CocoaPodUtils {
     }
 
     // If we're using local pods, explicitly add FirebaseInstanceID, FirebaseInstallations,
-    // and any Google* podspecs if they exist and there are no
+    // the Interop pods, and any Google* podspecs if they exist and there are no
     // explicit versions in the Podfile. Note there are versions for local podspecs if we're doing
     // the secondary install for module map building.
     if !versionsSpecified, let localURL = LaunchArgs.shared.localPodspecPath {
       let podspecs = try! FileManager.default.contentsOfDirectory(atPath: localURL.path)
       for podspec in podspecs {
         if (podspec == "FirebaseInstanceID.podspec" ||
-          podspec == "FirebaseInstallations.podspec") ||
+          podspec == "FirebaseInstallations.podspec" ||
+          podspec == "FirebaseAnalyticsInterop.podspec" ||
+          podspec == "FirebaseAuthInterop.podspec" ||
+          podspec == "FirebaseCoreDiagnostics.podspec") ||
           podspec.starts(with: "Google"), podspec.hasSuffix(".podspec") {
           let podName = podspec.replacingOccurrences(of: ".podspec", with: "")
           podfile += "  pod '\(podName)', :path => '\(localURL.path)/\(podspec)'\n"
@@ -376,6 +380,36 @@ enum CocoaPodUtils {
       try podfile.write(toFile: path.path, atomically: true, encoding: .utf8)
     } catch {
       throw FileManager.FileError.writeToFileFailed(file: path.path, error: error)
+    }
+  }
+
+  private static var checkedCocoaPodsVersion = false
+
+  /// At least 1.9.0 is required for `use_frameworks! :linkage => :static`
+  /// - Parameters:
+  ///   - directory: Destination directory for the pods.
+  private static func checkCocoaPodsVersion(directory: URL) {
+    if checkedCocoaPodsVersion {
+      return
+    }
+    checkedCocoaPodsVersion = true
+    let podVersion = Shell.executeCommandFromScript("pod --version", workingDir: directory)
+    switch podVersion {
+    case let .error(code, output):
+      fatalError("""
+      `pod --version` failed with exit code \(code)
+      Output from `pod --version`:
+      \(output)
+      """)
+    case let .success(output):
+      let version = output.components(separatedBy: ".")
+      let major = Int(version[0])
+      guard let minor = Int(version[1]) else {
+        fatalError("Failed to parse minor version from \(version)")
+      }
+      if major == 1, minor < 9 {
+        fatalError("CocoaPods version must be at least 1.9.0. Using \(output)")
+      }
     }
   }
 }

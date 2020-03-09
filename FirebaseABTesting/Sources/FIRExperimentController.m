@@ -291,4 +291,51 @@ NSArray *ABTExperimentsToClearFromPayloads(
   }
   return timestamp;
 }
+
+- (void)validateRunningExperimentsForServiceOrigin:(NSString *)origin
+                         runningExperimentPayloads:(NSArray<ABTExperimentPayload *> *)payloads {
+  ABTConditionalUserPropertyController *controller =
+      [ABTConditionalUserPropertyController sharedInstanceWithAnalytics:_analytics];
+
+  FIRLifecycleEvents *lifecycleEvents = [[FIRLifecycleEvents alloc] init];
+
+  // Get the list of experiments from Firebase Analytics.
+  NSArray<NSDictionary<NSString *, NSString *> *> *activeExperiments =
+      [controller experimentsWithOrigin:origin];
+
+  NSMutableSet *runningExperimentIDs = [NSMutableSet setWithCapacity:payloads.count];
+  for (ABTExperimentPayload *payload in payloads) {
+    [runningExperimentIDs addObject:payload.experimentId];
+  }
+
+  for (NSDictionary<NSString *, NSString *> *activeExperimentDictionary in activeExperiments) {
+    NSString *experimentID = activeExperimentDictionary[@"name"];
+    if (![runningExperimentIDs containsObject:experimentID]) {
+      NSString *variantID = activeExperimentDictionary[@"value"];
+
+      [controller clearExperiment:experimentID
+                        variantID:variantID
+                       withOrigin:origin
+                          payload:nil
+                           events:lifecycleEvents];
+    }
+  }
+}
+
+- (void)activateExperiment:(ABTExperimentPayload *)experimentPayload
+          forServiceOrigin:(NSString *)origin {
+  ABTConditionalUserPropertyController *controller =
+      [ABTConditionalUserPropertyController sharedInstanceWithAnalytics:_analytics];
+
+  FIRLifecycleEvents *lifecycleEvents = [[FIRLifecycleEvents alloc] init];
+
+  // Ensure that trigger event is nil, which will immediately set the experiment to active.
+  experimentPayload.triggerEvent = nil;
+
+  [controller setExperimentWithOrigin:origin
+                              payload:experimentPayload
+                               events:lifecycleEvents
+                               policy:experimentPayload.overflowPolicy];
+}
+
 @end
