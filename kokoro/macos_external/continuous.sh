@@ -31,10 +31,14 @@ export METHOD="xcodebuild"
 # before_install:
 ./kokoro/shared/before_install.sh
 
-# Install prerequisites
-./scripts/install_prereqs.sh
-
 # Force xcpretty to use UTF8
 export LC_CTYPE=en_US.UTF-8
 
-./scripts/build.sh $PROJECT $PLATFORM $METHOD
+pushd ZipBuilder
+
+pod repo update
+swift run ReleasePackager -zipPods "../kokoro/shared/jazzy_build.json" \
+  -templateDir $(pwd)/Template \
+  -updatePodRepo false
+
+popd
