@@ -432,7 +432,7 @@ struct FrameworkBuilder {
 
     // Find CocoaPods generated umbrella header.
     var umbrellaHeader = ""
-    if framework == "gRPC-Core" {
+    if framework == "gRPC-Core" || framework == "TensorFlowLiteObjC" {
       // TODO: Proper handling of podspec-specified module.modulemap files with customized umbrella
       // headers. This is good enough for Firebase since it doesn't need these modules.
       umbrellaHeader = "\(framework)-umbrella.h"
@@ -575,10 +575,18 @@ struct FrameworkBuilder {
       fatalError("Could not copy \(framework) to destination: \(error)")
     }
 
-    // For Swift modules, we use the modulemap from the xcodebuild. For Objective C modules,
-    // We use the constructed module map that includes required framework and library
-    // dependencies.
-    if !makeSwiftModuleMap(thinArchives: thinArchives, destination: destination) {
+    // CocoaPods does not put dependent frameworks and libraries into the module maps it generates.
+    // Instead it use build options to specify them. For the zip build, we need the module maps to
+    // include the dependent frameworks and libraries. Therefore we reconstruct them by parsing
+    // the CocoaPods config files and add them here.
+    // Currently we only to the construction for Objective C since Swift Module directories require
+    // several other files. See https://github.com/firebase/firebase-ios-sdk/pull/5040.
+    // Therefore, for Swift we do a simple copy of the Modules files from an Xcode build.
+    // This is sufficient for the testing done so far, but more testing is required to determine
+    // if dependent libraries and frameworks also may need to be added to the Swift module maps in
+    // some cases.
+    let builtSwiftModules = makeSwiftModuleMap(thinArchives: thinArchives, destination: destination)
+    if !builtSwiftModules {
       // Copy the module map to the destination.
       let moduleDir = destination.appendingPathComponent("Modules")
       do {
