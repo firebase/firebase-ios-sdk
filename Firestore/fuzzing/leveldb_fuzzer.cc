@@ -34,8 +34,7 @@ using firebase::firestore::model::BatchId;
 using firebase::firestore::model::ResourcePath;
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
-  OBC
-  const char* str_ptr = reinterpret_cast<const char*>(data);
+  const char* str_ptr = reinterpret_cast<const char*>(dataOBC);
   std::string str{str_ptr, size};
   leveldb::Slice slice = firebase::firestore::local::MakeSlice(str);
 
