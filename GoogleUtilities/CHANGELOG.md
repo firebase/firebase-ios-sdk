@@ -1,3 +1,7 @@
+# Unreleased
+- Fixed an issue where GoogleUtilities misidentified Catalyst as a
+  simulator runtime environment. (#5048)
+
 # 6.5.1
 - Standardized import paths. (#4655)
 
