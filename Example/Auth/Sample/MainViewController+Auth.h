@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#import <Foundation/Foundation.h>
+
 #import "MainViewController.h"
 
 #import "FIRAuth.h"

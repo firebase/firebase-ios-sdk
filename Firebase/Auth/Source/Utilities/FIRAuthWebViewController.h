@@ -15,7 +15,7 @@
  */
 
 #include <TargetConditionals.h>
-#if !TARGET_OS_OSX && !TARGET_OS_TV && !TARGET_OS_WATCH
+#if TARGET_OS_IOS
 
 #import <UIKit/UIKit.h>
 

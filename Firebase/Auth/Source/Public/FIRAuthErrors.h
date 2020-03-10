@@ -69,6 +69,13 @@ extern NSString *const FIRAuthErrorUserInfoUpdatedCredentialKey
     NS_SWIFT_NAME(AuthErrorUserInfoUpdatedCredentialKey);
 
 /**
+    @brief The key used to read the MFA resolver from the userInfo dictionary of the NSError object
+        returned when 2FA is required for sign-incompletion.
+ */
+extern NSString *const FIRAuthErrorUserInfoMultiFactorResolverKey
+    NS_SWIFT_NAME(AuthErrorUserInfoMultiFactorResolverKey);
+
+/**
     @brief Error codes used by Firebase Auth.
  */
 typedef NS_ENUM(NSInteger, FIRAuthErrorCode) {
@@ -342,6 +349,50 @@ typedef NS_ENUM(NSInteger, FIRAuthErrorCode) {
     /** Indicates that the GameKit framework is not linked prior to attempting Game Center signin.
      */
     FIRAuthErrorCodeGameKitNotLinked = 17076,
+
+    /** Indicates that the second factor is required for signin.
+     */
+    FIRAuthErrorCodeSecondFactorRequired = 17078,
+
+    /** Indicates that the multi factor session is missing.
+     */
+    FIRAuthErrorCodeMissingMultiFactorSession = 17081,
+
+    /** Indicates that the multi factor info is missing.
+     */
+    FIRAuthErrorCodeMissingMultiFactorInfo = 17082,
+
+    /** Indicates that the multi factor session is invalid.
+     */
+    FIRAuthErrorCodeInvalidMultiFactorSession = 17083,
+
+    /** Indicates that the multi factor info is not found.
+     */
+    FIRAuthErrorCodeMultiFactorInfoNotFound = 17084,
+
+    /** Indicates that the operation is admin restricted.
+     */
+    FIRAuthErrorCodeAdminRestrictedOperation = 17085,
+
+    /** Indicates that the email is required for verification.
+     */
+    FIRAuthErrorCodeUnverifiedEmail = 17086,
+
+    /** Indicates that the second factor is already enrolled.
+     */
+    FIRAuthErrorCodeSecondFactorAlreadyEnrolled = 17087,
+
+    /** Indicates that the maximum second factor count is exceeded.
+     */
+    FIRAuthErrorCodeMaximumSecondFactorCountExceeded = 17088,
+
+    /** Indicates that the first factor is not supported.
+     */
+    FIRAuthErrorCodeUnsupportedFirstFactor = 17089,
+
+    /** Indicates that the a verifed email is required to changed to.
+     */
+    FIRAuthErrorCodeEmailChangeNeedsVerification = 17090,
 
     /** Indicates that the nonce is missing or invalid.
      */
