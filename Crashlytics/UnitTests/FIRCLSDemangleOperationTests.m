@@ -17,7 +17,7 @@
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 
-#import "FIRCLSStackFrame.h"
+#import "FIRStackFrame_Private.h"
 
 @interface FIRCLSDemangleOperationTests : XCTestCase
 
@@ -57,9 +57,9 @@
 
 - (void)testOperation {
   NSMutableArray *frameArray = [[NSMutableArray alloc] init];
-  [frameArray addObject:[FIRCLSStackFrame stackFrameWithSymbol:@"_Z7monitorP8NSStringlS0_"]];
-  [frameArray addObject:[FIRCLSStackFrame stackFrameWithSymbol:@"_ZN9wikipedia7article6formatEv"]];
-  [frameArray addObject:[FIRCLSStackFrame stackFrameWithSymbol:@"unmangledSymbol"]];
+  [frameArray addObject:[FIRStackFrame stackFrameWithSymbol:@"_Z7monitorP8NSStringlS0_"]];
+  [frameArray addObject:[FIRStackFrame stackFrameWithSymbol:@"_ZN9wikipedia7article6formatEv"]];
+  [frameArray addObject:[FIRStackFrame stackFrameWithSymbol:@"unmangledSymbol"]];
 
   FIRCLSDemangleOperation *op = [[FIRCLSDemangleOperation alloc] init];
   [op setThreadArray:@[ frameArray ]];

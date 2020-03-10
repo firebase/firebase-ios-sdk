@@ -16,7 +16,7 @@
 
 #import "FIRCLSFile.h"
 #import "FIRCLSLogger.h"
-#import "FIRCLSStackFrame.h"
+#import "FIRStackFrame_Private.h"
 
 @implementation FIRCLSSerializeSymbolicatedFramesOperation
 
@@ -37,7 +37,7 @@
   for (NSArray *frameArray in self.threadArray) {
     FIRCLSFileWriteArrayStart(&file);
 
-    for (FIRCLSStackFrame *frame in frameArray) {
+    for (FIRStackFrame *frame in frameArray) {
       FIRCLSFileWriteHashStart(&file);
       FIRCLSFileWriteHashEntryString(&file, "symbol", [[frame symbol] UTF8String]);
 
