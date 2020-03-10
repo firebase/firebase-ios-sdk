@@ -34,10 +34,9 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (BOOL)writeToURL:(NSURL *)fileURL error:(NSError **)error;
 
-/** Generates incrementing event IDs based on a persistent session counter stored in user defaults.
+/** Generates incrementing event IDs, stored in a file in the app's cache.
  *
- * @return An event ID that is the concatenation of a session counter and event counter. For
- * example, if this is the 104th session and the 1234th event, the returned ID will be 1041234.
+ * @return An event ID that is incremented based on a number in a file stored in the app cache.
  */
 + (NSNumber *)nextEventID;
 
