@@ -37,6 +37,7 @@ product can be one of:
 
 platform can be one of:
   iOS (default)
+  Linux
   macOS
   tvOS
 
@@ -268,9 +269,13 @@ if [[ -n "${SANITIZERS:-}" ]]; then
         )
         cmake_options+=(
           -DWITH_ASAN=ON
-          # Also check the fuzzing build while we're at it.
-          -DFUZZING=ON
         )
+        if [ "$platform" = "Linux" ]; then
+          cmake_options+=(
+            # Also check the fuzzing build while we're at it.
+            -DFUZZING=ON
+          )
+        fi
         ;;
 
       tsan)
