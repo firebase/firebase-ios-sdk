@@ -92,7 +92,7 @@ static NSString *kUserCodingKey = @"user";
 
 - (void)unenrollWithInfo:(FIRMultiFactorInfo *)factorInfo
               completion:(nullable FIRAuthVoidErrorCallback)completion {
-  [self unenrollWithFactorUID:factorInfo.uid completion:completion];
+  [self unenrollWithFactorUID:factorInfo.UID completion:completion];
 }
 
 - (void)unenrollWithFactorUID:(NSString *)factorUID

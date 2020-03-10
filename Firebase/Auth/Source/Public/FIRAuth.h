@@ -244,7 +244,7 @@ DEPRECATED_MSG_ATTRIBUTE("Please directly use email or previousEmail properties 
 @property(nonatomic, nullable, readonly, copy) NSString *email;
 
 /** @property previousEmail
-    @brief The current email address in the case of FIRActionCodeOperationRecoverEmail.
+    @brief The email that is being recovered in the case of FIRActionCodeOperationRecoverEmail.
  */
 @property(nonatomic, nullable, readonly, copy) NSString *previousEmail;
 
@@ -292,8 +292,7 @@ NS_SWIFT_NAME(ActionCodeURL)
     @param link The oob link string used to construct the action code URL.
     @return The FIRActionCodeURL object constructed based on the oob link provided.
  */
-+ (nullable instancetype)actionCodeURLWithLink:(NSString *)link
-    NS_SWIFT_NAME(actionCodeURL(link:));
++ (nullable instancetype)actionCodeURLWithLink:(NSString *)link;
 
 /** @fn init
     @brief Please use actionCodeURLWithLink: for Objective-C or actionCodeURLWithLink(link:) for Swift instead.

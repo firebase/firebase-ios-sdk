@@ -30,7 +30,7 @@ NS_SWIFT_NAME(MultiFactorInfo)
 /**
    @brief The multi-factor enrollment ID.
 */
-@property(nonatomic, readonly) NSString *uid;
+@property(nonatomic, readonly) NSString *UID;
 
 /**
    @brief The user friendly name of the current second factor.

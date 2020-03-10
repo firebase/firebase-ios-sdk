@@ -37,7 +37,7 @@ static NSString *kFactorIDCodingKey = @"factorID";
   self = [super init];
 
   if (self) {
-    _uid = proto.mfaEnrollmentID;
+    _UID = proto.mfaEnrollmentID;
     _displayName = proto.displayName;
     _enrollmentDate = proto.enrolledAt;
   }
@@ -54,7 +54,7 @@ static NSString *kFactorIDCodingKey = @"factorID";
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder {
   self = [self init];
   if (self) {
-    _uid = [aDecoder decodeObjectOfClass:[NSString class] forKey:kUIDCodingKey];
+    _UID = [aDecoder decodeObjectOfClass:[NSString class] forKey:kUIDCodingKey];
     _displayName = [aDecoder decodeObjectOfClass:[NSString class] forKey:kDisplayNameCodingKey];
     _enrollmentDate = [aDecoder decodeObjectOfClass:[NSDate class] forKey:kEnrollmentDateCodingKey];
     _factorID = [aDecoder decodeObjectOfClass:[NSString class] forKey:kFactorIDCodingKey];
@@ -63,7 +63,7 @@ static NSString *kFactorIDCodingKey = @"factorID";
 }
 
 - (void)encodeWithCoder:(NSCoder *)aCoder {
-  [aCoder encodeObject:_uid forKey:kUIDCodingKey];
+  [aCoder encodeObject:_UID forKey:kUIDCodingKey];
   [aCoder encodeObject:_displayName forKey:kDisplayNameCodingKey];
   [aCoder encodeObject:_enrollmentDate forKey:kEnrollmentDateCodingKey];
   [aCoder encodeObject:_factorID forKey:kFactorIDCodingKey];

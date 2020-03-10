@@ -484,7 +484,7 @@ extern NSString *const FIRPhoneMultiFactorID;
       FIRStartMfaSignInRequest *request =
       [[FIRStartMfaSignInRequest alloc] initWithMfaProvider:multiFactorProvider
                                        mfaPendingCredential:session.mfaPendingCredential
-                                            mfaEnrollmentID:session.multiFactorInfo.uid
+                                            mfaEnrollmentID:session.multiFactorInfo.UID
                                                  signInInfo:startMfaRequestInfo
                                        requestConfiguration:self->_auth.requestConfiguration];
       [FIRAuthBackend startMultiFactorSignIn:request
