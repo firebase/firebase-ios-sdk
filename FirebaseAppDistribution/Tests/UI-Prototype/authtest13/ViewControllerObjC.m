@@ -44,7 +44,7 @@
         }
     }];
 
-     if([[FIRAppDistribution appDistribution] TesterSignedIn]) {
+     if([[FIRAppDistribution appDistribution] isTesterSignedIn]) {
          // User is signed into App Distribution.
          // Do something with the UI
      }
