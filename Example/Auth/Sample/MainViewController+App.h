@@ -17,6 +17,7 @@
 #import <Foundation/Foundation.h>
 
 #import "MainViewController.h"
+
 #import "StaticContentTableViewManager.h"
 
 NS_ASSUME_NONNULL_BEGIN

@@ -66,7 +66,7 @@ static NSString *const kPostBodyKey = @"postBody";
   if (_IDToken) {
     postBody[kIDTokenKey] = _IDToken;
   }
-  return postBody;
+  return [postBody copy];
 }
 
 @end
