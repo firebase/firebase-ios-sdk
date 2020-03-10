@@ -16,6 +16,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <string>
 
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 
