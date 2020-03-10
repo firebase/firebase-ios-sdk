@@ -128,8 +128,10 @@ firebase_ios_cc_library(
   SOURCES
     ${NANOPB_GENERATED_SOURCES}
   DEPENDS
+    absl_strings
     firebase_firestore_nanopb_runtime
     protobuf-nanopb-static
+  DISABLE_STRICT_WARNINGS
 )
 
 target_include_directories(
@@ -140,28 +142,19 @@ target_include_directories(
 # libprotobuf based generated protos. Expected only to be used in test (as
 # libprotobuf[-lite] is too large; we're using nanopb instead. But we do want
 # to test our serialization logic against libprotobuf.)
-add_library(
+firebase_ios_cc_library(
   firebase_firestore_protos_libprotobuf
+  SOURCES
+    ${PROTOBUF_CPP_GENERATED_SOURCES}
+  DEPENDS
+    protobuf::libprotobuf
+  DISABLE_STRICT_WARNINGS
   EXCLUDE_FROM_ALL
-  ${PROTOBUF_CPP_GENERATED_SOURCES}
 )
-
-if(CXX_CLANG OR CXX_GNU)
-  target_compile_options(
-    firebase_firestore_protos_libprotobuf PRIVATE
-    -Wno-unreachable-code
-  )
-endif()
 
 target_include_directories(
   firebase_firestore_protos_libprotobuf PUBLIC
   ${FIREBASE_SOURCE_DIR}/Firestore/Protos/cpp
-)
-
-target_link_libraries(
-  firebase_firestore_protos_libprotobuf
-  PUBLIC
-    protobuf::libprotobuf
 )
 
 # Generate the python representation of descriptor.proto.

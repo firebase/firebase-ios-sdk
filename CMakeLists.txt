@@ -273,7 +273,6 @@ target_compile_definitions(
 target_include_directories(
   protobuf-nanopb-static
   INTERFACE
-  $<BUILD_INTERFACE:${FIREBASE_EXTERNAL_SOURCE_DIR}>
   $<BUILD_INTERFACE:${FIREBASE_EXTERNAL_SOURCE_DIR}/nanopb>
 )
 

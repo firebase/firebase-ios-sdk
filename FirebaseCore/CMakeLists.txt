@@ -36,6 +36,7 @@ firebase_ios_objc_framework(
     FirebaseCoreDiagnosticsInterop
     GoogleUtilities
     "-framework Foundation"
+  DISABLE_STRICT_WARNINGS
   EXCLUDE_FROM_ALL
 )
 
