@@ -72,7 +72,7 @@ NS_ASSUME_NONNULL_BEGIN
        completion(nil, error);
      }
    } else {
-     [FIRAuth.auth completeSignInWithAccessToken:response.idToken
+     [FIRAuth.auth completeSignInWithAccessToken:response.IDToken
                        accessTokenExpirationDate:nil
                             refreshToken:response.refreshToken
                                anonymous:NO

@@ -163,7 +163,7 @@ static NSString *const kUserTokenExpiredErrorMessage = @"TOKEN_EXPIRED";
  */
 static NSString *const kTooManyRequestsErrorMessage = @"TOO_MANY_ATTEMPTS_TRY_LATER";
 
-/** @var kInvalidTokenCustomErrorMessage
+/** @var kInvalidCustomTokenErrorMessage
     @brief This is the error message the server will respond with if there is a validation error
         with the custom token.
  */

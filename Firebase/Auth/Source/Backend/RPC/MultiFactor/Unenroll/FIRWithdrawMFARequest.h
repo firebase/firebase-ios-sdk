@@ -21,11 +21,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRWithdrawMFARequest : FIRIdentityToolkitRequest <FIRAuthRPCRequest>
 
-@property(nonatomic, copy, readonly, nullable) NSString *idToken;
+@property(nonatomic, copy, readonly, nullable) NSString *IDToken;
 
 @property(nonatomic, copy, readonly, nullable) NSString *MFAEnrollmentID;
 
-- (nullable instancetype)initWithIDToken:(NSString *)idToken
+- (nullable instancetype)initWithIDToken:(NSString *)IDToken
                          MFAEnrollmentID:(NSString *)MFAEnrollmentID
                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration;
 

@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRMultiFactorSession ()
 
-@property(nonatomic, readonly) NSString *idToken;
+@property(nonatomic, readonly) NSString *IDToken;
 
 @property(nonatomic) NSString *MFAPendingCredential;
 

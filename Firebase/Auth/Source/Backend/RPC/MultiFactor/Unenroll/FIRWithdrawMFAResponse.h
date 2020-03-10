@@ -20,7 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRWithdrawMFAResponse : NSObject <FIRAuthRPCResponse>
 
-@property(nonatomic, copy, readonly, nullable) NSString *idToken;
+@property(nonatomic, copy, readonly, nullable) NSString *IDToken;
 
 @property(nonatomic, copy, readonly, nullable) NSString *refreshToken;
 

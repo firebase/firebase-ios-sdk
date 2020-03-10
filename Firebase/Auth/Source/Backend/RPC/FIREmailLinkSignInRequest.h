@@ -38,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, copy, readonly) NSString *oobCode;
 
-/** @property idToken
+/** @property IDToken
     @brief The ID Token code potentially used to complete the email link sign-in flow.
  */
 @property(nonatomic, copy) NSString *IDToken;

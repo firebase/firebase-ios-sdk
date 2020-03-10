@@ -70,7 +70,7 @@ static NSString *kUserCodingKey = @"user";
                                              completion(error);
                                            }
                                          } else {
-  [FIRAuth.auth completeSignInWithAccessToken:response.idToken
+  [FIRAuth.auth completeSignInWithAccessToken:response.IDToken
                    accessTokenExpirationDate:nil
                                 refreshToken:response.refreshToken
                                    anonymous:NO
@@ -107,7 +107,7 @@ static NSString *kUserCodingKey = @"user";
                                    completion(error);
                                  }
                                } else {
-  [FIRAuth.auth completeSignInWithAccessToken:response.idToken
+  [FIRAuth.auth completeSignInWithAccessToken:response.IDToken
                    accessTokenExpirationDate:nil
                                 refreshToken:response.refreshToken
                                    anonymous:NO

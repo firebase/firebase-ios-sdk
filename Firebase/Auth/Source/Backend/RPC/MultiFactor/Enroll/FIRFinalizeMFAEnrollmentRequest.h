@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic, copy, readonly, nullable) FIRAuthProtoFinalizeMFAPhoneRequestInfo *verificationInfo;
 
-- (nullable instancetype)initWithIDToken:(NSString *)idToken
+- (nullable instancetype)initWithIDToken:(NSString *)IDToken
                              MFAProvider:(NSString *)MFAProvider
                              displayName:(NSString *)displayName
                         verificationInfo:(FIRAuthProtoFinalizeMFAPhoneRequestInfo *)verificationInfo

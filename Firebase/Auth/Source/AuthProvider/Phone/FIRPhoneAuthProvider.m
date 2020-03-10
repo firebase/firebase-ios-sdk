@@ -438,15 +438,15 @@ extern NSString *const FIRPhoneMultiFactorID;
       return;
     }
 
-    NSString *idToken = session.idToken;
+    NSString *IDToken = session.IDToken;
     NSString *multiFactorProvider = FIRPhoneMultiFactorID;
     FIRAuthProtoStartMFAPhoneRequestInfo *startMFARequestInfo =
         [[FIRAuthProtoStartMFAPhoneRequestInfo alloc] initWithPhoneNumber:phoneNumber
                                                             appCredential:appCredential
                                                            reCAPTCHAToken:reCAPTCHAToken];
-    if (session.idToken) {
+    if (session.IDToken) {
       FIRStartMFAEnrollmentRequest *request =
-      [[FIRStartMFAEnrollmentRequest alloc] initWithIDToken:idToken
+      [[FIRStartMFAEnrollmentRequest alloc] initWithIDToken:IDToken
                                         multiFactorProvider:multiFactorProvider
                                              enrollmentInfo:startMFARequestInfo
                                        requestConfiguration:self->_auth.requestConfiguration];

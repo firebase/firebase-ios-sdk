@@ -912,12 +912,12 @@ static void callInMainThreadWithAuthDataResultAndError(
   }
 
   // The token payload is always the second index of the array.
-  NSString *idToken = tokenStringArray[1];
+  NSString *IDToken = tokenStringArray[1];
 
   // Convert the base64URL encoded string to a base64 encoded string.
   // Replace "_" with "/"
   NSMutableString *tokenPayload =
-      [[idToken stringByReplacingOccurrencesOfString:@"_" withString:@"/"] mutableCopy];
+      [[IDToken stringByReplacingOccurrencesOfString:@"_" withString:@"/"] mutableCopy];
 
   // Replace "-" with "+"
   [tokenPayload replaceOccurrencesOfString:@"-"
