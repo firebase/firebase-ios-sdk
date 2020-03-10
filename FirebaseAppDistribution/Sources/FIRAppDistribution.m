@@ -41,6 +41,8 @@
 
 @implementation FIRAppDistribution
 
+@synthesize isTesterSignedIn = _isTesterSignedIn;
+
 #pragma mark - Singleton Support
 
 - (instancetype)initWithApp:(FIRApp *)app
@@ -60,6 +62,8 @@
         
     }
     
+    // TODO: Lookup keychain to load auth state on init
+    _isTesterSignedIn = self.authState ? YES: NO;
     return self;
 }
 
@@ -107,6 +111,8 @@
     // return it.
     return (FIRAppDistribution *)instance;
 }
+
+
 
 - (void) signInTesterWithCompletion:(FIRAppDistributionSignInTesterCompletion)completion {
     
@@ -157,6 +163,8 @@
             NSLog(@"Completed the sign in process: %@", authState);
             
             self.authState = authState;
+            self->_isTesterSignedIn = self.authState ? YES : NO;
+            
             completion(error);
         }];
     }];
@@ -165,21 +173,18 @@
 
 -(void) signOutTester {
     self.authState = nil;
-}
-
--(BOOL) testerSignedIn {
-    return self.authState? YES: NO;
+    _isTesterSignedIn = false;
 }
 
 - (void)checkForUpdateWithCompletion:(FIRAppDistributionUpdateCheckCompletion)completion {
     
-    if(self.testerSignedIn) {
+    if(self.isTesterSignedIn) {
         NSLog(@"Got authorization tokens. Access token: %@",
               self.authState.lastTokenResponse.accessToken);
         FIRAppDistributionRelease *release = [[FIRAppDistributionRelease alloc]init];
         release.displayVersion = @"1.0";
         release.buildVersion = @"123";
-        release.downloadUrl = [NSURL URLWithString:@""];
+        release.downloadURL = [NSURL URLWithString:@""];
         completion(release, nil);
     } else {
         
@@ -207,7 +212,7 @@
                 FIRAppDistributionRelease *release = [[FIRAppDistributionRelease alloc]init];
                 release.displayVersion = @"1.0";
                 release.buildVersion = @"123";
-                release.downloadUrl = [NSURL URLWithString:@""];
+                release.downloadURL = [NSURL URLWithString:@""];
                 completion(release, nil);
             }];
         }];

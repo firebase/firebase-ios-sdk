@@ -31,7 +31,7 @@ NS_SWIFT_NAME(AppDistributionRelease)
 // The release notes for this build
 @property(nonatomic, copy) NSString *releaseNotes;
 // The URL for the build
-@property(nonatomic, strong) NSURL *downloadUrl;
+@property(nonatomic, strong) NSURL *downloadURL;
 
 /** :nodoc: */
 //- (instancetype)init NS_UNAVAILABLE;
@@ -50,7 +50,7 @@ NS_SWIFT_NAME(AppDistributionRelease)
  */
 typedef void (^FIRAppDistributionUpdateCheckCompletion)(FIRAppDistributionRelease *_Nullable release,
                                                         NSError *_Nullable error)
-NS_SWIFT_NAME(AppDistributionNewBuildCheckCompletion);
+NS_SWIFT_NAME(AppDistributionUpdateCheckCheckCompletion);
 
 /**
  *  @related FIRAppDistribution
@@ -62,7 +62,7 @@ NS_SWIFT_NAME(AppDistributionNewBuildCheckCompletion);
  *  @param error     The error describing why sign in failed
  */
 typedef void (^FIRAppDistributionSignInTesterCompletion)(NSError *_Nullable error)
-NS_SWIFT_NAME(FIRAppDistributionSignInTesterCompletion);
+NS_SWIFT_NAME(AppDistributionSignInTesterCompletion);
 
 
 /**
@@ -77,6 +77,9 @@ NS_SWIFT_NAME(FIRAppDistributionSignInTesterCompletion);
 NS_SWIFT_NAME(AppDistribution)
 @interface FIRAppDistribution : NSObject
 
+// Is true if the App Distribution tester is signed in
+@property(nonatomic, readonly) BOOL isTesterSignedIn;
+
 /** :nodoc: */
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -85,10 +88,6 @@ NS_SWIFT_NAME(AppDistribution)
  */
 - (void)signInTesterWithCompletion:(FIRAppDistributionSignInTesterCompletion)completion
 NS_SWIFT_NAME(signInTester(completion:));
-/**
- * Checks to see whether app distribution tester is signed in
- */
-- (BOOL)testerSignedIn;
 
 /**
  * Check to see whether a new distribution is available
@@ -115,19 +114,16 @@ NS_SWIFT_NAME(checkForUpdate(completion:));
 typedef NS_ENUM(NSUInteger, FIRAppDistributionError) {
     /// Unknown error.
     FIRAppDistributionErrorUnknown = 0,
-    
+
     // Authentication failed
     FIRAppDistributionErrorAuthentication = 1,
-    
+
     // Authentication canceled
-    FIRAppDistributionAuthenticationCancelled = 2,
-    
-    // Request to App Distribution backend timed out
-    FIRAppDistributionErrorTimeout = 3,
-    
-    // No Network unavailable to make requests
-    FIRAppDistributionErrorNetwork = 4,
-    
+    FIRAppDistributionErrorAuthenticationCancelled = 2,
+
+    // Network unavailable to make requests
+    FIRAppDistributionErrorNetwork = 3,
+
 } NS_SWIFT_NAME(AppDistributionError);
 
 NS_ASSUME_NONNULL_END
