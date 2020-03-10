@@ -268,6 +268,8 @@ if [[ -n "${SANITIZERS:-}" ]]; then
         )
         cmake_options+=(
           -DWITH_ASAN=ON
+          # Also check the fuzzing build while we're at it.
+          -DFUZZING=ON
         )
         ;;
 
