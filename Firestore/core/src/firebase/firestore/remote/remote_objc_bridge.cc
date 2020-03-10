@@ -155,6 +155,12 @@ WriteStreamSerializer::EncodeWriteMutationsRequest(
   return result;
 }
 
+Message<google_firestore_v1_WriteRequest>
+WriteStreamSerializer::EncodeEmptyMutationsList(
+    const ByteString& last_stream_token) const {
+  return EncodeWriteMutationsRequest({}, last_stream_token);
+}
+
 Message<google_firestore_v1_WriteResponse> WriteStreamSerializer::ParseResponse(
     Reader* reader) const {
   return Message<google_firestore_v1_WriteResponse>::TryParse(reader);
