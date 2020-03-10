@@ -1,3 +1,6 @@
+# v2.0.1
+- Remove usage of memcpy and convert calls from malloc to calloc.
+
 # v2.0.0
 - Adds a sentinel value to GDTCOREvent's custom params to signal collection
 of current network info to be associated with some event. This is required
