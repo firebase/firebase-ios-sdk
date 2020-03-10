@@ -55,7 +55,7 @@ static NSString *const kIsSandboxKey = @"isSandbox";
   if (_isSandbox) {
     postBody[kIsSandboxKey] = @YES;
   }
-  return postBody;
+  return [postBody copy];
 }
 
 @end

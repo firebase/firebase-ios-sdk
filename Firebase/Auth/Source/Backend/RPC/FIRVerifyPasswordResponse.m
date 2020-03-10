@@ -30,6 +30,18 @@ NS_ASSUME_NONNULL_BEGIN
       [NSDate dateWithTimeIntervalSinceNow:[dictionary[@"expiresIn"] doubleValue]] : nil;
   _refreshToken = [dictionary[@"refreshToken"] copy];
   _photoURL = dictionary[@"photoUrl"] ? [NSURL URLWithString:dictionary[@"photoUrl"]] : nil;
+
+  if (dictionary[@"mfaInfo"] != nil) {
+    NSMutableArray<FIRAuthProtoMfaEnrollment *> *mfaInfo = [NSMutableArray array];
+    NSArray *mfaInfoDataArray = dictionary[@"mfaInfo"];
+    for (NSDictionary *mfaInfoData in mfaInfoDataArray) {
+      FIRAuthProtoMfaEnrollment *mfaEnrollment = [[FIRAuthProtoMfaEnrollment alloc] initWithDictionary:mfaInfoData];
+      [mfaInfo addObject:mfaEnrollment];
+    }
+    _mfaInfo = mfaInfo;
+  }
+  _mfaPendingCredential = [dictionary[@"mfaPendingCredential"] copy];
+
   return YES;
 }
 
