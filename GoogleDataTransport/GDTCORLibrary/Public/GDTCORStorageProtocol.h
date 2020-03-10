@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2020 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,24 @@
 
 #import <Foundation/Foundation.h>
 
-#import "GDTCORLibrary/Private/GDTCORFlatFileStorage.h"
+#import <GoogleDataTransport/GDTCORLifecycle.h>
+
+@class GDTCOREvent;
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** Testing-only methods for GDTCORStorage. */
-@interface GDTCORStorage (Testing)
+/** Defines the interface a storage subsystem is expected to implement. */
+@protocol GDTCORStorageProtocol <NSObject, GDTCORLifecycleProtocol>
 
-/** Resets the properties of the singleon, but does not reallocate a new singleton. This also
- * doesn't remove stored files from disk.
+/** Stores an event and calls onComplete with a non-nil error if anything went wrong.
+ *
+ * @param event The event to store
+ * @param completion The completion block to call after an attempt to store the event has been made.
  */
-- (void)reset;
+- (void)storeEvent:(GDTCOREvent *)event onComplete:(void (^)(NSError *_Nullable error))completion;
+
+/** Removes the events from storage. */
+- (void)removeEvents:(NSSet<NSNumber *> *)eventIDs;
 
 @end
 

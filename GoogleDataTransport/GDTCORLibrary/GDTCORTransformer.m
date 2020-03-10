@@ -22,8 +22,10 @@
 #import <GoogleDataTransport/GDTCOREvent.h>
 #import <GoogleDataTransport/GDTCOREventTransformer.h>
 #import <GoogleDataTransport/GDTCORLifecycle.h>
+#import <GoogleDataTransport/GDTCORStorageProtocol.h>
 
-#import "GDTCORLibrary/Private/GDTCORStorage.h"
+#import "GDTCORLibrary/Private/GDTCOREvent_Private.h"
+#import "GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
 
 @implementation GDTCORTransformer
 
@@ -41,7 +43,6 @@
   if (self) {
     _eventWritingQueue =
         dispatch_queue_create("com.google.GDTCORTransformer", DISPATCH_QUEUE_SERIAL);
-    _storageInstance = [GDTCORStorage sharedInstance];
   }
   return self;
 }
@@ -79,7 +80,14 @@
         return;
       }
     }
-    [self.storageInstance storeEvent:transformedEvent onComplete:completion];
+
+    id<GDTCORStorageProtocol> storage =
+        [GDTCORRegistrar sharedInstance].targetToStorage[@(event.target)];
+
+    [storage storeEvent:transformedEvent
+             onComplete:^(NSError *_Nullable error) {
+               completion(error ? NO : YES, error);
+             }];
 
     // The work is done, cancel the background task if it's valid.
     [[GDTCORApplication sharedApplication] endBackgroundTask:bgID];

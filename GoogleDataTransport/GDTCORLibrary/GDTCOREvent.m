@@ -25,6 +25,41 @@
 
 @implementation GDTCOREvent
 
++ (NSNumber *)nextEventID {
+  static unsigned long long nextEventID = 0;
+  static NSString *counterPath;
+  static dispatch_queue_t eventIDQueue;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    eventIDQueue = dispatch_queue_create("com.google.GDTCOREventIDQueue", DISPATCH_QUEUE_SERIAL);
+    counterPath = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)[0];
+    counterPath = [NSString stringWithFormat:@"%@/google-sdks-events/count", counterPath];
+    NSError *error;
+    NSString *countText = [NSString stringWithContentsOfFile:counterPath
+                                                    encoding:NSUTF8StringEncoding
+                                                       error:&error];
+    const char *countChars = [countText UTF8String];
+    unsigned long long count = -1;
+    if (countChars) {
+      count = strtoull([countText UTF8String], NULL, 10);
+    }
+    nextEventID = error || count < 0 ? 0 : count;
+  });
+
+  __block NSNumber *result;
+  dispatch_sync(eventIDQueue, ^{
+    result = @(nextEventID);
+    nextEventID++;
+    NSError *error;
+    [[result stringValue] writeToFile:counterPath
+                           atomically:YES
+                             encoding:NSUTF8StringEncoding
+                                error:&error];
+    GDTCORAssert(error == nil, @"There was an error saving the new counter value to disk.");
+  });
+  return result;
+}
+
 - (nullable instancetype)initWithMappingID:(NSString *)mappingID target:(NSInteger)target {
   GDTCORAssert(mappingID.length > 0, @"Please give a valid mapping ID");
   GDTCORAssert(target > 0, @"A target cannot be negative or 0");
@@ -33,6 +68,7 @@
   }
   self = [super init];
   if (self) {
+    _eventID = [GDTCOREvent nextEventID];
     _mappingID = mappingID;
     _target = target;
     _qosTier = GDTCOREventQosDefault;
@@ -44,6 +80,7 @@
 
 - (instancetype)copy {
   GDTCOREvent *copy = [[GDTCOREvent alloc] initWithMappingID:_mappingID target:_target];
+  copy->_eventID = _eventID;
   copy.dataObject = _dataObject;
   copy.qosTier = _qosTier;
   copy.clockSnapshot = _clockSnapshot;
@@ -55,12 +92,13 @@
 
 - (NSUInteger)hash {
   // This loses some precision, but it's probably fine.
+  NSUInteger eventIDHash = [_eventID hash];
   NSUInteger mappingIDHash = [_mappingID hash];
   NSUInteger timeHash = [_clockSnapshot hash];
   NSInteger dataObjectHash = [_dataObject hash];
   NSUInteger fileURL = [_fileURL hash];
 
-  return mappingIDHash ^ _target ^ _qosTier ^ timeHash ^ dataObjectHash ^ fileURL;
+  return eventIDHash ^ mappingIDHash ^ _target ^ _qosTier ^ timeHash ^ dataObjectHash ^ fileURL;
 }
 
 - (BOOL)isEqual:(id)object {
@@ -97,6 +135,9 @@
 }
 
 #pragma mark - NSSecureCoding and NSCoding Protocols
+
+/** NSCoding key for eventID property. */
+static NSString *eventIDKey = @"_eventID";
 
 /** NSCoding key for mappingID property. */
 static NSString *mappingIDKey = @"_mappingID";
@@ -146,6 +187,7 @@ static NSString *kCustomDataKey = @"GDTCOREventCustomDataKey";
   NSInteger target = [aDecoder decodeIntegerForKey:targetKey];
   self = [self initWithMappingID:mappingID target:target];
   if (self) {
+    _eventID = [aDecoder decodeObjectOfClass:[NSNumber class] forKey:eventIDKey];
     _qosTier = [aDecoder decodeIntegerForKey:qosTierKey];
     _clockSnapshot = [aDecoder decodeObjectOfClass:[GDTCORClock class] forKey:clockSnapshotKey];
     _fileURL = [aDecoder decodeObjectOfClass:[NSURL class] forKey:fileURLKey];
@@ -162,6 +204,10 @@ static NSString *kCustomDataKey = @"GDTCOREventCustomDataKey";
                                              forKey:kStoredEventTargetKey] integerValue];
   self = [self initWithMappingID:mappingID target:target];
   if (self) {
+    _eventID = [aDecoder decodeObjectOfClass:[NSNumber class] forKey:eventIDKey];
+    if (_eventID == nil) {
+      _eventID = [GDTCOREvent nextEventID];
+    }
     _qosTier = [[aDecoder decodeObjectOfClass:[NSNumber class]
                                        forKey:kStoredEventQosTierKey] integerValue];
     _clockSnapshot = [aDecoder decodeObjectOfClass:[GDTCORClock class]
@@ -173,6 +219,7 @@ static NSString *kCustomDataKey = @"GDTCOREventCustomDataKey";
 }
 
 - (void)encodeWithCoder:(NSCoder *)aCoder {
+  [aCoder encodeObject:_eventID forKey:eventIDKey];
   [aCoder encodeObject:_mappingID forKey:mappingIDKey];
   [aCoder encodeInteger:_target forKey:targetKey];
   [aCoder encodeInteger:_qosTier forKey:qosTierKey];

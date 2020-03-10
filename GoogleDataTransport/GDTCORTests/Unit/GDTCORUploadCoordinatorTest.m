@@ -53,7 +53,7 @@
   [[GDTCORRegistrar sharedInstance] registerUploader:_uploader target:kGDTCORTargetTest];
 
   GDTCORUploadCoordinator *uploadCoordinator = [GDTCORUploadCoordinator sharedInstance];
-  uploadCoordinator.storage = self.storageFake;
+  [[GDTCORRegistrar sharedInstance] registerStorage:self.storageFake target:kGDTCORTargetTest];
   uploadCoordinator.timerInterval = NSEC_PER_SEC;
   uploadCoordinator.timerLeeway = 0;
 }

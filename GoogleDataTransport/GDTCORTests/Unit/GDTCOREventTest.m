@@ -16,6 +16,7 @@
 
 #import <GoogleDataTransport/GDTCORClock.h>
 #import <GoogleDataTransport/GDTCOREvent.h>
+#import <GoogleDataTransport/GDTCORTargets.h>
 
 #import "GDTCORTests/Unit/GDTCORTestCase.h"
 #import "GDTCORTests/Unit/Helpers/GDTCORDataObjectTesterClasses.h"
@@ -30,8 +31,11 @@
 
 /** Tests the designated initializer. */
 - (void)testInit {
-  XCTAssertNotNil([[GDTCOREvent alloc] initWithMappingID:@"1" target:1]);
-  XCTAssertNil([[GDTCOREvent alloc] initWithMappingID:@"" target:1]);
+  XCTAssertGreaterThan(
+      [[GDTCOREvent alloc] initWithMappingID:@"1" target:kGDTCORTargetTest].eventID.integerValue,
+      0);
+  XCTAssertNotNil([[GDTCOREvent alloc] initWithMappingID:@"1" target:kGDTCORTargetTest]);
+  XCTAssertNil([[GDTCOREvent alloc] initWithMappingID:@"" target:kGDTCORTargetTest]);
 }
 
 /** Tests NSKeyedArchiver encoding and decoding. */
@@ -40,7 +44,7 @@
   GDTCORClock *clockSnapshot = [GDTCORClock snapshot];
   int64_t timeMillis = clockSnapshot.timeMillis;
   int64_t timezoneOffsetSeconds = clockSnapshot.timezoneOffsetSeconds;
-  GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"testID" target:42];
+  GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"testID" target:kGDTCORTargetTest];
   event.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:@"someData"];
   event.qosTier = GDTCOREventQoSTelemetry;
   event.clockSnapshot = clockSnapshot;
@@ -68,7 +72,7 @@
 #endif
   }
   XCTAssertEqualObjects(decodedEvent.mappingID, @"testID");
-  XCTAssertEqual(decodedEvent.target, 42);
+  XCTAssertEqual(decodedEvent.target, kGDTCORTargetTest);
   event.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:@"someData"];
   XCTAssertEqual(decodedEvent.qosTier, GDTCOREventQoSTelemetry);
   XCTAssertEqual(decodedEvent.clockSnapshot.timeMillis, timeMillis);
@@ -78,7 +82,7 @@
 /** Tests setting variables on a GDTCOREvent instance.*/
 - (void)testSettingVariables {
   XCTAssertTrue([GDTCOREvent supportsSecureCoding]);
-  GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"testing" target:1];
+  GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"testing" target:kGDTCORTargetTest];
   event.clockSnapshot = [GDTCORClock snapshot];
   event.qosTier = GDTCOREventQoSTelemetry;
   XCTAssertNotNil(event);
@@ -91,7 +95,8 @@
 
 /** Tests equality between GDTCOREvents. */
 - (void)testIsEqualAndHash {
-  GDTCOREvent *event1 = [[GDTCOREvent alloc] initWithMappingID:@"1018" target:1];
+  GDTCOREvent *event1 = [[GDTCOREvent alloc] initWithMappingID:@"1018" target:kGDTCORTargetTest];
+  event1.eventID = @123;
   event1.clockSnapshot = [GDTCORClock snapshot];
   [event1.clockSnapshot setValue:@(1553534573010) forKeyPath:@"timeMillis"];
   [event1.clockSnapshot setValue:@(-25200) forKeyPath:@"timezoneOffsetSeconds"];
@@ -106,7 +111,8 @@
   [event1 writeToURL:[NSURL fileURLWithPath:@"/tmp/fake.txt"] error:&error1];
   XCTAssertNil(error1);
 
-  GDTCOREvent *event2 = [[GDTCOREvent alloc] initWithMappingID:@"1018" target:1];
+  GDTCOREvent *event2 = [[GDTCOREvent alloc] initWithMappingID:@"1018" target:kGDTCORTargetTest];
+  event2.eventID = @123;
   event2.clockSnapshot = [GDTCORClock snapshot];
   [event2.clockSnapshot setValue:@(1553534573010) forKeyPath:@"timeMillis"];
   [event2.clockSnapshot setValue:@(-25200) forKeyPath:@"timezoneOffsetSeconds"];
@@ -129,6 +135,22 @@
 
   XCTAssertNotEqual([event1 hash], [event2 hash]);
   XCTAssertNotEqualObjects(event1, event2);
+}
+
+/** Tests generating event IDs. */
+- (void)testGenerateEventIDs {
+  NSNumber *initialValue;
+  NSMutableSet *generatedValues = [[NSMutableSet alloc] init];
+  for (int i = 0; i < 100000; i++) {
+    NSNumber *eventID;
+    XCTAssertNoThrow(eventID = [GDTCOREvent nextEventID]);
+    XCTAssertFalse([generatedValues containsObject:eventID]);
+    [generatedValues addObject:eventID];
+    if (i == 0) {
+      initialValue = eventID;
+    }
+    XCTAssertEqual(eventID.integerValue, initialValue.integerValue + i);
+  }
 }
 
 @end
