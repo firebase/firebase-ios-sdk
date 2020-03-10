@@ -201,7 +201,7 @@ static BOOL HasEmbeddedMobileProvision() {
 }
 
 + (BOOL)isSimulator {
-#if TARGET_IPHONE_SIMULATOR
+#if TARGET_OS_SIMULATOR
   return YES;
 #elif TARGET_OS_MACCATALYST
   return NO;
