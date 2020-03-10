@@ -20,7 +20,9 @@
 #import <GoogleDataTransport/GDTCORConsoleLogger.h>
 #import <GoogleDataTransport/GDTCORReachability.h>
 
+#import <GDTCORLibrary/Private/GDTCORStorage_Private.h>
 #import "GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
+#import "GDTCORLibrary/Private/GDTCORStorage.h"
 
 #ifdef GDTCOR_VERSION
 #define STR(x) STR_EXPAND(x)
@@ -49,6 +51,34 @@ BOOL GDTCORReachabilityFlagsContainWWAN(SCNetworkReachabilityFlags flags) {
 #endif  // TARGET_OS_IOS
 }
 #endif  // !TARGET_OS_WATCH
+
+void writeStorageStateToDisk(GDTCORStorage *storage) {
+  if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, watchOS 5.0, *)) {
+    NSError *error;
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:storage
+                                         requiringSecureCoding:YES
+                                                         error:&error];
+    [data writeToFile:[GDTCORStorage archivePath] atomically:YES];
+  } else {
+#if !TARGET_OS_MACCATALYST
+    [NSKeyedArchiver archiveRootObject:storage toFile:[GDTCORStorage archivePath]];
+#endif
+  }
+}
+
+void readStorageStateFromDisk() {
+  if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, watchOS 5.0, *)) {
+    NSError *error;
+    NSData *data = [NSData dataWithContentsOfFile:[GDTCORStorage archivePath]];
+    if (data) {
+      [NSKeyedUnarchiver unarchivedObjectOfClass:[GDTCORStorage class] fromData:data error:&error];
+    }
+  } else {
+#if !TARGET_OS_MACCATALYST && !TARGET_OS_WATCH
+    [NSKeyedUnarchiver unarchiveObjectWithFile:[GDTCORStorage archivePath]];
+#endif
+  }
+}
 
 GDTCORNetworkType GDTCORNetworkTypeMessage() {
 #if !TARGET_OS_WATCH

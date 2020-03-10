@@ -32,6 +32,8 @@
 #import <CoreTelephony/CTTelephonyNetworkInfo.h>
 #endif
 
+@class GDTCORStorage;
+
 NS_ASSUME_NONNULL_BEGIN
 
 /** The GoogleDataTransport library version. */
@@ -68,6 +70,9 @@ typedef NS_ENUM(NSInteger, GDTCORNetworkMobileSubtype) {
   GDTCORNetworkMobileSubtypeHRPD = 10,
   GDTCORNetworkMobileSubtypeLTE = 11,
 };
+
+void writeStorageStateToDisk(GDTCORStorage *storage);
+void readStorageStateFromDisk(void);
 
 #if !TARGET_OS_WATCH
 /** Compares flags with the WWAN reachability flag, if available, and returns YES if present.
