@@ -15,7 +15,7 @@
  */
 
 #include <TargetConditionals.h>
-#if !TARGET_OS_OSX && !TARGET_OS_TV
+#if TARGET_OS_IOS
 
 #import <Foundation/Foundation.h>
 
@@ -23,9 +23,16 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/** @class FIRPhoneMultiFactorInfo
+    @brief Extends the FIRMultiFactorInfo class for phone number second factors.
+        The identifier of this second factor is “phone”.
+*/
 NS_SWIFT_NAME(PhoneMultiFactorInfo)
 @interface FIRPhoneMultiFactorInfo : FIRMultiFactorInfo
 
+/**
+   @brief This is the phone number associated with the current second factor.
+*/
 @property(nonatomic, readonly, nonnull) NSString *phoneNumber;
 
 @end

@@ -15,7 +15,7 @@
  */
 
 #include <TargetConditionals.h>
-#if !TARGET_OS_OSX && !TARGET_OS_TV
+#if TARGET_OS_IOS
 
 #import <Foundation/Foundation.h>
 
@@ -24,6 +24,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/** @class FIRPhoneMultiFactorGenerator
+    @brief The data structure used to help initialize an assertion for a second factor entity to the
+        Firebase Auth/CICP server. Depending on the type of second factor, this will help generate
+        the assertion.
+*/
 NS_SWIFT_NAME(PhoneMultiFactorGenerator)
 @interface FIRPhoneMultiFactorGenerator : NSObject
 
