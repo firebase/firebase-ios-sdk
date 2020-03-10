@@ -1231,12 +1231,12 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
 }
 
 #if TARGET_OS_IOS
-+ (NSError *)secondFactorRequiredErrorWithPendingCredential:(NSString *)mfaPendingCredential
++ (NSError *)secondFactorRequiredErrorWithPendingCredential:(NSString *)MFAPendingCredential
                                                       hints:(NSArray<FIRMultiFactorInfo *> *)hints {
   NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
-  if (mfaPendingCredential && hints) {
+  if (MFAPendingCredential && hints) {
     FIRMultiFactorResolver *resolver = [[FIRMultiFactorResolver alloc]
-                                        initWithMfaPendingCredential:mfaPendingCredential hints:hints];
+                                        initWithMfaPendingCredential:MFAPendingCredential hints:hints];
     userInfo[FIRAuthErrorUserInfoMultiFactorResolverKey] = resolver;
   }
   return [self errorWithCode:FIRAuthInternalErrorCodeSecondFactorRequired userInfo:userInfo];

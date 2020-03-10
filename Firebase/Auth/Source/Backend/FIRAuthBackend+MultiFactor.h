@@ -69,7 +69,7 @@ typedef void (^FIRFinalizeMfaSignInResponseCallback)
 (FIRFinalizeMfaSignInResponse *_Nullable response, NSError *_Nullable error);
 
 /** @typedef FIRWithdrawMfaResponseCallback
-    @brief The type of block used to return the result of a call to the mfaUnenroll endpoint.
+    @brief The type of block used to return the result of a call to the MFAUnenroll endpoint.
     @param response The received response, if any.
     @param error The error which occurred, if any.
     @remarks One of response or error will be non-nil.

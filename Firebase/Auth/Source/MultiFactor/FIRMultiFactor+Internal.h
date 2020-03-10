@@ -27,9 +27,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, weak) FIRUser *user;
 
 /** @fn initWithMfaEnrollments:
-    @brief Initialize a multi factor instance with a list of mfa enrollments.
+    @brief Initialize a multi factor instance with a list of MFA enrollments.
 */
-- (instancetype)initWithMfaEnrollments:(NSArray<FIRAuthProtoMfaEnrollment *> *)mfaEnrollments;
+- (instancetype)initWithMfaEnrollments:(NSArray<FIRAuthProtoMfaEnrollment *> *)MFAEnrollments;
 
 @end
 

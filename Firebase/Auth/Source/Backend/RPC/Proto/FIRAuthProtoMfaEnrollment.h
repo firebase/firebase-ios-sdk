@@ -20,9 +20,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRAuthProtoMfaEnrollment : NSObject <FIRAuthProto>
 
-@property(nonatomic, copy, readonly, nullable) NSString *mfaValue;
+@property(nonatomic, copy, readonly, nullable) NSString *MFAValue;
 
-@property(nonatomic, copy, readonly, nullable) NSString *mfaEnrollmentID;
+@property(nonatomic, copy, readonly, nullable) NSString *MFAEnrollmentID;
 
 @property(nonatomic, copy, readonly, nullable) NSString *displayName;
 

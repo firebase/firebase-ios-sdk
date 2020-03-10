@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic, readonly) NSString *idToken;
 
-@property(nonatomic) NSString *mfaPendingCredential;
+@property(nonatomic) NSString *MFAPendingCredential;
 
 @property(nonatomic) FIRMultiFactorInfo *multiFactorInfo;
 

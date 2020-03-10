@@ -23,10 +23,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic, copy, readonly, nullable) NSString *idToken;
 
-@property(nonatomic, copy, readonly, nullable) NSString *mfaEnrollmentID;
+@property(nonatomic, copy, readonly, nullable) NSString *MFAEnrollmentID;
 
 - (nullable instancetype)initWithIDToken:(NSString *)idToken
-                         mfaEnrollmentID:(NSString *)mfaEnrollmentID
+                         MFAEnrollmentID:(NSString *)MFAEnrollmentID
                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration;
 
 @end

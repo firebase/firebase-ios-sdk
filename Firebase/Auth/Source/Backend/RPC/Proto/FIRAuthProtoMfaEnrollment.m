@@ -24,9 +24,9 @@ NS_ASSUME_NONNULL_BEGIN
   self = [super init];
   if (self) {
     if (dictionary[@"phoneInfo"]) {
-      _mfaValue = dictionary[@"phoneInfo"];
+      _MFAValue = dictionary[@"phoneInfo"];
     }
-    _mfaEnrollmentID = dictionary[@"mfaEnrollmentId"];
+    _MFAEnrollmentID = dictionary[@"mfaEnrollmentId"];
     _displayName = dictionary[@"displayName"];
     if ([dictionary[@"enrolledAt"] isKindOfClass:[NSString class]]) {
       NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];

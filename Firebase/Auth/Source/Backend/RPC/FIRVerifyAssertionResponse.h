@@ -205,9 +205,9 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, copy, nullable) NSString *pendingToken;
 
-@property(nonatomic, strong, readonly, nullable) NSString *mfaPendingCredential;
+@property(nonatomic, strong, readonly, nullable) NSString *MFAPendingCredential;
 
-@property(nonatomic, strong, readonly, nullable) NSArray<FIRAuthProtoMfaEnrollment *> *mfaInfo;
+@property(nonatomic, strong, readonly, nullable) NSArray<FIRAuthProtoMfaEnrollment *> *MFAInfo;
 
 @end
 

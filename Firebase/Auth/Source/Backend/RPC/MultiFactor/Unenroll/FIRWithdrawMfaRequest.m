@@ -23,7 +23,7 @@ static NSString *const kWithdrawMfaEndPoint = @"accounts/mfaEnrollment:withdraw"
 @implementation FIRWithdrawMfaRequest
 
 - (nullable instancetype)initWithIDToken:(NSString *)idToken
-                         mfaEnrollmentID:(NSString *)mfaEnrollmentID
+                         MFAEnrollmentID:(NSString *)MFAEnrollmentID
                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
   self = [super initWithEndpoint:kWithdrawMfaEndPoint
             requestConfiguration:requestConfiguration
@@ -31,7 +31,7 @@ static NSString *const kWithdrawMfaEndPoint = @"accounts/mfaEnrollment:withdraw"
                       useStaging:NO];
   if (self) {
     _idToken = idToken;
-    _mfaEnrollmentID = mfaEnrollmentID;
+    _MFAEnrollmentID = MFAEnrollmentID;
   }
   return self;
 }
@@ -41,8 +41,8 @@ static NSString *const kWithdrawMfaEndPoint = @"accounts/mfaEnrollment:withdraw"
   if (_idToken) {
     postBody[@"idToken"] = _idToken;
   }
-  if (_mfaEnrollmentID) {
-    postBody[@"mfaEnrollmentId"] = _mfaEnrollmentID;
+  if (_MFAEnrollmentID) {
+    postBody[@"mfaEnrollmentId"] = _MFAEnrollmentID;
   }
   return [postBody copy];
 }

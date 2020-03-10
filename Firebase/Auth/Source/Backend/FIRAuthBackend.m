@@ -698,15 +698,15 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
     if (error) {
       callback(nil, error);
     } else {
-      if (!response.IDToken && response.mfaInfo) {
+      if (!response.IDToken && response.MFAInfo) {
 #if TARGET_OS_IOS
         NSMutableArray<FIRMultiFactorInfo *> *multiFactorInfo = [NSMutableArray array];
-        for (FIRAuthProtoMfaEnrollment *mfaEnrollment in response.mfaInfo) {
-          FIRPhoneMultiFactorInfo *info = [[FIRPhoneMultiFactorInfo alloc] initWithProto:mfaEnrollment];
+        for (FIRAuthProtoMfaEnrollment *MFAEnrollment in response.MFAInfo) {
+          FIRPhoneMultiFactorInfo *info = [[FIRPhoneMultiFactorInfo alloc] initWithProto:MFAEnrollment];
           [multiFactorInfo addObject:info];
         }
         NSError *multiFactorRequiredError =
-        [FIRAuthErrorUtils secondFactorRequiredErrorWithPendingCredential:response.mfaPendingCredential
+        [FIRAuthErrorUtils secondFactorRequiredErrorWithPendingCredential:response.MFAPendingCredential
                                                                     hints:multiFactorInfo];
         callback(nil, multiFactorRequiredError);
         #endif
@@ -736,15 +736,15 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
     if (error) {
       callback(nil, error);
     } else {
-      if (!response.IDToken && response.mfaInfo) {
+      if (!response.IDToken && response.MFAInfo) {
         #if TARGET_OS_IOS
         NSMutableArray<FIRMultiFactorInfo *> *multiFactorInfo = [NSMutableArray array];
-        for (FIRAuthProtoMfaEnrollment *mfaEnrollment in response.mfaInfo) {
-          FIRPhoneMultiFactorInfo *info = [[FIRPhoneMultiFactorInfo alloc] initWithProto:mfaEnrollment];
+        for (FIRAuthProtoMfaEnrollment *MFAEnrollment in response.MFAInfo) {
+          FIRPhoneMultiFactorInfo *info = [[FIRPhoneMultiFactorInfo alloc] initWithProto:MFAEnrollment];
           [multiFactorInfo addObject:info];
         }
         NSError *multiFactorRequiredError =
-            [FIRAuthErrorUtils secondFactorRequiredErrorWithPendingCredential:response.mfaPendingCredential
+            [FIRAuthErrorUtils secondFactorRequiredErrorWithPendingCredential:response.MFAPendingCredential
                                                                         hints:multiFactorInfo];
         callback(nil, multiFactorRequiredError);
         #endif

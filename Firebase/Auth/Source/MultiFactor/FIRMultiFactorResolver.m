@@ -38,15 +38,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRMultiFactorResolver
 
-- (instancetype)initWithMfaPendingCredential:(NSString *_Nullable)mfaPendingCredential
+- (instancetype)initWithMfaPendingCredential:(NSString *_Nullable)MFAPendingCredential
                                        hints:(NSArray<FIRMultiFactorInfo *> *)hints {
   self = [super init];
   if (self) {
-    _mfaPendingCredential = mfaPendingCredential;
+    _MFAPendingCredential = MFAPendingCredential;
     _hints = hints;
     _auth = [FIRAuth auth];
     _session = [[FIRMultiFactorSession alloc] init];
-    _session.mfaPendingCredential = mfaPendingCredential;
+    _session.MFAPendingCredential = MFAPendingCredential;
   }
   return self;
 }
@@ -61,7 +61,7 @@ NS_ASSUME_NONNULL_BEGIN
        verificationCode:phoneAssertion.authCredential.verificationCode];
   FIRFinalizeMfaSignInRequest *request =
   [[FIRFinalizeMfaSignInRequest alloc] initWithMfaProvider:phoneAssertion.factorID
-                                      mfaPendingCredential:self.mfaPendingCredential
+                                      MFAPendingCredential:self.MFAPendingCredential
                                           verificationInfo:finalizeMfaPhoneRequestInfo
                                       requestConfiguration:self.auth.requestConfiguration];
   [FIRAuthBackend finalizeMultiFactorSignIn:request

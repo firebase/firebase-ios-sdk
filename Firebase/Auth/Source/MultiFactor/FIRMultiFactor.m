@@ -58,7 +58,7 @@ static NSString *kUserCodingKey = @"user";
                                                           verificationCode:phoneAssertion.authCredential.verificationCode];
   FIRFinalizeMfaEnrollmentRequest *request =
   [[FIRFinalizeMfaEnrollmentRequest alloc] initWithIDToken:self.user.rawAccessToken
-                                               mfaProvider:phoneAssertion.factorID
+                                               MFAProvider:phoneAssertion.factorID
                                                displayName:displayName
                                           verificationInfo:finalizeMfaPhoneRequestInfo
                                       requestConfiguration:self.user.requestConfiguration];
@@ -98,7 +98,7 @@ static NSString *kUserCodingKey = @"user";
 - (void)unenrollWithFactorUID:(NSString *)factorUID
                    completion:(nullable FIRAuthVoidErrorCallback)completion {
   FIRWithdrawMfaRequest *request = [[FIRWithdrawMfaRequest alloc] initWithIDToken:self.user.rawAccessToken
-                                                                  mfaEnrollmentID:factorUID
+                                                                  MFAEnrollmentID:factorUID
                                                              requestConfiguration:self.user.requestConfiguration];
   [FIRAuthBackend withdrawMultiFactor:request
                              callback:^(FIRWithdrawMfaResponse *_Nullable response, NSError * _Nullable error) {
@@ -131,13 +131,13 @@ static NSString *kUserCodingKey = @"user";
 
 #pragma mark - Internal
 
-- (instancetype)initWithMfaEnrollments:(NSArray<FIRAuthProtoMfaEnrollment *> *)mfaEnrollments {
+- (instancetype)initWithMfaEnrollments:(NSArray<FIRAuthProtoMfaEnrollment *> *)MFAEnrollments {
   self = [super init];
 
   if (self) {
     NSMutableArray<FIRMultiFactorInfo *> *multiFactorInfoArray = [[NSMutableArray alloc] init];
-    for (FIRAuthProtoMfaEnrollment *mfaEnrollment in mfaEnrollments) {
-      FIRMultiFactorInfo *multiFactorInfo = [[FIRMultiFactorInfo alloc] initWithProto:mfaEnrollment];
+    for (FIRAuthProtoMfaEnrollment *MFAEnrollment in MFAEnrollments) {
+      FIRMultiFactorInfo *multiFactorInfo = [[FIRMultiFactorInfo alloc] initWithProto:MFAEnrollment];
       [multiFactorInfoArray addObject:multiFactorInfo];
     }
     _enrolledFactors = [multiFactorInfoArray copy];

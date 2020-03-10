@@ -20,9 +20,9 @@ static NSString *const kStartMfaSignInEndPoint = @"accounts/mfaSignIn:start";
 
 @implementation FIRStartMfaSignInRequest
 
-- (nullable instancetype)initWithMfaProvider:(NSString *)mfaProvider
-                        mfaPendingCredential:(NSString *)mfaPendingCredential
-                             mfaEnrollmentID:(NSString *)mfaEnrollmentID
+- (nullable instancetype)initWithMfaProvider:(NSString *)MFAProvider
+                        MFAPendingCredential:(NSString *)MFAPendingCredential
+                             MFAEnrollmentID:(NSString *)MFAEnrollmentID
                                   signInInfo:(FIRAuthProtoStartMfaPhoneRequestInfo *)signInInfo
                         requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
   self = [super initWithEndpoint:kStartMfaSignInEndPoint
@@ -30,9 +30,9 @@ static NSString *const kStartMfaSignInEndPoint = @"accounts/mfaSignIn:start";
              useIdentityPlatform:YES
                       useStaging:NO];
   if (self) {
-    _mfaProvider = mfaProvider;
-    _mfaPendingCredential = mfaPendingCredential;
-    _mfaEnrollmentID = mfaEnrollmentID;
+    _MFAProvider = MFAProvider;
+    _MFAPendingCredential = MFAPendingCredential;
+    _MFAEnrollmentID = MFAEnrollmentID;
     _signInInfo = signInInfo;
   }
   return self;
@@ -40,14 +40,14 @@ static NSString *const kStartMfaSignInEndPoint = @"accounts/mfaSignIn:start";
 
 - (nullable id)unencodedHTTPRequestBodyWithError:(NSError *__autoreleasing  _Nullable *)error {
   NSMutableDictionary *postBody = [NSMutableDictionary dictionary];
-  if (_mfaProvider) {
-    postBody[@"mfaProvider"] = _mfaProvider;
+  if (_MFAProvider) {
+    postBody[@"mfaProvider"] = _MFAProvider;
   }
-  if (_mfaPendingCredential) {
-    postBody[@"mfaPendingCredential"] = _mfaPendingCredential;
+  if (_MFAPendingCredential) {
+    postBody[@"mfaPendingCredential"] = _MFAPendingCredential;
   }
-  if (_mfaEnrollmentID) {
-    postBody[@"mfaEnrollmentId"] = _mfaEnrollmentID;
+  if (_MFAEnrollmentID) {
+    postBody[@"mfaEnrollmentId"] = _MFAEnrollmentID;
   }
   if (_signInInfo) {
     if ([_signInInfo isKindOfClass:[FIRAuthProtoStartMfaPhoneRequestInfo class]]) {

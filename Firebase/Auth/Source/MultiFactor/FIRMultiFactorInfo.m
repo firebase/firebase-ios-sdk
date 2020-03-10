@@ -37,7 +37,7 @@ static NSString *kFactorIDCodingKey = @"factorID";
   self = [super init];
 
   if (self) {
-    _UID = proto.mfaEnrollmentID;
+    _UID = proto.MFAEnrollmentID;
     _displayName = proto.displayName;
     _enrollmentDate = proto.enrolledAt;
   }

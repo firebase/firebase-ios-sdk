@@ -126,7 +126,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, readonly, nullable) NSString *phoneNumber;
 
-@property(nonatomic, strong, readonly, nullable) NSArray<FIRAuthProtoMfaEnrollment *> *mfaEnrollments;
+@property(nonatomic, strong, readonly, nullable) NSArray<FIRAuthProtoMfaEnrollment *> *MFAEnrollments;
 
 /** @fn init
     @brief Please use initWithDictionary:
