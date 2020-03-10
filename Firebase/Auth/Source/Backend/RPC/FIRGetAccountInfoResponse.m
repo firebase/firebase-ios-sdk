@@ -82,10 +82,10 @@ static NSString *const kErrorKey = @"error";
     _phoneNumber = [dictionary[@"phoneNumber"] copy];
     NSArray<NSDictionary *> *MFAEnrollmentData = dictionary[@"mfaInfo"];
     if (MFAEnrollmentData) {
-      NSMutableArray<FIRAuthProtoMfaEnrollment *> *MFAEnrollments =
+      NSMutableArray<FIRAuthProtoMFAEnrollment *> *MFAEnrollments =
       [NSMutableArray arrayWithCapacity:MFAEnrollmentData.count];
       for (NSDictionary *dictionary in MFAEnrollmentData) {
-        [MFAEnrollments addObject: [[FIRAuthProtoMfaEnrollment alloc] initWithDictionary:dictionary]];
+        [MFAEnrollments addObject: [[FIRAuthProtoMFAEnrollment alloc] initWithDictionary:dictionary]];
       }
       _MFAEnrollments = [MFAEnrollments copy];
     }

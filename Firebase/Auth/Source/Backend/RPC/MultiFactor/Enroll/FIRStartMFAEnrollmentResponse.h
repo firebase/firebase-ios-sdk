@@ -15,15 +15,13 @@
  */
 
 #import "FIRAuthRPCResponse.h"
-#import "FIRAuthProtoFinalizeMfaPhoneResponseInfo.h"
+#import "FIRAuthProtoStartMFAPhoneResponseInfo.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRFinalizeMfaEnrollmentResponse : NSObject <FIRAuthRPCResponse>
+@interface FIRStartMFAEnrollmentResponse : NSObject <FIRAuthRPCResponse>
 
-@property(nonatomic, copy, readonly, nullable) NSString *idToken;
-
-@property(nonatomic, copy, readonly, nullable) NSString *refreshToken;
+@property(nonatomic, copy, readonly, nullable) FIRAuthProtoStartMFAPhoneResponseInfo *enrollmentResponse;
 
 @end
 

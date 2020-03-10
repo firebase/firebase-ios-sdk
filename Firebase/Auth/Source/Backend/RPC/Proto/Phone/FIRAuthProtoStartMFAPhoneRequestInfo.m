@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRAuthProtoStartMfaPhoneRequestInfo.h"
+#import "FIRAuthProtoStartMFAPhoneRequestInfo.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -38,7 +38,7 @@ static NSString *const kSecretKey = @"iosSecret";
  */
 static NSString *const kreCAPTCHATokenKey = @"recaptchaToken";
 
-@implementation FIRAuthProtoStartMfaPhoneRequestInfo
+@implementation FIRAuthProtoStartMFAPhoneRequestInfo
 
 - (nullable instancetype)initWithPhoneNumber:(NSString *)phoneNumber
                                appCredential:(nullable FIRAuthAppCredential *)appCredential

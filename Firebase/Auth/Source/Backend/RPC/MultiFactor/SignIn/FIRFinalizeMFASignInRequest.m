@@ -14,25 +14,23 @@
  * limitations under the License.
  */
 
-#import "FIRFinalizeMfaEnrollmentRequest.h"
+#import "FIRFinalizeMFASignInRequest.h"
 
-static NSString *const kFinalizeMfaEnrollmentEndPoint = @"accounts/mfaEnrollment:finalize";
+static NSString *const kFinalizeMFASignInEndPoint = @"accounts/mfaSignIn:finalize";
 
-@implementation FIRFinalizeMfaEnrollmentRequest
+@implementation FIRFinalizeMFASignInRequest
 
-- (nullable instancetype)initWithIDToken:(NSString *)IDToken
-                             MFAProvider:(NSString *)MFAProvider
-                             displayName:(NSString *)displayName
-                        verificationInfo:(FIRAuthProtoFinalizeMfaPhoneRequestInfo *)verificationInfo
-                    requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
-  self = [super initWithEndpoint:kFinalizeMfaEnrollmentEndPoint
+- (nullable instancetype)initWithMFAProvider:(NSString *)MFAProvider
+                        MFAPendingCredential:(NSString *)MFAPendingCredential
+                            verificationInfo:(FIRAuthProtoFinalizeMFAPhoneRequestInfo *)verificationInfo
+                        requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
+  self = [super initWithEndpoint:kFinalizeMFASignInEndPoint
             requestConfiguration:requestConfiguration
              useIdentityPlatform:YES
                       useStaging:NO];
   if (self) {
-    _IDToken = IDToken;
     _MFAProvider = MFAProvider;
-    _displayName = displayName;
+    _MFAPendingCredential = MFAPendingCredential;
     _verificationInfo = verificationInfo;
   }
   return self;
@@ -40,17 +38,14 @@ static NSString *const kFinalizeMfaEnrollmentEndPoint = @"accounts/mfaEnrollment
 
 - (nullable id)unencodedHTTPRequestBodyWithError:(NSError *__autoreleasing  _Nullable *)error {
   NSMutableDictionary *postBody = [NSMutableDictionary dictionary];
-  if (_IDToken) {
-    postBody[@"idToken"] = _IDToken;
-  }
   if (_MFAProvider) {
     postBody[@"mfaProvider"] = _MFAProvider;
   }
-  if (_displayName) {
-    postBody[@"displayName"] = _displayName;
+  if (_MFAPendingCredential) {
+    postBody[@"mfaPendingCredential"] = _MFAPendingCredential;
   }
   if (_verificationInfo) {
-    if ([_verificationInfo isKindOfClass:[FIRAuthProtoFinalizeMfaPhoneRequestInfo class]]) {
+    if ([_verificationInfo isKindOfClass:[FIRAuthProtoFinalizeMFAPhoneRequestInfo class]]) {
       postBody[@"phoneVerificationInfo"] = [_verificationInfo dictionary];
     }
   }

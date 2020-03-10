@@ -80,10 +80,10 @@ NS_ASSUME_NONNULL_BEGIN
   _pendingToken = [dictionary[@"pendingToken"] copy];
 
   if (dictionary[@"mfaInfo"] != nil) {
-    NSMutableArray<FIRAuthProtoMfaEnrollment *> *MFAInfo = [NSMutableArray array];
+    NSMutableArray<FIRAuthProtoMFAEnrollment *> *MFAInfo = [NSMutableArray array];
     NSArray *MFAInfoDataArray = dictionary[@"mfaInfo"];
     for (NSDictionary *MFAInfoData in MFAInfoDataArray) {
-      FIRAuthProtoMfaEnrollment *MFAEnrollment = [[FIRAuthProtoMfaEnrollment alloc] initWithDictionary:MFAInfoData];
+      FIRAuthProtoMFAEnrollment *MFAEnrollment = [[FIRAuthProtoMFAEnrollment alloc] initWithDictionary:MFAInfoData];
       [MFAInfo addObject:MFAEnrollment];
     }
     _MFAInfo = MFAInfo;

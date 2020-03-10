@@ -32,10 +32,10 @@ NS_ASSUME_NONNULL_BEGIN
   _photoURL = dictionary[@"photoUrl"] ? [NSURL URLWithString:dictionary[@"photoUrl"]] : nil;
 
   if (dictionary[@"mfaInfo"] != nil) {
-    NSMutableArray<FIRAuthProtoMfaEnrollment *> *MFAInfo = [NSMutableArray array];
+    NSMutableArray<FIRAuthProtoMFAEnrollment *> *MFAInfo = [NSMutableArray array];
     NSArray *MFAInfoDataArray = dictionary[@"mfaInfo"];
     for (NSDictionary *MFAInfoData in MFAInfoDataArray) {
-      FIRAuthProtoMfaEnrollment *MFAEnrollment = [[FIRAuthProtoMfaEnrollment alloc] initWithDictionary:MFAInfoData];
+      FIRAuthProtoMFAEnrollment *MFAEnrollment = [[FIRAuthProtoMFAEnrollment alloc] initWithDictionary:MFAInfoData];
       [MFAInfo addObject:MFAEnrollment];
     }
     _MFAInfo = MFAInfo;

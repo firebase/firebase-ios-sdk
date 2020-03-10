@@ -14,39 +14,47 @@
  * limitations under the License.
  */
 
-#import "FIRWithdrawMfaRequest.h"
+#import "FIRStartMFASignInRequest.h"
 
-NS_ASSUME_NONNULL_BEGIN
+static NSString *const kStartMFASignInEndPoint = @"accounts/mfaSignIn:start";
 
-static NSString *const kWithdrawMfaEndPoint = @"accounts/mfaEnrollment:withdraw";
+@implementation FIRStartMFASignInRequest
 
-@implementation FIRWithdrawMfaRequest
-
-- (nullable instancetype)initWithIDToken:(NSString *)idToken
-                         MFAEnrollmentID:(NSString *)MFAEnrollmentID
-                    requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
-  self = [super initWithEndpoint:kWithdrawMfaEndPoint
+- (nullable instancetype)initWithMFAProvider:(NSString *)MFAProvider
+                        MFAPendingCredential:(NSString *)MFAPendingCredential
+                             MFAEnrollmentID:(NSString *)MFAEnrollmentID
+                                  signInInfo:(FIRAuthProtoStartMFAPhoneRequestInfo *)signInInfo
+                        requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
+  self = [super initWithEndpoint:kStartMFASignInEndPoint
             requestConfiguration:requestConfiguration
              useIdentityPlatform:YES
                       useStaging:NO];
   if (self) {
-    _idToken = idToken;
+    _MFAProvider = MFAProvider;
+    _MFAPendingCredential = MFAPendingCredential;
     _MFAEnrollmentID = MFAEnrollmentID;
+    _signInInfo = signInInfo;
   }
   return self;
 }
 
 - (nullable id)unencodedHTTPRequestBodyWithError:(NSError *__autoreleasing  _Nullable *)error {
   NSMutableDictionary *postBody = [NSMutableDictionary dictionary];
-  if (_idToken) {
-    postBody[@"idToken"] = _idToken;
+  if (_MFAProvider) {
+    postBody[@"mfaProvider"] = _MFAProvider;
+  }
+  if (_MFAPendingCredential) {
+    postBody[@"mfaPendingCredential"] = _MFAPendingCredential;
   }
   if (_MFAEnrollmentID) {
     postBody[@"mfaEnrollmentId"] = _MFAEnrollmentID;
+  }
+  if (_signInInfo) {
+    if ([_signInInfo isKindOfClass:[FIRAuthProtoStartMFAPhoneRequestInfo class]]) {
+      postBody[@"phoneSignInInfo"] = [_signInInfo dictionary];
+    }
   }
   return [postBody copy];
 }
 
 @end
-
-NS_ASSUME_NONNULL_END

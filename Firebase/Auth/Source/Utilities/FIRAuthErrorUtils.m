@@ -1236,7 +1236,7 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
   NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
   if (MFAPendingCredential && hints) {
     FIRMultiFactorResolver *resolver = [[FIRMultiFactorResolver alloc]
-                                        initWithMfaPendingCredential:MFAPendingCredential hints:hints];
+                                        initWithMFAPendingCredential:MFAPendingCredential hints:hints];
     userInfo[FIRAuthErrorUserInfoMultiFactorResolverKey] = resolver;
   }
   return [self errorWithCode:FIRAuthInternalErrorCodeSecondFactorRequired userInfo:userInfo];

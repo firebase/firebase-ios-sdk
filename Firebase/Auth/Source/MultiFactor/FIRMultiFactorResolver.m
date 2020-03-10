@@ -22,9 +22,9 @@
 #import "FIRAdditionalUserInfo.h"
 #import "FIRAuthBackend+MultiFactor.h"
 #import "FIRAuthDataResult_Internal.h"
-#import "FIRAuthProtoFinalizeMfaPhoneRequestInfo.h"
+#import "FIRAuthProtoFinalizeMFAPhoneRequestInfo.h"
 #import "FIRAuth_Internal.h"
-#import "FIRFinalizeMfaSignInRequest.h"
+#import "FIRFinalizeMFASignInRequest.h"
 #import "FIRMultiFactorResolver+Internal.h"
 #import "FIRMultiFactorSession+Internal.h"
 
@@ -38,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRMultiFactorResolver
 
-- (instancetype)initWithMfaPendingCredential:(NSString *_Nullable)MFAPendingCredential
+- (instancetype)initWithMFAPendingCredential:(NSString *_Nullable)MFAPendingCredential
                                        hints:(NSArray<FIRMultiFactorInfo *> *)hints {
   self = [super init];
   if (self) {
@@ -55,17 +55,17 @@ NS_ASSUME_NONNULL_BEGIN
                         completion:(nullable FIRAuthDataResultCallback)completion {
 #if TARGET_OS_IOS
   FIRPhoneMultiFactorAssertion *phoneAssertion = (FIRPhoneMultiFactorAssertion *)assertion;
-  FIRAuthProtoFinalizeMfaPhoneRequestInfo *finalizeMfaPhoneRequestInfo =
-      [[FIRAuthProtoFinalizeMfaPhoneRequestInfo alloc]
+  FIRAuthProtoFinalizeMFAPhoneRequestInfo *finalizeMFAPhoneRequestInfo =
+      [[FIRAuthProtoFinalizeMFAPhoneRequestInfo alloc]
        initWithSessionInfo:phoneAssertion.authCredential.verificationID
        verificationCode:phoneAssertion.authCredential.verificationCode];
-  FIRFinalizeMfaSignInRequest *request =
-  [[FIRFinalizeMfaSignInRequest alloc] initWithMfaProvider:phoneAssertion.factorID
+  FIRFinalizeMFASignInRequest *request =
+  [[FIRFinalizeMFASignInRequest alloc] initWithMFAProvider:phoneAssertion.factorID
                                       MFAPendingCredential:self.MFAPendingCredential
-                                          verificationInfo:finalizeMfaPhoneRequestInfo
+                                          verificationInfo:finalizeMFAPhoneRequestInfo
                                       requestConfiguration:self.auth.requestConfiguration];
   [FIRAuthBackend finalizeMultiFactorSignIn:request
-                                   callback:^(FIRFinalizeMfaSignInResponse * _Nullable response,
+                                   callback:^(FIRFinalizeMFASignInResponse * _Nullable response,
                                               NSError * _Nullable error) {
    if (error) {
      if (completion) {

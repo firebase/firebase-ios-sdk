@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRAuthProtoMfaEnrollment.h"
+#import "FIRAuthProtoMFAEnrollment.h"
 #import "FIRAuthRPCResponse.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -207,7 +207,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic, strong, readonly, nullable) NSString *MFAPendingCredential;
 
-@property(nonatomic, strong, readonly, nullable) NSArray<FIRAuthProtoMfaEnrollment *> *MFAInfo;
+@property(nonatomic, strong, readonly, nullable) NSArray<FIRAuthProtoMFAEnrollment *> *MFAInfo;
 
 @end
 

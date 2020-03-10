@@ -19,7 +19,7 @@
 
 #import "FIRPhoneMultiFactorInfo.h"
 
-#import "FIRAuthProtoMfaEnrollment.h"
+#import "FIRAuthProtoMFAEnrollment.h"
 #import "FIRMultiFactorInfo+Internal.h"
 #import "FIRMultiFactorInfo.h"
 
@@ -27,7 +27,7 @@ extern NSString *const FIRPhoneMultiFactorID;
 
 @implementation FIRPhoneMultiFactorInfo
 
-- (instancetype)initWithProto:(FIRAuthProtoMfaEnrollment *)proto {
+- (instancetype)initWithProto:(FIRAuthProtoMFAEnrollment *)proto {
   self = [super initWithProto:proto];
   if (self) {
     _factorID = FIRPhoneMultiFactorID;

@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-#import "FIRStartMfaEnrollmentRequest.h"
+#import "FIRStartMFAEnrollmentRequest.h"
 
-#import "FIRAuthProtoStartMfaPhoneRequestInfo.h"
+#import "FIRAuthProtoStartMFAPhoneRequestInfo.h"
 
-static NSString *const kStartMfaEnrollmentEndPoint = @"accounts/mfaEnrollment:start";
+static NSString *const kStartMFAEnrollmentEndPoint = @"accounts/mfaEnrollment:start";
 
-@implementation FIRStartMfaEnrollmentRequest
+@implementation FIRStartMFAEnrollmentRequest
 
 - (nullable instancetype)initWithIDToken:(NSString *)idToken
                      multiFactorProvider:(NSString *)multiFactorProvider
-                          enrollmentInfo:(FIRAuthProtoStartMfaPhoneRequestInfo *)enrollmentInfo
+                          enrollmentInfo:(FIRAuthProtoStartMFAPhoneRequestInfo *)enrollmentInfo
                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
-  self = [super initWithEndpoint:kStartMfaEnrollmentEndPoint
+  self = [super initWithEndpoint:kStartMFAEnrollmentEndPoint
             requestConfiguration:requestConfiguration
              useIdentityPlatform:YES
                       useStaging:NO];
@@ -47,7 +47,7 @@ static NSString *const kStartMfaEnrollmentEndPoint = @"accounts/mfaEnrollment:st
     postBody[@"mfaProvider"] = _multiFactorProvider;
   }
   if (_enrollmentInfo) {
-    if ([_enrollmentInfo isKindOfClass:[FIRAuthProtoStartMfaPhoneRequestInfo class]]) {
+    if ([_enrollmentInfo isKindOfClass:[FIRAuthProtoStartMFAPhoneRequestInfo class]]) {
       postBody[@"phoneEnrollmentInfo"] = [_enrollmentInfo dictionary];
     }
   }

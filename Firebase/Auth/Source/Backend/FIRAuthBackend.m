@@ -389,25 +389,25 @@ static NSString *const kMissingClientIdentifier = @"MISSING_CLIENT_IDENTIFIER";
  */
 static NSString *const kCaptchaCheckFailedErrorMessage = @"CAPTCHA_CHECK_FAILED";
 
-/** @var kMissingMfaPendingCredentialErrorMessage
+/** @var kMissingMFAPendingCredentialErrorMessage
  @brief This is the error message the server will respond with if the MFA pending credential is missing.
  */
-static NSString *const kMissingMfaPendingCredentialErrorMessage = @"MISSING_MFA_PENDING_CREDENTIAL";
+static NSString *const kMissingMFAPendingCredentialErrorMessage = @"MISSING_MFA_PENDING_CREDENTIAL";
 
-/** @var kMissingMfaEnrollmentIDErrorMessage
+/** @var kMissingMFAEnrollmentIDErrorMessage
  @brief This is the error message the server will respond with if the MFA enrollment ID is missing.
  */
-static NSString *const kMissingMfaEnrollmentIDErrorMessage = @"MISSING_MFA_ENROLLMENT_ID";
+static NSString *const kMissingMFAEnrollmentIDErrorMessage = @"MISSING_MFA_ENROLLMENT_ID";
 
-/** @var kInvalidMfaPendingCredentialErrorMessage
+/** @var kInvalidMFAPendingCredentialErrorMessage
  @brief This is the error message the server will respond with if the MFA pending credential is invalid.
  */
-static NSString *const kInvalidMfaPendingCredentialErrorMessage = @"INVALID_MFA_PENDING_CREDENTIAL";
+static NSString *const kInvalidMFAPendingCredentialErrorMessage = @"INVALID_MFA_PENDING_CREDENTIAL";
 
-/** @var kMfaEnrollmentNotFoundErrorMessage
+/** @var kMFAEnrollmentNotFoundErrorMessage
  @brief This is the error message the server will respond with if the MFA enrollment info is not found.
  */
-static NSString *const kMfaEnrollmentNotFoundErrorMessage = @"MFA_ENROLLMENT_NOT_FOUND";
+static NSString *const kMFAEnrollmentNotFoundErrorMessage = @"MFA_ENROLLMENT_NOT_FOUND";
 
 /** @var kAdminOnlyOperationErrorMessage
  @brief This is the error message the server will respond with if the operation is admin only.
@@ -701,7 +701,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
       if (!response.IDToken && response.MFAInfo) {
 #if TARGET_OS_IOS
         NSMutableArray<FIRMultiFactorInfo *> *multiFactorInfo = [NSMutableArray array];
-        for (FIRAuthProtoMfaEnrollment *MFAEnrollment in response.MFAInfo) {
+        for (FIRAuthProtoMFAEnrollment *MFAEnrollment in response.MFAInfo) {
           FIRPhoneMultiFactorInfo *info = [[FIRPhoneMultiFactorInfo alloc] initWithProto:MFAEnrollment];
           [multiFactorInfo addObject:info];
         }
@@ -739,7 +739,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
       if (!response.IDToken && response.MFAInfo) {
         #if TARGET_OS_IOS
         NSMutableArray<FIRMultiFactorInfo *> *multiFactorInfo = [NSMutableArray array];
-        for (FIRAuthProtoMfaEnrollment *MFAEnrollment in response.MFAInfo) {
+        for (FIRAuthProtoMFAEnrollment *MFAEnrollment in response.MFAInfo) {
           FIRPhoneMultiFactorInfo *info = [[FIRPhoneMultiFactorInfo alloc] initWithProto:MFAEnrollment];
           [multiFactorInfo addObject:info];
         }
@@ -1262,22 +1262,22 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
     return [FIRAuthErrorUtils missingOrInvalidNonceErrorWithMessage:serverDetailErrorMessage];
   }
 
-  if ([shortErrorMessage isEqualToString:kMissingMfaPendingCredentialErrorMessage]) {
+  if ([shortErrorMessage isEqualToString:kMissingMFAPendingCredentialErrorMessage]) {
     return [FIRAuthErrorUtils errorWithCode:FIRAuthInternalErrorCodeMissingMultiFactorSession
                                     message:serverErrorMessage];
   }
 
-  if ([shortErrorMessage isEqualToString:kMissingMfaEnrollmentIDErrorMessage]) {
+  if ([shortErrorMessage isEqualToString:kMissingMFAEnrollmentIDErrorMessage]) {
     return [FIRAuthErrorUtils errorWithCode:FIRAuthInternalErrorCodeMissingMultiFactorInfo
                                     message:serverErrorMessage];
   }
 
-  if ([shortErrorMessage isEqualToString:kInvalidMfaPendingCredentialErrorMessage]) {
+  if ([shortErrorMessage isEqualToString:kInvalidMFAPendingCredentialErrorMessage]) {
     return [FIRAuthErrorUtils errorWithCode:FIRAuthInternalErrorCodeInvalidMultiFactorSession
                                     message:serverErrorMessage];
   }
 
-  if ([shortErrorMessage isEqualToString:kMfaEnrollmentNotFoundErrorMessage]) {
+  if ([shortErrorMessage isEqualToString:kMFAEnrollmentNotFoundErrorMessage]) {
     return [FIRAuthErrorUtils errorWithCode:FIRAuthInternalErrorCodeMultiFactorInfoNotFound
                                     message:serverErrorMessage];
   }

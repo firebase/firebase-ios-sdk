@@ -19,7 +19,7 @@
 
 #import "FIRMultiFactorInfo.h"
 
-#import "FIRAuthProtoMfaEnrollment.h"
+#import "FIRAuthProtoMFAEnrollment.h"
 
 static NSString *kUIDCodingKey = @"uid";
 
@@ -33,7 +33,7 @@ static NSString *kFactorIDCodingKey = @"factorID";
 
 #pragma mark - Internal
 
-- (instancetype)initWithProto:(FIRAuthProtoMfaEnrollment *)proto {
+- (instancetype)initWithProto:(FIRAuthProtoMFAEnrollment *)proto {
   self = [super init];
 
   if (self) {

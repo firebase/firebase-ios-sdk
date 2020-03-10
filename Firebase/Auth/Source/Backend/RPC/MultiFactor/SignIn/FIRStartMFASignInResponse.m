@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-#import "FIRWithdrawMfaResponse.h"
+#import "FIRStartMFASignInResponse.h"
 
-NS_ASSUME_NONNULL_BEGIN
-
-@implementation FIRWithdrawMfaResponse
+@implementation FIRStartMFASignInResponse
 
 - (BOOL)setWithDictionary:(nonnull NSDictionary *)dictionary
                     error:(NSError *__autoreleasing _Nullable * _Nullable)error {
-  _idToken = [dictionary[@"idToken"] copy];
-  _refreshToken = [dictionary[@"refreshToken"] copy];
+  if (dictionary[@"phoneResponseInfo"] != nil) {
+    NSDictionary *data = dictionary[@"phoneResponseInfo"];
+    _responseInfo = [[FIRAuthProtoStartMFAPhoneResponseInfo alloc] initWithDictionary:data];
+  } else {
+    return NO;
+  }
   return YES;
 }
 
 @end
-
-NS_ASSUME_NONNULL_END

@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-#import "FIRFinalizeMfaEnrollmentResponse.h"
+#import "FIRFinalizeMFASignInResponse.h"
 
-#import "FIRAuthProtoFinalizeMfaPhoneResponseInfo.h"
-
-@implementation FIRFinalizeMfaEnrollmentResponse
+@implementation FIRFinalizeMFASignInResponse
 
 - (BOOL)setWithDictionary:(nonnull NSDictionary *)dictionary
                     error:(NSError *__autoreleasing _Nullable * _Nullable)error {

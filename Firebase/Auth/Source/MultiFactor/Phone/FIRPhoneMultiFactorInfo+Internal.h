@@ -19,11 +19,11 @@
 
 #import "FIRPhoneMultiFactorInfo.h"
 
-@class FIRAuthProtoMfaEnrollment;
+@class FIRAuthProtoMFAEnrollment;
 
 @interface FIRPhoneMultiFactorInfo ()
 
-- (instancetype)initWithProto:(FIRAuthProtoMfaEnrollment *)proto;
+- (instancetype)initWithProto:(FIRAuthProtoMFAEnrollment *)proto;
 
 @end
 

@@ -14,18 +14,20 @@
  * limitations under the License.
  */
 
-#import "FIRAuthProto.h"
+#import "FIRAuthProtoFinalizeMFAPhoneResponseInfo.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRAuthProtoFinalizeMfaPhoneRequestInfo : NSObject <FIRAuthProto>
+@implementation FIRAuthProtoFinalizeMFAPhoneResponseInfo
 
-@property(nonatomic, strong, readonly, nullable) NSString *sessionInfo;
+- (instancetype)initWithDictionary:(NSDictionary *)dictionary {
+  self = [super init];
+  if (self) {
+    _phoneNumber = [dictionary[@"phoneNumber"] copy];
+  }
+  return self;
+}
 
-@property(nonatomic, strong, readonly, nullable) NSString *code;
-
-- (instancetype)initWithSessionInfo:(NSString *)sessionInfo
-                   verificationCode:(NSString *)verificationCode;
 @end
 
 NS_ASSUME_NONNULL_END

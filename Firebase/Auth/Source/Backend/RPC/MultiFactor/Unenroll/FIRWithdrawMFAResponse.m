@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-#import "FIRFinalizeMfaSignInResponse.h"
+#import "FIRWithdrawMFAResponse.h"
 
-@implementation FIRFinalizeMfaSignInResponse
+NS_ASSUME_NONNULL_BEGIN
+
+@implementation FIRWithdrawMFAResponse
 
 - (BOOL)setWithDictionary:(nonnull NSDictionary *)dictionary
                     error:(NSError *__autoreleasing _Nullable * _Nullable)error {
@@ -26,3 +28,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

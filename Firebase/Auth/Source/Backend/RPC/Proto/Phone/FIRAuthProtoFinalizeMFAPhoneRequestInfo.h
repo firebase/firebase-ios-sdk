@@ -14,24 +14,18 @@
  * limitations under the License.
  */
 
-
-#import "FIRAuthAppCredential.h"
 #import "FIRAuthProto.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRAuthProtoStartMfaPhoneRequestInfo : NSObject <FIRAuthProto>
+@interface FIRAuthProtoFinalizeMFAPhoneRequestInfo : NSObject <FIRAuthProto>
 
-@property(nonatomic, strong, readonly, nullable) NSString *phoneNumber;
+@property(nonatomic, strong, readonly, nullable) NSString *sessionInfo;
 
-@property(nonatomic, strong, readonly, nullable) FIRAuthAppCredential *appCredential;
+@property(nonatomic, strong, readonly, nullable) NSString *code;
 
-@property(nonatomic, strong, readonly, nullable) NSString *reCAPTCHAToken;
-
-- (nullable instancetype)initWithPhoneNumber:(NSString *)phoneNumber
-                               appCredential:(nullable FIRAuthAppCredential *)appCredential
-                              reCAPTCHAToken:(nullable NSString *)reCAPTCHAToken;
-
+- (instancetype)initWithSessionInfo:(NSString *)sessionInfo
+                   verificationCode:(NSString *)verificationCode;
 @end
 
 NS_ASSUME_NONNULL_END

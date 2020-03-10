@@ -456,7 +456,7 @@ static void callInMainThreadWithAuthDataResultAndError(
   }
   _providerData = [providerData copy];
   #if TARGET_OS_IOS
-  _multiFactor = [[FIRMultiFactor alloc] initWithMfaEnrollments:user.MFAEnrollments];
+  _multiFactor = [[FIRMultiFactor alloc] initWithMFAEnrollments:user.MFAEnrollments];
   _multiFactor.user = self;
   #endif
 }

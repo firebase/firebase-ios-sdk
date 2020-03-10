@@ -23,7 +23,7 @@
 #import "FIRAuthBackend+MultiFactor.h"
 #import "FIRAuthDataResult_Internal.h"
 #import "FIRMultiFactorInfo+Internal.h"
-#import "FIRStartMfaEnrollmentRequest.h"
+#import "FIRStartMFAEnrollmentRequest.h"
 #import "FIRUser_Internal.h"
 #import "FIRMultiFactorSession+Internal.h"
 
@@ -53,17 +53,17 @@ static NSString *kUserCodingKey = @"user";
                  completion:(nullable FIRAuthVoidErrorCallback)completion {
 #if TARGET_OS_IOS
   FIRPhoneMultiFactorAssertion *phoneAssertion = (FIRPhoneMultiFactorAssertion *)assertion;
-  FIRAuthProtoFinalizeMfaPhoneRequestInfo *finalizeMfaPhoneRequestInfo =
-      [[FIRAuthProtoFinalizeMfaPhoneRequestInfo alloc] initWithSessionInfo:phoneAssertion.authCredential.verificationID
+  FIRAuthProtoFinalizeMFAPhoneRequestInfo *finalizeMFAPhoneRequestInfo =
+      [[FIRAuthProtoFinalizeMFAPhoneRequestInfo alloc] initWithSessionInfo:phoneAssertion.authCredential.verificationID
                                                           verificationCode:phoneAssertion.authCredential.verificationCode];
-  FIRFinalizeMfaEnrollmentRequest *request =
-  [[FIRFinalizeMfaEnrollmentRequest alloc] initWithIDToken:self.user.rawAccessToken
+  FIRFinalizeMFAEnrollmentRequest *request =
+  [[FIRFinalizeMFAEnrollmentRequest alloc] initWithIDToken:self.user.rawAccessToken
                                                MFAProvider:phoneAssertion.factorID
                                                displayName:displayName
-                                          verificationInfo:finalizeMfaPhoneRequestInfo
+                                          verificationInfo:finalizeMFAPhoneRequestInfo
                                       requestConfiguration:self.user.requestConfiguration];
   [FIRAuthBackend finalizeMultiFactorEnrollment:request
-                                       callback:^(FIRFinalizeMfaEnrollmentResponse * _Nullable response,
+                                       callback:^(FIRFinalizeMFAEnrollmentResponse * _Nullable response,
                                                   NSError * _Nullable error) {
                                          if (error) {
                                            if (completion) {
@@ -97,11 +97,11 @@ static NSString *kUserCodingKey = @"user";
 
 - (void)unenrollWithFactorUID:(NSString *)factorUID
                    completion:(nullable FIRAuthVoidErrorCallback)completion {
-  FIRWithdrawMfaRequest *request = [[FIRWithdrawMfaRequest alloc] initWithIDToken:self.user.rawAccessToken
+  FIRWithdrawMFARequest *request = [[FIRWithdrawMFARequest alloc] initWithIDToken:self.user.rawAccessToken
                                                                   MFAEnrollmentID:factorUID
                                                              requestConfiguration:self.user.requestConfiguration];
   [FIRAuthBackend withdrawMultiFactor:request
-                             callback:^(FIRWithdrawMfaResponse *_Nullable response, NSError * _Nullable error) {
+                             callback:^(FIRWithdrawMFAResponse *_Nullable response, NSError * _Nullable error) {
                                if (error) {
                                  if (completion) {
                                    completion(error);
@@ -131,12 +131,12 @@ static NSString *kUserCodingKey = @"user";
 
 #pragma mark - Internal
 
-- (instancetype)initWithMfaEnrollments:(NSArray<FIRAuthProtoMfaEnrollment *> *)MFAEnrollments {
+- (instancetype)initWithMFAEnrollments:(NSArray<FIRAuthProtoMFAEnrollment *> *)MFAEnrollments {
   self = [super init];
 
   if (self) {
     NSMutableArray<FIRMultiFactorInfo *> *multiFactorInfoArray = [[NSMutableArray alloc] init];
-    for (FIRAuthProtoMfaEnrollment *MFAEnrollment in MFAEnrollments) {
+    for (FIRAuthProtoMFAEnrollment *MFAEnrollment in MFAEnrollments) {
       FIRMultiFactorInfo *multiFactorInfo = [[FIRMultiFactorInfo alloc] initWithProto:MFAEnrollment];
       [multiFactorInfoArray addObject:multiFactorInfo];
     }

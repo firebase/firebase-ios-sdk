@@ -18,7 +18,7 @@
 #if TARGET_OS_IOS
 
 #import "FIRMultiFactor.h"
-#import "FIRAuthProtoMfaEnrollment.h"
+#import "FIRAuthProtoMFAEnrollment.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -26,10 +26,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic, weak) FIRUser *user;
 
-/** @fn initWithMfaEnrollments:
+/** @fn initWithMFAEnrollments:
     @brief Initialize a multi factor instance with a list of MFA enrollments.
 */
-- (instancetype)initWithMfaEnrollments:(NSArray<FIRAuthProtoMfaEnrollment *> *)MFAEnrollments;
+- (instancetype)initWithMFAEnrollments:(NSArray<FIRAuthProtoMFAEnrollment *> *)MFAEnrollments;
 
 @end
 
