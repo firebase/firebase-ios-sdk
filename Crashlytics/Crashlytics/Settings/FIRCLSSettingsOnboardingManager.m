@@ -113,13 +113,15 @@
               networkClient:self.networkClient
                       token:token];
 
-  [operation startWithToken:token];
-
   if (waitForCompletion) {
     operation.asyncCompletion = ^(NSError *error) {
       dispatch_semaphore_signal(semaphore);
     };
+  }
 
+  [operation startWithToken:token];
+
+  if (waitForCompletion) {
     dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
   }
 }
