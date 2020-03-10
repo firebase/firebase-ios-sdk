@@ -25,8 +25,8 @@ class ViewController: UIViewController {
 
             uialert.addAction(UIAlertAction(title: "Update", style: UIAlertAction.Style.default) {
                 alert in
-                print(release.downloadUrl)
-                UIApplication.shared.open(release.downloadUrl)
+                print(release.downloadURL)
+                UIApplication.shared.open(release.downloadURL)
             })
             uialert.addAction(UIAlertAction(title: "Cancel", style: UIAlertAction.Style.cancel) {
                 alert in
@@ -39,7 +39,7 @@ class ViewController: UIViewController {
         print("Loaded!")
         super.viewDidLoad()
 
-        if(!AppDistribution.appDistribution().testerSignedIn()) {
+        if(!AppDistribution.appDistribution().isTesterSignedIn) {
             print("Hiding sign out")
             self.appDistroSignOut.isHidden = true
         }
@@ -55,7 +55,7 @@ class ViewController: UIViewController {
 
     @IBAction func SignInClick(_ sender: Any) {
 
-        if(!AppDistribution.appDistribution().testerSignedIn()) {
+        if(!AppDistribution.appDistribution().isTesterSignedIn) {
 
             AppDistribution.appDistribution().signInTester(completion: { error in
                 if(error == nil) {
