@@ -365,6 +365,7 @@ static void (^reportSentCallback)(void);
     FIRCLSDataCollectionToken *dataCollectionToken = [FIRCLSDataCollectionToken validToken];
     [self startNetworkRequestsWithToken:dataCollectionToken
                  preexistingReportPaths:preexistingReportPaths
+                 waitForSettingsRequest:NO
                            blockingSend:launchFailure
                                  report:report];
 
@@ -395,6 +396,7 @@ static void (^reportSentCallback)(void);
                      [FIRCLSDataCollectionToken validToken];
                  [self startNetworkRequestsWithToken:dataCollectionToken
                               preexistingReportPaths:preexistingReportPaths
+                              waitForSettingsRequest:YES
                                         blockingSend:NO
                                               report:report];
 
@@ -451,6 +453,7 @@ static void (^reportSentCallback)(void);
 
 - (void)startNetworkRequestsWithToken:(FIRCLSDataCollectionToken *)token
                preexistingReportPaths:(NSArray *)preexistingReportPaths
+               waitForSettingsRequest:(BOOL)waitForSettings
                          blockingSend:(BOOL)blockingSend
                                report:(FIRCLSInternalReport *)report {
   if (self.settings.isCacheExpired) {
@@ -459,7 +462,8 @@ static void (^reportSentCallback)(void);
     static dispatch_once_t settingsFetchOnceToken;
     dispatch_once(&settingsFetchOnceToken, ^{
       [self.settingsAndOnboardingManager beginSettingsAndOnboardingWithGoogleAppId:self.googleAppID
-                                                                             token:token];
+                                                                             token:token
+                                                                 waitForCompletion:waitForSettings];
     });
   }
 
