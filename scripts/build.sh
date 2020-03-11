@@ -355,6 +355,7 @@ case "$product-$platform-$method" in
       cd build
 
       echo "Preparing cmake build ..."
+      echo cmake -G Ninja "${cmake_options[@]}" ..
       cmake -G Ninja "${cmake_options[@]}" ..
 
       echo "Building cmake build ..."
