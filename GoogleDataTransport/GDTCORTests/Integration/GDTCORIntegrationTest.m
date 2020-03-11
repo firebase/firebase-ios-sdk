@@ -81,8 +81,8 @@
 @implementation GDTCORIntegrationTest
 
 - (void)tearDown {
-  dispatch_sync([GDTCORStorage sharedInstance].storageQueue, ^{
-    XCTAssertEqual([GDTCORStorage sharedInstance].storedEvents.count, 0);
+  dispatch_sync([GDTCORFlatFileStorage sharedInstance].storageQueue, ^{
+    XCTAssertEqual([GDTCORFlatFileStorage sharedInstance].storedEvents.count, 0);
   });
 }
 
@@ -91,7 +91,7 @@
   expectation.assertForOverFulfill = NO;
 
   // Register storage to handle the test target.
-  [[GDTCORRegistrar sharedInstance] registerStorage:[GDTCORStorage sharedInstance]
+  [[GDTCORRegistrar sharedInstance] registerStorage:[GDTCORFlatFileStorage sharedInstance]
                                              target:kGDTCORTargetTest];
 
   // Manually set the reachability flag.
@@ -125,8 +125,8 @@
   [GDTCORUploadCoordinator sharedInstance].timerLeeway = NSEC_PER_SEC * 0.01;
 
   // Confirm no events are in disk.
-  XCTAssertEqual([GDTCORStorage sharedInstance].storedEvents.count, 0);
-  XCTAssertEqual([GDTCORStorage sharedInstance].targetToEventSet.count, 0);
+  XCTAssertEqual([GDTCORFlatFileStorage sharedInstance].storedEvents.count, 0);
+  XCTAssertEqual([GDTCORFlatFileStorage sharedInstance].targetToEventSet.count, 0);
 
   // Generate some events data.
   [self generateEvents];
@@ -136,9 +136,9 @@
                 });
 
   // Confirm events are on disk.
-  dispatch_sync([GDTCORStorage sharedInstance].storageQueue, ^{
-    XCTAssertGreaterThan([GDTCORStorage sharedInstance].storedEvents.count, 0);
-    XCTAssertGreaterThan([GDTCORStorage sharedInstance].targetToEventSet.count, 0);
+  dispatch_sync([GDTCORFlatFileStorage sharedInstance].storageQueue, ^{
+    XCTAssertGreaterThan([GDTCORFlatFileStorage sharedInstance].storedEvents.count, 0);
+    XCTAssertGreaterThan([GDTCORFlatFileStorage sharedInstance].targetToEventSet.count, 0);
   });
 
   // Confirm events were sent and received.

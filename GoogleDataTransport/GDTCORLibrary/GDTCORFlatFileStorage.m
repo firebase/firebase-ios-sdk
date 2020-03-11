@@ -30,7 +30,7 @@
  *
  * @return The SDK event storage path.
  */
-static NSString *GDTCORStoragePath() {
+static NSString *GDTCORFlatFileStoragePath() {
   static NSString *storagePath;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
@@ -42,28 +42,36 @@ static NSString *GDTCORStoragePath() {
   return storagePath;
 }
 
-@implementation GDTCORStorage
+@implementation GDTCORFlatFileStorage
 
 + (void)load {
   [[GDTCORRegistrar sharedInstance] registerStorage:[self sharedInstance] target:kGDTCORTargetCCT];
   [[GDTCORRegistrar sharedInstance] registerStorage:[self sharedInstance] target:kGDTCORTargetFLL];
   [[GDTCORRegistrar sharedInstance] registerStorage:[self sharedInstance] target:kGDTCORTargetCSH];
+
+  // Sets a global translation mapping to decode GDTCORStoredEvent objects encoded as instances of
+  // GDTCOREvent instead. Then we do the same thing with GDTCORStorage. This must be done in load
+  // because there are no direct references to this class and the NSCoding methods won't be called
+  // unless the class name is mapped early.
+  [NSKeyedUnarchiver setClass:[GDTCOREvent class] forClassName:@"GDTCORStoredEvent"];
+  [NSKeyedUnarchiver setClass:[GDTCORFlatFileStorage class] forClassName:@"GDTCORStorage"];
 }
 
 + (NSString *)archivePath {
   static NSString *archivePath;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
-    archivePath = [GDTCORStoragePath() stringByAppendingPathComponent:@"GDTCORStorageArchive"];
+    archivePath = [GDTCORFlatFileStoragePath()
+        stringByAppendingPathComponent:@"GDTCORFlatFileStorageArchive"];
   });
   return archivePath;
 }
 
 + (instancetype)sharedInstance {
-  static GDTCORStorage *sharedStorage;
+  static GDTCORFlatFileStorage *sharedStorage;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
-    sharedStorage = [[GDTCORStorage alloc] init];
+    sharedStorage = [[GDTCORFlatFileStorage alloc] init];
   });
   return sharedStorage;
 }
@@ -71,7 +79,8 @@ static NSString *GDTCORStoragePath() {
 - (instancetype)init {
   self = [super init];
   if (self) {
-    _storageQueue = dispatch_queue_create("com.google.GDTCORStorage", DISPATCH_QUEUE_SERIAL);
+    _storageQueue =
+        dispatch_queue_create("com.google.GDTCORFlatFileStorage", DISPATCH_QUEUE_SERIAL);
     _targetToEventSet = [[NSMutableDictionary alloc] init];
     _storedEvents = [[NSMutableDictionary alloc] init];
     _uploadCoordinator = [GDTCORUploadCoordinator sharedInstance];
@@ -143,10 +152,10 @@ static NSString *GDTCORStoragePath() {
         NSData *data = [NSKeyedArchiver archivedDataWithRootObject:self
                                              requiringSecureCoding:YES
                                                              error:&error];
-        [data writeToFile:[GDTCORStorage archivePath] atomically:YES];
+        [data writeToFile:[GDTCORFlatFileStorage archivePath] atomically:YES];
       } else {
 #if !TARGET_OS_MACCATALYST && !TARGET_OS_WATCH
-        [NSKeyedArchiver archiveRootObject:self toFile:[GDTCORStorage archivePath]];
+        [NSKeyedArchiver archiveRootObject:self toFile:[GDTCORFlatFileStorage archivePath]];
 #endif
       }
     }
@@ -187,7 +196,7 @@ static NSString *GDTCORStoragePath() {
 /** Creates the storage directory if it does not exist. */
 - (void)createEventDirectoryIfNotExists {
   NSError *error;
-  BOOL result = [[NSFileManager defaultManager] createDirectoryAtPath:GDTCORStoragePath()
+  BOOL result = [[NSFileManager defaultManager] createDirectoryAtPath:GDTCORFlatFileStoragePath()
                                           withIntermediateDirectories:YES
                                                            attributes:0
                                                                 error:&error];
@@ -208,7 +217,7 @@ static NSString *GDTCORStoragePath() {
 - (NSURL *)saveEventBytesToDisk:(GDTCOREvent *)event
                       eventHash:(NSUInteger)eventHash
                           error:(NSError **)error {
-  NSString *storagePath = GDTCORStoragePath();
+  NSString *storagePath = GDTCORFlatFileStoragePath();
   NSString *eventFileName = [NSString stringWithFormat:@"event-%lu", (unsigned long)eventHash];
   NSURL *eventFilePath =
       [NSURL fileURLWithPath:[storagePath stringByAppendingPathComponent:eventFileName]];
@@ -242,15 +251,15 @@ static NSString *GDTCORStoragePath() {
   dispatch_async(_storageQueue, ^{
     if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
       NSError *error;
-      NSData *data = [NSData dataWithContentsOfFile:[GDTCORStorage archivePath]];
+      NSData *data = [NSData dataWithContentsOfFile:[GDTCORFlatFileStorage archivePath]];
       if (data) {
-        [NSKeyedUnarchiver unarchivedObjectOfClass:[GDTCORStorage class]
+        [NSKeyedUnarchiver unarchivedObjectOfClass:[GDTCORFlatFileStorage class]
                                           fromData:data
                                              error:&error];
       }
     } else {
 #if !TARGET_OS_MACCATALYST && !TARGET_OS_WATCH
-      [NSKeyedUnarchiver unarchiveObjectWithFile:[GDTCORStorage archivePath]];
+      [NSKeyedUnarchiver unarchiveObjectWithFile:[GDTCORFlatFileStorage archivePath]];
 #endif
     }
   });
@@ -272,10 +281,10 @@ static NSString *GDTCORStoragePath() {
       NSData *data = [NSKeyedArchiver archivedDataWithRootObject:self
                                            requiringSecureCoding:YES
                                                            error:&error];
-      [data writeToFile:[GDTCORStorage archivePath] atomically:YES];
+      [data writeToFile:[GDTCORFlatFileStorage archivePath] atomically:YES];
     } else {
 #if !TARGET_OS_MACCATALYST && !TARGET_OS_WATCH
-      [NSKeyedArchiver archiveRootObject:self toFile:[GDTCORStorage archivePath]];
+      [NSKeyedArchiver archiveRootObject:self toFile:[GDTCORFlatFileStorage archivePath]];
 #endif
     }
 
@@ -292,10 +301,10 @@ static NSString *GDTCORStoragePath() {
       NSData *data = [NSKeyedArchiver archivedDataWithRootObject:self
                                            requiringSecureCoding:YES
                                                            error:&error];
-      [data writeToFile:[GDTCORStorage archivePath] atomically:YES];
+      [data writeToFile:[GDTCORFlatFileStorage archivePath] atomically:YES];
     } else {
 #if !TARGET_OS_MACCATALYST && !TARGET_OS_WATCH
-      [NSKeyedArchiver archiveRootObject:self toFile:[GDTCORStorage archivePath]];
+      [NSKeyedArchiver archiveRootObject:self toFile:[GDTCORFlatFileStorage archivePath]];
 #endif
     }
   });
@@ -304,28 +313,27 @@ static NSString *GDTCORStoragePath() {
 #pragma mark - NSSecureCoding
 
 /** The NSKeyedCoder key for the storedEvents property. */
-static NSString *const kGDTCORStorageStoredEventsKey = @"GDTCORStorageStoredEventsKey";
+static NSString *const kGDTCORFlatFileStorageStoredEventsKey = @"GDTCORStorageStoredEventsKey";
 
 /** The NSKeyedCoder key for the targetToEventSet property. */
-static NSString *const kGDTCORStorageTargetToEventSetKey = @"GDTCORStorageTargetToEventSetKey";
+static NSString *const kGDTCORFlatFileStorageTargetToEventSetKey =
+    @"GDTCORStorageTargetToEventSetKey";
 
 /** The NSKeyedCoder key for the uploadCoordinator property. */
-static NSString *const kGDTCORStorageUploadCoordinatorKey = @"GDTCORStorageUploadCoordinatorKey";
+static NSString *const kGDTCORFlatFileStorageUploadCoordinatorKey =
+    @"GDTCORStorageUploadCoordinatorKey";
 
 + (BOOL)supportsSecureCoding {
   return YES;
 }
 
 - (instancetype)initWithCoder:(NSCoder *)aDecoder {
-  // Sets a global translation mapping to decode GDTCORStoredEvent objects encoded as instances of
-  // GDTCOREvent instead.
-  [NSKeyedUnarchiver setClass:[GDTCOREvent class] forClassName:@"GDTCORStoredEvent"];
-
   // Create the singleton and populate its ivars.
-  GDTCORStorage *sharedInstance = [self.class sharedInstance];
+  GDTCORFlatFileStorage *sharedInstance = [self.class sharedInstance];
   NSSet *classes = [NSSet setWithObjects:[NSMutableOrderedSet class], [NSMutableDictionary class],
                                          [GDTCOREvent class], nil];
-  id storedEvents = [aDecoder decodeObjectOfClasses:classes forKey:kGDTCORStorageStoredEventsKey];
+  id storedEvents = [aDecoder decodeObjectOfClasses:classes
+                                             forKey:kGDTCORFlatFileStorageStoredEventsKey];
   NSMutableDictionary<NSNumber *, GDTCOREvent *> *events = [[NSMutableDictionary alloc] init];
   if ([storedEvents isKindOfClass:[NSMutableOrderedSet class]]) {
     [(NSMutableOrderedSet *)storedEvents
@@ -340,27 +348,27 @@ static NSString *const kGDTCORStorageUploadCoordinatorKey = @"GDTCORStorageUploa
   classes = [NSSet
       setWithObjects:[NSMutableDictionary class], [NSMutableSet class], [GDTCOREvent class], nil];
   sharedInstance->_targetToEventSet =
-      [aDecoder decodeObjectOfClasses:classes forKey:kGDTCORStorageTargetToEventSetKey];
+      [aDecoder decodeObjectOfClasses:classes forKey:kGDTCORFlatFileStorageTargetToEventSetKey];
   sharedInstance->_uploadCoordinator =
       [aDecoder decodeObjectOfClass:[GDTCORUploadCoordinator class]
-                             forKey:kGDTCORStorageUploadCoordinatorKey];
+                             forKey:kGDTCORFlatFileStorageUploadCoordinatorKey];
   return sharedInstance;
 }
 
 - (void)encodeWithCoder:(NSCoder *)aCoder {
-  GDTCORStorage *sharedInstance = [self.class sharedInstance];
+  GDTCORFlatFileStorage *sharedInstance = [self.class sharedInstance];
   NSMutableDictionary<NSNumber *, GDTCOREvent *> *storedEvents = sharedInstance->_storedEvents;
   if (storedEvents) {
-    [aCoder encodeObject:storedEvents forKey:kGDTCORStorageStoredEventsKey];
+    [aCoder encodeObject:storedEvents forKey:kGDTCORFlatFileStorageStoredEventsKey];
   }
   NSMutableDictionary<NSNumber *, NSMutableSet<GDTCOREvent *> *> *targetToEventSet =
       sharedInstance->_targetToEventSet;
   if (targetToEventSet) {
-    [aCoder encodeObject:targetToEventSet forKey:kGDTCORStorageTargetToEventSetKey];
+    [aCoder encodeObject:targetToEventSet forKey:kGDTCORFlatFileStorageTargetToEventSetKey];
   }
   GDTCORUploadCoordinator *uploadCoordinator = sharedInstance->_uploadCoordinator;
   if (uploadCoordinator) {
-    [aCoder encodeObject:uploadCoordinator forKey:kGDTCORStorageUploadCoordinatorKey];
+    [aCoder encodeObject:uploadCoordinator forKey:kGDTCORFlatFileStorageUploadCoordinatorKey];
   }
 }
 

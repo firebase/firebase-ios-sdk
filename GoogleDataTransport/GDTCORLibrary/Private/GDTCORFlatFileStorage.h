@@ -25,7 +25,8 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** Manages the storage of events. This class is thread-safe. */
-@interface GDTCORStorage : NSObject <NSSecureCoding, GDTCORStorageProtocol, GDTCORLifecycleProtocol>
+@interface GDTCORFlatFileStorage
+    : NSObject <NSSecureCoding, GDTCORStorageProtocol, GDTCORLifecycleProtocol>
 
 /** The queue on which all storage work will occur. */
 @property(nonatomic) dispatch_queue_t storageQueue;
