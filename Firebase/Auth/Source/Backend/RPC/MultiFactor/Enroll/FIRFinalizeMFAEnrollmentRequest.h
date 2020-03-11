@@ -15,22 +15,25 @@
  */
 
 #import "FIRAuthRPCRequest.h"
-#import "FIRAuthProtoStartMfaPhoneRequestInfo.h"
 #import "FIRIdentityToolkitRequest.h"
+#import "FIRAuthProtoFinalizeMFAPhoneRequestInfo.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRStartMfaEnrollmentRequest : FIRIdentityToolkitRequest <FIRAuthRPCRequest>
+@interface FIRFinalizeMFAEnrollmentRequest : FIRIdentityToolkitRequest <FIRAuthRPCRequest>
 
-@property(nonatomic, copy, readonly, nullable) NSString *idToken;
+@property(nonatomic, copy, readonly, nullable) NSString *IDToken;
 
-@property(nonatomic, copy, readonly, nullable) NSString *multiFactorProvider;
+@property(nonatomic, copy, readonly, nullable) NSString *MFAProvider;
 
-@property(nonatomic, copy, readonly, nullable) FIRAuthProtoStartMfaPhoneRequestInfo *enrollmentInfo;
+@property(nonatomic, copy, readonly, nullable) NSString *displayName;
 
-- (nullable instancetype)initWithIDToken:(NSString *)idToken
-                     multiFactorProvider:(NSString *)multiFactorProvider
-                          enrollmentInfo:(FIRAuthProtoStartMfaPhoneRequestInfo *)enrollmentInfo
+@property(nonatomic, copy, readonly, nullable) FIRAuthProtoFinalizeMFAPhoneRequestInfo *verificationInfo;
+
+- (nullable instancetype)initWithIDToken:(NSString *)IDToken
+                             MFAProvider:(NSString *)MFAProvider
+                             displayName:(NSString *)displayName
+                        verificationInfo:(FIRAuthProtoFinalizeMFAPhoneRequestInfo *)verificationInfo
                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration;
 
 @end

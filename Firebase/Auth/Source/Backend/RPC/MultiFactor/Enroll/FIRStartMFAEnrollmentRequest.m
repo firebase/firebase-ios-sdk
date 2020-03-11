@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-#import "FIRStartMfaEnrollmentRequest.h"
+#import "FIRStartMFAEnrollmentRequest.h"
 
-#import "FIRAuthProtoStartMfaPhoneRequestInfo.h"
+#import "FIRAuthProtoStartMFAPhoneRequestInfo.h"
 
-static NSString *const kStartMfaEnrollmentEndPoint = @"accounts/mfaEnrollment:start";
+static NSString *const kStartMFAEnrollmentEndPoint = @"accounts/mfaEnrollment:start";
 
-@implementation FIRStartMfaEnrollmentRequest
+@implementation FIRStartMFAEnrollmentRequest
 
-- (nullable instancetype)initWithIDToken:(NSString *)idToken
+- (nullable instancetype)initWithIDToken:(NSString *)IDToken
                      multiFactorProvider:(NSString *)multiFactorProvider
-                          enrollmentInfo:(FIRAuthProtoStartMfaPhoneRequestInfo *)enrollmentInfo
+                          enrollmentInfo:(FIRAuthProtoStartMFAPhoneRequestInfo *)enrollmentInfo
                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
-  self = [super initWithEndpoint:kStartMfaEnrollmentEndPoint
+  self = [super initWithEndpoint:kStartMFAEnrollmentEndPoint
             requestConfiguration:requestConfiguration
              useIdentityPlatform:YES
                       useStaging:NO];
   if (self) {
-    _idToken = idToken;
+    _IDToken = IDToken;
     _multiFactorProvider = multiFactorProvider;
     _enrollmentInfo = enrollmentInfo;
   }
@@ -40,14 +40,14 @@ static NSString *const kStartMfaEnrollmentEndPoint = @"accounts/mfaEnrollment:st
 
 - (nullable id)unencodedHTTPRequestBodyWithError:(NSError *__autoreleasing  _Nullable *)error {
   NSMutableDictionary *postBody = [NSMutableDictionary dictionary];
-  if (_idToken) {
-    postBody[@"idToken"] = _idToken;
+  if (_IDToken) {
+    postBody[@"idToken"] = _IDToken;
   }
   if (_multiFactorProvider) {
     postBody[@"mfaProvider"] = _multiFactorProvider;
   }
   if (_enrollmentInfo) {
-    if ([_enrollmentInfo isKindOfClass:[FIRAuthProtoStartMfaPhoneRequestInfo class]]) {
+    if ([_enrollmentInfo isKindOfClass:[FIRAuthProtoStartMFAPhoneRequestInfo class]]) {
       postBody[@"phoneEnrollmentInfo"] = [_enrollmentInfo dictionary];
     }
   }

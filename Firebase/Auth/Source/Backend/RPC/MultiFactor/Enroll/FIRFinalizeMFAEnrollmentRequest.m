@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-#import "FIRFinalizeMfaEnrollmentRequest.h"
+#import "FIRFinalizeMFAEnrollmentRequest.h"
 
-static NSString *const kFinalizeMfaEnrollmentEndPoint = @"accounts/mfaEnrollment:finalize";
+static NSString *const kFinalizeMFAEnrollmentEndPoint = @"accounts/mfaEnrollment:finalize";
 
-@implementation FIRFinalizeMfaEnrollmentRequest
+@implementation FIRFinalizeMFAEnrollmentRequest
 
 - (nullable instancetype)initWithIDToken:(NSString *)IDToken
-                             mfaProvider:(NSString *)mfaProvider
+                             MFAProvider:(NSString *)MFAProvider
                              displayName:(NSString *)displayName
-                        verificationInfo:(FIRAuthProtoFinalizeMfaPhoneRequestInfo *)verificationInfo
+                        verificationInfo:(FIRAuthProtoFinalizeMFAPhoneRequestInfo *)verificationInfo
                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
-  self = [super initWithEndpoint:kFinalizeMfaEnrollmentEndPoint
+  self = [super initWithEndpoint:kFinalizeMFAEnrollmentEndPoint
             requestConfiguration:requestConfiguration
              useIdentityPlatform:YES
                       useStaging:NO];
   if (self) {
     _IDToken = IDToken;
-    _mfaProvider = mfaProvider;
+    _MFAProvider = MFAProvider;
     _displayName = displayName;
     _verificationInfo = verificationInfo;
   }
@@ -43,14 +43,14 @@ static NSString *const kFinalizeMfaEnrollmentEndPoint = @"accounts/mfaEnrollment
   if (_IDToken) {
     postBody[@"idToken"] = _IDToken;
   }
-  if (_mfaProvider) {
-    postBody[@"mfaProvider"] = _mfaProvider;
+  if (_MFAProvider) {
+    postBody[@"mfaProvider"] = _MFAProvider;
   }
   if (_displayName) {
     postBody[@"displayName"] = _displayName;
   }
   if (_verificationInfo) {
-    if ([_verificationInfo isKindOfClass:[FIRAuthProtoFinalizeMfaPhoneRequestInfo class]]) {
+    if ([_verificationInfo isKindOfClass:[FIRAuthProtoFinalizeMFAPhoneRequestInfo class]]) {
       postBody[@"phoneVerificationInfo"] = [_verificationInfo dictionary];
     }
   }

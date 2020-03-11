@@ -1,4 +1,4 @@
-# Copyright 2018 Google
+# Copyright 2018 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
 # limitations under the License.
 
 # Public types to be used both internally and externally.
-cc_library(
+firebase_ios_cc_library(
   firebase_firestore_types
   SOURCES
     geo_point.cc
@@ -24,7 +24,7 @@ cc_library(
     firebase_firestore_util
 )
 
-cc_library(
+firebase_ios_cc_library(
   firebase_firestore_version
   SOURCES
     firestore_version.cc

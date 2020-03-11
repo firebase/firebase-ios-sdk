@@ -477,7 +477,7 @@ NS_ASSUME_NONNULL_BEGIN
     @brief Constructs an @c NSError with the @c FIRAuthErrorCodeSecondFactorRequired code.
     @return The NSError instance associated with the given FIRAuthError.
  */
-+ (NSError *)secondFactorRequiredErrorWithPendingCredential:(NSString *)mfaPendingCredential
++ (NSError *)secondFactorRequiredErrorWithPendingCredential:(NSString *)MFAPendingCredential
                                                       hints:(NSArray<FIRMultiFactorInfo *> *)multiFactorInfo;
 #endif
 

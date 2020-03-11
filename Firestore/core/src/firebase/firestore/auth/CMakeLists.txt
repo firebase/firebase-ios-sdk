@@ -1,4 +1,4 @@
-# Copyright 2018 Google
+# Copyright 2018 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cc_library(
+firebase_ios_cc_library(
   firebase_firestore_auth_base
   SOURCES
     credentials_provider.cc
@@ -26,7 +26,7 @@ cc_library(
     firebase_firestore_util
 )
 
-cc_library(
+firebase_ios_cc_library(
   firebase_firestore_auth_apple
   SOURCES
     firebase_credentials_provider_apple.h
@@ -42,7 +42,7 @@ if(APPLE)
   list(APPEND AUTH_DEPENDS firebase_firestore_auth_apple)
 endif()
 
-cc_library(
+firebase_ios_cc_library(
   firebase_firestore_auth
   SOURCES
     empty_credentials_provider.cc
