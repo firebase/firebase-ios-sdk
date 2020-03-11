@@ -346,7 +346,7 @@ case "$product-$platform-$method" in
         test
     ;;
 
-  Firestore-macOS-cmake | Firestore-Linux-cmake | Firestore-Linux-cmake_fuzzing)
+  Firestore-macOS-cmake | Firestore-Linux-cmake*)
     "${firestore_emulator}" start
     trap '"${firestore_emulator}" stop' ERR EXIT
 
