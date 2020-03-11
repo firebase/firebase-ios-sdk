@@ -24,7 +24,7 @@ include(CheckIncludeFiles)
 
 check_symbol_exists(dispatch_async_f dispatch/dispatch.h HAVE_LIBDISPATCH)
 
-cc_library(
+firebase_ios_cc_library(
   firebase_firestore_util_async_std
   SOURCES
     async_queue.cc
@@ -41,7 +41,7 @@ cc_library(
   EXCLUDE_FROM_ALL
 )
 
-cc_library(
+firebase_ios_cc_library(
   firebase_firestore_util_async_libdispatch
   SOURCES
     async_queue.cc
@@ -59,7 +59,7 @@ cc_library(
   EXCLUDE_FROM_ALL
 )
 
-cc_select(
+firebase_ios_cc_select(
   firebase_firestore_util_async
   HAVE_LIBDISPATCH firebase_firestore_util_async_libdispatch
   DEFAULT          firebase_firestore_util_async_std
@@ -68,7 +68,7 @@ cc_select(
 
 ## base
 
-cc_library(
+firebase_ios_cc_library(
   firebase_firestore_util_base_stdio
   SOURCES
     exception.cc
@@ -87,7 +87,7 @@ cc_library(
   EXCLUDE_FROM_ALL
 )
 
-cc_library(
+firebase_ios_cc_library(
   firebase_firestore_util_base_apple
   SOURCES
     exception.cc
@@ -109,7 +109,7 @@ cc_library(
   EXCLUDE_FROM_ALL
 )
 
-cc_select(
+firebase_ios_cc_select(
   firebase_firestore_util_base
   APPLE   firebase_firestore_util_base_apple
   DEFAULT firebase_firestore_util_base_stdio
@@ -118,7 +118,7 @@ cc_select(
 
 ## filesystem
 
-cc_library(
+firebase_ios_cc_library(
   firebase_firestore_util_filesystem_apple
   SOURCES
     filesystem.h
@@ -133,7 +133,7 @@ cc_library(
   EXCLUDE_FROM_ALL
 )
 
-cc_library(
+firebase_ios_cc_library(
   firebase_firestore_util_filesystem_posix
   SOURCES
     filesystem.h
@@ -147,7 +147,7 @@ cc_library(
   EXCLUDE_FROM_ALL
 )
 
-cc_library(
+firebase_ios_cc_library(
   firebase_firestore_util_filesystem_win
   SOURCES
     filesystem.h
@@ -161,7 +161,7 @@ cc_library(
   EXCLUDE_FROM_ALL
 )
 
-cc_select(
+firebase_ios_cc_select(
   firebase_firestore_util_filesystem
   APPLE   firebase_firestore_util_filesystem_apple
   WIN32   firebase_firestore_util_filesystem_win
@@ -172,7 +172,7 @@ cc_select(
 ## random
 
 check_symbol_exists(arc4random stdlib.h HAVE_ARC4RANDOM)
-cc_library(
+firebase_ios_cc_library(
   firebase_firestore_util_random_arc4random
   SOURCES
     secure_random.h
@@ -186,7 +186,7 @@ if(TARGET OpenSSL::Crypto)
     OpenSSL::Crypto INTERFACE_INCLUDE_DIRECTORIES
   )
   check_include_files(openssl/rand.h HAVE_OPENSSL_RAND_H)
-  cc_library(
+  firebase_ios_cc_library(
     firebase_firestore_util_random_openssl
     SOURCES
       secure_random.h
@@ -197,7 +197,7 @@ if(TARGET OpenSSL::Crypto)
   )
 endif()
 
-cc_select(
+firebase_ios_cc_select(
   firebase_firestore_util_random
   HAVE_ARC4RANDOM     firebase_firestore_util_random_arc4random
   HAVE_OPENSSL_RAND_H firebase_firestore_util_random_openssl
@@ -206,7 +206,7 @@ cc_select(
 
 ## status
 
-cc_library(
+firebase_ios_cc_library(
   firebase_firestore_util_status
   SOURCES
     error_apple.h
@@ -236,7 +236,7 @@ configure_file(
   config.h  # NOLINT(generated)
 )
 
-cc_library(
+firebase_ios_cc_library(
   firebase_firestore_util_autoid
   SOURCES
     autoid.cc
@@ -245,7 +245,7 @@ cc_library(
     firebase_firestore_util_random
 )
 
-cc_library(
+firebase_ios_cc_library(
   firebase_firestore_util
   SOURCES
     bits.cc
