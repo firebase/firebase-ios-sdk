@@ -14,25 +14,25 @@
  * limitations under the License.
  */
 
-#import "FIRStartMfaSignInRequest.h"
+#import "FIRStartMFASignInRequest.h"
 
-static NSString *const kStartMfaSignInEndPoint = @"accounts/mfaSignIn:start";
+static NSString *const kStartMFASignInEndPoint = @"accounts/mfaSignIn:start";
 
-@implementation FIRStartMfaSignInRequest
+@implementation FIRStartMFASignInRequest
 
-- (nullable instancetype)initWithMfaProvider:(NSString *)mfaProvider
-                        mfaPendingCredential:(NSString *)mfaPendingCredential
-                             mfaEnrollmentID:(NSString *)mfaEnrollmentID
-                                  signInInfo:(FIRAuthProtoStartMfaPhoneRequestInfo *)signInInfo
+- (nullable instancetype)initWithMFAProvider:(NSString *)MFAProvider
+                        MFAPendingCredential:(NSString *)MFAPendingCredential
+                             MFAEnrollmentID:(NSString *)MFAEnrollmentID
+                                  signInInfo:(FIRAuthProtoStartMFAPhoneRequestInfo *)signInInfo
                         requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
-  self = [super initWithEndpoint:kStartMfaSignInEndPoint
+  self = [super initWithEndpoint:kStartMFASignInEndPoint
             requestConfiguration:requestConfiguration
              useIdentityPlatform:YES
                       useStaging:NO];
   if (self) {
-    _mfaProvider = mfaProvider;
-    _mfaPendingCredential = mfaPendingCredential;
-    _mfaEnrollmentID = mfaEnrollmentID;
+    _MFAProvider = MFAProvider;
+    _MFAPendingCredential = MFAPendingCredential;
+    _MFAEnrollmentID = MFAEnrollmentID;
     _signInInfo = signInInfo;
   }
   return self;
@@ -40,17 +40,17 @@ static NSString *const kStartMfaSignInEndPoint = @"accounts/mfaSignIn:start";
 
 - (nullable id)unencodedHTTPRequestBodyWithError:(NSError *__autoreleasing  _Nullable *)error {
   NSMutableDictionary *postBody = [NSMutableDictionary dictionary];
-  if (_mfaProvider) {
-    postBody[@"mfaProvider"] = _mfaProvider;
+  if (_MFAProvider) {
+    postBody[@"mfaProvider"] = _MFAProvider;
   }
-  if (_mfaPendingCredential) {
-    postBody[@"mfaPendingCredential"] = _mfaPendingCredential;
+  if (_MFAPendingCredential) {
+    postBody[@"mfaPendingCredential"] = _MFAPendingCredential;
   }
-  if (_mfaEnrollmentID) {
-    postBody[@"mfaEnrollmentId"] = _mfaEnrollmentID;
+  if (_MFAEnrollmentID) {
+    postBody[@"mfaEnrollmentId"] = _MFAEnrollmentID;
   }
   if (_signInInfo) {
-    if ([_signInInfo isKindOfClass:[FIRAuthProtoStartMfaPhoneRequestInfo class]]) {
+    if ([_signInInfo isKindOfClass:[FIRAuthProtoStartMFAPhoneRequestInfo class]]) {
       postBody[@"phoneSignInInfo"] = [_signInInfo dictionary];
     }
   }

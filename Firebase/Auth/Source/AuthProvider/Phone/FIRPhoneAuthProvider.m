@@ -32,7 +32,7 @@
 #import "FIRAuthErrorUtils.h"
 #import "FIRAuthGlobalWorkQueue.h"
 #import "FIRAuthNotificationManager.h"
-#import "FIRAuthProtoStartMfaPhoneRequestInfo.h"
+#import "FIRAuthProtoStartMFAPhoneRequestInfo.h"
 #import "FIRAuthSettings.h"
 #import "FIRAuthURLPresenter.h"
 #import "FIRAuthWebUtils.h"
@@ -43,8 +43,8 @@
 #import "FIRMultiFactorSession+Internal.h"
 #import "FIRSendVerificationCodeRequest.h"
 #import "FIRSendVerificationCodeResponse.h"
-#import "FIRStartMfaEnrollmentRequest.h"
-#import "FIRStartMfaEnrollmentResponse.h"
+#import "FIRStartMFAEnrollmentRequest.h"
+#import "FIRStartMFAEnrollmentResponse.h"
 #import "FIRVerifyClientRequest.h"
 #import "FIRVerifyClientResponse.h"
 #import "FirebaseAuthVersion.h"
@@ -438,20 +438,20 @@ extern NSString *const FIRPhoneMultiFactorID;
       return;
     }
 
-    NSString *idToken = session.idToken;
+    NSString *IDToken = session.IDToken;
     NSString *multiFactorProvider = FIRPhoneMultiFactorID;
-    FIRAuthProtoStartMfaPhoneRequestInfo *startMfaRequestInfo =
-        [[FIRAuthProtoStartMfaPhoneRequestInfo alloc] initWithPhoneNumber:phoneNumber
+    FIRAuthProtoStartMFAPhoneRequestInfo *startMFARequestInfo =
+        [[FIRAuthProtoStartMFAPhoneRequestInfo alloc] initWithPhoneNumber:phoneNumber
                                                             appCredential:appCredential
                                                            reCAPTCHAToken:reCAPTCHAToken];
-    if (session.idToken) {
-      FIRStartMfaEnrollmentRequest *request =
-      [[FIRStartMfaEnrollmentRequest alloc] initWithIDToken:idToken
+    if (session.IDToken) {
+      FIRStartMFAEnrollmentRequest *request =
+      [[FIRStartMFAEnrollmentRequest alloc] initWithIDToken:IDToken
                                         multiFactorProvider:multiFactorProvider
-                                             enrollmentInfo:startMfaRequestInfo
+                                             enrollmentInfo:startMFARequestInfo
                                        requestConfiguration:self->_auth.requestConfiguration];
       [FIRAuthBackend startMultiFactorEnrollment:request
-                                        callback:^(FIRStartMfaEnrollmentResponse * _Nullable response,
+                                        callback:^(FIRStartMFAEnrollmentResponse * _Nullable response,
                                                    NSError * _Nullable error) {
         if (error) {
           if (error.code == FIRAuthErrorCodeInvalidAppCredential) {
@@ -481,14 +481,14 @@ extern NSString *const FIRPhoneMultiFactorID;
         }
       }];
     } else {
-      FIRStartMfaSignInRequest *request =
-      [[FIRStartMfaSignInRequest alloc] initWithMfaProvider:multiFactorProvider
-                                       mfaPendingCredential:session.mfaPendingCredential
-                                            mfaEnrollmentID:session.multiFactorInfo.UID
-                                                 signInInfo:startMfaRequestInfo
+      FIRStartMFASignInRequest *request =
+      [[FIRStartMFASignInRequest alloc] initWithMFAProvider:multiFactorProvider
+                                       MFAPendingCredential:session.MFAPendingCredential
+                                            MFAEnrollmentID:session.multiFactorInfo.UID
+                                                 signInInfo:startMFARequestInfo
                                        requestConfiguration:self->_auth.requestConfiguration];
       [FIRAuthBackend startMultiFactorSignIn:request
-                                    callback:^(FIRStartMfaSignInResponse * _Nullable response, NSError * _Nullable error) {
+                                    callback:^(FIRStartMFASignInResponse * _Nullable response, NSError * _Nullable error) {
         if (error) {
           if (error.code == FIRAuthErrorCodeInvalidAppCredential) {
             if (retryOnInvalidAppCredential) {

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,27 +14,18 @@
  * limitations under the License.
  */
 
-#include <TargetConditionals.h>
-#if TARGET_OS_IOS
-
-#import "FIRMultiFactorSession.h"
-
-#import "FIRMultiFactorInfo.h"
+#import "FIRAuthProto.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRMultiFactorSession ()
+@interface FIRAuthProtoFinalizeMFAPhoneRequestInfo : NSObject <FIRAuthProto>
 
-@property(nonatomic, readonly) NSString *IDToken;
+@property(nonatomic, strong, readonly, nullable) NSString *sessionInfo;
 
-@property(nonatomic) NSString *MFAPendingCredential;
+@property(nonatomic, strong, readonly, nullable) NSString *code;
 
-@property(nonatomic) FIRMultiFactorInfo *multiFactorInfo;
-
-+ (FIRMultiFactorSession *)sessionForCurrentUser;
-
+- (instancetype)initWithSessionInfo:(NSString *)sessionInfo
+                   verificationCode:(NSString *)verificationCode;
 @end
 
 NS_ASSUME_NONNULL_END
-
-#endif

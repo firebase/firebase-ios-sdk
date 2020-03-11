@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,19 +14,14 @@
  * limitations under the License.
  */
 
-#import "FIRStartMfaSignInResponse.h"
+#import "FIRAuthProto.h"
 
-@implementation FIRStartMfaSignInResponse
+NS_ASSUME_NONNULL_BEGIN
 
-- (BOOL)setWithDictionary:(nonnull NSDictionary *)dictionary
-                    error:(NSError *__autoreleasing _Nullable * _Nullable)error {
-  if (dictionary[@"phoneResponseInfo"] != nil) {
-    NSDictionary *data = dictionary[@"phoneResponseInfo"];
-    _responseInfo = [[FIRAuthProtoStartMfaPhoneResponseInfo alloc] initWithDictionary:data];
-  } else {
-    return NO;
-  }
-  return YES;
-}
+@interface FIRAuthProtoStartMFAPhoneResponseInfo : NSObject <FIRAuthProto>
+
+@property(nonatomic, copy, readonly, nullable) NSString *sessionInfo;
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -80,14 +80,14 @@ static NSString *const kErrorKey = @"error";
     _emailVerified = [dictionary[@"emailVerified"] boolValue];
     _passwordHash = [dictionary[@"passwordHash"] copy];
     _phoneNumber = [dictionary[@"phoneNumber"] copy];
-    NSArray<NSDictionary *> *mfaEnrollmentData = dictionary[@"mfaInfo"];
-    if (mfaEnrollmentData) {
-      NSMutableArray<FIRAuthProtoMfaEnrollment *> *mfaEnrollments =
-      [NSMutableArray arrayWithCapacity:mfaEnrollmentData.count];
-      for (NSDictionary *dictionary in mfaEnrollmentData) {
-        [mfaEnrollments addObject: [[FIRAuthProtoMfaEnrollment alloc] initWithDictionary:dictionary]];
+    NSArray<NSDictionary *> *MFAEnrollmentData = dictionary[@"mfaInfo"];
+    if (MFAEnrollmentData) {
+      NSMutableArray<FIRAuthProtoMFAEnrollment *> *MFAEnrollments =
+      [NSMutableArray arrayWithCapacity:MFAEnrollmentData.count];
+      for (NSDictionary *dictionary in MFAEnrollmentData) {
+        [MFAEnrollments addObject: [[FIRAuthProtoMFAEnrollment alloc] initWithDictionary:dictionary]];
       }
-      _mfaEnrollments = [mfaEnrollments copy];
+      _MFAEnrollments = [MFAEnrollments copy];
     }
   }
   return self;

@@ -19,7 +19,7 @@
 
 #import "FIRMultiFactorInfo.h"
 
-#import "FIRAuthProtoMfaEnrollment.h"
+#import "FIRAuthProtoMFAEnrollment.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
   NSString *_factorID;
 }
 
-- (instancetype)initWithProto:(FIRAuthProtoMfaEnrollment *)proto;
+- (instancetype)initWithProto:(FIRAuthProtoMFAEnrollment *)proto;
 
 @end
 

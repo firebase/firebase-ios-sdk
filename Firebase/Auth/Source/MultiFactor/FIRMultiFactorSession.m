@@ -29,10 +29,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - Private
 
-- (instancetype)initWithIDToken:(NSString *)idToken {
+- (instancetype)initWithIDToken:(NSString *)IDToken {
   self = [super init];
   if (self) {
-    _idToken = idToken;
+    _IDToken = IDToken;
   }
   return self;
 }
@@ -41,8 +41,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (FIRMultiFactorSession *)sessionForCurrentUser {
   FIRUser *currentUser = [[FIRAuth auth] currentUser];
-  NSString *idToken = currentUser.rawAccessToken;
-  FIRMultiFactorSession *session = [[FIRMultiFactorSession alloc] initWithIDToken:idToken];
+  NSString *IDToken = currentUser.rawAccessToken;
+  FIRMultiFactorSession *session = [[FIRMultiFactorSession alloc] initWithIDToken:IDToken];
   return session;
 }
 

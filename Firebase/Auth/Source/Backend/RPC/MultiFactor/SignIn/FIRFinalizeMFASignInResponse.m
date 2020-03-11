@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,20 +14,15 @@
  * limitations under the License.
  */
 
-#import "FIRAuthProtoStartMfaPhoneResponseInfo.h"
+#import "FIRFinalizeMFASignInResponse.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation FIRFinalizeMFASignInResponse
 
-@implementation FIRAuthProtoStartMfaPhoneResponseInfo
-
-- (instancetype)initWithDictionary:(NSDictionary *)dictionary {
-  self = [super init];
-  if (self) {
-    _sessionInfo = [dictionary[@"sessionInfo"] copy];
-  }
-  return self;
+- (BOOL)setWithDictionary:(nonnull NSDictionary *)dictionary
+                    error:(NSError *__autoreleasing _Nullable * _Nullable)error {
+  _IDToken = [dictionary[@"idToken"] copy];
+  _refreshToken = [dictionary[@"refreshToken"] copy];
+  return YES;
 }
 
 @end
-
-NS_ASSUME_NONNULL_END
