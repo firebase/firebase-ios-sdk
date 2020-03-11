@@ -22,7 +22,6 @@ import Foundation
 enum CarthageUtils {}
 
 extension CarthageUtils {
-
   /// Package all required files for a Carthage release.
   ///
   /// - Parameters:
@@ -88,10 +87,10 @@ extension CarthageUtils {
   ///   - outputDir: The directory where all artifacts should be created.
 
   private static func generateCarthageRelease(fromPackagedDir packagedDir: URL,
-                                      templateDir: URL,
-                                      jsonDir: URL,
-                                      artifacts: ZipBuilder.ReleaseArtifacts,
-                                      outputDir: URL) {
+                                              templateDir: URL,
+                                              jsonDir: URL,
+                                              artifacts: ZipBuilder.ReleaseArtifacts,
+                                              outputDir: URL) {
     let directories: [String]
     do {
       directories = try FileManager.default.contentsOfDirectory(atPath: packagedDir.path)
@@ -107,16 +106,16 @@ extension CarthageUtils {
 
       // Parse the JSON file, ensure that we're not trying to overwrite a release.
       var jsonManifest = parseJSONFile(fromDir: jsonDir, product: product)
-    //  guard jsonManifest[firebaseVersion] == nil else {
-   //     print("Carthage release for \(product) \(firebaseVersion) already exists - skipping.")
-  // temporary disable
-  //      continue
-   //   }
+      //  guard jsonManifest[firebaseVersion] == nil else {
+      //     print("Carthage release for \(product) \(firebaseVersion) already exists - skipping.")
+      // temporary disable
+      //      continue
+      //   }
 
       // Make updates to all frameworks to make Carthage happy. We don't worry about xcframeworks
       // here.
-      let allFiles = FileManager.default.enumerator(atPath:fullPath.path)?.allObjects as! [String]
-      let frameworks = allFiles.filter{$0.hasSuffix(".framework")}
+      let allFiles = FileManager.default.enumerator(atPath: fullPath.path)?.allObjects as! [String]
+      let frameworks = allFiles.filter { $0.hasSuffix(".framework") }
       for framework in frameworks {
         let plistPath = fullPath.appendingPathComponents([framework, "Info.plist"])
         // Drop the extension of the framework name.

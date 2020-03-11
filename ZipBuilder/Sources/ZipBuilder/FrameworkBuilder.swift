@@ -203,8 +203,8 @@ struct FrameworkBuilder {
   /// - Parameter logsDir: The path to the directory to place build logs.
   /// - Returns: An dictionary of URLs to the built thin libraries keyed by architiecture
   private func buildAllThin(withName framework: String,
-                                      logsDir: URL,
-                                      carthageBuild: Bool = false) -> [Architecture: URL] {
+                            logsDir: URL,
+                            carthageBuild: Bool = false) -> [Architecture: URL] {
     // Build every architecture and save the locations in an array to be assembled.
     var thinArchives = [Architecture: URL]()
     for arch in LaunchArgs.shared.archs {
@@ -529,9 +529,9 @@ struct FrameworkBuilder {
     let xcframework = packageXCFramework(withName: framework,
                                          fromFolder: frameworkDir,
                                          thinArchives: thinArchives,
-                                         moduleMapContents:moduleMapContents)
+                                         moduleMapContents: moduleMapContents)
 
-    var carthageFramework : URL? = nil
+    var carthageFramework: URL?
     if args.carthageDir != nil {
       var carthageThinArchives: [Architecture: URL]
       if framework == "FirebaseCoreDiagnostics" {
@@ -787,15 +787,16 @@ struct FrameworkBuilder {
 
     return xcframework
   }
+
   /// Packages a Carthage framework. Carthage does not yet support xcframeworks, so we exclude the Catalyst slice.
   /// - Parameter withName: The framework name.
   /// - Parameter fromFolder: The almost complete framework folder. Includes everything but the binary.
   /// - Parameter thinArchives: All the thin archives.
   /// - Parameter moduleMapContents: Module map contents for all frameworks in this pod.
   private func packageCarthageFramework(withName framework: String,
-                                  fromFolder: URL,
-                                  thinArchives: [Architecture: URL],
-                                  moduleMapContents: String) -> URL {
+                                        fromFolder: URL,
+                                        thinArchives: [Architecture: URL],
+                                        moduleMapContents: String) -> URL {
     let fileManager = FileManager.default
 
     // Create a `.framework` for each of the thinArchives using the `fromFolder` as the base.

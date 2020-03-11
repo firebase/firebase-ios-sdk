@@ -180,7 +180,7 @@ struct ZipBuilder {
     // Break the `inputPods` into a variable since it's helpful when debugging builds to just
     // install a subset of pods, like the following line:
     let inputPods: [String] = ["Firebase", "FirebaseCore", "FirebaseAnalytics", "FirebaseStorage"]
-    //let inputPods = FirebasePods.allCases.map { $0.rawValue }
+    // let inputPods = FirebasePods.allCases.map { $0.rawValue }
 
     // Get the expected versions based on the release manifests, if there are any. If there are any
     // versions with `alpha` or `beta` in it, we'll need to explicitly specify the version here so
@@ -211,8 +211,8 @@ struct ZipBuilder {
     var carthageDir: URL?
     if let carthageFrameworks = carthageFrameworks {
       carthageDir = try assembleDistributions(inProjectDir: projectDir, withPackageKind: "CarthageFirebase",
-                                             podsToInstall: podsToInstall, installedPods: installedPods,
-                                             frameworksToAssemble: carthageFrameworks, firebasePod: firebasePod)
+                                              podsToInstall: podsToInstall, installedPods: installedPods,
+                                              frameworksToAssemble: carthageFrameworks, firebasePod: firebasePod)
     }
 
     return ReleaseArtifacts(firebaseVersion: firebasePod.version,
@@ -236,11 +236,11 @@ struct ZipBuilder {
   /// - Returns: Return the URL of the folder containing the contents of the Zip or Carthage distribution.
   /// - Throws: One of many errors that could have happened during the build phase.
   private func assembleDistributions(inProjectDir projectDir: URL,
-                             withPackageKind packageKind: String,
-                             podsToInstall: [CocoaPodUtils.VersionedPod],
-                             installedPods: [String: CocoaPodUtils.PodInfo],
-                             frameworksToAssemble: [String: [URL]],
-                             firebasePod: CocoaPodUtils.PodInfo) throws -> URL {
+                                     withPackageKind packageKind: String,
+                                     podsToInstall: [CocoaPodUtils.VersionedPod],
+                                     installedPods: [String: CocoaPodUtils.PodInfo],
+                                     frameworksToAssemble: [String: [URL]],
+                                     firebasePod: CocoaPodUtils.PodInfo) throws -> URL {
     // Create the directory that will hold all the contents of the Zip file.
     let zipDir = FileManager.default.temporaryDirectory(withName: packageKind)
     do {
@@ -287,9 +287,9 @@ struct ZipBuilder {
     }
     let remainingPods = installedPods.filter {
       $0.key != "FirebaseAnalytics" &&
-      $0.key != "FirebaseCore" &&
-      $0.key != "Firebase" &&
-      podsToInstall.map { $0.name }.contains($0.key)
+        $0.key != "FirebaseCore" &&
+        $0.key != "Firebase" &&
+        podsToInstall.map { $0.name }.contains($0.key)
     }.sorted { $0.key < $1.key }
     for pod in remainingPods {
       do {
@@ -539,7 +539,7 @@ struct ZipBuilder {
     podsToIgnore: [String] = []
   ) throws -> (productDir: URL, frameworks: [String]) {
     let podsToCopy = [podName] +
-        CocoaPodUtils.transitiveMasterPodDependencies(for: podName, in: installedPods)
+      CocoaPodUtils.transitiveMasterPodDependencies(for: podName, in: installedPods)
     // Copy the frameworks into the proper product directory.
     let productDir = rootZipDir.appendingPathComponent(podName)
     let namedFrameworks = try copyFrameworks(fromPods: podsToCopy,
@@ -693,8 +693,8 @@ struct ZipBuilder {
       if podInfo.isSourcePod {
         let builder = FrameworkBuilder(projectDir: projectDir)
         let (framework, carthageFramework) = builder.buildFramework(withName: podName,
-                                                                     podInfo: podInfo,
-                                                                 logsOutputDir: paths.logsOutputDir)
+                                                                    podInfo: podInfo,
+                                                                    logsOutputDir: paths.logsOutputDir)
 
         frameworks = [framework]
         if let carthageFramework = carthageFramework {
