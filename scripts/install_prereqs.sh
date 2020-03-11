@@ -19,7 +19,7 @@
 # Examines the following configured environment variables that should be
 # specified in an env: block
 #   - PROJECT - Firebase or Firestore
-#   - METHOD - xcodebuild or cmake; default is xcodebuild
+#   - METHOD - xcodebuild, cmake, or cmake_fuzzing; default is xcodebuild
 
 set -euo pipefail
 

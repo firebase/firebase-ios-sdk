@@ -131,9 +131,9 @@ jobs:
       uses: actions/cache@v1
       with:
         path: ~/.ccache
-        key: firestore-ccache-${{ runner.os }}-fuzzing-${{ github.sha }}
+        key: firestore-ccache-${{ runner.os }}-fuzzing2-${{ github.sha }}
         restore-keys: |
-          firestore-ccache-${{ runner.os }}-fuzzing-
+          firestore-ccache-${{ runner.os }}-fuzzing2-
 
     - name: Setup build
       run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake_fuzzing
