@@ -170,7 +170,7 @@ case "$project-$platform-$method" in
     pip install six
     ;;
 
-  Firestore-Linux-cmake | Firestore-Linux-cmake_fuzzing)
+  Firestore-Linux-cmake*)
     apt_install ccache ccache
     apt_install cmake cmake
     apt_install go golang-go

@@ -299,11 +299,11 @@ if [[ -n "${SANITIZERS:-}" ]]; then
   done
 fi
 
-if [ "$method" = "cmake_fuzzing" ]; then
-  cmake_options+=(
-    -DFUZZING=ON
-  )
-fi
+# if [ "$method" = "cmake_fuzzing" ]; then
+#   cmake_options+=(
+#     -DFUZZING=ON
+#   )
+# fi
 
 case "$product-$platform-$method" in
   FirebasePod-*-xcodebuild)
