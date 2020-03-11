@@ -28,7 +28,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
 
   try {
     FieldPath fp = FieldPath::FromServerFormat(str);
-    // FieldPath fp = FieldPath::FromServerFormat(strOBCD);
 
   } catch (...) {
     // Ignore caught exceptions.
