@@ -379,23 +379,27 @@ static NSString *const kFirebaseInAppMessagingAutoDataCollectionKey =
                                              @"Start SDK runtime components.");
 
                                  [self.clientInfoFetcher
-                                     fetchFirebaseIIDDataWithProjectNumber:
+                                     fetchFirebaseInstallationDataWithProjectNumber:
                                          self.currentSetting.firebaseProjectNumber
-                                                            withCompletion:^(
-                                                                NSString *_Nullable iid,
-                                                                NSString *_Nullable token,
-                                                                NSError *_Nullable error) {
-                                                              // Always dump the instance id into
-                                                              // log on startup to help developers
-                                                              // to find it for their app instance.
-                                                              FIRLogDebug(kFIRLoggerInAppMessaging,
-                                                                          @"I-IAM180017",
-                                                                          @"Starting "
-                                                                          @"InAppMessaging runtime "
-                                                                          @"with "
-                                                                           "Instance ID %@",
-                                                                          iid);
-                                                            }];
+                                                                     withCompletion:^(
+                                                                         NSString *_Nullable FID,
+                                                                         NSString
+                                                                             *_Nullable FISToken,
+                                                                         NSError *_Nullable error) {
+                                                                       // Always dump the instance
+                                                                       // id into log on startup to
+                                                                       // help developers to find it
+                                                                       // for their app instance.
+                                                                       FIRLogDebug(
+                                                                           kFIRLoggerInAppMessaging,
+                                                                           @"I-IAM180017",
+                                                                           @"Starting "
+                                                                           @"InAppMessaging "
+                                                                           @"runtime "
+                                                                           @"with "
+                                                                            "Instance ID %@",
+                                                                           FID);
+                                                                     }];
 
                                  [self.fetchOnAppForegroundFlow start];
                                  [self.displayOnFIRAnalyticEventsFlow start];
