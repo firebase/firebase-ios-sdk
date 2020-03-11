@@ -438,8 +438,9 @@ static NSInteger target = kGDTCORTargetCCT;
 }
 
 /** Fuzz tests the storing of events at the same time as a terminate lifecycle notification. This
- * test can fail if there's simultaneous access to ivars of GDTCORStorage with one access being
- * off the storage's queue. The terminate lifecycle event should operate on and flush the queue.
+ * test can fail if there's simultaneous access to ivars of GDTCORFlatFileStorage with one access
+ * being off the storage's queue. The terminate lifecycle event should operate on and flush the
+ * queue.
  */
 - (void)testStoringEventsDuringTerminate {
   int numberOfIterations = 1000;

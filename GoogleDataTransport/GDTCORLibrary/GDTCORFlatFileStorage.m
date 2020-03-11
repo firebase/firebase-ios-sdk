@@ -313,16 +313,15 @@ static NSString *GDTCORFlatFileStoragePath() {
 #pragma mark - NSSecureCoding
 
 /** The NSKeyedCoder key for the storedEvents property. */
-static NSString *const kGDTCORFlatFileStorageStoredEventsKey =
-    @"GDTCORFlatFileStorageStoredEventsKey";
+static NSString *const kGDTCORFlatFileStorageStoredEventsKey = @"GDTCORStorageStoredEventsKey";
 
 /** The NSKeyedCoder key for the targetToEventSet property. */
 static NSString *const kGDTCORFlatFileStorageTargetToEventSetKey =
-    @"GDTCORFlatFileStorageTargetToEventSetKey";
+    @"GDTCORStorageTargetToEventSetKey";
 
 /** The NSKeyedCoder key for the uploadCoordinator property. */
 static NSString *const kGDTCORFlatFileStorageUploadCoordinatorKey =
-    @"GDTCORFlatFileStorageUploadCoordinatorKey";
+    @"GDTCORStorageUploadCoordinatorKey";
 
 + (BOOL)supportsSecureCoding {
   return YES;
