@@ -171,7 +171,7 @@ case "$project-$platform-$method" in
     ;;
 
   Firestore-Linux-cmake*)
-    apt_install ccache ccache
+    #apt_install ccache ccache
     apt_install cmake cmake
     apt_install go golang-go
     apt_install ninja ninja-build
