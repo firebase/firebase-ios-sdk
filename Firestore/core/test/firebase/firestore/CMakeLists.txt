@@ -1,4 +1,4 @@
-# Copyright 2018 Google
+# Copyright 2018 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 # Xcode, but that's not necessary in CMake which directly supports running
 # GoogleTest-based tests.
 
-cc_test(
+firebase_ios_cc_test(
   firebase_firestore_types_test
   SOURCES
     geo_point_test.cc

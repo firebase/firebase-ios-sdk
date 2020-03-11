@@ -1,4 +1,4 @@
-# Copyright 2018 Google
+# Copyright 2018 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cc_library(
+firebase_ios_cc_library(
   firebase_firestore_remote_connectivity_monitor_apple
   SOURCES
     connectivity_monitor.cc
@@ -25,7 +25,7 @@ cc_library(
   EXCLUDE_FROM_ALL
 )
 
-cc_library(
+firebase_ios_cc_library(
   firebase_firestore_remote_connectivity_monitor_noop
   SOURCES
     connectivity_monitor.cc
@@ -37,7 +37,7 @@ cc_library(
   EXCLUDE_FROM_ALL
 )
 
-cc_select(
+firebase_ios_cc_select(
   firebase_firestore_remote_connectivity_monitor
   APPLE   firebase_firestore_remote_connectivity_monitor_apple
   DEFAULT firebase_firestore_remote_connectivity_monitor_noop
@@ -82,7 +82,7 @@ add_custom_target(
     ${GRPC_ROOT_CERTIFICATE_SOURCES}
 )
 
-cc_library(
+firebase_ios_cc_library(
   firebase_firestore_remote_grpc
   SOURCES
     grpc_call.h
@@ -115,7 +115,7 @@ cc_library(
     protobuf-nanopb-static
 )
 
-cc_library(
+firebase_ios_cc_library(
   firebase_firestore_remote_datastore
   SOURCES
     datastore.cc
@@ -139,7 +139,7 @@ cc_library(
     firebase_firestore_remote_serializer
 )
 
-cc_library(
+firebase_ios_cc_library(
   firebase_firestore_remote_serializer
   SOURCES
     serializer.cc
@@ -150,7 +150,7 @@ cc_library(
     protobuf-nanopb-static
 )
 
-cc_library(
+firebase_ios_cc_library(
   firebase_firestore_remote
   SOURCES
     existence_filter.h

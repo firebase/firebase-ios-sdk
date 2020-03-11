@@ -1,4 +1,4 @@
-# Copyright 2018 Google
+# Copyright 2018 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ set(
   google/rpc/status
   google/type/latlng
 )
+
 # Full filenames (i.e. with the .proto) from within the proto directory,
 # excluding anything in google/protobuf
 foreach(root ${PROTO_FILE_ROOTS})
@@ -58,6 +59,7 @@ set(
   google/protobuf/timestamp
   google/protobuf/wrappers
 )
+
 # Full filenames (i.e. with the .proto) from within the proto directory, from
 # the google/protobuf package.
 foreach(root ${WELL_KNOWN_PROTO_FILE_ROOTS})
@@ -111,7 +113,7 @@ function(snake_case_to_camel_case str var)
   set(${var} ${str} PARENT_SCOPE)
 endfunction()
 
-cc_library(
+firebase_ios_cc_library(
   firebase_firestore_protos_nanopb
   SOURCES
     ${NANOPB_GENERATED_SOURCES}
@@ -140,7 +142,6 @@ if(CXX_CLANG OR CXX_GNU)
     -Wno-unreachable-code
   )
 endif()
-
 
 target_include_directories(
   firebase_firestore_protos_libprotobuf PUBLIC
@@ -171,7 +172,6 @@ add_custom_command(
     protoc
     ${PROTOBUF_PROTO}
 )
-
 
 # Generate the python representation of nanopb's protos
 set(NANOPB_DIR ${FIREBASE_BINARY_DIR}/external/src/nanopb)

@@ -1,4 +1,4 @@
-# Copyright 2019 Google
+# Copyright 2019 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,16 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if(APPLE)
-  file(GLOB headers Public/*.h)
-
-  podspec_version(version ${PROJECT_SOURCE_DIR}/FirebaseCoreDiagnosticsInterop.podspec)
-
-  objc_framework(
-    FirebaseCoreDiagnosticsInterop
-    HEADERS ${headers}
-    VERSION ${version}
-    INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}
-    EXCLUDE_FROM_ALL
-  )
+if(NOT APPLE)
+  return()
 endif()
+
+file(GLOB headers Public/*.h)
+
+podspec_version(
+  version
+  ${PROJECT_SOURCE_DIR}/FirebaseCoreDiagnosticsInterop.podspec
+)
+
+firebase_ios_objc_framework(
+  FirebaseCoreDiagnosticsInterop
+  HEADERS ${headers}
+  VERSION ${version}
+  INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}
+  EXCLUDE_FROM_ALL
+)
