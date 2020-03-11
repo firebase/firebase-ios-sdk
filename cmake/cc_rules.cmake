@@ -244,7 +244,7 @@ endfunction()
 # whether or not DISABLE_STRICT_WARNINGS was passed.
 function(firebase_ios_add_compile_options target)
   set(flag DISABLE_STRICT_WARNINGS)
-  cmake_parse_arguments(aco "${flag}" "" "${}" ${ARGN})
+  cmake_parse_arguments(aco "${flag}" "" "" ${ARGN})
 
   # Only set Objective-C flags if there's at least once source file to which
   # that applies.
