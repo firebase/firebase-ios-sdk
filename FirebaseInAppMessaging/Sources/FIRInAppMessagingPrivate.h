@@ -18,9 +18,12 @@
 #import "FIRCore+InAppMessaging.h"
 #import "FIRInAppMessaging.h"
 
+@class FIRInstallations;
+
 @protocol FIRInAppMessagingInstanceProvider;
 @protocol FIRLibrary;
 
 @interface FIRInAppMessaging () <FIRInAppMessagingInstanceProvider, FIRLibrary>
 @property(nonatomic, readwrite, strong) id<FIRAnalyticsInterop> _Nullable analytics;
+@property(nonatomic, readwrite, strong) FIRInstallations  * _Nonnull installations;
 @end
