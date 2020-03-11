@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,19 +14,15 @@
  * limitations under the License.
  */
 
-#import "FIRAuthProto.h"
+#import "FIRAuthRPCResponse.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRAuthProtoMfaEnrollment : NSObject <FIRAuthProto>
+@interface FIRWithdrawMFAResponse : NSObject <FIRAuthRPCResponse>
 
-@property(nonatomic, copy, readonly, nullable) NSString *mfaValue;
+@property(nonatomic, copy, readonly, nullable) NSString *IDToken;
 
-@property(nonatomic, copy, readonly, nullable) NSString *mfaEnrollmentID;
-
-@property(nonatomic, copy, readonly, nullable) NSString *displayName;
-
-@property(nonatomic, copy, readonly, nullable) NSDate *enrolledAt;
+@property(nonatomic, copy, readonly, nullable) NSString *refreshToken;
 
 @end
 

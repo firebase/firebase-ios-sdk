@@ -19,105 +19,105 @@
 
 #import "FIRAuthBackend.h"
 
-#import "FIRStartMfaEnrollmentRequest.h"
-#import "FIRStartMfaEnrollmentResponse.h"
-#import "FIRFinalizeMfaEnrollmentRequest.h"
-#import "FIRFinalizeMfaEnrollmentResponse.h"
-#import "FIRStartMfaSignInRequest.h"
-#import "FIRStartMfaSignInResponse.h"
-#import "FIRFinalizeMfaSignInRequest.h"
-#import "FIRFinalizeMfaSignInResponse.h"
-#import "FIRWithdrawMfaRequest.h"
-#import "FIRWithdrawMfaResponse.h"
+#import "FIRStartMFAEnrollmentRequest.h"
+#import "FIRStartMFAEnrollmentResponse.h"
+#import "FIRFinalizeMFAEnrollmentRequest.h"
+#import "FIRFinalizeMFAEnrollmentResponse.h"
+#import "FIRStartMFASignInRequest.h"
+#import "FIRStartMFASignInResponse.h"
+#import "FIRFinalizeMFASignInRequest.h"
+#import "FIRFinalizeMFASignInResponse.h"
+#import "FIRWithdrawMFARequest.h"
+#import "FIRWithdrawMFAResponse.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** @typedef FIRStartMfaEnrollmentResponseCallback
-    @brief The type of block used to return the result of a call to the startMfaEnroll endpoint.
+/** @typedef FIRStartMFAEnrollmentResponseCallback
+    @brief The type of block used to return the result of a call to the startMFAEnroll endpoint.
     @param response The received response, if any.
     @param error The error which occurred, if any.
     @remarks One of response or error will be non-nil.
 */
-typedef void (^FIRStartMfaEnrollmentResponseCallback)
-(FIRStartMfaEnrollmentResponse *_Nullable response, NSError *_Nullable error);
+typedef void (^FIRStartMFAEnrollmentResponseCallback)
+(FIRStartMFAEnrollmentResponse *_Nullable response, NSError *_Nullable error);
 
-/** @typedef FIRFinalizeMfaEnrollmentResponseCallback
-    @brief The type of block used to return the result of a call to the finalizeMfaEnroll endpoint.
+/** @typedef FIRFinalizeMFAEnrollmentResponseCallback
+    @brief The type of block used to return the result of a call to the finalizeMFAEnroll endpoint.
     @param response The received response, if any.
     @param error The error which occurred, if any.
     @remarks One of response or error will be non-nil.
 */
-typedef void (^FIRFinalizeMfaEnrollmentResponseCallback)
-(FIRFinalizeMfaEnrollmentResponse *_Nullable response, NSError *_Nullable error);
+typedef void (^FIRFinalizeMFAEnrollmentResponseCallback)
+(FIRFinalizeMFAEnrollmentResponse *_Nullable response, NSError *_Nullable error);
 
-/** @typedef FIRStartMfaSignInResponseCallback
-    @brief The type of block used to return the result of a call to the startMfaSignIn endpoint.
+/** @typedef FIRStartMFASignInResponseCallback
+    @brief The type of block used to return the result of a call to the startMFASignIn endpoint.
     @param response The received response, if any.
     @param error The error which occurred, if any.
     @remarks One of response or error will be non-nil.
 */
-typedef void (^FIRStartMfaSignInResponseCallback)
-(FIRStartMfaSignInResponse *_Nullable response, NSError *_Nullable error);
+typedef void (^FIRStartMFASignInResponseCallback)
+(FIRStartMFASignInResponse *_Nullable response, NSError *_Nullable error);
 
-/** @typedef FIRFinalizeMfaSignInResponseCallback
-    @brief The type of block used to return the result of a call to the finalizeMfaSignIn endpoint.
+/** @typedef FIRFinalizeMFASignInResponseCallback
+    @brief The type of block used to return the result of a call to the finalizeMFASignIn endpoint.
     @param response The received response, if any.
     @param error The error which occurred, if any.
     @remarks One of response or error will be non-nil.
 */
-typedef void (^FIRFinalizeMfaSignInResponseCallback)
-(FIRFinalizeMfaSignInResponse *_Nullable response, NSError *_Nullable error);
+typedef void (^FIRFinalizeMFASignInResponseCallback)
+(FIRFinalizeMFASignInResponse *_Nullable response, NSError *_Nullable error);
 
-/** @typedef FIRWithdrawMfaResponseCallback
-    @brief The type of block used to return the result of a call to the mfaUnenroll endpoint.
+/** @typedef FIRWithdrawMFAResponseCallback
+    @brief The type of block used to return the result of a call to the MFAUnenroll endpoint.
     @param response The received response, if any.
     @param error The error which occurred, if any.
     @remarks One of response or error will be non-nil.
 */
-typedef void (^FIRWithdrawMfaResponseCallback)
-(FIRWithdrawMfaResponse *_Nullable response, NSError *_Nullable error);
+typedef void (^FIRWithdrawMFAResponseCallback)
+(FIRWithdrawMFAResponse *_Nullable response, NSError *_Nullable error);
 
 @interface FIRAuthBackend (MultiFactor)
 
 /** @fn startMultiFactorEnrollment:callback:
-    @brief Calls the startMfaEnrollment endpoint.
+    @brief Calls the startMFAEnrollment endpoint.
     @param request The request parameters.
     @param callback The callback.
 */
-+ (void)startMultiFactorEnrollment:(FIRStartMfaEnrollmentRequest *)request
-                          callback:(FIRStartMfaEnrollmentResponseCallback)callback;
++ (void)startMultiFactorEnrollment:(FIRStartMFAEnrollmentRequest *)request
+                          callback:(FIRStartMFAEnrollmentResponseCallback)callback;
 
 /** @fn finalizeMultiFactorEnrollment:callback:
     @brief Calls the finalizeMultiFactorEnrollment endpoint.
     @param request The request parameters.
     @param callback The callback.
 */
-+ (void)finalizeMultiFactorEnrollment:(FIRFinalizeMfaEnrollmentRequest *)request
-                             callback:(FIRFinalizeMfaEnrollmentResponseCallback)callback;
++ (void)finalizeMultiFactorEnrollment:(FIRFinalizeMFAEnrollmentRequest *)request
+                             callback:(FIRFinalizeMFAEnrollmentResponseCallback)callback;
 
 /** @fn startMultiFactorSignIn:callback:
     @brief Calls the startMultiFactorSignIn endpoint.
     @param request The request parameters.
     @param callback The callback.
 */
-+ (void)startMultiFactorSignIn:(FIRStartMfaSignInRequest *)request
-                      callback:(FIRStartMfaSignInResponseCallback)callback;
++ (void)startMultiFactorSignIn:(FIRStartMFASignInRequest *)request
+                      callback:(FIRStartMFASignInResponseCallback)callback;
 
 /** @fn finalizeMultiFactorSignIn:callback:
     @brief Calls the finalizeMultiFactorSignIn endpoint.
     @param request The request parameters.
     @param callback The callback.
 */
-+ (void)finalizeMultiFactorSignIn:(FIRFinalizeMfaSignInRequest *)request
-                         callback:(FIRFinalizeMfaSignInResponseCallback)callback;
++ (void)finalizeMultiFactorSignIn:(FIRFinalizeMFASignInRequest *)request
+                         callback:(FIRFinalizeMFASignInResponseCallback)callback;
 
 /** @fn withdrawMultiFactor:callback:
     @brief Calls the withdrawMultiFactor endpoint.
     @param request The request parameters.
     @param callback The callback.
 */
-+ (void)withdrawMultiFactor:(FIRWithdrawMfaRequest *)request
-                   callback:(FIRWithdrawMfaResponseCallback)callback;
++ (void)withdrawMultiFactor:(FIRWithdrawMFARequest *)request
+                   callback:(FIRWithdrawMFAResponseCallback)callback;
 
 @end
 

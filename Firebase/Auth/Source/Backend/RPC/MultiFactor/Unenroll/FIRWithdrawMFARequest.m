@@ -14,35 +14,35 @@
  * limitations under the License.
  */
 
-#import "FIRWithdrawMfaRequest.h"
+#import "FIRWithdrawMFARequest.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-static NSString *const kWithdrawMfaEndPoint = @"accounts/mfaEnrollment:withdraw";
+static NSString *const kWithdrawMFAEndPoint = @"accounts/mfaEnrollment:withdraw";
 
-@implementation FIRWithdrawMfaRequest
+@implementation FIRWithdrawMFARequest
 
-- (nullable instancetype)initWithIDToken:(NSString *)idToken
-                         mfaEnrollmentID:(NSString *)mfaEnrollmentID
+- (nullable instancetype)initWithIDToken:(NSString *)IDToken
+                         MFAEnrollmentID:(NSString *)MFAEnrollmentID
                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
-  self = [super initWithEndpoint:kWithdrawMfaEndPoint
+  self = [super initWithEndpoint:kWithdrawMFAEndPoint
             requestConfiguration:requestConfiguration
              useIdentityPlatform:YES
                       useStaging:NO];
   if (self) {
-    _idToken = idToken;
-    _mfaEnrollmentID = mfaEnrollmentID;
+    _IDToken = IDToken;
+    _MFAEnrollmentID = MFAEnrollmentID;
   }
   return self;
 }
 
 - (nullable id)unencodedHTTPRequestBodyWithError:(NSError *__autoreleasing  _Nullable *)error {
   NSMutableDictionary *postBody = [NSMutableDictionary dictionary];
-  if (_idToken) {
-    postBody[@"idToken"] = _idToken;
+  if (_IDToken) {
+    postBody[@"idToken"] = _IDToken;
   }
-  if (_mfaEnrollmentID) {
-    postBody[@"mfaEnrollmentId"] = _mfaEnrollmentID;
+  if (_MFAEnrollmentID) {
+    postBody[@"mfaEnrollmentId"] = _MFAEnrollmentID;
   }
   return [postBody copy];
 }

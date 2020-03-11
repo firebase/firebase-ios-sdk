@@ -21,9 +21,9 @@
 
 @implementation FIRAuthBackend (MultiFactor)
 
-+ (void)startMultiFactorEnrollment:(FIRStartMfaEnrollmentRequest *)request
-                          callback:(FIRStartMfaEnrollmentResponseCallback)callback {
-  FIRStartMfaEnrollmentResponse *response = [[FIRStartMfaEnrollmentResponse alloc] init];
++ (void)startMultiFactorEnrollment:(FIRStartMFAEnrollmentRequest *)request
+                          callback:(FIRStartMFAEnrollmentResponseCallback)callback {
+  FIRStartMFAEnrollmentResponse *response = [[FIRStartMFAEnrollmentResponse alloc] init];
   [[self implementation] postWithRequest:request response:response callback:^(NSError *error) {
     if (error) {
       callback(nil, error);
@@ -33,9 +33,9 @@
   }];
 }
 
-+ (void)finalizeMultiFactorEnrollment:(FIRFinalizeMfaEnrollmentRequest *)request
-                             callback:(FIRFinalizeMfaEnrollmentResponseCallback)callback {
-  FIRFinalizeMfaEnrollmentResponse *response = [[FIRFinalizeMfaEnrollmentResponse alloc] init];
++ (void)finalizeMultiFactorEnrollment:(FIRFinalizeMFAEnrollmentRequest *)request
+                             callback:(FIRFinalizeMFAEnrollmentResponseCallback)callback {
+  FIRFinalizeMFAEnrollmentResponse *response = [[FIRFinalizeMFAEnrollmentResponse alloc] init];
   [[self implementation] postWithRequest:request response:response callback:^(NSError *error) {
     if (error) {
       callback(nil, error);
@@ -45,9 +45,9 @@
   }];
 }
 
-+ (void)startMultiFactorSignIn:(FIRStartMfaSignInRequest *)request
-                      callback:(FIRStartMfaSignInResponseCallback)callback {
-  FIRStartMfaSignInResponse *response = [[FIRStartMfaSignInResponse alloc] init];
++ (void)startMultiFactorSignIn:(FIRStartMFASignInRequest *)request
+                      callback:(FIRStartMFASignInResponseCallback)callback {
+  FIRStartMFASignInResponse *response = [[FIRStartMFASignInResponse alloc] init];
   [[self implementation] postWithRequest:request response:response callback:^(NSError *error) {
     if (error) {
       callback(nil, error);
@@ -57,9 +57,9 @@
   }];
 }
 
-+ (void)finalizeMultiFactorSignIn:(FIRFinalizeMfaSignInRequest *)request
-                         callback:(FIRFinalizeMfaSignInResponseCallback)callback {
-  FIRFinalizeMfaSignInResponse *response = [[FIRFinalizeMfaSignInResponse alloc] init];
++ (void)finalizeMultiFactorSignIn:(FIRFinalizeMFASignInRequest *)request
+                         callback:(FIRFinalizeMFASignInResponseCallback)callback {
+  FIRFinalizeMFASignInResponse *response = [[FIRFinalizeMFASignInResponse alloc] init];
   [[self implementation] postWithRequest:request response:response callback:^(NSError *error) {
     if (error) {
       callback(nil, error);
@@ -69,9 +69,9 @@
   }];
 }
 
-+ (void)withdrawMultiFactor:(FIRWithdrawMfaRequest *)request
-                   callback:(FIRWithdrawMfaResponseCallback)callback {
-  FIRWithdrawMfaResponse *response = [[FIRWithdrawMfaResponse alloc] init];
++ (void)withdrawMultiFactor:(FIRWithdrawMFARequest *)request
+                   callback:(FIRWithdrawMFAResponseCallback)callback {
+  FIRWithdrawMFAResponse *response = [[FIRWithdrawMFAResponse alloc] init];
   [[self implementation] postWithRequest:request response:response callback:^(NSError *error) {
     if (error) {
       callback(nil, error);

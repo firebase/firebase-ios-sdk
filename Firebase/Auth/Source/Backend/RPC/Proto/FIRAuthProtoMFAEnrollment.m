@@ -14,31 +14,28 @@
  * limitations under the License.
  */
 
-#import "FIRAuthProtoFinalizeMfaPhoneRequestInfo.h"
+#import "FIRAuthProtoMFAEnrollment.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@implementation FIRAuthProtoFinalizeMfaPhoneRequestInfo
+@implementation FIRAuthProtoMFAEnrollment
 
-- (instancetype)initWithSessionInfo:(NSString *)sessionInfo
-                   verificationCode:(NSString *)verificationCode {
+- (instancetype)initWithDictionary:(NSDictionary *)dictionary {
   self = [super init];
   if (self) {
-    _sessionInfo = sessionInfo;
-    _code = verificationCode;
+    if (dictionary[@"phoneInfo"]) {
+      _MFAValue = dictionary[@"phoneInfo"];
+    }
+    _MFAEnrollmentID = dictionary[@"mfaEnrollmentId"];
+    _displayName = dictionary[@"displayName"];
+    if ([dictionary[@"enrolledAt"] isKindOfClass:[NSString class]]) {
+      NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+      [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSSZ"];
+      NSDate *date = [dateFormatter dateFromString:dictionary[@"enrolledAt"]];
+      _enrolledAt = date;
+    }
   }
   return self;
-}
-
-- (NSDictionary *)dictionary {
-  NSMutableDictionary *dict = [NSMutableDictionary dictionary];
-  if (_sessionInfo) {
-    dict[@"sessionInfo"] = _sessionInfo;
-  }
-  if (_code) {
-    dict[@"code"] = _code;
-  }
-  return [dict copy];
 }
 
 @end

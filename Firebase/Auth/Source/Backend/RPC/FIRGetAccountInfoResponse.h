@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRAuthProtoMfaEnrollment.h"
+#import "FIRAuthProtoMFAEnrollment.h"
 #import "FIRAuthRPCResponse.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -126,7 +126,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, readonly, nullable) NSString *phoneNumber;
 
-@property(nonatomic, strong, readonly, nullable) NSArray<FIRAuthProtoMfaEnrollment *> *mfaEnrollments;
+@property(nonatomic, strong, readonly, nullable) NSArray<FIRAuthProtoMFAEnrollment *> *MFAEnrollments;
 
 /** @fn init
     @brief Please use initWithDictionary:
