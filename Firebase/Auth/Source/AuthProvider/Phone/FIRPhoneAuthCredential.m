@@ -15,14 +15,17 @@
  */
 
 #include <TargetConditionals.h>
-#if !TARGET_OS_OSX && !TARGET_OS_TV
+#if TARGET_OS_IOS
 
 #import "FIRPhoneAuthCredential.h"
 
-#import "FIRPhoneAuthCredential_Internal.h"
 #import "FIRAuthCredential_Internal.h"
 #import "FIRAuthExceptionUtils.h"
 #import "FIRVerifyAssertionRequest.h"
+
+#if TARGET_OS_IOS
+#import "FIRPhoneAuthCredential_Internal.h"
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 

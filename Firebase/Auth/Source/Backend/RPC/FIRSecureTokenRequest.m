@@ -145,7 +145,7 @@ static NSString *gAPIHost = @"securetoken.googleapis.com";
   if (_code) {
     postBody[kCodeKey] = _code;
   }
-  return postBody;
+  return [postBody copy];
 }
 
 #pragma mark - Internal API for development

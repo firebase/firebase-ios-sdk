@@ -42,7 +42,9 @@ NS_ASSUME_NONNULL_BEGIN
     [StaticContentTableViewCell cellWithTitle:@"Reload User"
                                       action:^{ [weakSelf reloadUser]; }],
     [StaticContentTableViewCell cellWithTitle:@"Delete User"
-                                      action:^{ [weakSelf deleteAccount]; }],
+                                       action:^{ [weakSelf deleteAccount]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Verify before update email"
+                                       action:^{ [weakSelf verifyBeforeUpdateEmail]; }],
     ]];
 }
 
@@ -60,7 +62,10 @@ NS_ASSUME_NONNULL_BEGIN
          if (error) {
            [self logFailure:@"set display name failed" error:error];
          } else {
-           [self logSuccess:@"set display name succeeded."];
+           [FIRAuth.auth.currentUser getIDTokenResultWithCompletion:^(FIRAuthTokenResult *_Nullable tokenResult,
+                                                                      NSError *_Nullable error) {
+             [self logSuccess:@"set display name succeeded."];
+           }];
          }
          [self showTypicalUIForUserUpdateResultsWithTitle:@"Set Display Name" error:error];
        }];
@@ -179,6 +184,29 @@ NS_ASSUME_NONNULL_BEGIN
      }];
    }];
  }];
+}
+
+- (void)verifyBeforeUpdateEmail {
+  [self showTextInputPromptWithMessage:@"Email Address:"
+                       completionBlock:^(BOOL userPressedOK, NSString *_Nullable userInput) {
+  if (!userPressedOK || !userInput.length) {
+   return;
+  }
+  [self showSpinner:^{
+    [[self user] sendEmailVerificationBeforeUpdatingEmail:userInput
+                                       actionCodeSettings:[self actionCodeSettings]
+                                               completion:^(NSError *_Nullable error) {
+      if (error) {
+        [self logFailure:@"verify before update email failed." error:error];
+      } else {
+       [self logSuccess:@"verify before update email succeeded."];
+      }
+      [self hideSpinner:^{
+        [self showTypicalUIForUserUpdateResultsWithTitle:@"Update Email" error:error];
+      }];
+    }];
+   }];
+  }];
 }
 
 - (void)updatePassword {

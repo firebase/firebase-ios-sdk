@@ -137,10 +137,6 @@ if(APPLE)
   # symbols". Unfortunately, most of our dependencies implement their
   # cross-platform build with preprocessor symbols so translation units that
   # don't target the current platform end up empty (and trigger this warning).
-  #
-  # Note this can't be set in compiler_setup.cmake because that is included
-  # late so as not to affect our dependencies. These variables have to be set
-  # early so that they do affect our dependencies.
   set(CMAKE_C_ARCHIVE_CREATE   "<CMAKE_AR> Scr <TARGET> <LINK_FLAGS> <OBJECTS>")
   set(CMAKE_CXX_ARCHIVE_CREATE "<CMAKE_AR> Scr <TARGET> <LINK_FLAGS> <OBJECTS>")
   set(CMAKE_C_ARCHIVE_FINISH   "<CMAKE_RANLIB> -no_warning_for_no_symbols -c <TARGET>")
