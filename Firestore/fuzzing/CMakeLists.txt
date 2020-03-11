@@ -30,37 +30,37 @@ set(fuzzing_resources ${FIREBASE_SOURCE_DIR}/Firestore/Example/FuzzTests/Fuzzing
 # the serializer corpus by converting the text protos from the serializer
 # corpus in the iOS FuzzingResources to binary protos. This conversion requires
 # the protoc binary that is not currently available.
-firebase_ios_cc_fuzz_test(
-  serializer_fuzzer
-  DICTIONARY ${fuzzing_resources}/Serializer/serializer.dictionary
-  CORPUS     ${fuzzing_resources}/Serializer/Corpus/BinaryProtos
-  SOURCES    serializer_fuzzer.cc
-  DEPENDS    firebase_firestore_remote
-)
+# firebase_ios_cc_fuzz_test(
+#   serializer_fuzzer
+#   DICTIONARY ${fuzzing_resources}/Serializer/serializer.dictionary
+#   CORPUS     ${fuzzing_resources}/Serializer/Corpus/BinaryProtos
+#   SOURCES    serializer_fuzzer.cc
+#   DEPENDS    firebase_firestore_remote
+# )
 
 
 # FieldPath fuzzing target.
-firebase_ios_cc_fuzz_test(
-  fieldpath_fuzzer
-  DICTIONARY ${fuzzing_resources}/FieldPath/fieldpath.dictionary
-  CORPUS     ${fuzzing_resources}/FieldPath/Corpus
-  SOURCES    fieldpath_fuzzer.cc
-  DEPENDS    firebase_firestore_model
-)
+# firebase_ios_cc_fuzz_test(
+#   fieldpath_fuzzer
+#   DICTIONARY ${fuzzing_resources}/FieldPath/fieldpath.dictionary
+#   CORPUS     ${fuzzing_resources}/FieldPath/Corpus
+#   SOURCES    fieldpath_fuzzer.cc
+#   DEPENDS    firebase_firestore_model
+# )
 
 # ResourcePath fuzzing target. Use the same corpus and dict as FieldPath.
-firebase_ios_cc_fuzz_test(
-  resourcepath_fuzzer
-  DICTIONARY ${fuzzing_resources}/FieldPath/fieldpath.dictionary
-  CORPUS     ${fuzzing_resources}/FieldPath/Corpus
-  SOURCES    resourcepath_fuzzer.cc
-  DEPENDS    firebase_firestore_model
-)
+# firebase_ios_cc_fuzz_test(
+#   resourcepath_fuzzer
+#   DICTIONARY ${fuzzing_resources}/FieldPath/fieldpath.dictionary
+#   CORPUS     ${fuzzing_resources}/FieldPath/Corpus
+#   SOURCES    resourcepath_fuzzer.cc
+#   DEPENDS    firebase_firestore_model
+# )
 
 # LevelDB fuzzer.
-firebase_ios_cc_fuzz_test(
-  leveldb_fuzzer
-  DICTIONARY ${fuzzing_resources}/LevelDb/leveldb.dictionary
-  SOURCES leveldb_fuzzer.cc
-  DEPENDS firebase_firestore_local_persistence_leveldb
-)
+# firebase_ios_cc_fuzz_test(
+#   leveldb_fuzzer
+#   DICTIONARY ${fuzzing_resources}/LevelDb/leveldb.dictionary
+#   SOURCES leveldb_fuzzer.cc
+#   DEPENDS firebase_firestore_local_persistence_leveldb
+# )
