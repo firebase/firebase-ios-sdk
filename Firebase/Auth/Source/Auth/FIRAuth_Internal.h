@@ -117,6 +117,32 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (BOOL)signOutByForceWithUserID:(NSString *)userID error:(NSError *_Nullable *_Nullable)error;
 
+/** @fn completeSignInWithTokenService:callback:
+    @brief Completes a sign-in flow once we have access and refresh tokens for the user.
+    @param accessToken The STS access token.
+    @param accessTokenExpirationDate The approximate expiration date of the access token.
+    @param refreshToken The STS refresh token.
+    @param anonymous Whether or not the user is anonymous.
+    @param callback Called when the user has been signed in or when an error occurred. Invoked
+        asynchronously on the global auth work queue in the future.
+*/
+- (void)completeSignInWithAccessToken:(nullable NSString *)accessToken
+            accessTokenExpirationDate:(nullable NSDate *)accessTokenExpirationDate
+                         refreshToken:(nullable NSString *)refreshToken
+                            anonymous:(BOOL)anonymous
+                             callback:(FIRAuthResultCallback)callback;
+
+/** @fn signInFlowAuthResultCallbackByDecoratingCallback:
+    @brief Creates a FIRAuthResultCallback block which wraps another FIRAuthResultCallback; trying
+        to update the current user before forwarding it's invocations along to a subject block
+    @param callback Called when the user has been updated or when an error has occurred. Invoked
+        asynchronously on the main thread in the future.
+    @return Returns a block that updates the current user.
+    @remarks Typically invoked as part of the complete sign-in flow. For any other uses please
+        consider alternative ways of updating the current user.
+*/
+- (FIRAuthDataResultCallback)signInFlowAuthDataResultCallbackByDecoratingCallback:(nullable FIRAuthDataResultCallback)callback;
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -25,12 +25,12 @@
  */
 @interface FIRAuthTokenResult () <NSSecureCoding>
 
-- (instancetype)initWithToken:(NSString *)token
-               expirationDate:(NSDate *)expirationDate
-                     authDate:(NSDate *)authDate
-                 issuedAtDate:(NSDate *)issuedAtDate
-               signInProvider:(NSString *)signInProvider
-                       claims:(NSDictionary *)claims;
+/** @fn tokenResultWithToken:
+    @brief Parse a token string to a structured token.
+    @param token The token string to parse.
+    @return A structured token result.
+*/
++ (nullable FIRAuthTokenResult *)tokenResultWithToken:(NSString *)token;
 
 @end
 

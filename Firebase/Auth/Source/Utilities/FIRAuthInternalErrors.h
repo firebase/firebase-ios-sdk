@@ -393,6 +393,61 @@ typedef NS_ENUM(NSInteger, FIRAuthInternalErrorCode) {
   FIRAuthInternalErrorCodeGameKitNotLinked =
       FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeGameKitNotLinked,
 
+  /** Indicates that the second factor is required for sign in.
+   */
+  FIRAuthInternalErrorCodeSecondFactorRequired =
+      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeSecondFactorRequired,
+
+  /** Indicates that the multi factor session is missing.
+   */
+  FIRAuthInternalErrorCodeMissingMultiFactorSession =
+      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeMissingMultiFactorSession,
+
+  /** Indicates that the multi factor info is missing.
+   */
+  FIRAuthInternalErrorCodeMissingMultiFactorInfo =
+      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeMissingMultiFactorInfo,
+
+  /** Indicates that the multi factor session is invalid.
+   */
+  FIRAuthInternalErrorCodeInvalidMultiFactorSession =
+      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeInvalidMultiFactorSession,
+
+  /** Indicates that the multi factor info is not found.
+   */
+  FIRAuthInternalErrorCodeMultiFactorInfoNotFound =
+      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeMultiFactorInfoNotFound,
+
+  /** Indicates that the operation is admin only.
+   */
+  FIRAuthInternalErrorCodeAdminRestrictedOperation =
+      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeAdminRestrictedOperation,
+
+  /** Indicates that the email is unverified.
+   */
+  FIRAuthInternalErrorCodeUnverifiedEmail =
+      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeUnverifiedEmail,
+
+  /** Indicates that the second factor is already enrolled.
+   */
+  FIRAuthInternalErrorCodeSecondFactorAlreadyEnrolled =
+      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeSecondFactorAlreadyEnrolled,
+
+  /** Indicates that the number of multi factors reached the limit.
+   */
+  FIRAuthInternalErrorCodeMaximumSecondFactorCountExceeded =
+      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeMaximumSecondFactorCountExceeded,
+
+  /** Indicates that the first factor is not supportted.
+   */
+  FIRAuthInternalErrorCodeUnsupportedFirstFactor =
+      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeUnsupportedFirstFactor,
+
+  /** Indicates that the email needs to be verified before changed.
+   */
+  FIRAuthInternalErrorCodeEmailChangeNeedsVerification =
+      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeEmailChangeNeedsVerification,
+
   /** Indicates that the nonce is missing or invalid.
    */
   FIRAuthInternalErrorCodeMissingOrInvalidNonce =

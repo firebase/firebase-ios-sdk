@@ -72,7 +72,7 @@ static NSString *const kSignInWithGameCenterEndPoint = @"signInWithGameCenter";
   if (_displayName) {
     postBody[@"displayName"] = _displayName;
   }
-  return postBody;
+  return [postBody copy];
 }
 
 @end
