@@ -72,18 +72,14 @@ struct FrameworkBuilder {
   /// The directory containing the Xcode project and Pods folder.
   private let projectDir: URL
 
-  /// A flag to indicate this build is for carthage. This is primarily used for CoreDiagnostics.
-  private let carthageBuild: Bool
-
   /// The Pods directory for building the framework.
   private var podsDir: URL {
     return projectDir.appendingPathComponent("Pods", isDirectory: true)
   }
 
   /// Default initializer.
-  init(projectDir: URL, carthageBuild: Bool = false) {
+  init(projectDir: URL) {
     self.projectDir = projectDir
-    self.carthageBuild = carthageBuild
   }
 
   // MARK: - Public Functions
@@ -95,19 +91,21 @@ struct FrameworkBuilder {
   ///   - version: String representation of the version.
   /// - Parameter logsOutputDir: The path to the directory to place build logs.
   /// - Parameter moduleMapContents: Module map contents for all frameworks in this pod.
-  /// - Returns: A URL to the framework that was built (or pulled from the cache).
+  /// - Returns: A URL to the framework that was built (or pulled from the cache) and the Carthage version.
   func buildFramework(withName podName: String,
                       podInfo: CocoaPodUtils.PodInfo,
-                      logsOutputDir: URL? = nil) -> URL {
+                      logsOutputDir: URL? = nil) -> (URL, URL?) {
     print("Building \(podName)")
 
     // Get (or create) the cache directory for storing built frameworks.
     let fileManager = FileManager.default
     var cachedFrameworkRoot: URL
+    var cachedCarthageRoot: URL
     do {
-      let subDir = carthageBuild ? "carthage" : ""
-      let cacheDir = try fileManager.sourcePodCacheDirectory(withSubdir: subDir)
+      let cacheDir = try fileManager.sourcePodCacheDirectory(withSubdir: "zip")
+      let carthageCacheDir = try fileManager.sourcePodCacheDirectory(withSubdir: "carthage")
       cachedFrameworkRoot = cacheDir.appendingPathComponents([podName, podInfo.version])
+      cachedCarthageRoot = carthageCacheDir.appendingPathComponents([podName, podInfo.version])
     } catch {
       fatalError("Could not create caches directory for building frameworks: \(error)")
     }
@@ -115,22 +113,32 @@ struct FrameworkBuilder {
     // Build the full cached framework path.
     let realFramework = frameworkBuildName(podName)
     let cachedFrameworkDir = cachedFrameworkRoot.appendingPathComponent("\(realFramework).xcframework")
-    let frameworkDir = compileFrameworkAndResources(withName: podName, podInfo: podInfo)
+    let cachedCarthageDir = cachedCarthageRoot.appendingPathComponent("\(realFramework).framework")
+    let (frameworkDir, carthageDir) = compileFrameworkAndResources(withName: podName, podInfo: podInfo)
     do {
       // Remove the previously cached framework if it exists, otherwise the `moveItem` call will
       // fail.
       fileManager.removeIfExists(at: cachedFrameworkDir)
+      fileManager.removeIfExists(at: cachedCarthageDir)
 
-      // Create the root cache directory if it doesn't exist.
+      // Create the root cache directories if they doesn't exist.
       if !fileManager.directoryExists(at: cachedFrameworkRoot) {
         // If the root directory doesn't exist, create it so the `moveItem` will succeed.
         try fileManager.createDirectory(at: cachedFrameworkRoot,
                                         withIntermediateDirectories: true)
       }
+      if !fileManager.directoryExists(at: cachedCarthageRoot) {
+        // If the root directory doesn't exist, create it so the `moveItem` will succeed.
+        try fileManager.createDirectory(at: cachedCarthageRoot,
+                                        withIntermediateDirectories: true)
+      }
 
       // Move the newly built framework to the cache directory.
       try fileManager.moveItem(at: frameworkDir, to: cachedFrameworkDir)
-      return cachedFrameworkDir
+      if let carthageDir = carthageDir {
+        try fileManager.moveItem(at: carthageDir, to: cachedCarthageDir)
+      }
+      return (cachedFrameworkDir, cachedCarthageDir)
     } catch {
       fatalError("Could not move built frameworks into the cached frameworks directory: \(error)")
     }
@@ -190,6 +198,27 @@ struct FrameworkBuilder {
     return .success(output: fullOutput)
   }
 
+  /// Build all thin slices for an open source pod.
+  /// - Parameter framework: The name of the framework to be built.
+  /// - Parameter logsDir: The path to the directory to place build logs.
+  /// - Returns: An dictionary of URLs to the built thin libraries keyed by architiecture
+  private func buildAllThin(withName framework: String,
+                                      logsDir: URL,
+                                      carthageBuild: Bool = false) -> [Architecture: URL] {
+    // Build every architecture and save the locations in an array to be assembled.
+    var thinArchives = [Architecture: URL]()
+    for arch in LaunchArgs.shared.archs {
+      let buildDir = projectDir.appendingPathComponent(arch.rawValue)
+      let thinArchive = buildThin(framework: framework,
+                                  archs: [arch],
+                                  buildDir: buildDir,
+                                  logRoot: logsDir,
+                                  carthageBuild: carthageBuild)
+      thinArchives[arch] = thinArchive
+    }
+    return thinArchives
+  }
+
   /// Uses `xcodebuild` to build a framework for a specific architecture slice.
   ///
   /// - Parameters:
@@ -201,7 +230,8 @@ struct FrameworkBuilder {
   private func buildThin(framework: String,
                          archs: [Architecture],
                          buildDir: URL,
-                         logRoot: URL) -> URL {
+                         logRoot: URL,
+                         carthageBuild: Bool = false) -> URL {
     let arch = archs[0]
     let isMacCatalyst = arch == Architecture.x86_64h
     let isMacCatalystString = isMacCatalyst ? "YES" : "NO"
@@ -313,10 +343,10 @@ struct FrameworkBuilder {
   /// - Parameter framework: The name of the framework to be built.
   /// - Parameter logsOutputDir: The path to the directory to place build logs.
   /// - Parameter moduleMapContents: Module map contents for all frameworks in this pod.
-  /// - Returns: A path to the newly compiled framework (with any included Resources embedded).
+  /// - Returns: A path to the newly compiled framework and the Carthage version if needed)
   private func compileFrameworkAndResources(withName framework: String,
                                             logsOutputDir: URL? = nil,
-                                            podInfo: CocoaPodUtils.PodInfo) -> URL {
+                                            podInfo: CocoaPodUtils.PodInfo) -> (URL, URL?) {
     let fileManager = FileManager.default
     let outputDir = fileManager.temporaryDirectory(withName: "frameworks_being_built")
     let logsDir = logsOutputDir ?? fileManager.temporaryDirectory(withName: "build_logs")
@@ -337,7 +367,8 @@ struct FrameworkBuilder {
     }
 
     if LaunchArgs.shared.dynamic {
-      return buildDynamicXCFramework(withName: framework, logsDir: logsDir, outputDir: outputDir)
+      return (buildDynamicXCFramework(withName: framework, logsDir: logsDir, outputDir: outputDir),
+              nil)
     } else {
       return buildStaticXCFramework(withName: framework, logsDir: logsDir, outputDir: outputDir,
                                     podInfo: podInfo)
@@ -403,17 +434,9 @@ struct FrameworkBuilder {
   private func buildStaticXCFramework(withName framework: String,
                                       logsDir: URL,
                                       outputDir: URL,
-                                      podInfo: CocoaPodUtils.PodInfo) -> URL {
+                                      podInfo: CocoaPodUtils.PodInfo) -> (URL, URL?) {
     // Build every architecture and save the locations in an array to be assembled.
-    var thinArchives = [Architecture: URL]()
-    for arch in LaunchArgs.shared.archs {
-      let buildDir = projectDir.appendingPathComponent(arch.rawValue)
-      let thinArchive = buildThin(framework: framework,
-                                  archs: [arch],
-                                  buildDir: buildDir,
-                                  logRoot: logsDir)
-      thinArchives[arch] = thinArchive
-    }
+    let thinArchives = buildAllThin(withName: framework, logsDir: logsDir)
 
     // Create the framework directory in the filesystem for the thin archives to go.
     let fileManager = FileManager.default
@@ -454,7 +477,7 @@ struct FrameworkBuilder {
         fatalError("Error while enumerating files \(headersDir): \(error.localizedDescription)")
       }
       // Verify Firebase frameworks include an explicit umbrella header for Firebase.h.
-      if framework.hasPrefix("Firebase"),
+      if framework.hasPrefix("Firebase") || framework == "GoogleDataTransport",
         framework != "FirebaseCoreDiagnostics",
         framework != "FirebaseUI",
         !framework.hasSuffix("Swift") {
@@ -499,15 +522,31 @@ struct FrameworkBuilder {
         "\(error)")
     }
 
-    guard let moduleMapContents = podInfo.moduleMapContents else {
+    guard let moduleMapContentsTemplate = podInfo.moduleMapContents else {
       fatalError("Module map contents missing for framework \(framework)")
     }
+    let moduleMapContents = moduleMapContentsTemplate.get(umbrellaHeader: umbrellaHeader)
     let xcframework = packageXCFramework(withName: framework,
                                          fromFolder: frameworkDir,
                                          thinArchives: thinArchives,
-                                         moduleMapContents:
-                                         moduleMapContents.get(umbrellaHeader: umbrellaHeader))
+                                         moduleMapContents:moduleMapContents)
 
+    var carthageFramework : URL? = nil
+    if args.carthageDir != nil {
+      var carthageThinArchives: [Architecture: URL]
+      if framework == "FirebaseCoreDiagnostics" {
+        // FirebaseCoreDiagnostics needs to be built with a different ifdef for the Carthage distro.
+        carthageThinArchives = buildAllThin(withName: framework,
+                                            logsDir: logsDir,
+                                            carthageBuild: true)
+      } else {
+        carthageThinArchives = thinArchives
+      }
+      carthageFramework = packageCarthageFramework(withName: framework,
+                                                   fromFolder: frameworkDir,
+                                                   thinArchives: carthageThinArchives,
+                                                   moduleMapContents: moduleMapContents)
+    }
     // Remove the temporary thin archives.
     for thinArchive in thinArchives.values {
       do {
@@ -523,8 +562,7 @@ struct FrameworkBuilder {
         """)
       }
     }
-
-    return xcframework
+    return (xcframework, carthageFramework)
   }
 
   private func packageFramework(withName framework: String,
@@ -733,9 +771,12 @@ struct FrameworkBuilder {
     }
 
     let outputArgs = ["-output", xcframework.path]
-    let result = syncExec(command: "/usr/bin/xcodebuild",
-                          args: ["-create-xcframework"] + frameworkArgs + outputArgs,
-                          captureOutput: true)
+    let args = ["-create-xcframework"] + frameworkArgs + outputArgs
+    print("""
+    Building \(xcframework) with command:
+    /usr/bin/xcodebuild \(args.joined(separator: " "))
+    """)
+    let result = syncExec(command: "/usr/bin/xcodebuild", args: args, captureOutput: true)
     switch result {
     case let .error(code, output):
       fatalError("Could not build xcframework for \(framework) exit code \(code): \(output)")
@@ -745,5 +786,39 @@ struct FrameworkBuilder {
     }
 
     return xcframework
+  }
+  /// Packages a Carthage framework. Carthage does not yet support xcframeworks, so we exclude the Catalyst slice.
+  /// - Parameter withName: The framework name.
+  /// - Parameter fromFolder: The almost complete framework folder. Includes everything but the binary.
+  /// - Parameter thinArchives: All the thin archives.
+  /// - Parameter moduleMapContents: Module map contents for all frameworks in this pod.
+  private func packageCarthageFramework(withName framework: String,
+                                  fromFolder: URL,
+                                  thinArchives: [Architecture: URL],
+                                  moduleMapContents: String) -> URL {
+    let fileManager = FileManager.default
+
+    // Create a `.framework` for each of the thinArchives using the `fromFolder` as the base.
+    let platformFrameworksDir = fileManager.temporaryDirectory(withName: "carthage_frameworks")
+    if !fileManager.directoryExists(at: platformFrameworksDir) {
+      do {
+        try fileManager.createDirectory(at: platformFrameworksDir,
+                                        withIntermediateDirectories: true)
+      } catch {
+        fatalError("Could not create a temp directory to store all thin frameworks: \(error)")
+      }
+    }
+
+    // Exclude Catalyst.
+    let slices = thinArchives.filter { $0.key != Architecture.x86_64h }
+
+    // Package a normal .framework with the given slices.
+    let destination = platformFrameworksDir.appendingPathComponent(fromFolder.lastPathComponent)
+    packageFramework(withName: framework,
+                     fromFolder: fromFolder,
+                     thinArchives: slices,
+                     destination: destination,
+                     moduleMapContents: moduleMapContents)
+    return destination
   }
 }

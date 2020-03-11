@@ -35,47 +35,16 @@ struct FirebaseBuilder {
     do {
       let artifacts = try builder.buildAndAssembleFirebaseRelease(inProjectDir: projectDir)
       let firebaseVersion = artifacts.firebaseVersion
-      let location = artifacts.outputDir
+      let location = artifacts.zipDir
       print("Firebase \(firebaseVersion) directory is ready to be packaged: \(location)")
 
       // Package carthage if it's enabled.
       var carthageRoot: URL?
       if let carthageJSONDir = args.carthageDir {
-        do {
-          print("Creating Carthage release...")
-          // Create a copy of the release directory since we'll be modifying it.
-          let carthagePath =
-            location.deletingLastPathComponent().appendingPathComponent("carthage_build")
-          let fileManager = FileManager.default
-          fileManager.removeIfExists(at: carthagePath)
-          try fileManager.copyItem(at: location, to: carthagePath)
-
-          // Package the Carthage distribution with the current directory structure.
-          let carthageDir = location.deletingLastPathComponent().appendingPathComponent("carthage")
-          fileManager.removeIfExists(at: carthageDir)
-          var output = carthageDir.appendingPathComponent(firebaseVersion)
-          if let rcNumber = args.rcNumber {
-            output.appendPathComponent("rc\(rcNumber)")
-          } else {
-            output.appendPathComponent("latest-non-rc")
-          }
-          try fileManager.createDirectory(at: output, withIntermediateDirectories: true)
-          CarthageUtils.generateCarthageRelease(fromPackagedDir: carthagePath,
-                                                templateDir: args.templateDir,
-                                                jsonDir: carthageJSONDir,
-                                                firebaseVersion: firebaseVersion,
-                                                coreDiagnosticsPath: artifacts.carthageDiagnostics,
-                                                outputDir: output)
-
-          // Remove the duplicated Carthage build directory.
-          fileManager.removeIfExists(at: carthagePath)
-          print("Done creating Carthage release! Files written to \(output)")
-
-          // Save the directory for later copying.
-          carthageRoot = carthageDir
-        } catch {
-          fatalError("Could not copy output directory for Carthage build: \(error)")
-        }
+        carthageRoot = CarthageUtils.packageCarthageRelease(templateDir: args.templateDir,
+                                                            carthageJSONDir: carthageJSONDir,
+                                                            artifacts: artifacts,
+                                                            rcNumber: args.rcNumber)
       }
 
       // Prepare the release directory for zip packaging.
