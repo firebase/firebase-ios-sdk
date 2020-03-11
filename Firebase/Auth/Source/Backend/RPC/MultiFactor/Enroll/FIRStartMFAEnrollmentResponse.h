@@ -14,20 +14,14 @@
  * limitations under the License.
  */
 
-#import "FIRAuthRPCRequest.h"
-#import "FIRIdentityToolkitRequest.h"
+#import "FIRAuthRPCResponse.h"
+#import "FIRAuthProtoStartMFAPhoneResponseInfo.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRWithdrawMfaRequest : FIRIdentityToolkitRequest <FIRAuthRPCRequest>
+@interface FIRStartMFAEnrollmentResponse : NSObject <FIRAuthRPCResponse>
 
-@property(nonatomic, copy, readonly, nullable) NSString *idToken;
-
-@property(nonatomic, copy, readonly, nullable) NSString *mfaEnrollmentID;
-
-- (nullable instancetype)initWithIDToken:(NSString *)idToken
-                         mfaEnrollmentID:(NSString *)mfaEnrollmentID
-                    requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration;
+@property(nonatomic, copy, readonly, nullable) FIRAuthProtoStartMFAPhoneResponseInfo *enrollmentResponse;
 
 @end
 

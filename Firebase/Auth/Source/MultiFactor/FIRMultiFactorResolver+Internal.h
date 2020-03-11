@@ -23,9 +23,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRMultiFactorResolver ()
 
-@property(nonatomic) NSString *mfaPendingCredential;
+@property(nonatomic) NSString *MFAPendingCredential;
 
-- (instancetype)initWithMfaPendingCredential:(NSString *_Nullable)mfaPendingCredential
+- (instancetype)initWithMFAPendingCredential:(NSString *_Nullable)MFAPendingCredential
                                        hints:(NSArray<FIRMultiFactorInfo *> *)hints;
 
 @end

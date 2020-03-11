@@ -14,21 +14,17 @@
  * limitations under the License.
  */
 
-#import "FIRStartMfaEnrollmentResponse.h"
+#import "FIRAuthRPCResponse.h"
+#import "FIRAuthProtoFinalizeMFAPhoneResponseInfo.h"
 
-#import "FIRAuthProtoStartMfaPhoneResponseInfo.h"
+NS_ASSUME_NONNULL_BEGIN
 
-@implementation FIRStartMfaEnrollmentResponse
+@interface FIRFinalizeMFAEnrollmentResponse : NSObject <FIRAuthRPCResponse>
 
-- (BOOL)setWithDictionary:(nonnull NSDictionary *)dictionary
-                    error:(NSError *__autoreleasing _Nullable * _Nullable)error {
-  if (dictionary[@"phoneSessionInfo"] != nil) {
-    NSDictionary *data = dictionary[@"phoneSessionInfo"];
-    _enrollmentResponse = [[FIRAuthProtoStartMfaPhoneResponseInfo alloc] initWithDictionary:data];
-  } else {
-    return NO;
-  }
-  return YES;
-}
+@property(nonatomic, copy, readonly, nullable) NSString *IDToken;
+
+@property(nonatomic, copy, readonly, nullable) NSString *refreshToken;
 
 @end
+
+NS_ASSUME_NONNULL_END
