@@ -39,14 +39,17 @@ if(FUZZING AND NOT DEFINED ENV{LIB_FUZZING_ENGINE})
   if(CXX_CLANG)
     # TODO(minafarid): Check the version of Clang. Clang versions >= 5.0 should
     # have libFuzzer by default.
+    message(STATUS "OBC Clang")
     set(fuzzing_flags -fsanitize-coverage=trace-pc-guard)
   elseif(CXX_GNU)
+    message(STATUS "OBC GNU")
     set(fuzzing_flags -fsanitize-coverage=trace-pc)
   else()
     message(FATAL_ERROR "Only Clang and GCC support fuzzing.")
   endif()
 
   foreach(flag ${fuzzing_flags})
+    message(STATUS "OBC setting flag ${flag}")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${flag}")
   endforeach()
 endif()
