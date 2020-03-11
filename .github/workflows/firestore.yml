@@ -136,7 +136,7 @@ jobs:
           firestore-ccache-${{ runner.os }}-fuzzing-
 
     - name: Setup build
-      run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake-fuzzing
+      run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake_fuzzing
 
     - name: Build and test
       run:  scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake_fuzzing
