@@ -22,8 +22,9 @@
 
 @protocol FIRInAppMessagingInstanceProvider;
 @protocol FIRLibrary;
+@protocol FIRAnalyticsInterop;
 
 @interface FIRInAppMessaging () <FIRInAppMessagingInstanceProvider, FIRLibrary>
 @property(nonatomic, readwrite, strong) id<FIRAnalyticsInterop> _Nullable analytics;
-@property(nonatomic, readwrite, strong) FIRInstallations  * _Nonnull installations;
+@property(nonatomic, readwrite, strong) FIRInstallations* _Nonnull installations;
 @end

@@ -63,10 +63,8 @@ static BOOL _autoBootstrapOnFIRAppInit = YES;
     // Ensure it's cached so it returns the same instance every time fiam is called.
     *isCacheable = YES;
     id<FIRAnalyticsInterop> analytics = FIR_COMPONENT(FIRAnalyticsInterop, container);
-    FIRInstallations *installations =
-        [FIRInstallations installationsWithApp:container.app];
-    return [[FIRInAppMessaging alloc] initWithAnalytics:analytics
-                                          installations:installations];
+    FIRInstallations *installations = [FIRInstallations installationsWithApp:container.app];
+    return [[FIRInAppMessaging alloc] initWithAnalytics:analytics installations:installations];
   };
   FIRComponent *fiamProvider =
       [FIRComponent componentWithProtocol:@protocol(FIRInAppMessagingInstanceProvider)
