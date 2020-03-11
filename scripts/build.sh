@@ -302,6 +302,7 @@ fi
 if [ "$method" = "cmake_fuzzing" ]; then
   cmake_options+=(
     -DFUZZING=ON
+    -DCMAKE_CROSSCOMPILING
   )
 fi
 
