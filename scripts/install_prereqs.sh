@@ -101,7 +101,7 @@ fi
 
 echo "Installing prerequisites for $project for $platform using $method"
 
-if [[ "$method" != "cmake" ]]; then
+if [[ "$method" != cmake* ]]; then
   scripts/setup_bundler.sh
 fi
 
@@ -170,7 +170,7 @@ case "$project-$platform-$method" in
     pip install six
     ;;
 
-  Firestore-Linux-cmake)
+  Firestore-Linux-cmake | Firestore-Linux-cmake_fuzzing)
     apt_install ccache ccache
     apt_install cmake cmake
     apt_install go golang-go
