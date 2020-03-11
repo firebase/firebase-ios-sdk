@@ -16,52 +16,44 @@
 
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRLogger.h>
-#import <FirebaseInstanceID/FirebaseInstanceID.h>
+#import <FirebaseInstallations/FirebaseInstallations.h>
 
 #import "FIRCore+InAppMessaging.h"
 #import "FIRIAMClientInfoFetcher.h"
+#import "FIRInAppMessagingPrivate.h"
 
-// declaratons for FIRInstanceID SDK
 @implementation FIRIAMClientInfoFetcher
-- (void)fetchFirebaseIIDDataWithProjectNumber:(NSString *)projectNumber
-                               withCompletion:(void (^)(NSString *_Nullable iid,
-                                                        NSString *_Nullable token,
-                                                        NSError *_Nullable error))completion {
-  FIRInstanceID *iid = [FIRInstanceID instanceID];
 
-  // tokenWithAuthorizedEntity would only communicate with server on periodical cycles.
-  // For other times, it's going to fetch from local cache, so it's not causing any performance
-  // concern in the fetch flow.
-  [iid tokenWithAuthorizedEntity:projectNumber
-                           scope:@"fiam"
-                         options:nil
-                         handler:^(NSString *_Nullable token, NSError *_Nullable error) {
-                           if (error) {
-                             FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM190001",
-                                           @"Error in fetching iid token: %@",
-                                           error.localizedDescription);
-                             completion(nil, nil, error);
-                           } else {
-                             FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM190002",
-                                         @"Successfully generated iid token");
-                             // now we can go ahead to fetch the id
-                             [iid getIDWithHandler:^(NSString *_Nullable identity,
-                                                     NSError *_Nullable error) {
-                               if (error) {
-                                 FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM190004",
-                                               @"Error in fetching iid value: %@",
-                                               error.localizedDescription);
-                               } else {
-                                 FIRLogDebug(
-                                     kFIRLoggerInAppMessaging, @"I-IAM190005",
-                                     @"Successfully in fetching both iid value as %@ and iid token"
-                                      " as %@",
-                                     identity, token);
-                                 completion(identity, token, nil);
-                               }
-                             }];
-                           }
-                         }];
+- (void)fetchFirebaseInstallationDataWithProjectNumber:(NSString *)projectNumber
+                                        withCompletion:
+                                            (void (^)(NSString *_Nullable FID,
+                                                      NSString *_Nullable FISToken,
+                                                      NSError *_Nullable error))completion {
+  FIRInstallations *installations = [FIRInAppMessaging inAppMessaging].installations;
+
+  [installations authTokenWithCompletion:^(FIRInstallationsAuthTokenResult *_Nullable tokenResult,
+                                           NSError *_Nullable error) {
+    if (error) {
+      FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM190006", @"Error in fetching FIS token: %@",
+                    error.localizedDescription);
+      completion(nil, nil, error);
+    } else {
+      FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM190007", @"Successfully generated FIS token");
+
+      [installations
+          installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
+            if (error) {
+              FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM190008", @"Error in fetching FID: %@",
+                            error.localizedDescription);
+            } else {
+              FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM190009",
+                          @"Successfully in fetching both FID as %@ and FIS token as %@",
+                          identifier, tokenResult.authToken);
+              completion(identifier, tokenResult.authToken, nil);
+            }
+          }];
+    }
+  }];
 }
 
 - (nullable NSString *)getDeviceLanguageCode {
