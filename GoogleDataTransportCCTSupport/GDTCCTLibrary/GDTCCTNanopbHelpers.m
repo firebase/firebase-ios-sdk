@@ -152,7 +152,7 @@ gdt_cct_LogEvent GDTCCTConstructLogEvent(GDTCOREvent *event) {
   if (event.fileURL) {
     extensionBytes = [NSData dataWithContentsOfURL:event.fileURL options:0 error:&error];
   } else {
-    GDTCORLogError(GDTCORMCEFileWriteError, @"%@", @"An event's fileURL property was nil.");
+    GDTCORLogError(GDTCORMCEFileReadError, @"%@", @"An event's fileURL property was nil.");
     return logEvent;
   }
   if (error) {
