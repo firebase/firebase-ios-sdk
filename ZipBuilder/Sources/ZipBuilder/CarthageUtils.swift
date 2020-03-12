@@ -26,7 +26,7 @@ extension CarthageUtils {
   ///
   /// - Parameters:
   ///   - templateDir: The template project directory, contains the dummy Firebase library.
-  ///   - carthageKsonDir: Location of directory containing all JSON Carthage manifests.
+  ///   - carthageJSONDir: Location of directory containing all JSON Carthage manifests.
   ///   - artifacts: Release Artifacts from build.
   ///   - rcNumber: The RC number.
   /// - Returns: The path to the root of the Carthage installation.
