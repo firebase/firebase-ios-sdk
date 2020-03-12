@@ -20,6 +20,7 @@
 
 #import "FIRCore+InAppMessaging.h"
 #import "FIRIAMClientInfoFetcher.h"
+#import "FIRIAMSDKRuntimeErrorCodes.h"
 #import "FIRInAppMessagingPrivate.h"
 
 @implementation FIRIAMClientInfoFetcher
@@ -32,8 +33,12 @@
   FIRInstallations *installations = [FIRInAppMessaging inAppMessaging].installations;
 
   if (!installations) {
-    FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM190010",
-                @"Couldn't generate Firebase Installation info");
+    NSString *errorDesc = @"Couldn't generate Firebase Installation info";
+    FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM190010", @"%@", errorDesc);
+    NSError *error = [NSError errorWithDomain:kFirebaseInAppMessagingErrorDomain
+                                         code:FIRIAMSDKRuntimeErrorNoFirebaseInstallationsObject
+                                     userInfo:@{NSLocalizedDescriptionKey : errorDesc}];
+    completion(nil, nil, error);
     return;
   }
 
