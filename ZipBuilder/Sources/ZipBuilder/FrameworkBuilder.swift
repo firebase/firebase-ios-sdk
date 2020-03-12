@@ -121,7 +121,7 @@ struct FrameworkBuilder {
       fileManager.removeIfExists(at: cachedFrameworkDir)
       fileManager.removeIfExists(at: cachedCarthageDir)
 
-      // Create the root cache directories if they doesn't exist.
+      // Create the root cache directories if they don't exist.
       if !fileManager.directoryExists(at: cachedFrameworkRoot) {
         // If the root directory doesn't exist, create it so the `moveItem` will succeed.
         try fileManager.createDirectory(at: cachedFrameworkRoot,
@@ -201,7 +201,7 @@ struct FrameworkBuilder {
   /// Build all thin slices for an open source pod.
   /// - Parameter framework: The name of the framework to be built.
   /// - Parameter logsDir: The path to the directory to place build logs.
-  /// - Returns: An dictionary of URLs to the built thin libraries keyed by architiecture
+  /// - Returns: An dictionary of URLs to the built thin libraries keyed by architecture
   private func buildAllThin(withName framework: String,
                             logsDir: URL,
                             carthageBuild: Bool = false) -> [Architecture: URL] {
@@ -343,7 +343,7 @@ struct FrameworkBuilder {
   /// - Parameter framework: The name of the framework to be built.
   /// - Parameter logsOutputDir: The path to the directory to place build logs.
   /// - Parameter moduleMapContents: Module map contents for all frameworks in this pod.
-  /// - Returns: A path to the newly compiled framework and the Carthage version if needed)
+  /// - Returns: A path to the newly compiled framework and the Carthage version if needed).
   private func compileFrameworkAndResources(withName framework: String,
                                             logsOutputDir: URL? = nil,
                                             podInfo: CocoaPodUtils.PodInfo) -> (URL, URL?) {

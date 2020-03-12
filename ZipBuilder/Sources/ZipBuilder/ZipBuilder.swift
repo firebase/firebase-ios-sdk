@@ -160,11 +160,6 @@ struct ZipBuilder {
     for (framework, paths) in frameworks {
       print("Frameworks for pod: \(framework) were compiled at \(paths)")
     }
-
-    // Create the CoreDiagnostics framework for Carthage, since it needs to be recompiled.
-//    let carthageCoreDiagnostics = createCarthageCoreDiagnostics(fromPods: installedPods,
-//                                                                frameworks: frameworks,
-//                                                                inProjectDir: projectDir)
     return (installedPods, frameworks, carthageFrameworks)
   }
 

@@ -34,45 +34,41 @@ extension CarthageUtils {
                                      carthageJSONDir: URL,
                                      artifacts: ZipBuilder.ReleaseArtifacts,
                                      rcNumber: Int?) -> URL? {
-    if let zipLocation = artifacts.carthageDir {
-      var carthageRoot: URL?
-      do {
-        print("Creating Carthage release...")
-        let carthagePath =
-          zipLocation.deletingLastPathComponent().appendingPathComponent("carthage_build")
-        // Create a copy of the release directory since we'll be modifying it.
-        let fileManager = FileManager.default
-        fileManager.removeIfExists(at: carthagePath)
-        try fileManager.copyItem(at: zipLocation, to: carthagePath)
+    guard let zipLocation = artifacts.carthageDir else { return nil }
 
-        // Package the Carthage distribution with the current directory structure.
-        let carthageDir = zipLocation.deletingLastPathComponent().appendingPathComponent("carthage")
-        fileManager.removeIfExists(at: carthageDir)
-        var output = carthageDir.appendingPathComponent(artifacts.firebaseVersion)
-        if let rcNumber = args.rcNumber {
-          output.appendPathComponent("rc\(rcNumber)")
-        } else {
-          output.appendPathComponent("latest-non-rc")
-        }
-        try fileManager.createDirectory(at: output, withIntermediateDirectories: true)
-        generateCarthageRelease(fromPackagedDir: carthagePath,
-                                templateDir: templateDir,
-                                jsonDir: carthageJSONDir,
-                                artifacts: artifacts,
-                                outputDir: output)
+    do {
+      print("Creating Carthage release...")
+      let carthagePath =
+        zipLocation.deletingLastPathComponent().appendingPathComponent("carthage_build")
+      // Create a copy of the release directory since we'll be modifying it.
+      let fileManager = FileManager.default
+      fileManager.removeIfExists(at: carthagePath)
+      try fileManager.copyItem(at: zipLocation, to: carthagePath)
 
-        // Remove the duplicated Carthage build directory.
-        fileManager.removeIfExists(at: carthagePath)
-        print("Done creating Carthage release! Files written to \(output)")
-
-        // Save the directory for later copying.
-        carthageRoot = carthageDir
-      } catch {
-        fatalError("Could not copy output directory for Carthage build: \(error)")
+      // Package the Carthage distribution with the current directory structure.
+      let carthageDir = zipLocation.deletingLastPathComponent().appendingPathComponent("carthage")
+      fileManager.removeIfExists(at: carthageDir)
+      var output = carthageDir.appendingPathComponent(artifacts.firebaseVersion)
+      if let rcNumber = args.rcNumber {
+        output.appendPathComponent("rc\(rcNumber)")
+      } else {
+        output.appendPathComponent("latest-non-rc")
       }
-      return carthageRoot
-    } else {
-      return nil
+      try fileManager.createDirectory(at: output, withIntermediateDirectories: true)
+      generateCarthageRelease(fromPackagedDir: carthagePath,
+                              templateDir: templateDir,
+                              jsonDir: carthageJSONDir,
+                              artifacts: artifacts,
+                              outputDir: output)
+
+      // Remove the duplicated Carthage build directory.
+      fileManager.removeIfExists(at: carthagePath)
+      print("Done creating Carthage release! Files written to \(output)")
+
+      // Save the directory for later copying.
+      return carthageDir
+    } catch {
+      fatalError("Could not copy output directory for Carthage build: \(error)")
     }
   }
 
@@ -115,7 +111,10 @@ extension CarthageUtils {
 
       // Make updates to all frameworks to make Carthage happy. We don't worry about xcframeworks
       // here.
-      let allFiles = FileManager.default.enumerator(atPath: fullPath.path)?.allObjects as! [String]
+      let allFileObjects = FileManager.default.enumerator(atPath: fullPath.path)?.allObjects
+      guard let allFiles = allFileObjects as? [String] else {
+        fatalError("Failed to get file list for Carthage construction at \(fullPath.path)")
+      }
       let frameworks = allFiles.filter { $0.hasSuffix(".framework") }
       for framework in frameworks {
         let plistPath = fullPath.appendingPathComponents([framework, "Info.plist"])
