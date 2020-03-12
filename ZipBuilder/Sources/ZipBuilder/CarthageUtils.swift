@@ -109,7 +109,7 @@ extension CarthageUtils {
       if !args.carthageSkipVersionCheck {
         guard jsonManifest[firebaseVersion] == nil else {
           print("Carthage release for \(product) \(firebaseVersion) already exists - skipping.")
-              continue
+          continue
         }
       }
 
