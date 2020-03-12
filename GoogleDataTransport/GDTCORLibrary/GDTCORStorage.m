@@ -87,77 +87,56 @@ static NSString *GDTCORStoragePath() {
   }
 
   [self createEventDirectoryIfNotExists];
+  void (^taskBlock)(void) = ^{
+    dispatch_async(self->_storageQueue, ^{
+      // Check that a backend implementation is available for this target.
+      NSInteger target = event.target;
 
-#if !TARGET_OS_WATCH
-  __block GDTCORBackgroundIdentifier bgID = GDTCORBackgroundIdentifierInvalid;
-  bgID = [[GDTCORApplication sharedApplication]
-      beginBackgroundTaskWithName:@"GDTStorage"
-                expirationHandler:^{
-                  // End the background task if it's still valid.
-                  [[GDTCORApplication sharedApplication] endBackgroundTask:bgID];
-                  bgID = GDTCORBackgroundIdentifierInvalid;
-                }];
-#elif TARGET_OS_WATCH
-  id<NSObject> activity = [[GDTCORApplication sharedApplication]
-      beginActivityWithOptions:NSActivityAutomaticTerminationDisabled | NSActivityBackground
-                        reason:@"GDTStorage"];
-#endif
+      // Check that a prioritizer is available for this target.
+      id<GDTCORPrioritizer> prioritizer =
+          [GDTCORRegistrar sharedInstance].targetToPrioritizer[@(target)];
+      GDTCORAssert(prioritizer, @"There's no prioritizer registered for the given target. Are you "
+                                @"sure you've added the support library for the backend you need?");
 
-  dispatch_async(_storageQueue, ^{
-    // Check that a backend implementation is available for this target.
-    NSInteger target = event.target;
+      // Write the transport bytes to disk, get a filename.
+      GDTCORAssert([event.dataObject transportBytes],
+                   @"The event should have been serialized to bytes");
+      NSError *error = nil;
+      NSURL *eventFile = [self saveEventBytesToDisk:event eventHash:event.hash error:&error];
+      GDTCORLogDebug("Event saved to disk: %@", eventFile);
+      completion(eventFile != nil, error);
 
-    // Check that a prioritizer is available for this target.
-    id<GDTCORPrioritizer> prioritizer =
-        [GDTCORRegistrar sharedInstance].targetToPrioritizer[@(target)];
-    GDTCORAssert(prioritizer, @"There's no prioritizer registered for the given target. Are you "
-                              @"sure you've added the support library for the backend you need?");
+      // Add event to tracking collections.
+      [self addEventToTrackingCollections:event];
 
-    // Write the transport bytes to disk, get a filename.
-    GDTCORAssert([event.dataObject transportBytes],
-                 @"The event should have been serialized to bytes");
-    NSError *error = nil;
-    NSURL *eventFile = [self saveEventBytesToDisk:event eventHash:event.hash error:&error];
-    GDTCORLogDebug("Event saved to disk: %@", eventFile);
-    completion(eventFile != nil, error);
+      // Have the prioritizer prioritize the event.
+      [prioritizer prioritizeEvent:event];
 
-    // Add event to tracking collections.
-    [self addEventToTrackingCollections:event];
-
-    // Have the prioritizer prioritize the event.
-    [prioritizer prioritizeEvent:event];
-
-    // Check the QoS, if it's high priority, notify the target that it has a high priority event.
-    if (event.qosTier == GDTCOREventQoSFast) {
-      [self.uploadCoordinator forceUploadForTarget:target];
-    }
-
-    // Write state to disk if we're in the background.
-    if ([[GDTCORApplication sharedApplication] isRunningInBackground]) {
-      GDTCORLogDebug("%@", @"Saving storage state because the app is running in the background");
-      if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-        NSError *error;
-        NSData *data = [NSKeyedArchiver archivedDataWithRootObject:self
-                                             requiringSecureCoding:YES
-                                                             error:&error];
-        [data writeToFile:[GDTCORStorage archivePath] atomically:YES];
-      } else {
-#if !TARGET_OS_MACCATALYST && !TARGET_OS_WATCH
-        [NSKeyedArchiver archiveRootObject:self toFile:[GDTCORStorage archivePath]];
-#endif
+      // Check the QoS, if it's high priority, notify the target that it has a high priority event.
+      if (event.qosTier == GDTCOREventQoSFast) {
+        [self.uploadCoordinator forceUploadForTarget:target];
       }
-    }
 
-#if !TARGET_OS_WATCH
-    // Cancel or end the associated background task if it's still valid.
-    [[GDTCORApplication sharedApplication] endBackgroundTask:bgID];
-    bgID = GDTCORBackgroundIdentifierInvalid;
-    GDTCORLogDebug("Event %@ is stored. There are %ld events stored on disk", event,
-                   (unsigned long)self->_storedEvents.count);
-#elif TARGET_OS_WATCH
-      [[GDTCORApplication sharedApplication] endActivity:activity];
+      // Write state to disk if we're in the background.
+      if ([[GDTCORApplication sharedApplication] isRunningInBackground]) {
+        GDTCORLogDebug("%@", @"Saving storage state because the app is running in the background");
+        if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
+          NSError *error;
+          NSData *data = [NSKeyedArchiver archivedDataWithRootObject:self
+                                               requiringSecureCoding:YES
+                                                               error:&error];
+          [data writeToFile:[GDTCORStorage archivePath] atomically:YES];
+        } else {
+#if !TARGET_OS_MACCATALYST && !TARGET_OS_WATCH
+          [NSKeyedArchiver archiveRootObject:self toFile:[GDTCORStorage archivePath]];
 #endif
-  });
+        }
+      }
+    });
+  };
+  [[GDTCORApplication sharedApplication] beginBackgroundTaskWithName:@"GDTStorage"
+                                                       estimatedTime:2.0
+                                                          usingBlock:taskBlock];
 }
 
 - (void)removeEvents:(NSSet<GDTCOREvent *> *)events {
@@ -252,37 +231,22 @@ static NSString *GDTCORStoragePath() {
 
 - (void)appWillBackground:(GDTCORApplication *)app {
   dispatch_async(_storageQueue, ^{
-  // Immediately request a background task to run until the end of the current queue of work, and
-  // cancel it once the work is done.
-#if !TARGET_OS_WATCH
-    __block GDTCORBackgroundIdentifier bgID =
-        [app beginBackgroundTaskWithName:@"GDTStorage"
-                       expirationHandler:^{
-                         [app endBackgroundTask:bgID];
-                         bgID = GDTCORBackgroundIdentifierInvalid;
-                       }];
-#elif TARGET_OS_WATCH
-    id<NSObject> activity = [[GDTCORApplication sharedApplication] beginActivityWithOptions:NSActivityAutomaticTerminationDisabled | NSActivityBackground reason:@"GDTStorage"];
-#endif
-    if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-      NSError *error;
-      NSData *data = [NSKeyedArchiver archivedDataWithRootObject:self
-                                           requiringSecureCoding:YES
-                                                           error:&error];
-      [data writeToFile:[GDTCORStorage archivePath] atomically:YES];
-    } else {
+    // Immediately request a background task to run until the end of the current queue of work, and
+    // cancel it once the work is done.
+    void (^taskBlock)(void) = ^{
+      if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
+        NSError *error;
+        NSData *data = [NSKeyedArchiver archivedDataWithRootObject:self
+                                             requiringSecureCoding:YES
+                                                             error:&error];
+        [data writeToFile:[GDTCORStorage archivePath] atomically:YES];
+      } else {
 #if !TARGET_OS_MACCATALYST && !TARGET_OS_WATCH
-      [NSKeyedArchiver archiveRootObject:self toFile:[GDTCORStorage archivePath]];
+        [NSKeyedArchiver archiveRootObject:self toFile:[GDTCORStorage archivePath]];
 #endif
-    }
-
-#if !TARGET_OS_WATCH
-    // End the background task if it's still valid.
-    [app endBackgroundTask:bgID];
-    bgID = GDTCORBackgroundIdentifierInvalid;
-#elif TARGET_OS_WATCH
-    [[GDTCORApplication sharedApplication] endActivity:activity];
-#endif
+      }
+    };
+    [app beginBackgroundTaskWithName:@"GDTStorage" estimatedTime:0 usingBlock:taskBlock];
   });
 }
 

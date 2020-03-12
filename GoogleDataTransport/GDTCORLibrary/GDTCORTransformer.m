@@ -54,32 +54,32 @@
     completion = ^(BOOL wasWritten, NSError *_Nullable error) {
     };
   }
-  [[GDTCORApplication sharedApplication]
-      beginBackgroundTaskWithNameBlock:@"GDTTransformer"
-                             initiator:self
-                            usingblock:^{
-                              dispatch_async(self->_eventWritingQueue, ^{
-                                GDTCOREvent *transformedEvent = event;
-                                for (id<GDTCOREventTransformer> transformer in transformers) {
-                                  if ([transformer respondsToSelector:@selector(transform:)]) {
-                                    GDTCORLogDebug("Applying a transformer to event %@", event);
-                                    transformedEvent = [transformer transform:transformedEvent];
-                                    if (!transformedEvent) {
-                                      completion(NO, nil);
-                                      return;
-                                    }
-                                  } else {
-                                    GDTCORLogError(GDTCORMCETransformerDoesntImplementTransform,
-                                                   @"Transformer doesn't implement transform: %@",
-                                                   transformer);
-                                    completion(NO, nil);
-                                    return;
-                                  }
-                                }
-                                [self.storageInstance storeEvent:transformedEvent
-                                                      onComplete:completion];
-                              });
-                            }];
+
+  void (^taskBlock)(void) = ^{
+    dispatch_async(self->_eventWritingQueue, ^{
+      GDTCOREvent *transformedEvent = event;
+      for (id<GDTCOREventTransformer> transformer in transformers) {
+        if ([transformer respondsToSelector:@selector(transform:)]) {
+          GDTCORLogDebug("Applying a transformer to event %@", event);
+          transformedEvent = [transformer transform:transformedEvent];
+          if (!transformedEvent) {
+            completion(NO, nil);
+            return;
+          }
+        } else {
+          GDTCORLogError(GDTCORMCETransformerDoesntImplementTransform,
+                         @"Transformer doesn't implement transform: %@", transformer);
+          completion(NO, nil);
+          return;
+        }
+      }
+      [self.storageInstance storeEvent:transformedEvent onComplete:completion];
+    });
+  };
+
+  [[GDTCORApplication sharedApplication] beginBackgroundTaskWithName:@"GDTTransformer"
+                                                       estimatedTime:2.0
+                                                          usingBlock:taskBlock];
 }
 
 #pragma mark - GDTCORLifecycleProtocol

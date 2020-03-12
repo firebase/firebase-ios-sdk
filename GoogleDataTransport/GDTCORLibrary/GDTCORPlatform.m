@@ -199,7 +199,7 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
 #elif TARGET_OS_WATCH
     NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
     [notificationCenter addObserver:self
-                           selector:@selector(iOSApplicationDidEnterBackground:)
+                           selector:@selector(wkExtensionDidEnterBackground:)
                                name:NSExtensionHostDidEnterBackgroundNotification
                              object:nil];
     [notificationCenter addObserver:self
@@ -212,9 +212,9 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
   return self;
 }
 
-- (void)beginBackgroundTaskWithNameBlock:(NSString *)name
-                               initiator:(id<NSObject> _Nonnull)object
-                              usingblock:(void (^)(void))block {
+- (void)beginBackgroundTaskWithName:(NSString *)name
+                      estimatedTime:(NSTimeInterval)seconds
+                         usingBlock:(void (^)(void))block {
 #if !TARGET_OS_WATCH
   __block GDTCORBackgroundIdentifier bgID = GDTCORBackgroundIdentifierInvalid;
   bgID = [self beginBackgroundTaskWithName:name
@@ -227,23 +227,14 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
   bgID = GDTCORBackgroundIdentifierInvalid;
   return;
 #elif TARGET_OS_WATCH
-  if (_isRunningInBackground) {
-    // App is running in background.
-    [[self sharedNSProcessInfoForBackgroundTask]
-        performExpiringActivityWithReason:name
+  [self performExpiringActivityWithReason:name
                                usingBlock:^(BOOL expired) {
-                                 if (!expired) {
-                                   block();
-                                 } else {
-                                   if ([object respondsToSelector:@selector(appWillTerminate:)]) {
-                                     //[object appWillTerminate:self];
-                                   }
+                                 block();
+                                 if (expired && !seconds) {
+                                   [[NSRunLoop currentRunLoop]
+                                       runUntilDate:[NSDate dateWithTimeIntervalSinceNow:seconds]];
                                  }
                                }];
-  } else {
-    // App is running in foreground, executes the block.
-    block();
-  }
 #endif
 }
 
@@ -268,27 +259,23 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
     return;
   }
 }
+#endif
 
-#elif TARGET_OS_WATCH
-- (id<NSObject>)beginActivityWithOptions:(NSActivityOptions)options reason:(NSString *)reason {
-  return [[self sharedNSProcessInfoForBackgroundTask] beginActivityWithOptions:options
-                                                                        reason:reason];
+#if TARGET_OS_WATCH
+- (void)performExpiringActivityWithReason:name usingBlock:(nonnull void (^)(BOOL))block {
+  if (!_isRunningInBackground) {
+    [[self sharedNSProcessInfoForBackgroundTask] performExpiringActivityWithReason:name
+                                                                        usingBlock:block];
+  }
 }
 
-- (void)endActivity:(id<NSObject>)activity {
-  [[self sharedNSProcessInfoForBackgroundTask] endActivity:activity];
-}
 #endif
 
 #pragma mark - App environment helpers
 
 - (BOOL)isAppExtension {
-#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_WATCH
   BOOL appExtension = [[[NSBundle mainBundle] bundlePath] hasSuffix:@".appex"];
   return appExtension;
-#elif TARGET_OS_OSX
-  return NO;
-#endif
 }
 
 #if TARGET_OS_IOS || TARGET_OS_TV
@@ -298,23 +285,14 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
 #else
 - (nullable id)sharedApplicationForBackgroundTask {
 #endif
-  if ([self isAppExtension]) {
-    return nil;
-  }
   id sharedInstance = nil;
 #if TARGET_OS_IOS || TARGET_OS_TV
-  Class uiApplicationClass = NSClassFromString(@"UIApplication");
-  if (uiApplicationClass &&
-      [uiApplicationClass respondsToSelector:(NSSelectorFromString(@"sharedApplication"))]) {
-    sharedInstance = [uiApplicationClass sharedApplication];
+  if (![self isAppExtension]) {
+    sharedInstance = [UIApplication sharedApplication];
   }
 #elif TARGET_OS_WATCH
   // The processInfo class method returns the shared agent for the current process.
-  Class nsProcessInfoClass = NSClassFromString(@"NSProcessInfo");
-  if (nsProcessInfoClass &&
-      [nsProcessInfoClass respondsToSelector:(NSSelectorFromString(@"processInfo"))]) {
-    sharedInstance = [nsProcessInfoClass processInfo];
-  }
+  sharedInstance = [NSProcessInfo processInfo];
 #endif
   return sharedInstance;
 }
@@ -322,14 +300,6 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
 #pragma mark - UIApplicationDelegate and WKExtensionDelegate
 
 #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_WATCH
-- (void)iOSApplicationDidEnterBackground:(NSNotification *)notif {
-  _isRunningInBackground = YES;
-
-  NSNotificationCenter *notifCenter = [NSNotificationCenter defaultCenter];
-  GDTCORLogDebug("%@", @"GDTCORPlatform is sending a notif that the app is backgrounding.");
-  [notifCenter postNotificationName:kGDTCORApplicationDidEnterBackgroundNotification object:nil];
-}
-
 - (void)iOSApplicationWillEnterForeground:(NSNotification *)notif {
   _isRunningInBackground = NO;
 
@@ -342,12 +312,34 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
 #pragma mark - UIApplicationDelegate
 
 #if TARGET_OS_IOS || TARGET_OS_TV
+- (void)iOSApplicationDidEnterBackground:(NSNotification *)notif {
+  _isRunningInBackground = YES;
+
+  NSNotificationCenter *notifCenter = [NSNotificationCenter defaultCenter];
+  GDTCORLogDebug("%@", @"GDTCORPlatform is sending a notif that the app is backgrounding.");
+  [notifCenter postNotificationName:kGDTCORApplicationDidEnterBackgroundNotification object:nil];
+}
+
 - (void)iOSApplicationWillTerminate:(NSNotification *)notif {
   NSNotificationCenter *notifCenter = [NSNotificationCenter defaultCenter];
   GDTCORLogDebug("%@", @"GDTCORPlatform is sending a notif that the app is terminating.");
   [notifCenter postNotificationName:kGDTCORApplicationWillTerminateNotification object:nil];
 }
 #endif  // TARGET_OS_IOS || TARGET_OS_TV
+
+#pragma mark - WKExtensionDelegate
+
+#if TARGET_OS_WATCH
+- (void)wkExtensionDidEnterBackground:(NSNotification *)notif {
+  _isRunningInBackground = YES;
+  NSNotificationCenter *notifCenter = [NSNotificationCenter defaultCenter];
+  GDTCORLogDebug("%@",
+                 @"GDTCORPlatform is sending a notif that the app is backgrounding on watchOS.");
+  // Because the watchOS system can purge suspended apps without warning, treats entering background
+  // as terminating.
+  [notifCenter postNotificationName:kGDTCORApplicationWillTerminateNotification object:nil];
+}
+#endif  // TARGET_OS_WATCH
 
 #pragma mark - NSApplicationDelegate
 

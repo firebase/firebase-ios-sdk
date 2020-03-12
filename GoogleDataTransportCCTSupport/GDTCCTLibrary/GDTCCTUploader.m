@@ -174,134 +174,102 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
 }
 
 - (void)uploadPackage:(GDTCORUploadPackage *)package {
-#if !TARGET_OS_WATCH
-  __block GDTCORBackgroundIdentifier bgID = GDTCORBackgroundIdentifierInvalid;
-  bgID = [[GDTCORApplication sharedApplication]
-      beginBackgroundTaskWithName:@"GDTCCTUploader-upload"
-                expirationHandler:^{
-                  if (bgID != GDTCORBackgroundIdentifierInvalid) {
-                    // Cancel the upload and complete delivery.
-                    [self.currentTask cancel];
-                    [self.currentUploadPackage completeDelivery];
-
-                    // End the background task.
-                    [[GDTCORApplication sharedApplication] endBackgroundTask:bgID];
-                  }
-                }];
-#elif TARGET_OS_WATCH
-  __block BOOL hasUploaded = YES;
-  id<NSObject> activity = [[GDTCORApplication sharedApplication]
-      beginActivityWithOptions:NSActivityAutomaticTerminationDisabled | NSActivityBackground
-                        reason:@"GDTCCTUploader-upload"];
-#endif
-
-  dispatch_async(_uploaderQueue, ^{
-    if (self->_currentTask || self->_currentUploadPackage) {
-      GDTCORLogWarning(GDTCORMCWUploadFailed, @"%@",
-                       @"An upload shouldn't be initiated with another in progress.");
-      return;
-    }
-    GDTCORTarget target = package.target;
-    id completionHandler = ^(NSData *_Nullable data, NSURLResponse *_Nullable response,
-                             NSError *_Nullable error) {
-      GDTCORLogDebug("%@", @"CCT: request completed");
-      if (error) {
-        GDTCORLogWarning(GDTCORMCWUploadFailed, @"There was an error uploading events: %@", error);
+  void (^taskBlock)(void) = ^{
+    dispatch_async(self->_uploaderQueue, ^{
+      if (self->_currentTask || self->_currentUploadPackage) {
+        GDTCORLogWarning(GDTCORMCWUploadFailed, @"%@",
+                         @"An upload shouldn't be initiated with another in progress.");
+        return;
       }
-      NSError *decodingError;
-      if (data) {
-        gdt_cct_LogResponse logResponse = GDTCCTDecodeLogResponse(data, &decodingError);
-        if (!decodingError && logResponse.has_next_request_wait_millis) {
-          GDTCORLogDebug(
-              "CCT: The backend responded asking to not upload for %lld millis from now.",
-              logResponse.next_request_wait_millis);
-          GDTCORClock *futureUploadTime =
-              [GDTCORClock clockSnapshotInTheFuture:logResponse.next_request_wait_millis];
-          switch (target) {
-            case kGDTCORTargetCCT:
-              self->_CCTNextUploadTime = futureUploadTime;
-              break;
-
-            case kGDTCORTargetFLL:
-              // Falls through.
-            case kGDTCORTargetCSH:
-              self->_FLLNextUploadTime = futureUploadTime;
-            default:
-              break;
-          }
-        } else {
-          GDTCORLogDebug("%@", @"CCT: The backend response failed to parse, so the next request "
-                               @"won't occur until 15 minutes from now");
-          // 15 minutes from now.
-          GDTCORClock *futureUploadTime = [GDTCORClock clockSnapshotInTheFuture:15 * 60 * 1000];
-          switch (target) {
-            case kGDTCORTargetCCT:
-              self->_CCTNextUploadTime = futureUploadTime;
-              break;
-
-            case kGDTCORTargetFLL:
-              // Falls through.
-            case kGDTCORTargetCSH:
-              self->_FLLNextUploadTime = futureUploadTime;
-              break;
-
-            default:
-              break;
-          }
+      GDTCORTarget target = package.target;
+      id completionHandler = ^(NSData *_Nullable data, NSURLResponse *_Nullable response,
+                               NSError *_Nullable error) {
+        GDTCORLogDebug("%@", @"CCT: request completed");
+        if (error) {
+          GDTCORLogWarning(GDTCORMCWUploadFailed, @"There was an error uploading events: %@",
+                           error);
         }
-        pb_release(gdt_cct_LogResponse_fields, &logResponse);
-      }
+        NSError *decodingError;
+        if (data) {
+          gdt_cct_LogResponse logResponse = GDTCCTDecodeLogResponse(data, &decodingError);
+          if (!decodingError && logResponse.has_next_request_wait_millis) {
+            GDTCORLogDebug(
+                "CCT: The backend responded asking to not upload for %lld millis from now.",
+                logResponse.next_request_wait_millis);
+            GDTCORClock *futureUploadTime =
+                [GDTCORClock clockSnapshotInTheFuture:logResponse.next_request_wait_millis];
+            switch (target) {
+              case kGDTCORTargetCCT:
+                self->_CCTNextUploadTime = futureUploadTime;
+                break;
 
-      // Only retry if one of these codes is returned.
-      if (((NSHTTPURLResponse *)response).statusCode == 429 ||
-          ((NSHTTPURLResponse *)response).statusCode == 503) {
-        [package retryDeliveryInTheFuture];
-      } else {
+              case kGDTCORTargetFLL:
+                // Falls through.
+              case kGDTCORTargetCSH:
+                self->_FLLNextUploadTime = futureUploadTime;
+              default:
+                break;
+            }
+          } else {
+            GDTCORLogDebug("%@", @"CCT: The backend response failed to parse, so the next request "
+                                 @"won't occur until 15 minutes from now");
+            // 15 minutes from now.
+            GDTCORClock *futureUploadTime = [GDTCORClock clockSnapshotInTheFuture:15 * 60 * 1000];
+            switch (target) {
+              case kGDTCORTargetCCT:
+                self->_CCTNextUploadTime = futureUploadTime;
+                break;
+
+              case kGDTCORTargetFLL:
+                // Falls through.
+              case kGDTCORTargetCSH:
+                self->_FLLNextUploadTime = futureUploadTime;
+                break;
+
+              default:
+                break;
+            }
+          }
+          pb_release(gdt_cct_LogResponse_fields, &logResponse);
+        }
+
+        // Only retry if one of these codes is returned.
+        if (((NSHTTPURLResponse *)response).statusCode == 429 ||
+            ((NSHTTPURLResponse *)response).statusCode == 503) {
+          [package retryDeliveryInTheFuture];
+        } else {
 #if !NDEBUG
-        // Post a notification when in DEBUG mode to state how many packages were uploaded. Useful
-        // for validation during tests.
-        [[NSNotificationCenter defaultCenter] postNotificationName:GDTCCTUploadCompleteNotification
-                                                            object:@(package.events.count)];
+          // Post a notification when in DEBUG mode to state how many packages were uploaded. Useful
+          // for validation during tests.
+          [[NSNotificationCenter defaultCenter]
+              postNotificationName:GDTCCTUploadCompleteNotification
+                            object:@(package.events.count)];
 #endif  // #if !NDEBUG
-        GDTCORLogDebug("%@", @"CCT: package delivered");
-        [package completeDelivery];
-      }
+          GDTCORLogDebug("%@", @"CCT: package delivered");
+          [package completeDelivery];
+        }
+        self.currentTask = nil;
+        self.currentUploadPackage = nil;
+      };
 
-#if !TARGET_OS_WATCH
-      // End the background task if there was one.
-      if (bgID != GDTCORBackgroundIdentifierInvalid) {
-        [[GDTCORApplication sharedApplication] endBackgroundTask:bgID];
-        bgID = GDTCORBackgroundIdentifierInvalid;
-      }
-#elif TARGET_OS_WATCH
-      hasUploaded = NO;
-      [[GDTCORApplication sharedApplication] endActivity:activity];
-#endif
-      self.currentTask = nil;
-      self.currentUploadPackage = nil;
-    };
-    self->_currentUploadPackage = package;
-    NSData *requestProtoData =
-        [self constructRequestProtoFromPackage:(GDTCORUploadPackage *)package];
-    NSData *gzippedData = [GDTCCTCompressionHelper gzippedData:requestProtoData];
-    BOOL usingGzipData = gzippedData != nil && gzippedData.length < requestProtoData.length;
-    NSData *dataToSend = usingGzipData ? gzippedData : requestProtoData;
-    NSURLRequest *request = [self constructRequestForTarget:target data:dataToSend];
-    GDTCORLogDebug("CTT: request created: %@", request);
-    self.currentTask = [self.uploaderSession uploadTaskWithRequest:request
-                                                          fromData:dataToSend
-                                                 completionHandler:completionHandler];
-    GDTCORLogDebug("%@", @"CCT: The upload task is about to begin.");
-    [self.currentTask resume];
-
-#if TARGET_OS_WATCH
-    if (hasUploaded) {
-      [self.currentTask cancel];
-      [self.currentUploadPackage completeDelivery];
-      [[GDTCORApplication sharedApplication] endActivity:activity];
-    }
-#endif
-  });
+      self->_currentUploadPackage = package;
+      NSData *requestProtoData =
+          [self constructRequestProtoFromPackage:(GDTCORUploadPackage *)package];
+      NSData *gzippedData = [GDTCCTCompressionHelper gzippedData:requestProtoData];
+      BOOL usingGzipData = gzippedData != nil && gzippedData.length < requestProtoData.length;
+      NSData *dataToSend = usingGzipData ? gzippedData : requestProtoData;
+      NSURLRequest *request = [self constructRequestForTarget:target data:dataToSend];
+      GDTCORLogDebug("CTT: request created: %@", request);
+      self.currentTask = [self.uploaderSession uploadTaskWithRequest:request
+                                                            fromData:dataToSend
+                                                   completionHandler:completionHandler];
+      GDTCORLogDebug("%@", @"CCT: The upload task is about to begin.");
+      [self.currentTask resume];
+    });
+  };
+  [[GDTCORApplication sharedApplication] beginBackgroundTaskWithName:@"GDTCCTUploder"
+                                                       estimatedTime:2.0
+                                                          usingBlock:taskBlock];
 }
 
 - (BOOL)readyToUploadTarget:(GDTCORTarget)target conditions:(GDTCORUploadConditions)conditions {
