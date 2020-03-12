@@ -41,7 +41,7 @@ app update.
   s.dependency 'FirebaseAnalyticsInterop', '~> 1.4'
   s.dependency 'FirebaseABTesting', '~> 3.1'
   s.dependency 'FirebaseCore', '~> 6.2'
-  s.dependency 'FirebaseInstanceID', '~> 4.2'
+  s.dependency 'FirebaseInstallations', '~> 1.1'
   s.dependency 'GoogleUtilities/Environment', '~> 6.2'
   s.dependency 'GoogleUtilities/NSData+zlib', '~> 6.2'
   s.dependency 'Protobuf', '~> 3.9', '>= 3.9.2'
