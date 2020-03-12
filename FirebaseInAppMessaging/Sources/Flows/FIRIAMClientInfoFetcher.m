@@ -31,6 +31,12 @@
                                                       NSError *_Nullable error))completion {
   FIRInstallations *installations = [FIRInAppMessaging inAppMessaging].installations;
 
+  if (!installations) {
+    FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM190010",
+                @"Couldn't generate Firebase Installation info");
+    return;
+  }
+
   [installations authTokenWithCompletion:^(FIRInstallationsAuthTokenResult *_Nullable tokenResult,
                                            NSError *_Nullable error) {
     if (error) {
