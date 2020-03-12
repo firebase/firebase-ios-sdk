@@ -21,8 +21,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 @interface FIRIAMClientInfoFetcher : NSObject
-// Fetch the up-to-date FID and FIS token data. Since it involves a server interaction,
-// completion callback is provided for receiving the result.
+// Fetch the up-to-date Firebase Installation ID (FID) and Firebase Installation Service (FIS) token
+// data. Since it involves a server interaction, completion callback is provided for receiving the
+// result.
 - (void)fetchFirebaseInstallationDataWithProjectNumber:(NSString *)projectNumber
                                         withCompletion:
                                             (void (^)(NSString *_Nullable FID,

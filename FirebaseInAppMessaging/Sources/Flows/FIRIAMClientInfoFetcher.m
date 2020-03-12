@@ -51,6 +51,7 @@
             if (error) {
               FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM190008", @"Error in fetching FID: %@",
                             error.localizedDescription);
+              completion(nil, tokenResult.authToken, error);
             } else {
               FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM190009",
                           @"Successfully in fetching both FID as %@ and FIS token as %@",
