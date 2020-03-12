@@ -64,7 +64,10 @@ typedef NS_ENUM(NSInteger, GDTCORMessageCode) {
   /** For fatal errors. Please go to https://github.com/firebase/firebase-ios-sdk/issues and open
    * an issue if you encounter an error with this code.
    */
-  GDTCORMCEFatalAssertion = 1007
+  GDTCORMCEFatalAssertion = 1007,
+
+  /** For error messages concerning the reading of a event file. */
+  GDTCORMCEFileReadError = 1008
 };
 
 /** Prints the given code and format string to the console.
