@@ -148,7 +148,12 @@ gdt_cct_LogEvent GDTCCTConstructLogEvent(GDTCOREvent *event) {
     logEvent.has_network_connection_info = 1;
   }
   NSError *error;
-  NSData *extensionBytes = [NSData dataWithContentsOfURL:event.fileURL options:0 error:&error];
+  NSData *extensionBytes;
+  if (event.fileURL) {
+    extensionBytes = [NSData dataWithContentsOfURL:event.fileURL options:0 error:&error];
+  } else {
+    GDTCORLogError(GDTCORMCEFileWriteError, @"%@", @"An event's fileURL property was nil.");
+  }
   if (error) {
     GDTCORLogError(GDTCORMCEGeneralError,
                    @"There was an error reading extension bytes from disk: %@", error);
