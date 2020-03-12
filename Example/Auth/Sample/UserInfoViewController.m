@@ -66,13 +66,14 @@ static NSString *stringFromDate(NSDate *date) {
   NSMutableArray<StaticContentTableViewSection *> *sections = [@[
     [StaticContentTableViewSection sectionWithTitle:@"User" cells:@[
       [StaticContentTableViewCell cellWithTitle:@"anonymous" value:stringWithBool(_user.anonymous)],
-      [StaticContentTableViewCell cellWithTitle:@"Creation date"
+      [StaticContentTableViewCell cellWithTitle:@"creation date"
                                           value:stringFromDate(_user.metadata.creationDate)],
-      [StaticContentTableViewCell cellWithTitle:@"Last sign in date"
+      [StaticContentTableViewCell cellWithTitle:@"last sign in date"
                                           value:stringFromDate(_user.metadata.lastSignInDate)],
-      [StaticContentTableViewCell cellWithTitle:@"emailVerified"
+      [StaticContentTableViewCell cellWithTitle:@"email verified"
                                           value:stringWithBool(_user.emailVerified)],
-      [StaticContentTableViewCell cellWithTitle:@"refreshToken" value:_user.refreshToken],
+      [StaticContentTableViewCell cellWithTitle:@"refresh token" value:_user.refreshToken],
+      [StaticContentTableViewCell cellWithTitle:@"multi factor" value:[self multiFactorString]],
     ]]
   ] mutableCopy];
   [sections addObject:[self sectionWithUserInfo:_user]];
@@ -94,6 +95,17 @@ static NSString *stringFromDate(NSDate *date) {
 
 - (IBAction)done:(id)sender {
   [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (NSString *)multiFactorString {
+  NSMutableString *string = [NSMutableString string];
+
+  for (FIRMultiFactorInfo *info in _user.multiFactor.enrolledFactors) {
+    [string appendString:info.displayName];
+    [string appendString:@" "];
+  }
+
+  return string;
 }
 
 @end

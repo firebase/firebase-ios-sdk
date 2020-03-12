@@ -2230,7 +2230,7 @@ static const NSTimeInterval kExpectationTimeout = 2;
     @brief Helper for testing the flow of a successful @c
         getIDTokenResultForcingRefresh:completion: call.
  */
-- (void)getIDTokenResultForcingRefreshSuccessWithIDToken:(NSString *)idToken {
+- (void)getIDTokenResultForcingRefreshSuccessWithIDToken:(NSString *)IDToken {
   id mockGetAccountInfoResponseUser = OCMClassMock([FIRGetAccountInfoResponseUser class]);
   OCMStub([mockGetAccountInfoResponseUser localID]).andReturn(kLocalID);
   OCMStub([mockGetAccountInfoResponseUser email]).andReturn(kEmail);
@@ -2246,7 +2246,7 @@ static const NSTimeInterval kExpectationTimeout = 2;
 
       dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
         id mockSecureTokenResponse = OCMClassMock([FIRSecureTokenResponse class]);
-        OCMStub([mockSecureTokenResponse accessToken]).andReturn(idToken);
+        OCMStub([mockSecureTokenResponse accessToken]).andReturn(IDToken);
         callback(mockSecureTokenResponse, nil);
       });
     });
@@ -2255,7 +2255,7 @@ static const NSTimeInterval kExpectationTimeout = 2;
                                            NSError *_Nullable error) {
       XCTAssertTrue([NSThread isMainThread]);
       XCTAssertNil(error);
-      XCTAssertEqualObjects(tokenResult.token, idToken);
+      XCTAssertEqualObjects(tokenResult.token, IDToken);
       XCTAssertTrue(tokenResult.issuedAtDate &&
           [tokenResult.issuedAtDate isKindOfClass:[NSDate class]]);
       XCTAssertTrue(tokenResult.authDate && [tokenResult.authDate isKindOfClass:[NSDate class]]);

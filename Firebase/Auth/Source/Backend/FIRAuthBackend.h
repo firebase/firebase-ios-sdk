@@ -16,6 +16,9 @@
 
 #import <Foundation/Foundation.h>
 
+#import "FIRAuthRPCRequest.h"
+#import "FIRAuthRPCResponse.h"
+
 @class FIRAuthRequestConfiguration;
 @class FIRCreateAuthURIRequest;
 @class FIRCreateAuthURIResponse;
@@ -239,6 +242,8 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)
     @return The Firebase Auth user agent.
  */
 + (NSString *)authUserAgent;
+
++ (id<FIRAuthBackendImplementation>)implementation;
 
 /** @fn setBackendImplementation:
     @brief Changes the default backend implementation to something else.
@@ -593,6 +598,23 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)
  */
 - (void)resetPassword:(FIRResetPasswordRequest *)request
              callback:(FIRResetPasswordCallback)callback;
+
+/** @fn postWithRequest:response:callback:
+    @brief Calls the RPC using HTTP POST.
+    @remarks Possible error responses:
+        @see FIRAuthInternalErrorCodeRPCRequestEncodingError
+        @see FIRAuthInternalErrorCodeJSONSerializationError
+        @see FIRAuthInternalErrorCodeNetworkError
+        @see FIRAuthInternalErrorCodeUnexpectedErrorResponse
+        @see FIRAuthInternalErrorCodeUnexpectedResponse
+        @see FIRAuthInternalErrorCodeRPCResponseDecodingError
+    @param request The request.
+    @param response The empty response to be filled.
+    @param callback The callback for both success and failure.
+*/
+- (void)postWithRequest:(id<FIRAuthRPCRequest>)request
+               response:(id<FIRAuthRPCResponse>)response
+               callback:(void (^)(NSError * _Nullable error))callback;
 
 @end
 

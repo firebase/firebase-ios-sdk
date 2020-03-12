@@ -15,12 +15,14 @@
  */
 
 #include <TargetConditionals.h>
-#if !TARGET_OS_OSX && !TARGET_OS_TV
+#if TARGET_OS_IOS
 
 #import <Foundation/Foundation.h>
 
 @class FIRAuth;
+@class FIRMultiFactorSession;
 @class FIRPhoneAuthCredential;
+@class FIRPhoneMultiFactorInfo;
 @protocol FIRAuthUIDelegate;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -58,7 +60,6 @@ NS_SWIFT_NAME(PhoneAuthProvider)
 
 /** @fn providerWithAuth:
     @brief Returns an instance of `FIRPhoneAuthProvider` for the provided `FIRAuth` object.
-
     @param auth The auth object to associate with the phone auth provider instance.
  */
 + (instancetype)providerWithAuth:(FIRAuth *)auth NS_SWIFT_NAME(provider(auth:));
@@ -83,6 +84,36 @@ NS_SWIFT_NAME(PhoneAuthProvider)
 - (void)verifyPhoneNumber:(NSString *)phoneNumber
                UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
                completion:(nullable FIRVerificationResultCallback)completion;
+
+/** @fn verifyPhoneNumber:UIDelegate:multiFactorSession:completion:
+    @brief Verify ownership of the second factor phone number by the current user.
+    @param phoneNumber The phone number to be verified.
+    @param UIDelegate An object used to present the SFSafariViewController. The object is retained
+        by this method until the completion block is executed.
+    @param session A session to identify the MFA flow. For enrollment, this identifies the user
+        trying to enroll. For sign-in, this identifies that the user already passed the first
+        factor challenge.
+    @param completion The callback to be invoked when the verification flow is finished.
+*/
+- (void)verifyPhoneNumber:(NSString *)phoneNumber
+               UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
+       multiFactorSession:(nullable FIRMultiFactorSession *)session
+               completion:(nullable FIRVerificationResultCallback)completion;
+
+/** @fn verifyPhoneNumberWithMultiFactorInfo:UIDelegate:multiFactorSession:completion:
+    @brief Verify ownership of the second factor phone number by the current user.
+    @param phoneMultiFactorInfo The phone multi factor whose number need to be verified.
+    @param UIDelegate An object used to present the SFSafariViewController. The object is retained
+        by this method until the completion block is executed.
+    @param session A session to identify the MFA flow. For enrollment, this identifies the user
+        trying to enroll. For sign-in, this identifies that the user already passed the first
+        factor challenge.
+    @param completion The callback to be invoked when the verification flow is finished.
+*/
+- (void)verifyPhoneNumberWithMultiFactorInfo:(FIRPhoneMultiFactorInfo *)phoneMultiFactorInfo
+                                  UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
+                          multiFactorSession:(nullable FIRMultiFactorSession *)session
+                                  completion:(nullable FIRVerificationResultCallback)completion;
 
 /** @fn credentialWithVerificationID:verificationCode:
     @brief Creates an `FIRAuthCredential` for the phone number provider identified by the

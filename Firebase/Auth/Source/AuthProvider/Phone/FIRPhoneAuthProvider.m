@@ -15,33 +15,44 @@
  */
 
 #include <TargetConditionals.h>
-#if !TARGET_OS_OSX && !TARGET_OS_TV
+#if TARGET_OS_IOS
 
 #import "FIRPhoneAuthProvider.h"
 
-#import <FirebaseCore/FIRLogger.h>
-#import "FIRPhoneAuthCredential_Internal.h"
 #import <FirebaseCore/FIRApp.h>
+#import <FirebaseCore/FIRLogger.h>
+#import <FirebaseCore/FIROptions.h>
+
 #import "FIRAuthAPNSToken.h"
 #import "FIRAuthAPNSTokenManager.h"
 #import "FIRAuthAppCredential.h"
 #import "FIRAuthAppCredentialManager.h"
-#import "FIRAuthGlobalWorkQueue.h"
-#import "FIRAuth_Internal.h"
-#import "FIRAuthURLPresenter.h"
-#import "FIRAuthNotificationManager.h"
-#import "FIRAuthErrorUtils.h"
+#import "FIRAuthBackend+MultiFactor.h"
 #import "FIRAuthBackend.h"
+#import "FIRAuthErrorUtils.h"
+#import "FIRAuthGlobalWorkQueue.h"
+#import "FIRAuthNotificationManager.h"
+#import "FIRAuthProtoStartMFAPhoneRequestInfo.h"
 #import "FIRAuthSettings.h"
+#import "FIRAuthURLPresenter.h"
 #import "FIRAuthWebUtils.h"
-#import "FirebaseAuthVersion.h"
-#import <FirebaseCore/FIROptions.h>
+#import "FIRAuth_Internal.h"
 #import "FIRGetProjectConfigRequest.h"
 #import "FIRGetProjectConfigResponse.h"
+#import "FIRMultiFactorResolver.h"
+#import "FIRMultiFactorSession+Internal.h"
 #import "FIRSendVerificationCodeRequest.h"
 #import "FIRSendVerificationCodeResponse.h"
+#import "FIRStartMFAEnrollmentRequest.h"
+#import "FIRStartMFAEnrollmentResponse.h"
 #import "FIRVerifyClientRequest.h"
 #import "FIRVerifyClientResponse.h"
+#import "FirebaseAuthVersion.h"
+
+#if TARGET_OS_IOS
+#import "FIRPhoneAuthCredential_Internal.h"
+#import "FIRPhoneMultiFactorInfo+Internal.h"
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -79,6 +90,8 @@ static NSString *const kAuthTypeVerifyApp = @"verifyApp";
     @brief The format of the URL used to open the reCAPTCHA page during app verification.
  */
 NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?";
+
+extern NSString *const FIRPhoneMultiFactorID;
 
 @implementation FIRPhoneAuthProvider {
 
@@ -135,6 +148,56 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?";
       } else {
         callBackOnMainThread(nil, error);
         return;
+      }
+    }];
+  });
+}
+
+- (void)verifyPhoneNumberWithMultiFactorInfo:(FIRPhoneMultiFactorInfo *)phoneMultiFactorInfo
+                                  UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
+                          multiFactorSession:(nullable FIRMultiFactorSession *)session
+                                  completion:(nullable FIRVerificationResultCallback)completion {
+  session.multiFactorInfo = phoneMultiFactorInfo;
+  [self verifyPhoneNumber:phoneMultiFactorInfo.phoneNumber
+               UIDelegate:UIDelegate
+       multiFactorSession:session
+               completion:completion];
+}
+
+- (void)verifyPhoneNumber:(NSString *)phoneNumber
+               UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
+       multiFactorSession:(nullable FIRMultiFactorSession *)session
+               completion:(nullable FIRVerificationResultCallback)completion {
+  if (!session) {
+    [self verifyPhoneNumber:phoneNumber UIDelegate:UIDelegate completion:completion];
+    return;
+  }
+
+  if (![FIRAuthWebUtils isCallbackSchemeRegisteredForCustomURLScheme:_callbackScheme]) {
+    [NSException raise:NSInternalInconsistencyException
+                format:@"Please register custom URL scheme '%@' in the app's Info.plist file.",
+     _callbackScheme];
+  }
+  dispatch_async(FIRAuthGlobalWorkQueue(), ^{
+    FIRVerificationResultCallback callBackOnMainThread = ^(NSString *_Nullable verificationID,
+                                                           NSError *_Nullable error) {
+      if (completion) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+          completion(verificationID, error);
+        });
+      }
+    };
+    [self internalVerifyPhoneNumber:phoneNumber
+                         UIDelegate:UIDelegate
+                 multiFactorSession:session
+                         completion:^(NSString *_Nullable verificationID,
+                                      NSError *_Nullable error) {
+      if (!error) {
+       callBackOnMainThread(verificationID, nil);
+       return;
+      } else {
+       callBackOnMainThread(nil, error);
+       return;
       }
     }];
   });
@@ -236,6 +299,38 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?";
   }];
 }
 
+- (void)internalVerifyPhoneNumber:(NSString *)phoneNumber
+                       UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
+               multiFactorSession:(nullable FIRMultiFactorSession *)session
+                       completion:(nullable FIRVerificationResultCallback)completion {
+  if (!phoneNumber.length) {
+    if (completion) {
+      completion(nil, [FIRAuthErrorUtils missingPhoneNumberErrorWithMessage:nil]);
+    }
+    return;
+  }
+  [_auth.notificationManager checkNotificationForwardingWithCallback:
+   ^(BOOL isNotificationBeingForwarded) {
+     if (!isNotificationBeingForwarded) {
+       if (completion) {
+         completion(nil, [FIRAuthErrorUtils notificationNotForwardedError]);
+       }
+       return;
+     }
+     FIRVerificationResultCallback callback = ^(NSString *_Nullable verificationID,
+                                                NSError *_Nullable error) {
+       if (completion) {
+         completion(verificationID, error);
+       }
+     };
+     [self verifyClientAndSendVerificationCodeToPhoneNumber:phoneNumber
+                                retryOnInvalidAppCredential:YES
+                                                 UIDelegate:UIDelegate
+                                         multiFactorSession:session
+                                                   callback:callback];
+   }];
+}
+
 /** @fn verifyClientAndSendVerificationCodeToPhoneNumber:retryOnInvalidAppCredential:callback:
     @brief Starts the flow to verify the client via silent push notification.
     @param retryOnInvalidAppCredential Whether of not the flow should be retried if an
@@ -308,6 +403,118 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?";
           return;
         }
         callback(response.verificationID, nil);
+      }];
+    }
+  }];
+}
+
+- (void)verifyClientAndSendVerificationCodeToPhoneNumber:(NSString *)phoneNumber
+                             retryOnInvalidAppCredential:(BOOL)retryOnInvalidAppCredential
+                                              UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
+                                      multiFactorSession:(nullable FIRMultiFactorSession *)session
+                                                callback:(FIRVerificationResultCallback)callback {
+  if (_auth.settings.isAppVerificationDisabledForTesting) {
+    FIRSendVerificationCodeRequest *request =
+        [[FIRSendVerificationCodeRequest alloc] initWithPhoneNumber:phoneNumber
+                                                      appCredential:nil
+                                                     reCAPTCHAToken:nil
+                                               requestConfiguration:_auth.requestConfiguration];
+    [FIRAuthBackend sendVerificationCode:request
+                                callback:^(FIRSendVerificationCodeResponse *_Nullable response,
+                                           NSError *_Nullable error) {
+                                  callback(response.verificationID, error);
+                                }];
+    return;
+  }
+
+  [self verifyClientWithUIDelegate:UIDelegate
+                        completion:^(FIRAuthAppCredential *_Nullable appCredential,
+                                     NSString *_Nullable reCAPTCHAToken,
+                                     NSError *_Nullable error) {
+    if (error) {
+      if (callback) {
+        callback(nil, error);
+      }
+      return;
+    }
+
+    NSString *IDToken = session.IDToken;
+    NSString *multiFactorProvider = FIRPhoneMultiFactorID;
+    FIRAuthProtoStartMFAPhoneRequestInfo *startMFARequestInfo =
+        [[FIRAuthProtoStartMFAPhoneRequestInfo alloc] initWithPhoneNumber:phoneNumber
+                                                            appCredential:appCredential
+                                                           reCAPTCHAToken:reCAPTCHAToken];
+    if (session.IDToken) {
+      FIRStartMFAEnrollmentRequest *request =
+      [[FIRStartMFAEnrollmentRequest alloc] initWithIDToken:IDToken
+                                        multiFactorProvider:multiFactorProvider
+                                             enrollmentInfo:startMFARequestInfo
+                                       requestConfiguration:self->_auth.requestConfiguration];
+      [FIRAuthBackend startMultiFactorEnrollment:request
+                                        callback:^(FIRStartMFAEnrollmentResponse * _Nullable response,
+                                                   NSError * _Nullable error) {
+        if (error) {
+          if (error.code == FIRAuthErrorCodeInvalidAppCredential) {
+            if (retryOnInvalidAppCredential) {
+              [self->_auth.appCredentialManager clearCredential];
+              [self verifyClientAndSendVerificationCodeToPhoneNumber:phoneNumber
+                                         retryOnInvalidAppCredential:NO
+                                                          UIDelegate:UIDelegate
+                                                  multiFactorSession:session
+                                                            callback:callback];
+              return;
+            }
+            if (callback) {
+              callback(nil, [FIRAuthErrorUtils unexpectedResponseWithDeserializedResponse:nil
+                                                                          underlyingError:error]);
+            }
+            return;
+          } else {
+            if (callback) {
+              callback(nil, error);
+            }
+          }
+        } else {
+          if (callback) {
+            callback(response.enrollmentResponse.sessionInfo, nil);
+          }
+        }
+      }];
+    } else {
+      FIRStartMFASignInRequest *request =
+      [[FIRStartMFASignInRequest alloc] initWithMFAProvider:multiFactorProvider
+                                       MFAPendingCredential:session.MFAPendingCredential
+                                            MFAEnrollmentID:session.multiFactorInfo.UID
+                                                 signInInfo:startMFARequestInfo
+                                       requestConfiguration:self->_auth.requestConfiguration];
+      [FIRAuthBackend startMultiFactorSignIn:request
+                                    callback:^(FIRStartMFASignInResponse * _Nullable response, NSError * _Nullable error) {
+        if (error) {
+          if (error.code == FIRAuthErrorCodeInvalidAppCredential) {
+            if (retryOnInvalidAppCredential) {
+              [self->_auth.appCredentialManager clearCredential];
+              [self verifyClientAndSendVerificationCodeToPhoneNumber:phoneNumber
+                                         retryOnInvalidAppCredential:NO
+                                                          UIDelegate:UIDelegate
+                                                  multiFactorSession:session
+                                                            callback:callback];
+              return;
+            }
+            if (callback) {
+              callback(nil, [FIRAuthErrorUtils unexpectedResponseWithDeserializedResponse:nil
+                                                                          underlyingError:error]);
+            }
+            return;
+          } else {
+            if (callback) {
+              callback(nil, error);
+            }
+          }
+        } else {
+          if (callback) {
+            callback(response.responseInfo.sessionInfo, nil);
+          }
+        }
       }];
     }
   }];
