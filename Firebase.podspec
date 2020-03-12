@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'Firebase'
-  s.version          = '6.19.0'
+  s.version          = '6.20.0'
   s.summary          = 'Firebase for iOS (plus community support for macOS and tvOS)'
 
   s.description      = <<-DESC
@@ -71,7 +71,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
 
   s.subspec 'Auth' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseAuth', '~> 6.4.3'
+    ss.dependency 'FirebaseAuth', '~> 6.5.0'
   end
 
   s.subspec 'Crashlytics' do |ss|
