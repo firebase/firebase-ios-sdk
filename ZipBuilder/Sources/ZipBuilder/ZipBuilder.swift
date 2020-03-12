@@ -179,8 +179,8 @@ struct ZipBuilder {
   func buildAndAssembleFirebaseRelease(inProjectDir projectDir: URL) throws -> ReleaseArtifacts {
     // Break the `inputPods` into a variable since it's helpful when debugging builds to just
     // install a subset of pods, like the following line:
-    let inputPods: [String] = ["Firebase", "FirebaseCore", "FirebaseAnalytics", "FirebaseStorage"]
-    // let inputPods = FirebasePods.allCases.map { $0.rawValue }
+    // let inputPods: [String] = ["Firebase", "FirebaseCore", "FirebaseAnalytics", "FirebaseStorage"]
+    let inputPods = FirebasePods.allCases.map { $0.rawValue }
 
     // Get the expected versions based on the release manifests, if there are any. If there are any
     // versions with `alpha` or `beta` in it, we'll need to explicitly specify the version here so

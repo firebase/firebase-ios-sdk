@@ -106,11 +106,12 @@ extension CarthageUtils {
 
       // Parse the JSON file, ensure that we're not trying to overwrite a release.
       var jsonManifest = parseJSONFile(fromDir: jsonDir, product: product)
-      //  guard jsonManifest[firebaseVersion] == nil else {
-      //     print("Carthage release for \(product) \(firebaseVersion) already exists - skipping.")
-      // temporary disable
-      //      continue
-      //   }
+      if !args.carthageSkipVersionCheck {
+        guard jsonManifest[firebaseVersion] == nil else {
+          print("Carthage release for \(product) \(firebaseVersion) already exists - skipping.")
+              continue
+        }
+      }
 
       // Make updates to all frameworks to make Carthage happy. We don't worry about xcframeworks
       // here.
