@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
     @brief Represents the response from the deleteAccount endpoint.
     @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/deleteAccount
  */
-@interface FIRDeleteAccountResponse : NSObject<FIRAuthRPCResponse>
+@interface FIRDeleteAccountResponse : NSObject <FIRAuthRPCResponse>
 @end
 
 NS_ASSUME_NONNULL_END

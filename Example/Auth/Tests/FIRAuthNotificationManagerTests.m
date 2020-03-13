@@ -16,10 +16,10 @@
 
 #import <XCTest/XCTest.h>
 
+#import <OCMock/OCMock.h>
 #import "FIRAuthAppCredential.h"
 #import "FIRAuthAppCredentialManager.h"
 #import "FIRAuthNotificationManager.h"
-#import <OCMock/OCMock.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -36,7 +36,7 @@ static NSString *const kSecret = @"FAKE_SECRET";
 /** @class FIRAuthFakeForwardingDelegate
     @brief The base class for a fake UIApplicationDelegate that forwards remote notifications.
  */
-@interface FIRAuthFakeForwardingDelegate : NSObject<UIApplicationDelegate>
+@interface FIRAuthFakeForwardingDelegate : NSObject <UIApplicationDelegate>
 
 /** @property notificationManager
     @brief The notification manager to forward.
@@ -176,16 +176,15 @@ static NSString *const kSecret = @"FAKE_SECRET";
     @param forwarding Whether the notification is being forwarded or not.
     @param delegate The fake UIApplicationDelegate used for testing.
  */
-- (void)verifyForwarding:(BOOL)forwarding
-                delegate:(FIRAuthFakeForwardingDelegate *)delegate {
+- (void)verifyForwarding:(BOOL)forwarding delegate:(FIRAuthFakeForwardingDelegate *)delegate {
   delegate.forwardsNotification = forwarding;
   OCMStub([_mockApplication delegate]).andReturn(delegate);
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
   [_notificationManager
       checkNotificationForwardingWithCallback:^(BOOL isNotificationBeingForwarded) {
-    XCTAssertEqual(isNotificationBeingForwarded, forwarding);
-    [expectation fulfill];
-  }];
+        XCTAssertEqual(isNotificationBeingForwarded, forwarding);
+        [expectation fulfill];
+      }];
   XCTAssertFalse(delegate.notificationReceived);
   NSTimeInterval timeout = _notificationManager.timeout * (1.5 - forwarding);
   [self waitForExpectationsWithTimeout:timeout handler:nil];
@@ -203,9 +202,9 @@ static NSString *const kSecret = @"FAKE_SECRET";
   __block BOOL calledBack = NO;
   [_notificationManager
       checkNotificationForwardingWithCallback:^(BOOL isNotificationBeingForwarded) {
-    XCTAssertFalse(isNotificationBeingForwarded);
-    calledBack = YES;
-  }];
+        XCTAssertFalse(isNotificationBeingForwarded);
+        calledBack = YES;
+      }];
   XCTAssertTrue(calledBack);
   XCTAssertFalse(delegate.notificationReceived);
 }
@@ -220,15 +219,15 @@ static NSString *const kSecret = @"FAKE_SECRET";
   XCTestExpectation *expectation1 = [self expectationWithDescription:@"callback1"];
   [_notificationManager
       checkNotificationForwardingWithCallback:^(BOOL isNotificationBeingForwarded) {
-    XCTAssertTrue(isNotificationBeingForwarded);
-    [expectation1 fulfill];
-  }];
+        XCTAssertTrue(isNotificationBeingForwarded);
+        [expectation1 fulfill];
+      }];
   XCTestExpectation *expectation2 = [self expectationWithDescription:@"callback2"];
   [_notificationManager
       checkNotificationForwardingWithCallback:^(BOOL isNotificationBeingForwarded) {
-    XCTAssertTrue(isNotificationBeingForwarded);
-    [expectation2 fulfill];
-  }];
+        XCTAssertTrue(isNotificationBeingForwarded);
+        [expectation2 fulfill];
+      }];
   XCTAssertFalse(delegate.notificationReceived);
   [self waitForExpectationsWithTimeout:_notificationManager.timeout * .5 handler:nil];
   XCTAssertTrue(delegate.notificationReceived);
@@ -239,8 +238,8 @@ static NSString *const kSecret = @"FAKE_SECRET";
     @brief Test notification with the right structure is passed to credential manager.
  */
 - (void)testPassingToCredentialManager {
-  NSDictionary *payload = @{ @"receipt" : kReceipt, @"secret" : kSecret };
-  NSDictionary *notification = @{ @"com.google.firebase.auth" : payload };
+  NSDictionary *payload = @{@"receipt" : kReceipt, @"secret" : kSecret};
+  NSDictionary *notification = @{@"com.google.firebase.auth" : payload};
   OCMExpect([_mockAppCredentialManager canFinishVerificationWithReceipt:kReceipt secret:kSecret])
       .andReturn(YES);
   XCTAssertTrue([_notificationManager canHandleNotification:notification]);
@@ -249,7 +248,7 @@ static NSString *const kSecret = @"FAKE_SECRET";
   // JSON string form
   NSData *data = [NSJSONSerialization dataWithJSONObject:payload options:0 error:NULL];
   NSString *string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-  notification = @{ @"com.google.firebase.auth" : string };
+  notification = @{@"com.google.firebase.auth" : string};
   OCMExpect([_mockAppCredentialManager canFinishVerificationWithReceipt:kReceipt secret:kSecret])
       .andReturn(YES);
   XCTAssertTrue([_notificationManager canHandleNotification:notification]);
@@ -260,12 +259,9 @@ static NSString *const kSecret = @"FAKE_SECRET";
     @brief Test unrecognized notifications are not handled.
  */
 - (void)testNotHandling {
-  XCTAssertFalse([_notificationManager canHandleNotification:@{
-    @"random" : @"string"
-  }]);
-  XCTAssertFalse([_notificationManager canHandleNotification:@{
-    @"com.google.firebase.auth" : @"something wrong"
-  }]);
+  XCTAssertFalse([_notificationManager canHandleNotification:@{@"random" : @"string"}]);
+  XCTAssertFalse([_notificationManager
+      canHandleNotification:@{@"com.google.firebase.auth" : @"something wrong"}]);
   XCTAssertFalse([_notificationManager canHandleNotification:@{
     @"com.google.firebase.auth" : @{
       @"receipt" : kReceipt

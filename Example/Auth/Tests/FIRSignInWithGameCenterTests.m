@@ -16,8 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRAuthErrorUtils.h"
 #import "FIRAuthBackend.h"
+#import "FIRAuthErrorUtils.h"
 #import "FIRFakeBackendRPCIssuer.h"
 #import "FIRSignInWithGameCenterRequest.h"
 #import "FIRSignInWithGameCenterResponse.h"
@@ -159,12 +159,12 @@ static NSString *const kAccessToken = @"ACCESSTOKEN";
     @brief This backend RPC issuer is used to fake network responses for each test in the suite.
     In the @c setUp method we initialize this and set @c FIRAuthBackend's RPC issuer to it.
  */
-@property (nonatomic, strong) FIRFakeBackendRPCIssuer *RPCIssuer;
+@property(nonatomic, strong) FIRFakeBackendRPCIssuer *RPCIssuer;
 
 /** @property requestConfiguration
     @brief This is the request configuration used for testing.
  */
-@property (nonatomic, strong) FIRAuthRequestConfiguration *requestConfiguration;
+@property(nonatomic, strong) FIRAuthRequestConfiguration *requestConfiguration;
 
 @end
 

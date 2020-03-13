@@ -39,7 +39,7 @@ NS_SWIFT_NAME(AuthUIDelegate)
 */
 - (void)presentViewController:(UIViewController *)viewControllerToPresent
                      animated:(BOOL)flag
-                   completion:(void (^ _Nullable)(void))completion;
+                   completion:(void (^_Nullable)(void))completion;
 
 /** @fn dismissViewControllerAnimated:completion:
     @brief If implemented, this method will be invoked when Firebase Auth needs to display a view
@@ -48,7 +48,8 @@ NS_SWIFT_NAME(AuthUIDelegate)
     @param completion The block to execute after the presentation finishes. This block has no return
         value and takes no parameters.
 */
-- (void)dismissViewControllerAnimated:(BOOL)flag completion:(void (^ _Nullable)(void))completion
+- (void)dismissViewControllerAnimated:(BOOL)flag
+                           completion:(void (^_Nullable)(void))completion
     NS_SWIFT_NAME(dismiss(animated:completion:));
 
 @end

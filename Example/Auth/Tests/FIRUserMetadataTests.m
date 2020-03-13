@@ -44,8 +44,8 @@ static NSTimeInterval const kLastSignInDateTimeIntervalInSeconds = 1505858583;
   NSDate *creationDate = [NSDate dateWithTimeIntervalSince1970:kCreationDateTimeIntervalInSeconds];
   NSDate *lastSignInDate =
       [NSDate dateWithTimeIntervalSince1970:kLastSignInDateTimeIntervalInSeconds];
-  FIRUserMetadata *userMetadata =
-      [[FIRUserMetadata alloc]initWithCreationDate:creationDate lastSignInDate:lastSignInDate];
+  FIRUserMetadata *userMetadata = [[FIRUserMetadata alloc] initWithCreationDate:creationDate
+                                                                 lastSignInDate:lastSignInDate];
   XCTAssertEqualObjects(userMetadata.creationDate, creationDate);
   XCTAssertEqualObjects(userMetadata.lastSignInDate, lastSignInDate);
 }
@@ -57,8 +57,8 @@ static NSTimeInterval const kLastSignInDateTimeIntervalInSeconds = 1505858583;
   NSDate *creationDate = [NSDate dateWithTimeIntervalSince1970:kCreationDateTimeIntervalInSeconds];
   NSDate *lastSignInDate =
       [NSDate dateWithTimeIntervalSince1970:kLastSignInDateTimeIntervalInSeconds];
-  FIRUserMetadata *userMetadata =
-      [[FIRUserMetadata alloc]initWithCreationDate:creationDate lastSignInDate:lastSignInDate];
+  FIRUserMetadata *userMetadata = [[FIRUserMetadata alloc] initWithCreationDate:creationDate
+                                                                 lastSignInDate:lastSignInDate];
   NSData *data = [NSKeyedArchiver archivedDataWithRootObject:userMetadata];
   XCTAssertNotNil(data, @"Should not be nil if archving succeeded.");
   XCTAssertNoThrow([NSKeyedUnarchiver unarchiveObjectWithData:data],

@@ -17,8 +17,8 @@
 #include <TargetConditionals.h>
 #if TARGET_OS_IOS
 
-#import "FIRPhoneMultiFactorAssertion.h"
 #import "FIRPhoneMultiFactorAssertion+Internal.h"
+#import "FIRPhoneMultiFactorAssertion.h"
 
 #import "FIRMultiFactorAssertion+Internal.h"
 

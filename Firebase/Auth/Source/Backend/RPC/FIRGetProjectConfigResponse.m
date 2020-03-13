@@ -20,19 +20,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRGetProjectConfigResponse
 
-- (BOOL)setWithDictionary:(NSDictionary *)dictionary
-                    error:(NSError *_Nullable *_Nullable)error {
+- (BOOL)setWithDictionary:(NSDictionary *)dictionary error:(NSError *_Nullable *_Nullable)error {
   _projectID = [dictionary[@"projectId"] copy];
   id authorizedDomains = dictionary[@"authorizedDomains"];
   if ([authorizedDomains isKindOfClass:[NSString class]]) {
     NSData *data = [authorizedDomains dataUsingEncoding:NSUTF8StringEncoding];
     authorizedDomains = [NSJSONSerialization JSONObjectWithData:data
-                                                       options:NSJSONReadingMutableLeaves
-                                                         error:nil];
+                                                        options:NSJSONReadingMutableLeaves
+                                                          error:nil];
   }
   if ([authorizedDomains isKindOfClass:[NSArray class]]) {
-    _authorizedDomains = [[NSArray alloc] initWithArray:authorizedDomains
-                                              copyItems:YES];
+    _authorizedDomains = [[NSArray alloc] initWithArray:authorizedDomains copyItems:YES];
   }
   return YES;
 }

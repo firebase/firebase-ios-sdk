@@ -177,4 +177,3 @@ static NSString *const kReturnSecureTokenKey = @"returnSecureToken";
 @end
 
 NS_ASSUME_NONNULL_END
-

@@ -17,12 +17,12 @@
 #import <XCTest/XCTest.h>
 
 #import "FIRAuthAppCredential.h"
-#import "FIRAuthErrors.h"
-#import "FIRAuthErrorUtils.h"
 #import "FIRAuthBackend.h"
+#import "FIRAuthErrorUtils.h"
+#import "FIRAuthErrors.h"
+#import "FIRFakeBackendRPCIssuer.h"
 #import "FIRSendVerificationCodeRequest.h"
 #import "FIRSendVerificationCodeResponse.h"
-#import "FIRFakeBackendRPCIssuer.h"
 
 /** @var kTestAPIKey
     @brief Fake API key used for testing.
@@ -95,10 +95,10 @@ static NSString *const kCaptchaCheckFailedErrorMessage = @"CAPTCHA_CHECK_FAILED"
 @end
 
 @implementation FIRSendVerificationCodeResponseTests {
-   /** @var _RPCIssuer
-      @brief This backend RPC issuer is used to fake network responses for each test in the suite.
-          In the @c setUp method we initialize this and set @c FIRAuthBackend's RPC issuer to it.
-   */
+  /** @var _RPCIssuer
+     @brief This backend RPC issuer is used to fake network responses for each test in the suite.
+         In the @c setUp method we initialize this and set @c FIRAuthBackend's RPC issuer to it.
+  */
   FIRFakeBackendRPCIssuer *_RPCIssuer;
 
   /** @var _requestConfiguration
@@ -126,8 +126,8 @@ static NSString *const kCaptchaCheckFailedErrorMessage = @"CAPTCHA_CHECK_FAILED"
     @brief Tests a failed attempt to send a verification code with an invalid phone number.
  */
 - (void)testSendVerificationCodeResponseInvalidPhoneNumber {
-  FIRAuthAppCredential *credential =
-      [[FIRAuthAppCredential alloc]initWithReceipt:kTestReceipt secret:kTestSecret];
+  FIRAuthAppCredential *credential = [[FIRAuthAppCredential alloc] initWithReceipt:kTestReceipt
+                                                                            secret:kTestSecret];
   FIRSendVerificationCodeRequest *request =
       [[FIRSendVerificationCodeRequest alloc] initWithPhoneNumber:kTestInvalidPhoneNumber
                                                     appCredential:credential
@@ -139,10 +139,10 @@ static NSString *const kCaptchaCheckFailedErrorMessage = @"CAPTCHA_CHECK_FAILED"
   [FIRAuthBackend sendVerificationCode:request
                               callback:^(FIRSendVerificationCodeResponse *_Nullable response,
                                          NSError *_Nullable error) {
-    RPCResponse = response;
-    RPCError = error;
-    callbackInvoked = YES;
-  }];
+                                RPCResponse = response;
+                                RPCError = error;
+                                callbackInvoked = YES;
+                              }];
 
   [_RPCIssuer respondWithServerErrorMessage:kInvalidPhoneNumberErrorMessage];
 
@@ -155,8 +155,8 @@ static NSString *const kCaptchaCheckFailedErrorMessage = @"CAPTCHA_CHECK_FAILED"
     @brief Tests a failed attempt to send a verification code due to SMS quota having been exceeded.
  */
 - (void)testSendVerificationCodeResponseQuotaExceededError {
-  FIRAuthAppCredential *credential =
-      [[FIRAuthAppCredential alloc]initWithReceipt:kTestReceipt secret:kTestSecret];
+  FIRAuthAppCredential *credential = [[FIRAuthAppCredential alloc] initWithReceipt:kTestReceipt
+                                                                            secret:kTestSecret];
   FIRSendVerificationCodeRequest *request =
       [[FIRSendVerificationCodeRequest alloc] initWithPhoneNumber:kTestPhoneNumber
                                                     appCredential:credential
@@ -168,10 +168,10 @@ static NSString *const kCaptchaCheckFailedErrorMessage = @"CAPTCHA_CHECK_FAILED"
   [FIRAuthBackend sendVerificationCode:request
                               callback:^(FIRSendVerificationCodeResponse *_Nullable response,
                                          NSError *_Nullable error) {
-    RPCResponse = response;
-    RPCError = error;
-    callbackInvoked = YES;
-  }];
+                                RPCResponse = response;
+                                RPCError = error;
+                                callbackInvoked = YES;
+                              }];
 
   [_RPCIssuer respondWithServerErrorMessage:kQuotaExceededErrorMessage];
 
@@ -185,8 +185,8 @@ static NSString *const kCaptchaCheckFailedErrorMessage = @"CAPTCHA_CHECK_FAILED"
         verify the app.
  */
 - (void)testSendVerificationCodeResponseAppNotVerifiedError {
-  FIRAuthAppCredential *credential =
-      [[FIRAuthAppCredential alloc]initWithReceipt:kTestReceipt secret:kTestSecret];
+  FIRAuthAppCredential *credential = [[FIRAuthAppCredential alloc] initWithReceipt:kTestReceipt
+                                                                            secret:kTestSecret];
   FIRSendVerificationCodeRequest *request =
       [[FIRSendVerificationCodeRequest alloc] initWithPhoneNumber:kTestPhoneNumber
                                                     appCredential:credential
@@ -198,10 +198,10 @@ static NSString *const kCaptchaCheckFailedErrorMessage = @"CAPTCHA_CHECK_FAILED"
   [FIRAuthBackend sendVerificationCode:request
                               callback:^(FIRSendVerificationCodeResponse *_Nullable response,
                                          NSError *_Nullable error) {
-    RPCResponse = response;
-    RPCError = error;
-    callbackInvoked = YES;
-  }];
+                                RPCResponse = response;
+                                RPCError = error;
+                                callbackInvoked = YES;
+                              }];
 
   [_RPCIssuer respondWithServerErrorMessage:kAppNotVerifiedErrorMessage];
 
@@ -215,8 +215,8 @@ static NSString *const kCaptchaCheckFailedErrorMessage = @"CAPTCHA_CHECK_FAILED"
         being provided in the request.
  */
 - (void)testSendVerificationCodeResponseCaptchaCheckFailedError {
-  FIRAuthAppCredential *credential =
-      [[FIRAuthAppCredential alloc]initWithReceipt:kTestReceipt secret:kTestSecret];
+  FIRAuthAppCredential *credential = [[FIRAuthAppCredential alloc] initWithReceipt:kTestReceipt
+                                                                            secret:kTestSecret];
   FIRSendVerificationCodeRequest *request =
       [[FIRSendVerificationCodeRequest alloc] initWithPhoneNumber:kTestPhoneNumber
                                                     appCredential:credential
@@ -228,10 +228,10 @@ static NSString *const kCaptchaCheckFailedErrorMessage = @"CAPTCHA_CHECK_FAILED"
   [FIRAuthBackend sendVerificationCode:request
                               callback:^(FIRSendVerificationCodeResponse *_Nullable response,
                                          NSError *_Nullable error) {
-    RPCResponse = response;
-    RPCError = error;
-    callbackInvoked = YES;
-  }];
+                                RPCResponse = response;
+                                RPCError = error;
+                                callbackInvoked = YES;
+                              }];
 
   [_RPCIssuer respondWithServerErrorMessage:kCaptchaCheckFailedErrorMessage];
 
@@ -244,8 +244,8 @@ static NSString *const kCaptchaCheckFailedErrorMessage = @"CAPTCHA_CHECK_FAILED"
     @brief Tests a succesful to send a verification code.
  */
 - (void)testSuccessfulSendVerificationCodeResponse {
-   FIRAuthAppCredential *credential =
-      [[FIRAuthAppCredential alloc]initWithReceipt:kTestReceipt secret:kTestSecret];
+  FIRAuthAppCredential *credential = [[FIRAuthAppCredential alloc] initWithReceipt:kTestReceipt
+                                                                            secret:kTestSecret];
   FIRSendVerificationCodeRequest *request =
       [[FIRSendVerificationCodeRequest alloc] initWithPhoneNumber:kTestPhoneNumber
                                                     appCredential:credential
@@ -257,14 +257,12 @@ static NSString *const kCaptchaCheckFailedErrorMessage = @"CAPTCHA_CHECK_FAILED"
   [FIRAuthBackend sendVerificationCode:request
                               callback:^(FIRSendVerificationCodeResponse *_Nullable response,
                                          NSError *_Nullable error) {
-    RPCResponse = response;
-    RPCError = error;
-    callbackInvoked = YES;
-  }];
+                                RPCResponse = response;
+                                RPCError = error;
+                                callbackInvoked = YES;
+                              }];
 
-  [_RPCIssuer respondWithJSON:@{
-    kVerificationIDKey : kFakeVerificationID
-  }];
+  [_RPCIssuer respondWithJSON:@{kVerificationIDKey : kFakeVerificationID}];
 
   XCTAssert(callbackInvoked);
   XCTAssertNotNil(RPCResponse);

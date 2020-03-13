@@ -16,8 +16,8 @@
 
 #import "FIRGitHubAuthProvider.h"
 
-#import "FIRGitHubAuthCredential.h"
 #import "FIRAuthExceptionUtils.h"
+#import "FIRGitHubAuthCredential.h"
 
 // FIRGitHubAuthProviderID is defined in FIRAuthProvider.m.
 
@@ -26,8 +26,8 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRGitHubAuthProvider
 
 - (instancetype)init {
-  [FIRAuthExceptionUtils raiseMethodNotImplementedExceptionWithReason:
-      @"This class is not meant to be initialized."];
+  [FIRAuthExceptionUtils
+      raiseMethodNotImplementedExceptionWithReason:@"This class is not meant to be initialized."];
   return nil;
 }
 

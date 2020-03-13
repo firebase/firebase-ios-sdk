@@ -18,7 +18,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-static NSString *const kFirebaseAuthAPIURLFormat = @"https://%@/identitytoolkit/v3/relyingparty/%@?key=%@";
+static NSString *const kFirebaseAuthAPIURLFormat =
+    @"https://%@/identitytoolkit/v3/relyingparty/%@?key=%@";
 static NSString *const kIdentityPlatformAPIURLFormat = @"https://%@/v2/%@?key=%@";
 
 static NSString *gAPIHost = @"www.googleapis.com";
@@ -27,7 +28,8 @@ static NSString *kFirebaseAuthAPIHost = @"www.googleapis.com";
 static NSString *kIdentityPlatformAPIHost = @"identitytoolkit.googleapis.com";
 
 static NSString *kFirebaseAuthStagingAPIHost = @"staging-www.sandbox.googleapis.com";
-static NSString *kIdentityPlatformStagingAPIHost = @"staging-identitytoolkit.sandbox.googleapis.com";
+static NSString *kIdentityPlatformStagingAPIHost =
+    @"staging-identitytoolkit.sandbox.googleapis.com";
 
 @implementation FIRIdentityToolkitRequest {
   FIRAuthRequestConfiguration *_requestConfiguration;
@@ -54,8 +56,7 @@ static NSString *kIdentityPlatformStagingAPIHost = @"staging-identitytoolkit.san
                      requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
                       useIdentityPlatform:(BOOL)useIdentityPlatform
                                useStaging:(BOOL)useStaging {
-  self = [self initWithEndpoint:endpoint
-           requestConfiguration:requestConfiguration];
+  self = [self initWithEndpoint:endpoint requestConfiguration:requestConfiguration];
   if (self) {
     _useIdentityPlatform = useIdentityPlatform;
     _useStaging = useStaging;

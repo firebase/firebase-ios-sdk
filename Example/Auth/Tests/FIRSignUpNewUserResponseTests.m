@@ -16,11 +16,11 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRAuthErrors.h"
 #import "FIRAuthBackend.h"
+#import "FIRAuthErrors.h"
+#import "FIRFakeBackendRPCIssuer.h"
 #import "FIRSignUpNewUserRequest.h"
 #import "FIRSignUpNewUserResponse.h"
-#import "FIRFakeBackendRPCIssuer.h"
 
 /** @var kTestAPIKey
     @brief Fake API key used for testing.
@@ -150,20 +150,20 @@ static const double kAllowedTimeDifference = 0.1;
 - (void)testSuccessfulSignUp {
   FIRSignUpNewUserRequest *request =
       [[FIRSignUpNewUserRequest alloc] initWithEmail:kTestEmail
-                                             password:kTestPassword
-                                          displayName:kTestDisplayName
-                                 requestConfiguration:_requestConfiguration];
+                                            password:kTestPassword
+                                         displayName:kTestDisplayName
+                                requestConfiguration:_requestConfiguration];
 
   __block BOOL callbackInvoked;
   __block FIRSignUpNewUserResponse *RPCResponse;
   __block NSError *RPCError;
-  [FIRAuthBackend signUpNewUser:request
-                       callback:^(FIRSignUpNewUserResponse *_Nullable response,
-                                  NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+  [FIRAuthBackend
+      signUpNewUser:request
+           callback:^(FIRSignUpNewUserResponse *_Nullable response, NSError *_Nullable error) {
+             callbackInvoked = YES;
+             RPCResponse = response;
+             RPCError = error;
+           }];
 
   [_RPCIssuer respondWithJSON:@{
     kIDTokenKey : kTestIDToken,
@@ -191,13 +191,13 @@ static const double kAllowedTimeDifference = 0.1;
   __block BOOL callbackInvoked;
   __block FIRSignUpNewUserResponse *RPCResponse;
   __block NSError *RPCError;
-  [FIRAuthBackend signUpNewUser:request
-                       callback:^(FIRSignUpNewUserResponse *_Nullable response,
-                                  NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+  [FIRAuthBackend
+      signUpNewUser:request
+           callback:^(FIRSignUpNewUserResponse *_Nullable response, NSError *_Nullable error) {
+             callbackInvoked = YES;
+             RPCResponse = response;
+             RPCError = error;
+           }];
   [_RPCIssuer respondWithServerErrorMessage:kEmailAlreadyInUseErrorMessage];
   XCTAssert(callbackInvoked);
   XCTAssertNil(RPCResponse);
@@ -215,13 +215,13 @@ static const double kAllowedTimeDifference = 0.1;
   __block BOOL callbackInvoked;
   __block FIRSignUpNewUserResponse *RPCResponse;
   __block NSError *RPCError;
-  [FIRAuthBackend signUpNewUser:request
-                       callback:^(FIRSignUpNewUserResponse *_Nullable response,
-                                  NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+  [FIRAuthBackend
+      signUpNewUser:request
+           callback:^(FIRSignUpNewUserResponse *_Nullable response, NSError *_Nullable error) {
+             callbackInvoked = YES;
+             RPCResponse = response;
+             RPCError = error;
+           }];
   [_RPCIssuer respondWithServerErrorMessage:kEmailSignUpNotAllowedErrorMessage];
   XCTAssert(callbackInvoked);
   XCTAssertNil(RPCResponse);
@@ -239,13 +239,13 @@ static const double kAllowedTimeDifference = 0.1;
   __block BOOL callbackInvoked;
   __block FIRSignUpNewUserResponse *RPCResponse;
   __block NSError *RPCError;
-  [FIRAuthBackend signUpNewUser:request
-                       callback:^(FIRSignUpNewUserResponse *_Nullable response,
-                                  NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+  [FIRAuthBackend
+      signUpNewUser:request
+           callback:^(FIRSignUpNewUserResponse *_Nullable response, NSError *_Nullable error) {
+             callbackInvoked = YES;
+             RPCResponse = response;
+             RPCError = error;
+           }];
   [_RPCIssuer respondWithServerErrorMessage:kPasswordLoginDisabledErrorMessage];
   XCTAssert(callbackInvoked);
   XCTAssertNil(RPCResponse);
@@ -263,13 +263,13 @@ static const double kAllowedTimeDifference = 0.1;
   __block BOOL callbackInvoked;
   __block FIRSignUpNewUserResponse *RPCResponse;
   __block NSError *RPCError;
-  [FIRAuthBackend signUpNewUser:request
-                       callback:^(FIRSignUpNewUserResponse *_Nullable response,
-                                  NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+  [FIRAuthBackend
+      signUpNewUser:request
+           callback:^(FIRSignUpNewUserResponse *_Nullable response, NSError *_Nullable error) {
+             callbackInvoked = YES;
+             RPCResponse = response;
+             RPCError = error;
+           }];
   [_RPCIssuer respondWithServerErrorMessage:kInvalidEmailErrorMessage];
   XCTAssert(callbackInvoked);
   XCTAssertNil(RPCResponse);
@@ -286,13 +286,13 @@ static const double kAllowedTimeDifference = 0.1;
   __block BOOL callbackInvoked;
   __block FIRSignUpNewUserResponse *RPCResponse;
   __block NSError *RPCError;
-  [FIRAuthBackend signUpNewUser:request
-                       callback:^(FIRSignUpNewUserResponse *_Nullable response,
-                                  NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+  [FIRAuthBackend
+      signUpNewUser:request
+           callback:^(FIRSignUpNewUserResponse *_Nullable response, NSError *_Nullable error) {
+             callbackInvoked = YES;
+             RPCResponse = response;
+             RPCError = error;
+           }];
   [_RPCIssuer respondWithServerErrorMessage:kWeakPasswordErrorMessage];
   XCTAssert(callbackInvoked);
   XCTAssertNil(RPCResponse);

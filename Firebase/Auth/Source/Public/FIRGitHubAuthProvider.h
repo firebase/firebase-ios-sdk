@@ -30,7 +30,6 @@ extern NSString *const FIRGitHubAuthProviderID NS_SWIFT_NAME(GitHubAuthProviderI
  */
 extern NSString *const _Nonnull FIRGitHubAuthSignInMethod NS_SWIFT_NAME(GitHubAuthSignInMethod);
 
-
 /** @class FIRGitHubAuthProvider
     @brief Utility class for constructing GitHub credentials.
  */

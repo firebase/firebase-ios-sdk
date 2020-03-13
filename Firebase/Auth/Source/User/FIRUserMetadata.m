@@ -47,10 +47,10 @@ static NSString *const kLastSignInDateCodingKey = @"lastSignInDate";
 }
 
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder {
-  NSDate *creationDate =
-      [aDecoder decodeObjectOfClass:[NSDate class] forKey:kCreationDateCodingKey];
-  NSDate *lastSignInDate =
-      [aDecoder decodeObjectOfClass:[NSDate class] forKey:kLastSignInDateCodingKey];
+  NSDate *creationDate = [aDecoder decodeObjectOfClass:[NSDate class]
+                                                forKey:kCreationDateCodingKey];
+  NSDate *lastSignInDate = [aDecoder decodeObjectOfClass:[NSDate class]
+                                                  forKey:kLastSignInDateCodingKey];
   return [self initWithCreationDate:creationDate lastSignInDate:lastSignInDate];
 }
 

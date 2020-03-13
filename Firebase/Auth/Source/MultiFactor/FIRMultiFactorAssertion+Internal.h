@@ -22,8 +22,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRMultiFactorAssertion () {
-
-@protected
+ @protected
   NSString *_factorID;
 }
 

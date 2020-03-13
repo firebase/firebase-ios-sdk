@@ -46,7 +46,8 @@ NS_SWIFT_NAME(MultiFactorResolver)
 
 /** @fn resolveSignInWithAssertion:completion:
     @brief A helper function to help users complete sign in with a second factor using an
-        FIRMultiFactorAssertion confirming the user successfully completed the second factor challenge.
+        FIRMultiFactorAssertion confirming the user successfully completed the second factor
+   challenge.
     @param completion The block invoked when the request is complete, or fails.
 */
 - (void)resolveSignInWithAssertion:(FIRMultiFactorAssertion *)assertion

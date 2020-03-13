@@ -99,15 +99,15 @@ static NSString *const kPhoneNumberCodingKey = @"phoneNumber";
 }
 
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder {
-  NSString *providerID =
-      [aDecoder decodeObjectOfClass:[NSString class] forKey:kProviderIDCodingKey];
+  NSString *providerID = [aDecoder decodeObjectOfClass:[NSString class]
+                                                forKey:kProviderIDCodingKey];
   NSString *userID = [aDecoder decodeObjectOfClass:[NSString class] forKey:kUserIDCodingKey];
-  NSString *displayName =
-      [aDecoder decodeObjectOfClass:[NSString class] forKey:kDisplayNameCodingKey];
+  NSString *displayName = [aDecoder decodeObjectOfClass:[NSString class]
+                                                 forKey:kDisplayNameCodingKey];
   NSURL *photoURL = [aDecoder decodeObjectOfClass:[NSURL class] forKey:kPhotoURLCodingKey];
   NSString *email = [aDecoder decodeObjectOfClass:[NSString class] forKey:kEmailCodingKey];
-  NSString *phoneNumber =
-      [aDecoder decodeObjectOfClass:[NSString class] forKey:kPhoneNumberCodingKey];
+  NSString *phoneNumber = [aDecoder decodeObjectOfClass:[NSString class]
+                                                 forKey:kPhoneNumberCodingKey];
 
   return [self initWithProviderID:providerID
                            userID:userID

@@ -72,10 +72,8 @@ static NSString *const kAppIDKey = @"appId";
 }
 
 - (nullable id)unencodedHTTPRequestBodyWithError:(NSError *_Nullable *_Nullable)error {
-  NSMutableDictionary *postBody = [@{
-    kIdentifierKey : _identifier,
-    kContinueURIKey : _continueURI
-  } mutableCopy];
+  NSMutableDictionary *postBody =
+      [@{kIdentifierKey : _identifier, kContinueURIKey : _continueURI} mutableCopy];
   if (_providerID) {
     postBody[kProviderIDKey] = _providerID;
   }

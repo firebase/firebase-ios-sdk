@@ -16,11 +16,11 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRAuthErrors.h"
 #import "FIRAuthBackend.h"
+#import "FIRAuthErrors.h"
+#import "FIRFakeBackendRPCIssuer.h"
 #import "FIRVerifyClientRequest.h"
 #import "FIRVerifyClientResponse.h"
-#import "FIRFakeBackendRPCIssuer.h"
 
 /** @var kFakeAppToken
     @brief The fake app token to use in the test request.
@@ -83,7 +83,7 @@ static NSString *const kInvalidAppCredentialErrorMessage = @"INVALID_APP_CREDENT
 @interface FIRVerifyClientResponseTests : XCTestCase
 @end
 
-@implementation FIRVerifyClientResponseTests{
+@implementation FIRVerifyClientResponseTests {
   /** @var _RPCIssuer
       @brief This backend RPC issuer is used to fake network responses for each test in the suite.
           In the @c setUp method we initialize this and set @c FIRAuthBackend's RPC issuer to it.
@@ -115,13 +115,13 @@ static NSString *const kInvalidAppCredentialErrorMessage = @"INVALID_APP_CREDENT
   __block BOOL callbackInvoked;
   __block FIRVerifyClientResponse *RPCResponse;
   __block NSError *RPCError;
-  [FIRAuthBackend verifyClient:request
-                      callback:^(FIRVerifyClientResponse *_Nullable response,
-                                  NSError *_Nullable error) {
-    RPCResponse = response;
-    RPCError = error;
-    callbackInvoked = YES;
-  }];
+  [FIRAuthBackend
+      verifyClient:request
+          callback:^(FIRVerifyClientResponse *_Nullable response, NSError *_Nullable error) {
+            RPCResponse = response;
+            RPCError = error;
+            callbackInvoked = YES;
+          }];
   [_RPCIssuer respondWithServerErrorMessage:kMissingAppCredentialErrorMessage];
   XCTAssert(callbackInvoked);
   XCTAssertNil(RPCResponse);
@@ -139,13 +139,13 @@ static NSString *const kInvalidAppCredentialErrorMessage = @"INVALID_APP_CREDENT
   __block BOOL callbackInvoked;
   __block FIRVerifyClientResponse *RPCResponse;
   __block NSError *RPCError;
-  [FIRAuthBackend verifyClient:request
-                      callback:^(FIRVerifyClientResponse *_Nullable response,
-                                  NSError *_Nullable error) {
-    RPCResponse = response;
-    RPCError = error;
-    callbackInvoked = YES;
-  }];
+  [FIRAuthBackend
+      verifyClient:request
+          callback:^(FIRVerifyClientResponse *_Nullable response, NSError *_Nullable error) {
+            RPCResponse = response;
+            RPCError = error;
+            callbackInvoked = YES;
+          }];
   [_RPCIssuer respondWithServerErrorMessage:kInvalidAppCredentialErrorMessage];
   XCTAssert(callbackInvoked);
   XCTAssertNil(RPCResponse);
@@ -163,18 +163,16 @@ static NSString *const kInvalidAppCredentialErrorMessage = @"INVALID_APP_CREDENT
   __block BOOL callbackInvoked;
   __block FIRVerifyClientResponse *RPCResponse;
   __block NSError *RPCError;
-   [FIRAuthBackend verifyClient:request
-                      callback:^(FIRVerifyClientResponse *_Nullable response,
-                                  NSError *_Nullable error) {
-    RPCResponse = response;
-    RPCError = error;
-    callbackInvoked = YES;
-  }];
+  [FIRAuthBackend
+      verifyClient:request
+          callback:^(FIRVerifyClientResponse *_Nullable response, NSError *_Nullable error) {
+            RPCResponse = response;
+            RPCError = error;
+            callbackInvoked = YES;
+          }];
 
-  [_RPCIssuer respondWithJSON:@{
-    kReceiptKey : kFakeReceipt,
-    kSuggestedTimeOutKey : kFakeSuggestedTimeout
-  }];
+  [_RPCIssuer
+      respondWithJSON:@{kReceiptKey : kFakeReceipt, kSuggestedTimeOutKey : kFakeSuggestedTimeout}];
 
   XCTAssert(callbackInvoked);
   XCTAssertNotNil(RPCResponse);

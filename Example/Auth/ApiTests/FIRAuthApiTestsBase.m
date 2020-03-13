@@ -34,8 +34,7 @@
     XCTFail(@"Could not obtain auth object.");
   }
 
-  XCTestExpectation *expectation =
-      [self expectationWithDescription:@"Anonymous sign-in finished."];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"Anonymous sign-in finished."];
   [auth signInAnonymouslyWithCompletion:^(FIRAuthDataResult *result, NSError *error) {
     if (error) {
       NSLog(@"Anonymous sign in error: %@", error);

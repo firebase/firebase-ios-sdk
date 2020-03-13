@@ -16,12 +16,12 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRAuthErrors.h"
 #import "FIRAuthBackend.h"
+#import "FIRAuthErrors.h"
+#import "FIRFakeBackendRPCIssuer.h"
 #import "FIRGetOOBConfirmationCodeResponse.h"
 #import "FIRVerifyAssertionRequest.h"
 #import "FIRVerifyAssertionResponse.h"
-#import "FIRFakeBackendRPCIssuer.h"
 
 /** @var kTestAPIKey
     @brief Fake API key used for testing.
@@ -124,7 +124,7 @@ static NSString *const kAutoCreateKey = @"autoCreate";
  */
 @interface FIRVerifyAssertionRequestTests : XCTestCase
 @end
-@implementation FIRVerifyAssertionRequestTests{
+@implementation FIRVerifyAssertionRequestTests {
   /** @var _RPCIssuer
       @brief This backend RPC issuer is used to fake network responses for each test in the suite.
           In the @c setUp method we initialize this and set @c FIRAuthBackend's RPC issuer to it.
@@ -163,7 +163,8 @@ static NSString *const kAutoCreateKey = @"autoCreate";
                                        requestConfiguration:_requestConfiguration];
 
   FIRVerifyAssertionResponseCallback callback =
-      ^(FIRVerifyAssertionResponse *_Nullable response, NSError *_Nullable error) {};
+      ^(FIRVerifyAssertionResponse *_Nullable response, NSError *_Nullable error) {
+      };
   void (^verifyAssertionBlock)(void) = ^{
     [FIRAuthBackend verifyAssertion:request callback:callback];
   };
@@ -183,16 +184,14 @@ static NSString *const kAutoCreateKey = @"autoCreate";
                                        requestConfiguration:_requestConfiguration];
   request.providerAccessToken = kTestProviderAccessToken;
   request.returnSecureToken = NO;
-  [FIRAuthBackend verifyAssertion:request
-                         callback:^(FIRVerifyAssertionResponse *_Nullable response,
-                                           NSError *_Nullable error) {
-  }];
+  [FIRAuthBackend
+      verifyAssertion:request
+             callback:^(FIRVerifyAssertionResponse *_Nullable response, NSError *_Nullable error){
+             }];
 
   NSArray<NSURLQueryItem *> *queryItems = @[
-      [NSURLQueryItem queryItemWithName:kProviderIDKey
-                                  value:kTestProviderID],
-      [NSURLQueryItem queryItemWithName:kProviderAccessTokenKey
-                                  value:kTestProviderAccessToken],
+    [NSURLQueryItem queryItemWithName:kProviderIDKey value:kTestProviderID],
+    [NSURLQueryItem queryItemWithName:kProviderAccessTokenKey value:kTestProviderAccessToken],
   ];
   NSURLComponents *components = [[NSURLComponents alloc] init];
   [components setQueryItems:queryItems];
@@ -220,23 +219,19 @@ static NSString *const kAutoCreateKey = @"autoCreate";
   request.providerOAuthTokenSecret = kTestProviderOAuthTokenSecret;
   request.autoCreate = NO;
 
-  [FIRAuthBackend verifyAssertion:request
-                         callback:^(FIRVerifyAssertionResponse *_Nullable response,
-                                           NSError *_Nullable error) {
-  }];
+  [FIRAuthBackend
+      verifyAssertion:request
+             callback:^(FIRVerifyAssertionResponse *_Nullable response, NSError *_Nullable error){
+             }];
 
   NSArray<NSURLQueryItem *> *queryItems = @[
-      [NSURLQueryItem queryItemWithName:kProviderIDKey
-                                  value:kTestProviderID],
-      [NSURLQueryItem queryItemWithName:kProviderIDTokenKey
-                                  value:kTestProviderIDToken],
-      [NSURLQueryItem queryItemWithName:kProviderAccessTokenKey
-                                  value:kTestProviderAccessToken],
-      [NSURLQueryItem queryItemWithName:kProviderOAuthTokenSecretKey
-                                  value:kTestProviderOAuthTokenSecret],
-      [NSURLQueryItem queryItemWithName:kInputEmailKey
-                                  value:kTestInputEmail],
-      ];
+    [NSURLQueryItem queryItemWithName:kProviderIDKey value:kTestProviderID],
+    [NSURLQueryItem queryItemWithName:kProviderIDTokenKey value:kTestProviderIDToken],
+    [NSURLQueryItem queryItemWithName:kProviderAccessTokenKey value:kTestProviderAccessToken],
+    [NSURLQueryItem queryItemWithName:kProviderOAuthTokenSecretKey
+                                value:kTestProviderOAuthTokenSecret],
+    [NSURLQueryItem queryItemWithName:kInputEmailKey value:kTestInputEmail],
+  ];
   NSURLComponents *components = [[NSURLComponents alloc] init];
   [components setQueryItems:queryItems];
   XCTAssertEqualObjects(_RPCIssuer.requestURL.absoluteString, kExpectedAPIURL);

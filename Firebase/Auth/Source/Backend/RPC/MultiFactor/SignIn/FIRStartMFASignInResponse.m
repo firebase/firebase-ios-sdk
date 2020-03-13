@@ -19,7 +19,7 @@
 @implementation FIRStartMFASignInResponse
 
 - (BOOL)setWithDictionary:(nonnull NSDictionary *)dictionary
-                    error:(NSError *__autoreleasing _Nullable * _Nullable)error {
+                    error:(NSError *__autoreleasing _Nullable *_Nullable)error {
   if (dictionary[@"phoneResponseInfo"] != nil) {
     NSDictionary *data = dictionary[@"phoneResponseInfo"];
     _responseInfo = [[FIRAuthProtoStartMFAPhoneResponseInfo alloc] initWithDictionary:data];

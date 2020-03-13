@@ -31,8 +31,9 @@ NS_ASSUME_NONNULL_BEGIN
     @param session The multi factor session returned, if any.
     @param error The error which occurred, if any.
 */
-typedef void (^FIRMultiFactorSessionCallback)(FIRMultiFactorSession *_Nullable session, NSError *_Nullable error)
-  NS_SWIFT_NAME(MultiFactorSessionCallback);
+typedef void (^FIRMultiFactorSessionCallback)(FIRMultiFactorSession *_Nullable session,
+                                              NSError *_Nullable error)
+    NS_SWIFT_NAME(MultiFactorSessionCallback);
 
 /**
    @brief The string identifier for second factors. e.g. “phone”.
@@ -40,7 +41,8 @@ typedef void (^FIRMultiFactorSessionCallback)(FIRMultiFactorSession *_Nullable s
 extern NSString *const _Nonnull FIRPhoneMultiFactorID NS_SWIFT_NAME(PhoneMultiFactorID);
 
 /** @class FIRMultiFactor
-    @brief The interface defining the multi factor related properties and operations pertaining to a user.
+    @brief The interface defining the multi factor related properties and operations pertaining to a
+   user.
 */
 NS_SWIFT_NAME(MultiFactor)
 @interface FIRMultiFactor : NSObject
@@ -60,7 +62,7 @@ NS_SWIFT_NAME(MultiFactor)
     @param displayName An optional display name associated with the multi factor to enroll.
     @param completion The block invoked when the request is complete, or fails.
 */
-- (void)enrollWithAssertion:(FIRMultiFactorAssertion*)assertion
+- (void)enrollWithAssertion:(FIRMultiFactorAssertion *)assertion
                 displayName:(nullable NSString *)displayName
                  completion:(nullable FIRAuthVoidErrorCallback)completion;
 

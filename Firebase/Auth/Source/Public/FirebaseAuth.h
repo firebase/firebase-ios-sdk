@@ -23,7 +23,6 @@
 #import "FIRAuthDataResult.h"
 #import "FIRAuthErrors.h"
 #import "FIRAuthTokenResult.h"
-#import "FirebaseAuthVersion.h"
 #import "FIREmailAuthProvider.h"
 #import "FIRFacebookAuthProvider.h"
 #import "FIRFederatedAuthProvider.h"
@@ -41,14 +40,15 @@
 #import "FIRUser.h"
 #import "FIRUserInfo.h"
 #import "FIRUserMetadata.h"
+#import "FirebaseAuthVersion.h"
 
 #if TARGET_OS_IOS
+#import "FIRAuthAPNSTokenType.h"
+#import "FIRAuthSettings.h"
 #import "FIRAuthUIDelegate.h"
 #import "FIRPhoneAuthCredential.h"
 #import "FIRPhoneAuthProvider.h"
 #import "FIRPhoneMultiFactorAssertion.h"
 #import "FIRPhoneMultiFactorGenerator.h"
 #import "FIRPhoneMultiFactorInfo.h"
-#import "FIRAuthAPNSTokenType.h"
-#import "FIRAuthSettings.h"
 #endif

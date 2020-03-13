@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FIRAuthRPCResponse.h"
 #import "FIRAuthProtoStartMFAPhoneResponseInfo.h"
+#import "FIRAuthRPCResponse.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

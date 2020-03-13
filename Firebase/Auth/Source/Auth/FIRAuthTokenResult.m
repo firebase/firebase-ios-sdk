@@ -90,8 +90,8 @@ static NSString *const kClaimsKey = @"claims";
 
   // Convert the base64URL encoded string to a base64 encoded string.
   // Replace "_" with "/"
-  NSMutableString *tokenPayload =
-  [[IDToken stringByReplacingOccurrencesOfString:@"_" withString:@"/"] mutableCopy];
+  NSMutableString *tokenPayload = [[IDToken stringByReplacingOccurrencesOfString:@"_"
+                                                                      withString:@"/"] mutableCopy];
 
   // Replace "-" with "+"
   [tokenPayload replaceOccurrencesOfString:@"-"
@@ -104,17 +104,17 @@ static NSString *const kClaimsKey = @"claims";
     [tokenPayload appendFormat:@"="];
   }
   NSData *decodedTokenPayloadData =
-  [[NSData alloc] initWithBase64EncodedString:tokenPayload
-                                      options:NSDataBase64DecodingIgnoreUnknownCharacters];
+      [[NSData alloc] initWithBase64EncodedString:tokenPayload
+                                          options:NSDataBase64DecodingIgnoreUnknownCharacters];
   if (!decodedTokenPayloadData) {
     return nil;
   }
   NSError *jsonError = nil;
-  NSJSONReadingOptions options = NSJSONReadingMutableContainers|NSJSONReadingAllowFragments;
+  NSJSONReadingOptions options = NSJSONReadingMutableContainers | NSJSONReadingAllowFragments;
   NSDictionary *tokenPayloadDictionary =
-  [NSJSONSerialization JSONObjectWithData:decodedTokenPayloadData
-                                  options:options
-                                    error:&jsonError];
+      [NSJSONSerialization JSONObjectWithData:decodedTokenPayloadData
+                                      options:options
+                                        error:&jsonError];
   if (jsonError != nil) {
     return nil;
   }
@@ -126,23 +126,24 @@ static NSString *const kClaimsKey = @"claims";
   // These are dates since 00:00:00 January 1 1970, as described by the Terminology section in
   // the JWT spec. https://tools.ietf.org/html/rfc7519
   NSDate *expirationDate =
-  [NSDate dateWithTimeIntervalSince1970:[tokenPayloadDictionary[@"exp"] doubleValue]];
+      [NSDate dateWithTimeIntervalSince1970:[tokenPayloadDictionary[@"exp"] doubleValue]];
   NSDate *authDate =
-  [NSDate dateWithTimeIntervalSince1970:[tokenPayloadDictionary[@"auth_time"] doubleValue]];
+      [NSDate dateWithTimeIntervalSince1970:[tokenPayloadDictionary[@"auth_time"] doubleValue]];
   NSDate *issuedAtDate =
-  [NSDate dateWithTimeIntervalSince1970:[tokenPayloadDictionary[@"iat"] doubleValue]];
+      [NSDate dateWithTimeIntervalSince1970:[tokenPayloadDictionary[@"iat"] doubleValue]];
 
   NSDictionary *firebaseTokenPayloadDictionary = tokenPayloadDictionary[@"firebase"];
   NSString *signInProvider = firebaseTokenPayloadDictionary[@"sign_in_provider"];
   NSString *signInSecondFactor = firebaseTokenPayloadDictionary[@"sign_in_second_factor"];
 
-  FIRAuthTokenResult *tokenResult = [[FIRAuthTokenResult alloc] initWithToken:token
-                                                               expirationDate:expirationDate
-                                                                     authDate:authDate
-                                                                 issuedAtDate:issuedAtDate
-                                                               signInProvider:signInProvider
-                                                           signInSecondFactor:signInSecondFactor
-                                                                       claims:tokenPayloadDictionary];
+  FIRAuthTokenResult *tokenResult =
+      [[FIRAuthTokenResult alloc] initWithToken:token
+                                 expirationDate:expirationDate
+                                       authDate:authDate
+                                   issuedAtDate:issuedAtDate
+                                 signInProvider:signInProvider
+                             signInSecondFactor:signInSecondFactor
+                                         claims:tokenPayloadDictionary];
   return tokenResult;
 }
 

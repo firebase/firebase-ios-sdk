@@ -18,9 +18,9 @@
 
 #import "FIRAuthBackend.h"
 #import "FIRAuthOperationType.h"
+#import "FIRFakeBackendRPCIssuer.h"
 #import "FIRVerifyPhoneNumberRequest.h"
 #import "FIRVerifyPhoneNumberResponse.h"
-#import "FIRFakeBackendRPCIssuer.h"
 
 /** @var kTestAPIKey
     @brief Fake API key used for testing.
@@ -70,11 +70,11 @@ static NSString *const kOperationKey = @"operation";
 /** @var kTestAccessToken
     @bried Fake acess token for testing.
  */
- static NSString *const kTestAccessToken = @"accessToken";
+static NSString *const kTestAccessToken = @"accessToken";
 
- /** @var kTemporaryProofKey
-    @brief The key for the temporary proof value in the request.
- */
+/** @var kTemporaryProofKey
+   @brief The key for the temporary proof value in the request.
+*/
 static NSString *const kTemporaryProofKey = @"temporaryProof";
 
 /** @var kPhoneNumberKey
@@ -117,9 +117,9 @@ NSString *const FIRAuthOperationString(FIRAuthOperationType operationType);
    */
   FIRFakeBackendRPCIssuer *_RPCIssuer;
 
-    /** @var _requestConfiguration
-      @brief This is the request configuration used for testing.
-   */
+  /** @var _requestConfiguration
+    @brief This is the request configuration used for testing.
+ */
   FIRAuthRequestConfiguration *_requestConfiguration;
 }
 
@@ -150,8 +150,8 @@ NSString *const FIRAuthOperationString(FIRAuthOperationType operationType);
   request.accessToken = kTestAccessToken;
   [FIRAuthBackend verifyPhoneNumber:request
                            callback:^(FIRVerifyPhoneNumberResponse *_Nullable response,
-                                      NSError *_Nullable error) {
-  }];
+                                      NSError *_Nullable error){
+                           }];
 
   XCTAssertEqualObjects(_RPCIssuer.requestURL.absoluteString, kExpectedAPIURL);
   XCTAssertNotNil(_RPCIssuer.decodedRequest);
@@ -159,7 +159,7 @@ NSString *const FIRAuthOperationString(FIRAuthOperationType operationType);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kVerificationCodeKey], kVerificationCode);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kIDTokenKey], kTestAccessToken);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kOperationKey],
-                 FIRAuthOperationString(FIRAuthOperationTypeSignUpOrSignIn));
+                        FIRAuthOperationString(FIRAuthOperationTypeSignUpOrSignIn));
 }
 
 /** @fn testVerifyPhoneNumberRequestWithTemporaryProof
@@ -174,8 +174,8 @@ NSString *const FIRAuthOperationString(FIRAuthOperationType operationType);
   request.accessToken = kTestAccessToken;
   [FIRAuthBackend verifyPhoneNumber:request
                            callback:^(FIRVerifyPhoneNumberResponse *_Nullable response,
-                                      NSError *_Nullable error) {
-  }];
+                                      NSError *_Nullable error){
+                           }];
 
   XCTAssertEqualObjects(_RPCIssuer.requestURL.absoluteString, kExpectedAPIURL);
   XCTAssertNotNil(_RPCIssuer.decodedRequest);

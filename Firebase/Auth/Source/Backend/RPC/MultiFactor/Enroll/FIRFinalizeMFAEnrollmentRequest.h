@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
+#import "FIRAuthProtoFinalizeMFAPhoneRequestInfo.h"
 #import "FIRAuthRPCRequest.h"
 #import "FIRIdentityToolkitRequest.h"
-#import "FIRAuthProtoFinalizeMFAPhoneRequestInfo.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -28,7 +28,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic, copy, readonly, nullable) NSString *displayName;
 
-@property(nonatomic, copy, readonly, nullable) FIRAuthProtoFinalizeMFAPhoneRequestInfo *verificationInfo;
+@property(nonatomic, copy, readonly, nullable)
+    FIRAuthProtoFinalizeMFAPhoneRequestInfo *verificationInfo;
 
 - (nullable instancetype)initWithIDToken:(NSString *)IDToken
                              MFAProvider:(NSString *)MFAProvider
