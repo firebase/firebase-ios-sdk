@@ -24,10 +24,12 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(AppDistributionRelease)
 @interface FIRAppDistributionRelease : NSObject
 
-// The short bundle version of this build (example 1.0.0)
-@property(nonatomic, copy) NSString *displayVersion;
 // The build number of this build (example: 123)
 @property(nonatomic, copy) NSString *buildVersion;
+
+// The short bundle version of this build (example 1.0.0)
+@property(nonatomic, copy) NSString *displayVersion;
+
 // The release notes for this build
 @property(nonatomic, copy) NSString *releaseNotes;
 // The URL for the build
@@ -116,13 +118,13 @@ typedef NS_ENUM(NSUInteger, FIRAppDistributionError) {
     FIRAppDistributionErrorUnknown = 0,
 
     // Authentication failed
-    FIRAppDistributionErrorAuthentication = 1,
+    FIRAppDistributionErrorAuthenticationFailure = 1,
 
     // Authentication canceled
     FIRAppDistributionErrorAuthenticationCancelled = 2,
 
     // Network unavailable to make requests
-    FIRAppDistributionErrorNetwork = 3,
+    FIRAppDistributionErrorNetworkFailure = 3,
 
 } NS_SWIFT_NAME(AppDistributionError);
 
