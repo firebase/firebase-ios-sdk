@@ -127,6 +127,7 @@ static NSInteger const SuccessHTTPStatusCode = 200;
 
   [request addValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
   [request addValue:@"application/json" forHTTPHeaderField:@"Accept"];
+  [request addValue:iidToken forHTTPHeaderField:@"x-goog-firebase-installations-auth"];
 
   NSMutableDictionary *postFetchDict = [[NSMutableDictionary alloc] init];
   [self updatePostFetchData:postFetchDict
