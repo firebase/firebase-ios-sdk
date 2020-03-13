@@ -41,7 +41,7 @@ NSString *const kFWPAsyncServerAuthRevoked = @"ac";
 NSString *const kFWPASyncServerListenCancelled = @"c";
 NSString *const kFWPAsyncServerSecurityDebug = @"sd";
 NSString *const kFWPAsyncServerDataUpdateBodyPath =
-    @"p"; // {“a”: “d”, “b”: {“p”: “/”, “d”: “<data>”}}
+    @"p"; // {"a": "d", "b": {"p": "/", "d": "<data>"}}
 NSString *const kFWPAsyncServerDataUpdateBodyData = @"d";
 NSString *const kFWPAsyncServerDataUpdateStartPath = @"s";
 NSString *const kFWPAsyncServerDataUpdateEndPath = @"e";

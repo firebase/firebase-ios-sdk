@@ -45,8 +45,8 @@ FOUNDATION_EXPORT NSString *const kFWPAsyncServerAuthRevoked;
 FOUNDATION_EXPORT NSString *const kFWPASyncServerListenCancelled;
 FOUNDATION_EXPORT NSString *const kFWPAsyncServerSecurityDebug;
 FOUNDATION_EXPORT NSString
-    *const kFWPAsyncServerDataUpdateBodyPath; // {“a”: “d”, “b”: {“p”: “/”, “d”:
-                                              // “<data>”}}
+    *const kFWPAsyncServerDataUpdateBodyPath; // {"a": "d", "b": {"p": "/", "d":
+                                              // "<data>""}}
 FOUNDATION_EXPORT NSString *const kFWPAsyncServerDataUpdateBodyData;
 FOUNDATION_EXPORT NSString *const kFWPAsyncServerDataUpdateStartPath;
 FOUNDATION_EXPORT NSString *const kFWPAsyncServerDataUpdateEndPath;

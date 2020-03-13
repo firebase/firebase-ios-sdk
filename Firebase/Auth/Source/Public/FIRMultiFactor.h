@@ -35,7 +35,7 @@ typedef void (^FIRMultiFactorSessionCallback)(FIRMultiFactorSession *_Nullable s
   NS_SWIFT_NAME(MultiFactorSessionCallback);
 
 /**
-   @brief The string identifier for second factors. e.g. “phone”.
+   @brief The string identifier for second factors. e.g. "phone".
 */
 extern NSString *const _Nonnull FIRPhoneMultiFactorID NS_SWIFT_NAME(PhoneMultiFactorID);
 
