@@ -103,11 +103,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, readonly) BOOL customExceptionsEnabled;
 
 /**
- * Determine if the SDK should use the new endpoint for uploading reports
- */
-@property(nonatomic, readonly) BOOL shouldUseNewReportEndpoint;
-
-/**
  * Returns the maximum number of custom exception events that will be
  * recorded in a session.
  */
@@ -128,6 +123,10 @@ NS_ASSUME_NONNULL_BEGIN
  * Returns the maximum number of custom key-value pair keys (not bytes).
  */
 @property(nonatomic, readonly) uint32_t maxCustomKeys;
+
+/// Determine if the SDK should use the new endpoint for uploading reports
+/// @param settings Fetched settings
++ (BOOL)shouldUseNewReportEndpointWithSettings:(nullable FIRCLSSettings *)settings;
 
 @end
 

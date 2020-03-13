@@ -96,7 +96,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertEqual(self.settings.maxCustomExceptions, 8);
   XCTAssertEqual(self.settings.maxCustomKeys, 64);
 
-  XCTAssertFalse(self.settings.shouldUseNewReportEndpoint);
+  XCTAssertFalse([FIRCLSSettings shouldUseNewReportEndpointWithSettings:self.settings]);
 }
 
 - (BOOL)writeSettings:(const NSString *)settings error:(NSError **)error {
@@ -384,7 +384,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertEqualObjects(self.settings.fetchedBundleID, nil);
   XCTAssertFalse(self.settings.appNeedsOnboarding);
   XCTAssertEqual(self.settings.errorLogBufferSize, 64 * 1000);
-  XCTAssertFalse(self.settings.shouldUseNewReportEndpoint);
+  XCTAssertFalse([FIRCLSSettings shouldUseNewReportEndpointWithSettings:self.settings]);
 }
 
 - (void)testCorruptCacheKey {
@@ -433,7 +433,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   [self.settings cacheSettingsWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
 
   XCTAssertNil(error, "%@", error);
-  XCTAssertTrue(self.settings.shouldUseNewReportEndpoint);
+  XCTAssertTrue([FIRCLSSettings shouldUseNewReportEndpointWithSettings:self.settings]);
 }
 
 - (void)testLegacyReportEndpointSettings {
@@ -447,7 +447,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   [self.settings cacheSettingsWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
 
   XCTAssertNil(error, "%@", error);
-  XCTAssertFalse(self.settings.shouldUseNewReportEndpoint);
+  XCTAssertFalse([FIRCLSSettings shouldUseNewReportEndpointWithSettings:self.settings]);
 }
 
 - (void)testLegacyReportEndpointSettingsWithNonExistentKey {
@@ -460,7 +460,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   [self.settings cacheSettingsWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
 
   XCTAssertNil(error, "%@", error);
-  XCTAssertFalse(self.settings.shouldUseNewReportEndpoint);
+  XCTAssertFalse([FIRCLSSettings shouldUseNewReportEndpointWithSettings:self.settings]);
 }
 
 - (void)testLegacyReportEndpointSettingsWithUnknownValue {
@@ -474,7 +474,11 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   [self.settings cacheSettingsWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
 
   XCTAssertNil(error, "%@", error);
-  XCTAssertFalse(self.settings.shouldUseNewReportEndpoint);
+  XCTAssertFalse([FIRCLSSettings shouldUseNewReportEndpointWithSettings:self.settings]);
+}
+
+- (void)testShouldUseNewReportEndpointWithNoSettings {
+  XCTAssertTrue([FIRCLSSettings shouldUseNewReportEndpointWithSettings:nil]);
 }
 
 @end

@@ -246,7 +246,7 @@ static void (^reportSentCallback)(void);
 
   count += _fileManager.processingPathContents.count;
 
-  if (self.settings.shouldUseNewReportEndpoint) {
+  if ([FIRCLSSettings shouldUseNewReportEndpointWithSettings:self.settings]) {
     count += _fileManager.preparedPathContents.count;
   } else {
     count += _fileManager.legacyPreparedPathContents.count;
@@ -682,7 +682,7 @@ static void (^reportSentCallback)(void);
 
 - (void)removeContentsInOtherReportingDirectories {
   [self removeExistingReportPaths:self.fileManager.processingPathContents];
-  if (self.settings.shouldUseNewReportEndpoint) {
+  if ([FIRCLSSettings shouldUseNewReportEndpointWithSettings:self.settings]) {
     [self removeExistingReportPaths:self.fileManager.preparedPathContents];
   } else {
     [self removeExistingReportPaths:self.fileManager.legacyPreparedPathContents];
@@ -710,7 +710,7 @@ static void (^reportSentCallback)(void);
 }
 
 - (void)handleExistingFilesInPreparedWithToken:(FIRCLSDataCollectionToken *)token {
-  NSArray *preparedPaths = self.settings.shouldUseNewReportEndpoint
+  NSArray *preparedPaths = [FIRCLSSettings shouldUseNewReportEndpointWithSettings:self.settings]
                                ? _fileManager.preparedPathContents
                                : _fileManager.legacyPreparedPathContents;
 

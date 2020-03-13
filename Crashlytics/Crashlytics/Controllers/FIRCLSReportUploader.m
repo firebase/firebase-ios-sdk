@@ -108,15 +108,16 @@
         }
 
         NSString *packagedPath;
+        BOOL shouldUseNewEndpoint =
+            [FIRCLSSettings shouldUseNewReportEndpointWithSettings:self.dataSource.settings];
 
-        FIRCLSDebugLog(@"Preparing the report for the new endpoint: %d",
-                       self.dataSource.settings.shouldUseNewReportEndpoint);
+        FIRCLSDebugLog(@"Preparing the report for the new endpoint: %d", shouldUseNewEndpoint);
 
         // With the new report endpoint, the report is deleted once it is written to GDT
         // Check if the report has a crash file before the report is moved or deleted
         BOOL isCrash = report.isCrash;
 
-        if (self.dataSource.settings.shouldUseNewReportEndpoint) {
+        if (shouldUseNewEndpoint) {
           // For the new endpoint, just move the .clsrecords from "processing" -> "prepared"
           if (![self.fileManager moveItemAtPath:report.path
                                     toDirectory:self.fileManager.preparedPath]) {
@@ -204,10 +205,13 @@
   FIRCLSDeveloperLog("Crashlytics:Crash:Reports", @"Submitting report%@",
                      urgent ? @" as urgent" : @"");
 
+  BOOL shouldUseNewEndpoint =
+      [FIRCLSSettings shouldUseNewReportEndpointWithSettings:self.dataSource.settings];
+
   // Check with the legacy path as the new path will always be contained in the legacy path
   BOOL isNewPreparedPath = ![path containsString:self.fileManager.legacyPreparedPath];
 
-  if (isNewPreparedPath && self.dataSource.settings.shouldUseNewReportEndpoint) {
+  if (isNewPreparedPath && shouldUseNewEndpoint) {
     if (![dataCollectionToken isValid]) {
       FIRCLSErrorLog(@"A report upload was requested with an invalid data collection token.");
       return NO;
@@ -260,7 +264,7 @@
 
     return success;
 
-  } else if (!isNewPreparedPath && !self.dataSource.settings.shouldUseNewReportEndpoint) {
+  } else if (!isNewPreparedPath && !shouldUseNewEndpoint) {
     return [self submitPackageMultipartMimeAtPath:path
                               dataCollectionToken:dataCollectionToken
                                     synchronously:urgent];

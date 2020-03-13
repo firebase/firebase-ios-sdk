@@ -299,6 +299,15 @@ NSString *const BuildInstanceID = @"build_instance_id";
   return value.intValue == 2;
 }
 
++ (BOOL)shouldUseNewReportEndpointWithSettings:(nullable FIRCLSSettings *)settings {
+  // Default to use the new endpoint when settings were not successfully fetched 
+  if (!settings) {
+    return YES;
+  }
+
+  return settings.shouldUseNewReportEndpoint;
+}
+
 #pragma mark - Optional Limit Overrides
 
 - (uint32_t)errorLogBufferSize {
