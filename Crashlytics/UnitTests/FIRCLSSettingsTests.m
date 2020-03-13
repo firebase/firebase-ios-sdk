@@ -479,7 +479,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
 
 - (void)testShouldUseNewReportEndpointWithNoSettings {
   XCTAssertTrue([FIRCLSSettings shouldUseNewReportEndpointWithSettings:nil]);
-    
+
   NSError *error = nil;
   [self writeSettings:nil error:&error];
   XCTAssertNil(error, "%@", error);
