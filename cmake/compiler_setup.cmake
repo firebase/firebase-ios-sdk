@@ -84,6 +84,14 @@ if(APPLE)
   # sources which is nonportable. Keep these flags separate to avoid misuse.
   set(
     FIREBASE_IOS_OBJC_FLAGS
+    -fobjc-arc
+    -fmodules
+    -fno-autolink
+  )
+  set(
+    FIREBASE_IOS_OBJC_FLAGS_STRICT
+    ${FIREBASE_IOS_OBJC_FLAGS}
+
     -Werror=deprecated-objc-isa-usage
     -Werror=non-modular-include-in-framework-module
     -Werror=objc-root-class
@@ -91,12 +99,6 @@ if(APPLE)
     -Wblock-capture-autoreleasing
     -Wimplicit-atomic-properties
     -Wnon-modular-include-in-framework-module
-
-    -fobjc-arc
-    -fmodules
-    -fno-autolink
-
-    -F${FIREBASE_INSTALL_DIR}/Frameworks
   )
 endif()
 
@@ -123,11 +125,11 @@ if(MSVC)
 endif()
 
 foreach(flag ${common_flags} ${c_flags})
-  list(APPEND FIREBASE_IOS_C_FLAGS ${flag})
+  list(APPEND FIREBASE_IOS_C_FLAGS_STRICT ${flag})
 endforeach()
 
 foreach(flag ${common_flags} ${cxx_flags})
-  list(APPEND FIREBASE_IOS_CXX_FLAGS ${flag})
+  list(APPEND FIREBASE_IOS_CXX_FLAGS_STRICT ${flag})
 endforeach()
 
 if(APPLE)

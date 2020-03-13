@@ -35,7 +35,13 @@ firebase_ios_objc_framework(
   DEPENDS
     FirebaseCoreDiagnosticsInterop
     GoogleUtilities
-    "-framework AppKit"
     "-framework Foundation"
+  DISABLE_STRICT_WARNINGS
   EXCLUDE_FROM_ALL
 )
+
+if(IOS)
+  target_link_libraries(FirebaseCore PRIVATE "-framework UIKit")
+elseif(APPLE)
+  target_link_libraries(FirebaseCore PRIVATE "-framework AppKit")
+endif()
