@@ -28,7 +28,7 @@
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRLogger.h>
 #import <FirebaseCore/FIROptions.h>
-#import <FirebaseInstanceID/FirebaseInstanceID.h>
+#import <FirebaseInstallations/FirebaseInstallations.h>
 #import <GoogleUtilities/GULNSData+zlib.h>
 #import <OCMock/OCMock.h>
 
@@ -57,11 +57,15 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   RCNTestRCInstanceSecondApp,
 };
 
-@interface FIRInstanceID (Tests)
-+ (FIRInstanceID *)instanceIDForTests;
+@class FIRInstallationsIDController;
+@interface FIRInstallations (Tests)
+- (instancetype)initWithAppOptions:(FIROptions *)appOptions
+                           appName:(NSString *)appName
+         installationsIDController:(FIRInstallationsIDController *)installationsIDController
+                 prefetchAuthToken:(BOOL)prefetchAuthToken;
 @end
 
-@interface RCNInstanceIDTest : XCTestCase {
+@interface RCNInstallationsTests : XCTestCase {
   NSTimeInterval _expectationTimeout;
   NSTimeInterval _checkCompletionTimeout;
   NSMutableArray<FIRRemoteConfig *> *_configInstances;
@@ -77,15 +81,13 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
 }
 @end
 
-@implementation RCNInstanceIDTest
+@implementation RCNInstallationsTests
 
-- (void)setUp {
-  [super setUp];
+- (void)setUpConfigMock {
   FIRSetLoggerLevel(FIRLoggerLevelMax);
-  //@@if (![FIRApp isDefaultAppConfigured]) {
-  [FIRApp configureWithOptions:[self firstAppOptions]];
   _expectationTimeout = 5;
   _checkCompletionTimeout = 1.0;
+  [FIRApp configureWithOptions:[self firstAppOptions]];
 
   // Always remove the database at the start of testing.
   _DBPath = [RCNTestUtilities remoteConfigPathForTestDatabase];
@@ -174,20 +176,21 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                      tokenError:(nullable NSError *)tokenError
                                        identity:(nullable NSString *)identity
                                   identityError:(nullable NSError *)identityError {
-  // Mock the instanceID retreival method.
-  id instanceIDMock = OCMPartialMock([FIRInstanceID instanceIDForTests]);
-  OCMStub([instanceIDMock
-      tokenWithAuthorizedEntity:[OCMArg any]
-                          scope:[OCMArg any]
-                        options:[OCMArg any]
-                        handler:([OCMArg
-                                    invokeBlockWithArgs:(token ? token : [NSNull null]),
-                                                        (tokenError ? tokenError : [NSNull null]),
-                                                        nil])]);
-  OCMStub([instanceIDMock
-      getIDWithHandler:([OCMArg invokeBlockWithArgs:(identity ? identity : [NSNull null]),
-                                                    (identityError ? identityError : [NSNull null]),
-                                                    nil])]);
+  // Mock the installations retreival method.
+  id installationsMock = OCMClassMock([FIRInstallations class]);
+  OCMStub([installationsMock
+      installationIDWithCompletion:([OCMArg
+                                       invokeBlockWithArgs:(identity ? identity : [NSNull null]),
+                                                           (identityError ? identityError
+                                                                          : [NSNull null]),
+                                                           nil])]);
+  OCMStub([installationsMock
+      authTokenWithCompletion:([OCMArg invokeBlockWithArgs:(identity ? identity : [NSNull null]),
+                                                           (identityError ? identityError
+                                                                          : [NSNull null]),
+                                                           nil])]);
+
+  [self setUpConfigMock];
 }
 
 - (void)tearDown {
@@ -198,17 +201,19 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
 }
 
 // Instance ID token is nil. Error is not nil. Verify fetch fails.
-- (void)testNilInstanceIDTokenAndError {
+- (void)testNilInstallationsAuthTokenAndError {
   NSMutableArray<XCTestExpectation *> *expectations =
       [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
 
   // Set the token as nil.
-  [self mockInstanceIDMethodForTokenAndIdentity:nil
-                                     tokenError:[NSError errorWithDomain:@"com.google.instanceid"
-                                                                    code:FIRInstanceIDErrorUnknown
-                                                                userInfo:nil]
-                                       identity:nil
-                                  identityError:nil];
+  [self
+      mockInstanceIDMethodForTokenAndIdentity:nil
+                                   tokenError:[NSError
+                                                  errorWithDomain:kFirebaseInstallationsErrorDomain
+                                                             code:FIRInstallationsErrorCodeUnknown
+                                                         userInfo:nil]
+                                     identity:nil
+                                identityError:nil];
   // Test for each RC FIRApp, namespace instance.
   for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
     expectations[i] =
@@ -229,177 +234,185 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                }];
 }
 
-// Test IID error. Subsequent request also fails with same error (b/148975341).
-- (void)testMultipleFetchCallsFailing {
-  NSMutableArray<XCTestExpectation *> *expectations =
-      [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
-
-  // Set the token as nil.
-  [self mockInstanceIDMethodForTokenAndIdentity:nil
-                                     tokenError:[NSError errorWithDomain:@"com.google.instanceid"
-                                                                    code:FIRInstanceIDErrorUnknown
-                                                                userInfo:nil]
-                                       identity:nil
-                                  identityError:nil];
-  // Test for each RC FIRApp, namespace instance.
-  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
-    expectations[i] =
-        [self expectationWithDescription:
-                  [NSString stringWithFormat:@"Test fetch configs successfully - instance %d", i]];
-    XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusNoFetchYet);
-    FIRRemoteConfigFetchCompletion fetchCompletion =
-        ^void(FIRRemoteConfigFetchStatus status, NSError *error) {
-          XCTAssertNotNil(error);
-          XCTAssertFalse([[error.userInfo objectForKey:@"NSLocalizedDescription"]
-                             rangeOfString:@"Failed to get InstanceID token"]
-                             .location == NSNotFound);
-          // Make a second fetch call.
-          [_configInstances[i]
-              fetchWithExpirationDuration:43200
-                        completionHandler:^void(FIRRemoteConfigFetchStatus status, NSError *error) {
-                          XCTAssertNotNil(error);
-                          XCTAssertFalse([[error.userInfo objectForKey:@"NSLocalizedDescription"]
-                                             rangeOfString:@"Failed to get InstanceID token"]
-                                             .location == NSNotFound);
-                          [expectations[i] fulfill];
-                        }];
-        };
-    [_configInstances[i] fetchWithExpirationDuration:43200 completionHandler:fetchCompletion];
-  }
-
-  [self waitForExpectationsWithTimeout:_expectationTimeout
-                               handler:^(NSError *error) {
-                                 XCTAssertNil(error);
-                               }];
-}
-
-// Instance ID token is not nil. Error is not nil. Verify fetch fails.
-- (void)testValidInstanceIDTokenAndValidError {
-  NSMutableArray<XCTestExpectation *> *expectations =
-      [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
-
-  // Test for each RC FIRApp, namespace instance.
-  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
-    // Set the token as nil.
-    [self mockInstanceIDMethodForTokenAndIdentity:@"abcd"
-                                       tokenError:[NSError errorWithDomain:@"com.google.instanceid"
-                                                                      code:FIRInstanceIDErrorUnknown
-                                                                  userInfo:nil]
-                                         identity:nil
-                                    identityError:nil];
-
-    expectations[i] =
-        [self expectationWithDescription:
-                  [NSString stringWithFormat:@"Test fetch configs successfully - instance %d", i]];
-    XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusNoFetchYet);
-    FIRRemoteConfigFetchCompletion fetchCompletion =
-        ^void(FIRRemoteConfigFetchStatus status, NSError *error) {
-          XCTAssertNotNil(error);
-          [expectations[i] fulfill];
-        };
-    [_configInstances[i] fetchWithExpirationDuration:43200 completionHandler:fetchCompletion];
-  }
-
-  [self waitForExpectationsWithTimeout:_expectationTimeout
-                               handler:^(NSError *error) {
-                                 XCTAssertNil(error);
-                               }];
-}
-
-// Instance ID token is nil. Error is nil. Verify fetch fails.
-- (void)testNilInstanceIDTokenAndNilError {
-  NSMutableArray<XCTestExpectation *> *expectations =
-      [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
-
-  // Test for each RC FIRApp, namespace instance.
-  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
-    // Set the token as nil.
-    [self mockInstanceIDMethodForTokenAndIdentity:nil
-                                       tokenError:nil
-                                         identity:nil
-                                    identityError:nil];
-
-    expectations[i] =
-        [self expectationWithDescription:
-                  [NSString stringWithFormat:@"Test fetch configs successfully - instance %d", i]];
-    XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusNoFetchYet);
-    FIRRemoteConfigFetchCompletion fetchCompletion =
-        ^void(FIRRemoteConfigFetchStatus status, NSError *error) {
-          XCTAssertNotNil(error);
-          [expectations[i] fulfill];
-        };
-    [_configInstances[i] fetchWithExpirationDuration:43200 completionHandler:fetchCompletion];
-  }
-
-  [self waitForExpectationsWithTimeout:_expectationTimeout
-                               handler:^(NSError *error) {
-                                 XCTAssertNil(error);
-                               }];
-}
-
-// Instance ID token is valid. InstanceID is nil with no error. Verify fetch fails.
-- (void)testNilInstanceIDWithValidInstanceIDToken {
-  NSMutableArray<XCTestExpectation *> *expectations =
-      [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
-
-  // Test for each RC FIRApp, namespace instance.
-  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
-    // Set the token as nil.
-    [self mockInstanceIDMethodForTokenAndIdentity:@"abcd"
-                                       tokenError:nil
-                                         identity:nil
-                                    identityError:nil];
-
-    expectations[i] =
-        [self expectationWithDescription:
-                  [NSString stringWithFormat:@"Test fetch configs successfully - instance %d", i]];
-    XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusNoFetchYet);
-    FIRRemoteConfigFetchCompletion fetchCompletion =
-        ^void(FIRRemoteConfigFetchStatus status, NSError *error) {
-          XCTAssertNotNil(error);
-          [expectations[i] fulfill];
-        };
-    [_configInstances[i] fetchWithExpirationDuration:43200 completionHandler:fetchCompletion];
-  }
-
-  [self waitForExpectationsWithTimeout:_expectationTimeout
-                               handler:^(NSError *error) {
-                                 XCTAssertNil(error);
-                               }];
-}
-
-// Instance ID is not nil, but IID SDK returns an error. Also token is valid.
-- (void)testValidInstanceIDAndError {
-  NSMutableArray<XCTestExpectation *> *expectations =
-      [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
-
-  // Test for each RC FIRApp, namespace instance.
-  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
-    // Set the token as nil.
-    [self mockInstanceIDMethodForTokenAndIdentity:@"abcd"
-                                       tokenError:nil
-                                         identity:@"test-id"
-                                    identityError:[NSError errorWithDomain:@"com.google.instanceid"
-                                                                      code:FIRInstanceIDErrorUnknown
-                                                                  userInfo:nil]];
-
-    expectations[i] =
-        [self expectationWithDescription:
-                  [NSString stringWithFormat:@"Test fetch configs successfully - instance %d", i]];
-    XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusNoFetchYet);
-    FIRRemoteConfigFetchCompletion fetchCompletion =
-        ^void(FIRRemoteConfigFetchStatus status, NSError *error) {
-          XCTAssertNotNil(error);
-          [expectations[i] fulfill];
-        };
-    [_configInstances[i] fetchWithExpirationDuration:43200 completionHandler:fetchCompletion];
-  }
-
-  [self waitForExpectationsWithTimeout:_expectationTimeout
-                               handler:^(NSError *error) {
-                                 XCTAssertNil(error);
-                               }];
-}
+//// Test IID error. Subsequent request also fails with same error (b/148975341).
+//- (void)testMultipleFetchCallsFailing {
+//  NSMutableArray<XCTestExpectation *> *expectations =
+//      [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
+//
+//  // Set the token as nil.
+//  [self mockInstanceIDMethodForTokenAndIdentity:nil
+//                                     tokenError:[NSError errorWithDomain:@"com.google.instanceid"
+//                                                                    code:FIRInstanceIDErrorUnknown
+//                                                                userInfo:nil]
+//                                       identity:nil
+//                                  identityError:nil];
+//  // Test for each RC FIRApp, namespace instance.
+//  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
+//    expectations[i] =
+//        [self expectationWithDescription:
+//                  [NSString stringWithFormat:@"Test fetch configs successfully - instance %d",
+//                  i]];
+//    XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusNoFetchYet);
+//    FIRRemoteConfigFetchCompletion fetchCompletion =
+//        ^void(FIRRemoteConfigFetchStatus status, NSError *error) {
+//          XCTAssertNotNil(error);
+//          XCTAssertFalse([[error.userInfo objectForKey:@"NSLocalizedDescription"]
+//                             rangeOfString:@"Failed to get InstanceID token"]
+//                             .location == NSNotFound);
+//          // Make a second fetch call.
+//          [_configInstances[i]
+//              fetchWithExpirationDuration:43200
+//                        completionHandler:^void(FIRRemoteConfigFetchStatus status, NSError *error)
+//                        {
+//                          XCTAssertNotNil(error);
+//                          XCTAssertFalse([[error.userInfo objectForKey:@"NSLocalizedDescription"]
+//                                             rangeOfString:@"Failed to get InstanceID token"]
+//                                             .location == NSNotFound);
+//                          [expectations[i] fulfill];
+//                        }];
+//        };
+//    [_configInstances[i] fetchWithExpirationDuration:43200 completionHandler:fetchCompletion];
+//  }
+//
+//  [self waitForExpectationsWithTimeout:_expectationTimeout
+//                               handler:^(NSError *error) {
+//                                 XCTAssertNil(error);
+//                               }];
+//}
+//
+//// Instance ID token is not nil. Error is not nil. Verify fetch fails.
+//- (void)testValidInstanceIDTokenAndValidError {
+//  NSMutableArray<XCTestExpectation *> *expectations =
+//      [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
+//
+//  // Test for each RC FIRApp, namespace instance.
+//  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
+//    // Set the token as nil.
+//    [self mockInstanceIDMethodForTokenAndIdentity:@"abcd"
+//                                       tokenError:[NSError
+//                                       errorWithDomain:@"com.google.instanceid"
+//                                                                      code:FIRInstanceIDErrorUnknown
+//                                                                  userInfo:nil]
+//                                         identity:nil
+//                                    identityError:nil];
+//
+//    expectations[i] =
+//        [self expectationWithDescription:
+//                  [NSString stringWithFormat:@"Test fetch configs successfully - instance %d",
+//                  i]];
+//    XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusNoFetchYet);
+//    FIRRemoteConfigFetchCompletion fetchCompletion =
+//        ^void(FIRRemoteConfigFetchStatus status, NSError *error) {
+//          XCTAssertNotNil(error);
+//          [expectations[i] fulfill];
+//        };
+//    [_configInstances[i] fetchWithExpirationDuration:43200 completionHandler:fetchCompletion];
+//  }
+//
+//  [self waitForExpectationsWithTimeout:_expectationTimeout
+//                               handler:^(NSError *error) {
+//                                 XCTAssertNil(error);
+//                               }];
+//}
+//
+//// Instance ID token is nil. Error is nil. Verify fetch fails.
+//- (void)testNilInstanceIDTokenAndNilError {
+//  NSMutableArray<XCTestExpectation *> *expectations =
+//      [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
+//
+//  // Test for each RC FIRApp, namespace instance.
+//  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
+//    // Set the token as nil.
+//    [self mockInstanceIDMethodForTokenAndIdentity:nil
+//                                       tokenError:nil
+//                                         identity:nil
+//                                    identityError:nil];
+//
+//    expectations[i] =
+//        [self expectationWithDescription:
+//                  [NSString stringWithFormat:@"Test fetch configs successfully - instance %d",
+//                  i]];
+//    XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusNoFetchYet);
+//    FIRRemoteConfigFetchCompletion fetchCompletion =
+//        ^void(FIRRemoteConfigFetchStatus status, NSError *error) {
+//          XCTAssertNotNil(error);
+//          [expectations[i] fulfill];
+//        };
+//    [_configInstances[i] fetchWithExpirationDuration:43200 completionHandler:fetchCompletion];
+//  }
+//
+//  [self waitForExpectationsWithTimeout:_expectationTimeout
+//                               handler:^(NSError *error) {
+//                                 XCTAssertNil(error);
+//                               }];
+//}
+//
+//// Instance ID token is valid. InstanceID is nil with no error. Verify fetch fails.
+//- (void)testNilInstanceIDWithValidInstanceIDToken {
+//  NSMutableArray<XCTestExpectation *> *expectations =
+//      [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
+//
+//  // Test for each RC FIRApp, namespace instance.
+//  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
+//    // Set the token as nil.
+//    [self mockInstanceIDMethodForTokenAndIdentity:@"abcd"
+//                                       tokenError:nil
+//                                         identity:nil
+//                                    identityError:nil];
+//
+//    expectations[i] =
+//        [self expectationWithDescription:
+//                  [NSString stringWithFormat:@"Test fetch configs successfully - instance %d",
+//                  i]];
+//    XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusNoFetchYet);
+//    FIRRemoteConfigFetchCompletion fetchCompletion =
+//        ^void(FIRRemoteConfigFetchStatus status, NSError *error) {
+//          XCTAssertNotNil(error);
+//          [expectations[i] fulfill];
+//        };
+//    [_configInstances[i] fetchWithExpirationDuration:43200 completionHandler:fetchCompletion];
+//  }
+//
+//  [self waitForExpectationsWithTimeout:_expectationTimeout
+//                               handler:^(NSError *error) {
+//                                 XCTAssertNil(error);
+//                               }];
+//}
+//
+//// Instance ID is not nil, but IID SDK returns an error. Also token is valid.
+//- (void)testValidInstanceIDAndError {
+//  NSMutableArray<XCTestExpectation *> *expectations =
+//      [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
+//
+//  // Test for each RC FIRApp, namespace instance.
+//  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
+//    // Set the token as nil.
+//    [self mockInstanceIDMethodForTokenAndIdentity:@"abcd"
+//                                       tokenError:nil
+//                                         identity:@"test-id"
+//                                    identityError:[NSError
+//                                    errorWithDomain:@"com.google.instanceid"
+//                                                                      code:FIRInstanceIDErrorUnknown
+//                                                                  userInfo:nil]];
+//
+//    expectations[i] =
+//        [self expectationWithDescription:
+//                  [NSString stringWithFormat:@"Test fetch configs successfully - instance %d",
+//                  i]];
+//    XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusNoFetchYet);
+//    FIRRemoteConfigFetchCompletion fetchCompletion =
+//        ^void(FIRRemoteConfigFetchStatus status, NSError *error) {
+//          XCTAssertNotNil(error);
+//          [expectations[i] fulfill];
+//        };
+//    [_configInstances[i] fetchWithExpirationDuration:43200 completionHandler:fetchCompletion];
+//  }
+//
+//  [self waitForExpectationsWithTimeout:_expectationTimeout
+//                               handler:^(NSError *error) {
+//                                 XCTAssertNil(error);
+//                               }];
+//}
 
 #pragma mark - Test Helpers
 
