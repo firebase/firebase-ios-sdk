@@ -157,14 +157,18 @@ static const CGFloat kSwipeUpThreshold = -10.0f;
 
   // Calculate status bar height.
   CGFloat statusBarHeight = 0;
+#if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
   if (@available(iOS 13.0, *)) {
     UIStatusBarManager *manager =
         [UIApplication sharedApplication].keyWindow.windowScene.statusBarManager;
 
     statusBarHeight = manager.statusBarFrame.size.height;
   } else {
+#endif
     statusBarHeight = [[UIApplication sharedApplication] statusBarFrame].size.height;
+#if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
   }
+#endif
 
   // Pin title label below status bar with cushion.
   [[self.titleLabel.topAnchor constraintEqualToAnchor:self.view.topAnchor
