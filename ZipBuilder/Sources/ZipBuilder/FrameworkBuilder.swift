@@ -509,18 +509,13 @@ struct FrameworkBuilder {
 
     // Move all the Resources into .bundle directories in the destination Resources dir. The
     // Resources live are contained within the folder structure:
-    // `projectDir/arch/Release-platform/FrameworkName`
+    // `projectDir/arch/Release-platform/FrameworkName`.
+    // The Resources are stored at the top-level of the .framework or .xcframework directory.
+    // For Firebase distributions, they are propagated one level higher in the final distribution.
 
-    let contentsDir = projectDir.appendingPathComponents([anyArch.rawValue,
-                                                          "Release-\(anyArch.platform.rawValue)",
-                                                          framework])
-    let resourceDir = frameworkDir.appendingPathComponent("Resources")
-    do {
-      try ResourcesManager.moveAllBundles(inDirectory: contentsDir, to: resourceDir)
-    } catch {
-      fatalError("Could not move bundles into Resources directory while building \(framework): " +
-        "\(error)")
-    }
+    let resourceContents = projectDir.appendingPathComponents([anyArch.rawValue,
+                                                               "Release-\(anyArch.platform.rawValue)",
+                                                               framework])
 
     guard let moduleMapContentsTemplate = podInfo.moduleMapContents else {
       fatalError("Module map contents missing for framework \(framework)")
@@ -529,6 +524,7 @@ struct FrameworkBuilder {
     let xcframework = packageXCFramework(withName: framework,
                                          fromFolder: frameworkDir,
                                          thinArchives: thinArchives,
+                                         resourceContents: resourceContents,
                                          moduleMapContents: moduleMapContents)
 
     var carthageFramework: URL?
@@ -545,6 +541,7 @@ struct FrameworkBuilder {
       carthageFramework = packageCarthageFramework(withName: framework,
                                                    fromFolder: frameworkDir,
                                                    thinArchives: carthageThinArchives,
+                                                   resourceContents: resourceContents,
                                                    moduleMapContents: moduleMapContents)
     }
     // Remove the temporary thin archives.
@@ -697,10 +694,12 @@ struct FrameworkBuilder {
   /// - Parameter withName: The framework name.
   /// - Parameter fromFolder: The almost complete framework folder. Includes everything but the binary.
   /// - Parameter thinArchives: All the thin archives.
+  /// - Parameter resourceContents: Location of the resources for this xcframework.
   /// - Parameter moduleMapContents: Module map contents for all frameworks in this pod.
   private func packageXCFramework(withName framework: String,
                                   fromFolder: URL,
                                   thinArchives: [Architecture: URL],
+                                  resourceContents: URL,
                                   moduleMapContents: String) -> URL {
     let fileManager = FileManager.default
 
@@ -784,6 +783,17 @@ struct FrameworkBuilder {
     case .success:
       print("XCFramework for \(framework) built successfully at \(xcframework).")
     }
+    // xcframework resources are packaged at top of xcframework. We do a copy instead of a move
+    // because the resources may also be copied for the Carthage distribution.
+    let resourceDir = xcframework.appendingPathComponent("Resources")
+    do {
+      try ResourcesManager.moveAllBundles(inDirectory: resourceContents,
+                                          to: resourceDir,
+                                          keepOriginal: true)
+    } catch {
+      fatalError("Could not move bundles into Resources directory while building \(framework): " +
+        "\(error)")
+    }
 
     return xcframework
   }
@@ -792,10 +802,12 @@ struct FrameworkBuilder {
   /// - Parameter withName: The framework name.
   /// - Parameter fromFolder: The almost complete framework folder. Includes everything but the binary.
   /// - Parameter thinArchives: All the thin archives.
+  /// - Parameter resourceContents: Location of the resources for this Carthage framework.
   /// - Parameter moduleMapContents: Module map contents for all frameworks in this pod.
   private func packageCarthageFramework(withName framework: String,
                                         fromFolder: URL,
                                         thinArchives: [Architecture: URL],
+                                        resourceContents: URL,
                                         moduleMapContents: String) -> URL {
     let fileManager = FileManager.default
 
@@ -814,12 +826,31 @@ struct FrameworkBuilder {
     let slices = thinArchives.filter { $0.key != Architecture.x86_64h }
 
     // Package a normal .framework with the given slices.
-    let destination = platformFrameworksDir.appendingPathComponent(fromFolder.lastPathComponent)
+    let frameworkDir = platformFrameworksDir.appendingPathComponent(fromFolder.lastPathComponent)
     packageFramework(withName: framework,
                      fromFolder: fromFolder,
                      thinArchives: slices,
-                     destination: destination,
+                     destination: frameworkDir,
                      moduleMapContents: moduleMapContents)
-    return destination
+
+    // Add Info.plist frameworks to make Carthage happy.
+    let plistPath = frameworkDir.appendingPathComponents(["Info.plist"])
+    // Drop the extension of the framework name.
+    let plist = CarthageUtils.generatePlistContents(forName: framework)
+    do {
+      try plist.write(to: plistPath)
+    } catch {
+      fatalError("Could not copy plist for \(frameworkDir) for Carthage release. \(error)")
+    }
+
+    // Carthage Resources are packaged in the framework.
+    let resourceDir = frameworkDir.appendingPathComponent("Resources")
+    do {
+      try ResourcesManager.moveAllBundles(inDirectory: resourceContents, to: resourceDir)
+    } catch {
+      fatalError("Could not move bundles into Resources directory while building \(framework): " +
+        "\(error)")
+    }
+    return frameworkDir
   }
 }

@@ -658,16 +658,12 @@ struct ZipBuilder {
     // Create the temporary directory we'll be storing the build/assembled frameworks in, and remove
     // the Resources directory if it already exists.
     let tempDir = fileManager.temporaryDirectory(withName: "all_frameworks")
-    let tempResourceDir = tempDir.appendingPathComponent("Resources")
     do {
       try fileManager.createDirectory(at: tempDir,
                                       withIntermediateDirectories: true,
                                       attributes: nil)
-      if fileManager.directoryExists(at: tempResourceDir) {
-        try fileManager.removeItem(at: tempResourceDir)
-      }
     } catch {
-      fatalError("Cannot create temporary directory to store frameworks and resources from the " +
+      fatalError("Cannot create temporary directory to store frameworks from the " +
         "full build: \(error)")
     }
 

@@ -109,24 +109,6 @@ extension CarthageUtils {
         }
       }
 
-      // Make updates to all frameworks to make Carthage happy. We don't worry about xcframeworks
-      // here.
-      let allFileObjects = FileManager.default.enumerator(atPath: fullPath.path)?.allObjects
-      guard let allFiles = allFileObjects as? [String] else {
-        fatalError("Failed to get file list for Carthage construction at \(fullPath.path)")
-      }
-      let frameworks = allFiles.filter { $0.hasSuffix(".framework") }
-      for framework in frameworks {
-        let plistPath = fullPath.appendingPathComponents([framework, "Info.plist"])
-        // Drop the extension of the framework name.
-        let plist = generatePlistContents(forName: framework.components(separatedBy: ".").first!)
-        do {
-          try plist.write(to: plistPath)
-        } catch {
-          fatalError("Could not copy plist for \(framework) for Carthage release. \(error)")
-        }
-      }
-
       // Analytics includes all the Core frameworks and Firebase module, do extra work to package
       // it.
       if product == "FirebaseAnalytics" {
@@ -266,7 +248,7 @@ extension CarthageUtils {
     }
   }
 
-  private static func generatePlistContents(forName name: String) -> Data {
+  static func generatePlistContents(forName name: String) -> Data {
     let plist: [String: String] = ["CFBundleIdentifier": "com.firebase.Firebase",
                                    "CFBundleInfoDictionaryVersion": "6.0",
                                    "CFBundlePackageType": "FMWK",
