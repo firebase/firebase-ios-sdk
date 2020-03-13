@@ -151,7 +151,8 @@ FOUNDATION_EXPORT const GDTCORBackgroundIdentifier GDTCORBackgroundIdentifierInv
  */
 - (void)beginBackgroundTaskWithName:(NSString *)name
                       estimatedTime:(NSTimeInterval)seconds
-                         usingBlock:(void (^)(void))block;
+                         usingBlock:(void (^)(void))block
+                  expirationHandler:(nullable void (^)(void))handler;
 
 @end
 

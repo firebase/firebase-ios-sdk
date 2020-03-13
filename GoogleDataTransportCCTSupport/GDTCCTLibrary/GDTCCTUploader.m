@@ -267,9 +267,15 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
       [self.currentTask resume];
     });
   };
+  void (^expirationHandlerBlock)(void) = ^{
+    // Cancel the upload and complete delivery if app’s remaining background time reaches 0.
+    [self.currentTask cancel];
+    [self.currentUploadPackage completeDelivery];
+  };
   [[GDTCORApplication sharedApplication] beginBackgroundTaskWithName:@"GDTCCTUploder"
                                                        estimatedTime:2.0
-                                                          usingBlock:taskBlock];
+                                                          usingBlock:taskBlock
+                                                   expirationHandler:expirationHandlerBlock];
 }
 
 - (BOOL)readyToUploadTarget:(GDTCORTarget)target conditions:(GDTCORUploadConditions)conditions {

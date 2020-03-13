@@ -136,7 +136,8 @@ static NSString *GDTCORStoragePath() {
   };
   [[GDTCORApplication sharedApplication] beginBackgroundTaskWithName:@"GDTStorage"
                                                        estimatedTime:2.0
-                                                          usingBlock:taskBlock];
+                                                          usingBlock:taskBlock
+                                                   expirationHandler:nil];
 }
 
 - (void)removeEvents:(NSSet<GDTCOREvent *> *)events {
@@ -246,7 +247,10 @@ static NSString *GDTCORStoragePath() {
 #endif
       }
     };
-    [app beginBackgroundTaskWithName:@"GDTStorage" estimatedTime:0 usingBlock:taskBlock];
+    [app beginBackgroundTaskWithName:@"GDTStorage"
+                       estimatedTime:0
+                          usingBlock:taskBlock
+                   expirationHandler:nil];
   });
 }
 

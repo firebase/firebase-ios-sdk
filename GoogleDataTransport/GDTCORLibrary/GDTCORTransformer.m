@@ -79,7 +79,8 @@
 
   [[GDTCORApplication sharedApplication] beginBackgroundTaskWithName:@"GDTTransformer"
                                                        estimatedTime:2.0
-                                                          usingBlock:taskBlock];
+                                                          usingBlock:taskBlock
+                                                   expirationHandler:nil];
 }
 
 #pragma mark - GDTCORLifecycleProtocol

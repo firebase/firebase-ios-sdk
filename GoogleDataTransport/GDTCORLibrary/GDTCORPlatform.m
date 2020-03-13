@@ -214,13 +214,19 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
 
 - (void)beginBackgroundTaskWithName:(NSString *)name
                       estimatedTime:(NSTimeInterval)seconds
-                         usingBlock:(void (^)(void))block {
+                         usingBlock:(void (^)(void))block
+                  expirationHandler:(void (^)(void))handler {
 #if !TARGET_OS_WATCH
   __block GDTCORBackgroundIdentifier bgID = GDTCORBackgroundIdentifierInvalid;
   bgID = [self beginBackgroundTaskWithName:name
                          expirationHandler:^{
-                           [[GDTCORApplication sharedApplication] endBackgroundTask:bgID];
-                           bgID = GDTCORBackgroundIdentifierInvalid;
+                           if (bgID != GDTCORBackgroundIdentifierInvalid) {
+                             if (handler) {
+                               handler();
+                             }
+                             [[GDTCORApplication sharedApplication] endBackgroundTask:bgID];
+                             bgID = GDTCORBackgroundIdentifierInvalid;
+                           }
                          }];
   block();
   [self endBackgroundTask:bgID];
