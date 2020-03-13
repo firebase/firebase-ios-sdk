@@ -301,7 +301,7 @@ NSString *const BuildInstanceID = @"build_instance_id";
 
 + (BOOL)shouldUseNewReportEndpointWithSettings:(nullable FIRCLSSettings *)settings {
   // Default to use the new endpoint when settings were not successfully fetched 
-  if (!settings) {
+  if (!settings.settingsDictionary) {
     return YES;
   }
 
