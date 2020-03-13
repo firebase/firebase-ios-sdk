@@ -1,4 +1,4 @@
-# Copyright 2019 Google
+# Copyright 2019 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,38 +12,64 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if(APPLE)
-  set(
-    sources
-    macOS/main.m
-    macOS/AppDelegate.m
-    macOS/AppDelegate.h
-  )
+if(NOT APPLE)
+  return()
+endif()
 
-  set(
-    resources
-    GoogleService-Info.plist
-  )
-
+if(IOS)
   add_executable(
-    firestore_example_app_macos MACOSX_BUNDLE
-    ${sources}
+    firebase_firestore_example_app MACOSX_BUNDLE
+    iOS/FIRAppDelegate.h
+    iOS/FIRAppDelegate.m
+    iOS/FIRViewController.h
+    iOS/FIRViewController.m
+    iOS/main.m
   )
 
-  add_objc_flags(
-    firestore_example_app_macos
-    ${sources}
+  target_compile_options(
+    firebase_firestore_example_app
+    PRIVATE ${FIREBASE_IOS_OBJC_FLAGS}
   )
 
   target_link_libraries(
-    firestore_example_app_macos
-    PRIVATE "-framework AppKit"
+    firebase_firestore_example_app
+    PRIVATE
+    "-framework UIKit"
+    "-framework Foundation"
   )
 
   set_target_properties(
-    firestore_example_app_macos PROPERTIES
-    MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/macOS/Info.plist
-    RESOURCE "${resources}"
+    firebase_firestore_example_app PROPERTIES
+    MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/iOS/Firestore-Info.plist
+    RESOURCE GoogleService-Info.plist
   )
 
-endif(APPLE)
+else()
+  # Assume macOS
+
+  add_executable(
+    firebase_firestore_example_app MACOSX_BUNDLE
+    macOS/AppDelegate.h
+    macOS/AppDelegate.m
+    macOS/main.m
+  )
+
+  target_compile_options(
+    firebase_firestore_example_app
+    PRIVATE ${FIREBASE_IOS_OBJC_FLAGS}
+  )
+
+  target_link_libraries(
+    firebase_firestore_example_app
+    PRIVATE
+    "-framework AppKit"
+    "-framework Foundation"
+  )
+
+  set_target_properties(
+    firebase_firestore_example_app PROPERTIES
+    MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/macOS/Info.plist
+    RESOURCE GoogleService-Info.plist
+  )
+
+endif()

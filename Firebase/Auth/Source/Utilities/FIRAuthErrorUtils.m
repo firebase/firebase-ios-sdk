@@ -17,7 +17,7 @@
 #import "FIRAuthErrorUtils.h"
 
 #import "FIRAuthCredential.h"
-#import "FIRAuthInternalErrors.h"
+#import "FIRMultiFactorResolver+Internal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -36,6 +36,8 @@ NSString *const FIRAuthErrorUserInfoUpdatedCredentialKey =
     @"FIRAuthErrorUserInfoUpdatedCredentialKey";
 
 NSString *const FIRAuthErrorUserInfoNameKey = @"FIRAuthErrorUserInfoNameKey";
+
+NSString *const FIRAuthErrorUserInfoMultiFactorResolverKey = @"FIRAuthErrorUserInfoMultiFactorResolverKey";
 
 /** @var kServerErrorDetailMarker
     @brief This marker indicates that the server error message contains a detail error message which
@@ -451,6 +453,72 @@ static NSString *const kFIRAuthErrorMessageInternalError = @"An internal error h
 static NSString *const kFIRAuthErrorMessageMalformedJWT =
     @"Failed to parse JWT. Check the userInfo dictionary for the full token.";
 
+/** @var kFIRAuthErrorMessageSecondFactorRequired
+    @brief Message for @c kFIRAuthErrorMessageSecondFactorRequired error code.
+ */
+static NSString *const kFIRAuthErrorMessageSecondFactorRequired =
+    @"Please complete a second factor challenge to finish signing into this account.";
+
+/** @var kFIRAuthErrorMessageSecondFactorRequired
+    @brief Message for @c kFIRAuthErrorMessageSecondFactorRequired error code.
+ */
+static NSString *const FIRAuthErrorMessageMissingMultiFactorSession =
+@"The request is missing proof of first factor successful sign-in.";
+
+/** @var kFIRAuthErrorMessageSecondFactorRequired
+    @brief Message for @c kFIRAuthErrorMessageSecondFactorRequired error code.
+ */
+static NSString *const FIRAuthErrorMessageMissingMultiFactorInfo =
+@"No second factor identifier is provided.";
+
+/** @var kFIRAuthErrorMessageSecondFactorRequired
+    @brief Message for @c kFIRAuthErrorMessageSecondFactorRequired error code.
+ */
+static NSString *const FIRAuthErrorMessageInvalidMultiFactorSession =
+@"The request does not contain a valid proof of first factor successful sign-in.";
+
+/** @var kFIRAuthErrorMessageSecondFactorRequired
+    @brief Message for @c kFIRAuthErrorMessageSecondFactorRequired error code.
+ */
+static NSString *const FIRAuthErrorMessageMultiFactorInfoNotFound =
+@"The user does not have a second factor matching the identifier provided.";
+
+/** @var kFIRAuthErrorMessageSecondFactorRequired
+    @brief Message for @c kFIRAuthErrorMessageSecondFactorRequired error code.
+ */
+static NSString *const FIRAuthErrorMessageAdminRestrictedOperation =
+@"This operation is restricted to administrators only.";
+
+/** @var kFIRAuthErrorMessageSecondFactorRequired
+    @brief Message for @c kFIRAuthErrorMessageSecondFactorRequired error code.
+ */
+static NSString *const FIRAuthErrorMessageUnverifiedEmail =
+@"The operation requires a verified email.";
+
+/** @var kFIRAuthErrorMessageSecondFactorRequired
+    @brief Message for @c kFIRAuthErrorMessageSecondFactorRequired error code.
+ */
+static NSString *const FIRAuthErrorMessageSecondFactorAlreadyEnrolled =
+@"The second factor is already enrolled on this account.";
+
+/** @var kFIRAuthErrorMessageSecondFactorRequired
+    @brief Message for @c kFIRAuthErrorMessageSecondFactorRequired error code.
+ */
+static NSString *const FIRAuthErrorMessageMaximumSecondFactorCountExceeded =
+@"The maximum allowed number of second factors on a user has been exceeded.";
+
+/** @var kFIRAuthErrorMessageSecondFactorRequired
+    @brief Message for @c kFIRAuthErrorMessageSecondFactorRequired error code.
+ */
+static NSString *const FIRAuthErrorMessageUnsupportedFirstFactor =
+@"Enrolling a second factor or signing in with a multi-factor account requires sign-in with a supported first factor.";
+
+/** @var kFIRAuthErrorMessageSecondFactorRequired
+    @brief Message for @c kFIRAuthErrorMessageSecondFactorRequired error code.
+ */
+static NSString *const FIRAuthErrorMessageEmailChangeNeedsVerification =
+@"Multi-factor users must always have a verified email.";
+
 /** @var kFIRAuthErrorMessageDynamicLinkNotActivated
     @brief Error message constant describing @c FIRAuthErrorCodeDynamicLinkNotActivated errors.
  */
@@ -601,6 +669,28 @@ static NSString *FIRAuthErrorDescription(FIRAuthErrorCode code) {
       return kFIRAuthErrorMessageLocalPlayerNotAuthenticated;
     case FIRAuthErrorCodeGameKitNotLinked:
       return kFIRAuthErrorMessageGameKitNotLinked;
+    case FIRAuthErrorCodeSecondFactorRequired:
+      return kFIRAuthErrorMessageSecondFactorRequired;
+    case FIRAuthErrorCodeMissingMultiFactorSession:
+      return FIRAuthErrorMessageMissingMultiFactorSession;
+    case FIRAuthErrorCodeMissingMultiFactorInfo:
+      return FIRAuthErrorMessageMissingMultiFactorInfo;
+    case FIRAuthErrorCodeInvalidMultiFactorSession:
+      return FIRAuthErrorMessageInvalidMultiFactorSession;
+    case FIRAuthErrorCodeMultiFactorInfoNotFound:
+      return FIRAuthErrorMessageMultiFactorInfoNotFound;
+    case FIRAuthErrorCodeAdminRestrictedOperation:
+      return FIRAuthErrorMessageAdminRestrictedOperation;
+    case FIRAuthErrorCodeUnverifiedEmail:
+      return FIRAuthErrorMessageUnverifiedEmail;
+    case FIRAuthErrorCodeSecondFactorAlreadyEnrolled:
+      return FIRAuthErrorMessageSecondFactorAlreadyEnrolled;
+    case FIRAuthErrorCodeMaximumSecondFactorCountExceeded:
+      return FIRAuthErrorMessageMaximumSecondFactorCountExceeded;
+    case FIRAuthErrorCodeUnsupportedFirstFactor:
+      return FIRAuthErrorMessageUnsupportedFirstFactor;
+    case FIRAuthErrorCodeEmailChangeNeedsVerification:
+      return FIRAuthErrorMessageEmailChangeNeedsVerification;
     case FIRAuthErrorCodeDynamicLinkNotActivated:
       return kFIRAuthErrorMessageDynamicLinkNotActivated;
     case FIRAuthErrorCodeRejectedCredential:
@@ -742,6 +832,28 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
       return @"ERROR_LOCAL_PLAYER_NOT_AUTHENTICATED";
     case FIRAuthErrorCodeGameKitNotLinked:
       return @"ERROR_GAME_KIT_NOT_LINKED";
+    case FIRAuthErrorCodeSecondFactorRequired:
+      return @"ERROR_SECOND_FACTOR_REQUIRED";
+    case FIRAuthErrorCodeMissingMultiFactorSession:
+      return @"ERROR_MISSING_MULTI_FACTOR_SESSION";
+    case FIRAuthErrorCodeMissingMultiFactorInfo:
+      return @"ERROR_MISSING_MULTI_FACTOR_INFO";
+    case FIRAuthErrorCodeInvalidMultiFactorSession:
+      return @"ERROR_INVALID_MULTI_FACTOR_SESSION";
+    case FIRAuthErrorCodeMultiFactorInfoNotFound:
+      return @"ERROR_MULTI_FACTOR_INFO_NOT_FOUND";
+    case FIRAuthErrorCodeAdminRestrictedOperation:
+      return @"ERROR_ADMIN_RESTRICTED_OPERATION";
+    case FIRAuthErrorCodeUnverifiedEmail:
+      return @"ERROR_UNVERIFIED_EMAIL";
+    case FIRAuthErrorCodeSecondFactorAlreadyEnrolled:
+      return @"ERROR_SECOND_FACTOR_ALREADY_ENROLLED";
+    case FIRAuthErrorCodeMaximumSecondFactorCountExceeded:
+      return @"ERROR_MAXIMUM_SECOND_FACTOR_COUNT_EXCEEDED";
+    case FIRAuthErrorCodeUnsupportedFirstFactor:
+      return @"ERROR_UNSUPPORTED_FIRST_FACTOR";
+    case FIRAuthErrorCodeEmailChangeNeedsVerification:
+      return @"ERROR_EMAIL_CHANGE_NEEDS_VERIFICATION";
     case FIRAuthErrorCodeDynamicLinkNotActivated:
       return @"ERROR_DYNAMIC_LINK_NOT_ACTIVATED";
     case FIRAuthErrorCodeRejectedCredential:
@@ -1117,6 +1229,19 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
 + (NSError *)gameKitNotLinkedError {
   return [self errorWithCode:FIRAuthInternalErrorCodeGameKitNotLinked];
 }
+
+#if TARGET_OS_IOS
++ (NSError *)secondFactorRequiredErrorWithPendingCredential:(NSString *)MFAPendingCredential
+                                                      hints:(NSArray<FIRMultiFactorInfo *> *)hints {
+  NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
+  if (MFAPendingCredential && hints) {
+    FIRMultiFactorResolver *resolver = [[FIRMultiFactorResolver alloc]
+                                        initWithMFAPendingCredential:MFAPendingCredential hints:hints];
+    userInfo[FIRAuthErrorUserInfoMultiFactorResolverKey] = resolver;
+  }
+  return [self errorWithCode:FIRAuthInternalErrorCodeSecondFactorRequired userInfo:userInfo];
+}
+#endif
 
 + (NSError *)notificationNotForwardedError {
   return [self errorWithCode:FIRAuthInternalErrorCodeNotificationNotForwarded];

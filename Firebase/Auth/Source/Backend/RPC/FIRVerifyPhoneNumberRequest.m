@@ -125,7 +125,7 @@ NSString *const FIRAuthOperationString(FIRAuthOperationType operationType) {
   }
   NSString *operation = FIRAuthOperationString(_operation);
   postBody[kOperationKey] = operation;
-  return postBody;
+  return [postBody copy];
 }
 
 @end

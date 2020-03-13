@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// TODO: Remove this class after the uploading of reports via GoogleDataTransport is no longer an
+// experiment
+
 #import "FIRCLSInternalReport.h"
 
 #import "FIRCLSFile.h"
@@ -29,6 +32,8 @@ NSString *const FIRCLSReportMachExceptionFile = @"mach_exception.clsrecord";
 NSString *const FIRCLSReportMetadataFile = @"metadata.clsrecord";
 NSString *const FIRCLSReportErrorAFile = @"errors_a.clsrecord";
 NSString *const FIRCLSReportErrorBFile = @"errors_b.clsrecord";
+NSString *const FIRCLSReportLogAFile = @"log_a.clsrecord";
+NSString *const FIRCLSReportLogBFile = @"log_b.clsrecord";
 NSString *const FIRCLSReportInternalIncrementalKVFile = @"internal_incremental_kv.clsrecord";
 NSString *const FIRCLSReportInternalCompactedKVFile = @"internal_compacted_kv.clsrecord";
 NSString *const FIRCLSReportUserIncrementalKVFile = @"user_incremental_kv.clsrecord";
@@ -112,7 +117,13 @@ NSString *const FIRCLSReportUserCompactedKVFile = @"user_compacted_kv.clsrecord"
   return [self checkExistenceOfAtLeastOnceFileInArray:reportFiles];
 }
 
-- (NSArray *)crashFilenames {
+// These are purposefully in order of precedence. If duplicate data exists
+// in any crash file, the exception file's contents take precedence over the
+// rest, for example
+//
+// Do not change the order of this.
+//
++ (NSArray *)crashFileNames {
   static NSArray *files;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
@@ -128,7 +139,7 @@ NSString *const FIRCLSReportUserCompactedKVFile = @"user_compacted_kv.clsrecord"
 }
 
 - (BOOL)isCrash {
-  NSArray *crashFiles = [self crashFilenames];
+  NSArray *crashFiles = [FIRCLSInternalReport crashFileNames];
   return [self checkExistenceOfAtLeastOnceFileInArray:crashFiles];
 }
 
@@ -147,7 +158,7 @@ NSString *const FIRCLSReportUserCompactedKVFile = @"user_compacted_kv.clsrecord"
 }
 
 - (void)enumerateSymbolicatableFilesInContent:(void (^)(NSString *path))block {
-  for (NSString *fileName in [self crashFilenames]) {
+  for (NSString *fileName in [FIRCLSInternalReport crashFileNames]) {
     NSString *path = [self pathForContentFile:fileName];
 
     block(path);

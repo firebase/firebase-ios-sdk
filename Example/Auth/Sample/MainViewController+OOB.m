@@ -72,6 +72,10 @@ NS_ASSUME_NONNULL_BEGIN
       return @"Password Reset";
     case FIRActionCodeOperationEmailLink:
       return @"Email Sign-In Link";
+    case FIRActionCodeOperationVerifyAndChangeEmail:
+      return @"Verify Before Change Email";
+    case FIRActionCodeOperationRevertSecondFactorAddition:
+      return @"Revert Second Factor Addition";
     case FIRActionCodeOperationUnknown:
       return @"Unknown action";
   }
@@ -201,10 +205,10 @@ NS_ASSUME_NONNULL_BEGIN
            return;
          }
          [self logSuccess:@"Check action code succeeded."];
-         NSString *email = [info dataForKey:FIRActionCodeEmailKey];
-         NSString *fromEmail = [info dataForKey:FIRActionCodeFromEmailKey];
+         NSString *email = info.email;
+         NSString *previousEmail = info.previousEmail;
          NSString *message =
-         fromEmail ? [NSString stringWithFormat:@"%@ -> %@", fromEmail, email] : email;
+             previousEmail ? [NSString stringWithFormat:@"%@ -> %@", previousEmail, email] : email;
          NSString *operation = [self nameForActionCodeOperation:info.operation];
          [self showMessagePromptWithTitle:operation
                                   message:message

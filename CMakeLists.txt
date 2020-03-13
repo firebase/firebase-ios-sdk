@@ -1,4 +1,4 @@
-# Copyright 2017 Google
+# Copyright 2017 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ endif()
 
 # Generate Ninja phony rules for unknown dependencies in the build tree and
 # don't complain about doing so. Our dependencies aren't good about declaring
-# BYPRODUCTS and we mix them all into a single uber build so we can't enable
+# BYPRODUCTS and we mix them all into a single superbuild so we can't enable
 # this policy until all dependencies are capable of doing so.
 if(POLICY CMP0058)
   cmake_policy(SET CMP0058 OLD)
@@ -61,6 +61,12 @@ enable_language(C)
 enable_language(CXX)
 
 option(
+  FIREBASE_IOS_BUILD_BENCHMARKS
+  "Enable building of C++ and Objective-C benchmarks for this project"
+  OFF
+)
+
+option(
   FIREBASE_IOS_BUILD_TESTS
   "Enable building of C++ and Objective-C tests for this project"
   ON
@@ -68,8 +74,7 @@ option(
 
 
 list(INSERT CMAKE_MODULE_PATH 0 ${PROJECT_SOURCE_DIR}/cmake)
-include(compiler_id)
-include(archive_options)
+include(compiler_setup)
 include(sanitizer_options)
 include(fuzzing_options)
 
@@ -78,11 +83,6 @@ include(external_rules)
 include(podspec_rules)
 include(cc_rules)
 
-
-# If no build type is specified, make it a debug build
-if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE Debug)
-endif()
 
 set(FIREBASE_SOURCE_DIR ${PROJECT_SOURCE_DIR})
 set(FIREBASE_BINARY_DIR ${PROJECT_BINARY_DIR})
@@ -104,19 +104,32 @@ download_external_sources()
 
 
 # Googletest
-set(gtest_force_shared_crt ON CACHE BOOL "Use shared run-time")
-add_external_subdirectory(googletest)
-add_alias(GTest::GTest gtest)
-add_alias(GTest::Main gtest_main)
-add_alias(GMock::GMock gmock)
+if(FIREBASE_IOS_BUILD_TESTS)
+  set(gtest_force_shared_crt ON CACHE BOOL "Use shared run-time")
+  add_external_subdirectory(googletest)
+  firebase_ios_add_alias(GTest::GTest gtest)
+  firebase_ios_add_alias(GTest::Main gtest_main)
+  firebase_ios_add_alias(GMock::GMock gmock)
+endif()
 
 
 # Benchmark
-set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "Firestore disabled")
-set(BENCHMARK_ENABLE_EXCEPTIONS OFF CACHE BOOL "Firestore disabled")
-set(BENCHMARK_ENABLE_INSTALL OFF CACHE BOOL "Firestore disabled")
-set(BENCHMARK_ENABLE_GTEST_TESTS OFF CACHE BOOL "Firestore disabled")
-add_external_subdirectory(benchmark)
+if(FIREBASE_IOS_BUILD_BENCHMARKS)
+  set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "Firestore disabled")
+  set(BENCHMARK_ENABLE_EXCEPTIONS OFF CACHE BOOL "Firestore disabled")
+  set(BENCHMARK_ENABLE_INSTALL OFF CACHE BOOL "Firestore disabled")
+  set(BENCHMARK_ENABLE_GTEST_TESTS OFF CACHE BOOL "Firestore disabled")
+
+  if(IOS)
+    # benchmark uses CMake's try_run, which doesn't work out of the box when
+    # compiling for iOS.
+    set(HAVE_STD_REGEX ON CACHE BOOL "iOS has std::regex")
+    set(HAVE_POSIX_REGEX ON CACHE BOOL "iOS has POSIX regex.h")
+    set(HAVE_STEADY_CLOCK ON CACHE BOOL "iOS has std::chrono::steady_clock")
+  endif()
+
+  add_external_subdirectory(benchmark)
+endif()
 
 
 # Abseil-cpp
@@ -152,9 +165,24 @@ endif()
 # pulled in indirectly via gRPC.
 unset(RANDOM_FILE CACHE)
 
-find_package(OpenSSL QUIET)
-if(OPENSSL_FOUND)
-  set(gRPC_SSL_PROVIDER package CACHE STRING "Use external OpenSSL")
+set(CARES_INSTALL OFF CACHE BOOL "Disabled")
+
+set(protobuf_BUILD_TESTS OFF CACHE BOOL "Disabled")
+if(IOS OR ANDROID)
+  # C-Ares includes a number of example binaries (e.g. `ahost`) that fail to
+  # build when compiling for non-host targets.
+  set(gRPC_CARES_PROVIDER none CACHE STRING "Don't use C-Ares")
+
+  # protoc needs to be built for the host to be able to invoke it during the
+  # build.
+  set(protobuf_BUILD_PROTOC_BINARIES OFF CACHE BOOL "Disabled")
+endif()
+
+if(NOT ANDROID AND NOT IOS)
+  find_package(OpenSSL QUIET)
+  if(OPENSSL_FOUND)
+    set(gRPC_SSL_PROVIDER package CACHE STRING "Use external OpenSSL")
+  endif()
 endif()
 
 find_package(ZLIB QUIET)
@@ -184,14 +212,14 @@ if(OPENSSL_FOUND)
 
 else()
   # Not using outboard OpenSSL so set up BoringSSL to look like it.
-  add_alias(OpenSSL::Crypto crypto)
+  firebase_ios_add_alias(OpenSSL::Crypto crypto)
   target_include_directories(
     crypto
     INTERFACE
       $<BUILD_INTERFACE:${FIREBASE_EXTERNAL_SOURCE_DIR}/grpc/third_party/boringssl/include>
   )
 
-  add_alias(OpenSSL::SSL ssl)
+  firebase_ios_add_alias(OpenSSL::SSL ssl)
   target_include_directories(
     ssl
     INTERFACE
@@ -228,7 +256,7 @@ set(LEVELDB_BUILD_TESTS OFF CACHE BOOL "Firestore disabled")
 set(LEVELDB_BUILD_BENCHMARKS OFF CACHE BOOL "Firestore disabled")
 set(LEVELDB_INSTALL OFF CACHE BOOL "Firestore disabled")
 add_external_subdirectory(leveldb)
-add_alias(LevelDB::LevelDB leveldb)
+firebase_ios_add_alias(LevelDB::LevelDB leveldb)
 
 
 # nanopb
@@ -245,7 +273,6 @@ target_compile_definitions(
 target_include_directories(
   protobuf-nanopb-static
   INTERFACE
-  $<BUILD_INTERFACE:${FIREBASE_EXTERNAL_SOURCE_DIR}>
   $<BUILD_INTERFACE:${FIREBASE_EXTERNAL_SOURCE_DIR}/nanopb>
 )
 
@@ -259,7 +286,6 @@ endif()
 if(FIREBASE_IOS_BUILD_TESTS)
   enable_testing()
 endif()
-include(compiler_setup)
 
 add_subdirectory(FirebaseCore)
 add_subdirectory(Firestore)

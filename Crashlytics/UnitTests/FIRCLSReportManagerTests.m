@@ -35,6 +35,7 @@
 #import "FIRCLSMockFileManager.h"
 #import "FIRCLSMockReportManager.h"
 #import "FIRCLSMockReportUploader.h"
+#import "FIRMockGDTCoreTransport.h"
 #import "FIRMockInstallations.h"
 
 #define TEST_API_KEY (@"DB5C8FA65C0D43419120FB96CFDBDE0C")
@@ -73,15 +74,16 @@
 
   FIRMockInstallations *iid = [[FIRMockInstallations alloc] initWithFID:@"test_token"];
 
-  FABMockApplicationIdentifierModel *appIDModel = [[FABMockApplicationIdentifierModel alloc] init];
-  appIDModel.bundleID = TEST_BUNDLE_ID;
+  FIRMockGDTCORTransport *transport = [[FIRMockGDTCORTransport alloc] initWithMappingID:@"id"
+                                                                           transformers:nil
+                                                                                 target:0];
 
   self.reportManager = [[FIRCLSMockReportManager alloc] initWithFileManager:self.fileManager
                                                               installations:iid
                                                                   analytics:nil
                                                                 googleAppID:TEST_GOOGLE_APP_ID
                                                                 dataArbiter:self.dataArbiter
-                                                                 appIDModel:appIDModel];
+                                                            googleTransport:transport];
   self.reportManager.bundleIdentifier = TEST_BUNDLE_ID;
 }
 
@@ -108,8 +110,9 @@
 }
 
 - (NSArray *)contentsOfPreparedPath {
-  return [[NSFileManager defaultManager] contentsOfDirectoryAtPath:self.fileManager.preparedPath
-                                                             error:nil];
+  return
+      [[NSFileManager defaultManager] contentsOfDirectoryAtPath:self.fileManager.legacyPreparedPath
+                                                          error:nil];
 }
 
 - (NSArray *)contentsOfProcessingPath {
@@ -480,8 +483,8 @@
 
 - (void)testFilesLeftInPrepared {
   // Drop a phony multipart-mime file in here, with non-zero contents.
-  XCTAssert([_fileManager createDirectoryAtPath:_fileManager.preparedPath]);
-  NSString *path = [_fileManager.preparedPath stringByAppendingPathComponent:@"phony-report"];
+  XCTAssert([_fileManager createDirectoryAtPath:_fileManager.legacyPreparedPath]);
+  NSString *path = [_fileManager.legacyPreparedPath stringByAppendingPathComponent:@"phony-report"];
   path = [path stringByAppendingPathExtension:@".multipart-mime"];
 
   XCTAssertTrue([[_fileManager underlyingFileManager]
@@ -501,8 +504,8 @@
 
 - (void)testFilesLeftInPreparedWithDataCollectionDisabled {
   // drop a phony multipart-mime file in here, with non-zero contents
-  XCTAssert([_fileManager createDirectoryAtPath:_fileManager.preparedPath]);
-  NSString *path = [_fileManager.preparedPath stringByAppendingPathComponent:@"phony-report"];
+  XCTAssert([_fileManager createDirectoryAtPath:_fileManager.legacyPreparedPath]);
+  NSString *path = [_fileManager.legacyPreparedPath stringByAppendingPathComponent:@"phony-report"];
   path = [path stringByAppendingPathExtension:@".multipart-mime"];
 
   XCTAssertTrue([[_fileManager underlyingFileManager]
@@ -529,8 +532,8 @@
 
 - (void)testSuccessfulSubmission {
   // drop a phony multipart-mime file in here, with non-zero contents
-  XCTAssert([_fileManager createDirectoryAtPath:_fileManager.preparedPath]);
-  NSString *path = [_fileManager.preparedPath stringByAppendingPathComponent:@"phony-report"];
+  XCTAssert([_fileManager createDirectoryAtPath:_fileManager.legacyPreparedPath]);
+  NSString *path = [_fileManager.legacyPreparedPath stringByAppendingPathComponent:@"phony-report"];
   path = [path stringByAppendingPathExtension:@".multipart-mime"];
 
   XCTAssertTrue([[_fileManager underlyingFileManager]

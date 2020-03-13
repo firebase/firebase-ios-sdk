@@ -22,8 +22,6 @@
 #import "FIRAuthErrorUtils.h"
 #import "FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth.h"
-#import "FIRAuthRPCRequest.h"
-#import "FIRAuthRPCResponse.h"
 #import "FIRCreateAuthURIRequest.h"
 #import "FIRCreateAuthURIResponse.h"
 #import "FIRDeleteAccountRequest.h"
@@ -36,6 +34,7 @@
 #import "FIRGetOOBConfirmationCodeResponse.h"
 #import "FIRGetProjectConfigRequest.h"
 #import "FIRGetProjectConfigResponse.h"
+#import "FIROAuthCredential_Internal.h"
 #import "FIRResetPasswordRequest.h"
 #import "FIRResetPasswordResponse.h"
 #import "FIRSendVerificationCodeRequest.h"
@@ -59,10 +58,10 @@
 #import "FIRVerifyPhoneNumberRequest.h"
 #import "FIRVerifyPhoneNumberResponse.h"
 
-#import "FIROAuthCredential_Internal.h"
 #if TARGET_OS_IOS
 #import "FIRPhoneAuthCredential_Internal.h"
 #import "FIRPhoneAuthProvider.h"
+#import "FIRPhoneMultiFactorInfo+Internal.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -164,7 +163,7 @@ static NSString *const kUserTokenExpiredErrorMessage = @"TOKEN_EXPIRED";
  */
 static NSString *const kTooManyRequestsErrorMessage = @"TOO_MANY_ATTEMPTS_TRY_LATER";
 
-/** @var kInvalidTokenCustomErrorMessage
+/** @var kInvalidCustomTokenErrorMessage
     @brief This is the error message the server will respond with if there is a validation error
         with the custom token.
  */
@@ -389,6 +388,56 @@ static NSString *const kMissingClientIdentifier = @"MISSING_CLIENT_IDENTIFIER";
         invalid.
  */
 static NSString *const kCaptchaCheckFailedErrorMessage = @"CAPTCHA_CHECK_FAILED";
+
+/** @var kMissingMFAPendingCredentialErrorMessage
+ @brief This is the error message the server will respond with if the MFA pending credential is missing.
+ */
+static NSString *const kMissingMFAPendingCredentialErrorMessage = @"MISSING_MFA_PENDING_CREDENTIAL";
+
+/** @var kMissingMFAEnrollmentIDErrorMessage
+ @brief This is the error message the server will respond with if the MFA enrollment ID is missing.
+ */
+static NSString *const kMissingMFAEnrollmentIDErrorMessage = @"MISSING_MFA_ENROLLMENT_ID";
+
+/** @var kInvalidMFAPendingCredentialErrorMessage
+ @brief This is the error message the server will respond with if the MFA pending credential is invalid.
+ */
+static NSString *const kInvalidMFAPendingCredentialErrorMessage = @"INVALID_MFA_PENDING_CREDENTIAL";
+
+/** @var kMFAEnrollmentNotFoundErrorMessage
+ @brief This is the error message the server will respond with if the MFA enrollment info is not found.
+ */
+static NSString *const kMFAEnrollmentNotFoundErrorMessage = @"MFA_ENROLLMENT_NOT_FOUND";
+
+/** @var kAdminOnlyOperationErrorMessage
+ @brief This is the error message the server will respond with if the operation is admin only.
+ */
+static NSString *const kAdminOnlyOperationErrorMessage = @"ADMIN_ONLY_OPERATION";
+
+/** @var kUnverifiedEmailErrorMessage
+ @brief This is the error message the server will respond with if the email is unverified.
+ */
+static NSString *const kUnverifiedEmailErrorMessage = @"UNVERIFIED_EMAIL";
+
+/** @var kSecondFactorExistsErrorMessage
+ @brief This is the error message the server will respond with if the second factor already exsists.
+ */
+static NSString *const kSecondFactorExistsErrorMessage = @"SECOND_FACTOR_EXISTS";
+
+/** @var kSecondFactorLimitExceededErrorMessage
+ @brief This is the error message the server will respond with if the number of second factor reaches the limit.
+ */
+static NSString *const kSecondFactorLimitExceededErrorMessage = @"SECOND_FACTOR_LIMIT_EXCEEDED";
+
+/** @var kUnsupportedFirstFactorErrorMessage
+ @brief This is the error message the server will respond with if the first factor doesn't support MFA.
+ */
+static NSString *const kUnsupportedFirstFactorErrorMessage = @"UNSUPPORTED_FIRST_FACTOR";
+
+/** @var kEmailChangeNeedsVerificationErrorMessage
+ @brief This is the error message the server will respond with if changing an unverified email.
+ */
+static NSString *const kEmailChangeNeedsVerificationErrorMessage = @"EMAIL_CHANGE_NEEDS_VERIFICATION";
 
 /** @var kInvalidPendingToken
     @brief Generic IDP error codes.
@@ -648,9 +697,23 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   [self postWithRequest:request response:response callback:^(NSError *error) {
     if (error) {
       callback(nil, error);
-      return;
+    } else {
+      if (!response.IDToken && response.MFAInfo) {
+#if TARGET_OS_IOS
+        NSMutableArray<FIRMultiFactorInfo *> *multiFactorInfo = [NSMutableArray array];
+        for (FIRAuthProtoMFAEnrollment *MFAEnrollment in response.MFAInfo) {
+          FIRPhoneMultiFactorInfo *info = [[FIRPhoneMultiFactorInfo alloc] initWithProto:MFAEnrollment];
+          [multiFactorInfo addObject:info];
+        }
+        NSError *multiFactorRequiredError =
+        [FIRAuthErrorUtils secondFactorRequiredErrorWithPendingCredential:response.MFAPendingCredential
+                                                                    hints:multiFactorInfo];
+        callback(nil, multiFactorRequiredError);
+        #endif
+      } else {
+        callback(response, nil);
+      }
     }
-    callback(response, nil);
   }];
 }
 
@@ -673,7 +736,21 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
     if (error) {
       callback(nil, error);
     } else {
-      callback(response, nil);
+      if (!response.IDToken && response.MFAInfo) {
+        #if TARGET_OS_IOS
+        NSMutableArray<FIRMultiFactorInfo *> *multiFactorInfo = [NSMutableArray array];
+        for (FIRAuthProtoMFAEnrollment *MFAEnrollment in response.MFAInfo) {
+          FIRPhoneMultiFactorInfo *info = [[FIRPhoneMultiFactorInfo alloc] initWithProto:MFAEnrollment];
+          [multiFactorInfo addObject:info];
+        }
+        NSError *multiFactorRequiredError =
+            [FIRAuthErrorUtils secondFactorRequiredErrorWithPendingCredential:response.MFAPendingCredential
+                                                                        hints:multiFactorInfo];
+        callback(nil, multiFactorRequiredError);
+        #endif
+      } else {
+        callback(response, nil);
+      }
     }
   }];
 }
@@ -1183,6 +1260,56 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 
   if ([shortErrorMessage isEqualToString:kMissingOrInvalidNonceErrorMessage]) {
     return [FIRAuthErrorUtils missingOrInvalidNonceErrorWithMessage:serverDetailErrorMessage];
+  }
+
+  if ([shortErrorMessage isEqualToString:kMissingMFAPendingCredentialErrorMessage]) {
+    return [FIRAuthErrorUtils errorWithCode:FIRAuthInternalErrorCodeMissingMultiFactorSession
+                                    message:serverErrorMessage];
+  }
+
+  if ([shortErrorMessage isEqualToString:kMissingMFAEnrollmentIDErrorMessage]) {
+    return [FIRAuthErrorUtils errorWithCode:FIRAuthInternalErrorCodeMissingMultiFactorInfo
+                                    message:serverErrorMessage];
+  }
+
+  if ([shortErrorMessage isEqualToString:kInvalidMFAPendingCredentialErrorMessage]) {
+    return [FIRAuthErrorUtils errorWithCode:FIRAuthInternalErrorCodeInvalidMultiFactorSession
+                                    message:serverErrorMessage];
+  }
+
+  if ([shortErrorMessage isEqualToString:kMFAEnrollmentNotFoundErrorMessage]) {
+    return [FIRAuthErrorUtils errorWithCode:FIRAuthInternalErrorCodeMultiFactorInfoNotFound
+                                    message:serverErrorMessage];
+  }
+
+  if ([shortErrorMessage isEqualToString:kAdminOnlyOperationErrorMessage]) {
+    return [FIRAuthErrorUtils errorWithCode:FIRAuthInternalErrorCodeAdminRestrictedOperation
+                                    message:serverErrorMessage];
+  }
+
+  if ([shortErrorMessage isEqualToString:kUnverifiedEmailErrorMessage]) {
+    return [FIRAuthErrorUtils errorWithCode:FIRAuthInternalErrorCodeUnverifiedEmail
+                                    message:serverErrorMessage];
+  }
+
+  if ([shortErrorMessage isEqualToString:kSecondFactorExistsErrorMessage]) {
+    return [FIRAuthErrorUtils errorWithCode:FIRAuthInternalErrorCodeSecondFactorAlreadyEnrolled
+                                    message:serverErrorMessage];
+  }
+
+  if ([shortErrorMessage isEqualToString:kSecondFactorLimitExceededErrorMessage]) {
+    return [FIRAuthErrorUtils errorWithCode:FIRAuthInternalErrorCodeMaximumSecondFactorCountExceeded
+                                    message:serverErrorMessage];
+  }
+
+  if ([shortErrorMessage isEqualToString:kUnsupportedFirstFactorErrorMessage]) {
+    return [FIRAuthErrorUtils errorWithCode:FIRAuthInternalErrorCodeUnsupportedFirstFactor
+                                    message:serverErrorMessage];
+  }
+
+  if ([shortErrorMessage isEqualToString:kEmailChangeNeedsVerificationErrorMessage]) {
+    return [FIRAuthErrorUtils errorWithCode:FIRAuthInternalErrorCodeEmailChangeNeedsVerification
+                                    message:serverErrorMessage];
   }
 
   // In this case we handle an error that might be specified in the underlying errors dictionary,

@@ -34,3 +34,18 @@ void GDTCORLog(GDTCORMessageCode code, NSString *format, ...) {
   va_end(args);
 #endif  // !NDEBUG
 }
+
+void GDTCORLogAssert(
+    BOOL wasFatal, NSString *_Nonnull file, NSInteger line, NSString *_Nullable format, ...) {
+  GDTCORMessageCode code = wasFatal ? GDTCORMCEFatalAssertion : GDTCORMCEGeneralError;
+// Don't log anything in not debug builds.
+#if !NDEBUG
+  NSString *logFormat =
+      [NSString stringWithFormat:@"%@[%@] (%@:%ld) : %@", kGDTCORConsoleLogger,
+                                 GDTCORMessageCodeEnumToString(code), file, (long)line, format];
+  va_list args;
+  va_start(args, format);
+  NSLogv(logFormat, args);
+  va_end(args);
+#endif  // !NDEBUG
+}

@@ -1,4 +1,4 @@
-# Copyright 2019 Google
+# Copyright 2019 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,30 +12,36 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if(APPLE)
-  file(GLOB sources Sources/*.m)
-  file(GLOB headers Sources/Private/*.h Sources/Public/*.h)
+if(NOT APPLE)
+  return()
+endif()
 
-  podspec_version(core_version ${PROJECT_SOURCE_DIR}/FirebaseCore.podspec)
-  firebase_version(fb_version ${PROJECT_SOURCE_DIR}/FirebaseCore.podspec)
+file(GLOB sources Sources/*.m)
+file(GLOB headers Sources/Private/*.h Sources/Public/*.h)
 
-  objc_framework(
-    FirebaseCore
-    SOURCES ${sources}
-    HEADERS ${headers}
-    VERSION ${core_version}
-    DEFINES
-      FIRCore_VERSION=${core_version}
-      Firebase_VERSION=${fb_version}
-    INCLUDES
-      Sources/Private
-      Sources/Public
-      ${PROJECT_SOURCE_DIR}
-    DEPENDS
-      GoogleUtilities
-      FirebaseCoreDiagnosticsInterop
-      "-framework Foundation"
-      "-framework AppKit"
-    EXCLUDE_FROM_ALL
-  )
+podspec_version(version ${PROJECT_SOURCE_DIR}/FirebaseCore.podspec)
+firebase_version(firebase_ios_version ${PROJECT_SOURCE_DIR}/FirebaseCore.podspec)
+
+firebase_ios_objc_framework(
+  FirebaseCore
+  SOURCES ${sources}
+  HEADERS ${headers}
+  VERSION ${version}
+  DEFINES
+    FIRCore_VERSION=${version}
+    Firebase_VERSION=${firebase_ios_version}
+  INCLUDES
+    ${PROJECT_SOURCE_DIR}
+  DEPENDS
+    FirebaseCoreDiagnosticsInterop
+    GoogleUtilities
+    "-framework Foundation"
+  DISABLE_STRICT_WARNINGS
+  EXCLUDE_FROM_ALL
+)
+
+if(IOS)
+  target_link_libraries(FirebaseCore PRIVATE "-framework UIKit")
+elseif(APPLE)
+  target_link_libraries(FirebaseCore PRIVATE "-framework AppKit")
 endif()

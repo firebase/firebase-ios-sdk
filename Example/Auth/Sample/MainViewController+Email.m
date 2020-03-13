@@ -17,9 +17,14 @@
 #import "MainViewController+Email.h"
 
 #import "AppManager.h"
+#import "FIRMultiFactorResolver+Internal.h"
+#import "FIRMultiFactorSession+Internal.h"
+#import "FIRPhoneMultiFactorInfo.h"
 #import "MainViewController+Internal.h"
 
 NS_ASSUME_NONNULL_BEGIN
+
+extern NSString *const FIRAuthErrorUserInfoMultiFactorResolverKey;
 
 typedef void (^ShowEmailDialogCompletion)(FIRAuthCredential *credential);
 
@@ -103,13 +108,13 @@ typedef void (^ShowEmailDialogCompletion)(FIRAuthCredential *credential);
 }
 
 - (void)signInEmailPassword {
-  [self showTextInputPromptWithMessage:@"Email Address:"
+  [self showTextInputPromptWithMessage:@"Email Address"
                           keyboardType:UIKeyboardTypeEmailAddress
                        completionBlock:^(BOOL userPressedOK, NSString *_Nullable email) {
     if (!userPressedOK || !email.length) {
       return;
     }
-    [self showTextInputPromptWithMessage:@"Password:"
+    [self showTextInputPromptWithMessage:@"Password"
                         completionBlock:^(BOOL userPressedOK, NSString *_Nullable password) {
         if (!userPressedOK) {
           return;
@@ -121,12 +126,53 @@ typedef void (^ShowEmailDialogCompletion)(FIRAuthCredential *credential);
                                                NSError *_Nullable error) {
             [self hideSpinner:^{
               if (error) {
-                [self logFailure:@"sign-in with Email/Password failed" error:error];
+                if (error.code == FIRAuthErrorCodeSecondFactorRequired) {
+                  FIRMultiFactorResolver *resolver = error.userInfo[FIRAuthErrorUserInfoMultiFactorResolverKey];
+                  NSMutableString *displayNameString = [NSMutableString string];
+                  for (FIRMultiFactorInfo *tmpFactorInfo in resolver.hints) {
+                    [displayNameString appendString:tmpFactorInfo.displayName];
+                    [displayNameString appendString:@" "];
+                  }
+                  [self showTextInputPromptWithMessage:[NSString stringWithFormat:@"Select factor to sign in\n%@", displayNameString]
+                                       completionBlock:^(BOOL userPressedOK, NSString *_Nullable displayName) {
+                    FIRPhoneMultiFactorInfo* selectedHint;
+                    for (FIRMultiFactorInfo *tmpFactorInfo in resolver.hints) {
+                      if ([displayName isEqualToString:tmpFactorInfo.displayName]) {
+                        selectedHint = (FIRPhoneMultiFactorInfo *)tmpFactorInfo;
+                      }
+                    }
+                  [FIRPhoneAuthProvider.provider
+                     verifyPhoneNumberWithMultiFactorInfo:selectedHint
+                     UIDelegate:nil
+                     multiFactorSession:resolver.session
+                     completion:^(NSString * _Nullable verificationID, NSError * _Nullable error) {
+                      if (error) {
+                        [self logFailure:@"Multi factor start sign in failed." error:error];
+                      } else {
+                        [self showTextInputPromptWithMessage:[NSString stringWithFormat:@"Verification code for %@", selectedHint.displayName]
+                                             completionBlock:^(BOOL userPressedOK, NSString *_Nullable verificationCode) {
+                         FIRPhoneAuthCredential *credential =
+                         [[FIRPhoneAuthProvider provider] credentialWithVerificationID:verificationID
+                                                                      verificationCode:verificationCode];
+                         FIRMultiFactorAssertion *assertion = [FIRPhoneMultiFactorGenerator assertionWithCredential:credential];
+                         [resolver resolveSignInWithAssertion:assertion completion:^(FIRAuthDataResult * _Nullable authResult, NSError * _Nullable error) {
+                           if (error) {
+                             [self logFailure:@"Multi factor finalize sign in failed." error:error];
+                           } else {
+                             [self logSuccess:@"Multi factor finalize sign in succeeded."];
+                           }
+                         }];
+                       }];
+                      }
+                    }];
+                  }];
+                } else {
+                  [self logFailure:@"sign-in with Email/Password failed" error:error];
+                }
               } else {
                 [self logSuccess:@"sign-in with Email/Password succeeded."];
                 [self log:[NSString stringWithFormat:@"UID: %@",authResult.user.uid]];
               }
-              [self showTypicalUIForUserUpdateResultsWithTitle:@"Sign-In Error" error:error];
             }];
           }];
         }];

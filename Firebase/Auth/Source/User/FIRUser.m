@@ -20,17 +20,17 @@
 
 #import "FIRAdditionalUserInfo_Internal.h"
 #import "FIRAuth.h"
+#import "FIRAuthBackend.h"
 #import "FIRAuthCredential_Internal.h"
 #import "FIRAuthDataResult_Internal.h"
 #import "FIRAuthErrorUtils.h"
 #import "FIRAuthGlobalWorkQueue.h"
-#import "FIRAuthSerialTaskQueue.h"
 #import "FIRAuthOperationType.h"
-#import "FIRAuth_Internal.h"
-#import "FIRAuthBackend.h"
 #import "FIRAuthRequestConfiguration.h"
+#import "FIRAuthSerialTaskQueue.h"
 #import "FIRAuthTokenResult_Internal.h"
 #import "FIRAuthWebUtils.h"
+#import "FIRAuth_Internal.h"
 #import "FIRDeleteAccountRequest.h"
 #import "FIRDeleteAccountResponse.h"
 #import "FIREmailAuthProvider.h"
@@ -42,6 +42,7 @@
 #import "FIRGetAccountInfoResponse.h"
 #import "FIRGetOOBConfirmationCodeRequest.h"
 #import "FIRGetOOBConfirmationCodeResponse.h"
+#import "FIRMultiFactor+Internal.h"
 #import "FIROAuthCredential_Internal.h"
 #import "FIRSecureTokenService.h"
 #import "FIRSetAccountInfoRequest.h"
@@ -125,6 +126,8 @@ static NSString *const kTokenServiceCodingKey = @"tokenService";
     @brief The key used to encode the metadata instance variable for NSSecureCoding.
  */
 static NSString *const kMetadataCodingKey = @"metadata";
+
+static NSString *const kMultiFactorCodingKey = @"multiFactor";
 
 /** @var kMissingUsersErrorMessage
     @brief The error message when there is no users array in the getAccountInfo response.
@@ -334,6 +337,10 @@ static void callInMainThreadWithAuthDataResultAndError(
       [aDecoder decodeObjectOfClass:[FIRUserMetadata class] forKey:kMetadataCodingKey];
   NSString *APIKey =
       [aDecoder decodeObjectOfClass:[NSString class] forKey:kAPIKeyCodingKey];
+#if TARGET_OS_IOS
+  FIRMultiFactor *multiFactor =
+      [aDecoder decodeObjectOfClass:[FIRMultiFactor class] forKey:kMultiFactorCodingKey];
+#endif
   if (!userID || !tokenService) {
     return nil;
   }
@@ -353,6 +360,9 @@ static void callInMainThreadWithAuthDataResultAndError(
     _phoneNumber = phoneNumber;
     _metadata = metadata ?: [[FIRUserMetadata alloc] initWithCreationDate:nil lastSignInDate:nil];
     _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:APIKey];
+    #if TARGET_OS_IOS
+    _multiFactor = multiFactor ?: [[FIRMultiFactor alloc] init];
+    #endif
   }
   return self;
 }
@@ -370,6 +380,9 @@ static void callInMainThreadWithAuthDataResultAndError(
   [aCoder encodeObject:_metadata forKey:kMetadataCodingKey];
   [aCoder encodeObject:_auth.requestConfiguration.APIKey forKey:kAPIKeyCodingKey];
   [aCoder encodeObject:_tokenService forKey:kTokenServiceCodingKey];
+  #if TARGET_OS_IOS
+  [aCoder encodeObject:_multiFactor forKey:kMultiFactorCodingKey];
+  #endif
 }
 
 #pragma mark -
@@ -442,6 +455,10 @@ static void callInMainThreadWithAuthDataResultAndError(
     }
   }
   _providerData = [providerData copy];
+  #if TARGET_OS_IOS
+  _multiFactor = [[FIRMultiFactor alloc] initWithMFAEnrollments:user.MFAEnrollments];
+  _multiFactor.user = self;
+  #endif
 }
 
 /** @fn executeUserUpdateWithChanges:callback:
@@ -854,7 +871,7 @@ static void callInMainThreadWithAuthDataResultAndError(
                                 callback:^(NSString *_Nullable token, NSError *_Nullable error) {
       FIRAuthTokenResult *tokenResult;
       if (token) {
-        tokenResult = [self parseIDToken:token error:&error];
+        tokenResult = [FIRAuthTokenResult tokenResultWithToken:token];
       }
       if (completion) {
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -895,12 +912,12 @@ static void callInMainThreadWithAuthDataResultAndError(
   }
 
   // The token payload is always the second index of the array.
-  NSString *idToken = tokenStringArray[1];
+  NSString *IDToken = tokenStringArray[1];
 
   // Convert the base64URL encoded string to a base64 encoded string.
   // Replace "_" with "/"
   NSMutableString *tokenPayload =
-      [[idToken stringByReplacingOccurrencesOfString:@"_" withString:@"/"] mutableCopy];
+      [[IDToken stringByReplacingOccurrencesOfString:@"_" withString:@"/"] mutableCopy];
 
   // Replace "-" with "+"
   [tokenPayload replaceOccurrencesOfString:@"-"
@@ -941,21 +958,7 @@ static void callInMainThreadWithAuthDataResultAndError(
     return nil;
   }
 
-  // These are dates since 00:00:00 January 1 1970, as described by the Terminology section in
-  // the JWT spec. https://tools.ietf.org/html/rfc7519
-  NSDate *expDate =
-      [NSDate dateWithTimeIntervalSince1970:[tokenPayloadDictionary[@"exp"] doubleValue]];
-  NSDate *authDate =
-      [NSDate dateWithTimeIntervalSince1970:[tokenPayloadDictionary[@"auth_time"] doubleValue]];
-  NSDate *issuedDate =
-      [NSDate dateWithTimeIntervalSince1970:[tokenPayloadDictionary[@"iat"] doubleValue]];
-  FIRAuthTokenResult *result =
-     [[FIRAuthTokenResult alloc] initWithToken:token
-                                expirationDate:expDate
-                                      authDate:authDate
-                                  issuedAtDate:issuedDate
-                                signInProvider:tokenPayloadDictionary[@"firebase"][@"sign_in_provider"]
-                                        claims:tokenPayloadDictionary];
+  FIRAuthTokenResult *result = [FIRAuthTokenResult tokenResultWithToken:token];
   return result;
 }
 
@@ -987,6 +990,21 @@ static void callInMainThreadWithAuthDataResultAndError(
     }
     callback(token, nil);
   }];
+}
+
+- (void)sendEmailVerificationBeforeUpdatingEmail:(nonnull NSString *)email
+                                      completion:(nullable FIRAuthVoidErrorCallback)completion {
+  [self internalVerifyBeforeUpdateEmailWithNewEmail:email
+                                 actionCodeSettings:nil
+                                         completion:completion];
+}
+
+- (void)sendEmailVerificationBeforeUpdatingEmail:(nonnull NSString *)email
+                              actionCodeSettings:(nonnull FIRActionCodeSettings *)actionCodeSettings
+                                      completion:(nullable FIRAuthVoidErrorCallback)completion {
+  [self internalVerifyBeforeUpdateEmailWithNewEmail:email
+                                 actionCodeSettings:actionCodeSettings
+                                         completion:completion];
 }
 
 - (void)internalVerifyBeforeUpdateEmailWithNewEmail:(NSString *)newEmail

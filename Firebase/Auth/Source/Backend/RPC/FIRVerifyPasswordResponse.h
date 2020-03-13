@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-
+#import "FIRAuthProtoMFAEnrollment.h"
 #import "FIRAuthRPCResponse.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -66,6 +65,10 @@ NS_ASSUME_NONNULL_BEGIN
     @brief The URI of the public accessible profile picture.
  */
 @property(nonatomic, strong, readonly, nullable) NSURL *photoURL;
+
+@property(nonatomic, strong, readonly, nullable) NSString *MFAPendingCredential;
+
+@property(nonatomic, strong, readonly, nullable) NSArray<FIRAuthProtoMFAEnrollment *> *MFAInfo;
 
 @end
 

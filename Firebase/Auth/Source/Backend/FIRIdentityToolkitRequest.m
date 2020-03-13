@@ -18,27 +18,47 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** @var kAPIURLFormat
-    @brief URL format for server API calls.
- */
-static NSString *const kAPIURLFormat = @"https://%@/identitytoolkit/v3/relyingparty/%@?key=%@";
+static NSString *const kFirebaseAuthAPIURLFormat = @"https://%@/identitytoolkit/v3/relyingparty/%@?key=%@";
+static NSString *const kIdentityPlatformAPIURLFormat = @"https://%@/v2/%@?key=%@";
 
-/** @var gAPIHost
-    @brief Host for server API calls.
- */
 static NSString *gAPIHost = @"www.googleapis.com";
+
+static NSString *kFirebaseAuthAPIHost = @"www.googleapis.com";
+static NSString *kIdentityPlatformAPIHost = @"identitytoolkit.googleapis.com";
+
+static NSString *kFirebaseAuthStagingAPIHost = @"staging-www.sandbox.googleapis.com";
+static NSString *kIdentityPlatformStagingAPIHost = @"staging-identitytoolkit.sandbox.googleapis.com";
 
 @implementation FIRIdentityToolkitRequest {
   FIRAuthRequestConfiguration *_requestConfiguration;
+
+  BOOL _useIdentityPlatform;
+
+  BOOL _useStaging;
 }
 
 - (nullable instancetype)initWithEndpoint:(NSString *)endpoint
                      requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
   self = [super init];
   if (self) {
-    _endpoint = [endpoint copy];
     _APIKey = [requestConfiguration.APIKey copy];
+    _endpoint = [endpoint copy];
     _requestConfiguration = requestConfiguration;
+    _useIdentityPlatform = NO;
+    _useStaging = NO;
+  }
+  return self;
+}
+
+- (nullable instancetype)initWithEndpoint:(NSString *)endpoint
+                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
+                      useIdentityPlatform:(BOOL)useIdentityPlatform
+                               useStaging:(BOOL)useStaging {
+  self = [self initWithEndpoint:endpoint
+           requestConfiguration:requestConfiguration];
+  if (self) {
+    _useIdentityPlatform = useIdentityPlatform;
+    _useStaging = useStaging;
   }
   return self;
 }
@@ -48,7 +68,24 @@ static NSString *gAPIHost = @"www.googleapis.com";
 }
 
 - (NSURL *)requestURL {
-  NSString *URLString = [NSString stringWithFormat:kAPIURLFormat, gAPIHost, _endpoint, _APIKey];
+  NSString *apiURLFormat;
+  NSString *apiHost;
+  if (_useIdentityPlatform) {
+    apiURLFormat = kIdentityPlatformAPIURLFormat;
+    if (_useStaging) {
+      apiHost = kIdentityPlatformStagingAPIHost;
+    } else {
+      apiHost = kIdentityPlatformAPIHost;
+    }
+  } else {
+    apiURLFormat = kFirebaseAuthAPIURLFormat;
+    if (_useStaging) {
+      apiHost = kFirebaseAuthStagingAPIHost;
+    } else {
+      apiHost = kFirebaseAuthAPIHost;
+    }
+  }
+  NSString *URLString = [NSString stringWithFormat:apiURLFormat, apiHost, _endpoint, _APIKey];
   NSURL *URL = [NSURL URLWithString:URLString];
   return URL;
 }

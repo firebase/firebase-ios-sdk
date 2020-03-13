@@ -37,8 +37,7 @@
     _target = target;
     _qosTier = GDTCOREventQosDefault;
   }
-  GDTCORLogDebug("Event %@ created. mappingID: %@ target:%ld qos:%ld", self, _mappingID,
-                 (long)_target, (long)_qosTier);
+  GDTCORLogDebug("Event %@ created. mappingID: %@ target:%ld", self, mappingID, (long)target);
   return self;
 }
 
