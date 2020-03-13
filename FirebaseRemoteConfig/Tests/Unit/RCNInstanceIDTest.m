@@ -282,7 +282,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
           XCTAssert([[error.userInfo objectForKey:@"NSLocalizedDescription"]
               containsString:@"Failed to get installations token"]);
           // Make a second fetch call.
-          [_configInstances[i]
+          [self->_configInstances[i]
               fetchWithExpirationDuration:43200
                         completionHandler:^void(FIRRemoteConfigFetchStatus status, NSError *error) {
                           XCTAssertNotNil(error);
