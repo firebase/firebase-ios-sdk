@@ -75,6 +75,10 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   _settings = [[FIRCLSSettings alloc] initWithFileManager:_fileManager appIDModel:_appIDModel];
 }
 
+- (void)tearDown {
+  [_fileManager removeContentsOfDirectoryAtPath:_fileManager.settingsDirectoryPath];
+}
+
 - (void)testDefaultSettings {
   XCTAssertEqual(self.settings.isCacheExpired, YES);
 
