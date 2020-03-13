@@ -197,7 +197,8 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                                                      completionHandler:OCMOCK_ANY]);
     mock = [mock ignoringNonObjectArgs];
     mock.andDo(^(NSInvocation *invocation) {
-      __unsafe_unretained void (^handler)(FIRRemoteConfigFetchStatus status, NSError *_Nullable error) = nil;
+      __unsafe_unretained void (^handler)(FIRRemoteConfigFetchStatus status,
+                                          NSError *_Nullable error) = nil;
       [invocation getArgument:&handler atIndex:3];
       [_configFetch[i] fetchWithUserProperties:[[NSDictionary alloc] init]
                              completionHandler:handler];
@@ -515,7 +516,8 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
 
     OCMStub([_configFetch[i] fetchConfigWithExpirationDuration:43200 completionHandler:OCMOCK_ANY])
         .andDo(^(NSInvocation *invocation) {
-          __unsafe_unretained void (^handler)(FIRRemoteConfigFetchStatus status, NSError *_Nullable error) = nil;
+          __unsafe_unretained void (^handler)(FIRRemoteConfigFetchStatus status,
+                                              NSError *_Nullable error) = nil;
           // void (^handler)(FIRRemoteConfigFetchCompletion);
           [invocation getArgument:&handler atIndex:3];
           [_configFetch[i] fetchWithUserProperties:[[NSDictionary alloc] init]
@@ -637,7 +639,8 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
 
     OCMStub([_configFetch[i] fetchConfigWithExpirationDuration:43200 completionHandler:OCMOCK_ANY])
         .andDo(^(NSInvocation *invocation) {
-          __unsafe_unretained void (^handler)(FIRRemoteConfigFetchStatus status, NSError *_Nullable error) = nil;
+          __unsafe_unretained void (^handler)(FIRRemoteConfigFetchStatus status,
+                                              NSError *_Nullable error) = nil;
           // void (^handler)(FIRRemoteConfigFetchCompletion);
           [invocation getArgument:&handler atIndex:3];
           [_configFetch[i] fetchWithUserProperties:[[NSDictionary alloc] init]
@@ -766,7 +769,8 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
 
     OCMStub([_configFetch[i] fetchConfigWithExpirationDuration:43200 completionHandler:OCMOCK_ANY])
         .andDo(^(NSInvocation *invocation) {
-          __unsafe_unretained void (^handler)(FIRRemoteConfigFetchStatus status, NSError *_Nullable error) = nil;
+          __unsafe_unretained void (^handler)(FIRRemoteConfigFetchStatus status,
+                                              NSError *_Nullable error) = nil;
 
           [invocation getArgument:&handler atIndex:3];
           [_configFetch[i] fetchWithUserProperties:[[NSDictionary alloc] init]
