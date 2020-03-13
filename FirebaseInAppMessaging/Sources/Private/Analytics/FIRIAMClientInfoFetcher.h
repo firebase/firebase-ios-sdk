@@ -16,11 +16,17 @@
 
 #import <Foundation/Foundation.h>
 
+@class FIRInstallations;
+
 // A class for wrapping the interactions for retrieving client side info to be used in
 // request parameter for interacting with Firebase iam servers.
 
 NS_ASSUME_NONNULL_BEGIN
 @interface FIRIAMClientInfoFetcher : NSObject
+
+- (instancetype)initWithFirebaseInstallations:(FIRInstallations *)installations;
+- (instancetype)init NS_UNAVAILABLE;
+
 // Fetch the up-to-date Firebase Installation ID (FID) and Firebase Installation Service (FIS) token
 // data. Since it involves a server interaction, completion callback is provided for receiving the
 // result.

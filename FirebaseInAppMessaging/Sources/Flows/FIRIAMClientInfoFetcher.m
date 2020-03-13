@@ -23,16 +23,29 @@
 #import "FIRIAMSDKRuntimeErrorCodes.h"
 #import "FIRInAppMessagingPrivate.h"
 
+@interface FIRIAMClientInfoFetcher ()
+
+@property(nonatomic, strong, nullable, readonly) FIRInstallations *installations;
+
+@end
+
 @implementation FIRIAMClientInfoFetcher
+
+- (instancetype)initWithFirebaseInstallations:(FIRInstallations *)installations {
+  if (self = [super init]) {
+    _installations = installations;
+  }
+  return self;
+}
 
 - (void)fetchFirebaseInstallationDataWithProjectNumber:(NSString *)projectNumber
                                         withCompletion:
                                             (void (^)(NSString *_Nullable FID,
                                                       NSString *_Nullable FISToken,
                                                       NSError *_Nullable error))completion {
-  FIRInstallations *installations = [FIRInAppMessaging inAppMessaging].installations;
+  // FIRInstallations *installations = [FIRInAppMessaging inAppMessaging].installations;
 
-  if (!installations) {
+  if (!self.installations) {
     NSString *errorDesc = @"Couldn't generate Firebase Installation info";
     FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM190010", @"%@", errorDesc);
     NSError *error = [NSError errorWithDomain:kFirebaseInAppMessagingErrorDomain
@@ -42,8 +55,9 @@
     return;
   }
 
-  [installations authTokenWithCompletion:^(FIRInstallationsAuthTokenResult *_Nullable tokenResult,
-                                           NSError *_Nullable error) {
+  [self.installations authTokenWithCompletion:^(
+                          FIRInstallationsAuthTokenResult *_Nullable tokenResult,
+                          NSError *_Nullable error) {
     if (error) {
       FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM190006", @"Error in fetching FIS token: %@",
                     error.localizedDescription);
@@ -51,7 +65,7 @@
     } else {
       FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM190007", @"Successfully generated FIS token");
 
-      [installations
+      [self.installations
           installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
             if (error) {
               FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM190008", @"Error in fetching FID: %@",

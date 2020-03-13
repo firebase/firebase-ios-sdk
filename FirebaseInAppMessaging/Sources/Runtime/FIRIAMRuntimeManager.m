@@ -36,10 +36,7 @@
 #import "FIRIAMRuntimeManager.h"
 #import "FIRIAMSDKModeManager.h"
 #import "FIRInAppMessaging.h"
-
-@interface FIRInAppMessaging ()
-@property(nonatomic, readwrite, strong) id<FIRAnalyticsInterop> _Nullable analytics;
-@end
+#import "FIRInAppMessagingPrivate.h"
 
 // A enum indicating 3 different possiblities of a setting about auto data collection.
 typedef NS_ENUM(NSInteger, FIRIAMAutoDataCollectionSetting) {
@@ -267,7 +264,9 @@ static NSString *const kFirebaseInAppMessagingAutoDataCollectionKey =
   self.messageCache = [[FIRIAMMessageClientCache alloc] initWithBookkeeper:self.bookKeeper
                                                        usingResponseParser:self.responseParser];
   self.fetchResultStorage = [[FIRIAMServerMsgFetchStorage alloc] init];
-  self.clientInfoFetcher = [[FIRIAMClientInfoFetcher alloc] init];
+
+  self.clientInfoFetcher = [[FIRIAMClientInfoFetcher alloc]
+      initWithFirebaseInstallations:[FIRInAppMessaging inAppMessaging].installations];
 
   self.restfulFetcher =
       [[FIRIAMMsgFetcherUsingRestful alloc] initWithHost:settings.apiServerHost
