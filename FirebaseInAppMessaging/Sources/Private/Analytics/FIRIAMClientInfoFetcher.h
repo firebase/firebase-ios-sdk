@@ -24,7 +24,7 @@
 NS_ASSUME_NONNULL_BEGIN
 @interface FIRIAMClientInfoFetcher : NSObject
 
-- (instancetype)initWithFirebaseInstallations:(FIRInstallations *)installations;
+- (instancetype)initWithFirebaseInstallations:(nullable FIRInstallations *)installations;
 - (instancetype)init NS_UNAVAILABLE;
 
 // Fetch the up-to-date Firebase Installation ID (FID) and Firebase Installation Service (FIS) token

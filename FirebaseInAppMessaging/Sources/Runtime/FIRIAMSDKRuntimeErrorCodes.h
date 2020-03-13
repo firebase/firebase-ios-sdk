@@ -27,5 +27,5 @@ typedef NS_ENUM(NSInteger, FIRIAMSDKRuntimeError) {
   FIRIAMSDKRuntimeErrorNonHTTPResponseForImage = 2,
 
   // Failed to fetch Firebase Installations object.
-  FIRIAMSDKRuntimeErrorNoFirebaseInstallationsObject = 2,
+  FIRIAMSDKRuntimeErrorNoFirebaseInstallationsObject = 3,
 };

@@ -43,8 +43,6 @@
                                             (void (^)(NSString *_Nullable FID,
                                                       NSString *_Nullable FISToken,
                                                       NSError *_Nullable error))completion {
-  // FIRInstallations *installations = [FIRInAppMessaging inAppMessaging].installations;
-
   if (!self.installations) {
     NSString *errorDesc = @"Couldn't generate Firebase Installation info";
     FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM190010", @"%@", errorDesc);

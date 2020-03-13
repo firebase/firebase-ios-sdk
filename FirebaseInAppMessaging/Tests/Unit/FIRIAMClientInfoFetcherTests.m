@@ -18,6 +18,7 @@
 #import <XCTest/XCTest.h>
 
 #import "FIRIAMClientInfoFetcher.h"
+#import "FIRIAMSDKRuntimeErrorCodes.h"
 
 #import <FirebaseInstallations/FIRInstallations.h>
 #import <FirebaseInstallations/FIRInstallationsAuthTokenResult.h>
@@ -29,30 +30,46 @@
 @interface FIRIAMClientInfoFetcherTests : XCTestCase
 
 @property(nonatomic, strong) FIRIAMClientInfoFetcher *clientInfoFetcher;
+@property(nonatomic) id mockInstallations;
 
 @end
 
 @implementation FIRIAMClientInfoFetcherTests
 
-- (NSDate *)future {
-  return [[NSDate date] dateByAddingTimeInterval:10000];
+- (void)setUp {
+  self.mockInstallations = OCMClassMock([FIRInstallations class]);
+  self.clientInfoFetcher =
+      [[FIRIAMClientInfoFetcher alloc] initWithFirebaseInstallations:self.mockInstallations];
 }
 
-- (void)setUp {
-  // Set up for the happy bath where both FID and FIS token are returned.
-  FIRInstallationsAuthTokenResult *tokenResult =
-      [[FIRInstallationsAuthTokenResult alloc] initWithToken:@"mock_token"
-                                              expirationDate:[self future]];
-  id mockInstallations = [self mockInstanceIDMethodForTokenAndIdentity:tokenResult
-                                                            tokenError:nil
-                                                              identity:@"mock_id"
-                                                         identityError:nil];
+- (void)tearDown {
+  [self.mockInstallations stopMocking];
+}
 
-  self.clientInfoFetcher =
-      [[FIRIAMClientInfoFetcher alloc] initWithFirebaseInstallations:mockInstallations];
+- (void)testNoInstallations {
+  FIRIAMClientInfoFetcher *fetcherWithoutInstallations =
+      [[FIRIAMClientInfoFetcher alloc] initWithFirebaseInstallations:nil];
+
+  [fetcherWithoutInstallations
+      fetchFirebaseInstallationDataWithProjectNumber:@"my project number"
+                                      withCompletion:^(NSString *_Nullable FID,
+                                                       NSString *_Nullable FISToken,
+                                                       NSError *_Nullable error) {
+                                        XCTAssertEqual(
+                                            error.code,
+                                            FIRIAMSDKRuntimeErrorNoFirebaseInstallationsObject);
+                                      }];
 }
 
 - (void)testReturnsBothFIDAndToken {
+  FIRInstallationsAuthTokenResult *tokenResult =
+      [[FIRInstallationsAuthTokenResult alloc] initWithToken:@"mock_token"
+                                              expirationDate:[NSDate distantFuture]];
+  [self mockInstanceIDMethodForTokenAndIdentity:tokenResult
+                                     tokenError:nil
+                                       identity:@"mock_id"
+                                  identityError:nil];
+
   [self.clientInfoFetcher
       fetchFirebaseInstallationDataWithProjectNumber:@"my project number"
                                       withCompletion:^(NSString *_Nullable FID,
@@ -73,14 +90,11 @@
 
   FIRInstallationsAuthTokenResult *tokenResult =
       [[FIRInstallationsAuthTokenResult alloc] initWithToken:@"mock_token"
-                                              expirationDate:[self future]];
-  id mockInstallations = [self mockInstanceIDMethodForTokenAndIdentity:tokenResult
-                                                            tokenError:nil
-                                                              identity:nil
-                                                         identityError:error];
-
-  self.clientInfoFetcher =
-      [[FIRIAMClientInfoFetcher alloc] initWithFirebaseInstallations:mockInstallations];
+                                              expirationDate:[NSDate distantFuture]];
+  [self mockInstanceIDMethodForTokenAndIdentity:tokenResult
+                                     tokenError:nil
+                                       identity:nil
+                                  identityError:error];
 
   [self.clientInfoFetcher
       fetchFirebaseInstallationDataWithProjectNumber:@"my project number"
@@ -104,15 +118,10 @@
                  code:0
              userInfo:@{NSLocalizedDescriptionKey : @"Installations couldn't return FIS token"}];
 
-  id mockInstallations = [self mockInstanceIDMethodForTokenAndIdentity:nil
-                                                            tokenError:error
-                                                              identity:nil
-                                                         identityError:nil];
-
-  self.clientInfoFetcher =
-      [[FIRIAMClientInfoFetcher alloc] initWithFirebaseInstallations:mockInstallations];
-
-  OCMReject([mockInstallations installationIDWithCompletion:[OCMArg any]]);
+  [self mockInstanceIDMethodForTokenAndIdentity:nil
+                                     tokenError:error
+                                       identity:nil
+                                  identityError:nil];
 
   [self.clientInfoFetcher
       fetchFirebaseInstallationDataWithProjectNumber:@"my project number"
@@ -129,24 +138,22 @@
 }
 
 // Mock FIRInstallations methods.
-- (id)mockInstanceIDMethodForTokenAndIdentity:
-          (nullable FIRInstallationsAuthTokenResult *)tokenResult
-                                   tokenError:(nullable NSError *)tokenError
-                                     identity:(nullable NSString *)identity
-                                identityError:(nullable NSError *)identityError {
-  id installationsMock = OCMClassMock([FIRInstallations class]);
-  OCMStub([installationsMock
+- (void)mockInstanceIDMethodForTokenAndIdentity:
+            (nullable FIRInstallationsAuthTokenResult *)tokenResult
+                                     tokenError:(nullable NSError *)tokenError
+                                       identity:(nullable NSString *)identity
+                                  identityError:(nullable NSError *)identityError {
+  OCMStub([self.mockInstallations
       installationIDWithCompletion:([OCMArg
                                        invokeBlockWithArgs:(identity ? identity : [NSNull null]),
                                                            (identityError ? identityError
                                                                           : [NSNull null]),
                                                            nil])]);
-  OCMStub([installationsMock
+  OCMStub([self.mockInstallations
       authTokenWithCompletion:([OCMArg
                                   invokeBlockWithArgs:(tokenResult ? tokenResult : [NSNull null]),
                                                       (tokenError ? tokenError : [NSNull null]),
                                                       nil])]);
-  return installationsMock;
 }
 
 @end
