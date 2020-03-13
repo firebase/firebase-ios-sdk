@@ -156,7 +156,7 @@ enum CocoaPodUtils {
 
     // Run pod install on the directory that contains the Podfile and blank Xcode project.
     // At least 1.9.0 is required for `use_frameworks! :linkage => :static`
-    let result = Shell.executeCommandFromScript("pod _1.9.0_ install", workingDir: directory)
+    let result = Shell.executeCommandFromScript("pod install", workingDir: directory)
     switch result {
     case let .error(code, output):
       fatalError("""
@@ -309,6 +309,15 @@ enum CocoaPodUtils {
       returnDeps.formUnion(newDeps)
     } while newDeps.count > 0
     return Array(returnDeps)
+  }
+
+  /// Get all transitive pod dependencies for a pod with subspecs merged.
+  /// - Returns: An array of Strings of pod names.
+  static func transitiveMasterPodDependencies(for podName: String,
+                                              in installedPods: [String: PodInfo]) -> [String] {
+    return Array(Set(transitivePodDependencies(for: podName, in: installedPods).map {
+      $0.components(separatedBy: "/")[0]
+    }))
   }
 
   /// Get all transitive pod dependencies for a pod.
