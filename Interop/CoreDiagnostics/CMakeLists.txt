@@ -28,5 +28,6 @@ firebase_ios_objc_framework(
   HEADERS ${headers}
   VERSION ${version}
   INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}
+  DISABLE_STRICT_WARNINGS
   EXCLUDE_FROM_ALL
 )
