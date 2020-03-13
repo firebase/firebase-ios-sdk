@@ -20,6 +20,7 @@
 #import "FBLPromises.h"
 #endif
 
+#import "FIRCLSApplicationIdentifierModel.h"
 #include "FIRCLSCrashedMarkerFile.h"
 #import "FIRCLSDataCollectionArbiter.h"
 #import "FIRCLSDefines.h"
@@ -29,6 +30,7 @@
 #import "FIRCLSHost.h"
 #include "FIRCLSProfiling.h"
 #import "FIRCLSReport_Private.h"
+#import "FIRCLSSettings.h"
 #import "FIRCLSUserDefaults.h"
 #include "FIRCLSUserLogging.h"
 #include "FIRCLSUtility.h"
@@ -110,12 +112,19 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
     _fileManager = [[FIRCLSFileManager alloc] init];
     _googleAppID = app.options.googleAppID;
     _dataArbiter = [[FIRCLSDataCollectionArbiter alloc] initWithApp:app withAppInfo:appInfo];
+
+    FIRCLSApplicationIdentifierModel *appModel = [[FIRCLSApplicationIdentifierModel alloc] init];
+    FIRCLSSettings *settings = [[FIRCLSSettings alloc] initWithFileManager:_fileManager
+                                                                appIDModel:appModel];
+
     _reportManager = [[FIRCLSReportManager alloc] initWithFileManager:_fileManager
                                                         installations:installations
                                                             analytics:analytics
                                                           googleAppID:_googleAppID
                                                           dataArbiter:_dataArbiter
-                                                      googleTransport:_googleTransport];
+                                                      googleTransport:_googleTransport
+                                                           appIDModel:appModel
+                                                             settings:settings];
 
     // Process did crash during previous execution
     NSString *crashedMarkerFileName = [NSString stringWithUTF8String:FIRCLSCrashedMarkerFileName];

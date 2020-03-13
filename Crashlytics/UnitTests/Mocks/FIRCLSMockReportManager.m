@@ -34,15 +34,19 @@
 - (instancetype)initWithFileManager:(FIRCLSFileManager *)fileManager
                       installations:(FIRInstallations *)installations
                           analytics:(id<FIRAnalyticsInterop>)analytics
-                        googleAppID:(nonnull NSString *)googleAppID
+                        googleAppID:(NSString *)googleAppID
                         dataArbiter:(FIRCLSDataCollectionArbiter *)dataArbiter
-                    googleTransport:(GDTCORTransport *)googleTransport {
+                    googleTransport:(GDTCORTransport *)googleTransport
+                         appIDModel:(FIRCLSApplicationIdentifierModel *)appIDModel
+                           settings:(FIRCLSSettings *)settings {
   self = [super initWithFileManager:fileManager
                       installations:installations
                           analytics:analytics
                         googleAppID:googleAppID
                         dataArbiter:dataArbiter
-                    googleTransport:(GDTCORTransport *)googleTransport];
+                    googleTransport:googleTransport
+                         appIDModel:appIDModel
+                           settings:settings];
   if (!self) {
     return nil;
   }

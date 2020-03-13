@@ -32,9 +32,11 @@
 
 #import "FABMockApplicationIdentifierModel.h"
 #import "FIRAppFake.h"
+#import "FIRCLSApplicationIdentifierModel.h"
 #import "FIRCLSMockFileManager.h"
 #import "FIRCLSMockReportManager.h"
 #import "FIRCLSMockReportUploader.h"
+#import "FIRCLSMockSettings.h"
 #import "FIRMockGDTCoreTransport.h"
 #import "FIRMockInstallations.h"
 
@@ -51,6 +53,8 @@
 @property(nonatomic, strong) FIRCLSMockFileManager *fileManager;
 @property(nonatomic, strong) FIRCLSMockReportManager *reportManager;
 @property(nonatomic, strong) FIRCLSDataCollectionArbiter *dataArbiter;
+@property(nonatomic, strong) FIRCLSApplicationIdentifierModel *appIDModel;
+@property(nonatomic, strong) FIRCLSMockSettings *settings;
 
 @end
 
@@ -77,13 +81,18 @@
   FIRMockGDTCORTransport *transport = [[FIRMockGDTCORTransport alloc] initWithMappingID:@"id"
                                                                            transformers:nil
                                                                                  target:0];
+  self.appIDModel = [[FIRCLSApplicationIdentifierModel alloc] init];
+  self.settings = [[FIRCLSMockSettings alloc] initWithFileManager:self.fileManager
+                                                       appIDModel:self.appIDModel];
 
   self.reportManager = [[FIRCLSMockReportManager alloc] initWithFileManager:self.fileManager
                                                               installations:iid
                                                                   analytics:nil
                                                                 googleAppID:TEST_GOOGLE_APP_ID
                                                                 dataArbiter:self.dataArbiter
-                                                            googleTransport:transport];
+                                                            googleTransport:transport
+                                                                 appIDModel:self.appIDModel
+                                                                   settings:self.settings];
   self.reportManager.bundleIdentifier = TEST_BUNDLE_ID;
 }
 

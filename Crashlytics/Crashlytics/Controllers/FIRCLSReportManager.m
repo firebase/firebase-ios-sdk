@@ -57,7 +57,6 @@
 #include "FIRCLSGlobals.h"
 #include "FIRCLSUtility.h"
 
-#import "FIRCLSApplicationIdentifierModel.h"
 #import "FIRCLSConstants.h"
 #import "FIRCLSExecutionIdentifierModel.h"
 #import "FIRCLSInstallIdentifierModel.h"
@@ -188,7 +187,9 @@ static void (^reportSentCallback)(void);
                           analytics:(id<FIRAnalyticsInterop>)analytics
                         googleAppID:(NSString *)googleAppID
                         dataArbiter:(FIRCLSDataCollectionArbiter *)dataArbiter
-                    googleTransport:(GDTCORTransport *)googleTransport {
+                    googleTransport:(GDTCORTransport *)googleTransport
+                         appIDModel:(FIRCLSApplicationIdentifierModel *)appIDModel
+                           settings:(FIRCLSSettings *)settings {
   self = [super init];
   if (!self) {
     return nil;
@@ -218,14 +219,14 @@ static void (^reportSentCallback)(void);
 
   _checkForUnsentReportsCalled = NO;
 
-  _appIDModel = [[FIRCLSApplicationIdentifierModel alloc] init];
   _installIDModel = [[FIRCLSInstallIdentifierModel alloc] initWithInstallations:installations];
   _executionIDModel = [[FIRCLSExecutionIdentifierModel alloc] init];
 
-  _settings = [[FIRCLSSettings alloc] initWithFileManager:_fileManager appIDModel:_appIDModel];
+  _settings = settings;
+  _appIDModel = appIDModel;
 
   _settingsAndOnboardingManager =
-      [[FIRCLSSettingsOnboardingManager alloc] initWithAppIDModel:self.appIDModel
+      [[FIRCLSSettingsOnboardingManager alloc] initWithAppIDModel:appIDModel
                                                    installIDModel:self.installIDModel
                                                          settings:self.settings
                                                       fileManager:self.fileManager

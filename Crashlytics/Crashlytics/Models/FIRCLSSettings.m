@@ -293,6 +293,12 @@ NSString *const BuildInstanceID = @"build_instance_id";
 - (BOOL)shouldUseNewReportEndpoint {
   NSNumber *value = [self appSettings][@"report_upload_variant"];
 
+  // Default to use the new endpoint when settings were not successfully fetched
+  // or there's an unexpected issue
+  if (!value) {
+    return YES;
+  }
+
   // 0 - Unknown
   // 1 - Legacy
   // 2 - New
