@@ -91,7 +91,7 @@ static NSString *const kAppIDKey = @"appId";
   if (_appID) {
     postBody[kAppIDKey] = _appID;
   }
-  return postBody;
+  return [postBody copy];
 }
 
 @end

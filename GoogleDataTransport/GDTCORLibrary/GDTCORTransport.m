@@ -41,8 +41,8 @@
     _target = target;
     _transformerInstance = [GDTCORTransformer sharedInstance];
   }
-  GDTCORLogDebug("Transport object created. mappingID:%@ transformers:%@ target:%ld", _mappingID,
-                 _transformers, (long)_target);
+  GDTCORLogDebug("Transport object created. mappingID:%@ transformers:%@ target:%ld", mappingID,
+                 transformers, (long)target);
   return self;
 }
 

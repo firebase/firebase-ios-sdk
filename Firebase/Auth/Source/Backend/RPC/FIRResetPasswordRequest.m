@@ -52,7 +52,7 @@ static NSString *const kCurrentPasswordKey = @"newPassword";
   if (_updatedPassword) {
     postBody[kCurrentPasswordKey] = _updatedPassword;
   }
-  return postBody;
+  return [postBody copy];
 }
 
 @end

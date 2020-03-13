@@ -14,6 +14,8 @@
 
 #import <Foundation/Foundation.h>
 
+#import <GoogleDataTransport/GDTCORTransport.h>
+
 @class FIRCLSDataCollectionToken;
 @class FIRCLSInternalReport;
 @class FIRCLSSettings;
@@ -73,5 +75,6 @@
 
 - (NSString *)googleAppID;
 - (FIRCLSSettings *)settings;
+- (GDTCORTransport *)googleTransport;
 
 @end

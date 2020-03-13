@@ -1,4 +1,6 @@
-# Copyright 2018 Google
+#!/bin/bash
+
+# Copyright 2020 Google
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,13 +13,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
 
-# Adds cheap tests for various compilers
+readonly DIR="$( git rev-parse --show-toplevel )"
 
-if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  set(CXX_CLANG TRUE)
-endif()
+"$DIR/Crashlytics/ProtoSupport/generate_crashlytics_protos.sh" || echo "Something went wrong generating protos.";
 
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  set(CXX_GNU TRUE)
-endif()
+pod gen "${DIR}/FirebaseCrashlytics.podspec" --auto-open --gen-directory="${DIR}/gen" --local-sources="${DIR}" --platforms=ios,macos,tvos --clean

@@ -40,7 +40,7 @@ struct Zip {
     }
 
     // Run the `zip` command. This could be replaced with a proper Zip library in the future.
-    let command = "zip -q -r -dg \(zip.lastPathComponent) \(directory.lastPathComponent)"
+    let command = "zip --symlinks -q -r -dg \(zip.lastPathComponent) \(directory.lastPathComponent)"
     let result = Shell.executeCommandFromScript(command, workingDir: parentDir)
     switch result {
     case .success:

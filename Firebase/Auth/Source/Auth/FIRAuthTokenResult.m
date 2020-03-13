@@ -16,6 +16,8 @@
 
 #import "FIRAuthTokenResult_Internal.h"
 
+#import "FIRAuthErrorUtils.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 /** @var kExpirationDateKey
@@ -43,6 +45,11 @@ static NSString *const kIssuedDateKey = @"issuedDate";
  */
 static NSString *const kSignInProviderKey = @"signInProvider";
 
+/** @var kSignInSecondFactorKey
+ @brief The key used to encode the signInSecondFactor property for NSSecureCoding.
+ */
+static NSString *const kSignInSecondFactorKey = @"signInSecondFactor";
+
 /** @var kClaimsKey
     @brief The key used to encode the claims property for NSSecureCoding.
  */
@@ -55,6 +62,7 @@ static NSString *const kClaimsKey = @"claims";
                      authDate:(NSDate *)authDate
                  issuedAtDate:(NSDate *)issuedAtDate
                signInProvider:(NSString *)signInProvider
+           signInSecondFactor:(NSString *)signInSecondFactor
                        claims:(NSDictionary *)claims {
   self = [super init];
   if (self) {
@@ -63,9 +71,79 @@ static NSString *const kClaimsKey = @"claims";
     _authDate = authDate;
     _issuedAtDate = issuedAtDate;
     _signInProvider = signInProvider;
+    _signInSecondFactor = signInSecondFactor;
     _claims = claims;
   }
   return self;
+}
+
++ (nullable FIRAuthTokenResult *)tokenResultWithToken:(NSString *)token {
+  NSArray *tokenStringArray = [token componentsSeparatedByString:@"."];
+
+  // The JWT should have three parts, though we only use the second in this method.
+  if (tokenStringArray.count != 3) {
+    return nil;
+  }
+
+  // The token payload is always the second index of the array.
+  NSString *IDToken = tokenStringArray[1];
+
+  // Convert the base64URL encoded string to a base64 encoded string.
+  // Replace "_" with "/"
+  NSMutableString *tokenPayload =
+  [[IDToken stringByReplacingOccurrencesOfString:@"_" withString:@"/"] mutableCopy];
+
+  // Replace "-" with "+"
+  [tokenPayload replaceOccurrencesOfString:@"-"
+                                withString:@"+"
+                                   options:kNilOptions
+                                     range:NSMakeRange(0, tokenPayload.length)];
+
+  // Pad the token payload with "=" signs if the payload's length is not a multiple of 4.
+  while ((tokenPayload.length % 4) != 0) {
+    [tokenPayload appendFormat:@"="];
+  }
+  NSData *decodedTokenPayloadData =
+  [[NSData alloc] initWithBase64EncodedString:tokenPayload
+                                      options:NSDataBase64DecodingIgnoreUnknownCharacters];
+  if (!decodedTokenPayloadData) {
+    return nil;
+  }
+  NSError *jsonError = nil;
+  NSJSONReadingOptions options = NSJSONReadingMutableContainers|NSJSONReadingAllowFragments;
+  NSDictionary *tokenPayloadDictionary =
+  [NSJSONSerialization JSONObjectWithData:decodedTokenPayloadData
+                                  options:options
+                                    error:&jsonError];
+  if (jsonError != nil) {
+    return nil;
+  }
+
+  if (!tokenPayloadDictionary) {
+    return nil;
+  }
+
+  // These are dates since 00:00:00 January 1 1970, as described by the Terminology section in
+  // the JWT spec. https://tools.ietf.org/html/rfc7519
+  NSDate *expirationDate =
+  [NSDate dateWithTimeIntervalSince1970:[tokenPayloadDictionary[@"exp"] doubleValue]];
+  NSDate *authDate =
+  [NSDate dateWithTimeIntervalSince1970:[tokenPayloadDictionary[@"auth_time"] doubleValue]];
+  NSDate *issuedAtDate =
+  [NSDate dateWithTimeIntervalSince1970:[tokenPayloadDictionary[@"iat"] doubleValue]];
+
+  NSDictionary *firebaseTokenPayloadDictionary = tokenPayloadDictionary[@"firebase"];
+  NSString *signInProvider = firebaseTokenPayloadDictionary[@"sign_in_provider"];
+  NSString *signInSecondFactor = firebaseTokenPayloadDictionary[@"sign_in_second_factor"];
+
+  FIRAuthTokenResult *tokenResult = [[FIRAuthTokenResult alloc] initWithToken:token
+                                                               expirationDate:expirationDate
+                                                                     authDate:authDate
+                                                                 issuedAtDate:issuedAtDate
+                                                               signInProvider:signInProvider
+                                                           signInSecondFactor:signInSecondFactor
+                                                                       claims:tokenPayloadDictionary];
+  return tokenResult;
 }
 
 #pragma mark - NSSecureCoding
@@ -75,34 +153,12 @@ static NSString *const kClaimsKey = @"claims";
 }
 
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder {
-  NSString *token =
-      [aDecoder decodeObjectOfClass:[NSDate class] forKey:kTokenKey];
-  NSDate *expirationDate =
-      [aDecoder decodeObjectOfClass:[NSDate class] forKey:kExpirationDateKey];
-  NSDate *authDate =
-      [aDecoder decodeObjectOfClass:[NSDate class] forKey:kAuthDateKey];
-  NSDate *issuedAtDate =
-      [aDecoder decodeObjectOfClass:[NSDate class] forKey:kAuthDateKey];
-  NSString *signInProvider =
-      [aDecoder decodeObjectOfClass:[NSString class] forKey:kSignInProviderKey];
-  NSDictionary<NSString *, NSString *> *claims =
-      [aDecoder decodeObjectOfClass:[NSDictionary<NSString *, NSString *> class] forKey:kClaimsKey];
-
-  return [self initWithToken:token
-              expirationDate:expirationDate
-                    authDate:authDate
-                issuedAtDate:issuedAtDate
-              signInProvider:signInProvider
-                      claims:claims];
+  NSString *token = [aDecoder decodeObjectOfClass:[NSDate class] forKey:kTokenKey];
+  return [FIRAuthTokenResult tokenResultWithToken:token];
 }
 
 - (void)encodeWithCoder:(NSCoder *)aCoder {
   [aCoder encodeObject:_token forKey:kTokenKey];
-  [aCoder encodeObject:_expirationDate forKey:kExpirationDateKey];
-  [aCoder encodeObject:_authDate forKey:kAuthDateKey];
-  [aCoder encodeObject:_issuedAtDate forKey:kIssuedDateKey];
-  [aCoder encodeObject:_signInProvider forKey:kSignInProviderKey];
-  [aCoder encodeObject:_claims forKey:kClaimsKey];
 }
 
 @end

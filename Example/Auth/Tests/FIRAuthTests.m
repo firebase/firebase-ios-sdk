@@ -875,7 +875,7 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
     XCTAssertTrue([NSThread isMainThread]);
     XCTAssertNil(error);
     XCTAssertEqual(info.operation, FIRActionCodeOperationVerifyEmail);
-    XCTAssert([fakeNewEmail isEqualToString:[info dataForKey:FIRActionCodeEmailKey]]);
+    XCTAssert([fakeNewEmail isEqualToString:info.email]);
     [expectation fulfill];
   }];
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];

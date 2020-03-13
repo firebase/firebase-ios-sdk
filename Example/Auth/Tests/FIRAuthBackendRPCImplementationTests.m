@@ -130,22 +130,6 @@ static NSString *const kTestValue = @"TestValue";
 
 @end
 
-/** @extension FIRAuthBackend
-    @brief This class extension exposes the otherwise private @c implementation method. We use this
-        here to directly call the @c postWithRequest:response:callback: method of
-        @c FIRAuthBackendRPCImplementation in some of the tests.
- */
-@interface FIRAuthBackend ()
-
-/** @fn implementation
-    @brief Exposes the otherwise private @c implementation method. We use this here to directly call
-        the @c postWithRequest:response:callback: method of @c FIRAuthBackendRPCImplementation in
-        some of the tests.
- */
-+ (FIRAuthBackendRPCImplementation *)implementation;
-
-@end
-
 /** @class FIRFakeRequest
     @brief Allows us to fake a request with deterministic request bodies and encoding errors
         returned from the @c FIRAuthRPCRequest-specified @c unencodedHTTPRequestBodyWithError:

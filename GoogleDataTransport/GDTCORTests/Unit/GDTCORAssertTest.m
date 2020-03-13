@@ -36,6 +36,10 @@
   void (^assertionBlock)(void) = ^{
     GDTCORFatalAssert(NO, @"test assertion")
   };
+  void (^assertionBlock2)(void) = ^{
+    GDTCORFatalAssert(NO, @"%@", @"test assertion with a format");
+  };
   XCTAssertThrows(assertionBlock());
+  XCTAssertThrows(assertionBlock2());
 }
 @end

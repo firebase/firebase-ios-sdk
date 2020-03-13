@@ -36,10 +36,7 @@
 #import "FIRIAMRuntimeManager.h"
 #import "FIRIAMSDKModeManager.h"
 #import "FIRInAppMessaging.h"
-
-@interface FIRInAppMessaging ()
-@property(nonatomic, readwrite, strong) id<FIRAnalyticsInterop> _Nullable analytics;
-@end
+#import "FIRInAppMessagingPrivate.h"
 
 // A enum indicating 3 different possiblities of a setting about auto data collection.
 typedef NS_ENUM(NSInteger, FIRIAMAutoDataCollectionSetting) {
@@ -267,7 +264,9 @@ static NSString *const kFirebaseInAppMessagingAutoDataCollectionKey =
   self.messageCache = [[FIRIAMMessageClientCache alloc] initWithBookkeeper:self.bookKeeper
                                                        usingResponseParser:self.responseParser];
   self.fetchResultStorage = [[FIRIAMServerMsgFetchStorage alloc] init];
-  self.clientInfoFetcher = [[FIRIAMClientInfoFetcher alloc] init];
+
+  self.clientInfoFetcher = [[FIRIAMClientInfoFetcher alloc]
+      initWithFirebaseInstallations:[FIRInAppMessaging inAppMessaging].installations];
 
   self.restfulFetcher =
       [[FIRIAMMsgFetcherUsingRestful alloc] initWithHost:settings.apiServerHost
@@ -379,23 +378,27 @@ static NSString *const kFirebaseInAppMessagingAutoDataCollectionKey =
                                              @"Start SDK runtime components.");
 
                                  [self.clientInfoFetcher
-                                     fetchFirebaseIIDDataWithProjectNumber:
+                                     fetchFirebaseInstallationDataWithProjectNumber:
                                          self.currentSetting.firebaseProjectNumber
-                                                            withCompletion:^(
-                                                                NSString *_Nullable iid,
-                                                                NSString *_Nullable token,
-                                                                NSError *_Nullable error) {
-                                                              // Always dump the instance id into
-                                                              // log on startup to help developers
-                                                              // to find it for their app instance.
-                                                              FIRLogDebug(kFIRLoggerInAppMessaging,
-                                                                          @"I-IAM180017",
-                                                                          @"Starting "
-                                                                          @"InAppMessaging runtime "
-                                                                          @"with "
-                                                                           "Instance ID %@",
-                                                                          iid);
-                                                            }];
+                                                                     withCompletion:^(
+                                                                         NSString *_Nullable FID,
+                                                                         NSString
+                                                                             *_Nullable FISToken,
+                                                                         NSError *_Nullable error) {
+                                                                       // Always dump the instance
+                                                                       // id into log on startup to
+                                                                       // help developers to find it
+                                                                       // for their app instance.
+                                                                       FIRLogDebug(
+                                                                           kFIRLoggerInAppMessaging,
+                                                                           @"I-IAM180017",
+                                                                           @"Starting "
+                                                                           @"InAppMessaging "
+                                                                           @"runtime "
+                                                                           @"with "
+                                                                            "Instance ID %@",
+                                                                           FID);
+                                                                     }];
 
                                  [self.fetchOnAppForegroundFlow start];
                                  [self.displayOnFIRAnalyticEventsFlow start];
