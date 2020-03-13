@@ -42,6 +42,7 @@ struct LaunchArgs {
     case archs
     case buildRoot
     case carthageDir
+    case carthageSkipVersionCheck
     case customSpecRepos
     case dynamic
     case existingVersions
@@ -67,6 +68,8 @@ struct LaunchArgs {
       case .carthageDir:
         return "The directory pointing to all Carthage JSON manifests. Passing this flag enables" +
           "the Carthage build."
+      case .carthageSkipVersionCheck:
+        return "A flag to skip the Carthage version check for development iteration."
       case .customSpecRepos:
         return "A comma separated list of custom CocoaPod Spec repos."
       case .dynamic:
@@ -112,6 +115,9 @@ struct LaunchArgs {
   /// The directory pointing to all Carthage JSON manifests. Passing this flag enables the Carthage
   /// build.
   let carthageDir: URL?
+
+  /// Skip the Carthage version check
+  let carthageSkipVersionCheck: Bool
 
   /// A file URL to a textproto with the contents of a `ZipBuilder_Release` object. Used to verify
   /// expected version numbers.
@@ -330,6 +336,7 @@ struct LaunchArgs {
       minimumIOSVersion = "9.0"
     }
 
+    carthageSkipVersionCheck = defaults.bool(forKey: Key.carthageSkipVersionCheck.rawValue)
     dynamic = defaults.bool(forKey: Key.dynamic.rawValue)
     updatePodRepo = defaults.bool(forKey: Key.updatePodRepo.rawValue)
     keepBuildArtifacts = defaults.bool(forKey: Key.keepBuildArtifacts.rawValue)

@@ -311,6 +311,15 @@ enum CocoaPodUtils {
     return Array(returnDeps)
   }
 
+  /// Get all transitive pod dependencies for a pod with subspecs merged.
+  /// - Returns: An array of Strings of pod names.
+  static func transitiveMasterPodDependencies(for podName: String,
+                                              in installedPods: [String: PodInfo]) -> [String] {
+    return Array(Set(transitivePodDependencies(for: podName, in: installedPods).map {
+      $0.components(separatedBy: "/")[0]
+    }))
+  }
+
   /// Get all transitive pod dependencies for a pod.
   /// - Returns: An array of dependencies with versions for a given pod.
   static func transitiveVersionedPodDependencies(for podName: String,
