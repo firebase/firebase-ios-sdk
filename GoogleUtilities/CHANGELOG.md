@@ -1,4 +1,4 @@
-# Unreleased
+# 6.5.2
 - Fixed an issue where GoogleUtilities misidentified Catalyst as a
   simulator runtime environment. (#5048)
 
