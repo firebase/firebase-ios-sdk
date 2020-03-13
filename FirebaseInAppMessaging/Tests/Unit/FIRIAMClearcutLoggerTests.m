@@ -56,9 +56,10 @@ NSString *sdkVersion = @"SDK version";
   self.mockCtUploader = OCMClassMock(FIRIAMClearcutUploader.class);
 
   OCMStub([self.mockClientInfoFetcher
-      fetchFirebaseIIDDataWithProjectNumber:[OCMArg any]
-                             withCompletion:([OCMArg invokeBlockWithArgs:iid, @"token",
-                                                                         [NSNull null], nil])]);
+      fetchFirebaseInstallationDataWithProjectNumber:[OCMArg any]
+                                      withCompletion:([OCMArg invokeBlockWithArgs:iid, @"token",
+                                                                                  [NSNull null],
+                                                                                  nil])]);
 
   OCMStub([self.mockClientInfoFetcher getIAMSDKVersion]).andReturn(sdkVersion);
   OCMStub([self.mockClientInfoFetcher getOSVersion]).andReturn(osVersion);

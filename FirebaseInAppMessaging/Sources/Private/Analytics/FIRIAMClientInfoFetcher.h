@@ -16,17 +16,25 @@
 
 #import <Foundation/Foundation.h>
 
-// A class for wrapping the interactions for retrieving client side info to be used in request
-// parameter for interacting with Firebase iam servers.
+@class FIRInstallations;
+
+// A class for wrapping the interactions for retrieving client side info to be used in
+// request parameter for interacting with Firebase iam servers.
 
 NS_ASSUME_NONNULL_BEGIN
 @interface FIRIAMClientInfoFetcher : NSObject
-// Fetch the up-to-date Firebase instance id and token data. Since it involves a server interaction,
-// completion callback is provided for receiving the result.
-- (void)fetchFirebaseIIDDataWithProjectNumber:(NSString *)projectNumber
-                               withCompletion:(void (^)(NSString *_Nullable iid,
-                                                        NSString *_Nullable token,
-                                                        NSError *_Nullable error))completion;
+
+- (instancetype)initWithFirebaseInstallations:(nullable FIRInstallations *)installations;
+- (instancetype)init NS_UNAVAILABLE;
+
+// Fetch the up-to-date Firebase Installation ID (FID) and Firebase Installation Service (FIS) token
+// data. Since it involves a server interaction, completion callback is provided for receiving the
+// result.
+- (void)fetchFirebaseInstallationDataWithProjectNumber:(NSString *)projectNumber
+                                        withCompletion:
+                                            (void (^)(NSString *_Nullable FID,
+                                                      NSString *_Nullable FISToken,
+                                                      NSError *_Nullable error))completion;
 
 // Following are synchronous methods for fetching data
 - (nullable NSString *)getDeviceLanguageCode;
