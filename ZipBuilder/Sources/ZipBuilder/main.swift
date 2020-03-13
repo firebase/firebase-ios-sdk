@@ -56,7 +56,7 @@ if args.zipPods == nil {
   // Do a Firebase build.
   FirebaseBuilder(zipBuilder: builder).build(in: projectDir)
 } else {
-  let (installedPods, frameworks) = builder.buildAndAssembleZip(podsToInstall: LaunchArgs.shared.zipPods!)
+  let (installedPods, frameworks, _) = builder.buildAndAssembleZip(podsToInstall: LaunchArgs.shared.zipPods!)
   let staging = FileManager.default.temporaryDirectory(withName: "staging")
   try builder.copyFrameworks(fromPods: Array(installedPods.keys), toDirectory: staging,
                              frameworkLocations: frameworks)
