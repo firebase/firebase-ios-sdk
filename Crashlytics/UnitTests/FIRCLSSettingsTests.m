@@ -442,7 +442,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   NSTimeInterval currentTimestamp = [NSDate timeIntervalSinceReferenceDate];
   [self.settings cacheSettingsWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
   XCTAssertNil(error, "%@", error);
-    
+
   XCTAssertNotNil(self.settings);
   NSLog(@"[Debug Log] %@", self.settings.settingsDictionary);
   XCTAssertTrue(self.settings.shouldUseNewReportEndpoint);
