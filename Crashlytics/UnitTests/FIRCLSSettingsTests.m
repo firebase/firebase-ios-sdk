@@ -49,6 +49,12 @@ NSString *FIRCLSDifferentMockBuildInstanceID = @"98765zyxwv";
 NSString *const TestGoogleAppID = @"1:test:google:app:id";
 NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
 
+@interface FIRCLSSettings (Testing)
+
+@property(nonatomic, strong) NSDictionary<NSString *, id> *settingsDictionary;
+
+@end
+
 @interface FIRCLSSettingsTests : XCTestCase
 
 @property(nonatomic, retain) FIRCLSMockFileManager *fileManager;
@@ -437,8 +443,11 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   [self.settings cacheSettingsWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
 
   XCTAssertNil(error, "%@", error);
-//  XCTAssertTrue(self.settings.shouldUseNewReportEndpoint);
+  XCTAssertTrue(self.settings.settingsDictionary);
+  NSLog(@"[JH] %@", self.settings.settingsDictionary);
   XCTAssertNotNil(self.settings);
+
+  XCTAssertTrue(self.settings.shouldUseNewReportEndpoint);
 }
 
 - (void)testLegacyReportEndpointSettings {
