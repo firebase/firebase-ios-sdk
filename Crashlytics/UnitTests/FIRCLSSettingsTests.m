@@ -448,6 +448,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertNotNil(self.settings);
 
   XCTAssertTrue(self.settings.shouldUseNewReportEndpoint);
+  NSLog(@"Test");
 }
 
 - (void)testLegacyReportEndpointSettings {
