@@ -426,19 +426,20 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertEqual(self.settings.errorLogBufferSize, 64 * 1000);
 }
 
-//- (void)testNewReportEndpointSettings {
-//  NSString *settingsJSON =
-//      @"{\"settings_version\":3,\"cache_duration\":60,\"app\":{\"status\":\"activated\",\"update_"
-//      @"required\":false,\"report_upload_variant\":2}}";
-//
-//  NSError *error = nil;
-//  [self writeSettings:settingsJSON error:&error];
-//  NSTimeInterval currentTimestamp = [NSDate timeIntervalSinceReferenceDate];
-//  [self.settings cacheSettingsWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
-//
-//  XCTAssertNil(error, "%@", error);
+- (void)testNewReportEndpointSettings {
+  NSString *settingsJSON =
+      @"{\"settings_version\":3,\"cache_duration\":60,\"app\":{\"status\":\"activated\",\"update_"
+      @"required\":false,\"report_upload_variant\":2}}";
+
+  NSError *error = nil;
+  [self writeSettings:settingsJSON error:&error];
+  NSTimeInterval currentTimestamp = [NSDate timeIntervalSinceReferenceDate];
+  [self.settings cacheSettingsWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
+
+  XCTAssertNil(error, "%@", error);
 //  XCTAssertTrue(self.settings.shouldUseNewReportEndpoint);
-//}
+  XCTAssertNotNil(self.settings);
+}
 
 - (void)testLegacyReportEndpointSettings {
   NSString *settingsJSON =
