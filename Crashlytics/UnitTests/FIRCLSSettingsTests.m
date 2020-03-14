@@ -441,14 +441,11 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   [self writeSettings:settingsJSON error:&error];
   NSTimeInterval currentTimestamp = [NSDate timeIntervalSinceReferenceDate];
   [self.settings cacheSettingsWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
-
   XCTAssertNil(error, "%@", error);
-  XCTAssertTrue(self.settings.settingsDictionary);
-  NSLog(@"[JH] %@", self.settings.settingsDictionary);
+    
   XCTAssertNotNil(self.settings);
-
+  NSLog(@"[Debug Log] %@", self.settings.settingsDictionary);
   XCTAssertTrue(self.settings.shouldUseNewReportEndpoint);
-  NSLog(@"Test");
 }
 
 - (void)testLegacyReportEndpointSettings {
