@@ -123,7 +123,7 @@ typedef NS_ENUM(NSUInteger, FIRAppDistributionError) {
     // Authentication canceled
     FIRAppDistributionErrorAuthenticationCancelled = 2,
 
-    // Network unavailable to make requests
+    // Network unavailable to make requests or the request timed out
     FIRAppDistributionErrorNetworkFailure = 3,
 
 } NS_SWIFT_NAME(AppDistributionError);
