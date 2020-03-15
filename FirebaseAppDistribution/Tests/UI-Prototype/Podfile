@@ -1,4 +1,0 @@
-target 'authtest13' do
-  platform :ios, '9.0'
-  pod 'FirebaseAppDistribution', :path => '../../..'
-end
