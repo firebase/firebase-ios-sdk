@@ -181,6 +181,7 @@
     if(self.isTesterSignedIn) {
         NSLog(@"Got authorization tokens. Access token: %@",
               self.authState.lastTokenResponse.accessToken);
+        // TODO: Extract this in a method and call the Tester API releases endpoint
         FIRAppDistributionRelease *release = [[FIRAppDistributionRelease alloc]init];
         release.displayVersion = @"1.0";
         release.buildVersion = @"123";
@@ -209,6 +210,8 @@
                 }
                 NSLog(@"Got authorization tokens. Access token: %@",
                       self.authState.lastTokenResponse.accessToken);
+                
+                // TODO: Extract this in a method and call the Tester API releases endpoint
                 FIRAppDistributionRelease *release = [[FIRAppDistributionRelease alloc]init];
                 release.displayVersion = @"1.0";
                 release.buildVersion = @"123";
