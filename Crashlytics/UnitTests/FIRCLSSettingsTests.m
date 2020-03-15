@@ -443,7 +443,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   [self.settings cacheSettingsWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
   XCTAssertNil(error, "%@", error);
 
-  XCTAssertNotNil(self.settings);
+  XCTAssertNotNil(self.settings.settingsDictionary);
   NSLog(@"[Debug Log] %@", self.settings.settingsDictionary);
   XCTAssertTrue(self.settings.shouldUseNewReportEndpoint);
 }
