@@ -25,6 +25,21 @@
 
 const static int64_t kMillisPerDay = 8.64e+7;
 
+/** Creates and/or returns a singleton NSString that is the NSCoding file location.
+ *
+ * @return The NSCoding file path.
+ */
+static NSString *ArchivePath() {
+  static NSString *archivePath;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    NSString *cachePath =
+        NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)[0];
+    archivePath = [NSString stringWithFormat:@"%@/google-sdks-events/GDTCCTPrioritizer", cachePath];
+  });
+  return archivePath;
+}
+
 @implementation GDTCCTPrioritizer
 
 + (void)load {
@@ -32,6 +47,10 @@ const static int64_t kMillisPerDay = 8.64e+7;
   [[GDTCORRegistrar sharedInstance] registerPrioritizer:prioritizer target:kGDTCORTargetCCT];
   [[GDTCORRegistrar sharedInstance] registerPrioritizer:prioritizer target:kGDTCORTargetFLL];
   [[GDTCORRegistrar sharedInstance] registerPrioritizer:prioritizer target:kGDTCORTargetCSH];
+}
+
++ (BOOL)supportsSecureCoding {
+  return YES;
 }
 
 + (instancetype)sharedInstance {
@@ -238,9 +257,127 @@ NSNumber *GDTCCTQosTierFromGDTCOREventQosTier(GDTCOREventQoS qosTier) {
   }];
 }
 
+#pragma mark - NSSecureCoding
+
+/** NSSecureCoding key for the CCTEvents property. */
+static NSString *const GDTCCTUploaderCCTEventsKey = @"GDTCCTUploaderCCTEventsKey";
+
+/** NSSecureCoding key for the CCTEvents property. */
+static NSString *const GDTCCTUploaderFLLEventsKey = @"GDTCCTUploaderFLLEventsKey";
+
+/** NSSecureCoding key for the CCTEvents property. */
+static NSString *const GDTCCTUploaderCSHEventsKey = @"GDTCCTUploaderCSHEventsKey";
+
+- (instancetype)initWithCoder:(NSCoder *)coder {
+  GDTCCTPrioritizer *sharedInstance = [GDTCCTPrioritizer sharedInstance];
+  if (sharedInstance) {
+    NSSet *classes = [NSSet setWithObjects:[NSMutableSet class], [GDTCOREvent class], nil];
+    NSMutableSet *decodedCCTEvents = [coder decodeObjectOfClasses:classes
+                                                           forKey:GDTCCTUploaderCCTEventsKey];
+    if (decodedCCTEvents) {
+      sharedInstance->_CCTEvents = decodedCCTEvents;
+    }
+    NSMutableSet *decodedFLLEvents = [coder decodeObjectOfClasses:classes
+                                                           forKey:GDTCCTUploaderFLLEventsKey];
+    if (decodedFLLEvents) {
+      sharedInstance->_FLLEvents = decodedFLLEvents;
+    }
+    NSMutableSet *decodedCSHEvents = [coder decodeObjectOfClasses:classes
+                                                           forKey:GDTCCTUploaderCSHEventsKey];
+    if (decodedCSHEvents) {
+      sharedInstance->_CSHEvents = decodedCSHEvents;
+    }
+  }
+  return sharedInstance;
+}
+
+- (void)encodeWithCoder:(NSCoder *)coder {
+  GDTCCTPrioritizer *sharedInstance = [GDTCCTPrioritizer sharedInstance];
+  NSMutableSet<GDTCOREvent *> *CCTEvents = sharedInstance->_CCTEvents;
+  if (CCTEvents) {
+    [coder encodeObject:CCTEvents forKey:GDTCCTUploaderCCTEventsKey];
+  }
+  NSMutableSet<GDTCOREvent *> *FLLEvents = sharedInstance->_FLLEvents;
+  if (FLLEvents) {
+    [coder encodeObject:FLLEvents forKey:GDTCCTUploaderFLLEventsKey];
+  }
+  NSMutableSet<GDTCOREvent *> *CSHEvents = sharedInstance->_CSHEvents;
+  if (CSHEvents) {
+    [coder encodeObject:CSHEvents forKey:GDTCCTUploaderCSHEventsKey];
+  }
+}
+
+#pragma mark - GDTCORLifecycleProtocol
+
+- (void)appWillForeground:(GDTCORApplication *)app {
+  if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
+    NSError *error;
+    NSData *data = [NSData dataWithContentsOfFile:ArchivePath()];
+    if (data) {
+      [NSKeyedUnarchiver unarchivedObjectOfClass:[GDTCCTPrioritizer class]
+                                        fromData:data
+                                           error:&error];
+    }
+  } else {
+#if !TARGET_OS_MACCATALYST && !TARGET_OS_WATCH
+    [NSKeyedUnarchiver unarchiveObjectWithFile:ArchivePath()];
+#endif
+  }
+}
+
+- (void)appWillBackground:(GDTCORApplication *)app {
+  dispatch_async(_queue, ^{
+    // Immediately request a background task to run until the end of the current queue of work, and
+    // cancel it once the work is done.
+    __block GDTCORBackgroundIdentifier bgID =
+        [app beginBackgroundTaskWithName:@"GDTStorage"
+                       expirationHandler:^{
+                         [app endBackgroundTask:bgID];
+                         bgID = GDTCORBackgroundIdentifierInvalid;
+                       }];
+
+    if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
+      NSError *error;
+      NSData *data = [NSKeyedArchiver archivedDataWithRootObject:self
+                                           requiringSecureCoding:YES
+                                                           error:&error];
+      [data writeToFile:ArchivePath() atomically:YES];
+    } else {
+#if !TARGET_OS_MACCATALYST && !TARGET_OS_WATCH
+      [NSKeyedArchiver archiveRootObject:self toFile:ArchivePath()];
+#endif
+    }
+
+    // End the background task if it's still valid.
+    [app endBackgroundTask:bgID];
+    bgID = GDTCORBackgroundIdentifierInvalid;
+  });
+}
+
+- (void)appWillTerminate:(GDTCORApplication *)application {
+  dispatch_sync(_queue, ^{
+    if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
+      NSError *error;
+      NSData *data = [NSKeyedArchiver archivedDataWithRootObject:self
+                                           requiringSecureCoding:YES
+                                                           error:&error];
+      [data writeToFile:ArchivePath() atomically:YES];
+    } else {
+#if !TARGET_OS_MACCATALYST && !TARGET_OS_WATCH
+      [NSKeyedArchiver archiveRootObject:self toFile:ArchivePath()];
+#endif
+    }
+  });
+}
+
 #pragma mark - GDTCORUploadPackageProtocol
 
 - (void)packageDelivered:(GDTCORUploadPackage *)package successful:(BOOL)successful {
+  // If sending the package wasn't successful, we should keep track of these events.
+  if (!successful) {
+    return;
+  }
+
   dispatch_async(_queue, ^{
     NSSet<GDTCOREvent *> *events = [package.events copy];
     for (GDTCOREvent *event in events) {
