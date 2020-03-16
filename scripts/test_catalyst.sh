@@ -20,7 +20,7 @@
 # Builds and run tests for Catalyst since it's not yet supported by `pod lib lint`
 # The second argument should be "build" or "test". "Test" indicates both build and test.
 
-set -x
+set -xeuo pipefail
 bundle exec pod gen --local-sources=./ --sources=https://cdn.cocoapods.org/ "$1".podspec --platforms=ios
 xcodebuild $2 -configuration Debug -workspace "gen/$1/$1.xcworkspace"  -scheme "$1-Unit-unit"\
  ARCHS=x86_64h VALID_ARCHS=x86_64h ONLY_ACTIVE_ARCH=NO  SUPPORTS_MACCATALYST=YES  -sdk macosx \

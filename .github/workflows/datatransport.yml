@@ -35,7 +35,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Setup project and Test Catalyst
-      run: scripts/test_catalyst.sh {{ matrix.pod }} test
+      run: scripts/test_catalyst.sh ${{ matrix.pod }} test
 
 # Scheduled jobs
 
