@@ -619,8 +619,10 @@ static NSInteger target = kGDTCORTargetCCT;
   GDTCORStorage *archiveStorage;
   if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
     NSError *error;
-    XCTAssertNoThrow(archiveStorage = [NSKeyedUnarchiver unarchivedObjectOfClass:[GDTCORStorage class]
-                                                            fromData:v1ArchiveData error:&error]);
+    XCTAssertNoThrow(archiveStorage =
+                         [NSKeyedUnarchiver unarchivedObjectOfClass:[GDTCORStorage class]
+                                                           fromData:v1ArchiveData
+                                                              error:&error]);
   } else {
 #if !TARGET_OS_MACCATALYST && !TARGET_OS_WATCH
     XCTAssertNoThrow(archiveStorage = [NSKeyedUnarchiver unarchiveObjectWithData:v1ArchiveData]);

@@ -158,10 +158,11 @@
   if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
     NSError *error;
     data = [NSKeyedArchiver archivedDataWithRootObject:coordinator
-                                         requiringSecureCoding:YES
-                                                         error:&error];
+                                 requiringSecureCoding:YES
+                                                 error:&error];
     unarchivedCoordinator = [NSKeyedUnarchiver unarchivedObjectOfClass:[GDTCORStorage class]
-                                                              fromData:data error:&error];
+                                                              fromData:data
+                                                                 error:&error];
   } else {
 #if !TARGET_OS_MACCATALYST && !TARGET_OS_WATCH
     data = [NSKeyedArchiver archivedDataWithRootObject:coordinator];
