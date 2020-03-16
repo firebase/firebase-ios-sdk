@@ -31,9 +31,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Setup project and Build for Catalyst
-      # TODO - Change the "build" to "test" when CocoaPods 1.10.0 is available
-      # and it becomes possible to select only the unit tests.
-      run: scripts/test_catalyst.sh FirebaseStorage build
+      run: scripts/test_catalyst.sh FirebaseStorage test
 
   pod-lib-lint:
     runs-on: macOS-latest
