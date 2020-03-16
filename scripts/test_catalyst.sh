@@ -15,7 +15,7 @@
 # limitations under the License.
 
 
-# USAGE: test_catalyst.sh pod build_mode
+# USAGE: test_catalyst.sh pod build_mode [scheme]
 #
 # Builds and run tests for Catalyst since it's not yet supported by `pod lib lint`
 # The second argument should be "build" or "test". "test" indicates both build and test.
@@ -23,6 +23,12 @@
 set -xeuo pipefail
 pod="$1"
 build_mode="$2"
+
+if [[ $# -gt 2 ]]; then
+  scheme="$3"
+else
+  scheme="$pod"
+fi
 
 bundle exec pod gen --local-sources=./ --sources=https://cdn.cocoapods.org/ "$pod".podspec --platforms=ios
 xcodebuild $build_mode -configuration Debug -workspace "gen/$pod/$pod.xcworkspace"  -scheme "$pod-Unit-unit"\

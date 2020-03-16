@@ -31,7 +31,8 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Setup project and Build for Catalyst
-      run: scripts/test_catalyst.sh FirebaseStorage test
+      # Only run the unit tests on Catalyst
+      run: scripts/test_catalyst.sh FirebaseStorage test FirebaseStorage-Unit-unit
 
   pod-lib-lint:
     runs-on: macOS-latest
