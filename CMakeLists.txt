@@ -61,6 +61,12 @@ enable_language(C)
 enable_language(CXX)
 
 option(
+  FIREBASE_IOS_BUILD_BENCHMARKS
+  "Enable building of C++ and Objective-C benchmarks for this project"
+  OFF
+)
+
+option(
   FIREBASE_IOS_BUILD_TESTS
   "Enable building of C++ and Objective-C tests for this project"
   ON
@@ -98,19 +104,32 @@ download_external_sources()
 
 
 # Googletest
-set(gtest_force_shared_crt ON CACHE BOOL "Use shared run-time")
-add_external_subdirectory(googletest)
-firebase_ios_add_alias(GTest::GTest gtest)
-firebase_ios_add_alias(GTest::Main gtest_main)
-firebase_ios_add_alias(GMock::GMock gmock)
+if(FIREBASE_IOS_BUILD_TESTS)
+  set(gtest_force_shared_crt ON CACHE BOOL "Use shared run-time")
+  add_external_subdirectory(googletest)
+  firebase_ios_add_alias(GTest::GTest gtest)
+  firebase_ios_add_alias(GTest::Main gtest_main)
+  firebase_ios_add_alias(GMock::GMock gmock)
+endif()
 
 
 # Benchmark
-set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "Firestore disabled")
-set(BENCHMARK_ENABLE_EXCEPTIONS OFF CACHE BOOL "Firestore disabled")
-set(BENCHMARK_ENABLE_INSTALL OFF CACHE BOOL "Firestore disabled")
-set(BENCHMARK_ENABLE_GTEST_TESTS OFF CACHE BOOL "Firestore disabled")
-add_external_subdirectory(benchmark)
+if(FIREBASE_IOS_BUILD_BENCHMARKS)
+  set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "Firestore disabled")
+  set(BENCHMARK_ENABLE_EXCEPTIONS OFF CACHE BOOL "Firestore disabled")
+  set(BENCHMARK_ENABLE_INSTALL OFF CACHE BOOL "Firestore disabled")
+  set(BENCHMARK_ENABLE_GTEST_TESTS OFF CACHE BOOL "Firestore disabled")
+
+  if(IOS)
+    # benchmark uses CMake's try_run, which doesn't work out of the box when
+    # compiling for iOS.
+    set(HAVE_STD_REGEX ON CACHE BOOL "iOS has std::regex")
+    set(HAVE_POSIX_REGEX ON CACHE BOOL "iOS has POSIX regex.h")
+    set(HAVE_STEADY_CLOCK ON CACHE BOOL "iOS has std::chrono::steady_clock")
+  endif()
+
+  add_external_subdirectory(benchmark)
+endif()
 
 
 # Abseil-cpp
@@ -146,9 +165,24 @@ endif()
 # pulled in indirectly via gRPC.
 unset(RANDOM_FILE CACHE)
 
-find_package(OpenSSL QUIET)
-if(OPENSSL_FOUND)
-  set(gRPC_SSL_PROVIDER package CACHE STRING "Use external OpenSSL")
+set(CARES_INSTALL OFF CACHE BOOL "Disabled")
+
+set(protobuf_BUILD_TESTS OFF CACHE BOOL "Disabled")
+if(IOS OR ANDROID)
+  # C-Ares includes a number of example binaries (e.g. `ahost`) that fail to
+  # build when compiling for non-host targets.
+  set(gRPC_CARES_PROVIDER none CACHE STRING "Don't use C-Ares")
+
+  # protoc needs to be built for the host to be able to invoke it during the
+  # build.
+  set(protobuf_BUILD_PROTOC_BINARIES OFF CACHE BOOL "Disabled")
+endif()
+
+if(NOT ANDROID AND NOT IOS)
+  find_package(OpenSSL QUIET)
+  if(OPENSSL_FOUND)
+    set(gRPC_SSL_PROVIDER package CACHE STRING "Use external OpenSSL")
+  endif()
 endif()
 
 find_package(ZLIB QUIET)
@@ -239,7 +273,6 @@ target_compile_definitions(
 target_include_directories(
   protobuf-nanopb-static
   INTERFACE
-  $<BUILD_INTERFACE:${FIREBASE_EXTERNAL_SOURCE_DIR}>
   $<BUILD_INTERFACE:${FIREBASE_EXTERNAL_SOURCE_DIR}/nanopb>
 )
 

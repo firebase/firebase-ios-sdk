@@ -44,11 +44,6 @@ firebase_ios_objc_framework(
     ${PROJECT_SOURCE_DIR}
   DEPENDS
     "-framework Foundation"
+  DISABLE_STRICT_WARNINGS
   EXCLUDE_FROM_ALL
-)
-
-target_compile_options(
-  GoogleUtilities
-  PRIVATE
-    -Wno-deprecated-declarations
 )

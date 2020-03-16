@@ -26,6 +26,7 @@ let podfile = CommandLine.arguments[1]
 // versions when they're dependencies of other requested local pods.
 let implicitPods = ["FirebaseCore", "FirebaseInstanceID", "FirebaseInstallations", "Firebase",
                     "GoogleDataTransport", "GoogleDataTransportCCTSupport", "GoogleUtilities",
+                    "FirebaseAuth",
                     "FirebaseAnalyticsInterop", "FirebaseAuthInterop", "FirebaseCoreDiagnostics",
                     "FirebaseCoreDiagnosticsInterop", "FirebaseRemoteConfig", "FirebaseAuthInterop"]
 var didImplicits = false

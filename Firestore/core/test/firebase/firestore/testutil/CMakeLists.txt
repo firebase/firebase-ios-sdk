@@ -12,6 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+if(NOT FIREBASE_IOS_BUILD_TESTS)
+  return()
+endif()
+
 firebase_ios_cc_library(
   firebase_firestore_testutil_apple
   SOURCES

@@ -24,5 +24,6 @@ firebase_ios_objc_framework(
   FirebaseAuthInterop
   HEADERS ${headers}
   VERSION ${version}
+  DISABLE_STRICT_WARNINGS
   EXCLUDE_FROM_ALL
 )

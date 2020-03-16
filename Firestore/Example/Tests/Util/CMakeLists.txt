@@ -12,35 +12,36 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if(APPLE)
-  firebase_ios_cc_library(
-    firebase_firestore_objc_test_util
-    HEADERS
-      FSTEventAccumulator.h
-      XCTestCase+Await.h
-      FSTIntegrationTestCase.h
-      FIRFirestore+Testing.h
-      FSTHelpers.h
-    SOURCES
-      FSTEventAccumulator.mm
-      XCTestCase+Await.mm
-      FSTIntegrationTestCase.mm
-      FSTHelpers.mm
-    DEPENDS
-      absl_any
-      absl_strings
-      FirebaseFirestore
-      firebase_firestore_auth
-      firebase_firestore_core
-      firebase_firestore_local
-      firebase_firestore_model
-      firebase_firestore_util
-      firebase_firestore_remote
-      firebase_firestore_remote_testing
-      firebase_firestore_nanopb
-      firebase_firestore_protos_nanopb
-      firebase_firestore_testutil
-      ${XCTest_LIBRARIES}
-      GTest::GTest
-  )
-endif(APPLE)
+if(NOT FIREBASE_IOS_BUILD_TESTS OR NOT APPLE)
+  return()
+endif()
+
+firebase_ios_cc_library(
+  firebase_firestore_objc_test_util
+  SOURCES
+    FIRFirestore+Testing.h
+    FSTEventAccumulator.h
+    FSTEventAccumulator.mm
+    FSTHelpers.h
+    FSTHelpers.mm
+    FSTIntegrationTestCase.h
+    FSTIntegrationTestCase.mm
+    XCTestCase+Await.h
+    XCTestCase+Await.mm
+  DEPENDS
+    absl_any
+    absl_strings
+    FirebaseFirestore
+    firebase_firestore_auth
+    firebase_firestore_core
+    firebase_firestore_local
+    firebase_firestore_model
+    firebase_firestore_util
+    firebase_firestore_remote
+    firebase_firestore_remote_testing
+    firebase_firestore_nanopb
+    firebase_firestore_protos_nanopb
+    firebase_firestore_testutil
+    ${XCTest_LIBRARIES}
+    GTest::GTest
+)
