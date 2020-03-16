@@ -1,4 +1,4 @@
-// Copyright 2019 Google
+// Copyright 2020 Google
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,14 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#ifndef FIRExceptionModel_Private_h
+#define FIRExceptionModel_Private_h
+
 #import <Foundation/Foundation.h>
 
-@class FIRStackFrame;
+#import "FIRExceptionModel.h"
 
-@interface FIRCLSThreadArrayOperation : NSOperation
+NS_ASSUME_NONNULL_BEGIN
 
-@property(nonatomic, strong) NSArray *threadArray;
+@interface FIRExceptionModel (Private)
 
-- (void)enumerateFramesWithBlock:(void (^)(FIRStackFrame *frame))block;
+@property(nonatomic, copy) NSString *name;
+@property(nonatomic, copy) NSString *reason;
 
 @end
+
+NS_ASSUME_NONNULL_END
+
+#endif /* FIRExceptionModel_Private_h */

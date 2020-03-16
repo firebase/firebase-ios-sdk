@@ -19,7 +19,7 @@
 #include "FIRCLSBinaryImage.h"
 #include "FIRCLSFile.h"
 #import "FIRCLSLogger.h"
-#import "FIRCLSStackFrame.h"
+#import "FIRStackFrame_Private.h"
 
 @interface FIRCLSSymbolResolver () {
   NSMutableArray* _binaryImages;
@@ -107,8 +107,8 @@
   return FIRCLSBinaryImageFindImageForUUID([uuid UTF8String], details);
 }
 
-- (FIRCLSStackFrame*)frameForAddress:(uint64_t)address {
-  FIRCLSStackFrame* frame = [FIRCLSStackFrame stackFrameWithAddress:(NSUInteger)address];
+- (FIRStackFrame*)frameForAddress:(uint64_t)address {
+  FIRStackFrame* frame = [FIRStackFrame stackFrameWithAddress:(NSUInteger)address];
 
   if (![self updateStackFrame:frame]) {
     return nil;
@@ -117,7 +117,7 @@
   return frame;
 }
 
-- (BOOL)updateStackFrame:(FIRCLSStackFrame*)frame {
+- (BOOL)updateStackFrame:(FIRStackFrame*)frame {
   uint64_t address = [frame address];
   if (address == 0) {
     return NO;

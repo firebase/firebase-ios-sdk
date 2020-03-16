@@ -18,7 +18,7 @@
 #import <XCTest/XCTest.h>
 
 #import "FIRCLSMockSymbolResolver.h"
-#import "FIRCLSStackFrame.h"
+#import "FIRStackFrame_Private.h"
 
 @interface FIRCLSSymbolicationOperationTests : XCTestCase
 
@@ -37,23 +37,23 @@
 - (void)testOperation {
   FIRCLSMockSymbolResolver* resolver = [[FIRCLSMockSymbolResolver alloc] init];
 
-  FIRCLSStackFrame* frame = nil;
+  FIRStackFrame* frame = nil;
 
-  frame = [FIRCLSStackFrame stackFrameWithSymbol:@"testSymbolA"];
+  frame = [FIRStackFrame stackFrameWithSymbol:@"testSymbolA"];
   [frame setLibrary:@"libA"];
   [frame setOffset:10];
 
   [resolver addMockFrame:frame atAddress:100];
 
-  frame = [FIRCLSStackFrame stackFrameWithSymbol:@"testSymbolB"];
+  frame = [FIRStackFrame stackFrameWithSymbol:@"testSymbolB"];
   [frame setLibrary:@"libB"];
   [frame setOffset:20];
 
   [resolver addMockFrame:frame atAddress:200];
 
   NSMutableArray* frameArray = [[NSMutableArray alloc] init];
-  [frameArray addObject:[FIRCLSStackFrame stackFrameWithAddress:100]];
-  [frameArray addObject:[FIRCLSStackFrame stackFrameWithAddress:200]];
+  [frameArray addObject:[FIRStackFrame stackFrameWithAddress:100]];
+  [frameArray addObject:[FIRStackFrame stackFrameWithAddress:200]];
 
   FIRCLSSymbolicationOperation* op = [[FIRCLSSymbolicationOperation alloc] init];
 
@@ -65,10 +65,10 @@
   XCTAssertEqual([frameArray count], 2, @"");
   XCTAssertEqualObjects([frameArray[0] symbol], @"testSymbolA", @"");
   XCTAssertEqualObjects([frameArray[0] library], @"libA", @"");
-  XCTAssertEqual([((FIRCLSStackFrame*)frameArray[0]) offset], 10, @"");
+  XCTAssertEqual([((FIRStackFrame*)frameArray[0]) offset], 10, @"");
   XCTAssertEqualObjects([frameArray[1] symbol], @"testSymbolB", @"");
   XCTAssertEqualObjects([frameArray[1] library], @"libB", @"");
-  XCTAssertEqual([((FIRCLSStackFrame*)frameArray[1]) offset], 20, @"");
+  XCTAssertEqual([((FIRStackFrame*)frameArray[1]) offset], 20, @"");
 }
 
 @end

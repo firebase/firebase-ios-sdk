@@ -14,6 +14,8 @@
 
 #import <Foundation/Foundation.h>
 
+#import "FIRExceptionModel.h"
+
 #if __has_include(<Crashlytics/Crashlytics.h>)
 #warning "FirebaseCrashlytics and Crashlytics are not compatible \
 in the same app because including multiple crash reporters can \
@@ -95,7 +97,6 @@ NS_SWIFT_NAME(Crashlytics)
 - (void)setUserID:(NSString *)userID;
 
 /**
- *
  * Records a non-fatal event described by an NSError object. The events are
  * grouped and displayed similarly to crashes. Keep in mind that this method can be expensive.
  * The total number of NSErrors that can be recorded during your app's life-cycle is limited by a
@@ -105,6 +106,18 @@ NS_SWIFT_NAME(Crashlytics)
  * @param error Non-fatal error to be recorded
  */
 - (void)recordError:(NSError *)error NS_SWIFT_NAME(record(error:));
+
+/**
+ * Records an Exception Model described by an FIRExceptionModel object. The events are
+ * grouped and displayed similarly to crashes. Keep in mind that this method can be expensive.
+ * The total number of FIRExceptionModels that can be recorded during your app's life-cycle is
+ * limited by a fixed-size circular buffer. If the buffer is overrun, the oldest data is dropped.
+ * Exception Models are relayed to Crashlytics on a subsequent launch of your application.
+ *
+ * @param exceptionModel Instance of the FIRExceptionModel to be recorded
+ */
+- (void)recordExceptionModel:(FIRExceptionModel *)exceptionModel
+    NS_SWIFT_NAME(record(exceptionModel:));
 
 /**
  * Returns whether the app crashed during the previous execution.
