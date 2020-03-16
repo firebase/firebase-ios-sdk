@@ -34,7 +34,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Setup project and Test Catalyst
-      run: scripts/test_catalyst.sh FirebaseMessaging test
+      run: scripts/test_catalyst.sh FirebaseMessaging build
 
   pod-lib-lint-watchos:
     runs-on: macOS-latest
