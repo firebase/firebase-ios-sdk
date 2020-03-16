@@ -48,6 +48,7 @@ static NSString *const kContentEncodingHeaderName =
 static NSString *const kAcceptEncodingHeaderName = @"Accept-Encoding";  ///< HTTP Header Field Name
 static NSString *const kETagHeaderName = @"etag";                       ///< HTTP Header Field Name
 static NSString *const kIfNoneMatchETagHeaderName = @"if-none-match";   ///< HTTP Header Field Name
+static NSString *const kInstallationsAuthTokenHeaderName = @"x-goog-firebase-installations-auth";
 // Sends the bundle ID. Refer to b/130301479 for details.
 static NSString *const kiOSBundleIdentifierHeaderName =
     @"X-Ios-Bundle-Identifier";  ///< HTTP Header Field Name
@@ -197,9 +198,7 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
 #pragma mark - Fetch helpers
 
 - (NSString *)FIRAppNameFromFullyQualifiedNamespace {
-  NSString *FIRAppName =
-      [_FIRNamespace substringFromIndex:[_FIRNamespace rangeOfString:@":"].location + 1];
-  return FIRAppName;
+  return [[_FIRNamespace componentsSeparatedByString:@":"] lastObject];
 }
 /// Refresh installation ID token before fetching config. installation ID is now mandatory for fetch
 /// requests to work.(b/14751422).
@@ -250,7 +249,7 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
         RCNConfigFetch *strongSelfQueue = weakSelf;
 
         // Update config settings with the IID and token.
-        strongSelfQueue->_settings.configInstallationsToken = [tokenResult.authToken copy];
+        strongSelfQueue->_settings.configInstallationsToken = tokenResult.authToken;
         strongSelfQueue->_settings.configInstallationsIdentifier = identifier;
 
         if (!identifier || error) {
@@ -563,6 +562,8 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
                                timeoutInterval:timeoutInterval];
   URLRequest.HTTPMethod = kHTTPMethodPost;
   [URLRequest setValue:kContentTypeValueJSON forHTTPHeaderField:kContentTypeHeaderName];
+  [URLRequest setValue:_settings.configInstallationsToken
+      forHTTPHeaderField:kInstallationsAuthTokenHeaderName];
   [URLRequest setValue:[[NSBundle mainBundle] bundleIdentifier]
       forHTTPHeaderField:kiOSBundleIdentifierHeaderName];
   [URLRequest setValue:@"gzip" forHTTPHeaderField:kContentEncodingHeaderName];
