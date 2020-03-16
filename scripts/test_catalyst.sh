@@ -31,7 +31,7 @@ else
 fi
 
 bundle exec pod gen --local-sources=./ --sources=https://cdn.cocoapods.org/ "$pod".podspec --platforms=ios
-xcodebuild $build_mode -configuration Debug -workspace "gen/$pod/$pod.xcworkspace"  -scheme "$pod"\
+xcodebuild $build_mode -configuration Debug -workspace "gen/$pod/$pod.xcworkspace"  -scheme "$scheme"\
  ARCHS=x86_64h VALID_ARCHS=x86_64h ONLY_ACTIVE_ARCH=NO  SUPPORTS_MACCATALYST=YES  -sdk macosx \
  CODE_SIGN_IDENTITY=- SUPPORTS_UIKITFORMAC=YES CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO \
  -destination platform="OS X" TARGETED_DEVICE_FAMILY=2 | xcpretty

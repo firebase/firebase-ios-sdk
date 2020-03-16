@@ -153,10 +153,22 @@
   GDTCORUploadPackage *package = [[GDTCORUploadPackage alloc] initWithTarget:kGDTCORTargetTest];
   GDTCORUploadCoordinator *coordinator = [[GDTCORUploadCoordinator alloc] init];
   coordinator.targetToInFlightPackages[@(kGDTCORTargetTest)] = package;
-  NSData *data = [NSKeyedArchiver archivedDataWithRootObject:coordinator];
-
+  NSData *data;
+  GDTCORUploadCoordinator *unarchivedCoordinator;
+  if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
+    NSError *error;
+    data = [NSKeyedArchiver archivedDataWithRootObject:coordinator
+                                         requiringSecureCoding:YES
+                                                         error:&error];
+    unarchivedCoordinator = [NSKeyedUnarchiver unarchivedObjectOfClass:[GDTCORStorage class]
+                                                              fromData:data error:&error];
+  } else {
+#if !TARGET_OS_MACCATALYST && !TARGET_OS_WATCH
+    data = [NSKeyedArchiver archivedDataWithRootObject:coordinator];
+    unarchivedCoordinator = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+#endif
+  }
   // Unarchiving the coordinator always ends up altering the singleton instance.
-  GDTCORUploadCoordinator *unarchivedCoordinator = [NSKeyedUnarchiver unarchiveObjectWithData:data];
   XCTAssertEqualObjects([GDTCORUploadCoordinator sharedInstance], unarchivedCoordinator);
 }
 

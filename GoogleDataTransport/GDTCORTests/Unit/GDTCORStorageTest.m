@@ -617,7 +617,15 @@ static NSInteger target = kGDTCORTargetCCT;
                                                               options:0];
   XCTAssertNotNil(v1ArchiveData);
   GDTCORStorage *archiveStorage;
-  XCTAssertNoThrow(archiveStorage = [NSKeyedUnarchiver unarchiveObjectWithData:v1ArchiveData]);
+  if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
+    NSError *error;
+    XCTAssertNoThrow(archiveStorage = [NSKeyedUnarchiver unarchivedObjectOfClass:[GDTCORStorage class]
+                                                            fromData:v1ArchiveData error:&error]);
+  } else {
+#if !TARGET_OS_MACCATALYST && !TARGET_OS_WATCH
+    XCTAssertNoThrow(archiveStorage = [NSKeyedUnarchiver unarchiveObjectWithData:v1ArchiveData]);
+#endif
+  }
   XCTAssertEqual(archiveStorage.targetToEventSet[@(kGDTCORTargetCCT)].count, 6);
   XCTAssertEqual(archiveStorage.targetToEventSet[@(kGDTCORTargetFLL)].count, 12);
   XCTAssertEqual(archiveStorage.storedEvents.count, 18);
