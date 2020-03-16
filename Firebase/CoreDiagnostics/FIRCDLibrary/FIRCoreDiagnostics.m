@@ -220,7 +220,7 @@ NS_ASSUME_NONNULL_END
 
 #pragma mark - nanopb helper functions
 
-/** Callocs a pb_bytes_array and copies the given NSString's bytes into the bytes array.
+/** Mallocs a pb_bytes_array and copies the given NSString's bytes into the bytes array.
  *
  * @note Memory needs to be free manually, through pb_free or pb_release.
  * @param string The string to encode as pb_bytes.
@@ -230,15 +230,15 @@ pb_bytes_array_t *FIREncodeString(NSString *string) {
   return FIREncodeData(stringBytes);
 }
 
-/** Callocs a pb_bytes_array and copies the given NSData bytes into the bytes array.
+/** Mallocs a pb_bytes_array and copies the given NSData bytes into the bytes array.
  *
  * @note Memory needs to be free manually, through pb_free or pb_release.
  * @param data The data to copy into the new bytes array.
  */
 pb_bytes_array_t *FIREncodeData(NSData *data) {
-  pb_bytes_array_t *pbBytes = calloc(PB_BYTES_ARRAY_T_ALLOCSIZE(data.length), 1);
+  pb_bytes_array_t *pbBytes = malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(data.length));
   if (pbBytes != NULL) {
-    [data getBytes:pbBytes range:NSMakeRange(0, data.length)];
+    memcpy(pbBytes->bytes, [data bytes], data.length);
     pbBytes->size = (pb_size_t)data.length;
   }
   return pbBytes;
@@ -510,7 +510,7 @@ void FIRPopulateProtoWithInstalledServices(logs_proto_mobilesdk_ios_ICoreConfigu
   }
 
   logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType *servicesInstalled =
-      calloc(sizeof(logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType),
+      malloc(sizeof(logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType) *
              sdkServiceInstalledArray.count);
   if (servicesInstalled == NULL) {
     return;
