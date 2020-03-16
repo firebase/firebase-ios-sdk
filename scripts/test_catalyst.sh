@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Copyright 2020 Google
+# Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,13 +15,16 @@
 # limitations under the License.
 
 
-# USAGE: test_catalyst.sh pod
+# USAGE: test_catalyst.sh pod build_mode
 #
 # Builds and run tests for Catalyst since it's not yet supported by `pod lib lint`
-# The second argument should be "build" or "test". "Test" indicates both build and test.
+# The second argument should be "build" or "test". "test" indicates both build and test.
+
+pod="$1"
+build_mode="$2"
 
 set -xeuo pipefail
-bundle exec pod gen --local-sources=./ --sources=https://cdn.cocoapods.org/ "$1".podspec --platforms=ios
-xcodebuild $2 -configuration Debug -workspace "gen/$1/$1.xcworkspace"  -scheme "$1-Unit-unit"\
+bundle exec pod gen --local-sources=./ --sources=https://cdn.cocoapods.org/ "$pod".podspec --platforms=ios
+xcodebuild $build_mode -configuration Debug -workspace "gen/$pod/$pod.xcworkspace"  -scheme "$pod-Unit-unit"\
  ARCHS=x86_64h VALID_ARCHS=x86_64h ONLY_ACTIVE_ARCH=NO  SUPPORTS_MACCATALYST=YES  -sdk macosx \
  CODE_SIGN_IDENTITY=- SUPPORTS_UIKITFORMAC=YES CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO | xcpretty
