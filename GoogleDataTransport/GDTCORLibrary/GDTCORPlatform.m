@@ -199,11 +199,11 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
     NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
     [notificationCenter addObserver:self
                            selector:@selector(iOSApplicationDidEnterBackground:)
-                               name:NSExtensionHostDidEnterBackgroundNotification
+                               name:@"UIApplicationDidEnterBackgroundNotification"
                              object:nil];
     [notificationCenter addObserver:self
                            selector:@selector(iOSApplicationWillEnterForeground:)
-                               name:NSExtensionHostWillEnterForegroundNotification
+                               name:@"UIApplicationWillEnterForegroundNotification"
                              object:nil];
 
 #endif  // TARGET_OS_IOS || TARGET_OS_TV
@@ -241,12 +241,8 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
 #pragma mark - App environment helpers
 
 - (BOOL)isAppExtension {
-#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_WATCH
   BOOL appExtension = [[[NSBundle mainBundle] bundlePath] hasSuffix:@".appex"];
   return appExtension;
-#elif TARGET_OS_OSX
-  return NO;
-#endif
 }
 
 /** Returns a UIApplication or WKExtension instance if on the appropriate platform.
@@ -260,24 +256,15 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
 #else
 - (nullable id)sharedApplicationForBackgroundTask {
 #endif
-  if ([self isAppExtension]) {
-    return nil;
-  }
-  id sharedApplication = nil;
+  id sharedInstance = nil;
 #if TARGET_OS_IOS || TARGET_OS_TV
-  Class uiApplicationClass = NSClassFromString(@"UIApplication");
-  if (uiApplicationClass &&
-      [uiApplicationClass respondsToSelector:(NSSelectorFromString(@"sharedApplication"))]) {
-    sharedApplication = [uiApplicationClass sharedApplication];
+  if (![self isAppExtension]) {
+    sharedInstance = [UIApplication sharedApplication];
   }
 #elif TARGET_OS_WATCH
-  Class wkExtensionClass = NSClassFromString(@"WKExtension");
-  if (wkExtensionClass &&
-      [wkExtensionClass respondsToSelector:(NSSelectorFromString(@"sharedExtension"))]) {
-    sharedApplication = [wkExtensionClass sharedExtension];
-  }
+  sharedInstance = [WKExtension sharedExtension];
 #endif
-  return sharedApplication;
+  return sharedInstance;
 }
 
 #pragma mark - UIApplicationDelegate and WKExtensionDelegate
