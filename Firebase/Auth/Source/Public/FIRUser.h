@@ -289,10 +289,13 @@ NS_SWIFT_NAME(User)
     @param completion Optionally; a block which is invoked when the reauthenticate flow finishes, or
         is canceled. Invoked asynchronously on the main thread in the future.
  */
+// clang-format off
 - (void)reauthenticateWithProvider:(id<FIRFederatedAuthProvider>)provider
                         UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
                         completion:(nullable FIRAuthDataResultCallback)completion
-    NS_SWIFT_NAME(reauthenticate(with:uiDelegate:completion:))API_AVAILABLE(ios(8.0));
+                        NS_SWIFT_NAME(reauthenticate(with:uiDelegate:completion:))
+                        API_AVAILABLE(ios(8.0));
+// clang-format on
 
 /** @fn getIDTokenResultWithCompletion:
     @brief Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
@@ -394,10 +397,13 @@ NS_SWIFT_NAME(User)
     @param completion Optionally; a block which is invoked when the link flow finishes, or
         is canceled. Invoked asynchronously on the main thread in the future.
  */
+// clang-format off
 - (void)linkWithProvider:(id<FIRFederatedAuthProvider>)provider
               UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
               completion:(nullable FIRAuthDataResultCallback)completion
-    NS_SWIFT_NAME(link(with:uiDelegate:completion:))API_AVAILABLE(ios(8.0));
+              NS_SWIFT_NAME(link(with:uiDelegate:completion:))
+              API_AVAILABLE(ios(8.0));
+// clang-format on
 
 /** @fn unlinkFromProvider:completion:
     @brief Disassociates a user account from a third-party identity provider with this user.

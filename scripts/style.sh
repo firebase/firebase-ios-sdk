@@ -153,9 +153,6 @@ s%^./%%
 # Sources pulled in by travis bundler, with and without a leading slash
 \%^/?vendor/bundle/% d
 
-# Messaging is not subject to formatting
-\%^(Example|Firebase)/(Messaging)/% d
-
 # Auth Sample is not subject to formatting
 \%^(Example/Auth/Sample)/% d
 
