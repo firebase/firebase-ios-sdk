@@ -29,8 +29,8 @@ jobs:
     - uses: actions/checkout@v2
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
-    - name: pod gen
-      run: scripts/test_catalyst FirebaseCore
+    - name: Setup project and Test Catalyst
+      run: scripts/test_catalyst.sh FirebaseCore
 
   core-cron-only:
     runs-on: macos-latest
