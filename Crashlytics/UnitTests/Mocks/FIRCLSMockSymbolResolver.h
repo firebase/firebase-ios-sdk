@@ -16,6 +16,6 @@
 
 @interface FIRCLSMockSymbolResolver : FIRCLSSymbolResolver
 
-- (void)addMockFrame:(FIRCLSStackFrame *)frame atAddress:(uint64_t)address;
+- (void)addMockFrame:(FIRStackFrame *)frame atAddress:(uint64_t)address;
 
 @end
