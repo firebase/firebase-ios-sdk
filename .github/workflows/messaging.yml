@@ -27,7 +27,7 @@ jobs:
     - name: Build and test
       run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=${{ matrix.target }}
 
-  catalsyt:
+  catalyst:
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2

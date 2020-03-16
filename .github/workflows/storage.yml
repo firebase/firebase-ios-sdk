@@ -24,7 +24,7 @@ jobs:
     - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
       run: scripts/third_party/travis/retry.sh scripts/build.sh Storage all
 
-  catalsyt:
+  catalyst:
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2

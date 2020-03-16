@@ -25,7 +25,7 @@ jobs:
         ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=${{ matrix.target }}
         ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=${{ matrix.target }}
 
-  catalsyt:
+  catalyst:
     runs-on: macOS-latest
     strategy:
       matrix:
