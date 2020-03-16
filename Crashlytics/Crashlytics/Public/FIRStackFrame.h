@@ -23,6 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(StackFrame)
 @interface FIRStackFrame : NSObject
 
+/** :nodoc: */
 - (instancetype)init NS_UNAVAILABLE;
 
 /**

@@ -26,6 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(ExceptionModel)
 @interface FIRExceptionModel : NSObject
 
+/** :nodoc: */
 - (instancetype)init NS_UNAVAILABLE;
 
 /**
