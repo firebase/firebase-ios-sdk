@@ -30,7 +30,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Setup project and Test Catalyst
-      run: scripts/test_catalyst.sh FirebaseCore
+      run: scripts/test_catalyst.sh FirebaseCore test
 
   core-cron-only:
     runs-on: macos-latest
