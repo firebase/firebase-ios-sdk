@@ -211,6 +211,8 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
               logResponse.next_request_wait_millis);
           futureUploadTime =
               [GDTCORClock clockSnapshotInTheFuture:logResponse.next_request_wait_millis];
+        } else if (decodingError) {
+          GDTCORLogDebug(@"There was a response decoding error: %@", decodingError);
         }
         pb_release(gdt_cct_LogResponse_fields, &logResponse);
       }
