@@ -310,18 +310,10 @@ static NSString *const GDTCCTUploaderCSHEventsKey = @"GDTCCTUploaderCSHEventsKey
 #pragma mark - GDTCORLifecycleProtocol
 
 - (void)appWillForeground:(GDTCORApplication *)app {
-  if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-    NSError *error;
-    NSData *data = [NSData dataWithContentsOfFile:ArchivePath()];
-    if (data) {
-      [NSKeyedUnarchiver unarchivedObjectOfClass:[GDTCCTPrioritizer class]
-                                        fromData:data
-                                           error:&error];
-    }
-  } else {
-#if !TARGET_OS_MACCATALYST && !TARGET_OS_WATCH
-    [NSKeyedUnarchiver unarchiveObjectWithFile:ArchivePath()];
-#endif
+  NSError *error;
+  GDTCORDecodeArchive([GDTCCTPrioritizer class], ArchivePath(), &error);
+  if (error) {
+    GDTCORLogDebug(@"Deserializing GDTCCTPrioritizer from an archive failed: %@", error);
   }
 }
 
@@ -335,17 +327,10 @@ static NSString *const GDTCCTUploaderCSHEventsKey = @"GDTCCTUploaderCSHEventsKey
                          [app endBackgroundTask:bgID];
                          bgID = GDTCORBackgroundIdentifierInvalid;
                        }];
-
-    if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-      NSError *error;
-      NSData *data = [NSKeyedArchiver archivedDataWithRootObject:self
-                                           requiringSecureCoding:YES
-                                                           error:&error];
-      [data writeToFile:ArchivePath() atomically:YES];
-    } else {
-#if !TARGET_OS_MACCATALYST && !TARGET_OS_WATCH
-      [NSKeyedArchiver archiveRootObject:self toFile:ArchivePath()];
-#endif
+    NSError *error;
+    GDTCOREncodeArchive(self, ArchivePath(), &error);
+    if (error) {
+      GDTCORLogDebug(@"Serializing GDTCCTPrioritizer to an archive failed: %@", error);
     }
 
     // End the background task if it's still valid.
@@ -356,16 +341,10 @@ static NSString *const GDTCCTUploaderCSHEventsKey = @"GDTCCTUploaderCSHEventsKey
 
 - (void)appWillTerminate:(GDTCORApplication *)application {
   dispatch_sync(_queue, ^{
-    if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-      NSError *error;
-      NSData *data = [NSKeyedArchiver archivedDataWithRootObject:self
-                                           requiringSecureCoding:YES
-                                                           error:&error];
-      [data writeToFile:ArchivePath() atomically:YES];
-    } else {
-#if !TARGET_OS_MACCATALYST && !TARGET_OS_WATCH
-      [NSKeyedArchiver archiveRootObject:self toFile:ArchivePath()];
-#endif
+    NSError *error;
+    GDTCOREncodeArchive(self, ArchivePath(), &error);
+    if (error) {
+      GDTCORLogDebug(@"Serializing GDTCCTPrioritizer to an archive failed: %@", error);
     }
   });
 }

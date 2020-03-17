@@ -93,7 +93,8 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
   if (networkCurrentRadioAccessTechnologyDict.count) {
     networkCurrentRadioAccessTechnology = networkCurrentRadioAccessTechnologyDict.allValues[0];
   }
-#else
+#else  // TARGET_OS_MACCATALYST
+#if defined(__IPHONE_12_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 120000
   if (@available(iOS 12.0, *)) {
     NSDictionary<NSString *, NSString *> *networkCurrentRadioAccessTechnologyDict =
         networkInfo.serviceCurrentRadioAccessTechnology;
@@ -103,9 +104,11 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
       networkCurrentRadioAccessTechnology = networkCurrentRadioAccessTechnologyDict.allValues[0];
     }
   } else {
-    networkCurrentRadioAccessTechnology = networkInfo.currentRadioAccessTechnology;
+#else   // defined(__IPHONE_12_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 120000
+  networkCurrentRadioAccessTechnology = networkInfo.currentRadioAccessTechnology;
+#endif  // // defined(__IPHONE_12_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 120000
   }
-#endif
+#endif  // TARGET_OS_MACCATALYST
   if (networkCurrentRadioAccessTechnology) {
     NSNumber *networkMobileSubtype =
         CTRadioAccessTechnologyToNetworkSubTypeMessage[networkCurrentRadioAccessTechnology];
@@ -116,6 +119,51 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
 #else
   return GDTCORNetworkMobileSubtypeUNKNOWN;
 #endif
+}
+
+void GDTCOREncodeArchive(id<NSSecureCoding> obj, NSString *archivePath, NSError *_Nullable *error) {
+#if (defined(__IPHONE_11_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000) || \
+    (defined(__MAC_10_13) && MAC_OS_X_VERSION_MAX_ALLOWED >= 101300) ||      \
+    (defined(__TVOS_11_0) && __TV_OS_VERSION_MAX_ALLOWED >= 110000)
+  if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:obj
+                                         requiringSecureCoding:YES
+                                                         error:error];
+    BOOL result = [data writeToFile:archivePath atomically:YES];
+    if (!result) {
+    }
+    GDTCORLogDebug(@"Attempt to write archive. successful:%@ path:%@", result, archivePath);
+  } else {
+#elif !TARGET_OS_MACCATALYST && !TARGET_OS_WATCH
+  BOOL result [NSKeyedArchiver archiveRootObject:obj toFile:archivePath];
+#else
+#error There's no keyed archiver for this OS.
+#endif
+  }
+}
+
+id<NSSecureCoding> _Nullable GDTCORDecodeArchive(Class archiveClass,
+                                                 NSString *archivePath,
+                                                 NSError *_Nullable *error) {
+  id<NSSecureCoding> unarchivedObject = nil;
+#if (defined(__IPHONE_11_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000) || \
+    (defined(__MAC_10_13) && MAC_OS_X_VERSION_MAX_ALLOWED >= 101300) ||      \
+    (defined(__TVOS_11_0) && __TV_OS_VERSION_MAX_ALLOWED >= 110000)
+  if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
+    NSData *data = [NSData dataWithContentsOfFile:archivePath];
+    if (data) {
+      unarchivedObject = [NSKeyedUnarchiver unarchivedObjectOfClass:archiveClass
+                                                           fromData:data
+                                                              error:error];
+    }
+  } else {
+#elif !TARGET_OS_MACCATALYST && !TARGET_OS_WATCH
+  unarchivedObject = [NSKeyedUnarchiver unarchiveObjectWithFile:[GDTCORStorage archivePath]];
+#else
+#error There's no keyed unarchiver for this OS.
+#endif
+  }
+  return unarchivedObject;
 }
 
 @interface GDTCORApplication ()
