@@ -23,6 +23,12 @@ NS_ASSUME_NONNULL_BEGIN
 // Allows us to set this value in FIRCLSSettingsTests
 @property(nonatomic, copy) NSString* buildInstanceID;
 
+// Allows us to set this value in FIRCLSSettingsTests
+@property(nonatomic, copy) NSString* displayVersion;
+
+// Allows us to set this value in FIRCLSSettingsTests
+@property(nonatomic, copy) NSString* buildVersion;
+
 // Allows us to set this value in FIRCLSReportManagerTests
 @property(nonatomic, copy) NSString* bundleID;
 
