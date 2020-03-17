@@ -20,14 +20,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRSignInWithGameCenterResponse
 
-- (BOOL)setWithDictionary:(NSDictionary *)dictionary
-                    error:(NSError *_Nullable *_Nullable)error {
+- (BOOL)setWithDictionary:(NSDictionary *)dictionary error:(NSError *_Nullable *_Nullable)error {
   _IDToken = [dictionary[@"idToken"] copy];
   _refreshToken = [dictionary[@"refreshToken"] copy];
   _localID = [dictionary[@"localId"] copy];
   _approximateExpirationDate = nil;
   if ([dictionary[@"expiresIn"] isKindOfClass:[NSString class]]) {
-    _approximateExpirationDate = [NSDate dateWithTimeIntervalSinceNow:[dictionary[@"expiresIn"] integerValue]];
+    _approximateExpirationDate =
+        [NSDate dateWithTimeIntervalSinceNow:[dictionary[@"expiresIn"] integerValue]];
   }
   _playerID = [dictionary[@"playerId"] copy];
   _isNewUser = [dictionary[@"isNewUser"] boolValue];

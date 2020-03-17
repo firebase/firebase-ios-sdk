@@ -19,7 +19,7 @@
 @implementation FIRFinalizeMFASignInResponse
 
 - (BOOL)setWithDictionary:(nonnull NSDictionary *)dictionary
-                    error:(NSError *__autoreleasing _Nullable * _Nullable)error {
+                    error:(NSError *__autoreleasing _Nullable *_Nullable)error {
   _IDToken = [dictionary[@"idToken"] copy];
   _refreshToken = [dictionary[@"refreshToken"] copy];
   return YES;

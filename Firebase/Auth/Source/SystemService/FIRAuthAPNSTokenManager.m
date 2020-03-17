@@ -68,8 +68,9 @@ static const NSTimeInterval kLegacyRegistrationTimeout = 30;
   self = [super init];
   if (self) {
     _application = application;
-    _timeout = [_application respondsToSelector:@selector(registerForRemoteNotifications)] ?
-        kRegistrationTimeout : kLegacyRegistrationTimeout;
+    _timeout = [_application respondsToSelector:@selector(registerForRemoteNotifications)]
+                   ? kRegistrationTimeout
+                   : kLegacyRegistrationTimeout;
   }
   return self;
 }
@@ -99,12 +100,12 @@ static const NSTimeInterval kLegacyRegistrationTimeout = 30;
   });
   NSArray<FIRAuthAPNSTokenCallback> *applicableCallbacks = _pendingCallbacks;
   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_timeout * NSEC_PER_SEC)),
-                               FIRAuthGlobalWorkQueue(), ^{
-    // Only cancel if the pending callbacks remain the same, i.e., not triggered yet.
-    if (applicableCallbacks == self->_pendingCallbacks) {
-      [self callBackWithToken:nil error:nil];
-    }
-  });
+                 FIRAuthGlobalWorkQueue(), ^{
+                   // Only cancel if the pending callbacks remain the same, i.e., not triggered yet.
+                   if (applicableCallbacks == self->_pendingCallbacks) {
+                     [self callBackWithToken:nil error:nil];
+                   }
+                 });
 }
 
 - (void)setToken:(nullable FIRAuthAPNSToken *)token {
@@ -165,7 +166,7 @@ static const NSTimeInterval kLegacyRegistrationTimeout = 30;
     return defaultAppTypeProd;
   }
   NSString *path = [[[NSBundle mainBundle] bundlePath]
-                    stringByAppendingPathComponent:@"embedded.mobileprovision"];
+      stringByAppendingPathComponent:@"embedded.mobileprovision"];
   if ([GULAppEnvironmentUtil isAppStoreReceiptSandbox] && !path.length) {
     // Distributed via TestFlight
     return defaultAppTypeProd;
@@ -174,8 +175,8 @@ static const NSTimeInterval kLegacyRegistrationTimeout = 30;
   NSMutableData *profileData = [NSMutableData dataWithContentsOfFile:path options:0 error:&error];
 
   if (!profileData.length || error) {
-    FIRLogInfo(kFIRLoggerAuth, @"I-AUT000007",
-               @"Error while reading embedded mobileprovision %@", error);
+    FIRLogInfo(kFIRLoggerAuth, @"I-AUT000007", @"Error while reading embedded mobileprovision %@",
+               error);
     return defaultAppTypeProd;
   }
 
@@ -196,8 +197,8 @@ static const NSTimeInterval kLegacyRegistrationTimeout = 30;
                                                        freeWhenDone:NO];
 
   if (error || !embeddedProfile.length) {
-    FIRLogInfo(kFIRLoggerAuth, @"I-AUT000008",
-               @"Error while reading embedded mobileprovision %@", error);
+    FIRLogInfo(kFIRLoggerAuth, @"I-AUT000008", @"Error while reading embedded mobileprovision %@",
+               error);
     return defaultAppTypeProd;
   }
 
@@ -226,8 +227,7 @@ static const NSTimeInterval kLegacyRegistrationTimeout = 30;
                                                             format:nil
                                                              error:&plistMapError];
   if (plistMapError || ![plistData isKindOfClass:[NSDictionary class]]) {
-    FIRLogInfo(kFIRLoggerAuth, @"I-AUT000010",
-               @"Error while converting assumed plist to dict %@",
+    FIRLogInfo(kFIRLoggerAuth, @"I-AUT000010", @"Error while converting assumed plist to dict %@",
                plistMapError.localizedDescription);
     return defaultAppTypeProd;
   }
@@ -240,8 +240,7 @@ static const NSTimeInterval kLegacyRegistrationTimeout = 30;
   }
 
   NSString *apsEnvironment = [plistMap valueForKeyPath:@"Entitlements.aps-environment"];
-  FIRLogDebug(kFIRLoggerAuth, @"I-AUT000012",
-              @"APNS Environment in profile: %@", apsEnvironment);
+  FIRLogDebug(kFIRLoggerAuth, @"I-AUT000012", @"APNS Environment in profile: %@", apsEnvironment);
 
   // No aps-environment in the profile.
   if (!apsEnvironment.length) {

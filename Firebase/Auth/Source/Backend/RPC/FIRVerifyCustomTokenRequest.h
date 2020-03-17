@@ -40,8 +40,9 @@ NS_ASSUME_NONNULL_BEGIN
 /** @fn initWithEndpoint:requestConfiguration:
     @brief Please use initWithToken:requestConfiguration: instead.
  */
-- (nullable instancetype)initWithEndpoint:(NSString *)endpoint requestConfiguration:
-    (FIRAuthRequestConfiguration *)requestConfiguration  NS_UNAVAILABLE;
+- (nullable instancetype)initWithEndpoint:(NSString *)endpoint
+                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
+    NS_UNAVAILABLE;
 
 /** @fn initWithToken:requestConfiguration:
     @brief Designated initializer.
@@ -50,7 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (nullable instancetype)initWithToken:(NSString *)token
                   requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
-                      NS_DESIGNATED_INITIALIZER;
+    NS_DESIGNATED_INITIALIZER;
 
 @end
 

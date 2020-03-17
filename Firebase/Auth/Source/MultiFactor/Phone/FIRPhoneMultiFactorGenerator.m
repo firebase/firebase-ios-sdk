@@ -19,12 +19,13 @@
 
 #import "FIRPhoneMultiFactorGenerator.h"
 
-#import "FIRPhoneMultiFactorAssertion.h"
 #import "FIRPhoneMultiFactorAssertion+Internal.h"
+#import "FIRPhoneMultiFactorAssertion.h"
 
 @implementation FIRPhoneMultiFactorGenerator
 
-+ (FIRPhoneMultiFactorAssertion *)assertionWithCredential:(FIRPhoneAuthCredential *)phoneAuthCredential {
++ (FIRPhoneMultiFactorAssertion *)assertionWithCredential:
+    (FIRPhoneAuthCredential *)phoneAuthCredential {
   FIRPhoneMultiFactorAssertion *assertion = [[FIRPhoneMultiFactorAssertion alloc] init];
   assertion.authCredential = phoneAuthCredential;
   return assertion;

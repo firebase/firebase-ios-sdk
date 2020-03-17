@@ -46,7 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (nullable instancetype)initWithEndpoint:(NSString *)endpoint
                      requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
-                         NS_UNAVAILABLE;
+    NS_UNAVAILABLE;
 
 /** @fn initWithPhoneNumber:appCredentials:requestConfiguration:
     @brief Designated initializer.
@@ -59,8 +59,7 @@ NS_ASSUME_NONNULL_BEGIN
                                appCredential:(nullable FIRAuthAppCredential *)appCredential
                               reCAPTCHAToken:(nullable NSString *)reCAPTCHAToken
                         requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
-                            NS_DESIGNATED_INITIALIZER;
-
+    NS_DESIGNATED_INITIALIZER;
 
 @end
 

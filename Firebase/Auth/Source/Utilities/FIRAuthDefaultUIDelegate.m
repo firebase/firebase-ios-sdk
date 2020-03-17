@@ -32,7 +32,8 @@ NS_ASSUME_NONNULL_BEGIN
         FIRAuthUIDelegate.
     @return The initialized instance.
  */
-- (instancetype)initWithViewController:(nullable UIViewController *)viewController NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithViewController:(nullable UIViewController *)viewController
+    NS_DESIGNATED_INITIALIZER;
 
 @end
 
@@ -78,7 +79,7 @@ NS_ASSUME_NONNULL_BEGIN
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
   if (@available(iOS 13.0, tvOS 13.0, *)) {
     UIApplication *application = [applicationClass sharedApplication];
-    NSSet<UIScene *> * connectedScenes = application.connectedScenes;
+    NSSet<UIScene *> *connectedScenes = application.connectedScenes;
     for (UIScene *scene in connectedScenes) {
       if ([scene isKindOfClass:[UIWindowScene class]]) {
         UIWindowScene *windowScene = (UIWindowScene *)scene;
@@ -98,7 +99,7 @@ NS_ASSUME_NONNULL_BEGIN
   topViewController = application.keyWindow.rootViewController;
 #endif
 
-  while (true){
+  while (true) {
     if (topViewController.presentedViewController) {
       topViewController = topViewController.presentedViewController;
     } else if ([topViewController isKindOfClass:[UINavigationController class]]) {

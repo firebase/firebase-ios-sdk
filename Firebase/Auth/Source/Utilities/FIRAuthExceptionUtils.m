@@ -30,8 +30,9 @@ static NSString *const FIRMethodNotImplementedException = @"FIRMethodNotImplemen
 }
 
 + (void)raiseMethodNotImplementedExceptionWithReason:(nullable NSString *)reason {
-  NSException *exception =
-      [NSException exceptionWithName:FIRMethodNotImplementedException reason:reason userInfo:nil];
+  NSException *exception = [NSException exceptionWithName:FIRMethodNotImplementedException
+                                                   reason:reason
+                                                 userInfo:nil];
   [exception raise];
 }
 

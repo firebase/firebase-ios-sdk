@@ -16,11 +16,11 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRAuthErrors.h"
 #import "FIRAuthBackend.h"
+#import "FIRAuthErrors.h"
+#import "FIRFakeBackendRPCIssuer.h"
 #import "FIRSetAccountInfoRequest.h"
 #import "FIRSetAccountInfoResponse.h"
-#import "FIRFakeBackendRPCIssuer.h"
 
 /** @var kTestAPIKey
     @brief Fake API key used for testing.
@@ -205,13 +205,13 @@ static const double kAllowedTimeDifference = 0.1;
   __block BOOL callbackInvoked;
   __block FIRSetAccountInfoResponse *RPCResponse;
   __block NSError *RPCError;
-  [FIRAuthBackend setAccountInfo:request
-                        callback:^(FIRSetAccountInfoResponse *_Nullable response,
-                                   NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+  [FIRAuthBackend
+      setAccountInfo:request
+            callback:^(FIRSetAccountInfoResponse *_Nullable response, NSError *_Nullable error) {
+              callbackInvoked = YES;
+              RPCResponse = response;
+              RPCError = error;
+            }];
 
   [_RPCIssuer respondWithServerErrorMessage:kEmailExistsErrorMessage];
   XCTAssert(callbackInvoked);
@@ -230,13 +230,13 @@ static const double kAllowedTimeDifference = 0.1;
   __block BOOL callbackInvoked;
   __block FIRSetAccountInfoResponse *RPCResponse;
   __block NSError *RPCError;
-  [FIRAuthBackend setAccountInfo:request
-                        callback:^(FIRSetAccountInfoResponse *_Nullable response,
-                                   NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+  [FIRAuthBackend
+      setAccountInfo:request
+            callback:^(FIRSetAccountInfoResponse *_Nullable response, NSError *_Nullable error) {
+              callbackInvoked = YES;
+              RPCResponse = response;
+              RPCError = error;
+            }];
 
   [_RPCIssuer respondWithServerErrorMessage:kEmailSignUpNotAllowedErrorMessage];
   XCTAssert(callbackInvoked);
@@ -255,13 +255,13 @@ static const double kAllowedTimeDifference = 0.1;
   __block BOOL callbackInvoked;
   __block FIRSetAccountInfoResponse *RPCResponse;
   __block NSError *RPCError;
-  [FIRAuthBackend setAccountInfo:request
-                        callback:^(FIRSetAccountInfoResponse *_Nullable response,
-                                   NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+  [FIRAuthBackend
+      setAccountInfo:request
+            callback:^(FIRSetAccountInfoResponse *_Nullable response, NSError *_Nullable error) {
+              callbackInvoked = YES;
+              RPCResponse = response;
+              RPCError = error;
+            }];
 
   [_RPCIssuer respondWithServerErrorMessage:kPasswordLoginDisabledErrorMessage];
   XCTAssert(callbackInvoked);
@@ -279,13 +279,13 @@ static const double kAllowedTimeDifference = 0.1;
   __block BOOL callbackInvoked;
   __block FIRSetAccountInfoResponse *RPCResponse;
   __block NSError *RPCError;
-  [FIRAuthBackend setAccountInfo:request
-                        callback:^(FIRSetAccountInfoResponse *_Nullable response,
-                                   NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+  [FIRAuthBackend
+      setAccountInfo:request
+            callback:^(FIRSetAccountInfoResponse *_Nullable response, NSError *_Nullable error) {
+              callbackInvoked = YES;
+              RPCResponse = response;
+              RPCError = error;
+            }];
 
   [_RPCIssuer respondWithServerErrorMessage:kUserDisabledErrorMessage];
   XCTAssert(callbackInvoked);
@@ -304,13 +304,13 @@ static const double kAllowedTimeDifference = 0.1;
   __block BOOL callbackInvoked;
   __block FIRSetAccountInfoResponse *RPCResponse;
   __block NSError *RPCError;
-  [FIRAuthBackend setAccountInfo:request
-                        callback:^(FIRSetAccountInfoResponse *_Nullable response,
-                                   NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+  [FIRAuthBackend
+      setAccountInfo:request
+            callback:^(FIRSetAccountInfoResponse *_Nullable response, NSError *_Nullable error) {
+              callbackInvoked = YES;
+              RPCResponse = response;
+              RPCError = error;
+            }];
 
   [_RPCIssuer respondWithServerErrorMessage:kinvalidUserTokenErrorMessage];
   XCTAssert(callbackInvoked);
@@ -329,13 +329,13 @@ static const double kAllowedTimeDifference = 0.1;
   __block BOOL callbackInvoked;
   __block FIRSetAccountInfoResponse *RPCResponse;
   __block NSError *RPCError;
-  [FIRAuthBackend setAccountInfo:request
-                        callback:^(FIRSetAccountInfoResponse *_Nullable response,
-                                   NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+  [FIRAuthBackend
+      setAccountInfo:request
+            callback:^(FIRSetAccountInfoResponse *_Nullable response, NSError *_Nullable error) {
+              callbackInvoked = YES;
+              RPCResponse = response;
+              RPCError = error;
+            }];
 
   [_RPCIssuer respondWithServerErrorMessage:kCredentialTooOldErrorMessage];
   XCTAssert(callbackInvoked);
@@ -353,13 +353,13 @@ static const double kAllowedTimeDifference = 0.1;
   __block BOOL callbackInvoked;
   __block FIRSetAccountInfoResponse *RPCResponse;
   __block NSError *RPCError;
-  [FIRAuthBackend setAccountInfo:request
-                        callback:^(FIRSetAccountInfoResponse *_Nullable response,
-                                   NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+  [FIRAuthBackend
+      setAccountInfo:request
+            callback:^(FIRSetAccountInfoResponse *_Nullable response, NSError *_Nullable error) {
+              callbackInvoked = YES;
+              RPCResponse = response;
+              RPCError = error;
+            }];
 
   [_RPCIssuer respondWithServerErrorMessage:kWeakPasswordErrorMessage];
   XCTAssert(callbackInvoked);
@@ -379,13 +379,13 @@ static const double kAllowedTimeDifference = 0.1;
   __block BOOL callbackInvoked;
   __block FIRSetAccountInfoResponse *RPCResponse;
   __block NSError *RPCError;
-  [FIRAuthBackend setAccountInfo:request
-                        callback:^(FIRSetAccountInfoResponse *_Nullable response,
-                                   NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+  [FIRAuthBackend
+      setAccountInfo:request
+            callback:^(FIRSetAccountInfoResponse *_Nullable response, NSError *_Nullable error) {
+              callbackInvoked = YES;
+              RPCResponse = response;
+              RPCError = error;
+            }];
 
   [_RPCIssuer respondWithServerErrorMessage:kInvalidEmailErrorMessage];
   XCTAssert(callbackInvoked);
@@ -403,13 +403,13 @@ static const double kAllowedTimeDifference = 0.1;
   __block BOOL callbackInvoked;
   __block FIRSetAccountInfoResponse *RPCResponse;
   __block NSError *RPCError;
-  [FIRAuthBackend setAccountInfo:request
-                        callback:^(FIRSetAccountInfoResponse *_Nullable response,
-                                   NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+  [FIRAuthBackend
+      setAccountInfo:request
+            callback:^(FIRSetAccountInfoResponse *_Nullable response, NSError *_Nullable error) {
+              callbackInvoked = YES;
+              RPCResponse = response;
+              RPCError = error;
+            }];
 
   [_RPCIssuer respondWithServerErrorMessage:kInvalidActionCodeErrorMessage];
   XCTAssert(callbackInvoked);
@@ -427,13 +427,13 @@ static const double kAllowedTimeDifference = 0.1;
   __block BOOL callbackInvoked;
   __block FIRSetAccountInfoResponse *RPCResponse;
   __block NSError *RPCError;
-  [FIRAuthBackend setAccountInfo:request
-                        callback:^(FIRSetAccountInfoResponse *_Nullable response,
-                                   NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+  [FIRAuthBackend
+      setAccountInfo:request
+            callback:^(FIRSetAccountInfoResponse *_Nullable response, NSError *_Nullable error) {
+              callbackInvoked = YES;
+              RPCResponse = response;
+              RPCError = error;
+            }];
 
   [_RPCIssuer respondWithServerErrorMessage:kExpiredActionCodeErrorMessage];
   XCTAssert(callbackInvoked);
@@ -451,13 +451,13 @@ static const double kAllowedTimeDifference = 0.1;
   __block BOOL callbackInvoked;
   __block FIRSetAccountInfoResponse *RPCResponse;
   __block NSError *RPCError;
-  [FIRAuthBackend setAccountInfo:request
-                        callback:^(FIRSetAccountInfoResponse *_Nullable response,
-                                   NSError *_Nullable error) {
-    RPCResponse = response;
-    RPCError = error;
-    callbackInvoked = YES;
-  }];
+  [FIRAuthBackend
+      setAccountInfo:request
+            callback:^(FIRSetAccountInfoResponse *_Nullable response, NSError *_Nullable error) {
+              RPCResponse = response;
+              RPCError = error;
+              callbackInvoked = YES;
+            }];
   [_RPCIssuer respondWithServerErrorMessage:kInvalidMessagePayloadErrorMessage];
   XCTAssert(callbackInvoked);
   XCTAssertNil(RPCResponse);
@@ -474,13 +474,13 @@ static const double kAllowedTimeDifference = 0.1;
   __block BOOL callbackInvoked;
   __block FIRSetAccountInfoResponse *RPCResponse;
   __block NSError *RPCError;
-  [FIRAuthBackend setAccountInfo:request
-                        callback:^(FIRSetAccountInfoResponse *_Nullable response,
-                                   NSError *_Nullable error) {
-    RPCResponse = response;
-    RPCError = error;
-    callbackInvoked = YES;
-  }];
+  [FIRAuthBackend
+      setAccountInfo:request
+            callback:^(FIRSetAccountInfoResponse *_Nullable response, NSError *_Nullable error) {
+              RPCResponse = response;
+              RPCError = error;
+              callbackInvoked = YES;
+            }];
   [_RPCIssuer respondWithServerErrorMessage:kInvalidSenderErrorMessage];
   XCTAssert(callbackInvoked);
   XCTAssertNil(RPCResponse);
@@ -497,13 +497,13 @@ static const double kAllowedTimeDifference = 0.1;
   __block BOOL callbackInvoked;
   __block FIRSetAccountInfoResponse *RPCResponse;
   __block NSError *RPCError;
-  [FIRAuthBackend setAccountInfo:request
-                        callback:^(FIRSetAccountInfoResponse *_Nullable response,
-                                   NSError *_Nullable error) {
-    RPCResponse = response;
-    RPCError = error;
-    callbackInvoked = YES;
-  }];
+  [FIRAuthBackend
+      setAccountInfo:request
+            callback:^(FIRSetAccountInfoResponse *_Nullable response, NSError *_Nullable error) {
+              RPCResponse = response;
+              RPCError = error;
+              callbackInvoked = YES;
+            }];
   [_RPCIssuer respondWithServerErrorMessage:kInvalidRecipientEmailErrorMessage];
   XCTAssert(callbackInvoked);
   XCTAssertNil(RPCResponse);
@@ -520,18 +520,16 @@ static const double kAllowedTimeDifference = 0.1;
   __block BOOL callbackInvoked;
   __block FIRSetAccountInfoResponse *RPCResponse;
   __block NSError *RPCError;
-  [FIRAuthBackend setAccountInfo:request
-                        callback:^(FIRSetAccountInfoResponse *_Nullable response,
-                                   NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+  [FIRAuthBackend
+      setAccountInfo:request
+            callback:^(FIRSetAccountInfoResponse *_Nullable response, NSError *_Nullable error) {
+              callbackInvoked = YES;
+              RPCResponse = response;
+              RPCError = error;
+            }];
 
   [_RPCIssuer respondWithJSON:@{
-    kProviderUserInfoKey:@[
-      @{ kPhotoUrlKey : kTestPhotoURL }
-    ],
+    kProviderUserInfoKey : @[ @{kPhotoUrlKey : kTestPhotoURL} ],
     kIDTokenKey : kTestIDToken,
     kExpiresInKey : kTestExpiresIn,
     kRefreshTokenKey : kTestRefreshToken

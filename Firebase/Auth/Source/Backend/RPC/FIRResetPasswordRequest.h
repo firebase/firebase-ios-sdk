@@ -38,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (nullable instancetype)initWithEndpoint:(NSString *)endpoint
                      requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
-                         NS_UNAVAILABLE;
+    NS_UNAVAILABLE;
 
 /** @fn initWithOobCode:newPassword:requestConfiguration:
     @brief Designated initializer.

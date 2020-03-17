@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 #import "FIRAuthAppCredential.h"
 #import "FIRAuthProto.h"
 

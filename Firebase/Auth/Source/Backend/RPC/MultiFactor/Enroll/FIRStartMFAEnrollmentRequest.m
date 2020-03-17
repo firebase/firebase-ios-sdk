@@ -38,7 +38,7 @@ static NSString *const kStartMFAEnrollmentEndPoint = @"accounts/mfaEnrollment:st
   return self;
 }
 
-- (nullable id)unencodedHTTPRequestBodyWithError:(NSError *__autoreleasing  _Nullable *)error {
+- (nullable id)unencodedHTTPRequestBodyWithError:(NSError *__autoreleasing _Nullable *)error {
   NSMutableDictionary *postBody = [NSMutableDictionary dictionary];
   if (_IDToken) {
     postBody[@"idToken"] = _IDToken;

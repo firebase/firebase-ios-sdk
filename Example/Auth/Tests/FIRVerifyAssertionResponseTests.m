@@ -16,12 +16,12 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRAuthErrors.h"
 #import "FIRAuthBackend.h"
+#import "FIRAuthErrors.h"
+#import "FIRFakeBackendRPCIssuer.h"
 #import "FIRGetOOBConfirmationCodeResponse.h"
 #import "FIRVerifyAssertionRequest.h"
 #import "FIRVerifyAssertionResponse.h"
-#import "FIRFakeBackendRPCIssuer.h"
 
 /** @var kTestAPIKey
     @brief Fake API key used for testing.
@@ -174,10 +174,10 @@ static const double kAllowedTimeDifference = 0.1;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
     kGoogleProfile = @{
-      @"iss": @"https://accounts.google.com\\",
-      @"email": @"test@email.com",
-      @"given_name": @"User",
-      @"family_name": @"Doe"
+      @"iss" : @"https://accounts.google.com\\",
+      @"email" : @"test@email.com",
+      @"given_name" : @"User",
+      @"family_name" : @"Doe"
     };
   });
   return kGoogleProfile;
@@ -211,13 +211,13 @@ static const double kAllowedTimeDifference = 0.1;
   __block BOOL callbackInvoked;
   __block FIRVerifyAssertionResponse *RPCResponse;
   __block NSError *RPCError;
-  [FIRAuthBackend verifyAssertion:request
-                         callback:^(FIRVerifyAssertionResponse*_Nullable response,
-                                  NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+  [FIRAuthBackend
+      verifyAssertion:request
+             callback:^(FIRVerifyAssertionResponse *_Nullable response, NSError *_Nullable error) {
+               callbackInvoked = YES;
+               RPCResponse = response;
+               RPCError = error;
+             }];
 
   [_RPCIssuer respondWithServerErrorMessage:ktestInvalidCredentialError];
   XCTAssert(callbackInvoked);
@@ -239,13 +239,13 @@ static const double kAllowedTimeDifference = 0.1;
   __block BOOL callbackInvoked;
   __block FIRVerifyAssertionResponse *RPCResponse;
   __block NSError *RPCError;
-  [FIRAuthBackend verifyAssertion:request
-                         callback:^(FIRVerifyAssertionResponse*_Nullable response,
-                                  NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+  [FIRAuthBackend
+      verifyAssertion:request
+             callback:^(FIRVerifyAssertionResponse *_Nullable response, NSError *_Nullable error) {
+               callbackInvoked = YES;
+               RPCResponse = response;
+               RPCError = error;
+             }];
 
   [_RPCIssuer respondWithServerErrorMessage:kUserDisabledErrorMessage];
   XCTAssert(callbackInvoked);
@@ -267,13 +267,13 @@ static const double kAllowedTimeDifference = 0.1;
   __block BOOL callbackInvoked;
   __block FIRVerifyAssertionResponse *RPCResponse;
   __block NSError *RPCError;
-  [FIRAuthBackend verifyAssertion:request
-                         callback:^(FIRVerifyAssertionResponse*_Nullable response,
-                                  NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+  [FIRAuthBackend
+      verifyAssertion:request
+             callback:^(FIRVerifyAssertionResponse *_Nullable response, NSError *_Nullable error) {
+               callbackInvoked = YES;
+               RPCResponse = response;
+               RPCError = error;
+             }];
 
   [_RPCIssuer respondWithServerErrorMessage:kFederatedUserIDAlreadyLinkedMessage];
   XCTAssert(callbackInvoked);
@@ -295,13 +295,13 @@ static const double kAllowedTimeDifference = 0.1;
   __block BOOL callbackInvoked;
   __block FIRVerifyAssertionResponse *RPCResponse;
   __block NSError *RPCError;
-  [FIRAuthBackend verifyAssertion:request
-                         callback:^(FIRVerifyAssertionResponse*_Nullable response,
-                                  NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+  [FIRAuthBackend
+      verifyAssertion:request
+             callback:^(FIRVerifyAssertionResponse *_Nullable response, NSError *_Nullable error) {
+               callbackInvoked = YES;
+               RPCResponse = response;
+               RPCError = error;
+             }];
 
   [_RPCIssuer respondWithServerErrorMessage:kOperationNotAllowedErrorMessage];
   XCTAssert(callbackInvoked);
@@ -322,13 +322,13 @@ static const double kAllowedTimeDifference = 0.1;
   __block BOOL callbackInvoked;
   __block FIRVerifyAssertionResponse *RPCResponse;
   __block NSError *RPCError;
-  [FIRAuthBackend verifyAssertion:request
-                         callback:^(FIRVerifyAssertionResponse*_Nullable response,
-                                  NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+  [FIRAuthBackend
+      verifyAssertion:request
+             callback:^(FIRVerifyAssertionResponse *_Nullable response, NSError *_Nullable error) {
+               callbackInvoked = YES;
+               RPCResponse = response;
+               RPCError = error;
+             }];
 
   [_RPCIssuer respondWithServerErrorMessage:kPasswordLoginDisabledErrorMessage];
   XCTAssert(callbackInvoked);
@@ -349,13 +349,13 @@ static const double kAllowedTimeDifference = 0.1;
   __block BOOL callbackInvoked;
   __block FIRVerifyAssertionResponse *RPCResponse;
   __block NSError *RPCError;
-  [FIRAuthBackend verifyAssertion:request
-                         callback:^(FIRVerifyAssertionResponse*_Nullable response,
-                                  NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+  [FIRAuthBackend
+      verifyAssertion:request
+             callback:^(FIRVerifyAssertionResponse *_Nullable response, NSError *_Nullable error) {
+               callbackInvoked = YES;
+               RPCResponse = response;
+               RPCError = error;
+             }];
 
   [_RPCIssuer respondWithJSON:@{
     kProviderIDKey : kTestProviderID,
@@ -396,14 +396,13 @@ static const double kAllowedTimeDifference = 0.1;
   __block BOOL callbackInvoked;
   __block FIRVerifyAssertionResponse *RPCResponse;
   __block NSError *RPCError;
-  [FIRAuthBackend verifyAssertion:request
-                         callback:^(FIRVerifyAssertionResponse*_Nullable response,
-                                  NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
-
+  [FIRAuthBackend
+      verifyAssertion:request
+             callback:^(FIRVerifyAssertionResponse *_Nullable response, NSError *_Nullable error) {
+               callbackInvoked = YES;
+               RPCResponse = response;
+               RPCError = error;
+             }];
 
   [_RPCIssuer respondWithJSON:@{
     kProviderIDKey : kTestProviderID,
@@ -434,9 +433,7 @@ static const double kAllowedTimeDifference = 0.1;
 #pragma mark - Helpers
 
 + (NSString *)convertToJSONString:(NSObject *)object {
-  NSData *objectAsData = [NSJSONSerialization dataWithJSONObject:object
-                                                         options:0
-                                                           error:nil];
+  NSData *objectAsData = [NSJSONSerialization dataWithJSONObject:object options:0 error:nil];
   return [[NSString alloc] initWithData:objectAsData encoding:NSUTF8StringEncoding];
 }
 

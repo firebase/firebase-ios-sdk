@@ -49,7 +49,7 @@ static NSString *const kSignInWithGameCenterEndPoint = @"signInWithGameCenter";
 
 #pragma mark - FIRAuthRPCRequest
 
-- (nullable id)unencodedHTTPRequestBodyWithError:(NSError *__autoreleasing  _Nullable *)error {
+- (nullable id)unencodedHTTPRequestBodyWithError:(NSError *__autoreleasing _Nullable *)error {
   NSMutableDictionary *postBody = [NSMutableDictionary dictionary];
   if (_playerID) {
     postBody[@"playerId"] = _playerID;

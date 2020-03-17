@@ -20,8 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRCreateAuthURIResponse
 
-- (BOOL)setWithDictionary:(NSDictionary *)dictionary
-                    error:(NSError *_Nullable *_Nullable)error {
+- (BOOL)setWithDictionary:(NSDictionary *)dictionary error:(NSError *_Nullable *_Nullable)error {
   _providerID = [dictionary[@"providerId"] copy];
   _authURI = [dictionary[@"authUri"] copy];
   _registered = [dictionary[@"registered"] boolValue];

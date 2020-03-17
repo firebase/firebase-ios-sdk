@@ -78,15 +78,14 @@ static const NSUInteger kMaximumNumberOfPendingReceipts = 32;
           [[NSKeyedUnarchiver alloc] initForReadingWithData:encodedData];
 #endif
       FIRAuthAppCredential *credential =
-          [unarchiver decodeObjectOfClass:[FIRAuthAppCredential class]
-                                   forKey:kFullCredentialKey];
+          [unarchiver decodeObjectOfClass:[FIRAuthAppCredential class] forKey:kFullCredentialKey];
       if ([credential isKindOfClass:[FIRAuthAppCredential class]]) {
         _credential = credential;
       }
       NSSet<Class> *allowedClasses =
           [NSSet<Class> setWithObjects:[NSArray class], [NSString class], nil];
-      NSArray<NSString *> *pendingReceipts =
-          [unarchiver decodeObjectOfClasses:allowedClasses forKey:kPendingReceiptsKey];
+      NSArray<NSString *> *pendingReceipts = [unarchiver decodeObjectOfClasses:allowedClasses
+                                                                        forKey:kPendingReceiptsKey];
       if ([pendingReceipts isKindOfClass:[NSArray class]]) {
         _pendingReceipts = [pendingReceipts mutableCopy];
       }
@@ -115,9 +114,9 @@ static const NSUInteger kMaximumNumberOfPendingReceipts = 32;
   _callbacksByReceipt[receipt] = callback;
   [self saveData];
   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(timeout * NSEC_PER_SEC)),
-                               FIRAuthGlobalWorkQueue(), ^{
-    [self callBackWithReceipt:receipt];
-  });
+                 FIRAuthGlobalWorkQueue(), ^{
+                   [self callBackWithReceipt:receipt];
+                 });
 }
 
 - (BOOL)canFinishVerificationWithReceipt:(NSString *)receipt secret:(NSString *)secret {

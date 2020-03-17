@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
     @brief A concrete implementation of `FIRAuthProvider` for generic OAuth Providers.
  */
 NS_SWIFT_NAME(OAuthProvider)
-@interface FIROAuthProvider : NSObject<FIRFederatedAuthProvider>
+@interface FIROAuthProvider : NSObject <FIRFederatedAuthProvider>
 
 /** @property scopes
     @brief Array used to configure the OAuth scopes.
@@ -37,7 +37,7 @@ NS_SWIFT_NAME(OAuthProvider)
 /** @property customParameters
     @brief Dictionary used to configure the OAuth custom parameters.
  */
-@property(nonatomic, copy, nullable) NSDictionary<NSString *, NSString*> *customParameters;
+@property(nonatomic, copy, nullable) NSDictionary<NSString *, NSString *> *customParameters;
 
 /** @property providerID
     @brief The provider ID indicating the specific OAuth provider this OAuthProvider instance

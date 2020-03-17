@@ -280,8 +280,7 @@ static NSError *fakeError() {
     @param account The account attribute of the keychain item.
     @param service The service attribute of the keychain item, if provided.
  */
-- (void)deletePasswordWithAccount:(nonnull NSString *)account
-                          service:(nullable NSString *)service {
+- (void)deletePasswordWithAccount:(nonnull NSString *)account service:(nullable NSString *)service {
   NSMutableDictionary *query = [@{
     (__bridge id)kSecClass : (__bridge id)kSecClassGenericPassword,
     (__bridge id)kSecAttrAccount : account,

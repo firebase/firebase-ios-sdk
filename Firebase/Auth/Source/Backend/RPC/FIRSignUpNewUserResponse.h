@@ -20,7 +20,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRSignUpNewUserResponse : NSObject<FIRAuthRPCResponse>
+@interface FIRSignUpNewUserResponse : NSObject <FIRAuthRPCResponse>
 
 /** @property IDToken
     @brief Either an authorization code suitable for performing an STS token exchange, or the

@@ -49,7 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (nullable instancetype)initWithEndpoint:(NSString *)endpoint
                      requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
-NS_DESIGNATED_INITIALIZER;
+    NS_DESIGNATED_INITIALIZER;
 
 - (nullable instancetype)initWithEndpoint:(NSString *)endpoint
                      requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration

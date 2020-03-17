@@ -31,9 +31,9 @@ NS_ASSUME_NONNULL_BEGIN
     and discarded. All operations that need this token should call fetchAccessToken and do their
     work from the callback.
  */
-typedef void(^FIRFetchAccessTokenCallback)(NSString *_Nullable token,
-                                           NSError *_Nullable error,
-                                           BOOL tokenUpdated);
+typedef void (^FIRFetchAccessTokenCallback)(NSString *_Nullable token,
+                                            NSError *_Nullable error,
+                                            BOOL tokenUpdated);
 
 /** @class FIRSecureTokenService
     @brief Provides services for token exchanges and refreshes.

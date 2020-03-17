@@ -16,9 +16,8 @@
 #include <TargetConditionals.h>
 #if TARGET_OS_IOS
 
-
-#import "FIRMultiFactorSession.h"
 #import "FIRMultiFactorSession+Internal.h"
+#import "FIRMultiFactorSession.h"
 
 #import "FIRAuth.h"
 #import "FIRUser_Internal.h"

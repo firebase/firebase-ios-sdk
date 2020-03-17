@@ -17,8 +17,8 @@
 #include <TargetConditionals.h>
 #if TARGET_OS_IOS
 
-#import "FIRMultiFactor.h"
 #import "FIRAuthProtoMFAEnrollment.h"
+#import "FIRMultiFactor.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
