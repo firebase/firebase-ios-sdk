@@ -34,8 +34,10 @@ check_secrets()
   fi
   # GitHub Actions: Secrets are available if we're not running on a fork.
   # See https://help.github.com/en/actions/automating-your-workflow-with-github-actions/using-environment-variables
+  # TODO- These are both set in the master repo even thought the docs say otherwise.
+  # Investigate their values in a fork.
   if [[ -n "${GITHUB_WORKFLOW:-}" ]]; then
-    if [[ -z "$GITHUB_BASE_REF" ]]; then
+    if [[ -n "$GITHUB_BASE_REF" ]]; then
       have_secrets=true
     fi
   fi
