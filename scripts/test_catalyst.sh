@@ -24,8 +24,8 @@
 
 # TODO - Determine why test specs that include `requires_app_host` fail to
 # launch tests. Locally, they will pass if the unit test scheme is specified.
-# However, on GHA, the they fail to launch both from the test scheme and the
-# app scheme.
+# However, on GHA, they fail to launch both from the test scheme and the app
+# scheme.
 
 set -xeuo pipefail
 pod="$1"
