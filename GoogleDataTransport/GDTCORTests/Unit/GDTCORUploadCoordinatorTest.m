@@ -16,6 +16,8 @@
 
 #import "GDTCORTests/Unit/GDTCORTestCase.h"
 
+#import <GoogleDataTransport/GDTCORPlatform.h>
+
 #import "GDTCORLibrary/Private/GDTCORUploadCoordinator.h"
 
 #import "GDTCORTests/Common/Categories/GDTCORRegistrar+Testing.h"
@@ -150,19 +152,19 @@
 
 /** Tests that encoding and decoding works without crashing. */
 - (void)testNSSecureCoding {
-#if TARGET_OS_MACCATALYST
-  // TODO - port the archiver calls to Catalyst API
-#else
   GDTCORUploadPackage *package = [[GDTCORUploadPackage alloc] initWithTarget:kGDTCORTargetTest];
   GDTCORUploadCoordinator *coordinator = [[GDTCORUploadCoordinator alloc] init];
   coordinator.targetToInFlightPackages[@(kGDTCORTargetTest)] = package;
-  NSData *data;
-  GDTCORUploadCoordinator *unarchivedCoordinator;
-  data = [NSKeyedArchiver archivedDataWithRootObject:coordinator];
-  unarchivedCoordinator = [NSKeyedUnarchiver unarchiveObjectWithData:data];
-  // Unarchiving the coordinator always ends up altering the singleton instance.
+  NSError *error;
+  NSData *data = GDTCOREncodeArchive(coordinator, nil, &error);
+  XCTAssertNil(error);
+  XCTAssertNotNil(data);
+  error = nil;
+  GDTCORUploadCoordinator *unarchivedCoordinator = (GDTCORUploadCoordinator *)GDTCORDecodeArchive(
+      [GDTCORUploadCoordinator class], nil, data, &error);
+  XCTAssertNil(error);
+  XCTAssertNotNil(unarchivedCoordinator);
   XCTAssertEqualObjects([GDTCORUploadCoordinator sharedInstance], unarchivedCoordinator);
-#endif
 }
 
 @end

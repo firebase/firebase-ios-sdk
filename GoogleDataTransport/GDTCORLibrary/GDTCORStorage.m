@@ -222,7 +222,7 @@ static NSString *GDTCORStoragePath() {
 
 - (void)appWillForeground:(GDTCORApplication *)app {
   NSError *error;
-  GDTCORDecodeArchive([GDTCORStorage class], [GDTCORStorage archivePath], &error);
+  GDTCORDecodeArchive([GDTCORStorage class], [GDTCORStorage archivePath], nil, &error);
   if (error) {
     GDTCORLogDebug(@"Deserializing GDTCORStorage from an archive failed: %@", error);
   }

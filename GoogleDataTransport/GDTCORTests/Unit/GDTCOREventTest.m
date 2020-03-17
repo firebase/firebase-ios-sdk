@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-#import <GoogleDataTransport/GDTCORClock.h>
 #import <GoogleDataTransport/GDTCOREvent.h>
+
+#import <GoogleDataTransport/GDTCORClock.h>
+#import <GoogleDataTransport/GDTCORPlatform.h>
 
 #import "GDTCORTests/Unit/GDTCORTestCase.h"
 #import "GDTCORTests/Unit/Helpers/GDTCORDataObjectTesterClasses.h"
@@ -45,28 +47,18 @@
   event.qosTier = GDTCOREventQoSTelemetry;
   event.clockSnapshot = clockSnapshot;
 
-  NSData *archiveData;
-  if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-    archiveData = [NSKeyedArchiver archivedDataWithRootObject:event
-                                        requiringSecureCoding:YES
-                                                        error:nil];
-  } else {
-#if !TARGET_OS_MACCATALYST
-    archiveData = [NSKeyedArchiver archivedDataWithRootObject:event];
-#endif
-  }
+  NSError *error;
+  NSData *archiveData = GDTCOREncodeArchive(event, nil, &error);
+  XCTAssertNil(error);
+  XCTAssertNotNil(archiveData);
+
   // To ensure that all the objects being retained by the original event are dealloc'd.
   event = nil;
-  GDTCOREvent *decodedEvent;
-  if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-    decodedEvent = [NSKeyedUnarchiver unarchivedObjectOfClass:[GDTCOREvent class]
-                                                     fromData:archiveData
-                                                        error:nil];
-  } else {
-#if !TARGET_OS_MACCATALYST
-    decodedEvent = [NSKeyedUnarchiver unarchiveObjectWithData:archiveData];
-#endif
-  }
+  error = nil;
+  GDTCOREvent *decodedEvent =
+      (GDTCOREvent *)GDTCORDecodeArchive([GDTCOREvent class], nil, archiveData, &error);
+  XCTAssertNil(error);
+  XCTAssertNotNil(decodedEvent);
   XCTAssertEqualObjects(decodedEvent.mappingID, @"testID");
   XCTAssertEqual(decodedEvent.target, 42);
   event.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:@"someData"];

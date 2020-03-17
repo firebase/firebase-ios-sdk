@@ -21,6 +21,7 @@
 #import "GDTCORLibrary/Private/GDTCORStorage_Private.h"
 
 #import "GDTCORLibrary/Public/GDTCOREvent.h"
+#import "GDTCORLibrary/Public/GDTCORPlatform.h"
 #import "GDTCORLibrary/Public/GDTCORRegistrar.h"
 
 #import "GDTCORTests/Unit/Helpers/GDTCORAssertHelper.h"
@@ -338,15 +339,10 @@ static NSInteger target = kGDTCORTargetCCT;
   event = nil;
   __block NSData *storageData;
   dispatch_sync([GDTCORStorage sharedInstance].storageQueue, ^{
-    if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-      storageData = [NSKeyedArchiver archivedDataWithRootObject:[GDTCORStorage sharedInstance]
-                                          requiringSecureCoding:YES
-                                                          error:nil];
-    } else {
-#if !TARGET_OS_MACCATALYST
-      storageData = [NSKeyedArchiver archivedDataWithRootObject:[GDTCORStorage sharedInstance]];
-#endif
-    }
+    NSError *error;
+    storageData = GDTCOREncodeArchive([GDTCORStorage sharedInstance], nil, &error);
+    XCTAssertNil(error);
+    XCTAssertNotNil(storageData);
   });
   dispatch_sync([GDTCORStorage sharedInstance].storageQueue, ^{
     XCTAssertNotNil([[GDTCORStorage sharedInstance].storedEvents lastObject]);
@@ -355,17 +351,11 @@ static NSInteger target = kGDTCORTargetCCT;
   dispatch_sync([GDTCORStorage sharedInstance].storageQueue, ^{
     XCTAssertNil([[GDTCORStorage sharedInstance].storedEvents lastObject]);
   });
-  GDTCORStorage *unarchivedStorage;
   NSError *error;
-  if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-    unarchivedStorage = [NSKeyedUnarchiver unarchivedObjectOfClass:[GDTCORStorage class]
-                                                          fromData:storageData
-                                                             error:&error];
-  } else {
-#if !TARGET_OS_MACCATALYST
-    unarchivedStorage = [NSKeyedUnarchiver unarchiveObjectWithData:storageData];
-#endif
-  }
+  GDTCORStorage *unarchivedStorage =
+      (GDTCORStorage *)GDTCORDecodeArchive([GDTCORStorage class], nil, storageData, &error);
+  XCTAssertNil(error);
+  XCTAssertNotNil(unarchivedStorage);
   XCTAssertNotNil([unarchivedStorage.storedEvents lastObject]);
 }
 
@@ -384,15 +374,10 @@ static NSInteger target = kGDTCORTargetCCT;
   event = nil;
   __block NSData *storageData;
   dispatch_sync([GDTCORStorage sharedInstance].storageQueue, ^{
-    if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-      storageData = [NSKeyedArchiver archivedDataWithRootObject:[GDTCORStorage sharedInstance]
-                                          requiringSecureCoding:YES
-                                                          error:nil];
-    } else {
-#if !TARGET_OS_MACCATALYST
-      storageData = [NSKeyedArchiver archivedDataWithRootObject:[GDTCORStorage sharedInstance]];
-#endif
-    }
+    NSError *error;
+    storageData = GDTCOREncodeArchive([GDTCORStorage sharedInstance], nil, &error);
+    XCTAssertNil(error);
+    XCTAssertNotNil(storageData);
   });
   dispatch_sync([GDTCORStorage sharedInstance].storageQueue, ^{
     XCTAssertNotNil([[GDTCORStorage sharedInstance].storedEvents lastObject]);
@@ -401,16 +386,11 @@ static NSInteger target = kGDTCORTargetCCT;
   dispatch_sync([GDTCORStorage sharedInstance].storageQueue, ^{
     XCTAssertNil([[GDTCORStorage sharedInstance].storedEvents lastObject]);
   });
-  GDTCORStorage *unarchivedStorage;
-  if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-    unarchivedStorage = [NSKeyedUnarchiver unarchivedObjectOfClass:[GDTCORStorage class]
-                                                          fromData:storageData
-                                                             error:nil];
-  } else {
-#if !TARGET_OS_MACCATALYST
-    unarchivedStorage = [NSKeyedUnarchiver unarchiveObjectWithData:storageData];
-#endif
-  }
+  NSError *error;
+  GDTCORStorage *unarchivedStorage =
+      (GDTCORStorage *)GDTCORDecodeArchive([GDTCORStorage class], nil, storageData, &error);
+  XCTAssertNil(error);
+  XCTAssertNotNil(unarchivedStorage);
   XCTAssertNotNil([unarchivedStorage.storedEvents lastObject]);
 }
 

@@ -121,47 +121,76 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
 #endif
 }
 
-void GDTCOREncodeArchive(id<NSSecureCoding> obj, NSString *archivePath, NSError *_Nullable *error) {
+NSData *_Nullable GDTCOREncodeArchive(id<NSSecureCoding> obj,
+                                      NSString *archivePath,
+                                      NSError *_Nullable *error) {
+  NSData *resultData;
 #if (defined(__IPHONE_11_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000) || \
     (defined(__MAC_10_13) && MAC_OS_X_VERSION_MAX_ALLOWED >= 101300) ||      \
-    (defined(__TVOS_11_0) && __TV_OS_VERSION_MAX_ALLOWED >= 110000)
-  if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:obj
-                                         requiringSecureCoding:YES
-                                                         error:error];
-    BOOL result = [data writeToFile:archivePath atomically:YES];
-    if (!result) {
-    }
+    (defined(__TVOS_11_0) && __TV_OS_VERSION_MAX_ALLOWED >= 110000) ||       \
+    (defined(__WATCHOS_4_0) && __WATCH_OS_VERSION_MAX_ALLOWED >= 040000) ||  \
+    (defined(TARGET_OS_MACCATALYST) && TARGET_OS_MACCATALYST)
+  if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, watchOS 4, *)) {
+    resultData = [NSKeyedArchiver archivedDataWithRootObject:obj
+                                       requiringSecureCoding:YES
+                                                       error:error];
+    BOOL result = [resultData writeToFile:archivePath atomically:YES];
+    result = result;  // To get rid of the warning.
     GDTCORLogDebug(@"Attempt to write archive. successful:%@ path:%@", result, archivePath);
   } else {
-#elif !TARGET_OS_MACCATALYST && !TARGET_OS_WATCH
-  BOOL result [NSKeyedArchiver archiveRootObject:obj toFile:archivePath];
-#else
-#error There's no keyed archiver for this OS.
 #endif
+    BOOL result = NO;
+    @try {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+      resultData = [NSKeyedArchiver archivedDataWithRootObject:obj];
+#pragma clang diagnostic pop
+      result = [resultData writeToFile:archivePath atomically:YES];
+    } @catch (NSException *exception) {
+      NSString *errorString =
+          [NSString stringWithFormat:@"An exception was thrown during encoding: %@", exception];
+      *error = [NSError errorWithDomain:NSCocoaErrorDomain
+                                   code:-1
+                               userInfo:@{NSLocalizedFailureReasonErrorKey : errorString}];
+    }
+    GDTCORLogDebug(@"Attempt to write archive. successful:%@ path:%@", result, archivePath);
   }
+  return resultData;
 }
 
 id<NSSecureCoding> _Nullable GDTCORDecodeArchive(Class archiveClass,
-                                                 NSString *archivePath,
+                                                 NSString *_Nullable archivePath,
+                                                 NSData *_Nullable archiveData,
                                                  NSError *_Nullable *error) {
   id<NSSecureCoding> unarchivedObject = nil;
 #if (defined(__IPHONE_11_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000) || \
     (defined(__MAC_10_13) && MAC_OS_X_VERSION_MAX_ALLOWED >= 101300) ||      \
-    (defined(__TVOS_11_0) && __TV_OS_VERSION_MAX_ALLOWED >= 110000)
-  if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-    NSData *data = [NSData dataWithContentsOfFile:archivePath];
+    (defined(__TVOS_11_0) && __TV_OS_VERSION_MAX_ALLOWED >= 110000) ||       \
+    (defined(__WATCHOS_4_0) && __WATCH_OS_VERSION_MAX_ALLOWED >= 040000) ||  \
+    (defined(TARGET_OS_MACCATALYST) && TARGET_OS_MACCATALYST)
+  if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, watchOS 4, *)) {
+    NSData *data = archiveData ? archiveData : [NSData dataWithContentsOfFile:archivePath];
     if (data) {
       unarchivedObject = [NSKeyedUnarchiver unarchivedObjectOfClass:archiveClass
                                                            fromData:data
                                                               error:error];
     }
   } else {
-#elif !TARGET_OS_MACCATALYST && !TARGET_OS_WATCH
-  unarchivedObject = [NSKeyedUnarchiver unarchiveObjectWithFile:[GDTCORStorage archivePath]];
-#else
-#error There's no keyed unarchiver for this OS.
 #endif
+    @try {
+      NSData *archivedData =
+          archiveData ? archiveData : [NSData dataWithContentsOfFile:archivePath];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+      unarchivedObject = [NSKeyedUnarchiver unarchiveObjectWithData:archivedData];
+#pragma clang diagnostic pop
+    } @catch (NSException *exception) {
+      NSString *errorString =
+          [NSString stringWithFormat:@"An exception was thrown during encoding: %@", exception];
+      *error = [NSError errorWithDomain:NSCocoaErrorDomain
+                                   code:-1
+                               userInfo:@{NSLocalizedFailureReasonErrorKey : errorString}];
+    }
   }
   return unarchivedObject;
 }
