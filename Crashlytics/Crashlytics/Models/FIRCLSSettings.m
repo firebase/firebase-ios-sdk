@@ -29,6 +29,7 @@
 NSString *const CreatedAtKey = @"created_at";
 NSString *const GoogleAppIDKey = @"google_app_id";
 NSString *const BuildInstanceID = @"build_instance_id";
+NSString *const AppVersion = @"app_version";
 
 @interface FIRCLSSettings ()
 
@@ -120,6 +121,15 @@ NSString *const BuildInstanceID = @"build_instance_id";
       self.isCacheKeyExpired = YES;
     }
   }
+
+  NSString *cacheAppVersion = cacheKey[AppVersion];
+  if (![cacheAppVersion isEqualToString:self.appIDModel.synthesizedVersion]) {
+    FIRCLSDebugLog(@"[Crashlytics:Settings] Settings expired because app version changed");
+
+    @synchronized(self) {
+      self.isCacheKeyExpired = YES;
+    }
+  }
 }
 
 - (void)cacheSettingsWithGoogleAppID:(NSString *)googleAppID
@@ -129,6 +139,7 @@ NSString *const BuildInstanceID = @"build_instance_id";
     CreatedAtKey : createdAtTimestamp,
     GoogleAppIDKey : googleAppID,
     BuildInstanceID : self.appIDModel.buildInstanceID,
+    AppVersion : self.appIDModel.synthesizedVersion,
   };
 
   NSError *error = nil;
