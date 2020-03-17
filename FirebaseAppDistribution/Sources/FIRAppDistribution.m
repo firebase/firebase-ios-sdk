@@ -136,7 +136,7 @@
         [[OIDAuthorizationRequest alloc] initWithConfiguration:configuration
                                                     clientId:@"319754533822-osu3v3hcci24umq6diathdm0dipds1fb.apps.googleusercontent.com"
                                                         scopes:@[OIDScopeOpenID,
-                                                                 OIDScopeProfile]
+                                                                 OIDScopeProfile,    @"https://www.googleapis.com/auth/cloud-platform"]
                                                    redirectURL:[NSURL URLWithString:redirectUrl]
                                                   responseType:OIDResponseTypeCode
                                           additionalParameters:nil];
