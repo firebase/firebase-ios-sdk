@@ -87,7 +87,7 @@ case "$system" in
 esac
 
 # Set have_secrets to true or false.
-. ../scripts/check_secrets.sh
+. scripts/check_secrets.sh
 
 # Runs xcodebuild with the given flags, piping output to xcpretty
 # If xcodebuild fails with known error codes, retries once.

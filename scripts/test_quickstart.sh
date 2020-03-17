@@ -16,15 +16,12 @@
 # Run a CI `script` phase to build the associated quickstart
 # sample and run its tests.
 
-set -x
+set -xeuo pipefail
 
 # Set have_secrets to true or false.
-. ../scripts/check_secrets.sh
+. scripts/check_secrets.sh
 
 if [[ "$have_secrets" == true ]]; then
   cd quickstart-ios
-  TRAVIS_PULL_REQUEST="$TRAVIS_PULL_REQUEST" \
-  TRAVIS_PULL_REQUEST_SLUG="$TRAVIS_PULL_REQUEST_SLUG" \
-  TRAVIS_REPO_SLUG="$TRAVIS_REPO_SLUG" \
-    SAMPLE="$1" ./scripts/test.sh
+  have_secrets="$have_secrets" SAMPLE="$1" ./scripts/test.sh
 fi

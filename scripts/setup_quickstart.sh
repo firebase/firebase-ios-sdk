@@ -16,9 +16,9 @@
 # Script to run in a CI `before_install` phase to setup the quickstart repo
 # so that it can be used for integration testing.
 
-set -x
+set -xeuo pipefail
 # Set have_secrets to true or false.
-. ../scripts/check_secrets.sh
+. scripts/check_secrets.sh
 
 if [[ "$have_secrets" == true ]]; then
   SAMPLE=$1
