@@ -28,8 +28,8 @@ extern NSString *const FIRGameCenterAuthProviderID NS_SWIFT_NAME(GameCenterAuthP
 /**
     @brief A string constant identifying the Game Center sign-in method.
  */
-extern NSString *const _Nonnull FIRGameCenterAuthSignInMethod
-NS_SWIFT_NAME(GameCenterAuthSignInMethod);
+extern NSString *const _Nonnull FIRGameCenterAuthSignInMethod NS_SWIFT_NAME(
+    GameCenterAuthSignInMethod);
 
 /** @typedef FIRGameCenterCredentialCallback
     @brief The type of block invoked when the Game Center credential code has finished.
@@ -38,7 +38,7 @@ NS_SWIFT_NAME(GameCenterAuthSignInMethod);
  */
 typedef void (^FIRGameCenterCredentialCallback)(FIRAuthCredential *_Nullable credential,
                                                 NSError *_Nullable error)
-NS_SWIFT_NAME(GameCenterCredentialCallback);
+    NS_SWIFT_NAME(GameCenterCredentialCallback);
 
 /** @class FIRGameCenterAuthProvider
     @brief A concrete implementation of @c FIRAuthProvider for Game Center Sign In.
@@ -50,7 +50,7 @@ NS_SWIFT_NAME(GameCenterAuthProvider)
     @brief Creates a @c FIRAuthCredential for a Game Center sign in.
  */
 + (void)getCredentialWithCompletion:(FIRGameCenterCredentialCallback)completion
-NS_SWIFT_NAME(getCredential(completion:));
+    NS_SWIFT_NAME(getCredential(completion:));
 
 /** @fn init
     @brief This class is not meant to be initialized.

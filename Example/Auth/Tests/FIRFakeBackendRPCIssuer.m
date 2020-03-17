@@ -52,7 +52,7 @@ static NSString *const kFakeErrorDomain = @"fake domain";
 }
 
 - (NSData *)respondWithServerErrorMessage:(NSString *)errorMessage error:(NSError *)error {
-  return [self respondWithJSON:@{ @"error" : @{ @"message" : errorMessage } } error:error];
+  return [self respondWithJSON:@{@"error" : @{@"message" : errorMessage}} error:error];
 }
 
 - (NSData *)respondWithServerErrorMessage:(NSString *)errorMessage {

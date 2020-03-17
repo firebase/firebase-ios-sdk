@@ -63,7 +63,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (nullable instancetype)initWithEndpoint:(NSString *)endpoint
                      requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
-                         NS_UNAVAILABLE;
+    NS_UNAVAILABLE;
 
 /** @fn initWithEmail:password:requestConfiguration:
     @brief Designated initializer.
@@ -74,7 +74,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable instancetype)initWithEmail:(NSString *)email
                               password:(NSString *)password
                   requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
-                      NS_DESIGNATED_INITIALIZER;
+    NS_DESIGNATED_INITIALIZER;
 
 @end
 

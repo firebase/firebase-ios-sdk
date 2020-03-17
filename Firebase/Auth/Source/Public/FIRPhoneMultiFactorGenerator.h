@@ -37,7 +37,8 @@ NS_SWIFT_NAME(PhoneMultiFactorGenerator)
         this API is used for both enrolling and signing in with a phone second factor.
     @param phoneAuthCredential The phone auth credential used for multi factor flows.
 */
-+ (FIRPhoneMultiFactorAssertion *)assertionWithCredential:(FIRPhoneAuthCredential *)phoneAuthCredential;
++ (FIRPhoneMultiFactorAssertion *)assertionWithCredential:
+    (FIRPhoneAuthCredential *)phoneAuthCredential;
 
 @end
 

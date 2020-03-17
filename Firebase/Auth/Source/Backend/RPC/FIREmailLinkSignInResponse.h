@@ -22,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** @class FIRVerifyAssertionResponse
     @brief Represents the response from the emailLinkSignin endpoint.
  */
-@interface FIREmailLinkSignInResponse : NSObject<FIRAuthRPCResponse>
+@interface FIREmailLinkSignInResponse : NSObject <FIRAuthRPCResponse>
 
 /** @property IDToken
     @brief The ID token in the email link sign-in response.

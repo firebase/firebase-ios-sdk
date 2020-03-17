@@ -49,7 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (nullable instancetype)initWithEndpoint:(NSString *)endpoint
                      requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
-                         NS_UNAVAILABLE;
+    NS_UNAVAILABLE;
 
 /** @fn initWithEndpoint:requestConfiguration:
     @brief initializer for anonymous sign-in.
@@ -65,7 +65,7 @@ NS_ASSUME_NONNULL_BEGIN
                               password:(nullable NSString *)password
                            displayName:(nullable NSString *)displayName
                   requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
-                      NS_DESIGNATED_INITIALIZER;
+    NS_DESIGNATED_INITIALIZER;
 
 @end
 

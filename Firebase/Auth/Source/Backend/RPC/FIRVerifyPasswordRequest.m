@@ -58,8 +58,7 @@ static NSString *const kReturnSecureTokenKey = @"returnSecureToken";
 - (nullable instancetype)initWithEmail:(NSString *)email
                               password:(NSString *)password
                   requestConfiguration:(nonnull FIRAuthRequestConfiguration *)requestConfiguration {
-  self = [super initWithEndpoint:kVerifyPasswordEndpoint
-            requestConfiguration:requestConfiguration];
+  self = [super initWithEndpoint:kVerifyPasswordEndpoint requestConfiguration:requestConfiguration];
   if (self) {
     _email = [email copy];
     _password = [password copy];

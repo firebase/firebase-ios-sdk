@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
+#import "FIRAuthProtoStartMFAPhoneRequestInfo.h"
 #import "FIRAuthRPCRequest.h"
 #import "FIRIdentityToolkitRequest.h"
-#import "FIRAuthProtoStartMFAPhoneRequestInfo.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

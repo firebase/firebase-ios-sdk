@@ -16,8 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRAuthErrors.h"
 #import "FIRAuthBackend.h"
+#import "FIRAuthErrors.h"
 #import "FIRDeleteAccountRequest.h"
 #import "FIRDeleteAccountResponse.h"
 #import "FIRFakeBackendRPCIssuer.h"
@@ -88,9 +88,9 @@ static NSString *const kExpectedAPIURL =
   __block NSError *RPCError;
   [FIRAuthBackend deleteAccount:request
                        callback:^(NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCError = error;
-  }];
+                         callbackInvoked = YES;
+                         RPCError = error;
+                       }];
 
   XCTAssertEqualObjects(_RPCIssuer.requestURL.absoluteString, kExpectedAPIURL);
   XCTAssertNotNil(_RPCIssuer.decodedRequest);

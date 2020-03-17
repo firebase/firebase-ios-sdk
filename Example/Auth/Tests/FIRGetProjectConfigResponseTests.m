@@ -19,9 +19,9 @@
 #import "FIRAuthBackend.h"
 #import "FIRAuthErrors.h"
 #import "FIRAuthInternalErrors.h"
+#import "FIRFakeBackendRPCIssuer.h"
 #import "FIRGetProjectConfigRequest.h"
 #import "FIRGetProjectConfigResponse.h"
-#import "FIRFakeBackendRPCIssuer.h"
 
 /** @var kTestAPIKey
     @brief Fake API key used for testing.
@@ -88,10 +88,10 @@ static NSString *const kMissingAPIKeyErrorMessage = @"MISSING_API_KEY";
   [FIRAuthBackend getProjectConfig:request
                           callback:^(FIRGetProjectConfigResponse *_Nullable response,
                                      NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+                            callbackInvoked = YES;
+                            RPCResponse = response;
+                            RPCError = error;
+                          }];
 
   [_RPCIssuer respondWithServerErrorMessage:kMissingAPIKeyErrorMessage];
 
@@ -117,14 +117,14 @@ static NSString *const kMissingAPIKeyErrorMessage = @"MISSING_API_KEY";
   [FIRAuthBackend getProjectConfig:request
                           callback:^(FIRGetProjectConfigResponse *_Nullable response,
                                      NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+                            callbackInvoked = YES;
+                            RPCResponse = response;
+                            RPCError = error;
+                          }];
 
   [_RPCIssuer respondWithJSON:@{
-    @"projectId": kTestProjectID,
-    @"authorizedDomains": @[ kTestDomain1, kTestDomain2 ]
+    @"projectId" : kTestProjectID,
+    @"authorizedDomains" : @[ kTestDomain1, kTestDomain2 ]
   }];
   XCTAssert(callbackInvoked);
   XCTAssertNil(RPCError);

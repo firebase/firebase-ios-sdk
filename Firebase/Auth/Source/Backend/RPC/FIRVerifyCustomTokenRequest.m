@@ -47,9 +47,7 @@ static NSString *const kReturnSecureTokenKey = @"returnSecureToken";
 }
 
 - (nullable id)unencodedHTTPRequestBodyWithError:(NSError *_Nullable *_Nullable)error {
-  NSMutableDictionary *body = [@{
-    kTokenKey : _token
-  } mutableCopy];
+  NSMutableDictionary *body = [@{kTokenKey : _token} mutableCopy];
   if (_returnSecureToken) {
     body[kReturnSecureTokenKey] = @YES;
   }

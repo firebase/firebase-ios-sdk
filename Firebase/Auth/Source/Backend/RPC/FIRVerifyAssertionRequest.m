@@ -111,9 +111,8 @@ static NSString *const kSessionIDKey = @"sessionId";
 
 - (nullable id)unencodedHTTPRequestBodyWithError:(NSError *_Nullable *_Nullable)error {
   NSURLComponents *components = [[NSURLComponents alloc] init];
-  NSMutableArray<NSURLQueryItem *> *queryItems = [@[[NSURLQueryItem queryItemWithName:kProviderIDKey
-                                                                                value:_providerID]]
-                                                  mutableCopy];
+  NSMutableArray<NSURLQueryItem *> *queryItems =
+      [@[ [NSURLQueryItem queryItemWithName:kProviderIDKey value:_providerID] ] mutableCopy];
 
   if (_providerIDToken) {
     [queryItems addObject:[NSURLQueryItem queryItemWithName:kProviderIDTokenKey
@@ -131,7 +130,8 @@ static NSString *const kSessionIDKey = @"sessionId";
   }
 
   if (!_providerIDToken && !_providerAccessToken && !_pendingToken && !_requestURI) {
-    [NSException raise:NSInvalidArgumentException
+    [NSException
+         raise:NSInvalidArgumentException
         format:@"One of IDToken, accessToken, pendingToken, or requestURI must be supplied."];
   }
 
@@ -141,14 +141,13 @@ static NSString *const kSessionIDKey = @"sessionId";
   }
 
   if (_inputEmail) {
-    [queryItems addObject:[NSURLQueryItem queryItemWithName:kIdentifierKey
-                                                      value:_inputEmail]];
+    [queryItems addObject:[NSURLQueryItem queryItemWithName:kIdentifierKey value:_inputEmail]];
   }
   [components setQueryItems:queryItems];
   NSMutableDictionary *body = [@{
-      kRequestURIKey : _requestURI ?: @"http://localhost", // Unused by server, but required
-      kPostBodyKey : [components query]
-      } mutableCopy];
+    kRequestURIKey : _requestURI ?: @"http://localhost",  // Unused by server, but required
+    kPostBodyKey : [components query]
+  } mutableCopy];
 
   if (_pendingToken) {
     body[kPendingTokenKey] = _pendingToken;

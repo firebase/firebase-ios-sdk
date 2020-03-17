@@ -15,13 +15,13 @@
  */
 #import <XCTest/XCTest.h>
 
-#import "Phone/FIRPhoneAuthCredential_Internal.h"
 #import "FIRAuthBackend.h"
 #import "FIRAuthErrors.h"
 #import "FIRAuthOperationType.h"
+#import "FIRFakeBackendRPCIssuer.h"
 #import "FIRVerifyPhoneNumberRequest.h"
 #import "FIRVerifyPhoneNumberResponse.h"
-#import "FIRFakeBackendRPCIssuer.h"
+#import "Phone/FIRPhoneAuthCredential_Internal.h"
 
 /** @var kTestAPIKey
     @brief Fake API key used for testing.
@@ -140,14 +140,13 @@ static const double kAllowedTimeDifference = 0.1;
   __block FIRVerifyPhoneNumberResponse *RPCResponse;
   __block NSError *RPCError;
 
-
   [FIRAuthBackend verifyPhoneNumber:request
                            callback:^(FIRVerifyPhoneNumberResponse *_Nullable response,
                                       NSError *_Nullable error) {
-    RPCResponse = response;
-    RPCError = error;
-    callbackInvoked = YES;
-  }];
+                             RPCResponse = response;
+                             RPCError = error;
+                             callbackInvoked = YES;
+                           }];
 
   [_RPCIssuer respondWithServerErrorMessage:kInvalidVerificationCodeErrorMessage];
 
@@ -172,10 +171,10 @@ static const double kAllowedTimeDifference = 0.1;
   [FIRAuthBackend verifyPhoneNumber:request
                            callback:^(FIRVerifyPhoneNumberResponse *_Nullable response,
                                       NSError *_Nullable error) {
-    RPCResponse = response;
-    RPCError = error;
-    callbackInvoked = YES;
-  }];
+                             RPCResponse = response;
+                             RPCError = error;
+                             callbackInvoked = YES;
+                           }];
 
   [_RPCIssuer respondWithServerErrorMessage:kInvalidSessionInfoErrorMessage];
 
@@ -200,10 +199,10 @@ static const double kAllowedTimeDifference = 0.1;
   [FIRAuthBackend verifyPhoneNumber:request
                            callback:^(FIRVerifyPhoneNumberResponse *_Nullable response,
                                       NSError *_Nullable error) {
-    RPCResponse = response;
-    RPCError = error;
-    callbackInvoked = YES;
-  }];
+                             RPCResponse = response;
+                             RPCError = error;
+                             callbackInvoked = YES;
+                           }];
 
   [_RPCIssuer respondWithServerErrorMessage:kSessionExpiredErrorMessage];
 
@@ -228,17 +227,17 @@ static const double kAllowedTimeDifference = 0.1;
   [FIRAuthBackend verifyPhoneNumber:request
                            callback:^(FIRVerifyPhoneNumberResponse *_Nullable response,
                                       NSError *_Nullable error) {
-    RPCResponse = response;
-    RPCError = error;
-    callbackInvoked = YES;
-  }];
+                             RPCResponse = response;
+                             RPCError = error;
+                             callbackInvoked = YES;
+                           }];
 
   [_RPCIssuer respondWithJSON:@{
     @"idToken" : kfakeIDToken,
     @"refreshToken" : kfakeRefreshToken,
     @"localID" : klocalID,
     @"expiresIn" : kTestExpiresIn,
-    @"isNewUser" : @YES // Set new user flag to true.
+    @"isNewUser" : @YES  // Set new user flag to true.
   }];
 
   XCTAssert(callbackInvoked);
@@ -266,10 +265,10 @@ static const double kAllowedTimeDifference = 0.1;
   [FIRAuthBackend verifyPhoneNumber:request
                            callback:^(FIRVerifyPhoneNumberResponse *_Nullable response,
                                       NSError *_Nullable error) {
-    RPCResponse = response;
-    RPCError = error;
-    callbackInvoked = YES;
-  }];
+                             RPCResponse = response;
+                             RPCError = error;
+                             callbackInvoked = YES;
+                           }];
 
   [_RPCIssuer respondWithJSON:@{
     @"temporaryProof" : kFakeTemporaryProof,

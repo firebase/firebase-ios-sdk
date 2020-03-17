@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-#import "FIRAuthRPCResponse.h"
 #import "FIRAuthProtoStartMFAPhoneResponseInfo.h"
+#import "FIRAuthRPCResponse.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRStartMFAEnrollmentResponse : NSObject <FIRAuthRPCResponse>
 
-@property(nonatomic, copy, readonly, nullable) FIRAuthProtoStartMFAPhoneResponseInfo *enrollmentResponse;
+@property(nonatomic, copy, readonly, nullable)
+    FIRAuthProtoStartMFAPhoneResponseInfo *enrollmentResponse;
 
 @end
 

@@ -16,8 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRTwitterAuthProvider.h"
 #import "FIRAuthCredential_Internal.h"
+#import "FIRTwitterAuthProvider.h"
 #import "FIRVerifyAssertionRequest.h"
 
 /** @var kTwitterToken
@@ -47,8 +47,8 @@ static NSString *const kAPIKey = @"APIKey";
         the appropriate fields in a verify assertion request.
  */
 - (void)testCredentialWithToken {
-  FIRAuthCredential *credential =
-      [FIRTwitterAuthProvider credentialWithToken:kTwitterToken secret:kTwitterSecret];
+  FIRAuthCredential *credential = [FIRTwitterAuthProvider credentialWithToken:kTwitterToken
+                                                                       secret:kTwitterSecret];
   FIRAuthRequestConfiguration *requestConfiguration =
       [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kAPIKey];
   FIRVerifyAssertionRequest *request =

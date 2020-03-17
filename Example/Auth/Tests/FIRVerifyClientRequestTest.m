@@ -17,9 +17,9 @@
 #import <XCTest/XCTest.h>
 
 #import "FIRAuthBackend.h"
+#import "FIRFakeBackendRPCIssuer.h"
 #import "FIRVerifyClientRequest.h"
 #import "FIRVerifyClientResponse.h"
-#import "FIRFakeBackendRPCIssuer.h"
 
 /** @var kFakeAppToken
     @brief The fake app token to use in the test request.
@@ -62,10 +62,10 @@ static NSString *const kExpectedAPIURL =
 }
 
 - (void)setUp {
-    [super setUp];
-    FIRFakeBackendRPCIssuer *RPCIssuer = [[FIRFakeBackendRPCIssuer alloc] init];
-    [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:RPCIssuer];
-    _RPCIssuer = RPCIssuer;
+  [super setUp];
+  FIRFakeBackendRPCIssuer *RPCIssuer = [[FIRFakeBackendRPCIssuer alloc] init];
+  [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:RPCIssuer];
+  _RPCIssuer = RPCIssuer;
 }
 
 - (void)tearDown {
@@ -84,9 +84,10 @@ static NSString *const kExpectedAPIURL =
       [[FIRVerifyClientRequest alloc] initWithAppToken:kFakeAppToken
                                              isSandbox:YES
                                   requestConfiguration:requestConfiguration];
-  [FIRAuthBackend verifyClient:request callback:^(FIRVerifyClientResponse *_Nullable response,
-                                                  NSError *_Nullable error) {
-  }];
+  [FIRAuthBackend
+      verifyClient:request
+          callback:^(FIRVerifyClientResponse *_Nullable response, NSError *_Nullable error){
+          }];
   XCTAssertEqualObjects(_RPCIssuer.requestURL.absoluteString, kExpectedAPIURL);
   XCTAssertNotNil(_RPCIssuer.decodedRequest);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kAPPTokenKey], kFakeAppToken);

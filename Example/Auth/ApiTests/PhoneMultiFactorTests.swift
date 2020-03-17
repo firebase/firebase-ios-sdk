@@ -27,53 +27,54 @@ let kOneSecondFactorUserEmail = "iosapitests+one_phone_second_factor@gmail.com"
 let kOneSecondFactorUserPassword = "aaaaaa"
 
 class PhoneMultiFactorTests: FIRAuthApiTestsBase {
-
   func testEnrollUnenroll() {
-    let enrollExpectation = self.expectation(description: "Enroll phone multi factor finished.")
-    let unenrollExpectation = self.expectation(description: "Unenroll phone multi factor finished.")
-    Auth.auth().signIn(withEmail: kNoSecondFactorUserEmail, password: kNoSecondFactorUserPassword) { (result, error) in
+    let enrollExpectation = expectation(description: "Enroll phone multi factor finished.")
+    let unenrollExpectation = expectation(description: "Unenroll phone multi factor finished.")
+    Auth.auth().signIn(withEmail: kNoSecondFactorUserEmail, password: kNoSecondFactorUserPassword) { result, error in
       XCTAssertNil(error, "User normal sign in failed. Error: \(error!.localizedDescription)")
 
       // Enroll
       guard let user = result?.user else {
         XCTFail("No valid user after attempted sign-in.")
       }
-      user.multiFactor.getSessionWithCompletion({ (session, error) in
+      user.multiFactor.getSessionWithCompletion { session, error in
         XCTAssertNil(error, "Get multi factor session failed. Error: \(error!.localizedDescription)")
         PhoneAuthProvider.provider().verifyPhoneNumber(
           kPhoneSecondFactorPhoneNumber,
           uiDelegate: nil,
-          multiFactorSession: session) { (verificationId, error) in
-            XCTAssertNil(error, "Verify phone number failed. Error: \(error!.localizedDescription)")
-            let credential = PhoneAuthProvider.provider().credential(
-              withVerificationID: verificationId!,
-              verificationCode: kPhoneSecondFactorVerificationCode)
-            let assertion = PhoneMultiFactorGenerator.assertion(with: credential);
-            user?.multiFactor.enroll(with: assertion, displayName: kPhoneSecondFactorDisplayName) { (error) in
-              XCTAssertNil(error, "Phone multi factor enroll failed. Error: \(error!.localizedDescription)")
-              XCTAssertEqual(Auth.auth().currentUser?.multiFactor.enrolledFactors.first?.displayName, kPhoneSecondFactorDisplayName)
-              enrollExpectation.fulfill()
+          multiFactorSession: session
+        ) { verificationId, error in
+          XCTAssertNil(error, "Verify phone number failed. Error: \(error!.localizedDescription)")
+          let credential = PhoneAuthProvider.provider().credential(
+            withVerificationID: verificationId!,
+            verificationCode: kPhoneSecondFactorVerificationCode
+          )
+          let assertion = PhoneMultiFactorGenerator.assertion(with: credential)
+          user?.multiFactor.enroll(with: assertion, displayName: kPhoneSecondFactorDisplayName) { error in
+            XCTAssertNil(error, "Phone multi factor enroll failed. Error: \(error!.localizedDescription)")
+            XCTAssertEqual(Auth.auth().currentUser?.multiFactor.enrolledFactors.first?.displayName, kPhoneSecondFactorDisplayName)
+            enrollExpectation.fulfill()
 
-              // Unenroll
-              user = Auth.auth().currentUser
-              user?.multiFactor.unenroll(with: (user?.multiFactor.enrolledFactors.first)!, completion: { (error) in
-                XCTAssertNil(error, "Phone multi factor unenroll failed. Error: \(error!.localizedDescription)")
-                XCTAssertEqual(Auth.auth().currentUser?.multiFactor.enrolledFactors.count, 0)
-                unenrollExpectation.fulfill()
-              })
-            }
+            // Unenroll
+            user = Auth.auth().currentUser
+            user?.multiFactor.unenroll(with: (user?.multiFactor.enrolledFactors.first)!, completion: { error in
+              XCTAssertNil(error, "Phone multi factor unenroll failed. Error: \(error!.localizedDescription)")
+              XCTAssertEqual(Auth.auth().currentUser?.multiFactor.enrolledFactors.count, 0)
+              unenrollExpectation.fulfill()
+            })
+          }
         }
-      })
+      }
     }
 
-    self.waitForExpectations(timeout: 30) { error in
+    waitForExpectations(timeout: 30) { error in
       XCTAssertNil(error, "Failed to wait for enroll and unenroll phone multi factor finished. Error: \(error!.localizedDescription)")
     }
   }
 
   func testSignInWithSecondFactor() {
-    let signInExpectation = self.expectation(description: "Sign in with phone multi factor finished.")
-    Auth.auth().signIn(withEmail: kOneSecondFactorUserEmail, password: kOneSecondFactorUserPassword) { (result, error) in
+    let signInExpectation = expectation(description: "Sign in with phone multi factor finished.")
+    Auth.auth().signIn(withEmail: kOneSecondFactorUserEmail, password: kOneSecondFactorUserPassword) { result, error in
       // SignIn
       guard let error = error, error.code == AuthErrorCode.secondFactorRequired.rawValue else {
         XCTFail("User sign in returns wrong error. Error: \(error!.localizedDescription)")
@@ -83,20 +84,22 @@ class PhoneMultiFactorTests: FIRAuthApiTestsBase {
       PhoneAuthProvider.provider().verifyPhoneNumber(
         with: hint,
         uiDelegate: nil,
-        multiFactorSession: resolver.session) { (verificationId, error) in
-          XCTAssertNil(error, "Failed to verify phone number. Error: \(error!.localizedDescription)")
-          let credential = PhoneAuthProvider.provider().credential(
-            withVerificationID: verificationId!,
-            verificationCode: kPhoneSecondFactorVerificationCode)
-          let assertion = PhoneMultiFactorGenerator.assertion(with: credential);
-          resolver.resolveSignIn(with: assertion) { (authResult, error) in
-            XCTAssertNil(error, "Failed to sign in with phone multi factor. Error: \(error!.localizedDescription)")
-            signInExpectation.fulfill()
-          }
+        multiFactorSession: resolver.session
+      ) { verificationId, error in
+        XCTAssertNil(error, "Failed to verify phone number. Error: \(error!.localizedDescription)")
+        let credential = PhoneAuthProvider.provider().credential(
+          withVerificationID: verificationId!,
+          verificationCode: kPhoneSecondFactorVerificationCode
+        )
+        let assertion = PhoneMultiFactorGenerator.assertion(with: credential)
+        resolver.resolveSignIn(with: assertion) { authResult, error in
+          XCTAssertNil(error, "Failed to sign in with phone multi factor. Error: \(error!.localizedDescription)")
+          signInExpectation.fulfill()
+        }
       }
     }
 
-    self.waitForExpectations(timeout: 300) { error in
+    waitForExpectations(timeout: 300) { error in
       XCTAssertNil(error, "Failed to wait for enroll and unenroll phone multi factor finished. Error: \(error!.localizedDescription)")
     }
   }

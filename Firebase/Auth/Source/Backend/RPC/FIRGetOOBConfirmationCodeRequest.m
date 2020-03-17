@@ -94,7 +94,7 @@ static NSString *const kPasswordResetRequestTypeValue = @"PASSWORD_RESET";
 /** @var kEmailLinkSignInTypeValue
     @brief The value for the "EMAIL_SIGNIN" request type.
  */
-static NSString *const kEmailLinkSignInTypeValue= @"EMAIL_SIGNIN";
+static NSString *const kEmailLinkSignInTypeValue = @"EMAIL_SIGNIN";
 
 /** @var kVerifyEmailRequestTypeValue
     @brief The value for the "VERIFY_EMAIL" request type.
@@ -124,7 +124,7 @@ static NSString *const kVerifyBeforeUpdateEmailRequestTypeValue = @"VERIFY_AND_C
                                  accessToken:(nullable NSString *)accessToken
                           actionCodeSettings:(nullable FIRActionCodeSettings *)actionCodeSettings
                         requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
-                              NS_DESIGNATED_INITIALIZER;
+    NS_DESIGNATED_INITIALIZER;
 
 @end
 
@@ -144,7 +144,7 @@ static NSString *const kVerifyBeforeUpdateEmailRequestTypeValue = @"VERIFY_AND_C
       return kEmailLinkSignInTypeValue;
     case FIRGetOOBConfirmationCodeRequestTypeVerifyBeforeUpdateEmail:
       return kVerifyBeforeUpdateEmailRequestTypeValue;
-    // No default case so that we get a compiler warning if a new value was added to the enum.
+      // No default case so that we get a compiler warning if a new value was added to the enum.
   }
 }
 
@@ -189,13 +189,13 @@ static NSString *const kVerifyBeforeUpdateEmailRequestTypeValue = @"VERIFY_AND_C
                                   newEmail:(NSString *)newEmail
                         actionCodeSettings:(nullable FIRActionCodeSettings *)actionCodeSettings
                       requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
-  return [[self alloc]
-      initWithRequestType:FIRGetOOBConfirmationCodeRequestTypeVerifyBeforeUpdateEmail
-                    email:nil
-                 newEmail:newEmail
-              accessToken:accessToken
-       actionCodeSettings:actionCodeSettings
-     requestConfiguration:requestConfiguration];
+  return
+      [[self alloc] initWithRequestType:FIRGetOOBConfirmationCodeRequestTypeVerifyBeforeUpdateEmail
+                                  email:nil
+                               newEmail:newEmail
+                            accessToken:accessToken
+                     actionCodeSettings:actionCodeSettings
+                   requestConfiguration:requestConfiguration];
 }
 
 - (nullable instancetype)initWithRequestType:(FIRGetOOBConfirmationCodeRequestType)requestType
@@ -223,9 +223,9 @@ static NSString *const kVerifyBeforeUpdateEmailRequestTypeValue = @"VERIFY_AND_C
 }
 
 - (nullable id)unencodedHTTPRequestBodyWithError:(NSError *_Nullable *_Nullable)error {
-  NSMutableDictionary *body = [@{
-    kRequestTypeKey : [[self class] requestTypeStringValueForRequestType:_requestType]
-  } mutableCopy];
+  NSMutableDictionary *body =
+      [@{kRequestTypeKey : [[self class] requestTypeStringValueForRequestType:_requestType]}
+          mutableCopy];
 
   // For password reset requests, we only need an email address in addition to the already required
   // fields.

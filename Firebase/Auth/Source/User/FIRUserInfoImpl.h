@@ -54,7 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
                                    photoURL:(nullable NSURL *)photoURL
                                       email:(nullable NSString *)email
                                 phoneNumber:(nullable NSString *)phoneNumber
-                                    NS_DESIGNATED_INITIALIZER;
+    NS_DESIGNATED_INITIALIZER;
 
 @end
 

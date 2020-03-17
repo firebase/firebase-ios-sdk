@@ -20,8 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRVerifyAssertionResponse
 
-- (BOOL)setWithDictionary:(NSDictionary *)dictionary
-                    error:(NSError *_Nullable *_Nullable)error {
+- (BOOL)setWithDictionary:(NSDictionary *)dictionary error:(NSError *_Nullable *_Nullable)error {
   _federatedID = [dictionary[@"federatedId"] copy];
   _providerID = [dictionary[@"providerId"] copy];
   _localID = [dictionary[@"localId"] copy];
@@ -38,8 +37,10 @@ NS_ASSUME_NONNULL_BEGIN
   _nickName = [dictionary[@"nickName"] copy];
   _displayName = [dictionary[@"displayName"] copy];
   _IDToken = [dictionary[@"idToken"] copy];
-  _approximateExpirationDate = [dictionary[@"expiresIn"] isKindOfClass:[NSString class]] ?
-      [NSDate dateWithTimeIntervalSinceNow:[dictionary[@"expiresIn"] doubleValue]] : nil;
+  _approximateExpirationDate =
+      [dictionary[@"expiresIn"] isKindOfClass:[NSString class]]
+          ? [NSDate dateWithTimeIntervalSinceNow:[dictionary[@"expiresIn"] doubleValue]]
+          : nil;
   _refreshToken = [dictionary[@"refreshToken"] copy];
   _isNewUser = [dictionary[@"isNewUser"] boolValue];
   id rawUserInfo = dictionary[@"rawUserInfo"];
@@ -50,8 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                     error:nil];
   }
   if ([rawUserInfo isKindOfClass:[NSDictionary class]]) {
-    _profile = [[NSDictionary alloc] initWithDictionary:rawUserInfo
-                                              copyItems:YES];
+    _profile = [[NSDictionary alloc] initWithDictionary:rawUserInfo copyItems:YES];
   }
   _username = [dictionary[@"username"] copy];
   _action = [dictionary[@"action"] copy];
@@ -69,12 +69,13 @@ NS_ASSUME_NONNULL_BEGIN
                                                          error:nil];
   }
   if ([verifiedProvider isKindOfClass:[NSArray class]]) {
-    _verifiedProvider = [[NSArray alloc] initWithArray:verifiedProvider
-                                             copyItems:YES];
+    _verifiedProvider = [[NSArray alloc] initWithArray:verifiedProvider copyItems:YES];
   }
   _oauthIDToken = [dictionary[@"oauthIdToken"] copy];
-  _oauthExpirationDate =  [dictionary[@"oauthExpireIn"] isKindOfClass:[NSString class]] ?
-      [NSDate dateWithTimeIntervalSinceNow:[dictionary[@"oauthExpireIn"] doubleValue]] : nil;
+  _oauthExpirationDate =
+      [dictionary[@"oauthExpireIn"] isKindOfClass:[NSString class]]
+          ? [NSDate dateWithTimeIntervalSinceNow:[dictionary[@"oauthExpireIn"] doubleValue]]
+          : nil;
   _oauthAccessToken = [dictionary[@"oauthAccessToken"] copy];
   _oauthSecretToken = [dictionary[@"oauthTokenSecret"] copy];
   _pendingToken = [dictionary[@"pendingToken"] copy];
@@ -83,7 +84,8 @@ NS_ASSUME_NONNULL_BEGIN
     NSMutableArray<FIRAuthProtoMFAEnrollment *> *MFAInfo = [NSMutableArray array];
     NSArray *MFAInfoDataArray = dictionary[@"mfaInfo"];
     for (NSDictionary *MFAInfoData in MFAInfoDataArray) {
-      FIRAuthProtoMFAEnrollment *MFAEnrollment = [[FIRAuthProtoMFAEnrollment alloc] initWithDictionary:MFAInfoData];
+      FIRAuthProtoMFAEnrollment *MFAEnrollment =
+          [[FIRAuthProtoMFAEnrollment alloc] initWithDictionary:MFAInfoData];
       [MFAInfo addObject:MFAEnrollment];
     }
     _MFAInfo = MFAInfo;

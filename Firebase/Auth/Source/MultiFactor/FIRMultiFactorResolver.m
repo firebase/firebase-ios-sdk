@@ -16,7 +16,6 @@
 #include <TargetConditionals.h>
 #if TARGET_OS_IOS
 
-
 #import "FIRMultiFactorResolver.h"
 
 #import "FIRAdditionalUserInfo.h"
@@ -57,34 +56,41 @@ NS_ASSUME_NONNULL_BEGIN
   FIRPhoneMultiFactorAssertion *phoneAssertion = (FIRPhoneMultiFactorAssertion *)assertion;
   FIRAuthProtoFinalizeMFAPhoneRequestInfo *finalizeMFAPhoneRequestInfo =
       [[FIRAuthProtoFinalizeMFAPhoneRequestInfo alloc]
-       initWithSessionInfo:phoneAssertion.authCredential.verificationID
-       verificationCode:phoneAssertion.authCredential.verificationCode];
+          initWithSessionInfo:phoneAssertion.authCredential.verificationID
+             verificationCode:phoneAssertion.authCredential.verificationCode];
   FIRFinalizeMFASignInRequest *request =
-  [[FIRFinalizeMFASignInRequest alloc] initWithMFAProvider:phoneAssertion.factorID
-                                      MFAPendingCredential:self.MFAPendingCredential
-                                          verificationInfo:finalizeMFAPhoneRequestInfo
-                                      requestConfiguration:self.auth.requestConfiguration];
-  [FIRAuthBackend finalizeMultiFactorSignIn:request
-                                   callback:^(FIRFinalizeMFASignInResponse * _Nullable response,
-                                              NSError * _Nullable error) {
-   if (error) {
-     if (completion) {
-       completion(nil, error);
-     }
-   } else {
-     [FIRAuth.auth completeSignInWithAccessToken:response.IDToken
-                       accessTokenExpirationDate:nil
-                            refreshToken:response.refreshToken
-                               anonymous:NO
-                                callback:^(FIRUser *_Nullable user, NSError *_Nullable error) {
-      FIRAuthDataResult* result =
-          [[FIRAuthDataResult alloc] initWithUser:user additionalUserInfo:nil];
-      FIRAuthDataResultCallback decoratedCallback =
-          [FIRAuth.auth signInFlowAuthDataResultCallbackByDecoratingCallback:completion];
-      decoratedCallback(result, error);
-    }];
-   }
- }];
+      [[FIRFinalizeMFASignInRequest alloc] initWithMFAProvider:phoneAssertion.factorID
+                                          MFAPendingCredential:self.MFAPendingCredential
+                                              verificationInfo:finalizeMFAPhoneRequestInfo
+                                          requestConfiguration:self.auth.requestConfiguration];
+  [FIRAuthBackend
+      finalizeMultiFactorSignIn:request
+                       callback:^(FIRFinalizeMFASignInResponse *_Nullable response,
+                                  NSError *_Nullable error) {
+                         if (error) {
+                           if (completion) {
+                             completion(nil, error);
+                           }
+                         } else {
+                           [FIRAuth.auth
+                               completeSignInWithAccessToken:response.IDToken
+                                   accessTokenExpirationDate:nil
+                                                refreshToken:response.refreshToken
+                                                   anonymous:NO
+                                                    callback:^(FIRUser *_Nullable user,
+                                                               NSError *_Nullable error) {
+                                                      FIRAuthDataResult *result =
+                                                          [[FIRAuthDataResult alloc]
+                                                                    initWithUser:user
+                                                              additionalUserInfo:nil];
+                                                      FIRAuthDataResultCallback decoratedCallback =
+                                                          [FIRAuth.auth
+                                                              signInFlowAuthDataResultCallbackByDecoratingCallback:
+                                                                  completion];
+                                                      decoratedCallback(result, error);
+                                                    }];
+                         }
+                       }];
 #endif
 }
 

@@ -24,61 +24,71 @@
 + (void)startMultiFactorEnrollment:(FIRStartMFAEnrollmentRequest *)request
                           callback:(FIRStartMFAEnrollmentResponseCallback)callback {
   FIRStartMFAEnrollmentResponse *response = [[FIRStartMFAEnrollmentResponse alloc] init];
-  [[self implementation] postWithRequest:request response:response callback:^(NSError *error) {
-    if (error) {
-      callback(nil, error);
-    } else {
-      callback(response, nil);
-    }
-  }];
+  [[self implementation] postWithRequest:request
+                                response:response
+                                callback:^(NSError *error) {
+                                  if (error) {
+                                    callback(nil, error);
+                                  } else {
+                                    callback(response, nil);
+                                  }
+                                }];
 }
 
 + (void)finalizeMultiFactorEnrollment:(FIRFinalizeMFAEnrollmentRequest *)request
                              callback:(FIRFinalizeMFAEnrollmentResponseCallback)callback {
   FIRFinalizeMFAEnrollmentResponse *response = [[FIRFinalizeMFAEnrollmentResponse alloc] init];
-  [[self implementation] postWithRequest:request response:response callback:^(NSError *error) {
-    if (error) {
-      callback(nil, error);
-    } else {
-      callback(response, nil);
-    }
-  }];
+  [[self implementation] postWithRequest:request
+                                response:response
+                                callback:^(NSError *error) {
+                                  if (error) {
+                                    callback(nil, error);
+                                  } else {
+                                    callback(response, nil);
+                                  }
+                                }];
 }
 
 + (void)startMultiFactorSignIn:(FIRStartMFASignInRequest *)request
                       callback:(FIRStartMFASignInResponseCallback)callback {
   FIRStartMFASignInResponse *response = [[FIRStartMFASignInResponse alloc] init];
-  [[self implementation] postWithRequest:request response:response callback:^(NSError *error) {
-    if (error) {
-      callback(nil, error);
-    } else {
-      callback(response, nil);
-    }
-  }];
+  [[self implementation] postWithRequest:request
+                                response:response
+                                callback:^(NSError *error) {
+                                  if (error) {
+                                    callback(nil, error);
+                                  } else {
+                                    callback(response, nil);
+                                  }
+                                }];
 }
 
 + (void)finalizeMultiFactorSignIn:(FIRFinalizeMFASignInRequest *)request
                          callback:(FIRFinalizeMFASignInResponseCallback)callback {
   FIRFinalizeMFASignInResponse *response = [[FIRFinalizeMFASignInResponse alloc] init];
-  [[self implementation] postWithRequest:request response:response callback:^(NSError *error) {
-    if (error) {
-      callback(nil, error);
-    } else {
-      callback(response, nil);
-    }
-  }];
+  [[self implementation] postWithRequest:request
+                                response:response
+                                callback:^(NSError *error) {
+                                  if (error) {
+                                    callback(nil, error);
+                                  } else {
+                                    callback(response, nil);
+                                  }
+                                }];
 }
 
 + (void)withdrawMultiFactor:(FIRWithdrawMFARequest *)request
                    callback:(FIRWithdrawMFAResponseCallback)callback {
   FIRWithdrawMFAResponse *response = [[FIRWithdrawMFAResponse alloc] init];
-  [[self implementation] postWithRequest:request response:response callback:^(NSError *error) {
-    if (error) {
-      callback(nil, error);
-    } else {
-      callback(response, nil);
-    }
-  }];
+  [[self implementation] postWithRequest:request
+                                response:response
+                                callback:^(NSError *error) {
+                                  if (error) {
+                                    callback(nil, error);
+                                  } else {
+                                    callback(response, nil);
+                                  }
+                                }];
 }
 
 @end
