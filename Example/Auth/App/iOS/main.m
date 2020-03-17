@@ -15,9 +15,8 @@
 @import UIKit;
 #import "FIRAppDelegate.h"
 
-int main(int argc, char * argv[])
-{
-    @autoreleasepool {
-        return UIApplicationMain(argc, argv, nil, NSStringFromClass([FIRAppDelegate class]));
-    }
+int main(int argc, char* argv[]) {
+  @autoreleasepool {
+    return UIApplicationMain(argc, argv, nil, NSStringFromClass([FIRAppDelegate class]));
+  }
 }

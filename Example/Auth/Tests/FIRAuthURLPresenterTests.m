@@ -79,38 +79,37 @@ static NSTimeInterval kExpectationTimeout = 2;
   };
 
   __block XCTestExpectation *completionBlockExpectation;
-  FIRAuthURLPresentationCompletion completionBlock = ^(NSURL *_Nullable callbackURL,
-                                                       NSError *_Nullable error) {
-    XCTAssertNotNil(completionBlockExpectation);
-    XCTAssertEqualObjects(callbackURL, presenterURL);
-    XCTAssertNil(error);
-    [completionBlockExpectation fulfill];
-  };
+  FIRAuthURLPresentationCompletion completionBlock =
+      ^(NSURL *_Nullable callbackURL, NSError *_Nullable error) {
+        XCTAssertNotNil(completionBlockExpectation);
+        XCTAssertEqualObjects(callbackURL, presenterURL);
+        XCTAssertNil(error);
+        [completionBlockExpectation fulfill];
+      };
 
   XCTestExpectation *UIPresentationExpectation = [self expectationWithDescription:@"present UI"];
-  OCMExpect([mockUIDelegate presentViewController:[OCMArg any]
-                                         animated:YES
-                                       completion:nil]).andDo(^(NSInvocation *invocation) {
-    XCTAssertTrue([NSThread isMainThread]);
-    __unsafe_unretained id unretainedArgument;
-    // Indices 0 and 1 indicate the hidden arguments self and _cmd.
-    // `presentViewController` is at index 2.
-    [invocation getArgument:&unretainedArgument atIndex:2];
+  OCMExpect([mockUIDelegate presentViewController:[OCMArg any] animated:YES completion:nil])
+      .andDo(^(NSInvocation *invocation) {
+        XCTAssertTrue([NSThread isMainThread]);
+        __unsafe_unretained id unretainedArgument;
+        // Indices 0 and 1 indicate the hidden arguments self and _cmd.
+        // `presentViewController` is at index 2.
+        [invocation getArgument:&unretainedArgument atIndex:2];
 
-    id presentViewController = unretainedArgument;
-    if (@available(iOS 9.0, *)) { // SFSafariViewController is available
-      SFSafariViewController *viewController = presentViewController;
-      XCTAssertTrue([viewController isKindOfClass:[SFSafariViewController class]]);
-      XCTAssertEqual(viewController.delegate, presenter);
-    } else {
-      UINavigationController *navigationController = presentViewController;
-      XCTAssertTrue([navigationController isKindOfClass:[UINavigationController class]]);
-      FIRAuthWebViewController *webViewController =
-          navigationController.viewControllers.firstObject;
-      XCTAssertTrue([webViewController isKindOfClass:[FIRAuthWebViewController class]]);
-    }
-    [UIPresentationExpectation fulfill];
-  });
+        id presentViewController = unretainedArgument;
+        if (@available(iOS 9.0, *)) {  // SFSafariViewController is available
+          SFSafariViewController *viewController = presentViewController;
+          XCTAssertTrue([viewController isKindOfClass:[SFSafariViewController class]]);
+          XCTAssertEqual(viewController.delegate, presenter);
+        } else {
+          UINavigationController *navigationController = presentViewController;
+          XCTAssertTrue([navigationController isKindOfClass:[UINavigationController class]]);
+          FIRAuthWebViewController *webViewController =
+              navigationController.viewControllers.firstObject;
+          XCTAssertTrue([webViewController isKindOfClass:[FIRAuthWebViewController class]]);
+        }
+        [UIPresentationExpectation fulfill];
+      });
 
   // Present the content.
   [presenter presentURL:presenterURL
@@ -121,17 +120,16 @@ static NSTimeInterval kExpectationTimeout = 2;
   OCMVerifyAll(mockUIDelegate);
 
   // Pretend dismissing view controller.
-  OCMExpect([mockUIDelegate dismissViewControllerAnimated:YES
-                                               completion:OCMOCK_ANY])
+  OCMExpect([mockUIDelegate dismissViewControllerAnimated:YES completion:OCMOCK_ANY])
       .andDo(^(NSInvocation *invocation) {
-    XCTAssertTrue([NSThread isMainThread]);
-    __unsafe_unretained id unretainedArgument;
-    // Indices 0 and 1 indicate the hidden arguments self and _cmd.
-    // `completion` is at index 3.
-    [invocation getArgument:&unretainedArgument atIndex:3];
-    void (^completion)(void) = unretainedArgument;
-    dispatch_async(dispatch_get_main_queue(), completion);
-  });
+        XCTAssertTrue([NSThread isMainThread]);
+        __unsafe_unretained id unretainedArgument;
+        // Indices 0 and 1 indicate the hidden arguments self and _cmd.
+        // `completion` is at index 3.
+        [invocation getArgument:&unretainedArgument atIndex:3];
+        void (^completion)(void) = unretainedArgument;
+        dispatch_async(dispatch_get_main_queue(), completion);
+      });
   completionBlockExpectation = [self expectationWithDescription:@"completion callback"];
   callbackMatcherExpectation = [self expectationWithDescription:@"callbackMatcher callback"];
 

@@ -34,7 +34,7 @@
       grey_allOf(grey_kindOfClass([UILabel class]), grey_accessibilityLabel(@"OK"), nil);
 
   [[EarlGrey selectElementWithMatcher:
-    // TODO: Add accessibilityIdentifiers for the elements.
+                 // TODO: Add accessibilityIdentifiers for the elements.
                  grey_kindOfClass(NSClassFromString(@"_UIAlertControllerView"))]
       performAction:grey_typeText(email)];
 

@@ -69,10 +69,11 @@ id<OS_dispatch_queue> testWorkQueue;
   [dispatcher dispatchAfterDelay:kTestDelay
                            queue:testWorkQueue
                             task:^{
-    NSTimeInterval timeSinceDispatch = fabs([dateBeforeDispatch timeIntervalSinceNow]) - kTestDelay;
-    XCTAssert(timeSinceDispatch < kMaxDifferenceBetweenTimeIntervals);
-    [expectation fulfill];
-  }];
+                              NSTimeInterval timeSinceDispatch =
+                                  fabs([dateBeforeDispatch timeIntervalSinceNow]) - kTestDelay;
+                              XCTAssert(timeSinceDispatch < kMaxDifferenceBetweenTimeIntervals);
+                              [expectation fulfill];
+                            }];
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
   dispatcher = nil;
 }
@@ -84,9 +85,8 @@ id<OS_dispatch_queue> testWorkQueue;
 - (void)testSetDispatchAfterImplementation {
   FIRAuthDispatcher *dispatcher = [FIRAuthDispatcher sharedInstance];
   XCTestExpectation *expectation1 = [self expectationWithDescription:@"setDispatchTokenCallback"];
-  [dispatcher setDispatchAfterImplementation:^(NSTimeInterval delay,
-                                               id<OS_dispatch_queue> _Nonnull queue,
-                                               void (^task)(void)) {
+  [dispatcher setDispatchAfterImplementation:^(
+                  NSTimeInterval delay, id<OS_dispatch_queue> _Nonnull queue, void (^task)(void)) {
     XCTAssertEqual(kTestDelay, delay);
     XCTAssertEqual(testWorkQueue, queue);
     [expectation1 fulfill];
@@ -94,12 +94,11 @@ id<OS_dispatch_queue> testWorkQueue;
   [dispatcher dispatchAfterDelay:kTestDelay
                            queue:testWorkQueue
                             task:^{
-    // Fail to ensure this code is never executed.
-    XCTFail();
-  }];
+                              // Fail to ensure this code is never executed.
+                              XCTFail();
+                            }];
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
   dispatcher.dispatchAfterImplementation = nil;
 }
-
 
 @end

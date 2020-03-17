@@ -40,7 +40,8 @@ typedef void (^FIRFetchAuthDomainCallback)(NSString *_Nullable authDomain,
 
 /** @fn isCallbackSchemeRegisteredForCustomURLScheme:
     @brief Checks whether or not the provided custom URL scheme has been registered by the app.
-    @param URLScheme The custom URL scheme to be checked against all custom URL schemes registered by the app.
+    @param URLScheme The custom URL scheme to be checked against all custom URL schemes registered
+   by the app.
     @return whether or not the provided custom URL scheme has been registered by the app.
  */
 + (BOOL)isCallbackSchemeRegisteredForCustomURLScheme:(NSString *)URLScheme;

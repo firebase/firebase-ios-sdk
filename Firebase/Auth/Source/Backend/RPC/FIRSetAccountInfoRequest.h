@@ -137,7 +137,7 @@ extern NSString *const FIRSetAccountInfoUserAttributePassword;
  */
 - (nullable instancetype)initWithEndpoint:(NSString *)endpoint
                      requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
-                         NS_UNAVAILABLE;
+    NS_UNAVAILABLE;
 
 /** @fn initWithRequestConfiguration:
     @brief Designated initializer.

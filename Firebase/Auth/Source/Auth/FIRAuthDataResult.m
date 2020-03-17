@@ -17,8 +17,8 @@
 #import "FIRAuthDataResult_Internal.h"
 
 #import "FIRAdditionalUserInfo.h"
-#import "FIRUser.h"
 #import "FIROAuthCredential.h"
+#import "FIRUser.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -63,14 +63,12 @@ static NSString *const kCredentialCodingKey = @"credential";
 }
 
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder {
-  FIRUser *user =
-      [aDecoder decodeObjectOfClass:[FIRUser class] forKey:kUserCodingKey];
+  FIRUser *user = [aDecoder decodeObjectOfClass:[FIRUser class] forKey:kUserCodingKey];
   FIRAdditionalUserInfo *additionalUserInfo =
       [aDecoder decodeObjectOfClass:[FIRAdditionalUserInfo class]
                              forKey:kAdditionalUserInfoCodingKey];
-  FIROAuthCredential *credential =
-      [aDecoder decodeObjectOfClass:[FIROAuthCredential class]
-                             forKey:kCredentialCodingKey];
+  FIROAuthCredential *credential = [aDecoder decodeObjectOfClass:[FIROAuthCredential class]
+                                                          forKey:kCredentialCodingKey];
   return [self initWithUser:user additionalUserInfo:additionalUserInfo credential:credential];
 }
 

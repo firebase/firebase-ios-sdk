@@ -20,14 +20,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRVerifyPasswordResponse
 
-- (BOOL)setWithDictionary:(NSDictionary *)dictionary
-                    error:(NSError *_Nullable *_Nullable)error {
+- (BOOL)setWithDictionary:(NSDictionary *)dictionary error:(NSError *_Nullable *_Nullable)error {
   _localID = [dictionary[@"localId"] copy];
   _email = [dictionary[@"email"] copy];
   _displayName = [dictionary[@"displayName"] copy];
   _IDToken = [dictionary[@"idToken"] copy];
-  _approximateExpirationDate = [dictionary[@"expiresIn"] isKindOfClass:[NSString class]] ?
-      [NSDate dateWithTimeIntervalSinceNow:[dictionary[@"expiresIn"] doubleValue]] : nil;
+  _approximateExpirationDate =
+      [dictionary[@"expiresIn"] isKindOfClass:[NSString class]]
+          ? [NSDate dateWithTimeIntervalSinceNow:[dictionary[@"expiresIn"] doubleValue]]
+          : nil;
   _refreshToken = [dictionary[@"refreshToken"] copy];
   _photoURL = dictionary[@"photoUrl"] ? [NSURL URLWithString:dictionary[@"photoUrl"]] : nil;
 
@@ -35,7 +36,8 @@ NS_ASSUME_NONNULL_BEGIN
     NSMutableArray<FIRAuthProtoMFAEnrollment *> *MFAInfo = [NSMutableArray array];
     NSArray *MFAInfoDataArray = dictionary[@"mfaInfo"];
     for (NSDictionary *MFAInfoData in MFAInfoDataArray) {
-      FIRAuthProtoMFAEnrollment *MFAEnrollment = [[FIRAuthProtoMFAEnrollment alloc] initWithDictionary:MFAInfoData];
+      FIRAuthProtoMFAEnrollment *MFAEnrollment =
+          [[FIRAuthProtoMFAEnrollment alloc] initWithDictionary:MFAInfoData];
       [MFAInfo addObject:MFAEnrollment];
     }
     _MFAInfo = MFAInfo;

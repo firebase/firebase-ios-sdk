@@ -16,8 +16,8 @@
 
 #import "FIRGameCenterAuthCredential.h"
 
-#import "FIRAuthExceptionUtils.h"
 #import "FIRAuthCredential_Internal.h"
+#import "FIRAuthExceptionUtils.h"
 #import "FIRGameCenterAuthProvider.h"
 #import "FIRVerifyAssertionRequest.h"
 
@@ -26,8 +26,8 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRGameCenterAuthCredential
 
 - (nullable instancetype)initWithProvider:(NSString *)provider {
-  [FIRAuthExceptionUtils raiseMethodNotImplementedExceptionWithReason:
-     @"Please call the designated initializer."];
+  [FIRAuthExceptionUtils
+      raiseMethodNotImplementedExceptionWithReason:@"Please call the designated initializer."];
   return nil;
 }
 
@@ -50,8 +50,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)prepareVerifyAssertionRequest:(FIRVerifyAssertionRequest *)request {
-  [FIRAuthExceptionUtils raiseMethodNotImplementedExceptionWithReason:
-      @"Attempt to call prepareVerifyAssertionRequest: on a FIRGameCenterAuthCredential."];
+  [FIRAuthExceptionUtils
+      raiseMethodNotImplementedExceptionWithReason:
+          @"Attempt to call prepareVerifyAssertionRequest: on a FIRGameCenterAuthCredential."];
 }
 
 #pragma mark - NSSecureCoding

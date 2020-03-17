@@ -19,14 +19,14 @@
 
 #import "FIRAuthBackend.h"
 
-#import "FIRStartMFAEnrollmentRequest.h"
-#import "FIRStartMFAEnrollmentResponse.h"
 #import "FIRFinalizeMFAEnrollmentRequest.h"
 #import "FIRFinalizeMFAEnrollmentResponse.h"
-#import "FIRStartMFASignInRequest.h"
-#import "FIRStartMFASignInResponse.h"
 #import "FIRFinalizeMFASignInRequest.h"
 #import "FIRFinalizeMFASignInResponse.h"
+#import "FIRStartMFAEnrollmentRequest.h"
+#import "FIRStartMFAEnrollmentResponse.h"
+#import "FIRStartMFASignInRequest.h"
+#import "FIRStartMFASignInResponse.h"
 #import "FIRWithdrawMFARequest.h"
 #import "FIRWithdrawMFAResponse.h"
 
@@ -38,8 +38,8 @@ NS_ASSUME_NONNULL_BEGIN
     @param error The error which occurred, if any.
     @remarks One of response or error will be non-nil.
 */
-typedef void (^FIRStartMFAEnrollmentResponseCallback)
-(FIRStartMFAEnrollmentResponse *_Nullable response, NSError *_Nullable error);
+typedef void (^FIRStartMFAEnrollmentResponseCallback)(
+    FIRStartMFAEnrollmentResponse *_Nullable response, NSError *_Nullable error);
 
 /** @typedef FIRFinalizeMFAEnrollmentResponseCallback
     @brief The type of block used to return the result of a call to the finalizeMFAEnroll endpoint.
@@ -47,8 +47,8 @@ typedef void (^FIRStartMFAEnrollmentResponseCallback)
     @param error The error which occurred, if any.
     @remarks One of response or error will be non-nil.
 */
-typedef void (^FIRFinalizeMFAEnrollmentResponseCallback)
-(FIRFinalizeMFAEnrollmentResponse *_Nullable response, NSError *_Nullable error);
+typedef void (^FIRFinalizeMFAEnrollmentResponseCallback)(
+    FIRFinalizeMFAEnrollmentResponse *_Nullable response, NSError *_Nullable error);
 
 /** @typedef FIRStartMFASignInResponseCallback
     @brief The type of block used to return the result of a call to the startMFASignIn endpoint.
@@ -56,8 +56,8 @@ typedef void (^FIRFinalizeMFAEnrollmentResponseCallback)
     @param error The error which occurred, if any.
     @remarks One of response or error will be non-nil.
 */
-typedef void (^FIRStartMFASignInResponseCallback)
-(FIRStartMFASignInResponse *_Nullable response, NSError *_Nullable error);
+typedef void (^FIRStartMFASignInResponseCallback)(FIRStartMFASignInResponse *_Nullable response,
+                                                  NSError *_Nullable error);
 
 /** @typedef FIRFinalizeMFASignInResponseCallback
     @brief The type of block used to return the result of a call to the finalizeMFASignIn endpoint.
@@ -65,8 +65,8 @@ typedef void (^FIRStartMFASignInResponseCallback)
     @param error The error which occurred, if any.
     @remarks One of response or error will be non-nil.
 */
-typedef void (^FIRFinalizeMFASignInResponseCallback)
-(FIRFinalizeMFASignInResponse *_Nullable response, NSError *_Nullable error);
+typedef void (^FIRFinalizeMFASignInResponseCallback)(
+    FIRFinalizeMFASignInResponse *_Nullable response, NSError *_Nullable error);
 
 /** @typedef FIRWithdrawMFAResponseCallback
     @brief The type of block used to return the result of a call to the MFAUnenroll endpoint.
@@ -74,8 +74,8 @@ typedef void (^FIRFinalizeMFASignInResponseCallback)
     @param error The error which occurred, if any.
     @remarks One of response or error will be non-nil.
 */
-typedef void (^FIRWithdrawMFAResponseCallback)
-(FIRWithdrawMFAResponse *_Nullable response, NSError *_Nullable error);
+typedef void (^FIRWithdrawMFAResponseCallback)(FIRWithdrawMFAResponse *_Nullable response,
+                                               NSError *_Nullable error);
 
 @interface FIRAuthBackend (MultiFactor)
 

@@ -37,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (nullable instancetype)initWithEndpoint:(NSString *)endpoint
                      requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
-                         NS_UNAVAILABLE;
+    NS_UNAVAILABLE;
 
 /** @fn initWithAppToken:isSandbox:requestConfiguration:
     @brief Designated initializer.
@@ -49,7 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable instancetype)initWithAppToken:(nullable NSString *)appToken
                                 isSandbox:(BOOL)isSandbox
                      requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
-                         NS_DESIGNATED_INITIALIZER;
+    NS_DESIGNATED_INITIALIZER;
 
 @end
 

@@ -61,11 +61,11 @@ static NSString *const kReturnSecureTokenKey = @"returnSecureToken";
 
 - (nullable instancetype)initWithRequestConfiguration:
     (FIRAuthRequestConfiguration *)requestConfiguration {
-    self = [self initWithEmail:nil
-                      password:nil
-                   displayName:nil
-          requestConfiguration:requestConfiguration];
-    return self;
+  self = [self initWithEmail:nil
+                    password:nil
+                 displayName:nil
+        requestConfiguration:requestConfiguration];
+  return self;
 }
 
 - (nullable id)unencodedHTTPRequestBodyWithError:(NSError *_Nullable *_Nullable)error {

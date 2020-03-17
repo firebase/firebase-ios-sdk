@@ -21,7 +21,7 @@
 @implementation FIRStartMFAEnrollmentResponse
 
 - (BOOL)setWithDictionary:(nonnull NSDictionary *)dictionary
-                    error:(NSError *__autoreleasing _Nullable * _Nullable)error {
+                    error:(NSError *__autoreleasing _Nullable *_Nullable)error {
   if (dictionary[@"phoneSessionInfo"] != nil) {
     NSDictionary *data = dictionary[@"phoneSessionInfo"];
     _enrollmentResponse = [[FIRAuthProtoStartMFAPhoneResponseInfo alloc] initWithDictionary:data];

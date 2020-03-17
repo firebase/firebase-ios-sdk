@@ -25,8 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
   return nil;
 }
 
-- (BOOL)setWithDictionary:(NSDictionary *)dictionary
-                    error:(NSError *_Nullable  *_Nullable)error {
+- (BOOL)setWithDictionary:(NSDictionary *)dictionary error:(NSError *_Nullable *_Nullable)error {
   _verificationID = [dictionary[@"sessionInfo"] copy];
   return YES;
 }

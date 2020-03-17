@@ -16,8 +16,8 @@
 
 #import "FIREmailPasswordAuthCredential.h"
 
-#import "FIREmailAuthProvider.h"
 #import "FIRAuthExceptionUtils.h"
+#import "FIREmailAuthProvider.h"
 #import "FIRVerifyAssertionRequest.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -31,8 +31,8 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIREmailPasswordAuthCredential
 
 - (nullable instancetype)initWithProvider:(NSString *)provider {
-  [FIRAuthExceptionUtils raiseMethodNotImplementedExceptionWithReason:
-      @"Please call the designated initializer."];
+  [FIRAuthExceptionUtils
+      raiseMethodNotImplementedExceptionWithReason:@"Please call the designated initializer."];
   return nil;
 }
 
@@ -55,8 +55,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)prepareVerifyAssertionRequest:(FIRVerifyAssertionRequest *)request {
-  [FIRAuthExceptionUtils raiseMethodNotImplementedExceptionWithReason:
-      @"Attempt to call prepareVerifyAssertionRequest: on a FIREmailPasswordAuthCredential."];
+  [FIRAuthExceptionUtils
+      raiseMethodNotImplementedExceptionWithReason:
+          @"Attempt to call prepareVerifyAssertionRequest: on a FIREmailPasswordAuthCredential."];
 }
 
 #pragma mark - NSSecureCoding

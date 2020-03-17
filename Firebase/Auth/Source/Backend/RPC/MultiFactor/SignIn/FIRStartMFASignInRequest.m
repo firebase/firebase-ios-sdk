@@ -38,7 +38,7 @@ static NSString *const kStartMFASignInEndPoint = @"accounts/mfaSignIn:start";
   return self;
 }
 
-- (nullable id)unencodedHTTPRequestBodyWithError:(NSError *__autoreleasing  _Nullable *)error {
+- (nullable id)unencodedHTTPRequestBodyWithError:(NSError *__autoreleasing _Nullable *)error {
   NSMutableDictionary *postBody = [NSMutableDictionary dictionary];
   if (_MFAProvider) {
     postBody[@"mfaProvider"] = _MFAProvider;

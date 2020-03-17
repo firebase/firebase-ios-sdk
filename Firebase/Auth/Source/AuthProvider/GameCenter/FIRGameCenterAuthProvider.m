@@ -27,8 +27,8 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRGameCenterAuthProvider
 
 - (instancetype)init {
-  [FIRAuthExceptionUtils raiseMethodNotImplementedExceptionWithReason:
-      @"This class is not meant to be initialized."];
+  [FIRAuthExceptionUtils
+      raiseMethodNotImplementedExceptionWithReason:@"This class is not meant to be initialized."];
   return nil;
 }
 
@@ -39,7 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
    checking whether the APP that consuming our SDK has linked GameKit.framework. If not, a
    `GameKitNotLinkedError` will be raised.
    **/
-  GKLocalPlayer * _Nullable optionalLocalPlayer = [[NSClassFromString(@"GKLocalPlayer") alloc] init];
+  GKLocalPlayer *_Nullable optionalLocalPlayer = [[NSClassFromString(@"GKLocalPlayer") alloc] init];
 
   if (!optionalLocalPlayer) {
     if (completion) {
@@ -56,31 +56,32 @@ NS_ASSUME_NONNULL_BEGIN
     return;
   }
 
-  [localPlayer generateIdentityVerificationSignatureWithCompletionHandler:
-   ^(NSURL *publicKeyURL, NSData *signature, NSData *salt, uint64_t timestamp, NSError *error) {
-     if (error) {
-       if (completion) {
-         completion(nil, error);
-       }
-     } else {
-       if (completion) {
-         /**
-          @c `localPlayer.alias` is actually the displayname needed, instead of
-          `localPlayer.displayname`. For more information, check
-          https://developer.apple.com/documentation/gamekit/gkplayer
-          **/
-         NSString *displayName = localPlayer.alias;
-         FIRGameCenterAuthCredential *credential =
-             [[FIRGameCenterAuthCredential alloc] initWithPlayerID:localPlayer.playerID
-                                                      publicKeyURL:publicKeyURL
-                                                         signature:signature
-                                                              salt:salt
-                                                         timestamp:timestamp
-                                                       displayName:displayName];
-         completion(credential, nil);
-       }
-     }
-   }];
+  [localPlayer generateIdentityVerificationSignatureWithCompletionHandler:^(
+                   NSURL *publicKeyURL, NSData *signature, NSData *salt, uint64_t timestamp,
+                   NSError *error) {
+    if (error) {
+      if (completion) {
+        completion(nil, error);
+      }
+    } else {
+      if (completion) {
+        /**
+         @c `localPlayer.alias` is actually the displayname needed, instead of
+         `localPlayer.displayname`. For more information, check
+         https://developer.apple.com/documentation/gamekit/gkplayer
+         **/
+        NSString *displayName = localPlayer.alias;
+        FIRGameCenterAuthCredential *credential =
+            [[FIRGameCenterAuthCredential alloc] initWithPlayerID:localPlayer.playerID
+                                                     publicKeyURL:publicKeyURL
+                                                        signature:signature
+                                                             salt:salt
+                                                        timestamp:timestamp
+                                                      displayName:displayName];
+        completion(credential, nil);
+      }
+    }
+  }];
 }
 
 @end

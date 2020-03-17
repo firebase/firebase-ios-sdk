@@ -56,7 +56,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, strong, readonly) FIRAuthNotificationManager *notificationManager;
 
-#endif // TARGET_OS_IOS
+#endif  // TARGET_OS_IOS
 
 /** @property authURLPresenter
     @brief An object that takes care of presenting URLs via the auth instance.
@@ -141,7 +141,8 @@ NS_ASSUME_NONNULL_BEGIN
     @remarks Typically invoked as part of the complete sign-in flow. For any other uses please
         consider alternative ways of updating the current user.
 */
-- (FIRAuthDataResultCallback)signInFlowAuthDataResultCallbackByDecoratingCallback:(nullable FIRAuthDataResultCallback)callback;
+- (FIRAuthDataResultCallback)signInFlowAuthDataResultCallbackByDecoratingCallback:
+    (nullable FIRAuthDataResultCallback)callback;
 
 @end
 

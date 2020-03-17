@@ -16,8 +16,8 @@
 
 #import "FIRTwitterAuthProvider.h"
 
-#import "FIRTwitterAuthCredential.h"
 #import "FIRAuthExceptionUtils.h"
+#import "FIRTwitterAuthCredential.h"
 
 // FIRTwitterAuthProviderID is defined in FIRAuthProvider.m.
 
@@ -26,8 +26,8 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRTwitterAuthProvider
 
 - (instancetype)init {
-  [FIRAuthExceptionUtils raiseMethodNotImplementedExceptionWithReason:
-      @"This class is not meant to be initialized."];
+  [FIRAuthExceptionUtils
+      raiseMethodNotImplementedExceptionWithReason:@"This class is not meant to be initialized."];
   return nil;
 }
 
