@@ -196,6 +196,8 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
                              object:nil];
 
 #elif TARGET_OS_WATCH
+    // TODO: Notification on watchOS platform is currently posted by strings which are frangible.
+    // TODO: Needs improvments here.
     NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
     [notificationCenter addObserver:self
                            selector:@selector(iOSApplicationDidEnterBackground:)
@@ -206,7 +208,22 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
                                name:@"UIApplicationWillEnterForegroundNotification"
                              object:nil];
 
-#endif  // TARGET_OS_IOS || TARGET_OS_TV
+#endif
+
+#if !TARGET_OS_OSX
+    // Takes care of extension application on non-macOS platform.
+    if (isAppExtension) {
+      NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
+      [notificationCenter addObserver:self
+                             selector:@selector(iOSApplicationDidEnterBackground:)
+                                 name:NSExtensionHostDidEnterBackgroundNotification
+                               object:nil];
+      [notificationCenter addObserver:self
+                             selector:@selector(iOSApplicationWillEnterForeground:)
+                                 name:NSExtensionHostWillEnterForegroundNotification
+                               object:nil];
+    }
+#endif
   }
   return self;
 }
