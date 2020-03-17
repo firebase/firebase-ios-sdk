@@ -38,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Returns the synthesized app version, similar to how the backend does it
  * <displayVersion> (<buildVersion>)
-*/
+ */
 @property(nonatomic, readonly, nullable) NSString* synthesizedVersion;
 
 @property(nonatomic, readonly) FIRCLSApplicationInstallationSourceType installSource;
