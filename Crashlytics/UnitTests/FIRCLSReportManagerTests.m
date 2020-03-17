@@ -33,7 +33,7 @@
 #import "FABMockApplicationIdentifierModel.h"
 #import "FIRAppFake.h"
 #import "FIRCLSApplicationIdentifierModel.h"
-#import "FIRCLSMockFileManager.h"
+#import "FIRCLSTempMockFileManager.h"
 #import "FIRCLSMockReportManager.h"
 #import "FIRCLSMockReportUploader.h"
 #import "FIRCLSMockSettings.h"
@@ -50,7 +50,7 @@
 
 @interface FIRCLSReportManagerTests : XCTestCase
 
-@property(nonatomic, strong) FIRCLSMockFileManager *fileManager;
+@property(nonatomic, strong) FIRCLSTempMockFileManager *fileManager;
 @property(nonatomic, strong) FIRCLSMockReportManager *reportManager;
 @property(nonatomic, strong) FIRCLSDataCollectionArbiter *dataArbiter;
 @property(nonatomic, strong) FIRCLSApplicationIdentifierModel *appIDModel;
@@ -70,7 +70,7 @@
   id fakeApp = [[FIRAppFake alloc] init];
   self.dataArbiter = [[FIRCLSDataCollectionArbiter alloc] initWithApp:fakeApp withAppInfo:@{}];
 
-  self.fileManager = [[FIRCLSMockFileManager alloc] init];
+  self.fileManager = [[FIRCLSTempMockFileManager alloc] init];
   [self.fileManager setPathNamespace:TEST_BUNDLE_ID];
 
   // Delete cached settings

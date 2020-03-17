@@ -23,7 +23,7 @@
 #include "FIRCLSDefines.h"
 #include "FIRCLSFileManager.h"
 #include "FIRCLSInternalReport.h"
-#include "FIRCLSMockFileManager.h"
+#include "FIRCLSTempMockFileManager.h"
 #include "FIRCLSMockNetworkClient.h"
 #include "FIRCLSMockSettings.h"
 #include "FIRCLSSettings.h"
@@ -35,7 +35,7 @@ NSString *const TestEndpoint = @"https://reports.crashlytics.com";
     : XCTestCase <FIRCLSReportUploaderDelegate, FIRCLSReportUploaderDataSource>
 
 @property(nonatomic, strong) FIRCLSReportUploader *uploader;
-@property(nonatomic, strong) FIRCLSMockFileManager *fileManager;
+@property(nonatomic, strong) FIRCLSTempMockFileManager *fileManager;
 @property(nonatomic, strong) NSOperationQueue *queue;
 @property(nonatomic, strong) FIRCLSMockNetworkClient *networkClient;
 
@@ -58,7 +58,7 @@ NSString *const TestEndpoint = @"https://reports.crashlytics.com";
   self.networkClient = [[FIRCLSMockNetworkClient alloc] initWithQueue:self.queue
                                                           fileManager:self.fileManager
                                                              delegate:nil];
-  self.fileManager = [[FIRCLSMockFileManager alloc] init];
+  self.fileManager = [[FIRCLSTempMockFileManager alloc] init];
   self.uploader = [[FIRCLSReportUploader alloc] initWithQueue:self.queue
                                                      delegate:self
                                                    dataSource:self

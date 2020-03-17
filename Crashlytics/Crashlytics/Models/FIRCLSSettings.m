@@ -66,7 +66,8 @@ NSString *const AppVersion = @"app_version";
                       currentTimestamp:(NSTimeInterval)currentTimestamp {
   NSString *settingsFilePath = self.fileManager.settingsFilePath;
 
-  NSData *data = [NSData dataWithContentsOfFile:settingsFilePath];
+  NSData *data = [NSData dataWithContentsOfFile:settingsFilePath];  // THIS IS THE CAUSE OF THE UNIT TEST FAILS
+                                                                    // IT READS FROM DISK THRU ANOTHER API AND NOT THROUGH FILEMANAGER
   if (!data) {
     FIRCLSDebugLog(@"[Crashlytics:Settings] No settings were cached");
 
@@ -306,7 +307,7 @@ NSString *const AppVersion = @"app_version";
 
   // Default to use the new endpoint when settings were not successfully fetched
   // or there's an unexpected issue
-  if (!value) {
+  if (value == nil) {
     return YES;
   }
 

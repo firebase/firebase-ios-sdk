@@ -1,4 +1,4 @@
-// Copyright 2019 Google
+// Copyright 2020 Google
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,9 +14,13 @@
 
 #import "FIRCLSMockFileManager.h"
 
-@implementation FIRCLSMockFileManager
+@interface FIRCLSMockFileManager ()
 
-@synthesize pathNamespace;
+@property(nonatomic) NSMutableDictionary<NSString *, NSData *> *fileSystemDict;
+
+@end
+
+@implementation FIRCLSMockFileManager
 
 - (instancetype)init {
   self = [super init];
@@ -24,45 +28,34 @@
     return nil;
   }
 
-  // Should be set by the tests when needed
-  _removeExpectation = nil;
+  _fileSystemDict = [[NSMutableDictionary<NSString *, NSData *> alloc] init];
 
   return self;
 }
 
 - (BOOL)removeItemAtPath:(NSString *)path {
-  self.removedItemAtPath_path = path;
+    [self.fileSystemDict removeObjectForKey:path];
+    
+    self.removeCount += 1;
 
-  [super removeItemAtPath:path];
+    // If we set up the expectation, and we went over the expected count or removes, fulfill the
+    // expectation
+    if (self.removeExpectation && self.removeCount >= self.expectedRemoveCount) {
+      [self.removeExpectation fulfill];
+    }
+    
+    return YES;
+}
 
-  self.removeCount += 1;
+- (BOOL)fileExistsAtPath:(NSString *)path {
+    return self.fileSystemDict[path] != nil;
+}
 
-  // If we set up the expectation, and we went over the expected count or removes, fulfill the
-  // expectation
-  if (self.removeExpectation && self.removeCount >= self.expectedRemoveCount) {
-    [self.removeExpectation fulfill];
-  }
-
+- (BOOL)createFileAtPath:(NSString *)path
+  contents:(NSData *)data
+              attributes:(NSDictionary<NSFileAttributeKey, id> *)attr {
+  self.fileSystemDict[path] = data;
   return YES;
-}
-
-- (NSNumber *)fileSizeAtPath:(NSString *)path {
-  if (self.fileSizeAtPathResult != nil) {
-    return self.fileSizeAtPathResult;
-  }
-
-  return [super fileSizeAtPath:path];
-}
-
-- (BOOL)moveItemAtPath:(NSString *)path toDirectory:(NSString *)destDir {
-  self.moveItemAtPath_path = path;
-  self.moveItemAtPath_destDir = destDir;
-
-  if (self.moveItemAtPathResult != nil) {
-    return self.moveItemAtPathResult.intValue > 0;
-  }
-
-  return [super moveItemAtPath:path toDirectory:destDir];
 }
 
 @end
