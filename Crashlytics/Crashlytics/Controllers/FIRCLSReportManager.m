@@ -446,9 +446,7 @@ static void (^reportSentCallback)(void);
       return;
     }
 
-    FIRCLSContextInitData initData = [self initializeContextInitData:report];
-
-    FIRCLSContextUpdateMetadata(&initData);
+    FIRCLSContextUpdateMetadata(report, self.settings, self.installIDModel, self->_fileManager);
   }];
 }
 
@@ -474,52 +472,17 @@ static void (^reportSentCallback)(void);
   [self handleContentsInOtherReportingDirectoriesWithToken:token];
 }
 
-- (FIRCLSContextInitData)initializeContextInitData:(FIRCLSInternalReport *)report {
-  FIRCLSContextInitData initData;
-
-  memset(&initData, 0, sizeof(FIRCLSContextInitData));
-
-  // Because we need to start the crash reporter right away,
-  // it starts up either with default settings, or cached settings
-  // from the last time they were fetched
-  FIRCLSSettings *settings = self.settings;
-
-  initData.customBundleId = NULL;
-  initData.installId = [self.installIDModel.installID UTF8String];
-  initData.sessionId = [[report identifier] UTF8String];
-  initData.rootPath = [[report path] UTF8String];
-  initData.previouslyCrashedFileRootPath = [[_fileManager rootPath] UTF8String];
-#if CLS_MACH_EXCEPTION_SUPPORTED
-  initData.machExceptionMask = [self machExceptionMask];
-#endif
-  initData.errorsEnabled = [settings errorReportingEnabled];
-  initData.customExceptionsEnabled = [settings customExceptionsEnabled];
-  initData.maxCustomExceptions = [settings maxCustomExceptions];
-  initData.maxErrorLogSize = [settings errorLogBufferSize];
-  initData.maxLogSize = [settings logBufferSize];
-  initData.maxKeyValues = [settings maxCustomKeys];
-
-  return initData;
-}
-
 - (BOOL)startCrashReporterWithProfilingMark:(FIRCLSProfileMark)mark
                                      report:(FIRCLSInternalReport *)report {
   if (!report) {
     return NO;
   }
 
-  FIRCLSContextInitData initData = [self initializeContextInitData:report];
-
-  // If this is set, then we could attempt to do a synchronous submission for certain kinds of
-  // events (exceptions). This is a very cool feature, but adds complexity to the backend. For now,
-  // we're going to leave this disabled. It does work in the exception case, but will ultimtely
-  // result in the following crash to be discared. Usually that crash isn't interesting. But, if it
-  // was, we'd never have a chance to see it.
-  initData.delegate = NULL;
-
-  if (![self installCrashReportingHandlers:&initData]) {
+  if (!FIRCLSContextInitialize(report, self.settings, self.installIDModel, _fileManager)) {
     return NO;
   }
+
+  [self setupStateNotifications];
 
   [self registerAnalyticsEventListener];
 
@@ -570,32 +533,7 @@ static void (^reportSentCallback)(void);
   return _uploader;
 }
 
-#if CLS_MACH_EXCEPTION_SUPPORTED
-- (exception_mask_t)machExceptionMask {
-  __block exception_mask_t mask = 0;
-
-  // TODO(b/141241224) This if statement was hardcoded to no, so this block was never run
-  //  FIRCLSSignalEnumerateHandledSignals(^(int idx, int signal) {
-  //    if ([self.delegate ensureDeliveryOfUnixSignal:signal]) {
-  //      mask |= FIRCLSMachExceptionMaskForSignal(signal);
-  //    }
-  //  });
-
-  return mask;
-}
-#endif
-
 #pragma mark - Reporting Lifecycle
-
-- (BOOL)installCrashReportingHandlers:(FIRCLSContextInitData *)initData {
-  if (!FIRCLSContextInitialize(initData)) {
-    return NO;
-  }
-
-  [self setupStateNotifications];
-
-  return YES;
-}
 
 - (FIRCLSInternalReport *)setupCurrentReport:(NSString *)executionIdentifier {
   [self createLaunchFailureMarker];

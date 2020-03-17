@@ -1,4 +1,4 @@
-// Copyright 2019 Google
+// Copyright 2020 Google
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,18 +14,18 @@
 
 #import <Foundation/Foundation.h>
 
+#import "FIRStackFrame.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- *
- * This class is used in conjunction with -[Crashlytics
- * recordCustomExceptionName:reason:frameArray:] to record information about non-ObjC/C++
- * exceptions. All information included here will be displayed in the Crashlytics UI, and can
- * influence crash grouping. Be particularly careful with the use of the address property. If set,
- * Crashlytics will attempt symbolication and could overwrite other properities in the process.
- *
+ * This class is used in conjunction with recordExceptionModel to record information about
+ * non-ObjC/C++ exceptions. All information included here will be displayed in the Crashlytics UI,
+ * and can influence crash grouping. Be particularly careful with the use of the address property.
+ *If set, Crashlytics will attempt symbolication and could overwrite other properities in the
+ *process.
  **/
-@interface FIRCLSStackFrame : NSObject
+@interface FIRStackFrame (Private)
 
 + (instancetype)stackFrame;
 + (instancetype)stackFrameWithAddress:(NSUInteger)address;

@@ -25,6 +25,18 @@ jobs:
         ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=${{ matrix.target }}
         ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=${{ matrix.target }}
 
+  catalyst:
+    runs-on: macOS-latest
+    strategy:
+      matrix:
+        pod: [GoogleDataTransport, GoogleDataTransportCCTSupport]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Setup project and Test Catalyst
+      run: scripts/test_catalyst.sh ${{ matrix.pod }} test
+
 # Scheduled jobs
 
   datatransport-cron-only:

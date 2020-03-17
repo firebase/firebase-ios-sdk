@@ -33,6 +33,13 @@
 
 __BEGIN_DECLS
 
+#ifdef __OBJC__
+@class FIRCLSInternalReport;
+@class FIRCLSSettings;
+@class FIRCLSInstallIdentifierModel;
+@class FIRCLSFileManager;
+#endif
+
 typedef struct {
   volatile bool initialized;
   volatile bool debuggerAttached;
@@ -90,10 +97,18 @@ typedef struct {
   uint32_t maxKeyValues;
 } FIRCLSContextInitData;
 
-bool FIRCLSContextInitialize(const FIRCLSContextInitData* initData);
+#ifdef __OBJC__
+bool FIRCLSContextInitialize(FIRCLSInternalReport* report,
+                             FIRCLSSettings* settings,
+                             FIRCLSInstallIdentifierModel* installIDModel,
+                             FIRCLSFileManager* fileManager);
 
 // Re-writes the metadata file on the current thread
-void FIRCLSContextUpdateMetadata(const FIRCLSContextInitData* initData);
+void FIRCLSContextUpdateMetadata(FIRCLSInternalReport* report,
+                                 FIRCLSSettings* settings,
+                                 FIRCLSInstallIdentifierModel* installIDModel,
+                                 FIRCLSFileManager* fileManager);
+#endif
 
 void FIRCLSContextBaseInit(void);
 void FIRCLSContextBaseDeinit(void);

@@ -14,13 +14,12 @@
 
 #import "FIRCLSSymbolicationOperation.h"
 
-#import "FIRCLSStackFrame.h"
 #import "FIRCLSSymbolResolver.h"
 
 @implementation FIRCLSSymbolicationOperation
 
 - (void)main {
-  [self enumerateFramesWithBlock:^(FIRCLSStackFrame *frame) {
+  [self enumerateFramesWithBlock:^(FIRStackFrame *frame) {
     [self.symbolResolver updateStackFrame:frame];
   }];
 }
