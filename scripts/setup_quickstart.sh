@@ -16,8 +16,11 @@
 # Script to run in a CI `before_install` phase to setup the quickstart repo
 # so that it can be used for integration testing.
 
-if [[ "$TRAVIS_PULL_REQUEST" == "false" ||
-      "$TRAVIS_PULL_REQUEST_SLUG" == "$TRAVIS_REPO_SLUG" ]]; then
+set -x
+# Set have_secrets to true or false.
+. ../scripts/check_secrets.sh
+
+if [[ "$have_secrets" == true ]]; then
   SAMPLE=$1
 
   # Specify repo so the Firebase module and header can be found in a
@@ -30,10 +33,10 @@ if [[ "$TRAVIS_PULL_REQUEST" == "false" ||
 
   # To test a branch, uncomment the following line
   # git checkout {BRANCH_NAME}
+  git checkout pb-secrets-gha
 
   bundle exec pod install
-  TRAVIS_PULL_REQUEST="$TRAVIS_PULL_REQUEST" TRAVIS_PULL_REQUEST_SLUG=$"TRAVIS_PULL_REQUEST_SLUG" \
-    ../scripts/install_prereqs/"$SAMPLE".sh
+
   # Secrets are repo specific, so we need to override with the firebase-ios-sdk
   # version.
   cp ../../Secrets/quickstart-ios/"$SAMPLE"/GoogleService-Info.plist ./

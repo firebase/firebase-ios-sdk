@@ -16,8 +16,12 @@
 # Run a CI `script` phase to build the associated quickstart
 # sample and run its tests.
 
-if [[ "$TRAVIS_PULL_REQUEST" == "false" ||
-      "$TRAVIS_PULL_REQUEST_SLUG" == "$TRAVIS_REPO_SLUG" ]]; then
+set -x
+
+# Set have_secrets to true or false.
+. ../scripts/check_secrets.sh
+
+if [[ "$have_secrets" == true ]]; then
   cd quickstart-ios
   TRAVIS_PULL_REQUEST="$TRAVIS_PULL_REQUEST" \
   TRAVIS_PULL_REQUEST_SLUG="$TRAVIS_PULL_REQUEST_SLUG" \
