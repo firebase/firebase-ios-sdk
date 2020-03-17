@@ -212,7 +212,7 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
 
 #if !TARGET_OS_OSX
     // Takes care of extension application on non-macOS platform.
-    if (isAppExtension) {
+    if ([self isAppExtension]) {
       NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
       [notificationCenter addObserver:self
                              selector:@selector(iOSApplicationDidEnterBackground:)
