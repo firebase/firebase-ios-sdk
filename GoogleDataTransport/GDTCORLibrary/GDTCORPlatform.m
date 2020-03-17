@@ -214,14 +214,16 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
     // Takes care of extension application on non-macOS platform.
     if ([self isAppExtension]) {
       NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
-      [notificationCenter addObserver:self
-                             selector:@selector(iOSApplicationDidEnterBackground:)
-                                 name:NSExtensionHostDidEnterBackgroundNotification
-                               object:nil];
-      [notificationCenter addObserver:self
-                             selector:@selector(iOSApplicationWillEnterForeground:)
-                                 name:NSExtensionHostWillEnterForegroundNotification
-                               object:nil];
+      if (@available(iOS 8.2, tvOS 9.0, watchOS 2.0, *)) {
+        [notificationCenter addObserver:self
+                               selector:@selector(iOSApplicationDidEnterBackground:)
+                                   name:NSExtensionHostDidEnterBackgroundNotification
+                                 object:nil];
+        [notificationCenter addObserver:self
+                               selector:@selector(iOSApplicationWillEnterForeground:)
+                                   name:NSExtensionHostWillEnterForegroundNotification
+                                 object:nil];
+      }
     }
 #endif
   }
