@@ -24,6 +24,16 @@ jobs:
     - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
       run: scripts/third_party/travis/retry.sh scripts/build.sh Storage all
 
+  catalyst:
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Setup project and Build for Catalyst
+      # Only run the unit tests on Catalyst
+      run: scripts/test_catalyst.sh FirebaseStorage test FirebaseStorage-Unit-unit
+
   pod-lib-lint:
     runs-on: macOS-latest
 

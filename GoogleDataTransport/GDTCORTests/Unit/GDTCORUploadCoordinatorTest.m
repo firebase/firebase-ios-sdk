@@ -150,14 +150,19 @@
 
 /** Tests that encoding and decoding works without crashing. */
 - (void)testNSSecureCoding {
+#if TARGET_OS_MACCATALYST
+  // TODO - port the archiver calls to Catalyst API
+#else
   GDTCORUploadPackage *package = [[GDTCORUploadPackage alloc] initWithTarget:kGDTCORTargetTest];
   GDTCORUploadCoordinator *coordinator = [[GDTCORUploadCoordinator alloc] init];
   coordinator.targetToInFlightPackages[@(kGDTCORTargetTest)] = package;
-  NSData *data = [NSKeyedArchiver archivedDataWithRootObject:coordinator];
-
+  NSData *data;
+  GDTCORUploadCoordinator *unarchivedCoordinator;
+  data = [NSKeyedArchiver archivedDataWithRootObject:coordinator];
+  unarchivedCoordinator = [NSKeyedUnarchiver unarchiveObjectWithData:data];
   // Unarchiving the coordinator always ends up altering the singleton instance.
-  GDTCORUploadCoordinator *unarchivedCoordinator = [NSKeyedUnarchiver unarchiveObjectWithData:data];
   XCTAssertEqualObjects([GDTCORUploadCoordinator sharedInstance], unarchivedCoordinator);
+#endif
 }
 
 @end
