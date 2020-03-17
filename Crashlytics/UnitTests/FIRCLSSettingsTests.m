@@ -46,6 +46,12 @@ const NSString *FIRCLSTestSettingsCorrupted = @"{{{{ non_key: non\"value {}";
 NSString *FIRCLSDefaultMockBuildInstanceID = @"12345abcdef";
 NSString *FIRCLSDifferentMockBuildInstanceID = @"98765zyxwv";
 
+NSString *FIRCLSDefaultMockAppDisplayVersion = @"1.2.3-beta.2";
+NSString *FIRCLSDifferentMockAppDisplayVersion = @"1.2.3-beta.3";
+
+NSString *FIRCLSDefaultMockAppBuildVersion = @"1024";
+NSString *FIRCLSDifferentMockAppBuildVersion = @"2048";
+
 NSString *const TestGoogleAppID = @"1:test:google:app:id";
 NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
 
@@ -77,6 +83,8 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
 
   _appIDModel = [[FABMockApplicationIdentifierModel alloc] init];
   _appIDModel.buildInstanceID = FIRCLSDefaultMockBuildInstanceID;
+  _appIDModel.displayVersion = FIRCLSDefaultMockAppDisplayVersion;
+  _appIDModel.buildVersion = FIRCLSDefaultMockAppBuildVersion;
 
   _settings = [[FIRCLSSettings alloc] initWithFileManager:_fileManager appIDModel:_appIDModel];
 }
@@ -267,6 +275,45 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
 
   // Change the Build Instance ID
   self.appIDModel.buildInstanceID = FIRCLSDifferentMockBuildInstanceID;
+
+  [self.settings reloadFromCacheWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
+
+  XCTAssertEqual(self.settings.isCacheExpired, YES);
+
+  // Since the TTL just expired, do not clear settings
+  XCTAssertEqualObjects(self.settings.orgID, @"010101000000111111111111");
+  XCTAssertEqualObjects(self.settings.fetchedBundleID, @"com.lets.test.crashlytics");
+  XCTAssertEqual(self.settings.errorLogBufferSize, 64 * 1000);
+
+  // Pretend we fetched settings again, but they had different values
+  [self writeSettings:FIRCLSTestSettingsInverse error:&error];
+  XCTAssertNil(error, "%@", error);
+
+  // Cache the settings
+  [self.settings cacheSettingsWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
+
+  // We should have the updated values that were fetched, and should not be expired
+  XCTAssertEqual(self.settings.isCacheExpired, NO);
+  XCTAssertEqualObjects(self.settings.orgID, @"01e101a0000011b113115111");
+  XCTAssertEqualObjects(self.settings.fetchedBundleID, @"im.from.the.server");
+  XCTAssertEqual(self.settings.errorLogBufferSize, 128000);
+}
+
+- (void)testCacheExpiredFromAppVersion {
+  NSError *error = nil;
+  [self writeSettings:FIRCLSTestSettingsActivated error:&error];
+  XCTAssertNil(error, "%@", error);
+
+  // 1 delete for clearing the cache key, plus 2 for the deletes from reloading and clearing the
+  // cache and cache key
+  self.fileManager.expectedRemoveCount = 3;
+
+  NSTimeInterval currentTimestamp = [NSDate timeIntervalSinceReferenceDate];
+  [self.settings cacheSettingsWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
+
+  // Change the App Version
+  self.appIDModel.displayVersion = FIRCLSDifferentMockAppDisplayVersion;
+  self.appIDModel.buildVersion = FIRCLSDifferentMockAppBuildVersion;
 
   [self.settings reloadFromCacheWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
 
