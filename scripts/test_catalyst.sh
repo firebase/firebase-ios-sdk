@@ -51,7 +51,7 @@ args=(
   "-scheme" "$scheme"
   # Specify Catalyst.
   "ARCHS=x86_64h" "VALID_ARCHS=x86_64h" "SUPPORTS_MACCATALYST=YES"
-  # Run on macOS
+  # Run on macOS.
   "-sdk" "macosx" "-destination platform=\"OS X\"" "TARGETED_DEVICE_FAMILY=2"
   # Disable signing.
   "CODE_SIGN_IDENTITY=-" "CODE_SIGNING_REQUIRED=NO" "CODE_SIGNING_ALLOWED=NO"
