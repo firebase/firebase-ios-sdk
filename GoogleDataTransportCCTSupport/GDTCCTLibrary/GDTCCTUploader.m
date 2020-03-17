@@ -202,51 +202,41 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
         GDTCORLogWarning(GDTCORMCWUploadFailed, @"There was an error uploading events: %@", error);
       }
       NSError *decodingError;
+      GDTCORClock *futureUploadTime;
       if (data) {
         gdt_cct_LogResponse logResponse = GDTCCTDecodeLogResponse(data, &decodingError);
         if (!decodingError && logResponse.has_next_request_wait_millis) {
           GDTCORLogDebug(
               "CCT: The backend responded asking to not upload for %lld millis from now.",
               logResponse.next_request_wait_millis);
-          GDTCORClock *futureUploadTime =
+          futureUploadTime =
               [GDTCORClock clockSnapshotInTheFuture:logResponse.next_request_wait_millis];
-          switch (target) {
-            case kGDTCORTargetCCT:
-              self->_CCTNextUploadTime = futureUploadTime;
-              break;
-
-            case kGDTCORTargetFLL:
-              // Falls through.
-            case kGDTCORTargetCSH:
-              self->_FLLNextUploadTime = futureUploadTime;
-            default:
-              break;
-          }
-        } else {
-          GDTCORLogDebug("%@", @"CCT: The backend response failed to parse, so the next request "
-                               @"won't occur until 15 minutes from now");
-          // 15 minutes from now.
-          GDTCORClock *futureUploadTime = [GDTCORClock clockSnapshotInTheFuture:15 * 60 * 1000];
-          switch (target) {
-            case kGDTCORTargetCCT:
-              self->_CCTNextUploadTime = futureUploadTime;
-              break;
-
-            case kGDTCORTargetFLL:
-              // Falls through.
-            case kGDTCORTargetCSH:
-              self->_FLLNextUploadTime = futureUploadTime;
-              break;
-
-            default:
-              break;
-          }
+        } else if (decodingError) {
+          GDTCORLogDebug(@"There was a response decoding error: %@", decodingError);
         }
         pb_release(gdt_cct_LogResponse_fields, &logResponse);
       }
+      if (!futureUploadTime) {
+        GDTCORLogDebug("%@", @"CCT: The backend response failed to parse, so the next request "
+                             @"won't occur until 15 minutes from now");
+        // 15 minutes from now.
+        futureUploadTime = [GDTCORClock clockSnapshotInTheFuture:15 * 60 * 1000];
+      }
+      switch (target) {
+        case kGDTCORTargetCCT:
+          self->_CCTNextUploadTime = futureUploadTime;
+          break;
 
-      // Only retry if one of these codes is returned.
-      if (((NSHTTPURLResponse *)response).statusCode == 429 ||
+        case kGDTCORTargetFLL:
+          // Falls through.
+        case kGDTCORTargetCSH:
+          self->_FLLNextUploadTime = futureUploadTime;
+        default:
+          break;
+      }
+
+      // Only retry if one of these codes is returned, or there was an error.
+      if (error || ((NSHTTPURLResponse *)response).statusCode == 429 ||
           ((NSHTTPURLResponse *)response).statusCode == 503) {
         [package retryDeliveryInTheFuture];
       } else {
@@ -287,10 +277,15 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
 - (BOOL)readyToUploadTarget:(GDTCORTarget)target conditions:(GDTCORUploadConditions)conditions {
   __block BOOL result = NO;
   dispatch_sync(_uploaderQueue, ^{
-    if (target == kGDTCORTargetCSH && [GDTCCTPrioritizer sharedInstance].CSHEvents.count > 0) {
-      result = YES;
+    if (target == kGDTCORTargetCSH) {
+      if ([GDTCCTPrioritizer sharedInstance].CSHEvents.count > 0) {
+        result = YES;
+      } else {
+        result = NO;
+      }
       return;
     }
+
     if (self->_currentUploadPackage) {
       result = NO;
       GDTCORLogDebug("%@", @"CCT: can't upload because a package is in flight");
