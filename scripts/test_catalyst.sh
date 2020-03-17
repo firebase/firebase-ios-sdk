@@ -17,8 +17,15 @@
 
 # USAGE: test_catalyst.sh pod build_mode [scheme]
 #
-# Builds and run tests for Catalyst since it's not yet supported by `pod lib lint`
-# The second argument should be "build" or "test". "test" indicates both build and test.
+# Builds and run tests for Catalyst since it's not yet supported by
+# `pod lib lint`.
+# The second argument should be "build" or "test". "test" indicates both build
+# and test.
+
+# TODO - Determine why test specs that include `requires_app_host` fail to
+# launch tests. Locally, they will pass if the unit test scheme is specified.
+# However, on GHA, the they fail to launch both from the test scheme and the
+# app scheme.
 
 set -xeuo pipefail
 pod="$1"
@@ -30,8 +37,24 @@ else
   scheme="$pod"
 fi
 
-bundle exec pod gen --local-sources=./ --sources=https://cdn.cocoapods.org/ "$pod".podspec --platforms=ios
-xcodebuild $build_mode -configuration Debug -workspace "gen/$pod/$pod.xcworkspace"  -scheme "$scheme"\
- ARCHS=x86_64h VALID_ARCHS=x86_64h ONLY_ACTIVE_ARCH=NO  SUPPORTS_MACCATALYST=YES  -sdk macosx \
- CODE_SIGN_IDENTITY=- SUPPORTS_UIKITFORMAC=YES CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO \
- -destination platform="OS X" TARGETED_DEVICE_FAMILY=2 | xcpretty
+bundle exec pod gen --local-sources=./ --sources=https://cdn.cocoapods.org/ \
+  "$pod".podspec --platforms=ios
+
+args=(
+  # Build or test.
+  "$build_mode"
+  # Tests that require NSAssert's to fire need Debug.
+  "-configuration" "Debug"
+  # The generated workspace.
+  "-workspace" "gen/$pod/$pod.xcworkspace"
+  # Specify the app if all test should run. Otherwise, specify the test scheme.
+  "-scheme" "$scheme"
+  # Specify Catalyst.
+  "ARCHS=x86_64h" "VALID_ARCHS=x86_64h" "SUPPORTS_MACCATALYST=YES"
+  # Run on macOS
+  "-sdk" "macosx" "-destination platform=\"OS X\"" "TARGETED_DEVICE_FAMILY=2"
+  # Disable signing.
+  "CODE_SIGN_IDENTITY=-" "CODE_SIGNING_REQUIRED=NO" "CODE_SIGNING_ALLOWED=NO"
+)
+
+xcodebuild "${args[@]}" | xcpretty
