@@ -17,6 +17,10 @@
 
 # Check if secrets are available for multiple CI's
 
+set -x
+echo $GITHUB_BASE_REF
+echo $GITHUB_HEAD_REF
+
 check_secrets()
 {
   have_secrets=false
@@ -31,7 +35,7 @@ check_secrets()
   # GitHub Actions: Secrets are available if we're not running on a fork.
   # See https://help.github.com/en/actions/automating-your-workflow-with-github-actions/using-environment-variables
   if [[ -n "${GITHUB_WORKFLOW:-}" ]]; then
-    if [[ -z "$GITHUB_HEAD_REF" ]]; then
+    if [[ -z "$GITHUB_BASE_REF" ]]; then
       have_secrets=true
     fi
   fi
