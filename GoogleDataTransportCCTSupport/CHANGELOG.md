@@ -1,5 +1,8 @@
 # v2.0.1
 - Don't attempt to make NSData out of a nil file URL. (#5088)
+- Fix deprecation warnings. (#5086)
+- Prioritizer will now save state between app restarts.
+- Uploader will retry more often in more failure cases.
 
 # v2.0.0
 - Adds a sentinel value to GDTCOREvent's custom params to signal collection
