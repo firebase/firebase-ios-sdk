@@ -17,6 +17,7 @@
 #import "GDTCORTests/Unit/GDTCORTestCase.h"
 
 #import "GDTCORLibrary/Public/GDTCORClock.h"
+#import "GDTCORLibrary/Public/GDTCORPlatform.h"
 
 @interface GDTCORClockTest : GDTCORTestCase
 
@@ -51,20 +52,16 @@
 /** Tests encoding and decoding a clock using a keyed archiver. */
 - (void)testEncoding {
   GDTCORClock *clock = [GDTCORClock snapshot];
-  GDTCORClock *unarchivedClock;
-  if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-    NSData *clockData = [NSKeyedArchiver archivedDataWithRootObject:clock
-                                              requiringSecureCoding:YES
-                                                              error:nil];
-    unarchivedClock = [NSKeyedUnarchiver unarchivedObjectOfClass:[GDTCORClock class]
-                                                        fromData:clockData
-                                                           error:nil];
-  } else {
-#if !TARGET_OS_MACCATALYST
-    NSData *clockData = [NSKeyedArchiver archivedDataWithRootObject:clock];
-    unarchivedClock = [NSKeyedUnarchiver unarchiveObjectWithData:clockData];
-#endif
-  }
+  NSError *error;
+  NSData *clockData = GDTCOREncodeArchive(clock, nil, &error);
+  XCTAssertNil(error);
+  XCTAssertNotNil(clockData);
+
+  error = nil;
+  GDTCORClock *unarchivedClock =
+      (GDTCORClock *)GDTCORDecodeArchive([GDTCORClock class], nil, clockData, &error);
+  XCTAssertNil(error);
+  XCTAssertNotNil(unarchivedClock);
   XCTAssertEqual([clock hash], [unarchivedClock hash]);
   XCTAssertEqualObjects(clock, unarchivedClock);
 }

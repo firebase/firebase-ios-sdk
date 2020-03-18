@@ -88,6 +88,30 @@ GDTCORNetworkType GDTCORNetworkTypeMessage(void);
  */
 GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage(void);
 
+/** Writes the given object to the given fileURL and populates the given error if it fails.
+ *
+ * @param obj The object to encode.
+ * @param filePath The path to write the object to. Can be nil if you just need the data.
+ * @param error The error to populate if something goes wrong.
+ * @return The data of the archive. If error is nil, it's been written to disk.
+ */
+NSData *_Nullable GDTCOREncodeArchive(id<NSSecureCoding> obj,
+                                      NSString *_Nullable filePath,
+                                      NSError *_Nullable *error);
+
+/** Decodes an object of the given class from the given archive path or data and populates the given
+ * error if it fails.
+ *
+ * @param archiveClass The class of the archive's root object.
+ * @param archivePath The path to the archived data. Don't use with the archiveData param.
+ * @param archiveData The data to decode. Don't use with the archivePath param.
+ * @param error The error to populate if something goes wrong.
+ */
+id<NSSecureCoding> _Nullable GDTCORDecodeArchive(Class archiveClass,
+                                                 NSString *_Nullable archivePath,
+                                                 NSData *_Nullable archiveData,
+                                                 NSError *_Nullable *error);
+
 /** A typedef identify background identifiers. */
 typedef volatile NSUInteger GDTCORBackgroundIdentifier;
 
