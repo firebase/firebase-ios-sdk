@@ -118,7 +118,7 @@
       [self.uploadCoordinator forceUploadForTarget:target];
     }
 
-    // Write state to disk if we're in the background.
+    // Write state to disk if there was an onComplete block or if we're in the background.
     if (hadOriginalCompletion || [[GDTCORApplication sharedApplication] isRunningInBackground]) {
       if (hadOriginalCompletion) {
         GDTCORLogDebug("%@", @"Saving storage state because a completion block was passed.");
