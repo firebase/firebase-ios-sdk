@@ -306,7 +306,7 @@ NSString *const AppVersion = @"app_version";
 
   // Default to use the new endpoint when settings were not successfully fetched
   // or there's an unexpected issue
-  if (!value) {
+  if (value == nil) {
     return YES;
   }
 
