@@ -1,3 +1,16 @@
+# v6.6.5 -- M67
+- [changed] The zip distribution is now comprised of xcframeworks instead of
+  frameworks. This provides a binary distribution for the community supported
+  Firebase for Catalyst. See the zip's README for additional details.
+
+- [fixed] The FirebaseCoreDiagnostic.framework in the Carthage distribution
+  now includes an Info.plist. (#4917)
+
+- [changed] The arm64e slice is no longer included the zip
+  distribution's xcframeworks. The slice will be removed from the remaining
+  frameworks in a subsequent release. We will restore once the slice is
+  officially supported by Apple.
+
 # v6.6.4 -- M66
 - [changed] Added an Apple platform flag (ios/macos/watchos/etc.) to `firebaseUserAgent`.
   The information will be used to support product decisions related to Apple platforms,
