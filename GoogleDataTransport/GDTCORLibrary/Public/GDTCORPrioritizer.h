@@ -69,6 +69,11 @@ typedef NS_OPTIONS(NSInteger, GDTCORUploadConditions) {
 - (GDTCORUploadPackage *)uploadPackageWithTarget:(GDTCORTarget)target
                                       conditions:(GDTCORUploadConditions)conditions;
 
+@optional
+
+/** Saves the state of the prioritizer. */
+- (void)saveState;
+
 @end
 
 NS_ASSUME_NONNULL_END

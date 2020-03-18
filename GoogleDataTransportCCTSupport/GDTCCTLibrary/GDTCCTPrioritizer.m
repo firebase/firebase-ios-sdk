@@ -131,6 +131,17 @@ typedef NS_ENUM(NSInteger, GDTCCTQoSTier) {
   GDTCCTQoSWifiOnly = 5,
 };
 
+- (void)saveState {
+  dispatch_sync(_queue, ^{
+    NSError *error;
+    GDTCOREncodeArchive(self, ArchivePath(), &error);
+    if (error) {
+      GDTCORLogDebug(@"Serializing GDTCCTPrioritizer to an archive failed: %@", error);
+    }
+  });
+  GDTCORLogDebug(@"GDTCCTPrioritizer saved state to %@ as requested by GDT.", ArchivePath());
+}
+
 /** Converts a GDTCOREventQoS to a GDTCCTQoS tier.
  *
  * @param qosTier The GDTCOREventQoS value.
