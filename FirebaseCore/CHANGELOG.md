@@ -8,7 +8,7 @@
 
 - [changed] The arm64e slice is no longer included the zip
   distribution's xcframeworks. The slice will be removed from the remaining
-  frameworks in a subsequent release. We will restore once the slice is
+  frameworks in a subsequent release. We will restore once arm64e is
   officially supported by Apple.
 
 # v6.6.4 -- M66
