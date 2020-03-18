@@ -311,7 +311,7 @@ static NSString *const GDTCCTUploaderCSHEventsKey = @"GDTCCTUploaderCSHEventsKey
 
 - (void)appWillForeground:(GDTCORApplication *)app {
   NSError *error;
-  GDTCORDecodeArchive([GDTCCTPrioritizer class], ArchivePath(), &error);
+  GDTCORDecodeArchive([GDTCCTPrioritizer class], ArchivePath(), nil, &error);
   if (error) {
     GDTCORLogDebug(@"Deserializing GDTCCTPrioritizer from an archive failed: %@", error);
   }
