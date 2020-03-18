@@ -98,7 +98,14 @@ typedef void (^GDTCCTIntegrationTestBlock)(NSURLSessionUploadTask *_Nullable);
   GDTCOREvent *event = [self.transport eventForTransport];
   event.dataObject = [[GDTCCTTestDataObject alloc] init];
   event.qosTier = qosTier;
-  [self.transport sendDataEvent:event];
+  [self.transport sendDataEvent:event
+                     onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
+                       NSLog(@"Storing a data event completed.");
+                       XCTAssertTrue([[NSFileManager defaultManager]
+                           fileExistsAtPath:[GDTCORRootDirectory()
+                                                URLByAppendingPathComponent:@"GDTCCTPrioritizer"]
+                                                .path]);
+                     }];
   dispatch_async(dispatch_get_main_queue(), ^{
     self.totalEventsGenerated += 1;
   });

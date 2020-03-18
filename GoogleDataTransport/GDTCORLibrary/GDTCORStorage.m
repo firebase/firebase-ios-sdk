@@ -59,14 +59,17 @@
 }
 
 - (void)storeEvent:(GDTCOREvent *)event
-        onComplete:(void (^)(BOOL wasWritten, NSError *error))completion {
+        onComplete:(void (^_Nullable)(BOOL wasWritten, NSError *error))completion {
   GDTCORLogDebug("Saving event: %@", event);
   if (event == nil) {
     GDTCORLogDebug("%@", @"The event was nil, so it was not saved.");
     return;
   }
+  BOOL hadOriginalCompletion = completion != nil;
   if (!completion) {
     completion = ^(BOOL wasWritten, NSError *error) {
+      GDTCORLogDebug(@"event %@ stored. success:%@ error:%@", event, wasWritten ? @"YES" : @"NO",
+                     error);
     };
   }
 
@@ -102,8 +105,13 @@
     // Add event to tracking collections.
     [self addEventToTrackingCollections:event];
 
-    // Have the prioritizer prioritize the event.
+    // Have the prioritizer prioritize the event and save state if there was an onComplete block.
     [prioritizer prioritizeEvent:event];
+    if (hadOriginalCompletion && [prioritizer respondsToSelector:@selector(saveState)]) {
+      [prioritizer saveState];
+      GDTCORLogDebug(@"Prioritizer %@ has saved state due to an event's onComplete block.",
+                     prioritizer);
+    }
 
     // Check the QoS, if it's high priority, notify the target that it has a high priority event.
     if (event.qosTier == GDTCOREventQoSFast) {
@@ -111,8 +119,12 @@
     }
 
     // Write state to disk if we're in the background.
-    if ([[GDTCORApplication sharedApplication] isRunningInBackground]) {
-      GDTCORLogDebug("%@", @"Saving storage state because the app is running in the background");
+    if (hadOriginalCompletion || [[GDTCORApplication sharedApplication] isRunningInBackground]) {
+      if (hadOriginalCompletion) {
+        GDTCORLogDebug("%@", @"Saving storage state because a completion block was passed.");
+      } else {
+        GDTCORLogDebug("%@", @"Saving storage state because the app is running in the background");
+      }
       NSError *error;
       GDTCOREncodeArchive(self, [GDTCORStorage archivePath], &error);
       if (error) {
