@@ -101,10 +101,6 @@ typedef void (^GDTCCTIntegrationTestBlock)(NSURLSessionUploadTask *_Nullable);
   [self.transport sendDataEvent:event
                      onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
                        NSLog(@"Storing a data event completed.");
-                       XCTAssertTrue([[NSFileManager defaultManager]
-                           fileExistsAtPath:[GDTCORRootDirectory()
-                                                URLByAppendingPathComponent:@"GDTCCTPrioritizer"]
-                                                .path]);
                      }];
   dispatch_async(dispatch_get_main_queue(), ^{
     self.totalEventsGenerated += 1;
