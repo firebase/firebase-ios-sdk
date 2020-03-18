@@ -22,14 +22,14 @@
 #import "FIRCLSInstallIdentifierModel.h"
 #import "FIRCLSInternalReport.h"
 #import "FIRCLSMockSettings.h"
-#import "FIRCLSTempMockFileManager.h"
+#import "FIRCLSMockFileManager.h"
 #import "FIRMockInstallations.h"
 
 #define TEST_BUNDLE_ID (@"com.crashlytics.test")
 
 @interface FIRRecordExceptionModelTests : XCTestCase
 
-@property(nonatomic, strong) FIRCLSTempMockFileManager *fileManager;
+@property(nonatomic, strong) FIRCLSMockFileManager *fileManager;
 @property(nonatomic, strong) FIRCLSMockSettings *mockSettings;
 @property(nonatomic, strong) NSString *reportPath;
 
@@ -38,8 +38,7 @@
 @implementation FIRRecordExceptionModelTests
 
 - (void)setUp {
-  self.fileManager = [[FIRCLSTempMockFileManager alloc] init];
-  [self.fileManager setPathNamespace:TEST_BUNDLE_ID];
+  self.fileManager = [[FIRCLSMockFileManager alloc] init];
 
   FABMockApplicationIdentifierModel *appIDModel = [[FABMockApplicationIdentifierModel alloc] init];
   self.mockSettings = [[FIRCLSMockSettings alloc] initWithFileManager:self.fileManager

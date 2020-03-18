@@ -18,8 +18,6 @@
 
 @interface FIRCLSTempMockFileManager : FIRCLSFileManager
 
-@property(nonatomic, copy) NSString *pathNamespace;
-
 // Number of calls to removeItemAtPath are expected for the unit test
 @property(nonatomic) NSInteger expectedRemoveCount;
 

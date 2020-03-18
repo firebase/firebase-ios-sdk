@@ -44,7 +44,6 @@ NSString *const TestOrgID = @"TestOrgID";
                                                        appIDModel:appIDModel];
 
   FIRCLSTempMockFileManager *manager = [[FIRCLSTempMockFileManager alloc] init];
-  [manager setPathNamespace:@"com.crashlytics.unittests"];
 
   self.fileManager = manager;
 

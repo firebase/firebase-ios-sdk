@@ -15,13 +15,13 @@
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 
-#import "FIRCLSTempMockFileManager.h"
+#import "FIRCLSFileManager.h"
 
 @interface FIRCLSFileManagerTests : XCTestCase {
-  FIRCLSTempMockFileManager* _manager;
+  FIRCLSFileManager* _manager;
 }
 
-@property(nonatomic, retain, readonly) FIRCLSTempMockFileManager* manager;
+@property(nonatomic, retain, readonly) FIRCLSFileManager* manager;
 
 @end
 
@@ -30,8 +30,7 @@
 - (void)setUp {
   [super setUp];
 
-  _manager = [[FIRCLSTempMockFileManager alloc] init];
-  [_manager setPathNamespace:@"com.crashlytics.unittests"];
+  _manager = [[FIRCLSFileManager alloc] init];
 
   [self removeRootDirectory];
 }

@@ -71,7 +71,6 @@
   self.dataArbiter = [[FIRCLSDataCollectionArbiter alloc] initWithApp:fakeApp withAppInfo:@{}];
 
   self.fileManager = [[FIRCLSTempMockFileManager alloc] init];
-  [self.fileManager setPathNamespace:TEST_BUNDLE_ID];
 
   // Delete cached settings
   [self.fileManager removeItemAtPath:_fileManager.settingsFilePath];

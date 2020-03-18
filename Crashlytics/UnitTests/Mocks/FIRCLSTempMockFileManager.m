@@ -16,8 +16,6 @@
 
 @implementation FIRCLSTempMockFileManager
 
-@synthesize pathNamespace;
-
 - (instancetype)init {
   self = [super init];
   if (!self) {

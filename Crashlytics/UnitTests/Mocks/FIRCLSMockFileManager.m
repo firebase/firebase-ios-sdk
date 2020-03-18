@@ -62,4 +62,30 @@
   return self.fileSystemDict[path];
 }
 
+- (void)enumerateFilesInDirectory:(NSString *)directory
+                       usingBlock:(void (^)(NSString *filePath, NSString *extension))block {
+    
+    NSArray<NSString *> *filteredPaths = [self.fileSystemDict.allKeys filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(NSString *path, NSDictionary *bindings) {
+        return [path hasPrefix:directory];
+    }]];
+
+  for (NSString *path in filteredPaths) {
+    NSString *extension;
+    NSString *fullPath;
+
+    // Skip files that start with a dot.  This is important, because if you try to move a .DS_Store
+    // file, it will fail if the target directory also has a .DS_Store file in it.  Plus, its
+    // wasteful, because we don't care about dot files.
+    if ([path hasPrefix:@"."]) {
+      continue;
+    }
+
+    extension = [path pathExtension];
+    fullPath = [directory stringByAppendingPathComponent:path];
+    if (block) {
+      block(fullPath, extension);
+    }
+  }
+}
+
 @end
