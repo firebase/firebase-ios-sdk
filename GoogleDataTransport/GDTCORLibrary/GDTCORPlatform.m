@@ -152,11 +152,13 @@ NSData *_Nullable GDTCOREncodeArchive(id<NSSecureCoding> obj,
       GDTCORLogDebug(@"Encoding an object failed: %@", *error);
       return nil;
     }
-    BOOL result = [resultData writeToFile:archivePath options:NSDataWritingAtomic error:error];
-    if (result == NO || *error) {
-      GDTCORLogDebug(@"Attempt to write archive failed: URL:%@ error:%@", archivePath, *error);
-    } else {
-      GDTCORLogDebug(@"Writing archive succeeded: %@", archivePath);
+    if (archivePath) {
+      BOOL result = [resultData writeToFile:archivePath options:NSDataWritingAtomic error:error];
+      if (result == NO || *error) {
+        GDTCORLogDebug(@"Attempt to write archive failed: URL:%@ error:%@", archivePath, *error);
+      } else {
+        GDTCORLogDebug(@"Writing archive succeeded: %@", archivePath);
+      }
     }
   } else {
 #endif
@@ -166,11 +168,13 @@ NSData *_Nullable GDTCOREncodeArchive(id<NSSecureCoding> obj,
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
       resultData = [NSKeyedArchiver archivedDataWithRootObject:obj];
 #pragma clang diagnostic pop
-      result = [resultData writeToFile:archivePath options:NSDataWritingAtomic error:error];
-      if (result == NO || *error) {
-        GDTCORLogDebug(@"Attempt to write archive failed: URL:%@ error:%@", archivePath, *error);
-      } else {
-        GDTCORLogDebug(@"Writing archive succeeded: %@", archivePath);
+      if (archivePath) {
+        result = [resultData writeToFile:archivePath options:NSDataWritingAtomic error:error];
+        if (result == NO || *error) {
+          GDTCORLogDebug(@"Attempt to write archive failed: URL:%@ error:%@", archivePath, *error);
+        } else {
+          GDTCORLogDebug(@"Writing archive succeeded: %@", archivePath);
+        }
       }
     } @catch (NSException *exception) {
       NSString *errorString =

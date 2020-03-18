@@ -22,6 +22,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface GDTCOREvent ()
 
+/** The GDT relative file path of the event. */
+@property(nullable, nonatomic, readonly) NSString *GDTFilePath;
+
 /** Writes [dataObject transportBytes] to the given URL, populates fileURL with the filename, then
  * nils the dataObject property. This method should not be called twice on the same event.
  *

@@ -48,7 +48,7 @@
   copy.qosTier = _qosTier;
   copy.clockSnapshot = _clockSnapshot;
   copy.customPrioritizationParams = _customPrioritizationParams;
-  copy->_fileURL = _fileURL;
+  copy->_GDTFilePath = _GDTFilePath;
   GDTCORLogDebug("Copying event %@ to event %@", self, copy);
   return copy;
 }
@@ -58,7 +58,7 @@
   NSUInteger mappingIDHash = [_mappingID hash];
   NSUInteger timeHash = [_clockSnapshot hash];
   NSInteger dataObjectHash = [_dataObject hash];
-  NSUInteger fileURL = [_fileURL hash];
+  NSUInteger fileURL = [_GDTFilePath hash];
 
   return mappingIDHash ^ _target ^ _qosTier ^ timeHash ^ dataObjectHash ^ fileURL;
 }
@@ -78,25 +78,28 @@
   }
 }
 
+- (NSURL *)fileURL {
+  return [[NSURL alloc] initWithString:_GDTFilePath relativeToURL:GDTCORRootDirectory()];
+}
+
 #pragma mark - Private methods
 
 - (BOOL)writeToGDTPath:(NSString *)filePath error:(NSError **)error {
   NSData *dataTransportBytes = [_dataObject transportBytes];
   if (dataTransportBytes == nil) {
-    _fileURL = nil;
+    _GDTFilePath = nil;
     _dataObject = nil;
     return NO;
   }
-  NSURL *fileURL = [[NSURL alloc] initWithString:filePath relativeToURL:GDTCORRootDirectory()];
+  NSURL *fileURL = [GDTCORRootDirectory() URLByAppendingPathComponent:filePath];
   BOOL writingSuccess = [dataTransportBytes writeToURL:fileURL
                                                options:NSDataWritingAtomic
                                                  error:error];
   if (!writingSuccess) {
     GDTCORLogError(GDTCORMCEFileWriteError, @"An event file could not be written: %@", fileURL);
-    _fileURL = nil;
     return NO;
   }
-  _fileURL = fileURL;
+  _GDTFilePath = filePath;
   _dataObject = nil;
   return YES;
 }
@@ -117,6 +120,9 @@ static NSString *clockSnapshotKey = @"_clockSnapshot";
 
 /** NSCoding key for fileURL property. */
 static NSString *fileURLKey = @"_fileURL";
+
+/** NSCoding key for GDTFilePath property. */
+static NSString *kGDTFilePathKey = @"_GDTFilePath";
 
 /** NSCoding key for customPrioritizationParams property. */
 static NSString *customPrioritizationParams = @"_customPrioritizationParams";
@@ -158,7 +164,12 @@ static NSString *kStoredEventCustomPrioritizationParamsKey =
   if (self) {
     _qosTier = [aDecoder decodeIntegerForKey:qosTierKey];
     _clockSnapshot = [aDecoder decodeObjectOfClass:[GDTCORClock class] forKey:clockSnapshotKey];
-    _fileURL = [aDecoder decodeObjectOfClass:[NSURL class] forKey:fileURLKey];
+    NSURL *fileURL = [aDecoder decodeObjectOfClass:[NSURL class] forKey:fileURLKey];
+    if (fileURL) {
+      _GDTFilePath = [fileURL lastPathComponent];
+    } else {
+      _GDTFilePath = [aDecoder decodeObjectOfClass:[NSString class] forKey:kGDTFilePathKey];
+    }
     _customPrioritizationParams = [aDecoder decodeObjectOfClass:[NSDictionary class]
                                                          forKey:customPrioritizationParams];
   }
@@ -177,7 +188,11 @@ static NSString *kStoredEventCustomPrioritizationParamsKey =
                                        forKey:kStoredEventQosTierKey] integerValue];
     _clockSnapshot = [aDecoder decodeObjectOfClass:[GDTCORClock class]
                                             forKey:kStoredEventClockSnapshotKey];
-    _fileURL = fileURL;
+    if (fileURL) {
+      _GDTFilePath = [fileURL lastPathComponent];
+    } else {
+      _GDTFilePath = [aDecoder decodeObjectOfClass:[NSString class] forKey:kGDTFilePathKey];
+    }
     _customPrioritizationParams =
         [aDecoder decodeObjectOfClass:[NSDictionary class]
                                forKey:kStoredEventCustomPrioritizationParamsKey];
@@ -190,7 +205,7 @@ static NSString *kStoredEventCustomPrioritizationParamsKey =
   [aCoder encodeInteger:_target forKey:targetKey];
   [aCoder encodeInteger:_qosTier forKey:qosTierKey];
   [aCoder encodeObject:_clockSnapshot forKey:clockSnapshotKey];
-  [aCoder encodeObject:_fileURL forKey:fileURLKey];
+  [aCoder encodeObject:_GDTFilePath forKey:kGDTFilePathKey];
   [aCoder encodeObject:_customPrioritizationParams forKey:customPrioritizationParams];
 }
 
