@@ -34,6 +34,8 @@
 }
 
 - (BOOL)removeItemAtPath:(NSString *)path {
+  self.removedItemAtPath_path = path;
+
   [self.fileSystemDict removeObjectForKey:path];
 
   self.removeCount += 1;
@@ -64,10 +66,11 @@
 
 - (void)enumerateFilesInDirectory:(NSString *)directory
                        usingBlock:(void (^)(NSString *filePath, NSString *extension))block {
-    
-    NSArray<NSString *> *filteredPaths = [self.fileSystemDict.allKeys filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(NSString *path, NSDictionary *bindings) {
+  NSArray<NSString *> *filteredPaths = [self.fileSystemDict.allKeys
+      filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(NSString *path,
+                                                                        NSDictionary *bindings) {
         return [path hasPrefix:directory];
-    }]];
+      }]];
 
   for (NSString *path in filteredPaths) {
     NSString *extension;
@@ -86,6 +89,31 @@
       block(fullPath, extension);
     }
   }
+}
+
+- (BOOL)moveItemAtPath:(NSString *)path toDirectory:(NSString *)destDir {
+  self.moveItemAtPath_path = path;
+  self.moveItemAtPath_destDir = destDir;
+
+  if (self.moveItemAtPathResult != nil) {
+    return self.moveItemAtPathResult.intValue > 0;
+  }
+
+  NSString *file = path.lastPathComponent;
+  NSString *newPath = [destDir stringByAppendingPathComponent:file];
+
+  self.fileSystemDict[newPath] = self.fileSystemDict[path];
+  self.fileSystemDict[path] = nil;
+
+  return YES;
+}
+
+- (NSNumber *)fileSizeAtPath:(NSString *)path {
+  if (self.fileSizeAtPathResult != nil) {
+    return self.fileSizeAtPathResult;
+  }
+
+  return [NSNumber numberWithUnsignedLong:self.fileSystemDict[path].length];
 }
 
 @end
