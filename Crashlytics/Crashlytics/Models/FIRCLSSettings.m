@@ -304,6 +304,12 @@ NSString *const AppVersion = @"app_version";
 - (BOOL)shouldUseNewReportEndpoint {
   NSNumber *value = [self appSettings][@"report_upload_variant"];
 
+  // Default to use the new endpoint when settings were not successfully fetched
+  // or there's an unexpected issue
+  if (value == nil) {
+    return YES;
+  }
+
   // 0 - Unknown
   // 1 - Legacy
   // 2 - New
