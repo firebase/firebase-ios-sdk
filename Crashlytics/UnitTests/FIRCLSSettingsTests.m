@@ -12,10 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// TODO: There is some unreliability with this test.
-//       self.settings.settingsDictionary returns nil.
-//       Abstract FileManager so actual disk operations are not happening.
-
 #import "FIRCLSSettings.h"
 
 #import <Foundation/Foundation.h>

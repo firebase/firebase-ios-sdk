@@ -27,29 +27,13 @@
 #import "GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
 #import "GDTCORLibrary/Private/GDTCORUploadCoordinator.h"
 
-/** Creates and/or returns a singleton NSString that is the shared storage path.
- *
- * @return The SDK event storage path.
- */
-static NSString *GDTCORStoragePath() {
-  static NSString *storagePath;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    NSString *cachePath =
-        NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)[0];
-    storagePath = [NSString stringWithFormat:@"%@/google-sdks-events", cachePath];
-    GDTCORLogDebug("Events will be saved to %@", storagePath);
-  });
-  return storagePath;
-}
-
 @implementation GDTCORStorage
 
 + (NSString *)archivePath {
   static NSString *archivePath;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
-    archivePath = [GDTCORStoragePath() stringByAppendingPathComponent:@"GDTCORStorageArchive"];
+    archivePath = [GDTCORRootDirectory() URLByAppendingPathComponent:@"GDTCORStorageArchive"].path;
   });
   return archivePath;
 }
@@ -129,16 +113,10 @@ static NSString *GDTCORStoragePath() {
     // Write state to disk if we're in the background.
     if ([[GDTCORApplication sharedApplication] isRunningInBackground]) {
       GDTCORLogDebug("%@", @"Saving storage state because the app is running in the background");
-      if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-        NSError *error;
-        NSData *data = [NSKeyedArchiver archivedDataWithRootObject:self
-                                             requiringSecureCoding:YES
-                                                             error:&error];
-        [data writeToFile:[GDTCORStorage archivePath] atomically:YES];
-      } else {
-#if !TARGET_OS_MACCATALYST && !TARGET_OS_WATCH
-        [NSKeyedArchiver archiveRootObject:self toFile:[GDTCORStorage archivePath]];
-#endif
+      NSError *error;
+      GDTCOREncodeArchive(self, [GDTCORStorage archivePath], &error);
+      if (error) {
+        GDTCORLogDebug(@"Serializing GDTCORStorage to an archive failed: %@", error);
       }
     }
 
@@ -175,10 +153,10 @@ static NSString *GDTCORStoragePath() {
 /** Creates the storage directory if it does not exist. */
 - (void)createEventDirectoryIfNotExists {
   NSError *error;
-  BOOL result = [[NSFileManager defaultManager] createDirectoryAtPath:GDTCORStoragePath()
-                                          withIntermediateDirectories:YES
-                                                           attributes:0
-                                                                error:&error];
+  BOOL result = [[NSFileManager defaultManager] createDirectoryAtURL:GDTCORRootDirectory()
+                                         withIntermediateDirectories:YES
+                                                          attributes:0
+                                                               error:&error];
   if (!result || error) {
     GDTCORLogError(GDTCORMCEDirectoryCreationError, @"Error creating the directory: %@", error);
   }
@@ -196,16 +174,13 @@ static NSString *GDTCORStoragePath() {
 - (NSURL *)saveEventBytesToDisk:(GDTCOREvent *)event
                       eventHash:(NSUInteger)eventHash
                           error:(NSError **)error {
-  NSString *storagePath = GDTCORStoragePath();
   NSString *eventFileName = [NSString stringWithFormat:@"event-%lu", (unsigned long)eventHash];
-  NSURL *eventFilePath =
-      [NSURL fileURLWithPath:[storagePath stringByAppendingPathComponent:eventFileName]];
-
-  GDTCORAssert(![[NSFileManager defaultManager] fileExistsAtPath:eventFilePath.path],
-               @"An event shouldn't already exist at this path: %@", eventFilePath.path);
-
-  [event writeToURL:eventFilePath error:error];
-  return eventFilePath;
+  NSError *writingError;
+  [event writeToGDTPath:eventFileName error:&writingError];
+  if (writingError) {
+    GDTCORLogDebug(@"There was an error saving an event to disk: %@", writingError);
+  }
+  return event.fileURL;
 }
 
 /** Adds the event to internal tracking collections.
@@ -227,16 +202,10 @@ static NSString *GDTCORStoragePath() {
 #pragma mark - GDTCORLifecycleProtocol
 
 - (void)appWillForeground:(GDTCORApplication *)app {
-  if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-    NSError *error;
-    NSData *data = [NSData dataWithContentsOfFile:[GDTCORStorage archivePath]];
-    if (data) {
-      [NSKeyedUnarchiver unarchivedObjectOfClass:[GDTCORStorage class] fromData:data error:&error];
-    }
-  } else {
-#if !TARGET_OS_MACCATALYST && !TARGET_OS_WATCH
-    [NSKeyedUnarchiver unarchiveObjectWithFile:[GDTCORStorage archivePath]];
-#endif
+  NSError *error;
+  GDTCORDecodeArchive([GDTCORStorage class], [GDTCORStorage archivePath], nil, &error);
+  if (error) {
+    GDTCORLogDebug(@"Deserializing GDTCORStorage from an archive failed: %@", error);
   }
 }
 
@@ -250,17 +219,12 @@ static NSString *GDTCORStoragePath() {
                          [app endBackgroundTask:bgID];
                          bgID = GDTCORBackgroundIdentifierInvalid;
                        }];
-
-    if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-      NSError *error;
-      NSData *data = [NSKeyedArchiver archivedDataWithRootObject:self
-                                           requiringSecureCoding:YES
-                                                           error:&error];
-      [data writeToFile:[GDTCORStorage archivePath] atomically:YES];
+    NSError *error;
+    GDTCOREncodeArchive(self, [GDTCORStorage archivePath], &error);
+    if (error) {
+      GDTCORLogDebug(@"Serializing GDTCORStorage to an archive failed: %@", error);
     } else {
-#if !TARGET_OS_MACCATALYST && !TARGET_OS_WATCH
-      [NSKeyedArchiver archiveRootObject:self toFile:[GDTCORStorage archivePath]];
-#endif
+      GDTCORLogDebug(@"Serialized GDTCORStorage to %@", [GDTCORStorage archivePath]);
     }
 
     // End the background task if it's still valid.
@@ -271,16 +235,12 @@ static NSString *GDTCORStoragePath() {
 
 - (void)appWillTerminate:(GDTCORApplication *)application {
   dispatch_sync(_storageQueue, ^{
-    if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-      NSError *error;
-      NSData *data = [NSKeyedArchiver archivedDataWithRootObject:self
-                                           requiringSecureCoding:YES
-                                                           error:&error];
-      [data writeToFile:[GDTCORStorage archivePath] atomically:YES];
+    NSError *error;
+    GDTCOREncodeArchive(self, [GDTCORStorage archivePath], &error);
+    if (error) {
+      GDTCORLogDebug(@"Serializing GDTCORStorage to an archive failed: %@", error);
     } else {
-#if !TARGET_OS_MACCATALYST && !TARGET_OS_WATCH
-      [NSKeyedArchiver archiveRootObject:self toFile:[GDTCORStorage archivePath]];
-#endif
+      GDTCORLogDebug(@"Serialized GDTCORStorage to %@", [GDTCORStorage archivePath]);
     }
   });
 }
