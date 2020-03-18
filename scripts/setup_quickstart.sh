@@ -35,6 +35,8 @@ if [[ "$have_secrets" == true ]]; then
   # git checkout {BRANCH_NAME}
   git checkout pb-secrets-gha
 
+  bundle update --bundler
+  bundle install
   bundle exec pod install
 
   # Secrets are repo specific, so we need to override with the firebase-ios-sdk
