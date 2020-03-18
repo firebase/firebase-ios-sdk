@@ -24,10 +24,13 @@
 
 + (NSDictionary *)generateServerValues:(id<FClock>)clock;
 + (id)resolveDeferredValueCompoundWrite:(FCompoundWrite *)write
-                       withServerValues:(NSDictionary *)serverValues;
+                           withExisting:(id<FNode>)existing
+                           serverValues:(NSDictionary *)serverValues;
 + (id<FNode>)resolveDeferredValueSnapshot:(id<FNode>)node
-                         withServerValues:(NSDictionary *)serverValues;
+                             withExisting:(id<FNode>)existing
+                             serverValues:(NSDictionary *)serverValues;
 + (id)resolveDeferredValueTree:(FSparseSnapshotTree *)tree
-              withServerValues:(NSDictionary *)serverValues;
+                  withExisting:(id<FNode>)node
+                  serverValues:(NSDictionary *)serverValues;
 
 @end
