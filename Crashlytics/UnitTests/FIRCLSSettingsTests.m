@@ -379,7 +379,7 @@
 //}
 //
 //// This is a weird case where we got settings, but never created a cache key for it. We are
-///treating / this as if the cache was invalid and re-fetching in this case.
+/// treating / this as if the cache was invalid and re-fetching in this case.
 //- (void)testActivatedSettingsMissingCacheKey {
 //  NSError *error = nil;
 //  [self writeSettings:FIRCLSTestSettingsActivated error:&error];
