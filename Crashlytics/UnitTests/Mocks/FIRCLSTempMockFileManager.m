@@ -12,6 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// The mock file manager class should not write out to the file system as it causes reliability
+// issues in tests. Instead, FIRCLSMockFileManager should be used. This class cannot be removed yet
+// because the file system is tightly coupled throughout the SDK code. File system manipulations are
+// done through NSFileManager, NSData, NSString and other APIs.
+//
+// Once the experiment to upload to the new reporting endpoint using GDT is complete,
+// old legacy classes and logic (ie FIRCLSInternalReport, FIRCLSPackageReportsOperation) used for
+// processing reports can be removed. At that point, this mock class should be removed.
+
 #import "FIRCLSTempMockFileManager.h"
 
 @implementation FIRCLSTempMockFileManager

@@ -64,10 +64,11 @@
 
 - (void)enumerateFilesInDirectory:(NSString *)directory
                        usingBlock:(void (^)(NSString *filePath, NSString *extension))block {
-    
-    NSArray<NSString *> *filteredPaths = [self.fileSystemDict.allKeys filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(NSString *path, NSDictionary *bindings) {
+  NSArray<NSString *> *filteredPaths = [self.fileSystemDict.allKeys
+      filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(NSString *path,
+                                                                        NSDictionary *bindings) {
         return [path hasPrefix:directory];
-    }]];
+      }]];
 
   for (NSString *path in filteredPaths) {
     NSString *extension;
