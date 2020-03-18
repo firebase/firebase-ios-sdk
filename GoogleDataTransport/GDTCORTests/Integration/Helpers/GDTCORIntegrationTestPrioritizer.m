@@ -72,6 +72,9 @@
   return uploadPackage;
 }
 
+- (void)saveState {
+}
+
 - (void)packageDelivered:(GDTCORUploadPackage *)package successful:(BOOL)successful {
   dispatch_async(_queue, ^{
     for (GDTCOREvent *event in package.events) {
