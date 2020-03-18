@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-@interface FIRCLSMockFileManager : FIRCLSFileManager
+@interface FIRCLSTempMockFileManager : FIRCLSFileManager
 
 // Number of calls to removeItemAtPath are expected for the unit test
 @property(nonatomic) NSInteger expectedRemoveCount;
@@ -24,10 +24,25 @@
 // Incremented when a remove happens with removeItemAtPath
 @property(nonatomic) NSInteger removeCount;
 
+// Overrides fileSizeAtPath if set
+@property(nonatomic, copy) NSNumber *fileSizeAtPathResult;
+
 // Will be fulfilled when the expected number of removes have happened
 // using removeItemAtPath
 //
 // Users should initialize this in their test.
 @property(nonatomic, strong) XCTestExpectation *removeExpectation;
+
+@property(nonatomic, copy) NSString *removedItemAtPath_path;
+
+// Overriding the method for testing Settings
+- (BOOL)removeItemAtPath:(NSString *)path;
+
+// Overrides moveItemAtPath if set
+@property(nonatomic) NSNumber *moveItemAtPathResult;
+@property(nonatomic, copy) NSString *moveItemAtPath_path;
+@property(nonatomic, copy) NSString *moveItemAtPath_destDir;
+
+- (BOOL)moveItemAtPath:(NSString *)path toDirectory:(NSString *)destDir;
 
 @end

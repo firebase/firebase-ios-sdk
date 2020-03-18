@@ -12,11 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// TODO: There is some unreliability with this test.
-//       self.settings.settingsDictionary returns nil.
-//       Abstract FileManager so actual disk operations are not happening.
-
-/*
 #import "FIRCLSSettings.h"
 
 #import <Foundation/Foundation.h>
@@ -82,20 +77,12 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
 
   _fileManager = [[FIRCLSMockFileManager alloc] init];
 
-  // Delete the cache
-  [_fileManager removeItemAtPath:_fileManager.settingsFilePath];
-  [_fileManager removeItemAtPath:_fileManager.settingsCacheKeyPath];
-
   _appIDModel = [[FABMockApplicationIdentifierModel alloc] init];
   _appIDModel.buildInstanceID = FIRCLSDefaultMockBuildInstanceID;
   _appIDModel.displayVersion = FIRCLSDefaultMockAppDisplayVersion;
   _appIDModel.buildVersion = FIRCLSDefaultMockAppBuildVersion;
 
   _settings = [[FIRCLSSettings alloc] initWithFileManager:_fileManager appIDModel:_appIDModel];
-}
-
-- (void)tearDown {
-  [_fileManager removeContentsOfDirectoryAtPath:_fileManager.settingsDirectoryPath];
 }
 
 - (void)testDefaultSettings {
@@ -135,18 +122,9 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
     path = _fileManager.settingsCacheKeyPath;
   }
 
-  // Create the directory.
-  [[NSFileManager defaultManager] createDirectoryAtPath:path.stringByDeletingLastPathComponent
-                            withIntermediateDirectories:YES
-                                             attributes:nil
-                                                  error:error];
-  if (*error != nil) {
-    return NO;
-  }
-
-  // Create the file.
-  [settings writeToFile:path atomically:NO encoding:NSUTF8StringEncoding error:error];
-  return YES;
+  return [self.fileManager createFileAtPath:path
+                                   contents:[settings dataUsingEncoding:NSUTF8StringEncoding]
+                                 attributes:nil];
 }
 
 - (void)cacheSettingsWithGoogleAppID:(NSString *)googleAppID
@@ -378,8 +356,8 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
 }
 
 // This is a weird case where we got settings, but never created a cache key for it. We are
-/ treating / this as if the cache was invalid and re - fetching in this case.-
-    (void)testActivatedSettingsMissingCacheKey {
+// treating this as if the cache was invalid and re-fetching in this case.
+- (void)testActivatedSettingsMissingCacheKey {
   NSError *error = nil;
   [self writeSettings:FIRCLSTestSettingsActivated error:&error];
   XCTAssertNil(error, "%@", error);
@@ -550,4 +528,3 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
 }
 
 @end
-*/

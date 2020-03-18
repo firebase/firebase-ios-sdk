@@ -332,4 +332,9 @@ NSString *const FIRCLSCacheVersion = @"v5";
   return [self.underlyingFileManager moveItemAtPath:srcPath toPath:dstPath error:error];
 }
 
+// Wrapper over NSData so the method can be mocked for unit tests
+- (NSData *)dataWithContentsOfFile:(NSString *)path {
+  return [NSData dataWithContentsOfFile:path];
+}
+
 @end
