@@ -27,7 +27,9 @@ NS_ASSUME_NONNULL_BEGIN
                           analytics:(nullable id<FIRAnalyticsInterop>)analytics
                         googleAppID:(nonnull NSString *)googleAppID
                         dataArbiter:(FIRCLSDataCollectionArbiter *)dataArbiter
-                    googleTransport:(GDTCORTransport *)googleTransport NS_DESIGNATED_INITIALIZER;
+                    googleTransport:(GDTCORTransport *)googleTransport
+                         appIDModel:(FIRCLSApplicationIdentifierModel *)appIDModel
+                           settings:(FIRCLSSettings *)settings NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)initWithFileManager:(FIRCLSFileManager *)fileManager
                       installations:(FIRInstallations *)instanceID
