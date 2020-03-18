@@ -1,4 +1,4 @@
-# v1.1.1 -- M68
+# v1.1.1 -- M67
 
 - [fixed] Accessing `GULHeartbeatDateStorage` moved out of main thread. (#5098)
 
