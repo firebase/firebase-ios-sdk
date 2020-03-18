@@ -79,7 +79,10 @@
 }
 
 - (NSURL *)fileURL {
-  return [[NSURL alloc] initWithString:_GDTFilePath relativeToURL:GDTCORRootDirectory()];
+  if (!_GDTFilePath) {
+    _GDTFilePath = [NSString stringWithFormat:@"event-%lu", (unsigned long)self.hash];
+  }
+  return [GDTCORRootDirectory() URLByAppendingPathComponent:_GDTFilePath];
 }
 
 #pragma mark - Private methods

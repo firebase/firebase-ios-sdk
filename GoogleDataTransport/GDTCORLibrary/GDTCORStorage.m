@@ -175,16 +175,12 @@
                       eventHash:(NSUInteger)eventHash
                           error:(NSError **)error {
   NSString *eventFileName = [NSString stringWithFormat:@"event-%lu", (unsigned long)eventHash];
-  NSURL *fileURL = [[NSURL alloc] initWithString:eventFileName relativeToURL:GDTCORRootDirectory()];
-  GDTCORAssert(![[NSFileManager defaultManager] fileExistsAtPath:fileURL.path],
-               @"An event shouldn't already exist at this path: %@", fileURL.path);
-
   NSError *writingError;
   [event writeToGDTPath:eventFileName error:&writingError];
   if (writingError) {
     GDTCORLogDebug(@"There was an error saving an event to disk: %@", writingError);
   }
-  return fileURL;
+  return event.fileURL;
 }
 
 /** Adds the event to internal tracking collections.
