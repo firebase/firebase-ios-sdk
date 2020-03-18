@@ -92,7 +92,7 @@
   event1.qosTier = GDTCOREventQosDefault;
   event1.customPrioritizationParams = @{@"customParam1" : @"aValue1"};
   NSError *error1;
-  [event1 writeToURL:[NSURL fileURLWithPath:@"/tmp/fake.txt"] error:&error1];
+  [event1 writeToGDTPath:@"/tmp/fake.txt" error:&error1];
   XCTAssertNil(error1);
 
   GDTCOREvent *event2 = [[GDTCOREvent alloc] initWithMappingID:@"1018" target:1];
@@ -104,7 +104,7 @@
   event2.qosTier = GDTCOREventQosDefault;
   event2.customPrioritizationParams = @{@"customParam1" : @"aValue1"};
   NSError *error2;
-  [event2 writeToURL:[NSURL fileURLWithPath:@"/tmp/fake.txt"] error:&error2];
+  [event2 writeToGDTPath:@"/tmp/fake.txt" error:&error2];
   XCTAssertNil(error2);
 
   XCTAssertEqual([event1 hash], [event2 hash]);
