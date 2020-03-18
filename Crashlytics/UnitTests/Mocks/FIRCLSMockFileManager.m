@@ -1,4 +1,4 @@
-// Copyright 2019 Google
+// Copyright 2020 Google
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,9 +14,13 @@
 
 #import "FIRCLSMockFileManager.h"
 
-@implementation FIRCLSMockFileManager
+@interface FIRCLSMockFileManager ()
 
-@synthesize pathNamespace;
+@property(nonatomic) NSMutableDictionary<NSString *, NSData *> *fileSystemDict;
+
+@end
+
+@implementation FIRCLSMockFileManager
 
 - (instancetype)init {
   self = [super init];
@@ -24,16 +28,13 @@
     return nil;
   }
 
-  // Should be set by the tests when needed
-  _removeExpectation = nil;
+  _fileSystemDict = [[NSMutableDictionary<NSString *, NSData *> alloc] init];
 
   return self;
 }
 
 - (BOOL)removeItemAtPath:(NSString *)path {
-  self.removedItemAtPath_path = path;
-
-  [super removeItemAtPath:path];
+  [self.fileSystemDict removeObjectForKey:path];
 
   self.removeCount += 1;
 
@@ -46,23 +47,46 @@
   return YES;
 }
 
-- (NSNumber *)fileSizeAtPath:(NSString *)path {
-  if (self.fileSizeAtPathResult != nil) {
-    return self.fileSizeAtPathResult;
-  }
-
-  return [super fileSizeAtPath:path];
+- (BOOL)fileExistsAtPath:(NSString *)path {
+  return self.fileSystemDict[path] != nil;
 }
 
-- (BOOL)moveItemAtPath:(NSString *)path toDirectory:(NSString *)destDir {
-  self.moveItemAtPath_path = path;
-  self.moveItemAtPath_destDir = destDir;
+- (BOOL)createFileAtPath:(NSString *)path
+                contents:(NSData *)data
+              attributes:(NSDictionary<NSFileAttributeKey, id> *)attr {
+  self.fileSystemDict[path] = data;
+  return YES;
+}
 
-  if (self.moveItemAtPathResult != nil) {
-    return self.moveItemAtPathResult.intValue > 0;
+- (NSData *)dataWithContentsOfFile:(NSString *)path {
+  return self.fileSystemDict[path];
+}
+
+- (void)enumerateFilesInDirectory:(NSString *)directory
+                       usingBlock:(void (^)(NSString *filePath, NSString *extension))block {
+  NSArray<NSString *> *filteredPaths = [self.fileSystemDict.allKeys
+      filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(NSString *path,
+                                                                        NSDictionary *bindings) {
+        return [path hasPrefix:directory];
+      }]];
+
+  for (NSString *path in filteredPaths) {
+    NSString *extension;
+    NSString *fullPath;
+
+    // Skip files that start with a dot.  This is important, because if you try to move a .DS_Store
+    // file, it will fail if the target directory also has a .DS_Store file in it.  Plus, its
+    // wasteful, because we don't care about dot files.
+    if ([path hasPrefix:@"."]) {
+      continue;
+    }
+
+    extension = [path pathExtension];
+    fullPath = [directory stringByAppendingPathComponent:path];
+    if (block) {
+      block(fullPath, extension);
+    }
   }
-
-  return [super moveItemAtPath:path toDirectory:destDir];
 }
 
 @end

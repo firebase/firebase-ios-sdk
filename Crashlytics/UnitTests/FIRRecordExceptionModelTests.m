@@ -39,7 +39,6 @@
 
 - (void)setUp {
   self.fileManager = [[FIRCLSMockFileManager alloc] init];
-  [self.fileManager setPathNamespace:TEST_BUNDLE_ID];
 
   FABMockApplicationIdentifierModel *appIDModel = [[FABMockApplicationIdentifierModel alloc] init];
   self.mockSettings = [[FIRCLSMockSettings alloc] initWithFileManager:self.fileManager

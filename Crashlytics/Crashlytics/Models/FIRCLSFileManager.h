@@ -82,4 +82,6 @@
 
 - (BOOL)moveItemAtPath:(NSString *)srcPath toPath:(NSString *)dstPath error:(NSError **)error;
 
+- (NSData *)dataWithContentsOfFile:(NSString *)path;
+
 @end
