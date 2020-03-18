@@ -40,10 +40,7 @@
 }
 
 - (GDTCOREvent *)generateEvent:(GDTCOREventQoS)qosTier {
-  NSString *cachePath = NSTemporaryDirectory();
-  NSString *filePath = [cachePath
-      stringByAppendingPathComponent:[NSString stringWithFormat:@"test-%lf.txt",
-                                                                CFAbsoluteTimeGetCurrent()]];
+  NSString *filePath = [NSString stringWithFormat:@"test-%lf.txt", CFAbsoluteTimeGetCurrent()];
   GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"1018" target:_target];
   event.clockSnapshot = [GDTCORClock snapshot];
   event.qosTier = qosTier;
@@ -70,10 +67,7 @@
  */
 - (NSURL *)writeConsistentMessageToDisk:(NSString *)messageResource {
   NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
-  NSString *cachePath = NSTemporaryDirectory();
-  NSString *filePath = [cachePath
-      stringByAppendingPathComponent:[NSString stringWithFormat:@"test-%lf.txt",
-                                                                CFAbsoluteTimeGetCurrent()]];
+  NSString *filePath = [NSString stringWithFormat:@"test-%lf.txt", CFAbsoluteTimeGetCurrent()];
   NSAssert([[NSFileManager defaultManager] fileExistsAtPath:filePath] == NO,
            @"There should be no duplicate files generated.");
   NSData *messageData = [NSData dataWithContentsOfURL:[testBundle URLForResource:messageResource

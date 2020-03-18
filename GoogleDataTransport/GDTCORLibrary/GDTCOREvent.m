@@ -19,6 +19,7 @@
 #import <GoogleDataTransport/GDTCORAssert.h>
 #import <GoogleDataTransport/GDTCORClock.h>
 #import <GoogleDataTransport/GDTCORConsoleLogger.h>
+#import <GoogleDataTransport/GDTCORPlatform.h>
 
 #import "GDTCORLibrary/Private/GDTCORDataFuture.h"
 #import "GDTCORLibrary/Private/GDTCOREvent_Private.h"
@@ -66,6 +67,8 @@
   return [self hash] == [object hash];
 }
 
+#pragma mark - Property overrides
+
 - (void)setDataObject:(id<GDTCOREventDataObject>)dataObject {
   // If you're looking here because of a performance issue in -transportBytes slowing the assignment
   // of -dataObject, one way to address this is to add a queue to this class,
@@ -75,13 +78,16 @@
   }
 }
 
-- (BOOL)writeToURL:(NSURL *)fileURL error:(NSError **)error {
+#pragma mark - Private methods
+
+- (BOOL)writeToGDTPath:(NSString *)filePath error:(NSError **)error {
   NSData *dataTransportBytes = [_dataObject transportBytes];
   if (dataTransportBytes == nil) {
     _fileURL = nil;
     _dataObject = nil;
     return NO;
   }
+  NSURL *fileURL = [[NSURL alloc] initWithString:filePath relativeToURL:GDTCORRootDirectory()];
   BOOL writingSuccess = [dataTransportBytes writeToURL:fileURL
                                                options:NSDataWritingAtomic
                                                  error:error];
