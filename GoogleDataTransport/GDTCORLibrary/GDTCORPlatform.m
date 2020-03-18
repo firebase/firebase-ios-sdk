@@ -40,6 +40,20 @@ NSString *const kGDTCORApplicationWillEnterForegroundNotification =
 
 NSString *const kGDTCORApplicationWillTerminateNotification =
     @"GDTCORApplicationWillTerminateNotification";
+
+NSURL *GDTCORRootDirectory(void) {
+  static NSURL *GDTPath;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    NSString *cachePath =
+        NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)[0];
+    GDTPath =
+        [NSURL fileURLWithPath:[NSString stringWithFormat:@"%@/google-sdks-events", cachePath]];
+    GDTCORLogDebug("GDT's state will be saved to: %@", GDTPath);
+  });
+  return GDTPath;
+}
+
 #if !TARGET_OS_WATCH
 BOOL GDTCORReachabilityFlagsContainWWAN(SCNetworkReachabilityFlags flags) {
 #if TARGET_OS_IOS
@@ -134,9 +148,18 @@ NSData *_Nullable GDTCOREncodeArchive(id<NSSecureCoding> obj,
     resultData = [NSKeyedArchiver archivedDataWithRootObject:obj
                                        requiringSecureCoding:YES
                                                        error:error];
-    BOOL result = [resultData writeToFile:archivePath atomically:YES];
-    result = result;  // To get rid of the warning.
-    GDTCORLogDebug(@"Attempt to write archive. successful:%@ path:%@", result, archivePath);
+    if (*error) {
+      GDTCORLogDebug(@"Encoding an object failed: %@", *error);
+      return nil;
+    }
+    if (archivePath) {
+      BOOL result = [resultData writeToFile:archivePath options:NSDataWritingAtomic error:error];
+      if (result == NO || *error) {
+        GDTCORLogDebug(@"Attempt to write archive failed: URL:%@ error:%@", archivePath, *error);
+      } else {
+        GDTCORLogDebug(@"Writing archive succeeded: %@", archivePath);
+      }
+    }
   } else {
 #endif
     BOOL result = NO;
@@ -145,7 +168,14 @@ NSData *_Nullable GDTCOREncodeArchive(id<NSSecureCoding> obj,
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
       resultData = [NSKeyedArchiver archivedDataWithRootObject:obj];
 #pragma clang diagnostic pop
-      result = [resultData writeToFile:archivePath atomically:YES];
+      if (archivePath) {
+        result = [resultData writeToFile:archivePath options:NSDataWritingAtomic error:error];
+        if (result == NO || *error) {
+          GDTCORLogDebug(@"Attempt to write archive failed: URL:%@ error:%@", archivePath, *error);
+        } else {
+          GDTCORLogDebug(@"Writing archive succeeded: %@", archivePath);
+        }
+      }
     } @catch (NSException *exception) {
       NSString *errorString =
           [NSString stringWithFormat:@"An exception was thrown during encoding: %@", exception];
@@ -153,7 +183,8 @@ NSData *_Nullable GDTCOREncodeArchive(id<NSSecureCoding> obj,
                                    code:-1
                                userInfo:@{NSLocalizedFailureReasonErrorKey : errorString}];
     }
-    GDTCORLogDebug(@"Attempt to write archive. successful:%@ path:%@", result, archivePath);
+    GDTCORLogDebug(@"Attempt to write archive. successful:%@ URL:%@ error:%@",
+                   result ? @"YES" : @"NO", archivePath, *error);
   }
   return resultData;
 }

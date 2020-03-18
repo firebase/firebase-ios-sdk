@@ -596,18 +596,11 @@ static NSInteger target = kGDTCORTargetCCT;
   NSData *v1ArchiveData = [[NSData alloc] initWithBase64EncodedString:base64EncodedArchive
                                                               options:0];
   XCTAssertNotNil(v1ArchiveData);
-  GDTCORStorage *archiveStorage;
-  if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-    NSError *error;
-    XCTAssertNoThrow(archiveStorage =
-                         [NSKeyedUnarchiver unarchivedObjectOfClass:[GDTCORStorage class]
-                                                           fromData:v1ArchiveData
-                                                              error:&error]);
-  } else {
-#if !TARGET_OS_MACCATALYST && !TARGET_OS_WATCH
-    XCTAssertNoThrow(archiveStorage = [NSKeyedUnarchiver unarchiveObjectWithData:v1ArchiveData]);
-#endif
-  }
+  NSError *error;
+  GDTCORStorage *archiveStorage =
+      (GDTCORStorage *)GDTCORDecodeArchive([GDTCORStorage class], nil, v1ArchiveData, &error);
+  XCTAssertNil(error);
+  XCTAssertNotNil(archiveStorage);
   XCTAssertEqual(archiveStorage.targetToEventSet[@(kGDTCORTargetCCT)].count, 6);
   XCTAssertEqual(archiveStorage.targetToEventSet[@(kGDTCORTargetFLL)].count, 12);
   XCTAssertEqual(archiveStorage.storedEvents.count, 18);

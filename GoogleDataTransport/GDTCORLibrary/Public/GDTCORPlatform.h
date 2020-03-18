@@ -66,6 +66,12 @@ typedef NS_ENUM(NSInteger, GDTCORNetworkMobileSubtype) {
   GDTCORNetworkMobileSubtypeLTE = 11,
 };
 
+/** Returns a URL to the root directory under which all GDT-associated data must be saved.
+ *
+ * @return A URL to the root directory under which all GDT-associated data must be saved.
+ */
+NSURL *GDTCORRootDirectory(void);
+
 #if !TARGET_OS_WATCH
 /** Compares flags with the WWAN reachability flag, if available, and returns YES if present.
  *

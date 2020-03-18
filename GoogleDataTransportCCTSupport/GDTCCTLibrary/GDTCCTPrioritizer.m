@@ -18,6 +18,7 @@
 
 #import <GoogleDataTransport/GDTCORConsoleLogger.h>
 #import <GoogleDataTransport/GDTCOREvent.h>
+#import <GoogleDataTransport/GDTCORPlatform.h>
 #import <GoogleDataTransport/GDTCORRegistrar.h>
 #import <GoogleDataTransport/GDTCORTargets.h>
 
@@ -33,9 +34,7 @@ static NSString *ArchivePath() {
   static NSString *archivePath;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
-    NSString *cachePath =
-        NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)[0];
-    archivePath = [NSString stringWithFormat:@"%@/google-sdks-events/GDTCCTPrioritizer", cachePath];
+    archivePath = [GDTCORRootDirectory() URLByAppendingPathComponent:@"GDTCCTPrioritizer"].path;
   });
   return archivePath;
 }
