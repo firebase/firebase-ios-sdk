@@ -1,3 +1,9 @@
+# v4.0.8 -- M67
+- [fixed] Fix Catalyst build - removed deprecated unused Apple framework dependencies. (#5139)
+
+# v4.0.7 -- M64
+- [fixed] Use module import syntax for headers from other SDKs. (#4824)
+
 # v4.0.6
 - [fixed] Fix component startup time. (#4137)
 - [fixed] Fix crash due to object deallocation on app launch. (#4308)

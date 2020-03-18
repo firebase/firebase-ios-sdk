@@ -113,23 +113,15 @@
   NSMutableSet<GDTCOREvent *> *set = [GDTCOREventGenerator generate3Events];
   uploadPackage.events = set;
   uploadPackage.handler = self;
-  GDTCORUploadPackage *recreatedPackage;
   NSError *error;
-
-  if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-    NSData *packageData = [NSKeyedArchiver archivedDataWithRootObject:uploadPackage
-                                                requiringSecureCoding:YES
-                                                                error:&error];
-    recreatedPackage = [NSKeyedUnarchiver unarchivedObjectOfClass:[GDTCORUploadPackage class]
-                                                         fromData:packageData
-                                                            error:&error];
-    XCTAssertNil(error);
-  } else {
-#if !TARGET_OS_MACCATALYST
-    NSData *packageData = [NSKeyedArchiver archivedDataWithRootObject:uploadPackage];
-    recreatedPackage = [NSKeyedUnarchiver unarchiveObjectWithData:packageData];
-#endif
-  }
+  NSData *packageData = GDTCOREncodeArchive(uploadPackage, nil, &error);
+  XCTAssertNil(error);
+  XCTAssertNotNil(packageData);
+  error = nil;
+  GDTCORUploadPackage *recreatedPackage = (GDTCORUploadPackage *)GDTCORDecodeArchive(
+      [GDTCORUploadPackage class], nil, packageData, &error);
+  XCTAssertNil(error);
+  XCTAssertNotNil(recreatedPackage);
   XCTAssertEqualObjects(uploadPackage, recreatedPackage);
 }
 
