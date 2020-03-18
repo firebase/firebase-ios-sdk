@@ -21,8 +21,8 @@
 #import "FIRCLSContext.h"
 #import "FIRCLSInstallIdentifierModel.h"
 #import "FIRCLSInternalReport.h"
-#import "FIRCLSTempMockFileManager.h"
 #import "FIRCLSMockSettings.h"
+#import "FIRCLSTempMockFileManager.h"
 #import "FIRMockInstallations.h"
 
 #define TEST_BUNDLE_ID (@"com.crashlytics.test")

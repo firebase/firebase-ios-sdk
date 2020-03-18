@@ -34,28 +34,32 @@
 }
 
 - (BOOL)removeItemAtPath:(NSString *)path {
-    [self.fileSystemDict removeObjectForKey:path];
-    
-    self.removeCount += 1;
+  [self.fileSystemDict removeObjectForKey:path];
 
-    // If we set up the expectation, and we went over the expected count or removes, fulfill the
-    // expectation
-    if (self.removeExpectation && self.removeCount >= self.expectedRemoveCount) {
-      [self.removeExpectation fulfill];
-    }
-    
-    return YES;
+  self.removeCount += 1;
+
+  // If we set up the expectation, and we went over the expected count or removes, fulfill the
+  // expectation
+  if (self.removeExpectation && self.removeCount >= self.expectedRemoveCount) {
+    [self.removeExpectation fulfill];
+  }
+
+  return YES;
 }
 
 - (BOOL)fileExistsAtPath:(NSString *)path {
-    return self.fileSystemDict[path] != nil;
+  return self.fileSystemDict[path] != nil;
 }
 
 - (BOOL)createFileAtPath:(NSString *)path
-  contents:(NSData *)data
+                contents:(NSData *)data
               attributes:(NSDictionary<NSFileAttributeKey, id> *)attr {
   self.fileSystemDict[path] = data;
   return YES;
+}
+
+- (NSData *)dataWithContentsOfFile:(NSString *)path {
+  return self.fileSystemDict[path];
 }
 
 @end

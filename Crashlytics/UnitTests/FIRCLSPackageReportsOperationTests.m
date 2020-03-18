@@ -17,10 +17,10 @@
 
 #import "FABMockApplicationIdentifierModel.h"
 #import "FIRCLSInternalReport.h"
-#import "FIRCLSTempMockFileManager.h"
 #import "FIRCLSMockSettings.h"
 #import "FIRCLSPackageReportOperation.h"
 #import "FIRCLSSettings.h"
+#import "FIRCLSTempMockFileManager.h"
 
 NSString *const TestOrgID = @"TestOrgID";
 

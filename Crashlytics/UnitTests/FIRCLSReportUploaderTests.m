@@ -23,10 +23,10 @@
 #include "FIRCLSDefines.h"
 #include "FIRCLSFileManager.h"
 #include "FIRCLSInternalReport.h"
-#include "FIRCLSTempMockFileManager.h"
 #include "FIRCLSMockNetworkClient.h"
 #include "FIRCLSMockSettings.h"
 #include "FIRCLSSettings.h"
+#include "FIRCLSTempMockFileManager.h"
 #include "FIRMockGDTCoreTransport.h"
 
 NSString *const TestEndpoint = @"https://reports.crashlytics.com";

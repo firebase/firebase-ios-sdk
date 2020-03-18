@@ -31,13 +31,13 @@
 #import "FIRCLSFileManager.h"
 #import "FIRCLSMockFileManager.h"
 
- const NSString *FIRCLSTestSettingsActivated =
+const NSString *FIRCLSTestSettingsActivated =
     @"{\"settings_version\":3,\"cache_duration\":60,\"features\":{\"collect_logged_exceptions\":"
     @"true,\"collect_reports\":true},\"app\":{\"status\":\"activated\",\"update_required\":false},"
     @"\"fabric\":{\"org_id\":\"010101000000111111111111\",\"bundle_id\":\"com.lets.test."
     @"crashlytics\"}}";
 
- const NSString *FIRCLSTestSettingsInverse =
+const NSString *FIRCLSTestSettingsInverse =
     @"{\"settings_version\":3,\"cache_duration\":12345,\"features\":{\"collect_logged_exceptions\":"
     @"false,\"collect_reports\":false},\"app\":{\"status\":\"new\",\"update_required\":true},"
     @"\"fabric\":{\"org_id\":\"01e101a0000011b113115111\",\"bundle_id\":\"im.from.the.server\"},"
@@ -45,19 +45,19 @@
     @"sessions_count\":4,\"max_custom_exception_events\":1000,\"max_custom_key_value_pairs\":2000,"
     @"\"identifier_mask\":255}}";
 
- const NSString *FIRCLSTestSettingsCorrupted = @"{{{{ non_key: non\"value {}";
+const NSString *FIRCLSTestSettingsCorrupted = @"{{{{ non_key: non\"value {}";
 
- NSString *FIRCLSDefaultMockBuildInstanceID = @"12345abcdef";
- NSString *FIRCLSDifferentMockBuildInstanceID = @"98765zyxwv";
+NSString *FIRCLSDefaultMockBuildInstanceID = @"12345abcdef";
+NSString *FIRCLSDifferentMockBuildInstanceID = @"98765zyxwv";
 
- NSString *FIRCLSDefaultMockAppDisplayVersion = @"1.2.3-beta.2";
- NSString *FIRCLSDifferentMockAppDisplayVersion = @"1.2.3-beta.3";
+NSString *FIRCLSDefaultMockAppDisplayVersion = @"1.2.3-beta.2";
+NSString *FIRCLSDifferentMockAppDisplayVersion = @"1.2.3-beta.3";
 
- NSString *FIRCLSDefaultMockAppBuildVersion = @"1024";
- NSString *FIRCLSDifferentMockAppBuildVersion = @"2048";
+NSString *FIRCLSDefaultMockAppBuildVersion = @"1024";
+NSString *FIRCLSDifferentMockAppBuildVersion = @"2048";
 
- NSString *const TestGoogleAppID = @"1:test:google:app:id";
- NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
+NSString *const TestGoogleAppID = @"1:test:google:app:id";
+NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
 
 @interface FIRCLSSettings (Testing)
 
@@ -126,18 +126,9 @@
     path = _fileManager.settingsCacheKeyPath;
   }
 
-  // Create the directory.
-  [[NSFileManager defaultManager] createDirectoryAtPath:path.stringByDeletingLastPathComponent
-                            withIntermediateDirectories:YES
-                                             attributes:nil
-                                                  error:error];
-  if (*error != nil) {
-    return NO;
-  }
-
-  // Create the file.
-  [settings writeToFile:path atomically:NO encoding:NSUTF8StringEncoding error:error];
-  return YES;
+  return [self.fileManager createFileAtPath:path
+                                   contents:[settings dataUsingEncoding:NSUTF8StringEncoding]
+                                 attributes:nil];
 }
 
 - (void)cacheSettingsWithGoogleAppID:(NSString *)googleAppID
@@ -272,8 +263,7 @@
   // Change the Build Instance ID
   self.appIDModel.buildInstanceID = FIRCLSDifferentMockBuildInstanceID;
 
-  [self.settings reloadFromCacheWithGoogleAppID:TestGoogleAppID
-  currentTimestamp:currentTimestamp];
+  [self.settings reloadFromCacheWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
 
   XCTAssertEqual(self.settings.isCacheExpired, YES);
 
@@ -312,8 +302,7 @@
   self.appIDModel.displayVersion = FIRCLSDifferentMockAppDisplayVersion;
   self.appIDModel.buildVersion = FIRCLSDifferentMockAppBuildVersion;
 
-  [self.settings reloadFromCacheWithGoogleAppID:TestGoogleAppID
-  currentTimestamp:currentTimestamp];
+  [self.settings reloadFromCacheWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
 
   XCTAssertEqual(self.settings.isCacheExpired, YES);
 

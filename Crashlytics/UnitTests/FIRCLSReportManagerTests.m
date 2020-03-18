@@ -33,10 +33,10 @@
 #import "FABMockApplicationIdentifierModel.h"
 #import "FIRAppFake.h"
 #import "FIRCLSApplicationIdentifierModel.h"
-#import "FIRCLSTempMockFileManager.h"
 #import "FIRCLSMockReportManager.h"
 #import "FIRCLSMockReportUploader.h"
 #import "FIRCLSMockSettings.h"
+#import "FIRCLSTempMockFileManager.h"
 #import "FIRMockGDTCoreTransport.h"
 #import "FIRMockInstallations.h"
 
