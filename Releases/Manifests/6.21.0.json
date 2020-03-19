@@ -6,7 +6,6 @@
   "FirebaseDynamicLinks":"4.0.8",
   "FirebaseInAppMessaging":"0.19.1",
   "FirebaseInstallations":"1.1.1",
-  "FirebaseRemoteConfig":"4.4.10",
   "GoogleDataTransport":"5.1.0",
   "GoogleDataTransportCCTSupport":"2.0.1"
 }
