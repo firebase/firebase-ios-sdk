@@ -39,10 +39,10 @@
 @property(nonatomic, copy) NSString *secretToken;
 /// Device data version of checkin information.
 @property(nonatomic, copy) NSString *deviceDataVersion;
-/// InstallationsID.
-@property(nonatomic, copy) NSString *configInstallationsIdentifier;
-/// Installations token.
-@property(nonatomic, copy) NSString *configInstallationsToken;
+/// InstanceID.
+@property(nonatomic, copy) NSString *configInstanceID;
+/// InstanceID token.
+@property(nonatomic, copy) NSString *configInstanceIDToken;
 
 /// A list of successful fetch timestamps in milliseconds.
 /// TODO Not used anymore. Safe to remove.
