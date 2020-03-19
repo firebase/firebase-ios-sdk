@@ -46,9 +46,9 @@ jobs:
       env:
          plist_secret: ${{ secrets.QsStoragePlistSecret }}
          signin_secret: ${{ secrets.QsSignInSecret }}
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-plist.gpg \
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-storage.plist.gpg \
           quickstart-ios/storage/GoogleService-Info.plist "$plist_secret" |
-          scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-plist.gpg \
+          scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
           quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test quickstart
       run: scripts/test_quickstart.sh Storage
