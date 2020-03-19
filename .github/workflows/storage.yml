@@ -42,6 +42,14 @@ jobs:
       run: scripts/setup_bundler.sh
     - name: Setup quickstart
       run: scripts/setup_quickstart.sh storage
+    - name: Install Secret GoogleService-Info.plist
+      env:
+         plist_secret: ${{ secrets.QsStoragePlistSecret }}
+         signin_secret: ${{ secrets.QsSignInSecret }}
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-plist.gpg \
+          quickstart-ios/storage/GoogleService-Info.plist "$plist_secret" |
+          scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-plist.gpg \
+          quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test quickstart
       run: scripts/test_quickstart.sh Storage
 

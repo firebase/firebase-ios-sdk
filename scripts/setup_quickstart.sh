@@ -40,8 +40,10 @@ if [[ "$have_secrets" == true ]]; then
   bundle exec pod install
 
   # Secrets are repo specific, so we need to override with the firebase-ios-sdk
-  # version.
-  #cp ../../Secrets/quickstart-ios/"$SAMPLE"/GoogleService-Info.plist ./
-  #cp ../../Secrets/quickstart-ios/TestUtils/FIREGSignInInfo.h ../TestUtils/
+  # version. GHA manages the secrets in its action script.
+  if [[ -n "${TRAVIS_PULL_REQUEST:-}" ]]; then
+    cp ../../Secrets/quickstart-ios/"$SAMPLE"/GoogleService-Info.plist ./
+    cp ../../Secrets/quickstart-ios/TestUtils/FIREGSignInInfo.h ../TestUtils/
+  fi
   cd -
 fi
