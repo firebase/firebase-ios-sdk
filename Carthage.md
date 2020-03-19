@@ -82,12 +82,15 @@ binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseStorageBinary.jso
  use, for example: libc++.tbd, sqlite3.tbd, StoreKit.framework, etc. For more information,
  [go here](https://github.com/firebase/firebase-ios-sdk/issues/9#issuecomment-387947163).
 
-- For Crashlytics:
-    - To automatically upload your app's symbols so your app's crashes are symbolicated, download
+- For Crashlytics, do the following steps to automatically upload your app's symbols so your app's crashes are symbolicated:
+    - Download
      [upload-symbols](https://github.com/firebase/firebase-ios-sdk/raw/master/Crashlytics/upload-symbols)
      and [run](https://github.com/firebase/firebase-ios-sdk/raw/master/Crashlytics/run).
-     Then follow the [Crashlytics documentation](https://firebase.google.com/docs/crashlytics/get-started-new-sdk?platform=ios)
-     to add a new run script phase in your Xcode project.
+    - Put these in a directory where your `.xcodeproj` file lives, eg. `scripts/run` and `scripts/upload-symbols`
+    - Open your project in Xcode, then select its project file in the left navigator.
+    - From the **Select a project or target** dropdown, select your main build target.
+    - Select the **Build Phases** tab, then click "+" add > **New Run Script Phase**.
+    - Paste the following into your new Run Script, replacing "scripts" with whatever you named your folder: `"${PROJECT_DIR}/scripts/run"`
 
 ## Versioning
 
