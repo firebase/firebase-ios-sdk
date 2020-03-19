@@ -52,18 +52,18 @@ static void WriteBytesToFile(const Path& path, int byte_count) {
   WriteStringToFile(path, std::string(byte_count, 'a'));
 }
 
-#define ASSERT_NOT_FOUND(expression)                 \
-  do {                                               \
+#define ASSERT_NOT_FOUND(expression)                  \
+  do {                                                \
     ASSERT_EQ(Error::kNotFound, (expression).code()); \
   } while (0)
 
-#define EXPECT_NOT_FOUND(expression)                 \
-  do {                                               \
+#define EXPECT_NOT_FOUND(expression)                  \
+  do {                                                \
     ASSERT_EQ(Error::kNotFound, (expression).code()); \
   } while (0)
 
-#define EXPECT_FAILED_PRECONDITION(expression)                 \
-  do {                                                         \
+#define EXPECT_FAILED_PRECONDITION(expression)                  \
+  do {                                                          \
     ASSERT_EQ(Error::kFailedPrecondition, (expression).code()); \
   } while (0)
 

@@ -1591,7 +1591,8 @@ TEST_F(SerializerTest, DecodesListenResponseWithRemovedTargetChange) {
   change->add_target_ids(1);
   change->add_target_ids(2);
   change->set_resume_token("resume_token");
-  change->mutable_cause()->set_code(static_cast<int32_t>(Error::kPermissionDenied));
+  change->mutable_cause()->set_code(
+      static_cast<int32_t>(Error::kPermissionDenied));
   change->mutable_cause()->set_message("Error message");
 
   SCOPED_TRACE("DecodesListenResponseWithRemovedTargetChange");
