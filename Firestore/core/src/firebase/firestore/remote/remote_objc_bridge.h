@@ -53,8 +53,7 @@ class WatchChange;
 //
 // The original purpose of this file was to cleanly encapsulate the remaining
 // Objective-C dependencies of `remote/` folder. These dependencies no longer
-// exist (modulo pretty-printing), and this file makes C++ diverge from other
-// platforms.
+// exist, and this file makes C++ diverge from other platforms.
 //
 // On the other hand, stream classes are large, and having one easily
 // separatable aspect of their implementation (serialization) refactored out is
@@ -96,9 +95,7 @@ class WriteStreamSerializer {
       const std::vector<model::Mutation>& mutations,
       const nanopb::ByteString& last_stream_token) const;
   nanopb::Message<google_firestore_v1_WriteRequest> EncodeEmptyMutationsList(
-      const nanopb::ByteString& last_stream_token) const {
-    return EncodeWriteMutationsRequest({}, last_stream_token);
-  }
+      const nanopb::ByteString& last_stream_token) const;
 
   nanopb::Message<google_firestore_v1_WriteResponse> ParseResponse(
       nanopb::Reader* reader) const;

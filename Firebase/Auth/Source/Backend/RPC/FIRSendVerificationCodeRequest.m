@@ -76,7 +76,7 @@ static NSString *const kreCAPTCHATokenKey = @"recaptchaToken";
   if (_reCAPTCHAToken) {
     postBody[kreCAPTCHATokenKey] = _reCAPTCHAToken;
   }
-  return postBody;
+  return [postBody copy];
 }
 
 @end

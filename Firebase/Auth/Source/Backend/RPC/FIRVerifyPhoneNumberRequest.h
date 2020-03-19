@@ -58,7 +58,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (nullable instancetype)initWithEndpoint:(NSString *)endpoint
                      requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
-                         NS_UNAVAILABLE;
+    NS_UNAVAILABLE;
 
 /** @fn initWithTemporaryProof:phoneNumberAPIKey
     @brief Designated initializer.
@@ -71,7 +71,7 @@ NS_ASSUME_NONNULL_BEGIN
                                     phoneNumber:(NSString *)phoneNumber
                                       operation:(FIRAuthOperationType)operation
                            requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
-                              NS_DESIGNATED_INITIALIZER;
+    NS_DESIGNATED_INITIALIZER;
 
 /** @fn initWithVerificationID:verificationCode:requestConfiguration
     @brief Designated initializer.
@@ -84,7 +84,7 @@ NS_ASSUME_NONNULL_BEGIN
                                verificationCode:(NSString *)verificationCode
                                       operation:(FIRAuthOperationType)operation
                            requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
-                              NS_DESIGNATED_INITIALIZER;
+    NS_DESIGNATED_INITIALIZER;
 
 @end
 

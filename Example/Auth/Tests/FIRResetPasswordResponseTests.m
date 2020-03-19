@@ -16,11 +16,11 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRAuthErrors.h"
 #import "FIRAuthBackend.h"
+#import "FIRAuthErrors.h"
+#import "FIRFakeBackendRPCIssuer.h"
 #import "FIRResetPasswordRequest.h"
 #import "FIRResetPasswordResponse.h"
-#import "FIRFakeBackendRPCIssuer.h"
 
 /** @var kTestAPIKey
     @brief Fake API key used for testing.
@@ -92,10 +92,10 @@ static NSString *const kExpectedResetPasswordRequestType = @"PASSWORD_RESET";
 @end
 
 @implementation FIRResetPasswordResponseTests {
-    /** @var _RPCIssuer
-      @brief This backend RPC issuer is used to fake network responses for each test in the suite.
-          In the @c setUp method we initialize this and set @c FIRAuthBackend's RPC issuer to it.
-   */
+  /** @var _RPCIssuer
+    @brief This backend RPC issuer is used to fake network responses for each test in the suite.
+        In the @c setUp method we initialize this and set @c FIRAuthBackend's RPC issuer to it.
+ */
   FIRFakeBackendRPCIssuer *_RPCIssuer;
 
   /** @var _requestConfiguration
@@ -130,12 +130,13 @@ static NSString *const kExpectedResetPasswordRequestType = @"PASSWORD_RESET";
   __block BOOL callbackInvoked;
   __block FIRResetPasswordResponse *RPCResponse;
   __block NSError *RPCError;
-  [FIRAuthBackend resetPassword:request callback:^(FIRResetPasswordResponse *_Nullable response,
-                                                   NSError *_Nullable error) {
-    RPCResponse = response;
-    RPCError = error;
-    callbackInvoked = YES;
-  }];
+  [FIRAuthBackend
+      resetPassword:request
+           callback:^(FIRResetPasswordResponse *_Nullable response, NSError *_Nullable error) {
+             RPCResponse = response;
+             RPCError = error;
+             callbackInvoked = YES;
+           }];
   [_RPCIssuer respondWithServerErrorMessage:kUserDisabledErrorMessage];
   XCTAssert(callbackInvoked);
   XCTAssertNil(RPCResponse);
@@ -153,12 +154,13 @@ static NSString *const kExpectedResetPasswordRequestType = @"PASSWORD_RESET";
   __block BOOL callbackInvoked;
   __block FIRResetPasswordResponse *RPCResponse;
   __block NSError *RPCError;
-  [FIRAuthBackend resetPassword:request callback:^(FIRResetPasswordResponse *_Nullable response,
-                                                   NSError *_Nullable error) {
-    RPCResponse = response;
-    RPCError = error;
-    callbackInvoked = YES;
-  }];
+  [FIRAuthBackend
+      resetPassword:request
+           callback:^(FIRResetPasswordResponse *_Nullable response, NSError *_Nullable error) {
+             RPCResponse = response;
+             RPCError = error;
+             callbackInvoked = YES;
+           }];
   [_RPCIssuer respondWithServerErrorMessage:kOperationNotAllowedErrorMessage];
   XCTAssert(callbackInvoked);
   XCTAssertNil(RPCResponse);
@@ -176,12 +178,13 @@ static NSString *const kExpectedResetPasswordRequestType = @"PASSWORD_RESET";
   __block BOOL callbackInvoked;
   __block FIRResetPasswordResponse *RPCResponse;
   __block NSError *RPCError;
-  [FIRAuthBackend resetPassword:request callback:^(FIRResetPasswordResponse *_Nullable response,
-                                                   NSError *_Nullable error) {
-    RPCResponse = response;
-    RPCError = error;
-    callbackInvoked = YES;
-  }];
+  [FIRAuthBackend
+      resetPassword:request
+           callback:^(FIRResetPasswordResponse *_Nullable response, NSError *_Nullable error) {
+             RPCResponse = response;
+             RPCError = error;
+             callbackInvoked = YES;
+           }];
   [_RPCIssuer respondWithServerErrorMessage:kExpiredActionCodeErrorMessage];
   XCTAssert(callbackInvoked);
   XCTAssertNil(RPCResponse);
@@ -199,12 +202,13 @@ static NSString *const kExpectedResetPasswordRequestType = @"PASSWORD_RESET";
   __block BOOL callbackInvoked;
   __block FIRResetPasswordResponse *RPCResponse;
   __block NSError *RPCError;
-  [FIRAuthBackend resetPassword:request callback:^(FIRResetPasswordResponse *_Nullable response,
-                                                   NSError *_Nullable error) {
-    RPCResponse = response;
-    RPCError = error;
-    callbackInvoked = YES;
-  }];
+  [FIRAuthBackend
+      resetPassword:request
+           callback:^(FIRResetPasswordResponse *_Nullable response, NSError *_Nullable error) {
+             RPCResponse = response;
+             RPCError = error;
+             callbackInvoked = YES;
+           }];
   [_RPCIssuer respondWithServerErrorMessage:kInvalidActionCodeErrorMessage];
   XCTAssert(callbackInvoked);
   XCTAssertNil(RPCResponse);
@@ -222,12 +226,13 @@ static NSString *const kExpectedResetPasswordRequestType = @"PASSWORD_RESET";
   __block BOOL callbackInvoked;
   __block FIRResetPasswordResponse *RPCResponse;
   __block NSError *RPCError;
-  [FIRAuthBackend resetPassword:request callback:^(FIRResetPasswordResponse *_Nullable response,
-                                                   NSError *_Nullable error) {
-    RPCResponse = response;
-    RPCError = error;
-    callbackInvoked = YES;
-  }];
+  [FIRAuthBackend
+      resetPassword:request
+           callback:^(FIRResetPasswordResponse *_Nullable response, NSError *_Nullable error) {
+             RPCResponse = response;
+             RPCError = error;
+             callbackInvoked = YES;
+           }];
   [_RPCIssuer respondWithServerErrorMessage:kWeakPasswordErrorMessagePrefix];
   XCTAssert(callbackInvoked);
   XCTAssertNil(RPCResponse);
@@ -245,12 +250,13 @@ static NSString *const kExpectedResetPasswordRequestType = @"PASSWORD_RESET";
   __block BOOL callbackInvoked;
   __block FIRResetPasswordResponse *RPCResponse;
   __block NSError *RPCError;
-  [FIRAuthBackend resetPassword:request callback:^(FIRResetPasswordResponse *_Nullable response,
-                                                   NSError *_Nullable error) {
-    RPCResponse = response;
-    RPCError = error;
-    callbackInvoked = YES;
-  }];
+  [FIRAuthBackend
+      resetPassword:request
+           callback:^(FIRResetPasswordResponse *_Nullable response, NSError *_Nullable error) {
+             RPCResponse = response;
+             RPCError = error;
+             callbackInvoked = YES;
+           }];
   [_RPCIssuer respondWithJSON:@{
     kEmailKey : kTestEmail,
     kRequestTypeKey : kExpectedResetPasswordRequestType

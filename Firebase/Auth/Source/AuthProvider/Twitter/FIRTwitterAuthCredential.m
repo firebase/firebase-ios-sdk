@@ -16,8 +16,8 @@
 
 #import "FIRTwitterAuthCredential.h"
 
-#import "FIRTwitterAuthProvider.h"
 #import "FIRAuthExceptionUtils.h"
+#import "FIRTwitterAuthProvider.h"
 #import "FIRVerifyAssertionRequest.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -31,8 +31,8 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRTwitterAuthCredential
 
 - (nullable instancetype)initWithProvider:(NSString *)provider {
-  [FIRAuthExceptionUtils raiseMethodNotImplementedExceptionWithReason:
-      @"Please call the designated initializer."];
+  [FIRAuthExceptionUtils
+      raiseMethodNotImplementedExceptionWithReason:@"Please call the designated initializer."];
   return nil;
 }
 

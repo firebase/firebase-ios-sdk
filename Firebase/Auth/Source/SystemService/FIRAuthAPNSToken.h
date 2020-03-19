@@ -49,8 +49,8 @@ NS_ASSUME_NONNULL_BEGIN
     @param type The APNs token type.
     @return The initialized instance.
  */
-- (instancetype)initWithData:(NSData *)data type:(FIRAuthAPNSTokenType)type
-    NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithData:(NSData *)data
+                        type:(FIRAuthAPNSTokenType)type NS_DESIGNATED_INITIALIZER;
 
 /** @fn init
     @brief Call @c initWithData:type: to get an instance of this class.

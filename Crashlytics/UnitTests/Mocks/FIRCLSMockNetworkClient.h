@@ -16,4 +16,6 @@
 
 @interface FIRCLSMockNetworkClient : FIRCLSNetworkClient
 
+@property(nonatomic, strong) NSURLRequest *startUploadRequest;
+
 @end

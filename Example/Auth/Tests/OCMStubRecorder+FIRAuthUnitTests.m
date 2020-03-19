@@ -76,25 +76,25 @@ static double doubleArgumentOf(NSInvocation *invocation, int position) {
   }];
 }
 
-- (OCMStubRecorder *(^)(FIRAuthGeneralBlock1))_andCallBlock1 {
+- (OCMStubRecorder * (^)(FIRAuthGeneralBlock1))_andCallBlock1 {
   return ^(FIRAuthGeneralBlock1 block1) {
     return [self andCallBlock1:block1];
   };
 }
 
-- (OCMStubRecorder *(^)(FIRAuthGeneralBlock2))_andCallBlock2 {
+- (OCMStubRecorder * (^)(FIRAuthGeneralBlock2))_andCallBlock2 {
   return ^(FIRAuthGeneralBlock2 block2) {
     return [self andCallBlock2:block2];
   };
 }
 
-- (OCMStubRecorder *(^)(NSError *))_andDispatchError2 {
+- (OCMStubRecorder * (^)(NSError *))_andDispatchError2 {
   return ^(NSError *error) {
     return [self andDispatchError2:error];
   };
 }
 
-- (OCMStubRecorder *(^)(FIRAuthIdDoubleIdBlock))_andCallIdDoubleIdBlock {
+- (OCMStubRecorder * (^)(FIRAuthIdDoubleIdBlock))_andCallIdDoubleIdBlock {
   return ^(FIRAuthIdDoubleIdBlock block) {
     return [self andCallIdDoubleIdBlock:block];
   };

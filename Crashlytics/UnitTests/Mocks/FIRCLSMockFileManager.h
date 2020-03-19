@@ -18,8 +18,6 @@
 
 @interface FIRCLSMockFileManager : FIRCLSFileManager
 
-@property(nonatomic, copy) NSString *pathNamespace;
-
 // Number of calls to removeItemAtPath are expected for the unit test
 @property(nonatomic) NSInteger expectedRemoveCount;
 
@@ -31,8 +29,5 @@
 //
 // Users should initialize this in their test.
 @property(nonatomic, strong) XCTestExpectation *removeExpectation;
-
-// Overriding the method for testing Settings
-- (BOOL)removeItemAtPath:(NSString *)path;
 
 @end

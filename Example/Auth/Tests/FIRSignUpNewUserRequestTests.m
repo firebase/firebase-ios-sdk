@@ -16,12 +16,12 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRAuthErrors.h"
 #import "FIRAuthBackend.h"
+#import "FIRAuthErrors.h"
+#import "FIRFakeBackendRPCIssuer.h"
 #import "FIRGetOOBConfirmationCodeResponse.h"
 #import "FIRSignUpNewUserRequest.h"
 #import "FIRSignUpNewUserResponse.h"
-#import "FIRFakeBackendRPCIssuer.h"
 
 /** @var kExpectedAPIURL
     @brief The expected URL for the test calls.
@@ -108,10 +108,10 @@ static NSString *const kReturnSecureTokenKey = @"returnSecureToken";
   FIRSignUpNewUserRequest *request =
       [[FIRSignUpNewUserRequest alloc] initWithRequestConfiguration:_requestConfiguration];
   request.returnSecureToken = NO;
-  [FIRAuthBackend signUpNewUser:request
-                       callback:^(FIRSignUpNewUserResponse *_Nullable response,
-                                           NSError *_Nullable error) {
-  }];
+  [FIRAuthBackend
+      signUpNewUser:request
+           callback:^(FIRSignUpNewUserResponse *_Nullable response, NSError *_Nullable error){
+           }];
 
   XCTAssertEqualObjects(_RPCIssuer.requestURL.absoluteString, kExpectedAPIURL);
   XCTAssertNotNil(_RPCIssuer.decodedRequest);
@@ -131,10 +131,10 @@ static NSString *const kReturnSecureTokenKey = @"returnSecureToken";
                                             password:kTestPassword
                                          displayName:kTestDisplayName
                                 requestConfiguration:_requestConfiguration];
-  [FIRAuthBackend signUpNewUser:request
-                       callback:^(FIRSignUpNewUserResponse *_Nullable response,
-                                           NSError *_Nullable error) {
-  }];
+  [FIRAuthBackend
+      signUpNewUser:request
+           callback:^(FIRSignUpNewUserResponse *_Nullable response, NSError *_Nullable error){
+           }];
 
   XCTAssertEqualObjects(_RPCIssuer.requestURL.absoluteString, kExpectedAPIURL);
   XCTAssertNotNil(_RPCIssuer.decodedRequest);

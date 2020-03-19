@@ -55,8 +55,8 @@ static NSString *const kErrorKey = @"error";
       NSMutableArray<FIRGetAccountInfoResponseProviderUserInfo *> *providerUserInfoArray =
           [NSMutableArray arrayWithCapacity:providerUserInfoData.count];
       for (NSDictionary *dictionary in providerUserInfoData) {
-        [providerUserInfoArray addObject:
-            [[FIRGetAccountInfoResponseProviderUserInfo alloc] initWithDictionary:dictionary]];
+        [providerUserInfoArray addObject:[[FIRGetAccountInfoResponseProviderUserInfo alloc]
+                                             initWithDictionary:dictionary]];
       }
       _providerUserInfo = [providerUserInfoArray copy];
     }
@@ -80,6 +80,16 @@ static NSString *const kErrorKey = @"error";
     _emailVerified = [dictionary[@"emailVerified"] boolValue];
     _passwordHash = [dictionary[@"passwordHash"] copy];
     _phoneNumber = [dictionary[@"phoneNumber"] copy];
+    NSArray<NSDictionary *> *MFAEnrollmentData = dictionary[@"mfaInfo"];
+    if (MFAEnrollmentData) {
+      NSMutableArray<FIRAuthProtoMFAEnrollment *> *MFAEnrollments =
+          [NSMutableArray arrayWithCapacity:MFAEnrollmentData.count];
+      for (NSDictionary *dictionary in MFAEnrollmentData) {
+        [MFAEnrollments
+            addObject:[[FIRAuthProtoMFAEnrollment alloc] initWithDictionary:dictionary]];
+      }
+      _MFAEnrollments = [MFAEnrollments copy];
+    }
   }
   return self;
 }
@@ -88,8 +98,7 @@ static NSString *const kErrorKey = @"error";
 
 @implementation FIRGetAccountInfoResponse
 
-- (BOOL)setWithDictionary:(NSDictionary *)dictionary
-                    error:(NSError *_Nullable *_Nullable)error {
+- (BOOL)setWithDictionary:(NSDictionary *)dictionary error:(NSError *_Nullable *_Nullable)error {
   NSArray<NSDictionary *> *usersData = dictionary[@"users"];
   // The client side never sends a getAccountInfo request with multiple localID, so only one user
   // data is expected in the response.

@@ -43,20 +43,20 @@ static NSString *const kNewUserEmail = @"user+user_new_email@example.com";
   [auth createUserWithEmail:kOldUserEmail
                    password:@"password"
                  completion:^(FIRAuthDataResult *user, NSError *error) {
-    if (error.code != FIRAuthErrorCodeEmailAlreadyInUse) {
-      apiError = error;
-    }
-    [expectation fulfill];
-  }];
+                   if (error.code != FIRAuthErrorCodeEmailAlreadyInUse) {
+                     apiError = error;
+                   }
+                   [expectation fulfill];
+                 }];
   [self waitForExpectationsWithTimeout:kExpectationsTimeout handler:nil];
 
   expectation = [self expectationWithDescription:@"Sign in with email and password."];
   [auth signInWithEmail:kOldUserEmail
                password:@"password"
-             completion:^(FIRAuthDataResult * _Nullable authResult, NSError * _Nullable error) {
-    apiError = error;
-    [expectation fulfill];
-  }];
+             completion:^(FIRAuthDataResult *_Nullable authResult, NSError *_Nullable error) {
+               apiError = error;
+               [expectation fulfill];
+             }];
   [self waitForExpectationsWithTimeout:kExpectationsTimeout handler:nil];
 
   XCTAssertEqualObjects(auth.currentUser.email, kOldUserEmail);

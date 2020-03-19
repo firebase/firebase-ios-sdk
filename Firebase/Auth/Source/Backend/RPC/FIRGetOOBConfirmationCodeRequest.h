@@ -112,7 +112,6 @@ typedef NS_ENUM(NSInteger, FIRGetOOBConfirmationCodeRequestType) {
  */
 @property(copy, nonatomic, nullable) NSString *dynamicLinkDomain;
 
-
 /** @fn passwordResetRequestWithEmail:actionCodeSettings:requestConfiguration:
     @brief Creates a password reset request.
     @param email The user's email address.
@@ -152,7 +151,6 @@ typedef NS_ENUM(NSInteger, FIRGetOOBConfirmationCodeRequestType) {
             actionCodeSettings:(nullable FIRActionCodeSettings *)actionCodeSettings
           requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration;
 
-
 /** @fn verifyBeforeUpdateEmailWithAccessToken:newEmail:actionCodeSettings:requestConfiguration:
     @brief Creates a verifyBeforeUpdateEmail request.
     @param accessToken The user's STS Access Token.
@@ -173,7 +171,7 @@ typedef NS_ENUM(NSInteger, FIRGetOOBConfirmationCodeRequestType) {
  */
 - (nullable instancetype)initWithEndpoint:(NSString *)endpoint
                      requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
-                         NS_UNAVAILABLE;
+    NS_UNAVAILABLE;
 
 @end
 

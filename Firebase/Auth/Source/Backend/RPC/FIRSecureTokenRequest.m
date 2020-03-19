@@ -68,8 +68,8 @@ static NSString *gAPIHost = @"securetoken.googleapis.com";
 }
 
 + (FIRSecureTokenRequest *)authCodeRequestWithCode:(NSString *)code
-                                     requestConfiguration:(FIRAuthRequestConfiguration *)
-                                         requestConfiguration {
+                              requestConfiguration:
+                                  (FIRAuthRequestConfiguration *)requestConfiguration {
   return [[self alloc] initWithGrantType:FIRSecureTokenRequestGrantTypeAuthorizationCode
                                    scope:nil
                             refreshToken:nil
@@ -78,8 +78,8 @@ static NSString *gAPIHost = @"securetoken.googleapis.com";
 }
 
 + (FIRSecureTokenRequest *)refreshRequestWithRefreshToken:(NSString *)refreshToken
-                                     requestConfiguration:(FIRAuthRequestConfiguration *)
-                                         requestConfiguration {
+                                     requestConfiguration:
+                                         (FIRAuthRequestConfiguration *)requestConfiguration {
   return [[self alloc] initWithGrantType:FIRSecureTokenRequestGrantTypeRefreshToken
                                    scope:nil
                             refreshToken:refreshToken
@@ -96,7 +96,7 @@ static NSString *gAPIHost = @"securetoken.googleapis.com";
       return kFIRSecureTokenServiceGrantTypeAuthorizationCode;
     case FIRSecureTokenRequestGrantTypeRefreshToken:
       return kFIRSecureTokenServiceGrantTypeRefreshToken;
-    // No Default case so we will notice if new grant types are added to the enum.
+      // No Default case so we will notice if new grant types are added to the enum.
   }
 }
 
@@ -133,9 +133,8 @@ static NSString *gAPIHost = @"securetoken.googleapis.com";
 }
 
 - (nullable id)unencodedHTTPRequestBodyWithError:(NSError *_Nullable *_Nullable)error {
-  NSMutableDictionary *postBody = [@{
-    kGrantTypeKey : [[self class] grantTypeStringWithGrantType:_grantType]
-  } mutableCopy];
+  NSMutableDictionary *postBody =
+      [@{kGrantTypeKey : [[self class] grantTypeStringWithGrantType:_grantType]} mutableCopy];
   if (_scope) {
     postBody[kScopeKey] = _scope;
   }
@@ -145,7 +144,7 @@ static NSString *gAPIHost = @"securetoken.googleapis.com";
   if (_code) {
     postBody[kCodeKey] = _code;
   }
-  return postBody;
+  return [postBody copy];
 }
 
 #pragma mark - Internal API for development

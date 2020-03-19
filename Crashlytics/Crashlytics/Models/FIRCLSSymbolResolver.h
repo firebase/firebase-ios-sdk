@@ -14,13 +14,13 @@
 
 #import <Foundation/Foundation.h>
 
-@class FIRCLSStackFrame;
+@class FIRStackFrame;
 
 @interface FIRCLSSymbolResolver : NSObject
 
 - (BOOL)loadBinaryImagesFromFile:(NSString *)path;
 
-- (FIRCLSStackFrame *)frameForAddress:(uint64_t)address;
-- (BOOL)updateStackFrame:(FIRCLSStackFrame *)frame;
+- (FIRStackFrame *)frameForAddress:(uint64_t)address;
+- (BOOL)updateStackFrame:(FIRStackFrame *)frame;
 
 @end

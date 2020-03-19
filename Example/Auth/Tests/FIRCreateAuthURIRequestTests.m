@@ -16,8 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRAuthErrors.h"
 #import "FIRAuthBackend.h"
+#import "FIRAuthErrors.h"
 #import "FIRCreateAuthURIRequest.h"
 #import "FIRCreateAuthURIResponse.h"
 #import "FIRFakeBackendRPCIssuer.h"
@@ -86,20 +86,19 @@ static NSString *const kExpectedAPIURL =
   FIRAuthRequestConfiguration *requestConfiguration =
       [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey];
   FIRCreateAuthURIRequest *request =
-      [[FIRCreateAuthURIRequest alloc]initWithIdentifier:kTestIdentifier
-                                             continueURI:kTestContinueURI
-                                    requestConfiguration:requestConfiguration];
+      [[FIRCreateAuthURIRequest alloc] initWithIdentifier:kTestIdentifier
+                                              continueURI:kTestContinueURI
+                                     requestConfiguration:requestConfiguration];
 
-  [FIRAuthBackend createAuthURI:request
-                                callback:^(FIRCreateAuthURIResponse *_Nullable response,
-                                           NSError *_Nullable error) {
-  }];
+  [FIRAuthBackend
+      createAuthURI:request
+           callback:^(FIRCreateAuthURIResponse *_Nullable response, NSError *_Nullable error){
+           }];
 
   XCTAssertEqualObjects(_RPCIssuer.requestURL.absoluteString, kExpectedAPIURL);
   XCTAssertNotNil(_RPCIssuer.decodedRequest);
   XCTAssert([_RPCIssuer.decodedRequest isKindOfClass:[NSDictionary class]]);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kContinueURITestKey], kTestContinueURI);
 }
-
 
 @end

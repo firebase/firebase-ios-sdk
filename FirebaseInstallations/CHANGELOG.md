@@ -1,3 +1,7 @@
+# v1.1.1 -- M67
+
+- [fixed] Accessing `GULHeartbeatDateStorage` moved out of main thread. (#5098)
+
 # v1.1.0 -- M62.1
 
 - [changed] Throw an exception when there are missing required `FirebaseOptions` parameters (`APIKey`, `googleAppID`, and `projectID`). Please make sure your `GoogleServices-Info.plist` (or `FirebaseOptions` if you configure Firebase in code) is up to date. The file and settings can be downloaded from the [Firebase Console](https://console.firebase.google.com/).  (#4683)

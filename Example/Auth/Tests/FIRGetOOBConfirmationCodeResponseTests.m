@@ -17,11 +17,11 @@
 #import <XCTest/XCTest.h>
 
 #import "FIRActionCodeSettings.h"
-#import "FIRAuthErrors.h"
 #import "FIRAuthBackend.h"
+#import "FIRAuthErrors.h"
+#import "FIRFakeBackendRPCIssuer.h"
 #import "FIRGetOOBConfirmationCodeRequest.h"
 #import "FIRGetOOBConfirmationCodeResponse.h"
-#import "FIRFakeBackendRPCIssuer.h"
 
 /** @var kTestEmail
     @brief Testing user email adadress.
@@ -165,14 +165,12 @@ static NSString *const kIosBundleID = @"testBundleID";
   [FIRAuthBackend getOOBConfirmationCode:request
                                 callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
                                            NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+                                  callbackInvoked = YES;
+                                  RPCResponse = response;
+                                  RPCError = error;
+                                }];
 
-  [_RPCIssuer respondWithJSON:@{
-    kOOBCodeKey : kTestOOBCode
-  }];
+  [_RPCIssuer respondWithJSON:@{kOOBCodeKey : kTestOOBCode}];
 
   XCTAssert(callbackInvoked);
   XCTAssertNil(RPCError);
@@ -196,10 +194,10 @@ static NSString *const kIosBundleID = @"testBundleID";
   [FIRAuthBackend getOOBConfirmationCode:request
                                 callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
                                            NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+                                  callbackInvoked = YES;
+                                  RPCResponse = response;
+                                  RPCError = error;
+                                }];
 
   [_RPCIssuer respondWithJSON:@{}];
 
@@ -225,10 +223,10 @@ static NSString *const kIosBundleID = @"testBundleID";
   [FIRAuthBackend getOOBConfirmationCode:request
                                 callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
                                            NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+                                  callbackInvoked = YES;
+                                  RPCResponse = response;
+                                  RPCError = error;
+                                }];
 
   [_RPCIssuer respondWithServerErrorMessage:kEmailNotFoundMessage];
 
@@ -255,10 +253,10 @@ static NSString *const kIosBundleID = @"testBundleID";
   [FIRAuthBackend getOOBConfirmationCode:request
                                 callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
                                            NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+                                  callbackInvoked = YES;
+                                  RPCResponse = response;
+                                  RPCError = error;
+                                }];
 
   [_RPCIssuer respondWithServerErrorMessage:kMissingEmailErrorMessage];
 
@@ -283,10 +281,10 @@ static NSString *const kIosBundleID = @"testBundleID";
   [FIRAuthBackend getOOBConfirmationCode:request
                                 callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
                                            NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+                                  callbackInvoked = YES;
+                                  RPCResponse = response;
+                                  RPCError = error;
+                                }];
 
   [_RPCIssuer respondWithServerErrorMessage:kInvalidEmailErrorMessage];
 
@@ -311,10 +309,10 @@ static NSString *const kIosBundleID = @"testBundleID";
   [FIRAuthBackend getOOBConfirmationCode:request
                                 callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
                                            NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+                                  callbackInvoked = YES;
+                                  RPCResponse = response;
+                                  RPCError = error;
+                                }];
 
   [_RPCIssuer respondWithServerErrorMessage:kInvalidMessagePayloadErrorMessage];
   XCTAssert(callbackInvoked);
@@ -337,10 +335,10 @@ static NSString *const kIosBundleID = @"testBundleID";
   [FIRAuthBackend getOOBConfirmationCode:request
                                 callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
                                            NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+                                  callbackInvoked = YES;
+                                  RPCResponse = response;
+                                  RPCError = error;
+                                }];
   [_RPCIssuer respondWithServerErrorMessage:kInvalidSenderErrorMessage];
   XCTAssert(callbackInvoked);
   XCTAssertNil(RPCResponse);
@@ -362,10 +360,10 @@ static NSString *const kIosBundleID = @"testBundleID";
   [FIRAuthBackend getOOBConfirmationCode:request
                                 callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
                                            NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+                                  callbackInvoked = YES;
+                                  RPCResponse = response;
+                                  RPCError = error;
+                                }];
   [_RPCIssuer respondWithServerErrorMessage:kMissingIosBundleIDErrorMessage];
   XCTAssert(callbackInvoked);
   XCTAssertNil(RPCResponse);
@@ -387,10 +385,10 @@ static NSString *const kIosBundleID = @"testBundleID";
   [FIRAuthBackend getOOBConfirmationCode:request
                                 callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
                                            NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+                                  callbackInvoked = YES;
+                                  RPCResponse = response;
+                                  RPCError = error;
+                                }];
   [_RPCIssuer respondWithServerErrorMessage:kMissingAndroidPackageNameErrorMessage];
   XCTAssert(callbackInvoked);
   XCTAssertNil(RPCResponse);
@@ -412,10 +410,10 @@ static NSString *const kIosBundleID = @"testBundleID";
   [FIRAuthBackend getOOBConfirmationCode:request
                                 callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
                                            NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+                                  callbackInvoked = YES;
+                                  RPCResponse = response;
+                                  RPCError = error;
+                                }];
   [_RPCIssuer respondWithServerErrorMessage:kUnauthorizedDomainErrorMessage];
   XCTAssert(callbackInvoked);
   XCTAssertNil(RPCResponse);
@@ -437,10 +435,10 @@ static NSString *const kIosBundleID = @"testBundleID";
   [FIRAuthBackend getOOBConfirmationCode:request
                                 callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
                                            NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+                                  callbackInvoked = YES;
+                                  RPCResponse = response;
+                                  RPCError = error;
+                                }];
   [_RPCIssuer respondWithServerErrorMessage:kInvalidContinueURIErrorMessage];
   XCTAssert(callbackInvoked);
   XCTAssertNil(RPCResponse);
@@ -462,10 +460,10 @@ static NSString *const kIosBundleID = @"testBundleID";
   [FIRAuthBackend getOOBConfirmationCode:request
                                 callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
                                            NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+                                  callbackInvoked = YES;
+                                  RPCResponse = response;
+                                  RPCError = error;
+                                }];
   [_RPCIssuer respondWithServerErrorMessage:kMissingContinueURIErrorMessage];
   XCTAssert(callbackInvoked);
   XCTAssertNil(RPCResponse);
@@ -487,10 +485,10 @@ static NSString *const kIosBundleID = @"testBundleID";
   [FIRAuthBackend getOOBConfirmationCode:request
                                 callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
                                            NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+                                  callbackInvoked = YES;
+                                  RPCResponse = response;
+                                  RPCError = error;
+                                }];
   [_RPCIssuer respondWithServerErrorMessage:kInvalidRecipientEmailErrorMessage];
   XCTAssert(callbackInvoked);
   XCTAssertNil(RPCResponse);
@@ -512,14 +510,12 @@ static NSString *const kIosBundleID = @"testBundleID";
   [FIRAuthBackend getOOBConfirmationCode:request
                                 callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
                                            NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+                                  callbackInvoked = YES;
+                                  RPCResponse = response;
+                                  RPCError = error;
+                                }];
 
-  [_RPCIssuer respondWithJSON:@{
-    kOOBCodeKey : kTestOOBCode
-  }];
+  [_RPCIssuer respondWithJSON:@{kOOBCodeKey : kTestOOBCode}];
 
   XCTAssert(callbackInvoked);
   XCTAssertNil(RPCError);

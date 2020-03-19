@@ -15,7 +15,7 @@
  */
 
 #include <TargetConditionals.h>
-#if !TARGET_OS_OSX && !TARGET_OS_TV
+#if TARGET_OS_IOS
 
 #import "FIRAuthURLPresenter.h"
 
@@ -29,8 +29,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRAuthURLPresenter () <SFSafariViewControllerDelegate,
-                                   FIRAuthWebViewControllerDelegate>
+@interface FIRAuthURLPresenter () <SFSafariViewControllerDelegate, FIRAuthWebViewControllerDelegate>
 @end
 
 // Disable unguarded availability warnings because SFSafariViewController is been used throughout
@@ -72,9 +71,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)presentURL:(NSURL *)URL
-        UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
-   callbackMatcher:(FIRAuthURLCallbackMatcher)callbackMatcher
-        completion:(FIRAuthURLPresentationCompletion)completion {
+         UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
+    callbackMatcher:(FIRAuthURLCallbackMatcher)callbackMatcher
+         completion:(FIRAuthURLPresentationCompletion)completion {
   if (_isPresenting) {
     // Unable to start a new presentation on top of another.
     _completion(nil, [FIRAuthErrorUtils webContextAlreadyPresentedErrorWithMessage:nil]);
@@ -115,8 +114,8 @@ NS_ASSUME_NONNULL_BEGIN
   dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
     if (controller == self->_safariViewController) {
       self->_safariViewController = nil;
-      //TODO:Ensure that the SFSafariViewController is actually removed from the screen before
-      //invoking finishPresentationWithURL:error:
+      // TODO:Ensure that the SFSafariViewController is actually removed from the screen before
+      // invoking finishPresentationWithURL:error:
       [self finishPresentationWithURL:nil
                                 error:[FIRAuthErrorUtils webContextCancelledErrorWithMessage:nil]];
     }
@@ -160,8 +159,7 @@ NS_ASSUME_NONNULL_BEGIN
     @param URL The URL to finish presenting.
     @param error The error with which to finish presenting, if any.
  */
-- (void)finishPresentationWithURL:(nullable NSURL *)URL
-                            error:(nullable NSError *)error {
+- (void)finishPresentationWithURL:(nullable NSURL *)URL error:(nullable NSError *)error {
   _callbackMatcher = nil;
   id<FIRAuthUIDelegate> UIDelegate = _UIDelegate;
   _UIDelegate = nil;
@@ -177,9 +175,10 @@ NS_ASSUME_NONNULL_BEGIN
   _webViewController = nil;
   if (safariViewController || webViewController) {
     dispatch_async(dispatch_get_main_queue(), ^() {
-      [UIDelegate dismissViewControllerAnimated:YES completion:^() {
-        dispatch_async(FIRAuthGlobalWorkQueue(), finishBlock);
-      }];
+      [UIDelegate dismissViewControllerAnimated:YES
+                                     completion:^() {
+                                       dispatch_async(FIRAuthGlobalWorkQueue(), finishBlock);
+                                     }];
     });
   } else {
     finishBlock();

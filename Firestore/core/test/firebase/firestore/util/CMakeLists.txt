@@ -1,4 +1,4 @@
-# Copyright 2017 Google
+# Copyright 2017 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ endif()
 
 ## async
 
-cc_test(
+firebase_ios_cc_test(
   firebase_firestore_util_async_std_test
   SOURCES
     async_queue_std_test.cc
@@ -37,7 +37,7 @@ cc_test(
 )
 
 if(HAVE_LIBDISPATCH)
-  cc_test(
+  firebase_ios_cc_test(
     firebase_firestore_util_async_libdispatch_test
     SOURCES
       async_queue_libdispatch_test.mm
@@ -56,7 +56,7 @@ endif()
 ## base
 
 if(APPLE)
-  cc_test(
+  firebase_ios_cc_test(
     firebase_firestore_util_base_apple_test
     SOURCES
       hard_assert_test.cc
@@ -67,7 +67,7 @@ if(APPLE)
   )
 endif(APPLE)
 
-cc_test(
+firebase_ios_cc_test(
   firebase_firestore_util_base_stdio_test
   SOURCES
     hard_assert_test.cc
@@ -80,7 +80,7 @@ cc_test(
 ## filesystem
 
 if(APPLE)
-  cc_test(
+  firebase_ios_cc_test(
     firebase_firestore_util_filesystem_apple_test
     SOURCES
       filesystem_test.cc
@@ -95,7 +95,7 @@ if(APPLE)
 endif()
 
 if(NOT APPLE AND NOT WIN32)
-  cc_test(
+  firebase_ios_cc_test(
     firebase_firestore_util_filesystem_posix_test
     SOURCES
       filesystem_test.cc
@@ -110,7 +110,7 @@ if(NOT APPLE AND NOT WIN32)
 endif()
 
 if(WIN32)
-  cc_test(
+  firebase_ios_cc_test(
     firebase_firestore_util_filesystem_win_test
     SOURCES
       filesystem_test.cc
@@ -128,7 +128,7 @@ endif()
 ## random
 
 if(HAVE_ARC4RANDOM)
-  cc_test(
+  firebase_ios_cc_test(
     firebase_firestore_util_random_arc4random_test
     SOURCES
       secure_random_test.cc
@@ -138,7 +138,7 @@ if(HAVE_ARC4RANDOM)
 endif()
 
 if(HAVE_OPENSSL_RAND_H)
-  cc_test(
+  firebase_ios_cc_test(
     firebase_firestore_util_random_openssl_test
     SOURCES
       secure_random_test.cc
@@ -150,7 +150,7 @@ endif()
 
 ## main library
 
-cc_test(
+firebase_ios_cc_test(
   firebase_firestore_util_test
   SOURCES
     autoid_test.cc
@@ -182,40 +182,44 @@ cc_test(
 
 # Helper utilities
 
-cc_library(
-  firebase_firestore_remote_test_util
-  SOURCES
-    create_noop_connectivity_monitor.h
-    create_noop_connectivity_monitor.cc
-    fake_credentials_provider.h
-    fake_credentials_provider.cc
-    grpc_stream_tester.h
-    grpc_stream_tester.cc
-  DEPENDS
-    absl_base
-    absl_strings
-    firebase_firestore_auth
-    firebase_firestore_core
-    firebase_firestore_remote
-    firebase_firestore_testutil
-    firebase_firestore_util
-    grpc++
-)
+if(FIREBASE_IOS_BUILD_TESTS)
+  firebase_ios_cc_library(
+    firebase_firestore_remote_test_util
+    SOURCES
+      create_noop_connectivity_monitor.h
+      create_noop_connectivity_monitor.cc
+      fake_credentials_provider.h
+      fake_credentials_provider.cc
+      grpc_stream_tester.h
+      grpc_stream_tester.cc
+    DEPENDS
+      absl_base
+      absl_strings
+      firebase_firestore_auth
+      firebase_firestore_core
+      firebase_firestore_remote
+      firebase_firestore_testutil
+      firebase_firestore_util
+      grpc++
+  )
+endif()
 
 # Benchmarks
 
-cc_binary(
-  firebase_firestore_util_ordered_code_benchmark
-  SOURCES
-    ordered_code_benchmark.cc
-  DEPENDS
-    benchmark
-    benchmark_main
-    firebase_firestore_util
-)
+if(FIREBASE_IOS_BUILD_BENCHMARKS)
+  firebase_ios_cc_binary(
+    firebase_firestore_util_ordered_code_benchmark
+    SOURCES
+      ordered_code_benchmark.cc
+    DEPENDS
+      benchmark
+      benchmark_main
+      firebase_firestore_util
+  )
+endif()
 
-if(APPLE)
-  cc_binary(
+if(FIREBASE_IOS_BUILD_BENCHMARKS AND APPLE)
+  firebase_ios_cc_binary(
     firebase_firestore_util_string_apple_benchmark
     SOURCES
       string_apple_benchmark.mm

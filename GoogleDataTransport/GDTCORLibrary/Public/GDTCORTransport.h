@@ -49,7 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param completion A block that will be called when the event has been written or dropped.
  */
 - (void)sendTelemetryEvent:(GDTCOREvent *)event
-                onComplete:(void (^)(BOOL wasWritten, NSError *_Nullable error))completion;
+                onComplete:(void (^_Nullable)(BOOL wasWritten, NSError *_Nullable error))completion;
 
 /** Copies and sends an internal telemetry event. Events sent using this API are lower in priority,
  * and sometimes won't be sent on their own.
@@ -69,7 +69,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param completion A block that will be called when the event has been written or dropped.
  */
 - (void)sendDataEvent:(GDTCOREvent *)event
-           onComplete:(void (^)(BOOL wasWritten, NSError *_Nullable error))completion;
+           onComplete:(void (^_Nullable)(BOOL wasWritten, NSError *_Nullable error))completion;
 
 /** Copies and sends an SDK service data event. Events send using this API are higher in priority,
  * and will cause a network request at some point in the relative near future.

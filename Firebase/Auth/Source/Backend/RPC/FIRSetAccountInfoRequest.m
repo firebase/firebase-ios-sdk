@@ -171,10 +171,9 @@ static NSString *const kReturnSecureTokenKey = @"returnSecureToken";
   if (_returnSecureToken) {
     postBody[kReturnSecureTokenKey] = @YES;
   }
-  return postBody;
+  return [postBody copy];
 }
 
 @end
 
 NS_ASSUME_NONNULL_END
-

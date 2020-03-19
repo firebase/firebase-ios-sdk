@@ -38,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param completion A block to run when an event was written to disk or dropped.
  */
 - (void)storeEvent:(GDTCOREvent *)event
-        onComplete:(void (^)(BOOL wasWritten, NSError *error))completion;
+        onComplete:(void (^_Nullable)(BOOL wasWritten, NSError *error))completion;
 
 /** Removes a set of events from storage specified by their hash.
  *

@@ -16,8 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRAuthErrors.h"
 #import "FIRAuthBackend.h"
+#import "FIRAuthErrors.h"
 #import "FIRFakeBackendRPCIssuer.h"
 #import "FIRVerifyPasswordRequest.h"
 #import "FIRVerifyPasswordResponse.h"
@@ -125,15 +125,15 @@ static NSString *const kExpectedAPIURL =
     @brief Tests the verify password request.
  */
 - (void)testVerifyPasswordRequest {
-  FIRVerifyPasswordRequest * request =
+  FIRVerifyPasswordRequest *request =
       [[FIRVerifyPasswordRequest alloc] initWithEmail:kTestEmail
                                              password:kTestPassword
                                  requestConfiguration:_requestConfiguration];
   request.returnSecureToken = NO;
-  [FIRAuthBackend verifyPassword:request
-                        callback:^(FIRVerifyPasswordResponse *_Nullable response,
-                                   NSError *_Nullable error) {
-  }];
+  [FIRAuthBackend
+      verifyPassword:request
+            callback:^(FIRVerifyPasswordResponse *_Nullable response, NSError *_Nullable error){
+            }];
 
   XCTAssertEqualObjects(_RPCIssuer.requestURL.absoluteString, kExpectedAPIURL);
   XCTAssertNotNil(_RPCIssuer.decodedRequest);
@@ -148,17 +148,17 @@ static NSString *const kExpectedAPIURL =
     @brief Tests the verify password request with optional fields.
  */
 - (void)testVerifyPasswordRequestOptionalFields {
-  FIRVerifyPasswordRequest * request =
+  FIRVerifyPasswordRequest *request =
       [[FIRVerifyPasswordRequest alloc] initWithEmail:kTestEmail
                                              password:kTestPassword
                                  requestConfiguration:_requestConfiguration];
   request.pendingIDToken = kTestPendingToken;
   request.captchaChallenge = kTestCaptchaChallenge;
   request.captchaResponse = kTestCaptchaResponse;
-  [FIRAuthBackend verifyPassword:request
-                        callback:^(FIRVerifyPasswordResponse *_Nullable response,
-                                   NSError *_Nullable error) {
-  }];
+  [FIRAuthBackend
+      verifyPassword:request
+            callback:^(FIRVerifyPasswordResponse *_Nullable response, NSError *_Nullable error){
+            }];
 
   XCTAssertEqualObjects(_RPCIssuer.requestURL.absoluteString, kExpectedAPIURL);
   XCTAssertNotNil(_RPCIssuer.decodedRequest);

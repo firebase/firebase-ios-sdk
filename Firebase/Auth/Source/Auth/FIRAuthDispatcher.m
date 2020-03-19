@@ -25,9 +25,9 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)sharedInstance {
   static dispatch_once_t onceToken;
   static FIRAuthDispatcher *sharedInstance;
-   dispatch_once(&onceToken, ^{
-     sharedInstance = [[self alloc] init];
-   });
+  dispatch_once(&onceToken, ^{
+    sharedInstance = [[self alloc] init];
+  });
   return sharedInstance;
 }
 

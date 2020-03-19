@@ -16,8 +16,8 @@
 
 #import "FIRFacebookAuthCredential.h"
 
-#import "FIRFacebookAuthProvider.h"
 #import "FIRAuthExceptionUtils.h"
+#import "FIRFacebookAuthProvider.h"
 #import "FIRVerifyAssertionRequest.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -33,8 +33,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (nullable instancetype)initWithProvider:(NSString *)provider {
-  [FIRAuthExceptionUtils raiseMethodNotImplementedExceptionWithReason:
-      @"Please call the designated initializer."];
+  [FIRAuthExceptionUtils
+      raiseMethodNotImplementedExceptionWithReason:@"Please call the designated initializer."];
   return nil;
 }
 

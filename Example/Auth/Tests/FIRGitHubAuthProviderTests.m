@@ -16,8 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRGitHubAuthProvider.h"
 #import "FIRAuthCredential_Internal.h"
+#import "FIRGitHubAuthProvider.h"
 #import "FIRVerifyAssertionRequest.h"
 
 /** @var kGitHubToken

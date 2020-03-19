@@ -27,6 +27,15 @@ jobs:
     - name: Build and test
       run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=${{ matrix.target }}
 
+  catalyst:
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Setup project and Build Catalyst
+      run: scripts/test_catalyst.sh FirebaseMessaging build
+
   pod-lib-lint-watchos:
     runs-on: macOS-latest
 

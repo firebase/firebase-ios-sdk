@@ -49,7 +49,6 @@ extern NSString *const FIRAuthErrorUserInfoDeserializedResponseKey;
  */
 extern NSString *const FIRAuthErrorUserInfoDataKey;
 
-
 /** @var FIRAuthInternalErrorCode
     @brief Error codes used internally by Firebase Auth.
     @remarks All errors are generated using an internal error code. These errors are automatically
@@ -70,8 +69,8 @@ typedef NS_ENUM(NSInteger, FIRAuthInternalErrorCode) {
   /** @var FIRAuthInternalErrorCodeEmailAlreadyInUse
       @brief The email used to attempt a sign-up already exists.
    */
-  FIRAuthInternalErrorCodeEmailAlreadyInUse =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeEmailAlreadyInUse,
+  FIRAuthInternalErrorCodeEmailAlreadyInUse = FIRAuthPublicErrorCodeFlag |
+                                              FIRAuthErrorCodeEmailAlreadyInUse,
 
   /** @var FIRAuthInternalErrorCodeUserDisabled
       @brief Indicates the user's account is disabled on the server side.
@@ -81,73 +80,72 @@ typedef NS_ENUM(NSInteger, FIRAuthInternalErrorCode) {
   /** @var FIRAuthInternalErrorCodeWrongPassword
       @brief Indicates the user attempted sign in with a wrong password
    */
-  FIRAuthInternalErrorCodeWrongPassword =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeWrongPassword,
+  FIRAuthInternalErrorCodeWrongPassword = FIRAuthPublicErrorCodeFlag |
+                                          FIRAuthErrorCodeWrongPassword,
 
   /** @var FIRAuthInternalErrorCodeKeychainError
       @brief Indicates an error occurred accessing the keychain.
       @remarks The @c NSLocalizedFailureReasonErrorKey field in the @c NSError.userInfo dictionary
           will contain more information about the error encountered.
    */
-  FIRAuthInternalErrorCodeKeychainError =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeKeychainError,
+  FIRAuthInternalErrorCodeKeychainError = FIRAuthPublicErrorCodeFlag |
+                                          FIRAuthErrorCodeKeychainError,
 
   /** @var FIRAuthInternalErrorCodeMissingClientIdentifier
       @brief Indicates an error for when the client identifier is missing.
    */
-  FIRAuthInternalErrorCodeMissingClientIdentifier =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeMissingClientIdentifier,
+  FIRAuthInternalErrorCodeMissingClientIdentifier = FIRAuthPublicErrorCodeFlag |
+                                                    FIRAuthErrorCodeMissingClientIdentifier,
 
   /** @var FIRAuthInternalErrorCodeInternalError
       @brief An internal error occurred.
       @remarks This value is here for consistency. It's also used to make the implementation of
           wrapping internal errors simpler.
    */
-  FIRAuthInternalErrorCodeInternalError =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeInternalError,
+  FIRAuthInternalErrorCodeInternalError = FIRAuthPublicErrorCodeFlag |
+                                          FIRAuthErrorCodeInternalError,
 
   /** @var FIRAuthInternalErrorCodeTooManyRequests
       @brief Indicates that too many requests were made to a server method.
    */
-  FIRAuthInternalErrorCodeTooManyRequests =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeTooManyRequests,
+  FIRAuthInternalErrorCodeTooManyRequests = FIRAuthPublicErrorCodeFlag |
+                                            FIRAuthErrorCodeTooManyRequests,
 
   /** @var FIRAuthInternalErrorCodeInvalidCustomToken
       @brief Indicates a validation error with the custom token.
    */
-  FIRAuthInternalErrorCodeInvalidCustomToken =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeInvalidCustomToken,
+  FIRAuthInternalErrorCodeInvalidCustomToken = FIRAuthPublicErrorCodeFlag |
+                                               FIRAuthErrorCodeInvalidCustomToken,
 
   /** @var FIRAuthInternalErrorCodeCredentialMismatch
       @brief Indicates the service account and the API key belong to different projects.
    */
-  FIRAuthInternalErrorCodeCustomTokenMismatch =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeCustomTokenMismatch,
+  FIRAuthInternalErrorCodeCustomTokenMismatch = FIRAuthPublicErrorCodeFlag |
+                                                FIRAuthErrorCodeCustomTokenMismatch,
 
   /** @var FIRAuthInternalErrorCodeInvalidCredential
       @brief Indicates the IDP token or requestUri is invalid.
    */
-  FIRAuthInternalErrorCodeInvalidCredential =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeInvalidCredential,
+  FIRAuthInternalErrorCodeInvalidCredential = FIRAuthPublicErrorCodeFlag |
+                                              FIRAuthErrorCodeInvalidCredential,
 
   /** @var FIRAuthInternalErrorCodeRequiresRecentLogin
       @brief Indicates the user has attemped to change email or password more than 5 minutes after
           signing in.
    */
-  FIRAuthInternalErrorCodeRequiresRecentLogin =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeRequiresRecentLogin,
+  FIRAuthInternalErrorCodeRequiresRecentLogin = FIRAuthPublicErrorCodeFlag |
+                                                FIRAuthErrorCodeRequiresRecentLogin,
 
-   /** @var FIRAuthInternalErrorCodeInvalidUserToken
-      @brief Indicates user's saved auth credential is invalid, the user needs to sign in again.
-   */
-  FIRAuthInternalErrorCodeInvalidUserToken =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeInvalidUserToken,
+  /** @var FIRAuthInternalErrorCodeInvalidUserToken
+     @brief Indicates user's saved auth credential is invalid, the user needs to sign in again.
+  */
+  FIRAuthInternalErrorCodeInvalidUserToken = FIRAuthPublicErrorCodeFlag |
+                                             FIRAuthErrorCodeInvalidUserToken,
 
-   /** @var FIRAuthInternalErrorCodeInvalidEmail
-      @brief Indicates the email identifier is invalid.
-   */
-  FIRAuthInternalErrorCodeInvalidEmail =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeInvalidEmail,
+  /** @var FIRAuthInternalErrorCodeInvalidEmail
+     @brief Indicates the email identifier is invalid.
+  */
+  FIRAuthInternalErrorCodeInvalidEmail = FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeInvalidEmail,
 
   /** @var FIRAuthInternalErrorCodeAccountExistsWithDifferentCredential
       @brief Indicates account linking is needed.
@@ -158,188 +156,184 @@ typedef NS_ENUM(NSInteger, FIRAuthInternalErrorCode) {
   /** @var FIRAuthInternalErrorCodeProviderAlreadyLinked
       @brief Indicates an attempt to link a provider to which we are already linked.
    */
-  FIRAuthInternalErrorCodeProviderAlreadyLinked =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeProviderAlreadyLinked,
+  FIRAuthInternalErrorCodeProviderAlreadyLinked = FIRAuthPublicErrorCodeFlag |
+                                                  FIRAuthErrorCodeProviderAlreadyLinked,
 
   /** @var FIRAuthInternalErrorCodeNoSuchProvider
       @brief Indicates an attempt to unlink a provider that is not is not linked.
    */
-  FIRAuthInternalErrorCodeNoSuchProvider =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeNoSuchProvider,
+  FIRAuthInternalErrorCodeNoSuchProvider = FIRAuthPublicErrorCodeFlag |
+                                           FIRAuthErrorCodeNoSuchProvider,
 
   /** @var FIRAuthInternalErrorCodeUserTokenExpired
       @brief Indicates the token issue time is older than account's valid_since time.
    */
-  FIRAuthInternalErrorCodeUserTokenExpired =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeUserTokenExpired,
+  FIRAuthInternalErrorCodeUserTokenExpired = FIRAuthPublicErrorCodeFlag |
+                                             FIRAuthErrorCodeUserTokenExpired,
 
   /** @var FIRAuthInternalErrorCodeUserNotFound
       @brief Indicates the user account was been found.
    */
-  FIRAuthInternalErrorCodeUserNotFound =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeUserNotFound,
+  FIRAuthInternalErrorCodeUserNotFound = FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeUserNotFound,
 
   /** @var FIRAuthInternalErrorCodeInvalidAPIKey
       @brief Indicates an invalid API Key was supplied in the request.
    */
-  FIRAuthInternalErrorCodeInvalidAPIKey =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeInvalidAPIKey,
+  FIRAuthInternalErrorCodeInvalidAPIKey = FIRAuthPublicErrorCodeFlag |
+                                          FIRAuthErrorCodeInvalidAPIKey,
 
   /** @var FIRAuthInternalErrorCodeOperationNotAllowed
       @brief Indicates that admin disabled sign-in with the specified IDP.
    */
-  FIRAuthInternalErrorCodeOperationNotAllowed =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeOperationNotAllowed,
+  FIRAuthInternalErrorCodeOperationNotAllowed = FIRAuthPublicErrorCodeFlag |
+                                                FIRAuthErrorCodeOperationNotAllowed,
 
   /** @var FIRAuthInternalErrorCodeUserMismatch
       @brief Indicates that user attempted to reauthenticate with a user other than the current
           user.
    */
-  FIRAuthInternalErrorCodeUserMismatch =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeUserMismatch,
+  FIRAuthInternalErrorCodeUserMismatch = FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeUserMismatch,
 
   /** @var FIRAuthInternalErrorCodeCredentialAlreadyInUse
       @brief Indicates an attempt to link with a credential that has already been linked with a
           different Firebase account.
    */
-  FIRAuthInternalErrorCodeCredentialAlreadyInUse =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeCredentialAlreadyInUse,
+  FIRAuthInternalErrorCodeCredentialAlreadyInUse = FIRAuthPublicErrorCodeFlag |
+                                                   FIRAuthErrorCodeCredentialAlreadyInUse,
 
   /** @var FIRAuthInternalErrorCodeWeakPassword
       @brief Indicates an attempt to set a password that is considered too weak.
    */
-  FIRAuthInternalErrorCodeWeakPassword =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeWeakPassword,
+  FIRAuthInternalErrorCodeWeakPassword = FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeWeakPassword,
 
   /** @var FIRAuthInternalErrorCodeAppNotAuthorized
       @brief Indicates the App is not authorized to use Firebase Authentication with the
           provided API Key.
    */
-  FIRAuthInternalErrorCodeAppNotAuthorized =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeAppNotAuthorized,
+  FIRAuthInternalErrorCodeAppNotAuthorized = FIRAuthPublicErrorCodeFlag |
+                                             FIRAuthErrorCodeAppNotAuthorized,
 
   /** @var FIRAuthInternalErrorCodeExpiredActionCode
       @brief Indicates the OOB code is expired.
    */
-  FIRAuthInternalErrorCodeExpiredActionCode =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeExpiredActionCode,
+  FIRAuthInternalErrorCodeExpiredActionCode = FIRAuthPublicErrorCodeFlag |
+                                              FIRAuthErrorCodeExpiredActionCode,
 
   /** @var FIRAuthInternalErrorCodeInvalidActionCode
       @brief Indicates the OOB code is invalid.
   */
-  FIRAuthInternalErrorCodeInvalidActionCode =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeInvalidActionCode,
+  FIRAuthInternalErrorCodeInvalidActionCode = FIRAuthPublicErrorCodeFlag |
+                                              FIRAuthErrorCodeInvalidActionCode,
 
   /** Indicates that there are invalid parameters in the payload during a "send password reset email
    *  " attempt.
    */
-  FIRAuthInternalErrorCodeInvalidMessagePayload =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeInvalidMessagePayload,
+  FIRAuthInternalErrorCodeInvalidMessagePayload = FIRAuthPublicErrorCodeFlag |
+                                                  FIRAuthErrorCodeInvalidMessagePayload,
 
   /** Indicates that the sender email is invalid during a "send password reset email" attempt.
    */
-  FIRAuthInternalErrorCodeInvalidSender =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeInvalidSender,
+  FIRAuthInternalErrorCodeInvalidSender = FIRAuthPublicErrorCodeFlag |
+                                          FIRAuthErrorCodeInvalidSender,
 
   /** Indicates that the recipient email is invalid.
    */
-  FIRAuthInternalErrorCodeInvalidRecipientEmail =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeInvalidRecipientEmail,
+  FIRAuthInternalErrorCodeInvalidRecipientEmail = FIRAuthPublicErrorCodeFlag |
+                                                  FIRAuthErrorCodeInvalidRecipientEmail,
 
   /** Indicates that the iOS bundle ID is missing when a iOS App Store ID is provided.
    */
-  FIRAuthinternalErrorCodeMissingIosBundleID =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeMissingIosBundleID,
+  FIRAuthinternalErrorCodeMissingIosBundleID = FIRAuthPublicErrorCodeFlag |
+                                               FIRAuthErrorCodeMissingIosBundleID,
 
   /** Indicates that the android package name is missing when the @c androidInstallApp flag is set
         to true.
    */
-  FIRAuthInternalErrorCodeMissingAndroidPackageName =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeMissingAndroidPackageName,
+  FIRAuthInternalErrorCodeMissingAndroidPackageName = FIRAuthPublicErrorCodeFlag |
+                                                      FIRAuthErrorCodeMissingAndroidPackageName,
 
   /** Indicates that the domain specified in the continue URL is not whitelisted in the Firebase
         console.
    */
-  FIRAuthInternalErrorCodeUnauthorizedDomain =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeUnauthorizedDomain,
+  FIRAuthInternalErrorCodeUnauthorizedDomain = FIRAuthPublicErrorCodeFlag |
+                                               FIRAuthErrorCodeUnauthorizedDomain,
 
   /** Indicates that the domain specified in the continue URI is not valid.
    */
-  FIRAuthInternalErrorCodeInvalidContinueURI =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeInvalidContinueURI,
+  FIRAuthInternalErrorCodeInvalidContinueURI = FIRAuthPublicErrorCodeFlag |
+                                               FIRAuthErrorCodeInvalidContinueURI,
 
   /** Indicates that a continue URI was not provided in a request to the backend which requires
         one.
    */
-  FIRAuthInternalErrorCodeMissingContinueURI =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeMissingContinueURI,
+  FIRAuthInternalErrorCodeMissingContinueURI = FIRAuthPublicErrorCodeFlag |
+                                               FIRAuthErrorCodeMissingContinueURI,
 
   /** Indicates that an email address was expected but one was not provided.
    */
-  FIRAuthInternalErrorCodeMissingEmail =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeMissingEmail,
+  FIRAuthInternalErrorCodeMissingEmail = FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeMissingEmail,
 
   /** Indicates that a phone number was not provided in a call to @c verifyPhoneNumber:completion:.
    */
-  FIRAuthInternalErrorCodeMissingPhoneNumber =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeMissingPhoneNumber,
+  FIRAuthInternalErrorCodeMissingPhoneNumber = FIRAuthPublicErrorCodeFlag |
+                                               FIRAuthErrorCodeMissingPhoneNumber,
 
   /** Indicates that an invalid phone number was provided in a call to @c
       verifyPhoneNumber:completion:.
    */
-  FIRAuthInternalErrorCodeInvalidPhoneNumber =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeInvalidPhoneNumber,
+  FIRAuthInternalErrorCodeInvalidPhoneNumber = FIRAuthPublicErrorCodeFlag |
+                                               FIRAuthErrorCodeInvalidPhoneNumber,
 
   /** Indicates that the phone auth credential was created with an empty verification code.
    */
-  FIRAuthInternalErrorCodeMissingVerificationCode =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeMissingVerificationCode,
+  FIRAuthInternalErrorCodeMissingVerificationCode = FIRAuthPublicErrorCodeFlag |
+                                                    FIRAuthErrorCodeMissingVerificationCode,
 
   /** Indicates that an invalid verification code was used in the verifyPhoneNumber request.
    */
-  FIRAuthInternalErrorCodeInvalidVerificationCode =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeInvalidVerificationCode,
+  FIRAuthInternalErrorCodeInvalidVerificationCode = FIRAuthPublicErrorCodeFlag |
+                                                    FIRAuthErrorCodeInvalidVerificationCode,
 
   /** Indicates that the phone auth credential was created with an empty verification ID.
    */
-  FIRAuthInternalErrorCodeMissingVerificationID =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeMissingVerificationID,
+  FIRAuthInternalErrorCodeMissingVerificationID = FIRAuthPublicErrorCodeFlag |
+                                                  FIRAuthErrorCodeMissingVerificationID,
 
-   /** Indicates that the APNS device token is missing in the verifyClient request.
-    */
-  FIRAuthInternalErrorCodeMissingAppCredential =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeMissingAppCredential,
+  /** Indicates that the APNS device token is missing in the verifyClient request.
+   */
+  FIRAuthInternalErrorCodeMissingAppCredential = FIRAuthPublicErrorCodeFlag |
+                                                 FIRAuthErrorCodeMissingAppCredential,
 
   /** Indicates that an invalid APNS device token was used in the verifyClient request.
    */
-  FIRAuthInternalErrorCodeInvalidAppCredential =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeInvalidAppCredential,
+  FIRAuthInternalErrorCodeInvalidAppCredential = FIRAuthPublicErrorCodeFlag |
+                                                 FIRAuthErrorCodeInvalidAppCredential,
 
   /** Indicates that the reCAPTCHA token is not valid.
    */
-  FIRAuthInternalErrorCodeCaptchaCheckFailed =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeCaptchaCheckFailed,
+  FIRAuthInternalErrorCodeCaptchaCheckFailed = FIRAuthPublicErrorCodeFlag |
+                                               FIRAuthErrorCodeCaptchaCheckFailed,
 
   /** Indicates that an invalid verification ID was used in the verifyPhoneNumber request.
    */
-  FIRAuthInternalErrorCodeInvalidVerificationID =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeInvalidVerificationID,
+  FIRAuthInternalErrorCodeInvalidVerificationID = FIRAuthPublicErrorCodeFlag |
+                                                  FIRAuthErrorCodeInvalidVerificationID,
 
   /** Indicates that the quota of SMS messages for a given project has been exceeded.
    */
-  FIRAuthInternalErrorCodeQuotaExceeded =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeQuotaExceeded,
+  FIRAuthInternalErrorCodeQuotaExceeded = FIRAuthPublicErrorCodeFlag |
+                                          FIRAuthErrorCodeQuotaExceeded,
 
   /** Indicates that an attempt was made to present a new web context while one was already being
         presented.
    */
-  FIRAuthInternalErrorCodeWebContextAlreadyPresented =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeWebContextAlreadyPresented,
+  FIRAuthInternalErrorCodeWebContextAlreadyPresented = FIRAuthPublicErrorCodeFlag |
+                                                       FIRAuthErrorCodeWebContextAlreadyPresented,
 
   /** Indicates that the URL presentation was cancelled prematurely by the user.
    */
-  FIRAuthInternalErrorCodeWebContextCancelled =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeWebContextCancelled,
+  FIRAuthInternalErrorCodeWebContextCancelled = FIRAuthPublicErrorCodeFlag |
+                                                FIRAuthErrorCodeWebContextCancelled,
 
   /** Indicates a general failure during the app verification flow.
    */
@@ -348,18 +342,18 @@ typedef NS_ENUM(NSInteger, FIRAuthInternalErrorCode) {
 
   /** Indicates that the clientID used to invoke a web flow is invalid.
    */
-  FIRAuthInternalErrorCodeInvalidClientID =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeInvalidClientID,
+  FIRAuthInternalErrorCodeInvalidClientID = FIRAuthPublicErrorCodeFlag |
+                                            FIRAuthErrorCodeInvalidClientID,
 
   /** Indicates that a network request within a SFSafariViewController or WKWebView failed.
    */
-  FIRAuthInternalErrorCodeWebNetworkRequestFailed =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeWebNetworkRequestFailed,
+  FIRAuthInternalErrorCodeWebNetworkRequestFailed = FIRAuthPublicErrorCodeFlag |
+                                                    FIRAuthErrorCodeWebNetworkRequestFailed,
 
   /** Indicates that an internal error occurred within a SFSafariViewController or WKWebView.
    */
-  FIRAuthInternalErrorCodeWebInternalError =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeWebInternalError,
+  FIRAuthInternalErrorCodeWebInternalError = FIRAuthPublicErrorCodeFlag |
+                                             FIRAuthErrorCodeWebInternalError,
 
   /** Indicates that an internal error occurred within a SFSafariViewController or WKWebView.
    */
@@ -371,52 +365,105 @@ typedef NS_ENUM(NSInteger, FIRAuthInternalErrorCode) {
 
   /** Indicates that the SMS code has expired
    */
-  FIRAuthInternalErrorCodeSessionExpired =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeSessionExpired,
+  FIRAuthInternalErrorCodeSessionExpired = FIRAuthPublicErrorCodeFlag |
+                                           FIRAuthErrorCodeSessionExpired,
 
-  FIRAuthInternalErrorCodeMissingAppToken =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeMissingAppToken,
+  FIRAuthInternalErrorCodeMissingAppToken = FIRAuthPublicErrorCodeFlag |
+                                            FIRAuthErrorCodeMissingAppToken,
 
-  FIRAuthInternalErrorCodeNotificationNotForwarded =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeNotificationNotForwarded,
+  FIRAuthInternalErrorCodeNotificationNotForwarded = FIRAuthPublicErrorCodeFlag |
+                                                     FIRAuthErrorCodeNotificationNotForwarded,
 
-  FIRAuthInternalErrorCodeAppNotVerified =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeAppNotVerified,
-
-  /** Indicates that the Game Center local player was not authenticated.
-   */
-  FIRAuthInternalErrorCodeLocalPlayerNotAuthenticated =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeLocalPlayerNotAuthenticated,
+  FIRAuthInternalErrorCodeAppNotVerified = FIRAuthPublicErrorCodeFlag |
+                                           FIRAuthErrorCodeAppNotVerified,
 
   /** Indicates that the Game Center local player was not authenticated.
    */
-  FIRAuthInternalErrorCodeGameKitNotLinked =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeGameKitNotLinked,
+  FIRAuthInternalErrorCodeLocalPlayerNotAuthenticated = FIRAuthPublicErrorCodeFlag |
+                                                        FIRAuthErrorCodeLocalPlayerNotAuthenticated,
+
+  /** Indicates that the Game Center local player was not authenticated.
+   */
+  FIRAuthInternalErrorCodeGameKitNotLinked = FIRAuthPublicErrorCodeFlag |
+                                             FIRAuthErrorCodeGameKitNotLinked,
+
+  /** Indicates that the second factor is required for sign in.
+   */
+  FIRAuthInternalErrorCodeSecondFactorRequired = FIRAuthPublicErrorCodeFlag |
+                                                 FIRAuthErrorCodeSecondFactorRequired,
+
+  /** Indicates that the multi factor session is missing.
+   */
+  FIRAuthInternalErrorCodeMissingMultiFactorSession = FIRAuthPublicErrorCodeFlag |
+                                                      FIRAuthErrorCodeMissingMultiFactorSession,
+
+  /** Indicates that the multi factor info is missing.
+   */
+  FIRAuthInternalErrorCodeMissingMultiFactorInfo = FIRAuthPublicErrorCodeFlag |
+                                                   FIRAuthErrorCodeMissingMultiFactorInfo,
+
+  /** Indicates that the multi factor session is invalid.
+   */
+  FIRAuthInternalErrorCodeInvalidMultiFactorSession = FIRAuthPublicErrorCodeFlag |
+                                                      FIRAuthErrorCodeInvalidMultiFactorSession,
+
+  /** Indicates that the multi factor info is not found.
+   */
+  FIRAuthInternalErrorCodeMultiFactorInfoNotFound = FIRAuthPublicErrorCodeFlag |
+                                                    FIRAuthErrorCodeMultiFactorInfoNotFound,
+
+  /** Indicates that the operation is admin only.
+   */
+  FIRAuthInternalErrorCodeAdminRestrictedOperation = FIRAuthPublicErrorCodeFlag |
+                                                     FIRAuthErrorCodeAdminRestrictedOperation,
+
+  /** Indicates that the email is unverified.
+   */
+  FIRAuthInternalErrorCodeUnverifiedEmail = FIRAuthPublicErrorCodeFlag |
+                                            FIRAuthErrorCodeUnverifiedEmail,
+
+  /** Indicates that the second factor is already enrolled.
+   */
+  FIRAuthInternalErrorCodeSecondFactorAlreadyEnrolled = FIRAuthPublicErrorCodeFlag |
+                                                        FIRAuthErrorCodeSecondFactorAlreadyEnrolled,
+
+  /** Indicates that the number of multi factors reached the limit.
+   */
+  FIRAuthInternalErrorCodeMaximumSecondFactorCountExceeded =
+      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeMaximumSecondFactorCountExceeded,
+
+  /** Indicates that the first factor is not supportted.
+   */
+  FIRAuthInternalErrorCodeUnsupportedFirstFactor = FIRAuthPublicErrorCodeFlag |
+                                                   FIRAuthErrorCodeUnsupportedFirstFactor,
+
+  /** Indicates that the email needs to be verified before changed.
+   */
+  FIRAuthInternalErrorCodeEmailChangeNeedsVerification =
+      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeEmailChangeNeedsVerification,
 
   /** Indicates that the nonce is missing or invalid.
    */
-  FIRAuthInternalErrorCodeMissingOrInvalidNonce =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeMissingOrInvalidNonce,
+  FIRAuthInternalErrorCodeMissingOrInvalidNonce = FIRAuthPublicErrorCodeFlag |
+                                                  FIRAuthErrorCodeMissingOrInvalidNonce,
 
   /** Indicates that a non-null user was expected as an argmument to the operation but a null
         user was provided.
    */
-  FIRAuthInternalErrorCodeNullUser =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeNullUser,
+  FIRAuthInternalErrorCodeNullUser = FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeNullUser,
 
   /** Indicates that the provider id given for the web operation is invalid.
    */
-  FIRAuthInternalErrorCodeInvalidProviderID =
-    FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeInvalidProviderID,
+  FIRAuthInternalErrorCodeInvalidProviderID = FIRAuthPublicErrorCodeFlag |
+                                              FIRAuthErrorCodeInvalidProviderID,
 
-  /** Indicates that the Firebase Dynamic Link domain used is either not configured or is unauthorized
-      for the current project.
+  /** Indicates that the Firebase Dynamic Link domain used is either not configured or is
+     unauthorized for the current project.
    */
-  FIRAuthInternalErrorCodeInvalidDynamicLinkDomain =
-    FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeInvalidDynamicLinkDomain,
+  FIRAuthInternalErrorCodeInvalidDynamicLinkDomain = FIRAuthPublicErrorCodeFlag |
+                                                     FIRAuthErrorCodeInvalidDynamicLinkDomain,
 
-  FIRAuthInternalErrorCodeMalformedJWT =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeMalformedJWT,
+  FIRAuthInternalErrorCodeMalformedJWT = FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeMalformedJWT,
 
   /** @var FIRAuthInternalErrorCodeRPCRequestEncodingError
       @brief Indicates an error encoding the RPC request.

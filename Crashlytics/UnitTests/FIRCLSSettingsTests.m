@@ -46,8 +46,20 @@ const NSString *FIRCLSTestSettingsCorrupted = @"{{{{ non_key: non\"value {}";
 NSString *FIRCLSDefaultMockBuildInstanceID = @"12345abcdef";
 NSString *FIRCLSDifferentMockBuildInstanceID = @"98765zyxwv";
 
+NSString *FIRCLSDefaultMockAppDisplayVersion = @"1.2.3-beta.2";
+NSString *FIRCLSDifferentMockAppDisplayVersion = @"1.2.3-beta.3";
+
+NSString *FIRCLSDefaultMockAppBuildVersion = @"1024";
+NSString *FIRCLSDifferentMockAppBuildVersion = @"2048";
+
 NSString *const TestGoogleAppID = @"1:test:google:app:id";
 NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
+
+@interface FIRCLSSettings (Testing)
+
+@property(nonatomic, strong) NSDictionary<NSString *, id> *settingsDictionary;
+
+@end
 
 @interface FIRCLSSettingsTests : XCTestCase
 
@@ -65,12 +77,10 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
 
   _fileManager = [[FIRCLSMockFileManager alloc] init];
 
-  // Delete the cache
-  [_fileManager removeItemAtPath:_fileManager.settingsFilePath];
-  [_fileManager removeItemAtPath:_fileManager.settingsCacheKeyPath];
-
   _appIDModel = [[FABMockApplicationIdentifierModel alloc] init];
   _appIDModel.buildInstanceID = FIRCLSDefaultMockBuildInstanceID;
+  _appIDModel.displayVersion = FIRCLSDefaultMockAppDisplayVersion;
+  _appIDModel.buildVersion = FIRCLSDefaultMockAppBuildVersion;
 
   _settings = [[FIRCLSSettings alloc] initWithFileManager:_fileManager appIDModel:_appIDModel];
 }
@@ -95,6 +105,8 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertEqual(self.settings.logBufferSize, 64 * 1000);
   XCTAssertEqual(self.settings.maxCustomExceptions, 8);
   XCTAssertEqual(self.settings.maxCustomKeys, 64);
+
+  XCTAssertTrue(self.settings.shouldUseNewReportEndpoint);
 }
 
 - (BOOL)writeSettings:(const NSString *)settings error:(NSError **)error {
@@ -110,18 +122,9 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
     path = _fileManager.settingsCacheKeyPath;
   }
 
-  // Create the directory.
-  [[NSFileManager defaultManager] createDirectoryAtPath:path.stringByDeletingLastPathComponent
-                            withIntermediateDirectories:YES
-                                             attributes:nil
-                                                  error:error];
-  if (*error != nil) {
-    return NO;
-  }
-
-  // Create the file.
-  [settings writeToFile:path atomically:NO encoding:NSUTF8StringEncoding error:error];
-  return YES;
+  return [self.fileManager createFileAtPath:path
+                                   contents:[settings dataUsingEncoding:NSUTF8StringEncoding]
+                                 attributes:nil];
 }
 
 - (void)cacheSettingsWithGoogleAppID:(NSString *)googleAppID
@@ -279,6 +282,45 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertEqual(self.settings.errorLogBufferSize, 128000);
 }
 
+- (void)testCacheExpiredFromAppVersion {
+  NSError *error = nil;
+  [self writeSettings:FIRCLSTestSettingsActivated error:&error];
+  XCTAssertNil(error, "%@", error);
+
+  // 1 delete for clearing the cache key, plus 2 for the deletes from reloading and clearing the
+  // cache and cache key
+  self.fileManager.expectedRemoveCount = 3;
+
+  NSTimeInterval currentTimestamp = [NSDate timeIntervalSinceReferenceDate];
+  [self.settings cacheSettingsWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
+
+  // Change the App Version
+  self.appIDModel.displayVersion = FIRCLSDifferentMockAppDisplayVersion;
+  self.appIDModel.buildVersion = FIRCLSDifferentMockAppBuildVersion;
+
+  [self.settings reloadFromCacheWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
+
+  XCTAssertEqual(self.settings.isCacheExpired, YES);
+
+  // Since the TTL just expired, do not clear settings
+  XCTAssertEqualObjects(self.settings.orgID, @"010101000000111111111111");
+  XCTAssertEqualObjects(self.settings.fetchedBundleID, @"com.lets.test.crashlytics");
+  XCTAssertEqual(self.settings.errorLogBufferSize, 64 * 1000);
+
+  // Pretend we fetched settings again, but they had different values
+  [self writeSettings:FIRCLSTestSettingsInverse error:&error];
+  XCTAssertNil(error, "%@", error);
+
+  // Cache the settings
+  [self.settings cacheSettingsWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
+
+  // We should have the updated values that were fetched, and should not be expired
+  XCTAssertEqual(self.settings.isCacheExpired, NO);
+  XCTAssertEqualObjects(self.settings.orgID, @"01e101a0000011b113115111");
+  XCTAssertEqualObjects(self.settings.fetchedBundleID, @"im.from.the.server");
+  XCTAssertEqual(self.settings.errorLogBufferSize, 128000);
+}
+
 - (void)testGoogleAppIDChanged {
   NSError *error = nil;
   [self writeSettings:FIRCLSTestSettingsInverse error:&error];
@@ -313,8 +355,8 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertEqual(self.settings.errorLogBufferSize, 64 * 1000);
 }
 
-// This is a weird case where we got settings, but never created a cache key for it. We are treating
-// this as if the cache was invalid and re-fetching in this case.
+// This is a weird case where we got settings, but never created a cache key for it. We are
+// treating this as if the cache was invalid and re-fetching in this case.
 - (void)testActivatedSettingsMissingCacheKey {
   NSError *error = nil;
   [self writeSettings:FIRCLSTestSettingsActivated error:&error];
@@ -382,6 +424,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertEqualObjects(self.settings.fetchedBundleID, nil);
   XCTAssertFalse(self.settings.appNeedsOnboarding);
   XCTAssertEqual(self.settings.errorLogBufferSize, 64 * 1000);
+  XCTAssertTrue(self.settings.shouldUseNewReportEndpoint);
 }
 
 - (void)testCorruptCacheKey {
@@ -417,6 +460,71 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertEqualObjects(self.settings.fetchedBundleID, nil);
   XCTAssertFalse(self.settings.appNeedsOnboarding);
   XCTAssertEqual(self.settings.errorLogBufferSize, 64 * 1000);
+}
+
+- (void)testNewReportEndpointSettings {
+  NSString *settingsJSON =
+      @"{\"settings_version\":3,\"cache_duration\":60,\"app\":{\"status\":\"activated\",\"update_"
+      @"required\":false,\"report_upload_variant\":2}}";
+
+  NSError *error = nil;
+  [self writeSettings:settingsJSON error:&error];
+  NSTimeInterval currentTimestamp = [NSDate timeIntervalSinceReferenceDate];
+  [self.settings cacheSettingsWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
+  XCTAssertNil(error, "%@", error);
+
+  XCTAssertNotNil(self.settings.settingsDictionary);
+  NSLog(@"[Debug Log] %@", self.settings.settingsDictionary);
+  XCTAssertTrue(self.settings.shouldUseNewReportEndpoint);
+}
+
+- (void)testLegacyReportEndpointSettings {
+  NSString *settingsJSON =
+      @"{\"settings_version\":3,\"cache_duration\":60,\"app\":{\"status\":\"activated\",\"update_"
+      @"required\":false,\"report_upload_variant\":1}}";
+
+  NSError *error = nil;
+  [self writeSettings:settingsJSON error:&error];
+  NSTimeInterval currentTimestamp = [NSDate timeIntervalSinceReferenceDate];
+  [self.settings cacheSettingsWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
+
+  XCTAssertNil(error, "%@", error);
+  XCTAssertFalse(self.settings.shouldUseNewReportEndpoint);
+}
+
+- (void)testLegacyReportEndpointSettingsWithNonExistentKey {
+  NSString *settingsJSON = @"{\"settings_version\":3,\"cache_duration\":60,\"app\":{\"status\":"
+                           @"\"activated\",\"update_required\":false}}";
+
+  NSError *error = nil;
+  [self writeSettings:settingsJSON error:&error];
+  NSTimeInterval currentTimestamp = [NSDate timeIntervalSinceReferenceDate];
+  [self.settings cacheSettingsWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
+
+  XCTAssertNil(error, "%@", error);
+  XCTAssertTrue(self.settings.shouldUseNewReportEndpoint);
+}
+
+- (void)testLegacyReportEndpointSettingsWithUnknownValue {
+  NSString *newEndpointJSON =
+      @"{\"settings_version\":3,\"cache_duration\":60,\"app\":{\"status\":\"activated\",\"update_"
+      @"required\":false,\"report_upload_variant\":xyz}}";
+
+  NSError *error = nil;
+  [self writeSettings:newEndpointJSON error:&error];
+  NSTimeInterval currentTimestamp = [NSDate timeIntervalSinceReferenceDate];
+  [self.settings cacheSettingsWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
+
+  XCTAssertNil(error, "%@", error);
+  XCTAssertTrue(self.settings.shouldUseNewReportEndpoint);
+}
+
+- (void)testShouldUseNewReportEndpointWithEmptyDictionary {
+  NSError *error = nil;
+  [self writeSettings:nil error:&error];
+  XCTAssertNil(error, "%@", error);
+  XCTAssertNotNil(self.settings);
+  XCTAssertTrue(self.settings.shouldUseNewReportEndpoint);
 }
 
 @end

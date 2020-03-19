@@ -1,4 +1,4 @@
-# Copyright 2018 Google
+# Copyright 2018 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cc_test(
+firebase_ios_cc_test(
   firebase_firestore_auth_test
   SOURCES
     credentials_provider_test.cc
@@ -24,7 +24,7 @@ cc_test(
 )
 
 if(APPLE)
-  cc_test(
+  firebase_ios_cc_test(
     firebase_firestore_auth_apple_test
     SOURCES
       firebase_credentials_provider_test.mm

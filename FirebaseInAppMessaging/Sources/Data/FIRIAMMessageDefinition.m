@@ -33,11 +33,13 @@
 @end
 
 @implementation FIRIAMMessageDefinition
+
 - (instancetype)initWithRenderData:(FIRIAMMessageRenderData *)renderData
                          startTime:(NSTimeInterval)startTime
                            endTime:(NSTimeInterval)endTime
                  triggerDefinition:(NSArray<FIRIAMDisplayTriggerDefinition *> *)renderTriggers
                            appData:(nullable NSDictionary *)appData
+                 experimentPayload:(nullable ABTExperimentPayload *)experimentPayload
                      isTestMessage:(BOOL)isTestMessage {
   if (self = [super init]) {
     _renderData = renderData;
@@ -46,6 +48,7 @@
     _endTime = endTime;
     _isTestMessage = isTestMessage;
     _appData = [appData copy];
+    _experimentPayload = experimentPayload;
   }
   return self;
 }
@@ -59,15 +62,18 @@
                           endTime:endTime
                 triggerDefinition:renderTriggers
                           appData:nil
+                experimentPayload:nil
                     isTestMessage:NO];
 }
 
-- (instancetype)initTestMessageWithRenderData:(FIRIAMMessageRenderData *)renderData {
+- (instancetype)initTestMessageWithRenderData:(FIRIAMMessageRenderData *)renderData
+                            experimentPayload:(nullable ABTExperimentPayload *)experimentPayload {
   return [self initWithRenderData:renderData
                         startTime:0
                           endTime:0
                 triggerDefinition:@[]
                           appData:nil
+                experimentPayload:experimentPayload
                     isTestMessage:YES];
 }
 

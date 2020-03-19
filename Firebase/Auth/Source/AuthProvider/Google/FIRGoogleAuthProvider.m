@@ -16,8 +16,8 @@
 
 #import "FIRGoogleAuthProvider.h"
 
-#import "FIRGoogleAuthCredential.h"
 #import "FIRAuthExceptionUtils.h"
+#import "FIRGoogleAuthCredential.h"
 
 // FIRGoogleAuthProviderID is defined in FIRAuthProvider.m.
 
@@ -26,8 +26,8 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRGoogleAuthProvider
 
 - (instancetype)init {
-  [FIRAuthExceptionUtils raiseMethodNotImplementedExceptionWithReason:
-      @"This class is not meant to be initialized."];
+  [FIRAuthExceptionUtils
+      raiseMethodNotImplementedExceptionWithReason:@"This class is not meant to be initialized."];
   return nil;
 }
 

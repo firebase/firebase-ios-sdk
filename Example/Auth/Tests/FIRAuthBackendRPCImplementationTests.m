@@ -16,12 +16,12 @@
 
 #import <XCTest/XCTest.h>
 
+#import "FIRAuthBackend.h"
 #import "FIRAuthErrorUtils.h"
 #import "FIRAuthInternalErrors.h"
-#import "FIRAuthBackend.h"
-#import "FIRAuthRequestConfiguration.h"
 #import "FIRAuthRPCRequest.h"
 #import "FIRAuthRPCResponse.h"
+#import "FIRAuthRequestConfiguration.h"
 #import "FIRFakeBackendRPCIssuer.h"
 
 /** @var kFakeRequestURL
@@ -130,22 +130,6 @@ static NSString *const kTestValue = @"TestValue";
 
 @end
 
-/** @extension FIRAuthBackend
-    @brief This class extension exposes the otherwise private @c implementation method. We use this
-        here to directly call the @c postWithRequest:response:callback: method of
-        @c FIRAuthBackendRPCImplementation in some of the tests.
- */
-@interface FIRAuthBackend ()
-
-/** @fn implementation
-    @brief Exposes the otherwise private @c implementation method. We use this here to directly call
-        the @c postWithRequest:response:callback: method of @c FIRAuthBackendRPCImplementation in
-        some of the tests.
- */
-+ (FIRAuthBackendRPCImplementation *)implementation;
-
-@end
-
 /** @class FIRFakeRequest
     @brief Allows us to fake a request with deterministic request bodies and encoding errors
         returned from the @c FIRAuthRPCRequest-specified @c unencodedHTTPRequestBodyWithError:
@@ -207,7 +191,7 @@ static NSString *const kTestValue = @"TestValue";
 }
 
 + (nullable instancetype)fakeRequest {
-  return [[self alloc] initWithRequestBody:@{ } encodingError:nil];
+  return [[self alloc] initWithRequestBody:@{} encodingError:nil];
 }
 
 + (nullable instancetype)fakeRequestWithEncodingError:(NSError *)error {
@@ -215,7 +199,7 @@ static NSString *const kTestValue = @"TestValue";
 }
 
 + (nullable instancetype)fakeRequestWithUnserializableRequestBody {
-  return [[self alloc] initWithRequestBody:@{ @"unencodableValue" : self } encodingError:nil];
+  return [[self alloc] initWithRequestBody:@{@"unencodableValue" : self} encodingError:nil];
 }
 
 + (nullable instancetype)fakeRequestWithNoBody {
@@ -283,7 +267,7 @@ static NSString *const kTestValue = @"TestValue";
 - (nullable instancetype)init NS_UNAVAILABLE;
 
 - (nullable instancetype)initWithDecodingError:(nullable NSError *)decodingError
-     NS_DESIGNATED_INITIALIZER;
+    NS_DESIGNATED_INITIALIZER;
 
 @end
 
@@ -312,8 +296,7 @@ static NSString *const kTestValue = @"TestValue";
   return self;
 }
 
-- (BOOL)setWithDictionary:(NSDictionary *)dictionary
-                    error:(NSError *_Nullable *_Nullable)error {
+- (BOOL)setWithDictionary:(NSDictionary *)dictionary error:(NSError *_Nullable *_Nullable)error {
   if (_responseDecodingError) {
     if (error) {
       *error = _responseDecodingError;
@@ -365,17 +348,20 @@ static NSString *const kTestValue = @"TestValue";
         The error returned should be delivered to the caller without any change.
  */
 - (void)testRequestEncodingError {
-  NSError *encodingError =
-      [NSError errorWithDomain:kFakeErrorDomain code:kFakeErrorCode userInfo:@{ }];
+  NSError *encodingError = [NSError errorWithDomain:kFakeErrorDomain
+                                               code:kFakeErrorCode
+                                           userInfo:@{}];
   FIRFakeRequest *request = [FIRFakeRequest fakeRequestWithEncodingError:encodingError];
   FIRFakeResponse *response = [FIRFakeResponse fakeResponse];
 
   __block NSError *callbackError;
   __block BOOL callbackInvoked;
-  [_RPCImplementation postWithRequest:request response:response callback:^(NSError *error) {
-    callbackInvoked = YES;
-    callbackError = error;
-  }];
+  [_RPCImplementation postWithRequest:request
+                             response:response
+                             callback:^(NSError *error) {
+                               callbackInvoked = YES;
+                               callbackError = error;
+                             }];
 
   // There is no need to call [_RPCIssuer respondWithError:...] in this test because a request
   // should never have been tried - and we we know that's the case when we test @c callbackInvoked.
@@ -415,10 +401,12 @@ static NSString *const kTestValue = @"TestValue";
 
   __block NSError *callbackError;
   __block BOOL callbackInvoked;
-  [_RPCImplementation postWithRequest:request response:response callback:^(NSError *error) {
-    callbackInvoked = YES;
-    callbackError = error;
-  }];
+  [_RPCImplementation postWithRequest:request
+                             response:response
+                             callback:^(NSError *error) {
+                               callbackInvoked = YES;
+                               callbackError = error;
+                             }];
 
   // There is no need to call [_RPCIssuer respondWithError:...] in this test because a request
   // should never have been tried - and we we know that's the case when we test @c callbackInvoked.
@@ -454,10 +442,12 @@ static NSString *const kTestValue = @"TestValue";
 
   __block NSError *callbackError;
   __block BOOL callbackInvoked;
-  [_RPCImplementation postWithRequest:request response:response callback:^(NSError *error) {
-    callbackInvoked = YES;
-    callbackError = error;
-  }];
+  [_RPCImplementation postWithRequest:request
+                             response:response
+                             callback:^(NSError *error) {
+                               callbackInvoked = YES;
+                               callbackError = error;
+                             }];
 
   // It shouldn't matter what the error domain/code/userInfo are, any junk values are suitable. The
   // implementation should treat any error with no response data as a network error.
@@ -500,15 +490,16 @@ static NSString *const kTestValue = @"TestValue";
 
   __block NSError *callbackError;
   __block BOOL callbackInvoked;
-  [_RPCImplementation postWithRequest:request response:response callback:^(NSError *error) {
-    callbackInvoked = YES;
-    callbackError = error;
-  }];
+  [_RPCImplementation postWithRequest:request
+                             response:response
+                             callback:^(NSError *error) {
+                               callbackInvoked = YES;
+                               callbackError = error;
+                             }];
 
   NSData *data =
       [@"<html><body>An error occurred.</body></html>" dataUsingEncoding:NSUTF8StringEncoding];
-  NSError *error =
-      [NSError errorWithDomain:kFakeErrorDomain code:kFakeErrorCode userInfo:@{ }];
+  NSError *error = [NSError errorWithDomain:kFakeErrorDomain code:kFakeErrorCode userInfo:@{}];
   [_RPCIssuer respondWithData:data error:error];
 
   XCTAssert(callbackInvoked);
@@ -548,13 +539,14 @@ static NSString *const kTestValue = @"TestValue";
 
   __block NSError *callbackError;
   __block BOOL callbackInvoked;
-  [_RPCImplementation postWithRequest:request response:response callback:^(NSError *error) {
-    callbackInvoked = YES;
-    callbackError = error;
-  }];
+  [_RPCImplementation postWithRequest:request
+                             response:response
+                             callback:^(NSError *error) {
+                               callbackInvoked = YES;
+                               callbackError = error;
+                             }];
 
-  NSData *data =
-      [@"<xml>Some non-JSON value.</xml>" dataUsingEncoding:NSUTF8StringEncoding];
+  NSData *data = [@"<xml>Some non-JSON value.</xml>" dataUsingEncoding:NSUTF8StringEncoding];
   [_RPCIssuer respondWithData:data error:nil];
 
   XCTAssert(callbackInvoked);
@@ -594,18 +586,19 @@ static NSString *const kTestValue = @"TestValue";
 
   __block NSError *callbackError;
   __block BOOL callbackInvoked;
-  [_RPCImplementation postWithRequest:request response:response callback:^(NSError *error) {
-    callbackInvoked = YES;
-    callbackError = error;
-  }];
+  [_RPCImplementation postWithRequest:request
+                             response:response
+                             callback:^(NSError *error) {
+                               callbackInvoked = YES;
+                               callbackError = error;
+                             }];
 
   // We are responding with a JSON-encoded string value representing an array - which is unexpected.
   // It should normally be a dictionary, and we need to check for this sort of thing. Because we can
   // successfully decode this value, however, we do return it in the error results. We check for
   // this array later in the test.
   NSData *data = [@"[]" dataUsingEncoding:NSUTF8StringEncoding];
-  NSError *error =
-      [NSError errorWithDomain:kFakeErrorDomain code:kFakeErrorCode userInfo:@{ }];
+  NSError *error = [NSError errorWithDomain:kFakeErrorDomain code:kFakeErrorCode userInfo:@{}];
   [_RPCIssuer respondWithData:data error:error];
 
   XCTAssert(callbackInvoked);
@@ -644,10 +637,12 @@ static NSString *const kTestValue = @"TestValue";
 
   __block NSError *callbackError;
   __block BOOL callbackInvoked;
-  [_RPCImplementation postWithRequest:request response:response callback:^(NSError *error) {
-    callbackInvoked = YES;
-    callbackError = error;
-  }];
+  [_RPCImplementation postWithRequest:request
+                             response:response
+                             callback:^(NSError *error) {
+                               callbackInvoked = YES;
+                               callbackError = error;
+                             }];
 
   // We are responding with a JSON-encoded string value representing an array - which is unexpected.
   // It should normally be a dictionary, and we need to check for this sort of thing. Because we can
@@ -692,13 +687,14 @@ static NSString *const kTestValue = @"TestValue";
 
   __block NSError *callbackError;
   __block BOOL callbackInvoked;
-  [_RPCImplementation postWithRequest:request response:response callback:^(NSError *error) {
-    callbackInvoked = YES;
-    callbackError = error;
-  }];
+  [_RPCImplementation postWithRequest:request
+                             response:response
+                             callback:^(NSError *error) {
+                               callbackInvoked = YES;
+                               callbackError = error;
+                             }];
 
-  NSError *error =
-      [NSError errorWithDomain:kFakeErrorDomain code:kFakeErrorCode userInfo:@{ }];
+  NSError *error = [NSError errorWithDomain:kFakeErrorDomain code:kFakeErrorCode userInfo:@{}];
   [_RPCIssuer respondWithServerErrorMessage:kErrorMessageCaptchaRequired error:error];
 
   XCTAssert(callbackInvoked);
@@ -738,13 +734,14 @@ static NSString *const kTestValue = @"TestValue";
 
   __block NSError *callbackError;
   __block BOOL callbackInvoked;
-  [_RPCImplementation postWithRequest:request response:response callback:^(NSError *error) {
-    callbackInvoked = YES;
-    callbackError = error;
-  }];
+  [_RPCImplementation postWithRequest:request
+                             response:response
+                             callback:^(NSError *error) {
+                               callbackInvoked = YES;
+                               callbackError = error;
+                             }];
 
-  NSError *error =
-      [NSError errorWithDomain:kFakeErrorDomain code:kFakeErrorCode userInfo:@{ }];
+  NSError *error = [NSError errorWithDomain:kFakeErrorDomain code:kFakeErrorCode userInfo:@{}];
   [_RPCIssuer respondWithServerErrorMessage:kErrorMessageCaptchaCheckFailed error:error];
 
   XCTAssert(callbackInvoked);
@@ -769,13 +766,14 @@ static NSString *const kTestValue = @"TestValue";
 
   __block NSError *callbackError;
   __block BOOL callbackInvoked;
-  [_RPCImplementation postWithRequest:request response:response callback:^(NSError *error) {
-    callbackInvoked = YES;
-    callbackError = error;
-  }];
+  [_RPCImplementation postWithRequest:request
+                             response:response
+                             callback:^(NSError *error) {
+                               callbackInvoked = YES;
+                               callbackError = error;
+                             }];
 
-  NSError *error =
-      [NSError errorWithDomain:kFakeErrorDomain code:kFakeErrorCode userInfo:@{ }];
+  NSError *error = [NSError errorWithDomain:kFakeErrorDomain code:kFakeErrorCode userInfo:@{}];
   [_RPCIssuer respondWithServerErrorMessage:kErrorMessageCaptchaRequiredInvalidPassword
                                       error:error];
 
@@ -816,15 +814,16 @@ static NSString *const kTestValue = @"TestValue";
 
   __block NSError *callbackError;
   __block BOOL callbackInvoked;
-  [_RPCImplementation postWithRequest:request response:response callback:^(NSError *error) {
-    callbackInvoked = YES;
-    callbackError = error;
-  }];
+  [_RPCImplementation postWithRequest:request
+                             response:response
+                             callback:^(NSError *error) {
+                               callbackInvoked = YES;
+                               callbackError = error;
+                             }];
 
   // We need to return a valid "error" response here, but we are going to intentionally use a bogus
   // error message.
-  NSError *error =
-      [NSError errorWithDomain:kFakeErrorDomain code:kFakeErrorCode userInfo:@{ }];
+  NSError *error = [NSError errorWithDomain:kFakeErrorDomain code:kFakeErrorCode userInfo:@{}];
   [_RPCIssuer respondWithServerErrorMessage:kUnknownServerErrorMessage error:error];
 
   XCTAssert(callbackInvoked);
@@ -864,14 +863,15 @@ static NSString *const kTestValue = @"TestValue";
 
   __block NSError *callbackError;
   __block BOOL callbackInvoked;
-  [_RPCImplementation postWithRequest:request response:response callback:^(NSError *error) {
-    callbackInvoked = YES;
-    callbackError = error;
-  }];
+  [_RPCImplementation postWithRequest:request
+                             response:response
+                             callback:^(NSError *error) {
+                               callbackInvoked = YES;
+                               callbackError = error;
+                             }];
 
-  NSError *error =
-      [NSError errorWithDomain:kFakeErrorDomain code:kFakeErrorCode userInfo:@{ }];
-  [_RPCIssuer respondWithJSON:@{ } error:error];
+  NSError *error = [NSError errorWithDomain:kFakeErrorDomain code:kFakeErrorCode userInfo:@{}];
+  [_RPCIssuer respondWithJSON:@{} error:error];
 
   XCTAssert(callbackInvoked);
 
@@ -905,15 +905,16 @@ static NSString *const kTestValue = @"TestValue";
 
   __block NSError *callbackerror;
   __block BOOL callBackInvoked;
-  [_RPCImplementation postWithRequest: request response:response callback:^(NSError *error) {
-    callBackInvoked = YES;
-    callbackerror = error;
-  }];
+  [_RPCImplementation postWithRequest:request
+                             response:response
+                             callback:^(NSError *error) {
+                               callBackInvoked = YES;
+                               callbackerror = error;
+                             }];
   NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain code:0 userInfo:nil];
-  NSString *customErrorMessage =[NSString stringWithFormat:@"%@%@%@",
-                                                           kUserDisabledErrorMessage,
-                                                           kServerErrorDetailMarker,
-                                                           kFakeUserDisabledCustomErrorMessage];
+  NSString *customErrorMessage =
+      [NSString stringWithFormat:@"%@%@%@", kUserDisabledErrorMessage, kServerErrorDetailMarker,
+                                 kFakeUserDisabledCustomErrorMessage];
   [_RPCIssuer respondWithServerErrorMessage:customErrorMessage error:error];
   XCTAssertNotNil(callbackerror, @"An error should be returned from callback.");
   XCTAssert(callBackInvoked);
@@ -935,15 +936,17 @@ static NSString *const kTestValue = @"TestValue";
 
   __block NSError *callbackError;
   __block BOOL callbackInvoked;
-  [_RPCImplementation postWithRequest:request response:response callback:^(NSError *error) {
-    callbackInvoked = YES;
-    callbackError = error;
-  }];
+  [_RPCImplementation postWithRequest:request
+                             response:response
+                             callback:^(NSError *error) {
+                               callbackInvoked = YES;
+                               callbackError = error;
+                             }];
 
   // It doesn't matter what we respond with here, as long as it's not an error response. The fake
   // response will deterministicly simulate a decoding error regardless of the response value it was
   // given.
-  [_RPCIssuer respondWithJSON:@{ }];
+  [_RPCIssuer respondWithJSON:@{}];
 
   XCTAssert(callbackInvoked);
 
@@ -973,12 +976,14 @@ static NSString *const kTestValue = @"TestValue";
 
   __block NSError *callbackError;
   __block BOOL callbackInvoked;
-  [_RPCImplementation postWithRequest:request response:response callback:^(NSError *error) {
-    callbackInvoked = YES;
-    callbackError = error;
-  }];
+  [_RPCImplementation postWithRequest:request
+                             response:response
+                             callback:^(NSError *error) {
+                               callbackInvoked = YES;
+                               callbackError = error;
+                             }];
 
-  [_RPCIssuer respondWithJSON:@{ kTestKey : kTestValue }];
+  [_RPCIssuer respondWithJSON:@{kTestKey : kTestValue}];
 
   XCTAssert(callbackInvoked);
   XCTAssertNil(callbackError);

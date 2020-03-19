@@ -20,11 +20,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRVerifyClientResponse
 
-- (BOOL)setWithDictionary:(NSDictionary *)dictionary
-                    error:(NSError *_Nullable *_Nullable)error {
+- (BOOL)setWithDictionary:(NSDictionary *)dictionary error:(NSError *_Nullable *_Nullable)error {
   _receipt = dictionary[@"receipt"];
-  _suggestedTimeOutDate = [dictionary[@"suggestedTimeout"] isKindOfClass:[NSString class]] ?
-      [NSDate dateWithTimeIntervalSinceNow:[dictionary[@"suggestedTimeout"] doubleValue]] : nil;
+  _suggestedTimeOutDate =
+      [dictionary[@"suggestedTimeout"] isKindOfClass:[NSString class]]
+          ? [NSDate dateWithTimeIntervalSinceNow:[dictionary[@"suggestedTimeout"] doubleValue]]
+          : nil;
   return YES;
 }
 

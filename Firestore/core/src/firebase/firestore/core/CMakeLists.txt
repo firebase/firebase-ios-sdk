@@ -1,4 +1,4 @@
-# Copyright 2018 Google
+# Copyright 2018 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cc_library(
+firebase_ios_cc_library(
   firebase_firestore_core_query
   SOURCES
     array_contains_any_filter.cc
@@ -47,7 +47,7 @@ cc_library(
     firebase_firestore_model
 )
 
-cc_library(
+firebase_ios_cc_library(
   firebase_firestore_core_target_id_generator
   SOURCES
     target_id_generator.cc
@@ -57,7 +57,7 @@ cc_library(
     firebase_firestore_util
 )
 
-cc_library(
+firebase_ios_cc_library(
   firebase_firestore_core_transaction
   SOURCES
     transaction.cc
@@ -69,7 +69,7 @@ cc_library(
 )
 
 
-cc_library(
+firebase_ios_cc_library(
   firebase_firestore_core_view
   SOURCES
     query_listener.cc
@@ -84,7 +84,7 @@ cc_library(
     firebase_firestore_model
 )
 
-cc_library(
+firebase_ios_cc_library(
   firebase_firestore_core
   SOURCES
     core_fwd.h

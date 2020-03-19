@@ -14,7 +14,7 @@
 
 #import "FIRCLSMockSymbolResolver.h"
 
-#import "FIRCLSStackFrame.h"
+#import "FIRStackFrame_Private.h"
 
 @interface FIRCLSMockSymbolResolver () {
   NSMutableDictionary *_frames;
@@ -35,20 +35,20 @@
   return self;
 }
 
-- (void)addMockFrame:(FIRCLSStackFrame *)frame atAddress:(uint64_t)address {
+- (void)addMockFrame:(FIRStackFrame *)frame atAddress:(uint64_t)address {
   [_frames setObject:frame forKey:@(address)];
 }
 
-- (BOOL)updateStackFrame:(FIRCLSStackFrame *)frame {
-  FIRCLSStackFrame *matchedFrame = [_frames objectForKey:@([frame address])];
+- (BOOL)updateStackFrame:(FIRStackFrame *)frame {
+  FIRStackFrame *matchedFrame = [_frames objectForKey:@(frame.address)];
 
   if (!matchedFrame) {
     return NO;
   }
 
-  [frame setSymbol:[matchedFrame symbol]];
-  [frame setLibrary:[matchedFrame library]];
-  [frame setOffset:[matchedFrame offset]];
+  [frame setSymbol:matchedFrame.symbol];
+  [frame setLibrary:matchedFrame.library];
+  [frame setOffset:matchedFrame.offset];
 
   return YES;
 }

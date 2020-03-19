@@ -16,9 +16,9 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRAuthErrors.h"
-#import "FIRAuthErrorUtils.h"
 #import "FIRAuthBackend.h"
+#import "FIRAuthErrorUtils.h"
+#import "FIRAuthErrors.h"
 #import "FIREmailLinkSignInRequest.h"
 #import "FIREmailLinkSignInResponse.h"
 #import "FIRFakeBackendRPCIssuer.h"
@@ -133,13 +133,13 @@ static const BOOL kFakeIsNewUSerFlag = YES;
   __block BOOL callbackInvoked = NO;
   __block FIREmailLinkSignInResponse *RPCResponse;
   __block NSError *RPCError;
-  [FIRAuthBackend emailLinkSignin:request
-                         callback:^(FIREmailLinkSignInResponse *_Nullable response,
-                                    NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+  [FIRAuthBackend
+      emailLinkSignin:request
+             callback:^(FIREmailLinkSignInResponse *_Nullable response, NSError *_Nullable error) {
+               callbackInvoked = YES;
+               RPCResponse = response;
+               RPCError = error;
+             }];
 
   [_RPCIssuer respondWithServerErrorMessage:kInvalidEmailErrorMessage];
 
@@ -160,19 +160,19 @@ static const BOOL kFakeIsNewUSerFlag = YES;
   __block BOOL callbackInvoked = NO;
   __block FIREmailLinkSignInResponse *RPCResponse;
   __block NSError *RPCError;
-  [FIRAuthBackend emailLinkSignin:request
-                         callback:^(FIREmailLinkSignInResponse *_Nullable response,
-                                    NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+  [FIRAuthBackend
+      emailLinkSignin:request
+             callback:^(FIREmailLinkSignInResponse *_Nullable response, NSError *_Nullable error) {
+               callbackInvoked = YES;
+               RPCResponse = response;
+               RPCError = error;
+             }];
 
   [_RPCIssuer respondWithJSON:@{
     @"idToken" : kTestIDTokenResponse,
     @"email" : kTestEmailResponse,
     @"isNewUser" : kFakeIsNewUSerFlag ? @YES : @NO,
-    @"expiresIn" : [NSString stringWithFormat:@"%f",kTestTokenExpirationTimeInterval],
+    @"expiresIn" : [NSString stringWithFormat:@"%f", kTestTokenExpirationTimeInterval],
     @"refreshToken" : kTestRefreshToken,
   }];
 
@@ -187,8 +187,7 @@ static const BOOL kFakeIsNewUSerFlag = YES;
       [RPCResponse.approximateExpirationDate timeIntervalSinceNow];
   NSTimeInterval testTimeInterval =
       [[NSDate dateWithTimeIntervalSinceNow:kTestTokenExpirationTimeInterval] timeIntervalSinceNow];
-  NSTimeInterval timeIntervalDifference =
-      fabs(expirationTimeInterval - testTimeInterval);
+  NSTimeInterval timeIntervalDifference = fabs(expirationTimeInterval - testTimeInterval);
   XCTAssert(timeIntervalDifference < kMaxDifferenceBetweenDates);
 }
 

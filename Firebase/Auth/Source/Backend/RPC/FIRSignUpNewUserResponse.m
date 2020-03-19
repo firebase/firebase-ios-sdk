@@ -20,11 +20,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRSignUpNewUserResponse
 
-- (BOOL)setWithDictionary:(NSDictionary *)dictionary
-                    error:(NSError *_Nullable *_Nullable)error {
+- (BOOL)setWithDictionary:(NSDictionary *)dictionary error:(NSError *_Nullable *_Nullable)error {
   _IDToken = [dictionary[@"idToken"] copy];
-  _approximateExpirationDate = [dictionary[@"expiresIn"] isKindOfClass:[NSString class]] ?
-      [NSDate dateWithTimeIntervalSinceNow:[dictionary[@"expiresIn"] doubleValue]] : nil;
+  _approximateExpirationDate =
+      [dictionary[@"expiresIn"] isKindOfClass:[NSString class]]
+          ? [NSDate dateWithTimeIntervalSinceNow:[dictionary[@"expiresIn"] doubleValue]]
+          : nil;
   _refreshToken = [dictionary[@"refreshToken"] copy];
   return YES;
 }

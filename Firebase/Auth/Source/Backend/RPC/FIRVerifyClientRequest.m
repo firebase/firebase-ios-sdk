@@ -16,7 +16,6 @@
 
 #import "FIRVerifyClientRequest.h"
 
-
 NS_ASSUME_NONNULL_BEGIN
 
 /** @var kVerifyClientEndpoint
@@ -55,7 +54,7 @@ static NSString *const kIsSandboxKey = @"isSandbox";
   if (_isSandbox) {
     postBody[kIsSandboxKey] = @YES;
   }
-  return postBody;
+  return [postBody copy];
 }
 
 @end
