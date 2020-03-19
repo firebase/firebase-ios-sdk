@@ -17,7 +17,7 @@
 #import <FirebaseAnalytics/FirebaseAnalytics.h>
 #import <FirebaseCore/FIROptions.h>
 #import <FirebaseCore/FirebaseCore.h>
-#import <FirebaseInstallations/FirebaseInstallations.h>
+#import <FirebaseInstanceID/FIRInstanceID+Private.h>
 #import <FirebaseRemoteConfig/FIRRemoteConfig_Private.h>
 #import <FirebaseRemoteConfig/FirebaseRemoteConfig.h>
 #import "FRCLog.h"
@@ -355,19 +355,21 @@ static NSString *const FIRSecondFIRAppName = @"secondFIRApp";
                            stringWithFormat:@"%@\n",
                                             [self statusString:currentRCInstance.lastFetchStatus]]];
 
-  FIRInstallations *installations = [FIRInstallations installations];
-  [installations installationIDWithCompletion:^(NSString *_Nullable identifier,
-                                                NSError *_Nullable error) {
-    [output appendString:@"\n-----------Installation ID------------------\n"];
-    [output appendString:[NSString stringWithFormat:@"%@\n", identifier]];
+  FIRInstanceID *instanceID = [FIRInstanceID instanceID];
+  [instanceID getIDWithHandler:^(NSString *_Nullable identity, NSError *_Nullable error) {
+    [output appendString:@"\n-----------Instance ID------------------\n"];
+    [output appendString:[NSString stringWithFormat:@"%@\n", identity]];
 
-    [output appendString:@"\n-----------Installation ID token------------\n"];
+    [output appendString:@"\n-----------Instance ID token------------\n"];
+    [output
+        appendString:[NSString stringWithFormat:@"%@\n",
+                                                currentRCInstance.settings.configInstanceIDToken]];
 
-    [installations authTokenWithCompletion:^(FIRInstallationsAuthTokenResult *_Nullable tokenResult,
-                                             NSError *_Nullable error) {
-      [output appendString:[NSString stringWithFormat:@"%@\n", tokenResult.authToken]];
-      [[FRCLog sharedInstance] logToConsole:output];
-    }];
+    [output appendString:@"\n-----------Android ID------------\n"];
+    [output
+        appendString:[NSString stringWithFormat:@"%@\n", currentRCInstance.settings.deviceAuthID]];
+
+    [[FRCLog sharedInstance] logToConsole:output];
   }];
 }
 
@@ -407,28 +409,27 @@ static NSString *const FIRSecondFIRAppName = @"secondFIRApp";
 }
 
 - (IBAction)fetchIIDButtonClicked:(id)sender {
-  FIRInstallations *installations =
-      [FIRInstallations installationsWithApp:[FIRApp appNamed:self.FIRAppName]];
-  [installations installationIDWithCompletion:^(NSString *_Nullable identifier,
-                                                NSError *_Nullable error) {
+  FIRInstanceID *instanceID = [FIRInstanceID instanceID];
+  FIRInstanceIDTokenHandler instanceIDHandler = ^(NSString *token, NSError *error) {
     if (error) {
       [[FRCLog sharedInstance] logToConsole:[NSString stringWithFormat:@"%@", error]];
-    } else {
-      [installations authTokenWithCompletion:^(
-                         FIRInstallationsAuthTokenResult *_Nullable tokenResult,
-                         NSError *_Nullable error) {
-        if (tokenResult.authToken) {
-          ((FIRRemoteConfig *)self.RCInstances[self.currentNamespace][self.FIRAppName])
-              .settings.configInstallationsToken = tokenResult.authToken;
-          [[FRCLog sharedInstance]
-              logToConsole:[NSString
-                               stringWithFormat:
-                                   @"Successfully got installation ID : \n\n%@\n\nToken : \n\n%@\n",
-                                   identifier, tokenResult.authToken]];
-        }
+    }
+    if (token) {
+      ((FIRRemoteConfig *)self.RCInstances[self.currentNamespace][self.FIRAppName])
+          .settings.configInstanceIDToken = token;
+      [instanceID getIDWithHandler:^(NSString *_Nullable identity, NSError *_Nullable error) {
+        [[FRCLog sharedInstance]
+            logToConsole:[NSString
+                             stringWithFormat:
+                                 @"Successfully getting InstanceID : \n\n%@\n\nToken : \n\n%@\n",
+                                 identity, token]];
       }];
     }
-  }];
+  };
+  [instanceID tokenWithAuthorizedEntity:[FIRApp appNamed:self.FIRAppName].options.GCMSenderID
+                                  scope:@"*"
+                                options:nil
+                                handler:instanceIDHandler];
 }
 
 - (IBAction)searchButtonClicked:(id)sender {

@@ -16,10 +16,10 @@
 
 #import "FirebaseRemoteConfig/Sources/RCNConfigFetch.h"
 
-#import <FirebaseCore/FIRApp.h>
 #import <FirebaseCore/FIRLogger.h>
 #import <FirebaseCore/FIROptions.h>
-#import <FirebaseInstallations/FirebaseInstallations.h>
+#import <FirebaseInstanceID/FIRInstanceID+Private.h>
+#import <FirebaseInstanceID/FIRInstanceIDCheckinPreferences.h>
 #import <GoogleUtilities/GULNSData+zlib.h>
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
@@ -40,6 +40,7 @@ static NSString *const kServerURLNamespaces = @"/namespaces/";
 static NSString *const kServerURLQuery = @":fetch?";
 static NSString *const kServerURLKey = @"key=";
 static NSString *const kRequestJSONKeyAppID = @"app_id";
+static NSString *const kRequestJSONKeyAppInstanceID = @"app_instance_id";
 
 static NSString *const kHTTPMethodPost = @"POST";  ///< HTTP request method config fetch using
 static NSString *const kContentTypeHeaderName = @"Content-Type";  ///< HTTP Header Field Name
@@ -48,13 +49,13 @@ static NSString *const kContentEncodingHeaderName =
 static NSString *const kAcceptEncodingHeaderName = @"Accept-Encoding";  ///< HTTP Header Field Name
 static NSString *const kETagHeaderName = @"etag";                       ///< HTTP Header Field Name
 static NSString *const kIfNoneMatchETagHeaderName = @"if-none-match";   ///< HTTP Header Field Name
-static NSString *const kInstallationsAuthTokenHeaderName = @"x-goog-firebase-installations-auth";
 // Sends the bundle ID. Refer to b/130301479 for details.
 static NSString *const kiOSBundleIdentifierHeaderName =
     @"X-Ios-Bundle-Identifier";  ///< HTTP Header Field Name
 
 /// Config HTTP request content type proto buffer
 static NSString *const kContentTypeValueJSON = @"application/json";
+static NSString *const kInstanceIDScopeConfig = @"*";  /// InstanceID scope
 
 /// HTTP status codes. Ref: https://cloud.google.com/apis/design/errors#error_retries
 static NSInteger const kRCNFetchResponseHTTPStatusCodeOK = 200;
@@ -191,22 +192,18 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
                                          withError:error];
     }
     strongSelf->_settings.isFetchInProgress = YES;
-    [strongSelf refreshInstallationsTokenWithCompletionHandler:completionHandler];
+    [strongSelf refreshInstanceIDTokenAndFetchCheckInInfoWithCompletionHandler:completionHandler];
   });
 }
 
 #pragma mark - Fetch helpers
 
-- (NSString *)FIRAppNameFromFullyQualifiedNamespace {
-  return [[_FIRNamespace componentsSeparatedByString:@":"] lastObject];
-}
-/// Refresh installation ID token before fetching config. installation ID is now mandatory for fetch
+/// Refresh instance ID token before fetching config. Instance ID is now mandatory for fetch
 /// requests to work.(b/14751422).
-- (void)refreshInstallationsTokenWithCompletionHandler:
+- (void)refreshInstanceIDTokenAndFetchCheckInInfoWithCompletionHandler:
     (FIRRemoteConfigFetchCompletion)completionHandler {
-  FIRInstallations *installations = [FIRInstallations
-      installationsWithApp:[FIRApp appNamed:[self FIRAppNameFromFullyQualifiedNamespace]]];
-  if (!installations || !_options.GCMSenderID) {
+  FIRInstanceID *instanceID = [FIRInstanceID instanceID];
+  if (!_options.GCMSenderID) {
     NSString *errorDescription = @"Failed to get GCMSenderID";
     FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000074", @"%@",
                 [NSString stringWithFormat:@"%@", errorDescription]);
@@ -220,11 +217,10 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
                                                     NSLocalizedDescriptionKey : errorDescription
                                                   }]];
   }
-  FIRInstallationsTokenHandler installationsTokenHandler = ^(
-      FIRInstallationsAuthTokenResult *tokenResult, NSError *error) {
-    if (!tokenResult || !tokenResult.authToken || error) {
+  FIRInstanceIDTokenHandler instanceIDHandler = ^(NSString *token, NSError *error) {
+    if (!token || error) {
       NSString *errorDescription =
-          [NSString stringWithFormat:@"Failed to get installations token. Error : %@.", error];
+          [NSString stringWithFormat:@"Failed to get InstanceID token. Error : %@.", error];
       FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000073", @"%@",
                   [NSString stringWithFormat:@"%@", errorDescription]);
       self->_settings.isFetchInProgress = NO;
@@ -238,10 +234,9 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
                                                     }]];
     }
 
-    // We have a valid token. Get the backing installationID.
+    // If the token is available, try to get the instanceID.
     __weak RCNConfigFetch *weakSelf = self;
-    [installations installationIDWithCompletion:^(NSString *_Nullable identifier,
-                                                  NSError *_Nullable error) {
+    [instanceID getIDWithHandler:^(NSString *_Nullable identity, NSError *_Nullable error) {
       RCNConfigFetch *strongSelf = weakSelf;
 
       // Dispatch to the RC serial queue to update settings on the queue.
@@ -249,10 +244,10 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
         RCNConfigFetch *strongSelfQueue = weakSelf;
 
         // Update config settings with the IID and token.
-        strongSelfQueue->_settings.configInstallationsToken = tokenResult.authToken;
-        strongSelfQueue->_settings.configInstallationsIdentifier = identifier;
+        strongSelfQueue->_settings.configInstanceIDToken = [token copy];
+        strongSelfQueue->_settings.configInstanceID = identity;
 
-        if (!identifier || error) {
+        if (!identity || error) {
           NSString *errorDescription =
               [NSString stringWithFormat:@"Error getting iid : %@.", error];
           FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000055", @"%@",
@@ -270,23 +265,56 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
         }
 
         FIRLogInfo(kFIRLoggerRemoteConfig, @"I-RCN000022", @"Success to get iid : %@.",
-                   strongSelfQueue->_settings.configInstallationsIdentifier);
-        [strongSelf
-            getAnalyticsUserPropertiesWithCompletionHandler:^(NSDictionary *userProperties) {
-              dispatch_async(strongSelf->_lockQueue, ^{
-                [strongSelf fetchWithUserProperties:userProperties
-                                  completionHandler:completionHandler];
-              });
-            }];
+                   strongSelfQueue->_settings.configInstanceID);
+
+        // Continue the fetch regardless of whether fetch of instance ID succeeded.
+        [strongSelfQueue fetchCheckinInfoWithCompletionHandler:completionHandler];
       });
     }];
   };
-
   FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000039", @"Starting requesting token.");
-  [installations authTokenWithCompletion:installationsTokenHandler];
+  // Note: We expect the GCMSenderID to always be available by the time this request is made.
+  [instanceID tokenWithAuthorizedEntity:_options.GCMSenderID
+                                  scope:kInstanceIDScopeConfig
+                                options:nil
+                                handler:instanceIDHandler];
 }
 
-- (void)getAnalyticsUserPropertiesWithCompletionHandler:
+/// Fetch checkin info before fetching config. Checkin info including device authentication ID,
+/// secret token and device data version are optional fields in config request.
+- (void)fetchCheckinInfoWithCompletionHandler:(FIRRemoteConfigFetchCompletion)completionHandler {
+  FIRInstanceID *instanceID = [FIRInstanceID instanceID];
+  __weak RCNConfigFetch *weakSelf = self;
+  [instanceID fetchCheckinInfoWithHandler:^(FIRInstanceIDCheckinPreferences *preferences,
+                                            NSError *error) {
+    RCNConfigFetch *fetchCheckinInfoWithHandlerSelf = weakSelf;
+    dispatch_async(fetchCheckinInfoWithHandlerSelf->_lockQueue, ^{
+      RCNConfigFetch *strongSelf = fetchCheckinInfoWithHandlerSelf;
+      if (error) {
+        FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000023", @"Failed to fetch checkin info: %@.",
+                    error);
+      } else {
+        strongSelf->_settings.deviceAuthID = preferences.deviceID;
+        strongSelf->_settings.secretToken = preferences.secretToken;
+        strongSelf->_settings.deviceDataVersion = preferences.deviceDataVersion;
+        if (strongSelf->_settings.deviceAuthID.length && strongSelf->_settings.secretToken.length) {
+          FIRLogInfo(kFIRLoggerRemoteConfig, @"I-RCN000024",
+                     @"Success to get device authentication ID: %@, security token: %@.",
+                     self->_settings.deviceAuthID, self->_settings.secretToken);
+        }
+      }
+      // Checkin info is optional, continue fetch config regardless fetch of checkin info
+      // succeeded.
+      [strongSelf fetchWithUserPropertiesCompletionHandler:^(NSDictionary *userProperties) {
+        dispatch_async(strongSelf->_lockQueue, ^{
+          [strongSelf fetchWithUserProperties:userProperties completionHandler:completionHandler];
+        });
+      }];
+    });
+  }];
+}
+
+- (void)fetchWithUserPropertiesCompletionHandler:
     (FIRAInteropUserPropertiesCallback)completionHandler {
   FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000060", @"Fetch with user properties completed.");
   id<FIRAnalyticsInterop> analytics = self->_analytics;
@@ -562,8 +590,6 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
                                timeoutInterval:timeoutInterval];
   URLRequest.HTTPMethod = kHTTPMethodPost;
   [URLRequest setValue:kContentTypeValueJSON forHTTPHeaderField:kContentTypeHeaderName];
-  [URLRequest setValue:_settings.configInstallationsToken
-      forHTTPHeaderField:kInstallationsAuthTokenHeaderName];
   [URLRequest setValue:[[NSBundle mainBundle] bundleIdentifier]
       forHTTPHeaderField:kiOSBundleIdentifierHeaderName];
   [URLRequest setValue:@"gzip" forHTTPHeaderField:kContentEncodingHeaderName];
