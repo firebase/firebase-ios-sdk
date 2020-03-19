@@ -79,7 +79,7 @@ TEST(Status, CausedBy_Chain_NSError) {
           "Internal: Something broke: Some file not found \\(errno .*\\)"));
 
   NSError* error = result.ToNSError();
-  EXPECT_EQ(internal_error.code(), error.code);
+  EXPECT_EQ(static_cast<int>(internal_error.code()), error.code);
   EXPECT_EQ(FIRFirestoreErrorDomain, error.domain);
 
   NSError* cause = error.userInfo[NSUnderlyingErrorKey];
@@ -92,7 +92,7 @@ TEST(Status, MovedFromToNSError) {
   Status unused = std::move(not_found);
 
   EXPECT_EQ(not_found.ToNSError().domain, FIRFirestoreErrorDomain);
-  EXPECT_EQ(not_found.ToNSError().code, Internal);
+  EXPECT_EQ(not_found.ToNSError().code, static_cast<int>(Error::kInternal));
 }
 #endif  // !__clang_analyzer__
 
