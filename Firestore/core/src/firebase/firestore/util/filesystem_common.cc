@@ -33,7 +33,7 @@ Filesystem* Filesystem::Default() {
 
 Status Filesystem::RecursivelyCreateDir(const Path& path) {
   Status result = CreateDir(path);
-  if (result.ok() || result.code() != Error::NotFound) {
+  if (result.ok() || result.code() != Error::kNotFound) {
     // Successfully created the directory, it already existed, or some other
     // unrecoverable error.
     return result;
@@ -53,15 +53,15 @@ Status Filesystem::RecursivelyCreateDir(const Path& path) {
 Status Filesystem::RecursivelyRemove(const Path& path) {
   Status status = IsDirectory(path);
   switch (status.code()) {
-    case Error::Ok:
+    case Error::kOk:
       return RecursivelyRemoveDir(path);
 
-    case Error::FailedPrecondition:
+    case Error::kFailedPrecondition:
       // Could be a file or something else. Attempt to delete it as a file
       // but otherwise allow that to fail if it's not a file.
       return RemoveFile(path);
 
-    case Error::NotFound:
+    case Error::kNotFound:
       return Status::OK();
 
     default:
@@ -79,7 +79,7 @@ Status Filesystem::RecursivelyRemoveDir(const Path& parent) {
   }
 
   if (!iter->status().ok()) {
-    if (iter->status().code() == Error::NotFound) {
+    if (iter->status().code() == Error::kNotFound) {
       return Status::OK();
     }
     return iter->status();
@@ -99,7 +99,7 @@ StatusOr<std::string> Filesystem::ReadFile(const Path& path) {
   if (!file) {
     // TODO(varconst): more error details. This will require platform-specific
     // code, because `<iostream>` may not update `errno`.
-    return Status{Error::Unknown,
+    return Status{Error::kUnknown,
                   StringFormat("File at path '%s' cannot be opened",
                                path.ToUtf8String())};
   }

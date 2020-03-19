@@ -279,7 +279,7 @@ TEST_F(GrpcStreamTest, ObserverReceivesNotificationFromFinishAndNotify) {
   KeepPollingGrpcQueue();
 
   worker_queue->EnqueueBlocking(
-      [&] { stream->FinishAndNotify(Status(Error::Unavailable, "")); });
+      [&] { stream->FinishAndNotify(Status(Error::kUnavailable, "")); });
   EXPECT_EQ(observed_states(),
             States({"OnStreamStart", "OnStreamFinish(Unavailable)"}));
 }

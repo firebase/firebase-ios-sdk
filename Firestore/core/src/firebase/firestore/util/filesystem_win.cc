@@ -50,7 +50,7 @@ StatusOr<Path> Filesystem::AppDataDir(absl::string_view app_name) {
 }
 
 StatusOr<Path> Filesystem::LegacyDocumentsDir(absl::string_view) {
-  return Status(Error::Unimplemented, "No legacy storage on this platform.");
+  return Status(Error::kUnimplemented, "No legacy storage on this platform.");
 }
 
 Path Filesystem::TempDir() {
@@ -74,7 +74,7 @@ Status Filesystem::IsDirectory(const Path& path) {
     return Status::OK();
   }
 
-  return Status{Error::FailedPrecondition, path.ToUtf8String()};
+  return Status{Error::kFailedPrecondition, path.ToUtf8String()};
 }
 
 StatusOr<int64_t> Filesystem::FileSize(const Path& path) {
@@ -108,7 +108,7 @@ Status Filesystem::CreateDir(const Path& path) {
 
     } else {
       return Status{
-          Error::FailedPrecondition,
+          Error::kFailedPrecondition,
           StringFormat(
               "Could not create directory %s: non-directory already exists",
               path.ToUtf8String())};

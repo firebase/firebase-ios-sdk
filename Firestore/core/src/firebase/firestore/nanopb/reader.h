@@ -58,11 +58,11 @@ class ReadContext {
    *
    * If this `ReadContext`'s status is already `!ok()`, then this may augment
    * the description, but will otherwise leave it alone. Otherwise, this
-   * `ReadContext`'s status will be set to `Error::DataLoss` with the specified
+   * `ReadContext`'s status will be set to `Error::kDataLoss` with the specified
    * description.
    */
   void Fail(std::string description) {
-    status_.Update(util::Status(Error::DataLoss, std::move(description)));
+    status_.Update(util::Status(Error::kDataLoss, std::move(description)));
   }
 
  private:

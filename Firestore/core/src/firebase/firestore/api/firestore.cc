@@ -167,7 +167,7 @@ void Firestore::ClearPersistence(util::StatusCallback callback) {
       std::lock_guard<std::mutex> lock{mutex_};
       if (client_ && !client()->is_terminated()) {
         Yield(util::Status(
-            Error::FailedPrecondition,
+            Error::kFailedPrecondition,
             "Persistence cannot be cleared while the client is running."));
         return;
       }
