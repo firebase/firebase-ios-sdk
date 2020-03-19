@@ -178,9 +178,10 @@ static NSString *const ktargetToInFlightPackagesKey =
   GDTCORUploadCoordinator *sharedCoordinator = [GDTCORUploadCoordinator sharedInstance];
   dispatch_sync(sharedCoordinator->_coordinationQueue, ^{
     @try {
+      NSSet *classes =
+          [NSSet setWithObjects:[NSMutableDictionary class], [GDTCORUploadPackage class], nil];
       sharedCoordinator->_targetToInFlightPackages =
-          [aDecoder decodeObjectOfClass:[NSMutableDictionary class]
-                                 forKey:ktargetToInFlightPackagesKey];
+          [aDecoder decodeObjectOfClasses:classes forKey:ktargetToInFlightPackagesKey];
 
     } @catch (NSException *exception) {
       sharedCoordinator->_targetToInFlightPackages = [NSMutableDictionary dictionary];

@@ -46,8 +46,7 @@ static NSString *const kIDTokenKey = @"id_token";
   return nil;
 }
 
-- (BOOL)setWithDictionary:(NSDictionary *)dictionary
-                    error:(NSError *_Nullable *_Nullable)error {
+- (BOOL)setWithDictionary:(NSDictionary *)dictionary error:(NSError *_Nullable *_Nullable)error {
   _refreshToken = dictionary[kRefreshTokenKey];
   _accessToken = dictionary[kAccessTokenKey];
   _IDToken = dictionary[kIDTokenKey];

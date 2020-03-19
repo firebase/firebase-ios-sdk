@@ -16,6 +16,8 @@
 
 #import "GDTCORTests/Unit/GDTCORTestCase.h"
 
+#import <GoogleDataTransport/GDTCORPlatform.h>
+
 #import "GDTCORLibrary/Private/GDTCORUploadCoordinator.h"
 
 #import "GDTCORTests/Common/Categories/GDTCORRegistrar+Testing.h"
@@ -153,10 +155,15 @@
   GDTCORUploadPackage *package = [[GDTCORUploadPackage alloc] initWithTarget:kGDTCORTargetTest];
   GDTCORUploadCoordinator *coordinator = [[GDTCORUploadCoordinator alloc] init];
   coordinator.targetToInFlightPackages[@(kGDTCORTargetTest)] = package;
-  NSData *data = [NSKeyedArchiver archivedDataWithRootObject:coordinator];
-
-  // Unarchiving the coordinator always ends up altering the singleton instance.
-  GDTCORUploadCoordinator *unarchivedCoordinator = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+  NSError *error;
+  NSData *data = GDTCOREncodeArchive(coordinator, nil, &error);
+  XCTAssertNil(error);
+  XCTAssertNotNil(data);
+  error = nil;
+  GDTCORUploadCoordinator *unarchivedCoordinator = (GDTCORUploadCoordinator *)GDTCORDecodeArchive(
+      [GDTCORUploadCoordinator class], nil, data, &error);
+  XCTAssertNil(error);
+  XCTAssertNotNil(unarchivedCoordinator);
   XCTAssertEqualObjects([GDTCORUploadCoordinator sharedInstance], unarchivedCoordinator);
 }
 

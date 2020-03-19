@@ -1,4 +1,4 @@
-# Copyright 2018 Google
+# Copyright 2018 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,8 +13,6 @@
 # limitations under the License.
 
 # Add fuzz testing options to the current build.
-
-include(compiler_id)
 
 option(FUZZING "Build for Fuzz Testing (local fuzzing and OSS Fuzz)" OFF)
 

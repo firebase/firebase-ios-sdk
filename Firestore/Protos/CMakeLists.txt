@@ -1,4 +1,4 @@
-# Copyright 2018 Google
+# Copyright 2018 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,6 +15,16 @@
 # Generate output in-place. So long as the build is idempotent this helps
 # verify that the protoc-generated output isn't changing.
 set(OUTPUT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+
+# Generating protobuf and nanopb sources when cross compiling doesn't work
+# because CMake can't build protoc for the host when building cross targets.
+#
+# On Windows, this *could* work, but it's not worth the time to figure out why
+# because the generated sources are already checked in.
+set(FIREBASE_IOS_PROTOC_GENERATE_SOURCES ON)
+if(WIN32 OR IOS OR ANDROID)
+  set(FIREBASE_IOS_PROTOC_GENERATE_SOURCES OFF)
+endif()
 
 # Filename "roots" (i.e. without the .proto) from within the proto directory,
 # excluding anything in google/protobuf.
@@ -33,6 +43,7 @@ set(
   google/rpc/status
   google/type/latlng
 )
+
 # Full filenames (i.e. with the .proto) from within the proto directory,
 # excluding anything in google/protobuf
 foreach(root ${PROTO_FILE_ROOTS})
@@ -58,6 +69,7 @@ set(
   google/protobuf/timestamp
   google/protobuf/wrappers
 )
+
 # Full filenames (i.e. with the .proto) from within the proto directory, from
 # the google/protobuf package.
 foreach(root ${WELL_KNOWN_PROTO_FILE_ROOTS})
@@ -111,13 +123,15 @@ function(snake_case_to_camel_case str var)
   set(${var} ${str} PARENT_SCOPE)
 endfunction()
 
-cc_library(
+firebase_ios_cc_library(
   firebase_firestore_protos_nanopb
   SOURCES
     ${NANOPB_GENERATED_SOURCES}
   DEPENDS
+    absl_strings
     firebase_firestore_nanopb_runtime
     protobuf-nanopb-static
+  DISABLE_STRICT_WARNINGS
 )
 
 target_include_directories(
@@ -128,22 +142,15 @@ target_include_directories(
 # libprotobuf based generated protos. Expected only to be used in test (as
 # libprotobuf[-lite] is too large; we're using nanopb instead. But we do want
 # to test our serialization logic against libprotobuf.)
-cc_library(
+firebase_ios_cc_library(
   firebase_firestore_protos_libprotobuf
   SOURCES
     ${PROTOBUF_CPP_GENERATED_SOURCES}
   DEPENDS
     protobuf::libprotobuf
+  DISABLE_STRICT_WARNINGS
   EXCLUDE_FROM_ALL
 )
-
-if(CXX_CLANG OR CXX_GNU)
-  target_compile_options(
-    firebase_firestore_protos_libprotobuf PRIVATE
-    -Wno-unreachable-code
-  )
-endif()
-
 
 target_include_directories(
   firebase_firestore_protos_libprotobuf PUBLIC
@@ -168,7 +175,6 @@ add_custom_command(
     protoc
     ${PROTOBUF_PROTO}
 )
-
 
 # Generate the python representation of nanopb's protos
 set(NANOPB_DIR ${FIREBASE_BINARY_DIR}/external/src/nanopb)
@@ -205,7 +211,7 @@ add_custom_command(
     ${NANOPB_PROTO}
 )
 
-if(NOT WIN32)
+if(FIREBASE_IOS_PROTOC_GENERATE_SOURCES)
   add_custom_command(
     COMMENT "Generating nanopb sources"
     OUTPUT ${NANOPB_GENERATED_SOURCES}
@@ -235,39 +241,42 @@ if(NOT WIN32)
     DEPENDS
       ${NANOPB_GENERATED_SOURCES}
   )
-endif(NOT WIN32)
+endif()
 
-add_custom_command(
-  COMMENT "Generating C++ protobuf sources"
-  OUTPUT ${PROTOBUF_CPP_GENERATED_SOURCES}
-  COMMAND
-    python
+if(FIREBASE_IOS_PROTOC_GENERATE_SOURCES)
+  add_custom_command(
+    COMMENT "Generating C++ protobuf sources"
+    OUTPUT ${PROTOBUF_CPP_GENERATED_SOURCES}
+    COMMAND
+      python
+        ${CMAKE_CURRENT_SOURCE_DIR}/build_protos.py
+        --cpp
+        --protoc=$<TARGET_FILE:protoc>
+        --output_dir=${OUTPUT_DIR}
+        ${PROTO_INCLUDES}
+    VERBATIM
+    DEPENDS
+      protoc
       ${CMAKE_CURRENT_SOURCE_DIR}/build_protos.py
-      --cpp
-      --protoc=$<TARGET_FILE:protoc>
-      --output_dir=${OUTPUT_DIR}
-      ${PROTO_INCLUDES}
-  VERBATIM
-  DEPENDS
-    protoc
-    ${CMAKE_CURRENT_SOURCE_DIR}/build_protos.py
-    ${PROTO_FILES}
-)
+      ${PROTO_FILES}
+  )
 
-add_custom_target(
-  generate_cpp_protos
-  DEPENDS
-    ${PROTOBUF_CPP_GENERATED_SOURCES}
-)
+  add_custom_target(
+    generate_cpp_protos
+    DEPENDS
+      ${PROTOBUF_CPP_GENERATED_SOURCES}
+  )
+endif()
 
 # Custom target that runs a script to generate the proto sources. This isn't
 # hooked into the build, so must be run manually. (It would be easy enough to
 # hook into the (posix) cmake build, but for consistency with windows and xcode
 # builds, we require this to be run manually with the results checked into
 # source control.)
-add_custom_target(
-  generate_protos
-  DEPENDS
+if(FIREBASE_IOS_PROTOC_GENERATE_SOURCES)
+  add_custom_target(
+    generate_protos
     generate_nanopb_protos
     generate_cpp_protos
-)
+  )
+endif()

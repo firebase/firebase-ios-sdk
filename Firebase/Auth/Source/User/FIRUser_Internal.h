@@ -26,7 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
     @param user The user that was constructed, or nil if user construction failed.
     @param error The error which occurred, or nil if the request was successful.
  */
-typedef void(^FIRRetrieveUserCallback)(FIRUser *_Nullable user, NSError *_Nullable error);
+typedef void (^FIRRetrieveUserCallback)(FIRUser *_Nullable user, NSError *_Nullable error);
 
 /** @typedef FIRVerifyBeforeUpdateEmailCallback
     @brief The type of block called when a request to verify before update email has finished.
@@ -71,11 +71,11 @@ typedef void (^FIRVerifyBeforeUpdateEmailCallback)(NSError *_Nullable error);
         asynchronously on the auth global work queue in the future.
  */
 + (void)retrieveUserWithAuth:(FIRAuth *)auth
-                 accessToken:(nullable NSString *)accessToken
-   accessTokenExpirationDate:(nullable NSDate *)accessTokenExpirationDate
-                refreshToken:(nullable NSString *)refreshToken
-                   anonymous:(BOOL)anonymous
-                    callback:(FIRRetrieveUserCallback)callback;
+                  accessToken:(nullable NSString *)accessToken
+    accessTokenExpirationDate:(nullable NSDate *)accessTokenExpirationDate
+                 refreshToken:(nullable NSString *)refreshToken
+                    anonymous:(BOOL)anonymous
+                     callback:(FIRRetrieveUserCallback)callback;
 
 /** @fn internalGetTokenForcingRefresh:callback:
     @brief Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
@@ -86,7 +86,6 @@ typedef void (^FIRVerifyBeforeUpdateEmailCallback)(NSError *_Nullable error);
  */
 - (void)internalGetTokenForcingRefresh:(BOOL)forceRefresh
                               callback:(nonnull FIRAuthTokenCallback)callback;
-
 
 /** @fn internalVerifyBeforeUpdateEmailWithNewEmail:actionCodeSettings:callback:
     @brief Sends a verification email to newEmail. Upon redemption of the link in the email,
@@ -99,9 +98,9 @@ typedef void (^FIRVerifyBeforeUpdateEmailCallback)(NSError *_Nullable error);
 
  */
 - (void)internalVerifyBeforeUpdateEmailWithNewEmail:(NSString *)newEmail
-    actionCodeSettings:(nullable FIRActionCodeSettings *)actionCodeSettings
-    completion:(FIRVerifyBeforeUpdateEmailCallback)completion;
-
+                                 actionCodeSettings:
+                                     (nullable FIRActionCodeSettings *)actionCodeSettings
+                                         completion:(FIRVerifyBeforeUpdateEmailCallback)completion;
 
 @end
 

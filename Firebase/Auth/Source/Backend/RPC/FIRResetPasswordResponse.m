@@ -20,8 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRResetPasswordResponse
 
-- (BOOL)setWithDictionary:(NSDictionary *)dictionary
-                    error:(NSError *_Nullable *_Nullable)error {
+- (BOOL)setWithDictionary:(NSDictionary *)dictionary error:(NSError *_Nullable *_Nullable)error {
   _email = [dictionary[@"email"] copy];
   _requestType = [dictionary[@"requestType"] copy];
   _verifiedEmail = [dictionary[@"newEmail"] copy];

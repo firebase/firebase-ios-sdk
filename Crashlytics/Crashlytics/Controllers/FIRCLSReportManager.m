@@ -12,6 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//
+// The report manager has the ability to send to two different endpoints.
+//
+// The old legacy flow for a report goes through the following states/folders:
+// 1. active - .clsrecords optimized for crash time persistence
+// 2. processing - .clsrecords with attempted symbolication
+// 3. prepared-legacy - .multipartmime of compressed .clsrecords
+//
+// The new flow for a report goes through the following states/folders:
+// 1. active - .clsrecords optimized for crash time persistence
+// 2. processing - .clsrecords with attempted symbolication
+// 3. prepared - .clsrecords moved from processing with no changes
+//
+// The code was designed so the report processing workflows are not dramatically different from one
+// another. The design will help avoid having a lot of conditional code blocks throughout the
+// codebase.
+//
+
 #include <stdatomic.h>
 
 #if __has_include(<FBLPromises/FBLPromises.h>)
@@ -39,7 +57,6 @@
 #include "FIRCLSGlobals.h"
 #include "FIRCLSUtility.h"
 
-#import "FIRCLSApplicationIdentifierModel.h"
 #import "FIRCLSConstants.h"
 #import "FIRCLSExecutionIdentifierModel.h"
 #import "FIRCLSInstallIdentifierModel.h"
@@ -156,6 +173,8 @@ typedef NSNumber FIRCLSWrappedBool;
 // Runs the operations that fetch settings and call onboarding endpoints
 @property(nonatomic, strong) FIRCLSSettingsOnboardingManager *settingsAndOnboardingManager;
 
+@property(nonatomic, strong) GDTCORTransport *googleTransport;
+
 @end
 
 @implementation FIRCLSReportManager
@@ -167,7 +186,10 @@ static void (^reportSentCallback)(void);
                       installations:(FIRInstallations *)installations
                           analytics:(id<FIRAnalyticsInterop>)analytics
                         googleAppID:(NSString *)googleAppID
-                        dataArbiter:(FIRCLSDataCollectionArbiter *)dataArbiter {
+                        dataArbiter:(FIRCLSDataCollectionArbiter *)dataArbiter
+                    googleTransport:(GDTCORTransport *)googleTransport
+                         appIDModel:(FIRCLSApplicationIdentifierModel *)appIDModel
+                           settings:(FIRCLSSettings *)settings {
   self = [super init];
   if (!self) {
     return nil;
@@ -177,6 +199,8 @@ static void (^reportSentCallback)(void);
   _analytics = analytics;
   _googleAppID = [googleAppID copy];
   _dataArbiter = dataArbiter;
+
+  _googleTransport = googleTransport;
 
   NSString *sdkBundleID = FIRCLSApplicationGetSDKBundleID();
 
@@ -195,14 +219,14 @@ static void (^reportSentCallback)(void);
 
   _checkForUnsentReportsCalled = NO;
 
-  _appIDModel = [[FIRCLSApplicationIdentifierModel alloc] init];
   _installIDModel = [[FIRCLSInstallIdentifierModel alloc] initWithInstallations:installations];
   _executionIDModel = [[FIRCLSExecutionIdentifierModel alloc] init];
 
-  _settings = [[FIRCLSSettings alloc] initWithFileManager:_fileManager appIDModel:_appIDModel];
+  _settings = settings;
+  _appIDModel = appIDModel;
 
   _settingsAndOnboardingManager =
-      [[FIRCLSSettingsOnboardingManager alloc] initWithAppIDModel:self.appIDModel
+      [[FIRCLSSettingsOnboardingManager alloc] initWithAppIDModel:appIDModel
                                                    installIDModel:self.installIDModel
                                                          settings:self.settings
                                                       fileManager:self.fileManager
@@ -220,8 +244,14 @@ static void (^reportSentCallback)(void);
  */
 - (int)unsentReportsCountWithPreexisting:(NSArray<NSString *> *)paths {
   int count = [self countSubmittableAndDeleteUnsubmittableReportPaths:paths];
+
   count += _fileManager.processingPathContents.count;
-  count += _fileManager.preparedPathContents.count;
+
+  if (self.settings.shouldUseNewReportEndpoint) {
+    count += _fileManager.preparedPathContents.count;
+  } else {
+    count += _fileManager.legacyPreparedPathContents.count;
+  }
   return count;
 }
 
@@ -336,6 +366,7 @@ static void (^reportSentCallback)(void);
     FIRCLSDataCollectionToken *dataCollectionToken = [FIRCLSDataCollectionToken validToken];
     [self startNetworkRequestsWithToken:dataCollectionToken
                  preexistingReportPaths:preexistingReportPaths
+                 waitForSettingsRequest:NO
                            blockingSend:launchFailure
                                  report:report];
 
@@ -366,6 +397,7 @@ static void (^reportSentCallback)(void);
                      [FIRCLSDataCollectionToken validToken];
                  [self startNetworkRequestsWithToken:dataCollectionToken
                               preexistingReportPaths:preexistingReportPaths
+                              waitForSettingsRequest:YES
                                         blockingSend:NO
                                               report:report];
 
@@ -414,14 +446,13 @@ static void (^reportSentCallback)(void);
       return;
     }
 
-    FIRCLSContextInitData initData = [self initializeContextInitData:report];
-
-    FIRCLSContextUpdateMetadata(&initData);
+    FIRCLSContextUpdateMetadata(report, self.settings, self.installIDModel, self->_fileManager);
   }];
 }
 
 - (void)startNetworkRequestsWithToken:(FIRCLSDataCollectionToken *)token
                preexistingReportPaths:(NSArray *)preexistingReportPaths
+               waitForSettingsRequest:(BOOL)waitForSettings
                          blockingSend:(BOOL)blockingSend
                                report:(FIRCLSInternalReport *)report {
   if (self.settings.isCacheExpired) {
@@ -430,7 +461,8 @@ static void (^reportSentCallback)(void);
     static dispatch_once_t settingsFetchOnceToken;
     dispatch_once(&settingsFetchOnceToken, ^{
       [self.settingsAndOnboardingManager beginSettingsAndOnboardingWithGoogleAppId:self.googleAppID
-                                                                             token:token];
+                                                                             token:token
+                                                                 waitForCompletion:waitForSettings];
     });
   }
 
@@ -440,52 +472,17 @@ static void (^reportSentCallback)(void);
   [self handleContentsInOtherReportingDirectoriesWithToken:token];
 }
 
-- (FIRCLSContextInitData)initializeContextInitData:(FIRCLSInternalReport *)report {
-  FIRCLSContextInitData initData;
-
-  memset(&initData, 0, sizeof(FIRCLSContextInitData));
-
-  // Because we need to start the crash reporter right away,
-  // it starts up either with default settings, or cached settings
-  // from the last time they were fetched
-  FIRCLSSettings *settings = self.settings;
-
-  initData.customBundleId = NULL;
-  initData.installId = [self.installIDModel.installID UTF8String];
-  initData.sessionId = [[report identifier] UTF8String];
-  initData.rootPath = [[report path] UTF8String];
-  initData.previouslyCrashedFileRootPath = [[_fileManager rootPath] UTF8String];
-#if CLS_MACH_EXCEPTION_SUPPORTED
-  initData.machExceptionMask = [self machExceptionMask];
-#endif
-  initData.errorsEnabled = [settings errorReportingEnabled];
-  initData.customExceptionsEnabled = [settings customExceptionsEnabled];
-  initData.maxCustomExceptions = [settings maxCustomExceptions];
-  initData.maxErrorLogSize = [settings errorLogBufferSize];
-  initData.maxLogSize = [settings logBufferSize];
-  initData.maxKeyValues = [settings maxCustomKeys];
-
-  return initData;
-}
-
 - (BOOL)startCrashReporterWithProfilingMark:(FIRCLSProfileMark)mark
                                      report:(FIRCLSInternalReport *)report {
   if (!report) {
     return NO;
   }
 
-  FIRCLSContextInitData initData = [self initializeContextInitData:report];
-
-  // If this is set, then we could attempt to do a synchronous submission for certain kinds of
-  // events (exceptions). This is a very cool feature, but adds complexity to the backend. For now,
-  // we're going to leave this disabled. It does work in the exception case, but will ultimtely
-  // result in the following crash to be discared. Usually that crash isn't interesting. But, if it
-  // was, we'd never have a chance to see it.
-  initData.delegate = NULL;
-
-  if (![self installCrashReportingHandlers:&initData]) {
+  if (!FIRCLSContextInitialize(report, self.settings, self.installIDModel, _fileManager)) {
     return NO;
   }
+
+  [self setupStateNotifications];
 
   [self registerAnalyticsEventListener];
 
@@ -536,32 +533,7 @@ static void (^reportSentCallback)(void);
   return _uploader;
 }
 
-#if CLS_MACH_EXCEPTION_SUPPORTED
-- (exception_mask_t)machExceptionMask {
-  __block exception_mask_t mask = 0;
-
-  // TODO(b/141241224) This if statement was hardcoded to no, so this block was never run
-  //  FIRCLSSignalEnumerateHandledSignals(^(int idx, int signal) {
-  //    if ([self.delegate ensureDeliveryOfUnixSignal:signal]) {
-  //      mask |= FIRCLSMachExceptionMaskForSignal(signal);
-  //    }
-  //  });
-
-  return mask;
-}
-#endif
-
 #pragma mark - Reporting Lifecycle
-
-- (BOOL)installCrashReportingHandlers:(FIRCLSContextInitData *)initData {
-  if (!FIRCLSContextInitialize(initData)) {
-    return NO;
-  }
-
-  [self setupStateNotifications];
-
-  return YES;
-}
 
 - (FIRCLSInternalReport *)setupCurrentReport:(NSString *)executionIdentifier {
   [self createLaunchFailureMarker];
@@ -649,7 +621,11 @@ static void (^reportSentCallback)(void);
 
 - (void)removeContentsInOtherReportingDirectories {
   [self removeExistingReportPaths:self.fileManager.processingPathContents];
-  [self removeExistingReportPaths:self.fileManager.preparedPathContents];
+  if (self.settings.shouldUseNewReportEndpoint) {
+    [self removeExistingReportPaths:self.fileManager.preparedPathContents];
+  } else {
+    [self removeExistingReportPaths:self.fileManager.legacyPreparedPathContents];
+  }
 }
 
 - (void)handleContentsInOtherReportingDirectoriesWithToken:(FIRCLSDataCollectionToken *)token {
@@ -673,7 +649,9 @@ static void (^reportSentCallback)(void);
 }
 
 - (void)handleExistingFilesInPreparedWithToken:(FIRCLSDataCollectionToken *)token {
-  NSArray *preparedPaths = _fileManager.preparedPathContents;
+  NSArray *preparedPaths = self.settings.shouldUseNewReportEndpoint
+                               ? _fileManager.preparedPathContents
+                               : _fileManager.legacyPreparedPathContents;
 
   // Give our network client a chance to reconnect here, if needed. This attempts to avoid
   // trying to re-submit a prepared file that is already in flight.

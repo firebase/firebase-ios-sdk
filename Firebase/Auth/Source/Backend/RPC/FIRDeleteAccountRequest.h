@@ -25,14 +25,14 @@ NS_ASSUME_NONNULL_BEGIN
     @brief Represents the parameters for the deleteAccount endpoint.
     @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/deleteAccount
  */
-@interface FIRDeleteAccountRequest : FIRIdentityToolkitRequest<FIRAuthRPCRequest>
+@interface FIRDeleteAccountRequest : FIRIdentityToolkitRequest <FIRAuthRPCRequest>
 
 /** @fn initWithEndpoint:requestConfiguration:requestConfiguration.
     @brief Please use initWitLocalID:accessToken:requestConfiguration instead.
  */
 - (nullable instancetype)initWithEndpoint:(NSString *)endpoint
                      requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
-                         NS_UNAVAILABLE;
+    NS_UNAVAILABLE;
 
 /** @fn initWitLocalID:accessToken:requestConfiguration.
     @brief Designated initializer.
@@ -43,7 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable instancetype)initWitLocalID:(NSString *)localID
                             accessToken:(NSString *)accessToken
                    requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
-                      NS_DESIGNATED_INITIALIZER;
+    NS_DESIGNATED_INITIALIZER;
 
 @end
 

@@ -4,13 +4,13 @@ source 'https://cdn.cocoapods.org/'
 
 pod 'FirebaseAnalytics'
 pod 'FirebaseCore', :path => '../../../..'
-pod 'FirebaseInstanceID',  :path => '../../../..'
 pod 'FirebaseInstallations', :path => '../../../..'
 pod 'FirebaseCoreDiagnostics', :path => '../../../..'
 pod 'FirebaseCoreDiagnosticsInterop', :path => '../../../..'
 pod 'GoogleDataTransport', :path => '../../../..'
 pod 'GoogleDataTransportCCTSupport', :path => '../../../..'
 pod 'GoogleUtilities', :path => '../../../..'
+pod 'FirebaseABTesting', :path => '../../../..'
 
 target 'InAppMessaging_Example_iOS' do
   platform :ios, '9.0'

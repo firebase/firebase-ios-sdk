@@ -14,12 +14,12 @@
 
 #import <Foundation/Foundation.h>
 
-@class FIRCLSStackFrame;
+@class FIRStackFrame;
 
 @interface FIRCLSThreadArrayOperation : NSOperation
 
 @property(nonatomic, strong) NSArray *threadArray;
 
-- (void)enumerateFramesWithBlock:(void (^)(FIRCLSStackFrame *frame))block;
+- (void)enumerateFramesWithBlock:(void (^)(FIRStackFrame *frame))block;
 
 @end

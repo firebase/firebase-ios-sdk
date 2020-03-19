@@ -18,12 +18,26 @@
 
 #import <GoogleDataTransport/GDTCORConsoleLogger.h>
 #import <GoogleDataTransport/GDTCOREvent.h>
+#import <GoogleDataTransport/GDTCORPlatform.h>
 #import <GoogleDataTransport/GDTCORRegistrar.h>
 #import <GoogleDataTransport/GDTCORTargets.h>
 
 #import "GDTCCTLibrary/Private/GDTCCTNanopbHelpers.h"
 
 const static int64_t kMillisPerDay = 8.64e+7;
+
+/** Creates and/or returns a singleton NSString that is the NSCoding file location.
+ *
+ * @return The NSCoding file path.
+ */
+static NSString *ArchivePath() {
+  static NSString *archivePath;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    archivePath = [GDTCORRootDirectory() URLByAppendingPathComponent:@"GDTCCTPrioritizer"].path;
+  });
+  return archivePath;
+}
 
 @implementation GDTCCTPrioritizer
 
@@ -32,6 +46,10 @@ const static int64_t kMillisPerDay = 8.64e+7;
   [[GDTCORRegistrar sharedInstance] registerPrioritizer:prioritizer target:kGDTCORTargetCCT];
   [[GDTCORRegistrar sharedInstance] registerPrioritizer:prioritizer target:kGDTCORTargetFLL];
   [[GDTCORRegistrar sharedInstance] registerPrioritizer:prioritizer target:kGDTCORTargetCSH];
+}
+
++ (BOOL)supportsSecureCoding {
+  return YES;
 }
 
 + (instancetype)sharedInstance {
@@ -112,6 +130,17 @@ typedef NS_ENUM(NSInteger, GDTCCTQoSTier) {
   /** This event should only be uploaded on wifi. */
   GDTCCTQoSWifiOnly = 5,
 };
+
+- (void)saveState {
+  dispatch_sync(_queue, ^{
+    NSError *error;
+    GDTCOREncodeArchive(self, ArchivePath(), &error);
+    if (error) {
+      GDTCORLogDebug(@"Serializing GDTCCTPrioritizer to an archive failed: %@", error);
+    }
+  });
+  GDTCORLogDebug(@"GDTCCTPrioritizer saved state to %@ as requested by GDT.", ArchivePath());
+}
 
 /** Converts a GDTCOREventQoS to a GDTCCTQoS tier.
  *
@@ -238,9 +267,106 @@ NSNumber *GDTCCTQosTierFromGDTCOREventQosTier(GDTCOREventQoS qosTier) {
   }];
 }
 
+#pragma mark - NSSecureCoding
+
+/** NSSecureCoding key for the CCTEvents property. */
+static NSString *const GDTCCTUploaderCCTEventsKey = @"GDTCCTUploaderCCTEventsKey";
+
+/** NSSecureCoding key for the CCTEvents property. */
+static NSString *const GDTCCTUploaderFLLEventsKey = @"GDTCCTUploaderFLLEventsKey";
+
+/** NSSecureCoding key for the CCTEvents property. */
+static NSString *const GDTCCTUploaderCSHEventsKey = @"GDTCCTUploaderCSHEventsKey";
+
+- (instancetype)initWithCoder:(NSCoder *)coder {
+  GDTCCTPrioritizer *sharedInstance = [GDTCCTPrioritizer sharedInstance];
+  if (sharedInstance) {
+    NSSet *classes = [NSSet setWithObjects:[NSMutableSet class], [GDTCOREvent class], nil];
+    NSMutableSet *decodedCCTEvents = [coder decodeObjectOfClasses:classes
+                                                           forKey:GDTCCTUploaderCCTEventsKey];
+    if (decodedCCTEvents) {
+      sharedInstance->_CCTEvents = decodedCCTEvents;
+    }
+    NSMutableSet *decodedFLLEvents = [coder decodeObjectOfClasses:classes
+                                                           forKey:GDTCCTUploaderFLLEventsKey];
+    if (decodedFLLEvents) {
+      sharedInstance->_FLLEvents = decodedFLLEvents;
+    }
+    NSMutableSet *decodedCSHEvents = [coder decodeObjectOfClasses:classes
+                                                           forKey:GDTCCTUploaderCSHEventsKey];
+    if (decodedCSHEvents) {
+      sharedInstance->_CSHEvents = decodedCSHEvents;
+    }
+  }
+  return sharedInstance;
+}
+
+- (void)encodeWithCoder:(NSCoder *)coder {
+  GDTCCTPrioritizer *sharedInstance = [GDTCCTPrioritizer sharedInstance];
+  NSMutableSet<GDTCOREvent *> *CCTEvents = sharedInstance->_CCTEvents;
+  if (CCTEvents) {
+    [coder encodeObject:CCTEvents forKey:GDTCCTUploaderCCTEventsKey];
+  }
+  NSMutableSet<GDTCOREvent *> *FLLEvents = sharedInstance->_FLLEvents;
+  if (FLLEvents) {
+    [coder encodeObject:FLLEvents forKey:GDTCCTUploaderFLLEventsKey];
+  }
+  NSMutableSet<GDTCOREvent *> *CSHEvents = sharedInstance->_CSHEvents;
+  if (CSHEvents) {
+    [coder encodeObject:CSHEvents forKey:GDTCCTUploaderCSHEventsKey];
+  }
+}
+
+#pragma mark - GDTCORLifecycleProtocol
+
+- (void)appWillForeground:(GDTCORApplication *)app {
+  NSError *error;
+  GDTCORDecodeArchive([GDTCCTPrioritizer class], ArchivePath(), nil, &error);
+  if (error) {
+    GDTCORLogDebug(@"Deserializing GDTCCTPrioritizer from an archive failed: %@", error);
+  }
+}
+
+- (void)appWillBackground:(GDTCORApplication *)app {
+  dispatch_async(_queue, ^{
+    // Immediately request a background task to run until the end of the current queue of work, and
+    // cancel it once the work is done.
+    __block GDTCORBackgroundIdentifier bgID =
+        [app beginBackgroundTaskWithName:@"GDTStorage"
+                       expirationHandler:^{
+                         [app endBackgroundTask:bgID];
+                         bgID = GDTCORBackgroundIdentifierInvalid;
+                       }];
+    NSError *error;
+    GDTCOREncodeArchive(self, ArchivePath(), &error);
+    if (error) {
+      GDTCORLogDebug(@"Serializing GDTCCTPrioritizer to an archive failed: %@", error);
+    }
+
+    // End the background task if it's still valid.
+    [app endBackgroundTask:bgID];
+    bgID = GDTCORBackgroundIdentifierInvalid;
+  });
+}
+
+- (void)appWillTerminate:(GDTCORApplication *)application {
+  dispatch_sync(_queue, ^{
+    NSError *error;
+    GDTCOREncodeArchive(self, ArchivePath(), &error);
+    if (error) {
+      GDTCORLogDebug(@"Serializing GDTCCTPrioritizer to an archive failed: %@", error);
+    }
+  });
+}
+
 #pragma mark - GDTCORUploadPackageProtocol
 
 - (void)packageDelivered:(GDTCORUploadPackage *)package successful:(BOOL)successful {
+  // If sending the package wasn't successful, we should keep track of these events.
+  if (!successful) {
+    return;
+  }
+
   dispatch_async(_queue, ^{
     NSSet<GDTCOREvent *> *events = [package.events copy];
     for (GDTCOREvent *event in events) {

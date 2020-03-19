@@ -1,4 +1,4 @@
-# Copyright 2018 Google
+# Copyright 2018 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cc_library(
+firebase_ios_cc_library(
   firebase_firestore_local_base
   SOURCES
     document_key_reference.cc
@@ -38,7 +38,7 @@ cc_library(
 )
 
 
-cc_library(
+firebase_ios_cc_library(
   firebase_firestore_local_persistence_leveldb
   SOURCES
     leveldb_index_manager.cc
@@ -76,11 +76,9 @@ cc_library(
   EXCLUDE_FROM_ALL
 )
 
-cc_library(
+firebase_ios_cc_library(
   firebase_firestore_local
   SOURCES
-    document_key_reference.cc
-    document_key_reference.h
     index_free_query_engine.cc
     index_free_query_engine.h
     index_manager.h

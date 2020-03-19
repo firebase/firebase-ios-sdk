@@ -73,10 +73,10 @@ static NSString *const kNewUserKey = @"newUser";
 }
 
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder {
-  NSString *providerID =
-      [aDecoder decodeObjectOfClass:[NSString class] forKey:kProviderIDCodingKey];
-  NSDictionary<NSString *, NSObject *> *profile =
-      [aDecoder decodeObjectOfClass:[NSDictionary class] forKey:kProfileCodingKey];
+  NSString *providerID = [aDecoder decodeObjectOfClass:[NSString class]
+                                                forKey:kProviderIDCodingKey];
+  NSDictionary<NSString *, NSObject *> *profile = [aDecoder decodeObjectOfClass:[NSDictionary class]
+                                                                         forKey:kProfileCodingKey];
   NSString *username = [aDecoder decodeObjectOfClass:[NSString class] forKey:kUsernameCodingKey];
   NSNumber *isNewUser = [aDecoder decodeObjectOfClass:[NSNumber class] forKey:kNewUserKey];
 

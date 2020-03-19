@@ -142,8 +142,8 @@ static NSError *fakeError() {
       [userDefaults persistentDomainForName:[[NSBundle mainBundle] bundleIdentifier]].count;
   XCTAssertTrue([_storage setData:dataFromString(kData) forKey:kKey error:NULL]);
   XCTAssertNil([userDefaults dataForKey:kKey]);
-  XCTAssertEqual([userDefaults persistentDomainForName:[[NSBundle mainBundle] bundleIdentifier]]
-                 .count, count);
+  XCTAssertEqual(
+      [userDefaults persistentDomainForName:[[NSBundle mainBundle] bundleIdentifier]].count, count);
 }
 
 @end

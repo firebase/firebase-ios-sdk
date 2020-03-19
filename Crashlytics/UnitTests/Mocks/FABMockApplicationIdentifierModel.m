@@ -19,6 +19,8 @@
 // Don't call the custom methods that compute this value, so we can
 // set it in FIRCLSSettingsTests
 @synthesize buildInstanceID;
+@synthesize displayVersion;
+@synthesize buildVersion;
 
 // Set in FIRCLSReportManagerTests
 @synthesize bundleID;

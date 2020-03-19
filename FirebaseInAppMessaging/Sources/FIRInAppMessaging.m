@@ -23,6 +23,7 @@
 #import <FirebaseCore/FIRComponent.h>
 #import <FirebaseCore/FIRComponentContainer.h>
 #import <FirebaseCore/FIRDependency.h>
+#import <FirebaseInstallations/FIRInstallations.h>
 
 #import "FIRCore+InAppMessaging.h"
 #import "FIRIAMDisplayExecutor.h"
@@ -62,7 +63,8 @@ static BOOL _autoBootstrapOnFIRAppInit = YES;
     // Ensure it's cached so it returns the same instance every time fiam is called.
     *isCacheable = YES;
     id<FIRAnalyticsInterop> analytics = FIR_COMPONENT(FIRAnalyticsInterop, container);
-    return [[FIRInAppMessaging alloc] initWithAnalytics:analytics];
+    FIRInstallations *installations = [FIRInstallations installationsWithApp:container.app];
+    return [[FIRInAppMessaging alloc] initWithAnalytics:analytics installations:installations];
   };
   FIRComponent *fiamProvider =
       [FIRComponent componentWithProtocol:@protocol(FIRInAppMessagingInstanceProvider)
@@ -93,10 +95,12 @@ static BOOL _autoBootstrapOnFIRAppInit = YES;
   }
 }
 
-- (instancetype)initWithAnalytics:(id<FIRAnalyticsInterop>)analytics {
+- (instancetype)initWithAnalytics:(id<FIRAnalyticsInterop>)analytics
+                    installations:(FIRInstallations *)installations {
   if (self = [super init]) {
     _messageDisplaySuppressed = NO;
     _analytics = analytics;
+    _installations = installations;
   }
   return self;
 }

@@ -16,8 +16,8 @@
 
 #import "FIRGitHubAuthCredential.h"
 
-#import "FIRGitHubAuthProvider.h"
 #import "FIRAuthExceptionUtils.h"
+#import "FIRGitHubAuthProvider.h"
 #import "FIRVerifyAssertionRequest.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -31,8 +31,8 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRGitHubAuthCredential
 
 - (nullable instancetype)initWithProvider:(NSString *)provider {
-  [FIRAuthExceptionUtils raiseMethodNotImplementedExceptionWithReason:
-      @"Please call the designated initializer."];
+  [FIRAuthExceptionUtils
+      raiseMethodNotImplementedExceptionWithReason:@"Please call the designated initializer."];
   return nil;
 }
 

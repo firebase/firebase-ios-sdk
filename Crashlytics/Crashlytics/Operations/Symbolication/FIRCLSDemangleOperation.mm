@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include "FIRCLSDemangleOperation.h"
-#include "FIRCLSStackFrame.h"
+#include "FIRStackFrame_Private.h"
 
 #import <cxxabi.h>
 
@@ -84,7 +84,7 @@
 }
 
 - (void)main {
-  [self enumerateFramesWithBlock:^(FIRCLSStackFrame *frame) {
+  [self enumerateFramesWithBlock:^(FIRStackFrame *frame) {
     NSString *demangedSymbol = [self demangleSymbol:[[frame rawSymbol] UTF8String]];
 
     if (demangedSymbol) {

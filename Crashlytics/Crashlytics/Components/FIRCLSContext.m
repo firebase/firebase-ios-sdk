@@ -17,12 +17,16 @@
 #include <stdlib.h>
 #include <string.h>
 
+#import "FIRCLSFileManager.h"
+#import "FIRCLSInstallIdentifierModel.h"
+#import "FIRCLSInternalReport.h"
+#import "FIRCLSSettings.h"
+
 #include "FIRCLSApplication.h"
 #include "FIRCLSCrashedMarkerFile.h"
 #include "FIRCLSDefines.h"
 #include "FIRCLSFeatures.h"
 #include "FIRCLSGlobals.h"
-#include "FIRCLSInternalReport.h"
 #include "FIRCLSProcess.h"
 #include "FIRCLSUtility.h"
 
@@ -45,7 +49,61 @@ static bool FIRCLSContextRecordMetadata(const char* path, const FIRCLSContextIni
 static const char* FIRCLSContextAppendToRoot(NSString* root, NSString* component);
 static void FIRCLSContextAllocate(FIRCLSContext* context);
 
-bool FIRCLSContextInitialize(const FIRCLSContextInitData* initData) {
+FIRCLSContextInitData FIRCLSContextBuildInitData(FIRCLSInternalReport* report,
+                                                 FIRCLSSettings* settings,
+                                                 FIRCLSInstallIdentifierModel* installIDModel,
+                                                 FIRCLSFileManager* fileManager) {
+  // Because we need to start the crash reporter right away,
+  // it starts up either with default settings, or cached settings
+  // from the last time they were fetched
+
+  FIRCLSContextInitData initData;
+
+  memset(&initData, 0, sizeof(FIRCLSContextInitData));
+
+  initData.customBundleId = nil;
+  initData.installId = [installIDModel.installID UTF8String];
+  initData.sessionId = [[report identifier] UTF8String];
+  initData.rootPath = [[report path] UTF8String];
+  initData.previouslyCrashedFileRootPath = [[fileManager rootPath] UTF8String];
+  initData.errorsEnabled = [settings errorReportingEnabled];
+  initData.customExceptionsEnabled = [settings customExceptionsEnabled];
+  initData.maxCustomExceptions = [settings maxCustomExceptions];
+  initData.maxErrorLogSize = [settings errorLogBufferSize];
+  initData.maxLogSize = [settings logBufferSize];
+  initData.maxKeyValues = [settings maxCustomKeys];
+
+  // If this is set, then we could attempt to do a synchronous submission for certain kinds of
+  // events (exceptions). This is a very cool feature, but adds complexity to the backend. For now,
+  // we're going to leave this disabled. It does work in the exception case, but will ultimtely
+  // result in the following crash to be discared. Usually that crash isn't interesting. But, if it
+  // was, we'd never have a chance to see it.
+  initData.delegate = nil;
+
+#if CLS_MACH_EXCEPTION_SUPPORTED
+  __block exception_mask_t mask = 0;
+
+  // TODO(b/141241224) This if statement was hardcoded to no, so this block was never run
+  //  FIRCLSSignalEnumerateHandledSignals(^(int idx, int signal) {
+  //    if ([self.delegate ensureDeliveryOfUnixSignal:signal]) {
+  //      mask |= FIRCLSMachExceptionMaskForSignal(signal);
+  //    }
+  //  });
+
+  initData.machExceptionMask = mask;
+#endif
+
+  return initData;
+}
+
+bool FIRCLSContextInitialize(FIRCLSInternalReport* report,
+                             FIRCLSSettings* settings,
+                             FIRCLSInstallIdentifierModel* installIDModel,
+                             FIRCLSFileManager* fileManager) {
+  FIRCLSContextInitData initDataObj =
+      FIRCLSContextBuildInitData(report, settings, installIDModel, fileManager);
+  FIRCLSContextInitData* initData = &initDataObj;
+
   if (!initData) {
     return false;
   }
@@ -92,9 +150,9 @@ bool FIRCLSContextInitialize(const FIRCLSContextInitData* initData) {
     _firclsContext.readonly->logging.logStorage.restrictBySize = true;
     _firclsContext.readonly->logging.logStorage.entryCount = NULL;
     _firclsContext.readonly->logging.logStorage.aPath =
-        FIRCLSContextAppendToRoot(rootPath, @"log_a.clsrecord");
+        FIRCLSContextAppendToRoot(rootPath, FIRCLSReportLogAFile);
     _firclsContext.readonly->logging.logStorage.bPath =
-        FIRCLSContextAppendToRoot(rootPath, @"log_b.clsrecord");
+        FIRCLSContextAppendToRoot(rootPath, FIRCLSReportLogBFile);
     _firclsContext.readonly->logging.customExceptionStorage.aPath =
         FIRCLSContextAppendToRoot(rootPath, FIRCLSReportCustomExceptionAFile);
     _firclsContext.readonly->logging.customExceptionStorage.bPath =
@@ -197,7 +255,14 @@ bool FIRCLSContextInitialize(const FIRCLSContextInitData* initData) {
   return true;
 }
 
-void FIRCLSContextUpdateMetadata(const FIRCLSContextInitData* initData) {
+void FIRCLSContextUpdateMetadata(FIRCLSInternalReport* report,
+                                 FIRCLSSettings* settings,
+                                 FIRCLSInstallIdentifierModel* installIDModel,
+                                 FIRCLSFileManager* fileManager) {
+  FIRCLSContextInitData initDataObj =
+      FIRCLSContextBuildInitData(report, settings, installIDModel, fileManager);
+  FIRCLSContextInitData* initData = &initDataObj;
+
   NSString* rootPath = [NSString stringWithUTF8String:initData->rootPath];
 
   const char* metaDataPath =

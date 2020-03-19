@@ -15,7 +15,7 @@
  */
 
 #include <TargetConditionals.h>
-#if !TARGET_OS_OSX && !TARGET_OS_TV
+#if TARGET_OS_IOS
 
 #import <Foundation/Foundation.h>
 
@@ -36,7 +36,7 @@ typedef void (^FIRAuthURLPresentationCompletion)(NSURL *_Nullable callbackURL,
     @param callbackURL The callback URL to check for match.
     @return Whether or not the specific callback URL matches or not.
  */
-typedef BOOL (^FIRAuthURLCallbackMatcher)(NSURL * _Nullable callbackURL);
+typedef BOOL (^FIRAuthURLCallbackMatcher)(NSURL *_Nullable callbackURL);
 
 /** @class FIRAuthURLPresenter
     @brief A Class responsible for presenting URL via SFSafariViewController or WKWebView.
@@ -51,9 +51,9 @@ typedef BOOL (^FIRAuthURLCallbackMatcher)(NSURL * _Nullable callbackURL);
         or asynchronously in future on an unspecified thread once the presentation finishes.
  */
 - (void)presentURL:(NSURL *)URL
-        UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
-   callbackMatcher:(FIRAuthURLCallbackMatcher)callbackMatcher
-        completion:(FIRAuthURLPresentationCompletion)completion;
+         UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
+    callbackMatcher:(FIRAuthURLCallbackMatcher)callbackMatcher
+         completion:(FIRAuthURLPresentationCompletion)completion;
 
 /** @fn canHandleURL:
     @brief Determines if a URL was produced by the currently presented URL.

@@ -20,8 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRDeleteAccountResponse
 
-- (BOOL)setWithDictionary:(NSDictionary *)dictionary
-                   error:(NSError *_Nullable *_Nullable)error {
+- (BOOL)setWithDictionary:(NSDictionary *)dictionary error:(NSError *_Nullable *_Nullable)error {
   return YES;
 }
 

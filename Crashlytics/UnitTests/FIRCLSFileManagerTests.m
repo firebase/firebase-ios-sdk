@@ -15,13 +15,13 @@
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 
-#import "FIRCLSMockFileManager.h"
+#import "FIRCLSFileManager.h"
 
 @interface FIRCLSFileManagerTests : XCTestCase {
-  FIRCLSMockFileManager* _manager;
+  FIRCLSFileManager* _manager;
 }
 
-@property(nonatomic, retain, readonly) FIRCLSMockFileManager* manager;
+@property(nonatomic, retain, readonly) FIRCLSFileManager* manager;
 
 @end
 
@@ -30,8 +30,7 @@
 - (void)setUp {
   [super setUp];
 
-  _manager = [[FIRCLSMockFileManager alloc] init];
-  [_manager setPathNamespace:@"com.crashlytics.unittests"];
+  _manager = [[FIRCLSFileManager alloc] init];
 
   [self removeRootDirectory];
 }
@@ -65,7 +64,7 @@
 
   XCTAssertTrue([self doesFileExist:path], @"");
 
-  path = [path stringByAppendingPathComponent:@"v4/reports"];
+  path = [path stringByAppendingPathComponent:@"v5/reports"];
   XCTAssertTrue([self doesFileExist:path], @"");
 
   for (NSString* subpath in @[ @"active", @"prepared", @"processing" ]) {

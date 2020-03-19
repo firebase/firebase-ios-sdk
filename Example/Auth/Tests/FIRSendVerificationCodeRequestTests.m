@@ -18,9 +18,9 @@
 
 #import "FIRAuthAppCredential.h"
 #import "FIRAuthBackend.h"
+#import "FIRFakeBackendRPCIssuer.h"
 #import "FIRSendVerificationCodeRequest.h"
 #import "FIRSendVerificationCodeResponse.h"
-#import "FIRFakeBackendRPCIssuer.h"
 
 /** @var kTestAPIKey
     @brief Fake API key used for testing.
@@ -101,8 +101,8 @@ static NSString *const kExpectedAPIURL =
 - (void)testSendVerificationCodeRequest {
   FIRAuthRequestConfiguration *requestConfiguration =
       [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey];
-  FIRAuthAppCredential *credential =
-      [[FIRAuthAppCredential alloc]initWithReceipt:kTestReceipt secret:kTestSecret];
+  FIRAuthAppCredential *credential = [[FIRAuthAppCredential alloc] initWithReceipt:kTestReceipt
+                                                                            secret:kTestSecret];
   FIRSendVerificationCodeRequest *request =
       [[FIRSendVerificationCodeRequest alloc] initWithPhoneNumber:kTestPhoneNumber
                                                     appCredential:credential
@@ -115,8 +115,8 @@ static NSString *const kExpectedAPIURL =
 
   [FIRAuthBackend sendVerificationCode:request
                               callback:^(FIRSendVerificationCodeResponse *_Nullable response,
-                                         NSError *_Nullable error) {
-  }];
+                                         NSError *_Nullable error){
+                              }];
   XCTAssertEqualObjects(_RPCIssuer.requestURL.absoluteString, kExpectedAPIURL);
   XCTAssertNotNil(_RPCIssuer.decodedRequest);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kPhoneNumberKey], kTestPhoneNumber);

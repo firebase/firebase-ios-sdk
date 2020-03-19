@@ -24,16 +24,17 @@ NS_ASSUME_NONNULL_BEGIN
   return nil;
 }
 
-- (BOOL)setWithDictionary:(NSDictionary *)dictionary
-                    error:(NSError *_Nullable *_Nullable)error {
+- (BOOL)setWithDictionary:(NSDictionary *)dictionary error:(NSError *_Nullable *_Nullable)error {
   _IDToken = [dictionary[@"idToken"] copy];
   _refreshToken = [dictionary[@"refreshToken"] copy];
   _isNewUser = [dictionary[@"isNewUser"] boolValue];
   _localID = [dictionary[@"localId"] copy];
   _phoneNumber = [dictionary[@"phoneNumber"] copy];
   _temporaryProof = [dictionary[@"temporaryProof"] copy];
-  _approximateExpirationDate = [dictionary[@"expiresIn"] isKindOfClass:[NSString class]] ?
-      [NSDate dateWithTimeIntervalSinceNow:[dictionary[@"expiresIn"] doubleValue]] : nil;
+  _approximateExpirationDate =
+      [dictionary[@"expiresIn"] isKindOfClass:[NSString class]]
+          ? [NSDate dateWithTimeIntervalSinceNow:[dictionary[@"expiresIn"] doubleValue]]
+          : nil;
   return YES;
 }
 

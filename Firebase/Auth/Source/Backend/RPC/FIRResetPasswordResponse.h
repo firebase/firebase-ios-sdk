@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
        - FIRAuthErrorCodeInvalidActionCode
     @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/resetPassword
  */
-@interface FIRResetPasswordResponse : NSObject<FIRAuthRPCResponse>
+@interface FIRResetPasswordResponse : NSObject <FIRAuthRPCResponse>
 
 /** @property email
     @brief The email address corresponding to the reset password request.

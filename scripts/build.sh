@@ -256,6 +256,7 @@ xcb_flags+=(
 # dependencies don't build cleanly this way.
 cmake_options=(
   -Wdeprecated
+  -DCMAKE_BUILD_TYPE=Debug
 )
 
 if [[ -n "${SANITIZERS:-}" ]]; then

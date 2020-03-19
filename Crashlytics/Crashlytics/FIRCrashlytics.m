@@ -20,6 +20,7 @@
 #import "FBLPromises.h"
 #endif
 
+#import "FIRCLSApplicationIdentifierModel.h"
 #include "FIRCLSCrashedMarkerFile.h"
 #import "FIRCLSDataCollectionArbiter.h"
 #import "FIRCLSDefines.h"
@@ -29,6 +30,7 @@
 #import "FIRCLSHost.h"
 #include "FIRCLSProfiling.h"
 #import "FIRCLSReport_Private.h"
+#import "FIRCLSSettings.h"
 #import "FIRCLSUserDefaults.h"
 #include "FIRCLSUserLogging.h"
 #include "FIRCLSUtility.h"
@@ -48,6 +50,9 @@
 #import <FirebaseCore/FIROptionsInternal.h>
 #import <FirebaseInstallations/FirebaseInstallations.h>
 
+#import <GoogleDataTransport/GDTCORTargets.h>
+#import <GoogleDataTransport/GDTCORTransport.h>
+
 #if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>
 #endif
@@ -58,6 +63,8 @@ dispatch_queue_t _firclsBinaryImageQueue;
 dispatch_queue_t _firclsExceptionQueue;
 
 static atomic_bool _hasInitializedInstance;
+
+NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 
 /// Empty protocol to register with FirebaseCore's component system.
 @protocol FIRCrashlyticsInstanceProvider <NSObject>
@@ -70,6 +77,7 @@ static atomic_bool _hasInitializedInstance;
 @property(nonatomic) FIRCLSDataCollectionArbiter *dataArbiter;
 @property(nonatomic) FIRCLSFileManager *fileManager;
 @property(nonatomic) FIRCLSReportManager *reportManager;
+@property(nonatomic) GDTCORTransport *googleTransport;
 
 @end
 
@@ -97,14 +105,26 @@ static atomic_bool _hasInitializedInstance;
     FIRCLSDeveloperLog("Crashlytics", @"Running on %@, %@ (%@)", FIRCLSHostModelInfo(),
                        FIRCLSHostOSDisplayVersion(), FIRCLSHostOSBuildVersion());
 
+    _googleTransport = [[GDTCORTransport alloc] initWithMappingID:FIRCLSGoogleTransportMappingID
+                                                     transformers:nil
+                                                           target:kGDTCORTargetCSH];
+
     _fileManager = [[FIRCLSFileManager alloc] init];
     _googleAppID = app.options.googleAppID;
     _dataArbiter = [[FIRCLSDataCollectionArbiter alloc] initWithApp:app withAppInfo:appInfo];
+
+    FIRCLSApplicationIdentifierModel *appModel = [[FIRCLSApplicationIdentifierModel alloc] init];
+    FIRCLSSettings *settings = [[FIRCLSSettings alloc] initWithFileManager:_fileManager
+                                                                appIDModel:appModel];
+
     _reportManager = [[FIRCLSReportManager alloc] initWithFileManager:_fileManager
                                                         installations:installations
                                                             analytics:analytics
                                                           googleAppID:_googleAppID
-                                                          dataArbiter:_dataArbiter];
+                                                          dataArbiter:_dataArbiter
+                                                      googleTransport:_googleTransport
+                                                           appIDModel:appModel
+                                                             settings:settings];
 
     // Process did crash during previous execution
     NSString *crashedMarkerFileName = [NSString stringWithUTF8String:FIRCLSCrashedMarkerFileName];
@@ -296,11 +316,8 @@ static atomic_bool _hasInitializedInstance;
   FIRCLSUserLoggingRecordError(error, nil);
 }
 
-- (void)recordCustomExceptionName:(NSString *)name
-                           reason:(NSString *)reason
-                       frameArray:(NSArray<FIRCLSStackFrame *> *)frameArray {
-  FIRCLSExceptionRecord(FIRCLSExceptionTypeCustom, [[name copy] UTF8String],
-                        [[reason copy] UTF8String], [frameArray copy], NO);
+- (void)recordExceptionModel:(FIRExceptionModel *)exceptionModel {
+  FIRCLSExceptionRecordModel(exceptionModel);
 }
 
 @end

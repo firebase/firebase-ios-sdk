@@ -66,7 +66,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (nullable instancetype)initWithEndpoint:(NSString *)endpoint
                      requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
-                     NS_UNAVAILABLE;
+    NS_UNAVAILABLE;
 
 /** @fn initWithPlayerID:publicKeyURL:signature:salt:timestamp:displayName:requestConfiguration:
     @brief Designated initializer.
@@ -84,7 +84,7 @@ NS_ASSUME_NONNULL_BEGIN
                                 timestamp:(uint64_t)timestamp
                               displayName:(NSString *)displayName
                      requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
-                     NS_DESIGNATED_INITIALIZER;
+    NS_DESIGNATED_INITIALIZER;
 
 @end
 

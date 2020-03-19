@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if(APPLE)
-  cc_binary(
+if(FIREBASE_IOS_BUILD_BENCHMARKS AND APPLE)
+  firebase_ios_cc_binary(
     firebase_firestore_remote_document_cache_benchmark
     SOURCES
       remote_document_cache_benchmark.mm

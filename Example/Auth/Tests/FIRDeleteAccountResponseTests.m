@@ -16,8 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRAuthErrors.h"
 #import "FIRAuthBackend.h"
+#import "FIRAuthErrors.h"
 #import "FIRDeleteAccountRequest.h"
 #import "FIRDeleteAccountResponse.h"
 #import "FIRFakeBackendRPCIssuer.h"
@@ -100,9 +100,9 @@ static NSString *const kCredentialTooOldErrorMessage = @"CREDENTIAL_TOO_OLD_LOGI
   __block NSError *RPCError;
   [FIRAuthBackend deleteAccount:request
                        callback:^(NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCError = error;
-  }];
+                         callbackInvoked = YES;
+                         RPCError = error;
+                       }];
 
   [_RPCIssuer respondWithServerErrorMessage:kUserDisabledErrorMessage];
 
@@ -124,9 +124,9 @@ static NSString *const kCredentialTooOldErrorMessage = @"CREDENTIAL_TOO_OLD_LOGI
   __block NSError *RPCError;
   [FIRAuthBackend deleteAccount:request
                        callback:^(NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCError = error;
-  }];
+                         callbackInvoked = YES;
+                         RPCError = error;
+                       }];
 
   [_RPCIssuer respondWithServerErrorMessage:kinvalidUserTokenErrorMessage];
 
@@ -147,9 +147,9 @@ static NSString *const kCredentialTooOldErrorMessage = @"CREDENTIAL_TOO_OLD_LOGI
   __block NSError *RPCError;
   [FIRAuthBackend deleteAccount:request
                        callback:^(NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCError = error;
-  }];
+                         callbackInvoked = YES;
+                         RPCError = error;
+                       }];
 
   [_RPCIssuer respondWithServerErrorMessage:kCredentialTooOldErrorMessage];
 
@@ -170,9 +170,9 @@ static NSString *const kCredentialTooOldErrorMessage = @"CREDENTIAL_TOO_OLD_LOGI
   __block NSError *RPCError;
   [FIRAuthBackend deleteAccount:request
                        callback:^(NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCError = error;
-  }];
+                         callbackInvoked = YES;
+                         RPCError = error;
+                       }];
 
   [_RPCIssuer respondWithJSON:@{}];
 

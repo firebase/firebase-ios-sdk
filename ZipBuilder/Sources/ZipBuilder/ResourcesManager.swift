@@ -159,10 +159,13 @@ extension ResourcesManager {
   ///   - dir: The directory to search for Resource bundles.
   ///   - resourceDir: The destination Resources directory. This function will create the Resources
   ///                  directory if it doesn't exist.
+  ///   - keepOriginal: Do a copy instead of a move.
   /// - Returns: An array of URLs pointing to the newly located bundles.
   /// - Throws: Any file system errors that occur.
   @discardableResult
-  static func moveAllBundles(inDirectory dir: URL, to resourceDir: URL) throws -> [URL] {
+  static func moveAllBundles(inDirectory dir: URL,
+                             to resourceDir: URL,
+                             keepOriginal: Bool = false) throws -> [URL] {
     let fileManager = FileManager.default
     let allBundles = try fileManager.recursivelySearch(for: .bundles, in: dir)
 
@@ -171,7 +174,7 @@ extension ResourcesManager {
     guard !allBundles.isEmpty else { return [] }
 
     // Move the found bundles into the Resources directory.
-    let bundlesMoved = try moveAllFiles(allBundles, toDir: resourceDir)
+    let bundlesMoved = try moveAllFiles(allBundles, toDir: resourceDir, keepOriginal: keepOriginal)
 
     // Remove any empty Resources directories left over as part of the move.
     removeEmptyResourcesDirectories(in: dir)
@@ -290,9 +293,11 @@ extension ResourcesManager {
   ///   - files: URLs to files to move.
   ///   - destinationDir: Destination directory to move all the files. Creates the directory if it
   ///                     doesn't exist.
+  ///   - keepOriginal: Do a copy instead of a move.
   /// - Throws: Any file system errors that occur.
   @discardableResult
-  private static func moveAllFiles(_ files: [URL], toDir destinationDir: URL) throws -> [URL] {
+  private static func moveAllFiles(_ files: [URL], toDir destinationDir: URL,
+                                   keepOriginal: Bool = false) throws -> [URL] {
     let fileManager = FileManager.default
     if !fileManager.directoryExists(at: destinationDir) {
       try fileManager.createDirectory(at: destinationDir, withIntermediateDirectories: true)
@@ -303,7 +308,11 @@ extension ResourcesManager {
       // Create the destination URL by using the filename of the file but prefix of the
       // destinationDir.
       let destination = destinationDir.appendingPathComponent(file.lastPathComponent)
-      try fileManager.moveItem(at: file, to: destination)
+      if keepOriginal {
+        try fileManager.copyItem(at: file, to: destination)
+      } else {
+        try fileManager.moveItem(at: file, to: destination)
+      }
       filesMoved.append(destination)
     }
 

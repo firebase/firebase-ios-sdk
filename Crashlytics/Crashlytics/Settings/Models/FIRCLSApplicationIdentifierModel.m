@@ -66,6 +66,10 @@
   return FIRCLSApplicationGetShortBundleVersion();
 }
 
+- (NSString *)synthesizedVersion {
+  return [NSString stringWithFormat:@"%@ (%@)", self.displayName, self.buildVersion];
+}
+
 - (FIRCLSApplicationInstallationSourceType)installSource {
   return FIRCLSApplicationInstallationSource();
 }
