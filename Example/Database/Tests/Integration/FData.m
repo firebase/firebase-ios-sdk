@@ -2874,7 +2874,15 @@
                 @"Number should be no more than 2 seconds ago");
 }
 
-- (void)testServerIncrementOverwritesExistingData {
+- (void)testServerIncrementOverwritesExistingDataOffline {
+  [self checkServerIncrementOverridesExistingDataWhileOffline:true];
+}
+
+- (void)testServerIncrementOverwritesExistingDataOnline {
+  [self checkServerIncrementOverridesExistingDataWhileOffline:false];
+}
+
+   - (void) checkServerIncrementOverridesExistingDataWhileOffline:(BOOL) offline {
   FIRDatabaseReference *ref = [FTestHelpers getRandomNode];
   __block NSMutableArray *found = [NSMutableArray new];
   NSMutableArray *expected = [NSMutableArray new];
@@ -2883,8 +2891,9 @@
                 [found addObject:snap.value];
               }];
 
-  // Going offline ensures that local events get queued up before server events
-  [ref.repo interrupt];
+  if (offline) {
+    [ref.repo interrupt];
+  }
 
   // null + incr
   [ref setValue:[FIRServerValue increment:@1]];
@@ -2912,7 +2921,10 @@
     return found.count == expected.count;
   }];
   XCTAssertEqualObjects(expected, found);
-  [ref.repo resume];
+  
+  if (offline) {
+    [ref.repo resume];
+  }
 }
 
 - (void)testServerIncrementPriority {
@@ -2924,10 +2936,6 @@
                 [found addObject:snap.priority];
               }];
 
-  // Going offline ensures that local events get queued up before server events
-  // Also necessary because increment may not be live yet in the server.
-  [ref.repo interrupt];
-
   // null + incr
   [ref setValue:@0 andPriority:[FIRServerValue increment:@1]];
   [expected addObject:@1];
@@ -2938,7 +2946,6 @@
     return found.count == expected.count;
   }];
   XCTAssertEqualObjects(expected, found);
-  [ref.repo resume];
 }
 
 - (void)testServerIncrementOverflowAndTypeCoercion {
@@ -2953,9 +2960,6 @@
                 [foundTypes addObject:@([(NSNumber *)snap.value objCType])];
               }];
 
-  // Going offline ensures that local events get queued up before server events
-  // Also necessary because increment may not be live yet in the server.
-  [ref.repo interrupt];
 
   // long + double = double
   [ref setValue:@1];
@@ -3002,7 +3006,74 @@
   }];
   XCTAssertEqualObjects(expectedTypes, foundTypes);
   XCTAssertEqualObjects(expected, found);
-  [ref.repo resume];
+}
+
+- (void)testIncrementSparseUpdates {
+  FIRDatabaseReference *node = [FTestHelpers getRandomNode];
+  
+  __block BOOL done = NO;
+  __block NSDictionary *found = nil;
+  __weak FIRDatabaseReference *weakRef = node;
+  void (^captureValue)(NSError*, FIRDatabaseReference*) = ^ (NSError *error, FIRDatabaseReference *ref) {
+    [weakRef observeEventType:FIRDataEventTypeValue
+                     withBlock:^(FIRDataSnapshot *snapshot) {
+      found = snapshot.value;
+      done = YES;
+    }];
+  };
+  
+  [node updateChildValues:@{
+    @"literal": @5,
+    @"child/increment": [FIRServerValue increment:@1]
+  }
+withCompletionBlock:captureValue];
+  NSDictionary *expected = @{
+    @"literal": @5,
+    @"child": @{
+        @"increment": @1
+    }
+  };
+  [self waitUntil:^BOOL { return done; }];
+  XCTAssertEqualObjects(expected, found);
+  
+  done = NO;
+  found = nil;
+  
+  [node updateChildValues:@{
+      @"child/increment": [FIRServerValue increment:@41]
+    }
+  withCompletionBlock:captureValue];
+  
+  expected = @{
+    @"literal": @5,
+    @"child": @{
+        @"increment": @42
+    }
+  };
+  [self waitUntil:^BOOL { return done; }];
+  XCTAssertEqualObjects(expected, found);
+}
+
+- (void)testIncrementRaces {
+  FIRDatabaseReference *node = [FTestHelpers getRandomNode];
+  __block int runs;
+  __block id value;
+  const int REPETITIONS = 20;
+  
+  [node observeEventType:FIRDataEventTypeValue
+               withBlock:^(FIRDataSnapshot *snap) {
+    runs++;
+    value = snap.value;
+  }];
+  for (int i = 1; i < REPETITIONS; i++) {
+    [node setValue:[FIRServerValue increment:@1]];
+  }
+  
+  [self waitUntil:^BOOL {
+    // Include 1 server event
+    return runs == REPETITIONS + 1;
+  }];
+  XCTAssertEqualObjects(@(REPETITIONS), value);
 }
 
 - (void)testUpdateAfterChildSet {
