@@ -197,7 +197,7 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
 
 #elif TARGET_OS_WATCH
     // TODO: Notification on watchOS platform is currently posted by strings which are frangible.
-    // TODO: Needs improvments here.
+    // TODO: Needs improvements here.
     NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
     [notificationCenter addObserver:self
                            selector:@selector(iOSApplicationDidEnterBackground:)
