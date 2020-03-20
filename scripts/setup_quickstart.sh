@@ -17,10 +17,16 @@
 # so that it can be used for integration testing.
 
 set -xeuo pipefail
-# Set have_secrets to true or false.
-. scripts/check_secrets.sh
 
-if [[ "$have_secrets" == true ]]; then
+scripts_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+root_dir="$(dirname "$scripts_dir")"
+
+$scripts_dir/setup_bundler.sh
+
+# Source function to check if CI secrets are available.
+source $scripts_dir/check_secrets.sh
+
+if check_secrets; then
   SAMPLE=$1
 
   # Specify repo so the Firebase module and header can be found in a
@@ -28,7 +34,7 @@ if [[ "$have_secrets" == true ]]; then
   export FIREBASE_POD_REPO_FOR_DEV_POD=`pwd`
 
   git clone https://github.com/firebase/quickstart-ios.git
-  ./scripts/localize_podfile.swift quickstart-ios/"$SAMPLE"/Podfile
+  $scripts_dir/localize_podfile.swift quickstart-ios/"$SAMPLE"/Podfile
   cd quickstart-ios/"$SAMPLE"
 
   # To test a branch, uncomment the following line
@@ -42,8 +48,8 @@ if [[ "$have_secrets" == true ]]; then
   # Secrets are repo specific, so we need to override with the firebase-ios-sdk
   # version. GHA manages the secrets in its action script.
   if [[ -n "${TRAVIS_PULL_REQUEST:-}" ]]; then
-    cp ../../Secrets/quickstart-ios/"$SAMPLE"/GoogleService-Info.plist ./
-    cp ../../Secrets/quickstart-ios/TestUtils/FIREGSignInInfo.h ../TestUtils/
+    cp $root_dir/Secrets/quickstart-ios/"$SAMPLE"/GoogleService-Info.plist ./
+    cp $root_dir/Secrets/quickstart-ios/TestUtils/FIREGSignInInfo.h ../TestUtils/
   fi
   cd -
 fi

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright 2020 Google
+# Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,18 +18,16 @@
 # Check if secrets are available for multiple CI's
 
 set -x
-echo $GITHUB_BASE_REF
-echo $GITHUB_HEAD_REF
+echo "GITHUB_BASE_REF: ${GITHUB_BASE_REF}"
+echo "GITHUB_HEAD_REF: ${GITHUB_HEAD_REF}"
 
 check_secrets()
 {
-  have_secrets=false
-
   # Travis: Secrets are available if we're not running on a fork.
   if [[ -n "${TRAVIS_PULL_REQUEST:-}" ]]; then
     if [[ "$TRAVIS_PULL_REQUEST" == "false" ||
         "$TRAVIS_PULL_REQUEST_SLUG" == "$TRAVIS_REPO_SLUG" ]]; then
-          have_secrets=true
+          return 0
     fi
   fi
   # GitHub Actions: Secrets are available if we're not running on a fork.
@@ -38,8 +36,8 @@ check_secrets()
   # Investigate their values in a fork.
   if [[ -n "${GITHUB_WORKFLOW:-}" ]]; then
     if [[ -n "$GITHUB_BASE_REF" ]]; then
-      have_secrets=true
+      return 0
     fi
   fi
+  return 1
 }
-check_secrets

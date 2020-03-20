@@ -18,10 +18,12 @@
 
 set -xeuo pipefail
 
-# Set have_secrets to true or false.
-. scripts/check_secrets.sh
+sample="$1"
 
-if [[ "$have_secrets" == true ]]; then
+# Source function to check if CI secrets are available.
+source scripts/check_secrets.sh
+
+if check_secrets; then
   cd quickstart-ios
-  have_secrets="$have_secrets" SAMPLE="$1" ./scripts/test.sh
+  have_secrets=true SAMPLE="$sample" ./scripts/test.sh
 fi

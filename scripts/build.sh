@@ -86,8 +86,8 @@ case "$system" in
     ;;
 esac
 
-# Set have_secrets to true or false.
-. scripts/check_secrets.sh
+# Source function to check if CI secrets are available.
+source scripts/check_secrets.sh
 
 # Runs xcodebuild with the given flags, piping output to xcpretty
 # If xcodebuild fails with known error codes, retries once.
@@ -294,7 +294,7 @@ case "$product-$platform-$method" in
     ;;
 
   Auth-*-xcodebuild)
-    if [[ "$have_secrets" == true ]]; then
+    if check_secrets; then
       RunXcodebuild \
         -workspace 'Example/Auth/AuthSample/AuthSample.xcworkspace' \
         -scheme "Auth_ApiTests" \
@@ -360,7 +360,7 @@ case "$product-$platform-$method" in
       build \
       test
 
-    if [[ "$have_secrets" == true ]]; then
+    if check_secrets; then
       # Integration tests are only run on iOS to minimize flake failures.
       RunXcodebuild \
         -workspace 'gen/FirebaseDatabase/FirebaseDatabase.xcworkspace' \
@@ -400,7 +400,7 @@ case "$product-$platform-$method" in
       build \
       test
 
-    if [[ "$have_secrets" == true ]]; then
+    if check_secrets; then
       # Integration tests are only run on iOS to minimize flake failures.
       RunXcodebuild \
         -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \

@@ -40,8 +40,6 @@ jobs:
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
     - name: Setup quickstart
       run: scripts/setup_quickstart.sh messaging
     - name: Install Secret GoogleService-Info.plist
