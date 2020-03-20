@@ -151,7 +151,7 @@ TEST_F(QueryListenerTest, RaisesErrorEvent) {
                    accum.push_back(maybe_snapshot.status());
                  }));
 
-  Status test_error{Error::Unauthenticated, "Some info"};
+  Status test_error{Error::kUnauthenticated, "Some info"};
   listener->OnError(test_error);
 
   ASSERT_THAT(accum, ElementsAre(test_error));

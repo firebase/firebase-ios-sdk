@@ -38,7 +38,7 @@ bool IsRetryableTransactionError(const util::Status& error) {
   // FAILED_PRECONDITION and non-matching document versions with ABORTED. These
   // errors should be retried.
   Error code = error.code();
-  return code == Error::Aborted || code == Error::FailedPrecondition ||
+  return code == Error::kAborted || code == Error::kFailedPrecondition ||
          !remote::Datastore::IsPermanentError(error);
 }
 }  // namespace
