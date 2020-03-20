@@ -36,6 +36,27 @@ jobs:
     - name: Setup project and Build Catalyst
       run: scripts/test_catalyst.sh FirebaseMessaging build
 
+  quickstart:
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Setup quickstart
+      run: scripts/setup_quickstart.sh messaging
+    - name: Install Secret GoogleService-Info.plist
+      env:
+         plist_secret: ${{ secrets.QsMessagingPlistSecret }}
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-messaging.plist.gpg \
+          quickstart-ios/messaging/GoogleService-Info.plist "$plist_secret"
+    - name: Install Secret FIREGSignInInfo.h
+      env:
+         signin_secret: ${{ secrets.QsSignInSecret }}
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
+          quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
+    - name: Test quickstart
+      run: scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Messaging
+
   pod-lib-lint-watchos:
     runs-on: macOS-latest
 
