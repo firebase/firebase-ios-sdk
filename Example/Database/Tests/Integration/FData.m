@@ -2882,7 +2882,7 @@
   [self checkServerIncrementOverridesExistingDataWhileOffline:false];
 }
 
-   - (void) checkServerIncrementOverridesExistingDataWhileOffline:(BOOL) offline {
+- (void)checkServerIncrementOverridesExistingDataWhileOffline:(BOOL)offline {
   FIRDatabaseReference *ref = [FTestHelpers getRandomNode];
   __block NSMutableArray *found = [NSMutableArray new];
   NSMutableArray *expected = [NSMutableArray new];
@@ -2921,7 +2921,7 @@
     return found.count == expected.count;
   }];
   XCTAssertEqualObjects(expected, found);
-  
+
   if (offline) {
     [ref.repo resume];
   }
@@ -2959,7 +2959,6 @@
                 [found addObject:snap.value];
                 [foundTypes addObject:@([(NSNumber *)snap.value objCType])];
               }];
-
 
   // long + double = double
   [ref setValue:@1];
@@ -3010,47 +3009,37 @@
 
 - (void)testIncrementSparseUpdates {
   FIRDatabaseReference *node = [FTestHelpers getRandomNode];
-  
+
   __block BOOL done = NO;
   __block NSDictionary *found = nil;
   __weak FIRDatabaseReference *weakRef = node;
-  void (^captureValue)(NSError*, FIRDatabaseReference*) = ^ (NSError *error, FIRDatabaseReference *ref) {
-    [weakRef observeEventType:FIRDataEventTypeValue
-                     withBlock:^(FIRDataSnapshot *snapshot) {
-      found = snapshot.value;
-      done = YES;
-    }];
-  };
-  
-  [node updateChildValues:@{
-    @"literal": @5,
-    @"child/increment": [FIRServerValue increment:@1]
-  }
-withCompletionBlock:captureValue];
-  NSDictionary *expected = @{
-    @"literal": @5,
-    @"child": @{
-        @"increment": @1
-    }
-  };
-  [self waitUntil:^BOOL { return done; }];
+  void (^captureValue)(NSError *, FIRDatabaseReference *) =
+      ^(NSError *error, FIRDatabaseReference *ref) {
+        [weakRef observeEventType:FIRDataEventTypeValue
+                        withBlock:^(FIRDataSnapshot *snapshot) {
+                          found = snapshot.value;
+                          done = YES;
+                        }];
+      };
+
+  [node updateChildValues:@{@"literal" : @5, @"child/increment" : [FIRServerValue increment:@1]}
+      withCompletionBlock:captureValue];
+  NSDictionary *expected = @{@"literal" : @5, @"child" : @{@"increment" : @1}};
+  [self waitUntil:^BOOL {
+    return done;
+  }];
   XCTAssertEqualObjects(expected, found);
-  
+
   done = NO;
   found = nil;
-  
-  [node updateChildValues:@{
-      @"child/increment": [FIRServerValue increment:@41]
-    }
-  withCompletionBlock:captureValue];
-  
-  expected = @{
-    @"literal": @5,
-    @"child": @{
-        @"increment": @42
-    }
-  };
-  [self waitUntil:^BOOL { return done; }];
+
+  [node updateChildValues:@{@"child/increment" : [FIRServerValue increment:@41]}
+      withCompletionBlock:captureValue];
+
+  expected = @{@"literal" : @5, @"child" : @{@"increment" : @42}};
+  [self waitUntil:^BOOL {
+    return done;
+  }];
   XCTAssertEqualObjects(expected, found);
 }
 
@@ -3059,16 +3048,16 @@ withCompletionBlock:captureValue];
   __block int runs;
   __block id value;
   const int REPETITIONS = 20;
-  
+
   [node observeEventType:FIRDataEventTypeValue
                withBlock:^(FIRDataSnapshot *snap) {
-    runs++;
-    value = snap.value;
-  }];
+                 runs++;
+                 value = snap.value;
+               }];
   for (int i = 1; i < REPETITIONS; i++) {
     [node setValue:[FIRServerValue increment:@1]];
   }
-  
+
   [self waitUntil:^BOOL {
     // Include 1 server event
     return runs == REPETITIONS + 1;
