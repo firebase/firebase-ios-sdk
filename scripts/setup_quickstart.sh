@@ -33,7 +33,6 @@ if [[ "$have_secrets" == true ]]; then
 
   # To test a branch, uncomment the following line
   # git checkout {BRANCH_NAME}
-  git checkout pb-secrets-gha
 
   bundle update --bundler
   bundle install
