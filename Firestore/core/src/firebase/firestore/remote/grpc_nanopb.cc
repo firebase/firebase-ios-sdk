@@ -38,7 +38,7 @@ ByteBufferReader::ByteBufferReader(const grpc::ByteBuffer& buffer) {
   // Conversion may fail if compression is used and gRPC tries to decompress an
   // ill-formed buffer.
   if (!status.ok()) {
-    Status error{Error::Internal,
+    Status error{Error::kInternal,
                  "Trying to convert an invalid grpc::ByteBuffer"};
     error.CausedBy(ConvertStatus(status));
     set_status(error);

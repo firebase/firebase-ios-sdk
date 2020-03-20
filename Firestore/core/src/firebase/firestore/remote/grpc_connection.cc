@@ -268,7 +268,7 @@ void GrpcConnection::RegisterConnectivityMonitor() {
         for (GrpcCall* call : calls) {
           // This will trigger the observers.
           call->FinishAndNotify(
-              Status{Error::Unavailable, "Network connectivity changed"});
+              Status{Error::kUnavailable, "Network connectivity changed"});
         }
         // The old channel may hang for a long time trying to reestablish
         // connection before eventually failing. Note that gRPC Objective-C

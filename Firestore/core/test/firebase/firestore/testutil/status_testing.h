@@ -62,7 +62,7 @@ MATCHER(IsOk, negation ? "not ok" : "ok") {
 }
 
 MATCHER(IsNotFound, negation ? "actually found" : "is not found") {
-  if (arg.code() == Error::NotFound) return true;
+  if (arg.code() == Error::kNotFound) return true;
 
   *result_listener << "actual status was " << arg;
   return false;
@@ -70,14 +70,14 @@ MATCHER(IsNotFound, negation ? "actually found" : "is not found") {
 
 MATCHER(IsPermissionDenied,
         negation ? "not permission denied" : "permission denied") {
-  if (arg.code() == Error::PermissionDenied) return true;
+  if (arg.code() == Error::kPermissionDenied) return true;
 
   *result_listener << "actual status was " << arg;
   return false;
 }
 
 MATCHER(IsUnimplemented, negation ? "actually implemented" : "unimplemented") {
-  if (arg.code() == Error::Unimplemented) return true;
+  if (arg.code() == Error::kUnimplemented) return true;
 
   *result_listener << "actual status was " << arg;
   return false;

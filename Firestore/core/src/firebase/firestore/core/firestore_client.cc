@@ -379,7 +379,7 @@ void FirestoreClient::GetDocumentFromLocalCache(
                            /*from_cache=*/true});
     } else {
       maybe_snapshot =
-          Status{Error::Unavailable,
+          Status{Error::kUnavailable,
                  "Failed to get document from cache. (However, this document "
                  "may exist on the server. Run again without setting source to "
                  "FirestoreSourceCache to attempt to retrieve the document "};

@@ -193,7 +193,7 @@ class OtherFilesystem : public Filesystem {
   }
 
   StatusOr<Path> LegacyDocumentsDir(absl::string_view app_name) override {
-    return Status(Error::Unimplemented, "unimplemented");
+    return Status(Error::kUnimplemented, "unimplemented");
   }
 
  private:
@@ -223,7 +223,7 @@ TEST(LevelDbOpenerTest, HandlesAppDataDirFailure) {
   NiceMock<MockFilesystem> fs;
 
   EXPECT_CALL(fs, AppDataDir)
-      .WillRepeatedly(Return(Status(Error::PermissionDenied, "EPERM")));
+      .WillRepeatedly(Return(Status(Error::kPermissionDenied, "EPERM")));
 
   DatabaseInfo db_info = FakeDatabaseInfo();
   LevelDbOpener opener(db_info, &fs);
