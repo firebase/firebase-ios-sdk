@@ -38,6 +38,7 @@ if [[ "$have_secrets" == true ]]; then
   bundle update --bundler
   bundle install
   bundle exec pod install
+  ../scripts/install_prereqs/"$SAMPLE".sh
 
   # Secrets are repo specific, so we need to override with the firebase-ios-sdk
   # version. GHA manages the secrets in its action script.
