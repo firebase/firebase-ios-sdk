@@ -304,7 +304,19 @@ id<NSSecureCoding> _Nullable GDTCORDecodeArchive(Class archiveClass,
                              object:nil];
 
 #elif TARGET_OS_WATCH
+    // TODO: Notification on watchOS platform is currently posted by strings which are frangible.
+    // TODO: Needs improvements here.
     NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
+    [notificationCenter addObserver:self
+                           selector:@selector(iOSApplicationDidEnterBackground:)
+                               name:@"UIApplicationDidEnterBackgroundNotification"
+                             object:nil];
+    [notificationCenter addObserver:self
+                           selector:@selector(iOSApplicationWillEnterForeground:)
+                               name:@"UIApplicationWillEnterForegroundNotification"
+                             object:nil];
+
+    // Adds observers for app extension on watchOS platform
     [notificationCenter addObserver:self
                            selector:@selector(iOSApplicationDidEnterBackground:)
                                name:NSExtensionHostDidEnterBackgroundNotification
@@ -313,8 +325,7 @@ id<NSSecureCoding> _Nullable GDTCORDecodeArchive(Class archiveClass,
                            selector:@selector(iOSApplicationWillEnterForeground:)
                                name:NSExtensionHostWillEnterForegroundNotification
                              object:nil];
-
-#endif  // TARGET_OS_IOS || TARGET_OS_TV
+#endif
   }
   return self;
 }
@@ -349,12 +360,8 @@ id<NSSecureCoding> _Nullable GDTCORDecodeArchive(Class archiveClass,
 #pragma mark - App environment helpers
 
 - (BOOL)isAppExtension {
-#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_WATCH
   BOOL appExtension = [[[NSBundle mainBundle] bundlePath] hasSuffix:@".appex"];
   return appExtension;
-#elif TARGET_OS_OSX
-  return NO;
-#endif
 }
 
 /** Returns a UIApplication or WKExtension instance if on the appropriate platform.
@@ -368,24 +375,15 @@ id<NSSecureCoding> _Nullable GDTCORDecodeArchive(Class archiveClass,
 #else
 - (nullable id)sharedApplicationForBackgroundTask {
 #endif
-  if ([self isAppExtension]) {
-    return nil;
-  }
-  id sharedApplication = nil;
+  id sharedInstance = nil;
 #if TARGET_OS_IOS || TARGET_OS_TV
-  Class uiApplicationClass = NSClassFromString(@"UIApplication");
-  if (uiApplicationClass &&
-      [uiApplicationClass respondsToSelector:(NSSelectorFromString(@"sharedApplication"))]) {
-    sharedApplication = [uiApplicationClass sharedApplication];
+  if (![self isAppExtension]) {
+    sharedInstance = [UIApplication sharedApplication];
   }
 #elif TARGET_OS_WATCH
-  Class wkExtensionClass = NSClassFromString(@"WKExtension");
-  if (wkExtensionClass &&
-      [wkExtensionClass respondsToSelector:(NSSelectorFromString(@"sharedExtension"))]) {
-    sharedApplication = [wkExtensionClass sharedExtension];
-  }
+  sharedInstance = [WKExtension sharedExtension];
 #endif
-  return sharedApplication;
+  return sharedInstance;
 }
 
 #pragma mark - UIApplicationDelegate and WKExtensionDelegate
