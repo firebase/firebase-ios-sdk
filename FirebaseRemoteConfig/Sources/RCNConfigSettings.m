@@ -456,4 +456,12 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
           (_exponentialBackoffThrottleEndTime - now > 0));
 }
 
+#pragma mark self config
+- (void)updateSettingsWithSelfConfigResponse:(NSDictionary *)response {
+  if (!response || response.count < 1) {
+    return;
+  }
+  NSNumber *minimumFetchInterval = [response objectForKey:@"minimumFetchInterval"];
+  [self updateLastFetchTimeInterval:[minimumFetchInterval longValue]];
+}
 @end

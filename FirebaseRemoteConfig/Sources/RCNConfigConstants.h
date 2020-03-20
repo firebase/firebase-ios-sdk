@@ -40,6 +40,9 @@ static const char *RCNRemoteConfigQueueLabel = "com.google.GoogleConfigService.F
 /// Constants for key names in the fetch response.
 /// Key that includes an array of template entries.
 static NSString *const RCNFetchResponseKeyEntries = @"entries";
+/// Constant for self config key names in the fetch response.
+/// The Remote Config Self Config (RCSC) keys are intended to configure the Remote Config SDK only.
+static NSString *const RCNFetchResponseKeySelfConfig = @"selfConfig";
 /// Key that includes data for experiment descriptions in ABT.
 static NSString *const RCNFetchResponseKeyExperimentDescriptions = @"experimentDescriptions";
 /// Error key.

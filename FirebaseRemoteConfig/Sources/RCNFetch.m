@@ -494,11 +494,14 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
       // Add the fetched config to the database.
       if (fetchedConfig) {
         // Update config content to cache and DB.
-        [self->_content updateConfigContentWithResponse:fetchedConfig
-                                           forNamespace:self->_FIRNamespace];
+        [strongSelf->_content updateConfigContentWithResponse:fetchedConfig
+                                                 forNamespace:self->_FIRNamespace];
         // Update experiments.
         [strongSelf->_experiment
             updateExperimentsWithResponse:fetchedConfig[RCNFetchResponseKeyExperimentDescriptions]];
+
+        // Update self config.
+        [strongSelf->_settings
       } else {
         FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000063",
                     @"Empty response with no fetched config.");
