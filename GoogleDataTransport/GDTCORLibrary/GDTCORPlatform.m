@@ -400,7 +400,7 @@ id<NSSecureCoding> _Nullable GDTCORDecodeArchive(Class archiveClass,
 
 - (GDTCORBackgroundIdentifier)beginBackgroundTaskWithName:(NSString *)name
                                         expirationHandler:(void (^)(void))handler {
-  __block GDTCORBackgroundIdentifier bgID;
+  __block GDTCORBackgroundIdentifier bgID = GDTCORBackgroundIdentifierInvalid;
 #if !TARGET_OS_WATCH
   bgID = [[self sharedApplicationForBackgroundTask] beginBackgroundTaskWithName:name
                                                               expirationHandler:handler];
