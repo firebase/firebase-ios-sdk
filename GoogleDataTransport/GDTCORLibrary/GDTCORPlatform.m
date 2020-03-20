@@ -330,21 +330,100 @@ id<NSSecureCoding> _Nullable GDTCORDecodeArchive(Class archiveClass,
   return self;
 }
 
+/** Creates a NSMutableDictionary for mapping bgID to task semaphore.
+ *
+ * @return A NSMutableDictionary singleton instance for mapping bgID to task semaphore.
+ */
++ (NSMutableDictionary<NSNumber *, dispatch_semaphore_t> *)getBgIDToSemaphoreMap {
+  static NSMutableDictionary<NSNumber *, dispatch_semaphore_t> *sBgIDToSemephoreMap;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    sBgIDToSemephoreMap = [[NSMutableDictionary alloc] init];
+  });
+  return sBgIDToSemephoreMap;
+}
+
+/** Creates a queue on which all task semaphore will populate and remove from map.
+ *
+ * @return A dispatch queue singleton instance for the lifetime of an application.
+ */
++ (dispatch_queue_t)getSemaphoreQueue {
+  static dispatch_queue_t sSemaphoreQueue;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    sSemaphoreQueue = dispatch_queue_create("com.google.GDTCORApplication", DISPATCH_QUEUE_SERIAL);
+  });
+  return sSemaphoreQueue;
+}
+
+/** Populates a unique NSUInteger as GDTCORBackgroundIdentifier for given semaphore and maps it to
+ * the semaphore in NSMutableDictionary.
+ *
+ * @param semaphore The task semaphore needs to be mapping.
+ * @return A unique GDTCORBackgroundIdentifier mapped to the given semaphore.
+ */
++ (GDTCORBackgroundIdentifier)populateBgIDwithSemaphore:(dispatch_semaphore_t)semaphore {
+  __block GDTCORBackgroundIdentifier bgID = GDTCORBackgroundIdentifierInvalid;
+  if ([self getSemaphoreQueue]) {
+    dispatch_sync([self getSemaphoreQueue], ^{
+      NSMutableDictionary<NSNumber *, dispatch_semaphore_t> *bgIDToSemaphoreMap =
+          [self getBgIDToSemaphoreMap];
+      bgID = arc4random();
+      while (bgID == GDTCORBackgroundIdentifierInvalid ||
+             bgIDToSemaphoreMap[[NSNumber numberWithLong:bgID]]) {
+        bgID = arc4random();
+      }
+      bgIDToSemaphoreMap[[NSNumber numberWithLong:bgID]] = semaphore;
+    });
+  }
+  return bgID;
+}
+
+/** Returns the semaphore mapped be given bgID and removed the key value pair in
+ * NSMutableDictionary.
+ *
+ * @param bgID The unique NSUInteger as GDTCORBackgroundIdentifier.
+ * @return The semaphore mapped by given bgID.
+ */
++ (dispatch_semaphore_t)semaphoreForBgID:(GDTCORBackgroundIdentifier)bgID {
+  __block dispatch_semaphore_t semaphore;
+  if ([self getSemaphoreQueue]) {
+    dispatch_sync([self getSemaphoreQueue], ^{
+      NSMutableDictionary<NSNumber *, dispatch_semaphore_t> *bgIDToSemaphoreMap =
+          [self getBgIDToSemaphoreMap];
+      semaphore = bgIDToSemaphoreMap[[NSNumber numberWithLong:bgID]];
+      [bgIDToSemaphoreMap removeObjectForKey:[NSNumber numberWithLong:bgID]];
+    });
+  }
+  return semaphore;
+}
+
 - (GDTCORBackgroundIdentifier)beginBackgroundTaskWithName:(NSString *)name
                                         expirationHandler:(void (^)(void))handler {
+  __block GDTCORBackgroundIdentifier bgID;
 #if !TARGET_OS_WATCH
-  GDTCORBackgroundIdentifier bgID =
-      [[self sharedApplicationForBackgroundTask] beginBackgroundTaskWithName:name
-                                                           expirationHandler:handler];
+  bgID = [[self sharedApplicationForBackgroundTask] beginBackgroundTaskWithName:name
+                                                              expirationHandler:handler];
 #if !NDEBUG
   if (bgID != GDTCORBackgroundIdentifierInvalid) {
     GDTCORLogDebug("Creating background task with name:%@ bgID:%ld", name, (long)bgID);
   }
 #endif  // !NDEBUG
+#elif TARGET_OS_WATCH
+  [[self sharedNSProcessInfoForBackgroundTask]
+      performExpiringActivityWithReason:name
+                             usingBlock:^(BOOL expired) {
+                               dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+                               bgID = [GDTCORApplication populateBgIDwithSemaphore:semaphore];
+                               if (expired) {
+                                 handler();
+                                 dispatch_semaphore_signal(semaphore);
+                               }
+                               dispatch_semaphore_wait(
+                                   semaphore, dispatch_time(DISPATCH_TIME_NOW, 30 * NSEC_PER_SEC));
+                             }];
+#endif
   return bgID;
-#endif  // !TARGET_OS_WATCH
-  // TODO: WKExtension background tasks handling.
-  return GDTCORBackgroundIdentifierInvalid;
 }
 
 - (void)endBackgroundTask:(GDTCORBackgroundIdentifier)bgID {
@@ -353,6 +432,13 @@ id<NSSecureCoding> _Nullable GDTCORDecodeArchive(Class archiveClass,
     GDTCORLogDebug("Ending background task with ID:%ld was successful", (long)bgID);
     [[self sharedApplicationForBackgroundTask] endBackgroundTask:bgID];
     return;
+  }
+#elif TARGET_OS_WATCH
+  if (bgID != GDTCORBackgroundIdentifierInvalid) {
+    dispatch_semaphore_t semaphore = [GDTCORApplication semaphoreForBgID:bgID];
+    if (semaphore) {
+      dispatch_semaphore_signal(semaphore);
+    }
   }
 #endif  // !TARGET_OS_WATCH
 }
@@ -364,14 +450,14 @@ id<NSSecureCoding> _Nullable GDTCORDecodeArchive(Class archiveClass,
   return appExtension;
 }
 
-/** Returns a UIApplication or WKExtension instance if on the appropriate platform.
+/** Returns a UIApplication or NSProcessInfo instance if on the appropriate platform.
  *
- * @return The shared UIApplication or WKExtension if on the appropriate platform.
+ * @return The shared UIApplication or NSProcessInfo if on the appropriate platform.
  */
 #if TARGET_OS_IOS || TARGET_OS_TV
 - (nullable UIApplication *)sharedApplicationForBackgroundTask {
 #elif TARGET_OS_WATCH
-- (nullable WKExtension *)sharedApplicationForBackgroundTask {
+- (nullable NSProcessInfo *)sharedNSProcessInfoForBackgroundTask {
 #else
 - (nullable id)sharedApplicationForBackgroundTask {
 #endif
@@ -381,7 +467,7 @@ id<NSSecureCoding> _Nullable GDTCORDecodeArchive(Class archiveClass,
     sharedInstance = [UIApplication sharedApplication];
   }
 #elif TARGET_OS_WATCH
-  sharedInstance = [WKExtension sharedExtension];
+  sharedInstance = [NSProcessInfo processInfo];
 #endif
   return sharedInstance;
 }
