@@ -38,7 +38,6 @@ jobs:
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
-      if: ${{ secrets.QsStoragePlistSecret }}
     - name: Setup quickstart
       run: scripts/setup_quickstart.sh storage
     - name: Install Secret GoogleService-Info.plist
