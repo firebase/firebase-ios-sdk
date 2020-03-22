@@ -18,8 +18,8 @@
 # Check if secrets are available for multiple CI's
 
 set -x
-echo "GITHUB_BASE_REF: ${GITHUB_BASE_REF}"
-echo "GITHUB_HEAD_REF: ${GITHUB_HEAD_REF}"
+echo "GITHUB_BASE_REF: ${GITHUB_BASE_REF:-}"
+echo "GITHUB_HEAD_REF: ${GITHUB_HEAD_REF:-}"
 
 check_secrets()
 {
