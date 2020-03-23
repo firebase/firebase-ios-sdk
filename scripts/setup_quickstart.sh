@@ -39,11 +39,13 @@ if check_secrets; then
 
   # To test a branch, uncomment the following line
   # git checkout {BRANCH_NAME}
-  git checkout pb-preadd-plist
 
   bundle update --bundler
   bundle install
   bundle exec pod install
+
+  # Add GoogleService-Info.plist to Xcode project
+  ruby ../scripts/info_script.rb "${SAMPLE}"
 
   # Secrets are repo specific, so we need to override with the firebase-ios-sdk
   # version. GHA manages the secrets in its action script.
