@@ -158,7 +158,7 @@ fi
 # Always rebuild if Travis configuration and/or build scripts changed.
 check_changes '^.travis.yml'
 check_changes '^Gemfile.lock'
-check_changes '^scripts/(build|install_prereqs|pod_lib_lint).(rb|sh)'
+check_changes '^scripts/(build|install_prereqs|pod_lib_lint|setup_quickstart.sh).(rb|sh)'
 check_changes '^scripts/xcresult_logs.py'
 
 if [[ "$run" == true ]]; then
