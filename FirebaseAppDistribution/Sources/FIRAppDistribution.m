@@ -18,6 +18,7 @@
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
 #import <FirebaseCore/FIRComponentContainer.h>
+#import <FirebaseCore/FIROptions.h>
 
 #import <UIKit/UIKit.h>
 #import <AppAuth/AppAuth.h>
@@ -40,6 +41,12 @@
 @end
 
 @implementation FIRAppDistribution
+
+// The OAuth scope needed to authorize the App Distribution Tester API
+NSString *const OIDScopeTesterAPI = @"https://www.googleapis.com/auth/cloud-platform";
+
+// The App Distribution Tester API endpoint used to retrieve releases
+NSString *const ReleasesEndpointURL = @"https://firebaseapptesters.googleapis.com/v1alpha/devices/-/testerApps/%@/releases";
 
 @synthesize isTesterSignedIn = _isTesterSignedIn;
 
@@ -74,7 +81,6 @@
 }
 
 + (NSArray<FIRComponent *> *)componentsToRegister {
-    
     FIRComponentCreationBlock creationBlock =
     ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
         if (!container.app.isDefaultApp) {
@@ -112,10 +118,7 @@
     return (FIRAppDistribution *)instance;
 }
 
-
-
-- (void) signInTesterWithCompletion:(FIRAppDistributionSignInTesterCompletion)completion {
-    
+- (void)signInTesterWithCompletion:(FIRAppDistributionSignInTesterCompletion)completion {
     NSURL *issuer = [NSURL URLWithString:@"https://accounts.google.com"];
     
     [OIDAuthorizationService discoverServiceConfigurationForIssuer:issuer
@@ -129,14 +132,14 @@
         }
         
         NSString *redirectUrl = [@"dev.firebase.appdistribution." stringByAppendingString:[[[NSBundle mainBundle] bundleIdentifier] stringByAppendingString:@":/launch"]];
-        NSLog(@"%@", redirectUrl);
         
         // builds authentication request
         OIDAuthorizationRequest *request =
         [[OIDAuthorizationRequest alloc] initWithConfiguration:configuration
-                                                    clientId:@"319754533822-osu3v3hcci24umq6diathdm0dipds1fb.apps.googleusercontent.com"
+                                                      clientId:@"319754533822-osu3v3hcci24umq6diathdm0dipds1fb.apps.googleusercontent.com"
                                                         scopes:@[OIDScopeOpenID,
-                                                                 OIDScopeProfile,    @"https://www.googleapis.com/auth/cloud-platform"]
+                                                                 OIDScopeProfile,
+                                                                 OIDScopeTesterAPI]
                                                    redirectURL:[NSURL URLWithString:redirectUrl]
                                                   responseType:OIDResponseTypeCode
                                           additionalParameters:nil];
@@ -150,18 +153,13 @@
         
         // Run it.
         [window makeKeyAndVisible];
-        
-        NSLog(@"Presenting view controller: %@", self.safariHostingViewController);
-        
+                
         // performs authentication request
         [FIRAppDistributionAppDelegatorInterceptor sharedInstance].currentAuthorizationFlow =
         [OIDAuthState authStateByPresentingAuthorizationRequest:request
                                        presentingViewController:self.safariHostingViewController
                                                        callback:^(OIDAuthState *_Nullable authState,
                                                                   NSError *_Nullable error) {
-            
-            NSLog(@"Completed the sign in process: %@", authState);
-            
             self.authState = authState;
             self->_isTesterSignedIn = self.authState ? YES : NO;
             
@@ -171,68 +169,94 @@
     
 }
 
--(void) signOutTester {
+- (void)signOutTester {
     self.authState = nil;
     _isTesterSignedIn = false;
 }
 
-- (void)checkForUpdateWithCompletion:(FIRAppDistributionUpdateCheckCompletion)completion {
+- (void)fetchReleases:(FIRAppDistributionUpdateCheckCompletion)completion {
+    NSLog(@"Token: %@", self.authState.lastTokenResponse.accessToken);
+    NSURLSession *URLSession = [NSURLSession sharedSession];
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
+    NSString *urlString = [NSString stringWithFormat:ReleasesEndpointURL, [[FIRApp defaultApp] options].googleAppID];
+    [request setURL:[NSURL URLWithString:urlString]];
+    [request setHTTPMethod:@"GET"];
+    [request setValue:[NSString stringWithFormat:@"Bearer %@", self.authState.lastTokenResponse.accessToken] forHTTPHeaderField:@"Authorization"];
     
+    NSURLSessionDataTask *listReleasesDataTask =
+        [URLSession dataTaskWithRequest:request
+                    completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+            if (error) {
+                
+                // TODO: Reformat error into error code
+                completion(nil, error);
+                return;
+            }
+            
+            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+
+            if (httpResponse.statusCode == 200) {
+                [self handleReleasesAPIResponseWithData:data completion:completion];
+            } else {
+                NSLog(@"Error Response Code: %ld", httpResponse.statusCode);
+                
+                // TODO: Handle non-200 http response
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    completion(nil, nil);
+                });
+            }
+        }];
+    
+    [listReleasesDataTask resume];
+}
+
+- (void)handleReleasesAPIResponseWithData:data
+                               completion:(FIRAppDistributionUpdateCheckCompletion)completion {
+    // TODO: Parse response from tester API, check instance identifier and maybe return a release
+    
+    // Ensure we dispatch on the main thread to allow any UI to update
+    dispatch_async(dispatch_get_main_queue(), ^{
+        completion(nil, nil);
+    });
+}
+
+- (void)checkForUpdateWithCompletion:(FIRAppDistributionUpdateCheckCompletion)completion {
     if(self.isTesterSignedIn) {
-        NSLog(@"Got authorization tokens. Access token: %@",
-              self.authState.lastTokenResponse.accessToken);
-        // TODO: Extract this in a method and call the Tester API releases endpoint
-        FIRAppDistributionRelease *release = [[FIRAppDistributionRelease alloc]init];
-        release.displayVersion = @"1.0";
-        release.buildVersion = @"123";
-        release.downloadURL = [NSURL URLWithString:@""];
-        completion(release, nil);
+        [self fetchReleases:completion];
     } else {
+        UIAlertController *alert = [UIAlertController
+                                    alertControllerWithTitle:@"Enable in-app alerts"
+                                    message:@"Sign in with your Firebase App Distribution Google account to turn on in-app alerts for new test releases."
+                                    preferredStyle:UIAlertControllerStyleAlert];
         
-        UIAlertController * alert = [UIAlertController
-                                     alertControllerWithTitle:@"Enable in-app alerts"
-                                     message:@"Sign in with your Firebase App Distribution Google account to turn on in-app alerts for new test releases."
-                                     preferredStyle:UIAlertControllerStyleAlert];
-        
-        //Add Buttons
-        
-        UIAlertAction* yesButton = [UIAlertAction
+        UIAlertAction *yesButton = [UIAlertAction
                                     actionWithTitle:@"Turn on"
                                     style:UIAlertActionStyleDefault
-                                    handler:^(UIAlertAction * action) {
-            //Handle your yes please button action here
+                                    handler:^(UIAlertAction *action) {
+
             [self signInTesterWithCompletion:^(NSError * _Nullable error) {
                 self.window.hidden = YES;
                 self.window = nil;
+                
                 if(error) {
                     completion(nil, error);
                     return;
                 }
-                NSLog(@"Got authorization tokens. Access token: %@",
-                      self.authState.lastTokenResponse.accessToken);
                 
-                // TODO: Extract this in a method and call the Tester API releases endpoint
-                FIRAppDistributionRelease *release = [[FIRAppDistributionRelease alloc]init];
-                release.displayVersion = @"1.0";
-                release.buildVersion = @"123";
-                release.downloadURL = [NSURL URLWithString:@""];
-                completion(release, nil);
+                [self fetchReleases:completion];
             }];
         }];
         
-        UIAlertAction* noButton = [UIAlertAction
+        UIAlertAction *noButton = [UIAlertAction
                                    actionWithTitle:@"Not now"
                                    style:UIAlertActionStyleDefault
                                    handler:^(UIAlertAction * action) {
             
-            //Handle no, thanks button
             // precaution to ensure window gets destroyed
             self.window.hidden = YES;
             self.window = nil;
             completion(nil, nil);
         }];
-        
-        //Add your buttons to alert controller
         
         [alert addAction:noButton];
         [alert addAction:yesButton];
@@ -241,14 +265,13 @@
         // Create an empty window + viewController to host the Safari UI.
         self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
         self.window.rootViewController = [[UIViewController alloc] init];
-
-//        // Place it at the highest level within the stack.
+        
+        // Place it at the highest level within the stack.
         self.window.windowLevel = +CGFLOAT_MAX;
         
         // Run it.
         [self.window makeKeyAndVisible];
         [self.window.rootViewController presentViewController:alert animated:YES completion:nil];
-
     }
 }
 @end
