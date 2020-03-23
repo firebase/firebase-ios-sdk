@@ -57,6 +57,8 @@ if check_secrets; then
       if [[ ${SAMPLE} == "DynamicLinks" ]]; then
         sed -i '' 's#DYNAMIC_LINK_DOMAIN#https://qpf6m.app.goo.gl#' DynamicLinksExample/DynamicLinksExample.entitlements
         sed -i '' 's#YOUR_DOMAIN_URI_PREFIX";#https://qpf6m.app.goo.gl";#' DynamicLinksExample/ViewController.m
+      elif [[ ${SAMPLE} == "Functions" ]]; then
+        sed -i '' 's/REVERSED_CLIENT_ID/com.googleusercontent.apps.1025801074639-6p6ebi8amuklcjrto20gvpe295smm8u6/' FunctionsExample/Info.plist
       fi
     else
       cp ../mock-GoogleService-Info.plist ./GoogleService-Info.plist
