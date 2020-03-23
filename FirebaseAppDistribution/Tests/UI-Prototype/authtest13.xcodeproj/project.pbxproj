@@ -21,7 +21,7 @@
 /* Begin PBXFileReference section */
 		A50276D223ECA81600F2ABF2 /* Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Bridging-Header.h"; sourceTree = "<group>"; };
 		A50276D323ECA93D00F2ABF2 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
-		A56F776C23D15C2900ACF08D /* NBA.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NBA.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A56F776C23D15C2900ACF08D /* authtest13.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = authtest13.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A56F776F23D15C2900ACF08D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		A56F777123D15C2900ACF08D /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		A56F777323D15C2900ACF08D /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -78,7 +78,7 @@
 		A56F776D23D15C2900ACF08D /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A56F776C23D15C2900ACF08D /* NBA.app */,
+				A56F776C23D15C2900ACF08D /* authtest13.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -104,9 +104,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		A56F776B23D15C2900ACF08D /* new-build-alerts-example */ = {
+		A56F776B23D15C2900ACF08D /* authtest13 */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A56F778023D15C2B00ACF08D /* Build configuration list for PBXNativeTarget "new-build-alerts-example" */;
+			buildConfigurationList = A56F778023D15C2B00ACF08D /* Build configuration list for PBXNativeTarget "authtest13" */;
 			buildPhases = (
 				EA4E12CF06CE9916A4926F31 /* [CP] Check Pods Manifest.lock */,
 				A56F776823D15C2900ACF08D /* Sources */,
@@ -117,9 +117,9 @@
 			);
 			dependencies = (
 			);
-			name = "new-build-alerts-example";
+			name = authtest13;
 			productName = authtest13;
-			productReference = A56F776C23D15C2900ACF08D /* NBA.app */;
+			productReference = A56F776C23D15C2900ACF08D /* authtest13.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -137,7 +137,7 @@
 					};
 				};
 			};
-			buildConfigurationList = A56F776723D15C2900ACF08D /* Build configuration list for PBXProject "new-build-alerts-example" */;
+			buildConfigurationList = A56F776723D15C2900ACF08D /* Build configuration list for PBXProject "authtest13" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -150,7 +150,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				A56F776B23D15C2900ACF08D /* new-build-alerts-example */,
+				A56F776B23D15C2900ACF08D /* authtest13 */,
 			);
 		};
 /* End PBXProject section */
@@ -354,8 +354,8 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = dev.firebase.appdistribution.test.nba;
-				PRODUCT_NAME = NBA;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.firebase.appdistribution.test.authtest13;
+				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "authtest13/Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -374,8 +374,8 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = dev.firebase.appdistribution.test.nba;
-				PRODUCT_NAME = NBA;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.firebase.appdistribution.test.authtest13;
+				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "authtest13/Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -385,7 +385,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		A56F776723D15C2900ACF08D /* Build configuration list for PBXProject "new-build-alerts-example" */ = {
+		A56F776723D15C2900ACF08D /* Build configuration list for PBXProject "authtest13" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A56F777E23D15C2B00ACF08D /* Debug */,
@@ -394,7 +394,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		A56F778023D15C2B00ACF08D /* Build configuration list for PBXNativeTarget "new-build-alerts-example" */ = {
+		A56F778023D15C2B00ACF08D /* Build configuration list for PBXNativeTarget "authtest13" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A56F778123D15C2B00ACF08D /* Debug */,
