@@ -25,7 +25,7 @@ class ViewController: UIViewController {
 
             uialert.addAction(UIAlertAction(title: "Update", style: UIAlertAction.Style.default) {
                 alert in
-                print(release.downloadURL)
+
                 UIApplication.shared.open(release.downloadURL)
             })
             uialert.addAction(UIAlertAction(title: "Cancel", style: UIAlertAction.Style.cancel) {
