@@ -54,6 +54,10 @@ if check_secrets; then
     if [[ -f "$PLIST_FILE" ]]; then
       cp $root_dir/Secrets/quickstart-ios/"$SAMPLE"/GoogleService-Info.plist ./
       cp $root_dir/Secrets/quickstart-ios/TestUtils/FIREGSignInInfo.h ../TestUtils/
+      if [[ ${SAMPLE} == "DynamicLinks" ]]; then
+        sed -i '' 's#DYNAMIC_LINK_DOMAIN#https://qpf6m.app.goo.gl#' DynamicLinksExample/DynamicLinksExample.entitlements
+        sed -i '' 's#YOUR_DOMAIN_URI_PREFIX";#https://qpf6m.app.goo.gl";#' DynamicLinksExample/ViewController.m
+      fi
     else
       cp ../mock-GoogleService-Info.plist ./GoogleService-Info.plist
     fi
