@@ -208,17 +208,6 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseDynamicLinks.podspec
 
     - stage: test
-      env:
-        - PROJECT=Messaging METHOD=pod-lib-lint QUICKSTART=messaging
-      before_install:
-        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
-      script:
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=ios
-        - travis_retry ./scripts/if_changed.sh ./scripts/test_quickstart.sh Messaging
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=tvos
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=macos
-
-    - stage: test
       osx_image: xcode10.3
       env:
         - PROJECT=Messaging METHOD=pod-lib-lint
@@ -269,14 +258,6 @@ jobs:
         - travis_retry  ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-modular-headers --platforms=ios
         - travis_retry  ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-modular-headers --platforms=tvos
         - travis_retry  ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-modular-headers --platforms=macos
-
-    - stage: test
-      env:
-        - PROJECT=Storage PLATFORM=all METHOD=xcodebuild QUICKSTART=storage
-      before_install:
-        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
-      script:
-        - travis_retry ./scripts/if_changed.sh ./scripts/test_quickstart.sh Storage
 
     - stage: test
       osx_image: xcode10.3
@@ -367,15 +348,6 @@ jobs:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
-
-    - stage: test
-      env:
-        - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild QUICKSTART=firestore
-      before_install:
-        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
-      script:
-        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
-        - travis_retry ./scripts/if_changed.sh ./scripts/test_quickstart.sh Firestore
 
     - stage: test
       osx_image: xcode10.3

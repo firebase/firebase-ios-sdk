@@ -5,6 +5,7 @@ on:
     paths:
     - 'FirebaseStorage**'
     - '.github/workflows/storage.yml'
+    - 'scripts/**'
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times
     - cron:  '0 7 * * *'
@@ -33,6 +34,25 @@ jobs:
     - name: Setup project and Build for Catalyst
       # Only run the unit tests on Catalyst
       run: scripts/test_catalyst.sh FirebaseStorage test FirebaseStorage-Unit-unit
+
+  quickstart:
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup quickstart
+      run: scripts/setup_quickstart.sh storage
+    - name: Install Secret GoogleService-Info.plist
+      env:
+         plist_secret: ${{ secrets.QsStoragePlistSecret }}
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-storage.plist.gpg \
+          quickstart-ios/storage/GoogleService-Info.plist "$plist_secret"
+    - name: Install Secret FIREGSignInInfo.h
+      env:
+         signin_secret: ${{ secrets.QsSignInSecret }}
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
+          quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
+    - name: Test quickstart
+      run: scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Storage
 
   pod-lib-lint:
     runs-on: macOS-latest

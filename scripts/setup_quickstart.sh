@@ -16,8 +16,17 @@
 # Script to run in a CI `before_install` phase to setup the quickstart repo
 # so that it can be used for integration testing.
 
-if [[ "$TRAVIS_PULL_REQUEST" == "false" ||
-      "$TRAVIS_PULL_REQUEST_SLUG" == "$TRAVIS_REPO_SLUG" ]]; then
+set -xeuo pipefail
+
+scripts_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+root_dir="$(dirname "$scripts_dir")"
+
+$scripts_dir/setup_bundler.sh
+
+# Source function to check if CI secrets are available.
+source $scripts_dir/check_secrets.sh
+
+if check_secrets; then
   SAMPLE=$1
 
   # Specify repo so the Firebase module and header can be found in a
@@ -25,18 +34,22 @@ if [[ "$TRAVIS_PULL_REQUEST" == "false" ||
   export FIREBASE_POD_REPO_FOR_DEV_POD=`pwd`
 
   git clone https://github.com/firebase/quickstart-ios.git
-  ./scripts/localize_podfile.swift quickstart-ios/"$SAMPLE"/Podfile
+  $scripts_dir/localize_podfile.swift quickstart-ios/"$SAMPLE"/Podfile
   cd quickstart-ios/"$SAMPLE"
 
   # To test a branch, uncomment the following line
   # git checkout {BRANCH_NAME}
 
+  bundle update --bundler
+  bundle install
   bundle exec pod install
-  TRAVIS_PULL_REQUEST="$TRAVIS_PULL_REQUEST" TRAVIS_PULL_REQUEST_SLUG=$"TRAVIS_PULL_REQUEST_SLUG" \
-    ../scripts/install_prereqs/"$SAMPLE".sh
+  ../scripts/install_prereqs/"$SAMPLE".sh
+
   # Secrets are repo specific, so we need to override with the firebase-ios-sdk
-  # version.
-  cp ../../Secrets/quickstart-ios/"$SAMPLE"/GoogleService-Info.plist ./
-  cp ../../Secrets/quickstart-ios/TestUtils/FIREGSignInInfo.h ../TestUtils/
+  # version. GHA manages the secrets in its action script.
+  if [[ -n "${TRAVIS_PULL_REQUEST:-}" ]]; then
+    cp $root_dir/Secrets/quickstart-ios/"$SAMPLE"/GoogleService-Info.plist ./
+    cp $root_dir/Secrets/quickstart-ios/TestUtils/FIREGSignInInfo.h ../TestUtils/
+  fi
   cd -
 fi
