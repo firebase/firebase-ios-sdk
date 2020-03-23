@@ -112,3 +112,7 @@ cloud-firestore-emulator.pid
 CocoaPodsIntegrationTest/**/Gemfile.lock
 CocoaPodsIntegrationTest/Gemfile
 CocoaPodsIntegrationTest/Podfile
+
+# In-app messaging integration tests
+FirebaseInAppMessaging/Tests/Integration/FunctionalTestApp/GoogleService-Info.plist
+FirebaseInAppMessaging/Tests/Integration/FunctionalTestApp/App/InAppMessaging-Example-iOS/AppDelegate.m
