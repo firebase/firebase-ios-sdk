@@ -91,6 +91,9 @@ binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseStorageBinary.jso
     - From the **Select a project or target** dropdown, select your main build target.
     - Select the **Build Phases** tab, then click "+" add > **New Run Script Phase**.
     - Paste the following into your new Run Script, replacing "scripts" with whatever you named your folder: `"${PROJECT_DIR}/scripts/run"`
+    - Add the following dependencies as **Input Files** to the Run Script:
+       - `${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}`
+       - `$(SRCROOT)/$(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)`
 
 ## Versioning
 
