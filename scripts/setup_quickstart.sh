@@ -49,9 +49,14 @@ if check_secrets; then
 
   # Secrets are repo specific, so we need to override with the firebase-ios-sdk
   # version. GHA manages the secrets in its action script.
+  PLIST_FILE=$root_dir/Secrets/quickstart-ios/"$SAMPLE"/GoogleService-Info.plist
   if [[ -n "${TRAVIS_PULL_REQUEST:-}" ]]; then
-    cp $root_dir/Secrets/quickstart-ios/"$SAMPLE"/GoogleService-Info.plist ./
-    cp $root_dir/Secrets/quickstart-ios/TestUtils/FIREGSignInInfo.h ../TestUtils/
+    if [[ -f "$PLIST_FILE" ]]; then
+      cp $root_dir/Secrets/quickstart-ios/"$SAMPLE"/GoogleService-Info.plist ./
+      cp $root_dir/Secrets/quickstart-ios/TestUtils/FIREGSignInInfo.h ../TestUtils/
+    else
+      cp ../mock-GoogleService-Info.plist ./GoogleService-Info.plist
+    fi
   fi
   cd -
 fi
