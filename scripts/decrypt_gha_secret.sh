@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Copyright 2020 Google
 #
@@ -24,5 +24,5 @@
 file="$1"
 output="$2"
 passphrase="$3"
-[ -z "$passphrase"] ||
-  gpg --quiet --batch --yes --decrypt --passphrase="$passphrase" --output "$output" "$file"
+[ -z "$passphrase" ] || \
+  gpg --quiet --batch --yes --decrypt --passphrase="$passphrase" --output $output "$file"
