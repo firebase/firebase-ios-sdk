@@ -343,7 +343,7 @@
 			attributes = {
 				LastSwiftUpdateCheck = 0830;
 				LastUpgradeCheck = 1130;
-				ORGANIZATIONNAME = "Yong Mao";
+				ORGANIZATIONNAME = Firebase;
 				TargetAttributes = {
 					AD811A2C1F13F88800BF632A = {
 						CreatedOnToolsVersion = 8.3.3;
@@ -663,6 +663,8 @@
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = EQHXZ8M8AV;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = YES;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"${PODS_ROOT}/../../../Firebase/InAppMessaging/\"/**",
@@ -691,6 +693,8 @@
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = EQHXZ8M8AV;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = YES;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"${PODS_ROOT}/../../../Firebase/InAppMessaging/\"/**",
