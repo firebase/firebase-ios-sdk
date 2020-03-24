@@ -77,12 +77,15 @@ typedef void (^GDTCCTIntegrationTestBlock)(NSURLSessionUploadTask *_Nullable);
       [session dataTaskWithURL:[NSURL URLWithString:@"https://google.com"]
              completionHandler:^(NSData *_Nullable data, NSURLResponse *_Nullable response,
                                  NSError *_Nullable error) {
-               dispatch_semaphore_signal(sema);
                if (error) {
                  self.okToRunTest = NO;
                } else {
                  self.okToRunTest = YES;
                }
+               self.transport = [[GDTCORTransport alloc] initWithMappingID:@"1018"
+                                                              transformers:nil
+                                                                    target:kGDTCORTargetCSH];
+               dispatch_semaphore_signal(sema);
              }];
   [task resume];
   dispatch_semaphore_wait(sema, dispatch_time(DISPATCH_TIME_NOW, 10.0 * NSEC_PER_SEC));
