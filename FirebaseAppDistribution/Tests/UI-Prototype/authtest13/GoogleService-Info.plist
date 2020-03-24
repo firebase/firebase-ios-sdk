@@ -19,17 +19,17 @@
 	<key>STORAGE_BUCKET</key>
 	<string>new-build-alerts-test.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
-	<false></false>
+	<false/>
 	<key>IS_ANALYTICS_ENABLED</key>
-	<false></false>
+	<false/>
 	<key>IS_APPINVITE_ENABLED</key>
-	<true></true>
+	<true/>
 	<key>IS_GCM_ENABLED</key>
-	<true></true>
+	<true/>
 	<key>IS_SIGNIN_ENABLED</key>
-	<true></true>
+	<true/>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:180603320033:ios:5d2240f61627d7b58f29a0</string>
+	<string>1:461235515410:ios:bcc2b167a9d6b3e0bfe8cb</string>
 	<key>DATABASE_URL</key>
 	<string>https://new-build-alerts-test.firebaseio.com</string>
 </dict>

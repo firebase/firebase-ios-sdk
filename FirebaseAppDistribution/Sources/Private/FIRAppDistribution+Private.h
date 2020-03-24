@@ -1,6 +1,3 @@
-//
-
-
 /*
  * Copyright 2018 Google
  *
@@ -17,6 +14,7 @@
  * limitations under the License.
  */
 
+#import <Foundation/Foundation.h>
 #import "FIRAppDistribution.h"
 #import <AppAuth/AppAuth.h>
 

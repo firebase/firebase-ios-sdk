@@ -1,19 +1,22 @@
-// Copyright 2019 Google
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+/*
+* Copyright 2019 Google
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #import "FIRAppDistribution.h"
 #import "FIRAppDistribution+Private.h"
+#import "FIRAppDistributionMachO.h"
 
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
@@ -32,14 +35,6 @@
 @interface FIRAppDistribution () <FIRLibrary, FIRAppDistributionInstanceProvider>
 @end
 
-@implementation FIRAppDistributionRelease
-- (instancetype)init {
-    self = [super init];
-    
-    return self;
-}
-@end
-
 @implementation FIRAppDistribution
 
 // The OAuth scope needed to authorize the App Distribution Tester API
@@ -47,6 +42,7 @@ NSString *const OIDScopeTesterAPI = @"https://www.googleapis.com/auth/cloud-plat
 
 // The App Distribution Tester API endpoint used to retrieve releases
 NSString *const ReleasesEndpointURL = @"https://firebaseapptesters.googleapis.com/v1alpha/devices/-/testerApps/%@/releases";
+NSString *const TesterAPIClientID = @"319754533822-osu3v3hcci24umq6diathdm0dipds1fb.apps.googleusercontent.com";
 
 @synthesize isTesterSignedIn = _isTesterSignedIn;
 
@@ -66,8 +62,11 @@ NSString *const ReleasesEndpointURL = @"https://firebaseapptesters.googleapis.co
         
         FIRAppDistributionAppDelegatorInterceptor *interceptor = [FIRAppDistributionAppDelegatorInterceptor sharedInstance];
         [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor];
-        
     }
+    
+    NSString* path = [[NSBundle mainBundle] executablePath];
+    FIRAppDistributionMachO* machO = [[FIRAppDistributionMachO alloc] initWithPath:path];
+    NSLog(@"Slices: %@", machO.slices);
     
     // TODO: Lookup keychain to load auth state on init
     _isTesterSignedIn = self.authState ? YES: NO;
@@ -133,10 +132,9 @@ NSString *const ReleasesEndpointURL = @"https://firebaseapptesters.googleapis.co
         
         NSString *redirectUrl = [@"dev.firebase.appdistribution." stringByAppendingString:[[[NSBundle mainBundle] bundleIdentifier] stringByAppendingString:@":/launch"]];
         
-        // builds authentication request
         OIDAuthorizationRequest *request =
         [[OIDAuthorizationRequest alloc] initWithConfiguration:configuration
-                                                      clientId:@"319754533822-osu3v3hcci24umq6diathdm0dipds1fb.apps.googleusercontent.com"
+                                                      clientId:TesterAPIClientID
                                                         scopes:@[OIDScopeOpenID,
                                                                  OIDScopeProfile,
                                                                  OIDScopeTesterAPI]
@@ -196,6 +194,7 @@ NSString *const ReleasesEndpointURL = @"https://firebaseapptesters.googleapis.co
             NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
 
             if (httpResponse.statusCode == 200) {
+                NSLog(@"Response Code: %ld", httpResponse.statusCode);
                 [self handleReleasesAPIResponseWithData:data completion:completion];
             } else {
                 NSLog(@"Error Response Code: %ld", httpResponse.statusCode);
@@ -210,9 +209,11 @@ NSString *const ReleasesEndpointURL = @"https://firebaseapptesters.googleapis.co
     [listReleasesDataTask resume];
 }
 
-- (void)handleReleasesAPIResponseWithData:data
+- (void)handleReleasesAPIResponseWithData:(NSData*)data
                                completion:(FIRAppDistributionUpdateCheckCompletion)completion {
     // TODO: Parse response from tester API, check instance identifier and maybe return a release
+      
+    NSLog(@"%@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
     
     // Ensure we dispatch on the main thread to allow any UI to update
     dispatch_async(dispatch_get_main_queue(), ^{
