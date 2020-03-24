@@ -238,9 +238,7 @@
       }
       lastWriteId = writeId;
       self.writeIdCounter = writeId + 1;
-      id<FNode> existing =
-          [self.serverSyncTree calcCompleteEventCacheAtPath:write.path
-                                            excludeWriteIds:@[]];
+
       if ([write isOverwrite]) {
           FFLog(@"I-RDB038001", @"Restoring overwrite with id %ld",
                 (long)write.writeId);
@@ -250,7 +248,8 @@
                       withCallback:callback];
           id<FNode> resolved =
               [FServerValues resolveDeferredValueSnapshot:write.overwrite
-                                             withExisting:existing
+                                             withSyncTree:self.serverSyncTree
+                                                   atPath:write.path
                                              serverValues:serverValues];
           [self.serverSyncTree applyUserOverwriteAtPath:write.path
                                                 newData:resolved
@@ -262,10 +261,11 @@
           [self.connection mergeData:[write.merge valForExport:YES]
                              forPath:[write.path toString]
                         withCallback:callback];
-          FCompoundWrite *resolved =
-              [FServerValues resolveDeferredValueCompoundWrite:write.merge
-                                                  withExisting:existing
-                                                  serverValues:serverValues];
+          FCompoundWrite *resolved = [FServerValues
+              resolveDeferredValueCompoundWrite:write.merge
+                                   withSyncTree:self.serverSyncTree
+                                         atPath:write.path
+                                   serverValues:serverValues];
           [self.serverSyncTree applyUserMergeAtPath:write.path
                                     changedChildren:resolved
                                             writeId:writeId];
@@ -366,11 +366,10 @@
           [values description]);
     NSDictionary *serverValues =
         [FServerValues generateServerValues:self.serverClock];
-    id<FNode> existing = [self.serverSyncTree calcCompleteEventCacheAtPath:path
-                                                           excludeWriteIds:@[]];
     FCompoundWrite *resolved =
         [FServerValues resolveDeferredValueCompoundWrite:nodes
-                                            withExisting:existing
+                                            withSyncTree:self.serverSyncTree
+                                                  atPath:path
                                             serverValues:serverValues];
 
     if (!resolved.isEmpty) {

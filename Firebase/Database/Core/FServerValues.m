@@ -38,12 +38,77 @@ BOOL canBeRepresentedAsLong(NSNumber *num) {
     return YES;
 }
 
+// Running through CompoundWrites for all update paths has been shown to
+// be a 20% pessimization in microbenchmarks. This is because it slows
+// down by O(N) of the write queue length. To eliminate the performance
+// hit, we wrap around existing data of either snapshot or CompoundWrite
+// (allowing us to share code) and read from the CompoundWrite only when/where
+// we need to calculate an incremented value's prior state.
+@protocol JITExistingValue <NSObject>
+- (id<JITExistingValue>)getChild:(NSString *)pathSegment;
+- (id<FNode>)value;
+@end
+
+@interface JITExistingValueSyncTree : NSObject <JITExistingValue>
+- (instancetype)initWithSyncTree:(FSyncTree *)tree atPath:(FPath *)path;
+- (id<JITExistingValue>)getChild:(NSString *)pathSegment;
+- (id<FNode>)value;
+@property FPath *path;
+@property FSyncTree *tree;
+@end
+
+@interface JITExistingValueSnapshot : NSObject <JITExistingValue>
+- (instancetype)initWithSnapshot:(id<FNode>)snapshot;
+- (id<JITExistingValue>)getChild:(NSString *)pathSegment;
+- (id<FNode>)value;
+@property id<FNode> snapshot;
+@end
+
+@implementation JITExistingValueSyncTree
+- (instancetype)initWithSyncTree:(FSyncTree *)tree atPath:(FPath *)path {
+    self.tree = tree;
+    self.path = path;
+    return self;
+}
+
+- (id<JITExistingValue>)getChild:(NSString *)pathSegment {
+    FPath *child = [self.path childFromString:pathSegment];
+    return [[JITExistingValueSyncTree alloc] initWithSyncTree:self.tree
+                                                       atPath:child];
+}
+
+- (id<FNode>)value {
+    return [self.tree calcCompleteEventCacheAtPath:self.path
+                                   excludeWriteIds:@[]];
+}
+@end
+
+@implementation JITExistingValueSnapshot
+- (instancetype)initWithSnapshot:(id<FNode>)snapshot {
+    self.snapshot = snapshot;
+    return self;
+}
+
+- (id<JITExistingValue>)getChild:(NSString *)pathSegment {
+    return [[JITExistingValueSnapshot alloc]
+        initWithSnapshot:[self.snapshot getImmediateChild:pathSegment]];
+}
+
+- (id<FNode>)value {
+    return self.snapshot.val;
+}
+@end
+
 @interface FServerValues ()
 + (id)resolveScalarServerOp:(NSString *)op
            withServerValues:(NSDictionary *)serverValues;
 + (id)resolveComplexServerOp:(NSDictionary *)op
-                withExisting:(id<FNode>)existing
+                withExisting:(id<JITExistingValue>)existing
                 serverValues:(NSDictionary *)serverValues;
++ (id<FNode>)resolveDeferredValueSnapshot:(id<FNode>)node
+                          withJITExisting:(id<JITExistingValue>)existing
+                             serverValues:(NSDictionary *)serverValues;
+
 @end
 
 @implementation FServerValues
@@ -54,7 +119,7 @@ BOOL canBeRepresentedAsLong(NSNumber *num) {
 }
 
 + (id)resolveDeferredValue:(id)val
-              withExisting:(id<FNode>)existing
+              withExisting:(id<JITExistingValue>)existing
               serverValues:(NSDictionary *)serverValues {
     if (![val isKindOfClass:[NSDictionary class]]) {
         return val;
@@ -81,7 +146,7 @@ BOOL canBeRepresentedAsLong(NSNumber *num) {
 }
 
 + (id)resolveComplexServerOp:(NSDictionary *)op
-                withExisting:(id<FNode>)existing
+                withExisting:(id<JITExistingValue>)jitExisting
                 serverValues:(NSDictionary *)serverValues {
     // Only increment is supported as of now
     if (op[kIncrement] == nil) {
@@ -90,6 +155,7 @@ BOOL canBeRepresentedAsLong(NSNumber *num) {
 
     // Incrementing a non-number sets the value to the incremented amount
     NSNumber *delta = op[kIncrement];
+    id<FNode> existing = jitExisting.value;
     if (![existing isLeafNode]) {
         return delta;
     }
@@ -117,14 +183,18 @@ BOOL canBeRepresentedAsLong(NSNumber *num) {
 }
 
 + (FCompoundWrite *)resolveDeferredValueCompoundWrite:(FCompoundWrite *)write
-                                         withExisting:(id<FNode>)existing
+                                         withSyncTree:(FSyncTree *)tree
+                                               atPath:(FPath *)path
                                          serverValues:
                                              (NSDictionary *)serverValues {
     __block FCompoundWrite *resolved = write;
-    [write enumerateWrites:^(FPath *path, id<FNode> node, BOOL *stop) {
+    [write enumerateWrites:^(FPath *subPath, id<FNode> node, BOOL *stop) {
+      id<JITExistingValue> existing = [[JITExistingValueSyncTree alloc]
+          initWithSyncTree:tree
+                    atPath:[path child:subPath]];
       id<FNode> resolvedNode =
           [FServerValues resolveDeferredValueSnapshot:node
-                                         withExisting:existing
+                                      withJITExisting:existing
                                          serverValues:serverValues];
       // Node actually changed, use pointer inequality here
       if (resolvedNode != node) {
@@ -134,32 +204,33 @@ BOOL canBeRepresentedAsLong(NSNumber *num) {
     return resolved;
 }
 
-+ (id)resolveDeferredValueTree:(FSparseSnapshotTree *)tree
-                  withExisting:(id<FNode>)existing
-                  serverValues:(NSDictionary *)serverValues {
-    FSparseSnapshotTree *resolvedTree = [[FSparseSnapshotTree alloc] init];
-    [tree
-        forEachTreeAtPath:[FPath empty]
-                       do:^(FPath *path, id<FNode> node) {
-                         [resolvedTree
-                             rememberData:
-                                 [FServerValues
-                                     resolveDeferredValueSnapshot:node
-                                                     withExisting:
-                                                         [existing
-                                                             getChild:path]
-                                                     serverValues:serverValues]
-                                   onPath:path];
-                       }];
-    return resolvedTree;
++ (id<FNode>)resolveDeferredValueSnapshot:(id<FNode>)node
+                             withSyncTree:(FSyncTree *)tree
+                                   atPath:(FPath *)path
+                             serverValues:(NSDictionary *)serverValues {
+    id<JITExistingValue> jitExisting =
+        [[JITExistingValueSyncTree alloc] initWithSyncTree:tree atPath:path];
+    return [FServerValues resolveDeferredValueSnapshot:node
+                                       withJITExisting:jitExisting
+                                          serverValues:serverValues];
 }
 
 + (id<FNode>)resolveDeferredValueSnapshot:(id<FNode>)node
                              withExisting:(id<FNode>)existing
                              serverValues:(NSDictionary *)serverValues {
+    id<JITExistingValue> jitExisting =
+        [[JITExistingValueSnapshot alloc] initWithSnapshot:existing];
+    return [FServerValues resolveDeferredValueSnapshot:node
+                                       withJITExisting:jitExisting
+                                          serverValues:serverValues];
+}
+
++ (id<FNode>)resolveDeferredValueSnapshot:(id<FNode>)node
+                          withJITExisting:(id<JITExistingValue>)existing
+                             serverValues:(NSDictionary *)serverValues {
     id priorityVal =
         [FServerValues resolveDeferredValue:[[node getPriority] val]
-                               withExisting:existing.getPriority
+                               withExisting:[existing getChild:@".priority"]
                                serverValues:serverValues];
     id<FNode> priority = [FSnapshotUtilities nodeFrom:priorityVal];
 
@@ -184,7 +255,7 @@ BOOL canBeRepresentedAsLong(NSNumber *num) {
                                             id<FNode> childNode, BOOL *stop) {
           id newChildNode = [FServerValues
               resolveDeferredValueSnapshot:childNode
-                              withExisting:[existing getImmediateChild:childKey]
+                           withJITExisting:[existing getChild:childKey]
                               serverValues:serverValues];
           if (![newChildNode isEqual:childNode]) {
               newNode = [newNode updateImmediateChild:childKey
