@@ -25,4 +25,4 @@ file="$1"
 output="$2"
 passphrase="$3"
 [ -z "$passphrase" ] || \
-  gpg --quiet --batch --yes --decrypt --passphrase="$passphrase" --output "$output" "$file"
+  gpg --quiet --batch --yes --decrypt --passphrase="$passphrase" --output $output "$file"
