@@ -53,5 +53,4 @@ message FilesPayload {
   }
 
   repeated File files = 1;
-  string org_id = 2;
 }

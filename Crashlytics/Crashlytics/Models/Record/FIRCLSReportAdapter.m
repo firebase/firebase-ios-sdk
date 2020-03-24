@@ -28,14 +28,11 @@
 
 @implementation FIRCLSReportAdapter
 
-- (instancetype)initWithPath:(NSString *)folderPath
-                 googleAppId:(NSString *)googleAppID
-                       orgId:(NSString *)orgID {
+- (instancetype)initWithPath:(NSString *)folderPath googleAppId:(NSString *)googleAppID {
   self = [super init];
   if (self) {
     _folderPath = folderPath;
     _googleAppID = googleAppID;
-    _orgID = orgID;
 
     [self loadMetaDataFile];
 
@@ -175,7 +172,6 @@
 
   apple_payload.files = files;
   apple_payload.files_count = (pb_size_t)clsRecords.count;
-  apple_payload.org_id = FIRCLSEncodeString(self.orgID);
 
   return apple_payload;
 }

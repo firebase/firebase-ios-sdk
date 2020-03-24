@@ -42,7 +42,6 @@ typedef enum _google_crashlytics_Platforms {
 typedef struct _google_crashlytics_FilesPayload {
     pb_size_t files_count;
     struct _google_crashlytics_FilesPayload_File *files;
-    pb_bytes_array_t *org_id;
 /* @@protoc_insertion_point(struct:google_crashlytics_FilesPayload) */
 } google_crashlytics_FilesPayload;
 
@@ -67,15 +66,14 @@ typedef struct _google_crashlytics_Report {
 
 /* Initializer values for message structs */
 #define google_crashlytics_Report_init_default   {NULL, NULL, _google_crashlytics_Platforms_MIN, NULL, NULL, NULL, google_crashlytics_FilesPayload_init_default}
-#define google_crashlytics_FilesPayload_init_default {0, NULL, NULL}
+#define google_crashlytics_FilesPayload_init_default {0, NULL}
 #define google_crashlytics_FilesPayload_File_init_default {NULL, NULL}
 #define google_crashlytics_Report_init_zero      {NULL, NULL, _google_crashlytics_Platforms_MIN, NULL, NULL, NULL, google_crashlytics_FilesPayload_init_zero}
-#define google_crashlytics_FilesPayload_init_zero {0, NULL, NULL}
+#define google_crashlytics_FilesPayload_init_zero {0, NULL}
 #define google_crashlytics_FilesPayload_File_init_zero {NULL, NULL}
 
 /* Field tags (for use in manual encoding/decoding) */
 #define google_crashlytics_FilesPayload_files_tag 1
-#define google_crashlytics_FilesPayload_org_id_tag 2
 #define google_crashlytics_FilesPayload_File_filename_tag 1
 #define google_crashlytics_FilesPayload_File_contents_tag 2
 #define google_crashlytics_Report_sdk_version_tag 1
@@ -88,7 +86,7 @@ typedef struct _google_crashlytics_Report {
 
 /* Struct field encoding specification for nanopb */
 extern const pb_field_t google_crashlytics_Report_fields[8];
-extern const pb_field_t google_crashlytics_FilesPayload_fields[3];
+extern const pb_field_t google_crashlytics_FilesPayload_fields[2];
 extern const pb_field_t google_crashlytics_FilesPayload_File_fields[3];
 
 /* Maximum encoded size of messages (where known) */
