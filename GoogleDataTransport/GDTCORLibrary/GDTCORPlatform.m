@@ -246,12 +246,12 @@ id<NSSecureCoding> _Nullable GDTCORDecodeArchive(Class archiveClass,
 @implementation GDTCORApplication
 
 /** A dispatch queue on which all task semaphore will populate and remove from
- * sBackgroundIdentifierToSemaphoreMap.
+ * gBackgroundIdentifierToSemaphoreMap.
  */
-static dispatch_queue_t sSemaphoreQueue;
+static dispatch_queue_t gSemaphoreQueue;
 
 /** For mapping backgroundIdentifier to task semaphore. */
-static NSMutableDictionary<NSNumber *, dispatch_semaphore_t> *sBackgroundIdentifierToSemaphoreMap;
+static NSMutableDictionary<NSNumber *, dispatch_semaphore_t> *gBackgroundIdentifierToSemaphoreMap;
 
 + (void)load {
   GDTCORLogDebug(
@@ -271,12 +271,12 @@ static NSMutableDictionary<NSNumber *, dispatch_semaphore_t> *sBackgroundIdentif
 #if TARGET_OS_WATCH
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
-    sSemaphoreQueue = dispatch_queue_create("com.google.GDTCORApplication", DISPATCH_QUEUE_SERIAL);
+    gSemaphoreQueue = dispatch_queue_create("com.google.GDTCORApplication", DISPATCH_QUEUE_SERIAL);
     GDTCORLogDebug(
-        @"GDTCORApplication is initializing on watchOS, sSemaphoreQueue has been initialized.");
-    sBackgroundIdentifierToSemaphoreMap = [[NSMutableDictionary alloc] init];
+        @"GDTCORApplication is initializing on watchOS, gSemaphoreQueue has been initialized.");
+    gBackgroundIdentifierToSemaphoreMap = [[NSMutableDictionary alloc] init];
     GDTCORLogDebug(@"GDTCORApplication is initializing on watchOS, "
-                   @"sBackgroundIdentifierToSemaphoreMap has been initialized.");
+                   @"gBackgroundIdentifierToSemaphoreMap has been initialized.");
   });
 #endif
 }
@@ -368,15 +368,17 @@ static NSMutableDictionary<NSNumber *, dispatch_semaphore_t> *sBackgroundIdentif
 + (GDTCORBackgroundIdentifier)createAndMapBackgroundIdentifierToSemaphore:
     (dispatch_semaphore_t)semaphore {
   __block GDTCORBackgroundIdentifier bgID = GDTCORBackgroundIdentifierInvalid;
-  dispatch_queue_t queue = sSemaphoreQueue;
-  NSMutableDictionary<NSNumber *, dispatch_semaphore_t> *map = sBackgroundIdentifierToSemaphoreMap;
+  dispatch_queue_t queue = gSemaphoreQueue;
+  NSMutableDictionary<NSNumber *, dispatch_semaphore_t> *map = gBackgroundIdentifierToSemaphoreMap;
   if (queue && map) {
     dispatch_sync(queue, ^{
       bgID = arc4random();
-      while (bgID == GDTCORBackgroundIdentifierInvalid || map[@(bgID)]) {
+      NSNumber *bgIDNumber = @(bgID);
+      while (bgID == GDTCORBackgroundIdentifierInvalid || map[bgIDNumber]) {
         bgID = arc4random();
+        bgIDNumber = @(bgID);
       }
-      map[@(bgID)] = semaphore;
+      map[bgIDNumber] = semaphore;
     });
   }
   return bgID;
@@ -389,12 +391,13 @@ static NSMutableDictionary<NSNumber *, dispatch_semaphore_t> *sBackgroundIdentif
  */
 + (dispatch_semaphore_t)semaphoreForBackgroundIdentifier:(GDTCORBackgroundIdentifier)bgID {
   __block dispatch_semaphore_t semaphore;
-  dispatch_queue_t queue = sSemaphoreQueue;
-  NSMutableDictionary<NSNumber *, dispatch_semaphore_t> *map = sBackgroundIdentifierToSemaphoreMap;
+  dispatch_queue_t queue = gSemaphoreQueue;
+  NSMutableDictionary<NSNumber *, dispatch_semaphore_t> *map = gBackgroundIdentifierToSemaphoreMap;
+  NSNumber *bgIDNumber = @(bgID);
   if (queue && map) {
     dispatch_sync(queue, ^{
-      semaphore = map[@(bgID)];
-      [map removeObjectForKey:@(bgID)];
+      semaphore = map[bgIDNumber];
+      [map removeObjectForKey:bgIDNumber];
     });
   }
   return semaphore;
@@ -428,9 +431,11 @@ static NSMutableDictionary<NSNumber *, dispatch_semaphore_t> *sBackgroundIdentif
                                  GDTCORLogDebug(
                                      @"Activity with name:%@ bgID:%ld on watchOS is expiring.",
                                      name, (long)bgID);
+                               } else {
+                                 dispatch_semaphore_wait(
+                                     semaphore,
+                                     dispatch_time(DISPATCH_TIME_NOW, 30 * NSEC_PER_SEC));
                                }
-                               dispatch_semaphore_wait(
-                                   semaphore, dispatch_time(DISPATCH_TIME_NOW, 30 * NSEC_PER_SEC));
                              }];
 #endif
   return bgID;
