@@ -22,8 +22,20 @@ jobs:
       run: ./scripts/setup_bundler.sh
     - name: PodLibLint DataTransport
       run: |
-        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=${{ matrix.target }}
-        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=${{ matrix.target }}
+        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=${{ matrix.target }}
+        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=${{ matrix.target }}
+
+  catalyst:
+    runs-on: macOS-latest
+    strategy:
+      matrix:
+        pod: [GoogleDataTransport, GoogleDataTransportCCTSupport]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Setup project and Test Catalyst
+      run: scripts/third_party/travis/retry.sh scripts/test_catalyst.sh ${{ matrix.pod }} test
 
   catalyst:
     runs-on: macOS-latest
@@ -56,5 +68,5 @@ jobs:
       run: ./scripts/setup_bundler.sh
     - name: PodLibLint DataTransport Cron
       run: |
-        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
-        ./scripts/third_party/travis/retry.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
+        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
+        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}

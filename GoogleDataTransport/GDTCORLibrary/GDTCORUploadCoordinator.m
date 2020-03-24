@@ -242,7 +242,7 @@ static NSString *const ktargetToInFlightPackagesKey =
         [prioritizer packageDelivered:package successful:successful];
       }
     }
-    if (package.events != nil) {
+    if (successful && package.events) {
       [self.storage removeEvents:package.events];
     }
   });

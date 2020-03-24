@@ -26,9 +26,9 @@ namespace local {
 TEST(LevelDbUtilTest, ConvertsStatus) {
   EXPECT_EQ(util::Status::OK(), ConvertStatus(leveldb::Status::OK()));
 
-  EXPECT_EQ(Error::NotFound,
+  EXPECT_EQ(Error::kNotFound,
             ConvertStatus(leveldb::Status::NotFound("")).code());
-  EXPECT_EQ(Error::Unavailable,
+  EXPECT_EQ(Error::kUnavailable,
             ConvertStatus(leveldb::Status::IOError("")).code());
 }
 
