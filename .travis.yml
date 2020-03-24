@@ -59,7 +59,7 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=ABTesting METHOD=pod-lib-lint QUICKSTART=abtesting
+        - PROJECT=ABTesting METHOD=pod-lib-lint QUICKSTART=ABtesting
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
@@ -90,7 +90,7 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=Auth PLATFORM=iOS METHOD=xcodebuild QUICKSTART=authentication
+        - PROJECT=Auth PLATFORM=iOS METHOD=xcodebuild QUICKSTART=Authentication
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
@@ -160,7 +160,7 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=Database PLATFORM=all METHOD=xcodebuild QUICKSTART=database
+        - PROJECT=Database PLATFORM=all METHOD=xcodebuild QUICKSTART=Database
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
@@ -194,7 +194,7 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=DynamicLinks METHOD=pod-lib-lint QUICKSTART=dynamiclinks
+        - PROJECT=DynamicLinks METHOD=pod-lib-lint QUICKSTART=DynamicLinks
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
@@ -231,7 +231,7 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=RemoteConfig METHOD=pod-lib-lint QUICKSTART=config
+        - PROJECT=RemoteConfig METHOD=pod-lib-lint QUICKSTART=Config
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
@@ -280,7 +280,7 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=Functions METHOD=pod-lib-lint QUICKSTART=functions
+        - PROJECT=Functions METHOD=pod-lib-lint QUICKSTART=Functions
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh # Start integration test server
       script:
@@ -503,7 +503,7 @@ jobs:
         - PROJECT=Installations PLATFORM=iOS METHOD=pod-lib-lint
         - FIS_ALLOWS_INCOMPATIBLE_IID_VERSION=1
         - FIS_INTEGRATION_TESTS_REQUIRED=$(if [[ "$TRAVIS_PULL_REQUEST" == "false" || "$TRAVIS_PULL_REQUEST_SLUG" == "$TRAVIS_REPO_SLUG" ]]; then echo "1"; else echo "0"; fi)
-        - QUICKSTART=installations
+        - QUICKSTART=Installations
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
