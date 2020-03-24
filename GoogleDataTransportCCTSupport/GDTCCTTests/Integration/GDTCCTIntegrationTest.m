@@ -71,17 +71,21 @@ typedef void (^GDTCCTIntegrationTestBlock)(NSURLSessionUploadTask *_Nullable);
   // Don't recursively generate events by default.
   self.generateEvents = NO;
   self.totalEventsGenerated = 0;
-  SCNetworkReachabilityRef reachabilityRef =
-      SCNetworkReachabilityCreateWithName(CFAllocatorGetDefault(), "https://google.com");
-  SCNetworkReachabilityFlags flags;
-  Boolean success = SCNetworkReachabilityGetFlags(reachabilityRef, &flags);
-  if (success) {
-    self.okToRunTest =
-        (flags & kSCNetworkReachabilityFlagsReachable) == kSCNetworkReachabilityFlagsReachable;
-    self.transport = [[GDTCORTransport alloc] initWithMappingID:@"1018"
-                                                   transformers:nil
-                                                         target:kGDTCORTargetCSH];
-  }
+  dispatch_semaphore_t sema = dispatch_semaphore_create(0);
+  NSURLSession *session = [NSURLSession sharedSession];
+  NSURLSessionDataTask *task =
+      [session dataTaskWithURL:[NSURL URLWithString:@"https://google.com"]
+             completionHandler:^(NSData *_Nullable data, NSURLResponse *_Nullable response,
+                                 NSError *_Nullable error) {
+               dispatch_semaphore_signal(sema);
+               if (error) {
+                 self.okToRunTest = NO;
+               } else {
+                 self.okToRunTest = YES;
+               }
+             }];
+  [task resume];
+  dispatch_semaphore_wait(sema, dispatch_time(DISPATCH_TIME_NOW, 10.0 * NSEC_PER_SEC));
 }
 
 - (void)tearDown {
@@ -158,6 +162,10 @@ typedef void (^GDTCCTIntegrationTestBlock)(NSURLSessionUploadTask *_Nullable);
 }
 
 - (void)testRunsWithoutCrashing {
+  if (!self.okToRunTest) {
+    NSLog(@"Skipping the integration test, as the network conditions weren't good enough.");
+    return;
+  }
   // Just run for a minute whilst generating events.
   NSInteger secondsToRun = 65;
   self.generateEvents = YES;
