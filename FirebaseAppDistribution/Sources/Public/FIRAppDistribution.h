@@ -24,11 +24,11 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(AppDistributionRelease)
 @interface FIRAppDistributionRelease : NSObject
 
-// The build number of this build (example: 123)
-@property(nonatomic, copy) NSString *buildVersion;
-
 // The short bundle version of this build (example 1.0.0)
 @property(nonatomic, copy) NSString *displayVersion;
+
+// The build number of this build (example: 123)
+@property(nonatomic, copy) NSString *buildVersion;
 
 // The release notes for this build
 @property(nonatomic, copy) NSString *releaseNotes;
