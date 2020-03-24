@@ -44,9 +44,8 @@ jobs:
     - name: Install Secret GoogleService-Info.plist
       env:
          plist_secret: ${{ secrets.QsStoragePlistSecret }}
-      if: plist_secret
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-storage.plist.gpg \
-          quickstart-ios/storage/GoogleService-Info.plist "$plist_secret"
+      run: ([ -z "$plist_secret" ] || scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-storage.plist.gpg \
+          quickstart-ios/storage/GoogleService-Info.plist "$plist_secret")
     - name: Install Secret FIREGSignInInfo.h
       env:
          signin_secret: ${{ secrets.QsSignInSecret }}
