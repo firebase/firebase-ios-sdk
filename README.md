@@ -80,14 +80,14 @@ but must be taken into account if Firebase is used from another library or a fra
 The key difference is in the way static and dynamic linking works. Your framework itself may
 be either static or dynamic. Let's consider these two options in more details.
 
-#### Using Firebase SDKs in from dynamic framework
+#### Using Firebase SDKs from dynamic framework
 
-When a dynamic framework/library is compiled each static dependency symbols
+When a dynamic framework/library is compiled, each static dependency symbols
 are added to the dynamic framework binary. It is not really important unless you need to
-use both the dynamic framework and one of its static dependencies directly in you app. In this case if you attempt to link
+use both the dynamic framework and one of its static dependencies directly in your app or another framework. In this case if you attempt to link
 the same static framework/library to both the app and the dynamic framework you will end up with the static framework symbols added to both the app and the dynamic framework binaries. It means that when you app launches
-it will have 2 copy of the static framework symbols. This leads to undefined behavior (especially when
-different versions of the static framework are linking to the app and the dynamic framework).
+it will have two copy of the static framework symbols. This leads to undefined behavior (especially when
+different versions of the static framework are linking to the app and the dynamic framework). For example, a `dispatch_once` may or may not do the right initialization since there are now two entities to initialize.
 
 See also [Using dynamic framework which is linked with static framework](https://forums.developer.apple.com/thread/105062#319818).
 
@@ -97,12 +97,12 @@ See also [Using dynamic framework which is linked with static framework](https:/
 
 **Conclusions:**
 
-- Firebase SDKs should never be used from in vendor dynamic frameworks because the version of Firebase compiled into
-  the dynamic framework will early or later conflict with the customer Firebase version.
 - Firebase may be used from an embedded dynamic framework in your project (e.g. for the code reuse purposes)
   only when Firebase is not used from the app directly.
+- Firebase SDKs should never be used from vendor dynamic frameworks because the version of Firebase compiled into
+  the dynamic framework will early or later conflict with the customer Firebase version.
 
-#### Using Firebase SDKs in from static framework/library
+#### Using Firebase SDKs from static framework/library
 
 When a static framework/library is compiled it is not required to add any static or dynamic dependencies to the binary
 because presence of the dependencies will be done when the app binary is compiled.
@@ -116,7 +116,7 @@ It doesn't lead to any symbol collisions, but it leads to increasing the downloa
 
 **Conclusions:**
 
-- using Firebase SDKs in static frameworks/libraries is safe for both vendor and in-app internal libraries
+- Firebase SDKs in static frameworks/libraries is safe for both vendor and in-app internal libraries
 - if the static framework is used from an app and its extensions,
   then it will be copied to each target increasing the app download size.
 
