@@ -237,6 +237,14 @@ id<NSSecureCoding> _Nullable GDTCORDecodeArchive(Class archiveClass,
 
 @implementation GDTCORApplication
 
+/** A dispatch queue on which all task semaphore will populate and remove from
+ * sBackgroundIdentifierToSemaphoreMap.
+ */
+static dispatch_queue_t sSemaphoreQueue;
+
+/** For mapping backgroundIdentifier to task semaphore. */
+static NSMutableDictionary<NSNumber *, dispatch_semaphore_t> *sBackgroundIdentifierToSemaphoreMap;
+
 + (void)load {
   GDTCORLogDebug(
       "%@", @"GDT is initializing. Please note that if you quit the app via the "
@@ -249,6 +257,20 @@ id<NSSecureCoding> _Nullable GDTCORDecodeArchive(Class archiveClass,
       @"GDTCORBackgroundIdentifierInvalid and UIBackgroundTaskInvalid should be the same.");
 #endif
   [self sharedApplication];
+}
+
++ (void)initialize {
+#if TARGET_OS_WATCH
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    sSemaphoreQueue = dispatch_queue_create("com.google.GDTCORApplication", DISPATCH_QUEUE_SERIAL);
+    GDTCORLogDebug(
+        @"GDTCORApplication is initializing on watchOS, sSemaphoreQueue has been initialized.");
+    sBackgroundIdentifierToSemaphoreMap = [[NSMutableDictionary alloc] init];
+    GDTCORLogDebug(@"GDTCORApplication is initializing on watchOS, "
+                   @"sBackgroundIdentifierToSemaphoreMap has been initialized.");
+  });
+#endif
 }
 
 + (nullable GDTCORApplication *)sharedApplication {
@@ -330,29 +352,99 @@ id<NSSecureCoding> _Nullable GDTCORDecodeArchive(Class archiveClass,
   return self;
 }
 
+/** Generates and maps a unique background identifier to the given semaphore.
+ *
+ * @param semaphore The semaphore to map.
+ * @return A unique GDTCORBackgroundIdentifier mapped to the given semaphore.
+ */
++ (GDTCORBackgroundIdentifier)createAndMapBackgroundIdentifierToSemaphore:
+    (dispatch_semaphore_t)semaphore {
+  __block GDTCORBackgroundIdentifier bgID = GDTCORBackgroundIdentifierInvalid;
+  dispatch_queue_t queue = sSemaphoreQueue;
+  NSMutableDictionary<NSNumber *, dispatch_semaphore_t> *map = sBackgroundIdentifierToSemaphoreMap;
+  if (queue && map) {
+    dispatch_sync(queue, ^{
+      bgID = arc4random();
+      while (bgID == GDTCORBackgroundIdentifierInvalid || map[@(bgID)]) {
+        bgID = arc4random();
+      }
+      map[@(bgID)] = semaphore;
+    });
+  }
+  return bgID;
+}
+
+/** Returns the semaphore mapped to given bgID and removes the value from the map.
+ *
+ * @param bgID The unique NSUInteger as GDTCORBackgroundIdentifier.
+ * @return The semaphore mapped by given bgID.
+ */
++ (dispatch_semaphore_t)semaphoreForBackgroundIdentifier:(GDTCORBackgroundIdentifier)bgID {
+  __block dispatch_semaphore_t semaphore;
+  dispatch_queue_t queue = sSemaphoreQueue;
+  NSMutableDictionary<NSNumber *, dispatch_semaphore_t> *map = sBackgroundIdentifierToSemaphoreMap;
+  if (queue && map) {
+    dispatch_sync(queue, ^{
+      semaphore = map[@(bgID)];
+      [map removeObjectForKey:@(bgID)];
+    });
+  }
+  return semaphore;
+}
+
 - (GDTCORBackgroundIdentifier)beginBackgroundTaskWithName:(NSString *)name
                                         expirationHandler:(void (^)(void))handler {
+  __block GDTCORBackgroundIdentifier bgID = GDTCORBackgroundIdentifierInvalid;
 #if !TARGET_OS_WATCH
-  GDTCORBackgroundIdentifier bgID =
-      [[self sharedApplicationForBackgroundTask] beginBackgroundTaskWithName:name
-                                                           expirationHandler:handler];
+  bgID = [[self sharedApplicationForBackgroundTask] beginBackgroundTaskWithName:name
+                                                              expirationHandler:handler];
 #if !NDEBUG
   if (bgID != GDTCORBackgroundIdentifierInvalid) {
-    GDTCORLogDebug("Creating background task with name:%@ bgID:%ld", name, (long)bgID);
+    GDTCORLogDebug("Creating background task with name:%@ bgID:%ld.", name, (long)bgID);
   }
 #endif  // !NDEBUG
+#elif TARGET_OS_WATCH
+  dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+  bgID = [GDTCORApplication createAndMapBackgroundIdentifierToSemaphore:semaphore];
+  if (bgID != GDTCORBackgroundIdentifierInvalid) {
+    GDTCORLogDebug(@"Creating activity with name:%@ bgID:%ld on watchOS.", name, (long)bgID);
+  }
+  [[self sharedNSProcessInfoForBackgroundTask]
+      performExpiringActivityWithReason:name
+                             usingBlock:^(BOOL expired) {
+                               if (expired) {
+                                 if (handler) {
+                                   handler();
+                                 }
+                                 dispatch_semaphore_signal(semaphore);
+                                 GDTCORLogDebug(
+                                     @"Activity with name:%@ bgID:%ld on watchOS is expiring.",
+                                     name, (long)bgID);
+                               }
+                               dispatch_semaphore_wait(
+                                   semaphore, dispatch_time(DISPATCH_TIME_NOW, 30 * NSEC_PER_SEC));
+                             }];
+#endif
   return bgID;
-#endif  // !TARGET_OS_WATCH
-  // TODO: WKExtension background tasks handling.
-  return GDTCORBackgroundIdentifierInvalid;
 }
 
 - (void)endBackgroundTask:(GDTCORBackgroundIdentifier)bgID {
 #if !TARGET_OS_WATCH
   if (bgID != GDTCORBackgroundIdentifierInvalid) {
-    GDTCORLogDebug("Ending background task with ID:%ld was successful", (long)bgID);
+    GDTCORLogDebug("Ending background task with ID:%ld was successful.", (long)bgID);
     [[self sharedApplicationForBackgroundTask] endBackgroundTask:bgID];
     return;
+  }
+#elif TARGET_OS_WATCH
+  if (bgID != GDTCORBackgroundIdentifierInvalid) {
+    dispatch_semaphore_t semaphore = [GDTCORApplication semaphoreForBackgroundIdentifier:bgID];
+    GDTCORLogDebug(@"Ending activity with bgID:%ld on watchOS.", (long)bgID);
+    if (semaphore) {
+      dispatch_semaphore_signal(semaphore);
+      GDTCORLogDebug(@"Signaling semaphore with bgID:%ld on watchOS.", (long)bgID);
+    } else {
+      GDTCORLogDebug(@"Semaphore with bgID:%ld is nil on watchOS.", (long)bgID);
+    }
   }
 #endif  // !TARGET_OS_WATCH
 }
@@ -364,14 +456,14 @@ id<NSSecureCoding> _Nullable GDTCORDecodeArchive(Class archiveClass,
   return appExtension;
 }
 
-/** Returns a UIApplication or WKExtension instance if on the appropriate platform.
+/** Returns a UIApplication or NSProcessInfo instance if on the appropriate platform.
  *
- * @return The shared UIApplication or WKExtension if on the appropriate platform.
+ * @return The shared UIApplication or NSProcessInfo if on the appropriate platform.
  */
 #if TARGET_OS_IOS || TARGET_OS_TV
 - (nullable UIApplication *)sharedApplicationForBackgroundTask {
 #elif TARGET_OS_WATCH
-- (nullable WKExtension *)sharedApplicationForBackgroundTask {
+- (nullable NSProcessInfo *)sharedNSProcessInfoForBackgroundTask {
 #else
 - (nullable id)sharedApplicationForBackgroundTask {
 #endif
@@ -381,7 +473,7 @@ id<NSSecureCoding> _Nullable GDTCORDecodeArchive(Class archiveClass,
     sharedInstance = [UIApplication sharedApplication];
   }
 #elif TARGET_OS_WATCH
-  sharedInstance = [WKExtension sharedExtension];
+  sharedInstance = [NSProcessInfo processInfo];
 #endif
   return sharedInstance;
 }
