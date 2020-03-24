@@ -11,9 +11,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Environment
-      run:  env
-
     - name: Setup check
       run:  scripts/setup_check.sh
 
