@@ -14,7 +14,6 @@ jobs:
   storage:
     env:
       plist_secret: ${{ secrets.StoragePlistSecret }}
-    if: ${{env.plist_secret}}
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v2
