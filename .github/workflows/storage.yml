@@ -17,7 +17,7 @@ jobs:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v2
-      if: ${{env.plist_secret}} == null
+      if: ${{env.plist_secretaaaa}} == null
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Install Secret GoogleService-Info.plist
