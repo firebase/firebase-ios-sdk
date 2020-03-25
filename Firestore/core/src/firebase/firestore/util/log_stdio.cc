@@ -27,7 +27,7 @@ namespace util {
 
 namespace {
 
-LogLevel g_log_level = kLogLevelWarning;
+LogLevel g_log_level = kLogLevelNotice;
 
 }  // namespace
 
