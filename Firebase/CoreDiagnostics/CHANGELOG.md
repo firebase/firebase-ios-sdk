@@ -3,8 +3,6 @@
 
 # v1.2.2
 - Fixed a bug that would manifest if a proto ended up being > 16,320 bytes.
-
-# v1.2.2
 - Now checks the result of malloc. (#4872)
 
 # v1.2.0
