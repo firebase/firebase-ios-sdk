@@ -9,7 +9,6 @@ cache:
     - $HOME/.ccache
 
 stages:
-  - checks
   - test
 
 before_script:
@@ -17,15 +16,6 @@ before_script:
 
 jobs:
   include:
-    - stage: checks
-      # This only needs to be run once, so restrict it to an arbitrary combination
-      before_install:
-        - brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/e3496d9/Formula/clang-format.rb
-        - brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/7963c3d/Formula/swiftformat.rb
-        - pip install flake8
-      script:
-        - ./scripts/check.sh --test-only
-
     # The order of builds matters (even though they are run in parallel):
     # Travis will schedule them in the same order they are listed here.
 
