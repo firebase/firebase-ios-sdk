@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy) NSMutableArray *slices;
 
 - (instancetype)initWithPath:(NSString *)path;
-- (NSString*)instanceIdentifier;
+- (NSString*)codeHash;
 
 @end
 

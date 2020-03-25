@@ -213,7 +213,43 @@ NSString *const TesterAPIClientID = @"319754533822-osu3v3hcci24umq6diathdm0dipds
                                completion:(FIRAppDistributionUpdateCheckCompletion)completion {
     // TODO: Parse response from tester API, check instance identifier and maybe return a release
       
-    NSLog(@"%@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+    //NSLog(@"%@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+    
+    NSError *error = nil;
+    NSDictionary *object = [NSJSONSerialization
+                      JSONObjectWithData:data
+                      options:0
+                      error:&error];
+    if(error) {
+        NSLog(@"Error parsing the object - %@ error (%@)", object, error);
+    }
+    
+//    NSLog(@"Response parsed %@", object);
+//    NSLog(@"Response releases %@", [object objectForKey:@"releases"]);
+    
+    
+    NSArray *releaseList = [object objectForKey:@"releases"];
+    for (NSDictionary *releaseDict in releaseList) {
+        //(BOOL)[release objectForKey:@"latest"]
+        if(true) {
+            NSString *codeHash = [releaseDict objectForKey:@"releases"];
+            NSString *executablePath = [[NSBundle mainBundle] executablePath];
+            FIRAppDistributionMachO *machO = [[FIRAppDistributionMachO alloc] initWithPath:executablePath];
+            
+            if(codeHash != machO.codeHash) {
+                //Update available!
+                // Ensure we dispatch on the main thread to allow any UI to update
+                FIRAppDistributionRelease *release = [[FIRAppDistributionRelease alloc] initWithDictionary:releaseDict];
+                
+                NSLog(@"FIRAppDistributionRelease display version %@", release.displayVersion);
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    completion(release, nil);
+                });
+            }
+            
+            break;
+        }
+    }
     
     // Ensure we dispatch on the main thread to allow any UI to update
     dispatch_async(dispatch_get_main_queue(), ^{

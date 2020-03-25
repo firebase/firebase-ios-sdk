@@ -107,7 +107,7 @@
     return nil;
 }
 
--(NSString*)instanceIdentifier {
+-(NSString*)codeHash {
     NSMutableString* prehashedString = [NSMutableString new];
     
     NSArray* sortedSlices = [_slices sortedArrayUsingComparator:^NSComparisonResult(id obj1, id obj2) {
