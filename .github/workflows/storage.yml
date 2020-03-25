@@ -14,22 +14,21 @@ jobs:
   storage:
     env:
       plist_secret: ${{ secrets.StoragePlistSecret }}
+    if: ${{env.plist_secret}}
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v2
-      if: ${{env.plist_secretaaaa}} == null
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/storage-db-plist.gpg \
           FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist "$plist_secret"
     - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
-      env:
-        plist_secret: ${{ secrets.StoragePlistSecret }}
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/build.sh Storage all)
 
   catalyst:
     runs-on: macOS-latest
+    if: ${{ env.plist_secret }}  
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -42,10 +41,10 @@ jobs:
     env:
       plist_secret: ${{ secrets.QsStoragePlistSecret }}
       signin_secret: ${{ secrets.QsSignInSecret }}
+    if: ${{ env.plist_secret }}  
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
-      if: ${{env.plist_secret}} == 'aaa'
     - name: Setup quickstart
       run: scripts/setup_quickstart.sh storage
     - name: Install Secret GoogleService-Info.plist
