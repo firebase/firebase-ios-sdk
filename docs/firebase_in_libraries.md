@@ -20,8 +20,9 @@ copy of the static framework symbols. This leads to undefined behavior
 (especially when different versions of the static framework are linking to the
 app and the dynamic framework). For example, a `dispatch_once` may or may not do
 the right initialization since there are now two entities to initialize. Here
-are couple more examples of issues related to this undefined
-behavior: #4315, #5152, etc.
+are couple more examples of issues related to this undefined behavior:
+[#4315](https://github.com/firebase/firebase-ios-sdk/issues/4315),
+[#5152](https://github.com/firebase/firebase-ios-sdk/issues/4315), etc.
 
 In this case you will most likely see warnings like the following in the
 console:
