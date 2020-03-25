@@ -1,3 +1,7 @@
+# Unreleased
+- Remove usage of memcpy and convert calls from malloc to calloc.
+- Fixes a race condition likely to occur when removing events.
+
 # v5.1.0
 - Stops creation of an event with a nil fileURL. (#5088)
 - Adds API to consolidate make NSSecureCoding related calls.
