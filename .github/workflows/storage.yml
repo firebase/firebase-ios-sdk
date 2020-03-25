@@ -17,8 +17,8 @@ jobs:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Setup Bundler
       if: ${{env.plist_secret}} == null
+    - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/storage-db-plist.gpg \
@@ -41,18 +41,17 @@ jobs:
   quickstart:
     env:
       plist_secret: ${{ secrets.QsStoragePlistSecret }}
+      signin_secret: ${{ secrets.QsSignInSecret }}
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
+      if: ${{env.plist_secret}} == 'aaa'
     - name: Setup quickstart
       run: scripts/setup_quickstart.sh storage
     - name: Install Secret GoogleService-Info.plist
-      if: ${{env.plist_secret}} == 'aaa'
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-storage.plist.gpg \
           quickstart-ios/storage/GoogleService-Info.plist "$plist_secret"
     - name: Install Secret FIREGSignInInfo.h
-      env:
-        signin_secret: ${{ secrets.QsSignInSecret }}
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
           quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test quickstart
