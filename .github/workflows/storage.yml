@@ -42,12 +42,12 @@ jobs:
     env:
       plist_secret: ${{ secrets.QsStoragePlistSecret }}
     runs-on: macOS-latest
-    if: ${{env.plist_secret}} == 'aaa'
     steps:
     - uses: actions/checkout@v2
     - name: Setup quickstart
       run: scripts/setup_quickstart.sh storage
     - name: Install Secret GoogleService-Info.plist
+      if: ${{env.plist_secret}} == 'aaa'
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-storage.plist.gpg \
           quickstart-ios/storage/GoogleService-Info.plist "$plist_secret"
     - name: Install Secret FIREGSignInInfo.h
