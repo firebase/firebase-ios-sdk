@@ -18,7 +18,6 @@
 
 #import <GoogleDataTransport/GDTCORAssert.h>
 #import <GoogleDataTransport/GDTCOREventDataObject.h>
-#import <GoogleDataTransport/GDTCOREvent_Private.h>
 #import <GoogleDataTransport/GDTCORPlatform.h>
 #import <GoogleDataTransport/GDTCORTargets.h>
 
@@ -55,6 +54,16 @@
   }
 }
 
+- (void)writeEvent:(GDTCOREvent *)event toGDTPath:(NSString *)path error:(NSError **)error {
+  SEL sel = NSSelectorFromString(@"writeToGDTPath:error:");
+  IMP imp = [event methodForSelector:sel];
+  GDTCORFatalAssert(imp, @"writeToGDTPath:error: must be implemented by GDTCOREvent");
+  if (imp) {
+    typedef void *(*WriteToGDTPathIMP)(id, SEL, NSString *, NSError **);
+    ((WriteToGDTPathIMP)imp)(event, sel, path, error);
+  }
+}
+
 - (GDTCOREvent *)generateEvent:(GDTCOREventQoS)qosTier {
   CFAbsoluteTime currentTime = CFAbsoluteTimeGetCurrent();
   NSURL *testDataFile = [GDTCORRootDirectory()
@@ -69,8 +78,9 @@
   GDTCCTEventGeneratorDataObject *dataObject = [[GDTCCTEventGeneratorDataObject alloc] init];
   dataObject.dataFile = testDataFile;
   event.dataObject = dataObject;
+  NSString *eventPath = [NSString stringWithFormat:@"test-event-%lf", CFAbsoluteTimeGetCurrent()];
   NSError *error;
-  [event writeToGDTPath:[NSString stringWithFormat:@"test-event-%lf", currentTime] error:&error];
+  [self writeEvent:event toGDTPath:eventPath error:&error];
   GDTCORFatalAssert(error == nil, @"Generating an event failed: %@", error);
   [self.allGeneratedEvents addObject:event];
   return event;
@@ -84,8 +94,9 @@
   dataObject.dataFile = fileURL;
   event.dataObject = dataObject;
   NSError *error;
-  [event writeToGDTPath:[NSString stringWithFormat:@"test-event-%lf", CFAbsoluteTimeGetCurrent()]
-                  error:&error];
+  [self writeEvent:event
+         toGDTPath:[NSString stringWithFormat:@"test-event-%lf", CFAbsoluteTimeGetCurrent()]
+             error:&error];
   GDTCORFatalAssert(error == nil, @"Generating an event failed: %@", error);
   [self.allGeneratedEvents addObject:event];
   return event;
@@ -123,8 +134,9 @@
     dataObject.dataFile = messageDataURL;
     event.dataObject = dataObject;
     NSError *error;
-    [event writeToGDTPath:[NSString stringWithFormat:@"test-event-%lf", CFAbsoluteTimeGetCurrent()]
-                    error:&error];
+    [self writeEvent:event
+           toGDTPath:[NSString stringWithFormat:@"test-event-%lf", CFAbsoluteTimeGetCurrent()]
+               error:&error];
     GDTCORFatalAssert(error == nil, @"Generating an event failed: %@", error);
     [events addObject:event];
   }
@@ -142,8 +154,9 @@
     dataObject.dataFile = messageDataURL;
     event.dataObject = dataObject;
     NSError *error;
-    [event writeToGDTPath:[NSString stringWithFormat:@"test-event-%lf", CFAbsoluteTimeGetCurrent()]
-                    error:&error];
+    [self writeEvent:event
+           toGDTPath:[NSString stringWithFormat:@"test-event-%lf", CFAbsoluteTimeGetCurrent()]
+               error:&error];
     GDTCORFatalAssert(error == nil, @"Generating an event failed: %@", error);
     [events addObject:event];
   }
@@ -161,8 +174,9 @@
     dataObject.dataFile = messageDataURL;
     event.dataObject = dataObject;
     NSError *error;
-    [event writeToGDTPath:[NSString stringWithFormat:@"test-event-%lf", CFAbsoluteTimeGetCurrent()]
-                    error:&error];
+    [self writeEvent:event
+           toGDTPath:[NSString stringWithFormat:@"test-event-%lf", CFAbsoluteTimeGetCurrent()]
+               error:&error];
     GDTCORFatalAssert(error == nil, @"Generating an event failed: %@", error);
     [events addObject:event];
   }
@@ -181,8 +195,9 @@
     dataObject.dataFile = messageDataURL;
     event.dataObject = dataObject;
     NSError *error;
-    [event writeToGDTPath:[NSString stringWithFormat:@"test-event-%lf", CFAbsoluteTimeGetCurrent()]
-                    error:&error];
+    [self writeEvent:event
+           toGDTPath:[NSString stringWithFormat:@"test-event-%lf", CFAbsoluteTimeGetCurrent()]
+               error:&error];
     GDTCORFatalAssert(error == nil, @"Generating an event failed: %@", error);
     [events addObject:event];
   }
@@ -201,8 +216,9 @@
     dataObject.dataFile = messageDataURL;
     event.dataObject = dataObject;
     NSError *error;
-    [event writeToGDTPath:[NSString stringWithFormat:@"test-event-%lf", CFAbsoluteTimeGetCurrent()]
-                    error:&error];
+    [self writeEvent:event
+           toGDTPath:[NSString stringWithFormat:@"test-event-%lf", CFAbsoluteTimeGetCurrent()]
+               error:&error];
     GDTCORFatalAssert(error == nil, @"Generating an event failed: %@", error);
     [events addObject:event];
   }
