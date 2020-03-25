@@ -82,7 +82,7 @@ class CommonMessageTestVC: UIViewController, InAppMessagingDisplayDelegate {
     UIGraphicsEndImageContext()
 
     if let image = imageFromGraphics {
-      return UIImagePNGRepresentation(image)
+      return image.pngData()
     } else {
       return nil
     }
