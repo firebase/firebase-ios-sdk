@@ -19,7 +19,7 @@ See also [Using dynamic framework which is linked with static framework](https:/
 
 // TODO: Add a typical message printed in the console in this case and several links to reported
 
-// TODO: Add a picture illustrating linking.
+![Using Firebase SDKs from dynamic framework](./recources/firebase_from_dynamic_framework.svg)
 
 **Conclusions:**
 
@@ -39,6 +39,8 @@ The main downside of this approach arises when the static framework using Fireba
 is used from e.g. an app and its extension. In this case, in contrast to a dynamic embedded framework,
 a copy of the static framework will be added to both the app and each extension.
 It doesn't lead to any symbol collisions, but it leads to increasing the download size of your app.
+
+![Using Firebase SDKs from static framework](./recources/firebase_from_static_framework.svg)
 
 **Conclusions:**
 
