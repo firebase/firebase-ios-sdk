@@ -18,8 +18,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
-      run: scripts/setup_bundler.sh
       if: ${{env.plist_secret}} == null
+      run: scripts/setup_bundler.sh
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/storage-db-plist.gpg \
           FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist "$plist_secret"
@@ -42,11 +42,11 @@ jobs:
     env:
       plist_secret: ${{ secrets.QsStoragePlistSecret }}
     runs-on: macOS-latest
+    if: ${{env.plist_secret}} == 'aaa'
     steps:
     - uses: actions/checkout@v2
     - name: Setup quickstart
       run: scripts/setup_quickstart.sh storage
-      if: ${{env.plist_secret}} == 'aaa'
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-storage.plist.gpg \
           quickstart-ios/storage/GoogleService-Info.plist "$plist_secret"
