@@ -57,6 +57,7 @@
 - (void)writeEvent:(GDTCOREvent *)event toGDTPath:(NSString *)path error:(NSError **)error {
   SEL sel = NSSelectorFromString(@"writeToGDTPath:error:");
   IMP imp = [event methodForSelector:sel];
+  GDTCORFatalAssert(imp, @"writeToGDTPath:error: must be implemented by GDTCOREvent");
   if (imp) {
     typedef void *(*WriteToGDTPathIMP)(id, SEL, NSString *, NSError **);
     ((WriteToGDTPathIMP)imp)(event, sel, path, error);
