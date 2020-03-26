@@ -17,8 +17,8 @@ import XCTest
 @testable import FirebaseStorage
 
 class StorageIntegration: XCTestCase {
-  var app : FirebaseApp? = nil
-  var storage : Storage? = nil
+  var app: FirebaseApp?
+  var storage: Storage?
 
   override class func setUp() {
     FirebaseApp.configure()
@@ -49,20 +49,20 @@ class StorageIntegration: XCTestCase {
       XCTAssertNil(error, "Error should be nil")
       expectation.fulfill()
     })
-    self.waitForExpectations()
+    waitForExpectations()
   }
 
   func testUnauthenticatedUpdateMetadata() {
     let expectation = self.expectation(description: "testUnauthenticatedUpdateMetadata")
 
-    let meta = StorageMetadata.init()
+    let meta = StorageMetadata()
     meta.contentType = "lol/custom"
-    meta.customMetadata = [ "lol" : "custom metadata is neat",
-                            "ちかてつ" : "🚇",
-                            "shinkansen" : "新幹線"]
+    meta.customMetadata = ["lol": "custom metadata is neat",
+                           "ちかてつ": "🚇",
+                           "shinkansen": "新幹線"]
 
     let ref = storage?.reference().child("ios/public/1mb")
-    ref?.updateMetadata(meta, completion: { (metadata, error) in
+    ref?.updateMetadata(meta, completion: { metadata, error in
       XCTAssertEqual(meta.contentType, metadata!.contentType)
       XCTAssertEqual(meta.customMetadata!["lol"], metadata?.customMetadata!["lol"])
       XCTAssertEqual(meta.customMetadata!["ちかてつ"], metadata?.customMetadata!["ちかてつ"])
@@ -71,17 +71,16 @@ class StorageIntegration: XCTestCase {
       XCTAssertNil(error, "Error should be nil")
       expectation.fulfill()
     })
-    self.waitForExpectations()
+    waitForExpectations()
   }
-
 
   func waitForExpectations() {
     let kFIRStorageIntegrationTestTimeout = 60.0
-    self.waitForExpectations(timeout: kFIRStorageIntegrationTestTimeout,
-                             handler: { (error) -> Void in
-                              if let error = error {
-                                print(error)
-                              }
+    waitForExpectations(timeout: kFIRStorageIntegrationTestTimeout,
+                        handler: { (error) -> Void in
+                          if let error = error {
+                            print(error)
+                          }
     })
   }
 }
