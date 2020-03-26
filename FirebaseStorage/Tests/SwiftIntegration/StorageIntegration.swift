@@ -143,7 +143,7 @@ class StorageIntegration: XCTestCase {
   func testUnauthenticatedSimplePutEmptyData() {
     let expectation = self.expectation(description: "testUnauthenticatedSimplePutEmptyData")
     let ref = storage?.reference(withPath: "ios/public/testUnauthenticatedSimplePutEmptyData")
-    let data = Data.init()
+    let data = Data()
     ref?.putData(data, metadata: nil, completion: { metadata, error in
       XCTAssertNotNil(metadata, "Metadata should not be nil")
       XCTAssertNil(error, "Error should be nil")
@@ -169,7 +169,7 @@ class StorageIntegration: XCTestCase {
     let expectation = self.expectation(description: "testUnauthenticatedSimplePutFile")
     let ref = storage?.reference(withPath: "ios/public/testUnauthenticatedSimplePutFile")
     let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
-    let tmpDirURL = URL.init(fileURLWithPath: NSTemporaryDirectory())
+    let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
     let fileURL = tmpDirURL.appendingPathComponent("hello.txt")
     do {
       try data.write(to: fileURL, options: Data.WritingOptions.atomicWrite)
@@ -186,11 +186,11 @@ class StorageIntegration: XCTestCase {
       expectation.fulfill()
     })
 
-    var uploadedBytes : Int64 = -1
+    var uploadedBytes: Int64 = -1
 
     task?.observe(StorageTaskStatus.progress, handler: { snapshot in
       XCTAssertTrue(snapshot.description.starts(with: "<State: Progress") ||
-                    snapshot.description.starts(with:"<State: Resume"))
+        snapshot.description.starts(with: "<State: Resume"))
       guard let progress = snapshot.progress else {
         XCTFail("Failed to get snapshot.progress")
         return
@@ -206,9 +206,9 @@ class StorageIntegration: XCTestCase {
     let expectation = self.expectation(description: "testPutFileWithSpecialCharacters")
 
     let fileName = "hello&+@_ .txt"
-    let ref = storage?.reference(withPath:"ios/public/" + fileName)
+    let ref = storage?.reference(withPath: "ios/public/" + fileName)
     let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
-    let tmpDirURL = URL.init(fileURLWithPath: NSTemporaryDirectory())
+    let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
     let fileURL = tmpDirURL.appendingPathComponent("hello.txt")
     do {
       try data.write(to: fileURL, options: Data.WritingOptions.atomicWrite)
@@ -219,7 +219,7 @@ class StorageIntegration: XCTestCase {
       XCTAssertNotNil(metadata, "Metadata should not be nil")
       XCTAssertNil(error, "Error should be nil")
       XCTAssertEqual(fileName, metadata?.name)
-      ref?.getMetadata(completion: { (metadata, error) in
+      ref?.getMetadata(completion: { metadata, error in
         XCTAssertNotNil(metadata, "Metadata should not be nil")
         XCTAssertNil(error, "Error should be nil")
         XCTAssertEqual(fileName, metadata?.name)
@@ -233,7 +233,7 @@ class StorageIntegration: XCTestCase {
   func testUnauthenticatedSimplePutDataNoMetadata() throws {
     let expectation = self.expectation(description: "testUnauthenticatedSimplePutDataNoMetadata")
 
-    let ref = storage?.reference(withPath:"ios/public/testUnauthenticatedSimplePutDataNoMetadata")
+    let ref = storage?.reference(withPath: "ios/public/testUnauthenticatedSimplePutDataNoMetadata")
     let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
     ref?.putData(data, metadata: nil, completion: { metadata, error in
       XCTAssertNotNil(metadata, "Metadata should not be nil")
@@ -248,9 +248,9 @@ class StorageIntegration: XCTestCase {
     let expectation = self.expectation(description: "testUnauthenticatedSimplePutFileNoMetadata")
 
     let fileName = "hello&+@_ .txt"
-    let ref = storage?.reference(withPath:"ios/public/" + fileName)
+    let ref = storage?.reference(withPath: "ios/public/" + fileName)
     let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
-    let tmpDirURL = URL.init(fileURLWithPath: NSTemporaryDirectory())
+    let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
     let fileURL = tmpDirURL.appendingPathComponent("hello.txt")
     do {
       try data.write(to: fileURL, options: Data.WritingOptions.atomicWrite)
@@ -261,7 +261,7 @@ class StorageIntegration: XCTestCase {
       XCTAssertNotNil(metadata, "Metadata should not be nil")
       XCTAssertNil(error, "Error should be nil")
       XCTAssertEqual(fileName, metadata?.name)
-      ref?.getMetadata(completion: { (metadata, error) in
+      ref?.getMetadata(completion: { metadata, error in
         XCTAssertNotNil(metadata, "Metadata should not be nil")
         XCTAssertNil(error, "Error should be nil")
         XCTAssertEqual(fileName, metadata?.name)
