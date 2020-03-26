@@ -53,4 +53,12 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
     int_tests.resources = 'FirebaseStorage/Tests/Integration/Resources/1mb.dat',
                           'FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist'
   end
+
+  s.test_spec 'swift-integration' do |swift_int_tests|
+    swift_int_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
+    swift_int_tests.source_files = 'FirebaseStorage/Tests/SwiftIntegration/*.swift'
+    swift_int_tests.requires_app_host = true
+    swift_int_tests.resources = 'FirebaseStorage/Tests/Integration/Resources/1mb.dat',
+                          'FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist'
+  end
 end

@@ -409,6 +409,14 @@ case "$product-$platform-$method" in
         "${xcb_flags[@]}" \
         build \
         test
+
+      RunXcodebuild \
+        -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
+        -scheme "FirebaseStorage-Unit-swift-integration" \
+        "${ios_flags[@]}" \
+        "${xcb_flags[@]}" \
+        build \
+        test
       fi
 
     pod_gen FirebaseStorage.podspec --platforms=macos --clean
