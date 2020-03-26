@@ -74,13 +74,10 @@ class StorageIntegration: XCTestCase {
     waitForExpectations()
   }
 
-  func testUnauthenticatedDelete() {
+  func testUnauthenticatedDelete() throws {
     let expectation = self.expectation(description: "testUnauthenticatedDelete")
     let ref = storage?.reference(withPath: "ios/public/fileToDelete")
-    guard let data = "Delete me!!!!!!".data(using: .utf8) else {
-      XCTFail()
-      return
-    }
+    let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
     ref?.putData(data, metadata: nil, completion: { metadata, error in
       XCTAssertNotNil(metadata, "Metadata should not be nil")
       XCTAssertNil(error, "Error should be nil")
@@ -92,13 +89,10 @@ class StorageIntegration: XCTestCase {
     waitForExpectations()
   }
 
-  func testDeleteWithNilCompletion() {
+  func testDeleteWithNilCompletion() throws {
     let expectation = self.expectation(description: "testDeleteWithNilCompletion")
     let ref = storage?.reference(withPath: "ios/public/fileToDelete")
-    guard let data = "Delete me!!!!!!".data(using: .utf8) else {
-      XCTFail()
-      return
-    }
+    let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
     ref?.putData(data, metadata: nil, completion: { metadata, error in
       XCTAssertNotNil(metadata, "Metadata should not be nil")
       XCTAssertNil(error, "Error should be nil")
@@ -108,13 +102,10 @@ class StorageIntegration: XCTestCase {
     waitForExpectations()
   }
 
-  func testUnauthenticatedSimplePutData() {
+  func testUnauthenticatedSimplePutData() throws {
     let expectation = self.expectation(description: "testUnauthenticatedSimplePutData")
     let ref = storage?.reference(withPath: "ios/public/testBytesUpload")
-    guard let data = "Hello Swift World".data(using: .utf8) else {
-      XCTFail()
-      return
-    }
+    let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
     ref?.putData(data, metadata: nil, completion: { metadata, error in
       XCTAssertNotNil(metadata, "Metadata should not be nil")
       XCTAssertNil(error, "Error should be nil")
@@ -123,18 +114,161 @@ class StorageIntegration: XCTestCase {
     waitForExpectations()
   }
 
-  func testUnauthenticatedSimplePutSpecialCharacter() {
+  func testUnauthenticatedSimplePutSpecialCharacter() throws {
     let expectation = self.expectation(description: "testUnauthenticatedSimplePutSpecialCharacter")
     let ref = storage?.reference(withPath: "ios/public/-._~!$'()*,=:@&+;")
-    guard let data = "Hello Swift World".data(using: .utf8) else {
-      XCTFail()
-      return
-    }
+    let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
     ref?.putData(data, metadata: nil, completion: { metadata, error in
       XCTAssertNotNil(metadata, "Metadata should not be nil")
       XCTAssertNil(error, "Error should be nil")
       expectation.fulfill()
     })
+    waitForExpectations()
+  }
+
+  func testUnauthenticatedSimplePutDataInBackgroundQueue() throws {
+    let expectation = self.expectation(description: "testUnauthenticatedSimplePutDataInBackgroundQueue")
+    let ref = storage?.reference(withPath: "ios/public/testBytesUpload")
+    let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
+    DispatchQueue.global(qos: .background).async {
+      ref?.putData(data, metadata: nil, completion: { metadata, error in
+        XCTAssertNotNil(metadata, "Metadata should not be nil")
+        XCTAssertNil(error, "Error should be nil")
+        expectation.fulfill()
+      })
+    }
+    waitForExpectations()
+  }
+
+  func testUnauthenticatedSimplePutEmptyData() {
+    let expectation = self.expectation(description: "testUnauthenticatedSimplePutEmptyData")
+    let ref = storage?.reference(withPath: "ios/public/testUnauthenticatedSimplePutEmptyData")
+    let data = Data.init()
+    ref?.putData(data, metadata: nil, completion: { metadata, error in
+      XCTAssertNotNil(metadata, "Metadata should not be nil")
+      XCTAssertNil(error, "Error should be nil")
+      expectation.fulfill()
+    })
+    waitForExpectations()
+  }
+
+  func testUnauthenticatedSimplePutDataUnauthorized() throws {
+    let expectation = self.expectation(description: "testUnauthenticatedSimplePutDataUnauthorized")
+    let ref = storage?.reference(withPath: "ios/private/secretfile.txt")
+    let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
+    ref?.putData(data, metadata: nil, completion: { metadata, error in
+      XCTAssertNil(metadata, "Metadata should be nil")
+      XCTAssertNotNil(error, "Error should not be nil")
+      XCTAssertEqual((error! as NSError).code, StorageErrorCode.unauthorized.rawValue)
+      expectation.fulfill()
+    })
+    waitForExpectations()
+  }
+
+  func testUnauthenticatedSimplePutFile() throws {
+    let expectation = self.expectation(description: "testUnauthenticatedSimplePutFile")
+    let ref = storage?.reference(withPath: "ios/public/testUnauthenticatedSimplePutFile")
+    let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
+    let tmpDirURL = URL.init(fileURLWithPath: NSTemporaryDirectory())
+    let fileURL = tmpDirURL.appendingPathComponent("hello.txt")
+    do {
+      try data.write(to: fileURL, options: Data.WritingOptions.atomicWrite)
+    } catch {
+      XCTFail("Write to \(fileURL) failed")
+    }
+    let task = ref?.putFile(from: fileURL, metadata: nil, completion: { metadata, error in
+      XCTAssertNotNil(metadata, "Metadata should not be nil")
+      XCTAssertNil(error, "Error should be nil")
+    })
+
+    task?.observe(StorageTaskStatus.success, handler: { snapshot in
+      XCTAssertEqual(snapshot.description, "<State: Success>")
+      expectation.fulfill()
+    })
+
+    var uploadedBytes : Int64 = -1
+
+    task?.observe(StorageTaskStatus.progress, handler: { snapshot in
+      XCTAssertTrue(snapshot.description.starts(with: "<State: Progress") ||
+                    snapshot.description.starts(with:"<State: Resume"))
+      guard let progress = snapshot.progress else {
+        XCTFail("Failed to get snapshot.progress")
+        return
+      }
+      XCTAssertGreaterThanOrEqual(progress.completedUnitCount, uploadedBytes)
+      uploadedBytes = progress.completedUnitCount
+    })
+
+    waitForExpectations()
+  }
+
+  func testPutFileWithSpecialCharacters() throws {
+    let expectation = self.expectation(description: "testPutFileWithSpecialCharacters")
+
+    let fileName = "hello&+@_ .txt"
+    let ref = storage?.reference(withPath:"ios/public/" + fileName)
+    let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
+    let tmpDirURL = URL.init(fileURLWithPath: NSTemporaryDirectory())
+    let fileURL = tmpDirURL.appendingPathComponent("hello.txt")
+    do {
+      try data.write(to: fileURL, options: Data.WritingOptions.atomicWrite)
+    } catch {
+      XCTFail("Write to \(fileURL) failed")
+    }
+    ref?.putFile(from: fileURL, metadata: nil, completion: { metadata, error in
+      XCTAssertNotNil(metadata, "Metadata should not be nil")
+      XCTAssertNil(error, "Error should be nil")
+      XCTAssertEqual(fileName, metadata?.name)
+      ref?.getMetadata(completion: { (metadata, error) in
+        XCTAssertNotNil(metadata, "Metadata should not be nil")
+        XCTAssertNil(error, "Error should be nil")
+        XCTAssertEqual(fileName, metadata?.name)
+        expectation.fulfill()
+      })
+    })
+
+    waitForExpectations()
+  }
+
+  func testUnauthenticatedSimplePutDataNoMetadata() throws {
+    let expectation = self.expectation(description: "testUnauthenticatedSimplePutDataNoMetadata")
+
+    let ref = storage?.reference(withPath:"ios/public/testUnauthenticatedSimplePutDataNoMetadata")
+    let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
+    ref?.putData(data, metadata: nil, completion: { metadata, error in
+      XCTAssertNotNil(metadata, "Metadata should not be nil")
+      XCTAssertNil(error, "Error should be nil")
+      expectation.fulfill()
+    })
+
+    waitForExpectations()
+  }
+
+  func testUnauthenticatedSimplePutFileNoMetadata() throws {
+    let expectation = self.expectation(description: "testUnauthenticatedSimplePutFileNoMetadata")
+
+    let fileName = "hello&+@_ .txt"
+    let ref = storage?.reference(withPath:"ios/public/" + fileName)
+    let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
+    let tmpDirURL = URL.init(fileURLWithPath: NSTemporaryDirectory())
+    let fileURL = tmpDirURL.appendingPathComponent("hello.txt")
+    do {
+      try data.write(to: fileURL, options: Data.WritingOptions.atomicWrite)
+    } catch {
+      XCTFail("Write to \(fileURL) failed")
+    }
+    ref?.putFile(from: fileURL, metadata: nil, completion: { metadata, error in
+      XCTAssertNotNil(metadata, "Metadata should not be nil")
+      XCTAssertNil(error, "Error should be nil")
+      XCTAssertEqual(fileName, metadata?.name)
+      ref?.getMetadata(completion: { (metadata, error) in
+        XCTAssertNotNil(metadata, "Metadata should not be nil")
+        XCTAssertNil(error, "Error should be nil")
+        XCTAssertEqual(fileName, metadata?.name)
+        expectation.fulfill()
+      })
+    })
+
     waitForExpectations()
   }
 
