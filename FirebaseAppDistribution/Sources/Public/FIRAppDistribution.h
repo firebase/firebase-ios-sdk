@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#import <AppAuth/AppAuth.h>
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-#import <AppAuth/AppAuth.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -50,9 +50,9 @@ NS_SWIFT_NAME(AppDistributionRelease)
  *  @param release  The new release that is available to be installed.
  *  @param error     The error describing why the new build request failed.
  */
-typedef void (^FIRAppDistributionUpdateCheckCompletion)(FIRAppDistributionRelease *_Nullable release,
-                                                        NSError *_Nullable error)
-NS_SWIFT_NAME(AppDistributionUpdateCheckCheckCompletion);
+typedef void (^FIRAppDistributionUpdateCheckCompletion)(
+    FIRAppDistributionRelease *_Nullable release, NSError *_Nullable error)
+    NS_SWIFT_NAME(AppDistributionUpdateCheckCheckCompletion);
 
 /**
  *  @related FIRAppDistribution
@@ -64,8 +64,7 @@ NS_SWIFT_NAME(AppDistributionUpdateCheckCheckCompletion);
  *  @param error     The error describing why sign in failed
  */
 typedef void (^FIRAppDistributionSignInTesterCompletion)(NSError *_Nullable error)
-NS_SWIFT_NAME(AppDistributionSignInTesterCompletion);
-
+    NS_SWIFT_NAME(AppDistributionSignInTesterCompletion);
 
 /**
  * The Firebase App Distribution API provides methods to check for update to
@@ -89,13 +88,13 @@ NS_SWIFT_NAME(AppDistribution)
  * Sign-in the App Distribution tester
  */
 - (void)signInTesterWithCompletion:(FIRAppDistributionSignInTesterCompletion)completion
-NS_SWIFT_NAME(signInTester(completion:));
+    NS_SWIFT_NAME(signInTester(completion:));
 
 /**
  * Check to see whether a new distribution is available
  */
 - (void)checkForUpdateWithCompletion:(FIRAppDistributionUpdateCheckCompletion)completion
-NS_SWIFT_NAME(checkForUpdate(completion:));
+    NS_SWIFT_NAME(checkForUpdate(completion:));
 
 /**
  * Sign out App Distribution tester
@@ -114,17 +113,17 @@ NS_SWIFT_NAME(checkForUpdate(completion:));
  *  @enum FIRAppDistributionError
  */
 typedef NS_ENUM(NSUInteger, FIRAppDistributionError) {
-    /// Unknown error.
-    FIRAppDistributionErrorUnknown = 0,
+  /// Unknown error.
+  FIRAppDistributionErrorUnknown = 0,
 
-    // Authentication failed
-    FIRAppDistributionErrorAuthenticationFailure = 1,
+  // Authentication failed
+  FIRAppDistributionErrorAuthenticationFailure = 1,
 
-    // Authentication canceled
-    FIRAppDistributionErrorAuthenticationCancelled = 2,
+  // Authentication canceled
+  FIRAppDistributionErrorAuthenticationCancelled = 2,
 
-    // Network unavailable to make requests or the request timed out
-    FIRAppDistributionErrorNetworkFailure = 3,
+  // Network unavailable to make requests or the request timed out
+  FIRAppDistributionErrorNetworkFailure = 3,
 
 } NS_SWIFT_NAME(AppDistributionError);
 

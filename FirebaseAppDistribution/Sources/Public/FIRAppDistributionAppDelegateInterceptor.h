@@ -14,7 +14,8 @@ NS_ASSUME_NONNULL_BEGIN
 /// retained. The App Delegate Swizzler only retains weak references and so this is needed.
 + (instancetype)sharedInstance;
 
-/*! @brief The authorization flow session which receives the return URL from \SFSafariViewController.
+/*! @brief The authorization flow session which receives the return URL from
+   \SFSafariViewController.
     @discussion We need to store this in the app delegate as it's that delegate which receives the
         incoming URL on UIApplicationDelegate.application:openURL:options:. This property will be
         nil, except when an authorization flow is in progress.

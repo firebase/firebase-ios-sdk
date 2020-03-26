@@ -15,20 +15,19 @@
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 
-#import "FIRAppDistribution.h"
 #import <FirebaseCore/FIRAppInternal.h>
+#import "FIRAppDistribution.h"
 
 @interface FIRAppDistributionSampleTests : XCTestCase
 
-@property (nonatomic, strong) FIRAppDistribution *appDistribution;
+@property(nonatomic, strong) FIRAppDistribution *appDistribution;
 
 @end
 
 @interface FIRAppDistribution (PrivateUnitTesting)
 
-- (instancetype)initWithApp:(FIRApp *)app
-                    appInfo:(NSDictionary *)appInfo;
-    
+- (instancetype)initWithApp:(FIRApp *)app appInfo:(NSDictionary *)appInfo;
+
 @end
 
 @implementation FIRAppDistributionSampleTests
@@ -38,11 +37,10 @@
 
   NSDictionary<NSString *, NSString *> *dict = [[NSDictionary<NSString *, NSString *> alloc] init];
   self.appDistribution = [[FIRAppDistribution alloc] initWithApp:nil appInfo:dict];
-  
 }
 
 - (void)testGetSingleton {
-    XCTAssertNotNil(self.appDistribution);
+  XCTAssertNotNil(self.appDistribution);
 }
 
 @end
