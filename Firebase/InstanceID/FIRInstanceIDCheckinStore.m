@@ -32,11 +32,6 @@ NSString *const kFIRInstanceIDCheckinKeychainService = @"com.google.iid.checkin"
 NSString *const kFIRInstanceIDLegacyCheckinKeychainAccount = @"com.google.iid.checkin-account";
 NSString *const kFIRInstanceIDLegacyCheckinKeychainService = @"com.google.iid.checkin-service";
 
-// Checkin plist used to have the deviceID and secret stored in them and that's why they
-// had 6 items in it. Since the deviceID and secret have been moved to the keychain
-// there would only be 4 items.
-static const NSInteger kOldCheckinPlistCount = 6;
-
 @interface FIRInstanceIDCheckinStore ()
 
 @property(nonatomic, readwrite, strong) FIRInstanceIDBackupExcludedPlist *plist;
@@ -199,14 +194,6 @@ static const NSInteger kOldCheckinPlistCount = 6;
     } else {
       // Couldn't find checkin credentials in keychain nor plist
       return nil;
-    }
-  } else if (kOldCheckinPlistCount == checkinPlistContents.count) {
-    // same check as above but just to be extra sure that we cover all upgrade cases properly.
-    // TODO(chliangGoogle): Remove this case, after verifying it's not needed
-    if ([plistDeviceAuthID length] && [plistSecretToken length]) {
-      checkinPreferences =
-          [[FIRInstanceIDCheckinPreferences alloc] initWithDeviceID:plistDeviceAuthID
-                                                        secretToken:plistSecretToken];
     }
   }
 
