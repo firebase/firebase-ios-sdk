@@ -72,6 +72,10 @@ Instructions for the experimental Carthage distribution are at
 Instructions for installing binary frameworks via
 [Rome](https://github.com/CocoaPods/Rome) are at [Rome](Rome.md).
 
+### Using Firebase from a Framework or a library
+
+[Using Firebase from a Framework or a library](docs/firebase_in_libraries.md)
+
 ## Development
 
 To develop Firebase software in this repository, ensure that you have at least
