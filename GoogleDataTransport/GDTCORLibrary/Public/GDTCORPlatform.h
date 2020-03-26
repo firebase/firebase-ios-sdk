@@ -69,20 +69,52 @@ typedef NS_ENUM(NSInteger, GDTCORNetworkMobileSubtype) {
   GDTCORNetworkMobileSubtypeLTE = 11,
 };
 
+/** The different possible reachabilityFlags option. */
+typedef NS_ENUM(NSInteger, GDTCORReachabilityFlagsOption) {
+  kGDTCORNetworkReachabilityFlagsTransientConnection = 1 << 0,
+  kGDTCORNetworkReachabilityFlagsReachable = 1 << 1,
+  kGDTCORNetworkReachabilityFlagsConnectionRequired = 1 << 2,
+  kGDTCORNetworkReachabilityFlagsConnectionOnTraffic = 1 << 3,
+  kGDTCORNetworkReachabilityFlagsInterventionRequired = 1 << 4,
+  kGDTCORNetworkReachabilityFlagsConnectionOnDemand API_AVAILABLE(macos(6.0), ios(3.0)) = 1 << 5,
+  kGDTCORNetworkReachabilityFlagsIsLocalAddress = 1 << 16,
+  kGDTCORNetworkReachabilityFlagsIsDirect = 1 << 17,
+  kGDTCORNetworkReachabilityFlagsIsWWAN API_UNAVAILABLE(macos) API_AVAILABLE(ios(2.0)) = 1 << 18,
+
+  kGDTCORNetworkReachabilityFlagsConnectionAutomatic =
+      kGDTCORNetworkReachabilityFlagsConnectionOnTraffic
+};
+
+#if !TARGET_OS_WATCH
+/** Define SCNetworkReachabilityFlags as GDTCORNetworkReachabilityFlags on non-watchOS. */
+typedef SCNetworkReachabilityFlags GDTCORNetworkReachabilityFlags;
+
+/** Define SCNetworkReachabilityRef as GDTCORNetworkReachabilityRef on non-watchOS. */
+typedef SCNetworkReachabilityRef GDTCORNetworkReachabilityRef;
+
+#elif TARGET_OS_WATCH
+/** Define an NSInteger as GDTCORNetworkReachabilityFlags on watchOS. */
+typedef NSInteger GDTCORNetworkReachabilityFlags;
+
+/** Define a struct as GDTCORNetworkReachabilityRef on watchOS to store network connection
+ * information. */
+typedef struct {
+  // TODO: Store network connection information on WatchOS if needed.
+} GDTCORNetworkReachabilityRef;
+#endif
+
 /** Returns a URL to the root directory under which all GDT-associated data must be saved.
  *
  * @return A URL to the root directory under which all GDT-associated data must be saved.
  */
 NSURL *GDTCORRootDirectory(void);
 
-#if !TARGET_OS_WATCH
 /** Compares flags with the WWAN reachability flag, if available, and returns YES if present.
  *
  * @param flags The set of reachability flags.
  * @return YES if the WWAN flag is set, NO otherwise.
  */
-BOOL GDTCORReachabilityFlagsContainWWAN(SCNetworkReachabilityFlags flags);
-#endif
+BOOL GDTCORReachabilityFlagsContainWWAN(GDTCORNetworkReachabilityFlags flags);
 
 /** Generates an enum message GDTCORNetworkType representing network connection type.
  *

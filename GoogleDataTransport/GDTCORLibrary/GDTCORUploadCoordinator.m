@@ -140,28 +140,23 @@
  * @return The current upload conditions.
  */
 - (GDTCORUploadConditions)uploadConditions {
-#if TARGET_OS_WATCH
-  // Assume connected on watchOS.
-  return GDTCORUploadConditionUnclearConnection;
-#else
-  SCNetworkReachabilityFlags currentFlags = [GDTCORReachability currentFlags];
-  BOOL reachable =
-      (currentFlags & kSCNetworkReachabilityFlagsReachable) == kSCNetworkReachabilityFlagsReachable;
-  BOOL connectionRequired = (currentFlags & kSCNetworkReachabilityFlagsConnectionRequired) ==
-                            kSCNetworkReachabilityFlagsConnectionRequired;
+  GDTCORNetworkReachabilityFlags currentFlags = [GDTCORReachability currentFlags];
+  BOOL reachable = (currentFlags & kGDTCORNetworkReachabilityFlagsReachable) ==
+                   kGDTCORNetworkReachabilityFlagsReachable;
+  BOOL connectionRequired = (currentFlags & kGDTCORNetworkReachabilityFlagsConnectionRequired) ==
+                            kGDTCORNetworkReachabilityFlagsConnectionRequired;
   BOOL networkConnected = reachable && !connectionRequired;
 
   if (!networkConnected) {
     return GDTCORUploadConditionNoNetwork;
   }
-
+  // Assume always wifi conncetion on watchOS
   BOOL isWWAN = GDTCORReachabilityFlagsContainWWAN(currentFlags);
   if (isWWAN) {
     return GDTCORUploadConditionMobileData;
   } else {
     return GDTCORUploadConditionWifiData;
   }
-#endif
 }
 
 #pragma mark - NSSecureCoding support
