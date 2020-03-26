@@ -15,8 +15,9 @@ detailed instructions. Some Firebase specific guidance below:
 
 * `s.static_framework` - By default, Firebase pods should be static frameworks.
 
-* `s.dependency` - Dependencies on other Firebase pods should allow minor version updates -
-like `s.dependency 'FirebaseCore', '~> 6.0'`
+* `s.dependency` - Dependencies on other Firebase pods and pods in this repo should specify a
+version and allow minor version updates - like `s.dependency 'FirebaseCore', '~> 6.6'`. When
+initially defined, choose the most recently released minor version of the dependency.
 
 * `s.pod_target_xcconfig` - Add any specific build settings.
   * For portability, any Firebase
@@ -44,3 +45,16 @@ explicit import by other Firebase pods)
 * `FirebaseFoo/Tests/Integration` - Encouraged
 * `FirebaseFoo/Tests/Sample` - Optional
 * `FirebaseFoo/Tests/{Other}` - Optional
+
+## Continous Integration
+
+Set up a GitHub Action workflow for the pod. A good example template is
+[storage.yml](.github/workflows/storage.yml).
+
+All code should comply with Objective-C and Swift style requirements and successfully pass
+the GitHub Action check phase. Run [scripts/style.sh](scripts/style.sh).
+
+## GitHub Infrastructure
+
+For GitHub tag management and public header change detection, add a GitHub api tag and update
+[Dangerfile](Dangerfile).
