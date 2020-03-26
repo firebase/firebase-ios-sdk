@@ -61,7 +61,7 @@ class StorageIntegration: XCTestCase {
                            "ちかてつ": "🚇",
                            "shinkansen": "新幹線"]
 
-    let ref = storage?.reference().child("ios/public/1mb")
+    let ref = storage?.reference(withPath: "ios/public/1mb")
     ref?.updateMetadata(meta, completion: { metadata, error in
       XCTAssertEqual(meta.contentType, metadata!.contentType)
       XCTAssertEqual(meta.customMetadata!["lol"], metadata?.customMetadata!["lol"])
@@ -74,7 +74,71 @@ class StorageIntegration: XCTestCase {
     waitForExpectations()
   }
 
-  func waitForExpectations() {
+  func testUnauthenticatedDelete() {
+    let expectation = self.expectation(description: "testUnauthenticatedDelete")
+    let ref = storage?.reference(withPath: "ios/public/fileToDelete")
+    guard let data = "Delete me!!!!!!".data(using: .utf8) else {
+      XCTFail()
+      return
+    }
+    ref?.putData(data, metadata: nil, completion: { metadata, error in
+      XCTAssertNotNil(metadata, "Metadata should not be nil")
+      XCTAssertNil(error, "Error should be nil")
+      ref?.delete(completion: { error in
+        XCTAssertNil(error, "Error should be nil")
+        expectation.fulfill()
+      })
+    })
+    waitForExpectations()
+  }
+
+  func testDeleteWithNilCompletion() {
+    let expectation = self.expectation(description: "testDeleteWithNilCompletion")
+    let ref = storage?.reference(withPath: "ios/public/fileToDelete")
+    guard let data = "Delete me!!!!!!".data(using: .utf8) else {
+      XCTFail()
+      return
+    }
+    ref?.putData(data, metadata: nil, completion: { metadata, error in
+      XCTAssertNotNil(metadata, "Metadata should not be nil")
+      XCTAssertNil(error, "Error should be nil")
+      ref?.delete(completion: nil)
+      expectation.fulfill()
+    })
+    waitForExpectations()
+  }
+
+  func testUnauthenticatedSimplePutData() {
+    let expectation = self.expectation(description: "testUnauthenticatedSimplePutData")
+    let ref = storage?.reference(withPath: "ios/public/testBytesUpload")
+    guard let data = "Hello Swift World".data(using: .utf8) else {
+      XCTFail()
+      return
+    }
+    ref?.putData(data, metadata: nil, completion: { metadata, error in
+      XCTAssertNotNil(metadata, "Metadata should not be nil")
+      XCTAssertNil(error, "Error should be nil")
+      expectation.fulfill()
+    })
+    waitForExpectations()
+  }
+
+  func testUnauthenticatedSimplePutSpecialCharacter() {
+    let expectation = self.expectation(description: "testUnauthenticatedSimplePutSpecialCharacter")
+    let ref = storage?.reference(withPath: "ios/public/-._~!$'()*,=:@&+;")
+    guard let data = "Hello Swift World".data(using: .utf8) else {
+      XCTFail()
+      return
+    }
+    ref?.putData(data, metadata: nil, completion: { metadata, error in
+      XCTAssertNotNil(metadata, "Metadata should not be nil")
+      XCTAssertNil(error, "Error should be nil")
+      expectation.fulfill()
+    })
+    waitForExpectations()
+  }
+
+  private func waitForExpectations() {
     let kFIRStorageIntegrationTestTimeout = 60.0
     waitForExpectations(timeout: kFIRStorageIntegrationTestTimeout,
                         handler: { (error) -> Void in
