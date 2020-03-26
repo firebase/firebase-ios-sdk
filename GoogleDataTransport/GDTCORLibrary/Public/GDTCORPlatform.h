@@ -76,10 +76,10 @@ typedef NS_ENUM(NSInteger, GDTCORReachabilityFlagsOption) {
   kGDTCORNetworkReachabilityFlagsConnectionRequired = 1 << 2,
   kGDTCORNetworkReachabilityFlagsConnectionOnTraffic = 1 << 3,
   kGDTCORNetworkReachabilityFlagsInterventionRequired = 1 << 4,
-  kGDTCORNetworkReachabilityFlagsConnectionOnDemand API_AVAILABLE(macos(6.0), ios(3.0)) = 1 << 5,
+  kGDTCORNetworkReachabilityFlagsConnectionOnDemand = 1 << 5,
   kGDTCORNetworkReachabilityFlagsIsLocalAddress = 1 << 16,
   kGDTCORNetworkReachabilityFlagsIsDirect = 1 << 17,
-  kGDTCORNetworkReachabilityFlagsIsWWAN API_UNAVAILABLE(macos) API_AVAILABLE(ios(2.0)) = 1 << 18,
+  kGDTCORNetworkReachabilityFlagsIsWWAN = 1 << 18,
 
   kGDTCORNetworkReachabilityFlagsConnectionAutomatic =
       kGDTCORNetworkReachabilityFlagsConnectionOnTraffic
