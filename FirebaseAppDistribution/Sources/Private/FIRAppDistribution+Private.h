@@ -1,6 +1,5 @@
 //
 
-
 /*
  * Copyright 2018 Google
  *
@@ -17,8 +16,8 @@
  * limitations under the License.
  */
 
-#import "FIRAppDistribution.h"
 #import <AppAuth/AppAuth.h>
+#import "FIRAppDistribution.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -30,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Current auth state for app distribution tester
-*/
+ */
 @property(nullable, nonatomic) OIDAuthState *authState;
 
 @property(nullable, nonatomic) UIWindow *window;
@@ -38,9 +37,9 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 //
 ///** Encodes the API key in a query parameter string. */
-//NSString *_Nullable FIRDynamicLinkAPIKeyParameter(NSString *apiKey);
+// NSString *_Nullable FIRDynamicLinkAPIKeyParameter(NSString *apiKey);
 //
 ///** Creates and returns an NSData object from an NSDictionary along with any error. */
-//NSData *_Nullable FIRDataWithDictionary(NSDictionary *dictionary, NSError **_Nullable error);
+// NSData *_Nullable FIRDataWithDictionary(NSDictionary *dictionary, NSError **_Nullable error);
 //
 NS_ASSUME_NONNULL_END
