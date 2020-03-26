@@ -1,0 +1,4 @@
+target 'newBuildAlertsTest' do
+  platform :ios, '9.0'
+  pod 'FirebaseAppDistribution', :path => '../../..'
+end
