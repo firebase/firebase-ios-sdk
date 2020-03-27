@@ -395,9 +395,15 @@ static void (^reportSentCallback)(void);
                  FIRCLSDebugLog(@"Sending unsent reports.");
                  FIRCLSDataCollectionToken *dataCollectionToken =
                      [FIRCLSDataCollectionToken validToken];
+
+                 // For the new report endpoint, the orgID is not needed.
+                 // For the legacy report endpoint, wait on settings if orgID is not available.
+                 BOOL waitForSetting =
+                     !self.settings.shouldUseNewReportEndpoint && !self.settings.orgID;
+
                  [self startNetworkRequestsWithToken:dataCollectionToken
                               preexistingReportPaths:preexistingReportPaths
-                              waitForSettingsRequest:YES
+                              waitForSettingsRequest:waitForSetting
                                         blockingSend:NO
                                               report:report];
 
