@@ -47,15 +47,21 @@ class StorageIntegration: XCTestCase {
                                  "Failed to load file")
 
         for largeFile in largeFiles {
-          let ref = storage?.reference().child(largeFile)
-          ref?.putData(data, metadata: nil, completion: { _, error in
+          guard let ref = storage?.reference().child(largeFile) else {
+            XCTFail("Failed to load: \(largeFile)")
+            continue
+          }
+          ref.putData(data, metadata: nil, completion: { _, error in
             XCTAssertNil(error, "Error should be nil")
             setupExpectation.fulfill()
           })
         }
         for emptyFile in emptyFiles {
-          let ref = storage?.reference().child(emptyFile)
-          ref?.putData(Data(), metadata: nil, completion: { _, error in
+          guard let ref = storage?.reference().child(emptyFile) else {
+            XCTFail("Failed to load: \(emptyFile)")
+            continue
+          }
+          ref.putData(Data(), metadata: nil, completion: { _, error in
             XCTAssertNil(error, "Error should be nil")
             setupExpectation.fulfill()
           })
@@ -220,19 +226,22 @@ class StorageIntegration: XCTestCase {
     } catch {
       XCTFail("Write to \(fileURL) failed")
     }
-    let task = ref?.putFile(from: fileURL, metadata: nil, completion: { metadata, error in
+    guard let task = ref?.putFile(from: fileURL, metadata: nil, completion: { metadata, error in
       XCTAssertNotNil(metadata, "Metadata should not be nil")
       XCTAssertNil(error, "Error should be nil")
-    })
+    }) else {
+      XCTFail("Failed to put \(fileURL)")
+      return
+    }
 
-    task?.observe(StorageTaskStatus.success, handler: { snapshot in
+    task.observe(StorageTaskStatus.success, handler: { snapshot in
       XCTAssertEqual(snapshot.description, "<State: Success>")
       expectation.fulfill()
     })
 
     var uploadedBytes: Int64 = -1
 
-    task?.observe(StorageTaskStatus.progress, handler: { snapshot in
+    task.observe(StorageTaskStatus.progress, handler: { snapshot in
       XCTAssertTrue(snapshot.description.starts(with: "<State: Progress") ||
         snapshot.description.starts(with: "<State: Resume"))
       guard let progress = snapshot.progress else {
@@ -389,9 +398,12 @@ class StorageIntegration: XCTestCase {
     _ = [ref?.putData(data, metadata: nil, completion: { metadata, error in
       XCTAssertNotNil(metadata, "Metadata should not be nil")
       XCTAssertNil(error, "Error should be nil")
-      let task = ref?.write(toFile: fileURL)
+      guard let task = ref?.write(toFile: fileURL) else {
+        XCTFail("Failed to write to \(fileURL)")
+        return
+      }
 
-      task?.observe(StorageTaskStatus.success, handler: { snapshot in
+      task.observe(StorageTaskStatus.success, handler: { snapshot in
         do {
           let stringData = try String(contentsOf: fileURL, encoding: .utf8)
           XCTAssertEqual(stringData, "Hello Swift World")
@@ -402,7 +414,7 @@ class StorageIntegration: XCTestCase {
         }
       })
 
-      task?.observe(StorageTaskStatus.progress, handler: { snapshot in
+      task.observe(StorageTaskStatus.progress, handler: { snapshot in
         XCTAssertNil(snapshot.error, "Error should be nil")
         guard let progress = snapshot.progress else {
           XCTFail("Missing progress")
@@ -410,7 +422,7 @@ class StorageIntegration: XCTestCase {
         }
         print("\(progress.completedUnitCount) of \(progress.totalUnitCount)")
       })
-      task?.observe(StorageTaskStatus.failure, handler: { snapshot in
+      task.observe(StorageTaskStatus.failure, handler: { snapshot in
         XCTAssertNil(snapshot.error, "Error should be nil")
       })
     })]
@@ -423,15 +435,18 @@ class StorageIntegration: XCTestCase {
     let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
     let fileURL = tmpDirURL.appendingPathComponent("hello.dat")
 
-    let task = ref?.write(toFile: fileURL)
+    guard let task = ref?.write(toFile: fileURL) else {
+      XCTFail("Failed to write to \(fileURL)")
+      return
+    }
 
-    task?.observe(StorageTaskStatus.failure, handler: { snapshot in
+    task.observe(StorageTaskStatus.failure, handler: { snapshot in
       XCTAssertTrue(snapshot.description.starts(with: "<State: Failed"))
       expectation.fulfill()
     })
 
-    task?.observe(StorageTaskStatus.progress, handler: { _ in
-      task?.cancel()
+    task.observe(StorageTaskStatus.progress, handler: { _ in
+      task.cancel()
     })
     waitForExpectations()
   }
@@ -444,7 +459,7 @@ class StorageIntegration: XCTestCase {
     XCTAssertEqual(actualMetadata.contentEncoding, "gzip")
     XCTAssertEqual(actualMetadata.contentLanguage, "de")
     XCTAssertEqual(actualMetadata.contentType, expectedContentType)
-    XCTAssertTrue(actualMetadata.md5Hash!.count == 24)
+    XCTAssertEqual(actualMetadata.md5Hash?.count, 24)
     for (key, value) in expectedCustomMetadata {
       XCTAssertEqual(actualMetadata.customMetadata![key], value)
     }
@@ -456,7 +471,7 @@ class StorageIntegration: XCTestCase {
     XCTAssertEqual(actualMetadata.contentEncoding, "identity")
     XCTAssertNil(actualMetadata.contentLanguage)
     XCTAssertNil(actualMetadata.contentType)
-    XCTAssertTrue(actualMetadata.md5Hash!.count == 24)
+    XCTAssertEqual(actualMetadata.md5Hash?.count, 24)
     XCTAssertNil(actualMetadata.customMetadata)
   }
 
@@ -517,9 +532,12 @@ class StorageIntegration: XCTestCase {
     let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
     let fileURL = tmpDirURL.appendingPathComponent("hello.txt")
 
-    let task = ref?.write(toFile: fileURL)
+    guard let task = ref?.write(toFile: fileURL) else {
+      XCTFail("Failed to write to \(fileURL)")
+      return
+    }
 
-    task?.observe(StorageTaskStatus.success, handler: { snapshot in
+    task.observe(StorageTaskStatus.success, handler: { snapshot in
       XCTAssertEqual(snapshot.description, "<State: Success>")
       expectation.fulfill()
     })
@@ -528,7 +546,7 @@ class StorageIntegration: XCTestCase {
     var downloadedBytes: Int64 = 0
     var computationResult: Double = 0.0
 
-    task?.observe(StorageTaskStatus.progress, handler: { snapshot in
+    task.observe(StorageTaskStatus.progress, handler: { snapshot in
       XCTAssertTrue(snapshot.description.starts(with: "<State: Progress") ||
         snapshot.description.starts(with: "<State: Resume"))
       guard let progress = snapshot.progress else {
@@ -545,15 +563,15 @@ class StorageIntegration: XCTestCase {
           }
         }
         print("Pausing")
-        task?.pause()
+        task.pause()
         resumeAtBytes = INT_MAX
       }
     })
 
-    task?.observe(StorageTaskStatus.pause, handler: { snapshot in
+    task.observe(StorageTaskStatus.pause, handler: { snapshot in
       XCTAssertEqual(snapshot.description, "<State: Paused>")
       print("Resuming")
-      task?.resume()
+      task.resume()
     })
     waitForExpectations()
     XCTAssertEqual(INT_MAX, resumeAtBytes)
@@ -566,9 +584,12 @@ class StorageIntegration: XCTestCase {
     let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
     let fileURL = tmpDirURL.appendingPathComponent("hello.txt")
 
-    let task = ref?.write(toFile: fileURL)
+    guard let task = ref?.write(toFile: fileURL) else {
+      XCTFail("Failed to write to \(fileURL)")
+      return
+    }
 
-    task?.observe(StorageTaskStatus.success, handler: { snapshot in
+    task.observe(StorageTaskStatus.success, handler: { snapshot in
       XCTAssertEqual(snapshot.description, "<State: Success>")
       expectation.fulfill()
     })
@@ -576,7 +597,7 @@ class StorageIntegration: XCTestCase {
     var resumeAtBytes: Int32 = 256 * 1024
     var downloadedBytes: Int64 = 0
 
-    task?.observe(StorageTaskStatus.progress, handler: { snapshot in
+    task.observe(StorageTaskStatus.progress, handler: { snapshot in
       XCTAssertTrue(snapshot.description.starts(with: "<State: Progress") ||
         snapshot.description.starts(with: "<State: Resume"))
       guard let progress = snapshot.progress else {
@@ -588,16 +609,16 @@ class StorageIntegration: XCTestCase {
       if progress.completedUnitCount > resumeAtBytes {
         print("Pausing")
         DispatchQueue.global(qos: .background).async {
-          task?.pause()
+          task.pause()
         }
         resumeAtBytes = INT_MAX
       }
     })
 
-    task?.observe(StorageTaskStatus.pause, handler: { snapshot in
+    task.observe(StorageTaskStatus.pause, handler: { snapshot in
       XCTAssertEqual(snapshot.description, "<State: Paused>")
       print("Resuming")
-      task?.resume()
+      task.resume()
     })
     waitForExpectations()
     XCTAssertEqual(INT_MAX, resumeAtBytes)
