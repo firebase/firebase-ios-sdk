@@ -310,13 +310,7 @@ class StorageIntegration: XCTestCase {
     ref?.putFile(from: fileURL, metadata: nil, completion: { metadata, error in
       XCTAssertNotNil(metadata, "Metadata should not be nil")
       XCTAssertNil(error, "Error should be nil")
-      XCTAssertEqual(fileName, metadata?.name)
-      ref?.getMetadata(completion: { metadata, error in
-        XCTAssertNotNil(metadata, "Metadata should not be nil")
-        XCTAssertNil(error, "Error should be nil")
-        XCTAssertEqual(fileName, metadata?.name)
-        expectation.fulfill()
-      })
+      expectation.fulfill()
     })
     waitForExpectations()
   }
