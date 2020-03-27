@@ -831,8 +831,8 @@ ByteString MakeResumeToken(NSString *specString) {
   }
 
   // Now iterate over them and run them.
-  __block NSUInteger testPassCount = 0;
-  __block NSUInteger testSkipCount = 0;
+  __block int testPassCount = 0;
+  __block int testSkipCount = 0;
   __block bool ranAtLeastOneTest = NO;
   for (NSUInteger i = 0; i < specFiles.count; i++) {
     NSLog(@"Spec test file: %@", specFiles[i]);
@@ -855,9 +855,9 @@ ByteString MakeResumeToken(NSString *specString) {
         NSLog(@"  Spec test: %@", name);
         [self runSpecTestSteps:steps config:config];
         ranAtLeastOneTest = YES;
-        testPassCount++;
+        ++testPassCount;
       } else {
-        testSkipCount++;
+        ++testSkipCount;
         NSLog(@"  [SKIPPED] Spec test: %@", name);
         NSString *comment = testDescription[@"comment"];
         if (comment) {
@@ -866,8 +866,8 @@ ByteString MakeResumeToken(NSString *specString) {
       }
     }];
   }
-  NSLog(@"%@ completed; pass=%@ skip=%@", NSStringFromClass([self class]), @(testPassCount),
-        @(testSkipCount));
+  NSLog(@"%@ completed; pass=%d skip=%d", NSStringFromClass([self class]), testPassCount,
+        testSkipCount);
   XCTAssertTrue(ranAtLeastOneTest);
 }
 
