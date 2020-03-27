@@ -68,10 +68,10 @@ BOOL GDTCORReachabilityFlagsReachable(GDTCORNetworkReachabilityFlags flags) {
 }
 
 BOOL GDTCORReachabilityFlagsContainWWAN(GDTCORNetworkReachabilityFlags flags) {
-#if !TARGET_OS_WATCH
+#if TARGET_OS_IOS
   return (flags & kSCNetworkReachabilityFlagsIsWWAN) == kSCNetworkReachabilityFlagsIsWWAN;
 #else
-  // Assume network connection not WWAN on watchOS.
+  // Assume network connection not WWAN on macOS, tvOS, watchOS.
   return NO;
 #endif
 }
