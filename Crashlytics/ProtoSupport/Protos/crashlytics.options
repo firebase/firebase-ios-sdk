@@ -23,4 +23,3 @@ google_crashlytics.Report.display_version type:FT_POINTER
 google_crashlytics.FilesPayload.File.filename type:FT_POINTER
 google_crashlytics.FilesPayload.File.contents type:FT_POINTER
 google_crashlytics.FilesPayload.files type:FT_POINTER
-google_crashlytics.FilesPayload.org_id type:FT_POINTER
