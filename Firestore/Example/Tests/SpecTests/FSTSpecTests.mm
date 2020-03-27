@@ -107,6 +107,15 @@ NS_ASSUME_NONNULL_BEGIN
 // TODO(mrschmidt): Make this configurable via the tests schema.
 static BOOL kRunBenchmarkTests = NO;
 
+// The name of an environment variable whose value is a filter that specifies which tests to
+// execute. The value of this environment variable is a regular expression that is matched against
+// the name of each test. Using this environment variable is an alternative to setting the
+// kExclusiveTag tag, which requires modifying the JSON file. When this environment variable is set
+// to a non-empty value, a test will be executed if and only if its name matches this regular
+// expression. In this context, a test's "name" is the result of appending its "itName" to its
+// "describeName", separated by a space character.
+static NSString *const kTestFilterEnvKey = @"SPEC_TEST_FILTER";
+
 // Disables all other tests; useful for debugging. Multiple tests can have this tag and they'll all
 // be run (but all others won't).
 static NSString *const kExclusiveTag = @"exclusive";
@@ -830,6 +839,21 @@ ByteString MakeResumeToken(NSString *specString) {
     [parsedSpecs addObject:testDict];
   }
 
+  NSString *testNameFilterFromEnv = NSProcessInfo.processInfo.environment[kTestFilterEnvKey];
+  NSRegularExpression *testNameFilter;
+  if (testNameFilterFromEnv.length == 0) {
+    testNameFilter = nil;
+  } else {
+    exclusiveMode = YES;
+    NSError *error;
+    testNameFilter =
+        [NSRegularExpression regularExpressionWithPattern:testNameFilterFromEnv
+                                                  options:NSRegularExpressionAnchorsMatchLines
+                                                    error:&error];
+    XCTAssertNotNil(testNameFilter, @"Invalid regular expression: %@ (%@)", testNameFilterFromEnv,
+                    error);
+  }
+
   // Now iterate over them and run them.
   __block bool ranAtLeastOneTest = NO;
   for (NSUInteger i = 0; i < specFiles.count; i++) {
@@ -845,10 +869,23 @@ ByteString MakeResumeToken(NSString *specString) {
       NSArray *steps = testDescription[@"steps"];
       NSArray<NSString *> *tags = testDescription[@"tags"];
 
-      BOOL runTest = !exclusiveMode || [tags indexOfObject:kExclusiveTag] != NSNotFound;
-      if (runTest) {
-        runTest = [self shouldRunWithTags:tags];
+      BOOL runTest;
+      if (![self shouldRunWithTags:tags]) {
+        runTest = NO;
+      } else if (!exclusiveMode) {
+        runTest = YES;
+      } else if ([tags indexOfObject:kExclusiveTag] != NSNotFound) {
+        runTest = YES;
+      } else if (testNameFilter != nil) {
+        NSRange testNameFilterMatchRange =
+            [testNameFilter rangeOfFirstMatchInString:name
+                                              options:0
+                                                range:NSMakeRange(0, [name length])];
+        runTest = !NSEqualRanges(testNameFilterMatchRange, NSMakeRange(NSNotFound, 0));
+      } else {
+        runTest = NO;
       }
+
       if (runTest) {
         NSLog(@"  Spec test: %@", name);
         [self runSpecTestSteps:steps config:config];
