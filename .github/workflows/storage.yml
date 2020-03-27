@@ -12,18 +12,18 @@ on:
 
 jobs:
   storage:
+    env:
+      plist_secret: ${{ secrets.StoragePlistSecret }}
     runs-on: macos-latest
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Install Secret GoogleService-Info.plist
-      env:
-         plist_secret: ${{ secrets.StoragePlistSecret }}
-      run: ./scripts/decrypt_gha_secret.sh scripts/gha-encrypted/storage-db-plist.gpg \
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/storage-db-plist.gpg \
           FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist "$plist_secret"
     - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
-      run: scripts/third_party/travis/retry.sh scripts/build.sh Storage all
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/build.sh Storage all)
 
   catalyst:
     runs-on: macOS-latest
@@ -36,23 +36,22 @@ jobs:
       run: scripts/test_catalyst.sh FirebaseStorage test FirebaseStorage-Unit-unit
 
   quickstart:
+    env:
+      plist_secret: ${{ secrets.QsStoragePlistSecret }}
+      signin_secret: ${{ secrets.QsSignInSecret }}
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
     - name: Setup quickstart
       run: scripts/setup_quickstart.sh storage
     - name: Install Secret GoogleService-Info.plist
-      env:
-         plist_secret: ${{ secrets.QsStoragePlistSecret }}
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-storage.plist.gpg \
           quickstart-ios/storage/GoogleService-Info.plist "$plist_secret"
     - name: Install Secret FIREGSignInInfo.h
-      env:
-         signin_secret: ${{ secrets.QsSignInSecret }}
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
           quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test quickstart
-      run: scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Storage
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Storage)
 
   pod-lib-lint:
     runs-on: macOS-latest

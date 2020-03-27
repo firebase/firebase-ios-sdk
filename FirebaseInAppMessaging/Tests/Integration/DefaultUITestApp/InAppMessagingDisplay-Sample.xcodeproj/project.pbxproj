@@ -170,9 +170,11 @@
 				TargetAttributes = {
 					AD7200B12124D19200AFD5F3 = {
 						CreatedOnToolsVersion = 9.4.1;
+						LastSwiftMigration = 1130;
 					};
 					AD7200D02125F92100AFD5F3 = {
 						CreatedOnToolsVersion = 9.4.1;
+						LastSwiftMigration = 1130;
 						TestTargetID = AD7200B12124D19200AFD5F3;
 					};
 				};
@@ -287,7 +289,7 @@
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				"SWIFT_OBJC_BRIDGING_HEADER[arch=*]" = ../../../../FirebaseInAppMessaging/Sources/DefaultUI/FirebaseInAppMessagingDisplay.h;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -307,7 +309,7 @@
 				SWIFT_COMPILATION_MODE = wholemodule;
 				"SWIFT_OBJC_BRIDGING_HEADER[arch=*]" = ../../../../FirebaseInAppMessaging/Sources/DefaultUI/FirebaseInAppMessagingDisplay.h;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -326,7 +328,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = FiamDisplaySwiftExample;
 			};
@@ -346,7 +348,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = FiamDisplaySwiftExample;
 			};

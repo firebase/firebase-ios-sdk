@@ -25,7 +25,7 @@ namespace firestore {
  *
  * The codes are in sync across Firestore SDKs on various platforms.
  */
-enum class Error {
+enum Error {
   /** The operation completed successfully. */
   // Note: NSError objects will never have a code with this value.
   kOk = 0,

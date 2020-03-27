@@ -1,3 +1,6 @@
+# Unreleased
+- Remove usage of memcpy and convert calls from malloc to calloc.
+
 # v2.0.1
 - Don't attempt to make NSData out of a nil file URL. (#5088)
 - Fix deprecation warnings. (#5086)
