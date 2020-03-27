@@ -496,7 +496,7 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 60;
 
 - (void)testUnauthenticatedSimpleGetFile {
   XCTestExpectation *expectation =
-      [self expectationWithDescription:@"testUnauthenticatedSimpleGetData"];
+      [self expectationWithDescription:@"testUnauthenticatedSimpleGetFile"];
 
   FIRStorageReference *ref = [self.storage referenceWithPath:@"ios/public/helloworld"];
 
@@ -529,7 +529,6 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 60;
         [task observeStatus:FIRStorageTaskStatusFailure
                     handler:^(FIRStorageTaskSnapshot *snapshot) {
                       XCTAssertNil(snapshot.error);
-                      [expectation fulfill];
                     }];
       }];
 
@@ -583,9 +582,7 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 60;
   XCTAssertNil(actualMetadata.contentLanguage);
   XCTAssertNil(actualMetadata.contentType);
   XCTAssertTrue([actualMetadata.md5Hash length] == 24);
-  XCTAssertNil([actualMetadata.customMetadata objectForKey:@"a"]);
-  XCTAssertNil([actualMetadata.customMetadata objectForKey:@"c"]);
-  XCTAssertNil([actualMetadata.customMetadata objectForKey:@"f"]);
+  XCTAssertNil(actualMetadata.customMetadata);
 }
 
 - (void)testUpdateMetadata {
