@@ -27,11 +27,9 @@
  * @param flags The new flag values.
  * @param info Any data that might be passed in by the callback.
  */
-#if !TARGET_OS_WATCH
 static void GDTCORReachabilityCallback(GDTCORNetworkReachabilityRef reachability,
                                        GDTCORNetworkReachabilityFlags flags,
                                        void *info);
-#endif
 
 @implementation GDTCORReachability {
   /** The reachability object. */
@@ -66,7 +64,7 @@ static void GDTCORReachabilityCallback(GDTCORNetworkReachabilityRef reachability
         reachability->_callbackFlags ? reachability->_callbackFlags : reachability->_flags;
     GDTCORLogDebug("Initial reachability flags determined: %d", currentFlags);
   });
-#elif TARGET_OS_WATCH
+#else
   currentFlags = kGDTCORNetworkReachabilityFlagsReachable;
 #endif
   return currentFlags;
@@ -108,21 +106,18 @@ static void GDTCORReachabilityCallback(GDTCORNetworkReachabilityRef reachability
   return self;
 }
 
-#if !TARGET_OS_WATCH
 - (void)setCallbackFlags:(GDTCORNetworkReachabilityFlags)flags {
   if (_callbackFlags != flags) {
     self->_callbackFlags = flags;
   }
 }
-#endif
 
 @end
 
-#if !TARGET_OS_WATCH
+#pragma clang diagnostic ignored "-Wunused-function"
 static void GDTCORReachabilityCallback(GDTCORNetworkReachabilityRef reachability,
                                        GDTCORNetworkReachabilityFlags flags,
                                        void *info) {
   GDTCORLogDebug("Reachability changed, new flags: %d", flags);
   [[GDTCORReachability sharedInstance] setCallbackFlags:flags];
 }
-#endif

@@ -141,16 +141,11 @@
  */
 - (GDTCORUploadConditions)uploadConditions {
   GDTCORNetworkReachabilityFlags currentFlags = [GDTCORReachability currentFlags];
-  BOOL reachable = (currentFlags & kGDTCORNetworkReachabilityFlagsReachable) ==
-                   kGDTCORNetworkReachabilityFlagsReachable;
-  BOOL connectionRequired = (currentFlags & kGDTCORNetworkReachabilityFlagsConnectionRequired) ==
-                            kGDTCORNetworkReachabilityFlagsConnectionRequired;
-  BOOL networkConnected = reachable && !connectionRequired;
-
+  BOOL networkConnected = GDTCORReachabilityFlagsReachable(currentFlags);
   if (!networkConnected) {
     return GDTCORUploadConditionNoNetwork;
   }
-  // Assume always wifi conncetion on watchOS
+  // Assume always wifi connection on watchOS.
   BOOL isWWAN = GDTCORReachabilityFlagsContainWWAN(currentFlags);
   if (isWWAN) {
     return GDTCORUploadConditionMobileData;

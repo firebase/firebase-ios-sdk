@@ -69,22 +69,6 @@ typedef NS_ENUM(NSInteger, GDTCORNetworkMobileSubtype) {
   GDTCORNetworkMobileSubtypeLTE = 11,
 };
 
-/** The different possible reachabilityFlags option. */
-typedef NS_ENUM(NSInteger, GDTCORReachabilityFlagsOption) {
-  kGDTCORNetworkReachabilityFlagsTransientConnection = 1 << 0,
-  kGDTCORNetworkReachabilityFlagsReachable = 1 << 1,
-  kGDTCORNetworkReachabilityFlagsConnectionRequired = 1 << 2,
-  kGDTCORNetworkReachabilityFlagsConnectionOnTraffic = 1 << 3,
-  kGDTCORNetworkReachabilityFlagsInterventionRequired = 1 << 4,
-  kGDTCORNetworkReachabilityFlagsConnectionOnDemand = 1 << 5,
-  kGDTCORNetworkReachabilityFlagsIsLocalAddress = 1 << 16,
-  kGDTCORNetworkReachabilityFlagsIsDirect = 1 << 17,
-  kGDTCORNetworkReachabilityFlagsIsWWAN = 1 << 18,
-
-  kGDTCORNetworkReachabilityFlagsConnectionAutomatic =
-      kGDTCORNetworkReachabilityFlagsConnectionOnTraffic
-};
-
 #if !TARGET_OS_WATCH
 /** Define SCNetworkReachabilityFlags as GDTCORNetworkReachabilityFlags on non-watchOS. */
 typedef SCNetworkReachabilityFlags GDTCORNetworkReachabilityFlags;
@@ -92,14 +76,17 @@ typedef SCNetworkReachabilityFlags GDTCORNetworkReachabilityFlags;
 /** Define SCNetworkReachabilityRef as GDTCORNetworkReachabilityRef on non-watchOS. */
 typedef SCNetworkReachabilityRef GDTCORNetworkReachabilityRef;
 
-#elif TARGET_OS_WATCH
-/** Define an NSInteger as GDTCORNetworkReachabilityFlags on watchOS. */
-typedef NSInteger GDTCORNetworkReachabilityFlags;
+#else
+/** The different possible reachabilityFlags option on watchOS. */
+typedef NS_OPTIONS(uint32_t, GDTCORNetworkReachabilityFlags) {
+  kGDTCORNetworkReachabilityFlagsReachable = 1 << 1,
+  // TODO: Add more options on watchOS if needed.
+};
 
 /** Define a struct as GDTCORNetworkReachabilityRef on watchOS to store network connection
  * information. */
 typedef struct {
-  // TODO: Store network connection information on WatchOS if needed.
+  // TODO: Store network connection information on watchOS if needed.
 } GDTCORNetworkReachabilityRef;
 #endif
 
@@ -108,6 +95,14 @@ typedef struct {
  * @return A URL to the root directory under which all GDT-associated data must be saved.
  */
 NSURL *GDTCORRootDirectory(void);
+
+/** Compares flags with the reachable flag(on non-watchos with both reachable and connectionRequired
+ * flags), if available, and returns YES if network reachable.
+ *
+ * @param flags The set of reachability flags.
+ * @return YES if the network is reachable, NO otherwise.
+ */
+BOOL GDTCORReachabilityFlagsReachable(GDTCORNetworkReachabilityFlags flags);
 
 /** Compares flags with the WWAN reachability flag, if available, and returns YES if present.
  *

@@ -54,8 +54,26 @@ NSURL *GDTCORRootDirectory(void) {
   return GDTPath;
 }
 
+BOOL GDTCORReachabilityFlagsReachable(GDTCORNetworkReachabilityFlags flags) {
+#if !TARGET_OS_WATCH
+  BOOL reachable =
+      (flags & kSCNetworkReachabilityFlagsReachable) == kSCNetworkReachabilityFlagsReachable;
+  BOOL connectionRequired = (flags & kSCNetworkReachabilityFlagsConnectionRequired) ==
+                            kSCNetworkReachabilityFlagsConnectionRequired;
+  return reachable && !connectionRequired;
+#else
+  return (flags & kGDTCORNetworkReachabilityFlagsReachable) ==
+         kGDTCORNetworkReachabilityFlagsReachable;
+#endif
+}
+
 BOOL GDTCORReachabilityFlagsContainWWAN(GDTCORNetworkReachabilityFlags flags) {
-  return (flags & kGDTCORNetworkReachabilityFlagsIsWWAN) == kGDTCORNetworkReachabilityFlagsIsWWAN;
+#if !TARGET_OS_WATCH
+  return (flags & kSCNetworkReachabilityFlagsIsWWAN) == kSCNetworkReachabilityFlagsIsWWAN;
+#else
+  // Assume network connection not WWAN on watchOS.
+  return NO;
+#endif
 }
 
 GDTCORNetworkType GDTCORNetworkTypeMessage() {
