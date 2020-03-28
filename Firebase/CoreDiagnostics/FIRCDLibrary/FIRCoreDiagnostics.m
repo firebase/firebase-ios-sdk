@@ -236,7 +236,7 @@ pb_bytes_array_t *FIREncodeString(NSString *string) {
  * @param data The data to copy into the new bytes array.
  */
 pb_bytes_array_t *FIREncodeData(NSData *data) {
-  pb_bytes_array_t *pbBytes = calloc(PB_BYTES_ARRAY_T_ALLOCSIZE(data.length), 1);
+  pb_bytes_array_t *pbBytes = calloc(1, PB_BYTES_ARRAY_T_ALLOCSIZE(data.length));
   if (pbBytes != NULL) {
     [data getBytes:pbBytes range:NSMakeRange(0, data.length)];
     pbBytes->size = (pb_size_t)data.length;
@@ -510,8 +510,8 @@ void FIRPopulateProtoWithInstalledServices(logs_proto_mobilesdk_ios_ICoreConfigu
   }
 
   logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType *servicesInstalled =
-      calloc(sizeof(logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType),
-             sdkServiceInstalledArray.count);
+      calloc(sdkServiceInstalledArray.count,
+             sizeof(logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType));
   if (servicesInstalled == NULL) {
     return;
   }
