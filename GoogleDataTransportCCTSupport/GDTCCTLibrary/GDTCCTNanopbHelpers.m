@@ -43,7 +43,7 @@ pb_bytes_array_t *GDTCCTEncodeString(NSString *string) {
 }
 
 pb_bytes_array_t *GDTCCTEncodeData(NSData *data) {
-  pb_bytes_array_t *pbBytes = calloc(PB_BYTES_ARRAY_T_ALLOCSIZE(data.length), 1);
+  pb_bytes_array_t *pbBytes = calloc(1, PB_BYTES_ARRAY_T_ALLOCSIZE(data.length));
   if (pbBytes != NULL) {
     [data getBytes:pbBytes range:NSMakeRange(0, data.length)];
     pbBytes->size = (pb_size_t)data.length;
@@ -78,7 +78,7 @@ gdt_cct_BatchedLogRequest GDTCCTConstructBatchedLogRequest(
     NSDictionary<NSString *, NSSet<GDTCOREvent *> *> *logMappingIDToLogSet) {
   gdt_cct_BatchedLogRequest batchedLogRequest = gdt_cct_BatchedLogRequest_init_default;
   NSUInteger numberOfLogRequests = logMappingIDToLogSet.count;
-  gdt_cct_LogRequest *logRequests = calloc(sizeof(gdt_cct_LogRequest), numberOfLogRequests);
+  gdt_cct_LogRequest *logRequests = calloc(numberOfLogRequests, sizeof(gdt_cct_LogRequest));
   if (logRequests == NULL) {
     return batchedLogRequest;
   }
@@ -111,7 +111,7 @@ gdt_cct_LogRequest GDTCCTConstructLogRequest(int32_t logSource,
   logRequest.has_log_source = 1;
   logRequest.client_info = GDTCCTConstructClientInfo();
   logRequest.has_client_info = 1;
-  logRequest.log_event = calloc(sizeof(gdt_cct_LogEvent), logSet.count);
+  logRequest.log_event = calloc(logSet.count, sizeof(gdt_cct_LogEvent));
   if (logRequest.log_event == NULL) {
     return logRequest;
   }
