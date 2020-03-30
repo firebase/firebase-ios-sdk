@@ -114,6 +114,7 @@ static void GDTCORReachabilityCallback(GDTCORNetworkReachabilityRef reachability
 
 @end
 
+#pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-function"
 static void GDTCORReachabilityCallback(GDTCORNetworkReachabilityRef reachability,
                                        GDTCORNetworkReachabilityFlags flags,
@@ -121,3 +122,4 @@ static void GDTCORReachabilityCallback(GDTCORNetworkReachabilityRef reachability
   GDTCORLogDebug("Reachability changed, new flags: %d", flags);
   [[GDTCORReachability sharedInstance] setCallbackFlags:flags];
 }
+#pragma clang diagnostic pop

@@ -145,7 +145,6 @@
   if (!networkConnected) {
     return GDTCORUploadConditionNoNetwork;
   }
-  // Assume always wifi connection on watchOS.
   BOOL isWWAN = GDTCORReachabilityFlagsContainWWAN(currentFlags);
   if (isWWAN) {
     return GDTCORUploadConditionMobileData;
