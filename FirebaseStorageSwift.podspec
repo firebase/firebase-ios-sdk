@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   s.name                    = 'FirebaseStorageSwift'
   s.version                 = '0.1.0'
-  s.summary                 = 'Swift Extensions for Google Cloud Storage for iOS'
+  s.summary                 = 'Swift Extensions for Google Cloud Storage'
 
   s.description      = <<-DESC
 Firebase Storage provides robust, secure file uploads and downloads from Firebase SDKs, powered by Google Cloud Storage.

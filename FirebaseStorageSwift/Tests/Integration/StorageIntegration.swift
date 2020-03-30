@@ -50,24 +50,14 @@ class StorageIntegration: XCTestCase {
         for largeFile in largeFiles {
           let ref = storage.reference().child(largeFile)
           _ = ref.putData(data) { result in
-            switch result {
-            case let .success(metadata):
-              XCTAssertEqual(metadata.name, "1mb")
-            case let .failure(error):
-              XCTFail("Unexpected error \(error) from putData")
-            }
+            self.assertResultSuccess(result);
             setupExpectation.fulfill()
           }
         }
         for emptyFile in emptyFiles {
           let ref = storage.reference().child(emptyFile)
           _ = ref.putData(data) { result in
-            switch result {
-            case let .success(metadata):
-              XCTAssertNotNil(metadata, "Metadata should not be nil")
-            case let .failure(error):
-              XCTFail("Unexpected error \(error) from putData")
-            }
+            self.assertResultSuccess(result);
             setupExpectation.fulfill()
           }
         }
@@ -88,12 +78,7 @@ class StorageIntegration: XCTestCase {
     let expectation = self.expectation(description: "testUnauthenticatedGetMetadata")
     let ref = storage.reference().child("ios/public/1mb")
     ref.getMetadata { result in
-      switch result {
-      case let .success(metadata):
-        XCTAssertNotNil(metadata, "Metadata should not be nil")
-      case let .failure(error):
-        XCTFail("Unexpected error \(error) from getMetadata")
-      }
+      self.assertResultSuccess(result);
       expectation.fulfill()
     }
     waitForExpectations()
@@ -109,7 +94,7 @@ class StorageIntegration: XCTestCase {
                            "shinkansen": "新幹線"]
 
     let ref = storage.reference(withPath: "ios/public/1mb")
-    ref.updateMetadata(meta, completion: { result in
+    ref.updateMetadata(meta) { result in
       switch result {
       case let .success(metadata):
         XCTAssertEqual(meta.contentType, metadata.contentType)
@@ -121,7 +106,7 @@ class StorageIntegration: XCTestCase {
         XCTFail("Unexpected error \(error) from updateMetadata")
       }
       expectation.fulfill()
-    })
+    }
     waitForExpectations()
   }
 
@@ -129,17 +114,13 @@ class StorageIntegration: XCTestCase {
     let expectation = self.expectation(description: #function)
     let ref = storage.reference(withPath: "ios/public/fileToDelete")
     let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
-    _ = ref.putData(data, metadata: nil, completion: { result in
-      switch result {
-      case .success:
-        ref.delete(completion: { error in
-          XCTAssertNil(error, "Error should be nil")
-        })
-      case let .failure(error):
-        XCTFail("Unexpected error \(error) from putData")
+    _ = ref.putData(data) { result in
+      self.assertResultSuccess(result);
+      ref.delete() { error in
+        XCTAssertNil(error, "Error should be nil")
       }
       expectation.fulfill()
-    })
+    }
     waitForExpectations()
   }
 
@@ -147,15 +128,11 @@ class StorageIntegration: XCTestCase {
     let expectation = self.expectation(description: #function)
     let ref = storage.reference(withPath: "ios/public/fileToDelete")
     let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
-    _ = ref.putData(data, metadata: nil, completion: { result in
-      switch result {
-      case .success:
-        ref.delete(completion: nil)
-      case let .failure(error):
-        XCTFail("Unexpected error \(error) from putData")
-      }
+    _ = ref.putData(data) { result in
+      self.assertResultSuccess(result);
+      ref.delete(completion: nil)
       expectation.fulfill()
-    })
+    }
     waitForExpectations()
   }
 
@@ -163,14 +140,10 @@ class StorageIntegration: XCTestCase {
     let expectation = self.expectation(description: #function)
     let ref = storage.reference(withPath: "ios/public/testBytesUpload")
     let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
-    _ = ref.putData(data, metadata: nil, completion: { result in
-      do {
-        try _ = result.get() // .failure will throw
-      } catch {
-        XCTFail("Unexpected error \(error) from putData")
-      }
+    _ = ref.putData(data) { result in
+      self.assertResultSuccess(result);
       expectation.fulfill()
-    })
+    }
     waitForExpectations()
   }
 
@@ -178,14 +151,10 @@ class StorageIntegration: XCTestCase {
     let expectation = self.expectation(description: #function)
     let ref = storage.reference(withPath: "ios/public/-._~!$'()*,=:@&+;")
     let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
-    _ = ref.putData(data, metadata: nil, completion: { result in
-      do {
-        try _ = result.get() // .failure will throw
-      } catch {
-        XCTFail("Unexpected error \(error) from putData")
-      }
+    _ = ref.putData(data) { result in
+      self.assertResultSuccess(result);
       expectation.fulfill()
-    })
+    }
     waitForExpectations()
   }
 
@@ -194,14 +163,10 @@ class StorageIntegration: XCTestCase {
     let ref = storage.reference(withPath: "ios/public/testBytesUpload")
     let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
     DispatchQueue.global(qos: .background).async {
-      _ = ref.putData(data, metadata: nil, completion: { result in
-        do {
-          try _ = result.get() // .failure will throw
-        } catch {
-          XCTFail("Unexpected error \(error) from putData")
-        }
+      _ = ref.putData(data) { result in
+        self.assertResultSuccess(result);
         expectation.fulfill()
-      })
+      }
     }
     waitForExpectations()
   }
@@ -210,14 +175,10 @@ class StorageIntegration: XCTestCase {
     let expectation = self.expectation(description: #function)
     let ref = storage.reference(withPath: "ios/public/testUnauthenticatedSimplePutEmptyData")
     let data = Data()
-    _ = ref.putData(data, metadata: nil, completion: { result in
-      do {
-        try _ = result.get() // .failure will throw
-      } catch {
-        XCTFail("Unexpected error \(error) from putData")
-      }
+    _ = ref.putData(data) { result in
+      self.assertResultSuccess(result);
       expectation.fulfill()
-    })
+    }
     waitForExpectations()
   }
 
@@ -225,7 +186,7 @@ class StorageIntegration: XCTestCase {
     let expectation = self.expectation(description: #function)
     let ref = storage.reference(withPath: "ios/private/secretfile.txt")
     let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
-    _ = ref.putData(data, metadata: nil, completion: { result in
+    _ = ref.putData(data) { result in
       switch result {
       case .success:
         XCTFail("Unexpected success from unauthorized putData")
@@ -233,7 +194,7 @@ class StorageIntegration: XCTestCase {
         XCTAssertEqual(error.code, StorageErrorCode.unauthorized.rawValue)
         expectation.fulfill()
       }
-    })
+    }
     waitForExpectations()
   }
 
@@ -241,7 +202,7 @@ class StorageIntegration: XCTestCase {
     let expectation = self.expectation(description: #function)
     let ref = storage.reference(withPath: "ios/private/secretfile.txt")
     let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
-    _ = ref.putData(data, metadata: nil, completion: { result in
+    _ = ref.putData(data) { result in
       do {
         try _ = result.get() // .failure will throw
       } catch {
@@ -250,7 +211,7 @@ class StorageIntegration: XCTestCase {
       }
       XCTFail("Unexpected success from unauthorized putData")
       expectation.fulfill()
-    })
+    }
     waitForExpectations()
   }
 
@@ -262,23 +223,19 @@ class StorageIntegration: XCTestCase {
     let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
     let fileURL = tmpDirURL.appendingPathComponent("hello.txt")
     try data.write(to: fileURL, options: .atomicWrite)
-    let task = ref.putFile(from: fileURL, metadata: nil, completion: { result in
-      do {
-        try _ = result.get() // .failure will throw
-      } catch {
-        XCTFail("Unexpected error \(error) from putData")
-      }
+    let task = ref.putFile(from: fileURL) { result in
+      self.assertResultSuccess(result);
       putFileExpectation.fulfill()
-    })
+    }
 
-    task.observe(StorageTaskStatus.success, handler: { snapshot in
+    task.observe(StorageTaskStatus.success) { snapshot in
       XCTAssertEqual(snapshot.description, "<State: Success>")
       expectation.fulfill()
-    })
+    }
 
     var uploadedBytes: Int64 = -1
 
-    task.observe(StorageTaskStatus.progress, handler: { snapshot in
+    task.observe(StorageTaskStatus.progress) { snapshot in
       XCTAssertTrue(snapshot.description.starts(with: "<State: Progress") ||
         snapshot.description.starts(with: "<State: Resume"))
       guard let progress = snapshot.progress else {
@@ -287,7 +244,7 @@ class StorageIntegration: XCTestCase {
       }
       XCTAssertGreaterThanOrEqual(progress.completedUnitCount, uploadedBytes)
       uploadedBytes = progress.completedUnitCount
-    })
+    }
     waitForExpectations()
   }
 
@@ -300,23 +257,18 @@ class StorageIntegration: XCTestCase {
     let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
     let fileURL = tmpDirURL.appendingPathComponent("hello.txt")
     try data.write(to: fileURL, options: .atomicWrite)
-    _ = ref.putFile(from: fileURL, metadata: nil, completion: { result in
+    _ = ref.putFile(from: fileURL) { result in
       switch result {
       case let .success(metadata):
         XCTAssertEqual(fileName, metadata.name)
-        ref.getMetadata(completion: { result in
-          switch result {
-          case let .success(metadata):
-            XCTAssertEqual(fileName, metadata.name)
-          case let .failure(error):
-            XCTFail("Unexpected error \(error) from getMetadata")
-          }
-        })
+        ref.getMetadata() { result in
+          self.assertResultSuccess(result)
+        }
       case let .failure(error):
         XCTFail("Unexpected error \(error) from putFile")
       }
       expectation.fulfill()
-    })
+    }
     waitForExpectations()
   }
 
@@ -326,14 +278,10 @@ class StorageIntegration: XCTestCase {
     let ref = storage.reference(withPath: "ios/public/testUnauthenticatedSimplePutDataNoMetadata")
     let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
 
-    _ = ref.putData(data, metadata: nil, completion: { result in
-      do {
-        try _ = result.get() // .failure will throw
-      } catch {
-        XCTFail("Unexpected error \(error) from putData")
-      }
+    _ = ref.putData(data) { result in
+      self.assertResultSuccess(result)
       expectation.fulfill()
-    })
+    }
     waitForExpectations()
   }
 
@@ -346,14 +294,10 @@ class StorageIntegration: XCTestCase {
     let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
     let fileURL = tmpDirURL.appendingPathComponent("hello.txt")
     try data.write(to: fileURL, options: .atomicWrite)
-    _ = ref.putFile(from: fileURL, metadata: nil, completion: { result in
-      do {
-        try _ = result.get() // .failure will throw
-      } catch {
-        XCTFail("Unexpected error \(error) from putFile")
-      }
+    _ = ref.putFile(from: fileURL) { result in
+      self.assertResultSuccess(result)
       expectation.fulfill()
-    })
+    }
     waitForExpectations()
   }
 
@@ -361,14 +305,10 @@ class StorageIntegration: XCTestCase {
     let expectation = self.expectation(description: #function)
 
     let ref = storage.reference(withPath: "ios/public/1mb")
-    _ = ref.getData(maxSize: 1024 * 1024, completion: { result in
-      do {
-        try _ = result.get() // .failure will throw
-      } catch {
-        XCTFail("Unexpected error \(error) from getData")
-      }
+    _ = ref.getData(maxSize: 1024 * 1024) { result in
+      self.assertResultSuccess(result)
       expectation.fulfill()
-    })
+    }
     waitForExpectations()
   }
 
@@ -377,14 +317,10 @@ class StorageIntegration: XCTestCase {
 
     let ref = storage.reference(withPath: "ios/public/1mb")
     DispatchQueue.global(qos: .background).async {
-      _ = ref.getData(maxSize: 1024 * 1024, completion: { result in
-        switch result {
-        case .success:
-          expectation.fulfill()
-        case let .failure(error):
-          XCTFail("Unexpected error \(error) from getData")
-        }
-      })
+      _ = ref.getData(maxSize: 1024 * 1024) { result in
+        self.assertResultSuccess(result)
+        expectation.fulfill()
+      }
     }
     waitForExpectations()
   }
@@ -393,7 +329,7 @@ class StorageIntegration: XCTestCase {
     let expectation = self.expectation(description: #function)
 
     let ref = storage.reference(withPath: "ios/public/1mb")
-    _ = ref.getData(maxSize: 1024, completion: { result in
+    _ = ref.getData(maxSize: 1024) { result in
       switch result {
       case .success:
         XCTFail("Unexpected success from getData too small")
@@ -401,7 +337,7 @@ class StorageIntegration: XCTestCase {
         XCTAssertEqual(error.code, StorageErrorCode.downloadSizeExceeded.rawValue)
       }
       expectation.fulfill()
-    })
+    }
     waitForExpectations()
   }
 
@@ -416,7 +352,7 @@ class StorageIntegration: XCTestCase {
       "^https:\\/\\/firebasestorage.googleapis.com\\/v0\\/b\\/[^\\/]*\\/o\\/" +
       "ios%2Fpublic%2F1mb\\?alt=media&token=[a-z0-9-]*$"
 
-    ref.downloadURL(completion: { result in
+    ref.downloadURL() { result in
       switch result {
       case let .success(downloadURL):
         do {
@@ -428,12 +364,11 @@ class StorageIntegration: XCTestCase {
         } catch {
           XCTFail("Throw in downloadURL completion block")
         }
-        expectation.fulfill()
       case let .failure(error):
         XCTFail("Unexpected error \(error) from downloadURL")
-        expectation.fulfill()
       }
-    })
+      expectation.fulfill()
+    }
     waitForExpectations()
   }
 
@@ -444,12 +379,12 @@ class StorageIntegration: XCTestCase {
     let fileURL = tmpDirURL.appendingPathComponent("hello.txt")
     let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
 
-    _ = ref.putData(data, metadata: nil, completion: { result in
+    _ = ref.putData(data) { result in
       switch result {
       case .success:
         let task = ref.write(toFile: fileURL)
 
-        task.observe(StorageTaskStatus.success, handler: { snapshot in
+        task.observe(StorageTaskStatus.success) { snapshot in
           do {
             let stringData = try String(contentsOf: fileURL, encoding: .utf8)
             XCTAssertEqual(stringData, "Hello Swift World")
@@ -458,24 +393,24 @@ class StorageIntegration: XCTestCase {
             XCTFail("Error processing success snapshot")
           }
           expectation.fulfill()
-        })
+        }
 
-        task.observe(StorageTaskStatus.progress, handler: { snapshot in
+        task.observe(StorageTaskStatus.progress) { snapshot in
           XCTAssertNil(snapshot.error, "Error should be nil")
           guard let progress = snapshot.progress else {
             XCTFail("Missing progress")
             return
           }
           print("\(progress.completedUnitCount) of \(progress.totalUnitCount)")
-        })
-        task.observe(StorageTaskStatus.failure, handler: { snapshot in
+        }
+        task.observe(StorageTaskStatus.failure) { snapshot in
           XCTAssertNil(snapshot.error, "Error should be nil")
-        })
+        }
       case let .failure(error):
         XCTFail("Unexpected error \(error) from putData")
         expectation.fulfill()
       }
-    })
+    }
     waitForExpectations()
   }
 
@@ -515,7 +450,7 @@ class StorageIntegration: XCTestCase {
     metadata.contentType = "content-type-a"
     metadata.customMetadata = ["a": "b"]
 
-    ref.updateMetadata(metadata, completion: { updatedMetadata, error in
+    ref.updateMetadata(metadata) { updatedMetadata, error in
       XCTAssertNil(error, "Error should be nil")
       guard let updatedMetadata = updatedMetadata else {
         XCTFail("Metadata is nil")
@@ -530,7 +465,7 @@ class StorageIntegration: XCTestCase {
       metadata.contentType = "content-type-b"
       metadata.customMetadata = ["a": "b", "c": "d"]
 
-      ref.updateMetadata(metadata, completion: { result in
+      ref.updateMetadata(metadata) { result in
         switch result {
         case let .success(updatedMetadata):
           self.assertMetadata(actualMetadata: updatedMetadata,
@@ -542,21 +477,16 @@ class StorageIntegration: XCTestCase {
           metadata.contentLanguage = nil
           metadata.contentType = nil
           metadata.customMetadata = nil
-          ref.updateMetadata(metadata, completion: { result in
-            switch result {
-            case let .success(updatedMetadata):
-              self.assertMetadataNil(actualMetadata: updatedMetadata)
-            case let .failure(error):
-              XCTFail("Unexpected error \(error) from updateMetadata")
-            }
+          ref.updateMetadata(metadata) { result in
+            self.assertResultSuccess(result)
             expectation.fulfill()
-          })
+          }
         case let .failure(error):
           XCTFail("Unexpected error \(error) from updateMetadata")
           expectation.fulfill()
         }
-      })
-    })
+      }
+    }
     waitForExpectations()
   }
 
@@ -564,29 +494,32 @@ class StorageIntegration: XCTestCase {
     let expectation = self.expectation(description: #function)
     let ref = storage.reference(withPath: "ios/public/list")
 
-    ref.list(withMaxResults: 2, completion: { listResult, error in
-      XCTAssertNotNil(listResult, "listResult should not be nil")
-      XCTAssertNil(error, "Error should be nil")
-
-      XCTAssertEqual(listResult.items, [ref.child("a"), ref.child("b")])
-      XCTAssertEqual(listResult.prefixes, [])
-      guard let pageToken = listResult.pageToken else {
-        XCTFail("pageToken should not be nil")
-        expectation.fulfill()
-        return
-      }
-      ref.list(withMaxResults: 2, pageToken: pageToken, completion: { result in
-        switch result {
-        case let .success(listResult):
-          XCTAssertEqual(listResult.items, [])
-          XCTAssertEqual(listResult.prefixes, [ref.child("prefix")])
-          XCTAssertNil(listResult.pageToken, "pageToken should be nil")
-        case let .failure(error):
-          XCTFail("Unexpected error \(error) from list")
+    ref.list(withMaxResults: 2) { result in
+      switch result {
+      case let .success(listResult):
+        XCTAssertEqual(listResult.items, [ref.child("a"), ref.child("b")])
+        XCTAssertEqual(listResult.prefixes, [])
+        guard let pageToken = listResult.pageToken else {
+          XCTFail("pageToken should not be nil")
+          expectation.fulfill()
+          return
         }
+        ref.list(withMaxResults: 2, pageToken: pageToken) { result in
+          switch result {
+          case let .success(listResult):
+            XCTAssertEqual(listResult.items, [])
+            XCTAssertEqual(listResult.prefixes, [ref.child("prefix")])
+            XCTAssertNil(listResult.pageToken, "pageToken should be nil")
+          case let .failure(error):
+            XCTFail("Unexpected error \(error) from list")
+          }
+          expectation.fulfill()
+        }
+      case let .failure(error):
+        XCTFail("Unexpected error \(error) from list")
         expectation.fulfill()
-      })
-    })
+      }
+    }
     waitForExpectations()
   }
 
@@ -594,7 +527,7 @@ class StorageIntegration: XCTestCase {
     let expectation = self.expectation(description: #function)
     let ref = storage.reference(withPath: "ios/public/list")
 
-    ref.listAll(completion: { result in
+    ref.listAll() { result in
       switch result {
       case let .success(listResult):
         XCTAssertEqual(listResult.items, [ref.child("a"), ref.child("b")])
@@ -604,7 +537,7 @@ class StorageIntegration: XCTestCase {
         XCTFail("Unexpected error \(error) from list")
       }
       expectation.fulfill()
-    })
+    }
     waitForExpectations()
   }
 
@@ -616,5 +549,17 @@ class StorageIntegration: XCTestCase {
                             print(error)
                           }
     })
+  }
+
+  private func assertResultSuccess<T>(
+    _ result: Result<T, Error>,
+    file: StaticString = #file, line: UInt = #line) {
+
+    switch result {
+      case let .success(value):
+        XCTAssertNotNil(value, file: file, line: line);
+      case let .failure(error):
+        XCTFail("Unexpected error \(error)")
+    }
   }
 }
