@@ -73,7 +73,7 @@ BOOL GDTCORReachabilityFlagsContainWWAN(GDTCORNetworkReachabilityFlags flags) {
 #else
   // Assume network connection not WWAN on macOS, tvOS, watchOS.
   return NO;
-#endif // TARGET_OS_IOS
+#endif  // TARGET_OS_IOS
 }
 
 GDTCORNetworkType GDTCORNetworkTypeMessage() {
