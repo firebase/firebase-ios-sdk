@@ -11,9 +11,6 @@ cache:
 stages:
   - test
 
-before_script:
-  - '[ ! -z $DANGER_GITHUB_API_TOKEN ] && bundle exec danger || echo "Skipping Danger for External Contributor"'
-
 jobs:
   include:
     # The order of builds matters (even though they are run in parallel):
