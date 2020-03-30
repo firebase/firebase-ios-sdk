@@ -2,7 +2,7 @@
 - [fixed] Unincluded umbrella header warnings in Carthage and zip distributions
   introduced in Firebase 6.21.0. (#5209)
 
-
+# v6.6.5 -- M67
 - [changed] The zip distribution is now comprised of xcframeworks instead of
   frameworks. This provides a binary distribution for the community supported
   Firebase for Catalyst. See the zip's README for additional details.
