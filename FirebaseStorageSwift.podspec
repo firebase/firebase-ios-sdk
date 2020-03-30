@@ -17,7 +17,7 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
     :tag => 'StorageSwift-' + s.version.to_s
   }
 
-  s.swift_version           = '5.1'
+  s.swift_version           = '5.0'
   s.ios.deployment_target   = '8.0'
   s.osx.deployment_target   = '10.11'
   s.tvos.deployment_target  = '10.0'
