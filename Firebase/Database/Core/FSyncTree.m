@@ -234,7 +234,7 @@ static const NSUInteger kFSizeThresholdForCompoundHash = 1024;
             if ([write isOverwrite]) {
                 id<FNode> resolvedNode =
                     [FServerValues resolveDeferredValueSnapshot:write.overwrite
-                                                   withSyncTree:self
+                                                   withExisting:self
                                                          atPath:write.path
                                                    serverValues:serverValues];
                 [self.persistenceManager applyUserWrite:resolvedNode

@@ -44,37 +44,37 @@ BOOL canBeRepresentedAsLong(NSNumber *num) {
 // hit, we wrap around existing data of either snapshot or CompoundWrite
 // (allowing us to share code) and read from the CompoundWrite only when/where
 // we need to calculate an incremented value's prior state.
-@protocol JITExistingValue <NSObject>
-- (id<JITExistingValue>)getChild:(NSString *)pathSegment;
+@protocol ValueProvider <NSObject>
+- (id<ValueProvider>)getChild:(NSString *)pathSegment;
 - (id<FNode>)value;
 @end
 
-@interface JITExistingValueSyncTree : NSObject <JITExistingValue>
+@interface DeferredValueProvider : NSObject <ValueProvider>
 - (instancetype)initWithSyncTree:(FSyncTree *)tree atPath:(FPath *)path;
-- (id<JITExistingValue>)getChild:(NSString *)pathSegment;
+- (id<ValueProvider>)getChild:(NSString *)pathSegment;
 - (id<FNode>)value;
 @property FPath *path;
 @property FSyncTree *tree;
 @end
 
-@interface JITExistingValueSnapshot : NSObject <JITExistingValue>
+@interface ExistingValueProvider : NSObject <ValueProvider>
 - (instancetype)initWithSnapshot:(id<FNode>)snapshot;
-- (id<JITExistingValue>)getChild:(NSString *)pathSegment;
+- (id<ValueProvider>)getChild:(NSString *)pathSegment;
 - (id<FNode>)value;
 @property id<FNode> snapshot;
 @end
 
-@implementation JITExistingValueSyncTree
+@implementation DeferredValueProvider
 - (instancetype)initWithSyncTree:(FSyncTree *)tree atPath:(FPath *)path {
     self.tree = tree;
     self.path = path;
     return self;
 }
 
-- (id<JITExistingValue>)getChild:(NSString *)pathSegment {
+- (id<ValueProvider>)getChild:(NSString *)pathSegment {
     FPath *child = [self.path childFromString:pathSegment];
-    return [[JITExistingValueSyncTree alloc] initWithSyncTree:self.tree
-                                                       atPath:child];
+    return [[DeferredValueProvider alloc] initWithSyncTree:self.tree
+                                                    atPath:child];
 }
 
 - (id<FNode>)value {
@@ -83,14 +83,14 @@ BOOL canBeRepresentedAsLong(NSNumber *num) {
 }
 @end
 
-@implementation JITExistingValueSnapshot
+@implementation ExistingValueProvider
 - (instancetype)initWithSnapshot:(id<FNode>)snapshot {
     self.snapshot = snapshot;
     return self;
 }
 
-- (id<JITExistingValue>)getChild:(NSString *)pathSegment {
-    return [[JITExistingValueSnapshot alloc]
+- (id<ValueProvider>)getChild:(NSString *)pathSegment {
+    return [[ExistingValueProvider alloc]
         initWithSnapshot:[self.snapshot getImmediateChild:pathSegment]];
 }
 
@@ -103,10 +103,10 @@ BOOL canBeRepresentedAsLong(NSNumber *num) {
 + (id)resolveScalarServerOp:(NSString *)op
            withServerValues:(NSDictionary *)serverValues;
 + (id)resolveComplexServerOp:(NSDictionary *)op
-                withExisting:(id<JITExistingValue>)existing
+                withExisting:(id<ValueProvider>)existing
                 serverValues:(NSDictionary *)serverValues;
 + (id<FNode>)resolveDeferredValueSnapshot:(id<FNode>)node
-                          withJITExisting:(id<JITExistingValue>)existing
+                          withJITExisting:(id<ValueProvider>)existing
                              serverValues:(NSDictionary *)serverValues;
 
 @end
@@ -119,7 +119,7 @@ BOOL canBeRepresentedAsLong(NSNumber *num) {
 }
 
 + (id)resolveDeferredValue:(id)val
-              withExisting:(id<JITExistingValue>)existing
+              withExisting:(id<ValueProvider>)existing
               serverValues:(NSDictionary *)serverValues {
     if (![val isKindOfClass:[NSDictionary class]]) {
         return val;
@@ -146,7 +146,7 @@ BOOL canBeRepresentedAsLong(NSNumber *num) {
 }
 
 + (id)resolveComplexServerOp:(NSDictionary *)op
-                withExisting:(id<JITExistingValue>)jitExisting
+                withExisting:(id<ValueProvider>)jitExisting
                 serverValues:(NSDictionary *)serverValues {
     // Only increment is supported as of now
     if (op[kIncrement] == nil) {
@@ -189,9 +189,9 @@ BOOL canBeRepresentedAsLong(NSNumber *num) {
                                              (NSDictionary *)serverValues {
     __block FCompoundWrite *resolved = write;
     [write enumerateWrites:^(FPath *subPath, id<FNode> node, BOOL *stop) {
-      id<JITExistingValue> existing = [[JITExistingValueSyncTree alloc]
-          initWithSyncTree:tree
-                    atPath:[path child:subPath]];
+      id<ValueProvider> existing =
+          [[DeferredValueProvider alloc] initWithSyncTree:tree
+                                                   atPath:[path child:subPath]];
       id<FNode> resolvedNode =
           [FServerValues resolveDeferredValueSnapshot:node
                                       withJITExisting:existing
@@ -205,11 +205,11 @@ BOOL canBeRepresentedAsLong(NSNumber *num) {
 }
 
 + (id<FNode>)resolveDeferredValueSnapshot:(id<FNode>)node
-                             withSyncTree:(FSyncTree *)tree
+                             withExisting:(FSyncTree *)tree
                                    atPath:(FPath *)path
                              serverValues:(NSDictionary *)serverValues {
-    id<JITExistingValue> jitExisting =
-        [[JITExistingValueSyncTree alloc] initWithSyncTree:tree atPath:path];
+    id<ValueProvider> jitExisting =
+        [[DeferredValueProvider alloc] initWithSyncTree:tree atPath:path];
     return [FServerValues resolveDeferredValueSnapshot:node
                                        withJITExisting:jitExisting
                                           serverValues:serverValues];
@@ -218,15 +218,15 @@ BOOL canBeRepresentedAsLong(NSNumber *num) {
 + (id<FNode>)resolveDeferredValueSnapshot:(id<FNode>)node
                              withExisting:(id<FNode>)existing
                              serverValues:(NSDictionary *)serverValues {
-    id<JITExistingValue> jitExisting =
-        [[JITExistingValueSnapshot alloc] initWithSnapshot:existing];
+    id<ValueProvider> jitExisting =
+        [[ExistingValueProvider alloc] initWithSnapshot:existing];
     return [FServerValues resolveDeferredValueSnapshot:node
                                        withJITExisting:jitExisting
                                           serverValues:serverValues];
 }
 
 + (id<FNode>)resolveDeferredValueSnapshot:(id<FNode>)node
-                          withJITExisting:(id<JITExistingValue>)existing
+                          withJITExisting:(id<ValueProvider>)existing
                              serverValues:(NSDictionary *)serverValues {
     id priorityVal =
         [FServerValues resolveDeferredValue:[[node getPriority] val]

@@ -31,7 +31,7 @@
                                          serverValues:
                                              (NSDictionary *)serverValues;
 + (id<FNode>)resolveDeferredValueSnapshot:(id<FNode>)node
-                             withSyncTree:(id<FNode>)existing
+                             withExisting:(id<FNode>)existing
                                    atPath:(FPath *)path
                              serverValues:(NSDictionary *)serverValues;
 + (id<FNode>)resolveDeferredValueSnapshot:(id<FNode>)node
