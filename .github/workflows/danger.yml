@@ -8,10 +8,8 @@ jobs:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v2
-
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
-
     - name: Danger
       env:
         DANGER_GITHUB_API_TOKEN: ${{ secrets.DangerGitHubAPIToken }}
