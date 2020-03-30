@@ -7,14 +7,12 @@ jobs:
   danger:
     runs-on: macos-latest
     steps:
-    - api_key:
-      env:
-        DANGER_GITHUB_API_TOKEN: ${{ secrets.DangerGitHubAPIToken }}
-
     - uses: actions/checkout@v2
 
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
 
     - name: Danger
+      env:
+        DANGER_GITHUB_API_TOKEN: ${{ secrets.DangerGitHubAPIToken }}
       run:  '[ ! -z $DANGER_GITHUB_API_TOKEN ] && bundle exec danger || echo "Skipping Danger for External Contributor"'
