@@ -18,19 +18,23 @@
 #import "FCompoundWrite.h"
 #import "FNode.h"
 #import "FSparseSnapshotTree.h"
+#import "FSyncTree.h"
 #import <Foundation/Foundation.h>
 
 @interface FServerValues : NSObject
 
 + (NSDictionary *)generateServerValues:(id<FClock>)clock;
-+ (id)resolveDeferredValueCompoundWrite:(FCompoundWrite *)write
-                           withExisting:(id<FNode>)existing
-                           serverValues:(NSDictionary *)serverValues;
+
++ (FCompoundWrite *)resolveDeferredValueCompoundWrite:(FCompoundWrite *)write
+                                         withSyncTree:(FSyncTree *)tree
+                                               atPath:(FPath *)path
+                                         serverValues:
+                                             (NSDictionary *)serverValues;
++ (id<FNode>)resolveDeferredValueSnapshot:(id<FNode>)node
+                             withSyncTree:(FSyncTree *)existing
+                                   atPath:(FPath *)path
+                             serverValues:(NSDictionary *)serverValues;
 + (id<FNode>)resolveDeferredValueSnapshot:(id<FNode>)node
                              withExisting:(id<FNode>)existing
                              serverValues:(NSDictionary *)serverValues;
-+ (id)resolveDeferredValueTree:(FSparseSnapshotTree *)tree
-                  withExisting:(id<FNode>)node
-                  serverValues:(NSDictionary *)serverValues;
-
 @end
