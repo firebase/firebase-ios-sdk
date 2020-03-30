@@ -236,12 +236,12 @@ pb_bytes_array_t *FIREncodeString(NSString *string) {
  * @param data The data to copy into the new bytes array.
  */
 pb_bytes_array_t *FIREncodeData(NSData *data) {
-  pb_bytes_array_t *pbBytes = calloc(1, PB_BYTES_ARRAY_T_ALLOCSIZE(data.length));
-  if (pbBytes != NULL) {
-    [data getBytes:pbBytes range:NSMakeRange(0, data.length)];
-    pbBytes->size = (pb_size_t)data.length;
+  pb_bytes_array_t *pbBytesArray = calloc(1, PB_BYTES_ARRAY_T_ALLOCSIZE(data.length));
+  if (pbBytesArray != NULL) {
+    [data getBytes:pbBytesArray->bytes length:data.length];
+    pbBytesArray->size = (pb_size_t)data.length;
   }
-  return pbBytes;
+  return pbBytesArray;
 }
 
 /** Maps a service string to the representative nanopb enum.
