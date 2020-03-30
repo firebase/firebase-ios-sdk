@@ -468,11 +468,10 @@ struct FrameworkBuilder {
         if umbrellas.count != 1 {
           fatalError("Did not find exactly one umbrella header in \(headersDir).")
         }
-        guard let firstUmbrella = umbrellas.first,
-          let foundHeader = URL(string: firstUmbrella) else {
+        guard let firstUmbrella = umbrellas.first else {
           fatalError("Failed to get umbrella header in \(headersDir).")
         }
-        umbrellaHeaderURL = foundHeader
+        umbrellaHeaderURL = URL(fileURLWithPath: firstUmbrella)
       } catch {
         fatalError("Error while enumerating files \(headersDir): \(error.localizedDescription)")
       }
@@ -485,7 +484,7 @@ struct FrameworkBuilder {
         do {
           try fileManager.removeItem(at: umbrellaHeaderURL)
         } catch let error as NSError {
-          print("Failed to delete: \(umbrellaHeaderURL). Error: \(error.domain)")
+          fatalError("Failed to delete: \(umbrellaHeaderURL). Error: \(error.domain)")
         }
         umbrellaHeader = "\(framework).h"
         let frameworkHeader = headersDir.appendingPathComponent(umbrellaHeader)
