@@ -1,10 +1,10 @@
 Pod::Spec.new do |s|
   s.name             = 'Firebase'
   s.version          = '6.21.0'
-  s.summary          = 'Firebase for iOS (plus community support for macOS and tvOS)'
+  s.summary          = 'Firebase'
 
   s.description      = <<-DESC
-Simplify your iOS development, grow your user base, and monetize more effectively with Firebase.
+Simplify your Apple development, grow your user base, and monetize more effectively with Firebase.
                        DESC
 
   s.homepage         = 'https://firebase.google.com'

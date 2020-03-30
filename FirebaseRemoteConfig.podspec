@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseRemoteConfig'
   s.version          = '4.4.9'
-  s.summary          = 'Firebase RemoteConfig for iOS'
+  s.summary          = 'Firebase RemoteConfig'
 
   s.description      = <<-DESC
 Firebase Remote Config is a cloud service that lets you change the
