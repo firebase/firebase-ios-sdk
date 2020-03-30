@@ -43,12 +43,12 @@ pb_bytes_array_t *GDTCCTEncodeString(NSString *string) {
 }
 
 pb_bytes_array_t *GDTCCTEncodeData(NSData *data) {
-  pb_bytes_array_t *pbBytes = calloc(1, PB_BYTES_ARRAY_T_ALLOCSIZE(data.length));
-  if (pbBytes != NULL) {
-    [data getBytes:pbBytes range:NSMakeRange(0, data.length)];
-    pbBytes->size = (pb_size_t)data.length;
+  pb_bytes_array_t *pbBytesArray = calloc(1, PB_BYTES_ARRAY_T_ALLOCSIZE(data.length));
+  if (pbBytesArray != NULL) {
+    [data getBytes:pbBytesArray->bytes length:data.length];
+    pbBytesArray->size = (pb_size_t)data.length;
   }
-  return pbBytes;
+  return pbBytesArray;
 }
 
 #pragma mark - CCT object constructors
