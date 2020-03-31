@@ -29,8 +29,6 @@
 static NSString *const kFIRInstanceIDCheckinKeychainGeneric = @"com.google.iid";
 
 NSString *const kFIRInstanceIDCheckinKeychainService = @"com.google.iid.checkin";
-NSString *const kFIRInstanceIDLegacyCheckinKeychainAccount = @"com.google.iid.checkin-account";
-NSString *const kFIRInstanceIDLegacyCheckinKeychainService = @"com.google.iid.checkin-service";
 
 @interface FIRInstanceIDCheckinStore ()
 
@@ -156,13 +154,6 @@ NSString *const kFIRInstanceIDLegacyCheckinKeychainService = @"com.google.iid.ch
       removeItemsMatchingService:kFIRInstanceIDCheckinKeychainService
                          account:self.bundleIdentifierForKeychainAccount
                          handler:^(NSError *error) {
-                           // Try to remove from old location as well because migration
-                           // is no longer needed. Consider this is either a fresh install
-                           // or an identity wipe.
-                           [self.keychain
-                               removeItemsMatchingService:kFIRInstanceIDLegacyCheckinKeychainService
-                                                  account:kFIRInstanceIDLegacyCheckinKeychainAccount
-                                                  handler:nil];
                            handler(error);
                          }];
 }
@@ -199,25 +190,6 @@ NSString *const kFIRInstanceIDLegacyCheckinKeychainService = @"com.google.iid.ch
 
   [checkinPreferences updateWithCheckinPlistContents:checkinPlistContents];
   return checkinPreferences;
-}
-
-- (void)migrateCheckinItemIfNeeded {
-  // Check for checkin in the old location, using the legacy keys
-  // Query the keychain for deviceID and secret
-  NSData *dataInOldLocation =
-      [self.keychain dataForService:kFIRInstanceIDLegacyCheckinKeychainService
-                            account:kFIRInstanceIDLegacyCheckinKeychainAccount];
-  if (dataInOldLocation) {
-    // Save to new location
-    [self.keychain setData:dataInOldLocation
-                forService:kFIRInstanceIDCheckinKeychainService
-                   account:self.bundleIdentifierForKeychainAccount
-                   handler:nil];
-    // Remove from old location
-    [self.keychain removeItemsMatchingService:kFIRInstanceIDLegacyCheckinKeychainService
-                                      account:kFIRInstanceIDLegacyCheckinKeychainAccount
-                                      handler:nil];
-  }
 }
 
 @end
