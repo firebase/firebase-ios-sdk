@@ -1,7 +1,7 @@
 
 # v4.0.0-beta.7
 
- - [changed] Increased network timeout for symbol uploads to improve reliability on limited internet connections (#5228)
+ - [changed] Increased network timeout for symbol uploads to improve reliability on limited internet connections. (#5228)
 
 # v4.0.0-beta.6
 
