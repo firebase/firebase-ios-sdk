@@ -42,7 +42,6 @@ NS_SWIFT_NAME(AppAttestation)
 + (void)setAttestationProviderFactory:(nullable id<FIRAppAttestationProviderFactory>)factory
                            forAppName:(NSString *)firebaseAppName;
 
-
 @end
 
 NS_ASSUME_NONNULL_END

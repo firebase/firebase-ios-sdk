@@ -16,15 +16,16 @@
 
 #import <XCTest/XCTest.h>
 
-#import <FirebaseCore/FirebaseCore.h>
 #import <FirebaseAppAttestation/FirebaseAppAttestation.h>
+#import <FirebaseCore/FirebaseCore.h>
 
 @interface DummyAttestationProvider : NSObject <FIRAppAttestationProvider>
 @end
 
 @implementation DummyAttestationProvider
 - (void)getTokenWithCompletion:(nonnull FIRAppAttestationTokenHandler)handler {
-  FIRAppAttestationToken *token = [[FIRAppAttestationToken alloc] initWithToken:@"Token" expirationDate:[NSDate distantFuture]];
+  FIRAppAttestationToken *token =
+      [[FIRAppAttestationToken alloc] initWithToken:@"Token" expirationDate:[NSDate distantFuture]];
   handler(token, nil);
 }
 @end
@@ -51,21 +52,24 @@
   [FIRAppAttestation setAttestationProviderFactory:[[AttestationProviderFactory alloc] init]];
   [FIRApp configure];
 
-  [FIRAppAttestation setAttestationProviderFactory:[[AttestationProviderFactory alloc] init] forAppName:@"AppName"];
+  [FIRAppAttestation setAttestationProviderFactory:[[AttestationProviderFactory alloc] init]
+                                        forAppName:@"AppName"];
 
   FIROptions *options = [[FIROptions alloc] initWithContentsOfFile:@"path"];
   [FIRApp configureWithName:@"AppName" options:options];
 
   FIRAppAttestation *defaultAppAttestation = [FIRAppAttestation appAttestation];
-  FIRAppAttestation *secondAppAttestation = [FIRAppAttestation appAttestationWithApp:[FIRApp appNamed:@"AppName"]];
+  FIRAppAttestation *secondAppAttestation =
+      [FIRAppAttestation appAttestationWithApp:[FIRApp appNamed:@"AppName"]];
 
-  [defaultAppAttestation getTokenWithCompletion:^(FIRAppAttestationToken * _Nullable token, NSError * _Nullable error) {
-    if (token) {
-      NSLog(@"Token: %@", token.token);
-    } else {
-      NSLog(@"Error: %@", error);
-    }
-  }];
+  [defaultAppAttestation
+      getTokenWithCompletion:^(FIRAppAttestationToken *_Nullable token, NSError *_Nullable error) {
+        if (token) {
+          NSLog(@"Token: %@", token.token);
+        } else {
+          NSLog(@"Error: %@", error);
+        }
+      }];
 }
 
 @end
