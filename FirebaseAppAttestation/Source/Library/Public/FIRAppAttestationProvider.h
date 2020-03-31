@@ -24,7 +24,7 @@ NS_SWIFT_NAME(AppAttestationProvider)
 @protocol FIRAppAttestationProvider <NSObject>
 
 - (void)getTokenWithCompletion:(FIRAppAttestationTokenHandler)handler
-NS_SWIFT_NAME(getToken(completion:));
+    NS_SWIFT_NAME(getToken(completion:));
 
 @end
 

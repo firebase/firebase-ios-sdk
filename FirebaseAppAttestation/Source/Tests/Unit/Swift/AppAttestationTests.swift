@@ -36,7 +36,7 @@ class AppAttestationTests: XCTestCase {
       return
     }
 
-    defaultAppAttestation.getToken(completion: { (result, error) in
+    defaultAppAttestation.getToken(completion: { result, error in
       guard let result = result else {
         print("Error: \(String(describing: error))")
         return

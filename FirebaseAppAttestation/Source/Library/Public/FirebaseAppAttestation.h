@@ -15,6 +15,6 @@
  */
 
 #import "FIRAppAttestation.h"
-#import "FIRAppAttestationToken.h"
 #import "FIRAppAttestationProvider.h"
 #import "FIRAppAttestationProviderFactory.h"
+#import "FIRAppAttestationToken.h"
