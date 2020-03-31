@@ -17,8 +17,7 @@ import FirebaseStorage
 /// getResultCallback generates a closure that returns a Result type from a closure that returns an
 /// optional type and Error.
 private func getResultCallback<T>(
-  completion: @escaping (Result<T, Error>) -> Void
-) -> (_: T?, _: Error?) -> Void {
+  completion: @escaping (Result<T, Error>) -> Void) -> (_: T?, _: Error?) -> Void {
   return { (metadata: T?, error: Error?) -> Void in
     guard let metadata = metadata else {
       guard let error = error else {
