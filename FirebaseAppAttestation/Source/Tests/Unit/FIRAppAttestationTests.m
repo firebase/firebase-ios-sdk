@@ -70,6 +70,16 @@
           NSLog(@"Error: %@", error);
         }
       }];
+
+  [secondAppAttestation
+      getTokenForcingRefresh:YES
+                  completion:^(FIRAppAttestationToken *_Nullable token, NSError *_Nullable error) {
+                    if (token) {
+                      NSLog(@"Token: %@", token.token);
+                    } else {
+                      NSLog(@"Error: %@", error);
+                    }
+                  }];
 }
 
 @end

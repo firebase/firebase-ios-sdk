@@ -44,6 +44,15 @@ class AppAttestationTests: XCTestCase {
 
       print("Token: \(result.token)")
     })
+
+    secondAppAttestation.getTokenForcingRefresh(true) { result, error in
+      guard let result = result else {
+        print("Error: \(String(describing: error))")
+        return
+      }
+
+      print("Token: \(result.token)")
+    }
   }
 }
 
