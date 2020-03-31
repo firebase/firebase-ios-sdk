@@ -150,12 +150,11 @@ NSString *const kFIRInstanceIDCheckinKeychainService = @"com.google.iid.checkin"
   FIRInstanceIDLoggerDebug(kFIRInstanceIDMessageCodeCheckinStoreCheckinPlistDeleted,
                            @"Deleted checkin plist file.");
   // Remove deviceID and secret from Keychain
-  [self.keychain
-      removeItemsMatchingService:kFIRInstanceIDCheckinKeychainService
-                         account:self.bundleIdentifierForKeychainAccount
-                         handler:^(NSError *error) {
-                           handler(error);
-                         }];
+  [self.keychain removeItemsMatchingService:kFIRInstanceIDCheckinKeychainService
+                                    account:self.bundleIdentifierForKeychainAccount
+                                    handler:^(NSError *error) {
+                                      handler(error);
+                                    }];
 }
 
 - (FIRInstanceIDCheckinPreferences *)cachedCheckinPreferences {
