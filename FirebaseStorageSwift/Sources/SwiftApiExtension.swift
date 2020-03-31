@@ -27,8 +27,9 @@ private func getResultCallback<T>(
     } else {
       completion(.failure(NSError(domain: "FirebaseStorageSwift",
                                   code: -1,
-                                  userInfo: ["Storage Result Generator":
-                                    "InternalError - Return type and Error code both nil"])))
+                                  userInfo: ["NSLocalizedDescription":
+                                    "InternalError - Return type and Error code both nil in " +
+                                    "Storage Result generator"])))
     }
   }
 }
