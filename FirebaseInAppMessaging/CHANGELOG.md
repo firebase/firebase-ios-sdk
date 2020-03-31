@@ -1,3 +1,6 @@
+# 2020-04-07 -- v0.19.2
+- [fixed] Internal fixes for test apps (#5171).
+
 # 2020-03-17 -- v0.19.1
 - [fixed] Fixed display issue with banner messages on iPad Pro 11" (#4714).
 - [fixed] Fixed 400 errors from backend due to a bug in the Instance ID SDK (#3887).
