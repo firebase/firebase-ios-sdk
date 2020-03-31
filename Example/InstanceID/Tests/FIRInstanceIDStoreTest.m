@@ -229,20 +229,6 @@ static NSString *const kSecret = @"test-secret";
   OCMVerifyAll(_mockCheckinStore);
 }
 
-- (void)testResetCredentialsWithoutFreshInstall {
-  FIRInstanceIDCheckinPreferences *checkinPreferences =
-      [[FIRInstanceIDCheckinPreferences alloc] initWithDeviceID:kAuthID secretToken:kSecret];
-  // Expect migration happens if it's not a fresh install.
-  [[_mockCheckinStore expect] migrateCheckinItemIfNeeded];
-  // Always setting up stub after expect.
-  OCMStub([_mockCheckinStore cachedCheckinPreferences]).andReturn(checkinPreferences);
-  // Mock plist exists, meaning this is not a fresh install.
-  OCMStub([_mockCheckinStore hasCheckinPlist]).andReturn(YES);
-
-  [_mockInstanceIDStore resetCredentialsIfNeeded];
-  OCMVerifyAll(_mockCheckinStore);
-}
-
 - (void)testResetCredentialsWithNoCachedCheckin {
   id niceMockCheckinStore = [OCMockObject niceMockForClass:[FIRInstanceIDCheckinStore class]];
   [[niceMockCheckinStore reject]
