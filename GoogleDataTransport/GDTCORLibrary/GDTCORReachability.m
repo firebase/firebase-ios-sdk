@@ -119,7 +119,7 @@ static void GDTCORReachabilityCallback(GDTCORNetworkReachabilityRef reachability
 static void GDTCORReachabilityCallback(GDTCORNetworkReachabilityRef reachability,
                                        GDTCORNetworkReachabilityFlags flags,
                                        void *info) {
+#pragma clang diagnostic pop
   GDTCORLogDebug("Reachability changed, new flags: %d", flags);
   [[GDTCORReachability sharedInstance] setCallbackFlags:flags];
 }
-#pragma clang diagnostic pop

@@ -96,8 +96,8 @@ typedef struct {
  */
 NSURL *GDTCORRootDirectory(void);
 
-/** Compares flags with the reachable flag(on non-watchos with both reachable and connectionRequired
- * flags), if available, and returns YES if network reachable.
+/** Compares flags with the reachable flag (on non-watchos with both reachable and
+ * connectionRequired flags), if available, and returns YES if network reachable.
  *
  * @param flags The set of reachability flags.
  * @return YES if the network is reachable, NO otherwise.
