@@ -66,7 +66,7 @@ public extension StorageReference {
   }
 
   func putData(_ uploadData: Data,
-               metadata: StorageMetadata?,
+               metadata: StorageMetadata? = nil,
                completion: @escaping (Result<StorageMetadata, Error>) -> Void)
     -> StorageUploadTask {
     return putData(uploadData,
@@ -74,28 +74,12 @@ public extension StorageReference {
                    completion: getResultCallback(completion: completion))
   }
 
-  func putData(_ uploadData: Data,
-               completion: @escaping (Result<StorageMetadata, Error>) -> Void)
-    -> StorageUploadTask {
-    return putData(uploadData,
-                   metadata: nil,
-                   completion: getResultCallback(completion: completion))
-  }
-
   func putFile(from: URL,
-               metadata: StorageMetadata?,
+               metadata: StorageMetadata? = nil,
                completion: @escaping (Result<StorageMetadata, Error>) -> Void)
     -> StorageUploadTask {
     return putFile(from: from,
                    metadata: metadata,
-                   completion: getResultCallback(completion: completion))
-  }
-
-  func putFile(from: URL,
-               completion: @escaping (Result<StorageMetadata, Error>) -> Void)
-    -> StorageUploadTask {
-    return putFile(from: from,
-                   metadata: nil,
                    completion: getResultCallback(completion: completion))
   }
 
