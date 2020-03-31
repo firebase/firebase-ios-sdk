@@ -2874,7 +2874,15 @@
                 @"Number should be no more than 2 seconds ago");
 }
 
-- (void)testServerIncrementOverwritesExistingData {
+- (void)testServerIncrementOverwritesExistingDataOnline {
+  [self checkServerIncrementOverwritesExistingDataWhileOnline:true];
+}
+
+- (void)testServerIncrementOverwritesExistingDataOffline {
+  [self checkServerIncrementOverwritesExistingDataWhileOnline:false];
+}
+
+- (void)checkServerIncrementOverwritesExistingDataWhileOnline:(BOOL)online {
   FIRDatabaseReference *ref = [FTestHelpers getRandomNode];
   __block NSMutableArray *found = [NSMutableArray new];
   NSMutableArray *expected = [NSMutableArray new];
@@ -2884,7 +2892,9 @@
               }];
 
   // Going offline ensures that local events get queued up before server events
-  [ref.repo interrupt];
+  if (!online) {
+    [ref.repo interrupt];
+  }
 
   // null + incr
   [ref setValue:[FIRServerValue increment:@1]];
@@ -2912,11 +2922,25 @@
     return found.count == expected.count;
   }];
   XCTAssertEqualObjects(expected, found);
-  [ref.repo resume];
+  
+  if (!online) {
+    [ref.repo resume];
+  }
 }
 
-- (void)testServerIncrementPriority {
+- (void)testServerIncrementPriorityOnline {
+  [self checkServerIncrementPriorityWhileOnline:true];
+}
+
+- (void)testServerIncrementPriorityOffline {
+  [self checkServerIncrementPriorityWhileOnline:false];
+}
+
+- (void)checkServerIncrementPriorityWhileOnline:(BOOL)online {
   FIRDatabaseReference *ref = [FTestHelpers getRandomNode];
+  if (!online) {
+    [ref.repo interrupt];
+  }
   __block NSMutableArray *found = [NSMutableArray new];
   NSMutableArray *expected = [NSMutableArray new];
   [ref observeEventType:FIRDataEventTypeValue
@@ -2938,7 +2962,10 @@
     return found.count == expected.count;
   }];
   XCTAssertEqualObjects(expected, found);
-  [ref.repo resume];
+  
+  if (!online) {
+    [ref.repo resume];
+  }
 }
 
 - (void)testServerIncrementOverflowAndTypeCoercion {

@@ -248,7 +248,7 @@
                       withCallback:callback];
           id<FNode> resolved =
               [FServerValues resolveDeferredValueSnapshot:write.overwrite
-                                             withExisting:self.serverSyncTree
+                                             withSyncTree:self.serverSyncTree
                                                    atPath:write.path
                                              serverValues:serverValues];
           [self.serverSyncTree applyUserOverwriteAtPath:write.path
