@@ -6,7 +6,7 @@
 Pod::Spec.new do |s|
   s.name                    = 'FirebaseFirestoreSwift'
   s.version                 = '0.2'
-  s.summary                 = 'Swift Extensions for Google Cloud Firestore for iOS'
+  s.summary                 = 'Swift Extensions for Google Cloud Firestore'
 
   s.description      = <<-DESC
 Google Cloud Firestore is a NoSQL document database built for automatic scaling, high performance, and ease of application development.

@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseDynamicLinks'
   s.version          = '4.0.8'
-  s.summary          = 'Firebase DynamicLinks for iOS'
+  s.summary          = 'Firebase Dynamic Links'
 
   s.description      = <<-DESC
 Firebase Dynamic Links are deep links that enhance user experience and increase engagement by retaining context post-install, across platforms.

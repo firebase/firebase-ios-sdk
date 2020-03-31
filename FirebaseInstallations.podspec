@@ -1,10 +1,10 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseInstallations'
   s.version          = '1.1.1'
-  s.summary          = 'Firebase Installations for iOS'
+  s.summary          = 'Firebase Installations'
 
   s.description      = <<-DESC
-  Firebase Installations for iOS.
+  Firebase Installations.
                        DESC
 
   s.homepage         = 'https://firebase.google.com'
