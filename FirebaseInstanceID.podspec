@@ -1,11 +1,11 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseInstanceID'
   s.version          = '4.3.2'
-  s.summary          = 'Firebase InstanceID for iOS'
+  s.summary          = 'Firebase InstanceID'
 
   s.description      = <<-DESC
 Instance ID provides a unique ID per instance of your iOS apps. In addition to providing
-unique IDs for authentication,Instance ID can generate security tokens for use with other
+unique IDs for authentication, Instance ID can generate security tokens for use with other
 services.
                        DESC
 
