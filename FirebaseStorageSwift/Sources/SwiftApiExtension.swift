@@ -19,7 +19,6 @@ import FirebaseStorage
 private func getResultCallback<T>(
   completion: @escaping (Result<T, Error>) -> Void
 ) -> (_: T?, _: Error?) -> Void {
-
   return { (value: T?, error: Error?) -> Void in
     if let value = value {
       completion(.success(value))
