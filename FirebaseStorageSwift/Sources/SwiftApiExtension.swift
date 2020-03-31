@@ -19,19 +19,18 @@ import FirebaseStorage
 private func getResultCallback<T>(
   completion: @escaping (Result<T, Error>) -> Void
 ) -> (_: T?, _: Error?) -> Void {
-  return { (metadata: T?, error: Error?) -> Void in
-    guard let metadata = metadata else {
-      guard let error = error else {
-        completion(.failure(NSError(domain: "FirebaseStorageSwift",
-                                    code: -1,
-                                    userInfo: ["Storage Result Generator":
-                                      "InternalError - Return type and Error code both nil"])))
-        return
-      }
+
+  return { (value: T?, error: Error?) -> Void in
+    if let value = value {
+      completion(.success(value))
+    } else if let error = error {
       completion(.failure(error))
-      return
+    } else {
+      completion(.failure(NSError(domain: "FirebaseStorageSwift",
+                                  code: -1,
+                                  userInfo: ["Storage Result Generator":
+                                    "InternalError - Return type and Error code both nil"])))
     }
-    completion(.success(metadata))
   }
 }
 
