@@ -4,7 +4,7 @@ Pod::Spec.new do |s|
   s.summary          = 'Firebase'
 
   s.description      = <<-DESC
-Simplify your Apple development, grow your user base, and monetize more effectively with Firebase.
+Simplify your app development, grow your user base, and monetize more effectively with Firebase.
                        DESC
 
   s.homepage         = 'https://firebase.google.com'
