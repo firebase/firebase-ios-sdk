@@ -32,21 +32,4 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@protocol FIRAppAttestationProvider <NSObject>
-
-@end
-
-@protocol FIRAppAttestationProviderFactory <NSObject>
-
-- (nullable id<FIRAppAttestationProvider>)createProviderWithApp:(FIRApp *)app;
-
-@end
-
-@interface FIRAppAttestation : NSObject
-
-+ (void)setAttestationProviderFactory:(nullable id<FIRAppAttestationProviderFactory>)factory
-                           forAppName:(NSString *)firebaseAppName;
-
-@end
-
 NS_ASSUME_NONNULL_END
