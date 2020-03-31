@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <GoogleDataTransport/GDTCORPlatform.h>
+#import "GDTCORLibrary/Public/GDTCORPlatform.h"
 
 #import <GoogleDataTransport/GDTCORAssert.h>
 #import <GoogleDataTransport/GDTCORConsoleLogger.h>
@@ -62,15 +62,27 @@ NSURL *GDTCORRootDirectory(void) {
   return GDTPath;
 }
 
+BOOL GDTCORReachabilityFlagsReachable(GDTCORNetworkReachabilityFlags flags) {
 #if !TARGET_OS_WATCH
-BOOL GDTCORReachabilityFlagsContainWWAN(SCNetworkReachabilityFlags flags) {
+  BOOL reachable =
+      (flags & kSCNetworkReachabilityFlagsReachable) == kSCNetworkReachabilityFlagsReachable;
+  BOOL connectionRequired = (flags & kSCNetworkReachabilityFlagsConnectionRequired) ==
+                            kSCNetworkReachabilityFlagsConnectionRequired;
+  return reachable && !connectionRequired;
+#else
+  return (flags & kGDTCORNetworkReachabilityFlagsReachable) ==
+         kGDTCORNetworkReachabilityFlagsReachable;
+#endif
+}
+
+BOOL GDTCORReachabilityFlagsContainWWAN(GDTCORNetworkReachabilityFlags flags) {
 #if TARGET_OS_IOS
   return (flags & kSCNetworkReachabilityFlagsIsWWAN) == kSCNetworkReachabilityFlagsIsWWAN;
 #else
+  // Assume network connection not WWAN on macOS, tvOS, watchOS.
   return NO;
 #endif  // TARGET_OS_IOS
 }
-#endif  // !TARGET_OS_WATCH
 
 GDTCORNetworkType GDTCORNetworkTypeMessage() {
 #if !TARGET_OS_WATCH
