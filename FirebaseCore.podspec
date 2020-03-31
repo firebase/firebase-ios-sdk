@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCore'
   s.version          = '6.6.5'
-  s.summary          = 'Firebase Core for iOS (plus community support for macOS and tvOS)'
+  s.summary          = 'Firebase Core'
 
   s.description      = <<-DESC
 Firebase Core includes FIRApp and FIROptions which provide central configuration for other Firebase services.
