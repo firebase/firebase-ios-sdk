@@ -1,6 +1,6 @@
 # 2020-03 -- 4.3.3
 - [fixed] Fixed provisioning profile location for catalyst. (#5048)
-- [changed] Remove obsolete logic to improve performance and reduce keychain operations. (#5211, #)
+- [changed] Remove obsolete logic to improve performance and reduce keychain operations. (#5211, #5237)
 
 # 2020-02 -- 4.3.2
 - [changed] Removed unused files (#4881).
