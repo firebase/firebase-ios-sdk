@@ -446,7 +446,7 @@ case "$product-$platform-$method" in
       # Integration tests are only run on iOS to minimize flake failures.
       RunXcodebuild \
         -workspace 'gen/FirebaseStorageSwift/FirebaseStorageSwift.xcworkspace' \
-        -scheme "FirebaseStorageSwiftt-Unit-swift-integration" \
+        -scheme "FirebaseStorageSwift-Unit-swift-integration" \
         "${ios_flags[@]}" \
         "${xcb_flags[@]}" \
         build \
