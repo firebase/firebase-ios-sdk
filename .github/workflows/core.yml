@@ -11,6 +11,7 @@ on:
 
 jobs:
   pod-lib-lint:
+    if: github.event_name="pull_request"
     runs-on: macOS-latest
 
     strategy:
