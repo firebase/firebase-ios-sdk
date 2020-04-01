@@ -33,6 +33,8 @@ product can be one of:
   Firebase
   Firestore
   InAppMessaging
+  Storage
+  StorageSwift
   SymbolCollision
 
 platform can be one of:
@@ -436,6 +438,20 @@ case "$product-$platform-$method" in
       "${xcb_flags[@]}" \
       build \
       test
+    ;;
+
+  StorageSwift-*-xcodebuild)
+    pod_gen FirebaseStorageSwift.podspec --platforms=ios
+    if check_secrets; then
+      # Integration tests are only run on iOS to minimize flake failures.
+      RunXcodebuild \
+        -workspace 'gen/FirebaseStorageSwift/FirebaseStorageSwift.xcworkspace' \
+        -scheme "FirebaseStorageSwiftt-Unit-swift-integration" \
+        "${ios_flags[@]}" \
+        "${xcb_flags[@]}" \
+        build \
+        test
+      fi
     ;;
   *)
     echo "Don't know how to build this product-platform-method combination" 1>&2
