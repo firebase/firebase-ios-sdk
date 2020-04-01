@@ -8,7 +8,7 @@ on:
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times
     - cron:  '0 7 * * *'
-      if: github.event_name == 'schedule'
+      if: github.event_name == 'pull_request'
 
 jobs:
   pod-lib-lint:
