@@ -14,13 +14,13 @@
 
 import FirebaseStorage
 
-/// Generates a closure that returns a Result type from a closure that returns an optional type and
-/// Error.
+/// Generates a closure that returns a `Result` type from a closure that returns an optional type
+/// and `Error`.
 ///
 /// - Parameters:
-///   - completion: A completion block returning a Result enum with either a generic object or
-///                 an NSError.
-/// - Returns: A closure parameterized with an optional generic and optional Error to match
+///   - completion: A completion block returning a `Result` enum with either a generic object or
+///                 an `Error`.
+/// - Returns: A closure parameterized with an optional generic and optional `Error` to match
 ///            Objective C APIs.
 private func getResultCallback<T>(
   completion: @escaping (Result<T, Error>) -> Void
@@ -46,19 +46,19 @@ public extension StorageReference {
   /// in the Firebase Console if desired.
   ///
   /// - Parameters:
-  ///   - completion: A completion block returning a Result enum with either a URL or an NSError.
+  ///   - completion: A completion block returning a `Result` enum with either a URL or an `Error`.
   func downloadURL(completion: @escaping (Result<URL, Error>) -> Void) {
     downloadURL(completion: getResultCallback(completion: completion))
   }
 
-  /// Asynchronously downloads the object at the FIRStorageReference to a Data object.
-  /// A Data of the provided max size will be allocated, so ensure that the device has enough
+  /// Asynchronously downloads the object at the `StorageReference` to a `Data` object.
+  /// A `Data` of the provided max size will be allocated, so ensure that the device has enough
   /// memory to complete. For downloading large files, writeToFile may be a better option.
 
   /// - Parameters:
   ///   - maxSize: The maximum size in bytes to download.
-  ///   - completion: A completion block returning a Result enum with either a Data object or
-  ///                 an NSError.
+  ///   - completion: A completion block returning a `Result` enum with either a `Data` object or
+  ///                 an `Error`.
   ///
   /// - Returns: A StorageDownloadTask that can be used to monitor or manage the download.
   func getData(maxSize: Int64, completion: @escaping (Result<Data, Error>) -> Void)
@@ -69,8 +69,8 @@ public extension StorageReference {
   /// Retrieves metadata associated with an object at the current path.
   ///
   /// - Parameters:
-  ///   - completion: A completion block which returns a Result enum with either the
-  ///                 object metadata or an NSError.
+  ///   - completion: A completion block which returns a `Result` enum with either the
+  ///                 object metadata or an `Error`.
   func getMetadata(completion: @escaping (Result<StorageMetadata, Error>) -> Void) {
     getMetadata(completion: getResultCallback(completion: completion))
   }
@@ -89,8 +89,8 @@ public extension StorageReference {
   ///                    greater than 0 and at most 1000.
   ///   - pageToken A page token from a previous call to list.
   ///   - completion A completion handler that will be invoked with the next items and
-  ///                prefixes under the current StorageReference. It returns a Result enum
-  ///                with either the list or an NSError.
+  ///                prefixes under the current StorageReference. It returns a `Result` enum
+  ///                with either the list or an `Error`.
   func list(withMaxResults maxResults: Int64,
             pageToken: String,
             completion: @escaping (Result<StorageListResult, Error>) -> Void) {
@@ -111,8 +111,8 @@ public extension StorageReference {
   ///   - withMaxResults The maximum number of results to return in a single page. Must be
   ///                    greater than 0 and at most 1000.
   ///   - completion A completion handler that will be invoked with the next items and
-  ///                prefixes under the current StorageReference. It returns a Result enum
-  ///                with either the list or an NSError.
+  ///                prefixes under the current `StorageReference`. It returns a `Result` enum
+  ///                with either the list or an `Error`.
   func list(withMaxResults maxResults: Int64,
             completion: @escaping (Result<StorageListResult, Error>) -> Void) {
     list(withMaxResults: maxResults,
@@ -129,23 +129,23 @@ public extension StorageReference {
   ///
   /// - Parameters:
   ///   - completion A completion handler that will be invoked with all items and prefixes
-  ///                under the current StorageReference. It returns a Result enum with either the
-  ///                list or an NSError.
+  ///                under the current StorageReference. It returns a `Result` enum with either the
+  ///                list or an `Error`.
   func listAll(completion: @escaping (Result<StorageListResult, Error>) -> Void) {
     listAll(completion: getResultCallback(completion: completion))
   }
 
-  /// Asynchronously uploads data to the currently specified FIRStorageReference.
+  /// Asynchronously uploads data to the currently specified `StorageReference`.
   /// This is not recommended for large files, and one should instead upload a file from disk.
   ///
   /// - Parameters:
-  ///   - uploadData The Data to upload.
-  ///   - metadata StorageMetadata containing additional information (MIME type, etc.)
+  ///   - uploadData The `Data` to upload.
+  ///   - metadata `StorageMetadata` containing additional information (MIME type, etc.)
   ///              about the object being uploaded.
-  ///   - completion A completion block that returns a Result enum with either the
-  ///                object metadata or an NSError.
+  ///   - completion A completion block that returns a `Result` enum with either the
+  ///                object metadata or an `Error`.
   ///
-  /// - Returns: An instance of FIRStorageUploadTask, which can be used to monitor or manage
+  /// - Returns: An instance of `StorageUploadTask`, which can be used to monitor or manage
   ///            the upload.
   func putData(_ uploadData: Data,
                metadata: StorageMetadata? = nil,
@@ -156,16 +156,16 @@ public extension StorageReference {
                    completion: getResultCallback(completion: completion))
   }
 
-  /// Asynchronously uploads a file to the currently specified FIRStorageReference.
+  /// Asynchronously uploads a file to the currently specified `StorageReference`.
   ///
   /// - Parameters:
   ///   - from A URL representing the system file path of the object to be uploaded.
-  ///   - metadata StorageMetadata containing additional information (MIME type, etc.)
+  ///   - metadata `StorageMetadata` containing additional information (MIME type, etc.)
   ///              about the object being uploaded.
-  ///   - completion A completion block that returns a Result enum with either the
-  ///                object metadata or an NSError.
+  ///   - completion A completion block that returns a `Result` enum with either the
+  ///                object metadata or an `Error`.
   ///
-  /// - Returns: An instance of FIRStorageUploadTask, which can be used to monitor or manage
+  /// - Returns: An instance of `StorageUploadTask`, which can be used to monitor or manage
   ///            the upload.
   func putFile(from: URL,
                metadata: StorageMetadata? = nil,
@@ -179,9 +179,9 @@ public extension StorageReference {
   /// Updates the metadata associated with an object at the current path.
   ///
   /// - Parameters:
-  ///   - metadata An StorageMetadata object with the metadata to update.
-  ///   - completion A completion block which returns a Result enum with either the
-  ///                object metadata or an NSError.
+  ///   - metadata A `StorageMetadata` object with the metadata to update.
+  ///   - completion A completion block which returns a `Result` enum with either the
+  ///                object metadata or an `Error`.
   func updateMetadata(_ metadata: StorageMetadata,
                       completion: @escaping (Result<StorageMetadata, Error>) -> Void) {
     return updateMetadata(metadata, completion: getResultCallback(completion: completion))
@@ -192,10 +192,10 @@ public extension StorageReference {
   /// - Parameters:
   ///   - toFile A file system URL representing the path the object should be downloaded to.
   ///   - completion A completion block that fires when the file download completes. The
-  ///                block returns a Result enum with either an NSURL pointing to the file
-  ///                path of the downloaded file or an NSError.
+  ///                block returns a `Result` enum with either an NSURL pointing to the file
+  ///                path of the downloaded file or an `Error`.
   ///
-  /// - Returns: A StorageDownloadTask that can be used to monitor or manage the download.
+  /// - Returns: A `StorageDownloadTask` that can be used to monitor or manage the download.
   func write(toFile: URL, completion: @escaping (Result<URL, Error>)
     -> Void) -> StorageDownloadTask {
     return write(toFile: toFile, completion: getResultCallback(completion: completion))
