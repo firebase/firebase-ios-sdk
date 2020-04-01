@@ -42,7 +42,7 @@ public extension StorageReference {
 
    - Parameters:
      - completion: A completion block returning a Result enum with either a URL or an NSError.
-  */
+   */
   func downloadURL(completion: @escaping (Result<URL, Error>) -> Void) {
     downloadURL(completion: getResultCallback(completion: completion))
   }
@@ -58,7 +58,7 @@ public extension StorageReference {
                    an NSError.
 
    - Returns: A StorageDownloadTask that can be used to monitor or manage the download.
-  */
+   */
   func getData(maxSize: Int64, completion: @escaping (Result<Data, Error>) -> Void)
     -> StorageDownloadTask {
     return getData(maxSize: maxSize, completion: getResultCallback(completion: completion))
@@ -70,7 +70,7 @@ public extension StorageReference {
    - Parameters:
      - completion: A completion block which returns a Result enum with either the
                    object metadata or an NSError.
-  */
+   */
   func getMetadata(completion: @escaping (Result<StorageMetadata, Error>) -> Void) {
     getMetadata(completion: getResultCallback(completion: completion))
   }
@@ -92,7 +92,7 @@ public extension StorageReference {
      - completion A completion handler that will be invoked with the next items and
                   prefixes under the current StorageReference. It returns a Result enum
                   with either the list or an NSError.
-  */
+   */
   func list(withMaxResults maxResults: Int64,
             pageToken: String,
             completion: @escaping (Result<StorageListResult, Error>) -> Void) {
@@ -102,21 +102,21 @@ public extension StorageReference {
   }
 
   /**
-   List up to `maxResults` items (files) and prefixes (folders) under this StorageReference.
+    List up to `maxResults` items (files) and prefixes (folders) under this StorageReference.
 
-   "/" is treated as a path delimiter. Firebase Storage does not support unsupported object
-   paths that end with "/" or contain two consecutive "/"s. All invalid objects in GCS will be
-   filtered.
+    "/" is treated as a path delimiter. Firebase Storage does not support unsupported object
+    paths that end with "/" or contain two consecutive "/"s. All invalid objects in GCS will be
+    filtered.
 
-  Only available for projects using Firebase Rules Version 2.
+   Only available for projects using Firebase Rules Version 2.
 
-  - Parameters:
-    - withMaxResults The maximum number of results to return in a single page. Must be
-                     greater than 0 and at most 1000.
-    - completion A completion handler that will be invoked with the next items and
-                 prefixes under the current StorageReference. It returns a Result enum
-                 with either the list or an NSError.
-  */
+   - Parameters:
+     - withMaxResults The maximum number of results to return in a single page. Must be
+                      greater than 0 and at most 1000.
+     - completion A completion handler that will be invoked with the next items and
+                  prefixes under the current StorageReference. It returns a Result enum
+                  with either the list or an NSError.
+   */
   func list(withMaxResults maxResults: Int64,
             completion: @escaping (Result<StorageListResult, Error>) -> Void) {
     list(withMaxResults: maxResults,
@@ -136,7 +136,7 @@ public extension StorageReference {
      - completion A completion handler that will be invoked with all items and prefixes
                   under the current StorageReference. It returns a Result enum with either the
                   list or an NSError.
-  */
+   */
   func listAll(completion: @escaping (Result<StorageListResult, Error>) -> Void) {
     listAll(completion: getResultCallback(completion: completion))
   }
@@ -154,7 +154,7 @@ public extension StorageReference {
 
    - Returns: An instance of FIRStorageUploadTask, which can be used to monitor or manage
               the upload.
-  */
+   */
   func putData(_ uploadData: Data,
                metadata: StorageMetadata? = nil,
                completion: @escaping (Result<StorageMetadata, Error>) -> Void)
@@ -165,18 +165,18 @@ public extension StorageReference {
   }
 
   /**
-   Asynchronously uploads a file to the currently specified FIRStorageReference.
+    Asynchronously uploads a file to the currently specified FIRStorageReference.
 
-   - Parameters:
-     - from A URL representing the system file path of the object to be uploaded.
-     - metadata StorageMetadata containing additional information (MIME type, etc.)
-                about the object being uploaded.
-     - completion A completion block that returns a Result enum with either the
-                  object metadata or an NSError.
+    - Parameters:
+      - from A URL representing the system file path of the object to be uploaded.
+      - metadata StorageMetadata containing additional information (MIME type, etc.)
+                 about the object being uploaded.
+      - completion A completion block that returns a Result enum with either the
+                   object metadata or an NSError.
 
-  - Returns: An instance of FIRStorageUploadTask, which can be used to monitor or manage
-             the upload.
-  */
+   - Returns: An instance of FIRStorageUploadTask, which can be used to monitor or manage
+              the upload.
+   */
   func putFile(from: URL,
                metadata: StorageMetadata? = nil,
                completion: @escaping (Result<StorageMetadata, Error>) -> Void)
@@ -193,7 +193,7 @@ public extension StorageReference {
      - metadata An StorageMetadata object with the metadata to update.
      - completion A completion block which returns a Result enum with either the
                   object metadata or an NSError.
-  */
+   */
   func updateMetadata(_ metadata: StorageMetadata,
                       completion: @escaping (Result<StorageMetadata, Error>) -> Void) {
     return updateMetadata(metadata, completion: getResultCallback(completion: completion))
@@ -208,8 +208,8 @@ public extension StorageReference {
                   block returns a Result enum with either an NSURL pointing to the file
                   path of the downloaded file or an NSError.
 
-  - Returns: A StorageDownloadTask that can be used to monitor or manage the download.
-  */
+   - Returns: A StorageDownloadTask that can be used to monitor or manage the download.
+   */
   func write(toFile: URL, completion: @escaping (Result<URL, Error>)
     -> Void) -> StorageDownloadTask {
     return write(toFile: toFile, completion: getResultCallback(completion: completion))
