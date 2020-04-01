@@ -15,18 +15,61 @@
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 
-#import <FirebaseCore/FIRAppInternal.h>
+#import "FIRAppDistribution+Private.h"
 #import "FIRAppDistribution.h"
+
+#import "FIROptions.h"
+
+// MARK - Mock FIRApp
+// TODO: Create FIRAppFake.h and FIRAppFake.m
+
+@interface FIRAppFake : NSObject
+
+@property(nonatomic, strong) FIROptions *options;
+
+@end
+
+@implementation FIRAppFake : NSObject
+
+- (instancetype)initWithAppID:(NSString *)appID
+{
+    self = [super init];
+    if (self) {
+      _options = [[FIROptions alloc] initWithGoogleAppID:appID GCMSenderID:@"sender"];
+    }
+    return self;
+}
+
+
+@end
+
+
+// MARK - Mock authorization test
+// TODO: Create FIRAppDistributionAuthMock.h and FIRAppDistributionAuthMock.m
+
+@interface FIRAppDistributionAuthMock: NSObject<FIRAppDistributionAuthProtocol>
+
+@property(nonatomic, strong) NSURL *discoverServiceIssuerURL;
+@property(nonatomic, strong) OIDServiceConfiguration *discoverServiceConfig;
+@property(nonatomic, strong) NSError *discoverServiceError;
+
+@end
+
+@implementation FIRAppDistributionAuthMock
+
+
+- (void)discoverService:(NSURL *)issuerURL completion:(OIDDiscoveryCallback)completion {
+    self.discoverServiceIssuerURL = issuerURL;
+    completion(self.discoverServiceConfig, self.discoverServiceError);
+}
+
+@end
 
 @interface FIRAppDistributionSampleTests : XCTestCase
 
 @property(nonatomic, strong) FIRAppDistribution *appDistribution;
-
-@end
-
-@interface FIRAppDistribution (PrivateUnitTesting)
-
-- (instancetype)initWithApp:(FIRApp *)app appInfo:(NSDictionary *)appInfo;
+@property(nonatomic, strong) FIRAppDistributionAuthMock *appDistributionAuth;
+@property(nonatomic, strong) FIRAppFake *app;
 
 @end
 
@@ -36,11 +79,32 @@
   [super setUp];
 
   NSDictionary<NSString *, NSString *> *dict = [[NSDictionary<NSString *, NSString *> alloc] init];
-  self.appDistribution = [[FIRAppDistribution alloc] initWithApp:nil appInfo:dict];
+  self.appDistributionAuth = [[FIRAppDistributionAuthMock alloc] init];
+  self.app = [[FIRAppFake alloc] initWithAppID:@"someGMPAppID"];
+  id fakeApp = self.app;
+    
+  self.appDistribution = [[FIRAppDistribution alloc] initWithApp:fakeApp
+                                                         appInfo:dict
+                                                     authHandler:self.appDistributionAuth];
 }
 
 - (void)testGetSingleton {
   XCTAssertNotNil(self.appDistribution);
+}
+
+-(void)testSignInDiscoveryError {
+    NSError *discoveryError = [[NSError alloc] initWithDomain:@"discoveryDomain" code:3 userInfo:nil];
+    self.appDistributionAuth.discoverServiceError = discoveryError;
+    
+    XCTestExpectation *expectation = [self expectationWithDescription:@"signInTesterWithCompletion"];
+    
+    [self.appDistribution signInTesterWithCompletion:^(NSError *error) {
+        XCTAssertEqual(discoveryError, error);
+        XCTAssertNil(self.appDistribution.authState);
+        [expectation fulfill];
+    }];
+    
+    [self waitForExpectations:@[expectation] timeout:3];
 }
 
 @end

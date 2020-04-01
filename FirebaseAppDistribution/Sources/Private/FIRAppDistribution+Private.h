@@ -19,9 +19,20 @@
 #import <AppAuth/AppAuth.h>
 #import "FIRAppDistribution.h"
 
+@class FIRApp;
+
 NS_ASSUME_NONNULL_BEGIN
 
+@protocol FIRAppDistributionAuthProtocol
+
+- (void)discoverService:(NSURL *)issuerURL completion:(OIDDiscoveryCallback)completion;
+
+@end
+
 @interface FIRAppDistribution ()
+
+- (instancetype)initWithApp:(FIRApp *)app appInfo:(NSDictionary *)appInfo authHandler:(id<FIRAppDistributionAuthProtocol>) auth;
+
 /**
  * Current view controller presenting the `SFSafariViewController` if any.
  */

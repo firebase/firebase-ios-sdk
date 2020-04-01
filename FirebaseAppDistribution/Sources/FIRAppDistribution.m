@@ -14,6 +14,7 @@
 
 #import "FIRAppDistribution.h"
 #import "FIRAppDistribution+Private.h"
+#import "FIRAppDistributionAppDelegateInterceptor.h"
 
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
@@ -21,7 +22,6 @@
 #import <FirebaseCore/FIROptions.h>
 
 #import <AppAuth/AppAuth.h>
-#import <FIRAppDistributionAppDelegateInterceptor.h>
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
 #import <UIKit/UIKit.h>
 
@@ -29,7 +29,20 @@
 @protocol FIRAppDistributionInstanceProvider <NSObject>
 @end
 
+@interface FIRAppDistributionAuthImp: NSObject<FIRAppDistributionAuthProtocol>
+@end
+
+@implementation FIRAppDistributionAuthImp
+
+- (void)discoverService:(NSURL *)issuerURL completion:(OIDDiscoveryCallback)completion {
+    [OIDAuthorizationService discoverServiceConfigurationForIssuer:issuerURL completion:completion];
+}
+
+@end
+
+
 @interface FIRAppDistribution () <FIRLibrary, FIRAppDistributionInstanceProvider>
+  @property (nonatomic, strong) id<FIRAppDistributionAuthProtocol> appDistributionAuth;
 @end
 
 @implementation FIRAppDistributionRelease
@@ -54,10 +67,15 @@ NSString *const ReleasesEndpointURL =
 #pragma mark - Singleton Support
 
 - (instancetype)initWithApp:(FIRApp *)app appInfo:(NSDictionary *)appInfo {
+  return [self initWithApp:app appInfo:appInfo authHandler:[[FIRAppDistributionAuthImp alloc] init]];
+}
+
+- (instancetype)initWithApp:(FIRApp *)app appInfo:(NSDictionary *)appInfo authHandler:(id<FIRAppDistributionAuthProtocol>) auth {
   self = [super init];
 
   if (self) {
-    self.safariHostingViewController = [[UIViewController alloc] init];
+    _appDistributionAuth = auth;
+    _safariHostingViewController = [[UIViewController alloc] init];
 
     // Save any properties here
     NSLog(@"APP DISTRIBUTION STARTED UP!");
@@ -70,7 +88,7 @@ NSString *const ReleasesEndpointURL =
   }
 
   // TODO: Lookup keychain to load auth state on init
-  _isTesterSignedIn = self.authState ? YES : NO;
+  _isTesterSignedIn = _authState ? YES : NO;
   return self;
 }
 
@@ -121,13 +139,13 @@ NSString *const ReleasesEndpointURL =
 - (void)signInTesterWithCompletion:(FIRAppDistributionSignInTesterCompletion)completion {
   NSURL *issuer = [NSURL URLWithString:@"https://accounts.google.com"];
 
-  [OIDAuthorizationService
-      discoverServiceConfigurationForIssuer:issuer
+  [self.appDistributionAuth discoverService:issuer
                                  completion:^(OIDServiceConfiguration *_Nullable configuration,
                                               NSError *_Nullable error) {
                                    if (!configuration) {
                                      NSLog(@"Error retrieving discovery document: %@",
                                            [error localizedDescription]);
+                                     completion(error);
                                      return;
                                    }
 
