@@ -11,7 +11,6 @@ on:
 
 jobs:
   pod-lib-lint:
-    if: github.event_name="pull_request"
     runs-on: macOS-latest
 
     strategy:
@@ -19,9 +18,12 @@ jobs:
         target: [ios, tvos, macos]
     steps:
     - uses: actions/checkout@v2
+      if: github.event_name="pull_request"
     - name: Setup Bundler
+      if: github.event_name="pull_request"
       run: scripts/setup_bundler.sh
     - name: Build and test
+      if: github.event_name="pull_request"
       run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=${{ matrix.target }}
 
   catalyst:
