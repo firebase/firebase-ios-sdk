@@ -187,7 +187,7 @@ public extension StorageReference {
   ///                object metadata or an `Error`.
   func updateMetadata(_ metadata: StorageMetadata,
                       completion: @escaping (Result<StorageMetadata, Error>) -> Void) {
-    return updateMetadata(metadata, completion: getResultCallback(completion: completion))
+    updateMetadata(metadata, completion: getResultCallback(completion: completion))
   }
 
   /// Asynchronously downloads the object at the current path to a specified system filepath.
