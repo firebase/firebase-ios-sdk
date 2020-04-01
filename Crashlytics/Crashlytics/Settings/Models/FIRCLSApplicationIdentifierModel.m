@@ -67,7 +67,7 @@
 }
 
 - (NSString *)synthesizedVersion {
-  return [NSString stringWithFormat:@"%@ (%@)", self.displayName, self.buildVersion];
+  return [NSString stringWithFormat:@"%@ (%@)", self.displayVersion, self.buildVersion];
 }
 
 - (FIRCLSApplicationInstallationSourceType)installSource {
