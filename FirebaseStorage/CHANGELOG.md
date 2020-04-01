@@ -1,5 +1,5 @@
 # Unreleased
-- [fixed] Fix the rare case where a StorageTask would call its completion callbacks more than
+- [fixed] Fix a rare case where a StorageTask would call its completion callbacks more than
   once. (#5245)
 
 # 3.6.0
