@@ -1,5 +1,5 @@
 GIT
-  remote: git@github.com:CocoaPods/CocoaPods.git
+  remote: https://github.com/CocoaPods/CocoaPods.git
   revision: ac14e3c103cb2c2147fbca85485245bf441e167b
   ref: ac14e3c
   specs:
