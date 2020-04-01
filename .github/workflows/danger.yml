@@ -13,4 +13,4 @@ jobs:
     - name: Danger
       env:
         DANGER_GITHUB_API_TOKEN: ${{ github.token }}
-      run:  '[ ! -z $DANGER_GITHUB_API_TOKEN ] && bundle exec danger || echo "Skipping Danger for External Contributor"'
+      run: 'bundle exec danger'
