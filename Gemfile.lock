@@ -22,6 +22,21 @@ GIT
       ruby-macho (~> 1.4)
       xcodeproj (>= 1.14.0, < 2.0)
 
+GIT
+  remote: https://github.com/CocoaPods/Core.git
+  revision: 24caf8e1103aded6cab8332007921f92c67e426f
+  ref: 24caf8e
+  specs:
+    cocoapods-core (1.9.1)
+      activesupport (>= 4.0.2, < 6)
+      addressable (~> 2.6)
+      algoliasearch (~> 1.0)
+      concurrent-ruby (~> 1.1)
+      fuzzy_match (~> 2.0.4)
+      nap (~> 1.0)
+      netrc (~> 0.11)
+      typhoeus (~> 1.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -42,14 +57,6 @@ GEM
       cork
       nap
       open4 (~> 1.3)
-    cocoapods-core (1.9.1)
-      activesupport (>= 4.0.2, < 6)
-      algoliasearch (~> 1.0)
-      concurrent-ruby (~> 1.1)
-      fuzzy_match (~> 2.0.4)
-      nap (~> 1.0)
-      netrc (~> 0.11)
-      typhoeus (~> 1.0)
     cocoapods-deintegrate (1.0.4)
     cocoapods-disable-podfile-validations (0.1.1)
     cocoapods-downloader (1.3.0)
@@ -133,6 +140,7 @@ PLATFORMS
 
 DEPENDENCIES
   cocoapods!
+  cocoapods-core!
   cocoapods-generate (= 1.6.0)
   danger (= 6.1.0)
 

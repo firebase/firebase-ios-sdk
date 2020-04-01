@@ -3,5 +3,6 @@
 source 'https://rubygems.org'
 
 gem 'cocoapods', git: 'https://github.com/CocoaPods/CocoaPods.git',  ref: 'ac14e3c'
+gem 'cocoapods-core', git: 'https://github.com/CocoaPods/Core.git', ref: '24caf8e'
 gem 'cocoapods-generate', '1.6.0'
 gem 'danger', '6.1.0'
