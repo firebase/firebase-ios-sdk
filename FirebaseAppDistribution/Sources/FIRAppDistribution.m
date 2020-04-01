@@ -14,6 +14,7 @@
 
 #import "FIRAppDistribution.h"
 #import "FIRAppDistribution+Private.h"
+#import "FIRAppDistributionAppDelegateInterceptor.h"
 
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
@@ -29,7 +30,20 @@
 @protocol FIRAppDistributionInstanceProvider <NSObject>
 @end
 
+@interface FIRAppDistributionAuthImp: NSObject<FIRAppDistributionAuthProtocol>
+@end
+
+@implementation FIRAppDistributionAuthImp
+
+- (void)discoverService:(NSURL *)issuerURL completion:(OIDDiscoveryCallback)completion {
+    [OIDAuthorizationService discoverServiceConfigurationForIssuer:issuerURL completion:completion];
+}
+
+@end
+
+
 @interface FIRAppDistribution () <FIRLibrary, FIRAppDistributionInstanceProvider>
+  @property (nonatomic, strong) id<FIRAppDistributionAuthProtocol> appDistributionAuth;
 @end
 
 @implementation FIRAppDistribution
@@ -50,10 +64,15 @@ NSString *const kIssuerURL = @"https://accounts.google.com";
 #pragma mark - Singleton Support
 
 - (instancetype)initWithApp:(FIRApp *)app appInfo:(NSDictionary *)appInfo {
+  return [self initWithApp:app appInfo:appInfo authHandler:[[FIRAppDistributionAuthImp alloc] init]];
+}
+
+- (instancetype)initWithApp:(FIRApp *)app appInfo:(NSDictionary *)appInfo authHandler:(id<FIRAppDistributionAuthProtocol>) auth {
   self = [super init];
 
   if (self) {
-    self.safariHostingViewController = [[UIViewController alloc] init];
+    _appDistributionAuth = auth;
+    _safariHostingViewController = [[UIViewController alloc] init];
 
     [GULAppDelegateSwizzler proxyOriginalDelegate];
 
@@ -63,7 +82,7 @@ NSString *const kIssuerURL = @"https://accounts.google.com";
   }
 
   // TODO: Lookup keychain to load auth state on init
-  _isTesterSignedIn = self.authState ? YES : NO;
+  _isTesterSignedIn = _authState ? YES : NO;
   return self;
 }
 
@@ -119,8 +138,7 @@ NSString *const kIssuerURL = @"https://accounts.google.com";
 - (void)signInTesterWithCompletion:(FIRAppDistributionSignInTesterCompletion)completion {
   NSURL *issuer = [NSURL URLWithString:kIssuerURL];
 
-  [OIDAuthorizationService
-      discoverServiceConfigurationForIssuer:issuer
+  [self.appDistributionAuth discoverService:issuer
                                  completion:^(OIDServiceConfiguration *_Nullable configuration,
                                               NSError *_Nullable error) {
                                    [self handleOauthDiscoveryCompletion:configuration
