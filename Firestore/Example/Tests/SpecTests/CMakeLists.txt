@@ -15,7 +15,7 @@
 if(APPLE)
   firebase_ios_objc_test(
     firebase_firestore_objc_spec_test
-    HOST firebase_firestore_example_app
+    HOST firestore_objc_host_app
     SOURCES
       FSTLevelDBSpecTests.mm
       FSTMemorySpecTests.mm
