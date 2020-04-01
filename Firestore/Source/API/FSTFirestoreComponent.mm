@@ -129,6 +129,8 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - FIRComponentLifecycleMaintainer
 
 - (void)appWillBeDeleted:(FIRApp *)app {
+  (void)app;
+
   NSDictionary<NSString *, FIRFirestore *> *instances;
   @synchronized(_instances) {
     instances = [_instances copy];

@@ -32,13 +32,13 @@
 
   __block int callbacks = 0;
   id<FIRListenerRegistration> one = [collectionRef
-      addSnapshotListener:^(FIRQuerySnapshot *_Nullable snapshot, NSError *_Nullable error) {
+      addSnapshotListener:^(FIRQuerySnapshot *, NSError *_Nullable error) {
         XCTAssertNil(error);
         callbacks++;
       }];
 
   id<FIRListenerRegistration> two = [collectionRef
-      addSnapshotListener:^(FIRQuerySnapshot *_Nullable snapshot, NSError *_Nullable error) {
+      addSnapshotListener:^(FIRQuerySnapshot *, NSError *_Nullable error) {
         XCTAssertNil(error);
         callbacks++;
       }];
@@ -69,10 +69,10 @@
   FIRDocumentReference *docRef = [collectionRef documentWithAutoID];
 
   id<FIRListenerRegistration> one = [collectionRef
-      addSnapshotListener:^(FIRQuerySnapshot *_Nullable snapshot, NSError *_Nullable error){
+      addSnapshotListener:^(FIRQuerySnapshot *, NSError *){
       }];
   id<FIRListenerRegistration> two = [docRef
-      addSnapshotListener:^(FIRDocumentSnapshot *_Nullable snapshot, NSError *_Nullable error){
+      addSnapshotListener:^(FIRDocumentSnapshot *, NSError *){
       }];
 
   [one remove];
@@ -89,13 +89,13 @@
   __block int callbacksOne = 0;
   __block int callbacksTwo = 0;
   id<FIRListenerRegistration> one = [collectionRef
-      addSnapshotListener:^(FIRQuerySnapshot *_Nullable snapshot, NSError *_Nullable error) {
+      addSnapshotListener:^(FIRQuerySnapshot *, NSError *_Nullable error) {
         XCTAssertNil(error);
         callbacksOne++;
       }];
 
   id<FIRListenerRegistration> two = [collectionRef
-      addSnapshotListener:^(FIRQuerySnapshot *_Nullable snapshot, NSError *_Nullable error) {
+      addSnapshotListener:^(FIRQuerySnapshot *, NSError *_Nullable error) {
         XCTAssertNil(error);
         callbacksTwo++;
       }];
@@ -137,7 +137,7 @@
   @autoreleasepool {
     FIRDocumentReference *docRef = [collectionRef documentWithAutoID];
     documentID = docRef.documentID;
-    registration = [docRef addSnapshotListener:^(FIRDocumentSnapshot *snapshot, NSError *error) {
+    registration = [docRef addSnapshotListener:^(FIRDocumentSnapshot *snapshot, NSError *) {
       if (snapshot.exists) {
         [seen fulfill];
       }
