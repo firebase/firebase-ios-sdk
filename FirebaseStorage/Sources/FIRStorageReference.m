@@ -266,10 +266,15 @@
                   completion(task.downloadData, nil);
                 });
               }];
+
+  __block BOOL failed = NO;
   [task observeStatus:FIRStorageTaskStatusFailure
               handler:^(FIRStorageTaskSnapshot *_Nonnull snapshot) {
                 dispatch_async(callbackQueue, ^{
-                  completion(nil, snapshot.error);
+                  if (!failed) {
+                    failed = YES;
+                    completion(nil, snapshot.error);
+                  }
                 });
               }];
   [task
