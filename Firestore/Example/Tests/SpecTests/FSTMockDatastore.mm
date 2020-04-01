@@ -35,7 +35,7 @@
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
-#include "Firestore/core/test/firebase/firestore/util/create_noop_connectivity_monitor.h"
+#include "Firestore/core/test/firebase/firestore/remote/create_noop_connectivity_monitor.h"
 #include "absl/memory/memory.h"
 #include "grpcpp/completion_queue.h"
 
@@ -51,13 +51,13 @@ using firebase::firestore::model::MutationResult;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::remote::ConnectivityMonitor;
+using firebase::firestore::remote::CreateNoOpConnectivityMonitor;
 using firebase::firestore::remote::GrpcConnection;
 using firebase::firestore::remote::WatchChange;
 using firebase::firestore::remote::WatchStream;
 using firebase::firestore::remote::WatchTargetChange;
 using firebase::firestore::remote::WriteStream;
 using firebase::firestore::util::AsyncQueue;
-using firebase::firestore::util::CreateNoOpConnectivityMonitor;
 using firebase::firestore::util::Status;
 
 namespace firebase {

@@ -26,10 +26,10 @@
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
 #include "Firestore/core/src/firebase/firestore/remote/stream.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
+#include "Firestore/core/test/firebase/firestore/remote/create_noop_connectivity_monitor.h"
+#include "Firestore/core/test/firebase/firestore/remote/fake_credentials_provider.h"
+#include "Firestore/core/test/firebase/firestore/remote/grpc_stream_tester.h"
 #include "Firestore/core/test/firebase/firestore/testutil/async_testing.h"
-#include "Firestore/core/test/firebase/firestore/util/create_noop_connectivity_monitor.h"
-#include "Firestore/core/test/firebase/firestore/util/fake_credentials_provider.h"
-#include "Firestore/core/test/firebase/firestore/util/grpc_stream_tester.h"
 #include "absl/memory/memory.h"
 #include "absl/strings/str_cat.h"
 #include "grpcpp/client_context.h"
@@ -47,14 +47,6 @@ namespace {
 using auth::CredentialsProvider;
 using auth::Token;
 using util::AsyncQueue;
-using util::ByteBufferToString;
-using util::CompletionEndState;
-using util::CompletionResult;
-using util::CreateNoOpConnectivityMonitor;
-using util::FakeCredentialsProvider;
-using util::GetFirestoreErrorName;
-using util::GrpcStreamTester;
-using util::MakeByteBuffer;
 using util::StringFormat;
 using util::TimerId;
 
