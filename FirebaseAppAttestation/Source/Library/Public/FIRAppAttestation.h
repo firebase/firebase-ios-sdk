@@ -25,22 +25,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 NS_SWIFT_NAME(AppAttestation)
 @interface FIRAppAttestation : NSObject
-/// AppAttestation instance for the default FirebaseApp.
-+ (instancetype)appAttestation NS_SWIFT_NAME(appAttestation());
-
-/// AppAttestation instance for the specified FirebaseApp.
-+ (nullable instancetype)appAttestationWithApp:(FIRApp *)application
-    NS_SWIFT_NAME(appAttestation(app:));
-
-/// Retrieve a cached or generate a new FAA Token.
-- (void)getTokenWithCompletion:(FIRAppAttestationTokenHandler)handler
-    NS_SWIFT_NAME(getToken(completion:));
-
-/// Retrieve a cached or generate a new FAA Token. If forcingRefresh == YES always generates a new
-/// token and updates the cache.
-- (void)getTokenForcingRefresh:(BOOL)forcingRefresh
-                    completion:(FIRAppAttestationTokenHandler)handler;
-NS_SWIFT_NAME(getToken(forcingRefresh:completion:));
 
 /// Set Attestation Provider Factory for default FirebaseApp.
 + (void)setAttestationProviderFactory:(nullable id<FIRAppAttestationProviderFactory>)factory;
