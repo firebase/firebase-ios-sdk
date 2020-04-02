@@ -30,6 +30,8 @@ Pod::Spec.new do |s|
   s.public_header_files = base_dir + 'Library/Public/*.h'
 
   s.framework = 'Security'
+
+  s.dependency 'FirebaseAppAttestationInterop', '~> 0.1.0'
   s.dependency 'FirebaseCore', '~> 6.6'
   s.dependency 'PromisesObjC', '~> 1.2'
 
