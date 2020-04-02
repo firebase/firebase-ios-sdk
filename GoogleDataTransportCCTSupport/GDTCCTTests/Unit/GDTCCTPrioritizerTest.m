@@ -183,11 +183,14 @@
 
 /** Tests encoding and decoding a clock using a keyed archiver. */
 - (void)testEncodingAndDecoding {
-  GDTCCTPrioritizer *prioritizer = [[GDTCCTPrioritizer alloc] init];
+  GDTCCTPrioritizer *prioritizer = [GDTCCTPrioritizer sharedInstance];
   GDTCOREvent *event = [_CCTGenerator generateEvent:GDTCOREventQosDefault];
   event.customPrioritizationParams = @{GDTCCTNeedsNetworkConnectionInfo : @YES};
   [prioritizer prioritizeEvent:event];
   NSError *error;
+  dispatch_sync(prioritizer.queue, ^{
+                });
+  XCTAssertEqual(prioritizer.CCTEvents.count, 1);
   NSData *prioritizerData = GDTCOREncodeArchive(prioritizer, nil, &error);
   XCTAssertNil(error);
   XCTAssertNotNil(prioritizerData);
@@ -198,7 +201,7 @@
   XCTAssertNil(error);
   XCTAssertNotNil(unarchivedPrioritizer);
   XCTAssertEqual([prioritizer hash], [prioritizer hash]);
-  XCTAssertEqualObjects(prioritizer, unarchivedPrioritizer);
+  XCTAssertEqualObjects(prioritizer.CCTEvents, unarchivedPrioritizer.CCTEvents);
 }
 
 @end
