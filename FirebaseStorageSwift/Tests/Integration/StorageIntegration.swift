@@ -49,14 +49,14 @@ class StorageIntegration: XCTestCase {
 
         for largeFile in largeFiles {
           let ref = storage.reference().child(largeFile)
-          _ = ref.putData(data) { result in
+          ref.putData(data) { result in
             self.assertResultSuccess(result)
             setupExpectation.fulfill()
           }
         }
         for emptyFile in emptyFiles {
           let ref = storage.reference().child(emptyFile)
-          _ = ref.putData(data) { result in
+          ref.putData(data) { result in
             self.assertResultSuccess(result)
             setupExpectation.fulfill()
           }
@@ -114,7 +114,7 @@ class StorageIntegration: XCTestCase {
     let expectation = self.expectation(description: #function)
     let ref = storage.reference(withPath: "ios/public/fileToDelete")
     let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
-    _ = ref.putData(data) { result in
+    ref.putData(data) { result in
       self.assertResultSuccess(result)
       ref.delete() { error in
         XCTAssertNil(error, "Error should be nil")
@@ -128,7 +128,7 @@ class StorageIntegration: XCTestCase {
     let expectation = self.expectation(description: #function)
     let ref = storage.reference(withPath: "ios/public/fileToDelete")
     let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
-    _ = ref.putData(data) { result in
+    ref.putData(data) { result in
       self.assertResultSuccess(result)
       ref.delete(completion: nil)
       expectation.fulfill()
@@ -140,7 +140,7 @@ class StorageIntegration: XCTestCase {
     let expectation = self.expectation(description: #function)
     let ref = storage.reference(withPath: "ios/public/testBytesUpload")
     let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
-    _ = ref.putData(data) { result in
+    ref.putData(data) { result in
       self.assertResultSuccess(result)
       expectation.fulfill()
     }
@@ -151,7 +151,7 @@ class StorageIntegration: XCTestCase {
     let expectation = self.expectation(description: #function)
     let ref = storage.reference(withPath: "ios/public/-._~!$'()*,=:@&+;")
     let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
-    _ = ref.putData(data) { result in
+    ref.putData(data) { result in
       self.assertResultSuccess(result)
       expectation.fulfill()
     }
@@ -163,7 +163,7 @@ class StorageIntegration: XCTestCase {
     let ref = storage.reference(withPath: "ios/public/testBytesUpload")
     let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
     DispatchQueue.global(qos: .background).async {
-      _ = ref.putData(data) { result in
+      ref.putData(data) { result in
         self.assertResultSuccess(result)
         expectation.fulfill()
       }
@@ -175,7 +175,7 @@ class StorageIntegration: XCTestCase {
     let expectation = self.expectation(description: #function)
     let ref = storage.reference(withPath: "ios/public/testUnauthenticatedSimplePutEmptyData")
     let data = Data()
-    _ = ref.putData(data) { result in
+    ref.putData(data) { result in
       self.assertResultSuccess(result)
       expectation.fulfill()
     }
@@ -186,7 +186,7 @@ class StorageIntegration: XCTestCase {
     let expectation = self.expectation(description: #function)
     let ref = storage.reference(withPath: "ios/private/secretfile.txt")
     let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
-    _ = ref.putData(data) { result in
+    ref.putData(data) { result in
       switch result {
       case .success:
         XCTFail("Unexpected success from unauthorized putData")
@@ -202,7 +202,7 @@ class StorageIntegration: XCTestCase {
     let expectation = self.expectation(description: #function)
     let ref = storage.reference(withPath: "ios/private/secretfile.txt")
     let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
-    _ = ref.putData(data) { result in
+    ref.putData(data) { result in
       do {
         try _ = result.get() // .failure will throw
       } catch {
@@ -257,7 +257,7 @@ class StorageIntegration: XCTestCase {
     let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
     let fileURL = tmpDirURL.appendingPathComponent("hello.txt")
     try data.write(to: fileURL, options: .atomicWrite)
-    _ = ref.putFile(from: fileURL) { result in
+    ref.putFile(from: fileURL) { result in
       switch result {
       case let .success(metadata):
         XCTAssertEqual(fileName, metadata.name)
@@ -278,7 +278,7 @@ class StorageIntegration: XCTestCase {
     let ref = storage.reference(withPath: "ios/public/testUnauthenticatedSimplePutDataNoMetadata")
     let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
 
-    _ = ref.putData(data) { result in
+    ref.putData(data) { result in
       self.assertResultSuccess(result)
       expectation.fulfill()
     }
@@ -294,7 +294,7 @@ class StorageIntegration: XCTestCase {
     let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
     let fileURL = tmpDirURL.appendingPathComponent("hello.txt")
     try data.write(to: fileURL, options: .atomicWrite)
-    _ = ref.putFile(from: fileURL) { result in
+    ref.putFile(from: fileURL) { result in
       self.assertResultSuccess(result)
       expectation.fulfill()
     }
@@ -305,7 +305,7 @@ class StorageIntegration: XCTestCase {
     let expectation = self.expectation(description: #function)
 
     let ref = storage.reference(withPath: "ios/public/1mb")
-    _ = ref.getData(maxSize: 1024 * 1024) { result in
+    ref.getData(maxSize: 1024 * 1024) { result in
       self.assertResultSuccess(result)
       expectation.fulfill()
     }
@@ -317,7 +317,7 @@ class StorageIntegration: XCTestCase {
 
     let ref = storage.reference(withPath: "ios/public/1mb")
     DispatchQueue.global(qos: .background).async {
-      _ = ref.getData(maxSize: 1024 * 1024) { result in
+      ref.getData(maxSize: 1024 * 1024) { result in
         self.assertResultSuccess(result)
         expectation.fulfill()
       }
@@ -329,7 +329,7 @@ class StorageIntegration: XCTestCase {
     let expectation = self.expectation(description: #function)
 
     let ref = storage.reference(withPath: "ios/public/1mb")
-    _ = ref.getData(maxSize: 1024) { result in
+    ref.getData(maxSize: 1024) { result in
       switch result {
       case .success:
         XCTFail("Unexpected success from getData too small")
@@ -379,7 +379,7 @@ class StorageIntegration: XCTestCase {
     let fileURL = tmpDirURL.appendingPathComponent("hello.txt")
     let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
 
-    _ = ref.putData(data) { result in
+    ref.putData(data) { result in
       switch result {
       case .success:
         let task = ref.write(toFile: fileURL)
