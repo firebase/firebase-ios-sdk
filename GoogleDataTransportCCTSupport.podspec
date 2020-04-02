@@ -42,7 +42,7 @@ Support library to provide event prioritization and uploading for the GoogleData
   header_search_paths = {
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}/GoogleDataTransportCCTSupport/"'
   }
-  
+
   s.ios.user_target_xcconfig = {
     # Enable Mac Catalyst
     'SUPPORTS_MACCATALYST' => 'YES',
