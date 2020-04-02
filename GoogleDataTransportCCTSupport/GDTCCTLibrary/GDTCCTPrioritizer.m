@@ -303,6 +303,10 @@ static NSString *const GDTCCTUploaderCSHEventsKey = @"GDTCCTUploaderCSHEventsKey
 
 - (void)encodeWithCoder:(NSCoder *)coder {
   GDTCCTPrioritizer *sharedInstance = [GDTCCTPrioritizer sharedInstance];
+  sharedInstance = nil;
+  if (!sharedInstance) {
+    return;
+  }
   NSMutableSet<GDTCOREvent *> *CCTEvents = sharedInstance->_CCTEvents;
   if (CCTEvents) {
     [coder encodeObject:CCTEvents forKey:GDTCCTUploaderCCTEventsKey];

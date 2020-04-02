@@ -181,4 +181,24 @@
   XCTAssertNotEqual(info.network_type, gdt_cct_NetworkConnectionInfo_NetworkType_NONE);
 }
 
+/** Tests encoding and decoding a clock using a keyed archiver. */
+- (void)testEncodingAndDecoding {
+  GDTCCTPrioritizer *prioritizer = [[GDTCCTPrioritizer alloc] init];
+  GDTCOREvent *event = [_CCTGenerator generateEvent:GDTCOREventQosDefault];
+  event.customPrioritizationParams = @{GDTCCTNeedsNetworkConnectionInfo : @YES};
+  [prioritizer prioritizeEvent:event];
+  NSError *error;
+  NSData *prioritizerData = GDTCOREncodeArchive(prioritizer, nil, &error);
+  XCTAssertNil(error);
+  XCTAssertNotNil(prioritizerData);
+
+  error = nil;
+  GDTCCTPrioritizer *unarchivedPrioritizer = (GDTCCTPrioritizer *)GDTCORDecodeArchive(
+      [GDTCCTPrioritizer class], nil, prioritizerData, &error);
+  XCTAssertNil(error);
+  XCTAssertNotNil(unarchivedPrioritizer);
+  XCTAssertEqual([prioritizer hash], [prioritizer hash]);
+  XCTAssertEqualObjects(prioritizer, unarchivedPrioritizer);
+}
+
 @end
