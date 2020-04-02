@@ -224,19 +224,19 @@ NSString *const TesterAPIClientID = @"319754533822-osu3v3hcci24umq6diathdm0dipds
         NSLog(@"Error parsing the object - %@ error (%@)", object, error);
     }
     
-//    NSLog(@"Response parsed %@", object);
-//    NSLog(@"Response releases %@", [object objectForKey:@"releases"]);
+    NSLog(@"Response releases %@", [object objectForKey:@"releases"]);
     
     
     NSArray *releaseList = [object objectForKey:@"releases"];
     for (NSDictionary *releaseDict in releaseList) {
-        //(BOOL)[release objectForKey:@"latest"]
-        if(true) {
-            NSString *codeHash = [releaseDict objectForKey:@"releases"];
+        if([[releaseDict objectForKey:@"latest"] boolValue]) {
+            NSString *codeHash = [releaseDict objectForKey:@"codeHash"];
             NSString *executablePath = [[NSBundle mainBundle] executablePath];
             FIRAppDistributionMachO *machO = [[FIRAppDistributionMachO alloc] initWithPath:executablePath];
             
-            if(codeHash != machO.codeHash) {
+            if(![codeHash isEqualToString:machO.codeHash]) {
+                NSLog(@"Hash from service %@", codeHash);
+                NSLog(@"Hash extracted from app %@", machO.codeHash);
                 //Update available!
                 // Ensure we dispatch on the main thread to allow any UI to update
                 FIRAppDistributionRelease *release = [[FIRAppDistributionRelease alloc] initWithDictionary:releaseDict];
