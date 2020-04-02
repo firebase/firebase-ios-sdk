@@ -116,7 +116,7 @@ class StorageIntegration: XCTestCase {
     let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
     ref.putData(data) { result in
       self.assertResultSuccess(result)
-      ref.delete() { error in
+      ref.delete { error in
         XCTAssertNil(error, "Error should be nil")
       }
       expectation.fulfill()

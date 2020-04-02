@@ -92,7 +92,7 @@ class _FirestoreDecoder: Decoder {
                                                               debugDescription: "Cannot get keyed decoding container -- found null value instead."))
     }
 
-    guard let topContainer = self.storage.topContainer as? [String: Any] else {
+    guard let topContainer = storage.topContainer as? [String: Any] else {
       let context = DecodingError.Context(codingPath: codingPath, debugDescription: "Not a dictionary")
       throw DecodingError.typeMismatch([String: Any].self, context)
     }
@@ -108,7 +108,7 @@ class _FirestoreDecoder: Decoder {
                                                               debugDescription: "Cannot get unkeyed decoding container -- found null value instead."))
     }
 
-    guard let topContainer = self.storage.topContainer as? [Any] else {
+    guard let topContainer = storage.topContainer as? [Any] else {
       let context = DecodingError.Context(codingPath: codingPath, debugDescription: "Not an array")
       throw DecodingError.typeMismatch([Any].self, context)
     }
@@ -363,7 +363,7 @@ private struct _FirestoreKeyedDecodingContainer<K: CodingKey>: KeyedDecodingCont
   }
 
   private func require(key: Key) throws -> Any {
-    if let entry = self.container[key.stringValue] {
+    if let entry = container[key.stringValue] {
       return entry
     }
 
@@ -404,7 +404,7 @@ private struct _FirestoreKeyedDecodingContainer<K: CodingKey>: KeyedDecodingCont
     decoder.codingPath.append(key)
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let value = self.container[key.stringValue] else {
+    guard let value = container[key.stringValue] else {
       throw DecodingError.valueNotFound(UnkeyedDecodingContainer.self,
                                         DecodingError.Context(codingPath: codingPath,
                                                               debugDescription: "Cannot get nested unkeyed container -- no value found for key \"\(key.stringValue)\""))
@@ -637,7 +637,7 @@ private struct _FirestoreUnkeyedDecodingContainer: UnkeyedDecodingContainer {
 
     try expectNotAtEnd()
 
-    let value = self.container[self.currentIndex]
+    let value = self.container[currentIndex]
     try requireNotNSNull(value)
 
     guard let dictionary = value as? [String: Any] else {
@@ -655,7 +655,7 @@ private struct _FirestoreUnkeyedDecodingContainer: UnkeyedDecodingContainer {
 
     try expectNotAtEnd()
 
-    let value = container[self.currentIndex]
+    let value = container[currentIndex]
     try requireNotNSNull(value)
 
     guard let array = value as? [Any] else {
@@ -672,14 +672,14 @@ private struct _FirestoreUnkeyedDecodingContainer: UnkeyedDecodingContainer {
 
     try expectNotAtEnd()
 
-    let value = container[self.currentIndex]
+    let value = container[currentIndex]
     currentIndex += 1
     return _FirestoreDecoder(referencing: value, at: decoder.codingPath)
   }
 
   private func expectNotAtEnd() throws {
     guard !isAtEnd else {
-      throw DecodingError.valueNotFound(Any?.self, DecodingError.Context(codingPath: decoder.codingPath + [_FirestoreKey(index: self.currentIndex)], debugDescription: "Unkeyed container is at end."))
+      throw DecodingError.valueNotFound(Any?.self, DecodingError.Context(codingPath: decoder.codingPath + [_FirestoreKey(index: currentIndex)], debugDescription: "Unkeyed container is at end."))
     }
   }
 
@@ -1040,15 +1040,15 @@ extension _FirestoreDecoder {
 
   func unbox<T: Decodable>(_ value: Any, as _: T.Type) throws -> T? {
     if T.self == Date.self || T.self == NSDate.self {
-      guard let date = try self.unbox(value, as: Date.self) else { return nil }
+      guard let date = try unbox(value, as: Date.self) else { return nil }
       return (date as! T)
     }
     if T.self == Data.self || T.self == NSData.self {
-      guard let data = try self.unbox(value, as: Data.self) else { return nil }
+      guard let data = try unbox(value, as: Data.self) else { return nil }
       return (data as! T)
     }
     if T.self == URL.self || T.self == NSURL.self {
-      guard let urlString = try self.unbox(value, as: String.self) else {
+      guard let urlString = try unbox(value, as: String.self) else {
         return nil
       }
       guard let url = URL(string: urlString) else {
@@ -1058,7 +1058,7 @@ extension _FirestoreDecoder {
       return (url as! T)
     }
     if T.self == Decimal.self || T.self == NSDecimalNumber.self {
-      guard let decimal = try self.unbox(value, as: Decimal.self) else { return nil }
+      guard let decimal = try unbox(value, as: Decimal.self) else { return nil }
       return (decimal as! T)
     }
     if let v = value as? T {
