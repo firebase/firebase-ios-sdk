@@ -122,7 +122,7 @@
                  equalToString:adapter.application.display_version]);
 
   // Files payload
-  XCTAssertEqual(report.apple_payload.files_count, 10);
+  XCTAssertEqual(report.apple_payload.files_count, 11);
 
   NSArray<NSString *> *clsRecords = adapter.clsRecordFilePaths;
   for (NSUInteger i = 0; i < clsRecords.count; i++) {
