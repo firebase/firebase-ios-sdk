@@ -161,12 +161,12 @@ jobs:
       run: scripts/setup_quickstart.sh firestore
     - name: Install Secret GoogleService-Info.plist
       env:
-         plist_secret: ${{ secrets.QsFirestorePlistSecret }}
+         plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-firestore.plist.gpg \
           quickstart-ios/firestore/GoogleService-Info.plist "$plist_secret"
     - name: Install Secret FIREGSignInInfo.h
       env:
-         signin_secret: ${{ secrets.QsSignInSecret }}
+         signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
           quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test quickstart
