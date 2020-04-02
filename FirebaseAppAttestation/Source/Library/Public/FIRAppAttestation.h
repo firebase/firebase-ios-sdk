@@ -26,6 +26,8 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(AppAttestation)
 @interface FIRAppAttestation : NSObject
 
+- (instancetype)init NS_UNAVAILABLE;
+
 /// Set Attestation Provider Factory for default FirebaseApp.
 + (void)setAttestationProviderFactory:(nullable id<FIRAppAttestationProviderFactory>)factory;
 

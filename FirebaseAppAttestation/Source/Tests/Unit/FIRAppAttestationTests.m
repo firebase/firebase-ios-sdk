@@ -17,7 +17,12 @@
 #import <XCTest/XCTest.h>
 
 #import <FirebaseAppAttestation/FirebaseAppAttestation.h>
+#import <FirebaseAppAttestationInterop/FIRAppAttestationInterop.h>
+#import <FirebaseAppAttestationInterop/FIRAppAttestationTokenInterop.h>
+
 #import <FirebaseCore/FirebaseCore.h>
+#import <FirebaseCore/FIRAppInternal.h>
+#import <FirebaseCore/FIRComponentContainer.h>
 
 @interface DummyAttestationProvider : NSObject <FIRAppAttestationProvider>
 @end
@@ -58,28 +63,18 @@
   FIROptions *options = [[FIROptions alloc] initWithContentsOfFile:@"path"];
   [FIRApp configureWithName:@"AppName" options:options];
 
-  FIRAppAttestation *defaultAppAttestation = [FIRAppAttestation appAttestation];
-  FIRAppAttestation *secondAppAttestation =
-      [FIRAppAttestation appAttestationWithApp:[FIRApp appNamed:@"AppName"]];
+  FIRApp *defaultApp = [FIRApp defaultApp];
+
+  id<FIRAppAttestationInterop> defaultAppAttestation = FIR_COMPONENT(FIRAppAttestationInterop, defaultApp.container);
 
   [defaultAppAttestation
-      getTokenWithCompletion:^(FIRAppAttestationToken *_Nullable token, NSError *_Nullable error) {
+      getTokenWithCompletion:^(id<FIRAppAttestationTokenInterop> _Nullable token, NSError *_Nullable error) {
         if (token) {
           NSLog(@"Token: %@", token.token);
         } else {
           NSLog(@"Error: %@", error);
         }
       }];
-
-  [secondAppAttestation
-      getTokenForcingRefresh:YES
-                  completion:^(FIRAppAttestationToken *_Nullable token, NSError *_Nullable error) {
-                    if (token) {
-                      NSLog(@"Token: %@", token.token);
-                    } else {
-                      NSLog(@"Error: %@", error);
-                    }
-                  }];
 }
 
 @end
