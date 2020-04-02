@@ -36,6 +36,7 @@ add_library(firestore_core INTERFACE)
 
 target_link_libraries(
   firestore_core INTERFACE
+  firebase_firestore_api
   firebase_firestore_core
   firebase_firestore_model
   firebase_firestore_nanopb
