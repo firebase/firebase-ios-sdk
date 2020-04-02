@@ -37,12 +37,20 @@ add_library(firestore_core INTERFACE)
 target_link_libraries(
   firestore_core INTERFACE
   firebase_firestore_api
+  firebase_firestore_auth
   firebase_firestore_core
   firebase_firestore_model
   firebase_firestore_nanopb
   firebase_firestore_types
   firebase_firestore_util
 )
+
+if(APPLE)
+  target_link_libraries(
+    firestore_core INTERFACE
+    firebase_firestore_auth_apple
+  )
+endif()
 
 add_subdirectory(test/firebase/firestore/testutil)
 add_subdirectory(test/firebase/firestore)
