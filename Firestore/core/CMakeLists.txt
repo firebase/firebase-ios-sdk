@@ -39,6 +39,7 @@ target_link_libraries(
   firebase_firestore_core
   firebase_firestore_model
   firebase_firestore_nanopb
+  firebase_firestore_types
   firebase_firestore_util
 )
 
