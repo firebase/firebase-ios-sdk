@@ -42,6 +42,15 @@ Support library to provide event prioritization and uploading for the GoogleData
   header_search_paths = {
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}/GoogleDataTransportCCTSupport/"'
   }
+  
+  s.ios.user_target_xcconfig = {
+    # Enable Mac Catalyst
+    'SUPPORTS_MACCATALYST' => 'YES',
+    # Disable signing
+    'CODE_SIGN_IDENTITY' => '-',
+    'CODE_SIGNING_REQUIRED' => 'NO',
+    'CODE_SIGNING_ALLOWED' => 'NO',
+  }
 
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
@@ -60,13 +69,21 @@ Support library to provide event prioritization and uploading for the GoogleData
       app_spec.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
       app_spec.source_files = 'GoogleDataTransportCCTSupport/GDTCCTTestApp/**/*.swift'
       app_spec.ios.resources = ['GoogleDataTransportCCTSupport/GDTCCTTestApp/ios/*.storyboard']
+      app_spec.ios.pod_target_xcconfig = {
+        # Enable Mac Catalyst
+        'SUPPORTS_MACCATALYST' => 'YES',
+        # Disable signing
+        'CODE_SIGN_IDENTITY' => '-',
+        'CODE_SIGNING_REQUIRED' => 'NO',
+        'CODE_SIGNING_ALLOWED' => 'NO',
+      }
       app_spec.macos.resources = ['GoogleDataTransportCCTSupport/GDTCCTTestApp/macos/*.storyboard']
       app_spec.tvos.resources = ['GoogleDataTransportCCTSupport/GDTCCTTestApp/tvos/*.storyboard']
       app_spec.dependency 'SwiftProtobuf'
       app_spec.info_plist = {
         'UILaunchStoryboardName' => 'Main',
         'UIMainStoryboardFile' => 'Main',
-        'NSMainStoryboardFile' => 'Main'
+        'NSMainStoryboardFile' => 'Main',
       }
     end
   end

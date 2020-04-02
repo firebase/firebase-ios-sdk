@@ -36,7 +36,20 @@ Shared library for iOS SDK data transport needs.
   header_search_paths = {
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}/GoogleDataTransport/"'
   }
+<<<<<<< HEAD
 
+=======
+  
+  s.ios.user_target_xcconfig = {
+    # Enable Mac Catalyst
+    'SUPPORTS_MACCATALYST' => 'YES',
+    # Disable signing
+    'CODE_SIGN_IDENTITY' => '-',
+    'CODE_SIGNING_REQUIRED' => 'NO',
+    'CODE_SIGNING_ALLOWED' => 'NO',
+  }
+  
+>>>>>>> 28e570d9f... modify gdt and gdtcct podspec to enable maccatalyst
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_TREAT_WARNINGS_AS_ERRORS' => 'YES',
@@ -57,7 +70,7 @@ Shared library for iOS SDK data transport needs.
       app_spec.info_plist = {
         'UILaunchStoryboardName' => 'Main',
         'UIMainStoryboardFile' => 'Main',
-        'NSMainStoryboardFile' => 'Main'
+        'NSMainStoryboardFile' => 'Main',
       }
     end
   end
