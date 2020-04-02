@@ -15,6 +15,9 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     runs-on: macos-latest
+    strategy:
+      matrix:
+        pod: [Storage, StorageSwift]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -23,7 +26,7 @@ jobs:
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/storage-db-plist.gpg \
           FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist "$plist_secret"
     - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/build.sh Storage all)
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/build.sh ${{ matrix.pod }} all)
 
   catalyst:
     runs-on: macOS-latest
@@ -64,7 +67,9 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseStorage.podspec --skip-tests --platforms=${{ matrix.target }}
+      run: |
+       scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseStorage.podspec --skip-tests --platforms=${{ matrix.target }}
+       scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseStorageSwift.podspec --skip-tests --platforms=${{ matrix.target }}
 
   storage-cron-only:
     runs-on: macos-latest
@@ -82,4 +87,6 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: PodLibLint Storage Cron
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseStorage.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
+      run: |
+        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseStorage.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
+        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseStorage.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
