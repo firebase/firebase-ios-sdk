@@ -193,6 +193,9 @@
     if ([filename.pathExtension.lowercaseString isEqualToString:@"clsrecord"]) {
       [clsRecords addObject:[self.folderPath stringByAppendingPathComponent:filename]];
     }
+    if ([filename.pathExtension.lowercaseString isEqualToString:@"symbolicated"]) {
+      [clsRecords addObject:[self.folderPath stringByAppendingPathComponent:filename]];
+    }
   }];
 
   return [clsRecords sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
