@@ -16,9 +16,11 @@
 
 #import <Foundation/Foundation.h>
 
-#import <FirebaseAppAttestation/FIRAppAttestationTokenHandler.h>
-
 NS_ASSUME_NONNULL_BEGIN
+
+NS_SWIFT_NAME(AppAttestationTokenHandler)
+typedef void (^FIRAppAttestationTokenHandler)(FIRAppAttestationToken *_Nullable token,
+                                              NSError *_Nullable error);
 
 NS_SWIFT_NAME(AppAttestationProvider)
 @protocol FIRAppAttestationProvider <NSObject>
