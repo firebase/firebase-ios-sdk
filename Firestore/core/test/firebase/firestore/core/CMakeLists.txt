@@ -12,19 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-firebase_ios_cc_test(
-  firebase_firestore_core_test
-  SOURCES
-    database_info_test.cc
-    event_manager_test.cc
-    field_filter_test.cc
-    query_listener_test.cc
-    query_test.cc
-    target_id_generator_test.cc
-    view_snapshot_test.cc
-    view_test.cc
-  DEPENDS
-    GMock::GMock
-    firebase_firestore_core
-    firestore_testutil
+file(GLOB sources *.cc)
+firebase_ios_add_test(firestore_core_test ${sources})
+
+target_link_libraries(
+  firestore_core_test PRIVATE
+  GMock::GMock
+  firestore_core
+  firestore_testutil
 )
