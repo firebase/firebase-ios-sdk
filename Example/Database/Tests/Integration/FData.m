@@ -21,7 +21,7 @@
 #import "FEventTester.h"
 #import "FIRDatabaseConfig_Private.h"
 #import "FIRDatabaseQuery_Private.h"
-#import "FIRServerValue_unreleased.h"
+#import "FIRServerValue.h"
 #import "FRepo_Private.h"
 #import "FTestHelpers.h"
 #import "FTupleEventTypeString.h"
