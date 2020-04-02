@@ -26,33 +26,6 @@ class AppAttestationTests: XCTestCase {
     AppAttestation.setAttestationProviderFactory(self, forAppName: "AppName")
     let firebaseOptions = FirebaseOptions(contentsOfFile: "path")!
     FirebaseApp.configure(name: "AppName", options: firebaseOptions)
-
-    let defaultAppAttestation = AppAttestation.appAttestation()
-
-    guard
-      let app = FirebaseApp.app(name: "AppName"),
-      let secondAppAttestation = AppAttestation.appAttestation(app: app)
-    else {
-      return
-    }
-
-    defaultAppAttestation.getToken(completion: { result, error in
-      guard let result = result else {
-        print("Error: \(String(describing: error))")
-        return
-      }
-
-      print("Token: \(result.token)")
-    })
-
-    secondAppAttestation.getTokenForcingRefresh(true) { result, error in
-      guard let result = result else {
-        print("Error: \(String(describing: error))")
-        return
-      }
-
-      print("Token: \(result.token)")
-    }
   }
 }
 
