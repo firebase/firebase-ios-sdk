@@ -1,11 +1,11 @@
-name: danger
+name: danger-swift
 
 on:
   pull_request
 
 jobs:
   danger:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
     - uses: actions/checkout@v2
     - name: Danger Swift
