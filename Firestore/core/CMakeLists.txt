@@ -26,11 +26,20 @@ add_subdirectory(src/firebase/firestore/objc)
 add_subdirectory(src/firebase/firestore/remote)
 add_subdirectory(src/firebase/firestore/util)
 
-# Emulate the new combined firestore_core library with an interface library.
-# CMake interface libraries pass their dependencies and settings through to any
-# consumers, allowing dependees to migrate to this form incrementally.
+# Emulate the new combined firestore_core and firestore_util libraries with
+# interface libraries. CMake interface libraries pass their dependencies and
+# settings through to any consumers, allowing dependees to migrate to this form
+# incrementally.
 #
-# TODO(wilhuff): Replace this with an actual combined library.
+# TODO(wilhuff): Replace these with an actual combined libraries.
+
+add_library(firestore_util INTERFACE)
+
+target_link_libraries(
+  firestore_util INTERFACE
+  firebase_firestore_util
+)
+
 
 add_library(firestore_core INTERFACE)
 
@@ -39,10 +48,12 @@ target_link_libraries(
   firebase_firestore_api
   firebase_firestore_auth
   firebase_firestore_core
+  firebase_firestore_immutable
   firebase_firestore_model
   firebase_firestore_nanopb
   firebase_firestore_types
-  firebase_firestore_util
+
+  firestore_util
 )
 
 if(APPLE)
