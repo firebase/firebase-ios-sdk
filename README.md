@@ -123,7 +123,7 @@ Travis will verify that any code changes are done in a style compliant way. Inst
 These commands will get the right versions:
 
 ```
-brew upgrade https://raw.githubusercontent.com/Homebrew/homebrew-core/e3496d9/Formula/clang-format.rb
+brew upgrade https://raw.githubusercontent.com/Homebrew/homebrew-core/c13eda8/Formula/clang-format.rb
 brew upgrade https://raw.githubusercontent.com/Homebrew/homebrew-core/7963c3d/Formula/swiftformat.rb
 ```
 
