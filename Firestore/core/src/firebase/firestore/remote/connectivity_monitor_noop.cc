@@ -15,7 +15,6 @@
  */
 
 #include "Firestore/core/src/firebase/firestore/remote/connectivity_monitor.h"
-
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/memory/memory.h"
 

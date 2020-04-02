@@ -22,8 +22,6 @@
 #include <unordered_map>
 #include <vector>
 
-#include "Firestore/core/src/firebase/firestore/util/warnings.h"
-
 #include "Firestore/core/src/firebase/firestore/auth/token.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/remote/connectivity_monitor.h"
@@ -33,6 +31,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/grpc_streaming_reader.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_unary_call.h"
 #include "Firestore/core/src/firebase/firestore/util/path.h"
+#include "Firestore/core/src/firebase/firestore/util/warnings.h"
 #include "absl/strings/string_view.h"
 #include "grpcpp/channel.h"
 #include "grpcpp/client_context.h"

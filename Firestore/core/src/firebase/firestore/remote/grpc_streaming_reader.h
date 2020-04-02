@@ -22,11 +22,10 @@
 #include <memory>
 #include <vector>
 
-#include "Firestore/core/src/firebase/firestore/util/warnings.h"
-
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream_observer.h"
 #include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
+#include "Firestore/core/src/firebase/firestore/util/warnings.h"
 #include "grpcpp/client_context.h"
 SUPPRESS_DOCUMENTATION_WARNINGS_BEGIN()
 #include "grpcpp/generic/generic_stub.h"

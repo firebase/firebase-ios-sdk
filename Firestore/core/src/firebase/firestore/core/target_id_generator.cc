@@ -15,6 +15,7 @@
  */
 
 #include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
+
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 using firebase::firestore::model::TargetId;

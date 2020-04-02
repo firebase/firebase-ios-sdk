@@ -14,11 +14,11 @@
 
 #pragma once
 
-#include "FIRCLSFeatures.h"
-#include "FIRCLSThreadState.h"
-
 #include <stdbool.h>
 #include <stdint.h>
+
+#include "FIRCLSFeatures.h"
+#include "FIRCLSThreadState.h"
 
 // We have to pack the arrays defined in this header, so
 // we can reason about pointer math.

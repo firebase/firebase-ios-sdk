@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
+
 #include <memory>
 #include <unordered_map>
 #include <utility>
@@ -24,7 +26,6 @@
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/remote/existence_filter.h"
-#include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/test/firebase/firestore/remote/fake_target_metadata_provider.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"

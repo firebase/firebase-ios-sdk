@@ -17,6 +17,7 @@
 // Unit tests for StatusOr
 
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
+
 #include "gtest/gtest.h"
 
 namespace firebase {

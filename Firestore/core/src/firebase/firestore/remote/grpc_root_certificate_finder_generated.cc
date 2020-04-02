@@ -21,7 +21,6 @@
  */
 
 #include "Firestore/core/src/firebase/firestore/remote/grpc_root_certificate_finder.h"
-
 #include "Firestore/core/src/firebase/firestore/remote/grpc_root_certificates_generated.h"
 
 namespace firebase {

@@ -18,7 +18,6 @@
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_SECURE_RANDOM_H_
 
 #include <cstdint>
-
 #include <limits>
 
 namespace firebase {

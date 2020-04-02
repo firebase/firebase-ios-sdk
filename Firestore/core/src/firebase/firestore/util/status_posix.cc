@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/util/status.h"
-
 #include <cerrno>
 
+#include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/strerror.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
 

@@ -19,10 +19,9 @@
 
 #include <memory>
 
-#include "gtest/gtest.h"
-
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/test/firebase/firestore/testutil/async_testing.h"
+#include "gtest/gtest.h"
 
 namespace firebase {
 namespace firestore {

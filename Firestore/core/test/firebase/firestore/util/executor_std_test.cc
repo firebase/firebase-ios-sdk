@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/test/firebase/firestore/util/executor_test.h"
+#include "Firestore/core/src/firebase/firestore/util/executor_std.h"
 
 #include <chrono>  // NOLINT(build/c++11)
 #include <cstdlib>
@@ -22,9 +22,9 @@
 #include <string>
 #include <thread>  // NOLINT(build/c++11)
 
-#include "Firestore/core/src/firebase/firestore/util/executor_std.h"
 #include "Firestore/core/test/firebase/firestore/testutil/async_testing.h"
 #include "Firestore/core/test/firebase/firestore/testutil/time_testing.h"
+#include "Firestore/core/test/firebase/firestore/util/executor_test.h"
 #include "absl/memory/memory.h"
 #include "gtest/gtest.h"
 

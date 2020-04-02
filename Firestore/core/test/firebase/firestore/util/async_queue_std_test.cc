@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/test/firebase/firestore/util/async_queue_test.h"
-
 #include "Firestore/core/src/firebase/firestore/util/executor_std.h"
-
+#include "Firestore/core/test/firebase/firestore/util/async_queue_test.h"
 #include "absl/memory/memory.h"
 #include "gtest/gtest.h"
 

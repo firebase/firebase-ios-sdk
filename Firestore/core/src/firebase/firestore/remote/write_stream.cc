@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#include <utility>
-
 #include "Firestore/core/src/firebase/firestore/remote/write_stream.h"
+
+#include <utility>
 
 #include "Firestore/core/src/firebase/firestore/model/mutation.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/message.h"

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#include "Firestore/core/src/firebase/firestore/remote/datastore.h"
+
 #include <memory>
 #include <string>
 #include <vector>
@@ -23,7 +25,6 @@
 #include "Firestore/core/src/firebase/firestore/model/mutation.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/message.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
-#include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_nanopb.h"
 #include "Firestore/core/src/firebase/firestore/remote/serializer.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"

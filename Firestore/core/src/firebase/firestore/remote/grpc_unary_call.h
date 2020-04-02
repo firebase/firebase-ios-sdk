@@ -21,12 +21,11 @@
 #include <map>
 #include <memory>
 
-#include "Firestore/core/src/firebase/firestore/util/warnings.h"
-
 #include "Firestore/core/src/firebase/firestore/remote/grpc_call.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_completion.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
+#include "Firestore/core/src/firebase/firestore/util/warnings.h"
 #include "grpcpp/client_context.h"
 SUPPRESS_DOCUMENTATION_WARNINGS_BEGIN()
 #include "grpcpp/generic/generic_stub.h"
