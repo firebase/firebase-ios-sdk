@@ -61,6 +61,7 @@ public extension StorageReference {
   ///                 an `Error`.
   ///
   /// - Returns: A StorageDownloadTask that can be used to monitor or manage the download.
+  @discardableResult
   func getData(maxSize: Int64, completion: @escaping (Result<Data, Error>) -> Void)
     -> StorageDownloadTask {
     return getData(maxSize: maxSize, completion: getResultCallback(completion: completion))
@@ -147,6 +148,7 @@ public extension StorageReference {
   ///
   /// - Returns: An instance of `StorageUploadTask`, which can be used to monitor or manage
   ///            the upload.
+  @discardableResult
   func putData(_ uploadData: Data,
                metadata: StorageMetadata? = nil,
                completion: @escaping (Result<StorageMetadata, Error>) -> Void)
@@ -167,6 +169,7 @@ public extension StorageReference {
   ///
   /// - Returns: An instance of `StorageUploadTask`, which can be used to monitor or manage
   ///            the upload.
+  @discardableResult
   func putFile(from: URL,
                metadata: StorageMetadata? = nil,
                completion: @escaping (Result<StorageMetadata, Error>) -> Void)
@@ -184,7 +187,7 @@ public extension StorageReference {
   ///                object metadata or an `Error`.
   func updateMetadata(_ metadata: StorageMetadata,
                       completion: @escaping (Result<StorageMetadata, Error>) -> Void) {
-    return updateMetadata(metadata, completion: getResultCallback(completion: completion))
+    updateMetadata(metadata, completion: getResultCallback(completion: completion))
   }
 
   /// Asynchronously downloads the object at the current path to a specified system filepath.
@@ -196,6 +199,7 @@ public extension StorageReference {
   ///                path of the downloaded file or an `Error`.
   ///
   /// - Returns: A `StorageDownloadTask` that can be used to monitor or manage the download.
+  @discardableResult
   func write(toFile: URL, completion: @escaping (Result<URL, Error>)
     -> Void) -> StorageDownloadTask {
     return write(toFile: toFile, completion: getResultCallback(completion: completion))
