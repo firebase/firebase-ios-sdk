@@ -180,7 +180,7 @@ case "$project-$platform-$method" in
     pip install six
     ;;
 
-  SymbolCollision-*-xcodebuild)
+  SymbolCollision-*-*)
     install_xcpretty
     bundle exec pod install --project-directory=SymbolCollisionTest --repo-update
     ;;

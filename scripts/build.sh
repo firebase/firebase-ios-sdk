@@ -344,7 +344,7 @@ case "$product-$platform-$method" in
     )
     ;;
 
-  SymbolCollision-*-xcodebuild)
+  SymbolCollision-*-*)
     RunXcodebuild \
         -workspace 'SymbolCollisionTest/SymbolCollisionTest.xcworkspace' \
         -scheme "SymbolCollisionTest" \
