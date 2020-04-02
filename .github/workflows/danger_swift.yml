@@ -5,10 +5,10 @@ on:
 
 jobs:
   danger:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
     - name: Danger Swift
-      uses: danger/swift@2.0.1
+      uses: danger/swift@2.0.3
       env:
         GITHUB_TOKEN: ${{ secrets.DangerGitHubAPIToken }}
