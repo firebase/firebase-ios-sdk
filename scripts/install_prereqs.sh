@@ -112,7 +112,7 @@ fi
 
 case "$project-$platform-$method" in
 
-  FirebasePod-iOS-xcodebuild)
+  FirebasePod-iOS-*)
     install_xcpretty
     bundle exec pod install --project-directory=CoreOnly/Tests/FirebasePodTest --repo-update
     ;;
