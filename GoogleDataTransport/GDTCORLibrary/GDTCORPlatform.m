@@ -277,10 +277,11 @@ static NSMutableDictionary<NSNumber *, dispatch_semaphore_t> *gBackgroundIdentif
   dispatch_once(&onceToken, ^{
     gSemaphoreQueue = dispatch_queue_create("com.google.GDTCORApplication", DISPATCH_QUEUE_SERIAL);
     GDTCORLogDebug(
+        "%@",
         @"GDTCORApplication is initializing on watchOS, gSemaphoreQueue has been initialized.");
     gBackgroundIdentifierToSemaphoreMap = [[NSMutableDictionary alloc] init];
-    GDTCORLogDebug(@"GDTCORApplication is initializing on watchOS, "
-                   @"gBackgroundIdentifierToSemaphoreMap has been initialized.");
+    GDTCORLogDebug("%@", @"GDTCORApplication is initializing on watchOS, "
+                         @"gBackgroundIdentifierToSemaphoreMap has been initialized.");
   });
 #endif
 }
