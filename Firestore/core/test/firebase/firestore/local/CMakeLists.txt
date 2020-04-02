@@ -12,16 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-firebase_ios_cc_library(
-  firebase_firestore_local_testing
-  SOURCES
-    counting_query_engine.cc
-    counting_query_engine.h
-    persistence_testing.cc
-    persistence_testing.h
-  DEPENDS
-    firebase_firestore_local
-    firebase_firestore_local_persistence_leveldb
+firebase_ios_add_library(
+  firestore_local_testing
+  EXCLUDE_FROM_ALL
+  counting_query_engine.cc
+  counting_query_engine.h
+  persistence_testing.cc
+  persistence_testing.h
+)
+
+target_link_libraries(
+  firestore_local_testing PRIVATE
+  firestore_core
 )
 
 firebase_ios_cc_test(
@@ -65,9 +67,9 @@ firebase_ios_cc_test(
     firebase_firestore_core
     firebase_firestore_local
     firebase_firestore_local_persistence_leveldb
-    firebase_firestore_local_testing
     firebase_firestore_model
     firebase_firestore_remote_testing
+    firestore_local_testing
     firestore_protos_protobuf
     firestore_testutil
 )

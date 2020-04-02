@@ -57,6 +57,8 @@ target_link_libraries(
   firebase_firestore_auth
   firebase_firestore_core
   firebase_firestore_immutable
+  firebase_firestore_local
+  firebase_firestore_local_persistence_leveldb
   firebase_firestore_model
   firebase_firestore_nanopb
   firebase_firestore_types
