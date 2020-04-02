@@ -98,7 +98,7 @@ private class _FirestoreEncoder: Encoder {
       // We haven't yet pushed a container at this level; do so here.
       topContainer = storage.pushKeyedContainer()
     } else {
-      guard let container = self.storage.containers.last as? NSMutableDictionary else {
+      guard let container = storage.containers.last as? NSMutableDictionary else {
         preconditionFailure("Attempt to push new keyed encoding container when already previously encoded at this path.")
       }
 
@@ -116,7 +116,7 @@ private class _FirestoreEncoder: Encoder {
       // We haven't yet pushed a container at this level; do so here.
       topContainer = storage.pushUnkeyedContainer()
     } else {
-      guard let container = self.storage.containers.last as? NSMutableArray else {
+      guard let container = storage.containers.last as? NSMutableArray else {
         preconditionFailure("Attempt to push new unkeyed encoding container when already previously encoded at this path.")
       }
 
