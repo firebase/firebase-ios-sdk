@@ -20,9 +20,9 @@
 #import <FirebaseAppAttestationInterop/FIRAppAttestationInterop.h>
 #import <FirebaseAppAttestationInterop/FIRAppAttestationTokenInterop.h>
 
-#import <FirebaseCore/FirebaseCore.h>
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponentContainer.h>
+#import <FirebaseCore/FirebaseCore.h>
 
 @interface DummyAttestationProvider : NSObject <FIRAppAttestationProvider>
 @end
@@ -65,16 +65,17 @@
 
   FIRApp *defaultApp = [FIRApp defaultApp];
 
-  id<FIRAppAttestationInterop> defaultAppAttestation = FIR_COMPONENT(FIRAppAttestationInterop, defaultApp.container);
+  id<FIRAppAttestationInterop> defaultAppAttestation =
+      FIR_COMPONENT(FIRAppAttestationInterop, defaultApp.container);
 
-  [defaultAppAttestation
-      getTokenWithCompletion:^(id<FIRAppAttestationTokenInterop> _Nullable token, NSError *_Nullable error) {
-        if (token) {
-          NSLog(@"Token: %@", token.token);
-        } else {
-          NSLog(@"Error: %@", error);
-        }
-      }];
+  [defaultAppAttestation getTokenWithCompletion:^(id<FIRAppAttestationTokenInterop> _Nullable token,
+                                                  NSError *_Nullable error) {
+    if (token) {
+      NSLog(@"Token: %@", token.token);
+    } else {
+      NSLog(@"Error: %@", error);
+    }
+  }];
 }
 
 @end
