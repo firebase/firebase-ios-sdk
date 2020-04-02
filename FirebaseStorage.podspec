@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseStorage'
   s.version          = '3.6.0'
-  s.summary          = 'Firebase Storage for iOS (plus community support for macOS and tvOS)'
+  s.summary          = 'Firebase Storage'
 
   s.description      = <<-DESC
 Firebase Storage provides robust, secure file uploads and downloads from Firebase SDKs, powered by Google Cloud Storage.

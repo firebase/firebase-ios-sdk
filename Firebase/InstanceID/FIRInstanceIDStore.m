@@ -140,13 +140,11 @@ static NSString *const kFIRInstanceIDLibraryVersion = @"GMSInstanceID-version";
   BOOL checkinPlistExists = [self.checkinStore hasCheckinPlist];
   // Checkin info existed in backup excluded plist. Should not be a fresh install.
   if (checkinPlistExists) {
-    // FCM user can still have the old version of checkin, migration should only happen once.
-    [self.checkinStore migrateCheckinItemIfNeeded];
     return;
   }
 
-  // reset checkin in keychain if a fresh install.
-  // set the old checkin preferences to unregister pre-registered tokens
+  // Resets checkin in keychain if a fresh install.
+  // Keychain can still exist even if app is uninstalled.
   FIRInstanceIDCheckinPreferences *oldCheckinPreferences =
       [self.checkinStore cachedCheckinPreferences];
 

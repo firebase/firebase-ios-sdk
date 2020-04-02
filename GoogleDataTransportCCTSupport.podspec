@@ -1,7 +1,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'GoogleDataTransportCCTSupport'
-  s.version          = '2.0.1'
+  s.version          = '2.0.2'
   s.summary          = 'Support library for the GoogleDataTransport CCT backend target.'
 
 

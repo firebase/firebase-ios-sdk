@@ -1,4 +1,8 @@
 
+# v4.0.0-beta.7
+
+ - [changed] Increased network timeout for symbol uploads to improve reliability on limited internet connections. (#5228)
+
 # v4.0.0-beta.6
 
  - [added] Added a new API to record custom exception models and stacktraces to Crashlytics. This is a replacement for the `recordCustomException` API that existed in the Fabric Crashlytics SDK (#5055)

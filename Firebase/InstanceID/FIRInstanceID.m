@@ -367,6 +367,7 @@ static FIRInstanceID *gInstanceID;
   if (!handler) {
     FIRInstanceIDLoggerError(kFIRInstanceIDMessageCodeInstanceID001,
                              kFIRInstanceIDInvalidNilHandlerError);
+    return;
   }
 
   // comparing enums to ints directly throws a warning

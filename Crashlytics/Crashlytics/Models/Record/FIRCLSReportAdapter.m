@@ -190,7 +190,9 @@
 
   [files enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
     NSString *filename = (NSString *)obj;
-    if ([filename.pathExtension.lowercaseString isEqualToString:@"clsrecord"]) {
+    NSString *lowerExtension = filename.pathExtension.lowercaseString;
+    if ([lowerExtension isEqualToString:@"clsrecord"] ||
+        [lowerExtension isEqualToString:@"symbolicated"]) {
       [clsRecords addObject:[self.folderPath stringByAppendingPathComponent:filename]];
     }
   }];
