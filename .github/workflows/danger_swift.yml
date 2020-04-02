@@ -9,7 +9,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Danger Swift
-      if: secrets.DangerGitHubAPIToken != Null
       uses: danger/swift@2.0.1
       env:
         GITHUB_TOKEN: ${{ secrets.DangerGitHubAPIToken }}
