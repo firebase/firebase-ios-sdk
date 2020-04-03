@@ -326,12 +326,6 @@ static void (^reportSentCallback)(void);
     return [FBLPromise resolvedWith:@NO];
   }
 
-  if (![self.settings crashReportingEnabled]) {
-    FIRCLSInfoLog(@"Reporting is disabled");
-    [_fileManager removeContentsOfAllPaths];
-    return [FBLPromise resolvedWith:@NO];
-  }
-
   if (![_fileManager createReportDirectories]) {
     return [FBLPromise resolvedWith:@NO];
   }
@@ -364,11 +358,14 @@ static void (^reportSentCallback)(void);
     FIRCLSDebugLog(@"Automatic data collection is enabled.");
     FIRCLSDebugLog(@"Unsent reports will be uploaded at startup");
     FIRCLSDataCollectionToken *dataCollectionToken = [FIRCLSDataCollectionToken validToken];
-    [self startNetworkRequestsWithToken:dataCollectionToken
-                 preexistingReportPaths:preexistingReportPaths
-                 waitForSettingsRequest:NO
-                           blockingSend:launchFailure
-                                 report:report];
+
+    [self beginSettingsAndOnboardingWithToken:dataCollectionToken
+                       waitForSettingsRequest:NO];
+
+    [self beginReportUploadsWithToken:dataCollectionToken
+               preexistingReportPaths:preexistingReportPaths
+                         blockingSend:launchFailure
+                               report:report];
 
     // If data collection is enabled, the SDK will not notify the user
     // when unsent reports are available, or respect Send / DeleteUnsentReports
@@ -401,11 +398,13 @@ static void (^reportSentCallback)(void);
                  BOOL waitForSetting =
                      !self.settings.shouldUseNewReportEndpoint && !self.settings.orgID;
 
-                 [self startNetworkRequestsWithToken:dataCollectionToken
-                              preexistingReportPaths:preexistingReportPaths
-                              waitForSettingsRequest:waitForSetting
-                                        blockingSend:NO
-                                              report:report];
+                 [self beginSettingsAndOnboardingWithToken:dataCollectionToken
+                                    waitForSettingsRequest:waitForSetting];
+
+                 [self beginReportUploadsWithToken:dataCollectionToken
+                            preexistingReportPaths:preexistingReportPaths
+                                      blockingSend:NO
+                                            report:report];
 
                } else if (action == FIRCLSReportActionDelete) {
                  FIRCLSDebugLog(@"Deleting unsent reports.");
@@ -456,11 +455,9 @@ static void (^reportSentCallback)(void);
   }];
 }
 
-- (void)startNetworkRequestsWithToken:(FIRCLSDataCollectionToken *)token
-               preexistingReportPaths:(NSArray *)preexistingReportPaths
-               waitForSettingsRequest:(BOOL)waitForSettings
-                         blockingSend:(BOOL)blockingSend
-                               report:(FIRCLSInternalReport *)report {
+- (void)beginSettingsAndOnboardingWithToken:(FIRCLSDataCollectionToken *)token
+                     waitForSettingsRequest:(BOOL)waitForSettings {
+
   if (self.settings.isCacheExpired) {
     // This method can be called more than once if the user calls
     // SendUnsentReports again, so don't repeat the settings fetch
@@ -471,11 +468,23 @@ static void (^reportSentCallback)(void);
                                                                  waitForCompletion:waitForSettings];
     });
   }
+}
 
-  [self processExistingReportPaths:preexistingReportPaths
-               dataCollectionToken:token
-                          asUrgent:blockingSend];
-  [self handleContentsInOtherReportingDirectoriesWithToken:token];
+- (void)beginReportUploadsWithToken:(FIRCLSDataCollectionToken *)token
+             preexistingReportPaths:(NSArray *)preexistingReportPaths
+                       blockingSend:(BOOL)blockingSend
+                             report:(FIRCLSInternalReport *)report {
+
+  if (self.settings.collectReportsEnabled) {
+    [self processExistingReportPaths:preexistingReportPaths
+                 dataCollectionToken:token
+                            asUrgent:blockingSend];
+    [self handleContentsInOtherReportingDirectoriesWithToken:token];
+
+  } else {
+    FIRCLSInfoLog(@"Collecting crash reports is disabled, not uploading reports");
+    [_fileManager removeContentsOfAllPathsExceptActive];
+  }
 }
 
 - (BOOL)startCrashReporterWithProfilingMark:(FIRCLSProfileMark)mark

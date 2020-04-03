@@ -304,26 +304,15 @@ NSString *const FIRCLSCacheVersion = @"v5";
   return [self moveItemsFromDirectory:[self pendingPath] toDirectory:[self processingPath]];
 }
 
-- (BOOL)removeContentsOfProcessingPath {
-  return [self removeContentsOfDirectoryAtPath:[self processingPath]];
-}
-
-- (BOOL)removeContentsOfPendingPath {
-  return [self removeContentsOfDirectoryAtPath:[self pendingPath]];
-}
-
-- (BOOL)removeContentsOfAllPaths {
-  BOOL contentsOfProcessingPathRemoved = [self removeContentsOfProcessingPath];
-  BOOL contentsOfPendingPathRemoved = [self removeContentsOfPendingPath];
+- (BOOL)removeContentsOfAllPathsExceptActive {
+  BOOL contentsOfProcessingPathRemoved = [self removeContentsOfDirectoryAtPath:self.processingPath];
+  BOOL contentsOfPendingPathRemoved = [self removeContentsOfDirectoryAtPath:self.pendingPath];
   BOOL contentsOfDirectoryAtPreparedPathRemoved =
       [self removeContentsOfDirectoryAtPath:self.preparedPath];
   BOOL contentsOfDirectoryAtLegacyPreparedPathRemoved =
       [self removeContentsOfDirectoryAtPath:self.legacyPreparedPath];
-  BOOL contentsOfDirectoryAtActivePathRemoved =
-      [self removeContentsOfDirectoryAtPath:self.activePath];
   BOOL success = contentsOfProcessingPathRemoved && contentsOfPendingPathRemoved &&
                  contentsOfDirectoryAtPreparedPathRemoved &&
-                 contentsOfDirectoryAtActivePathRemoved &&
                  contentsOfDirectoryAtLegacyPreparedPathRemoved;
   return success;
 }

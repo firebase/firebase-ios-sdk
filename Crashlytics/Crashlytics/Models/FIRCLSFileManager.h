@@ -76,9 +76,7 @@
 
 - (BOOL)movePendingToProcessing;
 
-- (BOOL)removeContentsOfProcessingPath;
-- (BOOL)removeContentsOfPendingPath;
-- (BOOL)removeContentsOfAllPaths;
+- (BOOL)removeContentsOfAllPathsExceptActive;
 
 - (BOOL)moveItemAtPath:(NSString *)srcPath toPath:(NSString *)dstPath error:(NSError **)error;
 
