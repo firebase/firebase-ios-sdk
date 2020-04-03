@@ -80,7 +80,7 @@ def main():
 
 def find_local_repo():
   url = six.ensure_text(
-    subprocess.check_output(['git', 'config', '--get', 'remote.origin.url']))
+      subprocess.check_output(['git', 'config', '--get', 'remote.origin.url']))
 
   # ssh or https style URL
   m = re.match(r'^(?:git@github\.com:|https://github\.com/)(.*)\.git$', url)
