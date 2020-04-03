@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,10 +33,11 @@
 #include "Firestore/core/src/firebase/firestore/util/warnings.h"
 #include "absl/types/optional.h"
 #include "grpcpp/client_context.h"
+#include "grpcpp/support/byte_buffer.h"
+
 SUPPRESS_DOCUMENTATION_WARNINGS_BEGIN()
 #include "grpcpp/generic/generic_stub.h"
 SUPPRESS_END()
-#include "grpcpp/support/byte_buffer.h"
 
 namespace firebase {
 namespace firestore {

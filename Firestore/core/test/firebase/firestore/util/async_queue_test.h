@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,10 @@
 #ifndef FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_UTIL_ASYNC_QUEUE_TEST_H_
 #define FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_UTIL_ASYNC_QUEUE_TEST_H_
 
+#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
+
 #include <memory>
 
-#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/test/firebase/firestore/testutil/async_testing.h"
 #include "gtest/gtest.h"
 
