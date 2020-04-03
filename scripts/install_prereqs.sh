@@ -112,7 +112,7 @@ fi
 
 case "$project-$platform-$method" in
 
-  FirebasePod-iOS-xcodebuild)
+  FirebasePod-iOS-*)
     install_xcpretty
     bundle exec pod install --project-directory=CoreOnly/Tests/FirebasePodTest --repo-update
     ;;
@@ -180,7 +180,7 @@ case "$project-$platform-$method" in
     pip install six
     ;;
 
-  SymbolCollision-*-xcodebuild)
+  SymbolCollision-*-*)
     install_xcpretty
     bundle exec pod install --project-directory=SymbolCollisionTest --repo-update
     ;;
