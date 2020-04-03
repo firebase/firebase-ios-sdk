@@ -200,7 +200,6 @@ std::vector<TargetId> WatchChangeAggregator::GetTargetIds(
   }
 
   std::vector<TargetId> result;
-  result.reserve(target_states_.size());
   for (const auto& entry : target_states_) {
     if (IsActiveTarget(entry.first)) {
       result.push_back(entry.first);
