@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,21 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/test/firebase/firestore/util/create_noop_connectivity_monitor.h"
+#ifndef FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_REMOTE_CREATE_NOOP_CONNECTIVITY_MONITOR_H_
+#define FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_REMOTE_CREATE_NOOP_CONNECTIVITY_MONITOR_H_
 
-#include "absl/memory/memory.h"
+#include <memory>
+
+#include "Firestore/core/src/firebase/firestore/remote/connectivity_monitor.h"
 
 namespace firebase {
 namespace firestore {
-namespace util {
+namespace remote {
 
-std::unique_ptr<remote::ConnectivityMonitor> CreateNoOpConnectivityMonitor() {
-  // The default implementation does nothing
-  return absl::make_unique<remote::ConnectivityMonitor>(nullptr);
-}
+std::unique_ptr<ConnectivityMonitor> CreateNoOpConnectivityMonitor();
 
-}  // namespace util
+}  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
+
+#endif  // FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_REMOTE_CREATE_NOOP_CONNECTIVITY_MONITOR_H_

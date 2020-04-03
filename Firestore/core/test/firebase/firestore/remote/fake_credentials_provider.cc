@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/test/firebase/firestore/util/fake_credentials_provider.h"
+#include "Firestore/core/test/firebase/firestore/remote/fake_credentials_provider.h"
 
 #include <utility>
 
@@ -24,7 +24,7 @@
 
 namespace firebase {
 namespace firestore {
-namespace util {
+namespace remote {
 
 using auth::EmptyCredentialsProvider;
 using auth::TokenListener;
@@ -65,6 +65,6 @@ void FakeCredentialsProvider::FailGetToken() {
   fail_get_token_ = true;
 }
 
-}  // namespace util
+}  // namespace remote
 }  // namespace firestore
 }  // namespace firebase

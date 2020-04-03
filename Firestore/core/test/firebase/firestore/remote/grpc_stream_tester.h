@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_UTIL_GRPC_STREAM_TESTER_H_
-#define FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_UTIL_GRPC_STREAM_TESTER_H_
+#ifndef FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_REMOTE_GRPC_STREAM_TESTER_H_
+#define FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_REMOTE_GRPC_STREAM_TESTER_H_
 
 #include <functional>
 #include <future>  // NOLINT(build/c++11)
@@ -42,7 +42,7 @@
 
 namespace firebase {
 namespace firestore {
-namespace util {
+namespace remote {
 
 std::string GetGrpcErrorCodeName(grpc::StatusCode error);
 std::string GetFirestoreErrorName(Error error);
@@ -63,18 +63,16 @@ enum CompletionResult { Ok, Error };
  *     producing "data loss" status.
  */
 struct CompletionEndState {
-  CompletionEndState(remote::GrpcCompletion::Type type, CompletionResult result)
+  CompletionEndState(GrpcCompletion::Type type, CompletionResult result)
       : type_{type}, result_{result} {
   }
-  CompletionEndState(remote::GrpcCompletion::Type type,
-                     const grpc::ByteBuffer& message)
+  CompletionEndState(GrpcCompletion::Type type, const grpc::ByteBuffer& message)
       : type_{type}, result_{Ok}, maybe_message_{message} {
   }
-  CompletionEndState(remote::GrpcCompletion::Type type,
-                     const grpc::Status& status)
+  CompletionEndState(GrpcCompletion::Type type, const grpc::Status& status)
       : type_{type}, result_{Ok}, maybe_status_{status} {
   }
-  CompletionEndState(remote::GrpcCompletion::Type type,
+  CompletionEndState(GrpcCompletion::Type type,
                      const grpc::ByteBuffer& message,
                      const grpc::Status& status)
       : type_{type},
@@ -83,14 +81,14 @@ struct CompletionEndState {
         maybe_status_{status} {
   }
 
-  void Apply(remote::GrpcCompletion* completion);
+  void Apply(GrpcCompletion* completion);
 
-  remote::GrpcCompletion::Type type() const {
+  GrpcCompletion::Type type() const {
     return type_;
   }
 
  private:
-  remote::GrpcCompletion::Type type_;
+  GrpcCompletion::Type type_;
   CompletionResult result_{};
   absl::optional<grpc::ByteBuffer> maybe_message_;
   absl::optional<grpc::Status> maybe_status_;
@@ -98,7 +96,7 @@ struct CompletionEndState {
 
 class FakeGrpcQueue {
  public:
-  using CompletionCallback = std::function<bool(remote::GrpcCompletion*)>;
+  using CompletionCallback = std::function<bool(GrpcCompletion*)>;
 
   explicit FakeGrpcQueue(grpc::CompletionQueue* grpc_queue);
 
@@ -116,9 +114,9 @@ class FakeGrpcQueue {
   }
 
  private:
-  remote::GrpcCompletion* ExtractCompletion();
+  GrpcCompletion* ExtractCompletion();
 
-  std::unique_ptr<Executor> dedicated_executor_;
+  std::unique_ptr<util::Executor> dedicated_executor_;
   grpc::CompletionQueue* grpc_queue_;
   bool is_shut_down_ = false;
 
@@ -133,17 +131,16 @@ class GrpcStreamTester {
  public:
   using CompletionCallback = FakeGrpcQueue::CompletionCallback;
 
-  GrpcStreamTester(const std::shared_ptr<AsyncQueue>& worker_queue,
-                   remote::ConnectivityMonitor* connectivity_monitor);
+  GrpcStreamTester(const std::shared_ptr<util::AsyncQueue>& worker_queue,
+                   ConnectivityMonitor* connectivity_monitor);
   ~GrpcStreamTester();
 
   /** Finishes the stream and shuts down the gRPC completion queue. */
   void Shutdown();
 
-  std::unique_ptr<remote::GrpcStream> CreateStream(
-      remote::GrpcStreamObserver* observer);
-  std::unique_ptr<remote::GrpcStreamingReader> CreateStreamingReader();
-  std::unique_ptr<remote::GrpcUnaryCall> CreateUnaryCall();
+  std::unique_ptr<GrpcStream> CreateStream(GrpcStreamObserver* observer);
+  std::unique_ptr<GrpcStreamingReader> CreateStreamingReader();
+  std::unique_ptr<GrpcUnaryCall> CreateUnaryCall();
 
   /**
    * Takes as many completions off gRPC completion queue as there are
@@ -241,21 +238,21 @@ class GrpcStreamTester {
   void KeepPollingGrpcQueue();
   void ShutdownGrpcQueue();
 
-  remote::GrpcConnection* grpc_connection() {
+  GrpcConnection* grpc_connection() {
     return &grpc_connection_;
   }
 
  private:
-  std::shared_ptr<AsyncQueue> worker_queue_;
+  std::shared_ptr<util::AsyncQueue> worker_queue_;
   core::DatabaseInfo database_info_;
 
   grpc::CompletionQueue grpc_queue_;
   FakeGrpcQueue fake_grpc_queue_;
-  remote::GrpcConnection grpc_connection_;
+  GrpcConnection grpc_connection_;
 };
 
-}  // namespace util
+}  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_UTIL_GRPC_STREAM_TESTER_H_
+#endif  // FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_REMOTE_GRPC_STREAM_TESTER_H_
