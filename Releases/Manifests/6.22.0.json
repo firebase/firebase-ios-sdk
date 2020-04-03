@@ -3,7 +3,7 @@
   "FirebaseCore":"6.6.6",
   "FirebaseCoreDiagnostics":"1.2.3",
   "FirebaseCrashlytics":"4.0.0-beta.7",
-  "FirebaseFirestore":"1.11.3",
+  "FirebaseFirestore":"1.12.0",
   "FirebaseInAppMessaging":"0.19.2",
   "FirebaseInstanceID":"4.3.3",
   "GoogleDataTransport":"5.1.1",
