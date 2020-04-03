@@ -1,0 +1,26 @@
+name: firebasepod
+
+# Verify that the Firebase.podspec will successfully `pod install`.
+
+on:
+  pull_request:
+    paths:
+    - '*.podspec'
+    - 'CoreOnly/**'
+    - '.github/workflows/firebasepod.yml'
+  schedule:
+    # Run every day at 11pm (PST) - cron uses UTC times
+    - cron:  '0 7 * * *'
+
+jobs:
+  installation-test:
+    runs-on: macOS-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Prereqs
+      run: scripts/install_prereqs.sh FirebasePod iOS
+    - name: Build
+      run: scripts/build.sh FirebasePod iOS
