@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/test/firebase/firestore/util/grpc_stream_tester.h"
+#include "Firestore/core/test/firebase/firestore/remote/grpc_stream_tester.h"
 
 #include <map>
 #include <queue>
@@ -29,18 +29,14 @@
 
 namespace firebase {
 namespace firestore {
-namespace util {
+namespace remote {
 
 using auth::Token;
 using auth::User;
 using model::DatabaseId;
-using remote::ConnectivityMonitor;
-using remote::GrpcCompletion;
-using remote::GrpcStream;
-using remote::GrpcStreamingReader;
-using remote::GrpcStreamObserver;
 using testutil::ExecutorForTesting;
-using util::CompletionEndState;
+using util::AsyncQueue;
+using util::StringFormat;
 
 // Misc
 
@@ -232,7 +228,7 @@ std::unique_ptr<GrpcStreamingReader> GrpcStreamTester::CreateStreamingReader() {
                                                 grpc::ByteBuffer{});
 }
 
-std::unique_ptr<remote::GrpcUnaryCall> GrpcStreamTester::CreateUnaryCall() {
+std::unique_ptr<GrpcUnaryCall> GrpcStreamTester::CreateUnaryCall() {
   return grpc_connection_.CreateUnaryCall("", Token{"", User{}},
                                           grpc::ByteBuffer{});
 }
@@ -310,6 +306,6 @@ void GrpcStreamTester::KeepPollingGrpcQueue() {
   fake_grpc_queue_.KeepPolling();
 }
 
-}  // namespace util
+}  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
