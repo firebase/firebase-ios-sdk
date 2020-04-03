@@ -1,5 +1,8 @@
 # Unreleased
 
+# v1.11.3
+- [changed] Internal changes.
+
 # v1.11.2
 - [fixed] Fixed the FirebaseFirestore podspec to properly declare its
   dependency on the UIKit framework on iOS and tvOS.
