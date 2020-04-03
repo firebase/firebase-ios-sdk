@@ -69,6 +69,7 @@ firebase_ios_cc_library(
     verify_mutation.cc
     verify_mutation.h
   DEPENDS
+    absl_meta
     absl_optional
     absl_strings
     firebase_firestore_immutable
