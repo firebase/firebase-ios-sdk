@@ -61,6 +61,7 @@ target_link_libraries(
   firebase_firestore_local_persistence_leveldb
   firebase_firestore_model
   firebase_firestore_nanopb
+  firebase_firestore_remote
   firebase_firestore_types
 
   firestore_util

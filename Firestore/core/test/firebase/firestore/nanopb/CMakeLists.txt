@@ -12,17 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-firebase_ios_cc_test(
-  firebase_firestore_nanopb_test
-  SOURCES
-    byte_string_test.cc
-    message_test.cc
-    nanopb_testing.h
-    pretty_printing_test.cc
-    writer_test.cc
-  DEPENDS
-    GMock::GMock
-    firebase_firestore_nanopb
-    firebase_firestore_remote
-    firestore_testutil
+file(GLOB sources *.cc *.h)
+firebase_ios_add_test(firestore_nanopb_test ${sources})
+
+target_link_libraries(
+  firestore_nanopb_test PRIVATE
+  GMock::GMock
+  firestore_core
+  firestore_testutil
 )
