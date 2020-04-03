@@ -661,14 +661,14 @@ ByteString MakeResumeToken(NSString *specString) {
       XCTAssertEqual([self.driver watchStreamRequestCount],
                      [expectedState[@"watchStreamRequestCount"] intValue]);
     }
-    if (expectedState[@"limboDocs"]) {
-      DocumentKeySet expectedLimboDocuments;
-      NSArray *docNames = expectedState[@"limboDocs"];
+    if (expectedState[@"activeLimboDocs"]) {
+      DocumentKeySet expectedActiveLimboDocuments;
+      NSArray *docNames = expectedState[@"activeLimboDocs"];
       for (NSString *name in docNames) {
-        expectedLimboDocuments = expectedLimboDocuments.insert(FSTTestDocKey(name));
+        expectedActiveLimboDocuments = expectedActiveLimboDocuments.insert(FSTTestDocKey(name));
       }
       // Update the expected limbo documents
-      [self.driver setExpectedLimboDocuments:std::move(expectedLimboDocuments)];
+      [self.driver setExpectedActiveLimboDocuments:std::move(expectedActiveLimboDocuments)];
     }
     if (expectedState[@"activeTargets"]) {
       __block ActiveTargetMap expectedActiveTargets;
@@ -726,14 +726,14 @@ ByteString MakeResumeToken(NSString *specString) {
   // Make a copy so it can modified while checking against the expected limbo docs.
   std::map<DocumentKey, TargetId> actualLimboDocs = self.driver.currentLimboDocuments;
 
-  // Validate that each limbo doc has an expected active target
+  // Validate that each active limbo doc has an expected active target
   for (const auto &kv : actualLimboDocs) {
     const auto &expected = [self.driver expectedActiveTargets];
     XCTAssertTrue(expected.find(kv.second) != expected.end(),
                   @"Found limbo doc without an expected active target");
   }
 
-  for (const DocumentKey &expectedLimboDoc : self.driver.expectedLimboDocuments) {
+  for (const DocumentKey &expectedLimboDoc : self.driver.expectedActiveLimboDocuments) {
     XCTAssert(actualLimboDocs.find(expectedLimboDoc) != actualLimboDocs.end(),
               @"Expected doc to be in limbo, but was not: %s", expectedLimboDoc.ToString().c_str());
     actualLimboDocs.erase(expectedLimboDoc);
