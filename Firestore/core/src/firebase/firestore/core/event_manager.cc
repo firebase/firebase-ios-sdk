@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
+#include "Firestore/core/src/firebase/firestore/core/event_manager.h"
+
 #include <utility>
 
-#include "Firestore/core/src/firebase/firestore/core/event_manager.h"
 #include "Firestore/core/src/firebase/firestore/core/query_listener.h"
 #include "Firestore/core/src/firebase/firestore/core/sync_engine.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"

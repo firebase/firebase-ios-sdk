@@ -15,6 +15,7 @@
  */
 
 #include "Firestore/core/src/firebase/firestore/local/leveldb_target_cache.h"
+
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
 #include "Firestore/core/src/firebase/firestore/local/persistence.h"

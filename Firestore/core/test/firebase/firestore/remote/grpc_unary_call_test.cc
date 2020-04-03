@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
+#include "Firestore/core/src/firebase/firestore/remote/grpc_unary_call.h"
+
 #include <initializer_list>
 #include <memory>
 
 #include "Firestore/core/src/firebase/firestore/remote/connectivity_monitor.h"
-#include "Firestore/core/src/firebase/firestore/remote/grpc_unary_call.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"

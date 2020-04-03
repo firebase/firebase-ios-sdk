@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
+#include "Firestore/core/src/firebase/firestore/local/memory_remote_document_cache.h"
+
 #include <memory>
 
 #include "Firestore/core/src/firebase/firestore/local/memory_persistence.h"
-#include "Firestore/core/src/firebase/firestore/local/memory_remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_delegate.h"
 #include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
 #include "Firestore/core/test/firebase/firestore/local/persistence_testing.h"
