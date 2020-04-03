@@ -7,3 +7,4 @@ SpacesInContainerLiterals: true
 DerivePointerAlignment: false
 PointerAlignment: Left
 AllowShortFunctionsOnASingleLine: None
+IncludeBlocks: Preserve

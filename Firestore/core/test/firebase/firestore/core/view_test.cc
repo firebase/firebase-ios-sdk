@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
+#include "Firestore/core/src/firebase/firestore/core/view.h"
+
 #include <initializer_list>
 #include <utility>
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/core/field_filter.h"
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
-#include "Firestore/core/src/firebase/firestore/core/view.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"

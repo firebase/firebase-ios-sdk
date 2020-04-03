@@ -20,7 +20,6 @@
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/unknown_document.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
-
 #include "absl/strings/string_view.h"
 #include "gtest/gtest.h"
 

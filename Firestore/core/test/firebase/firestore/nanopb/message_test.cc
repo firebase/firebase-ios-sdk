@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
+#include "Firestore/core/src/firebase/firestore/nanopb/message.h"
+
 #include <cstdint>
 #include <utility>
 #include <vector>
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/firestore.nanopb.h"
-#include "Firestore/core/src/firebase/firestore/nanopb/message.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_nanopb.h"
