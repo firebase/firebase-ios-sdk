@@ -1,4 +1,4 @@
-# Copyright 2019 Google
+# Copyright 2019 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@ from __future__ import division
 
 import math
 import multiprocessing.pool
+import six
 import sys
 import threading
 
@@ -54,7 +55,7 @@ class Result(object):
 
   def __init__(self, num_errors, output):
     self.errors = num_errors
-    self.output = output
+    self.output = six.ensure_text(output)
 
   @staticmethod
   def from_list(errors):
