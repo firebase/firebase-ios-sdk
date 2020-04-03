@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
+#include "Firestore/core/src/firebase/firestore/model/field_value.h"
+
 #include <limits>
 #include <vector>
 
-#include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/util/secure_random.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 #include "absl/types/variant.h"

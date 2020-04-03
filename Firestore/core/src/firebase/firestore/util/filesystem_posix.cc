@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#include "Firestore/core/src/firebase/firestore/util/filesystem.h"
+
 #include <dirent.h>
 #include <pwd.h>
 #include <sys/stat.h>
@@ -25,7 +27,6 @@
 #include <deque>
 #include <string>
 
-#include "Firestore/core/src/firebase/firestore/util/filesystem.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/path.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
