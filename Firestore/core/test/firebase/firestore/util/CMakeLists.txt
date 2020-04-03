@@ -20,188 +20,63 @@ if(NOT MSVC)
 endif()
 
 
-## async
-
-firebase_ios_cc_test(
-  firebase_firestore_util_async_std_test
-  SOURCES
-    async_queue_std_test.cc
-    async_queue_test.cc
-    async_queue_test.h
-    executor_std_test.cc
-    executor_test.cc
-    executor_test.h
-  DEPENDS
-    firebase_firestore_util_async_std
-    firestore_testutil
+firebase_ios_glob(
+  sources *.cc *.h
+  EXCLUDE *_benchmark.cc *_std_test.cc
 )
+
+if(APPLE)
+  firebase_ios_glob(
+    sources APPEND *.mm
+    EXCLUDE *_benchmark.mm *_libdispatch_test.mm
+  )
+endif()
 
 if(HAVE_LIBDISPATCH)
-  firebase_ios_cc_test(
-    firebase_firestore_util_async_libdispatch_test
-    SOURCES
-      async_queue_libdispatch_test.mm
-      async_queue_test.cc
-      async_queue_test.h
-      executor_libdispatch_test.mm
-      executor_test.cc
-      executor_test.h
-    DEPENDS
-      firebase_firestore_util_async_libdispatch
-      firestore_testutil
-  )
+  firebase_ios_glob(sources APPEND *_libdispatch_test.mm)
+else()
+  firebase_ios_glob(sources APPEND *_std_test.cc)
 endif()
 
+firebase_ios_add_test(firestore_util_test ${sources})
 
-## base
-
-if(APPLE)
-  firebase_ios_cc_test(
-    firebase_firestore_util_base_apple_test
-    SOURCES
-      hard_assert_test.cc
-      log_test.cc
-      string_apple_test.mm
-    DEPENDS
-      firebase_firestore_util_base_apple
-  )
-endif(APPLE)
-
-firebase_ios_cc_test(
-  firebase_firestore_util_base_stdio_test
-  SOURCES
-    hard_assert_test.cc
-    log_test.cc
-  DEPENDS
-    firebase_firestore_util_base_stdio
+target_link_libraries(
+  firestore_util_test PRIVATE
+  GMock::GMock
+  absl_base
+  absl_optional
+  absl_strings
+  firestore_core
+  firestore_testutil
 )
 
-
-## filesystem
-
-if(APPLE)
-  firebase_ios_cc_test(
-    firebase_firestore_util_filesystem_apple_test
-    SOURCES
-      filesystem_test.cc
-      path_test.cc
-    DEPENDS
-      GMock::GMock
-      absl_optional
-      firebase_firestore_util_autoid
-      firebase_firestore_util_filesystem_apple
-      firestore_testutil
-  )
-endif()
-
-if(NOT APPLE AND NOT WIN32)
-  firebase_ios_cc_test(
-    firebase_firestore_util_filesystem_posix_test
-    SOURCES
-      filesystem_test.cc
-      path_test.cc
-    DEPENDS
-      GMock::GMock
-      absl_optional
-      firebase_firestore_util_autoid
-      firebase_firestore_util_filesystem_posix
-      firestore_testutil
-  )
-endif()
-
-if(WIN32)
-  firebase_ios_cc_test(
-    firebase_firestore_util_filesystem_win_test
-    SOURCES
-      filesystem_test.cc
-      path_test.cc
-    DEPENDS
-      GMock::GMock
-      absl_optional
-      firebase_firestore_util_autoid
-      firebase_firestore_util_filesystem_win
-      firestore_testutil
-  )
-endif()
-
-
-## random
-
-if(HAVE_ARC4RANDOM)
-  firebase_ios_cc_test(
-    firebase_firestore_util_random_arc4random_test
-    SOURCES
-      secure_random_test.cc
-    DEPENDS
-      firebase_firestore_util_random_arc4random
-  )
-endif()
-
-if(HAVE_OPENSSL_RAND_H)
-  firebase_ios_cc_test(
-    firebase_firestore_util_random_openssl_test
-    SOURCES
-      secure_random_test.cc
-    DEPENDS
-      firebase_firestore_util_random_openssl
-  )
-endif()
-
-
-## main library
-
-firebase_ios_cc_test(
-  firebase_firestore_util_test
-  SOURCES
-    autoid_test.cc
-    bits_test.cc
-    comparison_test.cc
-    delayed_constructor_test.cc
-    hashing_test.cc
-    hashing_test_apple.mm
-    iterator_adaptors_test.cc
-    ordered_code_test.cc
-    status_apple_test.mm
-    status_test.cc
-    statusor_test.cc
-    strerror_test.cc
-    string_format_apple_test.mm
-    string_format_test.cc
-    string_util_test.cc
-    string_win_test.cc
-    to_string_apple_test.mm
-    to_string_test.cc
-  DEPENDS
-    GMock::GMock
-    absl_base
-    absl_strings
-    firebase_firestore_model
-    firebase_firestore_util
-    firestore_testutil
-)
 
 # Benchmarks
 
 if(FIREBASE_IOS_BUILD_BENCHMARKS)
-  firebase_ios_cc_binary(
-    firebase_firestore_util_ordered_code_benchmark
-    SOURCES
-      ordered_code_benchmark.cc
-    DEPENDS
-      benchmark
-      benchmark_main
-      firebase_firestore_util
+  firebase_ios_add_executable(
+    firestore_ordered_code_benchmark
+    ordered_code_benchmark.cc
+  )
+
+  target_link_libraries(
+    firestore_ordered_code_benchmark PRIVATE
+    benchmark
+    benchmark_main
+    firestore_core
   )
 endif()
 
 if(FIREBASE_IOS_BUILD_BENCHMARKS AND APPLE)
-  firebase_ios_cc_binary(
-    firebase_firestore_util_string_apple_benchmark
-    SOURCES
-      string_apple_benchmark.mm
-    DEPENDS
-      benchmark
-      benchmark_main
-      firebase_firestore_util_base_apple
+  firebase_ios_add_executable(
+    firestore_string_apple_benchmark
+    string_apple_benchmark.mm
+  )
+
+  target_link_libraries(
+    firestore_string_apple_benchmark PRIVATE
+    benchmark
+    benchmark_main
+    firestore_core
   )
 endif()
