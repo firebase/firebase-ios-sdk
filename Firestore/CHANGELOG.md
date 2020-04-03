@@ -1,5 +1,10 @@
 # Unreleased
 
+# v1.11.3
+- [changed] Changed the default log level to `notice` instead of `warning` (#5196).
+- [added] The Firestore iOS SDK can now be built via CMake (#5052).
+- [changed] Internal changes.
+
 # v1.11.2
 - [fixed] Fixed the FirebaseFirestore podspec to properly declare its
   dependency on the UIKit framework on iOS and tvOS.
