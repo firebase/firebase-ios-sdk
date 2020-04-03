@@ -20,8 +20,6 @@ import FirebaseMessaging
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate, UNUserNotificationCenterDelegate {
 
-
-
   func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
     FirebaseApp.configure()
     Messaging.messaging().delegate = self
@@ -29,11 +27,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate, UNUser
     let center = UNUserNotificationCenter.current()
     center.requestAuthorization(options: [.alert, .sound, .badge]) { (granted, error) in
       if error != nil {
-        print ("error requesting notification permission %@\n", error ?? "")
+        print("Failed requesting notification permission: ", error ?? "")
       }
     }
     application.registerForRemoteNotifications()
     return true
+  }
+
+  func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String) {
+    print("token:", fcmToken)
   }
 
   // MARK: UISceneSession Lifecycle
