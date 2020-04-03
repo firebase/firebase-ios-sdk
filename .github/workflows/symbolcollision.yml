@@ -20,6 +20,6 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Prereqs
-      run: scripts/install_prereqs.sh FirebasePod iOS
+      run: scripts/install_prereqs.sh SymbolCollision iOS
     - name: Build
-      run: scripts/build.sh FirebasePod iOS
+      run: scripts/build.sh SymbolCollision iOS

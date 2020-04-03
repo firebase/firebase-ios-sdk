@@ -1,5 +1,7 @@
 name: firebasepod
 
+# Verify that the Firebase.podspec will successfully `pod install`.
+
 on:
   pull_request:
     paths:
