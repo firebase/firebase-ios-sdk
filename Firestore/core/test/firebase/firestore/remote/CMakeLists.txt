@@ -45,11 +45,11 @@ firebase_ios_cc_test(
   DEPENDS
     GMock::GMock
     absl_base
-    firebase_firestore_protos_libprotobuf
     firebase_firestore_core
     firebase_firestore_local
     firebase_firestore_remote
     firebase_firestore_remote_testing
     firebase_firestore_util_async_std
+    firestore_protos_protobuf
     firestore_testutil
 )

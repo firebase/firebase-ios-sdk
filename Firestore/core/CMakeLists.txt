@@ -41,6 +41,14 @@ target_link_libraries(
 )
 
 
+add_library(firestore_nanopb INTERFACE)
+
+target_link_libraries(
+  firestore_nanopb INTERFACE
+  firebase_firestore_nanopb_runtime
+)
+
+
 add_library(firestore_core INTERFACE)
 
 target_link_libraries(

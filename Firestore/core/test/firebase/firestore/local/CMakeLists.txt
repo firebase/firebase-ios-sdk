@@ -67,7 +67,7 @@ firebase_ios_cc_test(
     firebase_firestore_local_persistence_leveldb
     firebase_firestore_local_testing
     firebase_firestore_model
-    firebase_firestore_protos_libprotobuf
     firebase_firestore_remote_testing
+    firestore_protos_protobuf
     firestore_testutil
 )

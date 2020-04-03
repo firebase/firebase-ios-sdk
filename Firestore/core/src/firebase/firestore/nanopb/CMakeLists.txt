@@ -40,8 +40,8 @@ firebase_ios_cc_library(
     writer.h
   DEPENDS
     firebase_firestore_nanopb_runtime
-    firebase_firestore_protos_nanopb
     firebase_firestore_util
+    firestore_protos_nanopb
     grpc++
     protobuf-nanopb-static
 )
