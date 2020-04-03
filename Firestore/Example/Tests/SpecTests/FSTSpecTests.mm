@@ -150,6 +150,24 @@ ByteString MakeResumeToken(NSString *specString) {
   return MakeByteString([specString dataUsingEncoding:NSUTF8StringEncoding]);
 }
 
+NSString *ToDocumentListString(const std::map<DocumentKey, TargetId> &map) {
+  NSMutableArray<NSString *> *array = [NSMutableArray new];
+  for (const auto &kv : map) {
+    [array addObject:[NSString stringWithFormat:@"%s", kv.first.ToString().c_str()]];
+  }
+  [array sortUsingSelector:@selector(compare:)];
+  return [array componentsJoinedByString:@", "];
+}
+
+NSString *ToTargetIdListString(const ActiveTargetMap &map) {
+  NSMutableArray<NSNumber *> *array = [NSMutableArray new];
+  for (const auto &kv : map) {
+    [array addObject:@(kv.first)];
+  }
+  [array sortUsingSelector:@selector(compare:)];
+  return [array componentsJoinedByString:@", "];
+}
+
 }  // namespace
 
 @interface FSTSpecTests ()
@@ -730,7 +748,9 @@ ByteString MakeResumeToken(NSString *specString) {
   for (const auto &kv : actualLimboDocs) {
     const auto &expected = [self.driver expectedActiveTargets];
     XCTAssertTrue(expected.find(kv.second) != expected.end(),
-                  @"Found limbo doc without an expected active target");
+                  @"Found limbo doc %s, but its target ID %d was not in the "
+                  @"set of expected active target IDs %@",
+                  kv.first.ToString().c_str(), kv.second, ToTargetIdListString(expected));
   }
 
   for (const DocumentKey &expectedLimboDoc : self.driver.expectedActiveLimboDocuments) {
@@ -738,9 +758,9 @@ ByteString MakeResumeToken(NSString *specString) {
               @"Expected doc to be in limbo, but was not: %s", expectedLimboDoc.ToString().c_str());
     actualLimboDocs.erase(expectedLimboDoc);
   }
-  XCTAssertTrue(actualLimboDocs.empty(), "%lu Unexpected docs in limbo, the first one is <%s, %d>",
-                actualLimboDocs.size(), actualLimboDocs.begin()->first.ToString().c_str(),
-                actualLimboDocs.begin()->second);
+
+  XCTAssertTrue(actualLimboDocs.empty(), @"Unexpected active docs in limbo: %@",
+                ToDocumentListString(actualLimboDocs));
 }
 
 - (void)validateActiveTargets {
