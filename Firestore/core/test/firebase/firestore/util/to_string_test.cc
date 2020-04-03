@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#include "Firestore/core/src/firebase/firestore/util/to_string.h"
+
 #include <deque>
 #include <map>
 #include <set>
@@ -25,9 +27,7 @@
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_map.h"
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
-#include "Firestore/core/src/firebase/firestore/util/to_string.h"
 #include "absl/types/optional.h"
-
 #include "gtest/gtest.h"
 
 namespace firebase {

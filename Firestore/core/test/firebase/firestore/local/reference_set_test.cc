@@ -18,7 +18,6 @@
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
-
 #include "gtest/gtest.h"
 
 namespace firebase {

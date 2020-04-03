@@ -21,7 +21,6 @@
 #include <random>
 
 #include "Firestore/core/src/firebase/firestore/util/secure_random.h"
-
 #include "Firestore/core/test/firebase/firestore/immutable/testing.h"
 #include "gtest/gtest.h"
 

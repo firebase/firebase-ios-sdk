@@ -1227,7 +1227,7 @@ using firebase::firestore::util::TimerId;
   FIRFirestore *firestore = doc.firestore;
 
   [self writeDocumentRef:doc data:@{@"foo" : @"bar"}];
-  [firestore workerQueue] -> RunScheduledOperationsUntil(TimerId::WriteStreamIdle);
+  [firestore workerQueue]->RunScheduledOperationsUntil(TimerId::WriteStreamIdle);
   [self writeDocumentRef:doc data:@{@"foo" : @"bar"}];
 }
 
@@ -1236,7 +1236,7 @@ using firebase::firestore::util::TimerId;
   FIRFirestore *firestore = doc.firestore;
 
   [self readSnapshotForRef:[self documentRef] requireOnline:YES];
-  [firestore workerQueue] -> RunScheduledOperationsUntil(TimerId::ListenStreamIdle);
+  [firestore workerQueue]->RunScheduledOperationsUntil(TimerId::ListenStreamIdle);
   [self readSnapshotForRef:[self documentRef] requireOnline:YES];
 }
 

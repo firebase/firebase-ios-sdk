@@ -14,12 +14,12 @@
 
 #pragma once
 
+#include <stdbool.h>
+#include <stdint.h>
+
 #include "FIRCLSFeatures.h"
 #include "FIRCLSFile.h"
 #include "FIRCLSMachO.h"
-
-#include <stdbool.h>
-#include <stdint.h>
 
 __BEGIN_DECLS
 
