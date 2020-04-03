@@ -68,7 +68,7 @@ if [[ "$system" == "Darwin" ]]; then
   # the future if we run into different versions making incompatible format
   # changes.
   if [[ ! "$version" =~ ^0.[4-9] ]]; then
-    echo "Version $version installed. Please upgrade to at least swiftformat 0.35.0"
+    echo "Version $version installed. Please upgrade to at least swiftformat 0.44.6"
     echo "If it's installed via homebrew you can run: brew upgrade swiftformat"
     exit 1
   fi
