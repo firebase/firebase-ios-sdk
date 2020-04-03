@@ -41,9 +41,9 @@ firebase_ios_add_test(firestore_local_test ${sources})
 target_link_libraries(
   firestore_local_test PRIVATE
   GMock::GMock
-  firebase_firestore_remote_testing
   firestore_core
   firestore_local_testing
   firestore_protos_protobuf
+  firestore_remote_testing
   firestore_testutil
 )

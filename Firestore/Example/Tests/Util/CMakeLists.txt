@@ -40,7 +40,8 @@ firebase_ios_cc_library(
     firebase_firestore_model
     firebase_firestore_nanopb
     firebase_firestore_remote
-    firebase_firestore_remote_testing
+    firebase_firestore_nanopb
     firestore_protos_nanopb
+    firestore_remote_testing
     firestore_testutil
 )
