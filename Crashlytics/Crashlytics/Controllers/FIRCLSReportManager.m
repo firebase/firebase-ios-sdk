@@ -359,8 +359,7 @@ static void (^reportSentCallback)(void);
     FIRCLSDebugLog(@"Unsent reports will be uploaded at startup");
     FIRCLSDataCollectionToken *dataCollectionToken = [FIRCLSDataCollectionToken validToken];
 
-    [self beginSettingsAndOnboardingWithToken:dataCollectionToken
-                       waitForSettingsRequest:NO];
+    [self beginSettingsAndOnboardingWithToken:dataCollectionToken waitForSettingsRequest:NO];
 
     [self beginReportUploadsWithToken:dataCollectionToken
                preexistingReportPaths:preexistingReportPaths
@@ -457,7 +456,6 @@ static void (^reportSentCallback)(void);
 
 - (void)beginSettingsAndOnboardingWithToken:(FIRCLSDataCollectionToken *)token
                      waitForSettingsRequest:(BOOL)waitForSettings {
-
   if (self.settings.isCacheExpired) {
     // This method can be called more than once if the user calls
     // SendUnsentReports again, so don't repeat the settings fetch
@@ -474,7 +472,6 @@ static void (^reportSentCallback)(void);
              preexistingReportPaths:(NSArray *)preexistingReportPaths
                        blockingSend:(BOOL)blockingSend
                              report:(FIRCLSInternalReport *)report {
-
   if (self.settings.collectReportsEnabled) {
     [self processExistingReportPaths:preexistingReportPaths
                  dataCollectionToken:token
