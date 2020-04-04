@@ -12,26 +12,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if(APPLE)
-  firebase_ios_objc_test(
-    firebase_firestore_objc_spec_test
-    HOST firestore_objc_host_app
-    SOURCES
-      FSTLevelDBSpecTests.mm
-      FSTMemorySpecTests.mm
-      FSTMockDatastore.h
-      FSTMockDatastore.mm
-      FSTSpecTests.h
-      FSTSpecTests.mm
-      FSTSyncEngineTestDriver.h
-      FSTSyncEngineTestDriver.mm
-    DEPENDS
-      FirebaseFirestore
-      firebase_firestore_objc_test_util
-      firestore_local_testing
-      firestore_remote_testing
-    # Force this to run in the project-wide binary directory so that relative
-    # paths used during compilation are usable.
-    WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
-  )
-endif(APPLE)
+if(NOT FIREBASE_IOS_BUILD_TESTS OR NOT APPLE)
+  return()
+endif()
+
+file(GLOB sources *.h *.mm)
+
+firebase_ios_add_objc_test(
+  firestore_objc_spec_test
+  firestore_objc_host_app
+  ${sources}
+)
+
+target_link_libraries(
+  firestore_objc_spec_test PRIVATE
+  FirebaseFirestore
+  firebase_firestore_objc_test_util
+  firestore_local_testing
+  firestore_objc_testing
+  firestore_remote_testing
+)
+
+# Force this to run in the project-wide binary directory so that relative
+# paths used during compilation are usable.
+set_property(
+  TEST firestore_objc_spec_test PROPERTY
+  WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+)
