@@ -16,6 +16,36 @@ include(CMakeParseArguments)
 include(FindASANDylib)
 
 
+# firebase_ios_add_executable(
+#   target
+#   sources...
+# )
+#
+# Wraps a call to add_executable (including arguments like EXCLUDE_FROM_ALL)
+# that additionally sets common options that apply to all executables in this
+# repo.
+function(firebase_ios_add_executable target)
+  firebase_ios_split_target_options(flag ${ARGN})
+
+  add_executable(${target} ${flag_REST})
+  firebase_ios_set_common_target_options(${target} ${flag_OPTIONS})
+endfunction()
+
+# firebase_ios_add_library(
+#   target
+#   sources...
+# )
+#
+# Wraps a call to add_library (including any arguments like EXCLUDE_FROM_ALL)
+# that additionally sets common options that apply to all libraries in this
+# repo.
+function(firebase_ios_add_library target)
+  firebase_ios_split_target_options(flag ${ARGN})
+
+  add_library(${target} ${flag_REST})
+  firebase_ios_set_common_target_options(${target} ${flag_OPTIONS})
+endfunction()
+
 # firebase_ios_add_framework(
 #   target
 #   sources...
@@ -66,6 +96,27 @@ function(firebase_ios_framework_public_headers target)
     # one public header to another.
     PUBLIC ${PROJECT_BINARY_DIR}/Headers/${target}
   )
+endfunction()
+
+# firebase_ios_add_test(
+#   target
+#   sources...
+# )
+#
+# Wraps a call to `add_executable` (including arguments like `EXCLUDE_FROM_ALL`)
+# and `add_test` that additionally sets common options that apply to all tests
+# in this repo.
+#
+# Also adds dependencies on GTest::GTest and GTest::Main.
+function(firebase_ios_add_test target)
+  firebase_ios_split_target_options(flag ${ARGN})
+
+  add_executable(${target} ${flag_REST})
+  add_test(${target} ${target})
+
+  firebase_ios_set_common_target_options(${target} ${flag_OPTIONS})
+
+  target_link_libraries(${target} PRIVATE GTest::GTest GTest::Main)
 endfunction()
 
 
@@ -492,4 +543,62 @@ function(firebase_ios_set_common_target_options target)
     ${PROJECT_BINARY_DIR}
     ${PROJECT_SOURCE_DIR}
   )
+endfunction()
+
+# firebase_ios_glob(
+#   list_variable
+#   [APPEND]
+#   [globs...]
+#   [EXCLUDE globs...]
+#   [INCLUDE globs...]
+# )
+#
+# Applies globbing rules, accumulating a list of matching files, and sets the
+# result to list_variable in the parent scope.
+#
+# If APPEND is specified, the result will start with any existing values in the
+# list_variable. Otherwise, the list_variable will be overwritten with only the
+# matches of this invocation.
+#
+# EXCLUDE and INCLUDE change the direction of the match. EXCLUDE will subtract
+# files matching the glob patterns from the result. INCLUDE will again add
+# files matching the glob patterns to the result. These can be used sequentially
+# to finely tune the match.
+#
+# As a special case, if invoked with EXCLUDE in the first argument position,
+# this is treated as if APPEND had been passed. This makes the common case of
+# subtracting something from the list less prone to error. That is, these two
+# invocations are equivalent:
+#
+#     firebase_ios_glob(sources APPEND EXCLUDE *.h)
+#     firebase_ios_glob(sources EXCLUDE *.h)
+#
+# Without this exception, the second form would always end up an empty list and
+# would never be useful.
+function(firebase_ios_glob list_variable)
+  set(result)
+  set(list_op APPEND)
+  set(first_arg TRUE)
+
+  foreach(arg IN LISTS ARGN)
+    if(arg STREQUAL "APPEND")
+      list(APPEND result ${${list_variable}})
+    elseif(arg STREQUAL "INCLUDE")
+      set(list_op APPEND)
+    elseif(arg STREQUAL "EXCLUDE")
+      if(first_arg)
+        list(APPEND result ${${list_variable}})
+      endif()
+      set(list_op REMOVE_ITEM)
+    else()
+      # Anything else is a glob pattern. Match the pattern and perform the list
+      # operation implied by the current INCLUDE or EXCLUDE mode.
+      file(GLOB matched ${arg})
+      list(${list_op} result ${matched})
+    endif()
+
+    set(first_arg FALSE)
+  endforeach()
+
+  set(${list_variable} ${result} PARENT_SCOPE)
 endfunction()
