@@ -301,55 +301,49 @@ function(firebase_ios_cc_test name)
   target_link_libraries(${name} PRIVATE ${cct_DEPENDS})
 endfunction()
 
-# firebase_ios_cc_fuzz_test(
+# firebase_ios_add_fuzz_test(
 #   target
 #   DICTIONARY dict_file
 #   CORPUS     corpus_dir
-#   SOURCES    sources...
-#   DEPENDS    libraries...
+#   sources...
 # )
 #
 # Defines a new executable fuzz testing target with the given target name,
-# (optional) dictionary file, (optional) corpus directory, sources, and
-# dependencies. Implicitly adds DEPENDS on 'Fuzzer', which corresponds to
+# (optional) dictionary file, (optional) corpus directory, along with the given
+# sources and arguments you might pass to add_executable.
+#
+# Implicitly adds a dependency on the `Fuzzer` library, which corresponds to
 # libFuzzer if fuzzing runs locally or a provided fuzzing library if fuzzing
-# runs on OSS Fuzz. If provided, copies the DICTIONARY file as '${target}.dict'
-# and copies the CORPUS directory as '${target}_seed_corpus' after building the
-# target. This naming convention is critical for OSS Fuzz build script to
-# capture new fuzzing targets.
-function(firebase_ios_cc_fuzz_test name)
-  # Finds the fuzzer library that is either provided by OSS Fuzz or libFuzzer
-  # that is manually built from sources.
-  find_package(Fuzzer REQUIRED)
+# runs on OSS Fuzz.
+#
+# If provided, copies the DICTIONARY file as '${target}.dict' and copies the
+# CORPUS directory as '${target}_seed_corpus' after building the target. This
+# naming convention is critical for OSS Fuzz build script to capture new fuzzing
+# targets.
+function(firebase_ios_add_fuzz_test target)
+  firebase_ios_split_target_options(flag ${ARGN})
 
-  # Parse arguments of the firebase_ios_cc_fuzz_test macro.
   set(single DICTIONARY CORPUS)
-  set(multi DEPENDS SOURCES)
-  cmake_parse_arguments(ccf "" "${single}" "${multi}" ${ARGN})
+  cmake_parse_arguments(args "" "${single}" "" ${flag_REST})
 
-  list(APPEND ccf_DEPENDS Fuzzer)
+  firebase_ios_add_executable(${target} ${args_UNPARSED_ARGUMENTS})
+  firebase_ios_set_common_target_options(${target} ${flag_OPTIONS})
 
-  firebase_ios_cc_binary(
-    ${name}
-    SOURCES ${ccf_SOURCES}
-    DEPENDS ${ccf_DEPENDS}
-  )
-
-  target_compile_options(${name} PRIVATE ${FIREBASE_CXX_FLAGS})
+  target_link_libraries(${target} PRIVATE Fuzzer)
 
   # Copy the dictionary file and corpus directory, if they are defined.
   if(DEFINED ccf_DICTIONARY)
     add_custom_command(
-      TARGET ${name} POST_BUILD
+      TARGET ${target} POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy
-          ${ccf_DICTIONARY} ${name}.dict
+          ${ccf_DICTIONARY} ${target}.dict
     )
   endif()
   if(DEFINED ccf_CORPUS)
     add_custom_command(
-      TARGET ${name} POST_BUILD
+      TARGET ${target} POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy_directory
-          ${ccf_CORPUS} ${name}_seed_corpus
+          ${ccf_CORPUS} ${target}_seed_corpus
     )
   endif()
 endfunction()
