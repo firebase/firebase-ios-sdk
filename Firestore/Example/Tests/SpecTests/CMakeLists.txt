@@ -27,7 +27,6 @@ firebase_ios_add_objc_test(
 target_link_libraries(
   firestore_objc_spec_test PRIVATE
   FirebaseFirestore
-  firebase_firestore_objc_test_util
   firestore_local_testing
   firestore_objc_testing
   firestore_remote_testing

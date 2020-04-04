@@ -16,32 +16,15 @@ if(NOT FIREBASE_IOS_BUILD_TESTS OR NOT APPLE)
   return()
 endif()
 
-firebase_ios_cc_library(
-  firebase_firestore_objc_test_util
-  SOURCES
-    FIRFirestore+Testing.h
-    FSTEventAccumulator.h
-    FSTEventAccumulator.mm
-    FSTHelpers.h
-    FSTHelpers.mm
-    FSTIntegrationTestCase.h
-    FSTIntegrationTestCase.mm
-    XCTestCase+Await.h
-    XCTestCase+Await.mm
-  DEPENDS
-    ${XCTest_LIBRARIES}
-    FirebaseFirestore
-    GTest::GTest
-    absl_any
-    absl_strings
-    firebase_firestore_auth
-    firebase_firestore_core
-    firebase_firestore_local
-    firebase_firestore_model
-    firebase_firestore_nanopb
-    firebase_firestore_remote
-    firebase_firestore_nanopb
-    firestore_protos_nanopb
-    firestore_remote_testing
-    firestore_testutil
+file(GLOB sources *.h *.mm)
+firebase_ios_add_library(firestore_objc_testing ${sources})
+
+target_link_libraries(
+  firestore_objc_testing PUBLIC
+  ${XCTest_LIBRARIES}
+  FirebaseFirestore
+  GTest::GTest
+  absl_strings
+  firestore_remote_testing
+  firestore_testutil
 )
