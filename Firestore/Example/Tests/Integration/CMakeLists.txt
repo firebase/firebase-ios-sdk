@@ -16,26 +16,17 @@ if(NOT APPLE)
   return()
 endif()
 
-firebase_ios_objc_test(
-  firebase_firestore_objc_integration_test
-  HOST firestore_objc_host_app
-  SOURCES
-    FSTSmokeTests.mm
-    FSTDatastoreTests.mm
-    FSTTransactionTests.mm
-    API/FIRArrayTransformTests.mm
-    API/FIRFieldsTests.mm
-    API/FIRNumericTransformTests.mm
-    API/FIRTypeTests.mm
-    API/FIRCursorTests.mm
-    API/FIRFirestoreSourceTests.mm
-    API/FIRQueryTests.mm
-    API/FIRValidationTests.mm
-    API/FIRDatabaseTests.mm
-    API/FIRListenerRegistrationTests.mm
-    API/FIRServerTimestampTests.mm
-    API/FIRWriteBatchTests.mm
-  DEPENDS
-    FirebaseFirestore
-    firebase_firestore_objc_test_util
+file(GLOB sources *.h *.mm API/*.h API/*.mm)
+
+firebase_ios_add_objc_test(
+  firestore_objc_integration_test
+  firestore_objc_host_app
+  ${sources}
+)
+
+target_link_libraries(
+  firestore_objc_integration_test PRIVATE
+  FirebaseFirestore
+  firebase_firestore_objc_test_util
+  firestore_core
 )
