@@ -12,27 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if(APPLE)
-  firebase_ios_objc_test(
-    firebase_firestore_objc_api_test
-    HOST firestore_objc_host_app
-    SOURCES
-      FIRCollectionReferenceTests.mm
-      FIRDocumentReferenceTests.mm
-      FIRDocumentSnapshotTests.mm
-      FIRFieldPathTests.mm
-      FIRFieldValueTests.mm
-      FIRFirestoreTests.mm
-      FIRGeoPointTests.mm
-      FIRQuerySnapshotTests.mm
-      FIRQueryUnitTests.mm
-      FIRSnapshotMetadataTests.mm
-      FIRTimestampTest.m
-      FSTAPIHelpers.h
-      FSTAPIHelpers.mm
-      FSTUserDataConverterTests.mm
-    DEPENDS
-      FirebaseFirestore
-      firebase_firestore_objc_test_util
-  )
-endif(APPLE)
+if(NOT FIREBASE_IOS_BUILD_TESTS OR NOT APPLE)
+  return()
+endif()
+
+file(GLOB sources *.h *.mm)
+firebase_ios_add_objc_test(
+  firestore_objc_api_test
+  firestore_objc_host_app
+  ${sources}
+)
+target_link_libraries(
+  firestore_objc_api_test PRIVATE
+  FirebaseFirestore
+  firebase_firestore_objc_test_util
+)
