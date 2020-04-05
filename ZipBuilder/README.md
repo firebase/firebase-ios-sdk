@@ -24,6 +24,10 @@ In order to build the Zip file, you will need:
 You can run the tool with `swift run ReleasePackager [ARGS]` or generate an Xcode project with
 `swift package generate-xcodeproj` and run within Xcode.
 
+Since Apple does not support linking libraries built by future Xcode versions, make sure to builid with the
+earliest Xcode needed by any of the library clients. The Xcode command line tools must also be configured
+for that version. Check with `xcodebuild -version`.
+
 ### Launch Arguments
 
 See `main.swift` and the `LaunchArgs` struct for information on specific launch arguments.
