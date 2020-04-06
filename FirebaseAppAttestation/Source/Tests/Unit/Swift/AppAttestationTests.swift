@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,9 @@ import FirebaseCore
 import FirebaseAppAttestation
 
 class AppAttestationTests: XCTestCase {
-  func testExample() {
+
+  // TODO: Remove usage example once API review approval obtained.
+  func usageExample() {
     AppAttestation.setAttestationProviderFactory(self)
     FirebaseApp.configure()
 
