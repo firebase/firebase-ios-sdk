@@ -16,10 +16,12 @@ Pod::Spec.new do |s|
     :tag => 'Attestation-' + s.version.to_s
   }
   s.social_media_url = 'https://twitter.com/Firebase'
+
+  # TODO: Consider separating the DeviceCheck based atteatation provider
+  # to allign supported OS versions with Core.
   s.ios.deployment_target = '11.0'
-  s.osx.deployment_target = '10.11'
-  s.tvos.deployment_target = '10.0'
-  s.watchos.deployment_target = '6.0'
+  s.osx.deployment_target = '10.15'
+  s.tvos.deployment_target = '11.0'
 
   s.cocoapods_version = '>= 1.4.0'
   s.static_framework = true
@@ -42,7 +44,7 @@ Pod::Spec.new do |s|
   }
 
   s.test_spec 'unit' do |unit_tests|
-    unit_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
+    unit_tests.platforms = {:ios => '11.0', :osx => '10.11', :tvos => '11.0'}
     unit_tests.source_files = base_dir + 'Tests/Unit/**/*.[mh]',
                               base_dir + 'Tests/Utils/**/*.[mh]'
     # unit_tests.resources = base_dir + 'Tests/Fixture/**/*'
@@ -51,7 +53,7 @@ Pod::Spec.new do |s|
   end
 
   s.test_spec 'swift-unit' do |swift_unit_tests|
-    swift_unit_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
+    swift_unit_tests.platforms = {:ios => '11.0', :osx => '10.11', :tvos => '11.0'}
     swift_unit_tests.source_files = base_dir + 'Tests/Unit/Swift/**/*.swift',
                                     base_dir + 'Tests/Unit/Swift/**/*.h'
     swift_unit_tests.pod_target_xcconfig = {
