@@ -28,9 +28,9 @@ Pod::Spec.new do |s|
   base_dir = "FirebaseAppAttestation/Source/"
   # s.framework = 'Security'
 
-  # s.dependency 'FirebaseAppAttestationInterop', '~> 0.1.0'
-  # s.dependency 'FirebaseCore', '~> 6.6'
-  # s.dependency 'PromisesObjC', '~> 1.2'
+  s.dependency 'FirebaseAppAttestationInterop', '~> 0.1.0'
+  s.dependency 'FirebaseCore', '~> 6.6'
+  s.dependency 'PromisesObjC', '~> 1.2'
 
   preprocessor_definitions = 'FIRAppAttestation_LIB_VERSION=' + String(s.version)
   s.pod_target_xcconfig = {
@@ -44,33 +44,29 @@ Pod::Spec.new do |s|
     cs.public_header_files = subspec_dir + 'Public/*.h'
 
     cs.framework = 'Security'
-
-    cs.dependency 'FirebaseAppAttestationInterop', '~> 0.1.0'
-    cs.dependency 'FirebaseCore', '~> 6.6'
-    cs.dependency 'PromisesObjC', '~> 1.2'
-
-    cs.test_spec 'unit' do |unit_tests|
-      unit_tests.platforms = {:ios => '11.0', :osx => '10.11', :tvos => '11.0'}
-      unit_tests.source_files = base_dir + 'Tests/Unit/**/*.[mh]',
-                                base_dir + 'Tests/Utils/**/*.[mh]'
-      # unit_tests.resources = base_dir + 'Tests/Fixture/**/*'
-      unit_tests.requires_app_host = true
-      # unit_tests.dependency 'OCMock'
-    end
-
-    cs.test_spec 'swift-unit' do |swift_unit_tests|
-      swift_unit_tests.platforms = {:ios => '11.0', :osx => '10.11', :tvos => '11.0'}
-      swift_unit_tests.source_files = base_dir + 'Tests/Unit/Swift/**/*.swift',
-                                      base_dir + 'Tests/Unit/Swift/**/*.h'
-    end
   end
 
   s.subspec 'DeviceCheckAttestationProvider' do |ds|
-    subspec_dir = base_dir + 'Library/DeviceCheckAttestationProvider'
+    subspec_dir = base_dir + 'Library/DeviceCheckAttestationProvider/'
     ds.source_files = subspec_dir + '**/*.[mh]'
     ds.public_header_files = subspec_dir + 'Public/*.h'
 
-    ds.dependency = 'FirebaseAppAttestation/Core'
+    ds.dependency 'FirebaseAppAttestation/Core'
+  end
+
+  s.test_spec 'unit' do |unit_tests|
+    unit_tests.platforms = {:ios => '11.0', :osx => '10.11', :tvos => '11.0'}
+    unit_tests.source_files = base_dir + 'Tests/Unit/**/*.[mh]',
+                              base_dir + 'Tests/Utils/**/*.[mh]'
+    # unit_tests.resources = base_dir + 'Tests/Fixture/**/*'
+    unit_tests.requires_app_host = true
+    # unit_tests.dependency 'OCMock'
+  end
+
+  s.test_spec 'swift-unit' do |swift_unit_tests|
+    swift_unit_tests.platforms = {:ios => '11.0', :osx => '10.11', :tvos => '11.0'}
+    swift_unit_tests.source_files = base_dir + 'Tests/Unit/Swift/**/*.swift',
+                                    base_dir + 'Tests/Unit/Swift/**/*.h'
   end
 
 end
