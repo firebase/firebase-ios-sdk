@@ -43,19 +43,26 @@
     struct fat_header fheader;
     NSData* data = [_file readDataOfLength:sizeof(fheader)];
     [data getBytes:&fheader length:sizeof(fheader)];
-   
-    magicValue = CFSwapInt32HostToBig(fheader.magic);
-    
+
+    magicValue = CFSwapInt32HostToBig(fheader.magic
+
     if (magicValue == FAT_MAGIC || magicValue == FAT_CIGAM) {
         uint32_t archCount = CFSwapInt32HostToBig(fheader.nfat_arch);
+        NSUInteger archOffsets[archCount];
         
+        // Gather the offsets
         for (uint32_t i = 0; i < archCount; i++) {
             struct fat_arch arch;
             
             data = [_file readDataOfLength:sizeof(arch)];
             [data getBytes:&arch length:sizeof(arch)];
 
-            FIRAppDistributionMachOSlice* slice = [self extractSliceAtOffset:arch.offset];
+            archOffsets[i] = CFSwapInt32HostToBig(arch.offset);
+        }
+
+        // Iterate the slices
+        for (uint32_t i = 0; i < archCount; i++) {
+            FIRAppDistributionMachOSlice* slice = [self extractSliceAtOffset:archOffsets[i]];
             [_slices addObject:slice];
         }
     } else {
@@ -72,7 +79,7 @@
     NSData *data = [_file readDataOfLength:sizeof(header)];
     [data getBytes:&header length:sizeof(header)];
     uint32_t magicValue = CFSwapInt32HostToBig(header.magic);
-    
+
     // TODO: Verify Mach-O
 
     // If binary is 64-bit, read reserved bit and discard it
