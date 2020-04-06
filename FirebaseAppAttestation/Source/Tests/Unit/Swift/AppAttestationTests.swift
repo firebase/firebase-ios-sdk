@@ -19,7 +19,6 @@ import FirebaseCore
 import FirebaseAppAttestation
 
 class AppAttestationTests: XCTestCase {
-
   // TODO: Remove usage example once API review approval obtained.
   func usageExample() {
     AppAttestation.setAttestationProviderFactory(self)
