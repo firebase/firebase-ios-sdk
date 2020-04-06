@@ -18,6 +18,7 @@
 
 #import <FirebaseFirestore/FIRFirestoreErrors.h>
 
+#include <algorithm>
 #include <map>
 #include <memory>
 #include <string>
