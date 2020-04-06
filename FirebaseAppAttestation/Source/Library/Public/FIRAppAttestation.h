@@ -16,9 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-#import <FirebaseAppAttestation/FIRAppAttestationTokenHandler.h>
-
-@class FIRApp;
 @protocol FIRAppAttestationProviderFactory;
 
 NS_ASSUME_NONNULL_BEGIN
