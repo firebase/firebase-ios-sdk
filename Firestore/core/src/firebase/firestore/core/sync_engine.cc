@@ -82,11 +82,13 @@ bool ErrorIsInteresting(const Status& error) {
 
 SyncEngine::SyncEngine(LocalStore* local_store,
                        remote::RemoteStore* remote_store,
-                       const auth::User& initial_user)
+                       const auth::User& initial_user,
+                       int max_concurrent_limbo_resolutions)
     : local_store_(local_store),
       remote_store_(remote_store),
       current_user_(initial_user),
-      target_id_generator_(TargetIdGenerator::SyncEngineTargetIdGenerator()) {
+      target_id_generator_(TargetIdGenerator::SyncEngineTargetIdGenerator()),
+      max_concurrent_limbo_resolutions_(max_concurrent_limbo_resolutions) {
 }
 
 void SyncEngine::AssertCallbackExists(absl::string_view source) {

@@ -100,6 +100,8 @@ using util::StatusOrCallback;
 using util::ThrowIllegalState;
 using util::TimerId;
 
+static const int kMaxConcurrentLimboResolutions = 100;
+
 std::shared_ptr<FirestoreClient> FirestoreClient::Create(
     const DatabaseInfo& database_info,
     const api::Settings& settings,
@@ -202,8 +204,9 @@ void FirestoreClient::Initialize(const User& user, const Settings& settings) {
         weak_this.lock()->sync_engine_->HandleOnlineStateChange(online_state);
       });
 
-  sync_engine_ = absl::make_unique<SyncEngine>(local_store_.get(),
-                                               remote_store_.get(), user);
+  sync_engine_ =
+      absl::make_unique<SyncEngine>(local_store_.get(), remote_store_.get(),
+                                    user, kMaxConcurrentLimboResolutions);
 
   event_manager_ = absl::make_unique<EventManager>(sync_engine_.get());
 

@@ -117,19 +117,13 @@ typedef std::unordered_map<auth::User, NSMutableArray<FSTOutstandingWrite *> *, 
 
 /**
  * Initializes the underlying FSTSyncEngine with the given local persistence implementation and
- * garbage collection policy.
- */
-- (instancetype)initWithPersistence:(std::unique_ptr<local::Persistence>)persistence;
-
-/**
- * Initializes the underlying FSTSyncEngine with the given local persistence implementation and
  * a set of existing outstandingWrites (useful when your Persistence object has persisted
  * mutation queues).
  */
 - (instancetype)initWithPersistence:(std::unique_ptr<local::Persistence>)persistence
                         initialUser:(const auth::User &)initialUser
                   outstandingWrites:(const FSTOutstandingWriteQueues &)outstandingWrites
-    NS_DESIGNATED_INITIALIZER;
+      maxConcurrentLimboResolutions:(int)maxConcurrentLimboResolutions NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)init NS_UNAVAILABLE;
 

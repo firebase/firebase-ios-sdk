@@ -90,7 +90,8 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
  public:
   SyncEngine(local::LocalStore* local_store,
              remote::RemoteStore* remote_store,
-             const auth::User& initial_user);
+             const auth::User& initial_user,
+             int maxConcurrentLimboResolutions);
 
   // Implements `QueryEventSource`.
   void SetCallback(SyncEngineCallback* callback) override {
@@ -272,6 +273,8 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
 
   /** Queries mapped to Targets, indexed by target ID. */
   std::unordered_map<model::TargetId, std::vector<Query>> queries_by_target_;
+
+  const int max_concurrent_limbo_resolutions_;
 
   /**
    * When a document is in limbo, we create a special listen to resolve it. This

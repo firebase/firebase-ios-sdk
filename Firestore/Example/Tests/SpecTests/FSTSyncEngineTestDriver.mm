@@ -154,6 +154,8 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @implementation FSTSyncEngineTestDriver {
+  int _maxConcurrentLimboResolutions;
+
   std::unique_ptr<Persistence> _persistence;
 
   std::unique_ptr<LocalStore> _localStore;
@@ -188,16 +190,13 @@ NS_ASSUME_NONNULL_BEGIN
   int _snapshotsInSyncEvents;
 }
 
-- (instancetype)initWithPersistence:(std::unique_ptr<Persistence>)persistence {
-  return [self initWithPersistence:std::move(persistence)
-                       initialUser:User::Unauthenticated()
-                 outstandingWrites:{}];
-}
-
 - (instancetype)initWithPersistence:(std::unique_ptr<Persistence>)persistence
                         initialUser:(const User &)initialUser
-                  outstandingWrites:(const FSTOutstandingWriteQueues &)outstandingWrites {
+                  outstandingWrites:(const FSTOutstandingWriteQueues &)outstandingWrites
+      maxConcurrentLimboResolutions:(int)maxConcurrentLimboResolutions {
   if (self = [super init]) {
+    _maxConcurrentLimboResolutions = maxConcurrentLimboResolutions;
+
     // Do a deep copy.
     for (const auto &pair : outstandingWrites) {
       _outstandingWrites[pair.first] = [pair.second mutableCopy];
@@ -219,7 +218,8 @@ NS_ASSUME_NONNULL_BEGIN
         [self](OnlineState onlineState) { _syncEngine->HandleOnlineStateChange(onlineState); });
     ;
 
-    _syncEngine = absl::make_unique<SyncEngine>(_localStore.get(), _remoteStore.get(), initialUser);
+    _syncEngine = absl::make_unique<SyncEngine>(_localStore.get(), _remoteStore.get(), initialUser,
+                                                _maxConcurrentLimboResolutions);
     _remoteStore->set_sync_engine(_syncEngine.get());
     _eventManager.Init(_syncEngine.get());
 
