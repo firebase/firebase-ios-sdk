@@ -1,4 +1,4 @@
-// Copyright 2020 Google
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,51 +15,30 @@
 #import <AppAuth/AppAuth.h>
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#import "FIRAppDistributionRelease.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * The release information returned by the update check when a new version is available.
- */
-NS_SWIFT_NAME(AppDistributionRelease)
-@interface FIRAppDistributionRelease : NSObject
-
-// The short bundle version of this build (example 1.0.0)
-@property(nonatomic, copy) NSString *displayVersion;
-
-// The build number of this build (example: 123)
-@property(nonatomic, copy) NSString *buildVersion;
-
-// The release notes for this build
-@property(nonatomic, copy) NSString *releaseNotes;
-// The URL for the build
-@property(nonatomic, strong) NSURL *downloadURL;
-
-/** :nodoc: */
-//- (instancetype)init NS_UNAVAILABLE;
-
-@end
-
-/**
- *  @related FIRAppDistribution
+ *  @related AppDistributionError
  *
  *  The completion handler invoked when the new build request returns.
  *  If the call fails we return the appropriate `error code`, described by
- *  `FIRAppDistributionError`.
+ *  `AppDistributionError`.
  *
  *  @param release  The new release that is available to be installed.
  *  @param error     The error describing why the new build request failed.
  */
 typedef void (^FIRAppDistributionUpdateCheckCompletion)(
     FIRAppDistributionRelease *_Nullable release, NSError *_Nullable error)
-    NS_SWIFT_NAME(AppDistributionUpdateCheckCheckCompletion);
+    NS_SWIFT_NAME(AppDistributionUpdateCheckCompletion);
 
 /**
- *  @related FIRAppDistribution
+ *  @related AppDistributionError
  *
  *  The completion handler invoked  when App Distribution sign in is complete
  *  If the call fails we return the appropriate `error code`, described by
- *  `FIRAppDistributionError`.
+ *  `AppDistributionError`.
  *
  *  @param error     The error describing why sign in failed
  */
@@ -70,7 +49,7 @@ typedef void (^FIRAppDistributionSignInTesterCompletion)(NSError *_Nullable erro
  * The Firebase App Distribution API provides methods to check for update to
  * the app and returns information that enables updating the app.
  *
- * By default, Firebase App Distribution is initialized with `[FIRApp configure]`.
+ * By default, Firebase App Distribution is initialized with `FirebaseApp.configure()`.
  *
  * Note: The App Distribution class cannot be subclassed. If this makes testing difficult,
  * we suggest using a wrapper class or a protocol extension.
@@ -110,7 +89,7 @@ NS_SWIFT_NAME(AppDistribution)
 @end
 
 /**
- *  @enum FIRAppDistributionError
+ *  @enum AppDistributionError
  */
 typedef NS_ENUM(NSUInteger, FIRAppDistributionError) {
   /// Unknown error.

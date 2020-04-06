@@ -1,4 +1,4 @@
-// Copyright 2019 Google
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -45,23 +45,19 @@
   @property (nonatomic, strong) id<FIRAppDistributionAuthProtocol> appDistributionAuth;
 @end
 
-@implementation FIRAppDistributionRelease
-- (instancetype)init {
-  self = [super init];
-
-  return self;
-}
-@end
-
 @implementation FIRAppDistribution
 
 // The OAuth scope needed to authorize the App Distribution Tester API
-NSString *const OIDScopeTesterAPI = @"https://www.googleapis.com/auth/cloud-platform";
+NSString *const kOIDScopeTesterAPI = @"https://www.googleapis.com/auth/cloud-platform";
 
 // The App Distribution Tester API endpoint used to retrieve releases
-NSString *const ReleasesEndpointURL =
+NSString *const kReleasesEndpointURL =
     @"https://firebaseapptesters.googleapis.com/v1alpha/devices/-/testerApps/%@/releases";
+NSString *const kTesterAPIClientID =
+    @"319754533822-osu3v3hcci24umq6diathdm0dipds1fb.apps.googleusercontent.com";
+NSString *const kIssuerURL = @"https://accounts.google.com";
 
+// explicit @synthesize is needed since the property is readonly
 @synthesize isTesterSignedIn = _isTesterSignedIn;
 
 #pragma mark - Singleton Support
@@ -77,7 +73,7 @@ NSString *const ReleasesEndpointURL =
     _appDistributionAuth = auth;
     _safariHostingViewController = [[UIViewController alloc] init];
 
-    // Save any properties here
+    // TODO: Save any properties here
     NSLog(@"APP DISTRIBUTION STARTED UP!");
 
     [GULAppDelegateSwizzler proxyOriginalDelegate];
@@ -137,68 +133,14 @@ NSString *const ReleasesEndpointURL =
 }
 
 - (void)signInTesterWithCompletion:(FIRAppDistributionSignInTesterCompletion)completion {
-  NSURL *issuer = [NSURL URLWithString:@"https://accounts.google.com"];
+  NSURL *issuer = [NSURL URLWithString:kIssuerURL];
 
   [self.appDistributionAuth discoverService:issuer
                                  completion:^(OIDServiceConfiguration *_Nullable configuration,
                                               NSError *_Nullable error) {
-                                   if (!configuration) {
-                                     NSLog(@"Error retrieving discovery document: %@",
-                                           [error localizedDescription]);
-                                     completion(error);
-                                     return;
-                                   }
-
-                                   NSString *redirectUrl = [@"dev.firebase.appdistribution."
-                                       stringByAppendingString:
-                                           [[[NSBundle mainBundle] bundleIdentifier]
-                                               stringByAppendingString:@":/launch"]];
-
-                                   // builds authentication request
-                                   OIDAuthorizationRequest *request =
-                                       [[OIDAuthorizationRequest alloc]
-                                           initWithConfiguration:configuration
-                                                        clientId:@"319754533822-"
-                                                                 @"osu3v3hcci24umq6diathdm0dipds1fb"
-                                                                 @".apps.googleusercontent.com"
-                                                          scopes:@[
-                                                            OIDScopeOpenID, OIDScopeProfile,
-                                                            OIDScopeTesterAPI
-                                                          ]
-                                                     redirectURL:[NSURL URLWithString:redirectUrl]
-                                                    responseType:OIDResponseTypeCode
-                                            additionalParameters:nil];
-
-                                   // Create an empty window + viewController to host the Safari UI.
-                                   UIWindow *window = [[UIWindow alloc]
-                                       initWithFrame:[UIScreen mainScreen].bounds];
-                                   window.rootViewController = self.safariHostingViewController;
-
-                                   // Place it at the highest level within the stack.
-                                   window.windowLevel = +CGFLOAT_MAX;
-
-                                   // Run it.
-                                   [window makeKeyAndVisible];
-
-                                   // performs authentication request
-                                   [FIRAppDistributionAppDelegatorInterceptor sharedInstance]
-                                       .currentAuthorizationFlow = [OIDAuthState
-                                       authStateByPresentingAuthorizationRequest:request
-                                                        presentingViewController:
-                                                            self.safariHostingViewController
-                                                                        callback:^(
-                                                                            OIDAuthState
-                                                                                *_Nullable authState,
-                                                                            NSError
-                                                                                *_Nullable error) {
-                                                                          self.authState =
-                                                                              authState;
-                                                                          self->_isTesterSignedIn =
-                                                                              self.authState ? YES
-                                                                                             : NO;
-
-                                                                          completion(error);
-                                                                        }];
+                                   [self handleOauthDiscoveryCompletion:configuration
+                                                                  error:error
+                                        appDistributionSignInCompletion:completion];
                                  }];
 }
 
@@ -211,9 +153,9 @@ NSString *const ReleasesEndpointURL =
   NSLog(@"Token: %@", self.authState.lastTokenResponse.accessToken);
   NSURLSession *URLSession = [NSURLSession sharedSession];
   NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
-  NSString *urlString =
-      [NSString stringWithFormat:ReleasesEndpointURL, [[FIRApp defaultApp] options].googleAppID];
-  [request setURL:[NSURL URLWithString:urlString]];
+  NSString *URLString =
+      [NSString stringWithFormat:kReleasesEndpointURL, [[FIRApp defaultApp] options].googleAppID];
+  [request setURL:[NSURL URLWithString:URLString]];
   [request setHTTPMethod:@"GET"];
   [request setValue:[NSString
                         stringWithFormat:@"Bearer %@", self.authState.lastTokenResponse.accessToken]
@@ -228,12 +170,13 @@ NSString *const ReleasesEndpointURL =
                         return;
                       }
 
-                      NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+                      NSHTTPURLResponse *HTTPResponse = (NSHTTPURLResponse *)response;
 
-                      if (httpResponse.statusCode == 200) {
+                      if (HTTPResponse.statusCode == 200) {
+                        NSLog(@"Response Code: %ld", (long)HTTPResponse.statusCode);
                         [self handleReleasesAPIResponseWithData:data completion:completion];
                       } else {
-                        NSLog(@"Error Response Code: %ld", httpResponse.statusCode);
+                        NSLog(@"Error Response Code: %ld", (long)HTTPResponse.statusCode);
 
                         // TODO: Handle non-200 http response
                         dispatch_async(dispatch_get_main_queue(), ^{
@@ -243,6 +186,56 @@ NSString *const ReleasesEndpointURL =
                     }];
 
   [listReleasesDataTask resume];
+}
+
+// OIDServiceConfiguration *_Nullable configuration,
+// NSError *_Nullable error
+- (void)handleOauthDiscoveryCompletion:(OIDServiceConfiguration *_Nullable)configuration
+                                 error:(NSError *_Nullable)error
+       appDistributionSignInCompletion:(FIRAppDistributionSignInTesterCompletion)completion {
+  if (!configuration) {
+    NSLog(@"Error retrieving discovery document: %@", [error localizedDescription]);
+    return;
+  }
+
+  NSString *redirectUrl = [@"dev.firebase.appdistribution."
+      stringByAppendingString:[[[NSBundle mainBundle] bundleIdentifier]
+                                  stringByAppendingPathComponent:@":xlaunch"]];
+
+  OIDAuthorizationRequest *request = [[OIDAuthorizationRequest alloc]
+      initWithConfiguration:configuration
+                   clientId:kTesterAPIClientID
+                     scopes:@[ OIDScopeOpenID, OIDScopeProfile, kOIDScopeTesterAPI ]
+                redirectURL:[NSURL URLWithString:redirectUrl]
+               responseType:OIDResponseTypeCode
+       additionalParameters:nil];
+
+  [self createUIWindowForLogin];
+  // performs authentication request
+  [FIRAppDistributionAppDelegatorInterceptor sharedInstance].currentAuthorizationFlow =
+      [OIDAuthState authStateByPresentingAuthorizationRequest:request
+                                     presentingViewController:self.safariHostingViewController
+                                                     callback:^(OIDAuthState *_Nullable authState,
+                                                                NSError *_Nullable error) {
+                                                       self.authState = authState;
+                                                       self->_isTesterSignedIn =
+                                                           self.authState ? YES : NO;
+                                                       completion(error);
+                                                     }];
+}
+
+- (UIWindow *)createUIWindowForLogin {
+  // Create an empty window + viewController to host the Safari UI.
+  UIWindow *window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+  window.rootViewController = self.safariHostingViewController;
+
+  // Place it at the highest level within the stack.
+  window.windowLevel = +CGFLOAT_MAX;
+
+  // Run it.
+  [window makeKeyAndVisible];
+
+  return window;
 }
 
 - (void)handleReleasesAPIResponseWithData:data
@@ -295,14 +288,7 @@ NSString *const ReleasesEndpointURL =
     [alert addAction:yesButton];
 
     // Create an empty window + viewController to host the Safari UI.
-    self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-    self.window.rootViewController = [[UIViewController alloc] init];
-
-    // Place it at the highest level within the stack.
-    self.window.windowLevel = +CGFLOAT_MAX;
-
-    // Run it.
-    [self.window makeKeyAndVisible];
+    self.window = [self createUIWindowForLogin];
     [self.window.rootViewController presentViewController:alert animated:YES completion:nil];
   }
 }
