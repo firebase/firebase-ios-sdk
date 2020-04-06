@@ -619,7 +619,7 @@ static void (^reportSentCallback)(void);
 }
 
 // This is the side-effect of calling deleteUnsentReports, or collect_reports setting
-// being galse
+// being false
 - (void)deleteUnsentReportsWithPreexisting:(NSArray *)preexistingReportPaths {
   [self removeExistingReportPaths:preexistingReportPaths];
 
