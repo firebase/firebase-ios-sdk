@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,7 +52,8 @@
 
 @implementation FIRAppAttestationTests
 
-- (void)testExample {
+// TODO: Remove usage example once API review approval obtained.
+- (void)usageExample {
   // Set a custom attestation provider factory for the default FIRApp.
   [FIRAppAttestation setAttestationProviderFactory:[[AttestationProviderFactory alloc] init]];
   [FIRApp configure];
