@@ -20,8 +20,7 @@ static NSString *const kStartMFASignInEndPoint = @"accounts/mfaSignIn:start";
 
 @implementation FIRStartMFASignInRequest
 
-- (nullable instancetype)initWithMFAProvider:(NSString *)MFAProvider
-                        MFAPendingCredential:(NSString *)MFAPendingCredential
+- (nullable instancetype)initWithMFAPendingCredential:(NSString *)MFAPendingCredential
                              MFAEnrollmentID:(NSString *)MFAEnrollmentID
                                   signInInfo:(FIRAuthProtoStartMFAPhoneRequestInfo *)signInInfo
                         requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
@@ -30,7 +29,6 @@ static NSString *const kStartMFASignInEndPoint = @"accounts/mfaSignIn:start";
              useIdentityPlatform:YES
                       useStaging:NO];
   if (self) {
-    _MFAProvider = MFAProvider;
     _MFAPendingCredential = MFAPendingCredential;
     _MFAEnrollmentID = MFAEnrollmentID;
     _signInInfo = signInInfo;
@@ -40,9 +38,6 @@ static NSString *const kStartMFASignInEndPoint = @"accounts/mfaSignIn:start";
 
 - (nullable id)unencodedHTTPRequestBodyWithError:(NSError *__autoreleasing _Nullable *)error {
   NSMutableDictionary *postBody = [NSMutableDictionary dictionary];
-  if (_MFAProvider) {
-    postBody[@"mfaProvider"] = _MFAProvider;
-  }
   if (_MFAPendingCredential) {
     postBody[@"mfaPendingCredential"] = _MFAPendingCredential;
   }
