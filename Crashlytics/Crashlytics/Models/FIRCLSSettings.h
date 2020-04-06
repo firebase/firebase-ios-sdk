@@ -89,7 +89,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * When this is false, Crashlytics will not start up
  */
-@property(nonatomic, readonly) BOOL crashReportingEnabled;
+@property(nonatomic, readonly) BOOL collectReportsEnabled;
 
 /**
  * When this is false, Crashlytics will not collect non-fatal errors and errors

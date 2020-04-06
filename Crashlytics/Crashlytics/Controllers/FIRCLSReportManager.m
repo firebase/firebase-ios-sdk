@@ -326,12 +326,6 @@ static void (^reportSentCallback)(void);
     return [FBLPromise resolvedWith:@NO];
   }
 
-  if (![self.settings crashReportingEnabled]) {
-    FIRCLSInfoLog(@"Reporting is disabled");
-    [_fileManager removeContentsOfAllPaths];
-    return [FBLPromise resolvedWith:@NO];
-  }
-
   if (![_fileManager createReportDirectories]) {
     return [FBLPromise resolvedWith:@NO];
   }
@@ -364,11 +358,13 @@ static void (^reportSentCallback)(void);
     FIRCLSDebugLog(@"Automatic data collection is enabled.");
     FIRCLSDebugLog(@"Unsent reports will be uploaded at startup");
     FIRCLSDataCollectionToken *dataCollectionToken = [FIRCLSDataCollectionToken validToken];
-    [self startNetworkRequestsWithToken:dataCollectionToken
-                 preexistingReportPaths:preexistingReportPaths
-                 waitForSettingsRequest:NO
-                           blockingSend:launchFailure
-                                 report:report];
+
+    [self beginSettingsAndOnboardingWithToken:dataCollectionToken waitForSettingsRequest:NO];
+
+    [self beginReportUploadsWithToken:dataCollectionToken
+               preexistingReportPaths:preexistingReportPaths
+                         blockingSend:launchFailure
+                               report:report];
 
     // If data collection is enabled, the SDK will not notify the user
     // when unsent reports are available, or respect Send / DeleteUnsentReports
@@ -401,16 +397,17 @@ static void (^reportSentCallback)(void);
                  BOOL waitForSetting =
                      !self.settings.shouldUseNewReportEndpoint && !self.settings.orgID;
 
-                 [self startNetworkRequestsWithToken:dataCollectionToken
-                              preexistingReportPaths:preexistingReportPaths
-                              waitForSettingsRequest:waitForSetting
-                                        blockingSend:NO
-                                              report:report];
+                 [self beginSettingsAndOnboardingWithToken:dataCollectionToken
+                                    waitForSettingsRequest:waitForSetting];
+
+                 [self beginReportUploadsWithToken:dataCollectionToken
+                            preexistingReportPaths:preexistingReportPaths
+                                      blockingSend:NO
+                                            report:report];
 
                } else if (action == FIRCLSReportActionDelete) {
                  FIRCLSDebugLog(@"Deleting unsent reports.");
-                 [self removeExistingReportPaths:preexistingReportPaths];
-                 [self removeContentsInOtherReportingDirectories];
+                 [self deleteUnsentReportsWithPreexisting:preexistingReportPaths];
                } else {
                  FIRCLSErrorLog(@"Unknown report action: %d", action);
                }
@@ -456,11 +453,8 @@ static void (^reportSentCallback)(void);
   }];
 }
 
-- (void)startNetworkRequestsWithToken:(FIRCLSDataCollectionToken *)token
-               preexistingReportPaths:(NSArray *)preexistingReportPaths
-               waitForSettingsRequest:(BOOL)waitForSettings
-                         blockingSend:(BOOL)blockingSend
-                               report:(FIRCLSInternalReport *)report {
+- (void)beginSettingsAndOnboardingWithToken:(FIRCLSDataCollectionToken *)token
+                     waitForSettingsRequest:(BOOL)waitForSettings {
   if (self.settings.isCacheExpired) {
     // This method can be called more than once if the user calls
     // SendUnsentReports again, so don't repeat the settings fetch
@@ -471,11 +465,22 @@ static void (^reportSentCallback)(void);
                                                                  waitForCompletion:waitForSettings];
     });
   }
+}
 
-  [self processExistingReportPaths:preexistingReportPaths
-               dataCollectionToken:token
-                          asUrgent:blockingSend];
-  [self handleContentsInOtherReportingDirectoriesWithToken:token];
+- (void)beginReportUploadsWithToken:(FIRCLSDataCollectionToken *)token
+             preexistingReportPaths:(NSArray *)preexistingReportPaths
+                       blockingSend:(BOOL)blockingSend
+                             report:(FIRCLSInternalReport *)report {
+  if (self.settings.collectReportsEnabled) {
+    [self processExistingReportPaths:preexistingReportPaths
+                 dataCollectionToken:token
+                            asUrgent:blockingSend];
+    [self handleContentsInOtherReportingDirectoriesWithToken:token];
+
+  } else {
+    FIRCLSInfoLog(@"Collect crash reports is disabled");
+    [self deleteUnsentReportsWithPreexisting:preexistingReportPaths];
+  }
 }
 
 - (BOOL)startCrashReporterWithProfilingMark:(FIRCLSProfileMark)mark
@@ -550,14 +555,6 @@ static void (^reportSentCallback)(void);
                                 executionIdentifier:executionIdentifier];
 }
 
-- (void)removeExistingReportPaths:(NSArray *)reportPaths {
-  [self.operationQueue addOperationWithBlock:^{
-    for (NSString *path in reportPaths) {
-      [self.fileManager removeItemAtPath:path];
-    }
-  }];
-}
-
 - (int)countSubmittableAndDeleteUnsubmittableReportPaths:(NSArray *)reportPaths {
   int count = 0;
   for (NSString *path in reportPaths) {
@@ -621,17 +618,25 @@ static void (^reportSentCallback)(void);
   [self didSubmitReport];
 }
 
-- (void)removeReport:(FIRCLSInternalReport *)report {
-  [_fileManager removeItemAtPath:report.path];
-}
+// This is the side-effect of calling deleteUnsentReports, or collect_reports setting
+// being false
+- (void)deleteUnsentReportsWithPreexisting:(NSArray *)preexistingReportPaths {
+  [self removeExistingReportPaths:preexistingReportPaths];
 
-- (void)removeContentsInOtherReportingDirectories {
   [self removeExistingReportPaths:self.fileManager.processingPathContents];
   if (self.settings.shouldUseNewReportEndpoint) {
     [self removeExistingReportPaths:self.fileManager.preparedPathContents];
   } else {
     [self removeExistingReportPaths:self.fileManager.legacyPreparedPathContents];
   }
+}
+
+- (void)removeExistingReportPaths:(NSArray *)reportPaths {
+  [self.operationQueue addOperationWithBlock:^{
+    for (NSString *path in reportPaths) {
+      [self.fileManager removeItemAtPath:path];
+    }
+  }];
 }
 
 - (void)handleContentsInOtherReportingDirectoriesWithToken:(FIRCLSDataCollectionToken *)token {
