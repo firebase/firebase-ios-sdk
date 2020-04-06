@@ -22,16 +22,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRStartMFASignInRequest : FIRIdentityToolkitRequest <FIRAuthRPCRequest>
 
-@property(nonatomic, copy, readonly, nullable) NSString *MFAProvider;
-
 @property(nonatomic, copy, readonly, nullable) NSString *MFAPendingCredential;
 
 @property(nonatomic, copy, readonly, nullable) NSString *MFAEnrollmentID;
 
 @property(nonatomic, copy, readonly, nullable) FIRAuthProtoStartMFAPhoneRequestInfo *signInInfo;
 
-- (nullable instancetype)initWithMFAProvider:(NSString *)MFAProvider
-                        MFAPendingCredential:(NSString *)MFAPendingCredential
+- (nullable instancetype)initWithMFAPendingCredential:(NSString *)MFAPendingCredential
                              MFAEnrollmentID:(NSString *)MFAEnrollmentID
                                   signInInfo:(FIRAuthProtoStartMFAPhoneRequestInfo *)signInInfo
                         requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration;
