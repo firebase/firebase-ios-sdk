@@ -91,7 +91,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'Firestore' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseFirestore', '~> 1.11.3'
+    ss.dependency 'FirebaseFirestore', '~> 1.12.0'
   end
 
   s.subspec 'Functions' do |ss|
