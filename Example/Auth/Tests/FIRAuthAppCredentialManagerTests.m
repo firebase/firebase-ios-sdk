@@ -16,13 +16,17 @@
 
 #import <XCTest/XCTest.h>
 
+#import <OCMock/OCMock.h>
 #import "FIRAuthAppCredential.h"
 #import "FIRAuthAppCredentialManager.h"
 #import "FIRAuthKeychainServices.h"
-#import <OCMock/OCMock.h>
 
-#define ANY_ERROR_POINTER ((NSError *__autoreleasing *_Nullable)[OCMArg anyPointer])
-#define SAVE_TO(var) [OCMArg checkWithBlock:^BOOL(id arg) { var = arg; return YES; }]
+#define ANY_ERROR_POINTER ((NSError * __autoreleasing * _Nullable)[OCMArg anyPointer])
+#define SAVE_TO(var)                     \
+  [OCMArg checkWithBlock:^BOOL(id arg) { \
+    var = arg;                           \
+    return YES;                          \
+  }]
 
 /** @var kReceipt
     @brief A fake receipt used for testing.
@@ -91,10 +95,10 @@ NS_ASSUME_NONNULL_BEGIN
   [manager didStartVerificationWithReceipt:kReceipt
                                    timeout:kVerificationTimeout
                                   callback:^(FIRAuthAppCredential *credential) {
-    XCTAssertEqualObjects(credential.receipt, kReceipt);
-    XCTAssertEqualObjects(credential.secret, kSecret);
-    [expectation fulfill];
-  }];
+                                    XCTAssertEqualObjects(credential.receipt, kReceipt);
+                                    XCTAssertEqualObjects(credential.secret, kSecret);
+                                    [expectation fulfill];
+                                  }];
   XCTAssertNil(manager.credential);
   OCMVerifyAll(_mockKeychain);
 
@@ -135,10 +139,10 @@ NS_ASSUME_NONNULL_BEGIN
   [manager didStartVerificationWithReceipt:kReceipt
                                    timeout:kVerificationTimeout
                                   callback:^(FIRAuthAppCredential *credential) {
-    XCTAssertEqualObjects(credential.receipt, kReceipt);
-    XCTAssertNil(credential.secret);
-    [expectation fulfill];
-  }];
+                                    XCTAssertEqualObjects(credential.receipt, kReceipt);
+                                    XCTAssertNil(credential.secret);
+                                    [expectation fulfill];
+                                  }];
   XCTAssertNil(manager.credential);
   OCMVerifyAll(_mockKeychain);
 
@@ -174,10 +178,10 @@ NS_ASSUME_NONNULL_BEGIN
   [manager didStartVerificationWithReceipt:kReceipt
                                    timeout:kVerificationTimeout
                                   callback:^(FIRAuthAppCredential *credential) {
-    XCTAssertEqualObjects(credential.receipt, kReceipt);
-    XCTAssertEqualObjects(credential.secret, kSecret);
-    [expectation fulfill];
-  }];
+                                    XCTAssertEqualObjects(credential.receipt, kReceipt);
+                                    XCTAssertEqualObjects(credential.secret, kSecret);
+                                    [expectation fulfill];
+                                  }];
   XCTAssertNil(manager.credential);
   OCMVerifyAll(_mockKeychain);
 
@@ -190,11 +194,12 @@ NS_ASSUME_NONNULL_BEGIN
     [manager didStartVerificationWithReceipt:randomReceipt
                                      timeout:kVerificationTimeout
                                     callback:^(FIRAuthAppCredential *credential) {
-      // They all should get full credential because one is available at this point.
-      XCTAssertEqualObjects(credential.receipt, kReceipt);
-      XCTAssertEqualObjects(credential.secret, kSecret);
-      [randomExpectation fulfill];
-    }];
+                                      // They all should get full credential because one is
+                                      // available at this point.
+                                      XCTAssertEqualObjects(credential.receipt, kReceipt);
+                                      XCTAssertEqualObjects(credential.secret, kSecret);
+                                      [randomExpectation fulfill];
+                                    }];
   }
 
   // Finish verification of target receipt.
@@ -218,10 +223,10 @@ NS_ASSUME_NONNULL_BEGIN
   [manager didStartVerificationWithReceipt:kAnotherReceipt
                                    timeout:kVerificationTimeout
                                   callback:^(FIRAuthAppCredential *credential) {
-    XCTAssertEqualObjects(credential.receipt, kAnotherReceipt);
-    XCTAssertNil(credential.secret);
-    [expectation fulfill];
-  }];
+                                    XCTAssertEqualObjects(credential.receipt, kAnotherReceipt);
+                                    XCTAssertNil(credential.secret);
+                                    [expectation fulfill];
+                                  }];
   XCTAssertNil(manager.credential);
   OCMVerifyAll(_mockKeychain);
 
@@ -234,11 +239,12 @@ NS_ASSUME_NONNULL_BEGIN
     [manager didStartVerificationWithReceipt:randomReceipt
                                      timeout:kVerificationTimeout
                                     callback:^(FIRAuthAppCredential *credential) {
-      // They all should get partial credential because verification has never completed.
-      XCTAssertEqualObjects(credential.receipt, randomReceipt);
-      XCTAssertNil(credential.secret);
-      [randomExpectation fulfill];
-    }];
+                                      // They all should get partial credential because verification
+                                      // has never completed.
+                                      XCTAssertEqualObjects(credential.receipt, randomReceipt);
+                                      XCTAssertNil(credential.secret);
+                                      [randomExpectation fulfill];
+                                    }];
   }
 
   // Finish verification of the other target receipt.
@@ -267,10 +273,10 @@ NS_ASSUME_NONNULL_BEGIN
   [manager didStartVerificationWithReceipt:kReceipt
                                    timeout:kVerificationTimeout
                                   callback:^(FIRAuthAppCredential *credential) {
-    XCTAssertEqualObjects(credential.receipt, kReceipt);
-    XCTAssertNil(credential.secret);
-    [expectation fulfill];
-  }];
+                                    XCTAssertEqualObjects(credential.receipt, kReceipt);
+                                    XCTAssertNil(credential.secret);
+                                    [expectation fulfill];
+                                  }];
   XCTAssertNil(manager.credential);
   OCMVerifyAll(_mockKeychain);
 

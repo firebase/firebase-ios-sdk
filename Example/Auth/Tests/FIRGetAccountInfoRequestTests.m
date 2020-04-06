@@ -17,10 +17,10 @@
 #import <XCTest/XCTest.h>
 
 #import "FIRAuthBackend.h"
-#import "FIRGetOOBConfirmationCodeResponse.h"
+#import "FIRFakeBackendRPCIssuer.h"
 #import "FIRGetAccountInfoRequest.h"
 #import "FIRGetAccountInfoResponse.h"
-#import "FIRFakeBackendRPCIssuer.h"
+#import "FIRGetOOBConfirmationCodeResponse.h"
 
 /** @var kTestAPIKey
     @brief Fake API key used for testing.
@@ -77,10 +77,11 @@ static NSString *const kExpectedAPIURL =
       [[FIRGetAccountInfoRequest alloc] initWithAccessToken:kTestAccessToken
                                        requestConfiguration:requestConfiguration];
 
-  [FIRAuthBackend getAccountInfo:request callback:^(FIRGetAccountInfoResponse *_Nullable response,
-                                                    NSError *_Nullable error) {
+  [FIRAuthBackend
+      getAccountInfo:request
+            callback:^(FIRGetAccountInfoResponse *_Nullable response, NSError *_Nullable error){
 
-  }];
+            }];
   XCTAssertNotNil(_RPCIssuer.decodedRequest);
   XCTAssert([_RPCIssuer.decodedRequest isKindOfClass:[NSDictionary class]]);
   XCTAssertNotNil(_RPCIssuer.decodedRequest[kIDTokenKey]);

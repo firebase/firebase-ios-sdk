@@ -67,10 +67,7 @@
     NSData *messageData = [NSData dataWithContentsOfURL:[testBundle URLForResource:dataFile
                                                                      withExtension:nil]];
     XCTAssertNotNil(messageData);
-    NSString *cachePath = NSTemporaryDirectory();
-    NSString *filePath = [cachePath
-        stringByAppendingPathComponent:[NSString stringWithFormat:@"test-%lf.txt",
-                                                                  CFAbsoluteTimeGetCurrent()]];
+    NSString *filePath = [NSString stringWithFormat:@"test-%lf.txt", CFAbsoluteTimeGetCurrent()];
     [messageData writeToFile:filePath atomically:YES];
     NSURL *fileURL = [NSURL fileURLWithPath:filePath];
     XCTAssertNotNil(fileURL);
@@ -94,10 +91,7 @@
     NSData *messageData = [NSData dataWithContentsOfURL:[testBundle URLForResource:dataFile
                                                                      withExtension:nil]];
     XCTAssertNotNil(messageData);
-    NSString *cachePath = NSTemporaryDirectory();
-    NSString *filePath = [cachePath
-        stringByAppendingPathComponent:[NSString stringWithFormat:@"test-%lf.txt",
-                                                                  CFAbsoluteTimeGetCurrent()]];
+    NSString *filePath = [NSString stringWithFormat:@"test-%lf.txt", CFAbsoluteTimeGetCurrent()];
     [messageData writeToFile:filePath atomically:YES];
     NSURL *fileURL = [NSURL fileURLWithPath:filePath];
     XCTAssertNotNil(fileURL);
@@ -144,10 +138,7 @@
     NSData *messageData = [NSData dataWithContentsOfURL:[testBundle URLForResource:dataFile
                                                                      withExtension:nil]];
     XCTAssertNotNil(messageData);
-    NSString *cachePath = NSTemporaryDirectory();
-    NSString *filePath = [cachePath
-        stringByAppendingPathComponent:[NSString stringWithFormat:@"test-%lf.txt",
-                                                                  CFAbsoluteTimeGetCurrent()]];
+    NSString *filePath = [NSString stringWithFormat:@"test-%lf.txt", CFAbsoluteTimeGetCurrent()];
     [messageData writeToFile:filePath atomically:YES];
     NSURL *fileURL = [NSURL fileURLWithPath:filePath];
     XCTAssertNotNil(fileURL);
@@ -168,6 +159,17 @@
   }
   XCTAssertFalse(allZeroes);
   pb_release(gdt_cct_BatchedLogRequest_fields, &batch);
+}
+
+- (void)testSimpleByteEncodingConsistency {
+  NSData *data = [@"Simple." dataUsingEncoding:NSUTF8StringEncoding];
+  pb_bytes_array_t *bytesArray = GDTCCTEncodeData(data);
+  XCTAssertEqual(bytesArray->size, data.length);
+  XCTAssertTrue(bytesArray->bytes);
+  XCTAssertEqualObjects([[NSString alloc] initWithBytes:bytesArray->bytes
+                                                 length:bytesArray->size
+                                               encoding:NSUTF8StringEncoding],
+                        @"Simple.");
 }
 
 @end

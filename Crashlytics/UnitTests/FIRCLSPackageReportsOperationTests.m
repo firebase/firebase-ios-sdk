@@ -17,10 +17,10 @@
 
 #import "FABMockApplicationIdentifierModel.h"
 #import "FIRCLSInternalReport.h"
-#import "FIRCLSMockFileManager.h"
 #import "FIRCLSMockSettings.h"
 #import "FIRCLSPackageReportOperation.h"
 #import "FIRCLSSettings.h"
+#import "FIRCLSTempMockFileManager.h"
 
 NSString *const TestOrgID = @"TestOrgID";
 
@@ -43,8 +43,7 @@ NSString *const TestOrgID = @"TestOrgID";
   self.settings = [[FIRCLSMockSettings alloc] initWithFileManager:self.fileManager
                                                        appIDModel:appIDModel];
 
-  FIRCLSMockFileManager *manager = [[FIRCLSMockFileManager alloc] init];
-  [manager setPathNamespace:@"com.crashlytics.unittests"];
+  FIRCLSTempMockFileManager *manager = [[FIRCLSTempMockFileManager alloc] init];
 
   self.fileManager = manager;
 

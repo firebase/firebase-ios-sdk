@@ -29,7 +29,7 @@ typedef NS_ENUM(NSInteger, FIRAuthOperationType) {
 
   /** Indicates that the operation type is sign in or sign up.
    */
-   FIRAuthOperationTypeSignUpOrSignIn = 1,
+  FIRAuthOperationTypeSignUpOrSignIn = 1,
 
   /** Indicates that the operation type is reauthentication.
    */

@@ -86,26 +86,25 @@ typedef void (^FIRAuthIdDoubleIdBlock)(id, double, id);
 // OCMStubRecorder.
 #define andCallIdDoubleIdBlock(block) _andCallIdDoubleIdBlock(block)
 
-
 /** @property _andCallBlock1
     @brief A block that calls @c andCallBlock1: method on self.
  */
-@property(nonatomic, readonly) OCMStubRecorder *(^ _andCallBlock1)(FIRAuthGeneralBlock1);
+@property(nonatomic, readonly) OCMStubRecorder * (^_andCallBlock1)(FIRAuthGeneralBlock1);
 
 /** @property _andCallBlock2
     @brief A block that calls @c andCallBlock2: method on self.
  */
-@property(nonatomic, readonly) OCMStubRecorder *(^ _andCallBlock2)(FIRAuthGeneralBlock2);
+@property(nonatomic, readonly) OCMStubRecorder * (^_andCallBlock2)(FIRAuthGeneralBlock2);
 
 /** @property _andDispatchError2
     @brief A block that calls @c andDispatchError2: method on self.
  */
-@property(nonatomic, readonly) OCMStubRecorder *(^ _andDispatchError2)(NSError *);
+@property(nonatomic, readonly) OCMStubRecorder * (^_andDispatchError2)(NSError *);
 
 /** @property _andCallIdDoubleIdBlock
     @brief A block that calls @c andCallBlock2: method on self.
  */
-@property(nonatomic, readonly) OCMStubRecorder *(^ _andCallIdDoubleIdBlock)(FIRAuthIdDoubleIdBlock);
+@property(nonatomic, readonly) OCMStubRecorder * (^_andCallIdDoubleIdBlock)(FIRAuthIdDoubleIdBlock);
 
 @end
 

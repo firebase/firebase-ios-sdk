@@ -24,7 +24,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** Manages the prioritization of events from GoogleDataTransport. */
-@interface GDTCCTPrioritizer : NSObject <GDTCORPrioritizer>
+@interface GDTCCTPrioritizer : NSObject <NSSecureCoding, GDTCORPrioritizer>
 
 /** The queue on which this prioritizer operates. */
 @property(nonatomic) dispatch_queue_t queue;

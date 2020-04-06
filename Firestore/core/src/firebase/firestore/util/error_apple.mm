@@ -31,10 +31,10 @@ namespace firestore {
 namespace util {
 
 // Translates a set of error_code and error_msg to an NSError.
-NSError* MakeNSError(int64_t error_code,
+NSError* MakeNSError(Error error_code,
                      absl::string_view error_msg,
                      NSError* cause) {
-  if (error_code == Error::Ok) {
+  if (error_code == Error::kOk) {
     return nil;
   }
 

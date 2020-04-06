@@ -19,9 +19,10 @@ import Foundation
 /// Different architectures to build frameworks for.
 enum Architecture: String, CaseIterable {
   /// The target platform that the framework is built for.
-  enum TargetPlatform: String {
+  enum TargetPlatform: String, CaseIterable {
     case device = "iphoneos"
     case simulator = "iphonesimulator"
+    case catalyst = "macosx"
 
     /// Extra C flags that should be included as part of the build process for each target platform.
     func otherCFlags() -> [String] {
@@ -29,24 +30,39 @@ enum Architecture: String, CaseIterable {
       case .device:
         // For device, we want to enable bitcode.
         return ["-fembed-bitcode"]
-      case .simulator:
+      default:
         // No extra arguments are required for simulator builds.
         return []
+      }
+    }
+
+    /// Arguments that should be included as part of the build process for each target platform.
+    func extraArguments() -> [String] {
+      let base = ["-sdk", rawValue]
+      switch self {
+      case .catalyst:
+        return ["SKIP_INSTALL=NO",
+                "BUILD_LIBRARIES_FOR_DISTRIBUTION=YES",
+                "SUPPORTS_UIKITFORMAC=YES"]
+      case .simulator, .device:
+        // No extra arguments are required for simulator or device builds.
+        return base
       }
     }
   }
 
   case arm64
-  case arm64e
   case armv7
   case i386
   case x86_64
+  case x86_64h // x86_64h, Haswell, used for Mac Catalyst
 
   /// The platform associated with the architecture.
   var platform: TargetPlatform {
     switch self {
-    case .arm64, .arm64e, .armv7: return .device
+    case .armv7, .arm64: return .device
     case .i386, .x86_64: return .simulator
+    case .x86_64h: return .catalyst
     }
   }
 }
@@ -56,18 +72,14 @@ struct FrameworkBuilder {
   /// The directory containing the Xcode project and Pods folder.
   private let projectDir: URL
 
-  /// A flag to indicate this build is for carthage. This is primarily used for CoreDiagnostics.
-  private let carthageBuild: Bool
-
   /// The Pods directory for building the framework.
   private var podsDir: URL {
     return projectDir.appendingPathComponent("Pods", isDirectory: true)
   }
 
   /// Default initializer.
-  init(projectDir: URL, carthageBuild: Bool = false) {
+  init(projectDir: URL) {
     self.projectDir = projectDir
-    self.carthageBuild = carthageBuild
   }
 
   // MARK: - Public Functions
@@ -78,41 +90,55 @@ struct FrameworkBuilder {
   ///   - framework: The name of the Framework being built.
   ///   - version: String representation of the version.
   /// - Parameter logsOutputDir: The path to the directory to place build logs.
-  /// - Returns: A URL to the framework that was built (or pulled from the cache).
+  /// - Parameter moduleMapContents: Module map contents for all frameworks in this pod.
+  /// - Returns: A URL to the framework that was built (or pulled from the cache) and the Carthage version.
   func buildFramework(withName podName: String,
-                      version: String,
-                      logsOutputDir: URL? = nil) -> URL {
+                      podInfo: CocoaPodUtils.PodInfo,
+                      logsOutputDir: URL? = nil) -> (URL, URL?) {
     print("Building \(podName)")
 
     // Get (or create) the cache directory for storing built frameworks.
     let fileManager = FileManager.default
     var cachedFrameworkRoot: URL
+    var cachedCarthageRoot: URL
     do {
-      let subDir = carthageBuild ? "carthage" : ""
-      let cacheDir = try fileManager.sourcePodCacheDirectory(withSubdir: subDir)
-      cachedFrameworkRoot = cacheDir.appendingPathComponents([podName, version])
+      let cacheDir = try fileManager.sourcePodCacheDirectory(withSubdir: "zip")
+      let carthageCacheDir = try fileManager.sourcePodCacheDirectory(withSubdir: "carthage")
+      cachedFrameworkRoot = cacheDir.appendingPathComponents([podName, podInfo.version])
+      cachedCarthageRoot = carthageCacheDir.appendingPathComponents([podName, podInfo.version])
     } catch {
       fatalError("Could not create caches directory for building frameworks: \(error)")
     }
 
     // Build the full cached framework path.
-    let cachedFrameworkDir = cachedFrameworkRoot.appendingPathComponent("\(podName).framework")
-    let frameworkDir = compileFrameworkAndResources(withName: podName)
+    let realFramework = frameworkBuildName(podName)
+    let cachedFrameworkDir = cachedFrameworkRoot.appendingPathComponent("\(realFramework).xcframework")
+    let cachedCarthageDir = cachedCarthageRoot.appendingPathComponent("\(realFramework).framework")
+    let (frameworkDir, carthageDir) = compileFrameworkAndResources(withName: podName, podInfo: podInfo)
     do {
       // Remove the previously cached framework if it exists, otherwise the `moveItem` call will
       // fail.
       fileManager.removeIfExists(at: cachedFrameworkDir)
+      fileManager.removeIfExists(at: cachedCarthageDir)
 
-      // Create the root cache directory if it doesn't exist.
+      // Create the root cache directories if they don't exist.
       if !fileManager.directoryExists(at: cachedFrameworkRoot) {
         // If the root directory doesn't exist, create it so the `moveItem` will succeed.
         try fileManager.createDirectory(at: cachedFrameworkRoot,
                                         withIntermediateDirectories: true)
       }
+      if !fileManager.directoryExists(at: cachedCarthageRoot) {
+        // If the root directory doesn't exist, create it so the `moveItem` will succeed.
+        try fileManager.createDirectory(at: cachedCarthageRoot,
+                                        withIntermediateDirectories: true)
+      }
 
       // Move the newly built framework to the cache directory.
       try fileManager.moveItem(at: frameworkDir, to: cachedFrameworkDir)
-      return cachedFrameworkDir
+      if let carthageDir = carthageDir {
+        try fileManager.moveItem(at: carthageDir, to: cachedCarthageDir)
+      }
+      return (cachedFrameworkDir, cachedCarthageDir)
     } catch {
       fatalError("Could not move built frameworks into the cached frameworks directory: \(error)")
     }
@@ -172,6 +198,27 @@ struct FrameworkBuilder {
     return .success(output: fullOutput)
   }
 
+  /// Build all thin slices for an open source pod.
+  /// - Parameter framework: The name of the framework to be built.
+  /// - Parameter logsDir: The path to the directory to place build logs.
+  /// - Returns: An dictionary of URLs to the built thin libraries keyed by architecture
+  private func buildAllThin(withName framework: String,
+                            logsDir: URL,
+                            carthageBuild: Bool = false) -> [Architecture: URL] {
+    // Build every architecture and save the locations in an array to be assembled.
+    var thinArchives = [Architecture: URL]()
+    for arch in LaunchArgs.shared.archs {
+      let buildDir = projectDir.appendingPathComponent(arch.rawValue)
+      let thinArchive = buildThin(framework: framework,
+                                  archs: [arch],
+                                  buildDir: buildDir,
+                                  logRoot: logsDir,
+                                  carthageBuild: carthageBuild)
+      thinArchives[arch] = thinArchive
+    }
+    return thinArchives
+  }
+
   /// Uses `xcodebuild` to build a framework for a specific architecture slice.
   ///
   /// - Parameters:
@@ -181,23 +228,45 @@ struct FrameworkBuilder {
   ///   - logRoot: Root directory where all logs should be written.
   /// - Returns: A URL to the thin library that was built.
   private func buildThin(framework: String,
-                         arch: Architecture,
+                         archs: [Architecture],
                          buildDir: URL,
-                         logRoot: URL) -> URL {
+                         logRoot: URL,
+                         carthageBuild: Bool = false) -> URL {
+    let arch = archs[0]
+    let isMacCatalyst = arch == Architecture.x86_64h
+    let isMacCatalystString = isMacCatalyst ? "YES" : "NO"
     let platform = arch.platform
+    let platformFolder = isMacCatalyst ? "maccatalyst" : platform.rawValue
     let workspacePath = projectDir.appendingPathComponent("FrameworkMaker.xcworkspace").path
     let distributionFlag = carthageBuild ? "-DFIREBASE_BUILD_CARTHAGE" : "-DFIREBASE_BUILD_ZIP_FILE"
     let platformSpecificFlags = platform.otherCFlags().joined(separator: " ")
     let cFlags = "OTHER_CFLAGS=$(value) \(distributionFlag) \(platformSpecificFlags)"
-    let args = ["build",
+    let cleanArch = isMacCatalyst ? Architecture.x86_64.rawValue : archs.map { $0.rawValue }.joined(separator: " ")
+
+    var args = ["build",
                 "-configuration", "release",
                 "-workspace", workspacePath,
                 "-scheme", framework,
-                "GCC_GENERATE_DEBUGGING_SYMBOLS=No",
-                "ARCHS=\(arch.rawValue)",
+                "GCC_GENERATE_DEBUGGING_SYMBOLS=NO",
+                "ARCHS=\(cleanArch)",
+                "VALID_ARCHS=\(cleanArch)",
+                "ONLY_ACTIVE_ARCH=NO",
+                // BUILD_LIBRARY_FOR_DISTRIBUTION=YES is necessary for Swift libraries.
+                // See https://forums.developer.apple.com/thread/125646.
+                // Unlike the comment there, the option here is sufficient to cause .swiftinterface
+                // files to be generated in the .swiftmodule directory. The .swiftinterface files
+                // are required for xcodebuild to successfully generate an xcframework.
+                "BUILD_LIBRARY_FOR_DISTRIBUTION=YES",
+                "SUPPORTS_MACCATALYST=\(isMacCatalystString)",
                 "BUILD_DIR=\(buildDir.path)",
                 "-sdk", platform.rawValue,
                 cFlags]
+    // Code signing isn't needed for libraries. Disabling signing is required for
+    // Catalyst libs with resources. See
+    // https://github.com/CocoaPods/CocoaPods/issues/8891#issuecomment-573301570
+    if isMacCatalyst {
+      args.append("CODE_SIGN_IDENTITY=-")
+    }
     print("""
     Compiling \(framework) for \(arch.rawValue) with command:
     /usr/bin/xcodebuild \(args.joined(separator: " "))
@@ -227,21 +296,57 @@ struct FrameworkBuilder {
       """)
 
       // Use the Xcode-generated path to return the path to the compiled library.
-      let libPath = buildDir.appendingPathComponents(["Release-\(platform.rawValue)",
-                                                      framework,
-                                                      "lib\(framework).a"])
+      // The framework name may be different from the pod name if the module is reset in the
+      // podspec - like Release-iphonesimulator/BoringSSL-GRPC/openssl_grpc.framework.
+      let frameworkPath = buildDir.appendingPathComponents(["Release-\(platformFolder)", framework])
+      var actualFramework: String
+      do {
+        let files = try FileManager.default.contentsOfDirectory(at: frameworkPath,
+                                                                includingPropertiesForKeys: nil).compactMap { $0.path }
+        let frameworkDir = files.filter { $0.contains(".framework") }
+        actualFramework = URL(fileURLWithPath: frameworkDir[0]).lastPathComponent
+      } catch {
+        fatalError("Error while enumerating files \(frameworkPath): \(error.localizedDescription)")
+      }
+      var libPath = frameworkPath.appendingPathComponent(actualFramework)
+      if !LaunchArgs.shared.dynamic {
+        libPath = libPath.appendingPathComponent(actualFramework.replacingOccurrences(of: ".framework", with: ""))
+      }
+      print("buildThin returns \(libPath)")
       return libPath
     }
   }
 
+  // TODO: Automatically get the right name.
+  /// The dynamic framework name is different from the pod name when the module_name
+  /// specifier is used in the podspec.
+  ///
+  /// - Parameter framework: The name of the framework to be built.
+  /// - Returns: The corresponding dynamic framework name.
+  private func frameworkBuildName(_ framework: String) -> String {
+    if !LaunchArgs.shared.dynamic {
+      return framework
+    }
+    switch framework {
+    case "PromisesObjC":
+      return "FBLPromises"
+    case "Protobuf":
+      return "protobuf"
+    default:
+      return framework
+    }
+  }
+
   /// Compiles the specified framework in a temporary directory and writes the build logs to file.
-  /// This will compile all architectures and use the lipo command to create a "fat" archive.
+  /// This will compile all architectures and use the -create-xcframework command to create a modern "fat" framework.
   ///
   /// - Parameter framework: The name of the framework to be built.
   /// - Parameter logsOutputDir: The path to the directory to place build logs.
-  /// - Returns: A path to the newly compiled framework (with any included Resources embedded).
+  /// - Parameter moduleMapContents: Module map contents for all frameworks in this pod.
+  /// - Returns: A path to the newly compiled framework and the Carthage version if needed).
   private func compileFrameworkAndResources(withName framework: String,
-                                            logsOutputDir: URL? = nil) -> URL {
+                                            logsOutputDir: URL? = nil,
+                                            podInfo: CocoaPodUtils.PodInfo) -> (URL, URL?) {
     let fileManager = FileManager.default
     let outputDir = fileManager.temporaryDirectory(withName: "frameworks_being_built")
     let logsDir = logsOutputDir ?? fileManager.temporaryDirectory(withName: "build_logs")
@@ -261,20 +366,80 @@ struct FrameworkBuilder {
       fatalError("Failure creating temporary directory while building \(framework): \(error)")
     }
 
-    // Build every architecture and save the locations in an array to be assembled.
-    // TODO: Pass in supported architectures here, for those open source SDKs that don't support
-    // individual architectures.
+    if LaunchArgs.shared.dynamic {
+      return (buildDynamicXCFramework(withName: framework, logsDir: logsDir, outputDir: outputDir),
+              nil)
+    } else {
+      return buildStaticXCFramework(withName: framework, logsDir: logsDir, outputDir: outputDir,
+                                    podInfo: podInfo)
+    }
+  }
+
+  /// Compiles the specified framework in a temporary directory and writes the build logs to file.
+  /// This will compile all architectures and use the -create-xcframework command to create a modern "fat" framework.
+  ///
+  /// - Parameter framework: The name of the framework to be built.
+  /// - Parameter logsDir: The path to the directory to place build logs.
+  /// - Returns: A path to the newly compiled framework (with any included Resources embedded).
+  private func buildDynamicXCFramework(withName framework: String,
+                                       logsDir: URL,
+                                       outputDir: URL) -> URL {
+    // xcframework doesn't lipo things together but accepts fat frameworks for one target.
+    // We group architectures here to deal with this fact.
+    let archs = LaunchArgs.shared.archs
+    var groupedArchs: [[Architecture]] = []
+
+    for platform in Architecture.TargetPlatform.allCases {
+      groupedArchs.append(archs.filter { $0.platform == platform })
+    }
     var thinArchives = [URL]()
-    for arch in LaunchArgs.shared.archs {
-      let buildDir = projectDir.appendingPathComponent(arch.rawValue)
+    for archs in groupedArchs {
+      let buildDir = projectDir.appendingPathComponent(archs[0].rawValue)
       let thinArchive = buildThin(framework: framework,
-                                  arch: arch,
+                                  archs: archs,
                                   buildDir: buildDir,
                                   logRoot: logsDir)
       thinArchives.append(thinArchive)
     }
 
+    let frameworkDir = outputDir.appendingPathComponent("\(framework).xcframework")
+
+    let inputArgs = thinArchives.flatMap { url -> [String] in
+      ["-framework", url.path]
+    }
+
+    print("About to create xcframework for \(frameworkDir.path) with \(inputArgs)")
+
+    let result = syncExec(command: "/usr/bin/xcodebuild", args: ["-create-xcframework", "-output", frameworkDir.path] + inputArgs)
+    switch result {
+    case let .error(code, output):
+      fatalError("""
+      xcodebuild -create-xcframework command exited with \(code) when trying to build \(framework). Output:
+      \(output)
+      """)
+    case .success:
+      print("xcodebuild -create-xcframework command for \(framework) succeeded.")
+    }
+
+    return frameworkDir
+  }
+
+  /// Compiles the specified framework in a temporary directory and writes the build logs to file.
+  /// This will compile all architectures and use the -create-xcframework command to create a modern "fat" framework.
+  ///
+  /// - Parameter framework: The name of the framework to be built.
+  /// - Parameter logsDir: The path to the directory to place build logs.
+  /// - Parameter moduleMapContents: Module map contents for all frameworks in this pod.
+  /// - Returns: A path to the newly compiled framework (with any included Resources embedded).
+  private func buildStaticXCFramework(withName framework: String,
+                                      logsDir: URL,
+                                      outputDir: URL,
+                                      podInfo: CocoaPodUtils.PodInfo) -> (URL, URL?) {
+    // Build every architecture and save the locations in an array to be assembled.
+    let thinArchives = buildAllThin(withName: framework, logsDir: logsDir)
+
     // Create the framework directory in the filesystem for the thin archives to go.
+    let fileManager = FileManager.default
     let frameworkDir = outputDir.appendingPathComponent("\(framework).framework")
     do {
       try fileManager.createDirectory(at: frameworkDir, withIntermediateDirectories: true)
@@ -283,23 +448,103 @@ struct FrameworkBuilder {
         "\(error)")
     }
 
-    // Build the fat archive using the `lipo` command. We need the full archive path and the list of
-    // thin paths (as Strings, not URLs).
-    let thinPaths = thinArchives.map { $0.path }
-    let fatArchive = frameworkDir.appendingPathComponent(framework)
-    let result = syncExec(command: "/usr/bin/lipo", args: ["-create", "-output", fatArchive.path] + thinPaths)
-    switch result {
-    case let .error(code, output):
-      fatalError("""
-      lipo command exited with \(code) when trying to build \(framework). Output:
-      \(output)
-      """)
-    case .success:
-      print("lipo command for \(framework) succeeded.")
+    // Find the location of the public headers.
+    let anyArch = LaunchArgs.shared.archs[0] // any arch is ok, but need to make sure we're building it
+    let archivePath = thinArchives[anyArch]!
+    let headersDir = archivePath.deletingLastPathComponent().appendingPathComponent("Headers")
+
+    // Find CocoaPods generated umbrella header.
+    var umbrellaHeader = ""
+    if framework == "gRPC-Core" || framework == "TensorFlowLiteObjC" {
+      // TODO: Proper handling of podspec-specified module.modulemap files with customized umbrella
+      // headers. This is good enough for Firebase since it doesn't need these modules.
+      umbrellaHeader = "\(framework)-umbrella.h"
+    } else {
+      var umbrellaHeaderURL: URL
+      do {
+        let files = try fileManager.contentsOfDirectory(at: headersDir,
+                                                        includingPropertiesForKeys: nil).compactMap { $0.path }
+        let umbrellas = files.filter { $0.hasSuffix("umbrella.h") }
+        if umbrellas.count != 1 {
+          fatalError("Did not find exactly one umbrella header in \(headersDir).")
+        }
+        guard let firstUmbrella = umbrellas.first else {
+          fatalError("Failed to get umbrella header in \(headersDir).")
+        }
+        umbrellaHeaderURL = URL(fileURLWithPath: firstUmbrella)
+      } catch {
+        fatalError("Error while enumerating files \(headersDir): \(error.localizedDescription)")
+      }
+      // Verify Firebase frameworks include an explicit umbrella header for Firebase.h.
+      if framework.hasPrefix("Firebase") || framework == "GoogleDataTransport",
+        framework != "FirebaseCoreDiagnostics",
+        framework != "FirebaseUI",
+        !framework.hasSuffix("Swift") {
+        // Delete CocoaPods generated umbrella and use pre-generated one.
+        do {
+          try fileManager.removeItem(at: umbrellaHeaderURL)
+        } catch let error as NSError {
+          fatalError("Failed to delete: \(umbrellaHeaderURL). Error: \(error.domain)")
+        }
+        umbrellaHeader = "\(framework).h"
+        let frameworkHeader = headersDir.appendingPathComponent(umbrellaHeader)
+        guard fileManager.fileExists(atPath: frameworkHeader.path) else {
+          fatalError("Missing explicit umbrella header for \(framework).")
+        }
+      } else {
+        umbrellaHeader = umbrellaHeaderURL.lastPathComponent
+      }
+    }
+    // Copy the Headers over.
+    let headersDestination = frameworkDir.appendingPathComponent("Headers")
+    do {
+      try fileManager.copyItem(at: headersDir, to: headersDestination)
+    } catch {
+      fatalError("Could not copy headers from \(headersDir) to Headers directory in " +
+        "\(headersDestination): \(error)")
     }
 
+    // TODO: copy PrivateHeaders directory as well if it exists. SDWebImage is an example pod.
+
+    // Move all the Resources into .bundle directories in the destination Resources dir. The
+    // Resources live are contained within the folder structure:
+    // `projectDir/arch/Release-platform/FrameworkName`.
+    // The Resources are stored at the top-level of the .framework or .xcframework directory.
+    // For Firebase distributions, they are propagated one level higher in the final distribution.
+
+    let resourceContents = projectDir.appendingPathComponents([anyArch.rawValue,
+                                                               "Release-\(anyArch.platform.rawValue)",
+                                                               framework])
+
+    guard let moduleMapContentsTemplate = podInfo.moduleMapContents else {
+      fatalError("Module map contents missing for framework \(framework)")
+    }
+    let moduleMapContents = moduleMapContentsTemplate.get(umbrellaHeader: umbrellaHeader)
+    let xcframework = packageXCFramework(withName: framework,
+                                         fromFolder: frameworkDir,
+                                         thinArchives: thinArchives,
+                                         resourceContents: resourceContents,
+                                         moduleMapContents: moduleMapContents)
+
+    var carthageFramework: URL?
+    if args.carthageDir != nil {
+      var carthageThinArchives: [Architecture: URL]
+      if framework == "FirebaseCoreDiagnostics" {
+        // FirebaseCoreDiagnostics needs to be built with a different ifdef for the Carthage distro.
+        carthageThinArchives = buildAllThin(withName: framework,
+                                            logsDir: logsDir,
+                                            carthageBuild: true)
+      } else {
+        carthageThinArchives = thinArchives
+      }
+      carthageFramework = packageCarthageFramework(withName: framework,
+                                                   fromFolder: frameworkDir,
+                                                   thinArchives: carthageThinArchives,
+                                                   resourceContents: resourceContents,
+                                                   moduleMapContents: moduleMapContents)
+    }
     // Remove the temporary thin archives.
-    for thinArchive in thinArchives {
+    for thinArchive in thinArchives.values {
       do {
         try fileManager.removeItem(at: thinArchive)
       } catch {
@@ -313,108 +558,298 @@ struct FrameworkBuilder {
         """)
       }
     }
+    return (xcframework, carthageFramework)
+  }
 
-    // Verify Firebase headers include an explicit umbrella header for Firebase.h.
-    let headersDir = podsDir.appendingPathComponents(["Headers", "Public", framework])
-    if framework.hasPrefix("Firebase"), framework != "FirebaseCoreDiagnostics" {
-      let frameworkHeader = headersDir.appendingPathComponent("\(framework).h")
-      guard fileManager.fileExists(atPath: frameworkHeader.path) else {
-        fatalError("Missing explicit umbrella header for \(framework).")
+  private func packageFramework(withName framework: String,
+                                fromFolder: URL,
+                                thinArchives: [Architecture: URL],
+                                destination: URL,
+                                moduleMapContents: String) {
+    // Store all fat archives in a temporary directory that includes all architectures included as
+    // the parent folder.
+    let fatArchivesDir: URL = {
+      let allArchivesDir = FileManager.default.temporaryDirectory(withName: "fat_archives")
+      let architectures = thinArchives.keys.map { $0.rawValue }.sorted()
+      return allArchivesDir.appendingPathComponent(architectures.joined(separator: "_"))
+    }()
+
+    do {
+      let fileManager = FileManager.default
+      try fileManager.createDirectory(at: fatArchivesDir, withIntermediateDirectories: true)
+      // Remove any previously built fat archives.
+      if fileManager.fileExists(atPath: destination.path) {
+        try fileManager.removeItem(at: destination)
+      }
+
+      try FileManager.default.copyItem(at: fromFolder, to: destination)
+    } catch {
+      fatalError("Could not create directories needed to build \(framework): \(error)")
+    }
+
+    // Build the fat archive using the `lipo` command. We need the full archive path.
+    let fatArchive = fatArchivesDir.appendingPathComponent(framework)
+    let result = syncExec(command: "/usr/bin/lipo", args: ["-create", "-output", fatArchive.path] +
+      thinArchives.map { $0.value.path })
+    switch result {
+    case let .error(code, output):
+      fatalError("""
+      lipo command exited with \(code) when trying to build \(framework). Output:
+      \(output)
+      """)
+    case .success:
+      print("lipo command for \(framework) succeeded.")
+    }
+
+    // Copy the built binary to the destination.
+    let archiveDestination = destination.appendingPathComponent(framework)
+    do {
+      try FileManager.default.copyItem(at: fatArchive, to: archiveDestination)
+    } catch {
+      fatalError("Could not copy \(framework) to destination: \(error)")
+    }
+
+    // CocoaPods does not put dependent frameworks and libraries into the module maps it generates.
+    // Instead it use build options to specify them. For the zip build, we need the module maps to
+    // include the dependent frameworks and libraries. Therefore we reconstruct them by parsing
+    // the CocoaPods config files and add them here.
+    // Currently we only to the construction for Objective C since Swift Module directories require
+    // several other files. See https://github.com/firebase/firebase-ios-sdk/pull/5040.
+    // Therefore, for Swift we do a simple copy of the Modules files from an Xcode build.
+    // This is sufficient for the testing done so far, but more testing is required to determine
+    // if dependent libraries and frameworks also may need to be added to the Swift module maps in
+    // some cases.
+    let builtSwiftModules = makeSwiftModuleMap(thinArchives: thinArchives, destination: destination)
+    if !builtSwiftModules {
+      // Copy the module map to the destination.
+      let moduleDir = destination.appendingPathComponent("Modules")
+      do {
+        try FileManager.default.createDirectory(at: moduleDir, withIntermediateDirectories: true)
+      } catch {
+        fatalError("Could not create Modules directory for framework: \(framework). \(error)")
+      }
+      let modulemap = moduleDir.appendingPathComponent("module.modulemap")
+      do {
+        try moduleMapContents.write(to: modulemap, atomically: true, encoding: .utf8)
+      } catch {
+        fatalError("Could not write modulemap to disk for \(framework): \(error)")
+      }
+    }
+  }
+
+  private func makeSwiftModuleMap(thinArchives: [Architecture: URL], destination: URL) -> Bool {
+    let fileManager = FileManager.default
+    for archive in thinArchives {
+      let frameworkDir = archive.value.deletingLastPathComponent()
+      // Get the Modules directory. The Catalyst one is a symbolic link.
+      let moduleDir = frameworkDir.appendingPathComponent("Modules").resolvingSymlinksInPath()
+      do {
+        let files = try fileManager.contentsOfDirectory(at: moduleDir,
+                                                        includingPropertiesForKeys: nil).compactMap { $0.path }
+        let swiftModules = files.filter { $0.hasSuffix(".swiftmodule") }
+        if swiftModules.isEmpty {
+          return false
+        }
+        guard let first = swiftModules.first,
+          let swiftModule = URL(string: first) else {
+          fatalError("Failed to get swiftmodule in \(moduleDir).")
+        }
+        let destModuleDir = destination.appendingPathComponent("Modules")
+        if !fileManager.directoryExists(at: destModuleDir) {
+          do {
+            try fileManager.copyItem(at: moduleDir, to: destModuleDir)
+          } catch {
+            fatalError("Could not copy Modules from \(moduleDir) to " + "\(destModuleDir): \(error)")
+          }
+        } else {
+          // If the Modules directory is already there, only copy in the architecture specific files
+          // from the *.swiftmodule subdirectory.
+          do {
+            let files = try fileManager.contentsOfDirectory(at: swiftModule,
+                                                            includingPropertiesForKeys: nil).compactMap { $0.path }
+            let destSwiftModuleDir = destModuleDir.appendingPathComponent(swiftModule.lastPathComponent)
+            for file in files {
+              let fileURL = URL(fileURLWithPath: file)
+              do {
+                try fileManager.copyItem(at: fileURL, to:
+                  destSwiftModuleDir.appendingPathComponent(fileURL.lastPathComponent))
+              } catch {
+                fatalError("Could not copy Swift module file from \(fileURL) to " + "\(destSwiftModuleDir): \(error)")
+              }
+            }
+          } catch {
+            fatalError("Failed to get Modules directory contents - \(moduleDir): \(error.localizedDescription)")
+          }
+        }
+      } catch {
+        fatalError("Error while enumerating files \(moduleDir): \(error.localizedDescription)")
+      }
+    }
+    return true
+  }
+
+  /// Packages an XCFramework based on an almost complete framework folder (missing the binary but includes everything else needed)
+  /// and thin archives for each architecture slice.
+  /// - Parameter withName: The framework name.
+  /// - Parameter fromFolder: The almost complete framework folder. Includes everything but the binary.
+  /// - Parameter thinArchives: All the thin archives.
+  /// - Parameter resourceContents: Location of the resources for this xcframework.
+  /// - Parameter moduleMapContents: Module map contents for all frameworks in this pod.
+  private func packageXCFramework(withName framework: String,
+                                  fromFolder: URL,
+                                  thinArchives: [Architecture: URL],
+                                  resourceContents: URL,
+                                  moduleMapContents: String) -> URL {
+    let fileManager = FileManager.default
+
+    // Create a `.framework` for each of the thinArchives using the `fromFolder` as the base.
+    let platformFrameworksDir =
+      fileManager.temporaryDirectory(withName: "platform_frameworks")
+    if !fileManager.directoryExists(at: platformFrameworksDir) {
+      do {
+        try fileManager.createDirectory(at: platformFrameworksDir,
+                                        withIntermediateDirectories: true)
+      } catch {
+        fatalError("Could not create a temp directory to store all thin frameworks: \(error)")
       }
     }
 
-    // Copy the Headers over. Pass in the prefix to remove in order to generate the relative paths
-    // for some frameworks that have nested folders in their public headers.
-    let headersDestination = frameworkDir.appendingPathComponent("Headers")
-    do {
-      try recursivelyCopyHeaders(from: headersDir, to: headersDestination)
-    } catch {
-      fatalError("Could not copy headers from \(headersDir) to Headers directory in " +
-        "\(headersDestination): \(error)")
+    // Group the thin frameworks into three groups: device, simulator, and Catalyst (all represented
+    // by the `TargetPlatform` enum. The slices need to be packaged that way with lipo before
+    // creating a .framework that works for similar grouped architectures. If built separately,
+    // `-create-xcframework` will return an error and fail:
+    // `Both ios-arm64 and ios-armv7 represent two equivalent library definitions`
+    var frameworksBuilt: [URL] = []
+    for platform in Architecture.TargetPlatform.allCases {
+      // Get all the slices that belong to the specific platform in order to lipo them together.
+      let slices = thinArchives.filter { $0.key.platform == platform }
+      if slices.isEmpty {
+        continue
+      }
+      let platformDir = platformFrameworksDir.appendingPathComponent(platform.rawValue)
+      do {
+        try fileManager.createDirectory(at: platformDir, withIntermediateDirectories: true)
+      } catch {
+        fatalError("Could not create directory for architecture slices on \(platform) for " +
+          "\(framework): \(error)")
+      }
+
+      // Package a normal .framework with the given slices.
+      let destination = platformDir.appendingPathComponent(fromFolder.lastPathComponent)
+      packageFramework(withName: framework,
+                       fromFolder: fromFolder,
+                       thinArchives: slices,
+                       destination: destination,
+                       moduleMapContents: moduleMapContents)
+
+      frameworksBuilt.append(destination)
     }
 
-    // Move all the Resources into .bundle directories in the destination Resources dir. The
-    // Resources live are contained within the folder structure:
-    // `projectDir/arch/Release-platform/FrameworkName`
-    let arch = Architecture.arm64
-    let contentsDir = projectDir.appendingPathComponents([arch.rawValue,
-                                                          "Release-\(arch.platform.rawValue)",
-                                                          framework])
-    let resourceDir = frameworkDir.appendingPathComponent("Resources")
+    // We now need to package those built frameworks into an XCFramework.
+    let xcframeworksDir = projectDir.appendingPathComponent("xcframeworks")
+    if !fileManager.directoryExists(at: xcframeworksDir) {
+      do {
+        try fileManager.createDirectory(at: xcframeworksDir,
+                                        withIntermediateDirectories: true)
+      } catch {
+        fatalError("Could not create XCFrameworks directory: \(error)")
+      }
+    }
+
+    let xcframework = xcframeworksDir.appendingPathComponent(framework + ".xcframework")
+    if fileManager.fileExists(atPath: xcframework.path) {
+      try! fileManager.removeItem(at: xcframework)
+    }
+
+    // The arguments for the frameworks need to be separated.
+    var frameworkArgs: [String] = []
+    for frameworkBuilt in frameworksBuilt {
+      frameworkArgs.append("-framework")
+      frameworkArgs.append(frameworkBuilt.path)
+    }
+
+    let outputArgs = ["-output", xcframework.path]
+    let args = ["-create-xcframework"] + frameworkArgs + outputArgs
+    print("""
+    Building \(xcframework) with command:
+    /usr/bin/xcodebuild \(args.joined(separator: " "))
+    """)
+    let result = syncExec(command: "/usr/bin/xcodebuild", args: args, captureOutput: true)
+    switch result {
+    case let .error(code, output):
+      fatalError("Could not build xcframework for \(framework) exit code \(code): \(output)")
+
+    case .success:
+      print("XCFramework for \(framework) built successfully at \(xcframework).")
+    }
+    // xcframework resources are packaged at top of xcframework. We do a copy instead of a move
+    // because the resources may also be copied for the Carthage distribution.
+    let resourceDir = xcframework.appendingPathComponent("Resources")
     do {
-      try ResourcesManager.moveAllBundles(inDirectory: contentsDir, to: resourceDir)
+      try ResourcesManager.moveAllBundles(inDirectory: resourceContents,
+                                          to: resourceDir,
+                                          keepOriginal: true)
     } catch {
       fatalError("Could not move bundles into Resources directory while building \(framework): " +
         "\(error)")
     }
 
-    return frameworkDir
+    return xcframework
   }
 
-  /// Recrusively copies headers from the given directory to the destination directory. This does a
-  /// deep copy and resolves and symlinks (which CocoaPods uses in the Public headers folder).
-  /// Throws FileManager errors if something goes wrong during the operations.
-  /// Note: This is only needed now because the `cp` command has a flag that did this for us, but
-  /// FileManager does not.
-  private func recursivelyCopyHeaders(from headersDir: URL,
-                                      to destinationDir: URL,
-                                      fileManager: FileManager = FileManager.default) throws {
-    // Copy the public headers into the new framework. Unfortunately we can't just copy the
-    // `Headers` directory since it uses aliases, so we'll recursively search the public Headers
-    // directory from CocoaPods and resolve all the aliases manually.
+  /// Packages a Carthage framework. Carthage does not yet support xcframeworks, so we exclude the Catalyst slice.
+  /// - Parameter withName: The framework name.
+  /// - Parameter fromFolder: The almost complete framework folder. Includes everything but the binary.
+  /// - Parameter thinArchives: All the thin archives.
+  /// - Parameter resourceContents: Location of the resources for this Carthage framework.
+  /// - Parameter moduleMapContents: Module map contents for all frameworks in this pod.
+  private func packageCarthageFramework(withName framework: String,
+                                        fromFolder: URL,
+                                        thinArchives: [Architecture: URL],
+                                        resourceContents: URL,
+                                        moduleMapContents: String) -> URL {
     let fileManager = FileManager.default
 
-    // Create the Headers directory if it doesn't exist.
-    try fileManager.createDirectory(at: destinationDir, withIntermediateDirectories: true)
-
-    // Get all the header aliases from the CocoaPods directory and get their real path as well as
-    // their relative path to the Headers directory they are in. This is needed to preserve proper
-    // imports for nested folders.
-    let aliasedHeaders = try fileManager.recursivelySearch(for: .headers, in: headersDir)
-    let mappedHeaders: [(relativePath: String, resolvedLocation: URL)] = aliasedHeaders.map {
-      // The `headersDir` and `aliasedHeader` prefixes may be different, but they both should have
-      // `Pods/Headers/` in the path. Ignore everything up until that, then strip the remainder of
-      // the `headersDir` from the `aliasedHeader` in order to get path relative to the headers
-      // directory.
-      let trimmedHeader = removeHeaderPathPrefix(from: $0)
-      let trimmedDir = removeHeaderPathPrefix(from: headersDir)
-      var relativePath = trimmedHeader.replacingOccurrences(of: trimmedDir, with: "")
-
-      // Remove any leading `/` for the relative path.
-      if relativePath.starts(with: "/") {
-        _ = relativePath.removeFirst()
+    // Create a `.framework` for each of the thinArchives using the `fromFolder` as the base.
+    let platformFrameworksDir = fileManager.temporaryDirectory(withName: "carthage_frameworks")
+    if !fileManager.directoryExists(at: platformFrameworksDir) {
+      do {
+        try fileManager.createDirectory(at: platformFrameworksDir,
+                                        withIntermediateDirectories: true)
+      } catch {
+        fatalError("Could not create a temp directory to store all thin frameworks: \(error)")
       }
-
-      // Standardize the URL because the aliasedHeaders could be at `/private/var` or `/var` which
-      // are symlinked to each other on macOS.
-      let resolvedLocation = $0.standardizedFileURL.resolvingSymlinksInPath()
-      return (relativePath, resolvedLocation)
     }
 
-    // Copy all the headers into the Headers directory created above.
-    for (relativePath, location) in mappedHeaders {
-      // Append the proper filename to our Headers directory, then try copying it over.
-      let finalPath = destinationDir.appendingPathComponent(relativePath)
+    // Exclude Catalyst.
+    let slices = thinArchives.filter { $0.key != Architecture.x86_64h }
 
-      // Create the destination folder if it doesn't exist.
-      let parentDir = finalPath.deletingLastPathComponent()
-      if !fileManager.directoryExists(at: parentDir) {
-        try fileManager.createDirectory(at: parentDir, withIntermediateDirectories: true)
-      }
+    // Package a normal .framework with the given slices.
+    let frameworkDir = platformFrameworksDir.appendingPathComponent(fromFolder.lastPathComponent)
+    packageFramework(withName: framework,
+                     fromFolder: fromFolder,
+                     thinArchives: slices,
+                     destination: frameworkDir,
+                     moduleMapContents: moduleMapContents)
 
-      try fileManager.copyItem(at: location, to: finalPath)
+    // Add Info.plist frameworks to make Carthage happy.
+    let plistPath = frameworkDir.appendingPathComponents(["Info.plist"])
+    // Drop the extension of the framework name.
+    let plist = CarthageUtils.generatePlistContents(forName: framework)
+    do {
+      try plist.write(to: plistPath)
+    } catch {
+      fatalError("Could not copy plist for \(frameworkDir) for Carthage release. \(error)")
     }
-  }
 
-  private func removeHeaderPathPrefix(from url: URL) -> String {
-    let fullPath = url.standardizedFileURL.path
-    guard let foundRange = fullPath.range(of: "Pods/Headers/") else {
-      fatalError("Could not copy headers for framework: full path do not contain `Pods/Headers`:" +
-        fullPath)
+    // Carthage Resources are packaged in the framework.
+    let resourceDir = frameworkDir.appendingPathComponent("Resources")
+    do {
+      try ResourcesManager.moveAllBundles(inDirectory: resourceContents, to: resourceDir)
+    } catch {
+      fatalError("Could not move bundles into Resources directory while building \(framework): " +
+        "\(error)")
     }
-
-    // Replace everything from the start of the string until the end of the `Pods/Headers/`.
-    let toRemove = fullPath.startIndex ..< foundRange.upperBound
-    return fullPath.replacingCharacters(in: toRemove, with: "")
+    return frameworkDir
   }
 }

@@ -40,8 +40,8 @@ NS_ASSUME_NONNULL_BEGIN
     @param token The Twitter OAuth token.
     @param secret The Twitter OAuth secret.
  */
-- (nullable instancetype)initWithToken:(NSString *)token secret:(NSString *)secret
-    NS_DESIGNATED_INITIALIZER;
+- (nullable instancetype)initWithToken:(NSString *)token
+                                secret:(NSString *)secret NS_DESIGNATED_INITIALIZER;
 
 @end
 

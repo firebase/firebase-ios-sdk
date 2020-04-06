@@ -16,8 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRAuthErrors.h"
 #import "FIRAuthBackend.h"
+#import "FIRAuthErrors.h"
 #import "FIREmailLinkSignInRequest.h"
 #import "FIREmailLinkSignInResponse.h"
 #import "FIRFakeBackendRPCIssuer.h"
@@ -105,9 +105,10 @@ static NSString *const kExpectedAPIURL =
       [[FIREmailLinkSignInRequest alloc] initWithEmail:kTestEmail
                                                oobCode:kTestOOBCode
                                   requestConfiguration:_requestConfiguration];
-  [FIRAuthBackend emailLinkSignin:request callback:^(FIREmailLinkSignInResponse *_Nullable response,
-                                                     NSError *_Nullable error) {
-  }];
+  [FIRAuthBackend
+      emailLinkSignin:request
+             callback:^(FIREmailLinkSignInResponse *_Nullable response, NSError *_Nullable error){
+             }];
   XCTAssertEqualObjects(_RPCIssuer.requestURL.absoluteString, kExpectedAPIURL);
   XCTAssertNotNil(_RPCIssuer.decodedRequest);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kEmailKey], kTestEmail);
@@ -124,9 +125,10 @@ static NSString *const kExpectedAPIURL =
                                                oobCode:kTestOOBCode
                                   requestConfiguration:_requestConfiguration];
   request.IDToken = kTestIDToken;
-  [FIRAuthBackend emailLinkSignin:request callback:^(FIREmailLinkSignInResponse *_Nullable response,
-                                                     NSError *_Nullable error) {
-  }];
+  [FIRAuthBackend
+      emailLinkSignin:request
+             callback:^(FIREmailLinkSignInResponse *_Nullable response, NSError *_Nullable error){
+             }];
   XCTAssertEqualObjects(_RPCIssuer.requestURL.absoluteString, kExpectedAPIURL);
   XCTAssertNotNil(_RPCIssuer.decodedRequest);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kEmailKey], kTestEmail);

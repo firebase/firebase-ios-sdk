@@ -16,8 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRAuthErrorUtils.h"
 #import "FIRAuthBackend.h"
+#import "FIRAuthErrorUtils.h"
 #import "FIRCreateAuthURIRequest.h"
 #import "FIRCreateAuthURIResponse.h"
 #import "FIRFakeBackendRPCIssuer.h"
@@ -78,13 +78,13 @@ static NSString *const kTestProviderID2 = @"facebook.com";
   __block FIRCreateAuthURIResponse *createAuthURIResponse;
   __block NSError *createAuthURIError;
   __block BOOL callbackInvoked;
-  [FIRAuthBackend createAuthURI:request
-                       callback:^(FIRCreateAuthURIResponse *_Nullable response,
-                                  NSError *_Nullable error) {
-    callbackInvoked = YES;
-    createAuthURIResponse = response;
-    createAuthURIError = error;
-  }];
+  [FIRAuthBackend
+      createAuthURI:request
+           callback:^(FIRCreateAuthURIResponse *_Nullable response, NSError *_Nullable error) {
+             callbackInvoked = YES;
+             createAuthURIResponse = response;
+             createAuthURIError = error;
+           }];
 
   XCTAssertEqualObjects(RPCIssuer.requestURL.absoluteString, kTestExpectedRequestURL);
   XCTAssertEqualObjects(RPCIssuer.decodedRequest[@"identifier"], kTestIdentifier);

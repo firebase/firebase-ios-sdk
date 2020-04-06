@@ -474,7 +474,7 @@ Message<firestore_client_MutationQueue> LevelDbMutationQueue::MetadataForKey(
 
   if (reader.ok()) {
     return result;
-  } else if (reader.status().code() == Error::NotFound) {
+  } else if (reader.status().code() == Error::kNotFound) {
     // Return a default-constructed message (`TryParse` is guaranteed to return
     // a default-constructed message on failure).
     return result;

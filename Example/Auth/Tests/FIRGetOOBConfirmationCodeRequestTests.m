@@ -17,11 +17,11 @@
 #import <XCTest/XCTest.h>
 
 #import "FIRActionCodeSettings.h"
-#import "FIRAuthErrors.h"
 #import "FIRAuthBackend.h"
+#import "FIRAuthErrors.h"
+#import "FIRFakeBackendRPCIssuer.h"
 #import "FIRGetOOBConfirmationCodeRequest.h"
 #import "FIRGetOOBConfirmationCodeResponse.h"
-#import "FIRFakeBackendRPCIssuer.h"
 
 /** @var kTestAPIKey
     @brief Fake API key used for testing.
@@ -143,10 +143,10 @@ static NSString *const kDynamicLinkDomain = @"test.page.link";
 @interface FIRGetOOBConfirmationCodeRequestTests : XCTestCase
 @end
 @implementation FIRGetOOBConfirmationCodeRequestTests {
-   /** @var _RPCIssuer
-      @brief This backend RPC issuer is used to fake network responses for each test in the suite.
-          In the @c setUp method we initialize this and set @c FIRAuthBackend's RPC issuer to it.
-   */
+  /** @var _RPCIssuer
+     @brief This backend RPC issuer is used to fake network responses for each test in the suite.
+         In the @c setUp method we initialize this and set @c FIRAuthBackend's RPC issuer to it.
+  */
   FIRFakeBackendRPCIssuer *_RPCIssuer;
 
   /** @var _requestConfiguration
@@ -185,10 +185,10 @@ static NSString *const kDynamicLinkDomain = @"test.page.link";
   [FIRAuthBackend getOOBConfirmationCode:request
                                 callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
                                            NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+                                  callbackInvoked = YES;
+                                  RPCResponse = response;
+                                  RPCError = error;
+                                }];
 
   XCTAssertEqualObjects(_RPCIssuer.requestURL.absoluteString, kExpectedAPIURL);
   XCTAssertNotNil(_RPCIssuer.decodedRequest);
@@ -222,10 +222,10 @@ static NSString *const kDynamicLinkDomain = @"test.page.link";
   [FIRAuthBackend getOOBConfirmationCode:request
                                 callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
                                            NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+                                  callbackInvoked = YES;
+                                  RPCResponse = response;
+                                  RPCError = error;
+                                }];
 
   XCTAssertEqualObjects(_RPCIssuer.requestURL.absoluteString, kExpectedAPIURL);
   XCTAssertNotNil(_RPCIssuer.decodedRequest);
@@ -244,7 +244,6 @@ static NSString *const kDynamicLinkDomain = @"test.page.link";
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kDynamicLinkDomainKey], kDynamicLinkDomain);
 }
 
-
 /** @fn testEmailVerificationRequest
     @brief Tests the encoding of an email verification request.
  */
@@ -261,10 +260,10 @@ static NSString *const kDynamicLinkDomain = @"test.page.link";
   [FIRAuthBackend getOOBConfirmationCode:request
                                 callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
                                            NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+                                  callbackInvoked = YES;
+                                  RPCResponse = response;
+                                  RPCError = error;
+                                }];
 
   XCTAssertEqualObjects(_RPCIssuer.requestURL.absoluteString, kExpectedAPIURL);
   XCTAssertNotNil(_RPCIssuer.decodedRequest);
@@ -290,7 +289,7 @@ static NSString *const kDynamicLinkDomain = @"test.page.link";
     @return An instance of @c FIRActionCodeSettings for testing.
  */
 - (FIRActionCodeSettings *)fakeActionCodeSettings {
-  FIRActionCodeSettings *actionCodeSettings = [[FIRActionCodeSettings alloc]init];
+  FIRActionCodeSettings *actionCodeSettings = [[FIRActionCodeSettings alloc] init];
   [actionCodeSettings setIOSBundleID:kIosBundleID];
   [actionCodeSettings setAndroidPackageName:kAndroidPackageName
                       installIfNotAvailable:YES

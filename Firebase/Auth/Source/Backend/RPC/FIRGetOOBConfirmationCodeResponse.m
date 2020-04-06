@@ -25,8 +25,7 @@ static NSString *const kOOBCodeKey = @"oobCode";
 
 @implementation FIRGetOOBConfirmationCodeResponse
 
-- (BOOL)setWithDictionary:(NSDictionary *)dictionary
-                    error:(NSError *_Nullable *_Nullable)error {
+- (BOOL)setWithDictionary:(NSDictionary *)dictionary error:(NSError *_Nullable *_Nullable)error {
   _OOBCode = [dictionary[kOOBCodeKey] copy];
   return YES;
 }

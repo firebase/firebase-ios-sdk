@@ -1,4 +1,26 @@
-# Unreleased
+# v6.6.6 -- M68
+- [fixed] Unincluded umbrella header warnings in Carthage and zip distributions
+  introduced in Firebase 6.21.0. (#5209)
+
+# v6.6.5 -- M67
+- [changed] The zip distribution is now comprised of xcframeworks instead of
+  frameworks. This provides a binary distribution for the community supported
+  Firebase for Catalyst. See the zip's README for additional details.
+
+- [fixed] The FirebaseCoreDiagnostic.framework in the Carthage distribution
+  now includes an Info.plist. (#4917)
+
+- [changed] The arm64e slice is no longer included the zip
+  distribution's xcframeworks. The slice will be removed from the remaining
+  frameworks in a subsequent release. We will restore once arm64e is
+  officially supported by Apple.
+
+# v6.6.4 -- M66
+- [changed] Added an Apple platform flag (ios/macos/watchos/etc.) to `firebaseUserAgent`.
+  The information will be used to support product decisions related to Apple platforms,
+  e.g. prioritizing watchOS support, etc. (#4939)
+
+# v6.6.3 -- M65
 - [fixed] Fix Zip Builder module map generation that could cause linker missing
   symbol errors in the 6.14.0 through 6.16.0 binary release distributions. (#4819)
 

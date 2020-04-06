@@ -1,5 +1,13 @@
 # Unreleased
 
+# v1.11.2
+- [fixed] Fixed the FirebaseFirestore podspec to properly declare its
+  dependency on the UIKit framework on iOS and tvOS.
+
+# v1.11.1
+- [fixed] Firestore should now recover its connection to the server more
+  quickly after returning from the background (#4905).
+
 # v1.11.0
 - [changed] Improved performance of queries with large result sets.
 

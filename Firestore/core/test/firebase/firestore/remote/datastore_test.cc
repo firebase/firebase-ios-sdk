@@ -277,7 +277,7 @@ TEST_F(DatastoreTest, CommitMutationsError) {
 
   EXPECT_TRUE(done);
   EXPECT_FALSE(resulting_status.ok());
-  EXPECT_EQ(resulting_status.code(), Error::Unavailable);
+  EXPECT_EQ(resulting_status.code(), Error::kUnavailable);
 }
 
 TEST_F(DatastoreTest, LookupDocumentsErrorBeforeFirstRead) {
@@ -297,7 +297,7 @@ TEST_F(DatastoreTest, LookupDocumentsErrorBeforeFirstRead) {
 
   EXPECT_TRUE(done);
   EXPECT_FALSE(resulting_status.ok());
-  EXPECT_EQ(resulting_status.code(), Error::Unavailable);
+  EXPECT_EQ(resulting_status.code(), Error::kUnavailable);
 }
 
 TEST_F(DatastoreTest, LookupDocumentsErrorAfterFirstRead) {
@@ -320,7 +320,7 @@ TEST_F(DatastoreTest, LookupDocumentsErrorAfterFirstRead) {
   EXPECT_TRUE(done);
   EXPECT_TRUE(resulting_docs.empty());
   EXPECT_FALSE(resulting_status.ok());
-  EXPECT_EQ(resulting_status.code(), Error::Unavailable);
+  EXPECT_EQ(resulting_status.code(), Error::kUnavailable);
 }
 
 // Auth errors
@@ -382,17 +382,17 @@ MATCHER(IsPermanentError,
 }
 
 TEST_F(DatastoreTest, IsPermanentError) {
-  EXPECT_THAT(Error::Cancelled, Not(IsPermanentError()));
-  EXPECT_THAT(Error::ResourceExhausted, Not(IsPermanentError()));
-  EXPECT_THAT(Error::Unavailable, Not(IsPermanentError()));
+  EXPECT_THAT(Error::kCancelled, Not(IsPermanentError()));
+  EXPECT_THAT(Error::kResourceExhausted, Not(IsPermanentError()));
+  EXPECT_THAT(Error::kUnavailable, Not(IsPermanentError()));
   // User info doesn't matter:
   EXPECT_FALSE(Datastore::IsPermanentError(
-      Status{Error::Unavailable, "Connectivity lost"}));
+      Status{Error::kUnavailable, "Connectivity lost"}));
   // "unauthenticated" is considered a recoverable error due to expired token.
-  EXPECT_THAT(Error::Unauthenticated, Not(IsPermanentError()));
+  EXPECT_THAT(Error::kUnauthenticated, Not(IsPermanentError()));
 
-  EXPECT_THAT(Error::DataLoss, IsPermanentError());
-  EXPECT_THAT(Error::Aborted, IsPermanentError());
+  EXPECT_THAT(Error::kDataLoss, IsPermanentError());
+  EXPECT_THAT(Error::kAborted, IsPermanentError());
 }
 
 MATCHER(IsPermanentWriteError,
@@ -401,9 +401,9 @@ MATCHER(IsPermanentWriteError,
 }
 
 TEST_F(DatastoreTest, IsPermanentWriteError) {
-  EXPECT_THAT(Error::Unauthenticated, Not(IsPermanentWriteError()));
-  EXPECT_THAT(Error::DataLoss, IsPermanentWriteError());
-  EXPECT_THAT(Error::Aborted, Not(IsPermanentWriteError()));
+  EXPECT_THAT(Error::kUnauthenticated, Not(IsPermanentWriteError()));
+  EXPECT_THAT(Error::kDataLoss, IsPermanentWriteError());
+  EXPECT_THAT(Error::kAborted, Not(IsPermanentWriteError()));
 }
 
 }  // namespace remote

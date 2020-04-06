@@ -1,11 +1,11 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseABTesting'
-  s.version          = '3.1.2'
-  s.summary          = 'Firebase ABTesting for iOS'
+  s.version          = '3.2.0'
+  s.summary          = 'Firebase ABTesting'
 
   s.description      = <<-DESC
 A/B testing is a Firebase service that lets you run experiments across users of
-your iOS and Android apps. It lets you learn how well one or more changes to
+your mobile apps. It lets you learn how well one or more changes to
 your app work with a smaller set of users before you roll out changes to all
 users. You can run experiments to find the most effective ways to use
 Firebase Cloud Messaging and Firebase Remote Config in your app.

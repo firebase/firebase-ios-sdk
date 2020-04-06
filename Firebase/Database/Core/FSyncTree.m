@@ -234,13 +234,17 @@ static const NSUInteger kFSizeThresholdForCompoundHash = 1024;
             if ([write isOverwrite]) {
                 id<FNode> resolvedNode =
                     [FServerValues resolveDeferredValueSnapshot:write.overwrite
-                                               withServerValues:serverValues];
+                                                   withSyncTree:self
+                                                         atPath:write.path
+                                                   serverValues:serverValues];
                 [self.persistenceManager applyUserWrite:resolvedNode
                                     toServerCacheAtPath:write.path];
             } else {
                 FCompoundWrite *resolvedMerge = [FServerValues
                     resolveDeferredValueCompoundWrite:write.merge
-                                     withServerValues:serverValues];
+                                         withSyncTree:self
+                                               atPath:write.path
+                                         serverValues:serverValues];
                 [self.persistenceManager applyUserMerge:resolvedMerge
                                     toServerCacheAtPath:write.path];
             }

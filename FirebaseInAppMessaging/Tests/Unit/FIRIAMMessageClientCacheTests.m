@@ -369,7 +369,8 @@
   OCMStub([self.mockBookkeeper getImpressions]).andReturn(@[]);
 
   FIRIAMMessageDefinition *testMessage =
-      [[FIRIAMMessageDefinition alloc] initTestMessageWithRenderData:m2.renderData];
+      [[FIRIAMMessageDefinition alloc] initTestMessageWithRenderData:m2.renderData
+                                                   experimentPayload:nil];
 
   // m1 and m3 are messages rendered on app open
   [self.clientCache setMessageData:@[ m1, m2, testMessage, m3, m4 ]];

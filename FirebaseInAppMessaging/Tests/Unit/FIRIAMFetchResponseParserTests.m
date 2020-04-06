@@ -72,7 +72,7 @@
   XCTAssertEqualWithAccuracy([fetchWaitTime doubleValue],
                              nextFetchEpochTimeInResponse / 1000 - currentMoment, 0.1);
 
-  XCTAssertEqual(5, [results count]);
+  XCTAssertEqual(6, [results count]);
   XCTAssertEqual(0, discardCount);
 
   FIRIAMMessageDefinition *first = results[0];
@@ -135,6 +135,16 @@
                         fifth.renderData.contentData.secondaryActionURL.absoluteString);
   XCTAssertEqualObjects(@"Win Super Bowl LV",
                         fifth.renderData.contentData.secondaryActionButtonText);
+
+  FIRIAMMessageDefinition *sixth = results[5];
+  XCTAssertEqualObjects(@"687787988989", sixth.renderData.messageID);
+  XCTAssertEqualObjects(@"Super Bowl LV", sixth.renderData.name);
+  XCTAssertEqualObjects(@"Eagles are going to win", sixth.renderData.contentData.titleText);
+  XCTAssertNil(sixth.renderData.contentData.bodyText);
+  XCTAssertNil(sixth.appData);
+  XCTAssertNotNil(sixth.experimentPayload);
+  XCTAssertEqual(FIRIAMRenderAsModalView, sixth.renderData.renderingEffectSettings.viewMode);
+  XCTAssertEqual(1, sixth.renderTriggers.count);
 }
 
 - (void)testParsingTestMessage {

@@ -25,6 +25,10 @@
 #import <AppKit/AppKit.h>
 #endif  // TARGET_OS_IOS || TARGET_OS_TV
 
+#if TARGET_OS_IOS
+#import <CoreTelephony/CTTelephonyNetworkInfo.h>
+#endif
+
 NS_ASSUME_NONNULL_BEGIN
 
 /** The GoogleDataTransport library version. */
@@ -39,6 +43,35 @@ FOUNDATION_EXPORT NSString *const kGDTCORApplicationWillEnterForegroundNotificat
 /** A notification sent out if the app is terminating. */
 FOUNDATION_EXPORT NSString *const kGDTCORApplicationWillTerminateNotification;
 
+/** The different possible network connection type. */
+typedef NS_ENUM(NSInteger, GDTCORNetworkType) {
+  GDTCORNetworkTypeUNKNOWN = 0,
+  GDTCORNetworkTypeWIFI = 1,
+  GDTCORNetworkTypeMobile = 2,
+};
+
+/** The different possible network connection mobile subtype. */
+typedef NS_ENUM(NSInteger, GDTCORNetworkMobileSubtype) {
+  GDTCORNetworkMobileSubtypeUNKNOWN = 0,
+  GDTCORNetworkMobileSubtypeGPRS = 1,
+  GDTCORNetworkMobileSubtypeEdge = 2,
+  GDTCORNetworkMobileSubtypeWCDMA = 3,
+  GDTCORNetworkMobileSubtypeHSDPA = 4,
+  GDTCORNetworkMobileSubtypeHSUPA = 5,
+  GDTCORNetworkMobileSubtypeCDMA1x = 6,
+  GDTCORNetworkMobileSubtypeCDMAEVDORev0 = 7,
+  GDTCORNetworkMobileSubtypeCDMAEVDORevA = 8,
+  GDTCORNetworkMobileSubtypeCDMAEVDORevB = 9,
+  GDTCORNetworkMobileSubtypeHRPD = 10,
+  GDTCORNetworkMobileSubtypeLTE = 11,
+};
+
+/** Returns a URL to the root directory under which all GDT-associated data must be saved.
+ *
+ * @return A URL to the root directory under which all GDT-associated data must be saved.
+ */
+NSURL *GDTCORRootDirectory(void);
+
 #if !TARGET_OS_WATCH
 /** Compares flags with the WWAN reachability flag, if available, and returns YES if present.
  *
@@ -47,6 +80,43 @@ FOUNDATION_EXPORT NSString *const kGDTCORApplicationWillTerminateNotification;
  */
 BOOL GDTCORReachabilityFlagsContainWWAN(SCNetworkReachabilityFlags flags);
 #endif
+
+/** Generates an enum message GDTCORNetworkType representing network connection type.
+ *
+ * @return A GDTCORNetworkType representing network connection type.
+ */
+GDTCORNetworkType GDTCORNetworkTypeMessage(void);
+
+/** Generates an enum message GDTCORNetworkMobileSubtype representing network connection mobile
+ * subtype.
+ *
+ * @return A GDTCORNetworkMobileSubtype representing network connection mobile subtype.
+ */
+GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage(void);
+
+/** Writes the given object to the given fileURL and populates the given error if it fails.
+ *
+ * @param obj The object to encode.
+ * @param filePath The path to write the object to. Can be nil if you just need the data.
+ * @param error The error to populate if something goes wrong.
+ * @return The data of the archive. If error is nil, it's been written to disk.
+ */
+NSData *_Nullable GDTCOREncodeArchive(id<NSSecureCoding> obj,
+                                      NSString *_Nullable filePath,
+                                      NSError *_Nullable *error);
+
+/** Decodes an object of the given class from the given archive path or data and populates the given
+ * error if it fails.
+ *
+ * @param archiveClass The class of the archive's root object.
+ * @param archivePath The path to the archived data. Don't use with the archiveData param.
+ * @param archiveData The data to decode. Don't use with the archivePath param.
+ * @param error The error to populate if something goes wrong.
+ */
+id<NSSecureCoding> _Nullable GDTCORDecodeArchive(Class archiveClass,
+                                                 NSString *_Nullable archivePath,
+                                                 NSData *_Nullable archiveData,
+                                                 NSError *_Nullable *error);
 
 /** A typedef identify background identifiers. */
 typedef volatile NSUInteger GDTCORBackgroundIdentifier;

@@ -16,11 +16,11 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRAuthErrors.h"
 #import "FIRAuthBackend.h"
+#import "FIRAuthErrors.h"
+#import "FIRFakeBackendRPCIssuer.h"
 #import "FIRVerifyPasswordRequest.h"
 #import "FIRVerifyPasswordResponse.h"
-#import "FIRFakeBackendRPCIssuer.h"
 
 /** @var kTestPassword
     @brief Testing user password.
@@ -202,13 +202,13 @@ static const double kAllowedTimeDifference = 0.1;
   __block BOOL callbackInvoked;
   __block FIRVerifyPasswordResponse *RPCResponse;
   __block NSError *RPCError;
-  [FIRAuthBackend verifyPassword:request
-                        callback:^(FIRVerifyPasswordResponse *_Nullable response,
-                                   NSError *_Nullable error) {
-    RPCResponse = response;
-    RPCError = error;
-    callbackInvoked = YES;
-  }];
+  [FIRAuthBackend
+      verifyPassword:request
+            callback:^(FIRVerifyPasswordResponse *_Nullable response, NSError *_Nullable error) {
+              RPCResponse = response;
+              RPCError = error;
+              callbackInvoked = YES;
+            }];
   [_RPCIssuer respondWithServerErrorMessage:kUserDisabledErrorMessage];
   XCTAssert(callbackInvoked);
   XCTAssertNil(RPCResponse);
@@ -226,13 +226,13 @@ static const double kAllowedTimeDifference = 0.1;
   __block BOOL callbackInvoked;
   __block FIRVerifyPasswordResponse *RPCResponse;
   __block NSError *RPCError;
-  [FIRAuthBackend verifyPassword:request
-                        callback:^(FIRVerifyPasswordResponse *_Nullable response,
-                                   NSError *_Nullable error) {
-    RPCResponse = response;
-    RPCError = error;
-    callbackInvoked = YES;
-  }];
+  [FIRAuthBackend
+      verifyPassword:request
+            callback:^(FIRVerifyPasswordResponse *_Nullable response, NSError *_Nullable error) {
+              RPCResponse = response;
+              RPCError = error;
+              callbackInvoked = YES;
+            }];
   [_RPCIssuer respondWithServerErrorMessage:kEmailNotFoundErrorMessage];
   XCTAssert(callbackInvoked);
   XCTAssertNil(RPCResponse);
@@ -251,13 +251,13 @@ static const double kAllowedTimeDifference = 0.1;
   __block BOOL callbackInvoked;
   __block FIRVerifyPasswordResponse *RPCResponse;
   __block NSError *RPCError;
-  [FIRAuthBackend verifyPassword:request
-                        callback:^(FIRVerifyPasswordResponse *_Nullable response,
-                                   NSError *_Nullable error) {
-    RPCResponse = response;
-    RPCError = error;
-    callbackInvoked = YES;
-  }];
+  [FIRAuthBackend
+      verifyPassword:request
+            callback:^(FIRVerifyPasswordResponse *_Nullable response, NSError *_Nullable error) {
+              RPCResponse = response;
+              RPCError = error;
+              callbackInvoked = YES;
+            }];
   [_RPCIssuer respondWithServerErrorMessage:kWrongPasswordErrorMessage];
   XCTAssert(callbackInvoked);
   XCTAssertNil(RPCResponse);
@@ -270,19 +270,19 @@ static const double kAllowedTimeDifference = 0.1;
  */
 - (void)testInvalidEmailError {
   FIRVerifyPasswordRequest *request =
-    [[FIRVerifyPasswordRequest alloc] initWithEmail:kTestEmail
-                                           password:kTestPassword
-                               requestConfiguration:_requestConfiguration];
+      [[FIRVerifyPasswordRequest alloc] initWithEmail:kTestEmail
+                                             password:kTestPassword
+                                 requestConfiguration:_requestConfiguration];
   __block BOOL callbackInvoked;
   __block FIRVerifyPasswordResponse *RPCResponse;
   __block NSError *RPCError;
-  [FIRAuthBackend verifyPassword:request
-                        callback:^(FIRVerifyPasswordResponse *_Nullable response,
-                                   NSError *_Nullable error) {
-    RPCResponse = response;
-    RPCError = error;
-    callbackInvoked = YES;
-  }];
+  [FIRAuthBackend
+      verifyPassword:request
+            callback:^(FIRVerifyPasswordResponse *_Nullable response, NSError *_Nullable error) {
+              RPCResponse = response;
+              RPCError = error;
+              callbackInvoked = YES;
+            }];
   [_RPCIssuer respondWithServerErrorMessage:kInvalidEmailErrorMessage];
   XCTAssert(callbackInvoked);
   XCTAssertNil(RPCResponse);
@@ -301,13 +301,13 @@ static const double kAllowedTimeDifference = 0.1;
   __block BOOL callbackInvoked;
   __block FIRVerifyPasswordResponse *RPCResponse;
   __block NSError *RPCError;
-  [FIRAuthBackend verifyPassword:request
-                        callback:^(FIRVerifyPasswordResponse *_Nullable response,
-                                   NSError *_Nullable error) {
-    RPCResponse = response;
-    RPCError = error;
-    callbackInvoked = YES;
-  }];
+  [FIRAuthBackend
+      verifyPassword:request
+            callback:^(FIRVerifyPasswordResponse *_Nullable response, NSError *_Nullable error) {
+              RPCResponse = response;
+              RPCError = error;
+              callbackInvoked = YES;
+            }];
   [_RPCIssuer respondWithServerErrorMessage:kTooManyAttemptsErrorMessage];
   XCTAssert(callbackInvoked);
   XCTAssertNil(RPCResponse);
@@ -325,18 +325,18 @@ static const double kAllowedTimeDifference = 0.1;
   __block BOOL callbackInvoked;
   __block FIRVerifyPasswordResponse *RPCResponse;
   __block NSError *RPCError;
-  [FIRAuthBackend verifyPassword:request
-                        callback:^(FIRVerifyPasswordResponse *_Nullable response,
-                                   NSError *_Nullable error) {
-    RPCResponse = response;
-    RPCError = error;
-    callbackInvoked = YES;
-  }];
+  [FIRAuthBackend
+      verifyPassword:request
+            callback:^(FIRVerifyPasswordResponse *_Nullable response, NSError *_Nullable error) {
+              RPCResponse = response;
+              RPCError = error;
+              callbackInvoked = YES;
+            }];
 
   NSDictionary *errorDictionary = @{
     @"error" : @{
       @"message" : kBadRequestErrorMessage,
-      @"errors" : @[ @{ @"reason" : kInvalidKeyReasonValue } ]
+      @"errors" : @[ @{@"reason" : kInvalidKeyReasonValue} ]
     }
   };
   [_RPCIssuer respondWithJSONError:errorDictionary];
@@ -356,13 +356,13 @@ static const double kAllowedTimeDifference = 0.1;
   __block BOOL callbackInvoked;
   __block FIRVerifyPasswordResponse *RPCResponse;
   __block NSError *RPCError;
-  [FIRAuthBackend verifyPassword:request
-                        callback:^(FIRVerifyPasswordResponse *_Nullable response,
-                                   NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+  [FIRAuthBackend
+      verifyPassword:request
+            callback:^(FIRVerifyPasswordResponse *_Nullable response, NSError *_Nullable error) {
+              callbackInvoked = YES;
+              RPCResponse = response;
+              RPCError = error;
+            }];
 
   [_RPCIssuer respondWithServerErrorMessage:kOperationNotAllowedErrorMessage];
   XCTAssert(callbackInvoked);
@@ -375,19 +375,20 @@ static const double kAllowedTimeDifference = 0.1;
     @brief This test simulates a @c FIRAuthErrorCodeOperationNotAllowed error.
  */
 - (void)testPasswordLoginDisabledError {
-  FIRVerifyPasswordRequest *request = [[FIRVerifyPasswordRequest alloc] initWithEmail:kTestEmail
-                                                                             password:kTestPassword
-                                                                               requestConfiguration:_requestConfiguration];
+  FIRVerifyPasswordRequest *request =
+      [[FIRVerifyPasswordRequest alloc] initWithEmail:kTestEmail
+                                             password:kTestPassword
+                                 requestConfiguration:_requestConfiguration];
   __block BOOL callbackInvoked;
   __block FIRVerifyPasswordResponse *RPCResponse;
   __block NSError *RPCError;
-  [FIRAuthBackend verifyPassword:request
-                        callback:^(FIRVerifyPasswordResponse *_Nullable response,
-                                   NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+  [FIRAuthBackend
+      verifyPassword:request
+            callback:^(FIRVerifyPasswordResponse *_Nullable response, NSError *_Nullable error) {
+              callbackInvoked = YES;
+              RPCResponse = response;
+              RPCError = error;
+            }];
 
   [_RPCIssuer respondWithServerErrorMessage:kPasswordLoginDisabledErrorMessage];
   XCTAssert(callbackInvoked);
@@ -400,24 +401,25 @@ static const double kAllowedTimeDifference = 0.1;
     @brief Tests that @c FIRAuthErrorCodeAppNotAuthorized error is received from the server.
  */
 - (void)testAppNotAuthorized {
-  FIRVerifyPasswordRequest *request = [[FIRVerifyPasswordRequest alloc] initWithEmail:kTestEmail
-                                                                             password:kTestPassword
-                                                                               requestConfiguration:_requestConfiguration];
+  FIRVerifyPasswordRequest *request =
+      [[FIRVerifyPasswordRequest alloc] initWithEmail:kTestEmail
+                                             password:kTestPassword
+                                 requestConfiguration:_requestConfiguration];
   __block BOOL callbackInvoked;
   __block FIRVerifyPasswordResponse *RPCResponse;
   __block NSError *RPCError;
-  [FIRAuthBackend verifyPassword:request
-                        callback:^(FIRVerifyPasswordResponse *_Nullable response,
-                                   NSError *_Nullable error) {
-    RPCResponse = response;
-    RPCError = error;
-    callbackInvoked = YES;
-  }];
+  [FIRAuthBackend
+      verifyPassword:request
+            callback:^(FIRVerifyPasswordResponse *_Nullable response, NSError *_Nullable error) {
+              RPCResponse = response;
+              RPCError = error;
+              callbackInvoked = YES;
+            }];
 
   NSDictionary *errorDictionary = @{
     @"error" : @{
       @"message" : kBadRequestErrorMessage,
-      @"errors" : @[ @{ @"reason" : kAppNotAuthorizedReasonValue } ]
+      @"errors" : @[ @{@"reason" : kAppNotAuthorizedReasonValue} ]
     }
   };
   [_RPCIssuer respondWithJSONError:errorDictionary];
@@ -430,19 +432,20 @@ static const double kAllowedTimeDifference = 0.1;
     @brief Tests a succesful attempt of the verify password flow.
  */
 - (void)testSuccessfulVerifyPasswordResponse {
-  FIRVerifyPasswordRequest *request = [[FIRVerifyPasswordRequest alloc] initWithEmail:kTestEmail
-                                                                             password:kTestPassword
-                                                                               requestConfiguration:_requestConfiguration];
+  FIRVerifyPasswordRequest *request =
+      [[FIRVerifyPasswordRequest alloc] initWithEmail:kTestEmail
+                                             password:kTestPassword
+                                 requestConfiguration:_requestConfiguration];
   __block BOOL callbackInvoked;
   __block FIRVerifyPasswordResponse *RPCResponse;
   __block NSError *RPCError;
-  [FIRAuthBackend verifyPassword:request
-                        callback:^(FIRVerifyPasswordResponse *_Nullable response,
-                                   NSError *_Nullable error) {
-    RPCResponse = response;
-    RPCError = error;
-    callbackInvoked = YES;
-  }];
+  [FIRAuthBackend
+      verifyPassword:request
+            callback:^(FIRVerifyPasswordResponse *_Nullable response, NSError *_Nullable error) {
+              RPCResponse = response;
+              RPCError = error;
+              callbackInvoked = YES;
+            }];
 
   [_RPCIssuer respondWithJSON:@{
     kLocalIDKey : kTestLocalID,
@@ -463,7 +466,7 @@ static const double kAllowedTimeDifference = 0.1;
   NSTimeInterval expiresIn = [RPCResponse.approximateExpirationDate timeIntervalSinceNow];
   XCTAssertEqualWithAccuracy(expiresIn, [kTestExpiresIn doubleValue], kAllowedTimeDifference);
   XCTAssertEqualObjects(RPCResponse.refreshToken, kTestRefreshToken);
-  XCTAssertEqualObjects(RPCResponse.photoURL.absoluteString, kTestPhotoUrl );
+  XCTAssertEqualObjects(RPCResponse.photoURL.absoluteString, kTestPhotoUrl);
 }
 
 @end

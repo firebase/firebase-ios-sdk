@@ -16,11 +16,11 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRAuthErrors.h"
 #import "FIRAuthBackend.h"
+#import "FIRAuthErrors.h"
+#import "FIRFakeBackendRPCIssuer.h"
 #import "FIRResetPasswordRequest.h"
 #import "FIRResetPasswordResponse.h"
-#import "FIRFakeBackendRPCIssuer.h"
 
 /** @var kTestAPIKey
     @brief Fake API key used for testing.
@@ -59,7 +59,7 @@ static NSString *const kExpectedAPIURL =
 @interface FIRResetPasswordRequestTest : XCTestCase
 @end
 
-@implementation FIRResetPasswordRequestTest  {
+@implementation FIRResetPasswordRequestTest {
   /** @var _RPCIssuer
       @brief This backend RPC issuer is used to fake network responses for each test in the suite.
           In the @c setUp method we initialize this and set @c FIRAuthBackend's RPC issuer to it.
@@ -90,10 +90,11 @@ static NSString *const kExpectedAPIURL =
       [[FIRResetPasswordRequest alloc] initWithOobCode:kTestOOBCode
                                            newPassword:kTestNewPassword
                                   requestConfiguration:requestConfiguration];
-  [FIRAuthBackend resetPassword:request callback:^(FIRResetPasswordResponse *_Nullable response,
-                                                   NSError *_Nullable error) {
+  [FIRAuthBackend
+      resetPassword:request
+           callback:^(FIRResetPasswordResponse *_Nullable response, NSError *_Nullable error){
 
-  }];
+           }];
   XCTAssertEqualObjects(_RPCIssuer.requestURL.absoluteString, kExpectedAPIURL);
   XCTAssertNotNil(_RPCIssuer.decodedRequest);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[knewPasswordKey], kTestNewPassword);

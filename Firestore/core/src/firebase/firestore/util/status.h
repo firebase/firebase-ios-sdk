@@ -83,7 +83,8 @@ class ABSL_MUST_USE_RESULT Status {
   }
 
   Error code() const {
-    return ok() ? Error::Ok : (IsMovedFrom() ? Error::Internal : state_->code);
+    return ok() ? Error::kOk
+                : (IsMovedFrom() ? Error::kInternal : state_->code);
   }
 
   const std::string& error_message() const {

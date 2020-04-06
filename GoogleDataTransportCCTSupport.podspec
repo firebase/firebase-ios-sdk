@@ -1,7 +1,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'GoogleDataTransportCCTSupport'
-  s.version          = '1.4.0'
+  s.version          = '2.0.2'
   s.summary          = 'Support library for the GoogleDataTransport CCT backend target.'
 
 
@@ -30,10 +30,13 @@ Support library to provide event prioritization and uploading for the GoogleData
 
   s.source_files = 'GoogleDataTransportCCTSupport/GDTCCTLibrary/**/*'
   s.private_header_files = 'GoogleDataTransportCCTSupport/GDTCCTLibrary/Private/*.h'
+  s.ios.frameworks = 'SystemConfiguration', 'CoreTelephony'
+  s.osx.frameworks = 'SystemConfiguration', 'CoreTelephony'
+  s.tvos.frameworks = 'SystemConfiguration'
 
   s.libraries = ['z']
 
-  s.dependency 'GoogleDataTransport', '~> 4.0'
+  s.dependency 'GoogleDataTransport', '~> 5.1'
   s.dependency 'nanopb', '~> 0.3.901'
 
   header_search_paths = {

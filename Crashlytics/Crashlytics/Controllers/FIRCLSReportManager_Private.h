@@ -15,6 +15,8 @@
 #import "FIRCLSReportManager.h"
 #import "FIRCLSReportUploader.h"
 
+@class FIRCLSInstallIdentifierModel;
+
 @interface FIRCLSReportManager () <FIRCLSReportUploaderDelegate, FIRCLSReportUploaderDataSource>
 
 @property(nonatomic, strong) NSOperationQueue *operationQueue;

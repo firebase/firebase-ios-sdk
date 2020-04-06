@@ -254,7 +254,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                              rangeOfString:@"Failed to get InstanceID token"]
                              .location == NSNotFound);
           // Make a second fetch call.
-          [_configInstances[i]
+          [self->_configInstances[i]
               fetchWithExpirationDuration:43200
                         completionHandler:^void(FIRRemoteConfigFetchStatus status, NSError *error) {
                           XCTAssertNotNil(error);

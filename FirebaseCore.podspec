@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCore'
-  s.version          = '6.6.2'
-  s.summary          = 'Firebase Core for iOS (plus community support for macOS and tvOS)'
+  s.version          = '6.6.5'
+  s.summary          = 'Firebase Core'
 
   s.description      = <<-DESC
 Firebase Core includes FIRApp and FIROptions which provide central configuration for other Firebase services.
@@ -40,7 +40,7 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
-      'FIRCore_VERSION=' + s.version.to_s + ' Firebase_VERSION=6.17.0',
+      'FIRCore_VERSION=' + s.version.to_s + ' Firebase_VERSION=6.21.0',
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
     'OTHER_CFLAGS' => '-fno-autolink'
   }
@@ -53,6 +53,7 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   end
 
   s.test_spec 'swift-unit' do |swift_unit_tests|
+    swift_unit_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
     swift_unit_tests.source_files = 'FirebaseCore/Tests/Unit/Swift/**/*.swift',
                                     'FirebaseCore/Tests/Unit/Swift/**/*.h'
     swift_unit_tests.pod_target_xcconfig = {

@@ -40,7 +40,8 @@ enum CocoaPodUtils {
   }
 
   /// Information associated with an installed pod.
-  struct PodInfo {
+  /// This is a class so that moduleMapContents can be updated via reference.
+  class PodInfo {
     /// The version of the generated pod.
     let version: String
 
@@ -49,6 +50,39 @@ enum CocoaPodUtils {
 
     /// The location of the pod on disk.
     let installedLocation: URL
+
+    /// Source pod flag.
+    let isSourcePod: Bool
+
+    /// Binary frameworks in this pod.
+    let binaryFrameworks: [URL]
+
+    /// Subspecs installed for this pod.
+    let subspecs: Set<String>
+
+    /// The contents of the module map for all frameworks associated with the pod.
+    var moduleMapContents: ModuleMapBuilder.ModuleMapContents?
+
+    init(version: String, dependencies: [String], installedLocation: URL, subspecs: Set<String>) {
+      self.version = version
+      self.dependencies = dependencies
+      self.installedLocation = installedLocation
+      self.subspecs = subspecs
+
+      // Get all the frameworks contained in this directory.
+      var binaryFrameworks: [URL] = []
+      if installedLocation != LaunchArgs.shared.localPodspecPath {
+        do {
+          binaryFrameworks = try FileManager.default.recursivelySearch(for: .frameworks,
+                                                                       in: installedLocation)
+        } catch {
+          fatalError("Cannot search for .framework files in Pods directory " +
+            "\(installedLocation): \(error)")
+        }
+      }
+      self.binaryFrameworks = binaryFrameworks
+      isSourcePod = binaryFrameworks == []
+    }
   }
 
   /// Executes the `pod cache clean --all` command to remove any cached CocoaPods.
@@ -86,11 +120,14 @@ enum CocoaPodUtils {
   ///   - pods: List of VersionedPods to install
   ///   - directory: Destination directory for the pods.
   ///   - customSpecRepos: Additional spec repos to check for installation.
+  ///   - forceStaticLibs: Force a static library pod install. For the module map construction, we want pod names not module
+  ///                      names in the generated OTHER_LD_FLAGS options.
   /// - Returns: A dictionary of PodInfo's keyed by the pod name.
   @discardableResult
   static func installPods(_ pods: [VersionedPod],
                           inDir directory: URL,
-                          customSpecRepos: [URL]? = nil) -> [String: PodInfo] {
+                          customSpecRepos: [URL]?,
+                          forceStaticLibs: Bool = false) -> [String: PodInfo] {
     let fileManager = FileManager.default
     // Ensure the directory exists, otherwise we can't install all subspecs.
     guard fileManager.directoryExists(at: directory) else {
@@ -105,7 +142,10 @@ enum CocoaPodUtils {
 
     // Attempt to write the Podfile to disk.
     do {
-      try writePodfile(for: pods, toDirectory: directory, customSpecRepos: customSpecRepos)
+      try writePodfile(for: pods,
+                       toDirectory: directory,
+                       customSpecRepos: customSpecRepos,
+                       forceStaticLibs: forceStaticLibs)
     } catch let FileManager.FileError.directoryNotFound(path) {
       fatalError("Failed to write Podfile with pods \(pods) at path \(path)")
     } catch let FileManager.FileError.writeToFileFailed(path, error) {
@@ -115,7 +155,8 @@ enum CocoaPodUtils {
     }
 
     // Run pod install on the directory that contains the Podfile and blank Xcode project.
-    let result = Shell.executeCommandFromScript("pod _1.8.4_ install", workingDir: directory)
+    checkCocoaPodsVersion(directory: directory)
+    let result = Shell.executeCommandFromScript("pod install", workingDir: directory)
     switch result {
     case let .error(code, output):
       fatalError("""
@@ -155,8 +196,7 @@ enum CocoaPodUtils {
         break
       }
       if let (pod, version) = detectVersion(fromLine: line) {
-        let corePod = pod.components(separatedBy: "/")[0]
-        currentPod = corePod.trimmingCharacters(in: quotes)
+        currentPod = pod.trimmingCharacters(in: quotes)
         pods[currentPod!] = version
       } else if let currentPod = currentPod {
         let matches = depRegex.matches(in: line, range: NSRange(location: 0, length: line.utf8.count))
@@ -164,13 +204,33 @@ enum CocoaPodUtils {
         if let match = matches.first {
           let depLine = (line as NSString).substring(with: match.range(at: 0)) as String
           // Split spaces and subspecs.
-          let dep = depLine.components(separatedBy: [" ", "/"])[2].trimmingCharacters(in: quotes)
+          let dep = depLine.components(separatedBy: [" "])[2].trimmingCharacters(in: quotes)
           if dep != currentPod {
-            if deps[currentPod] == nil {
-              deps[currentPod] = Set()
-            }
-            deps[currentPod]?.insert(dep)
+            deps[currentPod, default: Set()].insert(dep)
           }
+        }
+      }
+    }
+    // Organize the subspecs
+    var versions: [String: String] = [:]
+    var subspecs: [String: Set<String>] = [:]
+
+    for (podName, version) in pods {
+      let subspecArray = podName.components(separatedBy: "/")
+      if subspecArray.count == 1 || subspecArray[0] == "abseil" {
+        // Special case for abseil since it has two layers and no external deps.
+        versions[subspecArray[0]] = version
+      } else if subspecArray.count > 2 {
+        fatalError("Multi-layered subspecs are not supported - \(podName)")
+      } else {
+        if let previousVersion = versions[podName], version != previousVersion {
+          fatalError("Different installed versions for \(podName)." +
+            "\(version) versus \(previousVersion)")
+        } else {
+          let basePodName = subspecArray[0]
+          versions[basePodName] = version
+          subspecs[basePodName, default: Set()].insert(subspecArray[1])
+          deps[basePodName] = deps[basePodName, default: Set()].union(deps[podName] ?? Set())
         }
       }
     }
@@ -178,7 +238,7 @@ enum CocoaPodUtils {
     // Generate an InstalledPod for each Pod found.
     let podsDir = projectDir.appendingPathComponent("Pods")
     var installedPods: [String: PodInfo] = [:]
-    for (podName, version) in pods {
+    for (podName, version) in versions {
       var podDir = podsDir.appendingPathComponent(podName)
       // Make sure that pod got installed if it's not coming from a local podspec.
       if !FileManager.default.directoryExists(at: podDir) {
@@ -189,7 +249,8 @@ enum CocoaPodUtils {
         podDir = repoDir
       }
       let dependencies = [String](deps[podName] ?? [])
-      let podInfo = PodInfo(version: version, dependencies: dependencies, installedLocation: podDir)
+      let podInfo = PodInfo(version: version, dependencies: dependencies, installedLocation: podDir,
+                            subspecs: subspecs[podName] ?? Set())
       installedPods[podName] = podInfo
     }
     return installedPods
@@ -250,6 +311,15 @@ enum CocoaPodUtils {
     return Array(returnDeps)
   }
 
+  /// Get all transitive pod dependencies for a pod with subspecs merged.
+  /// - Returns: An array of Strings of pod names.
+  static func transitiveMasterPodDependencies(for podName: String,
+                                              in installedPods: [String: PodInfo]) -> [String] {
+    return Array(Set(transitivePodDependencies(for: podName, in: installedPods).map {
+      $0.components(separatedBy: "/")[0]
+    }))
+  }
+
   /// Get all transitive pod dependencies for a pod.
   /// - Returns: An array of dependencies with versions for a given pod.
   static func transitiveVersionedPodDependencies(for podName: String,
@@ -299,7 +369,8 @@ enum CocoaPodUtils {
   /// Create the contents of a Podfile for an array of subspecs. This assumes the array of subspecs
   /// is not empty.
   private static func generatePodfile(for pods: [VersionedPod],
-                                      customSpecsRepos: [URL]? = nil) -> String {
+                                      customSpecsRepos: [URL]?,
+                                      forceStaticLibs: Bool) -> String {
     // Start assembling the Podfile.
     var podfile: String = ""
 
@@ -314,6 +385,13 @@ enum CocoaPodUtils {
       """ // Explicit newline above to ensure it's included in the String.
     }
 
+    if forceStaticLibs {
+      podfile += "  use_modular_headers!\n"
+    } else if LaunchArgs.shared.dynamic {
+      podfile += "  use_frameworks!\n"
+    } else {
+      podfile += "  use_frameworks! :linkage => :static\n"
+    }
     // Include the minimum iOS version.
     podfile += """
     platform :ios, '\(LaunchArgs.shared.minimumIOSVersion)'
@@ -341,14 +419,17 @@ enum CocoaPodUtils {
     }
 
     // If we're using local pods, explicitly add FirebaseInstanceID, FirebaseInstallations,
-    // and any Google* podspecs if they exist and there are no
+    // the Interop pods, and any Google* podspecs if they exist and there are no
     // explicit versions in the Podfile. Note there are versions for local podspecs if we're doing
     // the secondary install for module map building.
     if !versionsSpecified, let localURL = LaunchArgs.shared.localPodspecPath {
       let podspecs = try! FileManager.default.contentsOfDirectory(atPath: localURL.path)
       for podspec in podspecs {
         if (podspec == "FirebaseInstanceID.podspec" ||
-          podspec == "FirebaseInstallations.podspec") ||
+          podspec == "FirebaseInstallations.podspec" ||
+          podspec == "FirebaseAnalyticsInterop.podspec" ||
+          podspec == "FirebaseAuthInterop.podspec" ||
+          podspec == "FirebaseCoreDiagnostics.podspec") ||
           podspec.starts(with: "Google"), podspec.hasSuffix(".podspec") {
           let podName = podspec.replacingOccurrences(of: ".podspec", with: "")
           podfile += "  pod '\(podName)', :path => '\(localURL.path)/\(podspec)'\n"
@@ -363,7 +444,8 @@ enum CocoaPodUtils {
   /// "Podfile".
   private static func writePodfile(for pods: [VersionedPod],
                                    toDirectory directory: URL,
-                                   customSpecRepos: [URL]?) throws {
+                                   customSpecRepos: [URL]?,
+                                   forceStaticLibs: Bool) throws {
     guard FileManager.default.directoryExists(at: directory) else {
       // Throw an error so the caller can provide a better error message.
       throw FileManager.FileError.directoryNotFound(path: directory.path)
@@ -371,11 +453,41 @@ enum CocoaPodUtils {
 
     // Generate the full path of the Podfile and attempt to write it to disk.
     let path = directory.appendingPathComponent("Podfile")
-    let podfile = generatePodfile(for: pods, customSpecsRepos: customSpecRepos)
+    let podfile = generatePodfile(for: pods, customSpecsRepos: customSpecRepos, forceStaticLibs: forceStaticLibs)
     do {
       try podfile.write(toFile: path.path, atomically: true, encoding: .utf8)
     } catch {
       throw FileManager.FileError.writeToFileFailed(file: path.path, error: error)
+    }
+  }
+
+  private static var checkedCocoaPodsVersion = false
+
+  /// At least 1.9.0 is required for `use_frameworks! :linkage => :static`
+  /// - Parameters:
+  ///   - directory: Destination directory for the pods.
+  private static func checkCocoaPodsVersion(directory: URL) {
+    if checkedCocoaPodsVersion {
+      return
+    }
+    checkedCocoaPodsVersion = true
+    let podVersion = Shell.executeCommandFromScript("pod --version", workingDir: directory)
+    switch podVersion {
+    case let .error(code, output):
+      fatalError("""
+      `pod --version` failed with exit code \(code)
+      Output from `pod --version`:
+      \(output)
+      """)
+    case let .success(output):
+      let version = output.components(separatedBy: ".")
+      let major = Int(version[0])
+      guard let minor = Int(version[1]) else {
+        fatalError("Failed to parse minor version from \(version)")
+      }
+      if major == 1, minor < 9 {
+        fatalError("CocoaPods version must be at least 1.9.0. Using \(output)")
+      }
     }
   }
 }

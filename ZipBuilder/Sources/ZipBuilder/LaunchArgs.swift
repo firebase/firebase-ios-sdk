@@ -42,7 +42,9 @@ struct LaunchArgs {
     case archs
     case buildRoot
     case carthageDir
+    case carthageSkipVersionCheck
     case customSpecRepos
+    case dynamic
     case existingVersions
     case keepBuildArtifacts
     case localPodspecPath
@@ -66,8 +68,12 @@ struct LaunchArgs {
       case .carthageDir:
         return "The directory pointing to all Carthage JSON manifests. Passing this flag enables" +
           "the Carthage build."
+      case .carthageSkipVersionCheck:
+        return "A flag to skip the Carthage version check for development iteration."
       case .customSpecRepos:
         return "A comma separated list of custom CocoaPod Spec repos."
+      case .dynamic:
+        return "A flag specifying to build dynamic library frameworks."
       case .existingVersions:
         return "The file path to a textproto file containing the existing released SDK versions, " +
           "of type `ZipBuilder_FirebaseSDKs`."
@@ -110,6 +116,9 @@ struct LaunchArgs {
   /// build.
   let carthageDir: URL?
 
+  /// Skip the Carthage version check
+  let carthageSkipVersionCheck: Bool
+
   /// A file URL to a textproto with the contents of a `ZipBuilder_Release` object. Used to verify
   /// expected version numbers.
   let currentReleasePath: URL?
@@ -117,6 +126,9 @@ struct LaunchArgs {
   /// Custom CocoaPods spec repos to be used. If not provided, the tool will only use the CocoaPods
   /// master repo.
   let customSpecRepos: [URL]?
+
+  /// A flag that indicates to build dynamic library frameworks. The default is false and static linkage.
+  let dynamic: Bool
 
   /// A flag to keep the build artifacts after this script completes.
   let keepBuildArtifacts: Bool
@@ -324,6 +336,8 @@ struct LaunchArgs {
       minimumIOSVersion = "9.0"
     }
 
+    carthageSkipVersionCheck = defaults.bool(forKey: Key.carthageSkipVersionCheck.rawValue)
+    dynamic = defaults.bool(forKey: Key.dynamic.rawValue)
     updatePodRepo = defaults.bool(forKey: Key.updatePodRepo.rawValue)
     keepBuildArtifacts = defaults.bool(forKey: Key.keepBuildArtifacts.rawValue)
 

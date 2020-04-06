@@ -27,13 +27,13 @@ namespace local {
 namespace {
 
 Error ConvertStatusCode(const leveldb::Status& status) {
-  if (status.ok()) return Error::Ok;
-  if (status.IsNotFound()) return Error::NotFound;
-  if (status.IsCorruption()) return Error::DataLoss;
-  if (status.IsIOError()) return Error::Unavailable;
-  if (status.IsNotSupportedError()) return Error::Unimplemented;
-  if (status.IsInvalidArgument()) return Error::InvalidArgument;
-  return Error::Unknown;
+  if (status.ok()) return Error::kOk;
+  if (status.IsNotFound()) return Error::kNotFound;
+  if (status.IsCorruption()) return Error::kDataLoss;
+  if (status.IsIOError()) return Error::kUnavailable;
+  if (status.IsNotSupportedError()) return Error::kUnimplemented;
+  if (status.IsInvalidArgument()) return Error::kInvalidArgument;
+  return Error::kUnknown;
 }
 
 }  // namespace

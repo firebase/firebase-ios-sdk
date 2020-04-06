@@ -46,7 +46,7 @@ class CollectionReference : public Query {
                       std::shared_ptr<Firestore> firestore);
 
   /** ID of the referenced collection. */
-  std::string collection_id() const;
+  const std::string& collection_id() const;
 
   /**
    * For subcollections, `parent` returns the containing `DocumentReference`.

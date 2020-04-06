@@ -73,7 +73,8 @@
 }
 
 - (void)beginSettingsAndOnboardingWithGoogleAppId:(NSString *)googleAppID
-                                            token:(FIRCLSDataCollectionToken *)token {
+                                            token:(FIRCLSDataCollectionToken *)token
+                                waitForCompletion:(BOOL)waitForCompletion {
   NSParameterAssert(googleAppID);
 
   self.googleAppID = googleAppID;
@@ -86,7 +87,7 @@
     FIRCLSApplicationGetSDKBundleID() : @CLS_SDK_DISPLAY_VERSION,
   };
 
-  [self beginSettingsDownload:token];
+  [self beginSettingsDownload:token waitForCompletion:waitForCompletion];
 }
 
 #pragma mark Helper methods
@@ -97,7 +98,10 @@
  * to the server. If the onboarding request fails, the error is handled silently(with a log
  * statement).
  */
-- (void)beginSettingsDownload:(FIRCLSDataCollectionToken *)token {
+- (void)beginSettingsDownload:(FIRCLSDataCollectionToken *)token
+            waitForCompletion:(BOOL)waitForCompletion {
+  dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+
   FIRCLSDownloadAndSaveSettingsOperation *operation = nil;
   operation = [[FIRCLSDownloadAndSaveSettingsOperation alloc]
         initWithGoogleAppID:self.googleAppID
@@ -109,7 +113,17 @@
               networkClient:self.networkClient
                       token:token];
 
+  if (waitForCompletion) {
+    operation.asyncCompletion = ^(NSError *error) {
+      dispatch_semaphore_signal(semaphore);
+    };
+  }
+
   [operation startWithToken:token];
+
+  if (waitForCompletion) {
+    dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+  }
 }
 
 - (void)beginOnboarding:(BOOL)appCreate
@@ -148,7 +162,7 @@
   FIRCLSDebugLog(@"Completed configure");
 
   // now, go get settings, as they can change (and it completes the onboarding process)
-  [self beginSettingsDownload:operation.token];
+  [self beginSettingsDownload:operation.token waitForCompletion:NO];
 }
 
 - (void)onboardingOperation:(FIRCLSOnboardingOperation *)operation

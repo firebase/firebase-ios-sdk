@@ -33,8 +33,7 @@ static NSString *const kIDTokenKey = @"idToken";
 
 - (nullable instancetype)initWithAccessToken:(NSString *)accessToken
                         requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
-  self = [super initWithEndpoint:kGetAccountInfoEndpoint
-            requestConfiguration:requestConfiguration];
+  self = [super initWithEndpoint:kGetAccountInfoEndpoint requestConfiguration:requestConfiguration];
   if (self) {
     _accessToken = [accessToken copy];
   }
@@ -42,9 +41,7 @@ static NSString *const kIDTokenKey = @"idToken";
 }
 
 - (nullable id)unencodedHTTPRequestBodyWithError:(NSError *_Nullable *_Nullable)error {
-  return @{
-    kIDTokenKey : _accessToken
-  };
+  return @{kIDTokenKey : _accessToken};
 }
 
 @end

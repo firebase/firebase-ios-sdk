@@ -1,3 +1,17 @@
+# Unreleased
+- Remove usage of memcpy and convert calls from malloc to calloc.
+- Fixes a race condition likely to occur when removing events.
+
+# v5.1.0
+- Stops creation of an event with a nil fileURL. (#5088)
+- Adds API to consolidate make NSSecureCoding related calls.
+- Better Catalyst support in testing.
+- GDTCOREvent is moved to an app cache relative path model.
+- Better debug logging.
+
+# v5.0.0
+- Refactors some APIs to fix passing of data from event generation to storage.
+
 # v4.0.1
 - Fixes missing a dispatch_sync and on-queue work in appWillTerminate of storage. (#4546)
 

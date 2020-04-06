@@ -27,8 +27,8 @@ NS_SWIFT_NAME(AuthSettings)
 /** @property appVerificationDisabledForTesting
     @brief Flag to determine whether app verification should be disabled for testing or not.
  */
-@property(nonatomic, assign, getter=isAppVerificationDisabledForTesting) BOOL
-    appVerificationDisabledForTesting;
+@property(nonatomic, assign, getter=isAppVerificationDisabledForTesting)
+    BOOL appVerificationDisabledForTesting;
 
 @end
 

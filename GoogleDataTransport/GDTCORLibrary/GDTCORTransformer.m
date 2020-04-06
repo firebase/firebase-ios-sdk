@@ -49,8 +49,9 @@
 
 - (void)transformEvent:(GDTCOREvent *)event
       withTransformers:(NSArray<id<GDTCOREventTransformer>> *)transformers
-            onComplete:(nonnull void (^)(BOOL wasWritten, NSError *error))completion {
+            onComplete:(void (^_Nullable)(BOOL wasWritten, NSError *error))completion {
   GDTCORAssert(event, @"You can't write a nil event");
+  BOOL hadOriginalCompletion = completion != nil;
   if (!completion) {
     completion = ^(BOOL wasWritten, NSError *_Nullable error) {
     };
@@ -85,9 +86,7 @@
         [GDTCORRegistrar sharedInstance].targetToStorage[@(event.target)];
 
     [storage storeEvent:transformedEvent
-             onComplete:^(NSError *_Nullable error) {
-               completion(error ? NO : YES, error);
-             }];
+             onComplete:hadOriginalCompletion ? completion : nil];
 
     // The work is done, cancel the background task if it's valid.
     [[GDTCORApplication sharedApplication] endBackgroundTask:bgID];

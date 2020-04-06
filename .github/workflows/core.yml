@@ -10,7 +10,7 @@ on:
     - cron:  '0 7 * * *'
 
 jobs:
-  pod_lib_lint:
+  pod-lib-lint:
     runs-on: macOS-latest
 
     strategy:
@@ -23,6 +23,15 @@ jobs:
     - name: Build and test
       run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=${{ matrix.target }}
 
+  catalyst:
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Setup project and Build Catalyst
+      run: scripts/test_catalyst.sh FirebaseCore build
+
   core-cron-only:
     runs-on: macos-latest
     if: github.event_name == 'schedule'
@@ -34,7 +43,7 @@ jobs:
           # Tests are skipped since the Swift tests need modules.
           '--skip-tests --use-libraries'
         ]
-    needs: pod_lib_lint
+    needs: pod-lib-lint
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler

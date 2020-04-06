@@ -18,6 +18,7 @@
 
 #import "GDTCCTTests/Unit/Helpers/GDTCCTEventGenerator.h"
 
+#import "GDTCCTLibrary/Private/GDTCCTNanopbHelpers.h"
 #import "GDTCCTLibrary/Private/GDTCCTPrioritizer.h"
 
 @interface GDTCCTPrioritizerTest : XCTestCase
@@ -165,6 +166,42 @@
                                       conditions:GDTCORUploadConditionMobileData];
   XCTAssertTrue([package.events containsObject:dailyEvent]);
   XCTAssertTrue([package.events containsObject:telemetryEvent]);
+}
+
+/** Tests updating events generated network_connection_info. */
+- (void)testNetworkConnectionInfo {
+  GDTCCTPrioritizer *prioritizer = [[GDTCCTPrioritizer alloc] init];
+  GDTCOREvent *event = [_CCTGenerator generateEvent:GDTCOREventQosDefault];
+  event.customPrioritizationParams = @{GDTCCTNeedsNetworkConnectionInfo : @YES};
+  [prioritizer prioritizeEvent:event];
+  XCTAssertNotNil(event.customPrioritizationParams[GDTCCTNetworkConnectionInfo]);
+  NSData *networkConnectionInfoData = event.customPrioritizationParams[GDTCCTNetworkConnectionInfo];
+  gdt_cct_NetworkConnectionInfo info;
+  [networkConnectionInfoData getBytes:&info length:networkConnectionInfoData.length];
+  XCTAssertNotEqual(info.network_type, gdt_cct_NetworkConnectionInfo_NetworkType_NONE);
+}
+
+/** Tests encoding and decoding a clock using a keyed archiver. */
+- (void)testEncodingAndDecoding {
+  GDTCCTPrioritizer *prioritizer = [GDTCCTPrioritizer sharedInstance];
+  GDTCOREvent *event = [_CCTGenerator generateEvent:GDTCOREventQosDefault];
+  event.customPrioritizationParams = @{GDTCCTNeedsNetworkConnectionInfo : @YES};
+  [prioritizer prioritizeEvent:event];
+  NSError *error;
+  dispatch_sync(prioritizer.queue, ^{
+                });
+  XCTAssertEqual(prioritizer.CCTEvents.count, 1);
+  NSData *prioritizerData = GDTCOREncodeArchive(prioritizer, nil, &error);
+  XCTAssertNil(error);
+  XCTAssertNotNil(prioritizerData);
+
+  error = nil;
+  GDTCCTPrioritizer *unarchivedPrioritizer = (GDTCCTPrioritizer *)GDTCORDecodeArchive(
+      [GDTCCTPrioritizer class], nil, prioritizerData, &error);
+  XCTAssertNil(error);
+  XCTAssertNotNil(unarchivedPrioritizer);
+  XCTAssertEqual([prioritizer hash], [prioritizer hash]);
+  XCTAssertEqualObjects(prioritizer.CCTEvents, unarchivedPrioritizer.CCTEvents);
 }
 
 @end

@@ -16,7 +16,7 @@
 
 #if TARGET_OS_IOS || TARGET_OS_TV
 #import <MobileCoreServices/MobileCoreServices.h>
-#elif TARGET_OS_OSX
+#elif TARGET_OS_OSX || TARGET_OS_WATCH
 #import <CoreServices/CoreServices.h>
 #endif
 

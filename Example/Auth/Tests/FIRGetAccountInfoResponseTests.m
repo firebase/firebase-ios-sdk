@@ -16,13 +16,13 @@
 
 #import <XCTest/XCTest.h>
 
+#import "FIRAuthBackend.h"
 #import "FIRAuthErrors.h"
 #import "FIRAuthInternalErrors.h"
-#import "FIRAuthBackend.h"
-#import "FIRGetOOBConfirmationCodeResponse.h"
+#import "FIRFakeBackendRPCIssuer.h"
 #import "FIRGetAccountInfoRequest.h"
 #import "FIRGetAccountInfoResponse.h"
-#import "FIRFakeBackendRPCIssuer.h"
+#import "FIRGetOOBConfirmationCodeResponse.h"
 
 /** @var kTestAPIKey
     @brief Fake API key used for testing.
@@ -159,18 +159,16 @@ static NSString *const kEmailVerifiedKey = @"emailVerified";
   __block BOOL callbackInvoked;
   __block FIRGetAccountInfoResponse *RPCResponse;
   __block NSError *RPCError;
-  [FIRAuthBackend getAccountInfo:request
-                        callback:^(FIRGetAccountInfoResponse *_Nullable response,
-                                   NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+  [FIRAuthBackend
+      getAccountInfo:request
+            callback:^(FIRGetAccountInfoResponse *_Nullable response, NSError *_Nullable error) {
+              callbackInvoked = YES;
+              RPCResponse = response;
+              RPCError = error;
+            }];
 
-  NSArray *erroneousUserData = @[@"user1Data", @"user2Data"];
-  [_RPCIssuer respondWithJSON:@{
-    kUsersKey : erroneousUserData
-  }];
+  NSArray *erroneousUserData = @[ @"user1Data", @"user2Data" ];
+  [_RPCIssuer respondWithJSON:@{kUsersKey : erroneousUserData}];
 
   XCTAssert(callbackInvoked);
   XCTAssertNotNil(RPCError);
@@ -196,33 +194,29 @@ static NSString *const kEmailVerifiedKey = @"emailVerified";
   __block BOOL callbackInvoked;
   __block FIRGetAccountInfoResponse *RPCResponse;
   __block NSError *RPCError;
-  [FIRAuthBackend getAccountInfo:request
-                        callback:^(FIRGetAccountInfoResponse *_Nullable response,
-                                   NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
+  [FIRAuthBackend
+      getAccountInfo:request
+            callback:^(FIRGetAccountInfoResponse *_Nullable response, NSError *_Nullable error) {
+              callbackInvoked = YES;
+              RPCResponse = response;
+              RPCError = error;
+            }];
 
-  NSArray *users = @[
-    @{
-      kProviderUserInfoKey:@[
-        @{
-          kProviderIDkey : kTestProviderID,
-          kDisplayNameKey: kTestDisplayName,
-          kPhotoUrlKey : kTestPhotoURL,
-          kFederatedIDKey : kTestFederatedID,
-          kEmailKey : kTestEmail,
-        }
-      ],
-      kLocalIDKey : kTestLocalID,
+  NSArray *users = @[ @{
+    kProviderUserInfoKey : @[ @{
+      kProviderIDkey : kTestProviderID,
       kDisplayNameKey : kTestDisplayName,
-      kEmailKey : kTestEmail,
       kPhotoUrlKey : kTestPhotoURL,
-      kEmailVerifiedKey : @YES,
-      kPasswordHashKey : kTestPasswordHash
-    }
-  ];
+      kFederatedIDKey : kTestFederatedID,
+      kEmailKey : kTestEmail,
+    } ],
+    kLocalIDKey : kTestLocalID,
+    kDisplayNameKey : kTestDisplayName,
+    kEmailKey : kTestEmail,
+    kPhotoUrlKey : kTestPhotoURL,
+    kEmailVerifiedKey : @YES,
+    kPasswordHashKey : kTestPasswordHash
+  } ];
   [_RPCIssuer respondWithJSON:@{
     @"users" : users,
   }];

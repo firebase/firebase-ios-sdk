@@ -35,9 +35,9 @@ NS_SWIFT_NAME(FederatedAuthProvider)
     @param credential The credential obtained.
     @param error The error that occurred if any.
  */
-typedef void(^FIRAuthCredentialCallback)(FIRAuthCredential *_Nullable credential,
-                                         NSError *_Nullable error)
-                                             NS_SWIFT_NAME(AuthCredentialCallback);
+typedef void (^FIRAuthCredentialCallback)(FIRAuthCredential *_Nullable credential,
+                                          NSError *_Nullable error)
+    NS_SWIFT_NAME(AuthCredentialCallback);
 
 #if TARGET_OS_IOS
 /** @fn getCredentialWithUIDelegate:completion:

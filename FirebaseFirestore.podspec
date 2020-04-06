@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFirestore'
-  s.version          = '1.10.2'
-  s.summary          = 'Google Cloud Firestore for iOS'
+  s.version          = '1.11.2'
+  s.summary          = 'Google Cloud Firestore'
 
   s.description      = <<-DESC
 Google Cloud Firestore is a NoSQL document database built for automatic scaling, high performance, and ease of application development.
@@ -74,9 +74,9 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   s.dependency 'leveldb-library', '~> 1.22'
   s.dependency 'nanopb', '~> 0.3.901'
 
-  s.ios.frameworks = 'MobileCoreServices', 'SystemConfiguration'
+  s.ios.frameworks = 'MobileCoreServices', 'SystemConfiguration', 'UIKit'
   s.osx.frameworks = 'SystemConfiguration'
-  s.tvos.frameworks = 'SystemConfiguration'
+  s.tvos.frameworks = 'SystemConfiguration', 'UIKit'
 
   s.library = 'c++'
   s.pod_target_xcconfig = {

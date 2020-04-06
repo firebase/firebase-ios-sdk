@@ -28,13 +28,13 @@ namespace firestore {
 enum Error {
   /** The operation completed successfully. */
   // Note: NSError objects will never have a code with this value.
-  Ok = 0,
+  kOk = 0,
 
   /** The operation was cancelled (typically by the caller). */
-  Cancelled = 1,
+  kCancelled = 1,
 
   /** Unknown error or an error from a different error domain. */
-  Unknown = 2,
+  kUnknown = 2,
 
   /**
    * Client specified an invalid argument. Note that this differs from
@@ -42,7 +42,7 @@ enum Error {
    * problematic regardless of the state of the system (e.g., an invalid field
    * name).
    */
-  InvalidArgument = 3,
+  kInvalidArgument = 3,
 
   /**
    * Deadline expired before operation could complete. For operations that
@@ -51,59 +51,61 @@ enum Error {
    * from a server could have been delayed long enough for the deadline to
    * expire.
    */
-  DeadlineExceeded = 4,
+  kDeadlineExceeded = 4,
 
   /** Some requested document was not found. */
-  NotFound = 5,
+  kNotFound = 5,
 
   /** Some document that we attempted to create already exists. */
-  AlreadyExists = 6,
+  kAlreadyExists = 6,
 
   /** The caller does not have permission to execute the specified operation. */
-  PermissionDenied = 7,
+  kPermissionDenied = 7,
 
   /**
    * Some resource has been exhausted, perhaps a per-user quota, or perhaps the
    * entire file system is out of space.
    */
-  ResourceExhausted = 8,
+  kResourceExhausted = 8,
 
   /**
    * Operation was rejected because the system is not in a state required for
    * the operation's execution.
    */
-  FailedPrecondition = 9,
+  kFailedPrecondition = 9,
 
   /**
    * The operation was aborted, typically due to a concurrency issue like
    * transaction aborts, etc.
    */
-  Aborted = 10,
+  kAborted = 10,
 
   /** Operation was attempted past the valid range. */
-  OutOfRange = 11,
+  kOutOfRange = 11,
 
   /** Operation is not implemented or not supported/enabled. */
-  Unimplemented = 12,
+  kUnimplemented = 12,
 
   /**
    * Internal errors. Means some invariants expected by underlying system has
    * been broken. If you see one of these errors, something is very broken.
    */
-  Internal = 13,
+  kInternal = 13,
 
   /**
    * The service is currently unavailable. This is a most likely a transient
    * condition and may be corrected by retrying with a backoff.
    */
-  Unavailable = 14,
+  kUnavailable = 14,
 
   /** Unrecoverable data loss or corruption. */
-  DataLoss = 15,
+  kDataLoss = 15,
 
-  /** The request does not have valid authentication credentials for the
-     operation. */
-  Unauthenticated = 16
+  /**
+   * The request does not have valid authentication credentials for the
+   * operation.
+   */
+  kUnauthenticated = 16
 };
 
 }  // namespace firestore

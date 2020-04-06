@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAuth'
-  s.version          = '6.4.3'
-  s.summary          = 'The official iOS client for Firebase Authentication (plus community support for macOS and tvOS)'
+  s.version          = '6.5.1'
+  s.summary          = 'Apple platform client for Firebase Authentication'
 
   s.description      = <<-DESC
 Firebase Authentication allows you to manage your own account system without any backend code. It

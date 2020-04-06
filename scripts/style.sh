@@ -153,8 +153,8 @@ s%^./%%
 # Sources pulled in by travis bundler, with and without a leading slash
 \%^/?vendor/bundle/% d
 
-# Sources within the tree that are not subject to formatting
-\%^(Example|Firebase)/(Auth|AuthSamples)/% d
+# Auth Sample is not subject to formatting
+\%^(Example/Auth/Sample)/% d
 
 # Keep Firebase.h indenting
 \%^CoreOnly/Sources/Firebase.h% d

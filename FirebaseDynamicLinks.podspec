@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseDynamicLinks'
-  s.version          = '4.0.7'
-  s.summary          = 'Firebase DynamicLinks for iOS'
+  s.version          = '4.0.8'
+  s.summary          = 'Firebase Dynamic Links'
 
   s.description      = <<-DESC
 Firebase Dynamic Links are deep links that enhance user experience and increase engagement by retaining context post-install, across platforms.
@@ -24,7 +24,7 @@ Firebase Dynamic Links are deep links that enhance user experience and increase 
 
   s.source_files = 'FirebaseDynamicLinks/Sources/**/*.[mh]'
   s.public_header_files = 'FirebaseDynamicLinks/Sources/Public/*.h'
-  s.frameworks = 'AssetsLibrary', 'MessageUI', 'QuartzCore'
+  s.frameworks = 'QuartzCore'
   s.weak_framework = 'WebKit'
   s.dependency 'FirebaseCore', '~> 6.2'
   s.dependency 'FirebaseAnalyticsInterop', '~> 1.3'

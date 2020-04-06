@@ -79,7 +79,7 @@ else
 
     Crashlytics-*)
       check_changes '^(FirebaseCore|GoogleUtilities|Crashlytics|FirebaseCrashlytics.podspec|Firebase/InstanceID|FirebaseInstanceID.podspec|'\
-'FirebaseInstallations)'
+'FirebaseInstallations|GoogleDataTransport|GoogleDataTransport.podspec|GoogleDataTransportCCTSupport|GoogleDataTransportCCTSupport.podspec)'
       ;;
 
     Database-*)

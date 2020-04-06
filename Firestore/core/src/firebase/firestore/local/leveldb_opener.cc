@@ -95,7 +95,7 @@ StatusOr<Path> LevelDbOpener::PrepareDataDir() {
   Status dir_status = fs_->IsDirectory(db_data_dir);
   if (dir_status.ok()) {
     return db_data_dir;
-  } else if (dir_status.code() != Error::NotFound) {
+  } else if (dir_status.code() != Error::kNotFound) {
     return dir_status;
   }
 
@@ -114,8 +114,8 @@ StatusOr<Path> LevelDbOpener::PrepareDataDir() {
     // The legacy directory does exist, so migrate
     return MigrateDataDir(legacy_db_data_dir, db_data_dir);
 
-  } else if (dir_status.code() != Error::NotFound &&
-             dir_status.code() != Error::Unimplemented) {
+  } else if (dir_status.code() != Error::kNotFound &&
+             dir_status.code() != Error::kUnimplemented) {
     return dir_status;
   }
 
@@ -233,7 +233,7 @@ void LevelDbOpener::RecursivelyCleanupLegacyDirs(Path legacy_dir) {
         }
       }
 
-    } else if (is_dir.code() != Error::NotFound) {
+    } else if (is_dir.code() != Error::kNotFound) {
       LOG_WARN("Could not remove directory %s: %s", legacy_dir.ToUtf8String(),
                is_dir.ToString());
       break;

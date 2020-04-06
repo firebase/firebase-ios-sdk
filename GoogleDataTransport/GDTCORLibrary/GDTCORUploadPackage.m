@@ -80,7 +80,7 @@
       [_handler respondsToSelector:@selector(packageDelivered:successful:)]) {
     [_expirationTimer invalidate];
     _isHandled = YES;
-    [_handler packageDelivered:self successful:YES];
+    [_handler packageDelivered:[self copy] successful:YES];
   }
   GDTCORLogDebug("Upload package delivered: %@", self);
 }
@@ -90,7 +90,7 @@
       [_handler respondsToSelector:@selector(packageDelivered:successful:)]) {
     [_expirationTimer invalidate];
     _isHandled = YES;
-    [_handler packageDelivered:self successful:NO];
+    [_handler packageDelivered:[self copy] successful:NO];
   }
   GDTCORLogDebug("Upload package will retry in the future: %@", self);
 }

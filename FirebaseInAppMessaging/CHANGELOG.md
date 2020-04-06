@@ -1,3 +1,14 @@
+# 2020-04-07 -- v0.19.2
+- [fixed] Internal fixes for test apps (#5171).
+
+# 2020-03-17 -- v0.19.1
+- [fixed] Fixed display issue with banner messages on iPad Pro 11" (#4714).
+- [fixed] Fixed 400 errors from backend due to a bug in the Instance ID SDK (#3887).
+- [changed] Internal change in in-app message A/B test flow (#5078).
+
+# 2020-03-10 -- v0.19.0
+- [added] Added SDK support for A/B testing in-app messages.
+
 # 2020-02-18 -- v0.17.0
 - [added] Added support for data bundles for in-app messages. Data bundles are additional key-value pairs that can be sent along with an in-app message (#4922).
 

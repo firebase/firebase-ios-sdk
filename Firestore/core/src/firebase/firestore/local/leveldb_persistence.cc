@@ -133,7 +133,7 @@ Status LevelDbPersistence::EnsureDirectory(const Path& dir) {
   auto* fs = Filesystem::Default();
   Status status = fs->RecursivelyCreateDir(dir);
   if (!status.ok()) {
-    return Status{Error::Internal, "Failed to create persistence directory"}
+    return Status{Error::kInternal, "Failed to create persistence directory"}
         .CausedBy(status);
   }
 
@@ -147,7 +147,7 @@ StatusOr<std::unique_ptr<DB>> LevelDbPersistence::OpenDb(const Path& dir) {
   DB* database = nullptr;
   leveldb::Status status = DB::Open(options, dir.ToUtf8String(), &database);
   if (!status.ok()) {
-    return Status{Error::Internal,
+    return Status{Error::kInternal,
                   StringFormat("Failed to open LevelDB database at %s",
                                dir.ToUtf8String())}
         .CausedBy(ConvertStatus(status));

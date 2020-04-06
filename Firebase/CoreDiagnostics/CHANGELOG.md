@@ -1,4 +1,7 @@
-# v1.2.1
+# Unreleased
+- Remove usage of memcpy and convert calls from malloc to calloc.
+
+# v1.2.2
 - Fixed a bug that would manifest if a proto ended up being > 16,320 bytes.
 - Now checks the result of malloc. (#4872)
 

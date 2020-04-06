@@ -16,9 +16,9 @@
 
 #import <XCTest/XCTest.h>
 
+#import <OCMock/OCMock.h>
 #import "FIRAdditionalUserInfo_Internal.h"
 #import "FIRVerifyAssertionResponse.h"
-#import <OCMock/OCMock.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -52,11 +52,7 @@ static NSString *const kProviderID = @"PROVIDER_ID";
   static NSDictionary *kProfile = nil;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
-    kProfile = @{
-      @"email": @"user@mail.com",
-      @"given_name": @"User",
-      @"family_name": @"Doe"
-    };
+    kProfile = @{@"email" : @"user@mail.com", @"given_name" : @"User", @"family_name" : @"Doe"};
   });
   return kProfile;
 }

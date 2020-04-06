@@ -20,6 +20,7 @@
 #import "GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
 
 #import "GDTCORLibrary/Public/GDTCOREvent.h"
+#import "GDTCORLibrary/Public/GDTCORPlatform.h"
 #import "GDTCORLibrary/Public/GDTCORRegistrar.h"
 
 #import "GDTCORTests/Unit/Helpers/GDTCORAssertHelper.h"
@@ -320,40 +321,24 @@ static NSInteger target = kGDTCORTargetCCT;
   event = nil;
   __block NSData *storageData;
   dispatch_sync([GDTCORFlatFileStorage sharedInstance].storageQueue, ^{
-    if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-      storageData =
-          [NSKeyedArchiver archivedDataWithRootObject:[GDTCORFlatFileStorage sharedInstance]
-                                requiringSecureCoding:YES
-                                                error:nil];
-    } else {
-#if !TARGET_OS_MACCATALYST
-      storageData =
-          [NSKeyedArchiver archivedDataWithRootObject:[GDTCORFlatFileStorage sharedInstance]];
-#endif
-    }
+    NSError *error;
+    storageData = GDTCOREncodeArchive([GDTCORFlatFileStorage sharedInstance], nil, &error);
+    XCTAssertNil(error);
+    XCTAssertNotNil(storageData);
   });
   dispatch_sync([GDTCORFlatFileStorage sharedInstance].storageQueue, ^{
-    XCTAssertEqual([GDTCORFlatFileStorage sharedInstance].storedEvents.count, 1);
+    XCTAssertNotNil([[GDTCORFlatFileStorage sharedInstance].storedEvents lastObject]);
   });
-  NSSet *eventIDs =
-      [NSSet setWithArray:[[GDTCORFlatFileStorage sharedInstance].storedEvents allKeys]];
-  [[GDTCORFlatFileStorage sharedInstance] removeEvents:eventIDs];
+  [[GDTCORFlatFileStorage sharedInstance] removeEvents:[GDTCORFlatFileStorage sharedInstance].storedEvents.set];
   dispatch_sync([GDTCORFlatFileStorage sharedInstance].storageQueue, ^{
-    XCTAssertEqual([GDTCORFlatFileStorage sharedInstance].storedEvents.count, 0);
+    XCTAssertNil([[GDTCORFlatFileStorage sharedInstance].storedEvents lastObject]);
   });
-  GDTCORFlatFileStorage *unarchivedStorage;
   NSError *error;
-  if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-    unarchivedStorage = [NSKeyedUnarchiver unarchivedObjectOfClass:[GDTCORFlatFileStorage class]
-                                                          fromData:storageData
-                                                             error:&error];
-  } else {
-#if !TARGET_OS_MACCATALYST
-    unarchivedStorage = [NSKeyedUnarchiver unarchiveObjectWithData:storageData];
-#endif
-  }
-  XCTAssertNotNil([unarchivedStorage storedEvents]);
-  XCTAssertGreaterThan([unarchivedStorage storedEvents].count, 0);
+  GDTCORFlatFileStorage *unarchivedStorage =
+      (GDTCORFlatFileStorage *)GDTCORDecodeArchive([GDTCORFlatFileStorage class], nil, storageData, &error);
+  XCTAssertNil(error);
+  XCTAssertNotNil(unarchivedStorage);
+  XCTAssertNotNil([unarchivedStorage.storedEvents lastObject]);
 }
 
 /** Tests encoding and decoding the storage singleton when calling -sharedInstance. */
@@ -372,39 +357,24 @@ static NSInteger target = kGDTCORTargetCCT;
   event = nil;
   __block NSData *storageData;
   dispatch_sync([GDTCORFlatFileStorage sharedInstance].storageQueue, ^{
-    if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-      storageData =
-          [NSKeyedArchiver archivedDataWithRootObject:[GDTCORFlatFileStorage sharedInstance]
-                                requiringSecureCoding:YES
-                                                error:nil];
-    } else {
-#if !TARGET_OS_MACCATALYST
-      storageData =
-          [NSKeyedArchiver archivedDataWithRootObject:[GDTCORFlatFileStorage sharedInstance]];
-#endif
-    }
+    NSError *error;
+    storageData = GDTCOREncodeArchive([GDTCORFlatFileStorage sharedInstance], nil, &error);
+    XCTAssertNil(error);
+    XCTAssertNotNil(storageData);
   });
   dispatch_sync([GDTCORFlatFileStorage sharedInstance].storageQueue, ^{
-    XCTAssertGreaterThan([GDTCORFlatFileStorage sharedInstance].storedEvents.count, 0);
+    XCTAssertNotNil([[GDTCORFlatFileStorage sharedInstance].storedEvents lastObject]);
   });
-  NSSet *eventIDs =
-      [NSSet setWithArray:[[GDTCORFlatFileStorage sharedInstance].storedEvents allKeys]];
-  [[GDTCORFlatFileStorage sharedInstance] removeEvents:eventIDs];
+  [[GDTCORFlatFileStorage sharedInstance] removeEvents:[GDTCORFlatFileStorage sharedInstance].storedEvents.set];
   dispatch_sync([GDTCORFlatFileStorage sharedInstance].storageQueue, ^{
-    XCTAssertEqual([GDTCORFlatFileStorage sharedInstance].storedEvents.count, 0);
+    XCTAssertNil([[GDTCORFlatFileStorage sharedInstance].storedEvents lastObject]);
   });
-  GDTCORFlatFileStorage *unarchivedStorage;
-  if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-    unarchivedStorage = [NSKeyedUnarchiver unarchivedObjectOfClass:[GDTCORFlatFileStorage class]
-                                                          fromData:storageData
-                                                             error:nil];
-  } else {
-#if !TARGET_OS_MACCATALYST
-    unarchivedStorage = [NSKeyedUnarchiver unarchiveObjectWithData:storageData];
-#endif
-  }
-  XCTAssertNotNil([unarchivedStorage storedEvents]);
-  XCTAssertGreaterThan([unarchivedStorage storedEvents].count, 0);
+  NSError *error;
+  GDTCORFlatFileStorage *unarchivedStorage =
+      (GDTCORFlatFileStorage *)GDTCORDecodeArchive([GDTCORFlatFileStorage class], nil, storageData, &error);
+  XCTAssertNil(error);
+  XCTAssertNotNil(unarchivedStorage);
+  XCTAssertNotNil([unarchivedStorage.storedEvents lastObject]);
 }
 
 /** Tests sending a fast priority event causes an upload attempt. */
@@ -612,8 +582,11 @@ static NSInteger target = kGDTCORTargetCCT;
   NSData *v1ArchiveData = [[NSData alloc] initWithBase64EncodedString:base64EncodedArchive
                                                               options:0];
   XCTAssertNotNil(v1ArchiveData);
-  GDTCORFlatFileStorage *archiveStorage;
-  XCTAssertNoThrow(archiveStorage = [NSKeyedUnarchiver unarchiveObjectWithData:v1ArchiveData]);
+  NSError *error;
+  GDTCORFlatFileStorage *archiveStorage =
+      (GDTCORFlatFileStorage *)GDTCORDecodeArchive([GDTCORFlatFileStorage class], nil, v1ArchiveData, &error);
+  XCTAssertNil(error);
+  XCTAssertNotNil(archiveStorage);
   XCTAssertEqual(archiveStorage.targetToEventSet[@(kGDTCORTargetCCT)].count, 6);
   XCTAssertEqual(archiveStorage.targetToEventSet[@(kGDTCORTargetFLL)].count, 12);
   XCTAssertEqual(archiveStorage.storedEvents.count, 18);

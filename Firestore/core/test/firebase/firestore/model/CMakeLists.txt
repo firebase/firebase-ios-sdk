@@ -1,4 +1,4 @@
-# Copyright 2018 Google
+# Copyright 2018 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cc_test(
+firebase_ios_cc_test(
   firebase_firestore_model_test
   SOURCES
     database_id_test.cc
@@ -35,14 +35,16 @@ cc_test(
     GMock::GMock
 )
 
-cc_binary(
-  firebase_firestore_model_field_value_benchmark
-  SOURCES
-    field_value_benchmark.cc
-  DEPENDS
-    absl::variant
-    benchmark
-    benchmark_main
-    firebase_firestore_model
-    firebase_firestore_testutil
-)
+if(FIREBASE_IOS_BUILD_BENCHMARKS)
+  firebase_ios_cc_binary(
+    firebase_firestore_model_field_value_benchmark
+    SOURCES
+      field_value_benchmark.cc
+    DEPENDS
+      absl::variant
+      benchmark
+      benchmark_main
+      firebase_firestore_model
+      firebase_firestore_testutil
+  )
+endif()

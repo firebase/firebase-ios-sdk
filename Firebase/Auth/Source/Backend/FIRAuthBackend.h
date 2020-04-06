@@ -16,6 +16,9 @@
 
 #import <Foundation/Foundation.h>
 
+#import "FIRAuthRPCRequest.h"
+#import "FIRAuthRPCResponse.h"
+
 @class FIRAuthRequestConfiguration;
 @class FIRCreateAuthURIRequest;
 @class FIRCreateAuthURIResponse;
@@ -73,8 +76,8 @@ typedef void (^FIRAuthBackendRPCIssuerCompletionHandler)(NSData *_Nullable data,
     @param error The error which occurred, if any.
     @remarks One of response or error will be non-nil.
  */
-typedef void (^FIRCreateAuthURIResponseCallback)
-    (FIRCreateAuthURIResponse *_Nullable response, NSError *_Nullable error);
+typedef void (^FIRCreateAuthURIResponseCallback)(FIRCreateAuthURIResponse *_Nullable response,
+                                                 NSError *_Nullable error);
 
 /** @typedef FIRGetAccountInfoResponseCallback
     @brief The type of block used to return the result of a call to the getAccountInfo
@@ -83,8 +86,8 @@ typedef void (^FIRCreateAuthURIResponseCallback)
     @param error The error which occurred, if any.
     @remarks One of response or error will be non-nil.
  */
-typedef void (^FIRGetAccountInfoResponseCallback)
-    (FIRGetAccountInfoResponse *_Nullable response, NSError *_Nullable error);
+typedef void (^FIRGetAccountInfoResponseCallback)(FIRGetAccountInfoResponse *_Nullable response,
+                                                  NSError *_Nullable error);
 
 /** @typedef FIRGetProjectConfigResponseCallback
     @brief The type of block used to return the result of a call to the getProjectInfo
@@ -93,8 +96,8 @@ typedef void (^FIRGetAccountInfoResponseCallback)
     @param error The error which occurred, if any.
     @remarks One of response or error will be non-nil.
  */
-typedef void (^FIRGetProjectConfigResponseCallback)
-    (FIRGetProjectConfigResponse *_Nullable response, NSError *_Nullable error);
+typedef void (^FIRGetProjectConfigResponseCallback)(FIRGetProjectConfigResponse *_Nullable response,
+                                                    NSError *_Nullable error);
 
 /** @typedef FIRSetAccountInfoResponseCallback
     @brief The type of block used to return the result of a call to the setAccountInfo
@@ -103,8 +106,8 @@ typedef void (^FIRGetProjectConfigResponseCallback)
     @param error The error which occurred, if any.
     @remarks One of response or error will be non-nil.
  */
-typedef void (^FIRSetAccountInfoResponseCallback)
-    (FIRSetAccountInfoResponse *_Nullable response, NSError *_Nullable error);
+typedef void (^FIRSetAccountInfoResponseCallback)(FIRSetAccountInfoResponse *_Nullable response,
+                                                  NSError *_Nullable error);
 
 /** @typedef FIRSecureTokenResponseCallback
     @brief The type of block used to return the result of a call to the token endpoint.
@@ -112,8 +115,8 @@ typedef void (^FIRSetAccountInfoResponseCallback)
     @param error The error which occurred, if any.
     @remarks One of response or error will be non-nil.
  */
-typedef void (^FIRSecureTokenResponseCallback)
-    (FIRSecureTokenResponse *_Nullable response, NSError *_Nullable error);
+typedef void (^FIRSecureTokenResponseCallback)(FIRSecureTokenResponse *_Nullable response,
+                                               NSError *_Nullable error);
 
 /** @typedef FIRVerifyAssertionResponseCallback
     @brief The type of block used to return the result of a call to the verifyAssertion
@@ -122,8 +125,8 @@ typedef void (^FIRSecureTokenResponseCallback)
     @param error The error which occurred, if any.
     @remarks One of response or error will be non-nil.
  */
-typedef void (^FIRVerifyAssertionResponseCallback)
-    (FIRVerifyAssertionResponse *_Nullable response, NSError *_Nullable error);
+typedef void (^FIRVerifyAssertionResponseCallback)(FIRVerifyAssertionResponse *_Nullable response,
+                                                   NSError *_Nullable error);
 
 /** @typedef FIRVerifyPasswordResponseCallback
     @brief The type of block used to return the result of a call to the verifyPassword
@@ -132,8 +135,8 @@ typedef void (^FIRVerifyAssertionResponseCallback)
     @param error The error which occurred, if any.
     @remarks One of response or error will be non-nil.
  */
-typedef void (^FIRVerifyPasswordResponseCallback)
-    (FIRVerifyPasswordResponse *_Nullable response, NSError *_Nullable error);
+typedef void (^FIRVerifyPasswordResponseCallback)(FIRVerifyPasswordResponse *_Nullable response,
+                                                  NSError *_Nullable error);
 
 /** @typedef FIREmailLinkSigninResponseCallback
     @brief The type of block used to return the result of a call to the emailLinkSignin
@@ -142,8 +145,8 @@ typedef void (^FIRVerifyPasswordResponseCallback)
     @param error The error which occurred, if any.
     @remarks One of response or error will be non-nil.
  */
-typedef void (^FIREmailLinkSigninResponseCallback)
-    (FIREmailLinkSignInResponse *_Nullable response, NSError *_Nullable error);
+typedef void (^FIREmailLinkSigninResponseCallback)(FIREmailLinkSignInResponse *_Nullable response,
+                                                   NSError *_Nullable error);
 
 /** @typedef FIRVerifyCustomTokenResponseCallback
     @brief The type of block used to return the result of a call to the verifyCustomToken
@@ -152,8 +155,8 @@ typedef void (^FIREmailLinkSigninResponseCallback)
     @param error The error which occurred, if any.
     @remarks One of response or error will be non-nil.
  */
-typedef void (^FIRVerifyCustomTokenResponseCallback)
-    (FIRVerifyCustomTokenResponse *_Nullable response, NSError *_Nullable error);
+typedef void (^FIRVerifyCustomTokenResponseCallback)(
+    FIRVerifyCustomTokenResponse *_Nullable response, NSError *_Nullable error);
 
 /** @typedef FIRDeleteCallBack
     @brief The type of block called when a request delete account has finished.
@@ -168,8 +171,8 @@ typedef void (^FIRDeleteCallBack)(NSError *_Nullable error);
     @param error The error which occurred, if any.
     @remarks One of response or error will be non-nil.
  */
-typedef void (^FIRGetOOBConfirmationCodeResponseCallback)
-    (FIRGetOOBConfirmationCodeResponse *_Nullable response, NSError *_Nullable error);
+typedef void (^FIRGetOOBConfirmationCodeResponseCallback)(
+    FIRGetOOBConfirmationCodeResponse *_Nullable response, NSError *_Nullable error);
 
 /** @typedef FIRSignupNewUserCallback
     @brief The type of block used to return the result of a call to the signupNewUser endpoint.
@@ -177,8 +180,8 @@ typedef void (^FIRGetOOBConfirmationCodeResponseCallback)
     @param error The error which occurred, if any.
     @remarks One of response or error will be non-nil.
  */
-typedef void (^FIRSignupNewUserCallback)
-    (FIRSignUpNewUserResponse *_Nullable response, NSError *_Nullable error);
+typedef void (^FIRSignupNewUserCallback)(FIRSignUpNewUserResponse *_Nullable response,
+                                         NSError *_Nullable error);
 
 /** @typedef FIRResetPasswordCallback
     @brief The type of block used to return the result of a call to the resetPassword endpoint.
@@ -186,8 +189,8 @@ typedef void (^FIRSignupNewUserCallback)
     @param error The error which occurred, if any.
     @remarks One of response or error will be non-nil.
  */
-typedef void (^FIRResetPasswordCallback)
-    (FIRResetPasswordResponse *_Nullable response, NSError *_Nullable error);
+typedef void (^FIRResetPasswordCallback)(FIRResetPasswordResponse *_Nullable response,
+                                         NSError *_Nullable error);
 
 /** @typedef FIRSendVerificationCodeResponseCallback
     @brief The type of block used to return the result of a call to the sendVerificationCode
@@ -196,8 +199,8 @@ typedef void (^FIRResetPasswordCallback)
     @param error The error which occurred, if any.
     @remarks One of response or error will be non-nil.
  */
-typedef void (^FIRSendVerificationCodeResponseCallback)
-    (FIRSendVerificationCodeResponse *_Nullable response, NSError *_Nullable error);
+typedef void (^FIRSendVerificationCodeResponseCallback)(
+    FIRSendVerificationCodeResponse *_Nullable response, NSError *_Nullable error);
 
 /** @typedef FIRVerifyPhoneNumberResponseCallback
     @brief The type of block used to return the result of a call to the verifyPhoneNumber endpoint.
@@ -205,8 +208,8 @@ typedef void (^FIRSendVerificationCodeResponseCallback)
     @param error The error which occurred, if any.
     @remarks One of response or error will be non-nil.
  */
-typedef void (^FIRVerifyPhoneNumberResponseCallback)
-    (FIRVerifyPhoneNumberResponse *_Nullable response, NSError *_Nullable error);
+typedef void (^FIRVerifyPhoneNumberResponseCallback)(
+    FIRVerifyPhoneNumberResponse *_Nullable response, NSError *_Nullable error);
 
 /** @typedef FIRVerifyClientResponseCallback
     @brief The type of block used to return the result of a call to the verifyClient endpoint.
@@ -214,17 +217,18 @@ typedef void (^FIRVerifyPhoneNumberResponseCallback)
     @param error The error which occurred, if any.
     @remarks One of response or error will be non-nil.
  */
-typedef void (^FIRVerifyClientResponseCallback)
-    (FIRVerifyClientResponse *_Nullable response, NSError *_Nullable error);
+typedef void (^FIRVerifyClientResponseCallback)(FIRVerifyClientResponse *_Nullable response,
+                                                NSError *_Nullable error);
 
 /** @typedef FIRSignInWithGameCenterResponseCallback
-    @brief The type of block used to return the result of a call to the SignInWithGameCenter endpoint.
+    @brief The type of block used to return the result of a call to the SignInWithGameCenter
+   endpoint.
     @param response The received response, if any.
     @param error The error which occurred, if any.
     @remarks One of response or error will be non-nil.
  */
-typedef void (^FIRSignInWithGameCenterResponseCallback)
-    (FIRSignInWithGameCenterResponse *_Nullable response, NSError *_Nullable error);
+typedef void (^FIRSignInWithGameCenterResponseCallback)(
+    FIRSignInWithGameCenterResponse *_Nullable response, NSError *_Nullable error);
 
 /** @class FIRAuthBackend
     @brief Simple static class with methods representing the backend RPCs.
@@ -239,6 +243,8 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)
     @return The Firebase Auth user agent.
  */
 + (NSString *)authUserAgent;
+
++ (id<FIRAuthBackendImplementation>)implementation;
 
 /** @fn setBackendImplementation:
     @brief Changes the default backend implementation to something else.
@@ -370,8 +376,7 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)
     @param request The request parameters.
     @param callback The callback.
  */
-+ (void)deleteAccount:(FIRDeleteAccountRequest *)request
-             callback:(FIRDeleteCallBack)callback;
++ (void)deleteAccount:(FIRDeleteAccountRequest *)request callback:(FIRDeleteCallBack)callback;
 
 /** @fn SignInWithGameCenter:callback:
     @brief Calls the SignInWithGameCenter endpoint, which is responsible for authenticating a user
@@ -544,8 +549,7 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)
     @param request The request parameters.
     @param callback The callback.
  */
-- (void)deleteAccount:(FIRDeleteAccountRequest *)request
-             callback:(FIRDeleteCallBack)callback;
+- (void)deleteAccount:(FIRDeleteAccountRequest *)request callback:(FIRDeleteCallBack)callback;
 
 #if TARGET_OS_IOS
 /** @fn sendVerificationCode:callback:
@@ -593,6 +597,23 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)
  */
 - (void)resetPassword:(FIRResetPasswordRequest *)request
              callback:(FIRResetPasswordCallback)callback;
+
+/** @fn postWithRequest:response:callback:
+    @brief Calls the RPC using HTTP POST.
+    @remarks Possible error responses:
+        @see FIRAuthInternalErrorCodeRPCRequestEncodingError
+        @see FIRAuthInternalErrorCodeJSONSerializationError
+        @see FIRAuthInternalErrorCodeNetworkError
+        @see FIRAuthInternalErrorCodeUnexpectedErrorResponse
+        @see FIRAuthInternalErrorCodeUnexpectedResponse
+        @see FIRAuthInternalErrorCodeRPCResponseDecodingError
+    @param request The request.
+    @param response The empty response to be filled.
+    @param callback The callback for both success and failure.
+*/
+- (void)postWithRequest:(id<FIRAuthRPCRequest>)request
+               response:(id<FIRAuthRPCResponse>)response
+               callback:(void (^)(NSError *_Nullable error))callback;
 
 @end
 

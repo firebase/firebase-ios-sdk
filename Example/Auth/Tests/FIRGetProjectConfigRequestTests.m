@@ -17,9 +17,9 @@
 #import <XCTest/XCTest.h>
 
 #import "FIRAuthBackend.h"
+#import "FIRFakeBackendRPCIssuer.h"
 #import "FIRGetProjectConfigRequest.h"
 #import "FIRGetProjectConfigResponse.h"
-#import "FIRFakeBackendRPCIssuer.h"
 
 /** @var kGetProjectConfigEndPoint
     @brief The "getProjectConfig" endpoint.
@@ -74,19 +74,16 @@ static NSString *gAPIHost = @"www.googleapis.com";
   FIRGetProjectConfigRequest *request =
       [[FIRGetProjectConfigRequest alloc] initWithRequestConfiguration:requestConfiguration];
 
-  [FIRAuthBackend getProjectConfig:request
-                          callback:^(FIRGetProjectConfigResponse *_Nullable response,
-                                     NSError *_Nullable error) {
+  [FIRAuthBackend
+      getProjectConfig:request
+              callback:^(FIRGetProjectConfigResponse *_Nullable response, NSError *_Nullable error){
 
-
-  }];
+              }];
   XCTAssertFalse([request containsPostBody]);
   // Confirm that the quest has no decoded body as it is get request.
   XCTAssertNil(_RPCIssuer.decodedRequest);
-  NSString *URLString = [NSString stringWithFormat:kAPIURLFormat,
-                                                   gAPIHost,
-                                                   kGetProjectConfigEndPoint,
-                                                   kTestAPIKey];
+  NSString *URLString =
+      [NSString stringWithFormat:kAPIURLFormat, gAPIHost, kGetProjectConfigEndPoint, kTestAPIKey];
   XCTAssertEqualObjects(URLString, [request requestURL].absoluteString);
 }
 

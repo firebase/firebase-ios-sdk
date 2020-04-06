@@ -9,23 +9,10 @@ cache:
     - $HOME/.ccache
 
 stages:
-  - checks
   - test
-
-before_script:
-  - '[ ! -z $DANGER_GITHUB_API_TOKEN ] && bundle exec danger || echo "Skipping Danger for External Contributor"'
 
 jobs:
   include:
-    - stage: checks
-      # This only needs to be run once, so restrict it to an arbitrary combination
-      before_install:
-        - brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/e3496d9/Formula/clang-format.rb
-        - brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/7963c3d/Formula/swiftformat.rb
-        - pip install flake8
-      script:
-        - ./scripts/check.sh --test-only
-
     # The order of builds matters (even though they are run in parallel):
     # Travis will schedule them in the same order they are listed here.
 
@@ -59,7 +46,7 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=ABTesting METHOD=pod-lib-lint QUICKSTART=abtesting
+        - PROJECT=ABTesting METHOD=pod-lib-lint QUICKSTART=ABtesting
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
@@ -90,7 +77,7 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=Auth PLATFORM=iOS METHOD=xcodebuild QUICKSTART=authentication
+        - PROJECT=Auth PLATFORM=iOS METHOD=xcodebuild QUICKSTART=Authentication
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
@@ -160,7 +147,7 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=Database PLATFORM=all METHOD=xcodebuild QUICKSTART=database
+        - PROJECT=Database PLATFORM=all METHOD=xcodebuild QUICKSTART=Database
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
@@ -194,7 +181,7 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=DynamicLinks METHOD=pod-lib-lint QUICKSTART=dynamiclinks
+        - PROJECT=DynamicLinks METHOD=pod-lib-lint QUICKSTART=DynamicLinks
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
@@ -206,17 +193,6 @@ jobs:
         - PROJECT=DynamicLinks METHOD=pod-lib-lint
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseDynamicLinks.podspec
-
-    - stage: test
-      env:
-        - PROJECT=Messaging METHOD=pod-lib-lint QUICKSTART=messaging
-      before_install:
-        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
-      script:
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=ios
-        - travis_retry ./scripts/if_changed.sh ./scripts/test_quickstart.sh Messaging
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=tvos
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=macos
 
     - stage: test
       osx_image: xcode10.3
@@ -242,7 +218,7 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=RemoteConfig METHOD=pod-lib-lint QUICKSTART=config
+        - PROJECT=RemoteConfig METHOD=pod-lib-lint QUICKSTART=Config
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
@@ -271,14 +247,6 @@ jobs:
         - travis_retry  ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-modular-headers --platforms=macos
 
     - stage: test
-      env:
-        - PROJECT=Storage PLATFORM=all METHOD=xcodebuild QUICKSTART=storage
-      before_install:
-        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
-      script:
-        - travis_retry ./scripts/if_changed.sh ./scripts/test_quickstart.sh Storage
-
-    - stage: test
       osx_image: xcode10.3
       env:
         - PROJECT=Storage PLATFORM=all METHOD=xcodebuild
@@ -299,7 +267,7 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=Functions METHOD=pod-lib-lint QUICKSTART=functions
+        - PROJECT=Functions METHOD=pod-lib-lint QUICKSTART=Functions
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh # Start integration test server
       script:
@@ -367,15 +335,6 @@ jobs:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
-
-    - stage: test
-      env:
-        - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild QUICKSTART=firestore
-      before_install:
-        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
-      script:
-        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
-        - travis_retry ./scripts/if_changed.sh ./scripts/test_quickstart.sh Firestore
 
     - stage: test
       osx_image: xcode10.3
@@ -531,7 +490,7 @@ jobs:
         - PROJECT=Installations PLATFORM=iOS METHOD=pod-lib-lint
         - FIS_ALLOWS_INCOMPATIBLE_IID_VERSION=1
         - FIS_INTEGRATION_TESTS_REQUIRED=$(if [[ "$TRAVIS_PULL_REQUEST" == "false" || "$TRAVIS_PULL_REQUEST_SLUG" == "$TRAVIS_REPO_SLUG" ]]; then echo "1"; else echo "0"; fi)
-        - QUICKSTART=installations
+        - QUICKSTART=Installations
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:

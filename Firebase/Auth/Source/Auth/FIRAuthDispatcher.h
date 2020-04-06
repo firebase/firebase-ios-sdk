@@ -26,9 +26,9 @@ NS_ASSUME_NONNULL_BEGIN
     @param queue The dispatch queue on which the task will be submitted.
     @param task The task (block) to be scheduled for future execution.
  */
-typedef void(^FIRAuthDispatcherImplBlock)(NSTimeInterval delay,
-                                          dispatch_queue_t queue,
-                                          void (^task)(void));
+typedef void (^FIRAuthDispatcherImplBlock)(NSTimeInterval delay,
+                                           dispatch_queue_t queue,
+                                           void (^task)(void));
 
 /** @class FIRAuthDispatchAfter
     @brief A utility class used to facilitate scheduling tasks to be executed in the future.
@@ -48,9 +48,9 @@ typedef void(^FIRAuthDispatcherImplBlock)(NSTimeInterval delay,
     @param queue The dispatch queue on which the task will be submitted.
     @param task The task (block) to be scheduled for future execution.
  */
- - (void)dispatchAfterDelay:(NSTimeInterval)delay
-                      queue:(dispatch_queue_t)queue
-                       task:(void (^)(void))task;
+- (void)dispatchAfterDelay:(NSTimeInterval)delay
+                     queue:(dispatch_queue_t)queue
+                      task:(void (^)(void))task;
 
 /** @fn sharedInstance
     @brief Gets the shared instance of this class.

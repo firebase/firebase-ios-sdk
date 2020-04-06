@@ -18,6 +18,7 @@
 
 #import "FIRAuth.h"
 #import "FIRAuthDataResult.h"
+#import "FIRMultiFactor.h"
 #import "FIRUserInfo.h"
 
 @class FIRAuthTokenResult;
@@ -110,6 +111,13 @@ NS_SWIFT_NAME(User)
  */
 @property(nonatomic, readonly, nonnull) FIRUserMetadata *metadata;
 
+#if TARGET_OS_IOS
+/** @property multiFactor
+    @brief Multi factor object associated with the user.
+*/
+@property(nonatomic, readonly, nonnull) FIRMultiFactor *multiFactor;
+#endif
+
 /** @fn init
     @brief This class should not be instantiated.
     @remarks To retrieve the current user, use `FIRAuth.currentUser`. To sign a user
@@ -145,7 +153,8 @@ NS_SWIFT_NAME(User)
 
     @remarks See `FIRAuthErrors` for a list of error codes that are common to all FIRUser methods.
  */
-- (void)updateEmail:(NSString *)email completion:(nullable FIRUserProfileChangeCallback)completion
+- (void)updateEmail:(NSString *)email
+         completion:(nullable FIRUserProfileChangeCallback)completion
     NS_SWIFT_NAME(updateEmail(to:completion:));
 
 /** @fn updatePassword:completion:
@@ -266,9 +275,9 @@ NS_SWIFT_NAME(User)
  */
 - (void)reauthenticateAndRetrieveDataWithCredential:(FIRAuthCredential *)credential
                                          completion:(nullable FIRAuthDataResultCallback)completion
-DEPRECATED_MSG_ATTRIBUTE( "Please use reauthenticateWithCredential:completion: for"
-                         " Objective-C or reauthenticate(withCredential:completion:)"
-                         " for Swift instead.");
+    DEPRECATED_MSG_ATTRIBUTE("Please use reauthenticateWithCredential:completion: for"
+                             " Objective-C or reauthenticate(withCredential:completion:)"
+                             " for Swift instead.");
 
 /** @fn reauthenticateWithProvider:UIDelegate:completion:
     @brief Renews the user's authentication using the provided auth provider instance.
@@ -280,11 +289,13 @@ DEPRECATED_MSG_ATTRIBUTE( "Please use reauthenticateWithCredential:completion: f
     @param completion Optionally; a block which is invoked when the reauthenticate flow finishes, or
         is canceled. Invoked asynchronously on the main thread in the future.
  */
+// clang-format off
 - (void)reauthenticateWithProvider:(id<FIRFederatedAuthProvider>)provider
                         UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
                         completion:(nullable FIRAuthDataResultCallback)completion
                         NS_SWIFT_NAME(reauthenticate(with:uiDelegate:completion:))
                         API_AVAILABLE(ios(8.0));
+// clang-format on
 
 /** @fn getIDTokenResultWithCompletion:
     @brief Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
@@ -347,8 +358,8 @@ DEPRECATED_MSG_ATTRIBUTE( "Please use reauthenticateWithCredential:completion: f
  */
 - (void)linkAndRetrieveDataWithCredential:(FIRAuthCredential *)credential
                                completion:(nullable FIRAuthDataResultCallback)completion
-DEPRECATED_MSG_ATTRIBUTE("Please use linkWithCredential:completion: for Objective-C "
-                         "or link(withCredential:completion:) for Swift instead.");
+    DEPRECATED_MSG_ATTRIBUTE("Please use linkWithCredential:completion: for Objective-C "
+                             "or link(withCredential:completion:) for Swift instead.");
 
 /** @fn linkWithCredential:completion:
     @brief Associates a user account from a third-party identity provider with this user and
@@ -386,11 +397,13 @@ DEPRECATED_MSG_ATTRIBUTE("Please use linkWithCredential:completion: for Objectiv
     @param completion Optionally; a block which is invoked when the link flow finishes, or
         is canceled. Invoked asynchronously on the main thread in the future.
  */
+// clang-format off
 - (void)linkWithProvider:(id<FIRFederatedAuthProvider>)provider
               UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
               completion:(nullable FIRAuthDataResultCallback)completion
               NS_SWIFT_NAME(link(with:uiDelegate:completion:))
               API_AVAILABLE(ios(8.0));
+// clang-format on
 
 /** @fn unlinkFromProvider:completion:
     @brief Disassociates a user account from a third-party identity provider with this user.
@@ -458,8 +471,8 @@ DEPRECATED_MSG_ATTRIBUTE("Please use linkWithCredential:completion: for Objectiv
             continue URI is not valid.
  */
 - (void)sendEmailVerificationWithActionCodeSettings:(FIRActionCodeSettings *)actionCodeSettings
-                                         completion:(nullable FIRSendEmailVerificationCallback)
-                                                    completion;
+                                         completion:
+                                             (nullable FIRSendEmailVerificationCallback)completion;
 
 /** @fn deleteWithCompletion:
     @brief Deletes the user account (also signs out the user, if this was the current user).
@@ -478,6 +491,27 @@ DEPRECATED_MSG_ATTRIBUTE("Please use linkWithCredential:completion: for Objectiv
 
  */
 - (void)deleteWithCompletion:(nullable FIRUserProfileChangeCallback)completion;
+
+/** @fn sendEmailVerificationBeforeUpdatingEmail:completion:
+    @brief Send an email to verify the ownership of the account then update to the new email.
+    @param email The email to be updated to.
+    @param completion Optionally; the block invoked when the request to send the verification
+        email is complete, or fails.
+*/
+- (void)sendEmailVerificationBeforeUpdatingEmail:(nonnull NSString *)email
+                                      completion:(nullable FIRAuthVoidErrorCallback)completion;
+
+/** @fn sendEmailVerificationBeforeUpdatingEmail:completion:
+    @brief Send an email to verify the ownership of the account then update to the new email.
+    @param email The email to be updated to.
+    @param actionCodeSettings An `FIRActionCodeSettings` object containing settings related to
+        handling action codes.
+    @param completion Optionally; the block invoked when the request to send the verification
+        email is complete, or fails.
+*/
+- (void)sendEmailVerificationBeforeUpdatingEmail:(nonnull NSString *)email
+                              actionCodeSettings:(nonnull FIRActionCodeSettings *)actionCodeSettings
+                                      completion:(nullable FIRAuthVoidErrorCallback)completion;
 
 @end
 

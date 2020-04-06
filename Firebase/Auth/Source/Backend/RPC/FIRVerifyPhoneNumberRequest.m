@@ -59,7 +59,7 @@ static NSString *const kOperationKey = @"operation";
                                     phoneNumber:(NSString *)phoneNumber
                                       operation:(FIRAuthOperationType)operation
                            requestConfiguration:
-                              (FIRAuthRequestConfiguration *)requestConfiguration {
+                               (FIRAuthRequestConfiguration *)requestConfiguration {
   self = [super initWithEndpoint:kVerifyPhoneNumberEndPoint
             requestConfiguration:requestConfiguration];
   if (self) {
@@ -74,7 +74,7 @@ static NSString *const kOperationKey = @"operation";
                                verificationCode:(NSString *)verificationCode
                                       operation:(FIRAuthOperationType)operation
                            requestConfiguration:
-                              (FIRAuthRequestConfiguration *)requestConfiguration {
+                               (FIRAuthRequestConfiguration *)requestConfiguration {
   self = [super initWithEndpoint:kVerifyPhoneNumberEndPoint
             requestConfiguration:requestConfiguration];
   if (self) {
@@ -92,7 +92,7 @@ static NSString *const kOperationKey = @"operation";
     @return The string value corresponding to the FIRAuthOperationType argument.
  */
 NSString *const FIRAuthOperationString(FIRAuthOperationType operationType) {
-  switch(operationType){
+  switch (operationType) {
     case FIRAuthOperationTypeUnspecified:
       return @"VERIFY_OP_UNSPECIFIED";
     case FIRAuthOperationTypeSignUpOrSignIn:
@@ -106,7 +106,7 @@ NSString *const FIRAuthOperationString(FIRAuthOperationType operationType) {
   }
 }
 
-- (nullable id)unencodedHTTPRequestBodyWithError:(NSError *__autoreleasing  _Nullable *)error {
+- (nullable id)unencodedHTTPRequestBodyWithError:(NSError *__autoreleasing _Nullable *)error {
   NSMutableDictionary *postBody = [NSMutableDictionary dictionary];
   if (_verificationID) {
     postBody[kVerificationIDKey] = _verificationID;
@@ -125,7 +125,7 @@ NSString *const FIRAuthOperationString(FIRAuthOperationType operationType) {
   }
   NSString *operation = FIRAuthOperationString(_operation);
   postBody[kOperationKey] = operation;
-  return postBody;
+  return [postBody copy];
 }
 
 @end

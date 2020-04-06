@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
- #import <Foundation/Foundation.h>
+#import <Foundation/Foundation.h>
 
- #import "FIRAuthTokenResult.h"
+#import "FIRAuthTokenResult.h"
 
- NS_ASSUME_NONNULL_BEGIN
+NS_ASSUME_NONNULL_BEGIN
 
 /** @extension FIRAuthAPNSTokenResult
     @brief An internal class used to expose internal methods of FIRAuthAPNSTokenResult.
  */
 @interface FIRAuthTokenResult () <NSSecureCoding>
 
-- (instancetype)initWithToken:(NSString *)token
-               expirationDate:(NSDate *)expirationDate
-                     authDate:(NSDate *)authDate
-                 issuedAtDate:(NSDate *)issuedAtDate
-               signInProvider:(NSString *)signInProvider
-                       claims:(NSDictionary *)claims;
+/** @fn tokenResultWithToken:
+    @brief Parse a token string to a structured token.
+    @param token The token string to parse.
+    @return A structured token result.
+*/
++ (nullable FIRAuthTokenResult *)tokenResultWithToken:(NSString *)token;
 
 @end
 

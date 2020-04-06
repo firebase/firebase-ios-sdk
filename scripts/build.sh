@@ -33,6 +33,8 @@ product can be one of:
   Firebase
   Firestore
   InAppMessaging
+  Storage
+  StorageSwift
   SymbolCollision
 
 platform can be one of:
@@ -86,22 +88,8 @@ case "$system" in
     ;;
 esac
 
-have_secrets=false
-
-# Travis: Secrets are available if we're not running on a fork.
-if [[ -n "${TRAVIS_PULL_REQUEST:-}" ]]; then
-  if [[ "$TRAVIS_PULL_REQUEST" == "false" ||
-      "$TRAVIS_PULL_REQUEST_SLUG" == "$TRAVIS_REPO_SLUG" ]]; then
-        have_secrets=true
-  fi
-fi
-# GitHub Actions: Secrets are available if we're not running on a fork.
-# See https://help.github.com/en/actions/automating-your-workflow-with-github-actions/using-environment-variables
-if [[ -n "${GITHUB_WORKFLOW:-}" ]]; then
-  if [[ -z "$GITHUB_HEAD_REF" ]]; then
-    have_secrets=true
-  fi
-fi
+# Source function to check if CI secrets are available.
+source scripts/check_secrets.sh
 
 # Runs xcodebuild with the given flags, piping output to xcpretty
 # If xcodebuild fails with known error codes, retries once.
@@ -256,6 +244,7 @@ xcb_flags+=(
 # dependencies don't build cleanly this way.
 cmake_options=(
   -Wdeprecated
+  -DCMAKE_BUILD_TYPE=Debug
 )
 
 if [[ -n "${SANITIZERS:-}" ]]; then
@@ -307,7 +296,7 @@ case "$product-$platform-$method" in
     ;;
 
   Auth-*-xcodebuild)
-    if [[ "$have_secrets" == true ]]; then
+    if check_secrets; then
       RunXcodebuild \
         -workspace 'Example/Auth/AuthSample/AuthSample.xcworkspace' \
         -scheme "Auth_ApiTests" \
@@ -373,7 +362,7 @@ case "$product-$platform-$method" in
       build \
       test
 
-    if [[ "$have_secrets" == true ]]; then
+    if check_secrets; then
       # Integration tests are only run on iOS to minimize flake failures.
       RunXcodebuild \
         -workspace 'gen/FirebaseDatabase/FirebaseDatabase.xcworkspace' \
@@ -413,11 +402,19 @@ case "$product-$platform-$method" in
       build \
       test
 
-    if [[ "$have_secrets" == true ]]; then
+    if check_secrets; then
       # Integration tests are only run on iOS to minimize flake failures.
       RunXcodebuild \
         -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
         -scheme "FirebaseStorage-Unit-integration" \
+        "${ios_flags[@]}" \
+        "${xcb_flags[@]}" \
+        build \
+        test
+
+      RunXcodebuild \
+        -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
+        -scheme "FirebaseStorage-Unit-swift-integration" \
         "${ios_flags[@]}" \
         "${xcb_flags[@]}" \
         build \
@@ -441,6 +438,20 @@ case "$product-$platform-$method" in
       "${xcb_flags[@]}" \
       build \
       test
+    ;;
+
+  StorageSwift-*-xcodebuild)
+    pod_gen FirebaseStorageSwift.podspec --platforms=ios
+    if check_secrets; then
+      # Integration tests are only run on iOS to minimize flake failures.
+      RunXcodebuild \
+        -workspace 'gen/FirebaseStorageSwift/FirebaseStorageSwift.xcworkspace' \
+        -scheme "FirebaseStorageSwift-Unit-integration" \
+        "${ios_flags[@]}" \
+        "${xcb_flags[@]}" \
+        build \
+        test
+      fi
     ;;
   *)
     echo "Don't know how to build this product-platform-method combination" 1>&2

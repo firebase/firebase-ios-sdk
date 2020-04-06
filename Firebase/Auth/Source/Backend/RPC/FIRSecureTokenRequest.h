@@ -75,8 +75,8 @@ typedef NS_ENUM(NSUInteger, FIRSecureTokenRequestGrantType) {
     @return An authorization request.
  */
 + (FIRSecureTokenRequest *)authCodeRequestWithCode:(NSString *)code
-                              requestConfiguration:(FIRAuthRequestConfiguration *)
-                                  requestConfiguration;
+                              requestConfiguration:
+                                  (FIRAuthRequestConfiguration *)requestConfiguration;
 
 /** @fn refreshRequestWithCode:
     @brief Creates a refresh request with the given refresh token.
@@ -85,8 +85,8 @@ typedef NS_ENUM(NSUInteger, FIRSecureTokenRequestGrantType) {
     @return A refresh request.
  */
 + (FIRSecureTokenRequest *)refreshRequestWithRefreshToken:(NSString *)refreshToken
-                                            requestConfiguration:(FIRAuthRequestConfiguration *)
-                                                requestConfiguration;
+                                     requestConfiguration:
+                                         (FIRAuthRequestConfiguration *)requestConfiguration;
 
 /** @fn init
     @brief Please use initWithGrantType:scope:refreshToken:code:
@@ -106,7 +106,7 @@ typedef NS_ENUM(NSUInteger, FIRSecureTokenRequestGrantType) {
                               refreshToken:(nullable NSString *)refreshToken
                                       code:(nullable NSString *)code
                       requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
-                          NS_DESIGNATED_INITIALIZER;
+    NS_DESIGNATED_INITIALIZER;
 
 @end
 

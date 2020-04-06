@@ -39,14 +39,13 @@ NS_ASSUME_NONNULL_BEGIN
     @param secret The secret that the client received from server via a trusted channel, if ever.
     @return The initialized instance.
  */
-- (instancetype)initWithReceipt:(NSString *)receipt secret:(nullable NSString *)secret
-    NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithReceipt:(NSString *)receipt
+                         secret:(nullable NSString *)secret NS_DESIGNATED_INITIALIZER;
 
 /** @fn init
     @brief Call @c initWithReceipt:secret: to get an instance of this class.
  */
 - (instancetype)init NS_UNAVAILABLE;
-
 
 @end
 

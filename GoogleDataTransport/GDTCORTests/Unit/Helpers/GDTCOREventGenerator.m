@@ -27,10 +27,6 @@
 
 + (NSMutableSet<GDTCOREvent *> *)generate3Events {
   static NSUInteger counter = 0;
-  NSString *cachePath = NSTemporaryDirectory();
-  NSString *filePath =
-      [cachePath stringByAppendingPathComponent:[NSString stringWithFormat:@"test-%ld.txt",
-                                                                           (unsigned long)counter]];
   int howManyToGenerate = 3;
   NSMutableSet<GDTCOREvent *> *set = [[NSMutableSet alloc] initWithCapacity:howManyToGenerate];
   for (int i = 0; i < howManyToGenerate; i++) {
@@ -38,11 +34,12 @@
     event.clockSnapshot = [GDTCORClock snapshot];
     event.qosTier = GDTCOREventQosDefault;
     event.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:@"testing!"];
+    NSString *filePath = [NSString stringWithFormat:@"test-%ld.txt", (unsigned long)counter];
     [[NSFileManager defaultManager] createFileAtPath:filePath
                                             contents:[NSData data]
                                           attributes:nil];
     NSError *error = nil;
-    [event writeToURL:[NSURL fileURLWithPath:filePath] error:&error];
+    [event writeToGDTPath:filePath error:&error];
     [set addObject:event];
     counter++;
   }
