@@ -35,7 +35,6 @@ iOS SDK for App Distribution for Firebase.
     'GCC_PREPROCESSOR_DEFINITIONS' => 'FIRAppDistribution_VERSION=' + s.version.to_s
   }
 
-
   s.test_spec 'unit' do |unit_tests|
    unit_tests.source_files = 'FirebaseAppDistribution/Tests/Unit*/*.[mh]'
   end
