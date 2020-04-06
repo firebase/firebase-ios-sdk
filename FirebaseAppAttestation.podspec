@@ -56,8 +56,5 @@ Pod::Spec.new do |s|
     swift_unit_tests.platforms = {:ios => '11.0', :osx => '10.11', :tvos => '11.0'}
     swift_unit_tests.source_files = base_dir + 'Tests/Unit/Swift/**/*.swift',
                                     base_dir + 'Tests/Unit/Swift/**/*.h'
-    swift_unit_tests.pod_target_xcconfig = {
-      'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/FirebaseAppAttestation/Source/Tests/Unit/Swift/FirebaseAppAttestation-Unit-unit-Bridging-Header.h'
-    }
   end
 end
