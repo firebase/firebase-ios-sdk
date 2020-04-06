@@ -44,7 +44,7 @@
     NSData* data = [_file readDataOfLength:sizeof(fheader)];
     [data getBytes:&fheader length:sizeof(fheader)];
 
-    magicValue = CFSwapInt32HostToBig(fheader.magic
+    magicValue = CFSwapInt32HostToBig(fheader.magic);
 
     if (magicValue == FAT_MAGIC || magicValue == FAT_CIGAM) {
         uint32_t archCount = CFSwapInt32HostToBig(fheader.nfat_arch);
