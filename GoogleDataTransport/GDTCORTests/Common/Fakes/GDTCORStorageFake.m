@@ -19,9 +19,9 @@
 @implementation GDTCORStorageFake
 
 - (void)storeEvent:(GDTCOREvent *)event
-        onComplete:(nonnull void (^)(NSError *_Nullable))completion {
+        onComplete:(void (^_Nullable)(BOOL wasWritten, NSError *_Nullable))completion {
   if (completion) {
-    completion(nil);
+    completion(YES, nil);
   }
 }
 

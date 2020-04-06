@@ -66,7 +66,7 @@
   event.dataObject = [[GDTCORDataObjectTesterSimple alloc] init];
   XCTestExpectation *writtenExpectation = [self expectationWithDescription:@"event written"];
   XCTAssertNoThrow([transport sendTelemetryEvent:event
-                                      onComplete:^(BOOL wasWritten, NSError *error) {
+                                      onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
                                         XCTAssertTrue(wasWritten);
                                         XCTAssertNil(error);
                                         [writtenExpectation fulfill];
@@ -84,7 +84,7 @@
   event.dataObject = [[GDTCORDataObjectTesterSimple alloc] init];
   XCTestExpectation *writtenExpectation = [self expectationWithDescription:@"event written"];
   XCTAssertNoThrow([transport sendDataEvent:event
-                                 onComplete:^(BOOL wasWritten, NSError *error) {
+                                 onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
                                    XCTAssertTrue(wasWritten);
                                    XCTAssertNil(error);
                                    [writtenExpectation fulfill];

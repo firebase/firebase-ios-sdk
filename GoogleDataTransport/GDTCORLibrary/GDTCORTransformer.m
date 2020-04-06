@@ -49,7 +49,7 @@
 
 - (void)transformEvent:(GDTCOREvent *)event
       withTransformers:(NSArray<id<GDTCOREventTransformer>> *)transformers
-            onComplete:(void (^_Nullable)(BOOL wasWritten, NSError *error))completion {
+            onComplete:(void (^_Nullable)(BOOL wasWritten, NSError *_Nullable error))completion {
   GDTCORAssert(event, @"You can't write a nil event");
   BOOL hadOriginalCompletion = completion != nil;
   if (!completion) {

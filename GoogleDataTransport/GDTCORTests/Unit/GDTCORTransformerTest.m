@@ -93,7 +93,7 @@
   event.dataObject = [[GDTCORDataObjectTesterSimple alloc] init];
   XCTAssertNoThrow([transformer transformEvent:event
                               withTransformers:nil
-                                    onComplete:^(BOOL wasWritten, NSError *error) {
+                                    onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
                                       XCTAssertTrue(wasWritten);
                                     }]);
 }
@@ -107,7 +107,7 @@
       @[ [[GDTCORTransformerTestNilingTransformer alloc] init] ];
   XCTAssertNoThrow([transformer transformEvent:event
                               withTransformers:transformers
-                                    onComplete:^(BOOL wasWritten, NSError *error) {
+                                    onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
                                       XCTAssertFalse(wasWritten);
                                     }]);
 }
@@ -121,7 +121,7 @@
       @[ [[GDTCORTransformerTestNewEventTransformer alloc] init] ];
   XCTAssertNoThrow([transformer transformEvent:event
                               withTransformers:transformers
-                                    onComplete:^(BOOL wasWritten, NSError *error) {
+                                    onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
                                       XCTAssertTrue(wasWritten);
                                       XCTAssertNil(error);
                                     }]);

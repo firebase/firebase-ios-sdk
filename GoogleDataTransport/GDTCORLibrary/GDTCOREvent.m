@@ -85,7 +85,6 @@
   copy.qosTier = _qosTier;
   copy.clockSnapshot = _clockSnapshot;
   copy.customBytes = _customBytes;
-  copy->_fileURL = _fileURL;
   copy->_GDTFilePath = _GDTFilePath;
   GDTCORLogDebug("Copying event %@ to event %@", self, copy);
   return copy;
@@ -250,7 +249,7 @@ static NSString *kCustomDataKey = @"GDTCOREventCustomDataKey";
   [aCoder encodeInteger:_qosTier forKey:qosTierKey];
   [aCoder encodeObject:_clockSnapshot forKey:clockSnapshotKey];
   [aCoder encodeObject:_GDTFilePath forKey:kGDTFilePathKey];
-  [aCoder encodeObject:_customPrioritizationParams forKey:customPrioritizationParams];
+  [aCoder encodeObject:_customBytes forKey:kCustomDataKey];
 }
 
 @end

@@ -100,7 +100,6 @@
                                                        options:0
                                                          error:&error1];
   XCTAssertNil(error1);
-  [event1 writeToURL:[NSURL fileURLWithPath:@"/tmp/fake.txt"] error:&error1];
   [event1 writeToGDTPath:@"/tmp/fake.txt" error:&error1];
   XCTAssertNil(error1);
 
@@ -117,7 +116,6 @@
                                                        options:0
                                                          error:&error2];
   XCTAssertNil(error2);
-  [event2 writeToURL:[NSURL fileURLWithPath:@"/tmp/fake.txt"] error:&error2];
   [event2 writeToGDTPath:@"/tmp/fake.txt" error:&error2];
   XCTAssertNil(error2);
 

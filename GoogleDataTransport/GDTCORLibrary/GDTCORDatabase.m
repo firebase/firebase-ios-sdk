@@ -264,7 +264,7 @@ static void RunMigrations(sqlite3 *db,
       if (ExecuteSQL(db, obj, nil)) {
         newUserVersion = key.intValue;
       } else {
-        GDTCORLogError(GDTCORMCEDatabaseError, @"%@", @"Migration failed: version:%@ statement:%@",
+        GDTCORLogError(GDTCORMCEDatabaseError, @"Migration failed: version:%@ statement:%@",
                        key, obj);
       }
     }

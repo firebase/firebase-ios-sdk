@@ -70,7 +70,7 @@ typedef NS_ENUM(NSInteger, GDTCORMessageCode) {
   GDTCORMCEFatalAssertion = 1007,
 
   /** For error messages concerning the reading of a event file. */
-  GDTCORMCEFileReadError = 1008
+  GDTCORMCEFileReadError = 1008,
 
   /** For errors related to running sqlite. */
   GDTCORMCEDatabaseError = 1009,

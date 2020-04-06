@@ -85,7 +85,7 @@ BOOL GDTCORSQLRunNonQuery(sqlite3 *db, sqlite3_stmt *stmt) {
   if (sqlite3_step(stmt) != SQLITE_DONE) {
     const char *errMsg = sqlite3_errmsg(db);
     if (errMsg) {
-      GDTCORLogError(GDTCORMCEDatabaseError, @"%@", @"error running statement: %s", errMsg);
+      GDTCORLogError(GDTCORMCEDatabaseError, @"error running statement: %s", errMsg);
     }
     return NO;
   }

@@ -72,7 +72,7 @@
 }
 
 - (void)storeEvent:(GDTCOREvent *)event
-        onComplete:(void (^_Nullable)(BOOL wasWritten, NSError *error))completion {
+        onComplete:(void (^_Nullable)(BOOL wasWritten, NSError *_Nullable error))completion {
   GDTCORLogDebug("Saving event: %@", event);
   if (event == nil) {
     GDTCORLogDebug("%@", @"The event was nil, so it was not saved.");
@@ -80,13 +80,11 @@
   }
   BOOL hadOriginalCompletion = completion != nil;
   if (!completion) {
-    completion = ^(BOOL wasWritten, NSError *error) {
+    completion = ^(BOOL wasWritten, NSError *_Nullable error) {
       GDTCORLogDebug(@"event %@ stored. success:%@ error:%@", event, wasWritten ? @"YES" : @"NO",
                      error);
     };
   }
-
-  [self createEventDirectoryIfNotExists];
 
   __block GDTCORBackgroundIdentifier bgID = GDTCORBackgroundIdentifierInvalid;
   bgID = [[GDTCORApplication sharedApplication]
@@ -117,6 +115,7 @@
     } else {
       GDTCORLogDebug("Event saved to disk: %@", eventFile);
     }
+    completion(eventFile != nil, error);
 
     // Add event to tracking collections.
     [self addEventToTrackingCollections:event];
