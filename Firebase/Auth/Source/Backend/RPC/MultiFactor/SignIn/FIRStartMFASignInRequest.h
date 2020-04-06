@@ -28,10 +28,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic, copy, readonly, nullable) FIRAuthProtoStartMFAPhoneRequestInfo *signInInfo;
 
-- (nullable instancetype)initWithMFAPendingCredential:(NSString *)MFAPendingCredential
-                             MFAEnrollmentID:(NSString *)MFAEnrollmentID
-                                  signInInfo:(FIRAuthProtoStartMFAPhoneRequestInfo *)signInInfo
-                        requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration;
+- (nullable instancetype)
+    initWithMFAPendingCredential:(NSString *)MFAPendingCredential
+                 MFAEnrollmentID:(NSString *)MFAEnrollmentID
+                      signInInfo:(FIRAuthProtoStartMFAPhoneRequestInfo *)signInInfo
+            requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration;
 
 @end
 

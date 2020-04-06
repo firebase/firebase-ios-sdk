@@ -20,10 +20,10 @@ static NSString *const kFinalizeMFASignInEndPoint = @"accounts/mfaSignIn:finaliz
 
 @implementation FIRFinalizeMFASignInRequest
 
-- (nullable instancetype)initWithMFAPendingCredential:(NSString *)MFAPendingCredential
-                            verificationInfo:
-                                (FIRAuthProtoFinalizeMFAPhoneRequestInfo *)verificationInfo
-                        requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
+- (nullable instancetype)
+    initWithMFAPendingCredential:(NSString *)MFAPendingCredential
+                verificationInfo:(FIRAuthProtoFinalizeMFAPhoneRequestInfo *)verificationInfo
+            requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
   self = [super initWithEndpoint:kFinalizeMFASignInEndPoint
             requestConfiguration:requestConfiguration
              useIdentityPlatform:YES

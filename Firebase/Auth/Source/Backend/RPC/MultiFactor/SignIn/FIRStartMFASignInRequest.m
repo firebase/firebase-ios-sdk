@@ -20,10 +20,11 @@ static NSString *const kStartMFASignInEndPoint = @"accounts/mfaSignIn:start";
 
 @implementation FIRStartMFASignInRequest
 
-- (nullable instancetype)initWithMFAPendingCredential:(NSString *)MFAPendingCredential
-                             MFAEnrollmentID:(NSString *)MFAEnrollmentID
-                                  signInInfo:(FIRAuthProtoStartMFAPhoneRequestInfo *)signInInfo
-                        requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
+- (nullable instancetype)
+    initWithMFAPendingCredential:(NSString *)MFAPendingCredential
+                 MFAEnrollmentID:(NSString *)MFAEnrollmentID
+                      signInInfo:(FIRAuthProtoStartMFAPhoneRequestInfo *)signInInfo
+            requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
   self = [super initWithEndpoint:kStartMFASignInEndPoint
             requestConfiguration:requestConfiguration
              useIdentityPlatform:YES

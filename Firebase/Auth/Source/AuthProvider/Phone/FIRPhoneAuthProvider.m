@@ -512,10 +512,10 @@ extern NSString *const FIRPhoneMultiFactorID;
                                                 }];
                         } else {
                           FIRStartMFASignInRequest *request = [[FIRStartMFASignInRequest alloc]
-                               initWithMFAPendingCredential:session.MFAPendingCredential
-                                   MFAEnrollmentID:session.multiFactorInfo.UID
-                                        signInInfo:startMFARequestInfo
-                              requestConfiguration:self->_auth.requestConfiguration];
+                              initWithMFAPendingCredential:session.MFAPendingCredential
+                                           MFAEnrollmentID:session.multiFactorInfo.UID
+                                                signInInfo:startMFARequestInfo
+                                      requestConfiguration:self->_auth.requestConfiguration];
                           [FIRAuthBackend
                               startMultiFactorSignIn:request
                                             callback:^(
