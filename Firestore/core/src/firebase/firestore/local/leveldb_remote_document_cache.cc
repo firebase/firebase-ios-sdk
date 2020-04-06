@@ -21,7 +21,6 @@
 #include <utility>
 
 #include "Firestore/Protos/nanopb/firestore/local/maybe_document.nanopb.h"
-
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"

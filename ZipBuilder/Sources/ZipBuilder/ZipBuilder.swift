@@ -153,14 +153,18 @@ struct ZipBuilder {
       ModuleMapBuilder(customSpecRepos: customSpecRepos, selectedPods: installedPods).build()
     }
 
+    let podsToBuild = LaunchArgs.shared.buildDependencies ? installedPods :
+      installedPods.filter { podsToInstall.map { $0.name }.contains($0.key) }
+
     // Generate the frameworks. Each key is the pod name and the URLs are all frameworks to be
     // copied in each product's directory.
-    let (frameworks, carthageFrameworks) = generateFrameworks(fromPods: installedPods, inProjectDir: projectDir)
+    let (frameworks, carthageFrameworks) = generateFrameworks(fromPods: podsToBuild,
+                                                              inProjectDir: projectDir)
 
     for (framework, paths) in frameworks {
       print("Frameworks for pod: \(framework) were compiled at \(paths)")
     }
-    return (installedPods, frameworks, carthageFrameworks)
+    return (podsToBuild, frameworks, carthageFrameworks)
   }
 
   // TODO: This function contains a lot of "copy these paths to this directory, fail if there are

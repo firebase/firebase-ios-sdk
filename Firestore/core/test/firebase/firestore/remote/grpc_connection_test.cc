@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
+
 #include <memory>
 #include <string>
 #include <utility>
@@ -21,12 +23,11 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/token.h"
 #include "Firestore/core/src/firebase/firestore/remote/connectivity_monitor.h"
-#include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
+#include "Firestore/core/test/firebase/firestore/remote/grpc_stream_tester.h"
 #include "Firestore/core/test/firebase/firestore/testutil/async_testing.h"
-#include "Firestore/core/test/firebase/firestore/util/grpc_stream_tester.h"
 #include "absl/memory/memory.h"
 #include "gtest/gtest.h"
 
@@ -38,7 +39,6 @@ using auth::Token;
 using auth::User;
 using core::DatabaseInfo;
 using util::AsyncQueue;
-using util::GrpcStreamTester;
 using util::Status;
 using util::StatusOr;
 

@@ -287,7 +287,7 @@ fi
 
 
 case "$product-$platform-$method" in
-  FirebasePod-*-xcodebuild)
+  FirebasePod-iOS-*)
     RunXcodebuild \
         -workspace 'CoreOnly/Tests/FirebasePodTest/FirebasePodTest.xcworkspace' \
         -scheme "FirebasePodTest" \
@@ -344,7 +344,7 @@ case "$product-$platform-$method" in
     )
     ;;
 
-  SymbolCollision-*-xcodebuild)
+  SymbolCollision-*-*)
     RunXcodebuild \
         -workspace 'SymbolCollisionTest/SymbolCollisionTest.xcworkspace' \
         -scheme "SymbolCollisionTest" \

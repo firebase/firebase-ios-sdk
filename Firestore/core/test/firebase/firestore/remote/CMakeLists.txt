@@ -15,9 +15,12 @@
 firebase_ios_cc_library(
   firebase_firestore_remote_testing
   SOURCES
+    create_noop_connectivity_monitor.cc
+    create_noop_connectivity_monitor.h
     fake_target_metadata_provider.cc
     fake_target_metadata_provider.h
   DEPENDS
+    absl_memory
     firebase_firestore_remote
 )
 
@@ -26,8 +29,12 @@ firebase_ios_cc_test(
   SOURCES
     datastore_test.cc
     exponential_backoff_test.cc
+    fake_credentials_provider.cc
+    fake_credentials_provider.h
     grpc_connection_test.cc
     grpc_stream_test.cc
+    grpc_stream_tester.cc
+    grpc_stream_tester.h
     grpc_streaming_reader_test.cc
     grpc_unary_call_test.cc
     remote_event_test.cc
@@ -42,7 +49,6 @@ firebase_ios_cc_test(
     firebase_firestore_local
     firebase_firestore_remote
     firebase_firestore_remote_testing
-    firebase_firestore_remote_test_util
     firebase_firestore_testutil
     firebase_firestore_util_async_std
     GMock::GMock
