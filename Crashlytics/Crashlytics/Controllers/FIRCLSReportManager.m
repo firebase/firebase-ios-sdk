@@ -407,8 +407,7 @@ static void (^reportSentCallback)(void);
 
                } else if (action == FIRCLSReportActionDelete) {
                  FIRCLSDebugLog(@"Deleting unsent reports.");
-                 [self removeExistingReportPaths:preexistingReportPaths];
-                 [self removeContentsInOtherReportingDirectories];
+                 [self deleteUnsentReportsWithPreexisting:preexistingReportPaths];
                } else {
                  FIRCLSErrorLog(@"Unknown report action: %d", action);
                }
@@ -479,8 +478,8 @@ static void (^reportSentCallback)(void);
     [self handleContentsInOtherReportingDirectoriesWithToken:token];
 
   } else {
-    FIRCLSInfoLog(@"Collecting crash reports is disabled, not uploading reports");
-    [_fileManager removeContentsOfAllPathsExceptActive];
+    FIRCLSInfoLog(@"Collect crash reports is disabled");
+    [self deleteUnsentReportsWithPreexisting:preexistingReportPaths];
   }
 }
 
@@ -556,14 +555,6 @@ static void (^reportSentCallback)(void);
                                 executionIdentifier:executionIdentifier];
 }
 
-- (void)removeExistingReportPaths:(NSArray *)reportPaths {
-  [self.operationQueue addOperationWithBlock:^{
-    for (NSString *path in reportPaths) {
-      [self.fileManager removeItemAtPath:path];
-    }
-  }];
-}
-
 - (int)countSubmittableAndDeleteUnsubmittableReportPaths:(NSArray *)reportPaths {
   int count = 0;
   for (NSString *path in reportPaths) {
@@ -627,17 +618,25 @@ static void (^reportSentCallback)(void);
   [self didSubmitReport];
 }
 
-- (void)removeReport:(FIRCLSInternalReport *)report {
-  [_fileManager removeItemAtPath:report.path];
-}
+// This is the side-effect of calling deleteUnsentReports, or collect_reports setting
+// being galse
+- (void)deleteUnsentReportsWithPreexisting:(NSArray *)preexistingReportPaths {
+  [self removeExistingReportPaths:preexistingReportPaths];
 
-- (void)removeContentsInOtherReportingDirectories {
   [self removeExistingReportPaths:self.fileManager.processingPathContents];
   if (self.settings.shouldUseNewReportEndpoint) {
     [self removeExistingReportPaths:self.fileManager.preparedPathContents];
   } else {
     [self removeExistingReportPaths:self.fileManager.legacyPreparedPathContents];
   }
+}
+
+- (void)removeExistingReportPaths:(NSArray *)reportPaths {
+  [self.operationQueue addOperationWithBlock:^{
+    for (NSString *path in reportPaths) {
+      [self.fileManager removeItemAtPath:path];
+    }
+  }];
 }
 
 - (void)handleContentsInOtherReportingDirectoriesWithToken:(FIRCLSDataCollectionToken *)token {
