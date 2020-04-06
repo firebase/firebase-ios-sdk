@@ -14,6 +14,7 @@
 		5125CCA62437F472006CA5D0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5125CCA52437F472006CA5D0 /* Assets.xcassets */; };
 		5125CCA92437F472006CA5D0 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5125CCA82437F472006CA5D0 /* Preview Assets.xcassets */; };
 		5125CCAC2437F472006CA5D0 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5125CCAA2437F472006CA5D0 /* LaunchScreen.storyboard */; };
+		513771F2243BE5DE004503C3 /* Identity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 513771F1243BE5DE004503C3 /* Identity.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,6 +28,7 @@
 		5125CCAB2437F472006CA5D0 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		5125CCAD2437F472006CA5D0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		5125CCB32437F9A9006CA5D0 /* Sample.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Sample.entitlements; sourceTree = "<group>"; };
+		513771F1243BE5DE004503C3 /* Identity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Identity.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -76,6 +78,7 @@
 				5125CCAD2437F472006CA5D0 /* Info.plist */,
 				5125CCA02437F471006CA5D0 /* Sample.xcdatamodeld */,
 				5125CCA72437F472006CA5D0 /* Preview Content */,
+				513771F1243BE5DE004503C3 /* Identity.swift */,
 			);
 			path = Sample;
 			sourceTree = "<group>";
@@ -161,6 +164,7 @@
 			files = (
 				5125CCA22437F471006CA5D0 /* Sample.xcdatamodeld in Sources */,
 				5125CC9D2437F471006CA5D0 /* AppDelegate.swift in Sources */,
+				513771F2243BE5DE004503C3 /* Identity.swift in Sources */,
 				5125CCA42437F471006CA5D0 /* ContentView.swift in Sources */,
 				5125CC9F2437F471006CA5D0 /* SceneDelegate.swift in Sources */,
 			);

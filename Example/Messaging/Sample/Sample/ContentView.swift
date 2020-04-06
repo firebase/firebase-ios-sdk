@@ -16,28 +16,76 @@ import SwiftUI
 import FirebaseCore
 import FirebaseMessaging
 import FirebaseInstanceID
+import FirebaseInstallations
 
 struct ContentView: View {
-  @State private var token = Messaging.messaging().fcmToken
-  @State private var iid = ""
+  @EnvironmentObject var identity: Identity
   
-    var body: some View {
-      
-      VStack {
-        HStack {
-          Button("get ID and token", action: getToken).padding()
-          Button("deleteToken", action: deleteToken).padding()
-          Button("deleteID", action: deleteID).padding()
+  var body: some View {
+    NavigationView {
+      List {
+        Button(action: getToken) {
+          HStack{
+            Image(systemName: "arrow.clockwise.circle.fill").font(.body)
+            Text("Get ID and Token")
+              .fontWeight(.semibold)
+          }
+          .padding(5)
+          .foregroundColor(.white)
+          .background(Color.purple)
+          .cornerRadius(40)
         }
-        Text("IID:\n" + (self.iid)).padding(10)
-        Text("Token:\n" + (self.token ?? "")).padding(10)
+        Button(action: deleteToken) {
+          HStack{
+            Image(systemName: "trash.fill").font(.body)
+            Text("Delete Token")
+              .fontWeight(.semibold)
+          }
+          .padding(5)
+          .foregroundColor(.white)
+          .background(Color.red)
+          .cornerRadius(40)
+        }
+          
+        Button(action: deleteID) {
+          HStack{
+            Image(systemName: "trash.fill").font(.body)
+            Text("Delete ID")
+              .fontWeight(.semibold)
+            }
+            .padding(5)
+            .foregroundColor(.white)
+            .background(Color.red)
+            .cornerRadius(40)
+          }
+          
+        Button(action: deleteFID) {
+          HStack{
+            Image(systemName: "trash.fill").font(.body)
+            Text("Delete FID")
+              .fontWeight(.semibold)
+            }
+            .padding(5)
+            .foregroundColor(.white)
+            .background(Color.red)
+            .cornerRadius(40)
+          }
+        
+        Text("InstanceID: \(identity.instanceID)")
+          .foregroundColor(.blue)
+        Text("Token: \(identity.token)")
+          .foregroundColor(.blue)
+        NavigationLink(destination: DetailView()) {
+          Text("Show Detail View")
+        }
       }
     }
+  }
   func getToken() {
     InstanceID.instanceID().instanceID { (result, error) in
       if result != nil && error == nil {
-        self.token = result?.token
-        self.iid = result?.instanceID ?? ""
+        self.identity.token = result?.token ?? ""
+        self.identity.instanceID = result?.instanceID ?? ""
       }
     }
   }
@@ -48,7 +96,7 @@ struct ContentView: View {
         print ("Failed delete token: ", error ?? "")
         return
       }
-      self.token = ""
+      self.identity.token = ""
     }
   }
   
@@ -58,16 +106,34 @@ struct ContentView: View {
         print ("Failed delete ID: ", error ?? "")
         return
       }
+      self.identity.instanceID = ""
+      self.identity.token = ""
     }
   }
   
-  func OnTokenRefresh() {
-    self.token = Messaging.messaging().fcmToken
+  func deleteFID() {
+    Installations.installations().delete { (error) in
+      if error != nil {
+        print ("Failed delete FID: ", error ?? "")
+        return
+      }
+    }
+  }
+}
+
+struct DetailView: View {
+  @EnvironmentObject var identity: Identity
+  
+  var body: some View {
+    VStack {
+      Text("InstanceID: \(self.identity.instanceID)")
+      Text("Token: \(self.identity.token)")
+    }
   }
 }
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView()
+      ContentView().environmentObject(Identity())
     }
 }
