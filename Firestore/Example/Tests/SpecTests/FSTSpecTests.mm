@@ -92,6 +92,7 @@ using firebase::firestore::remote::DocumentWatchChange;
 using firebase::firestore::remote::ExistenceFilterWatchChange;
 using firebase::firestore::remote::WatchTargetChange;
 using firebase::firestore::remote::WatchTargetChangeState;
+using firebase::firestore::util::MakeNSString;
 using firebase::firestore::util::MakeString;
 using firebase::firestore::util::Path;
 using firebase::firestore::util::Status;
@@ -151,21 +152,23 @@ ByteString MakeResumeToken(NSString *specString) {
 }
 
 NSString *ToDocumentListString(const std::map<DocumentKey, TargetId> &map) {
-  NSMutableArray<NSString *> *array = [NSMutableArray new];
+  std::vector<std::string> strings;
+  strings.reserve(map.size());
   for (const auto &kv : map) {
-    [array addObject:[NSString stringWithFormat:@"%s", kv.first.ToString().c_str()]];
+    strings.push_back(kv.first.ToString());
   }
-  [array sortUsingSelector:@selector(compare:)];
-  return [array componentsJoinedByString:@", "];
+  std::sort(strings.begin(), strings.end());
+  return MakeNSString(absl::StrJoin(strings, ", "));
 }
 
 NSString *ToTargetIdListString(const ActiveTargetMap &map) {
-  NSMutableArray<NSNumber *> *array = [NSMutableArray new];
+  std::vector<model::TargetId> targetIds;
+  targetIds.reserve(map.size());
   for (const auto &kv : map) {
-    [array addObject:@(kv.first)];
+    targetIds.push_back(kv.first);
   }
-  [array sortUsingSelector:@selector(compare:)];
-  return [array componentsJoinedByString:@", "];
+  std::sort(targetIds.begin(), targetIds.end());
+  return MakeNSString(absl::StrJoin(targetIds, ", "));
 }
 
 }  // namespace
