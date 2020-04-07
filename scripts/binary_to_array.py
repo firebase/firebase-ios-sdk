@@ -159,9 +159,9 @@ def source(namespaces, array_name, array_size_name, fileid, filename,
   data.extend([
       "// Copyright 2019 Google Inc. All Rights Reserved.",
       "",
-      "#include <cstdlib>",
-      "",
       "#include \"%s\"" % include_name,
+      "",
+      "#include <cstdlib>",
       ""
   ])
   if namespaces:

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#include "Firestore/core/src/firebase/firestore/core/query_listener.h"
+
 #include <future>  // NOLINT(build/c++11)
 #include <memory>
 #include <utility>
@@ -22,7 +24,6 @@
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/core/event_listener.h"
 #include "Firestore/core/src/firebase/firestore/core/listen_options.h"
-#include "Firestore/core/src/firebase/firestore/core/query_listener.h"
 #include "Firestore/core/src/firebase/firestore/core/view.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"

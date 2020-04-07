@@ -1,4 +1,4 @@
-# Copyright 2019 Google
+# Copyright 2019 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,10 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from lib import source
-import command_trace
+
 import os
+import six
 import subprocess
+
+from lib import command_trace
+from lib import source
 
 
 def find_changed_or_files(all, rev_or_files, patterns):
@@ -102,7 +105,7 @@ def find_lines_matching(pattern, sources=None):
     proc.terminate()
     proc.wait()
 
-  return ''.join(result)
+  return six.ensure_text(b''.join(result))
 
 
 def make_patterns(dirs):
@@ -132,11 +135,11 @@ def is_within_repo():
 def get_repo_root():
   """Returns the absolute path to the root of the current git repo."""
   command = ['git', 'rev-parse', '--show-toplevel']
-  return subprocess.check_output(command).rstrip()
+  return six.ensure_text(subprocess.check_output(command).rstrip())
 
 
 def _null_split_output(command):
   """Runs the given command and splits its output on the null byte."""
   command_trace.log(command)
-  result = subprocess.check_output(command)
+  result = six.ensure_text(subprocess.check_output(command))
   return [name for name in result.rstrip().split('\0') if name]

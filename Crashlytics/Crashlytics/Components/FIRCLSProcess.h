@@ -14,10 +14,10 @@
 
 #pragma once
 
-#include "FIRCLSFile.h"
-
 #include <mach/mach.h>
 #include <stdbool.h>
+
+#include "FIRCLSFile.h"
 
 typedef struct {
   // task info

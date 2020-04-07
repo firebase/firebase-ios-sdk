@@ -398,9 +398,6 @@ jobs:
       env:
         - PROJECT=Firebase METHOD=pod-lib-lint
       script:
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseAnalyticsInterop.podspec
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseAuthInterop.podspec
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCoreDiagnosticsInterop.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInAppMessaging.podspec
 
     # pod lib lint to check build and warnings for static library build - only on cron jobs
@@ -419,24 +416,6 @@ jobs:
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=ios
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=ios
-
-    - stage: test
-      env:
-        - PROJECT=FirebasePod PLATFORM=iOS METHOD=xcodebuild
-      before_install:
-        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
-      script:
-        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
-
-    # Daily test for symbol collisions between Firebase and CocoaPods.
-    - stage: test
-      if: type = cron
-      env:
-        - PROJECT=SymbolCollision PLATFORM=iOS METHOD=xcodebuild
-      before_install:
-        - ./scripts/install_prereqs.sh
-      script:
-        - travis_retry ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
     # Validate Cocoapods configurations
     # This may take long time, so we would like to run it only once all other tests pass
