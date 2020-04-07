@@ -18,6 +18,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+// TODO: Consider a different name (`FIRAppAttestationToken`, `FIRAppAttestationTokenProtocol`, etc.)
 @protocol FIRAppAttestationTokenInterop <NSObject>
 
 /// FAA token.
