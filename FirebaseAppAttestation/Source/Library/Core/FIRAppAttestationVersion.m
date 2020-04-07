@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-#import "FIRAppAttestation.h"
-#import "FIRAppAttestationProvider.h"
-#import "FIRAppAttestationProviderFactory.h"
-#import "FIRAppAttestationToken.h"
-#import "FIRAppAttestationVersion.h"
+#import <FirebaseAppAttestation/FIRAppAttestationVersion.h>
+
+// Convert the macro to a string
+#define STR(x) STR_EXPAND(x)
+#define STR_EXPAND(x) #x
+
+const char *const FIRAppAttestationVersionStr =
+    (const char *const)STR(FIRAppAttestation_LIB_VERSION);

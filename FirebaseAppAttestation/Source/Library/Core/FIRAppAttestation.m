@@ -16,6 +16,117 @@
 
 #import "FIRAppAttestation.h"
 
+#import <FirebaseAppAttestation/FIRAppAttestationProvider.h>
+#import <FirebaseAppAttestation/FIRAppAttestationProviderFactory.h>
+#import <FirebaseAppAttestation/FIRAppAttestationToken.h>
+#import <FirebaseAppAttestation/FIRAppAttestationVersion.h>
+
+#import <FirebaseAppAttestationInterop/FIRAppAttestationInterop.h>
+#import <FirebaseAppAttestationInterop/FIRAppAttestationTokenInterop.h>
+
+#import <FirebaseCore/FIRAppInternal.h>
+#import <FirebaseCore/FIRComponentContainer.h>
+#import <FirebaseCore/FIRLibrary.h>
+
+@interface FIRAppAttestationToken (Interop) <FIRAppAttestationTokenInterop>
+@end
+
+@interface FIRAppAttestation () <FIRLibrary, FIRAppAttestationInterop>
+@property(nonatomic, readonly) NSString *appName;
+@property(nonatomic, readonly, nullable) id<FIRAppAttestationProvider> attestationProvider;
+@end
+
 @implementation FIRAppAttestation
+
+#pragma mark - FIRComponents
+
++ (void)load {
+  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self
+                         withName:@"fire-app-attest"
+                      withVersion:[NSString stringWithUTF8String:FIRAppAttestationVersionStr]];
+}
+
++ (nonnull NSArray<FIRComponent *> *)componentsToRegister {
+  FIRComponentCreationBlock creationBlock =
+      ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
+    *isCacheable = YES;
+    return [[FIRAppAttestation alloc] initWithApp:container.app];
+  };
+
+  FIRComponent *appAttestationProvider =
+      [FIRComponent componentWithProtocol:@protocol(FIRAppAttestationInterop)
+                      instantiationTiming:FIRInstantiationTimingLazy
+                             dependencies:@[]
+                            creationBlock:creationBlock];
+  return @[ appAttestationProvider ];
+}
+
+- (instancetype)initWithApp:(FIRApp *)app {
+  self = [super init];
+  if (self) {
+    _appName = app.name;
+
+    id<FIRAppAttestationProviderFactory> providerFactory =
+        [[self class] providerFactoryForAppName:app.name];
+    ?: [[self class] providerFactoryForAppName:kFIRDefaultAppName];
+    _attestationProvider = [providerFactory createProviderWithApp:app];
+  }
+  return self;
+}
+
+#pragma mark - Public
+
++ (void)setAttestationProviderFactory:(nullable id<FIRAppAttestationProviderFactory>)factory {
+  [self setAttestationProviderFactory:factory forAppName:kFIRDefaultAppName];
+}
+
++ (void)setAttestationProviderFactory:(nullable id<FIRAppAttestationProviderFactory>)factory
+                           forAppName:(NSString *)firebaseAppName {
+  if (firebaseAppName == nil) {
+    return;
+  }
+
+  @synchronized([self providerFactoryByAppName]) {
+    [self providerFactoryByAppName][firebaseAppName] = factory;
+  }
+}
+
+#pragma mark - Attestation Provider Ingestion
+
++ (NSMutableDictionary *)providerFactoryByAppName {
+  static NSMutableDictionary *providerFactoryByAppName;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    providerFactoryByAppName = [[NSMutableDictionary alloc] init];
+  });
+  return providerFactoryByAppName;
+}
+
++ (nullable id<FIRAppAttestationProviderFactory>)providerFactoryForAppName:(NSString *)appName {
+  if (appName == nil) {
+    return nil;
+  }
+
+  @synchronized([self providerFactoryByAppName]) {
+    return [self providerFactoryByAppName][appName];
+  }
+}
+
+#pragma mark - FIRAppAttestationInterop
+
+- (void)getTokenForcingRefresh:(BOOL)forcingRefresh
+                    completion:(nonnull FIRAppAttestationTokenHandlerInterop)handler {
+  if (self.attestationProvider == nil) {
+    // TODO: finish with a specific error.
+    handler(nil, nil);
+    return;
+  }
+
+  [self.attestationProvider getTokenWithCompletion:handler];
+}
+
+- (void)getTokenWithCompletion:(nonnull FIRAppAttestationTokenHandlerInterop)handler {
+  [self getTokenForcingRefresh:NO completion:handler];
+}
 
 @end
