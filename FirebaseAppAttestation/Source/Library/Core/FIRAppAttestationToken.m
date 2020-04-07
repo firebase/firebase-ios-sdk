@@ -18,4 +18,13 @@
 
 @implementation FIRAppAttestationToken
 
+- (instancetype)initWithToken:(NSString *)token expirationDate:(NSDate *)expirationDate {
+  self = [super init];
+  if (self) {
+    _token = [token copy];
+    _expirationDate = expirationDate;
+  }
+  return self;
+}
+
 @end
