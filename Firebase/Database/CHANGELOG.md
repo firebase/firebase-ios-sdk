@@ -1,4 +1,6 @@
 # Unreleased
+- [feature] Added `ServerValue.increment()` to support atomic field value increments
+  without transactions.
 
 # v6.1.4
 - [changed] Addressed a performance regression introduced in 6.1.3.

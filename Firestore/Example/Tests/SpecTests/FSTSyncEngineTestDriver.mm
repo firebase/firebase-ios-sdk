@@ -172,7 +172,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   // ivar is declared as mutable.
   std::unordered_map<User, NSMutableArray<FSTOutstandingWrite *> *, HashUser> _outstandingWrites;
-  DocumentKeySet _expectedLimboDocuments;
+  DocumentKeySet _expectedActiveLimboDocuments;
 
   /** A dictionary for tracking the listens on queries. */
   std::unordered_map<Query, std::shared_ptr<QueryListener>> _queryListeners;
@@ -243,12 +243,12 @@ NS_ASSUME_NONNULL_BEGIN
   return _outstandingWrites;
 }
 
-- (const DocumentKeySet &)expectedLimboDocuments {
-  return _expectedLimboDocuments;
+- (const DocumentKeySet &)expectedActiveLimboDocuments {
+  return _expectedActiveLimboDocuments;
 }
 
-- (void)setExpectedLimboDocuments:(DocumentKeySet)docs {
-  _expectedLimboDocuments = std::move(docs);
+- (void)setExpectedActiveLimboDocuments:(DocumentKeySet)docs {
+  _expectedActiveLimboDocuments = std::move(docs);
 }
 
 - (void)drainQueue {

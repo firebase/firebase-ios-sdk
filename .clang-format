@@ -6,3 +6,4 @@ ObjCSpaceBeforeProtocolList: true
 SpacesInContainerLiterals: true
 PointerAlignment: Right
 AllowShortFunctionsOnASingleLine: None
+IncludeBlocks: Preserve

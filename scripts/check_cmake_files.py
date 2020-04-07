@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright 2019 Google
+# Copyright 2019 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -233,7 +233,7 @@ def group_by_cmakelists(filenames):
       g.list_file = filename
       g.list_files, g.ignored_files = read_listed_source_files(filename)
 
-  return sorted(list(groups.values()))
+  return sorted(list(groups.values()), key=lambda g: g.list_file)
 
 
 def find_all_errors(groups):

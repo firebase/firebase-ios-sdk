@@ -670,15 +670,37 @@ struct FrameworkBuilder {
             let destSwiftModuleDir = destModuleDir.appendingPathComponent(swiftModule.lastPathComponent)
             for file in files {
               let fileURL = URL(fileURLWithPath: file)
-              do {
-                try fileManager.copyItem(at: fileURL, to:
-                  destSwiftModuleDir.appendingPathComponent(fileURL.lastPathComponent))
-              } catch {
-                fatalError("Could not copy Swift module file from \(fileURL) to " + "\(destSwiftModuleDir): \(error)")
+              let projectDir = swiftModule.appendingPathComponent("Project")
+              if fileURL.lastPathComponent == "Project",
+                fileManager.directoryExists(at: projectDir) {
+                // The Project directory (introduced with Xcode 11.4) already exist, only copy in
+                // new contents.
+                let projectFiles = try fileManager.contentsOfDirectory(at: projectDir,
+                                                                       includingPropertiesForKeys: nil).compactMap { $0.path }
+                let destProjectDir = destSwiftModuleDir.appendingPathComponent("Project")
+                for projectFile in projectFiles {
+                  let projectFileURL = URL(fileURLWithPath: projectFile)
+                  do {
+                    try fileManager.copyItem(at: projectFileURL, to:
+                      destProjectDir.appendingPathComponent(projectFileURL.lastPathComponent))
+                  } catch {
+                    fatalError("Could not copy Project file from \(projectFileURL) to " +
+                      "\(destProjectDir): \(error)")
+                  }
+                }
+              } else {
+                do {
+                  try fileManager.copyItem(at: fileURL, to:
+                    destSwiftModuleDir.appendingPathComponent(fileURL.lastPathComponent))
+                } catch {
+                  fatalError("Could not copy Swift module file from \(fileURL) to " +
+                    "\(destSwiftModuleDir): \(error)")
+                }
               }
             }
           } catch {
-            fatalError("Failed to get Modules directory contents - \(moduleDir): \(error.localizedDescription)")
+            fatalError("Failed to get Modules directory contents - \(moduleDir):" +
+              "\(error.localizedDescription)")
           }
         }
       } catch {

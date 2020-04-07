@@ -15,6 +15,7 @@
  */
 
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
+
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 namespace firebase {

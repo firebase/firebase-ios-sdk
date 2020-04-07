@@ -21,10 +21,11 @@ set -euo pipefail
 export HOMEBREW_NO_ANALYTICS=1
 export HOMEBREW_NO_AUTO_UPDATE=1
 
-brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/e3496d9/Formula/clang-format.rb
+brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/c6f1cbd/Formula/clang-format.rb
 brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/c13eda8/Formula/swiftformat.rb
 
 pip install flake8
+pip install six
 
 # Using actions/checkout@v2 creates a shallow clone that's missing the master
 # branch. If it's not present, add it.

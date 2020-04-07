@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
+#include "Firestore/core/src/firebase/firestore/local/leveldb_remote_document_cache.h"
+
 #include <initializer_list>
 #include <memory>
 #include <string>
 
 #include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
-#include "Firestore/core/src/firebase/firestore/local/leveldb_remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
 #include "Firestore/core/test/firebase/firestore/local/persistence_testing.h"
