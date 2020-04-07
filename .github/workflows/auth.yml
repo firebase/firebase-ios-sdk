@@ -36,26 +36,26 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Setup project and Build for Catalyst
-      # Only run the unit tests on Catalyst
-      run: scripts/test_catalyst.sh FirebaseAuth test FirebaseAuth-Unit-unit
+      # Only build the unit tests on Catalyst
+      run: scripts/test_catalyst.sh FirebaseAuth build FirebaseAuth-Unit-unit
 
-  # quickstart:
-  #   env:
-  #     plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-  #     signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-  #   runs-on: macOS-latest
-  #   steps:
-  #   - uses: actions/checkout@v2
-  #   - name: Setup quickstart
-  #     run: scripts/setup_quickstart.sh storage
-  #   - name: Install Secret GoogleService-Info.plist
-  #     run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-storage.plist.gpg \
-  #         quickstart-ios/storage/GoogleService-Info.plist "$plist_secret"
-  #   - name: Install Secret FIREGSignInInfo.h
-  #     run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
-  #         quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
-  #   - name: Test quickstart
-  #     run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Storage)
+  quickstart:
+    env:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup quickstart
+      run: scripts/setup_quickstart.sh auth
+    - name: Install Secret GoogleService-Info.plist
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-auth.plist.gpg \
+          quickstart-ios/authentication/GoogleService-Info.plist "$plist_secret"
+    - name: Install Secret FIREGSignInInfo.h
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
+          quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
+    - name: Test quickstart
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Authentication)
 
   pod-lib-lint:
     runs-on: macOS-latest
