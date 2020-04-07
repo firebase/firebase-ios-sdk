@@ -63,12 +63,4 @@ device, and it is completely free.
     }
     unit_tests.dependency 'OCMock'
   end
-
-  s.test_spec 'sample' do |build_test|
-    build_test.platforms = {:ios => '13.0'}
-    build_test.source_files = 'Example/Messaging/Sample/*.{swift}'
-    build_test.swift_version = '5.0'
-    build_test.framework = 'SwiftUI'
-  end
-
 end
