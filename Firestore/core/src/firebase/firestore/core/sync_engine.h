@@ -146,8 +146,8 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
   model::DocumentKeySet GetRemoteKeys(model::TargetId target_id) const override;
 
   // For tests only
-  std::map<model::DocumentKey, model::TargetId> GetCurrentLimboDocuments()
-      const {
+  std::map<model::DocumentKey, model::TargetId>
+  GetActiveLimboDocumentResolutions() const {
     // Return defensive copy
     return active_limbo_targets_by_key_;
   }

@@ -729,7 +729,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   // Always validate the we received the expected number of callbacks.
   [self validateUserCallbacks:expectedState];
   // Always validate that the expected limbo docs match the actual limbo docs.
-  [self validateLimboDocuments];
+  [self validateActiveLimboDocuments];
   // Always validate that the expected active targets match the actual active targets.
   [self validateActiveTargets];
 }
@@ -754,9 +754,9 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   }
 }
 
-- (void)validateLimboDocuments {
+- (void)validateActiveLimboDocuments {
   // Make a copy so it can modified while checking against the expected limbo docs.
-  std::map<DocumentKey, TargetId> actualLimboDocs = self.driver.currentLimboDocuments;
+  std::map<DocumentKey, TargetId> actualLimboDocs = self.driver.activeLimboDocumentResolutions;
 
   // Validate that each active limbo doc has an expected active target
   for (const auto &kv : actualLimboDocs) {

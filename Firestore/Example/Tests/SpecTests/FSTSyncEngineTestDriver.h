@@ -283,8 +283,8 @@ typedef std::unordered_map<auth::User, NSMutableArray<FSTOutstandingWrite *> *, 
  */
 - (NSArray<NSString *> *)capturedRejectedWritesSinceLastCall;
 
-/** The current set of documents in limbo. */
-- (std::map<model::DocumentKey, model::TargetId>)currentLimboDocuments;
+/** The current set of documents in limbo with active targets. */
+- (std::map<model::DocumentKey, model::TargetId>)activeLimboDocumentResolutions;
 
 /** The expected set of documents in limbo with an active target. */
 - (const model::DocumentKeySet &)expectedActiveLimboDocuments;

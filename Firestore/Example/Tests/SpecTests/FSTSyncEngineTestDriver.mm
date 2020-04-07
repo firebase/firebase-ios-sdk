@@ -472,8 +472,8 @@ NS_ASSUME_NONNULL_BEGIN
   });
 }
 
-- (std::map<DocumentKey, TargetId>)currentLimboDocuments {
-  return _syncEngine->GetCurrentLimboDocuments();
+- (std::map<DocumentKey, TargetId>)activeLimboDocumentResolutions {
+  return _syncEngine->GetActiveLimboDocumentResolutions();
 }
 
 - (const std::unordered_map<TargetId, TargetData> &)activeTargets {
