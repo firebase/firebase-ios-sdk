@@ -65,6 +65,7 @@
 }
 
 - (void)tearDown {
+  [FIRApp resetApps];
   [FIRAppAttestation setAttestationProviderFactory:nil];
 
   [self.mockProviderFactory stopMocking];
