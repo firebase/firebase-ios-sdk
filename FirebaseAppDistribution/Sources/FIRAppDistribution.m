@@ -184,7 +184,7 @@ NSString *const kIssuerURL = @"https://accounts.google.com";
 
   NSString *redirectUrl = [@"dev.firebase.appdistribution."
       stringByAppendingString:[[[NSBundle mainBundle] bundleIdentifier]
-                                  stringByAppendingPathComponent:@":xlaunch"]];
+                                  stringByAppendingString:@":/launch"]];
 
   OIDAuthorizationRequest *request = [[OIDAuthorizationRequest alloc]
       initWithConfiguration:configuration

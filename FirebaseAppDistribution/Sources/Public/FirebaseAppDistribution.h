@@ -13,4 +13,3 @@
 // limitations under the License.
 
 #import "FIRAppDistribution.h"
-#import "FIRAppDistributionAppDelegateInterceptor.h"
