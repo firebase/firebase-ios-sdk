@@ -1,0 +1,23 @@
+name: messagingsample
+
+on:
+  pull_request:
+    paths:
+    - '.github/workflows/messagingsample.yml'
+    - 'Example/Messaging/Sample/**'
+
+  schedule:
+    - cron:  '0 7 * * *'
+
+jobs:
+  sample-app-build-test:
+    runs-on: macos-latest
+
+    steps:
+    - uses: action/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Prereqs
+      run: scripts/install_prereqs.sh Sample iOS
+    - name: Build
+      run: scripts/build.sh Sample iOS
