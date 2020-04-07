@@ -43,10 +43,8 @@
           return waitBlock();                                                                     \
         }];                                                                                       \
     XCTestExpectation *expectation = [self expectationForPredicate:pred                           \
-                                               evaluatedWithObject:[[NSObject alloc] init]        \
-                                                           handler:^BOOL {                        \
-                                                             return YES;                          \
-                                                           }];                                    \
+                                               evaluatedWithObject:nil                            \
+                                                           handler:nil];                          \
     [self waitForExpectations:@[ expectation ] timeout:timeInterval];                             \
   }
 
@@ -90,6 +88,14 @@
 
   self.prioritizer = [[GDTCORLifecycleTestPrioritizer alloc] init];
   [[GDTCORRegistrar sharedInstance] registerPrioritizer:self.prioritizer target:kGDTCORTargetTest];
+}
+
+- (void)tearDown {
+  [super tearDown];
+  self.uploader = nil;
+  self.prioritizer = nil;
+
+  [[GDTCORRegistrar sharedInstance] reset];
   [[GDTCORFlatFileStorage sharedInstance] reset];
   [[GDTCORUploadCoordinator sharedInstance] reset];
 }

@@ -201,13 +201,14 @@ static NSString *const ktargetToInFlightPackagesKey =
 #pragma mark - GDTCORLifecycleProtocol
 
 - (void)appWillForeground:(GDTCORApplication *)app {
-  // Not entirely thread-safe, but it should be fine.
+  // -startTimer is thread-safe.
   [self startTimer];
 }
 
 - (void)appWillBackground:(GDTCORApplication *)app {
-  // Should be thread-safe. If it ends up not being, put this in a dispatch_sync.
-  [self stopTimer];
+  dispatch_sync(_coordinationQueue, ^{
+    [self stopTimer];
+  });
 }
 
 - (void)appWillTerminate:(GDTCORApplication *)application {
@@ -243,7 +244,7 @@ static NSString *const ktargetToInFlightPackagesKey =
     }
       if (successful && packageEvents.count) {
       NSMutableSet *eventIDs = [[NSMutableSet alloc] init];
-      for (GDTCOREvent *event in package.events) {
+      for (GDTCOREvent *event in packageEvents) {
         [eventIDs addObject:[event.eventID copy]];
       }
       [[self storageForTarget:@(package.target)] removeEvents:eventIDs];

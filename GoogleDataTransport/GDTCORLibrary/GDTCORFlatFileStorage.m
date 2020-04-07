@@ -220,11 +220,13 @@
 #pragma mark - GDTCORLifecycleProtocol
 
 - (void)appWillForeground:(GDTCORApplication *)app {
-  NSError *error;
-  GDTCORDecodeArchive([GDTCORFlatFileStorage class], [GDTCORFlatFileStorage archivePath], nil, &error);
-  if (error) {
-    GDTCORLogDebug(@"Deserializing GDTCORFlatFileStorage from an archive failed: %@", error);
-  }
+  dispatch_async(_storageQueue, ^{
+    NSError *error;
+    GDTCORDecodeArchive([GDTCORFlatFileStorage class], [GDTCORFlatFileStorage archivePath], nil, &error);
+    if (error) {
+      GDTCORLogDebug(@"Deserializing GDTCORFlatFileStorage from an archive failed: %@", error);
+    }
+  });
 }
 
 - (void)appWillBackground:(GDTCORApplication *)app {
