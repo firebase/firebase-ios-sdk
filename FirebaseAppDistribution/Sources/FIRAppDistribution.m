@@ -79,8 +79,11 @@ NSString *const kIssuerURL = @"https://accounts.google.com";
   FIRComponentCreationBlock creationBlock =
       ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
     if (!container.app.isDefaultApp) {
-      NSLog(@"App Distribution must be used with the default Firebase app.");
-      return nil;
+        // TODO: Implement error handling
+        @throw([NSException exceptionWithName:@"NotImplementedException"
+                                       reason:@"This code path is not implemented yet"
+                                     userInfo:nil]);
+        return nil;
     }
 
     *isCacheable = YES;
@@ -172,7 +175,10 @@ NSString *const kIssuerURL = @"https://accounts.google.com";
                                  error:(NSError *_Nullable)error
        appDistributionSignInCompletion:(FIRAppDistributionSignInTesterCompletion)completion {
   if (!configuration) {
-    NSLog(@"Error retrieving discovery document: %@", [error localizedDescription]);
+    // TODO: Handle when we cannot get configuration
+    @throw([NSException exceptionWithName:@"NotImplementedException"
+                       reason:@"This code path is not implemented yet"
+                     userInfo:nil]);
     return;
   }
 
@@ -219,9 +225,7 @@ NSString *const kIssuerURL = @"https://accounts.google.com";
 - (void)handleReleasesAPIResponseWithData:data
                                completion:(FIRAppDistributionUpdateCheckCompletion)completion {
   // TODO Implement parsing of releases API response
-  @throw([NSException exceptionWithName:@"NotImplementedException"
-                                 reason:@"This code path is not implemented yet"
-                               userInfo:nil]);
+  completion(nil, nil);
 }
 
 - (void)checkForUpdateWithCompletion:(FIRAppDistributionUpdateCheckCompletion)completion {
