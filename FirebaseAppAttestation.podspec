@@ -26,7 +26,7 @@ Pod::Spec.new do |s|
   s.prefix_header_file = false
 
   base_dir = "FirebaseAppAttestation/Source/"
-  # s.framework = 'Security'
+  s.framework = 'Security'
 
   s.dependency 'FirebaseAppAttestationInterop', '~> 0.1.0'
   s.dependency 'FirebaseCore', '~> 6.6'
@@ -49,7 +49,8 @@ Pod::Spec.new do |s|
   s.subspec 'DeviceCheckAttestationProvider' do |ds|
     subspec_dir = base_dir + 'Library/DeviceCheckAttestationProvider/'
     ds.source_files = subspec_dir + '**/*.[mh]'
-    ds.public_header_files = subspec_dir + 'Public/*.h'
+    ds.public_header_files = subspec_dir + 'Private/*.h'
+    s.private_header_files = subspec_dir + 'Private/*.h'
 
     ds.dependency 'FirebaseAppAttestation/Core'
   end
