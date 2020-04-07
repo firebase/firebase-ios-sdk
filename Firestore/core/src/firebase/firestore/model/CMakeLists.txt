@@ -75,6 +75,6 @@ firebase_ios_cc_library(
     firebase_firestore_immutable
     firebase_firestore_nanopb
     firebase_firestore_objc
-    firebase_firestore_util
     firebase_firestore_types
+    firestore_util
 )

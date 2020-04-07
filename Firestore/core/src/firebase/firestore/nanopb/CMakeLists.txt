@@ -24,7 +24,7 @@ firebase_ios_cc_library(
 
   DEPENDS
     absl_strings
-    firebase_firestore_util
+    firestore_util
     protobuf-nanopb-static
 )
 
@@ -40,8 +40,8 @@ firebase_ios_cc_library(
     writer.h
   DEPENDS
     firebase_firestore_nanopb_runtime
-    firebase_firestore_util
     firestore_protos_nanopb
+    firestore_util
     grpc++
     protobuf-nanopb-static
 )

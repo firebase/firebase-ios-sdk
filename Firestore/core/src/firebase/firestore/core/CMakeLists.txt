@@ -54,7 +54,7 @@ firebase_ios_cc_library(
     target_id_generator.h
   DEPENDS
     absl_strings
-    firebase_firestore_util
+    firestore_util
 )
 
 firebase_ios_cc_library(

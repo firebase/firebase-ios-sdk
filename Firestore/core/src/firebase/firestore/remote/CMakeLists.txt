@@ -20,7 +20,7 @@ firebase_ios_cc_library(
     connectivity_monitor_apple.mm
   DEPENDS
     absl_base
-    firebase_firestore_util
+    firestore_util
     "-framework SystemConfiguration"
   EXCLUDE_FROM_ALL
 )
@@ -33,7 +33,7 @@ firebase_ios_cc_library(
     connectivity_monitor_noop.cc
   DEPENDS
     absl_base
-    firebase_firestore_util
+    firestore_util
   EXCLUDE_FROM_ALL
 )
 
@@ -170,7 +170,7 @@ firebase_ios_cc_library(
     firebase_firestore_remote_connectivity_monitor
     firebase_firestore_remote_datastore
     firebase_firestore_remote_serializer
-    firebase_firestore_util
     firebase_firestore_version
+    firestore_util
     protobuf-nanopb-static
 )

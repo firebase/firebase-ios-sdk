@@ -23,7 +23,7 @@ firebase_ios_cc_library(
     user.h
   DEPENDS
     absl_strings
-    firebase_firestore_util
+    firestore_util
 )
 
 firebase_ios_cc_library(

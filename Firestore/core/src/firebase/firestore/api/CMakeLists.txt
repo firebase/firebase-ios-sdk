@@ -47,5 +47,5 @@ firebase_ios_cc_library(
     firebase_firestore_core
     firebase_firestore_local
     firebase_firestore_model
-    firebase_firestore_util
+    firestore_util
 )

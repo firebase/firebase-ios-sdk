@@ -21,7 +21,7 @@ firebase_ios_cc_library(
     timestamp_internal.cc
     timestamp_internal.h
   DEPENDS
-    firebase_firestore_util
+    firestore_util
 )
 
 firebase_ios_cc_library(

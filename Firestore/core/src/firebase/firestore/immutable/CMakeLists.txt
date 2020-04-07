@@ -28,5 +28,5 @@ firebase_ios_cc_library(
     tree_sorted_map.h
   DEPENDS
     absl_base
-    firebase_firestore_util
+    firestore_util
 )

@@ -70,8 +70,8 @@ firebase_ios_cc_library(
     firebase_firestore_local_base
     firebase_firestore_model
     firebase_firestore_nanopb
-    firebase_firestore_util
     firestore_protos_nanopb
+    firestore_util
     protobuf-nanopb-static
   EXCLUDE_FROM_ALL
 )
@@ -124,7 +124,7 @@ firebase_ios_cc_library(
     firebase_firestore_local_persistence_leveldb
     firebase_firestore_model
     firebase_firestore_nanopb
-    firebase_firestore_util
     firestore_protos_nanopb
+    firestore_util
     protobuf-nanopb-static
 )
