@@ -67,8 +67,8 @@
     _appName = app.name;
 
     id<FIRAppAttestationProviderFactory> providerFactory =
-        [[self class] providerFactoryForAppName:app.name];
-    ?: [[self class] providerFactoryForAppName:kFIRDefaultAppName];
+        [[self class] providerFactoryForAppName:app.name]
+            ?: [[self class] providerFactoryForAppName:kFIRDefaultAppName];
     _attestationProvider = [providerFactory createProviderWithApp:app];
   }
   return self;
