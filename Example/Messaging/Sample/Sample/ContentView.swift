@@ -84,23 +84,20 @@ struct ContentView: View {
 
   func getToken() {
     InstanceID.instanceID().instanceID { result, error in
-      if error == nil {
+      guard let result = result, error == nil else {
         print("Failed getting iid and token: ", error ?? "")
         return
       }
-      guard let result = result else {
-        return
-      }
-
       self.identity.token = result.token
       self.identity.instanceID = result.instanceID
     }
   }
 
   func deleteToken() {
-    Messaging.messaging().deleteFCMToken(forSenderID: FirebaseApp.app()?.options.gcmSenderID ?? "") { error in
-      if error != nil {
-        print("Failed delete token: ", error ?? "")
+    guard let senderID = FirebaseApp.app()?.options.gcmSenderID else { return }
+    Messaging.messaging().deleteFCMToken(forSenderID: senderID) { error in
+      if let error = error as NSError? {
+        print("Failed delete token: ", error)
         return
       }
       self.identity.token = ""
@@ -109,8 +106,8 @@ struct ContentView: View {
 
   func deleteID() {
     InstanceID.instanceID().deleteID { error in
-      if error != nil {
-        print("Failed delete ID: ", error ?? "")
+      if let error = error as NSError? {
+        print("Failed delete ID: ", error)
         return
       }
       self.identity.instanceID = ""
@@ -120,8 +117,8 @@ struct ContentView: View {
 
   func deleteFID() {
     Installations.installations().delete { error in
-      if error != nil {
-        print("Failed delete FID: ", error ?? "")
+      if let error = error as NSError? {
+        print("Failed delete FID: ", error)
         return
       }
     }
