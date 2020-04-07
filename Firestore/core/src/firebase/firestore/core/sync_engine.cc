@@ -267,8 +267,8 @@ void SyncEngine::ApplyRemoteEvent(const RemoteEvent& remote_event) {
   for (const auto& entry : remote_event.target_changes()) {
     TargetId target_id = entry.first;
     const TargetChange& change = entry.second;
-    auto it = limbo_resolutions_by_target_.find(target_id);
-    if (it == limbo_resolutions_by_target_.end()) {
+    auto it = active_limbo_resolutions_by_target_.find(target_id);
+    if (it == active_limbo_resolutions_by_target_.end()) {
       continue;
     }
 
@@ -303,13 +303,14 @@ void SyncEngine::ApplyRemoteEvent(const RemoteEvent& remote_event) {
 void SyncEngine::HandleRejectedListen(TargetId target_id, Status error) {
   AssertCallbackExists("HandleRejectedListen");
 
-  auto it = limbo_resolutions_by_target_.find(target_id);
-  if (it != limbo_resolutions_by_target_.end()) {
+  auto it = active_limbo_resolutions_by_target_.find(target_id);
+  if (it != active_limbo_resolutions_by_target_.end()) {
     DocumentKey limbo_key = it->second.key;
     // Since this query failed, we won't want to manually unlisten to it.
     // So go ahead and remove it from bookkeeping.
-    limbo_targets_by_key_.erase(limbo_key);
-    limbo_resolutions_by_target_.erase(target_id);
+    active_limbo_targets_by_key_.erase(limbo_key);
+    active_limbo_resolutions_by_target_.erase(target_id);
+    PumpEnqueuedLimboResolutions();
 
     // TODO(dimond): Retry on transient errors?
 
@@ -398,8 +399,8 @@ void SyncEngine::HandleOnlineStateChange(model::OnlineState online_state) {
 }
 
 DocumentKeySet SyncEngine::GetRemoteKeys(TargetId target_id) const {
-  auto it = limbo_resolutions_by_target_.find(target_id);
-  if (it != limbo_resolutions_by_target_.end() &&
+  auto it = active_limbo_resolutions_by_target_.find(target_id);
+  if (it != active_limbo_resolutions_by_target_.end() &&
       it->second.document_received) {
     return DocumentKeySet{it->second.key};
   } else {
@@ -528,32 +529,42 @@ void SyncEngine::UpdateTrackedLimboDocuments(
 
 void SyncEngine::TrackLimboChange(const LimboDocumentChange& limbo_change) {
   const DocumentKey& key = limbo_change.key();
-
-  if (limbo_targets_by_key_.find(key) == limbo_targets_by_key_.end()) {
+  if (active_limbo_targets_by_key_.find(key) ==
+      active_limbo_targets_by_key_.end()) {
     LOG_DEBUG("New document in limbo: %s", key.ToString());
+    enqueued_limbo_resolutions_.push(key);
+    PumpEnqueuedLimboResolutions();
+  }
+}
 
+void SyncEngine::PumpEnqueuedLimboResolutions() {
+  while (!enqueued_limbo_resolutions_.empty() &&
+         active_limbo_targets_by_key_.size() <
+             max_concurrent_limbo_resolutions_) {
+    DocumentKey key = enqueued_limbo_resolutions_.front();
+    enqueued_limbo_resolutions_.pop();
     TargetId limbo_target_id = target_id_generator_.NextId();
-    Query query(key.path());
-    TargetData target_data(query.ToTarget(), limbo_target_id,
-                           kIrrelevantSequenceNumber,
-                           QueryPurpose::LimboResolution);
-    limbo_resolutions_by_target_.emplace(limbo_target_id, LimboResolution{key});
-    remote_store_->Listen(target_data);
-    limbo_targets_by_key_[key] = limbo_target_id;
+    active_limbo_resolutions_by_target_.emplace(limbo_target_id,
+                                                LimboResolution{key});
+    active_limbo_targets_by_key_[key] = limbo_target_id;
+    remote_store_->Listen(TargetData(Query(key.path()).ToTarget(),
+                                     limbo_target_id, kIrrelevantSequenceNumber,
+                                     QueryPurpose::LimboResolution));
   }
 }
 
 void SyncEngine::RemoveLimboTarget(const DocumentKey& key) {
-  auto it = limbo_targets_by_key_.find(key);
-  if (it == limbo_targets_by_key_.end()) {
+  auto it = active_limbo_targets_by_key_.find(key);
+  if (it == active_limbo_targets_by_key_.end()) {
     // This target already got removed, because the query failed.
     return;
   }
 
   TargetId limbo_target_id = it->second;
   remote_store_->StopListening(limbo_target_id);
-  limbo_targets_by_key_.erase(key);
-  limbo_resolutions_by_target_.erase(limbo_target_id);
+  active_limbo_targets_by_key_.erase(key);
+  active_limbo_resolutions_by_target_.erase(limbo_target_id);
+  PumpEnqueuedLimboResolutions();
 }
 
 }  // namespace core

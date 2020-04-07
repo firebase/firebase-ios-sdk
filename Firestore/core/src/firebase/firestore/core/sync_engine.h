@@ -149,7 +149,7 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
   std::map<model::DocumentKey, model::TargetId> GetCurrentLimboDocuments()
       const {
     // Return defensive copy
-    return limbo_targets_by_key_;
+    return active_limbo_targets_by_key_;
   }
 
  private:
@@ -232,6 +232,16 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
 
   void TrackLimboChange(const LimboDocumentChange& limbo_change);
 
+  /**
+   * Starts listens for documents in limbo that are enqueued for resolution,
+   * subject to a maximum number of concurrent resolutions.
+   *
+   * Without bounding the number of concurrent resolutions, the server can fail
+   * with "resource exhausted" errors which can lead to pathological client
+   * behavior as seen in https://github.com/firebase/firebase-js-sdk/issues/2683
+   */
+  void PumpEnqueuedLimboResolutions();
+
   void NotifyUser(model::BatchId batch_id, util::Status status);
 
   /**
@@ -277,18 +287,23 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
   const int max_concurrent_limbo_resolutions_;
 
   /**
-   * When a document is in limbo, we create a special listen to resolve it. This
-   * maps the DocumentKey of each limbo document to the TargetId of the listen
-   * resolving it.
+   * The keys of documents that are in limbo for which we haven't yet started a
+   * limbo resolution query.
    */
-  std::map<model::DocumentKey, model::TargetId> limbo_targets_by_key_;
+  std::queue<model::DocumentKey> enqueued_limbo_resolutions_;
 
   /**
-   * Basically the inverse of limbo_targets_by_key_, a map of target ID to a
-   * LimboResolution (which includes the DocumentKey as well as whether we've
-   * received a document for the target).
+   * Keeps track of the target ID for each document that is in limbo with an
+   * active target.
    */
-  std::map<model::TargetId, LimboResolution> limbo_resolutions_by_target_;
+  std::map<model::DocumentKey, model::TargetId> active_limbo_targets_by_key_;
+
+  /**
+   * Keeps track of the information about an active limbo resolution for each
+   * active target ID that was started for the purpose of limbo resolution.
+   */
+  std::map<model::TargetId, LimboResolution>
+      active_limbo_resolutions_by_target_;
 
   /** Used to track any documents that are currently in limbo. */
   local::ReferenceSet limbo_document_refs_;
