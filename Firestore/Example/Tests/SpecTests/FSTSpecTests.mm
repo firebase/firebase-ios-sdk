@@ -213,6 +213,9 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   // Store GCEnabled so we can re-use it in doRestart.
   NSNumber *GCEnabled = config[@"useGarbageCollection"];
   _gcEnabled = [GCEnabled boolValue];
+  NSNumber *maxConcurrentLimboResolutions = config[@"maxConcurrentLimboResolutions"];
+  _maxConcurrentLimboResolutions =
+      (maxConcurrentLimboResolutions == nil) ? INT_MAX : maxConcurrentLimboResolutions.intValue;
   NSNumber *numClients = config[@"numClients"];
   if (numClients) {
     XCTAssertEqualObjects(numClients, @1, @"The iOS client does not support multi-client tests");
