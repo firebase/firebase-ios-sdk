@@ -47,7 +47,8 @@
 }
 
 - (void)sendTelemetryEvent:(GDTCOREvent *)event
-                onComplete:(void (^_Nullable)(BOOL wasWritten, NSError *_Nullable error))completion {
+                onComplete:
+                    (void (^_Nullable)(BOOL wasWritten, NSError *_Nullable error))completion {
   event.qosTier = GDTCOREventQoSTelemetry;
   [self sendEvent:event onComplete:completion];
 }

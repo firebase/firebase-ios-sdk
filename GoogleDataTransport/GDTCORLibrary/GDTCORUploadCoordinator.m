@@ -242,7 +242,7 @@ static NSString *const ktargetToInFlightPackagesKey =
         [prioritizer packageDelivered:[package copy] successful:successful];
       }
     }
-      if (successful && packageEvents.count) {
+    if (successful && packageEvents.count) {
       NSMutableSet *eventIDs = [[NSMutableSet alloc] init];
       for (GDTCOREvent *event in packageEvents) {
         [eventIDs addObject:[event.eventID copy]];

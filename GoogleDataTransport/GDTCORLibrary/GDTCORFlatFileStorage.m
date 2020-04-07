@@ -45,7 +45,8 @@
   static NSString *archivePath;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
-    archivePath = [GDTCORRootDirectory() URLByAppendingPathComponent:@"GDTCORFlatFileStorageArchive"].path;
+    archivePath =
+        [GDTCORRootDirectory() URLByAppendingPathComponent:@"GDTCORFlatFileStorageArchive"].path;
   });
   return archivePath;
 }
@@ -136,9 +137,11 @@
     // Write state to disk if there was an onComplete block or if we're in the background.
     if (hadOriginalCompletion || [[GDTCORApplication sharedApplication] isRunningInBackground]) {
       if (hadOriginalCompletion) {
-        GDTCORLogDebug("%@", @"Saving flat file storage state because a completion block was passed.");
+        GDTCORLogDebug("%@",
+                       @"Saving flat file storage state because a completion block was passed.");
       } else {
-        GDTCORLogDebug("%@", @"Saving flat file storage state because the app is running in the background");
+        GDTCORLogDebug(
+            "%@", @"Saving flat file storage state because the app is running in the background");
       }
       NSError *error;
       GDTCOREncodeArchive(self, [GDTCORFlatFileStorage archivePath], &error);
@@ -222,7 +225,8 @@
 - (void)appWillForeground:(GDTCORApplication *)app {
   dispatch_async(_storageQueue, ^{
     NSError *error;
-    GDTCORDecodeArchive([GDTCORFlatFileStorage class], [GDTCORFlatFileStorage archivePath], nil, &error);
+    GDTCORDecodeArchive([GDTCORFlatFileStorage class], [GDTCORFlatFileStorage archivePath], nil,
+                        &error);
     if (error) {
       GDTCORLogDebug(@"Deserializing GDTCORFlatFileStorage from an archive failed: %@", error);
     }
@@ -244,7 +248,8 @@
     if (error) {
       GDTCORLogDebug(@"Serializing GDTCORFlatFileStorage to an archive failed: %@", error);
     } else {
-      GDTCORLogDebug(@"Serialized GDTCORFlatFileStorage to %@", [GDTCORFlatFileStorage archivePath]);
+      GDTCORLogDebug(@"Serialized GDTCORFlatFileStorage to %@",
+                     [GDTCORFlatFileStorage archivePath]);
     }
 
     // End the background task if it's still valid.
@@ -260,7 +265,8 @@
     if (error) {
       GDTCORLogDebug(@"Serializing GDTCORFlatFileStorage to an archive failed: %@", error);
     } else {
-      GDTCORLogDebug(@"Serialized GDTCORFlatFileStorage to %@", [GDTCORFlatFileStorage archivePath]);
+      GDTCORLogDebug(@"Serialized GDTCORFlatFileStorage to %@",
+                     [GDTCORFlatFileStorage archivePath]);
     }
   });
 }

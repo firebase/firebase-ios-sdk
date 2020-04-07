@@ -211,7 +211,6 @@ static NSString *kCustomDataKey = @"GDTCOREventCustomDataKey";
       _GDTFilePath = [aDecoder decodeObjectOfClass:[NSString class] forKey:kGDTFilePathKey];
     }
     _customBytes = [aDecoder decodeObjectOfClass:[NSData class] forKey:kCustomDataKey];
-
   }
   return self;
 }

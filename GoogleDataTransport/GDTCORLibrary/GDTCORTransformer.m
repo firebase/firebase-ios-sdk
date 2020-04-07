@@ -85,8 +85,7 @@
     id<GDTCORStorageProtocol> storage =
         [GDTCORRegistrar sharedInstance].targetToStorage[@(event.target)];
 
-    [storage storeEvent:transformedEvent
-             onComplete:hadOriginalCompletion ? completion : nil];
+    [storage storeEvent:transformedEvent onComplete:hadOriginalCompletion ? completion : nil];
 
     // The work is done, cancel the background task if it's valid.
     [[GDTCORApplication sharedApplication] endBackgroundTask:bgID];

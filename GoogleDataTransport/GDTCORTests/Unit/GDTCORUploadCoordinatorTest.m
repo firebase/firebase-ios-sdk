@@ -18,8 +18,8 @@
 
 #import <GoogleDataTransport/GDTCORPlatform.h>
 
-#import "GDTCORLibrary/Private/GDTCORUploadCoordinator.h"
 #import "GDTCORLibrary/Private/GDTCORFlatFileStorage.h"
+#import "GDTCORLibrary/Private/GDTCORUploadCoordinator.h"
 
 #import "GDTCORTests/Common/Categories/GDTCORRegistrar+Testing.h"
 #import "GDTCORTests/Common/Categories/GDTCORUploadCoordinator+Testing.h"

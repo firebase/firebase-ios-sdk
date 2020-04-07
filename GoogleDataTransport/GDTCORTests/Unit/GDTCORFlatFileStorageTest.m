@@ -85,13 +85,13 @@ static NSInteger target = kGDTCORTargetCCT;
   event.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:@"testString"];
   event.clockSnapshot = [GDTCORClock snapshot];
   XCTestExpectation *writtenExpectation = [self expectationWithDescription:@"event written"];
-  XCTAssertNoThrow([[GDTCORFlatFileStorage sharedInstance] storeEvent:event
-                                                           onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
-                                                             XCTAssertNotEqualObjects(event.eventID,
-                                                                                      @0);
-                                                             XCTAssertNil(error);
-                                                             [writtenExpectation fulfill];
-                                                           }]);
+  XCTAssertNoThrow([[GDTCORFlatFileStorage sharedInstance]
+      storeEvent:event
+      onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
+        XCTAssertNotEqualObjects(event.eventID, @0);
+        XCTAssertNil(error);
+        [writtenExpectation fulfill];
+      }]);
   [self waitForExpectations:@[ writtenExpectation ] timeout:10.0];
 
   dispatch_sync([GDTCORFlatFileStorage sharedInstance].storageQueue, ^{
@@ -112,13 +112,13 @@ static NSInteger target = kGDTCORTargetCCT;
   event.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:@"testString"];
   event.clockSnapshot = [GDTCORClock snapshot];
   XCTestExpectation *writtenExpectation = [self expectationWithDescription:@"event written"];
-  XCTAssertNoThrow([[GDTCORFlatFileStorage sharedInstance] storeEvent:event
-                                                           onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
-                                                             XCTAssertNotEqualObjects(event.eventID,
-                                                                                      @0);
-                                                             XCTAssertNil(error);
-                                                             [writtenExpectation fulfill];
-                                                           }]);
+  XCTAssertNoThrow([[GDTCORFlatFileStorage sharedInstance]
+      storeEvent:event
+      onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
+        XCTAssertNotEqualObjects(event.eventID, @0);
+        XCTAssertNil(error);
+        [writtenExpectation fulfill];
+      }]);
   [self waitForExpectations:@[ writtenExpectation ] timeout:10.0];
 
   __block NSURL *eventFile;
@@ -143,37 +143,37 @@ static NSInteger target = kGDTCORTargetCCT;
   GDTCOREvent *event1 = [[GDTCOREvent alloc] initWithMappingID:@"404" target:target];
   event1.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:@"testString1"];
   XCTestExpectation *writtenExpectation = [self expectationWithDescription:@"event written"];
-  XCTAssertNoThrow([[GDTCORFlatFileStorage sharedInstance] storeEvent:event1
-                                                           onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
-                                                             XCTAssertNotEqualObjects(
-                                                                 event1.eventID, @0);
-                                                             XCTAssertNil(error);
-                                                             [writtenExpectation fulfill];
-                                                           }]);
+  XCTAssertNoThrow([[GDTCORFlatFileStorage sharedInstance]
+      storeEvent:event1
+      onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
+        XCTAssertNotEqualObjects(event1.eventID, @0);
+        XCTAssertNil(error);
+        [writtenExpectation fulfill];
+      }]);
   [self waitForExpectations:@[ writtenExpectation ] timeout:10.0];
 
   GDTCOREvent *event2 = [[GDTCOREvent alloc] initWithMappingID:@"100" target:target];
   event2.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:@"testString2"];
   writtenExpectation = [self expectationWithDescription:@"event written"];
-  XCTAssertNoThrow([[GDTCORFlatFileStorage sharedInstance] storeEvent:event2
-                                                           onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
-                                                             XCTAssertNotEqualObjects(
-                                                                 event2.eventID, @0);
-                                                             XCTAssertNil(error);
-                                                             [writtenExpectation fulfill];
-                                                           }]);
+  XCTAssertNoThrow([[GDTCORFlatFileStorage sharedInstance]
+      storeEvent:event2
+      onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
+        XCTAssertNotEqualObjects(event2.eventID, @0);
+        XCTAssertNil(error);
+        [writtenExpectation fulfill];
+      }]);
   [self waitForExpectations:@[ writtenExpectation ] timeout:10.0];
 
   GDTCOREvent *event3 = [[GDTCOREvent alloc] initWithMappingID:@"404" target:target];
   event3.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:@"testString3"];
   writtenExpectation = [self expectationWithDescription:@"event written"];
-  XCTAssertNoThrow([[GDTCORFlatFileStorage sharedInstance] storeEvent:event3
-                                                           onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
-                                                             XCTAssertNotEqualObjects(
-                                                                 event3.eventID, @0);
-                                                             XCTAssertNil(error);
-                                                             [writtenExpectation fulfill];
-                                                           }]);
+  XCTAssertNoThrow([[GDTCORFlatFileStorage sharedInstance]
+      storeEvent:event3
+      onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
+        XCTAssertNotEqualObjects(event3.eventID, @0);
+        XCTAssertNil(error);
+        [writtenExpectation fulfill];
+      }]);
   [self waitForExpectations:@[ writtenExpectation ] timeout:10.0];
 
   NSSet<NSNumber *> *eventIDSet =
@@ -196,39 +196,39 @@ static NSInteger target = kGDTCORTargetCCT;
   GDTCOREvent *event1 = [[GDTCOREvent alloc] initWithMappingID:@"404" target:target];
   event1.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:@"testString1"];
   XCTestExpectation *writtenExpectation = [self expectationWithDescription:@"event written"];
-  XCTAssertNoThrow([[GDTCORFlatFileStorage sharedInstance] storeEvent:event1
-                                                           onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
-                                                             XCTAssertNotEqualObjects(
-                                                                 event1.eventID, @0);
-                                                             XCTAssertNil(error);
-                                                             [writtenExpectation fulfill];
-                                                           }]);
+  XCTAssertNoThrow([[GDTCORFlatFileStorage sharedInstance]
+      storeEvent:event1
+      onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
+        XCTAssertNotEqualObjects(event1.eventID, @0);
+        XCTAssertNil(error);
+        [writtenExpectation fulfill];
+      }]);
   [self waitForExpectations:@[ writtenExpectation ] timeout:10.0];
   XCTAssertNotNil(event1.fileURL);
 
   GDTCOREvent *event2 = [[GDTCOREvent alloc] initWithMappingID:@"100" target:target];
   event2.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:@"testString2"];
   writtenExpectation = [self expectationWithDescription:@"event written"];
-  XCTAssertNoThrow([[GDTCORFlatFileStorage sharedInstance] storeEvent:event2
-                                                           onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
-                                                             XCTAssertNotEqualObjects(
-                                                                 event2.eventID, @0);
-                                                             XCTAssertNil(error);
-                                                             [writtenExpectation fulfill];
-                                                           }]);
+  XCTAssertNoThrow([[GDTCORFlatFileStorage sharedInstance]
+      storeEvent:event2
+      onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
+        XCTAssertNotEqualObjects(event2.eventID, @0);
+        XCTAssertNil(error);
+        [writtenExpectation fulfill];
+      }]);
   [self waitForExpectations:@[ writtenExpectation ] timeout:10.0];
   XCTAssertNotNil(event2.fileURL);
 
   GDTCOREvent *event3 = [[GDTCOREvent alloc] initWithMappingID:@"404" target:target];
   event3.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:@"testString3"];
   writtenExpectation = [self expectationWithDescription:@"event written"];
-  XCTAssertNoThrow([[GDTCORFlatFileStorage sharedInstance] storeEvent:event3
-                                                           onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
-                                                             XCTAssertNotEqualObjects(
-                                                                 event3.eventID, @0);
-                                                             XCTAssertNil(error);
-                                                             [writtenExpectation fulfill];
-                                                           }]);
+  XCTAssertNoThrow([[GDTCORFlatFileStorage sharedInstance]
+      storeEvent:event3
+      onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
+        XCTAssertNotEqualObjects(event3.eventID, @0);
+        XCTAssertNil(error);
+        [writtenExpectation fulfill];
+      }]);
   [self waitForExpectations:@[ writtenExpectation ] timeout:10.0];
   XCTAssertNotNil(event3.fileURL);
 
@@ -272,13 +272,13 @@ static NSInteger target = kGDTCORTargetCCT;
     event.clockSnapshot = [GDTCORClock snapshot];
     // Store the event and wait for the expectation.
     XCTestExpectation *writtenExpectation = [self expectationWithDescription:@"event written"];
-    XCTAssertNoThrow([[GDTCORFlatFileStorage sharedInstance] storeEvent:event
-                                                             onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
-                                                               XCTAssertNotEqualObjects(
-                                                                   event.eventID, @0);
-                                                               XCTAssertNil(error);
-                                                               [writtenExpectation fulfill];
-                                                             }]);
+    XCTAssertNoThrow([[GDTCORFlatFileStorage sharedInstance]
+        storeEvent:event
+        onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
+          XCTAssertNotEqualObjects(event.eventID, @0);
+          XCTAssertNil(error);
+          [writtenExpectation fulfill];
+        }]);
     [self waitForExpectations:@[ writtenExpectation ] timeout:10.0];
   }
   dispatch_sync([GDTCORFlatFileStorage sharedInstance].storageQueue, ^{
@@ -311,12 +311,12 @@ static NSInteger target = kGDTCORTargetCCT;
   event.clockSnapshot = [GDTCORClock snapshot];
   event.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:@"testString"];
   XCTestExpectation *writtenExpectation = [self expectationWithDescription:@"event written"];
-  XCTAssertNoThrow([[GDTCORFlatFileStorage sharedInstance] storeEvent:event
-                                                           onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
-                                                             XCTAssertNotEqualObjects(event.eventID,
-                                                                                      @0);
-                                                             [writtenExpectation fulfill];
-                                                           }]);
+  XCTAssertNoThrow([[GDTCORFlatFileStorage sharedInstance]
+      storeEvent:event
+      onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
+        XCTAssertNotEqualObjects(event.eventID, @0);
+        [writtenExpectation fulfill];
+      }]);
   [self waitForExpectations:@[ writtenExpectation ] timeout:10.0];
   event = nil;
   __block NSData *storageData;
@@ -336,8 +336,8 @@ static NSInteger target = kGDTCORTargetCCT;
     XCTAssertEqual([GDTCORFlatFileStorage sharedInstance].storedEvents.count, 0);
   });
   NSError *error;
-  GDTCORFlatFileStorage *unarchivedStorage =
-      (GDTCORFlatFileStorage *)GDTCORDecodeArchive([GDTCORFlatFileStorage class], nil, storageData, &error);
+  GDTCORFlatFileStorage *unarchivedStorage = (GDTCORFlatFileStorage *)GDTCORDecodeArchive(
+      [GDTCORFlatFileStorage class], nil, storageData, &error);
   XCTAssertNil(error);
   XCTAssertNotNil(unarchivedStorage);
   XCTAssertGreaterThan([unarchivedStorage storedEvents].count, 0);
@@ -349,12 +349,12 @@ static NSInteger target = kGDTCORTargetCCT;
   event.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:@"testString"];
   event.clockSnapshot = [GDTCORClock snapshot];
   XCTestExpectation *writtenExpectation = [self expectationWithDescription:@"event written"];
-  XCTAssertNoThrow([[GDTCORFlatFileStorage sharedInstance] storeEvent:event
-                                                           onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
-                                                             XCTAssertNotEqualObjects(event.eventID,
-                                                                                      @0);
-                                                             [writtenExpectation fulfill];
-                                                           }]);
+  XCTAssertNoThrow([[GDTCORFlatFileStorage sharedInstance]
+      storeEvent:event
+      onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
+        XCTAssertNotEqualObjects(event.eventID, @0);
+        [writtenExpectation fulfill];
+      }]);
   [self waitForExpectations:@[ writtenExpectation ] timeout:10.0];
   event = nil;
   __block NSData *storageData;
@@ -376,8 +376,8 @@ static NSInteger target = kGDTCORTargetCCT;
     XCTAssertEqual([GDTCORFlatFileStorage sharedInstance].storedEvents.count, 0);
   });
   NSError *error;
-  GDTCORFlatFileStorage *unarchivedStorage =
-      (GDTCORFlatFileStorage *)GDTCORDecodeArchive([GDTCORFlatFileStorage class], nil, storageData, &error);
+  GDTCORFlatFileStorage *unarchivedStorage = (GDTCORFlatFileStorage *)GDTCORDecodeArchive(
+      [GDTCORFlatFileStorage class], nil, storageData, &error);
   XCTAssertNil(error);
   XCTAssertNotNil(unarchivedStorage);
   XCTAssertNotNil([unarchivedStorage storedEvents]);
@@ -392,13 +392,13 @@ static NSInteger target = kGDTCORTargetCCT;
   event.clockSnapshot = [GDTCORClock snapshot];
   XCTAssertFalse(self.uploaderFake.forceUploadCalled);
   XCTestExpectation *writtenExpectation = [self expectationWithDescription:@"event written"];
-  XCTAssertNoThrow([[GDTCORFlatFileStorage sharedInstance] storeEvent:event
-                                                           onComplete:^(BOOL wasWritten, NSError *error) {
-                                                             XCTAssertNotEqualObjects(event.eventID,
-                                                                                      @0);
-                                                             XCTAssertNil(error);
-                                                             [writtenExpectation fulfill];
-                                                           }]);
+  XCTAssertNoThrow([[GDTCORFlatFileStorage sharedInstance]
+      storeEvent:event
+      onComplete:^(BOOL wasWritten, NSError *error) {
+        XCTAssertNotEqualObjects(event.eventID, @0);
+        XCTAssertNil(error);
+        [writtenExpectation fulfill];
+      }]);
   [self waitForExpectations:@[ writtenExpectation ] timeout:10.0];
 
   dispatch_sync([GDTCORFlatFileStorage sharedInstance].storageQueue, ^{
@@ -427,12 +427,12 @@ static NSInteger target = kGDTCORTargetCCT;
     event.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:testString];
     event.clockSnapshot = [GDTCORClock snapshot];
     XCTestExpectation *writtenExpectation = [self expectationWithDescription:@"event written"];
-    XCTAssertNoThrow([[GDTCORFlatFileStorage sharedInstance] storeEvent:event
-                                                             onComplete:^(BOOL wasWritten, NSError *error) {
-                                                               XCTAssertNotEqualObjects(
-                                                                   event.eventID, @0);
-                                                               [writtenExpectation fulfill];
-                                                             }]);
+    XCTAssertNoThrow([[GDTCORFlatFileStorage sharedInstance]
+        storeEvent:event
+        onComplete:^(BOOL wasWritten, NSError *error) {
+          XCTAssertNotEqualObjects(event.eventID, @0);
+          [writtenExpectation fulfill];
+        }]);
     [self waitForExpectationsWithTimeout:10 handler:nil];
     if (i % 5 == 0) {
       NSSet *eventIDs =
@@ -590,8 +590,8 @@ static NSInteger target = kGDTCORTargetCCT;
                                                               options:0];
   XCTAssertNotNil(v1ArchiveData);
   NSError *error;
-  GDTCORFlatFileStorage *archiveStorage =
-      (GDTCORFlatFileStorage *)GDTCORDecodeArchive([GDTCORFlatFileStorage class], nil, v1ArchiveData, &error);
+  GDTCORFlatFileStorage *archiveStorage = (GDTCORFlatFileStorage *)GDTCORDecodeArchive(
+      [GDTCORFlatFileStorage class], nil, v1ArchiveData, &error);
   XCTAssertNil(error);
   XCTAssertNotNil(archiveStorage);
   XCTAssertEqual(archiveStorage.targetToEventSet[@(kGDTCORTargetCCT)].count, 6);

@@ -30,7 +30,8 @@ NS_ASSUME_NONNULL_BEGIN
  * @param event The event to store
  * @param completion The completion block to call after an attempt to store the event has been made.
  */
-- (void)storeEvent:(GDTCOREvent *)event onComplete:(void (^_Nullable)(BOOL wasWritten, NSError *_Nullable error))completion;
+- (void)storeEvent:(GDTCOREvent *)event
+        onComplete:(void (^_Nullable)(BOOL wasWritten, NSError *_Nullable error))completion;
 
 /** Removes the events from storage. */
 - (void)removeEvents:(NSSet<NSNumber *> *)eventIDs;
