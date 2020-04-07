@@ -22,9 +22,9 @@ NS_SWIFT_NAME(AppAttestationToken)
 @interface FIRAppAttestationToken : NSObject
 
 /// FAA token.
-@property(nonatomic, copy, readonly) NSString *token;
+@property(nonatomic, readonly) NSString *token;
 /// FAA token expiration date in the device local time.
-@property(nonatomic, strong, readonly) NSDate *expirationDate;
+@property(nonatomic, readonly) NSDate *expirationDate;
 
 - (instancetype)initWithToken:(NSString *)token expirationDate:(NSDate *)expirationDate;
 
