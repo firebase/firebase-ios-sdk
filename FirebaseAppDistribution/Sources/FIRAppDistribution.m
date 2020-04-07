@@ -86,9 +86,10 @@ NSString *const kIssuerURL = @"https://accounts.google.com";
 }
 
 + (void)load {
+  NSString *version = [NSString stringWithUTF8String:(const char *const)STR_EXPAND(FIRAppDistribution_VERSION)];
   [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self
                          withName:@"firebase-appdistribution"
-                      withVersion:@"0.0.0"];  // TODO: Get version from podspec
+                      withVersion:version];
 }
 
 + (NSArray<FIRComponent *> *)componentsToRegister {
