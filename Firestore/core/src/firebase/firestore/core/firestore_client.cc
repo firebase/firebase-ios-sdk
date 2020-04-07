@@ -100,7 +100,7 @@ using util::StatusOrCallback;
 using util::ThrowIllegalState;
 using util::TimerId;
 
-static const int kMaxConcurrentLimboResolutions = 100;
+static const size_t kMaxConcurrentLimboResolutions = 100;
 
 std::shared_ptr<FirestoreClient> FirestoreClient::Create(
     const DatabaseInfo& database_info,

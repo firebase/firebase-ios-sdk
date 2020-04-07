@@ -83,7 +83,7 @@ bool ErrorIsInteresting(const Status& error) {
 SyncEngine::SyncEngine(LocalStore* local_store,
                        remote::RemoteStore* remote_store,
                        const auth::User& initial_user,
-                       int max_concurrent_limbo_resolutions)
+                       size_t max_concurrent_limbo_resolutions)
     : local_store_(local_store),
       remote_store_(remote_store),
       current_user_(initial_user),
@@ -532,7 +532,7 @@ void SyncEngine::TrackLimboChange(const LimboDocumentChange& limbo_change) {
   if (active_limbo_targets_by_key_.find(key) ==
       active_limbo_targets_by_key_.end()) {
     LOG_DEBUG("New document in limbo: %s", key.ToString());
-    enqueued_limbo_resolutions_.push(key);
+    enqueued_limbo_resolutions_.push_back(key);
     PumpEnqueuedLimboResolutions();
   }
 }
@@ -542,7 +542,7 @@ void SyncEngine::PumpEnqueuedLimboResolutions() {
          active_limbo_targets_by_key_.size() <
              max_concurrent_limbo_resolutions_) {
     DocumentKey key = enqueued_limbo_resolutions_.front();
-    enqueued_limbo_resolutions_.pop();
+    enqueued_limbo_resolutions_.pop_front();
     TargetId limbo_target_id = target_id_generator_.NextId();
     active_limbo_resolutions_by_target_.emplace(limbo_target_id,
                                                 LimboResolution{key});

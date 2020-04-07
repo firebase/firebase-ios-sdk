@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+#include <cstddef>
+#include <deque>
 #include <map>
 #include <memory>
 #include <unordered_map>
@@ -123,7 +125,7 @@ typedef std::unordered_map<auth::User, NSMutableArray<FSTOutstandingWrite *> *, 
 - (instancetype)initWithPersistence:(std::unique_ptr<local::Persistence>)persistence
                         initialUser:(const auth::User &)initialUser
                   outstandingWrites:(const FSTOutstandingWriteQueues &)outstandingWrites
-      maxConcurrentLimboResolutions:(int)maxConcurrentLimboResolutions NS_DESIGNATED_INITIALIZER;
+      maxConcurrentLimboResolutions:(size_t)maxConcurrentLimboResolutions NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -286,11 +288,20 @@ typedef std::unordered_map<auth::User, NSMutableArray<FSTOutstandingWrite *> *, 
 /** The current set of documents in limbo with active targets. */
 - (std::map<model::DocumentKey, model::TargetId>)activeLimboDocumentResolutions;
 
+/** The current set of documents in limbo that are enqueued for resolution. */
+- (std::deque<model::DocumentKey>)enqueuedLimboDocumentResolutions;
+
 /** The expected set of documents in limbo with an active target. */
 - (const model::DocumentKeySet &)expectedActiveLimboDocuments;
 
 /** Sets the expected set of documents in limbo with an active target. */
 - (void)setExpectedActiveLimboDocuments:(model::DocumentKeySet)docs;
+
+/** The expected set of documents in limbo that are enqueued for resolution. */
+- (const model::DocumentKeySet &)expectedEnqueuedLimboDocuments;
+
+/** Sets the expected set of documents in limbo that are enqueued for resolution. */
+- (void)setExpectedEnqueuedLimboDocuments:(model::DocumentKeySet)docs;
 
 /**
  * The writes that have been sent to the FSTSyncEngine via writeUserMutation: but not yet

@@ -18,6 +18,7 @@
 
 #import <FirebaseFirestore/FIRFirestoreErrors.h>
 
+#include <cstddef>
 #include <map>
 #include <memory>
 #include <string>
@@ -154,7 +155,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @implementation FSTSyncEngineTestDriver {
-  int _maxConcurrentLimboResolutions;
+  size_t _maxConcurrentLimboResolutions;
 
   std::unique_ptr<Persistence> _persistence;
 
@@ -175,6 +176,7 @@ NS_ASSUME_NONNULL_BEGIN
   // ivar is declared as mutable.
   std::unordered_map<User, NSMutableArray<FSTOutstandingWrite *> *, HashUser> _outstandingWrites;
   DocumentKeySet _expectedActiveLimboDocuments;
+  DocumentKeySet _expectedEnqueuedLimboDocuments;
 
   /** A dictionary for tracking the listens on queries. */
   std::unordered_map<Query, std::shared_ptr<QueryListener>> _queryListeners;
@@ -193,7 +195,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithPersistence:(std::unique_ptr<Persistence>)persistence
                         initialUser:(const User &)initialUser
                   outstandingWrites:(const FSTOutstandingWriteQueues &)outstandingWrites
-      maxConcurrentLimboResolutions:(int)maxConcurrentLimboResolutions {
+      maxConcurrentLimboResolutions:(size_t)maxConcurrentLimboResolutions {
   if (self = [super init]) {
     _maxConcurrentLimboResolutions = maxConcurrentLimboResolutions;
 
@@ -249,6 +251,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)setExpectedActiveLimboDocuments:(DocumentKeySet)docs {
   _expectedActiveLimboDocuments = std::move(docs);
+}
+
+- (const DocumentKeySet &)expectedEnqueuedLimboDocuments {
+  return _expectedEnqueuedLimboDocuments;
+}
+
+- (void)setExpectedEnqueuedLimboDocuments:(DocumentKeySet)docs {
+  _expectedEnqueuedLimboDocuments = std::move(docs);
 }
 
 - (void)drainQueue {
@@ -474,6 +484,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (std::map<DocumentKey, TargetId>)activeLimboDocumentResolutions {
   return _syncEngine->GetActiveLimboDocumentResolutions();
+}
+
+- (std::deque<DocumentKey>)enqueuedLimboDocumentResolutions {
+  return _syncEngine->GetEnqueuedLimboDocumentResolutions();
 }
 
 - (const std::unordered_map<TargetId, TargetData> &)activeTargets {

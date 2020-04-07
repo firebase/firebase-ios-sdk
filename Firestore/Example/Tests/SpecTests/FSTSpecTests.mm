@@ -19,8 +19,11 @@
 #import <FirebaseFirestore/FIRFirestoreErrors.h>
 
 #include <algorithm>
+#include <cstddef>
+#include <limits>
 #include <map>
 #include <memory>
+#include <queue>
 #include <string>
 #include <unordered_map>
 #include <utility>
@@ -152,14 +155,22 @@ ByteString MakeResumeToken(NSString *specString) {
   return MakeByteString([specString dataUsingEncoding:NSUTF8StringEncoding]);
 }
 
-NSString *ToDocumentListString(const std::map<DocumentKey, TargetId> &map) {
+NSString *ToDocumentListString(const std::set<DocumentKey> &keys) {
   std::vector<std::string> strings;
-  strings.reserve(map.size());
-  for (const auto &kv : map) {
-    strings.push_back(kv.first.ToString());
+  strings.reserve(keys.size());
+  for (const auto &key : keys) {
+    strings.push_back(key.ToString());
   }
   std::sort(strings.begin(), strings.end());
   return MakeNSString(absl::StrJoin(strings, ", "));
+}
+
+NSString *ToDocumentListString(const std::map<DocumentKey, TargetId> &map) {
+  std::set<DocumentKey> keys;
+  for (const auto &kv : map) {
+    keys.insert(kv.first);
+  }
+  return ToDocumentListString(keys);
 }
 
 NSString *ToTargetIdListString(const ActiveTargetMap &map) {
@@ -181,7 +192,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
 
 @implementation FSTSpecTests {
   BOOL _gcEnabled;
-  int _maxConcurrentLimboResolutions;
+  size_t _maxConcurrentLimboResolutions;
   BOOL _networkEnabled;
   FSTUserDataConverter *_converter;
 }
@@ -214,8 +225,9 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   NSNumber *GCEnabled = config[@"useGarbageCollection"];
   _gcEnabled = [GCEnabled boolValue];
   NSNumber *maxConcurrentLimboResolutions = config[@"maxConcurrentLimboResolutions"];
-  _maxConcurrentLimboResolutions =
-      (maxConcurrentLimboResolutions == nil) ? INT_MAX : maxConcurrentLimboResolutions.intValue;
+  _maxConcurrentLimboResolutions = (maxConcurrentLimboResolutions == nil)
+                                       ? std::numeric_limits<size_t>::max()
+                                       : maxConcurrentLimboResolutions.unsignedIntValue;
   NSNumber *numClients = config[@"numClients"];
   if (numClients) {
     XCTAssertEqualObjects(numClients, @1, @"The iOS client does not support multi-client tests");
@@ -699,8 +711,17 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
       for (NSString *name in docNames) {
         expectedActiveLimboDocuments = expectedActiveLimboDocuments.insert(FSTTestDocKey(name));
       }
-      // Update the expected limbo documents
+      // Update the expected active limbo documents
       [self.driver setExpectedActiveLimboDocuments:std::move(expectedActiveLimboDocuments)];
+    }
+    if (expectedState[@"enqueuedLimboDocs"]) {
+      DocumentKeySet expectedEnqueuedLimboDocuments;
+      NSArray *docNames = expectedState[@"enqueuedLimboDocs"];
+      for (NSString *name in docNames) {
+        expectedEnqueuedLimboDocuments = expectedEnqueuedLimboDocuments.insert(FSTTestDocKey(name));
+      }
+      // Update the expected enqueued limbo documents
+      [self.driver setExpectedEnqueuedLimboDocuments:std::move(expectedEnqueuedLimboDocuments)];
     }
     if (expectedState[@"activeTargets"]) {
       __block ActiveTargetMap expectedActiveTargets;
@@ -730,6 +751,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   [self validateUserCallbacks:expectedState];
   // Always validate that the expected limbo docs match the actual limbo docs.
   [self validateActiveLimboDocuments];
+  [self validateEnqueuedLimboDocuments];
   // Always validate that the expected active targets match the actual active targets.
   [self validateActiveTargets];
 }
@@ -775,6 +797,31 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
 
   XCTAssertTrue(actualLimboDocs.empty(), @"Unexpected active docs in limbo: %@",
                 ToDocumentListString(actualLimboDocs));
+}
+
+- (void)validateEnqueuedLimboDocuments {
+  std::set<DocumentKey> actualLimboDocs;
+  for (const auto &key : self.driver.enqueuedLimboDocumentResolutions) {
+    actualLimboDocs.insert(key);
+  }
+  std::set<DocumentKey> expectedLimboDocs;
+  for (const auto &key : self.driver.expectedEnqueuedLimboDocuments) {
+    expectedLimboDocs.insert(key);
+  }
+
+  for (const auto &key : actualLimboDocs) {
+    XCTAssertTrue(expectedLimboDocs.find(key) != expectedLimboDocs.end(),
+                  @"Found enqueued limbo doc %s, but it was not in the set of "
+                  @"expected enqueued limbo documents (%@)",
+                  key.ToString().c_str(), ToDocumentListString(expectedLimboDocs));
+  }
+
+  for (const auto &key : expectedLimboDocs) {
+    XCTAssertTrue(actualLimboDocs.find(key) != actualLimboDocs.end(),
+                  @"Expected doc %s to be enqueued for limbo resolution, "
+                  @"but it was not in the queue (%@)",
+                  key.ToString().c_str(), ToDocumentListString(actualLimboDocs));
+  }
 }
 
 - (void)validateActiveTargets {

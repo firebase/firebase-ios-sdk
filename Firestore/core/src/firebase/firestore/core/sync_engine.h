@@ -17,6 +17,8 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_SYNC_ENGINE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_SYNC_ENGINE_H_
 
+#include <cstddef>
+#include <deque>
 #include <map>
 #include <memory>
 #include <string>
@@ -91,7 +93,7 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
   SyncEngine(local::LocalStore* local_store,
              remote::RemoteStore* remote_store,
              const auth::User& initial_user,
-             int maxConcurrentLimboResolutions);
+             size_t maxConcurrentLimboResolutions);
 
   // Implements `QueryEventSource`.
   void SetCallback(SyncEngineCallback* callback) override {
@@ -150,6 +152,12 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
   GetActiveLimboDocumentResolutions() const {
     // Return defensive copy
     return active_limbo_targets_by_key_;
+  }
+
+  // For tests only
+  std::deque<model::DocumentKey> GetEnqueuedLimboDocumentResolutions() const {
+    // Return defensive copy
+    return enqueued_limbo_resolutions_;
   }
 
  private:
@@ -284,13 +292,13 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
   /** Queries mapped to Targets, indexed by target ID. */
   std::unordered_map<model::TargetId, std::vector<Query>> queries_by_target_;
 
-  const int max_concurrent_limbo_resolutions_;
+  const size_t max_concurrent_limbo_resolutions_;
 
   /**
    * The keys of documents that are in limbo for which we haven't yet started a
    * limbo resolution query.
    */
-  std::queue<model::DocumentKey> enqueued_limbo_resolutions_;
+  std::deque<model::DocumentKey> enqueued_limbo_resolutions_;
 
   /**
    * Keeps track of the target ID for each document that is in limbo with an
