@@ -19,7 +19,6 @@ import FirebaseMessaging
 import FirebaseInstallations
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate, MessagingDelegate {
-
   var window: UIWindow?
   let identity = Identity()
 
@@ -40,20 +39,19 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, MessagingDelegate {
     if let windowScene = scene as? UIWindowScene {
       let window = UIWindow(windowScene: windowScene)
       window.rootViewController = UIHostingController(rootView: contentView.environmentObject(identity))
-      
+
       self.window = window
       window.makeKeyAndVisible()
     }
   }
 
-  
   func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String) {
     identity.token = fcmToken
-    InstanceID.instanceID().instanceID { (result, error) in
+    InstanceID.instanceID().instanceID { result, error in
       self.identity.instanceID = result?.instanceID ?? ""
     }
   }
-  
+
   func sceneDidEnterBackground(_ scene: UIScene) {
     // Called as the scene transitions from the foreground to the background.
     // Use this method to save data, release shared resources, and store enough scene-specific state information
@@ -62,7 +60,4 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, MessagingDelegate {
     // Save changes in the application's managed object context when the application transitions to the background.
     (UIApplication.shared.delegate as? AppDelegate)?.saveContext()
   }
-
-
 }
-

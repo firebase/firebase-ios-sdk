@@ -20,12 +20,12 @@ import FirebaseInstallations
 
 struct ContentView: View {
   @EnvironmentObject var identity: Identity
-  
+
   var body: some View {
     NavigationView {
       List {
         Button(action: getToken) {
-          HStack{
+          HStack {
             Image(systemName: "arrow.clockwise.circle.fill").font(.body)
             Text("Get ID and Token")
               .fontWeight(.semibold)
@@ -36,7 +36,7 @@ struct ContentView: View {
           .cornerRadius(40)
         }
         Button(action: deleteToken) {
-          HStack{
+          HStack {
             Image(systemName: "trash.fill").font(.body)
             Text("Delete Token")
               .fontWeight(.semibold)
@@ -46,31 +46,31 @@ struct ContentView: View {
           .background(Color.red)
           .cornerRadius(40)
         }
-          
+
         Button(action: deleteID) {
-          HStack{
+          HStack {
             Image(systemName: "trash.fill").font(.body)
             Text("Delete ID")
               .fontWeight(.semibold)
-            }
-            .padding(5)
-            .foregroundColor(.white)
-            .background(Color.red)
-            .cornerRadius(40)
           }
-          
+          .padding(5)
+          .foregroundColor(.white)
+          .background(Color.red)
+          .cornerRadius(40)
+        }
+
         Button(action: deleteFID) {
-          HStack{
+          HStack {
             Image(systemName: "trash.fill").font(.body)
             Text("Delete FID")
               .fontWeight(.semibold)
-            }
-            .padding(5)
-            .foregroundColor(.white)
-            .background(Color.red)
-            .cornerRadius(40)
           }
-        
+          .padding(5)
+          .foregroundColor(.white)
+          .background(Color.red)
+          .cornerRadius(40)
+        }
+
         Text("InstanceID: \(identity.instanceID)")
           .foregroundColor(.blue)
         Text("Token: \(identity.token)")
@@ -81,40 +81,47 @@ struct ContentView: View {
       }
     }
   }
+
   func getToken() {
-    InstanceID.instanceID().instanceID { (result, error) in
-      if result != nil && error == nil {
-        self.identity.token = result?.token ?? ""
-        self.identity.instanceID = result?.instanceID ?? ""
+    InstanceID.instanceID().instanceID { result, error in
+      if error == nil {
+        print("Failed getting iid and token: ", error ?? "")
+        return
       }
+      guard let result = result else {
+        return
+      }
+
+      self.identity.token = result.token
+      self.identity.instanceID = result.instanceID
     }
   }
-  
+
   func deleteToken() {
-    Messaging.messaging().deleteFCMToken(forSenderID: FirebaseApp.app()?.options.gcmSenderID ?? "") { (error) in
-      if (error != nil) {
-        print ("Failed delete token: ", error ?? "")
+    Messaging.messaging().deleteFCMToken(forSenderID: FirebaseApp.app()?.options.gcmSenderID ?? "") { error in
+      if error != nil {
+        print("Failed delete token: ", error ?? "")
         return
       }
       self.identity.token = ""
     }
   }
-  
+
   func deleteID() {
-    InstanceID.instanceID().deleteID { (error) in
+    InstanceID.instanceID().deleteID { error in
       if error != nil {
-        print ("Failed delete ID: ", error ?? "")
+        print("Failed delete ID: ", error ?? "")
         return
       }
       self.identity.instanceID = ""
       self.identity.token = ""
     }
   }
-  
+
   func deleteFID() {
-    Installations.installations().delete { (error) in
+    Installations.installations().delete { error in
       if error != nil {
-        print ("Failed delete FID: ", error ?? "")
+        print("Failed delete FID: ", error ?? "")
         return
       }
     }
@@ -123,7 +130,7 @@ struct ContentView: View {
 
 struct DetailView: View {
   @EnvironmentObject var identity: Identity
-  
+
   var body: some View {
     VStack {
       Text("InstanceID: \(self.identity.instanceID)")
@@ -133,7 +140,7 @@ struct DetailView: View {
 }
 
 struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-      ContentView().environmentObject(Identity())
-    }
+  static var previews: some View {
+    ContentView().environmentObject(Identity())
+  }
 }

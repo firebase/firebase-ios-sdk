@@ -18,5 +18,4 @@ public final class Identity: ObservableObject {
   @Published public var instanceID = ""
   @Published public var installationID = ""
   @Published public var token = ""
-  
 }
