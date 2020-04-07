@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#import "FIRAppAttestation.h"
-#import "FIRAppAttestationProvider.h"
-#import "FIRAppAttestationProviderFactory.h"
-#import "FIRAppAttestationToken.h"
-#import "FIRAppAttestationVersion.h"
+#import <Foundation/Foundation.h>
+
+FOUNDATION_EXPORT const char *const FIRAppAttestationVersionStr;
