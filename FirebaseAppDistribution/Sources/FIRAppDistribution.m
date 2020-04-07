@@ -24,6 +24,7 @@
 #import <AppAuth/AppAuth.h>
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
 #import <UIKit/UIKit.h>
+#import "FIRAppDistributionAppDelegateInterceptor.h"
 
 /// Empty protocol to register with FirebaseCore's component system.
 @protocol FIRAppDistributionInstanceProvider <NSObject>
@@ -86,7 +87,8 @@ NSString *const kIssuerURL = @"https://accounts.google.com";
 }
 
 + (void)load {
-  NSString *version = [NSString stringWithUTF8String:(const char *const)STR_EXPAND(FIRAppDistribution_VERSION)];
+  NSString *version =
+      [NSString stringWithUTF8String:(const char *const)STR_EXPAND(FIRAppDistribution_VERSION)];
   [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self
                          withName:@"firebase-appdistribution"
                       withVersion:version];
@@ -158,26 +160,26 @@ NSString *const kIssuerURL = @"https://accounts.google.com";
                         stringWithFormat:@"Bearer %@", self.authState.lastTokenResponse.accessToken]
       forHTTPHeaderField:@"Authorization"];
 
-  NSURLSessionDataTask *listReleasesDataTask =
-      [URLSession dataTaskWithRequest:request
-                    completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-                      if (error) {
-                        // TODO: Reformat error into error code
-                        completion(nil, error);
-                        return;
-                      }
+  NSURLSessionDataTask *listReleasesDataTask = [URLSession
+      dataTaskWithRequest:request
+        completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+          if (error) {
+            // TODO: Reformat error into error code
+            completion(nil, error);
+            return;
+          }
 
-                      NSHTTPURLResponse *HTTPResponse = (NSHTTPURLResponse *)response;
+          NSHTTPURLResponse *HTTPResponse = (NSHTTPURLResponse *)response;
 
-                      if (HTTPResponse.statusCode == 200) {
-                        [self handleReleasesAPIResponseWithData:data completion:completion];
-                      } else {
-                        // TODO: Handle non-200 http response
-                        dispatch_async(dispatch_get_main_queue(), ^{
-                          completion(nil, nil);
-                        });
-                      }
-                    }];
+          if (HTTPResponse.statusCode == 200) {
+            [self handleReleasesAPIResponseWithData:data completion:completion];
+          } else {
+            // TODO: Handle non-200 http response
+            @throw([NSException exceptionWithName:@"NotImplementedException"
+                                           reason:@"This code path is not implemented yet"
+                                         userInfo:nil]);
+          }
+        }];
 
   [listReleasesDataTask resume];
 }
@@ -234,12 +236,10 @@ NSString *const kIssuerURL = @"https://accounts.google.com";
 
 - (void)handleReleasesAPIResponseWithData:data
                                completion:(FIRAppDistributionUpdateCheckCompletion)completion {
-  // TODO: Parse response from tester API, check instance identifier and maybe return a release
-
-  // Ensure we dispatch on the main thread to allow any UI to update
-  dispatch_async(dispatch_get_main_queue(), ^{
-    completion(nil, nil);
-  });
+  // TODO Implement parsing of releases API response
+  @throw([NSException exceptionWithName:@"NotImplementedException"
+                                 reason:@"This code path is not implemented yet"
+                               userInfo:nil]);
 }
 
 - (void)checkForUpdateWithCompletion:(FIRAppDistributionUpdateCheckCompletion)completion {
