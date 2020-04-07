@@ -20,6 +20,7 @@
 #import <FirebaseAppAttestation/FIRAppAttestationProviderFactory.h>
 #import <FirebaseAppAttestation/FIRAppAttestationToken.h>
 #import <FirebaseAppAttestation/FIRAppAttestationVersion.h>
+#import "FIRAppAttestationToken+Interop.h"
 
 #import <FirebaseAppAttestationInterop/FIRAppAttestationInterop.h>
 #import <FirebaseAppAttestationInterop/FIRAppAttestationTokenInterop.h>
@@ -27,9 +28,6 @@
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponentContainer.h>
 #import <FirebaseCore/FIRLibrary.h>
-
-@interface FIRAppAttestationToken (Interop) <FIRAppAttestationTokenInterop>
-@end
 
 @interface FIRAppAttestation () <FIRLibrary, FIRAppAttestationInterop>
 @property(nonatomic, readonly) NSString *appName;
