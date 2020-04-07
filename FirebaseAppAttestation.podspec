@@ -38,6 +38,7 @@ Pod::Spec.new do |s|
     'GCC_PREPROCESSOR_DEFINITIONS' => preprocessor_definitions
   }
 
+  # TODO: Consider less generic name instead of "Core"
   s.subspec 'Core' do |cs|
     subspec_dir = base_dir + 'Library/Core/'
     cs.source_files = subspec_dir + '**/*.[mh]'
