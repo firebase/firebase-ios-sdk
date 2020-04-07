@@ -18,6 +18,7 @@
 
 #import <FirebaseFirestore/FIRFirestoreErrors.h>
 
+#include <algorithm>
 #include <map>
 #include <memory>
 #include <string>
@@ -92,6 +93,7 @@ using firebase::firestore::remote::DocumentWatchChange;
 using firebase::firestore::remote::ExistenceFilterWatchChange;
 using firebase::firestore::remote::WatchTargetChange;
 using firebase::firestore::remote::WatchTargetChangeState;
+using firebase::firestore::util::MakeNSString;
 using firebase::firestore::util::MakeString;
 using firebase::firestore::util::Path;
 using firebase::firestore::util::Status;
@@ -148,6 +150,26 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
 
 ByteString MakeResumeToken(NSString *specString) {
   return MakeByteString([specString dataUsingEncoding:NSUTF8StringEncoding]);
+}
+
+NSString *ToDocumentListString(const std::map<DocumentKey, TargetId> &map) {
+  std::vector<std::string> strings;
+  strings.reserve(map.size());
+  for (const auto &kv : map) {
+    strings.push_back(kv.first.ToString());
+  }
+  std::sort(strings.begin(), strings.end());
+  return MakeNSString(absl::StrJoin(strings, ", "));
+}
+
+NSString *ToTargetIdListString(const ActiveTargetMap &map) {
+  std::vector<model::TargetId> targetIds;
+  targetIds.reserve(map.size());
+  for (const auto &kv : map) {
+    targetIds.push_back(kv.first);
+  }
+  std::sort(targetIds.begin(), targetIds.end());
+  return MakeNSString(absl::StrJoin(targetIds, ", "));
 }
 
 }  // namespace
@@ -661,14 +683,14 @@ ByteString MakeResumeToken(NSString *specString) {
       XCTAssertEqual([self.driver watchStreamRequestCount],
                      [expectedState[@"watchStreamRequestCount"] intValue]);
     }
-    if (expectedState[@"limboDocs"]) {
-      DocumentKeySet expectedLimboDocuments;
-      NSArray *docNames = expectedState[@"limboDocs"];
+    if (expectedState[@"activeLimboDocs"]) {
+      DocumentKeySet expectedActiveLimboDocuments;
+      NSArray *docNames = expectedState[@"activeLimboDocs"];
       for (NSString *name in docNames) {
-        expectedLimboDocuments = expectedLimboDocuments.insert(FSTTestDocKey(name));
+        expectedActiveLimboDocuments = expectedActiveLimboDocuments.insert(FSTTestDocKey(name));
       }
       // Update the expected limbo documents
-      [self.driver setExpectedLimboDocuments:std::move(expectedLimboDocuments)];
+      [self.driver setExpectedActiveLimboDocuments:std::move(expectedActiveLimboDocuments)];
     }
     if (expectedState[@"activeTargets"]) {
       __block ActiveTargetMap expectedActiveTargets;
@@ -726,21 +748,23 @@ ByteString MakeResumeToken(NSString *specString) {
   // Make a copy so it can modified while checking against the expected limbo docs.
   std::map<DocumentKey, TargetId> actualLimboDocs = self.driver.currentLimboDocuments;
 
-  // Validate that each limbo doc has an expected active target
+  // Validate that each active limbo doc has an expected active target
   for (const auto &kv : actualLimboDocs) {
     const auto &expected = [self.driver expectedActiveTargets];
     XCTAssertTrue(expected.find(kv.second) != expected.end(),
-                  @"Found limbo doc without an expected active target");
+                  @"Found limbo doc %s, but its target ID %d was not in the "
+                  @"set of expected active target IDs %@",
+                  kv.first.ToString().c_str(), kv.second, ToTargetIdListString(expected));
   }
 
-  for (const DocumentKey &expectedLimboDoc : self.driver.expectedLimboDocuments) {
+  for (const DocumentKey &expectedLimboDoc : self.driver.expectedActiveLimboDocuments) {
     XCTAssert(actualLimboDocs.find(expectedLimboDoc) != actualLimboDocs.end(),
               @"Expected doc to be in limbo, but was not: %s", expectedLimboDoc.ToString().c_str());
     actualLimboDocs.erase(expectedLimboDoc);
   }
-  XCTAssertTrue(actualLimboDocs.empty(), "%lu Unexpected docs in limbo, the first one is <%s, %d>",
-                actualLimboDocs.size(), actualLimboDocs.begin()->first.ToString().c_str(),
-                actualLimboDocs.begin()->second);
+
+  XCTAssertTrue(actualLimboDocs.empty(), @"Unexpected active docs in limbo: %@",
+                ToDocumentListString(actualLimboDocs));
 }
 
 - (void)validateActiveTargets {

@@ -2,19 +2,22 @@
   "Events are raised after watch ack": {
     "describeName": "Collections:",
     "itName": "Events are raised after watch ack",
-    "tags": [],
+    "tags": [
+    ],
     "config": {
-      "useGarbageCollection": true,
-      "numClients": 1
+      "numClients": 1,
+      "useGarbageCollection": true
     },
     "steps": [
       {
         "userListen": [
           2,
           {
-            "path": "collection",
-            "filters": [],
-            "orderBys": []
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
           }
         ],
         "expectedState": {
@@ -22,9 +25,11 @@
             "2": {
               "queries": [
                 {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": []
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
                 }
               ],
               "resumeToken": ""
@@ -42,14 +47,14 @@
           "docs": [
             {
               "key": "collection/key",
-              "version": 1000,
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
               "value": {
                 "foo": "bar"
               },
-              "options": {
-                "hasLocalMutations": false,
-                "hasCommittedMutations": false
-              }
+              "version": 1000
             }
           ],
           "targets": [
@@ -67,32 +72,35 @@
       },
       {
         "watchSnapshot": {
-          "version": 1001,
-          "targetIds": []
+          "targetIds": [
+          ],
+          "version": 1001
         },
         "expectedSnapshotEvents": [
           {
-            "query": {
-              "path": "collection",
-              "filters": [],
-              "orderBys": []
-            },
             "added": [
               {
                 "key": "collection/key",
-                "version": 1000,
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
                 "value": {
                   "foo": "bar"
                 },
-                "options": {
-                  "hasLocalMutations": false,
-                  "hasCommittedMutations": false
-                }
+                "version": 1000
               }
             ],
             "errorCode": 0,
             "fromCache": false,
-            "hasPendingWrites": false
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
           }
         ]
       }
@@ -101,19 +109,22 @@
   "Events are raised for local sets before watch ack": {
     "describeName": "Collections:",
     "itName": "Events are raised for local sets before watch ack",
-    "tags": [],
+    "tags": [
+    ],
     "config": {
-      "useGarbageCollection": true,
-      "numClients": 1
+      "numClients": 1,
+      "useGarbageCollection": true
     },
     "steps": [
       {
         "userListen": [
           2,
           {
-            "path": "collection",
-            "filters": [],
-            "orderBys": []
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
           }
         ],
         "expectedState": {
@@ -121,9 +132,11 @@
             "2": {
               "queries": [
                 {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": []
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
                 }
               ],
               "resumeToken": ""
@@ -140,27 +153,29 @@
         ],
         "expectedSnapshotEvents": [
           {
-            "query": {
-              "path": "collection",
-              "filters": [],
-              "orderBys": []
-            },
             "added": [
               {
                 "key": "collection/key",
-                "version": 0,
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": true
+                },
                 "value": {
                   "foo": "bar"
                 },
-                "options": {
-                  "hasLocalMutations": true,
-                  "hasCommittedMutations": false
-                }
+                "version": 0
               }
             ],
             "errorCode": 0,
             "fromCache": true,
-            "hasPendingWrites": true
+            "hasPendingWrites": true,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
           }
         ]
       }
