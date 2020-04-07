@@ -22,6 +22,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+// TODO: Consider a different name such as `AppAttestationProviderSource`
 NS_SWIFT_NAME(AppAttestationProviderFactory)
 @protocol FIRAppAttestationProviderFactory <NSObject>
 
