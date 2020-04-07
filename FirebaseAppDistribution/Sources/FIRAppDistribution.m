@@ -73,9 +73,6 @@ NSString *const kIssuerURL = @"https://accounts.google.com";
     _appDistributionAuth = auth;
     _safariHostingViewController = [[UIViewController alloc] init];
 
-    // TODO: Save any properties here
-    NSLog(@"APP DISTRIBUTION STARTED UP!");
-
     [GULAppDelegateSwizzler proxyOriginalDelegate];
 
     FIRAppDistributionAppDelegatorInterceptor *interceptor =
@@ -150,7 +147,6 @@ NSString *const kIssuerURL = @"https://accounts.google.com";
 }
 
 - (void)fetchReleases:(FIRAppDistributionUpdateCheckCompletion)completion {
-  NSLog(@"Token: %@", self.authState.lastTokenResponse.accessToken);
   NSURLSession *URLSession = [NSURLSession sharedSession];
   NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
   NSString *URLString =
@@ -173,11 +169,8 @@ NSString *const kIssuerURL = @"https://accounts.google.com";
                       NSHTTPURLResponse *HTTPResponse = (NSHTTPURLResponse *)response;
 
                       if (HTTPResponse.statusCode == 200) {
-                        NSLog(@"Response Code: %ld", (long)HTTPResponse.statusCode);
                         [self handleReleasesAPIResponseWithData:data completion:completion];
                       } else {
-                        NSLog(@"Error Response Code: %ld", (long)HTTPResponse.statusCode);
-
                         // TODO: Handle non-200 http response
                         dispatch_async(dispatch_get_main_queue(), ^{
                           completion(nil, nil);

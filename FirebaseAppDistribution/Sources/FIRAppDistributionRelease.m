@@ -24,7 +24,6 @@
 - (instancetype)initWithDictionary:(NSDictionary *)dict {
   self = [super init];
   if (self) {
-    NSLog(@"Release init dict %@", dict);
     self.buildVersion = [dict objectForKey:@"buildVersion"];
     self.displayVersion = [dict objectForKey:@"displayVersion"];
 
