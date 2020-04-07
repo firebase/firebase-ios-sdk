@@ -98,11 +98,11 @@ NSString *const kIssuerURL = @"https://accounts.google.com";
   FIRComponentCreationBlock creationBlock =
       ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
     if (!container.app.isDefaultApp) {
-        // TODO: Implement error handling
-        @throw([NSException exceptionWithName:@"NotImplementedException"
-                                       reason:@"This code path is not implemented yet"
-                                     userInfo:nil]);
-        return nil;
+      // TODO: Implement error handling
+      @throw([NSException exceptionWithName:@"NotImplementedException"
+                                     reason:@"This code path is not implemented yet"
+                                   userInfo:nil]);
+      return nil;
     }
 
     *isCacheable = YES;
@@ -195,8 +195,8 @@ NSString *const kIssuerURL = @"https://accounts.google.com";
   if (!configuration) {
     // TODO: Handle when we cannot get configuration
     @throw([NSException exceptionWithName:@"NotImplementedException"
-                       reason:@"This code path is not implemented yet"
-                     userInfo:nil]);
+                                   reason:@"This code path is not implemented yet"
+                                 userInfo:nil]);
     return;
   }
 
