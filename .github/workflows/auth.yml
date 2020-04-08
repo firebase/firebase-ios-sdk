@@ -39,8 +39,19 @@ jobs:
       run: scripts/install_prereqs.sh Auth iOS
     - name: Install Secrets
       run: |
-        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/storage-db-plist.gpg \
-          FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist "$plist_secret"
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthCredentials.h.gpg \
+          Example/Auth/ApiTests/AuthCredentials.h "$plist_secret"
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthSample/Application.plist.gpg \
+          Example/Auth/Sample/Application.plist "$plist_secret"
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthSample/AuthCredentials.h.gpg \
+          Example/Auth/Sample/AuthCredentials.h "$plist_secret"
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthSample/GoogleService-Info.plist.gpg \
+          Example/Auth/Sample/GoogleService-Info.plist "$plist_secret"
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthSample/GoogleService-Info_multi.plist.gpg \
+          Example/Auth/Sample/GoogleService-Info_multi.plist "$plist_secret"
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthSample/Sample.entitlements.gpg \
+          Example/Auth/Sample/Sample.entitlements "$plist_secret"
+
     - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/build.sh Auth iOS)
 
