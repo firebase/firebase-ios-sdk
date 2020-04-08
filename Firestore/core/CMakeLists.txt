@@ -157,20 +157,34 @@ if(APPLE)
 endif()
 
 
+## firestore_nanopb
+
+# Nanopb-related utilities that not specific to Firestore and are used from
+# generated nanopb messages.
+
+firebase_ios_glob(
+  nanopb_sources
+  src/firebase/firestore/nanopb/byte_string.*
+  src/firebase/firestore/nanopb/nanopb_util.*
+  src/firebase/firestore/nanopb/pretty_printing.*
+)
+
+firebase_ios_add_library(firestore_nanopb EXCLUDE_FROM_ALL ${nanopb_sources})
+
+target_link_libraries(
+  firestore_nanopb PUBLIC
+  absl_strings
+  firestore_util
+  protobuf-nanopb-static
+)
+
+
 # Emulate the new combined firestore_core and firestore_util libraries with
 # interface libraries. CMake interface libraries pass their dependencies and
 # settings through to any consumers, allowing dependees to migrate to this form
 # incrementally.
 #
 # TODO(wilhuff): Replace these with an actual combined libraries.
-
-add_library(firestore_nanopb INTERFACE)
-
-target_link_libraries(
-  firestore_nanopb INTERFACE
-  firebase_firestore_nanopb_runtime
-)
-
 
 add_library(firestore_core INTERFACE)
 

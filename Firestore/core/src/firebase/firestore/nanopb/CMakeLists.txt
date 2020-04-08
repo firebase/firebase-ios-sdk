@@ -13,22 +13,6 @@
 # limitations under the License.
 
 firebase_ios_cc_library(
-  firebase_firestore_nanopb_runtime
-  SOURCES
-    byte_string.cc
-    byte_string.h
-    nanopb_util.cc
-    nanopb_util.h
-    pretty_printing.cc
-    pretty_printing.h
-
-  DEPENDS
-    absl_strings
-    firestore_util
-    protobuf-nanopb-static
-)
-
-firebase_ios_cc_library(
   firebase_firestore_nanopb
   SOURCES
     fields_array.h
