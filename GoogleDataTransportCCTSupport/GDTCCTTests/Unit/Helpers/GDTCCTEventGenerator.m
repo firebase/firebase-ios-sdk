@@ -139,7 +139,7 @@
     GDTCCTEventGeneratorDataObject *dataObject = [[GDTCCTEventGeneratorDataObject alloc] init];
     dataObject.dataFile = messageDataURL;
     event.dataObject = dataObject;
-    NSError *error;
+    error = nil;
     [self writeEvent:event
            toGDTPath:[NSString stringWithFormat:@"test-event-%lf", CFAbsoluteTimeGetCurrent()]
                error:&error];
@@ -204,7 +204,7 @@
     GDTCCTEventGeneratorDataObject *dataObject = [[GDTCCTEventGeneratorDataObject alloc] init];
     dataObject.dataFile = messageDataURL;
     event.dataObject = dataObject;
-    NSError *error;
+    error = nil;
     [self writeEvent:event
            toGDTPath:[NSString stringWithFormat:@"test-event-%lf", CFAbsoluteTimeGetCurrent()]
                error:&error];
@@ -231,7 +231,7 @@
     GDTCCTEventGeneratorDataObject *dataObject = [[GDTCCTEventGeneratorDataObject alloc] init];
     dataObject.dataFile = messageDataURL;
     event.dataObject = dataObject;
-    NSError *error;
+    error = nil;
     [self writeEvent:event
            toGDTPath:[NSString stringWithFormat:@"test-event-%lf", CFAbsoluteTimeGetCurrent()]
                error:&error];
