@@ -244,6 +244,9 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
    * Starts listens for documents in limbo that are enqueued for resolution,
    * subject to a maximum number of concurrent resolutions.
    *
+   * The maximum number of concurrent limbo resolutions is defined in
+   * max_concurrent_limbo_resolutions_.
+   *
    * Without bounding the number of concurrent resolutions, the server can fail
    * with "resource exhausted" errors which can lead to pathological client
    * behavior as seen in https://github.com/firebase/firebase-js-sdk/issues/2683
