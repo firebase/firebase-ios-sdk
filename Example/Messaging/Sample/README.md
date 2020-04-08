@@ -12,5 +12,7 @@ To run this app, you'll need the following steps.
 
 #### Push notification provisioning profile
 
-If you need to test push notifications sent from FCM console or Sender API, you will need to run this test app on real device. In order to do so, you will need a provisioning profile enabled with push notifications. Following the [steps](https://firebase.google.com/docs/cloud-messaging/ios/certs) here to setup the properly APNs configuration to work with Firebase Messaging.
+If you need to test push notifications sent from FCM console or Sender API, you will need to run this test app on real device. In order to do so, you will need a provisioning profile enabled with push notifications.
+
+Following the [steps](https://firebase.google.com/docs/cloud-messaging/ios/certs) here to setup the properly APNs configuration to work with Firebase Messaging.
 

@@ -1,4 +1,4 @@
-// Copyright 2020 Google
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -83,7 +83,10 @@ struct ContentView: View {
   }
 
   func deleteToken() {
-    guard let senderID = FirebaseApp.app()?.options.gcmSenderID else { return }
+    guard let app = FirebaseApp.app() else {
+      return
+    }
+    guard let senderID = app.options.gcmSenderID else { return }
     Messaging.messaging().deleteFCMToken(forSenderID: senderID) { error in
       if let error = error as NSError? {
         print("Failed delete token: ", error)
