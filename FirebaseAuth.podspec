@@ -77,7 +77,7 @@ supports email and password accounts, as well as several 3rd party authenticatio
     # app_host is needed for tests with keychain
     unit_tests.requires_app_host = true
     unit_tests.pod_target_xcconfig = {
-      # Unit tests do library imports using Firebase/Auth/Source recursive relative paths.
+      # Unit tests do library imports using FirebaseAuth/Sources recursive relative paths.
       'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"/FirebaseAuth/Sources/**',
     }
     unit_tests.dependency 'OCMock'

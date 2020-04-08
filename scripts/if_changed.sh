@@ -46,7 +46,7 @@ elif [[ -z "$TRAVIS_COMMIT_RANGE" ]]; then
 else
   case "$PROJECT-$METHOD" in
     Firebase-pod-lib-lint) # Combines Firebase-* and InAppMessaging*
-      check_changes '^(Firebase/Auth|Firebase/Database|Firebase/DynamicLinks|'\
+      check_changes '^(FirebaseAuth|Firebase/Database|Firebase/DynamicLinks|'\
 'Firebase/Messaging|FirebaseStorage|GoogleUtilities|Interop|Example|'\
 'FirebaseAnalyticsInterop.podspec|FirebaseAuth.podspec|FirebaseAuthInterop.podspec|'\
 'FirebaseCoreDiagnostics.podspec|FirebaseCoreDiagnosticsInterop.podspec|'\
@@ -74,7 +74,7 @@ else
       ;;
 
     Auth-*)
-      check_changes '^(FirebaseCore|Firebase/Auth|Example/Auth|GoogleUtilities|FirebaseAuth.podspec)'
+      check_changes '^(FirebaseCore|FirebaseAuth|GoogleUtilities|FirebaseAuth.podspec)'
       ;;
 
     Crashlytics-*)
