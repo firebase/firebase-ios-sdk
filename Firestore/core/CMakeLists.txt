@@ -16,20 +16,6 @@ include(CheckSymbolExists)
 include(CheckIncludeFiles)
 
 
-add_subdirectory(include/firebase/firestore)
-
-add_subdirectory(src/firebase/firestore)
-add_subdirectory(src/firebase/firestore/api)
-add_subdirectory(src/firebase/firestore/auth)
-add_subdirectory(src/firebase/firestore/core)
-add_subdirectory(src/firebase/firestore/immutable)
-add_subdirectory(src/firebase/firestore/local)
-add_subdirectory(src/firebase/firestore/model)
-add_subdirectory(src/firebase/firestore/nanopb)
-add_subdirectory(src/firebase/firestore/objc)
-add_subdirectory(src/firebase/firestore/remote)
-
-
 ## firestore_util
 
 # The set of sources to use for firestore_util are complex.
@@ -179,38 +165,124 @@ target_link_libraries(
 )
 
 
-# Emulate the new combined firestore_core and firestore_util libraries with
-# interface libraries. CMake interface libraries pass their dependencies and
-# settings through to any consumers, allowing dependees to migrate to this form
-# incrementally.
-#
-# TODO(wilhuff): Replace these with an actual combined libraries.
+## firestore_core
 
-add_library(firestore_core INTERFACE)
+
+firebase_ios_glob(
+  core_sources
+  include/firebase/firestore/*.h
+  src/firebase/firestore/*.cc
+  src/firebase/firestore/*.h
+  src/firebase/firestore/api/*.cc
+  src/firebase/firestore/api/*.h
+  src/firebase/firestore/auth/*.cc
+  src/firebase/firestore/auth/*.h
+  src/firebase/firestore/core/*.cc
+  src/firebase/firestore/core/*.h
+  src/firebase/firestore/immutable/*.cc
+  src/firebase/firestore/immutable/*.h
+  src/firebase/firestore/local/*.cc
+  src/firebase/firestore/local/*.h
+  src/firebase/firestore/model/*.cc
+  src/firebase/firestore/model/*.h
+  src/firebase/firestore/nanopb/*.cc
+  src/firebase/firestore/nanopb/*.h
+  src/firebase/firestore/objc/*.h
+  src/firebase/firestore/remote/*.cc
+  src/firebase/firestore/remote/*.h
+  EXCLUDE ${nanopb_sources}
+)
+
+if(APPLE)
+  firebase_ios_glob(
+    core_sources APPEND
+    src/firebase/firestore/auth/firebase_credentials_provider_apple.*
+    src/firebase/firestore/remote/connectivity_monitor_apple.mm
+  )
+endif()
+
+
+firebase_ios_add_library(firestore_core ${core_sources})
+
+podspec_version(version ${PROJECT_SOURCE_DIR}/FirebaseFirestore.podspec)
+
+target_compile_definitions(
+  firestore_core PRIVATE
+  FIRFirestore_VERSION=${version}
+)
+
+target_include_directories(
+  firestore_core PUBLIC
+  ${PROJECT_SOURCE_DIR}/Firestore/core/include
+)
 
 target_link_libraries(
-  firestore_core INTERFACE
-  firebase_firestore_api
-  firebase_firestore_auth
-  firebase_firestore_core
-  firebase_firestore_immutable
-  firebase_firestore_local
-  firebase_firestore_local_persistence_leveldb
-  firebase_firestore_model
-  firebase_firestore_nanopb
-  firebase_firestore_remote
-  firebase_firestore_types
-
+  firestore_core PUBLIC
+  LevelDB::LevelDB
+  absl_base
+  absl_memory
+  absl_meta
+  absl_optional
+  absl_strings
   firestore_nanopb
+  firestore_protos_nanopb
   firestore_util
+  grpc++
+  protobuf-nanopb-static
 )
 
 if(APPLE)
   target_link_libraries(
-    firestore_core INTERFACE
-    firebase_firestore_auth_apple
+    firestore_core PUBLIC
+    "-framework Foundation"
+    "-framework SystemConfiguration"
+    FirebaseAuthInterop
+    FirebaseCore
   )
 endif()
+
+
+## gRPC Certificates
+
+# Source files should be generated in place so that the XCode build can pick
+# them up.
+set(OUTPUT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/firebase/firestore/remote)
+
+set(
+  GRPC_ROOT_CERTIFICATE_SOURCES
+  ${OUTPUT_DIR}/grpc_root_certificates_generated.h  # NOLINT(generated)
+  ${OUTPUT_DIR}/grpc_root_certificates_generated.cc # NOLINT(generated)
+)
+
+# `roots.pem` is a file containing root certificates that is distributed
+# alongside gRPC and is necessary to establish SSL connections. Embed this file
+# into the binary by converting it to a char array.
+add_custom_command(
+  COMMENT "Generating root certificates for embedding"
+  OUTPUT
+  ${GRPC_ROOT_CERTIFICATE_SOURCES}
+  COMMAND
+  python ${FIREBASE_SOURCE_DIR}/scripts/binary_to_array.py
+  --output_header=${OUTPUT_DIR}/grpc_root_certificates_generated.h
+  --output_source=${OUTPUT_DIR}/grpc_root_certificates_generated.cc
+  --cpp_namespace=firebase::firestore::remote
+  --array=grpc_root_certificates_generated_data
+  --array_size=grpc_root_certificates_generated_size
+  ${FIREBASE_EXTERNAL_SOURCE_DIR}/grpc/etc/roots.pem
+  VERBATIM
+  DEPENDS
+  grpc
+  ${FIREBASE_SOURCE_DIR}/scripts/binary_to_array.py
+  ${FIREBASE_EXTERNAL_SOURCE_DIR}/grpc/etc/roots.pem
+)
+
+# gRPC certificates have to be regenerated manually on each new gRPC release
+# (which typically has updated certificates).
+add_custom_target(
+  firestore_gen_grpc_certs
+  DEPENDS ${GRPC_ROOT_CERTIFICATE_SOURCES}
+)
+
 
 add_subdirectory(test/firebase/firestore/testutil)
 add_subdirectory(test/firebase/firestore)
