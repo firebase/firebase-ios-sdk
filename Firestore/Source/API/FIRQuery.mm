@@ -358,10 +358,9 @@ int32_t SaturatedLimitValue(NSInteger limit) {
     return [self queryFilteredUsingComparisonPredicate:predicate];
   } else if ([predicate isKindOfClass:[NSCompoundPredicate class]]) {
     return [self queryFilteredUsingCompoundPredicate:predicate];
-  } else if ([predicate isKindOfClass:[[NSPredicate
-                                          predicateWithBlock:^BOOL(id, NSDictionary *) {
-                                            return true;
-                                          }] class]]) {
+  } else if ([predicate isKindOfClass:[[NSPredicate predicateWithBlock:^BOOL(id, NSDictionary *) {
+                          return true;
+                        }] class]]) {
     ThrowInvalidArgument("Invalid query. Block-based predicates are not supported. Please use "
                          "predicateWithFormat to create predicates instead.");
   } else {
