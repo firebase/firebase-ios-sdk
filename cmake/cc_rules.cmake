@@ -119,6 +119,38 @@ function(firebase_ios_add_test target)
   target_link_libraries(${target} PRIVATE GTest::GTest GTest::Main)
 endfunction()
 
+# firebase_ios_add_objc_test(
+#   target
+#   host_app
+#   sources...
+# )
+#
+# Creates an XCTest bundle suitable for running tests written in Objective-C by
+# wrapping a call to `xctest_add_bundle` (including arguments like
+# `EXCLUDE_FROM_ALL`) and `xctest_add_test` that additionally sets common
+# options that apply to all tests in this repo.
+function(firebase_ios_add_objc_test target host)
+  xctest_add_bundle(${target} ${host} ${ARGN})
+
+  firebase_ios_set_common_target_options(${target})
+
+  xctest_add_test(${target} ${target})
+
+  if(WITH_ASAN)
+    set_property(
+      TEST ${target} APPEND PROPERTY
+      ENVIRONMENT DYLD_INSERT_LIBRARIES=${CLANG_ASAN_DYLIB}
+    )
+  endif()
+
+  if(WITH_TSAN)
+    set_property(
+      TEST ${target} APPEND PROPERTY
+      ENVIRONMENT DYLD_INSERT_LIBRARIES=${CLANG_TSAN_DYLIB}
+    )
+  endif()
+endfunction()
+
 
 # firebase_ios_cc_library(
 #   target
