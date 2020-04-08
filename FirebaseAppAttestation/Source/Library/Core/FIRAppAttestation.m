@@ -84,6 +84,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)setAttestationProviderFactory:(nullable id<FIRAppAttestationProviderFactory>)factory
                            forAppName:(NSString *)firebaseAppName {
   if (firebaseAppName == nil) {
+    // TODO: Consider logging a message.
     return;
   }
 
