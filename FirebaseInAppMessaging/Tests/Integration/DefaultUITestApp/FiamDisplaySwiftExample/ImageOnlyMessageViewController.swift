@@ -35,7 +35,8 @@ class ImageOnlyMessageViewController: CommonMessageTestVC {
   @IBAction func showRegularImageOnlyTapped(_ sender: Any) {
     verifyLabel.text = "Verification Label"
     let imageRawData = produceImageOfSize(size: CGSize(width: 200, height: 200))
-    let fiamImageData = InAppMessagingImageData(imageURL: "url not important", imageData: imageRawData!)
+    let fiamImageData = InAppMessagingImageData(imageURL: "url not important",
+                                                imageData: imageRawData!)
 
     let modalMessage = InAppMessagingImageOnlyDisplay(messageID: "messageId",
                                                       campaignName: "testCampaign",
@@ -49,7 +50,8 @@ class ImageOnlyMessageViewController: CommonMessageTestVC {
   @IBAction func showImageViewWithLargeImageDimensionTapped(_ sender: Any) {
     verifyLabel.text = "Verification Label"
     let imageRawData = produceImageOfSize(size: CGSize(width: 1000, height: 1000))
-    let fiamImageData = InAppMessagingImageData(imageURL: "url not important", imageData: imageRawData!)
+    let fiamImageData = InAppMessagingImageData(imageURL: "url not important",
+                                                imageData: imageRawData!)
 
     let modalMessage = InAppMessagingImageOnlyDisplay(messageID: "messageId",
                                                       campaignName: "testCampaign",
@@ -63,7 +65,8 @@ class ImageOnlyMessageViewController: CommonMessageTestVC {
   @IBAction func showImageViewWithWideImage(_ sender: Any) {
     verifyLabel.text = "Verification Label"
     let imageRawData = produceImageOfSize(size: CGSize(width: 1000, height: 100))
-    let fiamImageData = InAppMessagingImageData(imageURL: "url not important", imageData: imageRawData!)
+    let fiamImageData = InAppMessagingImageData(imageURL: "url not important",
+                                                imageData: imageRawData!)
 
     let modalMessage = InAppMessagingImageOnlyDisplay(messageID: "messageId",
                                                       campaignName: "testCampaign",
@@ -77,7 +80,8 @@ class ImageOnlyMessageViewController: CommonMessageTestVC {
   @IBAction func showImageViewWithNarrowImage(_ sender: Any) {
     verifyLabel.text = "Verification Label"
     let imageRawData = produceImageOfSize(size: CGSize(width: 100, height: 1000))
-    let fiamImageData = InAppMessagingImageData(imageURL: "url not important", imageData: imageRawData!)
+    let fiamImageData = InAppMessagingImageData(imageURL: "url not important",
+                                                imageData: imageRawData!)
 
     let modalMessage = InAppMessagingImageOnlyDisplay(messageID: "messageId",
                                                       campaignName: "testCampaign",
@@ -90,7 +94,8 @@ class ImageOnlyMessageViewController: CommonMessageTestVC {
 
   @IBAction func showImageViewWithSmallImageDimensionTapped(_ sender: Any) {
     let imageRawData = produceImageOfSize(size: CGSize(width: 50, height: 50))
-    let fiamImageData = InAppMessagingImageData(imageURL: "url not important", imageData: imageRawData!)
+    let fiamImageData = InAppMessagingImageData(imageURL: "url not important",
+                                                imageData: imageRawData!)
 
     let modalMessage = InAppMessagingImageOnlyDisplay(messageID: "messageId",
                                                       campaignName: "testCampaign",

@@ -102,7 +102,8 @@ struct FirebaseBuilder {
       } else {
         // Move zip to parent directory so it doesn't get removed with other artifacts.
         let parentLocation =
-          zipped.deletingLastPathComponent().deletingLastPathComponent().appendingPathComponent(zipped.lastPathComponent)
+          zipped.deletingLastPathComponent().deletingLastPathComponent()
+            .appendingPathComponent(zipped.lastPathComponent)
         // Clear out the output file if it exists.
         FileManager.default.removeIfExists(at: parentLocation)
         do {

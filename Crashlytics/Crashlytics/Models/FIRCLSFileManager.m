@@ -146,17 +146,6 @@ NSString *const FIRCLSCacheVersion = @"v5";
   }
 }
 
-- (BOOL)moveItemsFromDirectory:(NSString *)srcDir toDirectory:(NSString *)destDir {
-  __block BOOL success = YES;
-
-  [self enumerateFilesInDirectory:srcDir
-                       usingBlock:^(NSString *filePath, NSString *extension) {
-                         success = success && [self moveItemAtPath:filePath toDirectory:destDir];
-                       }];
-
-  return success;
-}
-
 - (NSNumber *)fileSizeAtPath:(NSString *)path {
   NSError *error = nil;
   NSDictionary *attrs = [[self underlyingFileManager] attributesOfItemAtPath:path error:&error];
@@ -276,56 +265,6 @@ NSString *const FIRCLSCacheVersion = @"v5";
   }
 
   return path;
-}
-
-- (void)enumerateReportsInProcessingDirectoryUsingBlock:(void (^)(FIRCLSInternalReport *report,
-                                                                  NSString *path))block {
-  [self enumerateFilesInDirectory:[self processingPath]
-                       usingBlock:^(NSString *filePath, NSString *extension) {
-                         FIRCLSInternalReport *report =
-                             [FIRCLSInternalReport reportWithPath:filePath];
-                         if (block) {
-                           block(report, filePath);
-                         }
-                       }];
-}
-
-- (void)enumerateFilesInActiveDirectoryUsingBlock:(void (^)(NSString *path,
-                                                            NSString *extension))block {
-  [self enumerateFilesInDirectory:[self activePath] usingBlock:block];
-}
-
-- (void)enumerateFilesInPreparedDirectoryUsingBlock:(void (^)(NSString *path,
-                                                              NSString *extension))block {
-  [self enumerateFilesInDirectory:[self legacyPreparedPath] usingBlock:block];
-}
-
-- (BOOL)movePendingToProcessing {
-  return [self moveItemsFromDirectory:[self pendingPath] toDirectory:[self processingPath]];
-}
-
-- (BOOL)removeContentsOfProcessingPath {
-  return [self removeContentsOfDirectoryAtPath:[self processingPath]];
-}
-
-- (BOOL)removeContentsOfPendingPath {
-  return [self removeContentsOfDirectoryAtPath:[self pendingPath]];
-}
-
-- (BOOL)removeContentsOfAllPaths {
-  BOOL contentsOfProcessingPathRemoved = [self removeContentsOfProcessingPath];
-  BOOL contentsOfPendingPathRemoved = [self removeContentsOfPendingPath];
-  BOOL contentsOfDirectoryAtPreparedPathRemoved =
-      [self removeContentsOfDirectoryAtPath:self.preparedPath];
-  BOOL contentsOfDirectoryAtLegacyPreparedPathRemoved =
-      [self removeContentsOfDirectoryAtPath:self.legacyPreparedPath];
-  BOOL contentsOfDirectoryAtActivePathRemoved =
-      [self removeContentsOfDirectoryAtPath:self.activePath];
-  BOOL success = contentsOfProcessingPathRemoved && contentsOfPendingPathRemoved &&
-                 contentsOfDirectoryAtPreparedPathRemoved &&
-                 contentsOfDirectoryAtActivePathRemoved &&
-                 contentsOfDirectoryAtLegacyPreparedPathRemoved;
-  return success;
 }
 
 - (BOOL)moveItemAtPath:(NSString *)srcPath toPath:(NSString *)dstPath error:(NSError **)error {

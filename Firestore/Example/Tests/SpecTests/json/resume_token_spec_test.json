@@ -2,19 +2,22 @@
   "Resume tokens are sent after watch stream restarts": {
     "describeName": "Resume tokens:",
     "itName": "Resume tokens are sent after watch stream restarts",
-    "tags": [],
+    "tags": [
+    ],
     "config": {
-      "useGarbageCollection": true,
-      "numClients": 1
+      "numClients": 1,
+      "useGarbageCollection": true
     },
     "steps": [
       {
         "userListen": [
           2,
           {
-            "path": "collection",
-            "filters": [],
-            "orderBys": []
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
           }
         ],
         "expectedState": {
@@ -22,9 +25,11 @@
             "2": {
               "queries": [
                 {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": []
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
                 }
               ],
               "resumeToken": ""
@@ -42,14 +47,14 @@
           "docs": [
             {
               "key": "collection/a",
-              "version": 1000,
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
               "value": {
                 "key": "a"
               },
-              "options": {
-                "hasLocalMutations": false,
-                "hasCommittedMutations": false
-              }
+              "version": 1000
             }
           ],
           "targets": [
@@ -67,32 +72,35 @@
       },
       {
         "watchSnapshot": {
-          "version": 1000,
-          "targetIds": []
+          "targetIds": [
+          ],
+          "version": 1000
         },
         "expectedSnapshotEvents": [
           {
-            "query": {
-              "path": "collection",
-              "filters": [],
-              "orderBys": []
-            },
             "added": [
               {
                 "key": "collection/a",
-                "version": 1000,
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
                 "value": {
                   "key": "a"
                 },
-                "options": {
-                  "hasLocalMutations": false,
-                  "hasCommittedMutations": false
-                }
+                "version": 1000
               }
             ],
             "errorCode": 0,
             "fromCache": false,
-            "hasPendingWrites": false
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
           }
         ]
       },
@@ -109,9 +117,11 @@
             "2": {
               "queries": [
                 {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": []
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
                 }
               ],
               "resumeToken": "custom-query-resume-token"
@@ -124,19 +134,22 @@
   "Resume tokens are used across new listens": {
     "describeName": "Resume tokens:",
     "itName": "Resume tokens are used across new listens",
-    "tags": [],
+    "tags": [
+    ],
     "config": {
-      "useGarbageCollection": false,
-      "numClients": 1
+      "numClients": 1,
+      "useGarbageCollection": false
     },
     "steps": [
       {
         "userListen": [
           2,
           {
-            "path": "collection",
-            "filters": [],
-            "orderBys": []
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
           }
         ],
         "expectedState": {
@@ -144,9 +157,11 @@
             "2": {
               "queries": [
                 {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": []
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
                 }
               ],
               "resumeToken": ""
@@ -164,14 +179,14 @@
           "docs": [
             {
               "key": "collection/a",
-              "version": 1000,
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
               "value": {
                 "key": "a"
               },
-              "options": {
-                "hasLocalMutations": false,
-                "hasCommittedMutations": false
-              }
+              "version": 1000
             }
           ],
           "targets": [
@@ -189,32 +204,35 @@
       },
       {
         "watchSnapshot": {
-          "version": 1000,
-          "targetIds": []
+          "targetIds": [
+          ],
+          "version": 1000
         },
         "expectedSnapshotEvents": [
           {
-            "query": {
-              "path": "collection",
-              "filters": [],
-              "orderBys": []
-            },
             "added": [
               {
                 "key": "collection/a",
-                "version": 1000,
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
                 "value": {
                   "key": "a"
                 },
-                "options": {
-                  "hasLocalMutations": false,
-                  "hasCommittedMutations": false
-                }
+                "version": 1000
               }
             ],
             "errorCode": 0,
             "fromCache": false,
-            "hasPendingWrites": false
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
           }
         ]
       },
@@ -222,22 +240,54 @@
         "userUnlisten": [
           2,
           {
-            "path": "collection",
-            "filters": [],
-            "orderBys": []
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
           }
         ],
         "expectedState": {
-          "activeTargets": {}
+          "activeTargets": {
+          }
         }
       },
       {
         "userListen": [
           2,
           {
-            "path": "collection",
-            "filters": [],
-            "orderBys": []
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          }
+        ],
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "key": "a"
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
           }
         ],
         "expectedState": {
@@ -245,40 +295,17 @@
             "2": {
               "queries": [
                 {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": []
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
                 }
               ],
               "resumeToken": "custom-query-resume-token"
             }
           }
-        },
-        "expectedSnapshotEvents": [
-          {
-            "query": {
-              "path": "collection",
-              "filters": [],
-              "orderBys": []
-            },
-            "added": [
-              {
-                "key": "collection/a",
-                "version": 1000,
-                "value": {
-                  "key": "a"
-                },
-                "options": {
-                  "hasLocalMutations": false,
-                  "hasCommittedMutations": false
-                }
-              }
-            ],
-            "errorCode": 0,
-            "fromCache": true,
-            "hasPendingWrites": false
-          }
-        ]
+        }
       },
       {
         "watchAck": [
@@ -287,8 +314,9 @@
       },
       {
         "watchSnapshot": {
-          "version": 1001,
-          "targetIds": []
+          "targetIds": [
+          ],
+          "version": 1001
         }
       }
     ]

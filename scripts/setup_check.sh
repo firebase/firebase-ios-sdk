@@ -25,6 +25,7 @@ brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/c6f1cbd/Fo
 brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/c13eda8/Formula/swiftformat.rb
 
 pip install flake8
+pip install six
 
 # Using actions/checkout@v2 creates a shallow clone that's missing the master
 # branch. If it's not present, add it.

@@ -97,7 +97,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertFalse(self.settings.appNeedsOnboarding);
   XCTAssertFalse(self.settings.appUpdateRequired);
 
-  XCTAssertTrue(self.settings.crashReportingEnabled);
+  XCTAssertTrue(self.settings.collectReportsEnabled);
   XCTAssertTrue(self.settings.errorReportingEnabled);
   XCTAssertTrue(self.settings.customExceptionsEnabled);
 
@@ -170,7 +170,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertFalse(self.settings.appNeedsOnboarding);
   XCTAssertFalse(self.settings.appUpdateRequired);
 
-  XCTAssertTrue(self.settings.crashReportingEnabled);
+  XCTAssertTrue(self.settings.collectReportsEnabled);
   XCTAssertTrue(self.settings.errorReportingEnabled);
   XCTAssertTrue(self.settings.customExceptionsEnabled);
 
@@ -197,7 +197,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertTrue(self.settings.appNeedsOnboarding);
   XCTAssertTrue(self.settings.appUpdateRequired);
 
-  XCTAssertFalse(self.settings.crashReportingEnabled);
+  XCTAssertFalse(self.settings.collectReportsEnabled);
   XCTAssertFalse(self.settings.errorReportingEnabled);
   XCTAssertFalse(self.settings.customExceptionsEnabled);
 
@@ -379,7 +379,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertFalse(self.settings.appNeedsOnboarding);
   XCTAssertFalse(self.settings.appUpdateRequired);
 
-  XCTAssertTrue(self.settings.crashReportingEnabled);
+  XCTAssertTrue(self.settings.collectReportsEnabled);
   XCTAssertTrue(self.settings.errorReportingEnabled);
   XCTAssertTrue(self.settings.customExceptionsEnabled);
 

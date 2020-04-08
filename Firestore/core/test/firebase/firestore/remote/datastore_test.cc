@@ -32,10 +32,10 @@
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "Firestore/core/test/firebase/firestore/remote/fake_credentials_provider.h"
+#include "Firestore/core/test/firebase/firestore/remote/grpc_stream_tester.h"
 #include "Firestore/core/test/firebase/firestore/testutil/async_testing.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
-#include "Firestore/core/test/firebase/firestore/util/fake_credentials_provider.h"
-#include "Firestore/core/test/firebase/firestore/util/grpc_stream_tester.h"
 #include "absl/memory/memory.h"
 #include "absl/strings/str_cat.h"
 #include "gmock/gmock.h"
@@ -57,12 +57,7 @@ using nanopb::Message;
 using testing::Not;
 using testutil::Value;
 using util::AsyncQueue;
-using util::CompletionEndState;
-using util::CompletionResult;
 using util::Executor;
-using util::FakeCredentialsProvider;
-using util::FakeGrpcQueue;
-using util::GrpcStreamTester;
 using util::Status;
 using util::StatusOr;
 

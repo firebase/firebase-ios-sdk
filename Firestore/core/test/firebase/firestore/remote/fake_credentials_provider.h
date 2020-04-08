@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_UTIL_FAKE_CREDENTIALS_PROVIDER_H_
-#define FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_UTIL_FAKE_CREDENTIALS_PROVIDER_H_
+#ifndef FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_REMOTE_FAKE_CREDENTIALS_PROVIDER_H_
+#define FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_REMOTE_FAKE_CREDENTIALS_PROVIDER_H_
 
 #include <string>
 #include <vector>
@@ -24,7 +24,7 @@
 
 namespace firebase {
 namespace firestore {
-namespace util {
+namespace remote {
 
 class FakeCredentialsProvider : public auth::EmptyCredentialsProvider {
  public:
@@ -50,8 +50,8 @@ class FakeCredentialsProvider : public auth::EmptyCredentialsProvider {
   auth::TokenListener delayed_token_listener_;
 };
 
-}  // namespace util
+}  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_UTIL_FAKE_CREDENTIALS_PROVIDER_H_
+#endif  // FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_REMOTE_FAKE_CREDENTIALS_PROVIDER_H_
