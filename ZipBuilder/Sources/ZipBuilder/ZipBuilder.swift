@@ -205,7 +205,8 @@ struct ZipBuilder {
         "installed: \(installedPods)")
     }
 
-    let zipDir = try assembleDistributions(inProjectDir: projectDir, withPackageKind: "Firebase",
+    let zipDir = try assembleDistributions(inProjectDir: projectDir,
+                                           withPackageKind: "Firebase",
                                            podsToInstall: podsToInstall,
                                            installedPods: installedPods,
                                            frameworksToAssemble: frameworks,
