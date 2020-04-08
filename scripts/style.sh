@@ -97,6 +97,8 @@ swift_disable=(
 swift_options=(
   # Mimic Objective-C style.
   --indent 2
+  --maxwidth 100
+  --wrapparameters afterfirst
 
   --disable $(join , "${swift_disable[@]}")
 )

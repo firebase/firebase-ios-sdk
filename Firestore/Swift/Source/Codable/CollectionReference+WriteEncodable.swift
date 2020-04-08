@@ -33,7 +33,8 @@ extension CollectionReference {
   /// - Returns: A `DocumentReference` pointing to the newly created document.
   public func addDocument<T: Encodable>(from value: T,
                                         encoder: Firestore.Encoder = Firestore.Encoder(),
-                                        completion: ((Error?) -> Void)? = nil) throws -> DocumentReference {
-    return addDocument(data: try encoder.encode(value), completion: completion)
-  }
+                                        completion: ((Error?) -> Void)? = nil) throws
+    -> DocumentReference {
+      return addDocument(data: try encoder.encode(value), completion: completion)
+    }
 }
