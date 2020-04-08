@@ -85,10 +85,10 @@ jobs:
 
   auth-cron-only:
     runs-on: macos-latest
-#    if: github.event_name == 'schedule'
+    if: github.event_name == 'schedule'
     strategy:
       matrix:
-        target: [ios, tvos, macos --skip-tests] # The macos tests hang
+        target: [ios, tvos --skip-tests, macos --skip-tests] # The macos and tvos tests can hang
         flags: [
           '--use-modular-headers',
           '--use-libraries'
