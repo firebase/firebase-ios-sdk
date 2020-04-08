@@ -355,7 +355,7 @@ case "$product-$platform-$method" in
 
   MessagingSample-*-*)
     RunXcodebuild \
-        -workspace 'Sample/Sample.xcworkspace' \
+        -workspace 'Example/Messaging/Sample/Sample.xcworkspace' \
         -scheme "Sample" \
         "${xcb_flags[@]}" \
         build
