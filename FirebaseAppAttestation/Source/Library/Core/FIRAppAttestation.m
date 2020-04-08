@@ -94,7 +94,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - Attestation Provider Ingestion
 
-+ (NSMutableDictionary<NSString *, id<FIRAppAttestationProviderFactory>> *)providerFactoryByAppName {
++ (NSMutableDictionary<NSString *, id<FIRAppAttestationProviderFactory>> *)
+    providerFactoryByAppName {
   static NSMutableDictionary *providerFactoryByAppName;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
