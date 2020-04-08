@@ -138,7 +138,7 @@ match the versions in the CI failure logs
 
 Select a scheme and press Command-u to build a component and run its unit tests.
 
-#### Viewing Code Coverage
+#### Viewing Code Coverage (Deprecated)
 
 First, make sure that [xcov](https://github.com/nakiostudio/xcov) is installed with `gem install xcov`.
 
@@ -169,7 +169,7 @@ See the sections below for any special instructions for those components.
 ### Firebase Auth
 
 If you're doing specific Firebase Auth development, see
-[the Auth Sample README](Example/Auth/README.md) for instructions about
+[the Auth Sample README](FirebaseAuth/Tests/Sample/README.md) for instructions about
 building and running the FirebaseAuth pod along with various samples and tests.
 
 ### Firebase Database
@@ -180,7 +180,7 @@ To run the Database Integration tests, make your database authentication rules
 ### Firebase Storage
 
 To run the Storage Integration tests, follow the instructions in
-[FIRStorageIntegrationTests.m](Example/Storage/Tests/Integration/FIRStorageIntegrationTests.m).
+[FIRStorageIntegrationTests.m](FirebaseStorage/Tests/Integration/FIRStorageIntegrationTests.m).
 
 #### Push Notifications
 

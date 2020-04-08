@@ -298,7 +298,7 @@ case "$product-$platform-$method" in
   Auth-*-xcodebuild)
     if check_secrets; then
       RunXcodebuild \
-        -workspace 'Example/Auth/AuthSample/AuthSample.xcworkspace' \
+        -workspace 'FirebaseAuth/Tests/Sample/AuthSample.xcworkspace' \
         -scheme "Auth_ApiTests" \
         "${xcb_flags[@]}" \
         build \
