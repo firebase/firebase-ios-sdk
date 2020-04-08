@@ -137,7 +137,8 @@ struct IdentityButtonStyle: ButtonStyle {
       .frame(minWidth: 0, maxWidth: 200)
       .padding(10)
       .foregroundColor(.white)
-      .background(LinearGradient(gradient: Gradient(colors: [Color.blue, Color.pink]), startPoint: .leading, endPoint: .trailing))
+      .background(LinearGradient(gradient: Gradient(colors: [Color.blue, Color.pink]),
+                                 startPoint: .leading, endPoint: .trailing))
       .cornerRadius(40)
   }
 }

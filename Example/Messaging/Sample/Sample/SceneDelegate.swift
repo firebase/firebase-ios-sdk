@@ -22,13 +22,15 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, MessagingDelegate {
   var window: UIWindow?
   let identity = Identity()
 
-  func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
+  func scene(_ scene: UIScene, willConnectTo session: UISceneSession,
+             options connectionOptions: UIScene.ConnectionOptions) {
     let contentView = ContentView()
     // Use a UIHostingController as window root view controller.
     Messaging.messaging().delegate = self
     if let windowScene = scene as? UIWindowScene {
       let window = UIWindow(windowScene: windowScene)
-      window.rootViewController = UIHostingController(rootView: contentView.environmentObject(identity))
+      window
+        .rootViewController = UIHostingController(rootView: contentView.environmentObject(identity))
 
       self.window = window
       window.makeKeyAndVisible()
