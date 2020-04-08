@@ -4,9 +4,7 @@ on:
   pull_request:
     paths:
     - 'FirebaseAuth**'
-    - 'Firebase/Auth' # Delete after source reorg
     - '.github/workflows/auth.yml'
-    - 'scripts/**'
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times
     - cron:  '0 7 * * *'
@@ -40,17 +38,17 @@ jobs:
     - name: Install Secrets
       run: |
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthCredentials.h.gpg \
-          Example/Auth/ApiTests/AuthCredentials.h "$plist_secret"
+          FirebaseAuth/Tests/Sample/ApiTests/AuthCredentials.h "$plist_secret"
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthSample/Application.plist.gpg \
-          Example/Auth/Sample/Application.plist "$plist_secret"
+          FirebaseAuth/Tests/Sample/Sample/Application.plist "$plist_secret"
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthSample/AuthCredentials.h.gpg \
-          Example/Auth/Sample/AuthCredentials.h "$plist_secret"
+          FirebaseAuth/Tests/Sample/Sample/AuthCredentials.h "$plist_secret"
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthSample/GoogleService-Info.plist.gpg \
-          Example/Auth/Sample/GoogleService-Info.plist "$plist_secret"
+          FirebaseAuth/Tests/Sample/Sample/GoogleService-Info.plist "$plist_secret"
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthSample/GoogleService-Info_multi.plist.gpg \
-          Example/Auth/Sample/GoogleService-Info_multi.plist "$plist_secret"
+          FirebaseAuth/Tests/Sample/Sample/GoogleService-Info_multi.plist "$plist_secret"
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthSample/Sample.entitlements.gpg \
-          Example/Auth/Sample/Sample.entitlements "$plist_secret"
+          FirebaseAuth/Tests/Sample/Sample/Sample.entitlements "$plist_secret"
 
     - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/build.sh Auth iOS)
