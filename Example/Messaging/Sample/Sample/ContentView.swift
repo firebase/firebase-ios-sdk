@@ -110,6 +110,7 @@ struct ContentView: View {
         print("Failed delete FID: ", error)
         return
       }
+      self.identity.instanceID = ""
     }
   }
 }
