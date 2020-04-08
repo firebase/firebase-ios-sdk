@@ -12,22 +12,37 @@ on:
     - cron:  '0 7 * * *'
 
 jobs:
-  # storage:
-  #   env:
-  #     plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-  #   runs-on: macos-latest
-  #   strategy:
-  #     matrix:
-  #       pod: [Storage, StorageSwift]
-  #   steps:
-  #   - uses: actions/checkout@v2
-  #   - name: Setup Bundler
-  #     run: scripts/setup_bundler.sh
-  #   - name: Install Secret GoogleService-Info.plist
-  #     run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/storage-db-plist.gpg \
-  #         FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist "$plist_secret"
-  #   - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
-  #     run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/build.sh ${{ matrix.pod }} all)
+
+  pod-lib-lint:
+    runs-on: macOS-latest
+
+    strategy:
+      matrix:
+        target: [ios, tvos, macos]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Build and test
+      run: |
+        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseAuth.podspec --platforms=${{ matrix.target }}
+
+  integration-tests:
+    env:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Prereqs
+      run: scripts/install_prereqs.sh Auth iOS
+    - name: Install Secrets
+      run: |
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/storage-db-plist.gpg \
+          FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist "$plist_secret"
+    - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/build.sh Auth iOS)
 
   catalyst:
     runs-on: macOS-latest
@@ -57,24 +72,9 @@ jobs:
     - name: Test quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Authentication)
 
-  pod-lib-lint:
-    runs-on: macOS-latest
-
-    strategy:
-      matrix:
-        target: [ios, tvos, macos]
-    steps:
-    - uses: actions/checkout@v2
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: Build and test
-      run: |
-       scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseAuth.podspec --platforms=${{ matrix.target }}
-
-
   auth-cron-only:
     runs-on: macos-latest
-#    if: github.event_name == 'schedule'
+    if: github.event_name == 'schedule'
     strategy:
       matrix:
         target: [ios, tvos, macos]
