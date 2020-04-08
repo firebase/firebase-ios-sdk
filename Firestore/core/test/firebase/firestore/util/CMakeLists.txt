@@ -32,8 +32,8 @@ firebase_ios_cc_test(
     executor_test.cc
     executor_test.h
   DEPENDS
-    firebase_firestore_testutil
     firebase_firestore_util_async_std
+    firestore_testutil
 )
 
 if(HAVE_LIBDISPATCH)
@@ -47,8 +47,8 @@ if(HAVE_LIBDISPATCH)
       executor_test.cc
       executor_test.h
     DEPENDS
-      firebase_firestore_testutil
       firebase_firestore_util_async_libdispatch
+      firestore_testutil
   )
 endif()
 
@@ -88,9 +88,9 @@ if(APPLE)
     DEPENDS
       GMock::GMock
       absl_optional
-      firebase_firestore_testutil
       firebase_firestore_util_autoid
       firebase_firestore_util_filesystem_apple
+      firestore_testutil
   )
 endif()
 
@@ -103,9 +103,9 @@ if(NOT APPLE AND NOT WIN32)
     DEPENDS
       GMock::GMock
       absl_optional
-      firebase_firestore_testutil
       firebase_firestore_util_autoid
       firebase_firestore_util_filesystem_posix
+      firestore_testutil
   )
 endif()
 
@@ -118,9 +118,9 @@ if(WIN32)
     DEPENDS
       GMock::GMock
       absl_optional
-      firebase_firestore_testutil
       firebase_firestore_util_autoid
       firebase_firestore_util_filesystem_win
+      firestore_testutil
   )
 endif()
 
@@ -172,12 +172,12 @@ firebase_ios_cc_test(
     to_string_apple_test.mm
     to_string_test.cc
   DEPENDS
+    GMock::GMock
     absl_base
     absl_strings
     firebase_firestore_model
-    firebase_firestore_testutil
     firebase_firestore_util
-    GMock::GMock
+    firestore_testutil
 )
 
 # Benchmarks

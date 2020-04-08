@@ -24,5 +24,5 @@ firebase_ios_cc_test(
     GMock::GMock
     firebase_firestore_nanopb
     firebase_firestore_remote
-    firebase_firestore_testutil
+    firestore_testutil
 )

@@ -30,6 +30,6 @@ if(APPLE)
       firebase_credentials_provider_test.mm
     DEPENDS
       firebase_firestore_auth_apple
-      firebase_firestore_testutil
+      firestore_testutil
   )
 endif(APPLE)

@@ -29,19 +29,19 @@ firebase_ios_cc_library(
     XCTestCase+Await.h
     XCTestCase+Await.mm
   DEPENDS
+    ${XCTest_LIBRARIES}
+    FirebaseFirestore
+    GTest::GTest
     absl_any
     absl_strings
-    FirebaseFirestore
     firebase_firestore_auth
     firebase_firestore_core
     firebase_firestore_local
     firebase_firestore_model
-    firebase_firestore_util
-    firebase_firestore_remote
-    firebase_firestore_remote_testing
     firebase_firestore_nanopb
     firebase_firestore_protos_nanopb
-    firebase_firestore_testutil
-    ${XCTest_LIBRARIES}
-    GTest::GTest
+    firebase_firestore_remote
+    firebase_firestore_remote_testing
+    firebase_firestore_util
+    firestore_testutil
 )

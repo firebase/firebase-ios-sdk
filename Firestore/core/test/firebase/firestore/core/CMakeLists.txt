@@ -26,5 +26,5 @@ firebase_ios_cc_test(
   DEPENDS
     GMock::GMock
     firebase_firestore_core
-    firebase_firestore_testutil
+    firestore_testutil
 )

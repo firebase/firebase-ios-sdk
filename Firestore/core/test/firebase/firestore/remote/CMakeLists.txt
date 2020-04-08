@@ -43,13 +43,13 @@ firebase_ios_cc_test(
     watch_change_test.cc
 
   DEPENDS
+    GMock::GMock
     absl_base
     firebase_firestore_protos_libprotobuf
     firebase_firestore_core
     firebase_firestore_local
     firebase_firestore_remote
     firebase_firestore_remote_testing
-    firebase_firestore_testutil
     firebase_firestore_util_async_std
-    GMock::GMock
+    firestore_testutil
 )

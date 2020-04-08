@@ -30,9 +30,9 @@ firebase_ios_cc_test(
     snapshot_version_test.cc
     transform_operation_test.cc
   DEPENDS
-    firebase_firestore_model
-    firebase_firestore_testutil
     GMock::GMock
+    firebase_firestore_model
+    firestore_testutil
 )
 
 if(FIREBASE_IOS_BUILD_BENCHMARKS)
@@ -45,6 +45,6 @@ if(FIREBASE_IOS_BUILD_BENCHMARKS)
       benchmark
       benchmark_main
       firebase_firestore_model
-      firebase_firestore_testutil
+      firestore_testutil
   )
 endif()
