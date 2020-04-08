@@ -30,22 +30,17 @@ struct ContentView: View {
             Text("Get ID and Token")
               .fontWeight(.semibold)
           }
-          .padding(5)
-          .foregroundColor(.white)
-          .background(Color.purple)
-          .cornerRadius(40)
         }
+        .buttonStyle(IdentityButtonStyle())
+
         Button(action: deleteToken) {
           HStack {
             Image(systemName: "trash.fill").font(.body)
             Text("Delete Token")
               .fontWeight(.semibold)
           }
-          .padding(5)
-          .foregroundColor(.white)
-          .background(Color.red)
-          .cornerRadius(40)
         }
+        .buttonStyle(IdentityButtonStyle())
 
         Button(action: deleteID) {
           HStack {
@@ -53,11 +48,8 @@ struct ContentView: View {
             Text("Delete ID")
               .fontWeight(.semibold)
           }
-          .padding(5)
-          .foregroundColor(.white)
-          .background(Color.red)
-          .cornerRadius(40)
         }
+        .buttonStyle(IdentityButtonStyle())
 
         Button(action: deleteFID) {
           HStack {
@@ -65,11 +57,8 @@ struct ContentView: View {
             Text("Delete FID")
               .fontWeight(.semibold)
           }
-          .padding(5)
-          .foregroundColor(.white)
-          .background(Color.red)
-          .cornerRadius(40)
         }
+        .buttonStyle(IdentityButtonStyle())
 
         Text("InstanceID: \(identity.instanceID)")
           .foregroundColor(.blue)
@@ -139,5 +128,16 @@ struct DetailView: View {
 struct ContentView_Previews: PreviewProvider {
   static var previews: some View {
     ContentView().environmentObject(Identity())
+  }
+}
+
+struct IdentityButtonStyle: ButtonStyle {
+  func makeBody(configuration: Self.Configuration) -> some View {
+    configuration.label
+      .frame(minWidth: 0, maxWidth: 200)
+      .padding(10)
+      .foregroundColor(.white)
+      .background(LinearGradient(gradient: Gradient(colors: [Color.blue, Color.pink]), startPoint: .leading, endPoint: .trailing))
+      .cornerRadius(40)
   }
 }

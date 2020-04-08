@@ -15,7 +15,8 @@
 import SwiftUI
 
 public final class Identity: ObservableObject {
+  // Identity that is unique per app.
   @Published public var instanceID = ""
-  @Published public var installationID = ""
+  // The token that Firebase Messaging use to send notifications.
   @Published public var token = ""
 }
