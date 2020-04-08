@@ -351,14 +351,16 @@ class FirestoreEncoderTests: XCTestCase {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         try id = container.decode(Int64.self, forKey: .id)
 
-        let nestedContainer = try container.nestedContainer(keyedBy: NestedCodingKeys.self, forKey: .nested)
+        let nestedContainer = try container
+          .nestedContainer(keyedBy: NestedCodingKeys.self, forKey: .nested)
         try name = nestedContainer.decode(String.self, forKey: .name)
       }
 
       func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(id, forKey: .id)
-        var nestedContainer = container.nestedContainer(keyedBy: NestedCodingKeys.self, forKey: .nested)
+        var nestedContainer = container
+          .nestedContainer(keyedBy: NestedCodingKeys.self, forKey: .nested)
         try nestedContainer.encode(name, forKey: .name)
       }
     }
@@ -604,15 +606,22 @@ class FirestoreEncoderTests: XCTestCase {
   #endif // swift(>=5.1)
 }
 
-private func assertThat(_ dictionary: [String: Any], in document: String? = nil, file: StaticString = #file, line: UInt = #line) -> DictionarySubject {
+private func assertThat(
+  _ dictionary: [String: Any],
+  in document: String? = nil,
+  file: StaticString = #file,
+  line: UInt = #line
+) -> DictionarySubject {
   return DictionarySubject(dictionary, in: document, file: file, line: line)
 }
 
-private func assertThat<X: Equatable & Codable>(_ model: X, file: StaticString = #file, line: UInt = #line) -> CodableSubject<X> {
+private func assertThat<X: Equatable & Codable>(_ model: X, file: StaticString = #file,
+                                                line: UInt = #line) -> CodableSubject<X> {
   return CodableSubject(model, file: file, line: line)
 }
 
-private func assertThat<X: Equatable & Encodable>(_ model: X, file: StaticString = #file, line: UInt = #line) -> EncodableSubject<X> {
+private func assertThat<X: Equatable & Encodable>(_ model: X, file: StaticString = #file,
+                                                  line: UInt = #line) -> EncodableSubject<X> {
   return EncodableSubject(model, file: file, line: line)
 }
 
@@ -708,7 +717,8 @@ private class DictionarySubject {
   }
 
   func failsDecoding<X: Equatable & Codable>(to _: X.Type) -> Void {
-    XCTAssertThrowsError(try Firestore.Decoder().decode(X.self, from: subject), file: file, line: line)
+    XCTAssertThrowsError(try Firestore.Decoder().decode(X.self, from: subject), file: file,
+                         line: line)
   }
 }
 

@@ -199,7 +199,8 @@ enum CocoaPodUtils {
         currentPod = pod.trimmingCharacters(in: quotes)
         pods[currentPod!] = version
       } else if let currentPod = currentPod {
-        let matches = depRegex.matches(in: line, range: NSRange(location: 0, length: line.utf8.count))
+        let matches = depRegex
+          .matches(in: line, range: NSRange(location: 0, length: line.utf8.count))
         // Match something like - GTMSessionFetcher/Full (= 1.3.0)
         if let match = matches.first {
           let depLine = (line as NSString).substring(with: match.range(at: 0)) as String
@@ -322,8 +323,10 @@ enum CocoaPodUtils {
 
   /// Get all transitive pod dependencies for a pod.
   /// - Returns: An array of dependencies with versions for a given pod.
-  static func transitiveVersionedPodDependencies(for podName: String,
-                                                 in installedPods: [String: PodInfo]) -> [VersionedPod] {
+  static func transitiveVersionedPodDependencies(
+    for podName: String,
+    in installedPods: [String: PodInfo]
+  ) -> [VersionedPod] {
     return transitivePodDependencies(for: podName, in: installedPods).map {
       CocoaPodUtils.VersionedPod(name: $0, version: installedPods[$0]?.version)
     }
@@ -341,7 +344,8 @@ enum CocoaPodUtils {
   /// - Parameters:
   ///   - input: A line entry from Podfile.lock.
   /// - Returns: A tuple of the framework and version, if it can be parsed.
-  private static func detectVersion(fromLine input: String) -> (framework: String, version: String)? {
+  private static func detectVersion(fromLine input: String)
+    -> (framework: String, version: String)? {
     // Get the components of the line to parse them individually. Ignore any whitespace only Strings.
     let components = input.components(separatedBy: " ").filter { !$0.isEmpty }
 
@@ -405,7 +409,8 @@ enum CocoaPodUtils {
       podfile += "  pod '\(pod.name)'"
       // Check if we want to use a local version of the podspec.
       if let localURL = LaunchArgs.shared.localPodspecPath,
-        FileManager.default.fileExists(atPath: localURL.appendingPathComponent(pod.name + ".podspec").path) {
+        FileManager.default
+        .fileExists(atPath: localURL.appendingPathComponent(pod.name + ".podspec").path) {
         podfile += ", :path => '\(localURL.path)'"
       } else if let podVersion = pod.version {
         podfile += ", '\(podVersion)'"
@@ -453,7 +458,8 @@ enum CocoaPodUtils {
 
     // Generate the full path of the Podfile and attempt to write it to disk.
     let path = directory.appendingPathComponent("Podfile")
-    let podfile = generatePodfile(for: pods, customSpecsRepos: customSpecRepos, forceStaticLibs: forceStaticLibs)
+    let podfile = generatePodfile(for: pods, customSpecsRepos: customSpecRepos,
+                                  forceStaticLibs: forceStaticLibs)
     do {
       try podfile.write(toFile: path.path, atomically: true, encoding: .utf8)
     } catch {

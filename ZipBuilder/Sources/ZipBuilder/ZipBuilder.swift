@@ -195,7 +195,8 @@ struct ZipBuilder {
       return CocoaPodUtils.VersionedPod(name: name, version: version)
     }
 
-    let (installedPods, frameworks, carthageFrameworks) = buildAndAssembleZip(podsToInstall: podsToInstall)
+    let (installedPods, frameworks,
+         carthageFrameworks) = buildAndAssembleZip(podsToInstall: podsToInstall)
 
     // We need the Firebase pod to get the version for Carthage and to copy the `Firebase.h` and
     // `module.modulemap` file from it.
@@ -205,13 +206,18 @@ struct ZipBuilder {
     }
 
     let zipDir = try assembleDistributions(inProjectDir: projectDir, withPackageKind: "Firebase",
-                                           podsToInstall: podsToInstall, installedPods: installedPods,
-                                           frameworksToAssemble: frameworks, firebasePod: firebasePod)
+                                           podsToInstall: podsToInstall,
+                                           installedPods: installedPods,
+                                           frameworksToAssemble: frameworks,
+                                           firebasePod: firebasePod)
     var carthageDir: URL?
     if let carthageFrameworks = carthageFrameworks {
-      carthageDir = try assembleDistributions(inProjectDir: projectDir, withPackageKind: "CarthageFirebase",
-                                              podsToInstall: podsToInstall, installedPods: installedPods,
-                                              frameworksToAssemble: carthageFrameworks, firebasePod: firebasePod)
+      carthageDir = try assembleDistributions(inProjectDir: projectDir,
+                                              withPackageKind: "CarthageFirebase",
+                                              podsToInstall: podsToInstall,
+                                              installedPods: installedPods,
+                                              frameworksToAssemble: carthageFrameworks,
+                                              firebasePod: firebasePod)
     }
 
     return ReleaseArtifacts(firebaseVersion: firebasePod.version,
@@ -310,7 +316,8 @@ struct ZipBuilder {
           for file in ["upload-symbols", "run"] {
             let source = pod.value.installedLocation.appendingPathComponent(file)
 
-            let target = zipDir.appendingPathComponent(crashlyticsPodName).appendingPathComponent(file)
+            let target = zipDir.appendingPathComponent(crashlyticsPodName)
+              .appendingPathComponent(file)
             do {
               try FileManager.default.copyItem(at: source, to: target)
             } catch {
@@ -402,7 +409,8 @@ struct ZipBuilder {
 
         let destination = dir.appendingPathComponent(xcframeworkName)
         try fileManager.copyItem(at: xcframework, to: destination)
-        copiedFrameworkNames.append(xcframeworkName.replacingOccurrences(of: ".xcframework", with: ""))
+        copiedFrameworkNames
+          .append(xcframeworkName.replacingOccurrences(of: ".xcframework", with: ""))
       }
     }
 
@@ -545,7 +553,8 @@ struct ZipBuilder {
                                              toDirectory: productDir,
                                              frameworkLocations: builtFrameworks,
                                              podsToIgnore: podsToIgnore,
-                                             foldersToIgnore: FirebasePods.duplicateFrameworksToRemove(pod: podName))
+                                             foldersToIgnore: FirebasePods
+                                               .duplicateFrameworksToRemove(pod: podName))
 
     let copiedFrameworks = namedFrameworks.filter {
       // Only return the frameworks that aren't contained in the "podsToIgnore" array, aren't an
@@ -654,8 +663,10 @@ struct ZipBuilder {
   /// CocoaPods. Returns a dictionary with the framework name for the key and all information for
   /// frameworks to install EXCLUDING resources, as they are handled later (if not included in the
   /// .framework file already).
-  private func generateFrameworks(fromPods pods: [String: CocoaPodUtils.PodInfo],
-                                  inProjectDir projectDir: URL) -> ([String: [URL]], [String: [URL]]?) {
+  private func generateFrameworks(
+    fromPods pods: [String: CocoaPodUtils.PodInfo],
+    inProjectDir projectDir: URL
+  ) -> ([String: [URL]], [String: [URL]]?) {
     // Verify the Pods folder exists and we can get the contents of it.
     let fileManager = FileManager.default
 
@@ -689,7 +700,8 @@ struct ZipBuilder {
         let builder = FrameworkBuilder(projectDir: projectDir)
         let (framework, carthageFramework) = builder.buildFramework(withName: podName,
                                                                     podInfo: podInfo,
-                                                                    logsOutputDir: paths.logsOutputDir)
+                                                                    logsOutputDir: paths
+                                                                      .logsOutputDir)
 
         frameworks = [framework]
         if let carthageFramework = carthageFramework {

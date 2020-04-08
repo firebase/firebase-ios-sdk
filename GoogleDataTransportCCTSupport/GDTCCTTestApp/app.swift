@@ -24,15 +24,21 @@ import GoogleDataTransport
   class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+    func application(
+      _ application: UIApplication,
+      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
+    ) -> Bool {
       return true
     }
   }
 
   public class ViewController: UIViewController {
-    let cctTransport: GDTCORTransport = GDTCORTransport(mappingID: "1018", transformers: nil, target: GDTCORTarget.CCT.rawValue)!
-    let fllTransport: GDTCORTransport = GDTCORTransport(mappingID: "1018", transformers: nil, target: GDTCORTarget.FLL.rawValue)!
-    let cshTransport: GDTCORTransport = GDTCORTransport(mappingID: "1018", transformers: nil, target: GDTCORTarget.CSH.rawValue)!
+    let cctTransport: GDTCORTransport = GDTCORTransport(mappingID: "1018", transformers: nil,
+                                                        target: GDTCORTarget.CCT.rawValue)!
+    let fllTransport: GDTCORTransport = GDTCORTransport(mappingID: "1018", transformers: nil,
+                                                        target: GDTCORTarget.FLL.rawValue)!
+    let cshTransport: GDTCORTransport = GDTCORTransport(mappingID: "1018", transformers: nil,
+                                                        target: GDTCORTarget.CSH.rawValue)!
 
     @IBOutlet var backendSwitch: UISegmentedControl?
 
@@ -92,9 +98,12 @@ import GoogleDataTransport
   }
 
   public class ViewController: NSViewController {
-    let cctTransport: GDTCORTransport = GDTCORTransport(mappingID: "1018", transformers: nil, target: GDTCORTarget.CCT.rawValue)!
-    let fllTransport: GDTCORTransport = GDTCORTransport(mappingID: "1018", transformers: nil, target: GDTCORTarget.FLL.rawValue)!
-    let cshTransport: GDTCORTransport = GDTCORTransport(mappingID: "1018", transformers: nil, target: GDTCORTarget.CSH.rawValue)!
+    let cctTransport: GDTCORTransport = GDTCORTransport(mappingID: "1018", transformers: nil,
+                                                        target: GDTCORTarget.CCT.rawValue)!
+    let fllTransport: GDTCORTransport = GDTCORTransport(mappingID: "1018", transformers: nil,
+                                                        target: GDTCORTarget.FLL.rawValue)!
+    let cshTransport: GDTCORTransport = GDTCORTransport(mappingID: "1018", transformers: nil,
+                                                        target: GDTCORTarget.CSH.rawValue)!
 
     @IBOutlet var backendSwitch: NSSegmentedControl?
 
