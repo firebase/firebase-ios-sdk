@@ -20,6 +20,7 @@
 #import <FirebaseAppAttestation/FIRAppAttestationProviderFactory.h>
 #import <FirebaseAppAttestation/FIRAppAttestationToken.h>
 #import <FirebaseAppAttestation/FIRAppAttestationVersion.h>
+
 #import "FIRAppAttestationToken+Interop.h"
 
 #import <FirebaseAppAttestationInterop/FIRAppAttestationInterop.h>
@@ -28,6 +29,8 @@
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponentContainer.h>
 #import <FirebaseCore/FIRLibrary.h>
+
+NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRAppAttestation () <FIRLibrary, FIRAppAttestationInterop>
 @property(nonatomic, readonly) NSString *appName;
@@ -44,7 +47,7 @@
                       withVersion:[NSString stringWithUTF8String:FIRAppAttestationVersionStr]];
 }
 
-+ (nonnull NSArray<FIRComponent *> *)componentsToRegister {
++ (NSArray<FIRComponent *> *)componentsToRegister {
   FIRComponentCreationBlock creationBlock =
       ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
     *isCacheable = YES;
@@ -91,7 +94,7 @@
 
 #pragma mark - Attestation Provider Ingestion
 
-+ (NSMutableDictionary *)providerFactoryByAppName {
++ (NSMutableDictionary<NSString *, id<FIRAppAttestationProviderFactory>> *)providerFactoryByAppName {
   static NSMutableDictionary *providerFactoryByAppName;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
@@ -113,7 +116,7 @@
 #pragma mark - FIRAppAttestationInterop
 
 - (void)getTokenForcingRefresh:(BOOL)forcingRefresh
-                    completion:(nonnull FIRAppAttestationTokenHandlerInterop)handler {
+                    completion:(FIRAppAttestationTokenHandlerInterop)handler {
   if (self.attestationProvider == nil) {
     // TODO: finish with a specific error.
     handler(nil, nil);
@@ -123,8 +126,10 @@
   [self.attestationProvider getTokenWithCompletion:handler];
 }
 
-- (void)getTokenWithCompletion:(nonnull FIRAppAttestationTokenHandlerInterop)handler {
+- (void)getTokenWithCompletion:(FIRAppAttestationTokenHandlerInterop)handler {
   [self getTokenForcingRefresh:NO completion:handler];
 }
 
 @end
+
+NS_ASSUME_NONNULL_END
