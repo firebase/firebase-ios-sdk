@@ -33,6 +33,7 @@ product can be one of:
   Firebase
   Firestore
   InAppMessaging
+  MessagingSample
   Storage
   StorageSwift
   SymbolCollision
@@ -348,6 +349,14 @@ case "$product-$platform-$method" in
     RunXcodebuild \
         -workspace 'SymbolCollisionTest/SymbolCollisionTest.xcworkspace' \
         -scheme "SymbolCollisionTest" \
+        "${xcb_flags[@]}" \
+        build
+    ;;
+
+  MessagingSample-*-*)
+    RunXcodebuild \
+        -workspace 'Sample/Sample.xcworkspace' \
+        -scheme "Sample" \
         "${xcb_flags[@]}" \
         build
     ;;

@@ -141,7 +141,7 @@ case "$project-$platform-$method" in
     install_secrets
     ;;
 
-  InstanceID*)
+  InstanceID-*)
     install_secrets
     ;;
 
@@ -183,6 +183,11 @@ case "$project-$platform-$method" in
   SymbolCollision-*-*)
     install_xcpretty
     bundle exec pod install --project-directory=SymbolCollisionTest --repo-update
+    ;;
+
+  MessagingSample-*)
+    install_xcpretty
+    bundle exec pod install --project-directory=Sample --repo-update
     ;;
 
   *-pod-lib-lint)
