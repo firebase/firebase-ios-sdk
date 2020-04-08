@@ -62,15 +62,33 @@ NS_ASSUME_NONNULL_BEGIN
   return @[ appAttestationProvider ];
 }
 
-- (instancetype)initWithApp:(FIRApp *)app {
+- (nullable instancetype)initWithApp:(FIRApp *)app {
   self = [super init];
   if (self) {
-    _appName = app.name;
-
     id<FIRAppAttestationProviderFactory> providerFactory =
         [[self class] providerFactoryForAppName:app.name]
             ?: [[self class] providerFactoryForAppName:kFIRDefaultAppName];
-    _attestationProvider = [providerFactory createProviderWithApp:app];
+
+    if (providerFactory == nil) {
+      return nil;
+    }
+
+    id<FIRAppAttestationProvider> attestationProvider = [providerFactory createProviderWithApp:app];
+    if (attestationProvider == nil) {
+      return nil;
+    }
+
+    return [self initWithApp:app attestationProvider:attestationProvider];
+  }
+  return self;
+}
+
+- (instancetype)initWithApp:(FIRApp *)app
+        attestationProvider:(id<FIRAppAttestationProvider>)attestationProvider {
+  self = [super init];
+  if (self) {
+    _appName = app.name;
+    _attestationProvider = attestationProvider;
   }
   return self;
 }
@@ -97,7 +115,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (NSMutableDictionary<NSString *, id<FIRAppAttestationProviderFactory>> *)
     providerFactoryByAppName {
-  static NSMutableDictionary *providerFactoryByAppName;
+  static NSMutableDictionary<NSString *, id<FIRAppAttestationProviderFactory>>
+      *providerFactoryByAppName;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
     providerFactoryByAppName = [[NSMutableDictionary alloc] init];
