@@ -135,7 +135,7 @@ struct IdentityButtonStyle: ButtonStyle {
   func makeBody(configuration: Self.Configuration) -> some View {
     configuration.label
       .frame(minWidth: 0, maxWidth: 200)
-      .padding(10)
+      .padding()
       .foregroundColor(.white)
       .background(LinearGradient(gradient: Gradient(colors: [Color.blue, Color.pink]),
                                  startPoint: .leading, endPoint: .trailing))
