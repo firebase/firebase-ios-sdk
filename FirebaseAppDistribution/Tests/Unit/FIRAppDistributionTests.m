@@ -31,23 +31,20 @@
 
 @implementation FIRAppFake : NSObject
 
-- (instancetype)initWithAppID:(NSString *)appID
-{
-    self = [super init];
-    if (self) {
-      _options = [[FIROptions alloc] initWithGoogleAppID:appID GCMSenderID:@"sender"];
-    }
-    return self;
+- (instancetype)initWithAppID:(NSString *)appID {
+  self = [super init];
+  if (self) {
+    _options = [[FIROptions alloc] initWithGoogleAppID:appID GCMSenderID:@"sender"];
+  }
+  return self;
 }
 
-
 @end
-
 
 // MARK - Mock authorization test
 // TODO: Create FIRAppDistributionAuthMock.h and FIRAppDistributionAuthMock.m
 
-@interface FIRAppDistributionAuthMock: NSObject<FIRAppDistributionAuthProtocol>
+@interface FIRAppDistributionAuthMock : NSObject <FIRAppDistributionAuthProtocol>
 
 @property(nonatomic, strong) NSURL *discoverServiceIssuerURL;
 @property(nonatomic, strong) OIDServiceConfiguration *discoverServiceConfig;
@@ -57,10 +54,9 @@
 
 @implementation FIRAppDistributionAuthMock
 
-
 - (void)discoverService:(NSURL *)issuerURL completion:(OIDDiscoveryCallback)completion {
-    self.discoverServiceIssuerURL = issuerURL;
-    completion(self.discoverServiceConfig, self.discoverServiceError);
+  self.discoverServiceIssuerURL = issuerURL;
+  completion(self.discoverServiceConfig, self.discoverServiceError);
 }
 
 @end
@@ -82,7 +78,7 @@
   self.appDistributionAuth = [[FIRAppDistributionAuthMock alloc] init];
   self.app = [[FIRAppFake alloc] initWithAppID:@"someGMPAppID"];
   id fakeApp = self.app;
-    
+
   self.appDistribution = [[FIRAppDistribution alloc] initWithApp:fakeApp
                                                          appInfo:dict
                                                      authHandler:self.appDistributionAuth];
@@ -92,19 +88,19 @@
   XCTAssertNotNil(self.appDistribution);
 }
 
--(void)testSignInDiscoveryError {
-    NSError *discoveryError = [[NSError alloc] initWithDomain:@"discoveryDomain" code:3 userInfo:nil];
-    self.appDistributionAuth.discoverServiceError = discoveryError;
-    
-    XCTestExpectation *expectation = [self expectationWithDescription:@"signInTesterWithCompletion"];
-    
-    [self.appDistribution signInTesterWithCompletion:^(NSError *error) {
-        XCTAssertEqual(discoveryError, error);
-        XCTAssertNil(self.appDistribution.authState);
-        [expectation fulfill];
-    }];
-    
-    [self waitForExpectations:@[expectation] timeout:3];
+- (void)testSignInDiscoveryError {
+  NSError *discoveryError = [[NSError alloc] initWithDomain:@"discoveryDomain" code:3 userInfo:nil];
+  self.appDistributionAuth.discoverServiceError = discoveryError;
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"signInTesterWithCompletion"];
+
+  [self.appDistribution signInTesterWithCompletion:^(NSError *error) {
+    XCTAssertEqual(discoveryError, error);
+    XCTAssertNil(self.appDistribution.authState);
+    [expectation fulfill];
+  }];
+
+  [self waitForExpectations:@[ expectation ] timeout:3];
 }
 
 @end

@@ -30,20 +30,19 @@
 @protocol FIRAppDistributionInstanceProvider <NSObject>
 @end
 
-@interface FIRAppDistributionAuthImp: NSObject<FIRAppDistributionAuthProtocol>
+@interface FIRAppDistributionAuthImp : NSObject <FIRAppDistributionAuthProtocol>
 @end
 
 @implementation FIRAppDistributionAuthImp
 
 - (void)discoverService:(NSURL *)issuerURL completion:(OIDDiscoveryCallback)completion {
-    [OIDAuthorizationService discoverServiceConfigurationForIssuer:issuerURL completion:completion];
+  [OIDAuthorizationService discoverServiceConfigurationForIssuer:issuerURL completion:completion];
 }
 
 @end
 
-
 @interface FIRAppDistribution () <FIRLibrary, FIRAppDistributionInstanceProvider>
-  @property (nonatomic, strong) id<FIRAppDistributionAuthProtocol> appDistributionAuth;
+@property(nonatomic, strong) id<FIRAppDistributionAuthProtocol> appDistributionAuth;
 @end
 
 @implementation FIRAppDistribution
@@ -64,10 +63,14 @@ NSString *const kIssuerURL = @"https://accounts.google.com";
 #pragma mark - Singleton Support
 
 - (instancetype)initWithApp:(FIRApp *)app appInfo:(NSDictionary *)appInfo {
-  return [self initWithApp:app appInfo:appInfo authHandler:[[FIRAppDistributionAuthImp alloc] init]];
+  return [self initWithApp:app
+                   appInfo:appInfo
+               authHandler:[[FIRAppDistributionAuthImp alloc] init]];
 }
 
-- (instancetype)initWithApp:(FIRApp *)app appInfo:(NSDictionary *)appInfo authHandler:(id<FIRAppDistributionAuthProtocol>) auth {
+- (instancetype)initWithApp:(FIRApp *)app
+                    appInfo:(NSDictionary *)appInfo
+                authHandler:(id<FIRAppDistributionAuthProtocol>)auth {
   self = [super init];
 
   if (self) {

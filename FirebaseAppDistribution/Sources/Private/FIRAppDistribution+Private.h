@@ -27,7 +27,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRAppDistribution ()
 
-- (instancetype)initWithApp:(FIRApp *)app appInfo:(NSDictionary *)appInfo authHandler:(id<FIRAppDistributionAuthProtocol>) auth;
+- (instancetype)initWithApp:(FIRApp *)app
+                    appInfo:(NSDictionary *)appInfo
+                authHandler:(id<FIRAppDistributionAuthProtocol>)auth;
 
 /**
  * Current view controller presenting the `SFSafariViewController` if any.
