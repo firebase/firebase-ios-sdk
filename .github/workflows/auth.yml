@@ -85,13 +85,13 @@ jobs:
 
   auth-cron-only:
     runs-on: macos-latest
-    if: github.event_name == 'schedule'
+#    if: github.event_name == 'schedule'
     strategy:
       matrix:
         target: [ios, tvos, macos]
         flags: [
-          '--skip-tests --use-modular-headers',
-          '--skip-tests --use-libraries'
+          '--use-modular-headers',
+          '--use-libraries'
         ]
     needs: pod-lib-lint
     steps:
