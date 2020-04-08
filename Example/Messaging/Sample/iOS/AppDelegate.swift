@@ -33,10 +33,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
   static var hasPresentedInvalidServiceInfoPlistAlert = false
 
-  func application(
-    _ application: UIApplication,
-    didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?
-  ) -> Bool {
+  func application(_ application: UIApplication,
+                   didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?)
+    -> Bool {
     guard !AppDelegate.isWithinUnitTest else {
       // During unit tests, we don't want to initialize Firebase, since by default we want to able
       // to run unit tests without requiring a non-dummy GoogleService-Info.plist file
@@ -88,11 +87,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     NotificationCenter.default.post(name: UserNotificationsChangedNotification, object: nil)
   }
 
-  func application(
-    _ application: UIApplication,
-    didReceiveRemoteNotification userInfo: [AnyHashable: Any],
-    fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void
-  ) {
+  func application(_ application: UIApplication,
+                   didReceiveRemoteNotification userInfo: [AnyHashable: Any],
+                   fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult)
+                     -> Void) {
     print("application:didReceiveRemoteNotification:fetchCompletionHandler: called, with notification:")
     print("\(userInfo.jsonString ?? "{}")")
     completionHandler(.newData)

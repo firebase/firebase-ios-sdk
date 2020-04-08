@@ -195,11 +195,9 @@ private struct _FirestoreKeyedEncodingContainer<K: CodingKey>: KeyedEncodingCont
   // MARK: - Initialization
 
   /// Initializes `self` with the given references.
-  fileprivate init(
-    referencing encoder: _FirestoreEncoder,
-    codingPath: [CodingKey],
-    wrapping container: NSMutableDictionary
-  ) {
+  fileprivate init(referencing encoder: _FirestoreEncoder,
+                   codingPath: [CodingKey],
+                   wrapping container: NSMutableDictionary) {
     self.encoder = encoder
     self.codingPath = codingPath
     self.container = container
@@ -279,10 +277,9 @@ private struct _FirestoreKeyedEncodingContainer<K: CodingKey>: KeyedEncodingCont
     container[key.stringValue] = try encoder.box(value)
   }
 
-  public mutating func nestedContainer<NestedKey>(
-    keyedBy _: NestedKey.Type,
-    forKey key: Key
-  ) -> KeyedEncodingContainer<NestedKey> {
+  public mutating func nestedContainer<NestedKey>(keyedBy _: NestedKey.Type,
+                                                  forKey key: Key)
+    -> KeyedEncodingContainer<NestedKey> {
     let dictionary = NSMutableDictionary()
     self.container[key.stringValue] = dictionary
 
@@ -339,11 +336,9 @@ private struct _FirestoreUnkeyedEncodingContainer: UnkeyedEncodingContainer {
   // MARK: - Initialization
 
   /// Initializes `self` with the given references.
-  fileprivate init(
-    referencing encoder: _FirestoreEncoder,
-    codingPath: [CodingKey],
-    wrapping container: NSMutableArray
-  ) {
+  fileprivate init(referencing encoder: _FirestoreEncoder,
+                   codingPath: [CodingKey],
+                   wrapping container: NSMutableArray) {
     self.encoder = encoder
     self.codingPath = codingPath
     self.container = container
@@ -603,11 +598,9 @@ private class _FirestoreReferencingEncoder: _FirestoreEncoder {
   // MARK: - Initialization
 
   /// Initializes `self` by referencing the given array container in the given encoder.
-  fileprivate init(
-    referencing encoder: _FirestoreEncoder,
-    at index: Int,
-    wrapping array: NSMutableArray
-  ) {
+  fileprivate init(referencing encoder: _FirestoreEncoder,
+                   at index: Int,
+                   wrapping array: NSMutableArray) {
     self.encoder = encoder
     reference = .array(array, index)
     super.init()
@@ -617,11 +610,9 @@ private class _FirestoreReferencingEncoder: _FirestoreEncoder {
   }
 
   /// Initializes `self` by referencing the given dictionary container in the given encoder.
-  fileprivate init(
-    referencing encoder: _FirestoreEncoder,
-    at key: CodingKey,
-    wrapping dictionary: NSMutableDictionary
-  ) {
+  fileprivate init(referencing encoder: _FirestoreEncoder,
+                   at key: CodingKey,
+                   wrapping dictionary: NSMutableDictionary) {
     self.encoder = encoder
     reference = .dictionary(dictionary, key.stringValue)
     super.init()

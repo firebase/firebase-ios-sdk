@@ -132,11 +132,9 @@ extension NotificationsController: UNUserNotificationCenterDelegate {
     completionHandler([.alert, .badge, .sound])
   }
 
-  func userNotificationCenter(
-    _ center: UNUserNotificationCenter,
-    didReceive response: UNNotificationResponse,
-    withCompletionHandler completionHandler: @escaping () -> Void
-  ) {
+  func userNotificationCenter(_ center: UNUserNotificationCenter,
+                              didReceive response: UNNotificationResponse,
+                              withCompletionHandler completionHandler: @escaping () -> Void) {
     print("Received notification response")
     let jsonString = response.notification.request.content.userInfo.jsonString ?? "{}"
     print("\(jsonString)")

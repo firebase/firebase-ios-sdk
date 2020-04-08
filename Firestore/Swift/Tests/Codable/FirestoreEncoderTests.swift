@@ -606,12 +606,10 @@ class FirestoreEncoderTests: XCTestCase {
   #endif // swift(>=5.1)
 }
 
-private func assertThat(
-  _ dictionary: [String: Any],
-  in document: String? = nil,
-  file: StaticString = #file,
-  line: UInt = #line
-) -> DictionarySubject {
+private func assertThat(_ dictionary: [String: Any],
+                        in document: String? = nil,
+                        file: StaticString = #file,
+                        line: UInt = #line) -> DictionarySubject {
   return DictionarySubject(dictionary, in: document, file: file, line: line)
 }
 

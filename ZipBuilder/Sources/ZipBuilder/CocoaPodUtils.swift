@@ -323,10 +323,9 @@ enum CocoaPodUtils {
 
   /// Get all transitive pod dependencies for a pod.
   /// - Returns: An array of dependencies with versions for a given pod.
-  static func transitiveVersionedPodDependencies(
-    for podName: String,
-    in installedPods: [String: PodInfo]
-  ) -> [VersionedPod] {
+  static func transitiveVersionedPodDependencies(for podName: String,
+                                                 in installedPods: [String: PodInfo])
+    -> [VersionedPod] {
     return transitivePodDependencies(for: podName, in: installedPods).map {
       CocoaPodUtils.VersionedPod(name: $0, version: installedPods[$0]?.version)
     }

@@ -537,14 +537,13 @@ struct ZipBuilder {
   /// - Returns: The product directory containing all frameworks and the names of the frameworks
   ///            that were copied for this subspec.
   @discardableResult
-  func installAndCopyFrameworks(
-    forPod podName: String,
-    withInstalledPods installedPods: [String: CocoaPodUtils.PodInfo],
-    projectDir: URL,
-    rootZipDir: URL,
-    builtFrameworks: [String: [URL]],
-    podsToIgnore: [String] = []
-  ) throws -> (productDir: URL, frameworks: [String]) {
+  func installAndCopyFrameworks(forPod podName: String,
+                                withInstalledPods installedPods: [String: CocoaPodUtils.PodInfo],
+                                projectDir: URL,
+                                rootZipDir: URL,
+                                builtFrameworks: [String: [URL]],
+                                podsToIgnore: [String] = []) throws -> (productDir: URL,
+                                                                        frameworks: [String]) {
     let podsToCopy = [podName] +
       CocoaPodUtils.transitiveMasterPodDependencies(for: podName, in: installedPods)
     // Copy the frameworks into the proper product directory.
@@ -663,10 +662,9 @@ struct ZipBuilder {
   /// CocoaPods. Returns a dictionary with the framework name for the key and all information for
   /// frameworks to install EXCLUDING resources, as they are handled later (if not included in the
   /// .framework file already).
-  private func generateFrameworks(
-    fromPods pods: [String: CocoaPodUtils.PodInfo],
-    inProjectDir projectDir: URL
-  ) -> ([String: [URL]], [String: [URL]]?) {
+  private func generateFrameworks(fromPods pods: [String: CocoaPodUtils.PodInfo],
+                                  inProjectDir projectDir: URL) -> ([String: [URL]],
+                                                                    [String: [URL]]?) {
     // Verify the Pods folder exists and we can get the contents of it.
     let fileManager = FileManager.default
 
