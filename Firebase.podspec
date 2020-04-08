@@ -143,12 +143,12 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'MLCommon' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseMLCommon', '~> 0.20.0'
+    ss.ios.dependency 'FirebaseMLCommon', '~> 0.19.0'
   end
 
   s.subspec 'MLModelInterpreter' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseMLModelInterpreter', '~> 0.20.0'
+    ss.ios.dependency 'FirebaseMLModelInterpreter', '~> 0.19.0'
     ss.ios.deployment_target = '9.0'
   end
 
@@ -178,39 +178,39 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'MLVision' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseMLVision', '~> 0.20.0'
+    ss.ios.dependency 'FirebaseMLVision', '~> 0.19.0'
   end
 
   s.subspec 'MLVisionAutoML' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseMLVisionAutoML', '~> 0.20.0'
+    ss.ios.dependency 'FirebaseMLVisionAutoML', '~> 0.19.0'
     ss.ios.deployment_target = '9.0'
   end
 
   s.subspec 'MLVisionBarcodeModel' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseMLVisionBarcodeModel', '~> 0.20.0'
+    ss.ios.dependency 'FirebaseMLVisionBarcodeModel', '~> 0.19.0'
     ss.ios.deployment_target = '9.0'
   end
 
   s.subspec 'MLVisionFaceModel' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseMLVisionFaceModel', '~> 0.20.0'
+    ss.ios.dependency 'FirebaseMLVisionFaceModel', '~> 0.19.0'
   end
 
   s.subspec 'MLVisionLabelModel' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseMLVisionLabelModel', '~> 0.20.0'
+    ss.ios.dependency 'FirebaseMLVisionLabelModel', '~> 0.19.0'
   end
 
   s.subspec 'MLVisionTextModel' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseMLVisionTextModel', '~> 0.20.0'
+    ss.ios.dependency 'FirebaseMLVisionTextModel', '~> 0.19.0'
   end
 
   s.subspec 'MLVisionObjectDetection' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseMLVisionObjectDetection', '~> 0.20.0'
+    ss.ios.dependency 'FirebaseMLVisionObjectDetection', '~> 0.19.0'
     ss.ios.deployment_target = '9.0'
   end
 
