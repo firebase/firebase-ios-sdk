@@ -86,7 +86,7 @@ struct ContentView: View {
     guard let app = FirebaseApp.app() else {
       return
     }
-    guard let senderID = app.options.gcmSenderID else { return }
+    let senderID = app.options.gcmSenderID
     Messaging.messaging().deleteFCMToken(forSenderID: senderID) { error in
       if let error = error as NSError? {
         print("Failed delete token: ", error)
