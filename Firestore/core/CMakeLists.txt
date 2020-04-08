@@ -187,6 +187,7 @@ target_link_libraries(
   firebase_firestore_remote
   firebase_firestore_types
 
+  firestore_nanopb
   firestore_util
 )
 

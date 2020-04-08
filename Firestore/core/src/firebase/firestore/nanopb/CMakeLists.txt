@@ -39,7 +39,7 @@ firebase_ios_cc_library(
     writer.cc
     writer.h
   DEPENDS
-    firebase_firestore_nanopb_runtime
+    firestore_nanopb
     firestore_protos_nanopb
     firestore_util
     grpc++
