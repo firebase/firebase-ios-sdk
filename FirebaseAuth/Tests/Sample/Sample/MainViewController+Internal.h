@@ -18,7 +18,7 @@
 
 #import "MainViewController.h"
 
-@import FirebaseAuth;
+#import "FirebaseAuth/FirebaseAuth.h"
 #import "UIViewController+Alerts.h"
 #import "AuthProviders.h"
 
