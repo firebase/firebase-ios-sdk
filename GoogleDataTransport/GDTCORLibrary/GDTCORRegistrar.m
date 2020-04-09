@@ -18,7 +18,6 @@
 #import "GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
 
 #import "GDTCORLibrary/Public/GDTCORConsoleLogger.h"
-#import "GDTCORLibrary/Public/GDTCORDatabase.h"
 
 @implementation GDTCORRegistrar {
   /** Backing ivar for targetToUploader property. */
