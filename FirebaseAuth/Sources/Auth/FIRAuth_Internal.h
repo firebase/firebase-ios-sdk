@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRAuth.h"
+#import <FirebaseAuth/FIRAuth.h>
 
 #import <FirebaseAuthInterop/FIRAuthInterop.h>
 

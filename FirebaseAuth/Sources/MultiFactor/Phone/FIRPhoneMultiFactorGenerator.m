@@ -17,10 +17,10 @@
 #include <TargetConditionals.h>
 #if TARGET_OS_IOS
 
-#import "FIRPhoneMultiFactorGenerator.h"
+#import <FirebaseAuth/FIRPhoneMultiFactorGenerator.h>
 
-#import "FIRPhoneMultiFactorAssertion+Internal.h"
-#import "FIRPhoneMultiFactorAssertion.h"
+#import "FirebaseAuth/Sources/MultiFactor/Phone/FIRPhoneMultiFactorAssertion+Internal.h"
+#import <FirebaseAuth/FIRPhoneMultiFactorAssertion.h>
 
 @implementation FIRPhoneMultiFactorGenerator
 

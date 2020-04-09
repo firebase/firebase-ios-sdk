@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import "FIRFacebookAuthCredential.h"
+#import "FirebaseAuth/Sources/AuthProvider/Facebook/FIRFacebookAuthCredential.h"
 
-#import "FIRAuthExceptionUtils.h"
-#import "FIRFacebookAuthProvider.h"
-#import "FIRVerifyAssertionRequest.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthExceptionUtils.h"
+#import <FirebaseAuth/FIRFacebookAuthProvider.h>
+#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionRequest.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

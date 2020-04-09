@@ -36,7 +36,8 @@ supports email and password accounts, as well as several 3rd party authenticatio
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
       'FIRAuth_VERSION=' + s.version.to_s +
-      ' FIRAuth_MINOR_VERSION=' + s.version.to_s.split(".")[0] + "." + s.version.to_s.split(".")[1]
+      ' FIRAuth_MINOR_VERSION=' + s.version.to_s.split(".")[0] + "." + s.version.to_s.split(".")[1],
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
   s.framework = 'Security'
   s.ios.framework = 'SafariServices'
@@ -76,10 +77,6 @@ supports email and password accounts, as well as several 3rd party authenticatio
     ]
     # app_host is needed for tests with keychain
     unit_tests.requires_app_host = true
-    unit_tests.pod_target_xcconfig = {
-      # Unit tests do library imports using FirebaseAuth/Sources recursive relative paths.
-      'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"/FirebaseAuth/Sources/**',
-    }
     unit_tests.dependency 'OCMock'
   end
 end

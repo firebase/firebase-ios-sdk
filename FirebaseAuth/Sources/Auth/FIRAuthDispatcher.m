@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRAuthDispatcher.h"
+#import "FirebaseAuth/Sources/Auth/FIRAuthDispatcher.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRUser.h"
+#import <FirebaseAuth/FIRUser.h>
 
 @class FIRAuth;
 @class FIRAuthRequestConfiguration;

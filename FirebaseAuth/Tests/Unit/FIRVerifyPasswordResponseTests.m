@@ -16,11 +16,11 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRAuthBackend.h"
-#import "FIRAuthErrors.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
+#import <FirebaseAuth/FIRAuthErrors.h>
 #import "FIRFakeBackendRPCIssuer.h"
-#import "FIRVerifyPasswordRequest.h"
-#import "FIRVerifyPasswordResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPasswordRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPasswordResponse.h"
 
 /** @var kTestPassword
     @brief Testing user password.

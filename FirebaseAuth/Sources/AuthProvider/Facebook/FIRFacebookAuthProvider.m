@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FIRFacebookAuthProvider.h"
+#import <FirebaseAuth/FIRFacebookAuthProvider.h>
 
-#import "FIRAuthExceptionUtils.h"
-#import "FIRFacebookAuthCredential.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthExceptionUtils.h"
+#import "FirebaseAuth/Sources/AuthProvider/Facebook/FIRFacebookAuthCredential.h"
 
 // FIRFacebookAuthProviderID is defined in FIRAuthProvider.m.
 

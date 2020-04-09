@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRAuthRPCResponse.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthRPCResponse.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

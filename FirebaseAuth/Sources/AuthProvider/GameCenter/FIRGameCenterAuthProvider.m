@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#import "FIRGameCenterAuthProvider.h"
+#import <FirebaseAuth/FIRGameCenterAuthProvider.h>
 
 #import <GameKit/GameKit.h>
 
-#import "FIRAuthErrorUtils.h"
-#import "FIRAuthExceptionUtils.h"
-#import "FIRGameCenterAuthCredential.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthExceptionUtils.h"
+#import "FirebaseAuth/Sources/AuthProvider/GameCenter/FIRGameCenterAuthCredential.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

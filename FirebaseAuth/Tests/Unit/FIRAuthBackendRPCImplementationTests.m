@@ -16,12 +16,12 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRAuthBackend.h"
-#import "FIRAuthErrorUtils.h"
-#import "FIRAuthInternalErrors.h"
-#import "FIRAuthRPCRequest.h"
-#import "FIRAuthRPCResponse.h"
-#import "FIRAuthRequestConfiguration.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthInternalErrors.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthRPCRequest.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthRPCResponse.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthRequestConfiguration.h"
 #import "FIRFakeBackendRPCIssuer.h"
 
 /** @var kFakeRequestURL

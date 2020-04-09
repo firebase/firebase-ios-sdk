@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FIRAuthRPCRequest.h"
-#import "FIRIdentityToolkitRequest.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthRPCRequest.h"
+#import "FirebaseAuth/Sources/Backend/FIRIdentityToolkitRequest.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

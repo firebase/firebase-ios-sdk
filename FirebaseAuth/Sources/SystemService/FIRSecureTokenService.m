@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#import "FIRSecureTokenService.h"
+#import "FirebaseAuth/Sources/SystemService/FIRSecureTokenService.h"
 
-#import "FIRAuth.h"
-#import "FIRAuthBackend.h"
-#import "FIRAuthRequestConfiguration.h"
-#import "FIRAuthSerialTaskQueue.h"
-#import "FIRSecureTokenRequest.h"
-#import "FIRSecureTokenResponse.h"
+#import <FirebaseAuth/FIRAuth.h>
+#import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthRequestConfiguration.h"
+#import "FirebaseAuth/Sources/Auth/FIRAuthSerialTaskQueue.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRSecureTokenRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRSecureTokenResponse.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

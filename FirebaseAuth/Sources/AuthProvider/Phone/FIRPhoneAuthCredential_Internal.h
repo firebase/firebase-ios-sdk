@@ -19,7 +19,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRPhoneAuthCredential.h"
+#import <FirebaseAuth/FIRPhoneAuthCredential.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

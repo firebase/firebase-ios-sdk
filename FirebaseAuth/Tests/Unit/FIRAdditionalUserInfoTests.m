@@ -17,8 +17,8 @@
 #import <XCTest/XCTest.h>
 
 #import <OCMock/OCMock.h>
-#import "FIRAdditionalUserInfo_Internal.h"
-#import "FIRVerifyAssertionResponse.h"
+#import "FirebaseAuth/Sources/User/FIRAdditionalUserInfo_Internal.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionResponse.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -16,10 +16,10 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRAuthBackend.h"
-#import "FIRAuthErrorUtils.h"
-#import "FIRCreateAuthURIRequest.h"
-#import "FIRCreateAuthURIResponse.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRCreateAuthURIRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRCreateAuthURIResponse.h"
 #import "FIRFakeBackendRPCIssuer.h"
 
 /** @var kTestIdentifier

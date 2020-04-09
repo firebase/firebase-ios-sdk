@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRAuthErrors.h"
+#import <FirebaseAuth/FIRAuthErrors.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

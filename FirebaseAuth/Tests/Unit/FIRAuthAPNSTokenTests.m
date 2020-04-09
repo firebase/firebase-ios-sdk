@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRAuthAPNSToken.h"
+#import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSToken.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -17,41 +17,41 @@
 #include <TargetConditionals.h>
 #if TARGET_OS_IOS
 
-#import "FIRPhoneAuthProvider.h"
+#import <FirebaseAuth/FIRPhoneAuthProvider.h>
 
 #import <FirebaseCore/FIRApp.h>
 #import <FirebaseCore/FIRLogger.h>
 #import <FirebaseCore/FIROptions.h>
 
-#import "FIRAuthAPNSToken.h"
-#import "FIRAuthAPNSTokenManager.h"
-#import "FIRAuthAppCredential.h"
-#import "FIRAuthAppCredentialManager.h"
-#import "FIRAuthBackend+MultiFactor.h"
-#import "FIRAuthBackend.h"
-#import "FIRAuthErrorUtils.h"
-#import "FIRAuthGlobalWorkQueue.h"
-#import "FIRAuthNotificationManager.h"
-#import "FIRAuthProtoStartMFAPhoneRequestInfo.h"
-#import "FIRAuthSettings.h"
-#import "FIRAuthURLPresenter.h"
-#import "FIRAuthWebUtils.h"
-#import "FIRAuth_Internal.h"
-#import "FIRGetProjectConfigRequest.h"
-#import "FIRGetProjectConfigResponse.h"
-#import "FIRMultiFactorResolver.h"
-#import "FIRMultiFactorSession+Internal.h"
-#import "FIRSendVerificationCodeRequest.h"
-#import "FIRSendVerificationCodeResponse.h"
-#import "FIRStartMFAEnrollmentRequest.h"
-#import "FIRStartMFAEnrollmentResponse.h"
-#import "FIRVerifyClientRequest.h"
-#import "FIRVerifyClientResponse.h"
-#import "FirebaseAuthVersion.h"
+#import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSToken.h"
+#import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSTokenManager.h"
+#import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredential.h"
+#import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredentialManager.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthBackend+MultiFactor.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
+#import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
+#import "FirebaseAuth/Sources/SystemService/FIRAuthNotificationManager.h"
+#import "FirebaseAuth/Sources/Backend/RPC/Proto/Phone/FIRAuthProtoStartMFAPhoneRequestInfo.h"
+#import <FirebaseAuth/FIRAuthSettings.h>
+#import "FirebaseAuth/Sources/Utilities/FIRAuthURLPresenter.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthWebUtils.h"
+#import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRGetProjectConfigRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRGetProjectConfigResponse.h"
+#import <FirebaseAuth/FIRMultiFactorResolver.h>
+#import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactorSession+Internal.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRSendVerificationCodeRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRSendVerificationCodeResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/MultiFactor/Enroll/FIRStartMFAEnrollmentRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/MultiFactor/Enroll/FIRStartMFAEnrollmentResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyClientRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyClientResponse.h"
+#import <FirebaseAuth/FirebaseAuthVersion.h>
 
 #if TARGET_OS_IOS
-#import "FIRPhoneAuthCredential_Internal.h"
-#import "FIRPhoneMultiFactorInfo+Internal.h"
+#import "FirebaseAuth/Sources/AuthProvider/Phone/FIRPhoneAuthCredential_Internal.h"
+#import "FirebaseAuth/Sources/MultiFactor/Phone/FIRPhoneMultiFactorInfo+Internal.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN

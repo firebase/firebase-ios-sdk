@@ -22,8 +22,8 @@
 #import <FirebaseCore/FIRLibrary.h>
 
 #import "FIRApp+FIRAuthUnitTests.h"
-#import "FIRAuthRequestConfiguration.h"
-#import "FIRAuth_Internal.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthRequestConfiguration.h"
+#import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 
 /** @var kFirebaseAppName1
     @brief A fake Firebase app name.

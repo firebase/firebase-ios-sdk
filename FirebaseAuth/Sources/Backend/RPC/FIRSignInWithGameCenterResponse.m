@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRSignInWithGameCenterResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRSignInWithGameCenterResponse.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

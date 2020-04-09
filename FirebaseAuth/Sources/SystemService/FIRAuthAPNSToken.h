@@ -19,7 +19,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRAuthAPNSTokenType.h"
+#import <FirebaseAuth/FIRAuthAPNSTokenType.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

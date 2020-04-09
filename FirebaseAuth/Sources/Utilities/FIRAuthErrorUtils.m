@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FIRAuthErrorUtils.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
 
-#import "FIRAuthCredential.h"
-#import "FIRMultiFactorResolver+Internal.h"
+#import <FirebaseAuth/FIRAuthCredential.h>
+#import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactorResolver+Internal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRAuthGlobalWorkQueue.h"
+#import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

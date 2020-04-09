@@ -19,7 +19,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRAuthUIDelegate.h"
+#import <FirebaseAuth/FIRAuthUIDelegate.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

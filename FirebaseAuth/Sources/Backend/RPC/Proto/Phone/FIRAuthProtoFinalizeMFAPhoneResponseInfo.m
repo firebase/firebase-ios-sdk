@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRAuthProtoFinalizeMFAPhoneResponseInfo.h"
+#import "FirebaseAuth/Sources/Backend/RPC/Proto/Phone/FIRAuthProtoFinalizeMFAPhoneResponseInfo.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

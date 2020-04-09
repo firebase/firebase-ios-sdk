@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import "FIRAuthDataResult_Internal.h"
+#import "FirebaseAuth/Sources/Auth/FIRAuthDataResult_Internal.h"
 
-#import "FIRAdditionalUserInfo.h"
-#import "FIROAuthCredential.h"
-#import "FIRUser.h"
+#import <FirebaseAuth/FIRAdditionalUserInfo.h>
+#import <FirebaseAuth/FIROAuthCredential.h>
+#import <FirebaseAuth/FIRUser.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

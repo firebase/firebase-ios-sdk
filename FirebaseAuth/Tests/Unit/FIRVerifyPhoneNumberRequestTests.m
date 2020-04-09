@@ -16,11 +16,11 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRAuthBackend.h"
-#import "FIRAuthOperationType.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
+#import "FirebaseAuth/Sources/Auth/FIRAuthOperationType.h"
 #import "FIRFakeBackendRPCIssuer.h"
-#import "FIRVerifyPhoneNumberRequest.h"
-#import "FIRVerifyPhoneNumberResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberResponse.h"
 
 /** @var kTestAPIKey
     @brief Fake API key used for testing.

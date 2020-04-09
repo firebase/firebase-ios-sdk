@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRGetOOBConfirmationCodeResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRGetOOBConfirmationCodeResponse.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

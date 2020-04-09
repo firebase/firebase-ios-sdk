@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FIRAuthRequestConfiguration.h"
-#import "FIRAuthExceptionUtils.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthRequestConfiguration.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthExceptionUtils.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

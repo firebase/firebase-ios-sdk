@@ -22,7 +22,7 @@
 #import "AppManager.h"
 #import "AuthCredentials.h"
 #import "FacebookAuthProvider.h"
-#import "FirebaseAuth.h"
+#import <FirebaseAuth/FirebaseAuth.h>
 #import "GoogleAuthProvider.h"
 #import "MainViewController+App.h"
 #import "MainViewController+Auth.h"
@@ -224,7 +224,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
         [StaticContentTableViewCell cellWithTitle:kNewOrExistingUserToggleTitle
                                             value:_isNewUserToggleOn ? @"Enabled" : @"Disabled"
                                            action:^{
-                                             _isNewUserToggleOn = !_isNewUserToggleOn;
+          self->_isNewUserToggleOn = !self->_isNewUserToggleOn;
                                              [self updateTable]; }],
         [StaticContentTableViewCell cellWithTitle:kSwitchToInMemoryUserTitle
                                            action:^{ [weakSelf updateToSavedUser]; }],
@@ -393,7 +393,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
         }
         if (authResult.additionalUserInfo) {
           [self logSuccess:[self stringWithAdditionalUserInfo:authResult.additionalUserInfo]];
-          if (_isNewUserToggleOn) {
+          if (self->_isNewUserToggleOn) {
             NSString *newUserString = authResult.additionalUserInfo.isNewUser ?
                 @"New user" : @"Existing user";
             [self showMessagePromptWithTitle:@"New or Existing"
@@ -604,14 +604,14 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
     dateFormatter.dateFormat = @"yyyy-MM-dd HH:mm:ss";
     NSString *date = [dateFormatter stringFromDate:[NSDate date]];
-    if (!_consoleString) {
-      _consoleString = [NSMutableString string];
+    if (!self->_consoleString) {
+      self->_consoleString = [NSMutableString string];
     }
-    [_consoleString appendString:[NSString stringWithFormat:@"%@  %@\n", date, string]];
-    _consoleTextView.text = _consoleString;
+    [self->_consoleString appendString:[NSString stringWithFormat:@"%@  %@\n", date, string]];
+    self->_consoleTextView.text = self->_consoleString;
 
-    CGRect targetRect = CGRectMake(0, _consoleTextView.contentSize.height - 1, 1, 1);
-    [_consoleTextView scrollRectToVisible:targetRect animated:YES];
+    CGRect targetRect = CGRectMake(0, self->_consoleTextView.contentSize.height - 1, 1, 1);
+    [self->_consoleTextView scrollRectToVisible:targetRect animated:YES];
   });
 }
 

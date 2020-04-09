@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRAuthUserDefaults.h"
+#import "FirebaseAuth/Sources/Storage/FIRAuthUserDefaults.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

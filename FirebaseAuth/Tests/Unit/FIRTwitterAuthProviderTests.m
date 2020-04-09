@@ -16,9 +16,9 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRAuthCredential_Internal.h"
-#import "FIRTwitterAuthProvider.h"
-#import "FIRVerifyAssertionRequest.h"
+#import "FirebaseAuth/Sources/AuthProvider/FIRAuthCredential_Internal.h"
+#import <FirebaseAuth/FIRTwitterAuthProvider.h>
+#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionRequest.h"
 
 /** @var kTwitterToken
     @brief A testing Twitter token.

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRVerifyPasswordRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPasswordRequest.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

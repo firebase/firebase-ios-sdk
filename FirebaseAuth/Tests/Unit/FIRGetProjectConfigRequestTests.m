@@ -16,10 +16,10 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRAuthBackend.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
 #import "FIRFakeBackendRPCIssuer.h"
-#import "FIRGetProjectConfigRequest.h"
-#import "FIRGetProjectConfigResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRGetProjectConfigRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRGetProjectConfigResponse.h"
 
 /** @var kGetProjectConfigEndPoint
     @brief The "getProjectConfig" endpoint.

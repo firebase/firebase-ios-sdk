@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import "FIRTwitterAuthCredential.h"
+#import "FirebaseAuth/Sources/AuthProvider/Twitter/FIRTwitterAuthCredential.h"
 
-#import "FIRAuthExceptionUtils.h"
-#import "FIRTwitterAuthProvider.h"
-#import "FIRVerifyAssertionRequest.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthExceptionUtils.h"
+#import <FirebaseAuth/FIRTwitterAuthProvider.h>
+#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionRequest.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

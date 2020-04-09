@@ -17,11 +17,11 @@
 #include <TargetConditionals.h>
 #if !TARGET_OS_OSX
 
-#import "FIRAuthAppCredentialManager.h"
+#import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredentialManager.h"
 
-#import "FIRAuthAppCredential.h"
-#import "FIRAuthGlobalWorkQueue.h"
-#import "FIRAuthKeychainServices.h"
+#import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredential.h"
+#import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
+#import "FirebaseAuth/Sources/Storage/FIRAuthKeychainServices.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

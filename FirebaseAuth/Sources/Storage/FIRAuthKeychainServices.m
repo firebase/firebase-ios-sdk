@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#import "FIRAuthKeychainServices.h"
+#import "FirebaseAuth/Sources/Storage/FIRAuthKeychainServices.h"
 
 #import <Security/Security.h>
 
-#import "FIRAuthErrorUtils.h"
-#import "FIRAuthUserDefaults.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
+#import "FirebaseAuth/Sources/Storage/FIRAuthUserDefaults.h"
 
 /** @var kAccountPrefix
     @brief The prefix string for keychain item account attribute before the key.

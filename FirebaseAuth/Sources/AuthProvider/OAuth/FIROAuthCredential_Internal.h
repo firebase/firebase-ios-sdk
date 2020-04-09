@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIROAuthCredential.h"
+#import <FirebaseAuth/FIROAuthCredential.h>
 
 @class FIRVerifyAssertionResponse;
 

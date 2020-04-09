@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-#import "FIROAuthProvider.h"
+#import <FirebaseAuth/FIROAuthProvider.h>
 #include <CommonCrypto/CommonCrypto.h>
 
 #import <FirebaseCore/FIRApp.h>
 #import <FirebaseCore/FIROptions.h>
 
-#import "FIRAuthBackend.h"
-#import "FIRAuthErrorUtils.h"
-#import "FIRAuthGlobalWorkQueue.h"
-#import "FIRAuthRequestConfiguration.h"
-#import "FIRAuthWebUtils.h"
-#import "FIRAuth_Internal.h"
-#import "FIRFacebookAuthProvider.h"
-#import "FIROAuthCredential.h"
-#import "FIROAuthCredential_Internal.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
+#import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthRequestConfiguration.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthWebUtils.h"
+#import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
+#import <FirebaseAuth/FIRFacebookAuthProvider.h>
+#import <FirebaseAuth/FIROAuthCredential.h>
+#import "FirebaseAuth/Sources/AuthProvider/OAuth/FIROAuthCredential_Internal.h"
 
 #if TARGET_OS_IOS
-#import "FIRAuthURLPresenter.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthURLPresenter.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN

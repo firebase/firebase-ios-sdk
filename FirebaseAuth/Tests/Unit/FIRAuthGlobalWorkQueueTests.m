@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRAuthGlobalWorkQueue.h"
+#import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 
 /** @class FIRAuthGlobalWorkQueueTests
     @brief Tests for @c FIRAuthGlobalWorkQueue .

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIREmailLinkSignInResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIREmailLinkSignInResponse.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRGetProjectConfigResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRGetProjectConfigResponse.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

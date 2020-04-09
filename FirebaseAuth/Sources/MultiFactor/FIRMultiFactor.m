@@ -16,21 +16,21 @@
 #include <TargetConditionals.h>
 #if TARGET_OS_IOS
 
-#import "FIRMultiFactor+Internal.h"
-#import "FIRMultiFactor.h"
+#import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactor+Internal.h"
+#import <FirebaseAuth/FIRMultiFactor.h>
 
-#import "FIRAuthBackend+MultiFactor.h"
-#import "FIRAuthDataResult_Internal.h"
-#import "FIRAuth_Internal.h"
-#import "FIRMultiFactorInfo+Internal.h"
-#import "FIRMultiFactorSession+Internal.h"
-#import "FIRStartMFAEnrollmentRequest.h"
-#import "FIRUser_Internal.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthBackend+MultiFactor.h"
+#import "FirebaseAuth/Sources/Auth/FIRAuthDataResult_Internal.h"
+#import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
+#import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactorInfo+Internal.h"
+#import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactorSession+Internal.h"
+#import "FirebaseAuth/Sources/Backend/RPC/MultiFactor/Enroll/FIRStartMFAEnrollmentRequest.h"
+#import "FirebaseAuth/Sources/User/FIRUser_Internal.h"
 
 #if TARGET_OS_IOS
-#import "FIRPhoneAuthCredential_Internal.h"
-#import "FIRPhoneMultiFactorAssertion+Internal.h"
-#import "FIRPhoneMultiFactorAssertion.h"
+#import "FirebaseAuth/Sources/AuthProvider/Phone/FIRPhoneAuthCredential_Internal.h"
+#import "FirebaseAuth/Sources/MultiFactor/Phone/FIRPhoneMultiFactorAssertion+Internal.h"
+#import <FirebaseAuth/FIRPhoneMultiFactorAssertion.h>
 #endif
 
 NS_ASSUME_NONNULL_BEGIN

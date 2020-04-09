@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRUserInfo.h"
+#import <FirebaseAuth/FIRUserInfo.h>
 
 @class FIRGetAccountInfoResponseProviderUserInfo;
 

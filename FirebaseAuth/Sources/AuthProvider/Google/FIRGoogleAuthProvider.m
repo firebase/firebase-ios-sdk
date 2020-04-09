@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FIRGoogleAuthProvider.h"
+#import <FirebaseAuth/FIRGoogleAuthProvider.h>
 
-#import "FIRAuthExceptionUtils.h"
-#import "FIRGoogleAuthCredential.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthExceptionUtils.h"
+#import "FirebaseAuth/Sources/AuthProvider/Google/FIRGoogleAuthCredential.h"
 
 // FIRGoogleAuthProviderID is defined in FIRAuthProvider.m.
 

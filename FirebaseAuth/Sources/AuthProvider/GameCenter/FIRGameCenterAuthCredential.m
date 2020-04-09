@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#import "FIRGameCenterAuthCredential.h"
+#import "FirebaseAuth/Sources/AuthProvider/GameCenter/FIRGameCenterAuthCredential.h"
 
-#import "FIRAuthCredential_Internal.h"
-#import "FIRAuthExceptionUtils.h"
-#import "FIRGameCenterAuthProvider.h"
-#import "FIRVerifyAssertionRequest.h"
+#import "FirebaseAuth/Sources/AuthProvider/FIRAuthCredential_Internal.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthExceptionUtils.h"
+#import <FirebaseAuth/FIRGameCenterAuthProvider.h>
+#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionRequest.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

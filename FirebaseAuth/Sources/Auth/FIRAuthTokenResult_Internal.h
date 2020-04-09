@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRAuthTokenResult.h"
+#import <FirebaseAuth/FIRAuthTokenResult.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

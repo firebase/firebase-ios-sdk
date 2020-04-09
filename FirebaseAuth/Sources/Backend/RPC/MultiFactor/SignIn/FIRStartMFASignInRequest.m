@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRStartMFASignInRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/MultiFactor/SignIn/FIRStartMFASignInRequest.h"
 
 static NSString *const kStartMFASignInEndPoint = @"accounts/mfaSignIn:start";
 

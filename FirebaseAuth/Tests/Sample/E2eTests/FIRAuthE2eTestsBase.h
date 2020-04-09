@@ -18,7 +18,7 @@
 
 #import <EarlGrey/EarlGrey.h>
 
-#import "FirebaseAuth.h"
+#import <FirebaseAuth/FirebaseAuth.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

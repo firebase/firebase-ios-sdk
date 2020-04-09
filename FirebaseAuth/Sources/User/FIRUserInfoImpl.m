@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FIRUserInfoImpl.h"
+#import "FirebaseAuth/Sources/User/FIRUserInfoImpl.h"
 
-#import "FIRGetAccountInfoResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRGetAccountInfoResponse.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

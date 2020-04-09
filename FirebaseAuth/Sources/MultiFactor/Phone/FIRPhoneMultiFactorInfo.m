@@ -17,11 +17,11 @@
 #include <TargetConditionals.h>
 #if TARGET_OS_IOS
 
-#import "FIRPhoneMultiFactorInfo.h"
+#import <FirebaseAuth/FIRPhoneMultiFactorInfo.h>
 
-#import "FIRAuthProtoMFAEnrollment.h"
-#import "FIRMultiFactorInfo+Internal.h"
-#import "FIRMultiFactorInfo.h"
+#import "FirebaseAuth/Sources/Backend/RPC/Proto/FIRAuthProtoMFAEnrollment.h"
+#import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactorInfo+Internal.h"
+#import <FirebaseAuth/FIRMultiFactorInfo.h>
 
 extern NSString *const FIRPhoneMultiFactorID;
 
