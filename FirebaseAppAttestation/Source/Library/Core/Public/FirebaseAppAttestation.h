@@ -18,3 +18,4 @@
 #import "FIRAppAttestationProvider.h"
 #import "FIRAppAttestationProviderFactory.h"
 #import "FIRAppAttestationToken.h"
+#import "FIRAppAttestationVersion.h"

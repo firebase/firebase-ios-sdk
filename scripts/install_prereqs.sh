@@ -35,13 +35,6 @@ function install_secrets() {
 
     tar xvf scripts/travis-encrypted/Secrets.tar
 
-    cp Secrets/Auth/Sample/Application.plist Example/Auth/Sample/Application.plist
-    cp Secrets/Auth/Sample/AuthCredentials.h Example/Auth/Sample/AuthCredentials.h
-    cp Secrets/Auth/Sample/GoogleService-Info_multi.plist Example/Auth/Sample/GoogleService-Info_multi.plist
-    cp Secrets/Auth/Sample/GoogleService-Info.plist Example/Auth/Sample/GoogleService-Info.plist
-    cp Secrets/Auth/Sample/Sample.entitlements Example/Auth/Sample/Sample.entitlements
-    cp Secrets/Auth/ApiTests/AuthCredentials.h Example/Auth/ApiTests/AuthCredentials.h
-
     cp Secrets/Storage/App/GoogleService-Info.plist FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist
     cp Secrets/Storage/App/GoogleService-Info.plist Example/Database/App/GoogleService-Info.plist
 
@@ -120,7 +113,7 @@ case "$project-$platform-$method" in
   Auth-*)
     # Install the workspace for integration testing.
     install_xcpretty
-    bundle exec pod install --project-directory=Example/Auth/AuthSample --repo-update
+    bundle exec pod install --project-directory=FirebaseAuth/Tests/Sample --repo-update
     ;;
 
   Crashlytics-*)
@@ -141,7 +134,7 @@ case "$project-$platform-$method" in
     install_secrets
     ;;
 
-  InstanceID*)
+  InstanceID-*)
     install_secrets
     ;;
 
@@ -183,6 +176,11 @@ case "$project-$platform-$method" in
   SymbolCollision-*-*)
     install_xcpretty
     bundle exec pod install --project-directory=SymbolCollisionTest --repo-update
+    ;;
+
+  MessagingSample-*)
+    install_xcpretty
+    bundle exec pod install --project-directory=Example/Messaging/Sample --repo-update
     ;;
 
   *-pod-lib-lint)

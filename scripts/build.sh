@@ -33,6 +33,7 @@ product can be one of:
   Firebase
   Firestore
   InAppMessaging
+  MessagingSample
   Storage
   StorageSwift
   SymbolCollision
@@ -298,7 +299,7 @@ case "$product-$platform-$method" in
   Auth-*-xcodebuild)
     if check_secrets; then
       RunXcodebuild \
-        -workspace 'Example/Auth/AuthSample/AuthSample.xcworkspace' \
+        -workspace 'FirebaseAuth/Tests/Sample/AuthSample.xcworkspace' \
         -scheme "Auth_ApiTests" \
         "${xcb_flags[@]}" \
         build \
@@ -348,6 +349,14 @@ case "$product-$platform-$method" in
     RunXcodebuild \
         -workspace 'SymbolCollisionTest/SymbolCollisionTest.xcworkspace' \
         -scheme "SymbolCollisionTest" \
+        "${xcb_flags[@]}" \
+        build
+    ;;
+
+  MessagingSample-*-*)
+    RunXcodebuild \
+        -workspace 'Example/Messaging/Sample/Sample.xcworkspace' \
+        -scheme "Sample" \
         "${xcb_flags[@]}" \
         build
     ;;

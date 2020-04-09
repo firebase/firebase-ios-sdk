@@ -52,7 +52,8 @@ class NotificationsController: NSObject {
       UNUserNotificationCenter.current()
         .requestAuthorization(options: [.alert, .badge, .sound],
                               completionHandler: { granted, error in
-                                NotificationCenter.default.post(name: UserNotificationsChangedNotification, object: nil)
+                                NotificationCenter.default
+                                  .post(name: UserNotificationsChangedNotification, object: nil)
         })
     } else if #available(iOS 8.0, *) {
       let userNotificationSettings = UIUserNotificationSettings(types: [.alert, .badge, .sound],
@@ -131,7 +132,9 @@ extension NotificationsController: UNUserNotificationCenterDelegate {
     completionHandler([.alert, .badge, .sound])
   }
 
-  func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+  func userNotificationCenter(_ center: UNUserNotificationCenter,
+                              didReceive response: UNNotificationResponse,
+                              withCompletionHandler completionHandler: @escaping () -> Void) {
     print("Received notification response")
     let jsonString = response.notification.request.content.userInfo.jsonString ?? "{}"
     print("\(jsonString)")

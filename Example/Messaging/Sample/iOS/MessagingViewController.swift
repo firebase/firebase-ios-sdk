@@ -153,7 +153,8 @@ class MessagingViewController: UIViewController {
   }()
 
   lazy var apnsStatusTableCell: UITableViewCell = {
-    let cell = UITableViewCell(style: UITableViewCellStyle.value1, reuseIdentifier: Row.apnsStatus.rawValue)
+    let cell = UITableViewCell(style: UITableViewCellStyle.value1,
+                               reuseIdentifier: Row.apnsStatus.rawValue)
     cell.textLabel?.text = "Allowed:"
     cell.detailTextLabel?.numberOfLines = 0
     cell.detailTextLabel?.lineBreakMode = .byWordWrapping

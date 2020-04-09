@@ -249,7 +249,7 @@ extension CarthageUtils {
   }
 
   static func generatePlistContents(forName name: String) -> Data {
-    let plist: [String: String] = ["CFBundleIdentifier": "com.firebase.Firebase",
+    let plist: [String: String] = ["CFBundleIdentifier": "com.firebase.Firebase-\(name)",
                                    "CFBundleInfoDictionaryVersion": "6.0",
                                    "CFBundlePackageType": "FMWK",
                                    "CFBundleVersion": "1",
