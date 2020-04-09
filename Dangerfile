@@ -72,8 +72,8 @@ has_license_changes = didModify(["LICENSE"])
 ## Product directories
 @has_abtesting_changes = hasChangesIn("FirebaseABTesting/")
 @has_abtesting_api_changes = hasChangesIn("FirebaseABTesting/Sources/Public/")
-@has_auth_changes = hasChangesIn("Firebase/Auth")
-@has_auth_api_changes = hasChangesIn("Firebase/Auth/Source/Public/")
+@has_auth_changes = hasChangesIn("FirebaseAuth")
+@has_auth_api_changes = hasChangesIn("FirebaseAuth/Sources/Public/")
 @has_core_changes = hasChangesIn([
   "FirebaseCore/",
   "Firebase/CoreDiagnostics/",

@@ -87,7 +87,9 @@ struct ModuleMapBuilder {
     var installedPods: [String: FrameworkInfo] = [:]
     for pod in selectedPods {
       let versionedPod = CocoaPodUtils.VersionedPod(name: pod.key, version: pod.value.version)
-      installedPods[pod.key] = FrameworkInfo(isSourcePod: pod.value.isSourcePod, versionedPod: versionedPod, subspecs: pod.value.subspecs)
+      installedPods[pod.key] = FrameworkInfo(isSourcePod: pod.value.isSourcePod,
+                                             versionedPod: versionedPod,
+                                             subspecs: pod.value.subspecs)
     }
     self.installedPods = installedPods
   }
@@ -120,7 +122,8 @@ struct ModuleMapBuilder {
     let xcconfigFile = projectDir.appendingPathComponents(["Pods", "Target Support Files",
                                                            "Pods-FrameworkMaker",
                                                            "Pods-FrameworkMaker.release.xcconfig"])
-    allPods[podName]?.moduleMapContents = makeModuleMap(forFramework: framework, withXcconfigFile: xcconfigFile)
+    allPods[podName]?
+      .moduleMapContents = makeModuleMap(forFramework: framework, withXcconfigFile: xcconfigFile)
   }
 
   /// Convert a list of versioned pods to a list of versioned pods specified with all needed subspecs.
