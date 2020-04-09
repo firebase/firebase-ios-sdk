@@ -21,7 +21,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /// The class provides a convenient abstraction on top of the iOS Keychain API to save data.
-@interface FIRSecureStorage : NSObject
+@interface GULKeychainStorage : NSObject
 
 /**
  * Get an object by key.

@@ -16,18 +16,18 @@
 
 #if TARGET_OS_OSX
 
-#import "FIRTestKeychain.h"
+#import "GULTestKeychain.h"
 
 #import <XCTest/XCTest.h>
 
-@implementation FIRTestKeychain
+@implementation GULTestKeychain
 
 - (nullable instancetype)init {
   self = [super init];
   if (self) {
     SecKeychainRef privateKeychain;
     NSString *keychainPath =
-        [NSTemporaryDirectory() stringByAppendingPathComponent:@"FIRTestKeychain"];
+        [NSTemporaryDirectory() stringByAppendingPathComponent:@"GULTestKeychain"];
     if ([[NSFileManager defaultManager] fileExistsAtPath:keychainPath]) {
       NSError *error;
       if (![[NSFileManager defaultManager] removeItemAtPath:keychainPath error:&error]) {

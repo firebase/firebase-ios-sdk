@@ -18,36 +18,36 @@
 
 #import <OCMock/OCMock.h>
 #import "FBLPromise+Testing.h"
-#import "FIRTestKeychain.h"
+#import "GULTestKeychain.h"
 
-#import "FIRSecureStorage.h"
+#import "GULKeychainStorage.h"
 
-@interface FIRSecureStorage (Tests)
+@interface GULKeychainStorage (Tests)
 - (instancetype)initWithService:(NSString *)service cache:(NSCache *)cache;
 - (void)resetInMemoryCache;
 @end
 
-@interface FIRSecureStorageTests : XCTestCase
-@property(nonatomic, strong) FIRSecureStorage *storage;
+@interface GULKeychainStorageTests : XCTestCase
+@property(nonatomic, strong) GULKeychainStorage *storage;
 @property(nonatomic, strong) NSCache *cache;
 @property(nonatomic, strong) id mockCache;
 
 #if TARGET_OS_OSX
-@property(nonatomic) FIRTestKeychain *privateKeychain;
+@property(nonatomic) GULTestKeychain *privateKeychain;
 #endif  // TARGET_OSX
 
 @end
 
-@implementation FIRSecureStorageTests
+@implementation GULKeychainStorageTests
 
 - (void)setUp {
   self.cache = [[NSCache alloc] init];
   self.mockCache = OCMPartialMock(self.cache);
-  self.storage = [[FIRSecureStorage alloc] initWithService:@"com.tests.FIRSecureStorageTests"
-                                                     cache:self.mockCache];
+  self.storage = [[GULKeychainStorage alloc] initWithService:@"com.tests.GULKeychainStorageTests"
+                                                       cache:self.mockCache];
 
 #if TARGET_OS_OSX
-  self.privateKeychain = [[FIRTestKeychain alloc] init];
+  self.privateKeychain = [[GULTestKeychain alloc] init];
   self.storage.keychainRef = self.privateKeychain.testKeychainRef;
 #endif  // TARGET_OSX
 }

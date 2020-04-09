@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRSecureStorage.h"
+#import "GULKeychainStorage.h"
 #import <Security/Security.h>
 
 #if __has_include(<FBLPromises/FBLPromises.h>)
@@ -23,32 +23,33 @@
 #import "FBLPromises.h"
 #endif
 
-#import "FIRInstallationsErrorUtil.h"
-#import "FIRInstallationsKeychainUtils.h"
+#import <GoogleUtilities/GULSecureCoding.h>
 
-@interface FIRSecureStorage ()
+#import "GULKeychainUtils.h"
+
+@interface GULKeychainStorage ()
 @property(nonatomic, readonly) dispatch_queue_t keychainQueue;
 @property(nonatomic, readonly) dispatch_queue_t inMemoryCacheQueue;
 @property(nonatomic, readonly) NSString *service;
 @property(nonatomic, readonly) NSCache<NSString *, id<NSSecureCoding>> *inMemoryCache;
 @end
 
-@implementation FIRSecureStorage
+@implementation GULKeychainStorage
 
 - (instancetype)init {
   NSCache *cache = [[NSCache alloc] init];
   // Cache up to 5 installations.
   cache.countLimit = 5;
-  return [self initWithService:@"com.firebase.FIRInstallations.installations" cache:cache];
+  return [self initWithService:@"com.gul.KeychainStorage" cache:cache];
 }
 
 - (instancetype)initWithService:(NSString *)service cache:(NSCache *)cache {
   self = [super init];
   if (self) {
-    _keychainQueue = dispatch_queue_create(
-        "com.firebase.FIRInstallations.FIRSecureStorage.Keychain", DISPATCH_QUEUE_SERIAL);
-    _inMemoryCacheQueue = dispatch_queue_create(
-        "com.firebase.FIRInstallations.FIRSecureStorage.InMemoryCache", DISPATCH_QUEUE_SERIAL);
+    _keychainQueue =
+        dispatch_queue_create("com.gul.KeychainStorage.Keychain", DISPATCH_QUEUE_SERIAL);
+    _inMemoryCacheQueue =
+        dispatch_queue_create("com.gul.KeychainStorage.InMemoryCache", DISPATCH_QUEUE_SERIAL);
     _service = [service copy];
     _inMemoryCache = cache;
   }
@@ -91,12 +92,12 @@
         // Then store the object to the keychain.
         NSDictionary *query = [self keychainQueryWithKey:key accessGroup:accessGroup];
         NSError *error;
-        NSData *encodedObject = [self archiveDataForObject:object error:&error];
+        NSData *encodedObject = [GULSecureCoding archivedDataWithRootObject:object error:&error];
         if (!encodedObject) {
           return error;
         }
 
-        if (![FIRInstallationsKeychainUtils setItem:encodedObject withQuery:query error:&error]) {
+        if (![GULKeychainUtils setItem:encodedObject withQuery:query error:&error]) {
           return error;
         }
 
@@ -115,7 +116,7 @@
         NSDictionary *query = [self keychainQueryWithKey:key accessGroup:accessGroup];
 
         NSError *error;
-        if (![FIRInstallationsKeychainUtils removeItemWithQuery:query error:&error]) {
+        if (![GULKeychainUtils removeItemWithQuery:query error:&error]) {
           return error;
         }
 
@@ -129,29 +130,28 @@
                                                     objectClass:(Class)objectClass
                                                     accessGroup:(nullable NSString *)accessGroup {
   // Look for the object in the keychain.
-  return [FBLPromise onQueue:self.keychainQueue
-                          do:^id {
-                            NSDictionary *query = [self keychainQueryWithKey:key
-                                                                 accessGroup:accessGroup];
-                            NSError *error;
-                            NSData *encodedObject =
-                                [FIRInstallationsKeychainUtils getItemWithQuery:query error:&error];
+  return [FBLPromise
+             onQueue:self.keychainQueue
+                  do:^id {
+                    NSDictionary *query = [self keychainQueryWithKey:key accessGroup:accessGroup];
+                    NSError *error;
+                    NSData *encodedObject = [GULKeychainUtils getItemWithQuery:query error:&error];
 
-                            if (error) {
-                              return error;
-                            }
-                            if (!encodedObject) {
-                              return nil;
-                            }
-                            id object = [self unarchivedObjectOfClass:objectClass
-                                                             fromData:encodedObject
-                                                                error:&error];
-                            if (error) {
-                              return error;
-                            }
+                    if (error) {
+                      return error;
+                    }
+                    if (!encodedObject) {
+                      return nil;
+                    }
+                    id object = [GULSecureCoding unarchivedObjectOfClass:objectClass
+                                                                fromData:encodedObject
+                                                                   error:&error];
+                    if (error) {
+                      return error;
+                    }
 
-                            return object;
-                          }]
+                    return object;
+                  }]
       .thenOn(self.inMemoryCacheQueue,
               ^id<NSSecureCoding> _Nullable(id<NSSecureCoding> _Nullable object) {
                 // Save object to the in-memory cache if exists and return the object.
@@ -188,68 +188,6 @@
 #endif  // TARGET_OSX
 
   return query;
-}
-
-- (nullable NSData *)archiveDataForObject:(id<NSSecureCoding>)object error:(NSError **)outError {
-  NSData *archiveData;
-  if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-    NSError *error;
-    archiveData = [NSKeyedArchiver archivedDataWithRootObject:object
-                                        requiringSecureCoding:YES
-                                                        error:&error];
-    if (error && outError) {
-      *outError = [FIRInstallationsErrorUtil keyedArchiverErrorWithError:error];
-    }
-  } else {
-    @try {
-      NSMutableData *data = [NSMutableData data];
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-      NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData:data];
-#pragma clang diagnostic pop
-      archiver.requiresSecureCoding = YES;
-
-      [archiver encodeObject:object forKey:NSKeyedArchiveRootObjectKey];
-      [archiver finishEncoding];
-
-      archiveData = [data copy];
-    } @catch (NSException *exception) {
-      if (outError) {
-        *outError = [FIRInstallationsErrorUtil keyedArchiverErrorWithException:exception];
-      }
-    }
-  }
-
-  return archiveData;
-}
-
-- (nullable id)unarchivedObjectOfClass:(Class)class
-                              fromData:(NSData *)data
-                                 error:(NSError **)outError {
-  id object;
-  if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-    NSError *error;
-    object = [NSKeyedUnarchiver unarchivedObjectOfClass:class fromData:data error:&error];
-    if (error && outError) {
-      *outError = [FIRInstallationsErrorUtil keyedArchiverErrorWithError:error];
-    }
-  } else {
-    @try {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-      NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
-#pragma clang diagnostic pop
-      unarchiver.requiresSecureCoding = YES;
-
-      object = [unarchiver decodeObjectOfClass:class forKey:NSKeyedArchiveRootObjectKey];
-    } @catch (NSException *exception) {
-      if (outError) {
-        *outError = [FIRInstallationsErrorUtil keyedArchiverErrorWithException:exception];
-      }
-    }
-  }
-
-  return object;
 }
 
 @end
