@@ -36,11 +36,11 @@
 
 @implementation GULKeychainStorage
 
-- (instancetype)init {
+- (instancetype)initWithService:(NSString *)service {
   NSCache *cache = [[NSCache alloc] init];
   // Cache up to 5 installations.
   cache.countLimit = 5;
-  return [self initWithService:@"com.gul.KeychainStorage" cache:cache];
+  return [self initWithService:service cache:cache];
 }
 
 - (instancetype)initWithService:(NSString *)service cache:(NSCache *)cache {

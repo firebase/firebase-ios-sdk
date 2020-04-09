@@ -23,6 +23,14 @@ NS_ASSUME_NONNULL_BEGIN
 /// The class provides a convenient abstraction on top of the iOS Keychain API to save data.
 @interface GULKeychainStorage : NSObject
 
+- (instancetype)init NS_UNAVAILABLE;
+
+/** Initializes the keychain storage with Keychain Service name.
+ *  @param service A Keychain Service name that will be used to store and retrieve objects. See also
+ * `kSecAttrService`.
+ */
+- (instancetype)initWithService:(NSString *)service;
+
 /**
  * Get an object by key.
  * @param key The key.

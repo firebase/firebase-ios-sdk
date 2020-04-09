@@ -72,7 +72,8 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
                           projectID:(NSString *)projectID
                         GCMSenderID:(NSString *)GCMSenderID
                         accessGroup:(NSString *)accessGroup {
-  GULKeychainStorage *secureStorage = [[GULKeychainStorage alloc] init];
+  GULKeychainStorage *secureStorage =
+      [[GULKeychainStorage alloc] initWithService:@"com.firebase.FIRInstallations.installations"];
   FIRInstallationsStore *installationsStore =
       [[FIRInstallationsStore alloc] initWithSecureStorage:secureStorage accessGroup:accessGroup];
 
