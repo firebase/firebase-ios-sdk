@@ -26,12 +26,12 @@ supports email and password accounts, as well as several 3rd party authenticatio
   s.static_framework = true
   s.prefix_header_file = false
 
-  source = 'Firebase/Auth/Source/'
+  source = 'FirebaseAuth/Sources/'
   s.source_files = source + '**/*.[mh]'
   s.public_header_files = source + 'Public/*.h'
   s.preserve_paths = [
-    'Firebase/Auth/README.md',
-    'Firebase/Auth/CHANGELOG.md'
+    'FirebaseAuth/README.md',
+    'FirebaseAuth/CHANGELOG.md'
   ]
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
@@ -49,38 +49,38 @@ supports email and password accounts, as well as several 3rd party authenticatio
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
-    unit_tests.source_files = 'Example/Auth/Tests/*.[mh]'
+    unit_tests.source_files = 'FirebaseAuth/Tests/Unit/*.[mh]'
     unit_tests.osx.exclude_files = [
-      'Example/Auth/Tests/FIRAuthAPNSTokenManagerTests.m',
-      'Example/Auth/Tests/FIRAuthAPNSTokenTests.m',
-      'Example/Auth/Tests/FIRAuthAppCredentialManagerTests.m',
-      'Example/Auth/Tests/FIRAuthNotificationManagerTests.m',
-      'Example/Auth/Tests/FIRAuthURLPresenterTests.m',
-      'Example/Auth/Tests/FIREmailLink*',
-      'Example/Auth/Tests/FIRPhoneAuthProviderTests.m',
-      'Example/Auth/Tests/FIRSendVerificationCode*',
-      'Example/Auth/Tests/FIRSignInWithGameCenterTests.m',
-      'Example/Auth/Tests/FIRVerifyClient*',
-      'Example/Auth/Tests/FIRVerifyPhoneNumber*',
-      'Example/Auth/Tests/FIROAuthProviderTests.m',
+      'FirebaseAuth/Tests/Unit/FIRAuthAPNSTokenManagerTests.m',
+      'FirebaseAuth/Tests/Unit/FIRAuthAPNSTokenTests.m',
+      'FirebaseAuth/Tests/Unit/FIRAuthAppCredentialManagerTests.m',
+      'FirebaseAuth/Tests/Unit/FIRAuthNotificationManagerTests.m',
+      'FirebaseAuth/Tests/Unit/FIRAuthURLPresenterTests.m',
+      'FirebaseAuth/Tests/Unit/FIREmailLink*',
+      'FirebaseAuth/Tests/Unit/FIRPhoneAuthProviderTests.m',
+      'FirebaseAuth/Tests/Unit/FIRSendVerificationCode*',
+      'FirebaseAuth/Tests/Unit/FIRSignInWithGameCenterTests.m',
+      'FirebaseAuth/Tests/Unit/FIRVerifyClient*',
+      'FirebaseAuth/Tests/Unit/FIRVerifyPhoneNumber*',
+      'FirebaseAuth/Tests/Unit/FIROAuthProviderTests.m',
     ]
     unit_tests.tvos.exclude_files = [
-      'Example/Auth/Tests/FIRAuthAPNSTokenManagerTests.m',
-      'Example/Auth/Tests/FIRAuthNotificationManagerTests.m',
-      'Example/Auth/Tests/FIRAuthURLPresenterTests.m',
-      'Example/Auth/Tests/FIREmailLink*',
-      'Example/Auth/Tests/FIRPhoneAuthProviderTests.m',
-      'Example/Auth/Tests/FIRSendVerificationCode*',
-      'Example/Auth/Tests/FIRSignInWithGameCenterTests.m',
-      'Example/Auth/Tests/FIRVerifyClient*',
-      'Example/Auth/Tests/FIRVerifyPhoneNumber*',
-      'Example/Auth/Tests/FIROAuthProviderTests.m',
+      'FirebaseAuth/Tests/Unit/FIRAuthAPNSTokenManagerTests.m',
+      'FirebaseAuth/Tests/Unit/FIRAuthNotificationManagerTests.m',
+      'FirebaseAuth/Tests/Unit/FIRAuthURLPresenterTests.m',
+      'FirebaseAuth/Tests/Unit/FIREmailLink*',
+      'FirebaseAuth/Tests/Unit/FIRPhoneAuthProviderTests.m',
+      'FirebaseAuth/Tests/Unit/FIRSendVerificationCode*',
+      'FirebaseAuth/Tests/Unit/FIRSignInWithGameCenterTests.m',
+      'FirebaseAuth/Tests/Unit/FIRVerifyClient*',
+      'FirebaseAuth/Tests/Unit/FIRVerifyPhoneNumber*',
+      'FirebaseAuth/Tests/Unit/FIROAuthProviderTests.m',
     ]
     # app_host is needed for tests with keychain
     unit_tests.requires_app_host = true
     unit_tests.pod_target_xcconfig = {
-      # Unit tests do library imports using Firebase/Auth/Source recursive relative paths.
-      'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"/Firebase/Auth/Source/**',
+      # Unit tests do library imports using FirebaseAuth/Sources recursive relative paths.
+      'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"/FirebaseAuth/Sources/**',
     }
     unit_tests.dependency 'OCMock'
   end
