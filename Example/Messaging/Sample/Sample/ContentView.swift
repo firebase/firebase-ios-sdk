@@ -164,11 +164,8 @@ struct ContentView_Previews: PreviewProvider {
     Group {
       ContentView().environmentObject(Identity())
 
-      ContentView()
-        .environmentObject(filledIdentity)
-//        .environment(\.sizeCategory, .accessibilityLarge)
+      ContentView().environmentObject(filledIdentity)
     }
-
   }
 }
 
