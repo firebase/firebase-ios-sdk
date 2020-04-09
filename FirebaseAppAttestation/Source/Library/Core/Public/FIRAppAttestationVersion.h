@@ -14,17 +14,6 @@
  * limitations under the License.
  */
 
-#import "FIRAppAttestationToken.h"
+#import <Foundation/Foundation.h>
 
-@implementation FIRAppAttestationToken
-
-- (instancetype)initWithToken:(NSString *)token expirationDate:(NSDate *)expirationDate {
-  self = [super init];
-  if (self) {
-    _token = [token copy];
-    _expirationDate = expirationDate;
-  }
-  return self;
-}
-
-@end
+FOUNDATION_EXPORT const char *const FIRAppAttestationVersionStr;
