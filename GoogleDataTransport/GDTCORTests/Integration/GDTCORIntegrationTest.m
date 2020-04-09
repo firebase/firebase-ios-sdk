@@ -27,8 +27,8 @@
 #import "GDTCORTests/Integration/Helpers/GDTCORIntegrationTestUploader.h"
 #import "GDTCORTests/Integration/TestServer/GDTCORTestServer.h"
 
+#import "GDTCORLibrary/Private/GDTCORFlatFileStorage.h"
 #import "GDTCORLibrary/Private/GDTCORReachability_Private.h"
-#import "GDTCORLibrary/Private/GDTCORStorage_Private.h"
 #import "GDTCORLibrary/Private/GDTCORTransformer_Private.h"
 
 /** A test-only event data object used in this integration test. */
@@ -81,14 +81,18 @@
 @implementation GDTCORIntegrationTest
 
 - (void)tearDown {
-  dispatch_sync([GDTCORStorage sharedInstance].storageQueue, ^{
-    XCTAssertEqual([GDTCORStorage sharedInstance].storedEvents.count, 0);
+  dispatch_sync([GDTCORFlatFileStorage sharedInstance].storageQueue, ^{
+    XCTAssertEqual([GDTCORFlatFileStorage sharedInstance].storedEvents.count, 0);
   });
 }
 
 - (void)testEndToEndEvent {
   XCTestExpectation *expectation = [self expectationWithDescription:@"server got the request"];
   expectation.assertForOverFulfill = NO;
+
+  // Register storage to handle the test target.
+  [[GDTCORRegistrar sharedInstance] registerStorage:[GDTCORFlatFileStorage sharedInstance]
+                                             target:kGDTCORTargetTest];
 
   // Manually set the reachability flag.
   [GDTCORReachability sharedInstance].flags = kSCNetworkReachabilityFlagsReachable;
@@ -102,15 +106,15 @@
   [testServer registerTestPaths];
   [testServer start];
 
-  // Create events.
+  // Create transporters.
   self.transport1 = [[GDTCORTransport alloc] initWithMappingID:@"eventMap1"
                                                   transformers:nil
-                                                        target:kGDTCORIntegrationTestTarget];
+                                                        target:kGDTCORTargetTest];
 
   self.transport2 = [[GDTCORTransport alloc]
       initWithMappingID:@"eventMap2"
            transformers:@[ [[GDTCORIntegrationTestTransformer alloc] init] ]
-                 target:kGDTCORIntegrationTestTarget];
+                 target:kGDTCORTargetTest];
 
   // Create a prioritizer and uploader.
   self.prioritizer = [[GDTCORIntegrationTestPrioritizer alloc] init];
@@ -121,8 +125,8 @@
   [GDTCORUploadCoordinator sharedInstance].timerLeeway = NSEC_PER_SEC * 0.01;
 
   // Confirm no events are in disk.
-  XCTAssertEqual([GDTCORStorage sharedInstance].storedEvents.count, 0);
-  XCTAssertEqual([GDTCORStorage sharedInstance].targetToEventSet.count, 0);
+  XCTAssertEqual([GDTCORFlatFileStorage sharedInstance].storedEvents.count, 0);
+  XCTAssertEqual([GDTCORFlatFileStorage sharedInstance].targetToEventSet.count, 0);
 
   // Generate some events data.
   [self generateEvents];
@@ -132,9 +136,9 @@
                 });
 
   // Confirm events are on disk.
-  dispatch_sync([GDTCORStorage sharedInstance].storageQueue, ^{
-    XCTAssertGreaterThan([GDTCORStorage sharedInstance].storedEvents.count, 0);
-    XCTAssertGreaterThan([GDTCORStorage sharedInstance].targetToEventSet.count, 0);
+  dispatch_sync([GDTCORFlatFileStorage sharedInstance].storageQueue, ^{
+    XCTAssertGreaterThan([GDTCORFlatFileStorage sharedInstance].storedEvents.count, 0);
+    XCTAssertGreaterThan([GDTCORFlatFileStorage sharedInstance].targetToEventSet.count, 0);
   });
 
   // Confirm events were sent and received.

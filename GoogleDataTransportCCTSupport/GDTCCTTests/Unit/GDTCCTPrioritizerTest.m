@@ -20,6 +20,7 @@
 
 #import "GDTCCTLibrary/Private/GDTCCTNanopbHelpers.h"
 #import "GDTCCTLibrary/Private/GDTCCTPrioritizer.h"
+#import "GDTCCTLibrary/Private/GDTCOREvent+NetworkConnectionInfo.h"
 
 @interface GDTCCTPrioritizerTest : XCTestCase
 
@@ -172,10 +173,10 @@
 - (void)testNetworkConnectionInfo {
   GDTCCTPrioritizer *prioritizer = [[GDTCCTPrioritizer alloc] init];
   GDTCOREvent *event = [_CCTGenerator generateEvent:GDTCOREventQosDefault];
-  event.customPrioritizationParams = @{GDTCCTNeedsNetworkConnectionInfo : @YES};
+  event.needsNetworkConnectionInfoPopulated = YES;
   [prioritizer prioritizeEvent:event];
-  XCTAssertNotNil(event.customPrioritizationParams[GDTCCTNetworkConnectionInfo]);
-  NSData *networkConnectionInfoData = event.customPrioritizationParams[GDTCCTNetworkConnectionInfo];
+  NSData *networkConnectionInfoData = event.networkConnectionInfoData;
+  XCTAssertNotNil(networkConnectionInfoData);
   gdt_cct_NetworkConnectionInfo info;
   [networkConnectionInfoData getBytes:&info length:networkConnectionInfoData.length];
   XCTAssertNotEqual(info.network_type, gdt_cct_NetworkConnectionInfo_NetworkType_NONE);
@@ -185,7 +186,7 @@
 - (void)testEncodingAndDecoding {
   GDTCCTPrioritizer *prioritizer = [GDTCCTPrioritizer sharedInstance];
   GDTCOREvent *event = [_CCTGenerator generateEvent:GDTCOREventQosDefault];
-  event.customPrioritizationParams = @{GDTCCTNeedsNetworkConnectionInfo : @YES};
+  event.needsNetworkConnectionInfoPopulated = YES;
   [prioritizer prioritizeEvent:event];
   NSError *error;
   dispatch_sync(prioritizer.queue, ^{

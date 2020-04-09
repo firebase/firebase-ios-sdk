@@ -18,10 +18,14 @@
 
 @implementation GDTCORStorageFake
 
-- (void)storeEvent:(GDTCOREvent *)event {
+- (void)storeEvent:(GDTCOREvent *)event
+        onComplete:(void (^_Nullable)(BOOL wasWritten, NSError *_Nullable))completion {
+  if (completion) {
+    completion(YES, nil);
+  }
 }
 
-- (void)removeEvents:(NSSet<GDTCOREvent *> *)events {
+- (void)removeEvents:(NSSet<NSNumber *> *)eventIDs {
 }
 
 @end

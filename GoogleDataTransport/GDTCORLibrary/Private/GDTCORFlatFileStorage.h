@@ -14,13 +14,19 @@
  * limitations under the License.
  */
 
-#import "GDTCORLibrary/Private/GDTCORStorage.h"
+#import <Foundation/Foundation.h>
 
+#import <GoogleDataTransport/GDTCORLifecycle.h>
+#import <GoogleDataTransport/GDTCORStorageProtocol.h>
+
+@class GDTCOREvent;
 @class GDTCORUploadCoordinator;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface GDTCORStorage ()
+/** Manages the storage of events. This class is thread-safe. */
+@interface GDTCORFlatFileStorage
+    : NSObject <NSSecureCoding, GDTCORStorageProtocol, GDTCORLifecycleProtocol>
 
 /** The queue on which all storage work will occur. */
 @property(nonatomic) dispatch_queue_t storageQueue;
@@ -30,10 +36,16 @@ NS_ASSUME_NONNULL_BEGIN
     NSMutableDictionary<NSNumber *, NSMutableSet<GDTCOREvent *> *> *targetToEventSet;
 
 /** All the events that have been stored. */
-@property(readonly, nonatomic) NSMutableOrderedSet<GDTCOREvent *> *storedEvents;
+@property(readonly, nonatomic) NSMutableDictionary<NSNumber *, GDTCOREvent *> *storedEvents;
 
 /** The upload coordinator instance used by this storage instance. */
 @property(nonatomic) GDTCORUploadCoordinator *uploadCoordinator;
+
+/** Creates and/or returns the storage singleton.
+ *
+ * @return The storage singleton.
+ */
++ (instancetype)sharedInstance;
 
 /** Returns the path to the keyed archive of the singleton. This is where the singleton is saved
  * to disk during certain app lifecycle events.
