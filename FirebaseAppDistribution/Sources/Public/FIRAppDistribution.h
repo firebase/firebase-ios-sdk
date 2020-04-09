@@ -17,9 +17,6 @@
 #import <UIKit/UIKit.h>
 #import "FIRAppDistributionRelease.h"
 
-#define STR(x) STR_EXPAND(x)
-#define STR_EXPAND(x) #x
-
 NS_ASSUME_NONNULL_BEGIN
 
 /**
