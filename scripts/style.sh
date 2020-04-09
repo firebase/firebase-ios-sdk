@@ -156,7 +156,7 @@ s%^./%%
 \%^/?vendor/bundle/% d
 
 # Auth Sample is not subject to formatting
-\%^(Example/Auth/Sample)/% d
+\%^(FirebaseAuth/Tests/Sample)/% d
 
 # Keep Firebase.h indenting
 \%^CoreOnly/Sources/Firebase.h% d

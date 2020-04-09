@@ -1,9 +1,9 @@
-Example/Auth/Sample/Application.plist
-Example/Auth/Sample/AuthCredentials.h
-Example/Auth/Sample/GoogleService-Info_multi.plist
-Example/Auth/Sample/GoogleService-Info.plist
-Example/Auth/Sample/Sample.entitlements
-Example/Auth/ApiTests/AuthCredentials.h
+FirebaseAuth/Tests/Sample/Sample/Application.plist
+FirebaseAuth/Tests/Sample/Sample/AuthCredentials.h
+FirebaseAuth/Tests/Sample/Sample/GoogleService-Info_multi.plist
+FirebaseAuth/Tests/Sample/Sample/GoogleService-Info.plist
+FirebaseAuth/Tests/Sample/Sample/Sample.entitlements
+FirebaseAuth/Tests/Sample/ApiTests/AuthCredentials.h
 
 Example/Database/App/GoogleService-Info.plist
 
