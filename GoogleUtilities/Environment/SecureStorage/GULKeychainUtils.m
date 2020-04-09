@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import "FIRInstallationsKeychainUtils.h"
+#import "GULKeychainUtils.h"
 
-#import "FIRInstallationsErrorUtil.h"
+NSString *const kGULKeychainUtilsErrorDomain = @"com.gul.keychain.ErrorDomain";
 
-@implementation FIRInstallationsKeychainUtils
+@implementation GULKeychainUtils
 
 + (nullable NSData *)getItemWithQuery:(NSDictionary *)query
                                 error:(NSError *_Nullable *_Nullable)outError {
@@ -45,8 +45,7 @@
     }
   } else {
     if (outError) {
-      *outError = [FIRInstallationsErrorUtil keychainErrorWithFunction:@"SecItemCopyMatching"
-                                                                status:status];
+      *outError = [self keychainErrorWithFunction:@"SecItemCopyMatching" status:status];
     }
   }
   return nil;
@@ -82,7 +81,7 @@
 
   NSString *function = existingItem ? @"SecItemUpdate" : @"SecItemAdd";
   if (outError) {
-    *outError = [FIRInstallationsErrorUtil keychainErrorWithFunction:function status:status];
+    *outError = [self keychainErrorWithFunction:function status:status];
   }
   return NO;
 }
@@ -98,10 +97,17 @@
   }
 
   if (outError) {
-    *outError = [FIRInstallationsErrorUtil keychainErrorWithFunction:@"SecItemDelete"
-                                                              status:status];
+    *outError = [self keychainErrorWithFunction:@"SecItemDelete" status:status];
   }
   return NO;
+}
+
+#pragma mark - Errors
+
++ (NSError *)keychainErrorWithFunction:(NSString *)keychainFunction status:(OSStatus)status {
+  NSString *failureReason = [NSString stringWithFormat:@"%@ (%li)", keychainFunction, (long)status];
+  NSDictionary *userInfo = @{NSLocalizedFailureReasonErrorKey : failureReason};
+  return [NSError errorWithDomain:kGULKeychainUtilsErrorDomain code:0 userInfo:userInfo];
 }
 
 @end
