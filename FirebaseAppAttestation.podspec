@@ -62,7 +62,7 @@ Pod::Spec.new do |s|
                               base_dir + 'Tests/Utils/**/*.[mh]'
     # unit_tests.resources = base_dir + 'Tests/Fixture/**/*'
     unit_tests.requires_app_host = true
-    # unit_tests.dependency 'OCMock'
+    unit_tests.dependency 'OCMock'
   end
 
   s.test_spec 'swift-unit' do |swift_unit_tests|

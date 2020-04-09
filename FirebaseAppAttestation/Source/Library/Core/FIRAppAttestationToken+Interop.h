@@ -14,17 +14,13 @@
  * limitations under the License.
  */
 
-#import "FIRAppAttestationToken.h"
+#import <FirebaseAppAttestation/FirebaseAppAttestation.h>
 
-@implementation FIRAppAttestationToken
+#import <FirebaseAppAttestationInterop/FIRAppAttestationTokenInterop.h>
 
-- (instancetype)initWithToken:(NSString *)token expirationDate:(NSDate *)expirationDate {
-  self = [super init];
-  if (self) {
-    _token = [token copy];
-    _expirationDate = expirationDate;
-  }
-  return self;
-}
+NS_ASSUME_NONNULL_BEGIN
 
+@interface FIRAppAttestationToken (Interop) <FIRAppAttestationTokenInterop>
 @end
+
+NS_ASSUME_NONNULL_END

@@ -14,17 +14,11 @@
  * limitations under the License.
  */
 
-#import "FIRAppAttestationToken.h"
+#import <FirebaseAppAttestation/FIRAppAttestationVersion.h>
 
-@implementation FIRAppAttestationToken
+// Convert the macro to a string
+#define STR(x) STR_EXPAND(x)
+#define STR_EXPAND(x) #x
 
-- (instancetype)initWithToken:(NSString *)token expirationDate:(NSDate *)expirationDate {
-  self = [super init];
-  if (self) {
-    _token = [token copy];
-    _expirationDate = expirationDate;
-  }
-  return self;
-}
-
-@end
+const char *const FIRAppAttestationVersionStr =
+    (const char *const)STR(FIRAppAttestation_LIB_VERSION);
