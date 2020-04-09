@@ -17,11 +17,16 @@
 #import "GDTCORTests/Unit/GDTCORTestCase.h"
 
 #import <GoogleDataTransport/GDTCOREvent.h>
+#import <GoogleDataTransport/GDTCORRegistrar.h>
 #import <GoogleDataTransport/GDTCORTransport.h>
 
 #import "GDTCORLibrary/Private/GDTCORTransport_Private.h"
 
+#import "GDTCORTests/Common/Fakes/GDTCORStorageFake.h"
 #import "GDTCORTests/Common/Fakes/GDTCORTransformerFake.h"
+
+#import "GDTCORTests/Common/Categories/GDTCORRegistrar+Testing.h"
+
 #import "GDTCORTests/Unit/Helpers/GDTCORDataObjectTesterClasses.h"
 
 @interface GDTCORTransportTest : GDTCORTestCase
@@ -30,23 +35,38 @@
 
 @implementation GDTCORTransportTest
 
+- (void)setUp {
+  [super setUp];
+  [[GDTCORRegistrar sharedInstance] registerStorage:[[GDTCORStorageFake alloc] init]
+                                             target:kGDTCORTargetTest];
+}
+
+- (void)tearDown {
+  [super tearDown];
+  [[GDTCORRegistrar sharedInstance] reset];
+}
+
 /** Tests the default initializer. */
 - (void)testInit {
-  XCTAssertNotNil([[GDTCORTransport alloc] initWithMappingID:@"1" transformers:nil target:1]);
-  XCTAssertNil([[GDTCORTransport alloc] initWithMappingID:@"" transformers:nil target:1]);
+  XCTAssertNotNil([[GDTCORTransport alloc] initWithMappingID:@"1"
+                                                transformers:nil
+                                                      target:kGDTCORTargetTest]);
+  XCTAssertNil([[GDTCORTransport alloc] initWithMappingID:@""
+                                             transformers:nil
+                                                   target:kGDTCORTargetTest]);
 }
 
 /** Tests sending a telemetry event. */
 - (void)testSendTelemetryEvent {
   GDTCORTransport *transport = [[GDTCORTransport alloc] initWithMappingID:@"1"
                                                              transformers:nil
-                                                                   target:1];
+                                                                   target:kGDTCORTargetTest];
   transport.transformerInstance = [[GDTCORTransformerFake alloc] init];
   GDTCOREvent *event = [transport eventForTransport];
   event.dataObject = [[GDTCORDataObjectTesterSimple alloc] init];
   XCTestExpectation *writtenExpectation = [self expectationWithDescription:@"event written"];
   XCTAssertNoThrow([transport sendTelemetryEvent:event
-                                      onComplete:^(BOOL wasWritten, NSError *error) {
+                                      onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
                                         XCTAssertTrue(wasWritten);
                                         XCTAssertNil(error);
                                         [writtenExpectation fulfill];
@@ -58,13 +78,13 @@
 - (void)testSendDataEvent {
   GDTCORTransport *transport = [[GDTCORTransport alloc] initWithMappingID:@"1"
                                                              transformers:nil
-                                                                   target:1];
+                                                                   target:kGDTCORTargetTest];
   transport.transformerInstance = [[GDTCORTransformerFake alloc] init];
   GDTCOREvent *event = [transport eventForTransport];
   event.dataObject = [[GDTCORDataObjectTesterSimple alloc] init];
   XCTestExpectation *writtenExpectation = [self expectationWithDescription:@"event written"];
   XCTAssertNoThrow([transport sendDataEvent:event
-                                 onComplete:^(BOOL wasWritten, NSError *error) {
+                                 onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
                                    XCTAssertTrue(wasWritten);
                                    XCTAssertNil(error);
                                    [writtenExpectation fulfill];

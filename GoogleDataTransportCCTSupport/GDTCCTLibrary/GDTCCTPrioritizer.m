@@ -23,6 +23,7 @@
 #import <GoogleDataTransport/GDTCORTargets.h>
 
 #import "GDTCCTLibrary/Private/GDTCCTNanopbHelpers.h"
+#import "GDTCCTLibrary/Private/GDTCOREvent+NetworkConnectionInfo.h"
 
 const static int64_t kMillisPerDay = 8.64e+7;
 
@@ -75,11 +76,8 @@ static NSString *ArchivePath() {
 #pragma mark - GDTCORPrioritizer Protocol
 
 - (void)prioritizeEvent:(GDTCOREvent *)event {
-  if (event.customPrioritizationParams[GDTCCTNeedsNetworkConnectionInfo]) {
-    NSData *networkInfoData = GDTCCTConstructNetworkConnectionInfoData();
-    if (networkInfoData) {
-      event.customPrioritizationParams = @{GDTCCTNetworkConnectionInfo : networkInfoData};
-    }
+  if (event.needsNetworkConnectionInfoPopulated) {
+    event.networkConnectionInfoData = GDTCCTConstructNetworkConnectionInfoData();
   }
   dispatch_async(_queue, ^{
     switch (event.target) {

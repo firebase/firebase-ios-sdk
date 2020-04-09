@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import "GDTCORTests/Common/Categories/GDTCORFlatFileStorage+Testing.h"
 
-#import "GDTCORLibrary/Private/GDTCORStorage.h"
-#import "GDTCORLibrary/Private/GDTCORStorage_Private.h"
+#import <GoogleDataTransport/GDTCORClock.h>
+#import <GoogleDataTransport/GDTCOREvent.h>
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation GDTCORFlatFileStorage (Testing)
 
-/** Testing-only methods for GDTCORStorage. */
-@interface GDTCORStorage (Testing)
-
-/** Resets the properties of the singleon, but does not reallocate a new singleton. This also
- * doesn't remove stored files from disk.
- */
-- (void)reset;
+- (void)reset {
+  dispatch_sync(self.storageQueue, ^{
+    [self.targetToEventSet removeAllObjects];
+    [self.storedEvents removeAllObjects];
+    NSError *error;
+    [[NSFileManager defaultManager] removeItemAtPath:[GDTCORFlatFileStorage archivePath]
+                                               error:&error];
+  });
+}
 
 @end
-
-NS_ASSUME_NONNULL_END
